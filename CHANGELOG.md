@@ -1,10 +1,262 @@
-# Changes between v3.0.3 and v3.0.4
+# Changes between v3.0.4 and v4.0.0-alpha2
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v3.0.3...v3.0.4)
+[See Full Changelog](https://github.com/pydio/cells/compare/v3.0.4...v4.0.0-alpha2)
 
-- [#21efbcd](https://github.com/pydio/cells/commit/21efbcd7f78302d1b5d85d082821932fc8216bd2): Libreoffice Parameter
-- [#3dc9039](https://github.com/pydio/cells/commit/3dc9039812ef653be435f07d79f2675262c53326): Add version config to editor.libreoffice to handle new endpoints of CODE v21+
-- [#d72195e](https://github.com/pydio/cells/commit/d72195e1dc13421c1b5557c2b556ba85e38e9ae9): Fix CanApply call when updating user meta
-- [#af33aa2](https://github.com/pydio/cells/commit/af33aa2f5c0ba97e48f5aace2d09785f84f2b785): [DS Migration] Add --resume-copy flag and more logs about timing.
-- [#9b8c1cd](https://github.com/pydio/cells/commit/9b8c1cd8ffba52e113638dcaea70edd3287b5470): Fix timeout on admin ds migrate
-- [#b19a988](https://github.com/pydio/cells/commit/b19a988717952524f52d49bafcfff28d755e6632): Next development cycle
+- [#0441d87](https://github.com/pydio/cells/commit/0441d876c967ecc8a14c2ea12cc9b2d2703704cd): Tweak buffer size
+- [#d9af519](https://github.com/pydio/cells/commit/d9af5195ff0c5d18eb1228320c4cf6bb11eed282): Registry Service: set buffer on chanWatcher
+- [#751e3c7](https://github.com/pydio/cells/commit/751e3c768eb185bbbe2b20e46e4a49e3fb586b75): A few more messages + DE/FR translation
+- [#c75f005](https://github.com/pydio/cells/commit/c75f005c6dbc45590f5ac52a744911c33392e2a1): A few more messages + DE/FR translation
+- [#33be673](https://github.com/pydio/cells/commit/33be673b536e71de1240b4d5e836502f0244643c): Fixing unit test
+- [#9098500](https://github.com/pydio/cells/commit/9098500c1b490d513bf722cc4c0d2f565501f69c): Show log when ds is not found
+- [#4de6b6a](https://github.com/pydio/cells/commit/4de6b6a954d2fe610a4ec8ba3e8d1089465c726d): Auth url was wrong
+- [#8cdfbb1](https://github.com/pydio/cells/commit/8cdfbb11a8b2509ff28c782b6ae52d1b47116f84): Fixing unit test
+- [#cc0da98](https://github.com/pydio/cells/commit/cc0da98040193634e57a57a9c95d38d022c5b2ab): Fixing unit test
+- [#61a3ec9](https://github.com/pydio/cells/commit/61a3ec9ab37e8138cb53e346de2487c9111a08a5): Moving broker in discovery
+- [#0ef2f6a](https://github.com/pydio/cells/commit/0ef2f6a2dd751e8ff61195ba91d4ff1ed465d20e): Fix context in activities digest
+- [#bf1a47d](https://github.com/pydio/cells/commit/bf1a47d6bbd63fda385fe44e5787d0decd3881eb): Fixing unit test
+- [#4edc640](https://github.com/pydio/cells/commit/4edc6401f34ead1f489dbd5feefd47585c21b2fd): Splitting registry and config
+- [#cb766f4](https://github.com/pydio/cells/commit/cb766f4dfbf7b38dbb4749c2d62faa5ec8c7df87): Root node check at workspace creation
+- [#8e072cc](https://github.com/pydio/cells/commit/8e072cc96b0dd6bec824794c6685b967f0fa66d4): New i18n strings
+- [#4d35592](https://github.com/pydio/cells/commit/4d3559258b77929ef95afc70fb00a6be25cac9aa): Merge remote-tracking branch 'origin/main'
+- [#29feb52](https://github.com/pydio/cells/commit/29feb52a96e3d15c0845e1ece58f80f0d3000d07): Log resync handler: do not return a nil response
+- [#c90378d](https://github.com/pydio/cells/commit/c90378d3b5eb39789c2d26283139bbec11d453dc): Fix encryption
+- [#1aa6fb8](https://github.com/pydio/cells/commit/1aa6fb8792a4a78363ffb7cb0d282689aeab537b): Fix #398
+- [#a9d038d](https://github.com/pydio/cells/commit/a9d038dfbe31caf38fad2684e3dca39c2863c599): Sample target and custom build tag instruction to allow 32bits compilation.
+- [#2796484](https://github.com/pydio/cells/commit/279648456481e93cf5ff3df74aa6a697463697a5): CleanResourcesOnDeletion for datasource indexes
+- [#8ec4a4f](https://github.com/pydio/cells/commit/8ec4a4f8e9adfedd056c9f27e7abf381f6493c3f): Metadata.FromContext signature
+- [#c4092dc](https://github.com/pydio/cells/commit/c4092dcc99970863242ec7660f5c9c467fbdefd7): Fix copy object meta (copy inside struct+encrypted)
+- [#c3872e4](https://github.com/pydio/cells/commit/c3872e496c5b8959763c5c2060b877db0c79e0aa): Fix s3 datasources - optimize goqu identifiers (never call goqu.I) - optimize context meta (remove unnecessary copies).
+- [#c827154](https://github.com/pydio/cells/commit/c8271542756628adcb3395183bae243bb6ce4039): Change sync services start sequence. Group index and sync for each datasource to lower the number of forks.
+- [#b20e72d](https://github.com/pydio/cells/commit/b20e72d680107c13e46bba75f05d97127986d54e): A few more messages + DE/FR translation
+- [#0b98985](https://github.com/pydio/cells/commit/0b98985fd05880164b136bf000b1bb823314910d): A few more messages + DE/FR translation
+- [#72fe0af](https://github.com/pydio/cells/commit/72fe0afd0c8c6fb4b1f634cf47bd1149a79953ab): Missing i18n keys for upload statuses
+- [#9251bfa](https://github.com/pydio/cells/commit/9251bfa7f2524a8ac0b0e3311282c5093057e73c): Minor fixes on Copy/Move Dialog
+- [#4c3e8d4](https://github.com/pydio/cells/commit/4c3e8d4553036ebb64ad85285864bc609a2c5e55): ShareDialog : Default tab and dirty state
+- [#8141319](https://github.com/pydio/cells/commit/814131979b2b2bfeb7f68dd04c4973d5fae8520d): Fix Chat loading sequence
+- [#c532c2c](https://github.com/pydio/cells/commit/c532c2cebfd675f48be3016d5382d0563894167f): A few new messages + DE/FR translations
+- [#14306b4](https://github.com/pydio/cells/commit/14306b49c2aeea23fc6ad91547dc1ef34693dc2c): A few new messages + DE/FR translations
+- [#7816cc7](https://github.com/pydio/cells/commit/7816cc785f84dff50661adfb1b55ef53b11f0ef4): New translations en-us.all.json (French)
+- [#a555107](https://github.com/pydio/cells/commit/a5551078dcc48a087f486b43ef77fff567b3258f): New translations en-us.all.json (German)
+- [#543b74e](https://github.com/pydio/cells/commit/543b74ecda941c515bb58064e4203a418d0d8d29): New translations en-us.all.json (French, Canada)
+- [#1c5d961](https://github.com/pydio/cells/commit/1c5d961e5183bf318f72db1eca511e53d9938915): New translations en-us.all.json (Arabic)
+- [#5145981](https://github.com/pydio/cells/commit/5145981db4dbfc0e94b9314096d2af8fd978f174): New translations en-us.all.json (German)
+- [#89ec6b6](https://github.com/pydio/cells/commit/89ec6b6ee35d0ef1cbd223acd864e41730c3acad): New translations en-us.all.json (Hungarian)
+- [#d991671](https://github.com/pydio/cells/commit/d99167148571e516df3fa98291d90d7d742116cb): New translations en-us.all.json (Italian)
+- [#aa71554](https://github.com/pydio/cells/commit/aa71554bebcf09db44423fb3ad6a21273dbd5ff0): New translations en-us.all.json (Japanese)
+- [#24d78ab](https://github.com/pydio/cells/commit/24d78ab1e7f3d140c522f406e4df8778b1db39ff): New translations en-us.all.json (Korean)
+- [#6442019](https://github.com/pydio/cells/commit/64420196d056e8d7b543f1d75ffe48463bb42b2b): New translations en-us.all.json (Dutch)
+- [#b57f3d8](https://github.com/pydio/cells/commit/b57f3d85fc8985a4b9d8b79b322f574893551413): New translations en-us.all.json (Polish)
+- [#8f29291](https://github.com/pydio/cells/commit/8f29291d9d417b8e7d967310fed2480b293a9388): New translations en-us.all.json (Spanish)
+- [#4bd99d7](https://github.com/pydio/cells/commit/4bd99d749c2ea486f24a4c46b274dba387216bef): New translations en-us.all.json (Portuguese)
+- [#c06a36c](https://github.com/pydio/cells/commit/c06a36c33b7cc16bba96c340eddd32991a603d9e): New translations en-us.all.json (Slovak)
+- [#8b5cbc3](https://github.com/pydio/cells/commit/8b5cbc32c64950c817eeead0fa78a5d2c86c40f9): New translations en-us.all.json (Swedish)
+- [#c794274](https://github.com/pydio/cells/commit/c79427401b7e6ecbf8a3a9bfe739d86d69ddd51c): New translations en-us.all.json (Chinese Simplified)
+- [#d31a481](https://github.com/pydio/cells/commit/d31a4819270cc8f3d98966c74afe51e6fe9975bc): New translations en-us.all.json (Chinese Traditional)
+- [#5230f52](https://github.com/pydio/cells/commit/5230f52bf90af577248f959d07dcd8dd3f7b256b): New translations en-us.all.json (Vietnamese)
+- [#d26972d](https://github.com/pydio/cells/commit/d26972d26f54d9f1c5ed469c5c7bf8430471a6a8): New translations en-us.all.json (Portuguese, Brazilian)
+- [#6c30bfb](https://github.com/pydio/cells/commit/6c30bfb97f82bf34f29e45c6a4c9e639b037e03b): New translations en-us.all.json (Latvian)
+- [#adb08be](https://github.com/pydio/cells/commit/adb08be4b0c39790b986ce59c2bbaa02a541dbba): New translations en-us.all.json (Russian)
+- [#a33a72c](https://github.com/pydio/cells/commit/a33a72c7080cc15d664c1a4ee16ff8e5ae79f579): New translations en-us.all.json (French)
+- [#8cb613d](https://github.com/pydio/cells/commit/8cb613d6e7628b0d072e5637dc59d550bec508c0): Share Dialog fine-tuning
+- [#66a61c4](https://github.com/pydio/cells/commit/66a61c42e68e85db95e8bcc4bf6b717579f0b551): New translations en-us.all.json (French)
+- [#968726c](https://github.com/pydio/cells/commit/968726cb6c6e7fd3d240d75676a9a01f9e6ab5a3): New translations en-us.all.json (French, Canada)
+- [#1a9a61d](https://github.com/pydio/cells/commit/1a9a61d91ec70eb56ef5555f7d4583a449e93238): New translations en-us.all.json (Latvian)
+- [#5230e5a](https://github.com/pydio/cells/commit/5230e5ad38c1a27b1c3ef8b181edd02aad115d13): New translations en-us.all.json (Portuguese, Brazilian)
+- [#f1d506d](https://github.com/pydio/cells/commit/f1d506db7e690f60ae44595ab512d53cc945a976): New translations en-us.all.json (Vietnamese)
+- [#b88b71c](https://github.com/pydio/cells/commit/b88b71c488951a64c747a1073b8ee1916f81284e): New translations en-us.all.json (Chinese Traditional)
+- [#3ddcdcd](https://github.com/pydio/cells/commit/3ddcdcd20f2204b2c3d1e2d35f008bc50e3a1114): New translations en-us.all.json (Chinese Simplified)
+- [#a4c0d56](https://github.com/pydio/cells/commit/a4c0d564f9cdea63bb01e7e81c0d886c0289420f): New translations en-us.all.json (Swedish)
+- [#8f8cde0](https://github.com/pydio/cells/commit/8f8cde0cee1ff60dc14f835723ddf9265271dca1): New translations en-us.all.json (Slovak)
+- [#464fc3b](https://github.com/pydio/cells/commit/464fc3bd844ba381dc44e337531fbfe7246c3c62): New translations en-us.all.json (Russian)
+- [#8c52c57](https://github.com/pydio/cells/commit/8c52c579eef6d7ae6e73758f1b2a3d6e3ccf30af): New translations en-us.all.json (Portuguese)
+- [#e777a81](https://github.com/pydio/cells/commit/e777a81941cdc238fbdb13d00cbca6d391833cd7): New translations en-us.all.json (Polish)
+- [#5805915](https://github.com/pydio/cells/commit/58059153e66895fec6ed81fb276b9601245b673c): New translations en-us.all.json (Dutch)
+- [#75ec647](https://github.com/pydio/cells/commit/75ec6473b4fc8afdb75f937387777dbca76d34f3): New translations en-us.all.json (Japanese)
+- [#3ff290b](https://github.com/pydio/cells/commit/3ff290b47f64e2737db3fb15479c6605768352f9): New translations en-us.all.json (Italian)
+- [#0736545](https://github.com/pydio/cells/commit/07365455519b37e800a315847ca29d043636acd6): New translations en-us.all.json (Hungarian)
+- [#fb8c68c](https://github.com/pydio/cells/commit/fb8c68c1f513690f4a94f679ba2542b661a54440): New translations en-us.all.json (German)
+- [#063f429](https://github.com/pydio/cells/commit/063f429b3e6335a326f6c2753f61167bb2a7efd8): New translations en-us.all.json (Arabic)
+- [#38bfa02](https://github.com/pydio/cells/commit/38bfa024898a92d275f72b1f4445301707f7f612): New translations en-us.all.json (Spanish)
+- [#bfb0e9e](https://github.com/pydio/cells/commit/bfb0e9edbbe02f342f5706801eeb186c0cf94821): New translations en-us.all.json (French)
+- [#156c31d](https://github.com/pydio/cells/commit/156c31dfd7ab6c144b32487a9b21c04adab4919b): New translations en-us.all.json (Korean)
+- [#9f890d4](https://github.com/pydio/cells/commit/9f890d4fd1fb38c4f884e63563a2790d092fe4b9): Fix proto compilation of rest package.
+- [#4619d2e](https://github.com/pydio/cells/commit/4619d2e16023ff5e86fa608d27b992809b319791): Parse evalMetadata on context struct - Fix contentType on template-based files.
+- [#4d48f6e](https://github.com/pydio/cells/commit/4d48f6e31728de2cf21ef299d76e4a3151d23067): Add evalMetadata support on context tag
+- [#38ae9d7](https://github.com/pydio/cells/commit/38ae9d72622f1be015f7bf8f767d87176eb214a2): Share Dialog
+- [#ecd5e8b](https://github.com/pydio/cells/commit/ecd5e8bb32475af44f845e66ce09c04e87a86040): Added mising functionality for config
+- [#db72975](https://github.com/pydio/cells/commit/db729751c565479c73d37a67cef6f92d8b9ab5bc): Re-enable Retries on sync service start
+- [#5daf998](https://github.com/pydio/cells/commit/5daf998d8dcb3183e7ed5a3b4bf96a2016d74a5c): Merge remote-tracking branch 'origin/main'
+- [#33666e9](https://github.com/pydio/cells/commit/33666e97d1009ef2d062cd7c44ec09d25d4cb9ed): DAV: Set openReader to nil after close.
+- [#38ee9fb](https://github.com/pydio/cells/commit/38ee9fbf2510f372619fae4b13a00497ab83a218): Adapt major version in welcome message
+- [#bd7dbac](https://github.com/pydio/cells/commit/bd7dbac9b618755c13915926b3045de2595a9399): Adapt major version in welcome message + a few missing translations in DE, FR, ES
+- [#3638915](https://github.com/pydio/cells/commit/3638915f9660fdc42372721e97d5a229a65fa8eb): Adapt welcome title to display correct major version
+- [#840643f](https://github.com/pydio/cells/commit/840643f4ba46724ff61a8e4bc8c7b02d7c913f7d): Readme : update badges
+- [#c55bb46](https://github.com/pydio/cells/commit/c55bb4603cee7f2278419cd016e21485fbd0218b): Add notice about main branch in README
+- [#71c8fc9](https://github.com/pydio/cells/commit/71c8fc98a96b02e0d79617fec50d666e7d0de83d): Fix an issue with structured DS. Handle possible unordering of tasks messages in websocket.
+- [#2dc975b](https://github.com/pydio/cells/commit/2dc975b4a6c412e3b18b7f2c48f4d5a6ff53a051): Display error for index error
+- [#e97cb17](https://github.com/pydio/cells/commit/e97cb179c85c00cf89aa4bec7f3a3be06bc7ae19): Re-add new languages after switching to main branch as default
+- [#240e339](https://github.com/pydio/cells/commit/240e3392cda2b00a43b321d189918d4dd4c32608): Re-add new languages after switching to main branch as default
+- [#3214b14](https://github.com/pydio/cells/commit/3214b145ecc1cc71552e7cee8ebd1021c5ca7333): Re-add new languages after switching to main branch as default
+- [#af450ec](https://github.com/pydio/cells/commit/af450ec311028baf716d50a1549fdc40c7ae9bae): Use advertise address for docker
+- [#ef4a53a](https://github.com/pydio/cells/commit/ef4a53ac5dfc2d0064d62f696a76e989dd02fb1d): First go at remote config
+- [#e1942e9](https://github.com/pydio/cells/commit/e1942e9bb2a43c06eef0c7dc1afe6c33c4fadb02): "Rebase" all i18n changes
+- [#2f80f8c](https://github.com/pydio/cells/commit/2f80f8c8b8c919e7ff5f3e85ebf6bbea3c81cd05): Fix activity mongo dao
+- [#9a8e7f7](https://github.com/pydio/cells/commit/9a8e7f76f93d0f588b71e7dcbbd5c46e1bca7ca0): Properly close PutTaskStream
+- [#b87f00f](https://github.com/pydio/cells/commit/b87f00ff2f1bcf3baddea9bfdd63088f263ce217): Fix mongo indexer for IDProvider case, bulk delete/insert instead of ReplaceOne.
+- [#7c7ea4c](https://github.com/pydio/cells/commit/7c7ea4ca6a20a0cf31d01bd8c6c602d844775f34): Merge remote-tracking branch 'origin/main'
+- [#48d8b38](https://github.com/pydio/cells/commit/48d8b38f0c98a8d2787662854710eb748a4156f2): Pick changes from v3-dev (search server indexation and webdav DL rate)
+- [#4c681ff](https://github.com/pydio/cells/commit/4c681ff2b422a229de4516f37188a615a0bb02cc): Log
+- [#7023ca5](https://github.com/pydio/cells/commit/7023ca53023bc5be118e394c06e12843fdbb2827): Removing logs
+- [#a48dedb](https://github.com/pydio/cells/commit/a48dedb5208a1fafb43507fc53bff5c28cb25dac): Wrong change
+- [#714e6ce](https://github.com/pydio/cells/commit/714e6ce21772782be1655ca93a48160d00b532c7): Adding logs to debug file config issue
+- [#2800f1b](https://github.com/pydio/cells/commit/2800f1b528a3bcc3f69c80e92332592d5f7b9565): Unique stream for registry/service watches
+- [#aaa8c31](https://github.com/pydio/cells/commit/aaa8c3192e4afa468c252675d408d67daeef3c6d): Re-enable starting.html based on HealthMonitor.
+- [#f012a1a](https://github.com/pydio/cells/commit/f012a1a41745a1c90d0a097320f73f2ce2e3a094): Gprc mocks: wrap and capture Healthcheck request
+- [#4e9c60a](https://github.com/pydio/cells/commit/4e9c60a10b0eb8b2e3454c17fe3162f4a6225007): Wrap new StatFlags as type
+- [#2f8561e](https://github.com/pydio/cells/commit/2f8561e93ba01c5ca3d1d56c0844c2b423fdfa6a): Broker events, subscribers and chan buffers. New parameter StatFlags on Read/List requests (backward compat with previous ones)
+- [#5db37fd](https://github.com/pydio/cells/commit/5db37fda0c0be4dedd4ea7aa91db1682faec5a43): Activity subscriber : timeout and fork contexts
+- [#e234c38](https://github.com/pydio/cells/commit/e234c389c8e6f6df9b36ff55847c36263731d9fe): Make event-batcher.go process non-blocking
+- [#4f622df](https://github.com/pydio/cells/commit/4f622df2740512b60f1063ddff14b4b48523136f): Adding retry and removing mysqldump on hydra migration
+- [#6fcc901](https://github.com/pydio/cells/commit/6fcc9017c8c037fb3b789c4bc2b2731c3656ac01): Cleanup
+- [#4311d4b](https://github.com/pydio/cells/commit/4311d4b8e87fa4a31be538405038afe5e2fd8634): Fixing tests
+- [#13220ce](https://github.com/pydio/cells/commit/13220ce20597f6fdc4cf27199f5982b92b343e83): Cleaning and changes to the waitforready
+- [#fd6cefe](https://github.com/pydio/cells/commit/fd6cefec2a61241fd5eb427daae8fb5878bfc0e6): Clean comments and todo's
+- [#fcc91eb](https://github.com/pydio/cells/commit/fcc91eb93ac8ee8a30107baeac44b2e67a39936d): Wait for ready - failfast by default
+- [#d29c4f9](https://github.com/pydio/cells/commit/d29c4f94a72da2706fe8b030c0f348801eb61b2e): Wait for ready - failfast by default
+- [#b643577](https://github.com/pydio/cells/commit/b6435771a9021aa97717a3512888b3236136dc98): Close stream
+- [#a65fc3f](https://github.com/pydio/cells/commit/a65fc3f9dac8c3259574289b64a8d1e80692df93): Remove some todo's
+- [#ce3a87e](https://github.com/pydio/cells/commit/ce3a87e7bc6812429a4e57d2624983166d5619e8): Drop existing JWK at v3 => v4 migration.
+- [#6daf2ad](https://github.com/pydio/cells/commit/6daf2ad32ac5e29bdaa3acb2d2e40bd38503bec9): Remove some logs - update README.md
+- [#fb99187](https://github.com/pydio/cells/commit/fb991872ab4f1a496c093143ec2b3dfc4e174e57): ObjectHandler : expose runtime.DefaultAdvertiseAddress as RunningHost. Fix admin datasource migrate command (wrong StorageClient init), set a flag to display "no conn found in context warning".
+- [#b26030e](https://github.com/pydio/cells/commit/b26030ee5c4e7c8947a3f3428285d52335b94d52): Adding missing interface to etcd
+- [#6868424](https://github.com/pydio/cells/commit/686842489d41a8f57e50c5b822896c42e33121a8): Enabling gateway grpc
+- [#80e1858](https://github.com/pydio/cells/commit/80e18588359ebd14c04b65729623d509e476779b): Fixing concurrent map read/write for maps and adding perks
+- [#f2f22a1](https://github.com/pydio/cells/commit/f2f22a1b21ee4b219e285c6b4073a880e99a1280): Pool.watchConfigChange : use debounce reload
+- [#c3fea63](https://github.com/pydio/cells/commit/c3fea637f6535fba7326b2947284444dd8671ca0): Comments, default runtime, missing contexts
+- [#0cdae99](https://github.com/pydio/cells/commit/0cdae99a43274cdab268852bfa853b62ce87b62b): Refactor runtime and all flags, nodes client, context passing and plugins package.
+- [#23c8577](https://github.com/pydio/cells/commit/23c85777bca0583301e1adbd6bf75c2969e1246d): Debounce ChildrenRunner config watch
+- [#8031d4f](https://github.com/pydio/cells/commit/8031d4f8034966e11360e5b59f0b91deae1665a9): Fixing unit test
+- [#735eae9](https://github.com/pydio/cells/commit/735eae91fb9786e280134f2164a75e3aa1d1aeed): Missing conn in context still - leave debug.PrintStack to spot them.
+- [#229ce9b](https://github.com/pydio/cells/commit/229ce9bf45d08a67a402b4b01e930cf541a6f6fe): activity & chat : pass context in DAO functions
+- [#c7a00fe](https://github.com/pydio/cells/commit/c7a00fe4df27ceabaae1e3a0006b60e9a5acbf69): Re-organize broker service => grpcpubsub
+- [#adb8b56](https://github.com/pydio/cells/commit/adb8b56f1eeb2050ebbdccb6497ca9c50f0144ad): Fix context
+- [#3920f19](https://github.com/pydio/cells/commit/3920f193b9b1d56bdebeca51736338227a20cbea): Selection Download: fix // in url, as it triggers redirect and signature mismatch
+- [#8ed1474](https://github.com/pydio/cells/commit/8ed1474effe87cf31a3c2b7ad82b91082a9a09f6): Re-enable SSLRedirect flag
+- [#abdd3ab](https://github.com/pydio/cells/commit/abdd3abf77aa436127f2ab71f91d5b4f78ed426a): Merge remote-tracking branch 'origin/main'
+- [#79a423f](https://github.com/pydio/cells/commit/79a423f4aaf182e61361862dbdc8c454f37d421d): Fix broker_test.go
+- [#62c109a](https://github.com/pydio/cells/commit/62c109a03815ee31497d2f389b4600d411df8704): Advertising address
+- [#d587139](https://github.com/pydio/cells/commit/d5871393999dd42a3bdc64af305801938cfa280b): Failsafe checks in scheduler actions
+- [#46984e6](https://github.com/pydio/cells/commit/46984e625fbfc63674b34b69c73aece97285c95a): Improve jobs tags
+- [#51f348e](https://github.com/pydio/cells/commit/51f348e725c167c1a62c5d799e16f3732b04f53f): Fixes for selectors
+- [#8fe4c40](https://github.com/pydio/cells/commit/8fe4c407aa9827ecb438170f94c3e96af2490679): Show missing i18n key in uploader hook.
+- [#4261aea](https://github.com/pydio/cells/commit/4261aea425f60166e86658536a2cf1cae5952b34): Fix mixed context key, PutObject case for size < 1, use sync.Once on metrics initialization.
+- [#009ce7c](https://github.com/pydio/cells/commit/009ce7cf00e20bf176fcd8ee3b04f55860e9a387): Lock nodes.Pool sources
+- [#b598444](https://github.com/pydio/cells/commit/b598444315eaec6519300f065d0f47ec30e8012d): Fix timeout in broker_test.go
+- [#716c2ae](https://github.com/pydio/cells/commit/716c2aecc2ef280c02040443af1a38607392472a): Fix bad formatting directive
+- [#8851063](https://github.com/pydio/cells/commit/8851063fb29e895b94311d1dd63da7649fba763c): Transform nats://URL to env var
+- [#945115e](https://github.com/pydio/cells/commit/945115e6c7e09eef00a1a4d19ce2b60d3cae4de0): Rework grpc broker both client and server to share a unique stream for all remote subscriptions and to support the Queue parameter (round-robin on registered subscribers instead of broadcasting to all).
+- [#7b8e2bb](https://github.com/pydio/cells/commit/7b8e2bbaa1f36b587991e793d2c1d3147836aaa6): Rework Meta form
+- [#24c2bcb](https://github.com/pydio/cells/commit/24c2bcb562b5f854ab80b15929e46fd5aba5e2aa): Remove unused code for configs migrations (it was probably broken anyway).
+- [#d16e470](https://github.com/pydio/cells/commit/d16e4706df083e7369b074c008c4e7aa2c9a9a94): Re-apply same previous defaults for oauth config provider.
+- [#62af37c](https://github.com/pydio/cells/commit/62af37cd7caa0b26b8a432112bd50d5e480880dc): Rework Copy/Move TreeDialog
+- [#2d0cf7a](https://github.com/pydio/cells/commit/2d0cf7afbed9d9cd3b7820aecf278bb855b53360): Fix broker client unused supplementary connexion
+- [#ddaa820](https://github.com/pydio/cells/commit/ddaa820dbf47a58ef700cd4d145d78da1423a36e): Migrate ladon migrations from generic gorp_migrations to ladon_migrations table.
+- [#077894f](https://github.com/pydio/cells/commit/077894f6cab2e367f30d2648a7cfc0d6f2d780a7): Add todo for broker/service : sharing connection does not work
+- [#1ef6267](https://github.com/pydio/cells/commit/1ef62672dad4c20884be8f3749d6c7d64bf7a270): Report fix for loginCI, add a test
+- [#74f1d4c](https://github.com/pydio/cells/commit/74f1d4cc8f071abf42eaf3fe3ebd568eca795024): Fix various streams closing and goroutine issues. Most important is to always have a ClientConn in context otherwise it creates new watchers each time. Add Gauge for counting opened streams.
+- [#d41892c](https://github.com/pydio/cells/commit/d41892ce6f84b941fdb2c1264737fe42397df294): Prune todo's - rewire metrics
+- [#2c731a5](https://github.com/pydio/cells/commit/2c731a5031fc06fcd9ad72da9428fc3184bdfb6e): Tools for hot compile/replace of binary inside docker
+- [#40061df](https://github.com/pydio/cells/commit/40061df76113b290b9b9d03b0a4a84b67cc08691): Fix protos package path
+- [#d7211ec](https://github.com/pydio/cells/commit/d7211ecffa35f83b6ff46fe8e61ef3e3532c4ce1): Implement byName parameter for ConfigRegistry
+- [#e2c3b83](https://github.com/pydio/cells/commit/e2c3b83a982c14588a87118a2dbe0db20270fd71): Fix Unit tests
+- [#e8dac60](https://github.com/pydio/cells/commit/e8dac60bbc756e4d68e738ac778d0b6b6e20469f): Do not updateServicesList in UnitTests
+- [#e0a7e3f](https://github.com/pydio/cells/commit/e0a7e3f69e5c5ac507782bfe54b3a26b6025aa01): Tree: Limit updateServicesList for streams
+- [#b3a6ec7](https://github.com/pydio/cells/commit/b3a6ec75c3f00da6789df79d70b4fbb57b996cce): Scheduler : move AutoStart directly from jobs handler to tasks subscriber.
+- [#7fc8999](https://github.com/pydio/cells/commit/7fc899946975e016c041ea80909aef13a6c041de): Tree : Force UpdateServicesList to avoid locks when changing datasources
+- [#d6d96ad](https://github.com/pydio/cells/commit/d6d96ad9378635185ce28211dd3149a3dde3e6be): Cfg compare : if deleted, resulted Scan is an empty struct
+- [#0f3085c](https://github.com/pydio/cells/commit/0f3085cd7b40fa713d25df8149cec6373988a95d): Recheck RootUuids before creating workspaces
+- [#2ad67b2](https://github.com/pydio/cells/commit/2ad67b209ee1e643e9e00442f15383c51aa40be9): Change grpc.tree/watchRegistry
+- [#ce97669](https://github.com/pydio/cells/commit/ce9766913b4ed85799cbbaea05cbc523722c6f9b): another possibly not closing stream
+- [#341b85c](https://github.com/pydio/cells/commit/341b85cda07b8e2e0abb57c329a32f985bbdaca0): Add more timeout to rest install
+- [#ef3f26e](https://github.com/pydio/cells/commit/ef3f26e53b3f508c535c3e5a6e4526e4038f77ff): Fix mongo search corner cases
+- [#054b3dc](https://github.com/pydio/cells/commit/054b3dc21a1b905a314025fe933c2d9e440b5083): Other debug logs for blocked handlers
+- [#2e06691](https://github.com/pydio/cells/commit/2e06691f0a6150bab0028f4a3a9ad8e45ed9c1cf): Fix client streams closing, let a temporary log for detecting not closed.
+- [#3d02fcc](https://github.com/pydio/cells/commit/3d02fcc19cfc43d984a80e5bf67f4690bdd1edd1): Fix debouncer pattern, fix background event sent, clean statics methods.
+- [#13e79b9](https://github.com/pydio/cells/commit/13e79b919d5bab5119c400b708e32a77bcac8d74): DAV fix io.Copy
+- [#965cbf0](https://github.com/pydio/cells/commit/965cbf023e1fa6a0ccd2ae454954a0eee1a37b49): auth.InitRegistry, do not launch in goroutine for now
+- [#340ddbd](https://github.com/pydio/cells/commit/340ddbdc424795094c0a413576020212357ad99a): Merge remote-tracking branch 'origin/main'
+- [#78179dc](https://github.com/pydio/cells/commit/78179dcf2b2838b9d0e59e8fa9400988396e6a6e): Clean install, re-enable viper.AutomaticEnv, add some logs for debugging docker start.
+- [#0482acc](https://github.com/pydio/cells/commit/0482acc171a624a08bbacaea40885af1e117ddfa): Fix memory map access
+- [#d7107de](https://github.com/pydio/cells/commit/d7107de2398c5a6aa9f1bd5ee77ae4444b986dc7): Impact SourcesPool in context for VirtualNodesManager
+- [#b5edff7](https://github.com/pydio/cells/commit/b5edff77b533b5a906476bb553e3d62d4b579be5): push nodes.ClientsPool in start context
+- [#4d7dba9](https://github.com/pydio/cells/commit/4d7dba9dc884b74167a5fbc79edc208f0e487b96): Fixing registry watch
+- [#1e4eb9e](https://github.com/pydio/cells/commit/1e4eb9e5f27a34483088d6f3cab1b384329c6321): Fixing datasource startup
+- [#0dcae78](https://github.com/pydio/cells/commit/0dcae78ac2b4bd6f895ee401ae9dee9b00a27307): Rewrite dynamic proxies for front plugins
+- [#aa52e8f](https://github.com/pydio/cells/commit/aa52e8f1f8c3ea8b55392f8601cccfbd577552ea): Fixing memory, etcd, and configure issues
+- [#d0afa5d](https://github.com/pydio/cells/commit/d0afa5d80f93bee0bf0a2b6617bf82a2e119c4e9): Starting services for browser install
+- [#d3d1c8c](https://github.com/pydio/cells/commit/d3d1c8c69c769038f7eaeb1f8b724496481fafb8): JwtVerifier: return error if token empty. Pool : add timeout on datasource ping
+- [#595ebb5](https://github.com/pydio/cells/commit/595ebb59c7f907581a5c25d39cff5f4c0c0bf7e3): Fix grpc_test (wrong registry import)
+- [#918cbf2](https://github.com/pydio/cells/commit/918cbf2a117922d3d3cb8cf44d8770c6bd39429d): Fix testdata paths
+- [#4e8377a](https://github.com/pydio/cells/commit/4e8377abcb1a8035b3922e08e1e6b4c0c2947e06): Unit tests: fix dao registering and testdata path loading
+- [#2c75b34](https://github.com/pydio/cells/commit/2c75b3444f4b5690906481ee0dfefacafc0f0523): Unit tests: finally split mysql from sqlite drivers and factorize sqlite imports and initialization.
+- [#4311953](https://github.com/pydio/cells/commit/431195347d25e816b070c166acfd83b86a8d4588): Server test
+- [#98dc446](https://github.com/pydio/cells/commit/98dc4466d4e4e73b28f7b1a33a45713a9ca25352): Unit tests: fix dao registering in common
+- [#217db47](https://github.com/pydio/cells/commit/217db4761417308a506639b96dd988c8e08a4ac7): Configx test
+- [#a5bc179](https://github.com/pydio/cells/commit/a5bc179613556aa05d27f7bfa8d44a7bd8bfa220): Registry test
+- [#d30465f](https://github.com/pydio/cells/commit/d30465f67751f611dcad4a5e897c443703a2a608): Config test
+- [#baa5a11](https://github.com/pydio/cells/commit/baa5a1140ddd903a82cf09b722b6d32ebf1a7920): Clean and test
+- [#7b862e3](https://github.com/pydio/cells/commit/7b862e35320cc1d69537835c3d025be6c289dce6): Name memory registry caches to separate plugins list from instanciated services.
+- [#84f5145](https://github.com/pydio/cells/commit/84f51455eec8807b5122f96ef6c1c9d9d852e0f6): Do not use shared cache by default (viper.registry)
+- [#edd3cf7](https://github.com/pydio/cells/commit/edd3cf7fb678a810b20df24a02da5df18d3e8f8e): Merge remote-tracking branch 'origin/main'
+- [#7038a22](https://github.com/pydio/cells/commit/7038a22a49a3e5693446700951b215c8a9b0e3cc): Start mem registry with byname=true for first plugins listing.
+- [#7f19550](https://github.com/pydio/cells/commit/7f195505339ed07ccb6d1682349bb7b55391b7d1): Fix to reg
+- [#8a708ef](https://github.com/pydio/cells/commit/8a708ef18fcb677a3ab111e31b59588d99e723ff): Re-adapt registry scheme
+- [#094f7e4](https://github.com/pydio/cells/commit/094f7e4e554975c37e987b0a9ed88549226cf757): Clean
+- [#a77888b](https://github.com/pydio/cells/commit/a77888baaf9841a339386daf2bbb7735e57a86a0): Clean
+- [#00c5b2e](https://github.com/pydio/cells/commit/00c5b2e5ed26cde12bc77cb975b1d1fcdf151dec): BleveIndexer.Truncate : remove all sub-indexes
+- [#d706979](https://github.com/pydio/cells/commit/d706979414734a2519a890e650395e5836f59155): Fixing memory registry
+- [#ba190f9](https://github.com/pydio/cells/commit/ba190f97c5cdfafe8289affe1597ebc57008576c): Adding etcd as registry
+- [#2c04550](https://github.com/pydio/cells/commit/2c0455027cc192bb9444154cb5351ffae60d3129): Tmp
+- [#fafad7b](https://github.com/pydio/cells/commit/fafad7b33307edeaca0b7f001b570af3d5410250): Fix forgotten v4 in flag paths for XGo target
+- [#4aeaada](https://github.com/pydio/cells/commit/4aeaadaa9edaeecb65d44acadbe5e7e3c85906f5): Fix possible panic in enqueueMoves
+- [#0d534e4](https://github.com/pydio/cells/commit/0d534e40739b289aead29cd61f8869a956058455): Mongo: Support geo queries similarly to bleve
+- [#d17395a](https://github.com/pydio/cells/commit/d17395a8951fed1f9f0cda79aa067d097e46fc7f): Cache implement DAO.Stats()
+- [#236d561](https://github.com/pydio/cells/commit/236d5617ce6e3d0e9bceae6b839ecc8529fc1c6c): IndexDAO : Truncate(0) equivalent to Clear
+- [#553e639](https://github.com/pydio/cells/commit/553e63939873aba0063a26a5b2889c4e076c1ea5): Transform mailer Queue as DAO. Fix logs rotation tests for bleve impl.
+- [#0b8a56a](https://github.com/pydio/cells/commit/0b8a56a4f77100aefae5ac7325da948642567e5a): Re-add docker and other tools to v4 branch
+- [#9478eaa](https://github.com/pydio/cells/commit/9478eaa6e49e7acb6f111efefe9920f86c6f680e): Fix flag in XGo target
+- [#b7954a6](https://github.com/pydio/cells/commit/b7954a699289b2485244644f1dd57859cac4801b): Fix mapping name usage in bleve indexers + unit tests
+- [#69ba934](https://github.com/pydio/cells/commit/69ba9345c29f07fdcb687287a782c645ac7eb671): Mongo Indexer : avoid send-on-closed at shutdown
+- [#e18b9ce](https://github.com/pydio/cells/commit/e18b9ce834c6e1db7f43383cc1aeac3dc20a8dc7): Factorize dao initialization inside tests
+- [#c3ba860](https://github.com/pydio/cells/commit/c3ba860db0902821e153fbe78110c5917e886e50): Lock Conn to avoid creating more than necessary
+- [#67d27bb](https://github.com/pydio/cells/commit/67d27bbe6cd280264dfdd177f8010e867a2eeefd): Carry on refactoring of InitDao / InitIndexer
+- [#01c164f](https://github.com/pydio/cells/commit/01c164f0a9c0b66694953c118a4ea08d78326e40): Factorize DocumentsDSN management in install lib, making it supported by non-interactive installations.
+- [#a6877f8](https://github.com/pydio/cells/commit/a6877f860bd83b8a284bc7f1de12906ffa886176): Remove some fmt.Println
+- [#a3630ac](https://github.com/pydio/cells/commit/a3630ac80eabe3f565806c622b28b7ee4754465b): Implement data/search indexer driver for mongo
+- [#3785de4](https://github.com/pydio/cells/commit/3785de47c101febdcfd5941d34d16b9d9c2854ca): Command for adding a NoSQL driver
+- [#36cf179](https://github.com/pydio/cells/commit/36cf17930afe83bda38611ae6a4d5f9e8a0bb322): Change protocs package
+- [#a3e25a9](https://github.com/pydio/cells/commit/a3e25a91da1601845c44377e9fa8b2bc64a331f8): Rewrite common/dao package as registry-oriented
+- [#1ed16e1](https://github.com/pydio/cells/commit/1ed16e1f31d2517e919cdebade02f4d456680dcf): config.GetStorageDriver
+- [#f1d23f3](https://github.com/pydio/cells/commit/f1d23f31f16b53cd236d83c7bc6c61c9eafc9e0e): Constants and comments
+- [#33668d3](https://github.com/pydio/cells/commit/33668d37173fc3c2644fb6cfde5599ab810e895b): Add new DAOs to install
+- [#7a60f63](https://github.com/pydio/cells/commit/7a60f63411b0a91cdf462a48af3e189d72f1153e): Refactor new DAOs
+- [#e9d19ba](https://github.com/pydio/cells/commit/e9d19ba9a20429e7cf24ea29d1263c276dee9b9a): Introduce DAO indexer
+- [#095af77](https://github.com/pydio/cells/commit/095af77ff238afb2b9758312235a065537b71fd1): Fix unit tests in /data/
+- [#af66fed](https://github.com/pydio/cells/commit/af66fed3d79372f205884e2d72a181344ab49993): Fix tests
+- [#998ef60](https://github.com/pydio/cells/commit/998ef60bf177121a4337652681eac3951fcb05b8): Fix broker/activity purge test
+- [#3d1eba1](https://github.com/pydio/cells/commit/3d1eba191c75da219e305ce30e3b69d4857e4654): New condition PathGlob
+- [#d985531](https://github.com/pydio/cells/commit/d9855316a40095ada75bfe3a0b5036969dbebe29): Revert use of explicit target path
+- [#4f93fd2](https://github.com/pydio/cells/commit/4f93fd2653367b8dfae383960b3c94f613400794): Fix windows build
+- [#5f0688a](https://github.com/pydio/cells/commit/5f0688aee47e7b20645af0605dbfa43ac8b21059): Fix windows build
+- [#1dd3862](https://github.com/pydio/cells/commit/1dd38623afe99dab6330ef782195d6f624541862): Use explicit target path
+- [#1860384](https://github.com/pydio/cells/commit/1860384359de09f36d77564e1126e199f5f2156b): Update some minors
+- [#d8f4ecf](https://github.com/pydio/cells/commit/d8f4ecf828c3214b67ae41da81932ab335614129): Update go-hostsfile
+- [#396741b](https://github.com/pydio/cells/commit/396741b2c71fa07b18c3f52611d98b1e07d39e49): Ignore Authorization header if not starting with Bearer.
+- [#e668f5d](https://github.com/pydio/cells/commit/e668f5d8cf84836e3787e273021ecd9e356d6b0c): Adapt xgo target for modules and go 16
+- [#eb6dd8f](https://github.com/pydio/cells/commit/eb6dd8fb6aeda20182f90948dc9e6fc2df8ba3d4): Re-add XGo target (work in progress)
+- [#1e46ef1](https://github.com/pydio/cells/commit/1e46ef1133d46fdd273f2e9e6b464a7f2779b575): Small fixes for unit tests
+- [#631a493](https://github.com/pydio/cells/commit/631a4939b8f097a459788d33c81a9c03681c9f21): fix formatting issue
+- [#ee4fda5](https://github.com/pydio/cells/commit/ee4fda5b7b529a675ac782a0efe1df8b85fb328e): Re-enable listBuckets query
+- [#70c1d98](https://github.com/pydio/cells/commit/70c1d98e6717b4b10fe50ea917235b380bfb4ba7): fix versionId in CopyObject Handler
+- [#65fcd37](https://github.com/pydio/cells/commit/65fcd37ca6c407e9b85d472d7b9b1e1c0fcdd7e9): Cells /v4/ is based on Go Modules 🍾 - Warning, still a Work In Progress 🚧
+- [#06a17b1](https://github.com/pydio/cells/commit/06a17b1b5ab0589c031ca243cb8d80876baf389e): Next development cycle
