@@ -35,7 +35,10 @@ func TestServiceBroker(t *testing.T) {
 		ctx := clientcontext.WithClientConn(context.Background(), grpc.NewClientConn(common.ServiceBroker))
 		ctx, cancel = context.WithTimeout(ctx, 10*time.Second)
 
-		subscription, _ := NewSubscription("test1", WithContext(ctx))
+		subscription, err := NewSubscription("test1", WithContext(ctx))
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		go func() {
 			defer cancel()
@@ -89,14 +92,20 @@ func TestServiceBroker(t *testing.T) {
 
 func TestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 	howManyToSend := int(1e3)
-	ctx, cancel := context.WithCancel(context.Background())
+
+	var cancel context.CancelFunc
+	ctx := clientcontext.WithClientConn(context.Background(), grpc.NewClientConn(common.ServiceBroker))
+	ctx, cancel = context.WithTimeout(ctx, 10*time.Second)
 
 	// wg is used to wait until all messages are received.
 	var wg sync.WaitGroup
 	wg.Add(howManyToSend)
 
 	// Make a subscription.
-	s, _ := NewSubscription("test2")
+	s, err := NewSubscription("test2", WithContext(ctx))
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer s.Shutdown(ctx)
 
 	// Start 10 goroutines to receive from it.
@@ -127,7 +136,9 @@ func TestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 	}
 
 	// Send messages. Each message has a unique body used as a key to receivedMsgs.
-	topic, _ := NewTopic("test2")
+	topic, err := NewTopic("test2", WithContext(ctx))
+	log.Fatal(err)
+
 	defer topic.Shutdown(ctx)
 	for i := 0; i < howManyToSend; i++ {
 		key := fmt.Sprintf("message #%d", i)
