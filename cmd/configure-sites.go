@@ -81,7 +81,7 @@ EXAMPLES
 
 `,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		initConfig()
+		initConfig(cmd.Context())
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		sites, e := config.LoadSites(true)

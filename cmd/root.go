@@ -32,10 +32,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common/config/service"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
 
+	"github.com/pydio/cells/v4/common/config/service"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -183,7 +182,7 @@ func skipCoreInit() bool {
 	return false
 }
 
-func initConfig() (new bool) {
+func initConfig(ctx context.Context) (new bool) {
 
 	if skipCoreInit() {
 		return
@@ -193,7 +192,6 @@ func initConfig() (new bool) {
 	keyringPath := filepath.Join(config.PydioConfigDir, "cells-vault-key")
 	keyringStore, err := file.New(keyringPath, true)
 	if err != nil {
-
 		b, err := filex.Read(keyringPath)
 		if err != nil {
 			log.Fatal("could not start keyring store")
@@ -267,19 +265,19 @@ func initConfig() (new bool) {
 			log.Fatal("could not start etcd", zap.Error(err))
 		}
 
-		config.RegisterVault(etcd.NewSource(context.Background(), conn, "vault", false))
+		config.RegisterVault(etcd.NewSource(ctx, conn, "vault", false))
 		// config.RegisterLocal(etcd.NewSource(context.Background(), conn, "config/"+runtime.DefaultAdvertiseAddress(), false))
-		defaultConfig := etcd.NewSource(context.Background(), conn, "config", false)
+		defaultConfig := etcd.NewSource(ctx, conn, "config", false)
 		defaultConfig = config.Proxy(defaultConfig)
 		config.Register(defaultConfig)
 	case "grpc":
-		conn, err := grpc.Dial(u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
-		if err != nil {
-			log.Fatal("could not connect to configuration", zap.Error(err))
+		conn := clientcontext.GetClientConn(ctx)
+		if conn == nil {
+			log.Fatal("no connection given")
 		}
 
-		config.RegisterVault(service.New(context.Background(), conn, "vault"))
-		defaultConfig := service.New(context.Background(), conn, "config")
+		config.RegisterVault(service.New(ctx, conn, "vault"))
+		defaultConfig := service.New(ctx, conn, "config")
 		defaultConfig = config.Proxy(defaultConfig)
 		config.Register(defaultConfig)
 	default:

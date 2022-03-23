@@ -81,7 +81,7 @@ DESCRIPTION
 		db := m[ids[i]].(map[string]interface{})
 		viper.Set("config", db["driver"])
 
-		initConfig()
+		initConfig(cmd.Context())
 
 		config.Set(defaultData, "")
 		config.Vault().Set(vaultData)
