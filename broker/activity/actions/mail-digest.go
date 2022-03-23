@@ -149,7 +149,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		return input, nil
 	}
 
-	digest, err := activity2.Digest(m.GetRuntimeContext(), collection)
+	digest, err := activity2.Digest(ctx, collection)
 	if err != nil {
 		return input.WithError(err), err
 	}
