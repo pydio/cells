@@ -98,6 +98,12 @@
   "conditionStringMatchCondition.matches": {
     "other": "occurrences (expr. reg)"
   },
+  "conditionPathGlobCondition.glob": {
+    "other": "motif"
+  },
+  "conditionBooleanCondition.value": {
+    "other": "Vrai"
+  },
   "contextMetaCondition.CIDRCondition": {
     "other": "Condition CIDR"
   },
@@ -127,6 +133,12 @@
   },
   "contextMetaCondition.DateAfterCondition": {
     "other": "Date postérieure à"
+  },
+  "contextMetaCondition.PathGlobCondition": {
+    "other": "Expression Glob"
+  },
+  "contextMetaCondition.BooleanCondition": {
+    "other": "Valeur booléenne"
   },
   "contextMetaField.ContentType": {
     "other": "Type de contenu"

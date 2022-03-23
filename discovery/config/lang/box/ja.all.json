@@ -98,6 +98,12 @@
   "conditionStringMatchCondition.matches": {
     "other": "一致"
   },
+  "conditionPathGlobCondition.glob": {
+    "other": "pattern"
+  },
+  "conditionBooleanCondition.value": {
+    "other": "True"
+  },
   "contextMetaCondition.CIDRCondition": {
     "other": "CIDR Condition"
   },
@@ -127,6 +133,12 @@
   },
   "contextMetaCondition.DateAfterCondition": {
     "other": "後の日付"
+  },
+  "contextMetaCondition.PathGlobCondition": {
+    "other": "Glob Matcher"
+  },
+  "contextMetaCondition.BooleanCondition": {
+    "other": "Boolean Value"
   },
   "contextMetaField.ContentType": {
     "other": "コンテンツタイプ"

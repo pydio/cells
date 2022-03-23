@@ -98,6 +98,12 @@
   "conditionStringMatchCondition.matches": {
     "other": "corresponde"
   },
+  "conditionPathGlobCondition.glob": {
+    "other": "pattern"
+  },
+  "conditionBooleanCondition.value": {
+    "other": "True"
+  },
   "contextMetaCondition.CIDRCondition": {
     "other": "CondiçãoCIDR"
   },
@@ -127,6 +133,12 @@
   },
   "contextMetaCondition.DateAfterCondition": {
     "other": "Data após"
+  },
+  "contextMetaCondition.PathGlobCondition": {
+    "other": "Glob Matcher"
+  },
+  "contextMetaCondition.BooleanCondition": {
+    "other": "Boolean Value"
   },
   "contextMetaField.ContentType": {
     "other": "Tipo de conteúdo"
