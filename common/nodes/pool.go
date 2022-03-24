@@ -312,7 +312,7 @@ func (p *ClientsPool) reloadDebounced() {
 			timer = time.NewTimer(1 * time.Second)
 		case <-timer.C:
 			if reloadRequired {
-				p.LoadDataSources()
+				go p.LoadDataSources()
 				reloadRequired = false
 			}
 		}

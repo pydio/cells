@@ -98,7 +98,7 @@ func (s *chanWatcher) Stop() {
 
 func newChanWatcher(input chan registry.Result, onClose func(), options registry.Options) registry.Watcher {
 	cw := &chanWatcher{
-		events:  make(chan registry.Result, 100),
+		events:  make(chan registry.Result),
 		close:   make(chan bool, 1),
 		onClose: onClose,
 	}

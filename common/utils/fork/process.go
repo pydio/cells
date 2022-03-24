@@ -3,7 +3,6 @@ package fork
 import (
 	"bufio"
 	"context"
-	"github.com/pydio/cells/v4/common/runtime"
 	"os"
 	"os/exec"
 	"strings"
@@ -13,6 +12,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/runtime"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 type Options struct {
@@ -138,6 +139,7 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 	}
 	scannerOut := bufio.NewScanner(stdout)
 	parentName := p.o.parentName
+	defaultLogContext := servicecontext.WithServiceName(p.ctx, p.serviceNames[0])
 	go func() {
 		for scannerOut.Scan() {
 			text := strings.TrimRight(scannerOut.Text(), "\n")
@@ -150,7 +152,7 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 				}
 			}
 			if !merged {
-				log.Logger(p.ctx).Info(text)
+				log.Logger(defaultLogContext).Info(text)
 			}
 		}
 	}()
@@ -167,7 +169,7 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 				}
 			}
 			if !merged {
-				log.Logger(p.ctx).Error(text)
+				log.Logger(defaultLogContext).Error(text)
 			}
 		}
 	}()
