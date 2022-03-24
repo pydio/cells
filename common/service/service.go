@@ -137,7 +137,11 @@ func (s *service) Start() (er error) {
 	}
 
 	s.opts.Server.AfterServe(func() error {
-		go UpdateServiceVersion(s.opts)
+		go func() {
+			if er := UpdateServiceVersion(s.opts); er != nil {
+				log.Logger(s.opts.Context).Error("UpdateServiceVersion Failed", zap.Error(er))
+			}
+		}()
 
 		return nil
 	})

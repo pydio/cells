@@ -81,7 +81,7 @@ func UpdateServiceVersion(opts *ServiceOptions) error {
 
 // lastKnownVersion looks on this server if there was a previous version of this service
 func lastKnownVersion(serviceName string) (v *version.Version, e error) {
-	versionFile := runtime.ConfigURL() + "/" + filepath.Join( "services", serviceName, "version")
+	versionFile := runtime.ConfigURL() + "/" + filepath.Join("services", serviceName, "version")
 
 	store, err := config.OpenStore(context.Background(), versionFile+"?encode=string")
 	if err != nil {
@@ -89,7 +89,7 @@ func lastKnownVersion(serviceName string) (v *version.Version, e error) {
 		return nil, err
 	}
 
-	return version.NewVersion(store.Get().Default("0.0.0").String())
+	return version.NewVersion(strings.TrimSpace(store.Get().Default("0.0.0").String()))
 
 	//data, err := ioutil.ReadFile(versionFile)
 	//if err != nil {
@@ -105,7 +105,7 @@ func lastKnownVersion(serviceName string) (v *version.Version, e error) {
 
 // updateVersion writes the version string to file
 func updateVersion(serviceName string, v *version.Version) error {
-	versionFile := runtime.ConfigURL() + "/" + filepath.Join( "services", serviceName, "version")
+	versionFile := runtime.ConfigURL() + "/" + filepath.Join("services", serviceName, "version")
 
 	store, err := config.OpenStore(context.Background(), versionFile+"?encode=string")
 	if err != nil {
