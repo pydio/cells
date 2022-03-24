@@ -49,7 +49,8 @@ export default class UserMetaPanel extends React.Component{
     }
 
     componentDidMount(){
-        MetaClient.getInstance().loadConfigs().then(configs => {
+        const promsConfigs = this.props.loader ? this.props.loader() : MetaClient.getInstance().loadConfigs();
+        promsConfigs.then(configs => {
             const {node, loadChecks} = this.props;
             const fields= {};
             const updateMeta = new Map();
