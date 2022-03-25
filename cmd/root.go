@@ -234,7 +234,12 @@ func initConfig(ctx context.Context) (new bool) {
 		log.Fatal("could not get master password")
 	}
 
-	e := encrypter{key: crypto.KeyFromPassword([]byte(password), 32)}
+	passwordBytes, err := base64.StdEncoding.DecodeString(password)
+	if err != nil {
+		log.Fatal("could not decode master password")
+	}
+
+	e := encrypter{key: crypto.KeyFromPassword(passwordBytes, 32)}
 
 	// Versions store
 	versionsStore := filex.NewStore(config.PydioConfigDir)
