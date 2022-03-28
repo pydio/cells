@@ -40,8 +40,9 @@ import (
 
 type userKeyStore struct {
 	enc.UnimplementedUserKeyStoreServer
-	dao            key.DAO
-	masterPassword []byte
+	dao    key.DAO
+	master []byte
+	legacy []byte
 }
 
 // NewUserKeyStore creates a master password based
@@ -56,25 +57,9 @@ func NewUserKeyStore(_ context.Context, dao key.DAO, keyring crypto.Keyring) enc
 		log.Fatal("could not decode string password")
 	}
 
-	// TODO v4 - the master password is being json encoded / decoded to ensure we match legacy behaviour
-	// Hack to ensure that the master password is correctly encoded
-	m := map[string]string{
-		"masterPassword": string(masterPassword),
-	}
-
-	s, err := json.Marshal(m)
-	if err != nil {
-		log.Fatal("Error marshalling key ", zap.Error(err))
-	}
-
-	var mm map[string]string
-	if err := json.Unmarshal(s, &mm); err != nil {
-		log.Fatal("Error unmarshalling key", zap.Error(err))
-	}
-
 	return &userKeyStore{
-		dao:            dao,
-		masterPassword: []byte(mm["masterPassword"]),
+		dao:    dao,
+		master: masterPassword,
 	}
 }
 
@@ -102,10 +87,10 @@ func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest) (*e
 
 	// TODO: Extract user / password info from Context
 	user := common.PydioSystemUsername
-	pwd := ukm.masterPassword
 
 	var err error
-	rsp.Key, err = ukm.dao.GetKey(user, req.KeyID)
+	var version int
+	rsp.Key, version, err = ukm.dao.GetKey(user, req.KeyID)
 	if err != nil {
 		return nil, err
 	}
@@ -113,6 +98,16 @@ func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest) (*e
 	if rsp.Key == nil {
 		return nil, nil
 	}
+
+	pwd := ukm.master
+	if version < 4 {
+		if p, e := ukm.getLegacyFormat(); e == nil {
+			pwd = p
+		} else {
+			return nil, e
+		}
+	}
+
 	return rsp, open(rsp.Key, pwd)
 }
 
@@ -129,14 +124,16 @@ func (ukm *userKeyStore) AdminCreateKey(ctx context.Context, req *enc.AdminCreat
 
 	keyDao := ukm.getDAO()
 
-	rsp := &enc.AdminCreateKeyResponse{}
+	rsp := &enc.AdminCreateKeyResponse{Success: true}
 
-	if _, err := keyDao.GetKey(common.PydioSystemUsername, req.KeyID); err != nil {
-		if errors.FromError(err).Code == 404 {
-			return rsp, createSystemKey(keyDao, ukm.masterPassword, req.KeyID, req.Label)
+	if _, _, err := keyDao.GetKey(common.PydioSystemUsername, req.KeyID); err != nil && errors.FromError(err).Code == 404 {
+		if er := ukm.createSystemKey(keyDao, req.KeyID, req.Label); er != nil {
+			return nil, er
 		} else {
-			return nil, err
+			return rsp, nil
 		}
+	} else if err != nil {
+		return nil, err
 	} else {
 		return nil, errors.BadRequest(common.ServiceEncKey, "Key already exists with this id!")
 	}
@@ -154,7 +151,7 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	log.Logger(ctx).Debug("Received request", zap.Any("Data", req))
 
 	var k *enc.Key
-	k, err = ukm.dao.GetKey(common.PydioSystemUsername, req.Key.ID)
+	k, _, err = ukm.dao.GetKey(common.PydioSystemUsername, req.Key.ID)
 	if err != nil {
 		if errors.FromError(err).Code != 404 {
 			return nil, err
@@ -172,7 +169,7 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	}
 
 	log.Logger(ctx).Debug("Sealing with master key")
-	err = seal(req.Key, ukm.masterPassword)
+	err = seal(req.Key, ukm.master)
 	if err != nil {
 		rsp.Success = false
 		return rsp, errors.InternalServerError(common.ServiceEncKey, "unable to encrypt %s.%s for export, cause: %s", common.PydioSystemUsername, req.Key.ID, err.Error())
@@ -227,8 +224,8 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 	var err error
 
 	rsp := &enc.AdminExportKeyResponse{}
-
-	rsp.Key, err = ukm.dao.GetKey(common.PydioSystemUsername, req.KeyID)
+	var version int
+	rsp.Key, version, err = ukm.dao.GetKey(common.PydioSystemUsername, req.KeyID)
 	if err != nil {
 		return rsp, err
 	}
@@ -244,12 +241,20 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 	})
 
 	// We update the key
-	err = ukm.dao.SaveKey(rsp.Key)
+	err = ukm.dao.SaveKey(rsp.Key, version)
 	if err != nil {
 		return rsp, errors.InternalServerError(common.ServiceEncKey, "failed to update key info, cause: %s", err.Error())
 	}
 
-	err = open(rsp.Key, ukm.masterPassword)
+	pwd := ukm.master
+	if version < 4 {
+		if p, e := ukm.getLegacyFormat(); e == nil {
+			pwd = p
+		} else {
+			return nil, e
+		}
+	}
+	err = open(rsp.Key, pwd)
 	if err != nil {
 		return rsp, errors.InternalServerError(common.ServiceEncKey, "unable to decrypt for %s with key %s, cause: %s", common.PydioSystemUsername, req.KeyID, err)
 	}
@@ -262,7 +267,7 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 }
 
 // Create a default key or create a system key with a given ID
-func createSystemKey(dao key.DAO, masterPassword []byte, keyID string, keyLabel string) error {
+func (ukm *userKeyStore) createSystemKey(dao key.DAO, keyID string, keyLabel string) error {
 	systemKey := &enc.Key{
 		ID:           keyID,
 		Owner:        common.PydioSystemUsername,
@@ -276,7 +281,7 @@ func createSystemKey(dao key.DAO, masterPassword []byte, keyID string, keyLabel 
 		return err
 	}
 
-	masterKey := crypto.KeyFromPassword(masterPassword, 32)
+	masterKey := crypto.KeyFromPassword(ukm.master, 32)
 	encryptedKeyContentBytes, err := crypto.Seal(masterKey, keyContentBytes)
 	if err != nil {
 		return errors.InternalServerError(common.ServiceEncKey, "failed to encrypt the default key. Cause: %s", err.Error())
@@ -286,8 +291,22 @@ func createSystemKey(dao key.DAO, masterPassword []byte, keyID string, keyLabel 
 	return dao.SaveKey(systemKey)
 }
 
-func openWithMasterKey(masterPassword []byte, k *enc.Key) error {
-	return open(k, masterPassword)
+func (ukm *userKeyStore) getLegacyFormat() ([]byte, error) {
+	if len(ukm.legacy) == 0 {
+		// Ensure that the master password is correctly encoded
+		s, err := json.Marshal(map[string]string{
+			"master": string(ukm.master),
+		})
+		if err != nil {
+			return nil, fmt.Errorf("error marshalling key %v", err)
+		}
+		var mm map[string]string
+		if err := json.Unmarshal(s, &mm); err != nil {
+			return nil, fmt.Errorf("error unmarshalling key %v", err)
+		}
+		ukm.legacy = []byte(mm["master"])
+	}
+	return ukm.legacy, nil
 }
 
 func seal(k *enc.Key, passwordBytes []byte) error {

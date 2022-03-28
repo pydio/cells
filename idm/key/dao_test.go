@@ -58,9 +58,9 @@ func GetDAO(t *testing.T) DAO {
 }
 
 func TestDAOPut(t *testing.T) {
-	convey.Convey("Test PUT key", t, func() {
-		dao := GetDAO(t).(*sqlimpl)
+	dao := GetDAO(t).(*sqlimpl)
 
+	convey.Convey("Test PUT key", t, func() {
 		err := dao.SaveKey(&encryption.Key{
 			Owner:        "pydio",
 			ID:           "test",
@@ -70,10 +70,7 @@ func TestDAOPut(t *testing.T) {
 		})
 		convey.So(err, convey.ShouldBeNil)
 	})
-}
-func TestDAOUpdate(t *testing.T) {
 	convey.Convey("Test UPDATE key", t, func() {
-		dao := GetDAO(t).(*sqlimpl)
 
 		err := dao.SaveKey(&encryption.Key{
 			Owner:        "pydio",
@@ -92,30 +89,19 @@ func TestDAOUpdate(t *testing.T) {
 		})
 		convey.So(err, convey.ShouldBeNil)
 	})
-}
-
-func TestDAOGet(t *testing.T) {
 	convey.Convey("Test GET key", t, func() {
-		dao := GetDAO(t).(*sqlimpl)
-		k, err := dao.GetKey("pydio", "test")
+		k, v, err := dao.GetKey("pydio", "test")
 		convey.So(err, convey.ShouldBeNil)
 		convey.So(k, convey.ShouldNotBeNil)
+		convey.So(v, convey.ShouldEqual, 4)
 	})
-}
-
-func TestDAOList(t *testing.T) {
 	convey.Convey("Test LIST key", t, func() {
-		dao := GetDAO(t).(*sqlimpl)
 		k, err := dao.ListKeys("pydio")
 		convey.So(err, convey.ShouldBeNil)
 		convey.So(k, convey.ShouldNotBeNil)
 		convey.So(len(k), convey.ShouldEqual, 1)
 	})
-}
-
-func TestDAODelete(t *testing.T) {
 	convey.Convey("Test DELETE key", t, func() {
-		dao := GetDAO(t).(*sqlimpl)
 		err := dao.DeleteKey("pydio", "test")
 		convey.So(err, convey.ShouldBeNil)
 
