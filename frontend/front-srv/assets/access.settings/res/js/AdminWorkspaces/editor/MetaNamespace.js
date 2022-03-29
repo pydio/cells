@@ -23,13 +23,11 @@ import React, {Fragment} from 'react';
 import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
-import {Dialog, FlatButton, MenuItem, IconButton, Toggle} from 'material-ui'
+import {Dialog, FlatButton, Toggle} from 'material-ui'
 import {IdmUserMetaNamespace, ServiceResourcePolicy, UserMetaServiceApi} from 'cells-sdk'
-import LangUtils from 'pydio/util/lang'
 import Metadata from '../model/Metadata'
 import PydioApi from 'pydio/http/api'
-const {ModernSelectField, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
-
+const {ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
 import FuncUtils from 'pydio/util/func'
 import ResourcesManager from 'pydio/http/resources-manager'
 
@@ -65,96 +63,6 @@ function loadEditorClass(className = '', defaultComponent) {
             throw e
         }
     })
-}
-
-
-class SelectionBoard extends React.Component{
-
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
-
-    addSelectionValue(){
-        const {selectorNewKey, selectorNewValue, selectorNewColor} = this.state;
-        const {data, setAdditionalDataKey} = this.props;
-        const {items = []} = data;
-        items.push({key:selectorNewKey, value:selectorNewValue, color: selectorNewColor});
-        setAdditionalDataKey('items', items);
-        this.setState({selectorNewKey:'', selectorNewValue: '', selectorNewColor:''});
-    }
-
-    removeSelectionValue(k) {
-        const {data, setAdditionalDataKey} = this.props;
-        const {items = []} = data;
-        setAdditionalDataKey('items', items.filter(i => i.key !== k));
-    }
-
-    renderColor(color = '', disabled=false) {
-        const cc = [
-            '#9c27b0',
-            '#607d8b',
-            '#66c',
-            '#69c',
-            '#6c6',
-            '#696',
-            '#c96',
-            '#ff9800',
-            '#c66',
-            '#fff',
-            '#ccc',
-            '#999',
-            '#000',
-        ];
-        if(disabled) {
-            return <span className={'mdi mdi-label' + (color?'':'-outline')} style={{color:color||'#ccc', marginRight: 5}}/>
-        }
-        return (
-            <span style={{width: 60, marginRight: 6}}>
-                <ModernSelectField disabled={disabled} fullWidth={true} value={color} onChange={(e,i,v) => {this.setState({selectorNewColor:v})}}>
-                    <MenuItem value={''} primaryText={<span className={'mdi mdi-label-outline'} style={{color:'#ccc'}}/>}/>
-                    {cc.map(c => <MenuItem value={c} primaryText={<span className={'mdi mdi-label'} style={{color:c}}/>}/>)}
-                </ModernSelectField>
-            </span>
-        )
-    }
-
-    render() {
-        const {data, m, setAdditionalDataKey} = this.props;
-        const {selectorNewKey, selectorNewValue, selectorNewColor} = this.state;
-        const {items = []} = data;
-        return(
-            <Fragment>
-            <div style={{padding: 10, paddingRight: 0, backgroundColor: '#f5f5f5', borderRadius: 3}}>
-                <div style={{fontSize: 13}}>{m('editor.selection')}</div>
-                <div>{items.map(i => {
-                    const {key, value, color} = i;
-                    return (
-                        <div key={key} style={{display:'flex', alignItems:'center'}}>
-                            {this.renderColor(color, true)}
-                            <span style={{marginRight: 6, width: 80}}><ModernTextField value={key} disabled={true} fullWidth={true}/></span>
-                            <span style={{flex: 1}}><ModernTextField value={value} disabled={true} fullWidth={true}/></span>
-                            <span><IconButton iconClassName={"mdi mdi-delete"} iconStyle={{color:'rgba(0,0,0,.3)'}} onClick={()=>{this.removeSelectionValue(key)}}/></span>
-                        </div>
-                    )
-                })}</div>
-                <div style={{display:'flex'}} key={"new-selection-key"}>
-                    {this.renderColor(selectorNewColor)}
-                    <span style={{width: 80, marginRight: 6}}>
-                        <ModernTextField value={selectorNewKey} onChange={(e,v)=>{this.setState({selectorNewKey:v})}} hintText={m('editor.selection.key')} fullWidth={true}/>
-                    </span>
-                    <span style={{flex: 1}}>
-                        <ModernTextField value={selectorNewValue} onChange={(e,v)=>{this.setState({selectorNewValue:v})}} hintText={m('editor.selection.value')} fullWidth={true}/></span>
-                    <span><IconButton iconClassName={"mdi mdi-plus"} onClick={()=>{this.addSelectionValue()}} disabled={!selectorNewKey || !selectorNewValue}/></span>
-                </div>
-            </div>
-            <div>
-                <Toggle label={m('editor.selection.steps')} labelPosition={"left"} toggled={data.steps} onToggle={(e,v) => setAdditionalDataKey('steps', v)} {...ModernStyles.toggleFieldV2}/>
-            </div>
-            </Fragment>
-        );
-
-    }
 }
 
 class MetaPoliciesBuilder extends React.Component {
@@ -218,10 +126,13 @@ class MetaNamespace extends React.Component{
             selectorNewValue:'',
             PoliciesBuilder: MetaPoliciesBuilder
         };
-        const {policiesBuilder} = this.props;
-        if(policiesBuilder) {
-            loadEditorClass(policiesBuilder, MetaPoliciesBuilder).then(c => this.setState({PoliciesBuilder: c}));
-        }
+        ResourcesManager.loadClass('ReactMeta').then(c => {
+            this.setState({metaModule: c});
+            const {policiesBuilder} = this.props;
+            if(policiesBuilder) {
+                loadEditorClass(policiesBuilder, MetaPoliciesBuilder).then(c => this.setState({PoliciesBuilder: c}));
+            }
+        })
     }
 
     cloneNs(ns){
@@ -238,36 +149,6 @@ class MetaNamespace extends React.Component{
             newNS.Order = namespaces.map(ns => ns.Order || 0).reduce((a,c) => Math.max(a,c), 0) + 1;
         }
         this.setState({namespace: newNS});
-    }
-
-    updateType(value){
-        const {namespace} = this.state;
-        const newType = {type:value};
-        if(newType === 'date') {
-            newType.data = {format: 'date', display:'normal'};
-        }
-        namespace.JsonDefinition = JSON.stringify(newType);
-        this.setState({namespace});
-    }
-
-    updateLabel(value) {
-        const {create} = this.props;
-        const {namespace} = this.state;
-        if(create && (!namespace.Namespace || namespace.Namespace === 'usermeta-' + LangUtils.computeStringSlug(namespace.Label))){
-            this.updateName(value);
-        }
-        namespace.Label = value;
-        this.setState({namespace});
-    }
-
-    updateName(value){
-        const {namespace} = this.state;
-        let slug = LangUtils.computeStringSlug(value);
-        if(slug.indexOf('usermeta-') !== 0){
-            slug = 'usermeta-' + slug;
-        }
-        namespace.Namespace = slug;
-        this.setState({namespace})
     }
 
     save(){
@@ -339,7 +220,11 @@ class MetaNamespace extends React.Component{
 
     render(){
         const {create, namespaces, pydio, readonly} = this.props;
-        const {namespace, m, PoliciesBuilder} = this.state;
+        const {namespace, m, PoliciesBuilder, metaModule} = this.state;
+        if(!metaModule){
+            return null;
+        }
+        const {TypeEditor} = metaModule;
         let title;
         if(namespace.Label){
             title = namespace.Label;
@@ -411,89 +296,18 @@ class MetaNamespace extends React.Component{
                 autoScrollBodyContent={true}
                 bodyStyle={{padding: 20}}
             >
-                <ModernTextField
-                    floatingLabelText={m('label')}
-                    value={namespace.Label}
-                    onChange={(e,v) => {this.updateLabel(v)}}
-                    fullWidth={true}
-                    errorText={labelError}
-                    disabled={readonly}
-                    variant={"v2"}
+                <TypeEditor
+                    m={m}
+                    pydio={pydio}
+                    namespace={namespace}
+                    forcePrefix={'usermeta-'}
+                    onChange={(ns) => this.setState({namespace: ns})}
+                    readonly={readonly}
+                    create={create}
+                    labelError={labelError}
+                    nameError={nameError}
+                    styles={styles}
                 />
-                <ModernTextField
-                    floatingLabelText={m('namespace')}
-                    disabled={!create}
-                    value={namespace.Namespace}
-                    onChange={(e,v) => {this.updateName(v)}}
-                    fullWidth={true}
-                    errorText={nameError}
-                    variant={"v2"}
-                />
-                <div style={styles.section}>{m('type')}</div>
-                <ModernSelectField
-                    hintText={m('type')}
-                    value={type}
-                    onChange={(e,i,v) => this.updateType(v)}
-                    disabled={readonly}
-                    fullWidth={true}
-                    variant={"v2"}
-                >
-                    {Object.keys(Metadata.MetaTypes).map(k => {
-                        return <MenuItem value={k} primaryText={m('type.'+k) || Metadata.MetaTypes[k]}/>
-                    })}
-                </ModernSelectField>
-                {type === 'choice' &&
-                    <SelectionBoard
-                        data={this.getAdditionalData({items:[], steps:false})}
-                        setAdditionalDataKey={this.setAdditionalDataKey.bind(this)}
-                        m={m}
-                    />
-                }
-                {type === 'date' &&
-                    <Fragment>
-                        <ModernSelectField
-                            hintText={m('type.date.format')}
-                            value={this.getAdditionalData({format:'date', display:'normal'}).format}
-                            onChange={(e,i,v) => this.setAdditionalDataKey('format', v)}
-                            disabled={readonly}
-                            fullWidth={true}
-                            variant={"v2"}
-                        >
-                            <MenuItem value={'date'} primaryText={m('type.date.format.date')}/>
-                            <MenuItem value={'date-time'} primaryText={m('type.date.format.date-time')}/>
-                            <MenuItem value={'time'} primaryText={m('type.date.format.time')}/>
-                        </ModernSelectField>
-                        <ModernSelectField
-                            hintText={m('type.date.display')}
-                            value={this.getAdditionalData({format:'date', display:'normal'}).display}
-                            onChange={(e,i,v) => this.setAdditionalDataKey('display', v)}
-                            disabled={readonly}
-                            fullWidth={true}
-                            variant={"v2"}
-                        >
-                            <MenuItem value={'normal'} primaryText={m('type.date.display.normal')}/>
-                            <MenuItem value={'relative'} primaryText={m('type.date.display.relative')}/>
-                        </ModernSelectField>
-                    </Fragment>
-                }
-                {type === 'integer' &&
-                    <Fragment>
-                        <ModernSelectField
-                            hintText={m('type.integer.format')}
-                            value={this.getAdditionalData({format:'general'}).format || 'general'}
-                            onChange={(e,i,v) => this.setAdditionalDataKey('format', v)}
-                            disabled={readonly}
-                            fullWidth={true}
-                            variant={"v2"}
-                        >
-                            <MenuItem value={'general'} primaryText={m('type.integer.format.general')}/>
-                            <MenuItem value={'bytesize'} primaryText={m('type.integer.format.bytesize')}/>
-                            <MenuItem value={'percentage'} primaryText={m('type.integer.format.percentage')}/>
-                            <MenuItem value={'progress'} primaryText={m('type.integer.format.progress')}/>
-                        </ModernSelectField>
-                    </Fragment>
-                }
-
                 <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
                 <Toggle
                     label={m('toggle.list-visibility')}
