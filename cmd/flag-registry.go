@@ -42,8 +42,8 @@ func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 
 // addExternalCmdRegistryFlags registers necessary flags to connect to the registry with defaults :8001
 func addExternalCmdRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
-	flags.String(runtime.KeyRegistry, "grpc://:8001", "Registry used to contact services")
-	flags.String(runtime.KeyBroker, "grpc://:8001", "Pub/sub service for events between services")
+	flags.String(runtime.KeyRegistry, "grpc://:8002", "Registry used to contact services")
+	flags.String(runtime.KeyBroker, "grpc://:8002", "Pub/sub service for events between services")
 	flags.Int(runtime.KeyRegistryPort, net.GetAvailableRegistryAltPort(), "Port used to start a registry discovery service")
 	flags.Int(runtime.KeyBrokerPort, net.GetAvailableBrokerAltPort(), "Port used to start a broker discovery service")
 
