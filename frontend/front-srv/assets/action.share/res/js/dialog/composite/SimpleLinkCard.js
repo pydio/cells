@@ -107,7 +107,7 @@ class SimpleLinkCard extends React.Component {
             header = (
                 <div>
                     <Mailer {...mailerData} pydio={pydio} onDismiss={this.dismissMailer.bind(this)}/>
-                    <LabelPanel pydio={pydio} linkModel={publicLinkModel}/>
+                    <LabelPanel pydio={pydio} linkModel={publicLinkModel} model={model}/>
                 </div>
             )
         } else {
