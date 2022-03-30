@@ -33,7 +33,7 @@ func TestServiceBroker(t *testing.T) {
 
 		var cancel context.CancelFunc
 		ctx := clientcontext.WithClientConn(context.Background(), grpc.NewClientConn(common.ServiceBroker))
-		ctx, cancel = context.WithTimeout(ctx, 10*time.Second)
+		ctx, cancel = context.WithTimeout(ctx, 1*time.Second)
 
 		subscription, err := NewSubscription("test1", WithContext(ctx))
 		if err != nil {
@@ -112,7 +112,7 @@ func TestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 	var mu sync.Mutex
 	receivedMsgs := make(map[string]bool)
 	for i := 0; i < 10; i++ {
-		go func() {
+		go func(i int) {
 			for {
 				m, err := s.Receive(ctx)
 				if err != nil {
@@ -132,12 +132,14 @@ func TestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 				mu.Unlock()
 				wg.Done()
 			}
-		}()
+		}(i)
 	}
 
 	// Send messages. Each message has a unique body used as a key to receivedMsgs.
 	topic, err := NewTopic("test2", WithContext(ctx))
-	log.Fatal(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	defer topic.Shutdown(ctx)
 	for i := 0; i < howManyToSend; i++ {
