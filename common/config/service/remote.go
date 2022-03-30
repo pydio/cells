@@ -84,31 +84,33 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 	//	opts = append(opts, configx.WithJSON())
 	//}
 
-	store := New(context.Background(), conn, u.Path)
+	store := New(context.Background(), conn, "config", u.Path)
 
 	return store, nil
 }
 
 type remote struct {
-	ctx context.Context
-	cli pb.ConfigClient
-	id  string
+	ctx  context.Context
+	cli  pb.ConfigClient
+	id   string
+	path []string
 
 	watchers []*receiver
 }
 
-func New(ctx context.Context, conn grpc.ClientConnInterface, id string) config.Store {
+func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path string) config.Store {
 	r := &remote{
-		ctx: metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, "pydio.grpc.config"),
-		cli: pb.NewConfigClient(conn),
-		id:  id,
+		ctx:  metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, "pydio.grpc.config"),
+		cli:  pb.NewConfigClient(conn),
+		id:   id,
+		path: strings.Split(path, "/"),
 	}
 
 	go func() {
 		for {
 			stream, err := r.cli.Watch(r.ctx, &pb.WatchRequest{
 				Namespace: id,
-				Path:      "/",
+				Path:      path,
 			})
 
 			if err != nil {
@@ -153,7 +155,7 @@ func (r *remote) Val(path ...string) configx2.Values {
 		ctx:  r.ctx,
 		cli:  r.cli,
 		id:   r.id,
-		path: path,
+		path: append(r.path, path...),
 	}
 }
 
@@ -162,7 +164,7 @@ func (r *remote) Get() configx2.Value {
 
 	rsp, err := r.cli.Get(r.ctx, &pb.GetRequest{
 		Namespace: r.id,
-		Path:      "",
+		Path:      strings.Join(r.path, "/"),
 	})
 
 	if err != nil {
@@ -184,7 +186,7 @@ func (r *remote) Set(data interface{}) error {
 
 	if _, err := r.cli.Set(r.ctx, &pb.SetRequest{
 		Namespace: r.id,
-		Path:      "",
+		Path:      strings.Join(r.path, "/"),
 		Value:     &pb.Value{Data: b},
 	}); err != nil {
 		return err

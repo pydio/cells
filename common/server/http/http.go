@@ -22,14 +22,14 @@ package http
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server/middleware"
 	"net"
 	"net/http"
 	"net/http/pprof"
 
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/server/middleware"
+
 	"github.com/pydio/cells/v4/common/server"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/server/http/registrymux"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -54,7 +54,7 @@ func New(ctx context.Context) server.Server {
 	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
 	srv := &http.Server{}
-	srv.Handler = registrymux.NewMiddleware(servercontext.GetRegistry(ctx), mux)
+	srv.Handler = registrymux.NewMiddleware(ctx, mux)
 	srv.Handler = ContextMiddlewareHandler(middleware.ClientConnIncomingContext(ctx))(srv.Handler)
 	srv.Handler = ContextMiddlewareHandler(middleware.RegistryIncomingContext(ctx))(srv.Handler)
 

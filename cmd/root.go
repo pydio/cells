@@ -281,8 +281,8 @@ func initConfig(ctx context.Context) (new bool) {
 			log.Fatal("no connection given")
 		}
 
-		config.RegisterVault(service.New(ctx, conn, "vault"))
-		defaultConfig := service.New(ctx, conn, "config")
+		config.RegisterVault(service.New(ctx, conn, "vault", "/"))
+		defaultConfig := service.New(ctx, conn, "config", "/")
 		defaultConfig = config.Proxy(defaultConfig)
 		config.Register(defaultConfig)
 	default:

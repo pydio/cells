@@ -21,26 +21,76 @@
 package registrymux
 
 import (
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/server"
+	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"regexp"
 	"strings"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	clienthttp "github.com/pydio/cells/v4/common/client/http"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/server/caddy/maintenance"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"google.golang.org/grpc"
 )
 
 type Middleware struct {
-	r registry.Registry
-	s server.HttpMux
+	c       grpc.ClientConnInterface
+	r       registry.Registry
+	s       server.HttpMux
+	b       *clienthttp.Balancer
+	monitor grpc2.HealthMonitor
 }
 
-func NewMiddleware(r registry.Registry, s server.HttpMux) http.Handler {
-	return &Middleware{
-		r: r,
-		s: s,
+func NewMiddleware(ctx context.Context, s server.HttpMux) Middleware {
+	conn := clientcontext.GetClientConn(ctx)
+	reg := servercontext.GetRegistry(ctx)
+	rc, _ := client.NewResolverCallback(reg)
+	monitor := grpc2.NewHealthChecker(ctx)
+	balancer := &clienthttp.Balancer{ReadyProxies: make(map[string]*clienthttp.ReverseProxy)}
+
+	rc.Add(func(m map[string]*client.ServerAttributes) error {
+		for _, mm := range m {
+			if mm.Name != "http" {
+				continue
+			}
+			for _, addr := range mm.Addresses {
+				proxy, ok := balancer.ReadyProxies[addr]
+				if !ok {
+					u, err := url.Parse("http://" + strings.Replace(addr, "[::]", "", -1))
+					if err != nil {
+						return err
+					}
+					proxy = &clienthttp.ReverseProxy{
+						ReverseProxy: httputil.NewSingleHostReverseProxy(u),
+					}
+					balancer.ReadyProxies[addr] = proxy
+				}
+
+				proxy.Endpoints = mm.Endpoints
+				proxy.Services = mm.Services
+			}
+		}
+
+		return nil
+	})
+
+	go monitor.Monitor(common.ServiceOAuth)
+
+	return Middleware{
+		c:       conn,
+		r:       reg,
+		s:       s,
+		b:       balancer,
+		monitor: monitor,
 	}
 }
 
@@ -71,42 +121,57 @@ func (m Middleware) watch() error {
 
 // ServeHTTP.
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// Special case for application/grpc
+	if strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
+		proxy := m.b.PickService(common.ServiceGatewayGrpc)
+		if proxy == nil {
+			http.NotFound(w, r)
+			return
+		}
+
+		// TODO - necessary ?
+		proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
+			fmt.Println("Got Error in Grpc Reverse Proxy:", err.Error())
+		}
+
+		ctx := clientcontext.WithClientConn(r.Context(), m.c)
+		ctx = servercontext.WithRegistry(ctx, m.r)
+
+		proxy.ServeHTTP(w, r.WithContext(ctx))
+		return
+	}
+
+	if !m.monitor.Up() {
+		bb, _ := maintenance.Assets.ReadFile("starting.html")
+		w.Header().Set("Content-Type", "text/html")
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(bb)))
+		w.WriteHeader(303)
+		w.Write(bb)
+		return
+	}
+
+	if r.RequestURI == "/maintenance.html" && r.Header.Get("X-Maintenance-Redirect") != "" {
+		bb, _ := maintenance.Assets.ReadFile("maintenance.html")
+		w.Header().Set("Content-Type", "text/html")
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(bb)))
+		w.WriteHeader(303)
+		w.Write(bb)
+		return
+	}
+
 	// try to find it in the current mux
 	_, pattern := m.s.Handler(r)
 	if len(pattern) > 0 && (pattern != "/" || r.URL.Path == "/") {
-		m.s.ServeHTTP(w, r)
+		ctx := clientcontext.WithClientConn(r.Context(), m.c)
+		ctx = servercontext.WithRegistry(ctx, m.r)
+
+		m.s.ServeHTTP(w, r.WithContext(ctx))
 		return
 	}
 
-	// Couldn't find it in the mux, we go through the registered endpoints
-	nodes, err := m.r.List(registry.WithType(pb.ItemType_NODE))
-	if err != nil {
+	proxy := m.b.PickEndpoint(r.URL.Path)
+	if proxy != nil {
+		proxy.ServeHTTP(w, r)
 		return
-	}
-
-	for _, n := range nodes {
-		var node registry.Node
-		if !n.As(&node) {
-			// fmt.Println("node is not a server ", n.Name())
-			continue
-		}
-
-		for _, endpoint := range node.Endpoints() {
-			ok, err := regexp.Match(endpoint, []byte(r.URL.Path))
-			if err != nil {
-				return
-			}
-
-			if ok {
-				// TODO v4 - proxy should be set once when watching the node
-				u, err := url.Parse("http://" + strings.Replace(node.Address()[0], "[::]", "", -1))
-				if err != nil {
-					return
-				}
-				proxy := httputil.NewSingleHostReverseProxy(u)
-				proxy.ServeHTTP(w, r)
-				return
-			}
-		}
 	}
 }
