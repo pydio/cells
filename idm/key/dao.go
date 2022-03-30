@@ -29,8 +29,8 @@ import (
 
 // DAO is a protocol for user key storing
 type DAO interface {
-	SaveKey(key *encryption.Key) error
-	GetKey(owner string, KeyID string) (*encryption.Key, error)
+	SaveKey(key *encryption.Key, version ...int) error
+	GetKey(owner string, KeyID string) (*encryption.Key, int, error)
 	ListKeys(owner string) ([]*encryption.Key, error)
 	DeleteKey(owner string, keyID string) error
 }
@@ -39,8 +39,6 @@ func NewDAO(o dao.DAO) dao.DAO {
 	switch v := o.(type) {
 	case sql.DAO:
 		return &sqlimpl{DAO: v}
-		/*case boltdb.DAO:
-		return &boltimpl{DAO: v}*/
 	}
 	return nil
 }

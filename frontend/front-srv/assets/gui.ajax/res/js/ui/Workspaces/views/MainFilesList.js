@@ -820,6 +820,10 @@ class MainFilesList extends React.Component {
             }
         }
 
+        if(contextNode.getMetadata().has('local:custom-list-classes')) {
+            className += ' ' + contextNode.getMetadata().get('local:custom-list-classes').join(' ');
+        }
+
         const {searchResults, searchScope, searchLoading} = this.props;
         let groupProps = {};
         if(searchResults) {

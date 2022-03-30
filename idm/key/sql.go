@@ -38,8 +38,8 @@ var (
 	migrationsFS embed.FS
 
 	queries = map[string]string{
-		"insert": `INSERT INTO idm_user_keys VALUES (?,?,?,?,?,?);`,
-		"update": `UPDATE idm_user_keys SET key_data=?,key_info=? WHERE owner=? AND key_id=?;`,
+		"insert": `INSERT INTO idm_user_keys VALUES (?,?,?,?,?,?,?);`,
+		"update": `UPDATE idm_user_keys SET key_data=?,key_info=?,version=? WHERE owner=? AND key_id=?;`,
 		"get":    `SELECT * FROM idm_user_keys WHERE owner=? AND key_id=?;`,
 		"list":   `SELECT * FROM idm_user_keys WHERE owner=?;`,
 		"delete": `DELETE FROM idm_user_keys WHERE owner=? AND key_id=?;`,
@@ -80,7 +80,12 @@ func (dao *sqlimpl) Init(options configx.Values) error {
 }
 
 // SaveKey saves the key to persistence layer
-func (dao *sqlimpl) SaveKey(key *encryption.Key) error {
+func (dao *sqlimpl) SaveKey(key *encryption.Key, version ...int) error {
+	ver := 4
+	if len(version) > 0 {
+		ver = version[0]
+	}
+
 	insertStmt, er := dao.GetStmt("insert")
 	if er != nil {
 		return er
@@ -96,28 +101,28 @@ func (dao *sqlimpl) SaveKey(key *encryption.Key) error {
 		}
 	}
 
-	_, err = insertStmt.Exec(key.Owner, key.ID, key.Label, key.Content, key.CreationDate, bytes)
+	_, err = insertStmt.Exec(key.Owner, key.ID, key.Label, key.Content, key.CreationDate, bytes, ver)
 	if err != nil {
 		updateStmt, er := dao.GetStmt("update")
 		if er != nil {
 			return er
 		}
 
-		_, err = updateStmt.Exec(key.Content, bytes, key.Owner, key.ID)
+		_, err = updateStmt.Exec(key.Content, bytes, ver, key.Owner, key.ID)
 	}
 	return err
 }
 
 // GetKey loads key from persistence layer
-func (dao *sqlimpl) GetKey(owner string, KeyID string) (*encryption.Key, error) {
+func (dao *sqlimpl) GetKey(owner string, KeyID string) (*encryption.Key, int, error) {
 	getStmt, er := dao.GetStmt("get")
 	if er != nil {
-		return nil, er
+		return nil, 0, er
 	}
 
 	rows, err := getStmt.Query(owner, KeyID)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -125,18 +130,19 @@ func (dao *sqlimpl) GetKey(owner string, KeyID string) (*encryption.Key, error) 
 		k := encryption.Key{
 			Info: &encryption.KeyInfo{},
 		}
+		var version int
 		var bytes []byte
-		err := rows.Scan(&(k.Owner), &(k.ID), &(k.Label), &(k.Content), &(k.CreationDate), &bytes)
+		err := rows.Scan(&(k.Owner), &(k.ID), &(k.Label), &(k.Content), &(k.CreationDate), &bytes, &version)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		if len(bytes) > 0 {
 			proto.Unmarshal(bytes, k.Info)
 		}
-		return &k, rows.Err()
+		return &k, version, rows.Err()
 	} else {
-		return nil, errors.NotFound("encryption.key.notfound", "cannot find key with id "+KeyID)
+		return nil, 0, errors.NotFound("encryption.key.notfound", "cannot find key with id "+KeyID)
 	}
 }
 
@@ -157,10 +163,11 @@ func (dao *sqlimpl) ListKeys(owner string) ([]*encryption.Key, error) {
 
 	for rows.Next() {
 		var bytes []byte
+		var version int
 		var k encryption.Key
 		k.Info = &encryption.KeyInfo{}
 
-		err := rows.Scan(&(k.Owner), &(k.ID), &(k.Label), &(k.Content), &(k.CreationDate), &bytes)
+		err := rows.Scan(&(k.Owner), &(k.ID), &(k.Label), &(k.Content), &(k.CreationDate), &bytes, &version)
 		if err != nil {
 			return nil, err
 		}
