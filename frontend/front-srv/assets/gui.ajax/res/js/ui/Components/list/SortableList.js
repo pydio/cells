@@ -68,34 +68,43 @@ class sortableItem extends React.Component {
     }
 
     render() {
-        // Your component receives its own props as usual
-        var id = this.props.id;
+        const {isDragging, connectDragSource, connectDropTarget, renderItem, style, item, removable, className, label} =  this.props;
 
-        // These two props are injected by React DnD,
-        // as defined by your `collect` function above:
-        var isDragging = this.props.isDragging;
-        var connectDragSource = this.props.connectDragSource;
-        var connectDropTarget = this.props.connectDropTarget;
-
-        var remove;
-        if(this.props.removable){
+        let remove;
+        if(removable){
             remove = <span className="button mdi mdi-close" onClick={(e) => this.removeClicked(e)}></span>
         }
-        return (
-            <Paper
-                ref={instance => {
+
+        if(renderItem) {
+
+            return (
+                <div
+                    ref={instance => {
                         connectDropTarget(ReactDOM.findDOMNode(instance));
                         connectDragSource(ReactDOM.findDOMNode(instance));
                     }}
-                zDepth={1}
-                style={{opacity:isDragging?0:1, margin: '8px 0'}}
-            >
-                <div className={this.props.className}>
-                    {this.props.label}
-                    {remove}
-                </div>
-            </Paper>
-        );
+                    style={{...style, opacity:isDragging?0:1}}
+                >{renderItem(item)}</div>
+            )
+        } else {
+
+            return (
+                <Paper
+                    ref={instance => {
+                        connectDropTarget(ReactDOM.findDOMNode(instance));
+                        connectDragSource(ReactDOM.findDOMNode(instance));
+                    }}
+                    zDepth={1}
+                    style={{opacity:isDragging?0:1, margin: '8px 0'}}
+                >
+                    <div className={className}>
+                        {label}
+                        {remove}
+                    </div>
+                </Paper>
+            );
+
+        }
     }
 }
 
@@ -132,14 +141,6 @@ if(window.ReactDND){
 
 
 class SortableList extends React.Component {
-    // static propTypes = {
-    //     values: React.PropTypes.array.isRequired,
-    //     onOrderUpdated: React.PropTypes.func,
-    //     removable: React.PropTypes.bool,
-    //     onRemove:React.PropTypes.func,
-    //     className:React.PropTypes.string,
-    //     itemClassName:React.PropTypes.string
-    // };
 
     constructor(props) {
         super(props);
@@ -202,6 +203,9 @@ class SortableList extends React.Component {
                         removable={this.props.removable}
                         onRemove={this.props.onRemove}
                         className={this.props.itemClassName}
+                        item={item}
+                        style={this.props.itemStyle}
+                        renderItem={this.props.renderItem}
                     />
                 }.bind(this))}
             </div>
