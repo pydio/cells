@@ -363,11 +363,6 @@ func (c *config) Del() error {
 
 // Val values cannot retrieve lower values as it is final
 func (c *config) Val(s ...string) Values {
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
-
 	keys := StringToKeys(s...)
 
 	// Need to do something for reference
@@ -395,6 +390,11 @@ func (c *config) Val(s ...string) Values {
 
 	// Looking for the specific key
 	var current interface{} = root.Map()
+
+	if mtx := c.opts.RWMutex; mtx != nil {
+		mtx.RLock()
+		defer mtx.RUnlock()
+	}
 
 	for _, pkk := range pk {
 		switch cv := current.(type) {

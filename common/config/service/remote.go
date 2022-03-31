@@ -84,7 +84,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 	//	opts = append(opts, configx.WithJSON())
 	//}
 
-	store := New(context.Background(), conn, "config", u.Path)
+	store := New(context.Background(), conn, "config", strings.TrimLeft(u.Path, "/"))
 
 	return store, nil
 }
