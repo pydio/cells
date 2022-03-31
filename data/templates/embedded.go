@@ -22,7 +22,9 @@ package templates
 
 import (
 	"bytes"
+	"context"
 	"embed"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"io"
 	"io/ioutil"
 	"path"
@@ -48,8 +50,9 @@ type Embedded struct {
 }
 
 type EmbeddedNode struct {
-	box statics.FS
-	rest.Template
+	*rest.Template
+	box       statics.FS
+	embedPath string
 }
 
 func NewEmbedded() DAO {
@@ -58,7 +61,7 @@ func NewEmbedded() DAO {
 	return e
 }
 
-func (e *Embedded) List() []Node {
+func (e *Embedded) List(ctx context.Context) ([]Node, error) {
 	var nodes []Node
 	for _, name := range e.box.List() {
 		parts := strings.Split(name, "-")
@@ -66,32 +69,35 @@ func (e *Embedded) List() []Node {
 			continue
 		}
 		node := &EmbeddedNode{
-			box: e.box,
+			box:       e.box,
+			embedPath: name,
 		}
 		label := strings.Replace(parts[1], "_", "/", -1)
 		ext := path.Ext(label)
 		label = strings.TrimSuffix(label, ext)
 
-		tpl := &rest.Template{
+		node.Template = &rest.Template{
 			UUID:  name,
 			Label: label,
 			Node: &rest.TemplateNode{
-				IsFile:    true,
-				EmbedPath: name,
+				Node: &tree.Node{Type: tree.NodeType_LEAF},
 			},
 		}
-		node.Template = *tpl
 		nodes = append(nodes, node)
 	}
 	sort.Slice(nodes, func(i, j int) bool {
 		return nodes[i].(*EmbeddedNode).UUID < nodes[j].(*EmbeddedNode).UUID
 	})
-	return nodes
+	return nodes, nil
 }
 
-func (e *Embedded) ByUUID(uuid string) (Node, error) {
+func (e *Embedded) ByUUID(ctx context.Context, uuid string) (Node, error) {
 	var node Node
-	for _, n := range e.List() {
+	nn, er := e.List(ctx)
+	if er != nil {
+		return nil, er
+	}
+	for _, n := range nn {
 		if n.AsTemplate().UUID == uuid {
 			node = n
 			break
@@ -104,17 +110,12 @@ func (e *Embedded) ByUUID(uuid string) (Node, error) {
 	}
 }
 
-func (en *EmbeddedNode) List() []Node {
-	var nodes []Node
-	return nodes
-}
-
 func (en *EmbeddedNode) IsLeaf() bool {
-	return en.Template.Node.IsFile
+	return en.Template.Node.GetNode().IsLeaf()
 }
 
-func (en *EmbeddedNode) Read() (io.Reader, int64, error) {
-	file, e := en.box.Open(en.Template.Node.EmbedPath)
+func (en *EmbeddedNode) Read(ctx context.Context) (io.Reader, int64, error) {
+	file, e := en.box.Open(en.embedPath)
 	if e != nil {
 		return nil, 0, e
 	}
@@ -125,5 +126,5 @@ func (en *EmbeddedNode) Read() (io.Reader, int64, error) {
 }
 
 func (en *EmbeddedNode) AsTemplate() *rest.Template {
-	return &en.Template
+	return en.Template
 }

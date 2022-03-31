@@ -21,19 +21,19 @@
 package templates
 
 import (
+	"context"
 	"io"
 
 	"github.com/pydio/cells/v4/common/proto/rest"
 )
 
 type DAO interface {
-	List() []Node
-	ByUUID(uuid string) (Node, error)
+	List(ctx context.Context) ([]Node, error)
+	ByUUID(ctx context.Context, uuid string) (Node, error)
 }
 
 type Node interface {
 	IsLeaf() bool
-	Read() (io.Reader, int64, error)
-	List() []Node
+	Read(ctx context.Context) (io.Reader, int64, error)
 	AsTemplate() *rest.Template
 }

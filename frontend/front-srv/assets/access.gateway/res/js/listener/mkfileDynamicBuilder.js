@@ -21,8 +21,18 @@
 import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
 import {TreeServiceApi, TemplatesServiceApi, RestTemplate, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk'
+import Listeners from './index'
 
-let QuickCache, QuickCacheTimer;
+let QuickCache, QuickCacheTimer, LoadedTemplates;
+
+Pydio.getInstance().observe('reload_node_templates', () => {
+    console.log('reload_node_templates')
+    QuickCache = null;
+    LoadedTemplates = null;
+    clearTimeout(QuickCacheTimer)
+    Pydio.getInstance().getController().fireContextChange();
+
+})
 
 class Builder {
 
@@ -30,10 +40,10 @@ class Builder {
 
         const pydio = Pydio.getInstance();
         if(QuickCache !== null) {
-            this.__loadedTemplates = QuickCache;
+            LoadedTemplates = QuickCache;
         }
 
-        if(this.__loadedTemplates){
+        if(LoadedTemplates){
 
             const exts = {
                 doc:'file-word',
@@ -49,11 +59,13 @@ class Builder {
                 xlsx:'file-excel'
             };
 
-            return this.__loadedTemplates.map(tpl => {
+            return LoadedTemplates.map(tpl => {
 
                 let ext;
-                if(tpl.UUID){
+                if(tpl.UUID && PathUtils.getFileExtension(tpl.UUID)) {
                     ext = PathUtils.getFileExtension(tpl.UUID)
+                } else if (PathUtils.getFileExtension(tpl.Label)) {
+                    ext = PathUtils.getFileExtension(tpl.Label);
                 } else {
                     ext = "txt";
                 }
@@ -61,8 +73,20 @@ class Builder {
                 if(exts[ext]) {
                     icon = exts[ext];
                 }
+                let name = tpl.Label
+                if (tpl.Editable) {
+                    name = (
+                        <div style={{display:'flex'}}>
+                            <span style={{flex: 1}}>{tpl.Label}</span>
+                            <span onClick={(e) => {
+                                e.stopPropagation();
+                                Listeners.deleteTemplateByUuid(tpl.UUID);
+                            }} className={"mdi mdi-delete"} style={{opacity: .3}}/>
+                        </div>
+                    )
+                }
                 return {
-                    name:tpl.Label,
+                    name:name,
                     alt:tpl.Label,
                     icon_class:'mdi mdi-' + icon,
                     callback: async function(e) {
@@ -114,12 +138,17 @@ class Builder {
         }
         const api = new TemplatesServiceApi(PydioApi.getRestClient());
         api.listTemplates().then(response => {
-            this.__loadedTemplates = response.Templates;
+            LoadedTemplates = response.Templates;
             // Add Empty File Template
             const emptyTemplate = new RestTemplate();
             emptyTemplate.Label = pydio.MessageHash["mkfile.empty.template.label"] || "Empty File";
             emptyTemplate.UUID = "";
-            this.__loadedTemplates.unshift(emptyTemplate);
+            LoadedTemplates.unshift(emptyTemplate);
+            LoadedTemplates.sort((a,b)=>{
+                if (a.Editable) return -1;
+                if (b.Editable) return 1;
+                return a<=b;
+            })
             QuickCache = response.Templates;
             QuickCacheTimer = setTimeout(() => {
                 QuickCache = null;

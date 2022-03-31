@@ -838,7 +838,6 @@ service FrontendService {
     rpc FrontPutBinary(FrontBinaryRequest) returns (FrontBinaryResponse) {
         option (google.api.http) =  {
             post: "/frontend/binaries/{BinaryType}/{Uuid}"
-            body: "*"
         };
     }
     // Sends a tree of nodes to be used a menu in the Settings panel

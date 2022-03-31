@@ -5,16 +5,16 @@ deps:
     owner: googleapis
     repository: googleapis
     branch: main
-    commit: 7057d7fa1c4f42c9968fda97c34ac8d1
-    digest: b1-cinQG7-nhDaDhUzAdJI-YTU5BN8KcZBv_ujoU6muB3I=
-    create_time: 2021-11-02T15:09:38.737611Z
+    commit: 29f0c4b326944c4880d8ac526f3a7ec8
+    digest: b1-UaoWWLtd8i1y7--OQh0XBVXIB2ArCP45Cmnc4toxuxw=
+    create_time: 2022-03-30T15:12:46.107743Z
   - remote: buf.build
     owner: grpc-ecosystem
     repository: grpc-gateway
     branch: main
-    commit: ff83506eb9cc4cf8972f49ce87e6ed3e
-    digest: b1-iLPHgLaoeWWinMiXXqPnxqE4BThtY3eSbswVGh9GOGI=
-    create_time: 2021-10-23T16:26:52.283938Z
+    commit: f85c60ac38544f2d8f346491c9d916e5
+    digest: b1-qqV9hYsmYDGNXfic_Vap4lKVarQS4-RGAllaxwnTljM=
+    create_time: 2022-03-21T20:28:59.8282Z
   - remote: buf.build
     owner: torq
     repository: go-proto-validators

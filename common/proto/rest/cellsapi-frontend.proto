@@ -50,13 +50,19 @@ message SettingsMenuResponse{
     repeated SettingsSection Sections = 2;
 }
 
-message FrontStateRequest {}
-message FrontStateResponse {}
+message FrontStateRequest {
+    string XPath = 1;
+}
+message FrontStateResponse {
+    bytes Data = 1;
+}
 
 message FrontPluginsRequest {
     string Lang = 1;
 }
-message FrontPluginsResponse {}
+message FrontPluginsResponse {
+    bytes Data = 1;
+}
 
 message FrontMessagesRequest{
     string Lang = 1;
@@ -66,7 +72,9 @@ message FrontMessagesResponse{
 }
 
 
-message FrontSessionGetRequest {}
+message FrontSessionGetRequest {
+    bytes Data = 1;
+}
 
 message FrontSessionGetResponse {
     auth.Token Token = 1;
@@ -120,7 +128,9 @@ message FrontBinaryRequest {
     string Uuid = 2;
 }
 // Not used, endpoint returns octet-stream
-message FrontBinaryResponse {}
+message FrontBinaryResponse {
+    bytes Data = 1;
+}
 
 message FrontBootConfRequest {}
 message FrontBootConfResponse {

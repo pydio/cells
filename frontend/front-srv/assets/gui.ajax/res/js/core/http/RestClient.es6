@@ -41,6 +41,7 @@ class RestClient extends ApiClient{
     constructor(pydioObject, options = {}){
         super();
         this.uuid = genUuid()
+        this.defaultHeaders = {}; // Make sure to not set User-Agent
         this.basePath = pydioObject.Parameters.get('ENDPOINT_REST_API');
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;

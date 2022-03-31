@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<editor id="editor.browser" openable="true" order="1000" text="openbrowser.1"
+<editor id="editor.browser" enabled="false" openable="true" order="1000" text="openbrowser.1"
 		title="openbrowser.2" iconClass="mdi mdi-tab-plus"
 		className="PydioBrowserEditor" mimes="*,url" label="CONF_MESSAGE[External Window]" description="CONF_MESSAGE[Open file in a new browser window, thus using native browser capabilities.]">
     <server_settings>

@@ -178,7 +178,9 @@ message DeleteUserMetaTagsResponse{
     bool Success = 1;
 }
 
-message UserBookmarksRequest {}
+message UserBookmarksRequest {
+    bool All = 1;
+}
 
 // Rest request for revocation. Token is not mandatory, if not set
 // request will use current JWT token

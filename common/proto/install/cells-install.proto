@@ -133,6 +133,7 @@ message InstallEventsRequest {
 }
 
 message InstallEventsResponse {
+    bool Success = 1;
 }
 
 service Install {

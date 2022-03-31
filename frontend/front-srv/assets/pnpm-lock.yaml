@@ -681,7 +681,7 @@ importers:
       babel-plugin-add-module-exports: ^1.0.4
       browserify: ^17.0.0
       browserify-shim: ^3.8.14
-      cells-sdk: 3.0.0
+      cells-sdk: 4.0.0-rc1.0
       chart.js: ^1.0.2
       classnames: ~2.1.3
       clipboard: ^1.5.8
@@ -761,7 +761,7 @@ importers:
       wicked-good-xpath: ^1.3.0
     dependencies:
       aws-sdk: 2.856.0
-      cells-sdk: 3.0.0
+      cells-sdk: 4.0.0-rc1.0
       chart.js: 1.1.1
       classnames: 2.1.5
       clipboard: 1.7.1
@@ -3383,8 +3383,8 @@ packages:
     dev: true
     optional: true
 
-  /cells-sdk/3.0.0:
-    resolution: {integrity: sha512-aCBIoRfPqobgKUnOnmQOFsO+oM83WVnpMeVgt2JiQUd7qCBPJnE/1xY2lQTMxhF4+VJTiRSOLqqzg53BtyYhBw==}
+  /cells-sdk/4.0.0-rc1.0:
+    resolution: {integrity: sha512-qmgfg6UJMwPG1p0QVxmzRXyq0LxXZZMn3V3wB2fAu3+ssMl8cAj7ErOPdLbIbd7r021L3iD9yNFJv9qfd+2AnQ==}
     dependencies:
       superagent: 6.1.0
     transitivePeerDependencies:
@@ -3518,6 +3518,7 @@ packages:
     resolution: {integrity: sha1-6TfN/cxXgaAIF67EB56Fs+wVeiA=}
     engines: {node: '>=0.8.0'}
     hasBin: true
+    requiresBuild: true
     dependencies:
       commander: 2.0.0
     dev: true
@@ -3540,6 +3541,7 @@ packages:
 
   /clipboard/2.0.6:
     resolution: {integrity: sha512-g5zbiixBRk/wyKakSwCKd7vQXDjFnAMGHoEyBogG/bw9kTD9GvdAvaoRR1ALcEzt3pVKxZR0pViekPMIS0QyGg==}
+    requiresBuild: true
     dependencies:
       good-listener: 1.2.2
       select: 1.1.2
@@ -4260,6 +4262,7 @@ packages:
   /errno/0.1.8:
     resolution: {integrity: sha512-dJ6oBr5SQ1VSd9qkk7ByRgb/1SH4JZjCHSW/mr63/QcXO9zLVxvJ6Oy13nio03rxpSnVDDjFor75SjVeZWPW/A==}
     hasBin: true
+    requiresBuild: true
     dependencies:
       prr: 1.0.1
     dev: true
@@ -4731,6 +4734,7 @@ packages:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -5445,6 +5449,7 @@ packages:
     resolution: {integrity: sha1-Cd/Uq50g4p6xw+gLiZA3jfnjy5w=}
     engines: {node: '>=0.10.0'}
     hasBin: true
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -6231,6 +6236,7 @@ packages:
   /make-dir/2.1.0:
     resolution: {integrity: sha512-LS9X+dc8KLxXCb8dni79fLIIUA5VyZoyjSMCwTluaXA0o27cCK0bhXkpgw+sTXVpPy/lSO57ilRixqk0vDmtRA==}
     engines: {node: '>=6'}
+    requiresBuild: true
     dependencies:
       pify: 4.0.1
       semver: 5.7.1
@@ -6437,6 +6443,7 @@ packages:
 
   /mime/1.2.11:
     resolution: {integrity: sha1-WCA+7Ybjpe8XrtK32evUfwpg3RA=}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -6445,8 +6452,8 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
 
-  /mime/2.5.2:
-    resolution: {integrity: sha512-tqkh47FzKeCPD2PUiPB6pkbMzsCasjxAfC62/Wap5qrUWcb+sFasXUC5I3gYM5iBM8v/Qpn4UK0x+j0iHyFPDg==}
+  /mime/2.6.0:
+    resolution: {integrity: sha512-USPkMeET31rOMiarsBNIHZKLGgvKc/LrjofAnBlOttf5ajRvqiRA8QsenbcooctK6d6Ts6aqZXBA+XbkKthiQg==}
     engines: {node: '>=4.0.0'}
     hasBin: true
     dev: false
@@ -6515,6 +6522,7 @@ packages:
   /mkdirp/0.3.5:
     resolution: {integrity: sha1-3j5fiWHIjHh+4TaN+EmsRBPsqNc=}
     deprecated: Legacy versions of mkdirp are no longer supported. Please update to mkdirp 1.x. (Note that the API surface has changed to use Promises in 1.x.)
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -6603,6 +6611,7 @@ packages:
     resolution: {integrity: sha512-ZTq6WYkN/3782H1393me3utVYdq2XyqNUFBsprEE3VMAT0+hP/cItpnITpqsY6ep2yeFE4Tqtqwc74VqUlUYtw==}
     engines: {node: '>= 4.4.x'}
     hasBin: true
+    requiresBuild: true
     dependencies:
       debug: 3.2.7
       iconv-lite: 0.4.24
@@ -8043,6 +8052,7 @@ packages:
     resolution: {integrity: sha512-MsvtOrfG9ZcrOwAW+Qi+F6HbD0CWXEh9ou77uOb7FM2WPhwT7smM833PzanhJLsgXjN89Ir6V2PczXNnMpwKhw==}
     engines: {node: '>= 6'}
     deprecated: request has been deprecated, see https://github.com/request/request/issues/3142
+    requiresBuild: true
     dependencies:
       aws-sign2: 0.7.0
       aws4: 1.11.0
@@ -8397,6 +8407,7 @@ packages:
   /source-map/0.1.43:
     resolution: {integrity: sha1-wkvBRspRfBRx9drL4lcbK3+eM0Y=}
     engines: {node: '>=0.8.0'}
+    requiresBuild: true
     dependencies:
       amdefine: 1.0.1
     dev: true
@@ -8553,6 +8564,7 @@ packages:
   /superagent/3.5.2:
     resolution: {integrity: sha1-M2GjlxVnUEw1EGOr6q4PqiPb8/g=}
     engines: {node: '>= 0.12'}
+    deprecated: Please upgrade to v7.0.2+ of superagent.  We have fixed numerous issues with streams, form-data, attach(), filesystem errors not bubbling up (ENOENT on attach()), and all tests are now passing.  See the releases tab for more information at <https://github.com/visionmedia/superagent/releases>.
     dependencies:
       component-emitter: 1.3.0
       cookiejar: 2.1.2
@@ -8569,6 +8581,7 @@ packages:
   /superagent/6.1.0:
     resolution: {integrity: sha512-OUDHEssirmplo3F+1HWKUrUjvnQuA+nZI6i/JJBdXb5eq9IyEQwPyPpqND+SSsxf6TygpBEkUjISVRN4/VOpeg==}
     engines: {node: '>= 7.0.0'}
+    deprecated: Please upgrade to v7.0.2+ of superagent.  We have fixed numerous issues with streams, form-data, attach(), filesystem errors not bubbling up (ENOENT on attach()), and all tests are now passing.  See the releases tab for more information at <https://github.com/visionmedia/superagent/releases>.
     dependencies:
       component-emitter: 1.3.0
       cookiejar: 2.1.2
@@ -8577,7 +8590,7 @@ packages:
       form-data: 3.0.1
       formidable: 1.2.2
       methods: 1.1.2
-      mime: 2.5.2
+      mime: 2.6.0
       qs: 6.10.1
       readable-stream: 3.6.0
       semver: 7.3.5
