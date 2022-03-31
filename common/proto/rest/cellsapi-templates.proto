@@ -10,13 +10,9 @@ import "cells-tree.proto";
 // A template node is representing a file or a folder
 message TemplateNode {
     // Whether it's a file or a folder
-    bool IsFile = 1;
-    // If stored in binary store, the binary Uuid
-    string BinaryUUUID = 2;
-    // If it's embedded in binary
-    string EmbedPath = 3;
+    tree.Node Node = 1;
     // One or more children
-    repeated TemplateNode Children = 4;
+    map<string, tree.Node> Children = 2;
 }
 
 // A template can be used to create files or tree from scratch
@@ -27,25 +23,16 @@ message Template {
     string Label = 2;
     // Template node, can be a file or a tree of folders
     TemplateNode Node = 3;
-
+    // Whether this template can be edited or not
+    bool Editable = 5;
     // Associated policies
     repeated service.ResourcePolicy Policies = 4;
 }
 
 message ListTemplatesRequest {
-
+    string TemplateType = 1;
 }
 
 message ListTemplatesResponse {
     repeated Template Templates = 1;
-}
-
-message CreateFromTemplateRequest {
-    string TemplateUUID = 1;
-    tree.Node TargetNode = 2;
-}
-
-message CreateFromTemplateResponse {
-    bool Success = 1;
-    tree.Node Node = 2;
 }

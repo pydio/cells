@@ -6,9 +6,9 @@ package rest
 import (
 	fmt "fmt"
 	math "math"
-	proto "github.com/golang/protobuf/proto"
-	_ "github.com/pydio/cells/v4/common/proto/log"
+	proto "google.golang.org/protobuf/proto"
 	_ "github.com/pydio/cells/v4/common/proto/activity"
+	_ "github.com/pydio/cells/v4/common/proto/log"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 

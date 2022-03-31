@@ -6,9 +6,9 @@ package service
 import (
 	fmt "fmt"
 	math "math"
-	proto "github.com/golang/protobuf/proto"
-	_ "google.golang.org/protobuf/types/known/emptypb"
+	proto "google.golang.org/protobuf/proto"
 	_ "google.golang.org/protobuf/types/known/anypb"
+	_ "google.golang.org/protobuf/types/known/emptypb"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 

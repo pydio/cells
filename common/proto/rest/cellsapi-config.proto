@@ -145,7 +145,7 @@ message ConfigFormRequest{
 }
 
 message OpenApiResponse{
-
+    bytes Data = 1;
 }
 
 message ActionDescription{
@@ -188,7 +188,9 @@ message SchedulerActionFormRequest{
     string ActionName = 1;
 }
 
-message SchedulerActionFormResponse{}
+message SchedulerActionFormResponse{
+    string ActionName = 1;
+}
 
 // Request used for ListSites api
 message ListSitesRequest {

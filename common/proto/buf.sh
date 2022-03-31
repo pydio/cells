@@ -20,16 +20,6 @@
 # The latest code can be found at <https://pydio.com>.
 #
 
-#cd $GOPATH/src
-
-#protoc -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-#       -I$GOPATH/src/github.com/google/protobuf/src \
-#       -I$GOPATH/src \
-#       -I. \
-#       --go_out=plugins=grpc:. \
-#       --govalidators_out=. \
-#       $GOPATH/src/github.com/pydio/cells/v4/common/proto/$1/*.proto
-
 if [ ! -d "./bin" ]
 then
   mkdir -p ./bin

@@ -568,6 +568,7 @@ message DeletePolicyGroupResponse{
     bool Success = 1;
 }
 message ListPolicyGroupsRequest{
+    string Filter = 1;
 }
 message ListPolicyGroupsResponse{
     repeated PolicyGroup PolicyGroups = 1;

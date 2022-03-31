@@ -6,7 +6,7 @@ package rest
 import (
 	fmt "fmt"
 	math "math"
-	proto "github.com/golang/protobuf/proto"
+	proto "google.golang.org/protobuf/proto"
 	_ "github.com/pydio/cells/v4/common/proto/service"
 	_ "github.com/pydio/cells/v4/common/proto/tree"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
@@ -18,13 +18,12 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *TemplateNode) Validate() error {
-	for _, item := range this.Children {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Children", err)
-			}
+	if this.Node != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Node); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Node", err)
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *Template) Validate() error {
@@ -51,22 +50,6 @@ func (this *ListTemplatesResponse) Validate() error {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Templates", err)
 			}
-		}
-	}
-	return nil
-}
-func (this *CreateFromTemplateRequest) Validate() error {
-	if this.TargetNode != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TargetNode); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("TargetNode", err)
-		}
-	}
-	return nil
-}
-func (this *CreateFromTemplateResponse) Validate() error {
-	if this.Node != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Node); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Node", err)
 		}
 	}
 	return nil

@@ -13,6 +13,7 @@ import (
 	codes "google.golang.org/grpc/codes"
 	metadata "google.golang.org/grpc/metadata"
 	status "google.golang.org/grpc/status"
+	sync "sync"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,7 +22,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 var (
-	enhancedTesterServers = make(map[string]TesterEnhancedServer)
+	enhancedTesterServers     = make(map[string]TesterEnhancedServer)
+	enhancedTesterServersLock = sync.RWMutex{}
 )
 
 type NamedTesterServer interface {
@@ -35,6 +37,8 @@ func (m TesterEnhancedServer) Run(ctx context.Context, r *RunTestsRequest) (*Run
 	if !ok || len(md.Get("targetname")) == 0 {
 		return nil, status.Errorf(codes.FailedPrecondition, "method Run should have a context")
 	}
+	enhancedTesterServersLock.RLock()
+	defer enhancedTesterServersLock.RUnlock()
 	for _, mm := range m {
 		if mm.Name() == md.Get("targetname")[0] {
 			return mm.Run(ctx, r)
@@ -44,6 +48,8 @@ func (m TesterEnhancedServer) Run(ctx context.Context, r *RunTestsRequest) (*Run
 }
 func (m TesterEnhancedServer) mustEmbedUnimplementedTesterServer() {}
 func RegisterTesterEnhancedServer(s grpc.ServiceRegistrar, srv NamedTesterServer) {
+	enhancedTesterServersLock.Lock()
+	defer enhancedTesterServersLock.Unlock()
 	addr := fmt.Sprintf("%p", s)
 	m, ok := enhancedTesterServers[addr]
 	if !ok {
@@ -54,6 +60,8 @@ func RegisterTesterEnhancedServer(s grpc.ServiceRegistrar, srv NamedTesterServer
 	m[srv.Name()] = srv
 }
 func DeregisterTesterEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedTesterServersLock.Lock()
+	defer enhancedTesterServersLock.Unlock()
 	addr := fmt.Sprintf("%p", s)
 	m, ok := enhancedTesterServers[addr]
 	if !ok {

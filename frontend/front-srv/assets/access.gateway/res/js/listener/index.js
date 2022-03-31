@@ -28,6 +28,7 @@ const Listeners  = {
     copyContextChange           : require('./copyContextChange')(pydio),
     openWithDynamicBuilder      : require('./openWithDynamicBuilder')(pydio),
     lockSelectionChange         : require('./lockSelectionChange')(pydio),
+    deleteTemplateByUuid: ()=>{},
 };
 
 export {Listeners as default}

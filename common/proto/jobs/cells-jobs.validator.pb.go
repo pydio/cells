@@ -6,13 +6,13 @@ package jobs
 import (
 	fmt "fmt"
 	math "math"
-	proto "github.com/golang/protobuf/proto"
-	_ "github.com/pydio/cells/v4/common/proto/tree"
-	_ "github.com/pydio/cells/v4/common/proto/idm"
-	_ "github.com/pydio/cells/v4/common/proto/activity"
+	proto "google.golang.org/protobuf/proto"
 	_ "github.com/pydio/cells/v4/common/proto/object"
 	_ "google.golang.org/protobuf/types/known/anypb"
 	_ "github.com/pydio/cells/v4/common/proto/service"
+	_ "github.com/pydio/cells/v4/common/proto/tree"
+	_ "github.com/pydio/cells/v4/common/proto/idm"
+	_ "github.com/pydio/cells/v4/common/proto/activity"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 

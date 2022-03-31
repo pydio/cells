@@ -27,14 +27,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/tomwright/dasel"
 )
 
 var (
-	base = filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "common", "proto", "rest")
-	/*
-			template = `package rest
-		var SwaggerJson = ` + "`%s`"
-	*/
+	base     = filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "common", "proto", "rest")
 	replaces = map[string]string{
 		`          "default": {
             "description": "An unexpected error response.",
@@ -98,6 +97,17 @@ var (
     },
     "restDeleteResponse":`,
 	}
+
+	inlineTitles = map[string]string{
+		"paths.\\/config\\/peers\\/{PeerAddress}.post.parameters.[1].schema.title": "RestListPeerFoldersRequest",
+		"paths.\\/config\\/peers\\/{PeerAddress}.put.parameters.[1].schema.title":  "RestCreatePeerFolderRequest",
+		"paths.\\/jobs\\/user\\/{JobName}.put.parameters.[1].schema.title":         "RestUserJobRequest",
+		"paths.\\/meta\\/delete\\/{NodePath}.post.parameters.[1].schema.title":     "RestMetaNamespaceRequest",
+		"paths.\\/meta\\/get\\/{NodePath}.post.parameters.[1].schema.title":        "RestMetaNamespaceRequest",
+		"paths.\\/meta\\/set\\/{NodePath}.post.parameters.[1].schema.title":        "RestMetaCollection",
+		"paths.\\/user-meta\\/tags\\/{Namespace}.post.parameters.[1].schema.title": "RestPutUserMetaTagRequest",
+		"paths.\\/update\\/{TargetVersion}.patch.parameters.[1].schema.title":      "UpdateApplyUpdateRequest",
+	}
 )
 
 func main() {
@@ -108,19 +118,20 @@ func main() {
 			c1 = strings.ReplaceAll(c1, k, v)
 		}
 		content = []byte(c1)
-		ioutil.WriteFile(filepath.Join(base, "cellsapi-rest.swagger.json"), []byte(c1), 0777)
 
-		/*
-			fmt.Println("** Transforming json file to go file")
-			clean := strings.Replace(string(content), "`", "", -1)
-			toStore := fmt.Sprintf(template, clean)
-			err2 := ioutil.WriteFile(filepath.Join(base, "swagger.go"), []byte(toStore), 0777)
-			if err2 == nil {
-				fmt.Println("File swagger.go was written")
-			} else {
-				fmt.Println("Cannot write target file" + err2.Error())
+		var data interface{}
+		_ = json.Unmarshal(content, &data)
+		rootNode := dasel.New(data)
+
+		for k, v := range inlineTitles {
+			e := rootNode.Put(k, v)
+			if e != nil {
+				fmt.Println("Got error")
 			}
-		*/
+		}
+		output, _ := json.MarshalIndent(rootNode.InterfaceValue(), "", "  ")
+		_ = ioutil.WriteFile(filepath.Join(base, "cellsapi-rest.swagger.json"), output, 0777)
+
 	} else {
 		fmt.Println("Cannot read original file" + err.Error())
 	}

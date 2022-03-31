@@ -23,13 +23,14 @@ package rest
 
 import (
 	restful "github.com/emicklei/go-restful/v3"
+	"github.com/pydio/cells/v4/common/service"
 
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/data/templates"
 )
 
 type Handler struct {
-	dao templates.DAO
+	Dao templates.DAO
 }
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
@@ -46,7 +47,11 @@ func (a *Handler) Filter() func(string) string {
 
 func (a *Handler) ListTemplates(req *restful.Request, rsp *restful.Response) {
 
-	nodes := a.dao.List()
+	nodes, er := a.Dao.List(req.Request.Context())
+	if er != nil {
+		service.RestErrorDetect(req, rsp, er)
+		return
+	}
 	response := &rest.ListTemplatesResponse{}
 	for _, node := range nodes {
 		response.Templates = append(response.Templates, node.AsTemplate())

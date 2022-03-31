@@ -39,7 +39,7 @@ func init() {
 			//service.RouterDependencies(),
 			service.WithWeb(func(c context.Context) service.WebHandler {
 				h := new(Handler)
-				h.dao = templates.GetProvider()
+				h.Dao = templates.GetProvider()
 				return h
 			}),
 		)

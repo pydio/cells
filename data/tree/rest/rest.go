@@ -169,15 +169,15 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 			meta := map[string]string{}
 			if input.TemplateUUID != "" {
 				provider := templates.GetProvider()
-				node, err := provider.ByUUID(input.TemplateUUID)
+				node, err := provider.ByUUID(h.RuntimeCtx, input.TemplateUUID)
 				if err != nil {
 					service.RestErrorDetect(req, resp, err)
 					return
 				}
 				var e error
-				reader, length, e = node.Read()
+				reader, length, e = node.Read(h.RuntimeCtx)
 				if e != nil {
-					service.RestError500(req, resp, fmt.Errorf("Cannot read template!"))
+					service.RestError500(req, resp, fmt.Errorf("cannot read template"))
 					return
 				}
 

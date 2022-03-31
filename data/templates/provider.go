@@ -20,7 +20,11 @@
 
 package templates
 
-import "github.com/pydio/cells/v4/common/service/errors"
+import (
+	"context"
+
+	"github.com/pydio/cells/v4/common/service/errors"
+)
 
 var (
 	registeredDAOs []DAO
@@ -41,18 +45,22 @@ func GetProvider() DAO {
 type TemplateProvider struct {
 }
 
-func (t *TemplateProvider) List() []Node {
+func (t *TemplateProvider) List(ctx context.Context) ([]Node, error) {
 	var nodes []Node
 	for _, dao := range registeredDAOs {
-		nodes = append(nodes, dao.List()...)
+		nn, e := dao.List(ctx)
+		if e != nil {
+			return nil, e
+		}
+		nodes = append(nodes, nn...)
 	}
-	return nodes
+	return nodes, nil
 }
 
-func (t *TemplateProvider) ByUUID(uuid string) (Node, error) {
+func (t *TemplateProvider) ByUUID(ctx context.Context, uuid string) (Node, error) {
 	var node Node
 	for _, dao := range registeredDAOs {
-		if n, e := dao.ByUUID(uuid); e == nil {
+		if n, e := dao.ByUUID(ctx, uuid); e == nil {
 			node = n
 			break
 		}
