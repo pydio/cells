@@ -92,11 +92,12 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 	}
 }
 
+// TODO - should be using the resolver for this ?
 func watchRegistry(ctx context.Context, treeServer *TreeServer) {
 
 	reg := servicecontext.GetRegistry(ctx)
 
-	w, err := reg.Watch(registry.WithType(pb.ItemType_SERVICE))
+	w, err := reg.Watch(registry.WithType(pb.ItemType_SERVICE), registry.WithAction(pb.ActionType_FULL_DIFF))
 	if err != nil {
 		return
 	}
@@ -108,10 +109,6 @@ func watchRegistry(ctx context.Context, treeServer *TreeServer) {
 		}
 
 		do := false
-		// TODO V4 - on DS deletion, event received is UPDATE, but r.Items() is empty
-		// Also we could debounce this event
-		do = true
-		// fmt.Println("TreeService, WatchRegistry Action:", r.Action().String(), ", Items: ", len(r.Items()))
 		for _, item := range r.Items() {
 			var s registry.Service
 			if !item.As(&s) {
@@ -126,5 +123,4 @@ func watchRegistry(ctx context.Context, treeServer *TreeServer) {
 			updateServicesList(ctx, treeServer, 0)
 		}
 	}
-
 }

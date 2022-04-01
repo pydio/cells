@@ -23,12 +23,13 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime"
-	"google.golang.org/grpc"
 	"io"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/pydio/cells/v4/common/runtime"
+	"google.golang.org/grpc"
 
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 
@@ -122,9 +123,6 @@ func (s *TreeServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeS
 	ctx = runtime.ForkContext(ctx, s.MainCtx)
 	metaStreamer := meta.NewStreamLoader(ctx)
 	defer metaStreamer.Close()
-
-	// todo v4 - tmp fix watchRegistry
-	updateServicesList(s.MainCtx, s, 5)
 
 	msCtx := context.WithValue(ctx, "MetaStreamer", metaStreamer)
 	msCtx = context.WithValue(msCtx, "ServicesListReloaded", true)
@@ -742,11 +740,6 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ..
 	c, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 	wg := &sync.WaitGroup{}
-
-	// todo v4 - tmp fix watchRegistry
-	if ctx.Value("ServicesListReloaded") == nil {
-		updateServicesList(s.MainCtx, s, 5)
-	}
 
 	for dsName, ds := range s.DataSources {
 		wg.Add(1)
