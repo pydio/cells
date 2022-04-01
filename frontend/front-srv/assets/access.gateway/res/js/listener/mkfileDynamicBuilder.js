@@ -138,7 +138,8 @@ class Builder {
         }
         const api = new TemplatesServiceApi(PydioApi.getRestClient());
         api.listTemplates().then(response => {
-            LoadedTemplates = response.Templates;
+            // Show only leafs
+            LoadedTemplates = response.Templates.filter(t => t.Node.Node.Type === 'LEAF');
             // Add Empty File Template
             const emptyTemplate = new RestTemplate();
             emptyTemplate.Label = pydio.MessageHash["mkfile.empty.template.label"] || "Empty File";
@@ -149,7 +150,7 @@ class Builder {
                 if (b.Editable) return 1;
                 return a<=b;
             })
-            QuickCache = response.Templates;
+            QuickCache = LoadedTemplates;
             QuickCacheTimer = setTimeout(() => {
                 QuickCache = null;
             }, 2000);

@@ -28,7 +28,7 @@ export default function asMetaField(Component){
             super(props);
             this.state = {
                 value: this.props.value || 0,
-                configs: new Map(),
+                configs: this.props.configs || new Map(),
                 getRealValue: () => {
                     const {node, column} = this.props;
                     return node.getMetadata().get(column.name)
@@ -37,9 +37,11 @@ export default function asMetaField(Component){
         }
 
         componentDidMount() {
-            MetaClient.getInstance().loadConfigs().then(configs =>{
-                this.setState({configs})
-            })
+            if(!this.props.configs){
+                MetaClient.getInstance().loadConfigs().then(configs =>{
+                    this.setState({configs})
+                })
+            }
         }
 
         render() {

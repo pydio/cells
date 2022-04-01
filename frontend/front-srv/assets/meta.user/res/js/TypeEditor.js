@@ -21,9 +21,9 @@
 import React, {Fragment} from 'react'
 import Pydio from 'pydio'
 import LangUtils from 'pydio/util/lang'
-import {MenuItem} from 'material-ui'
+import {MenuItem, Toggle} from 'material-ui'
 import TypeSelectionBoard from "./TypeSelectionBoard";
-const {ModernSelectField, ModernTextField} = Pydio.requireLib('hoc');
+const {ModernSelectField, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
 
 const MetaTypes = {
     "string":       "Text",
@@ -98,7 +98,7 @@ class TypeEditor extends React.Component {
 
     render() {
 
-        const {pydio, create, namespace, readonly, labelError, nameError, styles, metaTypes = MetaTypes} = this.props;
+        const {pydio, create, namespace, readonly, labelError, nameError, styles, metaTypes = MetaTypes, showMandatory=false} = this.props;
         let {m} = this.props;
         if(!m){
             m = (id) => pydio.MessageHash['ajxp_admin.metadata.' + id] || id;
@@ -190,6 +190,19 @@ class TypeEditor extends React.Component {
                             <MenuItem value={'percentage'} primaryText={m('type.integer.format.percentage')}/>
                             <MenuItem value={'progress'} primaryText={m('type.integer.format.progress')}/>
                         </ModernSelectField>
+                    </Fragment>
+                }
+                {showMandatory &&
+                    <Fragment>
+                        <Toggle
+                            {...ModernStyles.toggleFieldV2}
+                            toggled={this.getAdditionalData({mandatory:false}).mandatory}
+                            onToggle={(e,v) => {
+                                this.setAdditionalDataKey('mandatory', v)
+                            }}
+                            label={m('field.mandatory')}
+                            labelPosition={"right"}
+                        />
                     </Fragment>
                 }
             </div>

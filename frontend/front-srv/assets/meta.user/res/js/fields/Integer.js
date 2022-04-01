@@ -51,12 +51,20 @@ class IntegerForm extends React.Component{
         this.state = {}
     }
 
+    configAsState(configs, fieldname){
+        if(configs.has(fieldname)){
+            this.setState(configs.get(fieldname).data)
+        }
+    }
+
     componentDidMount() {
-        const {fieldname} = this.props;
-        MetaClient.getInstance().loadConfigs().then(metaConfigs => {
-            let configs = metaConfigs.get(fieldname);
-            this.setState(configs.data);
-        });
+        const {fieldname, configs} = this.props;
+        console.log(configs, fieldname);
+        if(configs){
+            this.configAsState(configs, fieldname)
+        }else{
+            MetaClient.getInstance().loadConfigs().then(metaConfigs => this.configAsState(metaConfigs, fieldname));
+        }
     }
 
     render() {

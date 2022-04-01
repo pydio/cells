@@ -128,8 +128,9 @@ export default class UserMetaPanel extends React.Component{
                 let field;
                 let baseProps = {
                     fieldname: key,
-                    label: label,
-                    value: value,
+                    label,
+                    value,
+                    configs,
                     onValueChange: (name, value, submit) => this.updateValue(name, value, submit)
                 };
                 switch (type){
