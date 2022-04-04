@@ -73,7 +73,7 @@ var testCmd = &cobra.Command{
 			if !pass {
 				color.Red("=> One or more tests failed!")
 			} else {
-				color.Green("=> All tests passed succesfully!")
+				color.Green("=> All tests passed successfully!")
 			}
 			fmt.Println("")
 		}
