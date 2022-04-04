@@ -120,7 +120,7 @@
     "other": "Authentication Failed"
   },
   "oauth.authentication.code": {
-    "other": "You were succesfully authenticated. Please copy and paste the code to your command line terminal"
+    "other": "You were successfully authenticated. Please copy and paste the code to your command line terminal"
   },
   "oauth.authentication.copy-code": {
     "other": "Copy code to your clipboard"

@@ -822,7 +822,7 @@
     "other": "Wert in Dateiliste anzeigen"
   },
   "metadata.field.mandatory": {
-    "other": "Mandatory"
+    "other": "Pflichtfeld"
   },
   "perfs.booster.description": {
     "other": "Überprüft, ob Pydio-Boost gestartet ist und WebSocket-Unterstützung anbietet"

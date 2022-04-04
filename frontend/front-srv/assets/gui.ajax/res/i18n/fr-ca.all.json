@@ -120,7 +120,7 @@
     "other": "Échec de l'authentification"
   },
   "oauth.authentication.code": {
-    "other": "Vous avez été authentifié avec succès. Veuillez copier et coller le code dans votre terminal."
+    "other": "You were successfully authenticated. Please copy and paste the code to your command line terminal"
   },
   "oauth.authentication.copy-code": {
     "other": "Copier le code dans votre presse-papiers"

@@ -108,7 +108,7 @@
     "other": "Dies kann notwendig sein, damit neue Erweiterungen in der Liste erscheinen."
   },
   "131": {
-    "other": "Zwischenspeicher für Erweiterungen erfolgreich geleert!"
+    "other": "Plugin-Cache Dateien wurden erfolgreich gelöscht!"
   },
   "132": {
     "other": "Zwischenspeicher wurde geleert, aber Pydio läuft im SKIP_CACHE Modus (siehe bootstrap_context.php)."

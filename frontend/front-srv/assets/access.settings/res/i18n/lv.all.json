@@ -108,7 +108,7 @@
     "other": "Iztīrīt spraudņu kešu, var būt nepieciešams lai atjaunotu spraudņu sarakstu."
   },
   "131": {
-    "other": "Sparaudņu keša faili veiksmīgi nodzēsti!"
+    "other": "Plugins cache files were deleted successfully!"
   },
   "132": {
     "other": "Kešs iztīrīts, bet šobŗid darbojas SKIP_CACHE režīms (skatīt bootstrap_context.php)."
