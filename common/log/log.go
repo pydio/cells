@@ -196,7 +196,7 @@ func SetSkipServerSync() {
 func initLogger(l *logger, f func() *zap.Logger, globalConnInit func(ctx context.Context)) {
 	l.set(f)
 	if globalConnInit != nil {
-		runtime.RegisterGlobalConnConsumer("discovery", func(ctx context.Context) {
+		runtime.RegisterGlobalConnConsumer("main", func(ctx context.Context) {
 			globalConnInit(ctx)
 			l.forceReset()
 		})
