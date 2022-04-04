@@ -108,7 +108,7 @@
     "other": "Xóa bộ nhớ cache của plugins. Việc này là cần thiết khi bạn thêm mới plugins."
   },
   "131": {
-    "other": "Bộ nhớ cache của plugins đã được xóa thành công!"
+    "other": "Plugins cache files were deleted successfully!"
   },
   "132": {
     "other": "Bộ nhớ cache đã được xóa, tuy nhiên bạn đang chạy ở chế độ bỏ qua cache (SKIP_CACHE)."

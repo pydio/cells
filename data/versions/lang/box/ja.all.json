@@ -16,8 +16,8 @@
     "other": "削除したノードのバージョンファイルを消去中"
   },
   "Job.Pruning.StatusDone": {
-    "one": "{{.Count}} バージョンを正常に削除しました",
-    "other": "{{.Count}} バージョンを正常に削除しました."
+    "one": "Successfully removed {{.Count}} version",
+    "other": "Successfully removed {{.Count}} versions."
   },
   "Config.GroupPolicy.Title": {
     "other": "ポリシー"

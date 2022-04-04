@@ -108,7 +108,7 @@
     "other": "Vider le cache des plugins peut être nécessaire pour voir les nouveaux plugins apparaître dans la liste."
   },
   "131": {
-    "other": "Le cache des plugins a été supprimé!"
+    "other": "Plugins cache files were deleted successfully!"
   },
   "132": {
     "other": "Le cache des plugins a été supprimé, mais vous êtes actuellement en mode SKIP_CACHE (voir bootstrap_context.php)."

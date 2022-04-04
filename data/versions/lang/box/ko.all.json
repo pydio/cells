@@ -16,8 +16,8 @@
     "other": "삭제된 노드들에 대한 버전 파일 정리"
   },
   "Job.Pruning.StatusDone": {
-    "one": "성공적으로 {{.Count}} 버전 삭제함",
-    "other": "성공적으로 {{.Count}} 버전들 삭제함"
+    "one": "Successfully removed {{.Count}} version",
+    "other": "Successfully removed {{.Count}} versions."
   },
   "Config.GroupPolicy.Title": {
     "other": "정책"

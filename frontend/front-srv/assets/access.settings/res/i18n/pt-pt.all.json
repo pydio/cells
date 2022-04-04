@@ -108,7 +108,7 @@
     "other": "Apage o cache de plugins para listar novo plugins."
   },
   "131": {
-    "other": "Arquivos de cache de plugins apagados com sucesso!"
+    "other": "Plugins cache files were deleted successfully!"
   },
   "132": {
     "other": "Cache apagado, mas o modo SKIP_CACHE está habilitado (ver bootstrap_context.php)."

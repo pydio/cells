@@ -822,7 +822,7 @@
     "other": "Afficher dans la liste"
   },
   "metadata.field.mandatory": {
-    "other": "Mandatory"
+    "other": "Obligatoire"
   },
   "perfs.booster.description": {
     "other": "Vérifie que Pydio Booster est actif et que la communication WebSocket fonctionne."

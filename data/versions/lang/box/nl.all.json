@@ -16,8 +16,8 @@
     "other": "Versiebestanden opschonen voor verwijderde nodes"
   },
   "Job.Pruning.StatusDone": {
-    "one": "{{.Count}} versie succesvol verwijderd",
-    "other": "{{.Count}} versies succesvol verwijderd."
+    "one": "Successfully removed {{.Count}} version",
+    "other": "Successfully removed {{.Count}} versions."
   },
   "Config.GroupPolicy.Title": {
     "other": "Beleid"

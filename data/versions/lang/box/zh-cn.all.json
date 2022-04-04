@@ -16,8 +16,8 @@
     "other": "清理已删除节点的版本文件"
   },
   "Job.Pruning.StatusDone": {
-    "one": "成功删除了 {{.Count}} 版本",
-    "other": "成功删除了 {{.Count}} 版本."
+    "one": "Successfully removed {{.Count}} version",
+    "other": "Successfully removed {{.Count}} versions."
   },
   "Config.GroupPolicy.Title": {
     "other": "策略"

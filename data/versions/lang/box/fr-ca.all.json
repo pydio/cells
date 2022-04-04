@@ -16,8 +16,8 @@
     "other": "Suppression des versions pour les documents supprimés"
   },
   "Job.Pruning.StatusDone": {
-    "one": "{{.Count}} version a été supprimée avec succès",
-    "other": "{{.Count}} versions ont été supprimées avec succès."
+    "one": "Successfully removed {{.Count}} version",
+    "other": "Successfully removed {{.Count}} versions."
   },
   "Config.GroupPolicy.Title": {
     "other": "Stratégie"

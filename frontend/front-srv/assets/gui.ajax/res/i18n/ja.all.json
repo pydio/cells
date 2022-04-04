@@ -120,7 +120,7 @@
     "other": "認証に失敗しました"
   },
   "oauth.authentication.code": {
-    "other": "認証に成功しました。コマンドライン端末にコードをコピーして貼り付けてください。"
+    "other": "You were successfully authenticated. Please copy and paste the code to your command line terminal"
   },
   "oauth.authentication.copy-code": {
     "other": "クリップボードにコードをコピー"

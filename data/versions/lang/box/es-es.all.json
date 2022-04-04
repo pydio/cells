@@ -16,8 +16,8 @@
     "other": "Limpiando archivos de versiones para nodos eliminados"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Se ha eliminado correctamente la versión {{.Count}}",
-    "other": "Se han eliminado exitosamente las versiones {{.Count}}."
+    "one": "Se ha eliminado correctamente la versión",
+    "other": "Se han eliminado exitosamente las {{.Count}} versiones."
   },
   "Config.GroupPolicy.Title": {
     "other": "Directivas"
