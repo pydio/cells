@@ -821,6 +821,9 @@
   "metadata.toggle.list-visibility": {
     "other": "Mostrar valor na lista de arquivos"
   },
+  "metadata.field.mandatory": {
+    "other": "Mandatory"
+  },
   "perfs.booster.description": {
     "other": "Verifica se Pydio Booster é iniciado e permite a comunicação de WebSocket"
   },

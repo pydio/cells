@@ -3,21 +3,21 @@
     "other": "버전관리를 위한 이벤트 기반의 데이터 복제 작업"
   },
   "Job.Version.StatusFile": {
-    "other": "Created version {{.Uuid}} inside version bucket "
+    "other": "버전 버킷에 버전 {{.Uuid}}를 생성하였습니다. "
   },
   "Job.Version.StatusMeta": {
-    "other": "{{.Uuid}}에 대한 메타데이터를 생성했습니다."
+    "other": "{{.Uuid}}에 대한 버전 메타데이터를 생성했습니다."
   },
   "Job.Version.StatusPrune": {
-    "one": "Pruned {{.Count}} version",
-    "other": "Pruned {{.Count}} versions"
+    "one": "{{.Count}} 버전 잘라냄",
+    "other": "{{.Count}} 버전들 잘라냄"
   },
   "Job.Pruning.Title": {
-    "other": "Cleaning versions files for deleted nodes"
+    "other": "삭제된 노드들에 대한 버전 파일 정리"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Succesfully removed {{.Count}} version",
-    "other": "Succesfully removed {{.Count}} versions."
+    "one": "성공적으로 {{.Count}} 버전 삭제함",
+    "other": "성공적으로 {{.Count}} 버전들 삭제함"
   },
   "Config.GroupPolicy.Title": {
     "other": "정책"
@@ -35,69 +35,69 @@
     "other": "정책 설명"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
-    "other": "Store"
+    "other": "저장"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
-    "other": "DataSource used to store versions"
+    "other": "데이터소스에 사용된 버전들"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
     "other": "Bucket"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
-    "other": "Bucket used inside this datasource"
+    "other": "이 데이터원본에서 사용된 버킷"
   },
   "Config.GroupSizes.Title": {
     "other": "크기 제한"
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
-    "other": "Global size of all versions kept in this bucket"
+    "other": "이 버킷에 사용된 모든 버전들의 글로벌 사이즈"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
-    "other": "Limit the overall size taken. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "오버롤 사이즈 확보를 제한함. 제한에 도달한 경우 가장 오래된 버전이 삭제됨. 제한없이 사용시 -1 사용"
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other": "Cumulated sizes for versions of one given file"
+    "other": "특정 파일 1개 버전의 누적 크기"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
-    "other": "Limit the size taken by all versions of one file. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "한 파일의 모든 버전에서 사용하는 크기를 제한함. 제한에 도달한 경우 가장 오래된 버전이 삭제됨. 제한없이 사용시 -1 사용"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
-    "other": "Ignore files greater than..."
+    "other": "~보다 큰 파일 무시"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
-    "other": "Do NOT version files with size greater than this limit. Use -1 for no limit"
+    "other": "크기가 이 제한을 초과하는 버전 파일은 사용하지 않음. 제한없이 사용시 -1 사용"
   },
   "Config.GroupRetention.Title": {
-    "other": "Retention Periods"
+    "other": "보존 기간"
   },
   "Config.GroupRetention.Description": {
-    "other": "Number of versions to keep per period"
+    "other": "기간당 유지할 버전의 수"
   },
   "Config.GroupRetention.IntervalStart.Name": {
-    "other": "Period Start"
+    "other": "기간 시작"
   },
   "Config.GroupRetention.IntervalStart.Description": {
-    "other": "Start point used for computing period. 0 is the time of the last version set, use another Period to set an limit"
+    "other": "계산 기간에 사용되는 시작점임. 0은 마지막 버전의 집합 시간임. 제한을 설정하려면 다른 기간을 사용"
   },
   "Config.GroupRetention.MaxNumber.Name": {
-    "other": "Maximum Number of Versions"
+    "other": "최대 버전 수"
   },
   "Config.GroupRetention.MaxNumber.Description": {
-    "other": "Max number of versions to keep over this period. Use -1 to keep all versions, 0 to delete all."
+    "other": "기간동안 유지할 최대 버전 수. 모든 버전을 유지하려면 -1을 사용, 모두 삭제하려면 0을 사용"
   },
   "Config.GroupRetention.NodeDeletedStrategy.Name": {
-    "other": "After original file deletion"
+    "other": "원본 파일 삭제 후"
   },
   "Config.GroupRetention.NodeDeletedStrategy.Description": {
-    "other": "Number of versions to keep after original file deletion."
+    "other": "원본 파일 삭제 후 유지할 버전의 수"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepAll": {
-    "other": "Backup all existing versions"
+    "other": "모든 기존 버전 백업"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepLast": {
-    "other": "Backup most recent version only"
+    "other": "가장 최근 버전만 백업"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepNone": {
-    "other": "Delete all existing versions"
+    "other": "기존 버전 모두 삭제"
   }
 }
