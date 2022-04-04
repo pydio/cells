@@ -3,18 +3,18 @@
     "other": "색인 내용"
   },
   "Search.Config.IndexContent.Description": {
-    "other": "If set to true, indexer will look for the ContentRef metadata, read contents from this reference and index it for search."
+    "other": "True로 설정되있는 경우, 인덱서는 ContentRef 메타데이터를 찾고 이 참조에서 내용을 읽은 후, 검색을 위해 인덱싱할 것 입니다."
   },
   "Search.Config.BasenameAnalyze.Label": {
     "other": "파일 이름 분석"
   },
   "Search.Config.BasenameAnalyze.Description": {
-    "other": "Analyzer used on file names"
+    "other": "파일 이름에 사용되는 분석"
   },
   "Search.Config.ContentAnalyzer.Label": {
     "other": "내용 분석"
   },
   "Search.Config.ContentAnalyzer.Description": {
-    "other": "Analyzer used on contents"
+    "other": "컨텐츠에 사용되는 분석"
   }
 }

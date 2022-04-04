@@ -821,6 +821,9 @@
   "metadata.toggle.list-visibility": {
     "other": "ファイルリストに値を表示"
   },
+  "metadata.field.mandatory": {
+    "other": "Mandatory"
+  },
   "perfs.booster.description": {
     "other": "Pydio Booster が起動していることを確認し、WebSocket 通信を有効にします。"
   },
