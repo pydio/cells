@@ -99,7 +99,7 @@ func computeSiteConf(pc *install.ProxyConfig) (SiteConf, error) {
 	}
 	if bc.TLSConfig == nil {
 		for i, b := range bc.Binds {
-			bc.Binds[i] = "http://" + b
+			bc.Binds[i] = "http://" + strings.Replace(b, "0.0.0.0", "", 1)
 		}
 	} else {
 		for i, b := range bc.Binds {
