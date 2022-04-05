@@ -99,7 +99,7 @@
     "other": "一致"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "pattern"
+    "other": "パターン"
   },
   "conditionBooleanCondition.value": {
     "other": "True"
@@ -138,7 +138,7 @@
     "other": "Glob Matcher"
   },
   "contextMetaCondition.BooleanCondition": {
-    "other": "Boolean Value"
+    "other": "ブール値"
   },
   "contextMetaField.ContentType": {
     "other": "コンテンツタイプ"
