@@ -29,6 +29,8 @@ import (
 	"net/url"
 	"strings"
 
+	"google.golang.org/grpc"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
@@ -39,15 +41,16 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/caddy/maintenance"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"google.golang.org/grpc"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 type Middleware struct {
-	c       grpc.ClientConnInterface
-	r       registry.Registry
-	s       server.HttpMux
-	b       *clienthttp.Balancer
-	monitor grpc2.HealthMonitor
+	c         grpc.ClientConnInterface
+	r         registry.Registry
+	s         server.HttpMux
+	b         *clienthttp.Balancer
+	monitor   grpc2.HealthMonitor
+	userReady bool
 }
 
 func NewMiddleware(ctx context.Context, s server.HttpMux) Middleware {
@@ -92,6 +95,17 @@ func NewMiddleware(ctx context.Context, s server.HttpMux) Middleware {
 		b:       balancer,
 		monitor: monitor,
 	}
+}
+
+func (m Middleware) userServiceReady() bool {
+	if m.userReady {
+		return true
+	}
+	if service.RegistryHasServiceWithStatus(m.r, common.ServiceGrpcNamespace_+common.ServiceUser, service.StatusReady) {
+		m.userReady = true
+		return true
+	}
+	return false
 }
 
 func (m Middleware) watch() error {
@@ -141,7 +155,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !m.monitor.Up() {
+	if !m.monitor.Up() || !m.userServiceReady() {
 		bb, _ := maintenance.Assets.ReadFile("starting.html")
 		w.Header().Set("Content-Type", "text/html")
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(bb)))

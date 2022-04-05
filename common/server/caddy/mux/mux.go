@@ -29,22 +29,22 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/pydio/cells/v4/common/client"
-	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
-
-	"google.golang.org/grpc"
-
 	caddy "github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+	"google.golang.org/grpc"
+
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	clienthttp "github.com/pydio/cells/v4/common/client/http"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/caddy/maintenance"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 func RegisterServerMux(ctx context.Context, s server.HttpMux) {
@@ -53,11 +53,12 @@ func RegisterServerMux(ctx context.Context, s server.HttpMux) {
 }
 
 type Middleware struct {
-	c       grpc.ClientConnInterface
-	r       registry.Registry
-	s       server.HttpMux
-	b       *clienthttp.Balancer
-	monitor grpc2.HealthMonitor
+	c         grpc.ClientConnInterface
+	r         registry.Registry
+	s         server.HttpMux
+	b         *clienthttp.Balancer
+	monitor   grpc2.HealthMonitor
+	userReady bool
 }
 
 func NewMiddleware(ctx context.Context, s server.HttpMux) Middleware {
@@ -117,6 +118,17 @@ func (m Middleware) Provision(ctx caddy.Context) error {
 	return nil
 }
 
+func (m Middleware) userServiceReady() bool {
+	if m.userReady {
+		return true
+	}
+	if service.RegistryHasServiceWithStatus(m.r, common.ServiceGrpcNamespace_+common.ServiceUser, service.StatusReady) {
+		m.userReady = true
+		return true
+	}
+	return false
+}
+
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 
@@ -140,7 +152,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 		return nil
 	}
 
-	if !m.monitor.Up() {
+	if !m.monitor.Up() || !m.userServiceReady() {
 		bb, _ := maintenance.Assets.ReadFile("starting.html")
 		w.Header().Set("Content-Type", "text/html")
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(bb)))

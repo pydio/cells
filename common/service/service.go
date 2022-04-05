@@ -1,11 +1,30 @@
+/*
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package service
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"time"
-
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"sync"
 
 	"go.uber.org/zap"
 
@@ -13,21 +32,16 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/server"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 // Service for the pydio app
 type service struct {
-	opts *ServiceOptions
+	opts   *ServiceOptions
+	status Status
 }
 
 var _ registry.Service = (*service)(nil)
-
-const (
-	configSrvKeyFork      = "fork"
-	configSrvKeyAutoStart = "autostart"
-	configSrvKeyForkDebug = "debugFork"
-	configSrvKeyUnique    = "unique"
-)
 
 var (
 	mandatoryOptions []ServiceOption
@@ -53,7 +67,8 @@ type Stopper func() error
 
 func NewService(opts ...ServiceOption) Service {
 	s := &service{
-		opts: newOptions(append(mandatoryOptions, opts...)...),
+		opts:   newOptions(append(mandatoryOptions, opts...)...),
+		status: StatusStopped,
 	}
 
 	name := s.opts.Name
@@ -86,7 +101,13 @@ func (s *service) Options() *ServiceOptions {
 }
 
 func (s *service) Metadata() map[string]string {
-	return s.opts.Metadata
+	// Create a copy to append internal status as metadata
+	cp := make(map[string]string, len(s.opts.Metadata)+1)
+	for k, v := range s.opts.Metadata {
+		cp[k] = v
+	}
+	cp[MetaStatusKey] = string(s.status)
+	return cp
 }
 
 func (s *service) As(i interface{}) bool {
@@ -103,20 +124,42 @@ func (s *service) As(i interface{}) bool {
 	return false
 }
 
+func (s *service) updateRegister(status ...Status) {
+	if len(status) > 0 {
+		s.status = status[0]
+		if status[0] == StatusReady {
+			log.Logger(s.opts.Context).Info("ready")
+		} else {
+			log.Logger(s.opts.Context).Debug(string(status[0]))
+		}
+	}
+	reg := servicecontext.GetRegistry(s.opts.Context)
+	if reg == nil {
+		return
+	}
+	if err := reg.Register(s); err != nil {
+		log.Logger(s.opts.Context).Warn("could not register", zap.Error(err))
+	}
+}
+
 func (s *service) Start() (er error) {
-	now := time.Now()
+	// now := time.Now()
 
 	defer func() {
-		elapsed := time.Now().Sub(now)
-		if elapsed > 5*time.Second {
-			fmt.Println(s.Name(), "took ", elapsed, " to start")
-		}
+		/*
+			elapsed := time.Now().Sub(now)
+			if elapsed > 5*time.Second {
+				fmt.Println(s.Name(), "took ", elapsed, " to start")
+			}
+		*/
 
 		if e := recover(); e != nil {
 			log.Logger(s.opts.Context).Error("panic while starting service", zap.Any("p", e))
 			er = fmt.Errorf("panic while starting service %v", e)
 		}
 	}()
+
+	s.updateRegister(StatusStarting)
 
 	for _, before := range s.opts.BeforeStart {
 		if err := before(s.opts.Context); err != nil {
@@ -136,41 +179,42 @@ func (s *service) Start() (er error) {
 		}
 	}
 
-	s.opts.Server.AfterServe(func() error {
-		go func() {
-			if er := UpdateServiceVersion(s.opts); er != nil {
-				log.Logger(s.opts.Context).Error("UpdateServiceVersion Failed", zap.Error(er))
-			}
-		}()
+	s.updateRegister(StatusServing)
 
-		return nil
-	})
+	afs := []func(ctx context.Context) error{func(_ context.Context) error {
+		return UpdateServiceVersion(s.opts)
+	}}
+	afs = append(afs, s.opts.AfterServe...)
 
-	for _, after := range s.opts.AfterServe {
+	wg := &sync.WaitGroup{}
+	wg.Add(len(afs))
+
+	for _, after := range afs {
 		s.opts.Server.AfterServe(func() error {
-			go after(s.opts.Context)
-
+			go func() {
+				defer wg.Done()
+				if e := after(s.opts.Context); e != nil {
+					log.Logger(s.opts.Context).Error("AfterServe failed", zap.Error(er))
+				}
+			}()
 			return nil
 		})
 	}
 
-	if reg := servicecontext.GetRegistry(s.opts.Context); reg != nil {
-		go func() {
-			if err := reg.Register(s); err != nil {
-				log.Logger(s.opts.Context).Warn("could not register", zap.Error(err))
-			}
-		}()
-	} else {
-		log.Logger(s.opts.Context).Warn("no registry attached")
-	}
+	s.updateRegister()
 
-	// fmt.Println("Going through here ? for ", s.opts.Name)
-	log.Logger(s.opts.Context).Info("started")
+	go func() {
+		wg.Wait()
+		s.updateRegister(StatusReady)
+	}()
 
 	return nil
 }
 
 func (s *service) Stop() error {
+
+	s.updateRegister(StatusStopping)
+
 	for _, before := range s.opts.BeforeStop {
 		if err := before(s.opts.Context); err != nil {
 			return err

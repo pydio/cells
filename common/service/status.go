@@ -21,36 +21,29 @@
 package service
 
 import (
-	"context"
-
-	"github.com/pydio/cells/v4/common/server"
-
-	"google.golang.org/grpc"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/registry"
 )
 
-// WithGRPC adds a service handler to the current service
-func WithGRPC(f func(context.Context, *grpc.Server) error) ServiceOption {
-	return func(o *ServiceOptions) {
-		o.serverType = server.ServerType_GRPC
-		o.serverStart = func() error {
-			if o.Server == nil {
-				return errNoServerAttached
-			}
+type Status string
 
-			var srvg *grpc.Server
-			o.Server.As(&srvg)
+const (
+	MetaStatusKey         = "status"
+	StatusStopped  Status = "stopped"
+	StatusStarting Status = "starting"
+	StatusServing  Status = "serving"
+	StatusReady    Status = "ready"
+	StatusError    Status = "error"
+	StatusStopping Status = "stopping"
+)
 
-			return f(o.Context, srvg)
+// RegistryHasServiceWithStatus finds a service with given status in the registry passed as parameter
+func RegistryHasServiceWithStatus(reg registry.Registry, name string, status Status) bool {
+	if s, e := reg.Get(common.ServiceGrpcNamespace_ + common.ServiceUser); e == nil {
+		meta := s.(registry.Service).Metadata()
+		if v, o := meta[MetaStatusKey]; o && v == string(status) {
+			return true
 		}
 	}
-}
-
-func WithGRPCStop(f func(context.Context, *grpc.Server) error) ServiceOption {
-	return func(o *ServiceOptions) {
-		o.serverStop = func() error {
-			var srvg *grpc.Server
-			o.Server.As(&srvg)
-			return f(o.Context, srvg)
-		}
-	}
+	return false
 }

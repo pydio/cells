@@ -46,7 +46,7 @@ func ListMinioConfigsFromConfig() map[string]*object.MinioConfig {
 	names := SourceNamesForDataServices(common.ServiceDataObjects)
 	for _, name := range names {
 		var conf *object.MinioConfig
-		if e := Get(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+name)).Scan(&conf); e == nil {
+		if e := Get(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+name)).Scan(&conf); e == nil && conf != nil {
 			res[name] = conf
 			// Replace ApiSecret with value from vault
 			if sec := GetSecret(conf.ApiSecret).String(); sec != "" {
