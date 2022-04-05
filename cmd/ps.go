@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"strings"
 	"text/tabwriter"
@@ -36,7 +35,6 @@ import (
 
 var (
 	showDescription bool
-	runningServices []string
 
 	tmpl = `
 	{{- block "keys" .}}
@@ -125,18 +123,9 @@ EXAMPLE
 func init() {
 
 	addExternalCmdRegistryFlags(psCmd.Flags())
-
+	psCmd.Flags().BoolVarP(&showDescription, "nodes", "n", false, "Show nodes addresses for each service")
 	RootCmd.AddCommand(psCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// psCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// psCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func getTagsPerType(reg registry.Registry, f func(s registry.Service) bool) map[string]*Tags {
@@ -157,14 +146,10 @@ func getTagsPerType(reg registry.Registry, f func(s registry.Service) bool) map[
 				if _, ok := tags[tag]; !ok {
 					tags[tag] = &Tags{Name: tag, Services: make(map[string]Service)}
 				}
-
 				var nodes []string
-				if showDescription {
-					for _, node := range s.Nodes() {
-						nodes = append(nodes, fmt.Sprintf("%s (exp: %s)", node.Address(), node.Metadata()["expiry"]))
-					}
+				for _, node := range s.Nodes() {
+					nodes = append(nodes, node.Address()...)
 				}
-
 				tags[tag].Services[name] = &runningService{name: name, nodes: strings.Join(nodes, ",")}
 			}
 		}
@@ -183,15 +168,12 @@ func (s *runningService) Name() string {
 }
 
 func (s *runningService) IsRunning() bool {
-	for _, r := range runningServices {
-		if r == s.name {
-			return true
-		}
-	}
-
-	return false
+	return len(s.nodes) > 0
 }
 
 func (s *runningService) RunningNodes() string {
+	if !showDescription {
+		return ""
+	}
 	return s.nodes
 }
