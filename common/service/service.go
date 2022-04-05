@@ -181,22 +181,27 @@ func (s *service) Start() (er error) {
 
 	s.updateRegister(StatusServing)
 
-	afs := []func(ctx context.Context) error{func(_ context.Context) error {
-		return UpdateServiceVersion(s.opts)
-	}}
-	afs = append(afs, s.opts.AfterServe...)
-
 	wg := &sync.WaitGroup{}
-	wg.Add(len(afs))
+	wg.Add(len(s.opts.AfterServe) + 1)
 
-	for _, after := range afs {
+	s.opts.Server.AfterServe(func() error {
+		go func() {
+			defer wg.Done()
+			if e := UpdateServiceVersion(s.opts); e != nil {
+				log.Logger(s.opts.Context).Error("UpdateServiceVersion failed", zap.Error(er))
+			}
+		}()
+		return nil
+	})
+
+	for _, after := range s.opts.AfterServe {
 		s.opts.Server.AfterServe(func() error {
-			go func() {
+			go func(f func(context.Context) error) {
 				defer wg.Done()
-				if e := after(s.opts.Context); e != nil {
+				if e := f(s.opts.Context); e != nil {
 					log.Logger(s.opts.Context).Error("AfterServe failed", zap.Error(er))
 				}
-			}()
+			}(after)
 			return nil
 		})
 	}
