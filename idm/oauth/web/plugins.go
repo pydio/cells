@@ -23,13 +23,17 @@ package web
 
 import (
 	"context"
+	"encoding/base64"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/ory/fosite"
 	"github.com/ory/hydra/consent"
 	"github.com/ory/hydra/jwk"
 	"github.com/ory/hydra/oauth2"
 	"github.com/ory/hydra/x"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/rs/cors"
 
 	"github.com/pydio/cells/v4/common"
@@ -84,17 +88,8 @@ func init() {
 						return handler
 					})
 
-					/*
-						// seems not necessary
-							if conf.GetProvider().CORSEnabled("admin") {
-								subRouter.PathPrefix("/oidc-admin/").Handler(http.StripPrefix("/oidc-admin", cors.New(conf.CORSOptions("admin")).Handler(servicecontext.HttpWrapperMeta(admin))))
-							} else {
-								subRouter.PathPrefix("/oidc-admin/").Handler(http.StripPrefix("/oidc-admin", servicecontext.HttpWrapperMeta(admin)))
-							}
-					*/
+					subRouter.Handler(servicecontext.HttpWrapperMeta(ctx, TokenMethodWrapper(ctx, public)))
 
-					subRouter.Handler(servicecontext.HttpWrapperMeta(ctx, public))
-					//subRouter.PathPrefix("/oidc/").Handler(http.StripPrefix("/oidc", servicecontext.HttpWrapperMeta(public)))
 				}
 
 				serveMux.Handle("/oidc/", http.StripPrefix("/oidc", cors.New(cors.Options{
@@ -106,27 +101,46 @@ func init() {
 				return nil
 			}),
 			/*
+				// TODO v4 : Still required ?
 				service.WatchPath("services/"+common.ServiceWebNamespace_+common.ServiceOAuth, func(_ service.Service, c configx.Values) {
 					auth.InitConfiguration(config.Get("services", common.ServiceWebNamespace_+common.ServiceOAuth))
 				}),
-				service.BeforeStart(initialize),
 			*/
 		)
 	})
 }
 
-func initialize(s service.Service) error {
+func TokenMethodWrapper(ctx context.Context, handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost && r.RequestURI == "/oidc"+oauth2.TokenPath {
 
-	/*
-		ctx := s.Options().Context
+			// Pre-check compat between client_id and client authentication method
+			_ = r.ParseForm()
+			clientId := r.Form.Get("client_id")
+			if clientId == "" {
+				// This is not normal - Hopefully we'll have a basic Auth Header
+				if ba := r.Header.Get("Authorization"); ba != "" {
+					ba = strings.TrimPrefix(ba, "Basic ")
+					if c, e := base64.StdEncoding.DecodeString(ba); e == nil && strings.Contains(string(c), ":") {
+						clientId = strings.Split(string(c), ":")[0]
+						r.PostForm.Set("client_id", clientId)
+						_ = r.ParseForm()
+						log.Logger(ctx).Debug("[/oidc/oauth2/token] Inferred client_id from Authorization Header, replaced in PostForm")
+					}
+				}
+			}
 
-		// Configuration
-		auth.InitConfiguration(config.Get("services", common.ServiceWebNamespace_+common.ServiceOAuth))
-
-		// Registry
-		auth.InitRegistry(servicecontext.GetDAO(ctx).(sql.DAO))
-
-	*/
-
-	return nil
+			if clientId != "" {
+				if cli, er := auth.GetRegistry().OAuth2Storage().GetClient(ctx, clientId); er == nil {
+					if oidcClient, ok := cli.(fosite.OpenIDConnectClient); ok {
+						if oidcClient.GetTokenEndpointAuthMethod() == "none" && r.Header != nil {
+							log.Logger(ctx).Debug("[/oidc/oauth2/token] Removing Basic Auth for public client")
+							r.Header.Del("Authorization")
+						}
+					}
+				}
+			}
+		}
+		handler.ServeHTTP(w, r)
+	})
 }
