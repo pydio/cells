@@ -75,3 +75,9 @@ func (this *WatchResponse) Validate() error {
 	}
 	return nil
 }
+func (this *SaveRequest) Validate() error {
+	return nil
+}
+func (this *SaveResponse) Validate() error {
+	return nil
+}
