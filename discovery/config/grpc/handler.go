@@ -79,3 +79,11 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Config_WatchServer) erro
 		}
 	}
 }
+
+func (h *Handler) Save(ctx context.Context, req *pb.SaveRequest) (*pb.SaveResponse, error) {
+	if err := config.Save(req.GetUser(), req.GetMessage()); err != nil {
+		return nil, err
+	}
+
+	return &pb.SaveResponse{}, nil
+}

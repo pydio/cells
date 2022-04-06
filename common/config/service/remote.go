@@ -200,6 +200,13 @@ func (r *remote) Del() error {
 }
 
 func (r *remote) Save(ctxUser string, ctxMessage string) error {
+	if _, err := r.cli.Save(r.ctx, &pb.SaveRequest{
+		User:    ctxUser,
+		Message: ctxMessage,
+	}); err != nil {
+		return err
+	}
+
 	return nil
 }
 

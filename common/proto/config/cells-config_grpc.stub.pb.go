@@ -47,6 +47,13 @@ func (s *ConfigStub) Invoke(ctx context.Context, method string, args interface{}
 		} else {
 			e = er
 		}
+	case "/config.Config/Save":
+		resp, er := s.ConfigServer.Save(ctx, args.(*SaveRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
 	default:
 		e = fmt.Errorf(method + " not implemented")
 	}

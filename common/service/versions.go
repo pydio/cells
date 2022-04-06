@@ -23,9 +23,10 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime"
 	"path/filepath"
 	"strings"
+
+	"github.com/pydio/cells/v4/common/runtime"
 
 	version "github.com/hashicorp/go-version"
 	"go.uber.org/zap"
@@ -90,17 +91,6 @@ func lastKnownVersion(serviceName string) (v *version.Version, e error) {
 	}
 
 	return version.NewVersion(strings.TrimSpace(store.Get().Default("0.0.0").String()))
-
-	//data, err := ioutil.ReadFile(versionFile)
-	//if err != nil {
-	//	if os.IsNotExist(err) {
-	//		fake, _ := version.NewVersion("0.0.0")
-	//		return fake, nil
-	//	}
-	//	return nil, err
-	//}
-	//return version.NewVersion(strings.TrimSpace(string(data)))
-
 }
 
 // updateVersion writes the version string to file
@@ -109,7 +99,6 @@ func updateVersion(serviceName string, v *version.Version) error {
 
 	store, err := config.OpenStore(context.Background(), versionFile+"?encode=string")
 	if err != nil {
-		fmt.Println("Could not open store ?", err)
 		return err
 	}
 
@@ -117,7 +106,11 @@ func updateVersion(serviceName string, v *version.Version) error {
 		return err
 	}
 
-	return store.Save("system", "updating system version")
+	if err := store.Save("system", "updating system version"); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // applyMigrations browse migrations upward on downward and apply them sequentially. It returns a version to be

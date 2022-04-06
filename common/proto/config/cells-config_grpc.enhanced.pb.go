@@ -8,11 +8,11 @@ package config
 
 import (
 	context "context"
-	fmt "fmt"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	metadata "google.golang.org/grpc/metadata"
 	status "google.golang.org/grpc/status"
+	strings "strings"
 	sync "sync"
 )
 
@@ -91,26 +91,24 @@ func (m ConfigEnhancedServer) Watch(r *WatchRequest, s Config_WatchServer) error
 	}
 	return status.Errorf(codes.Unimplemented, "method Watch not implemented")
 }
+
+func (m ConfigEnhancedServer) Save(ctx context.Context, r *SaveRequest) (*SaveResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method Save should have a context")
+	}
+	enhancedConfigServersLock.RLock()
+	defer enhancedConfigServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.Save(ctx, r)
+		}
+	}
+	return nil, status.Errorf(codes.Unimplemented, "method Save not implemented")
+}
 func (m ConfigEnhancedServer) mustEmbedUnimplementedConfigServer() {}
 func RegisterConfigEnhancedServer(s grpc.ServiceRegistrar, srv NamedConfigServer) {
-	enhancedConfigServersLock.Lock()
-	defer enhancedConfigServersLock.Unlock()
-	addr := fmt.Sprintf("%p", s)
-	m, ok := enhancedConfigServers[addr]
-	if !ok {
-		m = ConfigEnhancedServer{}
-		enhancedConfigServers[addr] = m
-		RegisterConfigServer(s, m)
-	}
-	m[srv.Name()] = srv
-}
-func DeregisterConfigEnhancedServer(s grpc.ServiceRegistrar, name string) {
-	enhancedConfigServersLock.Lock()
-	defer enhancedConfigServersLock.Unlock()
-	addr := fmt.Sprintf("%p", s)
-	m, ok := enhancedConfigServers[addr]
-	if !ok {
-		return
-	}
-	delete(m, name)
+	serviceDesc := Config_ServiceDesc
+	serviceDesc.ServiceName = strings.Join([]string{srv.Name(), serviceDesc.ServiceName}, ".")
+	s.RegisterService(&serviceDesc, srv)
 }

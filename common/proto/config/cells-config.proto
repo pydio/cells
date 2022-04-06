@@ -9,6 +9,7 @@ service Config {
   rpc Set(SetRequest) returns (SetResponse) {}
   rpc Delete(DeleteRequest) returns (DeleteResponse) {}
   rpc Watch(WatchRequest) returns (stream WatchResponse) {}
+  rpc Save(SaveRequest) returns (SaveResponse) {}
 }
 
 message Value {
@@ -56,3 +57,10 @@ message WatchRequest {
 message WatchResponse {
   Value value = 1;
 }
+
+message SaveRequest {
+  string user = 1;
+  string message = 2;
+}
+
+message SaveResponse {}
