@@ -56,7 +56,10 @@ func (b *baseCodec) marshalLogMsg(line *log.Log) (*IndexableLog, error) {
 	}
 
 	for k, v := range data {
-		val, _ := v.(string)
+		val, ok := v.(string)
+		if !ok {
+			continue
+		}
 		switch k {
 		case "ts":
 			t, err := time.Parse(time.RFC3339, val)
@@ -131,7 +134,9 @@ func (b *baseCodec) marshalLogMsg(line *log.Log) (*IndexableLog, error) {
 		}
 	}
 	if m, ok := data["error"]; ok {
-		text += " - " + m.(string)
+		if stringErr, o := m.(string); o {
+			text += " - " + stringErr
+		}
 	}
 	msg.Msg = text
 	msg.Nano = int(line.Nano)
