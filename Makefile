@@ -72,7 +72,6 @@ thirtytwo:
 	 -o cells-32bits\
 	 .
 
-
 start:
 	./cells start
 
