@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"context"
+	log2 "github.com/pydio/cells/v4/common/log"
 	"log"
 
 	"google.golang.org/grpc"
@@ -68,6 +69,18 @@ func init() {
 				auth2.RegisterAuthTokenRevokerEnhancedServer(server, h)
 				auth2.RegisterAuthTokenPrunerEnhancedServer(server, h)
 				auth2.RegisterPasswordCredentialsTokenEnhancedServer(server, h)
+
+				watcher, _ := config.Watch("services", common.ServiceWebNamespace_+common.ServiceOAuth)
+				go func() {
+					for {
+						values, er := watcher.Next()
+						if er != nil {
+							break
+						}
+						log2.Logger(ctx).Info("Reloading configurations for OAuth services")
+						auth.InitConfiguration(values)
+					}
+				}()
 
 				// Registry initialization
 				// Blocking on purpose, as it should block login
