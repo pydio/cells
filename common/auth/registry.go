@@ -174,12 +174,25 @@ func getLogrusLogger(serviceName string) *logrus.Logger {
 				var logged map[string]interface{}
 				level := "info"
 				message := line
+				var fields []zap.Field
 				if e := json.Unmarshal([]byte(line), &logged); e == nil {
 					if l, o := logged["level"]; o {
 						level = l.(string)
 					}
 					if m, o := logged["msg"]; o {
 						message = m.(string)
+						if strings.HasPrefix(message, "JSON Web Key Set") {
+							message += " This can take some time"
+						}
+					}
+				}
+				for k, v := range logged {
+					if k == "msg" || k == "level" || k == "time" || k == "service_name" || k == "audience" || k == "service_version" {
+						continue
+					}
+					fields = append(fields, zap.Any(k, v))
+					if level == "debug" && strings.Contains(message, "migration") {
+						level = "info"
 					}
 				}
 				// Special case
@@ -188,13 +201,13 @@ func getLogrusLogger(serviceName string) *logrus.Logger {
 				}
 				switch level {
 				case "debug":
-					log.Logger(logCtx).Debug(message)
+					log.Logger(logCtx).Debug(message, fields...)
 				case "warn":
-					log.Logger(logCtx).Warn(message)
+					log.Logger(logCtx).Warn(message, fields...)
 				case "info":
-					log.Logger(logCtx).Info(message)
+					log.Logger(logCtx).Info(message, fields...)
 				default:
-					log.Logger(logCtx).Info(message)
+					log.Logger(logCtx).Info(message, fields...)
 				}
 			}
 		}()
