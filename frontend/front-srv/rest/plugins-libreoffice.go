@@ -72,6 +72,7 @@ func init() {
 				proxy := httputil.NewSingleHostReverseProxy(u)
 				proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
 					log.Logger(ctx).Error("Error in libreoffice reverse proxy: "+err.Error(), zap.Error(err))
+					writer.WriteHeader(http.StatusBadGateway)
 				}
 				if useTls && skipVerify {
 					proxy.Transport = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}

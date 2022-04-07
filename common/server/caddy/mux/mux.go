@@ -140,9 +140,9 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			return nil
 		}
 
-		// TODO - necessary ?
 		proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
 			fmt.Println("Got Error in Grpc Reverse Proxy:", err.Error())
+			writer.WriteHeader(http.StatusBadGateway)
 		}
 
 		ctx := clientcontext.WithClientConn(r.Context(), m.c)
