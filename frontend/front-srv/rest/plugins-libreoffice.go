@@ -2,7 +2,9 @@ package rest
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"go.uber.org/zap"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -44,7 +46,8 @@ func init() {
 				}
 				log.Logger(ctx).Info("Starting LibreOffice proxy")
 
-				tls := pconf.Val("LIBREOFFICE_SSL").Default(true).Bool()
+				useTls := pconf.Val("LIBREOFFICE_SSL").Default(true).Bool()
+				skipVerify := pconf.Val("LIBREOFFICE_SSL_SKIP_VERIFY").Default(true).Bool()
 				host := pconf.Val("LIBREOFFICE_HOST").Default("localhost").String()
 				port := pconf.Val("LIBREOFFICE_PORT").Default("9980").String()
 				version := pconf.Val("LIBREOFFICE_CODE_VERSION").Default("v6").String()
@@ -57,7 +60,7 @@ func init() {
 				}
 
 				scheme := "http"
-				if tls {
+				if useTls {
 					scheme = "https"
 				}
 
@@ -67,6 +70,13 @@ func init() {
 				}
 				// Setup a reverse proxy
 				proxy := httputil.NewSingleHostReverseProxy(u)
+				proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
+					log.Logger(ctx).Error("Error in libreoffice reverse proxy: "+err.Error(), zap.Error(err))
+					writer.WriteHeader(http.StatusBadGateway)
+				}
+				if useTls && skipVerify {
+					proxy.Transport = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
+				}
 				mux.HandleFunc("/"+LeafletURI+"/", func(writer http.ResponseWriter, request *http.Request) {
 					proxy.ServeHTTP(writer, request)
 				})
