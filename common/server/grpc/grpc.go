@@ -97,8 +97,10 @@ func New(ctx context.Context, opt ...Option) server.Server {
 // NewWithServer can pass preset grpc.Server with custom listen address
 func NewWithServer(ctx context.Context, s *grpc.Server, listen string) server.Server {
 	ctx, cancel := context.WithCancel(ctx)
+	id := "grpc-" + uuid.New()
 	return server.NewServer(ctx, &Server{
-		name:   "grpc-" + uuid.New(),
+		id:     id,
+		name:   "grpc",
 		cancel: cancel,
 		addr:   listen,
 		Server: s,

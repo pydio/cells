@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"net"
 	"regexp"
-	"strings"
 
 	utilnet "k8s.io/apimachinery/pkg/util/net"
 )
@@ -74,17 +73,34 @@ func IsSet(key string) bool {
 }
 
 // RegistryURL returns the scheme://address url for Registry
+func DiscoveryURL() string {
+	return r.GetString(KeyDiscovery)
+}
+
+// RegistryURL returns the scheme://address url for Registry
 func RegistryURL() string {
+	if !r.IsSet(KeyRegistry) && r.IsSet(KeyDiscovery) {
+		return r.GetString(KeyDiscovery)
+	}
+
 	return r.GetString(KeyRegistry)
 }
 
 // BrokerURL returns the scheme://address url for Broker
 func BrokerURL() string {
+	if !r.IsSet(KeyBroker) && r.IsSet(KeyDiscovery) {
+		return r.GetString(KeyDiscovery)
+	}
+
 	return r.GetString(KeyBroker)
 }
 
 // ConfigURL returns the scheme://address url for Config
 func ConfigURL() string {
+	if !r.IsSet(KeyConfig) && r.IsSet(KeyDiscovery) {
+		return r.GetString(KeyDiscovery)
+	}
+
 	return r.GetString(KeyConfig)
 }
 
@@ -196,27 +212,11 @@ func buildProcessStartTag() {
 
 // BuildForkParams creates --key=value arguments from runtime parameters
 func BuildForkParams(cmd string) []string {
-
-	grpcAddr := GrpcDiscoveryBindAddress()
-
-	conf := fmt.Sprintf("grpc://%s", grpcAddr)
-
-	reg := fmt.Sprintf("grpc://%s", grpcAddr)
-	if !strings.HasPrefix(RegistryURL(), "mem://") {
-		reg = RegistryURL()
-	}
-
-	brok := fmt.Sprintf("grpc://%s", grpcAddr)
-	if !strings.HasPrefix(BrokerURL(), "mem://") {
-		brok = BrokerURL()
-	}
-
+	discovery := fmt.Sprintf("grpc://" + GrpcDiscoveryBindAddress())
 	params := []string{
 		cmd,
 		"--" + KeyFork,
-		"--" + KeyConfig, conf,
-		"--" + KeyRegistry, reg,
-		"--" + KeyBroker, brok,
+		"--" + KeyDiscovery, discovery,
 		"--" + KeyGrpcPort, "0",
 		"--" + KeyGrpcDiscoveryPort, "0",
 		"--" + KeyHttpServer, HttpServerNative,

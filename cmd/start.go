@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/url"
 
 	"github.com/pydio/cells/v4/common/broker"
 
@@ -87,7 +88,11 @@ to quickly create a Cobra application.`,
 		pluginsReg, err := registry.OpenRegistry(ctx, "mem:///?cache=plugins&byname=true")
 
 		if runtime.IsFork() {
-			discoveryConn, err := grpc.Dial(":8002", grpc.WithTransportCredentials(insecure.NewCredentials()))
+			u, err := url.Parse(runtime.DiscoveryURL())
+			if err != nil {
+				return err
+			}
+			discoveryConn, err := grpc.Dial(u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 			if err != nil {
 				return err
 			}

@@ -476,8 +476,17 @@ func (c *config) Scan(val interface{}) error {
 			}
 
 		case reflect.Map:
-			for _, key := range rorig.MapKeys() {
-				mv := rorig.MapIndex(key)
+			orig := rorig
+			if rorig.Kind() == reflect.Ptr {
+				orig = rorig.Elem()
+			}
+
+			if orig.Kind() != reflect.Map {
+				return fmt.Errorf("invalid origin value")
+			}
+
+			for _, key := range orig.MapKeys() {
+				mv := orig.MapIndex(key)
 				if mv.IsValid() {
 					rtarget.SetMapIndex(key, mv.Elem().Convert(rtargetValType))
 				}

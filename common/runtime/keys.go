@@ -21,6 +21,7 @@
 package runtime
 
 const (
+	KeyDiscovery  = "discovery"
 	KeyRegistry   = "registry"
 	KeyBroker     = "broker"
 	KeyConfig     = "config"
