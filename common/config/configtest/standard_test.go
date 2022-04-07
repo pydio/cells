@@ -90,5 +90,12 @@ func testGetSet(t *testing.T, store config.Store) {
 			//So(resPwd, ShouldNotEqual, pwd)
 			So(resPwd, ShouldNotEqual, "")
 		})
+
+		Convey("Scan", func() {
+			fakeValue := map[string]interface{}{}
+			m := configx.New()
+			m.Val("fakevalue").Set(&map[string]interface{}{"fake": "value"})
+			m.Val("fakevalue").Scan(fakeValue)
+		})
 	})
 }

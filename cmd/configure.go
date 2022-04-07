@@ -490,9 +490,6 @@ func fatalIfError(cmd *cobra.Command, err error) {
 func init() {
 	flags := ConfigureCmd.Flags()
 
-	// Is this really used ?
-	flags.String("http.address", ":8002", "HTTP Server Address")
-
 	flags.Bool(cruntime.KeyInstallCliLegacy, false, "Do not prompt for install mode, use CLI mode by default")
 	flags.String(cruntime.KeyInstallYamlLegacy, "", "Points toward a configuration in YAML format")
 	flags.String(cruntime.KeyInstallJsonLegacy, "", "Points toward a configuration in JSON format")
