@@ -95,12 +95,12 @@ func New(ctx context.Context, opt ...Option) server.Server {
 }
 
 // NewWithServer can pass preset grpc.Server with custom listen address
-func NewWithServer(ctx context.Context, s *grpc.Server, listen string) server.Server {
+func NewWithServer(ctx context.Context, name string, s *grpc.Server, listen string) server.Server {
 	ctx, cancel := context.WithCancel(ctx)
 	id := "grpc-" + uuid.New()
 	return server.NewServer(ctx, &Server{
 		id:     id,
-		name:   "grpc",
+		name:   name,
 		cancel: cancel,
 		addr:   listen,
 		Server: s,
@@ -125,7 +125,7 @@ func (s *Server) Serve() error {
 
 	addr := s.opts.Listener.Addr().String()
 	_, port, err := net.SplitHostPort(addr)
-	if err == nil {
+	if err != nil {
 		s.externalAddr = addr
 	} else {
 		s.externalAddr = net.JoinHostPort(runtime.DefaultAdvertiseAddress(), port)

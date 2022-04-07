@@ -113,7 +113,7 @@ func createServerProvider(tls bool) service.ServerProvider {
 		}
 		if tls {
 			localConfig := &install.ProxyConfig{
-				Binds:     []string{"localhost"},
+				Binds:     []string{"0.0.0.0"},
 				TLSConfig: &install.ProxyConfig_SelfSigned{SelfSigned: &install.TLSSelfSigned{}},
 			}
 			tlsConfig, e := providers.LoadTLSServerConfig(localConfig)
@@ -135,7 +135,11 @@ func createServerProvider(tls bool) service.ServerProvider {
 			logCtx := servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpc)
 			log.Logger(logCtx).Info("Activating self-signed configuration for gRPC gateway to allow full TLS chain.")
 		}
-		return grpc2.NewWithServer(ctx, srv, addr), nil
+
+		if tls {
+			return grpc2.NewWithServer(ctx, "grpcs", srv, addr), nil
+		}
+		return grpc2.NewWithServer(ctx, "grpc", srv, addr), nil
 	}
 }
 

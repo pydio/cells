@@ -70,13 +70,15 @@ func NewMiddleware(ctx context.Context, s server.HttpMux) Middleware {
 
 	rc.Add(func(m map[string]*client.ServerAttributes) error {
 		for _, mm := range m {
-			if mm.Name != "http" {
-				continue
-			}
 			for _, addr := range mm.Addresses {
 				proxy, ok := balancer.ReadyProxies[addr]
 				if !ok {
-					u, err := url.Parse("http://" + strings.Replace(addr, "[::]", "", -1))
+					scheme := "http://"
+					// TODO - do that in a better way
+					if mm.Name == "grpcs" {
+						scheme = "https://"
+					}
+					u, err := url.Parse(scheme + strings.Replace(addr, "[::]", "", -1))
 					if err != nil {
 						return err
 					}
