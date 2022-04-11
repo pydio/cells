@@ -21,6 +21,7 @@
 package cmd
 
 import (
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"os"
 	"strings"
 	"text/tabwriter"
@@ -47,7 +48,7 @@ var (
 				{{- ""}} {{"#"}} {{$subcategory.Name}}	{{""}}	{{"\n"}}
 				{{- end}}
 				{{- range .Services}}
-					{{- ""}} {{.Name}}	[{{if .IsRunning}}X{{else}} {{end}}]  {{.RunningNodes}}	{{"\n"}}
+					{{- ""}} {{.Name}}{{"\t"}}[{{if .IsRunning}}X{{else}} {{end}}]{{"\t"}}{{.RunningNodes}}{{"\t"}}{{.MetaAsJson}}{{"\n"}}
 				{{- end}}
 			{{- end}}
 			{{- ""}} {{""}}	{{""}}	{{"\n"}}
@@ -148,9 +149,17 @@ func getTagsPerType(reg registry.Registry, f func(s registry.Service) bool) map[
 				}
 				var nodes []string
 				for _, node := range s.Nodes() {
+					if node.ID() == "generic" {
+						nodes = append(nodes, "generic")
+					}
 					nodes = append(nodes, node.Address()...)
 				}
-				tags[tag].Services[name] = &runningService{name: name, nodes: strings.Join(nodes, ",")}
+
+				tags[tag].Services[name] = &runningService{
+					name:  name,
+					nodes: strings.Join(nodes, ","),
+					meta:  s.Metadata(),
+				}
 			}
 		}
 	}
@@ -161,6 +170,7 @@ func getTagsPerType(reg registry.Registry, f func(s registry.Service) bool) map[
 type runningService struct {
 	name  string
 	nodes string
+	meta  map[string]string
 }
 
 func (s *runningService) Name() string {
@@ -172,8 +182,22 @@ func (s *runningService) IsRunning() bool {
 }
 
 func (s *runningService) RunningNodes() string {
-	if !showDescription {
+	if !showDescription || s.nodes == "generic" {
 		return ""
 	}
 	return s.nodes
+}
+
+func (s *runningService) MetaAsJson() string {
+	if !showDescription {
+		return ""
+	}
+	if s.meta == nil {
+		return "no meta"
+	}
+	if d, e := json.Marshal(s.meta); e == nil {
+		return string(d)
+	} else {
+		return "no meta (" + e.Error() + ")"
+	}
 }
