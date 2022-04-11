@@ -2,7 +2,6 @@ package rest
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -27,8 +26,7 @@ func init() {
 	config.RegisterProxy("frontend/plugin/action.livekit", config.ProxySetter(func(s config.Store, val interface{}, pa ...string) error {
 		if m, o := val.(map[string]interface{}); o {
 			if b, isBool := m[config.KeyFrontPluginEnabled].(bool); isBool {
-				fmt.Println("Hijacked config setter for ", pa, val, "applying to service configs", b)
-				_ = s.Val("services", common.ServiceWebNamespace_+LiveKit, "enabled").Set(b)
+				_ = config.Set(b, "services", common.ServiceWebNamespace_+LiveKit, "enabled")
 			}
 		}
 		return s.Val(pa...).Set(val)
@@ -60,6 +58,13 @@ func init() {
 					proxy.ServeHTTP(writer, request)
 				})
 
+				return nil
+			}),
+			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
+				if pp, ok := mux.(server.PatternsProvider); ok {
+					log.Logger(ctx).Info("Deregistering pattern /rtc on stop")
+					pp.DeregisterPattern("/rtc")
+				}
 				return nil
 			}),
 		)

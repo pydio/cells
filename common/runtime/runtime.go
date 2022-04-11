@@ -31,6 +31,7 @@ import (
 var (
 	args             []string
 	processStartTags []string
+	preRunRegistry   []func(Runtime)
 	r                Runtime = &emptyRuntime{}
 )
 
@@ -45,6 +46,10 @@ type Runtime interface {
 // SetRuntime sets internal global Runtime
 func SetRuntime(runtime Runtime) {
 	r = runtime
+}
+
+func RegisterPreRun(preRun func(runtime Runtime)) {
+	preRunRegistry = append(preRunRegistry, preRun)
 }
 
 // GetBool gets a key as boolean from global runtime
@@ -194,6 +199,9 @@ func ProcessStartTags() []string {
 func SetArgs(aa []string) {
 	args = aa
 	buildProcessStartTag()
+	for _, pr := range preRunRegistry {
+		pr(r)
+	}
 }
 
 func buildProcessStartTag() {

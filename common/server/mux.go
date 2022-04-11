@@ -39,6 +39,7 @@ type HttpMux interface {
 
 type PatternsProvider interface {
 	Patterns() []string
+	DeregisterPattern(pattern string)
 }
 
 // ListableMux is a simple rewrite of http.ServeMux with accessor to the list of registered patterns
@@ -275,6 +276,19 @@ func (mux *ListableMux) Patterns() (patterns []string) {
 		patterns = append(patterns, k)
 	}
 	return
+}
+
+func (mux *ListableMux) DeregisterPattern(pattern string) {
+	mux.mu.Lock()
+	defer mux.mu.Unlock()
+	delete(mux.m, pattern)
+	var es []muxEntry
+	for _, e := range mux.es {
+		if e.pattern != pattern {
+			es = append(es, e)
+		}
+	}
+	mux.es = es
 }
 
 func appendSorted(es []muxEntry, e muxEntry) []muxEntry {

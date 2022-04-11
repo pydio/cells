@@ -19,12 +19,15 @@ import (
 
 const LibreOffice = "libreoffice"
 
+var (
+	registeredPatterns []string
+)
+
 func init() {
 	config.RegisterProxy("frontend/plugin/editor.libreoffice", config.ProxySetter(func(s config.Store, val interface{}, pa ...string) error {
 		if m, o := val.(map[string]interface{}); o {
 			if b, isBool := m[config.KeyFrontPluginEnabled].(bool); isBool {
-				fmt.Println("Hijacked config setter for ", pa, val, "applying to service configs", b)
-				_ = s.Val("services", common.ServiceWebNamespace_+LibreOffice, "enabled").Set(b)
+				_ = config.Set(b, "services", common.ServiceWebNamespace_+LibreOffice, "enabled")
 			}
 		}
 		return s.Val(pa...).Set(val)
@@ -87,6 +90,20 @@ func init() {
 					proxy.ServeHTTP(writer, request)
 				})
 
+				registeredPatterns = append(registeredPatterns, "/"+LeafletURI+"/", "/"+WebsocketURI+"/", "/hosting/discovery/")
+
+				return nil
+			}),
+			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
+				pp, ok := mux.(server.PatternsProvider)
+				if !ok {
+					return nil
+				}
+				for _, p := range registeredPatterns {
+					log.Logger(ctx).Info("Deregistering pattern " + p + " while stopping service")
+					pp.DeregisterPattern(p)
+				}
+				registeredPatterns = []string{}
 				return nil
 			}),
 		)

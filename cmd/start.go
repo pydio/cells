@@ -66,18 +66,14 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		runtime.SetArgs(args)
-
 		bindViperFlags(cmd.Flags(), map[string]string{
 			// "log":  "logs_level",
 			runtime.KeyFork: runtime.KeyForkLegacy,
 		})
 
+		runtime.SetArgs(args)
 		initLogLevel()
-
 		metrics.Init()
-
-		// Making sure we capture the signals
 		handleSignals(args)
 
 		return nil

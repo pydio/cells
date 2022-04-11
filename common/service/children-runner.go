@@ -57,7 +57,7 @@ func NewChildrenRunner(parentName string, childPrefix string, secondaryPrefix ..
 		parentName:  parentName,
 		childPrefix: childPrefix,
 	}
-	if len(secondaryPrefix) > 0 {
+	if len(secondaryPrefix) > 0 && len(secondaryPrefix[0]) > 0 {
 		c.secondaryPrefix = secondaryPrefix[0]
 	}
 	c.mutex = &sync.RWMutex{}
