@@ -42,6 +42,7 @@ import (
 	"github.com/pydio/cells/v4/common/server/middleware"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
+	dao2 "github.com/pydio/cells/v4/common/service/frontend/sessions"
 )
 
 var (
@@ -186,17 +187,17 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				}
 			}
 			if o.UseWebSession {
-				wrapped = frontend.NewSessionWrapper(wrapped, o.WebSessionExcludes...)
+				if dao := servicecontext.GetDAO(o.Context); dao != nil {
+					if sd, ok := dao.(dao2.DAO); ok {
+						wrapped = frontend.NewSessionWrapper(wrapped, sd, o.WebSessionExcludes...)
+					} else {
+						fmt.Println("-- Not a SessionDAO, cannot wrap with SessionWrapper")
+					}
+				} else {
+					fmt.Println("-- No DAO found, cannot wrap with SessionWrapper")
+				}
 			}
-			// Add context
-
-			//if wrapped, e = NewConfigHTTPHandlerWrapper(wrapped, name); e != nil {
-			//	return e
-			//}
-			//wrapped = NewLogHTTPHandlerWrapper(wrapped, name)
-
 			wrapped = cors.Default().Handler(wrapped)
-
 			mux.Handle(ws.RootPath(), wrapped)
 			mux.Handle(ws.RootPath()+"/", wrapped)
 

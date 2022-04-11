@@ -51,6 +51,7 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v4/common/service/frontend/sessions"
 	"github.com/pydio/cells/v4/common/service/resources"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -67,10 +68,11 @@ var (
 type FrontendHandler struct {
 	runtimeCtx context.Context
 	resources.ResourceProviderHandler
+	dao sessions.DAO
 }
 
-func NewFrontendHandler(runtimeCtx context.Context) *FrontendHandler {
-	f := &FrontendHandler{runtimeCtx: runtimeCtx}
+func NewFrontendHandler(runtimeCtx context.Context, dao sessions.DAO) *FrontendHandler {
+	f := &FrontendHandler{runtimeCtx: runtimeCtx, dao: dao}
 	return f
 }
 
@@ -183,15 +185,8 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 
 // FrontSessionGet loads a cookie-based session to get info about an access token
 func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Response) {
-	sessionName := "pydio"
-	if h := req.HeaderParameter("X-Pydio-Minisite"); h != "" {
-		sessionName = sessionName + "-" + h
-	}
-	if h := req.HeaderParameter(common.XPydioFrontendSessionUuid); h != "" {
-		sessionName = sessionName + "-" + h
-	}
 
-	session, err := frontend.GetSessionStore(req.Request).Get(req.Request, sessionName)
+	session, err := a.dao.GetSession(req.Request)
 	if err != nil && session == nil {
 		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
@@ -223,18 +218,15 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		loginRequest.AuthInfo = map[string]string{}
 	}
 
-	sessionName := "pydio"
 	isMinisite := false
 	if h := req.HeaderParameter("X-Pydio-Minisite"); h != "" {
-		sessionName = sessionName + "-" + h
 		isMinisite = true
 	}
 	if h := req.HeaderParameter(common.XPydioFrontendSessionUuid); h != "" {
-		sessionName = sessionName + "-" + h
 		isMinisite = true
 	}
 
-	session, err := frontend.GetSessionStore(req.Request).Get(req.Request, sessionName)
+	session, err := a.dao.GetSession(req.Request)
 	if err != nil && session == nil {
 		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
@@ -286,15 +278,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 // FrontSessionDel logs out user by clearing the associated cookie session.
 func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Response) {
 
-	sessionName := "pydio"
-	if h := req.HeaderParameter("X-Pydio-Minisite"); h != "" {
-		sessionName = sessionName + "-" + h
-	}
-	if h := req.HeaderParameter(common.XPydioFrontendSessionUuid); h != "" {
-		sessionName = sessionName + "-" + h
-	}
-
-	session, err := frontend.GetSessionStore(req.Request).Get(req.Request, sessionName)
+	session, err := a.dao.GetSession(req.Request)
 	if err != nil && session == nil {
 		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
