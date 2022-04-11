@@ -48,6 +48,7 @@ message Service {
   map<string,string> metadata = 4;
   repeated Node nodes = 5;
   Options options = 6;
+  repeated string tags = 7;
 }
 
 // Node represents the node the service is on

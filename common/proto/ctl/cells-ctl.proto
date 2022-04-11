@@ -28,6 +28,8 @@ message Service{
 
     ServiceStatus Status = 7;
     repeated Peer RunningPeers = 6;
+
+    map<string,string> Metadata = 8;
 }
 
 enum ServiceCommand{

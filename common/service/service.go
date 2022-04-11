@@ -107,6 +107,7 @@ func (s *service) Metadata() map[string]string {
 		cp[k] = v
 	}
 	cp[MetaStatusKey] = string(s.status)
+	cp[MetaDescriptionKey] = s.opts.Description
 	return cp
 }
 

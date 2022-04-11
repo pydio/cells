@@ -28,13 +28,14 @@ import (
 type Status string
 
 const (
-	MetaStatusKey         = "status"
-	StatusStopped  Status = "stopped"
-	StatusStarting Status = "starting"
-	StatusServing  Status = "serving"
-	StatusReady    Status = "ready"
-	StatusError    Status = "error"
-	StatusStopping Status = "stopping"
+	MetaStatusKey             = "status"
+	StatusStopped      Status = "stopped"
+	StatusStarting     Status = "starting"
+	StatusServing      Status = "serving"
+	StatusReady        Status = "ready"
+	StatusError        Status = "error"
+	StatusStopping     Status = "stopping"
+	MetaDescriptionKey        = "description"
 )
 
 // RegistryHasServiceWithStatus finds a service with given status in the registry passed as parameter

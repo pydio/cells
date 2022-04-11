@@ -71,7 +71,7 @@ func (s *service) Stop() error {
 }
 
 func (s *service) Tags() []string {
-	return strings.Split(s.s.Metadata["tags"], ",")
+	return s.s.Tags
 }
 
 func (s *service) IsGRPC() bool {
@@ -232,9 +232,9 @@ func ToProtoService(s registry.Service) *pb.Service {
 		Name:     s.Name(),
 		Version:  s.Version(),
 		Metadata: s.Metadata(),
-		// Endpoints: endpoints,
-		Nodes:   nodes,
-		Options: new(pb.Options),
+		Tags:     s.Tags(),
+		Nodes:    nodes,
+		Options:  new(pb.Options),
 	}
 }
 

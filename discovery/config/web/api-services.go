@@ -22,6 +22,7 @@ package rest
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/runtime"
 	"net"
 	"path"
 	"sort"
@@ -43,7 +44,6 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -55,15 +55,8 @@ SERVICES MANAGEMENT
 // ListServices lists all services with their status
 func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 
-	reg := servicecontext.GetRegistry(h.MainCtx)
-	running, e := reg.List(registry.WithType(rpb.ItemType_SERVICE))
-	if e != nil {
-		service.RestError500(req, resp, e)
-		return
-	}
-
 	// Create a list of all plugins
-	pluginsReg, e := registry.OpenRegistry(context.Background(), "mem:///?cache=shared")
+	pluginsReg, e := registry.OpenRegistry(context.Background(), runtime.RegistryURL())
 	if e != nil {
 		service.RestError500(req, resp, e)
 		return
@@ -91,22 +84,25 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 
 	for _, item := range services {
 		srv := item.(registry.Service)
-		var found bool
-		for _, i := range running {
-			ri := i.(registry.Service)
-			if ri.Name() == srv.Name() && len(ri.Nodes()) > 0 {
-				found = true
-				output.Services = append(output.Services, h.serviceToRest(ri, true))
-				break
+		/*
+			var found bool
+			for _, i := range running {
+				ri := i.(registry.Service)
+				if ri.Name() == srv.Name() && len(ri.Nodes()) > 0 {
+					found = true
+					output.Services = append(output.Services, h.serviceToRest(ri, true))
+					break
+				}
 			}
+				if !found {
+
+		*/
+		if _, dis := disabledDss[srv.Name()]; dis {
+			// Do not show disabled services as stopped
+			continue
 		}
-		if !found {
-			if _, dis := disabledDss[srv.Name()]; dis {
-				// Do not show disabled services as stopped
-				continue
-			}
-			output.Services = append(output.Services, h.serviceToRest(srv, false))
-		}
+		output.Services = append(output.Services, h.serviceToRest(srv, len(srv.Nodes()) > 0))
+		//		}
 	}
 
 	resp.WriteEntity(output)
@@ -322,6 +318,7 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 	if running {
 		status = ctl.ServiceStatus_STARTED
 	}
+	isGeneric := false
 	controllable := true
 	if !strings.HasPrefix(srv.Name(), "pydio") || srv.Name() == "pydio.grpc.config" {
 		controllable = false
@@ -331,15 +328,19 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 	//if srv.Name() == common.ServiceGatewayProxy && c != "" {
 	//	configAddress = c
 	//}
+	desc := ""
+	if d, o := srv.Metadata()[service.MetaDescriptionKey]; o {
+		desc = d
+	}
 	protoSrv := &ctl.Service{
-		Name:   srv.Name(),
-		Status: status,
-		Tag:    strings.Join(srv.Tags(), ", "),
-		//Description:  srv.Description(), // TODO v4
-		// Description: srv.Metadata()["description"], ???
+		Name:         srv.Name(),
+		Status:       status,
+		Tag:          strings.Join(srv.Tags(), ", "),
+		Description:  desc,
 		Controllable: controllable,
 		Version:      srv.Version(),
 		RunningPeers: []*ctl.Peer{},
+		Metadata:     srv.Metadata(),
 	}
 	for _, node := range srv.Nodes() {
 		// Double check that node is really running
@@ -363,12 +364,14 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 				Address:  h,
 				Metadata: node.Metadata(),
 			})
+		} else if node.ID() == "generic" {
+			isGeneric = true
 		}
 	}
 	sort.Slice(protoSrv.RunningPeers, func(i, j int) bool {
 		return protoSrv.RunningPeers[i].Id > protoSrv.RunningPeers[j].Id
 	})
-	if len(protoSrv.RunningPeers) == 0 {
+	if len(protoSrv.RunningPeers) == 0 && !isGeneric {
 		protoSrv.Status = ctl.ServiceStatus_STOPPED
 	}
 	return protoSrv
