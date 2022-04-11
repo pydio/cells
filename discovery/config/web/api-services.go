@@ -67,6 +67,19 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 		return
 	}
 
+	// Compare with registered plugins (not working!)
+	// We currently display only running services
+	/*
+		staticReg, err := registry.OpenRegistry(context.Background(), "mem:///?cache=plugins&byname=true")
+		if err != nil {
+			service.RestError500(req, resp, err)
+			return
+		}
+		statics, e := staticReg.List(registry.WithType(rpb.ItemType_SERVICE))
+
+		log.Logger(req.Request.Context()).Info("Registry size", zap.Int("statics", len(statics)), zap.Int("url", len(services)))
+	*/
+
 	output := &rest.ServiceCollection{
 		Services: []*ctl.Service{},
 	}
@@ -84,25 +97,10 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 
 	for _, item := range services {
 		srv := item.(registry.Service)
-		/*
-			var found bool
-			for _, i := range running {
-				ri := i.(registry.Service)
-				if ri.Name() == srv.Name() && len(ri.Nodes()) > 0 {
-					found = true
-					output.Services = append(output.Services, h.serviceToRest(ri, true))
-					break
-				}
-			}
-				if !found {
-
-		*/
 		if _, dis := disabledDss[srv.Name()]; dis {
-			// Do not show disabled services as stopped
 			continue
 		}
 		output.Services = append(output.Services, h.serviceToRest(srv, len(srv.Nodes()) > 0))
-		//		}
 	}
 
 	resp.WriteEntity(output)

@@ -24,9 +24,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/pydio/cells/v4/common/etl/models"
-
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/etl/models"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 )
@@ -179,18 +178,6 @@ func (s *node) GetUniqueId() string {
 func (s *node) Merge(differ models.Differ, params map[string]string) (models.Differ, error) {
 	// Return target
 	return differ, nil
-}
-
-type endpoint struct {
-	e *pb.Endpoint
-}
-
-func (e *endpoint) Name() string {
-	return e.e.Name
-}
-
-func (e *endpoint) Metadata() map[string]string {
-	return e.e.Metadata
 }
 
 func ToProtoItems(ii []registry.Item) []*pb.Item {
