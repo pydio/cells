@@ -357,10 +357,10 @@ func init() {
 
 	StartCmd.Flags().String(runtime.KeyBindHost, "0.0.0.0", "Address on which the servers should bind")
 	StartCmd.Flags().String(runtime.KeyAdvertiseAddress, "", "Address that should be advertised to other members of the cluster (leave it empty for default advertise address)")
-	StartCmd.Flags().String(runtime.KeyGrpcPort, "8001", "gRPC Server Port")
-	StartCmd.Flags().String(runtime.KeyGrpcDiscoveryPort, "8002", "gRPC Server Discovery Port")
+	StartCmd.Flags().String(runtime.KeyGrpcPort, runtime.DefaultGrpcPort, "gRPC Server Port")
+	StartCmd.Flags().String(runtime.KeyGrpcDiscoveryPort, runtime.DefaultDiscoveryPort, "gRPC Server Discovery Port")
 	StartCmd.Flags().String(runtime.KeyHttpServer, "caddy", "HTTP Server Type")
-	StartCmd.Flags().String(runtime.KeyHttpPort, "8080", "HTTP Server Port")
+	StartCmd.Flags().String(runtime.KeyHttpPort, runtime.DefaultHttpPort, "HTTP Server Port")
 
 	StartCmd.Flags().Bool(runtime.KeyFork, false, "Used internally by application when forking processes")
 

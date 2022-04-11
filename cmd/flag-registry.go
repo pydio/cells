@@ -29,10 +29,11 @@ import (
 
 // addRegistryFlags registers necessary flags to connect to the registry (defaults to memory)
 func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
-	discoveryAddress := "grpc://" + runtime.GrpcDiscoveryBindAddress()
+	
 	flags.String(runtime.KeyRegistry, "mem://?cache=shared", "Registry used to manage services")
 	flags.String(runtime.KeyBroker, "mem://", "Pub/sub service for events between services")
-	flags.String(runtime.KeyDiscovery, discoveryAddress, "Registry and pub/sub")
+	flags.String(runtime.KeyDiscovery, "grpc://:"+runtime.DefaultDiscoveryPort, "Registry and pub/sub")
+
 	flags.Int(runtime.KeyRegistryPort, net.GetAvailableRegistryAltPort(), "Port used to start a registry discovery service")
 	flags.Int(runtime.KeyBrokerPort, net.GetAvailableBrokerAltPort(), "Port used to start a broker discovery service")
 
@@ -45,7 +46,7 @@ func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 
 // addExternalCmdRegistryFlags registers necessary flags to connect to the registry with defaults :8001
 func addExternalCmdRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
-	discoveryAddress := "grpc://" + runtime.GrpcDiscoveryBindAddress()
+	discoveryAddress := "grpc://:" + runtime.DefaultDiscoveryPort
 	flags.String(runtime.KeyDiscovery, discoveryAddress, "Registry and pub/sub")
 	flags.String(runtime.KeyRegistry, discoveryAddress, "Registry used to contact services")
 	flags.String(runtime.KeyBroker, discoveryAddress, "Pub/sub service for events between services")

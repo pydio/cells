@@ -68,4 +68,8 @@ const (
 	KeyHttpServer    = "http"
 	HttpServerCaddy  = "caddy"
 	HttpServerNative = "http"
+
+	DefaultGrpcPort      = "8001"
+	DefaultDiscoveryPort = "8002"
+	DefaultHttpPort      = "8080"
 )
