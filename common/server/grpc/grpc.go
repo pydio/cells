@@ -23,6 +23,8 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/log"
+	"go.uber.org/zap"
 	"net"
 
 	"google.golang.org/grpc"
@@ -135,7 +137,7 @@ func (s *Server) Serve() error {
 		defer s.cancel()
 
 		if err := s.Server.Serve(s.opts.Listener); err != nil {
-			// TODO v4 - log or summat
+			log.Logger(context.Background()).Error("Could not start grpc server because of "+err.Error(), zap.Error(err))
 		}
 	}()
 

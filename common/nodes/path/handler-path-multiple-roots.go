@@ -152,7 +152,7 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 	if err != nil && errors.FromError(err).Status == "Not Found" {
 
 		branch, _ := nodes.GetBranchInfo(ctx, "in")
-		streamer := nodes.NewWrappingStreamer()
+		streamer := nodes.NewWrappingStreamer(ctx)
 		nn, e := m.GetRootKeys(branch.RootUUIDs)
 		if e != nil {
 			return streamer, e

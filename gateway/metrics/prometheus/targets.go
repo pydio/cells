@@ -34,7 +34,6 @@ func ProcessesAsTargets(ctx context.Context, reg registry.Registry) *PromTargets
 		if _, ok := processes[pid]; ok {
 			continue // already registered
 		}
-		// TODO V4 : waiting for Addresses
 		hostname := meta[server.NodeMetaHostName]
 		metricsPort := meta[server.NodeMetaMetrics]
 		if hostname == "" || metricsPort == "" {

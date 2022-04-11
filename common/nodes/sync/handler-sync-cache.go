@@ -234,12 +234,12 @@ func (s *CacheHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest,
 	r, e := s.Next.ListNodes(ctx, in, opts...)
 	if e != nil {
 		if _, o := s.cacheGet(ctx, in.GetNode().GetPath()); o {
-			emptyMock := nodes.NewWrappingStreamer()
+			emptyMock := nodes.NewWrappingStreamer(ctx)
 			go emptyMock.CloseSend()
 			return emptyMock, nil
 		}
 	} else if diff, o := s.cacheDiff(ctx, in.GetNode().GetPath()); o {
-		wrap := nodes.NewWrappingStreamer()
+		wrap := nodes.NewWrappingStreamer(ctx)
 		go func() {
 			defer wrap.CloseSend()
 			for {

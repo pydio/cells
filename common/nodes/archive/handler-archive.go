@@ -216,7 +216,7 @@ func (a *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts
 
 		if in.Limit == 1 && innerPath == "" {
 			archiveNode.Type = tree.NodeType_COLLECTION
-			streamer := nodes.NewWrappingStreamer()
+			streamer := nodes.NewWrappingStreamer(ctx)
 			go func() {
 				defer streamer.CloseSend()
 				log.Logger(ctx).Debug("[ARCHIVE:LISTNODE/READ]", zap.String("path", archiveNode.Path))
@@ -237,7 +237,7 @@ func (a *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts
 			}
 			children, err = extractor.ListChildrenTar(ctx, gzip, archiveNode, innerPath)
 		}
-		streamer := nodes.NewWrappingStreamer()
+		streamer := nodes.NewWrappingStreamer(ctx)
 		if err != nil {
 			return streamer, err
 		}

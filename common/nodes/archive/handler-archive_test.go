@@ -58,7 +58,7 @@ func (m *mockSelectionProvider) deleteSelectionByUuid(ctx context.Context, selec
 }
 
 func TestHandler_WrappingStreamer(t *testing.T) {
-	s := nodes.NewWrappingStreamer()
+	s := nodes.NewWrappingStreamer(context.TODO())
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)

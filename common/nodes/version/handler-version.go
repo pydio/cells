@@ -71,7 +71,7 @@ func (v *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts
 	}
 	if in.WithVersions {
 
-		streamer := nodes.NewWrappingStreamer()
+		streamer := nodes.NewWrappingStreamer(ctx)
 		resp, e := v.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: in.Node})
 		if e != nil {
 			return streamer, e
@@ -81,7 +81,6 @@ func (v *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts
 			return streamer, er
 		}
 		go func() {
-			defer versionStream.CloseSend()
 			defer streamer.CloseSend()
 
 			log.Logger(ctx).Debug("should list versions of object", zap.Any("node", resp.Node), zap.Error(er))

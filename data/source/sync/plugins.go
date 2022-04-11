@@ -23,8 +23,6 @@ package sync
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
@@ -41,11 +39,10 @@ var (
 
 func init() {
 	runtime.RegisterPreRun(func(rt runtime.Runtime) {
+		// If sync is excluded but not index, modify ChildrenRunner to start indexes services
 		idx := runtime.IsRequired(common.ServiceGrpcNamespace_ + common.ServiceDataIndex)
 		sync := runtime.IsRequired(common.ServiceGrpcNamespace_ + common.ServiceDataSync)
-		fmt.Println("CHecks on PreRun", idx, sync)
 		if idx && !sync {
-			fmt.Println("Sync is excluded but not indexes !!!")
 			Name = common.ServiceGrpcNamespace_ + common.ServiceDataIndex
 			ChildPrefix = common.ServiceGrpcNamespace_ + common.ServiceDataIndex_
 			SecondaryPrefix = ""

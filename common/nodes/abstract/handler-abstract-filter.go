@@ -165,9 +165,8 @@ func (v *BranchFilter) ListNodes(ctx context.Context, in *tree.ListNodesRequest,
 	if err != nil {
 		return nil, err
 	}
-	s := nodes.NewWrappingStreamer()
+	s := nodes.NewWrappingStreamer(stream.Context())
 	go func() {
-		defer stream.CloseSend()
 		defer s.CloseSend()
 		for {
 			resp, err := stream.Recv()
@@ -203,9 +202,8 @@ func (v *BranchFilter) StreamChanges(ctx context.Context, in *tree.StreamChanges
 	if err != nil {
 		return nil, err
 	}
-	s := nodes.NewChangesWrappingStreamer()
+	s := nodes.NewChangesWrappingStreamer(stream.Context())
 	go func() {
-		defer stream.CloseSend()
 		defer s.CloseSend()
 		for {
 			ev, err := stream.Recv()

@@ -73,7 +73,7 @@ func (v *BrowserHandler) ListNodes(ctx context.Context, in *tree.ListNodesReques
 	vManager := abstract.GetVirtualNodesManager(v.RuntimeCtx)
 	if virtual, exists := vManager.ByPath(in.Node.Path); exists {
 		log.Logger(ctx).Debug("Virtual Node Browser, Found, send no children", zap.Any("found", virtual))
-		s := nodes.NewWrappingStreamer()
+		s := nodes.NewWrappingStreamer(ctx)
 		defer s.CloseSend()
 		return s, nil
 	}
@@ -86,10 +86,9 @@ func (v *BrowserHandler) ListNodes(ctx context.Context, in *tree.ListNodesReques
 	if err != nil {
 		return nil, err
 	}
-	s := nodes.NewWrappingStreamer()
+	s := nodes.NewWrappingStreamer(ctx)
 	go func() {
 		vManager.Load(true)
-		defer stream.CloseSend()
 		defer s.CloseSend()
 		for {
 			resp, err := stream.Recv()

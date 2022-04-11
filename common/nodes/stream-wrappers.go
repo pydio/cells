@@ -37,8 +37,8 @@ type NodeWrappingStreamer struct {
 	*wrappingStreamer
 }
 
-func NewWrappingStreamer() *NodeWrappingStreamer {
-	return &NodeWrappingStreamer{newWrappingStreamer()}
+func NewWrappingStreamer(c context.Context) *NodeWrappingStreamer {
+	return &NodeWrappingStreamer{newWrappingStreamer(c)}
 }
 
 func (n *NodeWrappingStreamer) Recv() (*tree.ListNodesResponse, error) {
@@ -54,8 +54,8 @@ type ChangesWrappingStreamer struct {
 	*wrappingStreamer
 }
 
-func NewChangesWrappingStreamer() *ChangesWrappingStreamer {
-	return &ChangesWrappingStreamer{newWrappingStreamer()}
+func NewChangesWrappingStreamer(c context.Context) *ChangesWrappingStreamer {
+	return &ChangesWrappingStreamer{newWrappingStreamer(c)}
 }
 
 func (l *ChangesWrappingStreamer) Recv() (*tree.NodeChangeEvent, error) {
@@ -68,34 +68,33 @@ func (l *ChangesWrappingStreamer) Recv() (*tree.NodeChangeEvent, error) {
 }
 
 type wrappingStreamer struct {
+	parent context.Context
 	w      *io.PipeWriter
 	r      *io.PipeReader
 	closed bool
 }
 
-func newWrappingStreamer() *wrappingStreamer {
+func newWrappingStreamer(c context.Context) *wrappingStreamer {
 	r, w := io.Pipe()
 
 	return &wrappingStreamer{
 		w:      w,
 		r:      r,
 		closed: false,
+		parent: c,
 	}
 }
 
-// TODO v4
 func (l *wrappingStreamer) Context() context.Context {
-	return context.TODO()
+	return l.parent
 }
 
-// TODO v4
 func (l *wrappingStreamer) Header() (metadata.MD, error) {
-	return nil, nil
+	return metadata.MD{}, nil
 }
 
-// TODO v4
 func (l *wrappingStreamer) Trailer() metadata.MD {
-	return nil
+	return metadata.MD{}
 }
 
 func (l *wrappingStreamer) Send(in interface{}) error {

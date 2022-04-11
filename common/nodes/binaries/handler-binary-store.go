@@ -78,7 +78,7 @@ func (a *Handler) checkContextForAnonRead(ctx context.Context) error {
 // ListNodes does not display content
 func (a *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...grpc.CallOption) (c tree.NodeProvider_ListNodesClient, e error) {
 	if a.isStorePath(in.Node.Path) {
-		emptyStreamer := nodes.NewWrappingStreamer()
+		emptyStreamer := nodes.NewWrappingStreamer(ctx)
 		emptyStreamer.CloseSend()
 		return emptyStreamer, nil
 	}

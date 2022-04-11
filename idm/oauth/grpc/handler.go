@@ -217,7 +217,6 @@ func (h *Handler) CreateConsent(ctx context.Context, in *pauth.CreateConsentRequ
 		return nil, errors.WithStack(fosite.ErrRequestUnauthorized.WithDebug("The login request has expired, please try again."))
 	}
 
-	// TODO V4 : verify session.RequestedAt or session.AuthenticatedAt ?
 	if err := auth.GetRegistry().ConsentManager().ConfirmLoginSession(ctx, session.LoginRequest.SessionID.String(), session.RequestedAt, session.Subject, session.Remember); err != nil {
 		return nil, err
 	}
@@ -598,7 +597,7 @@ func (h *Handler) PruneTokens(ctx context.Context, in *pauth.PruneTokensRequest)
 		return nil, err
 	}
 
-	// TODO V4 : Validate this: previous version was checking each client revokeRefreshTokenAfterInactivity
+	// TODO : Validate this: previous version was checking each client revokeRefreshTokenAfterInactivity
 	err = storage.FlushInactiveLoginConsentRequests(ctx, time.Now(), 1000, 100)
 	if err != nil {
 		return nil, err

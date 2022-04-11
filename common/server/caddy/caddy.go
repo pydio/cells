@@ -23,7 +23,6 @@ package caddy
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"github.com/pydio/cells/v4/common/runtime"
 	"html/template"
 	"net"
@@ -293,7 +292,6 @@ func (s *Server) watchReload() {
 				}
 			}
 		case <-s.watchDone:
-			fmt.Println("Stopping hooks watcher for caddy confs")
 			return
 		}
 	}

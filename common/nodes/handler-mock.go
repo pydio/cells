@@ -76,7 +76,7 @@ func (h *HandlerMock) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 func (h *HandlerMock) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...grpc.CallOption) (tree.NodeProvider_ListNodesClient, error) {
 	h.Nodes["in"] = in.Node
 	h.Context = ctx
-	streamer := NewWrappingStreamer()
+	streamer := NewWrappingStreamer(ctx)
 	if in.Ancestors {
 		if n, o := h.Nodes[in.Node.Path]; o {
 			go func() {

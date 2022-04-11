@@ -22,6 +22,8 @@ package http
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/log"
+	"go.uber.org/zap"
 	"net"
 	"net/http"
 	"net/http/pprof"
@@ -83,7 +85,10 @@ func (s *Server) Serve() error {
 		defer s.cancel()
 
 		if err := s.Server.Serve(lis); err != nil {
-			// TODO v4 log or summat
+			if err.Error() == "http: Server closed" || err.Error() == "context canceled" {
+				return
+			}
+			log.Logger(context.Background()).Error("Could not start http server because "+err.Error(), zap.Error(err))
 		}
 	}()
 

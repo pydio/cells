@@ -114,7 +114,6 @@ func computeSiteConf(pc *install.ProxyConfig) (SiteConf, error) {
 			bc.TLSCert = certFile
 			bc.TLSKey = keyFile
 		case *install.ProxyConfig_LetsEncrypt:
-			// todo v4 : is there something to do with AcceptEULA flag ? Was caddytls.Agreed = true
 			caUrl := common.DefaultCaUrl
 			if v.LetsEncrypt.StagingCA {
 				caUrl = common.DefaultCaStagingUrl

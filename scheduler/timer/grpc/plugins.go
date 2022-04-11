@@ -59,13 +59,7 @@ func init() {
 					return fmt.Errorf("cannot subscribe on JobConfigEvent topic %v", er)
 				}
 
-				// TODO v4
 				go producer.Start()
-
-				//select {
-				//case <-c.Done():
-				//	fmt.Println("Handler is done")
-				//}
 				return nil
 
 			}),

@@ -158,7 +158,7 @@ func (a *WorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 		if !ok {
 			return nil, nodes.ErrCannotFindACL()
 		}
-		streamer := nodes.NewWrappingStreamer()
+		streamer := nodes.NewWrappingStreamer(ctx)
 		go func() {
 			defer streamer.CloseSend()
 			wss := accessList.Workspaces
