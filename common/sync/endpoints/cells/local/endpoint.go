@@ -28,15 +28,15 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/nodes/compose"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-	//	"github.com/pydio/cells/v4/common/micro/registry"
-	//	"github.com/pydio/cells/v4/common/micro/transport/grpc"
 	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/sync/endpoints/cells"
 	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -48,22 +48,22 @@ func init() {
 }
 
 // Local directly connects to a Cells server running in the same network,
-// by connecting to the local NATS registry
+// by connecting to the local registry
 type Local struct {
 	cells.Abstract
 }
 
 // NewLocal creates a new instance of a Local endpoint
 func NewLocal(root string, options cells.Options) *Local {
+	ctx := context.Background()
 	if options.LocalInitRegistry {
 		localRouterOnce.Do(func() {
-			/*
-				// TODO V4
-				registry.EnableService("127.0.0.1", "8000")
-				broker.EnableService("127.0.0.1", "8003")
-				grpc.Enable()
-				registry2.Init()
-			*/
+			// TODO - If we re-enable this endpoint, we may have to do something here
+			reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
+			if err != nil {
+				panic(err)
+			}
+			ctx = servicecontext.WithRegistry(ctx, reg)
 		})
 	}
 	l := &Local{
@@ -71,13 +71,14 @@ func NewLocal(root string, options cells.Options) *Local {
 			Root:       strings.TrimLeft(root, "/"),
 			Options:    options,
 			ClientUUID: uuid.New(),
+			GlobalCtx:  ctx,
 		},
 	}
 	l.Factory = &localRouterFactory{
-		router: compose.PathClient(context.Background(), nodes.AsAdmin(), nodes.WithSynchronousTasks()),
+		router: compose.PathClient(l.GlobalCtx, nodes.AsAdmin(), nodes.WithSynchronousTasks()),
 	}
 	l.Source = l
-	l.GlobalCtx = servicecontext.WithServiceName(context.Background(), "endpoint.cells.local")
+	l.GlobalCtx = servicecontext.WithServiceName(l.GlobalCtx, "endpoint.cells.local")
 	return l
 }
 
