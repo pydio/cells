@@ -143,6 +143,9 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 		}
 
 		proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
+			if err.Error() == "context canceled" {
+				return
+			}
 			fmt.Println("Got Error in Grpc Reverse Proxy:", err.Error())
 			writer.WriteHeader(http.StatusBadGateway)
 		}
