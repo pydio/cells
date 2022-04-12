@@ -25,14 +25,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"reflect"
+	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	restful "github.com/emicklei/go-restful/v3"
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/spec"
 	"github.com/rs/cors"
+	"github.com/sethvargo/go-limiter/httplimit"
+	"github.com/sethvargo/go-limiter/memorystore"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
@@ -93,7 +98,11 @@ func getWebMiddlewares(serviceName string) []func(ctx context.Context, handler h
 
 // WithWeb returns a web handler
 func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
+
 	return func(o *ServiceOptions) {
+
+		rootPath := "/a/" + strings.TrimPrefix(o.Name, common.ServiceRestNamespace_)
+
 		o.serverType = server.ServerType_HTTP
 		o.serverStart = func() error {
 			var mux server.HttpMux
@@ -101,21 +110,7 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				return fmt.Errorf("server %s is not a mux", o.Name)
 			}
 
-			// TODO v4
-			// if rateLimit, err := strconv.Atoi(os.Getenv("WEB_RATE_LIMIT")); err == nil {
-			// 	opts = append(opts, micro.WrapHandler(limiter.NewHandlerWrapper(rateLimit)))
-			//}
-
-			// meta := registry.BuildServiceMeta()
-			// meta["description"] = o.Description
-
-			// svc.Init(
-			// 	micro.Metadata(registry.BuildServiceMeta()),
-			// )
-
 			ctx := o.Context
-
-			rootPath := "/a/" + strings.TrimPrefix(o.Name, common.ServiceRestNamespace_)
 			log.Logger(ctx).Info("starting", zap.String("service", o.Name), zap.String("hook router to", rootPath))
 
 			ws := new(restful.WebService)
@@ -198,9 +193,40 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				}
 			}
 			wrapped = cors.Default().Handler(wrapped)
+
+			if rateLimit, err := strconv.Atoi(os.Getenv("CELLS_WEB_RATE_LIMIT")); err == nil {
+				limiterConfig := &memorystore.Config{
+					// Number of tokens allowed per interval.
+					Tokens: uint64(rateLimit),
+					// Interval until tokens reset.
+					Interval: time.Second,
+				}
+				if store, err := memorystore.New(limiterConfig); err == nil {
+					if mw, er := httplimit.NewMiddleware(store, httplimit.IPKeyFunc()); er == nil {
+						log.Logger(ctx).Debug("Wrapping WebMiddleware into Rate Limiter", zap.Int("reqpersec", rateLimit))
+						wrapped = mw.Handle(wrapped)
+					} else {
+						log.Logger(ctx).Warn("Could not initialize RateLimiter "+er.Error(), zap.Error(er))
+					}
+				} else {
+					log.Logger(ctx).Warn("Could not initialize RateLimiter "+err.Error(), zap.Error(err))
+				}
+			}
+
 			mux.Handle(ws.RootPath(), wrapped)
 			mux.Handle(ws.RootPath()+"/", wrapped)
 
+			return nil
+		}
+
+		o.serverStop = func() error {
+			var mux server.PatternsProvider
+			if !o.Server.As(&mux) {
+				return fmt.Errorf("server %s is not a mux", o.Name)
+			}
+			log.Logger(o.Context).Info("Deregistering pattern " + rootPath)
+			mux.DeregisterPattern(rootPath)
+			mux.DeregisterPattern(rootPath + "/")
 			return nil
 		}
 
@@ -208,11 +234,12 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 	}
 }
 
-func WithWebStop(handler func() WebHandler) ServiceOption {
+// WithWebStop registers an optional callback to perform clean operations on stop
+// WithWeb already registers a serverStop callback to remove rest patterns
+func WithWebStop(handler func(ctx context.Context) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.serverStop = func() error {
-			// TODO v4 - unregister all services
-			return nil
+			return handler(o.Context)
 		}
 	}
 }
