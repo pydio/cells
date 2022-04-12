@@ -111,12 +111,16 @@ class ErrorDialog extends Component {
     constructor(props){
         super(props);
         this.state = {open: true}
+        this.copy = React.createRef()
+        this.input =React.createRef()
     }
 
     componentDidMount(){
         const {copyText} = this.props;
         if(copyText){
-            this.attachClipboard(copyText);
+            setTimeout(()=>{
+                this.attachClipboard(copyText);
+            }, 500)
         }
     }
 
@@ -130,13 +134,10 @@ class ErrorDialog extends Component {
     }
 
     attachClipboard(inputValue){
-        if(this._clip){
-            this._clip.destroy();
-        }
-        if(!this.refs['copy-button']) {
+        if(this._clip || !this.copy.current) {
             return;
         }
-        this._clip = new Clipboard(this.refs['copy-button'], {
+        this._clip = new Clipboard(this.copy.current, {
             text: function(trigger) {
                 return inputValue;
             }.bind(this)
@@ -145,7 +146,7 @@ class ErrorDialog extends Component {
             this.setState({copyMessage:this.getMessage('code-copied')}, this.clearCopyMessage.bind(this));
         }.bind(this));
         this._clip.on('error', function(){
-            this.refs['input'].focus();
+            this.input.current.focus();
             this.setState({copyMessage:this.getMessage('code-copy-failed')}, this.clearCopyMessage.bind(this));
         }.bind(this));
     }
@@ -186,9 +187,9 @@ class ErrorDialog extends Component {
                         <div>
                             <div style={{display:'flex', width:'100%'}}>
                                 <div style={{flex: 1}}>
-                                    <ModernTextField ref={"input"} value={copyText} fullWidth={true} onClick={(e) =>{e.currentTarget.select();}}/>
+                                    <ModernTextField ref={this.input} value={copyText} fullWidth={true} onClick={(e) =>{e.currentTarget.select();}}/>
                                 </div>
-                                <span style={copyButtonStyle} title={this.getMessage('copy-code')} ref={"copy-button"} className={"mdi mdi-content-copy"} />
+                                <div style={copyButtonStyle} title={this.getMessage('copy-code')} ref={this.copy} className={"mdi mdi-content-copy"} />
                             </div>
                             {copyMessage && <div>{copyMessage}</div>}
                         </div>
