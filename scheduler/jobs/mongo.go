@@ -98,7 +98,8 @@ func (m *mongoImpl) PutJob(job *jobs.Job) error {
 		Job:         job,
 	}
 	mj.Job.Tasks = nil
-	_, e := m.DB().Collection(collJobs).InsertOne(c, mj)
+	upsert := true
+	_, e := m.DB().Collection(collJobs).ReplaceOne(c, bson.D{{"id", job.ID}}, mj, &options.ReplaceOptions{Upsert: &upsert})
 	return e
 }
 
