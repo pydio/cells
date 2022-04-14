@@ -23,7 +23,6 @@ package mux
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -42,14 +41,26 @@ import (
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	clienthttp "github.com/pydio/cells/v4/common/client/http"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/caddy/maintenance"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service"
 )
 
+var (
+	module *Middleware
+)
+
 func RegisterServerMux(ctx context.Context, s server.HttpMux) {
-	caddy.RegisterModule(NewMiddleware(ctx, s))
+	if module != nil {
+		module.Stop()
+		module.Init(ctx, s)
+		return
+	}
+	module = &Middleware{}
+	module.Init(ctx, s)
+	caddy.RegisterModule(module)
 	httpcaddyfile.RegisterHandlerDirective("mux", parseCaddyfile)
 }
 
@@ -58,11 +69,13 @@ type Middleware struct {
 	r         registry.Registry
 	s         server.HttpMux
 	b         *clienthttp.Balancer
+	rc        client.ResolverCallback
 	monitor   grpc2.HealthMonitor
 	userReady bool
 }
 
-func NewMiddleware(ctx context.Context, s server.HttpMux) Middleware {
+func (m *Middleware) Init(ctx context.Context, s server.HttpMux) {
+
 	conn := clientcontext.GetClientConn(ctx)
 	reg := servercontext.GetRegistry(ctx)
 	rc, _ := client.NewResolverCallback(reg)
@@ -96,12 +109,11 @@ func NewMiddleware(ctx context.Context, s server.HttpMux) Middleware {
 		return nil
 	})
 
-	m := Middleware{
-		c: conn,
-		r: reg,
-		s: s,
-		b: balancer,
-	}
+	m.c = conn
+	m.rc = rc
+	m.r = reg
+	m.s = s
+	m.b = balancer
 
 	if runtime.LastInitType() != "install" {
 		monitor := grpc2.NewHealthChecker(ctx)
@@ -109,23 +121,31 @@ func NewMiddleware(ctx context.Context, s server.HttpMux) Middleware {
 		m.monitor = monitor
 	}
 
-	return m
+}
+
+func (m *Middleware) Stop() {
+	if m.rc != nil {
+		m.rc.Stop()
+	}
+	if m.monitor != nil {
+		m.monitor.Stop()
+	}
 }
 
 // CaddyModule returns the Caddy module information.
-func (m Middleware) CaddyModule() caddy.ModuleInfo {
+func (m *Middleware) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
 		ID:  "http.handlers.mux",
-		New: func() caddy.Module { return &m },
+		New: func() caddy.Module { return m },
 	}
 }
 
 // Provision adds routes to the main server
-func (m Middleware) Provision(ctx caddy.Context) error {
+func (m *Middleware) Provision(ctx caddy.Context) error {
 	return nil
 }
 
-func (m Middleware) userServiceReady() bool {
+func (m *Middleware) userServiceReady() bool {
 	if m.userReady {
 		return true
 	}
@@ -137,7 +157,7 @@ func (m Middleware) userServiceReady() bool {
 }
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
-func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
+func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 
 	// Special case for application/grpc
 	if strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
@@ -201,23 +221,15 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 }
 
 // UnmarshalCaddyfile implements caddyfile.Unmarshaler.
-func (m Middleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
-	/*for d.Next() {
-		if !d.Args(&m.Output) {
-			return d.ArgErr()
-		}
-	}*/
+func (m *Middleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	return nil
 }
 
-func (m Middleware) WrapListener(ln net.Listener) net.Listener {
-	fmt.Println("The address is ? ", ln.Addr())
+func (m *Middleware) WrapListener(ln net.Listener) net.Listener {
 	return ln
 }
 
 // parseCaddyfile unmarshals tokens from h into a new Middleware.
 func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
-	var m Middleware
-	err := m.UnmarshalCaddyfile(h.Dispenser)
-	return m, err
+	return module, nil
 }

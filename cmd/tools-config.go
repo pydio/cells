@@ -28,10 +28,8 @@ import (
 	"github.com/pydio/cells/v4/common"
 
 	"github.com/manifoldco/promptui"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/spf13/cobra"
 )
 
 var importConfigCmd = &cobra.Command{
@@ -79,7 +77,7 @@ DESCRIPTION
 		fmt.Println(versions)
 
 		db := m[ids[i]].(map[string]interface{})
-		viper.Set("config", db["driver"])
+		cellsViper.Set("config", db["driver"])
 
 		initConfig(cmd.Context())
 
