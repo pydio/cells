@@ -192,7 +192,24 @@ class InstallForm extends React.Component {
             const checkResult = InstallCheckResult.constructFromObject({Success:false, JsonResult: JSON.stringify({error: reason.message})});
             callback(checkResult)
         }).finally(() => {
-            this.setState({performingCheck: 'DB'});
+            this.setState({performingCheck: null});
+        })
+    }
+
+    checkMongoDSN(callback) {
+        const {DocumentsDSN} = this.props;
+        const request = new InstallPerformCheckRequest();
+        request.Name = "MONGO";
+        request.Config = InstallInstallConfig.constructFromObject({DocumentsDSN});
+        this.setState({performingCheck: 'MONGO'});
+        api.performInstallCheck(request).then(res => {
+            const checkResult = res.Result;
+            callback(checkResult);
+        }).catch(reason => {
+            const checkResult = InstallCheckResult.constructFromObject({Name: 'MONGO', Success:false, JsonResult: JSON.stringify({error: reason.message})});
+            callback(checkResult)
+        }).finally(() => {
+            this.setState({performingCheck: null});
         })
     }
 
@@ -364,11 +381,11 @@ class InstallForm extends React.Component {
     render() {
 
         const {dbConnectionType, handleSubmit, installPerformed, installError, initialChecks, licenseRequired, licenseString,
-            frontendPassword, frontendLogin, frontendRepeatPassword, change} = this.props;
+            frontendPassword, frontendLogin, frontendRepeatPassword, DocumentsDSN, change} = this.props;
 
         const {stepIndex, licenseAgreed, showAdvanced, installEvents, installProgress, serverRestarted, willReloadIn,
             agreementText, dbCheckError, dbCheckSuccess, s3CheckKeysSuccess, s3CheckKeysError, s3BucketsPrefix, s3CheckBucketsError, licCheckFailed,
-            performingCheck, tablesFoundConfirm, adminFoundOverride, lang} = this.state;
+            performingCheck, tablesFoundConfirm, adminFoundOverride, mongoDSNValid, mongoDSNError, lang} = this.state;
 
         const flexContainer = {
             display: 'flex',
@@ -622,6 +639,37 @@ class InstallForm extends React.Component {
                         {showAdvanced &&
                         <div style={flexContainer}>
                             <div style={{marginTop: 10}}>
+                                {this.t('advanced.mongo.title')}
+                            </div>
+                            <div style={{display:'flex', alignItems:'flex-end'}}>
+                                <div style={{flex: 1}}>
+                                    <Field name={"DocumentsDSN"} component={renderTextField} floatingLabel={this.t('advanced.mongo.label')} label={"localhost:27017/?maxPoolSize=20&w=majority"} errorText={mongoDSNError}/>
+                                </div>
+                                {performingCheck === 'MONGO' && <div style={{width:48, height:48, padding:12, boxSizing:'border-box'}}><CircularProgress size={20} thickness={2.5}/></div>}
+                                <div>
+                                    {mongoDSNValid && <FontIcon className={"mdi mdi-check"} color={"#4caf50"} style={{width: 25, height: 32, marginLeft: 10}}/>}
+                                    {!mongoDSNValid &&
+                                        <IconButton
+                                            disabled={!DocumentsDSN || performingCheck}
+                                            iconClassName={"mdi mdi-login-variant"}
+                                            tooltip={this.t('form.mongoValidate')}
+                                            tooltipPosition={"bottom-left"}
+                                            onClick={() => {
+                                                this.setState({mongoDSNError:null})
+                                                this.checkMongoDSN((result) => {
+                                                    const data = JSON.parse(result.JsonResult);
+                                                    if (result.Success) {
+                                                        this.setState({mongoDSNValid: true});
+                                                    } else {
+                                                        this.setState({mongoDSNValid: false, mongoDSNError: data.error})
+                                                    }
+                                                }, true);
+                                            }}
+                                        />
+                                    }
+                                </div>
+                            </div>
+                            <div style={{marginTop: 20}}>
                                 {this.t('advanced.default.datasource')}
                             </div>
                             <div>
@@ -825,6 +873,7 @@ InstallForm = connect(state => {
     const frontendRepeatPassword = selector(state, 'frontendRepeatPassword');
     const dsType = selector(state, 'dsType');
     const s3Config = selector(state, 'dsS3Custom', 'dsS3CustomRegion', 'dsS3ApiKey', 'dsS3ApiSecret', 'dsS3BucketDefault', 'dsS3BucketPersonal', 'dsS3BucketCells', 'dsS3BucketBinaries', 'dsS3BucketThumbs', 'dsS3BucketVersions');
+    const DocumentsDSN = selector(state, 'DocumentsDSN')
 
     // Make a request to retrieve those values
     return {
@@ -838,7 +887,8 @@ InstallForm = connect(state => {
         licenseString,
         frontendPassword,
         frontendLogin,
-        frontendRepeatPassword
+        frontendRepeatPassword,
+        DocumentsDSN
     }
 }, { load: loadConfig } )(InstallForm);
 

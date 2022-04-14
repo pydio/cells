@@ -303,13 +303,34 @@ var InstallForm = function (_React$Component) {
                 var checkResult = _InstallCheckResult2.default.constructFromObject({ Success: false, JsonResult: JSON.stringify({ error: reason.message }) });
                 callback(checkResult);
             }).finally(function () {
-                _this3.setState({ performingCheck: 'DB' });
+                _this3.setState({ performingCheck: null });
+            });
+        }
+    }, {
+        key: 'checkMongoDSN',
+        value: function checkMongoDSN(callback) {
+            var _this4 = this;
+
+            var DocumentsDSN = this.props.DocumentsDSN;
+
+            var request = new _InstallPerformCheckRequest2.default();
+            request.Name = "MONGO";
+            request.Config = _InstallInstallConfig2.default.constructFromObject({ DocumentsDSN: DocumentsDSN });
+            this.setState({ performingCheck: 'MONGO' });
+            api.performInstallCheck(request).then(function (res) {
+                var checkResult = res.Result;
+                callback(checkResult);
+            }).catch(function (reason) {
+                var checkResult = _InstallCheckResult2.default.constructFromObject({ Name: 'MONGO', Success: false, JsonResult: JSON.stringify({ error: reason.message }) });
+                callback(checkResult);
+            }).finally(function () {
+                _this4.setState({ performingCheck: null });
             });
         }
     }, {
         key: 'checkLicenseConfig',
         value: function checkLicenseConfig(callback) {
-            var _this4 = this;
+            var _this5 = this;
 
             var request = new _InstallPerformCheckRequest2.default();
             request.Name = "LICENSE";
@@ -322,13 +343,13 @@ var InstallForm = function (_React$Component) {
                 var checkResult = _InstallCheckResult2.default.constructFromObject({ Name: "LICENSE", Success: false, JsonResult: JSON.stringify({ error: reason.message }) });
                 callback(checkResult);
             }).finally(function () {
-                _this4.setState({ performingCheck: null });
+                _this5.setState({ performingCheck: null });
             });
         }
     }, {
         key: 'checkS3Config',
         value: function checkS3Config(callback) {
-            var _this5 = this;
+            var _this6 = this;
 
             var keys = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
             var s3Config = this.props.s3Config;
@@ -344,7 +365,7 @@ var InstallForm = function (_React$Component) {
                 var checkResult = _InstallCheckResult2.default.constructFromObject({ Name: "S3_KEYS", Success: false, JsonResult: JSON.stringify({ error: reason.message }) });
                 callback(checkResult);
             }).finally(function () {
-                _this5.setState({ performingCheck: null });
+                _this6.setState({ performingCheck: null });
             });
         }
     }, {
@@ -430,7 +451,7 @@ var InstallForm = function (_React$Component) {
     }, {
         key: 'renderStepActions',
         value: function renderStepActions(step) {
-            var _this6 = this;
+            var _this7 = this;
 
             var nextDisabled = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
             var leftAction = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
@@ -451,15 +472,15 @@ var InstallForm = function (_React$Component) {
             switch (stepIndex) {
                 case 1 + stepOffset:
                     nextAction = function nextAction() {
-                        _this6.checkDbConfig(function (checkResult) {
+                        _this7.checkDbConfig(function (checkResult) {
                             if (checkResult.Success) {
                                 var successData = JSON.parse(checkResult.JsonResult);
                                 if (!successData || !successData.tablesFound || tablesFoundConfirm) {
-                                    _this6.handleNext();
+                                    _this7.handleNext();
                                 }
-                                _this6.setState({ dbCheckError: null, dbCheckSuccess: JSON.parse(checkResult.JsonResult) });
+                                _this7.setState({ dbCheckError: null, dbCheckSuccess: JSON.parse(checkResult.JsonResult) });
                             } else {
-                                _this6.setState({ dbCheckError: JSON.parse(checkResult.JsonResult).error, dbCheckSuccess: null });
+                                _this7.setState({ dbCheckError: JSON.parse(checkResult.JsonResult).error, dbCheckSuccess: null });
                             }
                         });
                     };
@@ -469,7 +490,7 @@ var InstallForm = function (_React$Component) {
                     break;
                 case 3 + stepOffset:
                     nextAction = function nextAction() {
-                        _this6.handleNext();handleSubmit();
+                        _this7.handleNext();handleSubmit();
                     };
                     if (dsType === 'S3') {
                         var _state2 = this.state,
@@ -480,13 +501,13 @@ var InstallForm = function (_React$Component) {
                         if (!nextInvalid && this.renderS3BucketsList().NeedsCreates) {
                             nextAction = function nextAction() {
                                 // First create buckets if necessary
-                                _this6.checkS3Config(function (result) {
+                                _this7.checkS3Config(function (result) {
                                     var data = JSON.parse(result.JsonResult);
                                     if (result.Success) {
-                                        _this6.handleNext();
+                                        _this7.handleNext();
                                         handleSubmit();
                                     } else {
-                                        _this6.setState({ s3CheckBucketsError: data.error });
+                                        _this7.setState({ s3CheckBucketsError: data.error });
                                     }
                                 });
                             };
@@ -524,7 +545,7 @@ var InstallForm = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this7 = this;
+            var _this8 = this;
 
             var _props2 = this.props,
                 dbConnectionType = _props2.dbConnectionType,
@@ -537,6 +558,7 @@ var InstallForm = function (_React$Component) {
                 frontendPassword = _props2.frontendPassword,
                 frontendLogin = _props2.frontendLogin,
                 frontendRepeatPassword = _props2.frontendRepeatPassword,
+                DocumentsDSN = _props2.DocumentsDSN,
                 change = _props2.change;
             var _state3 = this.state,
                 stepIndex = _state3.stepIndex,
@@ -557,6 +579,8 @@ var InstallForm = function (_React$Component) {
                 performingCheck = _state3.performingCheck,
                 tablesFoundConfirm = _state3.tablesFoundConfirm,
                 adminFoundOverride = _state3.adminFoundOverride,
+                mongoDSNValid = _state3.mongoDSNValid,
+                mongoDSNError = _state3.mongoDSNError,
                 lang = _state3.lang;
 
 
@@ -598,7 +622,7 @@ var InstallForm = function (_React$Component) {
                     'div',
                     null,
                     _react2.default.createElement(_materialUi.Checkbox, { checked: licenseAgreed, label: this.t('welcome.agreed'), style: { width: 300 }, onCheck: function onCheck() {
-                            _this7.setState({ licenseAgreed: !licenseAgreed });
+                            _this8.setState({ licenseAgreed: !licenseAgreed });
                         } })
                 );
             }
@@ -610,18 +634,18 @@ var InstallForm = function (_React$Component) {
                     initialChecks.map(function (c) {
                         if (c.Name === "LICENSE" && c.Success) {
                             licCheckPassed = JSON.parse(c.JsonResult);
-                            nextAction = _this7.handleNext.bind(_this7);
+                            nextAction = _this8.handleNext.bind(_this8);
                         }
                     });
                 }
                 if (!nextAction) {
                     nextAction = function nextAction() {
-                        _this7.checkLicenseConfig(function (result) {
+                        _this8.checkLicenseConfig(function (result) {
                             if (result.Success) {
-                                _this7.setState({ licCheckFailed: false });
-                                _this7.handleNext();
+                                _this8.setState({ licCheckFailed: false });
+                                _this8.handleNext();
                             } else {
-                                _this7.setState({ licCheckFailed: true });
+                                _this8.setState({ licCheckFailed: true });
                             }
                         });
                     };
@@ -862,7 +886,7 @@ var InstallForm = function (_React$Component) {
                                 'div',
                                 null,
                                 _react2.default.createElement(_materialUi.Checkbox, { checked: tablesFoundConfirm, onCheck: function onCheck(e, v) {
-                                        _this7.setState({ tablesFoundConfirm: v });
+                                        _this8.setState({ tablesFoundConfirm: v });
                                     } })
                             ),
                             _react2.default.createElement(
@@ -872,7 +896,7 @@ var InstallForm = function (_React$Component) {
                                 _react2.default.createElement(
                                     'a',
                                     { style: { fontWeight: 500, cursor: 'pointer' }, onClick: function onClick(e) {
-                                            e.preventDefault();e.stopPropagation();_this7.setState({ dbCheckSuccess: null, tablesFoundConfirm: null });
+                                            e.preventDefault();e.stopPropagation();_this8.setState({ dbCheckSuccess: null, tablesFoundConfirm: null });
                                         } },
                                     this.t('database.installDetected.retry')
                                 ),
@@ -918,7 +942,7 @@ var InstallForm = function (_React$Component) {
                                 'div',
                                 { style: { marginTop: 10 } },
                                 _react2.default.createElement(_materialUi.Checkbox, { checked: adminFoundOverride, onCheck: function onCheck(e, v) {
-                                        _this7.setState({ adminFoundOverride: v });
+                                        _this8.setState({ adminFoundOverride: v });
                                     }, label: this.t('admin.adminFound') })
                             ),
                             (!adminFound || adminFoundOverride) && _react2.default.createElement(
@@ -973,7 +997,7 @@ var InstallForm = function (_React$Component) {
                         _react2.default.createElement(
                             'div',
                             { style: { display: 'flex', alignItems: 'center', height: 40, cursor: 'pointer' }, onClick: function onClick() {
-                                    _this7.setState({ showAdvanced: !showAdvanced });
+                                    _this8.setState({ showAdvanced: !showAdvanced });
                                 } },
                             _react2.default.createElement(
                                 'div',
@@ -988,6 +1012,47 @@ var InstallForm = function (_React$Component) {
                             _react2.default.createElement(
                                 'div',
                                 { style: { marginTop: 10 } },
+                                this.t('advanced.mongo.title')
+                            ),
+                            _react2.default.createElement(
+                                'div',
+                                { style: { display: 'flex', alignItems: 'flex-end' } },
+                                _react2.default.createElement(
+                                    'div',
+                                    { style: { flex: 1 } },
+                                    _react2.default.createElement(_reduxForm.Field, { name: "DocumentsDSN", component: renderTextField, floatingLabel: this.t('advanced.mongo.label'), label: "localhost:27017/?maxPoolSize=20&w=majority", errorText: mongoDSNError })
+                                ),
+                                performingCheck === 'MONGO' && _react2.default.createElement(
+                                    'div',
+                                    { style: { width: 48, height: 48, padding: 12, boxSizing: 'border-box' } },
+                                    _react2.default.createElement(_materialUi.CircularProgress, { size: 20, thickness: 2.5 })
+                                ),
+                                _react2.default.createElement(
+                                    'div',
+                                    null,
+                                    mongoDSNValid && _react2.default.createElement(_materialUi.FontIcon, { className: "mdi mdi-check", color: "#4caf50", style: { width: 25, height: 32, marginLeft: 10 } }),
+                                    !mongoDSNValid && _react2.default.createElement(_materialUi.IconButton, {
+                                        disabled: !DocumentsDSN || performingCheck,
+                                        iconClassName: "mdi mdi-login-variant",
+                                        tooltip: this.t('form.mongoValidate'),
+                                        tooltipPosition: "bottom-left",
+                                        onClick: function onClick() {
+                                            _this8.setState({ mongoDSNError: null });
+                                            _this8.checkMongoDSN(function (result) {
+                                                var data = JSON.parse(result.JsonResult);
+                                                if (result.Success) {
+                                                    _this8.setState({ mongoDSNValid: true });
+                                                } else {
+                                                    _this8.setState({ mongoDSNValid: false, mongoDSNError: data.error });
+                                                }
+                                            }, true);
+                                        }
+                                    })
+                                )
+                            ),
+                            _react2.default.createElement(
+                                'div',
+                                { style: { marginTop: 20 } },
                                 this.t('advanced.default.datasource')
                             ),
                             _react2.default.createElement(
@@ -1061,12 +1126,12 @@ var InstallForm = function (_React$Component) {
                                             tooltip: this.t('form.dsS3ValidateKeys'),
                                             tooltipPosition: "bottom-left",
                                             onClick: function onClick() {
-                                                _this7.checkS3Config(function (result) {
+                                                _this8.checkS3Config(function (result) {
                                                     var data = JSON.parse(result.JsonResult);
                                                     if (result.Success) {
-                                                        _this7.setState({ s3CheckKeysSuccess: data });
+                                                        _this8.setState({ s3CheckKeysSuccess: data });
                                                     } else {
-                                                        _this7.setState({ s3CheckKeysError: data });
+                                                        _this8.setState({ s3CheckKeysError: data });
                                                     }
                                                 }, true);
                                             }
@@ -1079,7 +1144,7 @@ var InstallForm = function (_React$Component) {
                                     _react2.default.createElement(_materialUi.TextField, {
                                         value: s3BucketsPrefix || '',
                                         onChange: function onChange(e, v) {
-                                            _this7.setState({ s3BucketsPrefix: v });
+                                            _this8.setState({ s3BucketsPrefix: v });
                                             change('dsS3BucketDefault', v + 'pydiods1');
                                             change('dsS3BucketPersonal', v + 'personal');
                                             change('dsS3BucketCells', v + 'cellsdata');
@@ -1213,7 +1278,7 @@ var InstallForm = function (_React$Component) {
                         _react2.default.createElement(
                             _materialUi.SelectField,
                             { value: lang, onChange: function onChange(e, i, v) {
-                                    change('frontendDefaultLanguage', v), _this7.setState({ lang: v });
+                                    change('frontendDefaultLanguage', v), _this8.setState({ lang: v });
                                 }, fullWidth: true, labelStyle: { color: 'rgba(255,255,255,.87)' }, underlineStyle: { display: 'none' } },
                             supportedLanguages
                         )
@@ -1263,6 +1328,7 @@ InstallForm = (0, _reactRedux.connect)(function (state) {
     var frontendRepeatPassword = selector(state, 'frontendRepeatPassword');
     var dsType = selector(state, 'dsType');
     var s3Config = selector(state, 'dsS3Custom', 'dsS3CustomRegion', 'dsS3ApiKey', 'dsS3ApiSecret', 'dsS3BucketDefault', 'dsS3BucketPersonal', 'dsS3BucketCells', 'dsS3BucketBinaries', 'dsS3BucketThumbs', 'dsS3BucketVersions');
+    var DocumentsDSN = selector(state, 'DocumentsDSN');
 
     // Make a request to retrieve those values
     return {
@@ -1276,7 +1342,8 @@ InstallForm = (0, _reactRedux.connect)(function (state) {
         licenseString: licenseString,
         frontendPassword: frontendPassword,
         frontendLogin: frontendLogin,
-        frontendRepeatPassword: frontendRepeatPassword
+        frontendRepeatPassword: frontendRepeatPassword,
+        DocumentsDSN: DocumentsDSN
     };
 }, { load: _config.load })(InstallForm);
 
