@@ -22,6 +22,7 @@ package rest
 
 import (
 	"fmt"
+	"strings"
 
 	restful "github.com/emicklei/go-restful/v3"
 	"github.com/jcuga/golongpoll"
@@ -64,8 +65,11 @@ func (h *Handler) PerformInstallCheck(req *restful.Request, rsp *restful.Respons
 	if installConfig.DbUseDefaults {
 		reloadDbDefaults(installConfig)
 	}
+	if installConfig.DocumentsDSN != "" && !strings.HasPrefix(installConfig.DocumentsDSN, "mongodb") {
+		installConfig.DocumentsDSN = "mongodb://" + installConfig.DocumentsDSN
+	}
 
-	result := lib.PerformCheck(ctx, input.Name, installConfig)
+	result, _ := lib.PerformCheck(ctx, input.Name, installConfig)
 	rsp.WriteEntity(&install.PerformCheckResponse{Result: result})
 
 }
@@ -111,6 +115,12 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 	installConfig := input.GetConfig()
 	if installConfig.DbUseDefaults {
 		reloadDbDefaults(installConfig)
+	}
+	if installConfig.DocumentsDSN != "" {
+		if !strings.HasPrefix(installConfig.DocumentsDSN, "mongodb") {
+			installConfig.DocumentsDSN = "mongodb://" + installConfig.DocumentsDSN
+		}
+		installConfig.UseDocumentsDSN = true
 	}
 	if er := lib.Install(ctx, installConfig, lib.InstallAll, func(event *lib.InstallProgressEvent) {
 		h.eventManager.Publish("install", event)

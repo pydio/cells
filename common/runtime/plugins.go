@@ -22,12 +22,14 @@ package runtime
 
 import (
 	"context"
+	"fmt"
 	"strings"
 )
 
 var (
 	initializers  = make(map[string][]func(ctx context.Context))
 	connConsumers = make(map[string][]func(ctx context.Context))
+	lastInit      string
 )
 
 func Register(typ string, y ...func(ctx context.Context)) {
@@ -37,9 +39,15 @@ func Register(typ string, y ...func(ctx context.Context)) {
 }
 
 func Init(ctx context.Context, typ string) {
+	lastInit = typ
 	for _, init := range initializers[typ] {
 		init(ctx)
 	}
+}
+
+func LastInitType() string {
+	fmt.Println("Last Init Type is", lastInit)
+	return lastInit
 }
 
 func RegisterGlobalConnConsumer(typ string, y ...func(ctx context.Context)) {

@@ -89,7 +89,9 @@ func ListServicesWithStorage() (ss []service.Service, e error) {
 		if err != nil {
 			e = err
 		}
-		runtime.Init(servicecontext.WithRegistry(ctx, reg), "main")
+		creg := servicecontext.WithRegistry(ctx, reg)
+		runtime.Init(creg, "discovery")
+		runtime.Init(creg, "main")
 		listRegistry = reg
 	})
 	if e != nil {

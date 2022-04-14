@@ -23,6 +23,7 @@ package mux
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -65,7 +66,6 @@ func NewMiddleware(ctx context.Context, s server.HttpMux) Middleware {
 	conn := clientcontext.GetClientConn(ctx)
 	reg := servercontext.GetRegistry(ctx)
 	rc, _ := client.NewResolverCallback(reg)
-	monitor := grpc2.NewHealthChecker(ctx)
 	balancer := &clienthttp.Balancer{ReadyProxies: make(map[string]*clienthttp.ReverseProxy)}
 
 	rc.Add(func(m map[string]*client.ServerAttributes) error {
@@ -96,15 +96,20 @@ func NewMiddleware(ctx context.Context, s server.HttpMux) Middleware {
 		return nil
 	})
 
-	go monitor.Monitor(common.ServiceOAuth)
-
-	return Middleware{
-		c:       conn,
-		r:       reg,
-		s:       s,
-		b:       balancer,
-		monitor: monitor,
+	m := Middleware{
+		c: conn,
+		r: reg,
+		s: s,
+		b: balancer,
 	}
+
+	if runtime.LastInitType() != "install" {
+		monitor := grpc2.NewHealthChecker(ctx)
+		go monitor.Monitor(common.ServiceOAuth)
+		m.monitor = monitor
+	}
+
+	return m
 }
 
 // CaddyModule returns the Caddy module information.
@@ -157,7 +162,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 		return nil
 	}
 
-	if !m.monitor.Up() || !m.userServiceReady() {
+	if m.monitor != nil && (!m.monitor.Up() || !m.userServiceReady()) {
 		bb, _ := maintenance.Assets.ReadFile("starting.html")
 		w.Header().Set("Content-Type", "text/html")
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(bb)))

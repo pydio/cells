@@ -377,12 +377,13 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	ctx = servicecontext.WithRegistry(ctx, reg)
 	ctx = servicecontext.WithBroker(ctx, bkr)
 
+	cruntime.Init(ctx, "install")
+
+	// Make sure to start **after** runtime.Init()
 	srvHTTP, err := caddy.New(ctx, "")
 	if err != nil {
 		panic(err)
 	}
-
-	cruntime.Init(ctx, "install")
 
 	cmd.Println("")
 	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Installation Server is starting..."))
