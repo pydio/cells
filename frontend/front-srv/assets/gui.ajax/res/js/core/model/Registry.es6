@@ -363,7 +363,7 @@ export default class Registry{
      *
      * @param type
      * @param name
-     * @returns {bool}
+     * @returns {boolean}
      */
     hasPluginOfType (type, name){
         let node;
@@ -372,7 +372,7 @@ export default class Registry{
         }else{
             node = XMLUtils.XPathSelectSingleNode(this._registry, 'plugins/plugin[@id="'+type+'.'+name+'"] | plugins/' + type + '[@id="'+type+'.'+name+'"]');
         }
-        return (node !== undefined);
+        return !!node;
     }
 
     /**
