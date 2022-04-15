@@ -34,7 +34,7 @@ import (
 )
 
 func isRestApiPublicMethod(r *http.Request) bool {
-	return r.Method == "GET" && strings.HasPrefix(r.RequestURI, "/frontend/state")
+	return r.Method == "GET" && strings.HasPrefix(r.RequestURI, "/a/frontend/state")
 }
 
 // HttpWrapperJWT captures and verifies a JWT token if it's present in the headers.
@@ -55,7 +55,7 @@ func HttpWrapperJWT(ctx context.Context, h http.Handler) http.Handler {
 				h.ServeHTTP(w, r)
 				return
 			}
-			
+
 			rawIDToken := strings.TrimPrefix(strings.Trim(whole, ""), "Bearer ")
 			//var claims claim.Claims
 			var err error

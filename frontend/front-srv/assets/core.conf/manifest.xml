@@ -21,7 +21,9 @@
         <param name="country" scope="role,user" description="CONF_MESSAGE[Country]" label="CONF_MESSAGE[Country]" type="autocomplete" choices="json_file:plug/core.conf/countries.json" expose="true" editable="true"/>
         <param name="theme" scope="user" type="select" choices="default|Default,material|Material,light|Material Light" label="CONF_MESSAGE[Theme]" description="CONF_MESSAGE[Theme used for display]" mandatory="true" default="default" expose="true" editable="true"/>
         <param name="DEFAULT_START_REPOSITORY" scope="role,user,group" description="CONF_MESSAGE[Default start repository]" label="CONF_MESSAGE[Default Workspace]" type="select" default="homepage" choices="PYDIO_AVAILABLE_REPOSITORIES" expose="true" editable="true"/>
+        <!--
         <param name="USER_LOCK_ACTION" scope="role,group" description="CONF_MESSAGE[If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else]" label="CONF_MESSAGE[Users Lock Action]" type="string" default=""/>
         <param name="USER_SHARED_USERS_LIMIT" scope="user" description="CONF_MESSAGE[Maximum number of shared users per user]" label="CONF_MESSAGE[Shared users limit]" type="integer" expose="false" editable="false"/>
+        -->
     </server_settings>
 </plugin>

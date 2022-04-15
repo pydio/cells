@@ -137,7 +137,10 @@ class UserAvatar extends React.Component{
         if(user) {
             label = user.getLabel();
             userNotFound = user.isNotFound();
-            userIsPublic = user.isPublic();
+            if(user.isPublic()){
+                label = pydio.MessageHash['public_link_user'];
+                userIsPublic = true;
+            }
         }else if(!label){
             label = this.props.userLabel || this.props.userId;
         }

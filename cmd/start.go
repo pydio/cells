@@ -27,14 +27,12 @@ import (
 	"net"
 	"net/url"
 
-	"github.com/pydio/cells/v4/common/broker"
-
-	"google.golang.org/grpc/credentials/insecure"
-
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
@@ -67,7 +65,6 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		bindViperFlags(cmd.Flags(), map[string]string{
-			// "log":  "logs_level",
 			runtime.KeyFork: runtime.KeyForkLegacy,
 		})
 

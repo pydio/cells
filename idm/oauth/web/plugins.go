@@ -24,6 +24,7 @@ package web
 import (
 	"context"
 	"encoding/base64"
+	"net"
 	"net/http"
 	"strings"
 
@@ -56,15 +57,17 @@ func init() {
 				router := mux.NewRouter()
 				hh := config.GetSitesAllowedURLs()
 				for _, u := range hh {
-					// fmt.Println("Registering router for host", u.Host)
-					// Two-level check : Host() is regexp based, fast, but only on Hostname, then custom check to take port into account
+					// fmt.Println("Registering router for host", u.String())
+					// Two-level check : Host() is regexp based, fast, but only on Hostname
 					host := u.Host
 					hostname := u.Hostname()
-					subRouter := router.Host(hostname).MatcherFunc(func(request *http.Request, _ *mux.RouteMatch) bool {
-						// TODO V4 - Host should contain port, it's not ...
-						//return host == request.Host
-						return true
-					})
+					subRouter := router.Host(hostname)
+					if _, p, e := net.SplitHostPort(u.Host); e == nil && p != "" {
+						// Additional check to take port into account
+						subRouter = subRouter.MatcherFunc(func(request *http.Request, _ *mux.RouteMatch) bool {
+							return host == request.Host
+						})
+					}
 
 					conf := auth.GetConfigurationProvider(host)
 					reg, e := auth.DuplicateRegistryForConf(common.ServiceGrpcNamespace_+common.ServiceOAuth, conf)

@@ -39,6 +39,7 @@ type UpdateStateCallback func(map[string]*ServerAttributes) error
 
 type ResolverCallback interface {
 	Add(UpdateStateCallback)
+	Stop()
 }
 
 type resolverCallback struct {
@@ -48,6 +49,9 @@ type resolverCallback struct {
 
 	updatedStateTimer *time.Timer
 	cbs               []UpdateStateCallback
+
+	done chan bool
+	w    registry.Watcher
 }
 
 func NewResolverCallback(reg registry.Registry) (ResolverCallback, error) {
@@ -56,7 +60,9 @@ func NewResolverCallback(reg registry.Registry) (ResolverCallback, error) {
 		return nil, err
 	}
 
-	r := &resolverCallback{}
+	r := &resolverCallback{
+		done: make(chan bool, 1),
+	}
 	r.reg = reg
 	r.ml = &sync.RWMutex{}
 	r.updatedStateTimer = time.NewTimer(50 * time.Millisecond)
@@ -69,6 +75,13 @@ func NewResolverCallback(reg registry.Registry) (ResolverCallback, error) {
 	r.ml.Unlock()
 
 	return r, nil
+}
+
+func (r *resolverCallback) Stop() {
+	if r.w != nil {
+		r.w.Stop()
+	}
+	close(r.done)
 }
 
 func (r *resolverCallback) Add(cb UpdateStateCallback) {
@@ -97,6 +110,8 @@ func (r *resolverCallback) updateState() {
 		select {
 		case <-r.updatedStateTimer.C:
 			r.sendState()
+		case <-r.done:
+			return
 		}
 	}
 }

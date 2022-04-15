@@ -185,6 +185,11 @@ func getLogrusLogger(serviceName string) *logrus.Logger {
 							message += " This can take some time"
 						}
 					}
+					if e, o := logged["error"]; o {
+						if oMap, ok := e.(map[string]interface{}); ok && oMap["debug"] != "" {
+							level = "debug"
+						}
+					}
 				}
 				for k, v := range logged {
 					if k == "msg" || k == "level" || k == "time" || k == "service_name" || k == "audience" || k == "service_version" {

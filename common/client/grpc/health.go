@@ -31,6 +31,7 @@ import (
 type HealthMonitor interface {
 	Monitor(string)
 	Up() bool
+	Stop()
 }
 
 func NewHealthChecker(c context.Context) HealthMonitor {
@@ -39,13 +40,16 @@ func NewHealthChecker(c context.Context) HealthMonitor {
 
 type healthChecker struct {
 	c      context.Context
+	cancel context.CancelFunc
 	status bool
 }
 
 // Monitor blocks a connection to a specific service health.
 func (h *healthChecker) Monitor(serviceName string) {
 	cli := grpc_health_v1.NewHealthClient(GetClientConnFromCtx(h.c, serviceName))
-	resp, er := cli.Check(context.Background(), &grpc_health_v1.HealthCheckRequest{})
+	ct, can := context.WithCancel(context.Background())
+	h.cancel = can
+	resp, er := cli.Check(ct, &grpc_health_v1.HealthCheckRequest{})
 	if er != nil {
 		fmt.Println("[ERROR] Could not monitor service" + serviceName + ": " + er.Error())
 	}
@@ -55,4 +59,10 @@ func (h *healthChecker) Monitor(serviceName string) {
 // Up returns internal status value.
 func (h *healthChecker) Up() bool {
 	return h.status
+}
+
+func (h *healthChecker) Stop() {
+	if h.cancel != nil {
+		h.cancel()
+	}
 }

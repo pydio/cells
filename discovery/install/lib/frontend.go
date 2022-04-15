@@ -61,8 +61,6 @@ func restoreProgress(in chan float64, done chan bool, publisher func(event *Inst
 
 func actionFrontendsAdd(c *install.InstallConfig) error {
 
-	fmt.Println("actionFrontendsAdd")
-
 	conf := &frontendsConfig{
 		Hosts:    c.GetFrontendHosts(),
 		Login:    c.GetFrontendLogin(),

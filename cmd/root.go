@@ -59,13 +59,10 @@ import (
 )
 
 var (
-	ctx    context.Context
-	cancel context.CancelFunc
-
-	cfgFile string
-
-	keyring crypto.Keyring
-
+	ctx          context.Context
+	cancel       context.CancelFunc
+	cellsViper   *viper.Viper
+	keyring      crypto.Keyring
 	infoCommands = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
 )
 
@@ -125,6 +122,12 @@ LOGS LEVEL
 `,
 }
 
+func init() {
+	initEnvPrefixes()
+	initViperRuntime()
+	RootCmd.PersistentFlags().String(runtime.KeyConfig, "file://"+config.ApplicationWorkingDir(), "config file (default is $HOME/.test.yaml)")
+}
+
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
@@ -154,16 +157,11 @@ func initEnvPrefixes() {
 	}
 }
 
-func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-	initEnvPrefixes()
-	viper.SetEnvPrefix(EnvPrefixNew)
-	viper.AutomaticEnv()
-	runtime.SetRuntime(viper.GetViper())
-
-	RootCmd.PersistentFlags().String(runtime.KeyConfig, "file://"+config.ApplicationWorkingDir(), "config file (default is $HOME/.test.yaml)")
+func initViperRuntime() {
+	cellsViper = viper.New()
+	cellsViper.SetEnvPrefix(EnvPrefixNew)
+	cellsViper.AutomaticEnv()
+	runtime.SetRuntime(cellsViper)
 }
 
 func skipCoreInit() bool {

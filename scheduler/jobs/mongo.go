@@ -22,7 +22,6 @@ package jobs
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -98,7 +97,8 @@ func (m *mongoImpl) PutJob(job *jobs.Job) error {
 		Job:         job,
 	}
 	mj.Job.Tasks = nil
-	_, e := m.DB().Collection(collJobs).InsertOne(c, mj)
+	upsert := true
+	_, e := m.DB().Collection(collJobs).ReplaceOne(c, bson.D{{"id", job.ID}}, mj, &options.ReplaceOptions{Upsert: &upsert})
 	return e
 }
 
@@ -127,11 +127,11 @@ func (m *mongoImpl) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, 
 
 func (m *mongoImpl) DeleteJob(jobId string) error {
 	c := context.Background()
-	res, e := m.DB().Collection(collJobs).DeleteOne(c, bson.D{{"id", jobId}})
+	_, e := m.DB().Collection(collJobs).DeleteOne(c, bson.D{{"id", jobId}})
 	if e != nil {
 		return e
 	}
-	fmt.Println("Delete", res.DeletedCount, "job")
+	//fmt.Println("Delete", res.DeletedCount, "job")
 	return nil
 }
 
@@ -261,11 +261,11 @@ func (m *mongoImpl) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 
 func (m *mongoImpl) DeleteTasks(jobId string, taskId []string) error {
 	filter := bson.D{{"job_id", jobId}, {"id", bson.M{"$in": taskId}}}
-	res, e := m.DB().Collection(collTasks).DeleteMany(context.Background(), filter)
+	_, e := m.DB().Collection(collTasks).DeleteMany(context.Background(), filter)
 	if e != nil {
 		return e
 	}
-	fmt.Println("Deleted", res.DeletedCount, "tasks")
+	//fmt.Println("Deleted", res.DeletedCount, "tasks")
 	return nil
 }
 

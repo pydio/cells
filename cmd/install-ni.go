@@ -204,7 +204,7 @@ func installFromConf() (*install.InstallConfig, error) {
 	// Check if pre-configured DB is up and running
 	nbRetry := 20
 	for i := 0; i < nbRetry; i++ {
-		if res := lib.PerformCheck(context.Background(), "DB", iConf); res.Success {
+		if res, _ := lib.PerformCheck(context.Background(), "DB", iConf); res.Success {
 			break
 		}
 		if i == nbRetry-1 {

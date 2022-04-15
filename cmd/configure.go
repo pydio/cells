@@ -31,10 +31,6 @@ import (
 	"time"
 
 	"github.com/manifoldco/promptui"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
@@ -48,6 +44,8 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/metrics"
 	unet "github.com/pydio/cells/v4/common/utils/net"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 /*
@@ -184,7 +182,7 @@ ENVIRONMENT
 			if replace, ok := replaceKeys[flag.Name]; ok {
 				key = replace
 			}
-			viper.BindPFlag(key, flag)
+			cellsViper.BindPFlag(key, flag)
 		})
 
 		initConfig(cmd.Context())
@@ -207,6 +205,8 @@ ENVIRONMENT
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+
+		fmt.Println("HERE1", cruntime.GetString(cruntime.KeyGrpcDiscoveryPort))
 
 		cmd.Println("")
 		cmd.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m ")
@@ -284,36 +284,14 @@ ENVIRONMENT
 			return
 		}
 
-		return
-
-		//select {
-		//case <-cmd.Context().Done():
-		//	return
-		//default:
-		//	if DefaultStartCmd.PreRunE != nil {
-		//		if err := DefaultStartCmd.PreRunE(cmd, args); err != nil {
-		//			return
-		//		}
-		//	} else if DefaultStartCmd.PreRun != nil {
-		//		DefaultStartCmd.PreRun(cmd, args)
-		//	}
-		//
-		//	if DefaultStartCmd.RunE != nil {
-		//		if err := DefaultStartCmd.RunE(cmd, args); err != nil {
-		//			return
-		//		}
-		//	} else if DefaultStartCmd.Run != nil {
-		//		DefaultStartCmd.Run(cmd, args)
-		//	}
-		//
-		//	if DefaultStartCmd.PostRunE != nil {
-		//		if err := DefaultStartCmd.PostRunE(cmd, args); err != nil {
-		//			return
-		//		}
-		//	} else if DefaultStartCmd.PostRun != nil {
-		//		DefaultStartCmd.PostRun(cmd, args)
-		//	}
-		//}
+		// Reset runtime and hardcode new command to run
+		initViperRuntime()
+		bin := os.Args[0]
+		os.Args = []string{bin, "start"}
+		e := DefaultStartCmd.ExecuteContext(cmd.Context())
+		if e != nil {
+			panic(e)
+		}
 	},
 }
 
@@ -377,16 +355,17 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	ctx = servicecontext.WithRegistry(ctx, reg)
 	ctx = servicecontext.WithBroker(ctx, bkr)
 
+	cruntime.Init(ctx, "install")
+
+	// Make sure to start AFTER cruntime.Init()
 	srvHTTP, err := caddy.New(ctx, "")
 	if err != nil {
 		panic(err)
 	}
 
-	cruntime.Init(ctx, "install")
-
 	cmd.Println("")
 	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Installation Server is starting..."))
-	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Listening to: " + proxyConf.GetBinds()[0]))
+	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Listening to: " + proxyConf.GetDefaultBindURL()))
 	cmd.Println("")
 
 	if err != nil {
@@ -429,32 +408,28 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 		}
 	}()
 
-	done := make(chan bool)
-	_, _ = bkr.Subscribe(ctx, common.TopicInstallSuccessEvent, func(broker.Message) error {
-		fmt.Println("Browser install is finished. Will stop in 5 seconds...")
-		<-time.After(5 * time.Second)
+	<-time.After(2 * time.Second)
+	if err := open(proxyConf.GetDefaultBindURL()); err != nil {
+		cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Open a browser window to: " + proxyConf.GetDefaultBindURL()))
+	}
+
+	done := make(chan bool, 1)
+	unsub, _ := bkr.Subscribe(ctx, common.TopicInstallSuccessEvent, func(broker.Message) error {
+		fmt.Println("Browser install is finished. Stopping server in 5s...")
+		<-time.After(2 * time.Second)
 		done <- true
 		return nil
 	})
 
 	<-done
+	close(done)
+	srvHTTP.Stop()
+	_ = unsub()
 
 	return
 }
 
 /* HELPERS */
-
-/*
-func play(site ...interface{}) (*bytes.Buffer, error) {
-	template := caddy.Get().GetTemplate()
-
-	buf := bytes.NewBuffer([]byte{})
-	if err := template.Execute(buf, caddyconf); err != nil {
-		return nil, err
-	}
-
-	return buf, nil
-}*/
 
 // open opens the specified URL in the default browser of the user.
 func open(url string) error {

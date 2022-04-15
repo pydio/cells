@@ -126,6 +126,7 @@ type Server struct {
 
 func New(ctx context.Context, dir string) (server.Server, error) {
 	srvMUX := server.NewListableMux()
+
 	srvMUX.HandleFunc("/debug/pprof/", pprof.Index)
 	srvMUX.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
 	srvMUX.HandleFunc("/debug/pprof/profile", pprof.Profile)

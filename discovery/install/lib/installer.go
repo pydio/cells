@@ -23,9 +23,13 @@ package lib
 
 import (
 	"context"
-	"net/url"
-
+	"fmt"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.uber.org/zap"
+	"net/url"
+	"time"
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -53,6 +57,14 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 	//log.Logger(ctx).Info("Starting installation now")
 	publisher(&InstallProgressEvent{Message: "Starting installation now", Progress: 0})
 
+	if (flags&InstallAll) != 0 || (flags&InstallConfig) != 0 {
+		if err := actionConfigsSet(c); err != nil {
+			log.Logger(ctx).Error("Error while getting ports", zap.Error(err))
+			return err
+		}
+		publisher(&InstallProgressEvent{Message: "Generating secrets", Progress: 80})
+	}
+
 	if (flags&InstallAll) != 0 || (flags&InstallDb) != 0 {
 		if err := actionDatabaseAdd(c); err != nil {
 			log.Logger(ctx).Error("Error while adding database", zap.Error(err))
@@ -69,14 +81,6 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 		publisher(&InstallProgressEvent{Message: "Created default datasources", Progress: 60})
 	}
 
-	if (flags&InstallAll) != 0 || (flags&InstallConfig) != 0 {
-		if err := actionConfigsSet(c); err != nil {
-			log.Logger(ctx).Error("Error while getting ports", zap.Error(err))
-			return err
-		}
-		publisher(&InstallProgressEvent{Message: "Configuration of gateway services", Progress: 80})
-	}
-
 	if (flags&InstallAll) != 0 || (flags&InstallFrontend) != 0 {
 		if err := actionFrontendsAdd(c); err != nil {
 			log.Logger(ctx).Error("Error while creating logs directory", zap.Error(err))
@@ -88,13 +92,15 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 
 }
 
-func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *install.CheckResult {
+func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) (*install.CheckResult, error) {
 
 	result := &install.CheckResult{}
+	var wrappedError error
 	wrapError := func(e error) {
 		result.Success = false
 		data, _ := json.Marshal(map[string]string{"error": e.Error()})
 		result.JsonResult = string(data)
+		wrappedError = e
 	}
 
 	switch name {
@@ -119,6 +125,28 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 			}
 		}
 		result.Success = true
+		data, _ := json.Marshal(jData)
+		result.JsonResult = string(data)
+
+	case "MONGO":
+
+		// Create a new client and connect to the server
+		opts := options.Client().ApplyURI(c.DocumentsDSN)
+		client, err := mongo.Connect(context.Background(), opts)
+		if err != nil {
+			wrapError(err)
+			break
+		}
+
+		ct, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		if err := client.Ping(ct, readpref.Primary()); err != nil {
+			wrapError(err)
+			break
+		}
+		_ = client.Disconnect(context.Background())
+		result.Success = true
+		jData := map[string]interface{}{"message": "successfully connected to MongoDB"}
 		data, _ := json.Marshal(jData)
 		result.JsonResult = string(data)
 
@@ -235,10 +263,11 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 
 	default:
 		result.Success = false
+		wrappedError = fmt.Errorf("unsupported check type " + name)
 		data, _ := json.Marshal(map[string]string{"error": "unsupported check type " + name})
 		result.JsonResult = string(data)
 
 	}
 
-	return result
+	return result, wrappedError
 }

@@ -132,8 +132,10 @@ class SimpleLinkCard extends React.Component {
                     showMailer={ShareHelper.mailerSupported(pydio) ? this.linkInvitation.bind(this) : null}
                 />)
             });
+
             if(publicLinkModel.getLinkUuid()){
 
+                /*
                 const layoutData = ShareHelper.compileLayoutData(pydio, model);
                 let templatePane;
                 if(layoutData.length > 1){
@@ -156,6 +158,7 @@ class SimpleLinkCard extends React.Component {
                         </div>
                     )
                 });
+                 */
                 tabs.left.push({
                     Label:m(253),
                     Value:'link-visibility',
