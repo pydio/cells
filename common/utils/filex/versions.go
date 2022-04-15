@@ -1,10 +1,15 @@
 package filex
 
 import (
+	"fmt"
 	"path/filepath"
 	"time"
 
+	"go.uber.org/zap"
+
 	"encoding/binary"
+
+	"github.com/bep/debounce"
 	bolt "go.etcd.io/bbolt"
 
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -32,64 +37,88 @@ type VersionsStore interface {
 
 // BoltStore is a BoltDB implementation of the Store interface
 type BoltStore struct {
-	FileName string
+	FileName  string
+	debouncer func(f func())
+	versions  chan *Version
 }
 
 // NewStore opens a new store
 func NewStore(configDir string) VersionsStore {
 	filename := filepath.Join(configDir, "configs-versions.db")
+	debouncer := debounce.New(2 * time.Second)
+	versions := make(chan *Version, 100)
 	return &BoltStore{
-		FileName: filename,
+		FileName:  filename,
+		debouncer: debouncer,
+		versions:  versions,
 	}
 }
 
-func (b *BoltStore) GetConnection() (*bolt.DB, error) {
-
+func (b *BoltStore) GetConnection(readOnly bool) (*bolt.DB, error) {
 	options := bolt.DefaultOptions
-	options.Timeout = 2 * time.Second
+	options.Timeout = 10 * time.Second
+	options.ReadOnly = readOnly
 	db, err := bolt.Open(b.FileName, 0644, options)
 	if err != nil {
 		return nil, err
 	}
-	err = db.Update(func(tx *bolt.Tx) error {
-		_, e := tx.CreateBucketIfNotExists(versionsBucket)
-		return e
-	})
-	if err != nil {
-		return nil, err
+
+	if !readOnly {
+		err = db.Update(func(tx *bolt.Tx) error {
+			_, e := tx.CreateBucketIfNotExists(versionsBucket)
+			return e
+		})
+		if err != nil {
+			return nil, err
+		}
 	}
 	return db, nil
-
 }
 
-// Put stores version in Bolt
-func (b *BoltStore) Put(version *Version) error {
-
-	db, err := b.GetConnection()
+// put stores version in Bolt
+func (b *BoltStore) put() {
+	db, err := b.GetConnection(false)
 	if err != nil {
-		return err
+		// TODO logs
+		fmt.Println("no connection", zap.Error(err))
+		return
 	}
 	defer db.Close()
-	return db.Update(func(tx *bolt.Tx) error {
+	if err := db.Update(func(tx *bolt.Tx) error {
+		for {
+			select {
+			case version := <-b.versions:
+				bucket := tx.Bucket(versionsBucket)
+				objectId, _ := bucket.NextSequence()
+				version.Id = objectId
 
-		bucket := tx.Bucket(versionsBucket)
-		objectId, _ := bucket.NextSequence()
-		version.Id = objectId
+				objectKey := make([]byte, 8)
+				binary.BigEndian.PutUint64(objectKey, objectId)
 
-		objectKey := make([]byte, 8)
-		binary.BigEndian.PutUint64(objectKey, objectId)
+				data, _ := json.Marshal(version)
+				if err := bucket.Put(objectKey, data); err != nil {
+					return err
+				}
+			case <-time.After(100 * time.Millisecond):
+				return nil
+			}
+		}
+	}); err != nil {
+		fmt.Println("could not update", zap.Error(err))
+	}
+}
 
-		data, _ := json.Marshal(version)
-		return bucket.Put(objectKey, data)
+func (b *BoltStore) Put(version *Version) error {
+	b.versions <- version
+	b.debouncer(b.put)
 
-	})
-
+	return nil
 }
 
 // List lists all version starting at a given id
 func (b *BoltStore) List(offset uint64, limit uint64) (result []*Version, err error) {
 
-	db, er := b.GetConnection()
+	db, er := b.GetConnection(true)
 	if er != nil {
 		err = er
 		return
@@ -134,8 +163,7 @@ func (b *BoltStore) List(offset uint64, limit uint64) (result []*Version, err er
 
 // Retrieve loads data from db by version ID
 func (b *BoltStore) Retrieve(id uint64) (*Version, error) {
-
-	db, err := b.GetConnection()
+	db, err := b.GetConnection(true)
 	if err != nil {
 		return nil, err
 	}

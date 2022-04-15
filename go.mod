@@ -8,6 +8,7 @@ require (
 	github.com/ajvb/kala v0.8.4
 	github.com/allegro/bigcache/v3 v3.0.1
 	github.com/beevik/ntp v0.3.0
+	github.com/bep/debounce v1.2.0 // indirect
 	github.com/blevesearch/bleve/v2 v2.3.0
 	github.com/caddyserver/caddy/v2 v2.4.6
 	github.com/cskr/pubsub v1.0.2
