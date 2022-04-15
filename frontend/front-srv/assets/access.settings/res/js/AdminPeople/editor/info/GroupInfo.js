@@ -75,6 +75,7 @@ class GroupInfo extends React.Component {
                     parameters={params}
                     onParameterChange={this.onParameterChange.bind(this)}
                     values={values}
+                    variant={"v2"}
                     depth={-2}
                 />
             </div>
