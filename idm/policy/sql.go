@@ -24,6 +24,9 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"github.com/pydio/cells/v4/common"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -78,10 +81,20 @@ func (s *sqlimpl) Init(options configx.Values) error {
 	s.Manager = manag
 	s.SQLManager = *manag
 
+	// Detect version
+	driverName := s.Driver()
+	if driverName == "mysql" {
+		var version string
+		if e := db.QueryRow("SELECT VERSION()").Scan(&version); e == nil && strings.Contains(version, "MariaDB") {
+			log.Logger(servicecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServicePolicy)).Info("MariaDB Detected - switching to specific migrations")
+			driverName = "maria"
+		}
+	}
+
 	// Doing the database migrations
 	migrations := &sql.FSMigrationSource{
 		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         s.Driver(),
+		Dir:         driverName,
 		TablePrefix: s.Prefix(),
 	}
 
