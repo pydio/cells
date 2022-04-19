@@ -62,6 +62,12 @@
   "advanced.default.datasource": {
     "other": "Uma fonte de dados padrão para armazenar dados pessoais de usuários e de células é criada na inicialização. Você pode criar outras fontes de dados mais tarde."
   },
+  "advanced.mongo.title": {
+    "other": "Configure a MongoDB connection. This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+  },
+  "advanced.mongo.label": {
+    "other": "Mongo DSN (user:pass@host:port/?key=value)"
+  },
   "license.stepLabel": {
     "other": "Licença Enterprise"
   },

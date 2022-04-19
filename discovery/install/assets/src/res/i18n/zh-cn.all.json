@@ -30,10 +30,10 @@
     "other": "使用新的值重试"
   },
   "database.useDefaultsSet": {
-    "other": "A default database is already configured, just click next to validate connection."
+    "other": "已经配置了默认数据库，只需单击“下一步”以验证连接。"
   },
   "database.forceConfigure": {
-    "other": "Configure another database."
+    "other": "配置另一个数据库。"
   },
   "admin.stepLabel": {
     "other": "管理员用户"
@@ -61,6 +61,12 @@
   },
   "advanced.default.datasource": {
     "other": "启动时会创建存储用户个人数据和资料库数据的默认数据源。您可以稍后创建其他数据源。"
+  },
+  "advanced.mongo.title": {
+    "other": "Configure a MongoDB connection. This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+  },
+  "advanced.mongo.label": {
+    "other": "Mongo DSN (user:pass@host:port/?key=value)"
   },
   "license.stepLabel": {
     "other": "企业版许可证"
@@ -195,19 +201,19 @@
     "other": "本地文件系统 (所有数据存储的此服务器上)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
+    "other": "Amazon S3 / S3 兼容(S3 buckets)"
   },
   "form.dsS3Custom.label": {
-    "other": "S3-Compatible storage endpoint"
+    "other": "S3兼容存储端点"
   },
   "form.dsS3Custom.legend": {
-    "other": "Leave empty for Amazon"
+    "other": "留空为Amazon"
   },
   "form.dsS3CustomRegion.label": {
-    "other": "S3 Custom region"
+    "other": "S3 自定义区域"
   },
   "form.dsS3CustomRegion.legend": {
-    "other": "Leave empty for default (us-east-1)"
+    "other": "留空为默认值(us-east-1)"
   },
   "form.dsS3ApiKey.label": {
     "other": "S3 Api Key"

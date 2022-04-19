@@ -99,13 +99,13 @@
     "other": " 匹配"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "pattern"
+    "other": "图案"
   },
   "conditionBooleanCondition.value": {
     "other": "True"
   },
   "contextMetaCondition.CIDRCondition": {
-    "other": "CIDRCondition"
+    "other": "CIDR 状况"
   },
   "contextMetaCondition.EqualsSubjectCondition": {
     "other": "标题等于"
@@ -120,7 +120,7 @@
     "other": "字符串匹配"
   },
   "contextMetaCondition.StringPairsEqualCondition": {
-    "other": "StringPairs equals"
+    "other": "StringPairs 等于"
   },
   "contextMetaCondition.StringNotMatchCondition": {
     "other": "字符串不匹配"
@@ -138,7 +138,7 @@
     "other": "Glob Matcher"
   },
   "contextMetaCondition.BooleanCondition": {
-    "other": "Boolean Value"
+    "other": "布尔值"
   },
   "contextMetaField.ContentType": {
     "other": "内容类型"
@@ -213,7 +213,7 @@
     "other": "文件名或内容"
   },
   "treeQuery.FreeString": {
-    "other": "Bleve-like search string"
+    "other": "像Bleve-search 字符串"
   },
   "treeQuery.GeoQuery": {
     "other": "地理位置查询"
@@ -363,7 +363,7 @@
     "other": "公开链接"
   },
   "workspaceSingleQuery.scope.ROOM": {
-    "other": "Cell"
+    "other": "细胞"
   },
   "workspaceSingleQuery.slug": {
     "other": "缩写"
@@ -390,7 +390,7 @@
     "other": "本地"
   },
   "dataSourceSingleQuery.PeerAddress": {
-    "other": "Peer Address"
+    "other": "对等地址"
   },
   "dataSourceSingleQuery.FlatStorage": {
     "other": "平面存储"

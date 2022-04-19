@@ -162,16 +162,16 @@
     "other": "Движок, используемый для отправки писем"
   },
   "Mail.Config.Disabled.Label": {
-    "other": "Disabled (do not enable emails)"
+    "other": "Отключено (не включать письма)"
   },
   "Mail.Config.NoOp.Label": {
-    "other": "No-Op (enable emails but do not send anything)"
+    "other": "No-Op (включить письма, но ничего не отправлять)"
   },
   "Mail.Config.NoOp.Dump": {
-    "other": "Write emails to file for debugging purpose"
+    "other": "Записывать письма в файл для отладки"
   },
   "Mail.Config.NoOp.DumpTarget": {
-    "other": "Target folder for writing emails"
+    "other": "Целевая папка для записи писем"
   },
   "Mail.Config.Smtp.Label": {
     "other": "SMTP-сервер"
@@ -210,7 +210,7 @@
     "other": "Dialer Local Name"
   },
   "Mail.Config.Smtp.LocalName.Description": {
-    "other": "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+    "other": "SMTP отправляет 'localhost' в EHLO команде по умолчанию, используйте данное поле для назначения локального имени на выбор"
   },
   "Mail.Config.SendGrid.Label": {
     "other": "Сервис SendGrid"

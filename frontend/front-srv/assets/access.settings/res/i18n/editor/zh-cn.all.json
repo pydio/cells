@@ -42,10 +42,10 @@
     "other": "重新加载..."
   },
   "22": {
-    "other": "Loading actions cache, please wait, this will be done only once..."
+    "other": "正在加载操作缓存，请稍候，这将只完成一次..."
   },
   "23": {
-    "other": "Loading parameters cache, please wait, this will be done only once..."
+    "other": "正在加载参数缓存，请稍候，这将只完成一次..."
   },
   "24": {
     "other": "用户信息"
@@ -108,7 +108,7 @@
     "other": "额外参数"
   },
   "42": {
-    "other": "Refine application parameters values and selectively disable plugin actions for this current role. Parameters here are global to the application (authentication, configuration, etc). See the Workspaces tabs for workspace-specific parameters/actions."
+    "other": "优化应用程序参数值并有选择地禁用当前角色的插件操作。 这里的参数是全局的应用程序(认证、配置等)。请参阅工作区选项卡以获取特定的参数/动作。"
   },
   "43": {
     "other": "允许当前角色/用户/组访问工作区"
