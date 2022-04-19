@@ -26,6 +26,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -60,7 +62,7 @@ var (
 	// Parse log lines like below:
 	// ::1 - - [18/Apr/2018:15:10:58 +0200] "GET /graph/state/workspaces HTTP/1.1" 200 2837 "" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36"
 	// combinedRegexp = regexp.MustCompile(`^(?P<remote_addr>[^ ]+) (?P<user>[^ ]+) (?P<other>[^ ]+) \[(?P<time_local>[^]]+)\] "(?P<request>[^"]+)" (?P<code>[^ ]+) (?P<size>[^ ]+) "(?P<referrer>[^ ]*)" "(?P<user_agent>[^"]+)"$`)
-	// caddyInternals = regexp.MustCompile("^(?P<log_date>[^\t]+)\t(?P<log_level>WARN|INFO)\t(?P<log_name>[^\t]+)\t(?P<log_message>[^\t]+)(\t)?(?P<log_fields>[^\t]+)$")
+	caddyInternals = regexp.MustCompile("^(?P<log_date>[^\t]+)\t(?P<log_level>WARN|INFO)\t(?P<log_name>[^\t]+)\t(?P<log_message>[^\t]+)(\t)?(?P<log_fields>[^\t]+)$")
 )
 
 // Init for the log package - called by the main
@@ -139,6 +141,8 @@ func Init(logDir string, ww ...LogContextWrapper) {
 			return logger
 		}
 
+		// TODO v4
+		// common.LogCaptureStdOut was initialized in RootCmd.PersistentPreRun for Start command only
 		r, w, err := os.Pipe()
 		if err == nil {
 			os.Stdout = w
@@ -146,23 +150,31 @@ func Init(logDir string, ww ...LogContextWrapper) {
 				scanner := bufio.NewScanner(r)
 				for scanner.Scan() {
 					line := scanner.Text()
-					/*
-						if parsed := combinedRegexp.FindStringSubmatch(line); len(parsed) > 0 {
-							var fields []zapcore.Field
-							for i, exp := range combinedRegexp.SubexpNames() {
-								if exp == "" || exp == "user" || exp == "other" || exp == "time_local" {
-									continue
-								}
-								fields = append(fields, zap.String(exp, parsed[i]))
-							}
-							logger.Named(common.ServiceMicroApi).Debug("Rest Api Call", fields...)
-						} else if strings.Contains(line, "[DEV NOTICE]") {
-							logger.Named(common.ServiceGatewayProxy).Debug(line)
-						} else {
-							// Log the stdout line to my event logger
-							logger.Info(line)
+					if strings.HasPrefix(line, "WARNING: ") {
+						logger.Named("Minio").Warn(strings.TrimPrefix(line, "WARNING: "))
+						continue
+					}
+					if parsed := caddyInternals.FindStringSubmatch(line); len(parsed) > 3 {
+						level := parsed[2]
+						msg := parsed[3]
+						if len(parsed) > 4 {
+							msg += " - " + parsed[4]
 						}
-					*/
+						if len(parsed) > 5 {
+							msg += " - " + parsed[6]
+						}
+						switch level {
+						case "INFO":
+							logger.Named("caddy").Info(msg)
+						case "WARN":
+							logger.Named("caddy").Warn(msg)
+						case "DEBUG":
+							logger.Named("caddy").Debug(msg)
+						case "ERROR":
+							logger.Named("caddy").Error(msg)
+						}
+						continue
+					}
 					logger.Info(line)
 				}
 			}()
