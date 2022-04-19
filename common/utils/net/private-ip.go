@@ -21,68 +21,23 @@
 package net
 
 import (
-	"fmt"
 	"net"
 )
 
-var (
-	privateBlocks           []*net.IPNet
-	DefaultAdvertiseAddress string
-)
-
-func init() {
-	for _, b := range []string{"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"} {
-		if _, block, err := net.ParseCIDR(b); err == nil {
-			privateBlocks = append(privateBlocks, block)
-		}
+func IsPrivateIP(ip net.IP) bool {
+	// From go 1.17 - TODO use directly net.IsPrivate once available
+	if ip4 := ip.To4(); ip4 != nil {
+		// Following RFC 1918, Section 3. Private Address Space which says:
+		//   The Internet Assigned Numbers Authority (IANA) has reserved the
+		//   following three blocks of the IP address space for private internets:
+		//     10.0.0.0        -   10.255.255.255  (10/8 prefix)
+		//     172.16.0.0      -   172.31.255.255  (172.16/12 prefix)
+		//     192.168.0.0     -   192.168.255.255 (192.168/16 prefix)
+		return ip4[0] == 10 ||
+			(ip4[0] == 172 && ip4[1]&0xf0 == 16) ||
+			(ip4[0] == 192 && ip4[1] == 168)
 	}
-}
-
-// TODO v4 - Replug in root/start command initAdvertiseIP ?
-func DetectHasPrivateIP() (bool, string, error) {
-
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		return false, "", fmt.Errorf("Failed to get interface addresses! Err: %v", err)
-	}
-
-	var ipAddr []byte
-
-	for _, rawAddr := range addrs {
-		var ip net.IP
-		switch addr := rawAddr.(type) {
-		case *net.IPAddr:
-			ip = addr.IP
-		case *net.IPNet:
-			ip = addr.IP
-		default:
-			continue
-		}
-
-		if ip.To4() == nil {
-			continue
-		}
-
-		ipAddr = ip
-
-		if isPrivateIP(ip.String()) {
-			return true, "", nil
-		}
-	}
-
-	if ipAddr == nil {
-		return false, "", fmt.Errorf("could not find any suitable IP for binding broker")
-	}
-
-	return false, net.IP(ipAddr).String(), nil
-}
-
-func isPrivateIP(ipAddr string) bool {
-	ip := net.ParseIP(ipAddr)
-	for _, priv := range privateBlocks {
-		if priv.Contains(ip) {
-			return true
-		}
-	}
-	return false
+	// Following RFC 4193, Section 8. IANA Considerations which says:
+	//   The IANA has assigned the FC00::/7 prefix to "Unique Local Unicast".
+	return len(ip) == net.IPv6len && ip[0]&0xfe == 0xfc
 }

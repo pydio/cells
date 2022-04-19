@@ -25,7 +25,11 @@ import (
 	"net"
 	"regexp"
 
+	"github.com/manifoldco/promptui"
+
 	utilnet "k8s.io/apimachinery/pkg/util/net"
+
+	cellsnet "github.com/pydio/cells/v4/common/utils/net"
 )
 
 var (
@@ -164,7 +168,7 @@ func IsRemote() bool {
 	return r.GetString(KeyConfig) == "remote" || r.GetString(KeyConfig) == "raft"
 }
 
-// MetricsEnable returns if the metrics should be published or not
+// MetricsEnabled returns if the metrics should be published or not
 func MetricsEnabled() bool {
 	return r.GetBool(KeyEnableMetrics)
 }
@@ -174,7 +178,7 @@ func PprofEnabled() bool {
 	return r.GetBool(KeyEnablePprof)
 }
 
-// DefaultAdvertiseAddress reads or compute the advertise address
+// DefaultAdvertiseAddress reads or compute the address advertised to clients
 func DefaultAdvertiseAddress() string {
 	if addr := r.GetString(KeyAdvertiseAddress); addr != "" {
 		return addr
@@ -186,6 +190,10 @@ func DefaultAdvertiseAddress() string {
 		return bindAddress
 	}
 	r.SetDefault(KeyAdvertiseAddress, addr)
+
+	if !cellsnet.IsPrivateIP(addr) {
+		fmt.Println(promptui.IconWarn + " WARNING: no private IP detected. Please set up a virtual IP interface with a private address — see " + promptui.Styler(promptui.FGUnderline)("https://pydio.com/docs/kb/deployment/no-private-ip-detected-issue") + " — or Cells internal servers might become accessible publicly")
+	}
 
 	return r.GetString(KeyAdvertiseAddress)
 }
