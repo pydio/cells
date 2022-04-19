@@ -126,16 +126,16 @@
     "other": "正在分析..."
   },
   "status.dir.new": {
-    "other": "Folder awaiting upload..."
+    "other": "等待上传的文件夹..."
   },
   "status.file.new": {
-    "other": "File awaiting upload..."
+    "other": "等待上传的文件..."
   },
   "status.dir.analyse": {
-    "other": "Analyzing folder..."
+    "other": "正在分析文件夹..."
   },
   "status.file.analyse": {
-    "other": "Analyzing file..."
+    "other": "正在分析文件..."
   },
   "status.dir.loading": {
     "other": "正在创建文件夹"

@@ -62,6 +62,12 @@
   "advanced.default.datasource": {
     "other": "Beim Start wird eine Standarddatenquelle zum Speichern persönlicher Daten und Zellendaten des Benutzers erstellt. Sie können später weitere Datenquellen erstellen."
   },
+  "advanced.mongo.title": {
+    "other": "Konfigurieren Sie eine MongoDB-Verbindung. Dies ist besser für die Skalierbarkeit und für den Einsatz von Clustern erforderlich. Wenn Sie noch keine Mongo-DB bereit haben, können Sie dies später nachholen."
+  },
+  "advanced.mongo.label": {
+    "other": "Mongo DSN (user:pass@host:port/?key=value)"
+  },
   "license.stepLabel": {
     "other": "Enterprise-Lizenz"
   },

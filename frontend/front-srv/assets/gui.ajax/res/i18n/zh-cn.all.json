@@ -102,34 +102,34 @@
     "other": "工作区和资料库"
   },
   "background.jobs.title": {
-    "other": "Background Jobs"
+    "other": "后台任务"
   },
   "background.jobs.running": {
-    "other": "Jobs running"
+    "other": "进行中的任务"
   },
   "websocket.disconnected.title": {
-    "other": "Connection issue"
+    "other": "连接问题"
   },
   "websocket.disconnected.legend": {
-    "other": "Websocket seems to be disconnected, please make sure that the server is up and websocket connection is working."
+    "other": "Websocket似乎已断开连接，请确保服务器已经启动，Websocket连接正常。"
   },
   "oauth.authentication.success": {
-    "other": "Authentication Success"
+    "other": "身份验证成功"
   },
   "oauth.authentication.failed": {
-    "other": "Authentication Failed"
+    "other": "身份验证失败"
   },
   "oauth.authentication.code": {
-    "other": "You were successfully authenticated. Please copy and paste the code to your command line terminal"
+    "other": "您已成功验证。请复制并粘贴代码到您的命令行终端"
   },
   "oauth.authentication.copy-code": {
-    "other": "Copy code to your clipboard"
+    "other": "复制代码到剪贴板"
   },
   "oauth.authentication.code-copied": {
-    "other": "Code is copied to your clipboard, you can paste it in the command line."
+    "other": "代码已复制到剪贴板，您可以将其粘贴到命令行。"
   },
   "oauth.authentication.code-copy-failed": {
-    "other": "Could not copy to clipboard."
+    "other": "无法复制到剪贴板。"
   },
   "list.display-mode.list": {
     "other": "列表"
@@ -159,7 +159,7 @@
     "other": "置顶书签项"
   },
   "infopanel.empty.select.file": {
-    "other": "Select a file to display informations"
+    "other": "选择要显示信息的文件"
   },
   "pinned-bookmarks.other": {
     "other": "全部文件"

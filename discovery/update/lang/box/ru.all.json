@@ -48,6 +48,6 @@
     "other": "Отключить проверку обновлений"
   },
   "Update.Config.Disable.Description": {
-    "other": "If your server has no access to outside world, do not try contact update site."
+    "other": "Если ваш сервер не имеет доступа к внешнему миру, не пытаться соединиться с сайтом обновлений."
   }
 }

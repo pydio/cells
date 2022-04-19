@@ -16,8 +16,8 @@
     "other": "Очистка файлов версий для удаленных узлов"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Successfully removed {{.Count}} version",
-    "other": "Successfully removed {{.Count}} versions."
+    "one": "Успешно удалено {{.Count}} версия",
+    "other": "Успешно удалено {{.Count}} версий."
   },
   "Config.GroupPolicy.Title": {
     "other": "Политика"
@@ -86,18 +86,18 @@
     "other": "Максимальное количество версий для сохранения за этот период. Используйте -1 для сохранения всех версий, 0 для удаления всех."
   },
   "Config.GroupRetention.NodeDeletedStrategy.Name": {
-    "other": "After original file deletion"
+    "other": "После удаления изначального файла"
   },
   "Config.GroupRetention.NodeDeletedStrategy.Description": {
-    "other": "Number of versions to keep after original file deletion."
+    "other": "Количество версий, которые нужно оставить после удаления изначального файла."
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepAll": {
-    "other": "Backup all existing versions"
+    "other": "Сделать резервную копию для всех существующих версий"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepLast": {
-    "other": "Backup most recent version only"
+    "other": "Сделать резервную копию только для наиболее недавней версии"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepNone": {
-    "other": "Delete all existing versions"
+    "other": "Удалить все существующие версии"
   }
 }

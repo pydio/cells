@@ -16,8 +16,8 @@
     "other": "Tīra versiju failus nodzēstajiem objektiem"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Successfully removed {{.Count}} version",
-    "other": "Successfully removed {{.Count}} versions."
+    "one": "Veiksmīgi nodzēsta {{.Count}} versija",
+    "other": "Veiksmīgi nodzēstas {{.Count}} versijas."
   },
   "Config.GroupPolicy.Title": {
     "other": "Noteikums"

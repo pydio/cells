@@ -93,10 +93,10 @@
     "other": "角色 ID"
   },
   "31.hint": {
-    "other": "Role ID (empty for auto-generate)"
+    "other": "角色 ID (空为自动生成)"
   },
   "31.exists": {
-    "other": "Identifier already exists"
+    "other": "标识符已存在"
   },
   "32": {
     "other": "角色标签"
@@ -189,6 +189,6 @@
     "other": "角色始终适用于此配置文件。"
   },
   "role.override.description": {
-    "other": "Role is always applied last after other roles, except for user role that will still prevail."
+    "other": "角色总是在其他角色之后最后应用，除了仍然占主导地位的用户角色。"
   }
 }

@@ -108,7 +108,7 @@
     "other": "清除插件缓存，以便让新插件出现在列表中。"
   },
   "131": {
-    "other": "Plugins cache files were deleted successfully!"
+    "other": "插件缓存文件删除成功！"
   },
   "132": {
     "other": "缓存已清除，但您目前正在 SKIP_CACHE 模式下运行(见bootstrap_context.php)。"
@@ -531,7 +531,7 @@
     "other": "插件选项已更新"
   },
   "98": {
-    "other": "Main Settings"
+    "other": "主要设置"
   },
   "99": {
     "other": "功能插件"

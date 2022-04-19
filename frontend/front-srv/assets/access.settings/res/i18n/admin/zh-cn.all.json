@@ -42,7 +42,7 @@
     "other": "创建数据源"
   },
   "ds.format-picker.legend": {
-    "other": "DataSources are mount points allowing you to attach actual storage to the application. First select the way data is organized inside storage."
+    "other": "数据源是挂载点，允许您将实际存储附加到应用程序。首先选择存储中数据的组织方式。"
   },
   "ds.format-picker.submit": {
     "other": "开始"
@@ -60,7 +60,7 @@
     "other": "文件和文件夹按原样存储，实时同步反映内部索引中的存储结构。"
   },
   "ds.format-picker.internal.title": {
-    "other": "Cells Internals"
+    "other": "单元格"
   },
   "ds.format-picker.internal.legend": {
     "other": "Used to store internal binaries (e.g. files versions, thumbnails). Limited features, data is not indexed in search engines."
@@ -87,7 +87,7 @@
     "other": "您还必须意识到它可能需要更多的 CPU 才能顺利地实时加密和解密数据。"
   },
   "ds.editor.enc.dialog.enable.create": {
-    "other": "Set an identifier for the new key"
+    "other": "设置新密钥的标识符"
   },
   "ds.editor.enc.key": {
     "other": "加密密钥"
@@ -138,10 +138,10 @@
     "other": "使用标准的 API Key/ Api Secret进行身份验证，使用官方Amazon S3则将URL留空， 或填写您自己的S3兼容存储的URL。"
   },
   "ds.editor.storage.legend.fs": {
-    "other": "Browse data from a local or network-attached file system."
+    "other": "浏览本地或网络附加文件系统的数据。"
   },
   "ds.editor.storage.legend.fs.peer": {
-    "other": "Restricting datasource to a peer address will start the service only a specific node. Using \"Any\" value will start service on all nodes where Cells is running, which can be handy if a shared filesystem is mounted on all nodes at the same location, or if your node may change its IP on restart. To avoid conflicts, it is better to either use ANY for all datasources or select specific nodes for all datasources."
+    "other": "限制数据源到对等地址将仅启动一个特定节点。 使用“Any”值将在单元格运行的所有节点上启动服务, 当共享文件系统挂载在同一位置的所有节点上时，它可以是便捷的， 或者如果您的节点可能在重启时更改其IP。 为了避免冲突，最好是要么对所有数据源使用ANY，要么选择所有数据源的特定节点。"
   },
   "ds.editor.storage.legend.fs.path": {
     "other": "请确保最后一个文件夹名是小写的，其父文件夹是可写的。 如果您现有的文件夹是大写，您可以使用别名链接来处理此限制。"
@@ -228,16 +228,16 @@
     "other": "本地目录"
   },
   "ds.editor.selector.folder.hint": {
-    "other": "Select a peer to load folders"
+    "other": "选择一个对等点加载文件夹"
   },
   "ds.editor.selector.peer": {
-    "other": "Peer Address"
+    "other": "对等地址"
   },
   "ds.editor.selector.peer.any": {
-    "other": "Any peer (unique node or distributed FS)"
+    "other": "任何节点 (唯一节点或分布的 FS)"
   },
   "ds.editor.selector.peer.word": {
-    "other": "Peer"
+    "other": "节点 / Peer"
   },
   "ds.editor.selector.peer.invalid": {
     "other": "无效"
@@ -312,22 +312,22 @@
     "other": "设置存储以加载bucket"
   },
   "ds.editor.storage.buckets.cont.loading": {
-    "other": "Loading accessible buckets"
+    "other": "正在加载可访问的数据包"
   },
   "ds.editor.storage.buckets.cont.empty": {
     "other": "未找到bucket"
   },
   "ds.editor.storage.s3.legend.tags": {
-    "other": "Synchronize S3 tags from buckets or objects (use  a comma-separated list of patterns to match). Please note that this will perform additional requests to storage and may slow down sync process. Original tags will be mapped to pydio:s3-bucket-tag-NAME and pydio:s3-object-tag-NAME internally."
+    "other": "从bucets或对象同步S3标签 (使用逗号分隔的模式列表进行匹配)。 请注意，这将执行更多的请求到存储，并且可能会减慢同步过程。 原标签将映射到 pydio:s3-bucket-tag-NAME 和 pydio:s3-object-tag-NAME 内部。"
   },
   "ds.editor.storage.s3.bucketsTags": {
-    "other": "Buckets Tags (multiple buckets enabled)"
+    "other": "Buckets 标签 (启用多个 Buckets)"
   },
   "ds.editor.storage.s3.objectsTags": {
     "other": "对象标签"
   },
   "ds.editor.storage.s3.bucketPathPrefix": {
-    "other": "Path prefix inside the bucket (used as a folder)"
+    "other": "Bucket内的路径前缀 (用作文件夹)"
   },
   "ds.editor.title": {
     "other": "数据源 %s"
@@ -438,7 +438,7 @@
     "other": "已禁用"
   },
   "ds.status.index": {
-    "other": "Index down"
+    "other": "向下索引"
   },
   "ds.status.ko": {
     "other": "服务已停止"
@@ -450,7 +450,7 @@
     "other": "N/A"
   },
   "ds.status.object": {
-    "other": "Objects down"
+    "other": "对象向下"
   },
   "ds.status.ok": {
     "other": "所有服务正在运行"
@@ -459,7 +459,7 @@
     "other": "正在启动数据源..."
   },
   "ds.status.sync": {
-    "other": "Sync down"
+    "other": "向下同步"
   },
   "ds.storage": {
     "other": "存储类型"
@@ -822,7 +822,7 @@
     "other": "在文件列表中显示值"
   },
   "metadata.field.mandatory": {
-    "other": "Mandatory"
+    "other": "必填"
   },
   "perfs.booster.description": {
     "other": "检查 Pydio Booster 是否已运行并启用 WebSocket 通信"
@@ -909,7 +909,7 @@
     "other": "未检测到 APC、APCu、Opcache 或 XCache 的任何php 扩展。"
   },
   "perfs.opcache.help": {
-    "other": "Pydio is a rich PHP framework that requires loading a lot of files in memory. Make sure to enable a PHP Opcache like APC/u, Opcache or XCache."
+    "other": "Pydio是一个丰富的 PHP 框架，需要在内存中加载大量文件。 请确保启用 PHP Opcache 像APC/u, Opcache 或 XCache 。"
   },
   "perfs.opcache.title": {
     "other": "Opcode 缓存扩展"
@@ -936,7 +936,7 @@
     "other": "副驱动"
   },
   "plugins.4": {
-    "other": "Editor plugins are the previewers/editors associated to any file types in the application.\n                    These plugins are handle specifically in the GUI (extensions) and can declare the mimetypes they support.\n                    The order parameter also allows to define a priority for the 'open with...' action."
+    "other": "编辑器插件是与应用程序中任何文件类型相关联的预览器/编辑器。\n                    这些插件是专门在 GUI (扩展) 中处理的，可以声明它们支持的 mimetypes 。\n                    订单参数也允许定义“打开”优先级。.' 操作"
   },
   "plugins.5": {
     "other": "保存更改"
@@ -1011,7 +1011,7 @@
     "other": "These policies are used to dynamically provide read/write access to workspaces or nodes based on the request context and/or the node metadata. They are defined here and used in the Access Control Panel of the users and roles."
   },
   "policies.type.acl.title": {
-    "other": "Context-based ACLs"
+    "other": "基于上下文的 ACL"
   },
   "policies.type.oidc.legend": {
     "other": "OpenId Connect Service is used for authentication of the user, before any access to the APIs. As such, you can totally disable the login operation for a set of users based on the requests context, e.g. disable loging from a given set of IP or at a given time."
@@ -1086,7 +1086,7 @@
     "other": "+ 添加用户"
   },
   "user.10": {
-    "other": "Access to %i workspaces"
+    "other": "访问 %i 个工作区"
   },
   "user.11": {
     "other": "%i 角色"
@@ -1413,7 +1413,7 @@
     "other": "选择一项功能"
   },
   "ws.48": {
-    "other": "Beware, this workspace/template is not editable, as it is defined directly in the conf/bootstrap_repositories.php file."
+    "other": "请注意，这个工作区/模板不可编辑，因为它是直接在 conf/bootstrap_replies.php 文件中定义的。"
   },
   "ws.49": {
     "other": ""
@@ -1434,7 +1434,7 @@
     "other": "Please note: as this worksace has user-specific contents, indexation will be launched for each user."
   },
   "ws.53": {
-    "other": "Launch indexation now"
+    "other": "立即启动索引"
   },
   "ws.54": {
     "other": "计划每日上午3点"
@@ -1464,10 +1464,10 @@
     "other": "Activity of the workspace is displayed to the users in the right-hand panel. You can clear all activity\n                            for this workspace, which can be handy e.g. if you are going \"live\" in production after a staging period where you have\n                            made some tests in this workspace."
   },
   "ws.62": {
-    "other": "Clear Activity"
+    "other": "清除活动日志"
   },
   "ws.63": {
-    "other": "Warning, this will clear all activity of this workspace displayed to users. Are you sure you want to do that?"
+    "other": "警告，这将清除显示给用户的此工作区的所有活动。您确定要这样做吗？"
   },
   "ws.64": {
     "other": "已清除 %s 个事件"
@@ -1482,7 +1482,7 @@
     "other": "没有正在运行的任务"
   },
   "ws.68": {
-    "other": "No Parameters"
+    "other": "没有参数"
   },
   "ws.69": {
     "other": "Template-based workspace"
@@ -1704,7 +1704,7 @@
     "other": "Broker"
   },
   "services.tag.broker.description": {
-    "other": "Services dispatching and processing events (generally toward users) across the application."
+    "other": "服务发送和处理整个应用程序的事件 (一般是给用户)。"
   },
   "services.tag.frontend.title": {
     "other": "前端"
@@ -1719,7 +1719,7 @@
     "other": "Basic configurations and services registries called by all other services."
   },
   "services.service.ip": {
-    "other": "Running on %s"
+    "other": "运行于 %s"
   },
   "services.service.datasource.sync": {
     "other": "同步"
@@ -1728,10 +1728,10 @@
     "other": "对象"
   },
   "services.service.datasource.objects.legend": {
-    "other": "S3 layer to serve data as object storage"
+    "other": "用于将数据作为对象存储的 S3 图层"
   },
   "services.service.datasource.legend": {
-    "other": "Datasource is synchronizing data from objects layer to index DB."
+    "other": "数据源正在同步来自对象图层的数据到 index DB。"
   },
   "services.service.datasource.index": {
     "other": "索引"
@@ -1740,7 +1740,7 @@
     "other": "定时任务"
   },
   "scheduler.legend": {
-    "other": "Jobs running in background on a periodical basis or triggered by events"
+    "other": "定期在后台运行或事件触发的作业"
   },
   "scheduler.system.title": {
     "other": "系统任务"
@@ -1752,7 +1752,7 @@
     "other": "非活动作业"
   },
   "scheduler.inactives.legend": {
-    "other": "These jobs are inactive, click on a job to enable it."
+    "other": "这些作业处于非活动状态，点击作业启用。"
   },
   "scheduler.system.empty": {
     "other": "没有预定作业。"
@@ -1770,13 +1770,13 @@
     "other": "+ 自定义作业"
   },
   "scheduler.cellsflows.cta.text": {
-    "other": "Do you need to create your own job? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
+    "other": "你需要创建自己的工作吗？发现单元是如何使重复的手工任务在单元格中自动化的。"
   },
   "scheduler.cellsflows.dialog.button": {
     "other": "了解更多"
   },
   "scheduler.cellsflows.dialog.text": {
-    "other": "From creating your own workflows to scheduling tasks or integrating with third-party tools, our customizable components help you to respond events and take action automatically."
+    "other": "从创建您自己的工作流到计划任务或与第三方工具集成，我们可以自定义的组件帮助您响应事件并自动采取行动。"
   },
   "scheduler.job.label": {
     "other": "标签"
@@ -1983,7 +1983,7 @@
     "other": "时间"
   },
   "scheduler.schedule.detail.minutes": {
-    "other": "Period in minutes"
+    "other": "持续时间（分钟）"
   },
   "scheduler.job-parameters.dialog": {
     "other": "作业参数"

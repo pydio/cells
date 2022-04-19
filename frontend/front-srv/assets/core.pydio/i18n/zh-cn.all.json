@@ -1107,7 +1107,7 @@
     "other": "工作区已成功删除"
   },
   "429": {
-    "other": "This is how the workspace will appear in your list."
+    "other": "这就是工作区在列表中的显示方式。"
   },
   "43": {
     "other": "已存在(名称不区分大小写)"
@@ -1227,7 +1227,7 @@
     "other": "一次下载所有工作区内容（zip压缩）"
   },
   "465": {
-    "other": "Show alternative URLs (mount workspaces separately)"
+    "other": "显示可选的 URLs (分开挂载工作区)"
   },
   "466": {
     "other": "加载中..."
@@ -1287,7 +1287,7 @@
     "other": "快速访问您加标签的项目"
   },
   "483": {
-    "other": "You are not authorized to create more users!"
+    "other": "您无权创建更多用户！"
   },
   "484": {
     "other": "创建用户"
@@ -1317,7 +1317,7 @@
     "other": "之后"
   },
   "492": {
-    "other": "until"
+    "other": "直到"
   },
   "493": {
     "other": "今天"
@@ -1341,16 +1341,16 @@
     "other": "文件"
   },
   "5": {
-    "other": "Actions"
+    "other": "操作"
   },
   "50": {
-    "other": "Exe file"
+    "other": "Exe 文件"
   },
   "500": {
     "other": "扩展"
   },
   "501": {
-    "other": "or"
+    "other": "或"
   },
   "502": {
     "other": "仅文件夹"
@@ -1368,19 +1368,19 @@
     "other": "应用程序参数（用户，工作空间，配置）"
   },
   "507": {
-    "other": "Welcome on %s"
+    "other": "欢迎使用 %s"
   },
   "508": {
-    "other": "I just created an account for you on %s. To connect, please click on the following link %link and use these credentials:  <br><br> Login: %user <br><br> Password: %pass"
+    "other": "我刚刚在 %s上为您创建了一个帐户。 连接， 请点击以下链接 %link 并使用这些凭据：  <br><br> 登录： %user <br><br> 密码： %pass"
   },
   "509": {
-    "other": "Save as a team"
+    "other": "另存为团队"
   },
   "51": {
     "other": "文本编辑器"
   },
   "510": {
-    "other": "Please enter a team label"
+    "other": "请输入团队标签"
   },
   "511": {
     "other": "我的 %s"
@@ -1563,28 +1563,28 @@
     "other": "查看回收站"
   },
   "568": {
-    "other": "Teams"
+    "other": "团队"
   },
   "569": {
-    "other": "New Team"
+    "other": "新团队"
   },
   "57": {
-    "other": "PNG picture"
+    "other": "PNG 图片"
   },
   "570": {
-    "other": "Delete Team"
+    "other": "删除团队"
   },
   "571": {
-    "other": "No teams created yet"
+    "other": "尚未创建团队"
   },
   "572": {
-    "other": "Create your own teams in order to easily share data between multiple users"
+    "other": "创建您自己的团队，以便在多个用户之间轻松分享数据"
   },
   "571.readonly": {
-    "other": "No teams available"
+    "other": "没有可用的团队"
   },
   "572.readonly": {
-    "other": "You are not allowed to create teams, but some authorized users may share teams with you"
+    "other": "您无权创建团队，但一些授权用户可以与您分享团队"
   },
   "571.create_team_action": {
     "other": "创建和编辑团队"
@@ -1593,49 +1593,49 @@
     "other": "让用户创建和编辑自己的团队"
   },
   "573": {
-    "other": "Add user to team"
+    "other": "添加用户到团队"
   },
   "574": {
-    "other": "Remove from team"
+    "other": "从团队中移除"
   },
   "575": {
-    "other": "Team Members"
+    "other": "团队成员"
   },
   "576": {
-    "other": "%s members"
+    "other": "%s 个成员"
   },
   "577": {
-    "other": "No members"
+    "other": "暂无成员"
   },
   "578": {
     "other": "团队标签"
   },
   "579": {
-    "other": "Create Team"
+    "other": "创建团队"
   },
   "58": {
-    "other": "CSS File"
+    "other": "CSS 文件"
   },
   "580": {
     "other": "编辑团队标签"
   },
   "581": {
-    "other": "User belongs to %s team(s)"
+    "other": "用户属于 %s 团队 (s)"
   },
   "582": {
-    "other": "Delete User"
+    "other": "删除用户"
   },
   "583": {
-    "other": "Search Directory"
+    "other": "查找文件夹…"
   },
   "584": {
     "other": "文件夹"
   },
   "585": {
-    "other": "No External Users"
+    "other": "没有外部用户"
   },
   "586": {
-    "other": "Create your own users and share files or folders from your workspaces with them."
+    "other": "创建您自己的用户，并从您的工作区中共享文件或文件夹。"
   },
   "587": {
     "other": "没有结果"
@@ -1644,46 +1644,46 @@
     "other": "输入内容在此目录中搜索用户"
   },
   "589": {
-    "other": "External user"
+    "other": "外部用户"
   },
   "59": {
-    "other": "MP3 File"
+    "other": "MP3 文件"
   },
   "590": {
-    "other": "Internal user"
+    "other": "内部用户"
   },
   "591": {
-    "other": "Choose a name for the team, and you will be able to add users to it after creation."
+    "other": "为团队选择一个名字，您将能够在创建后添加用户。"
   },
   "592": {
     "other": "地址簿"
   },
   "593": {
-    "other": "Shared Users"
+    "other": "共享用户"
   },
   "594": {
-    "other": "Trusted Servers"
+    "other": "信任的服务器"
   },
   "595": {
-    "other": "Search user..."
+    "other": "搜索用户..."
   },
   "596": {
-    "other": "Server '%s'"
+    "other": "服务器 '%s'"
   },
   "597": {
-    "other": "all"
+    "other": "全部"
   },
   "598": {
-    "other": "Send a message"
+    "other": "发送消息"
   },
   "599": {
-    "other": "Add a user"
+    "other": "添加用户"
   },
   "6": {
     "other": "重命名"
   },
   "60": {
-    "other": "RAR File"
+    "other": "RAR 文件"
   },
   "600": {
     "other": "编辑用户"
@@ -1695,10 +1695,10 @@
     "other": "%1 共享的资料库"
   },
   "603": {
-    "other": "Team"
+    "other": "团队"
   },
   "604": {
-    "other": "Remote User"
+    "other": "远程用户"
   },
   "605": {
     "other": "更多搜索选项"
@@ -1716,16 +1716,16 @@
     "other": "整个工作区"
   },
   "61": {
-    "other": "GZ File"
+    "other": "GZ 文件"
   },
   "610": {
-    "other": "All worskpaces"
+    "other": "所有工作区"
   },
   "611": {
     "other": "键入内容搜索文件"
   },
   "612": {
-    "other": "Custom range"
+    "other": "自定义范围"
   },
   "613": {
     "other": "大于..."
@@ -1950,7 +1950,7 @@
     "other": "点击此框上的任意位置来关闭它。"
   },
   "99": {
-    "other": "is not writeable. There might be a permission problem, please check with your administrator."
+    "other": "无法写入。可能存在权限问题，请与您的管理员联系。"
   },
   "about_access_key": {
     "other": "A"
@@ -2205,7 +2205,7 @@
     "other": "U"
   },
   "view_access_key": {
-    "other": "V"
+    "other": "Ⅴ"
   },
   "public_link_user": {
     "other": "公开访问"
@@ -2325,49 +2325,49 @@
     "other": "确认"
   },
   "confirm.dialog.destructive": {
-    "other": "You are about to delete"
+    "other": "您即将删除"
   },
   "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
+    "other": "下次不再询问"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "每页条目数"
   },
   "material.paginator.of": {
     "other": "的"
   },
   "form.input-image.fileTypes": {
-    "other": "Please use only images (jpeg,png,bmp,webp)"
+    "other": "请只使用图像 (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
     "other": "重置"
   },
   "form.input-image.clearConfirm": {
-    "other": "Do you want to remove current image?"
+    "other": "您想要删除当前图像吗？"
   },
   "form.input-image.avatarMax": {
-    "other": "Please use images smaller than 5MB"
+    "other": "请使用小于5MB 的图像"
   },
   "searchengine.searching": {
-    "other": "Searching..."
+    "other": "搜索中......"
   },
   "searchengine.main.placeholder": {
-    "other": "Search..."
+    "other": "搜索..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "搜索： "
   },
   "searchengine.scope.title": {
-    "other": "Search In..."
+    "other": "搜索中......"
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Advanced Filters"
+    "other": "高级过滤器"
   },
   "searchengine.results.foundN": {
-    "other": "%1 results found"
+    "other": "找到 %1 个结果"
   },
   "searchengine.results.withMore": {
-    "other": "Showing %1, load more..."
+    "other": "显示 %1，加载更多..."
   },
   "searchengine.query.action.save": {
     "other": "保存"
@@ -2379,30 +2379,30 @@
     "other": "删除"
   },
   "searchengine.query.save-label": {
-    "other": "Enter a label"
+    "other": "输入标签"
   },
   "searchengine.field.basenameOrContent": {
-    "other": "Name/Content"
+    "other": "名称/内容"
   },
   "chat.load-older": {
-    "other": "Older entries"
+    "other": "较早文章"
   },
   "workspace.quota-usage": {
-    "other": "Quota Usage"
+    "other": "配额使用"
   },
   "action.delete.permanently": {
-    "other": "Delete permanently"
+    "other": "永久删除"
   },
   "action.delete.permanently.warning": {
-    "other": "warning, you cannot undo this operation!"
+    "other": "警告！你不能撤消此操作。"
   },
   "action.goto.label": {
-    "other": "Go To Folder"
+    "other": "转到文件夹"
   },
   "action.copymove.recent": {
-    "other": "Recent Locations"
+    "other": "最近位置"
   },
   "action.copymove.root": {
-    "other": "Top Folder"
+    "other": "顶部文件夹"
   }
 }

@@ -24,58 +24,58 @@
     "other": "Значение"
   },
   "aclSingleQuery.Actions": {
-    "other": "Actions"
+    "other": "Действия"
   },
   "aclSingleQuery.NodeIDs": {
-    "other": "Node Identifiers"
+    "other": "Идентификаторы узла"
   },
   "aclSingleQuery.Not": {
-    "other": "Not"
+    "other": "Не"
   },
   "aclSingleQuery.RoleIDs": {
-    "other": "Role Identifiers"
+    "other": "Идентификаторы роли"
   },
   "aclSingleQuery.WorkspaceIDs": {
-    "other": "Workspace Identifiers"
+    "other": "Идентификаторы рабочей области"
   },
   "aclSingleQuery.not": {
-    "other": "not"
+    "other": "не"
   },
   "actionOutputSingleQuery.ErrorStringRegexp": {
-    "other": "Search on error string (regexp)"
+    "other": "Поиск по строке ошибки (regexp)"
   },
   "actionOutputSingleQuery.IsSuccess": {
-    "other": "Is Success"
+    "other": "Успешно"
   },
   "actionOutputSingleQuery.JsonBodyHasKey": {
-    "other": "Json body has key..."
+    "other": "В теле Json есть ключ..."
   },
   "actionOutputSingleQuery.JsonBodyRegexp": {
-    "other": "Search on Json body (regexp)"
+    "other": "Поиск по телу Json (regexp)"
   },
   "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
-    "other": "Size of Json body is greater than"
+    "other": "Размер тела Json больше, чем"
   },
   "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
-    "other": "Size of Json body is smaller than"
+    "other": "Размер тела Json меньше, чем"
   },
   "actionOutputSingleQuery.Not": {
-    "other": "Not"
+    "other": "Не"
   },
   "actionOutputSingleQuery.StringBodyRegexp": {
-    "other": "Search on String body (regexp)"
+    "other": "Поиск по телу строки (regexp)"
   },
   "actionOutputSingleQuery.StringBodySizeGreaterThan": {
-    "other": "Size of string body is greater than"
+    "other": "Размер тела строки больше, чем"
   },
   "actionOutputSingleQuery.StringBodySizeSmallerThan": {
-    "other": "Size of string body is smaller than"
+    "other": "Размер тела строки меньше, чем"
   },
   "actionOutputSingleQuery.TaskTimeGt": {
-    "other": "Task time greater than"
+    "other": "Время задачи больше, чем"
   },
   "actionOutputSingleQuery.TaskTimeLt": {
-    "other": "Task time lower than"
+    "other": "Время задачи меньше, чем"
   },
   "actionOutputSingleQuery.FreeCondition": {
     "other": "Free Condition"
@@ -87,19 +87,19 @@
     "other": "cidr"
   },
   "conditionStringEqualCondition.Equals": {
-    "other": "Equals"
+    "other": "Равно"
   },
   "conditionStringEqualCondition.equals": {
-    "other": "equals"
+    "other": "равно"
   },
   "conditionStringMatchCondition.Matches": {
-    "other": "Matches"
+    "other": "Совпадения"
   },
   "conditionStringMatchCondition.matches": {
-    "other": "matches"
+    "other": "совпадения"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "pattern"
+    "other": "шаблон"
   },
   "conditionBooleanCondition.value": {
     "other": "True"
@@ -108,13 +108,13 @@
     "other": "CIDRCondition"
   },
   "contextMetaCondition.EqualsSubjectCondition": {
-    "other": "Subject equals"
+    "other": "Субъект равен"
   },
   "contextMetaCondition.ResourceContainsCondition": {
-    "other": "Resource contains"
+    "other": "Ресурс содержит"
   },
   "contextMetaCondition.StringEqualCondition": {
-    "other": "String equals"
+    "other": "Строка равна"
   },
   "contextMetaCondition.StringMatchCondition": {
     "other": "String matches"
@@ -285,43 +285,43 @@
     "other": "Логин"
   },
   "userSingleQuery.NodeType": {
-    "other": "Object Type"
+    "other": "Тип объекта"
   },
   "userSingleQuery.NodeType.GROUP": {
     "other": "Группа"
   },
   "userSingleQuery.NodeType.UNKNOWN": {
-    "other": "Any"
+    "other": "Любой"
   },
   "userSingleQuery.NodeType.USER": {
     "other": "Пользователь"
   },
   "userSingleQuery.Not": {
-    "other": "Not"
+    "other": "Не"
   },
   "userSingleQuery.Password": {
     "other": "Пароль"
   },
   "userSingleQuery.Recursive": {
-    "other": "Recursive"
+    "other": "Рекурсивный"
   },
   "userSingleQuery.Uuid": {
     "other": "Uuid"
   },
   "userSingleQuery.not": {
-    "other": "not"
+    "other": "не"
   },
   "workspaceSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "Название атрибута"
   },
   "workspaceSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "Значение атрибута"
   },
   "workspaceSingleQuery.Description": {
     "other": "Описание"
   },
   "workspaceSingleQuery.HasAttribute": {
-    "other": "Has Attribute"
+    "other": "Имеет атрибут"
   },
   "workspaceSingleQuery.Label": {
     "other": "Метка"
@@ -330,10 +330,10 @@
     "other": "Последнее обновление"
   },
   "workspaceSingleQuery.Not": {
-    "other": "Not"
+    "other": "Не"
   },
   "workspaceSingleQuery.Scope": {
-    "other": "Scope"
+    "other": "Область видимости"
   },
   "workspaceSingleQuery.Slug": {
     "other": "Метка"
@@ -348,19 +348,19 @@
     "other": "Метка"
   },
   "workspaceSingleQuery.not": {
-    "other": "not"
+    "other": "не"
   },
   "workspaceSingleQuery.scope": {
-    "other": "Workspace Type"
+    "other": "Тип рабочего пространства"
   },
   "workspaceSingleQuery.scope.ADMIN": {
     "other": "Рабочее пространство"
   },
   "workspaceSingleQuery.scope.ANY": {
-    "other": "Any"
+    "other": "Любой"
   },
   "workspaceSingleQuery.scope.LINK": {
-    "other": "Public Link"
+    "other": "Публичная ссылка"
   },
   "workspaceSingleQuery.scope.ROOM": {
     "other": "Сотовый"
@@ -375,49 +375,49 @@
     "other": "Наименование"
   },
   "dataSourceSingleQuery.IsDisabled": {
-    "other": "Is Disabled"
+    "other": "Отключено"
   },
   "dataSourceSingleQuery.StorageType": {
     "other": "Тип хранилища"
   },
   "dataSourceSingleQuery.StorageType.REMOTE": {
-    "other": "Remote"
+    "other": "Удаленный"
   },
   "dataSourceSingleQuery.StorageType.ANY": {
-    "other": "Any"
+    "other": "Любой"
   },
   "dataSourceSingleQuery.StorageType.LOCALFS": {
-    "other": "Local"
+    "other": "Локальный"
   },
   "dataSourceSingleQuery.PeerAddress": {
     "other": "Адрес пира"
   },
   "dataSourceSingleQuery.FlatStorage": {
-    "other": "Flat Storage"
+    "other": "Фиксированное хранилище"
   },
   "dataSourceSingleQuery.SkipSyncOnRestart": {
-    "other": "Skip sync on restart"
+    "other": "Пропустить синхронизацию при перезапуске"
   },
   "dataSourceSingleQuery.IsVersioned": {
-    "other": "Is Versioned"
+    "other": "Подвержено контролю версий"
   },
   "dataSourceSingleQuery.IsEncrypted": {
-    "other": "Is Encrypted"
+    "other": "Зашифровано"
   },
   "dataSourceSingleQuery.EncryptionMode": {
-    "other": "Encryption Mode"
+    "other": "Режим шифрования"
   },
   "dataSourceSingleQuery.EncryptionMode.USER": {
-    "other": "User-key"
+    "other": "Пользовательский ключ"
   },
   "dataSourceSingleQuery.EncryptionMode.USER_PWD": {
-    "other": "User-pwd"
+    "other": "Пользовательский пароль"
   },
   "dataSourceSingleQuery.EncryptionMode.CLEAR": {
     "other": "Очистить"
   },
   "dataSourceSingleQuery.EncryptionMode.MASTER": {
-    "other": "Master-key"
+    "other": "Мастер-ключ"
   },
   "dataSourceSingleQuery.EncryptionKey": {
     "other": "Ключ шифрования"
@@ -426,19 +426,19 @@
     "other": "Политика контроля версиями"
   },
   "dataSourceSingleQuery.StorageConfigurationName": {
-    "other": "Configuration Key"
+    "other": "Ключ конфигурации"
   },
   "dataSourceSingleQuery.StorageConfigurationValue": {
-    "other": "Configuration Value"
+    "other": "Значение конфигурации"
   },
   "dataSourceSingleQuery.ObjectServiceName": {
-    "other": "Object Service"
+    "other": "Служба объектов"
   },
   "dataSourceSingleQuery.Not": {
-    "other": "Not"
+    "other": "Не"
   },
   "triggerFilterQuery.IsSchedule": {
-    "other": "Scheduled Trigger"
+    "other": "Запланированный триггер"
   },
   "triggerFilterQuery.IsManual": {
     "other": "Ручной триггер"

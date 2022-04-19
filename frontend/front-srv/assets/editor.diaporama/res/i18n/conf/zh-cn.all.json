@@ -39,6 +39,6 @@
     "other": "缩略图质量"
   },
   "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": {
-    "other": "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped."
+    "other": "当连接到远程服务器时，元数据提取可以使列表操作变得很长，因为它必须首先复制每个文件。 对于使用已定义的封面和文件的插件，其大小大于此阈值的插件，图像类型和尺寸将会被跳过。"
   }
 }

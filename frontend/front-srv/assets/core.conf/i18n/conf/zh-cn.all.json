@@ -15,16 +15,16 @@
     "other": "允许用户在共享文件夹时创建新用户"
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Allow the users to pick an existing user when sharing a folder"
+    "other": "允许用户在共享文件夹时选择已有用户"
   },
   "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them": {
-    "other": "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them"
+    "other": "允许通过自动完成从其他组中搜索用户 (如果先前的选项设置为 false) 并与他们共享工作区"
   },
   "Always Override": {
     "other": "总是覆盖"
   },
   "Always override other roles, included group roles.": {
-    "other": "Always override other roles, included group roles."
+    "other": "总是覆盖其他角色，包括组角色。"
   },
   "Avatar": {
     "other": "头像"
@@ -57,10 +57,10 @@
     "other": "显示角色和/或群组"
   },
   "Do not display real login in parenthesis": {
-    "other": "Do not display real login in parenthesis"
+    "other": "不要在括号中显示真实的登录信息"
   },
   "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP.": {
-    "other": "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP."
+    "other": "如果没有输入正则表达式，请不要加载组和用户列表。避免在 LDAP 上发送大规模搜索。"
   },
   "Email": {
     "other": "电子邮件"
@@ -84,16 +84,16 @@
     "other": "隐藏真实登录名"
   },
   "If previous option is set to True, directly display a full list of users from all groups": {
-    "other": "If previous option is set to True, directly display a full list of users from all groups"
+    "other": "如果之前的选项设置为 True，直接显示来自所有组的完整用户列表"
   },
   "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else": {
-    "other": "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else"
+    "other": "如果设置，此操作将在用户登录时自动触发。 可以登出(锁定用户)、密码更改(强制密码更改) 或其他任何内容"
   },
   "If the 'guest' user is enabled, remember her preferences accross sessions.": {
-    "other": "If the 'guest' user is enabled, remember her preferences accross sessions."
+    "other": "如果启用了 'guest' 用户，请记住她在会话中的偏好。"
   },
   "Image displayed next to the user name": {
-    "other": "Image displayed next to the user name"
+    "other": "显示在用户名旁边的图像"
   },
   "Included Roles": {
     "other": "包含角色"
@@ -102,7 +102,7 @@
     "other": "实例"
   },
   "Internal / External Users": {
-    "other": "Internal / External Users"
+    "other": "内部/外部用户"
   },
   "Language": {
     "other": "语言"
@@ -117,13 +117,13 @@
     "other": "列出角色由"
   },
   "List existing from all groups": {
-    "other": "List existing from all groups"
+    "other": "列表中存在于所有组"
   },
   "List of parameters to be edited when creating a new shared user.": {
     "other": "创建新共享用户时要编辑的参数列表。"
   },
   "Make regexp mandatory": {
-    "other": "Make regexp mandatory"
+    "other": "强制使用regexp"
   },
   "Maximum number of shared users per user": {
     "other": "每个用户的最大共享用户数"
@@ -159,25 +159,25 @@
     "other": "查看现有用户"
   },
   "Sets how the application core data (users,roles,etc) is stored.": {
-    "other": "Sets how the application core data (users,roles,etc) is stored."
+    "other": "设置应用程序核心数据 (用户，角色等) 的存储方式。"
   },
   "Share with existing users from all groups": {
-    "other": "Share with existing users from all groups"
+    "other": "与来自所有组的现有用户分享"
   },
   "Shared users limit": {
     "other": "共享用户限制"
   },
   "Simple SQL Connexion definition that can be used by other sql-based plugins": {
-    "other": "Simple SQL Connection definition that can be used by other sql-based plugins"
+    "other": "其他基于sql的插件可以使用的简单SQL连接定义"
   },
   "Skip user history": {
     "other": "跳过界面偏好设置"
   },
   "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex."
+    "other": "某些角色应该消失在列表中，用','分隔，或者用正则表达式开头以'preg:'开始。"
   },
   "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex."
+    "other": "某些角色应该消失在列表中，用','分隔，或者用正则表达式开头以'preg:'开始。"
   },
   "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)": {
     "other": "使用此选项以避免自动重新加载界面状态(如最后一个文件夹，打开标签等)"
@@ -186,13 +186,13 @@
     "other": "用户语言"
   },
   "User roles only": {
-    "other": "User roles only"
+    "other": "仅用户角色"
   },
   "Users Directory Listing": {
     "other": "用户目录列表"
   },
   "Users Lock Action": {
-    "other": "Users Lock Action"
+    "other": "用户锁定操作"
   },
   "Users completer limit": {
     "other": "用户自动完成显示限制"
@@ -201,15 +201,15 @@
     "other": "用户自动完成最少字符"
   },
   "Users only (do not list groups nor roles)": {
-    "other": "Users only (do not list groups nor roles)"
+    "other": "仅用户 (不列出组或角色)"
   },
   "Whether users can create their own repositories, based on predefined templates.": {
-    "other": "Whether users can create their own repositories, based on predefined templates."
+    "other": "用户是否可以根据预定义的模板创建自己的资源库。"
   },
   "Worskpace creation delegation": {
-    "other": "Worskpace creation delegation"
+    "other": "Worskace 创建授权"
   },
   "role prefix": {
-    "other": "Role prefix"
+    "other": "角色前缀"
   }
 }

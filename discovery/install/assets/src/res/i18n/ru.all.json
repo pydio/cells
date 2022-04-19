@@ -30,10 +30,10 @@
     "other": "повторить попытку с новым значением"
   },
   "database.useDefaultsSet": {
-    "other": "A default database is already configured, just click next to validate connection."
+    "other": "База данных по умолчанию уже настроена, просто нажмите далее для проверки соединения."
   },
   "database.forceConfigure": {
-    "other": "Configure another database."
+    "other": "Настроить другую базу данных."
   },
   "admin.stepLabel": {
     "other": "Администратор"
@@ -61,6 +61,12 @@
   },
   "advanced.default.datasource": {
     "other": "При запуске создается исходный источник данных для хранения персональных данных пользователей и данных. Вы можете создать другие источники данных."
+  },
+  "advanced.mongo.title": {
+    "other": "Configure a MongoDB connection. This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+  },
+  "advanced.mongo.label": {
+    "other": "Mongo DSN (user:pass@host:port/?key=value)"
   },
   "license.stepLabel": {
     "other": "Корпоративная лицензия"
