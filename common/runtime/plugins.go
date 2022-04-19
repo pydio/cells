@@ -22,7 +22,6 @@ package runtime
 
 import (
 	"context"
-	"fmt"
 	"strings"
 )
 
@@ -46,7 +45,6 @@ func Init(ctx context.Context, typ string) {
 }
 
 func LastInitType() string {
-	fmt.Println("Last Init Type is", lastInit)
 	return lastInit
 }
 

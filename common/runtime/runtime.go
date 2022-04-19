@@ -61,7 +61,7 @@ func GetBool(key string) bool {
 	return r.GetBool(key)
 }
 
-// GetStrsing gets a key from global runtime
+// GetString gets a key from global runtime
 func GetString(key string) string {
 	return r.GetString(key)
 }
@@ -81,7 +81,7 @@ func IsSet(key string) bool {
 	return r.IsSet(key)
 }
 
-// RegistryURL returns the scheme://address url for Registry
+// DiscoveryURL returns the scheme://address url for Registry
 func DiscoveryURL() string {
 	return r.GetString(KeyDiscovery)
 }
