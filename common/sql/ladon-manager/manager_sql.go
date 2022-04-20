@@ -34,7 +34,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rubenv/sql-migrate"
 	"gopkg.in/gorp.v1"
-	
+
+	"github.com/pydio/cells/v4/common/log"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	sql2 "github.com/pydio/cells/v4/common/sql"
 )
 
@@ -95,7 +97,9 @@ func (s *SQLManager) MigrateMigrationTable(tableName string) error {
 		return er
 	}
 	del, _ := res.RowsAffected()
-	fmt.Printf("[Policies] Migrated %d rows from old gorp_migrations table to %s\n", del, tableName)
+	if del > 0 {
+		log.Logger(servicecontext.WithServiceName(context.Background(), "pydio.grpc.policy")).Info(fmt.Sprintf("Migrated %d rows from old gorp_migrations table to %s\n", del, tableName))
+	}
 
 	return nil
 }
