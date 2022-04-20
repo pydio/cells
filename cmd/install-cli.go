@@ -248,8 +248,8 @@ func promptAdditionalMongoDSN(c *install.InstallConfig) error {
 	}
 
 	dsnP := p.Prompt{
-		Label:   "Please enter MongoDB server DSN. Expected form is user:pass@host:port/?key=value",
-		Default: "localhost:27017/?maxPoolSize=20&w=majority",
+		Label:   "Please enter MongoDB server DSN. Expected form is user:pass@host:port/dbName?key=value",
+		Default: "localhost:27017/cells?maxPoolSize=20&w=majority",
 	}
 	mHost, e := dsnP.Run()
 	if e != nil {
@@ -278,8 +278,8 @@ func promptDocumentsDSN(c *install.InstallConfig) error {
 	switch driver {
 	case "mongodb":
 		dsnP := p.Prompt{
-			Label:   "Please enter MongoDB server address. Can be in the form user:pass@host:port/?key=value",
-			Default: "localhost:8282/?maxPoolSize=20&w=majority",
+			Label:   "Please enter MongoDB server address. Can be in the form user:pass@host:port/dbName?key=value",
+			Default: "localhost:27017/cells?maxPoolSize=20&w=majority",
 		}
 		mHost, e := dsnP.Run()
 		if e != nil {

@@ -48,7 +48,7 @@ func init() {
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Chat Service to attach real-time chats to various object. Coupled with WebSocket"),
 			service.WithStorage(chat.NewDAO,
-				service.WithStoragePrefix("broker_chat"),
+				service.WithStoragePrefix("chat"),
 				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
 				service.WithStorageMigrator(chat.Migrate),
 				service.WithStorageDefaultDriver(func() (string, string) {

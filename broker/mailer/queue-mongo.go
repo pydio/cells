@@ -46,7 +46,7 @@ func NewMongoQueue(mongoDAO mongodb.DAO, c configx.Values) (Queue, error) {
 }
 
 func (m *mongoQueue) Init(conf configx.Values) error {
-	return model.Init(context.Background(), m.DB())
+	return model.Init(context.Background(), m.DAO)
 }
 
 func (m *mongoQueue) Push(email *mailer.Mail) error {
@@ -55,12 +55,12 @@ func (m *mongoQueue) Push(email *mailer.Mail) error {
 		ID:    uuid.New(),
 		Email: email,
 	}
-	_, e := m.DB().Collection(collMailerQueue).InsertOne(context.Background(), store)
+	_, e := m.Collection(collMailerQueue).InsertOne(context.Background(), store)
 	return e
 }
 
 func (m *mongoQueue) Consume(f func(email *mailer.Mail) error) error {
-	coll := m.DB().Collection(collMailerQueue)
+	coll := m.Collection(collMailerQueue)
 	ctx := context.Background()
 	cursor, e := coll.Find(ctx, bson.D{}, &options.FindOptions{Sort: bson.D{{"ts", 1}}})
 	if e != nil {

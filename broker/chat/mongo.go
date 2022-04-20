@@ -59,7 +59,7 @@ type mongoImpl struct {
 }
 
 func (m *mongoImpl) Init(values configx.Values) error {
-	if e := mongoModel.Init(context.Background(), m.DB()); e != nil {
+	if e := mongoModel.Init(context.Background(), m.DAO); e != nil {
 		return e
 	}
 	return m.DAO.Init(values)
@@ -68,7 +68,7 @@ func (m *mongoImpl) Init(values configx.Values) error {
 func (m *mongoImpl) PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.ChatRoom, error) {
 	if room.Uuid == "" {
 		room.Uuid = uuid.New()
-		_, e := m.DB().Collection("rooms").InsertOne(ctx, room)
+		_, e := m.Collection("rooms").InsertOne(ctx, room)
 		if e != nil {
 			return nil, e
 		} else {
@@ -77,7 +77,7 @@ func (m *mongoImpl) PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.Cha
 		}
 	} else {
 		upsert := true
-		_, e := m.DB().Collection("rooms").ReplaceOne(ctx, bson.D{{"uuid", room.Uuid}}, room, &options.ReplaceOptions{Upsert: &upsert})
+		_, e := m.Collection("rooms").ReplaceOne(ctx, bson.D{{"uuid", room.Uuid}}, room, &options.ReplaceOptions{Upsert: &upsert})
 		if e != nil {
 			return nil, e
 		} else {
@@ -88,12 +88,12 @@ func (m *mongoImpl) PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.Cha
 }
 
 func (m *mongoImpl) DeleteRoom(ctx context.Context, room *chat.ChatRoom) (bool, error) {
-	res := m.DB().Collection("rooms").FindOneAndDelete(ctx, bson.D{{"uuid", room.Uuid}})
+	res := m.Collection("rooms").FindOneAndDelete(ctx, bson.D{{"uuid", room.Uuid}})
 	if res.Err() != nil && !strings.Contains(res.Err().Error(), "no documents in result") {
 		return false, res.Err()
 	} else {
 		// Delete all messages for this room
-		_, er := m.DB().Collection("messages").DeleteMany(ctx, bson.D{{"roomuuid", room.Uuid}})
+		_, er := m.Collection("messages").DeleteMany(ctx, bson.D{{"roomuuid", room.Uuid}})
 		if er != nil && !strings.Contains(er.Error(), "no documents in result") {
 			return false, er
 		} else {
@@ -108,7 +108,7 @@ func (m *mongoImpl) ListRooms(ctx context.Context, request *chat.ListRoomsReques
 	if request.TypeObject != "" {
 		filter = append(filter, primitive.E{Key: "roomtypeobject", Value: request.TypeObject})
 	}
-	cursor, err := m.DB().Collection("rooms").Find(ctx, filter)
+	cursor, err := m.Collection("rooms").Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (m *mongoImpl) ListRooms(ctx context.Context, request *chat.ListRoomsReques
 }
 
 func (m *mongoImpl) RoomByUuid(ctx context.Context, byType chat.RoomType, roomUUID string) (*chat.ChatRoom, error) {
-	single := m.DB().Collection("rooms").FindOne(ctx, bson.D{
+	single := m.Collection("rooms").FindOne(ctx, bson.D{
 		{"type", byType}, {"uuid", roomUUID},
 	})
 	if single.Err() != nil {
@@ -145,7 +145,7 @@ func (m *mongoImpl) ListMessages(ctx context.Context, request *chat.ListMessages
 		opts.Skip = &request.Offset
 	}
 	opts.Sort = bson.D{{"timestamp", -1}}
-	cursor, err := m.DB().Collection("messages").Find(ctx, filter, opts)
+	cursor, err := m.Collection("messages").Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +168,7 @@ func (m *mongoImpl) PostMessage(ctx context.Context, request *chat.ChatMessage) 
 	if request.Uuid == "" {
 		request.Uuid = uuid.New()
 	}
-	_, e := m.DB().Collection("messages").InsertOne(ctx, request)
+	_, e := m.Collection("messages").InsertOne(ctx, request)
 	if e != nil {
 		return nil, e
 	} else {
@@ -178,7 +178,7 @@ func (m *mongoImpl) PostMessage(ctx context.Context, request *chat.ChatMessage) 
 }
 
 func (m *mongoImpl) DeleteMessage(ctx context.Context, message *chat.ChatMessage) error {
-	res := m.DB().Collection("messages").FindOneAndDelete(ctx, bson.D{{"uuid", message.Uuid}})
+	res := m.Collection("messages").FindOneAndDelete(ctx, bson.D{{"uuid", message.Uuid}})
 	if res.Err() != nil {
 		return res.Err()
 	} else {
@@ -187,6 +187,6 @@ func (m *mongoImpl) DeleteMessage(ctx context.Context, message *chat.ChatMessage
 }
 
 func (m *mongoImpl) CountMessages(ctx context.Context, room *chat.ChatRoom) (count int, e error) {
-	c, e := m.DB().Collection("messages").CountDocuments(ctx, bson.D{{"roomuuid", room.Uuid}})
+	c, e := m.Collection("messages").CountDocuments(ctx, bson.D{{"roomuuid", room.Uuid}})
 	return int(c), e
 }

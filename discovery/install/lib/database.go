@@ -122,10 +122,14 @@ func installDocumentDSN(c *install.InstallConfig) error {
 }
 
 // DATABASES
-func actionDatabaseAdd(c *install.InstallConfig) error {
+func actionDatabaseAdd(c *install.InstallConfig, flags byte) error {
 
 	if er := installDocumentDSN(c); er != nil {
 		return er
+	}
+
+	if flags&InstallDSNOnly != 0 {
+		return nil
 	}
 
 	dsn, err := dsnFromInstallConfig(c)

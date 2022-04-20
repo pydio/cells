@@ -65,7 +65,7 @@ func init() {
 				},
 			}),
 			service.WithStorage(mailer2.NewQueueDAO,
-				service.WithStoragePrefix("broker_mailer"),
+				service.WithStoragePrefix("mailer"),
 				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
 				service.WithStorageMigrator(mailer2.MigrateQueue),
 				service.WithStorageDefaultDriver(func() (string, string) {

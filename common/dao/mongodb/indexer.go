@@ -102,7 +102,7 @@ func (i *Indexer) Init(cfg configx.Values) error {
 	if i.codec != nil {
 		if mo, ok := i.codec.GetModel(cfg); ok {
 			model := mo.(Model)
-			if er := model.Init(context.Background(), i.DB()); er != nil {
+			if er := model.Init(context.Background(), i.DAO); er != nil {
 				return er
 			}
 			for _, coll := range model.Collections {
@@ -151,7 +151,7 @@ func (i *Indexer) DeleteMany(ctx context.Context, query interface{}) (int32, err
 	}
 	filter := bson.D{}
 	filter = append(filter, filters...)
-	res, e := i.DB().Collection(i.collection).DeleteMany(context.Background(), filter)
+	res, e := i.Collection(i.collection).DeleteMany(context.Background(), filter)
 	if e != nil {
 		return 0, e
 	} else {
@@ -196,14 +196,14 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 		// Perform Query
 		//jsonLog, _ := bson.MarshalExtJSON(filter, false, false)
 		//fmt.Println(string(jsonLog))
-		cursor, err := i.DB().Collection(i.collection).Find(ctx, filter, opts)
+		cursor, err := i.Collection(i.collection).Find(ctx, filter, opts)
 		if err != nil {
 			return nil, err
 		}
 		searchCursor = cursor
 	}
 	if aggregation != nil {
-		if c, e := i.DB().Collection(i.collection).Aggregate(ctx, aggregation); e != nil {
+		if c, e := i.Collection(i.collection).Aggregate(ctx, aggregation); e != nil {
 			fmt.Println("Cannot perform aggregation", e)
 			return nil, e
 		} else {
@@ -247,7 +247,7 @@ func (i *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 	if max > 0 {
 		return fmt.Errorf("truncate to a given bytesize is not implemented on the mongo indexer")
 	}
-	res, e := i.DB().Collection(i.collection).DeleteMany(context.Background(), bson.D{})
+	res, e := i.Collection(i.collection).DeleteMany(context.Background(), bson.D{})
 	if e != nil {
 		return e
 	}
@@ -259,7 +259,7 @@ func (i *Indexer) Close() error {
 	return i.CloseConn()
 }
 func (i *Indexer) Flush(ctx context.Context) error {
-	conn := i.DB().Collection(i.collection)
+	conn := i.Collection(i.collection)
 
 	if len(i.inserts) > 0 {
 		if i.collectionModel.IDName != "" {

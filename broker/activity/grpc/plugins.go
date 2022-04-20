@@ -75,7 +75,7 @@ func init() {
 				},
 			}),
 			service.WithStorage(activity.NewDAO,
-				service.WithStoragePrefix("broker_activity"),
+				service.WithStoragePrefix("activity"),
 				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
 				service.WithStorageMigrator(activity.Migrate),
 				service.WithStorageDefaultDriver(func() (string, string) {

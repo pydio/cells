@@ -45,6 +45,7 @@ const (
 	InstallDs
 	InstallConfig
 	InstallFrontend
+	InstallDSNOnly
 )
 
 type InstallProgressEvent struct {
@@ -66,7 +67,7 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 	}
 
 	if (flags&InstallAll) != 0 || (flags&InstallDb) != 0 {
-		if err := actionDatabaseAdd(c); err != nil {
+		if err := actionDatabaseAdd(c, flags); err != nil {
 			log.Logger(ctx).Error("Error while adding database", zap.Error(err))
 			return err
 		}

@@ -51,7 +51,7 @@ type Model struct {
 	Collections []Collection
 }
 
-func (m Model) Init(ctx context.Context, db *mongo.Database) error {
+func (m Model) Init(ctx context.Context, dao DAO) error {
 	for _, col := range m.Collections {
 		opts := &options.CreateCollectionOptions{}
 		if col.DefaultCollation.Locale != "" {
@@ -60,7 +60,11 @@ func (m Model) Init(ctx context.Context, db *mongo.Database) error {
 				Strength: col.DefaultCollation.Strength,
 			}
 		}
-		if e := db.CreateCollection(ctx, col.Name, opts); e != nil {
+		name := col.Name
+		if dao.Prefix() != "" {
+			name = dao.Prefix() + "_" + name
+		}
+		if e := dao.DB().CreateCollection(ctx, name, opts); e != nil {
 			if _, ok := e.(mongo.CommandError); !ok {
 				return e
 			}
@@ -76,7 +80,7 @@ func (m Model) Init(ctx context.Context, db *mongo.Database) error {
 					}
 				}
 				models = append(models, mongo.IndexModel{Keys: keys})
-				if _, e := db.Collection(col.Name).Indexes().CreateMany(ctx, models); e != nil {
+				if _, e := dao.DB().Collection(name).Indexes().CreateMany(ctx, models); e != nil {
 					fmt.Println("Error while creating indexes", e)
 				}
 			}

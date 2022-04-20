@@ -22,6 +22,9 @@ package mongodb
 
 import (
 	"fmt"
+	"net/url"
+	"path"
+
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/pydio/cells/v4/common/dao"
@@ -40,12 +43,14 @@ func init() {
 // DAO defines the functions specific to the boltdb dao
 type DAO interface {
 	dao.DAO
+	Collection(name string) *mongo.Collection
 	DB() *mongo.Database
 }
 
 // Handler for the main functions of the DAO
 type Handler struct {
 	dao.DAO
+	dbName string
 }
 
 // NewDAO creates a new handler for the boltdb dao
@@ -54,11 +59,16 @@ func NewDAO(driver string, dsn string, prefix string) (dao.DAO, error) {
 	if err != nil {
 		return nil, err
 	}
-	if prefix == "" {
-		fmt.Println("Warning, mongodb DAO must provide a prefix")
+	var dbName string
+	if u, e := url.Parse(dsn); e == nil {
+		dbName = path.Base(u.Path)
+	}
+	if dbName == "" {
+		fmt.Println("Warning, Mongodb DSN must provide a dbName via the path")
 	}
 	return &Handler{
-		DAO: dao.AbstractDAO(conn, driver, prefix),
+		DAO:    dao.AbstractDAO(conn, driver, prefix),
+		dbName: dbName,
 	}, nil
 }
 
@@ -75,7 +85,15 @@ func (h *Handler) DB() *mongo.Database {
 
 	if conn := h.GetConn(); conn != nil {
 		client := conn.(*mongo.Client)
-		return client.Database(h.Prefix())
+		return client.Database(h.dbName)
 	}
 	return nil
+}
+
+// Collection returns a usable *mongo.Collection
+func (h *Handler) Collection(name string) *mongo.Collection {
+	if pref := h.Prefix(); pref != "" {
+		name = pref + "_" + name
+	}
+	return h.DB().Collection(name)
 }

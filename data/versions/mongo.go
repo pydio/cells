@@ -63,7 +63,7 @@ type mongoStore struct {
 }
 
 func (m *mongoStore) Init(values configx.Values) error {
-	if er := model.Init(context.Background(), m.DB()); er != nil {
+	if er := model.Init(context.Background(), m.DAO); er != nil {
 		return er
 	}
 	return m.DAO.Init(values)
@@ -71,7 +71,7 @@ func (m *mongoStore) Init(values configx.Values) error {
 
 func (m *mongoStore) GetLastVersion(nodeUuid string) (*tree.ChangeLog, error) {
 	c := context.Background()
-	res := m.DB().Collection(collVersions).FindOne(c, bson.D{{"node_uuid", nodeUuid}}, &options.FindOneOptions{
+	res := m.Collection(collVersions).FindOne(c, bson.D{{"node_uuid", nodeUuid}}, &options.FindOneOptions{
 		Sort: bson.M{"ts": -1},
 	})
 	if res.Err() != nil {
@@ -93,7 +93,7 @@ func (m *mongoStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, error) 
 	go func() {
 		defer close(logs)
 		c := context.Background()
-		cursor, er := m.DB().Collection(collVersions).Find(c, bson.D{{"node_uuid", nodeUuid}}, &options.FindOptions{
+		cursor, er := m.Collection(collVersions).Find(c, bson.D{{"node_uuid", nodeUuid}}, &options.FindOptions{
 			Sort: bson.M{"ts": -1},
 		})
 		if er != nil {
@@ -112,7 +112,7 @@ func (m *mongoStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, error) 
 
 func (m *mongoStore) GetVersion(nodeUuid string, versionId string) (*tree.ChangeLog, error) {
 	c := context.Background()
-	res := m.DB().Collection(collVersions).FindOne(c, bson.D{{"node_uuid", nodeUuid}, {"version_id", versionId}})
+	res := m.Collection(collVersions).FindOne(c, bson.D{{"node_uuid", nodeUuid}, {"version_id", versionId}})
 	if res.Err() != nil {
 		if strings.Contains(res.Err().Error(), "no documents in result") {
 			return &tree.ChangeLog{}, nil
@@ -135,7 +135,7 @@ func (m *mongoStore) StoreVersion(nodeUuid string, log *tree.ChangeLog) error {
 		ChangeLog: log,
 	}
 	c := context.Background()
-	_, e := m.DB().Collection(collVersions).InsertOne(c, mv)
+	_, e := m.Collection(collVersions).InsertOne(c, mv)
 	return e
 }
 
@@ -151,7 +151,7 @@ func (m *mongoStore) DeleteVersionsForNode(nodeUuid string, versions ...*tree.Ch
 		}
 		filter = append(filter, bson.E{Key: "version_id", Value: bson.M{"$in": versionsIds}})
 	}
-	res, e := m.DB().Collection(collVersions).DeleteMany(c, filter)
+	res, e := m.Collection(collVersions).DeleteMany(c, filter)
 	if e != nil {
 		return e
 	}
@@ -162,7 +162,7 @@ func (m *mongoStore) DeleteVersionsForNode(nodeUuid string, versions ...*tree.Ch
 
 func (m *mongoStore) DeleteVersionsForNodes(nodeUuid []string) error {
 	c := context.Background()
-	res, e := m.DB().Collection(collVersions).DeleteMany(c, bson.D{{"node_uuid", bson.M{"$in": nodeUuid}}})
+	res, e := m.Collection(collVersions).DeleteMany(c, bson.D{{"node_uuid", bson.M{"$in": nodeUuid}}})
 	if e != nil {
 		return e
 	}
@@ -177,7 +177,7 @@ func (m *mongoStore) ListAllVersionedNodesUuids() (chan string, chan bool, chan 
 	errs := make(chan error)
 	go func() {
 		defer close(done)
-		ii, er := m.DB().Collection(collVersions).Distinct(c, "node_uuid", bson.D{})
+		ii, er := m.Collection(collVersions).Distinct(c, "node_uuid", bson.D{})
 		if er != nil {
 			errs <- er
 			return

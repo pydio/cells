@@ -97,7 +97,7 @@ type docActivityProjection struct {
 }
 
 func (m *mongoimpl) Init(values configx.Values) error {
-	if er := model.Init(context.Background(), m.DB()); er != nil {
+	if er := model.Init(context.Background(), m.DAO); er != nil {
 		return er
 	}
 	return m.DAO.Init(values)
@@ -111,7 +111,7 @@ func (m *mongoimpl) UpdateSubscription(ctx context.Context, subscription *activi
 	}
 	if len(subscription.Events) == 0 {
 		// Remove subscription
-		_, e := m.DB().Collection(collSubscriptions).DeleteOne(ctx, selector)
+		_, e := m.Collection(collSubscriptions).DeleteOne(ctx, selector)
 		if e != nil {
 			return e
 		}
@@ -119,7 +119,7 @@ func (m *mongoimpl) UpdateSubscription(ctx context.Context, subscription *activi
 		return nil
 	}
 	upsert := true
-	_, e := m.DB().Collection(collSubscriptions).ReplaceOne(ctx, selector, subscription, &options.ReplaceOptions{Upsert: &upsert})
+	_, e := m.Collection(collSubscriptions).ReplaceOne(ctx, selector, subscription, &options.ReplaceOptions{Upsert: &upsert})
 	if e != nil {
 		return e
 	}
@@ -139,7 +139,7 @@ func (m *mongoimpl) ListSubscriptions(ctx context.Context, objectType activity.O
 	} else {
 		selector = append(selector, bson.E{"objectid", bson.M{"$in": objectIds}})
 	}
-	cursor, er := m.DB().Collection(collSubscriptions).Find(ctx, selector)
+	cursor, er := m.Collection(collSubscriptions).Find(ctx, selector)
 	if er != nil {
 		return nil, er
 	}
@@ -166,7 +166,7 @@ func (m *mongoimpl) PostActivity(ctx context.Context, ownerType activity.OwnerTy
 	if object.Updated != nil && object.Updated.IsValid() {
 		doc.Ts = time.Unix(object.Updated.GetSeconds(), int64(object.Updated.GetNanos())).UnixNano()
 	}
-	_, er := m.DB().Collection(collActivities).InsertOne(ctx, doc)
+	_, er := m.Collection(collActivities).InsertOne(ctx, doc)
 	if er == nil {
 		if publish {
 			broker.MustPublish(ctx, common.TopicActivityEvent, &activity.PostActivityEvent{
@@ -209,7 +209,7 @@ func (m *mongoimpl) ActivitiesFor(ctx context.Context, ownerType activity.OwnerT
 	if limit > 0 {
 		opts.Limit = &limit
 	}
-	cursor, er := m.DB().Collection(collActivities).Find(ctx, filter, opts)
+	cursor, er := m.Collection(collActivities).Find(ctx, filter, opts)
 	if er != nil {
 		return er
 	}
@@ -246,7 +246,7 @@ func (m *mongoimpl) CountUnreadForUser(ctx context.Context, userId string) int {
 	if lastRead := m.userLastMarker(ctx, userId, BoxLastRead); lastRead > 0 {
 		filter = append(filter, bson.E{"ts", bson.E{"$gt", lastRead}})
 	}
-	count, e := m.DB().Collection(collActivities).CountDocuments(ctx, filter)
+	count, e := m.Collection(collActivities).CountDocuments(ctx, filter)
 	if e != nil {
 		return 0
 	}
@@ -255,7 +255,7 @@ func (m *mongoimpl) CountUnreadForUser(ctx context.Context, userId string) int {
 
 func (m *mongoimpl) StoreLastUserInbox(ctx context.Context, userId string, boxName BoxName, activityId string) error {
 	// Find activity by id
-	res := m.DB().Collection(collActivities).FindOne(ctx, bson.D{{"ac_id", activityId}})
+	res := m.Collection(collActivities).FindOne(ctx, bson.D{{"ac_id", activityId}})
 	if res.Err() != nil {
 		return res.Err()
 	}
@@ -274,7 +274,7 @@ func (m *mongoimpl) storeLastUserInbox(ctx context.Context, userId string, boxNa
 	}
 	filter := bson.D{{"user_id", userId}, {"box_name", string(boxName)}}
 	upsert := true
-	_, e := m.DB().Collection(collMarkers).ReplaceOne(ctx, filter, marker, &options.ReplaceOptions{Upsert: &upsert})
+	_, e := m.Collection(collMarkers).ReplaceOne(ctx, filter, marker, &options.ReplaceOptions{Upsert: &upsert})
 	if e != nil {
 		return e
 	}
@@ -286,7 +286,7 @@ func (m *mongoimpl) Delete(ctx context.Context, ownerType activity.OwnerType, ow
 		{"owner_type", int(ownerType)},
 		{"owner_id", ownerId},
 	}
-	_, e := m.DB().Collection(collActivities).DeleteMany(ctx, filter)
+	_, e := m.Collection(collActivities).DeleteMany(ctx, filter)
 	if e != nil {
 		return e
 	}
@@ -296,14 +296,14 @@ func (m *mongoimpl) Delete(ctx context.Context, ownerType activity.OwnerType, ow
 	}
 
 	// Clear Subscriptions
-	res, e := m.DB().Collection(collSubscriptions).DeleteMany(ctx, bson.D{{"userid", ownerId}})
+	res, e := m.Collection(collSubscriptions).DeleteMany(ctx, bson.D{{"userid", ownerId}})
 	if e != nil {
 		return e
 	}
 	log.Logger(ctx).Debug(fmt.Sprintf("Cleared %d subscriptions for user %s", res.DeletedCount, ownerId))
 
 	//  Clear activities where Actor.Id = userId
-	res, e = m.DB().Collection(collActivities).DeleteMany(ctx, bson.D{{"object.actor.id", ownerId}})
+	res, e = m.Collection(collActivities).DeleteMany(ctx, bson.D{{"object.actor.id", ownerId}})
 	if e != nil {
 		return e
 	}
@@ -315,7 +315,7 @@ func (m *mongoimpl) Delete(ctx context.Context, ownerType activity.OwnerType, ow
 func (m *mongoimpl) Purge(ctx context.Context, logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
 	if ownerId == "*" {
 		// Distinct and run on all boxes
-		dd, e := m.DB().Collection(collActivities).Distinct(ctx, "owner_id", bson.D{{"owner_type", int(ownerType)}, {"box_name", string(boxName)}})
+		dd, e := m.Collection(collActivities).Distinct(ctx, "owner_id", bson.D{{"owner_type", int(ownerType)}, {"box_name", string(boxName)}})
 		if e != nil {
 			return e
 		}
@@ -336,7 +336,7 @@ func (m *mongoimpl) allActivities(ctx context.Context) (chan *docActivity, error
 	opts := &options.FindOptions{
 		Sort: bson.D{{"ts", 1}},
 	}
-	cursor, er := m.DB().Collection(collActivities).Find(ctx, filter, opts)
+	cursor, er := m.Collection(collActivities).Find(ctx, filter, opts)
 	if er != nil {
 		return nil, er
 	}
@@ -356,7 +356,7 @@ func (m *mongoimpl) allActivities(ctx context.Context) (chan *docActivity, error
 
 // AllSubscriptions is used for internal migrations only
 func (m *mongoimpl) allSubscriptions(ctx context.Context) (chan *activity.Subscription, error) {
-	cursor, er := m.DB().Collection(collSubscriptions).Find(ctx, bson.D{})
+	cursor, er := m.Collection(collSubscriptions).Find(ctx, bson.D{})
 	if er != nil {
 		return nil, er
 	}
@@ -385,7 +385,7 @@ func (m *mongoimpl) purgeOneBox(ctx context.Context, logger func(string), ownerT
 		Sort:       bson.D{{"ts", -1}},
 		Projection: bson.D{{"ts", 1}, {"ac_id", 1}},
 	}
-	c, e := m.DB().Collection(collActivities).Find(ctx, filter, opts)
+	c, e := m.Collection(collActivities).Find(ctx, filter, opts)
 	if e != nil {
 		return e
 	}
@@ -411,7 +411,7 @@ func (m *mongoimpl) purgeOneBox(ctx context.Context, logger func(string), ownerT
 		}
 	}
 	if len(ids) > 0 {
-		_, e := m.DB().Collection(collActivities).DeleteMany(ctx, bson.D{{"ac_id", bson.M{"$in": ids}}})
+		_, e := m.Collection(collActivities).DeleteMany(ctx, bson.D{{"ac_id", bson.M{"$in": ids}}})
 		if e == nil {
 			//fmt.Println("Removed", res.DeletedCount)
 		}
@@ -421,7 +421,7 @@ func (m *mongoimpl) purgeOneBox(ctx context.Context, logger func(string), ownerT
 }
 
 func (m *mongoimpl) userLastMarker(ctx context.Context, userId string, boxName BoxName) int64 {
-	s := m.DB().Collection(collMarkers).FindOne(ctx, bson.D{{"user_id", userId}, {"box_name", string(boxName)}})
+	s := m.Collection(collMarkers).FindOne(ctx, bson.D{{"user_id", userId}, {"box_name", string(boxName)}})
 	if s.Err() != nil {
 		return 0
 	}

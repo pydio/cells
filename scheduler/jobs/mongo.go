@@ -80,7 +80,7 @@ type mongoImpl struct {
 }
 
 func (m *mongoImpl) Init(values configx.Values) error {
-	if er := model.Init(context.Background(), m.DB()); er != nil {
+	if er := model.Init(context.Background(), m.DAO); er != nil {
 		return er
 	}
 	return m.DAO.Init(values)
@@ -98,13 +98,13 @@ func (m *mongoImpl) PutJob(job *jobs.Job) error {
 	}
 	mj.Job.Tasks = nil
 	upsert := true
-	_, e := m.DB().Collection(collJobs).ReplaceOne(c, bson.D{{"id", job.ID}}, mj, &options.ReplaceOptions{Upsert: &upsert})
+	_, e := m.Collection(collJobs).ReplaceOne(c, bson.D{{"id", job.ID}}, mj, &options.ReplaceOptions{Upsert: &upsert})
 	return e
 }
 
 func (m *mongoImpl) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, error) {
 	c := context.Background()
-	res := m.DB().Collection(collJobs).FindOne(c, bson.D{{"id", jobId}})
+	res := m.Collection(collJobs).FindOne(c, bson.D{{"id", jobId}})
 	if res.Err() != nil {
 		if strings.Contains(res.Err().Error(), "no documents in result") {
 			return nil, errors.NotFound("job.not.found", "Job not found")
@@ -127,7 +127,7 @@ func (m *mongoImpl) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, 
 
 func (m *mongoImpl) DeleteJob(jobId string) error {
 	c := context.Background()
-	_, e := m.DB().Collection(collJobs).DeleteOne(c, bson.D{{"id", jobId}})
+	_, e := m.Collection(collJobs).DeleteOne(c, bson.D{{"id", jobId}})
 	if e != nil {
 		return e
 	}
@@ -149,7 +149,7 @@ func (m *mongoImpl) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 	if len(jobIDs) > 0 {
 		filter = append(filter, bson.E{Key: "id", Value: bson.M{"$in": jobIDs}})
 	}
-	cursor, er := m.DB().Collection(collJobs).Find(c, filter)
+	cursor, er := m.Collection(collJobs).Find(c, filter)
 	if er != nil {
 		return nil, nil, er
 	}
@@ -201,7 +201,7 @@ func (m *mongoImpl) PutTask(task *jobs.Task) error {
 		Task:   task,
 	}
 	upsert := true
-	_, e := m.DB().Collection(collTasks).ReplaceOne(c, bson.D{{"id", task.ID}}, mj, &options.ReplaceOptions{Upsert: &upsert})
+	_, e := m.Collection(collTasks).ReplaceOne(c, bson.D{{"id", task.ID}}, mj, &options.ReplaceOptions{Upsert: &upsert})
 	if e != nil {
 		return e
 	}
@@ -227,7 +227,7 @@ func (m *mongoImpl) PutTasks(tasks map[string]map[string]*jobs.Task) error {
 			models = append(models, rModel)
 		}
 	}
-	_, e := m.DB().Collection(collTasks).BulkWrite(context.Background(), models)
+	_, e := m.Collection(collTasks).BulkWrite(context.Background(), models)
 	if e != nil {
 		return e
 	}
@@ -261,7 +261,7 @@ func (m *mongoImpl) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 
 func (m *mongoImpl) DeleteTasks(jobId string, taskId []string) error {
 	filter := bson.D{{"job_id", jobId}, {"id", bson.M{"$in": taskId}}}
-	_, e := m.DB().Collection(collTasks).DeleteMany(context.Background(), filter)
+	_, e := m.Collection(collTasks).DeleteMany(context.Background(), filter)
 	if e != nil {
 		return e
 	}
@@ -287,7 +287,7 @@ func (m *mongoImpl) listTasks(jobId string, status jobs.TaskStatus, offset, limi
 		findOpts.Limit = &limit
 	}
 	c := context.Background()
-	cursor, e := m.DB().Collection(collTasks).Find(c, filter, findOpts)
+	cursor, e := m.Collection(collTasks).Find(c, filter, findOpts)
 	if e != nil {
 		return tasks, e
 	}
