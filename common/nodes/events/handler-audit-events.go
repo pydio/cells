@@ -276,12 +276,9 @@ func checkBranchInfoForAudit(ctx context.Context, identifier string) (isBinary b
 	}
 
 	// Try to retrieve Wksp UUID
-	if ok {
-		wsId := branchInfo.UUID
-		if wsId != "" {
-			wsInfo = zap.String(common.KeyWorkspaceUuid, wsId)
-			wsScope = zap.String(common.KeyWorkspaceScope, branchInfo.Scope.String())
-		}
+	if ok && branchInfo.Workspace != nil && branchInfo.Workspace.UUID != "" {
+		wsInfo = zap.String(common.KeyWorkspaceUuid, branchInfo.Workspace.UUID)
+		wsScope = zap.String(common.KeyWorkspaceScope, branchInfo.Scope.String())
 	}
 	return false, wsInfo, wsScope
 }
