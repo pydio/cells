@@ -1,32 +1,30 @@
 package configx
 
-import (
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-)
-
 type ref struct {
-	v map[string]interface{}
+	V string `json:"$ref"`
 }
 
 func Reference(s string) Ref {
 	return &ref{
-		v: map[string]interface{}{
-			"$ref": s,
-		},
+		V: s,
 	}
 }
 
-func GetReference(i interface{}) (string, bool) {
-	if r, ok :=  i.(*ref); ok {
-		return r.Get(), true
+func GetReference(i interface{}) (Ref, bool) {
+	r, ok := i.(*ref)
+	if ok {
+		if r.V != "" {
+			return r, true
+		}
 	}
-	return "", false
+
+	return nil, false
 }
 
 func (r *ref) Get() string {
-	return r.v["$ref"].(string)
+	return r.V
 }
 
-func (r *ref) MarshalJSON() ([]byte, error) {
-	return json.Marshal(r.v)
-}
+//func (r *ref) MarshalJSON() ([]byte, error) {
+//	return json.Marshal(r)
+//}

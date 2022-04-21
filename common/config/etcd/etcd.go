@@ -86,6 +86,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 }
 
 type etcd struct {
+	v         configx.Values
 	prefix    string
 	cli       *clientv3.Client
 	leaseID   clientv3.LeaseID
@@ -121,12 +122,15 @@ func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLea
 	}
 
 	m := &etcd{
+		v:       configx.New(opts...),
 		cli:     cli,
 		prefix:  prefix,
 		locker:  &sync.Mutex{},
 		leaseID: leaseID,
 		opts:    opts,
 	}
+
+	m.Get()
 
 	go m.watch(ctx)
 
@@ -158,25 +162,23 @@ func (m *etcd) watch(ctx context.Context) {
 }
 
 func (m *etcd) Get() configx.Value {
-	v := configx.New(m.opts...)
-
-	resp, err := m.cli.Get(context.Background(), m.prefix, clientv3.WithPrefix(), clientv3.WithLease(m.leaseID))
+	resp, err := m.cli.Get(context.Background(), m.prefix, clientv3.WithLease(m.leaseID))
 	if err != nil {
 		fmt.Println("Error is ", err)
 		return nil
 	}
 
 	for _, kv := range resp.Kvs {
-		if err := v.Val(string(kv.Key)).Set(kv.Value); err != nil {
-			fmt.Println("Error setting string ", err)
+		if err := m.v.Set(kv.Value); err != nil {
+			return nil
 		}
 	}
 
-	return v.Val(m.prefix)
+	return m.v
 }
 
 func (m *etcd) Val(path ...string) configx.Values {
-	return &values{prefix: m.prefix, cli: m.cli, leaseID: m.leaseID, path: strings.Join(path, "/"), opts: m.opts}
+	return &values{root: m.v, path: strings.Join(path, "/"), opts: m.opts}
 }
 
 func (m *etcd) Set(data interface{}) error {
@@ -184,15 +186,6 @@ func (m *etcd) Set(data interface{}) error {
 	if err := v.Set(data); err != nil {
 		return err
 	}
-
-	configx.Walk(v, func(key []string, val configx.Value) error {
-		_, err := m.cli.Put(context.Background(), strings.Join(append([]string{m.prefix}, key...), "/"), string(val.Bytes()), clientv3.WithLease(m.leaseID))
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
 
 	return nil
 }
@@ -202,6 +195,10 @@ func (m *etcd) Del() error {
 }
 
 func (m *etcd) Save(ctxUser string, ctxMessage string) error {
+	if _, err := m.cli.Put(context.Background(), m.prefix, string(m.v.Bytes()), clientv3.WithLease(m.leaseID)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -254,69 +251,28 @@ func (r *receiver) Stop() {
 }
 
 type values struct {
-	prefix  string
-	path    string
-	cli     *clientv3.Client
-	leaseID clientv3.LeaseID
-	opts    []configx.Option
+	root configx.Values
+	path string
+	opts []configx.Option
 }
 
 func (v *values) Set(value interface{}) error {
-	c := configx.New(v.opts...)
-	if err := c.Set(value); err != nil {
-		return err
-	}
-
-	configx.Walk(c, func(key []string, val configx.Value) error {
-		if v.path != "" {
-			key = append([]string{v.path}, key...)
-		}
-		if v.prefix != "" {
-			key = append([]string{v.prefix}, key...)
-		}
-		_, err := v.cli.Put(context.Background(), strings.Join(key, "/"), string(val.Bytes()), clientv3.WithLease(v.leaseID))
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-
-	return nil
+	return v.root.Val(v.path).Set(value)
 }
 
 func (v *values) Get() configx.Value {
-	c := configx.New(v.opts...)
-
-	resp, err := v.cli.Get(context.Background(), v.prefix+"/"+v.path, clientv3.WithPrefix(), clientv3.WithLease(v.leaseID))
-	if err != nil {
-		fmt.Println("Error is ", err)
-		return nil
-	}
-
-	for _, kv := range resp.Kvs {
-		if err := c.Val(strings.TrimLeft(string(kv.Key), v.prefix+"/"+v.path)).Set(kv.Value); err != nil {
-			fmt.Println("Error setting string ", err)
-		}
-	}
-
-	return c
+	return v.root.Val(v.path)
 }
 
 func (v *values) Del() error {
-	_, err := v.cli.Delete(context.Background(), v.prefix+"/"+v.path, clientv3.WithPrefix())
-	if err != nil {
-		fmt.Println("Del error is ", err)
-		return err
-	}
-
-	return nil
+	return v.root.Val(v.path).Del()
 }
 
 func (v *values) Val(path ...string) configx.Values {
 	if v.path != "" {
 		path = append([]string{v.path}, path...)
 	}
-	return &values{prefix: v.prefix, path: strings.Join(path, "/"), cli: v.cli, leaseID: v.leaseID, opts: v.opts}
+	return &values{root: v.root, path: strings.Join(path, "/"), opts: v.opts}
 }
 
 func (v *values) Default(i interface{}) configx.Value {
@@ -334,6 +290,11 @@ func (v *values) Bytes() []byte {
 func (v *values) Key() []string {
 	return v.Get().Key()
 }
+
+func (v *values) Reference() configx.Ref {
+	return v.Get().Reference()
+}
+
 func (v *values) Interface() interface{} {
 	return v.Get().Interface()
 }

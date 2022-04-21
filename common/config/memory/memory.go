@@ -57,8 +57,6 @@ type memory struct {
 }
 
 func New(opts ...configx.Option) config.Store {
-	// opts = append([]configx.Option{configx.WithJSON()}, opts...)
-
 	m := &memory{
 		v:       configx.New(opts...),
 		opts:    opts,

@@ -243,7 +243,7 @@ func BuildForkParams(cmd string) []string {
 	strArgs := []string{
 		KeyBindHost,
 		KeyAdvertiseAddress,
-		KeyConfig,
+		// KeyConfig,
 	}
 
 	// Copy bool arguments

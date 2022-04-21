@@ -6,10 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"os"
 	"sync"
-
-	"github.com/fsnotify/fsnotify"
+	"time"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -52,14 +50,14 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 }
 
 type file struct {
-	v       configx.Values
-	path    string
-	watcher *fsnotify.Watcher
+	v    configx.Values
+	path string
 
 	mainMtx *sync.Mutex
 	mtx     *sync.RWMutex
 
-	dirty bool
+	reset chan bool
+	timer *time.Timer
 
 	receivers []*receiver
 }
@@ -84,81 +82,40 @@ func New(path string, autoUpdate bool, opts ...configx.Option) (config.Store, er
 	f := &file{
 		v:       v,
 		path:    path,
-		dirty:   false,
 		mainMtx: &sync.Mutex{},
 		mtx:     mtx,
+		reset:   make(chan bool),
+		timer:   time.NewTimer(100 * time.Millisecond),
 	}
 
-	if autoUpdate {
-		watcher, err := fsnotify.NewWatcher()
-		if err != nil {
-			return nil, err
-		}
-
-		if err := watcher.Add(path); err != nil {
-			return nil, err
-		}
-
-		f.watcher = watcher
-
-		go f.watch()
-	}
+	go f.flush()
 
 	return f, nil
 }
 
-// TODO - error handling
-func (f *file) watch() {
+func (f *file) flush() {
 	for {
 		select {
-		case event, ok := <-f.watcher.Events:
-			if !ok {
-				return
-			}
+		case <-f.reset:
+			f.timer.Reset(100 * time.Millisecond)
+		case <-f.timer.C:
+			var updated []*receiver
 
-			// Do something ?
-			if event.Op == fsnotify.Remove {
-				return
-			}
-
-			if event.Op&fsnotify.Rename == fsnotify.Rename {
-				// check existence of file, and add watch again
-				_, err := os.Stat(event.Name)
-				if err == nil || os.IsExist(err) {
-					f.watcher.Add(event.Name)
+			for _, r := range f.receivers {
+				if err := r.call(); err == nil {
+					updated = append(updated, r)
 				}
 			}
 
-			if event.Op&fsnotify.Write == fsnotify.Write || event.Op&fsnotify.Rename == fsnotify.Rename {
-				f.mtx.Lock()
-				data, err := filex.Read(event.Name)
-				if err != nil {
-					f.mtx.Unlock()
-					continue
-				}
-
-				if err := f.v.Set(data); err != nil {
-					f.mtx.Unlock()
-					continue
-				}
-
-				f.mtx.Unlock()
-
-				f.dirty = false
-
-				updated := f.receivers[:0]
-				for _, r := range f.receivers {
-					if err := r.call(); err == nil {
-						updated = append(updated, r)
-					}
-				}
-
-				f.receivers = updated
-			}
-		case err := <-f.watcher.Errors:
-			fmt.Println(err)
+			f.receivers = updated
 		}
+	}
+}
 
+func (f *file) update() {
+	select {
+	case f.reset <- true:
+	default:
 	}
 }
 
@@ -173,14 +130,20 @@ func (f *file) Set(data interface{}) error {
 	f.mtx.RLock()
 	defer f.mtx.RUnlock()
 
-	return f.v.Set(data)
+	if err := f.v.Set(data); err != nil {
+		return err
+	}
+
+	f.update()
+
+	return nil
 }
 
 func (f *file) Val(path ...string) configx.Values {
 	f.mtx.RLock()
 	defer f.mtx.RUnlock()
 
-	return &values{f.v.Val(path...), f.mainMtx}
+	return &values{Values: f.v.Val(path...), lock: f.mainMtx, f: f}
 }
 
 func (f *file) Del() error {
@@ -259,6 +222,8 @@ func (r *receiver) Stop() {
 type values struct {
 	configx.Values
 	lock sync.Locker
+
+	f *file
 }
 
 func (v *values) Set(data interface{}) error {
@@ -268,6 +233,21 @@ func (v *values) Set(data interface{}) error {
 	if err := v.Values.Set(data); err != nil {
 		return err
 	}
+
+	v.f.update()
+
+	return nil
+}
+
+func (v *values) Del() error {
+	v.lock.Lock()
+	defer v.lock.Unlock()
+
+	if err := v.Values.Del(); err != nil {
+		return err
+	}
+
+	v.f.update()
 
 	return nil
 }

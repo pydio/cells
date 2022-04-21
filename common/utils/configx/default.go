@@ -39,6 +39,19 @@ func (d *def) Key() []string {
 	fmt.Println("Are we in  here ?")
 	return []string{}
 }
+func (d *def) Reference() Ref {
+	r := &ref{}
+	if err := d.Scan(r); err != nil {
+		return nil
+	}
+
+	rr, ok := GetReference(r)
+	if ok {
+		return rr
+	}
+
+	return nil
+}
 func (d *def) Interface() interface{} {
 	return d.v
 }

@@ -26,11 +26,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	uuid2 "github.com/pydio/cells/v4/common/utils/uuid"
 	"io"
 	"regexp"
 	"strings"
 	"time"
+
+	uuid2 "github.com/pydio/cells/v4/common/utils/uuid"
 
 	"github.com/go-sql-driver/mysql"
 
