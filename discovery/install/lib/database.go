@@ -96,7 +96,7 @@ func installDocumentDSN(c *install.InstallConfig) error {
 	if er := config.SetDatabase(dbKey, driver, dsn); er != nil {
 		return er
 	}
-	if c.GetUseDocumentsDSN() {
+	if c.GetUseDocumentsDSN() && driver == "mongodb" {
 		ss, e := ListServicesWithStorage()
 		if e != nil {
 			return e
@@ -105,7 +105,7 @@ func installDocumentDSN(c *install.InstallConfig) error {
 			for _, storage := range s.Options().Storages {
 				var supports bool
 				for _, supported := range storage.SupportedDrivers {
-					if supported == "mongodb" {
+					if supported == driver {
 						supports = true
 						break
 					}
@@ -113,6 +113,8 @@ func installDocumentDSN(c *install.InstallConfig) error {
 				if supports {
 					if er := config.Set(dbKey, "services", s.Name(), storage.StorageKey); er != nil {
 						return er
+					} else {
+						fmt.Println("Assigning Document DSN to " + s.Name())
 					}
 				}
 			}
@@ -129,7 +131,7 @@ func actionDatabaseAdd(c *install.InstallConfig, flags byte) error {
 	}
 
 	if flags&InstallDSNOnly != 0 {
-		return nil
+		return config.Save("cli", "Installed new Document DSN")
 	}
 
 	dsn, err := dsnFromInstallConfig(c)
