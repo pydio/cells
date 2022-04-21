@@ -206,8 +206,6 @@ ENVIRONMENT
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 
-		fmt.Println("HERE1", cruntime.GetString(cruntime.KeyGrpcDiscoveryPort))
-
 		cmd.Println("")
 		cmd.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m ")
 		cmd.Println(common.PackageLabel + " (v" + common.Version().String() + ") will be configured to run on this machine.")

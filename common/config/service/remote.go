@@ -30,20 +30,19 @@ import (
 	"strings"
 	"time"
 
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/service/context/ckeys"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
-
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/config"
-	configx2 "github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/service/context/ckeys"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
@@ -130,7 +129,7 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 					break
 				}
 
-				c := configx2.New(configx2.WithJSON())
+				c := configx.New(configx.WithJSON())
 				c.Set(rsp.GetValue().GetData())
 
 				for _, w := range r.watchers {
@@ -150,7 +149,7 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 	return r
 }
 
-func (r *remote) Val(path ...string) configx2.Values {
+func (r *remote) Val(path ...string) configx.Values {
 	return &values{
 		ctx:  r.ctx,
 		cli:  r.cli,
@@ -159,8 +158,8 @@ func (r *remote) Val(path ...string) configx2.Values {
 	}
 }
 
-func (r *remote) Get() configx2.Value {
-	v := configx2.New(configx2.WithJSON())
+func (r *remote) Get() configx.Value {
+	v := configx.New(configx.WithJSON())
 
 	rsp, err := r.cli.Get(r.ctx, &pb.GetRequest{
 		Namespace: r.id,
@@ -216,7 +215,7 @@ func (r *remote) Lock() {
 func (r *remote) Unlock() {
 }
 
-func (r *remote) Watch(path ...string) (configx2.Receiver, error) {
+func (r *remote) Watch(path ...string) (configx.Receiver, error) {
 	rcvr := &receiver{
 		exit:    make(chan bool),
 		path:    path,
@@ -236,7 +235,7 @@ type receiver struct {
 	updates chan []byte
 }
 
-func (r *receiver) Next() (configx2.Values, error) {
+func (r *receiver) Next() (configx.Values, error) {
 	for {
 		select {
 		case <-r.exit:
@@ -252,7 +251,7 @@ func (r *receiver) Next() (configx2.Values, error) {
 
 			r.value = v
 
-			ret := configx2.New(configx2.WithJSON())
+			ret := configx.New(configx.WithJSON())
 			if err := ret.Set(v); err != nil {
 				return nil, err
 			}
@@ -276,7 +275,7 @@ type values struct {
 	path []string
 }
 
-func (v *values) Val(path ...string) configx2.Values {
+func (v *values) Val(path ...string) configx.Values {
 	return &values{
 		ctx:  v.ctx,
 		cli:  v.cli,
@@ -285,8 +284,8 @@ func (v *values) Val(path ...string) configx2.Values {
 	}
 }
 
-func (v *values) Get() configx2.Value {
-	c := configx2.New(configx2.WithJSON())
+func (v *values) Get() configx.Value {
+	c := configx.New(configx.WithJSON())
 
 	rsp, err := v.cli.Get(v.ctx, &pb.GetRequest{
 		Namespace: v.id,
@@ -302,7 +301,7 @@ func (v *values) Get() configx2.Value {
 		fmt.Println("And the error is ? ", err)
 	}
 
-	return c
+	return c.Get()
 }
 
 func (v *values) Set(val interface{}) error {
@@ -333,13 +332,13 @@ func (v *values) Del() error {
 	return nil
 }
 
-func (v *values) Default(i interface{}) configx2.Value {
-	if vv, ok := configx2.GetReference(i); ok {
+func (v *values) Default(i interface{}) configx.Value {
+	if vv, ok := configx.GetReference(i); ok {
 		i = (&values{
 			ctx:  v.ctx,
 			cli:  v.cli,
 			id:   v.id,
-			path: configx2.StringToKeys(vv),
+			path: configx.StringToKeys(vv.Get()),
 		}).Get()
 	}
 
@@ -356,6 +355,9 @@ func (v *values) Bytes() []byte {
 
 func (v *values) Key() []string {
 	return v.Get().Key()
+}
+func (v *values) Reference() configx.Ref {
+	return v.Get().Reference()
 }
 func (v *values) Interface() interface{} {
 	return v.Get().Interface()

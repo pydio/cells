@@ -43,6 +43,7 @@ type Value interface {
 	Bool() bool
 	Bytes() []byte
 	Key() []string
+	Reference() Ref
 	Interface() interface{}
 	Int() int
 	Int64() int64
@@ -186,6 +187,8 @@ func (c *config) get() interface{} {
 			default:
 				return vvvv
 			}
+		case *config:
+			return vv.get()
 		}
 		return c.d
 	}
@@ -563,6 +566,19 @@ func (c *config) Key() []string {
 		return append(c.r.k, c.k...)
 	}
 	return c.k
+}
+func (c *config) Reference() Ref {
+	r := &ref{}
+	if err := c.Scan(r); err != nil {
+		return nil
+	}
+
+	rr, ok := GetReference(r)
+	if ok {
+		return rr
+	}
+
+	return nil
 }
 func (c *config) Interface() interface{} {
 	if mtx := c.opts.RWMutex; mtx != nil {
