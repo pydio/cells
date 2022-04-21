@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	grpc2 "google.golang.org/grpc"
 	"strings"
 	"time"
 
@@ -141,7 +142,7 @@ func (c *ResyncAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		Path:   jobs.EvaluateFieldStr(ctx, input, c.Path),
 		DryRun: c.DryRun,
 		Task:   c.CrtTask,
-	})
+	}, grpc2.WaitForReady(false))
 	if e != nil {
 		log.TasksLogger(ctx).Error("Unable to trigger resync for "+srvName, zap.Error(e))
 		return input.WithError(e), e

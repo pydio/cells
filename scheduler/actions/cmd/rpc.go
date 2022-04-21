@@ -209,7 +209,7 @@ func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels,
 	conn := grpc.GetClientConnFromCtx(c.GetRuntimeContext(), serviceName)
 	if methodDescriptor.IsStreamingServer() {
 
-		cStream, e := conn.NewStream(ctx, &grpc2.StreamDesc{ServerStreams: true}, methodSendName)
+		cStream, e := conn.NewStream(ctx, &grpc2.StreamDesc{ServerStreams: true}, methodSendName, grpc2.WaitForReady(false))
 		if e != nil {
 			return input.WithError(e), e
 		}
@@ -240,7 +240,7 @@ func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels,
 		// Unary call - Create a response
 		response := respType.New().Interface()
 
-		if e := conn.Invoke(ctx, methodSendName, request, response); e != nil {
+		if e := conn.Invoke(ctx, methodSendName, request, response, grpc2.WaitForReady(false)); e != nil {
 			log.TasksLogger(ctx).Error("Failed calling Invoke", zap.String("serviceName", serviceName), zap.String("methodName", methodSendName), zap.Any("request", request))
 			return input.WithError(e), e
 		}
