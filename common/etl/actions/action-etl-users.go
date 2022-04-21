@@ -140,13 +140,16 @@ func (c *SyncUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 			case p := <-listProgress:
 				sendProgress(p / ratio)
 			case op := <-progress:
-				log.TasksLogger(ctx).Info(op.Description)
 				channels.StatusMsg <- op.Description
 				if op.Total > 0 {
 					sendProgress((float32(op.Cursor) / float32(op.Total) / ratio) + 1/ratio)
 				}
 				if op.Error != nil {
+					log.TasksLogger(ctx).Error(op.Description+": "+op.Error.Error(), zap.Error(op.Error))
+					log.Logger(ctx).Error(op.Description+": "+op.Error.Error(), zap.Error(op.Error))
 					pgErrors = append(pgErrors, op.Error)
+				} else {
+					log.TasksLogger(ctx).Info(op.Description)
 				}
 			case <-finished:
 				return
