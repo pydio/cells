@@ -23,6 +23,9 @@ package caddy
 import (
 	"bytes"
 	"context"
+	"fmt"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/runtime"
 	"html/template"
 	"net"
@@ -47,7 +50,7 @@ import (
 
 const (
 	caddyRestartDebounce = 5 * time.Second
-	caddyfile            = `
+	caddytemplate        = `
 {
   auto_https disable_redirects
   admin off
@@ -180,7 +183,7 @@ func (s *Server) ComputeConfs() error {
 		return err
 	}
 
-	tmpl, err := template.New("pydiocaddy").Parse(caddyfile)
+	tmpl, err := template.New("pydiocaddy").Parse(caddytemplate)
 	if err != nil {
 		return err
 	}
@@ -200,7 +203,11 @@ func (s *Server) ComputeConfs() error {
 	}
 
 	b := buf.Bytes()
-	// fmt.Println(string(b))
+	b = caddyfile.Format(b)
+
+	if common.LogLevel == zap.DebugLevel {
+		fmt.Println(string(b))
+	}
 
 	// Load config directly from memory
 	adapter := caddyconfig.GetAdapter("caddyfile")

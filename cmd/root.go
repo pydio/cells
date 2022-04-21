@@ -120,6 +120,11 @@ LOGS LEVEL
    - The --log=production flag still works and is equivalent to "--log=info --log_json=true --log_to_file=true"
       
 `,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if cmd == DefaultStartCmd {
+			common.LogCaptureStdErr = true
+		}
+	},
 }
 
 func init() {

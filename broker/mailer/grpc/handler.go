@@ -55,7 +55,7 @@ func NewHandler(serviceCtx context.Context, conf configx.Values) (*Handler, erro
 	if h.dao == nil {
 		return nil, fmt.Errorf("could not load queue DAO")
 	}
-	if er := h.initFromConf(serviceCtx, conf, true); er != nil {
+	if er := h.initFromConf(serviceCtx, conf, true); er != nil && h.senderName != "disabled" {
 		log.Logger(serviceCtx).Warn("Could not init mailer handler from config: "+er.Error(), zap.Error(er))
 	}
 	return h, nil

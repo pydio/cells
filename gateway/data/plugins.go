@@ -24,6 +24,8 @@ package gateway
 import (
 	"context"
 	"fmt"
+	c "github.com/minio/pkg/console"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -31,8 +33,6 @@ import (
 	"strings"
 
 	minio "github.com/minio/minio/cmd"
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -46,22 +46,6 @@ import (
 	"github.com/pydio/cells/v4/gateway/data/hooks"
 )
 
-type logger struct {
-	ctx context.Context
-}
-
-func (l *logger) Info(entry interface{}) {
-	log.Logger(l.ctx).Info("Minio Gateway", zap.Any("data", entry))
-}
-
-func (l *logger) Error(entry interface{}) {
-	log.Logger(l.ctx).Error("Minio Gateway", zap.Any("data", entry))
-}
-
-func (l *logger) Audit(entry interface{}) {
-	log.Auditer(l.ctx).Info("Minio Gateway", zap.Any("data", entry))
-}
-
 func patchListBucketRequest(route string, request *http.Request) {
 	if request.RequestURI == route || request.RequestURI == route+"/" {
 		request.RequestURI = "/"
@@ -73,6 +57,16 @@ func patchListBucketRequest(route string, request *http.Request) {
 }
 
 func init() {
+
+	customLogger := log.Logger(servicecontext.WithServiceName(context.Background(), common.ServiceGatewayData))
+	c.Printf = func(format string, data ...interface{}) {
+		if strings.HasPrefix(format, "WARNING: ") {
+			format = strings.TrimPrefix(format, "WARNING: ")
+			customLogger.Warn(fmt.Sprintf(format, data...))
+		} else {
+			customLogger.Info(fmt.Sprintf(format, data...))
+		}
+	}
 
 	runtime.Register("main", func(ctx context.Context) {
 

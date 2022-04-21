@@ -64,7 +64,7 @@ func NewDAO(driver string, dsn string, prefix string) (dao.DAO, error) {
 		dbName = path.Base(u.Path)
 	}
 	if dbName == "" {
-		fmt.Println("Warning, Mongodb DSN must provide a dbName via the path")
+		return nil, fmt.Errorf("mongodb DSN must provide a dbName (like host:port/{dbName})")
 	}
 	return &Handler{
 		DAO:    dao.AbstractDAO(conn, driver, prefix),

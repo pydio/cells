@@ -22,7 +22,6 @@ package mongodb
 
 import (
 	"context"
-	"fmt"
 	"github.com/pydio/cells/v4/common/dao"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -44,7 +43,7 @@ func (m *mongodb) Open(dsn string) (dao.Conn, error) {
 	if err := client.Ping(context.Background(), readpref.Primary()); err != nil {
 		return nil, err
 	}
-	fmt.Println("Successfully connected and pinged.")
+	// fmt.Println("Successfully connected and pinged.")
 
 	m.conn = client
 

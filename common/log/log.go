@@ -60,9 +60,8 @@ var (
 	skipServerSync bool
 	customSyncers  []zapcore.WriteSyncer
 	// Parse log lines like below:
-	// ::1 - - [18/Apr/2018:15:10:58 +0200] "GET /graph/state/workspaces HTTP/1.1" 200 2837 "" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36"
-	// combinedRegexp = regexp.MustCompile(`^(?P<remote_addr>[^ ]+) (?P<user>[^ ]+) (?P<other>[^ ]+) \[(?P<time_local>[^]]+)\] "(?P<request>[^"]+)" (?P<code>[^ ]+) (?P<size>[^ ]+) "(?P<referrer>[^ ]*)" "(?P<user_agent>[^"]+)"$`)
-	caddyInternals = regexp.MustCompile("^(?P<log_date>[^\t]+)\t(?P<log_level>WARN|INFO)\t(?P<log_name>[^\t]+)\t(?P<log_message>[^\t]+)(\t)?(?P<log_fields>[^\t]+)$")
+	// 2022/04/21 07:53:46.226	[33mWARN[0m	tls	stapling OCSP	{"error": "no OCSP stapling for [charles-pydio.local kubernetes.docker.internal local.pydio local.pydio.com localhost localhost localpydio.com spnego.lab.py sub1.pydio sub2.pydio 127.0.0.1 192.168.10.101]: no OCSP server specified in certificate"}
+	caddyInternals = regexp.MustCompile("^(?P<log_date>[^\t]+)\t(?P<log_level>[^\t]+)\t(?P<log_name>[^\t]+)\t(?P<log_message>[^\t]+)(\t)?(?P<log_fields>[^\t]+)$")
 )
 
 // Init for the log package - called by the main
@@ -136,42 +135,28 @@ func Init(logDir string, ww ...LogContextWrapper) {
 
 		_, _ = zap.RedirectStdLogAt(logger, zap.DebugLevel)
 
-		// Catch StdOut
-		if !common.LogCaptureStdOut {
+		// Catch StdErr
+		if !common.LogCaptureStdErr {
 			return logger
 		}
 
-		// TODO v4
-		// common.LogCaptureStdOut was initialized in RootCmd.PersistentPreRun for Start command only
 		r, w, err := os.Pipe()
 		if err == nil {
-			os.Stdout = w
+			os.Stderr = w
+			caddyLogger := logger.Named("pydio.server.caddy")
 			go func() {
 				scanner := bufio.NewScanner(r)
 				for scanner.Scan() {
 					line := scanner.Text()
-					if strings.HasPrefix(line, "WARNING: ") {
-						logger.Named("Minio").Warn(strings.TrimPrefix(line, "WARNING: "))
-						continue
-					}
-					if parsed := caddyInternals.FindStringSubmatch(line); len(parsed) > 3 {
-						level := parsed[2]
-						msg := parsed[3]
-						if len(parsed) > 4 {
-							msg += " - " + parsed[4]
-						}
-						if len(parsed) > 5 {
-							msg += " - " + parsed[6]
-						}
-						switch level {
-						case "INFO":
-							logger.Named("caddy").Info(msg)
-						case "WARN":
-							logger.Named("caddy").Warn(msg)
-						case "DEBUG":
-							logger.Named("caddy").Debug(msg)
-						case "ERROR":
-							logger.Named("caddy").Error(msg)
+					if parsed := caddyInternals.FindStringSubmatch(line); len(parsed) == 7 {
+						level := strings.Trim(parsed[2], "[340m ")
+						msg := parsed[3] + " - " + parsed[4] + parsed[6]
+						if strings.Contains(level, "INFO") {
+							caddyLogger.Info(msg)
+						} else if strings.Contains(level, "ERROR") {
+							caddyLogger.Error(msg)
+						} else { // DEBUG, WARN, or other value
+							caddyLogger.Debug(msg)
 						}
 						continue
 					}

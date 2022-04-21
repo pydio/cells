@@ -60,6 +60,7 @@ require (
 	github.com/minio/madmin-go v1.2.7
 	github.com/minio/minio v0.0.0-20220406034617-255116fde7e9
 	github.com/minio/minio-go/v7 v7.0.21
+	github.com/minio/pkg v1.1.14 // indirect
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/mssola/user_agent v0.5.3
 	github.com/mwitkow/go-proto-validators v0.3.2
