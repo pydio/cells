@@ -24,6 +24,8 @@ import (
 	"fmt"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"google.golang.org/protobuf/runtime/protoimpl"
 
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
@@ -144,7 +146,7 @@ func WatchMap(path ...string) (chan configx.KV, error) {
 			m := r.Map()
 			for k, v := range m {
 				oldV, ok := snap[k]
-				if ok && !cmp.Equal(oldV, v) {
+				if ok && !cmp.Equal(oldV, v, cmpopts.IgnoreTypes(protoimpl.MessageState{}, protoimpl.UnknownFields{}, protoimpl.SizeCache(0))) {
 					ch <- configx.KV{
 						Key:   k,
 						Value: v,

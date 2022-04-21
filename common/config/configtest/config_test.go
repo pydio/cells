@@ -26,13 +26,17 @@ import (
 	"os"
 	"testing"
 
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/smartystreets/goconvey/convey"
+	"google.golang.org/protobuf/runtime/protoimpl"
 
 	"github.com/pydio/cells/v4/common"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/server/stubs/discoverytest"
-
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/server/stubs/discoverytest"
 
 	// Plugins to test
 	_ "github.com/pydio/cells/v4/common/config/etcd"
@@ -139,4 +143,13 @@ func TestGetSetGRPC(t *testing.T) {
 
 	testGetSet(t, store)
 	testVault(t, store, vault)
+}
+
+func TestWatchMapCompare(t *testing.T) {
+	oldV := &object.DataSource{Name: "name"}
+	v := &object.DataSource{Name: "name2"}
+	convey.Convey("Test cmp.Equal on proto Message", t, func() {
+		b := cmp.Equal(oldV, v, cmpopts.IgnoreTypes(protoimpl.MessageState{}, protoimpl.UnknownFields{}, protoimpl.SizeCache(0)))
+		convey.So(b, convey.ShouldBeFalse)
+	})
 }
