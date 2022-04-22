@@ -23,6 +23,8 @@ package mux
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -183,10 +185,22 @@ func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 	}
 
 	if m.monitor != nil && (!m.monitor.Up() || !m.userServiceReady()) {
-		bb, _ := maintenance.Assets.ReadFile("starting.html")
-		w.Header().Set("Content-Type", "text/html")
+		var bb []byte
+		if strings.Contains(r.Header.Get("Accept"), "text/html") {
+			bb, _ = maintenance.Assets.ReadFile("starting.html")
+			w.Header().Set("Content-Type", "text/html")
+		} else {
+			er := &rest.Error{
+				Code:   "503",
+				Title:  "Server is starting",
+				Detail: "Server is starting, please retry later",
+			}
+			bb, _ = json.Marshal(er)
+			w.Header().Set("Content-Type", "application/json")
+		}
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(bb)))
-		w.WriteHeader(303)
+		w.Header().Set("Retry-After", "10")
+		w.WriteHeader(503)
 		_, er := w.Write(bb)
 		return er
 	}
@@ -195,7 +209,7 @@ func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 		bb, _ := maintenance.Assets.ReadFile("maintenance.html")
 		w.Header().Set("Content-Type", "text/html")
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(bb)))
-		w.WriteHeader(303)
+		w.WriteHeader(503)
 		_, er := w.Write(bb)
 		return er
 	}
