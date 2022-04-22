@@ -583,73 +583,80 @@ func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesR
 
 	filterPath := strings.Trim(req.RootPath, "/") + "/"
 
-	for event := range li.out {
+loop:
+	for {
+		select {
+		case <-ctx.Done():
+			break loop
 
-		if event.Optimistic {
-			continue
-		}
-		newEvent := proto.Clone(event).(*tree.NodeChangeEvent)
-		sourceOut := newEvent.Source != nil && !strings.HasPrefix(newEvent.Source.Path, filterPath)
-		targetOut := newEvent.Target != nil && !strings.HasPrefix(newEvent.Target.Path, filterPath)
-		if (sourceOut && targetOut) || (sourceOut && newEvent.Target == nil) || (targetOut && newEvent.Source == nil) {
-			continue
-		}
-		var scan *tree.Node
-		if sourceOut {
-			newEvent.Type = tree.NodeChangeEvent_CREATE
-			if !event.Target.IsLeaf() {
-				scan = event.Target
-			}
-			newEvent.Source = nil
-		} else if targetOut {
-			newEvent.Type = tree.NodeChangeEvent_DELETE
-			newEvent.Target = nil
-		}
+		case event := <-li.out:
 
-		/*
-			if newEvent.Target != nil {
-				//newEvent.Target.Path = strings.TrimPrefix(newEvent.Target.Path, filterPath)
+			if event.Optimistic {
+				continue
 			}
-			if newEvent.Source != nil {
-				//newEvent.Source.Path = strings.TrimPrefix(newEvent.Source.Path, filterPath)
+			newEvent := proto.Clone(event).(*tree.NodeChangeEvent)
+			sourceOut := newEvent.Source != nil && !strings.HasPrefix(newEvent.Source.Path, filterPath)
+			targetOut := newEvent.Target != nil && !strings.HasPrefix(newEvent.Target.Path, filterPath)
+			if (sourceOut && targetOut) || (sourceOut && newEvent.Target == nil) || (targetOut && newEvent.Source == nil) {
+				continue
 			}
-		*/
-		if newEvent.Metadata != nil {
-			// Do not forward this metadata to clients
-			delete(newEvent.Metadata, common.XPydioSessionUuid)
-			delete(newEvent.Metadata, common.XPydioMoveUuid)
-		}
-		if e := streamer.Send(newEvent); e != nil {
-			return e
-		}
-
-		if scan != nil {
-			// A folder was move from "outside" to "inside" the filterPath
-			// This is a create, and we have to emulate CREATE for all children
-			listNodeStreamer := mocks.NewListNodeStreamer()
-			wg := sync.WaitGroup{}
-			wg.Add(2)
-			go func() {
-				defer wg.Done()
-				s.ListNodes(ctx, &tree.ListNodesRequest{Node: scan, Recursive: true}, listNodeStreamer)
-			}()
-			go func() {
-				defer wg.Done()
-				defer listNodeStreamer.Close()
-				for {
-					r, e := listNodeStreamer.Recv()
-					if e != nil || r == nil {
-						break
-					}
-					child := r.Node
-					//child.Path = strings.TrimPrefix(child.Path, filterPath)
-					streamer.Send(&tree.NodeChangeEvent{
-						Type:   tree.NodeChangeEvent_CREATE,
-						Target: child,
-					})
+			var scan *tree.Node
+			if sourceOut {
+				newEvent.Type = tree.NodeChangeEvent_CREATE
+				if !event.Target.IsLeaf() {
+					scan = event.Target
 				}
-			}()
-			wg.Wait()
+				newEvent.Source = nil
+			} else if targetOut {
+				newEvent.Type = tree.NodeChangeEvent_DELETE
+				newEvent.Target = nil
+			}
+
+			/*
+				if newEvent.Target != nil {
+					//newEvent.Target.Path = strings.TrimPrefix(newEvent.Target.Path, filterPath)
+				}
+				if newEvent.Source != nil {
+					//newEvent.Source.Path = strings.TrimPrefix(newEvent.Source.Path, filterPath)
+				}
+			*/
+			if newEvent.Metadata != nil {
+				// Do not forward this metadata to clients
+				delete(newEvent.Metadata, common.XPydioSessionUuid)
+				delete(newEvent.Metadata, common.XPydioMoveUuid)
+			}
+			if e := streamer.Send(newEvent); e != nil {
+				return e
+			}
+
+			if scan != nil {
+				// A folder was move from "outside" to "inside" the filterPath
+				// This is a create, and we have to emulate CREATE for all children
+				listNodeStreamer := mocks.NewListNodeStreamer()
+				wg := sync.WaitGroup{}
+				wg.Add(2)
+				go func() {
+					defer wg.Done()
+					s.ListNodes(ctx, &tree.ListNodesRequest{Node: scan, Recursive: true}, listNodeStreamer)
+				}()
+				go func() {
+					defer wg.Done()
+					defer listNodeStreamer.Close()
+					for {
+						r, e := listNodeStreamer.Recv()
+						if e != nil || r == nil {
+							break
+						}
+						child := r.Node
+						//child.Path = strings.TrimPrefix(child.Path, filterPath)
+						streamer.Send(&tree.NodeChangeEvent{
+							Type:   tree.NodeChangeEvent_CREATE,
+							Target: child,
+						})
+					}
+				}()
+				wg.Wait()
+			}
 		}
 	}
 
