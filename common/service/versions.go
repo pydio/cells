@@ -23,10 +23,7 @@ package service
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 	"strings"
-
-	"github.com/pydio/cells/v4/common/runtime"
 
 	version "github.com/hashicorp/go-version"
 	"go.uber.org/zap"
@@ -82,31 +79,24 @@ func UpdateServiceVersion(opts *ServiceOptions) error {
 
 // lastKnownVersion looks on this server if there was a previous version of this service
 func lastKnownVersion(serviceName string) (v *version.Version, e error) {
-	versionFile := runtime.ConfigURL() + "/" + filepath.Join("services", serviceName, "version")
+	// TODO - Check for legacy files
+	//versionFile := runtime.ConfigURL() + "/" + filepath.Join("services", serviceName, "version")
+	//store, err := config.OpenStore(context.Background(), versionFile+"?encode=string")
+	//if err != nil {
+	//	fmt.Println("Could not open store ?", err)
+	//	return nil, err
+	//}
 
-	store, err := config.OpenStore(context.Background(), versionFile+"?encode=string")
-	if err != nil {
-		fmt.Println("Could not open store ?", err)
-		return nil, err
-	}
-
-	return version.NewVersion(strings.TrimSpace(store.Get().Default("0.0.0").String()))
+	return version.NewVersion(strings.TrimSpace(config.Get("versions", serviceName).Default("0.0.0").String()))
 }
 
 // updateVersion writes the version string to file
 func updateVersion(serviceName string, v *version.Version) error {
-	versionFile := runtime.ConfigURL() + "/" + filepath.Join("services", serviceName, "version")
-
-	store, err := config.OpenStore(context.Background(), versionFile+"?encode=string")
-	if err != nil {
+	if err := config.Get("versions", serviceName).Set(v.String()); err != nil {
 		return err
 	}
 
-	if err := store.Set(v.String()); err != nil {
-		return err
-	}
-
-	if err := store.Save("system", "updating system version"); err != nil {
+	if err := config.Save("system", "updating system version "+serviceName); err != nil {
 		return err
 	}
 
