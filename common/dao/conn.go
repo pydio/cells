@@ -39,36 +39,36 @@ type conn struct {
 type Conn interface{}
 
 type ConnDriver interface {
-	Open(dsn string) (Conn, error)
-	GetConn() Conn
+	Open(ctx context.Context, dsn string) (Conn, error)
+	GetConn(ctx context.Context) (Conn, error)
 	SetMaxConnectionsForWeight(int)
 }
 
 type closer interface {
-	Close() error
+	Close(ctx context.Context) error
 }
 
 type disconnecter interface {
 	Disconnect(ctx context.Context) error
 }
 
-func NewConn(d string, dsn string) (Conn, error) {
-	return getConn(d, dsn)
+func NewConn(ctx context.Context, d string, dsn string) (Conn, error) {
+	return getConn(ctx, d, dsn)
 }
 
-func addConn(d string, dsn string) (Conn, error) {
+func addConn(ctx context.Context, d string, dsn string) (Conn, error) {
 
 	lock.Lock()
 	defer lock.Unlock()
 
 	var drv ConnDriver
 	if prov, ok := daoConns[d]; ok {
-		drv = prov(d, dsn)
+		drv = prov(ctx, d, dsn)
 	} else {
 		return nil, fmt.Errorf("unknown connection driver name %s. Did you forget to import it?", d)
 	}
 
-	db, err := drv.Open(dsn)
+	db, err := drv.Open(ctx, dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -83,40 +83,40 @@ func addConn(d string, dsn string) (Conn, error) {
 	return db, nil
 }
 
-func readConn(d string, dsn string) Conn {
+func readConn(ctx context.Context, d string, dsn string) (Conn, error) {
 	lock.Lock()
 	defer lock.Unlock()
 
 	if conn, ok := conns[d+":"+dsn]; ok {
 		conn.weight = conn.weight + 1
 		conn.d.SetMaxConnectionsForWeight(conn.weight)
-
-		return conn.d.GetConn()
+		return conn.d.GetConn(ctx)
 	}
 
-	return nil
+	return nil, nil
 }
 
-func getConn(d string, dsn string) (Conn, error) {
-	if conn := readConn(d, dsn); conn != nil {
+func getConn(ctx context.Context, d string, dsn string) (Conn, error) {
+	if conn, er := readConn(ctx, d, dsn); er == nil && conn != nil {
 		return conn, nil
+	} else if er != nil {
+		return nil, er
 	}
-
-	return addConn(d, dsn)
+	return addConn(ctx, d, dsn)
 }
 
-func closeConn(conn Conn) error {
+func closeConn(ctx context.Context, conn Conn) error {
 	lock.Lock()
 	defer lock.Unlock()
 
 	for k, c := range conns {
-		if c.d.GetConn() == conn {
+		if co, e := c.d.GetConn(ctx); e == nil && co == conn {
 			if cl, ok := conn.(closer); ok {
-				if err := cl.Close(); err != nil {
+				if err := cl.Close(ctx); err != nil {
 					return err
 				}
 			} else if di, ok := conn.(disconnecter); ok {
-				if err := di.Disconnect(context.Background()); err != nil {
+				if err := di.Disconnect(ctx); err != nil {
 					return err
 				}
 			}

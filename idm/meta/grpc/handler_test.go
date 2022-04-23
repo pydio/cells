@@ -43,14 +43,14 @@ var (
 
 func TestMain(m *testing.M) {
 	var options = configx.New()
+	ctx = context.Background()
 
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "meta_grpc", meta.NewDAO, options); e != nil {
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "meta_grpc", meta.NewDAO, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(meta.DAO)
 	}
 
-	ctx = context.Background()
 	ctx = metadata.NewContext(ctx, map[string]string{})
 
 	m.Run()

@@ -3,17 +3,20 @@ package mailer
 import (
 	"context"
 	"fmt"
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
+
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"time"
 )
 
 type mongoQueue struct {
 	mongodb.DAO
+	runtime context.Context
 }
 
 type StoredEmail struct {
@@ -37,16 +40,8 @@ var (
 	}}
 )
 
-func NewMongoQueue(mongoDAO mongodb.DAO, c configx.Values) (Queue, error) {
-	m := &mongoQueue{DAO: mongoDAO}
-	if e := m.Init(c); e != nil {
-		return nil, e
-	}
-	return m, nil
-}
-
-func (m *mongoQueue) Init(conf configx.Values) error {
-	return model.Init(context.Background(), m.DAO)
+func (m *mongoQueue) Init(ctx context.Context, conf configx.Values) error {
+	return model.Init(ctx, m.DAO)
 }
 
 func (m *mongoQueue) Push(email *mailer.Mail) error {
@@ -55,13 +50,13 @@ func (m *mongoQueue) Push(email *mailer.Mail) error {
 		ID:    uuid.New(),
 		Email: email,
 	}
-	_, e := m.Collection(collMailerQueue).InsertOne(context.Background(), store)
+	_, e := m.Collection(collMailerQueue).InsertOne(m.runtime, store)
 	return e
 }
 
 func (m *mongoQueue) Consume(f func(email *mailer.Mail) error) error {
 	coll := m.Collection(collMailerQueue)
-	ctx := context.Background()
+	ctx := m.runtime
 	cursor, e := coll.Find(ctx, bson.D{}, &options.FindOptions{Sort: bson.D{{"ts", 1}}})
 	if e != nil {
 		return e
@@ -88,6 +83,6 @@ func (m *mongoQueue) Consume(f func(email *mailer.Mail) error) error {
 	return nil
 }
 
-func (m *mongoQueue) Close() error {
-	return m.DAO.CloseConn()
+func (m *mongoQueue) Close(ctx context.Context) error {
+	return m.DAO.CloseConn(ctx)
 }

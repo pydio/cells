@@ -35,7 +35,8 @@ import (
 
 func NewACLService(acls ...*idm.ACL) (grpc.ClientConnInterface, error) {
 
-	mockDAO, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "idm_acl", acl.NewDAO, configx.New())
+	ctx := context.Background()
+	mockDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_acl", acl.NewDAO, configx.New())
 	if e != nil {
 		return nil, e
 	}
@@ -44,7 +45,7 @@ func NewACLService(acls ...*idm.ACL) (grpc.ClientConnInterface, error) {
 	serv := &idm.ACLServiceStub{
 		ACLServiceServer: h,
 	}
-	ctx := servicecontext.WithDAO(context.Background(), mockDAO)
+	ctx = servicecontext.WithDAO(ctx, mockDAO)
 	for _, u := range acls {
 		_, er := serv.ACLServiceServer.CreateACL(ctx, &idm.CreateACLRequest{ACL: u})
 		if er != nil {

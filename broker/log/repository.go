@@ -67,8 +67,8 @@ func (s *IndexService) Truncate(ctx context.Context, max int64, logger log2.ZapL
 	})
 }
 
-func (s *IndexService) Close() error {
-	return s.dao.Close()
+func (s *IndexService) Close(ctx context.Context) error {
+	return s.dao.Close(ctx)
 }
 
 func logTaskInfo(l log2.ZapLogger, msg string, level string) {

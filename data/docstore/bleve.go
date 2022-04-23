@@ -75,7 +75,7 @@ func NewBleveEngine(store *BoltStore, bleveIndexPath string, deleteOnClose ...bo
 
 }
 
-func (s *BleveServer) CloseDAO() error {
+func (s *BleveServer) CloseDAO(ctx context.Context) error {
 
 	err := s.Engine.Close()
 	if err != nil {

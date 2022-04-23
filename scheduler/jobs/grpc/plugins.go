@@ -179,7 +179,7 @@ func init() {
 				go func() {
 					<-c.Done()
 					handler.Close()
-					logStore.Close()
+					logStore.Close(c)
 				}()
 				return nil
 			}),

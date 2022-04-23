@@ -58,11 +58,11 @@ type mongoImpl struct {
 	mongodb.DAO
 }
 
-func (m *mongoImpl) Init(values configx.Values) error {
+func (m *mongoImpl) Init(ctx context.Context, values configx.Values) error {
 	if e := mongoModel.Init(context.Background(), m.DAO); e != nil {
 		return e
 	}
-	return m.DAO.Init(values)
+	return m.DAO.Init(ctx, values)
 }
 
 func (m *mongoImpl) PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.ChatRoom, error) {

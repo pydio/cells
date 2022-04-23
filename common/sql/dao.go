@@ -102,10 +102,12 @@ type Handler struct {
 
 	mu       atomic.Value
 	replacer *strings.Replacer
+
+	runtime context.Context
 }
 
-func NewDAO(driver string, dsn string, prefix string) (dao.DAO, error) {
-	conn, err := dao.NewConn(driver, dsn)
+func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.DAO, error) {
+	conn, err := dao.NewConn(ctx, driver, dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -129,16 +131,20 @@ func NewDAO(driver string, dsn string, prefix string) (dao.DAO, error) {
 		preparedLock:  new(sync.RWMutex),
 		replacer:      strings.NewReplacer("%%PREFIX%%", prefix, "%PREFIX%", prefix),
 		mu:            mu,
+		runtime:       ctx,
 	}, nil
 }
 
-func (h *Handler) Init(c configx.Values) error {
+func (h *Handler) Init(ctx context.Context, c configx.Values) error {
 	return nil
 }
 
 // DB returns the sql DB object
 func (h *Handler) DB() *sql.DB {
-	return h.GetConn().(*sql.DB)
+	if c, e := h.GetConn(h.runtime); e == nil && c != nil {
+		return c.(*sql.DB)
+	}
+	return nil
 }
 
 // Version returns mysql version

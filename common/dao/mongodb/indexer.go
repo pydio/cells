@@ -28,8 +28,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -50,15 +52,17 @@ type Indexer struct {
 	flush           chan bool
 	done            chan bool
 	bufferSize      int
+	runtime         context.Context
 }
 
-func NewIndexer(dao dao.DAO) (dao.IndexDAO, error) {
+func NewIndexer(ctx context.Context, dao dao.DAO) (dao.IndexDAO, error) {
 	i := &Indexer{
 		DAO:        dao.(DAO),
 		bufferSize: 2000,
 		tick:       make(chan bool),
 		flush:      make(chan bool, 1),
 		done:       make(chan bool, 1),
+		runtime:    ctx,
 	}
 	go i.watch()
 	return i, nil
@@ -71,12 +75,12 @@ func (i *Indexer) watch() {
 		select {
 		case <-i.tick:
 			if len(i.inserts) > i.bufferSize || len(i.deletes) > i.bufferSize {
-				i.Flush(context.Background())
+				i.Flush(i.runtime)
 			}
 		case <-time.After(3 * time.Second):
-			i.Flush(context.Background())
+			i.Flush(i.runtime)
 		case <-i.flush:
-			i.Flush(context.Background())
+			i.Flush(i.runtime)
 		case <-i.done:
 			return
 		}
@@ -95,7 +99,7 @@ func (i *Indexer) SetCollection(c string) {
 	i.collection = c
 }
 
-func (i *Indexer) Init(cfg configx.Values) error {
+func (i *Indexer) Init(ctx context.Context, cfg configx.Values) error {
 	if i.collection == "" {
 		return fmt.Errorf("indexer must provide a collection name")
 	}
@@ -112,7 +116,7 @@ func (i *Indexer) Init(cfg configx.Values) error {
 			}
 		}
 	}
-	return i.DAO.Init(cfg)
+	return i.DAO.Init(ctx, cfg)
 }
 
 func (i *Indexer) InsertOne(ctx context.Context, data interface{}) error {
@@ -151,7 +155,7 @@ func (i *Indexer) DeleteMany(ctx context.Context, query interface{}) (int32, err
 	}
 	filter := bson.D{}
 	filter = append(filter, filters...)
-	res, e := i.Collection(i.collection).DeleteMany(context.Background(), filter)
+	res, e := i.Collection(i.collection).DeleteMany(ctx, filter)
 	if e != nil {
 		return 0, e
 	} else {
@@ -204,7 +208,7 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 	}
 	if aggregation != nil {
 		if c, e := i.Collection(i.collection).Aggregate(ctx, aggregation); e != nil {
-			fmt.Println("Cannot perform aggregation", e)
+			log.Logger(ctx).Error("Cannot perform aggregation:"+e.Error(), zap.Error(e))
 			return nil, e
 		} else {
 			aggregationCursor = c
@@ -216,22 +220,22 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 	go func() {
 		defer close(res)
 		if searchCursor != nil {
-			for searchCursor.Next(context.Background()) {
+			for searchCursor.Next(ctx) {
 				if data, er := codec.Unmarshal(searchCursor); er == nil {
 					res <- data
 				} else {
-					fmt.Println("Cannot decode cursor data", err)
+					log.Logger(ctx).Warn("Cannot decode cursor data: "+err.Error(), zap.Error(err))
 				}
 			}
 		}
 		if aggregationCursor != nil {
-			for aggregationCursor.Next(context.Background()) {
+			for aggregationCursor.Next(ctx) {
 				if fp != nil {
 					fp.UnmarshalFacet(aggregationCursor, res)
 				} else if data, er := codec.Unmarshal(aggregationCursor); er == nil {
 					res <- data
 				} else {
-					fmt.Println("Cannot decode aggregation cursor data", err)
+					log.Logger(ctx).Warn("Cannot decode aggregation cursor data: "+err.Error(), zap.Error(err))
 				}
 			}
 		}
@@ -251,12 +255,12 @@ func (i *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 	if e != nil {
 		return e
 	}
-	fmt.Println("Flushed index from", res.DeletedCount, "records")
+	log.Logger(ctx).Info(fmt.Sprintf("Flushed Mongo index from %d records", res.DeletedCount))
 	return nil
 }
-func (i *Indexer) Close() error {
+func (i *Indexer) Close(ctx context.Context) error {
 	close(i.done)
-	return i.CloseConn()
+	return i.CloseConn(ctx)
 }
 func (i *Indexer) Flush(ctx context.Context) error {
 	conn := i.Collection(i.collection)
@@ -270,13 +274,13 @@ func (i *Indexer) Flush(ctx context.Context) error {
 					ors = append(ors, bson.M{i.collectionModel.IDName: p.IndexID()})
 				}
 			}
-			if _, e := conn.DeleteMany(context.Background(), bson.M{"$or": ors}); e != nil {
-				fmt.Println("error while flushing pre-deletes", e)
+			if _, e := conn.DeleteMany(ctx, bson.M{"$or": ors}); e != nil {
+				log.Logger(ctx).Error("error while flushing pre-deletes:" + e.Error())
 				return e
 			}
 		}
 		if _, e := conn.InsertMany(ctx, i.inserts); e != nil {
-			fmt.Println("error while flushing index to db", e)
+			log.Logger(ctx).Error("error while flushing index to db" + e.Error())
 			return e
 		} else {
 			//fmt.Println("flushed index to db", len(res.InsertedIDs))
@@ -290,7 +294,7 @@ func (i *Indexer) Flush(ctx context.Context) error {
 			ors = append(ors, bson.M{i.collectionModel.IDName: d})
 		}
 		if _, e := conn.DeleteMany(context.Background(), bson.M{"$or": ors}); e != nil {
-			fmt.Println("error while flushing deletes to index", e)
+			log.Logger(ctx).Error("error while flushing deletes to index" + e.Error())
 			return e
 		} else {
 			//fmt.Println("flushed index, deleted", res.DeletedCount)

@@ -79,10 +79,13 @@ type Indexer struct {
 
 // NewIndexer creates and configures a default Bleve instance to store technical logs
 // Setting rotationSize to -1 fully disables rotation
-func NewIndexer(rd dao.DAO) (dao.IndexDAO, error) {
+func NewIndexer(ctx context.Context, rd dao.DAO) (dao.IndexDAO, error) {
 
 	d := rd.(DAO)
-	conf := d.BleveConfig()
+	conf, er := d.BleveConfig(ctx)
+	if er != nil {
+		return nil, er
+	}
 	if conf.RotationSize > -1 && conf.RotationSize < MinRotationSize {
 		return nil, fmt.Errorf("use a rotation size bigger than %d", MinRotationSize)
 	}
@@ -92,12 +95,21 @@ func NewIndexer(rd dao.DAO) (dao.IndexDAO, error) {
 	return server, nil
 }
 
-func (s *Indexer) Init(cfg configx.Values) error {
-	if er := s.DAO.Init(cfg); er != nil {
+func (s *Indexer) Init(ctx context.Context, cfg configx.Values) error {
+	if er := s.DAO.Init(ctx, cfg); er != nil {
 		return er
 	}
 	s.serviceConfigs = cfg
-	return s.Open(s.BleveConfig().BlevePath)
+	conf, er := s.BleveConfig(ctx)
+	if er != nil {
+		return er
+	}
+	return s.Open(ctx, conf.BlevePath)
+}
+
+func (s *Indexer) MustBleveConfig(ctx context.Context) *BleveConfig {
+	c, _ := s.BleveConfig(ctx)
+	return c
 }
 
 // Stats implements DAO method by listing opened indexes and documents counts
@@ -114,10 +126,10 @@ func (s *Indexer) Stats() map[string]interface{} {
 // Open lists all existing indexes and creates a writeable index on the active one
 // and a composed index for searching. It calls watchInserts() to start watching for
 // new logs
-func (s *Indexer) Open(indexPath string) error {
+func (s *Indexer) Open(c context.Context, indexPath string) error {
 
 	s.indexPath = indexPath
-	mappingName := s.BleveConfig().MappingName
+	mappingName := s.MustBleveConfig(c).MappingName
 
 	s.searchIndex = bleve.NewIndexAlias()
 	s.indexes = []bleve.Index{}
@@ -155,14 +167,14 @@ func (s *Indexer) Open(indexPath string) error {
 	s.insertsDone = make(chan bool)
 	s.opened = true
 
-	if s.indexPath != "" && s.BleveConfig().RotationSize > -1 {
+	if s.indexPath != "" && s.MustBleveConfig(c).RotationSize > -1 {
 		s.rotateIfNeeded()
 	}
 	go s.watchInserts()
 	return nil
 }
 
-func (s *Indexer) Close() error {
+func (s *Indexer) Close(ctx context.Context) error {
 	if !s.opened {
 		return nil
 	}
@@ -354,7 +366,8 @@ func (s *Indexer) listIndexes(renameIfNeeded ...bool) (paths []string) {
 }
 
 func (s *Indexer) watchInserts() {
-	batchSize := int(s.BleveConfig().BatchSize)
+	bc := s.MustBleveConfig(context.Background())
+	batchSize := int(bc.BatchSize)
 	for {
 		select {
 		case in := <-s.inserts:
@@ -411,7 +424,9 @@ func (s *Indexer) watchInserts() {
 }
 
 func (s *Indexer) rotateIfNeeded() {
-	if s.indexPath == "" || s.BleveConfig().RotationSize == -1 {
+	bc := s.MustBleveConfig(context.Background())
+
+	if s.indexPath == "" || bc.RotationSize == -1 {
 		return
 	}
 	checkPath := s.indexPath
@@ -423,11 +438,11 @@ func (s *Indexer) rotateIfNeeded() {
 		fmt.Println("[pydio.grpc.log] Cannot compute disk usage for bleve index", e.Error())
 		return
 	}
-	if du > s.BleveConfig().RotationSize {
+	if du > bc.RotationSize {
 		fmt.Println("Rotating "+s.indexPath+" for size ", du)
 		// Open a new index
 		newPath := fmt.Sprintf("%s.%04d", s.indexPath, len(s.indexes))
-		newIndex, er := s.openOneIndex(newPath, s.BleveConfig().MappingName)
+		newIndex, er := s.openOneIndex(newPath, bc.MappingName)
 		if er != nil {
 			fmt.Println("[pydio.grpc.log] Cannot create new bleve index", er.Error())
 			return
@@ -468,7 +483,7 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 	} else {
 		dup.inserts = make(chan interface{}, BufferedChanSize)
 	}
-	er := dup.Open(copyPath)
+	er := dup.Open(ctx, copyPath)
 	if er != nil {
 		return er
 	}
@@ -511,10 +526,10 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 	if er := dup.Flush(ctx); er != nil {
 		return er
 	}
-	if er := s.Close(); er != nil {
+	if er := s.Close(ctx); er != nil {
 		return er
 	}
-	if er := dup.Close(); er != nil {
+	if er := dup.Close(ctx); er != nil {
 		return er
 	}
 	<-time.After(5 * time.Second) // Make sure original is closed
@@ -534,7 +549,7 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 		}
 	}
 	logger("Restarting new mr")
-	if err := s.Open(s.indexPath); err != nil {
+	if err := s.Open(ctx, s.indexPath); err != nil {
 		return err
 	}
 	logger("Resync operation done")
@@ -547,7 +562,7 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) error {
 	logger("Closing log server, waiting for five seconds")
 	dir := filepath.Dir(s.indexPath)
-	if er := s.Close(); er != nil {
+	if er := s.Close(ctx); er != nil {
 		return er
 	}
 	<-time.After(5 * time.Second)
@@ -561,7 +576,7 @@ func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 			}
 		}
 		logger("Re-opening indexer")
-		if er := s.Open(s.indexPath); er != nil {
+		if er := s.Open(ctx, s.indexPath); er != nil {
 			return er
 		}
 		logger("Server opened")
@@ -586,7 +601,7 @@ func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 	}
 	// Now restart - it will renumber files
 	logger("Re-opening log server")
-	if er := s.Open(s.indexPath); er != nil {
+	if er := s.Open(ctx, s.indexPath); er != nil {
 		return er
 	}
 	logger("Truncate operation done")

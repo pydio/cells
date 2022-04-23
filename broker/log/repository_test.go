@@ -119,16 +119,17 @@ func TestMessageRepository(t *testing.T) {
 
 func TestSizeRotation(t *testing.T) {
 	bleve.UnitTestEnv = true
+	ctx := context.Background()
 	Convey("Test Rotation", t, func() {
 		p := filepath.Join(os.TempDir(), uuid.New(), "syslog.bleve")
 		os.MkdirAll(filepath.Dir(p), 0777)
 		fmt.Println("Storing temporary index in", p)
 		dsn := p + fmt.Sprintf("?mapping=log&batchSize=2500&rotationSize=%d", 1*1024*1024)
 
-		dao, _ := bleve.NewDAO("bleve", dsn, "")
-		idx, _ := bleve.NewIndexer(dao)
+		dao, _ := bleve.NewDAO(ctx, "bleve", dsn, "")
+		idx, _ := bleve.NewIndexer(ctx, dao)
 		idx.SetCodex(&BleveCodec{})
-		So(idx.Init(configx.New()), ShouldBeNil)
+		So(idx.Init(ctx, configx.New()), ShouldBeNil)
 		s, e := NewIndexService(idx)
 
 		So(e, ShouldBeNil)
@@ -166,15 +167,15 @@ func TestSizeRotation(t *testing.T) {
 		So(m["docsCount"], ShouldEqual, uint64(20020))
 		So(m["indexes"], ShouldHaveLength, 9)
 
-		s.Close()
+		s.Close(ctx)
 		<-time.After(5 * time.Second)
 
 		// Re-open with same data and carry one feeding with logs
 
-		dao, _ = bleve.NewDAO("bleve", dsn, "")
-		idx, _ = bleve.NewIndexer(dao)
+		dao, _ = bleve.NewDAO(ctx, "bleve", dsn, "")
+		idx, _ = bleve.NewIndexer(ctx, dao)
 		idx.SetCodex(&BleveCodec{})
-		_ = idx.Init(configx.New())
+		_ = idx.Init(ctx, configx.New())
 		s, e = NewIndexService(idx)
 		So(e, ShouldBeNil)
 		for i = 0; i < 10000; i++ {
@@ -224,7 +225,7 @@ func TestSizeRotation(t *testing.T) {
 		So(len(newParts), ShouldBeLessThan, len(parts))
 
 		// Close and Clean
-		_ = s.Close()
+		_ = s.Close(ctx)
 		<-time.After(5 * time.Second)
 		_ = os.RemoveAll(filepath.Dir(p))
 

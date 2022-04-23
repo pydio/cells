@@ -55,5 +55,5 @@ type IndexDAO interface {
 	// Truncate should free some disk space. Used by bleve implementation in conjunction with rotationSize parameter.
 	Truncate(ctx context.Context, max int64, logger func(string)) error
 	// Close closes the index connection
-	Close() error
+	Close(ctx context.Context) error
 }

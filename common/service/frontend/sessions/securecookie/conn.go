@@ -21,17 +21,19 @@
 package securecookie
 
 import (
+	"context"
+
 	"github.com/pydio/cells/v4/common/dao"
 )
 
 type sConn struct{}
 
-func (b *sConn) Open(dsn string) (dao.Conn, error) {
+func (b *sConn) Open(ctx context.Context, dsn string) (dao.Conn, error) {
 	return b, nil
 }
 
-func (b *sConn) GetConn() dao.Conn {
-	return b
+func (b *sConn) GetConn(ctx context.Context) (dao.Conn, error) {
+	return b, nil
 }
 
 func (b *sConn) SetMaxConnectionsForWeight(num int) {

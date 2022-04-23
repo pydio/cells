@@ -21,6 +21,7 @@
 package meta
 
 import (
+	"context"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -34,12 +35,13 @@ import (
 
 var (
 	mockDAO DAO
+	ctx     = context.Background()
 )
 
 func TestMain(m *testing.M) {
 	var options = configx.New()
 
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "idm_meta", NewDAO, options); e != nil {
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_meta", NewDAO, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(DAO)

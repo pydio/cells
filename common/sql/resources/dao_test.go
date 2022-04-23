@@ -21,6 +21,7 @@
 package resources
 
 import (
+	"context"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -32,10 +33,12 @@ import (
 
 func TestQueryResourceForAction(t *testing.T) {
 
-	wrapper := func(d dao.DAO) dao.DAO {
-		return NewDAO(d, "left.uuid")
+	wrapper := func(ctx context.Context, d dao.DAO) (dao.DAO, error) {
+		return NewDAO(d, "left.uuid"), nil
 	}
-	d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "", wrapper)
+	ctx := context.Background()
+
+	d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "", wrapper)
 	if e != nil {
 		panic(e)
 	}

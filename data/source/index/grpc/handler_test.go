@@ -112,7 +112,9 @@ func (l *List) Close() error {
 func TestMain(m *testing.M) {
 
 	options := configx.New()
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test", index.NewDAO, options); e != nil {
+	c := context.Background()
+
+	if d, e := dao.InitDAO(c, sqlite.Driver, sqlite.SharedMemDSN, "test", index.NewDAO, options); e != nil {
 		panic(e)
 	} else {
 		indexDAO = d.(index.DAO)

@@ -22,6 +22,8 @@
 package role
 
 import (
+	"context"
+
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql"
@@ -38,10 +40,10 @@ type DAO interface {
 	Count(query sql.Enquirer) (int32, error)
 }
 
-func NewDAO(o dao.DAO) dao.DAO {
+func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case sql.DAO:
-		return &sqlimpl{Handler: v.(*sql.Handler)}
+		return &sqlimpl{Handler: v.(*sql.Handler)}, nil
 	}
-	return nil
+	return nil, dao.UnsupportedDriver(o)
 }

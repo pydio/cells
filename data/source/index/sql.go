@@ -43,14 +43,14 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options configx.Values) error {
+func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
 	// super
-	s.DAO.Init(options)
+	s.DAO.Init(ctx, options)
 
 	// Preparing the index
 	s.IndexSQL = index.NewDAO(s.Handler, "ROOT").(*index.IndexSQL)
-	if err := s.IndexSQL.Init(options); err != nil {
+	if err := s.IndexSQL.Init(ctx, options); err != nil {
 		return err
 	}
 

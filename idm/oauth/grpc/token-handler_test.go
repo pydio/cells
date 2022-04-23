@@ -30,12 +30,13 @@ var (
 
 func TestMain(m *testing.M) {
 
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test", oauth.NewDAO, options); e != nil {
+	ctx = context.Background()
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", oauth.NewDAO, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(oauth.DAO)
 	}
-	ctx = servicecontext.WithDAO(context.Background(), mockDAO)
+	ctx = servicecontext.WithDAO(ctx, mockDAO)
 
 	m.Run()
 	wg.Wait()

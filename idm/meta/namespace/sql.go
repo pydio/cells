@@ -21,6 +21,7 @@
 package namespace
 
 import (
+	"context"
 	"embed"
 
 	migrate "github.com/rubenv/sql-migrate"
@@ -52,14 +53,16 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (dao *sqlimpl) Init(options configx.Values) error {
+func (dao *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
 	// super
-	dao.DAO.Init(options)
+	if er := dao.DAO.Init(ctx, options); er != nil {
+		return er
+	}
 
 	// Preparing the resources
 	dao.ResourcesSQL = resources.NewDAO(dao.Handler, "idm_usr_meta_ns.namespace").(*resources.ResourcesSQL)
-	if err := dao.ResourcesSQL.Init(options); err != nil {
+	if err := dao.ResourcesSQL.Init(ctx, options); err != nil {
 		return err
 	}
 

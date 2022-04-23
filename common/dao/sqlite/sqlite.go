@@ -21,6 +21,7 @@
 package sqlite
 
 import (
+	"context"
 	"database/sql"
 
 	_ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
@@ -34,7 +35,7 @@ type conn struct {
 	conn *sql.DB
 }
 
-func (s *conn) Open(dsn string) (dao.Conn, error) {
+func (s *conn) Open(ctx context.Context, dsn string) (dao.Conn, error) {
 	db, err := commonsql.GetSqlConnection("sqlite3", dsn)
 	if err != nil {
 		return nil, err
@@ -44,8 +45,8 @@ func (s *conn) Open(dsn string) (dao.Conn, error) {
 	return db, nil
 }
 
-func (s *conn) GetConn() dao.Conn {
-	return s.conn
+func (s *conn) GetConn(ctx context.Context) (dao.Conn, error) {
+	return s.conn, nil
 }
 
 func (s *conn) SetMaxConnectionsForWeight(num int) {

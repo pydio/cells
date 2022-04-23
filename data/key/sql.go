@@ -69,9 +69,9 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (h *sqlimpl) Init(options configx.Values) error {
+func (h *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 	// super
-	if err := h.DAO.Init(options); err != nil {
+	if err := h.DAO.Init(ctx, options); err != nil {
 		return err
 	}
 

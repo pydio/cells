@@ -94,20 +94,20 @@ type batchDAO interface {
 	BatchPost([]*batchActivity) error
 }
 
-func NewDAO(o dao.DAO) dao.DAO {
+func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case boltdb.DAO:
 		bi := &boltdbimpl{DAO: v, InboxMaxSize: 1000}
 		if testEnv {
-			return bi
+			return bi, nil
 		} else {
-			return WithCache(bi)
+			return WithCache(bi), nil
 		}
 	case mongodb.DAO:
 		mi := &mongoimpl{DAO: v}
-		return mi
+		return mi, nil
 	}
-	return nil
+	return nil, dao.UnsupportedDriverType("")
 }
 
 func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
@@ -117,8 +117,17 @@ func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
 		"Subscriptions": 0,
 	}
 	testEnv = true // Disable cache
-	from := NewDAO(f).(DAO)
-	to := NewDAO(t).(DAO)
+	var from, to DAO
+	if df, e := NewDAO(ctx, f); e == nil {
+		from = df.(DAO)
+	} else {
+		return out, e
+	}
+	if dt, e := NewDAO(ctx, t); e == nil {
+		to = dt.(DAO)
+	} else {
+		return out, e
+	}
 	aa, er := from.allActivities(ctx)
 	if er != nil {
 		return nil, er

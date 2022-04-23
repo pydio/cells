@@ -58,7 +58,7 @@ type ResourcesSQL struct {
 }
 
 // Init performs necessary up migration.
-func (s *ResourcesSQL) Init(options configx.Values) error {
+func (s *ResourcesSQL) Init(ctx context.Context, options configx.Values) error {
 
 	s.cache = cache.NewShort(cache.WithEviction(30*time.Second), cache.WithCleanWindow(2*time.Minute))
 

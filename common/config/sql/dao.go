@@ -21,6 +21,7 @@
 package sql
 
 import (
+	"context"
 	"embed"
 
 	migrate "github.com/rubenv/sql-migrate"
@@ -31,12 +32,12 @@ import (
 	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
-func NewDAO(o dao.DAO) dao.DAO {
+func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case sql.DAO:
-		return &sqlimpl{DAO: v}
+		return &sqlimpl{DAO: v}, nil
 	}
-	return nil
+	return nil, dao.UnsupportedDriver(o)
 }
 
 type DAO interface {
@@ -60,10 +61,10 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options configx.Values) error {
+func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
 	// super
-	s.DAO.Init(options)
+	s.DAO.Init(ctx, options)
 
 	migrations := &sql.FSMigrationSource{
 		Box:         statics.AsFS(migrationsFS, "migrations"),

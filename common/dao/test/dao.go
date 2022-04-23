@@ -18,8 +18,9 @@ import (
 	_ "github.com/pydio/cells/v4/common/dao/sqlite"
 )
 
-func OnFileTestDAO(driver, dsn, prefix, altPrefix string, asIndexer bool, wrapper func(dao.DAO) dao.DAO) (dao.DAO, func(), error) {
+func OnFileTestDAO(driver, dsn, prefix, altPrefix string, asIndexer bool, wrapper dao.DaoWrapperFunc) (dao.DAO, func(), error) {
 
+	ctx := context.Background()
 	cfg := configx.New()
 	mongoEnv := os.Getenv("CELLS_TEST_MONGODB_DSN")
 	if (driver == "boltdb" || driver == "bleve") && altPrefix != "" && mongoEnv != "" {
@@ -31,9 +32,9 @@ func OnFileTestDAO(driver, dsn, prefix, altPrefix string, asIndexer bool, wrappe
 	var d dao.DAO
 	var e error
 	if asIndexer {
-		d, e = dao.InitIndexer(driver, dsn, prefix, wrapper, cfg)
+		d, e = dao.InitIndexer(ctx, driver, dsn, prefix, wrapper, cfg)
 	} else {
-		d, e = dao.InitDAO(driver, dsn, prefix, wrapper, cfg)
+		d, e = dao.InitDAO(ctx, driver, dsn, prefix, wrapper, cfg)
 	}
 	if e != nil {
 		return nil, nil, e
@@ -44,7 +45,7 @@ func OnFileTestDAO(driver, dsn, prefix, altPrefix string, asIndexer bool, wrappe
 	case "boltdb", "bleve":
 		bleve.UnitTestEnv = true
 		closer = func() {
-			d.CloseConn()
+			d.CloseConn(ctx)
 			dropFile := dsn
 			if strings.Contains(dsn, "?") {
 				dropFile = strings.Split(dsn, "?")[0]
@@ -59,7 +60,7 @@ func OnFileTestDAO(driver, dsn, prefix, altPrefix string, asIndexer bool, wrappe
 		closer = func() {
 			fmt.Println("Closer : dropping collection", prefix)
 			d.(mongodb.DAO).DB().Drop(context.Background())
-			d.CloseConn()
+			d.CloseConn(ctx)
 		}
 	}
 

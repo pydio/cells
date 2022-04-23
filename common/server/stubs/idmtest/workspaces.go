@@ -34,14 +34,16 @@ import (
 )
 
 func NewWorkspacesService(ww ...*idm.Workspace) (grpc.ClientConnInterface, error) {
-	mockDAO, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "idm_workspace", workspace.NewDAO, configx.New())
+	ctx := context.Background()
+
+	mockDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_workspace", workspace.NewDAO, configx.New())
 	if e != nil {
 		return nil, e
 	}
 	serv := &idm.WorkspaceServiceStub{
 		WorkspaceServiceServer: srv.NewHandler(nil, mockDAO.(workspace.DAO)),
 	}
-	ctx := servicecontext.WithDAO(context.Background(), mockDAO)
+	ctx = servicecontext.WithDAO(ctx, mockDAO)
 	for _, u := range ww {
 		_, er := serv.WorkspaceServiceServer.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: u})
 		if er != nil {

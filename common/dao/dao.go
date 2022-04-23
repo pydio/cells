@@ -22,6 +22,7 @@
 package dao
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -30,9 +31,10 @@ import (
 type MigratorFunc func(from DAO, to DAO, dryRun bool) (map[string]int, error)
 type DriverProviderFunc func() (string, string)
 
-type ConnProviderFunc func(driver, dsn string) ConnDriver
-type DaoProviderFunc func(driver, dsn, prefix string) (DAO, error)
-type IndexerWrapperFunc func(DAO) (IndexDAO, error)
+type ConnProviderFunc func(ctx context.Context, driver, dsn string) ConnDriver
+type DaoProviderFunc func(ctx context.Context, driver, dsn, prefix string) (DAO, error)
+type IndexerWrapperFunc func(context.Context, DAO) (IndexDAO, error)
+type DaoWrapperFunc func(context.Context, DAO) (DAO, error)
 
 var daoConns map[string]ConnProviderFunc
 var daoDrivers map[string]DaoProviderFunc
@@ -40,10 +42,10 @@ var indexersDrivers map[string]IndexerWrapperFunc
 
 // DAO interface definition
 type DAO interface {
-	Init(configx.Values) error
-	GetConn() Conn
-	SetConn(Conn)
-	CloseConn() error
+	Init(context.Context, configx.Values) error
+	GetConn(context.Context) (Conn, error)
+	SetConn(context.Context, Conn)
+	CloseConn(context.Context) error
 	Driver() string
 
 	// Prefix is used to prevent collision between table names
@@ -73,23 +75,23 @@ func RegisterIndexerDriver(name string, daoF IndexerWrapperFunc) {
 }
 
 // InitDAO finalize DAO creation based on registered drivers
-func InitDAO(driver, dsn, prefix string, wrapper func(DAO) DAO, cfg ...configx.Values) (DAO, error) {
+func InitDAO(ctx context.Context, driver, dsn, prefix string, wrapper DaoWrapperFunc, cfg ...configx.Values) (DAO, error) {
 	f, ok := daoDrivers[driver]
 	if !ok {
-		return nil, fmt.Errorf("cannot find driver %s, maybe it was not properly registered", driver)
+		return nil, UnknownDriverType(driver)
 	}
-	d, e := f(driver, dsn, prefix)
+	d, e := f(ctx, driver, dsn, prefix)
 	if e != nil {
 		return nil, e
 	}
 	if wrapper != nil {
-		d = wrapper(d)
-		if d == nil {
-			return nil, fmt.Errorf("unsupported driver type")
+		d, e = wrapper(ctx, d)
+		if e != nil {
+			return nil, e
 		}
 	}
 	if len(cfg) > 0 {
-		if er := d.Init(cfg[0]); er != nil {
+		if er := d.Init(ctx, cfg[0]); er != nil {
 			return nil, er
 		}
 	}
@@ -97,8 +99,8 @@ func InitDAO(driver, dsn, prefix string, wrapper func(DAO) DAO, cfg ...configx.V
 }
 
 // InitIndexer looks up in the register to initialize a DAO and wrap it as an IndexDAO
-func InitIndexer(driver, dsn, prefix string, wrapper func(DAO) DAO, cfg ...configx.Values) (DAO, error) {
-	d, e := InitDAO(driver, dsn, prefix, nil)
+func InitIndexer(ctx context.Context, driver, dsn, prefix string, wrapper DaoWrapperFunc, cfg ...configx.Values) (DAO, error) {
+	d, e := InitDAO(ctx, driver, dsn, prefix, nil)
 	if e != nil {
 		return nil, e
 	}
@@ -107,16 +109,16 @@ func InitIndexer(driver, dsn, prefix string, wrapper func(DAO) DAO, cfg ...confi
 		return nil, fmt.Errorf("cannot find indexer %s, maybe it was not properly registered", driver)
 	}
 	// Wrap DAO as Indexer
-	if d, e = i(d); e != nil {
+	if d, e = i(ctx, d); e != nil {
 		return nil, e
 	}
 	// Wrap with input wrapper
-	d = wrapper(d)
-	if d == nil {
-		return nil, fmt.Errorf("unsupported driver type")
+	d, e = wrapper(ctx, d)
+	if e != nil {
+		return nil, e
 	}
 	if len(cfg) > 0 {
-		if er := d.Init(cfg[0]); er != nil {
+		if er := d.Init(ctx, cfg[0]); er != nil {
 			return nil, er
 		}
 	}
@@ -143,7 +145,7 @@ type abstract struct {
 }
 
 // Init will be overridden by implementations
-func (h *abstract) Init(c configx.Values) error {
+func (h *abstract) Init(_ context.Context, _ configx.Values) error {
 	return nil
 }
 
@@ -163,21 +165,21 @@ func (h *abstract) Stats() map[string]interface{} {
 }
 
 // GetConn to the DB for the DAO
-func (h *abstract) GetConn() Conn {
+func (h *abstract) GetConn(_ context.Context) (Conn, error) {
 	if h == nil {
-		return nil
+		return nil, fmt.Errorf("not implemented")
 	}
-	return h.conn
+	return h.conn, nil
 }
 
 // SetConn assigns the db connection to the DAO
-func (h *abstract) SetConn(conn Conn) {
+func (h *abstract) SetConn(_ context.Context, conn Conn) {
 	h.conn = conn
 }
 
 // CloseConn closes the db connection
-func (h *abstract) CloseConn() error {
-	return closeConn(h.conn)
+func (h *abstract) CloseConn(ctx context.Context) error {
+	return closeConn(ctx, h.conn)
 }
 
 // LocalAccess returns false by default, can be overridden by implementations

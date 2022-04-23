@@ -21,6 +21,7 @@
 package role
 
 import (
+	"context"
 	"embed"
 	"strings"
 	"time"
@@ -62,14 +63,16 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options configx.Values) error {
+func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
 	// super
-	s.DAO.Init(options)
+	if er := s.DAO.Init(ctx, options); er != nil {
+		return er
+	}
 
 	// Preparing the resources
 	s.ResourcesSQL = resources.NewDAO(s.Handler, "idm_roles.uuid").(*resources.ResourcesSQL)
-	if err := s.ResourcesSQL.Init(options); err != nil {
+	if err := s.ResourcesSQL.Init(ctx, options); err != nil {
 		return err
 	}
 

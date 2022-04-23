@@ -54,14 +54,14 @@ type Cache struct {
 	inner    []*batchActivity
 }
 
-func (c *Cache) Init(values configx.Values) error {
+func (c *Cache) Init(ctx context.Context, values configx.Values) error {
 	if c.useBatch {
 		c.done = make(chan bool)
 		c.input = make(chan *batchActivity)
 		c.inner = make([]*batchActivity, 0, 500)
 		go c.startBatching()
 	}
-	return c.dao.Init(values)
+	return c.dao.Init(ctx, values)
 }
 
 func (c *Cache) startBatching() {
@@ -93,19 +93,19 @@ func (c *Cache) flushBatch() {
 	c.inner = c.inner[:0]
 }
 
-func (c *Cache) GetConn() dao.Conn {
-	return c.dao.GetConn()
+func (c *Cache) GetConn(ctx context.Context) (dao.Conn, error) {
+	return c.dao.GetConn(ctx)
 }
 
-func (c *Cache) SetConn(conn dao.Conn) {
-	c.dao.SetConn(conn)
+func (c *Cache) SetConn(ctx context.Context, conn dao.Conn) {
+	c.dao.SetConn(ctx, conn)
 }
 
-func (c *Cache) CloseConn() error {
+func (c *Cache) CloseConn(ctx context.Context) error {
 	if c.useBatch {
 		c.stopBatching()
 	}
-	return c.dao.CloseConn()
+	return c.dao.CloseConn(ctx)
 }
 
 func (c *Cache) Driver() string {

@@ -47,7 +47,7 @@ const (
 	generalObject = "general"
 )
 
-func (h *boltdbimpl) Init(config configx.Values) error {
+func (h *boltdbimpl) Init(ctx context.Context, config configx.Values) error {
 	return h.DB().Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(rooms))
 		if err != nil {

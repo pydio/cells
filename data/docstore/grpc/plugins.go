@@ -104,7 +104,7 @@ func init() {
 
 				go func() {
 					<-c.Done()
-					handler.Close()
+					handler.Close(c)
 				}()
 
 				return nil

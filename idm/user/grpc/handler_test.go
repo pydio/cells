@@ -42,7 +42,7 @@ import (
 )
 
 var (
-	ctx     context.Context
+	ctx     = context.Background()
 	wg      sync.WaitGroup
 	mockDAO user.DAO
 )
@@ -55,13 +55,12 @@ func TestMain(m *testing.M) {
 		"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
 	})
 
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, configx.New()); e != nil {
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, configx.New()); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(user.DAO)
 	}
 
-	ctx = context.Background()
 	m.Run()
 	wg.Wait()
 }
@@ -70,7 +69,7 @@ func TestLoginCIDAO(t *testing.T) {
 
 	cfg := configx.New()
 	_ = cfg.Val("loginCI").Set(true)
-	ciDAO, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, cfg)
+	ciDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, cfg)
 	if e != nil {
 		t.Fail()
 		return

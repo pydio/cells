@@ -24,10 +24,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
-	"github.com/pydio/cells/v4/common/utils/uuid"
 	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
@@ -106,7 +106,9 @@ func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.
 	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 		Slug: ws.Slug,
 	})
-	rC, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{
+	c, can := context.WithCancel(ctx)
+	defer can()
+	rC, e := wsClient.SearchWorkspace(c, &idm.SearchWorkspaceRequest{Query: &service.Query{
 		SubQueries: []*anypb.Any{q},
 		Limit:      1,
 	}})

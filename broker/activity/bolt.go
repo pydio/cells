@@ -46,7 +46,7 @@ type boltdbimpl struct {
 }
 
 // Init the storage
-func (dao *boltdbimpl) Init(options configx.Values) error {
+func (dao *boltdbimpl) Init(ctx context.Context, options configx.Values) error {
 
 	// Update defaut inbox max size if set in the config
 	dao.InboxMaxSize = options.Val("InboxMaxSize").Default(dao.InboxMaxSize).Int64()
@@ -474,7 +474,7 @@ func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string), ownerType
 	}
 
 	if compactDB {
-		old, newSize, er := dao.Compact(map[string]interface{}{"ClearBackup": clearBackup})
+		old, newSize, er := dao.Compact(ctx, map[string]interface{}{"ClearBackup": clearBackup})
 		if er == nil {
 			logger(fmt.Sprintf("Successfully compacted DB, from %s to %s", humanize.Bytes(uint64(old)), humanize.Bytes(uint64(newSize))))
 		}

@@ -22,6 +22,7 @@ package mailer
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"fmt"
 	"strings"
@@ -49,7 +50,7 @@ type BoltQueue struct {
 	boltdb.DAO
 }
 
-func (b *BoltQueue) Init(cfg configx.Values) error {
+func (b *BoltQueue) Init(ctx context.Context, cfg configx.Values) error {
 	return b.DB().Update(func(tx *bolt.Tx) error {
 		_, e := tx.CreateBucketIfNotExists(bucketName)
 		return e
@@ -57,8 +58,8 @@ func (b *BoltQueue) Init(cfg configx.Values) error {
 }
 
 // Close closes the DB and delete corresponding file if deleteOnClose flag as been set on creation.
-func (b *BoltQueue) Close() error {
-	return b.CloseConn()
+func (b *BoltQueue) Close(ctx context.Context) error {
+	return b.CloseConn(ctx)
 }
 
 // Push acquires the lock and add a mail to be sent in the queue.

@@ -155,26 +155,26 @@ func (d *daocache) resync() {
 }
 
 // Init the dao cache
-func (d *daocache) Init(m configx.Values) error {
-	return d.DAO.(dao.DAO).Init(m)
+func (d *daocache) Init(ctx context.Context, m configx.Values) error {
+	return d.DAO.(dao.DAO).Init(ctx, m)
 }
 
 // GetConn returns the connection of the underlying dao
-func (d *daocache) GetConn() dao.Conn {
-	return d.DAO.(dao.DAO).GetConn()
+func (d *daocache) GetConn(ctx context.Context) (dao.Conn, error) {
+	return d.DAO.(dao.DAO).GetConn(ctx)
 }
 
 // GetConn sets the connection of the underlying dao
-func (d *daocache) SetConn(conn dao.Conn) {
-	d.DAO.(dao.DAO).SetConn(conn)
+func (d *daocache) SetConn(ctx context.Context, conn dao.Conn) {
+	d.DAO.(dao.DAO).SetConn(ctx, conn)
 }
 
 // CloseConn closes the connection of the underlying dao
-func (d *daocache) CloseConn() error {
-	return d.DAO.(dao.DAO).CloseConn()
+func (d *daocache) CloseConn(ctx context.Context) error {
+	return d.DAO.(dao.DAO).CloseConn(ctx)
 }
 
-// GetConn sets a prefix for tables and statements in the dao
+// Prefix reads DAO internal Prefix
 func (d *daocache) Prefix() string {
 	return d.DAO.(dao.DAO).Prefix()
 }

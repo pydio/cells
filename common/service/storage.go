@@ -82,7 +82,7 @@ func WithStorageMigrator(d dao.MigratorFunc) StorageOption {
 	}
 }
 
-func daoFromOptions(o *ServiceOptions, fd func(dao.DAO) dao.DAO, indexer bool, opts *StorageOptions) (dao.DAO, error) {
+func daoFromOptions(o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts *StorageOptions) (dao.DAO, error) {
 	prefix := opts.Prefix(o)
 
 	cfgKey := "storage"
@@ -99,9 +99,9 @@ func daoFromOptions(o *ServiceOptions, fd func(dao.DAO) dao.DAO, indexer bool, o
 	cfg := config.Get("services", o.Name)
 
 	if indexer {
-		c, e = dao.InitIndexer(driver, dsn, prefix, fd, cfg)
+		c, e = dao.InitIndexer(o.Context, driver, dsn, prefix, fd, cfg)
 	} else {
-		c, e = dao.InitDAO(driver, dsn, prefix, fd, cfg)
+		c, e = dao.InitDAO(o.Context, driver, dsn, prefix, fd, cfg)
 	}
 	if e != nil {
 		return nil, e
@@ -116,16 +116,16 @@ func daoFromOptions(o *ServiceOptions, fd func(dao.DAO) dao.DAO, indexer bool, o
 }
 
 // WithStorage adds a storage handler to the current service
-func WithStorage(fd func(dao.DAO) dao.DAO, opts ...StorageOption) ServiceOption {
+func WithStorage(fd dao.DaoWrapperFunc, opts ...StorageOption) ServiceOption {
 	return makeStorageServiceOption(false, fd, opts...)
 }
 
 // WithIndexer adds an indexer handler to the current service
-func WithIndexer(fd func(dao.DAO) dao.DAO, opts ...StorageOption) ServiceOption {
+func WithIndexer(fd dao.DaoWrapperFunc, opts ...StorageOption) ServiceOption {
 	return makeStorageServiceOption(true, fd, opts...)
 }
 
-func makeStorageServiceOption(indexer bool, fd func(dao.DAO) dao.DAO, opts ...StorageOption) ServiceOption {
+func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...StorageOption) ServiceOption {
 	return func(o *ServiceOptions) {
 		storageKey := "storage"
 		if indexer {
