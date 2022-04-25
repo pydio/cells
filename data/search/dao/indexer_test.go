@@ -137,7 +137,7 @@ func TestNewBleveEngine(t *testing.T) {
 
 		cfg := configx.New()
 		ctx := context.Background()
-		dao, _ := bleve.NewDAO(ctx, "bleve", "", "")
+		dao, _ := bleve.NewDAO(ctx, "bleve", filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node", "")
 		idx, _ := bleve.NewIndexer(ctx, dao)
 		idx.SetCodex(&bleve2.Codec{})
 		idx.Init(ctx, cfg)
