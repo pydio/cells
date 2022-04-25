@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from 'pydio'
 
 class OpenNodesModel extends Observable{
 
@@ -24,9 +25,21 @@ class OpenNodesModel extends Observable{
         super();
         this._openNodes = [];
         this._updatedTitles = new Map();
+        const pydio = Pydio.getInstance()
         pydio.UI.registerEditorOpener(this);
+        if(pydio.user) {
+            this.activeRepository = pydio.user.activeRepository
+        }
 
         pydio.observe("repository_list_refreshed", () => {
+            if(pydio.user) {
+                // Do not refresh if activeRepo is the same
+                const newActiveRepo = pydio.user.activeRepository
+                if(newActiveRepo === this.activeRepository) {
+                    return
+                }
+                this.activeRepository = newActiveRepo;
+            }
             this._openNodes = [];
             this.notify('update', this._openNodes);
         });
