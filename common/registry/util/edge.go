@@ -26,66 +26,69 @@ import (
 	"github.com/pydio/cells/v4/common/utils/merger"
 )
 
-func ToProtoGeneric(e registry.Generic) *pb.Generic {
-	if dd, ok := e.(*generic); ok {
+func ToProtoEdge(e registry.Edge) *pb.Edge {
+	if dd, ok := e.(*edge); ok {
 		return dd.e
 	}
-	return &pb.Generic{
+	return &pb.Edge{
 		Id:       e.ID(),
 		Name:     e.Name(),
+		Vertices: e.Vertices(),
 		Metadata: e.Metadata(),
 	}
 }
 
-func ToGeneric(e *pb.Generic) registry.Generic {
-	return &generic{e}
+func ToEdge(e *pb.Edge) registry.Edge {
+	return &edge{e}
 }
 
-type generic struct {
-	e *pb.Generic
+type edge struct {
+	e *pb.Edge
 }
 
-func (c *generic) Generic() {}
-
-func (d *generic) Equals(differ merger.Differ) bool {
-	if di, ok := differ.(*generic); ok {
-		return di.Name() == d.Name() && di.ID() == d.ID()
+func (d *edge) Equals(differ merger.Differ) bool {
+	if di, ok := differ.(*edge); ok {
+		return di.ID() == d.ID()
 	}
 	return false
 }
 
-func (d *generic) IsDeletable(m map[string]string) bool {
+func (d *edge) IsDeletable(m map[string]string) bool {
 	return true
 }
 
-func (d *generic) IsMergeable(differ merger.Differ) bool {
+func (d *edge) IsMergeable(differ merger.Differ) bool {
 	return d.ID() == differ.GetUniqueId()
 }
 
-func (d *generic) GetUniqueId() string {
+func (d *edge) GetUniqueId() string {
 	return d.ID()
 }
 
-func (d *generic) Merge(differ merger.Differ, m map[string]string) (merger.Differ, error) {
+func (d *edge) Merge(differ merger.Differ, m map[string]string) (merger.Differ, error) {
 	return differ, nil
 }
 
-func (d *generic) Name() string {
+func (d *edge) Name() string {
 	return d.e.Name
 }
 
-func (d *generic) ID() string {
+func (d *edge) ID() string {
 	return d.e.Id
 }
 
-func (d *generic) Metadata() map[string]string {
+func (d *edge) Metadata() map[string]string {
 	return d.e.Metadata
 }
 
-func (d *generic) As(i interface{}) bool {
-	if ii, ok := i.(*registry.Generic); ok {
+func (d *edge) As(i interface{}) bool {
+	if ii, ok := i.(*registry.Edge); ok {
 		*ii = d
 		return true
 	}
 	return false
+}
+
+func (d *edge) Vertices() []string {
+	return d.e.Vertices
 }

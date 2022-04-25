@@ -24,6 +24,7 @@ import "cells-object.proto";
 import "cells-install.proto";
 import "cells-ctl.proto";
 import "cells-update.proto";
+import "cells-registry.proto";
 
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -119,6 +120,12 @@ service ConfigService {
     rpc ControlService(ControlServiceRequest) returns (ctl.Service){
         option (google.api.http) = {
             post: "/config/ctl"
+            body: "*"
+        };
+    }
+    rpc ListRegistry(registry.ListRequest) returns (registry.ListResponse) {
+        option (google.api.http) =  {
+            post: "/config/registry"
             body: "*"
         };
     }

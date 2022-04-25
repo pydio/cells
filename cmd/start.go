@@ -229,10 +229,15 @@ to quickly create a Cobra application.`,
 
 			opts.Server.BeforeServe(s.Start)
 			opts.Server.AfterServe(func() error {
-				// Register service again to update nodes information
+				// Register service again to update status information
 				if err := reg.Register(s); err != nil {
 					return err
 				}
+				edge := registry.CreateEdge(opts.Server.ID(), s.ID(), "Service Node", map[string]string{})
+				if e := reg.Register(edge); e != nil {
+					return e
+				}
+
 				return nil
 			})
 			opts.Server.BeforeStop(s.Stop)

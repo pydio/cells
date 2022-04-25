@@ -24,6 +24,7 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
+	registry2 "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -128,8 +129,7 @@ DESCRIPTION
 		}
 
 		if item, err := reg.Get(common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + source.Name); err == nil {
-			srv := item.(registry.Service)
-			if len(srv.Nodes()) > 0 {
+			if len(registry.ListLinks(reg, item, registry.WithType(registry2.ItemType_NODE))) > 0 {
 				migrateLogger("[ERROR] Datasource "+source.Name+" sync appears to be running. Can you please restart cells without an active sync ? `./cells start -x pydio.grpc.data.sync`", true)
 				return fmt.Errorf("sync is running")
 			}

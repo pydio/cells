@@ -139,7 +139,17 @@ func (s *service) updateRegister(status ...Status) {
 		return
 	}
 	if err := reg.Register(s); err != nil {
-		log.Logger(s.opts.Context).Warn("could not register", zap.Error(err))
+		if s.status == StatusStopping || s.status == StatusStopped {
+			log.Logger(s.opts.Context).Debug("could not register", zap.Error(err))
+		} else {
+			log.Logger(s.opts.Context).Warn("could not register", zap.Error(err))
+		}
+	}
+	if s.opts.Server != nil {
+		edge := registry.CreateEdge(s.opts.Server.ID(), s.ID(), "ServiceNode", map[string]string{})
+		if e := reg.Register(edge); e != nil {
+			log.Logger(s.opts.Context).Warn("could not register edge", zap.Error(e), zap.Any("edge", edge))
+		}
 	}
 }
 
@@ -260,12 +270,6 @@ func (s *service) ID() string {
 }
 func (s *service) Version() string {
 	return s.opts.Version
-}
-func (s *service) Nodes() []registry.Node {
-	if s.opts.Server == nil {
-		return []registry.Node{}
-	}
-	return []registry.Node{s.opts.Server}
 }
 func (s *service) Tags() []string {
 	return s.opts.Tags

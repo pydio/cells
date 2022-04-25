@@ -113,9 +113,9 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 			var grpcPorts []string
 			reg := servicecontext.GetRegistry(s.MainCtx)
 			if s, e := reg.Get(common.ServiceGatewayGrpcClear, registry.WithType(pbregistry.ItemType_SERVICE)); e == nil {
-				srv := s.(registry.Service)
-				for _, n := range srv.Nodes() {
-					for _, a := range n.Address() {
+				for _, n := range registry.ListLinks(reg, s, registry.WithType(pbregistry.ItemType_NODE)) {
+					addresses := n.(registry.Node).Address()
+					for _, a := range addresses {
 						grpcPorts = append(grpcPorts, strings.ReplaceAll(a, "[::]:", ""))
 					}
 				}

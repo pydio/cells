@@ -89,10 +89,6 @@ func (s mockService) Version() string {
 	return ""
 }
 
-func (s mockService) Nodes() []registry.Node {
-	return []registry.Node{}
-}
-
 func (s mockService) Tags() []string {
 	return []string{}
 }

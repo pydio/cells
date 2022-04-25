@@ -22,23 +22,17 @@ package util
 
 import (
 	"errors"
-	"github.com/pydio/cells/v4/common/utils/merger"
 	"strings"
 
 	"github.com/pydio/cells/v4/common"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/utils/merger"
 )
 
 func ToProtoService(s registry.Service) *pb.Service {
 	if ss, ok := s.(*service); ok {
 		return ss.s
-	}
-
-	var nodes []*pb.Node
-
-	for _, n := range s.Nodes() {
-		nodes = append(nodes, ToProtoNode(n))
 	}
 
 	return &pb.Service{
@@ -47,7 +41,6 @@ func ToProtoService(s registry.Service) *pb.Service {
 		Version:  s.Version(),
 		Metadata: s.Metadata(),
 		Tags:     s.Tags(),
-		Nodes:    nodes,
 		Options:  new(pb.Options),
 	}
 }
@@ -79,14 +72,6 @@ func (s *service) Metadata() map[string]string {
 	return s.s.Metadata
 }
 
-func (s *service) Nodes() []registry.Node {
-	var nodes []registry.Node
-	for _, n := range s.s.Nodes {
-		nodes = append(nodes, &node{n})
-	}
-	return nodes
-}
-
 func (s *service) Start() error {
 	return errors.New("not implemented")
 }
@@ -112,8 +97,7 @@ func (s *service) IsGeneric() bool {
 }
 
 func (s *service) As(i interface{}) bool {
-	ii, ok := i.(*registry.Service)
-	if ok {
+	if ii, ok := i.(*registry.Service); ok {
 		*ii = s
 		return true
 	}

@@ -31,7 +31,6 @@ type Service interface {
 	Item
 
 	Version() string
-	Nodes() []Node
 	Tags() []string
 
 	Start() error

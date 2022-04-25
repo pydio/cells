@@ -1,9 +1,12 @@
 package registry
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/utils/merger"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"sort"
+	"strings"
 )
 
 type edge struct {
@@ -15,8 +18,14 @@ type edge struct {
 
 // CreateEdge creates a registry.Edge item linking two services together by their ID
 func CreateEdge(item1, item2 string, edgeLabel string, metadata map[string]string) Edge {
+	// Make id unique for an item1+item2 pair
+	pair := []string{item1, item2}
+	sort.Strings(pair)
+	h := md5.New()
+	h.Write([]byte(strings.Join(pair, "-")))
+	id := hex.EncodeToString(h.Sum(nil))
 	e := &edge{
-		id:       uuid.New(),
+		id:       id,
 		name:     edgeLabel,
 		metadata: metadata,
 		vertices: []string{item1, item2},
@@ -28,7 +37,7 @@ func CreateEdge(item1, item2 string, edgeLabel string, metadata map[string]strin
 }
 
 // ListLinks finds all registry.Item that are linked to the source by a registry.Edge
-func ListLinks(reg Registry, sourceItem Item) (items []Item) {
+func ListLinks(reg Registry, sourceItem Item, targetOptions ...Option) (items []Item) {
 	ee, _ := reg.List(WithType(pb.ItemType_EDGE))
 	var ids []string
 	for _, e := range ee {
@@ -46,7 +55,7 @@ func ListLinks(reg Registry, sourceItem Item) (items []Item) {
 	if len(ids) == 0 {
 		return
 	}
-	allItems, _ := reg.List()
+	allItems, _ := reg.List(targetOptions...)
 	for _, id := range ids {
 		for _, i := range allItems {
 			if i.ID() == id {
@@ -71,6 +80,10 @@ func (e *edge) Metadata() map[string]string {
 }
 
 func (e *edge) As(i interface{}) bool {
+	if ii, ok := i.(*Edge); ok {
+		*ii = e
+		return true
+	}
 	return false
 }
 

@@ -22,7 +22,7 @@ package rest
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"net"
 	"path"
 	"sort"
@@ -41,6 +41,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service"
@@ -100,10 +101,39 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 		if _, dis := disabledDss[srv.Name()]; dis {
 			continue
 		}
-		output.Services = append(output.Services, h.serviceToRest(srv, len(srv.Nodes()) > 0))
+		nodes := registry.ListLinks(pluginsReg, srv, registry.WithType(rpb.ItemType_NODE))
+		output.Services = append(output.Services, h.serviceToRest(srv, nodes))
 	}
 
 	resp.WriteEntity(output)
+}
+
+func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) {
+
+	var input rpb.ListRequest
+	if e := req.ReadEntity(&input); e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
+
+	pluginsReg, e := registry.OpenRegistry(context.Background(), runtime.RegistryURL())
+	if e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
+	var oo []registry.Option
+	if input.Options != nil && input.Options.GetType() != rpb.ItemType_ALL {
+		oo = append(oo, registry.WithType(input.Options.GetType()))
+	}
+	ii, e := pluginsReg.List(oo...)
+	if e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
+	response := &rpb.ListResponse{}
+	response.Items = util.ToProtoItems(ii)
+	_ = resp.WriteEntity(response)
+
 }
 
 // ListPeersAddresses lists all Peers (servers) on which any pydio service is running
@@ -311,8 +341,9 @@ func (h *Handler) ControlService(req *restful.Request, resp *restful.Response) {
 }
 
 // serviceToRest transforms a service object to a proto message.
-func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service {
+func (h *Handler) serviceToRest(srv registry.Service, nodes []registry.Item) *ctl.Service {
 	status := ctl.ServiceStatus_STOPPED
+	running := len(nodes) > 0
 	if running {
 		status = ctl.ServiceStatus_STARTED
 	}
@@ -321,11 +352,6 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 	if !strings.HasPrefix(srv.Name(), "pydio") || srv.Name() == "pydio.grpc.config" {
 		controllable = false
 	}
-	//configAddress := ""
-	//c := config.Default().Get("defaults", "url").String("")
-	//if srv.Name() == common.ServiceGatewayProxy && c != "" {
-	//	configAddress = c
-	//}
 	desc := ""
 	if d, o := srv.Metadata()[service.MetaDescriptionKey]; o {
 		desc = d
@@ -340,19 +366,8 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 		RunningPeers: []*ctl.Peer{},
 		Metadata:     srv.Metadata(),
 	}
-	for _, node := range srv.Nodes() {
-		// Double check that node is really running
-		// addr := fmt.Sprintf("%s:%d", node.Address, node.Port)
-		// if _, err := net.Dial("tcp", addr); err != nil {
-		// 	log.Warn("Failed to check", zap.String("service", srv.Name()), zap.String("address", addr))
-		// 	continue
-		// }
-		//p := int32(node.Port)
-		//if configAddress != "" {
-		//	a = configAddress
-		//	p = 0
-		//}
-		a := node.Address()
+	for _, node := range nodes {
+		a := node.(registry.Node).Address()
 		if len(a) > 0 {
 			h, p, _ := net.SplitHostPort(a[0])
 			port, _ := strconv.Atoi(p)

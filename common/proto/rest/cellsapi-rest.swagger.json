@@ -40,19 +40,6 @@
       "title": "Container for ShareLink or Cell",
       "type": "object"
     },
-    "NodeChangeEventEventType": {
-      "default": "CREATE",
-      "enum": [
-        "CREATE",
-        "READ",
-        "UPDATE_PATH",
-        "UPDATE_CONTENT",
-        "UPDATE_META",
-        "UPDATE_USER_META",
-        "DELETE"
-      ],
-      "type": "string"
-    },
     "PackagePackageStatus": {
       "default": "Draft",
       "enum": [
@@ -539,6 +526,12 @@
         },
         "Description": {
           "type": "string"
+        },
+        "Metadata": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
         },
         "Name": {
           "type": "string"
@@ -2844,6 +2837,218 @@
       },
       "type": "object"
     },
+    "registryActionType": {
+      "default": "ANY",
+      "enum": [
+        "ANY",
+        "FULL_DIFF",
+        "FULL_LIST",
+        "CREATE",
+        "UPDATE",
+        "DELETE"
+      ],
+      "type": "string"
+    },
+    "registryDao": {
+      "properties": {
+        "driver": {
+          "type": "string"
+        },
+        "dsn": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "registryEdge": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "name": {
+          "type": "string"
+        },
+        "vertices": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "registryGeneric": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "registryItem": {
+      "properties": {
+        "dao": {
+          "$ref": "#/definitions/registryDao"
+        },
+        "edge": {
+          "$ref": "#/definitions/registryEdge"
+        },
+        "generic": {
+          "$ref": "#/definitions/registryGeneric"
+        },
+        "node": {
+          "$ref": "#/definitions/registryNode"
+        },
+        "service": {
+          "$ref": "#/definitions/registryService"
+        }
+      },
+      "type": "object"
+    },
+    "registryItemType": {
+      "default": "ALL",
+      "enum": [
+        "ALL",
+        "SERVICE",
+        "NODE",
+        "DAO",
+        "GENERIC",
+        "EDGE"
+      ],
+      "type": "string"
+    },
+    "registryListRequest": {
+      "properties": {
+        "options": {
+          "$ref": "#/definitions/registryOptions"
+        }
+      },
+      "type": "object"
+    },
+    "registryListResponse": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/definitions/registryItem"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "registryNode": {
+      "properties": {
+        "address": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "endpoints": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "name": {
+          "type": "string"
+        },
+        "port": {
+          "format": "int64",
+          "type": "string"
+        }
+      },
+      "title": "Node represents the node the service is on",
+      "type": "object"
+    },
+    "registryOptions": {
+      "properties": {
+        "action": {
+          "$ref": "#/definitions/registryActionType"
+        },
+        "ttl": {
+          "format": "int64",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/registryItemType"
+        }
+      },
+      "title": "Options are registry options",
+      "type": "object"
+    },
+    "registryService": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "name": {
+          "type": "string"
+        },
+        "nodes": {
+          "items": {
+            "$ref": "#/definitions/registryNode"
+          },
+          "type": "array"
+        },
+        "options": {
+          "$ref": "#/definitions/registryOptions"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "title": "Service represents a go-micro service",
+      "type": "object"
+    },
     "restACLCollection": {
       "properties": {
         "ACLs": {
@@ -4879,10 +5084,23 @@
           "$ref": "#/definitions/treeNode"
         },
         "Type": {
-          "$ref": "#/definitions/NodeChangeEventEventType"
+          "$ref": "#/definitions/treeNodeChangeEventEventType"
         }
       },
       "type": "object"
+    },
+    "treeNodeChangeEventEventType": {
+      "default": "CREATE",
+      "enum": [
+        "CREATE",
+        "READ",
+        "UPDATE_PATH",
+        "UPDATE_CONTENT",
+        "UPDATE_META",
+        "UPDATE_USER_META",
+        "DELETE"
+      ],
+      "type": "string"
     },
     "treeNodeType": {
       "default": "UNKNOWN",
@@ -7213,6 +7431,56 @@
           }
         },
         "summary": "List running Processes, with option PeerId or ServiceName filter",
+        "tags": [
+          "ConfigService"
+        ]
+      }
+    },
+    "/config/registry": {
+      "post": {
+        "operationId": "ListRegistry",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/registryListRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/registryListResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
         "tags": [
           "ConfigService"
         ]

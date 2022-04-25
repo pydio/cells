@@ -118,30 +118,57 @@ func (r *resolverCallback) updateState() {
 
 func (r *resolverCallback) sendState() {
 	var m = make(map[string]*ServerAttributes)
+	services := make(map[string]registry.Service)
+	var edges []registry.Edge
 
 	r.ml.RLock()
 	for _, v := range r.items {
 		var srv registry.Node
+		var edge registry.Edge
+		var service registry.Service
 		if v.As(&srv) {
 			m[srv.ID()] = &ServerAttributes{
 				Name:      srv.Name(),
 				Addresses: srv.Address(),
 				Endpoints: srv.Endpoints(),
 			}
+		} else if v.As(&edge) {
+			edges = append(edges, edge)
+		} else if v.As(&service) {
+			services[service.ID()] = service
 		}
 	}
 
-	for _, v := range r.items {
-		var svc registry.Service
-		if v.As(&svc) {
-			for _, node := range svc.Nodes() {
-				address, ok := m[node.ID()]
-				if ok {
-					address.Services = append(address.Services, svc.Name())
-				}
+	for id, attr := range m {
+		var srvIds []string
+		for _, e := range edges {
+			vv := e.Vertices()
+			if vv[0] == id {
+				srvIds = append(srvIds, vv[1])
+			} else if vv[1] == id {
+				srvIds = append(srvIds, vv[0])
+			}
+		}
+		for _, srvId := range srvIds {
+			if srv, ok := services[srvId]; ok {
+				attr.Services = append(attr.Services, srv.Name())
 			}
 		}
 	}
+
+	/*
+		for _, v := range r.items {
+			var svc registry.Service
+			if v.As(&svc) {
+				for _, node := range svc.Nodes() {
+					address, ok := m[node.ID()]
+					if ok {
+						address.Services = append(address.Services, svc.Name())
+					}
+				}
+			}
+		}
+	*/
 	r.ml.RUnlock()
 
 	for _, cb := range r.cbs {
