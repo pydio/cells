@@ -368,3 +368,27 @@ func TestEncrypt(t *testing.T) {
 		So(m.Val("secrets/test").Set("test"), ShouldBeNil)
 	})
 }
+
+func TestStruct(t *testing.T) {
+	Convey("Testing structure ", t, func() {
+		m := New()
+
+		t := struct {
+			A string
+			B string
+		}{
+			A: "a",
+			B: "b",
+		}
+
+		err := m.Set(t)
+		So(err, ShouldBeNil)
+		So(m.Val("A").String(), ShouldEqual, "a")
+
+		err2 := m.Val("C").Set("c")
+		So(err2, ShouldBeNil)
+		So(m.Val("A").String(), ShouldEqual, "a")
+		So(m.Val("C").String(), ShouldEqual, "c")
+
+	})
+}
