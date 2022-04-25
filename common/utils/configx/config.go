@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/fatih/structs"
+
 	"github.com/spf13/cast"
 )
 
@@ -266,7 +268,12 @@ func (c *config) Set(data interface{}) error {
 			c.opts.SetCallback(c.k, data)
 		}
 
-		c.v = data
+		if structs.IsStruct(data) {
+			c.v = structs.Map(data)
+		} else {
+			c.v = data
+		}
+
 		return nil
 	}
 
@@ -351,7 +358,11 @@ func (c *config) Set(data interface{}) error {
 		c.opts.SetCallback(c.k, data)
 	}
 
-	c.v = data
+	if structs.IsStruct(data) {
+		c.v = structs.Map(data)
+	} else {
+		c.v = data
+	}
 
 	return nil
 }
