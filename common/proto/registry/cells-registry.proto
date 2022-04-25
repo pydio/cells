@@ -18,6 +18,9 @@ enum ItemType {
   ALL = 0;
   SERVICE = 1;
   NODE = 2;
+  DAO = 3;
+  GENERIC = 4;
+  EDGE = 5;
 }
 
 enum ActionType {
@@ -33,6 +36,9 @@ message Item {
   oneof item {
     Service service = 1;
     Node node = 2;
+    Dao dao = 3;
+    Generic generic = 4;
+    Edge edge = 5;
   }
 }
 
@@ -61,19 +67,24 @@ message Node {
   repeated string endpoints = 6;
 }
 
-// Endpoint is a endpoint provided by a service
-message Endpoint {
-  string name = 1;
-  Value request = 2;
-  Value response = 3;
-  map<string, string> metadata = 4;
+message Dao {
+  string id = 1;
+  string name = 2;
+  string driver = 3;
+  string dsn = 4;
+  map<string,string> metadata = 5;
 }
 
-// Value is an opaque value for a request or response
-message Value {
-  string name = 1;
-  string type = 2;
-  repeated Value values = 3;
+message Edge {
+  string id = 1;
+  repeated string vertices = 2;
+  map<string,string> metadata = 3;
+}
+
+message Generic {
+  string id = 1;
+  string name = 2;
+  map<string,string> metadata = 3;
 }
 
 // Options are registry options

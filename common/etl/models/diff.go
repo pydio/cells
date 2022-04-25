@@ -88,23 +88,6 @@ func NewRolesDiff() *RoleDiff {
 	}
 }
 
-type Diff interface {
-	Add(...interface{})
-	Update(...interface{})
-	Delete(...interface{})
-	ToAdd() []interface{}
-	ToUpdate() []interface{}
-	ToDelete() []interface{}
-}
-
-type Differ interface {
-	Equals(Differ) bool
-	IsDeletable(m map[string]string) bool
-	IsMergeable(Differ) bool
-	GetUniqueId() string
-	Merge(Differ, map[string]string) (Differ, error)
-}
-
 func (a *ACLDiff) Add(vs ...interface{}) {
 	for _, v := range vs {
 		a.create = append(a.create, (*idm.ACL)(v.(*ACL)))

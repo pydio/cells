@@ -56,7 +56,7 @@ func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.
 		return nil, err
 	}
 	return &Handler{
-		DAO: dao.AbstractDAO(conn, driver, prefix),
+		DAO: dao.AbstractDAO(conn, driver, dsn, prefix),
 	}, nil
 }
 

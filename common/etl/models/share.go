@@ -25,6 +25,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/utils/merger"
 )
 
 type SyncShare struct {
@@ -39,7 +40,7 @@ type SyncShare struct {
 	InternalData interface{}
 }
 
-func (s *SyncShare) Equals(o Differ) bool {
+func (s *SyncShare) Equals(o merger.Differ) bool {
 	return false
 }
 
@@ -47,7 +48,7 @@ func (s *SyncShare) IsDeletable(m map[string]string) bool {
 	return false
 }
 
-func (s *SyncShare) IsMergeable(o Differ) bool {
+func (s *SyncShare) IsMergeable(o merger.Differ) bool {
 	return false
 }
 
@@ -61,7 +62,7 @@ func (s *SyncShare) GetUniqueId() string {
 	}
 }
 
-func (s *SyncShare) Merge(o Differ, options map[string]string) (Differ, error) {
+func (s *SyncShare) Merge(o merger.Differ, options map[string]string) (merger.Differ, error) {
 	return s, nil
 }
 

@@ -20,11 +20,14 @@
 
 package models
 
-import "github.com/pydio/cells/v4/common/proto/idm"
+import (
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/utils/merger"
+)
 
 type Role idm.Role
 
-func (r *Role) Equals(differ Differ) bool {
+func (r *Role) Equals(differ merger.Differ) bool {
 	// If not Team Role, say Equal=true to avoid overriding existing
 	return !r.IsTeam
 }
@@ -33,7 +36,7 @@ func (r *Role) IsDeletable(m map[string]string) bool {
 	return false
 }
 
-func (r *Role) IsMergeable(d Differ) bool {
+func (r *Role) IsMergeable(d merger.Differ) bool {
 	return r.Uuid == (d).(*Role).Uuid
 }
 
@@ -41,7 +44,7 @@ func (r *Role) GetUniqueId() string {
 	return r.Uuid
 }
 
-func (r *Role) Merge(differ Differ, params map[string]string) (Differ, error) {
+func (r *Role) Merge(differ merger.Differ, params map[string]string) (merger.Differ, error) {
 	// Return target
 	return differ, nil
 }

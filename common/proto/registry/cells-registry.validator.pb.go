@@ -30,6 +30,27 @@ func (this *Item) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetItem().(*Item_Dao); ok {
+		if oneOfNester.Dao != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Dao); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Dao", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetItem().(*Item_Generic); ok {
+		if oneOfNester.Generic != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Generic); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Generic", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetItem().(*Item_Edge); ok {
+		if oneOfNester.Edge != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Edge); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Edge", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *ItemMap) Validate() error {
@@ -56,28 +77,16 @@ func (this *Node) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *Endpoint) Validate() error {
-	if this.Request != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Request); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Request", err)
-		}
-	}
-	if this.Response != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Response); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Response", err)
-		}
-	}
+func (this *Dao) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *Value) Validate() error {
-	for _, item := range this.Values {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Values", err)
-			}
-		}
-	}
+func (this *Edge) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *Generic) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *Options) Validate() error {

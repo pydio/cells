@@ -22,8 +22,8 @@ package configregistry
 
 import (
 	"github.com/pydio/cells/v4/common/etl"
-	"github.com/pydio/cells/v4/common/etl/models"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/utils/merger"
 )
 
 func init() {
@@ -32,8 +32,8 @@ func init() {
 
 type converter struct{}
 
-func (c *converter) Convert(i interface{}) ([]models.Differ, bool) {
-	var res []models.Differ
+func (c *converter) Convert(i interface{}) ([]merger.Differ, bool) {
+	var res []merger.Differ
 
 	items, ok := i.([]registry.Item)
 	if !ok {
@@ -41,7 +41,7 @@ func (c *converter) Convert(i interface{}) ([]models.Differ, bool) {
 	}
 
 	for _, i := range items {
-		res = append(res, i.(models.Differ))
+		res = append(res, i.(merger.Differ))
 	}
 
 	return res, true

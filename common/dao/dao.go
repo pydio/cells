@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -25,6 +25,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -42,11 +43,12 @@ var indexersDrivers map[string]IndexerWrapperFunc
 
 // DAO interface definition
 type DAO interface {
+	registry.Dao
+
 	Init(context.Context, configx.Values) error
 	GetConn(context.Context) (Conn, error)
 	SetConn(context.Context, Conn)
 	CloseConn(context.Context) error
-	Driver() string
 
 	// Prefix is used to prevent collision between table names
 	// in case this DAO accesses a shared DB.
@@ -123,66 +125,4 @@ func InitIndexer(ctx context.Context, driver, dsn, prefix string, wrapper DaoWra
 		}
 	}
 	return d.(IndexDAO), nil
-}
-
-// AbstractDAO returns a reference to a newly created struct that
-// contains the necessary information to access a database.
-// Prefix parameter is used to specify a prefix to avoid collision
-// between table names in case this DAO accesses a shared DB: it thus
-// will be an empty string in most of the cases.
-func AbstractDAO(conn Conn, driver string, prefix string) DAO {
-	return &abstract{
-		conn:   conn,
-		driver: driver,
-		prefix: prefix,
-	}
-}
-
-type abstract struct {
-	conn   Conn
-	driver string
-	prefix string
-}
-
-// Init will be overridden by implementations
-func (h *abstract) Init(_ context.Context, _ configx.Values) error {
-	return nil
-}
-
-// Driver returns driver name
-func (h *abstract) Driver() string {
-	return h.driver
-}
-
-// Prefix returns prefix name
-func (h *abstract) Prefix() string {
-	return h.prefix
-}
-
-// Stats will be overridden by implementations1
-func (h *abstract) Stats() map[string]interface{} {
-	return map[string]interface{}{}
-}
-
-// GetConn to the DB for the DAO
-func (h *abstract) GetConn(_ context.Context) (Conn, error) {
-	if h == nil {
-		return nil, fmt.Errorf("not implemented")
-	}
-	return h.conn, nil
-}
-
-// SetConn assigns the db connection to the DAO
-func (h *abstract) SetConn(_ context.Context, conn Conn) {
-	h.conn = conn
-}
-
-// CloseConn closes the db connection
-func (h *abstract) CloseConn(ctx context.Context) error {
-	return closeConn(ctx, h.conn)
-}
-
-// LocalAccess returns false by default, can be overridden by implementations
-func (h *abstract) LocalAccess() bool {
-	return false
 }

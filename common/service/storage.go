@@ -22,9 +22,10 @@ package service
 
 import (
 	"context"
-
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/registry"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
@@ -142,6 +143,23 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 			d, err := daoFromOptions(o, fd, indexer, sOpts)
 			if err != nil {
 				return err
+			}
+			if reg := servicecontext.GetRegistry(o.Context); reg != nil {
+				var regItem registry.Dao
+				if d.As(&regItem) {
+					if e := reg.Register(regItem); e == nil {
+						log.Logger(o.Context).Debug(" -- Initialized and registered DAO: " + regItem.Name())
+						mm := map[string]string{}
+						prefix := sOpts.Prefix(o)
+						if prefix != "" {
+							mm["Prefix"] = prefix
+						}
+						edge := registry.CreateEdge(o.ID, regItem.ID(), "DAO Storage", mm)
+						if e2 := reg.Register(edge); e2 == nil {
+							log.Logger(o.Context).Debug(" -- Registered Edge: " + edge.ID())
+						}
+					}
+				}
 			}
 			if indexer {
 				ctx = servicecontext.WithIndexer(ctx, d)

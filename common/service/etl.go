@@ -20,9 +20,11 @@
 
 package service
 
-import "github.com/pydio/cells/v4/common/etl/models"
+import (
+	"github.com/pydio/cells/v4/common/utils/merger"
+)
 
-func (s *service) Equals(differ models.Differ) bool {
+func (s *service) Equals(differ merger.Differ) bool {
 	neu, ok := differ.(*service)
 	if !ok {
 		return false
@@ -35,7 +37,7 @@ func (s *service) IsDeletable(m map[string]string) bool {
 	return true
 }
 
-func (s *service) IsMergeable(differ models.Differ) bool {
+func (s *service) IsMergeable(differ merger.Differ) bool {
 	return s.ID() == differ.GetUniqueId()
 }
 
@@ -43,7 +45,7 @@ func (s *service) GetUniqueId() string {
 	return s.ID()
 }
 
-func (s *service) Merge(differ models.Differ, params map[string]string) (models.Differ, error) {
+func (s *service) Merge(differ merger.Differ, params map[string]string) (merger.Differ, error) {
 	// Return target
 	return differ, nil
 }

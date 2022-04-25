@@ -121,7 +121,7 @@ func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.
 		mu.Store(&sync.Mutex{})
 	}
 	return &Handler{
-		DAO:           dao.AbstractDAO(conn, driver, prefix),
+		DAO:           dao.AbstractDAO(conn, driver, dsn, prefix),
 		helper:        helper,
 		stmts:         make(map[string]string),
 		ifuncs:        make(map[string]func(DAO, ...interface{}) string),

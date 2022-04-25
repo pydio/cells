@@ -18,24 +18,23 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package registry
+package merger
 
-type Node interface {
-	Item
-
-	Address() []string
-	Endpoints() []string
+// Differ provides a simple set of feature to compare and merge arbitrary structs
+type Differ interface {
+	Equals(Differ) bool
+	IsDeletable(m map[string]string) bool
+	IsMergeable(Differ) bool
+	GetUniqueId() string
+	Merge(Differ, map[string]string) (Differ, error)
 }
 
-type Endpoint interface {
-	Name() string
-	Metadata() map[string]string
-}
-
-type NodeRegistry interface {
-	RegisterNode(Node) error
-	DeregisterNode(Node) error
-	GetNode(string) (Node, error)
-	ListNodes() ([]Node, error)
-	As(interface{}) bool
+// Diff is a container resulting of Differ objects comparison
+type Diff interface {
+	Add(...interface{})
+	Update(...interface{})
+	Delete(...interface{})
+	ToAdd() []interface{}
+	ToUpdate() []interface{}
+	ToDelete() []interface{}
 }

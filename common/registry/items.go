@@ -20,13 +20,19 @@
 
 package registry
 
+type Node interface {
+	Item
+
+	Address() []string
+	Endpoints() []string
+}
+
 type Service interface {
 	Item
 
 	Version() string
 	Nodes() []Node
 	Tags() []string
-	Metadata() map[string]string
 
 	Start() error
 	Stop() error
@@ -34,4 +40,23 @@ type Service interface {
 	IsGeneric() bool
 	IsGRPC() bool
 	IsREST() bool
+}
+
+type Dao interface {
+	Item
+
+	Driver() string
+	Dsn() string
+}
+
+type Edge interface {
+	Item
+
+	Vertices() []string
+}
+
+type Generic interface {
+	Item
+
+	Generic()
 }

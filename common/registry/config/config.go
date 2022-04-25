@@ -332,6 +332,27 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 				}
 				res = append(res, node)
 			}
+		case pb.ItemType_DAO:
+			if dao, ok := item.(registry.Dao); ok {
+				if o.Filter != nil && !o.Filter(dao) {
+					continue
+				}
+				res = append(res, dao)
+			}
+		case pb.ItemType_EDGE:
+			if edge, ok := item.(registry.Edge); ok {
+				if o.Filter != nil && !o.Filter(edge) {
+					continue
+				}
+				res = append(res, edge)
+			}
+		case pb.ItemType_GENERIC:
+			if generic, ok := item.(registry.Generic); ok {
+				if o.Filter != nil && !o.Filter(generic) {
+					continue
+				}
+				res = append(res, generic)
+			}
 		}
 	}
 

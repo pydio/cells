@@ -69,7 +69,7 @@ func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.
 		return nil, fmt.Errorf("mongodb DSN must provide a dbName (like host:port/{dbName})")
 	}
 	return &Handler{
-		DAO:        dao.AbstractDAO(conn, driver, prefix),
+		DAO:        dao.AbstractDAO(conn, driver, dsn, prefix),
 		dbName:     dbName,
 		runtimeCtx: ctx,
 	}, nil

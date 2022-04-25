@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package BoltDB provides tools for using Bolt as a standard persistence layer for services
+// Package boltdb provides tools for using Bolt as a standard persistence layer for services
 package boltdb
 
 import (
@@ -63,7 +63,7 @@ func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.
 		return nil, err
 	}
 	return &Handler{
-		DAO:        dao.AbstractDAO(conn, driver, prefix),
+		DAO:        dao.AbstractDAO(conn, driver, dsn, prefix),
 		runtimeCtx: ctx,
 	}, nil
 }
