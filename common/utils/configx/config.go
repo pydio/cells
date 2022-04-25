@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/fatih/structs"
-
 	"github.com/spf13/cast"
 )
 
