@@ -443,5 +443,6 @@ func RegisterMockConfig() error {
 	}
 	store := &MockStore{Values: cfg}
 	config.Register(store)
+	config.RegisterLocal(store)
 	return nil
 }

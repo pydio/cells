@@ -22,7 +22,6 @@ package dao
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -133,10 +132,6 @@ func search(ctx context.Context, index *Server, queryObject *tree.Query) ([]*tre
 }
 
 func TestNewBleveEngine(t *testing.T) {
-
-	tmpDir, _ := ioutil.TempDir("", "bleve")
-	IndexPath = filepath.Join(tmpDir, "pydio")
-	defer os.RemoveAll(tmpDir)
 
 	Convey("Test create bleve engine then reopen it", t, func() {
 

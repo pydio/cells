@@ -194,6 +194,26 @@ func (d *daocache) Stats() map[string]interface{} {
 	return map[string]interface{}{}
 }
 
+func (d *daocache) Name() string {
+	return d.DAO.(dao.DAO).Name()
+}
+
+func (d *daocache) ID() string {
+	return d.DAO.(dao.DAO).ID()
+}
+
+func (d *daocache) Metadata() map[string]string {
+	return d.DAO.(dao.DAO).Metadata()
+}
+
+func (d *daocache) Dsn() string {
+	return d.DAO.(dao.DAO).Dsn()
+}
+
+func (d *daocache) As(i interface{}) bool {
+	return d.DAO.(dao.DAO).As(i)
+}
+
 // DB object
 func (d *daocache) DB() *sql.DB {
 	return d.DAO.(commonsql.DAO).DB()

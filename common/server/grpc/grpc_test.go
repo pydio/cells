@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	mock2 "github.com/pydio/cells/v4/common/config/mock"
 	"time"
 
 	"log"
@@ -129,6 +130,8 @@ func createApp2(reg registry.Registry) {
 }
 
 func TestServiceRegistry(t *testing.T) {
+
+	_ = mock2.RegisterMockConfig()
 
 	ctx := context.Background()
 	mem, err := registry.OpenRegistry(ctx, "mem:///")
