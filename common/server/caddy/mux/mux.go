@@ -23,8 +23,10 @@ package mux
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"go.uber.org/zap"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -99,6 +101,9 @@ func (m *Middleware) Init(ctx context.Context, s server.HttpMux) {
 					}
 					proxy = &clienthttp.ReverseProxy{
 						ReverseProxy: httputil.NewSingleHostReverseProxy(u),
+					}
+					proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
+						log.Logger(request.Context()).Error("Proxy Error :"+err.Error(), zap.Error(err))
 					}
 					balancer.ReadyProxies[addr] = proxy
 				}

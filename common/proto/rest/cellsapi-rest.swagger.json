@@ -2929,8 +2929,8 @@
         "generic": {
           "$ref": "#/definitions/registryGeneric"
         },
-        "node": {
-          "$ref": "#/definitions/registryNode"
+        "server": {
+          "$ref": "#/definitions/registryServer"
         },
         "service": {
           "$ref": "#/definitions/registryService"
@@ -2943,7 +2943,7 @@
       "enum": [
         "ALL",
         "SERVICE",
-        "NODE",
+        "SERVER",
         "DAO",
         "GENERIC",
         "EDGE"
@@ -2952,11 +2952,11 @@
     },
     "registryListRequest": {
       "properties": {
-        "options": {
+        "adjacentsOptions": {
           "$ref": "#/definitions/registryOptions"
         },
-        "withAdjacents": {
-          "$ref": "#/definitions/registryItemType"
+        "options": {
+          "$ref": "#/definitions/registryOptions"
         }
       },
       "type": "object"
@@ -2972,7 +2972,32 @@
       },
       "type": "object"
     },
-    "registryNode": {
+    "registryOptions": {
+      "properties": {
+        "action": {
+          "$ref": "#/definitions/registryActionType"
+        },
+        "metaName": {
+          "type": "string"
+        },
+        "metaValue": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "ttl": {
+          "format": "int64",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/registryItemType"
+        }
+      },
+      "title": "Options are registry options",
+      "type": "object"
+    },
+    "registryServer": {
       "properties": {
         "address": {
           "items": {
@@ -2999,26 +3024,7 @@
           "type": "string"
         }
       },
-      "title": "Node represents the node the service is on",
-      "type": "object"
-    },
-    "registryOptions": {
-      "properties": {
-        "action": {
-          "$ref": "#/definitions/registryActionType"
-        },
-        "name": {
-          "type": "string"
-        },
-        "ttl": {
-          "format": "int64",
-          "type": "string"
-        },
-        "type": {
-          "$ref": "#/definitions/registryItemType"
-        }
-      },
-      "title": "Options are registry options",
+      "title": "Server represents the node the service is on",
       "type": "object"
     },
     "registryService": {

@@ -140,7 +140,7 @@ func (e *edge) IsDeletable(m map[string]string) bool {
 }
 
 func (e *edge) IsMergeable(differ merger.Differ) bool {
-	return true
+	return e.id == differ.GetUniqueId()
 }
 
 func (e *edge) GetUniqueId() string {

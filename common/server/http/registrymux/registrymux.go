@@ -23,6 +23,8 @@ package registrymux
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/log"
+	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"net/http/httputil"
@@ -74,6 +76,9 @@ func NewMiddleware(ctx context.Context, s server.HttpMux) Middleware {
 					}
 					proxy = &clienthttp.ReverseProxy{
 						ReverseProxy: httputil.NewSingleHostReverseProxy(u),
+					}
+					proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
+						log.Logger(request.Context()).Error("Proxy Error :"+err.Error(), zap.Error(err))
 					}
 					balancer.ReadyProxies[addr] = proxy
 				}
