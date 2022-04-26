@@ -39,13 +39,15 @@ type Server struct {
 	s *ForkServer
 }
 
-func NewServer(ctx context.Context) server.Server {
+func NewServer(ctx context.Context, forkStart string) server.Server {
+	meta := server.InitPeerMeta()
+	meta[server.NodeMetaForkStartTag] = "s:^" + forkStart + "$"
 	return server.NewServer(ctx, &Server{
 		id:   "fork-" + uuid.New(),
 		name: "fork",
-		meta: server.InitPeerMeta(),
+		meta: meta,
 		ctx:  ctx,
-		s:    &ForkServer{},
+		s:    &ForkServer{name: forkStart},
 	})
 }
 

@@ -112,11 +112,13 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 			// Pure HTTP and no grpc_external : detect GRPC_CLEAR Service Port
 			var grpcPorts []string
 			reg := servicecontext.GetRegistry(s.MainCtx)
-			if s, e := reg.Get(common.ServiceGatewayGrpcClear, registry.WithType(pbregistry.ItemType_SERVICE)); e == nil {
-				for _, n := range registry.ListLinks(reg, s, registry.WithType(pbregistry.ItemType_NODE)) {
-					addresses := n.(registry.Node).Address()
-					for _, a := range addresses {
-						grpcPorts = append(grpcPorts, strings.ReplaceAll(a, "[::]:", ""))
+			if ss, e := reg.List(registry.WithName(common.ServiceGatewayGrpcClear), registry.WithType(pbregistry.ItemType_SERVICE)); e == nil && len(ss) > 0 {
+				for _, s := range ss {
+					for _, n := range registry.ListAdjacentItems(reg, s, registry.WithType(pbregistry.ItemType_SERVER)) {
+						addresses := n.(registry.Server).Address()
+						for _, a := range addresses {
+							grpcPorts = append(grpcPorts, strings.ReplaceAll(a, "[::]:", ""))
+						}
 					}
 				}
 			}

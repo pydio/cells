@@ -25,6 +25,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 )
 
+// ToProtoItems transforms a list of interfaces to protobuf for serialization
 func ToProtoItems(ii []registry.Item) []*pb.Item {
 	var items []*pb.Item
 
@@ -35,14 +36,15 @@ func ToProtoItems(ii []registry.Item) []*pb.Item {
 	return items
 }
 
+// ToProtoItem transforms a registry.Item to its protobuf counterpart
 func ToProtoItem(i registry.Item) *pb.Item {
 	item := &pb.Item{}
 
 	switch v := i.(type) {
 	case registry.Service:
 		item.Item = &pb.Item_Service{Service: ToProtoService(v)}
-	case registry.Node:
-		item.Item = &pb.Item_Node{Node: ToProtoNode(v)}
+	case registry.Server:
+		item.Item = &pb.Item_Server{Server: ToProtoServer(v)}
 	case registry.Dao:
 		item.Item = &pb.Item_Dao{Dao: ToProtoDao(v)}
 	case registry.Edge:
@@ -54,12 +56,13 @@ func ToProtoItem(i registry.Item) *pb.Item {
 	return item
 }
 
+// ToItem wraps a protobuf item in a registry.Item interface
 func ToItem(s *pb.Item) registry.Item {
 	switch v := s.Item.(type) {
 	case *pb.Item_Service:
 		return ToService(v.Service)
-	case *pb.Item_Node:
-		return ToNode(v.Node)
+	case *pb.Item_Server:
+		return ToServer(v.Server)
 	case *pb.Item_Dao:
 		return ToDao(v.Dao)
 	case *pb.Item_Edge:
@@ -69,4 +72,21 @@ func ToItem(s *pb.Item) registry.Item {
 	}
 
 	return nil
+}
+
+// ToOptions parses a protobuf pb.Options to a slice of registry.Option
+func ToOptions(s *pb.Options) (oo []registry.Option) {
+	if s == nil {
+		return
+	}
+	if s.Name != "" {
+		oo = append(oo, registry.WithName(s.Name))
+	}
+	if s.Type != pb.ItemType_ALL {
+		oo = append(oo, registry.WithType(s.Type))
+	}
+	if s.GetMetaName() != "" {
+		oo = append(oo, registry.WithMeta(s.GetMetaName(), s.GetMetaValue()))
+	}
+	return
 }

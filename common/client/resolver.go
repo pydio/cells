@@ -123,7 +123,7 @@ func (r *resolverCallback) sendState() {
 
 	r.ml.RLock()
 	for _, v := range r.items {
-		var srv registry.Node
+		var srv registry.Server
 		var edge registry.Edge
 		var service registry.Service
 		if v.As(&srv) {

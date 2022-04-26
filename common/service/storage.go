@@ -154,8 +154,7 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 						if prefix != "" {
 							mm["Prefix"] = prefix
 						}
-						edge := registry.CreateEdge(o.ID, regItem.ID(), "DAO Storage", mm)
-						if e2 := reg.Register(edge); e2 == nil {
+						if edge, e2 := registry.RegisterEdge(reg, o.ID, regItem.ID(), "DAO Storage", mm); e2 == nil {
 							log.Logger(o.Context).Debug(" -- Registered Edge: " + edge.ID())
 						}
 					}

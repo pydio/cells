@@ -17,7 +17,7 @@ service Registry {
 enum ItemType {
   ALL = 0;
   SERVICE = 1;
-  NODE = 2;
+  SERVER = 2;
   DAO = 3;
   GENERIC = 4;
   EDGE = 5;
@@ -35,11 +35,12 @@ enum ActionType {
 message Item {
   oneof item {
     Service service = 1;
-    Node node = 2;
+    Server server = 2;
     Dao dao = 3;
     Generic generic = 4;
     Edge edge = 5;
   }
+  repeated Item adjacents = 6;
 }
 
 message ItemMap {
@@ -56,8 +57,8 @@ message Service {
   repeated string tags = 7;
 }
 
-// Node represents the node the service is on
-message Node {
+// Server represents the node the service is on
+message Server {
   string id = 1;
   string name = 2;
   repeated string address = 3;
@@ -91,6 +92,9 @@ message Options {
   int64 ttl = 1;
   ItemType type = 2;
   ActionType action = 3;
+  string name = 4;
+  string metaName = 5;
+  string metaValue = 6;
 }
 
 // Result is returns by the watcher
@@ -111,7 +115,7 @@ message StopRequest {
 }
 
 message GetRequest {
-  string name = 1;
+  string id = 1;
   Options options = 2;
 }
 
@@ -121,6 +125,7 @@ message GetResponse {
 
 message ListRequest {
   Options options = 1;
+  Options adjacentsOptions = 2;
 }
 
 message ListResponse {

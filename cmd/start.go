@@ -158,17 +158,9 @@ to quickly create a Cobra application.`,
 				if !opts.AutoStart {
 					continue
 				}
-
-				srvFork := fork.NewServer(opts.Context)
-				var srvForkAs *fork.ForkServer
-				if srvFork.As(&srvForkAs) {
-					srvForkAs.RegisterForkParam(opts.Name)
-				}
-
+				srvFork := fork.NewServer(opts.Context, opts.Name)
 				srvs = append(srvs, srvFork)
-
 				opts.Server = srvFork
-
 				continue
 			}
 
@@ -233,11 +225,9 @@ to quickly create a Cobra application.`,
 				if err := reg.Register(s); err != nil {
 					return err
 				}
-				edge := registry.CreateEdge(opts.Server.ID(), s.ID(), "Service Node", map[string]string{})
-				if e := reg.Register(edge); e != nil {
-					return e
+				if _, er := registry.RegisterEdge(reg, opts.Server.ID(), s.ID(), "Service Node", map[string]string{}); er != nil {
+					return er
 				}
-
 				return nil
 			})
 			opts.Server.BeforeStop(s.Stop)

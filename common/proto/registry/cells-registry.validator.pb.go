@@ -23,10 +23,10 @@ func (this *Item) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetItem().(*Item_Node); ok {
-		if oneOfNester.Node != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Node); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Node", err)
+	if oneOfNester, ok := this.GetItem().(*Item_Server); ok {
+		if oneOfNester.Server != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Server); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Server", err)
 			}
 		}
 	}
@@ -51,6 +51,13 @@ func (this *Item) Validate() error {
 			}
 		}
 	}
+	for _, item := range this.Adjacents {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Adjacents", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *ItemMap) Validate() error {
@@ -59,13 +66,6 @@ func (this *ItemMap) Validate() error {
 }
 func (this *Service) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
-	for _, item := range this.Nodes {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Nodes", err)
-			}
-		}
-	}
 	if this.Options != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Options); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Options", err)
@@ -73,7 +73,7 @@ func (this *Service) Validate() error {
 	}
 	return nil
 }
-func (this *Node) Validate() error {
+func (this *Server) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
@@ -141,6 +141,11 @@ func (this *ListRequest) Validate() error {
 	if this.Options != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Options); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Options", err)
+		}
+	}
+	if this.AdjacentsOptions != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AdjacentsOptions); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("AdjacentsOptions", err)
 		}
 	}
 	return nil

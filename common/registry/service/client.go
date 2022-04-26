@@ -163,14 +163,14 @@ func (s *serviceRegistry) Deregister(item registry.Item) error {
 	return nil
 }
 
-func (s *serviceRegistry) Get(name string, opts ...registry.Option) (registry.Item, error) {
+func (s *serviceRegistry) Get(id string, opts ...registry.Option) (registry.Item, error) {
 	var options registry.Options
 	for _, o := range opts {
 		o(&options)
 	}
 
 	rsp, err := s.client.Get(s.opts.Context, &pb.GetRequest{
-		Name: name,
+		Id: id,
 		Options: &pb.Options{
 			Type: options.Type,
 		},

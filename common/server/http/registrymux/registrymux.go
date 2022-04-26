@@ -109,7 +109,7 @@ func (m Middleware) userServiceReady() bool {
 }
 
 func (m Middleware) watch() error {
-	w, err := m.r.Watch(registry.WithType(pb.ItemType_NODE))
+	w, err := m.r.Watch(registry.WithType(pb.ItemType_SERVER))
 	if err != nil {
 		return err
 	}

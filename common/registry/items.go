@@ -20,13 +20,23 @@
 
 package registry
 
-type Node interface {
+// Item is the main interface for registry items
+type Item interface {
+	Name() string
+	ID() string
+	Metadata() map[string]string
+	As(interface{}) bool
+}
+
+// Server represents a running server
+type Server interface {
 	Item
 
 	Address() []string
 	Endpoints() []string
 }
 
+// Service represents an instantiated service in the registry
 type Service interface {
 	Item
 
@@ -41,6 +51,7 @@ type Service interface {
 	IsREST() bool
 }
 
+// Dao stores a DAO in the registry
 type Dao interface {
 	Item
 
@@ -48,12 +59,14 @@ type Dao interface {
 	Dsn() string
 }
 
+// Edge links two vertices together
 type Edge interface {
 	Item
 
 	Vertices() []string
 }
 
+// Generic is the simplest Item implementation
 type Generic interface {
 	Item
 

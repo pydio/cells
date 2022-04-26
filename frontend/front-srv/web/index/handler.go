@@ -12,6 +12,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/registry"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
 )
@@ -133,7 +134,7 @@ func (h *IndexHandler) detectFrontendService() bool {
 		return true
 	}
 	reg := servicecontext.GetRegistry(h.runtimeCtx)
-	if s, e := reg.Get(common.ServiceRestNamespace_ + common.ServiceFrontend); e == nil && s != nil {
+	if ss, e := reg.List(registry.WithName(common.ServiceRestNamespace_ + common.ServiceFrontend)); e == nil && len(ss) > 0 {
 		h.frontendDetected = true
 	}
 	return h.frontendDetected

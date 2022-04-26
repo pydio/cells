@@ -26,80 +26,80 @@ import (
 	"github.com/pydio/cells/v4/common/utils/merger"
 )
 
-func ToProtoNode(n registry.Node) *pb.Node {
-	if nn, ok := n.(*node); ok {
-		return nn.n
+func ToProtoServer(s registry.Server) *pb.Server {
+	if nn, ok := s.(*server); ok {
+		return nn.s
 	}
 
-	return &pb.Node{
-		Id:        n.ID(),
-		Name:      n.Name(),
-		Address:   n.Address(),
-		Endpoints: n.Endpoints(),
-		Metadata:  n.Metadata(),
+	return &pb.Server{
+		Id:        s.ID(),
+		Name:      s.Name(),
+		Address:   s.Address(),
+		Endpoints: s.Endpoints(),
+		Metadata:  s.Metadata(),
 	}
 }
 
-func ToNode(n *pb.Node) registry.Node {
-	return &node{n}
+func ToServer(s *pb.Server) registry.Server {
+	return &server{s}
 }
 
-type node struct {
-	n *pb.Node
+type server struct {
+	s *pb.Server
 }
 
-func (n *node) ID() string {
-	return n.n.Id
+func (s *server) ID() string {
+	return s.s.Id
 }
 
-func (n *node) Name() string {
-	return n.n.Name
+func (s *server) Name() string {
+	return s.s.Name
 }
 
-func (n *node) Address() []string {
-	return n.n.Address
+func (s *server) Address() []string {
+	return s.s.Address
 }
 
-func (n *node) Endpoints() []string {
-	return n.n.Endpoints
+func (s *server) Endpoints() []string {
+	return s.s.Endpoints
 }
 
-func (n *node) Metadata() map[string]string {
-	return n.n.Metadata
+func (s *server) Metadata() map[string]string {
+	return s.s.Metadata
 }
 
-func (n *node) As(i interface{}) bool {
-	ii, ok := i.(*registry.Node)
+func (s *server) As(i interface{}) bool {
+	ii, ok := i.(*registry.Server)
 	if ok {
-		*ii = n
+		*ii = s
 		return true
 	}
 
 	return false
 }
 
-func (n *node) Equals(differ merger.Differ) bool {
+func (s *server) Equals(differ merger.Differ) bool {
 	neu, ok := differ.(*service)
 	if !ok {
 		return false
 	}
-	return n.ID() == neu.ID() &&
-		n.Name() == neu.Name()
+	return s.ID() == neu.ID() &&
+		s.Name() == neu.Name()
 }
 
-func (n *node) IsDeletable(m map[string]string) bool {
+func (s *server) IsDeletable(m map[string]string) bool {
 	return true
 }
 
-func (n *node) IsMergeable(differ merger.Differ) bool {
-	return n.ID() == differ.GetUniqueId()
+func (s *server) IsMergeable(differ merger.Differ) bool {
+	return s.ID() == differ.GetUniqueId()
 }
 
-func (n *node) GetUniqueId() string {
-	return n.ID()
+func (s *server) GetUniqueId() string {
+	return s.ID()
 }
 
-func (n *node) Merge(differ merger.Differ, params map[string]string) (merger.Differ, error) {
+func (s *server) Merge(differ merger.Differ, params map[string]string) (merger.Differ, error) {
 	// Return target
 	return differ, nil
 }

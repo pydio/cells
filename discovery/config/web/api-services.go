@@ -101,7 +101,7 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 		if _, dis := disabledDss[srv.Name()]; dis {
 			continue
 		}
-		nodes := registry.ListLinks(pluginsReg, srv, registry.WithType(rpb.ItemType_NODE))
+		nodes := registry.ListAdjacentItems(pluginsReg, srv, registry.WithType(rpb.ItemType_SERVER))
 		output.Services = append(output.Services, h.serviceToRest(srv, nodes))
 	}
 
@@ -121,17 +121,21 @@ func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) {
 		service.RestError500(req, resp, e)
 		return
 	}
-	var oo []registry.Option
-	if input.Options != nil && input.Options.GetType() != rpb.ItemType_ALL {
-		oo = append(oo, registry.WithType(input.Options.GetType()))
-	}
-	ii, e := pluginsReg.List(oo...)
+
+	ii, e := pluginsReg.List(util.ToOptions(input.Options)...)
 	if e != nil {
 		service.RestError500(req, resp, e)
 		return
 	}
 	response := &rpb.ListResponse{}
-	response.Items = util.ToProtoItems(ii)
+	for _, i := range ii {
+		item := util.ToProtoItem(i)
+		if input.AdjacentsOptions != nil {
+			aa := registry.ListAdjacentItems(pluginsReg, i, util.ToOptions(input.AdjacentsOptions)...)
+			item.Adjacents = util.ToProtoItems(aa)
+		}
+		response.Items = append(response.Items, item)
+	}
 	_ = resp.WriteEntity(response)
 
 }
@@ -143,14 +147,14 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 		PeerAddresses: []string{},
 	}
 	reg := servercontext.GetRegistry(req.Request.Context())
-	nodes, er := reg.List(registry.WithType(rpb.ItemType_NODE))
+	nodes, er := reg.List(registry.WithType(rpb.ItemType_SERVER))
 	if er != nil {
 		service.RestError500(req, resp, er)
 		return
 	}
 	accu := make(map[string]string)
 	for _, n := range nodes {
-		node := n.(registry.Node)
+		node := n.(registry.Server)
 		addr := strings.Join(node.Address(), "")
 		if ho, _, e := net.SplitHostPort(addr); e == nil && ho != "" {
 			accu[ho] = ho
@@ -236,14 +240,14 @@ func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
 	out := &rest.ListProcessesResponse{}
 
 	reg := servercontext.GetRegistry(req.Request.Context())
-	nodes, er := reg.List(registry.WithType(rpb.ItemType_NODE))
+	nodes, er := reg.List(registry.WithType(rpb.ItemType_SERVER))
 	if er != nil {
 		service.RestError500(req, resp, er)
 		return
 	}
 	accu := make(map[string]map[string]string)
 	for _, n := range nodes {
-		node := n.(registry.Node)
+		node := n.(registry.Server)
 		mm := node.Metadata()
 		if _, ok := accu[mm[server.NodeMetaPID]]; ok {
 			continue
@@ -367,7 +371,7 @@ func (h *Handler) serviceToRest(srv registry.Service, nodes []registry.Item) *ct
 		Metadata:     srv.Metadata(),
 	}
 	for _, node := range nodes {
-		a := node.(registry.Node).Address()
+		a := node.(registry.Server).Address()
 		if len(a) > 0 {
 			h, p, _ := net.SplitHostPort(a[0])
 			port, _ := strconv.Atoi(p)

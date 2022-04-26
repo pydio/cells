@@ -2914,6 +2914,12 @@
     },
     "registryItem": {
       "properties": {
+        "adjacents": {
+          "items": {
+            "$ref": "#/definitions/registryItem"
+          },
+          "type": "array"
+        },
         "dao": {
           "$ref": "#/definitions/registryDao"
         },
@@ -2948,6 +2954,9 @@
       "properties": {
         "options": {
           "$ref": "#/definitions/registryOptions"
+        },
+        "withAdjacents": {
+          "$ref": "#/definitions/registryItemType"
         }
       },
       "type": "object"
@@ -2988,10 +2997,6 @@
         },
         "name": {
           "type": "string"
-        },
-        "port": {
-          "format": "int64",
-          "type": "string"
         }
       },
       "title": "Node represents the node the service is on",
@@ -3001,6 +3006,9 @@
       "properties": {
         "action": {
           "$ref": "#/definitions/registryActionType"
+        },
+        "name": {
+          "type": "string"
         },
         "ttl": {
           "format": "int64",
@@ -3026,12 +3034,6 @@
         },
         "name": {
           "type": "string"
-        },
-        "nodes": {
-          "items": {
-            "$ref": "#/definitions/registryNode"
-          },
-          "type": "array"
         },
         "options": {
           "$ref": "#/definitions/registryOptions"

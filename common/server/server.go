@@ -73,9 +73,6 @@ func NewServer(ctx context.Context, s RawServer) Server {
 		},
 	}
 
-	// reg := servercontext.GetRegistry(ctx)
-	// reg.Register(srv)
-
 	return srv
 }
 
@@ -113,7 +110,9 @@ func (s *server) Stop() error {
 
 	// Making sure we register the endpoints
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
-		reg.Deregister(s)
+		if er := reg.Deregister(s); er != nil {
+			return er
+		}
 	}
 
 	if err := s.doAfterStop(); err != nil {
@@ -212,7 +211,7 @@ func (s *server) As(i interface{}) bool {
 	if v, ok := i.(*Server); ok {
 		*v = s
 		return true
-	} else if v, ok := i.(*registry.Node); ok {
+	} else if v, ok := i.(*registry.Server); ok {
 		*v = s
 		return true
 	}

@@ -170,9 +170,9 @@ func (s *Server) Endpoints() []string {
 	var endpoints []string
 
 	info := s.Server.GetServiceInfo()
-	for _, i := range info {
+	for sName, i := range info {
 		for _, m := range i.Methods {
-			endpoints = append(endpoints, m.Name)
+			endpoints = append(endpoints, sName+"."+m.Name)
 		}
 	}
 

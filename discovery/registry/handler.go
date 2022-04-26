@@ -2,11 +2,14 @@ package registry
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"github.com/pydio/cells/v4/common"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/server"
 )
 
 type Handler struct {
@@ -42,15 +45,17 @@ func (h *Handler) Stop(ctx context.Context, item *pb.Item) (*pb.EmptyResponse, e
 func (h *Handler) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse, error) {
 	resp := &pb.GetResponse{}
 
-	t := pb.ItemType_ALL
+	var oo []registry.Option
 	if req.Options != nil {
-		t = req.Options.Type
+		if req.Options.Type != pb.ItemType_ALL {
+			oo = append(oo, registry.WithType(req.Options.Type))
+		}
+		if req.Options.Name != "" {
+			oo = append(oo, registry.WithName(req.Options.Name))
+		}
 	}
 
-	item, err := h.reg.Get(
-		req.GetName(),
-		registry.WithType(t),
-	)
+	item, err := h.reg.Get(req.GetId(), oo...)
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +65,22 @@ func (h *Handler) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse,
 	return resp, nil
 }
 func (h *Handler) Register(ctx context.Context, item *pb.Item) (*pb.EmptyResponse, error) {
-	if err := h.reg.Register(util.ToItem(item)); err != nil { // , mregistry.RegisterTTL(time.Duration(s.GetOptions().GetTtl())*time.Second)); err != nil {
+	if err := h.reg.Register(util.ToItem(item)); err != nil {
 		return nil, err
+	}
+
+	if item.GetServer() != nil && item.GetServer().GetMetadata() != nil {
+		meta := item.GetServer().GetMetadata()
+		if parent, ok := meta[server.NodeMetaParentPID]; ok && parent == fmt.Sprintf("%d", os.Getpid()) {
+			// This is a fork, try to attach to the "fork" service
+			if startTag, ok := meta[server.NodeMetaStartTag]; ok && startTag != "" {
+				ff, _ := h.reg.List(registry.WithType(pb.ItemType_SERVER), registry.WithMeta(server.NodeMetaForkStartTag, startTag))
+				if len(ff) > 0 {
+					_, _ = registry.RegisterEdge(h.reg, ff[0].ID(), item.GetServer().GetId(), "Fork", map[string]string{})
+				}
+			}
+
+		}
 	}
 
 	return &pb.EmptyResponse{}, nil

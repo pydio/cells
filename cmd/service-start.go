@@ -122,7 +122,7 @@ func (s mockService) As(i interface{}) bool {
 }
 
 func init() {
-	addRegistryFlags(serviceStartCmd.Flags())
+	addExternalCmdRegistryFlags(serviceStartCmd.Flags())
 
 	serviceCmd.AddCommand(serviceStartCmd)
 }

@@ -16,6 +16,11 @@ type edge struct {
 	vertices []string
 }
 
+func RegisterEdge(reg Registry, item1, item2, edgeLabel string, metadata map[string]string) (Edge, error) {
+	e := CreateEdge(item1, item2, edgeLabel, metadata)
+	return e, reg.Register(e)
+}
+
 // CreateEdge creates a registry.Edge item linking two services together by their ID
 func CreateEdge(item1, item2 string, edgeLabel string, metadata map[string]string) Edge {
 	// Make id unique for an item1+item2 pair
@@ -36,8 +41,8 @@ func CreateEdge(item1, item2 string, edgeLabel string, metadata map[string]strin
 	return e
 }
 
-// ListLinks finds all registry.Item that are linked to the source by a registry.Edge
-func ListLinks(reg Registry, sourceItem Item, targetOptions ...Option) (items []Item) {
+// ListAdjacentItems finds all registry.Item that are linked to the source by a registry.Edge
+func ListAdjacentItems(reg Registry, sourceItem Item, targetOptions ...Option) (items []Item) {
 	ee, _ := reg.List(WithType(pb.ItemType_EDGE))
 	var ids []string
 	for _, e := range ee {
@@ -65,6 +70,38 @@ func ListLinks(reg Registry, sourceItem Item, targetOptions ...Option) (items []
 		}
 	}
 	return
+}
+
+// ClearEdges removes dead links after removing an Item from the registry
+func ClearEdges(reg Registry, sourceItem Item) ([]Edge, error) {
+	var out []Edge
+	edges := make(map[string]Edge)
+	ee, er := reg.List(WithType(pb.ItemType_EDGE))
+	if er != nil {
+		return nil, er
+	}
+	for _, e := range ee {
+		edg, ok := e.(Edge)
+		if !ok {
+			continue
+		}
+		vv := edg.Vertices()
+		if vv[0] == sourceItem.ID() || vv[1] == sourceItem.ID() {
+			edges[edg.ID()] = edg
+		}
+	}
+	if len(edges) == 0 {
+		return out, nil
+	}
+	for _, e := range edges {
+		if er := reg.Deregister(e); er != nil {
+			return out, nil
+		} else {
+			out = append(out, e)
+		}
+	}
+
+	return out, nil
 }
 
 func (e *edge) Name() string {

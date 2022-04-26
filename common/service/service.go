@@ -29,6 +29,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/registry/util"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/server"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -144,11 +146,21 @@ func (s *service) updateRegister(status ...Status) {
 		} else {
 			log.Logger(s.opts.Context).Warn("could not register", zap.Error(err))
 		}
+		return
 	}
 	if s.opts.Server != nil {
-		edge := registry.CreateEdge(s.opts.Server.ID(), s.ID(), "ServiceNode", map[string]string{})
-		if e := reg.Register(edge); e != nil {
+		if edge, e := registry.RegisterEdge(reg, s.opts.Server.ID(), s.ID(), "ServiceNode", map[string]string{}); e != nil {
 			log.Logger(s.opts.Context).Warn("could not register edge", zap.Error(e), zap.Any("edge", edge))
+		}
+	}
+	if len(s.opts.Tags) > 0 {
+		for _, t := range s.opts.Tags {
+			generic := util.ToGeneric(&pb.Generic{Id: "tag-" + t, Name: "tag", Metadata: map[string]string{"Tag": t}})
+			if er := reg.Register(generic); er == nil {
+				if edge, e := registry.RegisterEdge(reg, generic.ID(), s.ID(), "Tag", map[string]string{}); e != nil {
+					log.Logger(s.opts.Context).Warn("could not register edge", zap.Error(e), zap.Any("edge", edge))
+				}
+			}
 		}
 	}
 }
@@ -251,7 +263,11 @@ func (s *service) Stop() error {
 
 	if reg := servicecontext.GetRegistry(s.opts.Context); reg != nil {
 		if err := reg.Deregister(s); err != nil {
-			log.Logger(s.opts.Context).Warn("could not deregister", zap.Error(err))
+			log.Logger(s.opts.Context).Error("Could not deregister", zap.Error(err))
+		} else if edges, er2 := registry.ClearEdges(reg, s); er2 != nil {
+			log.Logger(s.opts.Context).Error("Could not deregister edges", zap.Error(er2))
+		} else if len(edges) > 0 {
+			log.Logger(s.opts.Context).Debug(fmt.Sprintf("Deregistered %d edges", len(edges)))
 		}
 	} else {
 		log.Logger(s.opts.Context).Warn("no registry attached")

@@ -129,7 +129,7 @@ DESCRIPTION
 		}
 
 		if item, err := reg.Get(common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + source.Name); err == nil {
-			if len(registry.ListLinks(reg, item, registry.WithType(registry2.ItemType_NODE))) > 0 {
+			if len(registry.ListAdjacentItems(reg, item, registry.WithType(registry2.ItemType_SERVER))) > 0 {
 				migrateLogger("[ERROR] Datasource "+source.Name+" sync appears to be running. Can you please restart cells without an active sync ? `./cells start -x pydio.grpc.data.sync`", true)
 				return fmt.Errorf("sync is running")
 			}

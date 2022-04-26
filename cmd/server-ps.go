@@ -72,15 +72,15 @@ EXAMPLE
 
 		ctx = servicecontext.WithRegistry(cmd.Context(), reg)
 
-		nodes, err := reg.List(registry.WithType(pb.ItemType_NODE))
+		nodes, err := reg.List(registry.WithType(pb.ItemType_SERVER))
 		if err != nil {
 			return err
 		}
 
 		for _, node := range nodes {
-			var srv registry.Node
+			var srv registry.Server
 			if node.As(&srv) {
-				fmt.Println(node.Name(), node.(registry.Node).Address(), node.(registry.Node).Metadata())
+				fmt.Println(node.Name(), node.(registry.Server).Address(), node.(registry.Server).Metadata())
 				for _, endpoint := range srv.Endpoints() {
 					fmt.Println("- ", endpoint)
 				}

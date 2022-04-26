@@ -21,35 +21,28 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
+	"fmt"
 	"os"
+
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 // serviceStopCmd represents the stop command
 var serviceStopCmd = &cobra.Command{
 	Use:   "stop",
-	Short: "List all available services and their statuses",
+	Short: "Stop a service by name",
 	Long: `
 DESCRIPTION
 
-  List all available services and their statuses
-
-  Use this command to list all running services on this machine.
-  Services fall into main categories (GENERIC, GRPC, REST, API) and are then organized by tags (broker, data, idm, etc.)
+  TODO
 
 EXAMPLE
 
-  Use the --tags/-t flag to limit display to one specific tag, use lowercase for tags.
-
-  $ ` + os.Args[0] + ` ps -t=broker
-  Will result:
-	- pydio.grpc.activity   [X]
-	- pydio.grpc.chat       [X]
-	- pydio.grpc.mailer     [X]
-	- pydio.api.websocket   [X]
-	- pydio.rest.activity   [X]
-	- pydio.rest.frontlogs  [X]
-	- pydio.rest.mailer     [X]
+  $ ` + os.Args[0] + ` service stop pydio.grpc.search
 
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -58,21 +51,27 @@ EXAMPLE
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		//reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
-		//if err != nil {
-		//	return err
-		//}
-		//
-		//if err := reg.Stop(args[0]); err != nil {
-		//	return err
-		//}
-
-		return nil
+		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
+		if err != nil {
+			return errors.Wrap(err, "open registry")
+		}
+		item, err := reg.Get(args[0])
+		if err != nil {
+			return errors.Wrap(err, "get item")
+		}
+		fmt.Println("Found Item", item.ID(), item.Name())
+		var srv registry.Service
+		if item.As(&srv) {
+			//return srv.Stop()
+			return reg.Stop(srv)
+		} else {
+			return fmt.Errorf("item " + args[0] + " is not a registry.Service")
+		}
 	},
 }
 
 func init() {
-	addRegistryFlags(serviceStopCmd.Flags())
+	addExternalCmdRegistryFlags(serviceStopCmd.Flags())
 
 	serviceCmd.AddCommand(serviceStopCmd)
 }

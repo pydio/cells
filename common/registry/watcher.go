@@ -73,8 +73,8 @@ func (m *watcher) Next() (Result, error) {
 						items = append(items, item)
 					}
 					continue
-				case pb.ItemType_NODE:
-					var node Node
+				case pb.ItemType_SERVER:
+					var node Server
 					if item.As(&node) && (m.wo.Filter == nil || m.wo.Filter(item)) {
 						items = append(items, item)
 					}

@@ -23,7 +23,7 @@ type PromTargets struct {
 func ProcessesAsTargets(ctx context.Context, reg registry.Registry) *PromTargets {
 
 	t := &PromTargets{}
-	ii, er := reg.List(registry.WithType(pb.ItemType_NODE))
+	ii, er := reg.List(registry.WithType(pb.ItemType_SERVER))
 	if er != nil {
 		return t
 	}
