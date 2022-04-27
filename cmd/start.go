@@ -23,9 +23,11 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/utils/filex"
 	"log"
 	"net"
 	"net/url"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -93,8 +95,21 @@ to quickly create a Cobra application.`,
 			ctx = clientcontext.WithClientConn(ctx, discoveryConn)
 		}
 
+		configFile := filepath.Join(config.PydioConfigDir, config.PydioConfigFile)
+		if runtime.ConfigIsLocalFile() && !filex.Exists(configFile) {
+			return triggerInstall(
+				"We cannot find a configuration file ... "+configFile,
+				"Do you want to create one now",
+				cmd, args)
+		}
+
 		// Init config
-		initConfig(ctx, true)
+		isNew := initConfig(ctx, true)
+		if isNew && runtime.ConfigIsLocalFile() {
+			return triggerInstall(
+				"Oops, the configuration is not right ... "+configFile,
+				"Do you want to reset the initial configuration", cmd, args)
+		}
 
 		// Init registry
 		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())

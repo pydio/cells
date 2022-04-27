@@ -23,10 +23,10 @@ package runtime
 import (
 	"fmt"
 	"net"
+	"net/url"
 	"regexp"
 
 	"github.com/manifoldco/promptui"
-
 	utilnet "k8s.io/apimachinery/pkg/util/net"
 
 	cellsnet "github.com/pydio/cells/v4/common/utils/net"
@@ -111,6 +111,15 @@ func ConfigURL() string {
 	}
 
 	return r.GetString(KeyConfig)
+}
+
+// ConfigIsLocalFile checks if ConfigURL scheme is file
+func ConfigIsLocalFile() bool {
+	if u, e := url.Parse(ConfigURL()); e == nil {
+		return u.Scheme == "file"
+	} else {
+		return false
+	}
 }
 
 // HttpServerType returns one of HttpServerCaddy or HttpServerCore
