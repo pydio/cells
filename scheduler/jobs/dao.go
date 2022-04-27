@@ -21,6 +21,8 @@
 package jobs
 
 import (
+	"context"
+
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
@@ -44,16 +46,15 @@ type DAO interface {
 	DeleteTasks(jobId string, taskId []string) error
 }
 
-func NewDAO(dao dao.DAO) dao.DAO {
-	switch v := dao.(type) {
+func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
+	switch v := o.(type) {
 	case boltdb.DAO:
-		bStore, _ := NewBoltStore(v)
-		return bStore
+		return NewBoltStore(v)
 	case mongodb.DAO:
 		mStore := &mongoImpl{DAO: v}
-		return mStore
+		return mStore, nil
 	}
-	return nil
+	return nil, dao.UnsupportedDriver(o)
 }
 
 // stripTaskData removes unnecessary data from the task log

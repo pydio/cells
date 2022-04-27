@@ -120,7 +120,7 @@ func TestHandler_CloseBolt(t *testing.T) {
 			DAO: indexer,
 		}
 
-		cE := handler.Close()
+		cE := handler.Close(context.Background())
 		So(cE, ShouldBeNil)
 
 		s1, _ := os.Stat(pBolt)

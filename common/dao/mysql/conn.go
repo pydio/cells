@@ -21,6 +21,7 @@
 package mysql
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"sync"
@@ -43,7 +44,7 @@ type conn struct {
 	conn *sql.DB
 }
 
-func (m *conn) Open(dsn string) (dao.Conn, error) {
+func (m *conn) Open(c context.Context, dsn string) (dao.Conn, error) {
 	var (
 		db *sql.DB
 	)
@@ -73,8 +74,8 @@ func (m *conn) Open(dsn string) (dao.Conn, error) {
 	return db, nil
 }
 
-func (m *conn) GetConn() dao.Conn {
-	return m.conn
+func (m *conn) GetConn(ctx context.Context) (dao.Conn, error) {
+	return m.conn, nil
 }
 
 func (m *conn) getMaxTotalConnections() int {

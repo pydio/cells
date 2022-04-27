@@ -18,7 +18,7 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
-func NewDAO(dao dao.DAO) dao.DAO {
+func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 
 	timeout := config.Get("frontend", "plugin", "gui.ajax", "SESSION_TIMEOUT").Default(60).Int()
 	defaultOptions := &sessions.Options{
@@ -27,7 +27,7 @@ func NewDAO(dao dao.DAO) dao.DAO {
 		HttpOnly: true,
 	}
 
-	switch v := dao.(type) {
+	switch v := o.(type) {
 	case securecookie.DAO:
 		ci := &cookiesImpl{}
 		ci.DAO = v
@@ -44,14 +44,14 @@ func NewDAO(dao dao.DAO) dao.DAO {
 			cs.Options.Domain = u.Hostname()
 			return cs, nil
 		}
-		return ci
+		return ci, nil
 	case sql.DAO:
 		return &sqlsessions.Impl{
 			DAO:     v,
 			Options: defaultOptions,
-		}
+		}, nil
 	default:
-		return nil
+		return nil, dao.UnsupportedDriver(o)
 	}
 }
 
@@ -69,13 +69,13 @@ type cookiesImpl struct {
 	storeFactory   func(u *url.URL, keyPairs ...[]byte) (sessions.Store, error)
 }
 
-func (s *cookiesImpl) Init(values configx.Values) error {
+func (s *cookiesImpl) Init(ctx context.Context, values configx.Values) error {
 	s.sessionStores = make(map[string]sessions.Store)
 	if k, e := utils.LoadKey(); e != nil {
 		return e
 	} else {
 		s.secureKeyPairs = k
-		return s.DAO.Init(values)
+		return s.DAO.Init(ctx, values)
 	}
 }
 

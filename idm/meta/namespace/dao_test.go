@@ -21,6 +21,7 @@
 package namespace
 
 import (
+	"context"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -39,7 +40,8 @@ var (
 
 func TestMain(m *testing.M) {
 	var options = configx.New()
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
+	ctx := context.Background()
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(DAO)
@@ -67,7 +69,8 @@ func TestCrud(t *testing.T) {
 
 		jsonDef := result["namespace"].JsonDefinition
 		var def map[string]string
-		json.Unmarshal([]byte(jsonDef), &def)
+		er = json.Unmarshal([]byte(jsonDef), &def)
+		So(er, ShouldBeNil)
 		So(def["test"], ShouldEqual, "value")
 
 		e := mockDAO.Del(&idm.UserMetaNamespace{Namespace: "namespace"})

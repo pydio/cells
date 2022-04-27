@@ -48,44 +48,12 @@ import (
 	"github.com/spf13/pflag"
 )
 
-/*
-const (
-	caddyfile = `
-{
-  auto_https disable_redirects
-}
-
-{{range .Sites}}
-{{range .Binds}}{{.}} {{end}} {
-	root * "{{$.WebRoot}}"
-	file_server
-
-	route /* {
-		mux
-		request_header Host {host}
-		request_header X-Real-IP {remote}
-	}
-
-	{{if .TLS}}tls {{.TLS}}{{end}}
-	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
-}
-{{end}}
-	 `
-)*/
-
-var (
-	DefaultStartCmd *cobra.Command
-)
-
 func init() {
 	DefaultStartCmd = StartCmd
 }
 
 var (
-	/*caddyconf = struct {
-		Sites   []caddy.SiteConf
-		WebRoot string
-	}{}*/
+	DefaultStartCmd *cobra.Command
 
 	niBindUrl          string
 	niExtUrl           string
@@ -182,10 +150,8 @@ ENVIRONMENT
 			if replace, ok := replaceKeys[flag.Name]; ok {
 				key = replace
 			}
-			cellsViper.BindPFlag(key, flag)
+			_ = cellsViper.BindPFlag(key, flag)
 		})
-
-		initConfig(cmd.Context())
 
 		// Manually bind to viper instead of flags.StringVar, flags.BoolVar, etc
 		niModeCli = cruntime.GetBool(cruntime.KeyInstallCli)
@@ -214,18 +180,10 @@ ENVIRONMENT
 		cmd.Println("")
 
 		var proxyConf *install.ProxyConfig
-		/*var err error
-
-		// Do this in a better way
-		micro := config.Get("ports", common.ServiceMicroApi).Int()
-		if micro == 0 {
-			micro = net.GetAvailablePort()
-			config.Set(micro, "ports", common.ServiceMicroApi)
-			err = config.Save("cli", "Install / Setting default Ports")
-			fatalIfError(cmd, err)
-		}*/
 
 		if niYamlFile != "" || niJsonFile != "" || niBindUrl != "" {
+
+			initConfig(cmd.Context(), false)
 
 			installConf, err := nonInteractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
@@ -245,6 +203,8 @@ ENVIRONMENT
 				fatalIfError(cmd, err)
 				niModeCli = installIndex == 1
 			}
+
+			initConfig(cmd.Context(), !niModeCli)
 
 			// Gather proxy information
 			sites, err := config.LoadSites()
@@ -475,7 +435,7 @@ func init() {
 	flags.String(cruntime.KeySiteLetsEncryptEmail, "", "Contact e-mail for Let's Encrypt provided certificate")
 	flags.Bool(cruntime.KeySiteLetsEncryptAgree, false, "Accept Let's Encrypt EULA")
 	flags.Bool(cruntime.KeySiteLetsEncryptStaging, false, "Rather use staging CA entry point")
-	flags.MarkHidden(cruntime.KeySiteLetsEncryptStaging)
+	_ = flags.MarkHidden(cruntime.KeySiteLetsEncryptStaging)
 
 	flags.Bool(cruntime.KeyInstallExitAfter, false, "Simply exits main process after the installation is done")
 
@@ -510,29 +470,12 @@ func triggerInstall(message string, prompt string, cmd *cobra.Command, args []st
 		cmd.Println("")
 		os.Exit(0)
 	} else {
-		if ConfigureCmd.PreRunE != nil {
-			if err := ConfigureCmd.PreRunE(cmd, args); err != nil {
-				return err
-			}
-		} else if ConfigureCmd.PreRun != nil {
-			ConfigureCmd.PreRun(cmd, args)
-		}
 
-		if ConfigureCmd.RunE != nil {
-			if err := ConfigureCmd.RunE(cmd, args); err != nil {
-				return err
-			}
-		} else if ConfigureCmd.Run != nil {
-			ConfigureCmd.Run(cmd, args)
-		}
+		initViperRuntime()
+		bin := os.Args[0]
+		os.Args = []string{bin, "configure"}
+		return ConfigureCmd.ExecuteContext(cmd.Context())
 
-		if ConfigureCmd.PostRunE != nil {
-			if err := ConfigureCmd.PostRunE(cmd, args); err != nil {
-				return err
-			}
-		} else if ConfigureCmd.PostRun != nil {
-			ConfigureCmd.PostRun(cmd, args)
-		}
 	}
 	return nil
 }

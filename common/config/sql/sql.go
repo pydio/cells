@@ -22,6 +22,7 @@ package sql
 
 import (
 	"bytes"
+	"context"
 	"errors"
 
 	migrate "github.com/rubenv/sql-migrate"
@@ -39,21 +40,25 @@ type SQL struct {
 	watchers []*receiver
 }
 
-func New(driver string, dsn string, prefix string) (configx.Entrypoint, error) {
+func New(ctx context.Context, driver string, dsn string, prefix string) (configx.Entrypoint, error) {
 	var d dao.DAO
+	var de error
 	switch driver {
 	case "mysql":
-		c, er := sql.NewDAO(driver, dsn, prefix)
+		c, er := sql.NewDAO(ctx, driver, dsn, prefix)
 		if er != nil {
 			return nil, er
 		}
-		d = NewDAO(c)
+		d, de = NewDAO(ctx, c)
 	case "sqlite3":
-		c, er := sql.NewDAO(driver, dsn, prefix)
+		c, er := sql.NewDAO(ctx, driver, dsn, prefix)
 		if er != nil {
 			return nil, er
 		}
-		d = NewDAO(c)
+		d, de = NewDAO(ctx, c)
+	}
+	if de != nil {
+		return nil, de
 	}
 
 	dc := configx.New()
@@ -61,7 +66,7 @@ func New(driver string, dsn string, prefix string) (configx.Entrypoint, error) {
 		return nil, er
 	}
 
-	if er := d.Init(dc); er != nil {
+	if er := d.Init(ctx, dc); er != nil {
 		return nil, er
 	}
 
@@ -71,7 +76,7 @@ func New(driver string, dsn string, prefix string) (configx.Entrypoint, error) {
 }
 
 // Init handler for the SQL DAO
-func (s *SQL) Init(options configx.Values) error {
+func (s *SQL) Init(ctx context.Context, options configx.Values) error {
 
 	migrations := &sql.FSMigrationSource{
 		Box:         statics.AsFS(migrationsFS, "migrations"),

@@ -20,6 +20,7 @@
 package role
 
 import (
+	"context"
 	"sync"
 	"testing"
 	"time"
@@ -41,13 +42,14 @@ import (
 var (
 	mockDAO DAO
 	wg      sync.WaitGroup
+	ctx     = context.Background()
 )
 
 func TestMain(m *testing.M) {
 
 	var options = configx.New()
 
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, options); e != nil {
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(DAO)

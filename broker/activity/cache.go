@@ -22,11 +22,10 @@ package activity
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/runtime"
 	"time"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
@@ -38,14 +37,14 @@ func WithCache(dao DAO) DAO {
 		useBatch = true
 	}
 	return &Cache{
-		dao:      dao,
+		DAO:      dao,
 		cache:    cache.NewSharded("activities", cache.WithEviction(5*time.Minute)),
 		useBatch: useBatch,
 	}
 }
 
 type Cache struct {
-	dao   DAO
+	DAO
 	cache cache.Sharded
 
 	useBatch bool
@@ -54,14 +53,14 @@ type Cache struct {
 	inner    []*batchActivity
 }
 
-func (c *Cache) Init(values configx.Values) error {
+func (c *Cache) Init(ctx context.Context, values configx.Values) error {
 	if c.useBatch {
 		c.done = make(chan bool)
 		c.input = make(chan *batchActivity)
 		c.inner = make([]*batchActivity, 0, 500)
 		go c.startBatching()
 	}
-	return c.dao.Init(values)
+	return c.DAO.Init(ctx, values)
 }
 
 func (c *Cache) startBatching() {
@@ -89,45 +88,20 @@ func (c *Cache) flushBatch() {
 	if len(c.inner) == 0 {
 		return
 	}
-	c.dao.(batchDAO).BatchPost(c.inner)
+	c.DAO.(batchDAO).BatchPost(c.inner)
 	c.inner = c.inner[:0]
 }
 
-func (c *Cache) GetConn() dao.Conn {
-	return c.dao.GetConn()
-}
-
-func (c *Cache) SetConn(conn dao.Conn) {
-	c.dao.SetConn(conn)
-}
-
-func (c *Cache) CloseConn() error {
+func (c *Cache) CloseConn(ctx context.Context) error {
 	if c.useBatch {
 		c.stopBatching()
 	}
-	return c.dao.CloseConn()
-}
-
-func (c *Cache) Driver() string {
-	return c.dao.Driver()
-}
-
-func (c *Cache) Prefix() string {
-	return c.dao.Prefix()
-}
-
-// LocalAccess overrides DAO
-func (c *Cache) LocalAccess() bool {
-	return c.dao.LocalAccess()
-}
-
-func (c *Cache) Stats() map[string]interface{} {
-	return c.dao.Stats()
+	return c.DAO.CloseConn(ctx)
 }
 
 func (c *Cache) PostActivity(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publish bool) error {
 	if !c.useBatch {
-		return c.dao.PostActivity(ctx, ownerType, ownerId, boxName, object, publish)
+		return c.DAO.PostActivity(ctx, ownerType, ownerId, boxName, object, publish)
 	} else {
 		var publishCtx context.Context
 		if publish {
@@ -147,7 +121,7 @@ func (c *Cache) PostActivity(ctx context.Context, ownerType activity.OwnerType, 
 func (c *Cache) UpdateSubscription(ctx context.Context, subscription *activity.Subscription) error {
 	// Clear cache
 	c.cache.Delete(subscription.ObjectType.String() + "-" + subscription.ObjectId)
-	return c.dao.UpdateSubscription(ctx, subscription)
+	return c.DAO.UpdateSubscription(ctx, subscription)
 }
 
 func (c *Cache) ListSubscriptions(ctx context.Context, objectType activity.OwnerType, objectIds []string) (res []*activity.Subscription, e error) {
@@ -169,7 +143,7 @@ func (c *Cache) ListSubscriptions(ctx context.Context, objectType activity.Owner
 		}
 		filtered = append(filtered, id)
 	}
-	ss, e := c.dao.ListSubscriptions(ctx, objectType, filtered)
+	ss, e := c.DAO.ListSubscriptions(ctx, objectType, filtered)
 	if e != nil {
 		return
 	}
@@ -186,31 +160,31 @@ func (c *Cache) ListSubscriptions(ctx context.Context, objectType activity.Owner
 }
 
 func (c *Cache) CountUnreadForUser(ctx context.Context, userId string) int {
-	return c.dao.CountUnreadForUser(ctx, userId)
+	return c.DAO.CountUnreadForUser(ctx, userId)
 }
 
 func (c *Cache) ActivitiesFor(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error {
-	return c.dao.ActivitiesFor(ctx, ownerType, ownerId, boxName, refBoxOffset, reverseOffset, limit, result, done)
+	return c.DAO.ActivitiesFor(ctx, ownerType, ownerId, boxName, refBoxOffset, reverseOffset, limit, result, done)
 }
 
 func (c *Cache) StoreLastUserInbox(ctx context.Context, userId string, boxName BoxName, activityId string) error {
-	return c.dao.StoreLastUserInbox(ctx, userId, boxName, activityId)
+	return c.DAO.StoreLastUserInbox(ctx, userId, boxName, activityId)
 }
 
 func (c *Cache) Delete(ctx context.Context, ownerType activity.OwnerType, ownerId string) error {
-	return c.dao.Delete(ctx, ownerType, ownerId)
+	return c.DAO.Delete(ctx, ownerType, ownerId)
 }
 
 func (c *Cache) Purge(ctx context.Context, logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
-	return c.dao.Purge(ctx, logger, ownerType, ownerId, boxName, minCount, maxCount, updatedBefore, compactDB, clearBackup)
+	return c.DAO.Purge(ctx, logger, ownerType, ownerId, boxName, minCount, maxCount, updatedBefore, compactDB, clearBackup)
 }
 
 // AllActivities is used for internal migrations only
 func (c *Cache) allActivities(ctx context.Context) (chan *docActivity, error) {
-	return c.dao.allActivities(ctx)
+	return c.DAO.allActivities(ctx)
 }
 
 // AllSubscriptions is used for internal migrations only
 func (c *Cache) allSubscriptions(ctx context.Context) (chan *activity.Subscription, error) {
-	return c.dao.allSubscriptions(ctx)
+	return c.DAO.allSubscriptions(ctx)
 }

@@ -22,28 +22,31 @@ package mongodb
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/log"
 )
 
 type mongodb struct {
 	conn *mongo.Client
 }
 
-func (m *mongodb) Open(dsn string) (dao.Conn, error) {
+func (m *mongodb) Open(c context.Context, dsn string) (dao.Conn, error) {
 
 	// Create a new client and connect to the server
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(dsn))
+	client, err := mongo.Connect(c, options.Client().ApplyURI(dsn))
 	if err != nil {
 		return nil, err
 	}
 
-	if err := client.Ping(context.Background(), readpref.Primary()); err != nil {
+	if err := client.Ping(c, readpref.Primary()); err != nil {
 		return nil, err
 	}
-	// fmt.Println("Successfully connected and pinged.")
+	log.Logger(c).Info("MongoDB connected and pinged")
 
 	m.conn = client
 
@@ -51,8 +54,8 @@ func (m *mongodb) Open(dsn string) (dao.Conn, error) {
 
 }
 
-func (m *mongodb) GetConn() dao.Conn {
-	return m.conn
+func (m *mongodb) GetConn(c context.Context) (dao.Conn, error) {
+	return m.conn, nil
 }
 
 func (m *mongodb) SetMaxConnectionsForWeight(num int) {

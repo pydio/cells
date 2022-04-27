@@ -89,10 +89,6 @@ func (s mockService) Version() string {
 	return ""
 }
 
-func (s mockService) Nodes() []registry.Node {
-	return []registry.Node{}
-}
-
 func (s mockService) Tags() []string {
 	return []string{}
 }
@@ -126,7 +122,7 @@ func (s mockService) As(i interface{}) bool {
 }
 
 func init() {
-	addRegistryFlags(serviceStartCmd.Flags())
+	addExternalCmdRegistryFlags(serviceStartCmd.Flags())
 
 	serviceCmd.AddCommand(serviceStartCmd)
 }

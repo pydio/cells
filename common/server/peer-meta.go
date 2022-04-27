@@ -30,11 +30,12 @@ import (
 )
 
 const (
-	NodeMetaPID       = "PID"
-	NodeMetaParentPID = "parentPID"
-	NodeMetaMetrics   = "metrics"
-	NodeMetaStartTag  = "start"
-	NodeMetaHostName  = "hostname"
+	NodeMetaPID          = "PID"
+	NodeMetaParentPID    = "parentPID"
+	NodeMetaMetrics      = "metrics"
+	NodeMetaStartTag     = "start"
+	NodeMetaForkStartTag = "forkStartTag"
+	NodeMetaHostName     = "hostname"
 )
 
 func InitPeerMeta() map[string]string {

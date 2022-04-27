@@ -231,9 +231,12 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		service.RestError500(req, rsp, err)
 		return
 	}
+	if request.JobName == "" {
+		request.JobName = req.PathParameter("JobName")
+	}
 
 	ctx := req.Request.Context()
-	log.Logger(ctx).Debug("User.CreateJob", zap.Any("r", request))
+	log.Logger(ctx).Debug("User.CreateJob", zap.Any("r", &request))
 	languages := i18n.UserLanguagesFromRestRequest(req, config.Get())
 
 	jsonParams := make(map[string]interface{})

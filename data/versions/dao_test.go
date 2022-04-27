@@ -21,6 +21,7 @@
 package versions
 
 import (
+	"context"
 	"log"
 	"os"
 	"path/filepath"
@@ -34,11 +35,15 @@ import (
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
+var (
+	ctx = context.Background()
+)
+
 func TestNewBoltStore(t *testing.T) {
 
 	Convey("Test NewBoltStore", t, func() {
 		p := filepath.Join(os.TempDir(), "bolt-test1.db")
-		bd, _ := boltdb.NewDAO("boltdb", p, "test")
+		bd, _ := boltdb.NewDAO(ctx, "boltdb", p, "test")
 		bs, e := NewBoltStore(bd.(boltdb.DAO), p, true)
 		So(e, ShouldBeNil)
 		So(bs, ShouldNotBeNil)

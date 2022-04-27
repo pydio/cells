@@ -21,8 +21,8 @@
 package jobs
 
 import (
+	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/dao/test"
 	"log"
 	"os"
 	"path/filepath"
@@ -35,6 +35,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -45,10 +46,11 @@ func TestNewBoltStore(t *testing.T) {
 
 	Convey("Test open bolt db", t, func() {
 		dbFile := os.TempDir() + "/bolt-test.db"
-		dao, _ := boltdb.NewDAO("boltdb", dbFile, "test-jobs")
+		ctx := context.Background()
+		dao, _ := boltdb.NewDAO(ctx, "boltdb", dbFile, "test-jobs")
 		defer os.Remove(dbFile)
 		db, err := NewBoltStore(dao.(boltdb.DAO))
-		defer dao.CloseConn()
+		defer dao.CloseConn(ctx)
 		So(err, ShouldBeNil)
 		So(db, ShouldNotBeNil)
 	})

@@ -65,10 +65,12 @@ type sqlImpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlImpl) Init(options configx.Values) error {
+func (s *sqlImpl) Init(ctx context.Context, options configx.Values) error {
 
 	// super
-	s.DAO.Init(options)
+	if er := s.DAO.Init(ctx, options); er != nil {
+		return er
+	}
 
 	// Doing the database migrations
 	migrations := &sql.FSMigrationSource{

@@ -21,6 +21,7 @@
 package meta
 
 import (
+	"context"
 	"embed"
 	"time"
 
@@ -52,10 +53,10 @@ type sqlImpl struct {
 }
 
 // Init handler for the SQL DAO
-func (h *sqlImpl) Init(options configx.Values) error {
+func (h *sqlImpl) Init(ctx context.Context, options configx.Values) error {
 
 	// super
-	h.DAO.Init(options)
+	h.DAO.Init(ctx, options)
 
 	// Doing the database migrations
 	migrations := &sql.FSMigrationSource{

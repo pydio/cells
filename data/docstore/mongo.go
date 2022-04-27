@@ -62,11 +62,11 @@ type mongoImpl struct {
 	mongodb.DAO
 }
 
-func (m *mongoImpl) Init(conf configx.Values) error {
+func (m *mongoImpl) Init(ctx context.Context, conf configx.Values) error {
 	if e := model.Init(context.Background(), m.DAO); e != nil {
 		return e
 	}
-	return m.DAO.Init(conf)
+	return m.DAO.Init(ctx, conf)
 }
 
 func (m *mongoImpl) PutDocument(storeID string, doc *docstore.Document) error {
@@ -174,8 +174,8 @@ func (m *mongoImpl) Reset() error {
 	return nil
 }
 
-func (m *mongoImpl) CloseDAO() error {
-	return m.CloseConn()
+func (m *mongoImpl) CloseDAO(c context.Context) error {
+	return m.CloseConn(c)
 }
 
 func (m *mongoImpl) toMdoc(storeId string, document *docstore.Document) *mDoc {

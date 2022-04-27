@@ -46,10 +46,11 @@ func TestMongoDAO_Init(t *testing.T) {
 		return
 	}
 
-	h, _ := mongodb.NewDAO("mongodb", mDsn, "chat-test")
-	m := NewDAO(h).(DAO)
+	h, _ := mongodb.NewDAO(ctx, "mongodb", mDsn, "chat-test")
+	ma, _ := NewDAO(ctx, h)
+	m := ma.(DAO)
 	conf := configx.New()
-	er := m.Init(conf)
+	er := m.Init(ctx, conf)
 	if er != nil {
 		t.Error(er)
 	}

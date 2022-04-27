@@ -22,6 +22,8 @@
 package meta
 
 import (
+	"context"
+
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/sql"
 )
@@ -34,10 +36,10 @@ type DAO interface {
 	ListMetadata(query string) (metadataByUuid map[string]map[string]string, err error)
 }
 
-func NewDAO(o dao.DAO) dao.DAO {
+func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case sql.DAO:
-		return &sqlImpl{DAO: v}
+		return &sqlImpl{DAO: v}, nil
 	}
-	return nil
+	return nil, dao.UnsupportedDriver(o)
 }

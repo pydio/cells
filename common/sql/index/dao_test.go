@@ -46,11 +46,11 @@ var (
 func init() {
 
 	SetDefaultFailureMode(FailureContinues)
-	wrapper := func(d dao.DAO) dao.DAO {
-		return NewDAO(d, "ROOT")
+	wrapper := func(ctx context.Context, d dao.DAO) (dao.DAO, error) {
+		return NewDAO(d, "ROOT"), nil
 	}
 
-	if d, er := dao.InitDAO(sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test", wrapper, options); er != nil {
+	if d, er := dao.InitDAO(context.Background(), sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test", wrapper, options); er != nil {
 		panic(er)
 	} else {
 		ctxNoCache = servicecontext.WithDAO(context.Background(), d)

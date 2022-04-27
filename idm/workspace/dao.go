@@ -24,6 +24,8 @@
 package workspace
 
 import (
+	"context"
+
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
@@ -40,10 +42,10 @@ type DAO interface {
 	Search(sql.Enquirer, *[]interface{}) error
 }
 
-func NewDAO(o dao.DAO) dao.DAO {
+func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case sql.DAO:
-		return &sqlimpl{Handler: v.(*sql.Handler)}
+		return &sqlimpl{Handler: v.(*sql.Handler)}, nil
 	}
-	return nil
+	return nil, dao.UnsupportedDriver(o)
 }

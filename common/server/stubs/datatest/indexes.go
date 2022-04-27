@@ -39,7 +39,9 @@ import (
 
 func NewIndexService(dsName string, nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
 
-	mockDAO, er := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "data_index_"+dsName, index.NewDAO, configx.New())
+	ctx := context.Background()
+
+	mockDAO, er := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "data_index_"+dsName, index.NewDAO, configx.New())
 	if er != nil {
 		return nil, er
 	}
@@ -55,7 +57,7 @@ func NewIndexService(dsName string, nodes ...*tree.Node) (grpc.ClientConnInterfa
 	serv.Register("tree.NodeProvider", srv1)
 	serv.Register("tree.NodeReceiver", srv2)
 
-	ctx := servicecontext.WithDAO(context.Background(), mockDAO)
+	ctx = servicecontext.WithDAO(ctx, mockDAO)
 	for _, u := range nodes {
 		_, er := ts.CreateNode(ctx, &tree.CreateNodeRequest{Node: u})
 		if er != nil {

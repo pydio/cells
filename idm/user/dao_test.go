@@ -21,6 +21,7 @@
 package user
 
 import (
+	"context"
 	"log"
 	"sync"
 	"testing"
@@ -48,7 +49,8 @@ type server struct{}
 func TestMain(m *testing.M) {
 
 	var options = configx.New()
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "idm_user", NewDAO, options); e != nil {
+	ctx := context.Background()
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", NewDAO, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(DAO)

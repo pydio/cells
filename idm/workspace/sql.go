@@ -21,6 +21,7 @@
 package workspace
 
 import (
+	"context"
 	"embed"
 	"fmt"
 	"time"
@@ -60,14 +61,16 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options configx.Values) error {
+func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
 	// super
-	s.DAO.Init(options)
+	if er := s.DAO.Init(ctx, options); er != nil {
+		return er
+	}
 
 	// Preparing the resources
 	s.ResourcesSQL = resources.NewDAO(s.Handler, "idm_workspaces.uuid").(*resources.ResourcesSQL)
-	if err := s.ResourcesSQL.Init(options); err != nil {
+	if err := s.ResourcesSQL.Init(ctx, options); err != nil {
 		return err
 	}
 	// Doing the database migrations

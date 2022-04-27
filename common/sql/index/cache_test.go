@@ -47,11 +47,11 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	wrapper := func(d dao.DAO) dao.DAO {
-		return NewDAO(d, "ROOT")
+	wrapper := func(ctx context.Context, d dao.DAO) (dao.DAO, error) {
+		return NewDAO(d, "ROOT"), nil
 	}
 	var e error
-	if baseCacheDAO, e = dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test", wrapper, options); e != nil {
+	if baseCacheDAO, e = dao.InitDAO(context.Background(), sqlite.Driver, sqlite.SharedMemDSN, "test", wrapper, options); e != nil {
 		panic(e)
 	}
 	m.Run()

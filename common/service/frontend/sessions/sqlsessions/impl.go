@@ -58,10 +58,10 @@ func (h *Impl) GetSession(r *http.Request) (*sessions.Session, error) {
 }
 
 // Init handler for the SQL DAO
-func (h *Impl) Init(options configx.Values) error {
+func (h *Impl) Init(ctx context.Context, options configx.Values) error {
 
 	// super
-	if e := h.DAO.Init(options); e != nil {
+	if e := h.DAO.Init(ctx, options); e != nil {
 		return e
 	}
 

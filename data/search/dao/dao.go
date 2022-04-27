@@ -42,17 +42,17 @@ type SearchEngine interface {
 	Close() error
 }
 
-func NewDAO(dao dao.DAO) dao.DAO {
-	switch v := dao.(type) {
+func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
+	switch v := o.(type) {
 	case *bleve.Indexer:
 		v.SetCodex(&bleve2.Codec{})
-		return v
+		return v, nil
 	case *mongodb.Indexer:
 		v.SetCollection(mongo.Collection)
 		v.SetCodex(&mongo.Codex{})
-		return v
+		return v, nil
 	}
-	return nil
+	return nil, dao.UnsupportedDriver(o)
 
 }
 

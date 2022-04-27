@@ -24,6 +24,8 @@
 package user
 
 import (
+	"context"
+
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -51,10 +53,10 @@ type DAO interface {
 }
 
 // NewDAO wraps passed DAO with specific Pydio implementation of User DAO and returns it.
-func NewDAO(o dao.DAO) dao.DAO {
+func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case sql.DAO:
-		return &sqlimpl{Handler: v.(*sql.Handler)}
+		return &sqlimpl{Handler: v.(*sql.Handler)}, nil
 	}
-	return nil
+	return nil, dao.UnsupportedDriver(o)
 }

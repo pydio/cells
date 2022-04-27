@@ -59,10 +59,6 @@ func init() {
 			service.Tag(common.ServiceTagData),
 			service.Description("Search Engine"),
 			service.Fork(true),
-			/*
-				service.RouterDependencies(),
-				service.AutoRestart(true),
-			*/
 			service.WithIndexer(dao.NewDAO,
 				service.WithStoragePrefix("searchengine"),
 				service.WithStorageSupport(bleve.Driver, mongodb.Driver),

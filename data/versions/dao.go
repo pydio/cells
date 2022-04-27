@@ -22,6 +22,8 @@
 package versions
 
 import (
+	"context"
+
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
@@ -39,24 +41,33 @@ type DAO interface {
 	ListAllVersionedNodesUuids() (chan string, chan bool, chan error)
 }
 
-func NewDAO(dao dao.DAO) dao.DAO {
-	switch v := dao.(type) {
+func NewDAO(c context.Context, o dao.DAO) (dao.DAO, error) {
+	switch v := o.(type) {
 	case boltdb.DAO:
-		bStore, _ := NewBoltStore(v, v.DB().Path(), false)
-		return bStore
+		return NewBoltStore(v, v.DB().Path(), false)
 	case mongodb.DAO:
 		mStore := &mongoStore{DAO: v}
-		return mStore
+		return mStore, nil
 	}
-	return nil
+	return nil, dao.UnsupportedDriver(o)
 }
 
 func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
+	ctx := context.Background()
 	out := map[string]int{
 		"Versions": 0,
 	}
-	from := NewDAO(f).(DAO)
-	to := NewDAO(f).(DAO)
+	var from, to DAO
+	if df, e := NewDAO(ctx, f); e == nil {
+		from = df.(DAO)
+	} else {
+		return out, e
+	}
+	if dt, e := NewDAO(ctx, t); e == nil {
+		to = dt.(DAO)
+	} else {
+		return out, e
+	}
 	uuids, done, errs := from.ListAllVersionedNodesUuids()
 	var e error
 loop1:

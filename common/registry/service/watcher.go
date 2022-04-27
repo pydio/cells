@@ -132,8 +132,8 @@ func newChanWatcher(input chan registry.Result, onClose func(), options registry
 							continue
 						}
 					}
-					if options.Type == pb.ItemType_NODE {
-						if _, ok := i.(registry.Node); !ok {
+					if options.Type == pb.ItemType_SERVER {
+						if _, ok := i.(registry.Server); !ok {
 							continue
 						}
 					}

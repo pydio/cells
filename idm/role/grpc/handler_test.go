@@ -45,18 +45,18 @@ var (
 
 func TestMain(m *testing.M) {
 
+	ctx = context.Background()
 	options := configx.New()
 	options.Val("database").Set(roleDAO)
 	options.Val("exclusive").Set(true)
 	options.Val("prepare").Set(true)
 	// Instantiate and initialise the role DAO Mock
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "", role.NewDAO, options); e != nil {
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "", role.NewDAO, options); e != nil {
 		panic(e)
 	} else {
 		roleDAO = d.(role.DAO)
 	}
 
-	ctx = context.Background()
 	m.Run()
 	wg.Wait()
 }

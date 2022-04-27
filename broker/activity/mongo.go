@@ -96,11 +96,11 @@ type docActivityProjection struct {
 	AcId string `bson:"ac_id"`
 }
 
-func (m *mongoimpl) Init(values configx.Values) error {
-	if er := model.Init(context.Background(), m.DAO); er != nil {
+func (m *mongoimpl) Init(ctx context.Context, values configx.Values) error {
+	if er := model.Init(ctx, m.DAO); er != nil {
 		return er
 	}
-	return m.DAO.Init(values)
+	return m.DAO.Init(ctx, values)
 }
 
 func (m *mongoimpl) UpdateSubscription(ctx context.Context, subscription *activity.Subscription) error {

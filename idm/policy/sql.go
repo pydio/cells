@@ -65,7 +65,7 @@ var (
 )
 
 // Init of the SQL DAO
-func (s *sqlimpl) Init(options configx.Values) error {
+func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
 	// First - Create Ladon package tables
 	db := sqlx.NewDb(s.DB(), s.Driver())

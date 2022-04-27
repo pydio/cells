@@ -73,9 +73,27 @@ func (m *watcher) Next() (Result, error) {
 						items = append(items, item)
 					}
 					continue
-				case pb.ItemType_NODE:
-					var node Node
+				case pb.ItemType_SERVER:
+					var node Server
 					if item.As(&node) && (m.wo.Filter == nil || m.wo.Filter(item)) {
+						items = append(items, item)
+					}
+					continue
+				case pb.ItemType_DAO:
+					var dao Dao
+					if item.As(&dao) && (m.wo.Filter == nil || m.wo.Filter(item)) {
+						items = append(items, item)
+					}
+					continue
+				case pb.ItemType_EDGE:
+					var edge Edge
+					if item.As(&edge) && (m.wo.Filter == nil || m.wo.Filter(item)) {
+						items = append(items, item)
+					}
+					continue
+				case pb.ItemType_GENERIC:
+					var generic Generic
+					if item.As(&generic) && (m.wo.Filter == nil || m.wo.Filter(item)) {
 						items = append(items, item)
 					}
 					continue

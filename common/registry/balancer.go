@@ -43,9 +43,9 @@ type Backend struct {
 func NewBalancer(r Registry) {
 	b := &Balancer{}
 
-	nodes, _ := r.List(WithType(pb.ItemType_NODE))
+	nodes, _ := r.List(WithType(pb.ItemType_SERVER))
 	for _, n := range nodes {
-		var node Node
+		var node Server
 		n.As(&node)
 
 		for _, endpoint := range node.Endpoints() {
@@ -57,7 +57,7 @@ func NewBalancer(r Registry) {
 }
 
 func (b *Balancer) watch(r Registry) {
-	_, err := r.Watch(WithType(pb.ItemType_NODE))
+	_, err := r.Watch(WithType(pb.ItemType_SERVER))
 	if err != nil {
 		return
 	}

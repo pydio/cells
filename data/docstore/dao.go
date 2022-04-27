@@ -25,13 +25,14 @@
 package docstore
 
 import (
+	"context"
+	"path/filepath"
+	"strings"
+
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/docstore"
-	"path/filepath"
-	"strings"
 )
 
 type DAO interface {
@@ -44,11 +45,11 @@ type DAO interface {
 	CountDocuments(storeID string, query *docstore.DocumentQuery) (int, error)
 	ListStores() ([]string, error)
 	Reset() error
-	CloseDAO() error
+	CloseDAO(ctx context.Context) error
 }
 
-func NewDAO(dao dao.DAO) dao.DAO {
-	switch v := dao.(type) {
+func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
+	switch v := o.(type) {
 	case boltdb.DAO:
 		bStore := &BoltStore{db: v.DB()}
 		boltFile := v.DB().Path()
@@ -60,24 +61,34 @@ func NewDAO(dao dao.DAO) dao.DAO {
 		}
 		bleve, er := NewBleveEngine(bStore, bleveDirname, false)
 		if er != nil {
-			log.Fatal("Cannot open bleve engine for docstore")
+			return nil, er
 		}
 		bleve.DAO = v
-		return bleve
+		return bleve, nil
 	case mongodb.DAO:
 		return &mongoImpl{
 			DAO: v,
-		}
+		}, nil
 	}
-	return nil
+	return nil, dao.UnsupportedDriver(o)
 }
 
 func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
-	from := NewDAO(f).(DAO)
-	to := NewDAO(t).(DAO)
+	ctx := context.Background()
 	out := map[string]int{
 		"Stores":    0,
 		"Documents": 0,
+	}
+	var from, to DAO
+	if df, e := NewDAO(ctx, f); e == nil {
+		from = df.(DAO)
+	} else {
+		return out, e
+	}
+	if dt, e := NewDAO(ctx, t); e == nil {
+		to = dt.(DAO)
+	} else {
+		return out, e
 	}
 	ss, e := from.ListStores()
 	if e != nil {

@@ -80,7 +80,7 @@ EXAMPLE
 	},
 }
 
-var _ registry.Node = (*node)(nil)
+var _ registry.Server = (*node)(nil)
 
 type node struct {
 	id       string

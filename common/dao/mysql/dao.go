@@ -21,6 +21,7 @@
 package mysql
 
 import (
+	"context"
 	"github.com/pydio/cells/v4/common/dao"
 	commonsql "github.com/pydio/cells/v4/common/sql"
 )
@@ -30,7 +31,7 @@ const (
 )
 
 func init() {
-	dao.RegisterDAODriver(MysqlDriver, commonsql.NewDAO, func(driver, dsn string) dao.ConnDriver {
+	dao.RegisterDAODriver(MysqlDriver, commonsql.NewDAO, func(c context.Context, driver, dsn string) dao.ConnDriver {
 		return &conn{}
 	})
 }

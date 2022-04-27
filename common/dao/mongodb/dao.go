@@ -21,6 +21,7 @@
 package mongodb
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"path"
@@ -34,7 +35,7 @@ import (
 const Driver = "mongodb"
 
 func init() {
-	dao.RegisterDAODriver(Driver, NewDAO, func(driver, dsn string) dao.ConnDriver {
+	dao.RegisterDAODriver(Driver, NewDAO, func(ctx context.Context, driver, dsn string) dao.ConnDriver {
 		return &mongodb{}
 	})
 	dao.RegisterIndexerDriver(Driver, NewIndexer)
@@ -50,12 +51,13 @@ type DAO interface {
 // Handler for the main functions of the DAO
 type Handler struct {
 	dao.DAO
-	dbName string
+	dbName     string
+	runtimeCtx context.Context
 }
 
 // NewDAO creates a new handler for the boltdb dao
-func NewDAO(driver string, dsn string, prefix string) (dao.DAO, error) {
-	conn, err := dao.NewConn(driver, dsn)
+func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.DAO, error) {
+	conn, err := dao.NewConn(ctx, driver, dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -67,13 +69,14 @@ func NewDAO(driver string, dsn string, prefix string) (dao.DAO, error) {
 		return nil, fmt.Errorf("mongodb DSN must provide a dbName (like host:port/{dbName})")
 	}
 	return &Handler{
-		DAO:    dao.AbstractDAO(conn, driver, prefix),
-		dbName: dbName,
+		DAO:        dao.AbstractDAO(conn, driver, dsn, prefix),
+		dbName:     dbName,
+		runtimeCtx: ctx,
 	}, nil
 }
 
 // Init initialises the handler
-func (h *Handler) Init(cfg configx.Values) error {
+func (h *Handler) Init(ctx context.Context, cfg configx.Values) error {
 	return nil
 }
 
@@ -83,7 +86,7 @@ func (h *Handler) DB() *mongo.Database {
 		return nil
 	}
 
-	if conn := h.GetConn(); conn != nil {
+	if conn, _ := h.GetConn(h.runtimeCtx); conn != nil {
 		client := conn.(*mongo.Client)
 		return client.Database(h.dbName)
 	}

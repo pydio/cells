@@ -21,6 +21,7 @@
 package sync
 
 import (
+	"context"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -35,7 +36,8 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, configx.New()); e != nil {
+	ctx := context.Background()
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, configx.New()); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(DAO)

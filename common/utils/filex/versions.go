@@ -43,15 +43,16 @@ type BoltStore struct {
 }
 
 // NewStore opens a new store
-func NewStore(configDir string) VersionsStore {
+func NewStore(configDir string, debounceTime ...time.Duration) VersionsStore {
 	filename := filepath.Join(configDir, "configs-versions.db")
-	debouncer := debounce.New(2 * time.Second)
-	versions := make(chan *Version, 100)
-	return &BoltStore{
-		FileName:  filename,
-		debouncer: debouncer,
-		versions:  versions,
+	bs := &BoltStore{
+		FileName: filename,
+		versions: make(chan *Version, 100),
 	}
+	if len(debounceTime) > 0 {
+		bs.debouncer = debounce.New(debounceTime[0])
+	}
+	return bs
 }
 
 func (b *BoltStore) GetConnection(readOnly bool) (*bolt.DB, error) {
@@ -76,11 +77,11 @@ func (b *BoltStore) GetConnection(readOnly bool) (*bolt.DB, error) {
 }
 
 // put stores version in Bolt
-func (b *BoltStore) put() {
+func (b *BoltStore) flush() {
 	db, err := b.GetConnection(false)
 	if err != nil {
 		// TODO logs
-		fmt.Println("no connection", zap.Error(err))
+		fmt.Println("[Configs Versions] no connection", zap.Error(err))
 		return
 	}
 	defer db.Close()
@@ -104,14 +105,17 @@ func (b *BoltStore) put() {
 			}
 		}
 	}); err != nil {
-		fmt.Println("could not update", zap.Error(err))
+		fmt.Println("[Configs Versions] could not update", zap.Error(err))
 	}
 }
 
 func (b *BoltStore) Put(version *Version) error {
 	b.versions <- version
-	b.debouncer(b.put)
-
+	if b.debouncer != nil {
+		b.debouncer(b.flush)
+	} else {
+		b.flush()
+	}
 	return nil
 }
 

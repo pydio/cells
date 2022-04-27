@@ -47,12 +47,12 @@ var (
 
 func TestMain(m *testing.M) {
 
-	d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test_", acl.NewDAO, options)
+	ctx = context.Background()
+	d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test_", acl.NewDAO, options)
 	if e != nil {
 		panic(e)
 	}
 	mockDAO = d.(acl.DAO)
-	ctx = context.Background()
 
 	m.Run()
 	wg.Wait()

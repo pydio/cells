@@ -22,6 +22,8 @@
 package sync
 
 import (
+	"context"
+
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sync/endpoints/s3"
@@ -34,10 +36,10 @@ type DAO interface {
 	CleanResourcesOnDeletion() (string, error)
 }
 
-func NewDAO(o dao.DAO) dao.DAO {
+func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case sql.DAO:
-		return &sqlImpl{DAO: v}
+		return &sqlImpl{DAO: v}, nil
 	}
-	return nil
+	return nil, dao.UnsupportedDriver(o)
 }

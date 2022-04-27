@@ -278,7 +278,7 @@ func (c *configRegistry) Deregister(item registry.Item) error {
 	return nil
 }
 
-func (c *configRegistry) Get(s string, opts ...registry.Option) (registry.Item, error) {
+func (c *configRegistry) Get(id string, opts ...registry.Option) (registry.Item, error) {
 	o := registry.Options{}
 	for _, opt := range opts {
 		if err := opt(&o); err != nil {
@@ -292,7 +292,7 @@ func (c *configRegistry) Get(s string, opts ...registry.Option) (registry.Item, 
 	}
 
 	for _, v := range items {
-		if s == v.Name() {
+		if id == v.ID() {
 			return v, nil
 		}
 	}
@@ -315,22 +315,34 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 	var res []registry.Item
 
 	for _, item := range items {
+		if o.Name != "" && !o.Matches(o.Name, item.Name()) {
+			continue
+		}
+		if o.Filter != nil && !o.Filter(item) {
+			continue
+		}
 		switch o.Type {
 		case pb.ItemType_ALL:
 			res = append(res, item)
 		case pb.ItemType_SERVICE:
 			if service, ok := item.(registry.Service); ok {
-				if o.Filter != nil && !o.Filter(service) {
-					continue
-				}
 				res = append(res, service)
 			}
-		case pb.ItemType_NODE:
-			if node, ok := item.(registry.Node); ok {
-				if o.Filter != nil && !o.Filter(node) {
-					continue
-				}
+		case pb.ItemType_SERVER:
+			if node, ok := item.(registry.Server); ok {
 				res = append(res, node)
+			}
+		case pb.ItemType_DAO:
+			if dao, ok := item.(registry.Dao); ok {
+				res = append(res, dao)
+			}
+		case pb.ItemType_EDGE:
+			if edge, ok := item.(registry.Edge); ok {
+				res = append(res, edge)
+			}
+		case pb.ItemType_GENERIC:
+			if generic, ok := item.(registry.Generic); ok {
+				res = append(res, generic)
 			}
 		}
 	}

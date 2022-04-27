@@ -21,6 +21,7 @@
 package workspace
 
 import (
+	"context"
 	"sync"
 	"testing"
 
@@ -43,8 +44,9 @@ var (
 func TestMain(m *testing.M) {
 
 	var options = configx.New()
+	ctx := context.Background()
 
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "workspaces", NewDAO, options); e != nil {
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "workspaces", NewDAO, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(DAO)

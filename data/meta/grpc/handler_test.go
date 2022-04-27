@@ -38,12 +38,13 @@ import (
 
 var (
 	mockDAO meta.DAO
+	ctx     = context.Background()
 )
 
 func TestMain(m *testing.M) {
 	options := configx.New()
 
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test", meta.NewDAO, options); e != nil {
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", meta.NewDAO, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(meta.DAO)

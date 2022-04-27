@@ -22,6 +22,9 @@
 package bleve
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
@@ -29,7 +32,7 @@ import (
 const Driver = "bleve"
 
 func init() {
-	dao.RegisterDAODriver(Driver, NewDAO, func(driver, dsn string) dao.ConnDriver {
+	dao.RegisterDAODriver(Driver, NewDAO, func(ctx context.Context, driver, dsn string) dao.ConnDriver {
 		return new(BleveConfig)
 	})
 	dao.RegisterIndexerDriver(Driver, NewIndexer)
@@ -38,7 +41,7 @@ func init() {
 // DAO defines the functions specific to the boltdb dao
 type DAO interface {
 	dao.DAO
-	BleveConfig() *BleveConfig
+	BleveConfig(context.Context) (*BleveConfig, error)
 }
 
 // Handler for the main functions of the DAO
@@ -47,31 +50,33 @@ type Handler struct {
 }
 
 // NewDAO creates a new handler for the boltdb dao
-func NewDAO(driver string, dsn string, prefix string) (dao.DAO, error) {
-	conn, err := dao.NewConn(driver, dsn)
+func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.DAO, error) {
+	conn, err := dao.NewConn(ctx, driver, dsn)
 	if err != nil {
 		return nil, err
 	}
 	return &Handler{
-		DAO: dao.AbstractDAO(conn, driver, prefix),
+		DAO: dao.AbstractDAO(conn, driver, dsn, prefix),
 	}, nil
 }
 
 // Init initialises the handler
-func (h *Handler) Init(configx.Values) error {
+func (h *Handler) Init(context.Context, configx.Values) error {
 	return nil
 }
 
 // BleveConfig returns the folder to lookup for bleve index
-func (h *Handler) BleveConfig() *BleveConfig {
+func (h *Handler) BleveConfig(ctx context.Context) (*BleveConfig, error) {
 	if h == nil {
-		return &BleveConfig{}
+		return nil, fmt.Errorf("uninitialized handler")
 	}
 
-	if conn := h.GetConn(); conn != nil {
-		return conn.(*BleveConfig)
+	if conn, err := h.GetConn(ctx); err == nil && conn != nil {
+		return conn.(*BleveConfig), nil
+	} else if err != nil {
+		return nil, err
 	}
-	return &BleveConfig{}
+	return &BleveConfig{}, nil
 }
 
 // LocalAccess overrides DAO

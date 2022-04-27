@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/etl/models"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/utils/merger"
 )
 
 type Merger struct {
@@ -49,7 +50,7 @@ type MergeOperation struct {
 }
 
 type Converter interface {
-	Convert(interface{}) ([]models.Differ, bool)
+	Convert(interface{}) ([]merger.Differ, bool)
 }
 
 var (
@@ -248,7 +249,7 @@ func (m *Merger) LoadAndDiffShares(ctx context.Context, params map[string]interf
 	return diff, nil
 }
 
-func (m *Merger) Diff(source interface{}, target interface{}, res models.Diff) {
+func (m *Merger) Diff(source interface{}, target interface{}, res merger.Diff) {
 
 	var added, updated, deleted []interface{}
 
@@ -461,7 +462,7 @@ func (m *Merger) Delete(ctx context.Context, obj interface{}) error {
 	return fmt.Errorf("Type not deletable")
 }
 
-func (m *Merger) Save(ctx context.Context, diff models.Diff, progress chan MergeOperation) {
+func (m *Merger) Save(ctx context.Context, diff merger.Diff, progress chan MergeOperation) {
 
 	create := diff.ToAdd()
 	update := diff.ToUpdate()
@@ -538,8 +539,8 @@ func (m *Merger) Save(ctx context.Context, diff models.Diff, progress chan Merge
 	}
 }
 
-func (m *Merger) convert(i interface{}) []models.Differ {
-	var res []models.Differ
+func (m *Merger) convert(i interface{}) []merger.Differ {
+	var res []merger.Differ
 
 	switch v := i.(type) {
 	case []*idm.ACL:

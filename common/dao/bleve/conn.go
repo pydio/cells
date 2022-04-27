@@ -21,6 +21,7 @@
 package bleve
 
 import (
+	"context"
 	"net/url"
 	"strconv"
 	"strings"
@@ -38,7 +39,7 @@ type BleveConfig struct {
 	BatchSize    int64
 }
 
-func (b *BleveConfig) Open(dsn string) (dao.Conn, error) {
+func (b *BleveConfig) Open(ctx context.Context, dsn string) (dao.Conn, error) {
 	b.BlevePath = dsn
 	b.MappingName = "docs"
 	b.RotationSize = DefaultRotationSize
@@ -65,8 +66,8 @@ func (b *BleveConfig) Open(dsn string) (dao.Conn, error) {
 	return b, nil
 }
 
-func (b *BleveConfig) GetConn() dao.Conn {
-	return b
+func (b *BleveConfig) GetConn(ctx context.Context) (dao.Conn, error) {
+	return b, nil
 }
 
 func (b *BleveConfig) SetMaxConnectionsForWeight(_ int) {}

@@ -22,9 +22,10 @@ package service
 
 import (
 	"context"
-
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/registry"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
@@ -82,7 +83,7 @@ func WithStorageMigrator(d dao.MigratorFunc) StorageOption {
 	}
 }
 
-func daoFromOptions(o *ServiceOptions, fd func(dao.DAO) dao.DAO, indexer bool, opts *StorageOptions) (dao.DAO, error) {
+func daoFromOptions(o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts *StorageOptions) (dao.DAO, error) {
 	prefix := opts.Prefix(o)
 
 	cfgKey := "storage"
@@ -99,9 +100,9 @@ func daoFromOptions(o *ServiceOptions, fd func(dao.DAO) dao.DAO, indexer bool, o
 	cfg := config.Get("services", o.Name)
 
 	if indexer {
-		c, e = dao.InitIndexer(driver, dsn, prefix, fd, cfg)
+		c, e = dao.InitIndexer(o.Context, driver, dsn, prefix, fd, cfg)
 	} else {
-		c, e = dao.InitDAO(driver, dsn, prefix, fd, cfg)
+		c, e = dao.InitDAO(o.Context, driver, dsn, prefix, fd, cfg)
 	}
 	if e != nil {
 		return nil, e
@@ -116,16 +117,16 @@ func daoFromOptions(o *ServiceOptions, fd func(dao.DAO) dao.DAO, indexer bool, o
 }
 
 // WithStorage adds a storage handler to the current service
-func WithStorage(fd func(dao.DAO) dao.DAO, opts ...StorageOption) ServiceOption {
+func WithStorage(fd dao.DaoWrapperFunc, opts ...StorageOption) ServiceOption {
 	return makeStorageServiceOption(false, fd, opts...)
 }
 
 // WithIndexer adds an indexer handler to the current service
-func WithIndexer(fd func(dao.DAO) dao.DAO, opts ...StorageOption) ServiceOption {
+func WithIndexer(fd dao.DaoWrapperFunc, opts ...StorageOption) ServiceOption {
 	return makeStorageServiceOption(true, fd, opts...)
 }
 
-func makeStorageServiceOption(indexer bool, fd func(dao.DAO) dao.DAO, opts ...StorageOption) ServiceOption {
+func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...StorageOption) ServiceOption {
 	return func(o *ServiceOptions) {
 		storageKey := "storage"
 		if indexer {
@@ -142,6 +143,22 @@ func makeStorageServiceOption(indexer bool, fd func(dao.DAO) dao.DAO, opts ...St
 			d, err := daoFromOptions(o, fd, indexer, sOpts)
 			if err != nil {
 				return err
+			}
+			if reg := servicecontext.GetRegistry(o.Context); reg != nil {
+				var regItem registry.Dao
+				if d.As(&regItem) {
+					if e := reg.Register(regItem); e == nil {
+						log.Logger(o.Context).Debug(" -- Initialized and registered DAO: " + regItem.Name())
+						mm := map[string]string{}
+						prefix := sOpts.Prefix(o)
+						if prefix != "" {
+							mm["Prefix"] = prefix
+						}
+						if edge, e2 := registry.RegisterEdge(reg, o.ID, regItem.ID(), "DAO Storage", mm); e2 == nil {
+							log.Logger(o.Context).Debug(" -- Registered Edge: " + edge.ID())
+						}
+					}
+				}
 			}
 			if indexer {
 				ctx = servicecontext.WithIndexer(ctx, d)

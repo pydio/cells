@@ -37,13 +37,6 @@ type Registry interface {
 	As(interface{}) bool
 }
 
-type Item interface {
-	Name() string
-	ID() string
-	Metadata() map[string]string
-	As(interface{}) bool
-}
-
 type Context interface {
 	Context(context.Context)
 }

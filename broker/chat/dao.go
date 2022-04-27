@@ -42,14 +42,14 @@ type DAO interface {
 	CountMessages(ctx context.Context, room *chat.ChatRoom) (count int, e error)
 }
 
-func NewDAO(o dao.DAO) dao.DAO {
+func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case boltdb.DAO:
-		return &boltdbimpl{DAO: v, HistorySize: 1000}
+		return &boltdbimpl{DAO: v, HistorySize: 1000}, nil
 	case mongodb.DAO:
-		return &mongoImpl{DAO: v}
+		return &mongoImpl{DAO: v}, nil
 	}
-	return nil
+	return nil, dao.UnsupportedDriver(o)
 }
 
 func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
@@ -58,8 +58,17 @@ func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
 		"Rooms":    0,
 		"Messages": 0,
 	}
-	from := NewDAO(f).(DAO)
-	to := NewDAO(t).(DAO)
+	var from, to DAO
+	if df, e := NewDAO(ctx, f); e == nil {
+		from = df.(DAO)
+	} else {
+		return res, e
+	}
+	if dt, e := NewDAO(ctx, t); e == nil {
+		to = dt.(DAO)
+	} else {
+		return res, e
+	}
 	for _, roomType := range chat.RoomType_value {
 		rooms, er := from.ListRooms(ctx, &chat.ListRoomsRequest{
 			ByType: chat.RoomType(roomType),

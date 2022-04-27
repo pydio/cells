@@ -52,11 +52,11 @@ type ServiceOptions struct {
 	// Port      string
 	TLSConfig *tls.Config
 
-	Server         server.Server     `json:"-"`
-	ServerProvider ServerProvider    `json:"-"`
-	serverType     server.ServerType `json:"-"`
-	serverStart    func() error      `json:"-"`
-	serverStop     func() error      `json:"-"`
+	Server         server.Server  `json:"-"`
+	ServerProvider ServerProvider `json:"-"`
+	serverType     server.ServerType
+	serverStart    func() error
+	serverStop     func() error
 
 	Dependencies []*dependency `json:"-"`
 

@@ -35,7 +35,8 @@ import (
 
 func NewRolesService(roles ...*idm.Role) (grpc.ClientConnInterface, error) {
 
-	mockRDAO, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "idm_roles", role.NewDAO, configx.New())
+	ctx := context.Background()
+	mockRDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_roles", role.NewDAO, configx.New())
 	if e != nil {
 		return nil, e
 	}
@@ -43,7 +44,7 @@ func NewRolesService(roles ...*idm.Role) (grpc.ClientConnInterface, error) {
 	serv := &idm.RoleServiceStub{
 		RoleServiceServer: srv.NewHandler(nil, mockRDAO.(role.DAO)),
 	}
-	ctx := servicecontext.WithDAO(context.Background(), mockRDAO)
+	ctx = servicecontext.WithDAO(ctx, mockRDAO)
 	for _, r := range roles {
 		_, er := serv.RoleServiceServer.CreateRole(ctx, &idm.CreateRoleRequest{Role: r})
 		if er != nil {

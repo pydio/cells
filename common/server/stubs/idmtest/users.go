@@ -35,7 +35,9 @@ import (
 )
 
 func NewUsersService(users ...*idm.User) (grpc.ClientConnInterface, error) {
-	mockDAO, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, configx.New())
+	ctx := context.Background()
+
+	mockDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, configx.New())
 	if e != nil {
 		return nil, e
 	}
@@ -43,7 +45,7 @@ func NewUsersService(users ...*idm.User) (grpc.ClientConnInterface, error) {
 	serv := &idm.UserServiceStub{
 		UserServiceServer: srv.NewHandler(nil, mockDAO.(user.DAO)),
 	}
-	ctx := servicecontext.WithDAO(context.Background(), mockDAO)
+	ctx = servicecontext.WithDAO(ctx, mockDAO)
 	for _, u := range users {
 		_, er := serv.UserServiceServer.CreateUser(ctx, &idm.CreateUserRequest{User: u})
 		if er != nil {

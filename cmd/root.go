@@ -185,7 +185,7 @@ func skipCoreInit() bool {
 	return false
 }
 
-func initConfig(ctx context.Context) (new bool) {
+func initConfig(ctx context.Context, debounceVersions bool) (new bool) {
 
 	if skipCoreInit() {
 		return
@@ -244,8 +244,12 @@ func initConfig(ctx context.Context) (new bool) {
 
 	e := encrypter{key: crypto.KeyFromPassword(passwordBytes, 32)}
 
-	// Versions store
-	versionsStore := filex.NewStore(config.PydioConfigDir)
+	var versionsStore filex.VersionsStore
+	if debounceVersions {
+		versionsStore = filex.NewStore(config.PydioConfigDir, 2*time.Second)
+	} else {
+		versionsStore = filex.NewStore(config.PydioConfigDir)
+	}
 
 	config.RegisterVersionStore(versionsStore)
 

@@ -35,7 +35,6 @@ import (
 )
 
 var (
-	IndexPath = ""
 	BatchSize = 2000
 )
 
@@ -99,12 +98,12 @@ func (s *Server) watchOperations() {
 			batch.Flush(s.Engine)
 		case <-s.Ctx.Done():
 			batch.Flush(s.Engine)
-			s.Engine.Close()
+			s.Engine.Close(s.Ctx)
 			close(s.done)
 			return
 		case <-s.done:
 			batch.Flush(s.Engine)
-			s.Engine.Close()
+			s.Engine.Close(s.Ctx)
 			return
 		}
 	}
@@ -112,7 +111,7 @@ func (s *Server) watchOperations() {
 
 func (s *Server) Close() error {
 	close(s.done)
-	return s.Engine.Close()
+	return s.Engine.Close(s.Ctx)
 }
 
 func (s *Server) IndexNode(c context.Context, n *tree.Node, reloadCore bool, excludes map[string]struct{}) error {

@@ -22,11 +22,12 @@ package models
 
 import (
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/utils/merger"
 )
 
 type ACL idm.ACL
 
-func (a *ACL) Equals(o Differ) bool {
+func (a *ACL) Equals(o merger.Differ) bool {
 	other := o.(*ACL)
 
 	res := a.NodeID == other.NodeID
@@ -42,7 +43,7 @@ func (a *ACL) IsDeletable(m map[string]string) bool {
 }
 
 // IsMergeable tests if two user can be mergeable whose the same login name and auth source
-func (a *ACL) IsMergeable(o Differ) bool {
+func (a *ACL) IsMergeable(o merger.Differ) bool {
 	other := o.(*ACL)
 
 	res := a.NodeID == other.NodeID
@@ -56,6 +57,6 @@ func (a *ACL) GetUniqueId() string {
 	return "node" + a.NodeID + "role" + a.RoleID + "workspace" + a.WorkspaceID + "action" + a.Action.Name + a.Action.Value
 }
 
-func (a *ACL) Merge(o Differ, options map[string]string) (Differ, error) {
+func (a *ACL) Merge(o merger.Differ, options map[string]string) (merger.Differ, error) {
 	return a, nil
 }

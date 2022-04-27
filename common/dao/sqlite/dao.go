@@ -21,6 +21,8 @@
 package sqlite
 
 import (
+	"context"
+
 	"github.com/pydio/cells/v4/common/dao"
 	commonsql "github.com/pydio/cells/v4/common/sql"
 )
@@ -31,7 +33,7 @@ const (
 )
 
 func init() {
-	dao.RegisterDAODriver(Driver, commonsql.NewDAO, func(driver, dsn string) dao.ConnDriver {
+	dao.RegisterDAODriver(Driver, commonsql.NewDAO, func(ctx context.Context, driver, dsn string) dao.ConnDriver {
 		return &conn{}
 	})
 }

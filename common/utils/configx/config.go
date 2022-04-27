@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/mitchellh/mapstructure"
-
 	"github.com/spf13/cast"
 )
 

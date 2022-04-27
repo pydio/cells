@@ -42,9 +42,9 @@ func (h *Handler) Name() string {
 	return Name
 }
 
-func (h *Handler) Close() error {
+func (h *Handler) Close(c context.Context) error {
 	var err error
-	err = h.DAO.CloseDAO()
+	err = h.DAO.CloseDAO(c)
 	if err != nil {
 		fmt.Println("[error] Could not close docstore database")
 	}

@@ -18,10 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package BoltDB provides tools for using Bolt as a standard persistence layer for services
+// Package boltdb provides tools for using Bolt as a standard persistence layer for services
 package boltdb
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -37,7 +38,7 @@ import (
 const Driver = "boltdb"
 
 func init() {
-	dao.RegisterDAODriver(Driver, NewDAO, func(driver, dsn string) dao.ConnDriver {
+	dao.RegisterDAODriver(Driver, NewDAO, func(ctx context.Context, driver, dsn string) dao.ConnDriver {
 		return &boltdb{}
 	})
 }
@@ -46,27 +47,29 @@ func init() {
 type DAO interface {
 	dao.DAO
 	DB() *bolt.DB
-	Compact(opts map[string]interface{}) (int64, int64, error)
+	Compact(ctx context.Context, opts map[string]interface{}) (int64, int64, error)
 }
 
 // Handler for the main functions of the DAO
 type Handler struct {
 	dao.DAO
+	runtimeCtx context.Context
 }
 
 // NewDAO creates a new handler for the boltdb dao
-func NewDAO(driver string, dsn string, prefix string) (dao.DAO, error) {
-	conn, err := dao.NewConn(driver, dsn)
+func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.DAO, error) {
+	conn, err := dao.NewConn(ctx, driver, dsn)
 	if err != nil {
 		return nil, err
 	}
 	return &Handler{
-		DAO: dao.AbstractDAO(conn, driver, prefix),
+		DAO:        dao.AbstractDAO(conn, driver, dsn, prefix),
+		runtimeCtx: ctx,
 	}, nil
 }
 
 // Init initialises the handler
-func (h *Handler) Init(configx.Values) error {
+func (h *Handler) Init(context.Context, configx.Values) error {
 	return nil
 }
 
@@ -81,14 +84,14 @@ func (h *Handler) DB() *bolt.DB {
 		return nil
 	}
 
-	if conn := h.GetConn(); conn != nil {
+	if conn, _ := h.GetConn(h.runtimeCtx); conn != nil {
 		return conn.(*bolt.DB)
 	}
 	return nil
 }
 
 // Compact makes a copy of the current DB and replace it as a connection
-func (h *Handler) Compact(opts map[string]interface{}) (old int64, new int64, err error) {
+func (h *Handler) Compact(ctx context.Context, opts map[string]interface{}) (old int64, new int64, err error) {
 	db := h.DB()
 	p := db.Path()
 	if st, e := os.Stat(p); e == nil {
@@ -120,7 +123,7 @@ func (h *Handler) Compact(opts map[string]interface{}) (old int64, new int64, er
 	}
 	copyDB.Close()
 
-	if e := h.CloseConn(); e != nil {
+	if e := h.CloseConn(ctx); e != nil {
 		return 0, 0, e
 	}
 	bakPath := filepath.Join(dir, fmt.Sprintf("%s-%d%s", base, time.Now().Unix(), ext))
@@ -133,7 +136,7 @@ func (h *Handler) Compact(opts map[string]interface{}) (old int64, new int64, er
 	if copyDB, e = bolt.Open(p, 0600, &bolt.Options{Timeout: 5 * time.Second}); e != nil {
 		return 0, 0, e
 	}
-	h.SetConn(copyDB)
+	h.SetConn(ctx, copyDB)
 	if opts != nil {
 		if clear, ok := opts["ClearBackup"]; ok {
 			if c, o := clear.(bool); o && c {

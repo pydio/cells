@@ -99,10 +99,11 @@ func getDAO(ctx context.Context) DAO {
 
 func TestMain(m *testing.M) {
 
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
+	c := context.Background()
+	if d, e := dao.InitDAO(c, sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
 		panic(e)
 	} else {
-		ctx = servicecontext.WithDAO(context.Background(), d)
+		ctx = servicecontext.WithDAO(c, d)
 	}
 
 	m.Run()

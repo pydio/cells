@@ -120,22 +120,22 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options configx.Values) error {
+func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
 	// super
-	if er := s.DAO.Init(options); er != nil {
+	if er := s.DAO.Init(ctx, options); er != nil {
 		return er
 	}
 
 	// Preparing the resources
 	s.ResourcesSQL = resources.NewDAO(s.Handler, "t.uuid").(*resources.ResourcesSQL)
-	if err := s.ResourcesSQL.Init(options); err != nil {
+	if err := s.ResourcesSQL.Init(ctx, options); err != nil {
 		return fmt.Errorf("cannot initialise resources DAO: %v", err)
 	}
 
 	// Preparing the index
 	s.IndexSQL = index.NewDAO(s.Handler, "ROOT_GROUP").(*index.IndexSQL)
-	if err := s.IndexSQL.Init(options); err != nil {
+	if err := s.IndexSQL.Init(ctx, options); err != nil {
 		return fmt.Errorf("cannot initialise index DAO: %v", err)
 	}
 

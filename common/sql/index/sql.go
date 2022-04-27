@@ -356,7 +356,7 @@ type IndexSQL struct {
 }
 
 // Init handles the db version migration and prepare the statements
-func (dao *IndexSQL) Init(options configx.Values) error {
+func (dao *IndexSQL) Init(ctx context.Context, options configx.Values) error {
 
 	dao.shortCache = cache2.NewShort(cache2.WithEviction(5*time.Second), cache2.WithCleanWindow(10*time.Second))
 

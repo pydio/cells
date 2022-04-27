@@ -22,7 +22,6 @@ package dao
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -134,17 +133,14 @@ func search(ctx context.Context, index *Server, queryObject *tree.Query) ([]*tre
 
 func TestNewBleveEngine(t *testing.T) {
 
-	tmpDir, _ := ioutil.TempDir("", "bleve")
-	IndexPath = filepath.Join(tmpDir, "pydio")
-	defer os.RemoveAll(tmpDir)
-
 	Convey("Test create bleve engine then reopen it", t, func() {
 
 		cfg := configx.New()
-		dao, _ := bleve.NewDAO("bleve", "", "")
-		idx, _ := bleve.NewIndexer(dao)
+		ctx := context.Background()
+		dao, _ := bleve.NewDAO(ctx, "bleve", filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node", "")
+		idx, _ := bleve.NewIndexer(ctx, dao)
 		idx.SetCodex(&bleve2.Codec{})
-		idx.Init(cfg)
+		idx.Init(ctx, cfg)
 
 		server, err := NewEngine(context.Background(), idx, meta.NewNsProvider(context.Background()), cfg)
 		So(err, ShouldBeNil)

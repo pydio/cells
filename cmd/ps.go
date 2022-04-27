@@ -21,21 +21,23 @@
 package cmd
 
 import (
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"os"
 	"strings"
 	"text/tabwriter"
 	"text/template"
 
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 var (
 	showDescription bool
+	showDAOs        bool
 
 	tmpl = `
 	{{- block "keys" .}}
@@ -117,6 +119,10 @@ EXAMPLE
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 8, 8, 8, ' ', 0)
 		t.Execute(w, tags)
 
+		if showDAOs {
+			listRegistryDAOs(cmd, reg)
+		}
+
 		return nil
 	},
 }
@@ -125,6 +131,7 @@ func init() {
 
 	addExternalCmdRegistryFlags(psCmd.Flags())
 	psCmd.Flags().BoolVarP(&showDescription, "nodes", "n", false, "Show nodes addresses for each service")
+	psCmd.Flags().BoolVarP(&showDAOs, "daos", "d", false, "Show registered DAOs")
 	RootCmd.AddCommand(psCmd)
 
 }
@@ -148,11 +155,12 @@ func getTagsPerType(reg registry.Registry, f func(s registry.Service) bool) map[
 					tags[tag] = &Tags{Name: tag, Services: make(map[string]Service)}
 				}
 				var nodes []string
-				for _, node := range s.Nodes() {
-					if node.ID() == "generic" {
+				nn := registry.ListAdjacentItems(reg, s, registry.WithType(pb.ItemType_SERVER))
+				for _, n := range nn {
+					if n.ID() == "generic" {
 						nodes = append(nodes, "generic")
 					}
-					nodes = append(nodes, node.Address()...)
+					nodes = append(nodes, n.(registry.Server).Address()...)
 				}
 
 				tags[tag].Services[name] = &runningService{
@@ -200,4 +208,28 @@ func (s *runningService) MetaAsJson() string {
 	} else {
 		return "no meta (" + e.Error() + ")"
 	}
+}
+
+func listRegistryDAOs(cmd *cobra.Command, reg registry.Registry) {
+	allDAOs, err := reg.List(registry.WithType(pb.ItemType_DAO))
+	if err != nil {
+		cmd.PrintErrf("%v", err)
+		return
+	}
+	table := tablewriter.NewWriter(cmd.OutOrStdout())
+	table.SetHeader([]string{"ID", "Driver", "DSN", "Links"})
+
+	for _, d := range allDAOs {
+		da := d.(registry.Dao)
+		var links []string
+		services := registry.ListAdjacentItems(reg, d, registry.WithType(pb.ItemType_SERVICE))
+		for _, srv := range services {
+			links = append(links, srv.Name())
+		}
+		table.Append([]string{da.ID(), da.Driver(), da.Dsn(), strings.Join(links, ", ")})
+	}
+
+	table.SetAlignment(tablewriter.ALIGN_LEFT)
+	table.Render()
+
 }

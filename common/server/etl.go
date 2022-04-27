@@ -20,9 +20,11 @@
 
 package server
 
-import "github.com/pydio/cells/v4/common/etl/models"
+import (
+	"github.com/pydio/cells/v4/common/utils/merger"
+)
 
-func (s *server) Equals(differ models.Differ) bool {
+func (s *server) Equals(differ merger.Differ) bool {
 	neu, ok := differ.(*server)
 	if !ok {
 		return false
@@ -35,7 +37,7 @@ func (s *server) IsDeletable(m map[string]string) bool {
 	return true
 }
 
-func (s *server) IsMergeable(differ models.Differ) bool {
+func (s *server) IsMergeable(differ merger.Differ) bool {
 	return s.ID() == differ.GetUniqueId()
 }
 
@@ -43,7 +45,7 @@ func (s *server) GetUniqueId() string {
 	return s.ID()
 }
 
-func (s *server) Merge(differ models.Differ, params map[string]string) (models.Differ, error) {
+func (s *server) Merge(differ merger.Differ, params map[string]string) (merger.Differ, error) {
 	// Return target
 	return differ, nil
 }

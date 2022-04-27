@@ -21,7 +21,7 @@
 package service
 
 import (
-	"github.com/pydio/cells/v4/common"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 )
 
@@ -40,10 +40,12 @@ const (
 
 // RegistryHasServiceWithStatus finds a service with given status in the registry passed as parameter
 func RegistryHasServiceWithStatus(reg registry.Registry, name string, status Status) bool {
-	if s, e := reg.Get(common.ServiceGrpcNamespace_ + common.ServiceUser); e == nil {
-		meta := s.(registry.Service).Metadata()
-		if v, o := meta[MetaStatusKey]; o && v == string(status) {
-			return true
+	if ss, e := reg.List(registry.WithName(name), registry.WithType(pb.ItemType_SERVICE)); e == nil && len(ss) > 0 {
+		for _, s := range ss {
+			meta := s.(registry.Service).Metadata()
+			if v, o := meta[MetaStatusKey]; o && v == string(status) {
+				return true
+			}
 		}
 	}
 	return false

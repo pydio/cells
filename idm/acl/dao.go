@@ -22,6 +22,7 @@
 package acl
 
 import (
+	"context"
 	"time"
 
 	"github.com/pydio/cells/v4/common/dao"
@@ -38,10 +39,10 @@ type DAO interface {
 	Search(sql.Enquirer, *[]interface{}) error
 }
 
-func NewDAO(o dao.DAO) dao.DAO {
+func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case sql.DAO:
-		return &sqlimpl{DAO: v}
+		return &sqlimpl{DAO: v}, nil
 	}
-	return nil
+	return nil, dao.UnsupportedDriver(o)
 }

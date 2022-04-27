@@ -70,27 +70,28 @@ func TestBoltEmptyDao(t *testing.T) {
 
 	Convey("Test initialize DB", t, func() {
 		defer os.Remove(tmpDbFilePath)
-		dao, _ := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
+		dao, _ := boltdb.NewDAO(ctx, "boltdb", tmpDbFilePath, "")
 		So(dao, ShouldNotBeNil)
-		defer dao.CloseConn()
+		defer dao.CloseConn(ctx)
 	})
 
 	Convey("Test unreachable file", t, func() {
 		dbFile := os.TempDir() + "/anynonexisting/folder/toto.db"
-		dao, _ := boltdb.NewDAO("boltdb", dbFile, "")
+		dao, _ := boltdb.NewDAO(ctx, "boltdb", dbFile, "")
 		So(dao, ShouldBeNil)
 	})
 
 	Convey("Test getBucket - read - not exists", t, func() {
 		defer os.Remove(tmpDbFilePath)
-		tmpdao, _ := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
-		dao := NewDAO(tmpdao).(DAO)
-		dao.Init(conf)
-		defer dao.CloseConn()
+		tmpdao, _ := boltdb.NewDAO(ctx, "boltdb", tmpDbFilePath, "")
+		da, _ := NewDAO(ctx, tmpdao)
+		dao := da.(DAO)
+		So(dao.Init(ctx, conf), ShouldBeNil)
+		defer dao.CloseConn(ctx)
 
 		results := make(chan *activity.Object)
 		done := make(chan bool, 1)
-		err := dao.ActivitiesFor(nil, activity.OwnerType_USER, "unknown", BoxInbox, BoxLastRead, 0, 100, results, done)
+		err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "unknown", BoxInbox, BoxLastRead, 0, 100, results, done)
 		So(err, ShouldBeNil)
 	})
 }
@@ -100,10 +101,11 @@ func TestBoltMassivePurge(t *testing.T) {
 	tmpMassivePurge := path.Join(os.TempDir(), "bolt-test-massive.db")
 	t.Log("MASSIVE DB AT", tmpMassivePurge)
 	defer os.Remove(tmpMassivePurge)
-	tmpdao, _ := boltdb.NewDAO("boltdb", tmpMassivePurge, "")
-	dao := NewDAO(tmpdao).(DAO)
-	dao.Init(conf)
-	defer dao.CloseConn()
+	tmpdao, _ := boltdb.NewDAO(ctx, "boltdb", tmpMassivePurge, "")
+	da, _ := NewDAO(ctx, tmpdao)
+	dao := da.(DAO)
+	_ = dao.Init(ctx, conf)
+	defer dao.CloseConn(ctx)
 	number := 100000
 	bb := dao.(boltdb.DAO).DB()
 
@@ -131,7 +133,7 @@ func TestBoltMassivePurge(t *testing.T) {
 		<-time.After(5 * time.Second)
 		deleted := 0
 		// Now Purge
-		e = dao.Purge(nil, func(s string) { deleted++ }, activity.OwnerType_NODE, "node-id", BoxOutbox, 0, 10, time.Time{}, true, true)
+		e = dao.Purge(ctx, func(s string) { deleted++ }, activity.OwnerType_NODE, "node-id", BoxOutbox, 0, 10, time.Time{}, true, true)
 		So(e, ShouldBeNil)
 		So(deleted, ShouldBeGreaterThan, 1)
 		st, _ = os.Stat(tmpMassivePurge)
@@ -184,7 +186,7 @@ func TestInsertActivity(t *testing.T) {
 			}
 		}()
 
-		err = dao.ActivitiesFor(nil, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 100, resChan, doneChan)
+		err = dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 100, resChan, doneChan)
 		wg.Wait()
 
 		So(err, ShouldBeNil)
@@ -229,7 +231,7 @@ func TestInsertActivity(t *testing.T) {
 			}
 		}()
 
-		err = dao.ActivitiesFor(nil, activity.OwnerType_USER, "john", BoxInbox, "", 0, 100, resChan, doneChan)
+		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "john", BoxInbox, "", 0, 100, resChan, doneChan)
 		wg.Wait()
 
 		time.Sleep(time.Second * 1)
@@ -282,7 +284,7 @@ func TestMultipleInsert(t *testing.T) {
 			}
 		}()
 
-		err = dao.ActivitiesFor(nil, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 100, resChan, doneChan)
+		err = dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 100, resChan, doneChan)
 		wg.Wait()
 
 		So(err, ShouldBeNil)
@@ -335,7 +337,7 @@ func TestCursor(t *testing.T) {
 		go func() {
 			readResults(wg)
 		}()
-		err := dao.ActivitiesFor(nil, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, resChan, doneChan)
+		err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, resChan, doneChan)
 		wg.Wait()
 		So(err, ShouldBeNil)
 		So(results, ShouldHaveLength, 20)
@@ -345,7 +347,7 @@ func TestCursor(t *testing.T) {
 		go func() {
 			readResults(wg)
 		}()
-		err = dao.ActivitiesFor(nil, activity.OwnerType_USER, "charles", BoxInbox, "", 20, 20, resChan, doneChan)
+		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 20, 20, resChan, doneChan)
 		wg.Wait()
 		So(err, ShouldBeNil)
 		So(results, ShouldHaveLength, 20)
@@ -357,7 +359,7 @@ func TestCursor(t *testing.T) {
 		go func() {
 			readResults(wg)
 		}()
-		err = dao.ActivitiesFor(nil, activity.OwnerType_USER, "charles", BoxInbox, "", 20, 100, resChan, doneChan)
+		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 20, 100, resChan, doneChan)
 		wg.Wait()
 		So(err, ShouldBeNil)
 		So(results, ShouldHaveLength, 30)
@@ -370,12 +372,12 @@ func TestCursor(t *testing.T) {
 		go func() {
 			readResults(wg)
 		}()
-		err = dao.ActivitiesFor(nil, activity.OwnerType_USER, "charles", BoxInbox, BoxLastSent, 0, 0, resChan, doneChan)
+		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, BoxLastSent, 0, 0, resChan, doneChan)
 		wg.Wait()
 		So(err, ShouldBeNil)
 		So(results, ShouldHaveLength, 50)
 		So(results[0].Actor.Name, ShouldEqual, "Random User 50")
-		err = dao.StoreLastUserInbox(nil, "charles", BoxLastSent, results[0].Id)
+		err = dao.StoreLastUserInbox(ctx, "charles", BoxLastSent, results[0].Id)
 		So(err, ShouldBeNil)
 
 		// STORE 20 NEW ONES
@@ -398,7 +400,7 @@ func TestCursor(t *testing.T) {
 		go func() {
 			readResults(wg)
 		}()
-		err = dao.ActivitiesFor(nil, activity.OwnerType_USER, "charles", BoxInbox, BoxLastSent, 0, 0, resChan, doneChan)
+		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, BoxLastSent, 0, 0, resChan, doneChan)
 		wg.Wait()
 		So(err, ShouldBeNil)
 		So(results, ShouldHaveLength, 20)
@@ -427,10 +429,10 @@ func TestDelete(t *testing.T) {
 		err := dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac, false)
 		So(err, ShouldBeNil)
 
-		err = dao.Delete(nil, activity.OwnerType_USER, "john")
+		err = dao.Delete(ctx, activity.OwnerType_USER, "john")
 		So(err, ShouldBeNil)
 
-		err = dao.Delete(nil, activity.OwnerType_USER, "unknown")
+		err = dao.Delete(ctx, activity.OwnerType_USER, "unknown")
 		So(err, ShouldBeNil)
 
 	})
@@ -463,7 +465,7 @@ func TestPurge(t *testing.T) {
 		go func() {
 			readResults(wg)
 		}()
-		err := dao.ActivitiesFor(nil, activity.OwnerType_USER, "john", BoxInbox, "", 0, 20, resChan, doneChan)
+		err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "john", BoxInbox, "", 0, 20, resChan, doneChan)
 		wg.Wait()
 		return results, err
 	}

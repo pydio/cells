@@ -21,6 +21,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/manifoldco/promptui"
 	"github.com/pydio/cells/v4/common/dao"
@@ -111,11 +112,11 @@ DESCRIPTION
 		cmd.Printf("Migrate service %s from %s to %s\n", serviceName, from.driver, to.driver)
 		sOptions := migratorsOptions[serviceIndex]
 		prefix := sOptions.Prefix(sOptions.serviceOptions)
-		fromDao, e := initDAO(from.driver, from.dsn, prefix)
+		fromDao, e := initDAO(cmd.Context(), from.driver, from.dsn, prefix)
 		if e != nil {
 			return e
 		}
-		toDao, e := initDAO(to.driver, to.dsn, prefix)
+		toDao, e := initDAO(cmd.Context(), to.driver, to.dsn, prefix)
 		if e != nil {
 			return e
 		}
@@ -137,23 +138,23 @@ DESCRIPTION
 	},
 }
 
-func initDAO(driver, dsn, prefix string) (dao.DAO, error) {
+func initDAO(ctx context.Context, driver, dsn, prefix string) (dao.DAO, error) {
 	var d dao.DAO
 	var e error
 	switch driver {
 	case boltdb.Driver:
-		d, e = boltdb.NewDAO(driver, dsn, prefix)
+		d, e = boltdb.NewDAO(ctx, driver, dsn, prefix)
 	case bleve.Driver:
-		d, e = bleve.NewDAO(driver, dsn, prefix)
+		d, e = bleve.NewDAO(ctx, driver, dsn, prefix)
 	case mongodb.Driver:
-		d, e = mongodb.NewDAO(driver, dsn, prefix)
+		d, e = mongodb.NewDAO(ctx, driver, dsn, prefix)
 	default:
 		return nil, fmt.Errorf("unsupported driver type")
 	}
 	if e != nil {
 		return nil, e
 	}
-	if e := d.Init(configx.New()); e != nil {
+	if e := d.Init(ctx, configx.New()); e != nil {
 		return nil, e
 	}
 	return d, nil

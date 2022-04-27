@@ -38,10 +38,12 @@ import (
 )
 
 var (
-	configVersionShow    string
-	configVersionDiff    string
-	configVersionRestore string
-	configVersionDb      string
+	configVersionShow       string
+	configVersionDiff       string
+	configVersionRestore    string
+	configVersionDb         string
+	configVersionListOffset int
+	configVersionListSize   int
 )
 
 // configHistoryCmd represents the list command
@@ -158,7 +160,7 @@ DESCRIPTION
 			return
 		}
 
-		versions, e := store.List(0, 20)
+		versions, e := store.List(uint64(configVersionListOffset), uint64(configVersionListSize))
 		if e != nil {
 			log.Fatal(e)
 		}
@@ -182,6 +184,8 @@ DESCRIPTION
 }
 
 func init() {
+	configHistoryCmd.Flags().IntVar(&configVersionListOffset, "offset", 0, "List history starting after a given number of records")
+	configHistoryCmd.Flags().IntVar(&configVersionListSize, "limit", 20, "Limit number of records shown")
 	configHistoryCmd.Flags().StringVar(&configVersionDiff, "diff", "", "Display a Diff between two versions, either by providing VERSION1:VERSION2 or just VERSION1 (will be compared to previous one)")
 	configHistoryCmd.Flags().StringVar(&configVersionShow, "cat", "", "Print the JSON content of the config for this version")
 	configHistoryCmd.Flags().StringVar(&configVersionRestore, "restore", "", "Restore configuration to this specific version")

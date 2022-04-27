@@ -39,20 +39,20 @@ type MessageRepository interface {
 	ListLogs(string, int32, int32) (chan log.ListLogResponse, error)
 	DeleteLogs(string) (int64, error)
 	AggregatedLogs(string, string, int32) (chan log.TimeRangeResponse, error)
-	Close() error
+	Close(ctx context.Context) error
 	Resync(ctx context.Context, logger log2.ZapLogger) error
 	Truncate(ctx context.Context, max int64, logger log2.ZapLogger) error
 }
 
-func NewDAO(d dao.DAO) dao.DAO {
+func NewDAO(ctx context.Context, d dao.DAO) (dao.DAO, error) {
 	switch v := d.(type) {
 	case bleve.IndexDAO:
 		v.SetCodex(&BleveCodec{})
-		return v
+		return v, nil
 	case mongodb.IndexDAO:
 		v.SetCollection(mongoCollection)
 		v.SetCodex(&MongoCodec{})
-		return v
+		return v, nil
 	}
-	return nil
+	return nil, dao.UnsupportedDriver(d)
 }

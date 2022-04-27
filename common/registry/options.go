@@ -22,6 +22,8 @@ package registry
 
 import (
 	"context"
+	"regexp"
+	"strings"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 )
@@ -83,4 +85,17 @@ func WithMeta(name, value string) Option {
 		}
 		return nil
 	}
+}
+
+func (o *Options) Matches(name, itemName string) bool {
+	var start, end string
+	if !strings.HasPrefix(name, "*") {
+		start = "^"
+	}
+	if !strings.HasSuffix(name, "*") {
+		end = "$"
+	}
+	name = strings.Trim(name, "*")
+	res, _ := regexp.MatchString(start+name+end, itemName)
+	return res
 }

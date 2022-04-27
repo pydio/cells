@@ -79,11 +79,11 @@ type mongoImpl struct {
 	mongodb.DAO
 }
 
-func (m *mongoImpl) Init(values configx.Values) error {
-	if er := model.Init(context.Background(), m.DAO); er != nil {
+func (m *mongoImpl) Init(ctx context.Context, values configx.Values) error {
+	if er := model.Init(ctx, m.DAO); er != nil {
 		return er
 	}
-	return m.DAO.Init(values)
+	return m.DAO.Init(ctx, values)
 }
 
 func (m *mongoImpl) PutJob(job *jobs.Job) error {

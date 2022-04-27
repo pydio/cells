@@ -41,7 +41,7 @@ DESCRIPTION
 
 		bindViperFlags(cmd.Flags(), map[string]string{})
 
-		initConfig(cmd.Context())
+		initConfig(cmd.Context(), true)
 
 		return nil
 	},

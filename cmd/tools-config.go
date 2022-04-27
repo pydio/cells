@@ -79,7 +79,7 @@ DESCRIPTION
 		db := m[ids[i]].(map[string]interface{})
 		cellsViper.Set("config", db["driver"])
 
-		initConfig(cmd.Context())
+		initConfig(cmd.Context(), false)
 
 		config.Set(defaultData, "")
 		config.Vault().Set(vaultData)

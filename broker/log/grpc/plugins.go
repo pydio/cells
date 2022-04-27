@@ -75,7 +75,7 @@ func init() {
 
 				go func() {
 					<-c.Done()
-					repo.Close()
+					repo.Close(c)
 				}()
 
 				return nil

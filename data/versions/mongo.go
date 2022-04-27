@@ -62,11 +62,11 @@ type mongoStore struct {
 	mongodb.DAO
 }
 
-func (m *mongoStore) Init(values configx.Values) error {
+func (m *mongoStore) Init(ctx context.Context, values configx.Values) error {
 	if er := model.Init(context.Background(), m.DAO); er != nil {
 		return er
 	}
-	return m.DAO.Init(values)
+	return m.DAO.Init(ctx, values)
 }
 
 func (m *mongoStore) GetLastVersion(nodeUuid string) (*tree.ChangeLog, error) {

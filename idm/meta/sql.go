@@ -67,15 +67,17 @@ func (dao *sqlimpl) GetNamespaceDao() namespace.DAO {
 }
 
 // Init handler for the SQL DAO
-func (dao *sqlimpl) Init(options configx.Values) error {
+func (dao *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
 	// super
-	dao.DAO.Init(options)
+	if er := dao.DAO.Init(ctx, options); er != nil {
+		return er
+	}
 
 	// Preparing the resources
 
 	dao.ResourcesSQL = resources.NewDAO(dao.Handler, "idm_usr_meta.uuid").(*resources.ResourcesSQL)
-	if err := dao.ResourcesSQL.Init(options); err != nil {
+	if err := dao.ResourcesSQL.Init(ctx, options); err != nil {
 		return err
 	}
 
@@ -101,8 +103,11 @@ func (dao *sqlimpl) Init(options configx.Values) error {
 	}
 
 	// Initing namespace
-	nsDAO := namespace.NewDAO(dao.Handler)
-	if err := nsDAO.Init(options); err != nil {
+	nsDAO, err := namespace.NewDAO(ctx, dao.Handler)
+	if err != nil {
+		return err
+	}
+	if err := nsDAO.Init(ctx, options); err != nil {
 		return err
 	}
 
