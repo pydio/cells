@@ -187,6 +187,10 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 						} else {
 							log.Logger(jobCtx).Info("[initFromBucket] Removed "+clearConfigKey+" key from datasource", zap.Any("ds", newValue.StorageConfiguration))
 						}
+
+						if err := config.Save("system", "Removing "+clearConfigKey+" key from datasource "+serviceName); err != nil {
+							log.Logger(jobCtx).Error("[initFromBucket] Saving "+clearConfigKey+" key removal from datasource", zap.Error(err))
+						}
 					}
 
 					// Post a job to dump snapshot manually (Flat, non-internal only)
