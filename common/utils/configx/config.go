@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/fatih/structs"
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
 )
 
@@ -241,7 +241,6 @@ func (c *config) Default(i interface{}) Value {
 
 // Set data in interface
 func (c *config) Set(data interface{}) error {
-
 	if c == nil {
 		return fmt.Errorf("value doesn't exist")
 	}
@@ -262,16 +261,24 @@ func (c *config) Set(data interface{}) error {
 		data = d.v
 	}
 
+	// convert data to map
+	switch reflect.ValueOf(data).Kind() {
+	case reflect.Struct:
+		var out map[string]interface{}
+
+		if err := mapstructure.Decode(data, &out); err != nil {
+			return err
+		}
+
+		data = out
+	}
+
 	if len(c.k) == 0 {
 		if c.opts.SetCallback != nil {
 			c.opts.SetCallback(c.k, data)
 		}
 
-		if structs.IsStruct(data) {
-			c.v = structs.Map(data)
-		} else {
-			c.v = data
-		}
+		c.v = data
 
 		return nil
 	}
@@ -357,11 +364,7 @@ func (c *config) Set(data interface{}) error {
 		c.opts.SetCallback(c.k, data)
 	}
 
-	if structs.IsStruct(data) {
-		c.v = structs.Map(data)
-	} else {
-		c.v = data
-	}
+	c.v = data
 
 	return nil
 }
@@ -501,7 +504,16 @@ func (c *config) Scan(val interface{}) error {
 			for _, key := range orig.MapKeys() {
 				mv := orig.MapIndex(key)
 				if mv.IsValid() {
-					rtarget.SetMapIndex(key, mv.Elem().Convert(rtargetValType))
+					if mv.Elem().Type().ConvertibleTo(rtargetValType) {
+						rtarget.SetMapIndex(key, mv.Elem().Convert(rtargetValType))
+					} else {
+						out := reflect.New(rtargetValType)
+						if err := mapstructure.Decode(mv.Interface(), out.Interface()); err != nil {
+							return err
+						}
+
+						rtarget.SetMapIndex(key, out.Elem())
+					}
 				}
 			}
 		}

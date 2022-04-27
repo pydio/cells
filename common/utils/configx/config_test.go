@@ -392,3 +392,23 @@ func TestStruct(t *testing.T) {
 
 	})
 }
+
+type MyStruct struct {
+	A string
+	B string
+}
+
+func TestMapStruct(t *testing.T) {
+	Convey("Testing structure ", t, func() {
+		m := New()
+
+		err := m.Val("test").Set(&MyStruct{A: "a", B: "b"})
+		So(err, ShouldBeNil)
+
+		t2 := make(map[string]*MyStruct)
+		err2 := m.Scan(t2)
+		So(err2, ShouldBeNil)
+
+		fmt.Println(t2)
+	})
+}
