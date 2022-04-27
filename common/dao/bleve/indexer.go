@@ -95,9 +95,7 @@ func NewIndexer(ctx context.Context, rd dao.DAO) (dao.IndexDAO, error) {
 		return nil, fmt.Errorf("use a rotation size bigger than %d", MinRotationSize)
 	}
 	server := &Indexer{
-		DAO:         d,
-		debouncer:   debounce.New(5 * time.Second),
-		statusInput: make(chan map[string]interface{}),
+		DAO: d,
 	}
 	return server, nil
 }
@@ -128,6 +126,10 @@ func (s *Indexer) As(i interface{}) bool {
 }
 
 func (s *Indexer) WatchStatus() (registry.StatusWatcher, error) {
+	if s.debouncer == nil {
+		s.debouncer = debounce.New(5 * time.Second)
+		s.statusInput = make(chan map[string]interface{})
+	}
 	w := util.NewChanStatusWatcher(s, s.statusInput)
 	return w, nil
 }
@@ -140,6 +142,17 @@ func (s *Indexer) sendStatus() {
 		m["Usage"] = u
 	}
 	s.statusInput <- m
+}
+
+func (s *Indexer) updateStatus() {
+	if s.debouncer == nil {
+		return
+	}
+	go s.debouncer(func() {
+		if s != nil {
+			s.sendStatus()
+		}
+	})
 }
 
 // Stats implements DAO method by listing opened indexes and documents counts
@@ -482,7 +495,7 @@ func (s *Indexer) rotateIfNeeded() {
 		s.cursor = len(s.indexes) - 1
 	}
 
-	go s.debouncer(s.sendStatus)
+	s.updateStatus()
 }
 
 func (s *Indexer) flush() {
@@ -586,7 +599,7 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 	}
 	logger("Resync operation done")
 
-	s.debouncer(s.sendStatus)
+	s.updateStatus()
 
 	return nil
 
@@ -641,7 +654,7 @@ func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 	}
 	logger("Truncate operation done")
 
-	s.debouncer(s.sendStatus)
+	s.updateStatus()
 
 	return nil
 }
@@ -668,7 +681,7 @@ func (s *Indexer) openOneIndex(bleveIndexPath string, mappingName string) (bleve
 		}
 	}
 
-	go s.debouncer(s.sendStatus)
+	s.updateStatus()
 
 	return index, nil
 
