@@ -229,7 +229,7 @@ type delayedRegistry struct {
 func (r *delayedRegistry) Register(i registry.Item, option ...registry.RegisterOption) error {
 	go func() {
 		<-time.After(5 * time.Second)
-		r.Registry.Register(i)
+		r.Registry.Register(i, option...)
 	}()
 
 	return nil
