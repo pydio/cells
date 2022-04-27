@@ -155,7 +155,7 @@ func getTagsPerType(reg registry.Registry, f func(s registry.Service) bool) map[
 					tags[tag] = &Tags{Name: tag, Services: make(map[string]Service)}
 				}
 				var nodes []string
-				nn := registry.ListAdjacentItems(reg, s, registry.WithType(pb.ItemType_SERVER))
+				nn := reg.ListAdjacentItems(s, registry.WithType(pb.ItemType_SERVER))
 				for _, n := range nn {
 					if n.ID() == "generic" {
 						nodes = append(nodes, "generic")
@@ -222,7 +222,7 @@ func listRegistryDAOs(cmd *cobra.Command, reg registry.Registry) {
 	for _, d := range allDAOs {
 		da := d.(registry.Dao)
 		var links []string
-		services := registry.ListAdjacentItems(reg, d, registry.WithType(pb.ItemType_SERVICE))
+		services := reg.ListAdjacentItems(d, registry.WithType(pb.ItemType_SERVICE))
 		for _, srv := range services {
 			links = append(links, srv.Name())
 		}

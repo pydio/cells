@@ -99,3 +99,35 @@ func (o *Options) Matches(name, itemName string) bool {
 	res, _ := regexp.MatchString(start+name+end, itemName)
 	return res
 }
+
+type RegisterOptions struct {
+	Edges []registerEdge
+	Watch interface{}
+}
+
+type RegisterOption func(options *RegisterOptions)
+
+type registerEdge struct {
+	Id    string
+	Label string
+	Meta  map[string]string
+}
+
+func WithEdgeTo(id, label string, meta map[string]string) RegisterOption {
+	return func(options *RegisterOptions) {
+		if meta == nil {
+			meta = make(map[string]string)
+		}
+		options.Edges = append(options.Edges, registerEdge{
+			Id:    id,
+			Label: label,
+			Meta:  meta,
+		})
+	}
+}
+
+func WithWatch(wi StatusReporter) RegisterOption {
+	return func(options *RegisterOptions) {
+		options.Watch = wi
+	}
+}

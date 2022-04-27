@@ -23,6 +23,9 @@ package bleve
 import (
 	"context"
 	"fmt"
+	"github.com/bep/debounce"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"os"
 	"path/filepath"
 	"sort"
@@ -30,8 +33,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/rs/xid"
 
 	bleve "github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/index/scorch"
@@ -41,6 +42,7 @@ import (
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/rs/xid"
 )
 
 const (
@@ -75,6 +77,9 @@ type Indexer struct {
 
 	codec          dao.IndexCodex
 	serviceConfigs configx.Values
+
+	statusInput chan map[string]interface{}
+	debouncer   func(func())
 }
 
 // NewIndexer creates and configures a default Bleve instance to store technical logs
@@ -90,7 +95,9 @@ func NewIndexer(ctx context.Context, rd dao.DAO) (dao.IndexDAO, error) {
 		return nil, fmt.Errorf("use a rotation size bigger than %d", MinRotationSize)
 	}
 	server := &Indexer{
-		DAO: d,
+		DAO:         d,
+		debouncer:   debounce.New(5 * time.Second),
+		statusInput: make(chan map[string]interface{}),
 	}
 	return server, nil
 }
@@ -110,6 +117,29 @@ func (s *Indexer) Init(ctx context.Context, cfg configx.Values) error {
 func (s *Indexer) MustBleveConfig(ctx context.Context) *BleveConfig {
 	c, _ := s.BleveConfig(ctx)
 	return c
+}
+
+func (s *Indexer) As(i interface{}) bool {
+	if sw, ok := i.(*registry.StatusReporter); ok {
+		*sw = s
+		return true
+	}
+	return s.DAO.As(i)
+}
+
+func (s *Indexer) WatchStatus() (registry.StatusWatcher, error) {
+	w := util.NewChanStatusWatcher(s, s.statusInput)
+	return w, nil
+}
+
+func (s *Indexer) sendStatus() {
+	m := map[string]interface{}{
+		"Indexes": s.listIndexes(),
+	}
+	if u, e := indexDiskUsage(filepath.Dir(s.MustBleveConfig(context.Background()).BlevePath)); e == nil {
+		m["Usage"] = u
+	}
+	s.statusInput <- m
 }
 
 // Stats implements DAO method by listing opened indexes and documents counts
@@ -451,6 +481,8 @@ func (s *Indexer) rotateIfNeeded() {
 		s.searchIndex.Add(newIndex)
 		s.cursor = len(s.indexes) - 1
 	}
+
+	go s.debouncer(s.sendStatus)
 }
 
 func (s *Indexer) flush() {
@@ -553,6 +585,9 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 		return err
 	}
 	logger("Resync operation done")
+
+	s.debouncer(s.sendStatus)
+
 	return nil
 
 }
@@ -605,6 +640,9 @@ func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 		return er
 	}
 	logger("Truncate operation done")
+
+	s.debouncer(s.sendStatus)
+
 	return nil
 }
 
@@ -629,6 +667,9 @@ func (s *Indexer) openOneIndex(bleveIndexPath string, mappingName string) (bleve
 			return nil, err
 		}
 	}
+
+	go s.debouncer(s.sendStatus)
+
 	return index, nil
 
 }

@@ -76,7 +76,7 @@ func (h *Handler) Register(ctx context.Context, item *pb.Item) (*pb.EmptyRespons
 			if startTag, ok := meta[server.NodeMetaStartTag]; ok && startTag != "" {
 				ff, _ := h.reg.List(registry.WithType(pb.ItemType_SERVER), registry.WithMeta(server.NodeMetaForkStartTag, startTag))
 				if len(ff) > 0 {
-					_, _ = registry.RegisterEdge(h.reg, ff[0].ID(), item.GetServer().GetId(), "Fork", map[string]string{})
+					_, _ = h.reg.RegisterEdge(ff[0].ID(), item.GetServer().GetId(), "Fork", map[string]string{})
 				}
 			}
 

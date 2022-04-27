@@ -1,0 +1,222 @@
+/*
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+package registry
+
+import (
+	"crypto/md5"
+	"encoding/hex"
+	"fmt"
+	"sort"
+	"strings"
+	"sync"
+
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+)
+
+type graphRegistry struct {
+	r RawRegistry
+
+	ww map[string]StatusWatcher
+	wl sync.Mutex
+}
+
+func GraphRegistry(r RawRegistry) Registry {
+	return &graphRegistry{
+		r:  r,
+		ww: make(map[string]StatusWatcher),
+	}
+}
+
+func (r *graphRegistry) Start(i Item) error {
+	return r.r.Start(i)
+}
+
+func (r *graphRegistry) Stop(i Item) error {
+	return r.r.Stop(i)
+}
+
+// Register wraps internal registry.Register call and create Edges and Watches based on RegisterOptions
+func (r *graphRegistry) Register(i Item, option ...RegisterOption) error {
+	opt := &RegisterOptions{Watch: i}
+	for _, o := range option {
+		o(opt)
+	}
+	// Register main service
+	if er := r.r.Register(i); er != nil {
+		return er
+	}
+	// If there are edges, register them
+	for _, e := range opt.Edges {
+		if _, er := r.RegisterEdge(i.ID(), e.Id, e.Label, e.Meta); er != nil {
+			return er
+		}
+	}
+	// If flag Watch is set, try to convert item
+	if opt.Watch == nil {
+		return nil
+	}
+	var sr StatusReporter
+	if opt.Watch == i {
+		i.As(&sr)
+	} else if s, ok := opt.Watch.(StatusReporter); ok {
+		sr = s
+	}
+	if sr != nil {
+		go r.startWatcher(i.ID(), sr)
+	}
+	return nil
+}
+
+// Deregister wraps internal registry Deregister call by clearing possible Edges to the service.
+// It also clears the associated watcher if there is one.
+func (r *graphRegistry) Deregister(i Item) error {
+	r.wl.Lock()
+	if w, ok := r.ww[i.ID()]; ok {
+		w.Stop()
+		delete(r.ww, i.ID())
+	}
+	r.wl.Unlock()
+	if er := r.r.Deregister(i); er != nil {
+		return er
+	}
+	_, err := r.clearEdges(i)
+	return err
+}
+
+func (r *graphRegistry) RegisterEdge(item1, item2, edgeLabel string, metadata map[string]string) (Edge, error) {
+	// Make id unique for an item1+item2 pair
+	pair := []string{item1, item2}
+	sort.Strings(pair)
+	h := md5.New()
+	h.Write([]byte(strings.Join(pair, "-")))
+	id := hex.EncodeToString(h.Sum(nil))
+	e := &edge{
+		id:       id,
+		name:     edgeLabel,
+		metadata: metadata,
+		vertices: []string{item1, item2},
+	}
+	if e.metadata == nil {
+		e.metadata = map[string]string{}
+	}
+	return e, r.r.Register(e)
+}
+
+func (r *graphRegistry) ListAdjacentItems(sourceItem Item, targetOptions ...Option) (items []Item) {
+	ee, _ := r.List(WithType(pb.ItemType_EDGE))
+	var ids []string
+	for _, e := range ee {
+		edg, ok := e.(Edge)
+		if !ok {
+			continue
+		}
+		vv := edg.Vertices()
+		if vv[0] == sourceItem.ID() {
+			ids = append(ids, vv[1])
+		} else if vv[1] == sourceItem.ID() {
+			ids = append(ids, vv[0])
+		}
+	}
+	if len(ids) == 0 {
+		return
+	}
+	allItems, _ := r.List(targetOptions...)
+	for _, id := range ids {
+		for _, i := range allItems {
+			if i.ID() == id {
+				items = append(items, i)
+				break
+			}
+		}
+	}
+	return
+}
+
+// startWatcher starts a watcher on a StatusReporter service
+func (r *graphRegistry) startWatcher(id string, sr StatusReporter) {
+	w, err := sr.WatchStatus()
+	if err != nil {
+		return
+	}
+	r.wl.Lock()
+	r.ww[id] = w
+	r.wl.Unlock()
+	for {
+		sItem, er := w.Next()
+		if er != nil {
+			break
+		}
+		er = r.Register(sItem, WithEdgeTo(id, sItem.Name(), map[string]string{}))
+		if er != nil {
+			fmt.Println("[ERROR] Cannot register watched event", er.Error())
+		} else {
+			//fmt.Println("[INFO] Updating item received from statusWatcher")
+		}
+	}
+}
+
+// clearEdges looks for links that are pointing to this sourceItem
+func (r *graphRegistry) clearEdges(sourceItem Item) ([]Edge, error) {
+	var out []Edge
+	edges := make(map[string]Edge)
+	ee, er := r.r.List(WithType(pb.ItemType_EDGE))
+	if er != nil {
+		return nil, er
+	}
+	for _, e := range ee {
+		edg, ok := e.(Edge)
+		if !ok {
+			continue
+		}
+		vv := edg.Vertices()
+		if vv[0] == sourceItem.ID() || vv[1] == sourceItem.ID() {
+			edges[edg.ID()] = edg
+		}
+	}
+	if len(edges) == 0 {
+		return out, nil
+	}
+	for _, e := range edges {
+		if er := r.r.Deregister(e); er != nil {
+			return out, nil
+		} else {
+			out = append(out, e)
+		}
+	}
+
+	return out, nil
+}
+
+func (r *graphRegistry) Get(s string, opts ...Option) (Item, error) {
+	return r.r.Get(s, opts...)
+}
+
+func (r *graphRegistry) List(opts ...Option) ([]Item, error) {
+	return r.r.List(opts...)
+}
+
+func (r *graphRegistry) Watch(option ...Option) (Watcher, error) {
+	return r.r.Watch(option...)
+}
+
+func (r *graphRegistry) As(i interface{}) bool {
+	return r.r.As(i)
+}

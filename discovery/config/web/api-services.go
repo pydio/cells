@@ -101,7 +101,7 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 		if _, dis := disabledDss[srv.Name()]; dis {
 			continue
 		}
-		nodes := registry.ListAdjacentItems(pluginsReg, srv, registry.WithType(rpb.ItemType_SERVER))
+		nodes := pluginsReg.ListAdjacentItems(srv, registry.WithType(rpb.ItemType_SERVER))
 		output.Services = append(output.Services, h.serviceToRest(srv, nodes))
 	}
 
@@ -131,7 +131,7 @@ func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) {
 	for _, i := range ii {
 		item := util.ToProtoItem(i)
 		if input.AdjacentsOptions != nil {
-			aa := registry.ListAdjacentItems(pluginsReg, i, util.ToOptions(input.AdjacentsOptions)...)
+			aa := pluginsReg.ListAdjacentItems(i, util.ToOptions(input.AdjacentsOptions)...)
 			item.Adjacents = util.ToProtoItems(aa)
 		}
 		response.Items = append(response.Items, item)

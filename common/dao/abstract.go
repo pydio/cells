@@ -25,11 +25,10 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"strings"
-
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/merger"
+	"strings"
 )
 
 // AbstractDAO returns a reference to a newly created struct that
