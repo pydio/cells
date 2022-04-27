@@ -37,7 +37,7 @@ DESCRIPTION
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		bindViperFlags(cmd.Flags(), map[string]string{})
 
-		initConfig(cmd.Context())
+		initConfig(ctx, false)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()

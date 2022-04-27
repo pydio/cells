@@ -94,7 +94,7 @@ to quickly create a Cobra application.`,
 		}
 
 		// Init config
-		initConfig(ctx)
+		initConfig(ctx, true)
 
 		// Init registry
 		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())

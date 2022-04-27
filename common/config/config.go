@@ -110,9 +110,11 @@ type Locker interface {
 // Save the config in the hard store
 func Save(ctxUser string, ctxMessage string) error {
 
-	if err := local.Save(ctxUser, ctxMessage); err != nil {
-		fmt.Println("Cannot save local config", err)
-		return err
+	if local != std {
+		if err := local.Save(ctxUser, ctxMessage); err != nil {
+			fmt.Println("Cannot save local config", err)
+			return err
+		}
 	}
 
 	if err := std.Save(ctxUser, ctxMessage); err != nil {

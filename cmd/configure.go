@@ -185,8 +185,6 @@ ENVIRONMENT
 			cellsViper.BindPFlag(key, flag)
 		})
 
-		initConfig(cmd.Context())
-
 		// Manually bind to viper instead of flags.StringVar, flags.BoolVar, etc
 		niModeCli = cruntime.GetBool(cruntime.KeyInstallCli)
 		niYamlFile = cruntime.GetString(cruntime.KeyInstallYaml)
@@ -227,6 +225,8 @@ ENVIRONMENT
 
 		if niYamlFile != "" || niJsonFile != "" || niBindUrl != "" {
 
+			initConfig(cmd.Context(), false)
+
 			installConf, err := nonInteractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
 			if installConf.FrontendLogin != "" {
@@ -245,6 +245,8 @@ ENVIRONMENT
 				fatalIfError(cmd, err)
 				niModeCli = installIndex == 1
 			}
+
+			initConfig(cmd.Context(), !niModeCli)
 
 			// Gather proxy information
 			sites, err := config.LoadSites()

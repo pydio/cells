@@ -35,7 +35,7 @@ DESCRIPTION
   Each service can be configured to point to its own database. This command provides ways to manage databases.
 `,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		initConfig(cmd.Context())
+		initConfig(cmd.Context(), false)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
