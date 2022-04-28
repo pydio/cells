@@ -104,7 +104,11 @@ func (m *Middleware) Init(ctx context.Context, s server.HttpMux) {
 						ReverseProxy: httputil.NewSingleHostReverseProxy(u),
 					}
 					proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
+						if err.Error() == "context canceled" {
+							return
+						}
 						log.Logger(request.Context()).Error("Proxy Error :"+err.Error(), zap.Error(err))
+						writer.WriteHeader(http.StatusBadGateway)
 					}
 					balancer.ReadyProxies[addr] = proxy
 				}
@@ -164,6 +168,11 @@ func (m *Middleware) userServiceReady() bool {
 	return false
 }
 
+var grpcTransport = &http.Transport{
+	TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
+	ForceAttemptHTTP2: true,
+}
+
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 
@@ -174,24 +183,11 @@ func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 			http.NotFound(w, r)
 			return nil
 		}
-
-		proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
-			if err.Error() == "context canceled" {
-				return
-			}
-			fmt.Println("Got Error in Grpc Reverse Proxy:", err.Error())
-			writer.WriteHeader(http.StatusBadGateway)
-		}
-
+		// We assume that internally, the GRPCs service is serving self-signed
+		proxy.Transport = grpcTransport
+		// Wrap context and server request
 		ctx := clientcontext.WithClientConn(r.Context(), m.c)
 		ctx = servercontext.WithRegistry(ctx, m.r)
-
-		// We assume that internally, the GRPCs service is serving self-signed
-		proxy.Transport = &http.Transport{
-			TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
-			ForceAttemptHTTP2: true,
-		}
-
 		proxy.ServeHTTP(w, r.WithContext(ctx))
 		return nil
 	}
