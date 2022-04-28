@@ -132,36 +132,43 @@ func (c *Client) RemoveObject(ctx context.Context, bucketName, objectName string
 	return c.mc.RemoveObject(ctx, bucketName, objectName, minio.RemoveObjectOptions{})
 }
 
-func (c *Client) ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int) (result models.ListBucketResult, err error) {
+func (c *Client) ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, max ...int) (result models.ListBucketResult, err error) {
 	recursive := true
 	if delimiter == "/" {
 		recursive = false
 	}
+	limit := 0
+	if len(max) > 0 && max[0] > 0 {
+		limit = max[0]
+		var can context.CancelFunc
+		ctx, can = context.WithCancel(ctx)
+		defer can()
+	}
 	ch := c.mc.Client.ListObjects(ctx, bucket, minio.ListObjectsOptions{
 		Prefix:     prefix,
 		Recursive:  recursive,
-		MaxKeys:    maxKeys,
 		StartAfter: marker,
 	})
 	r := models.ListBucketResult{
-		//IsTruncated:    res.IsTruncated,
-		//EncodingType:   res.EncodingType,
-		//NextMarker:     res.NextMarker,
 		Delimiter: delimiter,
 		Marker:    marker,
-		MaxKeys:   int64(maxKeys),
 		Name:      bucket,
 		Prefix:    prefix,
 	}
 
+	i := 0
 	for oi := range ch {
 		if oi.Err != nil {
 			return result, oi.Err
 		}
+		i++
 		if strings.HasSuffix(oi.Key, "/") {
 			r.CommonPrefixes = append(r.CommonPrefixes, models.CommonPrefix{Prefix: oi.Key})
 		} else {
 			r.Contents = append(r.Contents, minioInfoToModelsInfo(oi))
+		}
+		if limit > 0 && i >= limit {
+			break
 		}
 	}
 

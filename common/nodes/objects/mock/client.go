@@ -114,17 +114,22 @@ func (c *Client) RemoveObject(ctx context.Context, bucketName, objectName string
 	return nil
 }
 
-func (c *Client) ListObjects(ctx context.Context, bucketName, prefix, marker, delimiter string, maxKeys int) (result models.ListBucketResult, err error) {
+func (c *Client) ListObjects(ctx context.Context, bucketName, prefix, marker, delimiter string, max ...int) (result models.ListBucketResult, err error) {
 	bucket, ok := c.Buckets[bucketName]
 	if !ok {
 		return result, fmt.Errorf("bucket not found %s", bucketName)
 	}
+	i := 0
 	for objName, data := range bucket {
 		result.Contents = append(result.Contents, models.ObjectInfo{
 			Key:          objName,
 			LastModified: time.Now(),
 			Size:         int64(len(data)),
 		})
+		i++
+		if len(max) > 0 && max[0] > 0 && i >= max[0] {
+			break
+		}
 	}
 	return result, nil
 }

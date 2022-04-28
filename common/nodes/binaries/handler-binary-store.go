@@ -197,7 +197,7 @@ func (a *Handler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, op
 		// delete alternate versions if they exists
 		s3client := source.Client
 		log.Logger(ctx).Info("Deleting binary alternate version ", zap.String("v", dsKey))
-		if res, e := s3client.ListObjects(ctx, source.ObjectsBucket, dsKey, "", "/", -1); e == nil {
+		if res, e := s3client.ListObjects(ctx, source.ObjectsBucket, dsKey, "", "/"); e == nil {
 			for _, info := range res.Contents {
 				s3client.RemoveObject(ctx, dsKey, info.Key)
 			}
