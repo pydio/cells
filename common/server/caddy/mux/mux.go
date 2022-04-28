@@ -22,6 +22,7 @@ package mux
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/rest"
@@ -184,6 +185,12 @@ func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 
 		ctx := clientcontext.WithClientConn(r.Context(), m.c)
 		ctx = servercontext.WithRegistry(ctx, m.r)
+
+		// We assume that internally, the GRPCs service is serving self-signed
+		proxy.Transport = &http.Transport{
+			TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
+			ForceAttemptHTTP2: true,
+		}
 
 		proxy.ServeHTTP(w, r.WithContext(ctx))
 		return nil
