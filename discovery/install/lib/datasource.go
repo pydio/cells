@@ -99,6 +99,9 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		// Clone conf with specific source attributes
 		sourceConf := proto.Clone(conf).(*object.DataSource)
 		sourceConf.Name = source
+		if sourceConf.StorageConfiguration == nil {
+			sourceConf.StorageConfiguration = make(map[string]string)
+		}
 		if source == "versions" || source == "thumbnails" {
 			sourceConf.FlatStorage = true
 			sourceConf.StorageConfiguration[object.StorageKeyCellsInternal] = "true"
