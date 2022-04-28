@@ -239,7 +239,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			} else {
 				log.Logger(ctx).Debug("Sending ListObjects")
 				t := time.Now()
-				res, err := oc.ListObjects(testCtx, syncConfig.ObjectsBucket, "", "/", "/", 1)
+				_, err = oc.ListObjects(testCtx, syncConfig.ObjectsBucket, "", "/", "/", 1)
 				log.Logger(ctx).Debug("Sent ListObjects")
 				if err != nil {
 					if retryCount > 1 {
@@ -247,7 +247,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 					}
 					return err
 				} else {
-					log.Logger(ctx).Info(fmt.Sprintf("Successfully listed objects from bucket %s - %d contents, %s", syncConfig.ObjectsBucket, len(res.Contents), time.Since(t)))
+					log.Logger(ctx).Info(fmt.Sprintf("Successfully retrieved first object from bucket %s (%s)", syncConfig.ObjectsBucket, time.Since(t)))
 					return nil
 				}
 			}
