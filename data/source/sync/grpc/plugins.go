@@ -182,15 +182,16 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 						// Now save config without "initFromBucket" key
 						newValue := proto.Clone(dsObject).(*object.DataSource)
 						delete(newValue.StorageConfiguration, clearConfigKey)
-						if ce := config.Set(newValue.StorageConfiguration, "services", serviceName, "StorageConfiguration"); ce != nil {
+						if ce := config.Set(newValue, "services", serviceName); ce != nil {
 							log.Logger(jobCtx).Error("[initFromBucket] Removing "+clearConfigKey+" key from datasource", zap.Error(ce))
 						} else {
-							log.Logger(jobCtx).Info("[initFromBucket] Removed "+clearConfigKey+" key from datasource", zap.Any("ds", newValue.StorageConfiguration))
+							if err := config.Save("system", "Removing "+clearConfigKey+" key from datasource "+serviceName); err != nil {
+								log.Logger(jobCtx).Error("[initFromBucket] Saving "+clearConfigKey+" key removal from datasource", zap.Error(err))
+							} else {
+								log.Logger(jobCtx).Info("[initFromBucket] Removed "+clearConfigKey+" key from datasource", zap.Any("ds", newValue))
+							}
 						}
 
-						if err := config.Save("system", "Removing "+clearConfigKey+" key from datasource "+serviceName); err != nil {
-							log.Logger(jobCtx).Error("[initFromBucket] Saving "+clearConfigKey+" key removal from datasource", zap.Error(err))
-						}
 					}
 
 					// Post a job to dump snapshot manually (Flat, non-internal only)

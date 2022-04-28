@@ -42,9 +42,6 @@ func configDatabaseList() (dd []configDatabase) {
 	m := config.Get("databases").Map()
 
 	for id, v := range m {
-		//if id == defaultDatabaseID {
-		//	continue
-		//}
 
 		db, ok := v.(map[string]interface{})
 		if !ok {
@@ -62,13 +59,6 @@ func configDatabaseList() (dd []configDatabase) {
 		}
 
 		var services []string
-		/*
-			// TODO V4
-			if s, err := registry.GetService(id); err == nil && s != nil {
-				services = append(services, id)
-			}
-		*/
-
 		for sid, vs := range m {
 			dbid, ok := vs.(string)
 			if !ok {
@@ -100,6 +90,7 @@ func configDatabaseList() (dd []configDatabase) {
 				// Exclude already registered
 				for _, d := range dd {
 					if d.driver == driver && d.dsn == dsn {
+						d.services = append(d.services, s.ID())
 						skip = true
 						break
 					}
@@ -108,8 +99,9 @@ func configDatabaseList() (dd []configDatabase) {
 					continue
 				}
 				dd = append(dd, configDatabase{
-					driver: driver,
-					dsn:    dsn,
+					driver:   driver,
+					dsn:      dsn,
+					services: []string{s.ID()},
 				})
 			}
 		}

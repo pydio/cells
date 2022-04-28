@@ -28,6 +28,15 @@ type Item interface {
 	As(interface{}) bool
 }
 
+type StatusReporter interface {
+	WatchStatus() (StatusWatcher, error)
+}
+
+type StatusWatcher interface {
+	Next() (Item, error)
+	Stop()
+}
+
 // Server represents a running server
 type Server interface {
 	Item

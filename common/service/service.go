@@ -140,28 +140,25 @@ func (s *service) updateRegister(status ...Status) {
 	if reg == nil {
 		return
 	}
-	if err := reg.Register(s); err != nil {
+	var options []registry.RegisterOption
+	if s.opts.Server != nil {
+		options = append(options, registry.WithEdgeTo(s.opts.Server.ID(), "Server", map[string]string{}))
+	}
+	if len(s.opts.Tags) > 0 {
+		for _, t := range s.opts.Tags {
+			generic := util.ToGeneric(&pb.Generic{Id: "tag-" + t, Name: "tag", Metadata: map[string]string{"Tag": t}})
+			if er := reg.Register(generic); er == nil {
+				options = append(options, registry.WithEdgeTo(generic.ID(), "Tag", map[string]string{}))
+			}
+		}
+	}
+	if err := reg.Register(s, options...); err != nil {
 		if s.status == StatusStopping || s.status == StatusStopped {
 			log.Logger(s.opts.Context).Debug("could not register", zap.Error(err))
 		} else {
 			log.Logger(s.opts.Context).Warn("could not register", zap.Error(err))
 		}
 		return
-	}
-	if s.opts.Server != nil {
-		if edge, e := registry.RegisterEdge(reg, s.opts.Server.ID(), s.ID(), "ServiceNode", map[string]string{}); e != nil {
-			log.Logger(s.opts.Context).Warn("could not register edge", zap.Error(e), zap.Any("edge", edge))
-		}
-	}
-	if len(s.opts.Tags) > 0 {
-		for _, t := range s.opts.Tags {
-			generic := util.ToGeneric(&pb.Generic{Id: "tag-" + t, Name: "tag", Metadata: map[string]string{"Tag": t}})
-			if er := reg.Register(generic); er == nil {
-				if edge, e := registry.RegisterEdge(reg, generic.ID(), s.ID(), "Tag", map[string]string{}); e != nil {
-					log.Logger(s.opts.Context).Warn("could not register edge", zap.Error(e), zap.Any("edge", edge))
-				}
-			}
-		}
 	}
 }
 
@@ -264,10 +261,6 @@ func (s *service) Stop() error {
 	if reg := servicecontext.GetRegistry(s.opts.Context); reg != nil {
 		if err := reg.Deregister(s); err != nil {
 			log.Logger(s.opts.Context).Error("Could not deregister", zap.Error(err))
-		} else if edges, er2 := registry.ClearEdges(reg, s); er2 != nil {
-			log.Logger(s.opts.Context).Error("Could not deregister edges", zap.Error(er2))
-		} else if len(edges) > 0 {
-			log.Logger(s.opts.Context).Debug(fmt.Sprintf("Deregistered %d edges", len(edges)))
 		}
 	} else {
 		log.Logger(s.opts.Context).Warn("no registry attached")

@@ -146,7 +146,7 @@ func (s *serviceRegistry) Stop(item registry.Item) error {
 	return nil
 }
 
-func (s *serviceRegistry) Register(item registry.Item) error {
+func (s *serviceRegistry) Register(item registry.Item, option ...registry.RegisterOption) error {
 	_, err := s.client.Register(s.opts.Context, util.ToProtoItem(item), s.callOpts()...)
 	if err != nil {
 		return err
@@ -301,5 +301,5 @@ func NewRegistry(opts ...Option) (registry.Registry, error) {
 		}
 	}()
 
-	return registry.NewRegistry(r), nil
+	return registry.GraphRegistry(r), nil
 }

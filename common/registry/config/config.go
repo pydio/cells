@@ -65,7 +65,7 @@ func init() {
 }
 
 func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry, error) {
-	var reg registry.Registry
+	var reg registry.RawRegistry
 
 	byName := u.Query().Get("byname") == "true"
 
@@ -103,7 +103,7 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 		reg = NewConfigRegistry(store, byName)
 	}
 
-	return reg, nil
+	return registry.GraphRegistry(reg), nil
 }
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry, error) {
@@ -136,7 +136,7 @@ type options struct {
 	itemType int
 }
 
-func NewConfigRegistry(store config.Store, byName bool) registry.Registry {
+func NewConfigRegistry(store config.Store, byName bool) registry.RawRegistry {
 	c := &configRegistry{
 		store:        store,
 		cache:        []registry.Item{},
@@ -236,7 +236,7 @@ func (c *configRegistry) Stop(item registry.Item) error {
 	return nil
 }
 
-func (c *configRegistry) Register(item registry.Item) error {
+func (c *configRegistry) Register(item registry.Item, option ...registry.RegisterOption) error {
 	c.store.Lock()
 	defer c.store.Unlock()
 
@@ -371,9 +371,29 @@ func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error
 	c.broadcasters[id] = res
 	c.Unlock()
 
-	return w, nil
+	// Wrap in a configWatcher to properly deregister on stop
+	cw := &configWatcher{
+		Watcher: w,
+		onStop: func() {
+			c.Lock()
+			delete(c.broadcasters, id)
+			c.Unlock()
+		},
+	}
+
+	return cw, nil
 }
 
 func (c *configRegistry) As(interface{}) bool {
 	return false
+}
+
+type configWatcher struct {
+	registry.Watcher
+	onStop func()
+}
+
+func (c *configWatcher) Stop() {
+	c.Watcher.Stop()
+	c.onStop()
 }

@@ -25,6 +25,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/fatih/structs"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"os"
 	"strings"
 	"sync"
@@ -137,6 +140,25 @@ func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.
 
 func (h *Handler) Init(ctx context.Context, c configx.Values) error {
 	return nil
+}
+
+func (h *Handler) Stats() map[string]interface{} {
+	return structs.Map(h.DB().Stats())
+}
+
+func (h *Handler) WatchStatus() (registry.StatusWatcher, error) {
+	w := util.NewIntervalStatusWatcher(h, 30*time.Second, func() map[string]interface{} {
+		return h.Stats()
+	})
+	return w, nil
+}
+
+func (h *Handler) As(i interface{}) bool {
+	if ss, ok := i.(*registry.StatusReporter); ok {
+		*ss = h
+		return true
+	}
+	return h.DAO.As(i)
 }
 
 // DB returns the sql DB object

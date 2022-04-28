@@ -23,24 +23,20 @@ package cmd
 import (
 	"context"
 	"log"
-	"time"
-
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
-	"github.com/pydio/cells/v4/common/config/etcd"
-	configregistry "github.com/pydio/cells/v4/common/registry/config"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	clientv3 "go.etcd.io/etcd/client/v3"
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 )
 
 var searchAclCmd = &cobra.Command{
@@ -54,16 +50,10 @@ DESCRIPTION
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		etcdconn, err := clientv3.New(clientv3.Config{
-			Endpoints:   []string{"http://0.0.0.0:2379"},
-			DialTimeout: 2 * time.Second,
-		})
+		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
-			log.Fatal("could not start etcd", zap.Error(err))
+			log.Fatal(err)
 		}
-
-		regStore := etcd.NewSource(cmd.Context(), etcdconn, "registry", false, configregistry.WithJSONItem())
-		reg := configregistry.NewConfigRegistry(regStore, false)
 
 		conn, err := grpc.Dial("cells:///", clientgrpc.DialOptionsForRegistry(reg)...)
 		if err != nil {

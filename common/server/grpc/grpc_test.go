@@ -160,7 +160,7 @@ func TestServiceRegistry(t *testing.T) {
 
 	fmt.Println(resp2, err2)
 
-	//reg := registryservice.NewRegistry(registryservice.WithConn(conn))
+	//reg := registryservice.GraphRegistry(registryservice.WithConn(conn))
 	//
 	//createApp2(reg)
 	//
@@ -226,10 +226,10 @@ type delayedRegistry struct {
 	registry.Registry
 }
 
-func (r *delayedRegistry) Register(i registry.Item) error {
+func (r *delayedRegistry) Register(i registry.Item, option ...registry.RegisterOption) error {
 	go func() {
 		<-time.After(5 * time.Second)
-		r.Registry.Register(i)
+		r.Registry.Register(i, option...)
 	}()
 
 	return nil

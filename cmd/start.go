@@ -237,13 +237,7 @@ to quickly create a Cobra application.`,
 			opts.Server.BeforeServe(s.Start)
 			opts.Server.AfterServe(func() error {
 				// Register service again to update status information
-				if err := reg.Register(s); err != nil {
-					return err
-				}
-				if _, er := registry.RegisterEdge(reg, opts.Server.ID(), s.ID(), "Service Node", map[string]string{}); er != nil {
-					return er
-				}
-				return nil
+				return reg.Register(s, registry.WithEdgeTo(opts.Server.ID(), "Server", map[string]string{}))
 			})
 			opts.Server.BeforeStop(s.Stop)
 
