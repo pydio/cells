@@ -99,10 +99,10 @@
     "other": "corresponde"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "pattern"
+    "other": "padrão"
   },
   "conditionBooleanCondition.value": {
-    "other": "True"
+    "other": "Verdadeiro"
   },
   "contextMetaCondition.CIDRCondition": {
     "other": "CondiçãoCIDR"
@@ -135,10 +135,10 @@
     "other": "Data após"
   },
   "contextMetaCondition.PathGlobCondition": {
-    "other": "Glob Matcher"
+    "other": "Correspondente de Glob"
   },
   "contextMetaCondition.BooleanCondition": {
-    "other": "Boolean Value"
+    "other": "Valor booleano"
   },
   "contextMetaField.ContentType": {
     "other": "Tipo de conteúdo"

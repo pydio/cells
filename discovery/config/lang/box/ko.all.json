@@ -1,18 +1,18 @@
 {
   "30 days max": {
-    "other": "30 days max"
+    "other": "최대 30일"
   },
   "Remove versions after 30 days": {
-    "other": "Remove versions after 30 days"
+    "other": "30일 후 버전 제거"
   },
   "Keep All": {
-    "other": "Keep All"
+    "other": "모두 유지"
   },
   "Keep all versions forever": {
-    "other": "Keep all versions forever"
+    "other": "모든 버전 영구 보존"
   },
   "Regular Pruning": {
-    "other": "Regular Pruning"
+    "other": "규칙적인 잘라내기"
   },
   "Prune versions regularly at various intervals": {
     "other": "Prune versions regularly at various intervals"
@@ -27,52 +27,52 @@
     "other": "Actions"
   },
   "aclSingleQuery.NodeIDs": {
-    "other": "Node Identifiers"
+    "other": "노드 식별자"
   },
   "aclSingleQuery.Not": {
     "other": "Not"
   },
   "aclSingleQuery.RoleIDs": {
-    "other": "Role Identifiers"
+    "other": "역할 식별자"
   },
   "aclSingleQuery.WorkspaceIDs": {
-    "other": "Workspace Identifiers"
+    "other": "작업 영역 식별자"
   },
   "aclSingleQuery.not": {
     "other": "not"
   },
   "actionOutputSingleQuery.ErrorStringRegexp": {
-    "other": "Search on error string (regexp)"
+    "other": "오류 문자열 검색(regexp)"
   },
   "actionOutputSingleQuery.IsSuccess": {
-    "other": "Is Success"
+    "other": "성공"
   },
   "actionOutputSingleQuery.JsonBodyHasKey": {
     "other": "Json body has key..."
   },
   "actionOutputSingleQuery.JsonBodyRegexp": {
-    "other": "Search on Json body (regexp)"
+    "other": "Json 본문 검색(regexp)"
   },
   "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
-    "other": "Size of Json body is greater than"
+    "other": "Json body의 크기가 다음 크기보다 큽니다."
   },
   "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
-    "other": "Size of Json body is smaller than"
+    "other": "Json body의 크기가 다음 크기보다 작습니다."
   },
   "actionOutputSingleQuery.Not": {
     "other": "Not"
   },
   "actionOutputSingleQuery.StringBodyRegexp": {
-    "other": "Search on String body (regexp)"
+    "other": "문자열 본문 검색(regexp)"
   },
   "actionOutputSingleQuery.StringBodySizeGreaterThan": {
-    "other": "Size of string body is greater than"
+    "other": "문자열 본문의 크기가 다음 값보다 큽니다."
   },
   "actionOutputSingleQuery.StringBodySizeSmallerThan": {
-    "other": "Size of string body is smaller than"
+    "other": "문자열 본문의 크기가 다음 크기보다 작습니다."
   },
   "actionOutputSingleQuery.TaskTimeGt": {
-    "other": "Task time greater than"
+    "other": "작업 시간이 다음 시간보다 큼"
   },
   "actionOutputSingleQuery.TaskTimeLt": {
     "other": "Task time lower than"
