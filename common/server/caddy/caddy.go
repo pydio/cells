@@ -24,15 +24,17 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/runtime"
 	"html/template"
 	"net"
 	"net/http/pprof"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
+
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/runtime"
 
 	"go.uber.org/zap"
 
@@ -224,6 +226,9 @@ func (s *Server) ComputeConfs() error {
 	for _, site := range caddySites {
 		for _, bind := range site.GetBinds() {
 			s.addresses = append(s.addresses, bind)
+
+			bind = strings.TrimPrefix(bind, "http://")
+			bind = strings.TrimPrefix(bind, "https://")
 
 			host, port, err := net.SplitHostPort(bind)
 			if err != nil {
