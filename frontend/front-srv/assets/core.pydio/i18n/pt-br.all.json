@@ -2400,9 +2400,9 @@
     "other": "Ir para a pasta"
   },
   "action.copymove.recent": {
-    "other": "Recent Locations"
+    "other": "Locais Recentes"
   },
   "action.copymove.root": {
-    "other": "Top Folder"
+    "other": "Pasta superior"
   }
 }

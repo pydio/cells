@@ -537,13 +537,13 @@
     "other": "Compartilhado em células"
   },
   "254b": {
-    "other": "With users or groups"
+    "other": "Com usuários ou grupos"
   },
   "254c": {
-    "other": "Shared in %d cells"
+    "other": "Compartilhado em %d células"
   },
   "254d": {
-    "other": "Shared in '%s'"
+    "other": "Compartilhado em '%s'"
   },
   "255": {
     "other": "Tem certeza que deseja excluir todas as células e links deste item?"
@@ -909,22 +909,22 @@
     "other": "Compartilhar pasta(s) existente(s)"
   },
   "cells.remove.node": {
-    "other": "Remove from this cell"
+    "other": "Remover desta célula"
   },
   "cell.visibility.advanced": {
     "other": "Este recurso avançado permite decidir quem pode editar as propriedades desta Célula (direito de adicionar/remover usuários e adicionar/remover pastas na raiz da célula). Para simplesmente gerenciar os acessos aos dados, use a aba 'Compartilhar com'."
   },
   "cell.add.existing-or-new": {
-    "other": "Add to existing or new Cell"
+    "other": "Adicionar a uma célula existente ou nova"
   },
   "cell.add.existing": {
-    "other": "Add to existing Cell"
+    "other": "Adicionar a uma Célula existente"
   },
   "cell.add.new": {
-    "other": "Create a new Cell"
+    "other": "Criar uma nova Célula"
   },
   "link.visibility.title": {
-    "other": "[Advanced] Visibility"
+    "other": "[Advanced] Visibilidade"
   },
   "link.visibility.advanced": {
     "other": "Este recurso avançado permite que você decida se este link é visível para outros usuários quando eles veem este arquivo, e se eles podem editar suas propriedades. Por padrão, os links que você cria só são visíveis para você. Você pode transferir uma propriedade de link permitindo que um outro usuário o edite."
@@ -933,7 +933,7 @@
     "other": "Existem alterações não salvas. Tem certeza que deseja fechar?"
   },
   "dialog.link.confirm.remove": {
-    "other": "Are you sure that you want to disable this link?"
+    "other": "Tem certeza que deseja desativar este link?"
   },
   "sharelist.quick-filter": {
     "other": "Filtro rápido..."
@@ -942,27 +942,27 @@
     "other": "Desativar todos os compartilhamentos"
   },
   "link.active": {
-    "other": "active"
+    "other": "ativo"
   },
   "link.disable": {
-    "other": "Disable Link"
+    "other": "Desativar Link"
   },
   "link.floatingLabel": {
-    "other": "Copy and send this link for direct access"
+    "other": "Copie e envie este link para acesso direto"
   },
   "link.secure.title": {
-    "other": "Access Restrictions"
+    "other": "Restrições de Acesso"
   },
   "link.secure.expires": {
-    "other": "expires"
+    "other": "expira em"
   },
   "link.secure.expired": {
-    "other": "expired"
+    "other": "expirado"
   },
   "link.secure.hasPassword": {
-    "other": "password required"
+    "other": "senha requerida"
   },
   "link.secure.maxdownloads": {
-    "other": "%d downloads only"
+    "other": "%d downloads apenas"
   }
 }

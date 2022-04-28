@@ -126,16 +126,16 @@
     "other": "Analisando..."
   },
   "status.dir.new": {
-    "other": "Folder awaiting upload..."
+    "other": "Pasta aguardando envio..."
   },
   "status.file.new": {
-    "other": "File awaiting upload..."
+    "other": "Arquivo aguardando envio..."
   },
   "status.dir.analyse": {
-    "other": "Analyzing folder..."
+    "other": "Analisando pasta..."
   },
   "status.file.analyse": {
-    "other": "Analyzing file..."
+    "other": "Analisando arquivo..."
   },
   "status.dir.loading": {
     "other": "Criando pasta"
