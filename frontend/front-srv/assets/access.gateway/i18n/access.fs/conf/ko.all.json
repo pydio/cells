@@ -3,33 +3,33 @@
     "other": "경로"
   },
   "Default download format": {
-    "other": "Default download format"
+    "other": "기본 다운로드 형식"
   },
   "When downloading a folder or a multiple selection, automatically create an archive using this format": {
-    "other": "When downloading a folder or a multiple selection, automatically create an archive using this format"
+    "other": "폴더 또는 여러 선택 항목을 다운로드할 때 이 형식을 사용하여 자동으로 보관 파일 만들기"
   },
   "Path to the folder on the server": {
-    "other": "Path to the folder on the server"
+    "other": "서버의 폴더 경로"
   },
   "Gateway": {
-    "other": "Gateway"
+    "other": "게이트웨이"
   },
   "Pydio S3 Gateway": {
-    "other": "Pydio S3 Gateway"
+    "other": "Pydio S3 게이트웨이"
   },
   "Absolute path to one or more root nodes": {
-    "other": "Absolute path to one or more root nodes"
+    "other": "하나 이상의 루트 노드에 대한 절대 경로"
   },
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "페이지 당 항목 수"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Once in pagination mode, number of items to display per page."
+    "other": "페이지 번호 모드가 되면 페이지당 표시할 항목 수입니다."
   },
   "Delete Permanently": {
-    "other": "Delete Permanently"
+    "other": "영구적으로 삭제"
   },
   "Enable option to skip recycle bin on deletion": {
-    "other": "Enable option to skip recycle bin on deletion"
+    "other": "삭제 시 휴지통을 건너뛸 수 있는 옵션 사용"
   }
 }
