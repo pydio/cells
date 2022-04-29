@@ -331,14 +331,18 @@ func (m *mongoimpl) Purge(ctx context.Context, logger func(string), ownerType ac
 }
 
 // AllActivities is used for internal migrations only
-func (m *mongoimpl) allActivities(ctx context.Context) (chan *docActivity, error) {
+func (m *mongoimpl) allActivities(ctx context.Context) (chan *docActivity, int, error) {
 	filter := bson.D{}
 	opts := &options.FindOptions{
 		Sort: bson.D{{"ts", 1}},
 	}
+	var total int
+	if tt, e := m.Collection(collActivities).CountDocuments(ctx, nil); e == nil {
+		total = int(tt)
+	}
 	cursor, er := m.Collection(collActivities).Find(ctx, filter, opts)
 	if er != nil {
-		return nil, er
+		return nil, 0, er
 	}
 	out := make(chan *docActivity, 10000)
 	go func() {
@@ -351,14 +355,14 @@ func (m *mongoimpl) allActivities(ctx context.Context) (chan *docActivity, error
 			out <- doc
 		}
 	}()
-	return out, nil
+	return out, total, nil
 }
 
 // AllSubscriptions is used for internal migrations only
-func (m *mongoimpl) allSubscriptions(ctx context.Context) (chan *activity.Subscription, error) {
+func (m *mongoimpl) allSubscriptions(ctx context.Context) (chan *activity.Subscription, int, error) {
 	cursor, er := m.Collection(collSubscriptions).Find(ctx, bson.D{})
 	if er != nil {
-		return nil, er
+		return nil, 0, er
 	}
 	out := make(chan *activity.Subscription, 10000)
 	go func() {
@@ -371,7 +375,7 @@ func (m *mongoimpl) allSubscriptions(ctx context.Context) (chan *activity.Subscr
 			out <- sub
 		}
 	}()
-	return out, nil
+	return out, 0, nil
 
 }
 

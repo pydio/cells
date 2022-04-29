@@ -484,7 +484,8 @@ func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string), ownerType
 }
 
 // AllActivities is used for internal migrations only
-func (dao *boltdbimpl) allActivities(ctx context.Context) (chan *docActivity, error) {
+func (dao *boltdbimpl) allActivities(ctx context.Context) (chan *docActivity, int, error) {
+	fmt.Println("Opening DAO...")
 	db := dao.DB()
 	out := make(chan *docActivity, 1000)
 	listBucket := func(bb *bolt.Bucket, ownerType int32, ownerId string, boxName BoxName) {
@@ -501,6 +502,25 @@ func (dao *boltdbimpl) allActivities(ctx context.Context) (chan *docActivity, er
 			}
 		}
 	}
+	var total int
+	_ = db.View(func(tx *bolt.Tx) error {
+		// First compute total
+		for _, t := range activity.OwnerType_name {
+			mainBucket := tx.Bucket([]byte(t))
+			// Browse all user
+			_ = mainBucket.ForEach(func(k, v []byte) error {
+				if inbox := mainBucket.Bucket(k).Bucket([]byte(BoxInbox)); inbox != nil {
+					total += inbox.Stats().KeyN
+				}
+				if outbox := mainBucket.Bucket(k).Bucket([]byte(BoxOutbox)); outbox != nil {
+					total += outbox.Stats().KeyN
+				}
+				return nil
+			})
+		}
+		return nil
+	})
+
 	go func() {
 		defer close(out)
 		_ = db.View(func(tx *bolt.Tx) error {
@@ -520,13 +540,27 @@ func (dao *boltdbimpl) allActivities(ctx context.Context) (chan *docActivity, er
 			return nil
 		})
 	}()
-	return out, nil
+	return out, total, nil
 }
 
 // AllSubscriptions is used for internal migrations only
-func (dao *boltdbimpl) allSubscriptions(ctx context.Context) (chan *activity.Subscription, error) {
+func (dao *boltdbimpl) allSubscriptions(ctx context.Context) (chan *activity.Subscription, int, error) {
 	out := make(chan *activity.Subscription)
+	var total int
 	db := dao.DB()
+	_ = db.View(func(tx *bolt.Tx) error {
+		for _, t := range activity.OwnerType_name {
+			mainBucket := tx.Bucket([]byte(t))
+			// Browse all user
+			_ = mainBucket.ForEach(func(uk, uv []byte) error {
+				if inbox := mainBucket.Bucket(uk).Bucket([]byte(BoxSubscriptions)); inbox != nil {
+					total += inbox.Stats().KeyN
+				}
+				return nil
+			})
+		}
+		return nil
+	})
 	go func() {
 		defer close(out)
 		_ = db.View(func(tx *bolt.Tx) error {
@@ -556,7 +590,7 @@ func (dao *boltdbimpl) allSubscriptions(ctx context.Context) (chan *activity.Sub
 			return nil
 		})
 	}()
-	return out, nil
+	return out, total, nil
 
 }
 

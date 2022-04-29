@@ -73,7 +73,7 @@ func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	return nil, dao.UnsupportedDriver(o)
 }
 
-func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
+func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
 	ctx := context.Background()
 	out := map[string]int{
 		"Stores":    0,

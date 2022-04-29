@@ -29,7 +29,12 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
-type MigratorFunc func(from DAO, to DAO, dryRun bool) (map[string]int, error)
+type MigratorStatus struct {
+	Status string
+	Total  int64
+	Count  int64
+}
+type MigratorFunc func(from DAO, to DAO, dryRun bool, status chan MigratorStatus) (map[string]int, error)
 type DriverProviderFunc func() (string, string)
 
 type ConnProviderFunc func(ctx context.Context, driver, dsn string) ConnDriver

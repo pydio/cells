@@ -27,12 +27,22 @@ func NewQueueDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 }
 
 // MigrateQueue is a MigratorFunc to move queued emails from one Queue to another.
-func MigrateQueue(from dao.DAO, to dao.DAO, dryRun bool) (map[string]int, error) {
+func MigrateQueue(from dao.DAO, to dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
 	out := map[string]int{
 		"Emails": 0,
 	}
-	queueFrom := from.(Queue)
-	queueTo := to.(Queue)
+	ctx := context.Background()
+	var queueFrom, queueTo Queue
+	if qf, e := NewQueueDAO(ctx, from); e == nil {
+		queueFrom = qf.(Queue)
+	} else {
+		return nil, e
+	}
+	if qt, e := NewQueueDAO(ctx, to); e == nil {
+		queueTo = qt.(Queue)
+	} else {
+		return nil, e
+	}
 	er := queueFrom.Consume(func(email *mailer.Mail) error {
 		out["Emails"]++
 		if dryRun {

@@ -180,11 +180,11 @@ func (c *Cache) Purge(ctx context.Context, logger func(string), ownerType activi
 }
 
 // AllActivities is used for internal migrations only
-func (c *Cache) allActivities(ctx context.Context) (chan *docActivity, error) {
+func (c *Cache) allActivities(ctx context.Context) (chan *docActivity, int, error) {
 	return c.DAO.allActivities(ctx)
 }
 
 // AllSubscriptions is used for internal migrations only
-func (c *Cache) allSubscriptions(ctx context.Context) (chan *activity.Subscription, error) {
+func (c *Cache) allSubscriptions(ctx context.Context) (chan *activity.Subscription, int, error) {
 	return c.DAO.allSubscriptions(ctx)
 }

@@ -8,7 +8,7 @@ require (
 	github.com/ajvb/kala v0.8.4
 	github.com/allegro/bigcache/v3 v3.0.1
 	github.com/beevik/ntp v0.3.0
-	github.com/bep/debounce v1.2.0 // indirect
+	github.com/bep/debounce v1.2.0
 	github.com/blevesearch/bleve/v2 v2.3.0
 	github.com/caddyserver/caddy/v2 v2.4.6
 	github.com/cskr/pubsub v1.0.2
@@ -18,8 +18,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1-0.20200219035652-afde56e7acac
 	github.com/emicklei/go-restful/v3 v3.7.3
 	github.com/fatih/color v1.13.0
-	github.com/fatih/structs v1.1.0 // indirect
-	github.com/fsnotify/fsnotify v1.5.1
+	github.com/fatih/structs v1.1.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-openapi/errors v0.20.2
 	github.com/go-openapi/loads v0.21.1
@@ -61,7 +60,7 @@ require (
 	github.com/minio/madmin-go v1.2.7
 	github.com/minio/minio v0.0.0-20220406034617-255116fde7e9
 	github.com/minio/minio-go/v7 v7.0.21
-	github.com/minio/pkg v1.1.14 // indirect
+	github.com/minio/pkg v1.1.14
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/mssola/user_agent v0.5.3
 	github.com/mwitkow/go-proto-validators v0.3.2
@@ -83,10 +82,11 @@ require (
 	github.com/rs/xid v1.3.0
 	github.com/rubenv/sql-migrate v0.0.0-20211023115951-9f02b1e13857
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
+	github.com/schollz/progressbar/v3 v3.8.6
 	github.com/scottleedavis/go-exif-remove v0.0.0-20190908021517-58bdbaac8636
 	github.com/sendgrid/rest v2.6.5+incompatible // indirect
 	github.com/sendgrid/sendgrid-go v3.10.3+incompatible
-	github.com/sethvargo/go-limiter v0.7.2 // indirect
+	github.com/sethvargo/go-limiter v0.7.2
 	github.com/shibukawa/configdir v0.0.0-20170330084843-e180dbdc8da0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/goconvey v1.7.2
@@ -111,11 +111,13 @@ require (
 	gocloud.dev v0.20.0
 	gocloud.dev/pubsub/natspubsub v0.20.0
 	gocloud.dev/pubsub/rabbitpubsub v0.20.0
-	golang.org/x/crypto v0.0.0-20211209193657-4570a0811e8b
+	golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	golang.org/x/sys v0.0.0-20220429121018-84afa8d3f7b3 // indirect
+	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 // indirect
 	golang.org/x/text v0.3.7
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa

@@ -77,9 +77,9 @@ type DAO interface {
 	Purge(ctx context.Context, logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error
 
 	// AllActivities is used for internal migrations only
-	allActivities(ctx context.Context) (chan *docActivity, error)
+	allActivities(ctx context.Context) (chan *docActivity, int, error)
 	// AllSubscriptions is used for internal migrations only
-	allSubscriptions(ctx context.Context) (chan *activity.Subscription, error)
+	allSubscriptions(ctx context.Context) (chan *activity.Subscription, int, error)
 }
 
 type batchActivity struct {
@@ -110,7 +110,7 @@ func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	return nil, dao.UnsupportedDriverType("")
 }
 
-func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
+func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
 	ctx := context.Background()
 	out := map[string]int{
 		"Activities":    0,
@@ -128,7 +128,7 @@ func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
 	} else {
 		return out, e
 	}
-	aa, er := from.allActivities(ctx)
+	aa, total, er := from.allActivities(ctx)
 	if er != nil {
 		return nil, er
 	}
@@ -137,11 +137,12 @@ func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
 			out["Activities"]++
 		} else if er := to.PostActivity(ctx, activity.OwnerType(a.OwnerType), a.OwnerId, BoxName(a.BoxName), a.Object, false); er == nil {
 			out["Activities"]++
-		} else {
-			continue
+		}
+		if total > 0 {
+			status <- dao.MigratorStatus{Total: int64(total), Count: int64(out["Activities"])}
 		}
 	}
-	ss, er := from.allSubscriptions(ctx)
+	ss, sTotal, er := from.allSubscriptions(ctx)
 	if er != nil {
 		return out, er
 	}
@@ -150,8 +151,9 @@ func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
 			out["Subscriptions"]++
 		} else if er := to.UpdateSubscription(ctx, s); er == nil {
 			out["Subscriptions"]++
-		} else {
-			continue
+		}
+		if sTotal > 0 {
+			status <- dao.MigratorStatus{Total: int64(sTotal), Count: int64(out["Subscriptions"])}
 		}
 	}
 	return out, nil

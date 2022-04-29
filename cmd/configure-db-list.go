@@ -90,7 +90,7 @@ func configDatabaseList() (dd []configDatabase) {
 				// Exclude already registered
 				for _, d := range dd {
 					if d.driver == driver && d.dsn == dsn {
-						d.services = append(d.services, s.ID())
+						d.services = append(d.services, s.Name())
 						skip = true
 						break
 					}
@@ -101,7 +101,7 @@ func configDatabaseList() (dd []configDatabase) {
 				dd = append(dd, configDatabase{
 					driver:   driver,
 					dsn:      dsn,
-					services: []string{s.ID()},
+					services: []string{s.Name()},
 				})
 			}
 		}

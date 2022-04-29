@@ -23,7 +23,13 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"log"
+	"strings"
+
 	"github.com/manifoldco/promptui"
+	"github.com/schollz/progressbar/v3"
+	"github.com/spf13/cobra"
+
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
@@ -31,8 +37,6 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/discovery/install/lib"
-	"github.com/spf13/cobra"
-	"log"
 )
 
 var (
@@ -90,7 +94,7 @@ DESCRIPTION
 		dd := configDatabaseList()
 		var drivers []string
 		for _, driver := range dd {
-			drivers = append(drivers, fmt.Sprintf("%s - %s", driver.driver, driver.dsn))
+			drivers = append(drivers, fmt.Sprintf("%s - %s (%s)", driver.driver, driver.dsn, strings.Join(driver.services, ",")))
 		}
 		dl := &promptui.Select{
 			Label: "Select storage source",
@@ -126,13 +130,26 @@ DESCRIPTION
 		} else {
 			cmd.Println("Running migration in real mode - Data will be copied to target")
 		}
-		if result, e := sOptions.Migrator(fromDao, toDao, dbMoveDryRun); e != nil {
+		sChan := make(chan dao.MigratorStatus, 1000)
+		var bar *progressbar.ProgressBar
+		go func() {
+			for status := range sChan {
+				if status.Total > 0 {
+					if bar == nil {
+						bar = progressbar.Default(status.Total)
+					}
+					bar.Set64(status.Count)
+				}
+			}
+		}()
+		if result, e := sOptions.Migrator(fromDao, toDao, dbMoveDryRun, sChan); e != nil {
 			return e
 		} else {
 			for name, count := range result {
 				cmd.Printf("Copied %d %s\n", count, name)
 			}
 		}
+		close(sChan)
 
 		return nil
 	},
