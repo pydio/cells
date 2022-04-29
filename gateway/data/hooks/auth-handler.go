@@ -120,9 +120,7 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			_ = newReq.ParseForm()
 			r = signer.PreSignV4(newReq, common.S3GatewayRootUser, common.S3GatewayRootPassword, "", common.S3GatewayDefaultRegion, expire)
 			// Re-append headers
-			log.Logger(ctx).Info("Refreshed presigned to " + newUrl.RawQuery)
 			if len(origHeader) > 0 {
-				log.Logger(ctx).Info("Re-appending headers")
 				r.Header = http.Header{}
 				for k, vv := range origHeader {
 					for _, v := range vv {
