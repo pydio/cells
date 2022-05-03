@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/errors"
+	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
 )
@@ -105,11 +107,21 @@ func (t *TreeHandler) ReadNode(ctx context.Context, request *tree.ReadNodeReques
 // ListNodes forwards to router
 func (t *TreeHandler) ListNodes(ctx context.Context, request *tree.ListNodesRequest, stream tree.NodeProvider_ListNodesStream) error {
 
+	defer func() {
+		if e := stream.Close(); e != nil {
+			log.Logger(ctx).Error("ListNodes - stream.Close"+e.Error(), zap.Error(e))
+		}
+	}()
+
 	st, e := t.getRouter().ListNodes(ctx, request)
 	if e != nil {
 		return e
 	}
-	defer st.Close()
+	defer func() {
+		if e := st.Close(); e != nil {
+			log.Logger(ctx).Error("ListNodes - st.Close"+e.Error(), zap.Error(e))
+		}
+	}()
 
 	for {
 		r, e := st.Recv()
@@ -119,7 +131,9 @@ func (t *TreeHandler) ListNodes(ctx context.Context, request *tree.ListNodesRequ
 		if e != nil {
 			return e
 		}
-		stream.Send(r)
+		if er := stream.Send(r); er != nil {
+			log.Logger(ctx).Error("ListNodes - send "+er.Error(), zap.Error(er))
+		}
 	}
 
 	return nil
@@ -128,17 +142,28 @@ func (t *TreeHandler) ListNodes(ctx context.Context, request *tree.ListNodesRequ
 // StreamChanges sends events to the client
 func (t *TreeHandler) StreamChanges(ctx context.Context, req *tree.StreamChangesRequest, resp tree.NodeChangesStreamer_StreamChangesStream) error {
 
+	defer func() {
+		if e := resp.Close(); e != nil {
+			log.Logger(ctx).Error("StreamChanges - streamer.Close"+e.Error(), zap.Error(e))
+		}
+	}()
 	streamer, err := t.getRouter().StreamChanges(ctx, req)
 	if err != nil {
 		return err
 	}
-	defer streamer.Close()
+	defer func() {
+		if e := streamer.Close(); e != nil {
+			log.Logger(ctx).Error("StreamChanges - streamer.Close"+e.Error(), zap.Error(e))
+		}
+	}()
 	for {
 		r, e := streamer.Recv()
 		if e != nil {
 			break
 		}
-		resp.Send(r)
+		if er := resp.Send(r); er != nil {
+			log.Logger(ctx).Error("StreamChanges Send"+er.Error(), zap.Error(er))
+		}
 	}
 
 	return nil
