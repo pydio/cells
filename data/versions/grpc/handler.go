@@ -239,6 +239,8 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 				case cLog := <-allLogs:
 					if cLog.Location == nil {
 						cLog.Location = versions.DefaultLocation(i, cLog.Uuid)
+					} else {
+						cLog.Location.Type = tree.NodeType_LEAF
 					}
 					resp.DeletedVersions = append(resp.DeletedVersions, cLog)
 				case <-done:
