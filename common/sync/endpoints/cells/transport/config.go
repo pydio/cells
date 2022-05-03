@@ -18,9 +18,19 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package cells_sdk provides a ready to use SDK to use the Cells REST API in Go language.
+// Package transport provides a ready to use SDK to use the Cells REST API in Go language.
 // It also provides some patterns that ease implementation of Go programs that use the SDK.
 package transport
+
+import (
+	"crypto/tls"
+	"net/http"
+)
+
+// InsecureTransport is a pre-configured transport with InsecureSkipVerify set to true
+var InsecureTransport = &http.Transport{
+	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+}
 
 // SdkConfig stores parameters to talk to a running Cells instance REST API via the Go SDK.
 type SdkConfig struct {
