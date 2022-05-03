@@ -68,16 +68,11 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 		var original map[string]interface{}
 		if o := config.Get(path...).Map(); len(o) > 0 {
 			original = o
-			config.Del(path...)
 		}
 		config.Set(parsed, path...)
 		if err := config.Save(u, "Setting config via API"); err != nil {
 			log.Logger(ctx).Error("Put", zap.Error(err))
 			service.RestError500(req, resp, err)
-			// Restoring original value
-			if original != nil {
-				config.Set(original, path...)
-			}
 			return
 		}
 		s.logPluginEnabled(req.Request.Context(), configuration.FullPath, parsed, original)
