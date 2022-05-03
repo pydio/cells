@@ -119,6 +119,7 @@ func DefaultLocation(originalUUID, versionUUID string) *tree.Node {
 	return &tree.Node{
 		Uuid: vPath,
 		Path: path.Join(dsName, vPath),
+		Type: tree.NodeType_LEAF,
 		MetaStore: map[string]string{
 			common.MetaNamespaceDatasourceName: `"` + dsName + `"`,
 			common.MetaNamespaceDatasourcePath: `"` + vPath + `"`,
