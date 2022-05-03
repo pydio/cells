@@ -70,6 +70,8 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		opts = append(opts, configx.WithJSON())
 	}
 
+	withKeys := u.Query().Get("withKeys") == "true"
+
 	// Registry via etcd
 	etcdConn, err := clientv3.New(clientv3.Config{
 		Endpoints:   []string{addr},
@@ -80,7 +82,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		return nil, err
 	}
 
-	store := NewSource(context.Background(), etcdConn, u.Path, true, opts...)
+	store := NewSource(context.Background(), etcdConn, u.Path, true, withKeys, opts...)
 
 	return store, nil
 }
@@ -88,14 +90,16 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 type etcd struct {
 	v         configx.Values
 	prefix    string
+	withKeys  bool
 	cli       *clientv3.Client
 	leaseID   clientv3.LeaseID
 	locker    sync.Locker
 	receivers []*receiver
+	reset     chan bool
 	opts      []configx.Option
 }
 
-func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLease bool, opts ...configx.Option) config.Store {
+func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLease bool, withKeys bool, opts ...configx.Option) config.Store {
 	opts = append([]configx.Option{configx.WithJSON()}, opts...)
 
 	var leaseID clientv3.LeaseID
@@ -122,12 +126,14 @@ func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLea
 	}
 
 	m := &etcd{
-		v:       configx.New(opts...),
-		cli:     cli,
-		prefix:  prefix,
-		locker:  &sync.Mutex{},
-		leaseID: leaseID,
-		opts:    opts,
+		v:        configx.New(opts...),
+		cli:      cli,
+		prefix:   prefix,
+		withKeys: withKeys,
+		locker:   &sync.Mutex{},
+		leaseID:  leaseID,
+		reset:    make(chan bool),
+		opts:     opts,
 	}
 
 	m.Get()
@@ -161,16 +167,27 @@ func (m *etcd) watch(ctx context.Context) {
 	}
 }
 
-func (m *etcd) Get() configx.Value {
-	resp, err := m.cli.Get(context.Background(), m.prefix, clientv3.WithLease(m.leaseID))
-	if err != nil {
-		fmt.Println("Error is ", err)
-		return nil
+func (m *etcd) update() {
+	select {
+	case m.reset <- true:
+	default:
 	}
+}
 
-	for _, kv := range resp.Kvs {
-		if err := m.v.Set(kv.Value); err != nil {
+func (m *etcd) Get() configx.Value {
+	if m.withKeys {
+		resp, err := m.cli.Get(context.Background(), m.prefix, clientv3.WithLease(m.leaseID), clientv3.WithPrefix())
+		if err != nil {
+			fmt.Println("Error is ", err)
 			return nil
+		}
+
+		for _, kv := range resp.Kvs {
+			fmt.Println("Setting value ? ", string(kv.Key), string(kv.Value))
+			if err := m.v.Set(kv.Value); err != nil {
+				fmt.Println("Error here ", string(kv.Value), err)
+				return nil
+			}
 		}
 	}
 
@@ -178,12 +195,11 @@ func (m *etcd) Get() configx.Value {
 }
 
 func (m *etcd) Val(path ...string) configx.Values {
-	return &values{root: m.v, path: strings.Join(path, "/"), opts: m.opts}
+	return &values{cli: m.cli, leaseID: m.leaseID, withKeys: m.withKeys, root: m.v, prefix: m.prefix, path: strings.Join(path, "/"), opts: m.opts}
 }
 
 func (m *etcd) Set(data interface{}) error {
-	v := configx.New(m.opts...)
-	if err := v.Set(data); err != nil {
+	if err := m.v.Set(data); err != nil {
 		return err
 	}
 
@@ -195,6 +211,10 @@ func (m *etcd) Del() error {
 }
 
 func (m *etcd) Save(ctxUser string, ctxMessage string) error {
+	if m.withKeys {
+		return nil
+	}
+
 	if _, err := m.cli.Put(context.Background(), m.prefix, string(m.v.Bytes()), clientv3.WithLease(m.leaseID)); err != nil {
 		return err
 	}
@@ -251,12 +271,29 @@ func (r *receiver) Stop() {
 }
 
 type values struct {
-	root configx.Values
-	path string
-	opts []configx.Option
+	cli      *clientv3.Client
+	leaseID  clientv3.LeaseID
+	withKeys bool
+	root     configx.Values
+	prefix   string
+	path     string
+	opts     []configx.Option
 }
 
 func (v *values) Set(value interface{}) error {
+	if v.withKeys {
+		c := configx.New(v.opts...)
+		if err := c.Set(value); err != nil {
+			return err
+		}
+
+		if _, err := v.cli.Put(context.Background(), v.prefix+"/"+v.path, string(c.Bytes()), clientv3.WithLease(v.leaseID)); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
 	return v.root.Val(v.path).Set(value)
 }
 
@@ -272,7 +309,7 @@ func (v *values) Val(path ...string) configx.Values {
 	if v.path != "" {
 		path = append([]string{v.path}, path...)
 	}
-	return &values{root: v.root, path: strings.Join(path, "/"), opts: v.opts}
+	return &values{cli: v.cli, leaseID: v.leaseID, withKeys: v.withKeys, root: v.root, prefix: v.prefix, path: strings.Join(path, "/"), opts: v.opts}
 }
 
 func (v *values) Default(i interface{}) configx.Value {

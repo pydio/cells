@@ -37,15 +37,21 @@ type jsonReader struct{}
 func (j *jsonReader) Unmarshal(data []byte, out interface{}) error {
 	switch vout := out.(type) {
 	case *interface{}:
-		i := new(pb.Item)
+		i := new(pb.ItemMap)
 
-		if err := protojson.Unmarshal(data, i); err != nil {
+		if err := protojson.Unmarshal(data, i); err == nil {
+			*vout = i
+		}
+
+		j := new(pb.Item)
+
+		if err := protojson.Unmarshal(data, j); err != nil {
 			return err
 		}
 
-		ret := util.ToItem(i)
+		*vout = j
 
-		*vout = ret
+		return nil
 	case *registry.Item:
 		i := new(pb.Item)
 
@@ -56,6 +62,8 @@ func (j *jsonReader) Unmarshal(data []byte, out interface{}) error {
 		ret := util.ToItem(i)
 
 		*vout = ret
+
+		return nil
 	case *[]registry.Item:
 		i := new(pb.ItemMap)
 
@@ -66,6 +74,8 @@ func (j *jsonReader) Unmarshal(data []byte, out interface{}) error {
 		for _, v := range i.Items {
 			*vout = append(*vout, util.ToItem(v))
 		}
+
+		return nil
 	case map[string]registry.Item:
 		i := new(pb.ItemMap)
 
@@ -76,9 +86,11 @@ func (j *jsonReader) Unmarshal(data []byte, out interface{}) error {
 		for k, v := range i.Items {
 			vout[k] = util.ToItem(v)
 		}
+
+		return nil
 	}
 
-	return nil
+	return fmt.Errorf("should not be here")
 }
 
 type jsonWriter struct{}
@@ -105,6 +117,8 @@ func (j *jsonWriter) Marshal(in interface{}) ([]byte, error) {
 		item := util.ToProtoItem(v)
 
 		return protojson.MarshalOptions{Indent: "  "}.Marshal(item)
+	case *pb.ItemMap:
+		return protojson.MarshalOptions{Indent: "  "}.Marshal(v)
 	}
 
 	return nil, fmt.Errorf("should not be here")

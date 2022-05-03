@@ -250,6 +250,7 @@ func (c *config) Set(data interface{}) error {
 		case []byte:
 			if len(vv) > 0 {
 				if err := c.opts.Unmarshaler.Unmarshal(vv, &data); err != nil {
+					fmt.Println("Unmarhsla ", err)
 					return err
 				}
 			}
@@ -267,6 +268,7 @@ func (c *config) Set(data interface{}) error {
 		var out map[string]interface{}
 
 		if err := mapstructure.Decode(data, &out); err != nil {
+			fmt.Println("Is is in decode ? ", err)
 			return err
 		}
 

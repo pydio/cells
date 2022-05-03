@@ -277,9 +277,9 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool) {
 			log.Fatal("could not start etcd", zap.Error(err))
 		}
 
-		config.RegisterVault(etcd.NewSource(ctx, conn, "vault", false))
+		config.RegisterVault(etcd.NewSource(ctx, conn, "vault", false, false))
 		// config.RegisterLocal(etcd.NewSource(context.Background(), conn, "config/"+runtime.DefaultAdvertiseAddress(), false))
-		defaultConfig := etcd.NewSource(ctx, conn, "config", false)
+		defaultConfig := etcd.NewSource(ctx, conn, "config", false, false)
 		defaultConfig = config.Proxy(defaultConfig)
 		config.Register(defaultConfig)
 	case "grpc":

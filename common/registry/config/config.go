@@ -89,7 +89,7 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 			return nil, err
 		}
 
-		store := etcd.NewSource(context.Background(), etcdConn, "registry", true, WithJSONItem())
+		store := etcd.NewSource(context.Background(), etcdConn, "registry", true, true, WithJSONItem())
 		reg = NewConfigRegistry(store, byName)
 	case "file":
 		store, err := file.New(u.Path, true, WithJSONItem())
@@ -308,6 +308,10 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 	}
 
 	items := map[string]registry.Item{}
+	/*if c.store.Get() == nil {
+		return nil, nil
+	}*/
+
 	if err := c.store.Get().Default(map[string]registry.Item{}).Scan(items); err != nil {
 		// do nothing
 	}
