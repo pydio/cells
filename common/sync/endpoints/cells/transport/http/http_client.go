@@ -21,7 +21,6 @@
 package http
 
 import (
-	"crypto/tls"
 	"net/http"
 
 	"github.com/pydio/cells/common/sync/endpoints/cells/transport"
@@ -32,9 +31,7 @@ func GetHttpClient(sdkConfig *transport.SdkConfig) *http.Client {
 
 	t := http.DefaultTransport
 	if sdkConfig.SkipVerify {
-		t = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // ignore expired SSL certificates
-		}
+		t = transport.InsecureTransport
 	}
 	if sdkConfig.CustomHeaders != nil && len(sdkConfig.CustomHeaders) > 0 {
 		t = &customHeaderRoundTripper{

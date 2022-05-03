@@ -22,7 +22,6 @@ package cells
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"net"
 	"net/http"
@@ -72,9 +71,7 @@ func detectGrpcPort(config *transport.SdkConfig, reload bool) (host string, port
 		httpClient := http.DefaultClient
 		if config.SkipVerify {
 			httpClient = &http.Client{
-				Transport: &http.Transport{
-					TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-				},
+				Transport: transport.InsecureTransport,
 			}
 		}
 		resp, e := httpClient.Get(fmt.Sprintf("%s/a/config/discovery", config.Url))

@@ -22,7 +22,6 @@ package mc
 
 import (
 	"context"
-	"crypto/tls"
 	"io"
 	"net/http"
 	"net/url"
@@ -67,7 +66,7 @@ func (g *S3Client) GetObject(ctx context.Context, node *tree.Node, requestData *
 	}
 	t := http.DefaultTransport
 	if g.config.SkipVerify {
-		t = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
+		t = transport.InsecureTransport
 	}
 	if g.config.CustomHeaders != nil && len(g.config.CustomHeaders) > 0 {
 		t = &customHeaderRoundTripper{rt: t, Headers: g.config.CustomHeaders}
@@ -90,7 +89,7 @@ func (g *S3Client) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 	}
 	t := http.DefaultTransport
 	if g.config.SkipVerify {
-		t = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
+		t = transport.InsecureTransport
 	}
 	if g.config.CustomHeaders != nil && len(g.config.CustomHeaders) > 0 {
 		t = &customHeaderRoundTripper{rt: t, Headers: g.config.CustomHeaders}
@@ -112,7 +111,7 @@ func (g *S3Client) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 	}
 	t := http.DefaultTransport
 	if g.config.SkipVerify {
-		t = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
+		t = transport.InsecureTransport
 	}
 	if g.config.CustomHeaders != nil && len(g.config.CustomHeaders) > 0 {
 		t = &customHeaderRoundTripper{rt: t, Headers: g.config.CustomHeaders}
