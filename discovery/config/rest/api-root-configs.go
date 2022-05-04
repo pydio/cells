@@ -25,9 +25,10 @@ import (
 	"errors"
 	"strings"
 
+	restful "github.com/emicklei/go-restful"
+
 	json "github.com/pydio/cells/x/jsonx"
 
-	"github.com/emicklei/go-restful"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/config"

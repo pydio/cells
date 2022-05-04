@@ -202,16 +202,18 @@ func (v *vaultvalues) MarshalJSON() ([]byte, error) {
 func (v *vaultvalues) set(val interface{}) error {
 	uuid := v.Values.String()
 
-	// Get the current value and do nothing it it hasn't change
-	current := v.vault.Val(uuid).Default("").String()
+	if uuid != "" {
+		// Get the current value and do nothing it it hasn't change
+		current := v.vault.Val(uuid).Default("").String()
 
-	if current == val.(string) || uuid == val.(string) {
-		// already set
-		return nil
-	}
+		if current == val.(string) || uuid == val.(string) {
+			// already set
+			return nil
+		}
 
-	if err := v.vault.Val(uuid).Del(); err != nil {
-		return err
+		if err := v.vault.Val(uuid).Del(); err != nil {
+			return err
+		}
 	}
 
 	uuid = NewKeyForSecret()

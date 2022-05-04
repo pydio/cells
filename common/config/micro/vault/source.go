@@ -90,6 +90,8 @@ func (v *VaultSource) Read() (*config.ChangeSet, error) {
 	defer v.dataLock.Unlock()
 
 	content, err := ioutil.ReadFile(v.storePath)
+
+	newData := make(map[string]string, len(v.data))
 	if err == nil {
 		var data map[string]string
 		if e := json.Unmarshal(content, &data); e != nil {
@@ -97,13 +99,15 @@ func (v *VaultSource) Read() (*config.ChangeSet, error) {
 		}
 		for k, val := range data {
 			if dec, e := v.decrypt(val); e == nil {
-				v.data[k] = string(dec)
+				newData[k] = string(dec)
 			}
 		}
-
 	}
+
 	// Add masterPassword for backward compatibility
-	v.data["masterPassword"] = string(v.masterPass)
+	newData["masterPassword"] = string(v.masterPass)
+
+	v.data = newData
 
 	b, err := json.Marshal(v.data)
 	if err != nil {

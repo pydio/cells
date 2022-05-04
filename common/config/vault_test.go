@@ -21,12 +21,20 @@
 package config
 
 import (
+	"io/ioutil"
+	"log"
+	"os"
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/pydio/cells/common/config/micro"
+	"github.com/pydio/cells/common/config/micro/file"
 	"github.com/pydio/cells/common/config/micro/memory"
+	microvault "github.com/pydio/cells/common/config/micro/vault"
 	"github.com/pydio/go-os/config"
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -105,4 +113,82 @@ func TestVault(t *testing.T) {
 		// uuid should have changed
 		So(uuid, ShouldNotEqual, vault.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String())
 	})
+}
+
+func TestFile(t *testing.T) {
+	dir := os.TempDir()
+	fileConfig, err := ioutil.TempFile(dir, "testfileconfig")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.Remove(fileConfig.Name())
+
+	fileVault, err := ioutil.TempFile(dir, "testfilevault")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.Remove(fileVault.Name())
+
+	fileVaultKey, err := ioutil.TempFile(dir, "testfilevaultkey")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.Remove(fileVaultKey.Name())
+
+	source := file.NewSource(
+		config.SourceName(fileConfig.Name()),
+	)
+
+	vaultConfig := New(
+		micro.New(
+			config.NewConfig(
+				config.WithSource(
+					microvault.NewVaultSource(
+						fileVault.Name(),
+						fileVaultKey.Name(),
+						true,
+					),
+				),
+				config.PollInterval(10*time.Second),
+			),
+		),
+	)
+
+	conf := New(
+		micro.New(
+			config.NewConfig(
+				config.WithSource(
+					source,
+				),
+				config.PollInterval(10*time.Second),
+			),
+		),
+	)
+
+	conf = NewVault(vaultConfig, conf)
+	RegisterVaultKey("test")
+	Register(conf)
+	RegisterVault(vaultConfig)
+	RegisterVaultKey("service/pydio.grpc.mailer/password")
+	Set("whatever", "test")
+
+	Set(map[string]interface{}{
+		"whatever": "boog",
+		"password": "password-" + uuid.New().String(),
+		"andever":  "rgsrgsrg",
+	}, "service/pydio.grpc.mailer")
+
+	<-time.After(10 * time.Second)
+
+	Set(map[string]interface{}{
+		"whatever": "boog",
+		"password": "password-" + uuid.New().String(),
+		"andever":  "rgsrgsrg",
+	}, "service/pydio.grpc.mailer")
+
+	Set(map[string]interface{}{
+		"whatever": "boog",
+		"password": "password-" + uuid.New().String(),
+		"andever":  "rgsrgsrg",
+	}, "service/pydio.grpc.mailer")
 }
