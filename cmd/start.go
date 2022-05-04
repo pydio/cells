@@ -71,7 +71,6 @@ to quickly create a Cobra application.`,
 		})
 
 		runtime.SetArgs(args)
-		initLogLevel()
 		metrics.Init()
 		handleSignals(args)
 
@@ -143,6 +142,8 @@ to quickly create a Cobra application.`,
 		go initLogLevelListener(ctx)
 
 		runtime.Init(ctx, "main")
+
+		initLogLevel()
 
 		services, err := pluginsReg.List(registry.WithType(pb.ItemType_SERVICE))
 		if err != nil {
