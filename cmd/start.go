@@ -28,6 +28,7 @@ import (
 	"net"
 	"net/url"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -119,7 +120,7 @@ to quickly create a Cobra application.`,
 		// Init broker
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
 
-		// Starting discovery server containing registry, broker and config
+		// Starting discovery server containing registry, broker, config and log
 		if !runtime.IsFork() {
 			if err := startDiscoveryServer(ctx, reg); err != nil {
 				return err
@@ -341,7 +342,17 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry) error {
 
 	go func() {
 		if err := srv.Serve(); err != nil {
-			fmt.Println(err)
+			if !strings.Contains(err.Error(), "context canceled") {
+				fmt.Println("************************************************************")
+				fmt.Println("FATAL : Error while starting discovery server")
+				fmt.Println("---------------------------------------------")
+				fmt.Println(err.Error())
+				fmt.Println("FATAL : SHUTTING DOWN NOW!")
+				fmt.Println("************************************************************")
+				cancel()
+			} else {
+				fmt.Println(err)
+			}
 		}
 	}()
 
