@@ -100,7 +100,7 @@ func (h *Impl) Get(r *http.Request, name string) (*sessions.Session, error) {
 }
 
 func (h *Impl) New(r *http.Request, name string) (*sessions.Session, error) {
-	crtURL := h.realURL(r)
+	crtURL := utils.RequestURL(r)
 	session := sessions.NewSession(h, name)
 	session.Options = &sessions.Options{
 		Path:     h.Options.Path,
@@ -126,7 +126,7 @@ func (h *Impl) New(r *http.Request, name string) (*sessions.Session, error) {
 }
 
 func (h *Impl) Save(r *http.Request, w http.ResponseWriter, session *sessions.Session) error {
-	u := h.realURL(r)
+	u := utils.RequestURL(r)
 	var err error
 	if session.ID == "" {
 		if err = h.insert(u, session); err != nil {
@@ -304,17 +304,4 @@ func (h *Impl) load(session *sessions.Session) error {
 	session.Values["modified_on"] = sess.modifiedOn
 	session.Values["expires_on"] = sess.expiresOn
 	return nil
-}
-
-func (h *Impl) realURL(r *http.Request) *url.URL {
-	u := *r.URL
-	if u.Host == "" {
-		u.Host = r.Host
-		if r.TLS != nil {
-			u.Scheme = "https"
-		} else {
-			u.Scheme = "http"
-		}
-	}
-	return &u
 }

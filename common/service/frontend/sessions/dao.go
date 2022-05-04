@@ -80,7 +80,7 @@ func (s *cookiesImpl) Init(ctx context.Context, values configx.Values) error {
 }
 
 func (s *cookiesImpl) GetSession(r *http.Request) (*sessions.Session, error) {
-	store, er := s.storeForUrl(r.URL)
+	store, er := s.storeForUrl(utils.RequestURL(r))
 	if er != nil {
 		return nil, er
 	}

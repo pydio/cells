@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"go.uber.org/zap"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/gorilla/securecookie"
@@ -53,4 +54,18 @@ func LoadKey() ([]byte, error) {
 		return nil, e
 	}
 	return knownKey, nil
+}
+
+// RequestURL copies r.URL and completes host and scheme if they are not set
+func RequestURL(r *http.Request) *url.URL {
+	u := *r.URL
+	if u.Host == "" {
+		u.Host = r.Host
+		if r.TLS != nil {
+			u.Scheme = "https"
+		} else {
+			u.Scheme = "http"
+		}
+	}
+	return &u
 }
