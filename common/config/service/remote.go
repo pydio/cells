@@ -113,7 +113,6 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 			})
 
 			if err != nil {
-				fmt.Println("And the error for the config is ? ", err)
 				time.Sleep(1 * time.Second)
 				continue
 			}
@@ -293,12 +292,12 @@ func (v *values) Get() configx.Value {
 	})
 
 	if err != nil {
-		fmt.Println("Error is ", err)
+		fmt.Println("Config error (fork cannot contact remote gRPC service: ", err.Error(), ")")
 		return c
 	}
 
 	if err := c.Set(rsp.GetValue().GetData()); err != nil {
-		fmt.Println("And the error is ? ", err)
+		//fmt.Println("And the error is ? ", err)
 	}
 
 	return c.Get()
