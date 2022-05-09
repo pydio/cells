@@ -31,21 +31,21 @@ import (
 	"time"
 
 	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/proto/install"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	cruntime "github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server/caddy"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/server"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/metrics"
 	unet "github.com/pydio/cells/v4/common/utils/net"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 func init() {
@@ -180,10 +180,11 @@ ENVIRONMENT
 		cmd.Println("")
 
 		var proxyConf *install.ProxyConfig
+		var kr crypto.Keyring
 
 		if niYamlFile != "" || niJsonFile != "" || niBindUrl != "" {
 
-			initConfig(cmd.Context(), false)
+			_, kr = initConfig(cmd.Context(), false)
 
 			installConf, err := nonInteractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
@@ -204,7 +205,7 @@ ENVIRONMENT
 				niModeCli = installIndex == 1
 			}
 
-			initConfig(cmd.Context(), !niModeCli)
+			_, kr = initConfig(cmd.Context(), !niModeCli)
 
 			// Gather proxy information
 			sites, err := config.LoadSites()
@@ -231,8 +232,9 @@ ENVIRONMENT
 			_, err := cliInstall(cmd, proxyConf)
 			fatalIfError(cmd, err)
 		} else {
-			// Run browser install
-			performBrowserInstall(cmd, proxyConf)
+			// Prepare Context and run browser install
+			ctx = servicecontext.WithKeyring(ctx, kr)
+			performBrowserInstall(cmd, ctx, proxyConf)
 		}
 
 		if niExitAfterInstall || (niModeCli && cmd.Name() != "start") {
@@ -293,9 +295,9 @@ func checkDefaultBusy(cmd *cobra.Command, proxyConf *install.ProxyConfig, pickOn
 	return proxyConf, msg, err
 }
 
-func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
+func performBrowserInstall(cmd *cobra.Command, ctx context.Context, proxyConf *install.ProxyConfig) {
 
-	ctx, cancel := context.WithCancel(cmd.Context())
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	initLogLevel()
@@ -306,65 +308,25 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	if err != nil {
 		return
 	}
+	cruntime.SetDefault(cruntime.KeyHttpServer, cruntime.HttpServerCaddy)
+
+	m := manager.NewManager(reg, "mem:///", "install")
 
 	bkr := broker.NewBroker(cruntime.BrokerURL())
-
-	ctx = servercontext.WithRegistry(ctx, reg)
-	ctx = servicecontext.WithRegistry(ctx, reg)
 	ctx = servicecontext.WithBroker(ctx, bkr)
-
-	cruntime.Init(ctx, "install")
-
-	// Make sure to start AFTER cruntime.Init()
-	srvHTTP, err := caddy.New(ctx, "")
-	if err != nil {
-		panic(err)
-	}
 
 	cmd.Println("")
 	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Installation Server is starting..."))
 	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Listening to: " + proxyConf.GetDefaultBindURL()))
 	cmd.Println("")
 
-	if err != nil {
-		cmd.Print("Could not subscribe to broker: ", err)
-		os.Exit(1)
+	if err := m.Init(ctx); err != nil {
+		panic(err)
 	}
 
-	services, err := reg.List(registry.WithType(pb.ItemType_SERVICE))
-	if err != nil {
-		// need to return an error
-		os.Exit(0)
-	}
-
-	for _, ss := range services {
-		var s service.Service
-		if !ss.As(&s) {
-			continue
-		}
-
-		opts := s.Options()
-
-		opts.Context = servicecontext.WithRegistry(opts.Context, reg)
-		opts.Context = servicecontext.WithKeyring(opts.Context, keyring)
-
-		opts.Server = srvHTTP
-		opts.Server.BeforeServe(s.Start)
-		opts.Server.AfterServe(func() error {
-			// Register service again to update nodes information
-			if err := reg.Register(s); err != nil {
-				return err
-			}
-			return nil
-		})
-		opts.Server.BeforeStop(s.Stop)
-	}
-
-	go func() {
-		if err := srvHTTP.Serve(); err != nil {
-			fmt.Println(err)
-		}
-	}()
+	m.ServeAll(server.WithErrorCallback(func(err error) {
+		panic(err)
+	}))
 
 	<-time.After(2 * time.Second)
 	if err := open(proxyConf.GetDefaultBindURL()); err != nil {
@@ -381,7 +343,7 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 	<-done
 	close(done)
-	srvHTTP.Stop()
+	m.StopAll()
 	_ = unsub()
 
 	return

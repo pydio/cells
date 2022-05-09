@@ -21,11 +21,11 @@
 package registry
 
 import (
-	"fmt"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"net/http/httputil"
 	"net/url"
 	"sync"
+	
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 )
 
 type Balancer struct {
@@ -48,9 +48,11 @@ func NewBalancer(r Registry) {
 		var node Server
 		n.As(&node)
 
-		for _, endpoint := range node.Endpoints() {
-			fmt.Println(endpoint)
-		}
+		/*
+			for _, endpoint := range node.Endpoints() {
+				fmt.Println(endpoint)
+			}
+		*/
 	}
 
 	go b.watch(r)

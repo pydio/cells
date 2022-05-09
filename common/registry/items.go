@@ -20,6 +20,8 @@
 
 package registry
 
+import "github.com/pydio/cells/v4/common/proto/registry"
+
 // Item is the main interface for registry items
 type Item interface {
 	Name() string
@@ -37,12 +39,17 @@ type StatusWatcher interface {
 	Stop()
 }
 
+type Node interface {
+	Item
+	Hostname() string
+	IPs() []string
+	AdvertiseIP() string
+}
+
 // Server represents a running server
 type Server interface {
 	Item
-
-	Address() []string
-	Endpoints() []string
+	Server()
 }
 
 // Service represents an instantiated service in the registry
@@ -79,5 +86,5 @@ type Edge interface {
 type Generic interface {
 	Item
 
-	Generic()
+	Type() registry.ItemType
 }

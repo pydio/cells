@@ -32,18 +32,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/runtime"
-
-	"go.uber.org/zap"
-
 	caddy "github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
+	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/caddy/hooks"
 	"github.com/pydio/cells/v4/common/server/caddy/mux"
@@ -124,9 +124,7 @@ type Server struct {
 	restartRequired bool
 	watchDone       chan struct{}
 
-	addresses         []string
-	externalAddresses []string
-	Confs             []byte
+	caddyConfig []byte
 }
 
 func New(ctx context.Context, dir string) (server.Server, error) {
@@ -160,34 +158,48 @@ func New(ctx context.Context, dir string) (server.Server, error) {
 		watchDone:   make(chan struct{}, 1),
 		ListableMux: srvMUX,
 	}
-	if err := srv.ComputeConfs(); err != nil {
-		return nil, err
-	}
-
-	go srv.watchReload()
 
 	return server.NewServer(ctx, srv), nil
 }
 
-func (s *Server) Serve() error {
-	return caddy.Load(s.Confs, true)
+func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, er error) {
+	aa, err := s.ComputeConfs()
+	if err != nil {
+		return nil, err
+	}
+
+	go s.watchReload()
+
+	if er := caddy.Load(s.caddyConfig, true); er != nil {
+		return nil, er
+	}
+
+	for _, a := range aa {
+		ii = append(ii, util.CreateAddress(a, nil))
+	}
+
+	for _, e := range s.ListableMux.Patterns() {
+		ii = append(ii, util.CreateEndpoint(e, nil))
+	}
+
+	return
 }
 
-func (s *Server) ComputeConfs() error {
+func (s *Server) ComputeConfs() ([]string, error) {
 	// Creating temporary caddy file
 	sites, err := config.LoadSites()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	caddySites, err := SitesToCaddyConfigs(sites)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	tmpl, err := template.New("pydiocaddy").Parse(caddytemplate)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	type TplData struct {
@@ -201,7 +213,7 @@ func (s *Server) ComputeConfs() error {
 
 	buf := bytes.NewBuffer([]byte{})
 	if err := tmpl.Execute(buf, tplData); err != nil {
-		return err
+		return nil, err
 	}
 
 	b := buf.Bytes()
@@ -215,17 +227,17 @@ func (s *Server) ComputeConfs() error {
 	adapter := caddyconfig.GetAdapter("caddyfile")
 	confs, ww, err := adapter.Adapt(b, map[string]interface{}{})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	for _, w := range ww {
 		log.Logger(s.rootCtx).Warn(w.String())
 	}
-	s.Confs = confs
+	s.caddyConfig = confs
 
-	s.addresses = []string{} // Empty slice on restart
+	var addresses []string
 	for _, site := range caddySites {
 		for _, bind := range site.GetBinds() {
-			s.addresses = append(s.addresses, bind)
+			//s.addresses = append(s.addresses, bind)
 
 			bind = strings.TrimPrefix(bind, "http://")
 			bind = strings.TrimPrefix(bind, "https://")
@@ -236,26 +248,22 @@ func (s *Server) ComputeConfs() error {
 			}
 			ip := net.ParseIP(host)
 			if ip == nil || ip.IsUnspecified() {
-				s.externalAddresses = append(s.externalAddresses, net.JoinHostPort(runtime.DefaultAdvertiseAddress(), port))
+				addresses = append(addresses, net.JoinHostPort(runtime.DefaultAdvertiseAddress(), port))
 			} else {
-				s.externalAddresses = append(s.externalAddresses, bind)
+				addresses = append(addresses, bind)
 			}
 		}
 	}
-	return nil
+	return addresses, nil
 }
 
-func (s *Server) Type() server.ServerType {
-	return server.ServerType_HTTP
+func (s *Server) Type() server.Type {
+	return server.TypeHttp
 }
 
 func (s *Server) Stop() error {
 	close(s.watchDone)
 	return caddy.Stop()
-}
-
-func (s *Server) Address() []string {
-	return s.externalAddresses
 }
 
 func (s *Server) Endpoints() []string {
@@ -296,9 +304,9 @@ func (s *Server) watchReload() {
 			if s.restartRequired {
 				log.Logger(context.Background()).Debug("Restarting Proxy Now")
 				s.restartRequired = false
-				e := s.ComputeConfs()
+				_, e := s.ComputeConfs()
 				if e == nil {
-					e = caddy.Load(s.Confs, true)
+					e = caddy.Load(s.caddyConfig, true)
 				}
 				if e != nil {
 					log.Logger(s.rootCtx).Error("Could not restart caddy", zap.Error(e))

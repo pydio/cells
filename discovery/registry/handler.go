@@ -69,14 +69,14 @@ func (h *Handler) Register(ctx context.Context, item *pb.Item) (*pb.EmptyRespons
 		return nil, err
 	}
 
-	if item.GetServer() != nil && item.GetServer().GetMetadata() != nil {
-		meta := item.GetServer().GetMetadata()
+	if item.GetServer() != nil && item.GetMetadata() != nil {
+		meta := item.GetMetadata()
 		if parent, ok := meta[server.NodeMetaParentPID]; ok && parent == fmt.Sprintf("%d", os.Getpid()) {
 			// This is a fork, try to attach to the "fork" service
 			if startTag, ok := meta[server.NodeMetaStartTag]; ok && startTag != "" {
 				ff, _ := h.reg.List(registry.WithType(pb.ItemType_SERVER), registry.WithMeta(server.NodeMetaForkStartTag, startTag))
 				if len(ff) > 0 {
-					_, _ = h.reg.RegisterEdge(ff[0].ID(), item.GetServer().GetId(), "Fork", map[string]string{})
+					_, _ = h.reg.RegisterEdge(ff[0].ID(), item.GetId(), "Fork", map[string]string{})
 				}
 			}
 

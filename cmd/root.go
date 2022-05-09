@@ -32,9 +32,6 @@ import (
 	"strings"
 	"time"
 
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
-
-	"github.com/pydio/cells/v4/common/config/service"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -42,9 +39,11 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/memory"
 	"github.com/pydio/cells/v4/common/config/migrations"
+	"github.com/pydio/cells/v4/common/config/service"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	context_wrapper "github.com/pydio/cells/v4/common/log/context-wrapper"
@@ -62,7 +61,6 @@ var (
 	ctx          context.Context
 	cancel       context.CancelFunc
 	cellsViper   *viper.Viper
-	keyring      crypto.Keyring
 	infoCommands = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
 )
 
@@ -185,7 +183,7 @@ func skipCoreInit() bool {
 	return false
 }
 
-func initConfig(ctx context.Context, debounceVersions bool) (new bool) {
+func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring crypto.Keyring) {
 
 	if skipCoreInit() {
 		return

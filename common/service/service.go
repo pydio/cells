@@ -93,7 +93,6 @@ func (s *service) Init(opts ...ServiceOption) {
 		if o == nil {
 			continue
 		}
-
 		o(s.opts)
 	}
 }
@@ -146,7 +145,7 @@ func (s *service) updateRegister(status ...Status) {
 	}
 	if len(s.opts.Tags) > 0 {
 		for _, t := range s.opts.Tags {
-			generic := util.ToGeneric(&pb.Generic{Id: "tag-" + t, Name: "tag", Metadata: map[string]string{"Tag": t}})
+			generic := util.ToGeneric(&pb.Item{Id: "tag-" + t, Name: "tag", Metadata: map[string]string{"Tag": t}}, &pb.Generic{Type: pb.ItemType_TAG})
 			if er := reg.Register(generic); er == nil {
 				options = append(options, registry.WithEdgeTo(generic.ID(), "Tag", map[string]string{}))
 			}
@@ -284,13 +283,13 @@ func (s *service) Tags() []string {
 	return s.opts.Tags
 }
 func (s *service) IsGeneric() bool {
-	return s.opts.serverType == server.ServerType_GENERIC
+	return s.opts.serverType == server.TypeGeneric
 }
 func (s *service) IsGRPC() bool {
-	return s.opts.serverType == server.ServerType_GRPC
+	return s.opts.serverType == server.TypeGrpc
 }
 func (s *service) IsREST() bool {
-	return s.opts.serverType == server.ServerType_HTTP
+	return s.opts.serverType == server.TypeHttp
 }
 
 func (s *service) MarshalJSON() ([]byte, error) {

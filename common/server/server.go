@@ -24,71 +24,118 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/registry"
-
-	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/pydio/cells/v4/common/registry"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 )
 
-type RawServer interface {
-	Serve() error
+type CoreServer interface {
 	Stop() error
-	Address() []string
 	Name() string
 	ID() string
-	Type() ServerType
-	Endpoints() []string
+	Type() Type
 	Metadata() map[string]string
 	As(interface{}) bool
 }
 
+type RawServer interface {
+	CoreServer
+	RawServe(options *ServeOptions) ([]registry.Item, error)
+}
+
 type Server interface {
-	RawServer
+	CoreServer
+	Serve(...ServeOption) error
 	BeforeServe(func() error)
 	AfterServe(func() error)
 	BeforeStop(func() error)
 	AfterStop(func() error)
 }
 
-type ServerType int8
+type ServeOptions struct {
+	HttpBindAddress string
+	GrpcBindAddress string
+	ErrorCallback   func(error)
+}
+
+type ServeOption func(options *ServeOptions)
+
+func WithErrorCallback(cb func(err error)) ServeOption {
+	return func(options *ServeOptions) {
+		options.ErrorCallback = cb
+	}
+}
+
+func WithGrpcBindAddress(a string) ServeOption {
+	return func(o *ServeOptions) {
+		o.GrpcBindAddress = a
+	}
+}
+
+func WithHttpBindAddress(a string) ServeOption {
+	return func(o *ServeOptions) {
+		o.HttpBindAddress = a
+	}
+}
+
+type Type int8
 
 const (
-	ServerType_GRPC ServerType = iota
-	ServerType_HTTP
-	ServerType_GENERIC
-	ServerType_FORK
+	TypeGrpc Type = iota
+	TypeHttp
+	TypeGeneric
+	TypeFork
 )
 
 type server struct {
 	s    RawServer
-	opts *ServerOptions
+	opts *Options
 }
 
 func NewServer(ctx context.Context, s RawServer) Server {
 
 	srv := &server{
 		s: s,
-		opts: &ServerOptions{
+		opts: &Options{
 			Context: ctx,
 		},
 	}
 
+	if reg := servercontext.GetRegistry(ctx); reg != nil {
+		if err := reg.Register(srv); err != nil {
+			fmt.Println("[ERROR] Cannot register Server " + err.Error())
+		}
+	}
 	return srv
 }
 
-func (s *server) Serve() error {
+func (s *server) Server() {}
+
+func (s *server) Serve(oo ...ServeOption) error {
+	opt := &ServeOptions{}
+	for _, o := range oo {
+		o(opt)
+	}
+
 	if err := s.doBeforeServe(); err != nil {
 		return err
 	}
 
-	if err := s.s.Serve(); err != nil {
+	ii, err := s.s.RawServe(opt)
+	if err != nil {
 		return err
 	}
 
 	// Making sure we register the endpoints
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
-		if err := reg.Register(s); err != nil {
-			return err
+		for _, item := range ii {
+			if err := reg.Register(item); err != nil {
+				return err
+			}
+			if _, err := reg.RegisterEdge(s.ID(), item.ID(), "instance", nil); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -108,7 +155,7 @@ func (s *server) Stop() error {
 		return err
 	}
 
-	// Making sure we register the endpoints
+	// Making sure we deregister the endpoints
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
 		if er := reg.Deregister(s); er != nil {
 			return er
@@ -122,10 +169,6 @@ func (s *server) Stop() error {
 	return nil
 }
 
-func (s *server) Address() []string {
-	return s.s.Address()
-}
-
 func (s *server) ID() string {
 	return s.s.ID()
 }
@@ -134,12 +177,8 @@ func (s *server) Name() string {
 	return s.s.Name()
 }
 
-func (s *server) Type() ServerType {
+func (s *server) Type() Type {
 	return s.s.Type()
-}
-
-func (s *server) Endpoints() []string {
-	return s.s.Endpoints()
 }
 
 func (s *server) Metadata() map[string]string {

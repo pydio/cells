@@ -68,19 +68,6 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 		return
 	}
 
-	// Compare with registered plugins (not working!)
-	// We currently display only running services
-	/*
-		staticReg, err := registry.OpenRegistry(context.Background(), "mem:///?cache=plugins&byname=true")
-		if err != nil {
-			service.RestError500(req, resp, err)
-			return
-		}
-		statics, e := staticReg.List(registry.WithType(rpb.ItemType_SERVICE))
-
-		log.Logger(req.Request.Context()).Info("Registry size", zap.Int("statics", len(statics)), zap.Int("url", len(services)))
-	*/
-
 	output := &rest.ServiceCollection{
 		Services: []*ctl.Service{},
 	}
@@ -102,7 +89,7 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 			continue
 		}
 		nodes := pluginsReg.ListAdjacentItems(srv, registry.WithType(rpb.ItemType_SERVER))
-		output.Services = append(output.Services, h.serviceToRest(srv, nodes))
+		output.Services = append(output.Services, h.serviceToRest(pluginsReg, srv, nodes))
 	}
 
 	resp.WriteEntity(output)
@@ -155,8 +142,11 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 	accu := make(map[string]string)
 	for _, n := range nodes {
 		node := n.(registry.Server)
-		addr := strings.Join(node.Address(), "")
-		if ho, _, e := net.SplitHostPort(addr); e == nil && ho != "" {
+		var aa []string
+		for _, a := range reg.ListAdjacentItems(n, registry.WithType(rpb.ItemType_ADDRESS)) {
+			aa = append(aa, a.Name())
+		}
+		if ho, _, e := net.SplitHostPort(strings.Join(aa, "")); e == nil && ho != "" {
 			accu[ho] = ho
 			if h, ok := node.Metadata()[server.NodeMetaHostName]; ok && h != "" {
 				accu[ho] = h + "|" + ho
@@ -345,7 +335,7 @@ func (h *Handler) ControlService(req *restful.Request, resp *restful.Response) {
 }
 
 // serviceToRest transforms a service object to a proto message.
-func (h *Handler) serviceToRest(srv registry.Service, nodes []registry.Item) *ctl.Service {
+func (h *Handler) serviceToRest(r registry.Registry, srv registry.Service, nodes []registry.Item) *ctl.Service {
 	status := ctl.ServiceStatus_STOPPED
 	running := len(nodes) > 0
 	if running {
@@ -371,9 +361,9 @@ func (h *Handler) serviceToRest(srv registry.Service, nodes []registry.Item) *ct
 		Metadata:     srv.Metadata(),
 	}
 	for _, node := range nodes {
-		a := node.(registry.Server).Address()
-		if len(a) > 0 {
-			h, p, _ := net.SplitHostPort(a[0])
+		aa := r.ListAdjacentItems(node, registry.WithType(rpb.ItemType_ADDRESS))
+		if len(aa) > 0 {
+			h, p, _ := net.SplitHostPort(aa[0].Name())
 			port, _ := strconv.Atoi(p)
 			protoSrv.RunningPeers = append(protoSrv.RunningPeers, &ctl.Peer{
 				Id:       node.Name(),

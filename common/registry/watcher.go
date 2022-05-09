@@ -91,9 +91,11 @@ func (m *watcher) Next() (Result, error) {
 						items = append(items, item)
 					}
 					continue
-				case pb.ItemType_GENERIC:
+				case pb.ItemType_GENERIC, pb.ItemType_ADDRESS, pb.ItemType_TAG, pb.ItemType_ENDPOINT:
 					var generic Generic
-					if item.As(&generic) && (m.wo.Filter == nil || m.wo.Filter(item)) {
+					if item.As(&generic) &&
+						(m.wo.Type == pb.ItemType_GENERIC || m.wo.Type == generic.Type()) &&
+						(m.wo.Filter == nil || m.wo.Filter(item)) {
 						items = append(items, item)
 					}
 					continue

@@ -23,6 +23,8 @@ package generic
 import (
 	"context"
 
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -60,7 +62,7 @@ func (s *Server) Handle(h func() error) {
 	s.handlers = append(s.handlers, h)
 }
 
-func (s *Server) Serve() error {
+func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, er error) {
 	go func() {
 		defer s.cancel()
 
@@ -69,7 +71,8 @@ func (s *Server) Serve() error {
 		}
 	}()
 
-	return nil
+	ii = append(ii, util.CreateAddress(s.id+"instance", nil))
+	return
 }
 
 func (s *Server) Stop() error {
@@ -84,16 +87,12 @@ func (s *Server) Name() string {
 	return s.name
 }
 
-func (s *Server) Type() server.ServerType {
-	return server.ServerType_GENERIC
+func (s *Server) Type() server.Type {
+	return server.TypeGeneric
 }
 
 func (s *Server) Metadata() map[string]string {
 	return s.meta // map[string]string{}
-}
-
-func (s *Server) Address() []string {
-	return []string{}
 }
 
 func (s *Server) Endpoints() []string {

@@ -26,72 +26,73 @@ import (
 	"github.com/pydio/cells/v4/common/utils/merger"
 )
 
-func ToProtoDao(d registry.Dao) *pb.Dao {
-	if dd, ok := d.(*dao); ok {
+func ToProtoNode(d registry.Node) *pb.Node {
+	if dd, ok := d.(*node); ok {
 		return dd.d
 	}
-	return &pb.Dao{
-		Driver: d.Driver(),
-		Dsn:    d.Dsn(),
-	}
+	return &pb.Node{}
 }
 
-func ToDao(i *pb.Item, d *pb.Dao) registry.Dao {
-	return &dao{i: i, d: d}
+func ToNode(i *pb.Item, d *pb.Node) registry.Node {
+	return &node{i: i, d: d}
 }
 
-type dao struct {
+type node struct {
 	i *pb.Item
-	d *pb.Dao
+	d *pb.Node
 }
 
-func (d *dao) Equals(differ merger.Differ) bool {
-	if di, ok := differ.(*dao); ok {
-		return di.ID() == d.ID() && d.Name() == di.Name()
+func (n *node) Hostname() string {
+	return n.d.Hostname
+}
+
+func (n *node) IPs() []string {
+	return n.d.GetIps()
+}
+
+func (n *node) AdvertiseIP() string {
+	return n.d.GetAdvertiseIp()
+}
+
+func (n *node) Equals(differ merger.Differ) bool {
+	if di, ok := differ.(*node); ok {
+		return di.ID() == n.ID() && n.Name() == di.Name()
 	}
 	return false
 }
 
-func (d *dao) IsDeletable(m map[string]string) bool {
+func (n *node) IsDeletable(m map[string]string) bool {
 	return true
 }
 
-func (d *dao) IsMergeable(differ merger.Differ) bool {
-	return d.ID() == differ.GetUniqueId()
+func (n *node) IsMergeable(differ merger.Differ) bool {
+	return n.ID() == differ.GetUniqueId()
 }
 
-func (d *dao) GetUniqueId() string {
-	return d.ID()
+func (n *node) GetUniqueId() string {
+	return n.ID()
 }
 
-func (d *dao) Merge(differ merger.Differ, m map[string]string) (merger.Differ, error) {
+func (n *node) Merge(differ merger.Differ, m map[string]string) (merger.Differ, error) {
 	return differ, nil
 }
 
-func (d *dao) Name() string {
-	return d.i.Name
+func (n *node) Name() string {
+	return n.i.Name
 }
 
-func (d *dao) ID() string {
-	return d.i.Id
+func (n *node) ID() string {
+	return n.i.Id
 }
 
-func (d *dao) Metadata() map[string]string {
-	return d.i.Metadata
+func (n *node) Metadata() map[string]string {
+	return n.i.Metadata
 }
 
-func (d *dao) As(i interface{}) bool {
-	if ii, ok := i.(*registry.Dao); ok {
-		*ii = d
+func (n *node) As(i interface{}) bool {
+	if ii, ok := i.(*registry.Node); ok {
+		*ii = n
 		return true
 	}
 	return false
-}
-
-func (d *dao) Driver() string {
-	return d.d.Driver
-}
-
-func (d *dao) Dsn() string {
-	return d.d.Dsn
 }

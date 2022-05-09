@@ -23,16 +23,18 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/log"
-	"go.uber.org/zap"
 	"net"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/health"
 	_ "google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/middleware"
@@ -45,10 +47,8 @@ type Server struct {
 	name string
 	meta map[string]string
 
-	cancel       context.CancelFunc
-	opts         *Options
-	addr         string
-	externalAddr string
+	cancel context.CancelFunc
+	opts   *Options
 	*grpc.Server
 }
 
@@ -90,7 +90,6 @@ func New(ctx context.Context, opt ...Option) server.Server {
 		meta: server.InitPeerMeta(),
 
 		cancel: cancel,
-		addr:   runtime.GetString(runtime.KeyGrpcPort),
 		opts:   opts,
 		Server: s,
 	})
@@ -100,37 +99,46 @@ func New(ctx context.Context, opt ...Option) server.Server {
 func NewWithServer(ctx context.Context, name string, s *grpc.Server, listen string) server.Server {
 	ctx, cancel := context.WithCancel(ctx)
 	id := "grpc-" + uuid.New()
+	opts := new(Options)
+	opts.Addr = listen
 	return server.NewServer(ctx, &Server{
 		id:     id,
 		name:   name,
 		cancel: cancel,
-		addr:   listen,
+		opts:   opts,
 		Server: s,
-		opts:   new(Options),
 	})
 
 }
 
-func (s *Server) Type() server.ServerType {
-	return server.ServerType_GRPC
+func (s *Server) Type() server.Type {
+	return server.TypeGrpc
 }
 
-func (s *Server) Serve() error {
+func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e error) {
 	if s.opts.Listener == nil {
-		lis, err := net.Listen("tcp", s.addr)
+		addr := s.opts.Addr
+		if addr == "" {
+			addr = opts.GrpcBindAddress
+		}
+		if addr == "" {
+			return nil, fmt.Errorf("grpc server: missing config address or runtime address")
+		}
+		lis, err := net.Listen("tcp", addr)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		s.opts.Listener = lis
 	}
 
+	var externalAddr string
 	addr := s.opts.Listener.Addr().String()
 	_, port, err := net.SplitHostPort(addr)
 	if err != nil {
-		s.externalAddr = addr
+		externalAddr = addr
 	} else {
-		s.externalAddr = net.JoinHostPort(runtime.DefaultAdvertiseAddress(), port)
+		externalAddr = net.JoinHostPort(runtime.DefaultAdvertiseAddress(), port)
 	}
 
 	go func() {
@@ -141,7 +149,17 @@ func (s *Server) Serve() error {
 		}
 	}()
 
-	return nil
+	// Register address
+	ii = append(ii, util.CreateAddress(externalAddr, nil))
+	info := s.Server.GetServiceInfo()
+	// Register Endpoints
+	for sName, i := range info {
+		for _, m := range i.Methods {
+			ii = append(ii, util.CreateEndpoint(sName+"."+m.Name, nil))
+		}
+	}
+
+	return
 }
 
 func (s *Server) Stop() error {
@@ -160,10 +178,6 @@ func (s *Server) Name() string {
 
 func (s *Server) Metadata() map[string]string {
 	return s.meta // map[string]string{}
-}
-
-func (s *Server) Address() []string {
-	return []string{s.externalAddr}
 }
 
 func (s *Server) Endpoints() []string {

@@ -31,7 +31,7 @@ import (
 // WithGRPC adds a service handler to the current service
 func WithGRPC(f func(context.Context, *grpc.Server) error) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.serverType = server.ServerType_GRPC
+		o.serverType = server.TypeGrpc
 		o.serverStart = func() error {
 			if o.Server == nil {
 				return errNoServerAttached

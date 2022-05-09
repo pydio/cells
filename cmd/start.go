@@ -23,9 +23,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/utils/filex"
-	"log"
-	"net"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -41,19 +38,14 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/nodes"
 	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/server/caddy"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"github.com/pydio/cells/v4/common/server/fork"
-	"github.com/pydio/cells/v4/common/server/generic"
-	servergrpc "github.com/pydio/cells/v4/common/server/grpc"
-	"github.com/pydio/cells/v4/common/server/http"
-	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/pydio/cells/v4/common/utils/filex"
 )
 
 // StartCmd represents the start command
@@ -80,8 +72,6 @@ to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
 
-		pluginsReg, err := registry.OpenRegistry(ctx, "mem:///?cache=plugins&byname=true")
-
 		if runtime.IsFork() {
 			u, err := url.Parse(runtime.DiscoveryURL())
 			if err != nil {
@@ -91,7 +81,6 @@ to quickly create a Cobra application.`,
 			if err != nil {
 				return err
 			}
-
 			ctx = clientcontext.WithClientConn(ctx, discoveryConn)
 		}
 
@@ -104,18 +93,20 @@ to quickly create a Cobra application.`,
 		}
 
 		// Init config
-		isNew := initConfig(ctx, true)
+		isNew, keyring := initConfig(ctx, true)
 		if isNew && runtime.ConfigIsLocalFile() {
 			return triggerInstall(
 				"Oops, the configuration is not right ... "+configFile,
 				"Do you want to reset the initial configuration", cmd, args)
 		}
+		ctx = servicecontext.WithKeyring(ctx, keyring)
 
 		// Init registry
 		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
 			return err
 		}
+		ctx = servercontext.WithRegistry(ctx, reg)
 
 		// Init broker
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
@@ -133,227 +124,60 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			return err
 		}
-
-		ctx = servercontext.WithRegistry(ctx, reg)
-		ctx = servicecontext.WithRegistry(ctx, pluginsReg)
 		ctx = clientcontext.WithClientConn(ctx, conn)
 		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
 
-		runtime.InitGlobalConnConsumers(ctx, "main")
-		go initLogLevelListener(ctx)
-
-		runtime.Init(ctx, "main")
-
-		initLogLevel()
-
-		services, err := pluginsReg.List(registry.WithType(pb.ItemType_SERVICE))
-		if err != nil {
+		m := manager.NewManager(reg, "mem:///?cache=plugins&byname=true", "main")
+		if err := m.Init(ctx); err != nil {
 			return err
 		}
 
-		var (
-			srvGRPC    server.Server
-			srvHTTP    server.Server
-			srvGeneric server.Server
-			srvs       []server.Server
+		runtime.InitGlobalConnConsumers(ctx, "main")
+		go initLogLevelListener(ctx)
+		initLogLevel()
+
+		m.ServeAll(
+			server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
+			server.WithHttpBindAddress(runtime.HttpBindAddress()),
 		)
 
-		for _, ss := range services {
-			var s service.Service
-			if !ss.As(&s) {
-				continue
-			}
-			if !runtime.IsRequired(s.Name(), s.Options().Tags...) {
-				continue
-			}
-			opts := s.Options()
-
-			opts.Context = servicecontext.WithRegistry(opts.Context, reg)
-			opts.Context = servicecontext.WithKeyring(opts.Context, keyring)
-
-			if opts.Fork && !runtime.IsFork() {
-				if !opts.AutoStart {
-					continue
-				}
-				srvFork := fork.NewServer(opts.Context, opts.Name)
-				srvs = append(srvs, srvFork)
-				opts.Server = srvFork
-				continue
-			}
-
-			if opts.Server != nil {
-
-				srvs = append(srvs, opts.Server)
-
-			} else if opts.ServerProvider != nil {
-
-				serv, er := opts.ServerProvider(ctx)
-				if er != nil {
-					log.Fatal(er)
-				}
-				opts.Server = serv
-				srvs = append(srvs, opts.Server)
-
-			} else {
-				if s.IsGRPC() {
-					if srvGRPC == nil {
-						lis, err := net.Listen("tcp", runtime.GrpcBindAddress())
-						if err != nil {
-							return err
-						}
-
-						srvGRPC = servergrpc.New(ctx, servergrpc.WithListener(lis))
-						srvs = append(srvs, srvGRPC)
-					}
-
-					opts.Server = srvGRPC
-				}
-
-				if s.IsREST() {
-					if srvHTTP == nil {
-						if runtime.HttpServerType() == runtime.HttpServerCaddy {
-							if s, e := caddy.New(opts.Context, ""); e != nil {
-								log.Fatal(e)
-							} else {
-								srvHTTP = s
-							}
-						} else {
-							srvHTTP = http.New(ctx)
-						}
-
-						srvs = append(srvs, srvHTTP)
-					}
-					opts.Server = srvHTTP
-				}
-
-				if s.IsGeneric() {
-					if srvGeneric == nil {
-						srvGeneric = generic.New(ctx)
-						srvs = append(srvs, srvGeneric)
-					}
-					opts.Server = srvGeneric
-
-				}
-			}
-
-			opts.Server.BeforeServe(s.Start)
-			opts.Server.AfterServe(func() error {
-				// Register service again to update status information
-				return reg.Register(s, registry.WithEdgeTo(opts.Server.ID(), "Server", map[string]string{}))
-			})
-			opts.Server.BeforeStop(s.Stop)
-
-		}
-
-		// var g errgroup.Group
-
-		go func() {
-			ch, err := config.WatchMap("services")
-			if err != nil {
-				return
-			}
-
-			for kv := range ch {
-				s, err := reg.Get(kv.Key)
-				if err != nil {
-					continue
-				}
-				var rs service.Service
-				if s.As(&rs) && rs.Options().AutoRestart {
-					rs.Stop()
-
-					rs.Start()
-				}
-			}
-		}()
-
-		// wg := &sync.WaitGroup{}
-		for _, srv := range srvs {
-			// g.Go(srv.Serve)
-			// wg.Add(1)
-			go func(srv server.Server) {
-				//	defer wg.Done()
-				if err := srv.Serve(); err != nil {
-					fmt.Println(err)
-				}
-
-				return
-			}(srv)
-		}
-		// wg.Wait()
-
-		// l.Unlock()
+		go m.WatchServicesConfigs()
 
 		select {
-		case <-cmd.Context().Done():
+		case <-ctx.Done():
 		}
 
-		for _, srv := range srvs {
-			if err := srv.Stop(); err != nil {
-				fmt.Println("Error stopping server ", err)
-			}
-		}
+		m.StopAll()
 
 		return nil
 	},
 }
 
 func startDiscoveryServer(ctx context.Context, reg registry.Registry) error {
-	runtimeReg, err := registry.OpenRegistry(ctx, "mem:///")
-	if err != nil {
-		return err
+
+	m := manager.NewManager(reg, "mem:///", "discovery")
+	if er := m.Init(ctx); er != nil {
+		return er
 	}
 
-	ctx = servicecontext.WithRegistry(ctx, runtimeReg)
-	runtime.Init(ctx, "discovery")
-
-	services, err := runtimeReg.List(registry.WithType(pb.ItemType_SERVICE))
-	if err != nil {
-		return err
-	}
-
-	lis, err := net.Listen("tcp", runtime.GrpcDiscoveryBindAddress())
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
-	ctx = servercontext.WithRegistry(ctx, reg)
-	srv := servergrpc.New(ctx, servergrpc.WithListener(lis))
-
-	for _, ss := range services {
-		var s service.Service
-		if !ss.As(&s) {
-			continue
+	errrorCallback := func(err error) {
+		if !strings.Contains(err.Error(), "context canceled") {
+			fmt.Println("************************************************************")
+			fmt.Println("FATAL : Error while starting discovery server")
+			fmt.Println("---------------------------------------------")
+			fmt.Println(err.Error())
+			fmt.Println("FATAL : SHUTTING DOWN NOW!")
+			fmt.Println("************************************************************")
+			cancel()
+		} else {
+			fmt.Println(err)
 		}
-
-		opts := s.Options()
-		opts.Context = servicecontext.WithRegistry(opts.Context, reg)
-		opts.Server = srv
-		opts.Server.BeforeServe(s.Start)
-		opts.Server.AfterServe(func() error {
-			// Register service again to update nodes information
-			if err := reg.Register(s); err != nil {
-				return err
-			}
-			return nil
-		})
-		opts.Server.BeforeStop(s.Stop)
 	}
 
 	go func() {
-		if err := srv.Serve(); err != nil {
-			if !strings.Contains(err.Error(), "context canceled") {
-				fmt.Println("************************************************************")
-				fmt.Println("FATAL : Error while starting discovery server")
-				fmt.Println("---------------------------------------------")
-				fmt.Println(err.Error())
-				fmt.Println("FATAL : SHUTTING DOWN NOW!")
-				fmt.Println("************************************************************")
-				cancel()
-			} else {
-				fmt.Println(err)
-			}
-		}
+		m.ServeAll(server.WithErrorCallback(errrorCallback), server.WithGrpcBindAddress(runtime.GrpcDiscoveryBindAddress()))
+		<-ctx.Done()
+		m.StopAll()
 	}()
 
 	return nil

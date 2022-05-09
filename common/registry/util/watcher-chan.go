@@ -50,13 +50,12 @@ func (s *chanStatusWatcher) Next() (registry.Item, error) {
 		select {
 		case ss := <-s.input:
 			js, _ := json.Marshal(ss)
-			gen := &pb.Generic{
+			gen := &pb.Item{
 				Id:       s.item.ID() + "-stats",
 				Name:     "stats",
-				Metadata: make(map[string]string),
+				Metadata: map[string]string{"Data": string(js)},
 			}
-			gen.Metadata["Data"] = string(js)
-			return ToGeneric(gen), nil
+			return ToGeneric(gen, &pb.Generic{Type: pb.ItemType_STATS}), nil
 		case <-s.exit:
 			return nil, fmt.Errorf("watcher stopped")
 		}

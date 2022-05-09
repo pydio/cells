@@ -25,8 +25,8 @@ import (
 	"net"
 )
 
-// ServiceOptions stores all options for a pydio service
-type ServerOptions struct {
+// Options stores all options for a pydio server
+type Options struct {
 	Context  context.Context
 	Listener *net.Listener
 
@@ -39,36 +39,36 @@ type ServerOptions struct {
 	AfterStop   []func() error
 }
 
-// ServerOption is a function to set ServerOptions
-type ServerOption func(*ServerOptions)
+// Option is a function to set Options
+type Option func(*Options)
 
 // BeforeServe executes function before starting the server
-func BeforeServe(f func() error) ServerOption {
-	return func(o *ServerOptions) {
+func BeforeServe(f func() error) Option {
+	return func(o *Options) {
 		o.BeforeServe = append(o.BeforeServe, f)
 	}
 }
 
-func AfterServe(f func() error) ServerOption {
-	return func(o *ServerOptions) {
+func AfterServe(f func() error) Option {
+	return func(o *Options) {
 		o.AfterServe = append(o.AfterServe, f)
 	}
 }
 
-func BeforeStop(f func() error) ServerOption {
-	return func(o *ServerOptions) {
+func BeforeStop(f func() error) Option {
+	return func(o *Options) {
 		o.BeforeStop = append(o.BeforeStop, f)
 	}
 }
 
-func AfterStop(f func() error) ServerOption {
-	return func(o *ServerOptions) {
+func AfterStop(f func() error) Option {
+	return func(o *Options) {
 		o.AfterStop = append(o.AfterStop, f)
 	}
 }
 
-func OnServeError(f func(error)) ServerOption {
-	return func(o *ServerOptions) {
+func OnServeError(f func(error)) Option {
+	return func(o *Options) {
 		o.onServeError = append(o.onServeError, f)
 	}
 }

@@ -54,7 +54,7 @@ type ServiceOptions struct {
 
 	Server         server.Server  `json:"-"`
 	ServerProvider ServerProvider `json:"-"`
-	serverType     server.ServerType
+	serverType     server.Type
 	serverStart    func() error
 	serverStop     func() error
 
