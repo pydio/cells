@@ -19,7 +19,7 @@ func init() {
 			service.Name(common.ServiceGrpcNamespace_+common.ServiceBroker),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
-			service.Description("Registry"),
+			service.Description("Grpc Implementation of Broker service"),
 			service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
 				pb.RegisterBrokerServer(srv, handler.NewHandler(broker.Default()))
 				return nil
