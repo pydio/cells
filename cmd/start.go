@@ -72,7 +72,7 @@ to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
 
-		if runtime.IsFork() {
+		if runtime.NeedsGrpcDiscoveryConn() {
 			u, err := url.Parse(runtime.DiscoveryURL())
 			if err != nil {
 				return err
@@ -93,7 +93,10 @@ to quickly create a Cobra application.`,
 		}
 
 		// Init config
-		isNew, keyring := initConfig(ctx, true)
+		isNew, keyring, er := initConfig(ctx, true)
+		if er != nil {
+			return er
+		}
 		if isNew && runtime.ConfigIsLocalFile() {
 			return triggerInstall(
 				"Oops, the configuration is not right ... "+configFile,
@@ -112,7 +115,7 @@ to quickly create a Cobra application.`,
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
 
 		// Starting discovery server containing registry, broker, config and log
-		if !runtime.IsFork() {
+		if !runtime.IsGrpcScheme(runtime.RegistryURL()) {
 			if err := startDiscoveryServer(ctx, reg); err != nil {
 				return err
 			}
@@ -199,9 +202,9 @@ func init() {
 
 	addRegistryFlags(StartCmd.Flags())
 
-	StartCmd.Flags().MarkHidden(runtime.KeyFork)
-	StartCmd.Flags().MarkHidden(runtime.KeyRegistry)
-	StartCmd.Flags().MarkHidden(runtime.KeyBroker)
+	_ = StartCmd.Flags().MarkHidden(runtime.KeyFork)
+	_ = StartCmd.Flags().MarkHidden(runtime.KeyRegistry)
+	_ = StartCmd.Flags().MarkHidden(runtime.KeyBroker)
 
 	// Other internal flags
 	StartCmd.Flags().String(runtime.KeyLog, "info", "Sets the log level: 'debug', 'info', 'warn', 'error' (for backward-compatibility, 'production' is equivalent to log_json+info)")

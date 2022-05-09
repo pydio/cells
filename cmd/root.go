@@ -183,7 +183,7 @@ func skipCoreInit() bool {
 	return false
 }
 
-func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring crypto.Keyring) {
+func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring crypto.Keyring, er error) {
 
 	if skipCoreInit() {
 		return
@@ -195,33 +195,33 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 	if err != nil {
 		b, err := filex.Read(keyringPath)
 		if err != nil {
-			log.Fatal("could not start keyring store")
+			return false, nil, fmt.Errorf("could not start keyring store %v", err)
 		}
 
 		mem := memory.New(configx.WithJSON())
 		keyring := crypto.NewConfigKeyring(mem)
 		data := base64.StdEncoding.EncodeToString(b)
 		if err := keyring.Set(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey, data); err != nil {
-			log.Fatal("could not start keyring store")
+			return false, nil, fmt.Errorf("could not start keyring store %v", err)
 		}
 
 		// Keyring Config is likely the old style - switching it
 		if err := os.Chmod(keyringPath, 0600); err != nil {
-			log.Fatal("could not read keyringPath")
+			return false, nil, fmt.Errorf("could not read keyring path %v", err)
 		}
 
 		if err := filex.Save(keyringPath, mem.Get().Bytes()); err != nil {
-			log.Fatal("could not start keyring store")
+			return false, nil, fmt.Errorf("could not start keyring store %v", err)
 		}
 
 		// Keyring Config is likely the old style - switching it
 		if err := os.Chmod(keyringPath, 0400); err != nil {
-			log.Fatal("could not read keyringPath")
+			return false, nil, fmt.Errorf("could not read keyring path %v", err)
 		}
 
 		store, err := file.New(keyringPath, true)
 		if err != nil {
-			log.Fatal("could not start keyring store")
+			return false, nil, err
 		}
 
 		keyringStore = store
@@ -232,12 +232,12 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 
 	password, err := keyring.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
 	if err != nil {
-		log.Fatal("could not get master password")
+		return false, nil, fmt.Errorf("could not get master password %v", err)
 	}
 
 	passwordBytes, err := base64.StdEncoding.DecodeString(password)
 	if err != nil {
-		log.Fatal("could not decode master password")
+		return false, nil, fmt.Errorf("could not decode master password %v", err)
 	}
 
 	e := encrypter{key: crypto.KeyFromPassword(passwordBytes, 32)}
@@ -254,7 +254,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 	// Local configuration file
 	lc, err := file.New(filepath.Join(config.PydioConfigDir, config.PydioConfigFile), true, configx.WithMarshaller(jsonIndent{}))
 	if err != nil {
-		log.Fatal("could not start local file", zap.Error(err))
+		return false, nil, fmt.Errorf("could not start config on local file %v", err)
 	}
 
 	config.RegisterLocal(lc)
@@ -272,7 +272,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 			DialTimeout: 2 * time.Second,
 		})
 		if err != nil {
-			log.Fatal("could not start etcd", zap.Error(err))
+			return false, nil, fmt.Errorf("could not start config on ETCD %v", err)
 		}
 
 		config.RegisterVault(etcd.NewSource(ctx, conn, "vault", false))
@@ -283,7 +283,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 	case "grpc":
 		conn := clientcontext.GetClientConn(ctx)
 		if conn == nil {
-			log.Fatal("no connection given")
+			return false, nil, fmt.Errorf("could not start config on GRPC (no connection found)")
 		}
 
 		config.RegisterVault(service.New(ctx, conn, "vault", "/"))
@@ -299,7 +299,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 			configx.WithDecrypt(e),
 		)
 		if err != nil {
-			log.Fatal("could not start vault store")
+			return false, nil, fmt.Errorf("could not start vault store %v", err)
 		}
 
 		defaultConfig := config.NewVersionStore(versionsStore, lc)
@@ -330,7 +330,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 	// Need to do something for the versions
 	if save, err := migrations.UpgradeConfigsIfRequired(config.Get(), common.Version()); err == nil && save {
 		if err := config.Save(common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
-			log.Fatal("Could not save config migrations", zap.Error(err))
+			return false, nil, fmt.Errorf("could not save config migrations %v", err)
 		}
 	}
 

@@ -29,10 +29,10 @@ import (
 
 // addRegistryFlags registers necessary flags to connect to the registry (defaults to memory)
 func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
-	
+
 	flags.String(runtime.KeyRegistry, "mem://?cache=shared", "Registry used to manage services")
 	flags.String(runtime.KeyBroker, "mem://", "Pub/sub service for events between services")
-	flags.String(runtime.KeyDiscovery, "grpc://:"+runtime.DefaultDiscoveryPort, "Registry and pub/sub")
+	flags.String(runtime.KeyDiscovery, "mem://", "Combine registry, config and pub/sub discovery service")
 
 	flags.Int(runtime.KeyRegistryPort, net.GetAvailableRegistryAltPort(), "Port used to start a registry discovery service")
 	flags.Int(runtime.KeyBrokerPort, net.GetAvailableBrokerAltPort(), "Port used to start a broker discovery service")

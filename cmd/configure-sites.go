@@ -80,8 +80,9 @@ EXAMPLES
     - External URL: http://localhost:8080  # Non-secured local installation
 
 `,
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		initConfig(cmd.Context(), false)
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		_, _, er := initConfig(cmd.Context(), false)
+		return er
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		sites, e := config.LoadSites(true)

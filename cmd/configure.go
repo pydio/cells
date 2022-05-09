@@ -184,7 +184,9 @@ ENVIRONMENT
 
 		if niYamlFile != "" || niJsonFile != "" || niBindUrl != "" {
 
-			_, kr = initConfig(cmd.Context(), false)
+			var er error
+			_, kr, er = initConfig(cmd.Context(), false)
+			fatalIfError(cmd, er)
 
 			installConf, err := nonInteractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
@@ -205,7 +207,9 @@ ENVIRONMENT
 				niModeCli = installIndex == 1
 			}
 
-			_, kr = initConfig(cmd.Context(), !niModeCli)
+			var er error
+			_, kr, er = initConfig(cmd.Context(), !niModeCli)
+			fatalIfError(cmd, er)
 
 			// Gather proxy information
 			sites, err := config.LoadSites()

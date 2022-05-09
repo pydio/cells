@@ -31,8 +31,9 @@ DESCRIPTION
 
   Various commands that do not require a running Cells instance.
 `,
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		initConfig(cmd.Context(), false)
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		_, _, er := initConfig(cmd.Context(), false)
+		return er
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
