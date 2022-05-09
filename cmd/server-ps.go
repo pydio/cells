@@ -80,6 +80,7 @@ EXAMPLE
 		for _, node := range nodes {
 			var srv registry.Server
 			if node.As(&srv) {
+				fmt.Println("# Server " + srv.Name() + " " + srv.ID())
 				ii := reg.ListAdjacentItems(srv, registry.WithType(pb.ItemType_GENERIC))
 				for _, i := range ii {
 					g := i.(registry.Generic)
@@ -89,6 +90,7 @@ EXAMPLE
 						fmt.Println(" - Endpoint : " + g.Name())
 					}
 				}
+				fmt.Println("")
 			} else {
 				fmt.Println("Node unrecognized ", node.Name())
 			}
