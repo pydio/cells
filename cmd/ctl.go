@@ -22,8 +22,11 @@ package cmd
 
 import (
 	"github.com/gdamore/tcell/v2"
+	"github.com/pydio/cells/v4/common/server"
 	"github.com/rivo/tview"
 	"github.com/spf13/cobra"
+	"net"
+	"os/exec"
 	"sort"
 	"strings"
 
@@ -45,7 +48,7 @@ type item struct {
 type itemsByName []item
 
 func (b itemsByName) Len() int           { return len(b) }
-func (b itemsByName) Less(i, j int) bool { return b[i].ri.Name() < b[j].ri.Name() }
+func (b itemsByName) Less(i, j int) bool { return b[i].main < b[j].main }
 func (b itemsByName) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 
 type itemsByType []item
@@ -96,7 +99,15 @@ func (m *model) loadItems(preselect registry.Item, oo ...registry.Option) {
 	//	m.currentItem = 0
 	if ii, e := m.reg.List(oo...); e == nil {
 		for _, i := range ii {
-			m.items = append(m.items, item{ri: i, main: i.Name(), secondary: i.ID()})
+			name := i.Name()
+			secondary := i.ID()
+			if no, ok := i.(registry.Node); ok {
+				name = "/" + no.Metadata()[server.NodeMetaStartTag]
+				secondary = "Process ID: " + no.Metadata()[server.NodeMetaPID]
+			} else if gen, ok := i.(registry.Generic); ok && gen.Type() == pb.ItemType_TAG {
+				name = gen.ID()
+			}
+			m.items = append(m.items, item{ri: i, main: name, secondary: secondary})
 		}
 		sort.Sort(itemsByName(m.items))
 		if preselect != nil {
@@ -166,7 +177,33 @@ func (m *model) filterChanged(text string) {
 }
 
 func (m *model) renderMetaView(i registry.Item) {
-	js, _ := json.MarshalIndent(i.Metadata(), "", "  ")
+	meta := make(map[string]interface{})
+	for k, v := range i.Metadata() {
+		meta[k] = v
+	}
+	switch util.DetectType(i) {
+	case pb.ItemType_NODE:
+		if lines, er := LsofLines([]string{"-p", i.Metadata()[server.NodeMetaPID]}); er == nil && len(lines) > 0 {
+			lsofMeta := make(map[string]int)
+			for lt, ll := range lines {
+				lsofMeta[lt] = len(ll)
+			}
+			meta["LSOF"] = lsofMeta
+		}
+	case pb.ItemType_ADDRESS:
+		if _, p, er := net.SplitHostPort(i.Name()); er == nil && p != "" {
+			if lines, er := LsofLines([]string{"-i:" + p}); er == nil && len(lines) > 0 {
+				meta["LSOF"] = lines
+			}
+		}
+	case pb.ItemType_STATS:
+		if sData, ok := i.Metadata()["Data"]; ok {
+			_ = json.Unmarshal([]byte(sData), &meta)
+		}
+	}
+
+	// Now marshall JSON
+	js, _ := json.MarshalIndent(meta, "", "  ")
 	m.metaView.SetTitle("| Meta: " + i.Name() + " |")
 	m.metaView.SetText(string(js))
 }
@@ -179,6 +216,7 @@ var ctlCmd = &cobra.Command{
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.Printf("Connection to registry %s..., please wait\n", runtime.RegistryURL())
 		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
 			return err
@@ -283,4 +321,32 @@ var ctlCmd = &cobra.Command{
 func init() {
 	addExternalCmdRegistryFlags(ctlCmd.Flags())
 	RootCmd.AddCommand(ctlCmd)
+}
+
+func LsofLines(args []string) (map[string][]string, error) {
+	// Some systems (Arch, Debian) install lsof in /usr/bin and others (centos)
+	// install it in /usr/sbin, even though regular users can use it too. FreeBSD,
+	// on the other hand, puts it in /usr/local/sbin. So do not specify absolute path.
+	command := "lsof"
+	args = append([]string{"-w"}, args...)
+	output, err := exec.Command(command, args...).Output()
+	if err != nil {
+		return nil, err
+	}
+	res := make(map[string][]string)
+	lines := strings.Split(string(output), "\n")
+	for i, line := range lines {
+		if i == 0 || strings.TrimSpace(line) == "" {
+			continue // Skip header line
+		}
+		// Todo : better parsing
+		if strings.Contains(line, "DIR") || strings.Contains(line, "REG") {
+			res["LSOF/Files"] = append(res["LSOF/Files"], line)
+		} else if strings.Contains(line, "IPv4") || strings.Contains(line, "IPv6") {
+			res["LSOF/Network"] = append(res["LSOF/Network"], line)
+		} else {
+			res["LSOF/Other"] = append(res["LSOF/Other"], line)
+		}
+	}
+	return res, nil
 }
