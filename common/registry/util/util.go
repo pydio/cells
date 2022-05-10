@@ -98,3 +98,26 @@ func ToOptions(s *pb.Options) (oo []registry.Option) {
 	}
 	return
 }
+
+func DetectType(i registry.Item) pb.ItemType {
+	var n registry.Node
+	var s registry.Service
+	var sr registry.Server
+	var d registry.Dao
+	var e registry.Edge
+	var g registry.Generic
+	if i.As(&n) {
+		return pb.ItemType_NODE
+	} else if i.As(&s) {
+		return pb.ItemType_SERVICE
+	} else if i.As(&sr) {
+		return pb.ItemType_SERVER
+	} else if i.As(&d) {
+		return pb.ItemType_DAO
+	} else if i.As(&e) {
+		return pb.ItemType_EDGE
+	} else if i.As(&g) {
+		return g.Type()
+	}
+	return pb.ItemType_ALL
+}

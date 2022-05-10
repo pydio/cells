@@ -22,13 +22,154 @@ package cmd
 
 import (
 	"github.com/gdamore/tcell/v2"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/rivo/tview"
 	"github.com/spf13/cobra"
+	"sort"
+	"strings"
+
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/runtime"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
+
+type item struct {
+	ri              registry.Item
+	it              pb.ItemType
+	main, secondary string
+	shortcut        rune
+	selected        func()
+}
+
+type itemsByName []item
+
+func (b itemsByName) Len() int           { return len(b) }
+func (b itemsByName) Less(i, j int) bool { return b[i].ri.Name() < b[j].ri.Name() }
+func (b itemsByName) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
+
+type itemsByType []item
+
+func (b itemsByType) Len() int { return len(b) }
+func (b itemsByType) Less(i, j int) bool {
+	if b[i].it == b[j].it {
+		return b[i].ri.Name() < b[j].ri.Name()
+	}
+	return b[i].it < b[j].it
+}
+func (b itemsByType) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
+
+type model struct {
+	reg registry.Registry
+
+	typesList *tview.List
+	itemsList *tview.List
+	metaView  *tview.TextView
+	edgesList *tview.List
+
+	items       []item
+	edges       []item
+	types       []item
+	currentType int
+	currentItem int
+	currentEdge int
+
+	itFilter   string
+	filterText *tview.InputField
+
+	pendingItem registry.Item
+}
+
+func (m *model) updateList(list *tview.List, items []item, current int) {
+	list.Clear()
+	for _, i := range items {
+		if list == m.itemsList && m.itFilter != "" && !strings.Contains(i.main, m.itFilter) {
+			continue
+		}
+		list.AddItem(i.main, i.secondary, i.shortcut, i.selected)
+	}
+	list.SetCurrentItem(current)
+}
+
+func (m *model) loadItems(preselect registry.Item, oo ...registry.Option) {
+	m.items = []item{}
+	//	m.currentItem = 0
+	if ii, e := m.reg.List(oo...); e == nil {
+		for _, i := range ii {
+			m.items = append(m.items, item{ri: i, main: i.Name(), secondary: i.ID()})
+		}
+		sort.Sort(itemsByName(m.items))
+		if preselect != nil {
+			for idx, i := range m.items {
+				if preselect.ID() == i.ri.ID() {
+					m.currentItem = idx
+					break
+				}
+			}
+		}
+	}
+	m.updateList(m.itemsList, m.items, m.currentItem)
+}
+
+func (m *model) loadEdges(source registry.Item, oo ...registry.Option) {
+	m.edges = []item{}
+	//	m.currentEdge = 0
+	for _, i := range m.reg.ListAdjacentItems(source, oo...) {
+		eType := util.DetectType(i)
+		m.edges = append(m.edges, item{ri: i, main: i.Name(), secondary: eType.String() + " - " + i.ID(), it: eType})
+		sort.Sort(itemsByType(m.edges))
+	}
+	m.updateList(m.edgesList, m.edges, m.currentEdge)
+}
+
+func (m *model) itemsChanged(index int) {
+	sel := m.items[index]
+	m.currentItem = index
+
+	m.renderMetaView(sel.ri)
+	m.loadEdges(sel.ri)
+}
+
+func (m *model) typesChanged(index int) {
+	t := m.types[index]
+	m.currentType = index
+	if t.it > 0 {
+		m.itemsList.SetTitle("| Results for " + t.it.String() + " |")
+		m.loadItems(m.pendingItem, registry.WithType(t.it))
+		m.pendingItem = nil
+		m.filterText.SetText("")
+	}
+}
+
+func (m *model) edgesSelected(index int) {
+	edge := m.edges[index]
+	eType := edge.it
+	// Update types list if necessary
+	var tIndex int
+	for idx, t := range m.types {
+		if t.it == eType {
+			tIndex = idx
+			break
+		}
+	}
+	if tIndex != m.currentType {
+		m.pendingItem = edge.ri
+		m.typesList.SetCurrentItem(tIndex)
+	} else {
+		m.loadItems(edge.ri, registry.WithType(eType))
+	}
+}
+
+func (m *model) filterChanged(text string) {
+	m.itFilter = text
+	m.updateList(m.itemsList, m.items, m.currentItem)
+}
+
+func (m *model) renderMetaView(i registry.Item) {
+	js, _ := json.MarshalIndent(i.Metadata(), "", "  ")
+	m.metaView.SetTitle("| Meta: " + i.Name() + " |")
+	m.metaView.SetText(string(js))
+}
 
 var ctlCmd = &cobra.Command{
 	Use:   "ctl",
@@ -44,88 +185,70 @@ var ctlCmd = &cobra.Command{
 		}
 
 		app := tview.NewApplication()
-		mainList := tview.NewList().
-			AddItem("Nodes", "Main Processes", 'a', nil).
-			AddItem("Services", "Cells Services", 'b', nil).
-			AddItem("Servers", "Http/Grpc/Other Servers", 'c', nil).
-			AddItem("DAOs", "Data Stores", 'd', nil).
-			AddItem("Addresses", "Running Servers", 'e', nil).
-			AddItem("Endpoints", "API Endpoints", 'f', nil).
-			AddItem("Tags", "API Endpoints", 'g', nil).
-			AddItem("Stats", "Statistics", 'h', nil).
-			AddItem("Quit", "Press to exit", 'q', func() {
-				app.Stop()
-			})
-		mainList.SetBorder(true).SetTitle("Left List")
 
-		resList := tview.NewList()
-		resList.SetWrapAround(false).ShowSecondaryText(true)
-		resList.SetBorder(true).SetTitle("Results")
-
-		edges := tview.NewList().ShowSecondaryText(true)
-		edges.SetBorder(true).SetTitle("Edges")
-
-		tv := tview.NewTextView()
-		tv.SetBorder(true).SetTitle("Item Meta")
-
-		updateCenter := func(oo ...registry.Option) {
-			if ii, e := reg.List(oo...); e == nil {
-				for _, i := range ii {
-					func(i registry.Item) {
-						js, _ := json.MarshalIndent(i.Metadata(), "", "  ")
-						resList.AddItem(i.Name(), i.ID(), 0, func() {
-							tv.SetText(string(js))
-							edges.Clear()
-							for _, a := range reg.ListAdjacentItems(i) {
-								edges.AddItem(a.ID(), a.Name(), 0, func() {})
-							}
-						})
-					}(i)
-				}
-			}
+		m := &model{
+			reg: reg,
+			types: []item{
+				{main: "Nodes", secondary: "Main Processes", shortcut: 'a', it: pb.ItemType_NODE},
+				{main: "Services", secondary: "Cells Services", shortcut: 'b', it: pb.ItemType_SERVICE},
+				{main: "Servers", secondary: "Cells Servers", shortcut: 'c', it: pb.ItemType_SERVER},
+				{main: "DAOs", secondary: "Data Stores", shortcut: 'd', it: pb.ItemType_DAO},
+				{main: "Addresses", secondary: "Running Servers", shortcut: 'e', it: pb.ItemType_ADDRESS},
+				{main: "Endpoints", secondary: "Registered API Endpoints", shortcut: 'f', it: pb.ItemType_ENDPOINT},
+				{main: "Tags", secondary: "Grouping Tags", shortcut: 'g', it: pb.ItemType_TAG},
+				{main: "Stats", secondary: "Statistics", shortcut: 'h', it: pb.ItemType_STATS},
+				{main: "Quit", secondary: "Press to exit", shortcut: 'q', selected: func() {
+					app.Stop()
+				}},
+			},
 		}
 
-		mainList.SetChangedFunc(func(index int, mainText string, secondaryText string, shortcut rune) {
-			resList.Clear()
-			tv.Clear()
-			var oo []registry.Option
-			switch shortcut {
-			case 'a':
-				oo = append(oo, registry.WithType(pb.ItemType_NODE))
-			case 'b':
-				oo = append(oo, registry.WithType(pb.ItemType_SERVICE))
-			case 'c':
-				oo = append(oo, registry.WithType(pb.ItemType_SERVER))
-			case 'd':
-				oo = append(oo, registry.WithType(pb.ItemType_DAO))
-			case 'e':
-				oo = append(oo, registry.WithType(pb.ItemType_ADDRESS))
-			case 'f':
-				oo = append(oo, registry.WithType(pb.ItemType_ENDPOINT))
-			case 'g':
-				oo = append(oo, registry.WithType(pb.ItemType_TAG))
-			case 'h':
-				oo = append(oo, registry.WithType(pb.ItemType_STATS))
-			case 'q':
-				return
-			}
-			updateCenter(oo...)
-		})
+		m.typesList = tview.NewList()
+		m.typesList.SetBorder(true).SetTitle("| Item Types |")
 
-		mainList.SetCurrentItem(0)
+		m.itemsList = tview.NewList()
+		m.itemsList.SetWrapAround(false).ShowSecondaryText(true)
+		m.itemsList.SetBorder(true).SetTitle("| Results |")
+
+		m.edgesList = tview.NewList().ShowSecondaryText(true)
+		m.edgesList.SetBorder(true).SetTitle("| Edges |")
+
+		m.metaView = tview.NewTextView()
+		m.metaView.SetBorder(true).SetTitle("| Item Meta |")
+
+		m.filterText = tview.NewInputField()
+		m.filterText.SetBorder(true).SetTitle("| Search by name |")
 
 		components := []tview.Primitive{
-			mainList, resList, tv, edges,
+			m.typesList, m.itemsList, m.filterText, m.metaView, m.edgesList,
 		}
 
-		updateCenter(registry.WithType(pb.ItemType_NODE))
+		m.filterText.SetChangedFunc(func(text string) {
+			m.filterChanged(text)
+		})
+
+		m.typesList.SetChangedFunc(func(index int, mainText string, secondaryText string, shortcut rune) {
+			m.typesChanged(index)
+		})
+		m.itemsList.SetChangedFunc(func(index int, mainText string, secondaryText string, shortcut rune) {
+			m.itemsChanged(index)
+		})
+		m.edgesList.SetSelectedFunc(func(i int, s string, s2 string, r rune) {
+			m.edgesSelected(i)
+		})
+
+		m.updateList(m.typesList, m.types, m.currentType)
+		m.loadItems(nil, registry.WithType(pb.ItemType_NODE))
 
 		flex := tview.NewFlex().
-			AddItem(mainList, 0, 1, true).
-			AddItem(resList, 0, 3, false).
+			AddItem(m.typesList, 0, 1, true).
 			AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-				AddItem(tv, 0, 1, false).
-				AddItem(edges, 0, 2, false),
+				AddItem(m.itemsList, 0, 1, false).
+				AddItem(m.filterText, 3, 0, false),
+				0, 3, false).
+			AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+				AddItem(m.metaView, 0, 1, false).
+				AddItem(m.edgesList, 0, 2, false),
 				0, 2, false)
 
 		boxFocus := 0
