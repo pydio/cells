@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -36,29 +36,27 @@ func ToProtoService(s registry.Service) *pb.Service {
 	}
 
 	return &pb.Service{
-		Id:       s.ID(),
-		Name:     s.Name(),
-		Version:  s.Version(),
-		Metadata: s.Metadata(),
-		Tags:     s.Tags(),
-		Options:  new(pb.Options),
+		Version: s.Version(),
+		Tags:    s.Tags(),
+		Options: new(pb.Options),
 	}
 }
 
-func ToService(s *pb.Service) registry.Service {
-	return &service{s}
+func ToService(i *pb.Item, s *pb.Service) registry.Service {
+	return &service{i: i, s: s}
 }
 
 type service struct {
+	i *pb.Item
 	s *pb.Service
 }
 
 func (s *service) ID() string {
-	return s.s.Id
+	return s.i.Id
 }
 
 func (s *service) Name() string {
-	return s.s.Name
+	return s.i.Name
 }
 
 func (s *service) Version() string {
@@ -66,10 +64,10 @@ func (s *service) Version() string {
 }
 
 func (s *service) Metadata() map[string]string {
-	if s.s.Metadata == nil {
+	if s.i.Metadata == nil {
 		return map[string]string{}
 	}
-	return s.s.Metadata
+	return s.i.Metadata
 }
 
 func (s *service) Start() error {
@@ -85,11 +83,11 @@ func (s *service) Tags() []string {
 }
 
 func (s *service) IsGRPC() bool {
-	return strings.HasPrefix(s.s.Name, common.ServiceGrpcNamespace_)
+	return strings.HasPrefix(s.i.Name, common.ServiceGrpcNamespace_)
 }
 
 func (s *service) IsREST() bool {
-	return strings.HasPrefix(s.s.Name, common.ServiceRestNamespace_)
+	return strings.HasPrefix(s.i.Name, common.ServiceRestNamespace_)
 }
 
 func (s *service) IsGeneric() bool {

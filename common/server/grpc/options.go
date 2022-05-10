@@ -25,12 +25,13 @@ import "net"
 type Option func(*Options)
 
 type Options struct {
+	Addr     string
 	Listener net.Listener
 }
 
 func WithAddr(addr string) Option {
 	return func(o *Options) {
-
+		o.Addr = addr
 	}
 }
 

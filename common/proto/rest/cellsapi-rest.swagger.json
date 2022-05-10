@@ -2856,36 +2856,12 @@
         },
         "dsn": {
           "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "metadata": {
-          "additionalProperties": {
-            "type": "string"
-          },
-          "type": "object"
-        },
-        "name": {
-          "type": "string"
         }
       },
       "type": "object"
     },
     "registryEdge": {
       "properties": {
-        "id": {
-          "type": "string"
-        },
-        "metadata": {
-          "additionalProperties": {
-            "type": "string"
-          },
-          "type": "object"
-        },
-        "name": {
-          "type": "string"
-        },
         "vertices": {
           "items": {
             "type": "string"
@@ -2897,17 +2873,8 @@
     },
     "registryGeneric": {
       "properties": {
-        "id": {
-          "type": "string"
-        },
-        "metadata": {
-          "additionalProperties": {
-            "type": "string"
-          },
-          "type": "object"
-        },
-        "name": {
-          "type": "string"
+        "type": {
+          "$ref": "#/definitions/registryItemType"
         }
       },
       "type": "object"
@@ -2929,6 +2896,21 @@
         "generic": {
           "$ref": "#/definitions/registryGeneric"
         },
+        "id": {
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "name": {
+          "type": "string"
+        },
+        "node": {
+          "$ref": "#/definitions/registryNode"
+        },
         "server": {
           "$ref": "#/definitions/registryServer"
         },
@@ -2942,11 +2924,17 @@
       "default": "ALL",
       "enum": [
         "ALL",
+        "EDGE",
+        "NODE",
         "SERVICE",
         "SERVER",
         "DAO",
         "GENERIC",
-        "EDGE"
+        "ADDRESS",
+        "TAG",
+        "PROCESS",
+        "ENDPOINT",
+        "STATS"
       ],
       "type": "string"
     },
@@ -2968,6 +2956,26 @@
             "$ref": "#/definitions/registryItem"
           },
           "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "registryNode": {
+      "properties": {
+        "advertiseIp": {
+          "type": "string"
+        },
+        "hostname": {
+          "type": "string"
+        },
+        "ips": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "machine": {
+          "type": "string"
         }
       },
       "type": "object"
@@ -2999,28 +3007,7 @@
     },
     "registryServer": {
       "properties": {
-        "address": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "endpoints": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "id": {
-          "type": "string"
-        },
-        "metadata": {
-          "additionalProperties": {
-            "type": "string"
-          },
-          "type": "object"
-        },
-        "name": {
+        "protocol": {
           "type": "string"
         }
       },
@@ -3029,18 +3016,6 @@
     },
     "registryService": {
       "properties": {
-        "id": {
-          "type": "string"
-        },
-        "metadata": {
-          "additionalProperties": {
-            "type": "string"
-          },
-          "type": "object"
-        },
-        "name": {
-          "type": "string"
-        },
         "options": {
           "$ref": "#/definitions/registryOptions"
         },

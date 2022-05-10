@@ -328,6 +328,10 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 		switch o.Type {
 		case pb.ItemType_ALL:
 			res = append(res, item)
+		case pb.ItemType_NODE:
+			if service, ok := item.(registry.Node); ok {
+				res = append(res, service)
+			}
 		case pb.ItemType_SERVICE:
 			if service, ok := item.(registry.Service); ok {
 				res = append(res, service)
@@ -346,6 +350,10 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 			}
 		case pb.ItemType_GENERIC:
 			if generic, ok := item.(registry.Generic); ok {
+				res = append(res, generic)
+			}
+		case pb.ItemType_ADDRESS, pb.ItemType_ENDPOINT, pb.ItemType_STATS, pb.ItemType_TAG:
+			if generic, ok := item.(registry.Generic); ok && generic.Type() == o.Type {
 				res = append(res, generic)
 			}
 		}

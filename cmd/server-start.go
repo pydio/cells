@@ -100,8 +100,7 @@ func (n *node) Address() []string {
 	return []string{n.addr}
 }
 
-func (n *node) Endpoints() []string {
-	return []string{}
+func (n *node) Server() {
 }
 
 func (n *node) Metadata() map[string]string {

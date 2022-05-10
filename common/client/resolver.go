@@ -127,10 +127,18 @@ func (r *resolverCallback) sendState() {
 		var edge registry.Edge
 		var service registry.Service
 		if v.As(&srv) {
+			var addresses, endpoints []string
+			for _, a := range r.reg.ListAdjacentItems(srv, registry.WithType(pb.ItemType_ADDRESS)) {
+				addresses = append(addresses, a.Name())
+			}
+			for _, e := range r.reg.ListAdjacentItems(srv, registry.WithType(pb.ItemType_ENDPOINT)) {
+				endpoints = append(endpoints, e.Name())
+			}
+			//fmt.Println("sendState for", srv.Name(), len(addresses), "addresses, ", len(endpoints), "endpoints")
 			m[srv.ID()] = &ServerAttributes{
 				Name:      srv.Name(),
-				Addresses: srv.Address(),
-				Endpoints: srv.Endpoints(),
+				Addresses: addresses,
+				Endpoints: endpoints,
 			}
 		} else if v.As(&edge) {
 			edges = append(edges, edge)

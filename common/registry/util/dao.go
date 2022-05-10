@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -31,19 +31,17 @@ func ToProtoDao(d registry.Dao) *pb.Dao {
 		return dd.d
 	}
 	return &pb.Dao{
-		Id:       d.ID(),
-		Name:     d.Name(),
-		Driver:   d.Driver(),
-		Dsn:      d.Dsn(),
-		Metadata: d.Metadata(),
+		Driver: d.Driver(),
+		Dsn:    d.Dsn(),
 	}
 }
 
-func ToDao(d *pb.Dao) registry.Dao {
-	return &dao{d}
+func ToDao(i *pb.Item, d *pb.Dao) registry.Dao {
+	return &dao{i: i, d: d}
 }
 
 type dao struct {
+	i *pb.Item
 	d *pb.Dao
 }
 
@@ -71,15 +69,15 @@ func (d *dao) Merge(differ merger.Differ, m map[string]string) (merger.Differ, e
 }
 
 func (d *dao) Name() string {
-	return d.d.Name
+	return d.i.Name
 }
 
 func (d *dao) ID() string {
-	return d.d.Id
+	return d.i.Id
 }
 
 func (d *dao) Metadata() map[string]string {
-	return d.d.Metadata
+	return d.i.Metadata
 }
 
 func (d *dao) As(i interface{}) bool {

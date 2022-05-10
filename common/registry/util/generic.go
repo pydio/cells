@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -24,28 +24,38 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/merger"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
+
+func CreateAddress(addr string, meta map[string]string) registry.Generic {
+	return ToGeneric(&pb.Item{Id: uuid.New(), Name: addr, Metadata: meta}, &pb.Generic{Type: pb.ItemType_ADDRESS})
+}
+
+func CreateEndpoint(name string, meta map[string]string) registry.Generic {
+	return ToGeneric(&pb.Item{Id: uuid.New(), Name: name, Metadata: meta}, &pb.Generic{Type: pb.ItemType_ENDPOINT})
+}
 
 func ToProtoGeneric(e registry.Generic) *pb.Generic {
 	if dd, ok := e.(*generic); ok {
 		return dd.e
 	}
 	return &pb.Generic{
-		Id:       e.ID(),
-		Name:     e.Name(),
-		Metadata: e.Metadata(),
+		Type: e.Type(),
 	}
 }
 
-func ToGeneric(e *pb.Generic) registry.Generic {
-	return &generic{e}
+func ToGeneric(i *pb.Item, e *pb.Generic) registry.Generic {
+	return &generic{i: i, e: e}
 }
 
 type generic struct {
+	i *pb.Item
 	e *pb.Generic
 }
 
-func (c *generic) Generic() {}
+func (d *generic) Type() pb.ItemType {
+	return d.e.Type
+}
 
 func (d *generic) Equals(differ merger.Differ) bool {
 	if di, ok := differ.(*generic); ok {
@@ -71,15 +81,15 @@ func (d *generic) Merge(differ merger.Differ, m map[string]string) (merger.Diffe
 }
 
 func (d *generic) Name() string {
-	return d.e.Name
+	return d.i.Name
 }
 
 func (d *generic) ID() string {
-	return d.e.Id
+	return d.i.Id
 }
 
 func (d *generic) Metadata() map[string]string {
-	return d.e.Metadata
+	return d.i.Metadata
 }
 
 func (d *generic) As(i interface{}) bool {

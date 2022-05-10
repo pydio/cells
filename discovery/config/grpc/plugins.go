@@ -17,7 +17,7 @@ func init() {
 			service.Name(common.ServiceGrpcNamespace_+common.ServiceConfig),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
-			service.Description("Main service loading configurations for all other services."),
+			service.Description("Grpc service for serving configurations to forks"),
 			// service.WithStorage(config.NewDAO),
 			service.WithGRPC(func(c context.Context, srv *grpc.Server) error {
 				// Register handler

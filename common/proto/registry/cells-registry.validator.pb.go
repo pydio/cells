@@ -16,27 +16,7 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *Item) Validate() error {
-	if oneOfNester, ok := this.GetItem().(*Item_Service); ok {
-		if oneOfNester.Service != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Service); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Service", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetItem().(*Item_Server); ok {
-		if oneOfNester.Server != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Server); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Server", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetItem().(*Item_Dao); ok {
-		if oneOfNester.Dao != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Dao); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Dao", err)
-			}
-		}
-	}
+	// Validation of proto3 map<> fields is unsupported.
 	if oneOfNester, ok := this.GetItem().(*Item_Generic); ok {
 		if oneOfNester.Generic != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Generic); err != nil {
@@ -48,6 +28,34 @@ func (this *Item) Validate() error {
 		if oneOfNester.Edge != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Edge); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Edge", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetItem().(*Item_Server); ok {
+		if oneOfNester.Server != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Server); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Server", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetItem().(*Item_Node); ok {
+		if oneOfNester.Node != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Node); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Node", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetItem().(*Item_Service); ok {
+		if oneOfNester.Service != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Service); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Service", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetItem().(*Item_Dao); ok {
+		if oneOfNester.Dao != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Dao); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Dao", err)
 			}
 		}
 	}
@@ -64,8 +72,10 @@ func (this *ItemMap) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *Node) Validate() error {
+	return nil
+}
 func (this *Service) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
 	if this.Options != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Options); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Options", err)
@@ -74,19 +84,15 @@ func (this *Service) Validate() error {
 	return nil
 }
 func (this *Server) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *Dao) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *Edge) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *Generic) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *Options) Validate() error {

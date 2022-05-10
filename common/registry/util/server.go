@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -30,43 +30,31 @@ func ToProtoServer(s registry.Server) *pb.Server {
 	if nn, ok := s.(*server); ok {
 		return nn.s
 	}
-
-	return &pb.Server{
-		Id:        s.ID(),
-		Name:      s.Name(),
-		Address:   s.Address(),
-		Endpoints: s.Endpoints(),
-		Metadata:  s.Metadata(),
-	}
+	return &pb.Server{}
 }
 
-func ToServer(s *pb.Server) registry.Server {
-	return &server{s}
+func ToServer(i *pb.Item, s *pb.Server) registry.Server {
+	return &server{s: s, i: i}
 }
 
 type server struct {
+	i *pb.Item
 	s *pb.Server
 }
 
 func (s *server) ID() string {
-	return s.s.Id
+	return s.i.Id
 }
 
 func (s *server) Name() string {
-	return s.s.Name
-}
-
-func (s *server) Address() []string {
-	return s.s.Address
-}
-
-func (s *server) Endpoints() []string {
-	return s.s.Endpoints
+	return s.i.Name
 }
 
 func (s *server) Metadata() map[string]string {
-	return s.s.Metadata
+	return s.i.Metadata
 }
+
+func (s *server) Server() {}
 
 func (s *server) As(i interface{}) bool {
 	ii, ok := i.(*registry.Server)

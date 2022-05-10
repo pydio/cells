@@ -22,7 +22,10 @@ package fork
 
 import (
 	"context"
+
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/utils/fork"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -51,7 +54,7 @@ func NewServer(ctx context.Context, forkStart string) server.Server {
 	})
 }
 
-func (s *Server) Serve() error {
+func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, e error) {
 
 	var opts []fork.Option
 	if config.Get("services", s.s.name, "debugFork").Bool() {
@@ -63,11 +66,11 @@ func (s *Server) Serve() error {
 	opts = append(opts, fork.WithRetries(3))
 	s.process = fork.NewProcess(s.ctx, []string{s.s.name}, opts...)
 
-	var e error
 	go func() {
 		e = s.process.StartAndWait()
 	}()
-	return e
+	ii = append(ii, util.CreateAddress(s.id+"-instance", nil))
+	return
 }
 
 func (s *Server) Stop() error {
@@ -85,16 +88,12 @@ func (s *Server) Name() string {
 	return s.name
 }
 
-func (s *Server) Type() server.ServerType {
-	return server.ServerType_FORK
+func (s *Server) Type() server.Type {
+	return server.TypeFork
 }
 
 func (s *Server) Metadata() map[string]string {
 	return s.meta // map[string]string{}
-}
-
-func (s *Server) Address() []string {
-	return []string{}
 }
 
 func (s *Server) Endpoints() []string {

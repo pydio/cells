@@ -160,7 +160,9 @@ func getTagsPerType(reg registry.Registry, f func(s registry.Service) bool) map[
 					if n.ID() == "generic" {
 						nodes = append(nodes, "generic")
 					}
-					nodes = append(nodes, n.(registry.Server).Address()...)
+					for _, a := range reg.ListAdjacentItems(n, registry.WithType(pb.ItemType_ADDRESS)) {
+						nodes = append(nodes, a.(registry.Generic).Name())
+					}
 				}
 
 				tags[tag].Services[name] = &runningService{

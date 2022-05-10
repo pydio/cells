@@ -16,11 +16,19 @@ service Registry {
 
 enum ItemType {
   ALL = 0;
-  SERVICE = 1;
-  SERVER = 2;
-  DAO = 3;
-  GENERIC = 4;
-  EDGE = 5;
+  EDGE = 1;
+
+  NODE = 3;
+  SERVICE = 4;
+  SERVER = 5;
+  DAO = 7;
+
+  GENERIC = 2;
+  ADDRESS = 6;
+  TAG = 8;
+  PROCESS = 9;
+  ENDPOINT = 10;
+  STATS = 11;
 }
 
 enum ActionType {
@@ -33,58 +41,54 @@ enum ActionType {
 }
 
 message Item {
+  string id = 1;
+  string name = 2;
+  map<string,string> metadata = 4;
   oneof item {
-    Service service = 1;
-    Server server = 2;
-    Dao dao = 3;
-    Generic generic = 4;
-    Edge edge = 5;
+    Generic generic = 5;
+    Edge edge = 6;
+    Server server = 7;
+    Node node = 8;
+    Service service = 9;
+    Dao dao = 10;
   }
-  repeated Item adjacents = 6;
+  repeated Item adjacents = 11;
 }
 
 message ItemMap {
   map<string, Item> items = 1;
 }
 
+message Node {
+  string hostname = 1;
+  string machine = 2;
+  repeated string ips = 3;
+  string advertiseIp = 4;
+}
+
 // Service represents a go-micro service
 message Service {
-  string id = 1;
-  string name = 2;
-  string version = 3;
-  map<string,string> metadata = 4;
-  Options options = 6;
-  repeated string tags = 7;
+  string version = 1;
+  Options options = 2;
+  repeated string tags = 3;
 }
 
 // Server represents the node the service is on
 message Server {
-  string id = 1;
-  string name = 2;
-  repeated string address = 3;
-  map<string,string> metadata = 4;
-  repeated string endpoints = 5;
+  string protocol = 1;
 }
 
 message Dao {
-  string id = 1;
-  string name = 2;
-  string driver = 3;
-  string dsn = 4;
-  map<string,string> metadata = 5;
+  string driver = 1;
+  string dsn = 2;
 }
 
 message Edge {
-  string id = 1;
-  string name = 2;
-  repeated string vertices = 3;
-  map<string,string> metadata = 4;
+  repeated string vertices = 1;
 }
 
 message Generic {
-  string id = 1;
-  string name = 2;
-  map<string,string> metadata = 3;
+  ItemType type = 1;
 }
 
 // Options are registry options

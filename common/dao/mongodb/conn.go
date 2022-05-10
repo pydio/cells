@@ -23,6 +23,7 @@ package mongodb
 import (
 	"context"
 
+	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -40,11 +41,11 @@ func (m *mongodb) Open(c context.Context, dsn string) (dao.Conn, error) {
 	// Create a new client and connect to the server
 	client, err := mongo.Connect(c, options.Client().ApplyURI(dsn))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "[MongoDB connection failed]")
 	}
 
 	if err := client.Ping(c, readpref.Primary()); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "[MongoDB connection failed]")
 	}
 	log.Logger(c).Info("MongoDB connected and pinged")
 

@@ -31,7 +31,7 @@ import (
 // WithGeneric adds a http micro service handler to the current service
 func WithGeneric(f func(context.Context, *generic.Server) error) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.serverType = server.ServerType_GENERIC
+		o.serverType = server.TypeGeneric
 		o.serverStart = func() error {
 			var srvg *generic.Server
 

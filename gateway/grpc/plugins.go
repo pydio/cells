@@ -130,10 +130,10 @@ func createServerProvider(tls bool) service.ServerProvider {
 				addr = ":" + port
 			}
 			logCtx := servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpcClear)
-			log.Logger(logCtx).Info("Starting HTTP only gRPC gateway. Will be accessed directly through " + addr)
+			log.Logger(logCtx).Info("Configuring HTTP only gRPC gateway. Will be accessed directly through " + addr)
 		} else {
 			logCtx := servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpc)
-			log.Logger(logCtx).Info("Activating self-signed configuration for gRPC gateway to allow full TLS chain.")
+			log.Logger(logCtx).Info("Configuring self-signed configuration for gRPC gateway to allow full TLS chain.")
 		}
 
 		if tls {

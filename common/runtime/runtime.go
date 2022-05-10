@@ -86,6 +86,19 @@ func DiscoveryURL() string {
 	return r.GetString(KeyDiscovery)
 }
 
+func IsGrpcScheme(u string) bool {
+	if u != "" {
+		if ur, e := url.Parse(u); e == nil && ur.Scheme == "grpc" {
+			return true
+		}
+	}
+	return false
+}
+
+func NeedsGrpcDiscoveryConn() bool {
+	return IsGrpcScheme(ConfigURL()) || IsGrpcScheme(RegistryURL()) || IsGrpcScheme(BrokerURL())
+}
+
 // RegistryURL returns the scheme://address url for Registry
 func RegistryURL() string {
 	if !r.IsSet(KeyRegistry) && r.IsSet(KeyDiscovery) {

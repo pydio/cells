@@ -22,17 +22,19 @@ package http
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/log"
-	"go.uber.org/zap"
 	"net"
 	"net/http"
 	"net/http/pprof"
 
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server/middleware"
+	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/http/registrymux"
+	"github.com/pydio/cells/v4/common/server/middleware"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -73,10 +75,14 @@ func New(ctx context.Context) server.Server {
 	})
 }
 
-func (s *Server) Serve() error {
-	lis, err := net.Listen("tcp", runtime.HttpBindAddress())
+func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e error) {
+	addr := opts.HttpBindAddress
+	if addr == "" {
+		addr = runtime.HttpBindAddress()
+	}
+	lis, err := net.Listen("tcp", addr)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	s.Listener = lis
@@ -92,19 +98,16 @@ func (s *Server) Serve() error {
 		}
 	}()
 
-	return nil
+	ii = append(ii, util.CreateAddress(s.Listener.Addr().String(), nil))
+	for _, endpoint := range s.ListableMux.Patterns() {
+		ii = append(ii, util.CreateEndpoint(endpoint, nil))
+	}
+	return
 }
 
 func (s *Server) Stop() error {
 	// Return initial context ?
 	return s.Server.Shutdown(context.TODO())
-}
-
-func (s *Server) Address() []string {
-	if s.Listener == nil {
-		return []string{}
-	}
-	return []string{s.Listener.Addr().String()}
 }
 
 func (s *Server) Endpoints() []string {
@@ -119,8 +122,8 @@ func (s *Server) Name() string {
 	return s.name
 }
 
-func (s *Server) Type() server.ServerType {
-	return server.ServerType_HTTP
+func (s *Server) Type() server.Type {
+	return server.TypeHttp
 }
 
 func (s *Server) Metadata() map[string]string {

@@ -23,7 +23,6 @@ package nodes
 import (
 	"context"
 	"fmt"
-	"strings"
 	"sync"
 	"time"
 
@@ -263,40 +262,43 @@ func (p *ClientsPool) registerAlternativeClient(namespace string) error {
 
 func (p *ClientsPool) watchRegistry(reg registry.Registry) error {
 
-	w, err := reg.Watch(registry.WithType(pb.ItemType_SERVICE))
+	w, err := reg.Watch(registry.WithType(pb.ItemType_ADDRESS))
 	if err != nil {
 		return err
 	}
 	p.regWatcher = w
 
-	prefix := common.ServiceGrpcNamespace_ + common.ServiceDataSync_
+	//prefix := common.ServiceGrpcNamespace_ + common.ServiceDataSync_
 
 	for {
-		r, err := w.Next()
+		_, err := w.Next()
 		if err != nil {
 			return err
 		}
 
-		var hasSync bool
-		for _, item := range r.Items() {
-			var s registry.Service
-			if !item.As(&s) {
-				continue
+		p.reload <- true
+		/*
+			var hasSync bool
+			for _, item := range r.Items() {
+				var s registry.Service
+				if !item.As(&s) {
+					continue
+				}
+				if !strings.HasPrefix(s.Name(), prefix) {
+					continue
+				}
+				hasSync = true
+				dsName := strings.TrimPrefix(s.Name(), prefix)
+				p.Lock()
+				if _, ok := p.sources[dsName]; ok && r.Action() == pb.ActionType_DELETE {
+					delete(p.sources, dsName)
+				}
+				p.Unlock()
 			}
-			if !strings.HasPrefix(s.Name(), prefix) {
-				continue
+			if hasSync {
+				p.reload <- true
 			}
-			hasSync = true
-			dsName := strings.TrimPrefix(s.Name(), prefix)
-			p.Lock()
-			if _, ok := p.sources[dsName]; ok && r.Action() == pb.ActionType_DELETE {
-				delete(p.sources, dsName)
-			}
-			p.Unlock()
-		}
-		if hasSync {
-			p.reload <- true
-		}
+		*/
 	}
 
 }

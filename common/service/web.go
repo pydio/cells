@@ -103,7 +103,7 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
 		rootPath := "/a/" + strings.TrimPrefix(o.Name, common.ServiceRestNamespace_)
 
-		o.serverType = server.ServerType_HTTP
+		o.serverType = server.TypeHttp
 		o.serverStart = func() error {
 			var mux server.HttpMux
 			if !o.Server.As(&mux) {

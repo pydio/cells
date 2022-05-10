@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2022 Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -31,18 +31,16 @@ func ToProtoEdge(e registry.Edge) *pb.Edge {
 		return dd.e
 	}
 	return &pb.Edge{
-		Id:       e.ID(),
-		Name:     e.Name(),
 		Vertices: e.Vertices(),
-		Metadata: e.Metadata(),
 	}
 }
 
-func ToEdge(e *pb.Edge) registry.Edge {
-	return &edge{e}
+func ToEdge(i *pb.Item, e *pb.Edge) registry.Edge {
+	return &edge{i: i, e: e}
 }
 
 type edge struct {
+	i *pb.Item
 	e *pb.Edge
 }
 
@@ -70,15 +68,15 @@ func (d *edge) Merge(differ merger.Differ, m map[string]string) (merger.Differ, 
 }
 
 func (d *edge) Name() string {
-	return d.e.Name
+	return d.i.Name
 }
 
 func (d *edge) ID() string {
-	return d.e.Id
+	return d.i.Id
 }
 
 func (d *edge) Metadata() map[string]string {
-	return d.e.Metadata
+	return d.i.Metadata
 }
 
 func (d *edge) As(i interface{}) bool {
