@@ -21,10 +21,26 @@
 package util
 
 import (
+	"os"
+	"strconv"
+
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/merger"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
+
+func CreateNode() registry.Node {
+	i := &pb.Item{
+		Id:   uuid.New(),
+		Name: "process",
+		Metadata: map[string]string{
+			"PID":       strconv.Itoa(os.Getpid()),
+			"parentPID": strconv.Itoa(os.Getppid()),
+		}}
+	n := &pb.Node{}
+	return &node{i: i, d: n}
+}
 
 func ToProtoNode(d registry.Node) *pb.Node {
 	if dd, ok := d.(*node); ok {

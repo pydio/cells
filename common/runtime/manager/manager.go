@@ -23,12 +23,15 @@ package manager
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
 
 	"golang.org/x/sync/errgroup"
 
 	"github.com/pydio/cells/v4/common/config"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/caddy"
@@ -53,6 +56,7 @@ type manager struct {
 	srvs   []server.Server
 	srcUrl string
 	reg    registry.Registry
+	root   registry.Item
 }
 
 func NewManager(reg registry.Registry, srcUrl string, namespace string) Manager {
@@ -60,6 +64,29 @@ func NewManager(reg registry.Registry, srcUrl string, namespace string) Manager 
 		ns:     namespace,
 		srcUrl: srcUrl,
 		reg:    reg,
+	}
+	// Detect a parent root
+	var current, parent registry.Item
+	if ii, er := reg.List(registry.WithType(pb.ItemType_NODE)); er == nil && len(ii) > 0 {
+		for _, root := range ii {
+			rPID := root.Metadata()["PID"]
+			if rPID == strconv.Itoa(os.Getppid()) {
+				parent = root
+			} else if rPID == strconv.Itoa(os.Getpid()) {
+				current = root
+			}
+		}
+	}
+	if current != nil {
+		m.root = current
+	} else {
+		node := util.CreateNode()
+		if er := reg.Register(node); er == nil {
+			m.root = node
+			if parent != nil {
+				_, _ = reg.RegisterEdge(parent.ID(), m.root.ID(), "Fork", map[string]string{})
+			}
+		}
 	}
 	return m
 }
@@ -171,6 +198,12 @@ func (m *manager) Init(ctx context.Context) error {
 		})
 		opts.Server.BeforeStop(s.Stop)
 
+	}
+
+	if m.root != nil {
+		for _, sr := range m.srvs {
+			_, _ = m.reg.RegisterEdge(m.root.ID(), sr.ID(), "Node", map[string]string{})
+		}
 	}
 
 	return nil

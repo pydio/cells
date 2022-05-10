@@ -19,6 +19,7 @@ require (
 	github.com/emicklei/go-restful/v3 v3.7.3
 	github.com/fatih/color v1.13.0
 	github.com/fatih/structs v1.1.0
+	github.com/gdamore/tcell/v2 v2.5.1
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-openapi/errors v0.20.2
 	github.com/go-openapi/loads v0.21.1
@@ -76,6 +77,7 @@ require (
 	github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef
 	github.com/pydio/melody v0.0.0-20190928133520-4271c6513fb6
 	github.com/pydio/pydio-sdk-go v0.0.0-20190116153840-23ce5c39e65c
+	github.com/rivo/tview v0.0.0-20220307222120-9994674d60a8
 	github.com/rjeczalik/notify v0.9.2
 	github.com/robertkrimen/otto v0.0.0-20211024170158-b87d35c0b86f
 	github.com/rs/cors v1.8.2
