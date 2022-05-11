@@ -65,7 +65,8 @@ class SearchForm extends Component {
             dataModel: dataModel || clearDataModel(),
             empty: true,
             loading: false,
-            searchScope: props.uniqueSearchScope || props.searchScope || 'folder'
+            searchScope: props.uniqueSearchScope || props.searchScope || 'folder',
+            additional_limit: 0
         };
 
         this.setMode = debounce(this.setMode, 250);
@@ -145,10 +146,15 @@ class SearchForm extends Component {
         }
     }
 
+    loadMoreSearchResults() {
+        const {additional_limit} = this.state;
+        this.setState({additional_limit: additional_limit + 50}, this.submit)
+    }
+
     submit() {
-        const {display, values, searchScope, dataModel} = this.state;
+        const {display, values, searchScope, dataModel, additional_limit} = this.state;
         const {crossWorkspace} = this.props;
-        const limit = (crossWorkspace  || searchScope === 'all') ? 6 : (display === 'small' ? 9 : 100);
+        const limit = (crossWorkspace  || searchScope === 'all') ? additional_limit : (display === 'small' ? 9 : 100);
         const rootNode = dataModel.getRootNode();
         rootNode.setChildren([]);
         rootNode.setLoaded(false);
@@ -280,7 +286,7 @@ class SearchForm extends Component {
                 {display === 'small' &&
                 <div style={{display:'flex', alignItems:'center', padding:4, paddingTop: 0, backgroundColor:'#eeeeee', width:'100%'}}>
                     {!crossWorkspace && !this.props.uniqueSearchScope &&  <SearchScopeSelector style={{flex: 1}} labelStyle={{paddingLeft: 8}} value={searchScope} onChange={(scope)=>{this.changeSearchScope(scope)}} onClick={() => this.setMode('small')}/>}
-                    <FlatButton style={{marginTop: 4, minWidth:0}} labelStyle={{padding:'0 8px'}} primary={true} label={getMessage(456)} onClick={() => {onOpenAdvanced()}}/>
+                    <FlatButton style={{marginTop: 4, minWidth:0}} labelStyle={{padding:'0 8px'}} primary={true} label={getMessage(456)} onClick={() => {this.loadMoreSearchResults()}}/>
                 </div>
                 }
             </Paper>
