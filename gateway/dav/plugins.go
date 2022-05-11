@@ -51,6 +51,12 @@ func init() {
 				mux.Handle("/dav/", handler)
 				return nil
 			}),
+			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
+				if m, ok := mux.(server.PatternsProvider); ok {
+					m.DeregisterPattern("/dav/")
+				}
+				return nil
+			}),
 		)
 	})
 }

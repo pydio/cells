@@ -50,6 +50,12 @@ func init() {
 				mux.Handle("/wopi/", wopiRouter)
 				return nil
 			}),
+			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
+				if m, ok := mux.(server.PatternsProvider); ok {
+					m.DeregisterPattern("/wopi/")
+				}
+				return nil
+			}),
 		)
 	})
 }

@@ -103,6 +103,12 @@ func init() {
 				}).Handler(router)))
 				return nil
 			}),
+			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
+				if m, ok := mux.(server.PatternsProvider); ok {
+					m.DeregisterPattern("/oidc/")
+				}
+				return nil
+			}),
 			/*
 				// TODO v4 : Still required ?
 				service.WatchPath("services/"+common.ServiceWebNamespace_+common.ServiceOAuth, func(_ service.Service, c configx.Values) {
