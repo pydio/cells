@@ -124,33 +124,18 @@ func (m *manager) Init(ctx context.Context) error {
 		opts := s.Options()
 		mustFork := opts.Fork && !runtime.IsFork()
 
+		// Replace service context with target registry
+		opts.Context = servicecontext.WithRegistry(opts.Context, m.reg)
+
 		if !runtime.IsRequired(s.Name(), opts.Tags...) {
 			continue
 		}
 
-		// Replace service context with target registry
-		opts.Context = servicecontext.WithRegistry(opts.Context, m.reg)
-		scheme := s.ServerScheme()
-
-		if mustFork {
-			if !opts.AutoStart {
-				continue
-			}
-			srv, e := server.OpenServer(opts.Context, scheme)
-			if e != nil {
-				return e
-			}
-			byScheme[scheme] = srv
-			opts.Server = srv
+		if mustFork && !opts.AutoStart {
 			continue
 		}
 
-		if er := m.reg.Register(s, registry.WithEdgeTo(m.root.ID(), "Node", map[string]string{})); er != nil {
-			return er
-		} else {
-			m.services[s.ID()] = s
-		}
-
+		scheme := s.ServerScheme()
 		if sr, o := byScheme[scheme]; o {
 			opts.Server = sr
 		} else if srv, er := server.OpenServer(opts.Context, scheme); er == nil {
@@ -158,6 +143,16 @@ func (m *manager) Init(ctx context.Context) error {
 			opts.Server = srv
 		} else {
 			return er
+		}
+
+		if mustFork {
+			continue // Do not register server here
+		}
+
+		if er := m.reg.Register(s, registry.WithEdgeTo(m.root.ID(), "Node", map[string]string{})); er != nil {
+			return er
+		} else {
+			m.services[s.ID()] = s
 		}
 
 		opts.Server.BeforeServe(s.Start)

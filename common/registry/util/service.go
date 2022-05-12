@@ -84,11 +84,11 @@ func (s *service) Tags() []string {
 
 func (s *service) ServerScheme() string {
 	if strings.HasPrefix(s.i.Name, common.ServiceGrpcNamespace_) {
-		return "grpc"
+		return "grpc://"
 	} else if strings.HasPrefix(s.i.Name, common.ServiceRestNamespace_) {
-		return "http"
+		return "http://"
 	} else {
-		return "generic"
+		return "generic://"
 	}
 }
 
