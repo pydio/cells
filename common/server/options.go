@@ -25,50 +25,66 @@ import (
 	"net"
 )
 
-// Options stores all options for a pydio server
-type Options struct {
-	Context  context.Context
-	Listener *net.Listener
+type ServeOptions struct {
+	HttpBindAddress string
+	GrpcBindAddress string
+	ErrorCallback   func(error)
 
-	onServeError []func(error)
-
-	// Before and After funcs
 	BeforeServe []func() error
 	AfterServe  []func() error
 	BeforeStop  []func() error
 	AfterStop   []func() error
 }
 
-// Option is a function to set Options
-type Option func(*Options)
+type ServeOption func(options *ServeOptions)
 
-// BeforeServe executes function before starting the server
-func BeforeServe(f func() error) Option {
-	return func(o *Options) {
+func WithErrorCallback(cb func(err error)) ServeOption {
+	return func(options *ServeOptions) {
+		options.ErrorCallback = cb
+	}
+}
+
+func WithGrpcBindAddress(a string) ServeOption {
+	return func(o *ServeOptions) {
+		o.GrpcBindAddress = a
+	}
+}
+
+func WithHttpBindAddress(a string) ServeOption {
+	return func(o *ServeOptions) {
+		o.HttpBindAddress = a
+	}
+}
+
+func WithBeforeServe(f func() error) ServeOption {
+	return func(o *ServeOptions) {
 		o.BeforeServe = append(o.BeforeServe, f)
 	}
 }
 
-func AfterServe(f func() error) Option {
-	return func(o *Options) {
+func WithAfterServe(f func() error) ServeOption {
+	return func(o *ServeOptions) {
 		o.AfterServe = append(o.AfterServe, f)
 	}
 }
 
-func BeforeStop(f func() error) Option {
-	return func(o *Options) {
+func WithBeforeStop(f func() error) ServeOption {
+	return func(o *ServeOptions) {
 		o.BeforeStop = append(o.BeforeStop, f)
 	}
 }
 
-func AfterStop(f func() error) Option {
-	return func(o *Options) {
+func WithAfterStop(f func() error) ServeOption {
+	return func(o *ServeOptions) {
 		o.AfterStop = append(o.AfterStop, f)
 	}
 }
 
-func OnServeError(f func(error)) Option {
-	return func(o *Options) {
-		o.onServeError = append(o.onServeError, f)
-	}
+// Options stores all options for a pydio server
+type Options struct {
+	Context  context.Context
+	Listener *net.Listener
 }
+
+// Option is a function to set Options
+type Option func(*Options)

@@ -54,9 +54,14 @@ type item struct {
 
 type itemsByName []item
 
-func (b itemsByName) Len() int           { return len(b) }
-func (b itemsByName) Less(i, j int) bool { return b[i].main < b[j].main }
-func (b itemsByName) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
+func (b itemsByName) Len() int { return len(b) }
+func (b itemsByName) Less(i, j int) bool {
+	if b[i].main == b[j].main {
+		return b[i].secondary < b[j].secondary
+	}
+	return b[i].main < b[j].main
+}
+func (b itemsByName) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
 
 type itemsByType []item
 
@@ -270,6 +275,7 @@ func (m *model) renderButtons(i registry.Item) {
 		} else {
 			stopButton := tview.NewButton("Stop").SetSelectedFunc(func() { m.sendCommand("stop", i.ID()) })
 			m.buttonsPanel.AddItem(stopButton, 0, 1, false)
+			m.buttonsPanel.AddItem(tview.NewTextView().SetText(" "), 1, 0, false)
 			restartButton := tview.NewButton("Restart").SetSelectedFunc(func() { m.sendCommand("restart", i.ID()) })
 			m.buttonsPanel.AddItem(restartButton, 0, 1, false)
 			count++
@@ -400,11 +406,18 @@ var ctlCmd = &cobra.Command{
 		m.updateList(m.typesList, m.types, m.currentType)
 		m.loadItems(nil, registry.WithType(pb.ItemType_NODE))
 
+		reloadButton := tview.NewButton("Reload").SetSelectedFunc(func() {
+			m.loadItems(m.getCurrentItem().ri, registry.WithType(m.types[m.currentType].it))
+		})
+
 		flex := tview.NewFlex().
 			AddItem(m.typesList, 0, 1, true).
 			AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 				AddItem(m.itemsList, 0, 1, false).
-				AddItem(m.filterText, 3, 0, false),
+				AddItem(tview.NewFlex().
+					AddItem(reloadButton, 10, 0, false).
+					AddItem(m.filterText, 0, 1, false),
+					3, 0, false),
 				0, 3, false).
 			AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 				AddItem(m.metaView, 0, 1, false).
