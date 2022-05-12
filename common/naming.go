@@ -119,6 +119,7 @@ const (
 
 // Define constants for Event Bus Topics
 const (
+	TopicRegistryCommand     = "topic.pydio.registry.command"
 	TopicServiceRegistration = "topic.pydio.service.registration"
 	TopicProxyRestarted      = "topic.pydio.proxy.restarted"
 	TopicServiceStop         = "topic.pydio.service.stop" // @todo This is used in "stop" command but probably out-of-date

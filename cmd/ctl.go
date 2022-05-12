@@ -21,19 +21,26 @@
 package cmd
 
 import (
-	"github.com/gdamore/tcell/v2"
-	"github.com/pydio/cells/v4/common/server"
-	"github.com/rivo/tview"
-	"github.com/spf13/cobra"
 	"net"
+	"net/url"
 	"os/exec"
 	"sort"
 	"strings"
 
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
+	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/server"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -65,10 +72,13 @@ func (b itemsByType) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
 type model struct {
 	reg registry.Registry
 
-	typesList *tview.List
-	itemsList *tview.List
-	metaView  *tview.TextView
-	edgesList *tview.List
+	app          *tview.Application
+	typesList    *tview.List
+	itemsList    *tview.List
+	metaView     *tview.TextView
+	edgesList    *tview.List
+	buttonsPanel *tview.Flex
+	crtButtons   []tview.Primitive
 
 	items       []item
 	edges       []item
@@ -81,6 +91,7 @@ type model struct {
 	filterText *tview.InputField
 
 	pendingItem registry.Item
+	br          broker.Broker
 }
 
 func (m *model) updateList(list *tview.List, items []item, current int) {
@@ -107,6 +118,9 @@ func (m *model) loadItems(preselect registry.Item, oo ...registry.Option) {
 			} else if gen, ok := i.(registry.Generic); ok && gen.Type() == pb.ItemType_TAG {
 				name = gen.ID()
 			}
+			if status, ok := i.Metadata()["status"]; ok {
+				name += " - " + status
+			}
 			m.items = append(m.items, item{ri: i, main: name, secondary: secondary})
 		}
 		sort.Sort(itemsByName(m.items))
@@ -124,6 +138,10 @@ func (m *model) loadItems(preselect registry.Item, oo ...registry.Option) {
 
 func (m *model) loadEdges(source registry.Item, oo ...registry.Option) {
 	m.edges = []item{}
+	if source == nil {
+		m.updateList(m.edgesList, m.edges, m.currentEdge)
+		return
+	}
 	//	m.currentEdge = 0
 	for _, i := range m.reg.ListAdjacentItems(source, oo...) {
 		eType := util.DetectType(i)
@@ -134,21 +152,39 @@ func (m *model) loadEdges(source registry.Item, oo ...registry.Option) {
 }
 
 func (m *model) itemsChanged(index int) {
-	sel := m.items[index]
+	//	sel := m.items[index]
 	m.currentItem = index
-
+	sel := m.getCurrentItem()
 	m.renderMetaView(sel.ri)
 	m.loadEdges(sel.ri)
+	m.renderButtons(sel.ri)
+}
+
+func (m *model) getCurrentItem() item {
+	ii := m.items
+	if m.itFilter != "" {
+		ii = []item{}
+		for _, i := range m.items {
+			if strings.Contains(i.main, m.itFilter) {
+				ii = append(ii, i)
+			}
+		}
+	}
+	if m.currentItem < len(ii) {
+		return ii[m.currentItem]
+	} else {
+		return item{}
+	}
 }
 
 func (m *model) typesChanged(index int) {
 	t := m.types[index]
 	m.currentType = index
 	if t.it > 0 {
+		m.filterText.SetText("")
 		m.itemsList.SetTitle("| Results for " + t.it.String() + " |")
 		m.loadItems(m.pendingItem, registry.WithType(t.it))
 		m.pendingItem = nil
-		m.filterText.SetText("")
 	}
 }
 
@@ -173,17 +209,23 @@ func (m *model) edgesSelected(index int) {
 
 func (m *model) filterChanged(text string) {
 	m.itFilter = text
+	m.itemsChanged(0)
 	m.updateList(m.itemsList, m.items, m.currentItem)
 }
 
 func (m *model) renderMetaView(i registry.Item) {
+	if i == nil {
+		m.metaView.SetTitle("| No Selection |")
+		m.metaView.SetText("")
+		return
+	}
 	meta := make(map[string]interface{})
 	for k, v := range i.Metadata() {
 		meta[k] = v
 	}
 	switch util.DetectType(i) {
 	case pb.ItemType_NODE:
-		if lines, er := LsofLines([]string{"-p", i.Metadata()[server.NodeMetaPID]}); er == nil && len(lines) > 0 {
+		if lines, er := m.LsofLines([]string{"-p", i.Metadata()[server.NodeMetaPID]}); er == nil && len(lines) > 0 {
 			lsofMeta := make(map[string]int)
 			for lt, ll := range lines {
 				lsofMeta[lt] = len(ll)
@@ -192,7 +234,7 @@ func (m *model) renderMetaView(i registry.Item) {
 		}
 	case pb.ItemType_ADDRESS:
 		if _, p, er := net.SplitHostPort(i.Name()); er == nil && p != "" {
-			if lines, er := LsofLines([]string{"-i:" + p}); er == nil && len(lines) > 0 {
+			if lines, er := m.LsofLines([]string{"-i:" + p}); er == nil && len(lines) > 0 {
 				meta["LSOF"] = lines
 			}
 		}
@@ -208,6 +250,68 @@ func (m *model) renderMetaView(i registry.Item) {
 	m.metaView.SetText(string(js))
 }
 
+func (m *model) renderButtons(i registry.Item) {
+	count := 0
+	defer func() {
+		if count == 0 {
+			m.buttonsPanel.AddItem(tview.NewTextView().SetText("No Actions").SetTextAlign(tview.AlignCenter), 0, 1, false)
+		}
+	}()
+	m.buttonsPanel.Clear()
+	if i == nil {
+		return
+	}
+	switch util.DetectType(i) {
+	case pb.ItemType_SERVER, pb.ItemType_SERVICE:
+		if i.Metadata()["status"] == "stopped" {
+			startButton := tview.NewButton("Start").SetSelectedFunc(func() { m.sendCommand("start", i.ID()) })
+			m.buttonsPanel.AddItem(startButton, 0, 1, false)
+			count++
+		} else {
+			stopButton := tview.NewButton("Stop").SetSelectedFunc(func() { m.sendCommand("stop", i.ID()) })
+			m.buttonsPanel.AddItem(stopButton, 0, 1, false)
+			restartButton := tview.NewButton("Restart").SetSelectedFunc(func() { m.sendCommand("restart", i.ID()) })
+			m.buttonsPanel.AddItem(restartButton, 0, 1, false)
+			count++
+		}
+	}
+}
+
+func (m *model) sendCommand(cmdName, itemName string) {
+	_ = m.br.PublishRaw(ctx, common.TopicRegistryCommand, []byte("cmd"), map[string]string{
+		"command":  cmdName,
+		"itemName": itemName,
+	})
+}
+
+func (m *model) LsofLines(args []string) (map[string][]string, error) {
+	// Some systems (Arch, Debian) install lsof in /usr/bin and others (centos)
+	// install it in /usr/sbin, even though regular users can use it too. FreeBSD,
+	// on the other hand, puts it in /usr/local/sbin. So do not specify absolute path.
+	command := "lsof"
+	args = append([]string{"-w"}, args...)
+	output, err := exec.Command(command, args...).Output()
+	if err != nil {
+		return nil, err
+	}
+	res := make(map[string][]string)
+	lines := strings.Split(string(output), "\n")
+	for i, line := range lines {
+		if i == 0 || strings.TrimSpace(line) == "" {
+			continue // Skip header line
+		}
+		// Todo : better parsing
+		if strings.Contains(line, "DIR") || strings.Contains(line, "REG") {
+			res["LSOF/Files"] = append(res["LSOF/Files"], line)
+		} else if strings.Contains(line, "IPv4") || strings.Contains(line, "IPv6") {
+			res["LSOF/Network"] = append(res["LSOF/Network"], line)
+		} else {
+			res["LSOF/Other"] = append(res["LSOF/Other"], line)
+		}
+	}
+	return res, nil
+}
+
 var ctlCmd = &cobra.Command{
 	Use:   "ctl",
 	Short: "Registry Explorer",
@@ -216,16 +320,28 @@ var ctlCmd = &cobra.Command{
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := cmd.Context()
 		cmd.Printf("Connection to registry %s..., please wait\n", runtime.RegistryURL())
 		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
 			return err
 		}
 
+		u, err := url.Parse(runtime.DiscoveryURL())
+		if err != nil {
+			return err
+		}
+		discoveryConn, err := grpc.Dial(u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			return err
+		}
+		ctx = clientcontext.WithClientConn(ctx, discoveryConn)
+
 		app := tview.NewApplication()
 
 		m := &model{
 			reg: reg,
+			app: app,
 			types: []item{
 				{main: "Nodes", secondary: "Main Processes", shortcut: 'a', it: pb.ItemType_NODE},
 				{main: "Services", secondary: "Cells Services", shortcut: 'b', it: pb.ItemType_SERVICE},
@@ -240,6 +356,8 @@ var ctlCmd = &cobra.Command{
 				}},
 			},
 		}
+
+		m.br = broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx))
 
 		m.typesList = tview.NewList()
 		m.typesList.SetBorder(true).SetTitle("| Item Types |")
@@ -256,6 +374,10 @@ var ctlCmd = &cobra.Command{
 
 		m.filterText = tview.NewInputField()
 		m.filterText.SetBorder(true).SetTitle("| Search by name |")
+
+		m.buttonsPanel = tview.NewFlex()
+		m.buttonsPanel.SetBackgroundColor(tview.Styles.PrimitiveBackgroundColor)
+		m.buttonsPanel.SetTitle("| Actions |").SetBorder(true)
 
 		components := []tview.Primitive{
 			m.typesList, m.itemsList, m.filterText, m.metaView, m.edgesList,
@@ -286,7 +408,8 @@ var ctlCmd = &cobra.Command{
 				0, 3, false).
 			AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 				AddItem(m.metaView, 0, 1, false).
-				AddItem(m.edgesList, 0, 2, false),
+				AddItem(m.edgesList, 0, 2, false).
+				AddItem(m.buttonsPanel, 5, 0, false),
 				0, 2, false)
 
 		boxFocus := 0
@@ -321,32 +444,4 @@ var ctlCmd = &cobra.Command{
 func init() {
 	addExternalCmdRegistryFlags(ctlCmd.Flags())
 	RootCmd.AddCommand(ctlCmd)
-}
-
-func LsofLines(args []string) (map[string][]string, error) {
-	// Some systems (Arch, Debian) install lsof in /usr/bin and others (centos)
-	// install it in /usr/sbin, even though regular users can use it too. FreeBSD,
-	// on the other hand, puts it in /usr/local/sbin. So do not specify absolute path.
-	command := "lsof"
-	args = append([]string{"-w"}, args...)
-	output, err := exec.Command(command, args...).Output()
-	if err != nil {
-		return nil, err
-	}
-	res := make(map[string][]string)
-	lines := strings.Split(string(output), "\n")
-	for i, line := range lines {
-		if i == 0 || strings.TrimSpace(line) == "" {
-			continue // Skip header line
-		}
-		// Todo : better parsing
-		if strings.Contains(line, "DIR") || strings.Contains(line, "REG") {
-			res["LSOF/Files"] = append(res["LSOF/Files"], line)
-		} else if strings.Contains(line, "IPv4") || strings.Contains(line, "IPv6") {
-			res["LSOF/Network"] = append(res["LSOF/Network"], line)
-		} else {
-			res["LSOF/Other"] = append(res["LSOF/Other"], line)
-		}
-	}
-	return res, nil
 }

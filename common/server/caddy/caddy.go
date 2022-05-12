@@ -45,7 +45,6 @@ import (
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/server/caddy/hooks"
 	"github.com/pydio/cells/v4/common/server/caddy/mux"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -122,7 +121,6 @@ type Server struct {
 	serveDir        string
 	rootCtx         context.Context
 	restartRequired bool
-	watchDone       chan struct{}
 
 	caddyConfig []byte
 }
@@ -155,7 +153,6 @@ func New(ctx context.Context, dir string) (server.Server, error) {
 
 		rootCtx:     ctx,
 		serveDir:    dir,
-		watchDone:   make(chan struct{}, 1),
 		ListableMux: srvMUX,
 	}
 
@@ -167,8 +164,6 @@ func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, er error) {
 	if err != nil {
 		return nil, err
 	}
-
-	go s.watchReload()
 
 	if er := caddy.Load(s.caddyConfig, true); er != nil {
 		return nil, er
@@ -262,7 +257,6 @@ func (s *Server) Type() server.Type {
 }
 
 func (s *Server) Stop() error {
-	close(s.watchDone)
 	return caddy.Stop()
 }
 
@@ -292,29 +286,4 @@ func (s *Server) As(i interface{}) bool {
 		return true
 	}
 	return false
-}
-
-func (s *Server) watchReload() {
-	for {
-		select {
-		case <-hooks.RestartChan:
-			log.Logger(context.Background()).Debug("Received Proxy Restart Event")
-			s.restartRequired = true
-		case <-time.After(caddyRestartDebounce):
-			if s.restartRequired {
-				log.Logger(context.Background()).Debug("Restarting Proxy Now")
-				s.restartRequired = false
-				_, e := s.ComputeConfs()
-				if e == nil {
-					e = caddy.Load(s.caddyConfig, true)
-				}
-				if e != nil {
-					log.Logger(s.rootCtx).Error("Could not restart caddy", zap.Error(e))
-				}
-			}
-		case <-s.watchDone:
-			return
-		}
-	}
-
 }

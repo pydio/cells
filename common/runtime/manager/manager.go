@@ -28,6 +28,8 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -48,22 +50,31 @@ type Manager interface {
 	Init(ctx context.Context) error
 	ServeAll(...server.ServeOption)
 	StopAll()
+	SetServeOptions(...server.ServeOption)
 	WatchServicesConfigs()
+	WatchBroker(ctx context.Context, br broker.Broker) error
 }
 
 type manager struct {
-	ns     string
-	srvs   []server.Server
-	srcUrl string
-	reg    registry.Registry
-	root   registry.Item
+	ns         string
+	srcUrl     string
+	reg        registry.Registry
+	root       registry.Item
+	rootIsFork bool
+
+	serveOptions []server.ServeOption
+
+	servers  map[string]server.Server
+	services map[string]service.Service
 }
 
 func NewManager(reg registry.Registry, srcUrl string, namespace string) Manager {
 	m := &manager{
-		ns:     namespace,
-		srcUrl: srcUrl,
-		reg:    reg,
+		ns:       namespace,
+		srcUrl:   srcUrl,
+		reg:      reg,
+		servers:  make(map[string]server.Server),
+		services: make(map[string]service.Service),
 	}
 	// Detect a parent root
 	var current, parent registry.Item
@@ -84,6 +95,7 @@ func NewManager(reg registry.Registry, srcUrl string, namespace string) Manager 
 		if er := reg.Register(node); er == nil {
 			m.root = node
 			if parent != nil {
+				m.rootIsFork = true
 				_, _ = reg.RegisterEdge(parent.ID(), m.root.ID(), "Fork", map[string]string{})
 			}
 		}
@@ -111,6 +123,7 @@ func (m *manager) Init(ctx context.Context) error {
 		srvGRPC    server.Server
 		srvHTTP    server.Server
 		srvGeneric server.Server
+		srvs       []server.Server
 	)
 
 	for _, ss := range services {
@@ -118,32 +131,35 @@ func (m *manager) Init(ctx context.Context) error {
 		if !ss.As(&s) {
 			continue
 		}
-		if !runtime.IsRequired(s.Name(), s.Options().Tags...) {
+		opts := s.Options()
+		mustFork := opts.Fork && !runtime.IsFork()
+
+		if !runtime.IsRequired(s.Name(), opts.Tags...) {
 			continue
 		}
-		opts := s.Options()
 
 		// Now replace servicecontext with target registry
 		opts.Context = servicecontext.WithRegistry(opts.Context, m.reg)
 
-		if opts.Fork && !runtime.IsFork() {
+		if mustFork {
 			if !opts.AutoStart {
 				continue
 			}
 			srvFork := fork.NewServer(opts.Context, opts.Name)
-			m.srvs = append(m.srvs, srvFork)
+			srvs = append(srvs, srvFork)
 			opts.Server = srvFork
 			continue
 		}
 
-		// Call after checking Fork: do not register service definition in parent process
-		if er := m.reg.Register(s); er != nil {
+		if er := m.reg.Register(s, registry.WithEdgeTo(m.root.ID(), "Node", map[string]string{})); er != nil {
 			return er
+		} else {
+			m.services[s.ID()] = s
 		}
 
 		if opts.Server != nil {
 
-			m.srvs = append(m.srvs, opts.Server)
+			srvs = append(srvs, opts.Server)
 
 		} else if opts.ServerProvider != nil {
 
@@ -152,13 +168,13 @@ func (m *manager) Init(ctx context.Context) error {
 				return er
 			}
 			opts.Server = serv
-			m.srvs = append(m.srvs, opts.Server)
+			srvs = append(srvs, opts.Server)
 
 		} else {
 			if s.IsGRPC() {
 				if srvGRPC == nil {
 					srvGRPC = servergrpc.New(ctx)
-					m.srvs = append(m.srvs, srvGRPC)
+					srvs = append(srvs, srvGRPC)
 				}
 
 				opts.Server = srvGRPC
@@ -176,7 +192,7 @@ func (m *manager) Init(ctx context.Context) error {
 						srvHTTP = http.New(ctx)
 					}
 
-					m.srvs = append(m.srvs, srvHTTP)
+					srvs = append(srvs, srvHTTP)
 				}
 				opts.Server = srvHTTP
 			}
@@ -184,7 +200,7 @@ func (m *manager) Init(ctx context.Context) error {
 			if s.IsGeneric() {
 				if srvGeneric == nil {
 					srvGeneric = generic.New(ctx)
-					m.srvs = append(m.srvs, srvGeneric)
+					srvs = append(srvs, srvGeneric)
 				}
 				opts.Server = srvGeneric
 
@@ -201,7 +217,8 @@ func (m *manager) Init(ctx context.Context) error {
 	}
 
 	if m.root != nil {
-		for _, sr := range m.srvs {
+		for _, sr := range srvs {
+			m.servers[sr.ID()] = sr // Keep a ref to the actual object
 			_, _ = m.reg.RegisterEdge(m.root.ID(), sr.ID(), "Node", map[string]string{})
 		}
 	}
@@ -210,13 +227,19 @@ func (m *manager) Init(ctx context.Context) error {
 
 }
 
+func (m *manager) SetServeOptions(oo ...server.ServeOption) {
+	m.serveOptions = oo
+}
+
 func (m *manager) ServeAll(oo ...server.ServeOption) {
+	m.serveOptions = oo
 	opt := &server.ServeOptions{}
 	for _, o := range oo {
 		o(opt)
 	}
 	eg := &errgroup.Group{}
-	for _, srv := range m.srvs {
+	ss := m.ListServersWithStatus("stopped")
+	for _, srv := range ss {
 		func(srv server.Server) {
 			eg.Go(func() error {
 				return srv.Serve(oo...)
@@ -231,12 +254,36 @@ func (m *manager) ServeAll(oo ...server.ServeOption) {
 }
 
 func (m *manager) StopAll() {
-	for _, srv := range m.srvs {
-		fmt.Println("Stopping server", srv.Name())
+	for _, srv := range m.ListServersWithStatus("ready") {
 		if err := srv.Stop(); err != nil {
 			fmt.Println("Error stopping server ", err)
 		}
 	}
+	if m.rootIsFork {
+		fmt.Println("Deregistering fork Node")
+		_ = m.reg.Deregister(m.root)
+	}
+}
+
+func (m *manager) ListServersWithStatus(status string) (ss []server.Server) {
+	ii := m.reg.ListAdjacentItems(m.root, registry.WithType(pb.ItemType_SERVER), registry.WithMeta("status", status))
+	for _, i := range ii {
+		var srv server.Server
+		var rs registry.Server
+		if i.As(&srv) {
+			// Make sure that this server is managed by this manager
+			if _, ok := m.servers[srv.ID()]; ok {
+				ss = append(ss, srv)
+			}
+		} else if i.As(&rs) {
+			// Make sure that this server is managed by this manager
+			// and replace registry.Item with actual instance
+			if sr, ok := m.servers[rs.ID()]; ok {
+				ss = append(ss, sr)
+			}
+		}
+	}
+	return
 }
 
 func (m *manager) WatchServicesConfigs() {
@@ -245,15 +292,84 @@ func (m *manager) WatchServicesConfigs() {
 		return
 	}
 	for kv := range ch {
-		s, err := m.reg.Get(kv.Key)
-		if err != nil {
+		ss, err := m.reg.List(registry.WithName(kv.Key))
+		if err != nil || len(ss) == 0 {
 			continue
 		}
 		var rs service.Service
-		if s.As(&rs) && rs.Options().AutoRestart {
+		if ss[0].As(&rs) && rs.Options().AutoRestart {
 			rs.Stop()
 
 			rs.Start()
 		}
 	}
+}
+
+func (m *manager) WatchBroker(ctx context.Context, br broker.Broker) error {
+	_, er := br.Subscribe(ctx, common.TopicRegistryCommand, func(message broker.Message) error {
+		hh, _ := message.RawData()
+		cmd := hh["command"]
+		itemName := hh["itemName"]
+		s, err := m.reg.Get(itemName)
+		if err != nil {
+			if err == os.ErrNotExist {
+				return nil
+			}
+			return err
+		}
+
+		var src service.Service
+		var srv server.Server
+		var rsrc registry.Service
+		var rsrv registry.Server
+		if s.As(&src) || s.As(&srv) {
+			// In-memory object found
+		} else if s.As(&rsrc) {
+			if mem, ok := m.services[s.ID()]; ok {
+				src = mem
+			}
+		} else if s.As(&rsrv) {
+			if mem, ok := m.servers[s.ID()]; ok {
+				srv = mem
+			}
+		}
+		if src == nil && srv == nil {
+			return nil
+		}
+		fmt.Println("FOUND REAL OBJECT HERE", src, srv)
+
+		switch cmd {
+		case "start":
+			if src != nil {
+				return src.Start()
+			} else {
+				return srv.Serve(m.serveOptions...)
+			}
+		case "restart":
+			if src != nil {
+				if er := src.Stop(); er == nil {
+					return src.Start()
+				} else {
+					return er
+				}
+			} else {
+				if er := srv.Stop(); er == nil {
+					return srv.Serve(m.serveOptions...)
+				} else {
+					return er
+				}
+			}
+		case "stop":
+			if src != nil {
+				return src.Stop()
+			} else {
+				return srv.Stop()
+			}
+		}
+		return nil
+	})
+	if er != nil {
+		fmt.Println("Manager cannot watch broker: ", er)
+	}
+	return er
 }

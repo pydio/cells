@@ -140,7 +140,7 @@ func (s *service) updateRegister(status ...Status) {
 		return
 	}
 	var options []registry.RegisterOption
-	if s.opts.Server != nil {
+	if s.opts.Server != nil && (s.status == StatusServing || s.status == StatusReady) {
 		options = append(options, registry.WithEdgeTo(s.opts.Server.ID(), "Server", map[string]string{}))
 	}
 	if len(s.opts.Tags) > 0 {
@@ -165,13 +165,6 @@ func (s *service) Start() (er error) {
 	// now := time.Now()
 
 	defer func() {
-		/*
-			elapsed := time.Now().Sub(now)
-			if elapsed > 5*time.Second {
-				fmt.Println(s.Name(), "took ", elapsed, " to start")
-			}
-		*/
-
 		if e := recover(); e != nil {
 			log.Logger(s.opts.Context).Error("panic while starting service", zap.Any("p", e))
 			er = fmt.Errorf("panic while starting service %v", e)
@@ -192,45 +185,39 @@ func (s *service) Start() (er error) {
 		}
 	}
 
-	for _, after := range s.opts.AfterStart {
-		if err := after(s.opts.Context); err != nil {
-			return err
-		}
-	}
-
 	s.updateRegister(StatusServing)
 
-	wg := &sync.WaitGroup{}
-	wg.Add(len(s.opts.AfterServe) + 1)
-
-	s.opts.Server.AfterServe(func() error {
+	onServerReady := func() error {
+		w := &sync.WaitGroup{}
+		w.Add(len(s.opts.AfterServe) + 1)
 		go func() {
-			defer wg.Done()
+			defer w.Done()
 			if e := UpdateServiceVersion(s.opts); e != nil {
 				log.Logger(s.opts.Context).Error("UpdateServiceVersion failed", zap.Error(er))
 			}
 		}()
-		return nil
-	})
-
-	for _, after := range s.opts.AfterServe {
-		s.opts.Server.AfterServe(func() error {
+		for _, after := range s.opts.AfterServe {
 			go func(f func(context.Context) error) {
-				defer wg.Done()
+				defer w.Done()
 				if e := f(s.opts.Context); e != nil {
 					log.Logger(s.opts.Context).Error("AfterServe failed", zap.Error(er))
 				}
 			}(after)
-			return nil
-		})
+		}
+		w.Wait()
+		s.updateRegister(StatusReady)
+		return nil
 	}
 
-	s.updateRegister()
+	if s.opts.Server.Metadata()["status"] == "ready" {
+		if er := onServerReady(); er != nil {
+			fmt.Println("Error while manually triggering onServerReady", er.Error())
+		}
+	} else {
+		s.opts.Server.AfterServe(onServerReady)
+	}
 
-	go func() {
-		wg.Wait()
-		s.updateRegister(StatusReady)
-	}()
+	//s.updateRegister()
 
 	return nil
 }
@@ -239,27 +226,19 @@ func (s *service) Stop() error {
 
 	s.updateRegister(StatusStopping)
 
-	for _, before := range s.opts.BeforeStop {
-		if err := before(s.opts.Context); err != nil {
-			return err
-		}
-	}
-
 	if s.opts.serverStop != nil {
 		if err := s.opts.serverStop(); err != nil {
 			return err
 		}
 	}
 
-	for _, after := range s.opts.AfterStop {
-		if err := after(s.opts.Context); err != nil {
-			return err
-		}
-	}
-
 	if reg := servicecontext.GetRegistry(s.opts.Context); reg != nil {
+		// Deregister to make sure to break existing links
 		if err := reg.Deregister(s); err != nil {
 			log.Logger(s.opts.Context).Error("Could not deregister", zap.Error(err))
+		} else {
+			// Re-register as Stopped
+			s.updateRegister(StatusStopped)
 		}
 	} else {
 		log.Logger(s.opts.Context).Warn("no registry attached")

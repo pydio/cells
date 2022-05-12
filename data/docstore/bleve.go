@@ -86,7 +86,7 @@ func (s *BleveServer) CloseDAO(ctx context.Context) error {
 			return err
 		}
 	}
-	return s.BoltStore.Close()
+	return nil //s.BoltStore.Close() - DAO is in charge of closing
 
 }
 

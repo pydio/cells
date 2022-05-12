@@ -89,8 +89,9 @@ const (
 )
 
 type server struct {
-	s    RawServer
-	opts *Options
+	s      RawServer
+	opts   *Options
+	status string
 }
 
 func NewServer(ctx context.Context, s RawServer) Server {
@@ -100,6 +101,7 @@ func NewServer(ctx context.Context, s RawServer) Server {
 		opts: &Options{
 			Context: ctx,
 		},
+		status: "stopped",
 	}
 
 	if reg := servercontext.GetRegistry(ctx); reg != nil {
@@ -126,9 +128,14 @@ func (s *server) Serve(oo ...ServeOption) error {
 	if err != nil {
 		return err
 	}
+	s.status = "ready"
 
 	// Making sure we register the endpoints
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
+		// Update for status
+		if err := reg.Register(s); err != nil {
+			return err
+		}
 		for _, item := range ii {
 			if err := reg.Register(item); err != nil {
 				return err
@@ -155,10 +162,13 @@ func (s *server) Stop() error {
 		return err
 	}
 
-	// Making sure we deregister the endpoints
+	// We deregister the endpoints to clear links and re-register as stopped
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
 		if er := reg.Deregister(s); er != nil {
 			return er
+		} else {
+			s.status = "stopped"
+			_ = reg.Register(s)
 		}
 	}
 
@@ -182,7 +192,12 @@ func (s *server) Type() Type {
 }
 
 func (s *server) Metadata() map[string]string {
-	return s.s.Metadata()
+	meta := make(map[string]string)
+	for k, v := range s.s.Metadata() {
+		meta[k] = v
+	}
+	meta["status"] = s.status
+	return meta
 }
 
 func (s *server) BeforeServe(f func() error) {
