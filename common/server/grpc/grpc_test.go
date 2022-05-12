@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	mock2 "github.com/pydio/cells/v4/common/config/mock"
+	"github.com/pydio/cells/v4/common/server"
 	"time"
 
 	"log"
@@ -85,14 +86,15 @@ func createApp1(reg registry.Registry) *bufconn.Listener {
 		}),
 	)
 
-	srv.BeforeServe(svcHello.Start)
-	srv.BeforeStop(svcHello.Stop)
-
-	srv.BeforeServe(svcRegistry.Start)
-	srv.BeforeStop(svcRegistry.Stop)
+	opts := []server.ServeOption{
+		server.WithBeforeServe(svcRegistry.Start),
+		server.WithBeforeServe(svcHello.Start),
+		server.WithBeforeStop(svcHello.Stop),
+		server.WithBeforeStop(svcRegistry.Stop),
+	}
 
 	go func() {
-		if err := srv.Serve(); err != nil {
+		if err := srv.Serve(opts...); err != nil {
 			log.Fatal(err)
 		}
 	}()
@@ -119,11 +121,13 @@ func createApp2(reg registry.Registry) {
 		}),
 	)
 
-	srv.BeforeServe(svcHello.Start)
-	srv.BeforeStop(svcHello.Stop)
+	opts := []server.ServeOption{
+		server.WithBeforeServe(svcHello.Start),
+		server.WithBeforeStop(svcHello.Stop),
+	}
 
 	go func() {
-		if err := srv.Serve(); err != nil {
+		if err := srv.Serve(opts...); err != nil {
 			log.Fatal(err)
 		}
 	}()
