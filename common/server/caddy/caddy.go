@@ -24,19 +24,19 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"go.uber.org/zap"
 	"html/template"
 	"net"
 	"net/http/pprof"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	caddy "github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
@@ -50,8 +50,7 @@ import (
 )
 
 const (
-	caddyRestartDebounce = 5 * time.Second
-	caddytemplate        = `
+	caddytemplate = `
 {
   auto_https disable_redirects
   admin off
@@ -111,6 +110,16 @@ const (
 {{end}}
 	 `
 )
+
+func init() {
+	server.DefaultURLMux().Register("caddy", &Opener{})
+}
+
+type Opener struct{}
+
+func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
+	return New(ctx, "")
+}
 
 type Server struct {
 	*server.ListableMux

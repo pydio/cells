@@ -54,6 +54,7 @@ type ServiceOptions struct {
 
 	Server         server.Server  `json:"-"`
 	ServerProvider ServerProvider `json:"-"`
+	customScheme   string
 	serverType     server.Type
 	serverStart    func() error
 	serverStop     func() error
@@ -140,10 +141,9 @@ func WithServer(s server.Server) ServiceOption {
 	}
 }
 
-// WithServerProvider passes a callback producing a new server.Server
-func WithServerProvider(provider ServerProvider) ServiceOption {
+func WithServerScheme(scheme string) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.ServerProvider = provider
+		o.customScheme = scheme
 	}
 }
 

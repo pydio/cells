@@ -36,12 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/server/caddy"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"github.com/pydio/cells/v4/common/server/fork"
-	"github.com/pydio/cells/v4/common/server/generic"
-	servergrpc "github.com/pydio/cells/v4/common/server/grpc"
-	"github.com/pydio/cells/v4/common/server/http"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
@@ -119,12 +114,7 @@ func (m *manager) Init(ctx context.Context) error {
 		return err
 	}
 
-	var (
-		srvGRPC    server.Server
-		srvHTTP    server.Server
-		srvGeneric server.Server
-		srvs       []server.Server
-	)
+	byScheme := map[string]server.Server{}
 
 	for _, ss := range services {
 		var s service.Service
@@ -138,16 +128,20 @@ func (m *manager) Init(ctx context.Context) error {
 			continue
 		}
 
-		// Now replace servicecontext with target registry
+		// Replace service context with target registry
 		opts.Context = servicecontext.WithRegistry(opts.Context, m.reg)
+		scheme := s.ServerScheme()
 
 		if mustFork {
 			if !opts.AutoStart {
 				continue
 			}
-			srvFork := fork.NewServer(opts.Context, opts.Name)
-			srvs = append(srvs, srvFork)
-			opts.Server = srvFork
+			srv, e := server.OpenServer(opts.Context, scheme)
+			if e != nil {
+				return e
+			}
+			byScheme[scheme] = srv
+			opts.Server = srv
 			continue
 		}
 
@@ -157,54 +151,13 @@ func (m *manager) Init(ctx context.Context) error {
 			m.services[s.ID()] = s
 		}
 
-		if opts.Server != nil {
-
-			srvs = append(srvs, opts.Server)
-
-		} else if opts.ServerProvider != nil {
-
-			serv, er := opts.ServerProvider(ctx)
-			if er != nil {
-				return er
-			}
-			opts.Server = serv
-			srvs = append(srvs, opts.Server)
-
+		if sr, o := byScheme[scheme]; o {
+			opts.Server = sr
+		} else if srv, er := server.OpenServer(opts.Context, scheme); er == nil {
+			byScheme[scheme] = srv
+			opts.Server = srv
 		} else {
-			if s.IsGRPC() {
-				if srvGRPC == nil {
-					srvGRPC = servergrpc.New(ctx)
-					srvs = append(srvs, srvGRPC)
-				}
-
-				opts.Server = srvGRPC
-			}
-
-			if s.IsREST() {
-				if srvHTTP == nil {
-					if runtime.HttpServerType() == runtime.HttpServerCaddy {
-						if s, e := caddy.New(opts.Context, ""); e != nil {
-							return e
-						} else {
-							srvHTTP = s
-						}
-					} else {
-						srvHTTP = http.New(ctx)
-					}
-
-					srvs = append(srvs, srvHTTP)
-				}
-				opts.Server = srvHTTP
-			}
-
-			if s.IsGeneric() {
-				if srvGeneric == nil {
-					srvGeneric = generic.New(ctx)
-					srvs = append(srvs, srvGeneric)
-				}
-				opts.Server = srvGeneric
-
-			}
+			return er
 		}
 
 		opts.Server.BeforeServe(s.Start)
@@ -217,7 +170,7 @@ func (m *manager) Init(ctx context.Context) error {
 	}
 
 	if m.root != nil {
-		for _, sr := range srvs {
+		for _, sr := range byScheme {
 			m.servers[sr.ID()] = sr // Keep a ref to the actual object
 			_, _ = m.reg.RegisterEdge(m.root.ID(), sr.ID(), "Node", map[string]string{})
 		}

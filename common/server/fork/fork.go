@@ -22,6 +22,7 @@ package fork
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/registry"
@@ -30,6 +31,17 @@ import (
 	"github.com/pydio/cells/v4/common/utils/fork"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
+
+func init() {
+	server.DefaultURLMux().Register("fork", &Opener{})
+}
+
+type Opener struct{}
+
+func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
+	fStart := u.Query().Get("start")
+	return NewServer(ctx, fStart), nil
+}
 
 type Server struct {
 	id   string

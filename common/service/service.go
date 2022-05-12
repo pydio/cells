@@ -24,6 +24,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
 	"sync"
 
 	"go.uber.org/zap"
@@ -59,9 +60,7 @@ type Service interface {
 	Name() string
 	Start() error
 	Stop() error
-	IsGRPC() bool
-	IsREST() bool
-	IsGeneric() bool
+	ServerScheme() string
 	As(i interface{}) bool
 }
 
@@ -261,14 +260,23 @@ func (s *service) Version() string {
 func (s *service) Tags() []string {
 	return s.opts.Tags
 }
-func (s *service) IsGeneric() bool {
-	return s.opts.serverType == server.TypeGeneric
-}
-func (s *service) IsGRPC() bool {
-	return s.opts.serverType == server.TypeGrpc
-}
-func (s *service) IsREST() bool {
-	return s.opts.serverType == server.TypeHttp
+
+func (s *service) ServerScheme() string {
+	if s.opts.Fork && !runtime.IsFork() {
+		return "fork://?start=" + s.opts.Name
+	} else if s.opts.customScheme != "" {
+		return s.opts.customScheme
+	}
+	switch s.opts.serverType {
+	case server.TypeGeneric:
+		return "generic://"
+	case server.TypeGrpc:
+		return "grpc://"
+	case server.TypeHttp:
+		return runtime.HttpServerType() + "://"
+	default:
+		return ""
+	}
 }
 
 func (s *service) MarshalJSON() ([]byte, error) {

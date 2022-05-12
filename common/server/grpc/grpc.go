@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"net/url"
 	"sync"
 
 	"go.uber.org/zap"
@@ -42,6 +43,17 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
+
+func init() {
+	server.DefaultURLMux().Register("grpc", &Opener{})
+}
+
+type Opener struct{}
+
+func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
+	// TODO : transform url parameters to options?
+	return New(ctx), nil
+}
 
 type Server struct {
 	id   string
