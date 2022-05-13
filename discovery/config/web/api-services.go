@@ -108,8 +108,15 @@ func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) {
 		service.RestError500(req, resp, e)
 		return
 	}
-
-	ii, e := pluginsReg.List(util.ToOptions(input.Options)...)
+	opts := util.ToOptions(input.Options)
+	if input.Options == nil || len(input.Options.Types) == 0 {
+		for _, t := range rpb.ItemType_value {
+			if t > 0 {
+				opts = append(opts, registry.WithType(rpb.ItemType(t)))
+			}
+		}
+	}
+	ii, e := pluginsReg.List(opts...)
 	if e != nil {
 		service.RestError500(req, resp, e)
 		return
@@ -118,7 +125,15 @@ func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) {
 	for _, i := range ii {
 		item := util.ToProtoItem(i)
 		if input.AdjacentsOptions != nil {
-			aa := pluginsReg.ListAdjacentItems(i, util.ToOptions(input.AdjacentsOptions)...)
+			adjOpts := util.ToOptions(input.AdjacentsOptions)
+			if len(input.AdjacentsOptions.Types) == 0 {
+				for _, t := range rpb.ItemType_value {
+					if t > 0 {
+						adjOpts = append(adjOpts, registry.WithType(rpb.ItemType(t)))
+					}
+				}
+			}
+			aa := pluginsReg.ListAdjacentItems(i, adjOpts...)
 			item.Adjacents = util.ToProtoItems(aa)
 		}
 		response.Items = append(response.Items, item)
