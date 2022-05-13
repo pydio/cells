@@ -56,7 +56,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry,
 	}
 	var cli *grpc.ClientConn
 	var err error
-	if u.Query().Has("timeout") {
+	if u.Query().Get("timeout") != "" {
 		if d, e := time.ParseDuration(u.Query().Get("timeout")); e != nil {
 			return nil, e
 		} else {
