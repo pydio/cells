@@ -205,7 +205,7 @@ let StandardLayout = createReactClass({
             }
         };
 
-        const {showSearchForm, uniqueNode, skipDisplayToolbar, bgStyle, emptyUser} = this.props;
+        const {showSearchForm, uniqueNode, skipDisplayToolbar, bgStyle, emptyUser, pydio} = this.props;
 
         if(emptyUser){
             return <div className="vertical_fit vertical_layout" style={bgStyle}/>;
@@ -226,7 +226,6 @@ let StandardLayout = createReactClass({
                     <ConfigLogo pydio={this.props.pydio} style={{height:50}}/>
                     <div id="workspace_toolbar" style={{display:'flex', flex: 1, overflow:'hidden'}}>
                         <Breadcrumb {...this.props} rootStyle={{padding: '0 14px', height: 36, lineHeight: '36px', maxWidth:null}}/>
-                        {showSearchForm && <SearchForm {...this.props} uniqueSearchScope="ws" style={{marginTop: 5}}/>}
                     </div>
                     <div style={{position:'relative'}}>
                         <div id="main_toolbar" style={{display:'flex', padding: '0 8px'}}>
@@ -246,6 +245,7 @@ let StandardLayout = createReactClass({
                             <Toolbar {...this.props} id="main-toolbar" toolbars={toolbars} groupOtherList={uniqueNode ? [] : ["change_main", "more", "change", "remote"]} renderingType="icon-font" buttonStyle={styles.buttonsStyle}/>
                         </div>
                     </div>
+                    {showSearchForm && pydio.user && <SearchForm {...this.props} uniqueSearchScope={pydio.user.getActiveRepositoryObject().getSlug()} style={{marginTop: 2, marginRight: 3}}/>}
                 </Paper>
                 {this.props.children}
                 <span className="context-menu"><ContextMenu pydio={this.props.pydio}/></span>
