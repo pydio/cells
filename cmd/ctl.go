@@ -235,6 +235,11 @@ func (m *model) loadEdges(source registry.Item, oo ...registry.Option) {
 		m.updateList(m.edgesList, m.edges, m.currentEdge)
 		return
 	}
+	for n, t := range pb.ItemType_value {
+		if n != "EDGE" && n != "ALL" {
+			oo = append(oo, registry.WithType(pb.ItemType(t)))
+		}
+	}
 	//	m.currentEdge = 0
 	for _, i := range m.reg.ListAdjacentItems(source, oo...) {
 		eType := util.DetectType(i)
