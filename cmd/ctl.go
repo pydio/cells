@@ -205,6 +205,8 @@ func (m *model) loadItems(preselect registry.Item, oo ...registry.Option) {
 				secondary = "Process ID: " + no.Metadata()[server.NodeMetaPID]
 			} else if gen, ok := i.(registry.Generic); ok && gen.Type() == pb.ItemType_TAG {
 				name = gen.ID()
+			} else if i.Name() == "fork" {
+				name += " " + i.Metadata()["forkStartTag"]
 			}
 			if status, ok := i.Metadata()["status"]; ok {
 				name += " - " + status
