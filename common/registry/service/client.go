@@ -183,7 +183,7 @@ func (s *serviceRegistry) Get(id string, opts ...registry.Option) (registry.Item
 	rsp, err := s.client.Get(s.opts.Context, &pb.GetRequest{
 		Id: id,
 		Options: &pb.Options{
-			Type: options.Type,
+			Types: options.Types,
 		},
 	}, s.callOpts()...)
 	if err != nil {
@@ -200,7 +200,7 @@ func (s *serviceRegistry) List(opts ...registry.Option) ([]registry.Item, error)
 	}
 	rsp, err := s.client.List(s.opts.Context, &pb.ListRequest{
 		Options: &pb.Options{
-			Type: options.Type,
+			Types: options.Types,
 		},
 	}, s.callOpts()...)
 	if err != nil {
@@ -210,7 +210,14 @@ func (s *serviceRegistry) List(opts ...registry.Option) ([]registry.Item, error)
 	items := make([]registry.Item, 0, len(rsp.Items))
 	for _, item := range rsp.Items {
 		casted := util.ToItem(item)
-		if options.Filter != nil && !options.Filter(casted) {
+		accept := true
+		for _, filter := range options.Filters {
+			if !filter(casted) {
+				accept = false
+				break
+			}
+		}
+		if !accept {
 			continue
 		}
 		items = append(items, casted)
@@ -226,9 +233,12 @@ func (s *serviceRegistry) Watch(opts ...registry.Option) (registry.Watcher, erro
 	}
 
 	if !s.hasStream {
-
 		// This is a first watch, setup a stream - opts are empty
-		stream, err := s.client.Watch(context.Background(), &pb.WatchRequest{}, s.callOpts()...)
+		stream, err := s.client.Watch(context.Background(), &pb.WatchRequest{
+			Options: &pb.Options{
+				Types: []pb.ItemType{pb.ItemType_SERVER, pb.ItemType_SERVICE, pb.ItemType_EDGE},
+			},
+		}, s.callOpts()...)
 		if err != nil {
 			return nil, err
 		}
@@ -236,7 +246,6 @@ func (s *serviceRegistry) Watch(opts ...registry.Option) (registry.Watcher, erro
 		return newStreamWatcher(stream), nil
 
 	} else {
-
 		events := make(chan registry.Result)
 		s.listeners = append(s.listeners, events)
 		closeFunc := func() {
@@ -249,7 +258,6 @@ func (s *serviceRegistry) Watch(opts ...registry.Option) (registry.Watcher, erro
 			s.listeners = newL
 		}
 		return newChanWatcher(s.opts.Context, events, closeFunc, options), nil
-
 	}
 }
 

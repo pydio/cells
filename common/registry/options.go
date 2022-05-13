@@ -37,9 +37,9 @@ type Option func(*Options) error
 type Options struct {
 	Context context.Context
 	Action  pb.ActionType
-	Name    string
-	Type    pb.ItemType
-	Filter  func(item Item) bool
+	Names   []string
+	Types   []pb.ItemType
+	Filters []func(item Item) bool
 }
 
 func WithAction(a pb.ActionType) Option {
@@ -51,28 +51,28 @@ func WithAction(a pb.ActionType) Option {
 
 func WithName(n string) Option {
 	return func(o *Options) error {
-		o.Name = n
+		o.Names = append(o.Names, n)
 		return nil
 	}
 }
 
 func WithType(t pb.ItemType) Option {
 	return func(o *Options) error {
-		o.Type = t
+		o.Types = append(o.Types, t)
 		return nil
 	}
 }
 
 func WithFilter(f func(Item) bool) Option {
 	return func(o *Options) error {
-		o.Filter = f
+		o.Filters = append(o.Filters, f)
 		return nil
 	}
 }
 
 func WithMeta(name, value string) Option {
-	return func(options *Options) error {
-		options.Filter = func(item Item) bool {
+	return func(o *Options) error {
+		o.Filters = append(o.Filters, func(item Item) bool {
 			mm := item.Metadata()
 			val, has := mm[name]
 			if !has {
@@ -82,7 +82,7 @@ func WithMeta(name, value string) Option {
 				return false
 			}
 			return true
-		}
+		})
 		return nil
 	}
 }

@@ -77,6 +77,7 @@ require (
 	github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef
 	github.com/pydio/melody v0.0.0-20190928133520-4271c6513fb6
 	github.com/pydio/pydio-sdk-go v0.0.0-20190116153840-23ce5c39e65c
+	github.com/r3labs/diff/v3 v3.0.0 // indirect
 	github.com/rivo/tview v0.0.0-20220307222120-9994674d60a8
 	github.com/rjeczalik/notify v0.9.2
 	github.com/robertkrimen/otto v0.0.0-20211024170158-b87d35c0b86f
@@ -101,6 +102,7 @@ require (
 	github.com/tomwright/dasel v1.24.1
 	github.com/twmb/murmur3 v1.1.6 // indirect
 	github.com/uber-go/tally/v4 v4.1.1
+	github.com/wI2L/jsondiff v0.2.0 // indirect
 	github.com/yudai/gojsondiff v1.0.0
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	github.com/yudai/pp v2.0.1+incompatible // indirect

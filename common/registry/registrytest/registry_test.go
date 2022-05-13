@@ -91,13 +91,17 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 				log.Fatal(err)
 			}
 
+			count := 0
 			for {
 				res, err := w.Next()
 				if err != nil {
 					log.Fatal(err)
 				}
 
-				fmt.Println("Number of Items received ? ", len(res.Items()))
+				// fmt.Println("Received something ? ", res)
+				count = count + len(res.Items())
+
+				fmt.Println("Number of Items received ? ", count)
 			}
 		}()
 
@@ -112,11 +116,20 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 			))
 		}
 
-		<-time.After(200 * time.Millisecond)
+		<-time.After(5 * time.Second)
+
+		for i := 0; i < numServices; i++ {
+			services = append(services, service.NewService(
+				service.Name(fmt.Sprintf("test %d", i)),
+				service.Context(ctx),
+			))
+		}
+
+		<-time.After(5 * time.Second)
 
 		afterCreateServices, err := m.List()
 		So(err, ShouldBeNil)
-		So(len(afterCreateServices), ShouldEqual, numServices)
+		So(len(afterCreateServices), ShouldEqual, numServices*2)
 
 		for _, s := range services {
 			var svc service.Service

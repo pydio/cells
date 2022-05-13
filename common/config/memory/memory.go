@@ -5,8 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/r3labs/diff/v3"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -46,7 +49,9 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 }
 
 type memory struct {
-	v         configx.Values
+	v    configx.Values
+	snap configx.Values
+
 	opts      []configx.Option
 	receivers []*receiver
 
@@ -62,10 +67,15 @@ func New(opts ...configx.Option) config.Store {
 		opts:    opts,
 		RWMutex: &sync.RWMutex{},
 		reset:   make(chan bool),
-		timer:   time.NewTimer(100 * time.Millisecond),
+		timer:   time.NewTimer(2 * time.Second),
 	}
 
+	// TODO - change this
+	// We're considering that non comparable items cannot be watched
+	// fmt.Println(len(opts))
+	// if len(opts) > 0 {
 	go m.flush()
+	//}
 
 	return m
 }
@@ -74,17 +84,31 @@ func (m *memory) flush() {
 	for {
 		select {
 		case <-m.reset:
-			m.timer.Reset(100 * time.Millisecond)
+			m.timer.Reset(2 * time.Second)
 		case <-m.timer.C:
-			var updated []*receiver
-
-			for _, r := range m.receivers {
-				if err := r.call(); err == nil {
-					updated = append(updated, r)
-				}
+			patch, err := diff.Diff(m.snap, m.v)
+			if err != nil {
+				continue
 			}
 
-			m.receivers = updated
+			for _, op := range patch {
+				var updated []*receiver
+
+				for _, r := range m.receivers {
+					if err := r.call(op); err == nil {
+						updated = append(updated, r)
+					}
+				}
+
+				m.receivers = updated
+			}
+
+			snap := configx.New(m.opts...)
+			if err := snap.Set(m.v.Val().Get()); err != nil {
+				continue
+			}
+
+			m.snap = snap
 		}
 	}
 }
@@ -126,8 +150,8 @@ func (m *memory) Save(string, string) error {
 func (m *memory) Watch(path ...string) (configx.Receiver, error) {
 	r := &receiver{
 		closed: false,
-		ch:     make(chan struct{}),
-		v:      m.Val(path...),
+		ch:     make(chan configx.Values),
+		path:   path,
 		m:      m,
 	}
 
@@ -138,31 +162,36 @@ func (m *memory) Watch(path ...string) (configx.Receiver, error) {
 
 type receiver struct {
 	closed bool
-	ch     chan struct{}
-	v      configx.Values
+	ch     chan configx.Values
+
+	path []string
 
 	m *memory
 }
 
-func (r *receiver) call() error {
+func (r *receiver) call(op diff.Change) error {
 	if r.closed {
 		return errClosedChannel
 	}
-	r.ch <- struct{}{}
+
+	if strings.Join(r.path, "") == "" || strings.HasPrefix(strings.Join(r.path, "/"), strings.Join(op.Path, "/")) {
+		c := configx.New(r.m.opts...)
+		if err := c.Val(op.Path...).Set(op.To); err != nil {
+			return err
+		}
+
+		r.ch <- c.Val("v")
+	}
 	return nil
 }
 
 func (r *receiver) Next() (configx.Values, error) {
 	select {
-	case <-r.ch:
+	case c := <-r.ch:
 		r.m.RLock()
 		defer r.m.RUnlock()
-		cp := configx.New(r.m.opts...)
-		if err := cp.Set(r.v.Val().Get()); err != nil {
-			return nil, err
-		}
 
-		return cp, nil
+		return c, nil
 	}
 
 	return r.Next()
