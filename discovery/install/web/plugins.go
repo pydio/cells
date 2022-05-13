@@ -55,6 +55,13 @@ func init() {
 
 				return nil
 			}),
+			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
+				if m, ok := mux.(server.PatternsProvider); ok {
+					m.DeregisterPattern("/res/")
+					m.DeregisterPattern("/")
+				}
+				return nil
+			}),
 		)
 	})
 }

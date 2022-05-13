@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"net/url"
 	"strings"
 	"time"
 
@@ -23,6 +24,17 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
+
+func init() {
+	server.DefaultURLMux().Register("grpc+public", &Opener{})
+}
+
+type Opener struct{}
+
+func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
+	tls := u.Query().Get("secure") == "true"
+	return createServer(ctx, tls)
+}
 
 func init() {
 
@@ -69,7 +81,7 @@ func init() {
 		if hasClear {
 			clearOpts = append(clearOpts,
 				service.Context(ctx),
-				service.WithServerProvider(createServerProvider(false)),
+				service.WithServerScheme("grpc+public://"),
 				service.WithGRPC(func(runtimeCtx context.Context, srv *grpc.Server) error {
 					handlersRegister(runtimeCtx, srv, true)
 					return nil
@@ -80,7 +92,7 @@ func init() {
 		if hasTls {
 			tlsOpts = append(tlsOpts,
 				service.Context(ctx),
-				service.WithServerProvider(createServerProvider(true)),
+				service.WithServerScheme("grpc+public://?secure=true"),
 				service.WithGRPC(func(runtimeCtx context.Context, srv *grpc.Server) error {
 					handlersRegister(runtimeCtx, srv, false)
 					return nil
@@ -92,55 +104,53 @@ func init() {
 
 }
 
-func createServerProvider(tls bool) service.ServerProvider {
-	return func(ctx context.Context) (server.Server, error) {
-		jwtModifier := createJwtCtxModifier(ctx)
-		grpcOptions := []grpc.ServerOption{
-			grpc.ChainUnaryInterceptor(
-				servicecontext.ContextUnaryServerInterceptor(servicecontext.SpanIncomingContext),
-				servicecontext.MetricsUnaryServerInterceptor(),
-				servicecontext.ContextUnaryServerInterceptor(servicecontext.MetaIncomingContext),
-				servicecontext.ContextUnaryServerInterceptor(jwtModifier),
-				servicecontext.ContextUnaryServerInterceptor(grpcMetaCtxModifier),
-			),
-			grpc.ChainStreamInterceptor(
-				servicecontext.ContextStreamServerInterceptor(servicecontext.SpanIncomingContext),
-				servicecontext.MetricsStreamServerInterceptor(),
-				servicecontext.ContextStreamServerInterceptor(servicecontext.MetaIncomingContext),
-				servicecontext.ContextStreamServerInterceptor(jwtModifier),
-				servicecontext.ContextStreamServerInterceptor(grpcMetaCtxModifier),
-			),
-		}
-		if tls {
-			localConfig := &install.ProxyConfig{
-				Binds:     []string{"0.0.0.0"},
-				TLSConfig: &install.ProxyConfig_SelfSigned{SelfSigned: &install.TLSSelfSigned{}},
-			}
-			tlsConfig, e := providers.LoadTLSServerConfig(localConfig)
-			if e != nil {
-				return nil, e
-			}
-			grpcOptions = append(grpcOptions, grpc.Creds(credentials.NewTLS(tlsConfig)))
-		}
-
-		srv := grpc.NewServer(grpcOptions...)
-		addr := ":0" // Will pick a random port
-		if !tls {
-			if port := runtime.GrpcExternalPort(); port != "" {
-				addr = ":" + port
-			}
-			logCtx := servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpcClear)
-			log.Logger(logCtx).Info("Configuring HTTP only gRPC gateway. Will be accessed directly through " + addr)
-		} else {
-			logCtx := servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpc)
-			log.Logger(logCtx).Info("Configuring self-signed configuration for gRPC gateway to allow full TLS chain.")
-		}
-
-		if tls {
-			return grpc2.NewWithServer(ctx, "grpcs", srv, addr), nil
-		}
-		return grpc2.NewWithServer(ctx, "grpc", srv, addr), nil
+func createServer(ctx context.Context, tls bool) (server.Server, error) {
+	jwtModifier := createJwtCtxModifier(ctx)
+	grpcOptions := []grpc.ServerOption{
+		grpc.ChainUnaryInterceptor(
+			servicecontext.ContextUnaryServerInterceptor(servicecontext.SpanIncomingContext),
+			servicecontext.MetricsUnaryServerInterceptor(),
+			servicecontext.ContextUnaryServerInterceptor(servicecontext.MetaIncomingContext),
+			servicecontext.ContextUnaryServerInterceptor(jwtModifier),
+			servicecontext.ContextUnaryServerInterceptor(grpcMetaCtxModifier),
+		),
+		grpc.ChainStreamInterceptor(
+			servicecontext.ContextStreamServerInterceptor(servicecontext.SpanIncomingContext),
+			servicecontext.MetricsStreamServerInterceptor(),
+			servicecontext.ContextStreamServerInterceptor(servicecontext.MetaIncomingContext),
+			servicecontext.ContextStreamServerInterceptor(jwtModifier),
+			servicecontext.ContextStreamServerInterceptor(grpcMetaCtxModifier),
+		),
 	}
+	if tls {
+		localConfig := &install.ProxyConfig{
+			Binds:     []string{"0.0.0.0"},
+			TLSConfig: &install.ProxyConfig_SelfSigned{SelfSigned: &install.TLSSelfSigned{}},
+		}
+		tlsConfig, e := providers.LoadTLSServerConfig(localConfig)
+		if e != nil {
+			return nil, e
+		}
+		grpcOptions = append(grpcOptions, grpc.Creds(credentials.NewTLS(tlsConfig)))
+	}
+
+	srv := grpc.NewServer(grpcOptions...)
+	addr := ":0" // Will pick a random port
+	if !tls {
+		if port := runtime.GrpcExternalPort(); port != "" {
+			addr = ":" + port
+		}
+		logCtx := servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpcClear)
+		log.Logger(logCtx).Info("Configuring HTTP only gRPC gateway. Will be accessed directly through " + addr)
+	} else {
+		logCtx := servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpc)
+		log.Logger(logCtx).Info("Configuring self-signed configuration for gRPC gateway to allow full TLS chain.")
+	}
+
+	if tls {
+		return grpc2.NewWithServer(ctx, "grpcs", srv, addr), nil
+	}
+	return grpc2.NewWithServer(ctx, "grpc", srv, addr), nil
 }
 
 // jwtCtxModifier extracts x-pydio-bearer metadata to validate authentication

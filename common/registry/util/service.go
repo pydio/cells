@@ -82,16 +82,14 @@ func (s *service) Tags() []string {
 	return s.s.Tags
 }
 
-func (s *service) IsGRPC() bool {
-	return strings.HasPrefix(s.i.Name, common.ServiceGrpcNamespace_)
-}
-
-func (s *service) IsREST() bool {
-	return strings.HasPrefix(s.i.Name, common.ServiceRestNamespace_)
-}
-
-func (s *service) IsGeneric() bool {
-	return !s.IsGRPC() && !s.IsREST()
+func (s *service) ServerScheme() string {
+	if strings.HasPrefix(s.i.Name, common.ServiceGrpcNamespace_) {
+		return "grpc://"
+	} else if strings.HasPrefix(s.i.Name, common.ServiceRestNamespace_) {
+		return "http://"
+	} else {
+		return "generic://"
+	}
 }
 
 func (s *service) As(i interface{}) bool {

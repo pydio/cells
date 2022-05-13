@@ -47,36 +47,8 @@ type RawServer interface {
 type Server interface {
 	CoreServer
 	Serve(...ServeOption) error
-	BeforeServe(func() error)
-	AfterServe(func() error)
-	BeforeStop(func() error)
-	AfterStop(func() error)
-}
-
-type ServeOptions struct {
-	HttpBindAddress string
-	GrpcBindAddress string
-	ErrorCallback   func(error)
-}
-
-type ServeOption func(options *ServeOptions)
-
-func WithErrorCallback(cb func(err error)) ServeOption {
-	return func(options *ServeOptions) {
-		options.ErrorCallback = cb
-	}
-}
-
-func WithGrpcBindAddress(a string) ServeOption {
-	return func(o *ServeOptions) {
-		o.GrpcBindAddress = a
-	}
-}
-
-func WithHttpBindAddress(a string) ServeOption {
-	return func(o *ServeOptions) {
-		o.HttpBindAddress = a
-	}
+	RegisterBeforeStop(func() error)
+	RegisterAfterStop(func() error)
 }
 
 type Type int8
@@ -89,8 +61,11 @@ const (
 )
 
 type server struct {
-	s    RawServer
-	opts *Options
+	s           RawServer
+	opts        *Options
+	status      string
+	beforeStops []func() error
+	afterStops  []func() error
 }
 
 func NewServer(ctx context.Context, s RawServer) Server {
@@ -100,6 +75,7 @@ func NewServer(ctx context.Context, s RawServer) Server {
 		opts: &Options{
 			Context: ctx,
 		},
+		status: "stopped",
 	}
 
 	if reg := servercontext.GetRegistry(ctx); reg != nil {
@@ -118,17 +94,34 @@ func (s *server) Serve(oo ...ServeOption) error {
 		o(opt)
 	}
 
-	if err := s.doBeforeServe(); err != nil {
-		return err
+	// Register Stop handlers to this server
+	for _, a := range opt.BeforeStop {
+		s.beforeStops = append(s.beforeStops, a)
+	}
+	for _, a := range opt.AfterStop {
+		s.afterStops = append(s.afterStops, a)
+	}
+
+	var g errgroup.Group
+	for _, h := range opt.BeforeServe {
+		g.Go(h)
+	}
+	if er := g.Wait(); er != nil {
+		return er
 	}
 
 	ii, err := s.s.RawServe(opt)
 	if err != nil {
 		return err
 	}
+	s.status = "ready"
 
 	// Making sure we register the endpoints
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
+		// Update for status
+		if err := reg.Register(s); err != nil {
+			return err
+		}
 		for _, item := range ii {
 			if err := reg.Register(item); err != nil {
 				return err
@@ -139,8 +132,11 @@ func (s *server) Serve(oo ...ServeOption) error {
 		}
 	}
 
-	if err := s.doAfterServe(); err != nil {
-		return err
+	// Apply AfterServe non-blocking
+	for _, h := range opt.AfterServe {
+		if er := h(); er != nil {
+			fmt.Println("There was an error while applying an AfterServe", er)
+		}
 	}
 
 	return nil
@@ -155,10 +151,13 @@ func (s *server) Stop() error {
 		return err
 	}
 
-	// Making sure we deregister the endpoints
+	// We deregister the endpoints to clear links and re-register as stopped
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
 		if er := reg.Deregister(s); er != nil {
 			return er
+		} else {
+			s.status = "stopped"
+			_ = reg.Register(s)
 		}
 	}
 
@@ -182,48 +181,28 @@ func (s *server) Type() Type {
 }
 
 func (s *server) Metadata() map[string]string {
-	return s.s.Metadata()
-}
-
-func (s *server) BeforeServe(f func() error) {
-	s.opts.BeforeServe = append(s.opts.BeforeServe, f)
-}
-
-func (s *server) doBeforeServe() error {
-	var g errgroup.Group
-
-	for _, h := range s.opts.BeforeServe {
-		g.Go(h)
+	meta := make(map[string]string)
+	for k, v := range s.s.Metadata() {
+		meta[k] = v
 	}
-
-	return g.Wait()
+	meta["status"] = s.status
+	return meta
 }
 
-func (s *server) AfterServe(f func() error) {
-	s.opts.AfterServe = append(s.opts.AfterServe, f)
+func (s *server) RegisterBeforeStop(f func() error) {
+	s.beforeStops = append(s.beforeStops, f)
 }
 
-func (s *server) doAfterServe() error {
-	// DO NOT USE ERRGROUP, OR ANY FAILING MIGRATION
-	// WILL STOP THE Serve PROCESS
-	//var g errgroup.Group
-
-	for _, h := range s.opts.AfterServe {
-		//g.Go(h)
-		if er := h(); er != nil {
-			fmt.Println("There was an error while applying an AfterServe", er)
-		}
-	}
-
-	return nil //g.Wait()
-}
-
-func (s *server) BeforeStop(f func() error) {
-	s.opts.BeforeStop = append(s.opts.BeforeStop, f)
+func (s *server) RegisterAfterStop(f func() error) {
+	s.afterStops = append(s.afterStops, f)
 }
 
 func (s *server) doBeforeStop() error {
-	for _, h := range s.opts.BeforeStop {
+	defer func() {
+		// Empty beforeStops
+		s.beforeStops = []func() error{}
+	}()
+	for _, h := range s.beforeStops {
 		if err := h(); err != nil {
 			return err
 		}
@@ -232,17 +211,16 @@ func (s *server) doBeforeStop() error {
 	return nil
 }
 
-func (s *server) AfterStop(f func() error) {
-	s.opts.AfterStop = append(s.opts.AfterStop, f)
-}
-
 func (s *server) doAfterStop() error {
-	for _, h := range s.opts.AfterStop {
+	defer func() {
+		// Empty afterStops
+		s.afterStops = []func() error{}
+	}()
+	for _, h := range s.afterStops {
 		if err := h(); err != nil {
 			return err
 		}
 	}
-
 	return nil
 }
 

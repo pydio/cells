@@ -24,6 +24,8 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"net/url"
+	"sync"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -42,14 +44,27 @@ import (
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
+func init() {
+	server.DefaultURLMux().Register("grpc", &Opener{})
+}
+
+type Opener struct{}
+
+func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
+	// TODO : transform url parameters to options?
+	return New(ctx), nil
+}
+
 type Server struct {
 	id   string
 	name string
 	meta map[string]string
 
+	ctx    context.Context
 	cancel context.CancelFunc
 	opts   *Options
 	*grpc.Server
+	sync.Mutex
 }
 
 // New creates the generic grpc.Server
@@ -58,7 +73,72 @@ func New(ctx context.Context, opt ...Option) server.Server {
 	for _, o := range opt {
 		o(opts)
 	}
-	s := grpc.NewServer(
+	/*
+		s := grpc.NewServer(
+			// grpc.MaxConcurrentStreams(1000),
+			grpc.ChainUnaryInterceptor(
+				servicecontext.MetricsUnaryServerInterceptor(),
+				servicecontext.ContextUnaryServerInterceptor(servicecontext.MetaIncomingContext),
+				servicecontext.ContextUnaryServerInterceptor(servicecontext.SpanIncomingContext),
+				servicecontext.ContextUnaryServerInterceptor(middleware.TargetNameToServiceNameContext(ctx)),
+				servicecontext.ContextUnaryServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
+				servicecontext.ContextUnaryServerInterceptor(middleware.RegistryIncomingContext(ctx)),
+			),
+			grpc.ChainStreamInterceptor(
+				servicecontext.MetricsStreamServerInterceptor(),
+				servicecontext.ContextStreamServerInterceptor(servicecontext.MetaIncomingContext),
+				servicecontext.ContextStreamServerInterceptor(servicecontext.SpanIncomingContext),
+				servicecontext.ContextStreamServerInterceptor(middleware.TargetNameToServiceNameContext(ctx)),
+				servicecontext.ContextStreamServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
+				servicecontext.ContextStreamServerInterceptor(middleware.RegistryIncomingContext(ctx)),
+				//servicecontext.StreamsCounter(),
+			),
+		)
+
+		service.RegisterChannelzServiceToServer(s)
+		grpc_health_v1.RegisterHealthServer(s, health.NewServer())
+
+	*/
+
+	ctx, cancel := context.WithCancel(ctx)
+
+	return server.NewServer(ctx, &Server{
+		id:   "grpc-" + uuid.New(),
+		name: "grpc",
+		meta: server.InitPeerMeta(),
+
+		ctx:    ctx,
+		cancel: cancel,
+		opts:   opts,
+		//Server: s,
+	})
+}
+
+// NewWithServer can pass preset grpc.Server with custom listen address
+func NewWithServer(ctx context.Context, name string, s *grpc.Server, listen string) server.Server {
+	ctx, cancel := context.WithCancel(ctx)
+	id := "grpc-" + uuid.New()
+	opts := new(Options)
+	opts.Addr = listen
+	return server.NewServer(ctx, &Server{
+		id:     id,
+		name:   name,
+		ctx:    ctx,
+		cancel: cancel,
+		opts:   opts,
+		Server: s,
+	})
+
+}
+
+func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
+	s.Lock()
+	defer s.Unlock()
+	if s.Server != nil {
+		return s.Server
+	}
+	log.Logger(ctx).Info("Creating grpc server now")
+	gs := grpc.NewServer(
 		// grpc.MaxConcurrentStreams(1000),
 		grpc.ChainUnaryInterceptor(
 			servicecontext.MetricsUnaryServerInterceptor(),
@@ -78,37 +158,10 @@ func New(ctx context.Context, opt ...Option) server.Server {
 			//servicecontext.StreamsCounter(),
 		),
 	)
-
-	service.RegisterChannelzServiceToServer(s)
-	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
-
-	ctx, cancel := context.WithCancel(ctx)
-
-	return server.NewServer(ctx, &Server{
-		id:   "grpc-" + uuid.New(),
-		name: "grpc",
-		meta: server.InitPeerMeta(),
-
-		cancel: cancel,
-		opts:   opts,
-		Server: s,
-	})
-}
-
-// NewWithServer can pass preset grpc.Server with custom listen address
-func NewWithServer(ctx context.Context, name string, s *grpc.Server, listen string) server.Server {
-	ctx, cancel := context.WithCancel(ctx)
-	id := "grpc-" + uuid.New()
-	opts := new(Options)
-	opts.Addr = listen
-	return server.NewServer(ctx, &Server{
-		id:     id,
-		name:   name,
-		cancel: cancel,
-		opts:   opts,
-		Server: s,
-	})
-
+	service.RegisterChannelzServiceToServer(gs)
+	grpc_health_v1.RegisterHealthServer(gs, health.NewServer())
+	s.Server = gs
+	return gs
 }
 
 func (s *Server) Type() server.Type {
@@ -116,7 +169,9 @@ func (s *Server) Type() server.Type {
 }
 
 func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e error) {
-	if s.opts.Listener == nil {
+	srv := s.lazyGrpc(s.ctx)
+	listener := s.opts.Listener
+	if listener == nil {
 		addr := s.opts.Addr
 		if addr == "" {
 			addr = opts.GrpcBindAddress
@@ -129,11 +184,11 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 			return nil, err
 		}
 
-		s.opts.Listener = lis
+		listener = lis
 	}
 
 	var externalAddr string
-	addr := s.opts.Listener.Addr().String()
+	addr := listener.Addr().String()
 	_, port, err := net.SplitHostPort(addr)
 	if err != nil {
 		externalAddr = addr
@@ -144,14 +199,14 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 	go func() {
 		defer s.cancel()
 
-		if err := s.Server.Serve(s.opts.Listener); err != nil {
+		if err := srv.Serve(listener); err != nil {
 			log.Logger(context.Background()).Error("Could not start grpc server because of "+err.Error(), zap.Error(err))
 		}
 	}()
 
 	// Register address
 	ii = append(ii, util.CreateAddress(externalAddr, nil))
-	info := s.Server.GetServiceInfo()
+	info := srv.GetServiceInfo()
 	// Register Endpoints
 	for sName, i := range info {
 		for _, m := range i.Methods {
@@ -164,7 +219,7 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 
 func (s *Server) Stop() error {
 	s.Server.GracefulStop()
-
+	s.Server = nil
 	return nil
 }
 
@@ -180,26 +235,13 @@ func (s *Server) Metadata() map[string]string {
 	return s.meta // map[string]string{}
 }
 
-func (s *Server) Endpoints() []string {
-	var endpoints []string
-
-	info := s.Server.GetServiceInfo()
-	for sName, i := range info {
-		for _, m := range i.Methods {
-			endpoints = append(endpoints, sName+"."+m.Name)
-		}
-	}
-
-	return endpoints
-}
-
 func (s *Server) As(i interface{}) bool {
 	p, ok := i.(**grpc.Server)
 	if !ok {
 		return false
 	}
 
-	*p = s.Server
+	*p = s.lazyGrpc(s.ctx)
 	return true
 }
 

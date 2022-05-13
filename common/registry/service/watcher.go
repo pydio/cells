@@ -21,6 +21,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"io"
 
@@ -90,30 +91,38 @@ func (s *chanWatcher) Next() (registry.Result, error) {
 }
 
 func (s *chanWatcher) Stop() {
+	if s.closed {
+		// do nothing
+		return
+	}
 	s.closed = true
 	s.onClose()
 	close(s.close)
 	close(s.events)
 }
 
-func newChanWatcher(input chan registry.Result, onClose func(), options registry.Options) registry.Watcher {
+func newChanWatcher(ctx context.Context, input chan registry.Result, onClose func(), options registry.Options) registry.Watcher {
 	cw := &chanWatcher{
 		events:  make(chan registry.Result),
 		close:   make(chan bool, 1),
 		onClose: onClose,
 	}
 	go func() {
-		for res := range input {
+		select {
+		case <-ctx.Done():
+			cw.Stop()
+			return
+		case res := <-input:
 			if !cw.closed {
 
 				// fmt.Println("Received Event on chanWatcher", res.Action(), len(res.Items()))
 				// Filter by action type
 				if options.Action == pb.ActionType_FULL_LIST && res.Action() != pb.ActionType_FULL_LIST {
-					continue
+					break
 				}
 
 				if (options.Action == pb.ActionType_FULL_DIFF || options.Action >= pb.ActionType_CREATE) && res.Action() < pb.ActionType_CREATE {
-					continue
+					break
 				}
 
 				// No further filtering, send result

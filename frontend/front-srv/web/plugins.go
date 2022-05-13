@@ -110,6 +110,19 @@ func init() {
 
 				return nil
 			}),
+			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
+				if m, ok := mux.(server.PatternsProvider); ok {
+					m.DeregisterPattern("/index.json")
+					m.DeregisterPattern("/plug/")
+					m.DeregisterPattern("/robots.txt")
+					m.DeregisterPattern("/")
+					m.DeregisterPattern("/gui")
+					m.DeregisterPattern("/user/reset-password/{resetPasswordKey}")
+					m.DeregisterPattern(config.GetPublicBaseUri() + "/")
+					m.DeregisterPattern(config.GetPublicBaseUri() + "/plug/")
+				}
+				return nil
+			}),
 		)
 	})
 }

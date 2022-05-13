@@ -22,6 +22,7 @@ package generic
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
@@ -41,6 +42,16 @@ type Server struct {
 type Handler interface {
 	Start() error
 	Stop() error
+}
+
+func init() {
+	server.DefaultURLMux().Register("generic", &Opener{})
+}
+
+type Opener struct{}
+
+func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
+	return New(ctx), nil
 }
 
 func New(ctx context.Context) server.Server {

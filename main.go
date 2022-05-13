@@ -114,6 +114,13 @@ import (
 	_ "github.com/pydio/cells/v4/common/dao/boltdb"
 	_ "github.com/pydio/cells/v4/common/dao/mongodb"
 	_ "github.com/pydio/cells/v4/common/dao/mysql"
+
+	// Servers
+	_ "github.com/pydio/cells/v4/common/server/caddy"
+	_ "github.com/pydio/cells/v4/common/server/fork"
+	_ "github.com/pydio/cells/v4/common/server/generic"
+	_ "github.com/pydio/cells/v4/common/server/grpc"
+	_ "github.com/pydio/cells/v4/common/server/http"
 )
 
 func main() {

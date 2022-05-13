@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -50,8 +51,9 @@ import (
 
 // StartCmd represents the start command
 var StartCmd = &cobra.Command{
-	Use:   "start",
-	Short: "A brief description of your command",
+	Use:     "start",
+	Aliases: []string{"daemon"},
+	Short:   "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -139,12 +141,20 @@ to quickly create a Cobra application.`,
 		go initLogLevelListener(ctx)
 		initLogLevel()
 
-		m.ServeAll(
-			server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
-			server.WithHttpBindAddress(runtime.HttpBindAddress()),
-		)
-
 		go m.WatchServicesConfigs()
+		go m.WatchBroker(ctx, broker.Default())
+
+		if os.Args[1] == "daemon" {
+			m.SetServeOptions(
+				server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
+				server.WithHttpBindAddress(runtime.HttpBindAddress()),
+			)
+		} else {
+			m.ServeAll(
+				server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
+				server.WithHttpBindAddress(runtime.HttpBindAddress()),
+			)
+		}
 
 		select {
 		case <-ctx.Done():

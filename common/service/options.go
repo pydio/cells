@@ -54,6 +54,7 @@ type ServiceOptions struct {
 
 	Server         server.Server  `json:"-"`
 	ServerProvider ServerProvider `json:"-"`
+	customScheme   string
 	serverType     server.Type
 	serverStart    func() error
 	serverStop     func() error
@@ -68,11 +69,7 @@ type ServiceOptions struct {
 
 	// Before and After funcs
 	BeforeStart []func(context.Context) error `json:"-"`
-	AfterStart  []func(context.Context) error `json:"-"`
 	AfterServe  []func(context.Context) error `json:"-"`
-
-	BeforeStop []func(context.Context) error `json:"-"`
-	AfterStop  []func(context.Context) error `json:"-"`
 
 	UseWebSession      bool     `json:"-"`
 	WebSessionExcludes []string `json:"-"`
@@ -144,10 +141,9 @@ func WithServer(s server.Server) ServiceOption {
 	}
 }
 
-// WithServerProvider passes a callback producing a new server.Server
-func WithServerProvider(provider ServerProvider) ServiceOption {
+func WithServerScheme(scheme string) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.ServerProvider = provider
+		o.customScheme = scheme
 	}
 }
 
@@ -162,13 +158,6 @@ func AutoStart(b bool) ServiceOption {
 func AutoRestart(b bool) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.AutoRestart = b
-	}
-}
-
-// AfterStart registers a callback to be run after service.Start (blocking)
-func AfterStart(f func(ctx context.Context) error) ServiceOption {
-	return func(o *ServiceOptions) {
-		o.AfterStart = append(o.AfterStart, f)
 	}
 }
 

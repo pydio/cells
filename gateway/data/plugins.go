@@ -56,6 +56,10 @@ func patchListBucketRequest(route string, request *http.Request) {
 	}
 }
 
+var (
+	srv *gatewayDataServer
+)
+
 func init() {
 
 	customLogger := log.Logger(servicecontext.WithServiceName(context.Background(), common.ServiceGatewayData))
@@ -92,21 +96,29 @@ func init() {
 					proxy.ServeHTTP(writer, request)
 				})
 
-				var certFile, keyFile string
-				/*
-					if config.Get("cert", "http", "ssl").Bool() {
-						certFile = config.Get("cert", "http", "certFile").String()
-						keyFile = config.Get("cert", "http", "keyFile").String()
+				if srv == nil {
+					var certFile, keyFile string
+					/*
+						if config.Get("cert", "http", "ssl").Bool() {
+							certFile = config.Get("cert", "http", "certFile").String()
+							keyFile = config.Get("cert", "http", "keyFile").String()
+						}
+					*/
+					srv = &gatewayDataServer{
+						port:     port,
+						certFile: certFile,
+						keyFile:  keyFile,
 					}
-				*/
-
-				srv := &gatewayDataServer{
-					port:     port,
-					certFile: certFile,
-					keyFile:  keyFile,
+					go srv.Start(c)
 				}
-				go srv.Start(c)
 
+				return nil
+			}),
+			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
+				if m, ok := mux.(server.PatternsProvider); ok {
+					m.DeregisterPattern("/io/")
+					m.DeregisterPattern("/data/")
+				}
 				return nil
 			}),
 		)

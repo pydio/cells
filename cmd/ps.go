@@ -111,9 +111,9 @@ EXAMPLE
 		t, _ := template.New("t1").Parse(tmpl)
 
 		tags := []*Tags{
-			{"GENERIC SERVICES", nil, getTagsPerType(reg, func(s registry.Service) bool { return s.IsGeneric() })},
-			{"GRPC SERVICES", nil, getTagsPerType(reg, func(s registry.Service) bool { return s.IsGRPC() })},
-			{"REST SERVICES", nil, getTagsPerType(reg, func(s registry.Service) bool { return s.IsREST() })},
+			{"GENERIC SERVICES", nil, getTagsPerType(reg, func(s registry.Service) bool { return s.ServerScheme() == "generic://" })},
+			{"GRPC SERVICES", nil, getTagsPerType(reg, func(s registry.Service) bool { return s.ServerScheme() == "grpc://" })},
+			{"REST SERVICES", nil, getTagsPerType(reg, func(s registry.Service) bool { return s.ServerScheme() == "rest://" })},
 		}
 
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 8, 8, 8, ' ', 0)

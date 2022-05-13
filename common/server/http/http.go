@@ -25,6 +25,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/pprof"
+	"net/url"
 
 	"go.uber.org/zap"
 
@@ -37,6 +38,16 @@ import (
 	"github.com/pydio/cells/v4/common/server/middleware"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
+
+func init() {
+	server.DefaultURLMux().Register("http", &Opener{})
+}
+
+type Opener struct{}
+
+func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
+	return New(ctx), nil
+}
 
 type Server struct {
 	id   string

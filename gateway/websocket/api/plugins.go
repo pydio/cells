@@ -63,6 +63,13 @@ func init() {
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceChat, []string{}),
 			service.Description("WebSocket server pushing event to the clients"),
 			service.Fork(true),
+			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
+				if m, ok := mux.(server.PatternsProvider); ok {
+					m.DeregisterPattern("/ws/event")
+					m.DeregisterPattern("/ws/chat")
+				}
+				return nil
+			}),
 			service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
 				ws = websocket.NewWebSocketHandler(ctx)
 				chat = websocket.NewChatHandler(ctx)

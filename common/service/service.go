@@ -32,6 +32,7 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -59,9 +60,8 @@ type Service interface {
 	Name() string
 	Start() error
 	Stop() error
-	IsGRPC() bool
-	IsREST() bool
-	IsGeneric() bool
+	OnServe() error
+	ServerScheme() string
 	As(i interface{}) bool
 }
 
@@ -126,52 +126,10 @@ func (s *service) As(i interface{}) bool {
 	return false
 }
 
-func (s *service) updateRegister(status ...Status) {
-	if len(status) > 0 {
-		s.status = status[0]
-		if status[0] == StatusReady {
-			log.Logger(s.opts.Context).Info("ready")
-		} else {
-			log.Logger(s.opts.Context).Debug(string(status[0]))
-		}
-	}
-	reg := servicecontext.GetRegistry(s.opts.Context)
-	if reg == nil {
-		return
-	}
-	var options []registry.RegisterOption
-	if s.opts.Server != nil {
-		options = append(options, registry.WithEdgeTo(s.opts.Server.ID(), "Server", map[string]string{}))
-	}
-	if len(s.opts.Tags) > 0 {
-		for _, t := range s.opts.Tags {
-			generic := util.ToGeneric(&pb.Item{Id: "tag-" + t, Name: "tag", Metadata: map[string]string{"Tag": t}}, &pb.Generic{Type: pb.ItemType_TAG})
-			if er := reg.Register(generic); er == nil {
-				options = append(options, registry.WithEdgeTo(generic.ID(), "Tag", map[string]string{}))
-			}
-		}
-	}
-	if err := reg.Register(s, options...); err != nil {
-		if s.status == StatusStopping || s.status == StatusStopped {
-			log.Logger(s.opts.Context).Debug("could not register", zap.Error(err))
-		} else {
-			log.Logger(s.opts.Context).Warn("could not register", zap.Error(err))
-		}
-		return
-	}
-}
-
 func (s *service) Start() (er error) {
 	// now := time.Now()
 
 	defer func() {
-		/*
-			elapsed := time.Now().Sub(now)
-			if elapsed > 5*time.Second {
-				fmt.Println(s.Name(), "took ", elapsed, " to start")
-			}
-		*/
-
 		if e := recover(); e != nil {
 			log.Logger(s.opts.Context).Error("panic while starting service", zap.Any("p", e))
 			er = fmt.Errorf("panic while starting service %v", e)
@@ -192,45 +150,7 @@ func (s *service) Start() (er error) {
 		}
 	}
 
-	for _, after := range s.opts.AfterStart {
-		if err := after(s.opts.Context); err != nil {
-			return err
-		}
-	}
-
 	s.updateRegister(StatusServing)
-
-	wg := &sync.WaitGroup{}
-	wg.Add(len(s.opts.AfterServe) + 1)
-
-	s.opts.Server.AfterServe(func() error {
-		go func() {
-			defer wg.Done()
-			if e := UpdateServiceVersion(s.opts); e != nil {
-				log.Logger(s.opts.Context).Error("UpdateServiceVersion failed", zap.Error(er))
-			}
-		}()
-		return nil
-	})
-
-	for _, after := range s.opts.AfterServe {
-		s.opts.Server.AfterServe(func() error {
-			go func(f func(context.Context) error) {
-				defer wg.Done()
-				if e := f(s.opts.Context); e != nil {
-					log.Logger(s.opts.Context).Error("AfterServe failed", zap.Error(er))
-				}
-			}(after)
-			return nil
-		})
-	}
-
-	s.updateRegister()
-
-	go func() {
-		wg.Wait()
-		s.updateRegister(StatusReady)
-	}()
 
 	return nil
 }
@@ -239,27 +159,19 @@ func (s *service) Stop() error {
 
 	s.updateRegister(StatusStopping)
 
-	for _, before := range s.opts.BeforeStop {
-		if err := before(s.opts.Context); err != nil {
-			return err
-		}
-	}
-
 	if s.opts.serverStop != nil {
 		if err := s.opts.serverStop(); err != nil {
 			return err
 		}
 	}
 
-	for _, after := range s.opts.AfterStop {
-		if err := after(s.opts.Context); err != nil {
-			return err
-		}
-	}
-
 	if reg := servicecontext.GetRegistry(s.opts.Context); reg != nil {
+		// Deregister to make sure to break existing links
 		if err := reg.Deregister(s); err != nil {
 			log.Logger(s.opts.Context).Error("Could not deregister", zap.Error(err))
+		} else {
+			// Re-register as Stopped
+			s.updateRegister(StatusStopped)
 		}
 	} else {
 		log.Logger(s.opts.Context).Warn("no registry attached")
@@ -268,6 +180,63 @@ func (s *service) Stop() error {
 	log.Logger(s.opts.Context).Info("stopped")
 
 	return nil
+}
+
+func (s *service) OnServe() error {
+	w := &sync.WaitGroup{}
+	w.Add(len(s.opts.AfterServe) + 1)
+	go func() {
+		defer w.Done()
+		if e := UpdateServiceVersion(s.opts); e != nil {
+			log.Logger(s.opts.Context).Error("UpdateServiceVersion failed", zap.Error(e))
+		}
+	}()
+	for _, after := range s.opts.AfterServe {
+		go func(f func(context.Context) error) {
+			defer w.Done()
+			if e := f(s.opts.Context); e != nil {
+				log.Logger(s.opts.Context).Error("AfterServe failed", zap.Error(e))
+			}
+		}(after)
+	}
+	w.Wait()
+	s.updateRegister(StatusReady)
+	return nil
+}
+
+func (s *service) updateRegister(status ...Status) {
+	if len(status) > 0 {
+		s.status = status[0]
+		if status[0] == StatusReady {
+			log.Logger(s.opts.Context).Info("ready")
+		} else {
+			log.Logger(s.opts.Context).Debug(string(status[0]))
+		}
+	}
+	reg := servicecontext.GetRegistry(s.opts.Context)
+	if reg == nil {
+		return
+	}
+	var options []registry.RegisterOption
+	if s.opts.Server != nil && (s.status == StatusServing || s.status == StatusReady) {
+		options = append(options, registry.WithEdgeTo(s.opts.Server.ID(), "Server", map[string]string{}))
+	}
+	if len(s.opts.Tags) > 0 {
+		for _, t := range s.opts.Tags {
+			generic := util.ToGeneric(&pb.Item{Id: "tag-" + t, Name: "tag", Metadata: map[string]string{"Tag": t}}, &pb.Generic{Type: pb.ItemType_TAG})
+			if er := reg.Register(generic); er == nil {
+				options = append(options, registry.WithEdgeTo(generic.ID(), "Tag", map[string]string{}))
+			}
+		}
+	}
+	if err := reg.Register(s, options...); err != nil {
+		if s.status == StatusStopping || s.status == StatusStopped {
+			log.Logger(s.opts.Context).Debug("could not register", zap.Error(err))
+		} else {
+			log.Logger(s.opts.Context).Warn("could not register", zap.Error(err))
+		}
+		return
+	}
 }
 
 func (s *service) Name() string {
@@ -282,14 +251,23 @@ func (s *service) Version() string {
 func (s *service) Tags() []string {
 	return s.opts.Tags
 }
-func (s *service) IsGeneric() bool {
-	return s.opts.serverType == server.TypeGeneric
-}
-func (s *service) IsGRPC() bool {
-	return s.opts.serverType == server.TypeGrpc
-}
-func (s *service) IsREST() bool {
-	return s.opts.serverType == server.TypeHttp
+
+func (s *service) ServerScheme() string {
+	if s.opts.Fork && !runtime.IsFork() {
+		return "fork://?start=" + s.opts.Name
+	} else if s.opts.customScheme != "" {
+		return s.opts.customScheme
+	}
+	switch s.opts.serverType {
+	case server.TypeGeneric:
+		return "generic://"
+	case server.TypeGrpc:
+		return "grpc://"
+	case server.TypeHttp:
+		return runtime.HttpServerType() + "://"
+	default:
+		return ""
+	}
 }
 
 func (s *service) MarshalJSON() ([]byte, error) {

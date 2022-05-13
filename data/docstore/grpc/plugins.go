@@ -43,7 +43,10 @@ import (
 	"github.com/pydio/cells/v4/data/docstore"
 )
 
-var Name = common.ServiceGrpcNamespace_ + common.ServiceDocStore
+var (
+	Name           = common.ServiceGrpcNamespace_ + common.ServiceDocStore
+	runningHandler *Handler
+)
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
@@ -102,11 +105,21 @@ func init() {
 				proto.RegisterDocStoreEnhancedServer(server, handler)
 				sync.RegisterSyncEndpointEnhancedServer(server, handler)
 
-				go func() {
-					<-c.Done()
-					handler.Close(c)
-				}()
+				runningHandler = handler
 
+				/*
+					go func() {
+						<-c.Done()
+						handler.Close(c)
+					}()
+				*/
+
+				return nil
+			}),
+			service.WithGRPCStop(func(ctx context.Context, server *grpc.Server) error {
+				if runningHandler != nil {
+					return runningHandler.Close(ctx)
+				}
 				return nil
 			}),
 		)
