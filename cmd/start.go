@@ -145,6 +145,11 @@ to quickly create a Cobra application.`,
 		go m.WatchBroker(ctx, broker.Default())
 
 		if os.Args[1] == "daemon" {
+			msg := "| Starting daemon, use '" + os.Args[0] + " ctl' to control services |"
+			line := strings.Repeat("-", len(msg))
+			cmd.Println(line)
+			cmd.Println(msg)
+			cmd.Println(line)
 			m.SetServeOptions(
 				server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
 				server.WithHttpBindAddress(runtime.HttpBindAddress()),

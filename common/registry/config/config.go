@@ -89,7 +89,7 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 			return nil, err
 		}
 
-		store := etcd.NewSource(context.Background(), etcdConn, "registry", true, WithJSONItem())
+		store := etcd.NewSource(ctx, etcdConn, "registry", true, WithJSONItem())
 		reg = NewConfigRegistry(store, byName)
 	case "file":
 		store, err := file.New(u.Path, true, WithJSONItem())

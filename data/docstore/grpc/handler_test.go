@@ -122,6 +122,8 @@ func TestHandler_CloseBolt(t *testing.T) {
 
 		cE := handler.Close(context.Background())
 		So(cE, ShouldBeNil)
+		e := store.Close()
+		So(e, ShouldBeNil)
 
 		s1, _ := os.Stat(pBolt)
 		s2, _ := os.Stat(pBleve)
