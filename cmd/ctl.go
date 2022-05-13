@@ -21,18 +21,9 @@
 package cmd
 
 import (
-	"net"
-	"net/url"
-	"os/exec"
-	"sort"
-	"strings"
-
+	"context"
+	"fmt"
 	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
-	"github.com/spf13/cobra"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
@@ -42,6 +33,17 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/rivo/tview"
+	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"net"
+	"net/url"
+	"os/exec"
+	"sort"
+	"strings"
+	"time"
 )
 
 type item struct {
@@ -75,9 +77,12 @@ func (b itemsByType) Less(i, j int) bool {
 func (b itemsByType) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
 
 type model struct {
-	reg registry.Registry
+	ctx      context.Context
+	reg      registry.Registry
+	regClose context.CancelFunc
 
 	app          *tview.Application
+	title        *tview.TextView
 	typesList    *tview.List
 	itemsList    *tview.List
 	metaView     *tview.TextView
@@ -99,6 +104,78 @@ type model struct {
 	br          broker.Broker
 }
 
+func (m *model) startRegistry(ctx context.Context) {
+	m.app.QueueUpdateDraw(func() {
+		// empty list
+		m.loadItems(nil, registry.WithType(m.types[m.currentType].it))
+	})
+	er := std.Retry(ctx, func() error {
+		m.app.QueueUpdateDraw(func() {
+			m.title.Clear()
+			fmt.Fprintf(m.title, "Connection to registry %s..., please wait\n", runtime.RegistryURL())
+		})
+		ct, can := context.WithCancel(ctx)
+		reg, err := registry.OpenRegistry(ct, runtime.RegistryURL()+"?timeout=2s")
+		if err != nil {
+			m.app.QueueUpdateDraw(func() {
+				m.title.Clear()
+				fmt.Fprintf(m.title, "Cannot connect to registry, will retry in 10s: %s\n", err.Error())
+			})
+			can()
+			return err
+		}
+		m.app.QueueUpdateDraw(func() {
+			m.title.Clear()
+			fmt.Fprintf(m.title, "Connected to %s\n", runtime.RegistryURL())
+		})
+		m.reg = reg
+		m.regClose = can
+		return nil
+	}, 10*time.Second, 10*time.Minute)
+	if er == nil {
+		m.app.QueueUpdateDraw(func() {
+			m.loadItems(nil, registry.WithType(m.types[m.currentType].it))
+		})
+		// Now connected, set up a watch to detect disconnection
+		ww, er := m.reg.Watch(registry.WithType(pb.ItemType_SERVICE))
+		if er != nil {
+			return
+		}
+		for {
+			_, e := ww.Next()
+			if e != nil {
+				m.regClose()
+				m.reg = nil
+				m.regClose = nil
+				break
+			}
+		}
+		ww.Stop()
+		m.startRegistry(ctx)
+	}
+}
+
+func (m *model) lazyBroker() error {
+
+	if m.br != nil {
+		return nil
+	}
+
+	u, err := url.Parse(runtime.DiscoveryURL())
+	if err != nil {
+		return err
+	}
+	discoveryConn, err := grpc.DialContext(ctx, u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return err
+	}
+	ctx = clientcontext.WithClientConn(ctx, discoveryConn)
+	m.br = broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx))
+
+	return nil
+
+}
+
 func (m *model) updateList(list *tview.List, items []item, current int) {
 	list.Clear()
 	for _, i := range items {
@@ -112,6 +189,12 @@ func (m *model) updateList(list *tview.List, items []item, current int) {
 
 func (m *model) loadItems(preselect registry.Item, oo ...registry.Option) {
 	m.items = []item{}
+	if m.reg == nil {
+		// Empty list
+		m.currentItem = 0
+		m.updateList(m.itemsList, m.items, m.currentItem)
+		return
+	}
 	//	m.currentItem = 0
 	if ii, e := m.reg.List(oo...); e == nil {
 		for _, i := range ii {
@@ -142,6 +225,9 @@ func (m *model) loadItems(preselect registry.Item, oo ...registry.Option) {
 }
 
 func (m *model) loadEdges(source registry.Item, oo ...registry.Option) {
+	if m.reg == nil {
+		return
+	}
 	m.edges = []item{}
 	if source == nil {
 		m.updateList(m.edgesList, m.edges, m.currentEdge)
@@ -284,10 +370,22 @@ func (m *model) renderButtons(i registry.Item) {
 }
 
 func (m *model) sendCommand(cmdName, itemName string) {
+	if m.br == nil {
+		if er := m.lazyBroker(); er != nil {
+			m.title.SetText("Cannot connect to broker! No action performed")
+			return
+		}
+	}
 	_ = m.br.PublishRaw(ctx, common.TopicRegistryCommand, []byte("cmd"), map[string]string{
 		"command":  cmdName,
 		"itemName": itemName,
 	})
+	go func() {
+		<-time.After(2 * time.Second)
+		m.app.QueueUpdateDraw(func() {
+			m.loadItems(m.getCurrentItem().ri, registry.WithType(m.types[m.currentType].it))
+		})
+	}()
 }
 
 func (m *model) LsofLines(args []string) (map[string][]string, error) {
@@ -326,27 +424,11 @@ var ctlCmd = &cobra.Command{
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		ctx := cmd.Context()
-		cmd.Printf("Connection to registry %s..., please wait\n", runtime.RegistryURL())
-		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
-		if err != nil {
-			return err
-		}
-
-		u, err := url.Parse(runtime.DiscoveryURL())
-		if err != nil {
-			return err
-		}
-		discoveryConn, err := grpc.Dial(u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
-		if err != nil {
-			return err
-		}
-		ctx = clientcontext.WithClientConn(ctx, discoveryConn)
 
 		app := tview.NewApplication()
 
 		m := &model{
-			reg: reg,
+			ctx: cmd.Context(),
 			app: app,
 			types: []item{
 				{main: "Nodes", secondary: "Main Processes", shortcut: 'a', it: pb.ItemType_NODE},
@@ -362,8 +444,8 @@ var ctlCmd = &cobra.Command{
 				}},
 			},
 		}
-
-		m.br = broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx))
+		m.title = tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText("Cells Registry Browser - " + runtime.RegistryURL())
+		m.title.SetBorder(true)
 
 		m.typesList = tview.NewList()
 		m.typesList.SetBorder(true).SetTitle("| Item Types |")
@@ -403,8 +485,10 @@ var ctlCmd = &cobra.Command{
 			m.edgesSelected(i)
 		})
 
+		go m.startRegistry(cmd.Context())
+
 		m.updateList(m.typesList, m.types, m.currentType)
-		m.loadItems(nil, registry.WithType(pb.ItemType_NODE))
+		//m.loadItems(nil, registry.WithType(pb.ItemType_NODE))
 
 		reloadButton := tview.NewButton("Reload").SetSelectedFunc(func() {
 			m.loadItems(m.getCurrentItem().ri, registry.WithType(m.types[m.currentType].it))
@@ -444,10 +528,8 @@ var ctlCmd = &cobra.Command{
 			return event
 		})
 
-		title := tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText("Cells Registry Browser - " + runtime.RegistryURL())
-		title.SetBorder(true)
 		mainFlex := tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(title, 3, 0, false).
+			AddItem(m.title, 3, 0, false).
 			AddItem(flex, 0, 1, true)
 
 		return app.SetRoot(mainFlex, true).EnableMouse(true).Run()
