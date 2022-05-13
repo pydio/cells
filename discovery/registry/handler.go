@@ -43,11 +43,12 @@ func (h *Handler) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse,
 
 	var oo []registry.Option
 	if req.Options != nil {
-		if req.Options.Type != pb.ItemType_ALL {
-			oo = append(oo, registry.WithType(req.Options.Type))
+		for _, itemType := range req.Options.Types {
+			oo = append(oo, registry.WithType(itemType))
 		}
-		if req.Options.Name != "" {
-			oo = append(oo, registry.WithName(req.Options.Name))
+
+		for _, name := range req.Options.Names {
+			oo = append(oo, registry.WithName(name))
 		}
 	}
 
@@ -79,13 +80,17 @@ func (h *Handler) Deregister(ctx context.Context, item *pb.Item) (*pb.EmptyRespo
 func (h *Handler) List(ctx context.Context, req *pb.ListRequest) (*pb.ListResponse, error) {
 	resp := &pb.ListResponse{}
 
-	t := pb.ItemType_ALL
+	var oo []registry.Option
 	if req.Options != nil {
-		t = req.Options.Type
+		for _, itemType := range req.Options.Types {
+			oo = append(oo, registry.WithType(itemType))
+		}
+
+		for _, name := range req.Options.Names {
+			oo = append(oo, registry.WithName(name))
+		}
 	}
-	ss, err := h.reg.List(
-		registry.WithType(t),
-	)
+	ss, err := h.reg.List(oo...)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +109,10 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) er
 
 	var opts []registry.Option
 	opts = append(opts, registry.WithAction(req.GetOptions().GetAction()))
-	opts = append(opts, registry.WithType(req.GetOptions().GetType()))
+
+	for _, itemType := range req.GetOptions().GetTypes() {
+		opts = append(opts, registry.WithType(itemType))
+	}
 
 	w, err := h.reg.Watch(opts...)
 	if err != nil {

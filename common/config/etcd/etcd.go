@@ -150,7 +150,6 @@ func (m *etcd) watch(ctx context.Context) {
 		select {
 		case _, ok := <-watcher:
 			if !ok {
-				fmt.Println("WATCHER IS GONE !!!")
 				return
 			}
 
@@ -162,7 +161,6 @@ func (m *etcd) watch(ctx context.Context) {
 			}
 
 			m.receivers = updated
-
 		}
 	}
 }
@@ -178,14 +176,11 @@ func (m *etcd) Get() configx.Value {
 	if m.withKeys {
 		resp, err := m.cli.Get(context.Background(), m.prefix, clientv3.WithLease(m.leaseID), clientv3.WithPrefix())
 		if err != nil {
-			fmt.Println("Error is ", err)
 			return nil
 		}
 
 		for _, kv := range resp.Kvs {
-			fmt.Println("Setting value ? ", string(kv.Key), string(kv.Value))
-			if err := m.v.Set(kv.Value); err != nil {
-				fmt.Println("Error here ", string(kv.Value), err)
+			if err := m.v.Val(strings.Trim(string(kv.Key), m.prefix+"/")).Set(kv.Value); err != nil {
 				return nil
 			}
 		}

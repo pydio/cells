@@ -94,9 +94,9 @@ message Generic {
 // Options are registry options
 message Options {
   int64 ttl = 1;
-  ItemType type = 2;
+  repeated ItemType types = 2;
   ActionType action = 3;
-  string name = 4;
+  repeated string names = 4;
   string metaName = 5;
   string metaValue = 6;
 }

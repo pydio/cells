@@ -55,13 +55,14 @@ func TestGetSetMemory(t *testing.T) {
 		log.Panic(err)
 	}
 
-	vault, err := config.OpenStore(context.Background(), "mem://")
-	if err != nil {
-		log.Panic(err)
-	}
+	//vault, err := config.OpenStore(context.Background(), "mem://")
+	//if err != nil {
+	//	log.Panic(err)
+	//}
 
-	testGetSet(t, store)
-	testVault(t, store, vault)
+	testWatch(t, store)
+	//testGetSet(t, store)
+	//testVault(t, store, vault)
 }
 
 func TestGetSetEtcd(t *testing.T) {

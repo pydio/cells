@@ -87,11 +87,11 @@ func ToOptions(s *pb.Options) (oo []registry.Option) {
 	if s == nil {
 		return
 	}
-	if s.Name != "" {
-		oo = append(oo, registry.WithName(s.Name))
+	for _, name := range s.Names {
+		oo = append(oo, registry.WithName(name))
 	}
-	if s.Type != pb.ItemType_ALL {
-		oo = append(oo, registry.WithType(s.Type))
+	for _, itemType := range s.Types {
+		oo = append(oo, registry.WithType(itemType))
 	}
 	if s.GetMetaName() != "" {
 		oo = append(oo, registry.WithMeta(s.GetMetaName(), s.GetMetaValue()))

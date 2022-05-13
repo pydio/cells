@@ -56,48 +56,75 @@ func (m *watcher) Next() (Result, error) {
 			}
 
 			// Return everything
-			if m.wo.Name == "" && m.wo.Type == pb.ItemType_ALL && m.wo.Filter == nil {
+			if len(m.wo.Names) == 0 && len(m.wo.Types) == 0 && len(m.wo.Filters) == 0 {
 				return r, nil
 			}
 
 			var items []Item
 			for _, item := range r.Items() {
-				if len(m.wo.Name) > 0 && m.wo.Name != item.Name() {
+				foundName := false
+				for _, name := range m.wo.Names {
+					if name == item.Name() {
+						foundName = true
+						break
+					}
+				}
+
+				if len(m.wo.Names) > 0 && !foundName {
 					continue
 				}
 
-				switch m.wo.Type {
-				case pb.ItemType_SERVICE:
-					var service Service
-					if item.As(&service) && (m.wo.Filter == nil || m.wo.Filter(item)) {
-						items = append(items, item)
+				foundType := false
+			L:
+				for _, itemType := range m.wo.Types {
+					switch itemType {
+					case pb.ItemType_SERVICE:
+						var service Service
+						if item.As(&service) {
+							foundType = true
+							break L
+						}
+					case pb.ItemType_SERVER:
+						var node Server
+						if item.As(&node) {
+							foundType = true
+							break L
+						}
+					case pb.ItemType_DAO:
+						var dao Dao
+						if item.As(&dao) {
+							foundType = true
+							break L
+						}
+					case pb.ItemType_EDGE:
+						var edge Edge
+						if item.As(&edge) {
+							foundType = true
+							break L
+						}
+					case pb.ItemType_GENERIC, pb.ItemType_ADDRESS, pb.ItemType_TAG, pb.ItemType_ENDPOINT:
+						var generic Generic
+						if item.As(&generic) &&
+							(itemType == pb.ItemType_GENERIC || itemType == generic.Type()) {
+							foundType = true
+							break L
+						}
 					}
+				}
+
+				if len(m.wo.Types) > 0 && !foundType {
 					continue
-				case pb.ItemType_SERVER:
-					var node Server
-					if item.As(&node) && (m.wo.Filter == nil || m.wo.Filter(item)) {
-						items = append(items, item)
+				}
+
+				foundFilter := true
+				for _, filter := range m.wo.Filters {
+					if !filter(item) {
+						foundFilter = false
+						break
 					}
-					continue
-				case pb.ItemType_DAO:
-					var dao Dao
-					if item.As(&dao) && (m.wo.Filter == nil || m.wo.Filter(item)) {
-						items = append(items, item)
-					}
-					continue
-				case pb.ItemType_EDGE:
-					var edge Edge
-					if item.As(&edge) && (m.wo.Filter == nil || m.wo.Filter(item)) {
-						items = append(items, item)
-					}
-					continue
-				case pb.ItemType_GENERIC, pb.ItemType_ADDRESS, pb.ItemType_TAG, pb.ItemType_ENDPOINT:
-					var generic Generic
-					if item.As(&generic) &&
-						(m.wo.Type == pb.ItemType_GENERIC || m.wo.Type == generic.Type()) &&
-						(m.wo.Filter == nil || m.wo.Filter(item)) {
-						items = append(items, item)
-					}
+				}
+
+				if !foundFilter {
 					continue
 				}
 

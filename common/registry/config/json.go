@@ -21,7 +21,9 @@
 package configregistry
 
 import (
+	"encoding/json"
 	"fmt"
+	"reflect"
 
 	"github.com/pydio/cells/v4/common/registry/util"
 
@@ -32,9 +34,23 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
-type jsonReader struct{}
+func WithJSONItemMap() configx.Option {
+	return func(o *configx.Options) {
+		o.Unmarshaler = &jsonItemMapReader{}
+		o.Marshaller = &jsonItemMapWriter{}
+	}
+}
 
-func (j *jsonReader) Unmarshal(data []byte, out interface{}) error {
+func WithJSONItem() configx.Option {
+	return func(o *configx.Options) {
+		o.Unmarshaler = &jsonItemReader{}
+		o.Marshaller = &jsonItemWriter{}
+	}
+}
+
+type jsonItemMapReader struct{}
+
+func (j *jsonItemMapReader) Unmarshal(data []byte, out interface{}) error {
 	switch vout := out.(type) {
 	case *interface{}:
 		i := new(pb.ItemMap)
@@ -43,6 +59,75 @@ func (j *jsonReader) Unmarshal(data []byte, out interface{}) error {
 			*vout = i
 		}
 
+		return nil
+	case *[]registry.Item:
+		i := new(pb.ItemMap)
+
+		if err := protojson.Unmarshal(data, i); err != nil {
+			return err
+		}
+
+		for _, v := range i.Items {
+			*vout = append(*vout, util.ToItem(v))
+		}
+
+		return nil
+	case map[string]registry.Item:
+		i := new(pb.ItemMap)
+
+		if err := protojson.Unmarshal(data, i); err != nil {
+			return err
+		}
+
+		for k, v := range i.Items {
+			vout[k] = util.ToItem(v)
+		}
+
+		return nil
+	}
+
+	return fmt.Errorf("should not be here in unmarshal")
+}
+
+type jsonItemMapWriter struct{}
+
+func (j *jsonItemMapWriter) Marshal(in interface{}) ([]byte, error) {
+
+	switch v := in.(type) {
+	case map[string]registry.Item:
+		items := map[string]*pb.Item{}
+		for k, i := range v {
+			items[k] = util.ToProtoItem(i)
+		}
+
+		return protojson.MarshalOptions{Indent: "  "}.Marshal(&pb.ItemMap{Items: items})
+	case map[string]interface{}:
+		items := map[string]*pb.Item{}
+
+		for k, i := range v {
+			items[k] = i.(*pb.Item)
+		}
+
+		return protojson.MarshalOptions{Indent: "  "}.Marshal(&pb.ItemMap{Items: items})
+	case []registry.Item:
+		var items []*pb.Item
+		for _, i := range v {
+			items = append(items, util.ToProtoItem(i))
+		}
+
+		return protojson.MarshalOptions{Indent: "  "}.Marshal(&pb.ListResponse{Items: items})
+	case *pb.ItemMap:
+		return protojson.MarshalOptions{Indent: "  "}.Marshal(v)
+	}
+
+	return nil, fmt.Errorf("should not be here in marshal %s", reflect.TypeOf(in))
+}
+
+type jsonItemReader struct{}
+
+func (j *jsonItemReader) Unmarshal(data []byte, out interface{}) error {
+	switch vout := out.(type) {
+	case *interface{}:
 		j := new(pb.Item)
 
 		if err := protojson.Unmarshal(data, j); err != nil {
@@ -90,19 +175,33 @@ func (j *jsonReader) Unmarshal(data []byte, out interface{}) error {
 		return nil
 	}
 
-	return fmt.Errorf("should not be here")
+	return fmt.Errorf("should not be here in unmarshal")
 }
 
-type jsonWriter struct{}
+type jsonItemWriter struct{}
 
-func (j *jsonWriter) Marshal(in interface{}) ([]byte, error) {
+func (j *jsonItemWriter) Marshal(in interface{}) ([]byte, error) {
 
 	switch v := in.(type) {
+	case map[string]registry.Item:
+		items := map[string]*pb.Item{}
+		for k, i := range v {
+			items[k] = util.ToProtoItem(i)
+		}
+
+		return protojson.MarshalOptions{Indent: "  "}.Marshal(&pb.ItemMap{Items: items})
 	case map[string]interface{}:
 		items := map[string]*pb.Item{}
 
 		for k, i := range v {
-			items[k] = util.ToProtoItem(i.(registry.Item))
+			switch vv := i.(type) {
+			case registry.Item:
+				items[k] = util.ToProtoItem(vv)
+			case *pb.Item:
+				items[k] = vv
+			default:
+				return json.Marshal(in)
+			}
 		}
 
 		return protojson.MarshalOptions{Indent: "  "}.Marshal(&pb.ItemMap{Items: items})
@@ -121,12 +220,6 @@ func (j *jsonWriter) Marshal(in interface{}) ([]byte, error) {
 		return protojson.MarshalOptions{Indent: "  "}.Marshal(v)
 	}
 
-	return nil, fmt.Errorf("should not be here")
-}
-
-func WithJSONItem() configx.Option {
-	return func(o *configx.Options) {
-		o.Unmarshaler = &jsonReader{}
-		o.Marshaller = &jsonWriter{}
-	}
+	return json.Marshal(in)
+	// return nil, fmt.Errorf("should not be here in marshal %v", in)
 }

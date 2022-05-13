@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+
 	"github.com/gorilla/mux"
 
 	"github.com/pydio/cells/v4/common"
@@ -134,7 +136,7 @@ func (h *IndexHandler) detectFrontendService() bool {
 		return true
 	}
 	reg := servicecontext.GetRegistry(h.runtimeCtx)
-	if ss, e := reg.List(registry.WithName(common.ServiceRestNamespace_ + common.ServiceFrontend)); e == nil && len(ss) > 0 {
+	if ss, e := reg.List(registry.WithName(common.ServiceRestNamespace_+common.ServiceFrontend), registry.WithType(pb.ItemType_SERVICE)); e == nil && len(ss) > 0 {
 		h.frontendDetected = true
 	}
 	return h.frontendDetected

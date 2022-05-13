@@ -55,10 +55,10 @@ type resolverCallback struct {
 }
 
 func NewResolverCallback(reg registry.Registry) (ResolverCallback, error) {
-	items, err := reg.List()
+	/*items, err := reg.List()
 	if err != nil {
 		return nil, err
-	}
+	}*/
 
 	r := &resolverCallback{
 		done: make(chan bool, 1),
@@ -70,9 +70,9 @@ func NewResolverCallback(reg registry.Registry) (ResolverCallback, error) {
 	go r.updateState()
 	go r.watch()
 
-	r.ml.Lock()
+	/*r.ml.Lock()
 	r.items = items
-	r.ml.Unlock()
+	r.ml.Unlock()*/
 
 	return r, nil
 }
@@ -89,18 +89,22 @@ func (r *resolverCallback) Add(cb UpdateStateCallback) {
 }
 
 func (r *resolverCallback) watch() {
-	w, err := r.reg.Watch(registry.WithAction(pb.ActionType_FULL_LIST))
+	w, err := r.reg.Watch(
+		registry.WithAction(pb.ActionType_FULL_LIST),
+		registry.WithType(pb.ItemType_SERVER),
+		registry.WithType(pb.ItemType_SERVICE),
+		registry.WithType(pb.ItemType_EDGE),
+	)
 	if err != nil {
 		return
 	}
 
 	for {
-		res, err := w.Next()
+		_, err := w.Next()
 		if err != nil {
 			return
 		}
 
-		r.items = res.Items()
 		r.updatedStateTimer.Reset(50 * time.Millisecond)
 	}
 }
@@ -121,8 +125,17 @@ func (r *resolverCallback) sendState() {
 	services := make(map[string]registry.Service)
 	var edges []registry.Edge
 
+	items, err := r.reg.List(
+		registry.WithType(pb.ItemType_SERVER),
+		registry.WithType(pb.ItemType_SERVICE),
+		registry.WithType(pb.ItemType_EDGE),
+	)
+	if err != nil {
+		return
+	}
+
 	r.ml.RLock()
-	for _, v := range r.items {
+	for _, v := range items {
 		var srv registry.Server
 		var edge registry.Edge
 		var service registry.Service
@@ -164,19 +177,6 @@ func (r *resolverCallback) sendState() {
 		}
 	}
 
-	/*
-		for _, v := range r.items {
-			var svc registry.Service
-			if v.As(&svc) {
-				for _, node := range svc.Nodes() {
-					address, ok := m[node.ID()]
-					if ok {
-						address.Services = append(address.Services, svc.Name())
-					}
-				}
-			}
-		}
-	*/
 	r.ml.RUnlock()
 
 	for _, cb := range r.cbs {

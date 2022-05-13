@@ -28,6 +28,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/v4/common/utils/configx"
+
 	"github.com/pydio/cells/v4/common/config/memory"
 
 	"github.com/pydio/cells/v4/common/config/file"
@@ -37,10 +39,6 @@ import (
 
 	"github.com/pydio/cells/v4/common/config/etcd"
 	clientv3 "go.etcd.io/etcd/client/v3"
-
-	"github.com/pydio/cells/v4/common/etl/models"
-
-	"github.com/pydio/cells/v4/common/etl"
 
 	"github.com/pydio/cells/v4/common/config"
 
@@ -69,6 +67,19 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 
 	byName := u.Query().Get("byname") == "true"
 
+	var opts []configx.Option
+	encode := u.Query().Get("encoding")
+	switch encode {
+	case "string":
+		opts = append(opts, configx.WithString())
+	case "yaml":
+		opts = append(opts, configx.WithYAML())
+	case "json":
+		opts = append(opts, configx.WithJSON())
+	case "jsonitem":
+		opts = append(opts, WithJSONItem())
+	}
+
 	switch u.Scheme {
 	case "etcd":
 		tls := u.Query().Get("tls") == "true"
@@ -89,16 +100,16 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 			return nil, err
 		}
 
-		store := etcd.NewSource(context.Background(), etcdConn, "registry", true, true, WithJSONItem())
+		store := etcd.NewSource(context.Background(), etcdConn, "registry", true, true, opts...)
 		reg = NewConfigRegistry(store, byName)
 	case "file":
-		store, err := file.New(u.Path, true, WithJSONItem())
+		store, err := file.New(u.Path, true, opts...)
 		if err != nil {
 			return nil, err
 		}
 		reg = NewConfigRegistry(store, byName)
 	case "mem":
-		store := memory.New()
+		store := memory.New(opts...)
 
 		reg = NewConfigRegistry(store, byName)
 	}
@@ -128,8 +139,13 @@ type configRegistry struct {
 	sync.RWMutex
 
 	cache        []registry.Item
-	broadcasters map[string]chan registry.Result
+	broadcasters map[string]broadcaster
 	namedCache   map[string]string
+}
+
+type broadcaster struct {
+	Types []pb.ItemType
+	Ch    chan registry.Result
 }
 
 type options struct {
@@ -140,7 +156,7 @@ func NewConfigRegistry(store config.Store, byName bool) registry.RawRegistry {
 	c := &configRegistry{
 		store:        store,
 		cache:        []registry.Item{},
-		broadcasters: make(map[string]chan registry.Result),
+		broadcasters: make(map[string]broadcaster),
 	}
 	if byName {
 		c.namedCache = make(map[string]string)
@@ -164,8 +180,40 @@ func (c *configRegistry) watch() error {
 			return err
 		}
 
-		itemsMap := map[string]registry.Item{}
-		if err := res.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
+		for _, broadcaster := range c.broadcasters {
+			for _, itemType := range broadcaster.Types {
+				v := res.Val(getFromItemType(itemType))
+				if v.Get() == nil {
+					continue
+				}
+
+				items, err := c.List(registry.WithType(itemType))
+				if err != nil {
+					continue
+				}
+
+				select {
+				case broadcaster.Ch <- registry.NewResult(pb.ActionType_FULL_LIST, items):
+				default:
+				}
+
+				// TODO something for updates and creates and deletes
+				/*itemsMap := map[string]registry.Item{}
+				if err := v.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
+					fmt.Println("there is an error here ?", err)
+					return err
+				}
+
+
+				var items []registry.Item
+				for _, i := range itemsMap {
+					items = append(items, i)
+				}*/
+			}
+		}
+		/*itemsMap := map[string]registry.Item{}
+		if err := res.Val().Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
+			fmt.Println("there is an error here ?", err)
 			return err
 		}
 
@@ -174,16 +222,18 @@ func (c *configRegistry) watch() error {
 			items = append(items, i)
 		}
 
+		fmt.Println("We are here ? ", len(items))
+
 		c.RLock()
 		for _, broadcaster := range c.broadcasters {
 			select {
-			case broadcaster <- registry.NewResult(pb.ActionType_FULL_LIST, items):
+			case broadcaster.Ch <- registry.NewResult(pb.ActionType_FULL_LIST, items):
 			default:
 			}
 		}
-		c.RUnlock()
+		c.RUnlock()*/
 
-		merger := &etl.Merger{Options: &models.MergeOptions{}}
+		/*merger := &etl.Merger{Options: &models.MergeOptions{}}
 
 		diff := &Diff{}
 		merger.Diff(items, c.cache, diff)
@@ -223,6 +273,7 @@ func (c *configRegistry) watch() error {
 			}
 			c.RUnlock()
 		}
+		*/
 	}
 
 	return nil
@@ -236,6 +287,63 @@ func (c *configRegistry) Stop(item registry.Item) error {
 	return nil
 }
 
+func getType(item registry.Item) string {
+	switch v := item.(type) {
+	case registry.Service:
+		return "service"
+	case registry.Node:
+		return "node"
+	case registry.Edge:
+		return "edge"
+	case registry.Dao:
+		return "dao"
+	case registry.Server:
+		return "server"
+	case registry.Generic:
+		switch v.Type() {
+		case pb.ItemType_ADDRESS:
+			return "address"
+		case pb.ItemType_ENDPOINT:
+			return "endpoint"
+		case pb.ItemType_TAG:
+			return "tag"
+		case pb.ItemType_STATS:
+			return "stats"
+		default:
+			return "generic"
+		}
+	default:
+		return "other"
+	}
+}
+
+func getFromItemType(itemType pb.ItemType) string {
+	switch itemType {
+	case pb.ItemType_SERVICE:
+		return "service"
+	case pb.ItemType_NODE:
+		return "node"
+	case pb.ItemType_EDGE:
+		return "edge"
+	case pb.ItemType_DAO:
+		return "dao"
+	case pb.ItemType_SERVER:
+		return "server"
+	case pb.ItemType_GENERIC:
+		return "generic"
+	case pb.ItemType_ADDRESS:
+		return "address"
+	case pb.ItemType_STATS:
+		return "stats"
+	case pb.ItemType_TAG:
+		return "tag"
+	case pb.ItemType_ENDPOINT:
+		return "endpoint"
+	default:
+		return "other"
+	}
+}
+
 func (c *configRegistry) Register(item registry.Item, option ...registry.RegisterOption) error {
 	c.store.Lock()
 	defer c.store.Unlock()
@@ -245,14 +353,14 @@ func (c *configRegistry) Register(item registry.Item, option ...registry.Registe
 	// The namedCache uses the store lock.
 	if c.namedCache != nil {
 		if foundID, ok := c.namedCache[item.Name()]; ok {
-			if er := c.store.Val(foundID).Del(); er != nil {
+			if er := c.store.Val(getType(item)).Val(foundID).Del(); er != nil {
 				return er
 			}
 		}
 		c.namedCache[item.Name()] = item.ID()
 	}
 
-	if err := c.store.Val(item.ID()).Set(item); err != nil {
+	if err := c.store.Val(getType(item)).Val(item.ID()).Set(item); err != nil {
 		return err
 	}
 
@@ -267,7 +375,7 @@ func (c *configRegistry) Deregister(item registry.Item) error {
 	c.store.Lock()
 	defer c.store.Unlock()
 
-	if err := c.store.Val(item.ID()).Del(); err != nil {
+	if err := c.store.Val(getType(item)).Val(item.ID()).Del(); err != nil {
 		return err
 	}
 
@@ -286,9 +394,9 @@ func (c *configRegistry) Get(id string, opts ...registry.Option) (registry.Item,
 		}
 	}
 
-	items := map[string]registry.Item{}
-	if err := c.store.Get().Default(map[string]registry.Item{}).Scan(items); err != nil {
-		// do nothing
+	items, err := c.List(opts...)
+	if err != nil {
+		return nil, err
 	}
 
 	for _, v := range items {
@@ -307,55 +415,75 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 		}
 	}
 
-	items := map[string]registry.Item{}
-	/*if c.store.Get() == nil {
-		return nil, nil
-	}*/
-
-	if err := c.store.Get().Default(map[string]registry.Item{}).Scan(items); err != nil {
-		// do nothing
+	if len(o.Types) == 0 {
+		return nil, fmt.Errorf("shoudn't call without a type")
 	}
 
 	var res []registry.Item
 
-	for _, item := range items {
-		if o.Name != "" && !o.Matches(o.Name, item.Name()) {
-			continue
-		}
-		if o.Filter != nil && !o.Filter(item) {
-			continue
-		}
-		switch o.Type {
-		case pb.ItemType_ALL:
-			res = append(res, item)
+	for _, itemType := range o.Types {
+		var store configx.Values
+		switch itemType {
 		case pb.ItemType_NODE:
-			if service, ok := item.(registry.Node); ok {
-				res = append(res, service)
-			}
+			store = c.store.Val("node")
 		case pb.ItemType_SERVICE:
-			if service, ok := item.(registry.Service); ok {
-				res = append(res, service)
-			}
+			store = c.store.Val("service")
 		case pb.ItemType_SERVER:
-			if node, ok := item.(registry.Server); ok {
-				res = append(res, node)
-			}
+			store = c.store.Val("server")
 		case pb.ItemType_DAO:
-			if dao, ok := item.(registry.Dao); ok {
-				res = append(res, dao)
-			}
+			store = c.store.Val("dao")
 		case pb.ItemType_EDGE:
-			if edge, ok := item.(registry.Edge); ok {
-				res = append(res, edge)
-			}
+			store = c.store.Val("edge")
 		case pb.ItemType_GENERIC:
-			if generic, ok := item.(registry.Generic); ok {
-				res = append(res, generic)
+			store = c.store.Val("generic")
+		case pb.ItemType_ADDRESS:
+			store = c.store.Val("address")
+		case pb.ItemType_ENDPOINT:
+			store = c.store.Val("endpoint")
+		case pb.ItemType_STATS:
+			store = c.store.Val("stats")
+		case pb.ItemType_TAG:
+			store = c.store.Val("tag")
+		default:
+			store = c.store.Val("other")
+		}
+
+		items := map[string]registry.Item{}
+		if store.Get() == nil {
+			return res, nil
+		}
+
+		if err := store.Get().Default(map[string]registry.Item{}).Scan(items); err != nil {
+			fmt.Println("No items retrieved in list")
+			// do nothing
+		}
+
+		for _, item := range items {
+			found := false
+			for _, name := range o.Names {
+				if o.Matches(name, item.Name()) {
+					found = true
+					break
+				}
 			}
-		case pb.ItemType_ADDRESS, pb.ItemType_ENDPOINT, pb.ItemType_STATS, pb.ItemType_TAG:
-			if generic, ok := item.(registry.Generic); ok && generic.Type() == o.Type {
-				res = append(res, generic)
+
+			if len(o.Names) > 0 && !found {
+				continue
 			}
+
+			accept := true
+			for _, filter := range o.Filters {
+				if !filter(item) {
+					accept = false
+					break
+				}
+			}
+
+			if len(o.Filters) > 0 && !accept {
+				continue
+			}
+
+			res = append(res, item)
 		}
 	}
 
@@ -380,7 +508,10 @@ func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error
 	)
 
 	c.Lock()
-	c.broadcasters[id] = res
+	c.broadcasters[id] = broadcaster{
+		Types: wo.Types,
+		Ch:    res,
+	}
 	c.Unlock()
 
 	// Wrap in a configWatcher to properly deregister on stop

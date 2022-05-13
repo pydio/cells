@@ -293,7 +293,7 @@ func (m *manager) WatchBroker(ctx context.Context, br broker.Broker) error {
 		hh, _ := message.RawData()
 		cmd := hh["command"]
 		itemName := hh["itemName"]
-		s, err := m.reg.Get(itemName)
+		s, err := m.reg.Get(itemName, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE))
 		if err != nil {
 			if err == os.ErrNotExist {
 				return nil
