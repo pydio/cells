@@ -54,8 +54,19 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry,
 	if port := u.Port(); port != "" {
 		address = address + ":" + port
 	}
+	var cli *grpc.ClientConn
+	var err error
+	if u.Query().Has("timeout") {
+		if d, e := time.ParseDuration(u.Query().Get("timeout")); e != nil {
+			return nil, e
+		} else {
+			ct, _ := context.WithTimeout(ctx, d)
+			cli, err = grpc.DialContext(ct, u.Hostname()+":"+u.Port(), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+		}
+	} else {
+		cli, err = grpc.Dial(u.Hostname()+":"+u.Port(), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	}
 
-	cli, err := grpc.Dial(u.Hostname()+":"+u.Port(), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +248,7 @@ func (s *serviceRegistry) Watch(opts ...registry.Option) (registry.Watcher, erro
 			}
 			s.listeners = newL
 		}
-		return newChanWatcher(events, closeFunc, options), nil
+		return newChanWatcher(s.opts.Context, events, closeFunc, options), nil
 
 	}
 }
