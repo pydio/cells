@@ -153,11 +153,11 @@ func (s *server) Stop() error {
 
 	// We deregister the endpoints to clear links and re-register as stopped
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
-		if er := reg.Deregister(s); er != nil {
+		if er := reg.Deregister(s, registry.WithRegisterFailFast()); er != nil {
 			return er
 		} else {
 			s.status = "stopped"
-			_ = reg.Register(s)
+			_ = reg.Register(s, registry.WithRegisterFailFast())
 		}
 	}
 

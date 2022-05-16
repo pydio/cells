@@ -167,7 +167,7 @@ func (s *service) Stop() error {
 
 	if reg := servicecontext.GetRegistry(s.opts.Context); reg != nil {
 		// Deregister to make sure to break existing links
-		if err := reg.Deregister(s); err != nil {
+		if err := reg.Deregister(s, registry.WithRegisterFailFast()); err != nil {
 			log.Logger(s.opts.Context).Error("Could not deregister", zap.Error(err))
 		} else {
 			// Re-register as Stopped
@@ -213,21 +213,27 @@ func (s *service) updateRegister(status ...Status) {
 			log.Logger(s.opts.Context).Debug(string(status[0]))
 		}
 	}
+	up := s.status == StatusServing || s.status == StatusReady
+	down := s.status == StatusStopping || s.status == StatusStopped
+
 	reg := servicecontext.GetRegistry(s.opts.Context)
 	if reg == nil {
 		return
 	}
 	var options []registry.RegisterOption
-	if s.opts.Server != nil && (s.status == StatusServing || s.status == StatusReady) {
+	if up && s.opts.Server != nil {
 		options = append(options, registry.WithEdgeTo(s.opts.Server.ID(), "Server", map[string]string{}))
 	}
-	if len(s.opts.Tags) > 0 {
+	if len(s.opts.Tags) > 0 && !down {
 		for _, t := range s.opts.Tags {
 			generic := util.ToGeneric(&pb.Item{Id: "tag-" + t, Name: "tag", Metadata: map[string]string{"Tag": t}}, &pb.Generic{Type: pb.ItemType_TAG})
 			if er := reg.Register(generic); er == nil {
 				options = append(options, registry.WithEdgeTo(generic.ID(), "Tag", map[string]string{}))
 			}
 		}
+	}
+	if down {
+		options = append(options, registry.WithRegisterFailFast())
 	}
 	if err := reg.Register(s, options...); err != nil {
 		if s.status == StatusStopping || s.status == StatusStopped {

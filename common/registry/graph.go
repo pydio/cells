@@ -60,7 +60,7 @@ func (r *graphRegistry) Register(i Item, option ...RegisterOption) error {
 		o(opt)
 	}
 	// Register main service
-	if er := r.r.Register(i); er != nil {
+	if er := r.r.Register(i, option...); er != nil {
 		return er
 	}
 	// If there are edges, register them
@@ -87,21 +87,21 @@ func (r *graphRegistry) Register(i Item, option ...RegisterOption) error {
 
 // Deregister wraps internal registry Deregister call by clearing possible Edges to the service.
 // It also clears the associated watcher if there is one.
-func (r *graphRegistry) Deregister(i Item) error {
+func (r *graphRegistry) Deregister(i Item, option ...RegisterOption) error {
 	r.wl.Lock()
 	if w, ok := r.ww[i.ID()]; ok {
 		w.Stop()
 		delete(r.ww, i.ID())
 	}
 	r.wl.Unlock()
-	if er := r.r.Deregister(i); er != nil {
+	if er := r.r.Deregister(i, option...); er != nil {
 		return er
 	}
-	_, err := r.clearEdges(i)
+	_, err := r.clearEdges(i, option...)
 	return err
 }
 
-func (r *graphRegistry) RegisterEdge(item1, item2, edgeLabel string, metadata map[string]string) (Edge, error) {
+func (r *graphRegistry) RegisterEdge(item1, item2, edgeLabel string, metadata map[string]string, oo ...RegisterOption) (Edge, error) {
 	// Make id unique for an item1+item2 pair
 	pair := []string{item1, item2}
 	sort.Strings(pair)
@@ -117,7 +117,7 @@ func (r *graphRegistry) RegisterEdge(item1, item2, edgeLabel string, metadata ma
 	if e.metadata == nil {
 		e.metadata = map[string]string{}
 	}
-	return e, r.r.Register(e)
+	return e, r.r.Register(e, oo...)
 }
 
 func (r *graphRegistry) ListAdjacentItems(sourceItem Item, targetOptions ...Option) (items []Item) {
@@ -174,10 +174,22 @@ func (r *graphRegistry) startWatcher(id string, sr StatusReporter) {
 }
 
 // clearEdges looks for links that are pointing to this sourceItem
-func (r *graphRegistry) clearEdges(sourceItem Item) ([]Edge, error) {
+func (r *graphRegistry) clearEdges(sourceItem Item, oo ...RegisterOption) ([]Edge, error) {
+	lo := []Option{
+		WithType(pb.ItemType_EDGE),
+	}
+	// Convert RegisterFailFast to ListFailFast as well
+	opt := &RegisterOptions{}
+	for _, o := range oo {
+		o(opt)
+	}
+	if opt.FailFast {
+		lo = append(lo, WithFailFast())
+	}
+
 	var out []Edge
 	edges := make(map[string]Edge)
-	ee, er := r.r.List(WithType(pb.ItemType_EDGE))
+	ee, er := r.r.List(lo...)
 	if er != nil {
 		return nil, er
 	}
@@ -195,7 +207,7 @@ func (r *graphRegistry) clearEdges(sourceItem Item) ([]Edge, error) {
 		return out, nil
 	}
 	for _, e := range edges {
-		if er := r.r.Deregister(e); er != nil {
+		if er := r.r.Deregister(e, oo...); er != nil {
 			return out, nil
 		} else {
 			out = append(out, e)

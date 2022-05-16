@@ -158,7 +158,15 @@ func (s *serviceRegistry) Stop(item registry.Item) error {
 }
 
 func (s *serviceRegistry) Register(item registry.Item, option ...registry.RegisterOption) error {
-	_, err := s.client.Register(s.opts.Context, util.ToProtoItem(item), s.callOpts()...)
+	var opts = &registry.RegisterOptions{}
+	for _, o := range option {
+		o(opts)
+	}
+	callOpts := s.callOpts()
+	if opts.FailFast {
+		callOpts = append(callOpts, grpc.WaitForReady(false))
+	}
+	_, err := s.client.Register(s.opts.Context, util.ToProtoItem(item), callOpts...)
 	if err != nil {
 		return err
 	}
@@ -166,8 +174,16 @@ func (s *serviceRegistry) Register(item registry.Item, option ...registry.Regist
 	return nil
 }
 
-func (s *serviceRegistry) Deregister(item registry.Item) error {
-	_, err := s.client.Deregister(s.opts.Context, util.ToProtoItem(item), s.callOpts()...)
+func (s *serviceRegistry) Deregister(item registry.Item, option ...registry.RegisterOption) error {
+	var opts = &registry.RegisterOptions{}
+	for _, o := range option {
+		o(opts)
+	}
+	callOpts := s.callOpts()
+	if opts.FailFast {
+		callOpts = append(callOpts, grpc.WaitForReady(false))
+	}
+	_, err := s.client.Deregister(s.opts.Context, util.ToProtoItem(item), callOpts...)
 	if err != nil {
 		return err
 	}
@@ -198,11 +214,15 @@ func (s *serviceRegistry) List(opts ...registry.Option) ([]registry.Item, error)
 	for _, o := range opts {
 		o(&options)
 	}
+	cOpts := s.callOpts()
+	if options.FailFast {
+		cOpts = append(cOpts, grpc.WaitForReady(false))
+	}
 	rsp, err := s.client.List(s.opts.Context, &pb.ListRequest{
 		Options: &pb.Options{
 			Types: options.Types,
 		},
-	}, s.callOpts()...)
+	}, cOpts...)
 	if err != nil {
 		return nil, err
 	}

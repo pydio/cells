@@ -371,7 +371,7 @@ func (c *configRegistry) Register(item registry.Item, option ...registry.Registe
 	return nil
 }
 
-func (c *configRegistry) Deregister(item registry.Item) error {
+func (c *configRegistry) Deregister(item registry.Item, option ...registry.RegisterOption) error {
 	c.store.Lock()
 	defer c.store.Unlock()
 
@@ -389,9 +389,7 @@ func (c *configRegistry) Deregister(item registry.Item) error {
 func (c *configRegistry) Get(id string, opts ...registry.Option) (registry.Item, error) {
 	o := registry.Options{}
 	for _, opt := range opts {
-		if err := opt(&o); err != nil {
-			return nil, err
-		}
+		opt(&o)
 	}
 
 	items, err := c.List(opts...)
@@ -410,9 +408,7 @@ func (c *configRegistry) Get(id string, opts ...registry.Option) (registry.Item,
 func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) {
 	o := registry.Options{}
 	for _, opt := range opts {
-		if err := opt(&o); err != nil {
-			return nil, err
-		}
+		opt(&o)
 	}
 
 	if len(o.Types) == 0 {

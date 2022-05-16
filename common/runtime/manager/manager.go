@@ -202,7 +202,7 @@ func (m *manager) StopAll() {
 	}
 	if m.rootIsFork {
 		fmt.Println("Deregistering fork Node")
-		_ = m.reg.Deregister(m.root)
+		_ = m.reg.Deregister(m.root, registry.WithRegisterFailFast())
 	}
 }
 

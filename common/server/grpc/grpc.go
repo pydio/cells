@@ -218,7 +218,8 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 }
 
 func (s *Server) Stop() error {
-	s.Server.GracefulStop()
+	//s.Server.GracefulStop()
+	s.Server.Stop()
 	s.Server = nil
 	return nil
 }

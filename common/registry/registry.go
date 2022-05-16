@@ -27,7 +27,7 @@ import (
 
 type Registry interface {
 	RawRegistry
-	RegisterEdge(item1, item2, edgeLabel string, metadata map[string]string) (Edge, error)
+	RegisterEdge(item1, item2, edgeLabel string, metadata map[string]string, oo ...RegisterOption) (Edge, error)
 	ListAdjacentItems(sourceItem Item, targetOptions ...Option) (items []Item)
 }
 
@@ -35,7 +35,7 @@ type RawRegistry interface {
 	Start(Item) error
 	Stop(Item) error
 	Register(Item, ...RegisterOption) error
-	Deregister(Item) error
+	Deregister(Item, ...RegisterOption) error
 	Get(string, ...Option) (Item, error)
 	List(...Option) ([]Item, error)
 	Watch(...Option) (Watcher, error)

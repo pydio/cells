@@ -32,46 +32,49 @@ const (
 	ServiceMetaOverride = "service-override"
 )
 
-type Option func(*Options) error
+type Option func(*Options)
 
 type Options struct {
-	Context context.Context
-	Action  pb.ActionType
-	Names   []string
-	Types   []pb.ItemType
-	Filters []func(item Item) bool
+	Context  context.Context
+	FailFast bool
+	Action   pb.ActionType
+	Names    []string
+	Types    []pb.ItemType
+	Filters  []func(item Item) bool
+}
+
+func WithFailFast() Option {
+	return func(options *Options) {
+		options.FailFast = true
+	}
 }
 
 func WithAction(a pb.ActionType) Option {
-	return func(o *Options) error {
+	return func(o *Options) {
 		o.Action = a
-		return nil
 	}
 }
 
 func WithName(n string) Option {
-	return func(o *Options) error {
+	return func(o *Options) {
 		o.Names = append(o.Names, n)
-		return nil
 	}
 }
 
 func WithType(t pb.ItemType) Option {
-	return func(o *Options) error {
+	return func(o *Options) {
 		o.Types = append(o.Types, t)
-		return nil
 	}
 }
 
 func WithFilter(f func(Item) bool) Option {
-	return func(o *Options) error {
+	return func(o *Options) {
 		o.Filters = append(o.Filters, f)
-		return nil
 	}
 }
 
 func WithMeta(name, value string) Option {
-	return func(o *Options) error {
+	return func(o *Options) {
 		o.Filters = append(o.Filters, func(item Item) bool {
 			mm := item.Metadata()
 			val, has := mm[name]
@@ -83,7 +86,6 @@ func WithMeta(name, value string) Option {
 			}
 			return true
 		})
-		return nil
 	}
 }
 
@@ -101,8 +103,9 @@ func (o *Options) Matches(name, itemName string) bool {
 }
 
 type RegisterOptions struct {
-	Edges []registerEdge
-	Watch interface{}
+	Edges    []registerEdge
+	Watch    interface{}
+	FailFast bool
 }
 
 type RegisterOption func(options *RegisterOptions)
@@ -129,5 +132,11 @@ func WithEdgeTo(id, label string, meta map[string]string) RegisterOption {
 func WithWatch(wi StatusReporter) RegisterOption {
 	return func(options *RegisterOptions) {
 		options.Watch = wi
+	}
+}
+
+func WithRegisterFailFast() RegisterOption {
+	return func(options *RegisterOptions) {
+		options.FailFast = true
 	}
 }
