@@ -64,6 +64,7 @@ func init() {
 			service.Fork(true),
 			service.WithStorage(jobs.NewDAO,
 				service.WithStoragePrefix("jobs"),
+				service.WithStorageMigrator(jobs.Migrate),
 				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
 					return boltdb.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "jobs.db")
@@ -71,6 +72,7 @@ func init() {
 			),
 			service.WithIndexer(log.NewDAO,
 				service.WithStoragePrefix("tasklogs"),
+				service.WithStorageMigrator(log.Migrate),
 				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
 					return bleve.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "tasklogs.bleve?mapping=log&rotationSize=-1")

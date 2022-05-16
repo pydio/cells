@@ -37,6 +37,7 @@ import (
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/registry"
@@ -66,6 +67,7 @@ to quickly create a Cobra application.`,
 		})
 
 		runtime.SetArgs(args)
+		initLogLevel()
 		metrics.Init()
 		handleSignals(args)
 
@@ -137,9 +139,14 @@ to quickly create a Cobra application.`,
 			return err
 		}
 
+		// Logging Stuff
 		runtime.InitGlobalConnConsumers(ctx, "main")
 		go initLogLevelListener(ctx)
-		initLogLevel()
+		if runtime.HttpServerType() == runtime.HttpServerCaddy {
+			if err := log.CaptureCaddyStdErr(); err != nil {
+				fmt.Println("-- Cannot setup StdErr logger")
+			}
+		}
 
 		go m.WatchServicesConfigs()
 		go m.WatchBroker(ctx, broker.Default())

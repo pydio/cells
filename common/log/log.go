@@ -135,36 +135,6 @@ func Init(logDir string, ww ...LogContextWrapper) {
 
 		_, _ = zap.RedirectStdLogAt(logger, zap.DebugLevel)
 
-		// Catch StdErr
-		if !common.LogCaptureStdErr {
-			return logger
-		}
-
-		r, w, err := os.Pipe()
-		if err == nil {
-			os.Stderr = w
-			caddyLogger := logger.Named("pydio.server.caddy")
-			go func() {
-				scanner := bufio.NewScanner(r)
-				for scanner.Scan() {
-					line := scanner.Text()
-					if parsed := caddyInternals.FindStringSubmatch(line); len(parsed) == 7 {
-						level := strings.Trim(parsed[2], "[340m ")
-						msg := parsed[3] + " - " + parsed[4] + parsed[6]
-						if strings.Contains(level, "INFO") {
-							caddyLogger.Info(msg)
-						} else if strings.Contains(level, "ERROR") {
-							caddyLogger.Error(msg)
-						} else { // DEBUG, WARN, or other value
-							caddyLogger.Debug(msg)
-						}
-						continue
-					}
-					logger.Info(line)
-				}
-			}()
-		}
-
 		return logger
 	}, func(ctx context.Context) {
 		if !skipServerSync {
@@ -174,6 +144,36 @@ func Init(logDir string, ww ...LogContextWrapper) {
 	if len(ww) > 0 {
 		contextWrapper = ww[0]
 	}
+}
+
+func CaptureCaddyStdErr() error {
+	logger := Logger(servicecontext.WithServiceName(context.Background(), "pydio.server.caddy"))
+	r, w, err := os.Pipe()
+	if err != nil {
+		return err
+	}
+	os.Stderr = w
+	//caddyLogger := logger.Named("pydio.server.caddy")
+	go func() {
+		scanner := bufio.NewScanner(r)
+		for scanner.Scan() {
+			line := scanner.Text()
+			if parsed := caddyInternals.FindStringSubmatch(line); len(parsed) == 7 {
+				level := strings.Trim(parsed[2], "[340m ")
+				msg := parsed[3] + " - " + parsed[4] + parsed[6]
+				if strings.Contains(level, "INFO") {
+					logger.Info(msg)
+				} else if strings.Contains(level, "ERROR") {
+					logger.Error(msg)
+				} else { // DEBUG, WARN, or other value
+					logger.Debug(msg)
+				}
+				continue
+			}
+			logger.Error(line)
+		}
+	}()
+	return nil
 }
 
 // RegisterWriteSyncer optional writers for logs

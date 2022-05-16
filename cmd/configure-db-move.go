@@ -116,11 +116,11 @@ DESCRIPTION
 		cmd.Printf("Migrate service %s from %s to %s\n", serviceName, from.driver, to.driver)
 		sOptions := migratorsOptions[serviceIndex]
 		prefix := sOptions.Prefix(sOptions.serviceOptions)
-		fromDao, e := initDAO(cmd.Context(), from.driver, from.dsn, prefix)
+		fromDao, e := initDAO(cmd.Context(), from.driver, from.dsn, prefix, sOptions.StorageKey)
 		if e != nil {
 			return e
 		}
-		toDao, e := initDAO(cmd.Context(), to.driver, to.dsn, prefix)
+		toDao, e := initDAO(cmd.Context(), to.driver, to.dsn, prefix, sOptions.StorageKey)
 		if e != nil {
 			return e
 		}
@@ -155,7 +155,7 @@ DESCRIPTION
 	},
 }
 
-func initDAO(ctx context.Context, driver, dsn, prefix string) (dao.DAO, error) {
+func initDAO(ctx context.Context, driver, dsn, prefix, storageKey string) (dao.DAO, error) {
 	var d dao.DAO
 	var e error
 	switch driver {
@@ -174,7 +174,15 @@ func initDAO(ctx context.Context, driver, dsn, prefix string) (dao.DAO, error) {
 	if e := d.Init(ctx, configx.New()); e != nil {
 		return nil, e
 	}
-	return d, nil
+	if storageKey == "indexer" {
+		switch driver {
+		case bleve.Driver:
+			d, e = bleve.NewIndexer(ctx, d)
+		case mongodb.Driver:
+			d, e = mongodb.NewIndexer(ctx, d)
+		}
+	}
+	return d, e
 }
 
 func init() {

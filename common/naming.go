@@ -284,7 +284,6 @@ var (
 	LogLevel            zapcore.Level
 	LogToFile           bool
 	LogFileDefaultValue = "true"
-	LogCaptureStdErr    bool
 )
 
 var (

@@ -82,3 +82,50 @@ func stripTaskMessage(message *jobs.ActionMessage) {
 		message.Activities[i] = &activity.Object{Id: a.Id}
 	}
 }
+
+func Migrate(f, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
+	ctx := context.Background()
+	out := map[string]int{
+		"Jobs":  0,
+		"Tasks": 0,
+	}
+	var from, to DAO
+	if df, e := NewDAO(ctx, f); e == nil {
+		from = df.(DAO)
+	} else {
+		return out, e
+	}
+	if dt, e := NewDAO(ctx, t); e == nil {
+		to = dt.(DAO)
+	} else {
+		return out, e
+	}
+	jj, done, er := from.ListJobs("", false, false, jobs.TaskStatus_Any, []string{})
+	if er != nil {
+		return nil, er
+	}
+loop:
+	for {
+		select {
+		case <-done:
+			break loop
+		case j := <-jj:
+			tasks := j.Tasks
+			out["Jobs"]++
+			out["Tasks"] += len(tasks)
+			if dryRun {
+				break
+			}
+			if e := to.PutJob(j); e != nil {
+				return out, e
+			}
+			for _, ta := range tasks {
+				if er := to.PutTask(ta); er != nil {
+					return out, er
+				}
+			}
+		}
+	}
+
+	return out, nil
+}
