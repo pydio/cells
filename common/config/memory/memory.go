@@ -150,9 +150,10 @@ func (m *memory) Save(string, string) error {
 func (m *memory) Watch(path ...string) (configx.Receiver, error) {
 	r := &receiver{
 		closed: false,
-		ch:     make(chan configx.Values),
+		ch:     make(chan diff.Change),
 		path:   path,
 		m:      m,
+		timer:  time.NewTimer(2 * time.Second),
 	}
 
 	m.receivers = append(m.receivers, r)
@@ -162,9 +163,11 @@ func (m *memory) Watch(path ...string) (configx.Receiver, error) {
 
 type receiver struct {
 	closed bool
-	ch     chan configx.Values
+	ch     chan diff.Change
 
 	path []string
+
+	timer *time.Timer
 
 	m *memory
 }
@@ -175,23 +178,25 @@ func (r *receiver) call(op diff.Change) error {
 	}
 
 	if strings.Join(r.path, "") == "" || strings.HasPrefix(strings.Join(r.path, "/"), strings.Join(op.Path, "/")) {
-		c := configx.New(r.m.opts...)
-		if err := c.Val(op.Path...).Set(op.To); err != nil {
-			return err
-		}
-
-		r.ch <- c.Val("v")
+		r.ch <- op
 	}
 	return nil
 }
 
 func (r *receiver) Next() (configx.Values, error) {
-	select {
-	case c := <-r.ch:
-		r.m.RLock()
-		defer r.m.RUnlock()
+	c := configx.New(r.m.opts...)
 
-		return c, nil
+	for {
+		select {
+		case op := <-r.ch:
+			if err := c.Val(op.Path...).Set(op.To); err != nil {
+				return nil, err
+			}
+
+			r.timer.Reset(2 * time.Second)
+		case <-r.timer.C:
+			return c.Val("v"), nil
+		}
 	}
 
 	return r.Next()

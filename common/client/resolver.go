@@ -100,10 +100,14 @@ func (r *resolverCallback) watch() {
 	}
 
 	for {
-		_, err := w.Next()
+		res, err := w.Next()
 		if err != nil {
 			return
 		}
+
+		r.ml.Lock()
+		r.items = res.Items()
+		r.ml.Unlock()
 
 		r.updatedStateTimer.Reset(50 * time.Millisecond)
 	}
@@ -125,17 +129,17 @@ func (r *resolverCallback) sendState() {
 	services := make(map[string]registry.Service)
 	var edges []registry.Edge
 
-	items, err := r.reg.List(
-		registry.WithType(pb.ItemType_SERVER),
-		registry.WithType(pb.ItemType_SERVICE),
-		registry.WithType(pb.ItemType_EDGE),
-	)
-	if err != nil {
-		return
-	}
+	//items, err := r.reg.List(
+	//	registry.WithType(pb.ItemType_SERVER),
+	//	registry.WithType(pb.ItemType_SERVICE),
+	//	registry.WithType(pb.ItemType_EDGE),
+	//)
+	//if err != nil {
+	//	return
+	//}
 
 	r.ml.RLock()
-	for _, v := range items {
+	for _, v := range r.items {
 		var srv registry.Server
 		var edge registry.Edge
 		var service registry.Service
