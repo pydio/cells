@@ -123,10 +123,7 @@ func (s *server) Serve(oo ...ServeOption) error {
 			return err
 		}
 		for _, item := range ii {
-			if err := reg.Register(item); err != nil {
-				return err
-			}
-			if _, err := reg.RegisterEdge(s.ID(), item.ID(), "instance", nil); err != nil {
+			if err := reg.Register(item, registry.WithEdgeTo(s.ID(), "instance", nil)); err != nil {
 				return err
 			}
 		}
