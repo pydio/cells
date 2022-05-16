@@ -23,7 +23,19 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"net"
+	"net/url"
+	"os/exec"
+	"sort"
+	"strings"
+	"time"
+
 	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
+	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
@@ -34,16 +46,6 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/std"
-	"github.com/rivo/tview"
-	"github.com/spf13/cobra"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"net"
-	"net/url"
-	"os/exec"
-	"sort"
-	"strings"
-	"time"
 )
 
 type item struct {
