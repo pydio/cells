@@ -169,33 +169,27 @@ func NewConfigRegistry(store config.Store, byName bool) registry.RawRegistry {
 func (c *configRegistry) watch() error {
 	w, err := c.store.Watch()
 	if err != nil {
-		fmt.Println("There is an error watching the store ", err)
 		return err
 	}
 
 	for {
 		res, err := w.Next()
 		if err != nil {
-			fmt.Println("There is an error nexting the store  ", err)
 			return err
 		}
 
 		for _, broadcaster := range c.broadcasters {
+			sendFullList := false
+			var opts []registry.Option
 			for _, itemType := range broadcaster.Types {
+				opts = append(opts, registry.WithType(itemType))
+
 				v := res.Val(getFromItemType(itemType))
 				if v.Get() == nil {
 					continue
 				}
 
-				items, err := c.List(registry.WithType(itemType))
-				if err != nil {
-					continue
-				}
-
-				select {
-				case broadcaster.Ch <- registry.NewResult(pb.ActionType_FULL_LIST, items):
-				default:
-				}
+				sendFullList = true
 
 				// TODO something for updates and creates and deletes
 				/*itemsMap := map[string]registry.Item{}
@@ -209,6 +203,18 @@ func (c *configRegistry) watch() error {
 				for _, i := range itemsMap {
 					items = append(items, i)
 				}*/
+			}
+
+			if sendFullList {
+				items, err := c.List(opts...)
+				if err != nil {
+					continue
+				}
+
+				select {
+				case broadcaster.Ch <- registry.NewResult(pb.ActionType_FULL_LIST, items):
+				default:
+				}
 			}
 		}
 		/*itemsMap := map[string]registry.Item{}

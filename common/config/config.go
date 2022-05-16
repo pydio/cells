@@ -21,8 +21,6 @@
 package config
 
 import (
-	"fmt"
-
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"google.golang.org/protobuf/runtime/protoimpl"
@@ -112,13 +110,11 @@ func Save(ctxUser string, ctxMessage string) error {
 
 	if local != std {
 		if err := local.Save(ctxUser, ctxMessage); err != nil {
-			fmt.Println("Cannot save local config", err)
 			return err
 		}
 	}
 
 	if err := std.Save(ctxUser, ctxMessage); err != nil {
-		fmt.Println("Cannot save config", err)
 		return err
 	}
 
