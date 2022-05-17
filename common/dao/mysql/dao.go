@@ -27,11 +27,11 @@ import (
 )
 
 const (
-	MysqlDriver = "mysql"
+	Driver = "mysql"
 )
 
 func init() {
-	dao.RegisterDAODriver(MysqlDriver, commonsql.NewDAO, func(c context.Context, driver, dsn string) dao.ConnDriver {
+	dao.RegisterDAODriver(Driver, commonsql.NewDAO, func(c context.Context, driver, dsn string) dao.ConnDriver {
 		return &conn{}
 	})
 }
