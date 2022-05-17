@@ -214,7 +214,14 @@ func (r *remote) Lock() {
 func (r *remote) Unlock() {
 }
 
-func (r *remote) Watch(path ...string) (configx.Receiver, error) {
+func (r *remote) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
+	o := &configx.WatchOptions{}
+	for _, opt := range opts {
+		opt(o)
+	}
+
+	path := o.Path
+
 	rcvr := &receiver{
 		exit:    make(chan bool),
 		path:    path,
@@ -234,7 +241,7 @@ type receiver struct {
 	updates chan []byte
 }
 
-func (r *receiver) Next() (configx.Values, error) {
+func (r *receiver) Next() (interface{}, error) {
 	for {
 		select {
 		case <-r.exit:

@@ -23,12 +23,13 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/utils/std"
 	"math"
 	"strconv"
 	"strings"
 	sync2 "sync"
 	"time"
+
+	"github.com/pydio/cells/v4/common/utils/std"
 
 	"github.com/pydio/cells/v4/common/runtime"
 
@@ -464,7 +465,7 @@ func (s *Handler) watchConfigs() {
 
 	// TODO - should be linked to context
 	for {
-		watcher, e := config.Watch("services", serviceName)
+		watcher, e := config.Watch(configx.WithPath("services", serviceName))
 		if e != nil {
 			time.Sleep(1 * time.Second)
 			continue
@@ -479,7 +480,7 @@ func (s *Handler) watchConfigs() {
 
 			var cfg object.DataSource
 
-			if err := event.Scan(&cfg); err == nil && cfg.Name == s.dsName {
+			if err := event.(configx.Values).Scan(&cfg); err == nil && cfg.Name == s.dsName {
 				log.Logger(s.globalCtx).Info("Config changed on "+serviceName+", comparing", zap.Any("old", s.SyncConfig), zap.Any("new", &cfg))
 				if s.SyncConfig.ObjectsBaseFolder != cfg.ObjectsBaseFolder || s.SyncConfig.ObjectsBucket != cfg.ObjectsBucket {
 					// @TODO - Object service must be restarted before restarting sync

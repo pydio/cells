@@ -3,6 +3,8 @@ package grpc
 import (
 	"context"
 
+	"github.com/pydio/cells/v4/common/utils/configx"
+
 	"github.com/pydio/cells/v4/common/config"
 	pb "github.com/pydio/cells/v4/common/proto/config"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -59,7 +61,7 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.Delete
 }
 
 func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Config_WatchServer) error {
-	w, err := config.Watch(req.GetPath())
+	w, err := config.Watch(configx.WithPath(req.GetPath()))
 	if err != nil {
 		return err
 	}
@@ -72,7 +74,7 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Config_WatchServer) erro
 
 		if err := stream.Send(&pb.WatchResponse{
 			Value: &pb.Value{
-				Data: res.Bytes(),
+				Data: res.(configx.Values).Bytes(),
 			},
 		}); err != nil {
 			return err
