@@ -32,12 +32,18 @@ import (
 )
 
 type configDatabase struct {
+	id       string
 	driver   string
 	dsn      string
-	services []string
+	services []configDbService
 }
 
-func configDatabaseList() (dd []configDatabase) {
+type configDbService struct {
+	storageKey  string
+	serviceName string
+}
+
+func configDatabaseList() (dd []*configDatabase) {
 
 	m := config.Get("databases").Map()
 
@@ -58,7 +64,7 @@ func configDatabaseList() (dd []configDatabase) {
 			continue
 		}
 
-		var services []string
+		var services []configDbService
 		for sid, vs := range m {
 			dbid, ok := vs.(string)
 			if !ok {
@@ -66,11 +72,12 @@ func configDatabaseList() (dd []configDatabase) {
 			}
 
 			if dbid == id {
-				services = append(services, sid)
+				services = append(services, configDbService{serviceName: sid, storageKey: "storage"})
 			}
 		}
 
-		dd = append(dd, configDatabase{
+		dd = append(dd, &configDatabase{
+			id:       id,
 			dsn:      dsn.(string),
 			driver:   driver.(string),
 			services: services,
@@ -83,14 +90,16 @@ func configDatabaseList() (dd []configDatabase) {
 	}
 
 	for _, s := range ss {
+		var defaultDriver string
 		for _, sOpt := range s.Options().Storages {
 			if sOpt.DefaultDriver != nil {
 				driver, dsn := sOpt.DefaultDriver()
+				defaultDriver = driver
 				skip := false
 				// Exclude already registered
 				for _, d := range dd {
 					if d.driver == driver && d.dsn == dsn {
-						d.services = append(d.services, s.Name())
+						d.services = append(d.services, configDbService{serviceName: s.Name(), storageKey: sOpt.StorageKey})
 						skip = true
 						break
 					}
@@ -98,11 +107,21 @@ func configDatabaseList() (dd []configDatabase) {
 				if skip {
 					continue
 				}
-				dd = append(dd, configDatabase{
+				dd = append(dd, &configDatabase{
 					driver:   driver,
 					dsn:      dsn,
-					services: []string{s.Name()},
+					services: []configDbService{{serviceName: s.Name(), storageKey: sOpt.StorageKey}},
 				})
+			}
+			for _, supported := range sOpt.SupportedDrivers {
+				if supported == defaultDriver {
+					continue
+				}
+				for _, d := range dd {
+					if d.driver == supported {
+						d.services = append(d.services, configDbService{serviceName: s.Name(), storageKey: sOpt.StorageKey})
+					}
+				}
 			}
 		}
 	}
@@ -127,7 +146,11 @@ DESCRIPTION
 		// List all databases value
 		dd := configDatabaseList()
 		for _, d := range dd {
-			table.Append([]string{d.driver, d.dsn, strings.Join(d.services, ",")})
+			var ss []string
+			for _, s := range d.services {
+				ss = append(ss, s.serviceName+" ("+s.storageKey+")")
+			}
+			table.Append([]string{d.driver, d.dsn, strings.Join(ss, "\n")})
 		}
 		table.SetAlignment(tablewriter.ALIGN_LEFT)
 		table.Render()

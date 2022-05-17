@@ -53,6 +53,7 @@ func init() {
 			service.Description("Syslog index store"),
 			service.WithIndexer(log.NewDAO,
 				service.WithStoragePrefix("syslog"),
+				service.WithStorageMigrator(log.Migrate),
 				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
 					return bleve.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "syslog.bleve?mapping=log")

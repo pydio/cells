@@ -66,6 +66,7 @@ to quickly create a Cobra application.`,
 		})
 
 		runtime.SetArgs(args)
+		initLogLevel()
 		metrics.Init()
 		handleSignals(args)
 
@@ -137,9 +138,9 @@ to quickly create a Cobra application.`,
 			return err
 		}
 
+		// Logging Stuff
 		runtime.InitGlobalConnConsumers(ctx, "main")
 		go initLogLevelListener(ctx)
-		initLogLevel()
 
 		go m.WatchServicesConfigs()
 		go m.WatchBroker(ctx, broker.Default())

@@ -30,6 +30,7 @@ import (
 	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
 
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
@@ -43,6 +44,61 @@ var (
 	dbMoveDryRun bool
 )
 
+type flatOptions struct {
+	*service.StorageOptions
+	serviceName    string
+	serviceOptions *service.ServiceOptions
+}
+
+func configDbMoveOne(cmd *cobra.Command, dry, promptConfig bool, migOption *flatOptions, from, to *configDatabase) error {
+	cmd.Printf("Migrate service %s from %s to %s\n", migOption.serviceName, from.driver, to.driver)
+	prefix := migOption.Prefix(migOption.serviceOptions)
+	fromDao, e := initDAO(cmd.Context(), from.driver, from.dsn, prefix, migOption.StorageKey)
+	if e != nil {
+		return e
+	}
+	toDao, e := initDAO(cmd.Context(), to.driver, to.dsn, prefix, migOption.StorageKey)
+	if e != nil {
+		return e
+	}
+
+	if dry {
+		cmd.Println("Running migration in dry-run mode - Nothing will be modified")
+	} else {
+		cmd.Println("Running migration in real mode - Data will be copied to target")
+	}
+	sChan := make(chan dao.MigratorStatus, 1000)
+	var bar *progressbar.ProgressBar
+	go func() {
+		for status := range sChan {
+			if status.Total > 0 {
+				if bar == nil {
+					bar = progressbar.Default(status.Total)
+				}
+				_ = bar.Set64(status.Count)
+			}
+		}
+	}()
+	if result, e := migOption.Migrator(fromDao, toDao, dry, sChan); e != nil {
+		return e
+	} else {
+		for name, count := range result {
+			cmd.Printf("Copied %d %s\n", count, name)
+		}
+	}
+	close(sChan)
+
+	if to.id != "" && !dry && promptConfig {
+		assignNow := promptui.Prompt{Label: "Do you want to assign now the new storage to the service?", IsConfirm: true}
+		if _, e := assignNow.Run(); e == nil {
+			cp := []string{"services", migOption.serviceName, migOption.StorageKey}
+			cmd.Println("Setting configuration ", strings.Join(cp, "/"), "to", to.id)
+			return config.Set(to.id, cp...)
+		}
+	}
+	return nil
+}
+
 // configDatabaseListCmd lists all database connections.
 var configDatabaseMoveCmd = &cobra.Command{
 	Use:   "move",
@@ -54,14 +110,15 @@ DESCRIPTION
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
+		if dbMoveDryRun {
+			cmd.Println("------------------------------------------------------------------------------------")
+			cmd.Println(promptui.IconWarn + " This command has dry-run enabled by default. No real operations will be performed")
+			cmd.Println("------------------------------------------------------------------------------------")
+		}
+
 		ss, e := lib.ListServicesWithStorage()
 		if e != nil {
 			log.Fatal(e.Error())
-		}
-		type flatOptions struct {
-			*service.StorageOptions
-			serviceName    string
-			serviceOptions *service.ServiceOptions
 		}
 		var migratorsOptions []*flatOptions
 
@@ -89,73 +146,62 @@ DESCRIPTION
 		if er != nil {
 			return er
 		}
+		selectedMig := migratorsOptions[serviceIndex]
 
 		// List all databases value
 		dd := configDatabaseList()
-		var drivers []string
+		var driversItems []string
+		var drivers []*configDatabase
 		for _, driver := range dd {
-			drivers = append(drivers, fmt.Sprintf("%s - %s (%s)", driver.driver, driver.dsn, strings.Join(driver.services, ",")))
+			supported := false
+			for _, s := range driver.services {
+				if s.serviceName == selectedMig.serviceName && s.storageKey == selectedMig.StorageKey {
+					supported = true
+					break
+				}
+			}
+			if supported {
+				drivers = append(drivers, driver)
+				driversItems = append(driversItems, fmt.Sprintf("%s - %s", driver.driver, driver.dsn))
+			}
 		}
 		dl := &promptui.Select{
-			Label: "Select storage source",
-			Items: drivers,
+			Label: "Select storage source for " + serviceName,
+			Items: driversItems,
 		}
 		fromIndex, _, er := dl.Run()
 		if er != nil {
 			return er
 		}
-		from := dd[fromIndex]
+		from := drivers[fromIndex]
 
-		dl.Label = "Select storage target"
-		toIndex, _, er := dl.Run()
-		if er != nil {
-			return er
+		var toIndex int
+		var toIndexSet bool
+		if len(driversItems) == 2 {
+			toIndex = (fromIndex + 1) % 2
+			cmd.Println("Selecting other other storage for target:", drivers[toIndex].driver)
+			conf := &promptui.Prompt{Label: "Is this correct?", IsConfirm: true}
+			if _, e := conf.Run(); e == nil {
+				toIndexSet = true
+			}
 		}
-		to := dd[toIndex]
 
-		cmd.Printf("Migrate service %s from %s to %s\n", serviceName, from.driver, to.driver)
+		if !toIndexSet {
+			dl.Label = "Select storage target for " + serviceName
+			toIndex, _, er = dl.Run()
+			if er != nil {
+				return er
+			}
+		}
+		to := drivers[toIndex]
+
 		sOptions := migratorsOptions[serviceIndex]
-		prefix := sOptions.Prefix(sOptions.serviceOptions)
-		fromDao, e := initDAO(cmd.Context(), from.driver, from.dsn, prefix)
-		if e != nil {
-			return e
-		}
-		toDao, e := initDAO(cmd.Context(), to.driver, to.dsn, prefix)
-		if e != nil {
-			return e
-		}
+		return configDbMoveOne(cmd, dbMoveDryRun, true, sOptions, from, to)
 
-		if dbMoveDryRun {
-			cmd.Println("Running migration in dry-run mode - Nothing will be modified")
-		} else {
-			cmd.Println("Running migration in real mode - Data will be copied to target")
-		}
-		sChan := make(chan dao.MigratorStatus, 1000)
-		var bar *progressbar.ProgressBar
-		go func() {
-			for status := range sChan {
-				if status.Total > 0 {
-					if bar == nil {
-						bar = progressbar.Default(status.Total)
-					}
-					bar.Set64(status.Count)
-				}
-			}
-		}()
-		if result, e := sOptions.Migrator(fromDao, toDao, dbMoveDryRun, sChan); e != nil {
-			return e
-		} else {
-			for name, count := range result {
-				cmd.Printf("Copied %d %s\n", count, name)
-			}
-		}
-		close(sChan)
-
-		return nil
 	},
 }
 
-func initDAO(ctx context.Context, driver, dsn, prefix string) (dao.DAO, error) {
+func initDAO(ctx context.Context, driver, dsn, prefix, storageKey string) (dao.DAO, error) {
 	var d dao.DAO
 	var e error
 	switch driver {
@@ -174,7 +220,15 @@ func initDAO(ctx context.Context, driver, dsn, prefix string) (dao.DAO, error) {
 	if e := d.Init(ctx, configx.New()); e != nil {
 		return nil, e
 	}
-	return d, nil
+	if storageKey == "indexer" {
+		switch driver {
+		case bleve.Driver:
+			d, e = bleve.NewIndexer(ctx, d)
+		case mongodb.Driver:
+			d, e = mongodb.NewIndexer(ctx, d)
+		}
+	}
+	return d, e
 }
 
 func init() {

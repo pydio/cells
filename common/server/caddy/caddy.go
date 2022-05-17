@@ -32,6 +32,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	caddy "github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig"
@@ -40,6 +41,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/crypto/providers"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
@@ -115,6 +117,10 @@ func init() {
 	server.DefaultURLMux().Register("caddy", &Opener{})
 }
 
+var (
+	providersLoggerInit sync.Once
+)
+
 type Opener struct{}
 
 func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
@@ -135,6 +141,12 @@ type Server struct {
 }
 
 func New(ctx context.Context, dir string) (server.Server, error) {
+
+	providersLoggerInit.Do(func() {
+		ct := log.CaptureCaddyStdErr("pydio.server.caddy")
+		providers.Logger = log.Logger(ct)
+	})
+
 	srvMUX := server.NewListableMux()
 
 	srvMUX.HandleFunc("/debug/pprof/", pprof.Index)

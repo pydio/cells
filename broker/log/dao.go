@@ -26,11 +26,15 @@ package log
 
 import (
 	"context"
+	"time"
+
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 // MessageRepository exposes interface methods to manage the log messages provided by Pydio.
@@ -55,4 +59,82 @@ func NewDAO(ctx context.Context, d dao.DAO) (dao.DAO, error) {
 		return v, nil
 	}
 	return nil, dao.UnsupportedDriver(d)
+}
+
+func Migrate(f, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
+	ctx := context.Background()
+	out := map[string]int{
+		"Message": 0,
+	}
+
+	var from, to MessageRepository
+	df, er := NewDAO(ctx, f)
+	if er != nil {
+		return out, er
+	}
+	df.Init(ctx, configx.New())
+	from, er = NewIndexService(df.(dao.IndexDAO))
+	if er != nil {
+		return out, er
+	}
+	dt, er := NewDAO(ctx, t)
+	if er != nil {
+		return out, er
+	}
+	dt.Init(ctx, configx.New())
+	to, er = NewIndexService(dt.(dao.IndexDAO))
+	if er != nil {
+		return out, er
+	}
+
+	pageSize := int32(1000)
+	offset := int32(0)
+	for {
+		ll, er := from.ListLogs("", offset, pageSize)
+		if er != nil {
+			return out, er
+		}
+		hasResult := false
+		for lResp := range ll {
+			hasResult = true
+			out["Message"]++
+			if !dryRun {
+				mess := lResp.LogMessage
+				var marshed map[string]interface{}
+				data, _ := json.Marshal(mess)
+				json.Unmarshal(data, &marshed) // Reformat some keys
+				marshed["level"] = mess.Level
+				delete(marshed, "Level")
+				marshed["logger"] = mess.Logger
+				delete(marshed, "Logger")
+				marshed["ts"] = time.Unix(int64(mess.Ts), 0).Format(time.RFC3339)
+				delete(marshed, "Ts")
+				marshed["msg"] = mess.Msg
+				delete(marshed, "Msg")
+				if mess.JsonZaps != "" {
+					var zaps map[string]interface{}
+					json.Unmarshal([]byte(mess.JsonZaps), &zaps)
+					for k, v := range zaps {
+						marshed[k] = v
+					}
+					delete(marshed, "JsonZaps")
+				}
+				data, _ = json.Marshal(marshed)
+				if er := to.PutLog(&log.Log{
+					Nano:    mess.GetTs() * 1000,
+					Message: data,
+				}); er != nil {
+					return out, er
+				}
+			}
+		}
+		if hasResult {
+			offset++
+		} else {
+			break
+		}
+	}
+	<-time.After(4 * time.Second)
+
+	return out, nil
 }

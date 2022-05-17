@@ -85,6 +85,55 @@ DESCRIPTION
 				return err
 			}
 
+			if !installConfig.UseDocumentsDSN {
+				return nil
+			}
+
+			_, e := (&promptui.Prompt{
+				Label:     "Do you wish to run migration for all assigned services?",
+				IsConfirm: true,
+				Default:   "n",
+			}).Run()
+			if e != nil {
+				return nil
+			}
+
+			targetDb := &configDatabase{driver: "mongodb", dsn: installConfig.DocumentsDSN}
+			ss, e := lib.ListServicesWithStorage()
+			if e != nil {
+				return e
+			}
+			for _, s := range ss {
+				for _, storage := range s.Options().Storages {
+					var supports bool
+					for _, supported := range storage.SupportedDrivers {
+						if supported == "mongodb" {
+							supports = true
+							break
+						}
+					}
+					if !supports {
+						continue
+					}
+					if storage.Migrator == nil {
+						continue
+					}
+					if storage.DefaultDriver == nil {
+						continue
+					}
+					defDr, defDsn := storage.DefaultDriver()
+
+					migOption := &flatOptions{
+						serviceName:    s.Name(),
+						StorageOptions: storage,
+						serviceOptions: s.Options(),
+					}
+					if er := configDbMoveOne(cmd, false, false, migOption, &configDatabase{driver: defDr, dsn: defDsn}, targetDb); er != nil {
+						return er
+					}
+				}
+			}
+
 		}
 
 		cmd.Println("*************************************************************")

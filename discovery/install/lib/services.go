@@ -26,7 +26,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	registry2 "github.com/pydio/cells/v4/common/proto/registry"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
@@ -97,7 +97,7 @@ func ListServicesWithStorage() (ss []service.Service, e error) {
 	if e != nil {
 		return nil, e
 	}
-	items, er := listRegistry.List(registry.WithType(registry2.ItemType_SERVICE))
+	items, er := listRegistry.List(registry.WithType(pb.ItemType_SERVICE))
 	if er != nil {
 		return nil, er
 	}

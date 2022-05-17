@@ -44,7 +44,21 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+
+	"github.com/pydio/cells/v4/common/log"
 )
+
+var (
+	Logger log.ZapLogger
+)
+
+func printf(format string, args ...interface{}) {
+	if Logger != nil {
+		Logger.Info(fmt.Sprintf(format, args...))
+	} else {
+		fmt.Printf("\n"+format, args...)
+	}
+}
 
 // MkCert provides tooling for generating auto-certified certificate
 type MkCert struct {
@@ -162,24 +176,24 @@ func (m *MkCert) MakeCert(hosts []string, prefix string) error {
 
 	m.printHosts(hosts)
 
-	fmt.Printf("\n✅ The certificate is at \"%s\" \n and the key at \"%s\"", certFile, keyFile)
+	printf("✅ The certificate is at \"%s\" \n and the key at \"%s\"", certFile, keyFile)
 
 	return nil
 }
 
 func (m *MkCert) printHosts(hosts []string) {
 	secondLvlWildcardRegexp := regexp.MustCompile(`(?i)^\*\.[0-9a-z_-]+$`)
-	fmt.Printf("\n✅ Created a new certificate valid for the following names 📜")
+	printf("✅ Created a new certificate valid for the following names 📜")
 	for _, h := range hosts {
-		fmt.Printf(" - %q", h)
+		printf(" - %q", h)
 		if secondLvlWildcardRegexp.MatchString(h) {
-			fmt.Printf("   Warning: many browsers don't support second-level wildcards like %q ⚠️", h)
+			printf("   Warning: many browsers don't support second-level wildcards like %q ⚠️", h)
 		}
 	}
 
 	for _, h := range hosts {
 		if strings.HasPrefix(h, "*.") {
-			fmt.Printf("\nReminder: X.509 wildcards only go one level deep, so this won't match a.b.%s ℹ️", h[2:])
+			printf("\nReminder: X.509 wildcards only go one level deep, so this won't match a.b.%s ℹ️", h[2:])
 			break
 		}
 	}
@@ -224,7 +238,7 @@ func (m *MkCert) loadCA() error {
 			return err
 		}
 	} else {
-		fmt.Printf("\n✅ Using the local CA at \"%s\" ✨", m.caFile)
+		printf("✅ Using the local CA at \"%s\" ✨", m.caFile)
 	}
 
 	certPEMBlock, err := ioutil.ReadFile(m.caFile)
@@ -304,8 +318,8 @@ func (m *MkCert) newCA() error {
 		KeyUsage: x509.KeyUsageCertSign,
 
 		BasicConstraintsValid: true,
-		IsCA:           true,
-		MaxPathLenZero: true,
+		IsCA:                  true,
+		MaxPathLenZero:        true,
 	}
 
 	cert, err := x509.CreateCertificate(rand.Reader, tpl, tpl, pub, priv)
@@ -330,6 +344,6 @@ func (m *MkCert) newCA() error {
 		return errors.Wrap(err, "failed to save CA")
 	}
 
-	fmt.Printf("\n✅ Created a new local CA at \"%s\" 💥", m.caFile)
+	printf("✅ Created a new local CA at \"%s\" 💥", m.caFile)
 	return nil
 }
