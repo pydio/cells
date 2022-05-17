@@ -122,16 +122,21 @@ func Save(ctxUser string, ctxMessage string) error {
 }
 
 // Watch for config changes for a specific path or underneath
-func Watch(path ...string) (configx.Receiver, error) {
-	return std.Watch(path...)
+func Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
+	return std.Watch(opts...)
 }
 
-func WatchMap(path ...string) (chan configx.KV, error) {
+func WatchMap(opts ...configx.WatchOption) (chan configx.KV, error) {
 	var snap map[string]interface{}
-	if err := Get(path...).Scan(&snap); err != nil {
+	o := &configx.WatchOptions{}
+	for _, opt := range opts {
+		opt(o)
+	}
+
+	if err := Get(o.Path...).Scan(&snap); err != nil {
 		return nil, err
 	}
-	watcher, err := Watch(path...)
+	watcher, err := Watch(opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -139,9 +144,12 @@ func WatchMap(path ...string) (chan configx.KV, error) {
 	ch := make(chan configx.KV)
 	go func() {
 		for {
-			r, _ := watcher.Next()
+			r, err := watcher.Next()
+			if err != nil {
+				return
+			}
 
-			m := r.Map()
+			m := r.(configx.Values).Map()
 			for k, v := range m {
 				oldV, ok := snap[k]
 				if ok && !cmp.Equal(oldV, v, cmpopts.IgnoreTypes(protoimpl.MessageState{}, protoimpl.UnknownFields{}, protoimpl.SizeCache(0))) {

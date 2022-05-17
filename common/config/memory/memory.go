@@ -147,13 +147,19 @@ func (m *memory) Save(string, string) error {
 	return nil
 }
 
-func (m *memory) Watch(path ...string) (configx.Receiver, error) {
+func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
+	o := &configx.WatchOptions{}
+	for _, opt := range opts {
+		opt(o)
+	}
+
 	r := &receiver{
-		closed: false,
-		ch:     make(chan diff.Change),
-		path:   path,
-		m:      m,
-		timer:  time.NewTimer(2 * time.Second),
+		closed:      false,
+		ch:          make(chan diff.Change),
+		path:        o.Path,
+		m:           m,
+		timer:       time.NewTimer(2 * time.Second),
+		changesOnly: o.ChangesOnly,
 	}
 
 	m.receivers = append(m.receivers, r)
@@ -165,7 +171,8 @@ type receiver struct {
 	closed bool
 	ch     chan diff.Change
 
-	path []string
+	path        []string
+	changesOnly bool
 
 	timer *time.Timer
 
@@ -183,18 +190,34 @@ func (r *receiver) call(op diff.Change) error {
 	return nil
 }
 
-func (r *receiver) Next() (configx.Values, error) {
-	c := configx.New(r.m.opts...)
+func (r *receiver) Next() (interface{}, error) {
+	changes := []diff.Change{}
 
 	for {
 		select {
 		case op := <-r.ch:
-			if err := c.Val(op.Path...).Set(op.To); err != nil {
-				return nil, err
-			}
+			changes = append(changes, op)
 
 			r.timer.Reset(2 * time.Second)
 		case <-r.timer.C:
+			c := configx.New()
+
+			if r.changesOnly {
+				for _, op := range changes {
+					if err := c.Val(op.Type).Val(op.Path...).Set(op.To); err != nil {
+						return nil, err
+					}
+				}
+
+				return c, nil
+			}
+
+			for _, op := range changes {
+				if err := c.Val(op.Path...).Set(op.To); err != nil {
+					return nil, err
+				}
+			}
+
 			return c.Val("v"), nil
 		}
 	}

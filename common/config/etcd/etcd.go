@@ -225,7 +225,14 @@ func (m *etcd) Unlock() {
 	m.locker.Unlock()
 }
 
-func (m *etcd) Watch(path ...string) (configx.Receiver, error) {
+func (m *etcd) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
+	o := &configx.WatchOptions{}
+	for _, opt := range opts {
+		opt(o)
+	}
+
+	path := o.Path
+
 	r := &receiver{
 		closed: false,
 		ch:     make(chan struct{}),
@@ -251,7 +258,7 @@ func (r *receiver) call() error {
 	return nil
 }
 
-func (r *receiver) Next() (configx.Values, error) {
+func (r *receiver) Next() (interface{}, error) {
 	select {
 	case <-r.ch:
 		return r.v.Val(), nil

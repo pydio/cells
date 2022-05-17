@@ -26,6 +26,8 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/pydio/cells/v4/common/utils/configx"
+
 	"golang.org/x/sync/errgroup"
 
 	"github.com/pydio/cells/v4/common"
@@ -271,7 +273,7 @@ func (m *manager) serversWithStatus(status string) (ss []server.Server) {
 }
 
 func (m *manager) WatchServicesConfigs() {
-	ch, err := config.WatchMap("services")
+	ch, err := config.WatchMap(configx.WithPath("services"))
 	if err != nil {
 		return
 	}

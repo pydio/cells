@@ -68,13 +68,13 @@ func (v *versionStore) Del() error {
 }
 
 // Watch config changes under a path
-func (v *versionStore) Watch(path ...string) (configx.Receiver, error) {
+func (v *versionStore) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 	watcher, ok := v.store.(configx.Watcher)
 	if !ok {
 		return nil, fmt.Errorf("no watchers")
 	}
 
-	return watcher.Watch(path...)
+	return watcher.Watch(opts...)
 }
 
 // Save the config in the underlying storage

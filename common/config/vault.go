@@ -85,8 +85,8 @@ func (v *vault) Val(s ...string) configx.Values {
 }
 
 // Watch changes to the path
-func (v *vault) Watch(k ...string) (configx.Receiver, error) {
-	return v.config.Watch(k...)
+func (v *vault) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
+	return v.config.Watch(opts...)
 }
 
 // Del the value

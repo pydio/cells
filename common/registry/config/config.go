@@ -167,7 +167,7 @@ func NewConfigRegistry(store config.Store, byName bool) registry.RawRegistry {
 }
 
 func (c *configRegistry) watch() error {
-	w, err := c.store.Watch()
+	w, err := c.store.Watch(configx.WithChangesOnly())
 	if err != nil {
 		return err
 	}
@@ -184,25 +184,72 @@ func (c *configRegistry) watch() error {
 			for _, itemType := range broadcaster.Types {
 				opts = append(opts, registry.WithType(itemType))
 
-				v := res.Val(getFromItemType(itemType))
-				if v.Get() == nil {
-					continue
+				create := res.(configx.Values).Val("create", "v")
+				update := res.(configx.Values).Val("update", "v")
+				delete := res.(configx.Values).Val("delete", "v")
+
+				v1 := create.Val(getFromItemType(itemType))
+				if v1.Get() != nil {
+					sendFullList = true
+
+					itemsMap := map[string]registry.Item{}
+					if err := v1.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
+						fmt.Println("there is an error here ?", err)
+						return err
+					}
+
+					var items []registry.Item
+					for _, i := range itemsMap {
+						items = append(items, i)
+					}
+
+					select {
+					case broadcaster.Ch <- registry.NewResult(pb.ActionType_CREATE, items):
+					default:
+					}
 				}
 
-				sendFullList = true
+				v2 := update.Val(getFromItemType(itemType))
+				if v2.Get() != nil {
+					sendFullList = true
 
-				// TODO something for updates and creates and deletes
-				/*itemsMap := map[string]registry.Item{}
-				if err := v.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
-					fmt.Println("there is an error here ?", err)
-					return err
+					itemsMap := map[string]registry.Item{}
+					if err := v2.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
+						fmt.Println("there is an error here ?", err)
+						return err
+					}
+
+					var items []registry.Item
+					for _, i := range itemsMap {
+						items = append(items, i)
+					}
+
+					select {
+					case broadcaster.Ch <- registry.NewResult(pb.ActionType_UPDATE, items):
+					default:
+					}
 				}
 
+				v3 := delete.Val(getFromItemType(itemType))
+				if v3.Get() != nil {
+					sendFullList = true
 
-				var items []registry.Item
-				for _, i := range itemsMap {
-					items = append(items, i)
-				}*/
+					itemsMap := map[string]registry.Item{}
+					if err := v3.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
+						fmt.Println("there is an error here ?", err)
+						return err
+					}
+
+					var items []registry.Item
+					for _, i := range itemsMap {
+						items = append(items, i)
+					}
+
+					select {
+					case broadcaster.Ch <- registry.NewResult(pb.ActionType_DELETE, items):
+					default:
+					}
+				}
 			}
 
 			if sendFullList {
@@ -217,69 +264,6 @@ func (c *configRegistry) watch() error {
 				}
 			}
 		}
-		/*itemsMap := map[string]registry.Item{}
-		if err := res.Val().Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
-			fmt.Println("there is an error here ?", err)
-			return err
-		}
-
-		var items []registry.Item
-		for _, i := range itemsMap {
-			items = append(items, i)
-		}
-
-		fmt.Println("We are here ? ", len(items))
-
-		c.RLock()
-		for _, broadcaster := range c.broadcasters {
-			select {
-			case broadcaster.Ch <- registry.NewResult(pb.ActionType_FULL_LIST, items):
-			default:
-			}
-		}
-		c.RUnlock()*/
-
-		/*merger := &etl.Merger{Options: &models.MergeOptions{}}
-
-		diff := &Diff{}
-		merger.Diff(items, c.cache, diff)
-
-		c.cache = items
-
-		if len(diff.create) > 0 {
-			c.RLock()
-			for _, broadcaster := range c.broadcasters {
-				select {
-				case broadcaster <- registry.NewResult(pb.ActionType_CREATE, diff.create):
-				default:
-				}
-			}
-			c.RUnlock()
-		}
-
-		if len(diff.update) > 0 {
-			c.RLock()
-			for _, broadcaster := range c.broadcasters {
-				select {
-				case broadcaster <- registry.NewResult(pb.ActionType_UPDATE, diff.update):
-				default:
-				}
-			}
-			c.RUnlock()
-		}
-
-		if len(diff.delete) > 0 {
-			c.RLock()
-			for _, broadcaster := range c.broadcasters {
-				select {
-				case broadcaster <- registry.NewResult(pb.ActionType_DELETE, diff.delete):
-				default:
-					fmt.Println("Could not send the delete ?")
-				}
-			}
-			c.RUnlock()
-		}
-		*/
 	}
 
 	return nil

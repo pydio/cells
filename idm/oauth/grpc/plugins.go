@@ -23,8 +23,10 @@ package grpc
 
 import (
 	"context"
-	log2 "github.com/pydio/cells/v4/common/log"
 	"log"
+
+	log2 "github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/utils/configx"
 
 	"google.golang.org/grpc"
 
@@ -70,7 +72,7 @@ func init() {
 				auth2.RegisterAuthTokenPrunerEnhancedServer(server, h)
 				auth2.RegisterPasswordCredentialsTokenEnhancedServer(server, h)
 
-				watcher, _ := config.Watch("services", common.ServiceWebNamespace_+common.ServiceOAuth)
+				watcher, _ := config.Watch(configx.WithPath("services", common.ServiceWebNamespace_+common.ServiceOAuth))
 				go func() {
 					for {
 						values, er := watcher.Next()
@@ -78,7 +80,7 @@ func init() {
 							break
 						}
 						log2.Logger(ctx).Info("Reloading configurations for OAuth services")
-						auth.InitConfiguration(values)
+						auth.InitConfiguration(values.(configx.Values))
 					}
 				}()
 

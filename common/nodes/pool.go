@@ -323,7 +323,7 @@ func (p *ClientsPool) reloadDebounced() {
 
 func (p *ClientsPool) watchConfigChanges() {
 	for {
-		watcher, err := config.Watch("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources")
+		watcher, err := config.Watch(configx.WithPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources"))
 		if err != nil {
 			// Cool-off period
 			time.Sleep(1 * time.Second)

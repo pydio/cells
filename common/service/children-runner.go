@@ -23,9 +23,10 @@ package service
 import (
 	"context"
 	"fmt"
-	grpc2 "google.golang.org/grpc"
 	"sync"
 	"time"
+
+	grpc2 "google.golang.org/grpc"
 
 	"go.uber.org/zap"
 
@@ -203,7 +204,7 @@ func (c *ChildrenRunner) updateSourcesList(ctx context.Context, sources []string
 
 // Watch watches the configuration changes for new sources
 func (c *ChildrenRunner) Watch(ctx context.Context) error {
-	watcher, err := config.Watch("services", c.parentName, "sources")
+	watcher, err := config.Watch(configx.WithPath("services", c.parentName, "sources"))
 	if err != nil {
 		return err
 	}
@@ -235,7 +236,7 @@ func (c *ChildrenRunner) Watch(ctx context.Context) error {
 			if err != nil {
 				break
 			}
-			arr := res.StringArray()
+			arr := res.(configx.Values).StringArray()
 			ss <- config.SourceNamesFiltered(arr)
 		}
 	}()

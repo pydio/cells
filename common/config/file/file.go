@@ -168,7 +168,13 @@ func (f *file) Unlock() {
 	f.mainMtx.Unlock()
 }
 
-func (f *file) Watch(path ...string) (configx.Receiver, error) {
+func (f *file) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
+	o := &configx.WatchOptions{}
+	for _, opt := range opts {
+		opt(o)
+	}
+
+	path := o.Path
 
 	r := &receiver{
 		closed:  false,
@@ -200,7 +206,7 @@ func (r *receiver) call() error {
 	return nil
 }
 
-func (r *receiver) Next() (configx.Values, error) {
+func (r *receiver) Next() (interface{}, error) {
 	select {
 	case <-r.ch:
 		neu := r.v.Val(r.p...)
