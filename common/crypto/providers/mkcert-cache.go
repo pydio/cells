@@ -23,7 +23,6 @@ package providers
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -134,15 +133,15 @@ func (m *MkCertCache) findOrGenerate(uuid string, hns []string) (certFile, keyFi
 	}
 	certFile, keyFile, _, _ = mk.GeneratedResources()
 
-	fmt.Println("")
-	fmt.Println("")
-	fmt.Println("👉 If you are behind a reverse proxy, you can either install the RootCA on the proxy machine " +
+	printf("")
+	printf("")
+	printf("👉 If you are behind a reverse proxy, you can either install the RootCA on the proxy machine " +
 		"trust store, or configure your proxy to `insecure_skip_verify` for pointing to Cells.")
-	fmt.Println("👉 If you are developing locally, you may install the RootCA in your system trust store to " +
+	printf("👉 If you are developing locally, you may install the RootCA in your system trust store to " +
 		"see a green light in your browser!")
-	fmt.Println("🗒  To easily install the RootCA in your trust store, use https://github.com/FiloSottile/mkcert. " +
+	printf("🗒  To easily install the RootCA in your trust store, use https://github.com/FiloSottile/mkcert. " +
 		"Set the $CAROOT environment variable to the rootCA folder then use 'mkcert -install'")
-	fmt.Println("")
+	printf("")
 
 	return
 }

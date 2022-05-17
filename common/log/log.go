@@ -146,12 +146,14 @@ func Init(logDir string, ww ...LogContextWrapper) {
 	}
 }
 
-func CaptureCaddyStdErr() error {
-	logger := Logger(servicecontext.WithServiceName(context.Background(), "pydio.server.caddy"))
+func CaptureCaddyStdErr(serviceName string) context.Context {
+	ctx := servicecontext.WithServiceName(context.Background(), serviceName)
+	lg := Logger(ctx)
 	r, w, err := os.Pipe()
 	if err != nil {
-		return err
+		return ctx
 	}
+	rootErr := os.Stderr
 	os.Stderr = w
 	//caddyLogger := logger.Named("pydio.server.caddy")
 	go func() {
@@ -162,18 +164,19 @@ func CaptureCaddyStdErr() error {
 				level := strings.Trim(parsed[2], "[340m ")
 				msg := parsed[3] + " - " + parsed[4] + parsed[6]
 				if strings.Contains(level, "INFO") {
-					logger.Info(msg)
+					lg.Info(msg)
 				} else if strings.Contains(level, "ERROR") {
-					logger.Error(msg)
+					lg.Error(msg)
 				} else { // DEBUG, WARN, or other value
-					logger.Debug(msg)
+					lg.Debug(msg)
 				}
-				continue
+			} else {
+				_, _ = rootErr.WriteString(line)
 			}
-			logger.Error(line)
+			//logger.Error(line)
 		}
 	}()
-	return nil
+	return ctx
 }
 
 // RegisterWriteSyncer optional writers for logs
