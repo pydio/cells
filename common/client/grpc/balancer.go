@@ -27,27 +27,36 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/pydio/cells/v4/common/service/context/ckeys"
+	"google.golang.org/grpc/attributes"
 
+	"github.com/pydio/cells/v4/common/client"
+	"github.com/pydio/cells/v4/common/service/context/ckeys"
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/balancer/base"
 	"google.golang.org/grpc/metadata"
 )
 
-const BalancerRoundRobin = "cells-round-robin"
+var (
+	configBuilders = map[string]*rrPickerBuilder{}
+)
 
-// newBuilder creates a new roundrobin balancer builder.
-func newBuilder() balancer.Builder {
-	return base.NewBalancerBuilder(BalancerRoundRobin, &rrPickerBuilder{}, base.Config{HealthCheck: false})
+func registerBalancer(id string, options ...client.BalancerOption) {
+	opt := &client.BalancerOptions{}
+	for _, o := range options {
+		o(opt)
+	}
+	configBuilders[id] = &rrPickerBuilder{balancerOptions: opt}
+	builder := base.NewBalancerBuilder(id, configBuilders[id], base.Config{HealthCheck: false})
+	balancer.Register(builder)
 }
 
-func init() {
-	balancer.Register(newBuilder())
+const BalancerRoundRobin = "cells-robin-"
+
+type rrPickerBuilder struct {
+	balancerOptions *client.BalancerOptions
 }
 
-type rrPickerBuilder struct{}
-
-func (*rrPickerBuilder) Build(info base.PickerBuildInfo) balancer.Picker {
+func (b *rrPickerBuilder) Build(info base.PickerBuildInfo) balancer.Picker {
 	if len(info.ReadySCs) == 0 {
 		return base.NewErrPicker(balancer.ErrNoSubConnAvailable)
 	}
@@ -60,29 +69,41 @@ func (*rrPickerBuilder) Build(info base.PickerBuildInfo) balancer.Picker {
 				v = &rrPickerConns{}
 				pcs[s] = v
 			}
-
-			v.subConns = append(v.subConns, sc)
-			v.subConnsInfos = append(v.subConnsInfos, sci)
+			v.sc = append(v.sc, &rrPickerSubConn{SubConn: sc, SubConnInfo: sci})
 		}
 	}
 
-	for _, sc := range pcs {
-		sc.next = rand.Intn(len(sc.subConns))
+	for _, pc := range pcs {
+		pc.next = rand.Intn(len(pc.sc))
 	}
 	return &rrPicker{
-		pConns: pcs,
+		options: b.balancerOptions,
+		pConns:  pcs,
 	}
 }
 
 type rrPicker struct {
-	pConns map[string]*rrPickerConns
+	options *client.BalancerOptions
+	pConns  map[string]*rrPickerConns
 }
 
 type rrPickerConns struct {
-	subConns      []balancer.SubConn
-	subConnsInfos []base.SubConnInfo
-	mu            sync.Mutex
-	next          int
+	mu   sync.Mutex
+	next int
+	sc   []*rrPickerSubConn
+}
+
+type rrPickerSubConn struct {
+	balancer.SubConn
+	base.SubConnInfo
+}
+
+func (r *rrPickerSubConn) Address() string {
+	return r.SubConnInfo.Address.Addr
+}
+
+func (r *rrPickerSubConn) Attributes() *attributes.Attributes {
+	return r.SubConnInfo.Address.BalancerAttributes
 }
 
 func (p *rrPicker) Pick(i balancer.PickInfo) (balancer.PickResult, error) {
@@ -97,27 +118,40 @@ func (p *rrPicker) Pick(i balancer.PickInfo) (balancer.PickResult, error) {
 	if !ok {
 		return balancer.PickResult{}, errors.New("service is not known by the registry")
 	}
-	if val := i.Ctx.Value(ctxSubconnSelectorKey{}); val != nil {
-		selector := val.(subConnInfoFilter)
-		var picks []balancer.SubConn
-		pc.mu.Lock()
-		for idx, info := range pc.subConnsInfos {
-			if selector(info) {
-				picks = append(picks, pc.subConns[idx])
-			}
+
+	var filters []client.BalancerTargetFilter
+	if p.options != nil {
+		filters = append(filters, p.options.Filters...)
+	}
+	if val := i.Ctx.Value(ctxBalancerFilterKey{}); val != nil {
+		filters = append(filters, val.(client.BalancerTargetFilter))
+	}
+	if len(filters) > 0 {
+		picks := pc.sc
+		for _, f := range filters {
+			picks = p.applyFilter(f, picks)
 		}
 		if len(picks) == 0 {
-			pc.mu.Unlock()
-			return balancer.PickResult{}, errors.New("no service found matching the current selector")
+			return balancer.PickResult{}, errors.New("no service found matching the current filters")
 		}
 		sc := picks[rand.Intn(len(picks))]
-		pc.mu.Unlock()
-		return balancer.PickResult{SubConn: sc}, nil
+		return balancer.PickResult{SubConn: sc.SubConn}, nil
 	}
+
 	pc.mu.Lock()
-	sc := pc.subConns[pc.next]
-	pc.next = (pc.next + 1) % len(pc.subConns)
+	sc := pc.sc[pc.next].SubConn
+	pc.next = (pc.next + 1) % len(pc.sc)
 	pc.mu.Unlock()
 
 	return balancer.PickResult{SubConn: sc}, nil
+}
+
+func (p *rrPicker) applyFilter(f client.BalancerTargetFilter, sc []*rrPickerSubConn) []*rrPickerSubConn {
+	var out []*rrPickerSubConn
+	for _, conn := range sc {
+		if f(conn) {
+			out = append(out, conn)
+		}
+	}
+	return out
 }

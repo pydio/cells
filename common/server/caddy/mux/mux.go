@@ -140,8 +140,8 @@ func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 
 	// Special case for application/grpc
 	if strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
-		proxy := m.b.PickService(common.ServiceGatewayGrpc)
-		if proxy == nil {
+		proxy, e := m.b.PickService(common.ServiceGatewayGrpc)
+		if e != nil {
 			http.NotFound(w, r)
 			return nil
 		}
@@ -194,8 +194,8 @@ func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 		return nil
 	}
 
-	proxy := m.b.PickEndpoint(r.URL.Path)
-	if proxy != nil {
+	proxy, e := m.b.PickEndpoint(r.URL.Path)
+	if e == nil {
 		proxy.ServeHTTP(w, r)
 		return nil
 	}

@@ -29,6 +29,7 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/server"
 )
 
 type ServerAttributes struct {
@@ -154,11 +155,15 @@ func (r *resolverCallback) sendState() {
 				endpoints = append(endpoints, e.Name())
 			}
 			//fmt.Println("sendState for", srv.Name(), len(addresses), "addresses, ", len(endpoints), "endpoints")
+			atts := attributes.New("localAddr", r.localAddr)
+			if pid, ok := srv.Metadata()[server.NodeMetaPID]; ok {
+				atts = atts.WithValue("targetPID", pid)
+			}
 			m[srv.ID()] = &ServerAttributes{
 				Name:               srv.Name(),
 				Addresses:          addresses,
 				Endpoints:          endpoints,
-				BalancerAttributes: attributes.New("localAddr", r.localAddr),
+				BalancerAttributes: atts,
 			}
 		} else if v.As(&edge) {
 			edges = append(edges, edge)

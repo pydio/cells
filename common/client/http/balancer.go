@@ -1,7 +1,28 @@
+/*
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package http
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -16,16 +37,24 @@ import (
 
 type Balancer interface {
 	Build(m map[string]*client.ServerAttributes) error
-	PickService(name string) *httputil.ReverseProxy
-	PickEndpoint(path string) *httputil.ReverseProxy
+	PickService(name string) (*httputil.ReverseProxy, error)
+	PickEndpoint(path string) (*httputil.ReverseProxy, error)
 }
 
-func NewBalancer() Balancer {
-	return &balancer{readyProxies: map[string]*reverseProxy{}}
+func NewBalancer(oo ...client.BalancerOption) Balancer {
+	opts := &client.BalancerOptions{}
+	for _, o := range oo {
+		o(opts)
+	}
+	return &balancer{
+		readyProxies: map[string]*reverseProxy{},
+		options:      opts,
+	}
 }
 
 type balancer struct {
 	readyProxies map[string]*reverseProxy
+	options      *client.BalancerOptions
 }
 
 type reverseProxy struct {
@@ -33,6 +62,19 @@ type reverseProxy struct {
 	Endpoints          []string
 	Services           []string
 	BalancerAttributes *attributes.Attributes
+}
+
+type proxyBalancerTarget struct {
+	proxy   *reverseProxy
+	address string
+}
+
+func (p *proxyBalancerTarget) Address() string {
+	return p.address
+}
+
+func (p *proxyBalancerTarget) Attributes() *attributes.Attributes {
+	return p.proxy.BalancerAttributes
 }
 
 func (b *balancer) Build(m map[string]*client.ServerAttributes) error {
@@ -77,27 +119,69 @@ func (b *balancer) Build(m map[string]*client.ServerAttributes) error {
 	return nil
 }
 
-func (b *balancer) PickService(name string) *httputil.ReverseProxy {
-	for _, proxy := range b.readyProxies {
+func (b *balancer) PickService(name string) (*httputil.ReverseProxy, error) {
+	var targets []*proxyBalancerTarget
+	for addr, proxy := range b.readyProxies {
 		for _, service := range proxy.Services {
 			if service == name {
-				return proxy.ReverseProxy
+				//return proxy.ReverseProxy
+				targets = append(targets, &proxyBalancerTarget{
+					proxy:   proxy,
+					address: addr,
+				})
 			}
 		}
 	}
-	return nil
+	if len(targets) == 0 {
+		return nil, fmt.Errorf("no proxy found for service %s", name)
+	}
+	if b.options != nil && len(b.options.Filters) > 0 {
+		for _, f := range b.options.Filters {
+			targets = b.applyFilter(f, targets)
+		}
+		if len(targets) == 0 {
+			return nil, fmt.Errorf("no proxy found for service %s matching filters", name)
+		}
+	}
+	return targets[rand.Intn(len(targets))].proxy.ReverseProxy, nil
+
 }
 
-func (b *balancer) PickEndpoint(path string) *httputil.ReverseProxy {
-	for _, proxy := range b.readyProxies {
+func (b *balancer) PickEndpoint(path string) (*httputil.ReverseProxy, error) {
+	var targets []*proxyBalancerTarget
+	for addr, proxy := range b.readyProxies {
 		for _, endpoint := range proxy.Endpoints {
 			if endpoint == "/" {
 				continue
 			}
 			if strings.HasPrefix(path, endpoint) {
-				return proxy.ReverseProxy
+				targets = append(targets, &proxyBalancerTarget{
+					proxy:   proxy,
+					address: addr,
+				})
 			}
 		}
 	}
-	return nil
+	if len(targets) == 0 {
+		return nil, fmt.Errorf("no proxy found for endpoint %s", path)
+	}
+	if b.options != nil && len(b.options.Filters) > 0 {
+		for _, f := range b.options.Filters {
+			targets = b.applyFilter(f, targets)
+		}
+		if len(targets) == 0 {
+			return nil, fmt.Errorf("no proxy found for endpoint %s matching filters", path)
+		}
+	}
+	return targets[rand.Intn(len(targets))].proxy.ReverseProxy, nil
+}
+
+func (b *balancer) applyFilter(f client.BalancerTargetFilter, tg []*proxyBalancerTarget) []*proxyBalancerTarget {
+	var out []*proxyBalancerTarget
+	for _, conn := range tg {
+		if f(conn) {
+			out = append(out, conn)
+		}
+	}
+	return out
 }

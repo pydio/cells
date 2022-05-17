@@ -32,6 +32,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/client"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -53,10 +54,13 @@ type cellsResolver struct {
 	disableServiceConfig bool
 }
 
-func NewBuilder(reg registry.Registry, balancerName string) resolver.Builder {
+func NewBuilder(reg registry.Registry, oo ...client.BalancerOption) resolver.Builder {
+	// build unique picker for options
+	balancerId := BalancerRoundRobin + uuid.New()
+	registerBalancer(balancerId, oo...)
 	return &cellsBuilder{
 		reg:          reg,
-		balancerName: balancerName,
+		balancerName: balancerId,
 	}
 }
 

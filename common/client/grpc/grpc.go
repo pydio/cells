@@ -36,6 +36,7 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -45,10 +46,9 @@ import (
 	"github.com/pydio/cells/v4/common/service/metrics"
 )
 
-type ctxSubconnSelectorKey struct{}
+type ctxBalancerFilterKey struct{}
 
 var (
-	CallTimeoutDefault       = 10 * time.Minute
 	CallTimeoutShort         = 1 * time.Second
 	WarnMissingConnInContext = false
 )
@@ -58,7 +58,7 @@ func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) [
 
 	return append([]grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithResolvers(NewBuilder(reg, BalancerRoundRobin)),
+		grpc.WithResolvers(NewBuilder(reg /*, client.WithRestrictToLocal()*/)),
 		grpc.WithConnectParams(grpc.ConnectParams{MinConnectTimeout: 1 * time.Minute, Backoff: backoffConfig}),
 		grpc.WithChainUnaryInterceptor(
 			servicecontext.SpanUnaryClientInterceptor(),
@@ -117,16 +117,16 @@ func NewClientConn(serviceName string, opt ...Option) grpc.ClientConnInterface {
 	return &clientConn{
 		callTimeout:         opts.CallTimeout,
 		ClientConnInterface: opts.ClientConn,
-		subConnSelector:     opts.SubConnSelector,
+		balancerFilter:      opts.BalancerFilter,
 		serviceName:         common.ServiceGrpcNamespace_ + strings.TrimPrefix(serviceName, common.ServiceGrpcNamespace_),
 	}
 }
 
 type clientConn struct {
 	grpc.ClientConnInterface
-	serviceName     string
-	callTimeout     time.Duration
-	subConnSelector subConnInfoFilter
+	serviceName    string
+	callTimeout    time.Duration
+	balancerFilter client.BalancerTargetFilter
 }
 
 // Invoke performs a unary RPC and returns after the response is received
@@ -141,8 +141,8 @@ func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{
 	if cc.callTimeout > 0 {
 		ctx, cancel = context.WithTimeout(ctx, cc.callTimeout)
 	}
-	if cc.subConnSelector != nil {
-		ctx = context.WithValue(ctx, ctxSubconnSelectorKey{}, cc.subConnSelector)
+	if cc.balancerFilter != nil {
+		ctx = context.WithValue(ctx, ctxBalancerFilterKey{}, cc.balancerFilter)
 	}
 	er := cc.ClientConnInterface.Invoke(ctx, method, args, reply, opts...)
 	if er != nil && cancel != nil {
@@ -168,8 +168,8 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 	if cc.callTimeout > 0 {
 		ctx, cancel = context.WithTimeout(ctx, cc.callTimeout)
 	}
-	if cc.subConnSelector != nil {
-		ctx = context.WithValue(ctx, ctxSubconnSelectorKey{}, cc.subConnSelector)
+	if cc.balancerFilter != nil {
+		ctx = context.WithValue(ctx, ctxBalancerFilterKey{}, cc.balancerFilter)
 	}
 
 	s, e := cc.ClientConnInterface.NewStream(ctx, desc, method, opts...)

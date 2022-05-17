@@ -110,8 +110,8 @@ func (m Middleware) watch() error {
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Special case for application/grpc
 	if strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
-		proxy := m.b.PickService(common.ServiceGatewayGrpc)
-		if proxy == nil {
+		proxy, e := m.b.PickService(common.ServiceGatewayGrpc)
+		if e != nil {
 			http.NotFound(w, r)
 			return
 		}
@@ -156,8 +156,8 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	proxy := m.b.PickEndpoint(r.URL.Path)
-	if proxy != nil {
+	proxy, e := m.b.PickEndpoint(r.URL.Path)
+	if e == nil {
 		proxy.ServeHTTP(w, r)
 		return
 	}
