@@ -26,14 +26,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 	"strings"
-
-	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/proto/rest"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"go.uber.org/zap"
 
 	caddy "github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
@@ -46,12 +39,14 @@ import (
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	clienthttp "github.com/pydio/cells/v4/common/client/http"
+	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/caddy/maintenance"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 var (
@@ -74,7 +69,7 @@ type Middleware struct {
 	c         grpc.ClientConnInterface
 	r         registry.Registry
 	s         server.HttpMux
-	b         *clienthttp.Balancer
+	b         clienthttp.Balancer
 	rc        client.ResolverCallback
 	monitor   grpc2.HealthMonitor
 	userReady bool
@@ -85,42 +80,8 @@ func (m *Middleware) Init(ctx context.Context, s server.HttpMux) {
 	conn := clientcontext.GetClientConn(ctx)
 	reg := servercontext.GetRegistry(ctx)
 	rc, _ := client.NewResolverCallback(reg)
-	balancer := &clienthttp.Balancer{ReadyProxies: make(map[string]*clienthttp.ReverseProxy)}
-
-	rc.Add(func(m map[string]*client.ServerAttributes) error {
-		for _, mm := range m {
-			for _, addr := range mm.Addresses {
-				proxy, ok := balancer.ReadyProxies[addr]
-				if !ok {
-					scheme := "http://"
-					// TODO - do that in a better way
-					if mm.Name == "grpcs" {
-						scheme = "https://"
-					}
-					u, err := url.Parse(scheme + strings.Replace(addr, "[::]", "", -1))
-					if err != nil {
-						return err
-					}
-					proxy = &clienthttp.ReverseProxy{
-						ReverseProxy: httputil.NewSingleHostReverseProxy(u),
-					}
-					proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
-						if err.Error() == "context canceled" {
-							return
-						}
-						log.Logger(request.Context()).Error("Proxy Error :"+err.Error(), zap.Error(err))
-						writer.WriteHeader(http.StatusBadGateway)
-					}
-					balancer.ReadyProxies[addr] = proxy
-				}
-
-				proxy.Endpoints = mm.Endpoints
-				proxy.Services = mm.Services
-			}
-		}
-
-		return nil
-	})
+	balancer := clienthttp.NewBalancer()
+	rc.Add(balancer.Build)
 
 	m.c = conn
 	m.rc = rc

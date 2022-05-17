@@ -456,7 +456,7 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 		}
 
 		if err := store.Get().Default(map[string]registry.Item{}).Scan(items); err != nil {
-			fmt.Println("No items retrieved in list")
+			//fmt.Println("No items retrieved in list")
 			// do nothing
 		}
 

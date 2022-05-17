@@ -34,11 +34,11 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-const name = "lb"
+const BalancerRoundRobin = "cells-round-robin"
 
 // newBuilder creates a new roundrobin balancer builder.
 func newBuilder() balancer.Builder {
-	return base.NewBalancerBuilder(name, &rrPickerBuilder{}, base.Config{HealthCheck: false})
+	return base.NewBalancerBuilder(BalancerRoundRobin, &rrPickerBuilder{}, base.Config{HealthCheck: false})
 }
 
 func init() {
@@ -99,7 +99,20 @@ func (p *rrPicker) Pick(i balancer.PickInfo) (balancer.PickResult, error) {
 	}
 	if val := i.Ctx.Value(ctxSubconnSelectorKey{}); val != nil {
 		selector := val.(subConnInfoFilter)
-		fmt.Println("Found a subConnInfo selector in context!", selector)
+		var picks []balancer.SubConn
+		pc.mu.Lock()
+		for idx, info := range pc.subConnsInfos {
+			if selector(info) {
+				picks = append(picks, pc.subConns[idx])
+			}
+		}
+		if len(picks) == 0 {
+			pc.mu.Unlock()
+			return balancer.PickResult{}, errors.New("no service found matching the current selector")
+		}
+		sc := picks[rand.Intn(len(picks))]
+		pc.mu.Unlock()
+		return balancer.PickResult{SubConn: sc}, nil
 	}
 	pc.mu.Lock()
 	sc := pc.subConns[pc.next]

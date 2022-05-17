@@ -58,7 +58,7 @@ func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) [
 
 	return append([]grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithResolvers(NewBuilder(reg)),
+		grpc.WithResolvers(NewBuilder(reg, BalancerRoundRobin)),
 		grpc.WithConnectParams(grpc.ConnectParams{MinConnectTimeout: 1 * time.Minute, Backoff: backoffConfig}),
 		grpc.WithChainUnaryInterceptor(
 			servicecontext.SpanUnaryClientInterceptor(),

@@ -24,15 +24,19 @@ import (
 	"sync"
 	"time"
 
+	"google.golang.org/grpc/attributes"
+
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 type ServerAttributes struct {
-	Name      string
-	Addresses []string
-	Services  []string
-	Endpoints []string
+	Name               string
+	Addresses          []string
+	Services           []string
+	Endpoints          []string
+	BalancerAttributes *attributes.Attributes
 }
 
 type UpdateStateCallback func(map[string]*ServerAttributes) error
@@ -43,9 +47,10 @@ type ResolverCallback interface {
 }
 
 type resolverCallback struct {
-	reg   registry.Registry
-	ml    *sync.RWMutex
-	items []registry.Item
+	localAddr string
+	reg       registry.Registry
+	ml        *sync.RWMutex
+	items     []registry.Item
 
 	updatedStateTimer *time.Timer
 	cbs               []UpdateStateCallback
@@ -55,13 +60,10 @@ type resolverCallback struct {
 }
 
 func NewResolverCallback(reg registry.Registry) (ResolverCallback, error) {
-	/*items, err := reg.List()
-	if err != nil {
-		return nil, err
-	}*/
 
 	r := &resolverCallback{
-		done: make(chan bool, 1),
+		localAddr: runtime.DefaultAdvertiseAddress(),
+		done:      make(chan bool, 1),
 	}
 	r.reg = reg
 	r.ml = &sync.RWMutex{}
@@ -153,9 +155,10 @@ func (r *resolverCallback) sendState() {
 			}
 			//fmt.Println("sendState for", srv.Name(), len(addresses), "addresses, ", len(endpoints), "endpoints")
 			m[srv.ID()] = &ServerAttributes{
-				Name:      srv.Name(),
-				Addresses: addresses,
-				Endpoints: endpoints,
+				Name:               srv.Name(),
+				Addresses:          addresses,
+				Endpoints:          endpoints,
+				BalancerAttributes: attributes.New("localAddr", r.localAddr),
 			}
 		} else if v.As(&edge) {
 			edges = append(edges, edge)

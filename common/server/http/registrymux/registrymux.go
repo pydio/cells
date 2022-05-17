@@ -23,12 +23,8 @@ package registrymux
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/log"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 	"strings"
 
 	"google.golang.org/grpc"
@@ -50,7 +46,7 @@ type Middleware struct {
 	c         grpc.ClientConnInterface
 	r         registry.Registry
 	s         server.HttpMux
-	b         *clienthttp.Balancer
+	b         clienthttp.Balancer
 	monitor   grpc2.HealthMonitor
 	userReady bool
 }
@@ -60,36 +56,8 @@ func NewMiddleware(ctx context.Context, s server.HttpMux) Middleware {
 	reg := servercontext.GetRegistry(ctx)
 	rc, _ := client.NewResolverCallback(reg)
 	monitor := grpc2.NewHealthChecker(ctx)
-	balancer := &clienthttp.Balancer{ReadyProxies: make(map[string]*clienthttp.ReverseProxy)}
-
-	rc.Add(func(m map[string]*client.ServerAttributes) error {
-		for _, mm := range m {
-			if mm.Name != "http" {
-				continue
-			}
-			for _, addr := range mm.Addresses {
-				proxy, ok := balancer.ReadyProxies[addr]
-				if !ok {
-					u, err := url.Parse("http://" + strings.Replace(addr, "[::]", "", -1))
-					if err != nil {
-						return err
-					}
-					proxy = &clienthttp.ReverseProxy{
-						ReverseProxy: httputil.NewSingleHostReverseProxy(u),
-					}
-					proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
-						log.Logger(request.Context()).Error("Proxy Error :"+err.Error(), zap.Error(err))
-					}
-					balancer.ReadyProxies[addr] = proxy
-				}
-
-				proxy.Endpoints = mm.Endpoints
-				proxy.Services = mm.Services
-			}
-		}
-
-		return nil
-	})
+	balancer := clienthttp.NewBalancer()
+	rc.Add(balancer.Build)
 
 	go monitor.Monitor(common.ServiceOAuth)
 

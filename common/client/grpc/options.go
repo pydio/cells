@@ -21,6 +21,8 @@
 package grpc
 
 import (
+	"net"
+	"strings"
 	"time"
 
 	"google.golang.org/grpc"
@@ -43,7 +45,17 @@ type Options struct {
 func WithPeerSelector(host string) Option {
 	return func(o *Options) {
 		o.SubConnSelector = func(info base.SubConnInfo) bool {
-			return info.Address.Addr == host
+			hosts := strings.Split(host, "|")
+			aHost, _, er := net.SplitHostPort(info.Address.Addr)
+			if er != nil {
+				return false
+			}
+			for _, h := range hosts {
+				if aHost == h {
+					return true
+				}
+			}
+			return false
 		}
 	}
 }
