@@ -96,7 +96,7 @@ func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, st
 		if q.MaxSize > 0 {
 			sizeParts = append(sizeParts, fmt.Sprintf("<=%d", q.MaxSize))
 		}
-		listReq.Node.SetMeta(tree.MetaFilterTime, sizeParts)
+		listReq.Node.SetMeta(tree.MetaFilterSize, sizeParts)
 	}
 	// Grep Filename
 	if q.FileName != "" {
@@ -136,6 +136,8 @@ func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, st
 	}
 	if q.PathDepth > 0 {
 		listReq.Node.SetMeta(tree.MetaFilterDepth, q.PathDepth)
+	} else if q.PathDepth == -1 {
+		listReq.Recursive = false
 	}
 
 	for _, p := range q.PathPrefix {

@@ -88,13 +88,13 @@ func (dao *FolderSizeCacheSQL) GetNodeByUUID(uuid string) (*mtree.TreeNode, erro
 }
 
 // GetNodeChildren List
-func (dao *FolderSizeCacheSQL) GetNodeChildren(path mtree.MPath) chan interface{} {
+func (dao *FolderSizeCacheSQL) GetNodeChildren(path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 	c := make(chan interface{})
 
 	go func() {
 		defer close(c)
 
-		cc := dao.DAO.GetNodeChildren(path)
+		cc := dao.DAO.GetNodeChildren(path, filter...)
 
 		for obj := range cc {
 			if node, ok := obj.(*mtree.TreeNode); ok {
@@ -110,13 +110,13 @@ func (dao *FolderSizeCacheSQL) GetNodeChildren(path mtree.MPath) chan interface{
 }
 
 // GetNodeTree List from the path
-func (dao *FolderSizeCacheSQL) GetNodeTree(path mtree.MPath) chan interface{} {
+func (dao *FolderSizeCacheSQL) GetNodeTree(path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 	c := make(chan interface{})
 
 	go func() {
 		defer close(c)
 
-		cc := dao.DAO.GetNodeTree(path)
+		cc := dao.DAO.GetNodeTree(path, filter...)
 
 		for obj := range cc {
 			if node, ok := obj.(*mtree.TreeNode); ok {

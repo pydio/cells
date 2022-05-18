@@ -632,7 +632,7 @@ func (d *daocache) GetNodeChildrenCounts(path mtree.MPath) (int, int) {
 	return res, 0
 }
 
-func (d *daocache) GetNodeChildren(path mtree.MPath) chan interface{} {
+func (d *daocache) GetNodeChildren(path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 
 	c := make(chan interface{})
 
@@ -651,7 +651,7 @@ func (d *daocache) GetNodeChildren(path mtree.MPath) chan interface{} {
 	return c
 }
 
-func (d *daocache) GetNodeTree(path mtree.MPath) chan interface{} {
+func (d *daocache) GetNodeTree(path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 	c := make(chan interface{})
 
 	go func() {
