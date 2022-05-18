@@ -257,9 +257,11 @@ func init() {
 			ORDER BY mpath1, mpath2, mpath3, mpath4`, sub), args
 	}
 
-	queries["tree"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathLike([]byte(mpathes[0]))
-
+	queries["tree"] = func(dao sql.DAO, other ...string) (string, []interface{}) {
+		sub, args := getMPathLike([]byte(other[0]))
+		if len(other) > 1 && other[1] != "" {
+			sub += " and " + other[1]
+		}
 		return fmt.Sprintf(`
 			SELECT uuid, level, mpath1, mpath2, mpath3, mpath4,  name, leaf, mtime, etag, size, mode
 			FROM %%PREFIX%%_idx_tree
@@ -269,6 +271,9 @@ func init() {
 
 	queries["children"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
+		if len(mpathes) > 1 && mpathes[1] != "" {
+			sub += " and " + mpathes[1]
+		}
 		return fmt.Sprintf(`
 			SELECT uuid, level, mpath1, mpath2, mpath3, mpath4,  name, leaf, mtime, etag, size, mode
 			FROM %%PREFIX%%_idx_tree
@@ -1006,12 +1011,17 @@ func (dao *IndexSQL) GetNodeChildrenCounts(path mtree.MPath) (int, int) {
 }
 
 // GetNodeChildren List
-func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan interface{} {
+func (dao *IndexSQL) GetNodeChildren(path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 
 	dao.Lock()
 
 	// Use a buffered chan to give some air to mysql buffer
 	c := make(chan interface{}, 10000)
+	var mfWhere string
+	var mfArgs []interface{}
+	if len(filter) > 0 {
+		mfWhere, mfArgs = filter[0].Where()
+	}
 
 	go func() {
 		var rows *databasesql.Rows
@@ -1032,7 +1042,8 @@ func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan interface{} {
 		mpath := node.MPath
 
 		// First we check if we already have an object with the same key
-		if stmt, args, e := dao.GetStmtWithArgs("children", mpath.String()); e == nil {
+		if stmt, args, e := dao.GetStmtWithArgs("children", mpath.String(), mfWhere); e == nil {
+			args = append(args, mfArgs...)
 			rows, ca, err = stmt.LongQuery(append(args, len(path)+1)...)
 			defer ca()
 			if err != nil {
@@ -1057,11 +1068,16 @@ func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan interface{} {
 }
 
 // GetNodeTree List from the path
-func (dao *IndexSQL) GetNodeTree(path mtree.MPath) chan interface{} {
+func (dao *IndexSQL) GetNodeTree(path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 
 	dao.Lock()
 
 	c := make(chan interface{})
+	var mfWhere string
+	var mfArgs []interface{}
+	if len(filter) > 0 {
+		mfWhere, mfArgs = filter[0].Where()
+	}
 
 	go func() {
 		var rows *databasesql.Rows
@@ -1083,7 +1099,8 @@ func (dao *IndexSQL) GetNodeTree(path mtree.MPath) chan interface{} {
 		mpath := node.MPath
 
 		// First we check if we already have an object with the same key
-		if stmt, args, e := dao.GetStmtWithArgs("tree", mpath.String()); e == nil {
+		if stmt, args, e := dao.GetStmtWithArgs("tree", mpath.String(), mfWhere); e == nil {
+			args = append(args, mfArgs...)
 			rows, ca, err = stmt.LongQuery(append(args, len(mpath)+1)...)
 			defer ca()
 			if err != nil {

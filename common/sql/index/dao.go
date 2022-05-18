@@ -52,10 +52,10 @@ type DAO interface {
 	SetNodes(string, int64) sql.BatchSender
 
 	// Getters
+	GetNodeChildren(mtree.MPath, ...*tree.MetaFilter) chan interface{}
+	GetNodeTree(mtree.MPath, ...*tree.MetaFilter) chan interface{}
 	GetNode(mtree.MPath) (*mtree.TreeNode, error)
 	GetNodeByUUID(string) (*mtree.TreeNode, error)
-	GetNodeChildren(mtree.MPath) chan interface{}
-	GetNodeTree(mtree.MPath) chan interface{}
 	GetNodeChild(mtree.MPath, string) (*mtree.TreeNode, error)
 	GetNodeLastChild(mtree.MPath) (*mtree.TreeNode, error)
 	GetNodeFirstAvailableChildIndex(mtree.MPath) (uint64, error)

@@ -409,21 +409,24 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 			}
 		}
 
-		var c chan interface{}
-		if req.Recursive {
-			c = dao.GetNodeTree(path)
-		} else {
-			c = dao.GetNodeChildren(path)
-		}
-
 		// Additional filters
 		metaFilter := tree.NewMetaFilter(reqNode)
-		hasFilter := metaFilter.Parse()
+		metaFilter.ParseType(req.FilterType)
+		_ = metaFilter.Parse()
+		sqlFilters := metaFilter.HasSQLFilters()
 		limitDepth := metaFilter.LimitDepth()
+
+		var c chan interface{}
+		if req.Recursive {
+			c = dao.GetNodeTree(path, metaFilter)
+		} else {
+			c = dao.GetNodeChildren(path, metaFilter)
+		}
 
 		log.Logger(ctx).Debug("Listing nodes on DS with Filter", zap.Int32("req.FilterType", int32(req.FilterType)), zap.Bool("true", req.FilterType == tree.NodeType_COLLECTION))
 
 		names := strings.Split(reqPath, "/")
+		parentsCache := map[string]string{}
 		var receivedErr error
 		for obj := range c {
 			node, isNode := obj.(*mtree.TreeNode)
@@ -432,30 +435,49 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 				break
 			}
 
-			if req.FilterType == tree.NodeType_COLLECTION && node.Type == tree.NodeType_LEAF {
-				continue
-			}
 			if req.Recursive && node.Path == reqPath {
 				continue
 			}
 
-			if node.Level > cap(names) {
-				newNames := make([]string, len(names), node.Level)
-				copy(newNames, names)
-				names = newNames
+			if sqlFilters {
+				// If there are filters, listing is not regular - we have to check parents for each
+				parents := node.MPath.Parents()
+				var lookups []mtree.MPath
+				// Fill in the wholes
+				for _, p := range parents {
+					if _, o := parentsCache[p.String()]; !o {
+						lookups = append(lookups, p)
+					}
+				}
+				// Load missing ones
+				for pnode := range dao.GetNodes(lookups...) {
+					parentsCache[pnode.MPath.String()] = pnode.Name()
+				}
+				var fullName []string
+				// Build name
+				for _, p := range parents {
+					fullName = append(fullName, parentsCache[p.String()])
+				}
+				fullName = append(fullName, node.Name())
+				node.Path = safePath(strings.Join(fullName, "/"))
+
+			} else {
+				// This assumes that all nodes are received in correct order from parents to leafs
+				if node.Level > cap(names) {
+					newNames := make([]string, len(names), node.Level)
+					copy(newNames, names)
+					names = newNames
+				}
+
+				names = names[0:node.Level]
+				names[node.Level-1] = node.Name()
+
+				node.Path = safePath(strings.Join(names, "/"))
 			}
-
-			names = names[0:node.Level]
-			names[node.Level-1] = node.Name()
-
-			node.Path = safePath(strings.Join(names, "/"))
 
 			s.setDataSourceMeta(node)
 
-			if hasFilter && !metaFilter.Match(node.Name(), node.Node) {
-				continue
-			}
-			if req.FilterType == tree.NodeType_LEAF && node.Type == tree.NodeType_COLLECTION {
+			if !metaFilter.MatchForceGrep(node.Name()) {
 				continue
 			}
 			if limitDepth > 0 && node.Level != limitDepth {

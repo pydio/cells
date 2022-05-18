@@ -248,7 +248,7 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Ha
 	noExtBaseQuoted := regexp.QuoteMeta(path.Base(noExt))
 
 	// List basenames with regexp "(?i)^(toto-[[:digit:]]*|toto).txt$" to look for same name or same base-DIGIT.ext (case-insensitive)
-	searchNode.MustSetMeta(tree.MetaFilterGrep, "(?i)^("+noExtBaseQuoted+"\\-[[:digit:]]*|"+noExtBaseQuoted+")"+ext+"$")
+	searchNode.MustSetMeta(tree.MetaFilterForceGrep, "(?i)^("+noExtBaseQuoted+"\\-[[:digit:]]*|"+noExtBaseQuoted+")"+ext+"$")
 	listReq := &tree.ListNodesRequest{Node: searchNode, Recursive: false}
 	cli.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
 		if node.Path == searchNode.Path {
