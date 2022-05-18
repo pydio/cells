@@ -32,6 +32,7 @@ import (
 	"google.golang.org/grpc/attributes"
 
 	"github.com/pydio/cells/v4/common/client"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 )
 
@@ -41,9 +42,13 @@ type Balancer interface {
 	PickEndpoint(path string) (*httputil.ReverseProxy, error)
 }
 
-func NewBalancer(oo ...client.BalancerOption) Balancer {
+func NewBalancer() Balancer {
+	var clusterConfig *client.ClusterConfig
+	config.Get("cluster").Default(&client.ClusterConfig{}).Scan(&clusterConfig)
+	clientConfig := clusterConfig.GetClientConfig("http")
+
 	opts := &client.BalancerOptions{}
-	for _, o := range oo {
+	for _, o := range clientConfig.LBOptions() {
 		o(opts)
 	}
 	return &balancer{
@@ -112,7 +117,6 @@ func (b *balancer) Build(m map[string]*client.ServerAttributes) error {
 	}
 	for addr, _ := range b.readyProxies {
 		if _, used := usedAddr[addr]; !used {
-			fmt.Println("Removing unused http proxy for address", addr)
 			delete(b.readyProxies, addr)
 		}
 	}
@@ -141,6 +145,16 @@ func (b *balancer) PickService(name string) (*httputil.ReverseProxy, error) {
 		}
 		if len(targets) == 0 {
 			return nil, fmt.Errorf("no proxy found for service %s matching filters", name)
+		}
+	}
+	if len(targets) > 1 && b.options != nil && len(b.options.Priority) > 0 {
+		priorityTargets := append([]*proxyBalancerTarget{}, targets...)
+		for _, f := range b.options.Priority {
+			priorityTargets = b.applyFilter(f, priorityTargets)
+		}
+		if len(priorityTargets) > 0 {
+			fmt.Println("Selecting targets from priority targets")
+			return priorityTargets[rand.Intn(len(priorityTargets))].proxy.ReverseProxy, nil
 		}
 	}
 	return targets[rand.Intn(len(targets))].proxy.ReverseProxy, nil

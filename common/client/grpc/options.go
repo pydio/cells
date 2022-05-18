@@ -21,8 +21,6 @@
 package grpc
 
 import (
-	"net"
-	"strings"
 	"time"
 
 	"github.com/pydio/cells/v4/common/client"
@@ -43,17 +41,7 @@ type Options struct {
 func WithPeerSelector(host string) Option {
 	return func(o *Options) {
 		o.BalancerFilter = func(info client.BalancerTarget) bool {
-			hosts := strings.Split(host, "|")
-			aHost, _, er := net.SplitHostPort(info.Address())
-			if er != nil {
-				return false
-			}
-			for _, h := range hosts {
-				if aHost == h {
-					return true
-				}
-			}
-			return false
+			return client.TargetHostMatches(info, host)
 		}
 	}
 }

@@ -22,31 +22,15 @@ package mux
 
 import (
 	"context"
-	"crypto/tls"
-	"fmt"
 	"net"
 	"net/http"
-	"strings"
 
 	caddy "github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
-	"google.golang.org/grpc"
-
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
-	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	clienthttp "github.com/pydio/cells/v4/common/client/http"
-	"github.com/pydio/cells/v4/common/proto/rest"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/server/caddy/maintenance"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"github.com/pydio/cells/v4/common/service"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 var (
@@ -59,51 +43,22 @@ func RegisterServerMux(ctx context.Context, s server.HttpMux) {
 		module.Init(ctx, s)
 		return
 	}
-	module = &Middleware{}
+	module = &Middleware{Resolver: clienthttp.NewResolver()}
 	module.Init(ctx, s)
 	caddy.RegisterModule(module)
 	httpcaddyfile.RegisterHandlerDirective("mux", parseCaddyfile)
 }
 
 type Middleware struct {
-	c         grpc.ClientConnInterface
-	r         registry.Registry
-	s         server.HttpMux
-	b         clienthttp.Balancer
-	rc        client.ResolverCallback
-	monitor   grpc2.HealthMonitor
-	userReady bool
+	clienthttp.Resolver
 }
 
 func (m *Middleware) Init(ctx context.Context, s server.HttpMux) {
-
-	conn := clientcontext.GetClientConn(ctx)
-	reg := servercontext.GetRegistry(ctx)
-	rc, _ := client.NewResolverCallback(reg)
-	balancer := clienthttp.NewBalancer()
-	rc.Add(balancer.Build)
-
-	m.c = conn
-	m.rc = rc
-	m.r = reg
-	m.s = s
-	m.b = balancer
-
-	if runtime.LastInitType() != "install" {
-		monitor := grpc2.NewHealthChecker(ctx)
-		go monitor.Monitor(common.ServiceOAuth)
-		m.monitor = monitor
-	}
-
+	m.Resolver.Init(ctx, s)
 }
 
 func (m *Middleware) Stop() {
-	if m.rc != nil {
-		m.rc.Stop()
-	}
-	if m.monitor != nil {
-		m.monitor.Stop()
-	}
+	m.Resolver.Stop()
 }
 
 // CaddyModule returns the Caddy module information.
@@ -119,89 +74,15 @@ func (m *Middleware) Provision(ctx caddy.Context) error {
 	return nil
 }
 
-func (m *Middleware) userServiceReady() bool {
-	if m.userReady {
-		return true
-	}
-	if service.RegistryHasServiceWithStatus(m.r, common.ServiceGrpcNamespace_+common.ServiceUser, service.StatusReady) {
-		m.userReady = true
-		return true
-	}
-	return false
-}
-
-var grpcTransport = &http.Transport{
-	TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
-	ForceAttemptHTTP2: true,
-}
-
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 
-	// Special case for application/grpc
-	if strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
-		proxy, e := m.b.PickService(common.ServiceGatewayGrpc)
-		if e != nil {
-			http.NotFound(w, r)
-			return nil
-		}
-		// We assume that internally, the GRPCs service is serving self-signed
-		proxy.Transport = grpcTransport
-		// Wrap context and server request
-		ctx := clientcontext.WithClientConn(r.Context(), m.c)
-		ctx = servercontext.WithRegistry(ctx, m.r)
-		proxy.ServeHTTP(w, r.WithContext(ctx))
-		return nil
-	}
-
-	if m.monitor != nil && (!m.monitor.Up() || !m.userServiceReady()) {
-		var bb []byte
-		if strings.Contains(r.Header.Get("Accept"), "text/html") {
-			bb, _ = maintenance.Assets.ReadFile("starting.html")
-			w.Header().Set("Content-Type", "text/html")
-		} else {
-			er := &rest.Error{
-				Code:   "503",
-				Title:  "Server is starting",
-				Detail: "Server is starting, please retry later",
-			}
-			bb, _ = json.Marshal(er)
-			w.Header().Set("Content-Type", "application/json")
-		}
-		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(bb)))
-		w.Header().Set("Retry-After", "10")
-		w.WriteHeader(503)
-		_, er := w.Write(bb)
+	served, er := m.Resolver.ServeHTTP(w, r)
+	if served {
 		return er
 	}
-
-	if r.RequestURI == "/maintenance.html" && r.Header.Get("X-Maintenance-Redirect") != "" {
-		bb, _ := maintenance.Assets.ReadFile("maintenance.html")
-		w.Header().Set("Content-Type", "text/html")
-		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(bb)))
-		w.WriteHeader(503)
-		_, er := w.Write(bb)
-		return er
-	}
-
-	// try to find it in the current mux
-	_, pattern := m.s.Handler(r)
-	if len(pattern) > 0 && (pattern != "/" || r.URL.Path == "/") {
-		ctx := clientcontext.WithClientConn(r.Context(), m.c)
-		ctx = servercontext.WithRegistry(ctx, m.r)
-
-		m.s.ServeHTTP(w, r.WithContext(ctx))
-		return nil
-	}
-
-	proxy, e := m.b.PickEndpoint(r.URL.Path)
-	if e == nil {
-		proxy.ServeHTTP(w, r)
-		return nil
-	}
-
-	// no matching filter found
 	return next.ServeHTTP(w, r)
+
 }
 
 // UnmarshalCaddyfile implements caddyfile.Unmarshaler.

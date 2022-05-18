@@ -119,31 +119,46 @@ func (p *rrPicker) Pick(i balancer.PickInfo) (balancer.PickResult, error) {
 		return balancer.PickResult{}, errors.New("service is not known by the registry")
 	}
 
-	var filters []client.BalancerTargetFilter
+	var filters, priorities []client.BalancerTargetFilter
 	if p.options != nil {
 		filters = append(filters, p.options.Filters...)
+		priorities = append(priorities, p.options.Priority...)
 	}
 	if val := i.Ctx.Value(ctxBalancerFilterKey{}); val != nil {
 		filters = append(filters, val.(client.BalancerTargetFilter))
 	}
+	if len(filters) == 0 && len(priorities) == 0 {
+		// No specific policies, use Round Robin
+		pc.mu.Lock()
+		sc := pc.sc[pc.next].SubConn
+		pc.next = (pc.next + 1) % len(pc.sc)
+		pc.mu.Unlock()
+		return balancer.PickResult{SubConn: sc}, nil
+	}
+
+	picks := pc.sc
 	if len(filters) > 0 {
-		picks := pc.sc
 		for _, f := range filters {
 			picks = p.applyFilter(f, picks)
 		}
 		if len(picks) == 0 {
 			return balancer.PickResult{}, errors.New("no service found matching the current filters")
 		}
-		sc := picks[rand.Intn(len(picks))]
-		return balancer.PickResult{SubConn: sc.SubConn}, nil
 	}
+	if len(picks) > 1 && len(priorities) > 0 {
+		priorityPicks := append([]*rrPickerSubConn{}, picks...)
+		for _, f := range priorities {
+			priorityPicks = p.applyFilter(f, priorityPicks)
+		}
+		if len(priorityPicks) > 0 {
+			fmt.Println("Returning priority processes first", len(priorityPicks))
+			sc := priorityPicks[rand.Intn(len(priorityPicks))]
+			return balancer.PickResult{SubConn: sc.SubConn}, nil
+		}
+	}
+	sc := picks[rand.Intn(len(picks))]
+	return balancer.PickResult{SubConn: sc.SubConn}, nil
 
-	pc.mu.Lock()
-	sc := pc.sc[pc.next].SubConn
-	pc.next = (pc.next + 1) % len(pc.sc)
-	pc.mu.Unlock()
-
-	return balancer.PickResult{SubConn: sc}, nil
 }
 
 func (p *rrPicker) applyFilter(f client.BalancerTargetFilter, sc []*rrPickerSubConn) []*rrPickerSubConn {

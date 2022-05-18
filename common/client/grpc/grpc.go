@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/config"
 	"os"
 	"runtime/debug"
 	"strconv"
@@ -54,11 +55,16 @@ var (
 )
 
 func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) []grpc.DialOption {
+
+	var clusterConfig *client.ClusterConfig
+	config.Get("cluster").Default(&client.ClusterConfig{}).Scan(&clusterConfig)
+	clientConfig := clusterConfig.GetClientConfig("grpc")
+
 	backoffConfig := backoff.DefaultConfig
 
 	return append([]grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithResolvers(NewBuilder(reg /*, client.WithRestrictToLocal()*/)),
+		grpc.WithResolvers(NewBuilder(reg, clientConfig.LBOptions()...)),
 		grpc.WithConnectParams(grpc.ConnectParams{MinConnectTimeout: 1 * time.Minute, Backoff: backoffConfig}),
 		grpc.WithChainUnaryInterceptor(
 			servicecontext.SpanUnaryClientInterceptor(),

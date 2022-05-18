@@ -42,6 +42,9 @@ type ServerAttributes struct {
 
 type UpdateStateCallback func(map[string]*ServerAttributes) error
 
+// ResolverCallback is a generic watcher for registry, that rebuilds the list of
+// available targets and calls the passed callbacks on change event.
+// It is used by both grpc and http balancers.
 type ResolverCallback interface {
 	Add(UpdateStateCallback)
 	Stop()
@@ -60,6 +63,7 @@ type resolverCallback struct {
 	w    registry.Watcher
 }
 
+// NewResolverCallback creates a new ResolverCallback watching the passed registry.Registry
 func NewResolverCallback(reg registry.Registry) (ResolverCallback, error) {
 
 	r := &resolverCallback{
@@ -154,10 +158,9 @@ func (r *resolverCallback) sendState() {
 			for _, e := range r.reg.ListAdjacentItems(srv, registry.WithType(pb.ItemType_ENDPOINT)) {
 				endpoints = append(endpoints, e.Name())
 			}
-			//fmt.Println("sendState for", srv.Name(), len(addresses), "addresses, ", len(endpoints), "endpoints")
-			atts := attributes.New("localAddr", r.localAddr)
+			atts := attributes.New(attKeyTargetServerID{}, srv.ID())
 			if pid, ok := srv.Metadata()[server.NodeMetaPID]; ok {
-				atts = atts.WithValue("targetPID", pid)
+				atts = atts.WithValue(attKeyTargetServerPID{}, pid)
 			}
 			m[srv.ID()] = &ServerAttributes{
 				Name:               srv.Name(),
