@@ -23,6 +23,7 @@ package jobs
 import (
 	"context"
 	"sync"
+	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -33,7 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
-func (a *Action) ToMessages(startMessage ActionMessage, ctx context.Context, output, failedFilter chan ActionMessage, done chan bool) {
+func (a *Action) ToMessages(startMessage ActionMessage, ctx context.Context, output, failedFilter chan ActionMessage, errors chan error, done chan bool) {
 
 	startMessage, excluded, pass := a.ApplyFilters(ctx, startMessage)
 	if !pass {
@@ -49,7 +50,7 @@ func (a *Action) ToMessages(startMessage ActionMessage, ctx context.Context, out
 		failedFilter <- *excluded
 	}
 	if a.HasSelectors() {
-		a.ResolveSelectors(startMessage, ctx, output, done)
+		a.FanToNext(ctx, 0, startMessage, output, errors, done)
 	} else {
 		output <- startMessage
 		done <- true
@@ -125,13 +126,7 @@ func (a *Action) ApplyFilters(ctx context.Context, input ActionMessage) (output 
 	return
 }
 
-func (a *Action) ResolveSelectors(startMessage ActionMessage, ctx context.Context, output chan ActionMessage, done chan bool) {
-
-	a.FanToNext(ctx, 0, startMessage, output, done)
-
-}
-
-func (a *Action) FanToNext(ctx context.Context, index int, input ActionMessage, output chan ActionMessage, done chan bool) {
+func (a *Action) FanToNext(ctx context.Context, index int, input ActionMessage, output chan ActionMessage, errors chan error, done chan bool) {
 
 	selectors := a.getSelectors()
 	if index < len(selectors)-1 {
@@ -142,7 +137,7 @@ func (a *Action) FanToNext(ctx context.Context, index int, input ActionMessage, 
 			for {
 				select {
 				case message := <-nextOut:
-					go a.FanToNext(ctx, index+1, message, output, done)
+					go a.FanToNext(ctx, index+1, message, output, errors, done)
 				case <-nextDone:
 					close(nextOut)
 					close(nextDone)
@@ -151,29 +146,34 @@ func (a *Action) FanToNext(ctx context.Context, index int, input ActionMessage, 
 			}
 		}()
 		if selectors[index].MultipleSelection() {
-			go a.CollectSelector(ctx, selectors[index], input, nextOut, nextDone)
+			go a.CollectSelector(ctx, selectors[index], input, nextOut, nextDone, errors)
 		} else {
-			go a.FanOutSelector(ctx, selectors[index], input, nextOut, nextDone)
+			go a.FanOutSelector(ctx, selectors[index], input, nextOut, nextDone, errors)
 		}
 	} else {
 		if selectors[index].MultipleSelection() {
-			a.CollectSelector(ctx, selectors[index], input, output, done)
+			a.CollectSelector(ctx, selectors[index], input, output, done, errors)
 		} else {
-			a.FanOutSelector(ctx, selectors[index], input, output, done)
+			a.FanOutSelector(ctx, selectors[index], input, output, done, errors)
 		}
 	}
 
 }
 
-func (a *Action) FanOutSelector(ctx context.Context, selector InputSelector, input ActionMessage, output chan ActionMessage, done chan bool) {
+func (a *Action) FanOutSelector(ctx context.Context, selector InputSelector, input ActionMessage, output chan ActionMessage, done chan bool, errors chan error) {
 
 	// If multiple selectors, we have to apply them sequentially
 	wire := make(chan interface{})
 	selectDone := make(chan bool, 1)
+	var timeoutCancel context.CancelFunc
 	go func() {
 		for {
 			select {
 			case obj := <-wire:
+				if er, o := obj.(error); o {
+					errors <- er
+					break
+				}
 				if nodeP, o := obj.(*tree.Node); o {
 					node := *nodeP // copy
 					input = input.WithNode(&node)
@@ -192,21 +192,36 @@ func (a *Action) FanOutSelector(ctx context.Context, selector InputSelector, inp
 				} else if dsP, oD := obj.(*object.DataSource); oD {
 					ds := *dsP
 					input = input.WithDataSource(&ds)
+				} else {
+					break
 				}
 				output <- input
 			case <-selectDone:
 				close(wire)
 				close(selectDone)
 				done <- true
+				if timeoutCancel != nil {
+					timeoutCancel()
+				}
 				return
 			}
 		}
 	}()
-	go selector.Select(ctx, input, wire, selectDone)
+	go func() {
+		if selector.GetTimeout() != "" {
+			if d, e := time.ParseDuration(selector.GetTimeout()); e == nil {
+				ctx, timeoutCancel = context.WithTimeout(ctx, d)
+			}
+		}
+		err := selector.Select(ctx, input, wire, selectDone)
+		if err != nil {
+			errors <- err
+		}
+	}()
 
 }
 
-func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, input ActionMessage, output chan ActionMessage, done chan bool) {
+func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, input ActionMessage, output chan ActionMessage, done chan bool, errors chan error) {
 
 	// If multiple selectors, we have to apply them sequentially
 	var nodes []*tree.Node
@@ -216,6 +231,7 @@ func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, in
 	var acls []*idm.ACL
 	var dss []*object.DataSource
 
+	var timeoutCancel context.CancelFunc
 	wire := make(chan interface{})
 	selectDone := make(chan bool, 1)
 	wg := &sync.WaitGroup{}
@@ -225,6 +241,10 @@ func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, in
 		for {
 			select {
 			case obj := <-wire:
+				if err, o := obj.(error); o {
+					errors <- err
+					break
+				}
 				if node, o := obj.(*tree.Node); o {
 					nodes = append(nodes, node)
 				} else if user, oU := obj.(*idm.User); oU {
@@ -241,11 +261,23 @@ func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, in
 			case <-selectDone:
 				close(wire)
 				close(selectDone)
+				if timeoutCancel != nil {
+					timeoutCancel()
+				}
 				return
 			}
 		}
 	}()
-	go selector.Select(ctx, input, wire, selectDone)
+	go func() {
+		if selector.GetTimeout() != "" {
+			if d, e := time.ParseDuration(selector.GetTimeout()); e == nil {
+				ctx, timeoutCancel = context.WithTimeout(ctx, d)
+			}
+		}
+		if er := selector.Select(ctx, input, wire, selectDone); er != nil {
+			errors <- er
+		}
+	}()
 	wg.Wait()
 
 	input = input.WithNodes(nodes...)

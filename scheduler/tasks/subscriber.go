@@ -27,8 +27,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/v4/common/runtime"
-
 	"github.com/cskr/pubsub"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -42,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/cache"
@@ -63,12 +62,16 @@ type ContextJobParametersKey struct{}
 // Subscriber handles incoming events, applies selectors if any
 // and generates all ActionMessage to trigger actions
 type Subscriber struct {
+	rootCtx context.Context
+
 	sync.RWMutex
-	rootCtx     context.Context
 	definitions map[string]*jobs.Job
-	batcher     *cache.EventsBatcher
-	queue       chan Runnable
-	dispatchers map[string]*Dispatcher
+
+	batcher *cache.EventsBatcher
+	queue   chan Runnable
+
+	dispatcherLock sync.Mutex
+	dispatchers    map[string]*Dispatcher
 }
 
 // NewSubscriber creates a multiplexer for tasks managements and messages
@@ -152,7 +155,9 @@ func (s *Subscriber) Init() {
 		defer streamer.CloseSend()
 
 		s.Lock()
+		s.dispatcherLock.Lock()
 		defer s.Unlock()
+		defer s.dispatcherLock.Unlock()
 		for {
 			resp, er := streamer.Recv()
 			if er != nil {
@@ -165,7 +170,7 @@ func (s *Subscriber) Init() {
 				continue
 			}
 			s.definitions[resp.Job.ID] = resp.Job
-			s.getDispatcherForJob(resp.Job)
+			s.getDispatcherForJob(resp.Job, false)
 		}
 
 		return nil
@@ -176,13 +181,23 @@ func (s *Subscriber) Init() {
 // Stop closes internal EventsBatcher
 func (s *Subscriber) Stop() {
 	s.batcher.Done <- true
+	s.dispatcherLock.Lock()
+	for _, d := range s.dispatchers {
+		d.Stop()
+	}
+	s.dispatcherLock.Unlock()
 }
 
 // listenToQueue starts a go routine that listens to the Event Bus
 func (s *Subscriber) listenToQueue() {
 	go func() {
 		for runnable := range s.queue {
-			dispatcher := s.getDispatcherForJob(runnable.Task.Job)
+			select {
+			case <-runnable.Task.context.Done():
+				continue
+			default:
+			}
+			dispatcher := s.getDispatcherForJob(runnable.Task.Job, true)
 			dispatcher.jobQueue <- runnable
 		}
 	}()
@@ -196,7 +211,12 @@ func (s *Subscriber) taskChannelSubscription() {
 }
 
 // getDispatcherForJob creates a new dispatcher for a job
-func (s *Subscriber) getDispatcherForJob(job *jobs.Job) *Dispatcher {
+func (s *Subscriber) getDispatcherForJob(job *jobs.Job, lock bool) *Dispatcher {
+
+	if lock {
+		s.dispatcherLock.Lock()
+		defer s.dispatcherLock.Unlock()
+	}
 
 	if d, exists := s.dispatchers[job.ID]; exists {
 		return d
@@ -218,6 +238,7 @@ func (s *Subscriber) getDispatcherForJob(job *jobs.Job) *Dispatcher {
 // Job Configuration was updated, react accordingly
 func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEvent) error {
 	s.Lock()
+	s.dispatcherLock.Lock()
 	// Update config
 	if msg.JobRemoved != "" {
 		delete(s.definitions, msg.JobRemoved)
@@ -232,10 +253,11 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 			dispatcher.Stop()
 			delete(s.dispatchers, msg.JobUpdated.ID)
 			if !msg.JobUpdated.Inactive {
-				s.getDispatcherForJob(msg.JobUpdated)
+				s.getDispatcherForJob(msg.JobUpdated, false)
 			}
 		}
 	}
+	s.dispatcherLock.Unlock()
 	s.Unlock()
 	// AutoStart if required
 	if msg.JobUpdated != nil && !msg.JobUpdated.Inactive && msg.JobUpdated.AutoStart {
@@ -311,9 +333,8 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 	} else {
 		log.Logger(ctx).Info("Run Job " + jobId + " on timer event " + event.Schedule.String())
 	}
-	task := NewTaskFromEvent(ctx, j, event)
-	task.SetRuntimeContext(s.rootCtx)
-	go task.EnqueueRunnables(s.queue)
+	task := NewTaskFromEvent(s.rootCtx, ctx, j, event)
+	task.Queue(s.queue)
 
 	return nil
 }
@@ -383,9 +404,8 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 		}
 
 		log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eventMatch)
-		task := NewTaskFromEvent(tCtx, jobData, event)
-		task.SetRuntimeContext(s.rootCtx)
-		go task.EnqueueRunnables(s.queue)
+		task := NewTaskFromEvent(s.rootCtx, tCtx, jobData, event)
+		task.Queue(s.queue)
 	}
 
 }
@@ -415,9 +435,8 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 					continue
 				}
 				log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eName)
-				task := NewTaskFromEvent(tCtx, jobData, event)
-				task.SetRuntimeContext(s.rootCtx)
-				go task.EnqueueRunnables(s.queue)
+				task := NewTaskFromEvent(s.rootCtx, tCtx, jobData, event)
+				task.Queue(s.queue)
 			}
 		}
 	}
@@ -441,8 +460,8 @@ func (s *Subscriber) jobLevelFilterPass(ctx context.Context, event *tree.NodeCha
 }
 
 // jobLevelIdmFilterPass tests filter and return false if all input IDM slots are empty
-func (s *Subscriber) jobLevelIdmFilterPass(ctx context.Context, input jobs.ActionMessage, filter *jobs.IdmSelector) bool {
-	_, _, pass := filter.Filter(ctx, input)
+func (s *Subscriber) jobLevelIdmFilterPass(ctx context.Context, input *jobs.ActionMessage, filter *jobs.IdmSelector) bool {
+	_, _, pass := filter.Filter(ctx, *input)
 	return pass
 }
 
@@ -496,7 +515,7 @@ func (s *Subscriber) contextJobSameUuid(ctx context.Context, jobId string) bool 
 	return false
 }
 
-func createMessageFromEvent(event interface{}) jobs.ActionMessage {
+func createMessageFromEvent(event interface{}) *jobs.ActionMessage {
 	initialInput := jobs.ActionMessage{}
 
 	if nodeChange, ok := event.(*tree.NodeChangeEvent); ok {
@@ -536,7 +555,7 @@ func createMessageFromEvent(event interface{}) jobs.ActionMessage {
 
 	}
 
-	return initialInput
+	return &initialInput
 }
 
 func logStartMessageFromEvent(ctx context.Context, task *Task, event interface{}) {
@@ -569,10 +588,5 @@ func logStartMessageFromEvent(ctx context.Context, task *Task, event interface{}
 	if user != "" && user != common.PydioSystemUsername {
 		msg += " (triggered by user " + user + ")"
 	}
-	ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{
-		servicecontext.ContextMetaJobUuid:        task.Job.ID,
-		servicecontext.ContextMetaTaskUuid:       task.GetRunUUID(),
-		servicecontext.ContextMetaTaskActionPath: "ROOT",
-	})
 	log.TasksLogger(ctx).Info(msg)
 }

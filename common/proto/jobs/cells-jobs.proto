@@ -28,6 +28,8 @@ message NodesSelector {
     string Label = 6;
     // Selector additional description
     string Description = 7;
+    // Optional Timeout for this selector
+    string Timeout = 8;
 }
 
 // Possible values for IdmSelector.Type
@@ -52,6 +54,8 @@ message IdmSelector {
     string Label = 5;
     // Selector additional description
     string Description = 6;
+    // Optional Timeout for this selector
+    string Timeout = 7;
 }
 
 // Select or filter users - should be replaced by more generic IdmSelector
@@ -69,6 +73,8 @@ message UsersSelector {
     string Label = 6;
     // Selector additional description
     string Description = 7;
+    // Optional Timeout for this selector
+    string Timeout = 8;
 }
 
 enum DataSourceSelectorType {
@@ -90,6 +96,8 @@ message DataSourceSelector {
     bool Collect = 5;
     // Composition of DataSourceSingleQueries
     service.Query Query = 6;
+    // Optional Timeout for this selector
+    string Timeout = 7;
 }
 
 message TriggerFilterQuery {
@@ -164,6 +172,8 @@ message Action {
     bool Bypass = 15;
     // Stop full chain now : do not carry on executing next actions
     bool BreakAfter = 16;
+    // Optional timeout for this action
+    string Timeout = 20;
 
     // Nodes Selector
     NodesSelector NodesSelector = 2;
@@ -257,6 +267,8 @@ message Job {
 
     // Additional dependencies that may be required when running the job
     repeated google.protobuf.Any ResourcesDependencies = 22;
+    // Optional Timeout any running job
+    string Timeout = 23;
 }
 
 message JobParameter {

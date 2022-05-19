@@ -480,6 +480,7 @@ func (j *JobsHandler) CleanStuckTasks(ctx context.Context, duration ...time.Dura
 		case t := <-res:
 			t.Status = proto.TaskStatus_Error
 			t.StatusMessage = "Task stuck"
+			t.EndTime = int32(time.Now().Unix())
 			if len(duration) > 0 && t.StartTime > 0 {
 				check := duration[0]
 				startTime := time.Unix(int64(t.StartTime), 0)

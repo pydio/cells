@@ -23,6 +23,7 @@ package jobs
 import (
 	"context"
 	"fmt"
+	"io"
 	"path"
 	"strings"
 
@@ -176,10 +177,14 @@ func (n *NodesSelector) performListing(ctx context.Context, serviceName string, 
 	}
 	var received int32
 	var count int
+	var stErr error
 	defer sStream.CloseSend()
 	for {
 		resp, rE := sStream.Recv()
 		if rE != nil {
+			if rE != io.EOF {
+				stErr = rE
+			}
 			break
 		}
 		if resp == nil || resp.Node == nil {
@@ -194,7 +199,7 @@ func (n *NodesSelector) performListing(ctx context.Context, serviceName string, 
 		count++
 	}
 	mayHaveMore := req.Size > 0 && received == req.Size
-	return count, mayHaveMore, nil
+	return count, mayHaveMore, stErr
 }
 
 func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {

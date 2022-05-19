@@ -25,9 +25,9 @@ package actions
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common"
 	"time"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 )
@@ -119,7 +119,6 @@ type RunnableChannels struct {
 	// Input Channels
 	Pause  chan interface{}
 	Resume chan interface{}
-	Stop   chan interface{}
 	// Output Channels
 	Status    chan jobs.TaskStatus
 	StatusMsg chan string
@@ -127,7 +126,7 @@ type RunnableChannels struct {
 }
 
 // BlockUntilResume returns a blocking channel that can be inserted anywhere to block execution
-func (r *RunnableChannels) BlockUntilResume(maxPauseTime ...time.Duration) chan interface{} {
+func (r *RunnableChannels) BlockUntilResume(ctx context.Context, maxPauseTime ...time.Duration) chan interface{} {
 	blocker := make(chan interface{})
 	var unlockTime time.Duration
 	if len(maxPauseTime) > 0 {
@@ -144,7 +143,7 @@ func (r *RunnableChannels) BlockUntilResume(maxPauseTime ...time.Duration) chan 
 				r.Status <- jobs.TaskStatus_Running
 				blocker <- true
 				return
-			case <-r.Stop:
+			case <-ctx.Done():
 				r.Status <- jobs.TaskStatus_Interrupted
 				blocker <- true
 				return
