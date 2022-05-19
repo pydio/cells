@@ -31,7 +31,7 @@ type ZapLogger interface {
 	Named(s string) ZapLogger
 	WithOptions(opts ...zap.Option) ZapLogger
 	With(fields ...zap.Field) ZapLogger
-	
+
 	Debug(msg string, fields ...zap.Field)
 	Info(msg string, fields ...zap.Field)
 	Warn(msg string, fields ...zap.Field)
@@ -121,6 +121,22 @@ func (l *logger) Debug(msg string, fields ...zap.Field) {
 
 func (l *logger) Warn(msg string, fields ...zap.Field) {
 	l.Logger.Warn(msg, append(fields, l.fields...)...)
+}
+
+func (l *logger) Error(msg string, fields ...zap.Field) {
+	l.Logger.Error(msg, append(fields, l.fields...)...)
+}
+
+func (l *logger) DPanic(msg string, fields ...zap.Field) {
+	l.Logger.DPanic(msg, append(fields, l.fields...)...)
+}
+
+func (l *logger) Panic(msg string, fields ...zap.Field) {
+	l.Logger.Panic(msg, append(fields, l.fields...)...)
+}
+
+func (l *logger) Fatal(msg string, fields ...zap.Field) {
+	l.Logger.Fatal(msg, append(fields, l.fields...)...)
 }
 
 func (l *logger) WithOptions(opts ...zap.Option) ZapLogger {
