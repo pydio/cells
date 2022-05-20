@@ -28,6 +28,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -159,6 +160,9 @@ to quickly create a Cobra application.`,
 			m.ServeAll(
 				server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
 				server.WithHttpBindAddress(runtime.HttpBindAddress()),
+				server.WithErrorCallback(func(err error) {
+					cmd.Println(promptui.IconBad + " - There was an error while starting:" + err.Error())
+				}),
 			)
 		}
 

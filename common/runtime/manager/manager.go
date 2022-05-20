@@ -319,7 +319,6 @@ func (m *manager) WatchBroker(ctx context.Context, br broker.Broker) error {
 		if src == nil && srv == nil {
 			return nil
 		}
-		fmt.Println("FOUND REAL OBJECT HERE", src, srv)
 
 		switch cmd {
 		case "start":

@@ -22,6 +22,7 @@ package boltdb
 
 import (
 	"context"
+	"time"
 
 	bolt "go.etcd.io/bbolt"
 
@@ -33,7 +34,9 @@ type boltdb struct {
 }
 
 func (b *boltdb) Open(c context.Context, dsn string) (dao.Conn, error) {
-	db, err := bolt.Open(dsn, 0600, nil)
+	opt := *bolt.DefaultOptions
+	opt.Timeout = 20 * time.Second
+	db, err := bolt.Open(dsn, 0600, &opt)
 	if err != nil {
 		return nil, err
 	}

@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/pydio/cells/v4/common/registry"
@@ -89,7 +90,12 @@ func NewServer(ctx context.Context, s RawServer) Server {
 
 func (s *server) Server() {}
 
-func (s *server) Serve(oo ...ServeOption) error {
+func (s *server) Serve(oo ...ServeOption) (outErr error) {
+	defer func() {
+		if outErr != nil {
+			outErr = errors.Wrap(outErr, "server.Start "+s.Name())
+		}
+	}()
 	opt := &ServeOptions{}
 	for _, o := range oo {
 		o(opt)
@@ -105,10 +111,11 @@ func (s *server) Serve(oo ...ServeOption) error {
 
 	var g errgroup.Group
 	for _, h := range opt.BeforeServe {
-		intH := h
-		g.Go(func() error {
-			return intH(opt.RegistryOptions...)
-		})
+		func(bs func(oo ...registry.RegisterOption) error) {
+			g.Go(func() error {
+				return bs(opt.RegistryOptions...)
+			})
+		}(h)
 	}
 	if er := g.Wait(); er != nil {
 		return er

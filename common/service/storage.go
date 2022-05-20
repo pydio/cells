@@ -22,13 +22,16 @@ package service
 
 import (
 	"context"
+	"strings"
+
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/registry"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"go.uber.org/zap"
-	"strings"
 )
 
 type StorageOptions struct {
@@ -107,7 +110,7 @@ func daoFromOptions(o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts
 		c, e = dao.InitDAO(o.Context, driver, dsn, prefix, fd, cfg)
 	}
 	if e != nil {
-		return nil, e
+		return nil, errors.Wrap(e, "dao.Initialization "+driver)
 	}
 
 	if c.LocalAccess() {

@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"sync"
 
+	errors2 "github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/log"
@@ -134,6 +135,10 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 			log.Logger(s.opts.Context).Error("panic while starting service", zap.Any("p", e))
 			er = fmt.Errorf("panic while starting service %v", e)
 		}
+		if er != nil {
+			er = errors2.Wrap(er, "service.Start "+s.Name())
+		}
+		s.updateRegister(StatusError)
 	}()
 
 	s.updateRegister(StatusStarting)
@@ -218,7 +223,7 @@ func (s *service) updateRegister(status ...Status) {
 		}
 	}
 	up := s.status == StatusServing || s.status == StatusReady
-	down := s.status == StatusStopping || s.status == StatusStopped
+	down := s.status == StatusStopping || s.status == StatusStopped || s.status == StatusError
 
 	reg := servicecontext.GetRegistry(s.opts.Context)
 	if reg == nil {
