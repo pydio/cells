@@ -414,7 +414,7 @@ func (m *MockStore) Unlock() {
 	// noop
 }
 
-func (m *MockStore) Watch(path ...string) (configx.Receiver, error) {
+func (m *MockStore) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 	return &Receiver{stop: make(chan struct{}, 1)}, nil
 }
 
@@ -426,7 +426,7 @@ type Receiver struct {
 	stop chan struct{}
 }
 
-func (r *Receiver) Next() (configx.Values, error) {
+func (r *Receiver) Next() (interface{}, error) {
 	<-r.stop
 	return nil, fmt.Errorf("watcher closed")
 }

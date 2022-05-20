@@ -22,6 +22,7 @@ package configtest
 
 import (
 	"fmt"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"testing"
 	"time"
 
@@ -46,7 +47,7 @@ func testWatch(t *testing.T, store config.Store) {
 						return
 					}
 
-					fmt.Println(string(res.Bytes()))
+					fmt.Println(string(res.(configx.Values).Bytes()))
 				}
 			}()
 

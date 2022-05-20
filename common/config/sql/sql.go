@@ -167,11 +167,15 @@ func (s *SQL) Save(ctxUser, ctxMessage string) error {
 	return nil
 }
 
-func (s *SQL) Watch(path ...string) (configx.Receiver, error) {
+func (s *SQL) Watch(oo ...configx.WatchOption) (configx.Receiver, error) {
+	opts := &configx.WatchOptions{}
+	for _, o := range oo {
+		o(opts)
+	}
 	r := &receiver{
 		exit:    make(chan bool),
-		path:    path,
-		value:   s.Val(path...).Bytes(),
+		path:    opts.Path,
+		value:   s.Val(opts.Path...).Bytes(),
 		updates: make(chan []byte),
 	}
 
@@ -187,7 +191,7 @@ type receiver struct {
 	updates chan []byte
 }
 
-func (r *receiver) Next() (configx.Values, error) {
+func (r *receiver) Next() (interface{}, error) {
 	for {
 		select {
 		case <-r.exit:
