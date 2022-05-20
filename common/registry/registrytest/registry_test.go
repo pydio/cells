@@ -127,7 +127,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 
 		<-time.After(5 * time.Second)
 
-		afterCreateServices, err := m.List()
+		afterCreateServices, err := m.List(registry.WithType(pb.ItemType_SERVICE))
 		So(err, ShouldBeNil)
 		So(len(afterCreateServices), ShouldEqual, numServices*2)
 
@@ -137,10 +137,13 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 				if err := svc.Stop(); err != nil {
 					log.Fatal(err)
 				}
+				if er := m.Deregister(svc); er != nil {
+					log.Fatal(er)
+				}
 			}
 		}
 
-		afterDeleteServices, err := m.List()
+		afterDeleteServices, err := m.List(registry.WithType(pb.ItemType_SERVICE))
 		So(err, ShouldBeNil)
 		So(len(afterDeleteServices), ShouldEqual, 0)
 
