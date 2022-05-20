@@ -21,10 +21,11 @@
 import React from "react"
 import Pydio from 'pydio'
 import PydioApi from "pydio/http/api";
-import {FontIcon, CircularProgress} from 'material-ui'
+import {FontIcon, CircularProgress, MenuItem} from 'material-ui'
 import {JobsServiceApi, LogListLogRequest, ListLogRequestLogFormat} from 'cells-sdk';
 
 const {MaterialTable} = Pydio.requireLib('components');
+const {ModernTextField, ModernSelectField} = Pydio.requireLib('hoc');
 const {JobsStore, moment} = Pydio.requireLib('boot');
 import debounce from 'lodash.debounce'
 
@@ -87,6 +88,7 @@ class TaskActivity extends React.Component{
 
     loadActivity(props, page = 0, retry = 0){
 
+        const {filter} = this.state;
         const {task, poll} = props;
         if(!task){
             return;
@@ -96,6 +98,11 @@ class TaskActivity extends React.Component{
 
         let request = new LogListLogRequest();
         request.Query = "+OperationUuid:\"" + operationId + "\"";
+        if(filter === "error") {
+            request.Query += " +Level:" + filter
+        } else if(filter) {
+            request.Query += "+Msg:*" + filter + "*"
+        }
         request.Page = page;
         request.Size = 200;
         request.Format = ListLogRequestLogFormat.constructFromObject('JSON');
@@ -177,9 +184,12 @@ class TaskActivity extends React.Component{
 
     render(){
         const {pydio, onRequestClose} = this.props;
-        const {activity, loading, page, serverOffset, timeOffset = 0} = this.state;
+        const {activity, loading, page, serverOffset, timeOffset = 0, showFilters=false, filter = ""} = this.state;
         const cellBg = "#f5f5f5";
         const lineHeight = 32;
+        const setFilter = (f) => {
+            this.setState({filter:f}, ()=> this.loadActivity(this.props, 0))
+        }
         const columns = [
             {name: 'SchedulerTaskActionPath', label:'', hideSmall:true, style:{width:110, height: lineHeight, backgroundColor:cellBg, paddingLeft: 12, paddingRight: 0, userSelect:'text'}, headerStyle:{width:110, paddingLeft: 12, paddingRight: 0}, renderCell:(row) => {
                 return this.computeTag(row)
@@ -188,6 +198,19 @@ class TaskActivity extends React.Component{
                     const m = moment((row.Ts+timeOffset) * 1000);
                     return m.format('HH:mm:ss');
                 })},
+            {name:'Level', label:pydio.MessageHash['ajxp_admin.logs.level'], headerStyle:{width: 70}, style:{width:70, height: lineHeight, backgroundColor:cellBg, userSelect:'text', textTransform:'uppercase', paddingRight: 0, paddingLeft: 10}, renderCell:(row)=>{
+                let color;
+                if(row.Level==='info') {
+                    color = '#1976D0';
+                } else if (row.Level === 'error') {
+                    color = '#E53935';
+                } else if (row.Level === 'warn') {
+                    color = '#fb8c00';
+                } else if (row.Level === 'debug') {
+                    color = '#673AB7';
+                }
+                    return <span style={{color}}>{row.Level}</span>
+            }},
             {name:'Msg', label:pydio.MessageHash['ajxp_admin.logs.message'], style:{height: lineHeight, backgroundColor:cellBg, userSelect:'text'}}
         ];
         return (
@@ -204,6 +227,17 @@ class TaskActivity extends React.Component{
                         <FontIcon className={"mdi mdi-alarm"+(timeOffset?"-snooze":"")} color={"rgba(0,0,0,.3)"} style={{fontSize: 16}}/>
                     </div>
                     }
+                    {showFilters &&
+                        <div style={{zoom:.8, width:100, height:35, marginTop:-10, marginRight: 5}}>
+                            <ModernTextField hintText={pydio.MessageHash['ajxp_admin.logs.3']} fullWidth={true} value={filter} onChange={(e,v)=>setFilter(v)} focusOnMount={true}/>
+                        </div>
+                    }
+                    <div style={{paddingRight: 15, cursor: "pointer"}} onClick={() => this.setState({showFilters:!showFilters})}>
+                        <FontIcon className={"mdi mdi-filter" + (showFilters ? "-remove" : "")} color={"rgba(0,0,0,.3)"} style={{fontSize: 16}}/>
+                    </div>
+                    <div style={{paddingRight: 15, cursor: "pointer"}} onClick={() => this.loadActivity(this.props, page)}>
+                        <FontIcon className={"mdi mdi-refresh"} color={"rgba(0,0,0,.3)"} style={{fontSize: 16}}/>
+                    </div>
                     <div style={{paddingRight: 15, cursor: "pointer"}} onClick={onRequestClose}>
                         <FontIcon className={"mdi mdi-close"} color={"rgba(0,0,0,.3)"} style={{fontSize: 16}}/>
                     </div>
