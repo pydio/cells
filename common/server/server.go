@@ -31,7 +31,6 @@ import (
 )
 
 type CoreServer interface {
-	Stop() error
 	Name() string
 	ID() string
 	Type() Type
@@ -41,14 +40,16 @@ type CoreServer interface {
 
 type RawServer interface {
 	CoreServer
+	Stop() error
 	RawServe(options *ServeOptions) ([]registry.Item, error)
 }
 
 type Server interface {
 	CoreServer
 	Serve(...ServeOption) error
-	RegisterBeforeStop(func() error)
-	RegisterAfterStop(func() error)
+	Stop(oo ...registry.RegisterOption) error
+	RegisterBeforeStop(func(oo ...registry.RegisterOption) error)
+	RegisterAfterStop(func(oo ...registry.RegisterOption) error)
 }
 
 type Type int8
@@ -64,8 +65,8 @@ type server struct {
 	s           RawServer
 	opts        *Options
 	status      string
-	beforeStops []func() error
-	afterStops  []func() error
+	beforeStops []func(oo ...registry.RegisterOption) error
+	afterStops  []func(oo ...registry.RegisterOption) error
 }
 
 func NewServer(ctx context.Context, s RawServer) Server {
@@ -104,7 +105,10 @@ func (s *server) Serve(oo ...ServeOption) error {
 
 	var g errgroup.Group
 	for _, h := range opt.BeforeServe {
-		g.Go(h)
+		intH := h
+		g.Go(func() error {
+			return intH(opt.RegistryOptions...)
+		})
 	}
 	if er := g.Wait(); er != nil {
 		return er
@@ -139,8 +143,8 @@ func (s *server) Serve(oo ...ServeOption) error {
 	return nil
 }
 
-func (s *server) Stop() error {
-	if err := s.doBeforeStop(); err != nil {
+func (s *server) Stop(oo ...registry.RegisterOption) error {
+	if err := s.doBeforeStop(oo...); err != nil {
 		return err
 	}
 
@@ -148,17 +152,22 @@ func (s *server) Stop() error {
 		return err
 	}
 
+	opts := &registry.RegisterOptions{}
+	for _, o := range oo {
+		o(opts)
+	}
+
 	// We deregister the endpoints to clear links and re-register as stopped
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
 		if er := reg.Deregister(s, registry.WithRegisterFailFast()); er != nil {
 			return er
-		} else {
+		} else if !opts.DeregisterFull {
 			s.status = "stopped"
 			_ = reg.Register(s, registry.WithRegisterFailFast())
 		}
 	}
 
-	if err := s.doAfterStop(); err != nil {
+	if err := s.doAfterStop(oo...); err != nil {
 		return err
 	}
 
@@ -186,21 +195,21 @@ func (s *server) Metadata() map[string]string {
 	return meta
 }
 
-func (s *server) RegisterBeforeStop(f func() error) {
+func (s *server) RegisterBeforeStop(f func(oo ...registry.RegisterOption) error) {
 	s.beforeStops = append(s.beforeStops, f)
 }
 
-func (s *server) RegisterAfterStop(f func() error) {
+func (s *server) RegisterAfterStop(f func(oo ...registry.RegisterOption) error) {
 	s.afterStops = append(s.afterStops, f)
 }
 
-func (s *server) doBeforeStop() error {
+func (s *server) doBeforeStop(oo ...registry.RegisterOption) error {
 	defer func() {
 		// Empty beforeStops
-		s.beforeStops = []func() error{}
+		s.beforeStops = []func(oo ...registry.RegisterOption) error{}
 	}()
 	for _, h := range s.beforeStops {
-		if err := h(); err != nil {
+		if err := h(oo...); err != nil {
 			return err
 		}
 	}
@@ -208,13 +217,13 @@ func (s *server) doBeforeStop() error {
 	return nil
 }
 
-func (s *server) doAfterStop() error {
+func (s *server) doAfterStop(oo ...registry.RegisterOption) error {
 	defer func() {
 		// Empty afterStops
-		s.afterStops = []func() error{}
+		s.afterStops = []func(oo ...registry.RegisterOption) error{}
 	}()
 	for _, h := range s.afterStops {
-		if err := h(); err != nil {
+		if err := h(oo...); err != nil {
 			return err
 		}
 	}

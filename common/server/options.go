@@ -22,6 +22,7 @@ package server
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/registry"
 	"net"
 )
 
@@ -30,10 +31,12 @@ type ServeOptions struct {
 	GrpcBindAddress string
 	ErrorCallback   func(error)
 
-	BeforeServe []func() error
-	AfterServe  []func() error
-	BeforeStop  []func() error
-	AfterStop   []func() error
+	BeforeServe []func(oo ...registry.RegisterOption) error
+	AfterServe  []func(oo ...registry.RegisterOption) error
+	BeforeStop  []func(oo ...registry.RegisterOption) error
+	AfterStop   []func(oo ...registry.RegisterOption) error
+
+	RegistryOptions []registry.RegisterOption
 }
 
 type ServeOption func(options *ServeOptions)
@@ -56,25 +59,25 @@ func WithHttpBindAddress(a string) ServeOption {
 	}
 }
 
-func WithBeforeServe(f func() error) ServeOption {
+func WithBeforeServe(f func(oo ...registry.RegisterOption) error) ServeOption {
 	return func(o *ServeOptions) {
 		o.BeforeServe = append(o.BeforeServe, f)
 	}
 }
 
-func WithAfterServe(f func() error) ServeOption {
+func WithAfterServe(f func(oo ...registry.RegisterOption) error) ServeOption {
 	return func(o *ServeOptions) {
 		o.AfterServe = append(o.AfterServe, f)
 	}
 }
 
-func WithBeforeStop(f func() error) ServeOption {
+func WithBeforeStop(f func(oo ...registry.RegisterOption) error) ServeOption {
 	return func(o *ServeOptions) {
 		o.BeforeStop = append(o.BeforeStop, f)
 	}
 }
 
-func WithAfterStop(f func() error) ServeOption {
+func WithAfterStop(f func(oo ...registry.RegisterOption) error) ServeOption {
 	return func(o *ServeOptions) {
 		o.AfterStop = append(o.AfterStop, f)
 	}

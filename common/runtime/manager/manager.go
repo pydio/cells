@@ -198,14 +198,12 @@ func (m *manager) ServeAll(oo ...server.ServeOption) {
 
 func (m *manager) StopAll() {
 	for _, srv := range m.serversWithStatus("ready") {
-		if err := srv.Stop(); err != nil {
+		if err := srv.Stop(registry.WithDeregisterFull()); err != nil {
 			fmt.Println("Error stopping server ", err)
 		}
 	}
-	if m.rootIsFork {
-		fmt.Println("Deregistering fork Node")
-		_ = m.reg.Deregister(m.root, registry.WithRegisterFailFast())
-	}
+	//fmt.Println("Deregister Node")
+	_ = m.reg.Deregister(m.root, registry.WithRegisterFailFast())
 }
 
 func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error {

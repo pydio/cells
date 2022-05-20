@@ -103,9 +103,10 @@ func (o *Options) Matches(name, itemName string) bool {
 }
 
 type RegisterOptions struct {
-	Edges    []registerEdge
-	Watch    interface{}
-	FailFast bool
+	Edges          []registerEdge
+	Watch          interface{}
+	FailFast       bool
+	DeregisterFull bool
 }
 
 type RegisterOption func(options *RegisterOptions)
@@ -138,5 +139,11 @@ func WithWatch(wi StatusReporter) RegisterOption {
 func WithRegisterFailFast() RegisterOption {
 	return func(options *RegisterOptions) {
 		options.FailFast = true
+	}
+}
+
+func WithDeregisterFull() RegisterOption {
+	return func(options *RegisterOptions) {
+		options.DeregisterFull = true
 	}
 }

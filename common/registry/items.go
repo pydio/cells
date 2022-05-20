@@ -59,8 +59,8 @@ type Service interface {
 	Version() string
 	Tags() []string
 
-	Start() error
-	Stop() error
+	Start(oo ...RegisterOption) error
+	Stop(oo ...RegisterOption) error
 
 	ServerScheme() string
 	//IsGeneric() bool

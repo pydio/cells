@@ -179,7 +179,7 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry) error {
 		return er
 	}
 
-	errrorCallback := func(err error) {
+	errorCallback := func(err error) {
 		if !strings.Contains(err.Error(), "context canceled") {
 			fmt.Println("************************************************************")
 			fmt.Println("FATAL : Error while starting discovery server")
@@ -194,7 +194,7 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry) error {
 	}
 
 	go func() {
-		m.ServeAll(server.WithErrorCallback(errrorCallback), server.WithGrpcBindAddress(runtime.GrpcDiscoveryBindAddress()))
+		m.ServeAll(server.WithErrorCallback(errorCallback), server.WithGrpcBindAddress(runtime.GrpcDiscoveryBindAddress()))
 		<-ctx.Done()
 		m.StopAll()
 	}()

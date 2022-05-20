@@ -58,9 +58,9 @@ type Service interface {
 	Metadata() map[string]string
 	ID() string
 	Name() string
-	Start() error
-	Stop() error
-	OnServe() error
+	Start(oo ...registry.RegisterOption) error
+	Stop(oo ...registry.RegisterOption) error
+	OnServe(oo ...registry.RegisterOption) error
 	ServerScheme() string
 	As(i interface{}) bool
 }
@@ -126,7 +126,7 @@ func (s *service) As(i interface{}) bool {
 	return false
 }
 
-func (s *service) Start() (er error) {
+func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 	// now := time.Now()
 
 	defer func() {
@@ -155,7 +155,7 @@ func (s *service) Start() (er error) {
 	return nil
 }
 
-func (s *service) Stop() error {
+func (s *service) Stop(oo ...registry.RegisterOption) error {
 
 	s.updateRegister(StatusStopping)
 
@@ -164,12 +164,16 @@ func (s *service) Stop() error {
 			return err
 		}
 	}
+	opts := &registry.RegisterOptions{}
+	for _, o := range oo {
+		o(opts)
+	}
 
 	if reg := servicecontext.GetRegistry(s.opts.Context); reg != nil {
 		// Deregister to make sure to break existing links
 		if err := reg.Deregister(s, registry.WithRegisterFailFast()); err != nil {
 			log.Logger(s.opts.Context).Error("Could not deregister", zap.Error(err))
-		} else {
+		} else if !opts.DeregisterFull {
 			// Re-register as Stopped
 			s.updateRegister(StatusStopped)
 		}
@@ -182,7 +186,7 @@ func (s *service) Stop() error {
 	return nil
 }
 
-func (s *service) OnServe() error {
+func (s *service) OnServe(oo ...registry.RegisterOption) error {
 	w := &sync.WaitGroup{}
 	w.Add(len(s.opts.AfterServe) + 1)
 	go func() {

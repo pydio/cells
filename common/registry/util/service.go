@@ -70,11 +70,11 @@ func (s *service) Metadata() map[string]string {
 	return s.i.Metadata
 }
 
-func (s *service) Start() error {
+func (s *service) Start(oo ...registry.RegisterOption) error {
 	return errors.New("not implemented")
 }
 
-func (s *service) Stop() error {
+func (s *service) Stop(oo ...registry.RegisterOption) error {
 	return errors.New("not implemented")
 }
 
