@@ -155,6 +155,7 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 		return
 	}
 	accu := make(map[string]string)
+	hosts := make(map[string]string)
 	for _, n := range nodes {
 		node := n.(registry.Server)
 		var aa []string
@@ -164,11 +165,14 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 		if ho, _, e := net.SplitHostPort(strings.Join(aa, "")); e == nil && ho != "" {
 			accu[ho] = ho
 			if h, ok := node.Metadata()[server.NodeMetaHostName]; ok && h != "" {
-				accu[ho] = h + "|" + ho
+				hosts[ho] = h
 			}
 		}
 	}
 	for _, v := range accu {
+		if h, ok := hosts[v]; ok {
+			v += "|" + h
+		}
 		response.PeerAddresses = append(response.PeerAddresses, v)
 	}
 	resp.WriteEntity(response)

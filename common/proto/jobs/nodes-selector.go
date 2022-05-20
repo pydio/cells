@@ -23,6 +23,7 @@ package jobs
 import (
 	"context"
 	"fmt"
+	"io"
 	"path"
 	"strings"
 
@@ -112,16 +113,25 @@ func (n *NodesSelector) Select(ctx context.Context, input ActionMessage, objects
 		filter := func(n *tree.Node) bool {
 			return true
 		}
-		if q.PathDepth > 0 {
-			// Filter results by PathDepth
-			filter = func(n *tree.Node) bool {
-				depth := int32(len(strings.Split(strings.Trim(n.GetPath(), "/"), "/")))
-				return depth == q.PathDepth
-			}
-		}
 		var total int
 		if q.FreeString != "" || q.Content != "" || q.FileNameOrContent != "" {
 			// Use the Search Service, relaunch search as long as there are results (request size cannot be empty)
+
+			// Search Service does not support PathDepth, reapply filtering on output
+			if q.PathDepth > 0 {
+				filter = func(n *tree.Node) bool {
+					depth := int32(len(strings.Split(strings.Trim(n.GetPath(), "/"), "/")))
+					return depth == q.PathDepth
+				}
+			} else if q.PathDepth == -1 && len(q.PathPrefix) == 1 {
+				// Special -1 case : just look for Depth(PathPrefix) + 1
+				filter = func(n *tree.Node) bool {
+					depth := int32(len(strings.Split(strings.Trim(n.GetPath(), "/"), "/")))
+					refDepth := int32(len(strings.Split(strings.Trim(q.PathPrefix[0], "/"), "/")))
+					return depth == refDepth+1
+				}
+			}
+
 			var cursor int32
 			size := int32(50)
 			for {
@@ -167,10 +177,14 @@ func (n *NodesSelector) performListing(ctx context.Context, serviceName string, 
 	}
 	var received int32
 	var count int
+	var stErr error
 	defer sStream.CloseSend()
 	for {
 		resp, rE := sStream.Recv()
 		if rE != nil {
+			if rE != io.EOF {
+				stErr = rE
+			}
 			break
 		}
 		if resp == nil || resp.Node == nil {
@@ -185,7 +199,7 @@ func (n *NodesSelector) performListing(ctx context.Context, serviceName string, 
 		count++
 	}
 	mayHaveMore := req.Size > 0 && received == req.Size
-	return count, mayHaveMore, nil
+	return count, mayHaveMore, stErr
 }
 
 func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {

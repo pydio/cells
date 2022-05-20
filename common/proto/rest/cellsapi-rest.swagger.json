@@ -1783,6 +1783,10 @@
           "title": "Defined parameters for this action",
           "type": "object"
         },
+        "Timeout": {
+          "title": "Optional timeout for this action",
+          "type": "string"
+        },
         "TriggerFilter": {
           "$ref": "#/definitions/jobsTriggerFilter",
           "title": "Filter on specific triggers"
@@ -2037,6 +2041,10 @@
           "$ref": "#/definitions/serviceQuery",
           "title": "Composition of DataSourceSingleQueries"
         },
+        "Timeout": {
+          "title": "Optional Timeout for this selector",
+          "type": "string"
+        },
         "Type": {
           "$ref": "#/definitions/jobsDataSourceSelectorType",
           "title": "Selector type, either DataSource or Object service"
@@ -2113,6 +2121,10 @@
         "Query": {
           "$ref": "#/definitions/serviceQuery",
           "title": "Serialized search query"
+        },
+        "Timeout": {
+          "title": "Optional Timeout for this selector",
+          "type": "string"
         },
         "Type": {
           "$ref": "#/definitions/jobsIdmSelectorType",
@@ -2234,6 +2246,10 @@
           "title": "Do not send notification on task update",
           "type": "boolean"
         },
+        "Timeout": {
+          "title": "Optional Timeout any running job",
+          "type": "string"
+        },
         "UserEventFilter": {
           "$ref": "#/definitions/jobsUsersSelector",
           "title": "Deprecated in favor of more generic IdmSelector"
@@ -2336,6 +2352,10 @@
         "Query": {
           "$ref": "#/definitions/serviceQuery",
           "title": "Query to apply to select users (or filter a given node passed by event)"
+        },
+        "Timeout": {
+          "title": "Optional Timeout for this selector",
+          "type": "string"
         }
       },
       "title": "/////////////////\nJOB  SERVICE  //\n/////////////////",
@@ -2461,6 +2481,10 @@
         "Query": {
           "$ref": "#/definitions/serviceQuery",
           "title": "Filter users using this query"
+        },
+        "Timeout": {
+          "title": "Optional Timeout for this selector",
+          "type": "string"
         },
         "Users": {
           "items": {
@@ -2991,15 +3015,21 @@
         "metaValue": {
           "type": "string"
         },
-        "name": {
-          "type": "string"
+        "names": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         },
         "ttl": {
           "format": "int64",
           "type": "string"
         },
-        "type": {
-          "$ref": "#/definitions/registryItemType"
+        "types": {
+          "items": {
+            "$ref": "#/definitions/registryItemType"
+          },
+          "type": "array"
         }
       },
       "title": "Options are registry options",

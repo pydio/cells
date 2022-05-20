@@ -28,15 +28,15 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 const (
-	MetaFilterGrep   = "grep"
-	MetaFilterNoGrep = "no-grep"
-	MetaFilterTime   = "time"
-	MetaFilterSize   = "size"
-	MetaFilterDepth  = "depth"
+	MetaFilterGrep      = "grep"
+	MetaFilterNoGrep    = "no-grep"
+	MetaFilterForceGrep = "force-grep"
+	MetaFilterTime      = "time"
+	MetaFilterSize      = "size"
+	MetaFilterDepth     = "depth"
 )
 
 var (
@@ -50,22 +50,33 @@ type cmp struct {
 	val   int64
 }
 
+// MetaFilter holds specific filtering conditions, generally transformed from standard
+// search queries to basic Listing options.
 type MetaFilter struct {
 	reqNode *Node
 
+	forceGrep    bool
+	filterType   NodeType
 	grep         *regexp.Regexp
 	negativeGrep *regexp.Regexp
 	intComps     []cmp
 }
 
+// NewMetaFilter creates a meta filter looking for request node metadata specific keys.
 func NewMetaFilter(node *Node) *MetaFilter {
 	return &MetaFilter{reqNode: node}
 }
 
+// Parse loads the filter keys.
 func (m *MetaFilter) Parse() bool {
 	if m.reqNode.GetStringMeta(MetaFilterGrep) != "" {
 		if g, e := regexp.Compile(m.reqNode.GetStringMeta(MetaFilterGrep)); e == nil {
 			m.grep = g
+		}
+	} else if m.reqNode.GetStringMeta(MetaFilterForceGrep) != "" {
+		if g, e := regexp.Compile(m.reqNode.GetStringMeta(MetaFilterForceGrep)); e == nil {
+			m.grep = g
+			m.forceGrep = true
 		}
 	}
 	if m.reqNode.GetStringMeta(MetaFilterNoGrep) != "" {
@@ -78,14 +89,31 @@ func (m *MetaFilter) Parse() bool {
 	return m.grep != nil || m.negativeGrep != nil || len(m.intComps) > 0
 }
 
+// LimitDepth returns an optional depth limitation.
 func (m *MetaFilter) LimitDepth() int {
-	var d *int
-	if meta := m.reqNode.GetStringMeta(MetaFilterDepth); meta != "" {
-		if e := json.Unmarshal([]byte(meta), &d); e == nil {
-			return *d
-		}
+	var d int
+	if er := m.reqNode.GetMeta(MetaFilterDepth, &d); er == nil && d > 0 {
+		return d
 	}
 	return 0
+}
+
+// HasSQLFilters returns true if MetaFilter has one of grep (unless forced), negativeGrep, filterType or int comparators set.
+func (m *MetaFilter) HasSQLFilters() bool {
+	return (m.grep != nil && !m.forceGrep) || m.negativeGrep != nil || m.filterType != NodeType_UNKNOWN || len(m.intComps) > 0
+}
+
+// ParseType register a node filter type
+func (m *MetaFilter) ParseType(t NodeType) {
+	m.filterType = t
+}
+
+// MatchForceGrep applies if a meta specifically told to use grep filtering instead of SQL.
+func (m *MetaFilter) MatchForceGrep(name string) bool {
+	if m.grep != nil && m.forceGrep {
+		return m.grep.MatchString(name)
+	}
+	return true
 }
 
 func (m *MetaFilter) parseIntExpr(meta string) bool {
@@ -110,6 +138,7 @@ func (m *MetaFilter) parseIntExpr(meta string) bool {
 	return len(m.intComps) > 0
 }
 
+// Match checks node results against conditions.
 func (m *MetaFilter) Match(name string, n *Node) bool {
 	if m.grep != nil && !m.grep.MatchString(name) {
 		return false
@@ -143,6 +172,72 @@ func (m *MetaFilter) Match(name string, n *Node) bool {
 		}
 	}
 	return true
+}
+
+// Where transforms registered conditions into a set of SQL statement (joined by AND).
+func (m *MetaFilter) Where() (where string, args []interface{}) {
+	var ww []string
+	if m.grep != nil && !m.forceGrep {
+		pp, aa := m.grepToLikes(m.reqNode.GetStringMeta(MetaFilterGrep), false)
+		ww = append(ww, pp)
+		args = append(args, aa...)
+	}
+	if m.negativeGrep != nil {
+		pp, aa := m.grepToLikes(m.reqNode.GetStringMeta(MetaFilterNoGrep), true)
+		ww = append(ww, pp)
+		args = append(args, aa...)
+	}
+	if m.filterType != NodeType_UNKNOWN {
+		ww = append(ww, "leaf = ?")
+		if m.filterType == NodeType_LEAF {
+			args = append(args, 1)
+		} else {
+			args = append(args, 0)
+		}
+	}
+	for _, c := range m.intComps {
+		field := c.field
+		if c.field == MetaFilterTime {
+			field = "mtime"
+		}
+		comp := c.dir
+		if c.eq {
+			comp += "="
+		}
+		ww = append(ww, field+" "+comp+" ?")
+		args = append(args, c.val)
+	}
+	return strings.Join(ww, " and "), args
+}
+
+func (m *MetaFilter) grepToLikes(g string, neg bool) (string, []interface{}) {
+	var parts []string
+	var arguments []interface{}
+	not := ""
+	if neg {
+		not = "NOT "
+	}
+	for _, p := range strings.Split(g, "|") {
+		parts = append(parts, "name "+not+"LIKE ?")
+		arguments = append(arguments, m.grepToLike(p))
+	}
+	if len(parts) > 1 {
+		return "(" + strings.Join(parts, " OR ") + ")", arguments
+	} else {
+		return parts[0], arguments
+	}
+}
+
+func (m *MetaFilter) grepToLike(g string) string {
+	word := strings.ReplaceAll(g, "(?i)", "")
+	word = strings.Trim(word, "^$")
+	if !strings.HasPrefix(g, "^") {
+		word = "%" + word
+	}
+	if !strings.HasSuffix(g, "$") {
+		word += "%"
+	}
+	return word
 }
 
 type GeoJson struct {

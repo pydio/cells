@@ -39,15 +39,24 @@ type Task struct {
 	*jobs.Job
 	sync.RWMutex
 	common.RuntimeHolder
-	context        context.Context
-	initialMessage jobs.ActionMessage
-	lockedTask     *jobs.Task
-	rc             int
-	run            string
+	runID string
+
+	context  context.Context
+	cancel   context.CancelFunc
+	finished chan bool
+	rc       int
+
+	chi int
+	di  int
+
+	event interface{}
+	task  *jobs.Task
+	last  *jobs.Task
+	err   error
 }
 
 // NewTaskFromEvent creates a task based on incoming job and event
-func NewTaskFromEvent(ctx context.Context, job *jobs.Job, event interface{}) *Task {
+func NewTaskFromEvent(runtime, ctx context.Context, job *jobs.Job, event interface{}) *Task {
 	ctxUserName, _ := permissions.FindUserNameInContext(ctx)
 	taskID := uuid.New()
 	if trigger, ok := event.(*jobs.JobTriggerEvent); ok && trigger.RunTaskId != "" {
@@ -56,119 +65,174 @@ func NewTaskFromEvent(ctx context.Context, job *jobs.Job, event interface{}) *Ta
 	operationID := job.ID + "-" + taskID[0:8]
 	c := servicecontext.WithOperationID(ctx, operationID)
 	t := &Task{
-		context: c,
-		Job:     job,
-		run:     taskID,
-		lockedTask: &jobs.Task{
+		context:  c,
+		Job:      job,
+		runID:    taskID,
+		finished: make(chan bool, 1),
+		event:    event,
+		task: &jobs.Task{
 			ID:            taskID,
 			JobID:         job.ID,
 			Status:        jobs.TaskStatus_Queued,
 			StatusMessage: "Pending",
 			ActionsLogs:   []*jobs.ActionLog{},
 			TriggerOwner:  ctxUserName,
+			CanStop:       true,
 		},
 	}
-	t.initialMessage = createMessageFromEvent(event)
-	logStartMessageFromEvent(c, t, event)
+	t.SetRuntimeContext(runtime)
 	return t
+}
+
+// Queue send this new task to the global queue
+func (t *Task) Queue(queue chan Runnable) {
+	var ct context.Context
+	var can context.CancelFunc
+	if d, o := itemTimeout(t.Job.Timeout); o {
+		ct, can = context.WithTimeout(t.context, d)
+	} else {
+		ct, can = context.WithCancel(t.context)
+	}
+	t.context = ct
+	t.cancel = can
+	jobId := t.Job.ID
+	taskId := t.runID
+
+	ch := PubSub.Sub(PubSubTopicControl)
+	go func() {
+		defer func() {
+			PubSub.Unsub(ch, PubSubTopicControl)
+		}()
+		for {
+			select {
+			case <-t.finished:
+				return
+			case <-t.RuntimeContext.Done():
+				t.cancel()
+			case val := <-ch:
+				cmd, ok := val.(*jobs.CtrlCommand)
+				if !ok {
+					continue
+				}
+				if cmd.TaskId != "" && cmd.TaskId != taskId {
+					continue
+				}
+				if cmd.JobId != "" && cmd.JobId != jobId {
+					continue
+				}
+				if cmd.Cmd != jobs.Command_Stop {
+					continue
+				}
+				t.cancel()
+			}
+		}
+	}()
+	r := RootRunnable(t.context, t)
+	logStartMessageFromEvent(r.Context, t, t.event)
+	go r.Dispatch(r.ActionPath, createMessageFromEvent(t.event), t.Actions, queue)
+}
+
+// CleanUp is triggered after a task has no more subroutines running.
+func (t *Task) CleanUp() {
+	t.SetEndTime(time.Now())
+	if t.err != nil {
+		t.SetStatus(jobs.TaskStatus_Error, t.err.Error())
+	} else {
+		t.SetStatus(jobs.TaskStatus_Finished, "Complete")
+	}
+	t.Save()
+	close(t.finished)
 }
 
 // Add increments task internal retain counter
 func (t *Task) Add(delta int) {
-	t.lockTask()
-	defer t.unlockTask()
-	t.rc = t.rc + delta
+	t.Lock()
+	defer t.Unlock()
+	if t.rc == 0 {
+		if t.task.StartTime == 0 {
+			t.task.StartTime = int32(time.Now().Unix())
+		}
+		t.SetStatus(jobs.TaskStatus_Running, "Starting...")
+		t.Save()
+	}
+	t.rc += delta
 }
 
-// Done decrements task internal retain counter
+// Done decrements task internal retain counter - When reaching 0, it triggers the CleanUp operation
 func (t *Task) Done(delta int) {
-	t.lockTask()
-	defer t.unlockTask()
-	t.rc = t.rc - delta
+	t.Lock()
+	defer t.Unlock()
+	t.rc -= delta
+	if t.rc == 0 {
+		t.CleanUp()
+	}
 }
 
 // Save publish task to PubSub topic
 func (t *Task) Save() {
-	PubSub.Pub(t.lockedTask, PubSubTopicTaskStatuses)
+	if t.last == nil || t.taskChanged(t.last, t.task) {
+		PubSub.Pub(t.task, PubSubTopicTaskStatuses)
+		t.last = t.GetJobTaskClone()
+	}
 }
 
 // GetJobTaskClone creates a protobuf clone of this task
 func (t *Task) GetJobTaskClone() *jobs.Task {
-	t.lockTask()
-	defer t.unlockTask()
-	return proto.Clone(t.lockedTask).(*jobs.Task)
+	return proto.Clone(t.task).(*jobs.Task)
 }
 
 // GetRunUUID returns the task internal run UUID
 func (t *Task) GetRunUUID() string {
-	return t.run
+	return t.runID
 }
 
 // SetStatus updates task internal status
 func (t *Task) SetStatus(status jobs.TaskStatus, message ...string) {
-	t.lockTask()
-	defer t.unlockTask()
-	if status == jobs.TaskStatus_Finished && t.rc > 0 {
-		status = jobs.TaskStatus_Running
-	}
 	if len(message) > 0 {
-		t.lockedTask.StatusMessage = message[0]
+		t.task.StatusMessage = message[0]
 	}
-	t.lockedTask.Status = status
+	t.task.Status = status
 }
 
 // SetProgress updates task internal progress
 func (t *Task) SetProgress(progress float32) {
-	t.lockTask()
-	defer t.unlockTask()
-	t.lockedTask.Progress = progress
+	t.task.Progress = progress
 }
 
 // SetStartTime updates start time
 func (t *Task) SetStartTime(ti time.Time) {
-	t.lockTask()
-	defer t.unlockTask()
-	if t.lockedTask.StartTime == 0 {
-		t.lockedTask.StartTime = int32(ti.Unix())
+	if t.task.StartTime == 0 {
+		t.task.StartTime = int32(ti.Unix())
 	}
 }
 
 // SetEndTime updates end time
 func (t *Task) SetEndTime(ti time.Time) {
-	t.lockTask()
-	defer t.unlockTask()
-	t.lockedTask.EndTime = int32(ti.Unix())
+	t.task.EndTime = int32(ti.Unix())
 }
 
 // SetControllable flags task as being able to be stopped or paused
-func (t *Task) SetControllable(canStop bool, canPause bool) {
-	t.lockTask()
-	defer t.unlockTask()
-	t.lockedTask.CanStop = canStop
-	t.lockedTask.CanPause = canPause
+func (t *Task) SetControllable(canPause bool) {
+	t.task.CanPause = canPause
 }
 
 // SetHasProgress flags task as providing progress information
 func (t *Task) SetHasProgress() {
-	t.lockTask()
-	defer t.unlockTask()
-	t.lockedTask.HasProgress = true
+	t.task.HasProgress = true
 }
 
 // AppendLog appends logs from an action to the task OutputChain
-func (t *Task) AppendLog(a jobs.Action, in jobs.ActionMessage, out jobs.ActionMessage) {
-	t.lockTask()
-	defer t.unlockTask()
+func (t *Task) AppendLog(a *jobs.Action, in *jobs.ActionMessage, out *jobs.ActionMessage) {
 	// Remove unnecessary fields
 	// Action
-	cleanedAction := a
+	cleanedAction := proto.Clone(a).(*jobs.Action)
 	cleanedAction.ChainedActions = nil
 	// Input
-	cleanedInput := in
+	cleanedInput := proto.Clone(in).(*jobs.ActionMessage)
 	cleanedInput.Event = nil
 	cleanedInput.OutputChain = nil
 	// Output
-	cleanedOutput := out
+	cleanedOutput := proto.Clone(out).(*jobs.ActionMessage)
 	cleanedOutput.Event = nil
 	lastMessage := out.GetLastOutput()
 	cleanedOutput.OutputChain = []*jobs.ActionOutput{}
@@ -176,45 +240,38 @@ func (t *Task) AppendLog(a jobs.Action, in jobs.ActionMessage, out jobs.ActionMe
 		cleanedOutput.OutputChain = append(cleanedOutput.OutputChain, lastMessage)
 	}
 
-	t.lockedTask.ActionsLogs = append(t.lockedTask.ActionsLogs, &jobs.ActionLog{
-		Action:        &cleanedAction,
-		InputMessage:  &cleanedInput,
-		OutputMessage: &cleanedOutput,
+	t.task.ActionsLogs = append(t.task.ActionsLogs, &jobs.ActionLog{
+		Action:        cleanedAction,
+		InputMessage:  cleanedInput,
+		OutputMessage: cleanedOutput,
 	})
 }
 
-// GlobalError set task in error globally
-func (t *Task) GlobalError(e error) {
-	t.lockTask()
-	defer t.unlockTask()
-	t.lockedTask.ActionsLogs = append(t.lockedTask.ActionsLogs, &jobs.ActionLog{
-		OutputMessage: &jobs.ActionMessage{OutputChain: []*jobs.ActionOutput{{
-			Time:        int32(time.Now().Unix()),
-			ErrorString: e.Error(),
-		}}},
-	})
-}
-
-// EnqueueRunnables appends chained actions to a running Runnable
-func (t *Task) EnqueueRunnables(output chan Runnable) {
-
-	r := RootRunnable(t.context, t)
-	r.Dispatch(r.ActionPath, t.initialMessage, t.Actions, output)
-
+// SetError set task in error globally
+func (t *Task) SetError(e error, appendLog bool) {
+	t.err = e
+	if appendLog {
+		t.task.ActionsLogs = append(t.task.ActionsLogs, &jobs.ActionLog{
+			OutputMessage: &jobs.ActionMessage{OutputChain: []*jobs.ActionOutput{{
+				Time:        int32(time.Now().Unix()),
+				ErrorString: e.Error(),
+			}}},
+		})
+	}
 }
 
 // GetRunnableChannels prepares a set of data channels for action actual Run method.
-func (t *Task) GetRunnableChannels() (*actions.RunnableChannels, chan bool) {
+func (t *Task) GetRunnableChannels(controllable bool) (*actions.RunnableChannels, chan bool) {
 	status, statusMsg, progress, done := t.createStatusesChannels()
-	stop, pause, resume := t.createControlChannels(done)
-	return &actions.RunnableChannels{
+	c := &actions.RunnableChannels{
 		Status:    status,
 		StatusMsg: statusMsg,
 		Progress:  progress,
-		Stop:      stop,
-		Resume:    resume,
-		Pause:     pause,
-	}, done
+	}
+	if controllable {
+		c.Pause, c.Resume = t.createControlChannels(done)
+	}
+	return c, done
 }
 
 // createStatusesChannels provides a set of channel used by the runnable to send
@@ -235,24 +292,18 @@ func (t *Task) createStatusesChannels() (chan jobs.TaskStatus, chan string, chan
 		for {
 			select {
 			case s := <-status:
-				t.lockTask()
-				t.lockedTask.Status = s
-				t.unlockTask()
+				t.task.Status = s
 				t.Save()
 			case s := <-statusMsg:
-				t.lockTask()
-				t.lockedTask.StatusMessage = s
-				t.unlockTask()
+				t.task.StatusMessage = s
 				t.Save()
 			case p := <-progress:
-				t.lockTask()
-				diff := p - t.lockedTask.Progress
+				diff := p - t.task.Progress
 				save := false
 				if diff > 0.01 || p == 1 {
-					t.lockedTask.Progress = p
+					t.task.Progress = p
 					save = true
 				}
-				t.unlockTask()
 				if save {
 					t.Save()
 				}
@@ -267,26 +318,17 @@ func (t *Task) createStatusesChannels() (chan jobs.TaskStatus, chan string, chan
 
 }
 
-func (t *Task) lockTask() {
-	t.Lock()
-}
-
-func (t *Task) unlockTask() {
-	t.Unlock()
-}
-
 // createControlChannels provides a set of channel used to send some specific control instructions
 // to the runnable
-func (t *Task) createControlChannels(done chan bool) (stop chan interface{}, pause chan interface{}, resume chan interface{}) {
+func (t *Task) createControlChannels(done chan bool) (pause chan interface{}, resume chan interface{}) {
 
-	stop, pause, resume = make(chan interface{}), make(chan interface{}), make(chan interface{})
+	pause, resume = make(chan interface{}), make(chan interface{})
 	jobId := t.Job.ID
-	taskId := t.lockedTask.ID
+	taskId := t.task.ID
 
 	ch := PubSub.Sub(PubSubTopicControl)
 	go func() {
 		defer func() {
-			close(stop)
 			close(pause)
 			close(resume)
 			PubSub.Unsub(ch, PubSubTopicControl)
@@ -302,8 +344,6 @@ func (t *Task) createControlChannels(done chan bool) (stop chan interface{}, pau
 						continue
 					}
 					switch cmd.Cmd {
-					case jobs.Command_Stop:
-						stop <- cmd
 					case jobs.Command_Pause:
 						pause <- cmd
 					case jobs.Command_Resume:
@@ -317,4 +357,14 @@ func (t *Task) createControlChannels(done chan bool) (stop chan interface{}, pau
 	}()
 
 	return
+}
+
+func (t *Task) taskChanged(lastT, newT *jobs.Task) bool {
+	if lastT.Status != newT.Status || lastT.StatusMessage != newT.StatusMessage {
+		return true
+	}
+	if lastT.HasProgress != newT.HasProgress || lastT.CanPause != newT.CanPause || lastT.Progress != newT.Progress {
+		return true
+	}
+	return false
 }

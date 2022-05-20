@@ -22,7 +22,6 @@ package tasks
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -43,22 +42,21 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
+var (
+	runtimeCtx = context.Background()
+)
+
 func TestNewTaskFromEvent(t *testing.T) {
 
 	Convey("Test New Task From Event", t, func() {
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
-		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event)
+		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
 		So(task, ShouldNotBeNil)
-		ev, _ := anypb.New(event)
-		msg := jobs.ActionMessage{
-			Event: ev,
-		}
-		So(task.lockedTask, ShouldNotBeNil)
-		So(task.lockedTask.Status, ShouldEqual, jobs.TaskStatus_Queued)
-		So(task.lockedTask.StatusMessage, ShouldEqual, "Pending")
-		So(task.initialMessage.Event.String(), ShouldEqual, msg.Event.String())
+		So(task.task, ShouldNotBeNil)
+		So(task.task.Status, ShouldEqual, jobs.TaskStatus_Queued)
+		So(task.task.StatusMessage, ShouldEqual, "Pending")
 		opId, _ := servicecontext.GetOperationID(task.context)
-		So(opId, ShouldEqual, "ajob-"+task.lockedTask.ID[0:8])
+		So(opId, ShouldEqual, "ajob-"+task.task.ID[0:8])
 	})
 }
 
@@ -67,7 +65,7 @@ func TestTaskSetters(t *testing.T) {
 	Convey("Test task Setters", t, func() {
 
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
-		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event)
+		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
 		So(task, ShouldNotBeNil)
 
 		task.Add(2)
@@ -81,21 +79,17 @@ func TestTaskSetters(t *testing.T) {
 		stamp := int32(now.Unix())
 		task.SetStartTime(now)
 		task.SetEndTime(now)
-		So(task.lockedTask.StartTime, ShouldEqual, stamp)
-		So(task.lockedTask.EndTime, ShouldEqual, stamp)
+		So(task.task.StartTime, ShouldEqual, stamp)
+		So(task.task.EndTime, ShouldEqual, stamp)
 
 		task.SetStatus(jobs.TaskStatus_Running)
-		So(task.lockedTask.Status, ShouldEqual, 2)
+		So(task.task.Status, ShouldEqual, 2)
 
 		task.SetStatus(jobs.TaskStatus_Finished)
-		So(task.lockedTask.Status, ShouldEqual, 3)
-
-		task.Add(1)
-		task.SetStatus(jobs.TaskStatus_Finished)
-		So(task.lockedTask.Status, ShouldEqual, 2)
+		So(task.task.Status, ShouldEqual, 3)
 
 		task.SetProgress(0.23)
-		So(task.lockedTask.Progress, ShouldEqual, 0.23)
+		So(task.task.Progress, ShouldEqual, 0.23)
 
 	})
 
@@ -107,10 +101,10 @@ func TestTaskLogs(t *testing.T) {
 
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
 		ev, _ := anypb.New(&jobs.JobTriggerEvent{JobID: "ajob"})
-		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event)
+		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
 		So(task, ShouldNotBeNil)
 
-		a := jobs.Action{
+		a := &jobs.Action{
 			ID: "fake",
 			ChainedActions: []*jobs.Action{
 				{
@@ -119,7 +113,7 @@ func TestTaskLogs(t *testing.T) {
 			},
 		}
 
-		in := jobs.ActionMessage{
+		in := &jobs.ActionMessage{
 			Event: ev,
 			OutputChain: []*jobs.ActionOutput{
 				{Success: true},
@@ -127,7 +121,7 @@ func TestTaskLogs(t *testing.T) {
 			},
 		}
 
-		out := jobs.ActionMessage{
+		out := &jobs.ActionMessage{
 			Event: ev,
 			OutputChain: []*jobs.ActionOutput{
 				{Success: true},
@@ -138,8 +132,8 @@ func TestTaskLogs(t *testing.T) {
 
 		task.AppendLog(a, in, out)
 
-		So(task.lockedTask.ActionsLogs, ShouldHaveLength, 1)
-		log := task.lockedTask.ActionsLogs[0]
+		So(task.task.ActionsLogs, ShouldHaveLength, 1)
+		log := task.task.ActionsLogs[0]
 		So(log.Action, ShouldResemble, &jobs.Action{ID: "fake"})
 		So(log.InputMessage, ShouldResemble, &jobs.ActionMessage{})
 		So(log.OutputMessage, ShouldResemble, &jobs.ActionMessage{
@@ -160,26 +154,25 @@ func TestTaskEvents(t *testing.T) {
 
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
 		ev, _ := anypb.New(event)
-		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event)
-		So(task.initialMessage.Event, ShouldResemble, ev)
+		So(createMessageFromEvent(event).Event, ShouldResemble, ev)
 
 		event2 := &tree.NodeChangeEvent{
 			Type:   tree.NodeChangeEvent_CREATE,
 			Target: &tree.Node{Path: "create"},
 		}
 		_, _ = anypb.New(event2)
-		task = NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event2)
-		So(task.initialMessage.Nodes, ShouldHaveLength, 1)
-		So(task.initialMessage.Nodes[0].Path, ShouldResemble, "create")
+		initialMessage := createMessageFromEvent(event2)
+		So(initialMessage.Nodes, ShouldHaveLength, 1)
+		So(initialMessage.Nodes[0].Path, ShouldResemble, "create")
 
 		event3 := &tree.NodeChangeEvent{
 			Type:   tree.NodeChangeEvent_DELETE,
 			Source: &tree.Node{Path: "delete"},
 		}
 		_, _ = anypb.New(event3)
-		task = NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event3)
-		So(task.initialMessage.Nodes, ShouldHaveLength, 1)
-		So(task.initialMessage.Nodes[0].Path, ShouldResemble, "delete")
+		initialMessage = createMessageFromEvent(event3)
+		So(initialMessage.Nodes, ShouldHaveLength, 1)
+		So(initialMessage.Nodes[0].Path, ShouldResemble, "delete")
 
 	})
 }
@@ -189,11 +182,11 @@ func TestTask_Save(t *testing.T) {
 	Convey("Test task Save", t, func() {
 
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
-		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event)
+		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{ID: "ajob"}, event)
 		ch := PubSub.Sub(PubSubTopicTaskStatuses)
 		task.Save()
 		read := <-ch
-		So(read, ShouldEqual, task.lockedTask)
+		So(read, ShouldEqual, task.task)
 
 	})
 }
@@ -205,28 +198,26 @@ func TestTask_EnqueueRunnables(t *testing.T) {
 		saveChannel := PubSub.Sub(PubSubTopicTaskStatuses)
 		output := make(chan Runnable, 1)
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
-		task := NewTaskFromEvent(context.Background(), &jobs.Job{
+		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{
 			ID: "ajob",
 			Actions: []*jobs.Action{
 				&jobs.Action{ID: "actions.test.fake"},
 			},
 		}, event)
 
-		task.EnqueueRunnables(output)
+		task.Queue(output)
 		read := <-output
 		So(read, ShouldNotBeNil)
-		So(read.Action.ID, ShouldResemble, "actions.test.fake")
+		So(read.Action.ID, ShouldEqual, "actions.test.fake")
 		close(output)
 
 		go func() {
-			err := read.RunAction(nil)
-			fmt.Println(err.Error())
-			// c.So(err, ShouldBeNil)
+			read.RunAction(nil)
 		}()
 
 		saved := <-saveChannel
 		So(saved, ShouldNotBeNil)
-		So(saved, ShouldEqual, task.lockedTask)
+		So(saved, ShouldEqual, task.task)
 
 	})
 
@@ -234,17 +225,17 @@ func TestTask_EnqueueRunnables(t *testing.T) {
 
 		output := make(chan Runnable, 1)
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
-		task := NewTaskFromEvent(context.Background(), &jobs.Job{
+		task := NewTaskFromEvent(runtimeCtx, context.Background(), &jobs.Job{
 			ID: "ajob",
 			Actions: []*jobs.Action{
 				{ID: "unknown action"},
 			},
 		}, event)
 
-		task.EnqueueRunnables(output)
+		task.Queue(output)
 		read := <-output
 		So(read, ShouldNotBeNil)
-		So(read.Action.ID, ShouldResemble, "unknown action")
+		So(read.Action.ID, ShouldEqual, "unknown action")
 		close(output)
 
 		go read.RunAction(nil)

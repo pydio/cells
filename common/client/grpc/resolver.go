@@ -26,13 +26,13 @@ import (
 	"regexp"
 	"sort"
 
-	"github.com/pydio/cells/v4/common/client"
-
-	"google.golang.org/grpc/resolver"
-
 	"google.golang.org/grpc/attributes"
+	"google.golang.org/grpc/resolver"
+	"google.golang.org/grpc/serviceconfig"
 
+	"github.com/pydio/cells/v4/common/client"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -42,18 +42,26 @@ var (
 )
 
 type cellsBuilder struct {
-	reg registry.Registry
+	reg          registry.Registry
+	balancerName string
 }
 
 type cellsResolver struct {
 	address              string
 	cc                   resolver.ClientConn
 	name                 string
+	serviceConfig        *serviceconfig.ParseResult
 	disableServiceConfig bool
 }
 
-func NewBuilder(reg registry.Registry) resolver.Builder {
-	return &cellsBuilder{reg: reg}
+func NewBuilder(reg registry.Registry, oo ...client.BalancerOption) resolver.Builder {
+	// build unique picker for options
+	balancerId := BalancerRoundRobin + uuid.New()
+	registerBalancer(balancerId, oo...)
+	return &cellsBuilder{
+		reg:          reg,
+		balancerName: balancerId,
+	}
 }
 
 func (b *cellsBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
@@ -62,10 +70,15 @@ func (b *cellsBuilder) Build(target resolver.Target, cc resolver.ClientConn, opt
 	if err != nil {
 		return nil, err
 	}
+	parseRes := cc.ParseServiceConfig(`{"loadBalancingPolicy": "` + b.balancerName + `"}`)
+	if parseRes.Err != nil {
+		return nil, parseRes.Err
+	}
 
 	cr := &cellsResolver{
 		name:                 name,
 		cc:                   cc,
+		serviceConfig:        parseRes,
 		disableServiceConfig: opts.DisableServiceConfig,
 	}
 
@@ -83,20 +96,20 @@ func (b *cellsBuilder) Build(target resolver.Target, cc resolver.ClientConn, opt
 			}
 			for _, addr := range mm.Addresses {
 				addresses = append(addresses, resolver.Address{
-					Addr:       addr,
-					Attributes: attributes.New("services", comparableSlice(mm.Services)),
+					Addr:               addr,
+					Attributes:         attributes.New("services", comparableSlice(mm.Services)),
+					BalancerAttributes: mm.BalancerAttributes,
 				})
 			}
 		}
 
 		if len(addresses) == 0 {
-			// dont' bother sending yet
 			return nil
 		}
 
 		if err := cr.cc.UpdateState(resolver.State{
 			Addresses:     addresses,
-			ServiceConfig: cr.cc.ParseServiceConfig(`{"loadBalancingPolicy": "lb"}`),
+			ServiceConfig: cr.serviceConfig,
 		}); err != nil {
 			return err
 		}

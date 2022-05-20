@@ -20,10 +20,6 @@
 
 package tasks
 
-import (
-	"github.com/pydio/cells/v4/common/log"
-)
-
 // Worker represents the worker that executes the jobs.
 type Worker struct {
 	workerPool chan chan Runnable
@@ -57,11 +53,7 @@ func (w Worker) Start() {
 			case runnable := <-w.jobChannel:
 				// we have received a work request.
 				w.activeChan <- 1
-				err := runnable.RunAction(w.jobRequeue)
-				// TODO : do something with errors
-				if err != nil {
-					log.Logger(runnable.Context).Error("cannot run action " + runnable.ID + ": " + err.Error())
-				}
+				runnable.RunAction(w.jobRequeue)
 				w.activeChan <- -1
 
 			case <-w.quit:

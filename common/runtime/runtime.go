@@ -157,7 +157,13 @@ func GrpcExternalPort() string {
 
 // HttpBindAddress returns the KeyBindHost:KeyHttpPort URL
 func HttpBindAddress() string {
-	return net.JoinHostPort(r.GetString(KeyBindHost), r.GetString(KeyHttpPort))
+	h := r.GetString(KeyBindHost)
+	if HttpServerType() == HttpServerNative && h == "0.0.0.0" {
+		if addr, err := utilnet.ResolveBindAddress(net.ParseIP(h)); err == nil {
+			h = addr.String()
+		}
+	}
+	return net.JoinHostPort(h, r.GetString(KeyHttpPort))
 }
 
 // LogLevel returns the --log value

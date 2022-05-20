@@ -24,28 +24,37 @@ import (
 	"sync"
 	"time"
 
+	"google.golang.org/grpc/attributes"
+
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/server"
 )
 
 type ServerAttributes struct {
-	Name      string
-	Addresses []string
-	Services  []string
-	Endpoints []string
+	Name               string
+	Addresses          []string
+	Services           []string
+	Endpoints          []string
+	BalancerAttributes *attributes.Attributes
 }
 
 type UpdateStateCallback func(map[string]*ServerAttributes) error
 
+// ResolverCallback is a generic watcher for registry, that rebuilds the list of
+// available targets and calls the passed callbacks on change event.
+// It is used by both grpc and http balancers.
 type ResolverCallback interface {
 	Add(UpdateStateCallback)
 	Stop()
 }
 
 type resolverCallback struct {
-	reg   registry.Registry
-	ml    *sync.RWMutex
-	items []registry.Item
+	localAddr string
+	reg       registry.Registry
+	ml        *sync.RWMutex
+	items     []registry.Item
 
 	updatedStateTimer *time.Timer
 	cbs               []UpdateStateCallback
@@ -54,14 +63,12 @@ type resolverCallback struct {
 	w    registry.Watcher
 }
 
+// NewResolverCallback creates a new ResolverCallback watching the passed registry.Registry
 func NewResolverCallback(reg registry.Registry) (ResolverCallback, error) {
-	/*items, err := reg.List()
-	if err != nil {
-		return nil, err
-	}*/
 
 	r := &resolverCallback{
-		done: make(chan bool, 1),
+		localAddr: runtime.DefaultAdvertiseAddress(),
+		done:      make(chan bool, 1),
 	}
 	r.reg = reg
 	r.ml = &sync.RWMutex{}
@@ -151,11 +158,15 @@ func (r *resolverCallback) sendState() {
 			for _, e := range r.reg.ListAdjacentItems(srv, registry.WithType(pb.ItemType_ENDPOINT)) {
 				endpoints = append(endpoints, e.Name())
 			}
-			//fmt.Println("sendState for", srv.Name(), len(addresses), "addresses, ", len(endpoints), "endpoints")
+			atts := attributes.New(attKeyTargetServerID{}, srv.ID())
+			if pid, ok := srv.Metadata()[server.NodeMetaPID]; ok {
+				atts = atts.WithValue(attKeyTargetServerPID{}, pid)
+			}
 			m[srv.ID()] = &ServerAttributes{
-				Name:      srv.Name(),
-				Addresses: addresses,
-				Endpoints: endpoints,
+				Name:               srv.Name(),
+				Addresses:          addresses,
+				Endpoints:          endpoints,
+				BalancerAttributes: atts,
 			}
 		} else if v.As(&edge) {
 			edges = append(edges, edge)

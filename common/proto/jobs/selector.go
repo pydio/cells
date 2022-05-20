@@ -36,6 +36,7 @@ type FieldEvaluator interface {
 type InputSelector interface {
 	Select(ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error
 	MultipleSelection() bool
+	GetTimeout() string
 }
 
 type InputFilter interface {

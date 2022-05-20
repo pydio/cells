@@ -23,9 +23,9 @@ package scheduler
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common"
 	"time"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -33,7 +33,8 @@ import (
 )
 
 var (
-	fakeActionName = "actions.test.fake"
+	ErrTaskInterrupted = fmt.Errorf("interrupted")
+	fakeActionName     = "actions.test.fake"
 )
 
 type FakeAction struct {
@@ -159,12 +160,12 @@ loop:
 			channels.StatusMsg <- message
 		case <-channels.Pause:
 			log.TasksLogger(ctx).Info("Task received pause from channels, should pause here")
-			<-channels.BlockUntilResume()
+			<-channels.BlockUntilResume(ctx)
 			log.TasksLogger(ctx).Info("Block-until-resume passed, received resume, continue")
-		case <-channels.Stop:
-			log.TasksLogger(ctx).Info("Received stop from channels: interrupting")
+		case <-ctx.Done():
+			log.TasksLogger(ctx).Error("Context is Done: interrupting")
 			ticker.Stop()
-			break loop
+			return outputMessage.WithError(ErrTaskInterrupted), ErrTaskInterrupted
 		case <-finished:
 			log.TasksLogger(ctx).Info("Sleep time finished")
 			ticker.Stop()

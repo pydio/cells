@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/server/http/registrymux"
+	"github.com/pydio/cells/v4/common/server/http/mux"
 	"github.com/pydio/cells/v4/common/server/middleware"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -61,15 +61,15 @@ type Server struct {
 }
 
 func New(ctx context.Context) server.Server {
-	mux := server.NewListableMux()
-	mux.HandleFunc("/debug/pprof/", pprof.Index)
-	mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
-	mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
-	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
-	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
+	lMux := server.NewListableMux()
+	lMux.HandleFunc("/debug/pprof/", pprof.Index)
+	lMux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	lMux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	lMux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	lMux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
 	srv := &http.Server{}
-	srv.Handler = registrymux.NewMiddleware(ctx, mux)
+	srv.Handler = mux.NewMiddleware(ctx, lMux)
 	srv.Handler = ContextMiddlewareHandler(middleware.ClientConnIncomingContext(ctx))(srv.Handler)
 	srv.Handler = ContextMiddlewareHandler(middleware.RegistryIncomingContext(ctx))(srv.Handler)
 
@@ -81,7 +81,7 @@ func New(ctx context.Context) server.Server {
 		meta: server.InitPeerMeta(),
 
 		cancel:      cancel,
-		ListableMux: mux,
+		ListableMux: lMux,
 		Server:      srv,
 	})
 }
