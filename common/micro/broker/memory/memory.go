@@ -123,7 +123,7 @@ func (m *memoryBroker) Publish(topic string, msg *broker.Message, opts ...broker
 	}
 	copy(cM.Body, msg.Body)
 
-	m.bus.Pub(cM, topic)
+	m.bus.TryPub(cM, topic)
 	return nil
 }
 
