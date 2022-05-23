@@ -43,7 +43,6 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
@@ -203,8 +202,8 @@ func (m *model) loadItems(preselect registry.Item, oo ...registry.Option) {
 			name := i.Name()
 			secondary := i.ID()
 			if no, ok := i.(registry.Node); ok {
-				name = "/" + no.Metadata()[server.NodeMetaStartTag]
-				secondary = "Process ID: " + no.Metadata()[server.NodeMetaPID]
+				name = "/" + no.Metadata()[runtime.NodeMetaStartTag]
+				secondary = "Process ID: " + no.Metadata()[runtime.NodeMetaPID]
 			} else if gen, ok := i.(registry.Generic); ok && gen.Type() == pb.ItemType_TAG {
 				name = gen.ID()
 			} else if i.Name() == "fork" {
@@ -325,7 +324,7 @@ func (m *model) renderMetaView(i registry.Item) {
 	}
 	switch util.DetectType(i) {
 	case pb.ItemType_NODE:
-		if lines, er := m.LsofLines([]string{"-p", i.Metadata()[server.NodeMetaPID]}); er == nil && len(lines) > 0 {
+		if lines, er := m.LsofLines([]string{"-p", i.Metadata()[runtime.NodeMetaPID]}); er == nil && len(lines) > 0 {
 			lsofMeta := make(map[string]int)
 			for lt, ll := range lines {
 				lsofMeta[lt] = len(ll)

@@ -29,7 +29,6 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
 )
 
 type ServerAttributes struct {
@@ -159,7 +158,7 @@ func (r *resolverCallback) sendState() {
 				endpoints = append(endpoints, e.Name())
 			}
 			atts := attributes.New(attKeyTargetServerID{}, srv.ID())
-			if pid, ok := srv.Metadata()[server.NodeMetaPID]; ok {
+			if pid, ok := srv.Metadata()[runtime.NodeMetaPID]; ok {
 				atts = atts.WithValue(attKeyTargetServerPID{}, pid)
 			}
 			m[srv.ID()] = &ServerAttributes{

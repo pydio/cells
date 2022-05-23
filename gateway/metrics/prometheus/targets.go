@@ -6,7 +6,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/runtime"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"go.uber.org/zap"
 )
@@ -30,12 +30,12 @@ func ProcessesAsTargets(ctx context.Context, reg registry.Registry) *PromTargets
 	processes := make(map[string]*targetGroup)
 	for _, i := range ii {
 		meta := i.Metadata()
-		pid := meta[server.NodeMetaPID]
+		pid := meta[runtime.NodeMetaPID]
 		if _, ok := processes[pid]; ok {
 			continue // already registered
 		}
-		hostname := meta[server.NodeMetaHostName]
-		metricsPort := meta[server.NodeMetaMetrics]
+		hostname := meta[runtime.NodeMetaHostName]
+		metricsPort := meta[runtime.NodeMetaMetrics]
 		if hostname == "" || metricsPort == "" {
 			continue
 		}
@@ -47,7 +47,7 @@ func ProcessesAsTargets(ctx context.Context, reg registry.Registry) *PromTargets
 				"instance": "main",
 			},
 		}
-		if startTag := meta[server.NodeMetaStartTag]; startTag != "" {
+		if startTag := meta[runtime.NodeMetaStartTag]; startTag != "" {
 			tg.Labels["instance"] = startTag
 		}
 		processes[pid] = tg

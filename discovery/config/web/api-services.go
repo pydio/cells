@@ -42,7 +42,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -164,7 +163,7 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 		}
 		if ho, _, e := net.SplitHostPort(strings.Join(aa, "")); e == nil && ho != "" {
 			accu[ho] = ho
-			if h, ok := node.Metadata()[server.NodeMetaHostName]; ok && h != "" {
+			if h, ok := node.Metadata()[runtime.NodeMetaHostName]; ok && h != "" {
 				hosts[ho] = h
 			}
 		}
@@ -258,20 +257,20 @@ func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
 	for _, n := range nodes {
 		node := n.(registry.Server)
 		mm := node.Metadata()
-		if _, ok := accu[mm[server.NodeMetaPID]]; ok {
+		if _, ok := accu[mm[runtime.NodeMetaPID]]; ok {
 			continue
 		}
-		accu[mm[server.NodeMetaPID]] = mm
+		accu[mm[runtime.NodeMetaPID]] = mm
 	}
 	for pid, meta := range accu {
-		mport, _ := strconv.Atoi(meta[server.NodeMetaMetrics])
+		mport, _ := strconv.Atoi(meta[runtime.NodeMetaMetrics])
 		out.Processes = append(out.Processes, &rest.Process{
 			ID:          pid,
-			ParentID:    meta[server.NodeMetaParentPID],
+			ParentID:    meta[runtime.NodeMetaParentPID],
 			MetricsPort: int32(mport),
 			PeerId:      "", // ??
 			PeerAddress: "", // ??
-			StartTag:    meta[server.NodeMetaStartTag],
+			StartTag:    meta[runtime.NodeMetaStartTag],
 			Services:    []string{},
 		})
 	}

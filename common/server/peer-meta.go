@@ -29,23 +29,16 @@ import (
 	"github.com/pydio/cells/v4/common/service/metrics"
 )
 
-const (
-	NodeMetaPID          = "PID"
-	NodeMetaParentPID    = "parentPID"
-	NodeMetaMetrics      = "metrics"
-	NodeMetaStartTag     = "start"
-	NodeMetaForkStartTag = "forkStartTag"
-	NodeMetaHostName     = "hostname"
-)
-
 func InitPeerMeta() map[string]string {
 	meta := make(map[string]string)
-	meta[NodeMetaPID] = fmt.Sprintf("%d", os.Getpid())
-	meta[NodeMetaParentPID] = fmt.Sprintf("%d", os.Getppid())
-	meta[NodeMetaMetrics] = fmt.Sprintf("%d", metrics.GetExposedPort())
-	meta[NodeMetaStartTag] = strings.Join(runtime.ProcessStartTags(), ",")
-	if h, e := os.Hostname(); e == nil {
-		meta[NodeMetaHostName] = h
+	meta[runtime.NodeMetaPID] = fmt.Sprintf("%d", os.Getpid())
+	meta[runtime.NodeMetaParentPID] = fmt.Sprintf("%d", os.Getppid())
+	meta[runtime.NodeMetaMetrics] = fmt.Sprintf("%d", metrics.GetExposedPort())
+	meta[runtime.NodeMetaStartTag] = strings.Join(runtime.ProcessStartTags(), ",")
+	meta[runtime.NodeMetaHostName] = runtime.GetHostname()
+	caps := runtime.GetStringSlice(runtime.KeyNodeCapacity)
+	if len(caps) > 0 {
+		meta[runtime.NodeMetaCapacities] = strings.Join(caps, "|")
 	}
 	return meta
 }

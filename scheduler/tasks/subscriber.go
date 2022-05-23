@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/object"
+	rpb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -323,6 +324,9 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 	if j.Inactive {
 		return nil
 	}
+	if err := s.requiresUnsupportedCapacity(ctx, j); err != nil {
+		return nil
+	}
 	if event.GetRunNow() && event.GetRunParameters() != nil {
 		ctx = s.prepareTaskContext(ctx, j, true, event.GetRunParameters())
 	} else {
@@ -390,6 +394,9 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 		if eventMatch == "" {
 			continue
 		}
+		if err := s.requiresUnsupportedCapacity(ctx, jobData); err != nil {
+			continue
+		}
 		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(tCtx, jobData.ContextMetaFilter) {
 			continue
 		}
@@ -432,6 +439,9 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 			if jobs.MatchesIdmChangeEvent(eName, event) {
 				if sameJob {
 					log.Logger(tCtx).Debug("Prevent loop for job " + jobData.Label + " on event " + eName)
+					continue
+				}
+				if err := s.requiresUnsupportedCapacity(ctx, jobData); err != nil {
 					continue
 				}
 				log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eName)
@@ -589,4 +599,31 @@ func logStartMessageFromEvent(ctx context.Context, task *Task, event interface{}
 		msg += " (triggered by user " + user + ")"
 	}
 	log.TasksLogger(ctx).Info(msg)
+}
+
+func (s *Subscriber) requiresUnsupportedCapacity(ctx context.Context, j *jobs.Job) error {
+	if len(j.ResourcesDependencies) == 0 {
+		return nil
+	}
+	for _, dep := range j.ResourcesDependencies {
+		nodeDep := &rpb.Item{}
+		if !dep.MessageIs(nodeDep) {
+			continue
+		}
+		if e := dep.UnmarshalTo(nodeDep); e != nil {
+			continue
+		}
+		if nodeDep.GetNode() == nil {
+			continue
+		}
+		meta := nodeDep.GetMetadata()
+		if meta == nil {
+			continue
+		}
+		if err := runtime.MatchDependencies(ctx, meta); err != nil {
+			log.Logger(ctx).Warn("Ignoring job "+j.Label+" as it requires unsupported capacities "+err.Error(), zap.Error(err))
+			return err
+		}
+	}
+	return nil
 }

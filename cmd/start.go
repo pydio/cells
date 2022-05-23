@@ -219,6 +219,7 @@ func init() {
 	StartCmd.Flags().String(runtime.KeyHttpPort, runtime.DefaultHttpPort, "HTTP Server Port")
 
 	StartCmd.Flags().Bool(runtime.KeyFork, false, "Used internally by application when forking processes")
+	StartCmd.Flags().StringArray(runtime.KeyNodeCapacity, []string{}, "Node capacity declares externally supported features for this node")
 
 	addRegistryFlags(StartCmd.Flags())
 

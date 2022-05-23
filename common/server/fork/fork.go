@@ -27,6 +27,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/utils/fork"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -56,7 +57,7 @@ type Server struct {
 
 func NewServer(ctx context.Context, forkStart string) server.Server {
 	meta := server.InitPeerMeta()
-	meta[server.NodeMetaForkStartTag] = "s:^" + forkStart + "$"
+	meta[runtime.NodeMetaForkStartTag] = "s:^" + forkStart + "$"
 	return server.NewServer(ctx, &Server{
 		id:   "fork-" + uuid.New(),
 		name: "fork",

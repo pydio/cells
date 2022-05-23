@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"os"
 	"regexp"
 
 	"github.com/manifoldco/promptui"
@@ -280,6 +281,11 @@ func BuildForkParams(cmd string) []string {
 		KeyEnablePprof,
 	}
 
+	// Copy slices arguments
+	sliceArgs := []string{
+		KeyNodeCapacity,
+	}
+
 	for _, s := range strArgs {
 		if IsSet(s) {
 			params = append(params, "--"+s, GetString(s))
@@ -288,6 +294,13 @@ func BuildForkParams(cmd string) []string {
 	for _, bo := range boolArgs {
 		if GetBool(bo) {
 			params = append(params, "--"+bo)
+		}
+	}
+	for _, sl := range sliceArgs {
+		if IsSet(sl) {
+			for _, a := range GetStringSlice(sl) {
+				params = append(params, "--"+sl, a)
+			}
 		}
 	}
 
@@ -330,5 +343,24 @@ func IsRequired(name string, tags ...string) bool {
 		}
 	}
 
+	return false
+}
+
+// GetHostname wraps os.Hostname, could be overwritten by env or parameter.
+func GetHostname() string {
+	if s, er := os.Hostname(); er == nil {
+		return s
+	}
+	return ""
+}
+
+// HasCapacity checks if a specific capacity is registered for the current process
+func HasCapacity(c string) bool {
+	caps := r.GetStringSlice(KeyNodeCapacity)
+	for _, ca := range caps {
+		if c == ca {
+			return true
+		}
+	}
 	return false
 }

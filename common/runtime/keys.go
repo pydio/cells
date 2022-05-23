@@ -21,14 +21,15 @@
 package runtime
 
 const (
-	KeyDiscovery  = "discovery"
-	KeyRegistry   = "registry"
-	KeyBroker     = "broker"
-	KeyConfig     = "config"
-	KeyFork       = "fork"
-	KeyForkLegacy = "is_fork"
-	KeyArgTags    = "tags"
-	KeyArgExclude = "exclude"
+	KeyDiscovery    = "discovery"
+	KeyRegistry     = "registry"
+	KeyBroker       = "broker"
+	KeyConfig       = "config"
+	KeyFork         = "fork"
+	KeyForkLegacy   = "is_fork"
+	KeyArgTags      = "tags"
+	KeyArgExclude   = "exclude"
+	KeyNodeCapacity = "cap"
 
 	KeyAdvertiseAddress  = "advertise_address"
 	KeyBindHost          = "bind_address"
@@ -72,4 +73,14 @@ const (
 	DefaultGrpcPort      = "8001"
 	DefaultDiscoveryPort = "8002"
 	DefaultHttpPort      = "8080"
+)
+
+const (
+	NodeMetaPID          = "PID"
+	NodeMetaParentPID    = "parentPID"
+	NodeMetaMetrics      = "metrics"
+	NodeMetaStartTag     = "start"
+	NodeMetaForkStartTag = "forkStartTag"
+	NodeMetaHostName     = "hostname"
+	NodeMetaCapacities   = "capacities"
 )
