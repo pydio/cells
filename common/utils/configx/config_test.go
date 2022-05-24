@@ -5,9 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/pydio/cells/v4/common/config/revisions"
 	"github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/utils/filex"
-
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -203,7 +202,7 @@ func TestArray(t *testing.T) {
 		err := m.Set(dataArray)
 		So(err, ShouldBeNil)
 
-		var versions []*filex.Version
+		var versions []*revisions.Version
 		err2 := m.Scan(&versions)
 		So(err2, ShouldBeNil)
 

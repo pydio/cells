@@ -25,17 +25,17 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/pydio/cells/v4/common/config/revisions"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/filex"
 )
 
 type versionStore struct {
-	filex.VersionsStore
+	revisions.Store
 	store Store
 }
 
 // NewVersionStore based on a file Version Store and a store
-func NewVersionStore(vs filex.VersionsStore, store Store) Store {
+func NewVersionStore(vs revisions.Store, store Store) Store {
 	return &versionStore{
 		vs,
 		store,
@@ -43,8 +43,8 @@ func NewVersionStore(vs filex.VersionsStore, store Store) Store {
 }
 
 // RegisterVersionStore sets the default version store
-func RegisterVersionStore(store filex.VersionsStore) {
-	VersionsStore = store
+func RegisterVersionStore(store revisions.Store) {
+	RevisionsStore = store
 }
 
 // Val of the path
@@ -81,7 +81,7 @@ func (v *versionStore) Watch(opts ...configx.WatchOption) (configx.Receiver, err
 func (v *versionStore) Save(ctxUser string, ctxMessage string) error {
 	data := v.store.Val().Map()
 
-	if err := VersionsStore.Put(&filex.Version{
+	if err := v.Store.Put(&revisions.Version{
 		Date: time.Now(),
 		User: ctxUser,
 		Log:  ctxMessage,
@@ -105,15 +105,15 @@ type configStore struct {
 	store Store
 }
 
-func NewConfigStore(values Store) (filex.VersionsStore, error) {
+func NewConfigStore(values Store) (revisions.Store, error) {
 	return &configStore{
 		values,
 	}, nil
 }
 
 // Put stores version in Bolt
-func (s *configStore) Put(version *filex.Version) error {
-	var versions []*filex.Version
+func (s *configStore) Put(version *revisions.Version) error {
+	var versions []*revisions.Version
 	v := s.store.Val()
 	if err := v.Scan(&versions); err != nil {
 		return err
@@ -127,8 +127,8 @@ func (s *configStore) Put(version *filex.Version) error {
 }
 
 // List all version starting at a given id
-func (s *configStore) List(offset uint64, limit uint64) (result []*filex.Version, err error) {
-	var versions []*filex.Version
+func (s *configStore) List(offset uint64, limit uint64) (result []*revisions.Version, err error) {
+	var versions []*revisions.Version
 
 	if err := s.store.Val().Scan(&versions); err != nil {
 		return nil, err
@@ -138,8 +138,8 @@ func (s *configStore) List(offset uint64, limit uint64) (result []*filex.Version
 }
 
 // Retrieve loads data from db by version ID
-func (s *configStore) Retrieve(id uint64) (*filex.Version, error) {
-	var version *filex.Version
+func (s *configStore) Retrieve(id uint64) (*revisions.Version, error) {
+	var version *revisions.Version
 
 	if err := s.store.Val(strconv.Itoa(int(id))).Scan(&version); err != nil {
 		return nil, err

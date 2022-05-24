@@ -44,7 +44,7 @@ DESCRIPTION
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var m map[string]map[string]interface{}
-		if err := config.Get("services").Scan(&m); err != nil {
+		if err := config.Get("defaults").Scan(&m); err != nil {
 			log.Fatal(err)
 		}
 

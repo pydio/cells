@@ -43,6 +43,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/memory"
 	"github.com/pydio/cells/v4/common/config/migrations"
+	"github.com/pydio/cells/v4/common/config/revisions"
 	"github.com/pydio/cells/v4/common/config/service"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
@@ -237,14 +238,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 
 	e := encrypter{key: crypto.KeyFromPassword(passwordBytes, 32)}
 
-	var versionsStore filex.VersionsStore
-	if debounceVersions {
-		versionsStore = filex.NewStore(config.PydioConfigDir, 2*time.Second)
-	} else {
-		versionsStore = filex.NewStore(config.PydioConfigDir)
-	}
-
-	config.RegisterVersionStore(versionsStore)
+	var versionsStore revisions.Store
 
 	// Local configuration file
 	lc, err := file.New(filepath.Join(config.PydioConfigDir, config.PydioConfigFile), true, configx.WithMarshaller(jsonIndent{}))
@@ -273,6 +267,8 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 		config.RegisterVault(etcd.NewSource(ctx, conn, "vault", false, false))
 		// config.RegisterLocal(etcd.NewSource(context.Background(), conn, "config/"+runtime.DefaultAdvertiseAddress(), false))
 		defaultConfig := etcd.NewSource(ctx, conn, "config", false, false)
+		defaultConfig, versionsStore = etcd.AsRevisions(defaultConfig)
+		config.RegisterVersionStore(versionsStore)
 		defaultConfig = config.Proxy(defaultConfig)
 		config.Register(defaultConfig)
 	case "grpc":
@@ -297,7 +293,14 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 			return false, nil, fmt.Errorf("could not start vault store %v", err)
 		}
 
+		if debounceVersions {
+			versionsStore = filex.NewStore(config.PydioConfigDir, 2*time.Second)
+		} else {
+			versionsStore = filex.NewStore(config.PydioConfigDir)
+		}
+		config.RegisterVersionStore(versionsStore)
 		defaultConfig := config.NewVersionStore(versionsStore, lc)
+
 		defaultConfig = config.Proxy(defaultConfig)
 		defaultConfig = config.NewVault(vaultConfig, defaultConfig)
 
@@ -311,8 +314,8 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 
 		var data interface{}
 		if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-			if err := config.Get().Set(data); err == nil {
-				versionsStore.Put(&filex.Version{
+			if err := config.Get().Set(data); err == nil && versionsStore != nil {
+				_ = versionsStore.Put(&revisions.Version{
 					User: "cli",
 					Date: time.Now(),
 					Log:  "Initialize with sample config",

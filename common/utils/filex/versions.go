@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2019-2022 Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package filex
 
 import (
@@ -5,13 +25,12 @@ import (
 	"path/filepath"
 	"time"
 
-	"go.uber.org/zap"
-
 	"encoding/binary"
-
 	"github.com/bep/debounce"
 	bolt "go.etcd.io/bbolt"
+	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v4/common/config/revisions"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -19,35 +38,19 @@ var (
 	versionsBucket = []byte("versions")
 )
 
-// Version is a structure for encapsulating a new version of configs with additional metadata
-type Version struct {
-	Id   uint64
-	Date time.Time
-	User string
-	Log  string
-	Data interface{}
-}
-
-// VersionsStore is the interface for storing and listing configs versions
-type VersionsStore interface {
-	Put(version *Version) error
-	List(offset uint64, limit uint64) ([]*Version, error)
-	Retrieve(id uint64) (*Version, error)
-}
-
 // BoltStore is a BoltDB implementation of the Store interface
 type BoltStore struct {
 	FileName  string
 	debouncer func(f func())
-	versions  chan *Version
+	versions  chan *revisions.Version
 }
 
 // NewStore opens a new store
-func NewStore(configDir string, debounceTime ...time.Duration) VersionsStore {
+func NewStore(configDir string, debounceTime ...time.Duration) revisions.Store {
 	filename := filepath.Join(configDir, "configs-versions.db")
 	bs := &BoltStore{
 		FileName: filename,
-		versions: make(chan *Version, 100),
+		versions: make(chan *revisions.Version, 100),
 	}
 	if len(debounceTime) > 0 {
 		bs.debouncer = debounce.New(debounceTime[0])
@@ -109,7 +112,7 @@ func (b *BoltStore) flush() {
 	}
 }
 
-func (b *BoltStore) Put(version *Version) error {
+func (b *BoltStore) Put(version *revisions.Version) error {
 	b.versions <- version
 	if b.debouncer != nil {
 		b.debouncer(b.flush)
@@ -120,7 +123,7 @@ func (b *BoltStore) Put(version *Version) error {
 }
 
 // List lists all version starting at a given id
-func (b *BoltStore) List(offset uint64, limit uint64) (result []*Version, err error) {
+func (b *BoltStore) List(offset uint64, limit uint64) (result []*revisions.Version, err error) {
 
 	db, er := b.GetConnection(true)
 	if er != nil {
@@ -138,7 +141,7 @@ func (b *BoltStore) List(offset uint64, limit uint64) (result []*Version, err er
 			binary.BigEndian.PutUint64(offsetKey, offset)
 			c.Seek(offsetKey)
 			for k, v := c.Seek(offsetKey); k != nil; k, v = c.Prev() {
-				var version Version
+				var version revisions.Version
 				if e := json.Unmarshal(v, &version); e == nil {
 					result = append(result, &version)
 				}
@@ -149,7 +152,7 @@ func (b *BoltStore) List(offset uint64, limit uint64) (result []*Version, err er
 			}
 		} else {
 			for k, v := c.Last(); k != nil; k, v = c.Prev() {
-				var version Version
+				var version revisions.Version
 				if e := json.Unmarshal(v, &version); e == nil {
 					result = append(result, &version)
 				}
@@ -166,14 +169,14 @@ func (b *BoltStore) List(offset uint64, limit uint64) (result []*Version, err er
 }
 
 // Retrieve loads data from db by version ID
-func (b *BoltStore) Retrieve(id uint64) (*Version, error) {
+func (b *BoltStore) Retrieve(id uint64) (*revisions.Version, error) {
 	db, err := b.GetConnection(true)
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
 
-	var version Version
+	var version revisions.Version
 	objectKey := make([]byte, 8)
 	binary.BigEndian.PutUint64(objectKey, id)
 	e := db.View(func(tx *bolt.Tx) error {

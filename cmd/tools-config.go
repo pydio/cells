@@ -72,7 +72,7 @@ DESCRIPTION
 
 		defaultData := config.Get().Get()
 		vaultData := config.Vault().Get()
-		versions, _ := config.VersionsStore.List(0, math.MaxUint64)
+		versions, _ := config.RevisionsStore.List(0, math.MaxUint64)
 
 		fmt.Println(versions)
 
@@ -86,7 +86,7 @@ DESCRIPTION
 		config.Set(defaultData, "")
 		config.Vault().Set(vaultData)
 		for _, version := range versions {
-			config.VersionsStore.Put(version)
+			config.RevisionsStore.Put(version)
 		}
 
 		if err := config.Save(common.PydioSystemUsername, "Import done"); err != nil {
