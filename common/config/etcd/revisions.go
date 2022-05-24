@@ -32,6 +32,14 @@ import (
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
+// AsRevisionsStore implements RevisionsProvider interface
+func (m *etcd) AsRevisionsStore(...config.RevisionsStoreOption) (config.Store, revisions.Store) {
+	r := &revs{
+		etcd: m,
+	}
+	return r, r
+}
+
 // AsRevisions wraps an etcd store into a revision store
 func AsRevisions(s config.Store) (config.Store, revisions.Store) {
 	et := s.(*etcd)

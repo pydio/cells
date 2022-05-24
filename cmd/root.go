@@ -25,7 +25,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -34,28 +33,26 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/memory"
 	"github.com/pydio/cells/v4/common/config/migrations"
 	"github.com/pydio/cells/v4/common/config/revisions"
-	"github.com/pydio/cells/v4/common/config/service"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
-	context_wrapper "github.com/pydio/cells/v4/common/log/context-wrapper"
+	cw "github.com/pydio/cells/v4/common/log/context-wrapper"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/filex"
 
-	// "github.com/pydio/cells/v4/common/config/remote"
-	"github.com/pydio/cells/v4/common/config/etcd"
+	// Register available config types
+	_ "github.com/pydio/cells/v4/common/config/etcd"
 	"github.com/pydio/cells/v4/common/config/file"
+	"github.com/pydio/cells/v4/common/config/memory"
+	_ "github.com/pydio/cells/v4/common/config/service"
 )
 
 var (
@@ -124,7 +121,10 @@ LOGS LEVEL
 func init() {
 	initEnvPrefixes()
 	initViperRuntime()
-	RootCmd.PersistentFlags().String(runtime.KeyConfig, "file://"+config.ApplicationWorkingDir(), "config file (default is $HOME/.test.yaml)")
+	RootCmd.PersistentFlags().String(runtime.KeyConfig, "file://"+filepath.Join(config.ApplicationWorkingDir(), config.PydioConfigFile), "Configuration URL")
+
+	RootCmd.PersistentFlags().String(runtime.KeyVault, "detect", "Vault URL")
+	_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyVault)
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -187,7 +187,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 
 	// Keyring store
 	keyringPath := filepath.Join(config.PydioConfigDir, "cells-vault-key")
-	keyringStore, err := file.New(keyringPath, true)
+	keyringStore, err := file.New(keyringPath)
 	if err != nil {
 		b, err := filex.Read(keyringPath)
 		if err != nil {
@@ -215,7 +215,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 			return false, nil, fmt.Errorf("could not read keyring path %v", err)
 		}
 
-		store, err := file.New(keyringPath, true)
+		store, err := file.New(keyringPath)
 		if err != nil {
 			return false, nil, err
 		}
@@ -225,97 +225,48 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 
 	// Keyring start and creation of the master password
 	keyring = crypto.NewConfigKeyring(keyringStore, crypto.WithAutoCreate(true))
-
 	password, err := keyring.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
 	if err != nil {
 		return false, nil, fmt.Errorf("could not get master password %v", err)
 	}
 
-	passwordBytes, err := base64.StdEncoding.DecodeString(password)
+	configURL := runtime.ConfigURL()
+	mainConfig, err := config.OpenStore(ctx, configURL)
 	if err != nil {
-		return false, nil, fmt.Errorf("could not decode master password %v", err)
+		return false, nil, err
 	}
 
-	e := encrypter{key: crypto.KeyFromPassword(passwordBytes, 32)}
-
-	var versionsStore revisions.Store
-
-	// Local configuration file
-	lc, err := file.New(filepath.Join(config.PydioConfigDir, config.PydioConfigFile), true, configx.WithMarshaller(jsonIndent{}))
-	if err != nil {
-		return false, nil, fmt.Errorf("could not start config on local file %v", err)
-	}
-
-	config.RegisterLocal(lc)
-
-	scheme := runtime.ConfigURL()
-	u, err := url.Parse(runtime.ConfigURL())
-	if err == nil {
-		scheme = u.Scheme
-	}
-
-	switch scheme {
-	case "etcd":
-		conn, err := clientv3.New(clientv3.Config{
-			Endpoints:   []string{"http://" + u.Host},
-			DialTimeout: 2 * time.Second,
-		})
-		if err != nil {
-			return false, nil, fmt.Errorf("could not start config on ETCD %v", err)
-		}
-
-		config.RegisterVault(etcd.NewSource(ctx, conn, "vault", false, false))
-		// config.RegisterLocal(etcd.NewSource(context.Background(), conn, "config/"+runtime.DefaultAdvertiseAddress(), false))
-		defaultConfig := etcd.NewSource(ctx, conn, "config", false, false)
-		defaultConfig, versionsStore = etcd.AsRevisions(defaultConfig)
-		config.RegisterVersionStore(versionsStore)
-		defaultConfig = config.Proxy(defaultConfig)
-		config.Register(defaultConfig)
-	case "grpc":
-		conn := clientcontext.GetClientConn(ctx)
-		if conn == nil {
-			return false, nil, fmt.Errorf("could not start config on GRPC (no connection found)")
-		}
-
-		config.RegisterVault(service.New(ctx, conn, "vault", "/"))
-		defaultConfig := service.New(ctx, conn, "config", "/")
-		defaultConfig = config.Proxy(defaultConfig)
-		config.Register(defaultConfig)
-	default:
-		vaultConfig, err := file.New(
-			filepath.Join(config.PydioConfigDir, "pydio-vault.json"),
-			true,
-			configx.WithMarshaller(jsonIndent{}),
-			configx.WithEncrypt(e),
-			configx.WithDecrypt(e),
-		)
-		if err != nil {
-			return false, nil, fmt.Errorf("could not start vault store %v", err)
-		}
-
+	// Init RevisionsStore if config is config.RevisionsProvider
+	if revProvider, ok := mainConfig.(config.RevisionsProvider); ok {
+		var rOpt []config.RevisionsStoreOption
 		if debounceVersions {
-			versionsStore = filex.NewStore(config.PydioConfigDir, 2*time.Second)
-		} else {
-			versionsStore = filex.NewStore(config.PydioConfigDir)
+			rOpt = append(rOpt, config.WithDebounce(2*time.Second))
 		}
-		config.RegisterVersionStore(versionsStore)
-		defaultConfig := config.NewVersionStore(versionsStore, lc)
-
-		defaultConfig = config.Proxy(defaultConfig)
-		defaultConfig = config.NewVault(vaultConfig, defaultConfig)
-
-		config.Register(defaultConfig)
-		config.RegisterLocal(defaultConfig)
-		config.RegisterVault(vaultConfig)
+		var versionsStore revisions.Store
+		mainConfig, versionsStore = revProvider.AsRevisionsStore(rOpt...)
+		config.RegisterRevisionsStore(versionsStore)
 	}
+
+	// Wrap config with vaultConfig if set
+	vaultConfig, err := config.OpenStore(ctx, runtime.VaultURL(password))
+	if err != nil {
+		return false, nil, err
+	}
+	config.RegisterVault(vaultConfig)
+	mainConfig = config.NewVault(vaultConfig, mainConfig)
+
+	// Additional Proxy
+	mainConfig = config.Proxy(mainConfig)
+
+	// Register default now
+	config.Register(mainConfig)
 
 	if config.Get("version").String() == "" && config.Get("defaults/database").String() == "" {
 		new = true
-
 		var data interface{}
 		if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-			if err := config.Get().Set(data); err == nil && versionsStore != nil {
-				_ = versionsStore.Put(&revisions.Version{
+			if err := config.Get().Set(data); err == nil && config.RevisionsStore() != nil {
+				_ = config.RevisionsStore().Put(&revisions.Version{
 					User: "cli",
 					Date: time.Now(),
 					Log:  "Initialize with sample config",
@@ -377,7 +328,7 @@ func initLogLevel() {
 		common.LogLevel = zap.ErrorLevel
 	}
 
-	log.Init(config.ApplicationWorkingDir(config.ApplicationDirLogs), context_wrapper.RichContext)
+	log.Init(config.ApplicationWorkingDir(config.ApplicationDirLogs), cw.RichContext)
 
 	// Using it once
 	log.Logger(context.Background())
@@ -395,35 +346,5 @@ func initLogLevelListener(ctx context.Context) {
 	})
 	if er != nil {
 		fmt.Println("Cannot subscribe to broker for TopicLogLevelEvent", er.Error())
-	}
-}
-
-type jsonIndent struct {
-}
-
-func (j jsonIndent) Marshal(v interface{}) ([]byte, error) {
-	return json.MarshalIndent(v, "", "  ")
-}
-
-// Encryption with key
-type encrypter struct {
-	key []byte
-}
-
-func (e encrypter) Encrypt(b []byte) (string, error) {
-	sealed, err := crypto.Seal(e.key, b)
-	if err != nil {
-		return "", err
-	}
-	return base64.StdEncoding.EncodeToString(sealed), nil
-}
-func (e encrypter) Decrypt(s string) ([]byte, error) {
-	if s == "" {
-		return []byte{}, nil
-	}
-	if data, err := base64.StdEncoding.DecodeString(s); err != nil {
-		return []byte{}, err
-	} else {
-		return crypto.Open(e.key, data[:12], data[12:])
 	}
 }

@@ -30,9 +30,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/v4/common/utils/configx"
-
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/utils/configx"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
@@ -66,10 +66,19 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		opts = append(opts, configx.WithString())
 	case "yaml":
 		opts = append(opts, configx.WithYAML())
-	case "json":
+	default:
 		opts = append(opts, configx.WithJSON())
 	}
 
+	if master := u.Query().Get("masterKey"); master != "" {
+		enc, err := crypto.NewVaultCipher(master)
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, configx.WithEncrypt(enc), configx.WithDecrypt(enc))
+	}
+
+	withLease := u.Query().Get("lease") == "true"
 	withKeys := u.Query().Get("withKeys") == "true"
 
 	// Registry via etcd
@@ -82,7 +91,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		return nil, err
 	}
 
-	store := NewSource(context.Background(), etcdConn, u.Path, true, withKeys, opts...)
+	store := NewSource(context.Background(), etcdConn, strings.TrimLeft(u.Path, "/"), withLease, withKeys, opts...)
 
 	return store, nil
 }

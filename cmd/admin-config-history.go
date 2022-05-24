@@ -60,7 +60,7 @@ DESCRIPTION
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		store := config.RevisionsStore
+		store := config.RevisionsStore()
 
 		if configVersionShow != "" {
 			if id, e := strconv.ParseUint(configVersionShow, 10, 64); e == nil {

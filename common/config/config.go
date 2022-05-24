@@ -29,8 +29,8 @@ import (
 )
 
 var (
-	std   Store
-	local Store = std
+	std Store
+	//local Store = std
 )
 
 // Register the default config store
@@ -39,9 +39,9 @@ func Register(store Store) {
 }
 
 // RegisterLocal registers local store
-func RegisterLocal(store Store) {
-	local = store
-}
+//func RegisterLocal(store Store) {
+//	local = store
+//}
 
 // Store defines the functionality a config must provide
 type Store interface {
@@ -60,59 +60,16 @@ type Locker interface {
 	Unlock()
 }
 
-// New creates a configuration provider with in-memory access
-//func New(store configx.Entrypoint) Store {
-//	ret := &cacheconfig{
-//		store: store,
-//	}
-//
-//	v := store.Get()
-//
-//	// we initialise the store and save it in memory for easy access
-//	if v != nil {
-//		im := configx.New(configx.WithJSON())
-//		im.Set(v.Bytes())
-//		ret.im = im
-//	} else {
-//		im := configx.New(configx.WithJSON())
-//		ret.im = im
-//	}
-//
-//	go func() {
-//		watcher, ok := store.(configx.Watcher)
-//		if !ok {
-//			return
-//		}
-//
-//		w, err := watcher.Watch()
-//		if err != nil {
-//			return
-//		}
-//
-//		for {
-//			resp, err := w.Next()
-//			if err != nil {
-//				<-time.After(10 * time.Second)
-//				continue
-//			}
-//
-//			ret.im.Set(resp)
-//		}
-//	}()
-//
-//	return ret
-//}
-
-// These fonctions use the standard config
-
 // Save the config in the hard store
 func Save(ctxUser string, ctxMessage string) error {
 
-	if local != std {
-		if err := local.Save(ctxUser, ctxMessage); err != nil {
-			return err
+	/*
+		if local != std {
+			if err := local.Save(ctxUser, ctxMessage); err != nil {
+				return err
+			}
 		}
-	}
+	*/
 
 	if err := std.Save(ctxUser, ctxMessage); err != nil {
 		return err

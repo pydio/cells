@@ -45,8 +45,8 @@ type BoltStore struct {
 	versions  chan *revisions.Version
 }
 
-// NewStore opens a new store
-func NewStore(configDir string, debounceTime ...time.Duration) revisions.Store {
+// NewRevisionsStore opens a new store
+func NewRevisionsStore(configDir string, debounceTime ...time.Duration) revisions.Store {
 	filename := filepath.Join(configDir, "configs-versions.db")
 	bs := &BoltStore{
 		FileName: filename,

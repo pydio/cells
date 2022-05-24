@@ -22,16 +22,44 @@ package config
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/pydio/cells/v4/common/config/revisions"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
+var (
+	// RevisionsStore is the default Version Store for the configuration
+	revisionsStore revisions.Store
+)
+
 type versionStore struct {
 	revisions.Store
 	store Store
+}
+
+// RegisterRevisionsStore sets the default version store
+func RegisterRevisionsStore(store revisions.Store) {
+	revisionsStore = store
+}
+
+func RevisionsStore() revisions.Store {
+	return revisionsStore
+}
+
+type RevisionsStoreOptions struct {
+	Debounce time.Duration
+}
+type RevisionsStoreOption func(o *RevisionsStoreOptions)
+
+func WithDebounce(d time.Duration) RevisionsStoreOption {
+	return func(o *RevisionsStoreOptions) {
+		o.Debounce = d
+	}
+}
+
+type RevisionsProvider interface {
+	AsRevisionsStore(...RevisionsStoreOption) (Store, revisions.Store)
 }
 
 // NewVersionStore based on a file Version Store and a store
@@ -40,11 +68,6 @@ func NewVersionStore(vs revisions.Store, store Store) Store {
 		vs,
 		store,
 	}
-}
-
-// RegisterVersionStore sets the default version store
-func RegisterVersionStore(store revisions.Store) {
-	RevisionsStore = store
 }
 
 // Val of the path
@@ -103,47 +126,4 @@ func (v *versionStore) Unlock() {
 
 type configStore struct {
 	store Store
-}
-
-func NewConfigStore(values Store) (revisions.Store, error) {
-	return &configStore{
-		values,
-	}, nil
-}
-
-// Put stores version in Bolt
-func (s *configStore) Put(version *revisions.Version) error {
-	var versions []*revisions.Version
-	v := s.store.Val()
-	if err := v.Scan(&versions); err != nil {
-		return err
-	}
-
-	version.Id = uint64(len(versions))
-
-	versions = append(versions, version)
-
-	return s.store.Set(versions)
-}
-
-// List all version starting at a given id
-func (s *configStore) List(offset uint64, limit uint64) (result []*revisions.Version, err error) {
-	var versions []*revisions.Version
-
-	if err := s.store.Val().Scan(&versions); err != nil {
-		return nil, err
-	}
-
-	return versions, nil
-}
-
-// Retrieve loads data from db by version ID
-func (s *configStore) Retrieve(id uint64) (*revisions.Version, error) {
-	var version *revisions.Version
-
-	if err := s.store.Val(strconv.Itoa(int(id))).Scan(&version); err != nil {
-		return nil, err
-	}
-
-	return version, nil
 }

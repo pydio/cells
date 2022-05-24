@@ -25,6 +25,7 @@ const (
 	KeyRegistry     = "registry"
 	KeyBroker       = "broker"
 	KeyConfig       = "config"
+	KeyVault        = "vault"
 	KeyFork         = "fork"
 	KeyForkLegacy   = "is_fork"
 	KeyArgTags      = "tags"
