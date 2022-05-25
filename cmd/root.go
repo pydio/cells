@@ -230,8 +230,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 		return false, nil, fmt.Errorf("could not get master password %v", err)
 	}
 
-	configURL := runtime.ConfigURL()
-	mainConfig, err := config.OpenStore(ctx, configURL)
+	mainConfig, err := config.OpenStore(ctx, runtime.ConfigURL())
 	if err != nil {
 		return false, nil, err
 	}

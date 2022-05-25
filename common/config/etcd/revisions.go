@@ -40,15 +40,6 @@ func (m *etcd) AsRevisionsStore(...config.RevisionsStoreOption) (config.Store, r
 	return r, r
 }
 
-// AsRevisions wraps an etcd store into a revision store
-func AsRevisions(s config.Store) (config.Store, revisions.Store) {
-	et := s.(*etcd)
-	r := &revs{
-		etcd: et,
-	}
-	return r, r
-}
-
 type revs struct {
 	*etcd
 }
@@ -108,7 +99,8 @@ func (r *revs) List(offset uint64, limit uint64) ([]*revisions.Version, error) {
 		if v, e := r.unmarshallVersion(dd[i].version, dd[i].data); e == nil {
 			vv = append(vv, v)
 		} else {
-			return nil, e
+			fmt.Println("[debug] ignoring version", dd[i].version, "as revision key is not found")
+			//return nil, e
 		}
 	}
 
