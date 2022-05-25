@@ -44,9 +44,11 @@ import (
 	cw "github.com/pydio/cells/v4/common/log/context-wrapper"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/runtime"
-	// Register available config types
+
+	// Implicit available config types
 	_ "github.com/pydio/cells/v4/common/config/etcd"
 	_ "github.com/pydio/cells/v4/common/config/service"
+	_ "github.com/pydio/cells/v4/common/config/vault"
 )
 
 var (
@@ -115,6 +117,7 @@ LOGS LEVEL
 func init() {
 	initEnvPrefixes()
 	initViperRuntime()
+
 	RootCmd.PersistentFlags().String(runtime.KeyConfig, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName), "Configuration URL")
 
 	RootCmd.PersistentFlags().String(runtime.KeyVault, "detect", "Vault URL")
@@ -157,6 +160,14 @@ func initViperRuntime() {
 	cellsViper = viper.New()
 	cellsViper.SetEnvPrefix(EnvPrefixNew)
 	cellsViper.AutomaticEnv()
+	cellsViper.AddConfigPath(runtime.ApplicationWorkingDir())
+	if p, er := os.Getwd(); er == nil {
+		cellsViper.AddConfigPath(p)
+	}
+	cellsViper.SetConfigName("cells")
+	cellsViper.SetConfigType("env")
+	_ = cellsViper.ReadInConfig()
+
 	runtime.SetRuntime(cellsViper)
 }
 
