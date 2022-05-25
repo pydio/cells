@@ -3,15 +3,19 @@ package file
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/memory"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/filex"
@@ -57,7 +61,36 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 
 	store, err := New(u.Path, opts...)
 	if err != nil {
-		return nil, err
+		// Try to upgrade legacy keyring
+		if u.Query().Get("keyring") != "true" {
+			return nil, err
+		}
+		b, err := filex.Read(u.Path)
+		if err != nil {
+			return nil, fmt.Errorf("could not start keyring store %v", err)
+		}
+		fmt.Println("[INFO] Upgrading Legacy Keyring Format")
+		mem := memory.New(configx.WithJSON())
+		keyring := crypto.NewConfigKeyring(mem)
+		data := base64.StdEncoding.EncodeToString(b)
+		if err := keyring.Set(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey, data); err != nil {
+			return nil, fmt.Errorf("could not start keyring store %v", err)
+		}
+
+		// Keyring Config is likely the old style - switching it
+		if err := os.Chmod(u.Path, 0600); err != nil {
+			return nil, fmt.Errorf("could not read keyring path %v", err)
+		}
+
+		if err := filex.Save(u.Path, mem.Get().Bytes()); err != nil {
+			return nil, fmt.Errorf("could not start keyring store %v", err)
+		}
+
+		// Keyring Config is likely the old style - switching it
+		if err := os.Chmod(u.Path, 0400); err != nil {
+			return nil, fmt.Errorf("could not read keyring path %v", err)
+		}
+		return New(u.Path, opts...)
 	}
 
 	return store, nil

@@ -50,7 +50,7 @@ type DexClient struct {
 }
 
 func addBoltDbEntry(sName string, db ...string) error {
-	bDir, e := config.ServiceDataDir(common.ServiceGrpcNamespace_ + sName)
+	bDir, e := runtime.ServiceDataDir(common.ServiceGrpcNamespace_ + sName)
 	if e != nil {
 		return e
 	}
@@ -62,7 +62,7 @@ func addBoltDbEntry(sName string, db ...string) error {
 }
 
 func addBleveDbEntry(sName string, db ...string) error {
-	bDir, e := config.ServiceDataDir(common.ServiceGrpcNamespace_ + sName)
+	bDir, e := runtime.ServiceDataDir(common.ServiceGrpcNamespace_ + sName)
 	if e != nil {
 		return e
 	}

@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -45,13 +44,8 @@ import (
 	cw "github.com/pydio/cells/v4/common/log/context-wrapper"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/filex"
-
 	// Register available config types
 	_ "github.com/pydio/cells/v4/common/config/etcd"
-	"github.com/pydio/cells/v4/common/config/file"
-	"github.com/pydio/cells/v4/common/config/memory"
 	_ "github.com/pydio/cells/v4/common/config/service"
 )
 
@@ -121,10 +115,13 @@ LOGS LEVEL
 func init() {
 	initEnvPrefixes()
 	initViperRuntime()
-	RootCmd.PersistentFlags().String(runtime.KeyConfig, "file://"+filepath.Join(config.ApplicationWorkingDir(), config.PydioConfigFile), "Configuration URL")
+	RootCmd.PersistentFlags().String(runtime.KeyConfig, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName), "Configuration URL")
 
 	RootCmd.PersistentFlags().String(runtime.KeyVault, "detect", "Vault URL")
 	_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyVault)
+
+	RootCmd.PersistentFlags().String(runtime.KeyKeyring, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultKeyringFileName)+"?keyring=true", "Keyring URL")
+	_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyKeyring)
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -186,43 +183,10 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 	}
 
 	// Keyring store
-	keyringPath := filepath.Join(config.PydioConfigDir, "cells-vault-key")
-	keyringStore, err := file.New(keyringPath)
+	keyringStore, err := config.OpenStore(ctx, runtime.KeyringURL())
 	if err != nil {
-		b, err := filex.Read(keyringPath)
-		if err != nil {
-			return false, nil, fmt.Errorf("could not start keyring store %v", err)
-		}
-
-		mem := memory.New(configx.WithJSON())
-		keyring := crypto.NewConfigKeyring(mem)
-		data := base64.StdEncoding.EncodeToString(b)
-		if err := keyring.Set(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey, data); err != nil {
-			return false, nil, fmt.Errorf("could not start keyring store %v", err)
-		}
-
-		// Keyring Config is likely the old style - switching it
-		if err := os.Chmod(keyringPath, 0600); err != nil {
-			return false, nil, fmt.Errorf("could not read keyring path %v", err)
-		}
-
-		if err := filex.Save(keyringPath, mem.Get().Bytes()); err != nil {
-			return false, nil, fmt.Errorf("could not start keyring store %v", err)
-		}
-
-		// Keyring Config is likely the old style - switching it
-		if err := os.Chmod(keyringPath, 0400); err != nil {
-			return false, nil, fmt.Errorf("could not read keyring path %v", err)
-		}
-
-		store, err := file.New(keyringPath)
-		if err != nil {
-			return false, nil, err
-		}
-
-		keyringStore = store
+		return false, nil, fmt.Errorf("could not init keyring store %v", err)
 	}
-
 	// Keyring start and creation of the master password
 	keyring = crypto.NewConfigKeyring(keyringStore, crypto.WithAutoCreate(true))
 	password, err := keyring.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
@@ -327,7 +291,7 @@ func initLogLevel() {
 		common.LogLevel = zap.ErrorLevel
 	}
 
-	log.Init(config.ApplicationWorkingDir(config.ApplicationDirLogs), cw.RichContext)
+	log.Init(runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs), cw.RichContext)
 
 	// Using it once
 	log.Logger(context.Background())

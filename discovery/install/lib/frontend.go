@@ -27,6 +27,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 // Frontends
@@ -93,6 +94,6 @@ func actionFrontendsAdd(c *install.InstallConfig) error {
 	}
 
 	// Creating log dir
-	config.ApplicationWorkingDir(config.ApplicationDirLogs)
+	runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs)
 	return nil
 }

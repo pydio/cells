@@ -21,16 +21,9 @@
 // Package config provides tools for managing configurations
 package config
 
-var (
-	// PydioConfigDir is the default location for the configuration
-	PydioConfigDir = ApplicationWorkingDir()
-
-	// PydioConfigFile is the default file name for the configuration
-	PydioConfigFile = "pydio.json"
-
+const (
 	// KeyFrontPluginEnabled is the frontend config to enable/disable plugins
 	KeyFrontPluginEnabled = "PYDIO_PLUGIN_ENABLED"
+	// DefaultOAuthClientID set the default client id to use
+	DefaultOAuthClientID = "cells-frontend"
 )
-
-// DefaultOAuthClientID set the default client id to use
-const DefaultOAuthClientID = "cells-frontend"

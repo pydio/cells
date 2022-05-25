@@ -146,7 +146,6 @@ func VaultURL(withMaster string) string {
 	var u *url.URL
 	var e error
 	if r.IsSet(KeyVault) && r.GetString(KeyVault) != "" && r.GetString(KeyVault) != "detect" {
-		//return r.GetString(KeyVault)
 		u, e = url.Parse(r.GetString(KeyVault))
 	} else {
 		u, e = url.Parse(ConfigURL())
@@ -156,7 +155,7 @@ func VaultURL(withMaster string) string {
 	}
 	if u.Scheme == "file" {
 		// Replace basename with pydio-vault.json
-		u.Path = filepath.Join(filepath.Dir(u.Path), "pydio-vault.json")
+		u.Path = filepath.Join(filepath.Dir(u.Path), DefaultVaultFileName)
 	} else {
 		u.Path = "vault"
 	}
@@ -164,6 +163,10 @@ func VaultURL(withMaster string) string {
 	q.Set("masterKey", withMaster)
 	u.RawQuery = q.Encode()
 	return u.String()
+}
+
+func KeyringURL() string {
+	return r.GetString(KeyKeyring)
 }
 
 // HttpServerType returns one of HttpServerCaddy or HttpServerCore
@@ -288,11 +291,15 @@ func BuildForkParams(cmd string) []string {
 		"--" + KeyHttpPort, "0",
 	}
 
+	defKR := "file://" + filepath.Join(ApplicationWorkingDir(), DefaultKeyringFileName) + "?keyring=true"
+	if r.GetString(KeyKeyring) != defKR {
+		params = append(params, "--"+KeyKeyring, r.GetString(KeyKeyring))
+	}
+
 	// Copy string arguments
 	strArgs := []string{
 		KeyBindHost,
 		KeyAdvertiseAddress,
-		// KeyConfig,
 	}
 
 	// Copy bool arguments

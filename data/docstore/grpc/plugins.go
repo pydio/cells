@@ -30,7 +30,6 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
@@ -61,7 +60,7 @@ func init() {
 				service.WithStorageMigrator(docstore.Migrate),
 				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return boltdb.Driver, filepath.Join(config.MustServiceDataDir(Name), "docstore.db")
+					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "docstore.db")
 				}),
 			),
 			service.WithGRPC(func(c context.Context, server *grpc.Server) error {

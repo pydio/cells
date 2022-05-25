@@ -130,7 +130,7 @@ func init() {
 // DropLegacyStatics removes files and references to old PHP data in configuration
 func DropLegacyStatics(ctx context.Context) error {
 
-	frontRoot := config.Get("defaults", "frontRoot").Default(filepath.Join(config.ApplicationWorkingDir(), "static", "pydio")).String()
+	frontRoot := config.Get("defaults", "frontRoot").Default(filepath.Join(runtime.ApplicationWorkingDir(), "static", "pydio")).String()
 	if frontRoot != "" {
 		if er := os.RemoveAll(frontRoot); er != nil {
 			log.Logger(ctx).Error("Could not remove old PHP data from "+frontRoot+". You may safely delete this folder. Error was", zap.Error(er))

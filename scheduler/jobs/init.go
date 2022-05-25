@@ -9,8 +9,8 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/pydio/cells/v4/common"
-	config2 "github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	config2 "github.com/pydio/cells/v4/common/runtime"
 )
 
 var (

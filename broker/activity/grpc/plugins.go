@@ -38,7 +38,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
@@ -79,7 +78,7 @@ func init() {
 				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
 				service.WithStorageMigrator(activity.Migrate),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return boltdb.Driver, filepath.Join(config.MustServiceDataDir(Name), "activities.db")
+					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "activities.db")
 				}),
 			),
 			service.WithGRPC(func(c context.Context, srv *grpc.Server) error {

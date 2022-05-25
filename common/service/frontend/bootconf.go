@@ -32,6 +32,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
+	runtime2 "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -123,7 +124,7 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) (*BootConf, error) 
 		vDate = common.BuildStamp
 		vRev = common.BuildRevision
 		packagingOnce.Do(func() {
-			if data, e := ioutil.ReadFile(path.Join(config.ApplicationWorkingDir(), "package.info")); e == nil {
+			if data, e := ioutil.ReadFile(path.Join(runtime2.ApplicationWorkingDir(), "package.info")); e == nil {
 				packagingData = data
 			} else if runtime.GOOS != "windows" {
 				if data2, e2 := ioutil.ReadFile(path.Join("/opt/pydio", "package.info")); e2 == nil {

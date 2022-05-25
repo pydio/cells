@@ -37,7 +37,6 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/nodes"
 	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/registry"
@@ -88,7 +87,7 @@ to quickly create a Cobra application.`,
 			ctx = clientcontext.WithClientConn(ctx, discoveryConn)
 		}
 
-		configFile := filepath.Join(config.PydioConfigDir, config.PydioConfigFile)
+		configFile := filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName)
 		if runtime.ConfigIsLocalFile() && !filex.Exists(configFile) {
 			return triggerInstall(
 				"We cannot find a configuration file ... "+configFile,

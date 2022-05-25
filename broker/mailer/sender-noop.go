@@ -29,9 +29,9 @@ import (
 	"time"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -44,7 +44,7 @@ type NoOpSender struct {
 func (n *NoOpSender) Configure(ctx context.Context, conf configx.Values) error {
 	dump := conf.Val("dump").Bool()
 	if dump && conf.Val("dumpFolder").String() != "" {
-		sD, _ := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceMailer)
+		sD, _ := runtime.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceMailer)
 		dumpFolder := strings.ReplaceAll(conf.Val("dumpFolder").String(), "{SERVICE_DIR}", sD)
 		dumpFolder = strings.ReplaceAll(dumpFolder, "/", string(os.PathSeparator))
 		if e := os.MkdirAll(dumpFolder, 0755); e != nil {

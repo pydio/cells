@@ -63,7 +63,7 @@ func init() {
 				service.WithStoragePrefix("searchengine"),
 				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return bleve.Driver, filepath.Join(config.MustServiceDataDir(Name), "searchengine.bleve?rotationSize=-1&mapping=node")
+					return bleve.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "searchengine.bleve?rotationSize=-1&mapping=node")
 				}),
 			),
 			service.WithGRPC(func(c context.Context, server *grpc.Server) error {

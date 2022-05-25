@@ -30,8 +30,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/net"
 )
 
@@ -114,7 +114,7 @@ func (m *MkCertCache) loadHosts(site *install.ProxyConfig) []string {
 }
 
 func (m *MkCertCache) findOrGenerate(uuid string, hns []string) (certFile, keyFile string, err error) {
-	storageLocation := filepath.Join(config.ApplicationWorkingDir(), "certs")
+	storageLocation := filepath.Join(runtime.ApplicationWorkingDir(), "certs")
 	os.MkdirAll(storageLocation, 0700)
 	mk := NewMkCert(storageLocation)
 	cn := filepath.Join(storageLocation, uuid+".pem")

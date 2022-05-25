@@ -29,7 +29,6 @@ import (
 
 	"github.com/pydio/cells/v4/broker/log"
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
@@ -56,7 +55,7 @@ func init() {
 				service.WithStorageMigrator(log.Migrate),
 				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return bleve.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "syslog.bleve?mapping=log")
+					return bleve.Driver, filepath.Join(runtime.MustServiceDataDir(ServiceName), "syslog.bleve?mapping=log")
 				}),
 			),
 			service.Unique(true),

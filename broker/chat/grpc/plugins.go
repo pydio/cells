@@ -29,7 +29,6 @@ import (
 
 	"github.com/pydio/cells/v4/broker/chat"
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	proto "github.com/pydio/cells/v4/common/proto/chat"
@@ -52,7 +51,7 @@ func init() {
 				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
 				service.WithStorageMigrator(chat.Migrate),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return boltdb.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "chat.db")
+					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(ServiceName), "chat.db")
 				}),
 			),
 			service.Unique(true),

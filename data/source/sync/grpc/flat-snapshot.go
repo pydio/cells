@@ -27,9 +27,9 @@ import (
 	"os"
 	"path"
 
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/sync/endpoints/snapshot"
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -48,7 +48,7 @@ type FlatSnapshot struct {
 }
 
 func newFlatSnapshot(ctx context.Context, client model.Endpoint, serviceName, snapName, mode string) (*FlatSnapshot, error) {
-	boltPath, e := config.ServiceDataDir(serviceName)
+	boltPath, e := runtime.ServiceDataDir(serviceName)
 	if e != nil {
 		return nil, e
 	}

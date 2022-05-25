@@ -69,7 +69,7 @@ func init() {
 				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
 				service.WithStorageMigrator(mailer2.MigrateQueue),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return "boltdb", filepath.Join(config.MustServiceDataDir(Name), "queue.db")
+					return "boltdb", filepath.Join(runtime.MustServiceDataDir(Name), "queue.db")
 				}),
 			),
 			service.WithGRPC(func(c context.Context, server *grpc.Server) error {

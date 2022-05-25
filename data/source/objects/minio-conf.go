@@ -25,7 +25,7 @@ import (
 	"path/filepath"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/runtime"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -170,7 +170,7 @@ var legacyConfTemplate = `{
 func CreateMinioConfigFile(serviceId string, accessKey string, secretKey string) (configDir string, err error) {
 
 	var e error
-	configDir, e = config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceDataObjects)
+	configDir, e = runtime.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceDataObjects)
 	if e != nil {
 		return "", e
 	}
@@ -217,7 +217,7 @@ func CreateMinioConfigFile(serviceId string, accessKey string, secretKey string)
 
 func DeleteMinioConfigDir(serviceId string) error {
 
-	configDir, e := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceDataObjects)
+	configDir, e := runtime.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceDataObjects)
 	if e != nil {
 		return e
 	}
