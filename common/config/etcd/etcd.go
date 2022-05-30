@@ -97,8 +97,9 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 }
 
 type etcd struct {
-	committed configx.Values
-	ops       chan clientv3.Op
+	committed   configx.Values
+	uncommitted configx.Values
+	ops         chan clientv3.Op
 
 	prefix    string
 	withKeys  bool
@@ -139,26 +140,44 @@ func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLea
 	}
 
 	m := &etcd{
-		committed: configx.New(opts...),
-		ops:       make(chan clientv3.Op, 3000),
-		cli:       cli,
-		prefix:    prefix,
-		withKeys:  withKeys,
-		locker:    &sync.Mutex{},
-		leaseID:   leaseID,
-		reset:     make(chan bool),
-		opts:      opts,
-		saveCh:    make(chan bool),
-		saveTimer: time.NewTimer(100 * time.Millisecond),
+		committed:   configx.New(opts...),
+		uncommitted: configx.New(opts...),
+		ops:         make(chan clientv3.Op, 3000),
+		cli:         cli,
+		prefix:      prefix,
+		withKeys:    withKeys,
+		locker:      &sync.Mutex{},
+		leaseID:     leaseID,
+		reset:       make(chan bool),
+		opts:        opts,
+		saveCh:      make(chan bool),
+		saveTimer:   time.NewTimer(100 * time.Millisecond),
 	}
 
+	m.get(ctx)
 	go m.watch(ctx)
 	go m.save(ctx)
 
 	return m
 }
 
-func (m *etcd) get(ctx context.Context) {}
+func (m *etcd) get(ctx context.Context) {
+	res, err := m.cli.Get(ctx, m.prefix, clientv3.WithPrefix())
+	if err != nil {
+		return
+	}
+
+	for _, op := range res.Kvs {
+		key := strings.TrimPrefix(string(op.Key), m.prefix)
+		key = strings.TrimPrefix(key, "/")
+		if err := m.committed.Val(key).Set(op.Value); err != nil {
+			fmt.Println("Error in etcd watch setting value for key ", op.Key)
+		}
+		if err := m.uncommitted.Val(key).Set(op.Value); err != nil {
+			fmt.Println("Error in etcd watch setting value for key ", op.Key)
+		}
+	}
+}
 
 func (m *etcd) watch(ctx context.Context) {
 	watcher := m.cli.Watch(ctx, m.prefix, clientv3.WithPrefix())
@@ -193,16 +212,15 @@ func (m *etcd) Get() configx.Value {
 }
 
 func (m *etcd) Val(path ...string) configx.Values {
-	return &values{committed: m.committed, ops: m.ops, prefix: m.prefix, path: strings.Join(path, "/"), opts: m.opts}
+	return &values{committed: m.committed, uncommitted: m.uncommitted, ops: m.ops, prefix: m.prefix, path: strings.Join(path, "/"), opts: m.opts}
 }
 
 func (m *etcd) Set(data interface{}) error {
-	c := configx.New(m.opts...)
-	if err := c.Set(data); err != nil {
+	if err := m.uncommitted.Set(data); err != nil {
 		return err
 	}
 
-	m.ops <- clientv3.OpPut(m.prefix, string(c.Bytes()))
+	m.ops <- clientv3.OpPut(m.prefix, string(m.uncommitted.Bytes()))
 
 	return nil
 }
@@ -267,7 +285,13 @@ func (m *etcd) save(ctx context.Context) {
 }
 
 func (m *etcd) Save(ctxUser string, ctxMessage string) error {
-	m.saveCh <- true
+	if m.withKeys {
+		m.saveCh <- true
+	} else {
+		if _, err := m.cli.Put(context.Background(), m.prefix, string(m.uncommitted.Bytes()), clientv3.WithLease(m.leaseID)); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
@@ -294,6 +318,7 @@ func (m *etcd) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		paths:       o.Paths,
 		changesOnly: o.ChangesOnly,
 		opts:        m.opts,
+		v:           m.committed,
 		timer:       time.NewTimer(2 * time.Second),
 	}
 
@@ -360,7 +385,8 @@ func (r *receiver) Next() (interface{}, error) {
 				return c, nil
 			}
 
-			return r.v.Val(), nil
+			// TODO
+			return r.v.Val(r.paths[0]...), nil
 		}
 	}
 }
@@ -371,8 +397,9 @@ func (r *receiver) Stop() {
 }
 
 type values struct {
-	committed configx.Values
-	ops       chan clientv3.Op
+	committed   configx.Values
+	uncommitted configx.Values
+	ops         chan clientv3.Op
 
 	prefix string
 	path   string
@@ -380,7 +407,7 @@ type values struct {
 }
 
 func (v *values) Set(value interface{}) error {
-	c := configx.New(v.opts...)
+	c := v.uncommitted.Val(v.path)
 	if err := c.Set(value); err != nil {
 		return err
 	}
@@ -395,6 +422,10 @@ func (v *values) Get() configx.Value {
 }
 
 func (v *values) Del() error {
+	if err := v.uncommitted.Val(v.path).Del(); err != nil {
+		return err
+	}
+
 	v.ops <- clientv3.OpDelete(strings.Join([]string{v.prefix, v.path}, "/"))
 	return nil
 }
@@ -403,7 +434,7 @@ func (v *values) Val(path ...string) configx.Values {
 	if v.path != "" {
 		path = append([]string{v.path}, path...)
 	}
-	return &values{committed: v.committed, ops: v.ops, prefix: v.prefix, path: strings.Join(path, "/"), opts: v.opts}
+	return &values{committed: v.committed, uncommitted: v.uncommitted, ops: v.ops, prefix: v.prefix, path: strings.Join(path, "/"), opts: v.opts}
 }
 
 func (v *values) Default(i interface{}) configx.Value {
