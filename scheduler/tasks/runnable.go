@@ -123,13 +123,12 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 		r.Task.Done(1)
 	}()
 	for i, action := range aa {
-		act := action
 		chainIndex := i
 		errs := make(chan error)
 		messagesOutput := make(chan jobs.ActionMessage)
 		failedFilter := make(chan jobs.ActionMessage)
 		done := make(chan bool, 1)
-		go func() {
+		go func(act *jobs.Action) {
 			defer func() {
 				close(messagesOutput)
 				close(done)
@@ -145,7 +144,7 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 					m := proto.Clone(&message).(*jobs.ActionMessage)
 					enqueued++
 					r.Task.Add(1)
-					Queue <- NewRunnable(r.Context, chainIndex, r.Task, action, m)
+					Queue <- NewRunnable(r.Context, chainIndex, r.Task, act, m)
 
 				case failed := <-failedFilter:
 					// Filter failed
@@ -155,7 +154,7 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 					}
 
 				case err := <-errs:
-					_, ct := nextContextPath(r.Context, action.ID, chainIndex)
+					_, ct := nextContextPath(r.Context, act.ID, chainIndex)
 					log.TasksLogger(ct).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
 					log.Logger(r.Context).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
 					r.Task.SetError(err, false)
@@ -163,7 +162,7 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 				case <-done:
 					// For ROOT that is not event-based (jobTrigger = manual or scheduled), check if nothing happened at all
 					if parentPath == "ROOT" && enqueued == 0 && strings.Contains(input.GetEvent().GetTypeUrl(), "jobs.JobTriggerEvent") {
-						_, ct := nextContextPath(r.Context, action.ID, chainIndex)
+						_, ct := nextContextPath(r.Context, act.ID, chainIndex)
 						log.TasksLogger(ct).Warn("Initial query retrieved no values, stopping job now")
 						Queue <- NewRunnable(r.Context, chainIndex, r.Task, &jobs.Action{ID: actions.IgnoredActionName}, &jobs.ActionMessage{})
 					}
@@ -171,7 +170,7 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 
 				}
 			}
-		}()
+		}(action)
 		in := proto.Clone(input).(*jobs.ActionMessage)
 		action.ToMessages(*in, r.Context, messagesOutput, failedFilter, errs, done)
 	}
