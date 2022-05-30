@@ -256,7 +256,7 @@ func (s *serviceRegistry) Watch(opts ...registry.Option) (registry.Watcher, erro
 		// This is a first watch, setup a stream - opts are empty
 		stream, err := s.client.Watch(context.Background(), &pb.WatchRequest{
 			Options: &pb.Options{
-				Types: []pb.ItemType{pb.ItemType_SERVER, pb.ItemType_SERVICE, pb.ItemType_EDGE},
+				Types: []pb.ItemType{pb.ItemType_SERVER, pb.ItemType_SERVICE, pb.ItemType_ADDRESS, pb.ItemType_ENDPOINT, pb.ItemType_EDGE},
 			},
 		}, s.callOpts()...)
 		if err != nil {

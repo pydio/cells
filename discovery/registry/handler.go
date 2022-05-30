@@ -91,6 +91,7 @@ func (h *Handler) List(ctx context.Context, req *pb.ListRequest) (*pb.ListRespon
 			oo = append(oo, registry.WithName(name))
 		}
 	}
+
 	ss, err := h.reg.List(oo...)
 	if err != nil {
 		return nil, err

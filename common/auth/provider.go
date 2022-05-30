@@ -27,7 +27,6 @@ import (
 	hconf "github.com/ory/hydra/driver/config"
 	hconfx "github.com/ory/x/configx"
 	"github.com/ory/x/logrusx"
-	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
@@ -38,10 +37,10 @@ type ConfigurationProvider interface {
 	GetProvider() *hconf.Provider
 
 	// Clients lists all defined clients
-	Clients() common.Scanner
+	Clients() configx.Scanner
 
 	// Connectors lists all defined connectors
-	Connectors() common.Scanner
+	Connectors() configx.Scanner
 }
 
 var (
@@ -49,7 +48,7 @@ var (
 	confMutex   *sync.Mutex
 	defaultConf ConfigurationProvider
 
-	onConfigurationInits []func(scanner common.Scanner)
+	onConfigurationInits []func(scanner configx.Scanner)
 	confInit             bool
 )
 
@@ -77,7 +76,7 @@ func InitConfiguration(values configx.Values) {
 	confInit = true
 }
 
-func OnConfigurationInit(f func(scanner common.Scanner)) {
+func OnConfigurationInit(f func(scanner configx.Scanner)) {
 	onConfigurationInits = append(onConfigurationInits, f)
 
 	if confInit {
@@ -150,11 +149,11 @@ func (v *configurationProvider) GetProvider() *hconf.Provider {
 	return v.Provider
 }
 
-func (v *configurationProvider) Clients() common.Scanner {
+func (v *configurationProvider) Clients() configx.Scanner {
 	return v.v.Val("staticClients")
 }
 
-func (v *configurationProvider) Connectors() common.Scanner {
+func (v *configurationProvider) Connectors() configx.Scanner {
 	return v.v.Val("connectors")
 }
 

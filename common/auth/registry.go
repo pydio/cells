@@ -40,11 +40,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -256,7 +256,7 @@ func GetRegistrySQL() *driver.RegistrySQL {
 	return reg.(*driver.RegistrySQL)
 }
 
-func syncClients(ctx context.Context, s client.Storage, c common.Scanner) error {
+func syncClients(ctx context.Context, s client.Storage, c configx.Scanner) error {
 	var clients []*client.Client
 
 	if c == nil {

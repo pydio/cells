@@ -24,6 +24,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/v4/common/registry/util"
+
 	"google.golang.org/grpc/attributes"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -53,7 +55,12 @@ type resolverCallback struct {
 	localAddr string
 	reg       registry.Registry
 	ml        *sync.RWMutex
-	items     []registry.Item
+
+	servers   map[string]registry.Server
+	services  map[string]registry.Service
+	edges     map[string]registry.Edge
+	addresses map[string]registry.Generic
+	endpoints map[string]registry.Generic
 
 	updatedStateTimer *time.Timer
 	cbs               []UpdateStateCallback
@@ -68,6 +75,11 @@ func NewResolverCallback(reg registry.Registry) (ResolverCallback, error) {
 	r := &resolverCallback{
 		localAddr: runtime.DefaultAdvertiseAddress(),
 		done:      make(chan bool, 1),
+		servers:   make(map[string]registry.Server),
+		services:  make(map[string]registry.Service),
+		edges:     make(map[string]registry.Edge),
+		addresses: make(map[string]registry.Generic),
+		endpoints: make(map[string]registry.Generic),
 	}
 	r.reg = reg
 	r.ml = &sync.RWMutex{}
@@ -96,10 +108,11 @@ func (r *resolverCallback) Add(cb UpdateStateCallback) {
 
 func (r *resolverCallback) watch() {
 	w, err := r.reg.Watch(
-		registry.WithAction(pb.ActionType_FULL_LIST),
 		registry.WithType(pb.ItemType_SERVER),
 		registry.WithType(pb.ItemType_SERVICE),
 		registry.WithType(pb.ItemType_EDGE),
+		registry.WithType(pb.ItemType_ADDRESS),
+		registry.WithType(pb.ItemType_ENDPOINT),
 	)
 	if err != nil {
 		return
@@ -112,7 +125,57 @@ func (r *resolverCallback) watch() {
 		}
 
 		r.ml.Lock()
-		r.items = res.Items()
+		if res.Action() == pb.ActionType_CREATE || res.Action() == pb.ActionType_UPDATE {
+			for _, item := range res.Items() {
+				switch util.DetectType(item) {
+				case pb.ItemType_SERVER:
+					var s registry.Server
+					if item.As(&s) {
+						r.servers[item.ID()] = s
+					}
+				case pb.ItemType_SERVICE:
+					var s registry.Service
+					if item.As(&s) {
+						r.services[item.ID()] = s
+					}
+				case pb.ItemType_EDGE:
+					var e registry.Edge
+					if item.As(&e) {
+						// Don't really care for edge update
+						if res.Action() == pb.ActionType_UPDATE {
+							continue
+						}
+
+						r.edges[item.ID()] = e
+					}
+				case pb.ItemType_ADDRESS:
+					var g registry.Generic
+					if item.As(&g) {
+						r.addresses[item.ID()] = g
+					}
+				case pb.ItemType_ENDPOINT:
+					var g registry.Generic
+					if item.As(&g) {
+						r.endpoints[item.ID()] = g
+					}
+				}
+			}
+		} else if res.Action() == pb.ActionType_DELETE {
+			for _, item := range res.Items() {
+				switch util.DetectType(item) {
+				case pb.ItemType_SERVER:
+					delete(r.servers, item.ID())
+				case pb.ItemType_SERVICE:
+					delete(r.services, item.ID())
+				case pb.ItemType_EDGE:
+					delete(r.edges, item.ID())
+				case pb.ItemType_ADDRESS:
+					delete(r.addresses, item.ID())
+				case pb.ItemType_ENDPOINT:
+					delete(r.endpoints, item.ID())
+				}
+			}
+		}
 		r.ml.Unlock()
 
 		r.updatedStateTimer.Reset(50 * time.Millisecond)
@@ -132,61 +195,39 @@ func (r *resolverCallback) updateState() {
 
 func (r *resolverCallback) sendState() {
 	var m = make(map[string]*ServerAttributes)
-	services := make(map[string]registry.Service)
-	var edges []registry.Edge
-
-	//items, err := r.reg.List(
-	//	registry.WithType(pb.ItemType_SERVER),
-	//	registry.WithType(pb.ItemType_SERVICE),
-	//	registry.WithType(pb.ItemType_EDGE),
-	//)
-	//if err != nil {
-	//	return
-	//}
 
 	r.ml.RLock()
-	for _, v := range r.items {
-		var srv registry.Server
-		var edge registry.Edge
-		var service registry.Service
-		if v.As(&srv) {
-			var addresses, endpoints []string
-			for _, a := range r.reg.ListAdjacentItems(srv, registry.WithType(pb.ItemType_ADDRESS)) {
-				addresses = append(addresses, a.Name())
-			}
-			for _, e := range r.reg.ListAdjacentItems(srv, registry.WithType(pb.ItemType_ENDPOINT)) {
-				endpoints = append(endpoints, e.Name())
-			}
-			atts := attributes.New(attKeyTargetServerID{}, srv.ID())
-			if pid, ok := srv.Metadata()[runtime.NodeMetaPID]; ok {
-				atts = atts.WithValue(attKeyTargetServerPID{}, pid)
-			}
-			m[srv.ID()] = &ServerAttributes{
-				Name:               srv.Name(),
-				Addresses:          addresses,
-				Endpoints:          endpoints,
-				BalancerAttributes: atts,
-			}
-		} else if v.As(&edge) {
-			edges = append(edges, edge)
-		} else if v.As(&service) {
-			services[service.ID()] = service
+
+	for _, srv := range r.servers {
+		atts := attributes.New(attKeyTargetServerID{}, srv.ID())
+		if pid, ok := srv.Metadata()[runtime.NodeMetaPID]; ok {
+			atts = atts.WithValue(attKeyTargetServerPID{}, pid)
+		}
+		m[srv.ID()] = &ServerAttributes{
+			Name:               srv.Name(),
+			BalancerAttributes: atts,
 		}
 	}
 
-	for id, attr := range m {
-		var srvIds []string
-		for _, e := range edges {
+	for srvID, attr := range m {
+		var ids []string
+		for _, e := range r.edges {
 			vv := e.Vertices()
-			if vv[0] == id {
-				srvIds = append(srvIds, vv[1])
-			} else if vv[1] == id {
-				srvIds = append(srvIds, vv[0])
+			if vv[0] == srvID {
+				ids = append(ids, vv[1])
+			} else if vv[1] == srvID {
+				ids = append(ids, vv[0])
 			}
 		}
-		for _, srvId := range srvIds {
-			if srv, ok := services[srvId]; ok {
-				attr.Services = append(attr.Services, srv.Name())
+		for _, id := range ids {
+			if svc, ok := r.services[id]; ok {
+				attr.Services = append(attr.Services, svc.Name())
+			}
+			if addr, ok := r.addresses[id]; ok {
+				attr.Addresses = append(attr.Addresses, addr.Name())
+			}
+			if endpoint, ok := r.endpoints[id]; ok {
+				attr.Endpoints = append(attr.Endpoints, endpoint.Name())
 			}
 		}
 	}

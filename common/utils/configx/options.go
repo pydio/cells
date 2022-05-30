@@ -55,7 +55,7 @@ func (j *jsonReader) Unmarshal(data []byte, out interface{}) error {
 	case proto.Message:
 		err = protojson.UnmarshalOptions{DiscardUnknown: true}.Unmarshal(data, v)
 	default:
-		err = json.Unmarshal(data, v)
+		err = json.Unmarshal(data, &v)
 	}
 
 	return err

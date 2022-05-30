@@ -221,5 +221,4 @@ func (j *jsonItemWriter) Marshal(in interface{}) ([]byte, error) {
 	}
 
 	return json.Marshal(in)
-	// return nil, fmt.Errorf("should not be here in marshal %v", in)
 }

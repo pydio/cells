@@ -174,7 +174,7 @@ func (f *file) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		opt(o)
 	}
 
-	path := o.Path
+	path := o.Paths[0]
 
 	r := &receiver{
 		closed:  false,

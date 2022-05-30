@@ -133,7 +133,7 @@ func WatchMap(opts ...configx.WatchOption) (chan configx.KV, error) {
 		opt(o)
 	}
 
-	if err := Get(o.Path...).Scan(&snap); err != nil {
+	if err := Get(o.Paths[0]...).Scan(&snap); err != nil {
 		return nil, err
 	}
 	watcher, err := Watch(opts...)

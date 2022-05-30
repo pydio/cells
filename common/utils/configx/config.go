@@ -18,7 +18,7 @@ var (
 )
 
 type Scanner interface {
-	Scan(interface{}) error
+	Scan(interface{}, ...Option) error
 }
 
 type Watcher interface {
@@ -33,13 +33,13 @@ type Receiver interface {
 type WatchOption func(*WatchOptions)
 
 type WatchOptions struct {
-	Path        []string
+	Paths       [][]string
 	ChangesOnly bool
 }
 
 func WithPath(path ...string) WatchOption {
 	return func(o *WatchOptions) {
-		o.Path = path
+		o.Paths = append(o.Paths, path)
 	}
 }
 
@@ -269,7 +269,6 @@ func (c *config) Set(data interface{}) error {
 		case []byte:
 			if len(vv) > 0 {
 				if err := c.opts.Unmarshaler.Unmarshal(vv, &data); err != nil {
-					fmt.Println("Unmarhsla ", err)
 					return err
 				}
 			}
@@ -282,17 +281,16 @@ func (c *config) Set(data interface{}) error {
 	}
 
 	// convert data to map
-	switch reflect.ValueOf(data).Kind() {
+	/*switch reflect.ValueOf(data).Kind() {
 	case reflect.Struct:
 		var out map[string]interface{}
 
 		if err := mapstructure.Decode(data, &out); err != nil {
-			fmt.Println("Is is in decode ? ", err)
 			return err
 		}
 
 		data = out
-	}
+	}*/
 
 	if len(c.k) == 0 {
 		if c.opts.SetCallback != nil {
@@ -477,7 +475,9 @@ func (c *config) Val(s ...string) Values {
 }
 
 // Scan to interface
-func (c *config) Scan(val interface{}) error {
+func (c *config) Scan(val interface{}, options ...Option) error {
+	opts := c.opts
+
 	if mtx := c.opts.RWMutex; mtx != nil {
 		mtx.RLock()
 		defer mtx.RUnlock()
@@ -488,7 +488,14 @@ func (c *config) Scan(val interface{}) error {
 		return nil
 	}
 
-	marshaller := c.opts.Marshaller
+	if len(options) > 0 {
+		opts = Options{}
+		for _, o := range options {
+			o(&opts)
+		}
+	}
+
+	marshaller := opts.Marshaller
 	if marshaller == nil {
 		rtarget := reflect.ValueOf(val)
 		rtargetValType := reflect.TypeOf(val).Elem()
@@ -550,7 +557,7 @@ func (c *config) Scan(val interface{}) error {
 		return nil
 	}
 
-	unmarshaler := c.opts.Unmarshaler
+	unmarshaler := opts.Unmarshaler
 	if unmarshaler == nil {
 		return ErrNoUnmarshalerDefined
 	}

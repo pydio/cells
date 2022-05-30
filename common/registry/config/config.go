@@ -28,6 +28,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/v4/common/registry/util"
+
 	"github.com/pydio/cells/v4/common/utils/configx"
 
 	"github.com/pydio/cells/v4/common/config/memory"
@@ -179,19 +181,17 @@ func (c *configRegistry) watch() error {
 		}
 
 		for _, broadcaster := range c.broadcasters {
-			sendFullList := false
 			var opts []registry.Option
 			for _, itemType := range broadcaster.Types {
 				opts = append(opts, registry.WithType(itemType))
 
-				create := res.(configx.Values).Val("create", "v")
-				update := res.(configx.Values).Val("update", "v")
-				delete := res.(configx.Values).Val("delete", "v")
+				create := res.(configx.Values).Val("create")
+				update := res.(configx.Values).Val("update")
+				delete := res.(configx.Values).Val("delete")
 
 				v1 := create.Val(getFromItemType(itemType))
-				if v1.Get() != nil {
-					sendFullList = true
 
+				if v1.Get() != nil {
 					itemsMap := map[string]registry.Item{}
 					if err := v1.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
 						fmt.Println("there is an error here ?", err)
@@ -211,7 +211,6 @@ func (c *configRegistry) watch() error {
 
 				v2 := update.Val(getFromItemType(itemType))
 				if v2.Get() != nil {
-					sendFullList = true
 
 					itemsMap := map[string]registry.Item{}
 					if err := v2.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
@@ -232,7 +231,6 @@ func (c *configRegistry) watch() error {
 
 				v3 := delete.Val(getFromItemType(itemType))
 				if v3.Get() != nil {
-					sendFullList = true
 
 					itemsMap := map[string]registry.Item{}
 					if err := v3.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
@@ -250,18 +248,8 @@ func (c *configRegistry) watch() error {
 					default:
 					}
 				}
-			}
 
-			if sendFullList {
-				items, err := c.List(opts...)
-				if err != nil {
-					continue
-				}
-
-				select {
-				case broadcaster.Ch <- registry.NewResult(pb.ActionType_FULL_LIST, items):
-				default:
-				}
+				// fmt.Println(itemType, v1.Interface(), v2.Interface(), v3.Interface())
 			}
 		}
 	}
@@ -407,6 +395,10 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 
 	var res []registry.Item
 
+	if c.store.Get() == nil {
+		return res, nil
+	}
+
 	for _, itemType := range o.Types {
 		var store configx.Values
 		switch itemType {
@@ -434,14 +426,23 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 			store = c.store.Val("other")
 		}
 
-		items := map[string]registry.Item{}
 		if store.Get() == nil {
 			return res, nil
 		}
 
-		if err := store.Get().Default(map[string]registry.Item{}).Scan(items); err != nil {
-			//fmt.Println("No items retrieved in list")
-			// do nothing
+		rawItems, ok := store.Get().Default(map[string]interface{}{}).Interface().(map[string]interface{})
+		if !ok {
+			return res, nil
+		}
+
+		items := make(map[string]registry.Item)
+		for k, rawItem := range rawItems {
+			switch ri := rawItem.(type) {
+			case registry.Item:
+				items[k] = ri
+			case *pb.Item:
+				items[k] = util.ToItem(ri)
+			}
 		}
 
 		for _, item := range items {

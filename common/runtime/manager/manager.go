@@ -89,7 +89,7 @@ func NewManager(reg registry.Registry, srcUrl string, namespace string) Manager 
 		m.root = current
 	} else {
 		node := util.CreateNode()
-		if er := reg.Register(node); er == nil {
+		if er := reg.Register(registry.Item(node)); er == nil {
 			m.root = node
 			if parent != nil {
 				m.rootIsFork = true

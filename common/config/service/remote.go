@@ -220,7 +220,7 @@ func (r *remote) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		opt(o)
 	}
 
-	path := o.Path
+	path := o.Paths[0]
 
 	rcvr := &receiver{
 		exit:    make(chan bool),
@@ -401,6 +401,6 @@ func (v *values) Map() map[string]interface{} {
 	return v.Get().Map()
 }
 
-func (v *values) Scan(i interface{}) error {
-	return v.Get().Scan(i)
+func (v *values) Scan(i interface{}, opts ...configx.Option) error {
+	return v.Get().Scan(i, opts...)
 }

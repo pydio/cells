@@ -156,7 +156,7 @@ func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 	r := &receiver{
 		closed:      false,
 		ch:          make(chan diff.Change),
-		path:        o.Path,
+		paths:       o.Paths,
 		m:           m,
 		timer:       time.NewTimer(2 * time.Second),
 		changesOnly: o.ChangesOnly,
@@ -171,7 +171,7 @@ type receiver struct {
 	closed bool
 	ch     chan diff.Change
 
-	path        []string
+	paths       [][]string
 	changesOnly bool
 
 	timer *time.Timer
@@ -184,8 +184,15 @@ func (r *receiver) call(op diff.Change) error {
 		return errClosedChannel
 	}
 
-	if strings.Join(r.path, "") == "" || strings.HasPrefix(strings.Join(r.path, "/"), strings.Join(op.Path, "/")) {
+	if len(r.paths) == 0 {
 		r.ch <- op
+	}
+
+	for _, path := range r.paths {
+		fmt.Println(path, op.Path)
+		if strings.Join(path, "") == "" || strings.HasPrefix(strings.Join(path, "/"), strings.Join(op.Path, "/")) {
+			r.ch <- op
+		}
 	}
 	return nil
 }
@@ -204,7 +211,7 @@ func (r *receiver) Next() (interface{}, error) {
 
 			if r.changesOnly {
 				for _, op := range changes {
-					if err := c.Val(op.Type).Val(op.Path...).Set(op.To); err != nil {
+					if err := c.Val(op.Type).Val(op.Path[1:]...).Set(op.To); err != nil {
 						return nil, err
 					}
 				}
@@ -213,12 +220,12 @@ func (r *receiver) Next() (interface{}, error) {
 			}
 
 			for _, op := range changes {
-				if err := c.Val(op.Path...).Set(op.To); err != nil {
+				if err := c.Val(op.Path[1:]...).Set(op.To); err != nil {
 					return nil, err
 				}
 			}
 
-			return c.Val("v"), nil
+			return c, nil
 		}
 	}
 

@@ -115,7 +115,7 @@ func init() {
 			}),
 		)
 
-		auth.OnConfigurationInit(func(scanner common.Scanner) {
+		auth.OnConfigurationInit(func(scanner configx.Scanner) {
 			var m []struct {
 				ID   string
 				Name string
