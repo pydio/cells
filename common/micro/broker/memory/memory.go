@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
+	"os"
 	"sync"
 	"time"
 
@@ -123,7 +124,11 @@ func (m *memoryBroker) Publish(topic string, msg *broker.Message, opts ...broker
 	}
 	copy(cM.Body, msg.Body)
 
-	m.bus.TryPub(cM, topic)
+	if os.Getenv("CELLS_BROKER_TRYPUB") == "true" {
+		m.bus.TryPub(cM, topic)
+	} else {
+		m.bus.Pub(cM, topic)
+	}
 	return nil
 }
 
