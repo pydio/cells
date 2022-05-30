@@ -34,6 +34,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/runtime"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/discovery/install/lib"
 )
@@ -289,7 +290,7 @@ func promptDocumentsDSN(c *install.InstallConfig) error {
 	case "bleve", "boltdb":
 		fileP := p.Prompt{
 			Label:   "Provide a filepath to the on-file database",
-			Default: config.ApplicationWorkingDir(config.ApplicationDirServices) + "/",
+			Default: runtime.ApplicationWorkingDir(runtime.ApplicationDirServices) + "/",
 		}
 		fpath, e := fileP.Run()
 		if e != nil {

@@ -160,7 +160,7 @@ func New(ctx context.Context, dir string) (server.Server, error) {
 
 	mux.RegisterServerMux(ctx, srvMUX)
 
-	caddyStorePath := filepath.Join(config.ApplicationWorkingDir(), "caddy")
+	caddyStorePath := filepath.Join(runtime.ApplicationWorkingDir(), "caddy")
 	_ = os.MkdirAll(caddyStorePath, 0755)
 	if _, e := os.Stat(caddyStorePath); e == nil {
 		caddy.DefaultStorage.Path = caddyStorePath

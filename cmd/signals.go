@@ -1,3 +1,4 @@
+//go:build !windows
 // +build !windows
 
 /*
@@ -35,8 +36,8 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 var (
@@ -72,7 +73,7 @@ func handleSignals(args []string) {
 						startTags = strings.Join(args, "-")
 					}
 
-					targetDir := filepath.Join(config.ApplicationWorkingDir(config.ApplicationDirLogs), "profiles", startTags)
+					targetDir := filepath.Join(runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs), "profiles", startTags)
 					os.MkdirAll(targetDir, 0755)
 					tStamp := time.Now().Format("2006-01-02T15:04:05")
 

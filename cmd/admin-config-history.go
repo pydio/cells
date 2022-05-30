@@ -33,7 +33,7 @@ import (
 	"github.com/yudai/gojsondiff/formatter"
 
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/utils/filex"
+	"github.com/pydio/cells/v4/common/config/revisions"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -60,7 +60,7 @@ DESCRIPTION
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		store := config.VersionsStore
+		store := config.RevisionsStore()
 
 		if configVersionShow != "" {
 			if id, e := strconv.ParseUint(configVersionShow, 10, 64); e == nil {
@@ -91,7 +91,7 @@ DESCRIPTION
 				if e != nil {
 					log.Fatal("Cannot retrieve this version")
 				}
-				var previousVersion *filex.Version
+				var previousVersion *revisions.Version
 				if targetVersionDiff != "" {
 					targetId, e := strconv.ParseUint(targetVersionDiff, 10, 64)
 					if e != nil {

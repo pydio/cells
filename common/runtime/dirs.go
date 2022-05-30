@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package config
+package runtime
 
 import (
 	"log"

@@ -30,7 +30,6 @@ import (
 
 	"github.com/pydio/cells/v4/broker/log"
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
@@ -67,7 +66,7 @@ func init() {
 				service.WithStorageMigrator(jobs.Migrate),
 				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return boltdb.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "jobs.db")
+					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(ServiceName), "jobs.db")
 				}),
 			),
 			service.WithIndexer(log.NewDAO,
@@ -75,7 +74,7 @@ func init() {
 				service.WithStorageMigrator(log.Migrate),
 				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return bleve.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "tasklogs.bleve?mapping=log&rotationSize=-1")
+					return bleve.Driver, filepath.Join(runtime.MustServiceDataDir(ServiceName), "tasklogs.bleve?mapping=log&rotationSize=-1")
 				}),
 			),
 			service.Migrations([]*service.Migration{

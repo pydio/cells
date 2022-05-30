@@ -25,7 +25,9 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/manifoldco/promptui"
 	utilnet "k8s.io/apimachinery/pkg/util/net"
@@ -120,11 +122,15 @@ func BrokerURL() string {
 
 // ConfigURL returns the scheme://address url for Config
 func ConfigURL() string {
+	v := r.GetString(KeyConfig)
 	if !r.IsSet(KeyConfig) && r.IsSet(KeyDiscovery) {
-		return r.GetString(KeyDiscovery)
+		v = r.GetString(KeyDiscovery)
 	}
-
-	return r.GetString(KeyConfig)
+	if u, e := url.Parse(v); e == nil && strings.TrimLeft(u.Path, "/") == "" {
+		u.Path = "/config"
+		v = u.String()
+	}
+	return v
 }
 
 // ConfigIsLocalFile checks if ConfigURL scheme is file
@@ -134,6 +140,33 @@ func ConfigIsLocalFile() bool {
 	} else {
 		return false
 	}
+}
+
+func VaultURL(withMaster string) string {
+	var u *url.URL
+	var e error
+	if r.IsSet(KeyVault) && r.GetString(KeyVault) != "" && r.GetString(KeyVault) != "detect" {
+		u, e = url.Parse(r.GetString(KeyVault))
+	} else {
+		u, e = url.Parse(ConfigURL())
+	}
+	if e != nil {
+		return ""
+	}
+	if u.Scheme == "file" {
+		// Replace basename with pydio-vault.json
+		u.Path = filepath.Join(filepath.Dir(u.Path), DefaultVaultFileName)
+	} else {
+		u.Path = "vault"
+	}
+	q := u.Query()
+	q.Set("masterKey", withMaster)
+	u.RawQuery = q.Encode()
+	return u.String()
+}
+
+func KeyringURL() string {
+	return r.GetString(KeyKeyring)
 }
 
 // HttpServerType returns one of HttpServerCaddy or HttpServerCore
@@ -185,16 +218,6 @@ func LogToFile() bool {
 // IsFork checks if the runtime is originally a fork of a different process
 func IsFork() bool {
 	return r.GetBool(KeyForkLegacy)
-}
-
-// IsLocal check if the environment runtime config is generated locally
-func IsLocal() bool {
-	return r.GetString(KeyConfig) == "local"
-}
-
-// IsRemote check if the environment runtime config is a remote server
-func IsRemote() bool {
-	return r.GetString(KeyConfig) == "remote" || r.GetString(KeyConfig) == "raft"
 }
 
 // MetricsEnabled returns if the metrics should be published or not
@@ -268,11 +291,15 @@ func BuildForkParams(cmd string) []string {
 		"--" + KeyHttpPort, "0",
 	}
 
+	defKR := "file://" + filepath.Join(ApplicationWorkingDir(), DefaultKeyringFileName) + "?keyring=true"
+	if r.GetString(KeyKeyring) != defKR {
+		params = append(params, "--"+KeyKeyring, r.GetString(KeyKeyring))
+	}
+
 	// Copy string arguments
 	strArgs := []string{
 		KeyBindHost,
 		KeyAdvertiseAddress,
-		// KeyConfig,
 	}
 
 	// Copy bool arguments

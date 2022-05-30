@@ -25,6 +25,8 @@ const (
 	KeyRegistry     = "registry"
 	KeyBroker       = "broker"
 	KeyConfig       = "config"
+	KeyVault        = "vault"
+	KeyKeyring      = "keyring"
 	KeyFork         = "fork"
 	KeyForkLegacy   = "is_fork"
 	KeyArgTags      = "tags"
@@ -73,6 +75,10 @@ const (
 	DefaultGrpcPort      = "8001"
 	DefaultDiscoveryPort = "8002"
 	DefaultHttpPort      = "8080"
+
+	DefaultConfigFileName  = "pydio.json"
+	DefaultVaultFileName   = "pydio-vault.json"
+	DefaultKeyringFileName = "cells-vault-key"
 )
 
 const (

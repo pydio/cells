@@ -40,6 +40,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.6.0
 	github.com/h2non/filetype v1.1.3
 	github.com/hashicorp/go-version v1.4.0
+	github.com/hashicorp/vault/api v1.5.0 // indirect
 	github.com/imdario/mergo v0.3.12
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/jaytaylor/go-hostsfile v0.0.0-20211120191712-f53f85d8b98f

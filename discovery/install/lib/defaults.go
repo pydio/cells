@@ -23,8 +23,8 @@ package lib
 import (
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/runtime"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/net"
 )
@@ -83,7 +83,7 @@ func GenerateDefaultConfig() *install.InstallConfig {
 	c.DbManualDSN = "root@tcp(localhost=3306)/cells"
 	c.DsName = "pydiods1"
 	c.DsPort = fmt.Sprintf("%d", net.GetAvailablePort())
-	c.DsFolder = config.ApplicationWorkingDir(config.ApplicationDirData)
+	c.DsFolder = runtime.ApplicationWorkingDir(runtime.ApplicationDirData)
 	c.FrontendApplicationTitle = "Pydio Cells"
 	c.FrontendDefaultLanguage = "en-us"
 	c.FrontendLogin = "admin"

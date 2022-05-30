@@ -72,7 +72,7 @@ func init() {
 				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
 				service.WithStorageMigrator(versions.Migrate),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return boltdb.Driver, filepath.Join(config.MustServiceDataDir(Name), "versions.db")
+					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "versions.db")
 				}),
 			),
 			//service.Unique(true),

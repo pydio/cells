@@ -14,7 +14,6 @@ import (
 	tally "github.com/uber-go/tally/v4"
 	"github.com/uber-go/tally/v4/prometheus"
 
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
@@ -65,7 +64,7 @@ func GetFileName(serviceName string) string {
 
 func WatchTargets(ctx context.Context, serviceName string) error {
 
-	d, e := config.ServiceDataDir(serviceName)
+	d, e := runtime.ServiceDataDir(serviceName)
 	if e != nil {
 		return e
 	}

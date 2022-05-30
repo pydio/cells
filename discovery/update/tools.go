@@ -48,9 +48,9 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/update"
+	runtime2 "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -144,7 +144,7 @@ func LoadUpdates(ctx context.Context, conf configx.Values, request *update.Updat
 			// Save license now : the check for update including license key passed without error,
 			// this license must thus be valid
 			log.Logger(ctx).Info("Saving LicenseKey to file now", zap.String("lic", lic))
-			filePath := filepath.Join(config.ApplicationWorkingDir(), "pydio-license")
+			filePath := filepath.Join(runtime2.ApplicationWorkingDir(), "pydio-license")
 			if err := ioutil.WriteFile(filePath, []byte(lic), 0644); err != nil {
 				return nil, fmt.Errorf("could not save license file to %s (%s), aborting upgrade", filePath, err.Error())
 			}
@@ -274,7 +274,7 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf configx.Values, dr
 		}
 
 		// Now try to move previous version to the services folder. Do not break on error, just Warn in the logs.
-		dataDir, _ := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceUpdate)
+		dataDir, _ := runtime2.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceUpdate)
 		backupPath := filepath.Join(dataDir, filepath.Base(backupFile))
 		if err := filesystem.SafeRenameFile(backupFile, backupPath); err != nil {
 			log.Logger(ctx).Warn("Update successfully applied but previous binary could not be moved to backup folder", zap.Error(err))

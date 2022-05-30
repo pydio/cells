@@ -46,8 +46,7 @@ import (
 )
 
 var (
-	scheme           = "grpc"
-	errClosedChannel = errors.New("channel is closed")
+	scheme = "grpc"
 )
 
 type URLOpener struct{}
@@ -73,17 +72,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		conn = c
 	}
 
-	//encode := u.Query().Get("encode")
-	//switch encode {
-	//case "string":
-	//	opts = append(opts, configx.WithString())
-	//case "yaml":
-	//	opts = append(opts, configx.WithYAML())
-	//case "json":
-	//	opts = append(opts, configx.WithJSON())
-	//}
-
-	store := New(context.Background(), conn, "config", strings.TrimLeft(u.Path, "/"))
+	store := New(context.Background(), conn, strings.TrimLeft(u.Path, "/"), "/")
 
 	return store, nil
 }

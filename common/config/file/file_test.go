@@ -7,11 +7,11 @@ import (
 )
 
 func TestFile(t *testing.T) {
-	c, err := New(os.TempDir() + "/config.tmp", true)
+	c, err := New(os.TempDir() + "/config.tmp")
 	if err != nil {
 		t.Fail()
 	}
-	c2, err := New(os.TempDir() + "/config.tmp", true)
+	c2, err := New(os.TempDir() + "/config.tmp")
 	if err != nil {
 		t.Fail()
 	}

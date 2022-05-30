@@ -428,7 +428,7 @@ func triggerInstall(message string, prompt string, cmd *cobra.Command, args []st
 		cmd.Println("If you have already gone through the basic configuration steps,")
 		cmd.Println("it may be that the configuration file is not accessible. Check the permissions.")
 		cmd.Println("")
-		cmd.Println("The Working Directory is " + config.ApplicationWorkingDir())
+		cmd.Println("The Working Directory is " + cruntime.ApplicationWorkingDir())
 		cmd.Println("")
 		cmd.Println("If you did not set the CELLS_WORKING_DIR environment variable, make sure you are ")
 		cmd.Println("launching the process as the correct OS user " + crtUser + ".")

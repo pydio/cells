@@ -105,7 +105,7 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 		store := etcd.NewSource(ctx, etcdConn, "registry", true, true, opts...)
 		reg = NewConfigRegistry(store, byName)
 	case "file":
-		store, err := file.New(u.Path, true, opts...)
+		store, err := file.New(u.Path, opts...)
 		if err != nil {
 			return nil, err
 		}

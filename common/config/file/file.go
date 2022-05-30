@@ -3,15 +3,23 @@ package file
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/memory"
+	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/filex"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 var (
@@ -28,22 +36,61 @@ func init() {
 }
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
-	autoUpdate := u.Query().Get("auto") == "true"
 
 	var opts []configx.Option
 	encode := u.Query().Get("encode")
+	if encode == "" { // Detect from file name
+		encode = strings.ToLower(strings.TrimLeft(filepath.Ext(u.Path), "."))
+	}
 	switch encode {
 	case "string":
 		opts = append(opts, configx.WithString())
 	case "yaml":
 		opts = append(opts, configx.WithYAML())
 	case "json":
-		opts = append(opts, configx.WithJSON())
+		opts = append(opts, configx.WithJSON(), configx.WithMarshaller(jsonIndent{}))
 	}
 
-	store, err := New(u.Path, autoUpdate, opts...)
+	if master := u.Query().Get("masterKey"); master != "" {
+		enc, err := crypto.NewVaultCipher(master)
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, configx.WithEncrypt(enc), configx.WithDecrypt(enc))
+	}
+
+	store, err := New(u.Path, opts...)
 	if err != nil {
-		return nil, err
+		// Try to upgrade legacy keyring
+		if u.Query().Get("keyring") != "true" {
+			return nil, err
+		}
+		b, err := filex.Read(u.Path)
+		if err != nil {
+			return nil, fmt.Errorf("could not start keyring store %v", err)
+		}
+		fmt.Println("[INFO] Upgrading Legacy Keyring Format")
+		mem := memory.New(configx.WithJSON())
+		keyring := crypto.NewConfigKeyring(mem)
+		data := base64.StdEncoding.EncodeToString(b)
+		if err := keyring.Set(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey, data); err != nil {
+			return nil, fmt.Errorf("could not start keyring store %v", err)
+		}
+
+		// Keyring Config is likely the old style - switching it
+		if err := os.Chmod(u.Path, 0600); err != nil {
+			return nil, fmt.Errorf("could not read keyring path %v", err)
+		}
+
+		if err := filex.Save(u.Path, mem.Get().Bytes()); err != nil {
+			return nil, fmt.Errorf("could not start keyring store %v", err)
+		}
+
+		// Keyring Config is likely the old style - switching it
+		if err := os.Chmod(u.Path, 0400); err != nil {
+			return nil, fmt.Errorf("could not read keyring path %v", err)
+		}
+		return New(u.Path, opts...)
 	}
 
 	return store, nil
@@ -62,7 +109,7 @@ type file struct {
 	receivers []*receiver
 }
 
-func New(path string, autoUpdate bool, opts ...configx.Option) (config.Store, error) {
+func New(path string, opts ...configx.Option) (config.Store, error) {
 	data, err := filex.Read(path)
 	if err != nil {
 		return nil, err
@@ -256,4 +303,11 @@ func (v *values) Del() error {
 	v.f.update()
 
 	return nil
+}
+
+type jsonIndent struct {
+}
+
+func (j jsonIndent) Marshal(v interface{}) ([]byte, error) {
+	return json.MarshalIndent(v, "", "  ")
 }
