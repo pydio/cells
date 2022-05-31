@@ -424,7 +424,7 @@ func (c *config) Val(s ...string) Values {
 	pk := keys
 
 	// Looking for the specific key
-	var current interface{} = root.Map()
+	var current interface{} = root.Interface()
 
 	if mtx := c.opts.RWMutex; mtx != nil {
 		mtx.RLock()
@@ -432,43 +432,95 @@ func (c *config) Val(s ...string) Values {
 	}
 
 	for _, pkk := range pk {
-		switch cv := current.(type) {
-		case map[interface{}]interface{}:
-			cvv, ok := cv[pkk]
-			if !ok {
-				// The parent doesn't actually exist here, we return the nil value
+		cvv := reflect.ValueOf(current)
+
+		switch cvv.Kind() {
+		case reflect.Ptr:
+			f := cvv.Elem().FieldByName(pkk)
+			if f.IsValid() {
+				current = f.Interface()
+			} else {
 				return &config{nil, nil, root, keys, c.opts}
 			}
-
-			current = cvv
-		case map[string]string:
-			cvv, ok := cv[pkk]
-			if !ok {
-				// The parent doesn't actually exist here, we return the nil value
+		case reflect.Struct:
+			f := cvv.FieldByName(pkk)
+			if f.IsValid() {
+				current = f.Interface()
+			} else {
 				return &config{nil, nil, root, keys, c.opts}
 			}
-
-			current = cvv
-		case map[string]interface{}:
-			cvv, ok := cv[pkk]
-			if !ok {
-				// The parent doesn't actually exist here, we return the nil value
+		case reflect.Map:
+			f := cvv.MapIndex(reflect.ValueOf(pkk))
+			if f.IsValid() {
+				current = f.Interface()
+			} else {
 				return &config{nil, nil, root, keys, c.opts}
 			}
-
-			current = cvv
-		case []interface{}:
+		case reflect.Slice:
 			i, err := strconv.Atoi(pkk)
-			if err != nil || i < 0 || i >= len(cv) {
+			if err != nil || i < 0 || i >= cvv.Len() {
 				return &config{nil, nil, root, keys, c.opts}
 			}
 
-			cvv := cv[i]
-
-			current = cvv
+			current = cvv.Index(i).Interface()
 		default:
 			return &config{nil, nil, root, keys, c.opts}
 		}
+
+		/*
+			switch cv := current.(type) {
+			case map[interface{}]interface{}:
+				cvv, ok := cv[pkk]
+				if !ok {
+					// The parent doesn't actually exist here, we return the nil value
+					return &config{nil, nil, root, keys, c.opts}
+				}
+
+				current = cvv
+			case map[string]string:
+				cvv, ok := cv[pkk]
+				if !ok {
+					// The parent doesn't actually exist here, we return the nil value
+					return &config{nil, nil, root, keys, c.opts}
+				}
+
+				current = cvv
+			case map[string]interface{}:
+				cvv, ok := cv[pkk]
+				if !ok {
+					// The parent doesn't actually exist here, we return the nil value
+					return &config{nil, nil, root, keys, c.opts}
+				}
+
+				current = cvv
+			case []interface{}:
+				i, err := strconv.Atoi(pkk)
+				if err != nil || i < 0 || i >= len(cv) {
+					return &config{nil, nil, root, keys, c.opts}
+				}
+
+				cvv := cv[i]
+
+				current = cvv
+
+			default:
+				cvv := reflect.ValueOf(cv)
+
+				switch cvv.Kind() {
+				case reflect.Ptr:
+					f := cvv.Elem().FieldByName(pkk)
+					if f.IsValid() {
+						current = f.Interface()
+					}
+				case reflect.Struct:
+					f := cvv.FieldByName(pkk)
+					if f.IsValid() {
+						current = f.Interface()
+					}
+				default:
+					return &config{nil, nil, root, keys, c.opts}
+				}
+			}*/
 	}
 
 	return &config{current, nil, root, keys, c.opts}
