@@ -427,12 +427,12 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 		}
 
 		if store.Get() == nil {
-			return res, nil
+			continue
 		}
 
 		rawItems, ok := store.Get().Default(map[string]interface{}{}).Interface().(map[string]interface{})
 		if !ok {
-			return res, nil
+			continue
 		}
 
 		items := make(map[string]registry.Item)
@@ -444,7 +444,6 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 				items[k] = util.ToItem(ri)
 			}
 		}
-
 		for _, item := range items {
 			found := false
 			for _, name := range o.Names {
