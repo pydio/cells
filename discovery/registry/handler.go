@@ -116,6 +116,17 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) er
 		opts = append(opts, registry.WithType(itemType))
 	}
 
+	// Send initial list as created items
+	res, err := h.reg.List(opts...)
+	if err != nil {
+		return err
+	}
+
+	stream.Send(&pb.Result{
+		Action: pb.ActionType_CREATE,
+		Items:  util.ToProtoItems(res),
+	})
+
 	w, err := h.reg.Watch(opts...)
 	if err != nil {
 		return err
