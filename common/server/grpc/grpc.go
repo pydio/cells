@@ -137,7 +137,6 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 	if s.Server != nil {
 		return s.Server
 	}
-	log.Logger(ctx).Info("Creating grpc server now")
 	gs := grpc.NewServer(
 		// grpc.MaxConcurrentStreams(1000),
 		grpc.ChainUnaryInterceptor(

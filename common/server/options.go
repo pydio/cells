@@ -33,8 +33,6 @@ type ServeOptions struct {
 
 	BeforeServe []func(oo ...registry.RegisterOption) error
 	AfterServe  []func(oo ...registry.RegisterOption) error
-	BeforeStop  []func(oo ...registry.RegisterOption) error
-	AfterStop   []func(oo ...registry.RegisterOption) error
 
 	RegistryOptions []registry.RegisterOption
 }
@@ -68,18 +66,6 @@ func WithBeforeServe(f func(oo ...registry.RegisterOption) error) ServeOption {
 func WithAfterServe(f func(oo ...registry.RegisterOption) error) ServeOption {
 	return func(o *ServeOptions) {
 		o.AfterServe = append(o.AfterServe, f)
-	}
-}
-
-func WithBeforeStop(f func(oo ...registry.RegisterOption) error) ServeOption {
-	return func(o *ServeOptions) {
-		o.BeforeStop = append(o.BeforeStop, f)
-	}
-}
-
-func WithAfterStop(f func(oo ...registry.RegisterOption) error) ServeOption {
-	return func(o *ServeOptions) {
-		o.AfterStop = append(o.AfterStop, f)
 	}
 }
 

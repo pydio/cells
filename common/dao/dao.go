@@ -44,6 +44,7 @@ type DaoWrapperFunc func(context.Context, DAO) (DAO, error)
 
 var daoConns map[string]ConnProviderFunc
 var daoDrivers map[string]DaoProviderFunc
+var daoShared map[string]bool
 var indexersDrivers map[string]IndexerWrapperFunc
 
 // DAO interface definition
@@ -67,13 +68,22 @@ type DAO interface {
 func init() {
 	daoConns = make(map[string]ConnProviderFunc)
 	daoDrivers = make(map[string]DaoProviderFunc)
+	daoShared = make(map[string]bool)
 	indexersDrivers = make(map[string]IndexerWrapperFunc)
 }
 
-// RegisterDAODriver registers factories for DAOs and Connections
+// RegisterDAODriver registers factories for DAOs and Connections that are storing data on-file (cannot be shared across multiple nodes)
 func RegisterDAODriver(name string, daoF DaoProviderFunc, connF ConnProviderFunc) {
 	daoDrivers[name] = daoF
 	daoConns[name] = connF
+	daoShared[name] = false
+}
+
+// RegisterSharedDAODriver registers factories for DAOs and Connections that can be shared across multiple nodes
+func RegisterSharedDAODriver(name string, daoF DaoProviderFunc, connF ConnProviderFunc) {
+	daoDrivers[name] = daoF
+	daoConns[name] = connF
+	daoShared[name] = true
 }
 
 // RegisterIndexerDriver registers factories for Indexers
@@ -130,4 +140,16 @@ func InitIndexer(ctx context.Context, driver, dsn, prefix string, wrapper DaoWra
 		}
 	}
 	return d.(IndexDAO), nil
+}
+
+// IsShared indicates if a DAO is shared across services or a locked to a local file
+func IsShared(driverName string) (bool, error) {
+	if daoShared == nil {
+		return false, nil
+	}
+	if shared, ok := daoShared[driverName]; ok {
+		return shared, nil
+	} else {
+		return false, fmt.Errorf("cannot find DAO with driver name %s", driverName)
+	}
 }

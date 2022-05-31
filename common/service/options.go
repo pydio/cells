@@ -30,8 +30,6 @@ import (
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
-type ServerProvider func(ctx context.Context) (server.Server, error)
-
 // ServiceOptions stores all options for a pydio service
 type ServiceOptions struct {
 	Name string   `json:"name"`
@@ -52,12 +50,11 @@ type ServiceOptions struct {
 	// Port      string
 	TLSConfig *tls.Config
 
-	Server         server.Server  `json:"-"`
-	ServerProvider ServerProvider `json:"-"`
-	customScheme   string
-	serverType     server.Type
-	serverStart    func() error
-	serverStop     func() error
+	customScheme string
+	Server       server.Server `json:"-"`
+	serverType   server.Type
+	serverStart  func() error
+	serverStop   func() error
 
 	Dependencies []*dependency `json:"-"`
 
@@ -69,6 +66,7 @@ type ServiceOptions struct {
 
 	// Before and After funcs
 	BeforeStart []func(context.Context) error `json:"-"`
+	BeforeStop  []func(context.Context) error `json:"-"`
 	AfterServe  []func(context.Context) error `json:"-"`
 
 	UseWebSession      bool     `json:"-"`

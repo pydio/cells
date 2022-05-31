@@ -25,9 +25,9 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
-	"github.com/pydio/cells/v4/common/utils/configx"
-
+	"github.com/bep/debounce"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/pydio/cells/v4/common"
@@ -41,6 +41,13 @@ import (
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/configx"
+)
+
+const (
+	CommandStart   = "start"
+	CommandStop    = "stop"
+	CommandRestart = "restart"
 )
 
 type Manager interface {
@@ -181,7 +188,7 @@ func (m *manager) ServeAll(oo ...server.ServeOption) {
 		o(opt)
 	}
 	eg := &errgroup.Group{}
-	ss := m.serversWithStatus("stopped")
+	ss := m.serversWithStatus(registry.StatusStopped)
 	for _, srv := range ss {
 		func(srv server.Server) {
 			eg.Go(func() error {
@@ -197,12 +204,17 @@ func (m *manager) ServeAll(oo ...server.ServeOption) {
 }
 
 func (m *manager) StopAll() {
-	for _, srv := range m.serversWithStatus("ready") {
-		if err := srv.Stop(registry.WithDeregisterFull()); err != nil {
-			fmt.Println("Error stopping server ", err)
-		}
+	eg := &errgroup.Group{}
+	for _, srv := range m.serversWithStatus(registry.StatusReady) {
+		func(sr server.Server) {
+			eg.Go(func() error {
+				return m.stopServer(sr, registry.WithDeregisterFull())
+			})
+		}(srv)
 	}
-	//fmt.Println("Deregister Node")
+	if er := eg.Wait(); er != nil {
+		fmt.Println("error while stopping servers", er)
+	}
 	_ = m.reg.Deregister(m.root, registry.WithRegisterFailFast())
 }
 
@@ -210,10 +222,33 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 	opts := append(oo)
 	for _, svc := range m.services {
 		if svc.Options().Server == srv {
+			if svc.Options().Unique && m.regRunningService(svc.Name()) {
+				// There is already a running service here. Do not start now, watch registry and postpone start
+				fmt.Printf("There is already a running instance of %s. Do not start now, watch registry and postpone start\n", svc.Name())
+				go m.WatchUniqueNeedsStart(svc)
+				continue
+			}
 			opts = append(opts, m.serviceServeOptions(svc)...)
 		}
 	}
 	return srv.Serve(opts...)
+}
+
+func (m *manager) stopServer(srv server.Server, oo ...registry.RegisterOption) error {
+	// Stop all running services on this server
+	eg := &errgroup.Group{}
+	for _, svc := range m.servicesRunningOn(srv) {
+		func(sv service.Service) {
+			eg.Go(func() error {
+				return m.stopService(sv, oo...)
+			})
+		}(svc)
+	}
+	if er := eg.Wait(); er != nil {
+		return er
+	}
+	// Stop server now
+	return srv.Stop(oo...)
 }
 
 func (m *manager) startService(svc service.Service) error {
@@ -221,50 +256,61 @@ func (m *manager) startService(svc service.Service) error {
 	srv := svc.Options().Server
 	serveOptions := append(m.serveOptions, m.serviceServeOptions(svc)...)
 
-	if srv.Metadata()["status"] == "stopped" {
-		fmt.Println("Starting server " + srv.ID() + " now")
-		return srv.Serve(serveOptions...)
-	}
+	if srv.Is(registry.StatusStopped) {
 
-	fmt.Println("Server is running " + srv.ID() + " - Dynamically re-attach service?")
-	if srv.Type() == server.TypeGrpc {
-		fmt.Println("GRPC needs a restart, collect already running services")
-		for _, sv := range m.services {
-			if sv.Options().Server == srv && sv.Metadata()["status"] == "ready" {
-				fmt.Println("Will restart service " + sv.Name())
-				serveOptions = append(serveOptions, m.serviceServeOptions(sv)...)
-			}
+		fmt.Println("Server is not running, starting " + srv.ID() + " now")
+		return srv.Serve(serveOptions...)
+
+	} else if srv.NeedsRestart() {
+
+		fmt.Println("Server needs a restart to append a new service")
+		for _, sv := range m.servicesRunningOn(srv) {
+			serveOptions = append(serveOptions, m.serviceServeOptions(sv)...)
 		}
-		if er := srv.Stop(); er != nil {
+		if er := m.stopServer(srv); er != nil {
 			return er
 		}
 		return srv.Serve(serveOptions...)
+
 	} else {
-		fmt.Println("Start service directly, just register A Before Stop")
+
+		fmt.Println("Starting service")
 		if er := svc.Start(); er != nil {
 			return er
 		}
 		if er := svc.OnServe(); er != nil {
 			return er
 		}
-		srv.RegisterBeforeStop(svc.Stop)
+
 	}
 
 	return nil
+}
+
+func (m *manager) stopService(svc service.Service, oo ...registry.RegisterOption) error {
+	return svc.Stop(oo...)
 }
 
 func (m *manager) serviceServeOptions(svc service.Service) []server.ServeOption {
 	return []server.ServeOption{
 		server.WithBeforeServe(svc.Start),
 		server.WithAfterServe(svc.OnServe),
-		server.WithBeforeStop(svc.Stop),
 	}
 }
 
-func (m *manager) serversWithStatus(status string) (ss []server.Server) {
+func (m *manager) serversWithStatus(status registry.Status) (ss []server.Server) {
 	for _, srv := range m.servers {
-		if srv.Metadata()["status"] == status {
+		if srv.Is(status) {
 			ss = append(ss, srv)
+		}
+	}
+	return
+}
+
+func (m *manager) servicesRunningOn(server server.Server) (ss []service.Service) {
+	for _, svc := range m.services {
+		if svc.Server() == server && svc.Is(registry.StatusReady) {
+			ss = append(ss, svc)
 		}
 	}
 	return
@@ -280,10 +326,11 @@ func (m *manager) WatchServicesConfigs() {
 		if err != nil || len(ss) == 0 {
 			continue
 		}
-		var rs service.Service
-		if ss[0].As(&rs) && rs.Options().AutoRestart {
-			rs.Stop()
-			m.startService(rs)
+		var svc service.Service
+		if ss[0].As(&svc) && svc.Options().AutoRestart {
+			if er := m.stopService(svc); er == nil {
+				_ = m.startService(svc)
+			}
 		}
 	}
 }
@@ -301,51 +348,53 @@ func (m *manager) WatchBroker(ctx context.Context, br broker.Broker) error {
 			return err
 		}
 
-		var src service.Service
+		var svc service.Service
 		var srv server.Server
 		var rsrc registry.Service
 		var rsrv registry.Server
-		if s.As(&src) || s.As(&srv) {
+		if s.As(&svc) || s.As(&srv) {
 			// In-memory object found
 		} else if s.As(&rsrc) {
 			if mem, ok := m.services[s.ID()]; ok {
-				src = mem
+				svc = mem
 			}
 		} else if s.As(&rsrv) {
 			if mem, ok := m.servers[s.ID()]; ok {
 				srv = mem
 			}
 		}
-		if src == nil && srv == nil {
+		if svc == nil && srv == nil {
 			return nil
 		}
-
-		switch cmd {
-		case "start":
-			if src != nil {
-				return m.startService(src)
-			} else {
+		if svc != nil {
+			// Service Commands
+			switch cmd {
+			case CommandStart:
+				return m.startService(svc)
+			case CommandStop:
+				return m.stopService(svc)
+			case CommandRestart:
+				if er := m.stopService(svc); er != nil {
+					return er
+				}
+				return m.startService(svc)
+			default:
+				return fmt.Errorf("unsupported command %s", cmd)
+			}
+		} else if srv == nil {
+			// Server Commands
+			switch cmd {
+			case CommandStart:
 				return m.startServer(srv, m.serveOptions...)
-			}
-		case "restart":
-			if src != nil {
-				if er := src.Stop(); er == nil {
-					return m.startService(src)
-				} else {
+			case CommandStop:
+				return m.stopServer(srv)
+			case CommandRestart:
+				if er := m.stopServer(srv); er != nil {
 					return er
 				}
-			} else {
-				if er := srv.Stop(); er == nil {
-					return m.startServer(srv, m.serveOptions...)
-				} else {
-					return er
-				}
-			}
-		case "stop":
-			if src != nil {
-				return src.Stop()
-			} else {
-				return srv.Stop()
+				return m.startServer(srv, m.serveOptions...)
+			default:
+				return fmt.Errorf("unsupported command %s", cmd)
 			}
 		}
 		return nil
@@ -354,4 +403,36 @@ func (m *manager) WatchBroker(ctx context.Context, br broker.Broker) error {
 		fmt.Println("Manager cannot watch broker: ", er)
 	}
 	return er
+}
+
+func (m *manager) regRunningService(name string) bool {
+	ll, _ := m.reg.List(registry.WithType(pb.ItemType_SERVICE), registry.WithName(name))
+	for _, l := range ll {
+		if l.Metadata()[registry.MetaStatusKey] != string(registry.StatusStopped) {
+			return true
+		}
+	}
+	return false
+}
+
+func (m *manager) WatchUniqueNeedsStart(svc service.Service) {
+	db := debounce.New(5 * time.Second)
+	w, _ := m.reg.Watch(registry.WithType(pb.ItemType_SERVICE), registry.WithName(svc.Name()), registry.WithAction(pb.ActionType_ANY))
+	for {
+		_, er := w.Next()
+		if er != nil {
+			break
+		}
+		fmt.Println("Event received for service", svc.Name())
+		db(func() {
+			if !m.regRunningService(svc.Name()) {
+				fmt.Println("Starting unique service", svc.Name())
+				if er := m.startService(svc); er != nil {
+					fmt.Println("Error while starting unique service", svc.Name(), er.Error())
+				} else {
+					w.Stop()
+				}
+			}
+		})
+	}
 }

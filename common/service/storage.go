@@ -22,6 +22,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -113,12 +114,25 @@ func daoFromOptions(o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts
 		return nil, errors.Wrap(e, "dao.Initialization "+driver)
 	}
 
-	if c.LocalAccess() {
-		o.Unique = true
-	}
-
 	return c, nil
+}
 
+func isLocalDao(o *ServiceOptions, indexer bool, opts *StorageOptions) bool {
+
+	cfgKey := "storage"
+	if indexer {
+		cfgKey = "indexer"
+	}
+	driver, _, defined := config.GetStorageDriver(cfgKey, o.Name)
+	if !defined && opts.DefaultDriver != nil {
+		driver, _ = opts.DefaultDriver()
+	}
+	s, e := dao.IsShared(driver)
+	if e != nil {
+		fmt.Println("cannot check if driver is shared:" + e.Error())
+		return false
+	}
+	return !s
 }
 
 // WithStorage adds a storage handler to the current service
@@ -144,6 +158,23 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 			op(sOpts)
 		}
 		o.Storages = append(o.Storages, sOpts)
+		// Pre-check DAO config and add flag Unique if necessary
+		if isLocalDao(o, indexer, sOpts) {
+			o.Unique = true
+			o.BeforeStop = append(o.BeforeStop, func(ctx context.Context) error {
+				var stopDao dao.DAO
+				if indexer {
+					stopDao = servicecontext.GetIndexer(ctx)
+				} else {
+					stopDao = servicecontext.GetDAO(ctx)
+				}
+				if stopDao == nil {
+					return nil
+				}
+				log.Logger(ctx).Info("Closing DAO connection now")
+				return stopDao.CloseConn(ctx)
+			})
+		}
 		o.BeforeStart = append(o.BeforeStart, func(ctx context.Context) error {
 			d, err := daoFromOptions(o, fd, indexer, sOpts)
 			if err != nil {

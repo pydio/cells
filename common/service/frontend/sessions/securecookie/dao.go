@@ -31,7 +31,7 @@ import (
 const Driver = "securecookie"
 
 func init() {
-	dao.RegisterDAODriver(Driver, NewDAO, func(ctx context.Context, driver, dsn string) dao.ConnDriver {
+	dao.RegisterSharedDAODriver(Driver, NewDAO, func(ctx context.Context, driver, dsn string) dao.ConnDriver {
 		return &sConn{}
 	})
 }

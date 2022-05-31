@@ -42,7 +42,7 @@ import (
 // Service for the pydio app
 type service struct {
 	opts   *ServiceOptions
-	status Status
+	status registry.Status
 }
 
 var _ registry.Service = (*service)(nil)
@@ -63,15 +63,18 @@ type Service interface {
 	Stop(oo ...registry.RegisterOption) error
 	OnServe(oo ...registry.RegisterOption) error
 	ServerScheme() string
+	Server() server.Server
+	Is(status registry.Status) bool
 	As(i interface{}) bool
 }
 
 type Stopper func() error
 
+// NewService creates a service and directly register it as StatusStopped
 func NewService(opts ...ServiceOption) Service {
 	s := &service{
 		opts:   newOptions(append(mandatoryOptions, opts...)...),
-		status: StatusStopped,
+		status: registry.StatusStopped,
 	}
 
 	name := s.opts.Name
@@ -102,14 +105,24 @@ func (s *service) Options() *ServiceOptions {
 	return s.opts
 }
 
+// Server is a shortcut to Options().Server
+func (s *service) Server() server.Server {
+	return s.opts.Server
+}
+
+// Is checks internal status
+func (s *service) Is(status registry.Status) bool {
+	return s.status == status
+}
+
 func (s *service) Metadata() map[string]string {
 	// Create a copy to append internal status as metadata
 	cp := make(map[string]string, len(s.opts.Metadata)+1)
 	for k, v := range s.opts.Metadata {
 		cp[k] = v
 	}
-	cp[MetaStatusKey] = string(s.status)
-	cp[MetaDescriptionKey] = s.opts.Description
+	cp[registry.MetaStatusKey] = string(s.status)
+	cp[registry.MetaDescriptionKey] = s.opts.Description
 	return cp
 }
 
@@ -127,6 +140,7 @@ func (s *service) As(i interface{}) bool {
 	return false
 }
 
+// Start runs service and update registry as required
 func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 	// now := time.Now()
 
@@ -138,10 +152,10 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 		if er != nil {
 			er = errors2.Wrap(er, "service.Start "+s.Name())
 		}
-		s.updateRegister(StatusError)
+		s.updateRegister(registry.StatusError)
 	}()
 
-	s.updateRegister(StatusStarting)
+	s.updateRegister(registry.StatusStarting)
 
 	for _, before := range s.opts.BeforeStart {
 		if err := before(s.opts.Context); err != nil {
@@ -155,14 +169,21 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 		}
 	}
 
-	s.updateRegister(StatusServing)
+	s.updateRegister(registry.StatusServing)
 
 	return nil
 }
 
+// Stop shutdown service and clean registry
 func (s *service) Stop(oo ...registry.RegisterOption) error {
 
-	s.updateRegister(StatusStopping)
+	s.updateRegister(registry.StatusStopping)
+
+	for _, before := range s.opts.BeforeStop {
+		if err := before(s.opts.Context); err != nil {
+			return err
+		}
+	}
 
 	if s.opts.serverStop != nil {
 		if err := s.opts.serverStop(); err != nil {
@@ -180,7 +201,7 @@ func (s *service) Stop(oo ...registry.RegisterOption) error {
 			log.Logger(s.opts.Context).Error("Could not deregister", zap.Error(err))
 		} else if !opts.DeregisterFull {
 			// Re-register as Stopped
-			s.updateRegister(StatusStopped)
+			s.updateRegister(registry.StatusStopped)
 		}
 	} else {
 		log.Logger(s.opts.Context).Warn("no registry attached")
@@ -191,6 +212,8 @@ func (s *service) Stop(oo ...registry.RegisterOption) error {
 	return nil
 }
 
+// OnServe should be called after s.Server is started. It can be passed as an AfterServe() option
+// to server.Start()
 func (s *service) OnServe(oo ...registry.RegisterOption) error {
 	w := &sync.WaitGroup{}
 	w.Add(len(s.opts.AfterServe) + 1)
@@ -209,21 +232,21 @@ func (s *service) OnServe(oo ...registry.RegisterOption) error {
 		}(after)
 	}
 	w.Wait()
-	s.updateRegister(StatusReady)
+	s.updateRegister(registry.StatusReady)
 	return nil
 }
 
-func (s *service) updateRegister(status ...Status) {
+func (s *service) updateRegister(status ...registry.Status) {
 	if len(status) > 0 {
 		s.status = status[0]
-		if status[0] == StatusReady {
+		if status[0] == registry.StatusReady {
 			log.Logger(s.opts.Context).Info("ready")
 		} else {
 			log.Logger(s.opts.Context).Debug(string(status[0]))
 		}
 	}
-	up := s.status == StatusServing || s.status == StatusReady
-	down := s.status == StatusStopping || s.status == StatusStopped || s.status == StatusError
+	up := s.status == registry.StatusServing || s.status == registry.StatusReady
+	down := s.status == registry.StatusStopping || s.status == registry.StatusStopped || s.status == registry.StatusError
 
 	reg := servicecontext.GetRegistry(s.opts.Context)
 	if reg == nil {
@@ -245,7 +268,7 @@ func (s *service) updateRegister(status ...Status) {
 		options = append(options, registry.WithRegisterFailFast())
 	}
 	if err := reg.Register(s, options...); err != nil {
-		if s.status == StatusStopping || s.status == StatusStopped {
+		if s.status == registry.StatusStopping || s.status == registry.StatusStopped {
 			log.Logger(s.opts.Context).Debug("could not register", zap.Error(err))
 		} else {
 			log.Logger(s.opts.Context).Warn("could not register", zap.Error(err))
@@ -267,6 +290,7 @@ func (s *service) Tags() []string {
 	return s.opts.Tags
 }
 
+// ServerScheme returns current server URL type
 func (s *service) ServerScheme() string {
 	if s.opts.Fork && !runtime.IsFork() {
 		return "fork://?start=" + s.opts.Name

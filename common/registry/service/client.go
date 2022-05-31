@@ -221,6 +221,7 @@ func (s *serviceRegistry) List(opts ...registry.Option) ([]registry.Item, error)
 	rsp, err := s.client.List(s.opts.Context, &pb.ListRequest{
 		Options: &pb.Options{
 			Types: options.Types,
+			Names: options.Names,
 		},
 	}, cOpts...)
 	if err != nil {

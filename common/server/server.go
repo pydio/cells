@@ -49,8 +49,9 @@ type Server interface {
 	CoreServer
 	Serve(...ServeOption) error
 	Stop(oo ...registry.RegisterOption) error
-	RegisterBeforeStop(func(oo ...registry.RegisterOption) error)
-	RegisterAfterStop(func(oo ...registry.RegisterOption) error)
+
+	Is(status registry.Status) bool
+	NeedsRestart() bool
 }
 
 type Type int8
@@ -63,11 +64,9 @@ const (
 )
 
 type server struct {
-	s           RawServer
-	opts        *Options
-	status      string
-	beforeStops []func(oo ...registry.RegisterOption) error
-	afterStops  []func(oo ...registry.RegisterOption) error
+	s      RawServer
+	opts   *Options
+	status registry.Status
 }
 
 func NewServer(ctx context.Context, s RawServer) Server {
@@ -77,7 +76,7 @@ func NewServer(ctx context.Context, s RawServer) Server {
 		opts: &Options{
 			Context: ctx,
 		},
-		status: "stopped",
+		status: registry.StatusStopped,
 	}
 
 	if reg := servercontext.GetRegistry(ctx); reg != nil {
@@ -101,14 +100,6 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 		o(opt)
 	}
 
-	// Register Stop handlers to this server
-	for _, a := range opt.BeforeStop {
-		s.beforeStops = append(s.beforeStops, a)
-	}
-	for _, a := range opt.AfterStop {
-		s.afterStops = append(s.afterStops, a)
-	}
-
 	var g errgroup.Group
 	for _, h := range opt.BeforeServe {
 		func(bs func(oo ...registry.RegisterOption) error) {
@@ -125,7 +116,7 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 	if err != nil {
 		return err
 	}
-	s.status = "ready"
+	s.status = registry.StatusReady
 
 	// Making sure we register the endpoints
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
@@ -151,9 +142,6 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 }
 
 func (s *server) Stop(oo ...registry.RegisterOption) error {
-	if err := s.doBeforeStop(oo...); err != nil {
-		return err
-	}
 
 	if err := s.s.Stop(); err != nil {
 		return err
@@ -169,13 +157,9 @@ func (s *server) Stop(oo ...registry.RegisterOption) error {
 		if er := reg.Deregister(s, registry.WithRegisterFailFast()); er != nil {
 			return er
 		} else if !opts.DeregisterFull {
-			s.status = "stopped"
+			s.status = registry.StatusStopped
 			_ = reg.Register(s, registry.WithRegisterFailFast())
 		}
-	}
-
-	if err := s.doAfterStop(oo...); err != nil {
-		return err
 	}
 
 	return nil
@@ -198,43 +182,16 @@ func (s *server) Metadata() map[string]string {
 	for k, v := range s.s.Metadata() {
 		meta[k] = v
 	}
-	meta["status"] = s.status
+	meta[registry.MetaStatusKey] = string(s.status)
 	return meta
 }
 
-func (s *server) RegisterBeforeStop(f func(oo ...registry.RegisterOption) error) {
-	s.beforeStops = append(s.beforeStops, f)
+func (s *server) Is(status registry.Status) bool {
+	return s.status == status
 }
 
-func (s *server) RegisterAfterStop(f func(oo ...registry.RegisterOption) error) {
-	s.afterStops = append(s.afterStops, f)
-}
-
-func (s *server) doBeforeStop(oo ...registry.RegisterOption) error {
-	defer func() {
-		// Empty beforeStops
-		s.beforeStops = []func(oo ...registry.RegisterOption) error{}
-	}()
-	for _, h := range s.beforeStops {
-		if err := h(oo...); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (s *server) doAfterStop(oo ...registry.RegisterOption) error {
-	defer func() {
-		// Empty afterStops
-		s.afterStops = []func(oo ...registry.RegisterOption) error{}
-	}()
-	for _, h := range s.afterStops {
-		if err := h(oo...); err != nil {
-			return err
-		}
-	}
-	return nil
+func (s *server) NeedsRestart() bool {
+	return s.Type() == TypeGrpc
 }
 
 func (s *server) As(i interface{}) bool {

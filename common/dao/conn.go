@@ -48,6 +48,10 @@ type closer interface {
 	Close(ctx context.Context) error
 }
 
+type closerNoCtx interface {
+	Close() error
+}
+
 type disconnecter interface {
 	Disconnect(ctx context.Context) error
 }
@@ -113,6 +117,10 @@ func closeConn(ctx context.Context, conn Conn) error {
 		if co, e := c.d.GetConn(ctx); e == nil && co == conn {
 			if cl, ok := conn.(closer); ok {
 				if err := cl.Close(ctx); err != nil {
+					return err
+				}
+			} else if di, ok := conn.(closerNoCtx); ok {
+				if err := di.Close(); err != nil {
 					return err
 				}
 			} else if di, ok := conn.(disconnecter); ok {

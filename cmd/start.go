@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/registry"
@@ -118,8 +119,9 @@ to quickly create a Cobra application.`,
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
 
 		// Starting discovery server containing registry, broker, config and log
+		var discovery manager.Manager
 		if !runtime.IsGrpcScheme(runtime.RegistryURL()) {
-			if err := startDiscoveryServer(ctx, reg); err != nil {
+			if discovery, err = startDiscoveryServer(ctx, reg); err != nil {
 				return err
 			}
 		}
@@ -171,15 +173,20 @@ to quickly create a Cobra application.`,
 
 		m.StopAll()
 
+		if discovery != nil {
+			log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager")).Info("Stopping discovery services now")
+			discovery.StopAll()
+		}
+
 		return nil
 	},
 }
 
-func startDiscoveryServer(ctx context.Context, reg registry.Registry) error {
+func startDiscoveryServer(ctx context.Context, reg registry.Registry) (manager.Manager, error) {
 
 	m := manager.NewManager(reg, "mem:///", "discovery")
 	if er := m.Init(ctx); er != nil {
-		return er
+		return nil, er
 	}
 
 	errorCallback := func(err error) {
@@ -196,13 +203,9 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry) error {
 		}
 	}
 
-	go func() {
-		m.ServeAll(server.WithErrorCallback(errorCallback), server.WithGrpcBindAddress(runtime.GrpcDiscoveryBindAddress()))
-		<-ctx.Done()
-		m.StopAll()
-	}()
+	m.ServeAll(server.WithErrorCallback(errorCallback), server.WithGrpcBindAddress(runtime.GrpcDiscoveryBindAddress()))
 
-	return nil
+	return m, nil
 }
 
 func init() {

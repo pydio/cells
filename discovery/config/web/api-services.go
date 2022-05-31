@@ -365,7 +365,7 @@ func (h *Handler) serviceToRest(r registry.Registry, srv registry.Service, nodes
 		controllable = false
 	}
 	desc := ""
-	if d, o := srv.Metadata()[service.MetaDescriptionKey]; o {
+	if d, o := srv.Metadata()[registry.MetaDescriptionKey]; o {
 		desc = d
 	}
 	protoSrv := &ctl.Service{
