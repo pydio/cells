@@ -58,7 +58,6 @@ func init() {
 					return bleve.Driver, filepath.Join(runtime.MustServiceDataDir(ServiceName), "syslog.bleve?mapping=log")
 				}),
 			),
-			service.Unique(true),
 			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
 				dao := servicecontext.GetIndexer(c).(dao.IndexDAO)
 				repo, err := log.NewIndexService(dao)

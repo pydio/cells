@@ -4,22 +4,22 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/pydio/cells/v4/common/client"
-	"github.com/pydio/cells/v4/common/runtime"
 	"net/http"
 	"strings"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/caddy/maintenance"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"github.com/pydio/cells/v4/common/service"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -148,7 +148,11 @@ func (m *resolver) userServiceReady() bool {
 	if m.userReady {
 		return true
 	}
-	if service.RegistryHasServiceWithStatus(m.r, common.ServiceGrpcNamespace_+common.ServiceUser, service.StatusReady) {
+	/// Detect service grpc.user is ready
+	if ss, e := m.r.List(
+		registry.WithName(common.ServiceGrpcNamespace_+common.ServiceUser),
+		registry.WithType(pb.ItemType_SERVICE),
+		registry.WithMeta(registry.MetaStatusKey, string(registry.StatusReady))); e == nil && len(ss) > 0 {
 		m.userReady = true
 		return true
 	}

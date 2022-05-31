@@ -54,7 +54,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Generic document store"),
-			service.Unique(true),
 			service.WithStorage(docstore.NewDAO,
 				service.WithStoragePrefix("docstore"),
 				service.WithStorageMigrator(docstore.Migrate),

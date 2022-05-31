@@ -35,7 +35,7 @@ import (
 const Driver = "mongodb"
 
 func init() {
-	dao.RegisterDAODriver(Driver, NewDAO, func(ctx context.Context, driver, dsn string) dao.ConnDriver {
+	dao.RegisterSharedDAODriver(Driver, NewDAO, func(ctx context.Context, driver, dsn string) dao.ConnDriver {
 		return &mongodb{}
 	})
 	dao.RegisterIndexerDriver(Driver, NewIndexer)

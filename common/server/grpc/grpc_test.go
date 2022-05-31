@@ -89,8 +89,6 @@ func createApp1(reg registry.Registry) *bufconn.Listener {
 	opts := []server.ServeOption{
 		server.WithBeforeServe(svcRegistry.Start),
 		server.WithBeforeServe(svcHello.Start),
-		server.WithBeforeStop(svcHello.Stop),
-		server.WithBeforeStop(svcRegistry.Stop),
 	}
 
 	go func() {
@@ -123,7 +121,6 @@ func createApp2(reg registry.Registry) {
 
 	opts := []server.ServeOption{
 		server.WithBeforeServe(svcHello.Start),
-		server.WithBeforeStop(svcHello.Stop),
 	}
 
 	go func() {
