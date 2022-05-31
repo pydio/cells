@@ -46,6 +46,7 @@ type memoryBroker struct {
 	addr      string
 	connected bool
 	bus       *pubsub.PubSub
+	useTryPub bool
 }
 
 type memorySubscriber struct {
@@ -124,7 +125,7 @@ func (m *memoryBroker) Publish(topic string, msg *broker.Message, opts ...broker
 	}
 	copy(cM.Body, msg.Body)
 
-	if os.Getenv("CELLS_BROKER_TRYPUB") == "true" {
+	if m.useTryPub {
 		m.bus.TryPub(cM, topic)
 	} else {
 		m.bus.Pub(cM, topic)
@@ -228,8 +229,14 @@ func NewBroker(opts ...broker.Option) broker.Broker {
 	for _, o := range opts {
 		o(&options)
 	}
+	var useTryPub bool
+	if os.Getenv("CELLS_BROKER_TRYPUB") == "true" {
+		useTryPub = true
+		fmt.Println("[broker] Starting broker in TryPub mode")
+	}
 
 	return &memoryBroker{
-		opts: options,
+		opts:      options,
+		useTryPub: useTryPub,
 	}
 }
