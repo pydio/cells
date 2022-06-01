@@ -164,7 +164,8 @@ func initViperRuntime() {
 	if p, er := os.Getwd(); er == nil {
 		cellsViper.AddConfigPath(p)
 	}
-	cellsViper.SetConfigName("cells")
+	// TODO - not sure what it should be but not cells - else it's trying to load the binary as config
+	cellsViper.SetConfigName("cells_local")
 	cellsViper.SetConfigType("env")
 	_ = cellsViper.ReadInConfig()
 
