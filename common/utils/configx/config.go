@@ -334,7 +334,14 @@ func (c *config) Set(data interface{}) error {
 		}
 	}
 
-	if kk, err := strconv.Atoi(k); err == nil {
+	pv := reflect.ValueOf(p.Interface())
+	switch pv.Kind() {
+	case reflect.Slice:
+		kk, err := strconv.Atoi(k)
+		if err != nil {
+			return fmt.Errorf("wrong key for slice")
+		}
+
 		m := p.Slice()
 
 		var mm []interface{}
@@ -355,7 +362,7 @@ func (c *config) Set(data interface{}) error {
 		c.opts.RWMutex.Unlock()
 
 		p.Set(mm)
-	} else {
+	case reflect.Map:
 		m := p.Map()
 
 		c.opts.RWMutex.RLock()
@@ -372,6 +379,49 @@ func (c *config) Set(data interface{}) error {
 		}
 
 		p.Set(mm)
+	case reflect.Struct:
+		mm := make(map[string]interface{})
+		mv := reflect.ValueOf(mm)
+
+		c.opts.RWMutex.RLock()
+		pt := reflect.TypeOf(p.Interface())
+		for i := 0; i < pt.NumField(); i++ {
+			name := pt.Field(i).Name
+			mv.SetMapIndex(reflect.ValueOf(name), pv.FieldByName(name))
+		}
+		c.opts.RWMutex.RUnlock()
+
+		if del {
+			delete(mm, k)
+		} else {
+			mm[k] = data
+		}
+
+		p.Set(mm)
+	default:
+		kk, err := strconv.Atoi(k)
+		if err == nil {
+			mm := make([]interface{}, kk+1)
+
+			c.opts.RWMutex.Lock()
+			if del {
+				mm = append(mm[:kk-1], mm[kk:]...)
+			} else {
+				mm[kk] = data
+			}
+			c.opts.RWMutex.Unlock()
+
+			p.Set(mm)
+		} else {
+			mm := make(map[string]interface{})
+			if del {
+				delete(mm, k)
+			} else {
+				mm[k] = data
+			}
+
+			p.Set(mm)
+		}
 	}
 
 	if mtx := c.opts.RWMutex; mtx != nil {

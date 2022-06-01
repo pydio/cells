@@ -212,7 +212,7 @@ func (m *etcd) Get() configx.Value {
 }
 
 func (m *etcd) Val(path ...string) configx.Values {
-	return &values{committed: m.committed, uncommitted: m.uncommitted, ops: m.ops, prefix: m.prefix, path: strings.Join(path, "/"), leaseID: m.leaseID, opts: m.opts}
+	return &values{committed: m.committed, uncommitted: m.uncommitted, withKeys: m.withKeys, ops: m.ops, prefix: m.prefix, path: strings.Join(path, "/"), leaseID: m.leaseID, opts: m.opts}
 }
 
 func (m *etcd) Set(data interface{}) error {
@@ -220,7 +220,9 @@ func (m *etcd) Set(data interface{}) error {
 		return err
 	}
 
-	m.ops <- clientv3.OpPut(m.prefix, string(m.uncommitted.Bytes()), clientv3.WithLease(m.leaseID))
+	if m.withKeys {
+		m.ops <- clientv3.OpPut(m.prefix, string(m.uncommitted.Bytes()), clientv3.WithLease(m.leaseID))
+	}
 
 	return nil
 }
@@ -401,6 +403,7 @@ type values struct {
 	uncommitted configx.Values
 	ops         chan clientv3.Op
 	leaseID     clientv3.LeaseID
+	withKeys    bool
 
 	prefix string
 	path   string
@@ -413,8 +416,9 @@ func (v *values) Set(value interface{}) error {
 		return err
 	}
 
-	v.ops <- clientv3.OpPut(strings.Join([]string{v.prefix, v.path}, "/"), string(c.Bytes()), clientv3.WithLease(v.leaseID))
-
+	if v.withKeys {
+		v.ops <- clientv3.OpPut(strings.Join([]string{v.prefix, v.path}, "/"), string(c.Bytes()), clientv3.WithLease(v.leaseID))
+	}
 	return nil
 }
 
@@ -427,7 +431,9 @@ func (v *values) Del() error {
 		return err
 	}
 
-	v.ops <- clientv3.OpDelete(strings.Join([]string{v.prefix, v.path}, "/"))
+	if v.withKeys {
+		v.ops <- clientv3.OpDelete(strings.Join([]string{v.prefix, v.path}, "/"))
+	}
 	return nil
 }
 
@@ -435,7 +441,7 @@ func (v *values) Val(path ...string) configx.Values {
 	if v.path != "" {
 		path = append([]string{v.path}, path...)
 	}
-	return &values{committed: v.committed, uncommitted: v.uncommitted, ops: v.ops, prefix: v.prefix, path: strings.Join(path, "/"), leaseID: v.leaseID, opts: v.opts}
+	return &values{committed: v.committed, uncommitted: v.uncommitted, withKeys: v.withKeys, ops: v.ops, prefix: v.prefix, path: strings.Join(path, "/"), leaseID: v.leaseID, opts: v.opts}
 }
 
 func (v *values) Default(i interface{}) configx.Value {
