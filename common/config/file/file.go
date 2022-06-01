@@ -122,8 +122,10 @@ func New(path string, opts ...configx.Option) (config.Store, error) {
 		opts...,
 	)
 
-	if err := v.Set(data); err != nil {
-		return nil, err
+	if len(data) > 0 {
+		if err := v.Set(data); err != nil {
+			return nil, err
+		}
 	}
 
 	f := &file{
