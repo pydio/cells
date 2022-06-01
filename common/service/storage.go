@@ -129,7 +129,9 @@ func isLocalDao(o *ServiceOptions, indexer bool, opts *StorageOptions) bool {
 	}
 	s, e := dao.IsShared(driver)
 	if e != nil {
-		fmt.Println("cannot check if driver is shared:" + e.Error())
+		if driver != "" {
+			fmt.Println("cannot check if driver " + driver + " is shared:" + e.Error())
+		}
 		return false
 	}
 	return !s

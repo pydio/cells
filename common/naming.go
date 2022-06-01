@@ -90,6 +90,7 @@ const (
 	ServiceVersions = "versions"
 	ServiceDocStore = "docstore"
 	ServiceMetrics  = "metrics"
+	ServicePprof    = "pprof"
 
 	ServiceData_           = "data."
 	ServiceDataIndex       = ServiceData_ + "index"

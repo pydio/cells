@@ -26,14 +26,12 @@ import (
 	"strings"
 
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/metrics"
 )
 
 func InitPeerMeta() map[string]string {
 	meta := make(map[string]string)
 	meta[runtime.NodeMetaPID] = fmt.Sprintf("%d", os.Getpid())
 	meta[runtime.NodeMetaParentPID] = fmt.Sprintf("%d", os.Getppid())
-	meta[runtime.NodeMetaMetrics] = fmt.Sprintf("%d", metrics.GetExposedPort())
 	meta[runtime.NodeMetaStartTag] = strings.Join(runtime.ProcessStartTags(), ",")
 	meta[runtime.NodeMetaHostName] = runtime.GetHostname()
 	caps := runtime.GetStringSlice(runtime.KeyNodeCapacity)

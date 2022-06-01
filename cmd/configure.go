@@ -44,7 +44,6 @@ import (
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/server"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/metrics"
 	unet "github.com/pydio/cells/v4/common/utils/net"
 )
 
@@ -305,8 +304,6 @@ func performBrowserInstall(cmd *cobra.Command, ctx context.Context, proxyConf *i
 	defer cancel()
 
 	initLogLevel()
-
-	metrics.Init()
 
 	reg, err := registry.OpenRegistry(ctx, cruntime.RegistryURL())
 	if err != nil {

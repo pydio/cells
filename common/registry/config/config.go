@@ -80,6 +80,10 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 		opts = append(opts, configx.WithJSON())
 	case "jsonitem":
 		opts = append(opts, WithJSONItem())
+	default:
+		if u.Scheme == "etcd" {
+			opts = append(opts, WithJSONItem())
+		}
 	}
 
 	switch u.Scheme {

@@ -263,11 +263,10 @@ func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
 		accu[mm[runtime.NodeMetaPID]] = mm
 	}
 	for pid, meta := range accu {
-		mport, _ := strconv.Atoi(meta[runtime.NodeMetaMetrics])
 		out.Processes = append(out.Processes, &rest.Process{
-			ID:          pid,
-			ParentID:    meta[runtime.NodeMetaParentPID],
-			MetricsPort: int32(mport),
+			ID:       pid,
+			ParentID: meta[runtime.NodeMetaParentPID],
+			//MetricsPort: int32(mport),
 			PeerId:      "", // ??
 			PeerAddress: "", // ??
 			StartTag:    meta[runtime.NodeMetaStartTag],

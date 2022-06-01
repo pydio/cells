@@ -28,39 +28,18 @@ import (
 )
 
 var (
-	scope = tally.NoopScope
-
-	closer        io.Closer
-	port          int
-	startExposure []func()
+	scope  = tally.NoopScope
+	closer io.Closer
 )
 
-func RegisterRootScope(s tally.ScopeOptions, exposedPort int) {
+func RegisterRootScope(s tally.ScopeOptions) {
 	scope, closer = tally.NewRootScope(s, 1*time.Second)
-	port = exposedPort
-}
-
-func RegisterOnStartExposure(runFunc func()) {
-	startExposure = append(startExposure, runFunc)
-}
-
-func Init() {
-	if len(startExposure) > 0 {
-		for _, f := range startExposure {
-			f()
-		}
-	}
 }
 
 func Close() {
-	port = 0
 	if closer != nil {
-		closer.Close()
+		_ = closer.Close()
 	}
-}
-
-func GetExposedPort() int {
-	return port
 }
 
 func GetMetrics() tally.Scope {

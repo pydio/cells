@@ -302,6 +302,8 @@ func (s *service) ServerScheme() string {
 		return "generic://"
 	case server.TypeGrpc:
 		return "grpc://"
+	case server.TypeHttpPure:
+		return "http://"
 	case server.TypeHttp:
 		return runtime.HttpServerType() + "://"
 	default:

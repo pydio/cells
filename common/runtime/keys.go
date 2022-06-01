@@ -72,9 +72,10 @@ const (
 	HttpServerCaddy  = "caddy"
 	HttpServerNative = "http"
 
-	DefaultGrpcPort      = "8001"
-	DefaultDiscoveryPort = "8002"
-	DefaultHttpPort      = "8080"
+	DefaultGrpcPort        = "8001"
+	DefaultDiscoveryPort   = "8002"
+	DefaultBindingSitePort = "8080"
+	DefaultHttpPort        = "0"
 
 	DefaultConfigFileName  = "pydio.json"
 	DefaultVaultFileName   = "pydio-vault.json"

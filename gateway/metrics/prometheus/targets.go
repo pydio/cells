@@ -1,14 +1,35 @@
+/*
+ * Copyright (c) 2018-2022. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package prometheus
 
 import (
 	"context"
-	"fmt"
+
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"go.uber.org/zap"
 )
 
 type targetGroup struct {
@@ -29,18 +50,23 @@ func ProcessesAsTargets(ctx context.Context, reg registry.Registry) *PromTargets
 	}
 	processes := make(map[string]*targetGroup)
 	for _, i := range ii {
+		if i.Name() != "http" {
+			continue
+		}
 		meta := i.Metadata()
 		pid := meta[runtime.NodeMetaPID]
 		if _, ok := processes[pid]; ok {
 			continue // already registered
 		}
-		hostname := meta[runtime.NodeMetaHostName]
-		metricsPort := meta[runtime.NodeMetaMetrics]
-		if hostname == "" || metricsPort == "" {
+		var host string
+		if aa := reg.ListAdjacentItems(i, registry.WithType(pb.ItemType_ADDRESS)); len(aa) > 0 {
+			host = aa[0].Name()
+		}
+		if host == "" {
 			continue
 		}
 		tg := &targetGroup{
-			Targets: []string{fmt.Sprintf("%s:%s", hostname, metricsPort)},
+			Targets: []string{host},
 			Labels: map[string]string{
 				"job":      "cells",
 				"pid":      pid,
