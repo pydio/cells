@@ -24,7 +24,6 @@ import (
 	"context"
 	"net"
 	"net/http"
-	"net/http/pprof"
 	"net/url"
 
 	"go.uber.org/zap"
@@ -62,11 +61,13 @@ type Server struct {
 
 func New(ctx context.Context) server.Server {
 	lMux := server.NewListableMux()
-	lMux.HandleFunc("/debug/pprof/", pprof.Index)
-	lMux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
-	lMux.HandleFunc("/debug/pprof/profile", pprof.Profile)
-	lMux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
-	lMux.HandleFunc("/debug/pprof/trace", pprof.Trace)
+	/*
+		lMux.HandleFunc("/debug/pprof/", pprof.Index)
+		lMux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+		lMux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+		lMux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+		lMux.HandleFunc("/debug/pprof/trace", pprof.Trace)
+	*/
 
 	srv := &http.Server{}
 	srv.Handler = mux.NewMiddleware(ctx, lMux)

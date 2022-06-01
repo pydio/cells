@@ -288,7 +288,7 @@ func BuildForkParams(cmd string) []string {
 		"--" + KeyGrpcPort, "0",
 		"--" + KeyGrpcDiscoveryPort, "0",
 		"--" + KeyHttpServer, HttpServerNative,
-		"--" + KeyHttpPort, "0",
+		//"--" + KeyHttpPort, "0", // This is already the default
 	}
 
 	defKR := "file://" + filepath.Join(ApplicationWorkingDir(), DefaultKeyringFileName) + "?keyring=true"

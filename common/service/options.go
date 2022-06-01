@@ -59,10 +59,11 @@ type ServiceOptions struct {
 	Dependencies []*dependency `json:"-"`
 
 	// Starting options
-	AutoStart   bool `json:"-"`
-	AutoRestart bool `json:"-"`
-	Fork        bool `json:"-"`
-	Unique      bool `json:"-"`
+	ForceRegister bool `json:"-"`
+	AutoStart     bool `json:"-"`
+	AutoRestart   bool `json:"-"`
+	Fork          bool `json:"-"`
+	Unique        bool `json:"-"`
 
 	// Before and After funcs
 	BeforeStart []func(context.Context) error `json:"-"`
@@ -142,6 +143,13 @@ func WithServer(s server.Server) ServiceOption {
 func WithServerScheme(scheme string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.customScheme = scheme
+	}
+}
+
+// ForceRegister option for a service
+func ForceRegister(b bool) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.ForceRegister = b
 	}
 }
 

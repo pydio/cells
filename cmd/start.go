@@ -46,7 +46,6 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/metrics"
 	"github.com/pydio/cells/v4/common/utils/filex"
 )
 
@@ -68,7 +67,6 @@ to quickly create a Cobra application.`,
 
 		runtime.SetArgs(args)
 		initLogLevel()
-		metrics.Init()
 		handleSignals(args)
 
 		return nil

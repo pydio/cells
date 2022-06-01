@@ -84,7 +84,7 @@ func NewManager(reg registry.Registry, srcUrl string, namespace string) Manager 
 	var current, parent registry.Item
 	if ii, er := reg.List(registry.WithType(pb.ItemType_NODE)); er == nil && len(ii) > 0 {
 		for _, root := range ii {
-			rPID := root.Metadata()["PID"]
+			rPID := root.Metadata()[runtime.NodeMetaPID]
 			if rPID == strconv.Itoa(os.Getppid()) {
 				parent = root
 			} else if rPID == strconv.Itoa(os.Getpid()) {
@@ -136,7 +136,7 @@ func (m *manager) Init(ctx context.Context) error {
 		// Replace service context with target registry
 		opts.Context = servicecontext.WithRegistry(opts.Context, m.reg)
 
-		if !runtime.IsRequired(s.Name(), opts.Tags...) {
+		if !runtime.IsRequired(s.Name(), opts.Tags...) && !opts.ForceRegister {
 			continue
 		}
 

@@ -59,6 +59,7 @@ type Type int8
 const (
 	TypeGrpc Type = iota
 	TypeHttp
+	TypeHttpPure
 	TypeGeneric
 	TypeFork
 )

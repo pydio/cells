@@ -1,14 +1,32 @@
+/*
+ * Copyright (c) 2018-2022. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package prometheus
 
 import (
 	"context"
 	"fmt"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"io/ioutil"
 	"net/http"
-	"net/http/pprof"
-	"os"
 	"path/filepath"
-	"sync"
 	"time"
 
 	tally "github.com/uber-go/tally/v4"
@@ -19,43 +37,31 @@ import (
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service/metrics"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/net"
 )
 
 var (
 	watcher  registry.Watcher
 	canceler context.CancelFunc
-	once     sync.Once
 )
 
-func init() {
-	metrics.RegisterOnStartExposure(exposeMetrics)
+type Handler struct {
+	r prometheus.Reporter
 }
 
-func exposeMetrics() {
-	once.Do(func() {
-		if runtime.MetricsEnabled() {
-			r := prometheus.NewReporter(prometheus.Options{})
-			options := tally.ScopeOptions{
-				Prefix:         "cells",
-				Tags:           map[string]string{},
-				CachedReporter: r,
-				Separator:      prometheus.DefaultSeparator,
-			}
-			port := net.GetAvailablePort()
-			metrics.RegisterRootScope(options, port)
-			go func() {
-				defer metrics.Close()
-				http.Handle("/metrics", r.HTTPHandler())
-				if runtime.PprofEnabled() {
-					fmt.Printf("Exposing debug profiles for process %d on port %d\n", os.Getpid(), port)
-					http.Handle("/debug", pprof.Handler("debug"))
-				}
-				_ = http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
-				select {}
-			}()
-		}
-	})
+func NewHandler() *Handler {
+	r := prometheus.NewReporter(prometheus.Options{})
+	options := tally.ScopeOptions{
+		Prefix:         "cells",
+		Tags:           map[string]string{},
+		CachedReporter: r,
+		Separator:      prometheus.DefaultSeparator,
+	}
+	metrics.RegisterRootScope(options)
+	return &Handler{r: r}
+}
+
+func (h *Handler) HTTPHandler() http.Handler {
+	return h.r.HTTPHandler()
 }
 
 func GetFileName(serviceName string) string {
@@ -101,7 +107,7 @@ func WatchTargets(ctx context.Context, serviceName string) error {
 	// Monitor prometheus clients from registry and update target file accordingly
 
 	var err error
-	if watcher, err = reg.Watch(); err != nil {
+	if watcher, err = reg.Watch(registry.WithType(pb.ItemType_SERVER)); err != nil {
 		return err
 	}
 	go func() {
