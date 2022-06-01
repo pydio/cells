@@ -160,13 +160,20 @@ func initViperRuntime() {
 	cellsViper = viper.New()
 	cellsViper.SetEnvPrefix(EnvPrefixNew)
 	cellsViper.AutomaticEnv()
-	cellsViper.AddConfigPath(runtime.ApplicationWorkingDir())
-	if p, er := os.Getwd(); er == nil {
-		cellsViper.AddConfigPath(p)
+	var fileSet bool
+	if flagsFile := os.Getenv("CELLS_FLAGS_FILE"); flagsFile != "" {
+		if _, e := os.Stat(flagsFile); e == nil {
+			cellsViper.SetConfigFile(flagsFile)
+			fileSet = true
+		}
 	}
-	// TODO - not sure what it should be but not cells - else it's trying to load the binary as config
-	cellsViper.SetConfigName("cells_local")
-	cellsViper.SetConfigType("env")
+	if !fileSet {
+		cellsViper.AddConfigPath(runtime.ApplicationWorkingDir())
+		if p, er := os.Getwd(); er == nil {
+			cellsViper.AddConfigPath(p)
+		}
+		cellsViper.SetConfigName("flags")
+	}
 	_ = cellsViper.ReadInConfig()
 
 	runtime.SetRuntime(cellsViper)
