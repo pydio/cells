@@ -1,7 +1,6 @@
 package configx
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -101,7 +100,6 @@ func TestStd(t *testing.T) {
 
 		m.Val("service/toDelete1").Del()
 		// m.Val("service/toDelete2").Del()
-		fmt.Println(m.Map())
 	})
 
 	Convey("Testing map full set", t, func() {
@@ -168,7 +166,7 @@ func TestStd(t *testing.T) {
 		So(m.Val("service/map2/val").Set("test"), ShouldBeNil)
 		So(m.Val("service/map2/val").Get().String(), ShouldEqual, "test")
 		So(m.Val("service/array2").Set(make([]interface{}, 2)), ShouldBeNil)
-		So(m.Val("service/array2[val]").Set("test"), ShouldBeNil) // Array should have int index
+		So(m.Val("service/array2[val]").Set("test"), ShouldNotBeNil) // Array should have int index
 		So(m.Val("service/array2[0]").Set("test"), ShouldBeNil)   // Array should have int index
 		So(m.Val("service/array2[0]").Get().String(), ShouldEqual, "test")
 		So(m.Val("service/array2[1]").Set(map[string]interface{}{
@@ -205,8 +203,6 @@ func TestArray(t *testing.T) {
 		var versions []*revisions.Version
 		err2 := m.Scan(&versions)
 		So(err2, ShouldBeNil)
-
-		fmt.Println(m)
 	})
 }
 
@@ -332,7 +328,6 @@ func TestYAML(t *testing.T) {
 		m := New(WithYAML())
 		err := m.Set(dataYAML)
 		m.Val("test").Set(Reference("#/defaults/key1"))
-		fmt.Println(m.Get())
 		So(err, ShouldBeNil)
 		So(m.Val("defaults/key1").String(), ShouldEqual, "val1")
 		So(m.Val("pointer/key1").String(), ShouldEqual, "val2")
@@ -344,7 +339,6 @@ func TestStringEncoding(t *testing.T) {
 		m := New(WithString())
 		err := m.Set("test")
 		So(err, ShouldBeNil)
-		fmt.Println(m.Get())
 	})
 }
 
@@ -407,7 +401,5 @@ func TestMapStruct(t *testing.T) {
 		t2 := make(map[string]*MyStruct)
 		err2 := m.Scan(t2)
 		So(err2, ShouldBeNil)
-
-		fmt.Println(t2)
 	})
 }
