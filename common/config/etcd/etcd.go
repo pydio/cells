@@ -189,7 +189,9 @@ func (m *etcd) watch(ctx context.Context) {
 			}
 
 			for _, op := range res.Events {
-				key := strings.TrimPrefix(string(op.Kv.Key), m.prefix+"/")
+				key := strings.TrimPrefix(string(op.Kv.Key), m.prefix)
+				key = strings.TrimPrefix(key, "/")
+				// key := strings.TrimPrefix(string(op.Kv.Key), m.prefix+"/")
 				if err := m.committed.Val(key).Set(op.Kv.Value); err != nil {
 					fmt.Println("Error in etcd watch setting value for key ", op.Kv.Key)
 				}
