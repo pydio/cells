@@ -34,6 +34,7 @@ import {muiThemeable, colors} from 'material-ui/styles'
 import ActionsPanel from '../avatar/ActionsPanel'
 import UserCreationForm from '../UserCreationForm'
 const {PydioContextConsumer, PydioContextProvider} = Pydio.requireLib('boot');
+import DOMUtils from 'pydio/util/dom'
 import PydioApi from 'pydio/http/api';
 
 const getCss = (palette) => {
@@ -572,7 +573,7 @@ class AddressBook extends React.Component {
             position: 'absolute',
             transformOrigin:'right',
             backgroundColor: 'white',
-            width: 250,
+            width: mode === 'book'? 320 : 250,
             right: 10,
             bottom: 10,
             top: 120,
@@ -595,25 +596,40 @@ class AddressBook extends React.Component {
                 item={rightPaneItem}/>
         );
         if(mode === 'book'){
-            let nestedRoots = [];
-            root.collections.map(function(e){
-                nestedRoots.push(
-                    <NestedListItem
-                        key={e.id}
-                        selected={selectedItem.id}
-                        nestedLevel={0}
-                        entry={e}
-                        onClick={this.onFolderClicked}
-                    />
+            if (DOMUtils.getViewportWidth() < 1024) {
+                leftPanel = (
+                    <Paper zDepth={1} style={{...leftColumnStyle, width:48, zIndex:2, overflow:'visible'}}>
+                        {root.collections.map((e) => {
+                            return <IconButton
+                                iconClassName={e.icon}
+                                tooltip={e.label}
+                                tooltipPosition={"bottom-right"}
+                                onClick={() => this.onFolderClicked(e)}
+                            />
+                        })}
+                    </Paper>
                 );
-                nestedRoots.push(<Divider key={e.id + '-divider'}/>);
-            }.bind(this));
-            nestedRoots.pop();
-            leftPanel = (
-                <Paper zDepth={1} style={{...leftColumnStyle, zIndex:2}}>
-                    <List>{nestedRoots}</List>
-                </Paper>
-            );
+            } else {
+                let nestedRoots = [];
+                root.collections.map(function(e){
+                    nestedRoots.push(
+                        <NestedListItem
+                            key={e.id}
+                            selected={selectedItem.id}
+                            nestedLevel={0}
+                            entry={e}
+                            onClick={this.onFolderClicked}
+                        />
+                    );
+                    nestedRoots.push(<Divider key={e.id + '-divider'}/>);
+                }.bind(this));
+                nestedRoots.pop();
+                leftPanel = (
+                    <Paper zDepth={1} style={{...leftColumnStyle, zIndex:2}}>
+                        <List>{nestedRoots}</List>
+                    </Paper>
+                );
+            }
         }
 
         let dialogTitle, dialogContent, dialogBodyStyle;
@@ -624,7 +640,7 @@ class AddressBook extends React.Component {
                 dialogContent = (
                     <UserCreationForm
                         zDepth={0}
-                        style={{display:'flex', flexDirection:'column', flex: 1}}
+                        style={{display:'flex', flexDirection:'column', flex: 1, marginTop: -20}}
                         newUserName={""}
                         onUserCreated={this.closeCreateDialogAndReload.bind(this)}
                         onCancel={() => {this.setState({createDialogItem:null})}}
@@ -661,7 +677,7 @@ class AddressBook extends React.Component {
                 {centerComponent}
                 {rightPanel}
                 <Dialog
-                    contentStyle={{width:380,minWidth:380,maxWidth:380, padding:0}}
+                    contentStyle={{width:420,minWidth:380,maxWidth:'100%', padding:0}}
                     bodyStyle={{padding:0, ...dialogBodyStyle}}
                     title={<div style={{padding: 20}}>{dialogTitle}</div>}
                     actions={null}

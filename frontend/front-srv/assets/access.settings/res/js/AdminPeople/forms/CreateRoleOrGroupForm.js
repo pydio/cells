@@ -67,12 +67,12 @@ const CreateRoleOrGroupForm = createReactClass({
     getInitialState(){
         return {
             groupId:'',
-            groupIdError:this.context.getMessage('ajxp_admin.user.16.empty'),
+            groupIdError:'',
             groupLabel:'',
-            groupLabelError:this.context.getMessage('ajxp_admin.user.17.empty'),
+            groupLabelError:'',
             roleId:'',
             roleLabel:'',
-            roleLabelError: this.context.getMessage('ajxp_admin.user.18.empty')
+            roleLabelError: ''
         }
     },
 
@@ -166,6 +166,7 @@ const CreateRoleOrGroupForm = createReactClass({
                         fullWidth={true}
                         floatingLabelText={this.context.getMessage('ajxp_admin.user.17')}
                         onKeyPress={(e) => {if (e.key === 'Enter') {this.submit()}}}
+                        variant={"v2"}
                     />
                     <ModernTextField
                         value={groupId}
@@ -174,6 +175,7 @@ const CreateRoleOrGroupForm = createReactClass({
                         fullWidth={true}
                         floatingLabelText={this.context.getMessage('ajxp_admin.user.16')}
                         onKeyDown={(e) => {if (e.key === 'Enter') {this.submit()}}}
+                        variant={"v2"}
                     />
                 </div>
             );
@@ -181,18 +183,22 @@ const CreateRoleOrGroupForm = createReactClass({
             return (
                 <div style={{width:'100%'}}>
                     <ModernTextField
+                        fullWidth={true}
                         value={roleLabel}
                         errorText={roleLabelError}
                         onChange={(e,v)=>{this.update({roleLabel:v})}}
                         floatingLabelText={this.context.getMessage('role_editor.32')}
                         onKeyDown={(e) => {if (e.key === 'Enter') {this.submit()}}}
+                        variant={"v2"}
                     />
                     <ModernTextField
+                        fullWidth={true}
                         value={roleId}
                         errorText={roleIdError}
                         floatingLabelText={this.context.getMessage("role_editor.31.hint")}
                         onChange={(e,v)=>{this.update({roleId:v})}}
                         onKeyDown={(e) => {if (e.key === 'Enter') {this.submit()}}}
+                        variant={"v2"}
                     />
                 </div>
             );

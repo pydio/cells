@@ -118,6 +118,7 @@ const CreateUserForm = createReactClass({
                             floatingLabelText={this.context.getMessage('ajxp_admin.user.21')}
                             errorText={this.state.loginErrorText}
                             autoComplete={"nope"}
+                            variant={"v2"}
                         />
                     </div>
                     <div>
@@ -129,6 +130,7 @@ const CreateUserForm = createReactClass({
                             fullWidth={true}
                             errorText={this.state.passErrorText || this.state.passHintText}
                             autoComplete={"new-password"}
+                            variant={"v2"}
                         />
                     </div>
                     <div>
@@ -140,6 +142,7 @@ const CreateUserForm = createReactClass({
                             fullWidth={true}
                             errorText={this.state.confirmErrorText}
                             autoComplete={"confirm-password"}
+                            variant={"v2"}
                         />
                     </div>
                 </form>

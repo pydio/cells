@@ -57,7 +57,6 @@ class LabelPanel extends React.Component {
                 pydio={pydio}
                 layoutData={layoutData}
                 hideTitle={true}
-                readonly={model.getNode().isLeaf()}
             />;
         }
 

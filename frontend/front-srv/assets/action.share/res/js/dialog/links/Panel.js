@@ -50,7 +50,8 @@ export class PaneToggler extends React.Component {
                 padding: 16,
                 paddingBottom: active?8: 16,
                 display:'flex',
-                alignItems:'center'
+                alignItems:'center',
+                fontWeight: active?500:null
             },
             legend: {
                 opacity:0.4,

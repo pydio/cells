@@ -210,9 +210,15 @@ class CompositeCard extends React.Component {
                 if(publicLinkModel.getLinkUuid()){
                     // LABEL PANEL
                     active = true
-                    additionalPanes.push({...LinkLabelTitle(model, publicLinkModel, m), content:<LabelPanel pydio={pydio} linkModel={links[0]} model={model}/>});
+                    additionalPanes.push({
+                        ...LinkLabelTitle(model, publicLinkModel, m),
+                        content:<LabelPanel pydio={pydio} linkModel={links[0]} model={model} showLayout={true}/>
+                    });
                     if(links[0].isEditable()){
-                        additionalPanes.push({title:m('link.visibility.title'),content:<VisibilityPanel pydio={pydio} linkModel={links[0]} style={{margin:-20}}/>});
+                        additionalPanes.push({
+                            title:m('link.visibility.title'),
+                            content:<VisibilityPanel pydio={pydio} linkModel={links[0]} style={{margin:-10}}/>
+                        });
                     }
                 }
 

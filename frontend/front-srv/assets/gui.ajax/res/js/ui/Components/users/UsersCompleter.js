@@ -235,24 +235,24 @@ class UsersLoader extends React.Component {
      */
     onCompleterRequest = (value, index) => {
 
-        const {freeValueAllowed} = this.props;
+        const {freeValueAllowed, onValueSelected} = this.props;
         if(index === -1){
             this.state.dataSource.map(function(entry){
                 if(entry.text === value){
                     value = entry;
                 }
             });
-            if(value && !value.userObject && this.props.freeValueAllowed){
-                this.props.onValueSelected({FreeValue: value.text});
+            if(value && !value.userObject && freeValueAllowed){
+                onValueSelected({FreeValue: value.text});
                 this.setState({searchText: '', dataSource:[]});
                 return;
             }
         }
         if(value){
             if(value.userObject){
-                this.props.onValueSelected(value.userObject);
+                onValueSelected(value.userObject);
             } else if (freeValueAllowed) {
-                this.props.onValueSelected({FreeValue: value.text});
+                onValueSelected({FreeValue: value.text});
             } else {
                 this.setState({createUser: value.text});
             }
@@ -305,39 +305,31 @@ class UsersLoader extends React.Component {
 
     render() {
 
+        const {pydio, className, fieldLabel, underlineHide, showAddressBook, usersFrom} = this.props;
         const {dataSource, createUser} = this.state;
         const containerStyle = {position:'relative', overflow: 'visible'};
 
         return (
             <div style={containerStyle} ref={(el)=>{this._popoverAnchor = el;}}>
+                <ModernAutoComplete
+                    filter={AutoComplete.noFilter}
+                    dataSource={dataSource}
+                    searchText={this.state.searchText}
+                    onUpdateInput={this.textFieldUpdate}
+                    className={className}
+                    openOnFocus={true}
+                    floatingLabelText={fieldLabel}
+                    floatingLabelFixed={true}
+                    underlineShow={!underlineHide}
+                    fullWidth={true}
+                    onNewRequest={this.onCompleterRequest}
+                    listStyle={{maxHeight: 350, overflowY: 'auto'}}
+                    onFocus={() => {this.loadBuffered(this.state.searchText, 100)}}
+                    disabled={createUser}
+                    hintText={createUser?pydio.MessageHash[485] + ' (' + createUser + ')':null}
+                />
                 {!createUser &&
-                    <ModernAutoComplete
-                        filter={AutoComplete.noFilter}
-                        dataSource={dataSource}
-                        searchText={this.state.searchText}
-                        onUpdateInput={this.textFieldUpdate}
-                        className={this.props.className}
-                        openOnFocus={true}
-                        floatingLabelText={this.props.fieldLabel}
-                        floatingLabelFixed={true}
-                        underlineShow={!this.props.underlineHide}
-                        fullWidth={true}
-                        onNewRequest={this.onCompleterRequest}
-                        listStyle={{maxHeight: 350, overflowY: 'auto'}}
-                        onFocus={() => {this.loadBuffered(this.state.searchText, 100)}}
-                    />
-                }
-                {createUser &&
-                    <TextField
-                        floatingLabelText={this.props.fieldLabel}
-                        value={global.pydio.MessageHash[485] + ' (' + this.state.createUser + ')'}
-                        disabled={true}
-                        fullWidth={true}
-                        underlineShow={!this.props.underlineHide}
-                    />
-                }
-                {!createUser &&
-                    <div style={{position:'absolute', right:this.props.showAddressBook?44:10, bottom: 14, height: 20, width: 20}}>
+                    <div style={{position:'absolute', right:showAddressBook?44:10, bottom: 14, height: 20, width: 20}}>
                         <RefreshIndicator
                             size={20}
                             left={0}
@@ -346,13 +338,13 @@ class UsersLoader extends React.Component {
                         />
                     </div>
                 }
-                {this.props.showAddressBook && !createUser &&
+                {!createUser && showAddressBook &&
                     <AddressBook
                         mode="popover"
-                        pydio={this.props.pydio}
+                        pydio={pydio}
                         loaderStyle={{width: 320, height: 420}}
                         onItemSelected={this.onAddressBookItemSelected}
-                        usersFrom={this.props.usersFrom}
+                        usersFrom={usersFrom}
                         disableSearch={true}
                     />
                 }
@@ -363,14 +355,16 @@ class UsersLoader extends React.Component {
                     targetOrigin={{horizontal: 'left', vertical: 'top'}}
                     onRequestClose={this.onCreationCancelled}
                     canAutoPosition={false}
+                    style={this._popoverAnchor?{width:this._popoverAnchor.clientWidth}:{}}
+                    zDepth={3}
                 >
                     {createUser &&
                         <UserCreationForm
                             onUserCreated={this.onUserCreated.bind(this)}
                             onCancel={this.onCreationCancelled.bind(this)}
-                            style={{width:350, height: 320}}
-                            newUserName={this.state.createUser}
-                            pydio={this.props.pydio}
+                            style={{width:'100%', height: 320}}
+                            newUserName={createUser}
+                            pydio={pydio}
                         />
                     }
                 </Popover>

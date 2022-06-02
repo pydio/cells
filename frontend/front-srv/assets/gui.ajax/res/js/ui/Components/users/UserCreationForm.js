@@ -173,6 +173,8 @@ class UserCreationForm extends React.Component{
                     onChange={this.onValuesChange.bind(this)}
                     onValidStatusChange={this.changeValidStatus.bind(this)}
                     style={{overflowY: 'auto', flex:1}}
+                    variant={"v2"}
+                    variantShowLegend={true}
                 />
                 <Divider style={{flexShrink:0}}/>
                 <div style={{padding:8, textAlign:'right'}}>

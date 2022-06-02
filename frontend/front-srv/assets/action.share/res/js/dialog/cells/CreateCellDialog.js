@@ -128,8 +128,27 @@ class CreateCellDialog extends React.Component {
             content = (
                 <div>
                     <div>{this.m(275)}</div>
-                    <ModernTextField ref={"title"} floatingLabelText={this.m(276)} value={model.getLabel()} onChange={(e,v)=>{model.setLabel(v)}} fullWidth={true}/>
-                    <ModernTextField floatingLabelText={this.m(277)} value={model.getDescription()} onChange={(e,v)=>{model.setDescription(v)}} fullWidth={true}/>
+                    <ModernTextField
+                        ref={"title"}
+                        floatingLabelText={this.m(276)}
+                        value={model.getLabel()}
+                        onChange={(e,v)=>{model.setLabel(v)}}
+                        fullWidth={true}
+                        variant={"v2"}
+                        focusOnMount={true}
+                        onKeyPress={(ev) => {
+                            if (ev.key === 'Enter' && model.getLabel()) {
+                                this.submit();
+                            }
+                        }}
+                    />
+                    <ModernTextField
+                        floatingLabelText={this.m(277)}
+                        value={model.getDescription()}
+                        onChange={(e,v)=>{model.setDescription(v)}}
+                        fullWidth={true}
+                        variant={"v2"}
+                    />
                 </div>
             );
 

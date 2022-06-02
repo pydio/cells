@@ -63,6 +63,7 @@ class TeamCreationForm extends Component{
                         onKeyPress={(ev) => {if(ev.key==='Enter'){
                             this.submitCreationForm();
                         }}}
+                        variant={"v2"}
                     />
                 </div>
                 <div>
