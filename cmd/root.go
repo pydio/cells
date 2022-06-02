@@ -247,13 +247,8 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 		new = true
 		var data interface{}
 		if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-			if err := config.Get().Set(data); err == nil && config.RevisionsStore() != nil {
-				_ = config.RevisionsStore().Put(&revisions.Version{
-					User: "cli",
-					Date: time.Now(),
-					Log:  "Initialize with sample config",
-					Data: data,
-				})
+			if err := config.Get().Set(data); err == nil {
+				config.Save(common.PydioSystemUsername, "Initialize with sample config")
 			}
 		}
 	}
