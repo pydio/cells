@@ -151,8 +151,8 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 		}
 		if er != nil {
 			er = errors2.Wrap(er, "service.Start "+s.Name())
+			s.updateRegister(registry.StatusError)
 		}
-		s.updateRegister(registry.StatusError)
 	}()
 
 	s.updateRegister(registry.StatusStarting)
