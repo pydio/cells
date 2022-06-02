@@ -25,8 +25,6 @@ import (
 	"fmt"
 	mock2 "github.com/pydio/cells/v4/common/config/mock"
 	"github.com/pydio/cells/v4/common/server"
-	"time"
-
 	"log"
 	"net"
 	"testing"
@@ -161,66 +159,6 @@ func TestServiceRegistry(t *testing.T) {
 
 	fmt.Println(resp2, err2)
 
-	//reg := registryservice.GraphRegistry(registryservice.WithConn(conn))
-	//
-	//createApp2(reg)
-	//
-	//fmt.Println(listenerApp1, reg)
-
-	//cgrpc.RegisterMock("test.registry", discoverytest.NewRegistryService())
-	//ctx := context.Background()
-	//mem, _ := registry.OpenRegistry(ctx, "memory://")
-	//
-	//ctx = servicecontext.WithRegistry(ctx, reg)
-	//ctx = servercontext.WithRegistry(ctx, reg)
-	//
-	//listener := bufconn.Listen(1024 * 1024)
-	//srv := New(ctx, WithListener(listener))
-	//
-	//svcRegistry := service.NewService(
-	//	service.Name("test.registry"),
-	//	service.Context(ctx),
-	//	service.WithServer(srv),
-	//	service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
-	//		pbregistry.RegisterRegistryServer(srv, discoveryregistry.NewHandler(mem))
-	//		return nil
-	//	}),
-	//)
-	//
-	//srv.BeforeServe(svcRegistry.Start)
-	//srv.BeforeStop(svcRegistry.Stop)
-	//
-	//reg, _ := registry.OpenRegistry(ctx, "grpc://test.registry")
-	//
-	//// Create a new service
-	//svc := service.NewService(
-	//	service.Name("test.service"),
-	//	service.Context(ctx),
-	//	service.WithServer(srv),
-	//	service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
-	//		helloworld.RegisterGreeterServer(srv, &mock{})
-	//		return nil
-	//	}),
-	//)
-	//
-	//srv.BeforeServe(svc.Start)
-	//srv.BeforeStop(svc.Stop)
-	//
-	//go func() {
-	//	<-time.After(5 * time.Second)
-	//	if err := srv.Serve(); err != nil {
-	//		log.Fatal(err)
-	//	}
-	//}()
-	//conn2 := cgrpc.GetClientConnFromCtx(ctx, "test.service", cgrpc.WithDialOptions(
-	//	grpc.WithResolvers(cgrpc.NewBuilder(reg)),
-	//))
-
-	//
-	//cli2 := helloworld.NewGreeterClient(conn)
-	//resp2, err2 := cli2.SayHello(ctx, &helloworld.HelloRequest{Name: "test2"})
-	//
-	//fmt.Println(resp2, err2)
 }
 
 type delayedRegistry struct {
@@ -228,10 +166,7 @@ type delayedRegistry struct {
 }
 
 func (r *delayedRegistry) Register(i registry.Item, option ...registry.RegisterOption) error {
-	go func() {
-		<-time.After(5 * time.Second)
-		r.Registry.Register(i, option...)
-	}()
 
-	return nil
+	//<-time.After(5 * time.Second)
+	return r.Registry.Register(i, option...)
 }
