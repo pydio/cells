@@ -24,6 +24,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/spf13/pflag"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -121,10 +122,11 @@ func init() {
 	RootCmd.PersistentFlags().String(runtime.KeyConfig, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName), "Configuration URL")
 
 	RootCmd.PersistentFlags().String(runtime.KeyVault, "detect", "Vault URL")
-	_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyVault)
+	//_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyVault)
 
 	RootCmd.PersistentFlags().String(runtime.KeyKeyring, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultKeyringFileName)+"?keyring=true", "Keyring URL")
-	_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyKeyring)
+	//_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyKeyring)
+
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -324,4 +326,17 @@ func initLogLevelListener(ctx context.Context) {
 	if er != nil {
 		fmt.Println("Cannot subscribe to broker for TopicLogLevelEvent", er.Error())
 	}
+}
+
+// bindViperFlags visits all flags in FlagSet and bind their key to the corresponding viper variable
+func bindViperFlags(flags *pflag.FlagSet, replaceKeys ...map[string]string) {
+	flags.VisitAll(func(flag *pflag.Flag) {
+		key := flag.Name
+		for _, replaceKey := range replaceKeys {
+			if replace, ok := replaceKey[flag.Name]; ok {
+				key = replace
+			}
+		}
+		_ = cellsViper.BindPFlag(key, flag)
+	})
 }

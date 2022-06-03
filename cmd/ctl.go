@@ -483,7 +483,7 @@ var ctlCmd = &cobra.Command{
 	Use:   "ctl",
 	Short: "Registry Explorer",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		bindViperFlags(cmd.Flags(), map[string]string{})
+		bindViperFlags(cmd.Flags())
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {

@@ -22,8 +22,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-
-	"github.com/pydio/cells/v4/common/runtime"
 )
 
 // configDatabaseCmd is the parent for database config commands.
@@ -37,10 +35,7 @@ DESCRIPTION
   Each service can be configured to point to its own database. This command provides ways to manage databases.
 `,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		bindViperFlags(cmd.Flags(), map[string]string{
-			runtime.KeyFork: runtime.KeyForkLegacy,
-		})
-
+		bindViperFlags(cmd.Flags())
 		_, _, er := initConfig(cmd.Context(), false)
 		return er
 	},
@@ -50,5 +45,5 @@ DESCRIPTION
 }
 
 func init() {
-	ConfigureCmd.AddCommand(configDatabaseCmd)
+	ConfigCmd.AddCommand(configDatabaseCmd)
 }

@@ -34,12 +34,6 @@ DESCRIPTION
   Set of commands providing programmatic access to stored configuration.
 
 `,
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		bindViperFlags(cmd.Flags(), map[string]string{})
-
-		_, _, er := initConfig(ctx, false)
-		return er
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

@@ -39,7 +39,7 @@ DESCRIPTION
 `,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 
-		bindViperFlags(cmd.Flags(), map[string]string{})
+		bindViperFlags(cmd.Flags())
 
 		_, _, er := initConfig(cmd.Context(), true)
 

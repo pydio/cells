@@ -98,7 +98,7 @@ EXAMPLE
 
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		bindViperFlags(cmd.Flags(), map[string]string{})
+		bindViperFlags(cmd.Flags())
 
 		return nil
 	},
