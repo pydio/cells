@@ -23,10 +23,13 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"net"
 	"net/url"
 	"os/exec"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -78,9 +81,10 @@ func (b itemsByType) Less(i, j int) bool {
 func (b itemsByType) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
 
 type model struct {
-	ctx      context.Context
-	reg      registry.Registry
-	regClose context.CancelFunc
+	ctx        context.Context
+	reg        registry.Registry
+	regClose   context.CancelFunc
+	centerMode string
 
 	app          *tview.Application
 	title        *tview.TextView
@@ -90,6 +94,8 @@ type model struct {
 	edgesList    *tview.List
 	buttonsPanel *tview.Flex
 	crtButtons   []tview.Primitive
+	configsView  *tview.TreeView
+	cfg          configx.Values
 
 	items       []item
 	edges       []item
@@ -377,6 +383,55 @@ func (m *model) renderButtons(i registry.Item) {
 	}
 }
 
+func (m *model) initConfigView() {
+	if m.cfg == nil {
+		_, _, _ = initConfig(m.ctx, false)
+		m.cfg = config.Get()
+		m.configsView.SetSelectedFunc(func(node *tview.TreeNode) {
+			node.SetExpanded(!node.IsExpanded())
+		})
+	}
+	root := tview.NewTreeNode("Configs")
+	m.configsView.SetRoot(root)
+	root.SetExpanded(true)
+	m.populateTreeNode(root, []string{}, m.cfg)
+}
+
+func (m *model) populateTreeNode(node *tview.TreeNode, pa []string, val configx.Values) {
+	defer func() {
+		recover()
+	}()
+	var mi map[string]interface{}
+	var mi1 []interface{}
+	if er := val.Scan(&mi1); er == nil {
+		for k := range mi1 {
+			if subVal, ok := mi1[k].(map[string]interface{}); ok {
+				c := tview.NewTreeNode(strconv.Itoa(k))
+				node.AddChild(c)
+				c.SetExpanded(false).SetSelectable(true)
+				subConf := configx.New()
+				for sk, sv := range subVal {
+					subConf.Val(sk).Set(sv)
+				}
+				m.populateTreeNode(c, append(pa, strconv.Itoa(k)), subConf)
+			} else {
+				c := tview.NewTreeNode(fmt.Sprintf("%v", subVal))
+				node.AddChild(c)
+			}
+		}
+	} else if e := val.Scan(&mi); e == nil {
+		for k := range mi {
+			c := tview.NewTreeNode(k)
+			node.AddChild(c)
+			c.SetExpanded(false)
+			c.SetSelectable(true)
+			m.populateTreeNode(c, append(pa, k), val.Val(k))
+		}
+	} else {
+		node.SetText(node.GetText() + ": " + val.String())
+	}
+}
+
 func (m *model) sendCommand(cmdName, itemName string) {
 	if m.br == nil {
 		if er := m.lazyBroker(); er != nil {
@@ -436,17 +491,19 @@ var ctlCmd = &cobra.Command{
 		app := tview.NewApplication()
 
 		m := &model{
-			ctx: cmd.Context(),
-			app: app,
+			ctx:        cmd.Context(),
+			app:        app,
+			centerMode: "list",
 			types: []item{
 				{main: "Nodes", secondary: "Main Processes", shortcut: 'a', it: pb.ItemType_NODE},
 				{main: "Services", secondary: "Cells Services", shortcut: 'b', it: pb.ItemType_SERVICE},
-				{main: "Servers", secondary: "Cells Servers", shortcut: 'c', it: pb.ItemType_SERVER},
+				{main: "Servers", secondary: "Cells Servers", shortcut: 's', it: pb.ItemType_SERVER},
 				{main: "DAOs", secondary: "Data Stores", shortcut: 'd', it: pb.ItemType_DAO},
 				{main: "Addresses", secondary: "Running Servers", shortcut: 'e', it: pb.ItemType_ADDRESS},
 				{main: "Endpoints", secondary: "Registered API Endpoints", shortcut: 'f', it: pb.ItemType_ENDPOINT},
 				{main: "Tags", secondary: "Grouping Tags", shortcut: 'g', it: pb.ItemType_TAG},
 				{main: "Stats", secondary: "Statistics", shortcut: 'h', it: pb.ItemType_STATS},
+				{main: "Configs", secondary: "Configuration Keys", shortcut: 'c'},
 				{main: "Quit", secondary: "Press to exit", shortcut: 'q', selected: func() {
 					app.Stop()
 				}},
@@ -479,12 +536,38 @@ var ctlCmd = &cobra.Command{
 			m.typesList, m.itemsList, m.filterText, m.metaView, m.edgesList,
 		}
 
+		centerPanel := tview.NewFlex().SetDirection(tview.FlexRow)
+		m.configsView = tview.NewTreeView()
+		m.configsView.SetBorder(true).SetTitle("| Configurations |")
+
+		reloadButton := tview.NewButton("Reload").SetSelectedFunc(func() {
+			m.loadItems(m.getCurrentItem().ri, registry.WithType(m.types[m.currentType].it))
+		})
+
 		m.filterText.SetChangedFunc(func(text string) {
 			m.filterChanged(text)
 		})
 
 		m.typesList.SetChangedFunc(func(index int, mainText string, secondaryText string, shortcut rune) {
-			m.typesChanged(index)
+			if mainText == "Configs" && m.centerMode == "list" {
+				centerPanel.Clear()
+				centerPanel.AddItem(m.configsView, 0, 1, false)
+				m.centerMode = "config"
+				m.initConfigView()
+			} else if mainText != "Configs" {
+				if m.centerMode == "config" {
+					m.centerMode = "list"
+					centerPanel.Clear()
+					centerPanel.
+						AddItem(m.itemsList, 0, 1, false).
+						AddItem(tview.NewFlex().
+							AddItem(reloadButton, 10, 0, false).
+							AddItem(m.filterText, 0, 1, false),
+							3, 0, false)
+				}
+				m.typesChanged(index)
+
+			}
 		})
 		m.itemsList.SetChangedFunc(func(index int, mainText string, secondaryText string, shortcut rune) {
 			m.itemsChanged(index)
@@ -498,13 +581,9 @@ var ctlCmd = &cobra.Command{
 		m.updateList(m.typesList, m.types, m.currentType)
 		//m.loadItems(nil, registry.WithType(pb.ItemType_NODE))
 
-		reloadButton := tview.NewButton("Reload").SetSelectedFunc(func() {
-			m.loadItems(m.getCurrentItem().ri, registry.WithType(m.types[m.currentType].it))
-		})
-
 		flex := tview.NewFlex().
 			AddItem(m.typesList, 0, 1, true).
-			AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+			AddItem(centerPanel.
 				AddItem(m.itemsList, 0, 1, false).
 				AddItem(tview.NewFlex().
 					AddItem(reloadButton, 10, 0, false).

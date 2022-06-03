@@ -24,7 +24,6 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/net"
 )
 
 // addRegistryFlags registers necessary flags to connect to the registry (defaults to memory)
@@ -34,8 +33,9 @@ func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 	flags.String(runtime.KeyBroker, "mem://", "Pub/sub service for events between services")
 	flags.String(runtime.KeyDiscovery, "mem://", "Combine registry, config and pub/sub discovery service")
 
-	flags.Int(runtime.KeyRegistryPort, net.GetAvailableRegistryAltPort(), "Port used to start a registry discovery service")
-	flags.Int(runtime.KeyBrokerPort, net.GetAvailableBrokerAltPort(), "Port used to start a broker discovery service")
+	//Todo: remove ?
+	//flags.Int(runtime.KeyRegistryPort, net.GetAvailableRegistryAltPort(), "Port used to start a registry discovery service")
+	//flags.Int(runtime.KeyBrokerPort, net.GetAvailableBrokerAltPort(), "Port used to start a broker discovery service")
 
 	if len(hideAll) > 0 && hideAll[0] {
 		flags.MarkHidden(runtime.KeyDiscovery)
