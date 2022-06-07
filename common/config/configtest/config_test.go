@@ -118,6 +118,7 @@ func TestGetSetFile(t *testing.T) {
 
 	testGetSet(t, store)
 	testVault(t, store, vault)
+	testWatch(t, store)
 
 	store.Save("configtest", "configtest")
 	vault.Save("configtest", "configtest")

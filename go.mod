@@ -110,6 +110,7 @@ require (
 	github.com/yvasiyarov/php_session_decoder v0.0.0-20180803065642-a065a3b0b7d1
 	github.com/zalando/go-keyring v0.1.1
 	go.etcd.io/bbolt v1.3.6
+	go.etcd.io/etcd/api/v3 v3.5.4 // indirect
 	go.etcd.io/etcd/client/v3 v3.5.0
 	go.mongodb.org/mongo-driver v1.8.3
 	go.uber.org/zap v1.20.0
