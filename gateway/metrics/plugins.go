@@ -50,7 +50,7 @@ func init() {
 				service.Name(serviceName),
 				service.Context(ctx),
 				service.Tag(common.ServiceTagGateway),
-				service.Description("Gather metrics for external tools (prometheus and pprof formats)"),
+				service.Description("Gather metrics endpoints for prometheus inside a prom.json file"),
 				service.WithGeneric(func(c context.Context, server *generic.Server) error {
 					srv := &metricsServer{ctx: c, name: serviceName}
 					return srv.Start()
@@ -61,6 +61,7 @@ func init() {
 				service.Name(promServiceName),
 				service.Context(ctx),
 				service.Tag(common.ServiceTagGateway),
+				service.Description("Expose metrics for external tools (prometheus and pprof formats)"),
 				service.ForceRegister(true),
 				service.WithPureHTTP(func(ctx context.Context, mux server.HttpMux) error {
 					mux.Handle("/metrics", h.HTTPHandler())
@@ -81,7 +82,7 @@ func init() {
 				service.Context(ctx),
 				service.ForceRegister(true),
 				service.Tag(common.ServiceTagGateway),
-				service.Description("Expose pprof data"),
+				service.Description("Expose pprof data as an HTTP endpoint"),
 				service.WithHTTP(func(ctx context.Context, mu server.HttpMux) error {
 					subRouter := mux.NewRouter()
 					subRouter.HandleFunc("/debug/pprof/", pprof.Index)
