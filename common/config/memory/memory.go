@@ -189,8 +189,7 @@ func (r *receiver) call(op diff.Change) error {
 	}
 
 	for _, path := range r.paths {
-		fmt.Println(path, op.Path)
-		if strings.Join(path, "") == "" || strings.HasPrefix(strings.Join(path, "/"), strings.Join(op.Path, "/")) {
+		if strings.Join(path, "") == "" || strings.HasPrefix(strings.Join(path, "/"), strings.Join(op.Path[1:], "/")) {
 			r.ch <- op
 		}
 	}

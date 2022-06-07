@@ -1,11 +1,11 @@
 package file
 
 import (
-	"bytes"
 	"context"
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/r3labs/diff/v3"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -98,7 +98,10 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 
 type file struct {
 	v    configx.Values
+	snap configx.Values
 	path string
+
+	opts      []configx.Option
 
 	mainMtx *sync.Mutex
 	mtx     *sync.RWMutex
@@ -131,6 +134,7 @@ func New(path string, opts ...configx.Option) (config.Store, error) {
 	f := &file{
 		v:       v,
 		path:    path,
+		opts: opts,
 		mainMtx: &sync.Mutex{},
 		mtx:     mtx,
 		reset:   make(chan bool),
@@ -148,15 +152,29 @@ func (f *file) flush() {
 		case <-f.reset:
 			f.timer.Reset(100 * time.Millisecond)
 		case <-f.timer.C:
-			var updated []*receiver
-
-			for _, r := range f.receivers {
-				if err := r.call(); err == nil {
-					updated = append(updated, r)
-				}
+			patch, err := diff.Diff(f.snap, f.v)
+			if err != nil {
+				continue
 			}
 
-			f.receivers = updated
+			for _, op := range patch {
+				var updated []*receiver
+
+				for _, r := range f.receivers {
+					if err := r.call(op); err == nil {
+						updated = append(updated, r)
+					}
+				}
+
+				f.receivers = updated
+			}
+
+			snap := configx.New(f.opts...)
+			if err := snap.Set(f.v.Val().Get()); err != nil {
+				continue
+			}
+
+			f.snap = snap
 		}
 	}
 }
@@ -223,46 +241,82 @@ func (f *file) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		opt(o)
 	}
 
-	path := o.Paths[0]
-
 	r := &receiver{
-		closed:  false,
-		ch:      make(chan struct{}),
-		p:       path,
-		v:       f.v,
-		current: f.v.Val(path...).Bytes(),
+		closed:      false,
+		ch:          make(chan diff.Change),
+		paths:       o.Paths,
+		f:           f,
+		timer: time.NewTimer(2* time.Second),
+		changesOnly: o.ChangesOnly,
 	}
 
 	f.receivers = append(f.receivers, r)
 
-	// For the moment do nothing
 	return r, nil
 }
 
 type receiver struct {
 	closed  bool
-	ch      chan struct{}
-	p       []string
-	v       configx.Values
-	current []byte
+	ch     chan diff.Change
+
+	paths       [][]string
+	changesOnly bool
+
+	timer *time.Timer
+
+	f *file
 }
 
-func (r *receiver) call() error {
+func (r *receiver) call(op diff.Change) error {
 	if r.closed {
 		return errClosedChannel
 	}
-	r.ch <- struct{}{}
+
+	if len(r.paths) == 0 {
+		r.ch <- op
+	}
+
+	for _, path := range r.paths {
+		if strings.Join(path, "") == "" || strings.HasPrefix(strings.Join(op.Path[1:], "/"), strings.Join(path, "/")) {
+			r.ch <- op
+		}
+	}
 	return nil
 }
 
 func (r *receiver) Next() (interface{}, error) {
-	select {
-	case <-r.ch:
-		neu := r.v.Val(r.p...)
-		neuB := neu.Bytes()
-		if bytes.Compare(r.current, neuB) != 0 {
-			r.current = neuB
-			return neu, nil
+	changes := []diff.Change{}
+
+	for {
+		select {
+		case op := <-r.ch:
+			changes = append(changes, op)
+
+			r.timer.Reset(2 * time.Second)
+		case <-r.timer.C:
+			if len(changes) == 0 {
+				continue
+			}
+
+			c := configx.New()
+
+			if r.changesOnly {
+				for _, op := range changes {
+					if err := c.Val(op.Type).Val(op.Path[1:]...).Set(op.To); err != nil {
+						return nil, err
+					}
+				}
+
+				return c, nil
+			}
+
+			for _, op := range changes {
+				if err := c.Val(op.Path[1:]...).Set(op.To); err != nil {
+					return nil, err
+				}
+			}
+
+			return c, nil
 		}
 	}
 
@@ -279,6 +333,10 @@ type values struct {
 	lock sync.Locker
 
 	f *file
+}
+
+func (v *values) Val(path ...string) configx.Values {
+	return &values{Values: v.Values.Val(path...), lock: v.lock, f: v.f}
 }
 
 func (v *values) Set(data interface{}) error {
