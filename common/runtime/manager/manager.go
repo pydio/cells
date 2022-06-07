@@ -317,19 +317,24 @@ func (m *manager) servicesRunningOn(server server.Server) (ss []service.Service)
 }
 
 func (m *manager) WatchServicesConfigs() {
-	ch, err := config.WatchMap(configx.WithPath("services"))
+	res, err := config.Watch(configx.WithPath("services"), configx.WithChangesOnly())
 	if err != nil {
 		return
 	}
-	for kv := range ch {
-		ss, err := m.reg.List(registry.WithName(kv.Key))
-		if err != nil || len(ss) == 0 {
-			continue
-		}
-		var svc service.Service
-		if ss[0].As(&svc) && svc.Options().AutoRestart {
-			if er := m.stopService(svc); er == nil {
-				_ = m.startService(svc)
+	for {
+		v, _ := res.Next()
+		mm := v.(configx.Values).Val("update", "services").Map()
+
+		for k, _ := range mm {
+			ss, err := m.reg.List(registry.WithName(k), registry.WithType(pb.ItemType_SERVICE))
+			if err != nil || len(ss) == 0 {
+				continue
+			}
+			var svc service.Service
+			if ss[0].As(&svc) && svc.Options().AutoRestart {
+				if er := m.stopService(svc); er == nil {
+					_ = m.startService(svc)
+				}
 			}
 		}
 	}
