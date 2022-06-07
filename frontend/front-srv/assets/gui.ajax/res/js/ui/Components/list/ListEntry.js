@@ -86,7 +86,7 @@ class ListEntry extends React.Component {
         }
 
         if(node){
-            mainClasses.push('listentry' + node.getPath().replace(/\//g, '_'));
+            mainClasses.push('listentry' + node.getPath().replace(/[\/.{}:]/g, '_'));
             mainClasses.push('ajxp_node_' + (node.isLeaf()?'leaf':'collection'));
             if(node.getAjxpMime()){
                 mainClasses.push('ajxp_mime_' + node.getAjxpMime())
