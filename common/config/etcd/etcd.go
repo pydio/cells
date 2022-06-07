@@ -30,11 +30,14 @@ import (
 	"sync"
 	"time"
 
+	clientv3 "go.etcd.io/etcd/client/v3"
+	"go.etcd.io/etcd/api/v3/mvccpb"
+	"github.com/r3labs/diff/v3"
+
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/utils/configx"
 
-	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 var (
@@ -97,14 +100,15 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 }
 
 type etcd struct {
-	committed   configx.Values
-	uncommitted configx.Values
+	values      configx.Values
+	valuesLocker      *sync.RWMutex
 	ops         chan clientv3.Op
 
 	prefix    string
 	withKeys  bool
 	cli       *clientv3.Client
 	leaseID   clientv3.LeaseID
+
 	locker    sync.Locker
 	receivers []*receiver
 	reset     chan bool
@@ -140,8 +144,8 @@ func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLea
 	}
 
 	m := &etcd{
-		committed:   configx.New(opts...),
-		uncommitted: configx.New(opts...),
+		values: configx.New(opts...),
+		valuesLocker: &sync.RWMutex{},
 		ops:         make(chan clientv3.Op, 3000),
 		cli:         cli,
 		prefix:      prefix,
@@ -170,17 +174,14 @@ func (m *etcd) get(ctx context.Context) {
 	for _, op := range res.Kvs {
 		key := strings.TrimPrefix(string(op.Key), m.prefix)
 		key = strings.TrimPrefix(key, "/")
-		if err := m.committed.Val(key).Set(op.Value); err != nil {
-			fmt.Println("Error in etcd watch setting value for key ", op.Key)
-		}
-		if err := m.uncommitted.Val(key).Set(op.Value); err != nil {
+		if err := m.values.Val(key).Set(op.Value); err != nil {
 			fmt.Println("Error in etcd watch setting value for key ", op.Key)
 		}
 	}
 }
 
 func (m *etcd) watch(ctx context.Context) {
-	watcher := m.cli.Watch(ctx, m.prefix, clientv3.WithPrefix())
+	watcher := m.cli.Watch(ctx, m.prefix, clientv3.WithPrefix(), clientv3.WithPrevKV())
 	for {
 		select {
 		case res, ok := <-watcher:
@@ -192,39 +193,88 @@ func (m *etcd) watch(ctx context.Context) {
 				key := strings.TrimPrefix(string(op.Kv.Key), m.prefix)
 				key = strings.TrimPrefix(key, "/")
 				// key := strings.TrimPrefix(string(op.Kv.Key), m.prefix+"/")
-				if err := m.committed.Val(key).Set(op.Kv.Value); err != nil {
+				if err := m.values.Val(key).Set(op.Kv.Value); err != nil {
 					fmt.Println("Error in etcd watch setting value for key ", op.Kv.Key)
 				}
 
-				updated := m.receivers[:0]
-				for _, r := range m.receivers {
-					if err := r.call(op); err == nil {
-						updated = append(updated, r)
+				var ops []*clientv3.Event
+				if !m.withKeys {
+					if op.PrevKv == nil {
+						continue
 					}
+					prev := configx.New(m.opts...)
+					neu := configx.New(m.opts...)
+
+					prev.Set(op.PrevKv.Value)
+					neu.Set(op.Kv.Value)
+
+					patch, err := diff.Diff(prev.Interface(), neu.Interface())
+					if err != nil {
+						continue
+					}
+
+					// Sending all patches diff as events
+					for _, p := range patch {
+						typ := clientv3.EventTypePut
+						if p.Type == diff.DELETE {
+							typ = clientv3.EventTypeDelete
+						}
+
+						ops = append(ops, &clientv3.Event{
+							Type: typ,
+							Kv: &mvccpb.KeyValue{
+								Key: []byte(strings.Join(p.Path, "/")),
+								Value: neu.Val(p.Path...).Bytes(),
+								CreateRevision: op.Kv.CreateRevision,
+								ModRevision: op.Kv.ModRevision,
+							},
+							PrevKv: &mvccpb.KeyValue{
+								Key: []byte(strings.Join(p.Path, "/")),
+								Value: prev.Val(p.Path...).Bytes(),
+								CreateRevision: op.PrevKv.CreateRevision,
+								ModRevision: op.PrevKv.ModRevision,
+							},
+						})
+					}
+				} else {
+					ops = append(ops, op)
 				}
 
-				m.receivers = updated
+				for _, op := range ops {
+					updated := m.receivers[:0]
+					for _, r := range m.receivers {
+						if err := r.call(op); err == nil {
+							updated = append(updated, r)
+						}
+					}
+
+					m.receivers = updated
+				}
 			}
 		}
 	}
 }
 
 func (m *etcd) Get() configx.Value {
-	return m.committed
+	m.valuesLocker.RLock()
+	defer m.valuesLocker.RUnlock()
+
+	return m.values
 }
 
 func (m *etcd) Val(path ...string) configx.Values {
-	return &values{committed: m.committed, uncommitted: m.uncommitted, withKeys: m.withKeys, ops: m.ops, prefix: m.prefix, path: strings.Join(path, "/"), leaseID: m.leaseID, opts: m.opts}
+	return &values{values: m.values, valuesLocker: m.valuesLocker, withKeys: m.withKeys, ops: m.ops, prefix: m.prefix, path: strings.Join(path, "/"), leaseID: m.leaseID, opts: m.opts}
 }
 
 func (m *etcd) Set(data interface{}) error {
-	if err := m.uncommitted.Set(data); err != nil {
+	m.locker.Lock()
+	defer m.locker.Unlock()
+
+	if err := m.values.Set(data); err != nil {
 		return err
 	}
 
-	if m.withKeys {
-		m.ops <- clientv3.OpPut(m.prefix, string(m.uncommitted.Bytes()), clientv3.WithLease(m.leaseID))
-	}
+	m.ops <- clientv3.OpPut(m.prefix, string(m.values.Bytes()), clientv3.WithLease(m.leaseID))
 
 	return nil
 }
@@ -244,7 +294,6 @@ func (m *etcd) save(ctx context.Context) {
 		case <-m.saveCh:
 			m.saveTimer.Reset(100 * time.Millisecond)
 		case <-m.saveTimer.C:
-
 			var opsWithoutDuplicates []clientv3.Op
 
 			// First we remove all duplicate keys for transactions
@@ -289,13 +338,7 @@ func (m *etcd) save(ctx context.Context) {
 }
 
 func (m *etcd) Save(ctxUser string, ctxMessage string) error {
-	if m.withKeys {
-		m.saveCh <- true
-	} else {
-		if _, err := m.cli.Put(context.Background(), m.prefix, string(m.uncommitted.Bytes()), clientv3.WithLease(m.leaseID)); err != nil {
-			return err
-		}
-	}
+	m.saveCh <- true
 
 	return nil
 }
@@ -313,7 +356,6 @@ func (m *etcd) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 	for _, opt := range opts {
 		opt(o)
 	}
-	// path := o.Paths
 
 	r := &receiver{
 		closed:      false,
@@ -322,7 +364,7 @@ func (m *etcd) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		paths:       o.Paths,
 		changesOnly: o.ChangesOnly,
 		opts:        m.opts,
-		v:           m.committed,
+		v:           m.values,
 		timer:       time.NewTimer(2 * time.Second),
 	}
 
@@ -352,7 +394,7 @@ func (r *receiver) call(ev *clientv3.Event) error {
 	}
 
 	for _, path := range r.paths {
-		if strings.Join(path, "") == "" || strings.HasPrefix(strings.Join(path, "/"), string(ev.Kv.Key)) {
+		if strings.Join(path, "") == "" || strings.HasPrefix(string(ev.Kv.Key), strings.Join(path, "/")) {
 			r.ch <- ev
 		}
 	}
@@ -401,8 +443,8 @@ func (r *receiver) Stop() {
 }
 
 type values struct {
-	committed   configx.Values
-	uncommitted configx.Values
+	values configx.Values
+	valuesLocker *sync.RWMutex
 	ops         chan clientv3.Op
 	leaseID     clientv3.LeaseID
 	withKeys    bool
@@ -413,28 +455,41 @@ type values struct {
 }
 
 func (v *values) Set(value interface{}) error {
-	c := v.uncommitted.Val(v.path)
+	v.valuesLocker.Lock()
+	defer v.valuesLocker.Unlock()
+
+	c := v.values.Val(v.path)
 	if err := c.Set(value); err != nil {
 		return err
 	}
 
 	if v.withKeys {
 		v.ops <- clientv3.OpPut(strings.Join([]string{v.prefix, v.path}, "/"), string(c.Bytes()), clientv3.WithLease(v.leaseID))
+	} else {
+		v.ops <- clientv3.OpPut(v.prefix, string(v.values.Bytes()), clientv3.WithLease(v.leaseID))
 	}
 	return nil
 }
 
 func (v *values) Get() configx.Value {
-	return v.committed.Val(v.path)
+	v.valuesLocker.RLock()
+	defer v.valuesLocker.RUnlock()
+
+	return v.values.Val(v.path)
 }
 
 func (v *values) Del() error {
-	if err := v.uncommitted.Val(v.path).Del(); err != nil {
+	v.valuesLocker.Lock()
+	defer v.valuesLocker.Unlock()
+
+	if err := v.values.Val(v.path).Del(); err != nil {
 		return err
 	}
 
 	if v.withKeys {
 		v.ops <- clientv3.OpDelete(strings.Join([]string{v.prefix, v.path}, "/"))
+	} else {
+		v.ops <- clientv3.OpPut(v.prefix, string(v.values.Bytes()), clientv3.WithLease(v.leaseID))
 	}
 	return nil
 }
@@ -443,7 +498,7 @@ func (v *values) Val(path ...string) configx.Values {
 	if v.path != "" {
 		path = append([]string{v.path}, path...)
 	}
-	return &values{committed: v.committed, uncommitted: v.uncommitted, withKeys: v.withKeys, ops: v.ops, prefix: v.prefix, path: strings.Join(path, "/"), leaseID: v.leaseID, opts: v.opts}
+	return &values{values: v.values, valuesLocker: v.valuesLocker, withKeys: v.withKeys, ops: v.ops, prefix: v.prefix, path: strings.Join(path, "/"), leaseID: v.leaseID, opts: v.opts}
 }
 
 func (v *values) Default(i interface{}) configx.Value {

@@ -21,9 +21,8 @@
 package configtest
 
 import (
-	"testing"
-
 	. "github.com/smartystreets/goconvey/convey"
+	"testing"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -79,6 +78,7 @@ func testGetSet(t *testing.T, store config.Store) {
 
 			store.Val(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).Set(pwd)
 			So(store.Val(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).String(), ShouldEqual, pwd)
+
 			store.Val(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).Del()
 			So(store.Val(configx.FormatPath("services", "pydio.grpc.mailer", "sender", "password")).String(), ShouldEqual, "")
 

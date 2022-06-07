@@ -191,6 +191,8 @@ ENVIRONMENT
 			fatalIfError(cmd, err)
 			if installConf.FrontendLogin != "" {
 				// We assume we have completely configured Cells. Exit.
+				// TODO - allow time for config to be saved - probably a better way ?
+				<-time.After(1 * time.Second)
 				return
 			}
 
@@ -240,12 +242,17 @@ ENVIRONMENT
 			performBrowserInstall(cmd, ctx, proxyConf)
 		}
 
+		// TODO - allow time for config to be saved - probably a better way ?
+		<-time.After(1 * time.Second)
+
 		if niExitAfterInstall || (niModeCli && cmd.Name() != "start") {
 			cmd.Println("")
 			cmd.Println(promptui.IconGood + "\033[1m Installation Finished\033[0m")
 			cmd.Println("")
 			return
 		}
+
+
 
 		// Reset runtime and hardcode new command to run
 		initViperRuntime()
