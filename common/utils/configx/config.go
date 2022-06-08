@@ -355,7 +355,7 @@ func (c *config) Set(data interface{}) error {
 
 		c.opts.RWMutex.Lock()
 		if del {
-			mm = append(mm[:kk-1], mm[kk:]...)
+			mm = append(mm[:kk], mm[kk + 1:]...)
 		} else {
 			mm[kk] = data
 		}
