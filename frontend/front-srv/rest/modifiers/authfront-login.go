@@ -67,6 +67,8 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			}
 
 			out.RedirectTo = redirectURL + "?code=" + code + "&state=" + requestURLValues.Get("state")
+			session.Values["redirect_valid_username"] = username
+			session.Values["redirect_final_to"] = out.RedirectTo
 
 			return middleware(req, rsp, in, out, session)
 		}
