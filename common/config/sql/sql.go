@@ -174,8 +174,8 @@ func (s *SQL) Watch(oo ...configx.WatchOption) (configx.Receiver, error) {
 	}
 	r := &receiver{
 		exit:    make(chan bool),
-		path:    opts.Paths[0],
-		value:   s.Val(opts.Paths[0]...).Bytes(),
+		path:    opts.Path,
+		value:   s.Val(opts.Path...).Bytes(),
 		updates: make(chan []byte),
 	}
 
