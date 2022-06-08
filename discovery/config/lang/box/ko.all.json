@@ -15,7 +15,7 @@
     "other": "규칙적인 잘라내기"
   },
   "Prune versions regularly at various intervals": {
-    "other": "Prune versions regularly at various intervals"
+    "other": "지정한 주기마다 주기적으로 버전 제거"
   },
   "aclAction.Name": {
     "other": "이름"
@@ -75,10 +75,10 @@
     "other": "작업 시간이 다음 시간보다 큼"
   },
   "actionOutputSingleQuery.TaskTimeLt": {
-    "other": "Task time lower than"
+    "other": "작업 시간이 다음보다 작음"
   },
   "actionOutputSingleQuery.FreeCondition": {
-    "other": "Free Condition"
+    "other": "제약없는 상태"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -87,142 +87,142 @@
     "other": "cidr"
   },
   "conditionStringEqualCondition.Equals": {
-    "other": "Equals"
+    "other": "다음과 일치"
   },
   "conditionStringEqualCondition.equals": {
-    "other": "equals"
+    "other": "은(는) 다음과 일치"
   },
   "conditionStringMatchCondition.Matches": {
-    "other": "Matches"
+    "other": "포함"
   },
   "conditionStringMatchCondition.matches": {
-    "other": "matches"
+    "other": "포함"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "pattern"
+    "other": "패턴"
   },
   "conditionBooleanCondition.value": {
-    "other": "True"
+    "other": "참"
   },
   "contextMetaCondition.CIDRCondition": {
-    "other": "CIDRCondition"
+    "other": "CIDR상태"
   },
   "contextMetaCondition.EqualsSubjectCondition": {
-    "other": "Subject equals"
+    "other": "주제가 일치함"
   },
   "contextMetaCondition.ResourceContainsCondition": {
-    "other": "Resource contains"
+    "other": "포함하는 자원"
   },
   "contextMetaCondition.StringEqualCondition": {
-    "other": "String equals"
+    "other": "일치하는 문자열"
   },
   "contextMetaCondition.StringMatchCondition": {
-    "other": "String matches"
+    "other": "포함하는 문자열"
   },
   "contextMetaCondition.StringPairsEqualCondition": {
-    "other": "StringPairs equals"
+    "other": "일치하는 문자열 쌍"
   },
   "contextMetaCondition.StringNotMatchCondition": {
-    "other": "String does not match"
+    "other": "포함하지 않는 문자열"
   },
   "contextMetaCondition.WithinPeriodCondition": {
-    "other": "Date period"
+    "other": "날짜 범위"
   },
   "contextMetaCondition.OfficeHoursCondition": {
-    "other": "Office Hours"
+    "other": "업무 시간"
   },
   "contextMetaCondition.DateAfterCondition": {
-    "other": "Date after"
+    "other": "이후"
   },
   "contextMetaCondition.PathGlobCondition": {
-    "other": "Glob Matcher"
+    "other": "Glob 일치자"
   },
   "contextMetaCondition.BooleanCondition": {
-    "other": "Boolean Value"
+    "other": "참거짓 값"
   },
   "contextMetaField.ContentType": {
-    "other": "Content Type"
+    "other": "컨텐츠 유형"
   },
   "contextMetaField.CookiesString": {
-    "other": "Cookies String"
+    "other": "쿠키 문자열"
   },
   "contextMetaField.HttpProtocol": {
-    "other": "HTTP Protocol"
+    "other": "HTTP 프로토콜"
   },
   "contextMetaField.RemoteAddress": {
-    "other": "Remote Address"
+    "other": "원격 주소"
   },
   "contextMetaField.RequestHostname": {
-    "other": "Request Hostname"
+    "other": "호스트이름 요청"
   },
   "contextMetaField.RequestMethod": {
-    "other": "Request Method"
+    "other": "요청 방법"
   },
   "contextMetaField.RequestURI": {
-    "other": "Request URI"
+    "other": "요청 URI"
   },
   "contextMetaField.ServerTime": {
-    "other": "Server Time"
+    "other": "서버 시간"
   },
   "contextMetaField.UserAgent": {
     "other": "User Agent"
   },
   "contextMetaSingleQuery.Condition": {
-    "other": "Condition"
+    "other": "상태"
   },
   "contextMetaSingleQuery.FieldName": {
-    "other": "Field Name"
+    "other": "항목 이름"
   },
   "roleSingleQuery.HasAutoApply": {
-    "other": "Has AutoApply"
+    "other": "자동 적용 여부"
   },
   "roleSingleQuery.IsGroupRole": {
-    "other": "Is Group Role"
+    "other": "그룹 역할 여부"
   },
   "roleSingleQuery.IsTeam": {
-    "other": "Is Team"
+    "other": "팀 여부"
   },
   "roleSingleQuery.IsUserRole": {
-    "other": "Is User Role"
+    "other": "사용자 역할 여부"
   },
   "roleSingleQuery.Label": {
-    "other": "Label"
+    "other": "라벨"
   },
   "roleSingleQuery.Not": {
-    "other": "Not"
+    "other": "아님"
   },
   "roleSingleQuery.Uuid": {
     "other": "Uuid"
   },
   "roleSingleQuery.not": {
-    "other": "not"
+    "other": "가 아님"
   },
   "treeQuery.Content": {
-    "other": "Content"
+    "other": "컨텐츠"
   },
   "treeQuery.DurationDate": {
-    "other": "Modification date (use comparison)"
+    "other": "수정 일 (비교 사용)"
   },
   "treeQuery.Extension": {
-    "other": "File Extension"
+    "other": "파일 확장자"
   },
   "treeQuery.FileName": {
-    "other": "File name"
+    "other": "파일 이름"
   },
   "treeQuery.FileNameOrContent": {
-    "other": "File name or Content"
+    "other": "파일 이름이나 내용"
   },
   "treeQuery.FreeString": {
     "other": "Bleve-like search string"
   },
   "treeQuery.GeoQuery": {
-    "other": "Geolocation Query"
+    "other": "위치 확인"
   },
   "treeQuery.MaxDate": {
-    "other": "Modified before"
+    "other": "이전에 수정됨"
   },
   "treeQuery.MaxSize": {
-    "other": "MaxSize"
+    "other": "최대 크기"
   },
   "treeQuery.MinDate": {
     "other": "Modified since"
@@ -387,63 +387,63 @@
     "other": "Any"
   },
   "dataSourceSingleQuery.StorageType.LOCALFS": {
-    "other": "Local"
+    "other": "로컬"
   },
   "dataSourceSingleQuery.PeerAddress": {
-    "other": "Peer Address"
+    "other": "피어 주소"
   },
   "dataSourceSingleQuery.FlatStorage": {
-    "other": "Flat Storage"
+    "other": "평면형 스토리지"
   },
   "dataSourceSingleQuery.SkipSyncOnRestart": {
-    "other": "Skip sync on restart"
+    "other": "재시작 시 동기화 건너뜀"
   },
   "dataSourceSingleQuery.IsVersioned": {
-    "other": "Is Versioned"
+    "other": "버전 존재 여부"
   },
   "dataSourceSingleQuery.IsEncrypted": {
-    "other": "Is Encrypted"
+    "other": "암호화 여부"
   },
   "dataSourceSingleQuery.EncryptionMode": {
-    "other": "Encryption Mode"
+    "other": "암호화 방식"
   },
   "dataSourceSingleQuery.EncryptionMode.USER": {
-    "other": "User-key"
+    "other": "사용자 키"
   },
   "dataSourceSingleQuery.EncryptionMode.USER_PWD": {
-    "other": "User-pwd"
+    "other": "사용자 비밀번호"
   },
   "dataSourceSingleQuery.EncryptionMode.CLEAR": {
-    "other": "Clear"
+    "other": "초기화"
   },
   "dataSourceSingleQuery.EncryptionMode.MASTER": {
-    "other": "Master-key"
+    "other": "마스터 키"
   },
   "dataSourceSingleQuery.EncryptionKey": {
-    "other": "Encryption Key"
+    "other": "암호화 키"
   },
   "dataSourceSingleQuery.VersioningPolicyName": {
-    "other": "Versioning Policy"
+    "other": "버전 생성 규칙"
   },
   "dataSourceSingleQuery.StorageConfigurationName": {
-    "other": "Configuration Key"
+    "other": "설정 키"
   },
   "dataSourceSingleQuery.StorageConfigurationValue": {
-    "other": "Configuration Value"
+    "other": "설정 값"
   },
   "dataSourceSingleQuery.ObjectServiceName": {
-    "other": "Object Service"
+    "other": "객체(Object) 서비스"
   },
   "dataSourceSingleQuery.Not": {
-    "other": "Not"
+    "other": "다음이 아님"
   },
   "triggerFilterQuery.IsSchedule": {
-    "other": "Scheduled Trigger"
+    "other": "예약 작업"
   },
   "triggerFilterQuery.IsManual": {
-    "other": "Manual Trigger"
+    "other": "수동 작업"
   },
   "triggerFilterQuery.EventNames": {
-    "other": "Events"
+    "other": "이벤트"
   }
 }
