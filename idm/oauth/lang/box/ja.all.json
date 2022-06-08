@@ -8,7 +8,7 @@
   },
   "Auth.PruneJob.ResetToken": {
     "one": "{{.DeletionCount}} 個の期限切れのリセットパスワードを削除しました。",
-    "other": "期限切れのリセットパスワードトークンを{{.DeletionCount}} 個、削除しました"
+    "other": "{{.DeletionCount}} 個の期限切れのリセットパスワードトークンを削除しました"
   },
   "ResetPassword.Err.EmailNotFound": {
     "other": "対応するメールアドレスが見つかりません"
