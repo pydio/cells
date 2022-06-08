@@ -609,17 +609,10 @@ func (c *config) Scan(val interface{}, options ...Option) error {
 			if !el.IsValid() {
 				return fmt.Errorf("invalid value")
 			}
-
-			switch el.Kind() {
-			case reflect.Slice:
-				el.SetCap(rorig.Cap())
-				el.SetLen(rorig.Len())
-				for i := 0; i < rorig.Len(); i++ {
-					el.Index(i).Set(rorig.Index(i).Elem().Convert(rtargetValType))
-				}
-			default:
-				el.Set(reflect.ValueOf(v))
+			if el.Kind() != rorig.Kind() {
+				return fmt.Errorf("invalid value (not the same kind)")
 			}
+			el.Set(reflect.ValueOf(v))
 
 		case reflect.Map:
 			orig := rorig
