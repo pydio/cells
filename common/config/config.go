@@ -21,10 +21,6 @@
 package config
 
 import (
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
-	"google.golang.org/protobuf/runtime/protoimpl"
-
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -81,46 +77,6 @@ func Save(ctxUser string, ctxMessage string) error {
 // Watch for config changes for a specific path or underneath
 func Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 	return std.Watch(opts...)
-}
-
-func WatchMap(opts ...configx.WatchOption) (chan configx.KV, error) {
-	var snap map[string]interface{}
-	o := &configx.WatchOptions{}
-	for _, opt := range opts {
-		opt(o)
-	}
-
-	if err := Get(o.Paths[0]...).Scan(&snap); err != nil {
-		return nil, err
-	}
-	watcher, err := Watch(opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	ch := make(chan configx.KV)
-	go func() {
-		for {
-			r, err := watcher.Next()
-			if err != nil {
-				return
-			}
-
-			m := r.(configx.Values).Map()
-			for k, v := range m {
-				oldV, ok := snap[k]
-				if ok && !cmp.Equal(oldV, v, cmpopts.IgnoreTypes(protoimpl.MessageState{}, protoimpl.UnknownFields{}, protoimpl.SizeCache(0))) {
-					ch <- configx.KV{
-						Key:   k,
-						Value: v,
-					}
-					snap[k] = m[k]
-				}
-			}
-		}
-	}()
-
-	return ch, nil
 }
 
 // Get access to the underlying structure at a certain path

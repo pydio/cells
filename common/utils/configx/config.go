@@ -33,13 +33,13 @@ type Receiver interface {
 type WatchOption func(*WatchOptions)
 
 type WatchOptions struct {
-	Paths       [][]string
+	Path       []string
 	ChangesOnly bool
 }
 
 func WithPath(path ...string) WatchOption {
 	return func(o *WatchOptions) {
-		o.Paths = append(o.Paths, path)
+		o.Path = path
 	}
 }
 
