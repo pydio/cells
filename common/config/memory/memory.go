@@ -156,7 +156,7 @@ func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 	r := &receiver{
 		closed:      false,
 		ch:          make(chan diff.Change),
-		paths:       o.Paths,
+		path:       o.Path,
 		m:           m,
 		timer:       time.NewTimer(2 * time.Second),
 		changesOnly: o.ChangesOnly,
@@ -171,7 +171,7 @@ type receiver struct {
 	closed bool
 	ch     chan diff.Change
 
-	paths       [][]string
+	path       []string
 	changesOnly bool
 
 	timer *time.Timer
@@ -184,14 +184,12 @@ func (r *receiver) call(op diff.Change) error {
 		return errClosedChannel
 	}
 
-	if len(r.paths) == 0 {
+	if len(r.path) == 0 {
 		r.ch <- op
 	}
 
-	for _, path := range r.paths {
-		if strings.Join(path, "") == "" || strings.HasPrefix(strings.Join(path, "/"), strings.Join(op.Path[1:], "/")) {
-			r.ch <- op
-		}
+	if strings.HasPrefix(strings.Join(op.Path, "/"), strings.Join(r.path, "/")) {
+		r.ch <- op
 	}
 	return nil
 }

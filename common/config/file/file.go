@@ -246,7 +246,7 @@ func (f *file) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 	r := &receiver{
 		closed:      false,
 		ch:          make(chan diff.Change),
-		paths:       o.Paths,
+		path:       o.Path,
 		f:           f,
 		timer: time.NewTimer(2* time.Second),
 		changesOnly: o.ChangesOnly,
@@ -261,7 +261,7 @@ type receiver struct {
 	closed  bool
 	ch     chan diff.Change
 
-	paths       [][]string
+	path       []string
 	changesOnly bool
 
 	timer *time.Timer
@@ -274,14 +274,12 @@ func (r *receiver) call(op diff.Change) error {
 		return errClosedChannel
 	}
 
-	if len(r.paths) == 0 {
+	if len(r.path) == 0 {
 		r.ch <- op
 	}
 
-	for _, path := range r.paths {
-		if strings.Join(path, "") == "" || strings.HasPrefix(strings.Join(op.Path, "/"), strings.Join(path, "/")) {
-			r.ch <- op
-		}
+	if strings.HasPrefix(strings.Join(op.Path, "/"), strings.Join(r.path, "/")) {
+		r.ch <- op
 	}
 	return nil
 }
@@ -312,7 +310,7 @@ func (r *receiver) Next() (interface{}, error) {
 				return c, nil
 			}
 
-			return r.f.v.Val(r.paths[0]...), nil
+			return r.f.v.Val(r.path...), nil
 		}
 	}
 

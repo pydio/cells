@@ -361,7 +361,7 @@ func (m *etcd) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		closed:      false,
 		prefix:      m.prefix,
 		ch:          make(chan *clientv3.Event),
-		paths:       o.Paths,
+		path:       o.Path,
 		changesOnly: o.ChangesOnly,
 		opts:        m.opts,
 		v:           m.values,
@@ -376,7 +376,7 @@ func (m *etcd) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 type receiver struct {
 	closed      bool
 	prefix      string
-	paths       [][]string
+	path       []string
 	ch          chan *clientv3.Event
 	v           configx.Values
 	timer       *time.Timer
@@ -389,14 +389,12 @@ func (r *receiver) call(ev *clientv3.Event) error {
 		return errClosedChannel
 	}
 
-	if len(r.paths) == 0 {
+	if len(r.path) == 0 {
 		r.ch <- ev
 	}
 
-	for _, path := range r.paths {
-		if strings.Join(path, "") == "" || strings.HasPrefix(string(ev.Kv.Key), strings.Join(path, "/")) {
-			r.ch <- ev
-		}
+	if  strings.HasPrefix(string(ev.Kv.Key), strings.Join(r.path, "/")) {
+		r.ch <- ev
 	}
 
 	return nil
@@ -431,8 +429,7 @@ func (r *receiver) Next() (interface{}, error) {
 				return c, nil
 			}
 
-			// TODO
-			return r.v.Val(r.paths[0]...), nil
+			return r.v.Val(r.path...), nil
 		}
 	}
 }

@@ -209,12 +209,10 @@ func (r *remote) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		opt(o)
 	}
 
-	path := o.Paths[0]
-
 	rcvr := &receiver{
 		exit:    make(chan bool),
-		path:    path,
-		value:   r.Val(path...).Bytes(),
+		path:    o.Path,
+		value:   r.Val(o.Path...).Bytes(),
 		updates: make(chan []byte),
 	}
 
