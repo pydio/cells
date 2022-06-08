@@ -130,3 +130,13 @@ func IsFlatStorage(ctx context.Context, identifier string) bool {
 	}
 	return false
 }
+
+type ctxSkipAclCheckKey struct{}
+
+func WithSkipAclCheck(ctx context.Context) context.Context {
+	return context.WithValue(ctx, ctxSkipAclCheckKey{}, true)
+}
+
+func HasSkipAclCheck(ctx context.Context) bool {
+	return ctx.Value(ctxSkipAclCheckKey{}) != nil
+}

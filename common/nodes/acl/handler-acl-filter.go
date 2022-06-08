@@ -58,6 +58,9 @@ func (a *FilterHandler) Adapt(h nodes.Handler, options nodes.RouterOptions) node
 }
 
 func (a *FilterHandler) skipContext(ctx context.Context, identifier ...string) bool {
+	if nodes.HasSkipAclCheck(ctx) {
+		return true
+	}
 	id := "in"
 	if len(identifier) > 0 {
 		id = identifier[0]

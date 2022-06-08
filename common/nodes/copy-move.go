@@ -231,6 +231,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		prefixPathSrc := strings.TrimRight(sourceNode.Path, "/")
 		prefixPathTarget := strings.TrimRight(targetNode.Path, "/")
 		targetDsPath := targetNode.GetStringMeta(common.MetaNamespaceDatasourcePath)
+		skipAclContext := WithSkipAclCheck(ctx)
 
 		// List all children and move them all
 		streamer, err := router.ListNodes(ctx, &tree.ListNodesRequest{
@@ -255,7 +256,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				continue
 			}
 			if child.Node.IsLeaf() {
-				if _, statErr := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: child.Node, ObjectStats: true}); statErr != nil {
+				if _, statErr := router.ReadNode(skipAclContext, &tree.ReadNodeRequest{Node: child.Node, ObjectStats: true}); statErr != nil {
 					statErrors++
 				}
 				totalSize += child.Node.Size
@@ -294,7 +295,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				folderNode := childNode.Clone()
 				folderNode.Path = targetPath
 				folderNode.Uuid = uuid.New()
-				createContext := ctx
+				createContext := skipAclContext
 				sess := session
 				if (targetFlat || sourceFlat) && move {
 					if sourceFlat && fileCounts == 0 && fI == len(children)-1 {
@@ -351,7 +352,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 					<-queue
 					defer wg.Done()
 				}()
-				e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, sourceFlat, targetFlat, false, childNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
+				e := processCopyMove(skipAclContext, router, session, move, crossDs, sourceDs, targetDs, sourceFlat, targetFlat, false, childNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
 				if Is403(e) {
 					childrenMoved++
 					taskLogger.Info("-- Ignoring " + childNode.Path + " (" + e.Error() + ")")
@@ -370,7 +371,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 		if lastNode != nil {
 			// Now process very last node
-			e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, sourceFlat, targetFlat, true, lastNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
+			e := processCopyMove(skipAclContext, router, session, move, crossDs, sourceDs, targetDs, sourceFlat, targetFlat, true, lastNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
 			if Is403(e) {
 				childrenMoved++
 				taskLogger.Info("-- Ignoring " + lastNode.Path + " (" + e.Error() + ")")
