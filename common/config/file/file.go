@@ -152,21 +152,23 @@ func (f *file) flush() {
 		case <-f.reset:
 			f.timer.Reset(100 * time.Millisecond)
 		case <-f.timer.C:
-			patch, err := diff.Diff(f.snap, f.v)
-			if err != nil {
-				continue
-			}
-
-			for _, op := range patch {
-				var updated []*receiver
-
-				for _, r := range f.receivers {
-					if err := r.call(op); err == nil {
-						updated = append(updated, r)
-					}
+			if f.snap != nil {
+				patch, err := diff.Diff(f.snap.Interface(), f.v.Interface(), diff.AllowTypeMismatch(true))
+				if err != nil {
+					continue
 				}
 
-				f.receivers = updated
+				for _, op := range patch {
+					var updated []*receiver
+
+					for _, r := range f.receivers {
+						if err := r.call(op); err == nil {
+							updated = append(updated, r)
+						}
+					}
+
+					f.receivers = updated
+				}
 			}
 
 			snap := configx.New(f.opts...)
@@ -277,7 +279,7 @@ func (r *receiver) call(op diff.Change) error {
 	}
 
 	for _, path := range r.paths {
-		if strings.Join(path, "") == "" || strings.HasPrefix(strings.Join(op.Path[1:], "/"), strings.Join(path, "/")) {
+		if strings.Join(path, "") == "" || strings.HasPrefix(strings.Join(op.Path, "/"), strings.Join(path, "/")) {
 			r.ch <- op
 		}
 	}
@@ -298,11 +300,11 @@ func (r *receiver) Next() (interface{}, error) {
 				continue
 			}
 
-			c := configx.New()
-
 			if r.changesOnly {
+				c := configx.New()
+
 				for _, op := range changes {
-					if err := c.Val(op.Type).Val(op.Path[1:]...).Set(op.To); err != nil {
+					if err := c.Val(op.Type).Val(op.Path...).Set(op.To); err != nil {
 						return nil, err
 					}
 				}
@@ -310,13 +312,7 @@ func (r *receiver) Next() (interface{}, error) {
 				return c, nil
 			}
 
-			for _, op := range changes {
-				if err := c.Val(op.Path[1:]...).Set(op.To); err != nil {
-					return nil, err
-				}
-			}
-
-			return c, nil
+			return r.f.v.Val(r.paths[0]...), nil
 		}
 	}
 
