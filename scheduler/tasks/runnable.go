@@ -158,12 +158,15 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 					log.TasksLogger(ct).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
 					log.Logger(r.Context).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
 					r.Task.SetError(err, false)
+					// Break dispatch on error !
+					return
 
 				case <-done:
 					// For ROOT that is not event-based (jobTrigger = manual or scheduled), check if nothing happened at all
 					if parentPath == "ROOT" && enqueued == 0 && strings.Contains(input.GetEvent().GetTypeUrl(), "jobs.JobTriggerEvent") {
 						_, ct := nextContextPath(r.Context, act.ID, chainIndex)
 						log.TasksLogger(ct).Warn("Initial query retrieved no values, stopping job now")
+						r.Task.Add(1)
 						Queue <- NewRunnable(r.Context, chainIndex, r.Task, &jobs.Action{ID: actions.IgnoredActionName}, &jobs.ActionMessage{})
 					}
 					return
