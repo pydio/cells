@@ -20,6 +20,7 @@
 
 import React from 'react'
 import Pydio from 'pydio'
+import LangUtils from 'pydio/util/lang'
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import { Types, collect, collectDrop, nodeDragSource, nodeDropTarget } from '../util/DND';
@@ -86,7 +87,7 @@ class ListEntry extends React.Component {
         }
 
         if(node){
-            mainClasses.push('listentry' + node.getPath().replace(/[\/.{}:]/g, '_'));
+            mainClasses.push('listentry_' + LangUtils.computeStringSlug(node.getPath()));
             mainClasses.push('ajxp_node_' + (node.isLeaf()?'leaf':'collection'));
             if(node.getAjxpMime()){
                 mainClasses.push('ajxp_mime_' + node.getAjxpMime())
