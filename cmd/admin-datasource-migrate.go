@@ -247,6 +247,10 @@ DESCRIPTION
 
 		return nil
 	},
+	PostRun: func(cmd *cobra.Command, args []string) {
+		cmd.Println("Delaying exit to make sure write operations are committed.")
+		<-time.After(1 * time.Second)
+	},
 }
 
 func migratePickDS() (source *object.DataSource, srcFmt, tgtFmt, srcBucket, tgtBucket string, e error) {

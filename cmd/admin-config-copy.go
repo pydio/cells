@@ -22,12 +22,15 @@ package cmd
 
 import (
 	"fmt"
+	"math"
+	"os"
+	"time"
+
+	"github.com/spf13/cobra"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/revisions"
-	"github.com/spf13/cobra"
-	"math"
-	"os"
 )
 
 var (
@@ -105,6 +108,10 @@ EXAMPLE
 			cmd.Println("Copied all values")
 		}
 		return nil
+	},
+	PostRun: func(cmd *cobra.Command, args []string) {
+		cmd.Println("Delaying exit to make sure write operations are committed.")
+		<-time.After(1 * time.Second)
 	},
 }
 

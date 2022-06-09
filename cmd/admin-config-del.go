@@ -24,6 +24,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -72,6 +73,10 @@ EXAMPLE
 		}
 
 		cmd.Println("Deleted")
+	},
+	PostRun: func(cmd *cobra.Command, args []string) {
+		cmd.Println("Delaying exit to make sure write operations are committed.")
+		<-time.After(1 * time.Second)
 	},
 }
 

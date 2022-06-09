@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/manifoldco/promptui"
 	"github.com/schollz/progressbar/v3"
@@ -198,6 +199,10 @@ DESCRIPTION
 		sOptions := migratorsOptions[serviceIndex]
 		return configDbMoveOne(cmd, dbMoveDryRun, true, sOptions, from, to)
 
+	},
+	PostRun: func(cmd *cobra.Command, args []string) {
+		cmd.Println("Delaying exit to make sure write operations are committed.")
+		<-time.After(1 * time.Second)
 	},
 }
 

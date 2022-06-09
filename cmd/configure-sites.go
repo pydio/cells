@@ -26,6 +26,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"
@@ -236,7 +237,9 @@ func listSites(cmd *cobra.Command, sites []*install.ProxyConfig) {
 func confirmAndSave(cmd *cobra.Command, args []string, sites []*install.ProxyConfig) error {
 
 	if len(args) > 0 && args[0] == "skipConfirm" {
-		return config.SaveSites(sites, common.PydioSystemUsername, "Updating config sites")
+		e := config.SaveSites(sites, common.PydioSystemUsername, "Updating config sites")
+		<-time.After(1 * time.Second)
+		return e
 	}
 	has1024 := false
 	hasLE := false
@@ -279,6 +282,7 @@ func confirmAndSave(cmd *cobra.Command, args []string, sites []*install.ProxyCon
 			cmd.Println("***********************************************")
 			return e
 		} else {
+			<-time.After(1 * time.Second)
 			cmd.Println("********************************************************")
 			cmd.Println("   Config has been updated, please restart Cells now.   ")
 			cmd.Println("********************************************************")

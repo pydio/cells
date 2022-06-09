@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -76,6 +77,10 @@ EXAMPLES
 		} else {
 			log.Fatal(err)
 		}
+	},
+	PostRun: func(cmd *cobra.Command, args []string) {
+		cmd.Println("Delaying exit to make sure write operations are committed.")
+		<-time.After(1 * time.Second)
 	},
 }
 

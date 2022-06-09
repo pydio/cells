@@ -23,6 +23,7 @@ package cmd
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -86,6 +87,9 @@ DESCRIPTION
 			}
 
 			if !installConfig.UseDocumentsDSN {
+				cmd.Println("Delaying exit to make sure write operations are committed.")
+				<-time.After(1 * time.Second)
+
 				return nil
 			}
 
@@ -135,6 +139,9 @@ DESCRIPTION
 			}
 
 		}
+
+		cmd.Println("Delaying exit to make sure write operations are committed.")
+		<-time.After(1 * time.Second)
 
 		cmd.Println("*************************************************************")
 		cmd.Println(" Config has been updated, please restart now!")
