@@ -74,7 +74,7 @@ EXAMPLE
 				fmt.Printf("could not unlock user [%s], skipping.\n Error message: %s", user.Login, err.Error())
 				log.Println(err)
 			} else {
-				fmt.Printf("Successfully unlocked user %s", user.Login)
+				fmt.Printf("Successfully unlocked user %s\n", user.Login)
 			}
 			break
 		}

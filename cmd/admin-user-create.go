@@ -32,10 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/proto/service"
 )
 
 var (
@@ -77,14 +74,16 @@ EXAMPLES
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		ctx := context.Background()
-
-		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
-		if err != nil {
-			return err
-		}
-
-		ctx = servercontext.WithRegistry(ctx, reg)
+		/*
+			// Todo : initializing Registry but NOT ClientConn in context has a strange side-effect :
+			// First calls to user service work, but last call to roles service locks.
+			ctx := context.Background()
+			reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
+			if err != nil {
+				return err
+			}
+			ctx = servercontext.WithRegistry(ctx, reg)
+		*/
 
 		if userCreatePassword == "" {
 			prompt := promptui.Prompt{Label: "Please provide a password", Mask: '*', Validate: notEmpty}

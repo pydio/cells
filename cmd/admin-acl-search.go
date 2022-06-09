@@ -26,17 +26,12 @@ import (
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
-	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
 )
 
 var searchAclCmd = &cobra.Command{
@@ -49,19 +44,6 @@ DESCRIPTION
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-
-		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		conn, err := grpc.Dial("cells:///", clientgrpc.DialOptionsForRegistry(reg)...)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		ctx = clientcontext.WithClientConn(ctx, conn)
-		ctx = servercontext.WithRegistry(ctx, reg)
 
 		client := idm.NewACLServiceClient(clientgrpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
 
