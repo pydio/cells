@@ -91,7 +91,7 @@ func createTestHandler(suffix string) (*Handler, func()) {
 		closer = func() {
 			c()
 			fmt.Println("dropping on-file bleve" + bPath)
-			os.RemoveAll(bPath)
+			_ = os.RemoveAll(bPath)
 		}
 	} else {
 		closer = c
@@ -104,26 +104,15 @@ func TestHandler_CloseBolt(t *testing.T) {
 	Convey("Test init/close handler", t, func() {
 
 		pBolt := newPath("docstoreT.db")
-		pBleve := newPath("docstoreT.bleve")
-		defer func() {
-			os.RemoveAll(pBolt)
-			os.RemoveAll(pBleve)
-		}()
-
-		store, err := docstore.NewBoltStore(pBolt, true)
-		So(err, ShouldBeNil)
-
-		indexer, err := docstore.NewBleveEngine(store, pBleve, true)
-		So(err, ShouldBeNil)
-
-		handler := &Handler{
-			DAO: indexer,
-		}
-
-		cE := handler.Close(context.Background())
-		So(cE, ShouldBeNil)
-		e := store.Close()
+		pBleve := strings.ReplaceAll(pBolt, "docstoreT.db", "docstoreT.bleve")
+		d, closer, e := test.OnFileTestDAO("boltdb", pBolt, "", "docstore-test1", false, docstore.NewDAO)
 		So(e, ShouldBeNil)
+
+		bs, ok := d.(*docstore.BleveServer)
+		So(ok, ShouldBeTrue)
+		bs.DeleteOnClose = true
+
+		closer()
 
 		s1, _ := os.Stat(pBolt)
 		s2, _ := os.Stat(pBleve)

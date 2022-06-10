@@ -26,9 +26,6 @@ package docstore
 
 import (
 	"context"
-	"path/filepath"
-	"strings"
-
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
@@ -45,26 +42,12 @@ type DAO interface {
 	CountDocuments(storeID string, query *docstore.DocumentQuery) (int, error)
 	ListStores() ([]string, error)
 	Reset() error
-	CloseDAO(ctx context.Context) error
 }
 
 func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case boltdb.DAO:
-		bStore := &BoltStore{db: v.DB()}
-		boltFile := v.DB().Path()
-		var bleveDirname string
-		if strings.HasSuffix(boltFile, ".db") {
-			bleveDirname = strings.TrimSuffix(boltFile, ".db") + ".bleve"
-		} else {
-			bleveDirname = filepath.Join(filepath.Dir(boltFile), "docstore.bleve")
-		}
-		bleve, er := NewBleveEngine(bStore, bleveDirname, false)
-		if er != nil {
-			return nil, er
-		}
-		bleve.DAO = v
-		return bleve, nil
+		return NewBleveEngine(v, false)
 	case mongodb.DAO:
 		return &mongoImpl{
 			DAO: v,

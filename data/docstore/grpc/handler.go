@@ -42,15 +42,6 @@ func (h *Handler) Name() string {
 	return Name
 }
 
-func (h *Handler) Close(c context.Context) error {
-	var err error
-	err = h.DAO.CloseDAO(c)
-	if err != nil {
-		fmt.Println("[error] Could not close docstore database")
-	}
-	return err
-}
-
 func (h *Handler) PutDocument(ctx context.Context, request *proto.PutDocumentRequest) (*proto.PutDocumentResponse, error) {
 	e := h.DAO.PutDocument(request.StoreID, request.Document)
 	log.Logger(ctx).Debug("PutDocument", zap.String("store", request.StoreID), zap.String("docId", request.Document.ID))
@@ -142,7 +133,7 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 			return nil, e
 		}
 
-		// TODO
+		// TODO v4
 		go func() {
 			for _, s := range stores {
 				log.Logger(ctx).Info("Browsing store", zap.String("store", s))

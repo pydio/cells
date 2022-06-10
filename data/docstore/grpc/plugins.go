@@ -43,8 +43,7 @@ import (
 )
 
 var (
-	Name           = common.ServiceGrpcNamespace_ + common.ServiceDocStore
-	runningHandler *Handler
+	Name = common.ServiceGrpcNamespace_ + common.ServiceDocStore
 )
 
 func init() {
@@ -103,21 +102,6 @@ func init() {
 				proto.RegisterDocStoreEnhancedServer(server, handler)
 				sync.RegisterSyncEndpointEnhancedServer(server, handler)
 
-				runningHandler = handler
-
-				/*
-					go func() {
-						<-c.Done()
-						handler.Close(c)
-					}()
-				*/
-
-				return nil
-			}),
-			service.WithGRPCStop(func(ctx context.Context, server *grpc.Server) error {
-				if runningHandler != nil {
-					return runningHandler.Close(ctx)
-				}
 				return nil
 			}),
 		)

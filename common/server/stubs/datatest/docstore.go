@@ -22,6 +22,7 @@ package datatest
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/dao/test"
 	"os"
 	"path/filepath"
 
@@ -50,15 +51,14 @@ func defaults() map[string]string {
 
 func NewDocStoreService() (grpc.ClientConnInterface, error) {
 
-	suffix := uuid.New()
-	pBolt := newPath("docstore" + suffix + ".db")
-	pBleve := newPath("docstore" + suffix + ".bleve")
-
-	store, _ := docstore2.NewBoltStore(pBolt, true)
-	indexer, _ := docstore2.NewBleveEngine(store, pBleve, true)
+	pBolt := newPath("docstore" + uuid.New() + ".db")
+	d, _, e := test.OnFileTestDAO("boltdb", pBolt, "", "docstore-test1", false, docstore2.NewDAO)
+	if e != nil {
+		return nil, e
+	}
 
 	h := &srv.Handler{
-		DAO: indexer,
+		DAO: d.(*docstore2.BleveServer),
 	}
 	serv := &docstore.DocStoreStub{}
 	serv.DocStoreServer = h

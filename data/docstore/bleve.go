@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	bleve "github.com/blevesearch/bleve/v2"
@@ -49,7 +50,16 @@ type BleveServer struct {
 	IndexPath string
 }
 
-func NewBleveEngine(store *BoltStore, bleveIndexPath string, deleteOnClose ...bool) (*BleveServer, error) {
+func NewBleveEngine(dao boltdb2.DAO, deleteOnClose ...bool) (*BleveServer, error) {
+
+	bStore := &BoltStore{db: dao.DB()}
+	boltFile := dao.DB().Path()
+	var bleveIndexPath string
+	if strings.HasSuffix(boltFile, ".db") {
+		bleveIndexPath = strings.TrimSuffix(boltFile, ".db") + ".bleve"
+	} else {
+		bleveIndexPath = filepath.Join(filepath.Dir(boltFile), "docstore.bleve")
+	}
 
 	_, e := os.Stat(bleveIndexPath)
 	var index bleve.Index
@@ -67,7 +77,8 @@ func NewBleveEngine(store *BoltStore, bleveIndexPath string, deleteOnClose ...bo
 		del = true
 	}
 	return &BleveServer{
-		BoltStore:     store,
+		DAO:           dao,
+		BoltStore:     bStore,
 		Engine:        index,
 		IndexPath:     bleveIndexPath,
 		DeleteOnClose: del,
@@ -75,7 +86,8 @@ func NewBleveEngine(store *BoltStore, bleveIndexPath string, deleteOnClose ...bo
 
 }
 
-func (s *BleveServer) CloseDAO(ctx context.Context) error {
+// CloseConn overrides internal DAO.CloseConn method to close Bleve index at the same time
+func (s *BleveServer) CloseConn(ctx context.Context) error {
 
 	err := s.Engine.Close()
 	if err != nil {
@@ -86,8 +98,11 @@ func (s *BleveServer) CloseDAO(ctx context.Context) error {
 			return err
 		}
 	}
-	return nil //s.BoltStore.Close() - DAO is in charge of closing
-
+	if s.DAO != nil {
+		return s.DAO.CloseConn(ctx) // nil //s.BoltStore.Close() - DAO is in charge of closing
+	} else {
+		return nil
+	}
 }
 
 func (s *BleveServer) PutDocument(storeID string, doc *docstore.Document) error {

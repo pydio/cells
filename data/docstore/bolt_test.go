@@ -35,7 +35,7 @@ func TestNewBoltStore(t *testing.T) {
 	Convey("Test NewBoltStore", t, func() {
 
 		p := filepath.Join(os.TempDir(), "docstore-test-bolt.db")
-		bs, e := NewBoltStore(p, true)
+		bs, e := NewBoltStore(p)
 		So(e, ShouldBeNil)
 		So(bs, ShouldNotBeNil)
 
@@ -46,10 +46,10 @@ func TestNewBoltStore(t *testing.T) {
 		So(stores, ShouldHaveLength, 1)
 		So(stores[0], ShouldEqual, "mystore")
 
-		e = bs.Close()
+		e = bs.db.Close()
 		So(e, ShouldBeNil)
-		stat, _ := os.Stat(p)
-		So(stat, ShouldBeNil)
+		e = os.Remove(p)
+		So(e, ShouldBeNil)
 
 	})
 

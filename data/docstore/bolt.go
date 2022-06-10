@@ -22,9 +22,6 @@ package docstore
 
 import (
 	"context"
-	"fmt"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"os"
 	"strings"
 	"time"
 
@@ -43,52 +40,17 @@ var (
 	storeBucketString = "store-"
 )
 
-type boltImpl struct {
-	boltdb.DAO
-	*BoltStore
-	*BleveServer
-}
-
-// Close combines calls to bolt.Close and bleve.Close
-func (b *boltImpl) Close() error {
-	var errs []string
-	if er := b.BoltStore.Close(); er != nil {
-		errs = append(errs, er.Error())
-	}
-	if er := b.BleveServer.Close(); er != nil {
-		errs = append(errs, er.Error())
-	}
-	if len(errs) > 0 {
-		return fmt.Errorf(strings.Join(errs, " - "))
-	}
-	return nil
-}
-
-// DeleteDocument combines calls to bolt.DeleteDocument and bleve.DeleteDocument
-func (b *boltImpl) DeleteDocument(storeID string, docID string) error {
-	e := b.BoltStore.DeleteDocument(storeID, docID)
-	if e != nil {
-		return e
-	}
-	return b.BleveServer.DeleteDocument(storeID, docID)
-}
-
 type BoltStore struct {
 	// Internal DB
 	db *bolt.DB
-	// For Testing purpose : delete file after closing
-	DeleteOnClose bool
 	// Path to the DB file
 	DbPath string
 }
 
-func NewBoltStore(fileName string, deleteOnClose ...bool) (*BoltStore, error) {
+func NewBoltStore(fileName string) (*BoltStore, error) {
 
 	bs := &BoltStore{
 		DbPath: fileName,
-	}
-	if len(deleteOnClose) > 0 && deleteOnClose[0] {
-		bs.DeleteOnClose = true
 	}
 	options := bolt.DefaultOptions
 	options.Timeout = 5 * time.Second
@@ -99,14 +61,6 @@ func NewBoltStore(fileName string, deleteOnClose ...bool) (*BoltStore, error) {
 	bs.db = db
 	return bs, nil
 
-}
-
-func (s *BoltStore) Close() error {
-	err := s.db.Close()
-	if s.DeleteOnClose {
-		os.Remove(s.DbPath)
-	}
-	return err
 }
 
 func (s *BoltStore) GetStore(tx *bolt.Tx, storeID string, mode string) (*bolt.Bucket, error) {
