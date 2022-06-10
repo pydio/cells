@@ -13,7 +13,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/doug-martin/goqu/v9 v9.18.0
 	github.com/dustin/go-humanize v1.0.1-0.20200219035652-afde56e7acac
-	github.com/emicklei/go-restful/v3 v3.7.3
+	github.com/emicklei/go-restful/v3 v3.8.0
 	github.com/fatih/color v1.13.0
 	github.com/fatih/structs v1.1.0
 	github.com/gdamore/tcell/v2 v2.5.1
