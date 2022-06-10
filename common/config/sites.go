@@ -21,11 +21,12 @@
 package config
 
 import (
-	"github.com/pydio/cells/v4/common/runtime"
 	"net/url"
 
 	"github.com/pkg/errors"
+
 	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -116,28 +117,28 @@ func GetPublicBaseUri() string {
 }
 
 func EnvOverrideDefaultBind() bool {
-	bind := runtime.GetString("bind")
+	bind := runtime.GetString(runtime.KeySiteBind)
 	if bind == "" {
 		return false
 	}
 	defaultAlwaysOverride = true
 	DefaultBindingSite.Binds = []string{bind}
-	if ext := runtime.GetString("external"); ext != "" {
+	if ext := runtime.GetString(runtime.KeySiteExternal); ext != "" {
 		DefaultBindingSite.ReverseProxyURL = ext
 	}
-	if noTls := runtime.GetBool("no_tls"); noTls {
+	if noTls := runtime.GetBool(runtime.KeySiteNoTLS); noTls {
 		DefaultBindingSite.TLSConfig = nil
-	} else if tlsCert, tlsKey := runtime.GetString("tls_cert_file"), runtime.GetString("tls_key_file"); tlsCert != "" && tlsKey != "" {
+	} else if tlsCert, tlsKey := runtime.GetString(runtime.KeySiteTlsCertFile), runtime.GetString(runtime.KeySiteTlsKeyFile); tlsCert != "" && tlsKey != "" {
 		DefaultBindingSite.TLSConfig = &install.ProxyConfig_Certificate{Certificate: &install.TLSCertificate{
 			CertFile: tlsCert,
 			KeyFile:  tlsKey,
 		}}
-	} else if leEmail, leAgree := runtime.GetString("le_email"), runtime.GetBool("le_agree"); leEmail != "" && leAgree {
+	} else if leEmail, leAgree := runtime.GetString(runtime.KeySiteLetsEncryptEmail), runtime.GetBool(runtime.KeySiteLetsEncryptAgree); leEmail != "" && leAgree {
 		le := &install.TLSLetsEncrypt{
 			Email:      leEmail,
 			AcceptEULA: leAgree,
 		}
-		if runtime.GetBool("le_staging") {
+		if runtime.GetBool(runtime.KeySiteLetsEncryptStaging) {
 			le.StagingCA = true
 		}
 		DefaultBindingSite.TLSConfig = &install.ProxyConfig_LetsEncrypt{LetsEncrypt: le}
@@ -149,20 +150,20 @@ func DefaultBindOverrideToFlags() (flags []string) {
 	if !defaultAlwaysOverride {
 		return
 	}
-	flags = append(flags, "--bind", runtime.GetString("bind"))
-	if ext := runtime.GetString("external"); ext != "" {
-		flags = append(flags, "--external", ext)
+	flags = append(flags, "--"+runtime.KeySiteBind, runtime.GetString(runtime.KeySiteBind))
+	if ext := runtime.GetString(runtime.KeySiteExternal); ext != "" {
+		flags = append(flags, "--"+runtime.KeySiteExternal, ext)
 	}
-	if noTls := runtime.GetBool("no_tls"); noTls {
-		flags = append(flags, "--no_tls")
-	} else if tlsCert, tlsKey := runtime.GetString("tls_cert_file"), runtime.GetString("tls_key_file"); tlsCert != "" && tlsKey != "" {
-		flags = append(flags, "--tls_cert_file", tlsCert)
-		flags = append(flags, "--tls_key_file", tlsKey)
-	} else if leEmail, leAgree := runtime.GetString("le_email"), runtime.GetBool("le_agree"); leEmail != "" && leAgree {
-		flags = append(flags, "--le_email", leEmail)
-		flags = append(flags, "--le_agree")
-		if runtime.GetBool("le_staging") {
-			flags = append(flags, "--le_staging")
+	if noTls := runtime.GetBool(runtime.KeySiteNoTLS); noTls {
+		flags = append(flags, "--"+runtime.KeySiteNoTLS)
+	} else if tlsCert, tlsKey := runtime.GetString(runtime.KeySiteTlsCertFile), runtime.GetString(runtime.KeySiteTlsKeyFile); tlsCert != "" && tlsKey != "" {
+		flags = append(flags, "--"+runtime.KeySiteTlsCertFile, tlsCert)
+		flags = append(flags, "--"+runtime.KeySiteTlsKeyFile, tlsKey)
+	} else if leEmail, leAgree := runtime.GetString(runtime.KeySiteLetsEncryptEmail), runtime.GetBool(runtime.KeySiteLetsEncryptAgree); leEmail != "" && leAgree {
+		flags = append(flags, "--"+runtime.KeySiteLetsEncryptEmail, leEmail)
+		flags = append(flags, "--"+runtime.KeySiteLetsEncryptAgree)
+		if runtime.GetBool(runtime.KeySiteLetsEncryptStaging) {
+			flags = append(flags, "--"+runtime.KeySiteLetsEncryptStaging)
 		}
 	}
 	return

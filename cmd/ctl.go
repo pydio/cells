@@ -481,7 +481,23 @@ func (m *model) LsofLines(args []string) (map[string][]string, error) {
 
 var ctlCmd = &cobra.Command{
 	Use:   "ctl",
-	Short: "Registry Explorer",
+	Short: "Explore all registered items in registry and configuration.",
+	Long: `
+DESCRIPTION
+
+  This command connects to a Registry to list active items currently registered with their metadata. It can also display
+  all configuration stored inside the config store.
+
+  Item types are one of the following : 
+	- Nodes
+	- Services
+	- Servers
+	- DAOs
+	- Addresses
+	- Endpoints
+	- Tags
+	- Stats
+`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		bindViperFlags(cmd.Flags())
 		return nil
