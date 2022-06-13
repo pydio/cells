@@ -31,7 +31,7 @@ import (
 )
 
 var (
-	aclCache cache.Short
+	aclCache cache.Cache
 )
 
 func initAclCache() {
@@ -49,7 +49,7 @@ func initAclCache() {
 	})
 }
 
-func getAclCache() cache.Short {
+func getAclCache() cache.Cache {
 	if aclCache == nil {
 		initAclCache()
 	}

@@ -51,7 +51,7 @@ import (
 
 var (
 	vManager            *VirtualNodesManager
-	vManagerCache       cache.Short
+	vManagerCache       cache.Cache
 	AdminClientProvider func(runtime context.Context) nodes.Client
 )
 

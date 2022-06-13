@@ -59,7 +59,7 @@ func WithQuota() nodes.Option {
 // QuotaFilter applies storage quota limitation on a per-workspace basis.
 type QuotaFilter struct {
 	abstract.Handler
-	readCache cache.Short
+	readCache cache.Cache
 }
 
 func (a *QuotaFilter) Adapt(h nodes.Handler, options nodes.RouterOptions) nodes.Handler {

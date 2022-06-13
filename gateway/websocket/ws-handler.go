@@ -54,7 +54,7 @@ type WebsocketHandler struct {
 	runtimeCtx     context.Context
 	Websocket      *melody.Melody
 	EventRouter    *compose.Reverse
-	completedTasks cache.Short
+	completedTasks cache.Cache
 
 	batcherLock   *sync.Mutex
 	batchers      map[string]*NodeEventsBatcher

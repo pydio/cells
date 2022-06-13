@@ -55,7 +55,7 @@ var (
 		{Subject: "profile:standard", Action: service.ResourcePolicyAction_READ, Effect: service.ResourcePolicy_allow},
 		{Subject: "profile:admin", Action: service.ResourcePolicyAction_WRITE, Effect: service.ResourcePolicy_allow},
 	}
-	autoAppliesCache cache.Short
+	autoAppliesCache cache.Cache
 )
 
 // ByOverride implements sort.Interface for []Role based on the ForceOverride field.

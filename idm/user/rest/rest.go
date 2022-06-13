@@ -853,7 +853,7 @@ func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
 
 }
 
-var cachedParams cache.Short
+var cachedParams cache.Cache
 
 func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 	var params []*front.ExposedParameter

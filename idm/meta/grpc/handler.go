@@ -44,7 +44,7 @@ type Handler struct {
 	idm.UnimplementedUserMetaServiceServer
 	tree.UnimplementedNodeProviderStreamerServer
 
-	searchCache cache.Sharded
+	searchCache cache.Cache
 	dao         meta.DAO
 }
 
@@ -273,7 +273,7 @@ func (h *Handler) resultsFromCache(nodeId string, searchSubjects []string) (resu
 		return
 	}
 	key := fmt.Sprintf("%s-%s", nodeId, strings.Join(searchSubjects, "-"))
-	if data, e := h.searchCache.Get(key); e == nil {
+	if data, ok := h.searchCache.GetBytes(key); ok {
 		if er := json.Unmarshal(data, &results); er == nil {
 			//log.Logger(context.Background()).Info("User-Meta - Got Cache Key: " + key)
 			return results, true

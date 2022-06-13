@@ -44,7 +44,7 @@ var (
 )
 
 type TokenStore struct {
-	internalCache cache.Short
+	internalCache cache.Cache
 }
 
 func NewTokenStore() *TokenStore {

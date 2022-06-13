@@ -1,3 +1,5 @@
+// +build !arm
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -21,7 +23,7 @@
 package actions
 
 import (
-	"github.com/pydio/cells/v4/scheduler/actions"
+"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 func init() {
@@ -31,7 +33,7 @@ func init() {
 	manager.Register(SyncUsersActionName, func() actions.ConcreteAction {
 		return &SyncUsersAction{}
 	})
-	
+
 	manager.Register(SyncWorkspacesActionName, func() actions.ConcreteAction {
 		return &SyncWorkspacesAction{}
 	})

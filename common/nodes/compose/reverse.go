@@ -48,7 +48,7 @@ import (
 type Reverse struct {
 	nodes.Client
 	runtimeCtx context.Context
-	rootsCache cache.Short
+	rootsCache cache.Cache
 }
 
 func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {

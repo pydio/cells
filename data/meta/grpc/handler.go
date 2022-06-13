@@ -46,7 +46,7 @@ type MetaServer struct {
 	tree.UnimplementedSearcherServer
 
 	eventsChannel chan *cache.EventWithContext
-	cache         cache.Sharded
+	cache         cache.Cache
 	cacheMutex    *cache.KeyMutex
 	dao           meta.DAO
 }
@@ -171,8 +171,8 @@ func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 	if s.cache != nil {
 		//s.cacheMutex.Lock(req.Node.Uuid)
 		//defer s.cacheMutex.Unlock(req.Node.Uuid)
-		data, e := s.cache.Get(req.Node.Uuid)
-		if e == nil {
+		data, ok := s.cache.GetBytes(req.Node.Uuid)
+		if ok {
 			var metaD map[string]string
 			if er := json.Unmarshal(data, &metaD); er == nil {
 				//log.Logger(ctx).Info("META / Reading from cache for " + req.Node.Uuid)
