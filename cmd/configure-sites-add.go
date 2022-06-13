@@ -332,26 +332,23 @@ func promptTLSMode(site *install.ProxyConfig) (enabled bool, e error) {
 			return
 		}
 
-		/*
-			// THIS IS NOT WORKING CURRENTLY
-			useStagingPrompt := p.Prompt{Label: "Do you want to use Let's Encrypt staging entrypoint? [y/N] ", Default: ""}
-			useStaging := true
-			if val, e1 := useStagingPrompt.Run(); e1 != nil {
-				if e1 == p.ErrInterrupt {
-					return promptTLSMode(site)
-				}
-				e = e1
-				return
-			} else if val == "N" || val == "n" || val == "" {
-				useStaging = false
+		useStagingPrompt := p.Prompt{Label: "Do you want to use Let's Encrypt staging entrypoint? [y/N] ", Default: ""}
+		useStaging := true
+		if val, e1 := useStagingPrompt.Run(); e1 != nil {
+			if e1 == p.ErrInterrupt {
+				return promptTLSMode(site)
 			}
-		*/
+			e = e1
+			return
+		} else if val == "N" || val == "n" || val == "" {
+			useStaging = false
+		}
 
 		site.TLSConfig = &install.ProxyConfig_LetsEncrypt{
 			LetsEncrypt: &install.TLSLetsEncrypt{
 				Email:      certMail,
 				AcceptEULA: true,
-				StagingCA:  false,
+				StagingCA:  useStaging,
 			},
 		}
 

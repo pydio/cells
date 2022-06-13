@@ -123,13 +123,13 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 
 	}
 
-	/* TODO if niExtUrl != "" {
+	if niExtUrl != "" {
 		extURL, err := guessSchemeAndParseBaseURL(niExtUrl, true)
 		if err != nil {
 			return nil, fmt.Errorf("could not parse provided URL %s: %s", niExtUrl, err.Error())
 		}
 		proxyConfig.ReverseProxyURL = extURL.String()
-	}*/
+	}
 
 	return proxyConfig, nil
 }

@@ -61,16 +61,25 @@ func RegisterPreRun(preRun func(runtime Runtime)) {
 
 // GetBool gets a key as boolean from global runtime
 func GetBool(key string) bool {
+	if l, o := legacyMap[key]; o && !r.IsSet(key) && r.IsSet(l) {
+		return r.GetBool(l)
+	}
 	return r.GetBool(key)
 }
 
 // GetString gets a key from global runtime
 func GetString(key string) string {
+	if l, o := legacyMap[key]; o && !r.IsSet(key) && r.IsSet(l) {
+		return r.GetString(l)
+	}
 	return r.GetString(key)
 }
 
 // GetStringSlice gets a slice from global runtime.
 func GetStringSlice(key string) []string {
+	if l, o := legacyMap[key]; o && !r.IsSet(key) && r.IsSet(l) {
+		return r.GetStringSlice(l)
+	}
 	return r.GetStringSlice(key)
 }
 

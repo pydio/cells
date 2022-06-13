@@ -394,18 +394,9 @@ func init() {
 	flags.Bool(cruntime.KeyInstallCliLegacy, false, "Do not prompt for install mode, use CLI mode by default")
 	flags.String(cruntime.KeyInstallYamlLegacy, "", "Points toward a configuration in YAML format")
 	flags.String(cruntime.KeyInstallJsonLegacy, "", "Points toward a configuration in JSON format")
-
-	flags.String(cruntime.KeySiteBind, "", "Internal IP|DOMAIN:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
-	flags.String(cruntime.KeySiteExternal, "", "External full URL (http[s]://IP|DOMAIN[:PORT]) exposed to the outside")
-	flags.Bool(cruntime.KeySiteNoTLS, false, "Configure the main gateway to rather use plain HTTP")
-	flags.String(cruntime.KeySiteTlsCertFile, "", "TLS cert file path")
-	flags.String(cruntime.KeySiteTlsKeyFile, "", "TLS key file path")
-	flags.String(cruntime.KeySiteLetsEncryptEmail, "", "Contact e-mail for Let's Encrypt provided certificate")
-	flags.Bool(cruntime.KeySiteLetsEncryptAgree, false, "Accept Let's Encrypt EULA")
-	flags.Bool(cruntime.KeySiteLetsEncryptStaging, false, "Rather use staging CA entry point")
-
 	flags.Bool(cruntime.KeyInstallExitAfter, false, "Simply exits main process after the installation is done")
 
+	addSiteOverrideFlags(flags, true)
 	addRegistryFlags(flags, true)
 
 	RootCmd.AddCommand(ConfigureCmd)

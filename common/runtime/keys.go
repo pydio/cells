@@ -40,17 +40,25 @@ const (
 	KeyHttpPort          = "http_port"
 	KeyGrpcExternal      = "grpc_external"
 	KeyHealthCheckPort   = "healthcheck"
-	KeyRegistryPort      = "port_registry"
-	KeyBrokerPort        = "port_broker"
 
-	KeySiteBind               = "bind"
-	KeySiteExternal           = "external"
-	KeySiteNoTLS              = "no_tls"
-	KeySiteTlsCertFile        = "tls_cert_file"
-	KeySiteTlsKeyFile         = "tls_key_file"
-	KeySiteLetsEncryptEmail   = "le_email"
-	KeySiteLetsEncryptAgree   = "le_agree"
-	KeySiteLetsEncryptStaging = "le_staging"
+	KeySiteBind               = "site_bind"
+	KeySiteExternal           = "site_external"
+	KeySiteNoTLS              = "site_no_tls"
+	KeySiteTlsCertFile        = "site_tls_cert_file"
+	KeySiteTlsKeyFile         = "site_tls_key_file"
+	KeySiteLetsEncryptEmail   = "site_le_email"
+	KeySiteLetsEncryptAgree   = "site_le_agree"
+	KeySiteLetsEncryptStaging = "site_le_staging"
+
+	// Legacy versions without "site_" prefix
+	KeySiteBindL               = "bind"
+	KeySiteExternalL           = "external"
+	KeySiteNoTLSL              = "no_tls"
+	KeySiteTlsCertFileL        = "tls_cert_file"
+	KeySiteTlsKeyFileL         = "tls_key_file"
+	KeySiteLetsEncryptEmailL   = "le_email"
+	KeySiteLetsEncryptAgreeL   = "le_agree"
+	KeySiteLetsEncryptStagingL = "le_staging"
 
 	KeyInstallCli       = "install_cli"
 	KeyInstallYaml      = "install_yaml"
@@ -90,4 +98,17 @@ const (
 	NodeMetaForkStartTag = "forkStartTag"
 	NodeMetaHostName     = "hostname"
 	NodeMetaCapacities   = "capacities"
+)
+
+var (
+	legacyMap = map[string]string{
+		KeySiteBind:               KeySiteBindL,
+		KeySiteExternal:           KeySiteExternalL,
+		KeySiteNoTLS:              KeySiteNoTLSL,
+		KeySiteTlsCertFile:        KeySiteTlsCertFileL,
+		KeySiteTlsKeyFile:         KeySiteTlsKeyFileL,
+		KeySiteLetsEncryptEmail:   KeySiteLetsEncryptEmailL,
+		KeySiteLetsEncryptAgree:   KeySiteLetsEncryptAgreeL,
+		KeySiteLetsEncryptStaging: KeySiteLetsEncryptStagingL,
+	}
 )

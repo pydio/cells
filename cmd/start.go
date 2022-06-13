@@ -306,14 +306,7 @@ func init() {
 	StartCmd.Flags().Bool(runtime.KeyEnablePprof, false, "Enable pprof remote debugging")
 	StartCmd.Flags().Int(runtime.KeyHealthCheckPort, 0, "Healthcheck port number")
 
-	StartCmd.Flags().String(runtime.KeySiteBind, "", "Internal IP|DOMAIN:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
-	StartCmd.Flags().String(runtime.KeySiteExternal, "", "External full URL (http[s]://IP|DOMAIN[:PORT]) exposed to the outside")
-	StartCmd.Flags().Bool(runtime.KeySiteNoTLS, false, "Configure the main gateway to rather use plain HTTP")
-	StartCmd.Flags().String(runtime.KeySiteTlsCertFile, "", "TLS cert file path")
-	StartCmd.Flags().String(runtime.KeySiteTlsKeyFile, "", "TLS key file path")
-	StartCmd.Flags().String(runtime.KeySiteLetsEncryptEmail, "", "Contact e-mail for Let's Encrypt provided certificate")
-	StartCmd.Flags().Bool(runtime.KeySiteLetsEncryptAgree, false, "Accept Let's Encrypt EULA")
-	StartCmd.Flags().Bool(runtime.KeySiteLetsEncryptStaging, false, "Rather use staging CA entry point")
+	addSiteOverrideFlags(StartCmd.Flags(), true)
 
 	RootCmd.AddCommand(StartCmd)
 }
