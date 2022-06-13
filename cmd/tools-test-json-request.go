@@ -9,7 +9,8 @@ import (
 )
 
 var JsonRequest = &cobra.Command{
-	Use: "json",
+	Use:    "json",
+	Hidden: true,
 	Run: func(cmd *cobra.Command, args []string) {
 		action := &cmd2.RpcAction{}
 		action.Init(&jobs.Job{}, &jobs.Action{
@@ -36,5 +37,5 @@ var JsonRequest = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(JsonRequest)
+	ToolsCmd.AddCommand(JsonRequest)
 }

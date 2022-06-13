@@ -24,8 +24,9 @@ var (
 )
 
 var TestExternalGrpc = &cobra.Command{
-	Use:   "grpc",
-	Short: "Sample GRPC request sent to web-facing interface",
+	Use:    "grpc",
+	Short:  "Sample GRPC request sent to web-facing interface",
+	Hidden: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		creds, err := loadTLSCredentials()
@@ -81,5 +82,5 @@ func loadTLSCredentials() (credentials.TransportCredentials, error) {
 func init() {
 	TestExternalGrpc.Flags().StringVarP(&extAddr, "addr", "a", "local.pydio:8080", "Server address")
 	TestExternalGrpc.Flags().StringVarP(&extToken, "token", "t", "", "User Personal Token")
-	RootCmd.AddCommand(TestExternalGrpc)
+	ToolsCmd.AddCommand(TestExternalGrpc)
 }

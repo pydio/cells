@@ -282,31 +282,32 @@ func init() {
 	StartCmd.Flags().StringArrayP(runtime.KeyArgTags, "t", []string{}, "Select services to start by tags, possible values are 'broker', 'data', 'datasource', 'discovery', 'frontend', 'gateway', 'idm', 'scheduler'")
 	StartCmd.Flags().StringArrayP(runtime.KeyArgExclude, "x", []string{}, "Select services to start by filtering out some specific ones by name")
 
-	StartCmd.Flags().String(runtime.KeyBindHost, "0.0.0.0", "Address on which the servers should bind")
+	StartCmd.Flags().String(runtime.KeyBindHost, "0.0.0.0", "Address on which servers will bind. Binding port depends on the server type (grpc, http, etc).")
 	StartCmd.Flags().String(runtime.KeyAdvertiseAddress, "", "Address that should be advertised to other members of the cluster (leave it empty for default advertise address)")
-	StartCmd.Flags().String(runtime.KeyGrpcPort, runtime.DefaultGrpcPort, "gRPC Server Port")
-	StartCmd.Flags().String(runtime.KeyGrpcDiscoveryPort, runtime.DefaultDiscoveryPort, "gRPC Server Discovery Port")
+	StartCmd.Flags().String(runtime.KeyGrpcPort, runtime.DefaultGrpcPort, "Default gRPC server port (all gRPC services, except discovery ones)")
+	StartCmd.Flags().String(runtime.KeyGrpcDiscoveryPort, runtime.DefaultDiscoveryPort, "Default discovery gRPC server port (registry, broker, config, and log services).")
+
 	StartCmd.Flags().String(runtime.KeyHttpServer, "caddy", "HTTP Server Type")
 	StartCmd.Flags().String(runtime.KeyHttpPort, runtime.DefaultHttpPort, "HTTP Server Port")
-
 	StartCmd.Flags().Bool(runtime.KeyFork, false, "Used internally by application when forking processes")
 	StartCmd.Flags().StringArray(runtime.KeyNodeCapacity, []string{}, "Node capacity declares externally supported features for this node")
 
+	if os.Getenv(EnvDisplayHiddenFlags) == "" {
+		_ = StartCmd.Flags().MarkHidden(runtime.KeyHttpServer)
+		_ = StartCmd.Flags().MarkHidden(runtime.KeyHttpPort)
+		_ = StartCmd.Flags().MarkHidden(runtime.KeyFork)
+		_ = StartCmd.Flags().MarkHidden(runtime.KeyNodeCapacity)
+	}
+
 	addRegistryFlags(StartCmd.Flags())
+	addSiteOverrideFlags(StartCmd.Flags(), true)
 
-	_ = StartCmd.Flags().MarkHidden(runtime.KeyFork)
-	_ = StartCmd.Flags().MarkHidden(runtime.KeyRegistry)
-	_ = StartCmd.Flags().MarkHidden(runtime.KeyBroker)
-
-	// Other internal flags
-	StartCmd.Flags().String(runtime.KeyLog, "info", "Sets the log level: 'debug', 'info', 'warn', 'error' (for backward-compatibility, 'production' is equivalent to log_json+info)")
-	StartCmd.Flags().Bool(runtime.KeyLogJson, false, "Sets the log output format to JSON instead of text")
+	StartCmd.Flags().String(runtime.KeyLog, "info", "Output log level: debug, info, warn, error (production is equivalent to log_json+info)")
+	StartCmd.Flags().Bool(runtime.KeyLogJson, false, "Output log formatted as JSON instead of text")
 	StartCmd.Flags().Bool(runtime.KeyLogToFile, common.MustLogFileDefaultValue(), "Write logs on-file in CELLS_LOG_DIR")
 	StartCmd.Flags().Bool(runtime.KeyEnableMetrics, false, "Instrument code to expose internal metrics")
 	StartCmd.Flags().Bool(runtime.KeyEnablePprof, false, "Enable pprof remote debugging")
 	StartCmd.Flags().Int(runtime.KeyHealthCheckPort, 0, "Healthcheck port number")
-
-	addSiteOverrideFlags(StartCmd.Flags(), true)
 
 	RootCmd.AddCommand(StartCmd)
 }

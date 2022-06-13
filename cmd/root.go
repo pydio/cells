@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"github.com/spf13/pflag"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -119,13 +118,8 @@ func init() {
 	initEnvPrefixes()
 	initViperRuntime()
 
-	RootCmd.PersistentFlags().String(runtime.KeyConfig, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName), "Configuration URL")
-
-	RootCmd.PersistentFlags().String(runtime.KeyVault, "detect", "Vault URL")
-	//_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyVault)
-
-	RootCmd.PersistentFlags().String(runtime.KeyKeyring, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultKeyringFileName)+"?keyring=true", "Keyring URL")
-	//_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyKeyring)
+	addRootFlags(RootCmd.PersistentFlags())
+	RootCmd.CompletionOptions.DisableDefaultCmd = true
 
 }
 

@@ -21,22 +21,48 @@
 package cmd
 
 import (
-	"github.com/spf13/pflag"
+	"os"
+	"path/filepath"
+	"strings"
 
+	"github.com/spf13/pflag"
+	"gocloud.dev/pubsub"
+
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 )
+
+const (
+	EnvDisplayHiddenFlags = "CELLS_DISPLAY_HIDDEN_FLAGS"
+)
+
+func addRootFlags(flags *pflag.FlagSet) {
+	flags.String(runtime.KeyConfig, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName), "Configuration storage URL. Supported schemes: "+strings.Join(config.DefaultURLMux().Schemes(), "|"))
+	flags.String(runtime.KeyVault, "detect", "Vault location, automatically detected from config url, unless an URL is provided (same schemes as config)")
+	flags.String(runtime.KeyKeyring, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultKeyringFileName)+"?keyring=true", "Keyring URL")
+	if os.Getenv(EnvDisplayHiddenFlags) == "" {
+		//_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyVault)
+		_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyKeyring)
+	}
+
+}
 
 // addRegistryFlags registers necessary flags to connect to the registry (defaults to memory)
 func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 
-	flags.String(runtime.KeyRegistry, "mem://?cache=shared", "Registry used to manage services")
-	flags.String(runtime.KeyBroker, "mem://", "Pub/sub service for events between services")
+	flags.String(runtime.KeyRegistry, "mem://?cache=shared", "Registry URL used to manage services. Supported schemes: "+strings.Join(registry.DefaultURLMux().Schemes(), "|"))
+	flags.String(runtime.KeyBroker, "mem://", "Pub/sub service URL for events broadcast. Supported schemes: "+strings.Join(pubsub.DefaultURLMux().SubscriptionSchemes(), "|"))
 	flags.String(runtime.KeyDiscovery, "mem://", "Combine registry, config and pub/sub discovery service")
 
-	if len(hideAll) > 0 && hideAll[0] {
-		_ = flags.MarkHidden(runtime.KeyDiscovery)
-		_ = flags.MarkHidden(runtime.KeyRegistry)
-		_ = flags.MarkHidden(runtime.KeyBroker)
+	if os.Getenv(EnvDisplayHiddenFlags) == "" {
+		if len(hideAll) > 0 && hideAll[0] {
+			_ = flags.MarkHidden(runtime.KeyDiscovery)
+			_ = flags.MarkHidden(runtime.KeyRegistry)
+			_ = flags.MarkHidden(runtime.KeyBroker)
+		} else {
+			_ = flags.MarkHidden(runtime.KeyDiscovery)
+		}
 	}
 }
 
@@ -47,7 +73,7 @@ func addExternalCmdRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 	flags.String(runtime.KeyRegistry, discoveryAddress, "Registry used to contact services")
 	flags.String(runtime.KeyBroker, discoveryAddress, "Pub/sub service for events between services")
 
-	if len(hideAll) > 0 && hideAll[0] {
+	if len(hideAll) > 0 && hideAll[0] && os.Getenv(EnvDisplayHiddenFlags) == "" {
 		_ = flags.MarkHidden(runtime.KeyDiscovery)
 		_ = flags.MarkHidden(runtime.KeyRegistry)
 		_ = flags.MarkHidden(runtime.KeyBroker)
@@ -56,7 +82,7 @@ func addExternalCmdRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 
 func addSiteOverrideFlags(flags *pflag.FlagSet, hideLegacy ...bool) {
 	// Dynamic site override and their legacy version below
-	flags.String(runtime.KeySiteBind, "", "[Site] The 'site_' flags suite allows dynamic overriding of main proxy site. This one declares an address (IP|DOMAIN:PORT), see other flags for TLS configurations.")
+	flags.String(runtime.KeySiteBind, "", "[Site] The 'site_' flags suite overrides config-defined sites. Bind is the site binding address (IP|DOMAIN:PORT), see other flags for TLS configurations.")
 	flags.String(runtime.KeySiteExternal, "", "[Site] External full URL (http[s]://IP|DOMAIN[:PORT]) exposed to the outside")
 	flags.Bool(runtime.KeySiteNoTLS, false, "[Site] Use plain HTTP")
 	flags.String(runtime.KeySiteTlsCertFile, "", "[Site] Path to custom TLS certificate file")
@@ -65,15 +91,15 @@ func addSiteOverrideFlags(flags *pflag.FlagSet, hideLegacy ...bool) {
 	flags.Bool(runtime.KeySiteLetsEncryptAgree, false, "[Site] Accept Let's Encrypt EULA")
 	flags.Bool(runtime.KeySiteLetsEncryptStaging, false, "[Site] Use Let's Encrypt staging CA instead of production to avoid being banned on misconfiguration.")
 
-	flags.String(runtime.KeySiteBindL, "", "Internal IP|DOMAIN:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
-	flags.String(runtime.KeySiteExternalL, "", "External full URL (http[s]://IP|DOMAIN[:PORT]) exposed to the outside")
-	flags.Bool(runtime.KeySiteNoTLSL, false, "Configure the main gateway to rather use plain HTTP")
-	flags.String(runtime.KeySiteTlsCertFileL, "", "TLS cert file path")
-	flags.String(runtime.KeySiteTlsKeyFileL, "", "TLS key file path")
-	flags.String(runtime.KeySiteLetsEncryptEmailL, "", "Contact e-mail for Let's Encrypt provided certificate")
-	flags.Bool(runtime.KeySiteLetsEncryptAgreeL, false, "Accept Let's Encrypt EULA")
-	flags.Bool(runtime.KeySiteLetsEncryptStagingL, false, "Rather use staging CA entry point")
-	if len(hideLegacy) > 0 && hideLegacy[0] {
+	flags.String(runtime.KeySiteBindL, "", "[Site - Legacy] Internal IP|DOMAIN:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
+	flags.String(runtime.KeySiteExternalL, "", "[Site - Legacy] External full URL (http[s]://IP|DOMAIN[:PORT]) exposed to the outside")
+	flags.Bool(runtime.KeySiteNoTLSL, false, "[Site - Legacy] Configure the main gateway to rather use plain HTTP")
+	flags.String(runtime.KeySiteTlsCertFileL, "", "[Site - Legacy] TLS cert file path")
+	flags.String(runtime.KeySiteTlsKeyFileL, "", "[Site - Legacy] TLS key file path")
+	flags.String(runtime.KeySiteLetsEncryptEmailL, "", "[Site - Legacy] Contact e-mail for Let's Encrypt provided certificate")
+	flags.Bool(runtime.KeySiteLetsEncryptAgreeL, false, "[Site - Legacy] Accept Let's Encrypt EULA")
+	flags.Bool(runtime.KeySiteLetsEncryptStagingL, false, "[Site - Legacy] Rather use staging CA entry point")
+	if len(hideLegacy) > 0 && hideLegacy[0] && os.Getenv(EnvDisplayHiddenFlags) == "" {
 		_ = flags.MarkHidden(runtime.KeySiteBindL)
 		_ = flags.MarkHidden(runtime.KeySiteExternalL)
 		_ = flags.MarkHidden(runtime.KeySiteNoTLSL)
