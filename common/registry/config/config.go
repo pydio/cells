@@ -497,6 +497,13 @@ func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error
 		res,
 	)
 
+	// Sending list once
+	items, err := c.List(opts...)
+	if err != nil {
+		return nil, err
+	}
+	res <- registry.NewResult(pb.ActionType_CREATE, items)
+
 	c.Lock()
 	c.broadcasters[id] = broadcaster{
 		Types: wo.Types,

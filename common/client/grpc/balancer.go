@@ -133,6 +133,7 @@ func (p *rrPicker) Pick(i balancer.PickInfo) (balancer.PickResult, error) {
 		sc := pc.sc[pc.next].SubConn
 		pc.next = (pc.next + 1) % len(pc.sc)
 		pc.mu.Unlock()
+
 		return balancer.PickResult{SubConn: sc}, nil
 	}
 

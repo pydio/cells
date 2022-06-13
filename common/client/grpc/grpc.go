@@ -23,13 +23,14 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config"
 	"os"
 	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/pydio/cells/v4/common/config"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
