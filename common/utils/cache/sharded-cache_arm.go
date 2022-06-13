@@ -1,5 +1,3 @@
-// +build !arm
-
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -24,14 +22,15 @@
 package cache
 
 import (
-"fmt"
-"os"
-"strconv"
-"sync"
-"time"
+	"fmt"
+	pm "github.com/patrickmn/go-cache"
+	"os"
+	"strconv"
+	"sync"
+	"time"
 
-bigcache "github.com/allegro/bigcache/v3"
-"github.com/pydio/cells/v4/common/service/metrics"
+	bigcache "github.com/allegro/bigcache/v3"
+	"github.com/pydio/cells/v4/common/service/metrics"
 )
 
 var (
@@ -45,39 +44,20 @@ func NewSharded(identifier string, opts ...Option) Cache {
 	for _, o := range opts {
 		o(opt)
 	}
-	bcConf := DefaultBigCacheConfig()
-	if opt.EvictionTime > 0 {
-		bcConf.LifeWindow = opt.EvictionTime
-	}
-	if opt.CleanWindow > 0 {
-		bcConf.CleanWindow = opt.CleanWindow
-	}
-	return newInstrumentedCache(identifier, bcConf)
+	pc := pm.New(opt.EvictionTime, opt.CleanWindow)
+	return newInstrumentedCache(identifier, &pmCache{
+		Cache: *pc,
+	})
 }
 
 // newInstrumentedCache creates a BigCache instance with a regular report of statistics
-func newInstrumentedCache(serviceName string, cacheConfig ...bigcache.Config) *InstrumentedCache {
+func newInstrumentedCache(serviceName string, cache Cache) *InstrumentedCache {
 	scope := metrics.GetMetricsForService(serviceName)
-	conf := DefaultBigCacheConfig()
-	if len(cacheConfig) > 0 {
-		conf = cacheConfig[0]
-	}
-	c, _ := bigcache.NewBigCache(conf)
 	i := &InstrumentedCache{}
-	i.Cache = &bigCache{c}
+	i.Cache = cache
 	i.scope = scope
 	i.ticker = time.NewTicker(30 * time.Second)
-	go func() {
-		for range i.ticker.C {
-			s := c.Stats()
-			i.scope.Gauge("bigcache_capacity").Update(float64(c.Capacity()))
-			i.scope.Gauge("bigcache_hits").Update(float64(s.Hits))
-			i.scope.Gauge("bigcache_collisions").Update(float64(s.Collisions))
-			i.scope.Gauge("bigcache_delHits").Update(float64(s.DelHits))
-			i.scope.Gauge("bigcache_delMisses").Update(float64(s.DelMisses))
-			i.scope.Gauge("bigcache_misses").Update(float64(s.Misses))
-		}
-	}()
+
 	return i
 }
 
@@ -102,4 +82,3 @@ func DefaultBigCacheConfig() bigcache.Config {
 	})
 	return defaultConfig
 }
-

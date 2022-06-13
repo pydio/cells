@@ -54,7 +54,7 @@ type ResourcesSQL struct {
 	*sql.Handler
 
 	LeftIdentifier string
-	cache          cache.Short
+	cache          cache.Cache
 }
 
 // Init performs necessary up migration.

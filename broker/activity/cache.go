@@ -45,7 +45,7 @@ func WithCache(dao DAO) DAO {
 
 type Cache struct {
 	DAO
-	cache cache.Sharded
+	cache cache.Cache
 
 	useBatch bool
 	done     chan bool
@@ -134,7 +134,7 @@ func (c *Cache) ListSubscriptions(ctx context.Context, objectType activity.Owner
 		toCache[id] = []*activity.Subscription{}
 
 		k := objectType.String() + "-" + id
-		if v, e := c.cache.Get(k); e == nil {
+		if v, ok := c.cache.GetBytes(k); ok {
 			var subs []*activity.Subscription
 			if e := jsonx.Unmarshal(v, &subs); e == nil {
 				res = append(res, subs...)

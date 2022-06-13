@@ -44,7 +44,7 @@ import (
 )
 
 var (
-	syncCache       cache.Sharded
+	syncCache       cache.Cache
 	cacheNodePrefix = "__node__"
 	cacheDiffPrefix = "__diff__"
 )
@@ -149,7 +149,7 @@ func (s *CacheHandler) cacheAdd(ctx context.Context, node *tree.Node) {
 	// Update diff
 	diff := NewCacheDiff()
 	dir := path.Dir(node.GetPath())
-	if diffDat, e := syncCache.Get(cacheDiffPrefix + dir); e == nil {
+	if diffDat, ok := syncCache.GetBytes(cacheDiffPrefix + dir); ok {
 		json.Unmarshal(diffDat, &diff)
 	}
 	diff.Adds[node.GetPath()] = struct{}{}
@@ -166,14 +166,14 @@ func (s *CacheHandler) cacheDel(ctx context.Context, node *tree.Node) {
 		p = path.Dir(p)
 	}
 	dir := path.Dir(p)
-	if diffDat, e := syncCache.Get(cacheDiffPrefix + dir); e == nil {
+	if diffDat, ok := syncCache.GetBytes(cacheDiffPrefix + dir); ok {
 		json.Unmarshal(diffDat, &diff)
 	}
 	// Register as deleted
 	diff.Deletes[p] = struct{}{}
 	// Remove from cache if just previously added
 	delete(diff.Adds, p)
-	if _, e := syncCache.Get(cacheNodePrefix + dir); e == nil {
+	if _, ok := syncCache.Get(cacheNodePrefix + dir); ok {
 		syncCache.Delete(cacheNodePrefix + dir)
 	}
 	diffDat, _ := json.Marshal(diff)
@@ -182,7 +182,7 @@ func (s *CacheHandler) cacheDel(ctx context.Context, node *tree.Node) {
 }
 
 func (s *CacheHandler) cacheGet(ctx context.Context, path string) (*tree.Node, bool) {
-	if c, o := syncCache.Get(cacheNodePrefix + path); o == nil {
+	if c, ok := syncCache.GetBytes(cacheNodePrefix + path); ok {
 		var dir *tree.Node
 		if ee := json.Unmarshal(c, &dir); ee == nil {
 			return dir, true
@@ -193,7 +193,7 @@ func (s *CacheHandler) cacheGet(ctx context.Context, path string) (*tree.Node, b
 
 func (s *CacheHandler) cacheDiff(ctx context.Context, path string) (*cacheDiff, bool) {
 	log.Logger(ctx).Debug("Looking for cacheDiff for " + path)
-	if c, o := syncCache.Get(cacheDiffPrefix + path); o == nil {
+	if c, ok := syncCache.GetBytes(cacheDiffPrefix + path); ok {
 		var diff *cacheDiff
 		if ee := json.Unmarshal(c, &diff); ee == nil {
 			log.Logger(ctx).Debug("SyncCache cacheDiff for "+path, zap.Any("adds", diff.Adds), zap.Any("deletes", diff.Deletes))

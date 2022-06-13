@@ -40,7 +40,7 @@ import (
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
-var policiesCache cache.Short
+var policiesCache cache.Cache
 
 func init() {
 

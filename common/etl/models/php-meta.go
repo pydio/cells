@@ -1,5 +1,4 @@
-//go:build !386
-// +build !386
+// +build !386, !arm
 
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>

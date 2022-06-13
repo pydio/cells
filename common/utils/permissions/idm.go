@@ -44,7 +44,7 @@ import (
 )
 
 var (
-	usersCache cache.Short
+	usersCache cache.Cache
 )
 
 func init() {

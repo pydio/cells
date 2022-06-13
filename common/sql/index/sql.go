@@ -356,7 +356,7 @@ type IndexSQL struct {
 
 	rootNodeId string
 
-	shortCache     cache2.Short
+	shortCache     cache2.Cache
 	shortCacheLock sync.Mutex
 }
 

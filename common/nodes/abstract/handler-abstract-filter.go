@@ -47,7 +47,7 @@ type BranchFilter struct {
 	Handler
 	InputMethod    nodes.FilterFunc
 	OutputMethod   nodes.FilterFunc
-	RootNodesCache cache.Short
+	RootNodesCache cache.Cache
 }
 
 func (v *BranchFilter) LookupRoot(uuid string) (*tree.Node, error) {

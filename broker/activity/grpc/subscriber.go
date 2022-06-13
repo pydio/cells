@@ -54,7 +54,7 @@ type MicroEventsSubscriber struct {
 	usrClient    idm.UserServiceClient
 	roleClient   idm.RoleServiceClient
 	wsClient     idm.WorkspaceServiceClient
-	parentsCache cache.Short
+	parentsCache cache.Cache
 	RuntimeCtx   context.Context
 	dao          activity.DAO
 
