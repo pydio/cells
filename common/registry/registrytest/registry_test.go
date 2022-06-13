@@ -86,7 +86,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		numServices := 100
 
 		go func() {
-			w, err := m.Watch(registry.WithAction(pb.ActionType_FULL_LIST))
+			w, err := m.Watch(registry.WithAction(pb.ActionType_FULL_LIST), registry.WithType(pb.ItemType_SERVICE))
 			if err != nil {
 				log.Fatal(err)
 			}
