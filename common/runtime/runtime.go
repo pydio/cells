@@ -176,12 +176,12 @@ func HttpServerType() string {
 
 // GrpcBindAddress returns the KeyBindHost:KeyGrpcPort URL
 func GrpcBindAddress() string {
-	return net.JoinHostPort(r.GetString(KeyAdvertiseAddress), r.GetString(KeyGrpcPort))
+	return net.JoinHostPort(r.GetString(KeyBindHost), r.GetString(KeyGrpcPort))
 }
 
 // GrpcDiscoveryBindAddress returns the KeyBindHost:KeyGrpcDiscoveryPort URL
 func GrpcDiscoveryBindAddress() string {
-	return net.JoinHostPort(r.GetString(KeyAdvertiseAddress), r.GetString(KeyGrpcDiscoveryPort))
+	return net.JoinHostPort(r.GetString(KeyBindHost), r.GetString(KeyGrpcDiscoveryPort))
 }
 
 // GrpcExternalPort returns optional GRPC port to be used for external binding

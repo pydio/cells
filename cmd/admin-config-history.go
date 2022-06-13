@@ -25,6 +25,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"
@@ -180,6 +181,12 @@ DESCRIPTION
 
 		table.SetAlignment(tablewriter.ALIGN_LEFT)
 		table.Render()
+	},
+	PostRun: func(cmd *cobra.Command, args []string) {
+		if configVersionRestore != "" {
+			cmd.Println("Delaying exit to make sure write operations are committed.")
+			<-time.After(1 * time.Second)
+		}
 	},
 }
 
