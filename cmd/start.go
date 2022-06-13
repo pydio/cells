@@ -23,6 +23,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/config"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -53,13 +54,74 @@ import (
 var StartCmd = &cobra.Command{
 	Use:     "start",
 	Aliases: []string{"daemon"},
-	Short:   "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short:   "Start one or more services",
+	Long: `
+DESCRIPTION
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+  Start one or more services on this machine. 
+  $ ` + os.Args[0] + ` start [flags] args...
+
+  No arguments will start all services available (see 'ps' command).  
+   - Select specific services with regular expressions in the additional arguments. 
+   - The -t/--tags flag may limit to only a certain category of services (see usage below)
+   - The -x/--exclude flag may exclude one or more services
+  All these may be used in conjunction (-t, -x, regexp arguments).
+
+REQUIREMENTS
+  
+  Ulimit: set a number of allowed open files greater or equal to 2048.
+  For production use, a minimum of 8192 is recommended (see ulimit -n).
+
+  Setcap: if you intend to bind the server to standard http ports (80, 443), 
+  you must grant necessary permissions on cells binary with this command:
+  $ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>    
+
+EXAMPLES
+
+  1. Start all Cells services
+  $ ` + os.Args[0] + ` start
+
+  2. Start all services whose name starts with pydio.grpc
+  $ ` + os.Args[0] + ` start pydio.grpc
+
+  3. Start only services for scheduler
+  $ ` + os.Args[0] + ` start --tag=scheduler
+
+  4. Start whole plateform except the roles service
+  $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.role
+
+ENVIRONMENT
+
+  1. Flag mapping
+
+  All the command flags documented below are mapped to their associated ENV var, using upper case and CELLS_ prefix.
+  For example :
+  $ ` + os.Args[0] + ` start --grpc_external 54545
+  is equivalent to 
+  $ export CELLS_GRPC_EXTERNAL=54545; ` + os.Args[0] + ` start
+
+  2. Working Directories 
+
+  - CELLS_WORKING_DIR: replace the whole standard application dir
+  - CELLS_DATA_DIR: replace the location for storing default datasources (default CELLS_WORKING_DIR/data)
+  - CELLS_LOG_DIR: replace the location for storing logs (default CELLS_WORKING_DIR/logs)
+  - CELLS_SERVICES_DIR: replace location for services-specific data (default CELLS_WORKING_DIR/services)
+
+  3. Timeouts, limits, proxies
+
+  - CELLS_SQL_DEFAULT_CONN, CELLS_SQL_LONG_CONN: timeouts used for SQL queries. Use a golang duration (10s, 1m, etc). Defaults are respectively 30 seconds and 10 minutes.
+  - CELLS_CACHES_HARD_LIMIT: maximum memory limit used by internal caches (in MB, default is 8). This is a per/cache limit, not global.
+  - CELLS_UPDATE_HTTP_PROXY: if your server uses a client proxy to access outside world, this can be set to query update server.
+  - HTTP_PROXY, HTTPS_PROXY, NO_PROXY: golang-specific environment variables to configure a client proxy for all external http calls.
+
+  4. Development variables
+
+  - CELLS_ENABLE_WIP_LANGUAGES: show partially translated languages in the UX language picker. 
+  - CELLS_ENABLE_LIVEKIT: enable experimental support for video calls in the chat window, using a livekit-server.
+  - CELLS_ENABLE_FORMS_DEVEL: display a basic UX form with all possible fields types in the UX (for React developers)
+  - CELLS_DEFAULT_DS_STRUCT: if true, create default datasources using structured format instead of flat
+
+`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		bindViperFlags(cmd.Flags(), map[string]string{
 			runtime.KeyFork: runtime.KeyForkLegacy,
@@ -144,6 +206,15 @@ to quickly create a Cobra application.`,
 
 		go m.WatchServicesConfigs()
 		go m.WatchBroker(ctx, broker.Default())
+
+		if replaced := config.EnvOverrideDefaultBind(); replaced {
+			// Bind sites are replaced by flags/env values - warn that it will take precedence
+			if ss, e := config.LoadSites(true); e == nil && len(ss) > 0 && !runtime.IsFork() {
+				fmt.Println("*****************************************************************")
+				fmt.Println("*  Dynamic bind flag detected, overriding any configured sites  *")
+				fmt.Println("*****************************************************************")
+			}
+		}
 
 		if os.Args[1] == "daemon" {
 			msg := "| Starting daemon, use '" + os.Args[0] + " ctl' to control services |"
@@ -234,6 +305,15 @@ func init() {
 	StartCmd.Flags().Bool(runtime.KeyEnableMetrics, false, "Instrument code to expose internal metrics")
 	StartCmd.Flags().Bool(runtime.KeyEnablePprof, false, "Enable pprof remote debugging")
 	StartCmd.Flags().Int(runtime.KeyHealthCheckPort, 0, "Healthcheck port number")
+
+	StartCmd.Flags().String(runtime.KeySiteBind, "", "Internal IP|DOMAIN:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
+	StartCmd.Flags().String(runtime.KeySiteExternal, "", "External full URL (http[s]://IP|DOMAIN[:PORT]) exposed to the outside")
+	StartCmd.Flags().Bool(runtime.KeySiteNoTLS, false, "Configure the main gateway to rather use plain HTTP")
+	StartCmd.Flags().String(runtime.KeySiteTlsCertFile, "", "TLS cert file path")
+	StartCmd.Flags().String(runtime.KeySiteTlsKeyFile, "", "TLS key file path")
+	StartCmd.Flags().String(runtime.KeySiteLetsEncryptEmail, "", "Contact e-mail for Let's Encrypt provided certificate")
+	StartCmd.Flags().Bool(runtime.KeySiteLetsEncryptAgree, false, "Accept Let's Encrypt EULA")
+	StartCmd.Flags().Bool(runtime.KeySiteLetsEncryptStaging, false, "Rather use staging CA entry point")
 
 	RootCmd.AddCommand(StartCmd)
 }

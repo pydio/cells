@@ -252,8 +252,6 @@ ENVIRONMENT
 			return
 		}
 
-
-
 		// Reset runtime and hardcode new command to run
 		initViperRuntime()
 		bin := os.Args[0]
@@ -405,7 +403,6 @@ func init() {
 	flags.String(cruntime.KeySiteLetsEncryptEmail, "", "Contact e-mail for Let's Encrypt provided certificate")
 	flags.Bool(cruntime.KeySiteLetsEncryptAgree, false, "Accept Let's Encrypt EULA")
 	flags.Bool(cruntime.KeySiteLetsEncryptStaging, false, "Rather use staging CA entry point")
-	_ = flags.MarkHidden(cruntime.KeySiteLetsEncryptStaging)
 
 	flags.Bool(cruntime.KeyInstallExitAfter, false, "Simply exits main process after the installation is done")
 
