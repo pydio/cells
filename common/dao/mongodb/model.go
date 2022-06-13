@@ -22,7 +22,6 @@ package mongodb
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/blevesearch/bleve/v2"
@@ -67,9 +66,10 @@ func (m Model) Init(ctx context.Context, dao DAO) error {
 		if e := dao.DB().CreateCollection(ctx, name, opts); e != nil {
 			if _, ok := e.(mongo.CommandError); !ok {
 				return e
+			} else {
+				// Collection already exists
 			}
 		} else {
-			var models []mongo.IndexModel
 			for _, model := range col.Indexes {
 				keys := bson.D{}
 				for key, sort := range model {
@@ -79,9 +79,10 @@ func (m Model) Init(ctx context.Context, dao DAO) error {
 						keys = append(keys, primitive.E{Key: key, Value: sort})
 					}
 				}
-				models = append(models, mongo.IndexModel{Keys: keys})
-				if _, e := dao.DB().Collection(name).Indexes().CreateMany(ctx, models); e != nil {
-					fmt.Println("Error while creating indexes", e)
+				if _, e := dao.DB().Collection(name).Indexes().CreateOne(ctx, mongo.IndexModel{Keys: keys}); e != nil {
+					return e
+				} else {
+					// fmt.Println("Successfully created index " + iName)
 				}
 			}
 		}
