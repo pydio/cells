@@ -1740,37 +1740,37 @@
     "other": "Agendador"
   },
   "scheduler.legend": {
-    "other": "Trabalhos em execução em segundo plano periodicamente ou desencadeados por eventos"
+    "other": "Flows running in background on a periodical basis or triggered by events"
   },
   "scheduler.system.title": {
-    "other": "Tarefas do Sistema"
+    "other": "System Flows"
   },
   "scheduler.system.legend": {
-    "other": "Estas tarefas estão registradas por padrão dentro do aplicativo. Eles geralmente são encarregados de extrair informações do nó em segundo plano, ou fazer algumas operações de limpeza."
+    "other": "These Flows are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
   },
   "scheduler.inactives.title": {
-    "other": "Trabalhos inativos"
+    "other": "Inactive Flows"
   },
   "scheduler.inactives.legend": {
-    "other": "Estes trabalhos estão inativos, clique em um trabalho que lhe permita fazê-lo."
+    "other": "These Flows are inactive, click on a Flow to enable it."
   },
   "scheduler.system.empty": {
-    "other": "Nenhum trabalho agendado."
+    "other": "No Flows scheduled."
   },
   "scheduler.users.title": {
-    "other": "Trabalhos dos Usuários"
+    "other": "Users Flows"
   },
   "scheduler.users.legend": {
-    "other": "Estes trabalhos são criados dinamicamente e desencadeados pelas ações dos usuários."
+    "other": "These Flows are dynamically created and trigged by user actions."
   },
   "scheduler.users.empty": {
-    "other": "Nenhum trabalho iniciado por usuários"
+    "other": "No Flows launched by users"
   },
   "scheduler.cellsflows.cta.button": {
-    "other": "+ Trabalho Personalizado"
+    "other": "+ Custom Flow"
   },
   "scheduler.cellsflows.cta.text": {
-    "other": "Você precisa criar seu próprio trabalho? Descubra como o Cells Flows torna fácil automatizar suas tarefas manuais repetitivas no Cells."
+    "other": "Do you need to create your own Flow? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
   },
   "scheduler.cellsflows.dialog.button": {
     "other": "Saiba mais"
@@ -1797,10 +1797,10 @@
     "other": "Apagar"
   },
   "scheduler.job.delete.confirm": {
-    "other": "Tem certeza de que deseja excluir este trabalho? Esta operação não pode ser revertida!"
+    "other": "Are you sure you want to delete this Flow? This operation cannot be reverted!"
   },
   "scheduler.tasks.delete.confirm": {
-    "other": "Tem certeza de que deseja limpar todas as tarefas deste trabalho?"
+    "other": "Are you sure you want to clear all tasks for this Flow?"
   },
   "scheduler.trigger.create.node": {
     "other": "Criar Nó"
@@ -1869,13 +1869,13 @@
     "other": "Apagar"
   },
   "scheduler.task.action.enable": {
-    "other": "Habilitar Tarefa"
+    "other": "Enable Flow"
   },
   "scheduler.task.action.run": {
     "other": "Executar Agora"
   },
   "scheduler.task.action.disable": {
-    "other": "Desabilitar Tarefa"
+    "other": "Disable Flow"
   },
   "scheduler.task.id": {
     "other": "ID"
@@ -1953,7 +1953,7 @@
     "other": "A cada %1"
   },
   "scheduler.schedule.title": {
-    "other": "Calendário de tarefas"
+    "other": "Flow Schedule"
   },
   "scheduler.schedule.type": {
     "other": "Tipo de Agendamento"
@@ -1986,7 +1986,7 @@
     "other": "Período em minutos"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "Parâmetros do trabalho"
+    "other": "Flow Parameters"
   },
   "scheduler.job-parameters.button": {
     "other": "Parametros"

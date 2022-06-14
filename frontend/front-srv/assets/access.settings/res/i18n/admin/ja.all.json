@@ -1740,37 +1740,37 @@
     "other": "スケジューラ"
   },
   "scheduler.legend": {
-    "other": "定期的にバックグラウンドで実行されているジョブ、またはイベントによってトリガーされたジョブ"
+    "other": "Flows running in background on a periodical basis or triggered by events"
   },
   "scheduler.system.title": {
-    "other": "システムジョブ"
+    "other": "System Flows"
   },
   "scheduler.system.legend": {
-    "other": "これらのジョブは、デフォルトでアプリケーション内に登録されます。 これらは通常、バックグラウンドでノードから情報を抽出すること、またはいくつかのクリーニング操作を行うことを担当します。"
+    "other": "These Flows are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
   },
   "scheduler.inactives.title": {
-    "other": "非アクティブなジョブ"
+    "other": "Inactive Flows"
   },
   "scheduler.inactives.legend": {
-    "other": "これらのジョブはアクティブではありません。ジョブをクリックして有効にします。"
+    "other": "These Flows are inactive, click on a Flow to enable it."
   },
   "scheduler.system.empty": {
-    "other": "スケジュールされたジョブがありません。"
+    "other": "No Flows scheduled."
   },
   "scheduler.users.title": {
-    "other": "ユーザーのジョブ"
+    "other": "Users Flows"
   },
   "scheduler.users.legend": {
-    "other": "これらのジョブは動的に作成され、ユーザーアクションによってトリガーされます。"
+    "other": "These Flows are dynamically created and trigged by user actions."
   },
   "scheduler.users.empty": {
-    "other": "ユーザーが起動したジョブはありません"
+    "other": "No Flows launched by users"
   },
   "scheduler.cellsflows.cta.button": {
-    "other": "+ カスタムジョブ"
+    "other": "+ Custom Flow"
   },
   "scheduler.cellsflows.cta.text": {
-    "other": "あなたはあなた自身のジョブを作る必要がありますか？ Cells Flowsを使用すると、Cellsで繰り返し行う手動タスクを簡単に自動化できます。"
+    "other": "Do you need to create your own Flow? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
   },
   "scheduler.cellsflows.dialog.button": {
     "other": "詳細はこちら"
@@ -1797,10 +1797,10 @@
     "other": "削除"
   },
   "scheduler.job.delete.confirm": {
-    "other": "このジョブを削除してもよろしいですか？ 削除を取り消すことはできません。"
+    "other": "Are you sure you want to delete this Flow? This operation cannot be reverted!"
   },
   "scheduler.tasks.delete.confirm": {
-    "other": "このジョブのすべてのタスクをクリアしてもよろしいですか？"
+    "other": "Are you sure you want to clear all tasks for this Flow?"
   },
   "scheduler.trigger.create.node": {
     "other": "ノードを作成"
@@ -1869,13 +1869,13 @@
     "other": "削除"
   },
   "scheduler.task.action.enable": {
-    "other": "ジョブを有効にする"
+    "other": "Enable Flow"
   },
   "scheduler.task.action.run": {
     "other": "今すぐ実行"
   },
   "scheduler.task.action.disable": {
-    "other": "ジョブを無効にする"
+    "other": "Disable Flow"
   },
   "scheduler.task.id": {
     "other": "ID"
@@ -1953,7 +1953,7 @@
     "other": "%1 ごと"
   },
   "scheduler.schedule.title": {
-    "other": "ジョブスケジュール"
+    "other": "Flow Schedule"
   },
   "scheduler.schedule.type": {
     "other": "スケジュールタイプ"
@@ -1986,7 +1986,7 @@
     "other": "期間 (分)"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "ジョブパラメータ"
+    "other": "Flow Parameters"
   },
   "scheduler.job-parameters.button": {
     "other": "パラメータ"
