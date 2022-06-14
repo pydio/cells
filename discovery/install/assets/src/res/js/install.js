@@ -773,7 +773,7 @@ class InstallForm extends React.Component {
                     <div style={stepperStyles.contentScroller}>
                         <h3>{this.t('apply.title')}</h3>
                         <div style={{padding: '20px 0'}}>
-                            <LinearProgress min={0} max={100} value={installProgress} style={{width: '100%'}} mode={"determinate"}/>
+                            <LinearProgress min={0} max={100} value={installProgress} style={{width: '100%'}} mode={"indeterminate"}/>
                         </div>
                         <div style={{...flexContainer, paddingRight: 20, paddingTop: 10, fontSize: 14, paddingBottom: 20}}>
                             {installEvents.map((e,i) => {

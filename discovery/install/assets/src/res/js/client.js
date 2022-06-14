@@ -42,6 +42,7 @@ class Client extends ApiClient{
     }
 
     pollDiscovery(reloadObserver) {
+        this.timeout = 100;
         super.callApi("/config/discovery", "GET", [], [], [], [], [], [], ["application/json"], ["application/json"], Object).then(response => {
             // A proper response means that server is ready - but gateway may be restarting!
             setTimeout(reloadObserver, 6000);

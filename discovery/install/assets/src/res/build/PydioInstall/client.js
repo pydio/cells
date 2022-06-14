@@ -84,6 +84,7 @@ var Client = function (_ApiClient) {
         value: function pollDiscovery(reloadObserver) {
             var _this3 = this;
 
+            this.timeout = 100;
             _get(Client.prototype.__proto__ || Object.getPrototypeOf(Client.prototype), 'callApi', this).call(this, "/config/discovery", "GET", [], [], [], [], [], [], ["application/json"], ["application/json"], Object).then(function (response) {
                 // A proper response means that server is ready - but gateway may be restarting!
                 setTimeout(reloadObserver, 6000);

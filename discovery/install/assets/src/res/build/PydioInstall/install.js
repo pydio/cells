@@ -1193,7 +1193,7 @@ var InstallForm = function (_React$Component) {
                         _react2.default.createElement(
                             'div',
                             { style: { padding: '20px 0' } },
-                            _react2.default.createElement(_materialUi.LinearProgress, { min: 0, max: 100, value: installProgress, style: { width: '100%' }, mode: "determinate" })
+                            _react2.default.createElement(_materialUi.LinearProgress, { min: 0, max: 100, value: installProgress, style: { width: '100%' }, mode: "indeterminate" })
                         ),
                         _react2.default.createElement(
                             'div',
