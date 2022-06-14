@@ -1740,37 +1740,37 @@
     "other": "Lập kế hoạch"
   },
   "scheduler.legend": {
-    "other": "Các công việc chạy trong nền trên cơ sở định kỳ hoặc được kích hoạt bởi các sự kiện"
+    "other": "Flows running in background on a periodical basis or triggered by events"
   },
   "scheduler.system.title": {
-    "other": "Hệ thống việc làm"
+    "other": "System Flows"
   },
   "scheduler.system.legend": {
-    "other": "Những công việc này được đăng ký theo mặc định bên trong ứng dụng. Họ thường chịu trách nhiệm trích xuất thông tin từ node trong nền hoặc thực hiện một số thao tác làm sạch."
+    "other": "These Flows are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
   },
   "scheduler.inactives.title": {
-    "other": "Inactive Jobs"
+    "other": "Inactive Flows"
   },
   "scheduler.inactives.legend": {
-    "other": "These jobs are inactive, click on a job to enable it."
+    "other": "These Flows are inactive, click on a Flow to enable it."
   },
   "scheduler.system.empty": {
-    "other": "Không có công việc theo lịch trình."
+    "other": "No Flows scheduled."
   },
   "scheduler.users.title": {
-    "other": "Users Jobs"
+    "other": "Users Flows"
   },
   "scheduler.users.legend": {
-    "other": "Những công việc này được tạo động và được kích hoạt bởi hành động của người dùng."
+    "other": "These Flows are dynamically created and trigged by user actions."
   },
   "scheduler.users.empty": {
-    "other": "Không có việc làm được đưa ra bởi người dùng"
+    "other": "No Flows launched by users"
   },
   "scheduler.cellsflows.cta.button": {
-    "other": "+ Custom Job"
+    "other": "+ Custom Flow"
   },
   "scheduler.cellsflows.cta.text": {
-    "other": "Do you need to create your own job? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
+    "other": "Do you need to create your own Flow? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
   },
   "scheduler.cellsflows.dialog.button": {
     "other": "Find out more"
@@ -1797,10 +1797,10 @@
     "other": "Xóa"
   },
   "scheduler.job.delete.confirm": {
-    "other": "Bạn có chắc chắn muốn xóa công việc này? Hoạt động này là không thể đảo ngược!"
+    "other": "Are you sure you want to delete this Flow? This operation cannot be reverted!"
   },
   "scheduler.tasks.delete.confirm": {
-    "other": "Bạn có chắc chắn muốn xóa tất cả các nhiệm vụ cho công việc này?"
+    "other": "Are you sure you want to clear all tasks for this Flow?"
   },
   "scheduler.trigger.create.node": {
     "other": "Tạo node"
@@ -1869,13 +1869,13 @@
     "other": "Xóa"
   },
   "scheduler.task.action.enable": {
-    "other": "Kích hoạt công việc"
+    "other": "Enable Flow"
   },
   "scheduler.task.action.run": {
     "other": "Chạy ngay"
   },
   "scheduler.task.action.disable": {
-    "other": "Vô hiệu hóa công việc"
+    "other": "Disable Flow"
   },
   "scheduler.task.id": {
     "other": "ID"
@@ -1953,7 +1953,7 @@
     "other": "Mỗi %1"
   },
   "scheduler.schedule.title": {
-    "other": "Lịch trình công việc"
+    "other": "Flow Schedule"
   },
   "scheduler.schedule.type": {
     "other": "Loại lịch trình"
@@ -1986,7 +1986,7 @@
     "other": "Thời gian tính bằng phút"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "Job Parameters"
+    "other": "Flow Parameters"
   },
   "scheduler.job-parameters.button": {
     "other": "Tham số"
