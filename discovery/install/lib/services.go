@@ -118,6 +118,11 @@ func actionConfigsSet(c *install.InstallConfig) error {
 
 	// OAuth web
 	oauthWeb := common.ServiceWebNamespace_ + common.ServiceOAuth
+	if config.Get("services", oauthWeb, "secret").String() != "" {
+		// Secret already set
+		return nil
+	}
+
 	secret, err := x.GenerateSecret(32)
 	if err != nil {
 		return err
