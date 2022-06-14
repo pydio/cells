@@ -390,10 +390,19 @@ func (m *model) initConfigView() {
 		m.configsView.SetSelectedFunc(func(node *tview.TreeNode) {
 			node.SetExpanded(!node.IsExpanded())
 		})
+		m.configsView.SetChangedFunc(func(node *tview.TreeNode) {
+			defer func() {
+				recover()
+			}()
+			js, _ := json.MarshalIndent(node.GetReference(), "", "  ")
+			m.metaView.SetText(string(js))
+		})
 	}
+	m.metaView.SetTitle("| JSON |")
+	m.metaView.SetText("")
 	root := tview.NewTreeNode("Configs")
-	m.configsView.SetRoot(root)
-	root.SetExpanded(true)
+	m.configsView.SetRoot(root).SetCurrentNode(root)
+	root.SetExpanded(true).SetSelectable(true).SetReference(m.cfg.Interface())
 	m.populateTreeNode(root, []string{}, m.cfg)
 }
 
@@ -401,34 +410,41 @@ func (m *model) populateTreeNode(node *tview.TreeNode, pa []string, val configx.
 	defer func() {
 		recover()
 	}()
+	var childrenKeys []string
+	children := make(map[string]*tview.TreeNode)
+
 	var mi map[string]interface{}
-	var mi1 []interface{}
-	if er := val.Scan(&mi1); er == nil {
-		for k := range mi1 {
-			if subVal, ok := mi1[k].(map[string]interface{}); ok {
-				c := tview.NewTreeNode(strconv.Itoa(k))
-				node.AddChild(c)
-				c.SetExpanded(false).SetSelectable(true)
-				subConf := configx.New()
-				for sk, sv := range subVal {
-					subConf.Val(sk).Set(sv)
-				}
-				m.populateTreeNode(c, append(pa, strconv.Itoa(k)), subConf)
+	var sl []interface{}
+	if er := val.Scan(&sl); er == nil {
+		for k, i := range sl {
+			c := tview.NewTreeNode(strconv.Itoa(k))
+			var ref interface{}
+			if conf, o := i.(configx.Values); o {
+				ref = conf.Interface()
 			} else {
-				c := tview.NewTreeNode(fmt.Sprintf("%v", subVal))
-				node.AddChild(c)
+				ref = i
 			}
+			c.SetExpanded(false).SetSelectable(true).SetReference(ref)
+			children[c.GetText()] = c
+			childrenKeys = append(childrenKeys, c.GetText())
+			m.populateTreeNode(c, append(pa, strconv.Itoa(k)), configx.NewFrom(i))
 		}
 	} else if e := val.Scan(&mi); e == nil {
 		for k := range mi {
-			c := tview.NewTreeNode(k)
-			node.AddChild(c)
+			c := tview.NewTreeNode(k).SetReference(val.Val(k).Interface())
+			children[c.GetText()] = c
+			childrenKeys = append(childrenKeys, c.GetText())
 			c.SetExpanded(false)
 			c.SetSelectable(true)
 			m.populateTreeNode(c, append(pa, k), val.Val(k))
 		}
 	} else {
-		node.SetText(node.GetText() + ": " + val.String())
+		node.SetText(node.GetText() + ": " + val.String()).SetReference(val.Interface())
+	}
+	// Append children sorted
+	sort.Strings(childrenKeys)
+	for _, k := range childrenKeys {
+		node.AddChild(children[k])
 	}
 }
 
@@ -548,13 +564,15 @@ DESCRIPTION
 		m.buttonsPanel.SetBackgroundColor(tview.Styles.PrimitiveBackgroundColor)
 		m.buttonsPanel.SetTitle("| Actions |").SetBorder(true)
 
+		centerPanel := tview.NewFlex().SetDirection(tview.FlexRow)
+		rightPanel := tview.NewFlex().SetDirection(tview.FlexRow)
+
+		m.configsView = tview.NewTreeView()
+		m.configsView.SetBorder(true).SetTitle("| Configurations |")
+
 		components := []tview.Primitive{
 			m.typesList, m.itemsList, m.filterText, m.metaView, m.edgesList,
 		}
-
-		centerPanel := tview.NewFlex().SetDirection(tview.FlexRow)
-		m.configsView = tview.NewTreeView()
-		m.configsView.SetBorder(true).SetTitle("| Configurations |")
 
 		reloadButton := tview.NewButton("Reload").SetSelectedFunc(func() {
 			m.loadItems(m.getCurrentItem().ri, registry.WithType(m.types[m.currentType].it))
@@ -570,6 +588,10 @@ DESCRIPTION
 				centerPanel.AddItem(m.configsView, 0, 1, false)
 				m.centerMode = "config"
 				m.initConfigView()
+				m.renderMetaView(nil) // empty
+				m.edgesList.Clear()
+				rightPanel.ResizeItem(m.metaView, 0, 10)
+				rightPanel.ResizeItem(m.edgesList, 1, 0)
 			} else if mainText != "Configs" {
 				if m.centerMode == "config" {
 					m.centerMode = "list"
@@ -580,6 +602,8 @@ DESCRIPTION
 							AddItem(reloadButton, 10, 0, false).
 							AddItem(m.filterText, 0, 1, false),
 							3, 0, false)
+					rightPanel.ResizeItem(m.metaView, 0, 1)
+					rightPanel.ResizeItem(m.edgesList, 0, 2)
 				}
 				m.typesChanged(index)
 
@@ -606,7 +630,7 @@ DESCRIPTION
 					AddItem(m.filterText, 0, 1, false),
 					3, 0, false),
 				0, 3, false).
-			AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+			AddItem(rightPanel.
 				AddItem(m.metaView, 0, 1, false).
 				AddItem(m.edgesList, 0, 2, false).
 				AddItem(m.buttonsPanel, 5, 0, false),
@@ -615,6 +639,7 @@ DESCRIPTION
 		boxFocus := 0
 		flex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			if event.Key() == tcell.KeyTab || event.Key() == tcell.KeyBacktab {
+				m.configsView.Blur()
 				components[boxFocus].Blur()
 				if event.Key() == tcell.KeyTab {
 					boxFocus++
@@ -625,7 +650,11 @@ DESCRIPTION
 					}
 				}
 				boxFocus = boxFocus % len(components)
-				components[boxFocus].Focus(nil)
+				next := components[boxFocus]
+				if next == m.itemsList && m.centerMode == "config" {
+					next = m.configsView
+				}
+				next.Focus(nil)
 				return nil
 			}
 			return event
