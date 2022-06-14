@@ -1740,37 +1740,37 @@
     "other": "Scheduler"
   },
   "scheduler.legend": {
-    "other": "Jobs, die regelmäßig im Hintergrund laufen oder durch Ereignisse ausgelöst werden"
+    "other": "Flows, die regelmäßig im Hintergrund laufen oder durch Ereignisse ausgelöst werden"
   },
   "scheduler.system.title": {
-    "other": "Systemjobs"
+    "other": "System Flows"
   },
   "scheduler.system.legend": {
-    "other": "Diese Jobs werden standardmäßig in der Anwendung registriert. Sie sind im Allgemeinen dafür verantwortlich, Informationen von Nodes im Hintergrund zu extrahieren oder einige Reinigungsvorgänge auszuführen."
+    "other": "Diese Flows werden standardmäßig in der Anwendung registriert. Sie sind im Allgemeinen dafür verantwortlich, Informationen von Nodes im Hintergrund zu extrahieren oder einige Reinigungsvorgänge auszuführen."
   },
   "scheduler.inactives.title": {
-    "other": "Inaktive Jobs"
+    "other": "Inaktive Flows"
   },
   "scheduler.inactives.legend": {
-    "other": "Diese Jobs sind inaktiv, klicken Sie auf einen Job, um ihn zu aktivieren."
+    "other": "Diese Flows sind inaktiv, klicken Sie auf einen Flow, um ihn zu aktivieren."
   },
   "scheduler.system.empty": {
-    "other": "Keine Jobs geplant."
+    "other": "Keine Flows geplant."
   },
   "scheduler.users.title": {
-    "other": "Benutzer-Jobs"
+    "other": "Benutzer-Flows"
   },
   "scheduler.users.legend": {
-    "other": "Diese Jobs werden dynamisch erstellt und trigged durch Benutzeraktionen."
+    "other": "Diese Flows werden dynamisch erstellt und trigged durch Benutzeraktionen."
   },
   "scheduler.users.empty": {
-    "other": "Keine Jobs von Benutzern gestartet"
+    "other": "Keine Flows von Benutzern gestartet"
   },
   "scheduler.cellsflows.cta.button": {
-    "other": "+ Eigener Job"
+    "other": "+ Eigener Flow"
   },
   "scheduler.cellsflows.cta.text": {
-    "other": "Müssen Sie Ihren eigenen Job erstellen? Entdecken Sie, wie Cells Flow die Automatisierung Ihrer wiederholten manuellen Aufgaben in Cells vereinfachen."
+    "other": "Müssen Sie Ihren eigenen Flow erstellen? Entdecken Sie, wie Cells Flow die Automatisierung Ihrer wiederholten manuellen Aufgaben in Cells vereinfachen."
   },
   "scheduler.cellsflows.dialog.button": {
     "other": "Mehr erfahren"
@@ -1797,10 +1797,10 @@
     "other": "Löschen"
   },
   "scheduler.job.delete.confirm": {
-    "other": "Soll der Aufgabe wirklich gelöscht werden? Dies kann nicht rückgängig gemacht werden!"
+    "other": "Soll der Flow wirklich gelöscht werden? Dies kann nicht rückgängig gemacht werden!"
   },
   "scheduler.tasks.delete.confirm": {
-    "other": "Möchten Sie wirklich alle Aufgaben für diesen Job löschen?"
+    "other": "Möchten Sie wirklich alle Aufgaben für diesen Flow löschen?"
   },
   "scheduler.trigger.create.node": {
     "other": "Node erstellen"
@@ -1869,13 +1869,13 @@
     "other": "Löschen"
   },
   "scheduler.task.action.enable": {
-    "other": "Job aktivieren"
+    "other": "Flow aktivieren"
   },
   "scheduler.task.action.run": {
     "other": "Jetzt starten"
   },
   "scheduler.task.action.disable": {
-    "other": "Job deaktivieren"
+    "other": "Flow deaktivieren"
   },
   "scheduler.task.id": {
     "other": "ID"
@@ -1953,7 +1953,7 @@
     "other": "Jeder %1"
   },
   "scheduler.schedule.title": {
-    "other": "Job-Zeitplan"
+    "other": "Flow Zeitplan"
   },
   "scheduler.schedule.type": {
     "other": "Zeitplan Typ"
@@ -1986,7 +1986,7 @@
     "other": "Zeitraum in Minuten"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "Job Parameter"
+    "other": "Flow-Parameter"
   },
   "scheduler.job-parameters.button": {
     "other": "Einstellungen"

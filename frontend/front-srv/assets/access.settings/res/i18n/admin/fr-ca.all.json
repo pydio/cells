@@ -1740,37 +1740,37 @@
     "other": "Planificateur"
   },
   "scheduler.legend": {
-    "other": "Tâches de fond déclenchées périodiquement ou par des événements"
+    "other": "Flows running in background on a periodical basis or triggered by events"
   },
   "scheduler.system.title": {
-    "other": "Jobs systèmes"
+    "other": "System Flows"
   },
   "scheduler.system.legend": {
-    "other": "Ces jobs sont enregistrés par défaut. Ils sont en charge de l'extraction d'information des fichiers en tâche de fond, et d'opérations de nettoyage."
+    "other": "These Flows are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
   },
   "scheduler.inactives.title": {
-    "other": "Tâches inactives"
+    "other": "Inactive Flows"
   },
   "scheduler.inactives.legend": {
-    "other": "Ces tâches sont inactives, cliquez dessus pour activer."
+    "other": "These Flows are inactive, click on a Flow to enable it."
   },
   "scheduler.system.empty": {
-    "other": "Pas de jobs programmés."
+    "other": "No Flows scheduled."
   },
   "scheduler.users.title": {
-    "other": "Jobs Utilisateurs"
+    "other": "Users Flows"
   },
   "scheduler.users.legend": {
-    "other": "Ces jobs sont générés dynamiquement par des actions des utilisateurs."
+    "other": "These Flows are dynamically created and trigged by user actions."
   },
   "scheduler.users.empty": {
-    "other": "Pas de jobs lancés"
+    "other": "No Flows launched by users"
   },
   "scheduler.cellsflows.cta.button": {
-    "other": "+ Tâche personnalisée"
+    "other": "+ Custom Flow"
   },
   "scheduler.cellsflows.cta.text": {
-    "other": "Vous avez besoin de créer votre propre scénario ? Découvrez comment Cells Flows vous permet d'automatiser facilement les tâches répétitives dans Cells."
+    "other": "Do you need to create your own Flow? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
   },
   "scheduler.cellsflows.dialog.button": {
     "other": "En savoir plus"
@@ -1797,10 +1797,10 @@
     "other": "Supprimer"
   },
   "scheduler.job.delete.confirm": {
-    "other": "Êtes-vous sûr de vouloir effacer ce job? Cette opération est irréversible !"
+    "other": "Are you sure you want to delete this Flow? This operation cannot be reverted!"
   },
   "scheduler.tasks.delete.confirm": {
-    "other": "Êtes-vous sûr de vouloir effacer toutes les tâches pour ce job ?"
+    "other": "Are you sure you want to clear all tasks for this Flow?"
   },
   "scheduler.trigger.create.node": {
     "other": "Création"
@@ -1869,13 +1869,13 @@
     "other": "Supprimer"
   },
   "scheduler.task.action.enable": {
-    "other": "Activer le job"
+    "other": "Enable Flow"
   },
   "scheduler.task.action.run": {
     "other": "Démarrer maintenant"
   },
   "scheduler.task.action.disable": {
-    "other": "Désactiver le job"
+    "other": "Disable Flow"
   },
   "scheduler.task.id": {
     "other": "ID"
@@ -1953,7 +1953,7 @@
     "other": "Toutes les %1"
   },
   "scheduler.schedule.title": {
-    "other": "Horaire"
+    "other": "Flow Schedule"
   },
   "scheduler.schedule.type": {
     "other": "Type de planification"
@@ -1986,7 +1986,7 @@
     "other": "Période en minutes"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "Paramètres"
+    "other": "Flow Parameters"
   },
   "scheduler.job-parameters.button": {
     "other": "Paramètres"

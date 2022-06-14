@@ -1740,37 +1740,37 @@
     "other": "定时任务"
   },
   "scheduler.legend": {
-    "other": "定期在后台运行或事件触发的作业"
+    "other": "Flows running in background on a periodical basis or triggered by events"
   },
   "scheduler.system.title": {
-    "other": "系统任务"
+    "other": "System Flows"
   },
   "scheduler.system.legend": {
-    "other": "这些任务是应用程序内默认注册的。 他们通常负责在后台提取节点的某些信息，或进行某些清理操作。"
+    "other": "These Flows are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
   },
   "scheduler.inactives.title": {
-    "other": "非活动作业"
+    "other": "Inactive Flows"
   },
   "scheduler.inactives.legend": {
-    "other": "这些作业处于非活动状态，点击作业启用。"
+    "other": "These Flows are inactive, click on a Flow to enable it."
   },
   "scheduler.system.empty": {
-    "other": "没有预定作业。"
+    "other": "No Flows scheduled."
   },
   "scheduler.users.title": {
-    "other": "用户任务"
+    "other": "Users Flows"
   },
   "scheduler.users.legend": {
-    "other": "这些任务是动态创建的并会被用户活动触发。"
+    "other": "These Flows are dynamically created and trigged by user actions."
   },
   "scheduler.users.empty": {
-    "other": "没有用户启动的作业"
+    "other": "No Flows launched by users"
   },
   "scheduler.cellsflows.cta.button": {
-    "other": "+ 自定义作业"
+    "other": "+ Custom Flow"
   },
   "scheduler.cellsflows.cta.text": {
-    "other": "你需要创建自己的工作吗？发现单元是如何使重复的手工任务在单元格中自动化的。"
+    "other": "Do you need to create your own Flow? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
   },
   "scheduler.cellsflows.dialog.button": {
     "other": "了解更多"
@@ -1797,10 +1797,10 @@
     "other": "删除"
   },
   "scheduler.job.delete.confirm": {
-    "other": "您确定要删除此作业吗？此操作不能还原！"
+    "other": "Are you sure you want to delete this Flow? This operation cannot be reverted!"
   },
   "scheduler.tasks.delete.confirm": {
-    "other": "您确定要清除此作业的所有任务吗？"
+    "other": "Are you sure you want to clear all tasks for this Flow?"
   },
   "scheduler.trigger.create.node": {
     "other": "创建节点"
@@ -1869,13 +1869,13 @@
     "other": "删除"
   },
   "scheduler.task.action.enable": {
-    "other": "启用作业"
+    "other": "Enable Flow"
   },
   "scheduler.task.action.run": {
     "other": "立即运行"
   },
   "scheduler.task.action.disable": {
-    "other": "禁用作业"
+    "other": "Disable Flow"
   },
   "scheduler.task.id": {
     "other": "ID"
@@ -1953,7 +1953,7 @@
     "other": "每 %1"
   },
   "scheduler.schedule.title": {
-    "other": "作业计划"
+    "other": "Flow Schedule"
   },
   "scheduler.schedule.type": {
     "other": "计划类型"
@@ -1986,7 +1986,7 @@
     "other": "持续时间（分钟）"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "作业参数"
+    "other": "Flow Parameters"
   },
   "scheduler.job-parameters.button": {
     "other": "参数"
