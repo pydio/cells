@@ -24,6 +24,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"log"
 	"math/rand"
 	"runtime"
@@ -35,7 +36,6 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/mtree"
@@ -309,7 +309,7 @@ func TestMysqlWithCache(t *testing.T) {
 		newSession()
 
 		var i int
-		for _ = range getDAO(ctxWithCache).GetNodeChildren(mockLongNodeMPath) {
+		for _ = range getDAO(ctxWithCache).GetNodeChildren(context.Background(), mockLongNodeMPath) {
 			i++
 		}
 
@@ -325,7 +325,7 @@ func TestMysqlWithCache(t *testing.T) {
 
 		var i int
 		PrintMemUsage("Test Getting the Children of a node")
-		for _ = range getDAO(ctxWithCache).GetNodeTree([]uint64{1}) {
+		for _ = range getDAO(ctxWithCache).GetNodeTree(context.Background(), []uint64{1}) {
 			i++
 		}
 
@@ -422,7 +422,7 @@ func TestMysqlWithCache(t *testing.T) {
 		So(e, ShouldBeNil)
 
 		// List Root
-		nodes := getDAO(ctxWithCache).GetNodeChildren(mtree.MPath{1})
+		nodes := getDAO(ctxWithCache).GetNodeChildren(context.Background(), mtree.MPath{1})
 		count := 0
 		for range nodes {
 			count++
@@ -430,7 +430,7 @@ func TestMysqlWithCache(t *testing.T) {
 		So(count, ShouldEqual, 2)
 
 		// List Parent1 Children
-		nodes = getDAO(ctxWithCache).GetNodeTree(mtree.MPath{1})
+		nodes = getDAO(ctxWithCache).GetNodeTree(context.Background(), mtree.MPath{1})
 		count = 0
 		for c := range nodes {
 			log.Println(c)
@@ -440,7 +440,7 @@ func TestMysqlWithCache(t *testing.T) {
 		So(count, ShouldEqual, 7) // Because of previous tests there are other nodes
 
 		// List Parent1 Children
-		nodes = getDAO(ctxWithCache).GetNodeChildren(mtree.MPath{1, 1})
+		nodes = getDAO(ctxWithCache).GetNodeChildren(context.Background(), mtree.MPath{1, 1})
 		count = 0
 		for range nodes {
 			count++

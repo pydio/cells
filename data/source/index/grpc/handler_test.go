@@ -656,6 +656,37 @@ func TestIndexLongNode(t *testing.T) {
 	})
 }
 
+func BenchmarkIndexCancel(b *testing.B) {
+
+	s := NewTreeServer(&object.DataSource{Name: ""}, "", indexDAO)
+
+	f := &tree.Node{Path: "/proot", Uuid: "output-uuid"}
+	f1 := &tree.Node{Path: "/proot/f1", Uuid: "output-f1"}
+	f2 := &tree.Node{Path: "/proot/f1/f2", Uuid: "output-f2"}
+	f3 := &tree.Node{Path: "/proot/f1/f2/f3", Uuid: "output-f3"}
+	s.CreateNode(ctx, &tree.CreateNodeRequest{Node: f})
+	s.CreateNode(ctx, &tree.CreateNodeRequest{Node: f1})
+	s.CreateNode(ctx, &tree.CreateNodeRequest{Node: f2})
+	s.CreateNode(ctx, &tree.CreateNodeRequest{Node: f3})
+
+	for i := 0; i < b.N; i++ {
+		resp, _ := send(s, "ListNodes", &tree.ListNodesRequest{Node: f1})
+		fmt.Println(resp)
+		/*var nodes = []*tree.Node{}
+		for {
+			response, err := resp.(*List).Recv()
+
+			if err != nil {
+				break
+			}
+			nodes = append(nodes, response.Node)
+		}
+		fmt.Println(nodes)*/
+	}
+
+
+}
+
 /*
 // TODO
 func TestMassiveOperations(t *testing.T) {

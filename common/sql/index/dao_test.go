@@ -24,6 +24,8 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
+	"go.uber.org/goleak"
 	"log"
 	"strconv"
 	"sync"
@@ -33,7 +35,6 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/mtree"
@@ -44,18 +45,20 @@ var (
 )
 
 func init() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	SetDefaultFailureMode(FailureContinues)
 	wrapper := func(ctx context.Context, d dao.DAO) (dao.DAO, error) {
 		return NewDAO(d, "ROOT"), nil
 	}
 
-	if d, er := dao.InitDAO(context.Background(), sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test", wrapper, options); er != nil {
+	d, er := dao.InitDAO(ctx, sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test", wrapper, options)
+	if er != nil {
 		panic(er)
 	} else {
-		ctxNoCache = servicecontext.WithDAO(context.Background(), d)
+		ctxNoCache = servicecontext.WithDAO(ctx, d)
 	}
-
 }
 
 func TestMysql(t *testing.T) {
@@ -272,7 +275,7 @@ func TestMysql(t *testing.T) {
 	Convey("Test Getting the Children of a node", t, func() {
 
 		var i int
-		for _ = range getDAO(ctxNoCache).GetNodeChildren(mockLongNodeMPath) {
+		for _ = range getDAO(ctxNoCache).GetNodeChildren(context.Background(), mockLongNodeMPath) {
 			i++
 		}
 
@@ -284,7 +287,7 @@ func TestMysql(t *testing.T) {
 
 		var i int
 		PrintMemUsage("GetNodeTree")
-		for _ = range getDAO(ctxNoCache).GetNodeTree([]uint64{1}) {
+		for _ = range getDAO(ctxNoCache).GetNodeTree(context.Background(), []uint64{1}) {
 			i++
 		}
 		PrintMemUsage("GetNodeTree END")
@@ -365,7 +368,7 @@ func TestMysql(t *testing.T) {
 		So(e, ShouldBeNil)
 
 		// List Root
-		nodes := getDAO(ctxNoCache).GetNodeChildren(mtree.MPath{1})
+		nodes := getDAO(ctxNoCache).GetNodeChildren(context.Background(), mtree.MPath{1})
 		count := 0
 		for range nodes {
 			count++
@@ -373,7 +376,7 @@ func TestMysql(t *testing.T) {
 		So(count, ShouldEqual, 2)
 
 		// List Parent1 Children
-		nodes = getDAO(ctxNoCache).GetNodeTree(mtree.MPath{1})
+		nodes = getDAO(ctxNoCache).GetNodeTree(context.Background(), mtree.MPath{1})
 		count = 0
 		for c := range nodes {
 			log.Println(c)
@@ -382,7 +385,7 @@ func TestMysql(t *testing.T) {
 		So(count, ShouldEqual, 8) // Because of previous tests there are other nodes
 
 		// List Parent1 Children
-		nodes = getDAO(ctxNoCache).GetNodeChildren(mtree.MPath{1, 1})
+		nodes = getDAO(ctxNoCache).GetNodeChildren(context.Background(), mtree.MPath{1, 1})
 		count = 0
 		for range nodes {
 			count++
@@ -1071,7 +1074,7 @@ func TestMoveNodeTree(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		var i int
-		for _ = range getDAO(ctxNoCache).GetNodeTree(pathTo) {
+		for _ = range getDAO(ctxNoCache).GetNodeTree(context.Background(), pathTo) {
 			i++
 		}
 
@@ -1099,4 +1102,21 @@ func TestUnderscoreIssue(t *testing.T) {
 		mp, _, _ = getDAO(ctxNoCache).Path("Test%Folder", false)
 		So(mp, ShouldBeNil)
 	})
+}
+
+func BenchmarkMysql(b *testing.B) {
+	b.ReportAllocs()
+
+	currentDAO := NewFolderSizeCacheDAO(getDAO(ctxNoCache))
+	// currentDAO := getDAO(ctxNoCache)
+
+	for i := 0; i < b.N; i++ {
+		// List Root
+		nodes := currentDAO.GetNodeChildren(context.Background(), mtree.MPath{1})
+		<-nodes
+		/*count := 0
+		for range nodes {
+			count++
+		}*/
+	}
 }

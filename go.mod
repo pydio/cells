@@ -104,6 +104,7 @@ require (
 	go.etcd.io/etcd/api/v3 v3.5.4
 	go.etcd.io/etcd/client/v3 v3.5.0
 	go.mongodb.org/mongo-driver v1.8.3
+	go.uber.org/goleak v1.1.11
 	go.uber.org/zap v1.20.0
 	gocloud.dev v0.20.0
 	gocloud.dev/pubsub/natspubsub v0.20.0
