@@ -112,10 +112,10 @@ EXAMPLES
 
 		requestParameters := map[string]interface{}{
 			"OwnerType":    internalType,
-			"OwnerId":      activityOwner,
+			"OwnerID":      activityOwner,
 			"BoxName":      boxName,
-			"MinCount":     keepAtLeast,
-			"MaxCount":     keepMax,
+			"minCount":     keepAtLeast,
+			"maxCount":     keepMax,
 			"CompactDB":    compactDB,
 			"ClearBackups": clearBackups,
 		}

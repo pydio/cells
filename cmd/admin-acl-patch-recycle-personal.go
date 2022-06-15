@@ -21,8 +21,6 @@
 package cmd
 
 import (
-	"context"
-
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -51,9 +49,9 @@ DESCRIPTION
   This command looks for personal/<username> folders and creates a recycle_root ACL on them.
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cmd.SetOutput(color.Output)
+		cmd.SetOut(color.Output)
 
-		ctx := context.Background()
+		ctx := cmd.Context()
 
 		treeClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
 		stream, e := treeClient.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: patchRecycleRoot}})
@@ -103,16 +101,20 @@ DESCRIPTION
 			}
 
 			if found {
-				color.White("  " + resp.GetNode().Path)
+				color.White(" + " + resp.GetNode().Path + " already has correct ACL - skipping")
 				continue
 			}
 
-			color.Green("+ " + resp.GetNode().Path)
-
 			if !dryRun {
-				aclClient.CreateACL(ctx, &idm.CreateACLRequest{
+				if _, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{
 					ACL: newACL,
-				})
+				}); e != nil {
+					color.Green(" + " + resp.GetNode().Path + " failed apply ACL " + e.Error())
+				} else {
+					color.Green(" + " + resp.GetNode().Path + " applied ACL")
+				}
+			} else {
+				color.Green(" + " + resp.GetNode().Path + " should apply ACL (but dryRun mode is set)")
 			}
 		}
 

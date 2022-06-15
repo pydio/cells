@@ -32,6 +32,7 @@ DESCRIPTION
   Various commands that do not require a running Cells instance.
 `,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		bindViperFlags(cmd.Flags())
 		_, _, er := initConfig(cmd.Context(), false)
 		return er
 	},

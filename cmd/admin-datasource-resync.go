@@ -61,11 +61,11 @@ EXAMPLES
 		}
 		syncService := "pydio.grpc.data.sync." + resyncDsName
 
-		cli := sync.NewSyncEndpointClient(grpc.GetClientConnFromCtx(ctx, syncService))
+		cli := sync.NewSyncEndpointClient(grpc.GetClientConnFromCtx(cmd.Context(), syncService))
 		c, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
 		defer cancel()
 		c = metadata.WithUserNameMetadata(c, common.PydioSystemUsername)
-		resp, err := cli.TriggerResync(c, &sync.ResyncRequest{Path: "/"} /*, client.WithRetries(1)*/)
+		resp, err := cli.TriggerResync(c, &sync.ResyncRequest{Path: "/"})
 		if err != nil {
 			cmd.Println("Resync Failed: " + err.Error())
 			return

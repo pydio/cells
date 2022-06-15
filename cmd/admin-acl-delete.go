@@ -24,9 +24,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/spf13/cobra"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
@@ -55,7 +54,7 @@ DESCRIPTION
 			})
 		}
 
-		query, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+		query, _ := anypb.New(&idm.ACLSingleQuery{
 			Actions:      aclActions,
 			RoleIDs:      roleIDs,
 			WorkspaceIDs: workspaceIDs,
@@ -68,7 +67,7 @@ DESCRIPTION
 
 		if response, err := client.DeleteACL(context.Background(), &idm.DeleteACLRequest{
 			Query: &service.Query{
-				SubQueries: []*any.Any{query},
+				SubQueries: []*anypb.Any{query},
 			},
 		}); err != nil {
 			fmt.Println(err)
@@ -81,7 +80,7 @@ DESCRIPTION
 }
 
 func init() {
-	deleteAclCmd.Flags().StringArrayVarP(&actions, "action", "a", []string{}, "Action value")
+	deleteAclCmd.Flags().StringArrayVarP(&actions, "action", "a", []string{}, "Action Name")
 	deleteAclCmd.Flags().StringArrayVarP(&roleIDs, "role_id", "r", []string{}, "RoleIDs")
 	deleteAclCmd.Flags().StringArrayVarP(&workspaceIDs, "workspace_id", "w", []string{}, "WorkspaceIDs")
 	deleteAclCmd.Flags().StringArrayVarP(&nodeIDs, "node_id", "n", []string{}, "NodeIDs")

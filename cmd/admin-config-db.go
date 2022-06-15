@@ -34,11 +34,6 @@ DESCRIPTION
   Manage database configuration.
   Each service can be configured to point to its own database. This command provides ways to manage databases.
 `,
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		bindViperFlags(cmd.Flags())
-		_, _, er := initConfig(cmd.Context(), false)
-		return er
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

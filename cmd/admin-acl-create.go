@@ -21,8 +21,8 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/log"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -43,9 +43,13 @@ DESCRIPTION
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		client := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+		client := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(cmd.Context(), common.ServiceAcl))
 
-		response, err := client.CreateACL(context.Background(), &idm.CreateACLRequest{
+		if action == "" || value == "" || (roleID == "" && workspaceID == "" && nodeID == "") {
+			log.Fatal("Please provide at least one of role_id, workspace_id or node_id, and an action name/value")
+		}
+
+		response, err := client.CreateACL(cmd.Context(), &idm.CreateACLRequest{
 			ACL: &idm.ACL{
 				Action: &idm.ACLAction{
 					Name:  action,

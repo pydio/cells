@@ -21,7 +21,7 @@
 package cmd
 
 import (
-	"context"
+	"io"
 	"log"
 
 	"github.com/olekukonko/tablewriter"
@@ -45,7 +45,7 @@ DESCRIPTION
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		client := idm.NewACLServiceClient(clientgrpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+		client := idm.NewACLServiceClient(clientgrpc.GetClientConnFromCtx(cmd.Context(), common.ServiceAcl))
 
 		var aclActions []*idm.ACLAction
 		for _, action := range actions {
@@ -64,10 +64,11 @@ DESCRIPTION
 
 		// Exit if query is empty
 		if len(query.Value) == 0 {
+			log.Fatal("Please provide at least one of --action, --role_id, --workspace_id or --node_id")
 			return
 		}
 
-		stream, err := client.SearchACL(context.Background(), &idm.SearchACLRequest{
+		stream, err := client.SearchACL(cmd.Context(), &idm.SearchACLRequest{
 			Query: &service.Query{
 				SubQueries: []*anypb.Any{query},
 			},
@@ -84,7 +85,10 @@ DESCRIPTION
 			response, err := stream.Recv()
 
 			if err != nil {
-				log.Fatal(err)
+				if err != io.EOF {
+					log.Fatal(err)
+				}
+				break
 			}
 
 			table.Append([]string{response.ACL.ID, response.ACL.Action.String(), response.ACL.NodeID, response.ACL.RoleID, response.ACL.WorkspaceID})
