@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package configx
 
 import (
@@ -167,7 +187,7 @@ func TestStd(t *testing.T) {
 		So(m.Val("service/map2/val").Get().String(), ShouldEqual, "test")
 		So(m.Val("service/array2").Set(make([]interface{}, 2)), ShouldBeNil)
 		So(m.Val("service/array2[val]").Set("test"), ShouldNotBeNil) // Array should have int index
-		So(m.Val("service/array2[0]").Set("test"), ShouldBeNil)   // Array should have int index
+		So(m.Val("service/array2[0]").Set("test"), ShouldBeNil)      // Array should have int index
 		So(m.Val("service/array2[0]").Get().String(), ShouldEqual, "test")
 		So(m.Val("service/array2[1]").Set(map[string]interface{}{
 			"val": "test",
