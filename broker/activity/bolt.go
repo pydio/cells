@@ -485,7 +485,7 @@ func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string), ownerType
 
 // AllActivities is used for internal migrations only
 func (dao *boltdbimpl) allActivities(ctx context.Context) (chan *docActivity, int, error) {
-	fmt.Println("Opening DAO...")
+
 	db := dao.DB()
 	out := make(chan *docActivity, 1000)
 	listBucket := func(bb *bolt.Bucket, ownerType int32, ownerId string, boxName BoxName) {

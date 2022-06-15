@@ -141,7 +141,7 @@ DESCRIPTION
 	Run: func(cmd *cobra.Command, args []string) {
 
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
-		table.SetHeader([]string{"Driver", "DSN", "Services"})
+		table.SetHeader([]string{"Driver", "DSN", "Possible Services"})
 
 		// List all databases value
 		dd := configDatabaseList()
