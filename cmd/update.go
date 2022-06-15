@@ -50,6 +50,11 @@ DESCRIPTION
   List the available updates for the current binary.
   To apply the actual update, run the command with a --version parameter.
 `,
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		bindViperFlags(cmd.Flags())
+		_, _, er := initConfig(cmd.Context(), false)
+		return er
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 
 		configs := config.GetUpdatesConfigs()
