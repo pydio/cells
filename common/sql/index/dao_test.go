@@ -25,7 +25,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
-	"go.uber.org/goleak"
 	"log"
 	"strconv"
 	"sync"
