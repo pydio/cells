@@ -57,7 +57,7 @@ func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequ
 		return resp, err
 	}
 
-	duplicates, err := dao.LostAndFounds()
+	duplicates, err := dao.LostAndFounds(ctx)
 	if err != nil {
 		return resp, err
 	}

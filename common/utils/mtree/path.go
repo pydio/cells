@@ -21,9 +21,10 @@
 package mtree
 
 import (
+	"fmt"
 	"hash/fnv"
 	"math/big"
-	"strconv"
+	"strings"
 )
 
 type MPathProvider interface{}
@@ -49,12 +50,13 @@ func (m MPath) String() string {
 		return ""
 	}
 
-	s := strconv.FormatUint(m[0], 10)
+	var b strings.Builder
+	fmt.Fprintf(&b, "%d", m[0])
 	for i := 1; i < len(m); i++ {
-		s = s + "." + strconv.FormatUint(m[i], 10)
+		fmt.Fprintf(&b,".%d", m[i])
 	}
 
-	return s
+	return b.String()
 }
 
 func (m MPath) Hash() uint32 {

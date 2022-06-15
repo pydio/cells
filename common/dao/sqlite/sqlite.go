@@ -36,7 +36,7 @@ type conn struct {
 }
 
 func (s *conn) Open(ctx context.Context, dsn string) (dao.Conn, error) {
-	db, err := commonsql.GetSqlConnection("sqlite3", dsn)
+	db, err := commonsql.GetSqlConnection(ctx, "sqlite3", dsn)
 	if err != nil {
 		return nil, err
 	}

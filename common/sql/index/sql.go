@@ -1011,7 +1011,7 @@ func (dao *IndexSQL) GetNodeChildrenCounts(path mtree.MPath) (int, int) {
 }
 
 // GetNodeChildren List
-func (dao *IndexSQL) GetNodeChildren(path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
+func (dao *IndexSQL) GetNodeChildren(ctx context.Context, path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 
 	dao.Lock()
 
@@ -1050,17 +1050,29 @@ func (dao *IndexSQL) GetNodeChildren(path mtree.MPath, filter ...*tree.MetaFilte
 				return
 			}
 
-			for rows.Next() {
-				treeNode, err := dao.scanDbRowToTreeNode(rows)
-				if err != nil {
-					c <- err
-					break
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					if !rows.Next() {
+						return
+					}
+
+					treeNode, err := dao.scanDbRowToTreeNode(rows)
+					if err != nil {
+						c <- err
+						break
+					}
+
+					c <- treeNode
 				}
-				c <- treeNode
 			}
+
 			if e := rows.Err(); e != nil {
 				c <- e
 			}
+
 		}
 	}()
 
@@ -1068,7 +1080,7 @@ func (dao *IndexSQL) GetNodeChildren(path mtree.MPath, filter ...*tree.MetaFilte
 }
 
 // GetNodeTree List from the path
-func (dao *IndexSQL) GetNodeTree(path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
+func (dao *IndexSQL) GetNodeTree(ctx context.Context, path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 
 	dao.Lock()
 
@@ -1107,16 +1119,26 @@ func (dao *IndexSQL) GetNodeTree(path mtree.MPath, filter ...*tree.MetaFilter) c
 				return
 			}
 
-			for rows.Next() {
-				treeNode, err := dao.scanDbRowToTreeNode(rows)
-				if err != nil {
-					c <- err
-					break
+			for {
+				select {
+				case <-ctx.Done():
+				default:
+					if !rows.Next() {
+						return
+					}
+
+					treeNode, err := dao.scanDbRowToTreeNode(rows)
+					if err != nil {
+						c <- err
+						return
+					}
+					c <- treeNode
 				}
-				c <- treeNode
 			}
+
 			if e := rows.Err(); e != nil {
 				c <- e
+				return
 			}
 		}
 	}()

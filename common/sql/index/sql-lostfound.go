@@ -21,6 +21,7 @@
 package index
 
 import (
+	"context"
 	sql2 "database/sql"
 	"fmt"
 	"strings"
@@ -150,7 +151,7 @@ func (l *lostFoundImpl) MarkForDeletion(uuids []string) {
 	l.uuids = uuids
 }
 
-func (dao *IndexSQL) LostAndFounds() (output []LostAndFound, err error) {
+func (dao *IndexSQL) LostAndFounds(ctx context.Context) (output []LostAndFound, err error) {
 	dao.Lock()
 	defer dao.Unlock()
 
@@ -238,7 +239,7 @@ func (dao *IndexSQL) LostAndFounds() (output []LostAndFound, err error) {
 			// Load all children as well
 			if !leaf {
 				t, _ := dao.GetNodeByUUID(uid)
-				for c := range dao.GetNodeTree(t.MPath) {
+				for c := range dao.GetNodeTree(ctx, t.MPath) {
 					if n, o := c.(*mtree.TreeNode); o {
 						output = append(output, &lostFoundImpl{uuids: []string{n.Uuid}, lostMPath: n.MPath.String()})
 					}

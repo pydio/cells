@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -13,14 +14,14 @@ var (
 	ConnectionOpenRetries = 10 * time.Second
 )
 
-func GetSqlConnection(driver string, dsn string) (*sql.DB, error) {
+func GetSqlConnection(ctx context.Context, driver string, dsn string) (*sql.DB, error) {
 	if db, err := sql.Open(driver, dsn); err != nil {
 		return nil, err
 	} else {
 		if err := pingWithRetries(db); err != nil {
 			return nil, err
 		}
-		computeStats(db)
+		computeStats(ctx, db)
 		return db, nil
 	}
 }
@@ -53,12 +54,16 @@ func pingWithRetries(db *sql.DB) error {
 
 }
 
-func computeStats(db *sql.DB) {
+func computeStats(ctx context.Context, db *sql.DB) {
 	go func() {
 		for {
-			s := db.Stats()
-			metrics.GetMetrics().Gauge("db_open_connections").Update(float64(s.OpenConnections))
-			<-time.After(30 * time.Second)
+			select {
+			case <-time.After(30 * time.Second):
+				s := db.Stats()
+				metrics.GetMetrics().Gauge("db_open_connections").Update(float64(s.OpenConnections))
+				case <-ctx.Done():
+					return
+			}
 		}
 	}()
 }

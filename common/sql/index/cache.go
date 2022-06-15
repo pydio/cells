@@ -138,7 +138,10 @@ func (d *daocache) resync() {
 	d.childCache = make(map[string][]*mtree.TreeNode)
 	d.nameCache = make(map[string][]*mtree.TreeNode)
 
-	for obj := range d.DAO.GetNodeTree(mtree.NewMPath(1)) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	for obj := range d.DAO.GetNodeTree(ctx, mtree.NewMPath(1)) {
 		node, ok := obj.(*mtree.TreeNode)
 		if !ok {
 			continue
@@ -662,7 +665,7 @@ func (d *daocache) GetNodeChildrenCounts(path mtree.MPath) (int, int) {
 	return res, 0
 }
 
-func (d *daocache) GetNodeChildren(path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
+func (d *daocache) GetNodeChildren(ctx context.Context, path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 
 	c := make(chan interface{})
 
@@ -673,7 +676,11 @@ func (d *daocache) GetNodeChildren(path mtree.MPath, filter ...*tree.MetaFilter)
 
 		if nodes, ok := d.childCache[path.String()]; ok {
 			for _, node := range nodes {
-				c <- node
+				select {
+				case c <- node:
+				case <-ctx.Done():
+					return
+				}
 			}
 		}
 	}()
@@ -681,7 +688,7 @@ func (d *daocache) GetNodeChildren(path mtree.MPath, filter ...*tree.MetaFilter)
 	return c
 }
 
-func (d *daocache) GetNodeTree(path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
+func (d *daocache) GetNodeTree(ctx context.Context, path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 	c := make(chan interface{})
 
 	go func() {
@@ -700,7 +707,11 @@ func (d *daocache) GetNodeTree(path mtree.MPath, filter ...*tree.MetaFilter) cha
 		// Resort keys
 		sort.Strings(keys)
 		for _, k := range keys {
-			c <- d.cache[k]
+			select {
+			case c <- d.cache[k]:
+			case <-ctx.Done():
+				return
+			}
 		}
 	}()
 
@@ -728,8 +739,8 @@ func (d *daocache) CleanResourcesOnDeletion() (string, error) {
 	return d.DAO.CleanResourcesOnDeletion()
 }
 
-func (d *daocache) LostAndFounds() ([]LostAndFound, error) {
-	return d.DAO.LostAndFounds()
+func (d *daocache) LostAndFounds(ctx context.Context) ([]LostAndFound, error) {
+	return d.DAO.LostAndFounds(ctx)
 }
 
 func (d *daocache) FixLostAndFound(lost LostAndFound) error {

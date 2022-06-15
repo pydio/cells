@@ -418,9 +418,9 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 
 		var c chan interface{}
 		if req.Recursive {
-			c = dao.GetNodeTree(path, metaFilter)
+			c = dao.GetNodeTree(ctx, path, metaFilter)
 		} else {
-			c = dao.GetNodeChildren(path, metaFilter)
+			c = dao.GetNodeChildren(ctx, path, metaFilter)
 		}
 
 		log.Logger(ctx).Debug("Listing nodes on DS with Filter", zap.Int32("req.FilterType", int32(req.FilterType)), zap.Bool("true", req.FilterType == tree.NodeType_COLLECTION))
@@ -431,7 +431,11 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		for obj := range c {
 			node, isNode := obj.(*mtree.TreeNode)
 			if !isNode {
-				receivedErr = obj.(error)
+				var ok bool
+				receivedErr, ok = obj.(error)
+				if !ok {
+					receivedErr = fmt.Errorf("unknown error")
+				}
 				break
 			}
 
@@ -608,7 +612,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	s.setDataSourceMeta(node)
 	var childrenEvents []*tree.NodeChangeEvent
 	if node.Type == tree.NodeType_COLLECTION {
-		c := dao.GetNodeTree(path)
+		c := dao.GetNodeTree(ctx, path)
 		names := strings.Split(reqPath, "/")
 		var treeErr error
 		for obj := range c {

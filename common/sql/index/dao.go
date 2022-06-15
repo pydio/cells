@@ -22,6 +22,7 @@
 package index
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/pydio/cells/v4/common/dao"
@@ -52,8 +53,8 @@ type DAO interface {
 	SetNodes(string, int64) sql.BatchSender
 
 	// Getters
-	GetNodeChildren(mtree.MPath, ...*tree.MetaFilter) chan interface{}
-	GetNodeTree(mtree.MPath, ...*tree.MetaFilter) chan interface{}
+	GetNodeChildren(context.Context, mtree.MPath, ...*tree.MetaFilter) chan interface{}
+	GetNodeTree(context.Context, mtree.MPath, ...*tree.MetaFilter) chan interface{}
 	GetNode(mtree.MPath) (*mtree.TreeNode, error)
 	GetNodeByUUID(string) (*mtree.TreeNode, error)
 	GetNodeChild(mtree.MPath, string) (*mtree.TreeNode, error)
@@ -64,7 +65,7 @@ type DAO interface {
 
 	ResyncDirtyEtags(rootNode *mtree.TreeNode) error
 	CleanResourcesOnDeletion() (string, error)
-	LostAndFounds() ([]LostAndFound, error)
+	LostAndFounds(context.Context) ([]LostAndFound, error)
 	FixLostAndFound(lost LostAndFound) error
 	FixRandHash2(excludes ...LostAndFound) (int64, error)
 	Flatten() (string, error)

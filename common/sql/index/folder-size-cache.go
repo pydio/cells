@@ -21,6 +21,7 @@
 package index
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
@@ -88,21 +89,28 @@ func (dao *FolderSizeCacheSQL) GetNodeByUUID(uuid string) (*mtree.TreeNode, erro
 }
 
 // GetNodeChildren List
-func (dao *FolderSizeCacheSQL) GetNodeChildren(path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
+func (dao *FolderSizeCacheSQL) GetNodeChildren(ctx context.Context, path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 	c := make(chan interface{})
 
 	go func() {
 		defer close(c)
 
-		cc := dao.DAO.GetNodeChildren(path, filter...)
+		cc := dao.DAO.GetNodeChildren(ctx, path, filter...)
 
-		for obj := range cc {
-			if node, ok := obj.(*mtree.TreeNode); ok {
-				if node != nil && !node.IsLeaf() {
-					dao.folderSize(node)
+		for {
+			select {
+			case obj := <-cc:
+				if node, ok := obj.(*mtree.TreeNode); ok {
+					if node != nil && !node.IsLeaf() {
+						dao.folderSize(node)
+					}
 				}
+				select {
+				case c <- obj:
+				}
+				case <-ctx.Done():
+					return
 			}
-			c <- obj
 		}
 	}()
 
@@ -110,21 +118,28 @@ func (dao *FolderSizeCacheSQL) GetNodeChildren(path mtree.MPath, filter ...*tree
 }
 
 // GetNodeTree List from the path
-func (dao *FolderSizeCacheSQL) GetNodeTree(path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
+func (dao *FolderSizeCacheSQL) GetNodeTree(ctx context.Context, path mtree.MPath, filter ...*tree.MetaFilter) chan interface{} {
 	c := make(chan interface{})
 
 	go func() {
 		defer close(c)
 
-		cc := dao.DAO.GetNodeTree(path, filter...)
+		cc := dao.DAO.GetNodeTree(ctx, path, filter...)
 
-		for obj := range cc {
-			if node, ok := obj.(*mtree.TreeNode); ok {
-				if node != nil && !node.IsLeaf() {
-					dao.folderSize(node)
+		for {
+			select {
+			case obj := <-cc:
+				if node, ok := obj.(*mtree.TreeNode); ok {
+					if node != nil && !node.IsLeaf() {
+						dao.folderSize(node)
+					}
 				}
+				select {
+				case c <- obj:
+				}
+			case <-ctx.Done():
+				return
 			}
-			c <- obj
 		}
 	}()
 
