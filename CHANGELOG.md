@@ -1,107 +1,32 @@
-# Changes between v4.0.0-beta1 and v4.0.0-beta2
+# Changes between v4.0.0-beta2 and v4.0.0-beta3
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.0.0-beta1...v4.0.0-beta2)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.0.0-beta2...v4.0.0-beta3)
 
-- [#69ab565](https://github.com/pydio/cells/commit/69ab565cfe7b3251a021781c24ce51b15870e2db): Add delay before exiting when saving config
-- [#18ae2cd](https://github.com/pydio/cells/commit/18ae2cd47312f3513f7483b3a535e7ba2c2dfd4e): More translation in Japanese and Korean
-- [#b5a5fd1](https://github.com/pydio/cells/commit/b5a5fd1dc3b1969da3ab36debb3cf5ed8044823e): More translation in Japanese and Korean
-- [#ca015c0](https://github.com/pydio/cells/commit/ca015c099f37752dfde2ee30a71f556f45ae249d): Make deep copy/moves faster (struct ds)
-- [#c65500f](https://github.com/pydio/cells/commit/c65500f27409f3f8049abb115051af5e785a7623): Fixing unit tests
-- [#068c177](https://github.com/pydio/cells/commit/068c177fd5f715d30b085095edfea3aff2085e2c): Fixing unit tests
-- [#8dc9087](https://github.com/pydio/cells/commit/8dc9087c46c0332a02ad8a9abd33a054c512f492): Fix to config del
-- [#81f706b](https://github.com/pydio/cells/commit/81f706b4d85cdb9f629a37d537ac595bd68dc75f): configx : fix Scan([]interface{})
-- [#271d61a](https://github.com/pydio/cells/commit/271d61ace1fcbbe62be83466f7b4c5d99cee872b): Authfront-login : set Redirect info in session for other middlewares
-- [#4b6259b](https://github.com/pydio/cells/commit/4b6259bb531c434631c6694f8cfd5b701dcaf1e0): Fixing watch
-- [#d79fd13](https://github.com/pydio/cells/commit/d79fd13834362380b4246902653abfad95d7f3ae): Update go version in go.mod.
-- [#0c28dd6](https://github.com/pydio/cells/commit/0c28dd6cbe078de44b5b422ae6ea1aa5ccdf61c2): Fixing etcd config
-- [#64796db](https://github.com/pydio/cells/commit/64796dbd586efe1a8fd9b1026d308feb7a6f9bae): Better escape of listentry custom css classname
-- [#c8ed874](https://github.com/pydio/cells/commit/c8ed874a8d75df0e34e6b0590204f7edd8900b58): Config file watch implementation
-- [#f9897d6](https://github.com/pydio/cells/commit/f9897d6468d369ec49b26dd880b95bd6a1075423): Fix flags and commands
-- [#260ff4d](https://github.com/pydio/cells/commit/260ff4d49319a2ec5cd1506c1cae470ee1f25ca3): Basic support for Configs browsing in cells ctl
-- [#d918b74](https://github.com/pydio/cells/commit/d918b74a994e07a5b61c7d9f43dbf617eba8f590): Various UX fixes
-- [#490692c](https://github.com/pydio/cells/commit/490692ca4cc4420b22ae6ae36ac9deff9e2a74dc): Saving after sample
-- [#10a3c19](https://github.com/pydio/cells/commit/10a3c19f0f7e14cbd161de8e5b87e171856c6955): fix to etcd
-- [#758ce7a](https://github.com/pydio/cells/commit/758ce7a611ad20ff0d6713e16ad01bb21fda9c56): Wrong status update in defer
-- [#d10394d](https://github.com/pydio/cells/commit/d10394dbdc9020d4cac6d6a66d26b6f2935627cb): Change unit test
-- [#f70ac74](https://github.com/pydio/cells/commit/f70ac7425090e32cb779ab47c3a30764bc4812ae): Rework metrics integration as proper services
-- [#64289da](https://github.com/pydio/cells/commit/64289dab28362cf7e3da6eda8a3fec5008905377): Fixing initial set of config values
-- [#7720b06](https://github.com/pydio/cells/commit/7720b06fbb2b6596df72ff73a5c128f03f892aee): Ignore isLocalDao error if driver is empty (first configuration)
-- [#ef72c1a](https://github.com/pydio/cells/commit/ef72c1a9e4227e566485847eea902e9b2adb2ae2): For etcd registry, set encoding to jsonitem by default
-- [#92abefb](https://github.com/pydio/cells/commit/92abefb070ed817f800c474ac9dcf8adedbe1e85): Fixing etcd bug
-- [#1c4cd7f](https://github.com/pydio/cells/commit/1c4cd7f35897eb2ad46290bf88a98735ad00210f): Fixing unit test for configs
-- [#7c6628c](https://github.com/pydio/cells/commit/7c6628c94e951c676b01683b2f7090976c7790f5): Change viper config file (default to flags.[ext] or pass CELLS_FLAGS_FILE env)
-- [#aba1d6e](https://github.com/pydio/cells/commit/aba1d6e1936f44ff6e08582b8e848da6eda62abf): Temp fix
-- [#9340ac8](https://github.com/pydio/cells/commit/9340ac8f6a6564cb1dd4f820f4ea986279727d6d): Fixing config
-- [#f53406f](https://github.com/pydio/cells/commit/f53406fb70453d7b8b07314217ae68f7fdbc8d76): SQL config - fix Watch Options signature
-- [#07809b0](https://github.com/pydio/cells/commit/07809b02d3736a249b65a016833521cb7b6dd5d5): Configure-db command: bindViperFlags
-- [#6433744](https://github.com/pydio/cells/commit/643374439b89ad5a3368ece18a61d273794723af): Fix registry config List with multiple Types
-- [#558dc72](https://github.com/pydio/cells/commit/558dc721f257f23b8d27e5503b6c11eb9a0b296c): Clean statuses, manage beforeStop/afterStop externally for servers, declare DAOs as shared or not, apply Unique from that information.
-- [#5bfc4ff](https://github.com/pydio/cells/commit/5bfc4ff789c5fa72f2910f9d4e0ba300e0d3b687): Fixing watch
-- [#bffa92c](https://github.com/pydio/cells/commit/bffa92cd1be19b8f1509babe187522b3cc101c2f): Fix to etcd
-- [#8fd2ec1](https://github.com/pydio/cells/commit/8fd2ec1f6c0345f701c0a264d4caa1fe8cef7d06): Fixing etcd and memory
-- [#31c0011](https://github.com/pydio/cells/commit/31c0011b50e93309ad3b5a6f8b60b52b4c4cc424): Scheduler: fix local var shadowed
-- [#cf86e4a](https://github.com/pydio/cells/commit/cf86e4a5fabbbe913f3fcd58102a0607fd22734e): Use Go 17 for xgo builds
-- [#4b50989](https://github.com/pydio/cells/commit/4b509895f4cf96d4b40edb5ce41915e61402ecb5): Update go version
-- [#c08e76d](https://github.com/pydio/cells/commit/c08e76d771d3940edc58f7329255ef884a3dbc85): Support for cells.env and hashicorpt vault secret store.
-- [#36c9bff](https://github.com/pydio/cells/commit/36c9bffc6be808d9a3457f0066f3ae0aaff4db4b): Move ApplicationWorkingDirs() from config to runtime package. Define defaults for various config files, optionally pass keyring as URL.
-- [#ac37b2d](https://github.com/pydio/cells/commit/ac37b2d0b8ffb3f361b262c3951df1871e0f330b): Fix unit tests
-- [#17e79c0](https://github.com/pydio/cells/commit/17e79c04e2349f4af55ab11b6562e82da7bd83dd): New command admin-config-copy to replace tools-config
-- [#85c83ef](https://github.com/pydio/cells/commit/85c83ef28548833cad6a7271fcdc6aa090016fd1): Refactor config initialization
-- [#9a6a77a](https://github.com/pydio/cells/commit/9a6a77a79c9bb9c30bfa452399a3f13b8ea2fcaa): Refactor VersionStore interface to revisions.Store and implement etcd WithRev() support
-- [#e5030e0](https://github.com/pydio/cells/commit/e5030e062622a0399f77a67e680efed1aede9cb7): Declare arbitrary nodes capacities with --cap flag.
-- [#2d4062c](https://github.com/pydio/cells/commit/2d4062c2b2d5f7a3c23f860cdd1b551a630d9e4e): Callbacks and errors wraps
-- [#4d670d8](https://github.com/pydio/cells/commit/4d670d82a854ae8e507e64a4b92ec563f1e7d926): Pass RegisterOption to Start/Stop/OnServe to force full deregister if node is shutting down.
-- [#41f0491](https://github.com/pydio/cells/commit/41f0491bd9f523479798e922634d3bee53715b69): Fix tasks tests (unsubscribe listeners)
-- [#ea87457](https://github.com/pydio/cells/commit/ea87457425b868e793cee0579ab8a18d044b6c6d): Fix registry tests
-- [#86e9499](https://github.com/pydio/cells/commit/86e94990e0115eab60776f6ffc4c94861ff92d4b): Fix configs tests
-- [#fc09cfe](https://github.com/pydio/cells/commit/fc09cfe23d78ed21688664ab86cfb3da9ff0a456): Sending missing test
-- [#e19aa36](https://github.com/pydio/cells/commit/e19aa36a935dd04f59856a185f33ad1362ae5dc5): Bump sdk - Improve scheduler task logs (level, filter, refresh).
-- [#74cf796](https://github.com/pydio/cells/commit/74cf796d5745a8e84bb7b68747702cab71d7e663): Rework scheduler code
-- [#be36a50](https://github.com/pydio/cells/commit/be36a50579ec7da1bae658ee70f39d56c636bec9): Fix ZapLogger missing overriden methods
-- [#c5e8ede](https://github.com/pydio/cells/commit/c5e8ede161ef920eb1aa71bd63a8d842cf97f80a): Rework MetaFilter, down to sql level for better performances.
-- [#da98e2d](https://github.com/pydio/cells/commit/da98e2d251cce9f2c1f0ab9a47a91cc8e187e19a): Clean and factorize balancers - configs. Factorize http and caddy mux
-- [#29da25b](https://github.com/pydio/cells/commit/29da25bd90635c9c69561ecdb4c50ebb81b8c926): Clean and factorize balancers - next
-- [#a5b800b](https://github.com/pydio/cells/commit/a5b800b475e8ea4bba3b5afb1f12164883f85a55): Clean and factorize balancers
-- [#14e4baa](https://github.com/pydio/cells/commit/14e4baadde7e4f320c91d67bb9815837a58eb464): Sending detailed changes in watch
-- [#eea872c](https://github.com/pydio/cells/commit/eea872c090a83e4cf4bea5bf2ca0375c88e7bdc6): Deport CaptureCaddyStderr call and pass a logger to cert providers lib
-- [#5da31b6](https://github.com/pydio/cells/commit/5da31b697b82063f93fc20a0e0bb69e2f9a5c8b6): Improve configure db add, db list, db move
-- [#96dd5d7](https://github.com/pydio/cells/commit/96dd5d7b79bb73af567146295cac0ffed5de170f): Re-fix logs vs StdErr Capture Create Migrators for Jobs and Logs
-- [#6f9ed05](https://github.com/pydio/cells/commit/6f9ed052f10e18df2a7a93c015a9645fd4f1f3b0): Fixing watches
-- [#e560139](https://github.com/pydio/cells/commit/e560139902fa899422486deb741b6ada2f601f80): ctl sort imports
-- [#9d8fccf](https://github.com/pydio/cells/commit/9d8fccfe2e004f5518c77fe946fa5bf45e88bf8d): Fix loop in chanWatcher
-- [#eaf0b3a](https://github.com/pydio/cells/commit/eaf0b3af9133ee42b5fd9d9ceffaec8e3b592e60): Add FailFast option on registry calls to properly stop forks when discovery server is already down.
-- [#1da84c8](https://github.com/pydio/cells/commit/1da84c802258a276d21a1c862f20a14db3ff36f5): Upon @nschaeferComnet suggestion, re-enable optional search form in public share. Close #411 and close #390
-- [#31ec733](https://github.com/pydio/cells/commit/31ec7339cdb1088b4534ef307360bf152f19c250): registry api service - handle no specific type case
-- [#b93d666](https://github.com/pydio/cells/commit/b93d666f45f3b51ea7da5fcec5d91cde8cb725ee): ctl loadEdges: specify all required types
-- [#d512b91](https://github.com/pydio/cells/commit/d512b91ef6413659c068c7f6bc8e0e187f634c0c): Pass context to etcd.NewSource
-- [#82e35f2](https://github.com/pydio/cells/commit/82e35f29011d9c49ff73de5b94ec82e3b5ed09f1): Small fixes
-- [#18eec99](https://github.com/pydio/cells/commit/18eec9916f3fee3a7df7752211f8036ac9110bfa): Changing registry to group by type
-- [#7014768](https://github.com/pydio/cells/commit/701476832c61515c633f08adad606bf9d4611f48): Display fork startTag
-- [#c7609a3](https://github.com/pydio/cells/commit/c7609a37f4c7c4810f491dbe5672bd234bb13f8e): Do not use values.Has (go17)
-- [#59f097b](https://github.com/pydio/cells/commit/59f097bcab4b9f45200fb2ba0817c16cd6575831): ctl : watch registry connection, make ux more dynamic
-- [#ba73922](https://github.com/pydio/cells/commit/ba7392212ae5a7a0aa78c05a3003cfb300278553): Properly close chanWatcher
-- [#aef1753](https://github.com/pydio/cells/commit/aef17532f67fc72db38efe1d059ad482e52827d4): Fix grpc test
-- [#2e8dff2](https://github.com/pydio/cells/commit/2e8dff2394d7d417de0881bfa6cabf77758c9f7c): Rework servers/services Start/Serve sequences
-- [#63383c9](https://github.com/pydio/cells/commit/63383c9a127cf1f621b2739ccc33b0e34f2fe938): URL pattern for server types - Fix cells ps
-- [#6d3ccc4](https://github.com/pydio/cells/commit/6d3ccc41fbe06d0e66066d5b1c2f1718175c06a3): Introduce URL pattern for server types
-- [#d088ce5](https://github.com/pydio/cells/commit/d088ce56f2b2dcc78628985c53a814194e7537a3): Work on server/services start/stop, ctl and daemon
-- [#ca5702d](https://github.com/pydio/cells/commit/ca5702d812e52e2a84fc9ecdfd0b047a378f5d4c): Properly deregister http endpoints on stop
-- [#008b23f](https://github.com/pydio/cells/commit/008b23f8fe4e1b190ad418317edd66194d2b7a02): Basic lsof calls for pid's and ports
-- [#604ed49](https://github.com/pydio/cells/commit/604ed49fbefd4035378287959ee3571e45542248): Cells ctl rework with model and filtering
-- [#b5bbb93](https://github.com/pydio/cells/commit/b5bbb93bd5ec2d42716c2b4832d7deb4a3a49789): Register Nodes - New tool cells ctl for browsing registry graph
-- [#5d562d3](https://github.com/pydio/cells/commit/5d562d31ece74a416af2ae3b8741b8d665213494): Update JS SDK
-- [#b7e505f](https://github.com/pydio/cells/commit/b7e505f0772b98dc09b7b80c39af73d1d36416af): Clean checks in StartCmd nodes.Pool : watch registry for ADDRESS types
-- [#24799ad](https://github.com/pydio/cells/commit/24799add662afa211f8ba00293e3b318367a01ae): Server PS command
-- [#e663d3a](https://github.com/pydio/cells/commit/e663d3a31418220e6bf50a4ecb0e929fccbc1213): Fix some descriptions
-- [#b1b2e2e](https://github.com/pydio/cells/commit/b1b2e2e8017281b92e3f08f523c96248e9825009): Refactor registry with new types, edges, and create Manager to init services then ServeAll.
-- [#78d752d](https://github.com/pydio/cells/commit/78d752d8954e3ee82173f07d480cc8b1413cc003): If discoveryServer fails to Serve, print a big FATAL and cancel everything.
-- [#da4aab4](https://github.com/pydio/cells/commit/da4aab48aa6e73ce438f22f729835c208dc3231e): Remote config error logs
-- [#1ba29a5](https://github.com/pydio/cells/commit/1ba29a5b298b0ac69a7e884ea3ace2163bd66a76): Wrap mongo error with custom string
-- [#099305c](https://github.com/pydio/cells/commit/099305ce942c7119726b1513eb897b765c801caf): Postpone initLogLevel() to avoid hiding fatal start errors (e.g. busy port)
-- [#b7cbbab](https://github.com/pydio/cells/commit/b7cbbab889cca2f0e4f035a0a2c42203df8cb778): Fix session options from URL
-- [#f3c1cb3](https://github.com/pydio/cells/commit/f3c1cb3dcc127e5b8d24e84a73c109c604d905f4): Fix avatarUrl dimension parameter
-- [#e1024a8](https://github.com/pydio/cells/commit/e1024a8fc59f05def5d2851eba0bc51306386204): Fix to etcd
-- [#e73d093](https://github.com/pydio/cells/commit/e73d093d41276e29e29f4f2502049a0231c098a3): Unique transport in cells remote endpoint.
-- [#a7fc383](https://github.com/pydio/cells/commit/a7fc3837088d03a7fae2042d248368145ddffdc9): Make sure to properly set type on version.Location
-- [#3a7ce4a](https://github.com/pydio/cells/commit/3a7ce4abf9bf3c4d23b5ce23ef815a327544fd4e): Add a progress bar for DAO migration, implemented by Activity for now. Fix Mailer migration.
-- [#efcada6](https://github.com/pydio/cells/commit/efcada6ce978e421c2c6b26136d05ac46d27bd9e): Remove forgotten debug logs
+- [#e7f8b6e](https://github.com/pydio/cells/commit/e7f8b6e703c3f0c2096fba0f4613d8c0aa458763): Fixing channels handling
+- [#209387e](https://github.com/pydio/cells/commit/209387ee67aae27930e1d1f6f686a75c2269a856): Fixing channels handling
+- [#636cbd8](https://github.com/pydio/cells/commit/636cbd8632c817bde352d1b21410b886832b67ed): Update emicklei/go-restful library
+- [#e99aa4e](https://github.com/pydio/cells/commit/e99aa4e0388db1243543666b421c62a03e4a7e6d): Write a test for the Cache interface
+- [#ba2bd8f](https://github.com/pydio/cells/commit/ba2bd8ff3eabd7f3e4dc1b4788abcb9dc911a899): Fixing tests
+- [#273130a](https://github.com/pydio/cells/commit/273130ad738912b8cf428e77797f5935f0a89673): Removing unused import
+- [#5be57e9](https://github.com/pydio/cells/commit/5be57e9a0ce768c652efb56584d3361e759e2db2): Fixing tests
+- [#e80ea4a](https://github.com/pydio/cells/commit/e80ea4a94f15987e14e13c3cca15b9986051b44b): Fixing memory leak
+- [#7e5c870](https://github.com/pydio/cells/commit/7e5c870fb54cb10fc3fdcd90caea18969f7f5d50): Minor fixes
+- [#2b36811](https://github.com/pydio/cells/commit/2b36811a42fd481f108959674a176ba86b38b36b): Missing initConfig in update CLI
+- [#d441f11](https://github.com/pydio/cells/commit/d441f111689f3219c69512fa4f14b9705f30210b): Fix various CLI's
+- [#1988989](https://github.com/pydio/cells/commit/1988989601965485e2c4c264f71f2683f73066a6): Improve config viewer in cells ctl
+- [#99a4468](https://github.com/pydio/cells/commit/99a4468fdfaa39e12ea790a7202029170625fbab): Use Flow instead of Job for Cells Flows UIs
+- [#e28da5a](https://github.com/pydio/cells/commit/e28da5a7ba88f9813720da39a4d4a2bebc4225cb): Use Flow instead of Job for Cells Flows UIs
+- [#98512d9](https://github.com/pydio/cells/commit/98512d99ff86c88f343fbefdc4e61127928a2324): Fix re-applying configure on existing instance.
+- [#65a08b0](https://github.com/pydio/cells/commit/65a08b086ee50ee4be60f58714451cb4029b1cc7): Set progress indeterminate after install
+- [#2542634](https://github.com/pydio/cells/commit/25426347b5360ca04f4bc552b65d265137e30502): Update i18n
+- [#7228a75](https://github.com/pydio/cells/commit/7228a75209070c73dd12bb28c0fd8cf97a895123): Re-org commands and flags
+- [#2b56181](https://github.com/pydio/cells/commit/2b56181baf0eb82186c02d3fa60f837191085464): Fixing unit test
+- [#b9303ae](https://github.com/pydio/cells/commit/b9303aef853a2a300f975a1bec728623b92dc9e3): Making arm great again
+- [#5f67ff2](https://github.com/pydio/cells/commit/5f67ff255c83c40bc1486c1df5dbb140f32f63fd): Fix mongo indexes creation
+- [#471bb36](https://github.com/pydio/cells/commit/471bb36804c496dd1757fa10e60cd89eee5eeb1f): Re-enable missing bind flags for start command: prefix this flag suite with "site_" for better readability, enable legacy value with "site_".
+- [#10b43d5](https://github.com/pydio/cells/commit/10b43d54ff8df71af161572502dedcd80a9566e0): Fix for cluster etcd
+- [#7cd0b8c](https://github.com/pydio/cells/commit/7cd0b8ce63f6fe1be605968136abb2e974773178): Re-enable missing bind flags for start command, fix some short/long descriptions
+- [#48292dd](https://github.com/pydio/cells/commit/48292dde27930d1db6a283b7c8fd31d591b2713e): Fixes to docstore service+dao restart
+- [#1f1af9b](https://github.com/pydio/cells/commit/1f1af9b1502f3244cc5206ee1a1fb944d0c2ba1c): Fix missing rc Add when triggering fake action on empty selection
+- [#f05b3b3](https://github.com/pydio/cells/commit/f05b3b3d2c05e9760af3533719df5b5fa564d82d): Refix custom listEntry css classname
+- [#0c7d922](https://github.com/pydio/cells/commit/0c7d9223c049545e2876ebf31e73969db674f392): Fix command lines (create user locked)
