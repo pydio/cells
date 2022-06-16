@@ -55,7 +55,7 @@ func ApplicationWorkingDir(dirType ...ApplicationDirType) string {
 		f = os.Getenv("CELLS_SERVICES_DIR")
 	} else {
 		vendor := "Pydio"
-		if runtime.GOOS == "linux" {
+		if runtime.GOOS == "linux" || runtime.GOOS == "freebsd" {
 			vendor = "pydio"
 		}
 		appName := "cells"
