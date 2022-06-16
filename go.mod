@@ -13,7 +13,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/doug-martin/goqu/v9 v9.18.0
 	github.com/dustin/go-humanize v1.0.1-0.20200219035652-afde56e7acac
-	github.com/emicklei/go-restful/v3 v3.7.3
+	github.com/emicklei/go-restful/v3 v3.8.0
 	github.com/fatih/color v1.13.0
 	github.com/fatih/structs v1.1.0
 	github.com/gdamore/tcell/v2 v2.5.1
@@ -26,7 +26,6 @@ require (
 	github.com/go-openapi/swag v0.21.1
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gobwas/glob v0.2.3
-	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.7
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
@@ -104,7 +103,6 @@ require (
 	go.etcd.io/etcd/api/v3 v3.5.4
 	go.etcd.io/etcd/client/v3 v3.5.0
 	go.mongodb.org/mongo-driver v1.8.3
-	go.uber.org/goleak v1.1.11
 	go.uber.org/zap v1.20.0
 	gocloud.dev v0.20.0
 	gocloud.dev/pubsub/natspubsub v0.20.0
@@ -266,6 +264,7 @@ require (
 	github.com/golang/geo v0.0.0-20190812012225-f41920e961ce // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gomodule/redigo v1.8.8 // indirect
 	github.com/google/cel-go v0.7.3 // indirect
