@@ -618,7 +618,10 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 		for obj := range c {
 			child, ok := obj.(*mtree.TreeNode)
 			if !ok {
-				treeErr = obj.(error)
+				treeErr, ok = obj.(error)
+				if !ok {
+					treeErr = fmt.Errorf("unknown error")
+				}
 				break
 			}
 			if child.Name() == common.PydioSyncHiddenFile {

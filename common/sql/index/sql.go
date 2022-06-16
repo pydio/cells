@@ -1051,26 +1051,30 @@ func (dao *IndexSQL) GetNodeChildren(ctx context.Context, path mtree.MPath, filt
 			}
 
 			for {
+				if !rows.Next() {
+					break
+				}
+
+				treeNode, err := dao.scanDbRowToTreeNode(rows)
+				if err != nil {
+					select {
+					case c <- err:
+					}
+					return
+				}
+
 				select {
+				case c <- treeNode:
 				case <-ctx.Done():
 					return
-				default:
-					if !rows.Next() {
-						return
-					}
-
-					treeNode, err := dao.scanDbRowToTreeNode(rows)
-					if err != nil {
-						c <- err
-						break
-					}
-
-					c <- treeNode
 				}
 			}
 
 			if e := rows.Err(); e != nil {
-				c <- e
+				select {
+				case c <- err:
+				}
+				return
 			}
 
 		}
@@ -1120,24 +1124,29 @@ func (dao *IndexSQL) GetNodeTree(ctx context.Context, path mtree.MPath, filter .
 			}
 
 			for {
-				select {
-				case <-ctx.Done():
-				default:
-					if !rows.Next() {
-						return
-					}
+				if !rows.Next() {
+					break
+				}
 
-					treeNode, err := dao.scanDbRowToTreeNode(rows)
-					if err != nil {
-						c <- err
-						return
+				treeNode, err := dao.scanDbRowToTreeNode(rows)
+				if err != nil {
+					select {
+					case c <- err:
 					}
-					c <- treeNode
+					return
+				}
+
+				select {
+				case c <- treeNode:
+				case <-ctx.Done():
+					return
 				}
 			}
 
 			if e := rows.Err(); e != nil {
-				c <- e
+				select {
+				case c <- err:
+				}
 				return
 			}
 		}
@@ -1266,7 +1275,6 @@ func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*mtree.TreeNode, erro
 		mpath = append(mpath, i)
 	}
 	node.SetMPath(mpath...)
-	// node.SetBytes(rat)
 
 	metaName, _ := json.Marshal(name)
 	node.Node = &tree.Node{

@@ -97,19 +97,17 @@ func (dao *FolderSizeCacheSQL) GetNodeChildren(ctx context.Context, path mtree.M
 
 		cc := dao.DAO.GetNodeChildren(ctx, path, filter...)
 
-		for {
+		for obj := range cc {
+			if node, ok := obj.(*mtree.TreeNode); ok {
+				if node != nil && !node.IsLeaf() {
+					dao.folderSize(node)
+				}
+			}
+
 			select {
-			case obj := <-cc:
-				if node, ok := obj.(*mtree.TreeNode); ok {
-					if node != nil && !node.IsLeaf() {
-						dao.folderSize(node)
-					}
-				}
-				select {
-				case c <- obj:
-				}
-				case <-ctx.Done():
-					return
+			case c <- obj:
+			case <-ctx.Done():
+				return
 			}
 		}
 	}()
@@ -126,17 +124,14 @@ func (dao *FolderSizeCacheSQL) GetNodeTree(ctx context.Context, path mtree.MPath
 
 		cc := dao.DAO.GetNodeTree(ctx, path, filter...)
 
-		for {
+		for obj := range cc {
+			if node, ok := obj.(*mtree.TreeNode); ok {
+				if node != nil && !node.IsLeaf() {
+					dao.folderSize(node)
+				}
+			}
 			select {
-			case obj := <-cc:
-				if node, ok := obj.(*mtree.TreeNode); ok {
-					if node != nil && !node.IsLeaf() {
-						dao.folderSize(node)
-					}
-				}
-				select {
-				case c <- obj:
-				}
+			case c <- obj:
 			case <-ctx.Done():
 				return
 			}
