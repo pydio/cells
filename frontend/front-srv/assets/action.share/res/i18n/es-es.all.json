@@ -543,7 +543,7 @@
     "other": "Shared in %d cells"
   },
   "254d": {
-    "other": "Shared in '%s'"
+    "other": "Compartido en '%s'"
   },
   "255": {
     "other": "¿Está seguro de que desea eliminar todas las celdas y enlaces de este elemento?"
@@ -909,19 +909,19 @@
     "other": "Compartir carpeta(s) existente(s)"
   },
   "cells.remove.node": {
-    "other": "Remove from this cell"
+    "other": "Eliminar de esta celda"
   },
   "cell.visibility.advanced": {
     "other": "Esta característica avanzada le permite decidir quién puede editar las propiedades de esta celda (derecho a añadir/quitar usuarios y añadir/eliminar carpetas en la raíz de la celda). Para simplemente administrar los accesos reales a los datos, por favor utilice la pestaña 'Compartir con'."
   },
   "cell.add.existing-or-new": {
-    "other": "Add to existing or new Cell"
+    "other": "Añadir a celda existente o nueva"
   },
   "cell.add.existing": {
-    "other": "Add to existing Cell"
+    "other": "Añadir a celda existente"
   },
   "cell.add.new": {
-    "other": "Create a new Cell"
+    "other": "Crear una celda nueva"
   },
   "link.visibility.title": {
     "other": "[Advanced] Visibility"
