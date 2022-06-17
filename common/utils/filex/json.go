@@ -27,7 +27,13 @@ import (
 )
 
 // Read reads the content of a file
-func Read(filename string) ([]byte, error) {
+func Read(filename string, readOnly ...bool) ([]byte, error) {
+	if len(readOnly) > 0 && readOnly[0] {
+		// Make sure to not create an empty file if it does not exists
+		if _, e := os.Stat(filename); e != nil && os.IsNotExist(e) {
+			return nil, e
+		}
+	}
 	fh, err := os.OpenFile(filename, os.O_RDONLY|os.O_CREATE, 0644)
 	if err != nil {
 		if os.IsNotExist(err) {

@@ -59,6 +59,10 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		opts = append(opts, configx.WithEncrypt(enc), configx.WithDecrypt(enc))
 	}
 
+	if ro := u.Query().Get("readOnly"); ro == "true" {
+		opts = append(opts, configx.WithReadOnly())
+	}
+
 	store, err := New(u.Path, opts...)
 	if err != nil {
 		// Try to upgrade legacy keyring
@@ -101,7 +105,7 @@ type file struct {
 	snap configx.Values
 	path string
 
-	opts      []configx.Option
+	opts []configx.Option
 
 	mainMtx *sync.Mutex
 	mtx     *sync.RWMutex
@@ -113,7 +117,17 @@ type file struct {
 }
 
 func New(path string, opts ...configx.Option) (config.Store, error) {
-	data, err := filex.Read(path)
+	op := &configx.Options{}
+	for _, o := range opts {
+		o(op)
+	}
+	var data []byte
+	var err error
+	if op.ReadOnly {
+		data, err = filex.Read(path, true)
+	} else {
+		data, err = filex.Read(path)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +148,7 @@ func New(path string, opts ...configx.Option) (config.Store, error) {
 	f := &file{
 		v:       v,
 		path:    path,
-		opts: opts,
+		opts:    opts,
 		mainMtx: &sync.Mutex{},
 		mtx:     mtx,
 		reset:   make(chan bool),
@@ -246,9 +260,9 @@ func (f *file) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 	r := &receiver{
 		closed:      false,
 		ch:          make(chan diff.Change),
-		path:       o.Path,
+		path:        o.Path,
 		f:           f,
-		timer: time.NewTimer(2* time.Second),
+		timer:       time.NewTimer(2 * time.Second),
 		changesOnly: o.ChangesOnly,
 	}
 
@@ -258,10 +272,10 @@ func (f *file) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 }
 
 type receiver struct {
-	closed  bool
+	closed bool
 	ch     chan diff.Change
 
-	path       []string
+	path        []string
 	changesOnly bool
 
 	timer *time.Timer
