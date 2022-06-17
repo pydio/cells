@@ -30,6 +30,7 @@ type ServeOptions struct {
 	HttpBindAddress string
 	GrpcBindAddress string
 	ErrorCallback   func(error)
+	BlockUntilServe bool
 
 	BeforeServe []func(oo ...registry.RegisterOption) error
 	AfterServe  []func(oo ...registry.RegisterOption) error
@@ -66,6 +67,12 @@ func WithBeforeServe(f func(oo ...registry.RegisterOption) error) ServeOption {
 func WithAfterServe(f func(oo ...registry.RegisterOption) error) ServeOption {
 	return func(o *ServeOptions) {
 		o.AfterServe = append(o.AfterServe, f)
+	}
+}
+
+func WithBlockUntilServe() ServeOption {
+	return func(o *ServeOptions) {
+		o.BlockUntilServe = true
 	}
 }
 

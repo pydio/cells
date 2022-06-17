@@ -125,7 +125,7 @@ func Init(logDir string, ww ...LogContextWrapper) {
 				getCoreLevel(),
 			)
 			core = zapcore.NewTee(core, serverCore)
-			if getCoreLevel() == zap.DebugLevel {
+			if getCoreLevel() == zap.DebugLevel || traceFatalEnabled() {
 				logger = zap.New(core, zap.AddStacktrace(zap.ErrorLevel))
 			} else {
 				logger = zap.New(core)
@@ -133,7 +133,11 @@ func Init(logDir string, ww ...LogContextWrapper) {
 
 		}
 
-		_, _ = zap.RedirectStdLogAt(logger, zap.DebugLevel)
+		if traceFatalEnabled() {
+			_, _ = zap.RedirectStdLogAt(logger, zap.ErrorLevel) // log anything at ErrorLevel with a stack trace
+		} else {
+			_, _ = zap.RedirectStdLogAt(logger, zap.DebugLevel)
+		}
 
 		return logger
 	}, func(ctx context.Context) {
@@ -149,6 +153,9 @@ func Init(logDir string, ww ...LogContextWrapper) {
 func CaptureCaddyStdErr(serviceName string) context.Context {
 	ctx := servicecontext.WithServiceName(context.Background(), serviceName)
 	lg := Logger(ctx)
+	if traceFatalEnabled() {
+		return ctx
+	}
 	r, w, err := os.Pipe()
 	if err != nil {
 		return ctx
