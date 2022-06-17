@@ -2400,9 +2400,9 @@
     "other": "Ir a la Carpeta"
   },
   "action.copymove.recent": {
-    "other": "Recent Locations"
+    "other": "Ubicaciones Recientes"
   },
   "action.copymove.root": {
-    "other": "Top Folder"
+    "other": "Carpeta Superior"
   }
 }
