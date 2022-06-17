@@ -1,21 +1,14 @@
 #!/bin/sh
 
-# Exit immediatly in case of error. See https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html for more details about the set builtin.
-set -e
-
 ## First check if the system is already installed:
 needInstall=false
-configFile="/$CELLS_WORKING_DIR/pydio.json"
-if [ ! -f "$configFile" ] ; then 
-	# No pydio.json => install
-	needInstall=true 
-else
-	# Second finer check: default DS is set during installation finalisation
-    defaultDs=$(cat $configFile | jq .defaults.datasource)
-	if [ "$defaultDs" = "null" -o "$defaultDs" = "" ]; then 
-		needInstall=true 
-	fi
+cells admin config check > /dev/null 2>&1
+if [ $? -ne 0  ] ; then
+    needInstall=true
 fi
+
+# Exit immediately in case of error. See https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html for more details about the set builtin.
+set -e
 
 if [ "$needInstall" = true -a "$1" = "cells" -a "$2" = "start" ]; then
 	## Remove the first 2 args (aka: cells start) 
@@ -40,7 +33,7 @@ if [ "$needInstall" = true -a "$2" = "configure" -a "xxx$CELLS_BIND" = "xxx" ]; 
 	fi 
 fi
 
-# Conveniance shortcuts to avoid having to retype 'cells start' before the flags:
+# Convenience shortcuts to avoid having to retype 'cells start' before the flags:
 # We check if first arg starts with a dash (typically `-f` or `--some-option`) 
 # And prefix arguments with 'cells start' or 'cells configure' command in such case 
 if [ "${1#-}" != "$1" ]; then
