@@ -54,7 +54,7 @@ func (s SiteConf) Redirects() map[string]string {
 			host = parts[0]
 			port = parts[1]
 			if host == "" {
-				continue
+				host = "0.0.0.0"
 			}
 		} else {
 			host = bind
@@ -62,13 +62,14 @@ func (s SiteConf) Redirects() map[string]string {
 		targetHost := host
 		if host == "0.0.0.0" {
 			targetHost = "{host}"
+			host = ":80"
 		}
-		if port == "" {
-			rr["http://"+host] = "https://" + targetHost
+		if port == "" || port == "443" {
+			rr["http://"+host] = "https://" + targetHost + "{uri} permanent"
 		} else if port == "80" {
 			continue
 		} else {
-			rr["http://"+host] = "https://" + targetHost + ":" + port
+			rr["http://"+host] = "https://" + targetHost + ":" + port + "{uri} permanent"
 		}
 	}
 
