@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/update"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	update2 "github.com/pydio/cells/v4/discovery/update"
@@ -118,6 +119,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 		Job:         job,
 	}
 	broker.MustPublish(ctx, common.TopicJobTaskEvent, event)
+	ct := runtime.ForkContext(context.Background(), ctx)
 	go func() {
 		defer close(pgChan)
 		defer close(errorChan)
@@ -131,11 +133,11 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 				} else {
 					task.StatusMessage = "Download finished, now verifying package..."
 				}
-				broker.MustPublish(ctx, common.TopicJobTaskEvent, event)
+				broker.MustPublish(ct, common.TopicJobTaskEvent, event)
 			case e := <-errorChan:
 				task.Status = jobs.TaskStatus_Error
 				task.StatusMessage = e.Error()
-				broker.MustPublish(ctx, common.TopicJobTaskEvent, event)
+				broker.MustPublish(ct, common.TopicJobTaskEvent, event)
 				return
 			case <-doneChan:
 				task.Status = jobs.TaskStatus_Finished
@@ -158,7 +160,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 					task.StatusMessage += "You must execute following command to authorize the new binary to use this port *before* restarting your instance:\n"
 					task.StatusMessage += "$ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>\n"
 				}
-				broker.MustPublish(ctx, common.TopicJobTaskEvent, event)
+				broker.MustPublish(ct, common.TopicJobTaskEvent, event)
 				return
 			}
 		}
