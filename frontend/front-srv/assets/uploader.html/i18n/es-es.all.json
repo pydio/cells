@@ -126,16 +126,16 @@
     "other": "Analizando..."
   },
   "status.dir.new": {
-    "other": "Folder awaiting upload..."
+    "other": "Carpeta en espera de carga..."
   },
   "status.file.new": {
-    "other": "File awaiting upload..."
+    "other": "Archivo pendiente de carga..."
   },
   "status.dir.analyse": {
-    "other": "Analyzing folder..."
+    "other": "Analizando carpeta..."
   },
   "status.file.analyse": {
-    "other": "Analyzing file..."
+    "other": "Analizando archivo..."
   },
   "status.dir.loading": {
     "other": "Creando carpeta"
