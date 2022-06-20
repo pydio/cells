@@ -96,7 +96,7 @@
     "other": "开始安装"
   },
   "apply.title": {
-    "other": "请稍等，正在安装 Pydio Cells..."
+    "other": "Please be patient while Pydio Cells is being installed..."
   },
   "apply.success": {
     "other": "安装已成功，服务正在启动，安装程序将在启动服务后重新加载页面。"

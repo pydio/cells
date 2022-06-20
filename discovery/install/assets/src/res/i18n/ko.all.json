@@ -96,7 +96,7 @@
     "other": "설정 적용"
   },
   "apply.title": {
-    "other": "Pydio Cells를 설치하는 동안 잠시만 기다려주십시오..."
+    "other": "Please be patient while Pydio Cells is being installed..."
   },
   "apply.success": {
     "other": "설치가 성공적으로 완료되었으며 서비스를 시작하는 중입니다. 서비스가 시작되면 설치 관리자가 페이지 새로고칠 것입니다."

@@ -96,7 +96,7 @@
     "other": "Installatie toepassen"
   },
   "apply.title": {
-    "other": "Een ogenblik geduld terwijl de installatie van Pydio Cells..."
+    "other": "Please be patient while Pydio Cells is being installed..."
   },
   "apply.success": {
     "other": "De installatie was succesvol en de services zijn nu gestart, deze installer herlaadt de pagina wanneer de services worden gestart."

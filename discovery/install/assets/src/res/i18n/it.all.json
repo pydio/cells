@@ -96,7 +96,7 @@
     "other": "Applica Installazione"
   },
   "apply.title": {
-    "other": "Attendere mentre viene installato Pydio Cells..."
+    "other": "Please be patient while Pydio Cells is being installed..."
   },
   "apply.success": {
     "other": "L'installazione è avvenuta con successo e i servizi sono in fase di avvio, il programma di installazione ricaricherà la pagina quando i servizi sono stati avviati."

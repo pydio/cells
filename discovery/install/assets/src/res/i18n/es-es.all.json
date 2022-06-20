@@ -96,7 +96,7 @@
     "other": "Ejecutar la Instalación"
   },
   "apply.title": {
-    "other": "Espere mientras se instala Pydio Cells..."
+    "other": "Por favor, tenga paciencia mientras se instala Pydio Cells…"
   },
   "apply.success": {
     "other": "La instalación se ha realizado correctamente y los servicios se están iniciando. Este instalador volverá a cargar la página cuando se inicien los servicios."

@@ -96,7 +96,7 @@
     "other": "プログラムを適用"
   },
   "apply.title": {
-    "other": "Pydio Cellsのインストールしています。しばらくお待ちください..."
+    "other": "Please be patient while Pydio Cells is being installed..."
   },
   "apply.success": {
     "other": "インストールが成功しました。サービスを開始しております。サービス開始後に、このページを再読み込みします。"
