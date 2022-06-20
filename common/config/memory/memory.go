@@ -156,7 +156,7 @@ func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 	r := &receiver{
 		closed:      false,
 		ch:          make(chan diff.Change),
-		path:       o.Path,
+		path:        o.Path,
 		m:           m,
 		timer:       time.NewTimer(2 * time.Second),
 		changesOnly: o.ChangesOnly,
@@ -171,7 +171,7 @@ type receiver struct {
 	closed bool
 	ch     chan diff.Change
 
-	path       []string
+	path        []string
 	changesOnly bool
 
 	timer *time.Timer
@@ -208,8 +208,14 @@ func (r *receiver) Next() (interface{}, error) {
 
 			if r.changesOnly {
 				for _, op := range changes {
-					if err := c.Val(op.Type).Val(op.Path[1:]...).Set(op.To); err != nil {
-						return nil, err
+					if op.Type == diff.DELETE {
+						if err := c.Val(op.Type).Val(op.Path[1:]...).Set(op.From); err != nil {
+							return nil, err
+						}
+					} else {
+						if err := c.Val(op.Type).Val(op.Path[1:]...).Set(op.To); err != nil {
+							return nil, err
+						}
 					}
 				}
 
