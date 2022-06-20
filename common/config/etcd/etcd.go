@@ -419,7 +419,7 @@ func (r *receiver) Next() (interface{}, error) {
 							return nil, err
 						}
 					} else {
-						if err := c.Val("update").Val(strings.TrimPrefix(string(op.Kv.Key), r.prefix+"/")).Set(op.PrevKv.Value); err != nil {
+						if err := c.Val("delete").Val(strings.TrimPrefix(string(op.Kv.Key), r.prefix+"/")).Set(op.PrevKv.Value); err != nil {
 							return nil, err
 						}
 					}
