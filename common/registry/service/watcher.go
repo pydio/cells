@@ -130,6 +130,7 @@ func newChanWatcher(ctx context.Context, input chan registry.Result, onClose fun
 
 					var items []registry.Item
 					for _, item := range res.Items() {
+						// Checking names match
 						foundName := false
 						for _, name := range options.Names {
 							if name == item.Name() {
@@ -142,6 +143,12 @@ func newChanWatcher(ctx context.Context, input chan registry.Result, onClose fun
 							continue
 						}
 
+						// Checking action match
+						if options.Action >= pb.ActionType_CREATE && res.Action() != options.Action {
+							continue
+						}
+
+						// Checking types match
 						foundType := false
 					L:
 						for _, itemType := range options.Types {
