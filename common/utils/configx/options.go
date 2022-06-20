@@ -58,9 +58,11 @@ type Options struct {
 	Encrypter
 	Decrypter
 
+	// Additional callback after Set is called
 	SetCallback func([]string, interface{}) error
 
-	AutoUpdate bool
+	// Do not create any resources
+	ReadOnly bool
 
 	// Used to pass other potential options
 	Context context.Context
@@ -157,6 +159,12 @@ func WithEncrypt(e Encrypter) Option {
 func WithDecrypt(d Decrypter) Option {
 	return func(o *Options) {
 		o.Decrypter = d
+	}
+}
+
+func WithReadOnly() Option {
+	return func(options *Options) {
+		options.ReadOnly = true
 	}
 }
 

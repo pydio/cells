@@ -99,10 +99,10 @@
     "other": "coincide con"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "pattern"
+    "other": "patrón"
   },
   "conditionBooleanCondition.value": {
-    "other": "True"
+    "other": "Verdadero"
   },
   "contextMetaCondition.CIDRCondition": {
     "other": "Condición CIDR"

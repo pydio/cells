@@ -22,11 +22,12 @@ package log
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	
+
 	"github.com/pydio/cells/v4/common"
 )
 
@@ -94,4 +95,8 @@ func mustIncrease(serviceName string) bool {
 		}
 	}
 	return true // Increase to Info
+}
+
+func traceFatalEnabled() bool {
+	return os.Getenv("CELLS_TRACE_FATAL") != ""
 }

@@ -196,11 +196,18 @@ func (m *manager) ServeAll(oo ...server.ServeOption) {
 			})
 		}(srv)
 	}
-	go func() {
+
+	waitAndServe := func() {
 		if err := eg.Wait(); err != nil && opt.ErrorCallback != nil {
 			opt.ErrorCallback(err)
 		}
-	}()
+	}
+	if opt.BlockUntilServe {
+		waitAndServe()
+		return
+	} else {
+		go waitAndServe()
+	}
 }
 
 func (m *manager) StopAll() {

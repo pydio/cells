@@ -336,7 +336,7 @@ func performBrowserInstall(cmd *cobra.Command, ctx context.Context, proxyConf *i
 
 	<-time.After(2 * time.Second)
 	if err := open(proxyConf.GetDefaultBindURL()); err != nil {
-		cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Open a browser window to: " + proxyConf.GetDefaultBindURL()))
+		fmt.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Open a browser window to: [" + proxyConf.GetDefaultBindURL() + "]"))
 	}
 
 	done := make(chan bool, 1)

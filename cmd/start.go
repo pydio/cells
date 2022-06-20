@@ -120,6 +120,7 @@ ENVIRONMENT
   - CELLS_ENABLE_LIVEKIT: enable experimental support for video calls in the chat window, using a livekit-server.
   - CELLS_ENABLE_FORMS_DEVEL: display a basic UX form with all possible fields types in the UX (for React developers)
   - CELLS_DEFAULT_DS_STRUCT: if true, create default datasources using structured format instead of flat
+  - CELLS_TRACE_FATAL: if true, tries to better display root cause of process crashes
 
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -262,7 +263,7 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry) (manager.M
 		if !strings.Contains(err.Error(), "context canceled") {
 			fmt.Println("************************************************************")
 			fmt.Println("FATAL : Error while starting discovery server")
-			fmt.Println("---------------------------------------------")
+			fmt.Println("------------------------------------------------------------")
 			fmt.Println(err.Error())
 			fmt.Println("FATAL : SHUTTING DOWN NOW!")
 			fmt.Println("************************************************************")
@@ -272,7 +273,13 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry) (manager.M
 		}
 	}
 
-	m.ServeAll(server.WithErrorCallback(errorCallback), server.WithGrpcBindAddress(runtime.GrpcDiscoveryBindAddress()))
+	m.ServeAll(
+		server.WithErrorCallback(errorCallback),
+		server.WithGrpcBindAddress(runtime.GrpcDiscoveryBindAddress()),
+		server.WithBlockUntilServe(),
+	)
+
+	log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager")).Info("Discovery services started, carry on to other services")
 
 	return m, nil
 }
