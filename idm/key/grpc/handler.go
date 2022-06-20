@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"time"
 
+	errors2 "github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
@@ -46,21 +47,21 @@ type userKeyStore struct {
 }
 
 // NewUserKeyStore creates a master password based
-func NewUserKeyStore(_ context.Context, dao key.DAO, keyring crypto.Keyring) enc.NamedUserKeyStoreServer {
+func NewUserKeyStore(_ context.Context, dao key.DAO, keyring crypto.Keyring) (enc.NamedUserKeyStoreServer, error) {
 	masterPasswordStr, err := keyring.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
 	if err != nil {
-		log.Fatal("could not get master password")
+		return nil, errors2.Wrap(err, "could not get master password from keyring")
 	}
 
 	masterPassword, err := base64.StdEncoding.DecodeString(masterPasswordStr)
 	if err != nil {
-		log.Fatal("could not decode string password")
+		return nil, errors2.Wrap(err, "could not decode master password")
 	}
 
 	return &userKeyStore{
 		dao:    dao,
 		master: masterPassword,
-	}
+	}, nil
 }
 
 func (ukm *userKeyStore) Name() string {

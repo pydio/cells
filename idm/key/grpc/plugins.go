@@ -48,7 +48,10 @@ func init() {
 				dao := servicecontext.GetDAO(ctx).(key.DAO)
 				keyring := servicecontext.GetKeyring(ctx).(crypto.Keyring)
 
-				h := NewUserKeyStore(ctx, dao, keyring)
+				h, e := NewUserKeyStore(ctx, dao, keyring)
+				if e != nil {
+					return e
+				}
 				encryption.RegisterUserKeyStoreEnhancedServer(server, h)
 
 				return nil

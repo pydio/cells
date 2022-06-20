@@ -24,20 +24,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
 
-	clientv3 "go.etcd.io/etcd/client/v3"
-	"go.etcd.io/etcd/api/v3/mvccpb"
 	"github.com/r3labs/diff/v3"
+	"go.etcd.io/etcd/api/v3/mvccpb"
+	clientv3 "go.etcd.io/etcd/client/v3"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/utils/configx"
-
 )
 
 var (
@@ -94,20 +92,18 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		return nil, err
 	}
 
-	store := NewSource(context.Background(), etcdConn, strings.TrimLeft(u.Path, "/"), withLease, withKeys, opts...)
-
-	return store, nil
+	return NewSource(context.Background(), etcdConn, strings.TrimLeft(u.Path, "/"), withLease, withKeys, opts...)
 }
 
 type etcd struct {
-	values      configx.Values
-	valuesLocker      *sync.RWMutex
-	ops         chan clientv3.Op
+	values       configx.Values
+	valuesLocker *sync.RWMutex
+	ops          chan clientv3.Op
 
-	prefix    string
-	withKeys  bool
-	cli       *clientv3.Client
-	leaseID   clientv3.LeaseID
+	prefix   string
+	withKeys bool
+	cli      *clientv3.Client
+	leaseID  clientv3.LeaseID
 
 	locker    sync.Locker
 	receivers []*receiver
@@ -118,7 +114,7 @@ type etcd struct {
 	saveTimer *time.Timer
 }
 
-func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLease bool, withKeys bool, opts ...configx.Option) config.Store {
+func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLease bool, withKeys bool, opts ...configx.Option) (config.Store, error) {
 	opts = append([]configx.Option{configx.WithJSON()}, opts...)
 
 	var leaseID clientv3.LeaseID
@@ -126,7 +122,7 @@ func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLea
 		lease := clientv3.NewLease(cli)
 		resp, err := lease.Grant(ctx, 10)
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 
 		leaseID = resp.ID
@@ -144,25 +140,25 @@ func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLea
 	}
 
 	m := &etcd{
-		values: configx.New(opts...),
+		values:       configx.New(opts...),
 		valuesLocker: &sync.RWMutex{},
-		ops:         make(chan clientv3.Op, 3000),
-		cli:         cli,
-		prefix:      prefix,
-		withKeys:    withKeys,
-		locker:      &sync.Mutex{},
-		leaseID:     leaseID,
-		reset:       make(chan bool),
-		opts:        opts,
-		saveCh:      make(chan bool),
-		saveTimer:   time.NewTimer(100 * time.Millisecond),
+		ops:          make(chan clientv3.Op, 3000),
+		cli:          cli,
+		prefix:       prefix,
+		withKeys:     withKeys,
+		locker:       &sync.Mutex{},
+		leaseID:      leaseID,
+		reset:        make(chan bool),
+		opts:         opts,
+		saveCh:       make(chan bool),
+		saveTimer:    time.NewTimer(100 * time.Millisecond),
 	}
 
 	m.get(ctx)
 	go m.watch(ctx)
 	go m.save(ctx)
 
-	return m
+	return m, nil
 }
 
 func (m *etcd) get(ctx context.Context) {
@@ -223,16 +219,16 @@ func (m *etcd) watch(ctx context.Context) {
 						ops = append(ops, &clientv3.Event{
 							Type: typ,
 							Kv: &mvccpb.KeyValue{
-								Key: []byte(strings.Join(p.Path, "/")),
-								Value: neu.Val(p.Path...).Bytes(),
+								Key:            []byte(strings.Join(p.Path, "/")),
+								Value:          neu.Val(p.Path...).Bytes(),
 								CreateRevision: op.Kv.CreateRevision,
-								ModRevision: op.Kv.ModRevision,
+								ModRevision:    op.Kv.ModRevision,
 							},
 							PrevKv: &mvccpb.KeyValue{
-								Key: []byte(strings.Join(p.Path, "/")),
-								Value: prev.Val(p.Path...).Bytes(),
+								Key:            []byte(strings.Join(p.Path, "/")),
+								Value:          prev.Val(p.Path...).Bytes(),
 								CreateRevision: op.PrevKv.CreateRevision,
-								ModRevision: op.PrevKv.ModRevision,
+								ModRevision:    op.PrevKv.ModRevision,
 							},
 						})
 					}
@@ -361,7 +357,7 @@ func (m *etcd) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		closed:      false,
 		prefix:      m.prefix,
 		ch:          make(chan *clientv3.Event),
-		path:       o.Path,
+		path:        o.Path,
 		changesOnly: o.ChangesOnly,
 		opts:        m.opts,
 		v:           m.values,
@@ -376,7 +372,7 @@ func (m *etcd) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 type receiver struct {
 	closed      bool
 	prefix      string
-	path       []string
+	path        []string
 	ch          chan *clientv3.Event
 	v           configx.Values
 	timer       *time.Timer
@@ -393,7 +389,7 @@ func (r *receiver) call(ev *clientv3.Event) error {
 		r.ch <- ev
 	}
 
-	if  strings.HasPrefix(string(ev.Kv.Key), strings.Join(r.path, "/")) {
+	if strings.HasPrefix(string(ev.Kv.Key), strings.Join(r.path, "/")) {
 		r.ch <- ev
 	}
 
@@ -440,11 +436,11 @@ func (r *receiver) Stop() {
 }
 
 type values struct {
-	values configx.Values
+	values       configx.Values
 	valuesLocker *sync.RWMutex
-	ops         chan clientv3.Op
-	leaseID     clientv3.LeaseID
-	withKeys    bool
+	ops          chan clientv3.Op
+	leaseID      clientv3.LeaseID
+	withKeys     bool
 
 	prefix string
 	path   string

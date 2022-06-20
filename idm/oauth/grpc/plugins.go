@@ -88,13 +88,6 @@ func init() {
 				// Blocking on purpose, as it should block login
 				return auth.InitRegistry(ctx, Name)
 			}),
-			/*
-				// TODO V4
-				service.WatchPath("services/"+common.ServiceWebNamespace_+common.ServiceOAuth, func(_ service.Service, c configx.Values) {
-					auth.InitConfiguration(config.Get("services", common.ServiceWebNamespace_+common.ServiceOAuth))
-				}),
-				service.BeforeStart(initialize),
-			*/
 		)
 
 		service.NewService(
@@ -123,7 +116,7 @@ func init() {
 			}
 
 			if err := scanner.Scan(&m); err != nil {
-				log.Fatal("Wrong configuration ", err)
+				log.Fatal("Cannot correctly scan Connectors from config. JSON format maybe wrong, please check configuration. Error was ", err)
 			}
 
 			for _, mm := range m {
@@ -141,19 +134,5 @@ func init() {
 		auth.RegisterGRPCProvider(auth.ProviderTypeGrpc, common.ServiceGrpcNamespace_+common.ServiceOAuth)
 		auth.RegisterGRPCProvider(auth.ProviderTypePAT, common.ServiceGrpcNamespace_+common.ServiceToken)
 	})
-
-}
-
-func initialize(s service.Service) error {
-	/*
-		ctx := s.Options().Context
-
-		dao := servicecontext.GetDAO(ctx).(sql.DAO)
-
-		// Registry
-		auth.InitRegistry(dao)
-	*/
-
-	return nil
 
 }

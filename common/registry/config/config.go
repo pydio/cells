@@ -28,24 +28,18 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/v4/common/registry/util"
-
-	"github.com/pydio/cells/v4/common/utils/configx"
-
-	"github.com/pydio/cells/v4/common/config/memory"
-
-	"github.com/pydio/cells/v4/common/config/file"
-
-	"github.com/pydio/cells/v4/common/log"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/config/etcd"
-	clientv3 "go.etcd.io/etcd/client/v3"
-
 	"github.com/pydio/cells/v4/common/config"
-
+	"github.com/pydio/cells/v4/common/config/etcd"
+	"github.com/pydio/cells/v4/common/config/file"
+	"github.com/pydio/cells/v4/common/config/memory"
+	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -106,7 +100,10 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 			return nil, err
 		}
 
-		store := etcd.NewSource(ctx, etcdConn, "registry", true, true, opts...)
+		store, err := etcd.NewSource(ctx, etcdConn, "registry", true, true, opts...)
+		if err != nil {
+			return nil, err
+		}
 		reg = NewConfigRegistry(store, byName)
 	case "file":
 		store, err := file.New(u.Path, opts...)
