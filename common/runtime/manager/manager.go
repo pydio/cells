@@ -227,16 +227,21 @@ func (m *manager) StopAll() {
 
 func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error {
 	opts := append(oo)
+	var uniques []service.Service
 	for _, svc := range m.services {
 		if svc.Options().Server == srv {
 			if svc.Options().Unique && m.regRunningService(svc.Name()) {
 				// There is already a running service here. Do not start now, watch registry and postpone start
 				fmt.Printf("There is already a running instance of %s. Do not start now, watch registry and postpone start\n", svc.Name())
-				go m.WatchUniqueNeedsStart(svc)
+				// go m.WatchUniqueNeedsStart(svc)
+				uniques = append(uniques, svc)
 				continue
 			}
 			opts = append(opts, m.serviceServeOptions(svc)...)
 		}
+	}
+	if len(uniques) > 0 {
+		go m.WatchServerUniques(srv, uniques)
 	}
 	return srv.Serve(opts...)
 }
@@ -427,6 +432,7 @@ func (m *manager) regRunningService(name string) bool {
 	return false
 }
 
+/*
 func (m *manager) WatchUniqueNeedsStart(svc service.Service) {
 	db := debounce.New(5 * time.Second)
 	w, _ := m.reg.Watch(registry.WithType(pb.ItemType_SERVICE), registry.WithName(svc.Name()), registry.WithAction(pb.ActionType_ANY))
@@ -444,6 +450,36 @@ func (m *manager) WatchUniqueNeedsStart(svc service.Service) {
 				} else {
 					w.Stop()
 				}
+			}
+		})
+	}
+}
+*/
+
+func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service) {
+	db := debounce.New(5 * time.Second)
+	options := []registry.Option{
+		registry.WithType(pb.ItemType_SERVICE),
+		registry.WithAction(pb.ActionType_DELETE),
+	}
+	for _, s := range ss {
+		options = append(options, registry.WithName(s.Name()))
+	}
+	w, _ := m.reg.Watch(options...)
+	for {
+		res, er := w.Next()
+		if er != nil {
+			break
+		}
+		fmt.Println("Event received", res.Items(), ", debounce server Restart")
+		db(func() {
+			w.Stop()
+			fmt.Println(" -- Restarting server now")
+			if er := m.stopServer(srv); er != nil {
+				fmt.Println("Error while stopping server", er)
+			}
+			if er := m.startServer(srv, m.serveOptions...); er != nil {
+				fmt.Println("Error while starting server", er)
 			}
 		})
 	}
