@@ -410,16 +410,20 @@ func (r *receiver) Next() (interface{}, error) {
 				c := configx.New(r.opts...)
 
 				for _, op := range changes {
-					opType := "delete"
 					if op.IsCreate() {
-						opType = "create"
+						if err := c.Val("create").Val(strings.TrimPrefix(string(op.Kv.Key), r.prefix+"/")).Set(op.Kv.Value); err != nil {
+							return nil, err
+						}
 					} else if op.IsModify() {
-						opType = "update"
+						if err := c.Val("update").Val(strings.TrimPrefix(string(op.Kv.Key), r.prefix+"/")).Set(op.Kv.Value); err != nil {
+							return nil, err
+						}
+					} else {
+						if err := c.Val("update").Val(strings.TrimPrefix(string(op.Kv.Key), r.prefix+"/")).Set(op.PrevKv.Value); err != nil {
+							return nil, err
+						}
 					}
 
-					if err := c.Val(opType).Val(strings.TrimPrefix(string(op.Kv.Key), r.prefix+"/")).Set(op.Kv.Value); err != nil {
-						return nil, err
-					}
 				}
 
 				return c, nil
