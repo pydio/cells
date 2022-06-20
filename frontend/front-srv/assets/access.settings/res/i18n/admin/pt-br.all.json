@@ -1740,7 +1740,7 @@
     "other": "Agendador"
   },
   "scheduler.legend": {
-    "other": "Flows running in background on a periodical basis or triggered by events"
+    "other": "Flows em execução em segundo plano periodicamente ou desencadeados por eventos"
   },
   "scheduler.system.title": {
     "other": "System Flows"

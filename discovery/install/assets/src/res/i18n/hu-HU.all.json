@@ -96,7 +96,7 @@
     "other": "Apply Installation"
   },
   "apply.title": {
-    "other": "Please wait while installation Pydio Cells..."
+    "other": "Please be patient while Pydio Cells is being installed..."
   },
   "apply.success": {
     "other": "Install was successful and services are now starting, this installer will reload the page when services are started."

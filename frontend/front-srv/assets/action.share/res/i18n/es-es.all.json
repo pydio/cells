@@ -954,15 +954,15 @@
     "other": "Access Restrictions"
   },
   "link.secure.expires": {
-    "other": "expires"
+    "other": "expira"
   },
   "link.secure.expired": {
-    "other": "expired"
+    "other": "caducado"
   },
   "link.secure.hasPassword": {
-    "other": "password required"
+    "other": "se requiere contraseña"
   },
   "link.secure.maxdownloads": {
-    "other": "%d downloads only"
+    "other": "Sólo %d descargas"
   }
 }
