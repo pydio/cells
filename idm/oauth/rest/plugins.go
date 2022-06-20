@@ -36,9 +36,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("RESTful Gateway to token service"),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceUser, []string{}),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDocStore, []string{}),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceMailer, []string{}),
 			service.WithWeb(func(runtimeCtx context.Context) service.WebHandler {
 				return &TokenHandler{RuntimeCtx: runtimeCtx}
 			}),

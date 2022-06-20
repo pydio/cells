@@ -36,7 +36,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("REST gateway to role service"),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceRole, []string{}),
 			service.WithWeb(func(c context.Context) service.WebHandler {
 				return NewRoleHandler()
 			}),

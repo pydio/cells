@@ -35,8 +35,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("RESTful Gateway to search engine"),
-			//service.RouterDependencies(),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceSearch, []string{}),
 			service.WithWeb(func(c context.Context) service.WebHandler {
 				return &Handler{
 					runtimeCtx: c,

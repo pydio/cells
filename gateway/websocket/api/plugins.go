@@ -60,7 +60,6 @@ func init() {
 			service.Name(name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceChat, []string{}),
 			service.Description("WebSocket server pushing event to the clients"),
 			service.Fork(true),
 			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {

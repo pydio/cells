@@ -41,7 +41,6 @@ func init() {
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceMeta, []string{}),
 			service.Description("Aggregator of all datasources into one master tree"),
 			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
 

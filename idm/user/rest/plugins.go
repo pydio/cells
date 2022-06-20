@@ -36,8 +36,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("RESTful Gateway to users service"),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceUser, []string{}),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceRole, []string{}),
 			service.WithWeb(func(c context.Context) service.WebHandler {
 				return NewUserHandler(c)
 			}),

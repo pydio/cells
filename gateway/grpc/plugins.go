@@ -56,8 +56,6 @@ func init() {
 	// Build options - optionally force port
 	baseOpts := []service.ServiceOption{
 		service.Tag(common.ServiceTagGateway),
-		service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTree, []string{}),
-		service.Dependency(common.ServiceGatewayProxy, []string{}),
 	}
 	tlsOpts := append(baseOpts,
 		service.Name(common.ServiceGatewayGrpc),

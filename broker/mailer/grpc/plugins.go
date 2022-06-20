@@ -56,7 +56,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("MailSender Service"),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceJobs, []string{}),
 			service.AutoRestart(true),
 			service.Migrations([]*service.Migration{
 				{

@@ -45,7 +45,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Encryption Keys server"),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceMeta, []string{}),
 			service.WithStorage(key.NewDAO, service.WithStoragePrefix("data_key")),
 			service.WithGRPC(func(c context.Context, srv *grpc.Server) error {
 				h := &NodeKeyManagerHandler{dao: servicecontext.GetDAO(c).(key.DAO)}

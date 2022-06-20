@@ -45,7 +45,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Roles Service"),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceAcl, []string{}),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),

@@ -38,8 +38,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("RESTful service aggregating data from various services"),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceRole, []string{}),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceWorkspace, []string{}),
 			service.WithWeb(func(c context.Context) service.WebHandler {
 				return new(GraphHandler)
 			}),

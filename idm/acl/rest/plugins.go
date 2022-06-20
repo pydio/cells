@@ -36,8 +36,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("RESTFul - Access Control List service"),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceAcl, []string{}),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTree, []string{}),
 			service.WithWeb(func(ctx context.Context) service.WebHandler {
 				return &Handler{ctx: ctx}
 			}),

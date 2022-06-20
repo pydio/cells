@@ -64,8 +64,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Activity Service is collecting activity for users and nodes"),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceJobs, []string{}),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTree, []string{}),
 			service.Metadata(meta.ServiceMetaProvider, "stream"),
 			service.Migrations([]*service.Migration{
 				{

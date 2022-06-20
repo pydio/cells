@@ -56,8 +56,6 @@ type ServiceOptions struct {
 	serverStart  func() error
 	serverStop   func() error
 
-	Dependencies []*dependency `json:"-"`
-
 	// Starting options
 	ForceRegister bool `json:"-"`
 	AutoStart     bool `json:"-"`
@@ -76,12 +74,7 @@ type ServiceOptions struct {
 	Storages []*StorageOptions `json:"-"`
 }
 
-type dependency struct {
-	Name string
-	Tag  []string
-}
-
-//
+// ServiceOption provides a functional option
 type ServiceOption func(*ServiceOptions)
 
 // Name option for a service
@@ -195,23 +188,16 @@ func Migrations(migrations []*Migration) ServiceOption {
 	}
 }
 
+// Metadata registers a key/value metadata
 func Metadata(name, value string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Metadata[name] = value
 	}
 }
 
-// Dependency option for a service
-func Dependency(n string, t []string) ServiceOption {
-	return func(o *ServiceOptions) {
-		o.Dependencies = append(o.Dependencies, &dependency{n, t})
-	}
-}
-
 // PluginBoxes option for a service
 func PluginBoxes(boxes ...frontend.PluginBox) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.Dependencies = append(o.Dependencies, &dependency{common.ServiceWebNamespace_ + common.ServiceFrontStatics, []string{}})
 		frontend.RegisterPluginBoxes(boxes...)
 	}
 }

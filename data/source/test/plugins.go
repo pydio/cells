@@ -41,9 +41,6 @@ func init() {
 			service.Name(name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDataIndex, []string{}),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDataObjects, []string{}),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDataSync, []string{}),
 			service.Description("Test Objects Service conformance"),
 			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
 				h := NewHandler()

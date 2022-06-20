@@ -40,8 +40,6 @@ func init() {
 			service.Name(common.ServiceGenericNamespace_+common.ServiceTimer),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceJobs, []string{}),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTasks, []string{}),
 			service.Description("Triggers events based on a scheduler pattern"),
 			service.WithGeneric(func(c context.Context, server *generic.Server) error {
 

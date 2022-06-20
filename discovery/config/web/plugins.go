@@ -22,7 +22,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Configuration"),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceConfig, []string{}),
 			service.WithWeb(func(c context.Context) service.WebHandler {
 				return &Handler{MainCtx: c}
 			}),

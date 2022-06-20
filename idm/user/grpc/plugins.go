@@ -62,7 +62,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Users persistence layer"),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceRole, []string{}),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),

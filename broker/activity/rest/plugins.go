@@ -36,7 +36,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("RESTful Gateway to Activity service"),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceActivity, []string{}),
 			service.WithWeb(func(c context.Context) service.WebHandler {
 				return NewActivityHandler(c)
 			}),
