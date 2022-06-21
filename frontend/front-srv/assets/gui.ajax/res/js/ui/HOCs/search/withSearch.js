@@ -23,6 +23,7 @@ import emptyDataModel from "./emptyDataModel";
 import {debounce} from 'lodash';
 import SearchApi from 'pydio/http/search-api'
 import uuid from 'uuid4'
+import deepEqual from 'deep-equal'
 
 
 export default function withSearch(Component, historyIdentifier, scope){
@@ -163,9 +164,18 @@ export default function withSearch(Component, historyIdentifier, scope){
                     delete(newValues[k])
                 }
             });
+            const {values={}, dataModel} = this.state;
             let {scope, ...other} = newValues;
+            if(Object.keys(other).length > 0 && deepEqual(values, newValues)) {
+                console.log('Do not re-run the search as values have not changed yet')
+                const searchRootNode = dataModel.getSearchNode();
+                dataModel.setContextNode(searchRootNode, true);
+                if(onUpdateSearch){
+                    onUpdateSearch({values: newValues});
+                }
+                return
+            }
             if(!scope) {
-                const {values} = this.state;
                 scope = values.scope;
             }
             this.setState({values: {scope, ...other}, facets:[], activeFacets:[]}, this.performSearchD);

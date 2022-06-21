@@ -171,10 +171,7 @@ class HomeSearchForm extends Component{
                     }}
                 />
                 }
-                {!fullScreen && this.props.children &&
-                <div style={{display:empty?'block':'none', flex:1, overflowY:'auto', marginTop: 40}} id="history-block">{this.props.children}</div>
-                }
-
+                <div style={{display:fullScreen?'none':'block', flex:1, overflowY:'auto', marginTop: 40}} id="history-block">{this.props.children}</div>
             </Paper>
         );
 
