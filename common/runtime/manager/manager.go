@@ -23,6 +23,8 @@ package manager
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/log"
+	"go.uber.org/zap"
 	"os"
 	"strconv"
 	"time"
@@ -70,15 +72,18 @@ type manager struct {
 
 	servers  map[string]server.Server
 	services map[string]service.Service
+
+	logger log.ZapLogger
 }
 
-func NewManager(reg registry.Registry, srcUrl string, namespace string) Manager {
+func NewManager(reg registry.Registry, srcUrl string, namespace string, logger log.ZapLogger) Manager {
 	m := &manager{
 		ns:       namespace,
 		srcUrl:   srcUrl,
 		reg:      reg,
 		servers:  make(map[string]server.Server),
 		services: make(map[string]service.Service),
+		logger:   logger,
 	}
 	// Detect a parent root
 	var current, parent registry.Item
@@ -220,7 +225,7 @@ func (m *manager) StopAll() {
 		}(srv)
 	}
 	if er := eg.Wait(); er != nil {
-		fmt.Println("error while stopping servers", er)
+		m.logger.Error("error while stopping servers: "+er.Error(), zap.Error(er))
 	}
 	_ = m.reg.Deregister(m.root, registry.WithRegisterFailFast())
 }
@@ -228,20 +233,24 @@ func (m *manager) StopAll() {
 func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error {
 	opts := append(oo)
 	var uniques []service.Service
+	detectedCount := 1
 	for _, svc := range m.services {
 		if svc.Options().Server == srv {
-			if svc.Options().Unique && m.regRunningService(svc.Name()) {
-				// There is already a running service here. Do not start now, watch registry and postpone start
-				fmt.Printf("There is already a running instance of %s. Do not start now, watch registry and postpone start\n", svc.Name())
-				// go m.WatchUniqueNeedsStart(svc)
-				uniques = append(uniques, svc)
-				continue
+			if svc.Options().Unique {
+				if running, count := m.regRunningService(svc.Name()); running {
+					detectedCount = count
+					// There is already a running service here. Do not start now, watch registry and postpone start
+					m.logger.Warn("There is already a running instance of " + svc.Name() + ". Do not start now, watch registry and postpone start")
+					// go m.WatchUniqueNeedsStart(svc)
+					uniques = append(uniques, svc)
+					continue
+				}
 			}
 			opts = append(opts, m.serviceServeOptions(svc)...)
 		}
 	}
 	if len(uniques) > 0 {
-		go m.WatchServerUniques(srv, uniques)
+		go m.WatchServerUniques(srv, uniques, detectedCount)
 	}
 	return srv.Serve(opts...)
 }
@@ -270,12 +279,12 @@ func (m *manager) startService(svc service.Service) error {
 
 	if srv.Is(registry.StatusStopped) {
 
-		fmt.Println("Server is not running, starting " + srv.ID() + " now")
+		m.logger.Info("Server is not running, starting " + srv.ID() + " now")
 		return srv.Serve(serveOptions...)
 
 	} else if srv.NeedsRestart() {
 
-		fmt.Println("Server needs a restart to append a new service")
+		m.logger.Info("Server needs a restart to append a new service")
 		for _, sv := range m.servicesRunningOn(srv) {
 			serveOptions = append(serveOptions, m.serviceServeOptions(sv)...)
 		}
@@ -286,7 +295,7 @@ func (m *manager) startService(svc service.Service) error {
 
 	} else {
 
-		fmt.Println("Starting service")
+		m.logger.Info("Starting service")
 		if er := svc.Start(); er != nil {
 			return er
 		}
@@ -417,47 +426,23 @@ func (m *manager) WatchBroker(ctx context.Context, br broker.Broker) error {
 		return nil
 	})
 	if er != nil {
-		fmt.Println("Manager cannot watch broker: ", er)
+		m.logger.Error("Manager cannot watch broker: " + er.Error())
 	}
 	return er
 }
 
-func (m *manager) regRunningService(name string) bool {
+func (m *manager) regRunningService(name string) (bool, int) {
 	ll, _ := m.reg.List(registry.WithType(pb.ItemType_SERVICE), registry.WithName(name))
 	for _, l := range ll {
 		if l.Metadata()[registry.MetaStatusKey] != string(registry.StatusStopped) {
-			return true
+			return true, len(ll)
 		}
 	}
-	return false
+	return false, 0
 }
 
-/*
-func (m *manager) WatchUniqueNeedsStart(svc service.Service) {
-	db := debounce.New(5 * time.Second)
-	w, _ := m.reg.Watch(registry.WithType(pb.ItemType_SERVICE), registry.WithName(svc.Name()), registry.WithAction(pb.ActionType_ANY))
-	for {
-		_, er := w.Next()
-		if er != nil {
-			break
-		}
-		fmt.Println("Event received for service", svc.Name())
-		db(func() {
-			if !m.regRunningService(svc.Name()) {
-				fmt.Println("Starting unique service", svc.Name())
-				if er := m.startService(svc); er != nil {
-					fmt.Println("Error while starting unique service", svc.Name(), er.Error())
-				} else {
-					w.Stop()
-				}
-			}
-		})
-	}
-}
-*/
-
-func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service) {
-	db := debounce.New(5 * time.Second)
+func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, count int) {
+	db := debounce.New(time.Duration(count*3) * time.Second)
 	options := []registry.Option{
 		registry.WithType(pb.ItemType_SERVICE),
 		registry.WithAction(pb.ActionType_DELETE),
@@ -471,15 +456,18 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service) {
 		if er != nil {
 			break
 		}
-		fmt.Println("Event received", res.Items(), ", debounce server Restart")
+		if res.Action() != pb.ActionType_DELETE && len(res.Items()) == 0 {
+			continue
+		}
+		m.logger.Info("Delete event received, debounce server Restart" + strconv.Itoa(count))
 		db(func() {
 			w.Stop()
-			fmt.Println(" -- Restarting server now")
+			m.logger.Info(" -- Restarting server now")
 			if er := m.stopServer(srv); er != nil {
-				fmt.Println("Error while stopping server", er)
+				m.logger.Error("Error while stopping server"+er.Error(), zap.Error(er))
 			}
 			if er := m.startServer(srv, m.serveOptions...); er != nil {
-				fmt.Println("Error while starting server", er)
+				m.logger.Error("Error while starting server "+er.Error(), zap.Error(er))
 			}
 		})
 	}

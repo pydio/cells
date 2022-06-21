@@ -136,6 +136,7 @@ ENVIRONMENT
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
+		managerLogger := log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager"))
 
 		if runtime.NeedsGrpcDiscoveryConn() {
 			u, err := url.Parse(runtime.DiscoveryURL())
@@ -182,7 +183,7 @@ ENVIRONMENT
 		// Starting discovery server containing registry, broker, config and log
 		var discovery manager.Manager
 		if !runtime.IsGrpcScheme(runtime.RegistryURL()) {
-			if discovery, err = startDiscoveryServer(ctx, reg); err != nil {
+			if discovery, err = startDiscoveryServer(ctx, reg, managerLogger); err != nil {
 				return err
 			}
 		}
@@ -196,7 +197,7 @@ ENVIRONMENT
 		ctx = clientcontext.WithClientConn(ctx, conn)
 		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
 
-		m := manager.NewManager(reg, "mem:///?cache=plugins&byname=true", "main")
+		m := manager.NewManager(reg, "mem:///?cache=plugins&byname=true", "main", managerLogger)
 		if err := m.Init(ctx); err != nil {
 			return err
 		}
@@ -244,7 +245,7 @@ ENVIRONMENT
 		m.StopAll()
 
 		if discovery != nil {
-			log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager")).Info("Stopping discovery services now")
+			managerLogger.Info("Stopping discovery services now")
 			discovery.StopAll()
 		}
 
@@ -252,9 +253,9 @@ ENVIRONMENT
 	},
 }
 
-func startDiscoveryServer(ctx context.Context, reg registry.Registry) (manager.Manager, error) {
+func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log.ZapLogger) (manager.Manager, error) {
 
-	m := manager.NewManager(reg, "mem:///", "discovery")
+	m := manager.NewManager(reg, "mem:///", "discovery", logger)
 	if er := m.Init(ctx); er != nil {
 		return nil, er
 	}
@@ -263,7 +264,7 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry) (manager.M
 		if !strings.Contains(err.Error(), "context canceled") {
 			fmt.Println("************************************************************")
 			fmt.Println("FATAL : Error while starting discovery server")
-			fmt.Println("------------------------------------------------------------")
+			fmt.Println("--------------------------------------------- ")
 			fmt.Println(err.Error())
 			fmt.Println("FATAL : SHUTTING DOWN NOW!")
 			fmt.Println("************************************************************")
@@ -279,7 +280,7 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry) (manager.M
 		server.WithBlockUntilServe(),
 	)
 
-	log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager")).Info("Discovery services started, carry on to other services")
+	logger.Info("Discovery services started, carry on to other services")
 
 	return m, nil
 }
