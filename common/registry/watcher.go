@@ -74,6 +74,11 @@ func (m *watcher) Next() (Result, error) {
 					continue
 				}
 
+				// Checking action match
+				if m.wo.Action >= pb.ActionType_CREATE && r.Action() != m.wo.Action {
+					continue
+				}
+
 				foundType := false
 			L:
 				for _, itemType := range m.wo.Types {
@@ -129,6 +134,10 @@ func (m *watcher) Next() (Result, error) {
 				}
 
 				items = append(items, item)
+			}
+
+			if len(items) == 0 {
+				continue
 			}
 
 			return &result{
