@@ -161,7 +161,7 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 		for _, a := range reg.ListAdjacentItems(n, registry.WithType(rpb.ItemType_ADDRESS)) {
 			aa = append(aa, a.Name())
 		}
-		if ho, _, e := net.SplitHostPort(strings.Join(aa, "")); e == nil && ho != "" {
+		if ho, _, e := net.SplitHostPort(strings.Join(aa, "")); e == nil && ho != "" && ho != "::" {
 			accu[ho] = ho
 			if h, ok := node.Metadata()[runtime.NodeMetaHostName]; ok && h != "" {
 				hosts[ho] = h
