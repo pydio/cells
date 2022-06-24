@@ -54,4 +54,4 @@ if [ "$2" != "version" ]; then
 fi 
 echo "### About to execute: [$@]"
 
-"$@"
+exec "$@"
