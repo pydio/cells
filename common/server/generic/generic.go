@@ -57,7 +57,7 @@ func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error)
 func New(ctx context.Context) server.Server {
 	ctx, cancel := context.WithCancel(ctx)
 	return server.NewServer(ctx, &Server{
-		id:   "generic",
+		id:   "generic-" + uuid.New(),
 		name: "generic-" + uuid.New(),
 		meta: server.InitPeerMeta(),
 

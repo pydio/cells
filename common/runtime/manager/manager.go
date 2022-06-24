@@ -87,7 +87,7 @@ func NewManager(reg registry.Registry, srcUrl string, namespace string, logger l
 	}
 	// Detect a parent root
 	var current, parent registry.Item
-	if ii, er := reg.List(registry.WithType(pb.ItemType_NODE)); er == nil && len(ii) > 0 {
+	if ii, er := reg.List(registry.WithType(pb.ItemType_NODE), registry.WithMeta(runtime.NodeMetaHostName, runtime.GetHostname())); er == nil && len(ii) > 0 {
 		for _, root := range ii {
 			rPID := root.Metadata()[runtime.NodeMetaPID]
 			if rPID == strconv.Itoa(os.Getppid()) {
