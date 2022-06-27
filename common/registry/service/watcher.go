@@ -114,15 +114,10 @@ func newChanWatcher(ctx context.Context, input chan registry.Result, onClose fun
 				return
 			case res := <-input:
 				if !cw.closed {
-					// Filter by action type
-					if options.Action == pb.ActionType_FULL_LIST && res.Action() != pb.ActionType_FULL_LIST {
+					// Check Actions filtering
+					if !options.ActionsMatch(res.Action()) {
 						break
 					}
-
-					if (options.Action == pb.ActionType_FULL_DIFF || options.Action >= pb.ActionType_CREATE) && res.Action() < pb.ActionType_CREATE {
-						break
-					}
-
 					// No further filtering, send result
 					if len(options.Names) == 0 && len(options.Types) == 0 && len(options.Filters) == 0 {
 						cw.events <- registry.NewResult(res.Action(), res.Items())
@@ -140,11 +135,6 @@ func newChanWatcher(ctx context.Context, input chan registry.Result, onClose fun
 						}
 
 						if len(options.Names) > 0 && !foundName {
-							continue
-						}
-
-						// Checking action match
-						if options.Action >= pb.ActionType_CREATE && res.Action() != options.Action {
 							continue
 						}
 

@@ -93,7 +93,7 @@ func init() {
 						return subscriber.Handle(ct, msg)
 					}
 					return nil
-				}); e != nil {
+				}, broker.Queue("search")); e != nil {
 					//_ = bleveEngine.Close()
 					return e
 				}

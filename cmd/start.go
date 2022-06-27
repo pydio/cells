@@ -138,8 +138,8 @@ ENVIRONMENT
 		ctx := cmd.Context()
 		managerLogger := log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager"))
 
-		if runtime.NeedsGrpcDiscoveryConn() {
-			u, err := url.Parse(runtime.DiscoveryURL())
+		if needs, gU := runtime.NeedsGrpcDiscoveryConn(); needs {
+			u, err := url.Parse(gU)
 			if err != nil {
 				return err
 			}

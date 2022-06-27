@@ -37,7 +37,7 @@ type Option func(*Options)
 type Options struct {
 	Context  context.Context
 	FailFast bool
-	Action   pb.ActionType
+	Actions  []pb.ActionType
 	Names    []string
 	Types    []pb.ItemType
 	Filters  []func(item Item) bool
@@ -51,7 +51,7 @@ func WithFailFast() Option {
 
 func WithAction(a pb.ActionType) Option {
 	return func(o *Options) {
-		o.Action = a
+		o.Actions = append(o.Actions, a)
 	}
 }
 
@@ -100,6 +100,41 @@ func (o *Options) Matches(name, itemName string) bool {
 	name = strings.Trim(name, "*")
 	res, _ := regexp.MatchString(start+name+end, itemName)
 	return res
+}
+
+// ActionsMatch checks if an Action filter matches input
+func (o *Options) ActionsMatch(eventAction pb.ActionType) bool {
+	// no filter
+	if len(o.Actions) == 0 {
+		return true
+	}
+
+	// at least one matches
+	for _, a := range o.Actions {
+		if o.actionOneMatches(eventAction, a) {
+			return true
+		}
+	}
+	return false
+
+}
+
+func (o *Options) actionOneMatches(event, filter pb.ActionType) bool {
+	// FULL_LIST : specific action only
+	if filter == pb.ActionType_FULL_LIST && event != pb.ActionType_FULL_LIST {
+		return false
+	}
+
+	// FULL_DIFF : skip diff and full_list
+	if filter == pb.ActionType_FULL_DIFF && event < pb.ActionType_CREATE {
+		return false
+	}
+
+	// Specific Action: checking action matches
+	if filter >= pb.ActionType_CREATE && event != filter {
+		return false
+	}
+	return true
 }
 
 type RegisterOptions struct {

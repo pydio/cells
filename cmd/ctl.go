@@ -84,6 +84,8 @@ type model struct {
 	ctx        context.Context
 	reg        registry.Registry
 	regClose   context.CancelFunc
+	br         broker.Broker
+	brClose    context.CancelFunc
 	centerMode string
 
 	app          *tview.Application
@@ -95,20 +97,19 @@ type model struct {
 	buttonsPanel *tview.Flex
 	crtButtons   []tview.Primitive
 	configsView  *tview.TreeView
-	cfg          configx.Values
 
+	cfg         configx.Values
 	items       []item
 	edges       []item
 	types       []item
 	currentType int
 	currentItem int
+
 	currentEdge int
+	itFilter    string
 
-	itFilter   string
-	filterText *tview.InputField
-
+	filterText  *tview.InputField
 	pendingItem registry.Item
-	br          broker.Broker
 }
 
 func (m *model) startRegistry(ctx context.Context) {
@@ -134,6 +135,7 @@ func (m *model) startRegistry(ctx context.Context) {
 		m.app.QueueUpdateDraw(func() {
 			m.title.Clear()
 			fmt.Fprintf(m.title, "Connected to %s\n", runtime.RegistryURL())
+			m.resetBroker()
 		})
 		m.reg = reg
 		m.regClose = can
@@ -154,12 +156,22 @@ func (m *model) startRegistry(ctx context.Context) {
 				m.regClose()
 				m.reg = nil
 				m.regClose = nil
+				m.resetBroker()
 				break
 			}
 		}
 		ww.Stop()
 		m.startRegistry(ctx)
 	}
+}
+
+func (m *model) resetBroker() {
+	if m.br == nil || m.brClose == nil {
+		return
+	}
+	m.brClose()
+	m.br = nil
+	m.brClose = nil
 }
 
 func (m *model) lazyBroker() error {
@@ -172,12 +184,14 @@ func (m *model) lazyBroker() error {
 	if err != nil {
 		return err
 	}
-	discoveryConn, err := grpc.DialContext(ctx, u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	ct, ca := context.WithCancel(ctx)
+	m.brClose = ca
+	discoveryConn, err := grpc.DialContext(ct, u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return err
 	}
-	ctx = clientcontext.WithClientConn(ctx, discoveryConn)
-	m.br = broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx))
+	ct = clientcontext.WithClientConn(ct, discoveryConn)
+	m.br = broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ct))
 
 	return nil
 
@@ -455,10 +469,13 @@ func (m *model) sendCommand(cmdName, itemName string) {
 			return
 		}
 	}
-	_ = m.br.PublishRaw(ctx, common.TopicRegistryCommand, []byte("cmd"), map[string]string{
+	e := m.br.PublishRaw(ctx, common.TopicRegistryCommand, []byte("cmd"), map[string]string{
 		"command":  cmdName,
 		"itemName": itemName,
 	})
+	if e != nil {
+		m.title.SetText("Cannot publish command: " + e.Error())
+	}
 	go func() {
 		<-time.After(2 * time.Second)
 		m.app.QueueUpdateDraw(func() {

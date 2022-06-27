@@ -23,16 +23,18 @@ package util
 import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
 	server2 "github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/utils/merger"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 func CreateNode() registry.Node {
+	meta := server2.InitPeerMeta()
 	i := &pb.Item{
 		Id:       uuid.New(),
-		Name:     "process",
-		Metadata: server2.InitPeerMeta(),
+		Name:     "process " + meta[runtime.NodeMetaHostName] + "/" + meta[runtime.NodeMetaPID],
+		Metadata: meta,
 	}
 	n := &pb.Node{}
 	return &node{i: i, d: n}

@@ -110,8 +110,9 @@ func (h *Handler) List(ctx context.Context, req *pb.ListRequest) (*pb.ListRespon
 func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) error {
 
 	var opts []registry.Option
-	opts = append(opts, registry.WithAction(req.GetOptions().GetAction()))
-
+	for _, a := range req.GetOptions().GetActions() {
+		opts = append(opts, registry.WithAction(a))
+	}
 	for _, itemType := range req.GetOptions().GetTypes() {
 		opts = append(opts, registry.WithType(itemType))
 	}

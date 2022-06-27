@@ -41,6 +41,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
 			service.Description("Triggers events based on a scheduler pattern"),
+			service.Unique(true),
 			service.WithGeneric(func(c context.Context, server *generic.Server) error {
 
 				producer := timer.NewEventProducer(c)

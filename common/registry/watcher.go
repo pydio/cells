@@ -43,15 +43,31 @@ func NewWatcher(id string, opts Options, res chan Result) Watcher {
 	}
 }
 
+func (m *watcher) actionMatches(event, filter pb.ActionType) bool {
+	// FULL_LIST : specific action only
+	if filter == pb.ActionType_FULL_LIST && event != pb.ActionType_FULL_LIST {
+		return false
+	}
+
+	// FULL_DIFF : skip diff and full_list
+	if filter == pb.ActionType_FULL_DIFF && event < pb.ActionType_CREATE {
+		return false
+	}
+
+	// Specific Action: checking action matches
+	if filter >= pb.ActionType_CREATE && event != filter {
+		return false
+	}
+	return true
+}
+
 func (m *watcher) Next() (Result, error) {
 	for {
 		select {
 		case r := <-m.res:
-			if m.wo.Action == pb.ActionType_FULL_LIST && r.Action() != pb.ActionType_FULL_LIST {
-				continue
-			}
 
-			if (m.wo.Action == pb.ActionType_FULL_DIFF || m.wo.Action >= pb.ActionType_CREATE) && r.Action() < pb.ActionType_CREATE {
+			// If filter Actions are defined, skip if event does not match any
+			if !m.wo.ActionsMatch(r.Action()) {
 				continue
 			}
 
@@ -71,11 +87,6 @@ func (m *watcher) Next() (Result, error) {
 				}
 
 				if len(m.wo.Names) > 0 && !foundName {
-					continue
-				}
-
-				// Checking action match
-				if m.wo.Action >= pb.ActionType_CREATE && r.Action() != m.wo.Action {
 					continue
 				}
 

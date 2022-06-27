@@ -27,6 +27,7 @@ import (
 	"go.uber.org/zap"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bep/debounce"
@@ -237,12 +238,11 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 	for _, svc := range m.services {
 		if svc.Options().Server == srv {
 			if svc.Options().Unique {
+				uniques = append(uniques, svc)
 				if running, count := m.regRunningService(svc.Name()); running {
 					detectedCount = count
 					// There is already a running service here. Do not start now, watch registry and postpone start
 					m.logger.Warn("There is already a running instance of " + svc.Name() + ". Do not start now, watch registry and postpone start")
-					// go m.WatchUniqueNeedsStart(svc)
-					uniques = append(uniques, svc)
 					continue
 				}
 			}
@@ -446,20 +446,44 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 	options := []registry.Option{
 		registry.WithType(pb.ItemType_SERVICE),
 		registry.WithAction(pb.ActionType_DELETE),
+		registry.WithAction(pb.ActionType_UPDATE),
 	}
+	// Watch specific names
 	for _, s := range ss {
 		options = append(options, registry.WithName(s.Name()))
 	}
+	// Exclude local IDs
+	options = append(options, registry.WithFilter(func(item registry.Item) bool {
+		for _, s := range ss {
+			if s.ID() == item.ID() {
+				m.logger.Debug("FILTERING event on " + item.Name() + " as it is locally managed")
+				return false
+			}
+		}
+		return true
+	}))
 	w, _ := m.reg.Watch(options...)
 	for {
 		res, er := w.Next()
 		if er != nil {
 			break
 		}
-		if res.Action() != pb.ActionType_DELETE && len(res.Items()) == 0 {
-			continue
+		if res.Action() == pb.ActionType_UPDATE {
+			var hasStopped bool
+			for _, i := range res.Items() {
+				if s, ok := i.Metadata()[registry.MetaStatusKey]; ok && s == string(registry.StatusStopped) {
+					hasStopped = true
+				}
+			}
+			if !hasStopped {
+				continue
+			}
 		}
-		m.logger.Info("Delete event received, debounce server Restart" + strconv.Itoa(count))
+		var iNames []string
+		for _, i := range res.Items() {
+			iNames = append(iNames, i.Name())
+		}
+		m.logger.Info("Delete event received for " + strings.Join(iNames, "|") + ", debounce server Restart" + strconv.Itoa(count))
 		db(func() {
 			w.Stop()
 			m.logger.Info(" -- Restarting server now")

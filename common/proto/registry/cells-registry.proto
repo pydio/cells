@@ -95,7 +95,7 @@ message Generic {
 message Options {
   int64 ttl = 1;
   repeated ItemType types = 2;
-  ActionType action = 3;
+  repeated ActionType actions = 3;
   repeated string names = 4;
   string metaName = 5;
   string metaValue = 6;

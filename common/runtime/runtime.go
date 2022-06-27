@@ -107,8 +107,15 @@ func IsGrpcScheme(u string) bool {
 	return false
 }
 
-func NeedsGrpcDiscoveryConn() bool {
-	return IsGrpcScheme(ConfigURL()) || IsGrpcScheme(RegistryURL()) || IsGrpcScheme(BrokerURL())
+func NeedsGrpcDiscoveryConn() (bool, string) {
+	if IsGrpcScheme(ConfigURL()) {
+		return true, ConfigURL()
+	} else if IsGrpcScheme(RegistryURL()) {
+		return true, RegistryURL()
+	} else if IsGrpcScheme(BrokerURL()) {
+		return true, BrokerURL()
+	}
+	return false, ""
 }
 
 // RegistryURL returns the scheme://address url for Registry
