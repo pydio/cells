@@ -69,7 +69,7 @@ func NewBroker(s string, opts ...Option) Broker {
 		s = "nats://"
 	}
 
-	return &broker{
+	br := &broker{
 		publishOpener: func(ctx context.Context, topic string) (*pubsub.Topic, error) {
 			return pubsub.OpenTopic(ctx, s+"/"+topic)
 		},
@@ -93,6 +93,15 @@ func NewBroker(s string, opts ...Option) Broker {
 		publishers: make(map[string]*pubsub.Topic),
 		Options:    options,
 	}
+
+	if options.Context != nil {
+		go func() {
+			<-options.Context.Done()
+			br.closeTopics(options.Context)
+		}()
+	}
+
+	return br
 }
 
 // PublishRaw sends a message to standard broker. For the moment, forward message to client.Publish
@@ -158,6 +167,15 @@ func (b *broker) openTopic(topic string) (*pubsub.Topic, error) {
 	}
 
 	return publisher, nil
+}
+
+func (b *broker) closeTopics(c context.Context) {
+	b.Lock()
+	defer b.Unlock()
+	for t, p := range b.publishers {
+		_ = p.Shutdown(c)
+		delete(b.publishers, t)
+	}
 }
 
 func (b *broker) PublishRaw(ctx context.Context, topic string, body []byte, header map[string]string, opts ...PublishOption) error {

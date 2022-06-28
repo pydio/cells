@@ -62,7 +62,7 @@ func TestServiceBroker(t *testing.T) {
 			}
 		}()
 
-		topic, err := NewTopic("test1", WithContext(ctx))
+		topic, err := NewTopic("test1", "", WithContext(ctx))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -136,7 +136,7 @@ func TestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 	}
 
 	// Send messages. Each message has a unique body used as a key to receivedMsgs.
-	topic, err := NewTopic("test2", WithContext(ctx))
+	topic, err := NewTopic("test2", "", WithContext(ctx))
 	if err != nil {
 		log.Fatal(err)
 	}

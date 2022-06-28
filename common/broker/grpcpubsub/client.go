@@ -32,6 +32,7 @@ import (
 
 var (
 	publishers  = make(map[string]pb.Broker_PublishClient)
+	pubLock     sync.Mutex
 	subscribers = make(map[string]*sharedSubscriber)
 	subLock     sync.Mutex
 )
@@ -98,6 +99,8 @@ type URLOpener struct {
 // OpenTopicURL opens a pubsub.Topic based on u.
 func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic, error) {
 
+	pubLock.Lock()
+	defer pubLock.Unlock()
 	if _, ok := publishers[u.Host]; !ok {
 		conn := clientcontext.GetClientConn(ctx)
 		if conn == nil {
@@ -113,7 +116,7 @@ func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic
 	}
 
 	topicName := u.Path
-	return NewTopic(topicName, WithPublisher(publishers[u.Host]))
+	return NewTopic(topicName, u.Host, WithPublisher(publishers[u.Host]))
 }
 
 // OpenSubscriptionURL opens a pubsub.Subscription based on u.
@@ -157,10 +160,11 @@ var errNotExist = errors.New("cellspubsub: topic does not exist")
 type topic struct {
 	path   string
 	stream Publisher
+	pubKey string
 }
 
 // NewTopic creates a new in-memory topic.
-func NewTopic(path string, opts ...Option) (*pubsub.Topic, error) {
+func NewTopic(path, pubKey string, opts ...Option) (*pubsub.Topic, error) {
 	var options Options
 	for _, o := range opts {
 		o(&options)
@@ -197,6 +201,7 @@ func NewTopic(path string, opts ...Option) (*pubsub.Topic, error) {
 	return pubsub.NewTopic(&topic{
 		path:   path,
 		stream: stream,
+		pubKey: pubKey,
 	}, nil), nil
 }
 
@@ -277,7 +282,14 @@ func (*topic) ErrorCode(err error) gcerrors.ErrorCode {
 }
 
 // Close implements driver.Topic.Close.
-func (*topic) Close() error { return nil }
+func (t *topic) Close() error {
+	if t.pubKey != "" {
+		pubLock.Lock()
+		delete(publishers, t.pubKey)
+		pubLock.Unlock()
+	}
+	return nil
+}
 
 type subscription struct {
 	in     chan []*pb.Message
