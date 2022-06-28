@@ -185,10 +185,14 @@ func (m *model) lazyBroker() error {
 		return err
 	}
 	ct, ca := context.WithCancel(ctx)
-	m.brClose = ca
 	discoveryConn, err := grpc.DialContext(ct, u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
+		ca()
 		return err
+	}
+	m.brClose = func() {
+		ca()
+		_ = discoveryConn.Close()
 	}
 	ct = clientcontext.WithClientConn(ct, discoveryConn)
 	m.br = broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ct))
