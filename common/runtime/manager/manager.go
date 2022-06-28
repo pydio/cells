@@ -368,7 +368,7 @@ func (m *manager) WatchBroker(ctx context.Context, br broker.Broker) error {
 		itemName := hh["itemName"]
 		s, err := m.reg.Get(itemName, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE))
 		if err != nil {
-			if err == os.ErrNotExist {
+			if err == os.ErrNotExist || strings.Contains(err.Error(), "file does not exist") {
 				return nil
 			}
 			return err
@@ -407,7 +407,7 @@ func (m *manager) WatchBroker(ctx context.Context, br broker.Broker) error {
 			default:
 				return fmt.Errorf("unsupported command %s", cmd)
 			}
-		} else if srv == nil {
+		} else if srv != nil {
 			// Server Commands
 			switch cmd {
 			case CommandStart:
