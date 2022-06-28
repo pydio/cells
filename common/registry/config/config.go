@@ -180,81 +180,48 @@ func (c *configRegistry) watch() error {
 		if err != nil {
 			return err
 		}
+		cv := res.(configx.Values)
 
-		for _, broadcaster := range c.broadcasters {
-			var opts []registry.Option
-			for _, itemType := range broadcaster.Types {
-				opts = append(opts, registry.WithType(itemType))
+		for _, bc := range c.broadcasters {
 
-				create := res.(configx.Values).Val("create")
-				update := res.(configx.Values).Val("update")
-				delete := res.(configx.Values).Val("delete")
+			for _, itemType := range bc.Types {
 
-				v1 := create.Val(getFromItemType(itemType))
-
-				if v1.Get() != nil {
-					itemsMap := map[string]registry.Item{}
-					if err := v1.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
-						fmt.Println("there is an error here ?", err)
-						return err
-					}
-
-					var items []registry.Item
-					for _, i := range itemsMap {
-						items = append(items, i)
-					}
-
-					select {
-					case broadcaster.Ch <- registry.NewResult(pb.ActionType_CREATE, items):
-					default:
-					}
+				// Always start with DELETE if they are batched to avoid false-negatives on Delete => Create
+				if err := c.scanAndBroadcast(cv, bc, itemType, "delete", pb.ActionType_DELETE); err != nil {
+					return err
+				}
+				if err := c.scanAndBroadcast(cv, bc, itemType, "create", pb.ActionType_CREATE); err != nil {
+					return err
+				}
+				if err := c.scanAndBroadcast(cv, bc, itemType, "update", pb.ActionType_UPDATE); err != nil {
+					return err
 				}
 
-				v2 := update.Val(getFromItemType(itemType))
-				if v2.Get() != nil {
-
-					itemsMap := map[string]registry.Item{}
-					if err := v2.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
-						fmt.Println("there is an error here ?", err)
-						return err
-					}
-
-					var items []registry.Item
-					for _, i := range itemsMap {
-						items = append(items, i)
-					}
-
-					select {
-					case broadcaster.Ch <- registry.NewResult(pb.ActionType_UPDATE, items):
-					default:
-					}
-				}
-
-				v3 := delete.Val(getFromItemType(itemType))
-				if v3.Get() != nil {
-
-					itemsMap := map[string]registry.Item{}
-					if err := v3.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
-						fmt.Println("there is an error here ?", err)
-						return err
-					}
-
-					var items []registry.Item
-					for _, i := range itemsMap {
-						items = append(items, i)
-					}
-
-					select {
-					case broadcaster.Ch <- registry.NewResult(pb.ActionType_DELETE, items):
-					default:
-					}
-				}
-
-				// fmt.Println(itemType, v1.Interface(), v2.Interface(), v3.Interface())
 			}
 		}
 	}
 
+	return nil
+}
+
+func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bcType pb.ItemType, keyName string, actionType pb.ActionType) error {
+	values := res.Val(keyName)
+	val := values.Val(getFromItemType(bcType))
+	if val.Get() != nil {
+		itemsMap := map[string]registry.Item{}
+		if err := val.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
+			fmt.Println("Error while scanning registry watch event to map[string]registry.Item", err)
+			return err
+		}
+		var items []registry.Item
+		for _, i := range itemsMap {
+			items = append(items, i)
+		}
+		select {
+		case bc.Ch <- registry.NewResult(actionType, items):
+		default:
+		}
+	}
 	return nil
 }
 
