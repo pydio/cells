@@ -48,7 +48,7 @@ func init() {
 			service.Description("Metadata server for tree nodes"),
 			service.Unique(true),
 			service.WithStorage(meta.NewDAO, service.WithStoragePrefix("data_meta")),
-			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
 				engine := NewMetaServer(c, servicecontext.GetDAO(c).(meta.DAO))
 

@@ -38,7 +38,7 @@ func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error)
 
 func init() {
 
-	handlersRegister := func(runtimeCtx context.Context, g *grpc.Server, clear bool) {
+	handlersRegister := func(runtimeCtx context.Context, g grpc.ServiceRegistrar, clear bool) {
 		h := &TreeHandler{runtimeCtx: runtimeCtx}
 		if clear {
 			h.name = common.ServiceGatewayGrpcClear
@@ -80,7 +80,7 @@ func init() {
 			clearOpts = append(clearOpts,
 				service.Context(ctx),
 				service.WithServerScheme("grpc+public://"),
-				service.WithGRPC(func(runtimeCtx context.Context, srv *grpc.Server) error {
+				service.WithGRPC(func(runtimeCtx context.Context, srv grpc.ServiceRegistrar) error {
 					handlersRegister(runtimeCtx, srv, true)
 					return nil
 				}),
@@ -91,7 +91,7 @@ func init() {
 			tlsOpts = append(tlsOpts,
 				service.Context(ctx),
 				service.WithServerScheme("grpc+public://?secure=true"),
-				service.WithGRPC(func(runtimeCtx context.Context, srv *grpc.Server) error {
+				service.WithGRPC(func(runtimeCtx context.Context, srv grpc.ServiceRegistrar) error {
 					handlersRegister(runtimeCtx, srv, false)
 					return nil
 				}),

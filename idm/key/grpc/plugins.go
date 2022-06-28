@@ -44,7 +44,7 @@ func init() {
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Encryption Keys server"),
 			service.WithStorage(key.NewDAO, service.WithStoragePrefix("idm_key")),
-			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				dao := servicecontext.GetDAO(ctx).(key.DAO)
 				keyring := servicecontext.GetKeyring(ctx).(crypto.Keyring)
 

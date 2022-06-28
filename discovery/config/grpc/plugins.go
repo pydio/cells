@@ -19,7 +19,7 @@ func init() {
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Grpc service for serving configurations to forks"),
 			// service.WithStorage(config.NewDAO),
-			service.WithGRPC(func(c context.Context, srv *grpc.Server) error {
+			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 				// Register handler
 				pb.RegisterConfigServer(srv, &Handler{serviceName: common.ServiceGrpcNamespace_ + common.ServiceConfig})
 

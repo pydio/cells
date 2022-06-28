@@ -51,8 +51,8 @@ func init() {
 				service.Fork(true),
 				service.Unique(true),
 				service.AutoStart(false),
-				service.WithGRPC(func(datasource string) func(c context.Context, server *grpc.Server) error {
-					return func(c context.Context, server *grpc.Server) error {
+				service.WithGRPC(func(datasource string) func(c context.Context, server grpc.ServiceRegistrar) error {
+					return func(c context.Context, server grpc.ServiceRegistrar) error {
 						mc, ok := mm[datasource]
 						if !ok {
 							return fmt.Errorf("cannot find minio config")

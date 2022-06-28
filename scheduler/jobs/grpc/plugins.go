@@ -103,7 +103,7 @@ func init() {
 					},
 				},
 			}),
-			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
 				/*
 					serviceDir, e := config.ServiceDataDir(ServiceName)

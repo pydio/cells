@@ -66,7 +66,7 @@ func init() {
 					return bleve.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "searchengine.bleve?rotationSize=-1&mapping=node")
 				}),
 			),
-			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
 				cfg := config.Get("services", Name)
 				nsProvider := meta.NewNsProvider(c)

@@ -23,7 +23,6 @@ package grpc
 
 import (
 	"context"
-
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -90,7 +89,7 @@ func init() {
 					Up:            policy.Upgrade399,
 				},
 			}),
-			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(policy.DAO))
 				idm.RegisterPolicyEngineServiceEnhancedServer(server, handler)
 				return nil

@@ -42,7 +42,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Test Objects Service conformance"),
-			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				h := NewHandler()
 				test.RegisterTesterEnhancedServer(server, h)
 				go func() {

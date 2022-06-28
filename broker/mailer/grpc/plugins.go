@@ -71,7 +71,7 @@ func init() {
 					return "boltdb", filepath.Join(runtime.MustServiceDataDir(Name), "queue.db")
 				}),
 			),
-			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
 				conf := config.Get("services", Name)
 				handler, err := NewHandler(c, conf)

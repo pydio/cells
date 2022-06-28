@@ -99,7 +99,7 @@ func init() {
 
 				return nil
 			}),
-			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				dao := servicecontext.GetDAO(ctx).(versions.DAO)
 				engine := &Handler{

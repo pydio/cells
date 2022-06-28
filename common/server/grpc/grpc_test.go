@@ -67,7 +67,7 @@ func createApp1(reg registry.Registry) *bufconn.Listener {
 		service.Name("pydio.grpc.test.registry"),
 		service.Context(ctx),
 		service.WithServer(srv),
-		service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
+		service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 			pbregistry.RegisterRegistryServer(srv, discoveryregistry.NewHandler(reg))
 			return nil
 		}),
@@ -78,7 +78,7 @@ func createApp1(reg registry.Registry) *bufconn.Listener {
 		service.Name("pydio.grpc.test.service"),
 		service.Context(ctx),
 		service.WithServer(srv),
-		service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
+		service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 			helloworld.RegisterGreeterServer(srv, &mock{})
 			return nil
 		}),
@@ -111,7 +111,7 @@ func createApp2(reg registry.Registry) {
 		service.Name("pydio.grpc.test.service"),
 		service.Context(ctx),
 		service.WithServer(srv),
-		service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
+		service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 			helloworld.RegisterGreeterServer(srv, &mock{})
 			return nil
 		}),

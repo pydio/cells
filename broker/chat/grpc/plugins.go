@@ -54,7 +54,7 @@ func init() {
 					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(ServiceName), "chat.db")
 				}),
 			),
-			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 				proto.RegisterChatServiceEnhancedServer(server, &ChatHandler{RuntimeCtx: c, dao: servicecontext.GetDAO(c).(chat.DAO)})
 				return nil
 			}),

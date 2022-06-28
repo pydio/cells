@@ -42,7 +42,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Aggregator of all datasources into one master tree"),
-			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				treeServer := &TreeServer{
 					name:        ServiceName,

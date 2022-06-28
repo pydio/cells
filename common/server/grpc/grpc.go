@@ -63,7 +63,10 @@ type Server struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 	opts   *Options
+
 	*grpc.Server
+	regI grpc.ServiceRegistrar
+
 	sync.Mutex
 }
 
@@ -73,35 +76,7 @@ func New(ctx context.Context, opt ...Option) server.Server {
 	for _, o := range opt {
 		o(opts)
 	}
-	/*
-		s := grpc.NewServer(
-			// grpc.MaxConcurrentStreams(1000),
-			grpc.ChainUnaryInterceptor(
-				servicecontext.MetricsUnaryServerInterceptor(),
-				servicecontext.ContextUnaryServerInterceptor(servicecontext.MetaIncomingContext),
-				servicecontext.ContextUnaryServerInterceptor(servicecontext.SpanIncomingContext),
-				servicecontext.ContextUnaryServerInterceptor(middleware.TargetNameToServiceNameContext(ctx)),
-				servicecontext.ContextUnaryServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
-				servicecontext.ContextUnaryServerInterceptor(middleware.RegistryIncomingContext(ctx)),
-			),
-			grpc.ChainStreamInterceptor(
-				servicecontext.MetricsStreamServerInterceptor(),
-				servicecontext.ContextStreamServerInterceptor(servicecontext.MetaIncomingContext),
-				servicecontext.ContextStreamServerInterceptor(servicecontext.SpanIncomingContext),
-				servicecontext.ContextStreamServerInterceptor(middleware.TargetNameToServiceNameContext(ctx)),
-				servicecontext.ContextStreamServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
-				servicecontext.ContextStreamServerInterceptor(middleware.RegistryIncomingContext(ctx)),
-				//servicecontext.StreamsCounter(),
-			),
-		)
-
-		service.RegisterChannelzServiceToServer(s)
-		grpc_health_v1.RegisterHealthServer(s, health.NewServer())
-
-	*/
-
 	ctx, cancel := context.WithCancel(ctx)
-
 	return server.NewServer(ctx, &Server{
 		id:   "grpc-" + uuid.New(),
 		name: "grpc",
@@ -110,7 +85,6 @@ func New(ctx context.Context, opt ...Option) server.Server {
 		ctx:    ctx,
 		cancel: cancel,
 		opts:   opts,
-		//Server: s,
 	})
 }
 
@@ -127,6 +101,7 @@ func NewWithServer(ctx context.Context, name string, s *grpc.Server, listen stri
 		cancel: cancel,
 		opts:   opts,
 		Server: s,
+		regI:   &registrar{Server: s},
 	})
 
 }
@@ -137,6 +112,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 	if s.Server != nil {
 		return s.Server
 	}
+	//fmt.Println("CREATE NEW GRPC SERVER")
 	gs := grpc.NewServer(
 		// grpc.MaxConcurrentStreams(1000),
 		grpc.ChainUnaryInterceptor(
@@ -160,6 +136,8 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 	service.RegisterChannelzServiceToServer(gs)
 	grpc_health_v1.RegisterHealthServer(gs, health.NewServer())
 	s.Server = gs
+	s.regI = &registrar{Server: gs}
+	//fmt.Println("New Server is ", s.Server)
 	return gs
 }
 
@@ -219,8 +197,10 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 func (s *Server) Stop() error {
 	//s.Server.GracefulStop()
 	if s.Server != nil {
+		//fmt.Println("STOPPING GRPC SERVER")
 		s.Server.Stop()
 		s.Server = nil
+		s.regI = nil
 	}
 	return nil
 }
@@ -238,13 +218,16 @@ func (s *Server) Metadata() map[string]string {
 }
 
 func (s *Server) As(i interface{}) bool {
-	p, ok := i.(**grpc.Server)
-	if !ok {
-		return false
+	if p, ok := i.(**grpc.Server); ok {
+		*p = s.lazyGrpc(s.ctx)
+		return true
 	}
-
-	*p = s.lazyGrpc(s.ctx)
-	return true
+	if sr, ok2 := i.(*grpc.ServiceRegistrar); ok2 {
+		s.lazyGrpc(s.ctx)
+		*sr = s.regI
+		return true
+	}
+	return false
 }
 
 type Handler struct{}
@@ -258,4 +241,13 @@ func (h *Handler) Check(ctx context.Context, req *grpc_health_v1.HealthCheckRequ
 
 func (h *Handler) Watch(req *grpc_health_v1.HealthCheckRequest, w grpc_health_v1.Health_WatchServer) error {
 	return nil
+}
+
+type registrar struct {
+	*grpc.Server
+}
+
+func (r *registrar) RegisterService(desc *grpc.ServiceDesc, impl interface{}) {
+	//fmt.Println("Register Now", desc.ServiceName)
+	r.Server.RegisterService(desc, impl)
 }

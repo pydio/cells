@@ -66,7 +66,7 @@ func init() {
 					// Returning a prefix for the dao
 					return strings.Replace(strings.TrimPrefix(o.Name, common.ServiceGrpcNamespace_), ".", "_", -1)
 				})),
-				service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
+				service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 
 					dsObject, e := config.GetSourceInfoByName(sourceOpt)
 					if e != nil {

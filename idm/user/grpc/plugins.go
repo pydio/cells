@@ -69,7 +69,7 @@ func init() {
 				},
 			}),
 			service.WithStorage(user.NewDAO, service.WithStoragePrefix("idm_user")),
-			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				dao := servicecontext.GetDAO(ctx).(user.DAO)
 				idm.RegisterUserServiceEnhancedServer(server, NewHandler(ctx, dao))

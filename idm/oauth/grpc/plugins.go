@@ -58,7 +58,7 @@ func init() {
 					Up:            oauth.InsertPruningJob,
 				},
 			}),
-			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				h := &Handler{name: Name}
 
 				auth2.RegisterAuthTokenVerifierEnhancedServer(server, h)
@@ -96,7 +96,7 @@ func init() {
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Personal Access Token Provider"),
 			service.WithStorage(oauth.NewDAO, service.WithStoragePrefix("idm_oauth_")),
-			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				pat := &PatHandler{
 					name: common.ServiceGrpcNamespace_ + common.ServiceToken,
 					dao:  servicecontext.GetDAO(ctx).(oauth.DAO),

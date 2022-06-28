@@ -19,7 +19,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Grpc implementation of the registry"),
-			service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
+			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				reg := servicecontext.GetRegistry(ctx)
 				pbregistry.RegisterRegistryServer(srv, NewHandler(reg))
 

@@ -84,7 +84,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 		service.Fork(true),
 		service.Unique(true),
 		service.AutoStart(false),
-		service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
+		service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 			_ = broker.SubscribeCancellable(ctx, common.TopicIndexEvent, func(message broker.Message) error {
 				if syncHandler == nil {
 					return nil

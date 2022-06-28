@@ -45,7 +45,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Update checker service"),
-			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				handler := new(Handler)
 				update.RegisterUpdateServiceEnhancedServer(server, handler)
 				return nil

@@ -55,7 +55,7 @@ func init() {
 				},
 			}),
 			service.WithStorage(role.NewDAO, service.WithStoragePrefix("idm_role")),
-			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				dao := servicecontext.GetDAO(ctx)
 				if dao == nil {

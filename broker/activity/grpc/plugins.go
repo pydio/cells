@@ -79,7 +79,7 @@ func init() {
 					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "activities.db")
 				}),
 			),
-			service.WithGRPC(func(c context.Context, srv *grpc.Server) error {
+			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 
 				d := servicecontext.GetDAO(c).(activity.DAO)
 				// Register Subscribers

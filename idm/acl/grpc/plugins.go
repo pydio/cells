@@ -54,7 +54,7 @@ func init() {
 				},
 			}),
 			service.Metadata(meta.ServiceMetaProvider, "stream"),
-			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(acl.DAO))
 				idm.RegisterACLServiceEnhancedServer(server, handler)

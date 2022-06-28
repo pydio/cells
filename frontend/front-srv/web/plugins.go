@@ -58,7 +58,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagFrontend),
 			service.Description("Grpc service for internal requests about frontend manifest"),
-			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				mH := &index.ManifestHandler{HandlerName: common.ServiceGrpcNamespace_ + common.ServiceFrontStatics}
 				front.RegisterManifestServiceServer(server, mH)
 				return nil

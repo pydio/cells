@@ -46,7 +46,7 @@ func init() {
 			service.Tag(common.ServiceTagScheduler),
 			service.Fork(true),
 			service.Description("Tasks are running jobs dispatched on multiple workers"),
-			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 				jobs.RegisterTaskServiceEnhancedServer(server, new(Handler))
 				multiplexer := tasks.NewSubscriber(c)
 				multiplexer.Init()

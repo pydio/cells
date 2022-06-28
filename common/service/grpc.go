@@ -22,14 +22,13 @@ package service
 
 import (
 	"context"
-
 	"github.com/pydio/cells/v4/common/server"
 
 	"google.golang.org/grpc"
 )
 
-// WithGRPC adds a service handler to the current service
-func WithGRPC(f func(context.Context, *grpc.Server) error) ServiceOption {
+// WithGRPC adds a GRPC service handler to the current service
+func WithGRPC(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.serverType = server.TypeGrpc
 		o.serverStart = func() error {
@@ -37,20 +36,21 @@ func WithGRPC(f func(context.Context, *grpc.Server) error) ServiceOption {
 				return errNoServerAttached
 			}
 
-			var srvg *grpc.Server
-			o.Server.As(&srvg)
+			var registrar grpc.ServiceRegistrar
+			o.Server.As(&registrar)
 
-			return f(o.Context, srvg)
+			return f(o.Context, registrar)
 		}
 	}
 }
 
-func WithGRPCStop(f func(context.Context, *grpc.Server) error) ServiceOption {
+// WithGRPCStop hooks to the grpc server stop
+func WithGRPCStop(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.serverStop = func() error {
-			var srvg *grpc.Server
-			o.Server.As(&srvg)
-			return f(o.Context, srvg)
+			var registrar grpc.ServiceRegistrar
+			o.Server.As(&registrar)
+			return f(o.Context, registrar)
 		}
 	}
 }

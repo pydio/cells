@@ -68,6 +68,7 @@ type server struct {
 	s      RawServer
 	opts   *Options
 	status registry.Status
+	links  []registry.Item
 }
 
 func NewServer(ctx context.Context, s RawServer) Server {
@@ -129,6 +130,7 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 			if err := reg.Register(item, registry.WithEdgeTo(s.ID(), "instance", nil)); err != nil {
 				return err
 			}
+			s.links = append(s.links, item)
 		}
 	}
 
@@ -155,6 +157,9 @@ func (s *server) Stop(oo ...registry.RegisterOption) error {
 
 	// We deregister the endpoints to clear links and re-register as stopped
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
+		for _, i := range s.links {
+			_ = reg.Deregister(i, registry.WithRegisterFailFast())
+		}
 		if er := reg.Deregister(s, registry.WithRegisterFailFast()); er != nil {
 			return er
 		} else if !opts.DeregisterFull {

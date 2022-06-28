@@ -61,7 +61,7 @@ func init() {
 					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "docstore.db")
 				}),
 			),
-			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
 				dao := servicecontext.GetDAO(c).(docstore.DAO)
 				handler := &Handler{DAO: dao}

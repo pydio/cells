@@ -47,7 +47,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDatasource),
 			service.Description("Starter for different sources objects"),
-			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				conf := config.Get("services", BrowserName)
 				treeServer := NewTreeHandler(conf)
 				tree.RegisterNodeProviderEnhancedServer(server, treeServer)
