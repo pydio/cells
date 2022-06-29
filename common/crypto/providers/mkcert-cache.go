@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -21,8 +21,10 @@
 package providers
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/hex"
+	"io/ioutil"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -30,17 +32,23 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/caddyserver/certmagic"
+	"github.com/pydio/caddyvault"
+
+	"github.com/pydio/cells/v4/common/crypto/storage"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/net"
 )
 
-var cache *MkCertCache
+var (
+	cache           *MkCertCache
+	defaultLocation string
+)
 
 func init() {
 	cache = &MkCertCache{
 		data: make(map[string]*pair),
-		lock: &sync.Mutex{},
 	}
 }
 
@@ -50,8 +58,9 @@ type pair struct {
 }
 
 type MkCertCache struct {
-	lock *sync.Mutex
-	data map[string]*pair
+	sync.Mutex
+	data    map[string]*pair
+	storage certmagic.Storage
 }
 
 func GetMkCertCache() *MkCertCache {
@@ -66,20 +75,35 @@ func (m *MkCertCache) Uuid(hosts []string) string {
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-func (m *MkCertCache) LoadCertificates(config *install.ProxyConfig) (certFile string, keyFile string, err error) {
+func (m *MkCertCache) LoadCertificates(config *install.ProxyConfig, storageURL string) (certFile string, keyFile string, err error) {
 	hosts := m.loadHosts(config)
 	uuid := cache.Uuid(hosts)
-	cache.lock.Lock()
-	defer cache.lock.Unlock()
+	cache.Lock()
+	defer cache.Unlock()
 	if p, o := cache.data[uuid]; o {
 		return p.cert, p.key, nil
 	} else {
-		certFile, keyFile, err = cache.findOrGenerate(uuid, hosts)
+		certFile, keyFile, err = cache.findOrGenerate(uuid, hosts, storageURL)
 		if err == nil {
 			cache.data[uuid] = &pair{cert: certFile, key: keyFile}
 		}
 		return
 	}
+}
+
+func (m *MkCertCache) runtimeStorage(storageURL string, storageDir string) certmagic.Storage {
+	u, e := url.Parse(storageURL)
+	if storageURL == "" || e != nil || u.Scheme != "vault" {
+		return &certmagic.FileStorage{Path: storageDir}
+	}
+	if os.Getenv("VAULT_TOKEN") == "" {
+		printf("Trying to switch to vault store but VAULT_TOKEN is not set! Fallback to local storage")
+		return &certmagic.FileStorage{Path: storageDir}
+	}
+	u.Path = ""
+	u.Scheme = "http"
+	printf("Switching to remote cert store:%s", u.String())
+	return &caddyvault.VaultStorage{API: u.String()}
 }
 
 func (m *MkCertCache) loadHosts(site *install.ProxyConfig) []string {
@@ -113,25 +137,46 @@ func (m *MkCertCache) loadHosts(site *install.ProxyConfig) []string {
 	return hns
 }
 
-func (m *MkCertCache) findOrGenerate(uuid string, hns []string) (certFile, keyFile string, err error) {
-	storageLocation := filepath.Join(runtime.ApplicationWorkingDir(), "certs")
-	os.MkdirAll(storageLocation, 0700)
-	mk := NewMkCert(storageLocation)
-	cn := filepath.Join(storageLocation, uuid+".pem")
-	kn := filepath.Join(storageLocation, uuid+"-key.pem")
-	_, e1 := os.Stat(cn)
-	_, e2 := os.Stat(kn)
+func (m *MkCertCache) findOrGenerate(uuid string, hns []string, storageURL string) (certFile, keyFile string, err error) {
+	var localLocation string
+	if defaultLocation != "" {
+		localLocation = defaultLocation
+	} else {
+		localLocation = runtime.CertsStoreLocalLocation()
+	}
+	// Look in on-file cache
+	certFile = filepath.Join(localLocation, uuid+".pem")
+	keyFile = filepath.Join(localLocation, uuid+"-key.pem")
+	_, e1 := os.Stat(certFile)
+	_, e2 := os.Stat(keyFile)
 	if e1 == nil && e2 == nil {
-		certFile = cn
-		keyFile = kn
 		return
 	}
 
+	// Generate new ones using storageURL provider
+	s, e := storage.OpenStore(context.Background(), storageURL)
+	if e != nil {
+		return "", "", e
+	}
+	mk := NewMkCert(s)
 	err = mk.MakeCert(hns, uuid)
 	if err != nil {
 		return
 	}
-	certFile, keyFile, _, _ = mk.GeneratedResources()
+	cert, key, e := mk.ReadCert()
+	// Copy Cert/Key Bytes to local file
+	if err != nil {
+		return "", "", e
+	}
+	// For remote storage, copy data locally
+	if _, ok := mk.storage.(*certmagic.FileStorage); !ok {
+		if err = ioutil.WriteFile(certFile, cert, 0400); err != nil {
+			return
+		}
+		if err = ioutil.WriteFile(keyFile, key, 0400); err != nil {
+			return
+		}
+	}
 
 	printf("")
 	printf("")

@@ -15,7 +15,7 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
-	config2 "github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 var (
@@ -61,7 +61,7 @@ var TestExternalGrpc = &cobra.Command{
 
 func loadTLSCredentials() (credentials.TransportCredentials, error) {
 	// Load certificate of the CA who signed server's certificate
-	pemServerCA, err := ioutil.ReadFile(filepath.Join(config2.ApplicationWorkingDir(), "certs", "rootCA.pem"))
+	pemServerCA, err := ioutil.ReadFile(filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultCertStorePath, "rootCA.pem"))
 	if err != nil {
 		return nil, err
 	}

@@ -40,10 +40,12 @@ const (
 func addRootFlags(flags *pflag.FlagSet) {
 	flags.String(runtime.KeyConfig, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName), "Configuration storage URL. Supported schemes: "+strings.Join(config.DefaultURLMux().Schemes(), "|"))
 	flags.String(runtime.KeyVault, "detect", "Vault location, automatically detected from config url, unless an URL is provided (same schemes as config)")
-	flags.String(runtime.KeyKeyring, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultKeyringFileName)+"?keyring=true", "Keyring URL")
+	flags.String(runtime.KeyKeyring, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultKeyringFileName)+"?keyring=true", "Keyring URL. Can be switched to vault://host:port/secretPath?key=storeKey")
+	flags.String(runtime.KeyCertsStore, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultCertStorePath), "Certificates Store URL. Can be switched to vault://host:port/secretPath")
 	if os.Getenv(EnvDisplayHiddenFlags) == "" {
-		//_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyVault)
+		_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyVault)
 		_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyKeyring)
+		_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyCertsStore)
 	}
 
 }

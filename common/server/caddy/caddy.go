@@ -24,19 +24,21 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"go.uber.org/zap"
-	"html/template"
 	"net"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
+	"text/template"
 
 	caddy "github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
+	"github.com/pydio/caddyvault"
+	"github.com/pydio/cells/v4/common/crypto/storage"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
@@ -55,6 +57,7 @@ const (
 {
   auto_https disable_redirects
   admin off
+{{if .Storage}}  storage {{.Storage}}{{end}}
 }
 
 {{range .Sites}}
@@ -210,10 +213,24 @@ func (s *Server) ComputeConfs() ([]string, error) {
 	type TplData struct {
 		Sites   []SiteConf
 		WebRoot string
+		Storage string
 	}
 	tplData := TplData{Sites: caddySites}
 	if s.serveDir != "" {
 		tplData.WebRoot = s.serveDir
+	}
+
+	k, e := storage.OpenStore(context.Background(), runtime.CertsStoreURL())
+	if e != nil {
+		return nil, e
+	}
+	// Special treatment for vault : append info to caddy
+	if vs, ok := k.(*caddyvault.VaultStorage); ok {
+		tplData.Storage = `vault {
+  address "` + vs.API + `"
+  token ` + vs.Token + `
+  prefix ` + vs.Prefix + `
+}`
 	}
 
 	buf := bytes.NewBuffer([]byte{})

@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/crypto/providers"
 	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -108,7 +109,7 @@ func computeSiteConf(pc *install.ProxyConfig) (SiteConf, error) {
 		}
 		switch v := bc.TLSConfig.(type) {
 		case *install.ProxyConfig_Certificate, *install.ProxyConfig_SelfSigned:
-			certFile, keyFile, err := providers.LoadCertificates(pc)
+			certFile, keyFile, err := providers.LoadCertificates(pc, runtime.CertsStoreURL())
 			if err != nil {
 				return bc, err
 			}

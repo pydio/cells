@@ -185,6 +185,14 @@ func KeyringURL() string {
 	return r.GetString(KeyKeyring)
 }
 
+func CertsStoreURL() string {
+	return r.GetString(KeyCertsStore)
+}
+
+func CertsStoreLocalLocation() string {
+	return filepath.Join(ApplicationWorkingDir(), DefaultCertStorePath)
+}
+
 // HttpServerType returns one of HttpServerCaddy or HttpServerCore
 func HttpServerType() string {
 	return r.GetString(KeyHttpServer)

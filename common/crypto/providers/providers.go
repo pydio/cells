@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -28,17 +28,17 @@ import (
 )
 
 type CertProvider interface {
-	LoadCertificates(config *install.ProxyConfig) (certFile string, certKey string, err error)
+	LoadCertificates(config *install.ProxyConfig, storageURL string) (certFile string, certKey string, err error)
 }
 
-func LoadCertificates(config *install.ProxyConfig) (certFile string, certKey string, err error) {
+func LoadCertificates(config *install.ProxyConfig, storageURL string) (certFile string, certKey string, err error) {
 
 	if !config.HasTLS() {
 		return "", "", fmt.Errorf("no TLS config found")
 	}
 
 	if config.GetSelfSigned() != nil {
-		return GetMkCertCache().LoadCertificates(config)
+		return GetMkCertCache().LoadCertificates(config, storageURL)
 	} else if config.GetCertificate() != nil {
 		cert := config.GetCertificate()
 		return cert.CertFile, cert.KeyFile, nil
@@ -47,11 +47,11 @@ func LoadCertificates(config *install.ProxyConfig) (certFile string, certKey str
 	return
 }
 
-func LoadTLSServerConfig(config *install.ProxyConfig) (*tls.Config, error) {
+func LoadTLSServerConfig(config *install.ProxyConfig, storageURL string) (*tls.Config, error) {
 	if !config.HasTLS() {
 		return nil, fmt.Errorf("no TLS config found")
 	}
-	c, k, e := LoadCertificates(config)
+	c, k, e := LoadCertificates(config, storageURL)
 	if e != nil {
 		return nil, e
 	}

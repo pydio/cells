@@ -123,6 +123,16 @@ func (s *service) Metadata() map[string]string {
 	}
 	cp[registry.MetaStatusKey] = string(s.status)
 	cp[registry.MetaDescriptionKey] = s.opts.Description
+	if s.opts.Unique {
+		cp[registry.MetaUniqueKey] = "unique"
+	}
+	if len(s.opts.Storages) > 0 {
+		for _, so := range s.opts.Storages {
+			if len(so.SupportedDrivers) > 0 {
+				cp[so.StorageKey] = so.ToMeta()
+			}
+		}
+	}
 	return cp
 }
 

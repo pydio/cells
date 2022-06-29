@@ -125,7 +125,7 @@ func createServer(ctx context.Context, tls bool) (server.Server, error) {
 			Binds:     []string{"0.0.0.0"},
 			TLSConfig: &install.ProxyConfig_SelfSigned{SelfSigned: &install.TLSSelfSigned{}},
 		}
-		tlsConfig, e := providers.LoadTLSServerConfig(localConfig)
+		tlsConfig, e := providers.LoadTLSServerConfig(localConfig, runtime.CertsStoreURL())
 		if e != nil {
 			return nil, e
 		}

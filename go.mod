@@ -9,6 +9,7 @@ require (
 	github.com/bep/debounce v1.2.0
 	github.com/blevesearch/bleve/v2 v2.3.0
 	github.com/caddyserver/caddy/v2 v2.4.6
+	github.com/caddyserver/certmagic v0.15.2
 	github.com/cskr/pubsub v1.0.2
 	github.com/disintegration/imaging v1.6.2
 	github.com/doug-martin/goqu/v9 v9.18.0
@@ -70,6 +71,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/philopon/go-toposort v0.0.0-20170620085441-9be86dbd762f
 	github.com/pkg/errors v0.9.1
+	github.com/pydio/caddyvault v1.0.1-0.20220629111132-58137623058b
 	github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef
 	github.com/pydio/melody v0.0.0-20190928133520-4271c6513fb6
 	github.com/pydio/pydio-sdk-go v0.0.0-20190116153840-23ce5c39e65c
@@ -103,16 +105,16 @@ require (
 	go.etcd.io/etcd/api/v3 v3.5.4
 	go.etcd.io/etcd/client/v3 v3.5.0
 	go.mongodb.org/mongo-driver v1.8.3
-	go.uber.org/zap v1.20.0
+	go.uber.org/zap v1.21.0
 	gocloud.dev v0.20.0
 	gocloud.dev/pubsub/natspubsub v0.20.0
 	gocloud.dev/pubsub/rabbitpubsub v0.20.0
 	golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
-	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
+	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/text v0.3.7
+	golang.org/x/text v0.3.8-0.20211004125949-5bd84dd9b33b
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa
 	google.golang.org/grpc v1.43.0
@@ -178,7 +180,6 @@ require (
 	github.com/blevesearch/zapx/v15 v15.3.2 // indirect
 	github.com/briandowns/spinner v1.16.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
-	github.com/caddyserver/certmagic v0.15.2 // indirect
 	github.com/cenkalti/backoff/v3 v3.0.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.2 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
@@ -324,7 +325,7 @@ require (
 	github.com/julienschmidt/httprouter v1.3.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
-	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
+	github.com/klauspost/cpuid/v2 v2.0.11 // indirect
 	github.com/klauspost/pgzip v1.2.5 // indirect
 	github.com/klauspost/readahead v1.4.0 // indirect
 	github.com/klauspost/reedsolomon v1.9.15 // indirect
@@ -338,15 +339,16 @@ require (
 	github.com/lib/pq v1.10.4 // indirect
 	github.com/libdns/libdns v0.2.1 // indirect
 	github.com/looplab/fsm v0.3.0 // indirect
-	github.com/lucas-clemente/quic-go v0.24.0 // indirect
+	github.com/lucas-clemente/quic-go v0.26.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/luna-duclos/instrumentedsql v1.1.3 // indirect
 	github.com/luna-duclos/instrumentedsql/opentracing v0.0.0-20201103091713-40d03108b6f4 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/marten-seemann/qpack v0.2.1 // indirect
-	github.com/marten-seemann/qtls-go1-16 v0.1.4 // indirect
-	github.com/marten-seemann/qtls-go1-17 v0.1.0 // indirect
+	github.com/marten-seemann/qtls-go1-16 v0.1.5 // indirect
+	github.com/marten-seemann/qtls-go1-17 v0.1.1 // indirect
+	github.com/marten-seemann/qtls-go1-18 v0.1.1 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-ieproxy v0.0.1 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
@@ -355,10 +357,10 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/mb0/glob v0.0.0-20160210091149-1eb79d2de6c4 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
-	github.com/mholt/acmez v1.0.1 // indirect
+	github.com/mholt/acmez v1.0.2 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.16 // indirect
 	github.com/micromdm/scep/v2 v2.1.0 // indirect
-	github.com/miekg/dns v1.1.43 // indirect
+	github.com/miekg/dns v1.1.46 // indirect
 	github.com/miekg/pkcs11 v1.0.3 // indirect
 	github.com/minio/argon2 v1.0.0 // indirect
 	github.com/minio/colorjson v1.0.1 // indirect
@@ -420,7 +422,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/pquerna/cachecontrol v0.0.0-20200921180117-858c6e7e6b7e // indirect
-	github.com/prometheus/client_golang v1.11.0 // indirect
+	github.com/prometheus/client_golang v1.12.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
@@ -537,5 +539,6 @@ require (
 )
 
 //replace github.com/minio/minio => /Users/charles/Sources/go/src/github.com/pydio/minio
+//replace github.com/pydio/caddyvault => /Users/charles/Sources/go/src/github.com/pydio/caddyvault
 
 replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20220406100704-41fdf38e3122

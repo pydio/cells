@@ -34,19 +34,25 @@ import (
 
 func init() {
 	config.DefaultURLMux().Register("vault", &URLOpener{})
+	config.DefaultURLMux().Register("vaults", &URLOpener{})
 }
 
 type URLOpener struct{}
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+	storePath := strings.TrimLeft(u.Path, "/")
+	key := u.Query().Get("key")
+	if key == "" {
+		return nil, fmt.Errorf("please provide a keyname for storing data inside this config")
+	}
 	rootToken := u.Query().Get("rootToken")
 	if rootToken != "" {
-		fmt.Println("Using root token from query string, this should not be used in production! You can use $VAULT_TOKEN env instead")
+		fmt.Println("Using root token from query string, this should not be used in production! Use $VAULT_TOKEN env instead")
 	}
-	return New(u, rootToken)
+	return New(u, storePath, key, rootToken)
 }
 
-func New(u *url.URL, rootToken string, opts ...configx.Option) (config.Store, error) {
+func New(u *url.URL, storePath, key, rootToken string, opts ...configx.Option) (config.Store, error) {
 
 	vc := vault.DefaultConfig()
 	if u.Scheme == "vault" {
@@ -64,27 +70,29 @@ func New(u *url.URL, rootToken string, opts ...configx.Option) (config.Store, er
 	}
 
 	return &store{
-		v:      configx.New(opts...),
-		cli:    client,
-		prefix: strings.TrimLeft(u.Path, "/"),
+		v:         configx.New(opts...),
+		cli:       client,
+		storePath: strings.Trim(storePath, "/"),
+		keyName:   key,
 	}, nil
 
 }
 
 type store struct {
-	prefix string
-	cli    *vault.Client
-	v      configx.Values
+	storePath string
+	keyName   string
+	cli       *vault.Client
+	v         configx.Values
 }
 
 func (s *store) Get() configx.Value {
-	sec, er := s.cli.Logical().Read("secret/data/" + s.prefix)
+	sec, er := s.cli.Logical().Read(s.storePath + "/data/" + s.keyName)
 	if er != nil {
 		fmt.Println("cannot read secret " + er.Error())
 	}
 	i, ok := sec.Data["data"]
 	if !ok {
-		fmt.Println("cannot read prefix " + s.prefix)
+		fmt.Println("cannot read keyName " + s.keyName)
 	}
 	if ms, ok := i.(map[string]interface{}); ok {
 		for k, v := range ms {
@@ -103,7 +111,7 @@ func (s *store) Set(value interface{}) error {
 
 func (s *store) Del() error {
 	_ = s.v.Del()
-	_, er := s.cli.Logical().Delete("secret/data/" + s.prefix)
+	_, er := s.cli.Logical().Delete(s.storePath + "/data/" + s.keyName)
 	return er
 }
 
@@ -119,7 +127,7 @@ func (s *store) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 
 func (s *store) Save(s3 string, s2 string) error {
 	if ms, ok := s.v.Interface().(map[string]interface{}); ok {
-		_, er := s.cli.Logical().Write("secret/data/"+s.prefix, map[string]interface{}{"data": ms})
+		_, er := s.cli.Logical().Write(s.storePath+"/data/"+s.keyName, map[string]interface{}{"data": ms})
 		return er
 	}
 	return nil

@@ -18,18 +18,27 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package registry
+package storage
 
-type Status string
+import (
+	"context"
+	"net/url"
+	"os"
 
-const (
-	MetaStatusKey             = "status"
-	StatusStopped      Status = "stopped"
-	StatusStarting     Status = "starting"
-	StatusServing      Status = "serving"
-	StatusReady        Status = "ready"
-	StatusError        Status = "error"
-	StatusStopping     Status = "stopping"
-	MetaDescriptionKey        = "description"
-	MetaUniqueKey             = "unique"
+	"github.com/caddyserver/certmagic"
 )
+
+func init() {
+	defaultURLMux.Register("file", &fileProvider{})
+}
+
+type fileProvider struct{}
+
+// OpenURL opens a file-based implementation of certmagic.Storage. URL Path is used as a file path.
+func (f *fileProvider) OpenURL(ctx context.Context, u *url.URL) (certmagic.Storage, error) {
+	location := u.Path
+	if er := os.MkdirAll(location, 0755); er != nil {
+		return nil, er
+	}
+	return &certmagic.FileStorage{Path: location}, nil
+}

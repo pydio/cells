@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -30,19 +30,18 @@ import (
 	"encoding/asn1"
 	"encoding/pem"
 	"fmt"
-	"io/ioutil"
 	"math/big"
 	"net"
 	"net/mail"
 	"net/url"
 	"os"
 	"os/user"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/caddyserver/certmagic"
 	"github.com/pkg/errors"
 
 	"github.com/pydio/cells/v4/common/log"
@@ -62,20 +61,21 @@ func printf(format string, args ...interface{}) {
 
 // MkCert provides tooling for generating auto-certified certificate
 type MkCert struct {
-	rootLocation    string
+	storage         certmagic.Storage
 	userAndHostname string
 
+	// Bytes representations of resources
+	certB, keyB, caB, caKeyB []byte
+	// Key used for get/setting bytes data
 	certFile, keyFile, caFile, caKeyFile string
 
 	caCert *x509.Certificate
 	caKey  crypto.PrivateKey
-
-	//filenamePrefix string
 }
 
 // NewMkCert creates a new MkCert instance
-func NewMkCert(storageLocation string) *MkCert {
-	c := &MkCert{rootLocation: storageLocation}
+func NewMkCert(storage certmagic.Storage) *MkCert {
+	c := &MkCert{storage: storage}
 	u, err := user.Current()
 	if err == nil {
 		c.userAndHostname = u.Username + "@"
@@ -87,8 +87,8 @@ func NewMkCert(storageLocation string) *MkCert {
 		c.userAndHostname += " (" + u.Name + ")"
 	}
 	// Use mkcert compatible names
-	c.caFile = filepath.Join(c.rootLocation, "rootCA.pem")
-	c.caKeyFile = filepath.Join(c.rootLocation, "rootCA-key.pem")
+	c.caFile = "rootCA.pem"
+	c.caKeyFile = "rootCA-key.pem"
 
 	return c
 }
@@ -96,6 +96,17 @@ func NewMkCert(storageLocation string) *MkCert {
 // GeneratedResources returns all files generated during certificate creation
 func (m *MkCert) GeneratedResources() (certFile, keyFile, caFile, caKeyFile string) {
 	return m.certFile, m.keyFile, m.caFile, m.caKeyFile
+}
+
+// ReadCert returns all files generated during certificate creation
+func (m *MkCert) ReadCert() (cert, key []byte, e error) {
+	if cert, e = m.storage.Load(m.certFile); e != nil {
+		return
+	}
+	if key, e = m.storage.Load(m.keyFile); e != nil {
+		return
+	}
+	return
 }
 
 // MakeCert triggers the certificate generation process, using a list of known hosts
@@ -162,14 +173,14 @@ func (m *MkCert) MakeCert(hosts []string, prefix string) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to encode certificate key")
 	}
-	err = ioutil.WriteFile(keyFile, pem.EncodeToMemory(
-		&pem.Block{Type: "PRIVATE KEY", Bytes: privDER}), 0600)
+	err = m.storage.Store(keyFile, pem.EncodeToMemory(
+		&pem.Block{Type: "PRIVATE KEY", Bytes: privDER}))
 	if err != nil {
 		return errors.Wrap(err, "failed to save certificate key")
 	}
 
-	err = ioutil.WriteFile(certFile, pem.EncodeToMemory(
-		&pem.Block{Type: "CERTIFICATE", Bytes: cert}), 0644)
+	err = m.storage.Store(certFile, pem.EncodeToMemory(
+		&pem.Block{Type: "CERTIFICATE", Bytes: cert}))
 	if err != nil {
 		return errors.Wrap(err, "failed to save certificate")
 	}
@@ -214,9 +225,9 @@ func (m *MkCert) fileNames(hosts []string, defaultName string) (certFile, keyFil
 			defaultName += "-" + strconv.Itoa(len(hosts)-1)
 		}
 	}
-	certFile = filepath.Join(m.rootLocation, defaultName+".pem")
+	certFile = defaultName + ".pem"
 	m.certFile = certFile
-	keyFile = filepath.Join(m.rootLocation, defaultName+"-key.pem")
+	keyFile = defaultName + "-key.pem"
 	m.keyFile = keyFile
 
 	return
@@ -233,7 +244,7 @@ func randomSerialNumber() (*big.Int, error) {
 
 // loadCA will load or create the CA at m.rootLocation.
 func (m *MkCert) loadCA() error {
-	if _, e := os.Stat(m.caFile); e != nil {
+	if !m.storage.Exists(m.caFile) {
 		if err := m.newCA(); err != nil {
 			return err
 		}
@@ -241,7 +252,7 @@ func (m *MkCert) loadCA() error {
 		printf("✅ Using the local CA at \"%s\" ✨", m.caFile)
 	}
 
-	certPEMBlock, err := ioutil.ReadFile(m.caFile)
+	certPEMBlock, err := m.storage.Load(m.caFile)
 	if err != nil {
 		return errors.Wrap(err, "failed to read the CA certificate")
 	}
@@ -253,11 +264,11 @@ func (m *MkCert) loadCA() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to parse the CA certificate")
 	}
-	if _, e := os.Stat(m.caKeyFile); e != nil {
+	if !m.storage.Exists(m.caKeyFile) {
 		return nil // keyless mode
 	}
 
-	keyPEMBlock, err := ioutil.ReadFile(m.caKeyFile)
+	keyPEMBlock, err := m.storage.Load(m.caKeyFile)
 	if err != nil {
 		return errors.Wrap(err, "failed to read the CA key")
 	}
@@ -332,14 +343,14 @@ func (m *MkCert) newCA() error {
 		return errors.Wrap(err, "failed to encode CA key")
 	}
 
-	err = ioutil.WriteFile(m.caKeyFile, pem.EncodeToMemory(
-		&pem.Block{Type: "PRIVATE KEY", Bytes: privDER}), 0400)
+	err = m.storage.Store(m.caKeyFile, pem.EncodeToMemory(
+		&pem.Block{Type: "PRIVATE KEY", Bytes: privDER}))
 	if err != nil {
 		return errors.Wrap(err, "failed to save CA key")
 	}
 
-	err = ioutil.WriteFile(m.caFile, pem.EncodeToMemory(
-		&pem.Block{Type: "CERTIFICATE", Bytes: cert}), 0644)
+	err = m.storage.Store(m.caFile, pem.EncodeToMemory(
+		&pem.Block{Type: "CERTIFICATE", Bytes: cert}))
 	if err != nil {
 		return errors.Wrap(err, "failed to save CA")
 	}

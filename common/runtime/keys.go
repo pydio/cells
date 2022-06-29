@@ -27,6 +27,7 @@ const (
 	KeyConfig       = "config"
 	KeyVault        = "vault"
 	KeyKeyring      = "keyring"
+	KeyCertsStore   = "certs_store"
 	KeyFork         = "fork"
 	KeyForkLegacy   = "is_fork"
 	KeyArgTags      = "tags"
@@ -88,6 +89,7 @@ const (
 	DefaultConfigFileName  = "pydio.json"
 	DefaultVaultFileName   = "pydio-vault.json"
 	DefaultKeyringFileName = "cells-vault-key"
+	DefaultCertStorePath   = "certs"
 )
 
 const (

@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/registry"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type StorageOptions struct {
@@ -41,6 +42,8 @@ type StorageOptions struct {
 	DefaultDriver    dao.DriverProviderFunc
 	Migrator         dao.MigratorFunc
 	prefix           interface{}
+
+	jsonMeta string
 }
 
 func (o *StorageOptions) Prefix(options *ServiceOptions) string {
@@ -57,6 +60,19 @@ func (o *StorageOptions) Prefix(options *ServiceOptions) string {
 		val = v
 	}
 	return val
+}
+
+func (o *StorageOptions) ToMeta() string {
+	if o.jsonMeta == "" {
+		m := make(map[string]interface{})
+		m["supportedDrivers"] = o.SupportedDrivers
+		if o.Migrator != nil {
+			m["hasMigrator"] = true
+		}
+		d, _ := json.Marshal(m)
+		o.jsonMeta = string(d)
+	}
+	return o.jsonMeta
 }
 
 type StorageOption func(options *StorageOptions)
