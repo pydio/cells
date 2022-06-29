@@ -50,6 +50,14 @@ import (
 	"github.com/pydio/cells/v4/common/utils/filex"
 )
 
+var (
+	configChecks []func(ctx context.Context) error
+)
+
+func RegisterConfigChecker(f func(ctx context.Context) error) {
+	configChecks = append(configChecks, f)
+}
+
 // StartCmd represents the start command
 var StartCmd = &cobra.Command{
 	Use:     "start",
@@ -169,6 +177,11 @@ ENVIRONMENT
 				"Do you want to reset the initial configuration", cmd, args)
 		}
 		ctx = servicecontext.WithKeyring(ctx, keyring)
+		for _, cc := range configChecks {
+			if e := cc(ctx); e != nil {
+				return e
+			}
+		}
 
 		// Init registry
 		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
