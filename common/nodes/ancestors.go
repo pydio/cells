@@ -34,16 +34,24 @@ import (
 )
 
 var (
-	// ancestorsCacheExpiration = cache.WithEviction(800 * time.Millisecond)
-	// ancestorsCacheWindow     = cache.WithCleanWindow(5 * time.Second)
-	ancestorsParentsCache cache.Cache //   = cache.NewShort(ancestorsCacheExpiration, ancestorsCacheExpiration)
-	ancestorsNodesCache cache.Cache //      = cache.NewShort(ancestorsCacheExpiration, ancestorsCacheWindow)
+	ancestorsParentsCache cache.Cache
+	ancestorsNodesCache cache.Cache
 )
 
-func init() {
-	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=800ms&cleanWindow=5s")
-	ancestorsParentsCache = c
-	ancestorsNodesCache = c
+func getAncestorsParentsCache() cache.Cache {
+	if ancestorsParentsCache == nil {
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=800ms&cleanWindow=800ms")
+		ancestorsParentsCache = c
+	}
+	return ancestorsParentsCache
+}
+
+func getAncestorsNodesCache() cache.Cache {
+	if ancestorsNodesCache == nil {
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=800ms&cleanWindow=5s")
+		ancestorsNodesCache = c
+	}
+	return ancestorsNodesCache
 }
 
 // BuildAncestorsList uses ListNodes with "Ancestors" flag to build the list of parent nodes.
@@ -57,17 +65,17 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 	*/
 	dirPath := path.Dir(node.GetPath())
 	if node.GetPath() != "" {
-		if cached, has := ancestorsParentsCache.Get(dirPath); has {
+		if cached, has := getAncestorsParentsCache().Get(dirPath); has {
 			if parents, ok := cached.([]*tree.Node); ok {
 				// Lookup First node
-				if cachedNode, h := ancestorsNodesCache.Get(node.GetPath()); h {
+				if cachedNode, h := getAncestorsNodesCache().Get(node.GetPath()); h {
 					parentUuids = append(parentUuids, cachedNode.(*tree.Node))
 				} else {
 					r, er := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
 					if er != nil {
 						return parentUuids, er
 					}
-					ancestorsNodesCache.Set(node.GetPath(), r.GetNode())
+					getAncestorsNodesCache().Set(node.GetPath(), r.GetNode())
 					parentUuids = append(parentUuids, r.GetNode())
 				}
 				parentUuids = append(parentUuids, parents...)
@@ -105,8 +113,8 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 	if dirPath != "" && parentUuids != nil && len(parentUuids) > 1 {
 		cNode := parentUuids[0]
 		pNodes := parentUuids[1:]
-		ancestorsNodesCache.Set(node.GetPath(), cNode)
-		ancestorsParentsCache.Set(dirPath, pNodes)
+		getAncestorsNodesCache().Set(node.GetPath(), cNode)
+		getAncestorsParentsCache().Set(dirPath, pNodes)
 	}
 	return parentUuids, err
 }

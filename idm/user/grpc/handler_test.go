@@ -24,11 +24,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/spf13/viper"
+	"sync"
+	"testing"
+
 	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/anypb"
-	"sync"
-	"testing"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/dao"
@@ -36,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/user"
 )
@@ -47,8 +50,15 @@ var (
 )
 
 func TestMain(m *testing.M) {
+	v := viper.New()
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	runtime.SetRuntime(v)
 
-	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=3600s&cleanWindow=7200s")
+	c, err := cache.OpenCache(context.TODO(),  "pm://?evictionTime=3600s&cleanWindow=7200s")
+	if err != nil {
+		panic(err)
+	}
 	// Use the cache mechanism to avoid trying to retrieve the role service
 	autoAppliesCache = c
 	autoAppliesCache.Set("autoApplies", map[string][]*idm.Role{

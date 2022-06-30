@@ -30,6 +30,8 @@ import (
 	"path"
 	"testing"
 
+	"github.com/spf13/viper"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/broker"
@@ -48,11 +50,18 @@ import (
 	grpc2 "github.com/pydio/cells/v4/data/tree/grpc"
 	"github.com/pydio/cells/v4/idm/share"
 	rest2 "github.com/pydio/cells/v4/idm/share/rest"
-
+	"github.com/pydio/cells/v4/common/runtime"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestMain(m *testing.M) {
+
+	v := viper.New()
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	runtime.SetRuntime(v)
 
 	grpc2.UnitTests = true
 

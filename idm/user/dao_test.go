@@ -22,6 +22,7 @@ package user
 
 import (
 	"context"
+	"github.com/spf13/viper"
 	"log"
 	"sync"
 	"testing"
@@ -36,6 +37,8 @@ import (
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/runtime"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
 
 var (
@@ -47,6 +50,10 @@ var (
 type server struct{}
 
 func TestMain(m *testing.M) {
+	v := viper.New()
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	runtime.SetRuntime(v)
 
 	var options = configx.New()
 	ctx := context.Background()

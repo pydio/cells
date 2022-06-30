@@ -23,6 +23,8 @@ package compose
 import (
 	"context"
 	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/spf13/viper"
 	"log"
 	"strings"
 	"testing"
@@ -41,13 +43,20 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 	_ "gocloud.dev/pubsub/mempubsub"
+
 )
 
 func TestMain(m *testing.M) {
+
+	v := viper.New()
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	runtime.SetRuntime(v)
 
 	nodes.UseMockStorageClientType()
 

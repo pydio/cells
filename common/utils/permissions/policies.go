@@ -50,9 +50,12 @@ const (
 	PolicyNodeMeta_         = "NodeMeta:"
 )
 
-func init () {
-	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=1m&cleanWindow=10m")
-	checkersCache = c
+func getCheckersCache() cache.Cache {
+	if checkersCache == nil {
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=1m&cleanWindow=10m")
+		checkersCache = c
+	}
+	return checkersCache
 }
 
 // PolicyRequestSubjectsFromUser builds an array of string subjects from the passed User.
@@ -155,12 +158,12 @@ func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Po
 
 // ClearCachedPolicies empties local cache
 func ClearCachedPolicies(ctx context.Context, resType string) {
-	checkersCache.Delete(resType)
+	getCheckersCache().Delete(resType)
 }
 
 func CachedPoliciesChecker(ctx context.Context, resType string) (ladon.Warden, error) {
 
-	if ww, ok := checkersCache.Get(resType); ok {
+	if ww, ok := getCheckersCache().Get(resType); ok {
 		return ww.(ladon.Warden), nil
 	}
 
@@ -175,7 +178,7 @@ func CachedPoliciesChecker(ctx context.Context, resType string) (ladon.Warden, e
 		}
 	}
 
-	checkersCache.Set(resType, w)
+	getCheckersCache().Set(resType, w)
 	return w, nil
 }
 

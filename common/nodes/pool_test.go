@@ -23,6 +23,8 @@ package nodes
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/spf13/viper"
 	"os"
 	"os/exec"
 	"testing"
@@ -31,9 +33,17 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
 
 var pools []SourcesPool
+
+func TestMain(m *testing.M) {
+	v := viper.New()
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	runtime.SetRuntime(v)
+}
 
 func BenchmarkClientsPoolWithoutRegistryWatch(b *testing.B) {
 

@@ -22,8 +22,8 @@ package path
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/runtime"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/spf13/viper"
 	"strings"
 	"testing"
 
@@ -33,8 +33,17 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
+
+func TestMain(m *testing.M) {
+	v := viper.New()
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	runtime.SetRuntime(v)
+}
 
 func newTestHandlerBranchTranslator(pool *nodes.ClientsPool) (*DataSourceHandler, *nodes.HandlerMock) {
 
