@@ -52,6 +52,7 @@ func HttpWrapperJWT(ctx context.Context, h http.Handler) http.Handler {
 
 			whole := strings.Join(val, "")
 			if !strings.HasPrefix(whole, "Bearer ") {
+				log.Logger(ctx).Debug("An Authorization header is found, that does NOT start with 'Bearer' prefix. Skipping token verification.")
 				h.ServeHTTP(w, r)
 				return
 			}
