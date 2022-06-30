@@ -43,16 +43,16 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/stubs/datatest"
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
 	"github.com/pydio/cells/v4/common/server/stubs/resttest"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	grpc2 "github.com/pydio/cells/v4/data/tree/grpc"
 	"github.com/pydio/cells/v4/idm/share"
 	rest2 "github.com/pydio/cells/v4/idm/share/rest"
-	"github.com/pydio/cells/v4/common/runtime"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
-	
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 

@@ -22,9 +22,6 @@ package compose
 
 import (
 	"context"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/spf13/viper"
 	"log"
 	"strings"
 	"testing"
@@ -34,21 +31,23 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config/mock"
 	"github.com/pydio/cells/v4/common/nodes"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	omock "github.com/pydio/cells/v4/common/nodes/objects/mock"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/stubs/datatest"
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/spf13/viper"
 	_ "gocloud.dev/pubsub/mempubsub"
-
 )
 
 func TestMain(m *testing.M) {

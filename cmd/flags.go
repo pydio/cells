@@ -69,7 +69,7 @@ func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 
 // addCacheFlags registers necessary flags to connect to the cache (defaults to in-memory)
 func addCacheFlags(flags *pflag.FlagSet) {
-	flags.String(runtime.KeyCache, "pm://", "Sharded Cache")
+	flags.String(runtime.KeyCache, "bigcache://", "Sharded Cache")
 	flags.String(runtime.KeyShortCache, "pm://", "Short cache")
 
 	flags.MarkHidden(runtime.KeyCache)

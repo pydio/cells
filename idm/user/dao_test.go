@@ -22,23 +22,23 @@ package user
 
 import (
 	"context"
-	"github.com/spf13/viper"
 	"log"
 	"sync"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/spf13/viper"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/runtime"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (

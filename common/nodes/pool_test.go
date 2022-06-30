@@ -23,16 +23,16 @@ package nodes
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/spf13/viper"
 	"os"
 	"os/exec"
 	"testing"
 	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
 
