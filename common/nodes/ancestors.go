@@ -23,23 +23,28 @@ package nodes
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
+	"google.golang.org/grpc/status"
 	"io"
 	"path"
 	"strings"
-	"time"
-
-	"google.golang.org/grpc/status"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/utils/cache"
 )
 
 var (
-	ancestorsCacheExpiration = cache.WithEviction(800 * time.Millisecond)
-	ancestorsCacheWindow     = cache.WithCleanWindow(5 * time.Second)
-	ancestorsParentsCache    = cache.NewShort(ancestorsCacheExpiration, ancestorsCacheExpiration)
-	ancestorsNodesCache      = cache.NewShort(ancestorsCacheExpiration, ancestorsCacheWindow)
+	// ancestorsCacheExpiration = cache.WithEviction(800 * time.Millisecond)
+	// ancestorsCacheWindow     = cache.WithCleanWindow(5 * time.Second)
+	ancestorsParentsCache cache.Cache //   = cache.NewShort(ancestorsCacheExpiration, ancestorsCacheExpiration)
+	ancestorsNodesCache cache.Cache //      = cache.NewShort(ancestorsCacheExpiration, ancestorsCacheWindow)
 )
+
+func init() {
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=800ms&cleanWindow=5s")
+	ancestorsParentsCache = c
+	ancestorsNodesCache = c
+}
 
 // BuildAncestorsList uses ListNodes with "Ancestors" flag to build the list of parent nodes.
 // It uses an internal short-lived cache to throttle calls to the TreeService

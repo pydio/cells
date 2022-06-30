@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/runtime"
 	"path"
 	"strings"
 	"sync"
@@ -63,11 +64,12 @@ type MicroEventsSubscriber struct {
 }
 
 func NewEventsSubscriber(ctx context.Context, dao activity.DAO) *MicroEventsSubscriber {
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=3m&cleanWindow=10m")
 	m := &MicroEventsSubscriber{
 		RuntimeCtx:   ctx,
 		dao:          dao,
 		aclsChan:     make(chan *idm.ChangeEvent),
-		parentsCache: cache.NewShort(cache.WithEviction(3*time.Minute), cache.WithCleanWindow(10*time.Minute)),
+		parentsCache: c,
 	}
 	go m.DebounceAclsEvents()
 	return m

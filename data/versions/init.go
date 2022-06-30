@@ -22,10 +22,9 @@ package versions
 
 import (
 	"context"
-	"path"
-	"time"
-
+	"github.com/pydio/cells/v4/common/runtime"
 	"go.uber.org/zap"
+	"path"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
@@ -64,7 +63,8 @@ func init() {
 func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy {
 
 	if policiesCache == nil {
-		policiesCache = cache.NewShort(cache.WithEviction(1*time.Hour), cache.WithCleanWindow(1*time.Hour))
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=1h&cleanWindow=1h")
+		policiesCache = c
 	}
 
 	dataSourceName := node.GetStringMeta(common.MetaNamespaceDatasourceName)

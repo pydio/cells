@@ -18,18 +18,65 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package cache
+package gocache
 
 import (
+	"context"
 	pm "github.com/patrickmn/go-cache"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"net/url"
 	"strings"
 	"time"
 )
 
-var _ Cache = (*pmCache)(nil)
+var (
+	_ cache.Cache = (*pmCache)(nil)
+
+	scheme = "pm"
+)
 
 type pmCache struct {
 	pm.Cache
+}
+
+type URLOpener struct {}
+
+type Options struct {
+	EvictionTime time.Duration
+	CleanWindow  time.Duration
+}
+
+func init() {
+	o := &URLOpener{}
+	cache.DefaultURLMux().Register(scheme, o)
+}
+
+func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error) {
+	opt := &Options{
+		EvictionTime: time.Minute,
+		CleanWindow:  10 * time.Minute,
+	}
+	if u.Query().Has("evictionTime") {
+		if i, err := time.ParseDuration(u.Query().Get("evictionTime")); err != nil {
+			return nil, err
+		} else {
+			opt.EvictionTime = i
+		}
+	}
+	if u.Query().Has("cleanWindow") {
+		if i, err := time.ParseDuration(u.Query().Get("cleanWindow")); err != nil {
+			return nil, err
+		} else {
+			opt.CleanWindow = i
+		}
+	}
+
+	pc := pm.New(opt.EvictionTime, opt.CleanWindow)
+	c := &pmCache{
+		Cache: *pc,
+	}
+
+	return c, nil
 }
 
 func (q *pmCache) Get(key string) (value interface{}, ok bool) {

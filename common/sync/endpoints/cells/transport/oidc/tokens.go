@@ -21,11 +21,13 @@
 package oidc
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
 	"net/http"
 	"net/url"
 	"strings"
@@ -48,8 +50,9 @@ type TokenStore struct {
 }
 
 func NewTokenStore() *TokenStore {
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=20m&cleanWindow=10m")
 	t := &TokenStore{
-		internalCache: cache.NewShort(cache.WithEviction(20*time.Minute), cache.WithCleanWindow(10*time.Minute)),
+		internalCache: c,
 	}
 	return t
 }

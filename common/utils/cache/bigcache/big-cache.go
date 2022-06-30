@@ -18,20 +18,68 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package cache
+package bigcache
 
 import (
+	"context"
 	"fmt"
+	"net/url"
+	"os"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/allegro/bigcache/v3"
-)
 
-var _ Cache = (*bigCache)(nil)
+	"github.com/pydio/cells/v4/common/utils/cache"
+	)
+
+var (
+	_ cache.Cache = (*bigCache)(nil)
+
+	scheme = "bigcache"
+
+	defaultConfig bigcache.Config
+	o             = sync.Once{}
+)
 
 type bigCache struct {
 	*bigcache.BigCache
+}
+
+type URLOpener struct {}
+
+func init() {
+	o := &URLOpener{}
+	cache.DefaultURLMux().Register(scheme, o)
+}
+
+func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error) {
+	conf := DefaultBigCacheConfig()
+	if u.Query().Has("evictionTime") {
+		if i, err := time.ParseDuration(u.Query().Get("evictionTime")); err != nil {
+			return nil, err
+		} else {
+			conf.LifeWindow = i
+		}
+	}
+	if u.Query().Has("cleanWindow") {
+		if i, err := time.ParseDuration(u.Query().Get("cleanWindow")); err != nil {
+			return nil, err
+		} else {
+			conf.CleanWindow = i
+		}
+	}
+
+	bc, err := bigcache.NewBigCache(conf)
+	if err != nil {
+		return nil, err
+	}
+
+	return &bigCache{
+		BigCache: bc,
+	}, nil
 }
 
 func (b *bigCache) Get(key string) (value interface{}, ok bool) {
@@ -101,4 +149,26 @@ func (b *bigCache) Iterate(f func(key string, val interface{})) error {
 	}
 
 	return nil
+}
+
+func DefaultBigCacheConfig() bigcache.Config {
+	o.Do(func() {
+		defaultConfig = bigcache.DefaultConfig(30 * time.Minute)
+		defaultConfig.Shards = 64
+		defaultConfig.MaxEntriesInWindow = 10 * 60 * 64
+		defaultConfig.MaxEntrySize = 200
+		defaultConfig.HardMaxCacheSize = 8
+		if limit := os.Getenv("CELLS_CACHES_HARD_LIMIT"); limit != "" {
+			if l, e := strconv.ParseInt(limit, 10, 64); e == nil {
+				if l < 8 {
+					fmt.Println("[ENV] ## WARNING ## CELLS_CACHES_HARD_LIMIT cannot use a value lower than 8 (MB).")
+				} else {
+					defaultConfig.HardMaxCacheSize = int(l)
+				}
+			}
+		}
+		// Disabled as cleanUp may seem to be able to lock the cache
+		// c.CleanWindow = 10 * time.Minute
+	})
+	return defaultConfig
 }

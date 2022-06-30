@@ -55,6 +55,11 @@ import (
 	_ "github.com/pydio/cells/v4/broker/mailer/grpc"
 	_ "github.com/pydio/cells/v4/broker/mailer/rest"
 
+	// Cache
+	_ "github.com/pydio/cells/v4/common/utils/cache/bigcache"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	_ "github.com/pydio/cells/v4/common/utils/cache/redis"
+
 	// Gateways
 	_ "github.com/pydio/cells/v4/gateway/data"
 	_ "github.com/pydio/cells/v4/gateway/dav"

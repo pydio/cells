@@ -23,13 +23,12 @@ package permissions
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"path"
-	"strings"
-	"time"
-
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/runtime"
+	"path"
+	"strings"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
@@ -50,6 +49,11 @@ const (
 	PolicyNodeMetaMTime     = "NodeMetaMTime"
 	PolicyNodeMeta_         = "NodeMeta:"
 )
+
+func init () {
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=1m&cleanWindow=10m")
+	checkersCache = c
+}
 
 // PolicyRequestSubjectsFromUser builds an array of string subjects from the passed User.
 func PolicyRequestSubjectsFromUser(user *idm.User) []string {
@@ -122,7 +126,7 @@ func PolicyContextFromNode(policyContext map[string]string, node *tree.Node) {
 	}
 }
 
-var checkersCache = cache.NewShort(cache.WithEviction(1*time.Minute), cache.WithCleanWindow(10*time.Minute))
+var checkersCache cache.Cache
 
 func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Policy, error) {
 

@@ -23,13 +23,12 @@ package rest
 import (
 	"context"
 	"fmt"
-	"io"
-	"strings"
-	"time"
-
 	restful "github.com/emicklei/go-restful/v3"
+	"github.com/pydio/cells/v4/common/runtime"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
+	"io"
+	"strings"
 
 	"github.com/pydio/cells/v4/common"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
@@ -858,7 +857,8 @@ var cachedParams cache.Cache
 func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 	var params []*front.ExposedParameter
 	if cachedParams == nil {
-		cachedParams = cache.NewShort(cache.WithEviction(20*time.Second), cache.WithCleanWindow(1*time.Minute))
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=20s&cleanWindow=1m")
+		cachedParams = c
 	}
 	if pp, ok := cachedParams.Get("params"); ok {
 		params = pp.([]*front.ExposedParameter)

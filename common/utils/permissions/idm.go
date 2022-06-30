@@ -23,6 +23,7 @@ package permissions
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
 	"io"
 	"strings"
 	"time"
@@ -48,7 +49,8 @@ var (
 )
 
 func init() {
-	usersCache = cache.NewShort(cache.WithEviction(5*time.Second), cache.WithCleanWindow(30*time.Second))
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=5s&cleanWindow=30s")
+	usersCache = c
 }
 
 // GetRolesForUser loads the roles of a given user.

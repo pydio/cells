@@ -18,29 +18,36 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package cache
+package cachetest
 
 import (
+	"context"
+	"github.com/pydio/cells/v4/common/utils/cache"
 	"testing"
 	"time"
+
+	_ "github.com/pydio/cells/v4/common/utils/cache/bigcache"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestShort(t *testing.T) {
 	Convey("Test Short", t, func() {
-		c := NewShort()
+		c, err := cache.OpenCache(context.TODO(), "pm://")
+		So(err, ShouldBeNil)
 		e := performTest(c)
 		So(e, ShouldBeNil)
 	})
 	Convey("Test Sharded", t, func() {
-		c := NewSharded("id")
+		c, err := cache.OpenCache(context.TODO(), "bigcache://id")
+		So(err, ShouldBeNil)
 		e := performTest(c)
 		So(e, ShouldBeNil)
 	})
 }
 
-func performTest(c Cache) error {
+func performTest(c cache.Cache) error {
 
 	// Get/Set
 	value := []byte("value")

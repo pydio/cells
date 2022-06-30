@@ -22,11 +22,10 @@ package path
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/runtime"
+	. "github.com/smartystreets/goconvey/convey"
 	"strings"
 	"testing"
-	"time"
-
-	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -47,7 +46,8 @@ func newTestHandlerBranchTranslator(pool *nodes.ClientsPool) (*DataSourceHandler
 	testRootNode.MustSetMeta(common.MetaNamespaceDatasourceName, "datasource")
 	testRootNode.MustSetMeta(common.MetaNamespaceDatasourcePath, "root")
 	b := newDataSourceHandler()
-	b.RootNodesCache = cache.NewShort(cache.WithEviction(1*time.Second), cache.WithCleanWindow(10*time.Second))
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=1s&cleanWindow=10s")
+	b.RootNodesCache = c
 	b.RootNodesCache.Set("root-node-uuid", testRootNode)
 	mock := nodes.NewHandlerMock()
 	mock.Nodes["datasource/root/inner/path"] = &tree.Node{

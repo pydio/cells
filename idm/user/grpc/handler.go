@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
 	"path"
 	"sort"
 	"strings"
@@ -478,7 +479,8 @@ func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[str
 
 	// Save to cache
 	if autoAppliesCache == nil {
-		autoAppliesCache = cache.NewShort(cache.WithEviction(10*time.Second), cache.WithCleanWindow(20*time.Second))
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=10s&cleanWindow=20s")
+		autoAppliesCache = c
 	}
 	autoAppliesCache.Set("autoApplies", autoApplies)
 

@@ -23,6 +23,7 @@ package websocket
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
 	"path"
 	"strings"
 	"sync"
@@ -64,6 +65,7 @@ type WebsocketHandler struct {
 }
 
 func NewWebSocketHandler(serviceCtx context.Context) *WebsocketHandler {
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=60s&cleanWindow=5m")
 	w := &WebsocketHandler{
 		runtimeCtx:     serviceCtx,
 		batchers:       make(map[string]*NodeEventsBatcher),
@@ -71,7 +73,7 @@ func NewWebSocketHandler(serviceCtx context.Context) *WebsocketHandler {
 		done:           make(chan string),
 		batcherLock:    &sync.Mutex{},
 		silentDropper:  rate.NewLimiter(20, 10),
-		completedTasks: cache.NewShort(cache.WithEviction(60*time.Second), cache.WithCleanWindow(5*time.Minute)),
+		completedTasks: c,
 	}
 	w.InitHandlers(serviceCtx)
 	go func() {

@@ -22,13 +22,12 @@ package sync
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/runtime"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
 	"io"
 	"path"
 	"strings"
-	"time"
-
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -81,7 +80,8 @@ func newCacheHandler() *CacheHandler {
 	s := &CacheHandler{}
 
 	if syncCache == nil {
-		syncCache = cache.NewSharded(nodes.ViewsLibraryName, cache.WithEviction(30*time.Second), cache.WithCleanWindow(time.Minute))
+		c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL() + "/" + nodes.ViewsLibraryName +  "?evictionTime=30s&cleanWindow=1m")
+		syncCache = c
 		_, _ = broker.Subscribe(context.TODO(), common.TopicTreeChanges, func(publication broker.Message) error {
 			var event tree.NodeChangeEvent
 			if ctx, e := publication.Unmarshal(&event); e == nil && !event.Optimistic {

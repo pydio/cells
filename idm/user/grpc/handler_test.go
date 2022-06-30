@@ -23,13 +23,12 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"sync"
-	"testing"
-	"time"
-
+	"github.com/pydio/cells/v4/common/runtime"
 	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/anypb"
+	"sync"
+	"testing"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/dao"
@@ -49,8 +48,9 @@ var (
 
 func TestMain(m *testing.M) {
 
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=3600s&cleanWindow=7200s")
 	// Use the cache mechanism to avoid trying to retrieve the role service
-	autoAppliesCache = cache.NewShort(cache.WithEviction(3600*time.Second), cache.WithCleanWindow(7200*time.Second))
+	autoAppliesCache = c
 	autoAppliesCache.Set("autoApplies", map[string][]*idm.Role{
 		"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
 	})

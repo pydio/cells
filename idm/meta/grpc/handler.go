@@ -49,8 +49,9 @@ type Handler struct {
 }
 
 func NewHandler(ctx context.Context, dao meta.DAO) *Handler {
+	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL() + "/" + common.ServiceGrpcNamespace_ + common.ServiceUserMeta)
 	h := &Handler{dao: dao}
-	h.searchCache = cache.NewSharded(common.ServiceGrpcNamespace_ + common.ServiceUserMeta)
+	h.searchCache = c
 	go func() {
 		<-ctx.Done()
 		h.Stop()

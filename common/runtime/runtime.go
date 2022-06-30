@@ -149,6 +149,14 @@ func ConfigURL() string {
 	return v
 }
 
+func CacheURL() string {
+	return r.GetString(KeyCache)
+}
+
+func ShortCacheURL() string {
+	return r.GetString(KeyShortCache)
+}
+
 // ConfigIsLocalFile checks if ConfigURL scheme is file
 func ConfigIsLocalFile() bool {
 	if u, e := url.Parse(ConfigURL()); e == nil {

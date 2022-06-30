@@ -24,6 +24,7 @@ package cache
 import (
 	"fmt"
 	pm "github.com/patrickmn/go-cache"
+	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"os"
 	"strconv"
 	"sync"
@@ -45,7 +46,7 @@ func NewSharded(identifier string, opts ...Option) Cache {
 		o(opt)
 	}
 	pc := pm.New(opt.EvictionTime, opt.CleanWindow)
-	return newInstrumentedCache(identifier, &pmCache{
+	return newInstrumentedCache(identifier, &gocache.pmCache{
 		Cache: *pc,
 	})
 }

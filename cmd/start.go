@@ -320,6 +320,7 @@ func init() {
 		_ = StartCmd.Flags().MarkHidden(runtime.KeyNodeCapacity)
 	}
 
+	addCacheFlags(StartCmd.Flags())
 	addRegistryFlags(StartCmd.Flags())
 	addSiteOverrideFlags(StartCmd.Flags(), true)
 

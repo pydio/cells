@@ -36,9 +36,10 @@ func WithCache(dao DAO) DAO {
 	if _, o := dao.(batchDAO); o {
 		useBatch = true
 	}
+	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL() + "/activities?evictionTime=5m")
 	return &Cache{
 		DAO:      dao,
-		cache:    cache.NewSharded("activities", cache.WithEviction(5*time.Minute)),
+		cache:    c,
 		useBatch: useBatch,
 	}
 }

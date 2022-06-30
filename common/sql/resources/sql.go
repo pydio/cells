@@ -24,6 +24,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
 	"time"
 
 	goqu "github.com/doug-martin/goqu/v9"
@@ -60,7 +61,8 @@ type ResourcesSQL struct {
 // Init performs necessary up migration.
 func (s *ResourcesSQL) Init(ctx context.Context, options configx.Values) error {
 
-	s.cache = cache.NewShort(cache.WithEviction(30*time.Second), cache.WithCleanWindow(2*time.Minute))
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=30s&cleanWindow=2m")
+	s.cache = c
 
 	migrations := &sql.FSMigrationSource{
 		Box:         statics.AsFS(migrations, "migrations"),

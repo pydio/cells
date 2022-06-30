@@ -24,11 +24,10 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/cache"
 	"io"
 	"strings"
-	"time"
-
-	"github.com/pydio/cells/v4/common/utils/cache"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -57,7 +56,8 @@ func (v *BranchFilter) LookupRoot(uuid string) (*tree.Node, error) {
 	}
 
 	if v.RootNodesCache == nil {
-		v.RootNodesCache = cache.NewShort(cache.WithEviction(time.Second*10), cache.WithCleanWindow(time.Second*60))
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=10s&cleanWindow=60s")
+		v.RootNodesCache = c
 	}
 
 	if n, ok := v.RootNodesCache.Get(uuid); ok {

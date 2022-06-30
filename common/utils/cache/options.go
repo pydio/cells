@@ -26,6 +26,7 @@ type Options struct {
 	EvictionTime time.Duration
 	CleanWindow  time.Duration
 }
+
 type Option func(o *Options)
 
 func WithEviction(t time.Duration) Option {

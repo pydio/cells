@@ -47,7 +47,6 @@ func addRootFlags(flags *pflag.FlagSet) {
 		_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyKeyring)
 		_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyCertsStore)
 	}
-
 }
 
 // addRegistryFlags registers necessary flags to connect to the registry (defaults to memory)
@@ -66,6 +65,15 @@ func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 			_ = flags.MarkHidden(runtime.KeyDiscovery)
 		}
 	}
+}
+
+// addCacheFlags registers necessary flags to connect to the cache (defaults to in-memory)
+func addCacheFlags(flags *pflag.FlagSet) {
+	flags.String(runtime.KeyCache, "pm://", "Sharded Cache")
+	flags.String(runtime.KeyShortCache, "pm://", "Short cache")
+
+	flags.MarkHidden(runtime.KeyCache)
+	flags.MarkHidden(runtime.KeyShortCache)
 }
 
 // addExternalCmdRegistryFlags registers necessary flags to connect to the registry with defaults :8001
@@ -111,5 +119,4 @@ func addSiteOverrideFlags(flags *pflag.FlagSet, hideLegacy ...bool) {
 		_ = flags.MarkHidden(runtime.KeySiteLetsEncryptAgreeL)
 		_ = flags.MarkHidden(runtime.KeySiteLetsEncryptStagingL)
 	}
-
 }
