@@ -22,12 +22,15 @@ package permissions_test
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/spf13/viper"
 	"log"
 	"testing"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -35,6 +38,10 @@ import (
 var testData *idmtest.TestData
 
 func TestMain(m *testing.M) {
+	v := viper.New()
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	runtime.SetRuntime(v)
 
 	sd, er := idmtest.GetStartData()
 	if er != nil {

@@ -31,8 +31,11 @@ import (
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/meta"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v4/common/runtime"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -42,6 +45,11 @@ var (
 )
 
 func TestMain(m *testing.M) {
+	v := viper.New()
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	runtime.SetRuntime(v)
+
 	var options = configx.New()
 	ctx = context.Background()
 
