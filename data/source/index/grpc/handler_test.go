@@ -23,6 +23,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/spf13/viper"
 	"io"
 	"sync"
 	"testing"
@@ -39,6 +41,7 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/source/index"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 
 	_ "gocloud.dev/pubsub/mempubsub"
 )
@@ -110,6 +113,10 @@ func (l *List) Close() error {
 }
 
 func TestMain(m *testing.M) {
+	v := viper.New()
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	runtime.SetRuntime(v)
 
 	options := configx.New()
 	c := context.Background()

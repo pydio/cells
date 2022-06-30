@@ -25,6 +25,8 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/spf13/viper"
 	"log"
 	"regexp"
 	"testing"
@@ -38,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/mtree"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
 
 // FIXME: FAILING TEST
@@ -98,6 +101,10 @@ func getDAO(ctx context.Context) DAO {
 }
 
 func TestMain(m *testing.M) {
+	v := viper.New()
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	runtime.SetRuntime(v)
 
 	c := context.Background()
 	if d, e := dao.InitDAO(c, sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
