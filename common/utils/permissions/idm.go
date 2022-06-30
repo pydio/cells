@@ -48,9 +48,12 @@ var (
 	usersCache cache.Cache
 )
 
-func init() {
-	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=5s&cleanWindow=30s")
-	usersCache = c
+func getUsersCache() cache.Cache {
+	if usersCache == nil {
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=5s&cleanWindow=30s")
+		usersCache = c
+	}
+	return usersCache
 }
 
 // GetRolesForUser loads the roles of a given user.
@@ -470,13 +473,13 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ...*idm.UserSingleQuery) (user *idm.User, err error) {
 
 	if login != "" && len(queries) == 0 {
-		if u, ok := usersCache.Get(login); ok {
+		if u, ok := getUsersCache().Get(login); ok {
 			if us, o := u.(*idm.User); o {
 				return us, nil
 			}
 		}
 	} else if uuid != "" && len(queries) == 0 {
-		if u, ok := usersCache.Get(uuid); ok {
+		if u, ok := getUsersCache().Get(uuid); ok {
 			if us, o := u.(*idm.User); o {
 				return us, nil
 			}
@@ -516,8 +519,8 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 	user = resp.GetUser()
 	// Store to quick cache
 	if len(queries) == 0 {
-		usersCache.Set(login, user)
-		usersCache.Set(uuid, user)
+		getUsersCache().Set(login, user)
+		getUsersCache().Set(uuid, user)
 	}
 	return
 }
@@ -691,5 +694,7 @@ func CheckContentLock(ctx context.Context, node *tree.Node) error {
 }
 
 func ForceClearUserCache(login string) {
-	usersCache.Delete(login)
+	if usersCache != nil {
+		usersCache.Delete(login)
+	}
 }
