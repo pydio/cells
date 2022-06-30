@@ -24,20 +24,23 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"log"
 	"math/rand"
-	"runtime"
+	osruntime "runtime"
 	"strconv"
 	"strings"
 	"sync"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/mtree"
 )
 
@@ -47,6 +50,11 @@ var (
 )
 
 func TestMain(m *testing.M) {
+	v := viper.New()
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	runtime.SetRuntime(v)
+
 	wrapper := func(ctx context.Context, d dao.DAO) (dao.DAO, error) {
 		return NewDAO(d, "ROOT"), nil
 	}
@@ -64,8 +72,8 @@ func newSession() {
 // PrintMemUsage outputs the current, total and OS memory being used. As well as the number
 // of garage collection cycles completed.
 func PrintMemUsage(title string) {
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
+	var m osruntime.MemStats
+	osruntime.ReadMemStats(&m)
 	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
 	fmt.Printf("\n---------------------------------\n")
 	fmt.Println(title)

@@ -24,7 +24,8 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/spf13/viper"
 	"log"
 	"strconv"
 	"sync"
@@ -37,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/mtree"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 )
 
 var (
@@ -44,6 +46,11 @@ var (
 )
 
 func init() {
+	v := viper.New()
+	v.SetDefault(runtime.KeyCache, "pm://")
+	v.SetDefault(runtime.KeyShortCache, "pm://")
+	runtime.SetRuntime(v)
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
