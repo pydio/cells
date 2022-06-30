@@ -163,5 +163,11 @@
   },
   "pinned-bookmarks.other": {
     "other": "All files"
+  },
+  "file.temporary-etag.flag": {
+    "other": "Incomplete"
+  },
+  "file.temporary-etag.tooltip": {
+    "other": "This file is being uploaded (or the upload has failed)."
   }
 }

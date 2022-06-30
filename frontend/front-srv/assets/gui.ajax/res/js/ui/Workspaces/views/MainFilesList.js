@@ -540,7 +540,7 @@ class MainFilesList extends React.Component {
             )
         }
 
-        if(metaData.get('ajxp_modiftime')) {
+        if(metaData.has('ajxp_modiftime')) {
             let mDate = moment(parseFloat(metaData.get('ajxp_modiftime'))*1000);
             let dateString = mDate.calendar();
             if(dateString.indexOf('/') > -1) {
@@ -548,6 +548,10 @@ class MainFilesList extends React.Component {
             }
             const title = PathUtils.formatModifDate(mDate.toDate());
             pieces.push(<span key="time_description" title={title} className="metadata_chunk metadata_chunk_description">{dateString}</span>);
+        }
+        if(metaData.has('etag') && metaData.get('etag') === 'temporary' && node.isLeaf()) {
+            // Display a sign for temporary files
+            pieces.push(<span style={{marginLeft: 5, marginRight: 5}} key="etag_temp_description" title={Pydio.getMessages()['ajax_gui.file.temporary-etag.tooltip']} className="metadata_chunk metadata_chunk_description"><span className={"mdi mdi-alert-outline"} style={{color:'#e57373'}}/> {Pydio.getMessages()['ajax_gui.file.temporary-etag.flag']}</span>);
         }
 
         let first = false;
