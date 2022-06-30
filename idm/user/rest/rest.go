@@ -23,12 +23,12 @@ package rest
 import (
 	"context"
 	"fmt"
-	restful "github.com/emicklei/go-restful/v3"
-	"github.com/pydio/cells/v4/common/runtime"
-	"go.uber.org/zap"
-	"google.golang.org/protobuf/types/known/anypb"
 	"io"
 	"strings"
+
+	restful "github.com/emicklei/go-restful/v3"
+	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/resources"
@@ -857,7 +858,7 @@ var cachedParams cache.Cache
 func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 	var params []*front.ExposedParameter
 	if cachedParams == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=20s&cleanWindow=1m")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=20s&cleanWindow=1m")
 		cachedParams = c
 	}
 	if pp, ok := cachedParams.Get("params"); ok {

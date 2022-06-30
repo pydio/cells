@@ -27,12 +27,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport"
 	http2 "github.com/pydio/cells/v4/common/sync/endpoints/cells/transport/http"
 	"github.com/pydio/cells/v4/common/utils/cache"
@@ -50,7 +50,7 @@ type TokenStore struct {
 }
 
 func NewTokenStore() *TokenStore {
-	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=20m&cleanWindow=10m")
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=20m&cleanWindow=10m")
 	t := &TokenStore{
 		internalCache: c,
 	}

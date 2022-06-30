@@ -23,7 +23,6 @@ package abstract
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime"
 	"path"
 	"strings"
 	"time"
@@ -44,6 +43,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
@@ -67,7 +67,7 @@ type VirtualNodesManager struct {
 // GetVirtualNodesManager creates a new VirtualNodesManager.
 func GetVirtualNodesManager(ctx context.Context) *VirtualNodesManager {
 	if vManagerCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=60s&cleanWindow=120s")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=60s&cleanWindow=120s")
 		vManagerCache = c
 	}
 	if vManager != nil {

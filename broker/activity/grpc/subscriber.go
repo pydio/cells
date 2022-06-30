@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/runtime"
 	"path"
 	"strings"
 	"sync"
@@ -42,6 +41,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -64,7 +64,7 @@ type MicroEventsSubscriber struct {
 }
 
 func NewEventsSubscriber(ctx context.Context, dao activity.DAO) *MicroEventsSubscriber {
-	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=3m&cleanWindow=10m")
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=3m&cleanWindow=10m")
 	m := &MicroEventsSubscriber{
 		RuntimeCtx:   ctx,
 		dao:          dao,

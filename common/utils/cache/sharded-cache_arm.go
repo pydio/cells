@@ -23,15 +23,16 @@ package cache
 
 import (
 	"fmt"
-	pm "github.com/patrickmn/go-cache"
-	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"os"
 	"strconv"
 	"sync"
 	"time"
 
 	bigcache "github.com/allegro/bigcache/v3"
+	pm "github.com/patrickmn/go-cache"
+
 	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
 
 var (

@@ -22,6 +22,7 @@ package permissions
 
 import (
 	"context"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -34,7 +35,7 @@ var (
 )
 
 func initAclCache() {
-	aclCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=500ms&cleanWindow=30s")
+	aclCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=500ms&cleanWindow=30s")
 	_, _ = broker.Subscribe(context.TODO(), common.TopicIdmEvent, func(message broker.Message) error {
 		event := &idm.ChangeEvent{}
 		if _, e := message.Unmarshal(event); e != nil {

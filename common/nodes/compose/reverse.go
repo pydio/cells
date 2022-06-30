@@ -22,8 +22,6 @@ package compose
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/nodes/virtual"
-	"github.com/pydio/cells/v4/common/runtime"
 	"go.uber.org/zap"
 	"strings"
 
@@ -37,8 +35,10 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/path"
 	"github.com/pydio/cells/v4/common/nodes/put"
 	"github.com/pydio/cells/v4/common/nodes/version"
+	"github.com/pydio/cells/v4/common/nodes/virtual"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
@@ -70,7 +70,7 @@ func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {
 		encryption.WithEncryption(),
 	)
 	cl := newClient(opts...)
-	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=120s&cleanWindow=10m")
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=120s&cleanWindow=10m")
 	return &Reverse{
 		Client:     cl,
 		runtimeCtx: cl.runtimeCtx,

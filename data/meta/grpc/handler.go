@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/runtime"
 	"strings"
 
 	"go.uber.org/zap"
@@ -32,6 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
@@ -52,7 +52,7 @@ type MetaServer struct {
 }
 
 func NewMetaServer(ctx context.Context, dao meta.DAO) *MetaServer {
-	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL() + "/" + ServiceName)
+	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL()+"/"+ServiceName)
 	m := &MetaServer{dao: dao}
 	m.cache = c
 	go func() {

@@ -22,11 +22,13 @@ package gocache
 
 import (
 	"context"
-	pm "github.com/patrickmn/go-cache"
-	"github.com/pydio/cells/v4/common/utils/cache"
 	"net/url"
 	"strings"
 	"time"
+
+	pm "github.com/patrickmn/go-cache"
+
+	"github.com/pydio/cells/v4/common/utils/cache"
 )
 
 var (
@@ -39,7 +41,7 @@ type pmCache struct {
 	pm.Cache
 }
 
-type URLOpener struct {}
+type URLOpener struct{}
 
 type Options struct {
 	EvictionTime time.Duration

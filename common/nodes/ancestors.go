@@ -23,19 +23,20 @@ package nodes
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime"
-	"google.golang.org/grpc/status"
 	"io"
 	"path"
 	"strings"
 
+	"google.golang.org/grpc/status"
+
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
 )
 
 var (
 	ancestorsParentsCache cache.Cache
-	ancestorsNodesCache cache.Cache
+	ancestorsNodesCache   cache.Cache
 )
 
 func getAncestorsParentsCache() cache.Cache {

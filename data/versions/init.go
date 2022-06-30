@@ -22,9 +22,9 @@ package versions
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/runtime"
-	"go.uber.org/zap"
 	"path"
+
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -63,7 +64,7 @@ func init() {
 func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy {
 
 	if policiesCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=1h&cleanWindow=1h")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=1h&cleanWindow=1h")
 		policiesCache = c
 	}
 
