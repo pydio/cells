@@ -423,6 +423,8 @@ message Query {
     string FileNameOrContent = 17;
     // Free Query String (for metadata)
     string FreeString = 9;
+    // Look for a specific eTag value
+    string ETag = 18;
     // Search files by extension
     string Extension = 10;
     // Search geographically

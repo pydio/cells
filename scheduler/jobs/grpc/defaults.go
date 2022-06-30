@@ -140,10 +140,40 @@ func getDefaultJobs() []*jobs.Job {
 		},
 	}
 
+	q, _ := anypb.New(&tree.Query{
+		DurationDate: ">24h",
+		ETag:         "^temporary$",
+	})
+
+	cleanTemporaryOrphans := &jobs.Job{
+		ID:    "clean-orphans-nodes",
+		Label: "Clean orphan nodes after 24h",
+		Owner: common.PydioSystemUsername,
+		Schedule: &jobs.Schedule{
+			Iso8601Schedule: "R/2012-01-01T02:30:00.828Z/PT24H",
+		},
+		Actions: []*jobs.Action{
+			{
+				ID: "actions.tree.delete",
+				NodesSelector: &jobs.NodesSelector{
+					Label: "Select temporary files older than 24h",
+					Query: &service.Query{
+						SubQueries: []*anypb.Any{q},
+						Operation:  service.OperationType_AND,
+					},
+				},
+				Parameters: map[string]string{
+					"childrenOnly": "false",
+				},
+			},
+		},
+	}
+
 	defJobs := []*jobs.Job{
 		thumbnailsJob,
 		stuckTasksJob,
 		cleanUserDataJob,
+		cleanTemporaryOrphans,
 	}
 
 	return defJobs

@@ -36,6 +36,7 @@ const (
 	MetaFilterForceGrep = "force-grep"
 	MetaFilterTime      = "time"
 	MetaFilterSize      = "size"
+	MetaFilterETag      = "etag"
 	MetaFilterDepth     = "depth"
 )
 
@@ -59,6 +60,7 @@ type MetaFilter struct {
 	filterType   NodeType
 	grep         *regexp.Regexp
 	negativeGrep *regexp.Regexp
+	eTag         *regexp.Regexp
 	intComps     []cmp
 }
 
@@ -69,24 +71,29 @@ func NewMetaFilter(node *Node) *MetaFilter {
 
 // Parse loads the filter keys.
 func (m *MetaFilter) Parse() bool {
-	if m.reqNode.GetStringMeta(MetaFilterGrep) != "" {
-		if g, e := regexp.Compile(m.reqNode.GetStringMeta(MetaFilterGrep)); e == nil {
+	if gr := m.reqNode.GetStringMeta(MetaFilterGrep); gr != "" {
+		if g, e := regexp.Compile(gr); e == nil {
 			m.grep = g
 		}
-	} else if m.reqNode.GetStringMeta(MetaFilterForceGrep) != "" {
-		if g, e := regexp.Compile(m.reqNode.GetStringMeta(MetaFilterForceGrep)); e == nil {
+	} else if fgr := m.reqNode.GetStringMeta(MetaFilterForceGrep); fgr != "" {
+		if g, e := regexp.Compile(fgr); e == nil {
 			m.grep = g
 			m.forceGrep = true
 		}
 	}
-	if m.reqNode.GetStringMeta(MetaFilterNoGrep) != "" {
-		if g, e := regexp.Compile(m.reqNode.GetStringMeta(MetaFilterNoGrep)); e == nil {
+	if nr := m.reqNode.GetStringMeta(MetaFilterNoGrep); nr != "" {
+		if g, e := regexp.Compile(nr); e == nil {
 			m.negativeGrep = g
+		}
+	}
+	if et := m.reqNode.GetStringMeta(MetaFilterETag); et != "" {
+		if g, e := regexp.Compile(et); e == nil {
+			m.eTag = g
 		}
 	}
 	m.parseIntExpr(MetaFilterTime)
 	m.parseIntExpr(MetaFilterSize)
-	return m.grep != nil || m.negativeGrep != nil || len(m.intComps) > 0
+	return m.grep != nil || m.negativeGrep != nil || m.eTag != nil || len(m.intComps) > 0
 }
 
 // LimitDepth returns an optional depth limitation.
@@ -100,7 +107,7 @@ func (m *MetaFilter) LimitDepth() int {
 
 // HasSQLFilters returns true if MetaFilter has one of grep (unless forced), negativeGrep, filterType or int comparators set.
 func (m *MetaFilter) HasSQLFilters() bool {
-	return (m.grep != nil && !m.forceGrep) || m.negativeGrep != nil || m.filterType != NodeType_UNKNOWN || len(m.intComps) > 0
+	return (m.grep != nil && !m.forceGrep) || m.negativeGrep != nil || m.filterType != NodeType_UNKNOWN || len(m.intComps) > 0 || m.eTag != nil
 }
 
 // ParseType register a node filter type
@@ -146,6 +153,9 @@ func (m *MetaFilter) Match(name string, n *Node) bool {
 	if m.negativeGrep != nil && m.negativeGrep.MatchString(name) {
 		return false
 	}
+	if m.eTag != nil && !m.eTag.MatchString(n.Etag) {
+		return false
+	}
 	for _, c := range m.intComps {
 		var ref int64
 		if c.field == MetaFilterTime {
@@ -178,12 +188,17 @@ func (m *MetaFilter) Match(name string, n *Node) bool {
 func (m *MetaFilter) Where() (where string, args []interface{}) {
 	var ww []string
 	if m.grep != nil && !m.forceGrep {
-		pp, aa := m.grepToLikes(m.reqNode.GetStringMeta(MetaFilterGrep), false)
+		pp, aa := m.grepToLikes("name", m.reqNode.GetStringMeta(MetaFilterGrep), false)
 		ww = append(ww, pp)
 		args = append(args, aa...)
 	}
 	if m.negativeGrep != nil {
-		pp, aa := m.grepToLikes(m.reqNode.GetStringMeta(MetaFilterNoGrep), true)
+		pp, aa := m.grepToLikes("name", m.reqNode.GetStringMeta(MetaFilterNoGrep), true)
+		ww = append(ww, pp)
+		args = append(args, aa...)
+	}
+	if m.eTag != nil {
+		pp, aa := m.grepToLikes("etag", m.reqNode.GetStringMeta(MetaFilterETag), false)
 		ww = append(ww, pp)
 		args = append(args, aa...)
 	}
@@ -210,7 +225,7 @@ func (m *MetaFilter) Where() (where string, args []interface{}) {
 	return strings.Join(ww, " and "), args
 }
 
-func (m *MetaFilter) grepToLikes(g string, neg bool) (string, []interface{}) {
+func (m *MetaFilter) grepToLikes(field, g string, neg bool) (string, []interface{}) {
 	var parts []string
 	var arguments []interface{}
 	not := ""
@@ -218,7 +233,7 @@ func (m *MetaFilter) grepToLikes(g string, neg bool) (string, []interface{}) {
 		not = "NOT "
 	}
 	for _, p := range strings.Split(g, "|") {
-		parts = append(parts, "name "+not+"LIKE ?")
+		parts = append(parts, field+" "+not+"LIKE ?")
 		arguments = append(arguments, m.grepToLike(p))
 	}
 	if len(parts) > 1 {

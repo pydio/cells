@@ -156,6 +156,9 @@ func (s *TreeServer) Search(request *tree.SearchRequest, stream tree.Searcher_Se
 	} else if q.PathDepth == -1 {
 		listReq.Recursive = false
 	}
+	if q.ETag != "" {
+		listReq.Node.MustSetMeta(tree.MetaFilterETag, q.ETag)
+	}
 
 	for _, p := range q.PathPrefix {
 		listReq.Node.Path = p
