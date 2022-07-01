@@ -82,7 +82,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 		service.Description("Synchronization service between objects and index for a given datasource"),
 		service.Source(datasource),
 		service.Fork(true),
-		service.Unique(true),
+		service.Unique(!dsObject.FlatStorage),
 		service.AutoStart(false),
 		service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 			_ = broker.SubscribeCancellable(ctx, common.TopicIndexEvent, func(message broker.Message) error {
@@ -123,14 +123,11 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 				md := make(map[string]string)
 				md[common.PydioContextUserKey] = common.PydioSystemUsername
 				jobCtx := metadata.NewContext(ctx, md)
-				// jobsClient := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs, grpc2.WithCallTimeout(grpc2.CallTimeoutShort)))
 				jobsClient := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
 				serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + datasource
 
 				if !dsObject.FlatStorage {
 					syncHandler.Start()
-
-					// e = std.Retry(jobCtx, func() error {
 					if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
 						if !dsObject.SkipSyncOnRestart {
 							log.Logger(jobCtx).Debug("Sending event to start trigger re-indexation")
@@ -151,10 +148,6 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 						return err
 					}
 					return nil
-					// }, 5*time.Second, 30*time.Second)
-					if e != nil {
-						log.Logger(jobCtx).Error("service started but could not contact Job service to trigger re-indexation")
-					}
 				} else {
 					syncHandler.StartConfigsOnly()
 
@@ -196,7 +189,6 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 
 					// Post a job to dump snapshot manually (Flat, non-internal only)
 					if !dsObject.IsInternal() {
-						//e = std.Retry(jobCtx, func() error {
 						if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "snapshot-" + datasource}); err != nil {
 							if errors.FromError(err).Code == 404 {
 								log.Logger(jobCtx).Info("Creating job in scheduler to dump snapshot for " + datasource)
@@ -211,10 +203,6 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 							}
 						}
 						return nil
-						// }, 2*time.Second, 5*time.Second)
-						if e != nil {
-							log.Logger(jobCtx).Warn("service started but could not contact Job service insert snapshot dump")
-						}
 					}
 				}
 
