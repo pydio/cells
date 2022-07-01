@@ -170,7 +170,10 @@ func (m *MkCertCache) findOrGenerate(uuid string, hns []string, storageURL strin
 	}
 	// For remote storage, copy data locally
 	if _, ok := mk.storage.(*certmagic.FileStorage); !ok {
-		if err = ioutil.WriteFile(certFile, cert, 0400); err != nil {
+		if err = os.MkdirAll(localLocation, 0755); err != nil {
+			return
+		}
+		if err = ioutil.WriteFile(certFile, cert, 0644); err != nil {
 			return
 		}
 		if err = ioutil.WriteFile(keyFile, key, 0400); err != nil {
