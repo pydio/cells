@@ -130,11 +130,12 @@ func NewFrom(i interface{}) Values {
 
 // config is standard
 type config struct {
-	v    interface{}
-	d    interface{} // Default
-	r    *config     // Root
-	k    []string    // Reference to key for re-assignment
-	opts Options
+	v       interface{}
+	d       interface{} // Default
+	r       *config     // Root
+	k       []string    // Reference to key for re-assignment
+	opts    Options
+	rLocked bool
 }
 
 func New(opts ...Option) Values {
@@ -148,6 +149,18 @@ func New(opts ...Option) Values {
 
 	return &config{
 		opts: options,
+	}
+}
+
+func (c *config) rLock() func() {
+	if c.opts.RWMutex == nil || c.rLocked {
+		return func() {}
+	}
+	c.opts.RLock()
+	c.rLocked = true
+	return func() {
+		c.rLocked = false
+		c.opts.RUnlock()
 	}
 }
 
@@ -238,10 +251,8 @@ func (c *config) get() interface{} {
 
 // Get retrieve interface
 func (c *config) Get() Value {
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
+	u := c.rLock()
+	defer u()
 
 	if c.v == nil && c.d == nil {
 		return nil
@@ -385,12 +396,12 @@ func (c *config) Set(data interface{}) error {
 	case reflect.Map:
 		m := p.Map()
 
-		c.opts.RWMutex.RLock()
+		unlock := c.rLock()
 		mm := make(map[string]interface{})
 		for k, v := range m {
 			mm[k] = v
 		}
-		c.opts.RWMutex.RUnlock()
+		unlock()
 
 		if del {
 			delete(mm, k)
@@ -403,13 +414,13 @@ func (c *config) Set(data interface{}) error {
 		mm := make(map[string]interface{})
 		mv := reflect.ValueOf(mm)
 
-		c.opts.RWMutex.RLock()
+		unlock := c.rLock()
 		pt := reflect.TypeOf(p.Interface())
 		for i := 0; i < pt.NumField(); i++ {
 			name := pt.Field(i).Name
 			mv.SetMapIndex(reflect.ValueOf(name), pv.FieldByName(name))
 		}
-		c.opts.RWMutex.RUnlock()
+		unlock()
 
 		if del {
 			delete(mm, k)
@@ -496,10 +507,8 @@ func (c *config) Val(s ...string) Values {
 	// Looking for the specific key
 	var current interface{} = root.Interface()
 
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
+	unlocker := c.rLock()
+	defer unlocker()
 
 	for _, pkk := range pk {
 		cvv := reflect.ValueOf(current)
@@ -510,31 +519,31 @@ func (c *config) Val(s ...string) Values {
 			if f.IsValid() {
 				current = f.Interface()
 			} else {
-				return &config{nil, nil, root, keys, c.opts}
+				return &config{nil, nil, root, keys, c.opts, false}
 			}
 		case reflect.Struct:
 			f := cvv.FieldByName(pkk)
 			if f.IsValid() {
 				current = f.Interface()
 			} else {
-				return &config{nil, nil, root, keys, c.opts}
+				return &config{nil, nil, root, keys, c.opts, false}
 			}
 		case reflect.Map:
 			f := cvv.MapIndex(reflect.ValueOf(pkk))
 			if f.IsValid() {
 				current = f.Interface()
 			} else {
-				return &config{nil, nil, root, keys, c.opts}
+				return &config{nil, nil, root, keys, c.opts, false}
 			}
 		case reflect.Slice:
 			i, err := strconv.Atoi(pkk)
 			if err != nil || i < 0 || i >= cvv.Len() {
-				return &config{nil, nil, root, keys, c.opts}
+				return &config{nil, nil, root, keys, c.opts, false}
 			}
 
 			current = cvv.Index(i).Interface()
 		default:
-			return &config{nil, nil, root, keys, c.opts}
+			return &config{nil, nil, root, keys, c.opts, false}
 		}
 
 		/*
@@ -593,17 +602,15 @@ func (c *config) Val(s ...string) Values {
 			}*/
 	}
 
-	return &config{current, nil, root, keys, c.opts}
+	return &config{current, nil, root, keys, c.opts, false}
 }
 
 // Scan to interface
 func (c *config) Scan(val interface{}, options ...Option) error {
 	opts := c.opts
 
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
+	unlocker := c.rLock()
+	defer unlocker()
 
 	v := c.get()
 	if v == nil {
@@ -681,10 +688,8 @@ func (c *config) Scan(val interface{}, options ...Option) error {
 }
 
 func (c *config) Bool() bool {
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
+	unlocker := c.rLock()
+	defer unlocker()
 
 	v := c.get()
 	if v == nil {
@@ -693,10 +698,8 @@ func (c *config) Bool() bool {
 	return cast.ToBool(v)
 }
 func (c *config) Bytes() []byte {
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
+	unlocker := c.rLock()
+	defer unlocker()
 
 	v := c.get()
 	if v == nil {
@@ -746,18 +749,14 @@ func (c *config) Reference() Ref {
 	return nil
 }
 func (c *config) Interface() interface{} {
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
+	unlocker := c.rLock()
+	defer unlocker()
 
 	return c.get()
 }
 func (c *config) Int() int {
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
+	unlocker := c.rLock()
+	defer unlocker()
 
 	v := c.get()
 	if v == nil {
@@ -766,10 +765,8 @@ func (c *config) Int() int {
 	return cast.ToInt(v)
 }
 func (c *config) Int64() int64 {
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
+	unlocker := c.rLock()
+	defer unlocker()
 
 	v := c.get()
 	if v == nil {
@@ -778,10 +775,8 @@ func (c *config) Int64() int64 {
 	return cast.ToInt64(v)
 }
 func (c *config) Duration() time.Duration {
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
+	unlocker := c.rLock()
+	defer unlocker()
 
 	v := c.get()
 	if v == nil {
@@ -790,10 +785,8 @@ func (c *config) Duration() time.Duration {
 	return cast.ToDuration(v)
 }
 func (c *config) String() string {
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
+	unlocker := c.rLock()
+	defer unlocker()
 
 	v := c.get()
 
@@ -819,10 +812,8 @@ func (c *config) String() string {
 	return cast.ToString(v)
 }
 func (c *config) StringMap() map[string]string {
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
+	unlocker := c.rLock()
+	defer unlocker()
 
 	v := c.get()
 	if v == nil {
@@ -831,10 +822,8 @@ func (c *config) StringMap() map[string]string {
 	return cast.ToStringMapString(v)
 }
 func (c *config) StringArray() []string {
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
+	unlocker := c.rLock()
+	defer unlocker()
 
 	v := c.get()
 	if v == nil {
@@ -843,10 +832,8 @@ func (c *config) StringArray() []string {
 	return cast.ToStringSlice(c.get())
 }
 func (c *config) Slice() []interface{} {
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
+	unlocker := c.rLock()
+	defer unlocker()
 
 	v := c.get()
 	if v == nil {
@@ -855,10 +842,8 @@ func (c *config) Slice() []interface{} {
 	return cast.ToSlice(c.get())
 }
 func (c *config) Map() map[string]interface{} {
-	if mtx := c.opts.RWMutex; mtx != nil {
-		mtx.RLock()
-		defer mtx.RUnlock()
-	}
+	unlocker := c.rLock()
+	defer unlocker()
 
 	v := c.get()
 	if v == nil {
