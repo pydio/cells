@@ -120,7 +120,7 @@ func NeedsGrpcDiscoveryConn() (bool, string) {
 
 // RegistryURL returns the scheme://address url for Registry
 func RegistryURL() string {
-	if !r.IsSet(KeyRegistry) && r.IsSet(KeyDiscovery) {
+	if r.IsSet(KeyDiscovery) {
 		return r.GetString(KeyDiscovery)
 	}
 
@@ -129,7 +129,7 @@ func RegistryURL() string {
 
 // BrokerURL returns the scheme://address url for Broker
 func BrokerURL() string {
-	if !r.IsSet(KeyBroker) && r.IsSet(KeyDiscovery) {
+	if r.IsSet(KeyDiscovery) {
 		return r.GetString(KeyDiscovery)
 	}
 
@@ -139,7 +139,7 @@ func BrokerURL() string {
 // ConfigURL returns the scheme://address url for Config
 func ConfigURL() string {
 	v := r.GetString(KeyConfig)
-	if !r.IsSet(KeyConfig) && r.IsSet(KeyDiscovery) {
+	if r.IsSet(KeyDiscovery) {
 		v = r.GetString(KeyDiscovery)
 	}
 	if u, e := url.Parse(v); e == nil && strings.TrimLeft(u.Path, "/") == "" {

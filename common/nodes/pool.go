@@ -52,6 +52,7 @@ type LoadedSource struct {
 }
 
 type SourcesPool interface {
+	Once()
 	Close()
 	GetTreeClient() tree.NodeProviderClient
 	GetTreeClientWrite() tree.NodeReceiverClient
@@ -68,6 +69,8 @@ func (s LoadedSource) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 // keeping an up to date registry that is used by the routers.
 type ClientsPool struct {
 	ctx context.Context
+	o   sync.Once
+	reg registry.Registry
 
 	sync.RWMutex
 	sources map[string]LoadedSource
@@ -89,12 +92,26 @@ func NewPool(ctx context.Context, reg registry.Registry) *ClientsPool {
 		sources: make(map[string]LoadedSource),
 		aliases: make(map[string]sourceAlias),
 		reload:  make(chan bool),
+		reg:     reg,
 	}
-	go pool.LoadDataSources()
-	go pool.reloadDebounced()
-	go pool.watchRegistry(reg)
-	go pool.watchConfigChanges()
+	/*
+		go pool.LoadDataSources()
+		go pool.reloadDebounced()
+		go pool.watchRegistry(reg)
+		go pool.watchConfigChanges()
+	*/
 	return pool
+}
+
+func (p *ClientsPool) Once() {
+	p.o.Do(func() {
+		if p.reg != nil { // reg is nil during tests
+			go p.LoadDataSources()
+			go p.reloadDebounced()
+			go p.watchRegistry(p.reg)
+			go p.watchConfigChanges()
+		}
+	})
 }
 
 // NewTestPool creates a client Pool and initialises it by calling the registry.

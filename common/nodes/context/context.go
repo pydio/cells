@@ -29,6 +29,7 @@ func WithSourcesPool(ctx context.Context, pool nodes.SourcesPool) context.Contex
 // GetSourcesPool gets a nodes.SourcesPool from context
 func GetSourcesPool(ctx context.Context) nodes.SourcesPool {
 	if p, o := ctx.Value(poolKey).(nodes.SourcesPool); o {
+		p.Once()
 		return p
 	}
 	return nil
