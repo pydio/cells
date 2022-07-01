@@ -34,6 +34,7 @@ import (
 	"github.com/ory/fosite"
 	"github.com/ory/hydra/client"
 	"github.com/ory/hydra/driver"
+	"github.com/ory/hydra/jwk"
 	"github.com/ory/x/logrusx"
 	"github.com/ory/x/sqlcon"
 	"github.com/pkg/errors"
@@ -139,6 +140,17 @@ func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 				return
 			}
 			logger.Info("Finished in ", zap.Duration("elapsed ", time.Now().Sub(start)))
+		} else {
+			if e = jwk.EnsureAsymmetricKeypairExists(ctx, reg, "RS256", "hydra.openid.id-token"); e != nil {
+				logger.Error("***************************************************************")
+				logger.Error("Could not ensure that signing keys are correct!      ")
+				logger.Error("This may indicate a missing or changed secret config.")
+				logger.Error(" => You have to empty the 'hydra_jwk' SQL table.   ")
+				logger.Error(" => This will invalidate all existing authentication tokens.   ")
+				logger.Error("***************************************************************")
+				e = errors.Wrap(e, "Could not ensure that signing keys are correct!")
+				return
+			}
 		}
 		RegisterOryProvider(reg.WithConfig(defaultConf.GetProvider()).OAuth2Provider())
 	})
