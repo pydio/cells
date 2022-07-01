@@ -13,8 +13,10 @@ class ServiceCard extends React.Component {
      */
     renderServiceLine(service, tag, showDescription, m){
         let iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
-        if( service.Status !== 'STARTED' && (service.Name === "consul" || service.Name === "pydio.rest.install" || service.Name === "nats") ){
+        let standBy = false
+        if( service.Status !== 'STARTED' && service.Metadata && service.Metadata.unique ){
             iconColor = '#9E9E9E';
+            standBy = true
         }
 
         const isGrpc = service.Name.startsWith('pydio.grpc.');
@@ -41,7 +43,9 @@ class ServiceCard extends React.Component {
                     peers.push(p.Address);
                 }
             });
-        } else {
+        } else if (standBy) {
+            peers.push('Standby');
+        } else{
             peers.push('N/A');
         }
 

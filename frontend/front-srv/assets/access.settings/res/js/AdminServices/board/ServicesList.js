@@ -197,8 +197,9 @@ export default createReactClass({
                 {name:'Status', label: '', style:{width:56, paddingLeft:12, paddingRight:12, textOverflow:'inherit'}, headerStyle:{width:56}, renderCell: (service) =>{
                     let iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
                     let text = service.Status === 'STARTED' ? 'Running' : 'Stopped';
-                    if( service.Status !== 'STARTED' && (service.Name === "consul" || service.Name === "pydio.rest.install" || service.Name === "nats") ){
+                    if( service.Status !== 'STARTED' && service.Metadata && service.Metadata.unique ){
                         iconColor = '#9E9E9E';
+                        text = 'Standby'
                     }
                     return {
                         element:<FontIcon style={{margin:'0 9px 0 4px', fontSize: 20}} className={"mdi-traffic-light"} color={iconColor}/>,
