@@ -3,7 +3,10 @@ package redis
 import (
 	"context"
 	"net/url"
+	"strings"
 	"time"
+
+	standard "github.com/pydio/cells/v4/common/utils/std"
 
 	redisc "github.com/go-redis/cache/v8"
 	"github.com/go-redis/redis/v8"
@@ -15,14 +18,15 @@ var (
 	_ cache.Cache = (*redisCache)(nil)
 
 	scheme = "redis"
-	)
+)
 
 type redisCache struct {
 	redis.UniversalClient
 	*redisc.Cache
+	namespace string
 }
 
-type URLOpener struct {}
+type URLOpener struct{}
 
 type Options struct {
 	EvictionTime time.Duration
@@ -39,19 +43,24 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 		EvictionTime: time.Minute,
 		CleanWindow:  10 * time.Minute,
 	}
-	if u.Query().Has("evictionTime") {
-		if i, err := time.ParseDuration(u.Query().Get("evictionTime")); err != nil {
+	if v := u.Query().Get("evictionTime"); v != "" {
+		if i, err := time.ParseDuration(v); err != nil {
 			return nil, err
 		} else {
 			opt.EvictionTime = i
 		}
 	}
-	if u.Query().Has("cleanWindow") {
+	if v := u.Query().Get("cleanWindow"); v != "" {
 		if i, err := time.ParseDuration(u.Query().Get("cleanWindow")); err != nil {
 			return nil, err
 		} else {
 			opt.CleanWindow = i
 		}
+	}
+
+	namespace := strings.Join(strings.Split(strings.Trim(u.Path, "/"), "/"), ":")
+	if namespace == "" {
+		namespace = standard.Randkey(16)
 	}
 
 	cli := redis.NewClient(&redis.Options{
@@ -65,25 +74,25 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 
 	c := &redisCache{
 		UniversalClient: cli,
-		Cache: mycache,
+		Cache:           mycache,
+		namespace:       namespace + ":",
 	}
 
 	return c, nil
 }
 
-func (q *redisCache) Get(key string) (value interface{}, ok bool) {
-	if err := q.Cache.Get(context.TODO(), key, &value); err != nil {
-		return nil, false
+func (q *redisCache) Get(key string, value interface{}) (ok bool) {
+	// fmt.Println("We are in here get ", key)
+	if err := q.Cache.Get(context.TODO(), q.namespace+key, value); err != nil {
+		return false
 	}
 
-	return value, true
+	return true
 }
 
 func (q *redisCache) GetBytes(key string) (value []byte, ok bool) {
-	ret, ok := q.Get(key)
-	if ok {
-		b, ok := ret.([]byte)
-		return b, ok
+	if q.Get(key, &value) {
+		return value, true
 	}
 	return nil, false
 }
@@ -91,7 +100,7 @@ func (q *redisCache) GetBytes(key string) (value []byte, ok bool) {
 func (q *redisCache) Set(key string, value interface{}) error {
 	if err := q.Cache.Set(&redisc.Item{
 		Ctx:   context.TODO(),
-		Key:   key,
+		Key:   q.namespace + key,
 		Value: value,
 		TTL:   time.Hour,
 	}); err != nil {
@@ -103,7 +112,7 @@ func (q *redisCache) Set(key string, value interface{}) error {
 func (q *redisCache) SetWithExpiry(key string, value interface{}, duration time.Duration) error {
 	if err := q.Cache.Set(&redisc.Item{
 		Ctx:   context.TODO(),
-		Key:   key,
+		Key:   q.namespace + key,
 		Value: value,
 		TTL:   duration,
 	}); err != nil {
@@ -115,7 +124,7 @@ func (q *redisCache) SetWithExpiry(key string, value interface{}, duration time.
 func (q *redisCache) Delete(key string) error {
 	if err := q.Cache.Delete(
 		context.TODO(),
-		key,
+		q.namespace+key,
 	); err != nil {
 		return err
 	}
@@ -123,17 +132,22 @@ func (q *redisCache) Delete(key string) error {
 }
 
 func (q *redisCache) Reset() error {
-	q.UniversalClient.FlushAll(context.TODO())
+	iter := q.UniversalClient.Scan(context.TODO(), 0, "prefix:"+q.namespace+"*", 0).Iterator()
+	for iter.Next(context.TODO()) {
+		if err := q.Cache.Delete(context.TODO(), iter.Val()); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
 func (q *redisCache) KeysByPrefix(prefix string) (res []string, e error) {
-	cmd := q.UniversalClient.Keys(context.TODO(), prefix)
+	cmd := q.UniversalClient.Keys(context.TODO(), "prefix:"+q.namespace+prefix+"*")
 	return cmd.Result()
 }
 
 func (q *redisCache) Iterate(it func(key string, val interface{})) error {
-	iter := q.UniversalClient.Scan(context.TODO(), 0, "prefix:*", 0).Iterator()
+	iter := q.UniversalClient.Scan(context.TODO(), 0, "prefix:"+q.namespace+"*", 0).Iterator()
 	for iter.Next(context.TODO()) {
 		key := iter.Val()
 		var val interface{}
@@ -147,6 +161,5 @@ func (q *redisCache) Iterate(it func(key string, val interface{})) error {
 }
 
 func (q *redisCache) Close() error {
-	q.UniversalClient.Shutdown(context.TODO())
-	return nil
+	return q.UniversalClient.Close()
 }

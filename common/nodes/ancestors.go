@@ -66,22 +66,22 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 	*/
 	dirPath := path.Dir(node.GetPath())
 	if node.GetPath() != "" {
-		if cached, has := getAncestorsParentsCache().Get(dirPath); has {
-			if parents, ok := cached.([]*tree.Node); ok {
-				// Lookup First node
-				if cachedNode, h := getAncestorsNodesCache().Get(node.GetPath()); h {
-					parentUuids = append(parentUuids, cachedNode.(*tree.Node))
-				} else {
-					r, er := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
-					if er != nil {
-						return parentUuids, er
-					}
-					getAncestorsNodesCache().Set(node.GetPath(), r.GetNode())
-					parentUuids = append(parentUuids, r.GetNode())
+		var parents []*tree.Node
+		if getAncestorsParentsCache().Get(dirPath, &parents) {
+			var cachedNode *tree.Node
+			// Lookup First node
+			if getAncestorsNodesCache().Get(node.GetPath(), &cachedNode) {
+				parentUuids = append(parentUuids, cachedNode)
+			} else {
+				r, er := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
+				if er != nil {
+					return parentUuids, er
 				}
-				parentUuids = append(parentUuids, parents...)
-				return parentUuids, nil
+				getAncestorsNodesCache().Set(node.GetPath(), r.GetNode())
+				parentUuids = append(parentUuids, r.GetNode())
 			}
+			parentUuids = append(parentUuids, parents...)
+			return parentUuids, nil
 		}
 	}
 

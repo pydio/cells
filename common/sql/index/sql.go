@@ -926,7 +926,8 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (avail
 	if len(all) == 1 {
 		available = 1
 		for {
-			if _, o := dao.shortCache.Get(append(reqPath, available).String()); o {
+			var b bool
+			if dao.shortCache.Get(append(reqPath, available).String(), &b); b {
 				available++
 			} else {
 				break
@@ -943,7 +944,8 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (avail
 		available = uint64(max + 1)
 		// Increment if cached
 		for {
-			if _, o := dao.shortCache.Get(append(reqPath, available).String()); o {
+			var b bool
+			if dao.shortCache.Get(append(reqPath, available).String(), &b); b {
 				available++
 			} else {
 				return
@@ -959,7 +961,8 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (avail
 			break
 		}
 		padStart = true
-		if _, cached := dao.shortCache.Get(append(reqPath, uint64(slot)).String()); cached {
+		var b bool
+		if dao.shortCache.Get(append(reqPath, uint64(slot)).String(), &b); b {
 			all = rest
 			continue
 		}
@@ -969,7 +972,8 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (avail
 	// We should not get here !
 	available = uint64(max + 1)
 	for {
-		if _, o := dao.shortCache.Get(append(reqPath, available).String()); o {
+		var b bool
+		if dao.shortCache.Get(append(reqPath, available).String(), &b); b {
 			available++
 		} else {
 			break

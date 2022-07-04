@@ -861,9 +861,7 @@ func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=20s&cleanWindow=1m")
 		cachedParams = c
 	}
-	if pp, ok := cachedParams.Get("params"); ok {
-		params = pp.([]*front.ExposedParameter)
-	} else {
+	if !cachedParams.Get("params", &params) {
 		mC := front.NewManifestServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceFrontStatics))
 		resp, e := mC.ExposedParameters(ctx, &front.ExposedParametersRequest{
 			Scope:   "user",

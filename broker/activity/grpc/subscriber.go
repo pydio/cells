@@ -42,7 +42,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
@@ -301,10 +301,10 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 		if parentPath == "" || parentPath == "/" || parentPath == "." {
 			break
 		}
-		if pU, ok := e.parentsCache.Get(parentPath); ok {
-			val := pU.(string)
-			if val != "**DELETED**" {
-				parentUuids = append(parentUuids, pU.(string))
+		var pU string
+		if e.parentsCache.Get(parentPath, &pU) {
+			if pU != "**DELETED**" {
+				parentUuids = append(parentUuids, pU)
 			}
 		} else {
 			resp, err := e.getTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{

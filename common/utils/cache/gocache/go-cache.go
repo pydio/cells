@@ -23,6 +23,7 @@ package gocache
 import (
 	"context"
 	"net/url"
+	"reflect"
 	"strings"
 	"time"
 
@@ -58,15 +59,15 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 		EvictionTime: time.Minute,
 		CleanWindow:  10 * time.Minute,
 	}
-	if u.Query().Has("evictionTime") {
-		if i, err := time.ParseDuration(u.Query().Get("evictionTime")); err != nil {
+	if v := u.Query().Get("evictionTime"); v != "" {
+		if i, err := time.ParseDuration(v); err != nil {
 			return nil, err
 		} else {
 			opt.EvictionTime = i
 		}
 	}
-	if u.Query().Has("cleanWindow") {
-		if i, err := time.ParseDuration(u.Query().Get("cleanWindow")); err != nil {
+	if v := u.Query().Get("cleanWindow"); v != "" {
+		if i, err := time.ParseDuration(v); err != nil {
 			return nil, err
 		} else {
 			opt.CleanWindow = i
@@ -81,15 +82,25 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 	return c, nil
 }
 
-func (q *pmCache) Get(key string) (value interface{}, ok bool) {
-	return q.Cache.Get(key)
+func (q *pmCache) Get(key string, value interface{}) bool {
+	v := reflect.ValueOf(value)
+	if v.Kind() != reflect.Ptr {
+		return false
+	}
+
+	ret, ok := q.Cache.Get(key)
+	if !ok {
+		return false
+	}
+
+	v.Elem().Set(reflect.ValueOf(ret))
+
+	return true
 }
 
 func (q *pmCache) GetBytes(key string) (value []byte, ok bool) {
-	ret, ok := q.Cache.Get(key)
-	if ok {
-		b, ok := ret.([]byte)
-		return b, ok
+	if q.Get(key, &value) {
+		return value, true
 	}
 	return nil, false
 }

@@ -22,8 +22,9 @@ package compose
 
 import (
 	"context"
-	"go.uber.org/zap"
 	"strings"
+
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -142,9 +143,9 @@ func (r *Reverse) NodeIsChildOfRoot(ctx context.Context, node *tree.Node, rootId
 
 // getRoot provides a loaded root node from the cache or from the treeClient
 func (r *Reverse) getRoot(ctx context.Context, rootId string) *tree.Node {
-
-	if node, ok := r.rootsCache.Get(rootId); ok {
-		return node.(*tree.Node)
+	var node *tree.Node
+	if r.rootsCache.Get(rootId, &node) {
+		return node
 	}
 	resp, e := r.GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}})
 	if e == nil && resp.Node != nil {

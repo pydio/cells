@@ -22,9 +22,10 @@ package cachetest
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/utils/cache"
 	"testing"
 	"time"
+
+	"github.com/pydio/cells/v4/common/utils/cache"
 
 	_ "github.com/pydio/cells/v4/common/utils/cache/bigcache"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
@@ -52,9 +53,10 @@ func performTest(c cache.Cache) error {
 	// Get/Set
 	value := []byte("value")
 	So(c.Set("key", value), ShouldBeNil)
-	v, o := c.Get("key")
+	var v []byte
+	o := c.Get("key", &v)
 	So(o, ShouldBeTrue)
-	So(string(v.([]byte)), ShouldEqual, "value")
+	So(string(v), ShouldEqual, "value")
 
 	vv, o2 := c.GetBytes("key")
 	So(o2, ShouldBeTrue)
@@ -83,10 +85,11 @@ func performTest(c cache.Cache) error {
 	supE := c.SetWithExpiry("expKey", []byte("data"), 2*time.Second)
 	if supE == nil {
 		// Test expiry
-		_, o := c.Get("expKey")
+		var v []byte
+		o := c.Get("expKey", &v)
 		So(o, ShouldBeTrue)
 		<-time.After(3 * time.Second)
-		_, o2 := c.Get("expKey")
+		o2 := c.Get("expKey", &v)
 		So(o2, ShouldBeFalse)
 	}
 

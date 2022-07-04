@@ -155,10 +155,9 @@ func (s *ResourcesSQL) AddPolicies(update bool, resourceId string, policies []*s
 // GetPoliciesForResource finds all policies for a given resource
 func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.ResourcePolicy, error) {
 
-	if cached, ok := s.cache.Get(resourceId); ok {
-		if rules, o := cached.([]*service.ResourcePolicy); o {
-			return rules, nil
-		}
+	var rules []*service.ResourcePolicy
+	if s.cache.Get(resourceId, &rules) {
+		return rules, nil
 	}
 
 	var res []*service.ResourcePolicy

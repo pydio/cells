@@ -174,9 +174,9 @@ func (s *CacheHandler) cacheDel(ctx context.Context, node *tree.Node) {
 	diff.Deletes[p] = struct{}{}
 	// Remove from cache if just previously added
 	delete(diff.Adds, p)
-	if _, ok := syncCache.Get(cacheNodePrefix + dir); ok {
-		syncCache.Delete(cacheNodePrefix + dir)
-	}
+
+	syncCache.Delete(cacheNodePrefix + dir)
+
 	diffDat, _ := json.Marshal(diff)
 	log.Logger(ctx).Debug("SyncCache: registering node as deleted ", node.Zap(), zap.String("dir", dir), zap.Any("diff", diff))
 	syncCache.Set(cacheDiffPrefix+dir, diffDat)

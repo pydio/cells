@@ -74,8 +74,9 @@ func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy 
 		return nil
 	}
 
-	if v, ok := policiesCache.Get(policyName); ok {
-		return v.(*tree.VersioningPolicy)
+	var v *tree.VersioningPolicy
+	if policiesCache.Get(policyName, &v) {
+		return v
 	}
 
 	dc := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))

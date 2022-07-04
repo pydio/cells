@@ -82,8 +82,9 @@ func GetVirtualNodesManager(ctx context.Context) *VirtualNodesManager {
 // Load requests the virtual nodes from the DocStore service.
 func (m *VirtualNodesManager) Load(forceReload ...bool) {
 	if len(forceReload) == 0 || !forceReload[0] {
-		if vNodes, found := vManagerCache.Get("###virtual-nodes###"); found {
-			m.nodes = vNodes.([]*tree.Node)
+		var vNodes []*tree.Node
+		if vManagerCache.Get("###virtual-nodes###", &vNodes) {
+			m.nodes = vNodes
 			return
 		}
 	}
@@ -165,11 +166,10 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 		return nil, e
 	}
 
-	if cached, ok := vManagerCache.Get(resolved.Path); ok {
-		if cn, casted := cached.(*tree.Node); casted {
-			log.Logger(ctx).Debug("VirtualNodes: returning cached resolved node", cn.Zap())
-			return cn, nil
-		}
+	var cn *tree.Node
+	if vManagerCache.Get(resolved.Path, &cn) {
+		log.Logger(ctx).Debug("VirtualNodes: returning cached resolved node", cn.Zap())
+		return cn, nil
 	}
 
 	if readResp, e := pool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: resolved}); e == nil {

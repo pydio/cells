@@ -89,17 +89,16 @@ func (a *QuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 	var cacheKey string
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
 		cacheKey = branch.Workspace.UUID + "-" + claims.Name
-		if data, o := a.readCache.Get(cacheKey); o {
-			if qc, y := data.(*qCache); y {
-				if qc.no {
-					return resp, nil
-				}
-				n := resp.Node.Clone()
-				n.MustSetMeta("ws_quota", qc.q)
-				n.MustSetMeta("ws_quota_usage", qc.u)
-				resp.Node = n
+		var qc *qCache
+		if a.readCache.Get(cacheKey, &qc) {
+			if qc.no {
 				return resp, nil
 			}
+			n := resp.Node.Clone()
+			n.MustSetMeta("ws_quota", qc.q)
+			n.MustSetMeta("ws_quota_usage", qc.u)
+			resp.Node = n
+			return resp, nil
 		}
 	}
 	if q, u, e := a.ComputeQuota(ctx, branch.Workspace); e == nil && q > 0 {

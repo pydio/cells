@@ -336,9 +336,12 @@ func (w *WebsocketHandler) BroadcastTaskChangeEvent(ctx context.Context, event *
 		status := event.TaskUpdated.GetStatus()
 		if status == jobs.TaskStatus_Error || status == jobs.TaskStatus_Finished {
 			w.completedTasks.Set(event.TaskUpdated.ID, true)
-		} else if _, ok := w.completedTasks.Get(event.TaskUpdated.ID); ok {
-			// Skipping event arriving AFTER task has finished status
-			return false
+		} else {
+			var b bool
+			if w.completedTasks.Get(event.TaskUpdated.ID, &b); b {
+				// Skipping event arriving AFTER task has finished status
+				return false
+			}
 		}
 		isOwner := value.(string) == taskOwner || (taskOwner == common.PydioSystemUsername && isAdmin)
 		if isOwner {

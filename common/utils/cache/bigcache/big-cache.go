@@ -33,7 +33,7 @@ import (
 	"github.com/allegro/bigcache/v3"
 
 	"github.com/pydio/cells/v4/common/utils/cache"
-	)
+)
 
 var (
 	_ cache.Cache = (*bigCache)(nil)
@@ -48,7 +48,7 @@ type bigCache struct {
 	*bigcache.BigCache
 }
 
-type URLOpener struct {}
+type URLOpener struct{}
 
 func init() {
 	o := &URLOpener{}
@@ -57,15 +57,15 @@ func init() {
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error) {
 	conf := DefaultBigCacheConfig()
-	if u.Query().Has("evictionTime") {
-		if i, err := time.ParseDuration(u.Query().Get("evictionTime")); err != nil {
+	if v := u.Query().Get("evictionTime"); v != "" {
+		if i, err := time.ParseDuration(v); err != nil {
 			return nil, err
 		} else {
 			conf.LifeWindow = i
 		}
 	}
-	if u.Query().Has("cleanWindow") {
-		if i, err := time.ParseDuration(u.Query().Get("cleanWindow")); err != nil {
+	if v := u.Query().Get("cleanWindow"); v != "" {
+		if i, err := time.ParseDuration(v); err != nil {
 			return nil, err
 		} else {
 			conf.CleanWindow = i
@@ -82,11 +82,20 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 	}, nil
 }
 
-func (b *bigCache) Get(key string) (value interface{}, ok bool) {
-	if ret, err := b.BigCache.Get(key); err == nil {
-		return ret, true
+func (b *bigCache) Get(key string, value interface{}) (ok bool) {
+	ret, err := b.BigCache.Get(key)
+	if err != nil {
+		return false
 	}
-	return nil, false
+
+	v, ok := value.(*[]byte)
+	if !ok {
+		return false
+	}
+
+	*v = ret
+
+	return true
 }
 
 func (b *bigCache) GetBytes(key string) (value []byte, ok bool) {

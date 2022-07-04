@@ -35,7 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/idm/policy/converter"
@@ -164,8 +164,9 @@ func ClearCachedPolicies(ctx context.Context, resType string) {
 
 func CachedPoliciesChecker(ctx context.Context, resType string) (ladon.Warden, error) {
 
-	if ww, ok := getCheckersCache().Get(resType); ok {
-		return ww.(ladon.Warden), nil
+	var ww ladon.Warden
+	if getCheckersCache().Get(resType, &ww) {
+		return ww, nil
 	}
 
 	w := &ladon.Ladon{

@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -48,7 +49,6 @@ import (
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/idm/user"
 	"github.com/pydio/cells/v4/scheduler/tasks"
-	"github.com/pydio/cells/v4/common/runtime"
 )
 
 var (
@@ -445,11 +445,8 @@ func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[str
 
 	// Check if it's not already cached
 	if autoAppliesCache != nil {
-		if values, ok := autoAppliesCache.Get("autoApplies"); ok {
-			var conv bool
-			if autoApplies, conv = values.(map[string][]*idm.Role); conv {
-				return
-			}
+		if autoAppliesCache.Get("autoApplies", &autoApplies) {
+			return
 		}
 	}
 
@@ -479,7 +476,7 @@ func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[str
 
 	// Save to cache
 	if autoAppliesCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=10s&cleanWindow=20s")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=10s&cleanWindow=20s")
 		autoAppliesCache = c
 	}
 	autoAppliesCache.Set("autoApplies", autoApplies)

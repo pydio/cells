@@ -63,8 +63,9 @@ func (t *TokenStore) Store(c *transport.SdkConfig, token string, expiry time.Dur
 
 func (t *TokenStore) TokenFor(c *transport.SdkConfig) string {
 
-	if token, ok := t.internalCache.Get(t.computeKey(c)); ok {
-		return token.(string)
+	var token string
+	if t.internalCache.Get(t.computeKey(c), &token) {
+		return token
 	}
 	return ""
 

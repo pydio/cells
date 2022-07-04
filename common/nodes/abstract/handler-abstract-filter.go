@@ -60,8 +60,9 @@ func (v *BranchFilter) LookupRoot(uuid string) (*tree.Node, error) {
 		v.RootNodesCache = c
 	}
 
-	if n, ok := v.RootNodesCache.Get(uuid); ok {
-		return n.(*tree.Node), nil
+	var n *tree.Node
+	if v.RootNodesCache.Get(uuid, &n) {
+		return n, nil
 	}
 
 	resp, err := v.ClientsPool.GetTreeClient().ReadNode(context.Background(), &tree.ReadNodeRequest{Node: &tree.Node{

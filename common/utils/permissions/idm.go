@@ -399,11 +399,8 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		accessList = NewAccessList([]*idm.Role{})
 		return accessList, nil
 	}
-	if data, ok := getAclCache().Get(claims.SessionID + claims.Subject); ok {
-		if accessList, ok = data.(*AccessList); ok {
-			//fmt.Println("=> Returning accesslist from cache")
-			return
-		}
+	if getAclCache().Get(claims.SessionID+claims.Subject, &accessList) {
+		return
 	}
 	//fmt.Println("Loading AccessList")
 	roles, e := GetRoles(ctx, strings.Split(claims.Roles, ","))
@@ -452,11 +449,9 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 	}
 	keyLookup := strings.Join(rr, "-")
 	if len(keyLookup) > 0 {
-		if data, ok := getAclCache().Get("by-roles-" + keyLookup); ok {
-			if accessList, ok = data.(*AccessList); ok {
-				log.Logger(ctx).Debug("AccessListFromUser - AccessList already in cache")
-				return
-			}
+		if getAclCache().Get("by-roles-"+keyLookup, &accessList) {
+			log.Logger(ctx).Debug("AccessListFromUser - AccessList already in cache")
+			return
 		}
 	}
 
@@ -473,16 +468,12 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ...*idm.UserSingleQuery) (user *idm.User, err error) {
 
 	if login != "" && len(queries) == 0 {
-		if u, ok := getUsersCache().Get(login); ok {
-			if us, o := u.(*idm.User); o {
-				return us, nil
-			}
+		if getUsersCache().Get(login, &user) {
+			return user, nil
 		}
 	} else if uuid != "" && len(queries) == 0 {
-		if u, ok := getUsersCache().Get(uuid); ok {
-			if us, o := u.(*idm.User); o {
-				return us, nil
-			}
+		if getUsersCache().Get(uuid, &user) {
+			return user, nil
 		}
 	}
 
