@@ -1,5 +1,3 @@
-// +build !arm
-
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -36,14 +34,14 @@ func newInstrumentedCache(serviceName string, cacheConfig ...bigcache.Config) *I
 	i := &InstrumentedCache{}
 
 	/*
-	conf := DefaultBigCacheConfig()
-	if len(cacheConfig) > 0 {
-		conf = cacheConfig[0]
-	}
-	c, _ := bigcache.NewBigCache(conf)
+		conf := DefaultBigCacheConfig()
+		if len(cacheConfig) > 0 {
+			conf = cacheConfig[0]
+		}
+		c, _ := bigcache.NewBigCache(conf)
 
-	i.Cache = &bigCache{c}
-	 */
+		i.Cache = &bigCache{c}
+	*/
 
 	i.scope = scope
 	i.ticker = time.NewTicker(30 * time.Second)
@@ -60,6 +58,3 @@ func newInstrumentedCache(serviceName string, cacheConfig ...bigcache.Config) *I
 	}()*/
 	return i
 }
-
-
-
