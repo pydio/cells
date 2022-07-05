@@ -242,6 +242,12 @@ ENVIRONMENT
 				server.WithHttpBindAddress(runtime.HttpBindAddress()),
 			)
 		} else {
+			select {
+			case <-ctx.Done():
+				fmt.Println(promptui.IconBad + " Context is cancelled, do not start services")
+				return nil
+			default:
+			}
 			m.ServeAll(
 				server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
 				server.WithHttpBindAddress(runtime.HttpBindAddress()),
@@ -276,10 +282,9 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log
 	errorCallback := func(err error) {
 		if !strings.Contains(err.Error(), "context canceled") {
 			fmt.Println("************************************************************")
-			fmt.Println("FATAL : Error while starting discovery server")
-			fmt.Println("--------------------------------------------- ")
-			fmt.Println(err.Error())
-			fmt.Println("FATAL : SHUTTING DOWN NOW!")
+			fmt.Println(promptui.IconBad + " Error while starting discovery server:")
+			fmt.Println(promptui.IconBad + " " + err.Error())
+			fmt.Println(promptui.IconBad + " FATAL : shutting down now!")
 			fmt.Println("************************************************************")
 			cancel()
 		} else {

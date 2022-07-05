@@ -226,7 +226,9 @@ func (m *manager) StopAll() {
 		}(srv)
 	}
 	if er := eg.Wait(); er != nil {
-		m.logger.Error("error while stopping servers: "+er.Error(), zap.Error(er))
+		if !strings.Contains(er.Error(), "context canceled") {
+			m.logger.Error("error while stopping servers: "+er.Error(), zap.Error(er))
+		}
 	}
 	_ = m.reg.Deregister(m.root, registry.WithRegisterFailFast())
 }
