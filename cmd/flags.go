@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/spf13/pflag"
@@ -38,10 +37,10 @@ const (
 )
 
 func addRootFlags(flags *pflag.FlagSet) {
-	flags.String(runtime.KeyConfig, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName), "Configuration storage URL. Supported schemes: "+strings.Join(config.DefaultURLMux().Schemes(), "|"))
-	flags.String(runtime.KeyVault, "detect", "Vault location, automatically detected from config url, unless an URL is provided (same schemes as config)")
-	flags.String(runtime.KeyKeyring, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultKeyringFileName)+"?keyring=true", "Keyring URL. Can be switched to vault://host:port/secretPath?key=storeKey")
-	flags.String(runtime.KeyCertsStore, "file://"+filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultCertStorePath), "Certificates Store URL. Can be switched to vault://host:port/secretPath")
+	flags.String(runtime.KeyConfig, runtime.DefaultKeyConfig, "Configuration storage URL. Supported schemes: "+strings.Join(config.DefaultURLMux().Schemes(), "|"))
+	flags.String(runtime.KeyVault, runtime.DefaultKeyVault, "Vault location, automatically detected from config url, unless an URL is provided (same schemes as config)")
+	flags.String(runtime.KeyKeyring, runtime.DefaultKeyKeyring, "Keyring URL. Can be switched to vault://host:port/secretPath?key=storeKey")
+	flags.String(runtime.KeyCertsStore, runtime.DefaultKeyCertsStore, "Certificates Store URL. Can be switched to vault://host:port/secretPath")
 	if os.Getenv(EnvDisplayHiddenFlags) == "" {
 		_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyVault)
 		_ = RootCmd.PersistentFlags().MarkHidden(runtime.KeyKeyring)
@@ -52,9 +51,9 @@ func addRootFlags(flags *pflag.FlagSet) {
 // addRegistryFlags registers necessary flags to connect to the registry (defaults to memory)
 func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 
-	flags.String(runtime.KeyRegistry, "mem://?cache=shared", "Registry URL used to manage services. Supported schemes: "+strings.Join(registry.DefaultURLMux().Schemes(), "|"))
-	flags.String(runtime.KeyBroker, "mem://", "Pub/sub service URL for events broadcast. Supported schemes: "+strings.Join(pubsub.DefaultURLMux().SubscriptionSchemes(), "|"))
-	flags.String(runtime.KeyDiscovery, "mem://", "Combine registry, config and pub/sub discovery service")
+	flags.String(runtime.KeyRegistry, runtime.DefaultKeyRegistry, "Registry URL used to manage services. Supported schemes: "+strings.Join(registry.DefaultURLMux().Schemes(), "|"))
+	flags.String(runtime.KeyBroker, runtime.DefaultKeyBroker, "Pub/sub service URL for events broadcast. Supported schemes: "+strings.Join(pubsub.DefaultURLMux().SubscriptionSchemes(), "|"))
+	flags.String(runtime.KeyDiscovery, runtime.DefaultKeyDiscovery, "Combine registry, config and pub/sub discovery service")
 
 	if os.Getenv(EnvDisplayHiddenFlags) == "" {
 		if len(hideAll) > 0 && hideAll[0] {
@@ -69,8 +68,8 @@ func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 
 // addCacheFlags registers necessary flags to connect to the cache (defaults to in-memory)
 func addCacheFlags(flags *pflag.FlagSet) {
-	flags.String(runtime.KeyCache, "bigcache://", "Sharded Cache")
-	flags.String(runtime.KeyShortCache, "pm://", "Short cache")
+	flags.String(runtime.KeyCache, runtime.DefaultKeyCache, "Sharded Cache")
+	flags.String(runtime.KeyShortCache, runtime.DefaultKeyShortCache, "Short cache")
 
 	flags.MarkHidden(runtime.KeyCache)
 	flags.MarkHidden(runtime.KeyShortCache)

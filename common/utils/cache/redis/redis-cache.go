@@ -63,9 +63,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 		namespace = standard.Randkey(16)
 	}
 
-	cli := redis.NewClient(&redis.Options{
-		Addr: u.Host,
-	})
+	cli := NewClient(u)
 
 	mycache := redisc.New(&redisc.Options{
 		Redis:      cli,

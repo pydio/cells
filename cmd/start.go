@@ -23,13 +23,13 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/manifoldco/promptui"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
