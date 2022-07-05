@@ -23,6 +23,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/url"
 	"os"
 	"regexp"
@@ -69,7 +70,7 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 	}
 
 	applyDocumentsDSN := ""
-	if e := promptAdditionalMongoDSN(cliConfig); e != nil {
+	if e := promptAdditionalMongoDSN(cliConfig, false); e != nil {
 		return nil, e
 	} else if cliConfig.DocumentsDSN != "" {
 		// Copy DSN and apply it later on, or it will trigger configs warning
@@ -237,30 +238,95 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 	return
 }
 
-func promptAdditionalMongoDSN(c *install.InstallConfig) error {
+func promptAdditionalMongoDSN(c *install.InstallConfig, loop bool) error {
 
-	_, e := (&p.Prompt{
-		Label:     "Do you wish to configure a MongoDB connection (better for scalability and required for clustering deployment)",
-		IsConfirm: true,
-		Default:   "N",
-	}).Run()
-	if e != nil {
-		return nil
+	if !loop {
+		_, e := (&p.Prompt{
+			Label:     "Do you wish to configure a MongoDB connection (better for scalability and required for clustering deployment)",
+			IsConfirm: true,
+			Default:   "N",
+		}).Run()
+		if e != nil {
+			return nil
+		}
+
+		connString := "mongodb://username:password@localhost:27017/?maxPoolSize=20&w=majority"
+		fmt.Println("")
+		fmt.Println("Connection string will use the basic format '" + connString + "'. ")
+		fmt.Println("You can use additional MongoDB features (like DNS SRV or ReplicaSet) by editing configuration directly.")
 	}
 
-	dsnP := p.Prompt{
-		Label:   "Please enter MongoDB server DSN. Expected form is user:pass@host:port/dbName?key=value",
-		Default: "localhost:27017/cells?maxPoolSize=20&w=majority",
+	var e error
+	targetUrl, _ := url.Parse("mongodb://localhost:27017/cells?maxPoolSize=20&w=majority")
+	host, port, _ := net.SplitHostPort(targetUrl.Host)
+	dbName := strings.TrimLeft(targetUrl.Path, "/")
+	dsnHost := p.Prompt{
+		Label:   "Server host",
+		Default: host,
 	}
-	mHost, e := dsnP.Run()
-	if e != nil {
+	dsnPort := p.Prompt{
+		Label:   "Server port",
+		Default: port,
+	}
+	dsnDB := p.Prompt{
+		Label:   "Database Name",
+		Default: dbName,
+	}
+
+	if host, e = dsnHost.Run(); e != nil {
 		return e
 	}
-	c.DocumentsDSN = "mongodb://" + mHost
+	if port, e = dsnPort.Run(); e != nil {
+		return e
+	}
+	if dbName, e = dsnDB.Run(); e != nil {
+		return e
+	}
+	targetUrl.Host = net.JoinHostPort(host, port)
+	targetUrl.Path = "/" + dbName
+	dsnAuth := p.Prompt{
+		Label:     "Do you wish to setup authentication?",
+		IsConfirm: true,
+		Default:   "y",
+	}
+	if _, e := dsnAuth.Run(); e == nil {
+		dsnUser := p.Prompt{
+			Label:   "User name",
+			Default: "",
+		}
+		dsnPassword := p.Prompt{
+			Label:   "Password",
+			Default: "",
+			Mask:    '*',
+		}
+		dsnAuthDB := p.Prompt{
+			Label:   "Use an other database for authentication (authSource query parameter, leave empty if default)",
+			Default: "",
+		}
+		var user, pass, authDB string
+		if user, e = dsnUser.Run(); e != nil {
+			return e
+		}
+		if pass, e = dsnPassword.Run(); e != nil {
+			return e
+		}
+		if authDB, e = dsnAuthDB.Run(); e != nil {
+			return e
+		}
+		targetUrl.User = url.UserPassword(user, pass)
+		if authDB != "" {
+			targetUrl.Query().Set("authSource", authDB)
+		}
+	}
 
+	c.DocumentsDSN = targetUrl.String()
+
+	fmt.Println("")
+	fmt.Println("Performing test connection to " + targetUrl.Redacted())
 	if _, er := lib.PerformCheck(context.Background(), "MONGO", c); er != nil {
-		fmt.Println(p.IconBad + "Cannot connect, please review parameters:" + er.Error())
-		return promptAdditionalMongoDSN(c)
+		fmt.Println(p.IconBad + " " + er.Error())
+		fmt.Println(p.IconBad + " Cannot connect, please review your parameters!")
+		return promptAdditionalMongoDSN(c, true)
 	}
 
 	return nil
