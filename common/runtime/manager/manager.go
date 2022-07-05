@@ -226,7 +226,8 @@ func (m *manager) StopAll() {
 		}(srv)
 	}
 	if er := eg.Wait(); er != nil {
-		if !strings.Contains(er.Error(), "context canceled") {
+		if !(strings.Contains(er.Error(), "error reading from server: EOF") && runtime.IsFork()) &&
+			!strings.Contains(er.Error(), "context canceled") {
 			m.logger.Error("error while stopping servers: "+er.Error(), zap.Error(er))
 		}
 	}

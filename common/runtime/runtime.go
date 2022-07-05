@@ -323,15 +323,16 @@ func BuildForkParams(cmd string) []string {
 		//"--" + KeyHttpPort, "0", // This is already the default
 	}
 
-	defKR := "file://" + filepath.Join(ApplicationWorkingDir(), DefaultKeyringFileName) + "?keyring=true"
-	if r.GetString(KeyKeyring) != defKR {
-		params = append(params, "--"+KeyKeyring, r.GetString(KeyKeyring))
-	}
-
 	// Copy string arguments
 	strArgs := []string{
 		KeyBindHost,
 		KeyAdvertiseAddress,
+	}
+
+	strArgsWithDefaults := map[string]string{
+		KeyKeyring:    DefaultKeyKeyring,
+		KeyCache:      DefaultKeyCache,
+		KeyShortCache: DefaultKeyShortCache,
 	}
 
 	// Copy bool arguments
@@ -360,6 +361,12 @@ func BuildForkParams(cmd string) []string {
 			for _, a := range GetStringSlice(sl) {
 				params = append(params, "--"+sl, a)
 			}
+		}
+	}
+	// Set these only if they differ from their default value
+	for k, v := range strArgsWithDefaults {
+		if IsSet(k) && GetString(k) != v {
+			params = append(params, "--"+k, GetString(k))
 		}
 	}
 
