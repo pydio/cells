@@ -48,6 +48,10 @@ var _languages = require('./gen/languages');
 
 var _languages2 = _interopRequireDefault(_languages);
 
+var _urlParse = require('url-parse');
+
+var _urlParse2 = _interopRequireDefault(_urlParse);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -61,6 +65,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 var defaultLanguage = 'en-us';
+
 
 var client = new _client2.default();
 var api = new _InstallServiceApi2.default(client);
@@ -970,6 +975,28 @@ var InstallForm = function (_React$Component) {
                 )
             ));
 
+            var DSNURL = void 0;
+            if (DocumentsDSN) {
+                DSNURL = new _urlParse2.default(DocumentsDSN);
+            } else {
+                DSNURL = new _urlParse2.default('mongodb://localhost:27017/cells?maxPoolSize=20&w=majority');
+            }
+            var DSNSearchParams = new URL(DSNURL.toString()).searchParams;
+            var changeDSN = function changeDSN(url, key, value) {
+                if (key === "authSource") {
+                    var sp = new URL(url.toString()).searchParams;
+                    if (value) {
+                        sp.set("authSource", value);
+                    } else {
+                        sp.delete("authSource");
+                    }
+                    url.set('query', '?' + sp.toString());
+                } else {
+                    url.set(key, value);
+                }
+                change('DocumentsDSN', url.toString());
+            };
+
             var _props3 = this.props,
                 dsType = _props3.dsType,
                 s3Config = _props3.s3Config;
@@ -994,47 +1021,54 @@ var InstallForm = function (_React$Component) {
                             this.t('advanced.title')
                         ),
                         this.t('advanced.legend'),
-                        _react2.default.createElement(
+                        _react2.default.createElement(_materialUi.Checkbox, {
+                            label: this.t('advanced.mongo.title'),
+                            onCheck: function onCheck(e, v) {
+                                return change('DocumentsDSN', v ? 'mongodb://localhost:27017/cells?maxPoolSize=20&w=majority' : '');
+                            },
+                            checked: !!DocumentsDSN,
+                            labelPosition: "left",
+                            style: { marginTop: 10, marginBottom: 8 },
+                            labelStyle: { fontSize: 14 }
+                        }),
+                        !!DocumentsDSN && _react2.default.createElement(
                             'div',
-                            { style: { display: 'flex', alignItems: 'center', height: 40, cursor: 'pointer' }, onClick: function onClick() {
-                                    _this8.setState({ showAdvanced: !showAdvanced });
-                                } },
-                            _react2.default.createElement(
+                            { style: { paddingBottom: 20 } },
+                            !mongoDSNError && _react2.default.createElement(
                                 'div',
-                                { style: { flex: 1, fontSize: 14 } },
-                                this.t('advanced.toggle')
+                                { style: { opacity: .7, width: 440 } },
+                                this.t('advanced.mongo.legend')
                             ),
-                            _react2.default.createElement(_materialUi.FontIcon, { className: showAdvanced ? "mdi mdi-chevron-down" : "mdi mdi-chevron-right" })
-                        ),
-                        showAdvanced && _react2.default.createElement(
-                            'div',
-                            { style: flexContainer },
-                            _react2.default.createElement(
+                            !!mongoDSNError && _react2.default.createElement(
                                 'div',
-                                { style: { marginTop: 10 } },
-                                this.t('advanced.mongo.title')
+                                { style: { color: '#E53935' } },
+                                mongoDSNError
                             ),
                             _react2.default.createElement(
                                 'div',
                                 { style: { display: 'flex', alignItems: 'flex-end' } },
-                                _react2.default.createElement(
-                                    'div',
-                                    { style: { flex: 1 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: "DocumentsDSN", component: renderTextField, floatingLabel: this.t('advanced.mongo.label'), label: "localhost:27017/?maxPoolSize=20&w=majority", errorText: mongoDSNError })
-                                ),
+                                _react2.default.createElement(_materialUi.TextField, { value: DSNURL.hostname, onChange: function onChange(e, v) {
+                                        return changeDSN(DSNURL, 'hostname', v);
+                                    }, floatingLabelText: this.t('advanced.mongo.host'), fullWidth: true, style: { marginRight: 10 }, floatingLabelFixed: true }),
+                                _react2.default.createElement(_materialUi.TextField, { value: DSNURL.port, onChange: function onChange(e, v) {
+                                        return changeDSN(DSNURL, 'port', v);
+                                    }, floatingLabelText: this.t('advanced.mongo.port'), fullWidth: true, style: { marginRight: 10 }, floatingLabelFixed: true }),
+                                _react2.default.createElement(_materialUi.TextField, { value: DSNURL.pathname.replace('/', ''), onChange: function onChange(e, v) {
+                                        return changeDSN(DSNURL, 'pathname', '/' + v);
+                                    }, floatingLabelText: this.t('advanced.mongo.db'), fullWidth: true, floatingLabelFixed: true }),
                                 performingCheck === 'MONGO' && _react2.default.createElement(
                                     'div',
-                                    { style: { width: 48, height: 48, padding: 12, boxSizing: 'border-box' } },
+                                    { style: { minWidth: 48, height: 48, padding: 12, boxSizing: 'border-box' } },
                                     _react2.default.createElement(_materialUi.CircularProgress, { size: 20, thickness: 2.5 })
                                 ),
                                 _react2.default.createElement(
                                     'div',
                                     null,
                                     mongoDSNValid && _react2.default.createElement(_materialUi.FontIcon, { className: "mdi mdi-check", color: "#4caf50", style: { width: 25, height: 32, marginLeft: 10 } }),
-                                    !mongoDSNValid && _react2.default.createElement(_materialUi.IconButton, {
-                                        disabled: !DocumentsDSN || performingCheck,
+                                    !mongoDSNValid && performingCheck !== 'MONGO' && _react2.default.createElement(_materialUi.IconButton, {
+                                        disabled: !DocumentsDSN || !!performingCheck,
                                         iconClassName: "mdi mdi-login-variant",
-                                        tooltip: this.t('form.mongoValidate'),
+                                        tooltip: this.t('advanced.mongo.validate'),
                                         tooltipPosition: "bottom-left",
                                         onClick: function onClick() {
                                             _this8.setState({ mongoDSNError: null });
@@ -1050,6 +1084,38 @@ var InstallForm = function (_React$Component) {
                                     })
                                 )
                             ),
+                            _react2.default.createElement(
+                                'div',
+                                { style: { display: 'flex', alignItems: 'flex-end' } },
+                                _react2.default.createElement(_materialUi.TextField, { value: DSNURL.username, onChange: function onChange(e, v) {
+                                        return changeDSN(DSNURL, 'username', v);
+                                    }, floatingLabelText: this.t('advanced.mongo.username'), fullWidth: true, style: { marginRight: 10 }, floatingLabelFixed: true }),
+                                _react2.default.createElement(_materialUi.TextField, { value: DSNURL.password, onChange: function onChange(e, v) {
+                                        return changeDSN(DSNURL, 'password', v);
+                                    }, floatingLabelText: "Password", fullWidth: true, type: this.t('advanced.mongo.password'), style: { marginRight: 10 }, floatingLabelFixed: true }),
+                                _react2.default.createElement(_materialUi.TextField, { value: DSNSearchParams.get('authSource') || "",
+                                    onChange: function onChange(e, v) {
+                                        return changeDSN(DSNURL, 'authSource', v);
+                                    },
+                                    floatingLabelText: this.t('advanced.mongo.authSource'), fullWidth: true, floatingLabelFixed: true }),
+                                _react2.default.createElement('div', { style: { minWidth: 48 } })
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { style: { display: 'flex', alignItems: 'center', height: 40, cursor: 'pointer', width: 478 }, onClick: function onClick() {
+                                    _this8.setState({ showAdvanced: !showAdvanced });
+                                } },
+                            _react2.default.createElement(
+                                'div',
+                                { style: { flex: 1, fontSize: 14 } },
+                                this.t('advanced.toggle')
+                            ),
+                            _react2.default.createElement(_materialUi.FontIcon, { className: showAdvanced ? "mdi mdi-chevron-down" : "mdi mdi-chevron-right" })
+                        ),
+                        showAdvanced && _react2.default.createElement(
+                            'div',
+                            { style: flexContainer },
                             _react2.default.createElement(
                                 'div',
                                 { style: { marginTop: 20 } },

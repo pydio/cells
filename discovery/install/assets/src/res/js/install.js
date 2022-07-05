@@ -12,6 +12,7 @@ import InstallPerformCheckRequest from './gen/model/InstallPerformCheckRequest';
 import { load as loadConfig } from './config'
 import languages from './gen/languages'
 const defaultLanguage = 'en-us';
+import Url from 'url-parse'
 
 const client = new Client();
 const api = new InstallServiceApi(client);
@@ -623,6 +624,28 @@ class InstallForm extends React.Component {
             </Step>
         );
 
+        let DSNURL;
+        if (DocumentsDSN) {
+            DSNURL = new Url(DocumentsDSN)
+        } else {
+            DSNURL = new Url('mongodb://localhost:27017/cells?maxPoolSize=20&w=majority')
+        }
+        const DSNSearchParams = new URL(DSNURL.toString()).searchParams
+        const changeDSN = (url, key, value) => {
+            if(key === "authSource") {
+                const sp = new URL(url.toString()).searchParams
+                if (value) {
+                    sp.set("authSource", value)
+                } else {
+                    sp.delete("authSource")
+                }
+                url.set('query', '?'+sp.toString())
+            } else {
+                url.set(key, value);
+            }
+            change('DocumentsDSN', url.toString())
+        }
+
         const {dsType, s3Config} = this.props;
         steps.push(
             <Step key={steps.length-1} style={stepperStyles.step}>
@@ -632,43 +655,62 @@ class InstallForm extends React.Component {
                         <h3>{this.t('advanced.title')}</h3>
                         {this.t('advanced.legend')}
 
-                        <div style={{display:'flex', alignItems:'center', height: 40, cursor:'pointer'}} onClick={() => {this.setState({showAdvanced:!showAdvanced})}}>
+                        <Checkbox
+                            label={this.t('advanced.mongo.title')}
+                            onCheck={(e,v) => change('DocumentsDSN', v ? 'mongodb://localhost:27017/cells?maxPoolSize=20&w=majority':'')}
+                            checked={!!DocumentsDSN}
+                            labelPosition={"left"}
+                            style={{marginTop: 10, marginBottom: 8}}
+                            labelStyle={{fontSize: 14}}
+                        />
+                        {!!DocumentsDSN &&
+                            <div style={{paddingBottom: 20}}>
+                                {!mongoDSNError && <div style={{opacity:.7,width:440}}>{this.t('advanced.mongo.legend')}</div>}
+                                {!!mongoDSNError && <div style={{color:'#E53935'}}>{mongoDSNError}</div>}
+                                <div style={{display:'flex', alignItems:'flex-end'}}>
+                                    <TextField value={DSNURL.hostname} onChange={(e,v)=>changeDSN(DSNURL, 'hostname', v)} floatingLabelText={this.t('advanced.mongo.host')} fullWidth={true} style={{marginRight: 10}} floatingLabelFixed={true}/>
+                                    <TextField value={DSNURL.port} onChange={(e,v)=>changeDSN(DSNURL, 'port', v)} floatingLabelText={this.t('advanced.mongo.port')} fullWidth={true} style={{marginRight: 10}} floatingLabelFixed={true}/>
+                                    <TextField value={DSNURL.pathname.replace('/', '')} onChange={(e,v)=>changeDSN(DSNURL, 'pathname', '/' + v)} floatingLabelText={this.t('advanced.mongo.db')} fullWidth={true} floatingLabelFixed={true}/>
+                                {performingCheck === 'MONGO' && <div style={{minWidth:48, height:48, padding:12, boxSizing:'border-box'}}><CircularProgress size={20} thickness={2.5}/></div>}
+                                    <div>
+                                {mongoDSNValid && <FontIcon className={"mdi mdi-check"} color={"#4caf50"} style={{width: 25, height: 32, marginLeft: 10}}/>}
+                                {!mongoDSNValid && performingCheck !== 'MONGO' &&
+                                    <IconButton
+                                    disabled={!DocumentsDSN || !!performingCheck}
+                                    iconClassName={"mdi mdi-login-variant"}
+                                    tooltip={this.t('advanced.mongo.validate')}
+                                    tooltipPosition={"bottom-left"}
+                                    onClick={() => {
+                                    this.setState({mongoDSNError:null})
+                                    this.checkMongoDSN((result) => {
+                                    const data = JSON.parse(result.JsonResult);
+                                    if (result.Success) {
+                                    this.setState({mongoDSNValid: true});
+                                } else {
+                                    this.setState({mongoDSNValid: false, mongoDSNError: data.error})
+                                }
+                                }, true);
+                                }}
+                                    />
+                                }
+                                    </div>
+                                </div>
+                                <div style={{display:'flex', alignItems:'flex-end'}}>
+                                    <TextField value={DSNURL.username} onChange={(e,v)=>changeDSN(DSNURL, 'username', v)} floatingLabelText={this.t('advanced.mongo.username')} fullWidth={true} style={{marginRight: 10}} floatingLabelFixed={true}/>
+                                    <TextField value={DSNURL.password} onChange={(e,v)=>changeDSN(DSNURL, 'password', v)} floatingLabelText={"Password"} fullWidth={true} type={this.t('advanced.mongo.password')} style={{marginRight: 10}} floatingLabelFixed={true}/>
+                                    <TextField value={DSNSearchParams.get('authSource')||""}
+                                               onChange={(e,v)=>changeDSN(DSNURL, 'authSource', v)}
+                                               floatingLabelText={this.t('advanced.mongo.authSource')} fullWidth={true} floatingLabelFixed={true}/>
+                                    <div style={{minWidth:48}}/>
+                                </div>
+                            </div>
+                        }
+                        <div style={{display:'flex', alignItems:'center', height: 40, cursor:'pointer', width: 478}} onClick={() => {this.setState({showAdvanced:!showAdvanced})}}>
                             <div style={{flex: 1, fontSize: 14}}>{this.t('advanced.toggle')}</div>
                             <FontIcon className={showAdvanced?"mdi mdi-chevron-down":"mdi mdi-chevron-right"}/>
                         </div>
                         {showAdvanced &&
                         <div style={flexContainer}>
-                            <div style={{marginTop: 10}}>
-                                {this.t('advanced.mongo.title')}
-                            </div>
-                            <div style={{display:'flex', alignItems:'flex-end'}}>
-                                <div style={{flex: 1}}>
-                                    <Field name={"DocumentsDSN"} component={renderTextField} floatingLabel={this.t('advanced.mongo.label')} label={"localhost:27017/?maxPoolSize=20&w=majority"} errorText={mongoDSNError}/>
-                                </div>
-                                {performingCheck === 'MONGO' && <div style={{width:48, height:48, padding:12, boxSizing:'border-box'}}><CircularProgress size={20} thickness={2.5}/></div>}
-                                <div>
-                                    {mongoDSNValid && <FontIcon className={"mdi mdi-check"} color={"#4caf50"} style={{width: 25, height: 32, marginLeft: 10}}/>}
-                                    {!mongoDSNValid &&
-                                        <IconButton
-                                            disabled={!DocumentsDSN || performingCheck}
-                                            iconClassName={"mdi mdi-login-variant"}
-                                            tooltip={this.t('form.mongoValidate')}
-                                            tooltipPosition={"bottom-left"}
-                                            onClick={() => {
-                                                this.setState({mongoDSNError:null})
-                                                this.checkMongoDSN((result) => {
-                                                    const data = JSON.parse(result.JsonResult);
-                                                    if (result.Success) {
-                                                        this.setState({mongoDSNValid: true});
-                                                    } else {
-                                                        this.setState({mongoDSNValid: false, mongoDSNError: data.error})
-                                                    }
-                                                }, true);
-                                            }}
-                                        />
-                                    }
-                                </div>
-                            </div>
                             <div style={{marginTop: 20}}>
                                 {this.t('advanced.default.datasource')}
                             </div>
