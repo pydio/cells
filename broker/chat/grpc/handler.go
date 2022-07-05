@@ -123,7 +123,6 @@ func (c *ChatHandler) ListMessages(req *chat.ListMessagesRequest, streamer chat.
 	if err != nil {
 		return err
 	}
-	//defer streamer.CloseSend()
 	for _, m := range messages {
 		streamer.Send(&chat.ListMessagesResponse{Message: m})
 	}
@@ -151,14 +150,14 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 				Message: m,
 			})
 			// For comments on nodes, publish an UPDATE_USER_META event
-			if room, err := c.dao.RoomByUuid(ctx, chat.RoomType_NODE, m.RoomUuid); err == nil {
+			if room, err := c.dao.RoomByUuid(bgCtx, chat.RoomType_NODE, m.RoomUuid); err == nil {
 				broker.MustPublish(bgCtx, common.TopicMetaChanges, &tree.NodeChangeEvent{
 					Type: tree.NodeChangeEvent_UPDATE_USER_META,
 					Target: &tree.Node{Uuid: room.RoomTypeObject, MetaStore: map[string]string{
 						"comments": `"` + m.Message + `"`,
 					}},
 				})
-				if count, e := c.dao.CountMessages(ctx, room); e == nil {
+				if count, e := c.dao.CountMessages(bgCtx, room); e == nil {
 					getMetaClient(c.RuntimeCtx).UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
 						Uuid: room.RoomTypeObject,
 						MetaStore: map[string]string{
@@ -189,8 +188,8 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 	go func() {
 		for _, m := range req.Messages {
 			bgCtx := metadata.NewBackgroundWithUserKey(m.Author)
-			if room, err := c.dao.RoomByUuid(ctx, chat.RoomType_NODE, m.RoomUuid); err == nil {
-				if count, e := c.dao.CountMessages(ctx, room); e == nil {
+			if room, err := c.dao.RoomByUuid(bgCtx, chat.RoomType_NODE, m.RoomUuid); err == nil {
+				if count, e := c.dao.CountMessages(bgCtx, room); e == nil {
 					var meta = ""
 					if count > 0 {
 						meta = fmt.Sprintf("%d", count)

@@ -189,6 +189,9 @@ func getLogrusLogger(serviceName string) *logrus.Logger {
 				if strings.Contains(line, "An error occurred while checking for the legacy migration table, maybe it does not exist yet? Trying to create.") {
 					continue
 				}
+				if strings.Contains(line, "Migration has not been applied but it might be a legacy migration, investigating.") {
+					continue
+				}
 				var fields []zap.Field
 				if e := json.Unmarshal([]byte(line), &logged); e == nil {
 					if l, o := logged["level"]; o {
