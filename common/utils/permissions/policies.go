@@ -163,24 +163,27 @@ func ClearCachedPolicies(ctx context.Context, resType string) {
 }
 
 func CachedPoliciesChecker(ctx context.Context, resType string) (ladon.Warden, error) {
-
-	var ww ladon.Warden
-	if getCheckersCache().Get(resType, &ww) {
-		return ww, nil
-	}
-
 	w := &ladon.Ladon{
 		Manager: memory.NewMemoryManager(),
 	}
-	if policies, err := loadPoliciesByResourcesType(ctx, resType); err != nil {
-		return nil, nil
-	} else {
-		for _, pol := range policies {
-			w.Manager.Create(converter.ProtoToLadonPolicy(pol))
+
+	var policies []*idm.Policy
+	if !getCheckersCache().Get(resType, &policies) {
+		p, err := loadPoliciesByResourcesType(ctx, resType)
+
+		if err != nil {
+			return nil, nil
 		}
+
+		policies = p
 	}
 
-	getCheckersCache().Set(resType, w)
+	for _, pol := range policies {
+		w.Manager.Create(converter.ProtoToLadonPolicy(pol))
+	}
+
+	getCheckersCache().Set(resType, policies)
+
 	return w, nil
 }
 

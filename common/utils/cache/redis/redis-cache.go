@@ -132,7 +132,7 @@ func (q *redisCache) Delete(key string) error {
 }
 
 func (q *redisCache) Reset() error {
-	iter := q.UniversalClient.Scan(context.TODO(), 0, "prefix:"+q.namespace+"*", 0).Iterator()
+	iter := q.UniversalClient.Scan(context.TODO(), 0, q.namespace+"*", 0).Iterator()
 	for iter.Next(context.TODO()) {
 		if err := q.Cache.Delete(context.TODO(), iter.Val()); err != nil {
 			return err
@@ -141,20 +141,28 @@ func (q *redisCache) Reset() error {
 	return nil
 }
 
-func (q *redisCache) KeysByPrefix(prefix string) (res []string, e error) {
-	cmd := q.UniversalClient.Keys(context.TODO(), "prefix:"+q.namespace+prefix+"*")
-	return cmd.Result()
+func (q *redisCache) KeysByPrefix(prefix string) ([]string, error) {
+	var res []string
+	cmd := q.UniversalClient.Keys(context.TODO(), q.namespace+prefix+"*")
+	vv, err := cmd.Result()
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range vv {
+		res = append(res, strings.TrimPrefix(v, q.namespace))
+	}
+	return res, nil
 }
 
 func (q *redisCache) Iterate(it func(key string, val interface{})) error {
-	iter := q.UniversalClient.Scan(context.TODO(), 0, "prefix:"+q.namespace+"*", 0).Iterator()
+	iter := q.UniversalClient.Scan(context.TODO(), 0, q.namespace+"*", 0).Iterator()
 	for iter.Next(context.TODO()) {
 		key := iter.Val()
 		var val interface{}
 		if err := q.Cache.Get(context.TODO(), key, &val); err != nil {
 			return err
 		}
-		it(key, val)
+		it(strings.TrimPrefix(key, q.namespace), val)
 	}
 
 	return nil
