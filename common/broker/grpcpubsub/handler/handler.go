@@ -124,7 +124,10 @@ func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
 
 		go sub.dispatch()
 		defer sub.removeStreamById(id)
-
+		var oo []broker.SubscribeOption
+		if queue != "" {
+			oo = append(oo, broker.Queue(queue))
+		}
 		unSub, e := h.broker.Subscribe(stream.Context(), topic, func(msg broker.Message) error {
 			var target = &pb.Message{}
 			target.Header, target.Body = msg.RawData()
@@ -133,7 +136,7 @@ func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
 				Messages: []*pb.Message{target},
 			}
 			return nil
-		})
+		}, oo...)
 		if e != nil {
 			return e
 		}
