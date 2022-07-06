@@ -39,7 +39,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 )
 
@@ -381,9 +380,6 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 			cloneTo.Etag = common.NodeFlagEtagTemporary
 			if _, er := e.ClientsPool.GetTreeClientWrite().CreateNode(writeCtx, &tree.CreateNodeRequest{Node: cloneTo}); er != nil {
 				return 0, er
-			}
-			if move {
-				writeCtx = metadata.WithAdditionalMetadata(writeCtx, map[string]string{common.XPydioMoveUuid: cloneTo.Uuid})
 			}
 		}
 		putReqData := &models.PutRequestData{

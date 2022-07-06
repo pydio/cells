@@ -208,6 +208,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 	if err != nil {
 		return false, nil, fmt.Errorf("could not get master password %v", err)
 	}
+	runtime.SetVaultMasterKey(password)
 
 	mainConfig, err := config.OpenStore(ctx, runtime.ConfigURL())
 	if err != nil {
@@ -226,7 +227,7 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 	}
 
 	// Wrap config with vaultConfig if set
-	vaultConfig, err := config.OpenStore(ctx, runtime.VaultURL(password))
+	vaultConfig, err := config.OpenStore(ctx, runtime.VaultURL())
 	if err != nil {
 		return false, nil, err
 	}

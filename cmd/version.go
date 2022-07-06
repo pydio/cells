@@ -30,6 +30,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common"
+	runtime2 "github.com/pydio/cells/v4/common/runtime"
 )
 
 // CellsVersion contains version information for the current running binary
@@ -115,6 +116,25 @@ DESCRIPTION
 		}
 
 	},
+}
+
+func binaryInfo() (i runtime2.InfoGroup) {
+	i.Name = "Binary"
+	var t time.Time
+	if common.BuildStamp != "" {
+		t, _ = time.Parse("2006-01-02T15:04:05", common.BuildStamp)
+	} else {
+		t = time.Now()
+	}
+	i.Pairs = append(i.Pairs,
+		runtime2.InfoPair{Key: "Package", Value: common.PackageLabel},
+		runtime2.InfoPair{Key: "Version", Value: common.Version().String()},
+		runtime2.InfoPair{Key: "BuildTime", Value: t.Format(time.RFC822Z)},
+		runtime2.InfoPair{Key: "Git Commit", Value: common.BuildRevision},
+		runtime2.InfoPair{Key: "Go Version", Value: runtime.Version()},
+		runtime2.InfoPair{Key: "OS/arch", Value: runtime.GOOS + "/" + runtime.GOARCH},
+	)
+	return
 }
 
 func init() {

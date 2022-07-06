@@ -166,7 +166,7 @@ func ConfigIsLocalFile() bool {
 	}
 }
 
-func VaultURL(withMaster string) string {
+func SetVaultMasterKey(masterKey string) {
 	var u *url.URL
 	var e error
 	if r.IsSet(KeyVault) && r.GetString(KeyVault) != "" && r.GetString(KeyVault) != "detect" {
@@ -175,7 +175,7 @@ func VaultURL(withMaster string) string {
 		u, e = url.Parse(ConfigURL())
 	}
 	if e != nil {
-		return ""
+		return
 	}
 	if u.Scheme == "file" {
 		// Replace basename with pydio-vault.json
@@ -184,9 +184,13 @@ func VaultURL(withMaster string) string {
 		u.Path = "vault"
 	}
 	q := u.Query()
-	q.Set("masterKey", withMaster)
+	q.Set("masterKey", masterKey)
 	u.RawQuery = q.Encode()
-	return u.String()
+	r.SetDefault("computedVaultURL", u.String())
+}
+
+func VaultURL() string {
+	return r.GetString("computedVaultURL")
 }
 
 func KeyringURL() string {
@@ -429,4 +433,75 @@ func HasCapacity(c string) bool {
 		}
 	}
 	return false
+}
+
+type InfoPair struct {
+	Key   string
+	Value string
+}
+
+type InfoGroup struct {
+	Name  string
+	Pairs []InfoPair
+}
+
+// Describe echoes the current runtime status
+func Describe() (out []InfoGroup) {
+
+	uGroup := InfoGroup{Name: "Drivers"}
+	keys := []string{
+		"Registry",
+		"Broker",
+		"Config",
+		"Vault",
+		"Keyring",
+		"Certificates",
+		"Cache",
+		"ShortCache",
+	}
+	urls := map[string]func() string{
+		"Registry":     RegistryURL,
+		"Broker":       BrokerURL,
+		"Config":       ConfigURL,
+		"Vault":        VaultURL,
+		"Keyring":      KeyringURL,
+		"Certificates": CertsStoreURL,
+		"Cache":        CacheURL,
+		"ShortCache":   ShortCacheURL,
+	}
+
+	for _, k := range keys {
+		u := urls[k]
+		var urlString string
+		ur, e := url.Parse(u())
+		if e != nil {
+			urlString = "Error: " + e.Error()
+		} else {
+			ur.RawQuery = ""
+			urlString = ur.Redacted()
+		}
+		uGroup.Pairs = append(uGroup.Pairs, InfoPair{Key: k, Value: urlString})
+	}
+
+	network := InfoGroup{Name: "Networking"}
+	network.Pairs = append(network.Pairs,
+		InfoPair{"Hostname", GetHostname()},
+		InfoPair{"Advertise", DefaultAdvertiseAddress()},
+	)
+
+	logging := InfoGroup{Name: "Monitoring"}
+	me := "false"
+	pp := "false"
+	if MetricsEnabled() {
+		me = "true"
+	}
+	if PprofEnabled() {
+		pp = "true"
+	}
+
+	logging.Pairs = append(logging.Pairs,
+		InfoPair{"Metrics", me},
+		InfoPair{"Profiles", pp},
+	)
+	return append(out, uGroup, network, logging)
 }

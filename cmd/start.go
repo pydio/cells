@@ -193,6 +193,18 @@ ENVIRONMENT
 		// Init broker
 		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
 
+		if !runtime.IsFork() {
+			data := []runtime.InfoGroup{binaryInfo()}
+			data = append(data, runtime.Describe()...)
+			for _, group := range data {
+				cmd.Println(group.Name + ":")
+				for _, pair := range group.Pairs {
+					cmd.Println("  " + pair.Key + ":\t" + pair.Value)
+				}
+				cmd.Println("")
+			}
+		}
+
 		// Starting discovery server containing registry, broker, config and log
 		var discovery manager.Manager
 		if !runtime.IsGrpcScheme(runtime.RegistryURL()) {

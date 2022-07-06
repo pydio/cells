@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package redis
 
 import (
@@ -6,12 +26,11 @@ import (
 	"strings"
 	"time"
 
-	standard "github.com/pydio/cells/v4/common/utils/std"
-
 	redisc "github.com/go-redis/cache/v8"
 	"github.com/go-redis/redis/v8"
 
 	cache "github.com/pydio/cells/v4/common/utils/cache"
+	standard "github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
@@ -24,6 +43,7 @@ type redisCache struct {
 	redis.UniversalClient
 	*redisc.Cache
 	namespace string
+	options   *Options
 }
 
 type URLOpener struct{}
@@ -74,6 +94,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 		UniversalClient: cli,
 		Cache:           mycache,
 		namespace:       namespace + ":",
+		options:         opt,
 	}
 
 	return c, nil
@@ -100,7 +121,7 @@ func (q *redisCache) Set(key string, value interface{}) error {
 		Ctx:   context.TODO(),
 		Key:   q.namespace + key,
 		Value: value,
-		TTL:   time.Hour,
+		TTL:   q.options.EvictionTime,
 	}); err != nil {
 		return err
 	}
