@@ -406,6 +406,10 @@ func (r *receiver) Next() (interface{}, error) {
 
 			r.timer.Reset(2 * time.Second)
 		case <-r.timer.C:
+			// Initial timer will trigger so checking we have changes
+			if len(changes) == 0 {
+				continue
+			}
 			if r.changesOnly {
 				c := configx.New(r.opts...)
 
