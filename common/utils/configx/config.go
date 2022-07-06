@@ -138,6 +138,16 @@ type config struct {
 	rLocked bool
 }
 
+func newWithRoot(v interface{}, root *config, k []string, opts Options) Values {
+	opts.RWMutex = &sync.RWMutex{}
+	return &config{
+		v:    v,
+		r:    root,
+		k:    k,
+		opts: opts,
+	}
+}
+
 func New(opts ...Option) Values {
 	options := Options{
 		RWMutex: &sync.RWMutex{},
@@ -515,35 +525,38 @@ func (c *config) Val(s ...string) Values {
 
 		switch cvv.Kind() {
 		case reflect.Ptr:
+			if cvv.Elem().Kind() != reflect.Struct {
+				return newWithRoot(nil, root, keys, c.opts)
+			}
 			f := cvv.Elem().FieldByName(pkk)
 			if f.IsValid() {
 				current = f.Interface()
 			} else {
-				return &config{nil, nil, root, keys, c.opts, false}
+				return newWithRoot(nil, root, keys, c.opts)
 			}
 		case reflect.Struct:
 			f := cvv.FieldByName(pkk)
 			if f.IsValid() {
 				current = f.Interface()
 			} else {
-				return &config{nil, nil, root, keys, c.opts, false}
+				return newWithRoot(nil, root, keys, c.opts)
 			}
 		case reflect.Map:
 			f := cvv.MapIndex(reflect.ValueOf(pkk))
 			if f.IsValid() {
 				current = f.Interface()
 			} else {
-				return &config{nil, nil, root, keys, c.opts, false}
+				return newWithRoot(nil, root, keys, c.opts)
 			}
 		case reflect.Slice:
 			i, err := strconv.Atoi(pkk)
 			if err != nil || i < 0 || i >= cvv.Len() {
-				return &config{nil, nil, root, keys, c.opts, false}
+				return newWithRoot(nil, root, keys, c.opts)
 			}
 
 			current = cvv.Index(i).Interface()
 		default:
-			return &config{nil, nil, root, keys, c.opts, false}
+			return newWithRoot(nil, root, keys, c.opts)
 		}
 
 		/*
@@ -602,7 +615,7 @@ func (c *config) Val(s ...string) Values {
 			}*/
 	}
 
-	return &config{current, nil, root, keys, c.opts, false}
+	return newWithRoot(current, root, keys, c.opts)
 }
 
 // Scan to interface
