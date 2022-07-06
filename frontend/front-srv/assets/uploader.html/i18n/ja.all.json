@@ -126,16 +126,16 @@
     "other": "分析中..."
   },
   "status.dir.new": {
-    "other": "Folder awaiting upload..."
+    "other": "アップロード中のフォルダ..."
   },
   "status.file.new": {
-    "other": "File awaiting upload..."
+    "other": "アップロード中のファイル..."
   },
   "status.dir.analyse": {
-    "other": "Analyzing folder..."
+    "other": "フォルダを分析しています..."
   },
   "status.file.analyse": {
-    "other": "Analyzing file..."
+    "other": "ファイルを分析しています..."
   },
   "status.dir.loading": {
     "other": "フォルダを作成しています"

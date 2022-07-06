@@ -1,20 +1,20 @@
 {
   "Search.Config.IndexContent.Label": {
-    "other": "Index Contents"
+    "other": "Thiết lập tìm kiếm trên nội dung"
   },
   "Search.Config.IndexContent.Description": {
-    "other": "If set to true, indexer will look for the ContentRef metadata, read contents from this reference and index it for search."
+    "other": "Nếu tùy chọn này được thiết lập, bộ công cụ tìm kiếm sẽ lấy nội dung của ContentRef metadata."
   },
   "Search.Config.BasenameAnalyze.Label": {
-    "other": "File Name Analyzer"
+    "other": "Bộ phân tích tên tệp"
   },
   "Search.Config.BasenameAnalyze.Description": {
-    "other": "Analyzer used on file names"
+    "other": "Bộ phân tích được sử dụng để phân tích tên tệp"
   },
   "Search.Config.ContentAnalyzer.Label": {
-    "other": "Contents Analyzer"
+    "other": "Bộ phân tích nội dung"
   },
   "Search.Config.ContentAnalyzer.Description": {
-    "other": "Analyzer used on contents"
+    "other": "Bộ phân tích sẽ phân tích nội dung của tệp"
   }
 }

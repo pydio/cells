@@ -537,13 +537,13 @@
     "other": "セル内で共有"
   },
   "254b": {
-    "other": "With users or groups"
+    "other": "ユーザーまたはグループで"
   },
   "254c": {
-    "other": "Shared in %d cells"
+    "other": "%d 個のセルを共有"
   },
   "254d": {
-    "other": "Shared in '%s'"
+    "other": "'%s ' で共有"
   },
   "255": {
     "other": "このアイテムのすべてのセルとリンクを削除してもよろしいですか？"
@@ -909,22 +909,22 @@
     "other": "既存のフォルダを共有"
   },
   "cells.remove.node": {
-    "other": "Remove from this cell"
+    "other": "このセルから削除"
   },
   "cell.visibility.advanced": {
     "other": "この高度な機能を使用すると、このセルのプロパティを編集できるユーザーを決定できます（ユーザーを追加/削除したり、セルのルートにあるフォルダーを追加/削除したりする権利）。 データへの実際のアクセスを簡単に管理するには、代わりに[共有] タブを使用してください。"
   },
   "cell.add.existing-or-new": {
-    "other": "Add to existing or new Cell"
+    "other": "既存または新規セルに追加"
   },
   "cell.add.existing": {
-    "other": "Add to existing Cell"
+    "other": "既存のセルに追加"
   },
   "cell.add.new": {
-    "other": "Create a new Cell"
+    "other": "新しいセルを作成"
   },
   "link.visibility.title": {
-    "other": "[Advanced] Visibility"
+    "other": "[Advanced] 可視性"
   },
   "link.visibility.advanced": {
     "other": "この高度な機能を使用すると、他のユーザーがこのファイルを表示したときにこのリンクを表示できるかどうか、およびそのプロパティを編集できるかどうかを決定できます。 デフォルトでは、作成したリンクは自分だけに表示されます。 リンクの所有権は、他のユーザーに編集させることで譲渡できます。"
@@ -933,7 +933,7 @@
     "other": "保存されていない変更があります。本当に閉じますか？"
   },
   "dialog.link.confirm.remove": {
-    "other": "Are you sure that you want to disable this link?"
+    "other": "このリンクを無効にしてもよろしいですか？"
   },
   "sharelist.quick-filter": {
     "other": "クイックフィルター..."
@@ -942,27 +942,27 @@
     "other": "すべての共有を無効にする"
   },
   "link.active": {
-    "other": "active"
+    "other": "有効"
   },
   "link.disable": {
-    "other": "Disable Link"
+    "other": "リンクを無効にする"
   },
   "link.floatingLabel": {
-    "other": "Copy and send this link for direct access"
+    "other": "このリンクをコピーして直接アクセスする"
   },
   "link.secure.title": {
-    "other": "Access Restrictions"
+    "other": "アクセス制限"
   },
   "link.secure.expires": {
-    "other": "expires"
+    "other": "有効期限"
   },
   "link.secure.expired": {
-    "other": "expired"
+    "other": "期限切れ"
   },
   "link.secure.hasPassword": {
-    "other": "password required"
+    "other": "パスワードが必要です"
   },
   "link.secure.maxdownloads": {
-    "other": "%d downloads only"
+    "other": "%d個に制限してダウンロード"
   }
 }

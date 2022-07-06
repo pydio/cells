@@ -162,16 +162,16 @@
     "other": "Phần mềm gửi mail đang được sử dụng"
   },
   "Mail.Config.Disabled.Label": {
-    "other": "Disabled (do not enable emails)"
+    "other": "Đang tắt (không sử dụng chức năng email)"
   },
   "Mail.Config.NoOp.Label": {
-    "other": "No-Op (enable emails but do not send anything)"
+    "other": "No-Op(bật chức năng tạo email nhứng không gửi đi)"
   },
   "Mail.Config.NoOp.Dump": {
-    "other": "Write emails to file for debugging purpose"
+    "other": "Ghi email vào file phục vụ việc gỡ lỗi"
   },
   "Mail.Config.NoOp.DumpTarget": {
-    "other": "Target folder for writing emails"
+    "other": "Địa chỉ thư mục để lưu emails"
   },
   "Mail.Config.Smtp.Label": {
     "other": "SMTP Server"
@@ -207,10 +207,10 @@
     "other": "Bỏ qua việc kiểm tra các certificate của máy chủ SMTP nếu nó là self-signed"
   },
   "Mail.Config.Smtp.LocalName.Label": {
-    "other": "Dialer Local Name"
+    "other": "Đặt tên cho dịch vụ. Dùng khi kết nối với máy chủ smtp"
   },
   "Mail.Config.Smtp.LocalName.Description": {
-    "other": "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+    "other": "SMTP sẽ dùng \"localhost\" khi gửi tin \"EHLO\" tới máy chủ smtp, hoặc đặt tên khác theo ý bạn"
   },
   "Mail.Config.SendGrid.Label": {
     "other": "SendGrid Service"

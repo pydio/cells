@@ -163,5 +163,11 @@
   },
   "pinned-bookmarks.other": {
     "other": "Tous les fichiers"
+  },
+  "file.temporary-etag.flag": {
+    "other": "Partiel"
+  },
+  "file.temporary-etag.tooltip": {
+    "other": "Fichier en cours de téléchargement (ou le téléchargement a échoué)."
   }
 }

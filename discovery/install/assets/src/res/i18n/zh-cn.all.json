@@ -63,10 +63,31 @@
     "other": "启动时会创建存储用户个人数据和资料库数据的默认数据源。您可以稍后创建其他数据源。"
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB connection. This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "Configure a MongoDB Connection"
   },
-  "advanced.mongo.label": {
-    "other": "Mongo DSN (user:pass@host:port/?key=value)"
+  "advanced.mongo.legend": {
+    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+  },
+  "advanced.mongo.host": {
+    "other": "Server host"
+  },
+  "advanced.mongo.port": {
+    "other": "Server port"
+  },
+  "advanced.mongo.db": {
+    "other": "Database Name"
+  },
+  "advanced.mongo.username": {
+    "other": "Username"
+  },
+  "advanced.mongo.password": {
+    "other": "Password"
+  },
+  "advanced.mongo.authSource": {
+    "other": "Auth DB"
+  },
+  "advanced.mongo.validate": {
+    "other": "Test connection"
   },
   "license.stepLabel": {
     "other": "企业版许可证"

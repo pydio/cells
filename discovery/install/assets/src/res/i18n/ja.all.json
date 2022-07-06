@@ -63,10 +63,31 @@
     "other": "ユーザーの個人データとcellsを保存するデータソースは、スタートアップ時に作成されます。後で、他のデータソースを作成することも可能です。"
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB connection. This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "Configure a MongoDB Connection"
   },
-  "advanced.mongo.label": {
-    "other": "Mongo DSN (user:pass@host:port/?key=value)"
+  "advanced.mongo.legend": {
+    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+  },
+  "advanced.mongo.host": {
+    "other": "Server host"
+  },
+  "advanced.mongo.port": {
+    "other": "Server port"
+  },
+  "advanced.mongo.db": {
+    "other": "Database Name"
+  },
+  "advanced.mongo.username": {
+    "other": "Username"
+  },
+  "advanced.mongo.password": {
+    "other": "Password"
+  },
+  "advanced.mongo.authSource": {
+    "other": "Auth DB"
+  },
+  "advanced.mongo.validate": {
+    "other": "Test connection"
   },
   "license.stepLabel": {
     "other": "エンタープライズライセンス"
@@ -96,7 +117,7 @@
     "other": "プログラムを適用"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "Pydio Cellsをインストール中です。しばらくお待ちください..."
   },
   "apply.success": {
     "other": "インストールが成功しました。サービスを開始しております。サービス開始後に、このページを再読み込みします。"

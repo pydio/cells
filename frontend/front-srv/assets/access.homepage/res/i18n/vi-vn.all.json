@@ -180,7 +180,7 @@
     "other": "Thư mục"
   },
   "search.facets.title": {
-    "other": "Filter Results..."
+    "other": "Kết quả lọc..."
   },
   "search.facet.type": {
     "other": "Kiểu"
@@ -195,7 +195,7 @@
     "other": "Đã sửa đổi"
   },
   "search.facet.found": {
-    "other": "Found in"
+    "other": "Đã tìm thấy"
   },
   "search.facet.metadata": {
     "other": "Metadata"
@@ -219,24 +219,24 @@
     "other": "> 100MB"
   },
   "facet.label.date.moments": {
-    "other": "Moments ago"
+    "other": "Vừa nãy"
   },
   "facet.label.date.today": {
     "other": "Hôm nay"
   },
   "facet.label.date.last.7": {
-    "other": "Last 7 days"
+    "other": "7 ngày trước"
   },
   "facet.label.date.last.30": {
-    "other": "Last 30 days"
+    "other": "30 ngày trước"
   },
   "facet.label.date.older.30": {
-    "other": "Older than 30 days"
+    "other": "Cũ hơn 30 ngày"
   },
   "facet.label.found.contents": {
     "other": "Nội Dung"
   },
   "facet.label.found.basename": {
-    "other": "File name"
+    "other": "Tên tệp"
   }
 }

@@ -2400,9 +2400,9 @@
     "other": "フォルダに移動"
   },
   "action.copymove.recent": {
-    "other": "Recent Locations"
+    "other": "最近使用したロケーション"
   },
   "action.copymove.root": {
-    "other": "Top Folder"
+    "other": "トップフォルダ"
   }
 }

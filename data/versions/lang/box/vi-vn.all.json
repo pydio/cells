@@ -16,8 +16,8 @@
     "other": "Dọn dẹp các phiên bản từ những files đã bị xóa"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Successfully removed {{.Count}} version",
-    "other": "Successfully removed {{.Count}} versions."
+    "one": "Đã xóa {{.Count}} phiên bản",
+    "other": "Đã xóa {{.Count}} phiên bản."
   },
   "Config.GroupPolicy.Title": {
     "other": "Policy"
@@ -86,18 +86,18 @@
     "other": "Số phiên bản tối đa được giữ lại cho chu kỳ này. Sử dụng -1 có nghĩa là giữ lại tất cả các phiên bản, và 0 thì sẽ xóa hết."
   },
   "Config.GroupRetention.NodeDeletedStrategy.Name": {
-    "other": "After original file deletion"
+    "other": "Sau khi xóa tệp gốc"
   },
   "Config.GroupRetention.NodeDeletedStrategy.Description": {
-    "other": "Number of versions to keep after original file deletion."
+    "other": "Số phiên bản được giữ lại sau khi xóa tệp gốc."
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepAll": {
-    "other": "Backup all existing versions"
+    "other": "Sao lưu tất cả các phiên bản"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepLast": {
-    "other": "Backup most recent version only"
+    "other": "Chỉ sao lưu các phiên bản gần nhất"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepNone": {
-    "other": "Delete all existing versions"
+    "other": "Xóa tất cả các phiên bản"
   }
 }

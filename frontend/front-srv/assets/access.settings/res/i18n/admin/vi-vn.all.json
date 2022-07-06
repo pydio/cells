@@ -63,7 +63,7 @@
     "other": "Cells Internals"
   },
   "ds.format-picker.internal.legend": {
-    "other": "Used to store internal binaries (e.g. files versions, thumbnails). Limited features, data is not indexed in search engines."
+    "other": "Được sử dụng để lưu trữ dữ liệu chương trình (ví dụ các phiên bản sao lưu, thumbnails). Một vài chức năng sẽ bị hạn chế ví dụ không hỗ trợ tìm kiếm."
   },
   "ds.editor.delete.warning": {
     "other": "Bạn có chắc chắn muốn xóa datasource này? Bạn sẽ không quay lại được và sẽ mất các link được tạo ra trên dữ liệu!"
@@ -87,16 +87,16 @@
     "other": "Bạn cũng phải lưu ý rằng nó có thể cần nhiều CPU hơn để việc mã hóa / giải mã dữ liệu được nhanh chóng."
   },
   "ds.editor.enc.dialog.enable.create": {
-    "other": "Set an identifier for the new key"
+    "other": "Đặt tên cho khóa mới"
   },
   "ds.editor.enc.key": {
     "other": "Encryption Key"
   },
   "ds.editor.enc.key.clear": {
-    "other": "No Encryption"
+    "other": "Không mã hoá"
   },
   "ds.editor.enc.key.create": {
-    "other": "Set up encryption with a new key..."
+    "other": "Thiết lập mã hóa với một khóa mới..."
   },
   "ds.editor.enc.validate": {
     "other": "Tôi hiểu"
@@ -138,13 +138,13 @@
     "other": "Sử dụng API Key / Api Secret để xác thực, để trống URL nếu sử dụng AmazonS3 hoặc sử dụng URL của riêng bạn."
   },
   "ds.editor.storage.legend.fs": {
-    "other": "Browse data from a local or network-attached file system."
+    "other": "Xem dữ liệu trên máy chủ hoặc từ một máy chủ NAT."
   },
   "ds.editor.storage.legend.fs.peer": {
-    "other": "Restricting datasource to a peer address will start the service only a specific node. Using \"Any\" value will start service on all nodes where Cells is running, which can be handy if a shared filesystem is mounted on all nodes at the same location, or if your node may change its IP on restart. To avoid conflicts, it is better to either use ANY for all datasources or select specific nodes for all datasources."
+    "other": "Trong một cụm máy chủ Cells, thiết lập dịch vụ datasource trên một địa chỉ cụ thể (peer address) sẽ chỉ cho phép dịch vụ phục vụ trên máy chủ đó mà thôi. Nếu sử dụng \"Bất kỳ\" (any) thì tất cả các node sẽ có thể dùng dịch vụ này và nó sẽ phát huy tác dụng nếu như máy chủ bị thay đổi địa chỉ. Để tránh những xung đột có thể xảy ra, chúng ta nên để chung 1 thiết lập (hoặc là peer address, hoặc là any) cho tất cả các datasources trong cụm máy chủ Cells."
   },
   "ds.editor.storage.legend.fs.path": {
-    "other": "Make sure that last folder is lowercase and that its parent is writeable. If your existing folder is uppercase, you can use symbolic links to work around this limitation."
+    "other": "Tên thư mục phải viết bằng ký tự thường và cells có quyên ghi/đọc trên thư mục cha. Nếu thư mục đã có sẵn với tên viết bằng ký tự in hoa, thì bạn có thể tạo cho nó một symbol link để sử dụng."
   },
   "ds.editor.storage.legend.s3": {
     "other": "Duyệt dữ liệu từ các S3 bucket."
@@ -168,16 +168,16 @@
     "other": "Hãy sử dụng chế độ Chỉ đọc nếu bạn yêu cầu Cells không bao giờ viết bất cứ tệp ẩn nào và sử dụng eTags gốc làm checksums( điều này có thể cần thiết cho buckets với các nhóm dữ liệu hiện có rất lớn). Tuy nhiên, vui lòng chú ý rằng bất cứ không gian làm việc nào được tạo trên datasource này phải được đặt là Chỉ đọc, vì tính năng di chuyển có thể hoạt động không được chính xác."
   },
   "ds.editor.storage.flatStorage": {
-    "other": "Keep data structure on storage"
+    "other": "Giữ nguyên cấu trúc thư mục của thư mục dùng để lưu trữ"
   },
   "ds.editor.storage.legend.flatStorage": {
-    "other": "Flat (unstructured) storage is best for performances. Use structured storage only if you want to make sure to see the files and folders reproduced inside the actual storage (or mapping to a folder with pre-existing data). This CANNOT be changed after datasource creation."
+    "other": "Bộ lưu trũ Flat (phi cấu trúc) có ưu điểm đem lại tốc độ xử lý cao. Dùng bộ lưu trữ kiểu có cấu trúc chỉ khi bạn đã có sẵn khối dữ liệu lưu trữ trên thư mục dùng làm nơi lưu trữ. Bạn phải quyết định một trong hai lựa chọn vì sẽ không thể thay đổi sau này."
   },
   "ds.editor.storage.skipResync": {
-    "other": "Skip full resynchronisation at restart"
+    "other": "Bỏ qua việc đồng bộ dữ liệu lúc khởi động"
   },
   "ds.editor.storage.legend.skipResync": {
-    "other": "For huge datasources, you may want to avoid full resynchronisation at restart time."
+    "other": "Nếu datasource có dung lượng lớn, bạn cần phải bỏ qua bước đồng bộ khi khởi động Cells."
   },
   "ds.editor.storage.checksumMapper": {
     "other": "Lưu trữ tổng kiểm tra cục bộ (không sửa đổi các đối tượng)"
@@ -327,7 +327,7 @@
     "other": "Objects Tags"
   },
   "ds.editor.storage.s3.bucketPathPrefix": {
-    "other": "Path prefix inside the bucket (used as a folder)"
+    "other": "Phần tiền tố của đường dẫn trong bucket (ví dụ như tên một thư mục)"
   },
   "ds.editor.title": {
     "other": "DataSource %s"
@@ -357,13 +357,13 @@
     "other": "Kiểu storage"
   },
   "ds.editor.tab.lifecycle": {
-    "other": "Data Lifecycle"
+    "other": "Vòng đời của dữ liệu"
   },
   "ds.editor.tab.advanced": {
-    "other": "Advanced Options"
+    "other": "Tùy chọn Nâng cao"
   },
   "ds.editor.initFlatFromSnapshot": {
-    "other": "If this storage was previously used as a flat datasource, initialize it from an existing snapshot file (must be found inside the storage)"
+    "other": "Nếu thư mục này đã từng được kích hoạt với định dạng flat, bạn có thể khôi phục từ một snaphot được lưu trong chính thư mục"
   },
   "ds.encryption": {
     "other": "Đã mã hóa"
@@ -483,10 +483,10 @@
     "other": "Phiên bản"
   },
   "ds.syncStatus": {
-    "other": "Last Sync"
+    "other": "Lần đồng bộ cuối"
   },
   "ds.emptyState": {
-    "other": "No datasources created yet"
+    "other": "Chưa có datasource nào được tạo"
   },
   "ds.versioning.description": {
     "other": "Mô tả"
@@ -498,7 +498,7 @@
     "other": "Quy tắc giữ lại các phiên bản"
   },
   "ds.versioning.storage": {
-    "other": "Storage"
+    "other": "Lưu trữ"
   },
   "logs.1": {
     "other": "Nhật ký máy chủ"
@@ -531,28 +531,28 @@
     "other": "Đến"
   },
   "logs.filter.period.time": {
-    "other": "At..."
+    "other": "Vào lúc..."
   },
   "logs.filter.login": {
     "other": "Đăng nhập"
   },
   "logs.filter.ip": {
-    "other": "IP"
+    "other": "Địa chỉ IP"
   },
   "logs.filter.fulltext": {
     "other": "Tìm kiếm toàn văn bản"
   },
   "logs.tz.tooltip": {
-    "other": "Show local/server timezone"
+    "other": "Hiển thị múi giờ theo vị trí của bạn/trên máy chủ"
   },
   "logs.tz.local": {
-    "other": "Local Timezone"
+    "other": "Múi giờ địa phương của bạn"
   },
   "logs.tz.server": {
-    "other": "Server Timezone"
+    "other": "Múi giờ của máy chủ"
   },
   "logs.toggleTheme": {
-    "other": "Light/Dark Theme"
+    "other": "Chế độ màu Sáng/Tối"
   },
   "logs.sys.note": {
     "other": "Xin lưu ý:"
@@ -582,7 +582,7 @@
     "other": "Tệp sẽ được xuất dưới dạng định dạng CSV phân cách bởi (;) và các trường được đặt trong dấu ngoặc kép (\")."
   },
   "logs.level": {
-    "other": "Level"
+    "other": "Mức độ"
   },
   "logs.service": {
     "other": "Dịch vụ"
@@ -702,7 +702,7 @@
     "other": "Giá trị"
   },
   "metadata.editor.selection.steps": {
-    "other": "Show as steps"
+    "other": "Hiển thị the bước"
   },
   "metadata.editor.tags.cleared": {
     "other": "Đã xóa tags cho namespaces %s"
@@ -750,34 +750,34 @@
     "other": "Loại"
   },
   "metadata.type.string": {
-    "other": "Short Text"
+    "other": "Miêu tả ngắn"
   },
   "metadata.type.textarea": {
-    "other": "Paragraph"
+    "other": "Đoạn văn"
   },
   "metadata.type.integer": {
-    "other": "Number"
+    "other": "Số"
   },
   "metadata.type.boolean": {
-    "other": "True/False value"
+    "other": "Giá trị đúng/sai"
   },
   "metadata.type.date": {
-    "other": "Date or Time"
+    "other": "Ngày hoặc Thời điểm"
   },
   "metadata.type.stars_rate": {
     "other": "Đánh giá sao"
   },
   "metadata.type.css_label": {
-    "other": "Color Labels"
+    "other": "Nhãn gắn màu"
   },
   "metadata.type.tags": {
-    "other": "Extensible Tags"
+    "other": "Các Tags mở rộng"
   },
   "metadata.type.choice": {
-    "other": "Select from values"
+    "other": "Lựa chọn từ các giá trị"
   },
   "metadata.type.json": {
-    "other": "JSON (internal format)"
+    "other": "JSON (định dạng riêng)"
   },
   "metadata.type.date.format": {
     "other": "Định dạng"
@@ -786,43 +786,43 @@
     "other": "Ngày"
   },
   "metadata.type.date.format.date-time": {
-    "other": "Date & Time"
+    "other": "Ngày & Thời điểm"
   },
   "metadata.type.date.format.time": {
-    "other": "Time"
+    "other": "Thời điểm"
   },
   "metadata.type.date.display": {
     "other": "Hiển thị"
   },
   "metadata.type.date.display.normal": {
-    "other": "Normal"
+    "other": "Bình thường"
   },
   "metadata.type.date.display.relative": {
-    "other": "Relative (xx days ago...)"
+    "other": "Tương đối (xxx ngày trước đây...)"
   },
   "metadata.type.reaction": {
-    "other": "Reaction"
+    "other": "Phản ứng"
   },
   "metadata.type.integer.format": {
     "other": "Định dạng"
   },
   "metadata.type.integer.format.general": {
-    "other": "General"
+    "other": "Tổng quát"
   },
   "metadata.type.integer.format.bytesize": {
-    "other": "Byte Size"
+    "other": "Tính theo Byte"
   },
   "metadata.type.integer.format.percentage": {
-    "other": "Percentage"
+    "other": "Tính theo phần trăm"
   },
   "metadata.type.integer.format.progress": {
-    "other": "Progress"
+    "other": "Theo tiến trình hoàn thành"
   },
   "metadata.toggle.list-visibility": {
-    "other": "Show value in files list"
+    "other": "Hiển thị các giá trị trong danh sách các tệp"
   },
   "metadata.field.mandatory": {
-    "other": "Mandatory"
+    "other": "Bắt buộc"
   },
   "perfs.booster.description": {
     "other": "Kiểm tra xem Pydio Booster đã được khởi động chưa và cho phép giao tiếp WebSocket"
@@ -960,7 +960,7 @@
     "other": "Chỉnh sửa tham số plugin"
   },
   "plugins.documentation": {
-    "other": "Documentation"
+    "other": "Tài liệu"
   },
   "policies.policy.create": {
     "other": "Tạo"
@@ -1176,7 +1176,7 @@
     "other": "Kết nối lần cuối"
   },
   "user.moveto.hint": {
-    "other": "Select destination group, leave '/' for root group."
+    "other": "Chọn group đích, hoặc dùng \"/\" để đưa vào group gốc."
   },
   "user.filter.tooltip": {
     "other": "Lọc danh sách người dùng..."
@@ -1278,10 +1278,10 @@
     "other": "Chỉnh sửa code"
   },
   "virtual.card.title": {
-    "other": "Dynamically computed path"
+    "other": "Tính toán đường dẫn tự động"
   },
   "virtual.card.cleanOnDelete": {
-    "other": "Upon user deletion, rename data to {deleted-NAME-UUID}."
+    "other": "Khi người dùng bị xóa, thư mục cá nhân sẽ bị đổi tên thành {deleted-NAME-UUID}."
   },
   "ws.1": {
     "other": "Manage DataSources"

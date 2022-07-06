@@ -120,7 +120,7 @@
     "other": "認証に失敗しました"
   },
   "oauth.authentication.code": {
-    "other": "You were successfully authenticated. Please copy and paste the code to your command line terminal"
+    "other": "認証に成功しました。コードをコピーしてコマンドライン端末に貼り付けてください。"
   },
   "oauth.authentication.copy-code": {
     "other": "クリップボードにコードをコピー"
@@ -163,5 +163,11 @@
   },
   "pinned-bookmarks.other": {
     "other": "すべてのファイル"
+  },
+  "file.temporary-etag.flag": {
+    "other": "Incomplete"
+  },
+  "file.temporary-etag.tooltip": {
+    "other": "This file is being uploaded (or the upload has failed)."
   }
 }
