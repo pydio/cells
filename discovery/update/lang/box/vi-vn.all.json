@@ -45,9 +45,9 @@
     "other": "Proxy Password"
   },
   "Update.Config.Disable.Label": {
-    "other": "Disable update checks"
+    "other": "Tắt cập nhật"
   },
   "Update.Config.Disable.Description": {
-    "other": "If your server has no access to outside world, do not try contact update site."
+    "other": "Nếu máy chủ không có truy cập internet thì sẽ không cần bật chức năng kiểm tra cập nhật."
   }
 }

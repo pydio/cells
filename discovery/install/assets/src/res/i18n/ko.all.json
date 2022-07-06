@@ -63,10 +63,31 @@
     "other": "시작할 때 계정들의 사용자 데이터와 cells 데이터를 저장하기 위한 기본 데이터 저장소가 생성됩니다. 이후에 다른 데이터 저장소를 생성할 수 있습니다."
   },
   "advanced.mongo.title": {
-    "other": "MongoDB 연결을 설정하세요. 이는 확장성의 측면에서 더 좋으며 클러스터 배포를 위해서는 필요합니다. 만약 MongoDB가 준비되지 않았다면 이후에 완료할 수 있습니다."
+    "other": "Configure a MongoDB Connection"
   },
-  "advanced.mongo.label": {
-    "other": "Mongo DSN (user:pass@host:port/?key=value)"
+  "advanced.mongo.legend": {
+    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+  },
+  "advanced.mongo.host": {
+    "other": "Server host"
+  },
+  "advanced.mongo.port": {
+    "other": "Server port"
+  },
+  "advanced.mongo.db": {
+    "other": "Database Name"
+  },
+  "advanced.mongo.username": {
+    "other": "Username"
+  },
+  "advanced.mongo.password": {
+    "other": "Password"
+  },
+  "advanced.mongo.authSource": {
+    "other": "Auth DB"
+  },
+  "advanced.mongo.validate": {
+    "other": "Test connection"
   },
   "license.stepLabel": {
     "other": "기업 라이선스"

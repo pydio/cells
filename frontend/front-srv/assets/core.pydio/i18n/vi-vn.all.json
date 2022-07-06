@@ -2088,7 +2088,7 @@
     "other": "Các công cụ để cho phép ứng dụng gửi email"
   },
   "plugtype.desc.search-engine": {
-    "other": "Search Engine options"
+    "other": "Các tùy chọn cho bộ máy tìm kiếm"
   },
   "plugtype.desc.meta": {
     "other": "Các tính năng bổ sung sẽ được thêm vào workspaces"
@@ -2154,7 +2154,7 @@
     "other": "Người gửi thư"
   },
   "plugtype.title.search-engine": {
-    "other": "Search Engine"
+    "other": "Máy tìm kiếm"
   },
   "plugtype.title.meta": {
     "other": "Workspace Meta Aspects"
@@ -2349,25 +2349,25 @@
     "other": "Vui lòng sử dụng ảnh nhỏ hơn 5MB"
   },
   "searchengine.searching": {
-    "other": "Searching..."
+    "other": "Đang tìm kiếm..."
   },
   "searchengine.main.placeholder": {
-    "other": "Search..."
+    "other": "Tìm kiếm..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "Tìm kiếm: "
   },
   "searchengine.scope.title": {
-    "other": "Search In..."
+    "other": "Tìm kiếm trong..."
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Advanced Filters"
+    "other": "Bộ lọc nâng cao"
   },
   "searchengine.results.foundN": {
-    "other": "%1 results found"
+    "other": "Tìm thấy %1"
   },
   "searchengine.results.withMore": {
-    "other": "Showing %1, load more..."
+    "other": "Hiển thị %1, tải thêm..."
   },
   "searchengine.query.action.save": {
     "other": "Lưu"
@@ -2379,30 +2379,30 @@
     "other": "Xóa"
   },
   "searchengine.query.save-label": {
-    "other": "Enter a label"
+    "other": "Nhập tên nhãn mới"
   },
   "searchengine.field.basenameOrContent": {
-    "other": "Name/Content"
+    "other": "Tên/Nội dung"
   },
   "chat.load-older": {
-    "other": "Older entries"
+    "other": "Các mục cũ hơn"
   },
   "workspace.quota-usage": {
-    "other": "Quota Usage"
+    "other": "Phân bổ dung lượng lưu trữ"
   },
   "action.delete.permanently": {
-    "other": "Delete permanently"
+    "other": "Xóa vĩnh viễn"
   },
   "action.delete.permanently.warning": {
-    "other": "warning, you cannot undo this operation!"
+    "other": "xin lưu ý, bạn không thể undo!"
   },
   "action.goto.label": {
-    "other": "Go To Folder"
+    "other": "Đi đến thư mục"
   },
   "action.copymove.recent": {
-    "other": "Recent Locations"
+    "other": "Thư mục truy cập gần đây"
   },
   "action.copymove.root": {
-    "other": "Top Folder"
+    "other": "Thư mục gốc"
   }
 }

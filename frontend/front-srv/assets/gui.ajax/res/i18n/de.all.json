@@ -163,5 +163,11 @@
   },
   "pinned-bookmarks.other": {
     "other": "Alle Dateien"
+  },
+  "file.temporary-etag.flag": {
+    "other": "Unvollständig"
+  },
+  "file.temporary-etag.tooltip": {
+    "other": "Diese Datei wird gerade hochgeladen (oder der Upload ist fehlgeschlagen)."
   }
 }

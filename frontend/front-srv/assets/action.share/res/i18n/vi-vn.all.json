@@ -195,7 +195,7 @@
     "other": "Standard (danh sách file được liệt kê với dòng tiêu đề)"
   },
   "154": {
-    "other": "Images Gallery (best for photos)"
+    "other": "Thư viện ảnh (phù hợp với việc chứa các ảnh)"
   },
   "155": {
     "other": "Embedded (smaller header, for widgets)"
@@ -537,13 +537,13 @@
     "other": "Các dữ liệu chia sẻ trong cells"
   },
   "254b": {
-    "other": "With users or groups"
+    "other": "Với một người hoặc một nhóm"
   },
   "254c": {
-    "other": "Shared in %d cells"
+    "other": "Đã chia sẻ trong %d cells"
   },
   "254d": {
-    "other": "Shared in '%s'"
+    "other": "Được chia sẻ trong '%s'"
   },
   "255": {
     "other": "Bạn có chắc muốn xóa cells và các liên kết được tạo ra trong nó?"
@@ -909,22 +909,22 @@
     "other": "Chia sẻ (các) thư mục hiện tại"
   },
   "cells.remove.node": {
-    "other": "Remove from this cell"
+    "other": "Xóa khỏi cells này"
   },
   "cell.visibility.advanced": {
     "other": "Tính năng nâng cao này cho phép bạn quyết định ai có thể chỉnh sửa thuộc tính của Cell (quyền thêm/xóa người dùng và thêm/xóa thư mục gốc của Cell). Để đơn gian quản lý các truy cập vào dữ liệu, vui lòng sử dụng tab 'Chia sẻ với'."
   },
   "cell.add.existing-or-new": {
-    "other": "Add to existing or new Cell"
+    "other": "Thêm vào hoặc tạo mới một Cell"
   },
   "cell.add.existing": {
-    "other": "Add to existing Cell"
+    "other": "Thêm vào Cell đã có"
   },
   "cell.add.new": {
-    "other": "Create a new Cell"
+    "other": "Tạo mới một Cell"
   },
   "link.visibility.title": {
-    "other": "[Advanced] Visibility"
+    "other": "[Nâng cao] Đồng sở hữu Cell này"
   },
   "link.visibility.advanced": {
     "other": "Tính năng nâng cao này cho phép bạn quyết định xem liên kết này có hiển thị với những người dùng khác khi họ xem tệp này hay không và liệu họ có thể chỉnh sửa các thuộc tính của nó hay không. Theo mặc định, các liên kết mà bạn tạo chỉ hiện thị với bạn. Bạn có thể chuyển quyền sở hữu liên kết bằng cách cho phép người dùng khác chỉnh sửa nó."
@@ -933,36 +933,36 @@
     "other": "Có những thay đổi chưa được lưu, bạn có chắc chắn muốn đóng không?"
   },
   "dialog.link.confirm.remove": {
-    "other": "Are you sure that you want to disable this link?"
+    "other": "Bạn có chắc chắn là muốn xóa liên kết này?"
   },
   "sharelist.quick-filter": {
-    "other": "Quick filter..."
+    "other": "Bộ lọc nhanh..."
   },
   "composite.deleteAll": {
-    "other": "Disable all shares"
+    "other": "Tắt toàn bộ các chia sẻ"
   },
   "link.active": {
-    "other": "active"
+    "other": "kích hoạt"
   },
   "link.disable": {
-    "other": "Disable Link"
+    "other": "Tắt chia sẻ"
   },
   "link.floatingLabel": {
-    "other": "Copy and send this link for direct access"
+    "other": "Copy và gửi chia sẻ này"
   },
   "link.secure.title": {
-    "other": "Access Restrictions"
+    "other": "Hạn chế truy cập"
   },
   "link.secure.expires": {
-    "other": "expires"
+    "other": "hết hạn"
   },
   "link.secure.expired": {
-    "other": "expired"
+    "other": "đã hết hạn"
   },
   "link.secure.hasPassword": {
-    "other": "password required"
+    "other": "cần mật khẩu để mở khoá"
   },
   "link.secure.maxdownloads": {
-    "other": "%d downloads only"
+    "other": "Đã tải xuống %d lần"
   }
 }
