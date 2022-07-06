@@ -161,6 +161,7 @@ func (b *bigCache) Iterate(f func(key string, val interface{})) error {
 }
 
 func DefaultBigCacheConfig() bigcache.Config {
+	// Todo : pass this via Cache URL
 	o.Do(func() {
 		defaultConfig = bigcache.DefaultConfig(30 * time.Minute)
 		defaultConfig.Shards = 64
