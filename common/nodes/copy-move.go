@@ -215,7 +215,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			tgt := ctx
 			if move {
 				tgtUuid = sourceNode.Uuid
-				tgt = metadata.WithAdditionalMetadata(tgt, map[string]string{common.XPydioMoveUuid: tgtUuid})
+				tgt = metadata.WithAdditionalMetadata(tgt, map[string]string{common.XPydioMoveUuid: session})
 			}
 			if _, e := router.CreateNode(tgt, &tree.CreateNodeRequest{Node: &tree.Node{
 				Uuid:  tgtUuid,
@@ -303,7 +303,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 						sess = common.SyncSessionClose_ + session
 					}
 					createContext = metadata.WithAdditionalMetadata(createContext, map[string]string{
-						common.XPydioMoveUuid: childNode.Uuid,
+						common.XPydioMoveUuid: session,
 					})
 					folderNode.Uuid = childNode.Uuid
 				}
@@ -407,8 +407,8 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			if crossDs {
 				copyCtxMeta[common.XPydioSessionUuid] = closeSession
 				// Identify copy/delete across 2 datasources
-				copyCtxMeta[common.XPydioMoveUuid] = sourceNode.Uuid
-				deleteMeta[common.XPydioMoveUuid] = sourceNode.Uuid
+				copyCtxMeta[common.XPydioMoveUuid] = session
+				deleteMeta[common.XPydioMoveUuid] = session
 			} else {
 				copyCtxMeta[common.XPydioSessionUuid] = session
 			}
@@ -444,7 +444,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			// Flat source : remove original folder
 			log.Logger(ctx).Info("Removing source folder after move")
 			// Manually create target folder
-			tgt := metadata.WithAdditionalMetadata(ctx, map[string]string{common.XPydioMoveUuid: sourceNode.Uuid})
+			tgt := metadata.WithAdditionalMetadata(ctx, map[string]string{common.XPydioMoveUuid: session})
 			if _, e := router.DeleteNode(tgt, &tree.DeleteNodeRequest{Node: sourceNode}); e != nil {
 				return e
 			}
@@ -535,7 +535,7 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move,
 				ctxMeta[common.XPydioSessionUuid] = common.SyncSessionClose_ + session
 			}
 			if move {
-				ctxMeta[common.XPydioMoveUuid] = childNode.Uuid
+				ctxMeta[common.XPydioMoveUuid] = session
 			}
 		}
 		_, e := handler.CopyObject(metadata.WithAdditionalMetadata(ctx, ctxMeta), childNode, targetNode, &models.CopyRequestData{
@@ -560,12 +560,13 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move,
 	// Remove original for move case - Skip folders for flat targets, as they are removed recursively
 	if move && !(!childNode.IsLeaf() && sourceFlat) {
 		// If we're sending the last Delete here - then we close the session at the same time
+		originalSession := session
 		if closeSession {
 			session = common.SyncSessionClose_ + session
 		}
 		delCtx := ctx
 		if crossDs {
-			delCtx = metadata.WithAdditionalMetadata(ctx, map[string]string{common.XPydioMoveUuid: childNode.Uuid})
+			delCtx = metadata.WithAdditionalMetadata(ctx, map[string]string{common.XPydioMoveUuid: originalSession})
 		}
 		_, moveErr := handler.DeleteNode(delCtx, &tree.DeleteNodeRequest{Node: childNode, IndexationSession: session})
 		if moveErr != nil {

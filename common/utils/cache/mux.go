@@ -58,7 +58,7 @@ func (mux *URLMux) Register(scheme string, opener URLOpener) {
 	mux.schemes.Register("cache", "Cache", scheme, opener)
 }
 
-// OpenTopic calls OpenTopicURL with the URL parsed from urlstr.
+// OpenCache calls OpenURL with the URL parsed from urlstr.
 // OpenTopic is safe to call from multiple goroutines.
 func (mux *URLMux) OpenCache(ctx context.Context, urlstr string) (Cache, error) {
 	opener, u, err := mux.schemes.FromString("Cache", urlstr)
@@ -78,7 +78,7 @@ func DefaultURLMux() *URLMux {
 	return defaultURLMux
 }
 
-// OpenRegistry opens the Registry identified by the URL given.
+// OpenCache opens a Cache identified by the URL given.
 // See the URLOpener documentation in driver subpackages for
 // details on supported URL formats, and https://gocloud.dev/concepts/urls
 // for more information.

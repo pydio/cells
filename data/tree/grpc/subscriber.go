@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -31,22 +30,24 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type EventSubscriber struct {
-	TreeServer *TreeServer
-
-	moves    map[string]chan *tree.NodeChangeEvent
-	movesMux *sync.Mutex
+	TreeServer  *TreeServer
+	sharedCache cache.Cache
 }
 
-func NewEventSubscriber(t *TreeServer) *EventSubscriber {
-	return &EventSubscriber{
+func NewEventSubscriber(t *TreeServer) (*EventSubscriber, error) {
+	es := &EventSubscriber{
 		TreeServer: t,
-		moves:      make(map[string]chan *tree.NodeChangeEvent),
-		movesMux:   &sync.Mutex{},
 	}
+	var er error
+	es.sharedCache, er = cache.OpenCache(context.Background(), runtime.CacheURL()+"/pydio.grpc.tree?evictionTime=10m")
+	return es, er
 }
 
 func (s *EventSubscriber) publish(ctx context.Context, msg *tree.NodeChangeEvent) {
@@ -54,72 +55,59 @@ func (s *EventSubscriber) publish(ctx context.Context, msg *tree.NodeChangeEvent
 	s.TreeServer.PublishChange(msg)
 }
 
-func (s *EventSubscriber) mvGet(uuid string) (chan *tree.NodeChangeEvent, bool) {
-	s.movesMux.Lock()
-	defer s.movesMux.Unlock()
-	c, ok := s.moves[uuid]
-	return c, ok
-}
-
-func (s *EventSubscriber) mvSet(uuid string, c chan *tree.NodeChangeEvent) {
-	s.movesMux.Lock()
-	defer s.movesMux.Unlock()
-	s.moves[uuid] = c
-}
-
-func (s *EventSubscriber) mvDel(uuid string) {
-	s.movesMux.Lock()
-	defer s.movesMux.Unlock()
-	delete(s.moves, uuid)
-}
-
-func (s *EventSubscriber) enqueueMoves(ctx context.Context, moveUuid string, event *tree.NodeChangeEvent) {
-	if c, ok := s.mvGet(moveUuid); ok {
-		c <- event
+func (s *EventSubscriber) enqueueInCache(ctx context.Context, moveUuid string, event *tree.NodeChangeEvent, loop bool) {
+	other := &tree.NodeChangeEvent{}
+	var key, opposite string
+	key = moveUuid + "-" + event.Type.String()
+	if event.Type == tree.NodeChangeEvent_CREATE {
+		opposite = moveUuid + "-" + tree.NodeChangeEvent_DELETE.String()
 	} else {
-		newB := make(chan *tree.NodeChangeEvent)
-		s.mvSet(moveUuid, newB)
+		opposite = moveUuid + "-" + tree.NodeChangeEvent_CREATE.String()
+	}
+	if d, o := s.sharedCache.GetBytes(opposite); o {
+		_ = json.Unmarshal(d, &other)
+		update := &tree.NodeChangeEvent{
+			Type: tree.NodeChangeEvent_UPDATE_PATH,
+		}
+		if event.Type == tree.NodeChangeEvent_CREATE {
+			update.Target = event.Target
+		} else {
+			update.Source = event.Source
+		}
+		if other.Type == tree.NodeChangeEvent_CREATE {
+			update.Target = other.Target
+		} else {
+			update.Source = other.Source
+		}
+		if update.Source == nil || update.Target == nil {
+			log.Logger(ctx).Error("Incomplete update event", zap.Any("event", event), zap.Any("other", other))
+		} else {
+			//log.Logger(ctx).Info(" => Complete update event", zap.Bool("loop", loop), zap.Any("update source", update.Source.Path), zap.Any("update target", update.Target.Path))
+			s.publish(ctx, update)
+		}
+		s.sharedCache.Delete(opposite)
+		return
+	}
+
+	if !loop {
+		//log.Logger(ctx).Info("Enqueue in cache", zap.String("key", key), zap.Any("type", event.Type.String()))
+		d, _ := json.Marshal(event)
+		s.sharedCache.Set(key, d)
 		go func() {
-			var del, create *tree.NodeChangeEvent
-			defer func() {
-				// Process
-				if del != nil && create != nil {
-					s.publish(ctx, &tree.NodeChangeEvent{
-						Type:   tree.NodeChangeEvent_UPDATE_PATH,
-						Source: del.Source,
-						Target: create.Target,
-					})
-				}
-				// Remove
-				s.mvDel(moveUuid)
-				close(newB)
-			}()
-			for {
-				select {
-				case ev := <-newB:
-					if ev.Type == tree.NodeChangeEvent_DELETE {
-						del = ev
-					} else if ev.Type == tree.NodeChangeEvent_CREATE {
-						create = ev
-					}
-					if del != nil && create != nil {
-						return
-					}
-				case <-time.After(10 * time.Minute):
-					return
-				}
-			}
+			<-time.After(300 * time.Millisecond)
+			// Retry once if other key was stored just at the same time
+			s.enqueueInCache(ctx, moveUuid, event, true)
 		}()
-		newB <- event
 	}
 }
 
-// Handle incoming INDEX events and resend them as TREE events
+// Handle incoming INDEX events and resend them as TREE events. Events that carry an XPydioMoveUuid metadata
+// are enqueued in a cache to re-create CREATE+DELETE pairs across datasources.
 func (s *EventSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
 	source, target := msg.Source, msg.Target
 	if meta, ok := metadata.FromContextRead(ctx); ok && (msg.Type == tree.NodeChangeEvent_CREATE || msg.Type == tree.NodeChangeEvent_DELETE) {
-		if move, o := meta[common.XPydioMoveUuid]; o {
-			var uuid = move
+		if moveSess, o := meta[common.XPydioMoveUuid]; o {
+			var uuid string
 			if source != nil {
 				uuid = source.Uuid
 				s.TreeServer.updateDataSourceNode(source, source.GetStringMeta(common.MetaNamespaceDatasourceName))
@@ -133,7 +121,8 @@ func (s *EventSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent)
 				s.TreeServer.updateDataSourceNode(target, target.GetStringMeta(common.MetaNamespaceDatasourceName))
 			}
 			log.Logger(ctx).Debug("Got move metadata from context - Skip event", zap.Any("uuid", uuid), zap.Any("event", msg))
-			s.enqueueMoves(ctx, uuid, msg)
+			uuid += "-" + moveSess
+			s.enqueueInCache(ctx, uuid, msg, false)
 			return nil
 		}
 	}

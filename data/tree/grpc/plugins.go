@@ -49,7 +49,10 @@ func init() {
 					MainCtx:     ctx,
 					DataSources: map[string]DataSource{},
 				}
-				eventSubscriber := NewEventSubscriber(treeServer)
+				eventSubscriber, e := NewEventSubscriber(treeServer)
+				if e != nil {
+					return e
+				}
 
 				go updateServicesList(ctx, treeServer, 0)
 
