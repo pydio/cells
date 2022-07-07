@@ -41,10 +41,11 @@ const (
 
 // ContextFromClaims feeds context with correct Keys and Metadata for a given Claims
 func ContextFromClaims(ctx context.Context, claims claim.Claims) context.Context {
+	metaClaims := claims // Copy
 	// Check string length for Roles as it may blow up the Header size
-	if len(claims.Roles) > rolesMaxLength {
+	if len(metaClaims.Roles) > rolesMaxLength {
 		//fmt.Println("Removing Roles from Claims", len(claims.Roles))
-		claims.Roles = rolesRequireReload
+		metaClaims.Roles = rolesRequireReload
 	}
 	// Set context keys
 	ctx = context.WithValue(ctx, claim.ContextKey, claims)
@@ -62,7 +63,7 @@ func ContextFromClaims(ctx context.Context, claims claim.Claims) context.Context
 		}
 	}
 	md[common.PydioContextUserKey] = claims.Name
-	data, _ := json.Marshal(claims)
+	data, _ := json.Marshal(metaClaims)
 	md[claimsContextKey] = string(data)
 	return metadata.NewContext(ctx, md)
 }
