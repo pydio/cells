@@ -30,6 +30,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -203,7 +204,9 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 		return false, nil, fmt.Errorf("could not init keyring store %v", err)
 	}
 	// Keyring start and creation of the master password
-	keyring = crypto.NewConfigKeyring(keyringStore, crypto.WithAutoCreate(true))
+	keyring = crypto.NewConfigKeyring(keyringStore, crypto.WithAutoCreate(true, func(s string) {
+		fmt.Println(promptui.IconWarn + " [Keyring] " + s)
+	}))
 	password, err := keyring.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
 	if err != nil {
 		return false, nil, fmt.Errorf("could not get master password %v", err)

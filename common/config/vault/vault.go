@@ -85,7 +85,7 @@ type store struct {
 	v         configx.Values
 }
 
-func (s *store) Get() configx.Value {
+func (s *store) read() {
 	sec, er := s.cli.Logical().Read(s.storePath + "/data/" + s.keyName)
 	if er != nil {
 		fmt.Println("cannot read secret " + er.Error())
@@ -99,10 +99,15 @@ func (s *store) Get() configx.Value {
 			_ = s.v.Val(k).Set(v)
 		}
 	}
+}
+
+func (s *store) Get() configx.Value {
+	s.read()
 	return s.v
 }
 
 func (s *store) Set(value interface{}) error {
+	s.read()
 	if er := s.v.Set(value); er != nil {
 		return er
 	}
@@ -110,12 +115,14 @@ func (s *store) Set(value interface{}) error {
 }
 
 func (s *store) Del() error {
+	s.read()
 	_ = s.v.Del()
 	_, er := s.cli.Logical().Delete(s.storePath + "/data/" + s.keyName)
 	return er
 }
 
 func (s *store) Val(path ...string) configx.Values {
+	s.read()
 	v := s.v.Val(path...)
 	// Wrap into an autoSave configx.Values
 	return &val{Values: v, store: s}

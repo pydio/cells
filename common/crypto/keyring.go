@@ -28,30 +28,33 @@ import (
 	"github.com/zalando/go-keyring"
 )
 
-type Keyring interface{
+type Keyring interface {
 	Get(string, string) (string, error)
 	Set(string, string, string) error
 	Delete(string, string) error
 }
 
 type KeyringOptions struct {
-	Auto bool
+	Auto       bool
+	AutoLogger func(string)
 }
 
 type KeyringOption func(*KeyringOptions)
 
-func WithAutoCreate(b bool) KeyringOption {
+func WithAutoCreate(b bool, logger func(string)) KeyringOption {
 	return func(o *KeyringOptions) {
 		o.Auto = b
+		o.AutoLogger = logger
 	}
 }
 
 type autoCreateKeyring struct {
 	Keyring
+	logger func(string)
 }
 
-func NewAutoKeyring(base Keyring) Keyring {
-	return &autoCreateKeyring{base}
+func NewAutoKeyring(base Keyring, logger func(string)) Keyring {
+	return &autoCreateKeyring{Keyring: base, logger: logger}
 }
 
 func (k *autoCreateKeyring) Get(service string, user string) (string, error) {
@@ -68,6 +71,10 @@ func (k *autoCreateKeyring) Get(service string, user string) (string, error) {
 	b, err := RandomBytes(50)
 	if err != nil {
 		return "", err
+	}
+
+	if k.logger != nil {
+		k.logger("Auto-creating new value for " + service + "/" + user)
 	}
 
 	password = base64.StdEncoding.EncodeToString(b)

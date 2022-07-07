@@ -53,7 +53,7 @@ func NewConfigKeyring(store config.Store, opt ...KeyringOption) Keyring {
 	provider = &configProvider{store}
 
 	if opts.Auto {
-		provider = NewAutoKeyring(provider)
+		provider = NewAutoKeyring(provider, opts.AutoLogger)
 	}
 
 	return provider
