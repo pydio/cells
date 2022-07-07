@@ -88,11 +88,15 @@ type store struct {
 func (s *store) read() {
 	sec, er := s.cli.Logical().Read(s.storePath + "/data/" + s.keyName)
 	if er != nil {
-		fmt.Println("cannot read secret " + er.Error())
+		fmt.Println("cannot connect to Vault service " + er.Error())
+		return
+	}
+	if sec == nil || sec.Data == nil {
+		return
 	}
 	i, ok := sec.Data["data"]
 	if !ok {
-		fmt.Println("cannot read keyName " + s.keyName)
+		return
 	}
 	if ms, ok := i.(map[string]interface{}); ok {
 		for k, v := range ms {
