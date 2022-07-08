@@ -445,6 +445,12 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			if _, e := router.DeleteNode(tgt, &tree.DeleteNodeRequest{Node: sourceNode}); e != nil {
 				return e
 			}
+			if !targetFlat && childrenMoved == 0 {
+				// Moved only an empty folder - make sure to close sync session
+				_ = client.Publish(context.Background(), client.NewPublication(common.TopicIndexEvent, &tree.IndexEvent{
+					SessionForceClose: session,
+				}))
+			}
 
 		}
 		if !move && !targetFlat {
