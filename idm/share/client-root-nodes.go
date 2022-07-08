@@ -72,9 +72,11 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 					node = filtered
 				}
 			}
-			if len(multipleMeta) > 0 {
-				node.AppearsIn = multipleMeta
+			if len(multipleMeta) == 0 {
+				log.Logger(ctx).Error("Trying to load a node that does not correspond to accessible workspace, this is not normal", node.Zap("input"))
+				continue
 			}
+			node.AppearsIn = multipleMeta
 			if metaResp, e := metaClient.ReadNode(ctx, request); e == nil && metaResp.GetNode().GetMetaBool(common.MetaFlagCellNode) {
 				node.MustSetMeta(common.MetaFlagCellNode, true)
 			}
