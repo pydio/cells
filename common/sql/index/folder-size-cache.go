@@ -190,6 +190,10 @@ func (dao *FolderSizeCacheSQL) invalidateMPathHierarchy(mpath mtree.MPath, level
 		parents = mpath.Parents()[level:]
 	}
 
+	folderSizeLock.Lock()
+	delete(folderSizeCache, mpath.String())
+	folderSizeLock.Unlock()
+
 	for _, p := range parents {
 		folderSizeLock.Lock()
 		delete(folderSizeCache, p.String())
