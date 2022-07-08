@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
 
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/forms"
@@ -124,6 +125,9 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 		// Check if node exists
 		resolved, e := vNodesManager.ResolveInContext(auth.WithImpersonate(ctx, u), vNode, clientsPool, false)
 		if e != nil {
+			if errors.Parse(e.Error()).Code == 404 {
+				continue
+			}
 			done <- true
 			return input.WithError(e), e
 		}

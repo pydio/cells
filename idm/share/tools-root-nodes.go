@@ -51,6 +51,10 @@ func LoadDetectedRootNodes(ctx context.Context, detectedRoots []string) (rootNod
 					node = filtered
 				}
 			}
+			if len(multipleMeta) == 0 {
+				log.Logger(ctx).Error("Trying to load a node that does not correspond to accessible workspace, this is not normal", node.Zap("input"))
+				continue
+			}
 			if len(multipleMeta) > 0 {
 				node.AppearsIn = multipleMeta
 			}

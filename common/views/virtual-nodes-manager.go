@@ -177,6 +177,9 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			return m.ResolveInContext(ctx, vNode, clientsPool, create, true)
 		} else {
 			log.Logger(ctx).Debug("Cannot read resolved node - still", resolved.ZapPath(), zap.Error(e), zap.Any("Sources", clientsPool.GetDataSources()))
+			if !create {
+				return nil, e
+			}
 		}
 	}
 	if create {
