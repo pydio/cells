@@ -40,6 +40,15 @@ let CompositeDialog = createReactClass({
         };
     },
 
+    getInitialState() {
+        const {selection} = this.props;
+        let node;
+        if(selection.getUniqueNode()){
+            node = selection.getUniqueNode();
+        }
+        return {node}
+    },
+
     propTypes: {
         pydio: PropTypes.instanceOf(Pydio).isRequired,
         selection: PropTypes.instanceOf(PydioDataModel),
@@ -70,11 +79,8 @@ let CompositeDialog = createReactClass({
     },
 
     render(){
-        const {pydio, selection} = this.props;
-        let node;
-        if(selection.getUniqueNode()){
-            node = selection.getUniqueNode();
-        }
+        const {pydio} = this.props;
+        const {node} = this.state;
 
         return (
             <CompositeCard
