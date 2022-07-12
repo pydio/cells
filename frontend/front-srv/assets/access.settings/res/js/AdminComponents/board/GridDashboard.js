@@ -96,7 +96,7 @@ class GridDashboard extends React.Component{
         );
 
         return (
-            <div style={{height:'100%', overflowY:'auto'}}>
+            <div style={{height:'100%', display:'flex', flexDirection:'column', overflowY:'hidden'}}>
                 <Header
                     title={message('welc.title')}
                     icon="mdi mdi-view-dashboard"
@@ -107,7 +107,7 @@ class GridDashboard extends React.Component{
                     builderNamespaces={['AdminComponents']}
                     defaultCards={this.getDefaultCards()}
                     pydio={pydio}
-                    style={{height: '100%'}}
+                    style={{flex: 1}}
                     rglStyle={{position:'absolute', top: 6, left: 6, right: 6, bottom: 6}}
                     disableEdit={true}
                 />

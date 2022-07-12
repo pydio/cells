@@ -161,9 +161,11 @@ class Header extends Component{
         } else if(!actionButtons.map){
             actionButtons = [actionButtons];
         }
+        let finalStyle = scrolling?styles.scrolling:styles.base
+        finalStyle = {...finalStyle, ...this.props.style}
 
         return (
-            <Paper style={scrolling?styles.scrolling:styles.base} zDepth={scrolling?1:0}>
+            <Paper style={finalStyle} zDepth={scrolling?1:0}>
                 <div style={styles.container}>
                     {icon}
                     {headTitle}

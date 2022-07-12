@@ -100,16 +100,18 @@ export default createReactClass({
                 </div>
             </div>
         );
+        const {toolsAbsolute} = this.props;
 
         return (
             <div className="main-layout-nav-to-stack workspaces-board">
                 <div className="vertical-layout" style={{width:'100%'}}>
                     <AdminComponents.Header
-                        title={this.context.getMessage('172', 'settings')}
-                        icon="mdi mdi-access-point-network"
+                        title={toolsAbsolute?'':this.context.getMessage('172', 'settings')}
+                        icon={toolsAbsolute?'':"mdi mdi-access-point-network"}
                         legend={this.context.getMessage('173', 'settings')}
                         actions={[buttonContainer]}
                         reloadAction={this.reloadList.bind(this)}
+                        style={toolsAbsolute?{position:'absolute', top:0, right: 0}:null}
                     />
                     <ServicesList
                         ref="servicesList"
