@@ -24,7 +24,7 @@ import PydioApi from 'pydio/http/api'
 import {Paper, FlatButton, Toggle} from 'material-ui'
 import AdminStyles from "../styles/AdminStyles";
 import {LogServiceApi, LogListLogRequest, ListLogRequestLogFormat} from 'cells-sdk';
-import ReloadWrapper from './ReloadWrapper'
+import ReloadWrapper from '../util/ReloadWrapper'
 
 const {asGridItem, MaterialTable} = Pydio.requireLib('components');
 const {PydioContextConsumer} = Pydio.requireLib('boot');

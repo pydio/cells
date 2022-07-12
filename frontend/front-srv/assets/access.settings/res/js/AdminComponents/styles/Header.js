@@ -169,7 +169,7 @@ class Header extends Component{
                     {headTitle}
                     <div style={{flex:1, marginRight:centerContent?8:0}}>{centerContent}</div>
                     <div style={{display:'flex', alignItems:'center', marginTop: -2}}>
-                        {actionButtons.map(a => <div style={{margin:'0 8px'}}>{a}</div>)}
+                        {actionButtons.map(a => <div style={{margin:'0 4px'}}>{a}</div>)}
                         {!loading && reloadButton}
                         {loading &&
                             <RefreshIndicator

@@ -28,6 +28,7 @@ import MenuItemListener from './util/MenuItemListener'
 import DNDActionsManager from './util/DNDActionsManager'
 import CodeMirrorField from './util/CodeMirrorField'
 import PluginsLoader from './util/PluginsLoader'
+import ReloadWrapper from './util/ReloadWrapper'
 
 import AdminStyles from './styles/AdminStyles'
 import Header from './styles/Header'
@@ -37,6 +38,7 @@ import QuickLinks from "./cards/QuickLinks";
 import RecentLogs from "./cards/RecentLogs";
 import SoftwareUpdate from "./cards/SoftwareUpdate";
 import FakeGraph from "./cards/FakeGraph";
+
 
 import {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader} from './styles/PaperEditor'
 
@@ -64,5 +66,6 @@ window.AdminComponents = {
     QuickLinks,
     RecentLogs,
     SoftwareUpdate,
-    FakeGraph
+    FakeGraph,
+    ReloadWrapper
 };

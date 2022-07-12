@@ -149,7 +149,7 @@ class QuickLinks extends Component{
                 </div>
             );
         }else{
-            dropDown = <h4 style={{...subHeaderStyle, margin:0, padding: '0 20px', borderRight:subHeaderStyle.borderBottom, borderBottom:'none'}}>{this.props.getMessage('card.quick-access', 'admin_dashboard')}</h4>;
+            dropDown = <h4 style={{...subHeaderStyle, margin:0, marginRight: 8, padding: '0 20px', borderRight:subHeaderStyle.borderBottom, borderBottom:'none'}}>{this.props.getMessage('card.quick-access', 'admin_dashboard')}</h4>;
         }
         return (
             <Paper

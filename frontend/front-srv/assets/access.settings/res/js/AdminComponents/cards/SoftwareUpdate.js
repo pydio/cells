@@ -20,6 +20,7 @@
 
 import React, {Component} from 'react'
 import Pydio from 'pydio'
+import AjxpNode from 'pydio/model/node'
 import PydioApi from 'pydio/http/api'
 const {asGridItem} = Pydio.requireLib('components');
 const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
@@ -64,13 +65,17 @@ class SoftwareUpdate extends Component {
         api.updateRequired(new UpdateUpdateRequest()).then(res => {
             let hasBinary = 0;
             if (res.AvailableBinaries) {
-                //hasBinary = res.AvailableBinaries.length;
+                hasBinary = res.AvailableBinaries.length;
                 this.setState({packages: res.AvailableBinaries, channel: res.Channel});
             } else {
                 this.setState({no_upgrade: true});
             }
-            //rootNode.getMetadata().set('flag', hasBinary);
-            //AdminComponents.MenuItemListener.getInstance().notify("item_changed");
+            const n = new AjxpNode('/admin/update');
+            const upNode = n.findInArbo(pydio.getContextHolder().getRootNode(), undefined)
+            if (upNode){
+                upNode.getMetadata().set('flag', hasBinary);
+                AdminComponents.MenuItemListener.getInstance().notify("item_changed");
+            }
             this.setState({loading: false});
         }).catch(() => {
             this.setState({loading: false});
@@ -89,25 +94,24 @@ class SoftwareUpdate extends Component {
             <Paper
                 {...this.props}
                 {...adminStyles.body.block.props}
-                style={{...adminStyles.body.block.container, margin:0,...style}}
+                style={{...adminStyles.body.block.container, margin:0,display:'flex', alignItems:'center',...style}}
                 transitionEnabled={false}
             >
-                <div style={subHeaderStyle}>{message('card.update.current')}</div>
-                <div style={{padding:20, display:'flex', alignItems:'center'}}>
-                    <span style={{flex: 1, fontSize: 15,}}>
-                        <span className={'mdi mdi-archive'} style={{color:subHeaderStyle.color}}/> {backend.PackageLabel} {backend.Version}{backend.BuildStamp?' - ' + moment(backend.BuildStamp).format('LL'):''}
-                    </span>
-                    <span style={{flex: 1, textAlign:'right'}}>
-                    {no_upgrade &&
-                        <span style={{cursor:'pointer', fontWeight: 500, color:'#bdbdbd', fontStyle:'italic'}} onClick={() => pydio.goTo('/admin/update')}>{message('card.update.no-updates')}</span>
-                    }
+                <div style={{...subHeaderStyle, borderRight:subHeaderStyle.borderBottom, borderBottom:'none'}}>{message('card.update.current')}</div>
+                <span style={{flex: 1, fontSize: 15, paddingLeft: 10, paddingRight: 10, overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}}>
                     {packages.length > 0 &&
                         <span style={{fontSize: 15,cursor:'pointer', color:muiTheme.palette.accent1Color}} onClick={() => pydio.goTo('/admin/update')}>
-                            <span className={'mdi mdi-alert'}/> {message('card.update.new-version')}: {packages[0].Version}
+                        <span className={'mdi mdi-alert'}/> {message('card.update.new-version')}: {packages[0].Version}
                         </span>
                     }
-                    </span>
-                </div>
+                    {no_upgrade &&
+                        <span>
+                            <span className={'mdi mdi-archive'} style={{color:subHeaderStyle.color}}/>
+                            &nbsp;{backend.PackageLabel} {backend.Version}{backend.BuildStamp?' - ' + moment(backend.BuildStamp).format('LL'):''}
+                            <span style={{cursor:'pointer', fontSize: 13, marginLeft: 8, fontWeight: 500, color:'#bdbdbd', fontStyle:'italic'}} onClick={() => pydio.goTo('/admin/update')}>{message('card.update.no-updates')}</span>
+                        </span>
+                    }
+                </span>
             </Paper>
         )
     }
@@ -119,7 +123,7 @@ SoftwareUpdate = muiThemeable()(SoftwareUpdate);
 SoftwareUpdate = asGridItem(
     SoftwareUpdate,
     Pydio.getMessages()['advanced_settings.home.32'],
-    {gridWidth:8,gridHeight:8},
+    {gridWidth:8,gridHeight:4},
     []
 );
 
