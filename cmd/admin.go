@@ -53,5 +53,6 @@ DESCRIPTION
 func init() {
 	// Registry / Broker Flags
 	addExternalCmdRegistryFlags(AdminCmd.PersistentFlags())
+	addCacheFlags(AdminCmd.PersistentFlags())
 	RootCmd.AddCommand(AdminCmd)
 }
