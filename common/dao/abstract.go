@@ -25,10 +25,12 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"net/url"
+	"strings"
+
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/merger"
-	"strings"
 )
 
 // AbstractDAO returns a reference to a newly created struct that
@@ -126,11 +128,21 @@ func (h *abstract) LocalAccess() bool {
 
 // Name returns a readable name for this DAO
 func (h *abstract) Name() string {
+	var su string
 	if strings.Contains(h.dsn, "://") {
-		return h.dsn
+		su = h.dsn
 	} else {
-		return h.driver + "://" + h.dsn
+		su = h.driver + "://" + h.dsn
 	}
+	// Special case for mysql url
+	su = strings.ReplaceAll(su, "(", ".")
+	su = strings.ReplaceAll(su, ")", "")
+	if u, e := url.Parse(su); e == nil {
+		su = u.Redacted()
+	} else {
+		fmt.Println("cannot parse dao url for naming", e.Error())
+	}
+	return su
 }
 
 // ID returns a unique id for storing in registry
