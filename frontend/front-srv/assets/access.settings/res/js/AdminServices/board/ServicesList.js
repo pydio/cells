@@ -33,12 +33,11 @@ const tags = ['gateway', 'datasource', 'data', 'idm', 'scheduler', 'broker', 'fr
 function extractPeers(services) {
     let Peers = {};
     // First detect peers
-    services.map(service => {
-        if(!service.RunningPeers) {
-            return;
-        }
+    services.filter(service => !!service.RunningPeers).map(service => {
         service.RunningPeers.map(peer => {
-            Peers[peer.Address] = peer.Address;
+            if(peer.Address){
+                Peers[peer.Address] = peer.Address;
+            }
         });
     });
     return Object.keys(Peers);
@@ -170,6 +169,9 @@ export default createReactClass({
         if(this.props.filter && service.Status !== this.props.filter ) {
             return false;
         }
+        if(this.props.inputFilter && service.Name.indexOf(this.props.inputFilter) <= 0) {
+            return false;
+        }
         if(this.props.peerFilter) {
             if(!service.RunningPeers) return false;
             return service.RunningPeers.filter(p => {
@@ -180,107 +182,102 @@ export default createReactClass({
     },
 
     render(){
-        const {pydio, details} = this.props;
+        const {pydio} = this.props;
         const {services = [], loading} = this.state;
-        const blockStyle = {
-            margin:16,
-            display:'flex',
-            flexWrap:'wrap'
-        };
         const m = id => pydio.MessageHash['ajxp_admin.services.tag.' + id] || id;
         const m2 = id => pydio.MessageHash['ajxp_admin.services.column.' + id] || id;
 
         const Tags = groupAndSortServices(services.filter(s => this.filterNodes(s)), pydio);
-        if (!details){
-            let tableData = [];
-            const tableColumns = [
-                {name:'Status', label: '', style:{width:56, paddingLeft:12, paddingRight:12, textOverflow:'inherit'}, headerStyle:{width:56}, renderCell: (service) =>{
-                    let iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
-                    let text = service.Status === 'STARTED' ? 'Running' : 'Stopped';
-                    if( service.Status !== 'STARTED' && service.Metadata && service.Metadata.unique ){
-                        iconColor = '#9E9E9E';
-                        text = 'Standby'
-                    }
-                    return {
-                        element:<FontIcon style={{margin:'0 9px 0 4px', fontSize: 20}} className={"mdi-traffic-light"} color={iconColor}/>,
-                        text,
-                    }
-                }},
-                {name:'Name', label: m2('name'), style:{paddingLeft: 0}, headerStyle:{paddingLeft: 0}},
-                {name:'Description', label: m2('description'), style:{width: '40%'}, headerStyle:{width: '40%'}, hideSmall: true},
-                {name:'Version', label: m2('version'), style:{width: 110}, headerStyle:{width: 110}, hideSmall: true},
-                {name:'Type', label:m2('tag'), style:{width: 120}, headerStyle:{width: 120}, hideSmall: true, renderCell:(service)=>{
-                        const isGrpc = service.Name.startsWith('pydio.grpc.');
-                        let legend = isGrpc ? "Grpc" : "Rest";
-                        const m = id => pydio.MessageHash['ajxp_admin.services.service.' + id] || id;
-                        if(service.Tag === 'gateway') {
-                            legend = service.Name.split('.').pop();
-                        } else if (service.Tag === 'datasource') {
-                            if(service.Name.startsWith('pydio.grpc.data.sync.')){
-                                legend=m('datasource.sync')
-                            } else if(service.Name.startsWith('pydio.grpc.data.objects.')){
-                                legend=m('datasource.objects')
-                            } else if(service.Name.startsWith('pydio.grpc.data.index.')){
-                                legend=m('datasource.index')
-                            }
-                        }
-                        return legend;
-                }},
-                {name:'RunningPeers', label: m2('peers'), hideSmall: true, renderCell:(service)=>{
-                    let peers = [];
-                    if(service.Status === 'STARTED' && service.RunningPeers) {
-                        peers = service.RunningPeers.map(p => {
-                            if(p.Metadata && p.Metadata['non-addressable']){
-                                return p.Metadata['non-addressable'];
-                            } else if(p.Port) {
-                                return p.Address + ':' + p.Port;
-                            } else {
-                                return p.Address;
-                            }
-                        });
-                    } else {
-                        peers.push('N/A');
-                    }
-                    return peers.join(',');
-                }}
-            ];
-            Object.keys(Tags).forEach(tag => {
-                const tagData = [];
-                const services = Tags[tag].services;
-                Object.keys(services).forEach(id => {
-                    const subServices = services[id];
-                    subServices.forEach(service => {
-                        tagData.push(service);
-                    });
-                });
-                if(tagData.length){
-                    tagData.unshift({Subheader: <span><span style={{textTransform:'uppercase'}}>{m(tag + '.title')}</span> - {m(tag + '.description')}</span>});
-                    tableData.push(...tagData)
+
+        let tableData = [];
+        const tableColumns = [
+            {name:'Status', label: '', style:{width:56, paddingLeft:12, paddingRight:12, textOverflow:'inherit'}, headerStyle:{width:56}, renderCell: (service) =>{
+                let iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
+                let text = service.Status === 'STARTED' ? 'Running' : 'Stopped';
+                if( service.Status !== 'STARTED' && service.Metadata && service.Metadata.unique ){
+                    iconColor = '#9E9E9E';
+                    text = 'Standby'
                 }
+                return {
+                    element:<FontIcon style={{margin:'0 9px 0 4px', fontSize: 20}} className={"mdi-traffic-light"} color={iconColor}/>,
+                    text,
+                }
+            }},
+            {name:'Name', label: m2('name'), style:{paddingLeft: 0}, headerStyle:{paddingLeft: 0}},
+            {name:'Description', label: m2('description'), style:{width: '40%'}, headerStyle:{width: '40%'}, hideSmall: true},
+            {name:'Version', label: m2('version'), style:{width: 110}, headerStyle:{width: 110}, hideSmall: true},
+            {name:'Type', label:m2('tag'), style:{width: 120}, headerStyle:{width: 120}, hideSmall: true, renderCell:(service)=>{
+                    const isGrpc = service.Name.startsWith('pydio.grpc.');
+                    let legend = isGrpc ? "Grpc" : "Rest";
+                    const m = id => pydio.MessageHash['ajxp_admin.services.service.' + id] || id;
+                    if(service.Tag === 'gateway') {
+                        legend = service.Name.split('.').pop();
+                    } else if (service.Tag === 'datasource') {
+                        if(service.Name.startsWith('pydio.grpc.data.sync.')){
+                            legend=m('datasource.sync')
+                        } else if(service.Name.startsWith('pydio.grpc.data.objects.')){
+                            legend=m('datasource.objects')
+                        } else if(service.Name.startsWith('pydio.grpc.data.index.')){
+                            legend=m('datasource.index')
+                        }
+                    }
+                    return legend;
+            }},
+            {name:'RunningPeers', label: m2('peers'), hideSmall: true, renderCell:(service)=>{
+                let peers = [];
+                if(service.Status === 'STARTED' && service.RunningPeers) {
+                    peers = service.RunningPeers.map(p => {
+                        if(p.Metadata && p.Metadata['non-addressable']){
+                            return p.Metadata['non-addressable'];
+                        } else if(p.Port) {
+                            return p.Address + ':' + p.Port;
+                        } else {
+                            return p.Address;
+                        }
+                    });
+                } else {
+                    peers.push('N/A');
+                }
+                return peers.join(',');
+            }}
+        ];
+        Object.keys(Tags).forEach(tag => {
+            const tagData = [];
+            const services = Tags[tag].services;
+            Object.keys(services).forEach(id => {
+                const subServices = services[id];
+                subServices.forEach(service => {
+                    tagData.push(service);
+                });
             });
+            if(tagData.length){
+                tagData.unshift({Subheader: <span><span style={{textTransform:'uppercase'}}>{m(tag + '.title')}</span> - {m(tag + '.description')}</span>});
+                tableData.push(...tagData)
+            }
+        });
 
-            const {body} = AdminComponents.AdminStyles();
-            const {tableMaster} = body;
-            const blockProps = body.block.props;
-            const blockStyle = body.block.container;
+        const {body} = AdminComponents.AdminStyles();
+        const {tableMaster} = body;
+        const blockProps = body.block.props;
+        const blockStyle = body.block.container;
 
 
-            return (
-                <div className={this.props.className} style={this.props.style}>
-                    <Paper {...blockProps} style={blockStyle}>
-                        <MaterialTable
-                            data={tableData}
-                            columns={tableColumns}
-                            deselectOnClickAway={true}
-                            showCheckboxes={false}
-                            emptyStateString={pydio.MessageHash['ajxp_admin.services.empty.' + (loading?'loading':'noservice')]}
-                            masterStyles={tableMaster}
-                        />
-                    </Paper>
-                </div>
-            );
-        } else {
+        return (
+            <div className={this.props.className} style={this.props.style}>
+                <Paper {...blockProps} style={blockStyle}>
+                    <MaterialTable
+                        data={tableData}
+                        columns={tableColumns}
+                        deselectOnClickAway={true}
+                        showCheckboxes={false}
+                        emptyStateString={pydio.MessageHash['ajxp_admin.services.empty.' + (loading?'loading':'noservice')]}
+                        masterStyles={tableMaster}
+                    />
+                </Paper>
+            </div>
+        );
 
+            /*
             const blocks = Object.keys(Tags).map(tag => {
                 const services = Tags[tag].services;
                 const srvComps = Object.keys(services).map(id => <ServiceCard pydio={pydio} showDescription={true} title={id} tagId={tag} services={services[id]}/> );
@@ -334,6 +331,7 @@ export default createReactClass({
             return (
                 <div className={this.props.className} style={this.props.style}>{blocks}</div>
             );
-        }
+
+             */
     },
 });

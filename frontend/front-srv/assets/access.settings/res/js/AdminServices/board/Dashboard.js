@@ -25,8 +25,8 @@ import AjxpNode from 'pydio/model/node'
 import React from 'react'
 import createReactClass from 'create-react-class';
 import ServicesList from './ServicesList'
-import {Toggle, MenuItem} from 'material-ui'
-const {ModernStyles, ModernSelectField} = Pydio.requireLib('hoc');
+import {MenuItem} from 'material-ui'
+const {ModernSelectField, ModernTextField} = Pydio.requireLib('hoc');
 
 export default createReactClass({
     displayName: 'Dashboard',
@@ -43,9 +43,7 @@ export default createReactClass({
     },
 
     getInitialState(){
-        const details = localStorage.getItem('console.services.details')
         return {
-            details: details && details === 'true',
             filter:'',
             peers:[],
             peerFilter:''
@@ -75,13 +73,13 @@ export default createReactClass({
 
     render(){
         const {pydio} = this.props;
-        const {peers, peerFilter, filter, details} = this.state;
+        const {peers, peerFilter, filter, inputFilter = ''} = this.state;
         const m = id => pydio.MessageHash['ajxp_admin.services.' + id] || id;
 
         const buttonContainer = (
             <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
-                <div style={{width: 170, marginRight: 8}}>
-                    <Toggle label={m('toggle.details')} toggled={details} onToggle={this.onDetailsChange} labelPosition={"right"} style={{width: 170, ...ModernStyles.toggleField.style}}/>
+                <div style={{width:150, marginRight: 8}} className={"media-small-hide"}>
+                    <ModernTextField fullWidth={true} value={inputFilter} onChange={(e,v)=> this.setState({inputFilter: v})} hintText={m('text-filter.hint')}/>
                 </div>
                 {peers.length > 0 &&
                     <div style={{width: 150, height:14, marginRight: 8}}>
@@ -123,7 +121,7 @@ export default createReactClass({
                         currentNode={this.props.rootNode}
                         filter={filter}
                         peerFilter={peerFilter}
-                        details={details}
+                        inputFilter={inputFilter}
                         onUpdatePeers={this.onUpdatePeers.bind(this)}
                     />
                 </div>
