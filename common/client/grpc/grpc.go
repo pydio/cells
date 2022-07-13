@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"go.uber.org/zap/zapcore"
 	"os"
 	"runtime/debug"
 	"strconv"
@@ -188,7 +189,7 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 		key := cc.serviceName + desc.StreamName
 		scope := metrics.GetMetrics().Tagged(map[string]string{"target": cc.serviceName, "method": desc.StreamName})
 		gauge := scope.Gauge("open_streams")
-		pri := true
+		pri := common.LogLevel == zapcore.DebugLevel
 		if cc.serviceName == "pydio.grpc.broker" || cc.serviceName == "pydio.grpc.log" || cc.serviceName == "pydio.grpc.audit" ||
 			cc.serviceName == "pydio.grpc.jobs" || cc.serviceName == "pydio.grpc.registry" || desc.StreamName == "StreamChanges" {
 			pri = false
