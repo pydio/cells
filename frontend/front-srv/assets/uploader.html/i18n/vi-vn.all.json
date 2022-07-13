@@ -60,37 +60,37 @@
     "other": "Đang tải tệp lên máy chủ..."
   },
   "task.status.folders": {
-    "other": "Creating Folders"
+    "other": "Tạo Thư mục"
   },
   "task.message.folder-one": {
-    "other": "Creating one folder"
+    "other": "Đang tạo thư mục"
   },
   "task.message.folder-many": {
-    "other": "Creating %s folders"
+    "other": "Đang tạo %s thư mục"
   },
   "task.status.analyse": {
-    "other": "Preparing files for upload"
+    "other": "Đang chuẩn bị cho việc upload"
   },
   "task.message.analyse-many": {
-    "other": "Analyzing %s items..."
+    "other": "Đang phân tích %s tệp..."
   },
   "task.message.analyse-one": {
-    "other": "Analyzing one item"
+    "other": "Đang phân tích một tệp"
   },
   "task.message.analyse-wait": {
-    "other": "Please wait..."
+    "other": "Vui lòng chờ..."
   },
   "task.status.ready": {
-    "other": "Ready to upload"
+    "other": "Sẵn sàng để tải lên"
   },
   "task.status.paused": {
-    "other": "Upload paused"
+    "other": "Upload đang tạm dừng"
   },
   "task.status.upload": {
-    "other": "Uploading files"
+    "other": "Tải lên tập tin"
   },
   "task.message.upload-progress": {
-    "other": "Uploading %s%"
+    "other": "Đang tải lên \"%s\""
   },
   "no-folders-support": {
     "other": "Có vẻ như trình duyệt của bạn không hỗ trợ kéo thả thư mục"
@@ -126,16 +126,16 @@
     "other": "Đang phân tích..."
   },
   "status.dir.new": {
-    "other": "Folder awaiting upload..."
+    "other": "Thư mục đang chờ để tải lên..."
   },
   "status.file.new": {
-    "other": "File awaiting upload..."
+    "other": "Tệp đang chờ để tải lên..."
   },
   "status.dir.analyse": {
-    "other": "Analyzing folder..."
+    "other": "Đang phân tích thư mục..."
   },
   "status.file.analyse": {
-    "other": "Analyzing file..."
+    "other": "Đang phân tích tệp..."
   },
   "status.dir.loading": {
     "other": "Đang tạo thư mục"
@@ -165,12 +165,12 @@
     "other": "Không thể tạm dừng chuyển đoạn này"
   },
   "status.error.aborted": {
-    "other": "interrupted by user"
+    "other": "đã bị dừng bởi người dùng"
   },
   "status.error.403": {
-    "other": "you are not allowed to upload here"
+    "other": "bạn không được phép tải lên tập tin này ở đây"
   },
   "status.error.422": {
-    "other": "quota reached, cannot upload more"
+    "other": "không thể tải lên thêm được vi bạn đã dùng quá giới hạn dung lượng lưu trữ"
   }
 }

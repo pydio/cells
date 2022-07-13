@@ -39,28 +39,28 @@
     "other": "DataSource %s"
   },
   "ds.format-picker.title": {
-    "other": "Create DataSource"
+    "other": "Tạo Datasource"
   },
   "ds.format-picker.legend": {
-    "other": "DataSources are mount points allowing you to attach actual storage to the application. First select the way data is organized inside storage."
+    "other": "DataSource được xem là lối vào của một thiết bị lưu trữ mà bạn kết nối vào hệ thống. Bạn cần phải lựa chọn cách mà dữ liệu được tổ chức trong thiết bị lưu trữ này."
   },
   "ds.format-picker.submit": {
     "other": "Bắt đầu"
   },
   "ds.format-picker.flat.title": {
-    "other": "Flat Storage"
+    "other": "Bộ lưu trữ theo định dạng phẳng"
   },
   "ds.format-picker.flat.legend": {
-    "other": "Best for performances, files are stored as binaries inside the storage. Files and folders structure is kept in internal index only."
+    "other": "Tệp được lưu trữ trực tiếp trong một thư mục đem lại hiệu năng cao nhất. Cấu trúc thư mục được lưu trữ trong cơ sở dữ liệu riêng."
   },
   "ds.format-picker.structured.title": {
-    "other": "Import Existing Data"
+    "other": "Trích xuất từ dữ liệu đã có"
   },
   "ds.format-picker.structured.legend": {
-    "other": "Files and folders are stored as-is, real-time synchronisation reflects storage structure inside internal indexes."
+    "other": "Cấu trúc thư mục được giữ nguyên như trên thiết bị lưu trữ, cells sẽ cần phải thực hiện việc đánh chỉ mục để chép cấu trúc thư mục vào cơ sở dữ liệu."
   },
   "ds.format-picker.internal.title": {
-    "other": "Cells Internals"
+    "other": "Cells nội bộ"
   },
   "ds.format-picker.internal.legend": {
     "other": "Được sử dụng để lưu trữ dữ liệu chương trình (ví dụ các phiên bản sao lưu, thumbnails). Một vài chức năng sẽ bị hạn chế ví dụ không hỗ trợ tìm kiếm."
@@ -1353,7 +1353,7 @@
     "other": "+ workspace"
   },
   "ws.filter.workspaces": {
-    "other": "Filter workspaces..."
+    "other": "Lọc các workspaces..."
   },
   "ws.30": {
     "other": "Cài đặt chung"
@@ -1593,10 +1593,10 @@
     "other": "Giao diện chuyển dễ dàng (chỉ dành cho enterprise)"
   },
   "ws.editor.other.skiprecycle": {
-    "other": "Skip Recycle Bin"
+    "other": "Không đặt thùng rác"
   },
   "ws.editor.other.skiprecycle.legend": {
-    "other": "Disable recycle bin on this workspace: all files will be permanently deleted. This does not apply to Cells created inside this workspace, files will always be moved to workspace recycle to avoid human errors."
+    "other": "Nếu bạn không đặt thùng rác thì tệp bị xóa sẽ không có khả năng tìm lại. Tuy nhiên nếu một Cells được tạo từ một thư mục trong một workspace đã có sẵn, thì file bị xóa sẽ luôn nằm ở thùng rác chung của workspace đó."
   },
   "ws.editor.other.sync": {
     "other": "Cho phép đồng bộ hóa desktop"
@@ -1634,6 +1634,9 @@
   "ws.editor.slug.legend": {
     "other": "Tên kỹ thuật được sử dụng ví dụ trong URL, được tính toán tự động nhưng bạn có thể tùy chỉnh nó."
   },
+  "services.text-filter.hint": {
+    "other": "Filter..."
+  },
   "services.filter.nofilter": {
     "other": "Tất cả dịch vụ"
   },
@@ -1650,10 +1653,10 @@
     "other": "Hiển thị chi tiết"
   },
   "services.empty.loading": {
-    "other": "Loading services status"
+    "other": "Đang lấy thông tin về trạng thái của các dịch vụ"
   },
   "services.empty.noservice": {
-    "other": "No service"
+    "other": "Không có dịch vụ nào"
   },
   "services.column.name": {
     "other": "Tên dịch vụ"
@@ -1740,43 +1743,43 @@
     "other": "Lập kế hoạch"
   },
   "scheduler.legend": {
-    "other": "Flows running in background on a periodical basis or triggered by events"
+    "other": "Flows chạy trong nền trên cơ sở định kỳ hoặc được kích hoạt bởi các sự kiện"
   },
   "scheduler.system.title": {
-    "other": "System Flows"
+    "other": "Các Flow trong hệ thống"
   },
   "scheduler.system.legend": {
-    "other": "These Flows are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
+    "other": "Những Flows này được đi kèm mặc định bên trong ứng dụng. Chúng chịu trách nhiệm trích xuất thông tin từ node tự động hoặc thực hiện một số nhiệm vụ dọn dẹp."
   },
   "scheduler.inactives.title": {
-    "other": "Inactive Flows"
+    "other": "Flows không hoạt động"
   },
   "scheduler.inactives.legend": {
-    "other": "These Flows are inactive, click on a Flow to enable it."
+    "other": "Những Flows này đang không hoạt động, ấn vào để bật chúng."
   },
   "scheduler.system.empty": {
-    "other": "No Flows scheduled."
+    "other": "Không có Flows trong kế hoạch."
   },
   "scheduler.users.title": {
-    "other": "Users Flows"
+    "other": "Những Flows của người dùng"
   },
   "scheduler.users.legend": {
-    "other": "These Flows are dynamically created and trigged by user actions."
+    "other": "Những Flow này được tạo ra tự động và kích hoạt dựa theo thao tác của người sử dụng."
   },
   "scheduler.users.empty": {
-    "other": "No Flows launched by users"
+    "other": "Không có Flow nào được khởi động bởi người dùng"
   },
   "scheduler.cellsflows.cta.button": {
-    "other": "+ Custom Flow"
+    "other": "+ Thêm mới Flow"
   },
   "scheduler.cellsflows.cta.text": {
-    "other": "Do you need to create your own Flow? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
+    "other": "Bạn cần tạo một Flow mới? Tìm hiểu làm thế nào Cells Flows có thể tự động hóa những công việc thức tạp trong Cells."
   },
   "scheduler.cellsflows.dialog.button": {
-    "other": "Find out more"
+    "other": "Tìm hiểu thêm"
   },
   "scheduler.cellsflows.dialog.text": {
-    "other": "From creating your own workflows to scheduling tasks or integrating with third-party tools, our customizable components help you to respond events and take action automatically."
+    "other": "Các mô-dun linh hoạt trong Cells sẽ giúp ban xây dựng các WorkFlows để lập trình những công việc hoặc tích hợp tiện ích từ bên ngoài."
   },
   "scheduler.job.label": {
     "other": "Nhãn"
@@ -1797,10 +1800,10 @@
     "other": "Xóa"
   },
   "scheduler.job.delete.confirm": {
-    "other": "Are you sure you want to delete this Flow? This operation cannot be reverted!"
+    "other": "Bạn có muốn xóa Flow này không? Bạn sẽ không phục hồi Flow này sau khi xóa!"
   },
   "scheduler.tasks.delete.confirm": {
-    "other": "Are you sure you want to clear all tasks for this Flow?"
+    "other": "Bạn có chắc muốn xóa hết dữ liệu của Flow này?"
   },
   "scheduler.trigger.create.node": {
     "other": "Tạo node"
@@ -1869,13 +1872,13 @@
     "other": "Xóa"
   },
   "scheduler.task.action.enable": {
-    "other": "Enable Flow"
+    "other": "Kích hoạt Flow"
   },
   "scheduler.task.action.run": {
     "other": "Chạy ngay"
   },
   "scheduler.task.action.disable": {
-    "other": "Disable Flow"
+    "other": "Tắt Flow"
   },
   "scheduler.task.id": {
     "other": "ID"
@@ -1953,7 +1956,7 @@
     "other": "Mỗi %1"
   },
   "scheduler.schedule.title": {
-    "other": "Flow Schedule"
+    "other": "Lập lịch cho Flow"
   },
   "scheduler.schedule.type": {
     "other": "Loại lịch trình"
@@ -1986,7 +1989,7 @@
     "other": "Thời gian tính bằng phút"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "Flow Parameters"
+    "other": "Các tham số cho Flow"
   },
   "scheduler.job-parameters.button": {
     "other": "Tham số"
@@ -2010,13 +2013,13 @@
     "other": "Sites"
   },
   "sites.externals": {
-    "other": "External URLs"
+    "other": "URL bên ngoài"
   },
   "sites.details": {
-    "other": "<div>\nSites define how Cells is binding to network interfaces and how it is exposed to the outside world.\nUse ‘<i>./cells configure sites</i>’ to manage your sites from the command line.\n<br/><br/>\nEach site has the following parameters:\n\n<ol>\n<li>1. <u>Bind(s)</u>: one or more [ip/hostname:port] to hook the internal webserver to.</li>\n<li>2. <u>TLS Settings</u>: TLS configuration for HTTPS support.</li>\n<li>3. <u>External URL</u>: the URL you communicate to your end-users. It can differ from your bind address, typically if the app is behind a reverse-proxy or inside a container with ports mapping.</li>\n<li>4. <u>Maintenance Mode</u> [On|Off]: display a maintenance page on this endpoint, although Cells is running.</li>\n</ol></div>"
+    "other": "<div>\nSites chứa địa chỉ url mà người dùng cuối dùng để truy cập vào Cells.\nDùng lệnh ‘<i>./cells configure sites</i>’ để quản lý danh sách url từ dòng lệnh.\n<br/><br/>\nMỗi một site có những tham số sau:\n\n<ol>\n<li>1. <u>Bind(s)</u>: Có ít nhất một [ip/hostname:port] là địa chỉ ip:port của dịch vụ đang mở.</li>\n<li>2. <u>TLS Settings</u>: Các cấu hình TLS để thiết lập giao thức HTTPS.</li>\n<li>3. <u>External URL</u>: Người dùng cuối sẽ dùng url này để truy cập vào Cells. Nếu Cells đứng sau một reverse proxy thì url này có thể khác với bind ở trên.</li>\n<li>4. <u>Maintenance Mode</u> [On|Off]: hiển thị tình trạng bảo trì của Cells.</li>\n</ol></div>"
   },
   "sites.details.note": {
-    "other": "<div><i>Additional notes</i>\n<ol>\n<li>1. When there are no sites defined, Cells use a default configuration (https://0.0.0.0:8080 with self-signed).</li>\n<li>2. Sites can be overridden at runtime by using ‘--bind’ flag or ‘CELLS_BIND’ environment variable.\n</li>\n</ol></div>"
+    "other": "<div><i>Ghi chú</i>\n<ol>\n<li>1. Mặc định thì Cells chạy ở https://0.0.0.0:8080 với chứng thực self-signed.</li>\n<li>2. Sites có thể được thiết lập thông qua biến môi trường ‘CELLS_BIND’ hoặc tham số dòng lệnh ‘--bind’.\n</li>\n</ol></div>"
   },
   "sites.externals.details": {
     "other": "<div>\nCells uses its detected public URL in some features. It will try to use the most appropriate value based on your configuration. <br/><br/>For example:\n<ul>\n<li>&bull; If a unique site is defined and it has an external URL, that one is probably correct.</li>\n<li>&bull; When multiple sites are defined, you may want to force a unique URL that will be used for all external communication.</li>\n<li>&bull; If no external URL is detected, it will fallback to the internal bind address. In that case, you probably do not want to send a private IP (or 0.0.0.0:port…) to the outside world.</li>\n</ul>\n\n<br/>\nThe fields below show the detected values. Select to edit or type in a custom value and hit enter to save.\n</div>"
