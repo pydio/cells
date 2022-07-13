@@ -30,6 +30,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
@@ -37,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/scheduler/actions"
 	"github.com/pydio/cells/v4/scheduler/actions/tools"
 	"github.com/pydio/cells/v4/scheduler/lang"
@@ -162,6 +164,15 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		}
 	} else {
 
+		iSess := ""
+		if !isFlat {
+			iSess = uuid.New()
+			defer func() {
+				broker.MustPublish(context.Background(), common.TopicIndexEvent, &tree.IndexEvent{
+					SessionForceClose: iSess,
+				})
+			}()
+		}
 		var delErr error
 		wg := &sync.WaitGroup{}
 		throttle := make(chan struct{}, 4)
@@ -179,13 +190,17 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 				// Do not delete first .pydio!
 				continue
 			}
-			if isFlat && !n.IsLeaf() { // Do not remove folders yet
-				relPath := strings.Trim(strings.TrimPrefix(n.GetPath(), sourceNode.GetPath()), "/")
-				if childrenOnly && !strings.Contains(relPath, "/") {
-					firstLevelFolders = append(firstLevelFolders, n.Clone())
+			// Do not remove folders (ignore for struct, postpone first-level deletion for flats)
+			if !n.IsLeaf() {
+				if isFlat {
+					relPath := strings.Trim(strings.TrimPrefix(n.GetPath(), sourceNode.GetPath()), "/")
+					if childrenOnly && !strings.Contains(relPath, "/") {
+						firstLevelFolders = append(firstLevelFolders, n.Clone())
+					}
 				}
 				continue
 			}
+
 			wg.Add(1)
 			throttle <- struct{}{}
 			go func() {
@@ -199,9 +214,10 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 					statusPath = path.Dir(statusPath)
 				}
 				channels.StatusMsg <- strings.Replace(T("Jobs.User.DeletingItem"), "%s", statusPath, -1)
-				_, er := cli.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: n})
+				_, er := cli.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: n, IndexationSession: iSess})
 				if er != nil {
 					delErr = fmt.Errorf("Cannot delete "+n.GetPath()+": %v", er)
+					log.TasksLogger(ctx).Error(delErr.Error(), zap.Error(delErr))
 				}
 			}()
 		}
