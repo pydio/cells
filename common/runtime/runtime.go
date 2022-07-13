@@ -124,7 +124,11 @@ func RegistryURL() string {
 		return r.GetString(KeyDiscovery)
 	}
 
-	return r.GetString(KeyRegistry)
+	str := r.GetString(KeyRegistry)
+	if !strings.HasSuffix(str, DefaultRegistrySuffix) {
+		str += DefaultRegistrySuffix
+	}
+	return str
 }
 
 // BrokerURL returns the scheme://address url for Broker
@@ -133,7 +137,12 @@ func BrokerURL() string {
 		return r.GetString(KeyDiscovery)
 	}
 
-	return r.GetString(KeyBroker)
+	str := r.GetString(KeyBroker)
+	if !strings.HasSuffix(str, DefaultBrokerSuffix) {
+		str += DefaultBrokerSuffix
+	}
+
+	return str
 }
 
 // ConfigURL returns the scheme://address url for Config
@@ -142,19 +151,32 @@ func ConfigURL() string {
 	if r.IsSet(KeyDiscovery) {
 		v = r.GetString(KeyDiscovery)
 	}
-	if u, e := url.Parse(v); e == nil && strings.TrimLeft(u.Path, "/") == "" {
-		u.Path = "/config"
+	if u, e := url.Parse(v); e == nil {
+		if u.Scheme != "file" {
+			if !strings.HasSuffix(u.Path, DefaultConfigSuffix) {
+				u.Path += DefaultConfigSuffix
+			}
+		}
+
 		v = u.String()
 	}
 	return v
 }
 
 func CacheURL() string {
-	return r.GetString(KeyCache)
+	str := r.GetString(KeyCache)
+	if !strings.HasSuffix(str, DefaultCacheSuffix) {
+		str += DefaultCacheSuffix
+	}
+	return str
 }
 
 func ShortCacheURL() string {
-	return r.GetString(KeyShortCache)
+	str := r.GetString(KeyShortCache)
+	if !strings.HasSuffix(str, DefaultShortCacheSuffix) {
+		str += DefaultShortCacheSuffix
+	}
+	return str
 }
 
 // ConfigIsLocalFile checks if ConfigURL scheme is file
@@ -181,7 +203,13 @@ func SetVaultMasterKey(masterKey string) {
 		// Replace basename with pydio-vault.json
 		u.Path = filepath.Join(filepath.Dir(u.Path), DefaultVaultFileName)
 	} else {
-		u.Path = "vault"
+		if strings.HasSuffix(u.Path, DefaultConfigSuffix) {
+			u.Path = strings.TrimSuffix(u.Path, DefaultConfigSuffix)
+		}
+
+		if !strings.HasSuffix(u.Path, DefaultVaultSuffix) {
+			u.Path += DefaultVaultSuffix
+		}
 	}
 	q := u.Query()
 	q.Set("masterKey", masterKey)

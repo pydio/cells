@@ -66,7 +66,7 @@ func NewBroker(s string, opts ...Option) Broker {
 	if scheme == "nats" && u.Host != "" {
 		// Replace nats://:port by env + nats://
 		_ = os.Setenv("NATS_SERVER_URL", u.Host)
-		s = "nats://"
+		s = "nats:///" + u.Path
 	}
 
 	br := &broker{

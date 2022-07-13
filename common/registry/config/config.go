@@ -100,7 +100,7 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 			return nil, err
 		}
 
-		store, err := etcd.NewSource(ctx, etcdConn, "registry", true, true, opts...)
+		store, err := etcd.NewSource(ctx, etcdConn, u.Path, true, true, opts...)
 		if err != nil {
 			return nil, err
 		}

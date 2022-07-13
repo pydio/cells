@@ -92,6 +92,13 @@ const (
 	DefaultVaultFileName   = "pydio-vault.json"
 	DefaultKeyringFileName = "cells-vault-key"
 	DefaultCertStorePath   = "certs"
+
+	DefaultConfigSuffix     = "/config"
+	DefaultVaultSuffix      = "/vault"
+	DefaultRegistrySuffix   = "/registry"
+	DefaultBrokerSuffix     = "/broker"
+	DefaultCacheSuffix      = "/cache"
+	DefaultShortCacheSuffix = "/shortcache"
 )
 
 const (
