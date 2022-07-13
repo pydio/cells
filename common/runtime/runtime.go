@@ -124,7 +124,12 @@ func RegistryURL() string {
 		return r.GetString(KeyDiscovery)
 	}
 
-	return r.GetString(KeyRegistry)
+	str := r.GetString(KeyRegistry)
+	u, _ := url.Parse(str)
+	if !strings.HasSuffix(u.Path, DefaultRegistrySuffix) {
+		u.Path += DefaultRegistrySuffix
+	}
+	return u.String()
 }
 
 // BrokerURL returns the scheme://address url for Broker
@@ -133,7 +138,13 @@ func BrokerURL() string {
 		return r.GetString(KeyDiscovery)
 	}
 
-	return r.GetString(KeyBroker)
+	str := r.GetString(KeyBroker)
+	u, _ := url.Parse(str)
+	if !strings.HasSuffix(u.Path, DefaultBrokerSuffix) {
+		u.Path += DefaultBrokerSuffix
+	}
+
+	return u.String()
 }
 
 // ConfigURL returns the scheme://address url for Config
@@ -142,19 +153,34 @@ func ConfigURL() string {
 	if r.IsSet(KeyDiscovery) {
 		v = r.GetString(KeyDiscovery)
 	}
-	if u, e := url.Parse(v); e == nil && strings.TrimLeft(u.Path, "/") == "" {
-		u.Path = "/config"
+	if u, e := url.Parse(v); e == nil {
+		if u.Scheme != "file" {
+			if !strings.HasSuffix(u.Path, DefaultConfigSuffix) {
+				u.Path += DefaultConfigSuffix
+			}
+		}
+
 		v = u.String()
 	}
 	return v
 }
 
 func CacheURL() string {
-	return r.GetString(KeyCache)
+	str := r.GetString(KeyCache)
+	u, _ := url.Parse(str)
+	if !strings.HasSuffix(u.Path, DefaultCacheSuffix) {
+		u.Path += DefaultCacheSuffix
+	}
+	return u.String()
 }
 
 func ShortCacheURL() string {
-	return r.GetString(KeyShortCache)
+	str := r.GetString(KeyShortCache)
+	u, _ := url.Parse(str)
+	if !strings.HasSuffix(str, DefaultShortCacheSuffix) {
+		u.Path += DefaultShortCacheSuffix
+	}
+	return u.String()
 }
 
 // ConfigIsLocalFile checks if ConfigURL scheme is file
@@ -181,7 +207,13 @@ func SetVaultMasterKey(masterKey string) {
 		// Replace basename with pydio-vault.json
 		u.Path = filepath.Join(filepath.Dir(u.Path), DefaultVaultFileName)
 	} else {
-		u.Path = "vault"
+		if strings.HasSuffix(u.Path, DefaultConfigSuffix) {
+			u.Path = strings.TrimSuffix(u.Path, DefaultConfigSuffix)
+		}
+
+		if !strings.HasSuffix(u.Path, DefaultVaultSuffix) {
+			u.Path += DefaultVaultSuffix
+		}
 	}
 	q := u.Query()
 	q.Set("masterKey", masterKey)
