@@ -125,10 +125,11 @@ func RegistryURL() string {
 	}
 
 	str := r.GetString(KeyRegistry)
-	if !strings.HasSuffix(str, DefaultRegistrySuffix) {
-		str += DefaultRegistrySuffix
+	u, _ := url.Parse(str)
+	if !strings.HasSuffix(u.Path, DefaultRegistrySuffix) {
+		u.Path += DefaultRegistrySuffix
 	}
-	return str
+	return u.String()
 }
 
 // BrokerURL returns the scheme://address url for Broker
@@ -138,11 +139,12 @@ func BrokerURL() string {
 	}
 
 	str := r.GetString(KeyBroker)
-	if !strings.HasSuffix(str, DefaultBrokerSuffix) {
-		str += DefaultBrokerSuffix
+	u, _ := url.Parse(str)
+	if !strings.HasSuffix(u.Path, DefaultBrokerSuffix) {
+		u.Path += DefaultBrokerSuffix
 	}
 
-	return str
+	return u.String()
 }
 
 // ConfigURL returns the scheme://address url for Config
@@ -165,18 +167,20 @@ func ConfigURL() string {
 
 func CacheURL() string {
 	str := r.GetString(KeyCache)
-	if !strings.HasSuffix(str, DefaultCacheSuffix) {
-		str += DefaultCacheSuffix
+	u, _ := url.Parse(str)
+	if !strings.HasSuffix(u.Path, DefaultCacheSuffix) {
+		u.Path += DefaultCacheSuffix
 	}
-	return str
+	return u.String()
 }
 
 func ShortCacheURL() string {
 	str := r.GetString(KeyShortCache)
+	u, _ := url.Parse(str)
 	if !strings.HasSuffix(str, DefaultShortCacheSuffix) {
-		str += DefaultShortCacheSuffix
+		u.Path += DefaultShortCacheSuffix
 	}
-	return str
+	return u.String()
 }
 
 // ConfigIsLocalFile checks if ConfigURL scheme is file
