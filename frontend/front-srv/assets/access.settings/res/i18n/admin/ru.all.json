@@ -1634,6 +1634,9 @@
   "ws.editor.slug.legend": {
     "other": "Техническое имя, используемое, например, в URL, автоматически генерируется, но вы можете настроить его."
   },
+  "services.text-filter.hint": {
+    "other": "Filter..."
+  },
   "services.filter.nofilter": {
     "other": "Все сервисы"
   },

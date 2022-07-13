@@ -1,53 +1,53 @@
 {
   "Update.Config.Title": {
-    "other": "Update Configuration"
+    "other": "업데이트 설정"
   },
   "Update.Config.Url.Label": {
-    "other": "Update Server"
+    "other": "업데이트 서버"
   },
   "Update.Config.Url.Description": {
-    "other": "Http URL of the update server"
+    "other": "업데이트 서버의 Http URL"
   },
   "Update.Config.PublicKey.Label": {
-    "other": "Public Key"
+    "other": "공개 키"
   },
   "Update.Config.PublicKey.Description": {
-    "other": "Official key used to verify binaries signature."
+    "other": "바이너리 서명을 확인하기 위해 공식 키가 사용되었습니다."
   },
   "Update.Config.Channel.Label": {
-    "other": "Update Channel"
+    "other": "업데이트 채널"
   },
   "Update.Config.Channel.Description": {
-    "other": "Channel used for requesting for updates. Stick to Stable if you are not sure."
+    "other": "업데이트를 요청할 때 사용되는 채널입니다. 무엇을 선택할지 모를 때에는 안정(Stable)에 남아있으세요."
   },
   "Update.Config.Channel.ValueStable": {
-    "other": "Stable"
+    "other": "안정"
   },
   "Update.Config.Channel.ValueDev": {
-    "other": "Dev (at your own risks)"
+    "other": "개발 (위험을 감수합니다)"
   },
   "Update.Config.ProxyHost.Label": {
-    "other": "Proxy"
+    "other": "프록시"
   },
   "Update.Config.ProxyHost.Description": {
-    "other": "Host of a proxy server if required for outbound connections"
+    "other": "프록시 서버 호스트 (만약 외부 연결을 위해 필요한 경우)"
   },
   "Update.Config.ProxyUser.Label": {
-    "other": "Proxy User"
+    "other": "프록시 사용자"
   },
   "Update.Config.ProxyUser.Description": {
-    "other": "User for proxy server identification"
+    "other": "프록시 서버 식별을 위한 사용자"
   },
   "Update.Config.ProxyPassword.Label": {
-    "other": "Proxy Password"
+    "other": "프록시 비밀번호"
   },
   "Update.Config.ProxyPassword.Description": {
-    "other": "Password for the proxy server identification"
+    "other": "프록시 서버 식별을 위한 비밀번호"
   },
   "Update.Config.Disable.Label": {
-    "other": "Disable update checks"
+    "other": "업데이트 확인 비활성화"
   },
   "Update.Config.Disable.Description": {
-    "other": "If your server has no access to outside world, do not try contact update site."
+    "other": "만약 서버가 외부망에 접근 권한이 없는 경우 업데이트 웹 사이트에 문의하지 마세요."
   }
 }

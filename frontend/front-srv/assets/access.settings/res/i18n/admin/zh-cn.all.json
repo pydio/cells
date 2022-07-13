@@ -1634,6 +1634,9 @@
   "ws.editor.slug.legend": {
     "other": "使用了技术化名称，例如URL，自动计算但您可以自定义。"
   },
+  "services.text-filter.hint": {
+    "other": "Filter..."
+  },
   "services.filter.nofilter": {
     "other": "所有服务"
   },

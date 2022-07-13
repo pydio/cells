@@ -63,31 +63,31 @@
     "other": "Một datasource để lưu trữ dữ liệu cá nhân và dữ liệu của cells được tạo khi khởi động. Bạn có thể tạo các datasources sau quá trình cài đặt."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "Thiết lập kết nối tới MongoDB"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "Cấu hình kết nối tới MongoDB. MongoDB giúp việc nâng cấp dễ dàng hơn và là yêu cầu bắt buộc nếu bạn xây dựng một cluster. Nếu bạn chưa có sẵn MongoDB thì thiết lập này có thể làm sau khi đã cài đặt Cells thành công."
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "Địa chỉ máy chủ"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "Cổng"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "Tên database"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "Tên đăng nhập"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "Mật khẩu"
   },
   "advanced.mongo.authSource": {
     "other": "Auth DB"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "Kiểm tra kết nối"
   },
   "license.stepLabel": {
     "other": "Giấy phép doanh nghiệp"

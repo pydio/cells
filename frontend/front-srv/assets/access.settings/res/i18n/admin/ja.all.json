@@ -1634,6 +1634,9 @@
   "ws.editor.slug.legend": {
     "other": "たとえばURLで使用される技術名称で、自動的に計算されますが、カスタマイズすることができます。"
   },
+  "services.text-filter.hint": {
+    "other": "Filter..."
+  },
   "services.filter.nofilter": {
     "other": "すべてのサービス"
   },

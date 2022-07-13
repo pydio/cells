@@ -94,5 +94,38 @@
   },
   "welc.title": {
     "other": "Bienvenue sur Pydio Cells v4"
+  },
+  "card.quick-access": {
+    "other": "Raccourcis"
+  },
+  "card.quick-access.add": {
+    "other": "Ajouter un raccourci..."
+  },
+  "card.update.current": {
+    "other": "Version du logiciel"
+  },
+  "card.update.no-updates": {
+    "other": "Le logiciel est à jour"
+  },
+  "card.update.new-version": {
+    "other": "Une nouvelle version est disponible"
+  },
+  "recentLogs.title": {
+    "other": "Derniers événements"
+  },
+  "recentLogs.errors": {
+    "other": "Erreurs"
+  },
+  "recentLogs.emptyState": {
+    "other": "Aucune activité"
+  },
+  "recentLogs.more": {
+    "other": "Voir tout"
+  },
+  "graph.files": {
+    "other": "Activité sur les fichiers"
+  },
+  "graph.connections": {
+    "other": "Connexions Web"
   }
 }

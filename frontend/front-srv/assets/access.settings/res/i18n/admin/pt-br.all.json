@@ -1634,6 +1634,9 @@
   "ws.editor.slug.legend": {
     "other": "Nome técnico usado por exemplo nas URLs, calculado automaticamente, mas você pode personalizá-lo."
   },
+  "services.text-filter.hint": {
+    "other": "Filter..."
+  },
   "services.filter.nofilter": {
     "other": "Todos os serviços"
   },

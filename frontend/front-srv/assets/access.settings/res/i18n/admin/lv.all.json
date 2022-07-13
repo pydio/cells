@@ -1634,6 +1634,9 @@
   "ws.editor.slug.legend": {
     "other": "Tehniskais nosaukums kuru lieto parauga saitēs, tiek izveidota automātiski un to ir iespējams pielāgot."
   },
+  "services.text-filter.hint": {
+    "other": "Filter..."
+  },
   "services.filter.nofilter": {
     "other": "Visi servisi"
   },
