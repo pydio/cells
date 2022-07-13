@@ -5,7 +5,7 @@ import "github.com/pydio/cells/v4/common/proto/rest"
 var settingsNode = &rest.SettingsMenuResponse{
 	RootMetadata: &rest.SettingsEntryMeta{
 		IconClass: "mdi mdi-view-dashboard",
-		Component: "AdminComponents.SimpleDashboard",
+		Component: "AdminComponents.GridDashboard",
 	},
 	Sections: []*rest.SettingsSection{
 		{

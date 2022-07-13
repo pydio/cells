@@ -101,7 +101,8 @@ export default function(palette = {}) {
                     },
                     style:{
                         height: 34,
-                        lineHeight: '34px'
+                        lineHeight: '34px',
+                        borderRadius: 4
                     }
                 },
                 flatButtonDisabled:{
@@ -111,7 +112,8 @@ export default function(palette = {}) {
                     },
                     style:{
                         height: 34,
-                        lineHeight: '34px'
+                        lineHeight: '34px',
+                        borderRadius: 4
                     }
                 },
                 iconButton:{

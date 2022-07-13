@@ -138,7 +138,7 @@
     "other": "Glob Matcher"
   },
   "contextMetaCondition.BooleanCondition": {
-    "other": "Boolean Value"
+    "other": "Valor Booleano"
   },
   "contextMetaField.ContentType": {
     "other": "Tipo de contenido"

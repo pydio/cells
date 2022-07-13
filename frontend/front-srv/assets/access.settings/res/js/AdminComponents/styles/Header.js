@@ -161,15 +161,17 @@ class Header extends Component{
         } else if(!actionButtons.map){
             actionButtons = [actionButtons];
         }
+        let finalStyle = scrolling?styles.scrolling:styles.base
+        finalStyle = {...finalStyle, ...this.props.style}
 
         return (
-            <Paper style={scrolling?styles.scrolling:styles.base} zDepth={scrolling?1:0}>
+            <Paper style={finalStyle} zDepth={scrolling?1:0}>
                 <div style={styles.container}>
                     {icon}
                     {headTitle}
                     <div style={{flex:1, marginRight:centerContent?8:0}}>{centerContent}</div>
                     <div style={{display:'flex', alignItems:'center', marginTop: -2}}>
-                        {actionButtons.map(a => <div style={{margin:'0 8px'}}>{a}</div>)}
+                        {actionButtons.map(a => <div style={{margin:'0 4px'}}>{a}</div>)}
                         {!loading && reloadButton}
                         {loading &&
                             <RefreshIndicator

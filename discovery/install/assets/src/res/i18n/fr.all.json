@@ -63,10 +63,31 @@
     "other": "Une DataSource par défaut est créée au démarrage pour stocker les données personnelles des utilisateurs et les données des Cells. Vous pourrez créer d'autres DataSource plus tard."
   },
   "advanced.mongo.title": {
-    "other": "Configurer une connexion MongoDB. Ceci est recommandé pour la scalabilité, et nécessaire pour le déploiement en multi-noeuds. Si vous n'avez pas encore de MongoDB, vous pouvez faire cette configuration et basculer plus tard."
+    "other": "Configurer une connexion MongoDB"
   },
-  "advanced.mongo.label": {
-    "other": "DSN Mongo (utilisateur:motdepasse@hôte:port/?clé=valeur)"
+  "advanced.mongo.legend": {
+    "other": "Ceci est recommandé pour la scalabilité, et nécessaire pour le déploiement en multi-noeuds. Si vous n'avez pas encore de MongoDB, vous pouvez faire cette configuration et basculer plus tard."
+  },
+  "advanced.mongo.host": {
+    "other": "Hôte du serveur"
+  },
+  "advanced.mongo.port": {
+    "other": "Port du serveur"
+  },
+  "advanced.mongo.db": {
+    "other": "Base de données"
+  },
+  "advanced.mongo.username": {
+    "other": "Utilisateur"
+  },
+  "advanced.mongo.password": {
+    "other": "Mot de passe"
+  },
+  "advanced.mongo.authSource": {
+    "other": "BD d'authentification"
+  },
+  "advanced.mongo.validate": {
+    "other": "Tester la connexion"
   },
   "license.stepLabel": {
     "other": "Licence Entreprise"

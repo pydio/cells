@@ -537,10 +537,10 @@
     "other": "Compartido en celdas"
   },
   "254b": {
-    "other": "With users or groups"
+    "other": "Con usuarios o grupos"
   },
   "254c": {
-    "other": "Shared in %d cells"
+    "other": "Compartido en %d celdas"
   },
   "254d": {
     "other": "Compartido en '%s'"
@@ -924,7 +924,7 @@
     "other": "Crear una celda nueva"
   },
   "link.visibility.title": {
-    "other": "[Advanced] Visibility"
+    "other": "[Advanced] Visibilidad"
   },
   "link.visibility.advanced": {
     "other": "Esta característica avanzada le permite decidir si este enlace es visible para otros usuarios cuando ven este archivo, y si pueden editar sus propiedades. Por defecto, los enlaces que crea sólo son visibles para usted. Puede transferir la propiedad de enlace permitiendo que un otro usuario lo edite."
@@ -933,7 +933,7 @@
     "other": "Hay cambios sin guardar, ¿seguro que quiere cerrar?"
   },
   "dialog.link.confirm.remove": {
-    "other": "Are you sure that you want to disable this link?"
+    "other": "¿Está seguro de que quiere desactivar este enlace?"
   },
   "sharelist.quick-filter": {
     "other": "Filtro rápido..."
@@ -942,16 +942,16 @@
     "other": "Desactivar todos los elementos compartidos"
   },
   "link.active": {
-    "other": "active"
+    "other": "activo"
   },
   "link.disable": {
-    "other": "Disable Link"
+    "other": "Desactivar enlace"
   },
   "link.floatingLabel": {
-    "other": "Copy and send this link for direct access"
+    "other": "Copiar y enviar este enlace para acceso directo"
   },
   "link.secure.title": {
-    "other": "Access Restrictions"
+    "other": "Restricciones de Acceso"
   },
   "link.secure.expires": {
     "other": "expira"

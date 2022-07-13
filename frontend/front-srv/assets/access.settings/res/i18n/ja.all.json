@@ -108,7 +108,7 @@
     "other": "プラグインキャッシュをクリアした場合、新しいプラグインがリストに表示されるのを確認する必要があります。"
   },
   "131": {
-    "other": "Plugins cache files were deleted successfully!"
+    "other": "プラグインキャッシュファイルが正常に削除されました！"
   },
   "132": {
     "other": "キャッシュは消去されましたが、現在SKIP_CACHE モードで実行されています (bootstrap_context.phpを参照)。"

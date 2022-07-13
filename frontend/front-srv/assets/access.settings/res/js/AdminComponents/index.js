@@ -19,6 +19,7 @@
  */
 
 import AdminDashboard from './board/AdminDashboard'
+import GridDashboard from './board/GridDashboard'
 import SimpleDashboard from './board/SimpleDashboard'
 
 import {MessagesConsumerMixin, PydioConsumerMixin} from './util/Mixins'
@@ -27,16 +28,24 @@ import MenuItemListener from './util/MenuItemListener'
 import DNDActionsManager from './util/DNDActionsManager'
 import CodeMirrorField from './util/CodeMirrorField'
 import PluginsLoader from './util/PluginsLoader'
+import ReloadWrapper from './util/ReloadWrapper'
 
 import AdminStyles from './styles/AdminStyles'
 import Header from './styles/Header'
 import SubHeader from './styles/SubHeader'
+
+import QuickLinks from "./cards/QuickLinks";
+import RecentLogs from "./cards/RecentLogs";
+import SoftwareUpdate from "./cards/SoftwareUpdate";
+import FakeGraph from "./cards/FakeGraph";
+
 
 import {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader} from './styles/PaperEditor'
 
 window.AdminComponents = {
     AdminDashboard,
     SimpleDashboard,
+    GridDashboard,
 
     MessagesConsumerMixin,
     PydioConsumerMixin,
@@ -52,5 +61,11 @@ window.AdminComponents = {
 
     PaperEditorLayout,
     PaperEditorNavEntry,
-    PaperEditorNavHeader
+    PaperEditorNavHeader,
+
+    QuickLinks,
+    RecentLogs,
+    SoftwareUpdate,
+    FakeGraph,
+    ReloadWrapper
 };

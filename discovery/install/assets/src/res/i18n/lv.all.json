@@ -63,10 +63,31 @@
     "other": "A default data source to store users personal data and cells data is created at startup. You can create other datasources later on."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB connection. This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "Configure a MongoDB Connection"
   },
-  "advanced.mongo.label": {
-    "other": "Mongo DSN (user:pass@host:port/?key=value)"
+  "advanced.mongo.legend": {
+    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+  },
+  "advanced.mongo.host": {
+    "other": "Server host"
+  },
+  "advanced.mongo.port": {
+    "other": "Server port"
+  },
+  "advanced.mongo.db": {
+    "other": "Database Name"
+  },
+  "advanced.mongo.username": {
+    "other": "Username"
+  },
+  "advanced.mongo.password": {
+    "other": "Password"
+  },
+  "advanced.mongo.authSource": {
+    "other": "Auth DB"
+  },
+  "advanced.mongo.validate": {
+    "other": "Test connection"
   },
   "license.stepLabel": {
     "other": "Enterprise License"
