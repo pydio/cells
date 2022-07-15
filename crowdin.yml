@@ -4,6 +4,7 @@ files:
     languages_mapping:
       locale:
         ar: ar
+        cs: cs
         de: de
         es-ES: es-es
         fr: fr
@@ -25,6 +26,7 @@ files:
     languages_mapping:
       locale:
         ar: ar
+        cs: cs
         de: de
         es-ES: es-es
         fr: fr
@@ -46,6 +48,7 @@ files:
     languages_mapping:
       locale:
         ar: ar
+        cs: cs
         de: de
         es-ES: es-es
         fr: fr
@@ -67,6 +70,7 @@ files:
     languages_mapping:
       locale:
         ar: ar
+        cs: cs
         de: de
         es-ES: es-es
         fr: fr
