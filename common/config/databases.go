@@ -54,9 +54,18 @@ func GetDatabase(key string) (string, string) {
 	return c["driver"], c["dsn"]
 }
 
-func SetDatabase(key string, driver string, dsn string) error {
-	return Get("#/databases/" + key).Set(map[string]string{
+// SetDatabase adds a database entry, plus an optional reference in the defaults
+func SetDatabase(key string, driver string, dsn string, defaultsKey string) error {
+	e := Get("#/databases/" + key).Set(map[string]string{
 		"driver": driver,
 		"dsn":    dsn,
 	})
+	if e != nil {
+		return e
+	}
+	// If defaultsKey is set and value is not already set, add it
+	if defaultsKey != "" && Get("defaults", defaultsKey).String() == "" {
+		return Set(configx.Reference("#/databases/"+key), "defaults", defaultsKey)
+	}
+	return nil
 }

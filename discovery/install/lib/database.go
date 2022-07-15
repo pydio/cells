@@ -38,7 +38,6 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
@@ -94,10 +93,14 @@ func installDocumentDSN(c *install.InstallConfig) error {
 		dsn = strings.TrimPrefix(c.DocumentsDSN, "bleve://")
 	}
 	dbKey := driver + "-" + strings.Split(uuid2.New(), "-")[0]
-	if er := config.SetDatabase(dbKey, driver, dsn); er != nil {
+	setDefaultsKey := ""
+	if c.GetUseDocumentsDSN() && driver == "mongodb" {
+		setDefaultsKey = "documentsDSN"
+	}
+	if er := config.SetDatabase(dbKey, driver, dsn, setDefaultsKey); er != nil {
 		return er
 	}
-	if c.GetUseDocumentsDSN() && driver == "mongodb" {
+	if setDefaultsKey != "" {
 		ss, e := ListServicesWithStorage()
 		if e != nil {
 			return e
@@ -145,19 +148,14 @@ func actionDatabaseAdd(c *install.InstallConfig, flags byte) error {
 	}
 
 	h := sha1.New()
-	io.WriteString(h, dsn)
+	_, _ = io.WriteString(h, dsn)
 	id := fmt.Sprintf("%x", h.Sum(nil))
 
-	config.SetDatabase(id, "mysql", dsn)
-
-	// Only set the default if the default is not set
-	if config.Get("defaults", "database").String() == "" {
-		config.Set(configx.Reference("#/databases/"+id), "defaults", "database")
+	if e := config.SetDatabase(id, "mysql", dsn, "database"); e != nil {
+		return e
 	}
 
-	config.Save("cli", "Install / Setting Databases")
-
-	return nil
+	return config.Save("cli", "Install / Setting Databases")
 }
 
 func addDatabaseTCPConnection(c *install.InstallConfig) (*mysql.Config, error) {
