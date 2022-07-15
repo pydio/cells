@@ -23,59 +23,19 @@ package lib
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 	"sync"
-
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 
 	"github.com/ory/hydra/x"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/install"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
-
-type DexClient struct {
-	Id                     string
-	Name                   string
-	Secret                 string
-	RedirectURIs           []string
-	IdTokensExpiry         string
-	RefreshTokensExpiry    string
-	OfflineSessionsSliding bool
-}
-
-func addBoltDbEntry(sName string, db ...string) error {
-	bDir, e := runtime.ServiceDataDir(common.ServiceGrpcNamespace_ + sName)
-	if e != nil {
-		return e
-	}
-	dbName := sName + ".db"
-	if len(db) > 0 {
-		dbName = db[0]
-	}
-	return config.SetDatabase(common.ServiceGrpcNamespace_+sName, "boltdb", filepath.Join(bDir, dbName))
-}
-
-func addBleveDbEntry(sName string, db ...string) error {
-	bDir, e := runtime.ServiceDataDir(common.ServiceGrpcNamespace_ + sName)
-	if e != nil {
-		return e
-	}
-	dbName := sName + ".bleve"
-	if len(db) > 0 {
-		dbName = db[0]
-	}
-	configKey := common.ServiceGrpcNamespace_ + sName
-	if len(db) > 1 {
-		configKey = db[1]
-	}
-	return config.SetDatabase(configKey, "bleve", filepath.Join(bDir, dbName))
-}
 
 var (
 	listRegistry registry.Registry

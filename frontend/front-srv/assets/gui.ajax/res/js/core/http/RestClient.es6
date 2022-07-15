@@ -220,8 +220,12 @@ class RestClient extends ApiClient{
     }
 
     handleError(reason) {
-        let msg = reason.message;
         let replace  = false;
+        if (reason.error) {
+            reason = reason.error
+            replace = true
+        }
+        let msg = reason.message;
         if (reason.response && reason.response.body){
             msg = reason.response.body
             if(msg.Title) {
