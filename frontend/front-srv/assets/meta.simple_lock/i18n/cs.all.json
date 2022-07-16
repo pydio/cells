@@ -1,17 +1,17 @@
 {
   "1": {
-    "other": "Zamknout"
+    "other": "Lock"
   },
   "2": {
-    "other": "Zamknout vybrané položky"
+    "other": "Lock selected item"
   },
   "3": {
-    "other": "Odemknout"
+    "other": "Unlock"
   },
   "4": {
-    "other": "Odstranit zámek"
+    "other": "Remove lock"
   },
   "5": {
-    "other": "Tentou soubor je zamčen jiným uživatelem, pravděpodobně je právě upravován, nemáte oprávnění jej v tomto okamžiku upravovat."
+    "other": "This file is locked by another user, it is probably currently being edited, you are not allowed to modify it."
   }
 }
