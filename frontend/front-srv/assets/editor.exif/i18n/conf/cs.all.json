@@ -1,8 +1,8 @@
 {
   "Display the Exif metadata contained inside the JPG files. Can locate the image on a map if it contains geolocation data.": {
-    "other": "Zobrazuje EXIF metadata obsažená uvnitř JPG souborů. Umí umístit obrázek na mapu, pokud obsahuje data o místě fotografování."
+    "other": "Display the Exif metadata contained inside the JPG files. Can locate the image on a map if it contains geolocation data."
   },
   "EXIF Extractor": {
-    "other": "Extrakce EXIF dat"
+    "other": "EXIF Extractor"
   }
 }

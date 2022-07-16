@@ -1,17 +1,17 @@
 {
   "Avatars": {
-    "other": "Avatary"
+    "other": "Avatars"
   },
   "Choose an avatar web service": {
-    "other": "Vybrat webovou službu pro avatar"
+    "other": "Choose an avatar web service"
   },
   "Get user avatar from Gravatar/Libravatar": {
-    "other": "Získat avatar uživatele z Gravatar/Libravatar"
+    "other": "Get user avatar from Gravatar/Libravatar"
   },
   "Gravatar type": {
-    "other": "Gravatar typ"
+    "other": "Gravatar type"
   },
   "Provider": {
-    "other": "Poskytovatel"
+    "other": "Provider"
   }
 }

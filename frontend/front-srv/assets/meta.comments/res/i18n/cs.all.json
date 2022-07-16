@@ -1,14 +1,17 @@
 {
   "1": {
-    "other": "Komentáře"
+    "other": "Comments"
   },
   "2": {
-    "other": "Sem zadejte svůj komentář"
+    "other": "Enter your comment here"
   },
   "3": {
-    "other": "Zveřejnit"
+    "other": "Post"
   },
   "4": {
-    "other": "Jit na %s"
+    "other": "Go to %s"
+  },
+  "empty-state": {
+    "other": "No comments"
   }
 }

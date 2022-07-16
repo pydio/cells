@@ -1,44 +1,59 @@
 {
   "Allowed Extensions": {
-    "other": "Povolená rozšíření"
-  },
-  "Cumul. Size": {
-    "other": "Souhr. Velkost"
+    "other": "Allowed Extensions"
   },
   "Ext. Label": {
-    "other": "Rozš. Popisek"
+    "other": "Ext. Label"
   },
   "Extensions List": {
-    "other": "Seznam rozšíření"
+    "other": "Extensions List"
   },
   "File Size": {
-    "other": "Velikost souboru"
-  },
-  "Files Number": {
-    "other": "Počet souborů"
+    "other": "File Size"
   },
   "Filter the files that are allowed to be uploaded, by extensions. Use a comma-separated list.": {
     "other": "Filter the files that are allowed to be uploaded, by extensions. Use a comma-separated list."
   },
   "Limitations": {
-    "other": "Omezení"
+    "other": "Limitations"
   },
-  "Maximum number of files for each upload. Leave to 0 for no limit.": {
-    "other": "Maximum number of files for each upload. Leave to 0 for no limit."
-  },
-  "Maximum size per file allowed to upload. By default, this is fixed by php config 'upload_max_filesize'. Use this one only if you want to set it smaller than the php config. If you want to increase the php value, please check the PHP documentation for how to set a php config. Use either the php config syntax with letters for size (e.g. '2M' for 2MegaBytes , '1G' for one gigabyte, etc.) or an integer value like 2097152 for 2 megabytes.": {
-    "other": "Maximum size per file allowed to upload. By default, this is fixed by php config 'upload_max_filesize'. Use this one only if you want to set it smaller than the php config. If you want to increase the php value, please check the PHP documentation for how to set a php config. Use either the php config syntax with letters for size (e.g. '2M' for 2MegaBytes , '1G' for one gigabyte, etc.) or an integer value like 2097152 for 2 megabytes."
-  },
-  "Maximum total size (all files size cumulated) by upload. Leave to 0 if you do not want any limit. See the previous variable for syntax ('2M' or 2097152 )": {
-    "other": "Maximum total size (all files size cumulated) by upload. Leave to 0 if you do not want any limit. See the previous variable for syntax ('2M' or 2097152 )"
+  "Maximum size per file allowed to upload.": {
+    "other": "Maximum size per file allowed to upload."
   },
   "Options shared by all uploaders plugins": {
-    "other": "Nastavení sdílené všemi nahrávacími moduly"
+    "other": "Options shared by all uploaders plugins"
   },
   "Uploaders Options": {
-    "other": "Volby nahrávání"
+    "other": "Uploaders Options"
   },
   "User readable label for the list of allowed extensions (images, all files, etc).": {
     "other": "User readable label for the list of allowed extensions (images, all files, etc)."
+  },
+  "Multipart Uploads": {
+    "other": "Multipart Uploads"
+  },
+  "Multipart Parts Size": {
+    "other": "Multipart Parts Size"
+  },
+  "Multipart Threshold": {
+    "other": "Multipart Threshold"
+  },
+  "Switch to Multipart Upload for files bigger than this value (in bytes)": {
+    "other": "Switch to Multipart Upload for files bigger than this value (in bytes)"
+  },
+  "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)": {
+    "other": "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)"
+  },
+  "Queue Size": {
+    "other": "Queue Size"
+  },
+  "Number of concurrent uploads (maximum 6, due to browsers limitations)": {
+    "other": "Number of concurrent uploads (maximum 6, due to browsers limitations)"
+  },
+  "Timeout": {
+    "other": "Timeout"
+  },
+  "Request Timeout (in minutes) for each concurrent part upload": {
+    "other": "Request Timeout (in minutes) for each concurrent part upload"
   }
 }

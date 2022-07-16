@@ -24,10 +24,10 @@
     "other": "Trigger remote file download"
   },
   "13": {
-    "other": "Z tohoto počítače"
+    "other": "From computer"
   },
   "14": {
-    "other": "Ze vzdáleného serveru"
+    "other": "From remote server"
   },
   "15": {
     "other": "Or create a bookmark manually and use the code below as the link url : "
@@ -42,7 +42,7 @@
     "other": "Partial file"
   },
   "2": {
-    "other": "Stáhnout soubor(y) ze vzdáleného serveru"
+    "other": "Download file(s) from remote server"
   },
   "3": {
     "other": "m"
@@ -63,6 +63,6 @@
     "other": "File downloaded, reloading the client!"
   },
   "9": {
-    "other": "Vytvořit záložku"
+    "other": "Generate Bookmarklet"
   }
 }
