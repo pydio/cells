@@ -1,152 +1,128 @@
-version: "3"
+version: '3.8'
 
-services:
-  busybox:
-    image: busybox
-    command: top
-
-  broker:
-    image: cells
-    command: [ "start", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
-    environment:
-      - CELLS_WORKING_DIR=/etc/config
-      - CELLS_LOG_DIR=/var/log/cells
-    ports:
-      - "8080:8080"
-    volumes: 
-      - "cellsdir:/etc/config"
-      - "logdir:/var/log/cells"
-    depends_on:
-      - nats
-      - mysql
-
-  # data:
-  #   image: cells
-  #   command: [ "start", "-t data", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
-  #   environment:
-  #     - CELLS_WORKING_DIR=/etc/config
-  #     - CELLS_LOG_DIR=/var/log/cells
-  #   volumes: 
-  #     - "cellsdir:/etc/config"
-  #     - "logdir:/var/log/cells"
-  #   depends_on:
-  #     - nats
-  #     - mysql
-
-  # datasource:
-  #   image: cells
-  #   command: [ "start", "-t datasource", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
-  #   environment:
-  #     - CELLS_WORKING_DIR=/etc/config
-  #     - CELLS_LOG_DIR=/var/log/cells
-  #   volumes: 
-  #     - "cellsdir:/etc/config"
-  #     - "logdir:/var/log/cells"
-  #   depends_on:
-  #     - nats
-  #     - mysql
-
-  # discovery:
-  #   image: cells
-  #   command: [ "start", "-t discovery", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
-  #   environment:
-  #     - CELLS_WORKING_DIR=/etc/config
-  #     - CELLS_LOG_DIR=/var/log/cells
-  #   volumes: 
-  #     - "cellsdir:/etc/config"
-  #     - "logdir:/var/log/cells"
-  #   depends_on:
-  #     - nats
-  #     - mysql
-
-  # frontend:
-  #   image: cells
-  #   command: [ "start", "-t frontend", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
-  #   environment:
-  #     - CELLS_WORKING_DIR=/etc/config
-  #     - CELLS_LOG_DIR=/var/log/cells
-  #   volumes: 
-  #     - "cellsdir:/etc/config"
-  #     - "logdir:/var/log/cells"
-  #   depends_on:
-  #     - nats
-  #     - mysql
-
-  # gateway:
-  #   image: cells
-  #   command: [ "start", "-t gateway", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     - CELLS_WORKING_DIR=/etc/config
-  #     - CELLS_LOG_DIR=/var/log/cells
-  #   volumes: 
-  #     - "cellsdir:/etc/config"
-  #     - "logdir:/var/log/cells"
-  #   depends_on:
-  #     - nats
-  #     - mysql
-
-  # idm:
-  #   image: cells
-  #   command: [ "start", "-t idm", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
-  #   environment:
-  #     - CELLS_WORKING_DIR=/etc/config
-  #     - CELLS_LOG_DIR=/var/log/cells
-  #   volumes: 
-  #     - "cellsdir:/etc/config"
-  #     - "logdir:/var/log/cells"
-  #   depends_on:
-  #     - nats
-  #     - mysql
-
-  # scheduler:
-  #   image: cells
-  #   command: [ "start", "-t scheduler", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
-  #   environment:
-  #     - CELLS_WORKING_DIR=/etc/config
-  #     - CELLS_LOG_DIR=/var/log/cells
-  #   volumes: 
-  #     - "cellsdir:/etc/config"
-  #     - "logdir:/var/log/cells"
-  #   depends_on:
-  #     - nats
-  #     - mysql
-
-  nats:
-    image: nats:1.0.4
-    command: [ "-D" ]
-    ports:
-      - "5222:4222"
-  
-  mysql:
-    image: mysql:5.7
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: P@ssw0rd
-      MYSQL_DATABASE: cells
-      MYSQL_USER: pydio
-      MYSQL_PASSWORD: pydio
-    volumes:
-      - "mysqldir:/var/lib/mysql"
-    command:
-      [
-        mysqld,
-        --character-set-server=utf8mb4,
-        --collation-server=utf8mb4_unicode_ci,
-      ]
+# Common variables
+x-cells: &cells-common
+  image: pydio/cells:unstable
+  restart: unless-stopped
+  environment:
+    - CELLS_WORKING_DIR=/var/cells
+    - CELLS_CONFIG=etcd://etcd:2379
+    - CELLS_REGISTRY=etcd://etcd:2379
+    - CELLS_BROKER=nats://nats:4222
+    - CELLS_KEYRING=vault://vault:8200/secret?key=master
+    - CELLS_CERTS_STORE=vault://vault:8200/caddycerts
+    - CELLS_CACHE=redis://redis:6379
+    - CELLS_ENABLE_PPROF=true
+    - VAULT_TOKEN=dev_root_token
+  volumes:
+    - cells_data:/var/cells/data
 
 volumes:
-  cellsdir:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /tmp/config
-  logdir:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /tmp/logs
-  mysqldir: {}
+    cells_data: {}
+    mysql_data: {}
+    etcd_data: {}
+    caddy_data: {}
+    caddy_logs: {}
+    caddy_config: {}
+
+services:
+
+  # MySQL DB
+  mysql:
+    image: mysql:5.7
+    restart: unless-stopped
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=cells
+      - MYSQL_DATABASE=cells
+      - MYSQL_USER=pydio
+      - MYSQL_PASSWORD=cells
+    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+
+  # Mongo DB
+  mongo:
+    image:  mongo:5.0.5
+    restart: unless-stopped
+    expose: [27017]
+
+  # ETCD Single-Node for registry and configs
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.2
+    entrypoint: /usr/local/bin/etcd
+    ports:
+      - 4001:4001 
+      - 2380:2380 
+      - 2379:2379 
+    volumes:
+      - etcd_data:/etcd_data
+      - /usr/share/ca-certificates/:/etc/ssl/certs 
+    command: 
+      - '--name=etcd-0' 
+      - '--advertise-client-urls=http://etcd:2379,http://etcd:4001'
+      - '--listen-client-urls=http://0.0.0.0:2379,http://0.0.0.0:4001'
+      - '--initial-advertise-peer-urls=http://etcd:2380'
+      - '--listen-peer-urls=http://0.0.0.0:2380'
+      - '--initial-cluster-token=etcd-cluster-1'
+      - '--initial-cluster=etcd-0=http://etcd:2380'
+      - '--initial-cluster-state=new'
+
+  # Nats events broker
+  nats:
+    image: nats
+    expose:
+      - 4222
+      - 8222
+    #for verbose, use "--http_port 8222 -V"
+    command: "--http_port 8222"
+
+  # Hashicorp vault for keyring and certificates
+  vault:
+    image: vault
+    expose: [8200]
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=dev_root_token
+    cap_add:
+      - IPC_LOCK
+
+  redis:
+    image: redis
+    hostname: redis
+    expose: [6379]
+
+  #
+  # CELLS MULTIPLE NODES
+  #
+  cells1:
+    <<: *cells-common
+    hostname: cells1
+    ports:
+      - 8080:8080 # We expose that port externally for first configuration step (access to https://localhost:8080)
+      #- 8002:8002 # uncomment if you want to browse the internal registry of this node using cells-ctl
+
+  cells2:
+    <<: *cells-common
+    hostname: cells2
+    expose: [8080]
+# uncomment if you want to open this instance directly on localhost:8082
+#    ports:
+#      - 8082:8080
+
+  cells3:
+    <<: *cells-common
+    hostname: cells3
+    expose: [8080]
+# uncomment if you want to open this instance directly on localhost:8083
+#    ports:
+#      - 8083:8080
+
+  # Caddy reverse proxy, exposed as self-signed on port 445
+  caddy:
+    image:  caddy:2-alpine
+    ports: ["8585:8585"]
+    restart: unless-stopped
+    volumes:
+      - ./conf/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_logs:/var/caddy/logs
+      - caddy_data:/data
+      - caddy_config:/config
