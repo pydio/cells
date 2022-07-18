@@ -1,8 +1,8 @@
 {
-  "Git-based Versioning": {
-    "other": "Verzování na základě Gitu"
+  "Files Versioning": {
+    "other": "Files Versioning"
   },
-  "Keep tracks of all files modifications using a local Git repository": {
-    "other": "Vést záznam o všech úpravách souborů za použití místního Git prostoru"
+  "Keep tracks of all files modifications": {
+    "other": "Keep tracks of all files modifications"
   }
 }

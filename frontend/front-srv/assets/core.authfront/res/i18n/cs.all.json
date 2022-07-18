@@ -1,24 +1,24 @@
 {
   "1": {
-    "other": "Reset hesla"
+    "other": "Password Reset"
   },
   "2": {
-    "other": "Nastavte své nové heslo"
+    "other": "Set your new password"
   },
   "3": {
-    "other": "Zadejte prosím svůj login a zresetované heslo bude zasláno na váš email."
+    "other": "Please enter your login or email address, a reset password will be sent to you by email."
   },
   "4": {
-    "other": "Váš identifikátor"
+    "other": "Your login or email"
   },
   "5": {
-    "other": "Požadavek na změnu hesla byl zaslán na emailovou adresu registrovanou s vaším uživatelským účtem. Klikněte na odkaz v emailu pro provedení změny hesla."
+    "other": "A reset password request has been sent to the email registered with your account. Click on the link in the email to recreate a password."
   },
   "6": {
-    "other": "Děkujeme, nyní se můžete přihlásit!"
+    "other": "Thank you, please reload now to log in!"
   },
   "7": {
-    "other": "Byla vyžádána změna hesla pro účet vedený pod touto emailovou adresou. Pokud jste tento požadavek nevyžádali vy, můžete tento email ignorovat. Jinak klikněte na následující odkaz pro reset svého hesla:"
+    "other": "A password reset has been requested on the account associated to this email address. If you are not the author of this request, you can safely ignore this email. Otherwise click on the following link to reset your password:"
   },
   "8": {
     "other": "Use the form below to reset your password. Please enter your login and the new password twice."

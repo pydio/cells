@@ -54,6 +54,7 @@ var (
 	// LoadingStrings have to be hard-coded to be loaded first. When not defined, we fall back to "loading..." message (in English).
 	LoadingStrings = map[string]string{
 		"ar":    "نحميل...",
+		"cs":    "Načítání...",
 		"de":    "Wird geladen...",
 		"en-us": "Loading...",
 		"es-en": "Cargando...",
@@ -76,7 +77,8 @@ var (
 	// WipLanguages lists languages that are only partially translated and only exposed
 	// in the end-user web UI when CELLS_ENABLE_WIP_LANGUAGES env variable is set to true.
 	WipLanguages = map[string]string{
-		"ar":    "عربى", // Arabic
+		"ar":    "عربى",  // Arabic
+		"cs":    "Česky", // Czech
 		"fr-ca": "Canadien",
 		"ja":    "日本人", //Japanese
 		"ko":    "한국어",

@@ -1,12 +1,15 @@
 {
   "1": {
-    "other": "Meta data"
+    "other": "Meta Data"
   },
   "10": {
     "other": "Existing or new tag"
   },
   "11": {
     "other": "No metadata set, click to add any"
+  },
+  "16": {
+    "other": "No metadata set"
   },
   "12": {
     "other": "Multiple Selection:"
@@ -21,27 +24,27 @@
     "other": "Save meta"
   },
   "2": {
-    "other": "Bez označení"
+    "other": "No Label"
   },
   "3": {
-    "other": "Odstranit hodnocení"
+    "other": "Remove Rating"
   },
   "4": {
-    "other": "Nedůležité"
+    "other": "Low"
   },
   "5": {
-    "other": "Úkoly"
+    "other": "Todo"
   },
   "6": {
-    "other": "Osobní"
+    "other": "Personal"
   },
   "7": {
-    "other": "Práce"
+    "other": "Work"
   },
   "8": {
-    "other": "Důležité"
+    "other": "Important"
   },
   "9": {
-    "other": "Bez hodnoty"
+    "other": "No Value"
   }
 }
