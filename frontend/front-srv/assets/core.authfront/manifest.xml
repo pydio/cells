@@ -23,6 +23,7 @@
                 <gui iconClass="icon-terminal" text="gui.user.1" title="gui.user.2">
                     <context dir="true" recycle="true" selection="false"/>
                 </gui>
+                <rightsContext noUser="true" userLogged="false"/>
                 <processing>
                     <clientCallback module="AuthfrontCoreActions.ResetPasswordDialog.open"/>
                 </processing>

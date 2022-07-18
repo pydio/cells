@@ -42,9 +42,14 @@
         }
         input{
           color: white !important;
-          height: 26px !important;
-          margin-top: 37px !important;
+          &:-webkit-autofill {
+            -webkit-background-clip: text;
+            -webkit-box-shadow: none;
+          }
         }
+      }
+      button {
+        color: rgba(255,255,255,0.9) !important;
       }
     }
 
@@ -68,6 +73,7 @@
 
     .forgot-password-link{
       text-align:right;
+      margin-top: 10px;
       a, a:hover{
         color: rgba(255,255,255,.67);
         font-size: 13px;

@@ -402,7 +402,7 @@ const ResetPasswordRequire = createReactClass({
         }
 
         const api = new TokenServiceApi(PydioApi.getRestClient());
-        api.resetPasswordToken(value).then(() => {
+        api.resetPasswordToken(value, {}).then(() => {
             this.setState({valueSubmitted: true});
         });
     },
@@ -483,7 +483,7 @@ const ResetPasswordDialog = createReactClass({
         api.resetPassword(request).then(() => {
             this.setState({valueSubmitted: true});
         }).catch(e => {
-            alert(mess[240]);
+            pydio.UI.displayMessage('ERROR', mess[240]);
         });
     },
 

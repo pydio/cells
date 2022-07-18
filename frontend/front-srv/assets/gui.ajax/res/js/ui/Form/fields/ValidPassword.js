@@ -97,7 +97,7 @@ class ValidPassword extends React.Component{
                         fullWidth={true}
                         style={{flex:1}}
                         errorText={this.state.confirmErrorText}
-                        errorStyle={dialogField?{bottom: -5}:null}
+                        errorStyle={dialogField?{bottom: 15}:null}
                         variant={variant}
                     />
                 ];
@@ -107,7 +107,7 @@ class ValidPassword extends React.Component{
                     <div style={{display:'flex', height:variant === 'v2'?66:null}}>
                         <TextComponent
                             ref="pass"
-                            hintText={isDisplayGrid()?null:attributes.label}
+                            floatingLabelText={isDisplayGrid()?null:attributes.label}
                             floatingLabelShrinkStyle={{...overflow, width:'130%'}}
                             floatingLabelStyle={overflow}
                             className={cName}
@@ -120,7 +120,7 @@ class ValidPassword extends React.Component{
                             errorText={this.state.passErrorText}
                             fullWidth={true}
                             style={{flex:1}}
-                            errorStyle={dialogField?{bottom: -5}:null}
+                            errorStyle={dialogField?{bottom: 15}:null}
                             variant={variant}
                         />
                         {confirm}

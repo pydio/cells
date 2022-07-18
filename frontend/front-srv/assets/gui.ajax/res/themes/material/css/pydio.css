@@ -1003,8 +1003,13 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .dialogRootBlur > div > div.dialogRootBlur div.blurDialogTextField input {
   color: white !important;
-  height: 26px !important;
-  margin-top: 37px !important;
+}
+.react-mui-context .dialogRootBlur > div > div.dialogRootBlur div.blurDialogTextField input:-webkit-autofill {
+  -webkit-background-clip: text;
+  -webkit-box-shadow: none;
+}
+.react-mui-context .dialogRootBlur > div > div.dialogRootBlur button {
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 .react-mui-context .dialogRootBlur .red-background {
   background-color: rgba(244, 67, 54, 0.45);
@@ -1029,6 +1034,7 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .dialogRootBlur .forgot-password-link {
   text-align: right;
+  margin-top: 10px;
 }
 .react-mui-context .dialogRootBlur .forgot-password-link a,
 .react-mui-context .dialogRootBlur .forgot-password-link a:hover {
