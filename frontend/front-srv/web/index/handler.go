@@ -10,8 +10,6 @@ import (
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 
-	"github.com/gorilla/mux"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/registry"
@@ -20,15 +18,17 @@ import (
 )
 
 type IndexHandler struct {
-	runtimeCtx       context.Context
-	tpl              *template.Template
-	loadingTpl       *template.Template
-	frontendDetected bool
+	runtimeCtx        context.Context
+	tpl               *template.Template
+	loadingTpl        *template.Template
+	frontendDetected  bool
+	resetPasswordPath string
 }
 
-func NewIndexHandler(ctx context.Context) *IndexHandler {
+func NewIndexHandler(ctx context.Context, resetPasswordPath string) *IndexHandler {
 	h := &IndexHandler{
-		runtimeCtx: ctx,
+		runtimeCtx:        ctx,
+		resetPasswordPath: resetPasswordPath,
 	}
 	h.tpl, _ = template.New("index").Parse(Page)
 	h.loadingTpl, _ = template.New("loading").Parse(loading)
@@ -100,8 +100,8 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	tplConf = FilterTplConf(tplConf)
 
-	vars := mux.Vars(r)
-	if reset, ok := vars["resetPasswordKey"]; ok {
+	if strings.HasPrefix(r.URL.Path, h.resetPasswordPath) {
+		reset := strings.TrimPrefix(r.URL.Path, h.resetPasswordPath)
 		tplConf.StartParameters["USER_GUI_ACTION"] = "reset-password"
 		tplConf.StartParameters["USER_ACTION_KEY"] = reset
 	}

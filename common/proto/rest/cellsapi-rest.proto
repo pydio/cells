@@ -418,6 +418,7 @@ service TokenService{
     rpc ResetPasswordToken(ResetPasswordTokenRequest) returns (ResetPasswordTokenResponse) {
         option (google.api.http) = {
             put: "/auth/reset-password-token/{UserLogin}"
+            body: "*"
         };
     };
     // Finish up the reset password process by providing the unique token

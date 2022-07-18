@@ -198,6 +198,7 @@ message RevokeResponse{
 message ResetPasswordTokenRequest {
     // Start a ResetPassword workflow for this user
     string UserLogin = 1;
+    bool Create = 2;
 }
 
 message ResetPasswordTokenResponse {

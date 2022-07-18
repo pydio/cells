@@ -48,6 +48,7 @@ var (
 	Name         = common.ServiceWebNamespace_ + common.ServiceFrontStatics
 	RobotsString = `User-agent: *
 Disallow: /`
+	ResetPasswordPath = "/user/reset-password/"
 )
 
 func init() {
@@ -86,7 +87,7 @@ func init() {
 
 				mux.Handle("/index.json", fs)
 				mux.Handle("/plug/", http.StripPrefix("/plug/", fs))
-				indexHandler := index.NewIndexHandler(ctx)
+				indexHandler := index.NewIndexHandler(ctx, ResetPasswordPath)
 				mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 					w.WriteHeader(200)
 					w.Header().Set("Content-Type", "text/plain")
@@ -94,7 +95,7 @@ func init() {
 				})
 				mux.Handle("/", indexHandler)
 				mux.Handle("/gui", indexHandler)
-				mux.Handle("/user/reset-password/{resetPasswordKey}", indexHandler)
+				mux.Handle(ResetPasswordPath, indexHandler)
 
 				// /public endpoint : special handler for index, redirect to /plug/ for the rest
 				mux.Handle(config.GetPublicBaseUri()+"/", wrap(index.NewPublicHandler()))
@@ -117,7 +118,7 @@ func init() {
 					m.DeregisterPattern("/robots.txt")
 					m.DeregisterPattern("/")
 					m.DeregisterPattern("/gui")
-					m.DeregisterPattern("/user/reset-password/{resetPasswordKey}")
+					m.DeregisterPattern("/user/reset-password/")
 					m.DeregisterPattern(config.GetPublicBaseUri() + "/")
 					m.DeregisterPattern(config.GetPublicBaseUri() + "/plug/")
 				}

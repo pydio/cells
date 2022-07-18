@@ -3006,8 +3006,11 @@
     },
     "registryOptions": {
       "properties": {
-        "action": {
-          "$ref": "#/definitions/registryActionType"
+        "actions": {
+          "items": {
+            "$ref": "#/definitions/registryActionType"
+          },
+          "type": "array"
         },
         "metaName": {
           "type": "string"
@@ -5135,6 +5138,10 @@
           "title": "Pass a duration with \u003e or \u003c to compute MinDate / MaxDate",
           "type": "string"
         },
+        "ETag": {
+          "title": "Look for a specific eTag value",
+          "type": "string"
+        },
         "Extension": {
           "title": "Search files by extension",
           "type": "string"
@@ -5930,6 +5937,19 @@
             "name": "UserLogin",
             "required": true,
             "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "Create": {
+                  "type": "boolean"
+                }
+              },
+              "type": "object"
+            }
           }
         ],
         "responses": {
