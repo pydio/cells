@@ -71,8 +71,10 @@ func addCacheFlags(flags *pflag.FlagSet) {
 	flags.String(runtime.KeyCache, runtime.DefaultKeyCache, "Sharded Cache")
 	flags.String(runtime.KeyShortCache, runtime.DefaultKeyShortCache, "Short cache")
 
-	flags.MarkHidden(runtime.KeyCache)
-	flags.MarkHidden(runtime.KeyShortCache)
+	if os.Getenv(EnvDisplayHiddenFlags) == "" {
+		flags.MarkHidden(runtime.KeyCache)
+		flags.MarkHidden(runtime.KeyShortCache)
+	}
 }
 
 // addExternalCmdRegistryFlags registers necessary flags to connect to the registry with defaults :8001
