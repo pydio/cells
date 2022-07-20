@@ -31,7 +31,6 @@ message InstallConfig {
     string dsS3CustomRegion = 17;
     string dsS3ApiKey = 18;
     string dsS3ApiSecret = 19;
-    string dsS3Signature = 40;
     string dsS3BucketDefault = 20;
     string dsS3BucketPersonal = 21;
     string dsS3BucketCells = 22;

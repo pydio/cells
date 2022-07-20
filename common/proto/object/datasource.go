@@ -56,7 +56,6 @@ func (d *DataSource) ClientConfig() configx.Values {
 	_ = cfg.Val("key").Set(d.GetApiKey())
 	_ = cfg.Val("secret").Set(d.GetApiSecret())
 	_ = cfg.Val("secure").Set(d.GetObjectsSecure())
-	_ = cfg.Val("signature").Set(d.GetSignature())
 	return cfg
 }
 
