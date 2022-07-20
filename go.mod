@@ -496,4 +496,4 @@ require (
 //replace github.com/minio/minio => /Users/charles/Sources/go/src/github.com/pydio/minio
 //replace github.com/pydio/caddyvault => /Users/charles/Sources/go/src/github.com/pydio/caddyvault
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20220720104658-c06757794e40
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20220720133810-fbe18e90c267
