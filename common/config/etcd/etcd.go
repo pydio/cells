@@ -83,9 +83,13 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 	withKeys := u.Query().Get("withKeys") == "true"
 
 	// Registry via etcd
+	pwd, _ := u.User.Password()
+
 	etcdConn, err := clientv3.New(clientv3.Config{
 		Endpoints:   []string{addr},
 		DialTimeout: 2 * time.Second,
+		Username:    u.User.Username(),
+		Password:    pwd,
 	})
 
 	if err != nil {
