@@ -25,8 +25,8 @@ import (
 	"strings"
 	"time"
 
-	madmin "github.com/minio/madmin-go"
 	minio "github.com/minio/minio/cmd"
+	"github.com/minio/minio/pkg/auth"
 
 	"github.com/minio/cli"
 	"github.com/pydio/cells/v4/common"
@@ -74,7 +74,7 @@ func (l *pydioObjects) MakeBucketWithLocation(_ context.Context, _ string, _ min
 	return minio.NotImplemented{}
 }
 
-func (l *pydioObjects) DeleteBucket(_ context.Context, _ string, _ minio.DeleteBucketOptions) error {
+func (l *pydioObjects) DeleteBucket(_ context.Context, _ string, _ bool) error {
 	return minio.NotImplemented{}
 }
 
@@ -88,7 +88,7 @@ func (p *Pydio) Name() string {
 }
 
 // NewGatewayLayer returns a new  ObjectLayer.
-func (p *Pydio) NewGatewayLayer(_ madmin.Credentials) (minio.ObjectLayer, error) {
+func (p *Pydio) NewGatewayLayer(_ auth.Credentials) (minio.ObjectLayer, error) {
 	o := &pydioObjects{
 		Router: compose.PathClient(p.RuntimeCtx, nodes.WithReadEventsLogging(), nodes.WithAuditEventsLogging()),
 	}
