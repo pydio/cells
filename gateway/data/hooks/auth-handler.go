@@ -56,6 +56,7 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		//logger.Info("Found JWT in URL: replace by header and remove from URL")
 		r.Header.Set("X-Pydio-Bearer", jwt)
 		r.URL.RawQuery = strings.Replace(r.URL.RawQuery, "&pydio_jwt="+jwt, "", 1)
+		_ = r.ParseForm()
 		if signedKey, err := cmd.ExposedParsePresignV4(r.Form); err == nil && signedKey != a.globalAccessKey {
 			resignRequestV4Presigned = true
 		}
