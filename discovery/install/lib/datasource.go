@@ -149,6 +149,7 @@ func addDatasourceS3(c *install.InstallConfig) (*object.DataSource, error) {
 		StorageType:          object.StorageType_S3,
 		ApiKey:               c.GetDsS3ApiKey(),
 		ApiSecret:            c.GetDsS3ApiSecret(),
+		Signature:            c.GetDsS3Signature(),
 		ObjectsPort:          int32(port),
 		StorageConfiguration: make(map[string]string),
 	}

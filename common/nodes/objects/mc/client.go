@@ -22,9 +22,10 @@ package mc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"io"
 	"strings"
+
+	"github.com/pydio/cells/v4/common/utils/configx"
 
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -46,18 +47,33 @@ func init() {
 		key := cfg.Val("key").String()
 		secret := cfg.Val("secret").String()
 		secure := cfg.Val("secure").Bool()
-		return New(ep, key, secret, secure)
+		sig := cfg.Val("signature").String()
+		return New(ep, key, secret, secure, sig)
 	})
 }
 
 // New creates a new minio.Core with the most standard options
-func New(endpoint, accessKey, secretKey string, secure bool, customRegion ...string) (*Client, error) {
+func New(endpoint, accessKey, secretKey string, secure bool, sig string, customRegion ...string) (*Client, error) {
 	rt, e := customHeadersTransport(secure)
 	if e != nil {
 		return nil, e
 	}
+
+	var signerType credentials.SignatureType
+	switch strings.ToLower(sig) {
+	case "v2":
+		signerType = credentials.SignatureV2
+	case "v4":
+		signerType = credentials.SignatureV4
+	case "anonymous":
+		signerType = credentials.SignatureAnonymous
+	case "v4streaming":
+		signerType = credentials.SignatureV4Streaming
+	default:
+		signerType = credentials.SignatureDefault
+	}
 	options := &minio.Options{
-		Creds:     credentials.NewStaticV2(accessKey, secretKey, ""),
+		Creds:     credentials.NewStatic(accessKey, secretKey, "", signerType),
 		Secure:    secure,
 		Transport: rt,
 	}

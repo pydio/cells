@@ -484,6 +484,19 @@ func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bo
 	} else {
 		c.DsS3ApiSecret = strings.Trim(apiSecret, " ")
 	}
+	psItems := []string{
+		"v2",
+		"v4",
+		"v4streaming",
+		"anonymous",
+	}
+	ps := p.Select{
+		Label: "Please choose the signature version",
+		Items: psItems,
+	}
+	_, s, e := ps.Run()
+	c.DsS3Signature = s
+
 	check, _ := lib.PerformCheck(context.Background(), "S3_KEYS", c)
 	var res map[string]interface{}
 	e = json.Unmarshal([]byte(check.JsonResult), &res)

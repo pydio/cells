@@ -74,6 +74,8 @@ message DataSource {
     string ApiKey = 16;
     // Corresponding objects service api secret
     string ApiSecret = 17;
+    // Signature Version
+    string Signature = 22;
     // Peer address of the data source
     string PeerAddress = 19;
     // Not implemented, whether to watch for underlying changes on the FS
@@ -113,6 +115,8 @@ message MinioConfig {
     string ApiKey = 6;
     // Api Secret to access this object service
     string ApiSecret = 7;
+    // Signature Version
+    string Signature = 12;
     // Url to get info about this object service
     string EndpointUrl = 10;
     // Specific to Local storage type

@@ -24,12 +24,13 @@ package lib
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"time"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.uber.org/zap"
-	"net/url"
-	"time"
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -171,6 +172,7 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) (*
 		cfData.Val("endpoint").Set(endpoint)
 		cfData.Val("key").Set(c.GetDsS3ApiKey())
 		cfData.Val("secret").Set(c.GetDsS3ApiSecret())
+		cfData.Val("signature").Set(c.GetDsS3Signature())
 		cfData.Val("secure").Set(secure)
 		mc, e := nodes.NewStorageClient(cfData)
 		if e != nil {
@@ -220,6 +222,7 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) (*
 		cfData.Val("endpoint").Set(endpoint)
 		cfData.Val("key").Set(c.GetDsS3ApiKey())
 		cfData.Val("secret").Set(c.GetDsS3ApiSecret())
+		cfData.Val("signature").Set(c.GetDsS3Signature())
 		cfData.Val("secure").Set(secure)
 		mc, e := nodes.NewStorageClient(cfData)
 		if e != nil {

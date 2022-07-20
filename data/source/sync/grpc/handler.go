@@ -219,7 +219,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		var retryCount int
 		minioErr = std.Retry(ctx, func() error {
 			retryCount++
-			oc, e := mc.New(minioConfig.BuildUrl(), minioConfig.ApiKey, minioConfig.ApiSecret, minioConfig.RunningSecure)
+			oc, e := mc.New(minioConfig.BuildUrl(), minioConfig.ApiKey, minioConfig.ApiSecret, minioConfig.RunningSecure, minioConfig.Signature)
 			if e != nil {
 				log.Logger(ctx).Error("Cannot create objects client", zap.Error(e))
 				return e
