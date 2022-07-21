@@ -25,6 +25,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -205,7 +206,7 @@ func SetVaultMasterKey(masterKey string) {
 	}
 	if u.Scheme == "file" {
 		// Replace basename with pydio-vault.json
-		u.Path = filepath.Join(filepath.Dir(u.Path), DefaultVaultFileName)
+		u.Path = path.Join(path.Dir(u.Path), DefaultVaultFileName)
 	} else {
 		if strings.HasSuffix(u.Path, DefaultConfigSuffix) {
 			u.Path = strings.TrimSuffix(u.Path, DefaultConfigSuffix)

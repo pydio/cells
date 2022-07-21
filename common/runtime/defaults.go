@@ -1,3 +1,4 @@
+//go:build !arm
 // +build !arm
 
 /*
@@ -28,10 +29,10 @@ var (
 	DefaultKeyDiscovery  = "mem://"
 	DefaultKeyRegistry   = "mem://?cache=shared"
 	DefaultKeyBroker     = "mem://"
-	DefaultKeyConfig     = "file://" + filepath.Join(ApplicationWorkingDir(), DefaultConfigFileName)
+	DefaultKeyConfig     = "file://" + filepath.ToSlash(filepath.Join(ApplicationWorkingDir(), DefaultConfigFileName))
+	DefaultKeyKeyring    = "file://" + filepath.ToSlash(filepath.Join(ApplicationWorkingDir(), DefaultKeyringFileName)+"?keyring=true")
+	DefaultKeyCertsStore = "file://" + filepath.ToSlash(filepath.Join(ApplicationWorkingDir(), DefaultCertStorePath))
 	DefaultKeyVault      = "detect"
-	DefaultKeyKeyring    = "file://" + filepath.Join(ApplicationWorkingDir(), DefaultKeyringFileName) + "?keyring=true"
-	DefaultKeyCertsStore = "file://" + filepath.Join(ApplicationWorkingDir(), DefaultCertStorePath)
 	DefaultKeyCache      = "bigcache://"
 	DefaultKeyShortCache = "pm://"
 )
