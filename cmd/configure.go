@@ -193,13 +193,17 @@ ENVIRONMENT
 			fatalIfError(cmd, err)
 			if installConf.FrontendLogin != "" {
 				// We assume we have completely configured Cells. Exit.
-				// TODO - allow time for config to be saved - probably a better way ?
+				// Allow time for config to be saved - probably a better way ?
 				<-time.After(1 * time.Second)
 				return
 			}
 
 			// we only non-interactively configured the proxy, launching browser install
+			// make sure default bind is set here
 			proxyConf = installConf.GetProxyConfig()
+			if len(proxyConf.Binds) == 0 {
+				fatalIfError(cmd, fmt.Errorf("no bind was found in default site, non interactive install probably has a wrong format"))
+			}
 
 		} else {
 			if !niModeCli {
