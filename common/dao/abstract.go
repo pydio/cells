@@ -132,10 +132,8 @@ func (h *abstract) Name() string {
 	var su string
 	if strings.Contains(h.dsn, "://") {
 		su = h.dsn
-	} else if h.LocalAccess() {
-		su = h.driver + "://" + filepath.ToSlash(h.dsn)
 	} else {
-		su = h.driver + "://" + h.dsn
+		su = h.driver + "://" + filepath.ToSlash(h.dsn)
 	}
 	// Special case for mysql url
 	su = strings.ReplaceAll(su, "(", ".")
