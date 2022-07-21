@@ -473,12 +473,19 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 				Action:      &idm.ACLAction{Name: k, Value: v},
 				WorkspaceID: permissions.FrontWsScopeAll,
 			}
+			var sameValue bool
 			for _, existing := range existingAcls {
 				if existing.Action != nil && existing.Action.Name == k {
-					deleteAclActions = append(deleteAclActions, existing.Action.Name)
+					if existing.Action.Value == v {
+						sameValue = true
+					} else {
+						deleteAclActions = append(deleteAclActions, existing.Action.Name)
+					}
 				}
 			}
-			acls = append(acls, acl)
+			if !sameValue {
+				acls = append(acls, acl)
+			}
 			continue
 		}
 		cleanAttributes[k] = v
