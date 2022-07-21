@@ -21,6 +21,7 @@
 const React = require('react')
 const Pydio = require('pydio')
 import ResourcesManager from 'pydio/http/resources-manager'
+import deepEqual from 'deep-equal'
 const {Responsive, WidthProvider} = require('react-grid-layout');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 
@@ -50,13 +51,14 @@ class CardsGrid extends React.Component {
      * @param {object} allLayouts Responsive layouts passed for saving
      */
     saveFullLayouts(allLayouts) {
+        const saveLayout = {}
+        Object.keys(allLayouts).forEach(k => {
+            saveLayout[k] = allLayouts[k].map(o => {return {i:o.i, h:o.h, w:o.w, x:o.x, y:o.y}})
+        })
         const savedPref = this.props.store.getUserPreference('Layout');
-        // Compare JSON versions to avoid saving unnecessary changes
-        if(savedPref && this.previousLayout  && this.previousLayout == JSON.stringify(allLayouts)){
-            return;
+        if(!deepEqual(savedPref, saveLayout)){
+            this.props.store.saveUserPreference('Layout', saveLayout);
         }
-        this.previousLayout = JSON.stringify(allLayouts);
-        this.props.store.saveUserPreference('Layout', allLayouts);
     }
 
     onLayoutChange(currentLayout, allLayouts){
