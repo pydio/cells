@@ -23,12 +23,12 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/log"
 	"net/url"
 	"os"
 	"os/exec"
 	"os/user"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/manifoldco/promptui"
@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/registry"
 	cruntime "github.com/pydio/cells/v4/common/runtime"
@@ -323,6 +324,12 @@ func performBrowserInstall(cmd *cobra.Command, ctx context.Context, proxyConf *i
 	bkr := broker.NewBroker(cruntime.BrokerURL())
 	ctx = servicecontext.WithBroker(ctx, bkr)
 
+	openURL := proxyConf.GetDefaultBindURL()
+	if runtime.GOOS == "windows" {
+		// Windows browser cannot find 0.0.0.0 - use localhost instead.
+		openURL = strings.Replace(openURL, "0.0.0.0", "localhost", 1)
+	}
+
 	cmd.Println("")
 	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Installation Server is starting..."))
 	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Listening to: " + proxyConf.GetDefaultBindURL()))
@@ -337,8 +344,8 @@ func performBrowserInstall(cmd *cobra.Command, ctx context.Context, proxyConf *i
 	}))
 
 	<-time.After(2 * time.Second)
-	if err := open(proxyConf.GetDefaultBindURL()); err != nil {
-		fmt.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Open a browser window to: [" + proxyConf.GetDefaultBindURL() + "]"))
+	if err := open(openURL); err != nil {
+		fmt.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Open a browser window to: [" + openURL + "]"))
 	}
 
 	done := make(chan bool, 1)

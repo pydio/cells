@@ -578,3 +578,74 @@ func TestSubscriptions(t *testing.T) {
 
 	})
 }
+
+func SkipTestMassiveQueries(t *testing.T) {
+
+	dao, def := initDao()
+	defer def()
+	t.Log("Starting test on DAO", dao.Dsn())
+
+	Convey("Test massive queries", t, func() {
+
+		var er error
+		for i := 0; i < 10000; i++ {
+			ac := &activity.Object{
+				Type: activity.ObjectType_Accept,
+				Actor: &activity.Object{
+					Type: activity.ObjectType_Person,
+					Name: fmt.Sprintf("Random Activity %d", i+1),
+					Id:   uuid.New(),
+				},
+			}
+			if er = dao.PostActivity(ctx, activity.OwnerType_NODE, uuid.New(), BoxOutbox, ac, false); er != nil {
+				break
+			}
+
+		}
+		for i := 0; i < 100; i++ {
+			ac := &activity.Object{
+				Type: activity.ObjectType_Accept,
+				Actor: &activity.Object{
+					Type: activity.ObjectType_Person,
+					Name: fmt.Sprintf("Random Activity %d", i+1),
+					Id:   uuid.New(),
+				},
+			}
+			if er = dao.PostActivity(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, false); er != nil {
+				break
+			}
+
+		}
+
+		So(er, ShouldBeNil)
+
+		var results []*activity.Object
+		resChan := make(chan *activity.Object)
+		doneChan := make(chan bool)
+
+		wg := &sync.WaitGroup{}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for {
+				select {
+				case act := <-resChan:
+					if act != nil {
+						results = append(results, act)
+					}
+				case <-doneChan:
+					return
+				}
+			}
+		}()
+
+		now := time.Now()
+		err := dao.ActivitiesFor(ctx, activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, "", 0, 0, resChan, doneChan)
+		wg.Wait()
+		t.Log("Loading 20 activities took", time.Since(now))
+
+		So(err, ShouldBeNil)
+		So(results, ShouldHaveLength, 20)
+
+	})
+}

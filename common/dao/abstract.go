@@ -26,6 +26,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/url"
+	"path/filepath"
 	"strings"
 
 	"github.com/pydio/cells/v4/common/registry"
@@ -131,6 +132,8 @@ func (h *abstract) Name() string {
 	var su string
 	if strings.Contains(h.dsn, "://") {
 		su = h.dsn
+	} else if h.LocalAccess() {
+		su = h.driver + "://" + filepath.ToSlash(h.dsn)
 	} else {
 		su = h.driver + "://" + h.dsn
 	}
