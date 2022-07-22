@@ -18,6 +18,7 @@ import (
 	"context"
 	"errors"
 	"net/url"
+	"strings"
 	"sync"
 
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
@@ -115,14 +116,15 @@ func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic
 		}
 	}
 
-	topicName := u.Path
+	topicName := strings.TrimPrefix(u.Path, "/")
+
 	return NewTopic(topicName, u.Host, WithPublisher(publishers[u.Host]))
 }
 
 // OpenSubscriptionURL opens a pubsub.Subscription based on u.
 func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsub.Subscription, error) {
 
-	topicName := u.Path
+	topicName := strings.TrimPrefix(u.Path, "/")
 	queue := u.Query().Get("queue")
 
 	//return NewSubscription(topicName, WithContext(ctx))
