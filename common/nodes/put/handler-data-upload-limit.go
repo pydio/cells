@@ -72,7 +72,7 @@ func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, read
 		nodeExt := path.Ext(node.GetPath())
 		allowed := false
 		for _, e := range exts {
-			if "."+strings.ToLower(e) == strings.ToLower(nodeExt) {
+			if strings.EqualFold("."+e, nodeExt) {
 				allowed = true
 				break
 			}
@@ -99,7 +99,7 @@ func (a *UploadLimitFilter) MultipartPutObjectPart(ctx context.Context, target *
 		nodeExt := path.Ext(target.GetPath())
 		allowed := false
 		for _, e := range exts {
-			if strings.EqualFold(e, nodeExt) {
+			if strings.EqualFold("."+e, nodeExt) {
 				allowed = true
 				break
 			}
