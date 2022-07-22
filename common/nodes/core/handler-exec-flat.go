@@ -274,7 +274,7 @@ func (f *FlatStorageHandler) postCreate(ctx context.Context, identifier string, 
 			log.Logger(ctx).Error("Cannot recompute ETag :"+updateNode.Etag, zap.Error(e))
 		}
 	}
-	if cType != "" {
+	if !nodes.IsDefaultMime(cType) {
 		updateNode.MustSetMeta(common.MetaNamespaceMime, cType)
 	}
 	_, er := f.ClientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: updateNode, UpdateIfExists: true})

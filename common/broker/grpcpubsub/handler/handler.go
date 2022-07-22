@@ -189,7 +189,7 @@ func (s *subscriber) sendWithWarning(streamer streamWithReqId, message *pb.Subsc
 	cop := proto.Clone(message).(*pb.SubscribeResponse)
 	cop.Id = streamer.id
 	if er := streamer.stream.Send(cop); er != nil {
-		fmt.Println("There was an error while sending to stream")
+		fmt.Println("Grpc.sendWithWarning: there was an error while sending to stream : " + er.Error())
 	}
 }
 

@@ -274,15 +274,9 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 
 	fromPath := e.buildS3Path(srcInfo, from)
 	toPath := e.buildS3Path(destInfo, to)
+	cType := from.GetStringMeta(common.MetaNamespaceMime)
 
 	statMeta, _ := metadata.MinioMetaFromContext(ctx)
-	/*
-		var ctxAsOptions = minio.StatObjectOptions{}
-		if meta, ok := context2.MinioMetaFromContext(ctx); ok {
-			for k, v := range meta {
-				ctxAsOptions.Set(k, v)
-			}
-		}*/
 
 	if destClient == srcClient && requestData.SrcVersionId == "" {
 		// Check object exists and check its size
@@ -308,6 +302,9 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 		directive, dirOk := requestData.Metadata[common.XAmzMetaDirective]
 		if dirOk {
 			delete(requestData.Metadata, common.XAmzMetaDirective)
+		}
+		if cType != "" {
+			requestData.Metadata["Content-Type"] = cType
 		}
 		var err error
 		if destInfo.StorageType == object.StorageType_S3 && destClient.CopyObjectMultipartThreshold() > 0 && src.Size > destClient.CopyObjectMultipartThreshold() {
@@ -361,6 +358,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 		}
 		log.Logger(ctx).Debug("HandlerExec: copy one DS to another", zap.Any("meta", srcStat), zap.Any("requestMeta", requestData.Metadata))
 		opts := e.putOptionsFromRequestMeta(requestData.Metadata)
+		opts.ContentType = cType
 		opts.Progress = requestData.Progress
 		oi, err := destClient.PutObject(ctx, destBucket, toPath, reader, srcStat.Size, opts)
 		if err != nil {

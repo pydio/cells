@@ -574,6 +574,9 @@ func (c *Client) loadNode(ctx context.Context, path string, leaf ...bool) (node 
 		node.MTime = stat.ModTime().Unix()
 		node.Size = stat.Size()
 		node.Mode = int32(stat.Mode())
+		if oi, ok := stat.Sys().(minio.ObjectInfo); ok && oi.ContentType != "" && oi.ContentType != "application/octet-stream" {
+			node.MustSetMeta(servicescommon.MetaNamespaceMime, oi.ContentType)
+		}
 	} else {
 		node.MTime = time.Now().Unix()
 	}

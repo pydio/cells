@@ -103,7 +103,7 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 		Etag:  common.NodeFlagEtagTemporary,
 	}
 
-	if requestData.MetaContentType() != "" {
+	if !requestData.ContentTypeUnknown() {
 		tmpNode.MustSetMeta(common.MetaNamespaceMime, requestData.MetaContentType())
 	}
 
@@ -295,6 +295,19 @@ func (m *Handler) MultipartCreate(ctx context.Context, node *tree.Node, requestD
 		return "", err
 	}
 	return multipartId, err
+}
+
+func (m *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (models.MultipartObjectPart, error) {
+	// Feed target node with pre-created one
+	resp, err := m.ClientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{
+		Node: &tree.Node{
+			Path: strings.TrimLeft(target.Path, "/"),
+		},
+	});
+	if err != nil {
+		return models.MultipartObjectPart{}, fmt.Errorf("cannot find initial multipart node, this is not normal")
+	}
+	return m.Next.MultipartPutObjectPart(ctx, resp.Node, uploadID, partNumberMarker, reader, requestData)
 }
 
 func (m *Handler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {

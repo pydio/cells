@@ -37,7 +37,10 @@ import (
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
-const mimeReadLimit = 8192
+const (
+	mimeReadLimit = 8192
+	mimeDefault   = "application/octet-stream"
+)
 
 type MimeResult struct {
 	mime string
@@ -133,18 +136,24 @@ func WrapReaderForMime(ctx context.Context, clone *tree.Node, reader io.Reader) 
 	bgCtx := metadata.NewBackgroundWithMetaCopy(ctx)
 	bgCtx = runtime.ForkContext(bgCtx, ctx)
 	return NewTeeMimeReader(reader, func(result *MimeResult) {
+		mime := mimeDefault
 		if result.GetError() == nil && result.GetMime() != "" {
-			// Store in metadata service
-			clone.MetaStore = make(map[string]string, 1)
-			clone.MustSetMeta(common.MetaNamespaceMime, result.GetMime())
-			if _, e := mimeMetaClient.CreateNode(bgCtx, &tree.CreateNodeRequest{
-				Node:           clone,
-				UpdateIfExists: true,
-			}); e == nil {
-				log.Logger(ctx).Debug("Stored mime type for node", clone.ZapUuid(), clone.ZapPath(), zap.String("mime", result.GetMime()))
-			} else {
-				log.Logger(ctx).Error("Could not update mime for node", zap.Error(e), clone.ZapUuid(), clone.ZapPath(), zap.String("mime", result.GetMime()))
-			}
+			mime = result.GetMime()
+		}
+		// Store in metadata service
+		clone.MetaStore = make(map[string]string, 1)
+		clone.MustSetMeta(common.MetaNamespaceMime, mime)
+		if _, e := mimeMetaClient.CreateNode(bgCtx, &tree.CreateNodeRequest{
+			Node:           clone,
+			UpdateIfExists: true,
+		}); e == nil {
+			log.Logger(ctx).Info("Stored mime type for node", clone.ZapUuid(), clone.ZapPath(), zap.String("mime", result.GetMime()))
+		} else {
+			log.Logger(ctx).Error("Could not update mime for node", zap.Error(e), clone.ZapUuid(), clone.ZapPath(), zap.String("mime", result.GetMime()))
 		}
 	})
+}
+
+func IsDefaultMime(cType string) bool {
+	return cType != "" && cType != mimeDefault
 }
