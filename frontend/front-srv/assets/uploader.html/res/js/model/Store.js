@@ -246,7 +246,15 @@ class Store extends Observable{
                 item.getParent().removeChild(item);
             }, (item) => {
                 return item.getStatus() === status;
-            }, 'file')
+            }, StatusItem.TypeFile)
+            // Remove empty folders
+            session.walk((item) => {
+                item.getParent().removeChild(item)
+            }, (item)=>{
+                let count = 0
+                item.walk(() => {count ++}, ()=>true, StatusItem.TypeFile)
+                return count === 0
+            }, StatusItem.TypeFolder)
         })
     }
 
