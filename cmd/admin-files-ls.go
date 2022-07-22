@@ -39,6 +39,7 @@ import (
 
 var (
 	lsPath       string
+	lsUuid       string
 	lsRecursive  bool
 	lsShowHidden bool
 	lsShowUuid   bool
@@ -68,14 +69,6 @@ EXAMPLE
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
 
-		// List all children and move them all
-		streamer, err := client.ListNodes(context.Background(), &tree.ListNodesRequest{Node: &tree.Node{Path: lsPath}, Recursive: lsRecursive})
-		if err != nil {
-			return err
-		}
-
-		cmd.Println("")
-		cmd.Println("Listing nodes under " + promptui.Styler(promptui.FGUnderline)(lsPath))
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
 		hh := []string{"Type", "Path", "Size", "Modified"}
 		if lsShowUuid {
@@ -83,24 +76,25 @@ EXAMPLE
 		}
 		table.SetHeader(hh)
 		res := 0
-		for {
-			resp, err := streamer.Recv()
-			if err != nil {
-				break
+
+		if lsUuid != "" {
+
+			cmd.Println("")
+			cmd.Println("Lookup node with UUID " + promptui.Styler(promptui.FGUnderline)(lsUuid))
+
+			// Special case for a node look up by its UUID
+			r, e := client.ReadNode(context.Background(), &tree.ReadNodeRequest{Node: &tree.Node{Uuid: lsUuid}})
+			if e != nil {
+				return e
 			}
-			res++
-			node := resp.GetNode()
-			if path.Base(node.GetPath()) == common.PydioSyncHiddenFile && !lsShowHidden {
-				continue
-			}
-			var t, p, s, m string
-			p = strings.TrimLeft(strings.TrimPrefix(node.GetPath(), lsPath), "/")
-			t = "Folder"
-			s = humanize.Bytes(uint64(node.GetSize()))
+			node := r.GetNode()
+			p := node.GetPath()
+			t := "Folder"
+			s := humanize.Bytes(uint64(node.GetSize()))
 			if node.GetSize() == 0 {
 				s = "-"
 			}
-			m = time.Unix(node.GetMTime(), 0).Format("02 Jan 06 15:04")
+			m := time.Unix(node.GetMTime(), 0).Format("02 Jan 06 15:04")
 			if node.GetMTime() == 0 {
 				m = "-"
 			}
@@ -112,7 +106,50 @@ EXAMPLE
 			} else {
 				table.Append([]string{t, p, s, m})
 			}
+			res = 1
+		} else {
+
+			cmd.Println("")
+			cmd.Println("Listing nodes under " + promptui.Styler(promptui.FGUnderline)(lsPath))
+
+			// List all children
+			streamer, err := client.ListNodes(context.Background(), &tree.ListNodesRequest{Node: &tree.Node{Path: lsPath}, Recursive: lsRecursive})
+			if err != nil {
+				return err
+			}
+
+			for {
+				resp, err := streamer.Recv()
+				if err != nil {
+					break
+				}
+				res++
+				node := resp.GetNode()
+				if path.Base(node.GetPath()) == common.PydioSyncHiddenFile && !lsShowHidden {
+					continue
+				}
+				var t, p, s, m string
+				p = strings.TrimLeft(strings.TrimPrefix(node.GetPath(), lsPath), "/")
+				t = "Folder"
+				s = humanize.Bytes(uint64(node.GetSize()))
+				if node.GetSize() == 0 {
+					s = "-"
+				}
+				m = time.Unix(node.GetMTime(), 0).Format("02 Jan 06 15:04")
+				if node.GetMTime() == 0 {
+					m = "-"
+				}
+				if node.IsLeaf() {
+					t = "File"
+				}
+				if lsShowUuid {
+					table.Append([]string{t, p, node.GetUuid(), s, m})
+				} else {
+					table.Append([]string{t, p, s, m})
+				}
+			}
 		}
+
 		if res > 0 {
 			table.Render()
 		} else {
@@ -124,6 +161,7 @@ EXAMPLE
 
 func init() {
 	lsCmd.Flags().StringVarP(&lsPath, "path", "p", "/", "List nodes under given path")
+	lsCmd.Flags().StringVarP(&lsUuid, "by-uuid", "u", "", "Find a node by its UUID")
 	lsCmd.Flags().BoolVarP(&lsRecursive, "recursive", "", false, "List nodes recursively")
 	lsCmd.Flags().BoolVarP(&lsShowUuid, "uuid", "", false, "Show UUIDs")
 	lsCmd.Flags().BoolVarP(&lsShowHidden, "hidden", "", false, "Show hidden files (.pydio)")
