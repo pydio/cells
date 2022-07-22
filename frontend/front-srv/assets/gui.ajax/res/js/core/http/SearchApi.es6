@@ -51,8 +51,11 @@ class SearchApi {
                     }
                     freeQueries[sK] = this.autoQuote(value);
                 } else if (k === 'ajxp_mime') {
-                    if(value === 'ajxp_folder'){
+                    if(value === 'ajxp_folder') {
                         query.Type = 'COLLECTION';
+                    } else if(value.indexOf('mimes:') === 0) {
+                        query.Type = 'LEAF';
+                        freeQueries['Meta.mime'] = value.replace('mimes:', '')
                     } else {
                         query.Type = 'LEAF';
                         if(value !== 'ajxp_file'){
@@ -84,8 +87,10 @@ class SearchApi {
             if(Object.keys(freeQueries).length){
                 query.FreeString = Object.keys(freeQueries).map(k =>{
                     let val = freeQueries[k]
-                    if(freeQueries[k] === true) {
+                    if(val === true) {
                         val = 'T*';
+                    } else if(val.indexOf('|') > -1){
+                        return val.split('|').map(v => k+':'+v).join(' ')
                     }
                     return "+" + k + ":" + val;
                 }).join(" ");

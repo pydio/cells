@@ -20,29 +20,54 @@
 
 import React, {Component} from 'react';
 import Pydio from 'pydio';
-const {ModernStyles, ModernTextField} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField} = Pydio.requireLib('hoc');
+import {MenuItem} from 'material-ui'
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 
-import {Toggle} from 'material-ui';
+const MimeGroups = [
+    {id: "word", label:"word", mimes: "*word*"},
+    {id: "excel", label:"spreadsheet", mimes: "*spreadsheet*|*excel*"},
+    {id: "presentation", label:"presentation", mimes: "*presentation*|*powerpoint*"},
+    {id: "pdfs", label:"pdf", mimes: "\"application/pdf\""},
+    {id: "images", label:"image", mimes: "\"image/*\""},
+    {id: "videos", label:"video", mimes: "\"video/*\""},
+    {id: "audios", label:"audio", mimes: "\"audio/*\""}
+]
 
 class SearchFileFormatPanel extends Component {
 
     constructor(props) {
         super(props);
-        const {values} = this.props;
-        this.state = {
-            folder: values['ajxp_mime'] && values['ajxp_mime'] === 'ajxp_folder' ? true: undefined,
-            ext: (values['ajxp_mime'] && values['ajxp_mime'] !== 'ajxp_folder' ? values['ajxp_mime'] : undefined),
+        this.state = this.propsToState(props)
+    }
+
+    propsToState(props) {
+        const {values} = props;
+        let selector, ext;
+        if(this.state && this.state.selector && this.state.selector === 'extension'){
+            selector = this.state.selector
         }
+        const {ajxp_mime} = values;
+        if(ajxp_mime){
+            if(ajxp_mime === 'ajxp_folder') {
+                selector = ajxp_mime
+            } else if (ajxp_mime.indexOf('mimes:') === 0) {
+                const mm = ajxp_mime.replace('mimes:', '')
+                const gg = MimeGroups.filter(gr => gr.mimes === mm)
+                if (gg.length) {
+                    selector = 'group:' + gg[0].id
+                }
+            } else {
+                selector = 'extension'
+                ext = ajxp_mime
+            }
+        }
+        return {selector, ext}
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
         if(nextProps.values['ajxp_mime'] !== this.props.values['ajxp_mime']){
-            const {values} = nextProps;
-            this.setState({
-                folder: values['ajxp_mime'] && values['ajxp_mime'] === 'ajxp_folder' ? true: undefined,
-                ext: (values['ajxp_mime'] && values['ajxp_mime'] !== 'ajxp_folder' ? values['ajxp_mime'] : undefined),
-            });
+            this.setState(this.propsToState(nextProps))
         }
     }
 
@@ -51,49 +76,51 @@ class SearchFileFormatPanel extends Component {
             return;
         }
 
-        const {folder, ext} = this.state;
-
-        this.props.onChange({
-            ajxp_mime: (folder) ? 'ajxp_folder' : ext
-        })
-    }
-
-    onToggle(e,v){
-        if(v){
-            this.setState({folder: v, ext: ''})
-        } else {
-            this.setState({folder: v})
+        const {ext, selector} = this.state;
+        let searchValue;
+        if(selector) {
+            if(selector === 'extension'){
+                searchValue = ext
+            } else if(selector.indexOf('group:') === 0) {
+                const gid = selector.replace('group:', '')
+                searchValue = 'mimes:' + MimeGroups.filter(gr => gr.id === gid)[0].mimes
+            } else if (selector === 'ajxp_folder') {
+                searchValue = 'ajxp_folder'
+            }
         }
+        this.props.onChange({
+            ajxp_mime: searchValue
+        })
     }
 
     render() {
 
         const {inputStyle, getMessage, compact = false} = this.props;
-        const {folder, ext} = this.state;
+        const {folder, ext, selector = ''} = this.state;
+        const mimeMessages = (id) => Pydio.getMessages()['ajax_gui.mimegroup.' + id]
 
         return (
             <div style={compact?{display: 'flex'}:{}}>
-                <div style={{...ModernStyles.div, padding:6, paddingRight:6, flex: 3, marginRight:4}}>
-                    <Toggle
-                        fullWidth={true}
-                        name="toggleFolder"
-                        value="ajxp_folder"
-                        label={getMessage(502)}
-                        labelStyle={{fontSize:16, color:'rgba(0,0,0,.4)'}}
-                        toggled={folder}
-                        onToggle={this.onToggle.bind(this)}
-                    />
+                <div style={{flex: 3, marginRight:4}}>
+                    <ModernSelectField fullWidth={true} value={selector} onChange={(e,i,v)=> this.setState({selector:v, ext: ''}) }>
+                        <MenuItem primaryText={<span style={{color:'rgba(0,0,0,.43)'}}>No filter</span>} value={''}/>
+                        <MenuItem primaryText={getMessage(502)} value={"ajxp_folder"}/>
+                        <MenuItem primaryText={mimeMessages('byextension')} value={"extension"}/>
+                        {MimeGroups.map(group => <MenuItem primaryText={mimeMessages(group.label)} value={'group:' + group.id}/> )}
+                    </ModernSelectField>
                 </div>
-                <div style={{flex: 2, marginLeft:4}}>
-                    <ModernTextField
-                        disabled={folder}
-                        style={{...inputStyle, opacity:folder?.5:1, marginLeft: compact?0:null, width:compact?'auto':null}}
-                        className="mui-text-field"
-                        hintText={getMessage(500)}
-                        value={ext || ""}
-                        onChange={(e, v) => this.setState({ext: v})}
-                    />
-                </div>
+                {selector === 'extension' &&
+                    <div style={{flex: 2, marginLeft:4}}>
+                        <ModernTextField
+                            disabled={folder}
+                            style={{...inputStyle, opacity:folder?.5:1, marginLeft: compact?0:null, width:compact?'auto':null}}
+                            className="mui-text-field"
+                            hintText={getMessage(500)}
+                            value={ext || ""}
+                            onChange={(e, v) => this.setState({ext: v})}
+                        />
+                    </div>
+                }
             </div>
         );
     }

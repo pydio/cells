@@ -145,7 +145,7 @@ class InfoPanelCard extends React.Component{
                 return (
                     <div className="infoPanelRow" key={key}>
                         <div className="infoPanelLabel">{label}</div>
-                        <div className="infoPanelValue" onMouseOver={()=>this.setState({hoverRow:key})} onMouseOut={()=>this.setState({hoverRow:null})}>
+                        <div className="infoPanelValue" style={{userSelect:'text'}} onMouseOver={()=>this.setState({hoverRow:key})} onMouseOut={()=>this.setState({hoverRow:null})}>
                             {hoverValue && hoverRow === key?hoverValue:value}
                         </div>
                     </div>

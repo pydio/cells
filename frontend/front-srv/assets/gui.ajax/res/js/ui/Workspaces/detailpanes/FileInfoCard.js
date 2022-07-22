@@ -81,6 +81,10 @@ class FileInfoCard extends React.Component {
             data.push({key:'etag', label:'ETag', value:meta.get('etag')})
         }
 
+        if(meta.get('mime')) {
+            data.push({key:'mime', label:'Mime', value:meta.get('mime')})
+        }
+
         return (
             <InfoPanelCard
                 {...this.props}
