@@ -26,6 +26,7 @@ import (
 	"net/url"
 	"os"
 	"runtime/debug"
+	"strings"
 	"sync"
 	"time"
 
@@ -71,7 +72,7 @@ func NewBroker(s string, opts ...Option) Broker {
 
 	br := &broker{
 		publishOpener: func(ctx context.Context, topic string) (*pubsub.Topic, error) {
-			return pubsub.OpenTopic(ctx, s+"/"+topic)
+			return pubsub.OpenTopic(ctx, s+"/"+strings.TrimPrefix(topic, "/"))
 		},
 		subscribeOpener: func(topic string, oo ...SubscribeOption) (*pubsub.Subscription, error) {
 			// Handle queue for grpc vs. nats vs memory
@@ -88,7 +89,7 @@ func NewBroker(s string, opts ...Option) Broker {
 				}
 			}
 
-			return pubsub.OpenSubscription(ctx, s+"/"+topic)
+			return pubsub.OpenSubscription(ctx, s+"/"+strings.TrimPrefix(topic, "/"))
 		},
 		publishers: make(map[string]*pubsub.Topic),
 		Options:    options,
