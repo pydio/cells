@@ -60,5 +60,6 @@ func uuidComposer(oo ...nodes.Option) []nodes.Option {
 		version.WithVersions(),
 		encryption.WithEncryption(),
 		core.WithFlatInterceptor(),
+		core.WithStructInterceptor(),
 	)
 }

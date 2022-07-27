@@ -53,7 +53,7 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 			bb.Done(bb)
 
 			return bb, e
-		} else {
+		} else if s.patchChan != nil {
 			s.patchChan <- bb
 		}
 
@@ -85,7 +85,7 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 		} else if dryRun {
 			patch.Done(patch)
 			return patch, nil
-		} else {
+		} else if s.patchChan != nil {
 			s.patchChan <- patch
 		}
 		return patch, nil

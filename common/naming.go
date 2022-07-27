@@ -156,6 +156,7 @@ const (
 	MetaNamespaceRecycleRestore      = "pydio:recycle_restore"
 	MetaNamespaceNodeName            = "name"
 	MetaNamespaceMime                = "mime"
+	MetaNamespaceHash                = "x-cells-hash"
 	MetaNamespaceVersionId           = "versionId"
 	MetaNamespaceVersionDesc         = "versionDescription"
 	MetaNamespaceGeoLocation         = "GeoLocation"

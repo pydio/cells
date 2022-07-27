@@ -751,7 +751,7 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 			select {
 			case <-doneChan:
 				return
-			case notificationInfo := <-eventsCh:
+			case notificationInfo, closed := <-eventsCh:
 				if notificationInfo.Err != nil {
 					if nErr, ok := notificationInfo.Err.(minio.ErrorResponse); ok && nErr.Code == "APINotSupported" {
 						errorChan <- errors.New("API Not Supported")
@@ -759,6 +759,9 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 					}
 					errorChan <- notificationInfo.Err
 					wConn <- model.WatchDisconnected
+					if closed {
+						return
+					}
 				}
 				for _, record := range notificationInfo.Records {
 					//bucketName := record.S3.Bucket.Name

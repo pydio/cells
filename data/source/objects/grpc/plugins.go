@@ -24,6 +24,8 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"strconv"
 
 	"google.golang.org/grpc"
 
@@ -57,8 +59,23 @@ func init() {
 						if !ok {
 							return fmt.Errorf("cannot find minio config")
 						}
-						mc.RunningSecure = false
-						mc.RunningHost = runtime.DefaultAdvertiseAddress()
+						if mc.StorageType == object.StorageType_LOCAL {
+							mc.RunningSecure = false
+							mc.RunningHost = runtime.DefaultAdvertiseAddress()
+						} else if mc.StorageType == object.StorageType_S3 && mc.EndpointUrl == "" {
+							mc.RunningHost = object.AmazonS3Endpoint
+							mc.RunningSecure = true
+							mc.RunningPort = 443
+						} else {
+							eu, e := url.Parse(mc.EndpointUrl)
+							if e != nil {
+								return e
+							}
+							mc.RunningHost = eu.Hostname()
+							p, _ := strconv.Atoi(eu.Port())
+							mc.RunningPort = int32(p)
+							mc.RunningSecure = eu.Scheme == "https"
+						}
 						engine := &ObjectHandler{
 							handlerName: common.ServiceGrpcNamespace_ + common.ServiceDataObjects_ + datasource,
 							Config:      mc,

@@ -158,6 +158,8 @@ func (s *Sync) Shutdown() {
 		s.watchConn = nil
 	}
 	s.processor.Stop()
+	// process.Stop closes the underlying patchChan - nullify it locally
+	s.patchChan = nil
 	if s.echoFilter != nil {
 		s.echoFilter.Stop()
 	}

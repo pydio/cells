@@ -21,16 +21,20 @@
 package grpc
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	minio "github.com/minio/minio/cmd"
+	"go.uber.org/zap"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
+	"strings"
 
-	"github.com/pydio/cells/v4/common"
-
-	minio "github.com/minio/minio/cmd"
 	_ "github.com/minio/minio/cmd/gateway"
 	"github.com/pkg/errors"
 
@@ -52,8 +56,81 @@ func (o *ObjectHandler) Name() string {
 	return o.handlerName
 }
 
+func (o *ObjectHandler) LookupPath() string {
+	ext := ""
+	if runtime.GOOS == "windows" {
+		ext = ".exe"
+	}
+	crtExe, er := os.Executable()
+	if er != nil {
+		return ""
+	}
+	return filepath.Join(filepath.Dir(crtExe), "minio"+ext)
+}
+
+func (o *ObjectHandler) Downloader(ctx context.Context, target string) error {
+	ext := ""
+	if runtime.GOOS == "windows" {
+		ext = ".exe"
+	}
+	latest := fmt.Sprintf("https://dl.min.io/server/minio/release/%s-%s/minio%s", runtime.GOOS, runtime.GOARCH, ext)
+	// latestCheck := latest + ".sha256sum"
+	log.Logger(ctx).Info("Starting download of " + latest + ", please wait...")
+	resp, e := http.Get(latest)
+	if e != nil {
+		return e
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		content, _ := ioutil.ReadAll(resp.Body)
+		return fmt.Errorf("wrong status code: %d, error was %s", resp.StatusCode, string(content))
+	}
+	f, e := os.OpenFile(target, os.O_CREATE|os.O_WRONLY, 0777)
+	if e != nil {
+		return e
+	}
+	defer f.Close()
+	n, e := io.Copy(f, resp.Body)
+	if e != nil {
+		return fmt.Errorf("could not read request body: %s", e.Error())
+	}
+	log.Logger(ctx).Info(fmt.Sprintf("Downloaded %s (size %d) to %s", latest, n, target))
+	return nil
+
+}
+
+func (o *ObjectHandler) pipeOutputs(ctx context.Context, cmd *exec.Cmd) error {
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return err
+	}
+	scannerOut := bufio.NewScanner(stdout)
+	logger := log.Logger(ctx)
+	go func() {
+		for scannerOut.Scan() {
+			logger.Info(strings.TrimRight(scannerOut.Text(), "\n"))
+		}
+	}()
+	scannerErr := bufio.NewScanner(stderr)
+	go func() {
+		for scannerErr.Scan() {
+			text := strings.TrimRight(scannerErr.Text(), "\n")
+			logger.Error(text)
+		}
+	}()
+	return nil
+}
+
 // StartMinioServer handler
 func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName string) error {
+
+	if o.Config.StorageType != object.StorageType_LOCAL {
+		return nil
+	}
 
 	accessKey := o.Config.ApiKey
 	secretKey := o.Config.ApiSecret
@@ -139,25 +216,65 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 
 	os.Setenv("MINIO_ROOT_USER", accessKey)
 	os.Setenv("MINIO_ROOT_PASSWORD", secretKey)
-	minio.HookRegisterGlobalHandler(func(handler http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			handler.ServeHTTP(w, r)
-		})
-	})
-	minio.HookExtractReqParams(func(req *http.Request, m map[string]string) {
-		if v := req.Header.Get(common.PydioContextUserKey); v != "" {
-			m[common.PydioContextUserKey] = v
-		}
-		for _, key := range common.XSpecialPydioHeaders {
-			if v := req.Header.Get("X-Amz-Meta-" + key); v != "" {
-				m[key] = v
-			} else if v := req.Header.Get(key); v != "" {
-				m[key] = v
-			}
-		}
-	})
 
-	minio.Main(params)
+	var minioExe string
+	if exe := os.Getenv("MINIO_EXECUTABLE"); exe != "" {
+		log.Logger(ctx).Info("Using minio executable from environment")
+		minioExe = exe
+	} else if path := o.LookupPath(); path != "" {
+		if _, e := os.Stat(path); e == nil {
+			log.Logger(ctx).Info("Found minio executable next to cells executable")
+			minioExe = path
+		} else if er := o.Downloader(ctx, path); er == nil {
+			minioExe = path
+		} else {
+			log.Logger(ctx).Error("Cannot download minio executable: "+er.Error(), zap.Error(er))
+		}
+	}
+	if minioExe == "" {
+		e := fmt.Errorf("Cannot install minio executable automatically. Please download correct version and pass it as MINIO_EXECUTABLE environment variable")
+		log.Logger(ctx).Error(e.Error(), zap.Error(e))
+		return e
+	}
+
+	//fmt.Println("Should Start", minioExe, params[1:])
+	cmd := exec.CommandContext(ctx, minioExe, params[1:]...)
+	if er := o.pipeOutputs(ctx, cmd); er != nil {
+		fmt.Println("Cannot start pipe minio executable: ", er)
+		return er
+	}
+	if er := cmd.Start(); er != nil {
+		fmt.Println("Cannot start minio executable: ", er)
+		return er
+	}
+	fmt.Println("Started, waiting")
+	er := cmd.Wait()
+	if er != nil {
+		fmt.Println("Stop waiting", e)
+	}
+
+	/*
+		minio.HookRegisterGlobalHandler(func(handler http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				handler.ServeHTTP(w, r)
+			})
+		})
+		minio.HookExtractReqParams(func(req *http.Request, m map[string]string) {
+			if v := req.Header.Get(common.PydioContextUserKey); v != "" {
+				m[common.PydioContextUserKey] = v
+			}
+			for _, key := range common.XSpecialPydioHeaders {
+				if v := req.Header.Get("X-Amz-Meta-" + key); v != "" {
+					m[key] = v
+				} else if v := req.Header.Get(key); v != "" {
+					m[key] = v
+				}
+			}
+		})
+
+		minio.Main(params)
+
+	*/
 
 	return nil
 }

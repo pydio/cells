@@ -110,6 +110,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 
 			tree.RegisterNodeProviderEnhancedServer(srv, syncHandler)
 			tree.RegisterNodeReceiverEnhancedServer(srv, syncHandler)
+			tree.RegisterNodeChangesReceiverStreamerEnhancedServer(srv, syncHandler)
 			protosync.RegisterSyncEndpointEnhancedServer(srv, syncHandler)
 			object.RegisterDataSourceEndpointEnhancedServer(srv, syncHandler)
 			object.RegisterResourceCleanerEndpointEnhancedServer(srv, syncHandler)

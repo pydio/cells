@@ -29,7 +29,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/scheduler/actions"
@@ -78,14 +77,14 @@ func (c *CleanThumbsTask) Run(ctx context.Context, channels *actions.RunnableCha
 		return input.WithIgnore(), nil
 	}
 
-	thumbsClient, thumbsBucket, e := nodes.GetGenericStoreClient(ctx, common.PydioThumbstoreNamespace)
-	if e != nil {
-		log.Logger(ctx).Debug("Cannot get ThumbStoreClient", zap.Error(e), zap.Any("context", ctx))
+	dsi, e := getRouter(c.GetRuntimeContext()).GetClientsPool().GetDataSourceInfo(common.PydioThumbstoreNamespace)
+	if e != nil || dsi.Client == nil {
+		log.TasksLogger(ctx).Error("Cannot get ThumbStoreClient", zap.Error(e))
 		return input.WithError(e), e
 	}
 	nodeUuid := input.Nodes[0].Uuid
 	// List all thumbs starting with node Uuid
-	listRes, err := thumbsClient.ListObjects(ctx, thumbsBucket, nodeUuid+"-", "", "")
+	listRes, err := dsi.Client.ListObjects(ctx, dsi.ObjectsBucket, nodeUuid+"-", "", "")
 	if err != nil {
 		log.Logger(ctx).Debug("Cannot get ThumbStoreClient", zap.Error(err), zap.Any("context", ctx))
 		return input.WithError(err), err

@@ -104,3 +104,18 @@ func (s *Handler) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvider_L
 
 	return nil
 }
+
+// PostNodeChanges receives NodeChangesEvents, to be used with FallbackWatcher
+func (s *Handler) PostNodeChanges(server tree.NodeChangesReceiverStreamer_PostNodeChangesServer) error {
+
+	for {
+		event, err := server.Recv()
+		if err != nil {
+			return err
+		}
+		if s.changeEventsFallback != nil {
+			s.changeEventsFallback <- event
+		}
+	}
+
+}

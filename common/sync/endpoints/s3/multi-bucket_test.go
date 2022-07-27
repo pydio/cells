@@ -22,6 +22,7 @@ package s3
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/proto/object"
 	"path"
 	"testing"
 
@@ -34,7 +35,7 @@ import (
 
 func TestMultiBucketClient_Walk(t *testing.T) {
 	Convey("test simple walk", t, func() {
-		cl, e := NewMultiBucketClient(context.Background(), "s3.amazonaws.com", "***************", "***************", true, model.EndpointOptions{BrowseOnly: true}, "^cell")
+		cl, e := NewMultiBucketClient(context.Background(), object.AmazonS3Endpoint, "***************", "***************", true, model.EndpointOptions{BrowseOnly: true}, "^cell")
 		So(e, ShouldBeNil)
 		mainMock := NewS3Mock()
 		cl.mainClient = mainMock
@@ -85,7 +86,7 @@ func TestBucketMetadata(t *testing.T) {
 			BrowseOnly: true,
 			Properties: map[string]string{"bucketsTags": "Tag*"},
 		}
-		cl, e := NewMultiBucketClient(context.Background(), "s3.amazonaws.com", "***************", "***************", true, options, "^cell")
+		cl, e := NewMultiBucketClient(context.Background(), object.AmazonS3Endpoint, "***************", "***************", true, options, "^cell")
 		So(e, ShouldBeNil)
 		mainMock := NewS3Mock()
 		cl.mainClient = mainMock

@@ -20,6 +20,10 @@ service NodeChangesStreamer{
     rpc StreamChanges(StreamChangesRequest) returns(stream NodeChangeEvent) {};
 }
 
+service NodeChangesReceiverStreamer {
+    rpc PostNodeChanges(stream NodeChangeEvent) returns (stream NodeChangeEvent) {};
+}
+
 // Request / Responses Messages
 message ReadNodeRequest {
     // Input node

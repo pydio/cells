@@ -22,22 +22,25 @@ package mc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"io"
+	"net/url"
 	"strings"
 
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/minio/minio-go/v7/pkg/notification"
+	"github.com/minio/minio-go/v7/pkg/s3utils"
 
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 // Client wraps a minio.Core client in the nodes.StorageClient interface
 type Client struct {
-	mc *minio.Core
+	mc          *minio.Core
+	minioServer bool
 }
 
 func init() {
@@ -46,30 +49,53 @@ func init() {
 		key := cfg.Val("key").String()
 		secret := cfg.Val("secret").String()
 		secure := cfg.Val("secure").Bool()
-		return New(ep, key, secret, secure)
+		region := cfg.Val("region").String()
+		isMinio := cfg.Val("minioServer").Bool()
+		return New(ep, key, secret, secure, region, isMinio)
 	})
 }
 
 // New creates a new minio.Core with the most standard options
-func New(endpoint, accessKey, secretKey string, secure bool, customRegion ...string) (*Client, error) {
+func New(endpoint, accessKey, secretKey string, secure bool, customRegion string, minioServer bool) (*Client, error) {
 	rt, e := customHeadersTransport(secure)
 	if e != nil {
 		return nil, e
 	}
+	var raw string
+	if secure {
+		if strings.HasSuffix(endpoint, ":443") {
+			endpoint = strings.TrimSuffix(endpoint, ":443")
+		}
+		raw = "https://" + endpoint
+	} else {
+		if strings.HasSuffix(endpoint, ":80") {
+			endpoint = strings.TrimSuffix(endpoint, ":80")
+		}
+		raw = "http://" + endpoint
+	}
+	u, e := url.Parse(raw)
+	if e != nil {
+		return nil, e
+	}
+
 	options := &minio.Options{
 		Creds:     credentials.NewStaticV2(accessKey, secretKey, ""),
 		Secure:    secure,
 		Transport: rt,
 	}
-	if len(customRegion) > 0 {
-		options.Region = customRegion[0]
+	if customRegion != "" {
+		options.Region = customRegion
+	} else if r := s3utils.GetRegionFromURL(*u); r != "" {
+		options.Region = r
 	}
+
 	c, err := minio.NewCore(endpoint, options)
 	if err != nil {
 		return nil, err
 	}
 	return &Client{
-		mc: c,
+		mc:          c,
+		minioServer: minioServer,
 	}, nil
 }
 
@@ -97,7 +123,7 @@ func (c *Client) RemoveBucket(ctx context.Context, bucketName string) error {
 }
 
 func (c *Client) GetObject(ctx context.Context, bucketName, objectName string, opts models.ReadMeta) (io.ReadCloser, models.ObjectInfo, error) {
-	rc, oi, _, e := c.mc.GetObject(ctx, bucketName, objectName, readMetaToMinioOpts(ctx, opts))
+	rc, oi, _, e := c.mc.GetObject(ctx, bucketName, objectName, c.readMetaToMinioOpts(ctx, opts))
 	if e != nil {
 		return nil, models.ObjectInfo{}, e
 	}
@@ -106,7 +132,7 @@ func (c *Client) GetObject(ctx context.Context, bucketName, objectName string, o
 
 func (c *Client) StatObject(ctx context.Context, bucketName, objectName string, opts models.ReadMeta) (models.ObjectInfo, error) {
 
-	oi, e := c.mc.StatObject(ctx, bucketName, objectName, readMetaToMinioOpts(ctx, opts))
+	oi, e := c.mc.StatObject(ctx, bucketName, objectName, c.readMetaToMinioOpts(ctx, opts))
 	return minioInfoToModelsInfo(oi), e
 }
 
@@ -309,9 +335,9 @@ func (c *Client) ListenBucketNotification(ctx context.Context, bucketName, prefi
 	return c.mc.ListenBucketNotification(ctx, bucketName, prefix, suffix, events)
 }
 
-func readMetaToMinioOpts(ctx context.Context, meta models.ReadMeta) minio.GetObjectOptions {
+func (c *Client) readMetaToMinioOpts(ctx context.Context, meta models.ReadMeta) minio.GetObjectOptions {
 	opt := minio.GetObjectOptions{}
-	if mm, ok := metadata.MinioMetaFromContext(ctx); ok {
+	if mm, ok := metadata.MinioMetaFromContext(ctx, !c.minioServer); ok {
 		for k, v := range mm {
 			opt.Set(k, v)
 		}

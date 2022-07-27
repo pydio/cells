@@ -153,9 +153,12 @@ func addDatasourceS3(c *install.InstallConfig) (*object.DataSource, error) {
 		StorageConfiguration: make(map[string]string),
 	}
 	if c.GetDsS3Custom() != "" {
-		conf.StorageConfiguration[object.StorageKeyCustomEndpoint] = c.GetDsS3Custom()
+		conf.StorageConfiguration[object.StorageKeyCustomEndpoint] = c.GetCleanDsS3Custom()
 		if c.GetDsS3CustomRegion() != "" {
 			conf.StorageConfiguration[object.StorageKeyCustomRegion] = c.GetDsS3CustomRegion()
+		}
+		if c.DetectS3CustomMinio() {
+			conf.StorageConfiguration[object.StorageKeyMinioServer] = "true"
 		}
 	}
 	return conf, nil

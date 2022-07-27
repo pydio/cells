@@ -23,15 +23,12 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/nodes"
 	"math"
 	"strconv"
 	"strings"
 	sync2 "sync"
 	"time"
-
-	"github.com/pydio/cells/v4/common/utils/std"
-
-	"github.com/pydio/cells/v4/common/runtime"
 
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
@@ -41,14 +38,15 @@ import (
 	grpccli "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/nodes/objects/mc"
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/object"
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/sync/endpoints/chanwatcher"
 	"github.com/pydio/cells/v4/common/sync/endpoints/index"
 	"github.com/pydio/cells/v4/common/sync/endpoints/s3"
 	"github.com/pydio/cells/v4/common/sync/merger"
@@ -56,6 +54,7 @@ import (
 	"github.com/pydio/cells/v4/common/sync/task"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/std"
 	"github.com/pydio/cells/v4/data/source/sync"
 	"github.com/pydio/cells/v4/scheduler/tasks"
 )
@@ -80,8 +79,11 @@ type Handler struct {
 	watcher configx.Receiver
 	stop    chan bool
 
+	changeEventsFallback chan *tree.NodeChangeEvent
+
 	tree.UnimplementedNodeProviderServer
 	tree.UnimplementedNodeReceiverServer
+	tree.UnimplementedNodeChangesReceiverStreamerServer
 	protosync.UnimplementedSyncEndpointServer
 	object.UnimplementedDataSourceEndpointServer
 	object.UnimplementedResourceCleanerEndpointServer
@@ -95,18 +97,6 @@ func NewHandler(ctx context.Context, handlerName, datasource string) (*Handler, 
 		errorsDetected: make(chan string),
 		stop:           make(chan bool),
 	}
-	/*
-		var syncConfig *object.DataSource
-		if err := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+datasource).Scan(&syncConfig); err != nil {
-			return nil, err
-		}
-		if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
-			syncConfig.ApiSecret = sec
-		}
-
-		e := h.initSync(syncConfig)
-	*/
-
 	return h, nil
 }
 
@@ -215,11 +205,12 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		if sec := config.GetSecret(minioConfig.ApiSecret).String(); sec != "" {
 			minioConfig.ApiSecret = sec
 		}
+		cfg := minioConfig.ClientConfig()
 
 		var retryCount int
 		minioErr = std.Retry(ctx, func() error {
 			retryCount++
-			oc, e := mc.New(minioConfig.BuildUrl(), minioConfig.ApiKey, minioConfig.ApiSecret, minioConfig.RunningSecure)
+			oc, e := nodes.NewStorageClient(cfg)
 			if e != nil {
 				log.Logger(ctx).Error("Cannot create objects client", zap.Error(e))
 				return e
@@ -252,7 +243,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 					return nil
 				}
 			}
-		}, 1*time.Second, 180*time.Second)
+		}, 2*time.Second, 180*time.Second)
 	}()
 
 	wg.Wait()
@@ -265,7 +256,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		return fmt.Errorf("index not reachable")
 	}
 
-	var source model.PathSyncTarget
+	var source model.PathSyncSource
 	if syncConfig.Watch {
 		return fmt.Errorf("datasource watch is not implemented yet")
 	}
@@ -318,7 +309,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			minioConfig.BuildUrl(),
 			minioConfig.ApiKey,
 			minioConfig.ApiSecret,
-			false,
+			minioConfig.RunningSecure,
 			options,
 			bucketsFilter,
 		)
@@ -349,7 +340,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			minioConfig.ApiSecret,
 			syncConfig.ObjectsBucket,
 			syncConfig.ObjectsBaseFolder,
-			false,
+			minioConfig.RunningSecure,
 			options)
 		if errs3 != nil {
 			return errs3
@@ -368,8 +359,13 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 				s3client.SetChecksumMapper(csm, true)
 			}
 		}
-
-		source = s3client
+		if !syncConfig.FlatStorage && !syncConfig.ServerIsMinio() {
+			cw := chanwatcher.NewWatcher(ctx, s3client, "")
+			s.changeEventsFallback = cw.NodeChanges
+			source = cw
+		} else {
+			source = s3client
+		}
 	}
 
 	conn := grpccli.GetClientConnFromCtx(ctx, common.ServiceDataIndex_+dataSource)
@@ -407,7 +403,8 @@ func (s *Handler) watchDisconnection() {
 			s.syncTask.Shutdown()
 			<-time.After(3 * time.Second)
 			var syncConfig *object.DataSource
-			if err := servicecontext.ScanConfig(s.globalCtx, &syncConfig); err != nil {
+			sName := servicecontext.GetServiceName(s.globalCtx)
+			if err := config.Get("services", sName).Scan(&syncConfig); err != nil {
 				log.Logger(s.globalCtx).Error("Cannot read config to reinitialize sync")
 			}
 			if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
@@ -636,11 +633,13 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 			taskClient.PutTask(c, &jobs.PutTaskRequest{Task: theTask})
 		}
 		return nil, e
-	} else {
+	} else if result != nil {
 		data, _ := json.Marshal(result.Stats())
 		resp.JsonDiff = string(data)
 		resp.Success = true
 		return resp, nil
+	} else {
+		return nil, fmt.Errorf("empty result")
 	}
 }
 

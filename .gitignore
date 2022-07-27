@@ -29,5 +29,7 @@ package-lock.json
 /.vscode/
 /debug
 
+minio
+minio.exe
 
 

@@ -460,29 +460,47 @@ func promptAdvanced(c *install.InstallConfig) error {
 /* VARIOUS HELPERS */
 func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bool, e error) {
 
-	pr := p.Prompt{Label: "For S3 compatible storage, please provide storage URL (leave empty for Amazon)", Default: c.DsS3Custom, AllowEdit: true}
-	if s3Custom, e := pr.Run(); e != nil {
-		return buckets, canCreate, e
-	} else if s3Custom != "" {
-		c.DsS3Custom = strings.Trim(s3Custom, " ")
+	srvType := p.Select{
+		Label: "Select S3 storage type",
+		Items: []string{
+			"Amazon S3",
+			"Minio Server",
+			"Other S3-compatible service",
+		},
 	}
-	pr = p.Prompt{Label: "Provide storage custom region (leave empty for default)", Default: c.DsS3CustomRegion, AllowEdit: true}
+	i, _, er := srvType.Run()
+	if er != nil {
+		e = er
+		return
+	}
+	if i > 0 {
+		pr := p.Prompt{Label: "Please provide storage URL", Default: c.DsS3Custom, AllowEdit: true}
+		if s3Custom, e := pr.Run(); e != nil {
+			return buckets, canCreate, e
+		} else if s3Custom != "" {
+			c.DsS3Custom = strings.TrimSpace(s3Custom)
+			if i == 1 {
+				c.DsS3Custom += "?minio=true"
+			}
+		}
+	}
+	pr := p.Prompt{Label: "Provide storage custom region (leave empty for default)", Default: c.DsS3CustomRegion, AllowEdit: true}
 	if s3CustomRegion, e := pr.Run(); e != nil {
 		return buckets, canCreate, e
 	} else if s3CustomRegion != "" {
-		c.DsS3CustomRegion = strings.Trim(s3CustomRegion, " ")
+		c.DsS3CustomRegion = strings.TrimSpace(s3CustomRegion)
 	}
 	pr = p.Prompt{Label: "Please enter S3 Api Key", Validate: notEmpty}
 	if apiKey, e := pr.Run(); e != nil {
 		return buckets, canCreate, e
 	} else {
-		c.DsS3ApiKey = strings.Trim(apiKey, " ")
+		c.DsS3ApiKey = strings.TrimSpace(apiKey)
 	}
 	pr = p.Prompt{Label: "Please enter S3 Api Secret", Validate: notEmpty, Mask: '*'}
 	if apiSecret, e := pr.Run(); e != nil {
 		return buckets, canCreate, e
 	} else {
-		c.DsS3ApiSecret = strings.Trim(apiSecret, " ")
+		c.DsS3ApiSecret = strings.TrimSpace(apiSecret)
 	}
 	check, _ := lib.PerformCheck(context.Background(), "S3_KEYS", c)
 	var res map[string]interface{}

@@ -22,7 +22,6 @@ package metadata
 
 import (
 	"context"
-	"net/http"
 	"strings"
 
 	"golang.org/x/net/http/httpguts"
@@ -81,11 +80,13 @@ func NewContext(ctx context.Context, md map[string]string) context.Context {
 // MinioMetaFromContext prepares metadata for minio client, merging context medata
 // and eventually the Context User Key value (X-Pydio-User). Used to prepare metadata
 // sent by Minio Clients
-func MinioMetaFromContext(ctx context.Context) (md map[string]string, ok bool) {
+func MinioMetaFromContext(ctx context.Context, validHeadersOnly bool) (md map[string]string, ok bool) {
 	md = make(map[string]string)
 	if meta, mOk := fromContext(ctx); mOk {
 		for k, v := range meta {
-			//k = strings.Title(k)
+			if validHeadersOnly && strings.HasPrefix(strings.ToLower(k), "x-pydio") {
+				continue
+			}
 			if strings.ToLower(k) == "x-pydio-claims" {
 				continue
 			}
@@ -94,25 +95,10 @@ func MinioMetaFromContext(ctx context.Context) (md map[string]string, ok bool) {
 			}
 		}
 	}
-	if user := ctx.Value(common.PydioContextUserKey); user != nil {
+	if user := ctx.Value(common.PydioContextUserKey); user != nil && !validHeadersOnly {
 		md[common.PydioContextUserKey] = user.(string)
 	}
 	return md, len(md) > 0
-}
-
-// AppendCellsMetaFromContext extract valid header names from context and push them
-// to the request Headers
-func AppendCellsMetaFromContext(ctx context.Context, req *http.Request) {
-	if meta, ok := MinioMetaFromContext(ctx); ok {
-		for k, v := range meta {
-			if strings.ToLower(k) == "authorization" {
-				continue
-			}
-			if httpguts.ValidHeaderFieldName(k) && httpguts.ValidHeaderFieldValue(v) {
-				req.Header.Set(k, v)
-			}
-		}
-	}
 }
 
 // WithUserNameMetadata appends a user name to both the context metadata and as context key.
@@ -142,16 +128,6 @@ func CanonicalMeta(ctx context.Context, name string) (string, bool) {
 		}
 	}
 	return "", false
-	/*
-		if md, o := fromContext(ctx); o {
-			if val, ok := md[name]; ok {
-				return val, true
-			} else if val, ok := md[strings.ToLower(name)]; ok {
-				return val, true
-			}
-		}
-		return "", false
-	*/
 }
 
 // WithAdditionalMetadata retrieves existing meta, adds new key/values to the map and produces a new context
@@ -179,15 +155,6 @@ func WithAdditionalMetadata(ctx context.Context, meta map[string]string) context
 	return NewContext(ctx, md)
 }
 
-// WithMetaCopy makes sure the metadata map will is replicated and unique to this context
-func WithMetaCopy(ctx context.Context) context.Context {
-	if meta, ok := fromContextCopy(ctx); ok {
-		return NewContext(ctx, meta)
-	} else {
-		return NewContext(ctx, Metadata{})
-	}
-}
-
 func NewBackgroundWithUserKey(userName string) context.Context {
 	return NewContext(context.Background(), map[string]string{
 		common.PydioContextUserKey: userName,
@@ -200,14 +167,4 @@ func NewBackgroundWithMetaCopy(ctx context.Context) context.Context {
 		bgCtx = NewContext(bgCtx, ctxMeta)
 	}
 	return bgCtx
-	/*
-		if ctxMeta, ok := fromContext(ctx); ok {
-			newM := make(map[string]string)
-			for k, v := range ctxMeta {
-				newM[k] = v
-			}
-			bgCtx = NewContext(bgCtx, newM)
-		}
-		return bgCtx
-	*/
 }

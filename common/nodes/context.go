@@ -22,11 +22,12 @@ package nodes
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/object"
+
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
@@ -57,8 +58,8 @@ func WithBucketName(s LoadedSource, bucket string) LoadedSource {
 
 type ctxBranchInfoKey struct{}
 
+// WithBranchInfo stores a BranchInfo with a given identifier inside context
 func WithBranchInfo(ctx context.Context, identifier string, branchInfo BranchInfo, reset ...bool) context.Context {
-	//log.Logger(ctx).Error("branchInfo", zap.Any("branchInfo", branchInfo))
 	value := ctx.Value(ctxBranchInfoKey{})
 	var data map[string]BranchInfo
 	if value != nil && len(reset) == 0 {
@@ -70,6 +71,7 @@ func WithBranchInfo(ctx context.Context, identifier string, branchInfo BranchInf
 	return context.WithValue(ctx, ctxBranchInfoKey{}, data)
 }
 
+// GetBranchInfo finds BranchInfo inside the context
 func GetBranchInfo(ctx context.Context, identifier string) (BranchInfo, bool) {
 	value := ctx.Value(ctxBranchInfoKey{})
 	if value != nil {
@@ -81,6 +83,7 @@ func GetBranchInfo(ctx context.Context, identifier string) (BranchInfo, bool) {
 	return BranchInfo{}, false
 }
 
+// AncestorsListFromContext tries to load ancestors or get them from cache
 func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier string, p SourcesPool, orParents bool) (updatedContext context.Context, parentsList []*tree.Node, e error) {
 
 	branchInfo, hasBranchInfo := GetBranchInfo(ctx, identifier)
@@ -124,6 +127,7 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 
 }
 
+// IsFlatStorage checks a context BranchInfo for the FlatStorage flag
 func IsFlatStorage(ctx context.Context, identifier string) bool {
 	if info, ok := GetBranchInfo(ctx, identifier); ok && info.FlatStorage && !info.Binary {
 		return true
@@ -131,12 +135,22 @@ func IsFlatStorage(ctx context.Context, identifier string) bool {
 	return false
 }
 
+// IsMinioServer checks a context BranchInfo for pure S3
+func IsMinioServer(ctx context.Context, identifier string) bool {
+	if info, ok := GetBranchInfo(ctx, identifier); ok && info.ServerIsMinio() {
+		return true
+	}
+	return false
+}
+
 type ctxSkipAclCheckKey struct{}
 
+// WithSkipAclCheck instructs ACL-oriented handlers to be ignore. To be used with caution.
 func WithSkipAclCheck(ctx context.Context) context.Context {
 	return context.WithValue(ctx, ctxSkipAclCheckKey{}, true)
 }
 
+// HasSkipAclCheck checks if the SkipAclCheck flag is set in context
 func HasSkipAclCheck(ctx context.Context) bool {
 	return ctx.Value(ctxSkipAclCheckKey{}) != nil
 }

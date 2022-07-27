@@ -25,13 +25,10 @@ import (
 	"context"
 	"github.com/pydio/cells/v4/common/runtime"
 
-	"github.com/pkg/errors"
-
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 type contextType int
@@ -42,12 +39,10 @@ const (
 	operationLabelKey
 	daoKey
 	indexerKey
-	configKey
 	keyringKey
 	loggerKey
 	brokerKey
 	registryKey
-	serversKey
 
 	ContextMetaJobUuid        = "X-Pydio-Job-Uuid"
 	ContextMetaTaskUuid       = "X-Pydio-Task-Uuid"
@@ -92,11 +87,7 @@ func WithLogger(ctx context.Context, logger interface{}) context.Context {
 	return context.WithValue(ctx, loggerKey, logger)
 }
 
-// WithConfig links a config to the context
-func WithConfig(ctx context.Context, config configx.Values) context.Context {
-	return context.WithValue(ctx, configKey, config)
-}
-
+// WithKeyring passes a keyring in context
 func WithKeyring(ctx context.Context, keyring crypto.Keyring) context.Context {
 	return context.WithValue(ctx, keyringKey, keyring)
 }
@@ -147,16 +138,9 @@ func GetIndexer(ctx context.Context) dao.DAO {
 	return nil
 }
 
+// GetLogger tries to find a logger in context
 func GetLogger(ctx context.Context) interface{} {
 	return ctx.Value(loggerKey)
-}
-
-// GetConfig returns the config from the context in argument
-func GetConfig(ctx context.Context) configx.Values {
-	if conf, ok := ctx.Value(configKey).(configx.Values); ok {
-		return conf
-	}
-	return nil
 }
 
 // GetBroker returns the broker from the context in argument
@@ -181,14 +165,4 @@ func GetKeyring(ctx context.Context) crypto.Keyring {
 		return keyring
 	}
 	return nil
-}
-
-// ScanConfig already unmarshalled in a specific format
-func ScanConfig(ctx context.Context, target interface{}) error {
-	conf := GetConfig(ctx)
-	if conf == nil {
-		return errors.New("cannot find config in this context")
-	}
-
-	return conf.Scan(target)
 }

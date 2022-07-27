@@ -143,6 +143,47 @@ func (s *NodeChangesStreamerStub_StreamChangesStreamer) Send(response *NodeChang
 	return nil
 }
 
+type NodeChangesReceiverStreamerStub struct {
+	NodeChangesReceiverStreamerServer
+}
+
+func (s *NodeChangesReceiverStreamerStub) Invoke(ctx context.Context, method string, args interface{}, reply interface{}, opts ...grpc.CallOption) error {
+	fmt.Println("Serving", method, args, reply, opts)
+	var e error
+	switch method {
+	default:
+		e = fmt.Errorf(method + " not implemented")
+	}
+	return e
+}
+func (s *NodeChangesReceiverStreamerStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+	fmt.Println("Serving", method)
+	switch method {
+	case "/tree.NodeChangesReceiverStreamer/PostNodeChanges":
+		st := &NodeChangesReceiverStreamerStub_PostNodeChangesStreamer{}
+		st.Init(ctx)
+		go s.NodeChangesReceiverStreamerServer.PostNodeChanges(st)
+		return st, nil
+	}
+	return nil, fmt.Errorf(method + "  not implemented")
+}
+
+type NodeChangesReceiverStreamerStub_PostNodeChangesStreamer struct {
+	stubs.BidirServerStreamerCore
+}
+
+func (s *NodeChangesReceiverStreamerStub_PostNodeChangesStreamer) Recv() (*NodeChangeEvent, error) {
+	if req, o := <-s.ReqChan; o {
+		return req.(*NodeChangeEvent), nil
+	} else {
+		return nil, io.EOF
+	}
+}
+func (s *NodeChangesReceiverStreamerStub_PostNodeChangesStreamer) Send(response *NodeChangeEvent) error {
+	s.RespChan <- response
+	return nil
+}
+
 type NodeReceiverStub struct {
 	NodeReceiverServer
 }

@@ -334,7 +334,7 @@ func migratePerformMigration(ctx context.Context, mc nodes.StorageClient, idx tr
 		return out, e
 	}
 	mm := map[string]string{}
-	if meta, ok := metadata.MinioMetaFromContext(ctx); ok {
+	if meta, ok := metadata.MinioMetaFromContext(ctx, false); ok {
 		for k, v := range meta {
 			mm[k] = v
 		}

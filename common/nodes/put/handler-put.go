@@ -23,7 +23,9 @@ package put
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
 	"fmt"
+	"hash"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -32,6 +34,8 @@ import (
 	"strings"
 	"time"
 
+	md5simd "github.com/minio/md5-simd"
+	errors2 "github.com/pkg/errors"
 	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
 	"google.golang.org/grpc"
@@ -42,8 +46,19 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/hasher"
 )
+
+var mServer md5simd.Server
+var HashFunc = func() hash.Hash {
+	if mServer == nil {
+		mServer = md5simd.NewServer()
+	}
+	return hasher.NewBlockHash(mServer.NewHash(), hasher.DefaultBlockSize)
+}
 
 func WithPutInterceptor() nodes.Option {
 	return func(options *nodes.RouterOptions) {
@@ -55,6 +70,7 @@ func WithPutInterceptor() nodes.Option {
 // This temporary entry is updated later on by the sync service, once the object is written. It is deleted if the Put operation fails.
 type Handler struct {
 	abstract.Handler
+	partsCache cache.Cache
 }
 
 func (m *Handler) Adapt(c nodes.Handler, options nodes.RouterOptions) nodes.Handler {
@@ -108,7 +124,6 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 	}
 
 	log.Logger(ctx).Debug("[PUT HANDLER] > Create Node", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
-	//createResp, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode})
 	createResp, er := retryOnDuplicate(func() (*tree.CreateNodeResponse, error) {
 		return treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode})
 	})
@@ -127,6 +142,75 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 	}
 	return createResp.Node, errorFunc, nil
 
+}
+
+// getPartsCache initializes a cache for multipart hashes
+func (m *Handler) getPartsCache() (cache.Cache, error) {
+	if m.partsCache == nil {
+		if c, e := cache.OpenCache(context.TODO(), runtime.CacheURL()+"/partshasher?evictionTime=24h&cleanWindow=24h"); e != nil {
+			return nil, e
+		} else {
+			m.partsCache = c
+		}
+	}
+	return m.partsCache, nil
+}
+
+func (m *Handler) storeCustomHash(ctx context.Context, node *tree.Node, hashValue string) error {
+	node.Type = tree.NodeType_LEAF
+	node.MustSetMeta(common.MetaNamespaceHash, hashValue)
+	log.Logger(ctx).Info("Storing custom hash" + hashValue + " for node " + node.Uuid)
+	_, e := nodes.CoreMetaWriter(ctx).CreateNode(ctx, &tree.CreateNodeRequest{Node: node})
+	return e
+}
+
+func (m *Handler) clearMultipartCachedHashes(uploadID string) {
+	c, e := m.getPartsCache()
+	if e != nil {
+		return
+	}
+	prefix := "multipart:" + uploadID + ":"
+	if kk, e := c.KeysByPrefix(prefix); e == nil {
+		for _, k := range kk {
+			_ = c.Delete(k)
+		}
+	}
+}
+
+func (m *Handler) computeMultipartFinalHash(uploadID string, partsNumber int) (string, error) {
+
+	c, e := m.getPartsCache()
+	if e != nil {
+		return "", errors2.Wrap(e, "cannot initialize cache")
+	}
+	prefix := "multipart:" + uploadID + ":"
+	kk, e := c.KeysByPrefix(prefix)
+	if e != nil {
+		return "", errors2.Wrap(e, "cannot read keys from cache")
+	}
+	parts := map[int]string{}
+	for _, k := range kk {
+		var hh []byte
+		if c.Get(k, &hh) {
+			// Read key
+			partName, _ := strconv.Atoi(strings.TrimPrefix(k, prefix))
+			parts[partName-1] = string(hh)
+			// Clear key now
+			_ = c.Delete(k)
+		}
+	}
+	if len(parts) != partsNumber {
+		return "", errors2.Wrap(e, "cache does not contain the correct number of parts")
+	}
+	summer := HashFunc()
+	for i := 0; i < partsNumber; i++ {
+		ha, ok := parts[i]
+		if !ok {
+			return "", fmt.Errorf("missing hash for part %d", i)
+		}
+		summer.Write([]byte(ha))
+	}
+	return hex.EncodeToString(summer.Sum(nil)), nil
 }
 
 // createParentIfNotExist Recursively create parents
@@ -186,6 +270,7 @@ func (m *Handler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, op
 	return m.Next.CreateNode(ctx, in, opts...)
 }
 
+// PutObject eventually creates an index Node, captures body to extract Mime Type and compute custom Hash
 func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	log.Logger(ctx).Debug("[HANDLER PUT] > Putting object", zap.String("UUID", node.Uuid), zap.String("Path", node.Path))
 
@@ -213,6 +298,12 @@ func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 
 	if node.Uuid != "" {
 
+		cl := node.Clone()
+		reader = hasher.Tee(reader, HashFunc, func(s string) {
+			if e := m.storeCustomHash(ctx, cl, s); e != nil {
+				log.Logger(ctx).Error("Could not store custom hash for node", node.Zap(), zap.Error(e))
+			}
+		})
 		log.Logger(ctx).Debug("PUT: Appending node Uuid to request metadata: " + node.Uuid)
 		requestData.Metadata[common.XAmzMetaNodeUuid] = node.Uuid
 		if requestData.ContentTypeUnknown() {
@@ -237,6 +328,14 @@ func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 
 		requestData.Metadata[common.XAmzMetaNodeUuid] = newNode.Uuid
 		node.Uuid = newNode.Uuid
+
+		cl := node.Clone()
+		reader = hasher.Tee(reader, HashFunc, func(s string) {
+			if e := m.storeCustomHash(ctx, cl, s); e != nil {
+				log.Logger(ctx).Error("Could not store custom hash for node", node.Zap(), zap.Error(e))
+			}
+		})
+
 		size, err := m.Next.PutObject(ctx, node, reader, requestData)
 		if err != nil && onErrorFunc != nil {
 			log.Logger(ctx).Debug("Return of PutObject", zap.String("path", node.Path), zap.Int64("size", size), zap.Error(err))
@@ -303,11 +402,54 @@ func (m *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node,
 		Node: &tree.Node{
 			Path: strings.TrimLeft(target.Path, "/"),
 		},
-	});
+	})
 	if err != nil {
 		return models.MultipartObjectPart{}, fmt.Errorf("cannot find initial multipart node, this is not normal")
 	}
+
+	if partNumberMarker == 1 && requestData.ContentTypeUnknown() {
+		cl := target.Clone()
+		cl.Type = tree.NodeType_LEAF // Force leaf!
+		reader = nodes.WrapReaderForMime(ctx, cl, reader)
+	}
+
+	partID := strconv.Itoa(partNumberMarker)
+	c, e := m.getPartsCache()
+	if e != nil {
+		return models.MultipartObjectPart{}, e
+	}
+	reader = hasher.Tee(reader, HashFunc, func(s string) {
+		if er := c.Set("multipart:"+uploadID+":"+partID, []byte(s)); er != nil {
+			log.Logger(ctx).Error("Error while caching part hash to cache: "+er.Error(), zap.Error(er))
+		}
+	})
+
 	return m.Next.MultipartPutObjectPart(ctx, resp.Node, uploadID, partNumberMarker, reader, requestData)
+}
+
+func (m *Handler) MultipartComplete(ctx context.Context, target *tree.Node, uploadID string, uploadedParts []models.MultipartObjectPart) (models.ObjectInfo, error) {
+
+	// Feed target node with pre-created one
+	resp, err := m.ClientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{
+		Node: &tree.Node{
+			Path: strings.TrimLeft(target.Path, "/"),
+		},
+	})
+	if err != nil {
+		return models.ObjectInfo{}, fmt.Errorf("cannot find initial multipart node, this is not normal")
+	}
+	target = resp.GetNode()
+
+	f, e := m.computeMultipartFinalHash(uploadID, len(uploadedParts))
+	if e != nil {
+		return models.ObjectInfo{}, errors2.Wrap(e, "cannot initialize cache")
+	}
+	e = m.storeCustomHash(ctx, target.Clone(), f)
+	if e != nil {
+		return models.ObjectInfo{}, errors2.Wrap(e, "cannot store custom hash")
+	}
+
+	return m.Next.MultipartComplete(ctx, target, uploadID, uploadedParts)
 }
 
 func (m *Handler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {
@@ -330,6 +472,8 @@ func (m *Handler) MultipartAbort(ctx context.Context, target *tree.Node, uploadI
 			}})
 		}
 	}
+
+	go m.clearMultipartCachedHashes(uploadID)
 
 	if !nodes.IsFlatStorage(ctx, "in") {
 		deleteTemporary()

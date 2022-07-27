@@ -24,6 +24,7 @@ package lib
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/object"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -152,8 +153,9 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) (*
 		result.JsonResult = string(data)
 
 	case "S3_KEYS":
-		endpoint := "s3.amazonaws.com"
+		endpoint := object.AmazonS3Endpoint
 		secure := true
+		isMinio := false
 		if c.GetDsS3Custom() != "" {
 			if u, e := url.Parse(c.GetDsS3Custom()); e != nil {
 				wrapError(e)
@@ -162,6 +164,9 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) (*
 				endpoint = u.Host
 				if u.Scheme == "http" {
 					secure = false
+				}
+				if u.Query().Get("minio") == "true" {
+					isMinio = true
 				}
 			}
 		}
@@ -172,6 +177,12 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) (*
 		cfData.Val("key").Set(c.GetDsS3ApiKey())
 		cfData.Val("secret").Set(c.GetDsS3ApiSecret())
 		cfData.Val("secure").Set(secure)
+		if r := c.GetDsS3CustomRegion(); r != "" {
+			cfData.Val("region").Set(r)
+		}
+		if isMinio {
+			cfData.Val("minioServer").Set(true)
+		}
 		mc, e := nodes.NewStorageClient(cfData)
 		if e != nil {
 			wrapError(e)
@@ -201,7 +212,7 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) (*
 		result.JsonResult = string(dd)
 
 	case "S3_BUCKETS":
-		endpoint := "s3.amazonaws.com"
+		endpoint := object.AmazonS3Endpoint
 		secure := true
 		if c.GetDsS3Custom() != "" {
 			if u, e := url.Parse(c.GetDsS3Custom()); e != nil {

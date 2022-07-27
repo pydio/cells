@@ -37,6 +37,7 @@ const (
 
 	StorageKeyCustomEndpoint  = "customEndpoint"
 	StorageKeyCustomRegion    = "customRegion"
+	StorageKeyMinioServer     = "minioServer"
 	StorageKeyBucketsTags     = "bucketsTags"
 	StorageKeyObjectsTags     = "objectsTags"
 	StorageKeyNativeEtags     = "nativeEtags"
@@ -47,6 +48,8 @@ const (
 	StorageKeyCellsInternal    = "cellsInternal"
 	StorageKeyInitFromBucket   = "initFromBucket"
 	StorageKeyInitFromSnapshot = "initFromSnapshot"
+
+	AmazonS3Endpoint = "s3.amazonaws.com"
 )
 
 func (d *DataSource) ClientConfig() configx.Values {
@@ -56,6 +59,12 @@ func (d *DataSource) ClientConfig() configx.Values {
 	_ = cfg.Val("key").Set(d.GetApiKey())
 	_ = cfg.Val("secret").Set(d.GetApiSecret())
 	_ = cfg.Val("secure").Set(d.GetObjectsSecure())
+	_ = cfg.Val("minioServer").Set(d.ServerIsMinio())
+	if d.StorageConfiguration != nil {
+		if r, o := d.StorageConfiguration[StorageKeyCustomRegion]; o && r != "" {
+			_ = cfg.Val("region").Set(r)
+		}
+	}
 	return cfg
 }
 
@@ -65,7 +74,46 @@ func (d *DataSource) BuildUrl() string {
 	if d.ObjectsHost == "" {
 		host = "localhost"
 	}
-	return fmt.Sprintf("%s:%d", host, d.ObjectsPort)
+	if d.ObjectsPort == 443 {
+		return host
+	} else {
+		return fmt.Sprintf("%s:%d", host, d.ObjectsPort)
+	}
+}
+
+// ServerIsMinio checks if server is local, of if remote definition has the minioServer key
+func (d *DataSource) ServerIsMinio() bool {
+	if d.StorageType == StorageType_LOCAL {
+		return true
+	}
+	if d.StorageConfiguration == nil {
+		return false
+	}
+	if m, o := d.StorageConfiguration[StorageKeyMinioServer]; o && m == "true" {
+		return true
+	}
+	return false
+}
+
+func (d *MinioConfig) ClientConfig() configx.Values {
+	cfg := configx.New()
+	_ = cfg.Val("type").Set("mc")
+	_ = cfg.Val("endpoint").Set(d.BuildUrl())
+	_ = cfg.Val("key").Set(d.GetApiKey())
+	_ = cfg.Val("secret").Set(d.GetApiSecret())
+	_ = cfg.Val("secure").Set(d.GetRunningSecure())
+	if d.StorageType == StorageType_LOCAL {
+		_ = cfg.Val("minioServer").Set(true)
+	}
+	if d.GatewayConfiguration != nil {
+		if m, o := d.GatewayConfiguration[StorageKeyMinioServer]; o && m == "true" {
+			_ = cfg.Val("minioServer").Set(true)
+		}
+		if r, o := d.GatewayConfiguration[StorageKeyCustomRegion]; o && r != "" {
+			_ = cfg.Val("region").Set(r)
+		}
+	}
+	return cfg
 }
 
 // BuildUrl builds the url used for clients
@@ -74,7 +122,11 @@ func (d *MinioConfig) BuildUrl() string {
 	if d.RunningHost == "" {
 		host = "localhost"
 	}
-	return fmt.Sprintf("%s:%d", host, d.RunningPort)
+	if d.RunningPort == 443 {
+		return host
+	} else {
+		return fmt.Sprintf("%s:%d", host, d.RunningPort)
+	}
 }
 
 // IsInternal is a shorthand to check StorageConfiguration["cellsInternal"] key

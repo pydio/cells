@@ -266,13 +266,15 @@ func (f *FlatStorageHandler) postCreate(ctx context.Context, identifier string, 
 	}
 	updateNode.Etag = stats.GetNode().GetEtag()
 	if updateNode.Etag == "" || strings.Contains(updateNode.Etag, "-") {
-		newETag, e := f.recomputeETag(ctx, identifier, updateNode)
-		if e == nil {
-			log.Logger(ctx).Info("Recomputed ETag :" + updateNode.Etag + " => " + newETag)
-			updateNode.Etag = newETag
-		} else {
-			log.Logger(ctx).Error("Cannot recompute ETag :"+updateNode.Etag, zap.Error(e))
-		}
+		/*
+			newETag, e := f.recomputeETag(ctx, identifier, updateNode)
+			if e == nil {
+				log.Logger(ctx).Info("Recomputed ETag :" + updateNode.Etag + " => " + newETag)
+				updateNode.Etag = newETag
+			} else {
+				log.Logger(ctx).Error("Cannot recompute ETag :"+updateNode.Etag, zap.Error(e))
+			}
+		*/
 	}
 	if !nodes.IsDefaultMime(cType) {
 		updateNode.MustSetMeta(common.MetaNamespaceMime, cType)
@@ -292,12 +294,8 @@ func (f *FlatStorageHandler) recomputeETag(ctx context.Context, identifier strin
 	copyMeta := map[string]string{
 		common.XAmzMetaDirective: "REPLACE",
 	}
-	//statOpts := minio.StatObjectOptions{}
-	//getOpts := minio.GetObjectOptions{}
-	if meta, ok := metadata.MinioMetaFromContext(ctx); ok {
+	if meta, ok := metadata.MinioMetaFromContext(ctx, false); ok {
 		for k, v := range meta {
-			//statOpts.Set(k, v)
-			//getOpts.Set(k, v)
 			copyMeta[k] = v
 		}
 	}
@@ -315,7 +313,7 @@ func (f *FlatStorageHandler) recomputeETag(ctx context.Context, identifier strin
 
 		// Cannot CopyObject on itself for files bigger than 5GB - compute Md5 and store it as metadata instead
 		// Not necessary for real minio on fs (but required for Minio as S3 gateway or real S3)
-		mm2, _ := metadata.MinioMetaFromContext(ctx)
+		mm2, _ := metadata.MinioMetaFromContext(ctx, false)
 		readCloser, _, e := src.Client.GetObject(ctx, src.ObjectsBucket, node.GetUuid(), mm2)
 		if e != nil {
 			return "", e

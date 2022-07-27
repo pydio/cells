@@ -253,3 +253,28 @@ func mapInterface2mapString(in interface{}) map[string]interface{} {
 	}
 	return nil
 }
+
+func (m *InstallConfig) GetCleanDsS3Custom() string {
+	if m.DsS3Custom == "" {
+		return m.DsS3Custom
+	}
+	if u, e := url.Parse(m.DsS3Custom); e == nil {
+		if u.Query().Get("minio") == "true" {
+			u.RawQuery = ""
+			return u.String()
+		}
+	}
+	return m.GetDsS3Custom()
+}
+
+func (m *InstallConfig) DetectS3CustomMinio() bool {
+	if m.DsS3Custom == "" {
+		return false
+	}
+	if u, e := url.Parse(m.DsS3Custom); e == nil {
+		if u.Query().Get("minio") == "true" {
+			return true
+		}
+	}
+	return false
+}

@@ -33,7 +33,10 @@ package nodes
 
 import (
 	"context"
+	"sync"
 
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
@@ -60,3 +63,14 @@ var (
 	// otherwise times out.
 	IsUnitTestEnv = false
 )
+
+var metaClient tree.NodeReceiverClient
+var mcOnce sync.Once
+
+// CoreMetaWriter lazily loads a ServiceMeta grpc client
+func CoreMetaWriter(ctx context.Context) tree.NodeReceiverClient {
+	mcOnce.Do(func() {
+		metaClient = tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta))
+	})
+	return metaClient
+}

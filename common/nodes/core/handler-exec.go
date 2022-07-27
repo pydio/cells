@@ -23,14 +23,11 @@ package core
 import (
 	"context"
 	"encoding/hex"
-	"io"
-	"io/ioutil"
-	"path"
-	"strings"
-	"time"
-
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"io"
+	"path"
+	"strings"
 
 	"github.com/pydio/cells/v4/common"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
@@ -42,7 +39,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
-	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -106,45 +102,6 @@ func (e *Executor) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opt
 }
 
 func (e *Executor) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...grpc.CallOption) (*tree.CreateNodeResponse, error) {
-	node := in.Node
-	if !node.IsLeaf() {
-		dsPath := node.GetStringMeta(common.MetaNamespaceDatasourcePath)
-		newNode := &tree.Node{
-			Path: strings.TrimRight(node.Path, "/") + "/" + common.PydioSyncHiddenFile,
-		}
-		newNode.MustSetMeta(common.MetaNamespaceDatasourcePath, dsPath+"/"+common.PydioSyncHiddenFile)
-		if session := in.IndexationSession; session != "" {
-			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{common.XPydioSessionUuid: session})
-		}
-		if !in.UpdateIfExists {
-			if read, er := e.GetObject(ctx, newNode, &models.GetRequestData{StartOffset: 0, Length: 36}); er == nil {
-				bytes, _ := ioutil.ReadAll(read)
-				_ = read.Close()
-				node.Uuid = string(bytes)
-				node.MTime = time.Now().Unix()
-				node.Size = 36
-				log.Logger(ctx).Debug("[handlerExec.CreateNode] Hidden file already created", node.ZapUuid(), zap.Any("in", in))
-				return &tree.CreateNodeResponse{Node: node}, nil
-			}
-		}
-		// Create new Node
-		nodeUuid := uuid.New()
-		log.Logger(ctx).Debug("[Exec] Create Folder has no Uuid")
-		if node.Uuid != "" {
-			log.Logger(ctx).Debug("Creating Folder with Uuid", node.ZapUuid())
-			nodeUuid = node.Uuid
-		}
-		_, err := e.PutObject(ctx, newNode, strings.NewReader(nodeUuid), &models.PutRequestData{Size: int64(len(nodeUuid))})
-
-		if err != nil {
-			return nil, err
-		}
-		node.Uuid = nodeUuid
-		node.MTime = time.Now().Unix()
-		node.Size = 36
-		log.Logger(ctx).Debug("[handlerExec.CreateNode] Created A Hidden .pydio for folder", node.Zap())
-		return &tree.CreateNodeResponse{Node: node}, nil
-	}
 	log.Logger(ctx).Debug("Exec.CreateNode", zap.String("p", in.Node.Path))
 	return e.ClientsPool.GetTreeClientWrite().CreateNode(ctx, in, opts...)
 }
@@ -194,15 +151,12 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 
 	s3Path := e.buildS3Path(info, node)
 	headers := make(models.ReadMeta)
+	validHeaders := !nodes.IsMinioServer(ctx, "in")
 
 	// Make sure the object exists
 	//var opts = minio.StatObjectOptions{}
 	newCtx := ctx
-	if meta, ok := metadata.MinioMetaFromContext(ctx); ok {
-		//for k, v := range meta {
-		//	opts.Set(k, v)
-		//}
-		// Store a copy of the meta
+	if meta, ok := metadata.MinioMetaFromContext(ctx, validHeaders); ok {
 		newCtx = metadata.NewContext(ctx, meta)
 	}
 	sObject, sErr := writer.StatObject(ctx, info.ObjectsBucket, s3Path, nil)
@@ -275,8 +229,9 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 	fromPath := e.buildS3Path(srcInfo, from)
 	toPath := e.buildS3Path(destInfo, to)
 	cType := from.GetStringMeta(common.MetaNamespaceMime)
+	validHeaders := !nodes.IsMinioServer(ctx, "from")
 
-	statMeta, _ := metadata.MinioMetaFromContext(ctx)
+	statMeta, _ := metadata.MinioMetaFromContext(ctx, validHeaders)
 
 	if destClient == srcClient && requestData.SrcVersionId == "" {
 		// Check object exists and check its size
@@ -345,7 +300,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 			}
 			// append metadata to the context as well, as it may switch to putObjectMultipart
 			ctxMeta := make(map[string]string)
-			if m, ok := metadata.MinioMetaFromContext(ctx); ok {
+			if m, ok := metadata.MinioMetaFromContext(ctx, validHeaders); ok {
 				ctxMeta = m
 			}
 			for k, v := range requestData.Metadata {
@@ -402,20 +357,16 @@ func (e *Executor) MultipartPutObjectPart(ctx context.Context, target *tree.Node
 	if requestData.Size <= 0 {
 		// This should never happen, double check
 		return models.MultipartObjectPart{PartNumber: partNumberMarker}, errors.BadRequest("put.part.empty", "trying to upload a part object that has no data. Double check")
-	} else {
-		if partNumberMarker == 1 && requestData.ContentTypeUnknown() {
-			cl := target.Clone()
-			cl.Type = tree.NodeType_LEAF // Force leaf!
-			reader = nodes.WrapReaderForMime(ctx, cl, reader)
-		}
-		cp, err := writer.PutObjectPart(ctx, info.ObjectsBucket, s3Path, uploadID, partNumberMarker, reader, requestData.Size, hex.EncodeToString(requestData.Md5Sum), hex.EncodeToString(requestData.Sha256Sum))
-		if err != nil {
-			log.Logger(ctx).Error("PutObjectPart has failed", zap.Error(err))
-			return models.MultipartObjectPart{PartNumber: partNumberMarker}, err
-		} else {
-			return cp, nil
-		}
 	}
+
+	cp, err := writer.PutObjectPart(ctx, info.ObjectsBucket, s3Path, uploadID, partNumberMarker, reader, requestData.Size, hex.EncodeToString(requestData.Md5Sum), hex.EncodeToString(requestData.Sha256Sum))
+	if err != nil {
+		log.Logger(ctx).Error("PutObjectPart has failed", zap.Error(err))
+		return models.MultipartObjectPart{PartNumber: partNumberMarker}, err
+	} else {
+		return cp, nil
+	}
+
 }
 
 func (e *Executor) MultipartList(ctx context.Context, prefix string, requestData *models.MultipartRequestData) (res models.ListMultipartUploadsResult, err error) {
@@ -487,14 +438,6 @@ func (e *Executor) MultipartComplete(ctx context.Context, target *tree.Node, upl
 		log.Logger(ctx).Error("fail to complete upload", zap.Error(err))
 		return models.ObjectInfo{}, err
 	}
-	/*
-		var opts = minio.StatObjectOptions{}
-		if meta, ok := context2.MinioMetaFromContext(ctx); ok {
-			for k, v := range meta {
-				opts.Set(k, v)
-			}
-		}
-	*/
 	oi, er := info.Client.StatObject(ctx, info.ObjectsBucket, s3Path, nil)
 	if er != nil {
 		return models.ObjectInfo{}, er

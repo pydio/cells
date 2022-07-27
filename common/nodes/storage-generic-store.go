@@ -21,38 +21,12 @@
 package nodes
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
-
-// GetGenericStoreClient creates a *minio.Core client for a given binary store.
-func GetGenericStoreClient(ctx context.Context, storeNamespace string) (client StorageClient, bucket string, e error) {
-	var dataSource string
-	var err error
-	dataSource, bucket, err = GetGenericStoreClientConfig(storeNamespace)
-	if err != nil {
-		return nil, "", err
-	}
-
-	s3endpointClient := object.NewDataSourceEndpointClient(grpc.GetClientConnFromCtx(ctx, common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSource))
-	response, err := s3endpointClient.GetDataSourceConfig(ctx, &object.GetDataSourceConfigRequest{})
-	if err != nil {
-		return nil, "", err
-	}
-
-	source := response.DataSource
-
-	client, err = NewStorageClient(source.ClientConfig())
-
-	return client, bucket, err
-
-}
 
 // GetGenericStoreClientConfig finds datasource/bucket for a given store.
 func GetGenericStoreClientConfig(storeNamespace string) (dataSource string, bucket string, e error) {

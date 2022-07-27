@@ -184,6 +184,56 @@ func DeregisterNodeChangesStreamerEnhancedServer(s grpc.ServiceRegistrar, name s
 }
 
 var (
+	enhancedNodeChangesReceiverStreamerServers     = make(map[string]NodeChangesReceiverStreamerEnhancedServer)
+	enhancedNodeChangesReceiverStreamerServersLock = sync.RWMutex{}
+)
+
+type NamedNodeChangesReceiverStreamerServer interface {
+	NodeChangesReceiverStreamerServer
+	Name() string
+}
+type NodeChangesReceiverStreamerEnhancedServer map[string]NamedNodeChangesReceiverStreamerServer
+
+func (m NodeChangesReceiverStreamerEnhancedServer) PostNodeChanges(s NodeChangesReceiverStreamer_PostNodeChangesServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method PostNodeChanges should have a context")
+	}
+	enhancedNodeChangesReceiverStreamerServersLock.RLock()
+	defer enhancedNodeChangesReceiverStreamerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.PostNodeChanges(s)
+		}
+	}
+	return status.Errorf(codes.Unimplemented, "method PostNodeChanges not implemented")
+}
+func (m NodeChangesReceiverStreamerEnhancedServer) mustEmbedUnimplementedNodeChangesReceiverStreamerServer() {
+}
+func RegisterNodeChangesReceiverStreamerEnhancedServer(s grpc.ServiceRegistrar, srv NamedNodeChangesReceiverStreamerServer) {
+	enhancedNodeChangesReceiverStreamerServersLock.Lock()
+	defer enhancedNodeChangesReceiverStreamerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeChangesReceiverStreamerServers[addr]
+	if !ok {
+		m = NodeChangesReceiverStreamerEnhancedServer{}
+		enhancedNodeChangesReceiverStreamerServers[addr] = m
+		RegisterNodeChangesReceiverStreamerServer(s, m)
+	}
+	m[srv.Name()] = srv
+}
+func DeregisterNodeChangesReceiverStreamerEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedNodeChangesReceiverStreamerServersLock.Lock()
+	defer enhancedNodeChangesReceiverStreamerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeChangesReceiverStreamerServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
+}
+
+var (
 	enhancedNodeReceiverServers     = make(map[string]NodeReceiverEnhancedServer)
 	enhancedNodeReceiverServersLock = sync.RWMutex{}
 )

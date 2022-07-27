@@ -281,8 +281,6 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 	localTest := false
 	localFolder := ""
 
-	var thumbsClient nodes.StorageClient
-	var thumbsBucket string
 	objectName := fmt.Sprintf("%s-%d.jpg", node.Uuid, targetSize)
 
 	if localFolder = node.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
@@ -292,14 +290,13 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 
 	if !localTest {
 
-		var e error
-		thumbsClient, thumbsBucket, e = nodes.GetGenericStoreClient(ctx, common.PydioThumbstoreNamespace)
-		if e != nil {
-			logger.Error("Cannot find client for thumbstore", zap.Error(e))
+		dsi, e := getRouter(t.GetRuntimeContext()).GetClientsPool().GetDataSourceInfo(common.PydioThumbstoreNamespace)
+		if e != nil || dsi.Client == nil {
+			logger.Error("Cannot find ds info for thumbnail store", zap.Error(e))
 			return false, e
 		}
 		// First Check if thumb already exists with same original etag
-		oi, check := thumbsClient.StatObject(ctx, thumbsBucket, objectName, nil)
+		oi, check := dsi.Client.StatObject(ctx, dsi.ObjectsBucket, objectName, nil)
 		logger.Debug("Object Info", zap.Any("object", oi), zap.Error(check))
 		if check == nil {
 			foundOriginal := oi.Metadata.Get("X-Amz-Meta-Original-Etag")
