@@ -131,7 +131,9 @@ func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
 	for _, r := range rr {
 		out = append(out, varsFromStr(r, sites)...)
 	}
-	_ = val.Val("dangerous-allow-insecure-redirect-urls").Set(out)
+	if len(out) > 0 {
+		_ = val.Val("dangerous-allow-insecure-redirect-urls").Set(out)
+	}
 
 	provider, err := hconf.New(context.TODO(), logrusx.New("test", "test"), hconfx.WithValues(val.Map()))
 	if err != nil {
