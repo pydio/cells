@@ -22,6 +22,7 @@ package handler
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -189,7 +190,7 @@ func (s *subscriber) sendWithWarning(streamer streamWithReqId, message *pb.Subsc
 	cop := proto.Clone(message).(*pb.SubscribeResponse)
 	cop.Id = streamer.id
 	if er := streamer.stream.Send(cop); er != nil {
-		fmt.Println("Grpc.sendWithWarning: there was an error while sending to stream : " + er.Error())
+		fmt.Println(os.Getpid(), "Grpc.sendWithWarning: there was an error while sending to stream : "+er.Error())
 	}
 }
 
