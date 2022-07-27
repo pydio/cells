@@ -181,6 +181,12 @@ class DataSourceEditor extends React.Component{
         if(value === "aws"){
             model.StorageConfiguration.customEndpoint = "";
             model.StorageConfiguration.customRegion = "";
+            model.StorageConfiguration.minioServer = "";
+        } else if (value === "minio") {
+            // Add custom flag
+            model.StorageConfiguration.minioServer = "true"
+        } else {
+            model.StorageConfiguration.minioServer = "";
         }
         this.setState({s3Custom: value});
     }
@@ -424,9 +430,10 @@ class DataSourceEditor extends React.Component{
                     <div style={styles.legend}>{m('storage.legend.s3')}</div>
                     <ModernSelectField fullWidth={true} variant={'v2'} hintText={"Endpoint type"} value={s3Custom} onChange={(e,i,v)=>{this.toggleS3Custom(v)}}>
                         <MenuItem value={"aws"} primaryText={m('storage.s3.endpoint.amazon')}/>
+                        <MenuItem value={"minio"} primaryText={m('storage.s3.endpoint.minio')}/>
                         <MenuItem value={"custom"} primaryText={m('storage.s3.endpoint.custom')}/>
                     </ModernSelectField>
-                    {s3Custom === 'custom' &&
+                    {(s3Custom === 'custom' || s3Custom === 'minio') &&
                     <div>
                         <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint')} value={model.StorageConfiguration.customEndpoint} onChange={(e, v) => {model.StorageConfiguration.customEndpoint = v}}/>
                         <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.s3.region')} value={model.StorageConfiguration.customRegion} onChange={(e, v) => {model.StorageConfiguration.customRegion = v}}/>
