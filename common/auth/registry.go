@@ -24,6 +24,9 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"github.com/ory/hydra/jwk"
+	"github.com/pydio/cells/v4/common/utils/std"
+	"net"
 	"os"
 	"regexp"
 	"strconv"
@@ -34,7 +37,6 @@ import (
 	"github.com/ory/fosite"
 	"github.com/ory/hydra/client"
 	"github.com/ory/hydra/driver"
-	"github.com/ory/hydra/jwk"
 	"github.com/ory/x/logrusx"
 	"github.com/ory/x/sqlcon"
 	"github.com/pkg/errors"
@@ -95,63 +97,69 @@ func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 		p := reg.Persister()
 		conn := p.Connection(context.Background())
 
-		if e = conn.Open(); e != nil {
-			logger.Error("Could not open the database connection", zap.Error(e))
-			return
-		}
+		e = std.Retry(ctx, func() error {
+			if err := conn.Open(); err != nil {
+				logger.Error("Could not open the database connection, retrying in 10 seconds", zap.Error(e))
+				return err
+			}
 
-		// Part of v3 => v4 migration: we must clear existing JWK entries, as system.secret formatting changed.
-		if _, e := conn.Q().Count(&HydraJwkMigration{}); e == nil {
-			logger.Info("Detected HydraJwkMigration - We are migrating from a v3 version - You may be disconnected after that!")
-			var raws []*HydraJwk
-			if er := conn.Where("sid = 'hydra.openid.id-token'").All(&raws); er == nil {
-				for _, raw := range raws {
-					logger.Warn("Found a Legacy JWK - Will be removed (" + raw.Kid + ")")
+			// Part of v3 => v4 migration: we must clear existing JWK entries, as system.secret formatting changed.
+			if _, err := conn.Q().Count(&HydraJwkMigration{}); err == nil {
+				logger.Info("Detected HydraJwkMigration - We are migrating from a v3 version - You may be disconnected after that!")
+				var raws []*HydraJwk
+				if er := conn.Where("sid = 'hydra.openid.id-token'").All(&raws); er == nil {
+					for _, raw := range raws {
+						logger.Warn("Found a Legacy JWK - Will be removed (" + raw.Kid + ")")
+					}
+					if e := conn.RawQuery("DELETE FROM hydra_jwk WHERE sid='hydra.openid.id-token'").Exec(); e != nil {
+						logger.Error("Error while truncating hydra_jwk", zap.Error(e))
+					} else {
+						logger.Info("Removed legacy JWKs from hydra_jwk")
+					}
 				}
-				if e := conn.RawQuery("DELETE FROM hydra_jwk WHERE sid='hydra.openid.id-token'").Exec(); e != nil {
-					logger.Error("Error while truncating hydra_jwk", zap.Error(e))
-				} else {
-					logger.Info("Removed legacy JWKs from hydra_jwk")
+			} else if _, ok := err.(net.Error); ok {
+				// Retry if we deal with a network error
+				logger.Warn("[SQL] Server does not answer yet, will retry in 10 seconds...")
+				return err
+			}
+
+			// convert migration tables
+			if err := p.PrepareMigration(context.Background()); err != nil {
+				logger.Error("Could not convert the migration table", zap.Error(e))
+				return err
+			}
+
+			status, err := p.MigrationStatus(context.Background())
+			if err != nil {
+				logger.Error("Could not get the migration status", zap.Error(err))
+				return err
+			}
+			if status.HasPending() {
+				// apply migrations
+				start := time.Now()
+				logger.Info("Applying migrations for oauth if required")
+				if err := p.MigrateUp(context.Background()); err != nil {
+					e = err
+					logger.Error("Could not apply migrations", zap.Error(err))
+					return err
 				}
+				logger.Info("Finished in ", zap.Duration("elapsed ", time.Now().Sub(start)))
 			} else {
-				fmt.Println(er)
+				if err := jwk.EnsureAsymmetricKeypairExists(ctx, reg, "RS256", "hydra.openid.id-token"); err != nil {
+					logger.Error("***************************************************************")
+					logger.Error("Could not ensure that signing keys are correct!      ")
+					logger.Error("This may indicate a missing or changed secret config.")
+					logger.Error(" => You have to empty the 'hydra_jwk' SQL table.   ")
+					logger.Error(" => This will invalidate all existing authentication tokens.   ")
+					logger.Error("***************************************************************")
+					// e = errors.Wrap(e, "Could not ensure that signing keys are correct!")
+					return err
+				}
 			}
-		}
 
-		// convert migration tables
-		if e = p.PrepareMigration(context.Background()); e != nil {
-			logger.Error("Could not convert the migration table", zap.Error(e))
-			return
-		}
+			return nil
+		}, 10 * time.Second, 10 * time.Minute)
 
-		status, err := p.MigrationStatus(context.Background())
-		if err != nil {
-			e = err
-			logger.Error("Could not get the migration status", zap.Error(err))
-			return
-		}
-		if status.HasPending() {
-			// apply migrations
-			start := time.Now()
-			logger.Info("Applying migrations for oauth if required")
-			if err := p.MigrateUp(context.Background()); err != nil {
-				e = err
-				logger.Error("Could not apply migrations", zap.Error(err))
-				return
-			}
-			logger.Info("Finished in ", zap.Duration("elapsed ", time.Now().Sub(start)))
-		} else {
-			if e = jwk.EnsureAsymmetricKeypairExists(ctx, reg, "RS256", "hydra.openid.id-token"); e != nil {
-				logger.Error("***************************************************************")
-				logger.Error("Could not ensure that signing keys are correct!      ")
-				logger.Error("This may indicate a missing or changed secret config.")
-				logger.Error(" => You have to empty the 'hydra_jwk' SQL table.   ")
-				logger.Error(" => This will invalidate all existing authentication tokens.   ")
-				logger.Error("***************************************************************")
-				e = errors.Wrap(e, "Could not ensure that signing keys are correct!")
-				return
-			}
-		}
 		RegisterOryProvider(reg.WithConfig(defaultConf.GetProvider()).OAuth2Provider())
 	})
 

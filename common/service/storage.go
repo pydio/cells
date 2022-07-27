@@ -237,36 +237,6 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 				log.Logger(o.Context).Error(" -- Cannot register DAO: "+er.Error(), zap.Error(er))
 			}
 
-			/*
-				if e := reg.Register(regItem); e == nil {
-					log.Logger(o.Context).Debug(" -- Initialized and registered DAO: " + regItem.Name())
-					mm := map[string]string{}
-					prefix := sOpts.Prefix(o)
-					if prefix != "" {
-						mm["Prefix"] = prefix
-					}
-					if edge, e2 := registry.RegisterEdge(reg, o.ID, regItem.ID(), "DAO Storage", mm); e2 == nil {
-						log.Logger(o.Context).Debug(" -- Registered Edge: " + edge.ID())
-					}
-					var sr registry.StatusReporter
-					if d.As(&sr) {
-						log.Logger(o.Context).Info(" -- RegItem is a Status Reporter, starting watcher")
-						go func() {
-							ww, _ := sr.WatchStatus()
-							for {
-								sItem, er := ww.Next()
-								if er != nil {
-									break
-								}
-								log.Logger(o.Context).Info(" -- Updating statItem: " + regItem.Name() + " on WatchStatus Event")
-								_ = reg.Register(sItem)
-								registry.RegisterEdge(reg, regItem.ID(), sItem.ID(), "Stats", map[string]string{})
-							}
-						}()
-					}
-				}
-			*/
-
 			return nil
 		})
 
