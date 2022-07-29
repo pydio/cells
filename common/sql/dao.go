@@ -148,8 +148,14 @@ func (h *Handler) Stats() map[string]interface{} {
 }
 
 func (h *Handler) WatchStatus() (registry.StatusWatcher, error) {
-	w := util.NewIntervalStatusWatcher(h, 30*time.Second, func() map[string]interface{} {
-		return h.Stats()
+
+	//w := util.NewIntervalStatusWatcher(h, 30*time.Second, func() map[string]interface{} {
+	//	return h.Stats()
+	//})
+
+	w := util.NewIntervalStatusWatcher(h, 30*time.Second, func() (registry.Item, bool) {
+		h.DB().Ping()
+		return nil, false
 	})
 	return w, nil
 }

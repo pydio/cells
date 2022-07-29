@@ -63,9 +63,6 @@ type Service interface {
 	Stop(oo ...RegisterOption) error
 
 	ServerScheme() string
-	//IsGeneric() bool
-	//IsGRPC() bool
-	//IsREST() bool
 }
 
 // Dao stores a DAO in the registry

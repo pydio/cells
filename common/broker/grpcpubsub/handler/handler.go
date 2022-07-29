@@ -210,7 +210,9 @@ func (s *subscriber) removeStreamById(id string) {
 
 func (s *subscriber) unregister() {
 	//fmt.Println("Grpc Handler : unregistering dispatcher", s.topic)
-	s.unsub()
+	if s.unsub != nil {
+		s.unsub()
+	}
 	topicsLock.Lock()
 	defer topicsLock.Unlock()
 	delete(topics, s.topic)

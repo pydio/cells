@@ -46,6 +46,7 @@ var (
 
 type bigCache struct {
 	*bigcache.BigCache
+	closed bool
 }
 
 type URLOpener struct{}
@@ -157,6 +158,20 @@ func (b *bigCache) Iterate(f func(key string, val interface{})) error {
 		f(info.Key(), info.Value())
 	}
 
+	return nil
+}
+
+func (b *bigCache) Close() error {
+	fmt.Println("And closing")
+	if !b.closed {
+		fmt.Printf("Here we are %p", b)
+		if err := b.BigCache.Close(); err != nil {
+			return err
+		}
+
+		fmt.Println("Closed is true now ?")
+		b.closed = true
+	}
 	return nil
 }
 

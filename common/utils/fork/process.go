@@ -3,8 +3,10 @@ package fork
 import (
 	"bufio"
 	"context"
+	"go.uber.org/zap/zapcore"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"syscall"
 	"time"
@@ -140,20 +142,46 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 	scannerOut := bufio.NewScanner(stdout)
 	parentName := p.o.parentName
 	defaultLogContext := servicecontext.WithServiceName(p.ctx, p.serviceNames[0])
+
+	logs := regexp.MustCompile("^(?P<log_date>[^\t]+)\t(?P<log_level>[^\t]+)\t(?P<log_name>[^\t]+)\t(?P<log_message>[^\t]+)(\t)?(?P<log_fields>[^\t]?)$")
+
 	go func() {
 		for scannerOut.Scan() {
 			text := strings.TrimRight(scannerOut.Text(), "\n")
-			merged := false
-			for _, sName := range p.serviceNames {
-				if strings.Contains(text, sName) || (parentName != "" && strings.Contains(text, parentName)) {
-					log.StdOut.WriteString(text + "\n")
-					merged = true
-					break
+			// merged := false
+			if parsed := logs.FindStringSubmatch(text); len(parsed) == 7 {
+				var f func(string, ...zapcore.Field)
+				switch parsed[2][5:9] {
+				case "INFO":
+					f = log.Logger(defaultLogContext).Info
+				case "DEBU":
+					f = log.Logger(defaultLogContext).Debug
+				case "WARN":
+					f = log.Logger(defaultLogContext).Warn
+				case "ERRO":
+					f = log.Logger(defaultLogContext).Error
+				default:
+					f = log.Logger(defaultLogContext).Info
 				}
+
+				f(parsed[4])
+
+				//fmt.Println("Log date ", parsed[1])
+				//fmt.Println("Log level ", parsed[2])
+				//fmt.Println("Log name ", parsed[3])
+				//fmt.Println("Log message ", parsed[4])
+				//fmt.Println("Log fields ", parsed[5])
 			}
-			if !merged {
-				log.Logger(defaultLogContext).Info(text)
-			}
+			//for _, sName := range p.serviceNames {
+			//	if strings.Contains(text, sName) || (parentName != "" && strings.Contains(text, parentName)) {
+			//		log.StdOut.WriteString(text + "\n")
+			//		merged = true
+			//		break
+			//	}
+			//}
+			//if !merged {
+			//	log.Logger(defaultLogContext).Info(text)
+			//}
 		}
 	}()
 	scannerErr := bufio.NewScanner(stderr)

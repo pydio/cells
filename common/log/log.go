@@ -172,6 +172,8 @@ func CaptureCaddyStdErr(serviceName string) context.Context {
 				msg := parsed[3] + " - " + parsed[4] + parsed[6]
 				if strings.Contains(level, "INFO") {
 					lg.Info(msg)
+				} else if strings.Contains(level, "WARN") {
+					lg.Warn(msg)
 				} else if strings.Contains(level, "ERROR") {
 					lg.Error(msg)
 				} else { // DEBUG, WARN, or other value
