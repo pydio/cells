@@ -64,15 +64,11 @@ func NewBroker(s string, opts ...Option) Broker {
 	options := newOptions(opts...)
 	u, _ := url.Parse(s)
 	scheme := u.Scheme
-	if scheme == "nats" && u.Host != "" {
-		// Replace nats://:port by env + nats://
-		_ = os.Setenv("NATS_SERVER_URL", u.Host)
-		s = "nats:///" + u.Path
-	}
 
 	br := &broker{
 		publishOpener: func(ctx context.Context, topic string) (*pubsub.Topic, error) {
-			return pubsub.OpenTopic(ctx, s+"/"+strings.TrimPrefix(topic, "/"))
+			uu := &url.URL{Scheme: u.Scheme, Host: u.Host, Path: u.Path + "/" + strings.TrimPrefix(topic, "/"), RawQuery: u.RawQuery}
+			return pubsub.OpenTopic(ctx, uu.String())
 		},
 		subscribeOpener: func(topic string, oo ...SubscribeOption) (*pubsub.Subscription, error) {
 			// Handle queue for grpc vs. nats vs memory
@@ -89,7 +85,8 @@ func NewBroker(s string, opts ...Option) Broker {
 				}
 			}
 
-			return pubsub.OpenSubscription(ctx, s+"/"+strings.TrimPrefix(topic, "/"))
+			uu := &url.URL{Scheme: u.Scheme, Host: u.Host, Path: u.Path + "/" + strings.TrimPrefix(topic, "/"), RawQuery: u.RawQuery}
+			return pubsub.OpenSubscription(ctx, uu.String())
 		},
 		publishers: make(map[string]*pubsub.Topic),
 		Options:    options,

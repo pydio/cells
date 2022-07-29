@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"strings"
+	"sync"
 
 	"go.uber.org/zap"
 
@@ -49,12 +50,16 @@ type MetaServer struct {
 	eventsChannel chan *cache.EventWithContext
 	cache         cache.Cache
 	dao           meta.DAO
+
+	stopped     bool
+	stoppedLock *sync.Mutex
 }
 
 func NewMetaServer(ctx context.Context, dao meta.DAO) *MetaServer {
 	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL()+"/"+ServiceName)
 	m := &MetaServer{dao: dao}
 	m.cache = c
+	m.stoppedLock = &sync.Mutex{}
 	go func() {
 		<-ctx.Done()
 		m.Stop()
@@ -67,12 +72,21 @@ func (s *MetaServer) Name() string {
 }
 
 func (s *MetaServer) Stop() {
+	s.stoppedLock.Lock()
+	defer s.stoppedLock.Unlock()
+
+	if s.stopped {
+		return
+	}
+
 	if s.cache != nil {
 		s.cache.Close()
 	}
 	if s.eventsChannel != nil {
 		close(s.eventsChannel)
 	}
+
+	s.stopped = true
 }
 
 // Subscriber that will treat events for the meta server

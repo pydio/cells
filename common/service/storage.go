@@ -127,6 +127,7 @@ func daoFromOptions(o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts
 		c, e = dao.InitDAO(o.Context, driver, dsn, prefix, fd, cfg)
 	}
 	if e != nil {
+		fmt.Println("Error here ", e)
 		return nil, errors.Wrap(e, "dao.Initialization "+driver)
 	}
 
