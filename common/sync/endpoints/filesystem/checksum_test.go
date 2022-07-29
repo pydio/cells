@@ -21,7 +21,6 @@
 package filesystem
 
 import (
-	"crypto/md5"
 	"encoding/hex"
 	"io"
 	"io/ioutil"
@@ -33,6 +32,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pydio/cells/v4/common/utils/hasher"
+	"github.com/pydio/cells/v4/common/utils/hasher/simd"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -58,7 +59,7 @@ func computeChecksum(filename string) (string, error) {
 	defer file.Close()
 	bufSize := int64(1 * 1024 * 1024)
 	buf := make([]byte, int(bufSize))
-	md5Writer := md5.New()
+	md5Writer := hasher.NewBlockHash(simd.MD5(), hasher.DefaultBlockSize)
 	io.CopyBuffer(md5Writer, file, buf)
 	checksum := hex.EncodeToString(md5Writer.Sum(nil))
 	return checksum, nil

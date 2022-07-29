@@ -115,7 +115,7 @@ func TestPersonalResolution(t *testing.T) {
 			Size: contentSize,
 		})
 		So(er, ShouldBeNil)
-		So(written, ShouldEqual, contentSize)
+		So(written.Size, ShouldEqual, contentSize)
 	})
 
 }

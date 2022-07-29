@@ -391,7 +391,7 @@ func (l *pydioObjects) PutObject(ctx context.Context, bucket, object string, dat
 		}
 	}
 
-	written, err := l.Router.PutObject(ctx, &tree.Node{
+	oi, err := l.Router.PutObject(ctx, &tree.Node{
 		Path: strings.TrimLeft(object, "/"),
 	}, data, &models.PutRequestData{
 		Size:      data.Size(),
@@ -403,11 +403,13 @@ func (l *pydioObjects) PutObject(ctx context.Context, bucket, object string, dat
 		log.Logger(ctx).Error("Error while putting object:" + err.Error())
 		return objInfo, pydioToMinioError(err, bucket, object)
 	}
-	// TODO : PutObject should return more info about written node
 	objInfo = minio.ObjectInfo{
-		Bucket: bucket,
-		Name:   object,
-		Size:   written,
+		Bucket:       bucket,
+		Name:         object,
+		Size:         oi.Size,
+		ETag:         oi.ETag,
+		StorageClass: oi.StorageClass,
+		ModTime:      oi.LastModified,
 	}
 	return objInfo, nil
 
@@ -422,7 +424,7 @@ func (l *pydioObjects) CopyObject(ctx context.Context, srcBucket string, srcObje
 		// log.Println(requestMetadata)
 		return objInfo, (&minio.NotImplemented{})
 	}
-	written, err := l.Router.CopyObject(ctx, &tree.Node{
+	oi, err := l.Router.CopyObject(ctx, &tree.Node{
 		Path: strings.TrimLeft(srcObject, "/"),
 	}, &tree.Node{
 		Path: strings.TrimLeft(destObject, "/"),
@@ -434,9 +436,12 @@ func (l *pydioObjects) CopyObject(ctx context.Context, srcBucket string, srcObje
 		return objInfo, pydioToMinioError(err, srcBucket, srcObject)
 	}
 	return minio.ObjectInfo{
-		Bucket: destBucket,
-		Name:   destObject,
-		Size:   written,
+		Bucket:       destBucket,
+		Name:         destObject,
+		Size:         oi.Size,
+		ETag:         oi.ETag,
+		StorageClass: oi.StorageClass,
+		ModTime:      oi.LastModified,
 	}, nil
 
 }

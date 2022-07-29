@@ -119,8 +119,8 @@ func uploadStream(w http.ResponseWriter, r *http.Request) {
 		Size: size,
 	})
 	if err != nil {
-		log.Logger(r.Context()).Error("cannot put object", zap.Int64("already written data Length", written), zap.Error(err))
-		if written == 0 {
+		log.Logger(r.Context()).Error("cannot put object", zap.Int64("already written data Length", written.Size), zap.Error(err))
+		if written.Size == 0 {
 			w.WriteHeader(http.StatusForbidden)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -128,7 +128,7 @@ func uploadStream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Logger(r.Context()).Debug("uploaded node", n.Zap(), zap.Int64("Data Length", written))
+	log.Logger(r.Context()).Debug("uploaded node", n.Zap(), zap.Int64("Data Length", written.Size))
 	w.WriteHeader(http.StatusOK)
 }
 

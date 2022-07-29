@@ -80,7 +80,7 @@ func (h *HandlerAudit) GetObject(ctx context.Context, node *tree.Node, requestDa
 }
 
 // PutObject logs an audit message after calling following handlers.
-func (h *HandlerAudit) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (h *HandlerAudit) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	auditer := log.Auditer(ctx)
 	written, e := h.Next.PutObject(ctx, node, reader, requestData)
 	if e != nil {
@@ -93,7 +93,7 @@ func (h *HandlerAudit) PutObject(ctx context.Context, node *tree.Node, reader io
 	}
 
 	auditer.Info(
-		fmt.Sprintf("Modified %s, put %d bytes", node.Path, written),
+		fmt.Sprintf("Modified %s, put %d bytes", node.Path, written.Size),
 		log.GetAuditId(common.AuditObjectPut),
 		node.ZapUuid(),
 		node.ZapPath(),
@@ -206,7 +206,7 @@ func (h *HandlerAudit) DeleteNode(ctx context.Context, in *tree.DeleteNodeReques
 	return response, e
 }
 
-func (h *HandlerAudit) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
+func (h *HandlerAudit) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 	size, e := h.Next.CopyObject(ctx, from, to, requestData)
 	if e != nil {
 		return size, e

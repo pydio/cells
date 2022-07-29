@@ -4,10 +4,12 @@ import (
 	"encoding/hex"
 	"hash"
 	"io"
+
+	"github.com/pydio/cells/v4/common"
 )
 
 const (
-	DefaultBlockSize = 5 * 1024 * 1024
+	DefaultBlockSize = 10 * 1024 * 1024
 )
 
 type HashCloser interface {
@@ -82,9 +84,11 @@ func (b *BlockHash) Reset() {
 type Reader struct {
 	io.Reader
 	hash.Hash
-	complete func(string)
+	complete func(string, [][]byte)
 	done     bool
 	total    int
+
+	final string
 }
 
 func (r *Reader) Read(p []byte) (n int, err error) {
@@ -98,16 +102,36 @@ func (r *Reader) Read(p []byte) (n int, err error) {
 	}
 	if err == io.EOF {
 		r.done = true
-		// fmt.Println("Complete on total", r.total)
 		bb := r.Hash.Sum(nil)
+		r.final = hex.EncodeToString(bb)
 		if r.complete != nil {
-			r.complete(hex.EncodeToString(bb))
+			var blocks [][]byte
+			if bh, ok := r.Hash.(*BlockHash); ok {
+				blocks = bh.blocks
+			}
+			r.complete(r.final, blocks)
 		}
 	}
 	return
 }
 
-func Tee(reader io.Reader, hashFunc func() hash.Hash, complete func(s string)) io.Reader {
+func (r *Reader) ExtractedMeta() (map[string]string, bool) {
+	meta := map[string]string{}
+	if ex, o := r.Reader.(common.ReaderMetaExtractor); o {
+		if mm, ok := ex.ExtractedMeta(); ok {
+			meta = mm
+		}
+	}
+	if r.done && r.final != "" {
+		meta[common.MetaNamespaceHash] = r.final
+	}
+	if len(meta) > 0 {
+		return meta, true
+	}
+	return nil, false
+}
+
+func Tee(reader io.Reader, hashFunc func() hash.Hash, complete func(s string, hashes [][]byte)) io.Reader {
 	return &Reader{
 		Reader:   reader,
 		Hash:     hashFunc(),

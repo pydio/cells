@@ -348,14 +348,14 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 			return false, e
 		}
 		tNode.Size = int64(buf.Len())
-		written, err := getRouter(t.GetRuntimeContext()).PutObject(tCtx, tNode, buf, &models.PutRequestData{
+		oi, err := getRouter(t.GetRuntimeContext()).PutObject(tCtx, tNode, buf, &models.PutRequestData{
 			Size:     tNode.Size,
 			Metadata: requestMeta,
 		})
 		if err != nil {
 			return false, err
 		} else {
-			logger.Debug("Finished putting thumb for size", zap.Int64("written", written), zap.Int("size ", targetSize))
+			logger.Debug("Finished putting thumb for size", zap.Int64("written", oi.Size), zap.Int("size ", targetSize))
 		}
 		displayMemStat(ctx, "AFTER PUT OBJECT WITH CONTEXT")
 

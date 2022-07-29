@@ -131,12 +131,12 @@ func (v *clientImpl) GetObject(ctx context.Context, node *tree.Node, requestData
 	return h.GetObject(ctx, node, requestData)
 }
 
-func (v *clientImpl) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (v *clientImpl) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	h := v.handler
 	return h.PutObject(ctx, node, reader, requestData)
 }
 
-func (v *clientImpl) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
+func (v *clientImpl) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 	h := v.handler
 	return h.CopyObject(ctx, from, to, requestData)
 }

@@ -178,7 +178,7 @@ func (e *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 }
 
 // PutObject enriches request metadata for PutObject with Encryption Materials, if required by datasource.
-func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	if strings.HasSuffix(node.Path, common.PydioSyncHiddenFile) {
 		return e.Next.PutObject(ctx, node, reader, requestData)
 	}
@@ -196,11 +196,11 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 		})
 
 		if readErr != nil {
-			return -1, errors.NotFound("views.handler.encryption.PutObject", "failed to get node UUID: %s", readErr)
+			return models.ObjectInfo{}, errors.NotFound("views.handler.encryption.PutObject", "failed to get node UUID: %s", readErr)
 		}
 
 		if len(rsp.Node.Uuid) == 0 {
-			return -1, errors.NotFound("views.handler.encryption.PutObject", "failed to get node UUID")
+			return models.ObjectInfo{}, errors.NotFound("views.handler.encryption.PutObject", "failed to get node UUID")
 		}
 		clone.Uuid = rsp.Node.Uuid
 	}
@@ -212,7 +212,7 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 
 	keyProtectionTool, err := e.getKeyProtectionTool(ctx)
 	if err != nil {
-		return 0, err
+		return models.ObjectInfo{}, err
 	}
 
 	ct, ca := context.WithCancel(ctx)
@@ -220,7 +220,7 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 	streamClient, err := e.getNodeKeyManagerClient().SetNodeInfo(ct)
 	if err != nil {
 		log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to save node encryption info", zap.Error(err))
-		return 0, err
+		return models.ObjectInfo{}, err
 	}
 	streamer := &setBlockStream{
 		client:   streamClient,
@@ -234,46 +234,46 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 	info, err := e.getNodeInfoForWrite(ctx, clone)
 	if err != nil {
 		if errors.FromError(err).Code != 404 {
-			return 0, err
+			return models.ObjectInfo{}, err
 		}
 
 		info, err = e.createNodeInfo(ctx, clone)
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to create node info", zap.Error(err))
-			return 0, err
+			return models.ObjectInfo{}, err
 		}
 
 		encryptionKeyPlainBytes = info.NodeKey.KeyData
 		info.NodeKey.KeyData, err = keyProtectionTool.GetEncrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to encrypt node key", zap.Error(err))
-			return 0, err
+			return models.ObjectInfo{}, err
 		}
 
 		err = streamer.SendKey(info.NodeKey)
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to set nodeKey", zap.Error(err))
-			return 0, err
+			return models.ObjectInfo{}, err
 		}
 
 	} else {
 		encryptionKeyPlainBytes, err = keyProtectionTool.GetDecrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to decrypt key", zap.Error(err))
-			return 0, err
+			return models.ObjectInfo{}, err
 		}
 
 		err = streamer.ClearBlocks(clone.Uuid)
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to clear old blocks", zap.Error(err))
-			return 0, err
+			return models.ObjectInfo{}, err
 		}
 
 	}
 
 	encryptionMaterials := crypto.NewAESGCMMaterials(info, streamer)
 	if err := encryptionMaterials.SetupEncryptMode(encryptionKeyPlainBytes, reader); err != nil {
-		return 0, err
+		return models.ObjectInfo{}, err
 	}
 
 	requestData.Md5Sum = nil
@@ -295,11 +295,11 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 }
 
 // CopyObject enriches request metadata for CopyObject with Encryption Materials, if required by the datasource
-func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
+func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 	srcInfo, ok2 := nodes.GetBranchInfo(ctx, "from")
 	destInfo, ok := nodes.GetBranchInfo(ctx, "to")
 	if !ok || !ok2 {
-		return 0, errors.InternalServerError("views.handler.encryption.CopyObject", "Cannot find Handler for src or dest")
+		return models.ObjectInfo{}, errors.InternalServerError("views.handler.encryption.CopyObject", "Cannot find Handler for src or dest")
 	}
 	readCtx := nodes.WithBranchInfo(ctx, "in", srcInfo, true)
 	writeCtx := nodes.WithBranchInfo(ctx, "in", destInfo, true)
@@ -328,10 +328,10 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 				Node: from,
 			})
 			if readErr != nil {
-				return -1, errors.NotFound("views.handler.encryption.CopyObject", "failed to get node UUID: %s", readErr)
+				return models.ObjectInfo{}, errors.NotFound("views.handler.encryption.CopyObject", "failed to get node UUID: %s", readErr)
 			}
 			if len(rsp.Node.Uuid) == 0 {
-				return -1, errors.NotFound("views.handler.encryption.CopyObject", "failed to get node UUID")
+				return models.ObjectInfo{}, errors.NotFound("views.handler.encryption.CopyObject", "failed to get node UUID")
 			}
 			cloneFrom.Uuid = rsp.Node.Uuid
 		}
@@ -356,16 +356,16 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 				Node: cloneFrom,
 			})
 			if readErr != nil {
-				return 0, readErr
+				return models.ObjectInfo{}, readErr
 			} else if rsp.Node == nil {
-				return 0, errors.NotFound("views.handler.encryption.CopyObject", "no node found that matches %s", cloneFrom)
+				return models.ObjectInfo{}, errors.NotFound("views.handler.encryption.CopyObject", "no node found that matches %s", cloneFrom)
 			}
 			cloneFrom = rsp.Node
 		}
 		reader, err := e.GetObject(readCtx, cloneFrom, &models.GetRequestData{StartOffset: 0, Length: cloneFrom.Size})
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.CopyObject: Different Clients - Read Source Error", zap.Any("srcInfo", srcInfo), cloneFrom.Zap("readFrom"), zap.Error(err))
-			return 0, err
+			return models.ObjectInfo{}, err
 		}
 		defer reader.Close()
 		log.Logger(ctx).Debug("views.handler.encryption.CopyObject: from one DS to another - force UUID", cloneTo.Zap("to"), zap.Any("srcInfo", srcInfo), zap.Any("destInfo", destInfo))
@@ -379,7 +379,7 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 			cloneTo.Type = tree.NodeType_LEAF
 			cloneTo.Etag = common.NodeFlagEtagTemporary
 			if _, er := e.ClientsPool.GetTreeClientWrite().CreateNode(writeCtx, &tree.CreateNodeRequest{Node: cloneTo}); er != nil {
-				return 0, er
+				return models.ObjectInfo{}, er
 			}
 		}
 		putReqData := &models.PutRequestData{
@@ -398,7 +398,7 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 				zap.Any("destInfo", destInfo),
 				zap.Any("targetPath", destPath))
 		} else {
-			log.Logger(ctx).Debug("views.handler.encryption.CopyObject: Different Clients", cloneFrom.Zap("from"), zap.Int64("written", oi))
+			log.Logger(ctx).Debug("views.handler.encryption.CopyObject: Different Clients", cloneFrom.Zap("from"), zap.Int64("written", oi.Size))
 		}
 		return oi, err
 	}

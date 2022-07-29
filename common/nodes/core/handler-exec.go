@@ -35,7 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
-	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -182,10 +181,10 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 	return reader, err
 }
 
-func (e *Executor) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (e *Executor) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	info, ok := nodes.GetBranchInfo(ctx, "in")
 	if !ok {
-		return 0, nodes.ErrBranchInfoMissing("in")
+		return models.ObjectInfo{}, nodes.ErrBranchInfoMissing("in")
 	}
 	writer := info.Client
 
@@ -194,32 +193,32 @@ func (e *Executor) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 
 	log.Logger(ctx).Debug("[handler exec]: put object", zap.String("s3Path", s3Path), zap.Any("requestData", requestData))
 	if requestData.Size <= 0 {
-		written, err := writer.PutObject(ctx, info.ObjectsBucket, s3Path, reader, -1, opts)
+		oi, err := writer.PutObject(ctx, info.ObjectsBucket, s3Path, reader, -1, opts)
 		if err != nil {
-			return 0, err
+			return models.ObjectInfo{}, err
 		} else {
-			return written, nil
+			return oi, nil
 		}
 	} else {
 		oi, err := writer.PutObject(ctx, info.ObjectsBucket, s3Path, reader, requestData.Size, opts)
 		if err != nil {
-			return 0, err
+			return models.ObjectInfo{}, err
 		} else {
 			return oi, nil
 		}
 	}
 }
 
-func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
+func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 
 	// If DS's are same datasource, simple S3 Copy operation. Otherwise it must copy from one to another.
 	destInfo, ok := nodes.GetBranchInfo(ctx, "to")
 	if !ok {
-		return 0, nodes.ErrBranchInfoMissing("to")
+		return models.ObjectInfo{}, nodes.ErrBranchInfoMissing("to")
 	}
 	srcInfo, ok2 := nodes.GetBranchInfo(ctx, "from")
 	if !ok2 {
-		return 0, nodes.ErrBranchInfoMissing("from")
+		return models.ObjectInfo{}, nodes.ErrBranchInfoMissing("from")
 	}
 	destClient := destInfo.Client
 	srcClient := srcInfo.Client
@@ -241,7 +240,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 			if e.Error() == noSuchKeyString {
 				e = errors.NotFound("object.not.found", "object was not found, this is not normal: %s", fromPath)
 			}
-			return 0, e
+			return models.ObjectInfo{}, e
 		}
 
 		if requestData.Metadata == nil {
@@ -261,8 +260,9 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 		if cType != "" {
 			requestData.Metadata["Content-Type"] = cType
 		}
+
 		var err error
-		if destInfo.StorageType == object.StorageType_S3 && destClient.CopyObjectMultipartThreshold() > 0 && src.Size > destClient.CopyObjectMultipartThreshold() {
+		if !destInfo.ServerIsMinio() && destClient.CopyObjectMultipartThreshold() > 0 && src.Size > destClient.CopyObjectMultipartThreshold() {
 			if dirOk {
 				ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{common.XAmzMetaDirective: directive})
 			}
@@ -279,19 +279,17 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 		}
 		if err != nil {
 			log.Logger(ctx).Error("HandlerExec: Error on CopyObject", zap.Error(err))
-			return 0, err
+			return models.ObjectInfo{}, err
 		}
-
-		stat, _ := destClient.StatObject(ctx, destBucket, toPath, nil)
-		log.Logger(ctx).Debug("HandlerExec: CopyObject / Same Clients", zap.Int64("written", stat.Size))
-		return stat.Size, nil
+		log.Logger(ctx).Debug("HandlerExec: CopyObject / Same Clients")
+		return destClient.StatObject(ctx, destBucket, toPath, nil)
 
 	} else {
 
 		reader, srcStat, err := srcClient.GetObject(ctx, srcBucket, fromPath, models.ReadMeta{})
 		if err != nil {
 			log.Logger(ctx).Error("HandlerExec: CopyObject / Different Clients - Read Source Error", zap.Error(err))
-			return 0, err
+			return models.ObjectInfo{}, err
 		}
 		defer reader.Close()
 		if requestData.Metadata != nil {
@@ -324,7 +322,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 				zap.Any("destInfo", destInfo),
 				zap.Any("to", toPath))
 		} else {
-			log.Logger(ctx).Debug("HandlerExec: CopyObject / Different Clients", zap.Int64("written", oi))
+			log.Logger(ctx).Debug("HandlerExec: CopyObject / Different Clients", zap.Int64("written", oi.Size))
 		}
 		return oi, err
 

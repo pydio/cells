@@ -139,18 +139,18 @@ func (a *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 	return a.Next.GetObject(ctx, node, requestData)
 }
 
-func (a *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (a *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	ctx, err := a.WrapContext(ctx)
 	if err != nil {
-		return 0, err
+		return models.ObjectInfo{}, err
 	}
 	return a.Next.PutObject(ctx, node, reader, requestData)
 }
 
-func (a *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
+func (a *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 	ctx, err := a.WrapContext(ctx)
 	if err != nil {
-		return 0, err
+		return models.ObjectInfo{}, err
 	}
 	return a.Next.CopyObject(ctx, from, to, requestData)
 }

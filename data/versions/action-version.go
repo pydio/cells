@@ -145,7 +145,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		},
 	}
 
-	written, err := getRouter(c.GetRuntimeContext()).CopyObject(ctx, sourceNode, targetNode, &models.CopyRequestData{})
+	objectInfo, err := getRouter(c.GetRuntimeContext()).CopyObject(ctx, sourceNode, targetNode, &models.CopyRequestData{})
 	if err != nil {
 		err = errors.Wrap(err, fmt.Sprintf("Copying %s -> %s", sourceNode.GetPath(), targetNode.GetUuid()))
 		return input.WithError(err), err
@@ -155,7 +155,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	log.TasksLogger(ctx).Info(T("Job.Version.StatusFile", resp.Version))
 	output.AppendOutput(&jobs.ActionOutput{Success: true})
 
-	if written > 0 {
+	if objectInfo.Size > 0 {
 		storedVersion := resp.Version
 		storedVersion.Location = targetNode
 		response, err2 := versionClient.StoreVersion(ctx, &tree.StoreVersionRequest{Node: node, Version: storedVersion})
@@ -177,7 +177,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		}
 	}
 
-	log.Logger(ctx).Debug("[VERSIONING] End", zap.Error(err), zap.Int64("written", written))
+	log.Logger(ctx).Debug("[VERSIONING] End", zap.Error(err), zap.Int64("written", objectInfo.Size))
 
 	return output, nil
 }

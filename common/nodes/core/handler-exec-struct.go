@@ -148,7 +148,7 @@ func (f *StructStorageHandler) DeleteNode(ctx context.Context, in *tree.DeleteNo
 	return resp, e
 }
 
-func (f *StructStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
+func (f *StructStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 	i, e := f.Next.CopyObject(ctx, from, to, requestData)
 	if e == nil {
 		bi, _ := nodes.GetBranchInfo(ctx, "to")
@@ -158,7 +158,7 @@ func (f *StructStorageHandler) CopyObject(ctx context.Context, from *tree.Node, 
 	return i, e
 }
 
-func (f *StructStorageHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (f *StructStorageHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	i, e := f.Next.PutObject(ctx, node, reader, requestData)
 	if e == nil {
 		f.publish(ctx, "in", tree.NodeChangeEvent_CREATE, node.Clone())

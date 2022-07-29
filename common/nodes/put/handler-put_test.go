@@ -21,7 +21,15 @@
 package put
 
 import (
+	"bytes"
 	"context"
+	"crypto/md5"
+	"encoding/hex"
+	"github.com/pydio/cells/v4/common/utils/hasher"
+	"hash"
+	"io"
+	"io/ioutil"
+	"math"
 	"strings"
 	"testing"
 
@@ -96,6 +104,51 @@ func TestHandler_PutObject(t *testing.T) {
 		size, err := h.PutObject(ctx, &tree.Node{Path: "/path/node"}, strings.NewReader(""), &models.PutRequestData{})
 		So(err, ShouldBeNil)
 		So(size, ShouldBeZeroValue)
+
+	})
+
+}
+
+func TestHandler_TestMultipartHash(t *testing.T) {
+	file := "../testdata/actions.zip"
+	blockSize := 500 * 1024
+	partSize := blockSize * 2
+	hFunc := func() hash.Hash {
+		return hasher.NewBlockHash(md5.New(), blockSize)
+	}
+	Convey("Test block hash in multipart context", t, func() {
+		data, e := ioutil.ReadFile(file)
+		So(e, ShouldBeNil)
+		bh := hFunc()
+		_, e = io.Copy(bh, bytes.NewBuffer(data))
+		So(e, ShouldBeNil)
+		hx := hex.EncodeToString(bh.Sum(nil))
+		t.Log("Found hx", hx)
+		// Create parts
+		var parts [][]byte
+		cursor := 0
+		for cursor < len(data) {
+			last := math.Min(float64(cursor+partSize), float64(len(data)))
+			part := data[cursor:int(last)]
+			cursor += len(part)
+			parts = append(parts, part)
+		}
+		t.Logf("We have %d parts", len(parts))
+
+		partsHasher := md5.New()
+		for _, part := range parts {
+			r := hasher.Tee(bytes.NewBuffer(part), hFunc, func(s string, hashes [][]byte) {
+				t.Log("Tee complete", s, len(hashes))
+				for _, h := range hashes {
+					partsHasher.Write(h)
+				}
+			})
+			_, e := io.Copy(bh, r)
+			So(e, ShouldBeNil)
+		}
+		hx2 := hex.EncodeToString(partsHasher.Sum(nil))
+		t.Log("Found hx2", hx2)
+		So(hx2, ShouldEqual, hx)
 
 	})
 

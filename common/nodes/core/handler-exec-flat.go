@@ -106,13 +106,16 @@ func (f *FlatStorageHandler) GetObject(ctx context.Context, node *tree.Node, req
 	return f.Next.GetObject(ctx, node, requestData)
 }
 
-func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
+func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 
 	var revertNode *tree.Node
+	if requestData.Metadata == nil {
+		requestData.Metadata = map[string]string{}
+	}
 	if nodes.IsFlatStorage(ctx, "to") {
 		if len(requestData.SrcVersionId) > 0 {
 			if e := f.resolveUUID(ctx, to); e != nil {
-				return 0, e
+				return models.ObjectInfo{}, e
 			}
 		} else {
 			// Insert in tree as temporary
@@ -132,26 +135,26 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 				temporary.MustSetMeta(common.MetaNamespaceMime, ctype)
 			}
 			if _, er := f.ClientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: temporary}); er != nil {
-				return 0, er
+				return models.ObjectInfo{}, er
 			}
 			// Attach Uuid to target node
 			to.Uuid = temporary.Uuid
 			revertNode = temporary
 		}
 	}
-	i, e := f.Next.CopyObject(ctx, from, to, requestData)
+	objectInfo, e := f.Next.CopyObject(ctx, from, to, requestData)
 	if e == nil && nodes.IsFlatStorage(ctx, "to") {
 		// Create an "in" context with resolver
 		destInfo, _ := nodes.GetBranchInfo(ctx, "to")
 		tgtCtx := nodes.WithBranchInfo(ctx, "in", destInfo)
-		if requestData.Metadata != nil {
-			if _, ok := requestData.Metadata[common.XPydioMoveUuid]; ok {
-				tgtCtx = metadata.WithAdditionalMetadata(tgtCtx, requestData.Metadata)
-			}
+		if _, ok := requestData.Metadata[common.XPydioMoveUuid]; ok {
+			tgtCtx = metadata.WithAdditionalMetadata(tgtCtx, requestData.Metadata)
 		}
+		requestData.Metadata[common.MetaNamespaceHash] = from.Etag
+		requestData.Metadata[common.MetaNamespaceMime] = from.GetStringMeta(common.MetaNamespaceMime)
 		// Now store in index
-		if er := f.postCreate(tgtCtx, "to", to, requestData.Metadata, from.GetStringMeta(common.MetaNamespaceMime)); er != nil {
-			return i, er
+		if er := f.postCreate(tgtCtx, to, requestData.Metadata, &objectInfo); er != nil {
+			return objectInfo, er
 		}
 	} else if e != nil && revertNode != nil {
 		if _, de := f.ClientsPool.GetTreeClientWrite().DeleteNode(ctx, &tree.DeleteNodeRequest{Node: revertNode}); de != nil {
@@ -160,17 +163,27 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 			log.Logger(ctx).Warn("Error while copying object, reverted index node", revertNode.ZapPath())
 		}
 	}
-	return i, e
+	return objectInfo, e
 }
 
-func (f *FlatStorageHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
-	i, e := f.Next.PutObject(ctx, node, reader, requestData)
+func (f *FlatStorageHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
+	objectInfo, e := f.Next.PutObject(ctx, node, reader, requestData)
 	if e == nil && nodes.IsFlatStorage(ctx, "in") {
-		if er := f.postCreate(ctx, "in", node, requestData.Metadata, requestData.MetaContentType()); er != nil {
-			return i, er
+		if ex, o := reader.(common.ReaderMetaExtractor); o {
+			if mm, ok := ex.ExtractedMeta(); ok {
+				if requestData.Metadata == nil {
+					requestData.Metadata = map[string]string{}
+				}
+				for k, v := range mm {
+					requestData.Metadata[k] = v
+				}
+			}
+		}
+		if er := f.postCreate(ctx, node, requestData.Metadata, &objectInfo); er != nil {
+			return objectInfo, er
 		}
 	}
-	return i, e
+	return objectInfo, e
 }
 
 func (f *FlatStorageHandler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (models.MultipartObjectPart, error) {
@@ -204,7 +217,10 @@ func (f *FlatStorageHandler) MultipartComplete(ctx context.Context, target *tree
 				meta[common.XAmzMetaClearSize] = fmt.Sprintf("%d", info.Size)
 			}
 		}
-		if er := f.postCreate(ctx, "in", target, meta, ""); er != nil {
+		if h := target.GetStringMeta(common.MetaNamespaceHash); h != "" {
+			meta[common.MetaNamespaceHash] = h
+		}
+		if er := f.postCreate(ctx, target, meta, &info); er != nil {
 			return info, er
 		}
 	}
@@ -242,7 +258,7 @@ func (f *FlatStorageHandler) resolveUUID(ctx context.Context, node *tree.Node) e
 }
 
 // postCreate updates index after upload by re-read newly added S3 object to get ETag
-func (f *FlatStorageHandler) postCreate(ctx context.Context, identifier string, node *tree.Node, requestMeta map[string]string, cType string) error {
+func (f *FlatStorageHandler) postCreate(ctx context.Context, node *tree.Node, requestMeta map[string]string, object *models.ObjectInfo) error {
 	var updateNode *tree.Node
 	if updateResp, err := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); err == nil {
 		updateNode = updateResp.GetNode()
@@ -251,33 +267,32 @@ func (f *FlatStorageHandler) postCreate(ctx context.Context, identifier string, 
 	} else {
 		return fmt.Errorf("missing uuid info to postCreate node")
 	}
-	stats, err := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node, ObjectStats: true})
-	if err != nil {
+	if object != nil {
+		updateNode.MTime = object.LastModified.Unix()
+		updateNode.Size = object.Size
+		updateNode.Etag = object.ETag
+	} else if ss, err := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node, ObjectStats: true}); err == nil {
+		n := ss.GetNode()
+		updateNode.MTime = n.GetMTime()
+		updateNode.Size = n.GetSize()
+		updateNode.Etag = n.GetEtag()
+	} else {
 		return err
 	}
-	updateNode.MTime = stats.GetNode().GetMTime()
-	updateNode.Size = stats.GetNode().GetSize()
 	if requestMeta != nil {
 		if pS, o := requestMeta[common.XAmzMetaClearSize]; o {
 			if metaSize, e := strconv.ParseInt(pS, 10, 64); e == nil {
 				updateNode.Size = metaSize
 			}
 		}
-	}
-	updateNode.Etag = stats.GetNode().GetEtag()
-	if updateNode.Etag == "" || strings.Contains(updateNode.Etag, "-") {
-		/*
-			newETag, e := f.recomputeETag(ctx, identifier, updateNode)
-			if e == nil {
-				log.Logger(ctx).Info("Recomputed ETag :" + updateNode.Etag + " => " + newETag)
-				updateNode.Etag = newETag
-			} else {
-				log.Logger(ctx).Error("Cannot recompute ETag :"+updateNode.Etag, zap.Error(e))
-			}
-		*/
-	}
-	if !nodes.IsDefaultMime(cType) {
-		updateNode.MustSetMeta(common.MetaNamespaceMime, cType)
+		if hash, o := requestMeta[common.MetaNamespaceHash]; o {
+			updateNode.Etag = hash
+		}
+		if cType, o := requestMeta[common.XContentType]; o && !nodes.IsDefaultMime(cType) {
+			updateNode.MustSetMeta(common.MetaNamespaceMime, cType)
+		} else if cTypeL, o := requestMeta[strings.ToLower(common.XContentType)]; o && !nodes.IsDefaultMime(cTypeL) {
+			updateNode.MustSetMeta(common.MetaNamespaceMime, cTypeL)
+		}
 	}
 	_, er := f.ClientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: updateNode, UpdateIfExists: true})
 	if er != nil {
@@ -309,7 +324,7 @@ func (f *FlatStorageHandler) recomputeETag(ctx context.Context, identifier strin
 		copyMeta[k] = strings.Join(v, "")
 	}
 
-	if src.Client.CopyObjectMultipartThreshold() > 0 && objectInfo.Size > src.Client.CopyObjectMultipartThreshold() && src.StorageType != object.StorageType_LOCAL {
+	if src.Client.CopyObjectMultipartThreshold() > 0 && objectInfo.Size > src.Client.CopyObjectMultipartThreshold() && !src.ServerIsMinio() {
 
 		// Cannot CopyObject on itself for files bigger than 5GB - compute Md5 and store it as metadata instead
 		// Not necessary for real minio on fs (but required for Minio as S3 gateway or real S3)

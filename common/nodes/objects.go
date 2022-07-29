@@ -40,7 +40,7 @@ type StorageClient interface {
 	ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, max ...int) (result models.ListBucketResult, err error)
 	GetObject(ctx context.Context, bucketName, objectName string, opts models.ReadMeta) (io.ReadCloser, models.ObjectInfo, error)
 	StatObject(ctx context.Context, bucketName, objectName string, opts models.ReadMeta) (models.ObjectInfo, error)
-	PutObject(ctx context.Context, bucketName, objectName string, reader io.Reader, objectSize int64, opts models.PutMeta) (n int64, err error)
+	PutObject(ctx context.Context, bucketName, objectName string, reader io.Reader, objectSize int64, opts models.PutMeta) (models.ObjectInfo, error)
 	RemoveObject(ctx context.Context, bucketName, objectName string) error
 	CopyObject(ctx context.Context, sourceBucket, sourceObject, destBucket, destObject string, srcMeta, metadata map[string]string, progress io.Reader) (models.ObjectInfo, error)
 	CopyObjectMultipart(ctx context.Context, srcObject models.ObjectInfo, srcBucket, srcPath, destBucket, destPath string, meta map[string]string, progress io.Reader) error
@@ -52,18 +52,6 @@ type StorageClient interface {
 	CompleteMultipartUpload(ctx context.Context, bucket, object, uploadID string, parts []models.MultipartObjectPart) (string, error)
 	PutObjectPart(ctx context.Context, bucket, object, uploadID string, partID int, data io.Reader, size int64, md5Base64, sha256Hex string) (models.MultipartObjectPart, error)
 	AbortMultipartUpload(ctx context.Context, bucket, object, uploadID string) error
-
-	//CopyObjectPartWithContext(ctx context.Context, srcBucket, srcObject, destBucket, destObject string, uploadID string, partID int, startOffset, length int64, metadata map[string]string) (p models.MultipartObjectPart, err error)
-	//CopyObjectPart(srcBucket, srcObject, destBucket, destObject string, uploadID string, partID int, startOffset, length int64, metadata map[string]string) (p models.MultipartObjectPart, err error)
-	//ListObjects(bucket, prefix, marker, delimiter string, maxKeys int) (result minio.ListBucketResult, err error)
-	//ListObjectsV2(bucketName, objectPrefix, continuationToken string, fetchOwner bool, delimiter string, maxkeys int, startAfter string) (minio.ListBucketV2Result, error)
-	//NewMultipartUpload(bucket, object string, opts minio.PutObjectOptions) (uploadID string, err error)
-	//ListMultipartUploads(bucket, prefix, keyMarker, uploadIDMarker, delimiter string, maxUploads int) (result minio.ListMultipartUploadsResult, err error)
-	//ListObjectParts(bucket, object, uploadID string, partNumberMarker int, maxParts int) (result minio.ListObjectPartsResult, err error)
-	//CompleteMultipartUpload(bucket, object, uploadID string, parts []minio.CompletePart) (string, error)
-	//PutObjectPart(bucket, object, uploadID string, partID int, data io.Reader, size int64, md5Base64, sha256Hex string, sse encrypt.ServerSide) (minio.ObjectPart, error)
-	//AbortMultipartUpload(bucket, object, uploadID string) error
-
 }
 
 var (
@@ -93,15 +81,6 @@ func NewStorageClient(cfg configx.Values) (StorageClient, error) {
 	} else {
 		return nil, fmt.Errorf("unknown storage client type " + name + ", did you forget to register provider?")
 	}
-	/*
-		return &mock.Client{}, nil
-		ep := cfg.Val("endpoint").String()
-		key := cfg.Val("key").String()
-		secret := cfg.Val("secret").String()
-		secure := cfg.Val("secure").Bool()
-		return mc.New(ep, key, secret, secure)
-	*/
-
 }
 
 func UseMockStorageClientType() {

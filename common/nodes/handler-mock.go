@@ -164,13 +164,13 @@ func (h *HandlerMock) GetObject(ctx context.Context, node *tree.Node, requestDat
 
 }
 
-func (h *HandlerMock) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (h *HandlerMock) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	log.Logger(ctx).Info("[MOCK] PutObject" + node.Path)
 
 	if len(h.RootDir) > 0 {
 		output, err := os.OpenFile(filepath.Join(h.RootDir, node.Path), os.O_WRONLY|os.O_CREATE, os.ModePerm)
 		if err != nil {
-			return -1, err
+			return models.ObjectInfo{}, err
 		}
 
 		buffer := make([]byte, 1024)
@@ -184,30 +184,30 @@ func (h *HandlerMock) PutObject(ctx context.Context, node *tree.Node, reader io.
 			if err != nil {
 				eof = err == io.EOF
 				if !eof {
-					return -1, err
+					return models.ObjectInfo{}, err
 				}
 			}
 
 			written, err := output.Write(buffer[:n])
 			if err != nil {
-				return totalWritten, err
+				return models.ObjectInfo{}, err
 			}
 			totalWritten += int64(written)
 		}
-		return totalWritten, nil
+		return models.ObjectInfo{Size: totalWritten}, nil
 	}
 
 	h.Nodes["in"] = node
 	h.Context = ctx
-	return 0, nil
+	return models.ObjectInfo{}, nil
 }
 
-func (h *HandlerMock) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
+func (h *HandlerMock) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 	log.Logger(ctx).Info("[MOCK] CopyObject " + from.Path + " to " + to.Path)
 	h.Nodes["from"] = from
 	h.Nodes["to"] = to
 	h.Context = ctx
-	return 0, nil
+	return models.ObjectInfo{Size: to.Size}, nil
 }
 
 func (h *HandlerMock) MultipartCreate(ctx context.Context, target *tree.Node, requestData *models.MultipartRequestData) (string, error) {

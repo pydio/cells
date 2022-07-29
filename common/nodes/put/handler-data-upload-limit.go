@@ -58,14 +58,14 @@ func (a *UploadLimitFilter) Adapt(c nodes.Handler, options nodes.RouterOptions) 
 }
 
 // PutObject checks Upload Limits (size, extension) defined in the frontend on PutObject operation
-func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 
 	size, exts, err := a.getUploadLimits(ctx)
 	if err != nil {
-		return 0, err
+		return models.ObjectInfo{}, err
 	}
 	if size > 0 && requestData.Size > size {
-		return 0, errors.Forbidden("max.upload.limit", fmt.Sprintf("Upload limit is %d", size))
+		return models.ObjectInfo{}, errors.Forbidden("max.upload.limit", fmt.Sprintf("Upload limit is %d", size))
 	}
 	if len(exts) > 0 {
 		// Beware, Ext function includes the leading dot
@@ -78,7 +78,7 @@ func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, read
 			}
 		}
 		if !allowed {
-			return 0, errors.Forbidden("forbidden.upload.extensions", fmt.Sprintf("Extension %s is not allowed!", nodeExt))
+			return models.ObjectInfo{}, errors.Forbidden("forbidden.upload.extensions", fmt.Sprintf("Extension %s is not allowed!", nodeExt))
 		}
 	}
 

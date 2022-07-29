@@ -23,12 +23,12 @@ package rest
 
 import (
 	"context"
-
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 
 	"github.com/jcuga/golongpoll"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 )
@@ -46,8 +46,10 @@ func init() {
 				return &Handler{
 					eventManager: eventManager,
 					onSuccess: func() error {
-						bkr := servicecontext.GetBroker(c)
-						return bkr.Publish(c, common.TopicInstallSuccessEvent, nil)
+						if bkr, ok := servicecontext.GetBroker(c).(broker.Broker); ok {
+							return bkr.Publish(c, common.TopicInstallSuccessEvent, nil)
+						}
+						return broker.Publish(c, common.TopicInstallSuccessEvent, nil)
 					},
 				}
 			}),

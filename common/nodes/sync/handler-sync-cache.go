@@ -266,11 +266,11 @@ func (s *CacheHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest,
 	return r, e
 }
 
-func (s *CacheHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (s *CacheHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	w, e := s.Next.PutObject(ctx, node, reader, requestData)
 	if e == nil {
 		newNode := node.Clone()
-		newNode.Size = w
+		newNode.Size = w.Size
 		s.cacheAdd(ctx, newNode)
 	}
 	return w, e

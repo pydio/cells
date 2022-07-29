@@ -116,16 +116,16 @@ func (a *QuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 }
 
 // PutObject checks quota on PutObject operation.
-func (a *QuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (a *QuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 
 	// Note : as the temporary file created by PutHandler is already in index,
 	// currentUsage ALREADY takes into account the input data size.
 
 	if branchInfo, ok := nodes.GetBranchInfo(ctx, "in"); ok && !branchInfo.IsInternal() {
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, branchInfo.Workspace); err != nil {
-			return 0, err
+			return models.ObjectInfo{}, err
 		} else if maxQuota > 0 && currentUsage > maxQuota {
-			return 0, errors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
+			return models.ObjectInfo{}, errors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
 		}
 	}
 
@@ -147,13 +147,13 @@ func (a *QuotaFilter) MultipartPutObjectPart(ctx context.Context, target *tree.N
 }
 
 // CopyObject checks quota on CopyObject operation.
-func (a *QuotaFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
+func (a *QuotaFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 
 	if branchInfo, ok := nodes.GetBranchInfo(ctx, "to"); ok && !branchInfo.IsInternal() {
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, branchInfo.Workspace); err != nil {
-			return 0, err
+			return models.ObjectInfo{}, err
 		} else if maxQuota > 0 && currentUsage+from.Size > maxQuota {
-			return 0, errors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
+			return models.ObjectInfo{}, errors.New("quota.exceeded", fmt.Sprintf("Your allowed quota of %d is reached", maxQuota), 422)
 		}
 	}
 

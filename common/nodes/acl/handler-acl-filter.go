@@ -233,7 +233,7 @@ func (a *FilterHandler) GetObject(ctx context.Context, node *tree.Node, requestD
 	return a.Next.GetObject(ctx, node, requestData)
 }
 
-func (a *FilterHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (a *FilterHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	if a.skipContext(ctx) {
 		return a.Next.PutObject(ctx, node, reader, requestData)
 	}
@@ -244,13 +244,13 @@ func (a *FilterHandler) PutObject(ctx context.Context, node *tree.Node, reader i
 	checkNode.Size = requestData.Size
 	ctx, parents, err := nodes.AncestorsListFromContext(ctx, checkNode, "in", a.ClientsPool, true)
 	if err != nil {
-		return 0, err
+		return models.ObjectInfo{}, err
 	}
 	if !accessList.CanWrite(ctx, parents...) {
-		return 0, pathNotWriteable
+		return models.ObjectInfo{}, pathNotWriteable
 	}
 	if accessList.HasExplicitDeny(ctx, permissions.FlagUpload, parents...) {
-		return 0, errors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
+		return models.ObjectInfo{}, errors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
 	}
 	return a.Next.PutObject(ctx, node, reader, requestData)
 }
@@ -274,31 +274,31 @@ func (a *FilterHandler) MultipartCreate(ctx context.Context, node *tree.Node, re
 	return a.Next.MultipartCreate(ctx, node, requestData)
 }
 
-func (a *FilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
+func (a *FilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 	if a.skipContext(ctx) {
 		return a.Next.CopyObject(ctx, from, to, requestData)
 	}
 	accessList := ctx.Value(ctxUserAccessListKey{}).(*permissions.AccessList)
 	ctx, fromParents, err := nodes.AncestorsListFromContext(ctx, from, "from", a.ClientsPool, false)
 	if err != nil {
-		return 0, a.recheckParents(ctx, err, from, true, false)
+		return models.ObjectInfo{}, a.recheckParents(ctx, err, from, true, false)
 	}
 	if !accessList.CanRead(ctx, fromParents...) {
-		return 0, pathNotReadable
+		return models.ObjectInfo{}, pathNotReadable
 	}
 	ctx, toParents, err := nodes.AncestorsListFromContext(ctx, to, "to", a.ClientsPool, true)
 	if err != nil {
-		return 0, err
+		return models.ObjectInfo{}, err
 	}
 	if !accessList.CanWrite(ctx, toParents...) {
-		return 0, pathNotWriteable
+		return models.ObjectInfo{}, pathNotWriteable
 	}
 	if accessList.HasExplicitDeny(ctx, permissions.FlagUpload, toParents...) {
-		return 0, errors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
+		return models.ObjectInfo{}, errors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
 	}
 	fullTargets := append(toParents, to)
 	if accessList.HasExplicitDeny(ctx, permissions.FlagDownload, fromParents...) && !accessList.HasExplicitDeny(ctx, permissions.FlagDownload, fullTargets...) {
-		return 0, errors.Forbidden("upload.forbidden", "Source has download explicitly disabled and target does not")
+		return models.ObjectInfo{}, errors.Forbidden("upload.forbidden", "Source has download explicitly disabled and target does not")
 	}
 	return a.Next.CopyObject(ctx, from, to, requestData)
 }

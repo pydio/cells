@@ -46,3 +46,7 @@ func (r *RuntimeHolder) SetRuntimeContext(ctx context.Context) {
 func (r *RuntimeHolder) GetRuntimeContext() context.Context {
 	return r.RuntimeContext
 }
+
+type ReaderMetaExtractor interface {
+	ExtractedMeta() (map[string]string, bool)
+}

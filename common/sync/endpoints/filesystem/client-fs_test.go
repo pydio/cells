@@ -23,7 +23,6 @@ package filesystem
 import (
 	"bytes"
 	"context"
-	"crypto/md5"
 	"fmt"
 	"io"
 	"log"
@@ -39,6 +38,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/hasher"
+	"github.com/pydio/cells/v4/common/utils/hasher/simd"
 )
 
 func EmptyMockedClient() *FSClient {
@@ -110,7 +111,7 @@ func TestLoadNode(t *testing.T) {
 		So(s, ShouldNotBeNil)
 		So(e, ShouldBeNil)
 		f := strings.NewReader("my-content")
-		h := md5.New()
+		h := hasher.NewBlockHash(simd.MD5(), hasher.DefaultBlockSize)
 		if _, err := io.Copy(h, f); err != nil {
 			t.Fail()
 		}

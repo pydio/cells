@@ -182,10 +182,10 @@ func (v *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 }
 
 // CopyObject intercept request with a SrcVersionId to read original from Version Store
-func (v *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
+func (v *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 	ctx, err := v.WrapContext(ctx)
 	if err != nil {
-		return 0, err
+		return models.ObjectInfo{}, err
 	}
 	log.Logger(ctx).Debug("CopyObject Has VersionId?", zap.Any("from", from), zap.Any("to", to), zap.Any("requestData", requestData))
 	if len(requestData.SrcVersionId) > 0 {
@@ -194,13 +194,13 @@ func (v *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 		if len(from.Uuid) == 0 {
 			resp, e := v.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: from})
 			if e != nil {
-				return 0, e
+				return models.ObjectInfo{}, e
 			}
 			from = resp.Node
 		}
 		vResp, err := v.getVersionClient().HeadVersion(ctx, &tree.HeadVersionRequest{Node: from, VersionId: requestData.SrcVersionId})
 		if err != nil {
-			return 0, err
+			return models.ObjectInfo{}, err
 		}
 		if requestData.Metadata == nil {
 			requestData.Metadata = make(map[string]string, 1)
@@ -210,7 +210,7 @@ func (v *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 		// Refresh context from location
 		source, e := v.ClientsPool.GetDataSourceInfo(from.GetStringMeta(common.MetaNamespaceDatasourceName))
 		if e != nil {
-			return 0, e
+			return models.ObjectInfo{}, e
 		}
 		srcInfo := nodes.BranchInfo{LoadedSource: source}
 		ctx = nodes.WithBranchInfo(ctx, "from", srcInfo)

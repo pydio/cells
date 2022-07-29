@@ -23,8 +23,10 @@ package mc
 import (
 	"context"
 	"io"
+	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -136,21 +138,20 @@ func (c *Client) StatObject(ctx context.Context, bucketName, objectName string, 
 	return minioInfoToModelsInfo(oi), e
 }
 
-func (c *Client) PutObject(ctx context.Context, bucketName, objectName string, reader io.Reader, objectSize int64,
-	opts models.PutMeta) (n int64, err error) {
+func (c *Client) PutObject(ctx context.Context, bucketName, objectName string, reader io.Reader, objectSize int64, opts models.PutMeta) (n models.ObjectInfo, err error) {
 	if objectSize < 0 {
 		ui, er := c.mc.Client.PutObject(ctx, bucketName, objectName, reader, objectSize, putMetaToMinioOpts(opts))
 		if er != nil {
-			return 0, er
+			return models.ObjectInfo{}, er
 		} else {
-			return ui.Size, er
+			return minioUploadInfoToModelsInfo(opts, ui), er
 		}
 	}
 	ui, e := c.mc.PutObject(ctx, bucketName, objectName, reader, objectSize, "", "", putMetaToMinioOpts(opts))
 	if e != nil {
-		return 0, e
+		return models.ObjectInfo{}, e
 	} else {
-		return ui.Size, e
+		return minioUploadInfoToModelsInfo(opts, ui), e
 	}
 }
 
@@ -376,5 +377,24 @@ func minioInfoToModelsInfo(oi minio.ObjectInfo) models.ObjectInfo {
 		Owner:        &models.ObjectInfoOwner{DisplayName: oi.Owner.DisplayName, ID: oi.Owner.ID},
 		StorageClass: oi.StorageClass,
 		Err:          oi.Err,
+	}
+}
+
+func minioUploadInfoToModelsInfo(opts models.PutMeta, oi minio.UploadInfo) models.ObjectInfo {
+	om := http.Header{}
+	for k, v := range opts.UserMetadata {
+		om.Set(k, v)
+	}
+	if oi.LastModified.IsZero() {
+		oi.LastModified = time.Now()
+	}
+	return models.ObjectInfo{
+		ETag:         oi.ETag,
+		Key:          oi.Key,
+		LastModified: oi.LastModified,
+		Size:         oi.Size,
+		ContentType:  opts.ContentType,
+		Metadata:     om,
+		StorageClass: opts.StorageClass,
 	}
 }

@@ -206,10 +206,10 @@ func (a *Handler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, op
 	return r, e
 }
 
-func (a *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (a *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	if a.isStorePath(node.Path) {
 		if !a.AllowPut {
-			return 0, nodes.ErrCannotWriteStore(a.StoreName)
+			return models.ObjectInfo{}, nodes.ErrCannotWriteStore(a.StoreName)
 		}
 		source, er := a.ClientsPool.GetDataSourceInfo(a.StoreName)
 		if er == nil {
@@ -220,15 +220,15 @@ func (a *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 			return a.Next.PutObject(ctx, clone, reader, requestData)
 		} else {
 			log.Logger(ctx).Debug("Putting Node Inside Binary Store Cannot find DS Info?", zap.Error(er))
-			return 0, er
+			return models.ObjectInfo{}, er
 		}
 	}
 	return a.Next.PutObject(ctx, node, reader, requestData)
 }
 
-func (a *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
+func (a *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 	if a.isStorePath(from.Path) || a.isStorePath(to.Path) {
-		return 0, nodes.ErrCannotWriteStore(a.StoreName)
+		return models.ObjectInfo{}, nodes.ErrCannotWriteStore(a.StoreName)
 	}
 	return a.Next.CopyObject(ctx, from, to, requestData)
 }

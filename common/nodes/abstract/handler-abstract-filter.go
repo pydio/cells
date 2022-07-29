@@ -303,25 +303,25 @@ func (v *BranchFilter) GetObject(ctx context.Context, node *tree.Node, requestDa
 	return v.Next.GetObject(ctx, filtered, requestData)
 }
 
-func (v *BranchFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (v *BranchFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	ctx, filtered, err := v.InputMethod(ctx, node, "in")
 	if err != nil {
-		return 0, err
+		return models.ObjectInfo{}, err
 	}
 	return v.Next.PutObject(ctx, filtered, reader, requestData)
 }
 
-func (v *BranchFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
+func (v *BranchFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 
 	var outF, outT *tree.Node
 	var e error
 	ctx, outF, e = v.InputMethod(ctx, from, "from")
 	if e != nil {
-		return 0, e
+		return models.ObjectInfo{}, e
 	}
 	ctx, outT, e = v.InputMethod(ctx, to, "to")
 	if e != nil {
-		return 0, e
+		return models.ObjectInfo{}, e
 	}
 
 	return v.Next.CopyObject(ctx, outF, outT, requestData)

@@ -24,7 +24,7 @@ package filesystem
 import (
 	"bytes"
 	"context"
-	"crypto/md5"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -50,6 +50,8 @@ import (
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/sync/proc"
 	"github.com/pydio/cells/v4/common/utils/filesystem"
+	"github.com/pydio/cells/v4/common/utils/hasher"
+	"github.com/pydio/cells/v4/common/utils/hasher/simd"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -581,13 +583,12 @@ func (c *FSClient) getFileHash(path string) (hash string, e error) {
 		return "", err
 	}
 	defer f.Close()
-
-	h := md5.New()
-	if _, err := io.Copy(h, f); err != nil {
-		return "", err
+	h := hasher.NewBlockHash(simd.MD5(), hasher.DefaultBlockSize)
+	if _, e = io.Copy(h, f); e != nil {
+		return
 	}
-
-	return fmt.Sprintf("%x", h.Sum(nil)), nil
+	hx := hex.EncodeToString(h.Sum(nil))
+	return hx, nil
 }
 
 // loadNode takes an optional os.FileInfo if we are already walking folders (no need for a second stat call)

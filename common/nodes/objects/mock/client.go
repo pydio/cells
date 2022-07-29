@@ -93,13 +93,20 @@ func (c *Client) StatObject(ctx context.Context, bucketName, objectName string, 
 	}
 }
 
-func (c *Client) PutObject(ctx context.Context, bucketName, objectName string, reader io.Reader, objectSize int64, opts models.PutMeta) (n int64, err error) {
+func (c *Client) PutObject(ctx context.Context, bucketName, objectName string, reader io.Reader, objectSize int64, opts models.PutMeta) (n models.ObjectInfo, err error) {
 	bucket, ok := c.Buckets[bucketName]
 	if !ok {
-		return 0, fmt.Errorf("bucket not found %s", bucketName)
+		return models.ObjectInfo{}, fmt.Errorf("bucket not found %s", bucketName)
 	}
 	bucket[objectName], _ = io.ReadAll(reader)
-	return int64(len(bucket[objectName])), nil
+	size := len(bucket[objectName])
+	return models.ObjectInfo{
+		ETag:         "",
+		Key:          objectName,
+		LastModified: time.Now(),
+		Size:         int64(size),
+		ContentType:  opts.ContentType,
+	}, nil
 }
 
 func (c *Client) RemoveObject(ctx context.Context, bucketName, objectName string) error {

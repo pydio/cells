@@ -159,7 +159,12 @@ func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels
 			written, er = io.Copy(localFile, httpResponse.Body)
 		}
 	} else {
-		written, er = w.Router.PutObject(ctx, targetNode, httpResponse.Body, &models.PutRequestData{Size: httpResponse.ContentLength})
+		oi, err := w.Router.PutObject(ctx, targetNode, httpResponse.Body, &models.PutRequestData{Size: httpResponse.ContentLength})
+		if err == nil {
+			written = oi.Size
+		} else {
+			er = err
+		}
 	}
 	log.Logger(ctx).Debug("After PUT Object", zap.Int64("Written Bytes", written), zap.Error(er), zap.Any("ctx", ctx))
 	if er != nil {

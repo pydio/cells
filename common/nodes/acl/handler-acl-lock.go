@@ -68,7 +68,7 @@ func (a *LockFilter) Adapt(h nodes.Handler, options nodes.RouterOptions) nodes.H
 // }
 
 // PutObject check locks before allowing Put operation.
-func (a *LockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (a *LockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	branchInfo, ok := nodes.GetBranchInfo(ctx, "in")
 	if !ok {
 		return a.Next.PutObject(ctx, node, reader, requestData)
@@ -76,7 +76,7 @@ func (a *LockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.R
 
 	accessList, err := permissions.AccessListForLockedNodes(ctx, a.virtualResolver)
 	if err != nil {
-		return 0, err
+		return models.ObjectInfo{}, err
 	}
 
 	nn := []*tree.Node{node}
@@ -85,7 +85,7 @@ func (a *LockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.R
 	}
 
 	if accessList.IsLocked(ctx, nn...) {
-		return 0, errors.New("parent.locked", "Node is currently locked", 423)
+		return models.ObjectInfo{}, errors.New("parent.locked", "Node is currently locked", 423)
 	}
 
 	return a.Next.PutObject(ctx, node, reader, requestData)
