@@ -60,7 +60,7 @@ type StructStorageHandler struct {
 func (f *StructStorageHandler) publish(ctx context.Context, identifier string, eventType tree.NodeChangeEvent_EventType, node *tree.Node) {
 	bi, ok := nodes.GetBranchInfo(ctx, identifier)
 	// Publish only for remote non-minio structured servers
-	if ok && (bi.FlatStorage || bi.ServerIsMinio()) {
+	if ok && (bi.FlatStorage /*|| bi.ServerIsMinio()*/) {
 		return
 	}
 	event := &tree.NodeChangeEvent{Type: eventType}

@@ -121,6 +121,22 @@ type CopyRequestData struct {
 	Progress     io.Reader
 }
 
+func (c *CopyRequestData) IsMove() bool {
+	if c.Metadata != nil {
+		if d, ok := c.Metadata[common.XAmzMetaDirective]; ok && d == "COPY" {
+			return true
+		}
+	}
+	return false
+}
+
+func (c *CopyRequestData) SetMeta(key, value string) {
+	if c.Metadata == nil {
+		c.Metadata = map[string]string{}
+	}
+	c.Metadata[key] = value
+}
+
 // MultipartRequestData is a metadata container for Multipart List Requests
 type MultipartRequestData struct {
 	Metadata map[string]string

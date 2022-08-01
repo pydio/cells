@@ -286,7 +286,7 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 		log.Logger(ctx).Debug("Adding special header to store clear size", zap.Any("s", requestData.Size))
 		requestData.Metadata[common.XAmzMetaClearSize] = fmt.Sprintf("%d", requestData.Size)
 	} else {
-		requestData.Metadata[common.XAmzMetaClearSize] = common.XAmzMetaClearSizeUnkown
+		requestData.Metadata[common.XAmzMetaClearSize] = common.XAmzMetaClearSizeUnknown
 	}
 	requestData.Size = encryptionMaterials.CalculateOutputSize(requestData.Size, info.NodeKey.OwnerId)
 
@@ -310,13 +310,12 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 	if requestData.Metadata == nil {
 		requestData.Metadata = map[string]string{}
 	}
-	// Move
-	var move, sameClient bool
-	if d, ok := requestData.Metadata[common.XAmzMetaDirective]; ok && d == "COPY" {
-		move = true
-	}
-	sameClient = destInfo.Client == srcInfo.Client
+	// request type
+	move := requestData.IsMove()
+	sameClient := destInfo.Client == srcInfo.Client
+
 	if move && sameClient {
+		// Move on same DS will maintain all metadata, nothing special to do for encryption
 		return e.Next.CopyObject(ctx, from, to, requestData)
 	}
 
@@ -415,7 +414,7 @@ func (e *Handler) MultipartCreate(ctx context.Context, target *tree.Node, reques
 
 	if _, ok := requestData.Metadata[common.XAmzMetaClearSize]; !ok {
 		log.Logger(ctx).Warn("views.handler.encryption.MultiPartCreate: Missing special header to store clear size when uploading on encrypted data source - Setting ClearSize as unknown")
-		requestData.Metadata[common.XAmzMetaClearSize] = common.XAmzMetaClearSizeUnkown
+		requestData.Metadata[common.XAmzMetaClearSize] = common.XAmzMetaClearSizeUnknown
 	}
 
 	clone := target.Clone()

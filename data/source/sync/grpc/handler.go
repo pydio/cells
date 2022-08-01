@@ -119,7 +119,7 @@ func (s *Handler) Name() string {
 }
 
 func (s *Handler) Start() {
-	s.syncTask.Start(s.globalCtx, true)
+	s.syncTask.Start(s.globalCtx, !s.SyncConfig.FlatStorage)
 	go s.watchConfigs()
 	go s.watchErrors()
 	go s.watchDisconnection()
@@ -359,7 +359,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 				s3client.SetChecksumMapper(csm, true)
 			}
 		}
-		if !syncConfig.FlatStorage && !syncConfig.ServerIsMinio() {
+		if !syncConfig.FlatStorage /*&& !syncConfig.ServerIsMinio()*/ {
 			cw := chanwatcher.NewWatcher(ctx, s3client, "")
 			s.changeEventsFallback = cw.NodeChanges
 			source = cw

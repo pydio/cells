@@ -232,6 +232,10 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 
 	statMeta, _ := metadata.MinioMetaFromContext(ctx, validHeaders)
 
+	if requestData.Metadata == nil {
+		requestData.Metadata = make(map[string]string)
+	}
+
 	if destClient == srcClient && requestData.SrcVersionId == "" {
 		// Check object exists and check its size
 		src, e := destClient.StatObject(ctx, srcBucket, fromPath, nil)
@@ -243,9 +247,6 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 			return models.ObjectInfo{}, e
 		}
 
-		if requestData.Metadata == nil {
-			requestData.Metadata = make(map[string]string)
-		}
 		// Copy Pydio specific metadata along
 		if cs := src.Metadata.Get(common.XAmzMetaContentMd5); cs != "" {
 			requestData.Metadata[common.XAmzMetaContentMd5] = cs
@@ -292,23 +293,24 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 			return models.ObjectInfo{}, err
 		}
 		defer reader.Close()
-		if requestData.Metadata != nil {
-			if dir, o := requestData.Metadata[common.XAmzMetaDirective]; o && dir == "COPY" {
-				requestData.Metadata[common.XAmzMetaNodeUuid] = from.Uuid
-			}
-			// append metadata to the context as well, as it may switch to putObjectMultipart
-			ctxMeta := make(map[string]string)
-			if m, ok := metadata.MinioMetaFromContext(ctx, validHeaders); ok {
-				ctxMeta = m
-			}
-			for k, v := range requestData.Metadata {
-				if strings.HasPrefix(k, "X-Amz-") {
-					continue
-				}
-				ctxMeta[k] = v
-			}
-			ctx = metadata.NewContext(ctx, ctxMeta)
+
+		if requestData.IsMove() {
+			requestData.Metadata[common.XAmzMetaNodeUuid] = from.Uuid
 		}
+		
+		// append metadata to the context as well, as it may switch to putObjectMultipart
+		ctxMeta := make(map[string]string)
+		if m, ok := metadata.MinioMetaFromContext(ctx, validHeaders); ok {
+			ctxMeta = m
+		}
+		for k, v := range requestData.Metadata {
+			if strings.HasPrefix(k, "X-Amz-") {
+				continue
+			}
+			ctxMeta[k] = v
+		}
+		ctx = metadata.NewContext(ctx, ctxMeta)
+
 		log.Logger(ctx).Debug("HandlerExec: copy one DS to another", zap.Any("meta", srcStat), zap.Any("requestMeta", requestData.Metadata))
 		opts := e.putOptionsFromRequestMeta(requestData.Metadata)
 		opts.ContentType = cType

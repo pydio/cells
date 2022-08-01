@@ -26,10 +26,8 @@ import (
 	"math"
 
 	"github.com/h2non/filetype"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
@@ -141,16 +139,7 @@ func WrapReaderForMime(ctx context.Context, clone *tree.Node, reader io.Reader) 
 			mime = result.GetMime()
 		}
 		// Store in metadata service
-		clone.MetaStore = make(map[string]string, 1)
-		clone.MustSetMeta(common.MetaNamespaceMime, mime)
-		if _, e := CoreMetaWriter(ctx).CreateNode(bgCtx, &tree.CreateNodeRequest{
-			Node:           clone,
-			UpdateIfExists: true,
-		}); e == nil {
-			log.Logger(ctx).Debug("Stored mime type for node", clone.ZapUuid(), clone.ZapPath(), zap.String("mime", result.GetMime()))
-		} else {
-			log.Logger(ctx).Error("Could not update mime for node", zap.Error(e), clone.ZapUuid(), clone.ZapPath(), zap.String("mime", result.GetMime()))
-		}
+		MustCoreMetaSet(bgCtx, clone.Uuid, common.MetaNamespaceMime, mime)
 	})
 }
 

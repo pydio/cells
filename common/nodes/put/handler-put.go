@@ -23,10 +23,7 @@ package put
 import (
 	"bytes"
 	"context"
-	"encoding/hex"
 	"fmt"
-	"github.com/pydio/cells/v4/common/utils/hasher/simd"
-	"hash"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -35,7 +32,6 @@ import (
 	"strings"
 	"time"
 
-	errors2 "github.com/pkg/errors"
 	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
 	"google.golang.org/grpc"
@@ -46,15 +42,9 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/hasher"
 )
-
-var HashFunc = func() hash.Hash {
-	return hasher.NewBlockHash(simd.MD5(), hasher.DefaultBlockSize)
-}
 
 func WithPutInterceptor() nodes.Option {
 	return func(options *nodes.RouterOptions) {
@@ -138,70 +128,6 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 	}
 	return createResp.Node, errorFunc, nil
 
-}
-
-// getPartsCache initializes a cache for multipart hashes
-func (m *Handler) getPartsCache() (cache.Cache, error) {
-	if m.partsCache == nil {
-		if c, e := cache.OpenCache(context.TODO(), runtime.CacheURL()+"/partshasher?evictionTime=24h&cleanWindow=24h"); e != nil {
-			return nil, e
-		} else {
-			m.partsCache = c
-		}
-	}
-	return m.partsCache, nil
-}
-
-func (m *Handler) clearMultipartCachedHashes(uploadID string) {
-	c, e := m.getPartsCache()
-	if e != nil {
-		return
-	}
-	prefix := "multipart:" + uploadID + ":"
-	if kk, e := c.KeysByPrefix(prefix); e == nil {
-		for _, k := range kk {
-			_ = c.Delete(k)
-		}
-	}
-}
-
-func (m *Handler) computeMultipartFinalHash(uploadID string, partsNumber int) (string, error) {
-
-	c, e := m.getPartsCache()
-	if e != nil {
-		return "", errors2.Wrap(e, "cannot initialize cache")
-	}
-	prefix := "multipart:" + uploadID + ":"
-	kk, e := c.KeysByPrefix(prefix)
-	if e != nil {
-		return "", errors2.Wrap(e, "cannot read keys from cache")
-	}
-	parts := map[int][]string{}
-	for _, k := range kk {
-		var hh []byte
-		if c.Get(k, &hh) {
-			// Read key
-			partName, _ := strconv.Atoi(strings.TrimPrefix(k, prefix))
-			parts[partName-1] = strings.Split(string(hh), ":")
-			// Clear key now
-			_ = c.Delete(k)
-		}
-	}
-	if len(parts) != partsNumber {
-		return "", errors2.Wrap(e, "cache does not contain the correct number of parts")
-	}
-	summer := simd.MD5()
-	for i := 0; i < partsNumber; i++ {
-		ha, ok := parts[i]
-		if !ok {
-			return "", fmt.Errorf("missing hash for part %d", i)
-		}
-		for _, h := range ha {
-			bb, _ := hex.DecodeString(h)
-			summer.Write(bb)
-		}
-	}
-	return hex.EncodeToString(summer.Sum(nil)), nil
 }
 
 // createParentIfNotExist Recursively create parents
@@ -289,7 +215,6 @@ func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 
 	if node.Uuid != "" {
 
-		reader = hasher.Tee(reader, HashFunc, nil)
 		log.Logger(ctx).Debug("PUT: Appending node Uuid to request metadata: " + node.Uuid)
 		requestData.Metadata[common.XAmzMetaNodeUuid] = node.Uuid
 		if requestData.ContentTypeUnknown() {
@@ -314,8 +239,6 @@ func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 
 		requestData.Metadata[common.XAmzMetaNodeUuid] = newNode.Uuid
 		node.Uuid = newNode.Uuid
-
-		reader = hasher.Tee(reader, HashFunc, nil)
 
 		oi, err := m.Next.PutObject(ctx, node, reader, requestData)
 		if err != nil && onErrorFunc != nil {
@@ -394,21 +317,6 @@ func (m *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node,
 		reader = nodes.WrapReaderForMime(ctx, cl, reader)
 	}
 
-	partID := strconv.Itoa(partNumberMarker)
-	c, e := m.getPartsCache()
-	if e != nil {
-		return models.MultipartObjectPart{}, e
-	}
-	reader = hasher.Tee(reader, HashFunc, func(s string, hashes [][]byte) {
-		var keys []string
-		for _, ha := range hashes {
-			keys = append(keys, hex.EncodeToString(ha))
-		}
-		if er := c.Set("multipart:"+uploadID+":"+partID, []byte(strings.Join(keys, ":"))); er != nil {
-			log.Logger(ctx).Error("Error while caching part hash to cache: "+er.Error(), zap.Error(er))
-		}
-	})
-
 	return m.Next.MultipartPutObjectPart(ctx, resp.Node, uploadID, partNumberMarker, reader, requestData)
 }
 
@@ -424,12 +332,6 @@ func (m *Handler) MultipartComplete(ctx context.Context, target *tree.Node, uplo
 		return models.ObjectInfo{}, fmt.Errorf("cannot find initial multipart node, this is not normal")
 	}
 	target.Uuid = resp.GetNode().GetUuid()
-
-	f, e := m.computeMultipartFinalHash(uploadID, len(uploadedParts))
-	if e != nil {
-		return models.ObjectInfo{}, errors2.Wrap(e, "cannot initialize cache")
-	}
-	target.MustSetMeta(common.MetaNamespaceHash, f)
 
 	return m.Next.MultipartComplete(ctx, target, uploadID, uploadedParts)
 }
@@ -454,8 +356,6 @@ func (m *Handler) MultipartAbort(ctx context.Context, target *tree.Node, uploadI
 			}})
 		}
 	}
-
-	go m.clearMultipartCachedHashes(uploadID)
 
 	if !nodes.IsFlatStorage(ctx, "in") {
 		deleteTemporary()

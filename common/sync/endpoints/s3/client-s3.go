@@ -695,7 +695,7 @@ func (c *Client) getFileHash(path string) (uid string, hash string, metaSize int
 	}
 	uid = objectInfo.Metadata.Get(servicescommon.XAmzMetaNodeUuid)
 	if size := objectInfo.Metadata.Get(servicescommon.XAmzMetaClearSize); size != "" {
-		if size == servicescommon.XAmzMetaClearSizeUnkown {
+		if size == servicescommon.XAmzMetaClearSizeUnknown {
 			if c.plainSizeComputer != nil {
 				if plain, er := c.plainSizeComputer(uid); er == nil {
 					metaSize = plain

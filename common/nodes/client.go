@@ -35,8 +35,11 @@ import (
 	"context"
 	"sync"
 
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
@@ -73,4 +76,24 @@ func CoreMetaWriter(ctx context.Context) tree.NodeReceiverClient {
 		metaClient = tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta))
 	})
 	return metaClient
+}
+
+// CoreMetaSet directly saves a core metadata associated with a node UUID
+func CoreMetaSet(ctx context.Context, nodeUUID string, metaKey, metaValue string) error {
+	node := &tree.Node{Uuid: nodeUUID}
+	node.MustSetMeta(metaKey, metaValue)
+	_, e := CoreMetaWriter(ctx).CreateNode(ctx, &tree.CreateNodeRequest{Node: node, UpdateIfExists: true})
+	return e
+}
+
+// MustCoreMetaSet saves a core metadata without returning errors
+func MustCoreMetaSet(ctx context.Context, nodeUUID string, metaKey, metaValue string) {
+	if nodeUUID == "" {
+		log.Logger(ctx).Error("Error while trying to set Meta " + metaKey + " to " + metaValue + ": nodeUUID is empty!")
+	} else if e := CoreMetaSet(ctx, nodeUUID, metaKey, metaValue); e == nil {
+		log.Logger(ctx).Info("Set Meta " + metaKey + " to " + metaValue)
+	} else {
+		log.Logger(ctx).Error("Error while trying to set Meta "+metaKey+" to "+metaValue, zap.Error(e))
+	}
+
 }

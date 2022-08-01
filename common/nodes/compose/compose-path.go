@@ -71,6 +71,7 @@ func pathComposer(oo ...nodes.Option) []nodes.Option {
 		acl.WithFilter(),
 		events.WithRead(),
 		put.WithPutInterceptor(),
+		put.WithHashInterceptor(),
 		acl.WithLock(),
 		put.WithUploadLimiter(),
 		acl.WithContentLockFilter(),

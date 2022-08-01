@@ -52,6 +52,7 @@ func uuidComposer(oo ...nodes.Option) []nodes.Option {
 		acl.WithFilter(),
 		//events.WithRead(), why not?
 		put.WithPutInterceptor(),
+		put.WithHashInterceptor(),
 		acl.WithLock(),
 		put.WithUploadLimiter(),
 		acl.WithContentLockFilter(),

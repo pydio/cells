@@ -150,7 +150,6 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 		if _, ok := requestData.Metadata[common.XPydioMoveUuid]; ok {
 			tgtCtx = metadata.WithAdditionalMetadata(tgtCtx, requestData.Metadata)
 		}
-		requestData.Metadata[common.MetaNamespaceHash] = from.Etag
 		requestData.Metadata[common.MetaNamespaceMime] = from.GetStringMeta(common.MetaNamespaceMime)
 		// Now store in index
 		if er := f.postCreate(tgtCtx, to, requestData.Metadata, &objectInfo); er != nil {

@@ -31,6 +31,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/encryption"
 )
 
@@ -674,6 +675,17 @@ func (m *AESGCMEncryptionMaterials) decryptRead(b []byte) (int, error) {
 			m.bufferedProcessed.Write(data)
 		}
 	}
+}
+
+// ExtractedMeta implements common.ReaderMetaExtractor interface for underlying readers
+func (m *AESGCMEncryptionMaterials) ExtractedMeta() (map[string]string, bool) {
+	if m.stream == nil {
+		return nil, false
+	}
+	if ex, ok := m.stream.(common.ReaderMetaExtractor); ok {
+		return ex.ExtractedMeta()
+	}
+	return nil, false
 }
 
 func readMax(reader io.Reader, buff []byte) (int, error) {
