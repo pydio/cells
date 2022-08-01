@@ -76,16 +76,18 @@ func NewBroker(s string, opts ...Option) Broker {
 			for _, o := range oo {
 				o(op)
 			}
+
+			q, _ := url.ParseQuery(u.RawQuery)
 			ctx := op.Context
 			if op.Queue != "" {
 				switch scheme {
 				case "nats", "grpc":
-					topic += "?queue=" + op.Queue
+					q.Add("queue", op.Queue)
 				default:
 				}
 			}
 
-			uu := &url.URL{Scheme: u.Scheme, Host: u.Host, Path: u.Path + "/" + strings.TrimPrefix(topic, "/"), RawQuery: u.RawQuery}
+			uu := &url.URL{Scheme: u.Scheme, Host: u.Host, Path: u.Path + "/" + strings.TrimPrefix(topic, "/"), RawQuery: q.Encode()}
 			return pubsub.OpenSubscription(ctx, uu.String())
 		},
 		publishers: make(map[string]*pubsub.Topic),
