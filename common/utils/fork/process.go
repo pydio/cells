@@ -143,7 +143,7 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 	parentName := p.o.parentName
 	defaultLogContext := servicecontext.WithServiceName(p.ctx, p.serviceNames[0])
 
-	logs := regexp.MustCompile("^(?P<log_date>[^\t]+)\t(?P<log_level>[^\t]+)\t(?P<log_name>[^\t]+)\t(?P<log_message>[^\t]+)(\t)?(?P<log_fields>[^\t]?)$")
+	logs := regexp.MustCompile("^(?P<log_date>[^\t]+)\t(?P<log_level>[^\t]+)\t(?P<log_name>[^\t]+)\t(?P<log_message>[^\t]+)(\t)?(?P<log_fields>[^\t]*)$")
 
 	go func() {
 		for scannerOut.Scan() {
@@ -165,23 +165,9 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 				}
 
 				f(parsed[4])
-
-				//fmt.Println("Log date ", parsed[1])
-				//fmt.Println("Log level ", parsed[2])
-				//fmt.Println("Log name ", parsed[3])
-				//fmt.Println("Log message ", parsed[4])
-				//fmt.Println("Log fields ", parsed[5])
+			} else {
+				log.Logger(defaultLogContext).Info(text)
 			}
-			//for _, sName := range p.serviceNames {
-			//	if strings.Contains(text, sName) || (parentName != "" && strings.Contains(text, parentName)) {
-			//		log.StdOut.WriteString(text + "\n")
-			//		merged = true
-			//		break
-			//	}
-			//}
-			//if !merged {
-			//	log.Logger(defaultLogContext).Info(text)
-			//}
 		}
 	}()
 	scannerErr := bufio.NewScanner(stderr)
