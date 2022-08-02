@@ -77,17 +77,22 @@ class FileInfoCard extends React.Component {
             ]
         }
 
-        if(meta.has('etag')) {
-            data.push({key:'etag', label:'ETag', value:meta.get('etag')})
+        if(meta.has('x-cells-hash')) {
+            data.push({key:'x-cells-hash', label:'Internal Hash', value:meta.get('x-cells-hash')})
         }
 
-        if(meta.has('x-cells-hash')) {
-            data.push({key:'x-cells-hash', label:'X-Cells-Hash', value:meta.get('x-cells-hash')})
+        if(meta.has('uuid')) {
+            data.push({key:'uuid', label:'Unique Identifier', value:meta.get('uuid')})
         }
 
         if(meta.has('mime')) {
-            data.push({key:'mime', label:'Mime', value:meta.get('mime')})
+            data.push({key:'mime', label:'Mime Type', value:meta.get('mime')})
         }
+
+        if(meta.has('etag')) {
+            data.push({key:'etag', label:'Storage ETag', value:meta.get('etag')})
+        }
+
 
         return (
             <InfoPanelCard
