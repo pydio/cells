@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/pydio/cells/v4/common/nodes"
@@ -21,6 +22,7 @@ type TreeHandler struct {
 
 	runtimeCtx context.Context
 	router     nodes.Handler
+	rOnce      sync.Once
 	name       string
 }
 
@@ -195,9 +197,12 @@ func (t *TreeHandler) DeleteNode(ctx context.Context, req *tree.DeleteNodeReques
 }
 
 func (t *TreeHandler) getRouter() nodes.Handler {
-	if t.router != nil {
-		return t.router
-	}
-	t.router = compose.PathClient(t.runtimeCtx, nodes.WithSynchronousTasks())
+	t.rOnce.Do(func() {
+		t.router = compose.PathClient(
+			t.runtimeCtx,
+			nodes.WithSynchronousTasks(),
+			nodes.WithHashesAsETags(),
+		)
+	})
 	return t.router
 }

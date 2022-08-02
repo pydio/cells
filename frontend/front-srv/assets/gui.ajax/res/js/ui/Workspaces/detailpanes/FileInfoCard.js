@@ -77,11 +77,15 @@ class FileInfoCard extends React.Component {
             ]
         }
 
-        if(meta.get('etag')) {
+        if(meta.has('etag')) {
             data.push({key:'etag', label:'ETag', value:meta.get('etag')})
         }
 
-        if(meta.get('mime')) {
+        if(meta.has('x-cells-hash')) {
+            data.push({key:'x-cells-hash', label:'X-Cells-Hash', value:meta.get('x-cells-hash')})
+        }
+
+        if(meta.has('mime')) {
             data.push({key:'mime', label:'Mime', value:meta.get('mime')})
         }
 

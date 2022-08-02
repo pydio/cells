@@ -55,7 +55,12 @@ type Local struct {
 
 // NewLocal creates a new instance of a Local endpoint
 func NewLocal(root string, options cells.Options) *Local {
-	ctx := context.Background()
+	var ctx context.Context
+	if options.LocalRuntimeContext != nil {
+		ctx = options.LocalRuntimeContext
+	} else {
+		ctx = context.Background()
+	}
 	if options.LocalInitRegistry {
 		localRouterOnce.Do(func() {
 			// TODO - If we re-enable this endpoint, we may have to do something here
@@ -75,7 +80,12 @@ func NewLocal(root string, options cells.Options) *Local {
 		},
 	}
 	l.Factory = &localRouterFactory{
-		router: compose.PathClient(l.GlobalCtx, nodes.AsAdmin(), nodes.WithSynchronousTasks()),
+		router: compose.PathClient(
+			l.GlobalCtx,
+			nodes.AsAdmin(),
+			nodes.WithSynchronousTasks(),
+			nodes.WithHashesAsETags(),
+		),
 	}
 	l.Source = l
 	l.GlobalCtx = servicecontext.WithServiceName(l.GlobalCtx, "endpoint.cells.local")

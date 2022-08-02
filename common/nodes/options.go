@@ -47,6 +47,7 @@ type RouterOptions struct {
 	AuditEvent       bool
 	SynchronousCache bool
 	SynchronousTasks bool
+	HashesAsETags    bool
 
 	Wrappers []Adapter
 	Pool     SourcesPool
@@ -96,6 +97,12 @@ func WithSynchronousCaching() Option {
 func WithSynchronousTasks() Option {
 	return func(o *RouterOptions) {
 		o.SynchronousTasks = true
+	}
+}
+
+func WithHashesAsETags() Option {
+	return func(o *RouterOptions) {
+		o.HashesAsETags = true
 	}
 }
 

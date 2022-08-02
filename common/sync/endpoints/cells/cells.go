@@ -64,6 +64,8 @@ type Options struct {
 	model.EndpointOptions
 	// If router is started in an independent process, call basic initialization to connect to registry.
 	LocalInitRegistry bool
+	// When starting endpoint within a known runtime, set runtime context (e.g. scheduler task)
+	LocalRuntimeContext context.Context
 	// If a sync is connecting two endpoint of a same server, we have to make sure to avoid Uuid collision
 	RenewFolderUuids bool
 }
@@ -414,7 +416,7 @@ func (c *Abstract) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 func (c *Abstract) DeleteNode(ctx context.Context, name string) (err error) {
 	// Ignore .pydio files !
 	if path.Base(name) == common.PydioSyncHiddenFile {
-		log.Logger(ctx).Debug("[router] Ignoring " + name)
+		log.Logger(ctx).Debug("[router] Ignoring " + name)
 		return nil
 	}
 	c.flushRecentMkDirs()
@@ -468,7 +470,7 @@ func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 	writeDone = make(chan bool, 1)
 	writeErr = make(chan error, 1)
 	if path.Base(p) == common.PydioSyncHiddenFile {
-		log.Logger(c.GlobalCtx).Debug("[router] Ignoring " + p)
+		log.Logger(c.GlobalCtx).Debug("[router] Ignoring " + p)
 		defer close(writeDone)
 		defer close(writeErr)
 		return &NoopWriter{}, writeDone, writeErr, nil

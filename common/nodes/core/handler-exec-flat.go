@@ -285,7 +285,7 @@ func (f *FlatStorageHandler) postCreate(ctx context.Context, node *tree.Node, re
 			}
 		}
 		if hash, o := requestMeta[common.MetaNamespaceHash]; o {
-			updateNode.Etag = hash
+			updateNode.MustSetMeta(common.MetaNamespaceHash, hash)
 		}
 		if cType, o := requestMeta[common.XContentType]; o && !nodes.IsDefaultMime(cType) {
 			updateNode.MustSetMeta(common.MetaNamespaceMime, cType)

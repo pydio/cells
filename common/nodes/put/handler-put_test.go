@@ -137,7 +137,7 @@ func TestHandler_TestMultipartHash(t *testing.T) {
 
 		partsHasher := md5.New()
 		for _, part := range parts {
-			r := hasher.Tee(bytes.NewBuffer(part), hFunc, func(s string, hashes [][]byte) {
+			r := hasher.Tee(bytes.NewBuffer(part), hFunc, "hashMetaName", func(s string, hashes [][]byte) {
 				t.Log("Tee complete", s, len(hashes))
 				for _, h := range hashes {
 					partsHasher.Write(h)
@@ -145,6 +145,10 @@ func TestHandler_TestMultipartHash(t *testing.T) {
 			})
 			_, e := io.Copy(bh, r)
 			So(e, ShouldBeNil)
+			mm, ok := r.(common.ReaderMetaExtractor).ExtractedMeta()
+			So(ok, ShouldBeTrue)
+			So(mm["hashMetaName"], ShouldNotBeEmpty)
+
 		}
 		hx2 := hex.EncodeToString(partsHasher.Sum(nil))
 		t.Log("Found hx2", hx2)

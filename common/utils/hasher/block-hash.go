@@ -84,6 +84,7 @@ func (b *BlockHash) Reset() {
 type Reader struct {
 	io.Reader
 	hash.Hash
+	metaName string
 	complete func(string, [][]byte)
 	done     bool
 	total    int
@@ -123,7 +124,7 @@ func (r *Reader) ExtractedMeta() (map[string]string, bool) {
 		}
 	}
 	if r.done && r.final != "" {
-		meta[common.MetaNamespaceHash] = r.final
+		meta[r.metaName] = r.final
 	}
 	if len(meta) > 0 {
 		return meta, true
@@ -131,10 +132,11 @@ func (r *Reader) ExtractedMeta() (map[string]string, bool) {
 	return nil, false
 }
 
-func Tee(reader io.Reader, hashFunc func() hash.Hash, complete func(s string, hashes [][]byte)) io.Reader {
+func Tee(reader io.Reader, hashFunc func() hash.Hash, metaName string, complete func(s string, hashes [][]byte)) io.Reader {
 	return &Reader{
 		Reader:   reader,
 		Hash:     hashFunc(),
+		metaName: metaName,
 		complete: complete,
 	}
 }

@@ -166,6 +166,9 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 					eventType = tree.NodeChangeEvent_UPDATE_CONTENT
 				}
 				node.Path = req.GetNode().GetPath()
+				if h := req.GetNode().GetStringMeta(common.MetaNamespaceHash); h != "" {
+					node.SetMeta(common.MetaNamespaceHash, h)
+				}
 				s.setDataSourceMeta(node)
 				if err := s.UpdateParentsAndNotify(ctx, dao, req.GetNode().GetSize(), eventType, nil, node, req.IndexationSession); err != nil {
 					return nil, errors.InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
@@ -235,8 +238,12 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	s.setDataSourceMeta(node)
 
 	// Propagate mime meta
-	if req.GetNode().GetStringMeta(common.MetaNamespaceMime) != "" {
-		node.SetMeta(common.MetaNamespaceMime, req.GetNode().GetStringMeta(common.MetaNamespaceMime))
+	if mime := req.GetNode().GetStringMeta(common.MetaNamespaceMime); mime != "" {
+		node.SetMeta(common.MetaNamespaceMime, mime)
+	}
+	// Propagate hash meta
+	if hash := req.GetNode().GetStringMeta(common.MetaNamespaceHash); hash != "" {
+		node.SetMeta(common.MetaNamespaceHash, hash)
 	}
 
 	if err := s.UpdateParentsAndNotify(ctx, dao, req.GetNode().GetSize(), eventType, nil, node, req.IndexationSession); err != nil {

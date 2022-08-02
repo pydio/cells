@@ -155,6 +155,11 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 
 	case tree.NodeChangeEvent_UPDATE_CONTENT:
 		// Simply forward to TopicMetaChange
+		if e.Target != nil && e.Target.GetStringMeta(common.MetaNamespaceHash) != "" {
+			if _, er := s.UpdateNode(ctx, &tree.UpdateNodeRequest{To: e.Target, Silent: e.Silent}); er != nil {
+				log.Logger(ctx).Warn("Error while processing meta event (UPDATE_CONTENT)", zap.Error(er))
+			}
+		}
 		log.Logger(ctx).Debug("Received Update content, forwarding to TopicMetaChange", zap.Any("event", e))
 		broker.MustPublish(ctx, common.TopicMetaChanges, e)
 
