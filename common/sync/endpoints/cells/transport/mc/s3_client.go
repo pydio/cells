@@ -22,13 +22,11 @@ package mc
 
 import (
 	"context"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/pydio/cells/v4/common"
 	"io"
 	"net/http"
 	"net/url"
-
-	"github.com/pydio/cells/v4/common"
-
-	"github.com/minio/minio-go/v7/pkg/credentials"
 
 	minio "github.com/minio/minio-go/v7"
 
@@ -84,11 +82,11 @@ func (g *S3Client) GetObject(ctx context.Context, node *tree.Node, requestData *
 	return r, e
 }
 
-func (g *S3Client) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
+func (g *S3Client) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 
 	jwt, err := oidc.RetrieveToken(g.config)
 	if err != nil {
-		return 0, err
+		return models.ObjectInfo{}, err
 	}
 	u, _ := url.Parse(g.s3config.Endpoint)
 	t := http.DefaultTransport
@@ -105,22 +103,27 @@ func (g *S3Client) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 	}
 	mc, e := minio.NewCore(u.Host, opts)
 	if e != nil {
-		return 0, e
+		return models.ObjectInfo{}, e
 	}
 	if ui, e := mc.PutObject(ctx, g.s3config.Bucket, node.Path, reader, requestData.Size, "", "", minio.PutObjectOptions{
 		UserMetadata: requestData.Metadata,
 	}); e == nil {
-		return ui.Size, nil
+		return models.ObjectInfo{
+			ETag:         ui.ETag,
+			Key:          ui.Key,
+			LastModified: ui.LastModified,
+			Size:         ui.Size,
+		}, nil
 	} else {
-		return 0, e
+		return models.ObjectInfo{}, e
 	}
 
 }
 
-func (g *S3Client) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
+func (g *S3Client) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 	jwt, err := oidc.RetrieveToken(g.config)
 	if err != nil {
-		return 0, err
+		return models.ObjectInfo{}, err
 	}
 	u, _ := url.Parse(g.s3config.Endpoint)
 	t := http.DefaultTransport
@@ -137,7 +140,7 @@ func (g *S3Client) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 	}
 	mc, e := minio.NewCore(u.Host, opts)
 	if e != nil {
-		return 0, e
+		return models.ObjectInfo{}, e
 	}
 
 	dst := minio.PutObjectOptions{
@@ -149,9 +152,18 @@ func (g *S3Client) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 	}
 	oi, er := mc.CopyObject(ctx, g.s3config.Bucket, from.Path, g.s3config.Bucket, to.Path, nil, src, dst)
 	if er != nil {
-		return 0, er
+		return models.ObjectInfo{}, er
 	}
-	return oi.Size, nil
+	return models.ObjectInfo{
+		ETag:         oi.ETag,
+		Key:          oi.Key,
+		LastModified: oi.LastModified,
+		Size:         oi.Size,
+		ContentType:  oi.ContentType,
+		Metadata:     oi.Metadata,
+		StorageClass: oi.StorageClass,
+		Err:          oi.Err,
+	}, nil
 }
 
 type customHeaderRoundTripper struct {

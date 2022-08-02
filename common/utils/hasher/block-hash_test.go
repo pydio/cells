@@ -64,7 +64,7 @@ func testFunc(suite testSuite, t *testing.T) {
 		_, _ = f.Seek(0, 0)
 		reader := Tee(f, func() hash.Hash {
 			return NewBlockHash(suite.hasher(), suite.blockSize)
-		}, func(s string) {
+		}, func(s string, _ [][]byte) {
 			fmt.Println("Wrap Complete", s)
 			So(s, ShouldEqual, outString)
 		})
