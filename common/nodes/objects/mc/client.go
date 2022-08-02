@@ -302,9 +302,6 @@ func (c *Client) AbortMultipartUpload(ctx context.Context, bucket, object, uploa
 }
 
 func (c *Client) CopyObject(ctx context.Context, sourceBucket, sourceObject, destBucket, destObject string, srcMeta, metadata map[string]string, progress io.Reader) (models.ObjectInfo, error) {
-	if strings.Contains(sourceObject, "#") {
-		sourceObject = strings.ReplaceAll(sourceObject, "#", "%23")
-	}
 	srcOptions := minio.CopySrcOptions{
 		Bucket: sourceBucket,
 		Object: sourceObject,

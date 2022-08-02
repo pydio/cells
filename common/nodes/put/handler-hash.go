@@ -114,7 +114,8 @@ func (m *HashHandler) MultipartAbort(ctx context.Context, target *tree.Node, upl
 func (m *HashHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (models.ObjectInfo, error) {
 
 	// TODO Move that in the "previous" layer?
-	if !requestData.IsMove() && !nodes.IsFlatStorage(ctx, "to") {
+	move := requestData.IsMove()
+	if !move && !nodes.IsFlatStorage(ctx, "to") {
 		// Ensure target UUID is set
 		to.RenewUuidIfEmpty(false)
 		requestData.SetMeta(common.XAmzMetaNodeUuid, to.Uuid)
@@ -131,7 +132,7 @@ func (m *HashHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.
 
 	// For struct, update now. For Flat, it should be handled below
 	if srcHash != "" {
-		if requestData.IsMove() {
+		if move {
 			// Move: update initial node meta
 			nodes.MustCoreMetaSet(ctx, from.Uuid, common.MetaNamespaceHash, srcHash)
 		} else {
