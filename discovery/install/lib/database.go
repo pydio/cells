@@ -191,7 +191,7 @@ func addDatabaseManualConnection(c *install.InstallConfig) (*mysql.Config, error
 
 func checkConnection(dsn string) error {
 	for {
-		if db, err := sql.Open("mysql", dsn); err != nil {
+		if db, err := sql.Open("mysql+tls", dsn); err != nil {
 			return err
 		} else {
 			// Open doesn't open a connection. Validate DSN data:
@@ -204,7 +204,7 @@ func checkConnection(dsn string) error {
 
 				rootdsn := rootconf.FormatDSN()
 
-				if rootdb, rooterr := sql.Open("mysql", rootdsn); rooterr != nil {
+				if rootdb, rooterr := sql.Open("mysql+tls", rootdsn); rooterr != nil {
 					return rooterr
 				} else {
 					version, err := getMysqlVersion(rootdb)
@@ -307,7 +307,7 @@ func checkMysqlCharset(db *sql.DB, version string) error {
 }
 
 func checkCellsInstallExists(dsn string) (install bool, admin bool, e error) {
-	db, err := sql.Open("mysql", dsn)
+	db, err := sql.Open("mysql+tls", dsn)
 	if err != nil {
 		return
 	}

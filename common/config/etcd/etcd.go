@@ -24,6 +24,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/utils/std"
 	"net/url"
 	"strings"
 	"sync"
@@ -86,10 +88,13 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 	pwd, _ := u.User.Password()
 
 	etcdConn, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{addr},
-		DialTimeout: 2 * time.Second,
-		Username:    u.User.Username(),
-		Password:    pwd,
+		Endpoints:         []string{addr},
+		DialTimeout:       2 * time.Second,
+		DialKeepAliveTime: 2 * time.Second,
+		Username:          u.User.Username(),
+		Password:          pwd,
+		// Logger:            log.Logger(ctx).Raw(),
+		// LogConfig:         &zap.Config{Level: zap.NewAtomicLevelAt(zapcore.DebugLevel)},
 	})
 
 	if err != nil {
@@ -123,24 +128,35 @@ func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLea
 
 	var leaseID clientv3.LeaseID
 	if withLease {
-		lease := clientv3.NewLease(cli)
-		resp, err := lease.Grant(ctx, 10)
+		err := std.Retry(ctx, func() error {
+			lease := clientv3.NewLease(cli)
+			ctxWithTimeout, cancel := context.WithTimeout(ctx, 1*time.Second)
+			resp, err := lease.Grant(ctxWithTimeout, 10)
+			if cancel(); err != nil {
+				log.Warn("[etcd] no connection, retrying in 10s...")
+				return err
+			}
+
+			leaseID = resp.ID
+
+			go func() {
+				ch, err := lease.KeepAlive(ctx, leaseID)
+				if err != nil {
+					return
+				}
+
+				for resp := range ch {
+					_ = resp
+				}
+			}()
+
+			return nil
+		}, 10*time.Second, 10*time.Minute)
+
 		if err != nil {
 			return nil, err
 		}
 
-		leaseID = resp.ID
-
-		go func() {
-			ch, err := lease.KeepAlive(ctx, leaseID)
-			if err != nil {
-				return
-			}
-
-			for resp := range ch {
-				_ = resp
-			}
-		}()
 	}
 
 	m := &etcd{

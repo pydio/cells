@@ -183,6 +183,14 @@ ENVIRONMENT
 			}
 		}
 
+		// getting all connections
+		//testConfig, err := config.OpenStore(ctx, "file:///Users/ghecquet/go/src/github.com/pydio/cells/databases?encode=toml")
+		//if err != nil {
+		//	return err
+		//}
+		//fmt.Println(testConfig.Get())
+		//return nil
+
 		// Init registry
 		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {

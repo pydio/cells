@@ -24,6 +24,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/registry/util"
+	"net/url"
 	"sync"
 
 	tools "github.com/go-sql-driver/mysql"
@@ -49,29 +52,56 @@ func (m *conn) Open(c context.Context, dsn string) (dao.Conn, error) {
 		db *sql.DB
 	)
 
+	u, err := url.Parse(dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	tlsConfig, err := crypto.TLSConfigFromURL(u)
+	if err != nil {
+		return nil, err
+	}
+
+	if tlsConfig != nil {
+		q := u.Query()
+		q.Add("tls", "cells")
+
+		u.RawQuery = q.Encode()
+
+		tools.RegisterTLSConfig("cells", tlsConfig)
+	}
+
 	// Try to create the database to ensure it exists
-	mysqlConfig, err := tools.ParseDSN(dsn)
+	mysqlConfig, err := tools.ParseDSN(u.String())
 	if err != nil {
 		return nil, err
 	}
 	dbName := mysqlConfig.DBName
+	newDSN := mysqlConfig.FormatDSN()
 	mysqlConfig.DBName = ""
 	rootDSN := mysqlConfig.FormatDSN()
 
-	if db, err = commonsql.GetSqlConnection(c,"mysql", rootDSN); err != nil {
+	addr := util.CreateAddress(mysqlConfig.Addr, nil)
+	fmt.Println("Registered address ", addr.ID())
+
+	if db, err = commonsql.GetSqlConnection(c, "mysql", rootDSN); err != nil {
 		return nil, err
 	}
 	if _, err = db.Exec(fmt.Sprintf("create database if not exists `%s`", dbName)); err != nil {
 		return nil, err
 	}
 
-	if db, err = commonsql.GetSqlConnection(c,"mysql", dsn); err != nil {
+	if db, err = commonsql.GetSqlConnection(c, "mysql", newDSN); err != nil {
 		return nil, err
 	}
 
 	m.conn = db
 
 	return db, nil
+}
+
+func (m *conn) Addr() string {
+	return "yo yo yo"
 }
 
 func (m *conn) GetConn(ctx context.Context) (dao.Conn, error) {

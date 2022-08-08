@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/utils/net"
 	"strings"
 
 	"github.com/pydio/cells/v4/common"
@@ -48,15 +49,22 @@ type Handler struct {
 	dao         meta.DAO
 }
 
-func NewHandler(ctx context.Context, dao meta.DAO) *Handler {
-	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL() + "/" + common.ServiceGrpcNamespace_ + common.ServiceUserMeta)
+func NewHandler(ctx context.Context, dao meta.DAO) (*Handler, error) {
+	cacheURL, err := net.URLJoin(runtime.CacheURL(), common.ServiceGrpcNamespace_+common.ServiceUserMeta)
+	if err != nil {
+		return nil, err
+	}
+	c, err := cache.OpenCache(ctx, cacheURL)
+	if err != nil {
+		return nil, err
+	}
 	h := &Handler{dao: dao}
 	h.searchCache = c
 	go func() {
 		<-ctx.Done()
 		h.Stop()
 	}()
-	return h
+	return h, nil
 }
 
 func (h *Handler) Name() string {

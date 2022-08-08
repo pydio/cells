@@ -21,11 +21,12 @@
 package configx
 
 import (
+	"bytes"
 	"context"
 	"sync"
 
+	"github.com/BurntSushi/toml"
 	"github.com/spf13/cast"
-
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	yaml "gopkg.in/yaml.v2"
@@ -93,6 +94,27 @@ func WithJSON() Option {
 	return func(o *Options) {
 		o.Unmarshaler = &jsonReader{}
 		o.Marshaller = &jsonWriter{}
+	}
+}
+
+type tomlReader struct{}
+
+func (j *tomlReader) Unmarshal(data []byte, out interface{}) error {
+	return toml.Unmarshal(data, out)
+}
+
+type tomlWriter struct{}
+
+func (j *tomlWriter) Marshal(in interface{}) ([]byte, error) {
+	buf := new(bytes.Buffer)
+	err := toml.NewEncoder(buf).Encode(in)
+	return buf.Bytes(), err
+}
+
+func WithTOML() Option {
+	return func(o *Options) {
+		o.Unmarshaler = &tomlReader{}
+		o.Marshaller = &tomlWriter{}
 	}
 }
 

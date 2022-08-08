@@ -143,6 +143,10 @@ func (h *Handler) Init(ctx context.Context, c configx.Values) error {
 	return nil
 }
 
+func (h *Handler) Addr() string {
+	return "in sql dao"
+}
+
 func (h *Handler) Stats() map[string]interface{} {
 	return structs.Map(h.DB().Stats())
 }

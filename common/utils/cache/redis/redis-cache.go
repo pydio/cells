@@ -22,6 +22,9 @@ package redis
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/utils/std"
+	"go.uber.org/zap"
 	"net/url"
 	"strings"
 	"time"
@@ -30,7 +33,6 @@ import (
 	"github.com/go-redis/redis/v8"
 
 	cache "github.com/pydio/cells/v4/common/utils/cache"
-	standard "github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
@@ -80,10 +82,28 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 
 	namespace := strings.Join(strings.Split(strings.Trim(u.Path, "/"), "/"), ":")
 	if namespace == "" {
-		namespace = standard.Randkey(16)
+		namespace = std.Randkey(16)
 	}
 
-	cli := NewClient(u)
+	var cli *redis.Client
+	if err := std.Retry(ctx, func() error {
+		c, err := NewClient(u)
+		if err != nil {
+			log.Logger(ctx).Warn("[redis] could not declare cache server, retrying in 10 seconds...", zap.Error(err))
+			return err
+		} else {
+			cli = c
+		}
+
+		ping := cli.Ping(context.TODO())
+		if res, err := ping.Result(); err != nil {
+			log.Logger(ctx).Warn("[redis] could not reach cache server, retrying in 10 seconds...", zap.String("res", res), zap.Error(err))
+			return err
+		}
+		return nil
+	}, 10*time.Second, 10*time.Minute); err != nil {
+		return nil, err
+	}
 
 	mycache := redisc.New(&redisc.Options{
 		Redis:      cli,
@@ -101,7 +121,6 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 }
 
 func (q *redisCache) Get(key string, value interface{}) (ok bool) {
-	// fmt.Println("We are in here get ", key)
 	if err := q.Cache.Get(context.TODO(), q.namespace+key, value); err != nil {
 		return false
 	}

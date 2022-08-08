@@ -36,6 +36,10 @@ type conn struct {
 	weight int
 }
 
+type Addressable interface {
+	Addr() string
+}
+
 type Conn interface{}
 
 type ConnDriver interface {

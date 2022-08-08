@@ -40,6 +40,7 @@ type ZapLogger interface {
 	Panic(msg string, fields ...zap.Field)
 	Fatal(msg string, fields ...zap.Field)
 
+	Raw() *zap.Logger
 	Sugar() *zap.SugaredLogger
 	Check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry
 	Sync() error
@@ -109,6 +110,10 @@ func (l *logger) With(fields ...zap.Field) ZapLogger {
 		Logger: l.Logger,
 		fields: fields,
 	}
+}
+
+func (l *logger) Raw() *zap.Logger {
+	return l.Logger
 }
 
 func (l *logger) Info(msg string, fields ...zap.Field) {

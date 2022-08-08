@@ -21,6 +21,7 @@
 package redis
 
 import (
+	"github.com/pydio/cells/v4/common/crypto"
 	"net/url"
 
 	"github.com/go-redis/redis/v8"
@@ -30,20 +31,26 @@ var (
 	clients = make(map[string]*redis.Client)
 )
 
-func NewClient(u *url.URL) *redis.Client {
+func NewClient(u *url.URL) (*redis.Client, error) {
 	str := u.User.String() + "@" + u.Host
 	cli, ok := clients[str]
 	if ok {
-		return cli
+		return cli, nil
+	}
+
+	tlsConfig, err := crypto.TLSConfigFromURL(u)
+	if err != nil {
+		return nil, err
 	}
 
 	pwd, _ := u.User.Password()
 	cli = redis.NewClient(&redis.Options{
-		Addr:     u.Host,
-		Username: u.User.Username(),
-		Password: pwd,
+		Addr:      u.Host,
+		Username:  u.User.Username(),
+		Password:  pwd,
+		TLSConfig: tlsConfig,
 	})
 
 	clients[str] = cli
-	return cli
+	return cli, nil
 }

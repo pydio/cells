@@ -11,10 +11,10 @@ import (
 )
 
 const (
-	KeyCertStoreName = "tlsCertStoreName"
-	KeyCertUUID      = "tlsCertUUID"
-	KeyCertKeyUUID   = "tlsCertKeyUUID"
-	KeyCertCAUUID    = "tlsCertCAUUID"
+	KeyServerName  = "tlsServerName"
+	KeyCertUUID    = "tlsCertUUID"
+	KeyCertKeyUUID = "tlsCertKeyUUID"
+	KeyCertCAUUID  = "tlsCertCAUUID"
 )
 
 func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
@@ -31,26 +31,26 @@ func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
 		return nil, nil
 	}
 
-	if q.Has(KeyCertStoreName) {
-		conf.ServerName = q.Get(KeyCertStoreName)
+	if q.Has(KeyServerName) {
+		conf.ServerName = q.Get(KeyServerName)
 	}
 
 	var certs []tls.Certificate
-	clientCertBlock, err := store.Load(q.Get(KeyCertUUID) + ".pem")
+	clientCertBlock, err := store.Load(q.Get(KeyCertUUID))
 	if err != nil {
 		return nil, err
 	}
 
 	var clientCertKeyBlock []byte
 	if q.Has(KeyCertKeyUUID) {
-		block, err := store.Load(q.Get(KeyCertKeyUUID) + ".pem")
+		block, err := store.Load(q.Get(KeyCertKeyUUID))
 		if err != nil {
 			return nil, err
 		}
 
 		clientCertKeyBlock = block
 	} else {
-		block, err := store.Load(q.Get(KeyCertUUID) + "-key.pem")
+		block, err := store.Load(q.Get(KeyCertUUID) + "-key")
 		if err != nil {
 			return nil, err
 		}
@@ -70,7 +70,7 @@ func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
 	}
 
 	if q.Has(KeyCertCAUUID) {
-		caBlock, err := store.Load(q.Get(KeyCertCAUUID) + ".pem")
+		caBlock, err := store.Load(q.Get(KeyCertCAUUID))
 		if err != nil {
 			return nil, err
 		}
@@ -83,6 +83,14 @@ func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
 
 		conf.RootCAs = caCertPool
 	}
+
+	q.Del(KeyCertUUID)
+	q.Del(KeyCertKeyUUID)
+	q.Del(KeyServerName)
+	q.Del(KeyCertCAUUID)
+	u.RawQuery = q.Encode()
+
+	conf.MinVersion = tls.VersionTLS12
 
 	return conf, nil
 }

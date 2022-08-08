@@ -47,6 +47,8 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		opts = append(opts, configx.WithString())
 	case "yaml":
 		opts = append(opts, configx.WithYAML())
+	case "toml":
+		opts = append(opts, configx.WithTOML())
 	case "json":
 		opts = append(opts, configx.WithJSON(), configx.WithMarshaller(jsonIndent{}))
 	}

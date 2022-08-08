@@ -22,6 +22,7 @@ package sync
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/utils/net"
 	"io"
 	"path"
 	"strings"
@@ -81,7 +82,8 @@ func newCacheHandler() *CacheHandler {
 	s := &CacheHandler{}
 
 	if syncCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL()+"/"+nodes.ViewsLibraryName+"?evictionTime=30s&cleanWindow=1m")
+		cacheURL, _ := net.URLJoin(runtime.CacheURL(), nodes.ViewsLibraryName+"?evictionTime=30s&cleanWindow=1m")
+		c, _ := cache.OpenCache(context.TODO(), cacheURL)
 		syncCache = c
 		_, _ = broker.Subscribe(context.TODO(), common.TopicTreeChanges, func(publication broker.Message) error {
 			var event tree.NodeChangeEvent

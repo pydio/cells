@@ -27,28 +27,28 @@ func GetSqlConnection(ctx context.Context, driver string, dsn string) (*sql.DB, 
 }
 
 func pingWithRetries(ctx context.Context, db *sql.DB) error {
-	var lastErr error
+	//var lastErr error
 	if err := db.Ping(); err == nil {
 		return nil
 	} else {
-		lastErr = err
+		//lastErr = err
 		log.Logger(ctx).Warn("[SQL] Server does not answer yet, will retry in 10 seconds...")
 	}
 	tick := time.NewTicker(ConnectionOpenRetries)
-	timeout := time.NewTimer(ConnectionOpenTimeout)
+	// timeout := time.NewTimer(ConnectionOpenTimeout)
 	defer tick.Stop()
-	defer timeout.Stop()
+	// defer timeout.Stop()
 	for {
 		select {
 		case <-tick.C:
 			if err := db.Ping(); err == nil {
 				return nil
 			} else {
-				lastErr = err
+				// lastErr = err
 				log.Logger(ctx).Warn("[SQL] Server does not answer yet, will retry in 10 seconds...")
 			}
-		case <-timeout.C:
-			return lastErr
+			//case <-timeout.C:
+			//	return lastErr
 		}
 	}
 }

@@ -22,10 +22,16 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/go-sql-driver/mysql"
+	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/crypto/storage"
+	"io/ioutil"
 	"net"
 	"net/url"
 	"os"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -176,20 +182,27 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 			return false, e
 		}
 	} else {
+		conf := mysql.NewConfig()
+
 		if uConnIdx == 0 {
-			c.DbConnectionType = "tcp"
 			if c.DbTCPHostname, e = dbTcpHost.Run(); e != nil {
 				return false, e
 			}
 			if c.DbTCPPort, e = dbTcpPort.Run(); e != nil {
 				return false, e
 			}
+
+			conf.Net = "tcp"
+			conf.Addr = fmt.Sprintf("%s:%s", c.GetDbTCPHostname(), c.GetDbTCPPort())
 		} else if uConnIdx == 1 {
-			c.DbConnectionType = "socket"
 			if c.DbSocketFile, e = dbSocketFile.Run(); e != nil {
 				return false, e
 			}
+
+			conf.Net = "socket"
+			conf.Addr = c.DbSocketFile
 		}
+
 		var name, user, pass string
 		if name, e = dbName.Run(); e != nil {
 			return false, e
@@ -200,16 +213,30 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 		if pass, e = dbPass.Run(); e != nil {
 			return false, e
 		}
-		if uConnIdx == 0 {
-			c.DbTCPName = name
-			c.DbTCPUser = user
-			c.DbTCPPassword = pass
-		} else {
-			c.DbSocketName = name
-			c.DbSocketUser = user
-			c.DbSocketPassword = pass
+
+		conf.User = user
+		conf.Passwd = pass
+		conf.DBName = name
+
+		c.DbConnectionType = "manual"
+		c.DbManualDSN = conf.FormatDSN()
+	}
+
+	idx := 0
+	for idx = 0; idx < len(c.DbManualDSN); idx++ {
+		if c.DbManualDSN[idx] == '?' {
+			break
 		}
 	}
+
+	// Create DSN
+	newQueryStr, err := promptTLS(c.DbManualDSN[idx:])
+	if err != nil {
+		return promptDB(c)
+	}
+
+	c.DbManualDSN = c.DbManualDSN[:idx] + "?" + newQueryStr
+
 	adminRequired = true
 	if res, e := lib.PerformCheck(context.Background(), "DB", c); e != nil {
 		fmt.Println(p.IconBad + " Cannot connect to database, please review the parameters: " + e.Error())
@@ -319,6 +346,13 @@ func promptAdditionalMongoDSN(c *install.InstallConfig, loop bool) error {
 		}
 	}
 
+	newDSN, err := promptTLS(targetUrl.RawQuery)
+	if err != nil {
+		return err
+	}
+
+	targetUrl.RawQuery = newDSN
+
 	c.DocumentsDSN = targetUrl.String()
 
 	fmt.Println("")
@@ -331,6 +365,155 @@ func promptAdditionalMongoDSN(c *install.InstallConfig, loop bool) error {
 
 	return nil
 
+}
+
+func promptTLS(targetQuery string) (string, error) {
+
+	dsnTLS := p.Prompt{
+		Label:     "Do you wish to setup TLS?",
+		IsConfirm: true,
+		Default:   "n",
+	}
+
+	if _, err := dsnTLS.Run(); err != nil {
+		if err == p.ErrAbort {
+			return targetQuery, nil
+		}
+		return "", err
+	}
+
+	q, err := url.ParseQuery(targetQuery)
+	if err != nil {
+		return "", err
+	}
+
+	serverName, err := (&p.Prompt{
+		Label:   "Server name",
+		Default: "",
+	}).Run()
+	if err != nil {
+		return "", err
+	}
+
+	certFile, err := (&p.Prompt{
+		Label:   "Path to the certificate file",
+		Default: "",
+		Validate: func(str string) error {
+			if str == "" {
+				return nil
+			}
+			if _, err := os.Stat(str); errors.Is(err, os.ErrNotExist) {
+				return err
+			}
+			return nil
+		},
+	}).Run()
+	if err != nil {
+		return "", err
+	}
+
+	keyFile, err := (&p.Prompt{
+		Label:   "Path to the certificate key file",
+		Default: "",
+		Validate: func(str string) error {
+			if str == "" {
+				return nil
+			}
+			if _, err := os.Stat(str); errors.Is(err, os.ErrNotExist) {
+				return err
+			}
+			return nil
+		},
+	}).Run()
+	if err != nil {
+		return "", err
+	}
+
+	caFile, err := (&p.Prompt{
+		Label:   "Path to the CA file",
+		Default: "",
+		Validate: func(str string) error {
+			if str == "" {
+				return nil
+			}
+			if _, err := os.Stat(str); errors.Is(err, os.ErrNotExist) {
+				return err
+			}
+			return nil
+		},
+	}).Run()
+	if err != nil {
+		return "", err
+	}
+
+	store, err := storage.OpenStore(context.Background(), runtime.CertsStoreURL())
+	if err != nil {
+		return "", err
+	}
+
+	if serverName != "" {
+		q.Add(crypto.KeyServerName, serverName)
+	}
+
+	if certFile != "" {
+		v, err := ioutil.ReadFile(certFile)
+		if err != nil {
+			return "", err
+		}
+
+		fName := path.Base(certFile)
+		uuid := fName[:len(fName)-len(path.Ext(fName))]
+		if err := store.Store(uuid, v); err != nil {
+			return "", err
+		}
+
+		q.Add(crypto.KeyCertUUID, uuid)
+	}
+
+	if keyFile != "" {
+		v, err := ioutil.ReadFile(keyFile)
+		if err != nil {
+			return "", err
+		}
+
+		fName := path.Base(keyFile)
+		uuid := fName[:len(fName)-len(path.Ext(fName))]
+		if err := store.Store(uuid, v); err != nil {
+			return "", err
+		}
+
+		q.Add(crypto.KeyCertKeyUUID, uuid)
+	}
+
+	if caFile != "" {
+		v, err := ioutil.ReadFile(caFile)
+		if err != nil {
+			return "", err
+		}
+
+		fName := path.Base(caFile)
+		uuid := fName[:len(fName)-len(path.Ext(fName))]
+		if err := store.Store(uuid, v); err != nil {
+			return "", err
+		}
+
+		q.Add(crypto.KeyCertCAUUID, uuid)
+	}
+
+	if serverName == "" {
+		insecure, err := (&p.Prompt{
+			Label:     "Insecure skip verify",
+			IsConfirm: true,
+			Default:   "n",
+		}).Run()
+		if err != nil {
+			return "", err
+		}
+
+		fmt.Println(insecure)
+	}
+
+	return q.Encode(), nil
 }
 
 func promptDocumentsDSN(c *install.InstallConfig) error {

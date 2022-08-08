@@ -23,6 +23,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -127,7 +128,6 @@ func daoFromOptions(o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts
 		c, e = dao.InitDAO(o.Context, driver, dsn, prefix, fd, cfg)
 	}
 	if e != nil {
-		fmt.Println("Error here ", e)
 		return nil, errors.Wrap(e, "dao.Initialization "+driver)
 	}
 
@@ -236,6 +236,12 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 			}
 			if er := reg.Register(regItem, options...); er != nil {
 				log.Logger(o.Context).Error(" -- Cannot register DAO: "+er.Error(), zap.Error(er))
+			}
+
+			if addr, ok := d.(dao.Addressable); ok {
+				addrItem := util.CreateAddress(addr.Addr(), nil)
+				reg.Register(addrItem, registry.WithEdgeTo(regItem.ID(), "Conn", nil))
+				fmt.Println("Trying to get address here ", addr.Addr())
 			}
 
 			return nil

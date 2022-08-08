@@ -22,6 +22,7 @@ package activity
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/utils/net"
 	"time"
 
 	"github.com/pydio/cells/v4/common/proto/activity"
@@ -36,7 +37,8 @@ func WithCache(dao DAO) DAO {
 	if _, o := dao.(batchDAO); o {
 		useBatch = true
 	}
-	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL() + "/activities?evictionTime=5m")
+	cacheURL, _ := net.URLJoin(runtime.CacheURL(), "/activities?evictionTime=5m")
+	c, _ := cache.OpenCache(context.TODO(), cacheURL)
 	return &Cache{
 		DAO:      dao,
 		cache:    c,

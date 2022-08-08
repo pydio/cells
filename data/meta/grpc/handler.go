@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/utils/net"
 	"strings"
 	"sync"
 
@@ -56,7 +57,8 @@ type MetaServer struct {
 }
 
 func NewMetaServer(ctx context.Context, dao meta.DAO) *MetaServer {
-	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL()+"/"+ServiceName)
+	cacheURL, _ := net.URLJoin(runtime.CacheURL(), ServiceName)
+	c, _ := cache.OpenCache(context.TODO(), cacheURL)
 	m := &MetaServer{dao: dao}
 	m.cache = c
 	m.stoppedLock = &sync.Mutex{}

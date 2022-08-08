@@ -24,6 +24,7 @@ package lib
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -107,18 +108,12 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) (*
 
 	switch name {
 	case "DB":
-		// Create DSN
-		dsn, e := dsnFromInstallConfig(c)
-		if e != nil {
-			wrapError(e)
-			break
-		}
-		if e := checkConnection(dsn); e != nil {
+		if e := checkConnection(c.DbManualDSN); e != nil {
 			wrapError(e)
 			break
 		}
 		jData := map[string]interface{}{"message": "successfully connected to database"}
-		if installExists, adminExists, err := checkCellsInstallExists(dsn); err == nil {
+		if installExists, adminExists, err := checkCellsInstallExists(c.DbManualDSN); err == nil {
 			if installExists {
 				jData["tablesFound"] = true
 			}
@@ -132,8 +127,21 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) (*
 
 	case "MONGO":
 
+		u, err := url.Parse(c.DocumentsDSN)
+		if err != nil {
+			wrapError(err)
+			break
+		}
+		tlsConfig, err := crypto.TLSConfigFromURL(u)
+		if err != nil {
+			wrapError(err)
+			break
+		}
+
 		// Create a new client and connect to the server
-		opts := options.Client().ApplyURI(c.DocumentsDSN)
+		opts := options.Client().ApplyURI(u.String())
+		opts.TLSConfig = tlsConfig
+
 		client, err := mongo.Connect(context.Background(), opts)
 		if err != nil {
 			wrapError(err)

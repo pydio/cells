@@ -94,6 +94,7 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 		etcdConn, err := clientv3.New(clientv3.Config{
 			Endpoints:   []string{addr},
 			DialTimeout: 2 * time.Second,
+			// Logger:      log.Logger(ctx).Raw(),
 		})
 
 		if err != nil {

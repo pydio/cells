@@ -3,6 +3,7 @@ module github.com/pydio/cells/v4
 go 1.17
 
 require (
+	github.com/BurntSushi/toml v0.3.1
 	github.com/ajvb/kala v0.8.4
 	github.com/allegro/bigcache/v3 v3.0.1
 	github.com/beevik/ntp v0.3.0
@@ -57,12 +58,14 @@ require (
 	github.com/matcornic/hermes/v2 v2.1.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/minio/cli v1.22.0
+	github.com/minio/md5-simd v1.1.2
 	github.com/minio/minio v0.0.0-20220720015624-ce8397f7d944
 	github.com/minio/minio-go/v7 v7.0.21
 	github.com/minio/pkg v1.1.14
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/mssola/user_agent v0.5.3
 	github.com/mwitkow/go-proto-validators v0.3.2
+	github.com/nats-io/nats.go v1.11.1-0.20210623165838-4b75fc59ae30
 	github.com/nicksnyder/go-i18n v1.10.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/ory/fosite v0.42.1
@@ -108,7 +111,6 @@ require (
 	go.mongodb.org/mongo-driver v1.8.3
 	go.uber.org/zap v1.21.0
 	gocloud.dev v0.20.0
-	gocloud.dev/pubsub/natspubsub v0.20.0
 	gocloud.dev/pubsub/rabbitpubsub v0.20.0
 	golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
@@ -339,7 +341,6 @@ require (
 	github.com/miekg/dns v1.1.46 // indirect
 	github.com/miekg/pkcs11 v1.0.3 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
-	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/selfupdate v0.4.0 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/minio/simdjson-go v0.2.1 // indirect
@@ -356,7 +357,6 @@ require (
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/naoina/toml v0.1.1 // indirect
-	github.com/nats-io/nats.go v1.11.1-0.20210623165838-4b75fc59ae30 // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/nats-io/stan.go v0.8.3 // indirect

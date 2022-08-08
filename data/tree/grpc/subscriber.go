@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/utils/net"
 	"time"
 
 	"go.uber.org/zap"
@@ -45,9 +46,19 @@ func NewEventSubscriber(t *TreeServer) (*EventSubscriber, error) {
 	es := &EventSubscriber{
 		TreeServer: t,
 	}
-	var er error
-	es.sharedCache, er = cache.OpenCache(context.Background(), runtime.CacheURL()+"/pydio.grpc.tree?evictionTime=10m")
-	return es, er
+
+	cacheURL, err := net.URLJoin(runtime.CacheURL(), "/pydio.grpc.tree?evictionTime=10m")
+	if err != nil {
+		return nil, err
+	}
+
+	sharedCache, err := cache.OpenCache(context.Background(), cacheURL)
+	if err != nil {
+		return nil, err
+	}
+
+	es.sharedCache = sharedCache
+	return es, nil
 }
 
 func (s *EventSubscriber) publish(ctx context.Context, msg *tree.NodeChangeEvent) {

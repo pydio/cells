@@ -64,7 +64,10 @@ func init() {
 			}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
-				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(meta.DAO))
+				handler, err := NewHandler(ctx, servicecontext.GetDAO(ctx).(meta.DAO))
+				if err != nil {
+					return err
+				}
 				idm.RegisterUserMetaServiceEnhancedServer(server, handler)
 				tree.RegisterNodeProviderStreamerEnhancedServer(server, handler)
 
