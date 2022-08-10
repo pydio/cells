@@ -70,11 +70,14 @@ func NewEventsBatcher(timeout time.Duration, uuid string, out chan *NodeChangeEv
 // Flush applies the events buffered as one
 func (n *NodeEventsBatcher) Flush() {
 	var hasCreate bool
+	var hasUpdateContent bool
 	var nonTemporaryEtag string
 	output := &NodeChangeEventWithInfo{}
 	for _, e := range n.buffer {
 		if e.Type == tree.NodeChangeEvent_CREATE {
 			hasCreate = true
+		} else if e.Type == tree.NodeChangeEvent_UPDATE_CONTENT {
+			hasUpdateContent = true
 		}
 		output.Source = e.Source
 		output.Type = e.Type
@@ -99,11 +102,12 @@ func (n *NodeEventsBatcher) Flush() {
 			output.Target = e.Target
 		}
 	}
+	output.refreshTarget = true
 	if hasCreate {
 		output.Type = tree.NodeChangeEvent_CREATE
 		output.refreshTarget = false
-	} else {
-		output.refreshTarget = true
+	} else if hasUpdateContent {
+		output.Type = tree.NodeChangeEvent_UPDATE_CONTENT
 	}
 	n.out <- output
 	n.done <- n.uuid
