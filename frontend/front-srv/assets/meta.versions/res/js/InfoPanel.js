@@ -17,8 +17,27 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import HistoryDialog from './HistoryDialog'
-import Callbacks from './Callbacks'
-import InfoPanel from './InfoPanel'
 
-export {HistoryDialog, Callbacks, InfoPanel}
+import React, {Component} from 'react'
+import Pydio from 'pydio'
+import Revisions from "./Revisions";
+const {PydioContextConsumer} = Pydio.requireLib('boot');
+const {InfoPanelCard} = Pydio.requireLib('workspaces');
+
+
+class InfoPanel extends Component {
+    render() {
+        const {node} = this.props;
+        if(!node || !node.getMetadata().has('datasource_versioning')) {
+            return null
+        }
+        return (
+            <InfoPanelCard identifier={"meta-versions"} style={this.props.style} title={Pydio.getMessages()['meta.versions.1']}>
+                <Revisions node={node} className={"small"} onClick={() => Pydio.getInstance().Controller.fireAction('versions_history')}/>
+            </InfoPanelCard>
+        )
+    }
+}
+
+InfoPanel = PydioContextConsumer(InfoPanel);
+export default InfoPanel
