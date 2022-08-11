@@ -157,8 +157,14 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 
 	if objectInfo.Size > 0 {
 		storedVersion := resp.Version
-		storedVersion.Location = targetNode
-		response, err2 := versionClient.StoreVersion(ctx, &tree.StoreVersionRequest{Node: node, Version: storedVersion})
+		storedVersion.Location = targetNode.Clone()
+		if h := node.GetStringMeta(common.MetaNamespaceHash); h != "" {
+			storedVersion.Location.MustSetMeta(common.MetaNamespaceHash, h)
+		}
+		response, err2 := versionClient.StoreVersion(ctx, &tree.StoreVersionRequest{
+			Node:    node,
+			Version: storedVersion,
+		})
 		if err2 != nil {
 			return input.WithError(err2), err2
 		}

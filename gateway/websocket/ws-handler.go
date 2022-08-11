@@ -167,6 +167,7 @@ func (w *WebsocketHandler) HandleNodeChangeEvent(ctx context.Context, event *tre
 			log.Logger(ctx).Info("recovered a panic in WebSocket handler", zap.Any("e", e))
 		}
 	}()
+	//log.Logger(ctx).Debug("Received event", event.Zap())
 
 	switch event.Type {
 	case tree.NodeChangeEvent_UPDATE_META, tree.NodeChangeEvent_CREATE, tree.NodeChangeEvent_UPDATE_CONTENT:
