@@ -206,6 +206,10 @@ func (v *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 			requestData.Metadata = make(map[string]string, 1)
 		}
 		requestData.Metadata[common.XAmzMetaNodeUuid] = from.Uuid // Make sure to keep Uuid!
+		if h := vResp.GetVersion().GetLocation().GetStringMeta(common.MetaNamespaceHash); h != "" {
+			log.Logger(ctx).Info("Setting MetaNamespaceHash in CopyRequest meta")
+			requestData.Metadata[common.MetaNamespaceHash] = h
+		}
 		from = vResp.GetVersion().GetLocation()
 		// Refresh context from location
 		source, e := v.ClientsPool.GetDataSourceInfo(from.GetStringMeta(common.MetaNamespaceDatasourceName))
