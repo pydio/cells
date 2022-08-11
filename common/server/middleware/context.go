@@ -23,6 +23,7 @@ package middleware
 import (
 	"context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"strings"
 
@@ -33,7 +34,8 @@ import (
 
 // ClientConnIncomingContext adds the ClientConn to context
 func ClientConnIncomingContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
-	clientConn := clientcontext.GetClientConn(serverRuntimeContext)
+	var clientConn grpc.ClientConnInterface
+	clientcontext.GetClientConn(serverRuntimeContext, &clientConn)
 	return func(ctx context.Context) (context.Context, bool, error) {
 		return clientcontext.WithClientConn(ctx, clientConn), true, nil
 	}

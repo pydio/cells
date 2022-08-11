@@ -22,14 +22,14 @@ package configregistry
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	clientv3 "go.etcd.io/etcd/client/v3"
+	"go.uber.org/zap"
 	"net/url"
 	"os"
 	"sync"
-	"time"
-
-	clientv3 "go.etcd.io/etcd/client/v3"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/etcd"
@@ -82,26 +82,22 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 
 	switch u.Scheme {
 	case "etcd":
-		tls := u.Query().Get("tls") == "true"
-		addr := u.Host
-		if tls {
-			addr = "https://" + addr
-		} else {
-			addr = "http://" + addr
+		m, ok := manager.Get(ctx)
+		if !ok {
+			return nil, errors.New("could not reach manager")
 		}
 
-		// Registry via etcd
-		etcdConn, err := clientv3.New(clientv3.Config{
-			Endpoints:   []string{addr},
-			DialTimeout: 2 * time.Second,
-			// Logger:      log.Logger(ctx).Raw(),
-		})
-
+		conn, err := m.GetConnection(u)
 		if err != nil {
 			return nil, err
 		}
 
-		store, err := etcd.NewSource(ctx, etcdConn, u.Path, true, true, opts...)
+		var cli *clientv3.Client
+		if !conn.As(&cli) {
+			return nil, errors.New("not a valid client")
+		}
+
+		store, err := etcd.NewSource(ctx, cli, u.Path, true, true, opts...)
 		if err != nil {
 			return nil, err
 		}

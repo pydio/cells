@@ -50,7 +50,8 @@ type resolver struct {
 
 func (m *resolver) Init(ctx context.Context, s server.HttpMux) {
 
-	conn := clientcontext.GetClientConn(ctx)
+	var conn grpc.ClientConnInterface
+	clientcontext.GetClientConn(ctx, &conn)
 	reg := servercontext.GetRegistry(ctx)
 	rc, _ := client.NewResolverCallback(reg)
 	bal := NewBalancer()

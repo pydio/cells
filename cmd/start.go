@@ -23,16 +23,15 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"net/url"
-	"os"
-	"path/filepath"
-	"strings"
-
 	"github.com/manifoldco/promptui"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -183,15 +182,12 @@ ENVIRONMENT
 			}
 		}
 
-		// getting all connections
-		//testConfig, err := config.OpenStore(ctx, "file:///Users/ghecquet/go/src/github.com/pydio/cells/databases?encode=toml")
-		//if err != nil {
-		//	return err
-		//}
-		//fmt.Println(testConfig.Get())
-		//return nil
-
 		// Init registry
+		m := manager.NewManager(ctx, runtime.RegistryURL(), "mem:///?cache=plugins&byname=true", "main", managerLogger)
+		if err := m.Init(ctx); err != nil {
+			return err
+		}
+
 		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
 			return err
@@ -216,24 +212,61 @@ ENVIRONMENT
 		// Starting discovery server containing registry, broker, config and log
 		var discovery manager.Manager
 		if !runtime.IsGrpcScheme(runtime.RegistryURL()) {
-			if discovery, err = startDiscoveryServer(ctx, reg, managerLogger); err != nil {
+			if discovery, err = startDiscoveryServer(ctx, runtime.RegistryURL(), managerLogger); err != nil {
 				return err
 			}
 		}
 
 		// Create a main client connection
 		clientgrpc.WarnMissingConnInContext = true
-		conn, err := grpc.Dial("cells:///", clientgrpc.DialOptionsForRegistry(reg)...)
+		grpcConn, err := grpc.Dial("cells:///", clientgrpc.DialOptionsForRegistry(reg)...)
 		if err != nil {
 			return err
 		}
-		ctx = clientcontext.WithClientConn(ctx, conn)
+		ctx = clientcontext.WithClientConn(ctx, grpcConn)
 		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
 
-		m := manager.NewManager(reg, "mem:///?cache=plugins&byname=true", "main", managerLogger)
-		if err := m.Init(ctx); err != nil {
-			return err
-		}
+		//// getting all connections
+		//testConfig, err := config.OpenStore(ctx, "file:///Users/ghecquet/go/src/github.com/pydio/cells/databases?encode=toml")
+		//if err != nil {
+		//	return err
+		//}
+		//
+		//// Certificates
+		//store, err := storage.OpenStore(context.Background(), runtime.CertsStoreURL())
+		//if err != nil {
+		//	return err
+		//}
+		//
+		//certificates := testConfig.Val("certificates")
+		//for _, k := range certificates.Keys() {
+		//	data, err := ioutil.ReadFile(certificates.Val(k).Val("file").String())
+		//	if err != nil {
+		//		return err
+		//	}
+		//	store.Store(k, data)
+		//}
+		//
+		//// Connections
+		//stores := testConfig.Val("databases")
+		//for _, k := range stores.Keys() {
+		//	my := stores.Val(k)
+		//	myConnProvider, ok := conn.GetConnProvider(my.Val("type").String())
+		//	if !ok {
+		//		return errors.New("no connection provider for type " + my.Val("type").String())
+		//	}
+		//
+		//	myConn, err := myConnProvider(ctx, my)
+		//	if err != nil {
+		//		fmt.Println("Error in ", my.Val("type").String())
+		//		return err
+		//	}
+		//
+		//	m := map[string]string{}
+		//	addrItem := util.CreateAddress(myConn.Addr(), m)
+		//	reg.Register(addrItem)
+		//
+		//}
 
 		// Logging Stuff
 		runtime.InitGlobalConnConsumers(ctx, "main")
@@ -292,9 +325,9 @@ ENVIRONMENT
 	},
 }
 
-func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log.ZapLogger) (manager.Manager, error) {
+func startDiscoveryServer(ctx context.Context, regUrl string, logger log.ZapLogger) (manager.Manager, error) {
 
-	m := manager.NewManager(reg, "mem:///", "discovery", logger)
+	m := manager.NewManager(ctx, regUrl, "mem:///", "discovery", logger)
 	if er := m.Init(ctx); er != nil {
 		return nil, er
 	}

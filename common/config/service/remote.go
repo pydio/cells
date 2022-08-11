@@ -61,9 +61,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 
 	var conn grpc.ClientConnInterface
 
-	if clientcontext.GetClientConn(ctx) != nil {
-		conn = clientcontext.GetClientConn(ctx)
-	} else {
+	if err := clientcontext.GetClientConn(ctx, &conn); err != nil {
 		c, err := grpc.Dial(u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			return nil, err
@@ -386,6 +384,10 @@ func (v *values) Slice() []interface{} {
 
 func (v *values) Map() map[string]interface{} {
 	return v.Get().Map()
+}
+
+func (v *values) Keys() []string {
+	return v.Get().Keys()
 }
 
 func (v *values) Scan(i interface{}, opts ...configx.Option) error {

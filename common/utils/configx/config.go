@@ -93,6 +93,7 @@ type Value interface {
 	StringArray() []string
 	Slice() []interface{}
 	Map() map[string]interface{}
+	Keys() []string
 
 	Scanner
 }
@@ -864,6 +865,23 @@ func (c *config) Map() map[string]interface{} {
 	}
 	r, _ := cast.ToStringMapE(v)
 	return r
+}
+func (c *config) Keys() []string {
+	v := c.Interface()
+	if v == nil {
+		return []string{}
+	}
+
+	var ret []string
+	vv := reflect.ValueOf(c.Interface())
+	switch vv.Kind() {
+	case reflect.Map:
+		for _, k := range vv.MapKeys() {
+			ret = append(ret, k.String())
+		}
+		return ret
+	}
+	return []string{}
 }
 func (c *config) UnmarshalJSON(data []byte) error {
 	var m map[string]interface{}

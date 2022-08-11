@@ -100,6 +100,9 @@ func (d *def) Map() map[string]interface{} {
 	r, _ := cast.ToStringMapE(d.v)
 	return r
 }
+func (d *def) Keys() []string {
+	return []string{}
+}
 func (d *def) Scan(val interface{}, opts ...Option) error {
 	jsonStr, err := json.Marshal(d.v)
 	if err != nil {
