@@ -297,7 +297,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 		if requestData.IsMove() {
 			requestData.Metadata[common.XAmzMetaNodeUuid] = from.Uuid
 		}
-		
+
 		// append metadata to the context as well, as it may switch to putObjectMultipart
 		ctxMeta := make(map[string]string)
 		if m, ok := metadata.MinioMetaFromContext(ctx, validHeaders); ok {
