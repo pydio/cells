@@ -44,6 +44,7 @@ const (
 	StorageKeyBucketsRegexp   = "bucketsRegexp"
 	StorageKeyReadonly        = "readOnly"
 	StorageKeyJsonCredentials = "jsonCredentials"
+	StorageKeyStorageClass    = "storageClass"
 
 	StorageKeyCellsInternal    = "cellsInternal"
 	StorageKeyInitFromBucket   = "initFromBucket"

@@ -312,7 +312,7 @@ func (m *Handler) MultipartPutObjectPart(ctx context.Context, target *tree.Node,
 	}
 
 	if partNumberMarker == 1 && requestData.ContentTypeUnknown() {
-		cl := target.Clone()
+		cl := resp.GetNode().Clone()
 		cl.Type = tree.NodeType_LEAF // Force leaf!
 		reader = nodes.WrapReaderForMime(ctx, cl, reader)
 	}

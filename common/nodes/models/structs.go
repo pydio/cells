@@ -59,14 +59,15 @@ type ReadMeta map[string]string
 
 // PutMeta represents options specified by user for PutObject call
 type PutMeta struct {
-	UserMetadata            map[string]string
-	Progress                io.Reader
-	ContentType             string
-	ContentEncoding         string
-	ContentDisposition      string
-	ContentLanguage         string
-	CacheControl            string
-	NumThreads              uint
+	UserMetadata       map[string]string
+	Progress           io.Reader
+	ContentType        string
+	ContentEncoding    string
+	ContentDisposition string
+	ContentLanguage    string
+	CacheControl       string
+	NumThreads         uint
+	// Valid values are STANDARD | REDUCED_REDUNDANCY | STANDARD_IA | ONEZONE_IA | INTELLIGENT_TIERING | GLACIER | DEEP_ARCHIVE | OUTPOSTS | GLACIER_IR
 	StorageClass            string
 	WebsiteRedirectLocation string
 }
