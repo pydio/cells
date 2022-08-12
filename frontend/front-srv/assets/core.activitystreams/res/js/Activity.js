@@ -19,14 +19,14 @@
  */
 
 import Pydio from 'pydio'
-import React from 'react';
+import React, {Fragment} from 'react';
 import PropTypes from 'prop-types'
 import ReactMarkdown from 'react-markdown'
 import {FontIcon} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PathUtils from 'pydio/util/path'
 
-const {UserAvatar} = Pydio.requireLib('components');
+const {Timeline, UserAvatar} = Pydio.requireLib('components');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 const {FilePreview} = Pydio.requireLib('workspaces');
 
@@ -38,25 +38,6 @@ class Paragraph extends React.Component{
         return <span>{this.props.children}</span>
     }
 }
-
-function workspacesLocations(pydio, object){
-    let workspaces = [];
-    if (!object.partOf || !object.partOf.items || !object.partOf.items.length){
-        return "No workspace found";
-    }
-    for(let i = 0; i < object.partOf.items.length; i++ ){
-        let ws = object.partOf.items[i];
-        // Remove slug part
-        //let paths = ws.rel.split('/');
-        //paths.shift();
-        //let relPath = paths.join('/');
-        workspaces.push(<a key={ws.id} onClick={() => pydio.triggerRepositoryChange(ws.id)} style={{cursor:'pointer'}}>{ws.name}</a>);
-        workspaces.push(<span key={ws.id+'-sep'}>, </span>);
-    }
-    workspaces.pop();
-    return <span>{pydio.MessageHash['notification_center.16']} <span>{workspaces}</span></span>
-}
-
 
 function LinkWrapper(pydio, activity, style = undefined) {
 
@@ -93,6 +74,44 @@ function LinkWrapper(pydio, activity, style = undefined) {
         }
     }
 
+}
+
+export class ActivityMD extends React.Component {
+    render() {
+        const {activity, listContext, inlineActor} = this.props;
+        if(!activity.summary) {
+            return <span>{activity.type} {activity.actor ? ' - ' + activity.actor.name : ''}</span>
+        }
+        const renderers = {
+            paragraph:Paragraph,
+            link: LinkWrapper(pydio, activity, {color:'inherit'})
+        }
+        if(listContext === 'NODE-LEAF') {
+            renderers.link = () => null
+        }
+        let av;
+        if(inlineActor && activity.actor){
+            av = <UserAvatar
+                userId={activity.actor.id}
+                userLabel={activity.actor.name}
+                displayLocalLabel={true}
+                userType={'user'}
+                pydio={Pydio.getInstance()}
+                style={{display:'inline-block'}}
+                labelStyle={{display:'inline-block'}}
+                displayAvatar={false}
+                richOnHover={false}
+            />
+
+        }
+
+        return (
+            <Fragment>
+                {av}{av ? ' - ': null}
+                <ReactMarkdown source={activity.summary} renderers={renderers} style={{display:'inline'}} containerTagName={inlineActor?'span':'div'}/>
+            </Fragment>
+        );
+    }
 }
 
 class Activity extends React.Component{
@@ -155,17 +174,8 @@ class Activity extends React.Component{
     render() {
 
         let {pydio, activity, listContext, displayContext, oneLiner, muiTheme} = this.props;
-        let secondary = activity.type + (activity.actor ? ' - ' + activity.actor.name : '');
-        if (activity.summary) {
-            const renderers = {paragraph:Paragraph, link: LinkWrapper(pydio, activity, {color:'inherit'})}
-            if(listContext === 'NODE-LEAF') {
-                renderers.link = () => null
-            }
-            secondary = <ReactMarkdown source={activity.summary} renderers={renderers}/>;
-        }
 
         let summary, summaryStyle;
-        let actionIcon;
         let blockStyle = {
             margin:'0px 10px 6px'
         };
@@ -230,7 +240,9 @@ class Activity extends React.Component{
                     {icon}
                     <div style={{flex:1, overflow:'hidden', paddingRight: 16}}>
                         <div style={{marginTop: 12, marginBottom: 2, fontSize: 15, color:'rgba(0,0,0,.87)', whiteSpace:'nowrap', textOverflow:'ellipsis', overflow:'hidden'}}>{primaryText}</div>
-                        <div style={{color: 'rgba(0,0,0,.33)'}}>{secondary}</div>
+                        <div style={{color: 'rgba(0,0,0,.33)'}}>
+                            <ActivityMD activity={activity} listContext={listContext}/>
+                        </div>
                     </div>
                 </div>
             );
@@ -261,7 +273,6 @@ class Activity extends React.Component{
                             />
                         }
                         <span style={{fontSize:13, display:'inline-block', flex:1, height:18, color: 'rgba(0,0,0,0.23)', fontWeight:500, paddingLeft:8, whiteSpace:'nowrap'}}>{moment(activity.updated).fromNow()}</span>
-                        {actionIcon}
                     </div>
                 }
                 {summary}

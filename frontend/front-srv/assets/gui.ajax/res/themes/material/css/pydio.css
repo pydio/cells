@@ -2640,6 +2640,199 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
     transform: scale(1);
   }
 }
+.timeline {
+  position: relative;
+}
+.timeline .tl-line {
+  width: 2px;
+  top: 40px;
+  bottom: 60px;
+  position: absolute;
+  left: 78px;
+  border-right: 3px dashed #eee;
+}
+.timeline .sep-date {
+  display: none;
+}
+.timeline .tl-timeline {
+  font-size: 13px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  margin: 0 20px;
+}
+.timeline .tl-timeline .daymonth {
+  font-weight: 600;
+  font-size: 15px;
+}
+.timeline .tl-timeline .dayweek {
+  text-transform: uppercase;
+  opacity: 0.27;
+  font-weight: 600;
+}
+.timeline .tl-timeline .tl-block {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+}
+.timeline .tl-timeline .tl-block .tl-date {
+  margin-top: 20px;
+  width: 40px;
+  overflow: hidden;
+  text-align: center;
+}
+.timeline .tl-timeline .tl-block .tl-dot {
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  margin: 30px 15px 0;
+  background-color: #D1D6E6;
+  border-radius: 50%;
+  position: relative;
+  -webkit-box-shadow: #D1D6E6 0px 0px 4px;
+          box-shadow: #D1D6E6 0px 0px 4px;
+}
+.timeline .tl-timeline .tl-block .tl-dot:before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #D1D6E6;
+  border-radius: 50%;
+  opacity: 0.4;
+}
+.timeline .tl-timeline .tl-block .tl-card {
+  background-color: white;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
+          box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  margin: 10px;
+  padding: 16px 20px;
+  border-radius: 10px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  cursor: pointer;
+}
+.timeline .tl-timeline .tl-block .tl-card .tl-desc {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+.timeline .tl-timeline .tl-block .tl-card .tl-desc .desc-date {
+  font-size: 11px;
+  opacity: 0.5;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.timeline .tl-timeline .tl-block .tl-card .tl-annotation {
+  color: #4caf50;
+  font-size: 11px;
+  font-weight: 500;
+}
+.timeline .tl-timeline .tl-block .tl-card .tl-annotation .tl-annotation-dir {
+  margin-right: 2px;
+}
+.timeline .tl-timeline .tl-block .tl-card .tl-actions {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+}
+.timeline .tl-timeline .tl-block.newday {
+  margin-top: 20px;
+}
+.timeline .tl-timeline .tl-block.similar .tl-date {
+  opacity: 0;
+}
+.timeline .tl-timeline .tl-block.similar .tl-dot {
+  opacity: 0.25;
+}
+.timeline .tl-timeline .tl-block.tl-more .tl-dot:before {
+  content: '+';
+  color: white;
+  font-weight: 500;
+  z-index: 100;
+  text-align: center;
+  opacity: 1;
+  border: 1px solid #eeeeee;
+  font-size: 15px;
+  line-height: 19px;
+}
+.timeline .tl-timeline .tl-block.tl-more .tl-card {
+  border-radius: 5px;
+  margin: 12px 10px 30px !important;
+  font-weight: 500;
+}
+.timeline.small {
+  padding-right: 10px !important;
+  margin-left: 8px !important;
+}
+.timeline.small .tl-line {
+  top: 50px;
+}
+.timeline.small .tl-timeline {
+  margin: 0 0;
+}
+.timeline.small .tl-timeline .sep-date {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin-left: 40px;
+}
+.timeline.small .tl-timeline .sep-date .daymonth {
+  margin-right: 5px;
+}
+.timeline.small .tl-timeline .sep-date .dayweek {
+  font-size: 15px;
+}
+.timeline.small .tl-timeline .sep-date.newday {
+  margin-top: 10px;
+}
+.timeline.small .tl-timeline .tl-block .tl-date {
+  display: none;
+}
+.timeline.small .tl-timeline .tl-block .tl-dot {
+  margin-left: 0;
+}
+.timeline.small .tl-timeline .tl-block .tl-card {
+  padding: 12px;
+  -webkit-box-shadow: none;
+          box-shadow: none;
+  border: 1px solid #eeeeee;
+}
+.timeline.small .tl-timeline .tl-block .tl-card.tl-selectable:hover {
+  -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
+          box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
+}
+.timeline.small .tl-timeline .tl-block .tl-card .tl-actions {
+  display: none;
+}
+.timeline.small .tl-timeline .tl-block.newday {
+  margin-top: inherit;
+}
+.timeline.small .tl-line {
+  left: 20px;
+}
 /**********************/
 /* MASTER VARIABLES
 /**********************/

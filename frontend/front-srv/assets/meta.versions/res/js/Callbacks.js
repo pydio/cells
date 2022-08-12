@@ -17,11 +17,15 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from 'pydio'
 
 class Callbacks{
 
-    static loadHistoryBrowser(){
-        pydio.UI.openComponentInModal('PydioVersioning', 'HistoryDialog', {node: pydio.getContextHolder().getUniqueNode()});
+    static loadHistoryBrowser(controller, args = []){
+        pydio.UI.openComponentInModal('PydioVersioning', 'HistoryDialog', {
+            node: Pydio.getInstance().getContextHolder().getUniqueNode(),
+            args: args
+        });
     };
 
 }

@@ -25,6 +25,7 @@ import {ListEntry} from './list/ListEntry'
 import ListPaginator from './list/ListPaginator'
 import MaterialTable from './list/MaterialTable'
 import Masonry from './list/Masonry'
+import Timeline from './list/Timeline'
 
 import {TreeView, DNDTreeView, FoldersTree} from './views/TreeView'
 
@@ -75,6 +76,7 @@ const PydioComponents = {
     ListPaginator           : ListPaginator,
     MaterialTable,
     Masonry,
+    Timeline,
 
     TreeView                : TreeView,
     DNDTreeView             : DNDTreeView,

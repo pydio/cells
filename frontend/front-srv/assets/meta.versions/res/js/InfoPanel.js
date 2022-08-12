@@ -33,7 +33,7 @@ class InfoPanel extends Component {
         }
         return (
             <InfoPanelCard identifier={"meta-versions"} style={this.props.style} title={Pydio.getMessages()['meta.versions.1']}>
-                <Revisions node={node} className={"small"} onClick={() => Pydio.getInstance().Controller.fireAction('versions_history')}/>
+                <Revisions node={node} className={"small"} onClick={(versionId) => Pydio.getInstance().Controller.fireAction('versions_history', versionId)}/>
             </InfoPanelCard>
         )
     }
