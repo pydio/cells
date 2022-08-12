@@ -19,7 +19,6 @@
  */
 
 import React, {Component, Fragment, createRef} from 'react'
-import {FlatButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 
 class Item extends Component {
