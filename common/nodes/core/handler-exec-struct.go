@@ -80,11 +80,23 @@ func (f *StructStorageHandler) publish(ctx context.Context, identifier string, e
 		event.Target = node
 	}
 	if cl, e := f.getClient(ctx, bi.Name); e != nil {
-		log.Logger(ctx).Error("cannot get stream client", zap.Error(e))
-	} else if er := cl.Send(event); er != nil {
-		log.Logger(ctx).Error("cannot publish event on stream", zap.Error(er))
+		log.Logger(ctx).Error("[struct] cannot get stream client", zap.Error(e))
+	} else if er := cl.Send(event); er != nil && er != io.EOF {
+		log.Logger(ctx).Error("[struct] cannot publish event on stream", zap.Error(er))
+	} else if er == io.EOF {
+		f.clientsLock.Lock()
+		delete(f.clients, bi.Name)
+		f.clientsLock.Unlock()
+		cl, e = f.getClient(ctx, bi.Name)
+		if e != nil {
+			log.Logger(ctx).Error("[struct] cannot get new stream client after retry", zap.Error(e))
+		} else if e2 := cl.Send(event); e2 != nil {
+			log.Logger(ctx).Error("[struct] cannot still publish event on stream after retry", zap.Error(er))
+		} else {
+			log.Logger(ctx).Debug("[struct] Published Event on stream after retry "+eventType.String(), node.ZapPath())
+		}
 	} else {
-		log.Logger(ctx).Debug("Published Event on stream "+eventType.String(), node.ZapPath())
+		log.Logger(ctx).Debug("[struct] Published Event on stream "+eventType.String(), node.ZapPath())
 	}
 }
 
