@@ -5,6 +5,7 @@ package rest;
 option go_package ="github.com/pydio/cells/common/proto/rest";
 
 import "cells-idm.proto";
+import "cells-tree.proto";
 
 message UserStateRequest {
     string Segment = 1;
@@ -22,4 +23,15 @@ message RelationRequest {
 message RelationResponse {
     repeated idm.Workspace SharedCells = 1;
     repeated idm.Role BelongsToTeams = 3;
+}
+
+message RecommendRequest {
+    string Segment = 1;
+    string Category = 2;
+    string Neighbor = 3;
+    int32 Limit = 4;
+}
+
+message RecommendResponse {
+    repeated tree.Node Nodes = 1;
 }

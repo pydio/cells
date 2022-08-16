@@ -3993,6 +3993,35 @@
       },
       "type": "object"
     },
+    "restRecommendRequest": {
+      "properties": {
+        "Category": {
+          "type": "string"
+        },
+        "Limit": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "Neighbor": {
+          "type": "string"
+        },
+        "Segment": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "restRecommendResponse": {
+      "properties": {
+        "Nodes": {
+          "items": {
+            "$ref": "#/definitions/treeNode"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
     "restRelationResponse": {
       "properties": {
         "BelongsToTeams": {
@@ -8407,6 +8436,56 @@
         "summary": "Send XML state registry",
         "tags": [
           "FrontendService"
+        ]
+      }
+    },
+    "/graph/recommend": {
+      "post": {
+        "operationId": "Recommend",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restRecommendRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restRecommendResponse"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "tags": [
+          "GraphService"
         ]
       }
     },

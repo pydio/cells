@@ -7,6 +7,7 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "google.golang.org/protobuf/proto"
+	_ "github.com/pydio/cells/v4/common/proto/tree"
 	_ "github.com/pydio/cells/v4/common/proto/idm"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
@@ -45,6 +46,19 @@ func (this *RelationResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("BelongsToTeams", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *RecommendRequest) Validate() error {
+	return nil
+}
+func (this *RecommendResponse) Validate() error {
+	for _, item := range this.Nodes {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Nodes", err)
 			}
 		}
 	}

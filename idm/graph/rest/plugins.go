@@ -39,7 +39,7 @@ func init() {
 			service.Tag(common.ServiceTagIdm),
 			service.Description("RESTful service aggregating data from various services"),
 			service.WithWeb(func(c context.Context) service.WebHandler {
-				return new(GraphHandler)
+				return &GraphHandler{runtimeContext: c}
 			}),
 		)
 	})

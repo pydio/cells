@@ -683,6 +683,12 @@ service GraphService {
             get: "/graph/relation/{UserId}"
         };
     }
+    rpc Recommend (RecommendRequest) returns (RecommendResponse) {
+        option (google.api.http) =  {
+            post: "/graph/recommend"
+            body: "*"
+        };
+    }
 }
 
 // High level service for managing Cells and Public Links
