@@ -28,7 +28,7 @@ const { PydioContextConsumer, moment } = Pydio.requireLib('boot');
 const {FilePreview} = Pydio.requireLib('workspaces');
 const {ASClient} = Pydio.requireLib('PydioActivityStreams');
 import PydioApi from 'pydio/http/api'
-import {UserMetaServiceApi, RestUserBookmarksRequest} from 'cells-sdk'
+import {UserMetaServiceApi, RestUserBookmarksRequest, GraphServiceApi, RestRecommendRequest} from 'cells-sdk'
 const {PlaceHolder, PhTextRow, PhRoundShape} = Pydio.requireLib('hoc');
 
 class Loader {
@@ -202,6 +202,52 @@ class Loader {
 
 }
 
+class RecoLoader {
+    constructor(pydio, stater) {
+        this.pydio = pydio;
+        this.stater = stater;
+    }
+
+    m(id) {
+        return this.pydio.MessageHash['user_home.reco.' + id] || id;
+    }
+
+    load() {
+        const api = new GraphServiceApi(PydioApi.getRestClient())
+        const req = new RestRecommendRequest()
+        req.Limit = 8
+        return api.recommend(req).then(response => {
+            const nn = response.Nodes || []
+            return nn.map(n => {
+                let slug;
+                if (n.AppearsIn) {
+                    slug = n.AppearsIn[0].WsSlug
+                } else if (n.MetaStore['ws_slug']) {
+                    slug = JSON.parse(n.MetaStore['ws_slug'])
+                }
+                if (n.MetaStore['reco-annotation']) {
+                    const legend = JSON.parse(n.MetaStore['reco-annotation'])
+                    if (legend.indexOf('activity:')===0) {
+                        const ts = legend.replace('activity:', '')
+                        n.MetaStore['card_legend'] = JSON.stringify(moment(ts * 1000).fromNow());
+                    } else if (legend === 'bookmark') {
+                        n.MetaStore['card_legend'] = JSON.stringify(this.m('bookmark'));
+                    } else if (legend === 'workspace') {
+                        if (n.MetaStore['ws_scope'] === "\"ROOM\"") {
+                            n.MetaStore['card_legend'] = JSON.stringify(this.m('cell'));
+                            n.MetaStore["fonticon"] = JSON.stringify('icomoon-cells')
+                        } else {
+                            n.MetaStore['card_legend'] = JSON.stringify(this.m('workspace'));
+                        }
+                    }
+                }
+                return MetaNodeProvider.parseTreeNode(n, slug)
+            })
+        })
+    }
+
+}
+
 class RecentCard extends React.Component{
 
     constructor(props){
@@ -257,7 +303,8 @@ class SmartRecents extends React.Component{
 
     constructor(props){
         super(props);
-        this.loader = new Loader(props.pydio, this);
+        //this.loader = new Loader(props.pydio, this);
+        this.loader = new RecoLoader(props.pydio, this);
         this.state = {nodes:[], loading:false};
     }
 
@@ -265,7 +312,8 @@ class SmartRecents extends React.Component{
         this.setState({loading: true});
         this.loader.load().then(nodes => {
             this.setState({nodes, loading: false});
-        }).catch(()=>{
+        }).catch((err)=>{
+            console.error(err)
             this.setState({loading: false});
         });
     }
