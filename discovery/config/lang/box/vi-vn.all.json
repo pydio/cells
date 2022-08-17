@@ -257,6 +257,9 @@
   "treeQuery.UUIDs": {
     "other": "UUID của nodes"
   },
+  "treeQuery.ETag": {
+    "other": "ETag"
+  },
   "userSingleQuery.AttributeAnyValue": {
     "other": "Có giá trị bất kỳ"
   },

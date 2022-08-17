@@ -21,27 +21,27 @@
     "other": "Add new item to this cell"
   },
   "drop.cell.copymove.legend": {
-    "other": "Inside %s"
+    "other": "Uvnitř %s"
   },
   "drop.cell.file.share": {
-    "other": "Share file"
+    "other": "Nasdílet soubor"
   },
   "drop.cell.folder.share": {
-    "other": "Share folder"
+    "other": "Nasdílet složku"
   },
   "drop.cell.file.move": {
-    "other": "Move file"
+    "other": "Přesunout soubor"
   },
   "drop.cell.folder.move": {
-    "other": "Move folder"
+    "other": "Přesunout složku"
   },
   "drop.cell.file.copy": {
-    "other": "Copy file"
+    "other": "Zkopírovat soubor"
   },
   "drop.cell.folder.copy": {
-    "other": "Copy folder"
+    "other": "Zkopírovat složku"
   },
   "download.as.pdf": {
-    "other": "Download as PDF"
+    "other": "Stáhnout jako PDF"
   }
 }

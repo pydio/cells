@@ -169,5 +169,29 @@
   },
   "file.temporary-etag.tooltip": {
     "other": "This file is being uploaded (or the upload has failed)."
+  },
+  "mimegroup.byextension": {
+    "other": "By File Extension..."
+  },
+  "mimegroup.word": {
+    "other": "Word documents"
+  },
+  "mimegroup.spreadsheet": {
+    "other": "Spreadsheets"
+  },
+  "mimegroup.presentation": {
+    "other": "Presentations"
+  },
+  "mimegroup.pdf": {
+    "other": "PDFs"
+  },
+  "mimegroup.image": {
+    "other": "Images"
+  },
+  "mimegroup.video": {
+    "other": "Videos"
+  },
+  "mimegroup.audio": {
+    "other": "Audios"
   }
 }

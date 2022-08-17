@@ -225,7 +225,7 @@
     "other": "Amazon S3 / S3-compatível (armazenamento dentro de buckets S3)"
   },
   "form.dsS3Custom.label": {
-    "other": "Ponto de armazenamento compatível com S3"
+    "other": "URL, append ?minio=true if Minio."
   },
   "form.dsS3Custom.legend": {
     "other": "Deixe em branco para Amazon S3"

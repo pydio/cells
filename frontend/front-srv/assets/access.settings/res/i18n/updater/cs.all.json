@@ -93,19 +93,19 @@
     "other": "Cannot load available versions for Cells Enterprise!"
   },
   "upgrade.ed.version.error.string": {
-    "other": "Error was"
+    "other": "Chyba byla"
   },
   "upgrade.ed.version.available": {
     "other": "Ready to install %s"
   },
   "upgrade.ed.version.released": {
-    "other": "Released"
+    "other": "Vydáno"
   },
   "upgrade.ed.version.arch": {
-    "other": "Architecture"
+    "other": "Architektura"
   },
   "upgrade.ed.version.description": {
-    "other": "Description"
+    "other": "Popis"
   },
   "upgrade.ed.version.legend": {
     "other": "Hitting Next will now download this new version and replace your current Cells binary. A backup of the original executable will be made inside your cells config folder (under %s), if you need to recover it."

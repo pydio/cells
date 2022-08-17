@@ -225,7 +225,7 @@
     "other": "Amazon S3 / S3 兼容(S3 buckets)"
   },
   "form.dsS3Custom.label": {
-    "other": "S3兼容存储端点"
+    "other": "URL, append ?minio=true if Minio."
   },
   "form.dsS3Custom.legend": {
     "other": "留空为Amazon"

@@ -6,133 +6,133 @@
     "other": "Use the selectors below to select the actions you want to disabled for the users of this role. You can choose to disable the action for all repositories, or for a given workspace only."
   },
   "11": {
-    "other": "Plugin Identifier"
+    "other": "Identifkátor přídavného modulu"
   },
   "12": {
-    "other": "Select a plugin..."
+    "other": "Vyberte přídavný modul…"
   },
   "12a": {
-    "other": "Select an action..."
+    "other": "Vyberte akci…"
   },
   "12b": {
-    "other": "Select a parameter..."
+    "other": "Vyberte parametr…"
   },
   "12c": {
-    "other": "Pick one or all workspaces..."
+    "other": "Vyberte jeden nebo všechny pracovní prostory…"
   },
   "12d": {
-    "other": "All Workspaces"
+    "other": "Všechny pracovní prostory"
   },
   "12e": {
-    "other": "Shared Workspaces"
+    "other": "Sdílené pracovní prostory"
   },
   "13": {
-    "other": "Action name"
+    "other": "Název akce"
   },
   "14": {
     "other": "Repository Scope"
   },
   "15": {
-    "other": "Add Action"
+    "other": "Přidat akci"
   },
   "16": {
     "other": "Use the selectors below to select the parameters you want to refine for the users of this role. Can be applied to all or one given workspace only, although this may depend on the plugin context."
   },
   "17": {
-    "other": "Parameter name"
+    "other": "Název parametru"
   },
   "18": {
-    "other": "Add parameter"
+    "other": "Přidat parametr"
   },
   "19": {
     "other": "There are unsaved changes, are you sure you want to close?"
   },
   "2": {
-    "other": "Role editor"
+    "other": "Editor rolí"
   },
   "20": {
-    "other": "Role updated successfully"
+    "other": "Role úspěšně změněna"
   },
   "21": {
-    "other": "User ID"
+    "other": "Identif. uživatele"
   },
   "22": {
-    "other": "Special Profile"
+    "other": "Speciální profil"
   },
   "23": {
-    "other": "Default Workspace"
+    "other": "Výchozí pracovní prostor"
   },
   "24": {
-    "other": "User Roles"
+    "other": "Uživatelské role"
   },
   "25": {
-    "other": "Change Password"
+    "other": "Změnit heslo"
   },
   "26": {
-    "other": "Lock out user"
+    "other": "Uzamknout uživatele"
   },
   "27": {
-    "other": "Reactivate user"
+    "other": "Znovu aktivovat uživatele"
   },
   "28": {
-    "other": "Force password change"
+    "other": "Vynutit změnu hesla"
   },
   "28b": {
-    "other": "Cancel password change"
+    "other": "Zrušit změnu hesla"
   },
   "29": {
-    "other": "Enter new password for this user"
+    "other": "Zadejte nové heslo pro tohoto uživatele"
   },
   "3": {
-    "other": "Account Info"
+    "other": "Informace o účtu"
   },
   "30": {
-    "other": "Confirm"
+    "other": "Potvrdit"
   },
   "31": {
-    "other": "Role ID"
+    "other": "Identif. role"
   },
   "31.hint": {
-    "other": "Role ID (empty for auto-generate)"
+    "other": "Identif. role (pokud nevyplněno, bude vytvořen automatický)"
   },
   "31.exists": {
-    "other": "Identifier already exists"
+    "other": "Identifikátor už existuje"
   },
   "32": {
-    "other": "Role Label"
+    "other": "Popisek role"
   },
   "33": {
     "other": "Apply automatically to users with profile..."
   },
   "34": {
-    "other": "Group ID"
+    "other": "Identif. skupiny"
   },
   "35": {
-    "other": "Group Label"
+    "other": "Popisek skupiny"
   },
   "36": {
-    "other": "locked"
+    "other": "uzamčeno"
   },
   "37": {
-    "other": "Deny"
+    "other": "Odepřít"
   },
   "38": {
-    "other": "inherited"
+    "other": "převzato"
   },
   "workspace.roots.invalid": {
-    "other": "invalid roots"
+    "other": "neplatné kořeny"
   },
   "39": {
-    "other": "Disable"
+    "other": "Vypnout"
   },
   "4": {
     "other": "ACL"
   },
   "40": {
-    "other": "Enable"
+    "other": "Zapnout"
   },
   "41": {
-    "other": "Remove"
+    "other": "Odebrat"
   },
   "42": {
     "other": "Role custom data"
@@ -147,10 +147,10 @@
     "other": "Access Control List"
   },
   "46": {
-    "other": "Disabled Actions"
+    "other": "Vypnuté akce"
   },
   "47": {
-    "other": "Search Roles"
+    "other": "Hledat role"
   },
   "5": {
     "other": "Actions"

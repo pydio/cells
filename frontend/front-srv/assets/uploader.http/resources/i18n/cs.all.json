@@ -6,7 +6,7 @@
     "other": "Download to APPLICATION_TITLE"
   },
   "10a": {
-    "other": "Download to %s"
+    "other": "Stáhnout do %s"
   },
   "10b": {
     "other": "DL to %s"
@@ -24,10 +24,10 @@
     "other": "Trigger remote file download"
   },
   "13": {
-    "other": "From computer"
+    "other": "Z počítače"
   },
   "14": {
-    "other": "From remote server"
+    "other": "Ze vzdáleného serveru"
   },
   "15": {
     "other": "Or create a bookmark manually and use the code below as the link url : "
@@ -39,10 +39,10 @@
     "other": "Download file"
   },
   "18": {
-    "other": "Partial file"
+    "other": "Částečný soubor"
   },
   "2": {
-    "other": "Download file(s) from remote server"
+    "other": "Stáhnout soubory ze vzdáleného serveru"
   },
   "3": {
     "other": "m"
@@ -54,10 +54,10 @@
     "other": "URL"
   },
   "6": {
-    "other": "Downloading"
+    "other": "Stahování"
   },
   "7": {
-    "other": "to server"
+    "other": "na server"
   },
   "8": {
     "other": "File downloaded, reloading the client!"

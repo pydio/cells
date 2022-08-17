@@ -21,7 +21,7 @@
     "other": "I implemented a new feature: github Pull Requests"
   },
   "cont.topic.report": {
-    "other": "I think I found a bug! Post in the forum."
+    "other": "Myslím, že jsem našel chybu! Napište to do diskuzního fóra."
   },
   "cont.topic.report.2": {
     "other": "My bug is qualified: open a github issue."
@@ -30,7 +30,7 @@
     "other": "How-to create or complete a language translation ?"
   },
   "ent.advanced": {
-    "other": "Advanced Administrator Dashboard"
+    "other": "Pokročílá nástěnka správce"
   },
   "ent.advanced.legend": {
     "other": "Unique admin dashboard for real-time monitoring of platform usage."
@@ -78,7 +78,7 @@
     "other": "Users"
   },
   "welc.btn.ws": {
-    "other": "Workspaces"
+    "other": "Pracovní prostory"
   },
   "welc.guide": {
     "other": "If you don't know where to start, the Administrator Guide is definitely a good read!"
@@ -96,34 +96,34 @@
     "other": "Welcome to Pydio Cells v4"
   },
   "card.quick-access": {
-    "other": "Quick Access"
+    "other": "Rychlý přístup"
   },
   "card.quick-access.add": {
     "other": "Add a shortcut ..."
   },
   "card.update.current": {
-    "other": "Software Version"
+    "other": "Verze softwaru"
   },
   "card.update.no-updates": {
-    "other": "Software is up-to-date"
+    "other": "Software je aktuální"
   },
   "card.update.new-version": {
-    "other": "A new version is available"
+    "other": "Je k dispozici nová verze"
   },
   "recentLogs.title": {
-    "other": "Last Events"
+    "other": "Poslední události"
   },
   "recentLogs.errors": {
-    "other": "Errors"
+    "other": "Chyby"
   },
   "recentLogs.emptyState": {
-    "other": "No activity found"
+    "other": "Nenalezena žádná aktivita"
   },
   "recentLogs.more": {
-    "other": "All Activities"
+    "other": "Veškeré aktivity"
   },
   "graph.files": {
-    "other": "Files Activity"
+    "other": "Aktivita souborů"
   },
   "graph.connections": {
     "other": "Web Connections"

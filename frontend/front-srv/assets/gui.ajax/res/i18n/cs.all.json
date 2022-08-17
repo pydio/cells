@@ -3,13 +3,13 @@
     "other": "Start adding new files or folders to the current workspace."
   },
   "tour.create-menu.title": {
-    "other": "Add files"
+    "other": "Přidat soubory"
   },
   "tour.display-bar": {
     "other": "This toolbar allows you to change the display: switch to thumbnails or detail mode depending on your usage, and sort files by name, date, etc..."
   },
   "tour.display-bar.title": {
-    "other": "Display Options"
+    "other": "Možnosti zobrazení"
   },
   "tour.globsearch.1": {
     "other": "Use this search form to find files or folders in any workspace and cells. Only the first 5 results are shown, enter a workspace to get more results, and more search options."
@@ -18,7 +18,7 @@
     "other": "When no search is entered, the history of your recently accessed files and folder is displayed instead."
   },
   "tour.globsearch.title": {
-    "other": "Global Search"
+    "other": "Globální vyhledávání"
   },
   "tour.infopanel.1": {
     "other": "Here, you will find many information about current selection: file information, sharing status, user-defined metadata, etc."
@@ -27,37 +27,37 @@
     "other": "You can close this panel by using the info button in the display toolbar"
   },
   "tour.infopanel.file": {
-    "other": "File"
+    "other": "Soubor"
   },
   "tour.infopanel.folder": {
-    "other": "Folder"
+    "other": "Složka"
   },
   "tour.infopanel.search": {
-    "other": "Search"
+    "other": "Hledat"
   },
   "tour.infopanel.title": {
     "other": "Info Panel"
   },
   "tour.locale.back": {
-    "other": "Back"
+    "other": "Zpět"
   },
   "tour.locale.close": {
-    "other": "Close"
+    "other": "Zavřít"
   },
   "tour.locale.last": {
-    "other": "Finish"
+    "other": "Dokončit"
   },
   "tour.locale.next": {
-    "other": "Next"
+    "other": "Další"
   },
   "tour.locale.skip": {
-    "other": "Skip"
+    "other": "Přeskočit"
   },
   "tour.openworkspace": {
     "other": "At the first connection, your history is probably empty. Enter a workspace or a cell to start adding files."
   },
   "tour.openworkspace.title": {
-    "other": "Open a workspace"
+    "other": "Otevřít pracovní prostor"
   },
   "tour.uwidget.addressbook": {
     "other": "Directory of all the users accessing to the platform. Create your own users, and constitute teams that can be used to share resources"
@@ -75,10 +75,10 @@
     "other": "User Cartouche"
   },
   "tour.welcomemodal.skip": {
-    "other": "Skip"
+    "other": "Přeskočit"
   },
   "tour.welcomemodal.start": {
-    "other": "Start the tour"
+    "other": "Zahájit prohlídku"
   },
   "tour.welcomemodal.subtitle": {
     "other": "Drag'n'drop the best photo of you for your profile! This quick tour will guide you through the web interface."
@@ -90,7 +90,7 @@
     "other": "You can add or remove widgets here. You can also reorder them by simply dragging them around."
   },
   "tour.widget-cards.title": {
-    "other": "Widgets"
+    "other": "Miniaplikace"
   },
   "tour.workspaces.1": {
     "other": "Workspaces are top-level folders helping you organize your data. They may be accessed only by you, or shared accross many people."
@@ -102,13 +102,13 @@
     "other": "Workspaces & Cells"
   },
   "background.jobs.title": {
-    "other": "Background Jobs"
+    "other": "Úlohy na pozadí"
   },
   "background.jobs.running": {
-    "other": "Jobs running"
+    "other": "Spuštěných úloh"
   },
   "websocket.disconnected.title": {
-    "other": "Connection issue"
+    "other": "Problém s připojením"
   },
   "websocket.disconnected.legend": {
     "other": "Websocket seems to be disconnected, please make sure that the server is up and websocket connection is working."
@@ -135,10 +135,10 @@
     "other": "List"
   },
   "list.display-mode.details": {
-    "other": "Details"
+    "other": "Podrobnosti"
   },
   "list.display-mode.thumbs": {
-    "other": "Thumbs"
+    "other": "Náhledy"
   },
   "list.display-mode.thumbs-large": {
     "other": "Thumbs Large"
@@ -153,21 +153,45 @@
     "other": "Files extensions"
   },
   "list.extensions.show": {
-    "other": "Show extensions"
+    "other": "Zobrazovat přípony"
   },
   "list.pin.bookmarks": {
-    "other": "Pin bookmarks to top"
+    "other": "Připnout záložky na začátek"
   },
   "infopanel.empty.select.file": {
     "other": "Select a file to display informations"
   },
   "pinned-bookmarks.other": {
-    "other": "All files"
+    "other": "Všechny soubory"
   },
   "file.temporary-etag.flag": {
-    "other": "Incomplete"
+    "other": "Neúplné"
   },
   "file.temporary-etag.tooltip": {
     "other": "This file is being uploaded (or the upload has failed)."
+  },
+  "mimegroup.byextension": {
+    "other": "By File Extension..."
+  },
+  "mimegroup.word": {
+    "other": "Word documents"
+  },
+  "mimegroup.spreadsheet": {
+    "other": "Spreadsheets"
+  },
+  "mimegroup.presentation": {
+    "other": "Presentations"
+  },
+  "mimegroup.pdf": {
+    "other": "PDFs"
+  },
+  "mimegroup.image": {
+    "other": "Images"
+  },
+  "mimegroup.video": {
+    "other": "Videos"
+  },
+  "mimegroup.audio": {
+    "other": "Audios"
   }
 }

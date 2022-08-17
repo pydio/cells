@@ -18,31 +18,31 @@
     "other": "Integrity"
   },
   "15": {
-    "other": "Ok"
+    "other": "OK"
   },
   "16": {
-    "other": "Broken"
+    "other": "Poškozené"
   },
   "17": {
-    "other": "Download URL"
+    "other": "URL stahování"
   },
   "18": {
-    "other": "Copy URL"
+    "other": "Zkopírovat URL"
   },
   "19": {
     "other": "Copy url to send by email."
   },
   "2": {
-    "other": "Shared folders"
+    "other": "Sdílené složky"
   },
   "20": {
-    "other": "Downloads"
+    "other": "Stažení"
   },
   "21": {
-    "other": "Yes"
+    "other": "Ano"
   },
   "22": {
-    "other": "No"
+    "other": "Ne"
   },
   "23": {
     "other": "Successfully deleted %s files."
@@ -57,7 +57,7 @@
     "other": "Delete expired shared files."
   },
   "27": {
-    "other": "Owner"
+    "other": "Vlastník"
   },
   "28": {
     "other": "Files shared for direct download, either protected by a password or not."
@@ -72,7 +72,7 @@
     "other": "Users created to access the delegated workspaces."
   },
   "31": {
-    "other": "Description"
+    "other": "Popis"
   },
   "32": {
     "other": "Reset"
@@ -81,16 +81,16 @@
     "other": "Reset download counter"
   },
   "34": {
-    "other": "My Shares"
+    "other": "Má sdílení"
   },
   "35": {
     "other": "All my shared items (files and folders)"
   },
   "36": {
-    "other": "Parameters"
+    "other": "Parametry"
   },
   "37": {
-    "other": "My profile and application settings"
+    "other": "Můj profil a nastavení aplikace"
   },
   "38": {
     "other": "Notifications"
@@ -102,43 +102,43 @@
     "other": "File Path"
   },
   "40": {
-    "other": "Welcome, %s! "
+    "other": "Vítejte, %s! "
   },
   "41": {
-    "other": "Use this workspace as default"
+    "other": "Použít tento pracovní prostor jako výchozí"
   },
   "42": {
     "other": "Enter"
   },
   "43": {
-    "other": "My Profile"
+    "other": "Můj profil"
   },
   "43t": {
-    "other": "All my personal data"
+    "other": "Všechny mé osobní údaje"
   },
   "44": {
-    "other": "My Account"
+    "other": "Můj účet"
   },
   "45": {
-    "other": "Personal data"
+    "other": "Osobní údaje"
   },
   "46": {
-    "other": "Address Book"
+    "other": "Adresář kontaktů"
   },
   "47": {
-    "other": "Users and teams that you created"
+    "other": "Uživatelé a týmy, které jste vytvořili"
   },
   "48": {
-    "other": "My Users"
+    "other": "Mí uživatelé"
   },
   "49": {
-    "other": "External users that you created"
+    "other": "Externí uživatelé, které jste vytvořili"
   },
   "5": {
-    "other": "Repository"
+    "other": "Repozitář"
   },
   "50": {
-    "other": "My Teams"
+    "other": "Mé týmy"
   },
   "51": {
     "other": "Teams of users, used as shortcuts when sharing"
@@ -147,10 +147,10 @@
     "other": "Are you sure you want to delete this team? This will not remove any users."
   },
   "53": {
-    "other": "Back to my workspaces"
+    "other": "Zpět na mé pracovní prostory"
   },
   "54": {
-    "other": "Update Members"
+    "other": "Aktualizovat členy"
   },
   "55": {
     "other": "Add/Remove users from this team"
@@ -159,7 +159,7 @@
     "other": "Add one user per line, type in the textarea to see the auto-completion list appear."
   },
   "57": {
-    "other": "Create a Team"
+    "other": "Vytvořit tým"
   },
   "58": {
     "other": "Teams are used as a shortcut to quickly share a folder with a predefined set of users"
@@ -168,7 +168,7 @@
     "other": "Team Label"
   },
   "6": {
-    "other": "Password"
+    "other": "Heslo"
   },
   "60": {
     "other": "Team Users"
@@ -195,10 +195,10 @@
     "other": "Pick a day of the week"
   },
   "68": {
-    "other": "Monday"
+    "other": "pondělí"
   },
   "69": {
-    "other": "Tuesday"
+    "other": "úterý"
   },
   "7": {
     "other": "Expiration"

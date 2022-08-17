@@ -6,13 +6,13 @@
     "other": "Folder is shared"
   },
   "100": {
-    "other": "Shared files"
+    "other": "Sdílené soubory"
   },
   "101": {
     "other": "All files shared as public links"
   },
   "102": {
-    "other": "Shared folders"
+    "other": "Sdílené složky"
   },
   "103": {
     "other": "All folders shared as workspaces or minisites."
@@ -48,7 +48,7 @@
     "other": "Share this page with other people"
   },
   "112": {
-    "other": "Share this page"
+    "other": "Sdílet tuto stránku"
   },
   "113": {
     "other": "As New Workspace"
@@ -72,13 +72,13 @@
     "other": "Download link"
   },
   "12": {
-    "other": "Password"
+    "other": "Heslo"
   },
   "120": {
     "other": "Simple download page"
   },
   "121": {
-    "other": "Public link"
+    "other": "Veřejný odkaz"
   },
   "122": {
     "other": "Create a public URL"
@@ -90,7 +90,7 @@
     "other": "Publish current selection"
   },
   "125": {
-    "other": "Edit Share"
+    "other": "Upravit sdílení"
   },
   "126": {
     "other": "Edit/stop already configured sharing"
@@ -102,7 +102,7 @@
     "other": "Migrate legacy shares"
   },
   "129": {
-    "other": "Copy URL"
+    "other": "Zkopírovat URL"
   },
   "13": {
     "other": "Yes"
@@ -144,7 +144,7 @@
     "other": "You have shared this folder as a workspace with application users, but it is currently inactive (expired)."
   },
   "14": {
-    "other": "No"
+    "other": "Ne"
   },
   "140": {
     "other": "You have shared this file via a public link"
@@ -156,7 +156,7 @@
     "other": "Change parameters"
   },
   "142": {
-    "other": "Hide parameters"
+    "other": "Skrýt parametry"
   },
   "143": {
     "other": "Use <kbd>Ctrl</kbd>+<kbd>C</kbd>to copy the link"
@@ -165,13 +165,13 @@
     "other": "Use <kbd>&#8984;</kbd>+<kbd>C</kbd> to copy the link"
   },
   "145": {
-    "other": "Description"
+    "other": "Popis"
   },
   "146": {
     "other": "Will be displayed to the shared users"
   },
   "147": {
-    "other": "Security"
+    "other": "Zabezpečení"
   },
   "148": {
     "other": "(Optional)"
@@ -189,7 +189,7 @@
     "other": "Layout"
   },
   "152": {
-    "other": "Update"
+    "other": "Aktualizovat"
   },
   "153": {
     "other": "Standard (file list with application header)"
@@ -237,7 +237,7 @@
     "other": "Cannot find specified link!"
   },
   "167": {
-    "other": "Link is expired!"
+    "other": "Platnost odkazu skončila!"
   },
   "168": {
     "other": "The number of authorized downloads have been reached. Click to reset the counter and reactivate the link."
@@ -270,10 +270,10 @@
     "other": "(Mandatory)"
   },
   "177": {
-    "other": "View parameters"
+    "other": "Zobrazit parametry"
   },
   "178": {
-    "other": "enabled"
+    "other": "zapnuto"
   },
   "179": {
     "other": "Revert"
@@ -324,7 +324,7 @@
     "other": "Link has been copied to clipboard"
   },
   "193": {
-    "other": "Customize Link"
+    "other": "Přizpůsobit odkaz"
   },
   "194": {
     "other": "For a prettier link, you can customize the last part"
@@ -342,7 +342,7 @@
     "other": "You can select the appearance of the link as it will appear in the browser."
   },
   "199": {
-    "other": "Share Visibility"
+    "other": "Viditelnost sdílení"
   },
   "2": {
     "other": "Click on the image to download <b>%s</b> to your hard drive"
@@ -351,7 +351,7 @@
     "other": "Ooops, the file you required could not be found! Maybe it was deleted or it is not shared with you anymore."
   },
   "200": {
-    "other": "Visible to other users"
+    "other": "Viditelné pro ostatní uživatele"
   },
   "201": {
     "other": "Other users who access to the current workspace can update the links parameters, but they cannot delete it. Only you can stop this share or toggle its visibility"
@@ -381,7 +381,7 @@
     "other": "Share with users from other filesharing platforms (compatible with Federated Sharing API)."
   },
   "209": {
-    "other": "Remote Address"
+    "other": "Adresa protějšku"
   },
   "21": {
     "other": "Will expire on"
@@ -408,7 +408,7 @@
     "other": "Successfully unshared element"
   },
   "217": {
-    "other": "Local Users"
+    "other": "Místní uživatelé"
   },
   "218": {
     "other": "Notification"
@@ -483,7 +483,7 @@
     "other": "Use a random key instead of email in link"
   },
   "238": {
-    "other": "Share Types"
+    "other": "Typy sdílení"
   },
   "24": {
     "other": "Set expiration limits or define a password to access this share."
@@ -516,7 +516,7 @@
     "other": "Delete cell"
   },
   "249": {
-    "other": "Contents"
+    "other": "Obsah"
   },
   "25": {
     "other": "No limit"
@@ -525,13 +525,13 @@
     "other": "Cells"
   },
   "251": {
-    "other": "Link"
+    "other": "Odkaz"
   },
   "252": {
-    "other": "Access"
+    "other": "Přístup"
   },
   "253": {
-    "other": "Visibility"
+    "other": "Viditelnost"
   },
   "254": {
     "other": "Shared in cells"
@@ -594,22 +594,22 @@
     "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
   },
   "27": {
-    "other": "Share file"
+    "other": "Nasdílet soubor"
   },
   "270": {
-    "other": "users"
+    "other": "uživatelé"
   },
   "271": {
-    "other": "groups"
+    "other": "skupiny"
   },
   "272": {
-    "other": "teams"
+    "other": "týmy"
   },
   "273": {
-    "other": "nobody"
+    "other": "nikdo"
   },
   "274": {
-    "other": " and "
+    "other": " a "
   },
   "275": {
     "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
@@ -618,7 +618,7 @@
     "other": "Title of your cell"
   },
   "277": {
-    "other": "Optionally add a description"
+    "other": "Volitelně přidejte popis"
   },
   "278": {
     "other": "Choose who you will share data with"
@@ -627,7 +627,7 @@
     "other": "Create cell now!"
   },
   "28": {
-    "other": "Share folder"
+    "other": "Nasdílet složku"
   },
   "280": {
     "other": "Cell has its own folder"
@@ -648,7 +648,7 @@
     "other": "WebLink"
   },
   "3": {
-    "other": "Wrong password"
+    "other": "Nesprávné heslo"
   },
   "30": {
     "other": "Share with..."
@@ -663,10 +663,10 @@
     "other": "Watch"
   },
   "34": {
-    "other": "Existing or new user"
+    "other": "Stávající nebo nový uživatel"
   },
   "35": {
-    "other": "Label"
+    "other": "Štítek"
   },
   "36": {
     "other": "Set a label and a short description"
@@ -705,7 +705,7 @@
     "other": "Open workspace %s1 directly in %s2"
   },
   "46_file": {
-    "other": "Open file %s1"
+    "other": "Otevřít soubor %s1"
   },
   "46_mini": {
     "other": "Open mini %s1"
@@ -717,22 +717,22 @@
     "other": "You are not allowed to access this data"
   },
   "49": {
-    "other": "create user"
+    "other": "vytvořit uživatele"
   },
   "5": {
-    "other": "password"
+    "other": "heslo"
   },
   "50": {
     "other": "Shared"
   },
   "51": {
-    "other": "Downloaded"
+    "other": "Staženo"
   },
   "52": {
-    "other": "Configuration"
+    "other": "Nastavení"
   },
   "53": {
-    "other": "none"
+    "other": "žádné"
   },
   "54": {
     "other": "Shared with"
@@ -753,7 +753,7 @@
     "other": "Download Page"
   },
   "6": {
-    "other": "Stop Sharing"
+    "other": "Přestat sdílet"
   },
   "60": {
     "other": "Direct Download Link"
@@ -765,7 +765,7 @@
     "other": "Minisite Adress"
   },
   "63": {
-    "other": "New workspace"
+    "other": "Nový pracovní prostor"
   },
   "64": {
     "other": "For both internal and external users, the folder will appear as a new workspace in the target users workspace list."
@@ -798,19 +798,19 @@
     "other": "Permissions granted to the users accessing this link"
   },
   "71": {
-    "other": "Permissions"
+    "other": "Oprávnění"
   },
   "72": {
-    "other": "Preview"
+    "other": "Náhled"
   },
   "73": {
     "other": "Download"
   },
   "74": {
-    "other": "Upload files"
+    "other": "Nahrát soubory"
   },
   "74b": {
-    "other": "Edit"
+    "other": "Upravit"
   },
   "75": {
     "other": "Please use a positive number for both Expiration and Download limit fields."
@@ -828,7 +828,7 @@
     "other": "invite"
   },
   "8": {
-    "other": "File is shared"
+    "other": "Soubor je sdílen"
   },
   "80": {
     "other": "Send link by email to a selection of users or addresses"
@@ -837,7 +837,7 @@
     "other": "Invite by email the selected users to visit this workspace"
   },
   "81": {
-    "other": "stop watching"
+    "other": "přestat sledovat"
   },
   "82": {
     "other": "watch"
@@ -849,7 +849,7 @@
     "other": "Toggle watch status to receive or not notifications when workspace is consulted"
   },
   "84": {
-    "other": "password"
+    "other": "heslo"
   },
   "85": {
     "other": "A protection password is set on this link"
@@ -876,16 +876,16 @@
     "other": "Tags (Enter to save)"
   },
   "92": {
-    "other": "Create link"
+    "other": "Vytvořit odkaz"
   },
   "93": {
     "other": "Existing links"
   },
   "94": {
-    "other": "QR Code"
+    "other": "QR kód"
   },
   "95": {
-    "other": "QR code"
+    "other": "QR kód"
   },
   "96": {
     "other": "stop sharing"
@@ -894,19 +894,19 @@
     "other": "Stop sharing this folder with other users"
   },
   "98": {
-    "other": "My Shares"
+    "other": "Má sdílení"
   },
   "99": {
-    "other": "All shared elements"
+    "other": "Všechny sdílené prvky"
   },
   "cells.create.advanced": {
     "other": "Add users/data"
   },
   "cells.create.buttons.separator": {
-    "other": "or"
+    "other": "nebo"
   },
   "cells.create.title.fill.folders": {
-    "other": "Share existing folder(s)"
+    "other": "Nasdílet existující složky"
   },
   "cells.remove.node": {
     "other": "Remove from this cell"
@@ -936,13 +936,13 @@
     "other": "Are you sure that you want to disable this link?"
   },
   "sharelist.quick-filter": {
-    "other": "Quick filter..."
+    "other": "Rychlý filtr…"
   },
   "composite.deleteAll": {
     "other": "Disable all shares"
   },
   "link.active": {
-    "other": "active"
+    "other": "aktivní"
   },
   "link.disable": {
     "other": "Disable Link"
@@ -954,7 +954,7 @@
     "other": "Access Restrictions"
   },
   "link.secure.expires": {
-    "other": "expires"
+    "other": "platnost skončí"
   },
   "link.secure.expired": {
     "other": "expired"

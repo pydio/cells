@@ -169,5 +169,29 @@
   },
   "file.temporary-etag.tooltip": {
     "other": "Tệp này đang được tải lên (hoặc việc tải lên gặp lỗi)."
+  },
+  "mimegroup.byextension": {
+    "other": "By File Extension..."
+  },
+  "mimegroup.word": {
+    "other": "Word documents"
+  },
+  "mimegroup.spreadsheet": {
+    "other": "Spreadsheets"
+  },
+  "mimegroup.presentation": {
+    "other": "Presentations"
+  },
+  "mimegroup.pdf": {
+    "other": "PDFs"
+  },
+  "mimegroup.image": {
+    "other": "Images"
+  },
+  "mimegroup.video": {
+    "other": "Videos"
+  },
+  "mimegroup.audio": {
+    "other": "Audios"
   }
 }

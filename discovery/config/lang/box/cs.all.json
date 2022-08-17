@@ -6,10 +6,10 @@
     "other": "Remove versions after 30 days"
   },
   "Keep All": {
-    "other": "Keep All"
+    "other": "Ponechat vše"
   },
   "Keep all versions forever": {
-    "other": "Keep all versions forever"
+    "other": "Ponechat všechny verze napořád"
   },
   "Regular Pruning": {
     "other": "Regular Pruning"
@@ -24,7 +24,7 @@
     "other": "Value"
   },
   "aclSingleQuery.Actions": {
-    "other": "Actions"
+    "other": "Akce"
   },
   "aclSingleQuery.NodeIDs": {
     "other": "Node Identifiers"
@@ -39,13 +39,13 @@
     "other": "Workspace Identifiers"
   },
   "aclSingleQuery.not": {
-    "other": "not"
+    "other": "ne"
   },
   "actionOutputSingleQuery.ErrorStringRegexp": {
     "other": "Search on error string (regexp)"
   },
   "actionOutputSingleQuery.IsSuccess": {
-    "other": "Is Success"
+    "other": "Je úspěch"
   },
   "actionOutputSingleQuery.JsonBodyHasKey": {
     "other": "Json body has key..."
@@ -99,7 +99,7 @@
     "other": "matches"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "pattern"
+    "other": "vzor"
   },
   "conditionBooleanCondition.value": {
     "other": "True"
@@ -111,7 +111,7 @@
     "other": "Subject equals"
   },
   "contextMetaCondition.ResourceContainsCondition": {
-    "other": "Resource contains"
+    "other": "Prostředek obsahuje"
   },
   "contextMetaCondition.StringEqualCondition": {
     "other": "String equals"
@@ -129,10 +129,10 @@
     "other": "Date period"
   },
   "contextMetaCondition.OfficeHoursCondition": {
-    "other": "Office Hours"
+    "other": "Pracovní doba"
   },
   "contextMetaCondition.DateAfterCondition": {
-    "other": "Date after"
+    "other": "Datum po"
   },
   "contextMetaCondition.PathGlobCondition": {
     "other": "Glob Matcher"
@@ -141,7 +141,7 @@
     "other": "Boolean Value"
   },
   "contextMetaField.ContentType": {
-    "other": "Content Type"
+    "other": "Typ obsahu"
   },
   "contextMetaField.CookiesString": {
     "other": "Cookies String"
@@ -150,7 +150,7 @@
     "other": "HTTP Protocol"
   },
   "contextMetaField.RemoteAddress": {
-    "other": "Remote Address"
+    "other": "Adresa protějšku"
   },
   "contextMetaField.RequestHostname": {
     "other": "Request Hostname"
@@ -162,16 +162,16 @@
     "other": "Request URI"
   },
   "contextMetaField.ServerTime": {
-    "other": "Server Time"
+    "other": "Čas na serveru"
   },
   "contextMetaField.UserAgent": {
     "other": "User Agent"
   },
   "contextMetaSingleQuery.Condition": {
-    "other": "Condition"
+    "other": "Podmínka"
   },
   "contextMetaSingleQuery.FieldName": {
-    "other": "Field Name"
+    "other": "Název kolonky"
   },
   "roleSingleQuery.HasAutoApply": {
     "other": "Has AutoApply"
@@ -180,13 +180,13 @@
     "other": "Is Group Role"
   },
   "roleSingleQuery.IsTeam": {
-    "other": "Is Team"
+    "other": "Je kolektiv"
   },
   "roleSingleQuery.IsUserRole": {
-    "other": "Is User Role"
+    "other": "Je uživatelská role"
   },
   "roleSingleQuery.Label": {
-    "other": "Label"
+    "other": "Popisek"
   },
   "roleSingleQuery.Not": {
     "other": "Not"
@@ -198,19 +198,19 @@
     "other": "not"
   },
   "treeQuery.Content": {
-    "other": "Content"
+    "other": "Obsah"
   },
   "treeQuery.DurationDate": {
     "other": "Modification date (use comparison)"
   },
   "treeQuery.Extension": {
-    "other": "File Extension"
+    "other": "Přípona souboru"
   },
   "treeQuery.FileName": {
-    "other": "File name"
+    "other": "Název souboru"
   },
   "treeQuery.FileNameOrContent": {
-    "other": "File name or Content"
+    "other": "Název souboru nebo obsah"
   },
   "treeQuery.FreeString": {
     "other": "Bleve-like search string"
@@ -219,37 +219,37 @@
     "other": "Geolocation Query"
   },
   "treeQuery.MaxDate": {
-    "other": "Modified before"
+    "other": "Upraveno před"
   },
   "treeQuery.MaxSize": {
     "other": "MaxSize"
   },
   "treeQuery.MinDate": {
-    "other": "Modified since"
+    "other": "Upraveno od"
   },
   "treeQuery.MinSize": {
-    "other": "Size greater than"
+    "other": "Velikost větší než"
   },
   "treeQuery.Not": {
     "other": "Not"
   },
   "treeQuery.PathDepth": {
-    "other": "Path Depth"
+    "other": "Hloubka popisu umístění"
   },
   "treeQuery.PathPrefix": {
-    "other": "Path Prefix"
+    "other": "Předpona popisu umístění"
   },
   "treeQuery.Paths": {
-    "other": "Absolute Paths"
+    "other": "Úplný popis umístění"
   },
   "treeQuery.Type": {
-    "other": "Type"
+    "other": "Typ"
   },
   "treeQuery.Type.COLLECTION": {
-    "other": "Folder"
+    "other": "Složka"
   },
   "treeQuery.Type.LEAF": {
-    "other": "File"
+    "other": "Soubor"
   },
   "treeQuery.Type.UNKNOWN": {
     "other": "Any"
@@ -257,53 +257,56 @@
   "treeQuery.UUIDs": {
     "other": "Node UUIDs"
   },
+  "treeQuery.ETag": {
+    "other": "ETag"
+  },
   "userSingleQuery.AttributeAnyValue": {
-    "other": "Has any value"
+    "other": "Má libovolnou hodnotu"
   },
   "userSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "Název atributu"
   },
   "userSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "Hodnota atributu"
   },
   "userSingleQuery.ConnectedSince": {
     "other": "Connected Since"
   },
   "userSingleQuery.FullPath": {
-    "other": "Full Path"
+    "other": "Úplný popis umístění"
   },
   "userSingleQuery.GroupPath": {
-    "other": "Group Path"
+    "other": "Popis umístění skupiny"
   },
   "userSingleQuery.HasProfile": {
-    "other": "Has Profile"
+    "other": "Má profil"
   },
   "userSingleQuery.HasRole": {
-    "other": "Has Role"
+    "other": "Má roli"
   },
   "userSingleQuery.Login": {
     "other": "Login"
   },
   "userSingleQuery.NodeType": {
-    "other": "Object Type"
+    "other": "Typ objektu"
   },
   "userSingleQuery.NodeType.GROUP": {
-    "other": "Group"
+    "other": "Skupina"
   },
   "userSingleQuery.NodeType.UNKNOWN": {
     "other": "Any"
   },
   "userSingleQuery.NodeType.USER": {
-    "other": "User"
+    "other": "Uživatel"
   },
   "userSingleQuery.Not": {
     "other": "Not"
   },
   "userSingleQuery.Password": {
-    "other": "Password"
+    "other": "Heslo"
   },
   "userSingleQuery.Recursive": {
-    "other": "Recursive"
+    "other": "Rekurzivní"
   },
   "userSingleQuery.Uuid": {
     "other": "Uuid"
@@ -312,28 +315,28 @@
     "other": "not"
   },
   "workspaceSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "Název atributu"
   },
   "workspaceSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "Hodnota atributu"
   },
   "workspaceSingleQuery.Description": {
-    "other": "Description"
+    "other": "Popis"
   },
   "workspaceSingleQuery.HasAttribute": {
-    "other": "Has Attribute"
+    "other": "Má atribut"
   },
   "workspaceSingleQuery.Label": {
-    "other": "Label"
+    "other": "Štítek"
   },
   "workspaceSingleQuery.LastUpdated": {
-    "other": "Last updated"
+    "other": "Naposledy aktualizováno"
   },
   "workspaceSingleQuery.Not": {
     "other": "Not"
   },
   "workspaceSingleQuery.Scope": {
-    "other": "Scope"
+    "other": "Rozsah"
   },
   "workspaceSingleQuery.Slug": {
     "other": "Slug"
@@ -342,25 +345,25 @@
     "other": "Uuid"
   },
   "workspaceSingleQuery.description": {
-    "other": "Description"
+    "other": "Popis"
   },
   "workspaceSingleQuery.label": {
-    "other": "Label"
+    "other": "Štítek"
   },
   "workspaceSingleQuery.not": {
     "other": "not"
   },
   "workspaceSingleQuery.scope": {
-    "other": "Workspace Type"
+    "other": "Typ pracovního prostoru"
   },
   "workspaceSingleQuery.scope.ADMIN": {
-    "other": "Workspace"
+    "other": "Pracovní prostor"
   },
   "workspaceSingleQuery.scope.ANY": {
     "other": "Any"
   },
   "workspaceSingleQuery.scope.LINK": {
-    "other": "Public Link"
+    "other": "Veřejný odkaz"
   },
   "workspaceSingleQuery.scope.ROOM": {
     "other": "Cell"
@@ -372,13 +375,13 @@
     "other": "Uuid"
   },
   "dataSourceSingleQuery.Name": {
-    "other": "Name"
+    "other": "Název"
   },
   "dataSourceSingleQuery.IsDisabled": {
-    "other": "Is Disabled"
+    "other": "Je vypnuté"
   },
   "dataSourceSingleQuery.StorageType": {
-    "other": "Storage Type"
+    "other": "Typ úložiště"
   },
   "dataSourceSingleQuery.StorageType.REMOTE": {
     "other": "Remote"
@@ -387,10 +390,10 @@
     "other": "Any"
   },
   "dataSourceSingleQuery.StorageType.LOCALFS": {
-    "other": "Local"
+    "other": "Místní"
   },
   "dataSourceSingleQuery.PeerAddress": {
-    "other": "Peer Address"
+    "other": "Adresa partnera"
   },
   "dataSourceSingleQuery.FlatStorage": {
     "other": "Flat Storage"
@@ -399,13 +402,13 @@
     "other": "Skip sync on restart"
   },
   "dataSourceSingleQuery.IsVersioned": {
-    "other": "Is Versioned"
+    "other": "Je verzováno"
   },
   "dataSourceSingleQuery.IsEncrypted": {
-    "other": "Is Encrypted"
+    "other": "Je šifrováno"
   },
   "dataSourceSingleQuery.EncryptionMode": {
-    "other": "Encryption Mode"
+    "other": "Režim šifrování"
   },
   "dataSourceSingleQuery.EncryptionMode.USER": {
     "other": "User-key"
@@ -417,33 +420,33 @@
     "other": "Clear"
   },
   "dataSourceSingleQuery.EncryptionMode.MASTER": {
-    "other": "Master-key"
+    "other": "Hlavní klíč"
   },
   "dataSourceSingleQuery.EncryptionKey": {
-    "other": "Encryption Key"
+    "other": "Šifrovací klíč"
   },
   "dataSourceSingleQuery.VersioningPolicyName": {
-    "other": "Versioning Policy"
+    "other": "Zásada verzování"
   },
   "dataSourceSingleQuery.StorageConfigurationName": {
-    "other": "Configuration Key"
+    "other": "Klíč nastavení"
   },
   "dataSourceSingleQuery.StorageConfigurationValue": {
-    "other": "Configuration Value"
+    "other": "Hodnota nastavení"
   },
   "dataSourceSingleQuery.ObjectServiceName": {
-    "other": "Object Service"
+    "other": "Služba objektů"
   },
   "dataSourceSingleQuery.Not": {
-    "other": "Not"
+    "other": "Ne"
   },
   "triggerFilterQuery.IsSchedule": {
-    "other": "Scheduled Trigger"
+    "other": "Naplánovaný spouštěč"
   },
   "triggerFilterQuery.IsManual": {
-    "other": "Manual Trigger"
+    "other": "Ruční spouštěč"
   },
   "triggerFilterQuery.EventNames": {
-    "other": "Events"
+    "other": "Události"
   }
 }

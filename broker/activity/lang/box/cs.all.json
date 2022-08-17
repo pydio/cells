@@ -1,51 +1,51 @@
 {
   "AccessedBy": {
-    "other": "Accessed by {{.Actor}}"
+    "other": "Přístupoval(a) {{.Actor}}"
   },
   "AccessedObject": {
-    "other": "Accessed {{.Object}}"
+    "other": "Přístup k {{.Object}}"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} was accessed by {{.Actor}}"
+    "other": "k {{.Object}} bylo přistupováno uživatelem {{.Actor}}"
   },
   "Cell": {
     "other": "Cell"
   },
   "CreatedBy": {
-    "other": "Created by {{.Actor}}"
+    "other": "Vytvořil {{.Actor}}"
   },
   "CreatedObject": {
-    "other": "Created {{.Object}}"
+    "other": "Vytvořil(a) {{.Object}}"
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} was created by {{.Actor}}"
+    "other": "uživatelem {{.Actor}} byl vytvořen {{.Object}}"
   },
   "DeletedBy": {
-    "other": "Deleted by {{.Actor}}"
+    "other": "Smazáno uživatelem {{.Actor}}"
   },
   "DeletedObject": {
-    "other": "Deleted {{.Object}}"
+    "other": "Smazán {{.Object}}"
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} was deleted by {{.Actor}}"
+    "other": "{{.Object}} byl smazán uživatelem {{.Actor}}"
   },
   "SharedWs": {
-    "other": "Shared in {{.Object}}"
+    "other": "Sdíleno v {{.Object}}"
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}} has shared {{.Object}} with you"
+    "other": "{{.Actor}} vám nasdílel {{.Object}}"
   },
   "DigestTitle": {
     "other": "This is your Pydio Daily Digest"
   },
   "Document": {
-    "other": "Document"
+    "other": "Dokument"
   },
   "Folder": {
-    "other": "Folder"
+    "other": "Složka"
   },
   "ModifiedBy": {
-    "other": "Modified by {{.Actor}}"
+    "other": "Změnil(a) {{.Actor}}"
   },
   "ModifiedObject": {
     "other": "Modified {{.Object}}"

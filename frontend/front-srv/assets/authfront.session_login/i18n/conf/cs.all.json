@@ -6,13 +6,13 @@
     "other": "Enable/disable automatically based on the protocol used"
   },
   "Order": {
-    "other": "Order"
+    "other": "Pořadí"
   },
   "Order this plugin with other auth frontends": {
     "other": "Order this plugin with other auth frontends"
   },
   "Protocol Type": {
-    "other": "Protocol Type"
+    "other": "Typ protokolu"
   },
   "REST Only": {
     "other": "REST Only"
@@ -21,7 +21,7 @@
     "other": "Session-based or Rest"
   },
   "Sessions Only": {
-    "other": "Sessions Only"
+    "other": "Pouze relace"
   },
   "Standard login screen": {
     "other": "Standard login screen"

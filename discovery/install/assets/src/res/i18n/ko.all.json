@@ -225,7 +225,7 @@
     "other": "Amazon S3 / S3 호환 형식 (S3 버킷 내부에 저장)"
   },
   "form.dsS3Custom.label": {
-    "other": "S3 호환 저장소 엔드포인트"
+    "other": "URL, append ?minio=true if Minio."
   },
   "form.dsS3Custom.legend": {
     "other": "Amazon을 위해서라면 비워두십시오"

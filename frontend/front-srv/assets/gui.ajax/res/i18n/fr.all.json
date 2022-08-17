@@ -169,5 +169,29 @@
   },
   "file.temporary-etag.tooltip": {
     "other": "Fichier en cours de téléchargement (ou le téléchargement a échoué)."
+  },
+  "mimegroup.byextension": {
+    "other": "Par extension..."
+  },
+  "mimegroup.word": {
+    "other": "Documents Word"
+  },
+  "mimegroup.spreadsheet": {
+    "other": "Feuilles de calcul"
+  },
+  "mimegroup.presentation": {
+    "other": "Présentations"
+  },
+  "mimegroup.pdf": {
+    "other": "Fichiers PDF"
+  },
+  "mimegroup.image": {
+    "other": "Images"
+  },
+  "mimegroup.video": {
+    "other": "Vidéos"
+  },
+  "mimegroup.audio": {
+    "other": "Fichiers audio"
   }
 }

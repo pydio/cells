@@ -15,16 +15,16 @@
     "other": "Avoid labels duplication"
   },
   "Background Color": {
-    "other": "Background Color"
+    "other": "Barva pozadí"
   },
   "Create QRCode": {
-    "other": "Create QRCode"
+    "other": "Vytvořit QR kód"
   },
   "Create and display QRCode for shared link": {
-    "other": "Create and display QRCode for shared link"
+    "other": "Vytvořit a zobrazit QR kód pro sdílený odkaz"
   },
   "Disable Folder Sharing": {
-    "other": "Disable Folder Sharing"
+    "other": "Zakázat sdílení složek"
   },
   "Disallow users to create shared folders if a workspace already exists with the same label": {
     "other": "Disallow users to create shared folders if a workspace already exists with the same label"
@@ -33,16 +33,16 @@
     "other": "Do not allow users to create public links, only private links (password-protected)"
   },
   "Download Button": {
-    "other": "Download Button"
+    "other": "Tlačítko stahování"
   },
   "Download text": {
-    "other": "Download text"
+    "other": "Stáhnout text"
   },
   "Download text w/ Pass": {
-    "other": "Download text w/ Pass"
+    "other": "Stáhnout text bez hesla"
   },
   "Enable folder sharing": {
-    "other": "Enable folder sharing"
+    "other": "Povolit sdílení složek"
   },
   "Enable folder sharing (workspace and minisite)": {
     "other": "Enable folder sharing (workspace and minisite)"
@@ -96,7 +96,7 @@
     "other": "Internal Sharing"
   },
   "Link Generation": {
-    "other": "Link Generation"
+    "other": "Vytváření odkazu"
   },
   "Mandatory prefix for users created temporary users login": {
     "other": "Mandatory prefix for users created temporary users login"
@@ -126,7 +126,7 @@
     "other": "Minisites only"
   },
   "Page Title": {
-    "other": "Page Title"
+    "other": "Název stránky"
   },
   "Set password mandatory": {
     "other": "Set password mandatory"
@@ -138,7 +138,7 @@
     "other": "Share page background color."
   },
   "Share page text color.": {
-    "other": "Share page text color."
+    "other": "Sdílet barvu textu stránky."
   },
   "Share page text shadow color.": {
     "other": "Share page text shadow color."
@@ -147,16 +147,16 @@
     "other": "Shared users configurations"
   },
   "Sharing Features": {
-    "other": "Sharing Features"
+    "other": "Funkce pro sdílení"
   },
   "Text Color": {
-    "other": "Text Color"
+    "other": "Barva textu"
   },
   "Text Shadow": {
-    "other": "Text Shadow"
+    "other": "Stín textu"
   },
   "Tmp users prefix": {
-    "other": "Tmp users prefix"
+    "other": "Předpona dočasných uživatelů"
   },
   "Use Rewrite Rule": {
     "other": "Use Rewrite Rule"
@@ -171,6 +171,6 @@
     "other": "Weblink Page"
   },
   "Workspaces only": {
-    "other": "Workspaces only"
+    "other": "Pouze pracovní prostory"
   }
 }

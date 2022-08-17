@@ -33,7 +33,7 @@
     "other": "Format"
   },
   "4": {
-    "other": "Archive's name"
+    "other": "Název pro archiv"
   },
   "5": {
     "other": "Starting compression..."
@@ -48,6 +48,6 @@
     "other": "Your archive finished successfully !!"
   },
   "9": {
-    "other": "Extract"
+    "other": "Rozbalit"
   }
 }

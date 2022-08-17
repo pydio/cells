@@ -225,7 +225,7 @@
     "other": "Amazon / Compatible S3 (stocker dans des buckets S3)"
   },
   "form.dsS3Custom.label": {
-    "other": "URL d'un stockage compatible S3"
+    "other": "URL, append ?minio=true if Minio."
   },
   "form.dsS3Custom.legend": {
     "other": "Laissez vide pour AWS"
