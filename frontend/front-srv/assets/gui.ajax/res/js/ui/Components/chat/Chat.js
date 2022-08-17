@@ -33,6 +33,9 @@ import LKContainer from "./LKContainer";
 const LoadSize = 40;
 
 const mdCSS = `
+.chat-message-md *, .comments_feed .user-label, .comments_feed .date-from{
+    user-select: text;
+}
 .chat-message-md p{
     padding-top: 0; 
     margin-bottom: 0;

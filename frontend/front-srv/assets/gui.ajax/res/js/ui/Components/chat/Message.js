@@ -152,7 +152,7 @@ class Message extends React.Component {
                 {!hideDate &&
                     <div style={styles.date}>
                         <span style={styles.dateLine}/>
-                        <span>{mDate.fromNow()}</span>
+                        <span className={"date-from"}>{mDate.fromNow()}</span>
                         <span style={styles.dateLine}/>
                     </div>
                 }
