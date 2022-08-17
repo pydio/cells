@@ -3,7 +3,7 @@
     "other": "Application Tab"
   },
   "Browser Tab": {
-    "other": "Browser Tab"
+    "other": "Karta prohlížeče"
   },
   "Choose where the documents are opened": {
     "other": "Choose where the documents are opened"
@@ -12,7 +12,7 @@
     "other": "Choose where the http links are opened"
   },
   "External Window": {
-    "other": "External Window"
+    "other": "Externí okno"
   },
   "Open documents in...": {
     "other": "Open documents in..."
@@ -21,6 +21,6 @@
     "other": "Open file in a new browser window, thus using native browser capabilities."
   },
   "Open link in...": {
-    "other": "Open link in..."
+    "other": "Otevřít odkaz v…"
   }
 }

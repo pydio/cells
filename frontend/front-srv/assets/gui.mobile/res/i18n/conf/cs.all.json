@@ -24,19 +24,19 @@
     "other": "I don't care, let me use the web version of %s."
   },
   "Mobile": {
-    "other": "Mobile"
+    "other": "Mobilní"
   },
   "Template extending gui.ajax for small screen terminals.": {
     "other": "Template extending gui.ajax for small screen terminals."
   },
   "Disable this feature": {
-    "other": "Disable this feature"
+    "other": "Vypnout tuto funkci"
   },
   "Do not display a smart banner when opening web interface on a mobile terminal.": {
     "other": "Do not display a smart banner when opening web interface on a mobile terminal."
   },
   "iOS Application Icon": {
-    "other": "iOS Application Icon"
+    "other": "Ikona aplikace pro iOS"
   },
   "iOS Application ID": {
     "other": "iOS Application ID"
@@ -51,6 +51,6 @@
     "other": "Android App ID"
   },
   "Android App Icon": {
-    "other": "Android Application Icon"
+    "other": "Ikona aplikace pro Android"
   }
 }

@@ -257,6 +257,9 @@
   "treeQuery.UUIDs": {
     "other": "节点UUID"
   },
+  "treeQuery.ETag": {
+    "other": "ETag"
+  },
   "userSingleQuery.AttributeAnyValue": {
     "other": "有任何值"
   },

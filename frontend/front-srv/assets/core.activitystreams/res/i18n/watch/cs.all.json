@@ -51,27 +51,27 @@
     "other": "Stop watching this file for changes"
   },
   "9": {
-    "other": "Consultation"
+    "other": "Konzultace"
   },
   "selector.legend": {
-    "other": "Receive notifications when..."
+    "other": "Obdržet oznámení když…"
   },
   "selector.ignore": {
-    "other": "Never (no notifications)"
+    "other": "Nikdy (žádná oznámení)"
   },
   "selector.read": {
-    "other": "Content is accessed"
+    "other": "Při přístupu k obsahu"
   },
   "selector.change": {
-    "other": "Content is modified"
+    "other": "Při změně obsahu"
   },
   "selector.both": {
-    "other": "Content is accessed or modified"
+    "other": "Při přístupu k nebo změně obsahu"
   },
   "selector.mixed": {
-    "other": "Mixed values"
+    "other": "Smíšené hodnoty"
   },
   "selector.saving": {
-    "other": "Saving status"
+    "other": "Ukládání stavu"
   }
 }

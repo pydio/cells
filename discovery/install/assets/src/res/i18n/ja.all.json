@@ -225,7 +225,7 @@
     "other": "Amazon S3 / S3 互換(S3 バケット内に格納)"
   },
   "form.dsS3Custom.label": {
-    "other": "S3 互換ストレージエンドポイント"
+    "other": "URL, append ?minio=true if Minio."
   },
   "form.dsS3Custom.legend": {
     "other": "空白の場合Amazonになります"

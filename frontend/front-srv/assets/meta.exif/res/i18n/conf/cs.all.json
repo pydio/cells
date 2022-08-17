@@ -6,7 +6,7 @@
     "other": "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'."
   },
   "Exif Metadata": {
-    "other": "Exif Metadata"
+    "other": "Exif metadata"
   },
   "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif": {
     "other": "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif"

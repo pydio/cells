@@ -30,13 +30,13 @@
     "other": "Emails frequency"
   },
   "Every X hour": {
-    "other": "Every X hour"
+    "other": "Každou X hodinu"
   },
   "Every X min": {
-    "other": "Every X min"
+    "other": "Každých X min"
   },
   "Every day at ": {
-    "other": "Every day at "
+    "other": "Každý den v "
   },
   "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file.": {
     "other": "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file."
@@ -63,7 +63,7 @@
     "other": "Name of the sender"
   },
   "Once a Week": {
-    "other": "Once a Week"
+    "other": "Jednou týdně"
   },
   "Receive Notifcations by email": {
     "other": "Receive Notifcations by email"
@@ -72,19 +72,19 @@
     "other": "Select the plugin to activate for concretely sending emails"
   },
   "Send as HTML": {
-    "other": "Send as HTML"
+    "other": "Odeslat jako HTML"
   },
   "Send email to...": {
     "other": "Send email to..."
   },
   "Sender": {
-    "other": "Sender"
+    "other": "Odesilatel"
   },
   "Sender email": {
-    "other": "Sender email"
+    "other": "E-mail odesilatele"
   },
   "Sender name": {
-    "other": "Sender name"
+    "other": "Jméno odesílatele"
   },
   "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option.": {
     "other": "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option."

@@ -279,13 +279,16 @@
     "other": "Amazon S3"
   },
   "ds.editor.storage.s3.endpoint.custom": {
-    "other": "S3-Compatible Storage"
+    "other": "Other S3-Compatible Storage"
+  },
+  "ds.editor.storage.s3.endpoint.minio": {
+    "other": "Minio Server"
   },
   "ds.editor.storage.s3.endpoint": {
     "other": "Thay đổi endpoint URL"
   },
   "ds.editor.storage.s3.endpoint.hint": {
-    "other": "Để trống nếu bạn dùng Amazon S3"
+    "other": "include http(s)://"
   },
   "ds.editor.storage.s3.region": {
     "other": "S3 Api Region"

@@ -21,22 +21,22 @@
     "other": "Notifications about files that you monitor will appear here"
   },
   "16": {
-    "other": "Inside"
+    "other": "Uvnitř"
   },
   "17": {
-    "other": "Loading activities..."
+    "other": "Načítání aktivit…"
   },
   "18": {
-    "other": "No recent activity"
+    "other": "Žádná nedávná aktivita"
   },
   "19": {
-    "other": "More"
+    "other": "Další"
   },
   "2": {
     "other": "Notifications feed"
   },
   "20": {
-    "other": "Loading feed..."
+    "other": "Načítání kanálu…"
   },
   "3": {
     "other": "Alerts"
@@ -45,7 +45,7 @@
     "other": "Notifications"
   },
   "5": {
-    "other": "All Events"
+    "other": "Všechny udalosti"
   },
   "6": {
     "other": "Go to ..."
@@ -57,6 +57,6 @@
     "other": "No alerts"
   },
   "9": {
-    "other": "Workspace Activity"
+    "other": "Aktivita v pracovním prostoru"
   }
 }

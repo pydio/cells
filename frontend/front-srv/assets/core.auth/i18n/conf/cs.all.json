@@ -12,16 +12,16 @@
     "other": "Authentication"
   },
   "Both": {
-    "other": "Both"
+    "other": "Obojí"
   },
   "Cache master users": {
     "other": "Cache master users"
   },
   "Case Sensitive": {
-    "other": "Case Sensitive"
+    "other": "Rozlišovat malá a velká písmena"
   },
   "Choose the configuration plugin": {
-    "other": "Choose the configuration plugin"
+    "other": "Vyberte přídavný modul pro nastavení"
   },
   "Create a local copy (at login time) of master users inside slave base": {
     "other": "Create a local copy (at login time) of master users inside slave base"
@@ -45,7 +45,7 @@
     "other": "Forgot Password Action"
   },
   "Generic Auth Features": {
-    "other": "Generic Features"
+    "other": "Obecné funkce"
   },
   "Guest Browsing": {
     "other": "Guest Browsing"
@@ -54,22 +54,22 @@
     "other": "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)"
   },
   "Instance Type": {
-    "other": "Instance Type"
+    "other": "Typ instance"
   },
   "Login Form": {
-    "other": "Login Form"
+    "other": "Přihlašovací formulář"
   },
   "Main Instance": {
-    "other": "Main Instance"
+    "other": "Hlavní instance"
   },
   "Master Authentifiaction Label": {
     "other": "Master Authentication Label"
   },
   "Master Only": {
-    "other": "Master Only"
+    "other": "Pouze hlavní"
   },
   "Master/Slave": {
-    "other": "Master/Slave"
+    "other": "Hlavní/pomocný"
   },
   "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup.": {
     "other": "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup."
@@ -78,22 +78,22 @@
     "other": "Minimum number of characters required for passwords in the application"
   },
   "Mode": {
-    "other": "Mode"
+    "other": "Režim"
   },
   "Multiple Instances Mode": {
-    "other": "Multiple Instances Mode"
+    "other": "Režim více instancí"
   },
   "Options applied to all auth drivers": {
     "other": "Options applied to all auth drivers"
   },
   "Password length": {
-    "other": "Password length"
+    "other": "Délka hesla"
   },
   "Raise the security of the login form by disabling autocompletion and remember me feature": {
     "other": "Raise the security of the login form by disabling autocompletion and remember me feature"
   },
   "Secondary Instance (optional)": {
-    "other": "Secondary Instance (optional)"
+    "other": "Pomocná instance (nepovinné)"
   },
   "Secondary Instance Driver": {
     "other": "Secondary Instance Driver"
@@ -102,7 +102,7 @@
     "other": "Secure Login Form"
   },
   "Separator": {
-    "other": "Separator"
+    "other": "Oddělovač"
   },
   "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins.": {
     "other": "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins."
@@ -111,10 +111,10 @@
     "other": "Slave Authentication Label"
   },
   "Slave Only": {
-    "other": "Slave Only"
+    "other": "Pouze pomocný"
   },
   "Store Credentials in Session": {
-    "other": "Store Credentials in Session"
+    "other": "Ukládat přihlašovací údaje v relaci"
   },
   "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!": {
     "other": "This is necessary to discriminate users data loaded from various sources. Warning, use folder name compliant characters. For example :: does not work!"

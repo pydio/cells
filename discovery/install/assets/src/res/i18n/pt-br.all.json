@@ -225,7 +225,7 @@
     "other": "Amazon S3 / compatível com S3 (loja dentro de buckets S3)"
   },
   "form.dsS3Custom.label": {
-    "other": "Endpoint de armazenamento compatível com S3"
+    "other": "URL, append ?minio=true if Minio."
   },
   "form.dsS3Custom.legend": {
     "other": "Deixe em branco para Amazon"

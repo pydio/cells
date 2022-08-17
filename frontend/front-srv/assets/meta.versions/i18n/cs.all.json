@@ -1,39 +1,39 @@
 {
   "1": {
-    "other": "Versions"
+    "other": "Verze"
   },
   "10": {
-    "other": "Date"
+    "other": "Datum"
   },
   "11": {
-    "other": "Author"
+    "other": "Autor"
   },
   "12": {
-    "other": "Modification"
+    "other": "Změna"
   },
   "13": {
     "other": "Are you sure you want to do this? Reverting to an old version will now create a new version of the document with the selected revision."
   },
   "14": {
-    "other": "No previous versions found"
+    "other": "Nenalezeny žádné předchozí verze"
   },
   "15": {
     "other": "Versions are created when you update the file content"
   },
   "16": {
-    "other": "Previous versions for '%s'"
+    "other": "Předchozí verze pro „%s“"
   },
   "2": {
-    "other": "Document previous versions"
+    "other": "Předchozí verze dokumentu"
   },
   "3": {
-    "other": "Download"
+    "other": "Stáhnout"
   },
   "4": {
     "other": "Download selected version to your computer"
   },
   "5": {
-    "other": "Preview (browser)"
+    "other": "Náhled (v prohlížeči)"
   },
   "6": {
     "other": "Open the selected version in a browser window"
@@ -45,21 +45,21 @@
     "other": "Revert the file to the selected revision on the server"
   },
   "9": {
-    "other": "#"
+    "other": "č."
   },
   "CREATION": {
-    "other": "File created"
+    "other": "Soubor vytvořen"
   },
   "DELETION": {
-    "other": "File deleted"
+    "other": "Soubor smazán"
   },
   "MODIFICATION": {
-    "other": "Content modified"
+    "other": "Obsah změněn"
   },
   "MOVE": {
-    "other": "File moved"
+    "other": "Soubor přesunut"
   },
   "RENAME": {
-    "other": "File renamed"
+    "other": "Soubor přejmenován"
   }
 }

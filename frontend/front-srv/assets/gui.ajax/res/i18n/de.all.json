@@ -169,5 +169,29 @@
   },
   "file.temporary-etag.tooltip": {
     "other": "Diese Datei wird gerade hochgeladen (oder der Upload ist fehlgeschlagen)."
+  },
+  "mimegroup.byextension": {
+    "other": "Nach Dateierweiterung..."
+  },
+  "mimegroup.word": {
+    "other": "Word Dokumente"
+  },
+  "mimegroup.spreadsheet": {
+    "other": "Tabellendokumente"
+  },
+  "mimegroup.presentation": {
+    "other": "Präsentationen"
+  },
+  "mimegroup.pdf": {
+    "other": "PDFs"
+  },
+  "mimegroup.image": {
+    "other": "Bilder"
+  },
+  "mimegroup.video": {
+    "other": "Videos"
+  },
+  "mimegroup.audio": {
+    "other": "Audios"
   }
 }

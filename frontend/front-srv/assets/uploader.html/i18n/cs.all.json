@@ -1,9 +1,9 @@
 {
   "start": {
-    "other": "Start"
+    "other": "Spustit"
   },
   "pause": {
-    "other": "Pause"
+    "other": "Pozastavit"
   },
   "clear": {
     "other": "Clear"
@@ -12,16 +12,16 @@
     "other": "Clear list..."
   },
   "clear-finished": {
-    "other": "Finished Uploads"
+    "other": "Dokončená nahrání"
   },
   "clear-failed": {
     "other": "Failed Uploads"
   },
   "clear-all": {
-    "other": "All Transfers"
+    "other": "Všechny přenosy"
   },
   "list.show-more": {
-    "other": "%d more - show all"
+    "other": "%d další –zobrazit vše"
   },
   "options.existing": {
     "other": "If a file with the same name exists:"
@@ -30,7 +30,7 @@
     "other": "Stop upload and alert me"
   },
   "options.existing.folders": {
-    "other": "Rename folders then files"
+    "other": "Přejmenovat složky, pak soubory"
   },
   "options.existing.merge": {
     "other": "Rename files only (merge folders)"
@@ -60,13 +60,13 @@
     "other": "Uploading files to server..."
   },
   "task.status.folders": {
-    "other": "Creating Folders"
+    "other": "Vytváření složek"
   },
   "task.message.folder-one": {
-    "other": "Creating one folder"
+    "other": "Vytváření jedné složky"
   },
   "task.message.folder-many": {
-    "other": "Creating %s folders"
+    "other": "Vytváření %s složek"
   },
   "task.status.analyse": {
     "other": "Preparing files for upload"
@@ -114,13 +114,13 @@
     "other": "Transfers"
   },
   "status.new": {
-    "other": "Pending"
+    "other": "Čekající"
   },
   "status.error": {
-    "other": "An error occured"
+    "other": "Došlo k chybě"
   },
   "status.pause": {
-    "other": "Paused"
+    "other": "Pozastaveno"
   },
   "status.analyse": {
     "other": "Analyzing..."
@@ -135,37 +135,37 @@
     "other": "Analyzing folder..."
   },
   "status.file.analyse": {
-    "other": "Analyzing file..."
+    "other": "Analyzování souboru…"
   },
   "status.dir.loading": {
-    "other": "Creating folder"
+    "other": "Vytváření složky"
   },
   "status.file.loading": {
-    "other": "Uploading file"
+    "other": "Nahrávání souboru"
   },
   "status.dir.loaded": {
-    "other": "Folder created"
+    "other": "Složka vytvořena"
   },
   "status.file.loaded": {
-    "other": "File uploaded"
+    "other": "Soubor nahrán"
   },
   "status.part.loaded": {
-    "other": "Chunk uploaded"
+    "other": "Shluk nahrán"
   },
   "status.part.loading": {
-    "other": "Uploading chunk"
+    "other": "Nahrává se shluk"
   },
   "status.multi-pause": {
     "other": "Finishing current chunk before pausing"
   },
   "status.file.cannot-pause": {
-    "other": "Cannot pause this transfer"
+    "other": "Tento přenos není možné pozastavit"
   },
   "status.part.cannot-pause": {
     "other": "Cannot pause chunk transfer"
   },
   "status.error.aborted": {
-    "other": "interrupted by user"
+    "other": "přerušeno uživatelem"
   },
   "status.error.403": {
     "other": "you are not allowed to upload here"

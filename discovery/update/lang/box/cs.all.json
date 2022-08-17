@@ -1,30 +1,30 @@
 {
   "Update.Config.Title": {
-    "other": "Update Configuration"
+    "other": "Nastavení aktualizace"
   },
   "Update.Config.Url.Label": {
-    "other": "Update Server"
+    "other": "Server aktualizací"
   },
   "Update.Config.Url.Description": {
-    "other": "Http URL of the update server"
+    "other": "HTTP URL serveru s aktualizacemi"
   },
   "Update.Config.PublicKey.Label": {
-    "other": "Public Key"
+    "other": "Veřejný klíč"
   },
   "Update.Config.PublicKey.Description": {
-    "other": "Official key used to verify binaries signature."
+    "other": "Oficiální klíč používaný k ověření podpisu binárních souborů."
   },
   "Update.Config.Channel.Label": {
-    "other": "Update Channel"
+    "other": "Kanál aktualizací"
   },
   "Update.Config.Channel.Description": {
     "other": "Channel used for requesting for updates. Stick to Stable if you are not sure."
   },
   "Update.Config.Channel.ValueStable": {
-    "other": "Stable"
+    "other": "Stabilní"
   },
   "Update.Config.Channel.ValueDev": {
-    "other": "Dev (at your own risks)"
+    "other": "Vývojový (na vlastní nebezpečí)"
   },
   "Update.Config.ProxyHost.Label": {
     "other": "Proxy"
@@ -39,7 +39,7 @@
     "other": "User for proxy server identification"
   },
   "Update.Config.ProxyPassword.Label": {
-    "other": "Proxy Password"
+    "other": "Heslo pro proxy"
   },
   "Update.Config.ProxyPassword.Description": {
     "other": "Password for the proxy server identification"
