@@ -1,28 +1,52 @@
-# Changes between v4.0.0-rc1 and v4.0.0-rc2
+# Changes between v4.0.0-rc2 and v4.0.0-rc3
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.0.0-rc1...v4.0.0-rc2)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.0.0-rc2...v4.0.0-rc3)
 
-- [#88cf8b1](https://github.com/pydio/cells/commit/88cf8b1511ba6278e40bf7bf3549d4f8881f2484): Fix minor glitches in reset password ux form
-- [#957dd69](https://github.com/pydio/cells/commit/957dd694427b4f598597318a9df4a824af1c893e): Fix TokenAPI (empty body in OpenAPI), fix /reset-password handler.
-- [#17e50e0](https://github.com/pydio/cells/commit/17e50e08a0dd7bce4d33a6208551be367328b15d): Update tools/compose/ha with a sample deployment.
-- [#97391e5](https://github.com/pydio/cells/commit/97391e5927a5e8b26510f9b9934a5d19aca41d48): Add i18n files for Czech
-- [#b8064bc](https://github.com/pydio/cells/commit/b8064bc146610efc147415cbeda7ed61b32fdac9): Add i18n files for Czech
-- [#fb09742](https://github.com/pydio/cells/commit/fb097421e65b9b30c5b6b07a105008310ac9c35a): Also add Czech to in progress languages
-- [#5a41c60](https://github.com/pydio/cells/commit/5a41c6068e0c137c6cce7be57641bb8d1dd1e66e): Fix http2 error handling
-- [#2cdbc85](https://github.com/pydio/cells/commit/2cdbc857f5bd03c79bb5002308bd25fe460b908d): Set defaults/documentsDSN key
-- [#c2a07bc](https://github.com/pydio/cells/commit/c2a07bc7e6f0aab35d716516456f0328b99c185a): Missing default values for CLI admin commands
-- [#d1b893c](https://github.com/pydio/cells/commit/d1b893c9451dedcb8a8407371e9ec61c2adcc56e): A few more messages + DE/FR translations + more VI
-- [#0dfa85c](https://github.com/pydio/cells/commit/0dfa85c0e3e5f00dc90b11590379f90ba811154d): A few more messages + DE/FR translations + more VI
-- [#0602de7](https://github.com/pydio/cells/commit/0602de759c0242d99e544d9df48e0f138ab03a67): Mass deletion : use a session for struct datasources, better folders handling
-- [#c264227](https://github.com/pydio/cells/commit/c2642278395ec4fa84ada184372bc0b8379bb1aa): Remove debug logging "stream not closed"
-- [#b5e6d3a](https://github.com/pydio/cells/commit/b5e6d3ae336521bbcb45415e73dca7bd9f02a21e): Redact urls in dao registry item names
-- [#3f73d96](https://github.com/pydio/cells/commit/3f73d96c59785c7fb9936b44903dfb2b4eaf2852): Simplify services list, add text input filter
-- [#6464750](https://github.com/pydio/cells/commit/6464750164552432031974274cc93bb9848065fe): Fixing registry error
-- [#8b05b75](https://github.com/pydio/cells/commit/8b05b75f2159766e498673e2acd1e1d148986996): Namespacing external addresses
-- [#dfcec47](https://github.com/pydio/cells/commit/dfcec47e62fbbc3da33e1f9eba3bca1bf5592fdd): Various fixes
-- [#4b18c58](https://github.com/pydio/cells/commit/4b18c58bdf3da851fb46946ace5bf2bf434fee66): ReloadWrapper duplicated
-- [#008f474](https://github.com/pydio/cells/commit/008f47436941ada316d85b196690f301d339fa50): Create new dashboard for v4
-- [#67e28f1](https://github.com/pydio/cells/commit/67e28f1afff48561ee352821c1bcbe9d9b8cc750): Fix move empty folder from flat to struct
-- [#5b9167f](https://github.com/pydio/cells/commit/5b9167f1f85bd8ea07fa5cbaecee581c90ec7527): Fix folder size cache invalidation
-- [#b18e511](https://github.com/pydio/cells/commit/b18e5119824a11aa2ca75e7d1bd84314f9c8d8ce): Fix incorrect root node handling in specific cases.
-- [#e894971](https://github.com/pydio/cells/commit/e894971ccca286131778af06c2c8552d7c9d1333): Restrict "roleRequireReload" usage to the marshalled claims
+- [#6074f11](https://github.com/pydio/cells/commit/6074f11446523cd0d16384f7857d42ce8586bde1): Finally refactor common/sync s3 endpoint with nodes/objects.StorageClient interface
+- [#990f90b](https://github.com/pydio/cells/commit/990f90b2bdce3278fcb6222277a8019f025428d1): More Czech + new msgs with DE/FR translations
+- [#1f4a3ec](https://github.com/pydio/cells/commit/1f4a3ec10c69d937588cca75ebcd9cd9627c4e51): More Czech + new msgs with DE/FR translations
+- [#c8d32e1](https://github.com/pydio/cells/commit/c8d32e13bea4cd69a80c1d2268988c0f588324c9): Restore text copy inside chat
+- [#95bd5b1](https://github.com/pydio/cells/commit/95bd5b1937c7e4e6a7b004f8bde23809d026b34d): Re-init stream client for exec-struct
+- [#5d52481](https://github.com/pydio/cells/commit/5d52481692cba367dbc6f8d363dc5eb506dcb22d): Bump sdk and use new API from recents on homepage
+- [#8f214c8](https://github.com/pydio/cells/commit/8f214c815be843efca8caef9b69dc6682aa220b9): Move welcome page recent files from ux to server (inside GraphService API)
+- [#46c9ee1](https://github.com/pydio/cells/commit/46c9ee17d55eb24d6cd5d25efdfdef83100b4ba5): go fmt file
+- [#55395f7](https://github.com/pydio/cells/commit/55395f7ee1537a51aae5d874831d58311650a24c): Js recompil
+- [#cb4b8d2](https://github.com/pydio/cells/commit/cb4b8d247ec0587ce56aac9f71f56b94bdc1b724): Fix multipart mime meta set. Read optional StorageClass from StorageConfigurations map.
+- [#4075381](https://github.com/pydio/cells/commit/4075381a7026e8696b7a2f9d878eca5861cebeac): Unused import
+- [#73ab0a5](https://github.com/pydio/cells/commit/73ab0a51380c7dbfbf7410deeed3ae7d2a54fe4d): Move new Timeline to core components, use for activities feed.
+- [#d924706](https://github.com/pydio/cells/commit/d924706fe24e1b995a7e6fcbb91f96b44c5eea12): Versioning and new hash management
+- [#80bc581](https://github.com/pydio/cells/commit/80bc581a6179bed231a7b2ce8616e44611fc708f): Rework revisions dialog
+- [#7a9b73a](https://github.com/pydio/cells/commit/7a9b73ab26543bd95e53e61d881a72b76bce8eb0): Fix websocket events batching
+- [#5b5c446](https://github.com/pydio/cells/commit/5b5c4464e84fd1eea2ef60a2b46155feb2f49069): Add more to FileInfo card
+- [#dca3ef1](https://github.com/pydio/cells/commit/dca3ef1c86c72d71754cc562f6f2672597ecd219): Fix glitches
+- [#a830b81](https://github.com/pydio/cells/commit/a830b81217b69f77a9344e71e6371c5d6748bc9c): Finalize x-cells-hash and sync
+- [#15fdad1](https://github.com/pydio/cells/commit/15fdad1060761d8d4e60cdd73d8ae96001d0b29f): Fix unit tests
+- [#133f884](https://github.com/pydio/cells/commit/133f88424db61a75ecca48732a648503e015113c): Improve nodes library code, do not watch events on s3 anymore (even if minio)
+- [#c4b01dc](https://github.com/pydio/cells/commit/c4b01dc1711cf077794654c9f8f41ba55e6dad32): Fixing logs for fork processes
+- [#6477d57](https://github.com/pydio/cells/commit/6477d576dd7d50a0051f49b120781b8f40bbf023): Setting query properly
+- [#e09de35](https://github.com/pydio/cells/commit/e09de35ec7be436da0f136d3b5ef2b61b251cf1a): Change PutObject API to always return a full object. Finally implement a custom checksum method to enable streaming across PutObject / Multiparts. This requires Parts sizes to be a multiple of DefaultBlockSize.
+- [#a17e3c8](https://github.com/pydio/cells/commit/a17e3c855e67977bc5ae743f496443c82c9fe5ea): Enabling nats tls and retry for mongodb connection
+- [#701fba3](https://github.com/pydio/cells/commit/701fba3466091e7140dbb376f72c88390009dba3): Big change : minio is no more starting internally, but is downloaded and launched on demand. Handle various s3, s3-compatible and external s3 minio server cases accordingly.
+- [#525f822](https://github.com/pydio/cells/commit/525f82219a6d0fe278e514d3ecd4b703bab78487): JS - set minio flag on s3-compatible
+- [#d4da41e](https://github.com/pydio/cells/commit/d4da41e8613a1c1fabb9b92f042a302df2407d41): Checking mysql status for oauth
+- [#f18591a](https://github.com/pydio/cells/commit/f18591acf93a68655267ce79eadf63bb1b7ec946): Better error on streamer
+- [#578ce74](https://github.com/pydio/cells/commit/578ce74695a31e03bf5200400de6a175bf0a711d): Uploader clear empty folders
+- [#c3cacca](https://github.com/pydio/cells/commit/c3caccad60cf4bcad82e01378f5bfd281451c712): CLI files ls: lookup node by UUID
+- [#c882fa2](https://github.com/pydio/cells/commit/c882fa222b25c15ad6f0a74cdb820b63cb674e86): Better handling of mime type
+- [#3a3e125](https://github.com/pydio/cells/commit/3a3e125f19b1400915aa06319cfff6b3ebee989b): Filter by mime groups in search engine
+- [#b2231de](https://github.com/pydio/cells/commit/b2231de067058ef736d1f74d4592455c278780c2): Fixing broker
+- [#53ac1cb](https://github.com/pydio/cells/commit/53ac1cbdf25334e3b0e7e5a164907e26c556c314): Fix extensions filtering
+- [#aeb483c](https://github.com/pydio/cells/commit/aeb483cbd79cf23032e902ddb78fa83cc8b8574d): Additional check on proxyConf if passed yaml/json is invalid
+- [#347e56f](https://github.com/pydio/cells/commit/347e56ff997b0bf294afd74b2c694118501fe31a): Fix DynamicGrid triggering too many preferences saves
+- [#216de6f](https://github.com/pydio/cells/commit/216de6f7aaebac4c650a0b16be5eb26f3a68bba4): Fix duplicate acl by not re-adding if value did not change
+- [#b44c5cf](https://github.com/pydio/cells/commit/b44c5cfccc7f27dc3e03a2455811fd59a5196b91): Windows glitches (again)
+- [#a23559a](https://github.com/pydio/cells/commit/a23559ac755a19408dd76f7b34d6def649810f67): Windows glitches
+- [#463187c](https://github.com/pydio/cells/commit/463187c6b6097249b2bce61ede7d97828adcf335): Fix About panel width
+- [#bf6ce3c](https://github.com/pydio/cells/commit/bf6ce3cc6fa83c92b9876e12a0a7ada2331fe329): Minor changes for windows runtime defaults
+- [#11af52f](https://github.com/pydio/cells/commit/11af52f6c9b8035185a855ae80e3b8eb00f2ad4c): update mod
+- [#e329a74](https://github.com/pydio/cells/commit/e329a74d72919f86e9ef5900c9721a13fd2e106f): Make sure to ParseForm before parsing presigned
+- [#750a6a0](https://github.com/pydio/cells/commit/750a6a0e168e43a5d14727e1f94f945e8d14a86f): Apply EnvDisplayHiddenFlags to cache flags
+- [#23b84b0](https://github.com/pydio/cells/commit/23b84b05db84cf1ad5a819c52a370f69043f1c55): Switch minio fork to dedicated branch
+- [#bfcaee6](https://github.com/pydio/cells/commit/bfcaee60993ff2891e2dc0568e11bfb18dd8b29d): Etcd username password
+- [#b17f4c7](https://github.com/pydio/cells/commit/b17f4c7b6b1c5127d8b8ba98e08a64cc85bce017): Revert "Adding minio signature version and etcd username password"
+- [#970c4fd](https://github.com/pydio/cells/commit/970c4fde6a911e3042c34661d9d62aee6a5c1cb5): Adding minio signature version and etcd username password
