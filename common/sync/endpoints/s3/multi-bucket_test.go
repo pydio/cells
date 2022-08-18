@@ -22,20 +22,22 @@ package s3
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/proto/object"
 	"path"
 	"testing"
 
 	"github.com/pydio/cells/v4/common"
-
+	"github.com/pydio/cells/v4/common/nodes/objects/mock"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/model"
+
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestMultiBucketClient_Walk(t *testing.T) {
 	Convey("test simple walk", t, func() {
-		cl, e := NewMultiBucketClient(context.Background(), object.AmazonS3Endpoint, "***************", "***************", true, model.EndpointOptions{BrowseOnly: true}, "^cell")
+		ocMock := mock.New()
+		cl, e := NewMultiBucketClient(context.Background(), ocMock, "az", "^cell", model.EndpointOptions{BrowseOnly: true})
+		//cl, e := NewMultiBucketClient(context.Background(), object.AmazonS3Endpoint, "***************", "***************", true, model.EndpointOptions{BrowseOnly: true}, "^cell")
 		So(e, ShouldBeNil)
 		mainMock := NewS3Mock()
 		cl.mainClient = mainMock
@@ -86,7 +88,14 @@ func TestBucketMetadata(t *testing.T) {
 			BrowseOnly: true,
 			Properties: map[string]string{"bucketsTags": "Tag*"},
 		}
-		cl, e := NewMultiBucketClient(context.Background(), object.AmazonS3Endpoint, "***************", "***************", true, options, "^cell")
+		ocMock := mock.New()
+		ocMock.FakeTags = map[string]map[string]string{
+			"cell1": map[string]string{
+				"TagName":      "TagValue",
+				"OtherTagName": "OtherTagValue",
+			},
+		}
+		cl, e := NewMultiBucketClient(context.Background(), ocMock, "az", "^cell", options)
 		So(e, ShouldBeNil)
 		mainMock := NewS3Mock()
 		cl.mainClient = mainMock
@@ -103,9 +112,12 @@ func TestBucketMetadata(t *testing.T) {
 			}
 		}, "", false)
 		So(data, ShouldHaveLength, 3)
-		So(data[0].MetaStore, ShouldNotBeNil)
-		So(data[0].GetStringMeta(s3BucketTagPrefix+"TagName"), ShouldEqual, "TagValue")
-		So(data[0].GetStringMeta(s3BucketTagPrefix+"OtherTagName"), ShouldBeEmpty)
-
+		for _, d := range data {
+			if d.Path == "cell1" {
+				So(d.MetaStore, ShouldNotBeNil)
+				So(d.GetStringMeta(s3BucketTagPrefix+"TagName"), ShouldEqual, "TagValue")
+				So(d.GetStringMeta(s3BucketTagPrefix+"OtherTagName"), ShouldBeEmpty)
+			}
+		}
 	})
 }

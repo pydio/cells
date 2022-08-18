@@ -23,7 +23,6 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/nodes"
 	"math"
 	"strconv"
 	"strings"
@@ -38,6 +37,7 @@ import (
 	grpccli "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/object"
@@ -186,6 +186,8 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		indexOK = true
 	}()
 
+	var oc nodes.StorageClient
+
 	// Making sure Objects is started
 	var minioErr error
 	go func() {
@@ -210,9 +212,12 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		var retryCount int
 		minioErr = std.Retry(ctx, func() error {
 			retryCount++
-			oc, e := nodes.NewStorageClient(cfg)
+			var e error
+			_ = cfg.Val("userAgentAppName").Set(s3.UserAgentAppName)
+			_ = cfg.Val("userAgentVersion").Set(s3.UserAgentVersion)
+			oc, e = nodes.NewStorageClient(cfg)
 			if e != nil {
-				log.Logger(ctx).Error("Cannot create objects client", zap.Error(e))
+				log.Logger(ctx).Error("Cannot create objects client "+e.Error(), zap.Error(e))
 				return e
 			}
 			testCtx := metadata.NewContext(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
@@ -250,7 +255,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 
 	if minioErr != nil {
 		return fmt.Errorf("objects not reachable: %v", minioErr)
-	} else if minioConfig == nil {
+	} else if minioConfig == nil || oc == nil {
 		return fmt.Errorf("objects not reachable")
 	} else if !indexOK {
 		return fmt.Errorf("index not reachable")
@@ -304,15 +309,9 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		var bucketsFilter string
 		if f, o := syncConfig.StorageConfiguration[object.StorageKeyBucketsRegexp]; o {
 			bucketsFilter = f
+
 		}
-		multiClient, errs3 := s3.NewMultiBucketClient(ctx,
-			minioConfig.BuildUrl(),
-			minioConfig.ApiKey,
-			minioConfig.ApiSecret,
-			minioConfig.RunningSecure,
-			options,
-			bucketsFilter,
-		)
+		multiClient, errs3 := s3.NewMultiBucketClient(ctx, oc, minioConfig.RunningHost, bucketsFilter, options)
 		if errs3 != nil {
 			return errs3
 		}
@@ -334,24 +333,14 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		source = multiClient
 
 	} else {
-		s3client, errs3 := s3.NewClient(ctx,
-			minioConfig.BuildUrl(),
-			minioConfig.ApiKey,
-			minioConfig.ApiSecret,
-			syncConfig.ObjectsBucket,
-			syncConfig.ObjectsBaseFolder,
-			minioConfig.RunningSecure,
-			options)
-		if errs3 != nil {
-			return errs3
-		}
+		s3client := s3.NewObjectClient(ctx, oc, minioConfig.BuildUrl(), syncConfig.ObjectsBucket, syncConfig.ObjectsBaseFolder, options)
 		if normalizeS3 {
 			s3client.SetServerRequiresNormalization()
 		}
 		if computer != nil {
 			s3client.SetPlainSizeComputer(computer)
 		}
-		if syncConfig.StorageType == object.StorageType_GCS || keepNativeEtags {
+		if /*syncConfig.StorageType == object.StorageType_GCS ||*/ keepNativeEtags {
 			s3client.SkipRecomputeEtagByCopy()
 		}
 		if dao := servicecontext.GetDAO(s.globalCtx); dao != nil {

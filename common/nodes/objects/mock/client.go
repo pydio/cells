@@ -33,17 +33,24 @@ import (
 // New creates a new mock Client with an optional list of buckets
 func New(buckets ...string) *Client {
 	c := &Client{
-		Buckets: map[string]map[string][]byte{},
+		Buckets:  map[string]map[string]mockObject{},
+		FakeTags: map[string]map[string]string{},
 	}
 	for _, b := range buckets {
-		c.Buckets[b] = make(map[string][]byte)
+		c.Buckets[b] = make(map[string]mockObject)
 	}
 	return c
 }
 
+type mockObject struct {
+	models.ObjectInfo
+	contents []byte
+}
+
 // Client is an in-memory implementation of the nodes.StorageClient interface
 type Client struct {
-	Buckets map[string]map[string][]byte
+	Buckets  map[string]map[string]mockObject
+	FakeTags map[string]map[string]string
 }
 
 func (c *Client) ListBuckets(ctx context.Context) (bb []models.BucketInfo, e error) {
@@ -57,7 +64,7 @@ func (c *Client) MakeBucket(ctx context.Context, bucketName string, location str
 	if _, ok := c.Buckets[bucketName]; ok {
 		return fmt.Errorf("bucket already exists")
 	}
-	c.Buckets[bucketName] = map[string][]byte{}
+	c.Buckets[bucketName] = map[string]mockObject{}
 	return nil
 }
 
@@ -69,13 +76,25 @@ func (c *Client) RemoveBucket(ctx context.Context, bucketName string) error {
 	return nil
 }
 
+func (c *Client) BucketNotifications(ctx context.Context, bucketName string, prefix string, events []string) (<-chan interface{}, error) {
+	return nil, fmt.Errorf("not implemented")
+}
+
+func (c *Client) BucketTags(ctx context.Context, bucketName string) (map[string]string, error) {
+	if tt, o := c.FakeTags[bucketName]; o {
+		return tt, nil
+	} else {
+		return map[string]string{}, nil
+	}
+}
+
 func (c *Client) GetObject(ctx context.Context, bucketName, objectName string, opts models.ReadMeta) (io.ReadCloser, models.ObjectInfo, error) {
 	bucket, ok := c.Buckets[bucketName]
 	if !ok {
 		return nil, models.ObjectInfo{}, fmt.Errorf("bucket not found %s", bucketName)
 	}
 	if object, ok := bucket[objectName]; ok {
-		return newReadCloser(object), models.ObjectInfo{Size: int64(len(object))}, nil
+		return newReadCloser(object.contents), models.ObjectInfo{Size: int64(len(object.contents))}, nil
 	} else {
 		return nil, models.ObjectInfo{}, fmt.Errorf("object not found")
 	}
@@ -87,7 +106,7 @@ func (c *Client) StatObject(ctx context.Context, bucketName, objectName string, 
 		return models.ObjectInfo{}, fmt.Errorf("bucket not found %s", bucketName)
 	}
 	if object, ok := bucket[objectName]; ok {
-		return models.ObjectInfo{Size: int64(len(object))}, nil
+		return object.ObjectInfo, nil
 	} else {
 		return models.ObjectInfo{}, fmt.Errorf("object not found")
 	}
@@ -98,15 +117,25 @@ func (c *Client) PutObject(ctx context.Context, bucketName, objectName string, r
 	if !ok {
 		return models.ObjectInfo{}, fmt.Errorf("bucket not found %s", bucketName)
 	}
-	bucket[objectName], _ = io.ReadAll(reader)
-	size := len(bucket[objectName])
-	return models.ObjectInfo{
-		ETag:         "",
-		Key:          objectName,
-		LastModified: time.Now(),
-		Size:         int64(size),
-		ContentType:  opts.ContentType,
-	}, nil
+	bb, _ := io.ReadAll(reader)
+	eTag := ""
+	if opts.UserMetadata != nil {
+		if e, o := opts.UserMetadata["eTag"]; o && e != "" {
+			eTag = e
+		}
+	}
+	bucket[objectName] = mockObject{
+		ObjectInfo: models.ObjectInfo{
+			Key:          objectName,
+			Size:         int64(len(bb)),
+			ETag:         eTag,
+			LastModified: time.Now(),
+			ContentType:  opts.ContentType,
+		},
+		contents: bb,
+	}
+
+	return bucket[objectName].ObjectInfo, nil
 }
 
 func (c *Client) RemoveObject(ctx context.Context, bucketName, objectName string) error {
@@ -127,12 +156,8 @@ func (c *Client) ListObjects(ctx context.Context, bucketName, prefix, marker, de
 		return result, fmt.Errorf("bucket not found %s", bucketName)
 	}
 	i := 0
-	for objName, data := range bucket {
-		result.Contents = append(result.Contents, models.ObjectInfo{
-			Key:          objName,
-			LastModified: time.Now(),
-			Size:         int64(len(data)),
-		})
+	for _, data := range bucket {
+		result.Contents = append(result.Contents, data.ObjectInfo)
 		i++
 		if len(max) > 0 && max[0] > 0 && i >= max[0] {
 			break
@@ -178,9 +203,10 @@ func (c *Client) CopyObject(ctx context.Context, sourceBucket, sourceObject, des
 	if !ok3 {
 		return models.ObjectInfo{}, fmt.Errorf("dest bucket not found")
 	}
-	dstBucket[destObject] = make([]byte, len(srcObjBytes))
-	copy(dstBucket[destObject], srcObjBytes)
-	return models.ObjectInfo{Size: int64(len(srcObjBytes))}, nil
+	cc := make([]byte, len(srcObjBytes.contents))
+	copy(cc, srcObjBytes.contents)
+	dstBucket[destObject] = mockObject{ObjectInfo: models.ObjectInfo{}, contents: cc}
+	return models.ObjectInfo{Size: int64(len(srcObjBytes.contents))}, nil
 }
 
 func (c *Client) CopyObjectMultipartThreshold() int64 {

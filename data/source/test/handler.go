@@ -43,7 +43,6 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
-	"github.com/pydio/cells/v4/common/nodes/objects/mc"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/test"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
@@ -250,11 +249,6 @@ func (h *Handler) TestEtags(ctx context.Context, oc nodes.StorageClient, req *te
 // TestEvents checks that metadata sent using the client is propagated to the corresponding s3 event
 func (h *Handler) TestEvents(ctx context.Context, oc nodes.StorageClient, req *test.RunTestsRequest, dsConf *object.DataSource) (*test.TestResult, error) {
 
-	min, ok := oc.(*mc.Client)
-	if !ok {
-		return nil, fmt.Errorf("Client is not a MinioClient")
-	}
-
 	result := test.NewTestResult("Events Metadata Propagation")
 
 	opts := minio.StatObjectOptions{}
@@ -265,7 +259,10 @@ func (h *Handler) TestEvents(ctx context.Context, oc nodes.StorageClient, req *t
 	defer cancel()
 
 	result.Log("Setting up events listener")
-	eventChan := min.ListenBucketNotification(listenCtx, dsConf.ObjectsBucket, "", "", []string{string(notification.ObjectCreatedAll)})
+	eventChan, e := oc.BucketNotifications(listenCtx, dsConf.ObjectsBucket, "", []string{string(notification.ObjectCreatedAll)})
+	if e != nil {
+		return result, e
+	}
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	var receivedInfo notification.Info
@@ -274,7 +271,7 @@ func (h *Handler) TestEvents(ctx context.Context, oc nodes.StorageClient, req *t
 		for {
 			select {
 			case i := <-eventChan:
-				receivedInfo = i
+				receivedInfo = i.(notification.Info)
 				return
 			case <-time.After(10 * time.Second):
 				fmt.Println("Breaking after timeout - No Events returned!")
@@ -285,8 +282,7 @@ func (h *Handler) TestEvents(ctx context.Context, oc nodes.StorageClient, req *t
 	key := uuid.New() + ".txt"
 	content := uuid.New()
 	<-time.After(3 * time.Second)
-	_, e := oc.PutObject(authCtx, dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), models.PutMeta{})
-	if e != nil {
+	if _, e = oc.PutObject(authCtx, dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), models.PutMeta{}); e != nil {
 		return result, e
 	}
 

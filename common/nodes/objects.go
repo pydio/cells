@@ -36,6 +36,8 @@ type StorageClient interface {
 	ListBuckets(ctx context.Context) ([]models.BucketInfo, error)
 	MakeBucket(ctx context.Context, bucketName string, location string) (err error)
 	RemoveBucket(ctx context.Context, bucketName string) error
+	BucketTags(ctx context.Context, bucketName string) (map[string]string, error)
+	BucketNotifications(ctx context.Context, bucketName string, prefix string, events []string) (<-chan interface{}, error)
 
 	ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, max ...int) (result models.ListBucketResult, err error)
 	GetObject(ctx context.Context, bucketName, objectName string, opts models.ReadMeta) (io.ReadCloser, models.ObjectInfo, error)
