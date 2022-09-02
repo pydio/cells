@@ -23,6 +23,7 @@ package mongodb
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 	"net/url"
 	"path"
 
@@ -35,8 +36,8 @@ import (
 const Driver = "mongodb"
 
 func init() {
-	dao.RegisterSharedDAODriver(Driver, NewDAO, func(ctx context.Context, driver, dsn string) dao.ConnDriver {
-		return &mongodb{}
+	dao.RegisterSharedDAODriver(Driver, NewDAO, func(ctx context.Context, driver, dsn string) conn.Conn {
+		return nil
 	})
 	dao.RegisterIndexerDriver(Driver, NewIndexer)
 }
@@ -56,11 +57,11 @@ type Handler struct {
 }
 
 // NewDAO creates a new handler for the boltdb dao
-func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.DAO, error) {
-	conn, err := dao.NewConn(ctx, driver, dsn)
-	if err != nil {
-		return nil, err
-	}
+func NewDAO(ctx context.Context, driver string, dsn string, prefix string, c conn.Conn) (dao.DAO, error) {
+	//conn, err := dao.NewConn(ctx, driver, dsn)
+	//if err != nil {
+	//	return nil, err
+	//}
 	var dbName string
 	if u, e := url.Parse(dsn); e == nil {
 		dbName = path.Base(u.Path)
@@ -69,7 +70,7 @@ func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.
 		return nil, fmt.Errorf("mongodb DSN must provide a dbName (like host:port/{dbName})")
 	}
 	return &Handler{
-		DAO:        dao.AbstractDAO(conn, driver, dsn, prefix),
+		DAO:        dao.AbstractDAO(c, driver, dsn, prefix),
 		dbName:     dbName,
 		runtimeCtx: ctx,
 	}, nil
@@ -87,8 +88,10 @@ func (h *Handler) DB() *mongo.Database {
 	}
 
 	if conn, _ := h.GetConn(h.runtimeCtx); conn != nil {
-		client := conn.(*mongo.Client)
-		return client.Database(h.dbName)
+		var client *mongo.Client
+		if conn.As(&client) {
+			return client.Database(h.dbName)
+		}
 	}
 	return nil
 }

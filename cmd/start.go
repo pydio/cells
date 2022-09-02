@@ -24,7 +24,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/manifoldco/promptui"
+	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/nodes"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -36,10 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
-	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/nodes"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -182,12 +182,6 @@ ENVIRONMENT
 			}
 		}
 
-		// Init registry
-		m := manager.NewManager(ctx, runtime.RegistryURL(), "mem:///?cache=plugins&byname=true", "main", managerLogger)
-		if err := m.Init(ctx); err != nil {
-			return err
-		}
-
 		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
 			return err
@@ -225,6 +219,12 @@ ENVIRONMENT
 		}
 		ctx = clientcontext.WithClientConn(ctx, grpcConn)
 		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
+
+		// Init registry
+		m := manager.NewManager(&ctx, runtime.RegistryURL(), "mem:///?cache=plugins&byname=true", "main", managerLogger)
+		if err := m.Init(ctx); err != nil {
+			return err
+		}
 
 		//// getting all connections
 		//testConfig, err := config.OpenStore(ctx, "file:///Users/ghecquet/go/src/github.com/pydio/cells/databases?encode=toml")
@@ -327,7 +327,7 @@ ENVIRONMENT
 
 func startDiscoveryServer(ctx context.Context, regUrl string, logger log.ZapLogger) (manager.Manager, error) {
 
-	m := manager.NewManager(ctx, regUrl, "mem:///", "discovery", logger)
+	m := manager.NewManager(&ctx, regUrl, "mem:///", "discovery", logger)
 	if er := m.Init(ctx); er != nil {
 		return nil, er
 	}

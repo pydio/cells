@@ -25,6 +25,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/utils/net"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 	"net/url"
@@ -87,7 +88,12 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 			return nil, errors.New("could not reach manager")
 		}
 
-		conn, err := m.GetConnection(u)
+		conf, err := net.URLToConfig(u)
+		if err != nil {
+			return nil, err
+		}
+
+		conn, err := m.GetConnection(conf)
 		if err != nil {
 			return nil, err
 		}

@@ -23,6 +23,7 @@ package securecookie
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -31,8 +32,9 @@ import (
 const Driver = "securecookie"
 
 func init() {
-	dao.RegisterSharedDAODriver(Driver, NewDAO, func(ctx context.Context, driver, dsn string) dao.ConnDriver {
-		return &sConn{}
+	dao.RegisterSharedDAODriver(Driver, NewDAO, func(ctx context.Context, driver, dsn string) conn.Conn {
+		// TODO
+		return nil
 	})
 }
 
@@ -50,13 +52,13 @@ type Handler struct {
 func (h *Handler) IsCookie() {}
 
 // NewDAO creates a new handler for the boltdb dao
-func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.DAO, error) {
-	conn, err := dao.NewConn(ctx, driver, dsn)
-	if err != nil {
-		return nil, err
-	}
+func NewDAO(ctx context.Context, driver string, dsn string, prefix string, c conn.Conn) (dao.DAO, error) {
+	// conn, err := dao.NewConn(ctx, driver, dsn)
+	//if err != nil {
+	//	return nil, err
+	//}
 	return &Handler{
-		DAO: dao.AbstractDAO(conn, driver, dsn, prefix),
+		DAO: dao.AbstractDAO(c, driver, dsn, prefix),
 	}, nil
 }
 

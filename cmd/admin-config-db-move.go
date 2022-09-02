@@ -209,13 +209,14 @@ DESCRIPTION
 func initDAO(ctx context.Context, driver, dsn, prefix, storageKey string) (dao.DAO, error) {
 	var d dao.DAO
 	var e error
+	// TODO
 	switch driver {
 	case boltdb.Driver:
-		d, e = boltdb.NewDAO(ctx, driver, dsn, prefix)
+		d, e = boltdb.NewDAO(ctx, driver, dsn, prefix, nil)
 	case bleve.Driver:
-		d, e = bleve.NewDAO(ctx, driver, dsn, prefix)
+		d, e = bleve.NewDAO(ctx, driver, dsn, prefix, nil)
 	case mongodb.Driver:
-		d, e = mongodb.NewDAO(ctx, driver, dsn, prefix)
+		d, e = mongodb.NewDAO(ctx, driver, dsn, prefix, nil)
 	default:
 		return nil, fmt.Errorf("unsupported driver type")
 	}

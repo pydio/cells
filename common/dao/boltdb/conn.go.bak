@@ -22,6 +22,7 @@ package boltdb
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 	"time"
 
 	bolt "go.etcd.io/bbolt"
@@ -33,7 +34,7 @@ type boltdb struct {
 	conn *bolt.DB
 }
 
-func (b *boltdb) Open(c context.Context, dsn string) (dao.Conn, error) {
+func (b *boltdb) Open(c context.Context, dsn string) (conn.Conn, error) {
 	opt := *bolt.DefaultOptions
 	opt.Timeout = 20 * time.Second
 	db, err := bolt.Open(dsn, 0600, &opt)
@@ -46,7 +47,7 @@ func (b *boltdb) Open(c context.Context, dsn string) (dao.Conn, error) {
 	return db, nil
 }
 
-func (b *boltdb) GetConn(_ context.Context) (dao.Conn, error) {
+func (b *boltdb) GetConn(_ context.Context) (conn.Conn, error) {
 	return b.conn, nil
 }
 

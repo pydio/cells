@@ -128,7 +128,6 @@ func init() {
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	ctx, cancel = context.WithCancel(context.Background())
-	fmt.Println("and here we go")
 	if err := RootCmd.ExecuteContext(ctx); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

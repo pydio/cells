@@ -24,6 +24,8 @@ package boltdb
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"os"
 	"path/filepath"
 	"strings"
@@ -38,8 +40,29 @@ import (
 const Driver = "boltdb"
 
 func init() {
-	dao.RegisterDAODriver(Driver, NewDAO, func(ctx context.Context, driver, dsn string) dao.ConnDriver {
-		return &boltdb{}
+	dao.RegisterDAODriver(Driver, NewDAO, func(ctx context.Context, driver, dsn string) conn.Conn {
+		mgr, ok := dao.GetManager(ctx)
+		if !ok {
+			//return nil, errors.New("manager not found")
+			return nil
+		}
+
+		conf, err := DSNToConfig(dsn)
+		if err != nil {
+			return nil
+		}
+		conf.Val("scheme").Set(driver)
+
+		myconn, err := mgr.GetConnection(conf)
+		if err != nil {
+			return nil
+		}
+
+		m := map[string]string{}
+		addrItem := util.CreateAddress(myconn.Addr(), m)
+		mgr.GetRegistry().Register(addrItem)
+
+		return myconn
 	})
 }
 
@@ -57,13 +80,9 @@ type Handler struct {
 }
 
 // NewDAO creates a new handler for the boltdb dao
-func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.DAO, error) {
-	conn, err := dao.NewConn(ctx, driver, dsn)
-	if err != nil {
-		return nil, err
-	}
+func NewDAO(ctx context.Context, driver string, dsn string, prefix string, c conn.Conn) (dao.DAO, error) {
 	return &Handler{
-		DAO:        dao.AbstractDAO(conn, driver, dsn, prefix),
+		DAO:        dao.AbstractDAO(c, driver, dsn, prefix),
 		runtimeCtx: ctx,
 	}, nil
 }
@@ -85,7 +104,10 @@ func (h *Handler) DB() *bolt.DB {
 	}
 
 	if conn, _ := h.GetConn(h.runtimeCtx); conn != nil {
-		return conn.(*bolt.DB)
+		var db *bolt.DB
+		if conn.As(&db) {
+			return db
+		}
 	}
 	return nil
 }
@@ -136,7 +158,7 @@ func (h *Handler) Compact(ctx context.Context, opts map[string]interface{}) (old
 	if copyDB, e = bolt.Open(p, 0600, &bolt.Options{Timeout: 5 * time.Second}); e != nil {
 		return 0, 0, e
 	}
-	h.SetConn(ctx, copyDB)
+	// h.SetConn(ctx, copyDB)
 	if opts != nil {
 		if clear, ok := opts["ClearBackup"]; ok {
 			if c, o := clear.(bool); o && c {

@@ -12,7 +12,7 @@ func init() {
 }
 
 func newBoltDBConn(ctx context.Context, c configx.Values) (Conn, error) {
-	file := c.Val("file").String()
+	file := c.Val("dsn").String()
 
 	opt := *bolt.DefaultOptions
 	opt.Timeout = 20 * time.Second

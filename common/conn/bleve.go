@@ -14,7 +14,7 @@ func init() {
 }
 
 func newBleveConn(ctx context.Context, c configx.Values) (Conn, error) {
-	file := c.Val("file").String()
+	file := c.Val("dsn").String()
 
 	var index bleve.Index
 	var err error

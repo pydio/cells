@@ -322,7 +322,7 @@ func performBrowserInstall(cmd *cobra.Command, ctx context.Context, proxyConf *i
 	cruntime.SetDefault(cruntime.KeyHttpServer, cruntime.HttpServerCaddy)
 
 	managerLogger := log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager"))
-	m := manager.NewManager(ctx, cruntime.RegistryURL(), "mem:///", "install", managerLogger)
+	m := manager.NewManager(&ctx, cruntime.RegistryURL(), "mem:///", "install", managerLogger)
 
 	bkr := broker.NewBroker(cruntime.BrokerURL())
 	ctx = servicecontext.WithBroker(ctx, bkr)

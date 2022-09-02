@@ -142,7 +142,9 @@ EXAMPLES
 		if offlineDB != "" {
 
 			ctx := cmd.Context()
-			db, er := boltdb.NewDAO(ctx, "boltdb", offlineDB, "")
+
+			// TODO
+			db, er := boltdb.NewDAO(ctx, "boltdb", offlineDB, "", nil)
 			if er != nil {
 				log.Fatalln("Cannot open DB file", er.Error())
 			}

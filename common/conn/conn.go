@@ -134,3 +134,21 @@ func addTLS(c configx.Values) (string, error) {
 
 	return q.Encode(), nil
 }
+
+// TODO - probably better ways to do that
+func InitConn(ctx context.Context, driver string, dsn string) (Conn, error) {
+	p, ok := providers[driver]
+	if !ok {
+		return nil, UnknownDriverType(driver)
+	}
+
+	conf := configx.New()
+	conf.Val("dsn").Set(dsn)
+
+	c, err := p(ctx, conf)
+	if err != nil {
+		return nil, err
+	}
+
+	return c, nil
+}

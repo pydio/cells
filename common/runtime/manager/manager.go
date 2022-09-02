@@ -26,9 +26,7 @@ import (
 	"fmt"
 	"github.com/pydio/cells/v4/common/conn"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/utils/net"
 	"go.uber.org/zap"
-	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -65,7 +63,7 @@ type Manager interface {
 	WatchServicesConfigs()
 	WatchBroker(ctx context.Context, br broker.Broker) error
 	GetRegistry() registry.Registry
-	GetConnection(*url.URL) (conn.Conn, error)
+	GetConnection(configx.Values) (conn.Conn, error)
 }
 
 type manager struct {
@@ -84,7 +82,7 @@ type manager struct {
 	logger log.ZapLogger
 }
 
-func NewManager(ctx context.Context, regUrl string, srcUrl string, namespace string, logger log.ZapLogger) Manager {
+func NewManager(ctx *context.Context, regUrl string, srcUrl string, namespace string, logger log.ZapLogger) Manager {
 	m := &manager{
 		ns:       namespace,
 		srcUrl:   srcUrl,
@@ -93,9 +91,9 @@ func NewManager(ctx context.Context, regUrl string, srcUrl string, namespace str
 		logger:   logger,
 	}
 
-	ctx = With(ctx, m)
+	*ctx = With(*ctx, m)
 
-	reg, err := registry.OpenRegistry(ctx, regUrl)
+	reg, err := registry.OpenRegistry(*ctx, regUrl)
 	if err != nil {
 		return nil
 	}
@@ -520,15 +518,10 @@ func (m *manager) GetRegistry() registry.Registry {
 	return m.reg
 }
 
-func (m *manager) GetConnection(u *url.URL) (conn.Conn, error) {
-	c, ok := m.connections[u.String()]
+func (m *manager) GetConnection(conf configx.Values) (conn.Conn, error) {
+	c, ok := m.connections[conf.String()]
 	if ok {
 		return c, nil
-	}
-
-	conf, err := net.URLToConfig(u)
-	if err != nil {
-		return nil, err
 	}
 
 	p, ok := conn.GetConnProvider(conf.Val("scheme").String())

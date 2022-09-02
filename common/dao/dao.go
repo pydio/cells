@@ -24,10 +24,21 @@ package dao
 import (
 	"context"
 	"fmt"
-
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/conn"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
+
+type Manager interface {
+	GetRegistry() registry.Registry
+	GetConnection(configx.Values) (conn.Conn, error)
+}
+
+func GetManager(ctx context.Context) (Manager, bool) {
+	m, ok := ctx.Value(common.CtxManagerKey).(Manager)
+	return m, ok
+}
 
 type MigratorStatus struct {
 	Status string
@@ -37,8 +48,8 @@ type MigratorStatus struct {
 type MigratorFunc func(from DAO, to DAO, dryRun bool, status chan MigratorStatus) (map[string]int, error)
 type DriverProviderFunc func() (string, string)
 
-type ConnProviderFunc func(ctx context.Context, driver, dsn string) ConnDriver
-type DaoProviderFunc func(ctx context.Context, driver, dsn, prefix string) (DAO, error)
+type ConnProviderFunc func(ctx context.Context, driver, dsn string) conn.Conn
+type DaoProviderFunc func(ctx context.Context, driver, dsn, prefix string, conn conn.Conn) (DAO, error)
 type IndexerWrapperFunc func(context.Context, DAO) (IndexDAO, error)
 type DaoWrapperFunc func(context.Context, DAO) (DAO, error)
 
@@ -52,8 +63,8 @@ type DAO interface {
 	registry.Dao
 
 	Init(context.Context, configx.Values) error
-	GetConn(context.Context) (Conn, error)
-	SetConn(context.Context, Conn)
+	GetConn(context.Context) (conn.Conn, error)
+	SetConn(context.Context, conn.Conn)
 	CloseConn(context.Context) error
 
 	// Prefix is used to prevent collision between table names
@@ -92,12 +103,13 @@ func RegisterIndexerDriver(name string, daoF IndexerWrapperFunc) {
 }
 
 // InitDAO finalize DAO creation based on registered drivers
-func InitDAO(ctx context.Context, driver, dsn, prefix string, wrapper DaoWrapperFunc, cfg ...configx.Values) (DAO, error) {
+func InitDAO(ctx context.Context, driver, dsn, prefix string, wrapper DaoWrapperFunc, c conn.Conn, cfg ...configx.Values) (DAO, error) {
+
 	f, ok := daoDrivers[driver]
 	if !ok {
 		return nil, UnknownDriverType(driver)
 	}
-	d, e := f(ctx, driver, dsn, prefix)
+	d, e := f(ctx, driver, dsn, prefix, c)
 	if e != nil {
 		return nil, e
 	}
@@ -116,8 +128,8 @@ func InitDAO(ctx context.Context, driver, dsn, prefix string, wrapper DaoWrapper
 }
 
 // InitIndexer looks up in the register to initialize a DAO and wrap it as an IndexDAO
-func InitIndexer(ctx context.Context, driver, dsn, prefix string, wrapper DaoWrapperFunc, cfg ...configx.Values) (DAO, error) {
-	d, e := InitDAO(ctx, driver, dsn, prefix, nil)
+func InitIndexer(ctx context.Context, driver, dsn, prefix string, wrapper DaoWrapperFunc, c conn.Conn, cfg ...configx.Values) (DAO, error) {
+	d, e := InitDAO(ctx, driver, dsn, prefix, nil, c)
 	if e != nil {
 		return nil, e
 	}
@@ -152,4 +164,8 @@ func IsShared(driverName string) (bool, error) {
 	} else {
 		return false, fmt.Errorf("cannot find DAO with driver name %s", driverName)
 	}
+}
+
+type Addressable interface {
+	Addr() string
 }
