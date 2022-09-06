@@ -379,7 +379,6 @@ func (c *Client) listAllObjects(ctx context.Context, bucketName string, prefix s
 	if recursive {
 		delimiter = ""
 	}
-	maxKeys := 1000
 
 	// Initiate list objects goroutine here.
 	go func(objectStatCh chan<- models.ObjectInfo) {
@@ -388,7 +387,7 @@ func (c *Client) listAllObjects(ctx context.Context, bucketName string, prefix s
 		var continuationToken string
 		for {
 			// Get list of objects a maximum of 1000 per request.
-			result, err := c.Oc.ListObjects(ctx, bucketName, prefix, continuationToken, delimiter, maxKeys)
+			result, err := c.Oc.ListObjects(ctx, bucketName, prefix, continuationToken, delimiter)
 			if err != nil {
 				objectStatCh <- models.ObjectInfo{
 					Err: err,
@@ -399,6 +398,7 @@ func (c *Client) listAllObjects(ctx context.Context, bucketName string, prefix s
 			// If contents are available loop through and send over channel.
 			for _, object := range result.Contents {
 				object.ETag = strings.TrimSuffix(strings.TrimPrefix(object.ETag, "\""), "\"")
+				continuationToken = object.Key
 				select {
 				// Send object content.
 				case objectStatCh <- object:
@@ -420,12 +420,13 @@ func (c *Client) listAllObjects(ctx context.Context, bucketName string, prefix s
 				}
 			}
 
-			// If continuation token present, save it for next request.
+			// If NextMarker is present, save it as continuation token for next request.
+			// If result 'IsTruncated' but NextMarker is not set, continuationToken will be last object Key (see above)
 			if result.NextMarker != "" {
 				continuationToken = result.NextMarker
 			}
 
-			// Listing ends result is not truncated, return right here.
+			// If result is not truncated, return right here.
 			if !result.IsTruncated {
 				return
 			}
