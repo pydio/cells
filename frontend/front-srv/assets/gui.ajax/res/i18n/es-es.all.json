@@ -165,13 +165,13 @@
     "other": "Todos los archivos"
   },
   "file.temporary-etag.flag": {
-    "other": "Incomplete"
+    "other": "Incompleto"
   },
   "file.temporary-etag.tooltip": {
     "other": "This file is being uploaded (or the upload has failed)."
   },
   "mimegroup.byextension": {
-    "other": "By File Extension..."
+    "other": "Por extensión del archivo..."
   },
   "mimegroup.word": {
     "other": "Word documents"

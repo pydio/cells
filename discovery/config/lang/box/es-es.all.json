@@ -135,7 +135,7 @@
     "other": "Fecha después"
   },
   "contextMetaCondition.PathGlobCondition": {
-    "other": "Glob Matcher"
+    "other": "Comparador de Glob"
   },
   "contextMetaCondition.BooleanCondition": {
     "other": "Valor Booleano"
