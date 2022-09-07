@@ -41,7 +41,7 @@ var (
 
 func getAncestorsParentsCache() cache.Cache {
 	if ancestorsParentsCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=800ms&cleanWindow=800ms")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=1500ms&cleanWindow=3m")
 		ancestorsParentsCache = c
 	}
 	return ancestorsParentsCache
@@ -49,7 +49,7 @@ func getAncestorsParentsCache() cache.Cache {
 
 func getAncestorsNodesCache() cache.Cache {
 	if ancestorsNodesCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=800ms&cleanWindow=5s")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=1500ms&cleanWindow=3m")
 		ancestorsNodesCache = c
 	}
 	return ancestorsNodesCache
@@ -61,13 +61,12 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 	/*
 		sT := time.Now()
 		defer func() {
-			fmt.Println("--- End BuildAncestorsList for "+node.GetPath(), time.Now().Sub(sT))
+			fmt.Println("--- End BuildAncestorsList for "+node.GetPath(), time.Since(sT))
 		}()
 	*/
-	dirPath := path.Dir(node.GetPath())
 	if node.GetPath() != "" {
 		var parents []*tree.Node
-		if getAncestorsParentsCache().Get(dirPath, &parents) {
+		if getAncestorsParentsCache().Get(path.Dir(node.GetPath()), &parents) {
 			var cachedNode *tree.Node
 			// Lookup First node
 			if getAncestorsNodesCache().Get(node.GetPath(), &cachedNode) {
@@ -92,8 +91,7 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 	if lErr != nil {
 		return parentUuids, lErr
 	}
-	defer ancestorStream.CloseSend()
-
+	// fmt.Println("Needs actual streaming", node.GetPath())
 	for {
 		parent, e := ancestorStream.Recv()
 		if e != nil {
@@ -111,13 +109,33 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 		}
 		parentUuids = append(parentUuids, parent.Node)
 	}
-	if dirPath != "" && parentUuids != nil && len(parentUuids) > 1 {
+
+	if len(parentUuids) > 1 {
 		cNode := parentUuids[0]
 		pNodes := parentUuids[1:]
-		getAncestorsNodesCache().Set(node.GetPath(), cNode)
-		getAncestorsParentsCache().Set(dirPath, pNodes)
+		_ = getAncestorsNodesCache().Set(node.GetPath(), cNode)
+		if !cNode.IsLeaf() {
+			storeParents(node.GetPath(), parentUuids)
+		}
+		dirPath := path.Dir(node.GetPath())
+		if dirPath != "." && dirPath != "" {
+			storeParents(dirPath, pNodes)
+			for i, n := range pNodes {
+				_ = getAncestorsNodesCache().Set(n.GetPath(), n)
+				if i < len(pNodes)-2 {
+					storeParents(path.Dir(n.GetPath()), pNodes[i+1:])
+				}
+			}
+		}
 	}
 	return parentUuids, err
+}
+
+func storeParents(dirPath string, parents []*tree.Node) {
+	if len(parents) > 0 {
+		_ = getAncestorsParentsCache().Set(dirPath, parents)
+		//fmt.Println("Storing "+dirPath+" with ", len(parents), " nodes, first is ", parents[0].GetPath())
+	}
 }
 
 // BuildAncestorsListOrParent builds ancestors list when the node does not exist yet, by trying to find all existing parents.
