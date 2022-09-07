@@ -1,9 +1,9 @@
 {
   "Livekit Server": {
-    "other": "Livekit Server"
+    "other": "Livekit serveris"
   },
   "Enable audio/video conferencing with Livekit Server": {
-    "other": "Enable audio/video conferencing with Livekit Server"
+    "other": "Ieslēgt audio/video konferences ar LiveKit serveri"
   },
   "Websocket URL": {
     "other": "Websocket URL"
@@ -12,15 +12,15 @@
     "other": "Livekit Websocket URL"
   },
   "API Key": {
-    "other": "API Key"
+    "other": "API Atslēga"
   },
   "Livekit server API Key": {
-    "other": "Livekit server API Key"
+    "other": "Livekit servera API atslēga"
   },
   "API Secret": {
-    "other": "API Secret"
+    "other": "API Slepenā atslēga"
   },
   "Livekit server API Secret": {
-    "other": "Livekit server API Secret"
+    "other": "Livekit servera API Slepenā atslēga"
   }
 }
