@@ -132,13 +132,16 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 
 // createParentIfNotExist Recursively create parents
 func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, session string) error {
-	parentNode := node.Clone()
-	parentNode.Path = path.Dir(node.Path)
+	parentNode := &tree.Node{
+		Path:  path.Dir(node.Path),
+		Type:  tree.NodeType_COLLECTION,
+		MTime: time.Now().Unix(),
+	}
+	parentNode.MustSetMeta(common.MetaNamespaceDatasourcePath, path.Dir(node.GetStringMeta(common.MetaNamespaceDatasourcePath)))
+
 	if parentNode.Path == "/" || parentNode.Path == "" || parentNode.Path == "." {
 		return nil
 	}
-	parentNode.MustSetMeta(common.MetaNamespaceDatasourcePath, path.Dir(parentNode.GetStringMeta(common.MetaNamespaceDatasourcePath)))
-	parentNode.Type = tree.NodeType_COLLECTION
 	if _, e := m.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: parentNode}); e != nil {
 		if er := m.createParentIfNotExist(ctx, parentNode, session); er != nil {
 			return er
