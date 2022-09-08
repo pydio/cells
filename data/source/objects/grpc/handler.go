@@ -26,7 +26,6 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
-	"go.uber.org/zap"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -41,6 +40,7 @@ import (
 	_ "github.com/minio/minio/cmd/gateway"
 	"github.com/pkg/errors"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/object"
@@ -282,64 +282,63 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 	os.Setenv("MINIO_ROOT_USER", accessKey)
 	os.Setenv("MINIO_ROOT_PASSWORD", secretKey)
 
-	var minioExe string
-	if exe := os.Getenv("MINIO_EXECUTABLE"); exe != "" {
-		log.Logger(ctx).Info("Using minio executable from environment")
-		minioExe = exe
-	} else if path := o.LookupPath(); path != "" {
-		if _, e := os.Stat(path); e == nil {
-			log.Logger(ctx).Info("Found minio executable at " + path)
-			minioExe = path
-		} else if er := o.Downloader(ctx, path); er == nil {
-			minioExe = path
-		} else {
-			log.Logger(ctx).Error("Cannot download minio executable: "+er.Error(), zap.Error(er))
-		}
-	}
-	if minioExe == "" {
-		e := fmt.Errorf("Cannot install minio executable automatically. Please download correct version and pass it as MINIO_EXECUTABLE environment variable")
-		log.Logger(ctx).Error(e.Error(), zap.Error(e))
-		return e
-	}
-
-	//fmt.Println("Should Start", minioExe, params[1:])
-	cmd := exec.CommandContext(ctx, minioExe, params[1:]...)
-	if er := o.pipeOutputs(ctx, cmd); er != nil {
-		fmt.Println("Cannot start pipe minio executable: ", er)
-		return er
-	}
-	if er := cmd.Start(); er != nil {
-		fmt.Println("Cannot start minio executable: ", er)
-		return er
-	}
-	fmt.Println("Started, waiting")
-	er := cmd.Wait()
-	if er != nil {
-		fmt.Println("Stop waiting", e)
-	}
-
 	/*
-		minio.HookRegisterGlobalHandler(func(handler http.Handler) http.Handler {
-			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				handler.ServeHTTP(w, r)
-			})
-		})
-		minio.HookExtractReqParams(func(req *http.Request, m map[string]string) {
-			if v := req.Header.Get(common.PydioContextUserKey); v != "" {
-				m[common.PydioContextUserKey] = v
+		var minioExe string
+		if exe := os.Getenv("MINIO_EXECUTABLE"); exe != "" {
+			log.Logger(ctx).Info("Using minio executable from environment")
+			minioExe = exe
+		} else if path := o.LookupPath(); path != "" {
+			if _, e := os.Stat(path); e == nil {
+				log.Logger(ctx).Info("Found minio executable at " + path)
+				minioExe = path
+			} else if er := o.Downloader(ctx, path); er == nil {
+				minioExe = path
+			} else {
+				log.Logger(ctx).Error("Cannot download minio executable: "+er.Error(), zap.Error(er))
 			}
-			for _, key := range common.XSpecialPydioHeaders {
-				if v := req.Header.Get("X-Amz-Meta-" + key); v != "" {
-					m[key] = v
-				} else if v := req.Header.Get(key); v != "" {
-					m[key] = v
-				}
-			}
-		})
+		}
+		if minioExe == "" {
+			e := fmt.Errorf("Cannot install minio executable automatically. Please download correct version and pass it as MINIO_EXECUTABLE environment variable")
+			log.Logger(ctx).Error(e.Error(), zap.Error(e))
+			return e
+		}
 
-		minio.Main(params)
-
+		//fmt.Println("Should Start", minioExe, params[1:])
+		cmd := exec.CommandContext(ctx, minioExe, params[1:]...)
+		if er := o.pipeOutputs(ctx, cmd); er != nil {
+			fmt.Println("Cannot start pipe minio executable: ", er)
+			return er
+		}
+		if er := cmd.Start(); er != nil {
+			fmt.Println("Cannot start minio executable: ", er)
+			return er
+		}
+		fmt.Println("Started, waiting")
+		er := cmd.Wait()
+		if er != nil {
+			fmt.Println("Stop waiting", e)
+		}
 	*/
+
+	minio.HookRegisterGlobalHandler(func(handler http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			handler.ServeHTTP(w, r)
+		})
+	})
+	minio.HookExtractReqParams(func(req *http.Request, m map[string]string) {
+		if v := req.Header.Get(common.PydioContextUserKey); v != "" {
+			m[common.PydioContextUserKey] = v
+		}
+		for _, key := range common.XSpecialPydioHeaders {
+			if v := req.Header.Get("X-Amz-Meta-" + key); v != "" {
+				m[key] = v
+			} else if v := req.Header.Get(key); v != "" {
+				m[key] = v
+			}
+		}
+	})
+
+	minio.Main(params)
 
 	return nil
 }
