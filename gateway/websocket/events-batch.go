@@ -91,6 +91,9 @@ func (n *NodeEventsBatcher) Flush() {
 				nonTemporaryEtag = e.Target.Etag
 			}
 			// Merge metadatas
+			if output.Target.Path == "" && e.Target.Path != "" {
+				output.Target.Path = e.Target.Path
+			}
 			output.Target.Etag = e.Target.Etag
 			output.Target.Type = e.Target.Type
 			output.Target.MTime = e.Target.MTime
