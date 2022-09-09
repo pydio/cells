@@ -3,7 +3,6 @@ package fork
 import (
 	"bufio"
 	"context"
-	"go.uber.org/zap/zapcore"
 	"os"
 	"os/exec"
 	"regexp"
@@ -149,22 +148,28 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 		for scannerOut.Scan() {
 			text := strings.TrimRight(scannerOut.Text(), "\n")
 			// merged := false
-			if parsed := logs.FindStringSubmatch(text); len(parsed) == 7 {
-				var f func(string, ...zapcore.Field)
-				switch parsed[2][5:9] {
-				case "INFO":
-					f = log.Logger(defaultLogContext).Info
-				case "DEBU":
-					f = log.Logger(defaultLogContext).Debug
-				case "WARN":
-					f = log.Logger(defaultLogContext).Warn
-				case "ERRO":
-					f = log.Logger(defaultLogContext).Error
-				default:
-					f = log.Logger(defaultLogContext).Info
-				}
-
-				f(parsed[4])
+			if parsed := logs.FindStringSubmatch(text); len(parsed) >= 5 {
+				log.StdOut.WriteString(text + "\n")
+				/*
+					var f func(string, ...zapcore.Field)
+					switch parsed[2][5:9] {
+					case "INFO":
+						f = log.Logger(defaultLogContext).Info
+					case "DEBU":
+						f = log.Logger(defaultLogContext).Debug
+					case "WARN":
+						f = log.Logger(defaultLogContext).Warn
+					case "ERRO":
+						f = log.Logger(defaultLogContext).Error
+					default:
+						f = log.Logger(defaultLogContext).Info
+					}
+					if len(parsed) == 7 {
+						f(parsed[4] + "\t" + parsed[6])
+					} else {
+						f(parsed[4])
+					}
+				*/
 			} else {
 				log.Logger(defaultLogContext).Info(text)
 			}
