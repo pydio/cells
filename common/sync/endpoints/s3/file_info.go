@@ -25,16 +25,16 @@ import (
 	"path"
 	"time"
 
-	minio "github.com/minio/minio-go/v7"
+	"github.com/pydio/cells/v4/common/nodes/models"
 )
 
-type S3FileInfo struct {
-	Object minio.ObjectInfo
+type fileInfo struct {
+	Object models.ObjectInfo
 	isDir  bool
 }
 
 // Name is the base name of the file
-func (s *S3FileInfo) Name() string {
+func (s *fileInfo) Name() string {
 	if s.isDir {
 		return path.Base(s.Object.Key)
 	} else {
@@ -43,12 +43,12 @@ func (s *S3FileInfo) Name() string {
 }
 
 // Size gets length in bytes for regular files; system-dependent for others
-func (s *S3FileInfo) Size() int64 {
+func (s *fileInfo) Size() int64 {
 	return s.Object.Size
 }
 
 // Mode returns file mode bits
-func (s *S3FileInfo) Mode() os.FileMode {
+func (s *fileInfo) Mode() os.FileMode {
 	if s.isDir {
 		return os.ModePerm & os.ModeDir
 	} else {
@@ -58,29 +58,29 @@ func (s *S3FileInfo) Mode() os.FileMode {
 }
 
 // ModTime retuns modification time
-func (s *S3FileInfo) ModTime() time.Time {
+func (s *fileInfo) ModTime() time.Time {
 	return s.Object.LastModified
 }
 
 // IsDir is an abbreviation for Mode().IsDir()
-func (s *S3FileInfo) IsDir() bool {
+func (s *fileInfo) IsDir() bool {
 	return s.isDir
 }
 
 // Sys returns underlying data source (can return nil)
-func (s *S3FileInfo) Sys() interface{} {
+func (s *fileInfo) Sys() interface{} {
 	return s.Object
 }
 
-func NewS3FileInfo(object minio.ObjectInfo) *S3FileInfo {
-	return &S3FileInfo{
+func newFileInfo(object models.ObjectInfo) *fileInfo {
+	return &fileInfo{
 		Object: object,
 		isDir:  false,
 	}
 }
 
-func NewS3FolderInfo(object minio.ObjectInfo) *S3FileInfo {
-	return &S3FileInfo{
+func newFolderInfo(object models.ObjectInfo) *fileInfo {
+	return &fileInfo{
 		Object: object,
 		isDir:  true,
 	}

@@ -22,6 +22,7 @@ package mc
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -30,7 +31,6 @@ import (
 
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/minio/minio-go/v7/pkg/notification"
 	"github.com/minio/minio-go/v7/pkg/s3utils"
 
 	"github.com/pydio/cells/v4/common/nodes"
@@ -53,12 +53,18 @@ func init() {
 		secure := cfg.Val("secure").Bool()
 		region := cfg.Val("region").String()
 		isMinio := cfg.Val("minioServer").Bool()
-		return New(ep, key, secret, secure, region, isMinio)
+		signature := cfg.Val("signature").Default("v2").String()
+		sc, e := New(ep, key, secret, signature, secure, region, isMinio)
+		if ua := cfg.Val("userAgentAppName").String(); ua != "" {
+			uv := cfg.Val("userAgentVersion").String()
+			sc.mc.SetAppInfo(ua, uv)
+		}
+		return sc, e
 	})
 }
 
 // New creates a new minio.Core with the most standard options
-func New(endpoint, accessKey, secretKey string, secure bool, customRegion string, minioServer bool) (*Client, error) {
+func New(endpoint, accessKey, secretKey, signatureVersion string, secure bool, customRegion string, minioServer bool) (*Client, error) {
 	rt, e := customHeadersTransport(secure)
 	if e != nil {
 		return nil, e
@@ -80,8 +86,17 @@ func New(endpoint, accessKey, secretKey string, secure bool, customRegion string
 		return nil, e
 	}
 
+	var creds *credentials.Credentials
+	if signatureVersion == "v4" {
+		creds = credentials.NewStaticV4(accessKey, secretKey, "")
+	} else if signatureVersion == "v2" {
+		creds = credentials.NewStaticV2(accessKey, secretKey, "")
+	} else {
+		return nil, fmt.Errorf("unsupported signature version, please provide 'v2' or 'v4'")
+	}
+
 	options := &minio.Options{
-		Creds:     credentials.NewStaticV2(accessKey, secretKey, ""),
+		Creds:     creds,
 		Secure:    secure,
 		Transport: rt,
 	}
@@ -122,6 +137,18 @@ func (c *Client) MakeBucket(ctx context.Context, bucketName string, location str
 
 func (c *Client) RemoveBucket(ctx context.Context, bucketName string) error {
 	return c.mc.RemoveBucket(ctx, bucketName)
+}
+
+func (c *Client) BucketTags(ctx context.Context, bucketName string) (map[string]string, error) {
+	tg, er := c.mc.GetBucketTagging(ctx, bucketName)
+	if er != nil {
+		return nil, er
+	}
+	out := make(map[string]string)
+	for k, v := range tg.ToMap() {
+		out[k] = v
+	}
+	return out, nil
 }
 
 func (c *Client) GetObject(ctx context.Context, bucketName, objectName string, opts models.ReadMeta) (io.ReadCloser, models.ObjectInfo, error) {
@@ -328,9 +355,16 @@ func (c *Client) CopyObject(ctx context.Context, sourceBucket, sourceObject, des
 	}
 }
 
-// ListenBucketNotification hooks to events - Not part of the interface
-func (c *Client) ListenBucketNotification(ctx context.Context, bucketName, prefix, suffix string, events []string) <-chan notification.Info {
-	return c.mc.ListenBucketNotification(ctx, bucketName, prefix, suffix, events)
+// BucketNotifications hooks to events
+func (c *Client) BucketNotifications(ctx context.Context, bucketName string, prefix string, events []string) (<-chan interface{}, error) {
+	notificationInfoCh := make(chan interface{}, 1)
+	go func() {
+		defer close(notificationInfoCh)
+		for n := range c.mc.ListenBucketNotification(ctx, bucketName, prefix, "", events) {
+			notificationInfoCh <- n
+		}
+	}()
+	return notificationInfoCh, nil
 }
 
 func (c *Client) readMetaToMinioOpts(ctx context.Context, meta models.ReadMeta) minio.GetObjectOptions {

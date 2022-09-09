@@ -270,7 +270,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	} else if h {
 		log.Logger(pr.GlobalContext).Error("Patch ended with errors", zap.Int("count", len(pE)))
 		for _, e := range pE {
-			log.Logger(pr.GlobalContext).Error("--- Error", zap.Error(e), zap.String("target", patch.Target().GetEndpointInfo().URI))
+			log.Logger(pr.GlobalContext).Error("--- Error: "+e.Error(), zap.Error(e), zap.String("target", patch.Target().GetEndpointInfo().URI))
 		}
 
 	}

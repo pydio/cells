@@ -463,6 +463,10 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			session = common.SyncSessionClose_ + session
 			logger.Debug("-- Copying sourceNode with empty Uuid - Close Session")
 			targetNode.Type = tree.NodeType_COLLECTION
+			// Warning - It may have been already created by createParentIfNotExists, do not override UUID !
+			if r, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: targetNode}); e == nil && r != nil {
+				targetNode.Uuid = r.GetNode().GetUuid()
+			}
 			_, e := router.CreateNode(ctx, &tree.CreateNodeRequest{Node: targetNode, IndexationSession: session, UpdateIfExists: true})
 			if e != nil {
 				panic(e)

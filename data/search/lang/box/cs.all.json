@@ -1,20 +1,20 @@
 {
   "Search.Config.IndexContent.Label": {
-    "other": "Index Contents"
+    "other": "Vytvářet rejstřík obsahu"
   },
   "Search.Config.IndexContent.Description": {
-    "other": "If set to true, indexer will look for the ContentRef metadata, read contents from this reference and index it for search."
+    "other": "Pokud je nastaveno na hodnotu true, nástroj pro vytváření rejstříků bude hledat metadata ContentRef a číst obsah z tohoto odkazu a vytvářet z něj rejstřík pro vyhledávání."
   },
   "Search.Config.BasenameAnalyze.Label": {
-    "other": "File Name Analyzer"
+    "other": "Analyzátor názvů souborů"
   },
   "Search.Config.BasenameAnalyze.Description": {
-    "other": "Analyzer used on file names"
+    "other": "Analyzátor použitý na názvech souborů"
   },
   "Search.Config.ContentAnalyzer.Label": {
-    "other": "Contents Analyzer"
+    "other": "Analyzátor obsahu"
   },
   "Search.Config.ContentAnalyzer.Description": {
-    "other": "Analyzer used on contents"
+    "other": "Analyzátor použitý na obsah"
   }
 }

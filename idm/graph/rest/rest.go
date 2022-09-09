@@ -21,22 +21,33 @@
 package rest
 
 import (
+	"context"
+	"fmt"
+	"github.com/pydio/cells/v4/idm/meta/namespace"
+	"path"
+	"sync"
+
 	restful "github.com/emicklei/go-restful/v3"
-	"github.com/pydio/cells/v4/common/client/grpc"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
-type GraphHandler struct{}
+type GraphHandler struct {
+	runtimeContext context.Context
+}
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
 func (h *GraphHandler) SwaggerTags() []string {
@@ -214,4 +225,143 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 
 	rsp.WriteEntity(responseObject)
 
+}
+
+// Recommend computes recommendations for home page by loading activities, bookmarks, and finally workspaces
+func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
+	request := &rest.RecommendRequest{}
+	if e := req.ReadEntity(request); e != nil {
+		service.RestError500(req, rsp, e)
+		return
+	}
+	ctx := req.Request.Context()
+
+	// Return empty if accessList is empty
+	accessList, err := permissions.AccessListFromContextClaims(ctx)
+	if len(accessList.Workspaces) == 0 || err != nil {
+		rsp.WriteEntity(&rest.RecommendResponse{})
+		return
+	}
+	uName, _ := permissions.FindUserNameInContext(ctx)
+	ak := map[string]struct{}{}
+	var an []*tree.Node
+
+	router := compose.UuidClient(h.runtimeContext)
+
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		// Load activities
+		ac := activity.NewActivityServiceClient(grpc.GetClientConnFromCtx(h.runtimeContext, common.ServiceActivity))
+		acReq := &activity.StreamActivitiesRequest{
+			Context:     activity.StreamContext_USER_ID,
+			ContextData: uName,
+			PointOfView: activity.SummaryPointOfView_ACTOR,
+			BoxName:     "outbox",
+			Limit:       int64(request.Limit) * 2,
+		}
+		if streamer, er := ac.StreamActivities(ctx, acReq); er == nil {
+			for {
+				resp, e := streamer.Recv()
+				if e != nil {
+					break
+				}
+				a := resp.GetActivity()
+				if a.Object == nil || a.Object.Name == "" {
+					continue
+				}
+				if a.Object.Type == activity.ObjectType_Delete {
+					continue
+				}
+				if a.Object.Type != activity.ObjectType_Document && a.Object.Type != activity.ObjectType_Folder {
+					continue
+				}
+				if _, already := ak[a.Object.Id]; already {
+					continue
+				}
+				n := &tree.Node{Uuid: a.Object.Id}
+				n.MustSetMeta("reco-annotation", fmt.Sprintf("activity:%d", a.Updated.GetSeconds()))
+				an = append(an, n)
+				ak[a.Object.Id] = struct{}{}
+			}
+		}
+	}()
+
+	var bn []*tree.Node
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		subjects, e := auth.SubjectsForResourcePolicyQuery(ctx, nil)
+		if e != nil {
+			return
+		}
+		// Append Subjects
+		sr := &idm.SearchUserMetaRequest{
+			Namespace: namespace.ReservedNamespaceBookmark,
+			ResourceQuery: &service2.ResourcePolicyQuery{
+				Subjects: subjects,
+			},
+		}
+
+		userMetaClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
+		stream, er := userMetaClient.SearchUserMeta(ctx, sr)
+		if er != nil {
+			return
+		}
+		for {
+			resp, e := stream.Recv()
+			if e != nil {
+				break
+			}
+			if resp == nil {
+				continue
+			}
+			node := &tree.Node{Uuid: resp.GetUserMeta().GetNodeUuid()}
+			node.MustSetMeta("reco-annotation", "bookmark")
+			bn = append(bn, node)
+		}
+	}()
+
+	wg.Wait()
+	resp := &rest.RecommendResponse{}
+	for _, n := range bn {
+		if _, already := ak[n.Uuid]; already {
+			continue
+		}
+		an = append(an, n)
+	}
+	for _, n := range an {
+		if r, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n}); er == nil {
+			node := r.GetNode()
+			if len(node.AppearsIn) == 0 || node.AppearsIn[0].Path == "" { // empty Path = workspace root
+				continue
+			}
+			node.Path = path.Join(node.AppearsIn[0].WsSlug, node.AppearsIn[0].Path)
+			node.MustSetMeta("reco-annotation", n.GetStringMeta("reco-annotation"))
+			node.MustSetMeta("repository_id", node.AppearsIn[0].WsUuid)
+			resp.Nodes = append(resp.Nodes, node.WithoutReservedMetas())
+		}
+	}
+
+	// Not enough data, load accessible workspaces as nodes
+	if len(resp.Nodes) < int(request.Limit) {
+		pr := compose.PathClient(h.runtimeContext)
+		_ = pr.ListNodesWithCallback(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}}, func(ctx context.Context, node *tree.Node, err error) error {
+			if err == nil && node.Type != tree.NodeType_UNKNOWN {
+				if wsu := node.GetStringMeta("ws_uuid"); wsu != "" {
+					node.MustSetMeta("repository_id", wsu)
+					node.MustSetMeta("reco-annotation", "workspace")
+				}
+				if wsl := node.GetStringMeta("ws_label"); wsl != "" {
+					node.MustSetMeta("name", wsl)
+				}
+				resp.Nodes = append(resp.Nodes, node)
+			}
+			return nil
+		}, false)
+	}
+
+	rsp.WriteEntity(resp)
 }

@@ -33,6 +33,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sync/model"
@@ -46,11 +47,10 @@ type MultiBucketClient struct {
 	bucketRegexp  *regexp.Regexp
 	bucketMetas   []glob.Glob
 
+	oc nodes.StorageClient
+
 	// Connection options
 	host    string
-	key     string
-	secret  string
-	secure  bool
 	options model.EndpointOptions
 
 	// Clients implementations
@@ -65,18 +65,13 @@ type MultiBucketClient struct {
 }
 
 // NewMultiBucketClient creates an s3 wrapped client that lists buckets as top level folders
-func NewMultiBucketClient(ctx context.Context, host string, key string, secret string, secure bool, options model.EndpointOptions, bucketsFilter string) (*MultiBucketClient, error) {
-	c, e := NewClient(ctx, host, key, secret, "", "", secure, options)
-	if e != nil {
-		return nil, e
-	}
+func NewMultiBucketClient(ctx context.Context, oc nodes.StorageClient, host string, bucketsFilter string, options model.EndpointOptions) (*MultiBucketClient, error) {
+
 	m := &MultiBucketClient{
+		oc:            oc,
 		host:          host,
-		key:           key,
-		secret:        secret,
-		secure:        secure,
 		options:       options,
-		mainClient:    c,
+		mainClient:    NewObjectClient(ctx, oc, host, "", "", options),
 		bucketClients: make(map[string]*Client),
 	}
 	if len(bucketsFilter) > 0 {
@@ -131,11 +126,12 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 	if e != nil {
 		return e
 	}
+	ctx := context.Background()
 	if b == "" {
 		collect := recursive && c.checksumMapper != nil
 		var eTags []string
 		// List buckets first
-		bb, er := c.Mc.ListBuckets(context.Background())
+		bb, er := c.Oc.ListBuckets(ctx)
 		if er != nil {
 			return er
 		}
@@ -145,13 +141,13 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 				continue
 			}
 			bC, _, _, _ := m.getClient(bucket.Name)
-			uid, _, _ := bC.readOrCreateFolderId("")
+			uid, _, _ := bC.readOrCreateFolderId(ctx, "")
 			// Walk bucket as a folder
 			fNode := &tree.Node{Uuid: uid, Path: bucket.Name, Type: tree.NodeType_COLLECTION, MTime: bucket.CreationDate.Unix()}
 			// Additional read of bucket tagging if configured
 			if len(m.bucketMetas) > 0 && taggingError == nil {
-				if tags, err := c.Mc.GetBucketTagging(context.Background(), bucket.Name); err == nil && tags != nil {
-					for key, value := range tags.ToMap() {
+				if tags, err := c.Oc.BucketTags(context.Background(), bucket.Name); err == nil && tags != nil {
+					for key, value := range tags {
 						tKey := s3BucketTagPrefix + key
 						for _, g := range m.bucketMetas {
 							if g.Match(tKey) {
@@ -162,16 +158,16 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 						}
 					}
 				} else {
-					log.Logger(context.Background()).Warn("Cannot read bucket tagging for "+bucket.Name+", will not retry for other buckets", zap.Error(err))
+					log.Logger(m.globalContext).Warn("Cannot read bucket tagging for "+bucket.Name+", will not retry for other buckets", zap.Error(err))
 					taggingError = err
 				}
 			}
 			walknFc(bucket.Name, fNode, nil)
 			if !m.options.BrowseOnly {
 				// Walk associated .pydio file
-				metaId, metaHash, metaSize, er := bC.getFileHash(common.PydioSyncHiddenFile)
+				metaId, metaHash, metaSize, er := bC.getFileHash(ctx, common.PydioSyncHiddenFile)
 				if er != nil {
-					log.Logger(context.Background()).Error("cannot get filehash for bucket hidden file", zap.Error(er))
+					log.Logger(m.globalContext).Error("cannot get filehash for bucket hidden file", zap.Error(er))
 				}
 				metaFilePath := path.Join(bucket.Name, common.PydioSyncHiddenFile)
 				walknFc(metaFilePath, &tree.Node{Uuid: metaId, Etag: metaHash, Size: metaSize, Path: metaFilePath, Type: tree.NodeType_LEAF, MTime: bucket.CreationDate.Unix()}, nil)
@@ -210,7 +206,7 @@ func (m *MultiBucketClient) Watch(recursivePath string) (*model.WatchObject, err
 
 	// We handle only recursivePath = "" case here
 
-	bb, e := m.mainClient.Mc.ListBuckets(context.Background())
+	bb, e := m.mainClient.Oc.ListBuckets(context.Background())
 	if e != nil {
 		return nil, e
 	}
@@ -427,10 +423,8 @@ func (m *MultiBucketClient) getClient(p string) (c *Client, bucket string, inter
 				}
 				o.Properties["stableUuidPrefix"] = bucket
 			}
-			c, e = NewClient(m.globalContext, m.host, m.key, m.secret, bucket, "", m.secure, o)
-			if e != nil {
-				return
-			}
+
+			c = NewObjectClient(m.globalContext, m.oc, m.host, bucket, "", o)
 			if m.plainSizeComputer != nil {
 				c.SetPlainSizeComputer(m.plainSizeComputer)
 			}

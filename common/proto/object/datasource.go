@@ -35,15 +35,17 @@ const (
 	StorageKeyFolderCreate = "create"
 	StorageKeyNormalize    = "normalize"
 
-	StorageKeyCustomEndpoint  = "customEndpoint"
-	StorageKeyCustomRegion    = "customRegion"
-	StorageKeyMinioServer     = "minioServer"
-	StorageKeyBucketsTags     = "bucketsTags"
-	StorageKeyObjectsTags     = "objectsTags"
-	StorageKeyNativeEtags     = "nativeEtags"
-	StorageKeyBucketsRegexp   = "bucketsRegexp"
-	StorageKeyReadonly        = "readOnly"
-	StorageKeyJsonCredentials = "jsonCredentials"
+	StorageKeyCustomEndpoint   = "customEndpoint"
+	StorageKeyCustomRegion     = "customRegion"
+	StorageKeyMinioServer      = "minioServer"
+	StorageKeyBucketsTags      = "bucketsTags"
+	StorageKeyObjectsTags      = "objectsTags"
+	StorageKeyNativeEtags      = "nativeEtags"
+	StorageKeyBucketsRegexp    = "bucketsRegexp"
+	StorageKeyReadonly         = "readOnly"
+	StorageKeyJsonCredentials  = "jsonCredentials"
+	StorageKeyStorageClass     = "storageClass"
+	StorageKeySignatureVersion = "signatureVersion"
 
 	StorageKeyCellsInternal    = "cellsInternal"
 	StorageKeyInitFromBucket   = "initFromBucket"
@@ -55,6 +57,9 @@ const (
 func (d *DataSource) ClientConfig() configx.Values {
 	cfg := configx.New()
 	_ = cfg.Val("type").Set("mc")
+	if d.StorageType == StorageType_AZURE {
+		_ = cfg.Val("type").Set("azure")
+	}
 	_ = cfg.Val("endpoint").Set(d.BuildUrl())
 	_ = cfg.Val("key").Set(d.GetApiKey())
 	_ = cfg.Val("secret").Set(d.GetApiSecret())
@@ -63,6 +68,12 @@ func (d *DataSource) ClientConfig() configx.Values {
 	if d.StorageConfiguration != nil {
 		if r, o := d.StorageConfiguration[StorageKeyCustomRegion]; o && r != "" {
 			_ = cfg.Val("region").Set(r)
+		}
+		if ce, o := d.StorageConfiguration[StorageKeyCustomEndpoint]; o && ce != "" {
+			_ = cfg.Val(StorageKeyCustomEndpoint).Set(ce)
+		}
+		if sv, o := d.StorageConfiguration[StorageKeySignatureVersion]; o && sv != "" {
+			_ = cfg.Val("signature").Set(sv)
 		}
 	}
 	return cfg
@@ -74,7 +85,7 @@ func (d *DataSource) BuildUrl() string {
 	if d.ObjectsHost == "" {
 		host = "localhost"
 	}
-	if d.ObjectsPort == 443 {
+	if d.ObjectsPort == 443 || d.ObjectsPort == 0 {
 		return host
 	} else {
 		return fmt.Sprintf("%s:%d", host, d.ObjectsPort)
@@ -104,6 +115,8 @@ func (d *MinioConfig) ClientConfig() configx.Values {
 	_ = cfg.Val("secure").Set(d.GetRunningSecure())
 	if d.StorageType == StorageType_LOCAL {
 		_ = cfg.Val("minioServer").Set(true)
+	} else if d.StorageType == StorageType_AZURE {
+		_ = cfg.Val("type").Set("azure")
 	}
 	if d.GatewayConfiguration != nil {
 		if m, o := d.GatewayConfiguration[StorageKeyMinioServer]; o && m == "true" {
@@ -111,6 +124,12 @@ func (d *MinioConfig) ClientConfig() configx.Values {
 		}
 		if r, o := d.GatewayConfiguration[StorageKeyCustomRegion]; o && r != "" {
 			_ = cfg.Val("region").Set(r)
+		}
+		if ce, o := d.GatewayConfiguration[StorageKeyCustomEndpoint]; o && ce != "" {
+			_ = cfg.Val("customEndpoint").Set(ce)
+		}
+		if sv, o := d.GatewayConfiguration[StorageKeySignatureVersion]; o && sv != "" {
+			_ = cfg.Val("signature").Set(sv)
 		}
 	}
 	return cfg
@@ -122,7 +141,7 @@ func (d *MinioConfig) BuildUrl() string {
 	if d.RunningHost == "" {
 		host = "localhost"
 	}
-	if d.RunningPort == 443 {
+	if d.RunningPort == 443 || d.RunningPort == 0 {
 		return host
 	} else {
 		return fmt.Sprintf("%s:%d", host, d.RunningPort)

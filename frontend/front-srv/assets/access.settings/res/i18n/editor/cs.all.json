@@ -1,12 +1,12 @@
 {
   "1": {
-    "other": "No Parameters"
+    "other": "Žádné parametry"
   },
   "10": {
-    "other": "Write Only"
+    "other": "Pouze zápis"
   },
   "11": {
-    "other": "Denied"
+    "other": "Odepřeno"
   },
   "12": {
     "other": "No Access"
@@ -21,25 +21,25 @@
     "other": "Pick one parameter or action, then click Add. You can quickly search through the parameters using the text field below."
   },
   "16": {
-    "other": "Show/Hide Inherited"
+    "other": "Zobrazit/skrýt převzaté"
   },
   "17": {
-    "other": "Add Parameter or Action"
+    "other": "Přidat parametr nebo akci"
   },
   "18": {
-    "other": "Plugins Settings"
+    "other": "Nastavení zásuvného modulu"
   },
   "19": {
-    "other": "always overrides"
+    "other": "vždy přepíše"
   },
   "2": {
-    "other": "Enabled"
+    "other": "Zapnuto"
   },
   "20": {
-    "other": "+ add role"
+    "other": "+ přidat roli"
   },
   "21": {
-    "other": "reloading..."
+    "other": "opětovné načítání…"
   },
   "22": {
     "other": "Loading actions cache, please wait, this will be done only once..."
@@ -48,28 +48,28 @@
     "other": "Loading parameters cache, please wait, this will be done only once..."
   },
   "24": {
-    "other": "User Information"
+    "other": "Informace o uživateli"
   },
   "25": {
-    "other": "Access Restrictions"
+    "other": "Omezení přístupu"
   },
   "26": {
-    "other": "Group Information"
+    "other": "Informace o skupině"
   },
   "27": {
     "other": "Group Info"
   },
   "28": {
-    "other": "Role Information"
+    "other": "Informace o roli"
   },
   "29": {
     "other": "Role Info"
   },
   "3": {
-    "other": "Disabled"
+    "other": "Vypnuto"
   },
   "30": {
-    "other": "Profile & Roles"
+    "other": "Profil a role"
   },
   "31": {
     "other": "User unique Identifier. You cannot modify this value."
@@ -78,34 +78,34 @@
     "other": "Specific profile. May imply some roles automatically applied."
   },
   "33": {
-    "other": "Close"
+    "other": "Zavřít"
   },
   "34": {
     "other": "Access Controls"
   },
   "35": {
-    "other": "Workspaces Accesses"
+    "other": "Přístup k pracovním prostorům"
   },
   "36": {
     "other": "Application Pages"
   },
   "37": {
-    "other": "Customize Parameters"
+    "other": "Přizpůsobit parametry"
   },
   "38": {
-    "other": "Application Parameters"
+    "other": "Parametry aplikace"
   },
   "39": {
-    "other": "All workspaces parameters"
+    "other": "Parametry všech pracovních prostorů"
   },
   "4": {
-    "other": "Clear value"
+    "other": "Vymazat hodnotu"
   },
   "40": {
-    "other": "Per-workspaces parameters"
+    "other": "Parametry všech pracovních prostorů"
   },
   "41": {
-    "other": "Additional Parameters"
+    "other": "Další parametry"
   },
   "42": {
     "other": "Refine application parameters values and selectively disable plugin actions for this current role. Parameters here are global to the application (authentication, configuration, etc). See the Workspaces tabs for workspace-specific parameters/actions."
@@ -114,7 +114,7 @@
     "other": "Grant access to workspaces for the current role/user/group"
   },
   "44": {
-    "other": "Main Application Pages"
+    "other": "Hlavní stránky aplikace"
   },
   "45": {
     "other": "Access to main application pages (like My Account, welcome page, etc.)"

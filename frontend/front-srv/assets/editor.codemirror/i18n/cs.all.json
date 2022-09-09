@@ -3,7 +3,7 @@
     "other": "Source Editor"
   },
   "10": {
-    "other": "Indent size"
+    "other": "Šířka odsazení"
   },
   "2": {
     "other": "CodeMirror Syntax Highlighter"
@@ -15,7 +15,7 @@
     "other": "Toggle lines wrapping"
   },
   "4": {
-    "other": "Numbers"
+    "other": "Čísla"
   },
   "5": {
     "other": "Toggle lines numbers"
@@ -24,12 +24,12 @@
     "other": "Jump to line"
   },
   "7": {
-    "other": "Undo"
+    "other": "Zpět"
   },
   "8": {
-    "other": "Redo"
+    "other": "Znovu"
   },
   "9": {
-    "other": "Text Search"
+    "other": "Hledání textu"
   }
 }

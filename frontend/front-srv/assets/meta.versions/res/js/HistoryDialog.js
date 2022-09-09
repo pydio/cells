@@ -23,18 +23,6 @@ import createReactClass from 'create-react-class'
 const PydioReactUi = Pydio.requireLib('boot');
 import Revisions from './Revisions'
 
-class HistoryBrowser extends React.Component{
-
-    render(){
-        return (
-            <div style={{display:'flex', flexDirection:'column', color:'rgba(0,0,0,.87)'}} className={"version-history"}>
-                <Revisions node={this.props.node}/>
-            </div>
-        );
-    }
-
-}
-
 const HistoryDialog = createReactClass({
 
     mixins:[
@@ -54,9 +42,16 @@ const HistoryDialog = createReactClass({
         this.dismiss();
     },
     render: function(){
+        const {node, args} = this.props;
+        let preselection;
+        if(args && args.length > 0) {
+            preselection = args[0];
+        }
         return (
             <div style={{width: '100%'}} className="layout-fill vertical-layout">
-                <HistoryBrowser node={this.props.node} onRequestClose={this.dismiss}/>
+                <div style={{display:'flex', flexDirection:'column', color:'rgba(0,0,0,.87)'}} className={"version-history"}>
+                    <Revisions node={node} preselection={preselection} onRequestClose={this.dismiss.bind(this)}/>
+                </div>
             </div>
         );
     }

@@ -3,10 +3,10 @@
     "other": "Dashboard"
   },
   "dashboard.tab.activity": {
-    "other": "Activity"
+    "other": "Aktivita"
   },
   "loading": {
-    "other": "Loading..."
+    "other": "Načítání…"
   },
   "ds.board.ds.legend": {
     "other": "Datasources are concrete storage locations that are aggregated by Pydio into a global tree. They can be distributed accross many storage nodes as needed."
@@ -27,13 +27,13 @@
     "other": "Versioning Policies"
   },
   "ds.board.wsfromds.title": {
-    "other": "Create Workspace"
+    "other": "Vytvořit pracovní prostor"
   },
   "ds.board.wsfromds.legend": {
     "other": "Create a new workspace at the root of datasource %s"
   },
   "ds.board.wsfromds.field": {
-    "other": "Label"
+    "other": "Popisek"
   },
   "ds.board.wsfromds.defaultPrefix": {
     "other": "DataSource %s"
@@ -54,7 +54,7 @@
     "other": "Best for performances, files are stored as binaries inside the storage. Files and folders structure is kept in internal index only."
   },
   "ds.format-picker.structured.title": {
-    "other": "Import Existing Data"
+    "other": "Naimportovat existující data"
   },
   "ds.format-picker.structured.legend": {
     "other": "Files and folders are stored as-is, real-time synchronisation reflects storage structure inside internal indexes."
@@ -81,28 +81,28 @@
     "other": "Please be aware that if you do not export and backup your master key, and if you have to reinstall the server for any reason,"
   },
   "ds.editor.enc.dialog.enable.2bold": {
-    "other": "all data will be lost!"
+    "other": "veškerá data budou ztracena!"
   },
   "ds.editor.enc.dialog.enable.3": {
     "other": "You must also be aware that it may require more CPU for a smooth on-the-fly encryption/decryption of the data."
   },
   "ds.editor.enc.dialog.enable.create": {
-    "other": "Set an identifier for the new key"
+    "other": "Uložit identifikátor pro nový klíč"
   },
   "ds.editor.enc.key": {
-    "other": "Encryption Key"
+    "other": "Šifrovací klíč"
   },
   "ds.editor.enc.key.clear": {
-    "other": "No Encryption"
+    "other": "Bez šifrování"
   },
   "ds.editor.enc.key.create": {
     "other": "Set up encryption with a new key..."
   },
   "ds.editor.enc.validate": {
-    "other": "I Understand"
+    "other": "Rozumím"
   },
   "ds.editor.enc.warning": {
-    "other": "Warning!"
+    "other": "Varování!"
   },
   "ds.editor.legend.delete.1": {
     "other": "Deleting datasource is a destructive operation : although it will NOT remove the data inside the underlying storage, it will destroy existing index and unlink all ACLs linked to the indexed nodes."
@@ -111,7 +111,7 @@
     "other": "Make sure to first remove all workspaces that are pointing to this datasource before deleting it."
   },
   "ds.editor.legend.delete.button": {
-    "other": "Delete DataSource"
+    "other": "Odstranit datový zdroj"
   },
   "ds.editor.legend.local": {
     "other": "File System datasources serve files via an object storage server, that is starting on the parent folder and serving the target as an s3 bucket. For this reason, the selected folder must meet the following requirements:"
@@ -162,7 +162,7 @@
     "other": "Encryption at rest can be used to make sure files are never stored in clear format inside the storage. This may be useful if you do not trust the storage provider."
   },
   "ds.editor.storage.readOnly": {
-    "other": "Read-only mode"
+    "other": "Režim pouze pro čtení"
   },
   "ds.editor.storage.legend.readOnly": {
     "other": "Use read-only mode if you require Cells to never write any hidden files and to use native eTags as checksums (this can be necessary for buckets with huge amount of existing data). However, please note that any workspaces created on this datasource should be set as Read Only, as move feature cannot function properly."
@@ -189,7 +189,7 @@
     "other": "For proper changes detection, files checksums (md5) are computed by Cells (or by the storage with an in-place copy, when possible) and attached as metadata to objects. For best performances, use Native ETags flag to keep the storage original values, but beware that this will disable Desktop Synchronization on this datasource. You can also simply prevent objects modification, while still computing checksums, by storing metadata locally."
   },
   "ds.editor.new": {
-    "other": "New DataSource"
+    "other": "Nový datový zdroj"
   },
   "ds.editor.name.inuse": {
     "other": "This name is already in use, make sure to pick another one!"
@@ -198,25 +198,25 @@
     "other": "Main Options"
   },
   "ds.editor.datamanagement": {
-    "other": "Data Management"
+    "other": "Správa dat"
   },
   "ds.editor.options.enabled": {
-    "other": "Enabled"
+    "other": "Zapnuto"
   },
   "ds.editor.options.id": {
-    "other": "DataSource Identifier"
+    "other": "Identifikátor datového zdroje"
   },
   "ds.editor.options.port": {
-    "other": "Internal Port"
+    "other": "Interní port"
   },
   "ds.editor.selector.completer": {
-    "other": "Pick a folder"
+    "other": "Vyberte složku"
   },
   "ds.editor.selector.completer.hint": {
     "other": "Pick from list or type a path and hit Enter"
   },
   "ds.editor.selector.completer.create": {
-    "other": "folder will be created"
+    "other": "složka bude vytvořena"
   },
   "ds.editor.selector.error.depth": {
     "other": "Make sure to select a two-levels deep folder. Object storage will start on the parent folder."
@@ -225,37 +225,37 @@
     "other": "Folder is exposed as an S3 bucket and must comply to DNS names (lowercase, no space or special characters)."
   },
   "ds.editor.selector.folder": {
-    "other": "Local Folder"
+    "other": "Místní složka"
   },
   "ds.editor.selector.folder.hint": {
     "other": "Select a peer to load folders"
   },
   "ds.editor.selector.peer": {
-    "other": "Peer Address"
+    "other": "Adresa protějšku"
   },
   "ds.editor.selector.peer.any": {
     "other": "Any peer (unique node or distributed FS)"
   },
   "ds.editor.selector.peer.word": {
-    "other": "Peer"
+    "other": "Protějšek"
   },
   "ds.editor.selector.peer.invalid": {
-    "other": "invalid"
+    "other": "neplatné"
   },
   "ds.editor.selector.mkdir": {
-    "other": "Create Folder"
+    "other": "Vytvořit složku"
   },
   "ds.editor.selector.mkdir.legend": {
-    "other": "Create a new folder under %s"
+    "other": "Vytvořit novou složku pod %s"
   },
   "ds.editor.selector.mkdir.field": {
-    "other": "Folder name"
+    "other": "Název složky"
   },
   "ds.editor.storage.fs.macos": {
-    "other": "Operating System is MacOSX"
+    "other": "Operační systém je macOS"
   },
   "ds.editor.storage.azure.api": {
-    "other": "Azure Account Name"
+    "other": "Název Azure účtu"
   },
   "ds.editor.storage.azure.secret": {
     "other": "Azure Secret Key"
@@ -279,13 +279,16 @@
     "other": "Amazon S3"
   },
   "ds.editor.storage.s3.endpoint.custom": {
-    "other": "S3-Compatible Storage"
+    "other": "Other S3-Compatible Storage"
+  },
+  "ds.editor.storage.s3.endpoint.minio": {
+    "other": "Minio Server"
   },
   "ds.editor.storage.s3.endpoint": {
     "other": "Custom Endpoint URL"
   },
   "ds.editor.storage.s3.endpoint.hint": {
-    "other": "Leave empty for Amazon S3"
+    "other": "include http(s)://"
   },
   "ds.editor.storage.s3.region": {
     "other": "S3 Api Region"
@@ -303,10 +306,10 @@
     "other": "Reload buckets"
   },
   "ds.editor.storage.buckets.regexp": {
-    "other": "Use regular expression"
+    "other": "Použít regulární výraz"
   },
   "ds.editor.storage.buckets.regexp.hint": {
-    "other": "Regular expression"
+    "other": "Regulární výraz"
   },
   "ds.editor.storage.buckets.cont.nokeys": {
     "other": "Setup storage to load buckets"
@@ -339,70 +342,70 @@
     "other": "Do not enable versioning"
   },
   "ds.editor.tab.button-back": {
-    "other": "Back"
+    "other": "Zpět"
   },
   "ds.editor.tab.button-next": {
-    "other": "Next"
+    "other": "Další"
   },
   "ds.editor.tab.button-create": {
-    "other": "Create"
+    "other": "Vytvořit"
   },
   "ds.editor.tab.identifier": {
-    "other": "Identifier"
+    "other": "Identifikátor"
   },
   "ds.editor.tab.main": {
     "other": "Main Options"
   },
   "ds.editor.tab.storage": {
-    "other": "Storage Type"
+    "other": "Typ úložiště"
   },
   "ds.editor.tab.lifecycle": {
-    "other": "Data Lifecycle"
+    "other": "Životní cyklus dat"
   },
   "ds.editor.tab.advanced": {
-    "other": "Advanced Options"
+    "other": "Pokročilé předvolby"
   },
   "ds.editor.initFlatFromSnapshot": {
     "other": "If this storage was previously used as a flat datasource, initialize it from an existing snapshot file (must be found inside the storage)"
   },
   "ds.encryption": {
-    "other": "Encrypted"
+    "other": "Šifrováno"
   },
   "ds.encryption.key.emptyState": {
-    "other": "No master key created"
+    "other": "Nevytvořen žádný hlavní klíč"
   },
   "ds.encryption.key.create": {
-    "other": "Create Key"
+    "other": "Vytvořit klíč"
   },
   "ds.encryption.key.created": {
     "other": "Created on"
   },
   "ds.encryption.key.delete": {
-    "other": "Delete Key"
+    "other": "Smazat klíč"
   },
   "ds.encryption.key.delete.warning": {
     "other": "If the key is currently used for encrypted data, this is a very destructive operation! Are you sure you want to do that?"
   },
   "ds.encryption.key.export": {
-    "other": "Export Key"
+    "other": "Exportovat klíč"
   },
   "ds.encryption.key.export.confirm": {
-    "other": "Confirm password"
+    "other": "Potvrďte zadání hesla"
   },
   "ds.encryption.key.export.fail": {
-    "other": "Something went wrong during export"
+    "other": "Při exportu se něco nezdařilo"
   },
   "ds.encryption.key.export.password": {
-    "other": "Provide a strong password"
+    "other": "Zadejte prolomení odolné heslo"
   },
   "ds.encryption.key.export.result.copy": {
-    "other": "Copy result to a file to save the key"
+    "other": "Zkopírovat výsledek do souboru a uložit tak klíč"
   },
   "ds.encryption.key.id": {
-    "other": "Identifier"
+    "other": "Identifikátor"
   },
   "ds.encryption.key.import": {
-    "other": "Import Key"
+    "other": "Naimportovat klíč"
   },
   "ds.encryption.key.import.content": {
     "other": "Paste key here from your backup file"
@@ -423,28 +426,28 @@
     "other": "Key was successfully imported"
   },
   "ds.encryption.key.label": {
-    "other": "Label"
+    "other": "Popisek"
   },
   "ds.encryption.key.owner": {
-    "other": "Owner"
+    "other": "Vlastník"
   },
   "ds.name": {
-    "other": "Name"
+    "other": "Název"
   },
   "ds.status": {
-    "other": "Status"
+    "other": "Stav"
   },
   "ds.status.disabled": {
-    "other": "Disabled"
+    "other": "Vypnuto"
   },
   "ds.status.index": {
     "other": "Index down"
   },
   "ds.status.ko": {
-    "other": "Services stopped"
+    "other": "Služby zastaveny"
   },
   "ds.status.ko-peers": {
-    "other": "Node %s not found"
+    "other": "Uzel %s nenalezen"
   },
   "ds.status.na": {
     "other": "N/A"
@@ -453,7 +456,7 @@
     "other": "Objects down"
   },
   "ds.status.ok": {
-    "other": "All services running"
+    "other": "Všechny služby spuštěné"
   },
   "ds.status.starting": {
     "other": "Starting datasource..."
@@ -462,13 +465,13 @@
     "other": "Sync down"
   },
   "ds.storage": {
-    "other": "Storage Type"
+    "other": "Typ úložiště"
   },
   "ds.storage.fs": {
-    "other": "Local File System"
+    "other": "Místní souborový systém"
   },
   "ds.storage.s3": {
-    "other": "S3-compatible Storage"
+    "other": "Úložiště kompatibilní s S3"
   },
   "ds.storage.azure": {
     "other": "Azure Blob Storage"
@@ -477,49 +480,49 @@
     "other": "Google Cloud Storage"
   },
   "ds.storage.title": {
-    "other": "Storage"
+    "other": "Úložiště"
   },
   "ds.versioning": {
-    "other": "Versioning"
+    "other": "Verzování"
   },
   "ds.syncStatus": {
-    "other": "Last Sync"
+    "other": "Naposledy synchronizováno"
   },
   "ds.emptyState": {
-    "other": "No datasources created yet"
+    "other": "Zatím nevytvořeny žádné datové zdroje"
   },
   "ds.versioning.description": {
-    "other": "Description"
+    "other": "Popis"
   },
   "ds.versioning.name": {
-    "other": "Name"
+    "other": "Název"
   },
   "ds.versioning.periods": {
     "other": "Retention Strategy"
   },
   "ds.versioning.storage": {
-    "other": "Storage"
+    "other": "Úložiště"
   },
   "logs.1": {
-    "other": "Server Logs"
+    "other": "Záznamy událostí na serveru"
   },
   "logs.10": {
-    "other": "Export and download"
+    "other": "Exportovat a stáhnout si"
   },
   "logs.11": {
-    "other": "Export as..."
+    "other": "Exportovat jako…"
   },
   "logs.2": {
-    "other": "Pick a day"
+    "other": "Vyberte den"
   },
   "logs.filter.legend": {
-    "other": "Filter by..."
+    "other": "Filtrovat podle…"
   },
   "logs.export.disabled": {
     "other": "Pick a date or filter result"
   },
   "logs.export.clicklink": {
-    "other": "Click on the link to download"
+    "other": "Stáhnete si kliknutím na odkaz"
   },
   "logs.filter.period": {
     "other": "Time Period"
@@ -555,7 +558,7 @@
     "other": "Light/Dark Theme"
   },
   "logs.sys.note": {
-    "other": "Please Note:"
+    "other": "Uvědomte si že:"
   },
   "logs.sys.note.content": {
     "other": "Empty logs entries may mean that the server is not running in production mode. Make sure to set this log level by passing the --log=production argument or setting the environment variable PYDIO_LOGS_LEVEL=production."
@@ -567,7 +570,7 @@
     "other": "Click on a row for details"
   },
   "logs.5": {
-    "other": "Event Detail"
+    "other": "Podrobnosti události"
   },
   "logs.6": {
     "other": "Export logs"
@@ -585,25 +588,25 @@
     "other": "Level"
   },
   "logs.service": {
-    "other": "Service"
+    "other": "Služba"
   },
   "logs.message": {
-    "other": "Message"
+    "other": "Zpráva"
   },
   "logs.noentries": {
-    "other": "No entries"
+    "other": "Žádné položky"
   },
   "logs.noresults": {
-    "other": "No results"
+    "other": "Bez výsledku"
   },
   "menu.0": {
-    "other": "Dashboard"
+    "other": "Nástěnka"
   },
   "menu.1": {
-    "other": "Activity"
+    "other": "Aktivita"
   },
   "menu.10": {
-    "other": "Extensions for sending files through the Web UI"
+    "other": "Rozšíření pro odesílání souborů prostřednictvím webového rozhraní"
   },
   "menu.11": {
     "other": "Authentication"
@@ -630,40 +633,40 @@
     "other": "Instant messaging and external accelerator tool"
   },
   "menu.18": {
-    "other": "All Plugins"
+    "other": "Všechny zásuvné moduly"
   },
   "menu.19": {
-    "other": "Available Plugins"
+    "other": "Zásuvné moduly k dispozici"
   },
   "menu.2": {
-    "other": "Server Logs"
+    "other": "Záznamy událostí na serveru"
   },
   "menu.20": {
-    "other": "User Features"
+    "other": "Uživatelské funkce"
   },
   "menu.21": {
-    "other": "End-user parameters"
+    "other": "Parametry koncového uživatele"
   },
   "menu.22": {
-    "other": "Welcome Page"
+    "other": "Uvítací stránka"
   },
   "menu.23": {
     "other": "Landing page for user after login. Configure displayed elements and links."
   },
   "menu.3": {
-    "other": "Appearance"
+    "other": "Vzhled"
   },
   "menu.4": {
-    "other": "Theme, logos, appearance options"
+    "other": "Motivy, loga, možnosti vzhledu"
   },
   "menu.5": {
-    "other": "Sharing Features"
+    "other": "Funkce pro sdílení"
   },
   "menu.6": {
     "other": "Options for all files and folders sharing"
   },
   "menu.7": {
-    "other": "Editors"
+    "other": "Editory"
   },
   "menu.8": {
     "other": "Enable/disable editors and manage their parameters"
@@ -678,10 +681,10 @@
     "other": "User-editable fields attached to data"
   },
   "metadata.definition": {
-    "other": "Definition"
+    "other": "Definice"
   },
   "metadata.delete.confirm": {
-    "other": "Are you sure you want to delete this metadata?"
+    "other": "Opravdu chcete tato metadata odstranit?"
   },
   "metadata.editor.label.error": {
     "other": "Metadata label cannot be empty"
@@ -693,16 +696,16 @@
     "other": "Name already exists, please pick another one"
   },
   "metadata.editor.selection": {
-    "other": "Selection Values"
+    "other": "Hodnoty výběru"
   },
   "metadata.editor.selection.key": {
-    "other": "Key"
+    "other": "Klíč"
   },
   "metadata.editor.selection.value": {
-    "other": "Value"
+    "other": "Hodnota"
   },
   "metadata.editor.selection.steps": {
-    "other": "Show as steps"
+    "other": "Zobrazit jako kroky"
   },
   "metadata.editor.tags.cleared": {
     "other": "Cleared tags for namespaces %s"
@@ -711,73 +714,73 @@
     "other": "Reset Tags"
   },
   "metadata.editor.title.create": {
-    "other": "Create Namespace"
+    "other": "Vytvořit jmenný prostor"
   },
   "metadata.empty": {
-    "other": "No metadata defined"
+    "other": "Nejsou definována žádná metadata"
   },
   "metadata.indexable": {
-    "other": "Indexable"
+    "other": "Indexovatelné"
   },
   "metadata.label": {
-    "other": "Label"
+    "other": "Štítek"
   },
   "metadata.namespace": {
-    "other": "Name"
+    "other": "Název"
   },
   "metadata.namespace.add": {
     "other": "+ Namespace"
   },
   "metadata.namespaces": {
-    "other": "Namespaces"
+    "other": "Jmenné prostory"
   },
   "metadata.namespaces.legend": {
     "other": "Metadata can be attached to any files or folders by the users. You can define here the kind of metadata you want to display, and whether each meta is readable/writeable by standard users as opposed to admin users."
   },
   "metadata.order": {
-    "other": "Order"
+    "other": "Pořadí"
   },
   "metadata.toggle.index": {
-    "other": "Index in search engine"
+    "other": "Rejstřík ve vyhledávači"
   },
   "metadata.toggle.read": {
-    "other": "Restrict visibility to admins"
+    "other": "Viditelné pouze správcům"
   },
   "metadata.toggle.write": {
-    "other": "Restrict edition to admins"
+    "other": "Upravitelné pouze správci"
   },
   "metadata.type": {
-    "other": "Type"
+    "other": "Typ"
   },
   "metadata.type.string": {
-    "other": "Short Text"
+    "other": "Stručný text"
   },
   "metadata.type.textarea": {
-    "other": "Paragraph"
+    "other": "Odstavec"
   },
   "metadata.type.integer": {
-    "other": "Number"
+    "other": "Číslo"
   },
   "metadata.type.boolean": {
     "other": "True/False value"
   },
   "metadata.type.date": {
-    "other": "Date or Time"
+    "other": "Datum nebo čas"
   },
   "metadata.type.stars_rate": {
-    "other": "Stars Rating"
+    "other": "Hodnocení hvězdičkami"
   },
   "metadata.type.css_label": {
-    "other": "Color Labels"
+    "other": "Barevné štítky"
   },
   "metadata.type.tags": {
-    "other": "Extensible Tags"
+    "other": "Rozšiřitelné štítky"
   },
   "metadata.type.choice": {
-    "other": "Select from values"
+    "other": "Vybrat z hodnot"
   },
   "metadata.type.json": {
-    "other": "JSON (internal format)"
+    "other": "JSON (interní formát)"
   },
   "metadata.type.date.format": {
     "other": "Format"
@@ -870,7 +873,7 @@
     "other": "Make sure to disable debug modes on the server. This is done manually by editing the conf/booststrap_context.php (or /etc/pydio/bootstrap_context.php) file."
   },
   "perfs.debug.title": {
-    "other": "Debug Modes"
+    "other": "Ladící režimy"
   },
   "perfs.desc": {
     "other": "Checking system configurations for possible improvements."
@@ -885,7 +888,7 @@
     "other": "A high server load may indicate that your server is missing CPU or RAM given your usage of Pydio."
   },
   "perfs.load.title": {
-    "other": "Server Load"
+    "other": "Vytížení serveru"
   },
   "perfs.mailer.description": {
     "other": "Checks that mailer is using the Queue feature"
@@ -900,7 +903,7 @@
     "other": "Mailer Queue"
   },
   "perfs.more": {
-    "other": "More info"
+    "other": "Další informace"
   },
   "perfs.opcache.description": {
     "other": "Checks that a PHP Opcode cache is active"
@@ -918,91 +921,91 @@
     "other": "Performance Score"
   },
   "perfs.tests": {
-    "other": "Performances Tests"
+    "other": "Zkoušky výkonů"
   },
   "perfs.title": {
-    "other": "System Performances"
+    "other": "Výkonnosti systému"
   },
   "perfs.widget": {
     "other": "Add widget to dashboard"
   },
   "plugins.1": {
-    "other": "General Options"
+    "other": "Obecné Nastavení"
   },
   "plugins.2": {
-    "other": "Master Driver"
+    "other": "Hlavní ovladač"
   },
   "plugins.3": {
-    "other": "Secondary Driver"
+    "other": "Pomocný ovladač"
   },
   "plugins.4": {
     "other": "Editor plugins are the previewers/editors associated to any file types in the application.\n                    These plugins are handle specifically in the GUI (extensions) and can declare the mimetypes they support.\n                    The order parameter also allows to define a priority for the 'open with...' action."
   },
   "plugins.5": {
-    "other": "Save Changes"
+    "other": "Uložit změny"
   },
   "plugins.6": {
-    "other": "Revert"
+    "other": "Vrátit zpět"
   },
   "plugins.list.column.enabled": {
-    "other": "Enabled"
+    "other": "Zapnuto"
   },
   "plugins.list.column.label": {
-    "other": "Label"
+    "other": "Popisek"
   },
   "plugins.list.column.id": {
-    "other": "Id"
+    "other": "Identif."
   },
   "plugins.list.column.description": {
-    "other": "Description"
+    "other": "Popis"
   },
   "plugins.list.action.edit": {
-    "other": "Edit plugin parameters"
+    "other": "Upravit parametry zásuvného modulu"
   },
   "plugins.documentation": {
-    "other": "Documentation"
+    "other": "Dokumentace"
   },
   "policies.policy.create": {
-    "other": "Create"
+    "other": "Vytvořit"
   },
   "policies.policy.description": {
-    "other": "Policy Description"
+    "other": "Popis zásady"
   },
   "policies.policy.name": {
-    "other": "Policy Name"
+    "other": "Název zásady"
   },
   "policies.policy.rules": {
-    "other": "# Rules"
+    "other": "Počet pravidel"
   },
   "policies.policy.display": {
-    "other": "Show policy rules"
+    "other": "Zobrazit pravidla zásady"
   },
   "policies.policy.edit": {
-    "other": "Edit policy rules"
+    "other": "Upravit pravidla zásady"
   },
   "policies.policy.editLabels": {
-    "other": "Edit Labels"
+    "other": "Upravit štítky"
   },
   "policies.policy.saveLabels": {
-    "other": "Save Changes"
+    "other": "Uložit změny"
   },
   "policies.policy.delete": {
-    "other": "Delete policy"
+    "other": "Smazat zásadu"
   },
   "policies.policy.delete.confirm": {
     "other": "Are you sure you want to delete this policy? Make sure it does not break the security of the application!"
   },
   "policies.policy.new": {
-    "other": "+ New Policy"
+    "other": "+ Nová zásada"
   },
   "policies.policy.type": {
-    "other": "Policy Type"
+    "other": "Typ zásady"
   },
   "policies.rule.create": {
-    "other": "Add new rule"
+    "other": "Přidat nové pravidlo"
   },
   "policies.rule.delete": {
-    "other": "Delete Rule"
+    "other": "Smazat pravidlo"
   },
   "policies.rule.delete.confirm": {
     "other": "Are you sure you want to remove this security rule? This could break the security model of the application!"
@@ -1026,10 +1029,10 @@
     "other": "REST Resources"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "nadřazená složka"
   },
   "react.10": {
-    "other": "Inherit Permissions"
+    "other": "Převzít oprávnění"
   },
   "react.11": {
     "other": "Empty Permissions"
@@ -1038,34 +1041,34 @@
     "other": "Clear Permissions"
   },
   "react.13": {
-    "other": "Show full permissions"
+    "other": "Zobrazit všechna oprávnění"
   },
   "react.14": {
-    "other": "Show resulting tree"
+    "other": "Zobrazit výsledný strom"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "hromadné akce"
   },
   "react.3": {
-    "other": "Search Results for '%s'"
+    "other": "Výsledky hledání pro „%s“"
   },
   "react.4": {
-    "other": "Close Results"
+    "other": "Zavřít výsledky"
   },
   "react.5": {
-    "other": "deny"
+    "other": "odepřít"
   },
   "react.5a": {
-    "other": "read"
+    "other": "čtení"
   },
   "react.5b": {
-    "other": "write"
+    "other": "zápis"
   },
   "react.6": {
-    "other": "children"
+    "other": "podřízené"
   },
   "react.7": {
-    "other": "Create a rule"
+    "other": "Vytvořit pravidlo"
   },
   "react.8": {
     "other": "You are about to manage permissions at the lower level. This folder will be read\n                        only by default, and you will manage permissions selectively on its children. Choose\n                        whether to copy the current permissions to its children, or to clear their permissions, which would make\n                        them inaccessible by default."
@@ -1080,7 +1083,7 @@
     "other": "Command-line is not enabled in the %1, the scheduler will not be able to run the jobs."
   },
   "scheduler.3": {
-    "other": "global configurations"
+    "other": "globální nastavení"
   },
   "user.1": {
     "other": "+ User"
@@ -1089,49 +1092,49 @@
     "other": "Access to %i workspaces"
   },
   "user.11": {
-    "other": "%i roles"
+    "other": "%i rolí"
   },
   "user.12": {
-    "other": "Group path"
+    "other": "Popis umístění skupiny"
   },
   "user.13": {
     "other": "shared"
   },
   "user.14": {
-    "other": "Create a new role"
+    "other": "Vytvořit novou roli"
   },
   "user.15": {
-    "other": "Create a new group"
+    "other": "Vytvořit novou skupinu"
   },
   "user.16": {
-    "other": "Group Identifier"
+    "other": "Identifikátor skupiny"
   },
   "user.16.empty": {
-    "other": "Please provide a unique identifier"
+    "other": "Zadejte neopakující se identifikátor"
   },
   "user.16.format": {
-    "other": "Please use only alphanumeric characters"
+    "other": "Použijte pouze písmena a číslice"
   },
   "user.17": {
-    "other": "Group Label"
+    "other": "Popisek skupiny"
   },
   "user.17.empty": {
     "other": "Please provide a label for this group"
   },
   "user.18": {
-    "other": "Role Identifier"
+    "other": "Identifikátor role"
   },
   "user.18.empty": {
-    "other": "Please provide a label for this role"
+    "other": "Zadejte popisek pro tuto roli"
   },
   "user.19": {
-    "other": "Create a new user"
+    "other": "Vytvořit nového uživatele"
   },
   "user.2": {
     "other": "+ Group"
   },
   "user.20": {
-    "other": "User will be created in group %s"
+    "other": "Uživatel bude vytvořen ve skupiny %s"
   },
   "user.21": {
     "other": "User login"
@@ -1143,7 +1146,7 @@
     "other": "Confirm password"
   },
   "user.24": {
-    "other": "Root Group"
+    "other": "Kořenová skupina"
   },
   "user.25": {
     "other": "Root Group Role"
@@ -1155,10 +1158,10 @@
     "other": "User Personal Role"
   },
   "user.3": {
-    "other": "Groups"
+    "other": "Skupiny"
   },
   "user.4": {
-    "other": "Roles"
+    "other": "Role"
   },
   "user.5": {
     "other": "Groups & Users"
@@ -1167,13 +1170,13 @@
     "other": "+ Role"
   },
   "user.7": {
-    "other": "Search users & groups"
+    "other": "Hledat uživatele a skupiny"
   },
   "user.8": {
     "other": "Set parameters on this group to apply them all groups and users."
   },
   "user.9": {
-    "other": "Last connected"
+    "other": "Naposledy připojeno"
   },
   "user.moveto.hint": {
     "other": "Select destination group, leave '/' for root group."
@@ -1182,22 +1185,22 @@
     "other": "Filter users list..."
   },
   "user.filter.internal": {
-    "other": "Internal users"
+    "other": "Interní uživatelé"
   },
   "user.filter.shared": {
     "other": "Shared users"
   },
   "user.filter.admins": {
-    "other": "Admins only"
+    "other": "Pouze správci"
   },
   "user.filter.all": {
-    "other": "All users"
+    "other": "Všichni uživatelé"
   },
   "user.filter.anon": {
-    "other": "Show anonymous"
+    "other": "Zobrazit anonymní"
   },
   "versions.editor.delete": {
-    "other": "Delete Policy"
+    "other": "Smazat zásadu"
   },
   "versions.editor.delete.confirm": {
     "other": "Are you sure you want to delete this policy? This is undoable!"
@@ -1206,28 +1209,28 @@
     "other": "The last period is configured to delete all versions, you cannot add a new one!"
   },
   "versions.editor.title": {
-    "other": "Policy %s"
+    "other": "Zásada %s"
   },
   "versions.period.keep-all": {
-    "other": "Keep all"
+    "other": "Ponechat vše"
   },
   "versions.period.keep-all.always": {
-    "other": "Always keep all versions"
+    "other": "Vždy uchovávat všechny verze"
   },
   "versions.period.keep-n": {
-    "other": "Keep %s versions"
+    "other": "Ponechat %s verzí"
   },
   "versions.period.keep-n-after": {
     "other": "Keep %1 versions after %2"
   },
   "versions.period.max-n": {
-    "other": "Max. %s versions"
+    "other": "Nejvýše %s verzí"
   },
   "versions.period.remove-all": {
-    "other": "Remove all"
+    "other": "Odstranit vše"
   },
   "versions.period.remove-all-after": {
-    "other": "Remove all after %s"
+    "other": "Odstranit vše po %s"
   },
   "versions.period.retentions-n": {
     "other": "%s retention periods"
@@ -1236,19 +1239,19 @@
     "other": "+ Template Path"
   },
   "virtual.create.button": {
-    "other": "Create"
+    "other": "Vytvořit"
   },
   "virtual.label": {
-    "other": "Label"
+    "other": "Popisek"
   },
   "virtual.col.id": {
-    "other": "Template ID"
+    "other": "Identif. šablony"
   },
   "virtual.col.code": {
-    "other": "Template Code"
+    "other": "Kód šablony"
   },
   "virtual.label.new": {
-    "other": "Label for template"
+    "other": "Popisek pro šablonu"
   },
   "virtual.legend.1": {
     "other": "Template Paths are dynamically computed depending on the context. They can be used as roots for workspaces in replacement of a fixed datasource path.     They are used by default to create the Personal Files workspace that points to a different folder for each users, and for computing the location of the users Cells folders."
@@ -1257,133 +1260,133 @@
     "other": "Use Ctrl+Space inside the editor to get hint about the possible values. Current values supported are: User.Name (dynamically resolved to the current user logged login) and DataSources (to pick a datasource dynamically)."
   },
   "virtual.title": {
-    "other": "Template Paths"
+    "other": "Popisy umístění šablon"
   },
   "virtual.save": {
-    "other": "Save template"
+    "other": "Uložit šablonu"
   },
   "virtual.delete": {
-    "other": "Delete template"
+    "other": "Smazat šablonu"
   },
   "virtual.delete.confirm": {
     "other": "Are you sure you wish to delete this template path? Operation is not reversible!"
   },
   "virtual.code": {
-    "other": "Template code"
+    "other": "Kód šablony"
   },
   "virtual.code.display": {
-    "other": "Display code"
+    "other": "Zobrazit kód"
   },
   "virtual.code.edit": {
-    "other": "Edit code"
+    "other": "Upravit kód"
   },
   "virtual.card.title": {
-    "other": "Dynamically computed path"
+    "other": "Dynamicky vypočítaný popis umístění"
   },
   "virtual.card.cleanOnDelete": {
     "other": "Upon user deletion, rename data to {deleted-NAME-UUID}."
   },
   "ws.1": {
-    "other": "Manage DataSources"
+    "other": "Spravovat zdroje dat"
   },
   "ws.10": {
-    "other": "Select a DataSource"
+    "other": "Vyberte zdroj dat"
   },
   "ws.11": {
-    "other": "Workspace based on ..."
+    "other": "Pracovní prostor založený na…"
   },
   "ws.12": {
-    "other": "Template %s"
+    "other": "Šablona %s"
   },
   "ws.13": {
-    "other": "Template Options"
+    "other": "Možnosti šablony"
   },
   "ws.14": {
-    "other": "Set Generic Options"
+    "other": "Nastavit obecné možnosti"
   },
   "ws.15": {
-    "other": "Workspace Options"
+    "other": "Předvolby pracovního prostoru"
   },
   "ws.16": {
-    "other": "Choose Storage Driver"
+    "other": "Zvolte ovladač úložiště"
   },
   "ws.17": {
-    "other": "Select Storage Type"
+    "other": "Vyberte typ úložiště"
   },
   "ws.18": {
-    "other": "Loading drivers"
+    "other": "Načítání ovladačů"
   },
   "ws.19": {
-    "other": "Save to add features"
+    "other": "Uložte a přidejte funkce"
   },
   "ws.2": {
-    "other": "Close DataSources"
+    "other": "Zavřít zdroje dat"
   },
   "ws.20": {
-    "other": "Create"
+    "other": "Vytvořit"
   },
   "ws.21": {
-    "other": "Template General Options"
+    "other": "Obecné předvolby pro šablonu"
   },
   "ws.22": {
-    "other": "Workspace General Options"
+    "other": "Obecné předvolby pro pracovní prostor"
   },
   "ws.23": {
-    "other": "Delete workspace"
+    "other": "Smazat pracovní prostor"
   },
   "ws.24": {
-    "other": "Children Workspaces"
+    "other": "Podřízené pracovní prostory"
   },
   "ws.25": {
-    "other": "Shares"
+    "other": "Sdílení"
   },
   "ws.26": {
-    "other": "Folders Permissions"
+    "other": "Oprávnění složek"
   },
   "ws.27": {
-    "other": "Additional Features"
+    "other": "Další funkce"
   },
   "ws.28": {
-    "other": "Summary"
+    "other": "Souhrn"
   },
   "ws.29": {
-    "other": "Parameters"
+    "other": "Parametry"
   },
   "ws.3": {
-    "other": "+ workspace"
+    "other": "+ pracovní prostor"
   },
   "ws.filter.workspaces": {
-    "other": "Filter workspaces..."
+    "other": "Filtrovat pracovní prostory…"
   },
   "ws.30": {
     "other": "General Options"
   },
   "ws.31": {
-    "other": "Remove Feature"
+    "other": "Odebrat funkci"
   },
   "ws.32": {
-    "other": "Add a feature..."
+    "other": "Přidat funkci…"
   },
   "ws.33": {
-    "other": "Recent Activity"
+    "other": "Nedávná aktivita"
   },
   "ws.34": {
     "other": "Last events on this workspace"
   },
   "ws.35": {
-    "other": "Accessible to %i users"
+    "other": "Přístuné %i uživatelům"
   },
   "ws.36": {
     "other": "+ %i files or folders shared"
   },
   "ws.37": {
-    "other": "Workspaces using this template"
+    "other": "Pracovní prostory používající tuto šablonu"
   },
   "ws.38": {
     "other": "Shared Items in this workspace"
   },
   "ws.39": {
-    "other": "Owner"
+    "other": "Vlastník"
   },
   "ws.4": {
     "other": "+ datasource"
@@ -1407,10 +1410,10 @@
     "other": "As its parameters are using 'PYDIO_USER' or 'PYDIO_GROUP_*' keywords, the contents of\n                                this workspace will vary depending on the currently authenticated user. For this reason, you cannot browse the\n                                folders directly and assign permissions to them, but you can freely define some generic pathes that will be used as masks."
   },
   "ws.46": {
-    "other": "Add a feature"
+    "other": "Přidat funkci"
   },
   "ws.47": {
-    "other": "Select a feature"
+    "other": "Vybrat prvek"
   },
   "ws.48": {
     "other": "Beware, this workspace/template is not editable, as it is defined directly in the conf/bootstrap_repositories.php file."
@@ -1494,13 +1497,13 @@
     "other": "Driver-based workspace"
   },
   "ws.71": {
-    "other": "Complete the steps below"
+    "other": "Dokončete níže uvedené kroky"
   },
   "ws.72": {
-    "other": "Fill in the form on the right"
+    "other": "Vyplňte formulář vpravo"
   },
   "ws.73": {
-    "other": "Pick value before continuing"
+    "other": "Než budete pokračovat, vyberte hodnotu"
   },
   "ws.74": {
     "other": "Use the form on the right to create a new DataSource. "
@@ -1512,22 +1515,22 @@
     "other": "Pydio will aggregate all your datasources into one master tree, on which you can assign rights using workspaces."
   },
   "ws.8": {
-    "other": "Existing DataSource"
+    "other": "Existující datový zdroj"
   },
   "ws.9": {
-    "other": "Datasource Nodes"
+    "other": "Uzly datového zdroje"
   },
   "ws.board.empty": {
-    "other": "No workspaces defined"
+    "other": "Neurčeny žádné pracovní prostory"
   },
   "ws.board.summary": {
-    "other": "Workspace Roots"
+    "other": "Kořeny pracovních prostorů"
   },
   "ws.board.syncable": {
-    "other": "Sync"
+    "other": "Synchronizace"
   },
   "ws.complete.datasources": {
-    "other": "DataSources and Folders"
+    "other": "Datové zdroje a složky"
   },
   "ws.complete.label": {
     "other": "Select a folder or a predefined template path"
@@ -1545,25 +1548,25 @@
     "other": "Workspace exposes one or many 'roots' to the users: choose one or more paths from any DataSource or a Template Path that will be resolved automatically at runtime."
   },
   "ws.editor.data.title": {
-    "other": "Data Access"
+    "other": "Přístup k datům"
   },
   "ws.editor.default_rights": {
     "other": "Set up default permissions to this workspace (applied to all internal users of the application). You can override these permissions on a per-user / per-role / per-group basis in the People section."
   },
   "ws.editor.default_rights.none": {
-    "other": "None"
+    "other": "Žádné"
   },
   "ws.editor.default_rights.read": {
-    "other": "Read only"
+    "other": "Jen pro čtení"
   },
   "ws.editor.default_rights.readwrite": {
-    "other": "Read and Write"
+    "other": "Čtení i zápis"
   },
   "ws.editor.default_rights.write": {
-    "other": "Write only"
+    "other": "Pouze zápis"
   },
   "ws.editor.description": {
-    "other": "Additional description (optional)"
+    "other": "Další popis (volitelné)"
   },
   "ws.editor.help.1": {
     "other": "Workspaces grant accesses to your data to the users. They expose one or many folders picked inside your datasources."
@@ -1572,46 +1575,46 @@
     "other": "It is important to properly organize how data will be presented to your users. You may create workspaces for various parts of your organization (finance, marketing, technical data, etc.), on a per-project basis, etc. You can then assign accesses to workspaces on a per-user / per-role / per-group basis."
   },
   "ws.editor.help.delete": {
-    "other": "Warning, dangerous operation! This is not reversible."
+    "other": "Varování – nebezpečná oprace! Toto nelze vzít zpět."
   },
   "ws.editor.label.legend": {
-    "other": "Human-friendly label for this workspace"
+    "other": "Člověku srozumitelnější popisek pro tento pracovní prostor"
   },
   "ws.editor.options.legend": {
     "other": "Label and description are displayed to the users. Choose a self-explanatory name to help users better organize the data."
   },
   "ws.editor.other": {
-    "other": "Other Properties"
+    "other": "Ostatní vlastnosti"
   },
   "ws.editor.other.layout": {
-    "other": "Workspace Layout"
+    "other": "Rozvržení pracovního prostoru"
   },
   "ws.editor.other.layout.default": {
-    "other": "Default"
+    "other": "Výchozí"
   },
   "ws.editor.other.layout.easy": {
-    "other": "Easy Transfer Layout (enterprise only)"
+    "other": "Rozvržení pro snadné přenosy (pouze varianta pro podniky)"
   },
   "ws.editor.other.skiprecycle": {
-    "other": "Skip Recycle Bin"
+    "other": "Koš"
   },
   "ws.editor.other.skiprecycle.legend": {
     "other": "Disable recycle bin on this workspace: all files will be permanently deleted. This does not apply to Cells created inside this workspace, files will always be moved to workspace recycle to avoid human errors."
   },
   "ws.editor.other.sync": {
-    "other": "Allow desktop synchronisation"
+    "other": "Umožnit synchronizaci s desktopem"
   },
   "ws.editor.other.sync.legend": {
     "other": "Desktop synchronisation allows users to synchronize their files offline on their computer. Warning, this feature is currently supported for personal files only, as shared workspaces may create conflicts if many users synchronize docs in the same folder. For personal files, you can also enable/disable this feature on a per-role basis using Security Policies."
   },
   "ws.editor.other.sync-personal": {
-    "other": "(personal workspaces only)"
+    "other": "(pouze osobní pracovní prostory)"
   },
   "ws.editor.sync.warning": {
-    "other": "Warning!"
+    "other": "Varování!"
   },
   "ws.editor.sync.warning.validate": {
-    "other": "I understand"
+    "other": "Rozumím"
   },
   "ws.editor.sync.warning.enable": {
     "other": "Enabling sync on shared workspaces may have unexpected results if many users are syncing and editing files together. Please note that THIS FEATURE IS CURRENTLY NOT SUPPORTED by our professional services. Please use this feature at your own risk!"
@@ -1623,64 +1626,64 @@
     "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace. For user-specific workspaces (like Personal Files), you can refine this value on a per user/group/role base in the People section."
   },
   "ws.editor.other.quota.noquota": {
-    "other": "No Quota set"
+    "other": "Nenastavena žádná kvóta"
   },
   "ws.editor.path.folder": {
-    "other": "Folder Path"
+    "other": "Popis umístění složky"
   },
   "ws.editor.path.template": {
-    "other": "Template Path"
+    "other": "Popis umístění šablony"
   },
   "ws.editor.slug.legend": {
     "other": "Technical name used for example in URLs, automatically computed but you can customize it."
   },
   "services.text-filter.hint": {
-    "other": "Filter..."
+    "other": "Filtrovat…"
   },
   "services.filter.nofilter": {
-    "other": "All Services"
+    "other": "Všechny služby"
   },
   "services.filter.started": {
-    "other": "Running Only"
+    "other": "Pouze spuštěné"
   },
   "services.filter.stopped": {
-    "other": "Stopped Only"
+    "other": "Pouze zastavené"
   },
   "services.peerfilter.title": {
-    "other": "Select Node"
+    "other": "Vybrat uzel"
   },
   "services.toggle.details": {
-    "other": "Show Details"
+    "other": "Zobrazit podrobnosti"
   },
   "services.empty.loading": {
-    "other": "Loading services status"
+    "other": "Stav načítání služeb"
   },
   "services.empty.noservice": {
-    "other": "No service"
+    "other": "Žádná služba"
   },
   "services.column.name": {
-    "other": "Service Name"
+    "other": "Název služby"
   },
   "services.column.description": {
-    "other": "Description"
+    "other": "Popis"
   },
   "services.column.version": {
-    "other": "Version"
+    "other": "Verze"
   },
   "services.column.tag": {
-    "other": "Tag"
+    "other": "Štítek"
   },
   "services.column.peers": {
     "other": "Peers"
   },
   "services.tag.gateway.title": {
-    "other": "Gateways"
+    "other": "Brány"
   },
   "services.tag.gateway.description": {
     "other": "World-facing services for accessing the platform"
   },
   "services.tag.datasource.title": {
-    "other": "Data Sources"
+    "other": "Zdroje dat"
   },
   "services.tag.datasource.description": {
     "other": "Storage endpoints used to access concrete file storages. Main services are in charge of starting sub services (per datasource)."
@@ -1692,13 +1695,13 @@
     "other": "Services handling data and metadata."
   },
   "services.tag.idm.title": {
-    "other": "Identity Management"
+    "other": "Správa identit"
   },
   "services.tag.idm.description": {
     "other": "All services related to authentication and authorizations, roles, security policies, etc."
   },
   "services.tag.scheduler.title": {
-    "other": "Scheduler"
+    "other": "Plánovač"
   },
   "services.tag.scheduler.description": {
     "other": "Services for managing background jobs. The task server can be dispatched across various peers."
@@ -1710,10 +1713,10 @@
     "other": "Services dispatching and processing events (generally toward users) across the application."
   },
   "services.tag.frontend.title": {
-    "other": "Frontend"
+    "other": "Nadstavba"
   },
   "services.tag.frontend.description": {
-    "other": "Web services for user interfaces in the browser"
+    "other": "Webové služby pro uživatelská rozhraní v prohlížeči"
   },
   "services.tag.discovery.title": {
     "other": "Discovery"
@@ -1722,13 +1725,13 @@
     "other": "Basic configurations and services registries called by all other services."
   },
   "services.service.ip": {
-    "other": "Running on %s"
+    "other": "Provozované na %s"
   },
   "services.service.datasource.sync": {
-    "other": "Sync"
+    "other": "Synchronizace"
   },
   "services.service.datasource.objects": {
-    "other": "Objects"
+    "other": "Objekty"
   },
   "services.service.datasource.objects.legend": {
     "other": "S3 layer to serve data as object storage"
@@ -1737,28 +1740,28 @@
     "other": "Datasource is synchronizing data from objects layer to index DB."
   },
   "services.service.datasource.index": {
-    "other": "Indexation"
+    "other": "Vytváření rejstříku"
   },
   "scheduler.title": {
-    "other": "Scheduler"
+    "other": "Plánovač"
   },
   "scheduler.legend": {
     "other": "Flows running in background on a periodical basis or triggered by events"
   },
   "scheduler.system.title": {
-    "other": "System Flows"
+    "other": "Systémové toky"
   },
   "scheduler.system.legend": {
     "other": "These Flows are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
   },
   "scheduler.inactives.title": {
-    "other": "Inactive Flows"
+    "other": "Neaktivní toky"
   },
   "scheduler.inactives.legend": {
     "other": "These Flows are inactive, click on a Flow to enable it."
   },
   "scheduler.system.empty": {
-    "other": "No Flows scheduled."
+    "other": "Nejsou naplánovány žádné toky."
   },
   "scheduler.users.title": {
     "other": "Users Flows"
@@ -1767,7 +1770,7 @@
     "other": "These Flows are dynamically created and trigged by user actions."
   },
   "scheduler.users.empty": {
-    "other": "No Flows launched by users"
+    "other": "Uživatelé nespustili žádné toky"
   },
   "scheduler.cellsflows.cta.button": {
     "other": "+ Custom Flow"
@@ -1776,28 +1779,28 @@
     "other": "Do you need to create your own Flow? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
   },
   "scheduler.cellsflows.dialog.button": {
-    "other": "Find out more"
+    "other": "Zjistit více"
   },
   "scheduler.cellsflows.dialog.text": {
     "other": "From creating your own workflows to scheduling tasks or integrating with third-party tools, our customizable components help you to respond events and take action automatically."
   },
   "scheduler.job.label": {
-    "other": "Label"
+    "other": "Štítek"
   },
   "scheduler.job.endTime": {
     "other": "Last Execution"
   },
   "scheduler.job.status": {
-    "other": "Status"
+    "other": "Stav"
   },
   "scheduler.job.owner": {
-    "other": "Owner"
+    "other": "Vlastník"
   },
   "scheduler.job.trigger": {
-    "other": "Trigger"
+    "other": "Spouštěč"
   },
   "scheduler.job.delete": {
-    "other": "Delete"
+    "other": "Smazat"
   },
   "scheduler.job.delete.confirm": {
     "other": "Are you sure you want to delete this Flow? This operation cannot be reverted!"
@@ -1806,7 +1809,7 @@
     "other": "Are you sure you want to clear all tasks for this Flow?"
   },
   "scheduler.trigger.create.node": {
-    "other": "Create Node"
+    "other": "Vytvořit uzel"
   },
   "scheduler.trigger.read.node": {
     "other": "Read Node"
@@ -1824,49 +1827,49 @@
     "other": "Update User Metadata"
   },
   "scheduler.trigger.delete.node": {
-    "other": "Delete Node"
+    "other": "Smazat uzel"
   },
   "scheduler.trigger.create.user": {
-    "other": "Create User"
+    "other": "Vytvořit uživatele"
   },
   "scheduler.trigger.read.user": {
-    "other": "Read User"
+    "other": "Načíst uživatele"
   },
   "scheduler.trigger.update.user": {
-    "other": "Update User"
+    "other": "Aktualizovat uživatele"
   },
   "scheduler.trigger.delete.user": {
-    "other": "Delete User"
+    "other": "Smazat uživatele"
   },
   "scheduler.trigger.bind.user": {
     "other": "User Bind"
   },
   "scheduler.trigger.logout.user": {
-    "other": "User Logout"
+    "other": "Odhlášení uživatele"
   },
   "scheduler.trigger.events": {
-    "other": "Events"
+    "other": "Události"
   },
   "scheduler.trigger.manual": {
-    "other": "Manual Trigger"
+    "other": "Ruční spouštěč"
   },
   "scheduler.trigger.periodic": {
-    "other": "Periodic Schedule"
+    "other": "Opakující se plán"
   },
   "scheduler.job.disabled": {
-    "other": "disabled"
+    "other": "vypnuto"
   },
   "scheduler.tasks.running.count": {
-    "other": "%s tasks running"
+    "other": "spuštěných %s úloh"
   },
   "scheduler.task.action.pause": {
-    "other": "Pause Task"
+    "other": "Pozastavit úkol"
   },
   "scheduler.task.action.resume": {
-    "other": "Resume Task"
+    "other": "Pokračovat v úkolu"
   },
   "scheduler.task.action.stop": {
-    "other": "Stop Now"
+    "other": "Zastavit nyní"
   },
   "scheduler.task.action.delete": {
     "other": "Delete"
@@ -1881,28 +1884,28 @@
     "other": "Disable Flow"
   },
   "scheduler.task.id": {
-    "other": "ID"
+    "other": "Identif."
   },
   "scheduler.task.start": {
-    "other": "Start"
+    "other": "Začátek"
   },
   "scheduler.task.end": {
-    "other": "End"
+    "other": "Konec"
   },
   "scheduler.task.duration": {
-    "other": "Duration"
+    "other": "Doba trvání"
   },
   "scheduler.task.status": {
-    "other": "Status"
+    "other": "Stav"
   },
   "scheduler.task.message": {
-    "other": "Message"
+    "other": "Zpráva"
   },
   "scheduler.tasks.running": {
-    "other": "Running Tasks"
+    "other": "Spuštěné úlohy"
   },
   "scheduler.tasks.history": {
-    "other": "Tasks History"
+    "other": "Historie úkolů"
   },
   "scheduler.tasks.history.empty": {
     "other": "No tasks have run yet"
@@ -1914,7 +1917,7 @@
     "other": "No tasks currently running"
   },
   "scheduler.tasks.bulk.delete": {
-    "other": "Delete Tasks"
+    "other": "Smazat úlohy"
   },
   "scheduler.tasks.bulk.enable": {
     "other": "Enable Multiple"
@@ -1923,7 +1926,7 @@
     "other": "Disable Multiple"
   },
   "scheduler.tasks.bulk.clear": {
-    "other": "Clear All"
+    "other": "Vymazat vše"
   },
   "scheduler.tasks.activity.title": {
     "other": "Task Activity"
@@ -1932,7 +1935,7 @@
     "other": "Loading activity..."
   },
   "scheduler.tasks.activity.empty": {
-    "other": "No logs found"
+    "other": "Nenalezeny žádné záznamy"
   },
   "scheduler.schedule.monthly": {
     "other": "Every %1 of each month at %2"
@@ -1944,13 +1947,13 @@
     "other": "Every %1 at %2"
   },
   "scheduler.schedule.weekly.short": {
-    "other": "Every %1"
+    "other": "Každé %1"
   },
   "scheduler.schedule.daily": {
-    "other": "Every day at %1"
+    "other": "Každý den v %1"
   },
   "scheduler.schedule.daily.short": {
-    "other": "At %1"
+    "other": "V %1"
   },
   "scheduler.schedule.timely": {
     "other": "Every %1"
@@ -1959,40 +1962,40 @@
     "other": "Flow Schedule"
   },
   "scheduler.schedule.type": {
-    "other": "Scheduling Type"
+    "other": "Typ plánování"
   },
   "scheduler.schedule.type.manual": {
-    "other": "Manual"
+    "other": "Ručně"
   },
   "scheduler.schedule.type.monthly": {
-    "other": "Monthly"
+    "other": "Měsíčně"
   },
   "scheduler.schedule.type.weekly": {
-    "other": "Weekly"
+    "other": "Týdně"
   },
   "scheduler.schedule.type.daily": {
-    "other": "Daily"
+    "other": "Denně"
   },
   "scheduler.schedule.type.timely": {
-    "other": "Every..."
+    "other": "Každý…"
   },
   "scheduler.schedule.detail.monthday": {
-    "other": "Day of the month"
+    "other": "Den v měsíci"
   },
   "scheduler.schedule.detail.weekday": {
-    "other": "Day of the week"
+    "other": "Den v týdnu"
   },
   "scheduler.schedule.detail.daytime": {
-    "other": "Time of the day"
+    "other": "Denní dobu"
   },
   "scheduler.schedule.detail.minutes": {
     "other": "Period in minutes"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "Flow Parameters"
+    "other": "Parametry toku"
   },
   "scheduler.job-parameters.button": {
-    "other": "Parameters"
+    "other": "Parametry"
   },
   "developer.rest.apis": {
     "other": "Rest APIs Documentation"
@@ -2001,7 +2004,7 @@
     "other": "Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT. See the online administrator guide to learn more."
   },
   "mailer.test.title": {
-    "other": "Send a test email"
+    "other": "Odeslat testovací e-mail"
   },
   "mailer.test.legend": {
     "other": "Make sure to save your configuration changes before sending a test email."
@@ -2010,10 +2013,10 @@
     "other": "Loading Mailer Library..."
   },
   "sites.title": {
-    "other": "Sites"
+    "other": "Stránky"
   },
   "sites.externals": {
-    "other": "External URLs"
+    "other": "Externí URL adresy"
   },
   "sites.details": {
     "other": "<div>\nSites define how Cells is binding to network interfaces and how it is exposed to the outside world.\nUse ‘<i>./cells configure sites</i>’ to manage your sites from the command line.\n<br/><br/>\nEach site has the following parameters:\n\n<ol>\n<li>1. <u>Bind(s)</u>: one or more [ip/hostname:port] to hook the internal webserver to.</li>\n<li>2. <u>TLS Settings</u>: TLS configuration for HTTPS support.</li>\n<li>3. <u>External URL</u>: the URL you communicate to your end-users. It can differ from your bind address, typically if the app is behind a reverse-proxy or inside a container with ports mapping.</li>\n<li>4. <u>Maintenance Mode</u> [On|Off]: display a maintenance page on this endpoint, although Cells is running.</li>\n</ol></div>"
@@ -2031,13 +2034,13 @@
     "other": "URL used to build public links"
   },
   "sites.no-defaults": {
-    "other": "No defaults set"
+    "other": "Nenastaveny žádné výchozí hodnoty"
   },
   "sites.enter-to-save": {
-    "other": "(hit enter to save)"
+    "other": "(stisknutím Enter uložíte)"
   },
   "sites.detected.sites": {
-    "other": "Sites currently detected"
+    "other": "Nyní zjištěné weby"
   },
   "sites.configs.command": {
     "other": "Use './cells config sites' command to edit sites."
@@ -2049,21 +2052,21 @@
     "other": "TLS"
   },
   "sites.column.external": {
-    "other": "Reverse Proxy"
+    "other": "Reverzní proxy"
   },
   "sites.configs.tls.letsencrypt": {
     "other": "Let's Encrypt"
   },
   "sites.configs.tls.self": {
-    "other": "Self Signed"
+    "other": "Sám sebou podepsaný"
   },
   "sites.configs.tls.certificate": {
-    "other": "Certificate"
+    "other": "Certifikát"
   },
   "sites.configs.tls.notls": {
-    "other": "No TLS"
+    "other": "Bez TLS"
   },
   "sites.configs.tls.notls-reverse": {
-    "other": "No TLS behind proxy"
+    "other": "Za proxy bez TLS"
   }
 }

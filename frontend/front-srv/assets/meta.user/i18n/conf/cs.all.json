@@ -6,10 +6,10 @@
     "other": "User Metadata implementation"
   },
   "Additional info": {
-    "other": "Additional info"
+    "other": "Doplňující informace"
   },
   "Color labels": {
-    "other": "Color labels"
+    "other": "Barevné štítky"
   },
   "Column visibility": {
     "other": "Column visibility"
@@ -24,10 +24,10 @@
     "other": "Field ID"
   },
   "Field Type": {
-    "other": "Field Type"
+    "other": "Typ kolonky"
   },
   "Hidden": {
-    "other": "Hidden"
+    "other": "Skryté"
   },
   "Hidden file used inside folders to save meta data": {
     "other": "Hidden file used inside folders to save meta data"
@@ -45,7 +45,7 @@
     "other": "Last updated by..."
   },
   "Long text": {
-    "other": "Long text"
+    "other": "Dlouhý text"
   },
   "Meta File": {
     "other": "Meta File"
@@ -57,13 +57,13 @@
     "other": "Set default visibility."
   },
   "Short text": {
-    "other": "Short text"
+    "other": "Stručný text"
   },
   "Simple metadata implementation stored in a hidden file.": {
     "other": "Simple metadata implementation stored in a hidden file."
   },
   "Stars Rating": {
-    "other": "Stars Rating"
+    "other": "Hodnocení hvězdičkami"
   },
   "Tags (extensible sets of values)": {
     "other": "Tags (extensible sets of values)"
@@ -72,9 +72,9 @@
     "other": "Text Metadata"
   },
   "Type of field": {
-    "other": "Type of field"
+    "other": "Typ kolonky"
   },
   "Visible": {
-    "other": "Visible"
+    "other": "Viditelné"
   }
 }

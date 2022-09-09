@@ -25,7 +25,8 @@ import AS2Client from './Client'
 import Activity from './Activity'
 
 const { PydioContextConsumer, moment } = Pydio.requireLib('boot');
-const {EmptyStateView} = Pydio.requireLib('components');
+const {EmptyStateView, Timeline} = Pydio.requireLib('components');
+import {ActivityMD} from "./Activity";
 
 class ActivityList extends React.Component {
 
@@ -117,7 +118,33 @@ class ActivityList extends React.Component {
             emptyStateString = error.Detail || error.msg || error;
             emptyStateIcon = "mdi mdi-alert-circle-outline";
          }
+        const loadAction = () => {
+            this.setState({offset: data.items.length + 1}, () => {
+                this.loadForProps(this.props);
+            })
+        };
+        const loadMoreLabel = loading ? pydio.MessageHash['notification_center.20'] : pydio.MessageHash['notification_center.19']
+
         if (data !== null && data.items) {
+
+            if(listContext === 'NODE-LEAF' || listContext === 'NODE-COLLECTION') {
+                // Switch to Timeline mode
+                return <Timeline
+                    items={data.items}
+                    className={'small'}
+                    useSelection={false}
+                    itemUuid={(item) => item.id}
+                    itemMoment={(item) => moment(item.updated)}
+                    itemDesc={(item) => <ActivityMD activity={item} listContext={listContext} inlineActor={true}/> }
+                    itemActions={()=>[]}
+                    itemAnnotations={()=>null}
+                    color={"#2196f3"}
+                    loadMoreAction={data.items.length && loadMore ? loadAction : null}
+                    loadMoreLabel={loadMoreLabel}
+                    loadMoreDisabled={loading}
+                />
+            }
+
             data.items.forEach(function(ac, i){
 
                 let fromNow = moment(ac.updated).fromNow();
@@ -141,12 +168,7 @@ class ActivityList extends React.Component {
             }
         }
         if(content.length && loadMore){
-            const loadAction = () => {
-                this.setState({offset: data.items.length + 1}, () => {
-                    this.loadForProps(this.props);
-                })
-            };
-            content.push(<div style={{paddingLeft:16}}><FlatButton primary={true} label={loading ? pydio.MessageHash['notification_center.20'] : pydio.MessageHash['notification_center.19']} disabled={loading} onClick={loadAction}/></div>)
+            content.push(<div style={{paddingLeft:16}}><FlatButton primary={true} label={loadMoreLabel} disabled={loading} onClick={loadAction}/></div>)
         }
         if (content.length) {
             return <List style={this.props.style}>{content}</List>;

@@ -1,6 +1,6 @@
 {
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "Počet položek na stránku"
   },
   "16X16 Icon for representing the template": {
     "other": "16X16 Icon for representing the template"
@@ -24,7 +24,7 @@
     "other": "Admin Login"
   },
   "Admin email": {
-    "other": "Admin email"
+    "other": "E-mail správce"
   },
   "Administrator email, not used for the moment": {
     "other": "Administrator email, not used for the moment"
@@ -54,7 +54,7 @@
     "other": "Application Title"
   },
   "Ascending": {
-    "other": "Ascending"
+    "other": "Vzestupně"
   },
   "Auth Driver Commons": {
     "other": "Auth Driver Commons"
@@ -96,10 +96,10 @@
     "other": "Comma-separated list of specific files to hide"
   },
   "Comma-separated list of specific folders to hide": {
-    "other": "Comma-separated list of specific folders to hide"
+    "other": "Čárkou oddělovaný seznam konkrétních složek, které skrýt"
   },
   "Command Line": {
-    "other": "Command Line"
+    "other": "Příkazový řádek"
   },
   "Command-line Active": {
     "other": "Command-line Active"
@@ -123,28 +123,28 @@
     "other": "Data Source Name"
   },
   "Database": {
-    "other": "Database"
+    "other": "Databáze"
   },
   "Database file": {
-    "other": "Database file"
+    "other": "Databázový soubor"
   },
   "Database name": {
-    "other": "Database name"
+    "other": "Název databáze"
   },
   "Database server": {
-    "other": "Database server"
+    "other": "Databázový server"
   },
   "Default Label": {
-    "other": "Default Label"
+    "other": "Výchozí popisek"
   },
   "Default Language": {
-    "other": "Default Language"
+    "other": "Výchozí jazyk"
   },
   "Default Metasources": {
     "other": "Default Metasources"
   },
   "Default Rights": {
-    "other": "Default Rights"
+    "other": "Výchozí práva"
   },
   "Default field to sort on": {
     "other": "Default field to sort on"
@@ -162,16 +162,16 @@
     "other": "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration"
   },
   "Descending": {
-    "other": "Descending"
+    "other": "Sestupně"
   },
   "Description": {
-    "other": "Description"
+    "other": "Popis"
   },
   "Digest Realm": {
     "other": "Digest Realm"
   },
   "Disable WebDAV": {
-    "other": "Disable WebDAV"
+    "other": "Vypnout WebDAV"
   },
   "Disable Zip browsing": {
     "other": "Disable Zip browsing"
@@ -192,40 +192,40 @@
     "other": "Download URL"
   },
   "Driver": {
-    "other": "Driver"
+    "other": "Ovladač"
   },
   "Driver type (do not touch)": {
-    "other": "Driver type (do not touch)"
+    "other": "Typ ovladače (neměňte)"
   },
   "Enable WebDAV": {
-    "other": "Enable WebDAV"
+    "other": "Zapnout WebDAV"
   },
   "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel.": {
     "other": "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel."
   },
   "Enable for all users": {
-    "other": "Enable for all users"
+    "other": "Povolit pro všechny uživatele"
   },
   "Enable the webDAV support. Please READ THE DOC to safely use this feature.": {
     "other": "Enable the webDAV support. Please READ THE DOC to safely use this feature."
   },
   "Existing users": {
-    "other": "Existing users"
+    "other": "Stávající uživatelé"
   },
   "Explicitly disable WebDAV access for this repository.": {
     "other": "Explicitly disable WebDAV access for this repository."
   },
   "File": {
-    "other": "File"
+    "other": "Soubor"
   },
   "File Type": {
-    "other": "File Type"
+    "other": "Typ souboru"
   },
   "File size": {
-    "other": "File size"
+    "other": "Velikost souboru"
   },
   "Filename length": {
-    "other": "Filename length"
+    "other": "Délka názvu souboru"
   },
   "Filesystem Commons": {
     "other": "Filesystem Commons"
@@ -243,7 +243,7 @@
     "other": "Force remote sorting when in paginated mode. Warning, this can impact the performances."
   },
   "Group Path": {
-    "other": "Group Path"
+    "other": "Popis umístění skupiny"
   },
   "Gzip Download": {
     "other": "Gzip Download"
@@ -312,10 +312,10 @@
     "other": "Miscellaneous"
   },
   "Modification date": {
-    "other": "Modification date"
+    "other": "Datum změny"
   },
   "Name": {
-    "other": "Name"
+    "other": "Název"
   },
   "OAuth Commons": {
     "other": "OAuth Commons"
@@ -330,10 +330,10 @@
     "other": "Once in pagination mode, number of items to display per page."
   },
   "Pagination Threshold": {
-    "other": "Pagination Threshold"
+    "other": "Práh stránkování"
   },
   "Password": {
-    "other": "Password"
+    "other": "Heslo"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
     "other": "Prefilled label for the new workspace, you can use the PYDIO_USER keyworkd in it."
@@ -342,13 +342,13 @@
     "other": "Public Base URI"
   },
   "Pydio Main Options": {
-    "other": "Pydio Main Options"
+    "other": "Hlavní možnosti Pydio"
   },
   "Read Only": {
-    "other": "Read Only"
+    "other": "Pouze pro čtení"
   },
   "Read and Write": {
-    "other": "Read and Write"
+    "other": "Čtení i zápis"
   },
   "Recycle Bin Folder": {
     "other": "Recycle Bin Folder"
@@ -375,7 +375,7 @@
     "other": "Scope"
   },
   "Server URL": {
-    "other": "Server URL"
+    "other": "URL adresa serveru"
   },
   "Server URL used to build share links and notifications. It will be detected if empty.": {
     "other": "Server URL used to build share links and notifications. It will be detected if empty."
@@ -402,19 +402,19 @@
     "other": "Show files beginning with a ."
   },
   "Show hidden files": {
-    "other": "Show hidden files"
+    "other": "Zobrazit skryté soubory"
   },
   "Skip auto-update admin rights": {
     "other": "Skip auto-update admin rights"
   },
   "Small Icon": {
-    "other": "Small Icon"
+    "other": "Malé ikony"
   },
   "Template Options": {
     "other": "Template Options"
   },
   "Temporary Folder": {
-    "other": "Temporary Folder"
+    "other": "Dočasná složka"
   },
   "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case.": {
     "other": "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case."
@@ -450,19 +450,19 @@
     "other": "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions."
   },
   "User": {
-    "other": "User"
+    "other": "Uživatel"
   },
   "User Credentials": {
-    "other": "User Credentials"
+    "other": "Přihlašovací údaje uživatele"
   },
   "User name": {
-    "other": "User name"
+    "other": "Uživatelské jméno"
   },
   "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)": {
     "other": "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)"
   },
   "User password": {
-    "other": "User password"
+    "other": "Heslo uživatele"
   },
   "User password - Can be overriden on a per-user basis.": {
     "other": "User password - Can be overriden on a per-user basis."

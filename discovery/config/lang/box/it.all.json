@@ -257,6 +257,9 @@
   "treeQuery.UUIDs": {
     "other": "UUID del Nodo"
   },
+  "treeQuery.ETag": {
+    "other": "ETag"
+  },
   "userSingleQuery.AttributeAnyValue": {
     "other": "Ha qualsiasi valore"
   },

@@ -26,48 +26,35 @@ import (
 	"sync"
 	"testing"
 
-	minio "github.com/minio/minio-go/v7"
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 func TestStat(t *testing.T) {
 	Convey("Test Stat file", t, func() {
 		c := NewS3Mock()
-		fileInfo, err := c.Stat("file")
-		fakeFileInfo := &S3FileInfo{
-			Object: minio.ObjectInfo{
-				Key:  "file",
-				ETag: "filemd5",
-			},
-			isDir: false,
-		}
+		fileInfo, err := c.Stat(context.Background(), "file")
 		So(err, ShouldBeNil)
 		So(fileInfo, ShouldNotBeNil)
-		So(fileInfo, ShouldResemble, fakeFileInfo)
-
+		So(fileInfo.IsDir(), ShouldBeFalse)
+		sy := fileInfo.Sys().(models.ObjectInfo)
+		So(sy.ETag, ShouldEqual, "filemd5")
 	})
 
 	Convey("Test Stat folder", t, func() {
 		c := NewS3Mock()
-		fileInfo, err := c.Stat("folder")
-		fakeFolderInfo := &S3FileInfo{
-			Object: minio.ObjectInfo{
-				Key: "folder/" + common.PydioSyncHiddenFile,
-			},
-			isDir: true,
-		}
+		fileInfo, err := c.Stat(context.Background(), "folder")
 		So(err, ShouldBeNil)
 		So(fileInfo, ShouldNotBeNil)
-		So(fileInfo, ShouldResemble, fakeFolderInfo)
+		So(fileInfo.IsDir(), ShouldBeTrue)
 
 	})
 
 	Convey("Test Stat unknown file", t, func() {
 		c := NewS3Mock()
-		fileInfo, err := c.Stat("file2")
+		fileInfo, err := c.Stat(context.Background(), "file2")
 		So(err, ShouldNotBeNil)
 		So(fileInfo, ShouldBeNil)
 	})
@@ -163,8 +150,7 @@ func TestGetReaderOnS3(t *testing.T) {
 		c := NewS3Mock()
 		o, e := c.GetReaderOn("/file")
 		So(o, ShouldNotBeNil)
-		// We know that there will be an error as Object is not mocked, yet
-		So(e, ShouldNotBeNil)
+		So(e, ShouldBeNil)
 
 	})
 

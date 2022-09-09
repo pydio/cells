@@ -32,14 +32,14 @@ import (
 
 type input struct {
 	path string
-	info *S3FileInfo
+	info *fileInfo
 }
 
 type statBatcher struct {
 	c       *Client
 	pending []*input
 	size    int
-	walker  func(path string, info *S3FileInfo, node *tree.Node)
+	walker  func(path string, info *fileInfo, node *tree.Node)
 }
 
 func (b *statBatcher) push(n *input) {

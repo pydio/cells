@@ -63,31 +63,31 @@
     "other": "Al comenzar se crea un datasource por defecto para almacenar los datos personales de los usuarios y datos de Cells. Puede crear otros datasources más adelante."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "Configurar una conexión a MongoDB"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "Esto es mejor para la escalabilidad, y es necesario para el despliegue de clústeres. Si no tiene un servidor MongoDB listo, esto puede hacerse más tarde."
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "Host del servidor"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "Puerto del servidor"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "Nombre de la Base de Datos"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "Usuario"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "Contraseña"
   },
   "advanced.mongo.authSource": {
-    "other": "Auth DB"
+    "other": "BD Auth"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "Probar conexión"
   },
   "license.stepLabel": {
     "other": "Licencia Enterprise"
@@ -225,7 +225,7 @@
     "other": "Amazon S3 / Compatible S3 (se almacena en buckets S3)"
   },
   "form.dsS3Custom.label": {
-    "other": "Punto de almacenamiento compatible S3"
+    "other": "URL, añadir ?minio=true si Minio."
   },
   "form.dsS3Custom.legend": {
     "other": "Dejar vacío para Amazon"

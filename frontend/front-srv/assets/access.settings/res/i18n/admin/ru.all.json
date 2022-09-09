@@ -279,13 +279,16 @@
     "other": "Amazon S3"
   },
   "ds.editor.storage.s3.endpoint.custom": {
-    "other": "Совместимое с S3"
+    "other": "Other S3-Compatible Storage"
+  },
+  "ds.editor.storage.s3.endpoint.minio": {
+    "other": "Minio Server"
   },
   "ds.editor.storage.s3.endpoint": {
     "other": "Пользовательский URL конечной точки"
   },
   "ds.editor.storage.s3.endpoint.hint": {
-    "other": "Оставьте пустым для Amazon S3"
+    "other": "include http(s)://"
   },
   "ds.editor.storage.s3.region": {
     "other": "S3 Api регион"

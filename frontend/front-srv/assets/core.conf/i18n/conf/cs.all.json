@@ -42,13 +42,13 @@
     "other": "Core SQL Connection"
   },
   "Country": {
-    "other": "Country"
+    "other": "Země"
   },
   "Create external users": {
-    "other": "Create external users"
+    "other": "Vytvořit externí uživatele"
   },
   "Default Workspace": {
-    "other": "Default Workspace"
+    "other": "Výchozí pracovní prostor"
   },
   "Default start repository": {
     "other": "Default workspace shown after log in. 'Home' is the welcome page with activity and search engine."
@@ -63,7 +63,7 @@
     "other": "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP."
   },
   "Email": {
-    "other": "Email"
+    "other": "E-mail"
   },
   "Excluded Roles": {
     "other": "Excluded Roles"
@@ -102,22 +102,22 @@
     "other": "Instance"
   },
   "Internal / External Users": {
-    "other": "Internal / External Users"
+    "other": "Interní / externí uživatelé"
   },
   "Language": {
-    "other": "Language"
+    "other": "Jazyk"
   },
   "Let user create repositories": {
-    "other": "Let user create workspaces"
+    "other": "Umožnit uživateli vytvářet pracovní prostory"
   },
   "Let user create repositories from templates": {
-    "other": "Let user create repositories from templates"
+    "other": "Umožnit uživateli vytvářet repozitáře ze šablon"
   },
   "List Roles By": {
-    "other": "List Roles By"
+    "other": "Vypsat role podle"
   },
   "List existing from all groups": {
-    "other": "List existing from all groups"
+    "other": "Vypsat existující ze všech skupin"
   },
   "List of parameters to be edited when creating a new shared user.": {
     "other": "List of parameters to be edited when creating a new shared user."
@@ -135,7 +135,7 @@
     "other": "Minimum number of characters to trigger the auto completion feature"
   },
   "Name": {
-    "other": "Name"
+    "other": "Název"
   },
   "Preferences Saving": {
     "other": "Preferences Saving"
@@ -153,10 +153,10 @@
     "other": "Roles / Groups Directory Listing"
   },
   "SQL Connexion": {
-    "other": "SQL Connection"
+    "other": "Připojení SQL"
   },
   "See existing users": {
-    "other": "See existing users"
+    "other": "Zobrazit existující uživatele"
   },
   "Sets how the application core data (users,roles,etc) is stored.": {
     "other": "Sets how the application core data (users,roles,etc) is stored."
@@ -183,10 +183,10 @@
     "other": "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)"
   },
   "User Language": {
-    "other": "User Language"
+    "other": "Jazyk uživatele"
   },
   "User roles only": {
-    "other": "User roles only"
+    "other": "Pouze uživatelské role"
   },
   "Users Directory Listing": {
     "other": "Users Directory Listing"

@@ -1,15 +1,15 @@
 {
   "Android App URL": {
-    "other": "URL to Android App"
+    "other": "URL adresa na Android aplikaci"
   },
   "Display Server QRCode": {
-    "other": "Display Server QRCode"
+    "other": "Zobrazit QR kód serveru"
   },
   "Enable Getting Started": {
     "other": "Enable Getting Started"
   },
   "Enable Global Search": {
-    "other": "Enable Global Search"
+    "other": "Zapnout globální vyhledávání"
   },
   "Enable addition tabulation to access getting started videos": {
     "other": "Enable addition tabulation to access getting started videos"
@@ -42,7 +42,7 @@
     "other": "URL to Windows sync application (leave empty if you want to hide the block)"
   },
   "Welcome Page": {
-    "other": "Welcome Page"
+    "other": "Uvítací stránka"
   },
   "Welcome Page displaying a list of workspaces": {
     "other": "Welcome Page displaying a list of workspaces"

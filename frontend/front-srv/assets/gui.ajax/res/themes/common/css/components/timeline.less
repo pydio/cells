@@ -1,7 +1,7 @@
 .timeline {
   position: relative;
 
-  .rev-line {
+  .tl-line {
     width: 2px;
     top: 40px;
     bottom: 60px;
@@ -14,7 +14,7 @@
     display:none;
   }
 
-  .rev-timeline {
+  .tl-timeline {
     font-size: 13px;
     display: flex;
     flex-direction: column;
@@ -31,18 +31,18 @@
       font-weight: 600;
     }
 
-    .rev-block {
+    .tl-block {
       display: flex;
       align-items: flex-start;
 
-      .rev-date {
+      .tl-date {
         margin-top: 20px;
         width: 40px;
         overflow: hidden;
         text-align: center;
       }
 
-      .rev-dot {
+      .tl-dot {
         flex-shrink: 0;
         width: 10px;
         height: 10px;
@@ -66,7 +66,7 @@
         }
       }
 
-      .rev-card {
+      .tl-card {
         background-color: white;
         box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
         flex: 1;
@@ -74,7 +74,9 @@
         padding: 16px 20px;
         border-radius: 10px;
         display:flex;
-        .rev-desc{
+        cursor: pointer;
+
+        .tl-desc{
           flex: 1;
           .desc-date {
             font-size: 11px;
@@ -83,23 +85,18 @@
             margin-bottom: 2px;
           }
         }
-        .rev-size{
+        .tl-annotation{
           color: #4caf50;
           font-size: 11px;
           font-weight: 500;
-          .size-dir {
+          .tl-annotation-dir {
             margin-right: 2px;
           }
         }
-        .rev-actions {
+        .tl-actions {
           display:flex;
-          align-items: center;
-          .rev-action{
-            color: rgba(0,0,0,.3) !important;
-            &:hover{
-              color: rgba(0,0,0,.6) !important;
-            }
-          }
+          flex-direction: column;
+          align-items: flex-end;
         }
       }
 
@@ -108,24 +105,42 @@
       }
 
       &.similar {
-        .rev-date {
+        .tl-date {
           opacity: 0;
         }
-        .rev-dot {
+        .tl-dot {
           opacity: 0.25;
         }
       }
 
+      &.tl-more {
+        .tl-dot:before{
+          content:'+';
+          color: white;
+          font-weight: 500;
+          z-index: 100;
+          text-align: center;
+          opacity: 1;
+          border: 1px solid #eeeeee;
+          font-size: 15px;
+          line-height: 19px;
+        }
+        .tl-card {
+          border-radius: 5px;
+          margin: 12px 10px 30px !important;
+          font-weight: 500;
+        }
+      }
     }
   }
 
   &.small {
     padding-right: 10px !important;
     margin-left: 8px !important;
-    .rev-line {
+    .tl-line {
       top: 50px;
     }
-    .rev-timeline {
+    .tl-timeline {
       margin: 0 0;
       .sep-date{
         display: flex;
@@ -140,17 +155,21 @@
           margin-top: 10px;
         }
       }
-      .rev-block{
-        .rev-date {
+      .tl-block{
+        .tl-date {
           display:none;
         }
-        .rev-dot {
+        .tl-dot {
           margin-left: 0;
         }
-        .rev-card {
+        .tl-card {
           padding: 12px;
-          cursor: pointer;
-          .rev-actions {
+          box-shadow: none;
+          border: 1px solid rgb(238, 238, 238);
+          &.tl-selectable:hover{
+            box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
+          }
+          .tl-actions {
             display: none;
           }
         }
@@ -159,10 +178,10 @@
         }
       }
     }
-    .rev-line {
+    .tl-line {
       left: 20px;
     }
   }
 
-}
 
+}

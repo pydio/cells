@@ -319,6 +319,9 @@ func migratePrepareClients(source *object.DataSource) (rootNode *tree.Node, idx 
 	cfData.Val("secret").Set(apiSecret)
 	cfData.Val("secure").Set(conf.RunningSecure)
 	cfData.Val("type").Set("mc")
+	if conf.StorageType == object.StorageType_AZURE {
+		cfData.Val("type").Set("azure")
+	}
 	mc, e = nodes.NewStorageClient(cfData)
 	if e != nil {
 		return

@@ -3,19 +3,19 @@
     "other": "Terms of Use"
   },
   "welcome.title": {
-    "other": "Welcome to Pydio Cells Installation Wizard"
+    "other": "Vítejte v Průvodci instalací Pydio Cells"
   },
   "welcome.legend": {
     "other": "This will install all services on the current server. Please agree with the terms of the license below before starting"
   },
   "welcome.agreed": {
-    "other": "I agree with the terms"
+    "other": "Souhlasím s podmínkami"
   },
   "database.stepLabel": {
-    "other": "Database Connection"
+    "other": "Připojení k databázi"
   },
   "database.title": {
-    "other": "Database Configuration"
+    "other": "Nastavení pro databázi"
   },
   "database.legend": {
     "other": "Pydio requires at least one SQL storage for configuration and data indexation. Configure here the connection to your MySQL/MariaDB server."
@@ -27,16 +27,16 @@
     "other": "There seem to be a Cells installation already setup in this database. Please confirm to continue or "
   },
   "database.installDetected.retry": {
-    "other": "retry with new value"
+    "other": "zkusit znovu s novou hodnotou"
   },
   "database.useDefaultsSet": {
     "other": "A default database is already configured, just click next to validate connection."
   },
   "database.forceConfigure": {
-    "other": "Configure another database."
+    "other": "Konfigurace jiné databáze."
   },
   "admin.stepLabel": {
-    "other": "Admin User"
+    "other": "Uživatel s právy pro správu"
   },
   "admin.title": {
     "other": "Admin user and frontend defaults"
@@ -48,22 +48,22 @@
     "other": "An administrative user was already found in the DB. Check if you wish to create a new one."
   },
   "advanced.stepLabel": {
-    "other": "Advanced Settings"
+    "other": "Pokročilá nastavení"
   },
   "advanced.title": {
-    "other": "Advanced Settings (optional)"
+    "other": "Pokročilá nastavení (volitelné)"
   },
   "advanced.legend": {
     "other": "Pydio Cells services will be deployed on this machine. You may review some advanced settings below for fine-tuning your configuration."
   },
   "advanced.toggle": {
-    "other": "Show Advanced Settings"
+    "other": "Zobrazit pokročilá nastavení"
   },
   "advanced.default.datasource": {
     "other": "A default data source to store users personal data and cells data is created at startup. You can create other datasources later on."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "Nastavit připojení k MongoDB"
   },
   "advanced.mongo.legend": {
     "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
@@ -75,13 +75,13 @@
     "other": "Server port"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "Název databáze"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "Uživatelské jméno"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "Heslo"
   },
   "advanced.mongo.authSource": {
     "other": "Auth DB"
@@ -90,16 +90,16 @@
     "other": "Test connection"
   },
   "license.stepLabel": {
-    "other": "Enterprise License"
+    "other": "Licence pro podniky"
   },
   "license.title": {
-    "other": "Pydio Cells Enterprise License"
+    "other": "Licence Pydio Cells pro podniky"
   },
   "license.success": {
-    "other": "License file was successfully detected."
+    "other": "Licenční soubor byl úspěšně detekován."
   },
   "license.details": {
-    "other": "This installation is valid for %count users until %expiration."
+    "other": "Tato instalace je platná pro %cpřipojit uživatele do %expirace."
   },
   "license.failed": {
     "other": "Error while trying to verify this license key. Please contact the support."
@@ -108,13 +108,13 @@
     "other": "A valid license key is required to run the Enterprise Distribution. To get a 30 days trial license or a sales quotation, please contact"
   },
   "license.fieldLabel": {
-    "other": "License String"
+    "other": "Řetězec licence"
   },
   "license.fieldLegend": {
     "other": "Please copy/paste the license key provided to you."
   },
   "apply.stepLabel": {
-    "other": "Apply Installation"
+    "other": "Provést instalaci"
   },
   "apply.title": {
     "other": "Please be patient while Pydio Cells is being installed..."
@@ -129,10 +129,10 @@
     "other": "There was an error while performing installation! Please check your configuration."
   },
   "apply.error.detail": {
-    "other": "Error was: "
+    "other": "Chyba byla: "
   },
   "form.dbConnectionType.label": {
-    "other": "Connection Type"
+    "other": "Typ připojení"
   },
   "form.dbConnectionType.tcp": {
     "other": "TCP"
@@ -141,16 +141,16 @@
     "other": "Socket"
   },
   "form.dbConnectionType.manual": {
-    "other": "Manual"
+    "other": "Ručně"
   },
   "form.dbTCPHostname.label": {
-    "other": "Host Name"
+    "other": "Název hostitele"
   },
   "form.dbTCPHostname.legend": {
-    "other": "Server where mysql is running"
+    "other": "Server na kterém je provozováno mysql"
   },
   "form.dbName.label": {
-    "other": "Database Name"
+    "other": "Název databáze"
   },
   "form.dbName.legend": {
     "other": "Database to use (will be created if it does not exist)"
@@ -159,22 +159,22 @@
     "other": "Port"
   },
   "form.dbTCPPort.legend": {
-    "other": "Port to connect to mysql"
+    "other": "Port pro připojení k mysql"
   },
   "form.dbUser.label": {
-    "other": "Database User"
+    "other": "Uživatel databáze"
   },
   "form.dbUser.legend": {
     "other": "Leave blank if not required"
   },
   "form.dbPassword.label": {
-    "other": "Database Password"
+    "other": "Heslo k databázi"
   },
   "form.dbPassword.legend": {
     "other": "Leave blank if not required"
   },
   "form.dbSocketFile.label": {
-    "other": "Socket"
+    "other": "Soket"
   },
   "form.dbSocketFile.legend": {
     "other": "Enter the location of the socket file to use to connect"
@@ -186,13 +186,13 @@
     "other": "Use Golang-style DSN to describe the database connection"
   },
   "form.frontendApplicationTitle.label": {
-    "other": "Application Title"
+    "other": "Název aplikace"
   },
   "form.frontendApplicationTitle.legend": {
-    "other": "Main title of your installation"
+    "other": "Hlavní nadpis vaší instalace"
   },
   "form.frontendDefaultLanguage.label": {
-    "other": "Default Language"
+    "other": "Výchozí jazyk"
   },
   "form.frontendLogin.label": {
     "other": "Admin user login *"
@@ -201,7 +201,7 @@
     "other": "Identifier used to log in"
   },
   "form.frontendPassword.label": {
-    "other": "Admin password *"
+    "other": "Heslo správce *"
   },
   "form.frontendPassword.legend": {
     "other": "Password used to log in"
@@ -219,13 +219,13 @@
     "other": "Use an absolute path on the server"
   },
   "form.dsType.FS": {
-    "other": "Local FS (store all data on this server)"
+    "other": "Místní souborový systém (ukládat veškerá data na tomto serveru)"
   },
   "form.dsType.S3": {
     "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
   },
   "form.dsS3Custom.label": {
-    "other": "S3-Compatible storage endpoint"
+    "other": "URL, append ?minio=true if Minio."
   },
   "form.dsS3Custom.legend": {
     "other": "Leave empty for Amazon"
@@ -246,7 +246,7 @@
     "other": "S3 Api Secret"
   },
   "form.dsS3ApiSecret.legend": {
-    "other": "Secret Key"
+    "other": "Tajný klíč"
   },
   "form.dsS3ValidateKeys": {
     "other": "Connect to S3 to define buckets"
@@ -270,15 +270,15 @@
     "other": "You are not allowed to create buckets, make sure to create them manually!"
   },
   "stepper.button.next": {
-    "other": "Next"
+    "other": "Další"
   },
   "stepper.button.back": {
-    "other": "Back"
+    "other": "Zpět"
   },
   "stepper.button.last": {
-    "other": "Install Now"
+    "other": "Nainstalovat nyní"
   },
   "stepper.button.reload": {
-    "other": "Reload"
+    "other": "Znovu načíst"
   }
 }

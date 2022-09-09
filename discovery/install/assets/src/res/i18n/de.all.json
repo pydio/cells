@@ -225,7 +225,7 @@
     "other": "Amazon S3 / S3-kompatibel (in S3-Buckets speichern)"
   },
   "form.dsS3Custom.label": {
-    "other": "S3-kompatibler Speicher-Endpunkt"
+    "other": "URL, anhängen ?minio=true wenn Minio."
   },
   "form.dsS3Custom.legend": {
     "other": "Für Amazon leer lassen"

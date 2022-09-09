@@ -191,7 +191,8 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 		gauge := scope.Gauge("open_streams")
 		pri := common.LogLevel == zapcore.DebugLevel
 		if cc.serviceName == "pydio.grpc.broker" || cc.serviceName == "pydio.grpc.log" || cc.serviceName == "pydio.grpc.audit" ||
-			cc.serviceName == "pydio.grpc.jobs" || cc.serviceName == "pydio.grpc.registry" || desc.StreamName == "StreamChanges" {
+			cc.serviceName == "pydio.grpc.jobs" || cc.serviceName == "pydio.grpc.registry" ||
+			desc.StreamName == "StreamChanges" || desc.StreamName == "PostNodeChanges" {
 			pri = false
 		}
 

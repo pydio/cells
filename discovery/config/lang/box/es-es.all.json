@@ -135,7 +135,7 @@
     "other": "Fecha después"
   },
   "contextMetaCondition.PathGlobCondition": {
-    "other": "Glob Matcher"
+    "other": "Comparador de Glob"
   },
   "contextMetaCondition.BooleanCondition": {
     "other": "Valor Booleano"
@@ -256,6 +256,9 @@
   },
   "treeQuery.UUIDs": {
     "other": "UUIDs del nodo"
+  },
+  "treeQuery.ETag": {
+    "other": "ETag"
   },
   "userSingleQuery.AttributeAnyValue": {
     "other": "Tiene un valor cualquiera"
