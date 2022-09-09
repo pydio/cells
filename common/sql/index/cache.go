@@ -26,6 +26,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 	"regexp"
 	"sort"
 	"strings"
@@ -163,13 +164,13 @@ func (d *daocache) Init(ctx context.Context, m configx.Values) error {
 }
 
 // GetConn returns the connection of the underlying dao
-func (d *daocache) GetConn(ctx context.Context) (dao.Conn, error) {
+func (d *daocache) GetConn(ctx context.Context) (conn.Conn, error) {
 	return d.DAO.(dao.DAO).GetConn(ctx)
 }
 
 // GetConn sets the connection of the underlying dao
-func (d *daocache) SetConn(ctx context.Context, conn dao.Conn) {
-	d.DAO.(dao.DAO).SetConn(ctx, conn)
+func (d *daocache) SetConn(ctx context.Context, c conn.Conn) {
+	d.DAO.(dao.DAO).SetConn(ctx, c)
 }
 
 // CloseConn closes the connection of the underlying dao

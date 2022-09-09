@@ -25,13 +25,13 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"net/url"
-	"path/filepath"
-	"strings"
-
+	"github.com/pydio/cells/v4/common/conn"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/merger"
+	"net/url"
+	"path/filepath"
+	"strings"
 )
 
 // AbstractDAO returns a reference to a newly created struct that
@@ -39,7 +39,7 @@ import (
 // Prefix parameter is used to specify a prefix to avoid collision
 // between table names in case this DAO accesses a shared DB: it thus
 // will be an empty string in most of the cases.
-func AbstractDAO(conn Conn, driver, dsn, prefix string) DAO {
+func AbstractDAO(conn conn.Conn, driver, dsn, prefix string) DAO {
 	return &abstract{
 		conn:   conn,
 		driver: driver,
@@ -49,7 +49,7 @@ func AbstractDAO(conn Conn, driver, dsn, prefix string) DAO {
 }
 
 type abstract struct {
-	conn   Conn
+	conn   conn.Conn
 	id     string
 	driver string
 	dsn    string
@@ -105,7 +105,7 @@ func (h *abstract) Stats() map[string]interface{} {
 }
 
 // GetConn to the DB for the DAO
-func (h *abstract) GetConn(_ context.Context) (Conn, error) {
+func (h *abstract) GetConn(_ context.Context) (conn.Conn, error) {
 	if h == nil {
 		return nil, fmt.Errorf("not implemented")
 	}
@@ -113,13 +113,15 @@ func (h *abstract) GetConn(_ context.Context) (Conn, error) {
 }
 
 // SetConn assigns the db connection to the DAO
-func (h *abstract) SetConn(_ context.Context, conn Conn) {
+func (h *abstract) SetConn(_ context.Context, conn conn.Conn) {
 	h.conn = conn
 }
 
 // CloseConn closes the db connection
 func (h *abstract) CloseConn(ctx context.Context) error {
-	return closeConn(ctx, h.conn)
+	// TODO
+	// return closeConn(ctx, h.conn)
+	return nil
 }
 
 // LocalAccess returns false by default, can be overridden by implementations

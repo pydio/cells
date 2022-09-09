@@ -41,7 +41,6 @@ import (
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/registry"
 	cruntime "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
 	"github.com/pydio/cells/v4/common/server"
@@ -316,14 +315,14 @@ func performBrowserInstall(cmd *cobra.Command, ctx context.Context, proxyConf *i
 
 	initLogLevel()
 
-	reg, err := registry.OpenRegistry(ctx, cruntime.RegistryURL())
-	if err != nil {
-		return
-	}
+	//reg, err := registry.OpenRegistry(ctx, cruntime.RegistryURL())
+	//if err != nil {
+	//	return
+	//}
 	cruntime.SetDefault(cruntime.KeyHttpServer, cruntime.HttpServerCaddy)
 
 	managerLogger := log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager"))
-	m := manager.NewManager(reg, "mem:///", "install", managerLogger)
+	m := manager.NewManager(&ctx, cruntime.RegistryURL(), "mem:///", "install", managerLogger)
 
 	bkr := broker.NewBroker(cruntime.BrokerURL())
 	ctx = servicecontext.WithBroker(ctx, bkr)

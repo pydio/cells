@@ -25,6 +25,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 	"os"
 	"strings"
 	"sync"
@@ -110,22 +111,19 @@ type Handler struct {
 	runtime context.Context
 }
 
-func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.DAO, error) {
-	conn, err := dao.NewConn(ctx, driver, dsn)
-	if err != nil {
-		return nil, err
-	}
+func NewDAO(ctx context.Context, driver string, dsn string, prefix string, c conn.Conn) (dao.DAO, error) {
 	helper, err := newHelper(driver)
 	if err != nil {
 		return nil, err
 	}
+
 	// Special case for sqlite, we use a mutex to simulate locking as sqlite's locking is not quite up to the task
 	var mu atomic.Value
 	if driver == "sqlite3" {
 		mu.Store(&sync.Mutex{})
 	}
 	return &Handler{
-		DAO:           dao.AbstractDAO(conn, driver, dsn, prefix),
+		DAO:           dao.AbstractDAO(c, driver, dsn, prefix),
 		helper:        helper,
 		stmts:         make(map[string]string),
 		ifuncs:        make(map[string]func(DAO, ...interface{}) string),
@@ -175,7 +173,10 @@ func (h *Handler) As(i interface{}) bool {
 // DB returns the sql DB object
 func (h *Handler) DB() *sql.DB {
 	if c, e := h.GetConn(h.runtime); e == nil && c != nil {
-		return c.(*sql.DB)
+		var db *sql.DB
+		if c.As(&db) {
+			return db
+		}
 	}
 	return nil
 }

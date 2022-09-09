@@ -23,6 +23,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"strings"
 
@@ -106,7 +107,7 @@ func WithStorageMigrator(d dao.MigratorFunc) StorageOption {
 	}
 }
 
-func daoFromOptions(o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts *StorageOptions) (dao.DAO, error) {
+func daoFromOptions(o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts *StorageOptions) (conn.Conn, dao.DAO, error) {
 	prefix := opts.Prefix(o)
 
 	cfgKey := "storage"
@@ -118,20 +119,23 @@ func daoFromOptions(o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts
 		driver, dsn = opts.DefaultDriver()
 	}
 
-	var c dao.DAO
+	var c conn.Conn
+	var d dao.DAO
 	var e error
 	cfg := config.Get("services", o.Name)
 
+	c, e = conn.InitConn(o.Context, driver, dsn)
+
 	if indexer {
-		c, e = dao.InitIndexer(o.Context, driver, dsn, prefix, fd, cfg)
+		d, e = dao.InitIndexer(o.Context, driver, dsn, prefix, fd, c, cfg)
 	} else {
-		c, e = dao.InitDAO(o.Context, driver, dsn, prefix, fd, cfg)
+		d, e = dao.InitDAO(o.Context, driver, dsn, prefix, fd, c, cfg)
 	}
 	if e != nil {
-		return nil, errors.Wrap(e, "dao.Initialization "+driver)
+		return nil, nil, errors.Wrap(e, "dao.Initialization "+driver)
 	}
 
-	return c, nil
+	return c, d, nil
 }
 
 func isLocalDao(o *ServiceOptions, indexer bool, opts *StorageOptions) bool {
@@ -195,7 +199,14 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 			})
 		}
 		o.BeforeStart = append(o.BeforeStart, func(ctx context.Context) error {
-			d, err := daoFromOptions(o, fd, indexer, sOpts)
+			// Now register DAO
+			reg := servicecontext.GetRegistry(o.Context)
+			if reg == nil {
+				return nil
+			}
+
+			// First check if we already have a connection available
+			c, d, err := daoFromOptions(o, fd, indexer, sOpts)
 			if err != nil {
 				return err
 			}
@@ -206,11 +217,6 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 			}
 			o.Context = ctx
 
-			// Now register DAO
-			reg := servicecontext.GetRegistry(o.Context)
-			if reg == nil {
-				return nil
-			}
 			var regItem registry.Dao
 			if !d.As(&regItem) {
 				return nil
@@ -227,9 +233,26 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 			if sOpts.Migrator != nil {
 				mm["SupportedMigration"] = "true"
 			}
+
 			options := []registry.RegisterOption{
 				registry.WithEdgeTo(o.ID, "DAO", mm),
 			}
+
+			if c != nil {
+				m := map[string]string{}
+				connItem := util.CreateAddress(c.Addr(), m)
+
+				connOptions := []registry.RegisterOption{}
+				var connRegStatus registry.StatusReporter
+				if c.As(&connRegStatus) {
+					connOptions = append(connOptions, registry.WithWatch(connRegStatus))
+				}
+				reg.Register(connItem, connOptions...)
+
+				options = append(options, registry.WithEdgeTo(connItem.ID(), "Conn", mm))
+
+			}
+
 			var regStatus registry.StatusReporter
 			if d.As(&regStatus) {
 				options = append(options, registry.WithWatch(regStatus))
@@ -238,14 +261,7 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 				log.Logger(o.Context).Error(" -- Cannot register DAO: "+er.Error(), zap.Error(er))
 			}
 
-			if addr, ok := d.(dao.Addressable); ok {
-				addrItem := util.CreateAddress(addr.Addr(), nil)
-				reg.Register(addrItem, registry.WithEdgeTo(regItem.ID(), "Conn", nil))
-				fmt.Println("Trying to get address here ", addr.Addr())
-			}
-
 			return nil
 		})
-
 	}
 }

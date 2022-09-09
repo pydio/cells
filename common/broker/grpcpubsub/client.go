@@ -17,6 +17,7 @@ package grpcpubsub
 import (
 	"context"
 	"errors"
+	"google.golang.org/grpc"
 	"net/url"
 	"strings"
 	"sync"
@@ -103,9 +104,9 @@ func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic
 	pubLock.Lock()
 	defer pubLock.Unlock()
 	if _, ok := publishers[u.Host]; !ok {
-		conn := clientcontext.GetClientConn(ctx)
-		if conn == nil {
-			return nil, errors.New("no connection provided")
+		var conn grpc.ClientConnInterface
+		if err := clientcontext.GetClientConn(ctx, &conn); err != nil {
+			return nil, err
 		}
 
 		cli := pb.NewBrokerClient(conn)
@@ -132,9 +133,9 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 	subLock.Lock()
 	sub, ok := subscribers[u.Host]
 	if !ok {
-		conn := clientcontext.GetClientConn(ctx)
-		if conn == nil {
-			return nil, errors.New("no connection provided")
+		var conn grpc.ClientConnInterface
+		if err := clientcontext.GetClientConn(ctx, &conn); err != nil {
+			return nil, err
 		}
 
 		ct, ca := context.WithCancel(ctx)
@@ -188,9 +189,9 @@ func NewTopic(path, pubKey string, opts ...Option) (*pubsub.Topic, error) {
 	}
 
 	if stream == nil {
-		conn := clientcontext.GetClientConn(ctx)
-		if conn == nil {
-			return nil, errors.New("no connection provided")
+		var conn grpc.ClientConnInterface
+		if err := clientcontext.GetClientConn(ctx, &conn); err != nil {
+			return nil, err
 		}
 		cli := pb.NewBrokerClient(conn)
 		if s, err := cli.Publish(ctx); err != nil {
@@ -335,9 +336,9 @@ func NewSubscription(path string, opts ...Option) (*pubsub.Subscription, error) 
 
 	if cli == nil {
 		ch = make(chan []*pb.Message, 5000)
-		conn := clientcontext.GetClientConn(ctx)
-		if conn == nil {
-			return nil, errors.New("no connection provided")
+		var conn grpc.ClientConnInterface
+		if err := clientcontext.GetClientConn(ctx, &conn); err != nil {
+			return nil, err
 		}
 		var err error
 		ct, ca := context.WithCancel(ctx)

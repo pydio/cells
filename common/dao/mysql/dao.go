@@ -22,6 +22,7 @@ package mysql
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 	"github.com/pydio/cells/v4/common/dao"
 	commonsql "github.com/pydio/cells/v4/common/sql"
 )
@@ -31,7 +32,23 @@ const (
 )
 
 func init() {
-	dao.RegisterSharedDAODriver(Driver, commonsql.NewDAO, func(c context.Context, driver, dsn string) dao.ConnDriver {
-		return &conn{}
+	dao.RegisterSharedDAODriver(Driver, commonsql.NewDAO, func(ctx context.Context, driver, dsn string) conn.Conn {
+		mgr, ok := dao.GetManager(ctx)
+		if !ok {
+			//return nil, errors.New("manager not found")
+			return nil
+		}
+
+		conf, err := DSNToConfig(dsn)
+		if err != nil {
+			return nil
+		}
+
+		myconn, err := mgr.GetConnection(conf)
+		if err != nil {
+			return nil
+		}
+
+		return myconn
 	})
 }

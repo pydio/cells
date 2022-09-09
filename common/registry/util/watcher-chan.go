@@ -29,7 +29,6 @@ import (
 )
 
 func NewChanStatusWatcher(item registry.Item, input chan map[string]interface{}) registry.StatusWatcher {
-
 	s := &chanStatusWatcher{
 		item:  item,
 		exit:  make(chan bool),

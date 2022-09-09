@@ -93,15 +93,13 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		DialKeepAliveTime: 2 * time.Second,
 		Username:          u.User.Username(),
 		Password:          pwd,
-		// Logger:            log.Logger(ctx).Raw(),
-		// LogConfig:         &zap.Config{Level: zap.NewAtomicLevelAt(zapcore.DebugLevel)},
 	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	return NewSource(context.Background(), etcdConn, strings.TrimLeft(u.Path, "/"), withLease, withKeys, opts...)
+	return NewSource(ctx, etcdConn, strings.TrimLeft(u.Path, "/"), withLease, withKeys, opts...)
 }
 
 type etcd struct {
@@ -124,6 +122,7 @@ type etcd struct {
 }
 
 func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLease bool, withKeys bool, opts ...configx.Option) (config.Store, error) {
+
 	opts = append([]configx.Option{configx.WithJSON()}, opts...)
 
 	var leaseID clientv3.LeaseID
@@ -576,6 +575,10 @@ func (v *values) Slice() []interface{} {
 
 func (v *values) Map() map[string]interface{} {
 	return v.Get().Map()
+}
+
+func (v *values) Keys() []string {
+	return v.Get().Keys()
 }
 
 func (v *values) Scan(i interface{}, opts ...configx.Option) error {

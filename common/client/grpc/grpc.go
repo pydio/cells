@@ -83,9 +83,10 @@ func GetClientConnFromCtx(ctx context.Context, serviceName string, opt ...Option
 	if ctx == nil {
 		return NewClientConn(serviceName, opt...)
 	}
-	conn := clientcontext.GetClientConn(ctx)
-	if conn == nil && WarnMissingConnInContext {
-		fmt.Println("Warning, GetClientConnFromCtx could not find conn, will create a new one")
+
+	var conn grpc.ClientConnInterface
+	if err := clientcontext.GetClientConn(ctx, &conn); err != nil && WarnMissingConnInContext {
+		fmt.Println("Warning, GetClientConnFromCtx could not find conn, will create a new one", err)
 		debug.PrintStack()
 	}
 	reg := servercontext.GetRegistry(ctx)

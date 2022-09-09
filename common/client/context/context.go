@@ -22,8 +22,8 @@ package clientcontext
 
 import (
 	"context"
-
-	"google.golang.org/grpc"
+	"errors"
+	"reflect"
 
 	"github.com/pydio/cells/v4/common/runtime"
 )
@@ -36,19 +36,34 @@ const (
 
 func init() {
 	runtime.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
-		return WithClientConn(ctx, GetClientConn(parent))
+		var i interface{}
+		GetClientConn(parent, &i)
+		return WithClientConn(ctx, i)
 	})
 }
 
 // WithClientConn links a client connection to the context
-func WithClientConn(ctx context.Context, reg grpc.ClientConnInterface) context.Context {
+func WithClientConn(ctx context.Context, reg interface{}) context.Context {
 	return context.WithValue(ctx, clientConnKey, reg)
 }
 
 // GetClientConn returns the client connection from the context in argument
-func GetClientConn(ctx context.Context) grpc.ClientConnInterface {
-	if cli, ok := ctx.Value(clientConnKey).(grpc.ClientConnInterface); ok {
-		return cli
+func GetClientConn(ctx context.Context, i interface{}) error {
+	v := reflect.ValueOf(i)
+	if v.Kind() != reflect.Ptr {
+		return errors.New("variable is not a pointer")
+	}
+
+	cli := ctx.Value(clientConnKey)
+	if cli == nil {
+		return errors.New("no conn in context")
+	}
+	cliV := reflect.ValueOf(cli)
+
+	if cliV.CanConvert(v.Elem().Type()) {
+		v.Elem().Set(cliV)
+	} else {
+		return errors.New("type does not match")
 	}
 
 	return nil
