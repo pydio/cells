@@ -39,6 +39,18 @@ type bleveConn struct {
 	bleve.Index
 }
 
+func (c *bleveConn) Name() string {
+	return ""
+}
+
+func (c *bleveConn) ID() string {
+	return ""
+}
+
+func (c *bleveConn) Metadata() map[string]string {
+	return map[string]string{}
+}
+
 func (c *bleveConn) As(i interface{}) bool {
 	if vv, ok := i.(*bleve.Index); ok {
 		*vv = c.Index

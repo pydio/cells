@@ -199,6 +199,13 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 			})
 		}
 		o.BeforeStart = append(o.BeforeStart, func(ctx context.Context) error {
+			// Now register DAO
+			reg := servicecontext.GetRegistry(o.Context)
+			if reg == nil {
+				return nil
+			}
+
+			// First check if we already have a connection available
 			c, d, err := daoFromOptions(o, fd, indexer, sOpts)
 			if err != nil {
 				return err
@@ -210,11 +217,6 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 			}
 			o.Context = ctx
 
-			// Now register DAO
-			reg := servicecontext.GetRegistry(o.Context)
-			if reg == nil {
-				return nil
-			}
 			var regItem registry.Dao
 			if !d.As(&regItem) {
 				return nil
@@ -238,10 +240,17 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 
 			if c != nil {
 				m := map[string]string{}
-				addrItem := util.CreateAddress(c.Addr(), m)
-				reg.Register(addrItem)
+				connItem := util.CreateAddress(c.Addr(), m)
 
-				options = append(options, registry.WithEdgeTo(addrItem.ID(), "Conn", mm))
+				connOptions := []registry.RegisterOption{}
+				var connRegStatus registry.StatusReporter
+				if c.As(&connRegStatus) {
+					connOptions = append(connOptions, registry.WithWatch(connRegStatus))
+				}
+				reg.Register(connItem, connOptions...)
+
+				options = append(options, registry.WithEdgeTo(connItem.ID(), "Conn", mm))
+
 			}
 
 			var regStatus registry.StatusReporter

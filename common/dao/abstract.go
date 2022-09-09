@@ -26,13 +26,12 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/pydio/cells/v4/common/conn"
-	"net/url"
-	"path/filepath"
-	"strings"
-
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/merger"
+	"net/url"
+	"path/filepath"
+	"strings"
 )
 
 // AbstractDAO returns a reference to a newly created struct that

@@ -57,6 +57,18 @@ type etcdConn struct {
 	*clientv3.Client
 }
 
+func (c *etcdConn) Name() string {
+	return ""
+}
+
+func (c *etcdConn) ID() string {
+	return ""
+}
+
+func (c *etcdConn) Metadata() map[string]string {
+	return map[string]string{}
+}
+
 func (c *etcdConn) As(i interface{}) bool {
 	if vv, ok := i.(**clientv3.Client); ok {
 		*vv = c.Client

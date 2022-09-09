@@ -62,6 +62,7 @@ type Manager interface {
 	SetServeOptions(...server.ServeOption)
 	WatchServicesConfigs()
 	WatchBroker(ctx context.Context, br broker.Broker) error
+
 	GetRegistry() registry.Registry
 	GetConnection(configx.Values) (conn.Conn, error)
 }

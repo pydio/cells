@@ -43,6 +43,18 @@ type natsConn struct {
 	*nats.Conn
 }
 
+func (c *natsConn) Name() string {
+	return ""
+}
+
+func (c *natsConn) ID() string {
+	return ""
+}
+
+func (c *natsConn) Metadata() map[string]string {
+	return map[string]string{}
+}
+
 func (c *natsConn) As(i interface{}) bool {
 	if vv, ok := i.(**nats.Conn); ok {
 		*vv = c.Conn

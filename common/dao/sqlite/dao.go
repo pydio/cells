@@ -22,6 +22,8 @@ package sqlite
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
+	"github.com/pydio/cells/v4/common/utils/configx"
 
 	"github.com/pydio/cells/v4/common/dao"
 	commonsql "github.com/pydio/cells/v4/common/sql"
@@ -33,7 +35,22 @@ const (
 )
 
 func init() {
-	dao.RegisterDAODriver(Driver, commonsql.NewDAO, func(ctx context.Context, driver, dsn string) dao.ConnDriver {
-		return &conn{}
+	dao.RegisterDAODriver(Driver, commonsql.NewDAO, func(ctx context.Context, driver, dsn string) conn.Conn {
+		mgr, ok := dao.GetManager(ctx)
+		if !ok {
+			//return nil, errors.New("manager not found")
+			return nil
+		}
+
+		conf := configx.New()
+		conf.Val("scheme").Set("sqlite")
+		conf.Val("dsn").Set(dsn)
+
+		myconn, err := mgr.GetConnection(conf)
+		if err != nil {
+			return nil
+		}
+
+		return myconn
 	})
 }

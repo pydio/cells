@@ -4,9 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/std"
 	"net/url"
+	"time"
 )
 
 func init() {
@@ -47,26 +50,65 @@ func newMysqlConn(ctx context.Context, c configx.Values) (Conn, error) {
 		return nil, err
 	}
 
+	ch := make(chan map[string]interface{})
+	go func() {
+		timer := time.NewTicker(5 * time.Second)
+		for {
+			select {
+			case <-timer.C:
+				if err := conn.Ping(); err != nil {
+					select {
+					case ch <- map[string]interface{}{
+						"status": "error",
+					}:
+					}
+				} else {
+					select {
+					case ch <- map[string]interface{}{
+						"status": "connected",
+					}:
+					}
+				}
+			}
+		}
+
+		fmt.Println("And I'm gone")
+
+	}()
 	return &sqlConn{
 		std.Randkey(16),
+		ch,
 		conn,
 	}, nil
 }
 
 type sqlConn struct {
 	id string
+	ch chan (map[string]interface{})
 	*sql.DB
+}
+
+func (c *sqlConn) Name() string {
+	return "mysql"
 }
 
 func (c *sqlConn) ID() string {
 	return c.id
 }
 
+func (c *sqlConn) Metadata() map[string]string {
+	return map[string]string{}
+}
+
 func (c *sqlConn) As(i interface{}) bool {
 	if vv, ok := i.(**sql.DB); ok {
 		*vv = c.DB
 		return true
+	} else if sw, ok := i.(*registry.StatusReporter); ok {
+		*sw = c
+		return true
 	}
+
 	return false
 }
 
@@ -87,4 +129,8 @@ func (c *sqlConn) Stats() map[string]interface{} {
 		"MaxIdleTimeClosed":  stats.MaxIdleTimeClosed,
 		"MaxLifetimeClosed":  stats.MaxLifetimeClosed,
 	}
+}
+
+func (c *sqlConn) WatchStatus() (registry.StatusWatcher, error) {
+	return util.NewChanStatusWatcher(c, c.ch), nil
 }

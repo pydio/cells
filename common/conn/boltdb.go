@@ -30,6 +30,18 @@ type boltdbConn struct {
 	*bolt.DB
 }
 
+func (c *boltdbConn) Name() string {
+	return ""
+}
+
+func (c *boltdbConn) ID() string {
+	return ""
+}
+
+func (c *boltdbConn) Metadata() map[string]string {
+	return map[string]string{}
+}
+
 func (c *boltdbConn) As(i interface{}) bool {
 	if vv, ok := i.(**bolt.DB); ok {
 		*vv = c.DB

@@ -61,6 +61,18 @@ type mongoConn struct {
 	*mongo.Client
 }
 
+func (c *mongoConn) Name() string {
+	return ""
+}
+
+func (c *mongoConn) ID() string {
+	return ""
+}
+
+func (c *mongoConn) Metadata() map[string]string {
+	return map[string]string{}
+}
+
 func (c *mongoConn) As(i interface{}) bool {
 	if vv, ok := i.(**mongo.Client); ok {
 		*vv = c.Client

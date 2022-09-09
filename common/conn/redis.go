@@ -43,6 +43,18 @@ type redisConn struct {
 	*redis.Client
 }
 
+func (c *redisConn) Name() string {
+	return ""
+}
+
+func (c *redisConn) ID() string {
+	return ""
+}
+
+func (c *redisConn) Metadata() map[string]string {
+	return map[string]string{}
+}
+
 func (c *redisConn) As(i interface{}) bool {
 	if vv, ok := i.(**redis.Client); ok {
 		*vv = c.Client

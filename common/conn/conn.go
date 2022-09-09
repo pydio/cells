@@ -17,9 +17,13 @@ type Provider func(context.Context, configx.Values) (Conn, error)
 
 // Conn is a connection interface
 type Conn interface {
+	Name() string
+	ID() string
+	Metadata() map[string]string
 	Addr() string
 	Ping() error
 	Stats() map[string]interface{}
+	// Connect() error
 	Close() error
 	As(i interface{}) bool
 }
