@@ -143,7 +143,7 @@ func LoadUpdates(ctx context.Context, conf configx.Values, request *update.Updat
 		if ok && sOk && save == "true" {
 			// Save license now : the check for update including license key passed without error,
 			// this license must thus be valid
-			log.Logger(ctx).Info("Saving LicenseKey to file now", zap.String("lic", lic))
+			log.Logger(ctx).Info("Saving LicenseKey to file now")
 			filePath := filepath.Join(runtime2.ApplicationWorkingDir(), "pydio-license")
 			if err := ioutil.WriteFile(filePath, []byte(lic), 0644); err != nil {
 				return nil, fmt.Errorf("could not save license file to %s (%s), aborting upgrade", filePath, err.Error())
@@ -273,7 +273,7 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf configx.Values, dr
 			errorChan <- er
 		}
 
-		// Now try to move previous version to the services folder. Do not break on error, just Warn in the logs.
+		// Now try to move previous version to the services' folder. Do not break on error, just Warn in the logs.
 		dataDir, _ := runtime2.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceUpdate)
 		backupPath := filepath.Join(dataDir, filepath.Base(backupFile))
 		if err := filesystem.SafeRenameFile(backupFile, backupPath); err != nil {

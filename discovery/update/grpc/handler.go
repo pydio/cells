@@ -86,7 +86,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 		return nil, fmt.Errorf("cannot find the requested version")
 	}
 
-	log.Logger(ctx).Info("Update binary now", zap.Any("package", apply))
+	log.Logger(ctx).Info("Updating binary now", zap.String("PackageName", apply.PackageName), zap.String("Version", apply.Version), zap.String("URL", apply.BinaryURL))
 	uName, _ := permissions.FindUserNameInContext(ctx)
 
 	// Defining new Context
