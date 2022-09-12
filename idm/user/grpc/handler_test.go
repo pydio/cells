@@ -65,8 +65,8 @@ func TestMain(m *testing.M) {
 	autoAppliesCache.Set("autoApplies", map[string][]*idm.Role{
 		"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
 	})
-	c, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, c, configx.New()); e != nil {
+	co, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, co, configx.New()); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(user.DAO)
