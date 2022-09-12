@@ -51,8 +51,7 @@ func init() {
 type Opener struct{}
 
 func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
-	// TODO : transform url parameters to options?
-	return New(ctx), nil
+	return New(ctx, WithAddr(u.Host)), nil
 }
 
 type Server struct {

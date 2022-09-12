@@ -1,8 +1,9 @@
-package conn
+package etcd
 
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 	"github.com/pydio/cells/v4/common/crypto"
 	"google.golang.org/grpc/connectivity"
 	"net"
@@ -14,10 +15,10 @@ import (
 )
 
 func init() {
-	RegisterConnProvider("etcd", newEtcdConn)
+	conn.RegisterConnProvider("etcd", newEtcdConn)
 }
 
-func newEtcdConn(ctx context.Context, c configx.Values) (Conn, error) {
+func newEtcdConn(ctx context.Context, c configx.Values) (conn.Conn, error) {
 	server := c.Val("server").String()
 	port := c.Val("port").String()
 	// db := c.Val("database").Int()

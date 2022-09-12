@@ -43,6 +43,7 @@ func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case sql.DAO:
 		return &sqlimpl{DAO: v}, nil
+
 	}
 	return nil, dao.UnsupportedDriver(o)
 }

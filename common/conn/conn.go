@@ -41,7 +41,7 @@ func GetConnProvider(name string) (Provider, bool) {
 	return p, ok
 }
 
-func addUser(c configx.Values) (string, error) {
+func AddUser(c configx.Values) (string, error) {
 	var buf bytes.Buffer
 
 	user := c.Val("user").String()
@@ -61,7 +61,7 @@ func addUser(c configx.Values) (string, error) {
 	return buf.String(), nil
 }
 
-func addTLS(c configx.Values) (string, error) {
+func AddTLS(c configx.Values) (string, error) {
 
 	store, err := storage.OpenStore(context.Background(), runtime.CertsStoreURL())
 	if err != nil {

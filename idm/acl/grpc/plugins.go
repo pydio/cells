@@ -23,18 +23,12 @@ package grpc
 
 import (
 	"context"
-	"fmt"
-	"github.com/pydio/cells/v4/common/conn"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/utils/configx"
+
 	"google.golang.org/grpc"
-	"os"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/dao/mysql"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -48,57 +42,15 @@ var ServiceName = common.ServiceGrpcNamespace_ + common.ServiceAcl
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-
-		reg, _ := registry.OpenRegistry(ctx, "mem://")
-		srv, _ := server.OpenServer(ctx, "grpc://:8003")
-
-		reg.Register(srv)
-
-		cp, ok := conn.GetConnProvider("sqlite")
-		if !ok {
-			fmt.Println("Failed to get connection")
-			os.Exit(1)
-			return
-		}
-
-		conf := configx.New()
-		conf.Val("dsn").Set("/tmp/test.sqlite")
-		c, err := cp(ctx, conf)
-		if err != nil {
-			fmt.Println("Couldn't get a connection", err)
-			return
-		}
-
-		reg.Register(c)
-
-		sqlDAO, _ := sql.NewDAO(ctx, "sqlite3", "/tmp/test.sqlite", "idm_acl", c)
-		dao, _ := acl.NewDAO(ctx, sqlDAO)
-
-		reg.Register(dao)
-
-		daoitems, _ := reg.List(registry.WithType(pb.ItemType_DAO))
-		for _, item := range daoitems {
-			fmt.Println("We have ", item.ID())
-		}
-
-		items, _ := reg.List(registry.WithType(pb.ItemType_ALL))
-		for _, item := range items {
-			fmt.Println("We have ", item.ID())
-		}
-
-		fmt.Println(c.Stats())
-
-		ctx = servicecontext.WithDAO(ctx, dao)
-
 		service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Access Control List service"),
-			//service.WithStorage(acl.NewDAO,
-			//	service.WithStoragePrefix("idm_acl"),
-			//	service.WithStorageSupport(mysql.Driver),
-			//),
+			service.WithStorage(acl.NewDAO,
+				service.WithStoragePrefix("idm_acl"),
+				service.WithStorageSupport(mysql.Driver),
+			),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.ValidVersion("1.2.0"),
@@ -106,12 +58,7 @@ func init() {
 				},
 			}),
 			service.Metadata(meta.ServiceMetaProvider, "stream"),
-			service.WithGRPC(func(ctx context.Context, _ grpc.ServiceRegistrar) error {
-
-				dao.Init(ctx, conf)
-
-				var server grpc.ServiceRegistrar
-				srv.As(&server)
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(acl.DAO))
 				idm.RegisterACLServiceEnhancedServer(server, handler)
@@ -152,7 +99,5 @@ func init() {
 				return nil
 			}),
 		)
-
-		srv.Serve()
 	})
 }

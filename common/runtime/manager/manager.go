@@ -63,6 +63,12 @@ type Manager interface {
 	WatchServicesConfigs()
 	WatchBroker(ctx context.Context, br broker.Broker) error
 
+	CreateOrGetServer(context.Context, string) (server.Server, error)
+	CreateOrGetConnection(context.Context, string) (conn.Conn, error)
+	CreateEdge(context.Context, string, string, string) (registry.Edge, error)
+	OnEdgeCreated(string, string, func() error)
+	OnEdgeRemoved(string, string, func() error)
+
 	GetRegistry() registry.Registry
 	GetConnection(configx.Values) (conn.Conn, error)
 }
@@ -80,16 +86,20 @@ type manager struct {
 	servers     map[string]server.Server
 	services    map[string]service.Service
 
+	onEdgeCreated map[string]map[string]func() error
+
 	logger log.ZapLogger
 }
 
 func NewManager(ctx *context.Context, regUrl string, srcUrl string, namespace string, logger log.ZapLogger) Manager {
 	m := &manager{
-		ns:       namespace,
-		srcUrl:   srcUrl,
-		servers:  make(map[string]server.Server),
-		services: make(map[string]service.Service),
-		logger:   logger,
+		ns:            namespace,
+		srcUrl:        srcUrl,
+		servers:       make(map[string]server.Server),
+		services:      make(map[string]service.Service),
+		connections:   make(map[string]conn.Conn),
+		onEdgeCreated: make(map[string]map[string]func() error),
+		logger:        logger,
 	}
 
 	*ctx = With(*ctx, m)
@@ -536,4 +546,65 @@ func (m *manager) GetConnection(conf configx.Values) (conn.Conn, error) {
 	}
 
 	return conn, err
+}
+
+func (m *manager) CreateOrGetServer(ctx context.Context, urlstr string) (server.Server, error) {
+	srv, ok := m.servers[urlstr]
+	if ok {
+		return srv, nil
+	}
+
+	srv, err := server.OpenServer(ctx, urlstr)
+	if err != nil {
+		return nil, err
+	}
+
+	m.servers[urlstr] = srv
+	return srv, nil
+}
+
+func (m *manager) CreateOrGetConnection(ctx context.Context, urlstr string) (conn.Conn, error) {
+	c, ok := m.connections[urlstr]
+	if ok {
+		return c, nil
+	}
+
+	c, err := conn.OpenConn(ctx, urlstr)
+	if err != nil {
+		return nil, err
+	}
+
+	m.connections[urlstr] = c
+
+	return c, nil
+}
+
+func (m *manager) OnEdgeCreated(id string, label string, f func() error) {
+	fList, ok := m.onEdgeCreated[id]
+	if !ok {
+		fList = make(map[string]func() error)
+	}
+	fList[label] = f
+	m.onEdgeCreated[id] = fList
+}
+
+func (m *manager) OnEdgeRemoved(id string, label string, f func() error) {
+	// TODO
+}
+
+func (m *manager) CreateEdge(ctx context.Context, id1 string, id2 string, label string) (registry.Edge, error) {
+	edge, err := m.reg.RegisterEdge(id1, id2, label, map[string]string{})
+	if err != nil {
+		return nil, err
+	}
+
+	if fList, ok := m.onEdgeCreated[id1]; ok {
+		if f, ok := fList[label]; ok {
+			if err := f(); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return edge, nil
 }

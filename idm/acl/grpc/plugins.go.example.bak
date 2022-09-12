@@ -1,0 +1,153 @@
+/*
+ * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+// Package grpc provides a service for storing and CRUD-ing ACLs
+package grpc
+
+import (
+	"context"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/nodes/meta"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/runtime/manager"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/idm/acl"
+	"google.golang.org/grpc"
+)
+
+var ServiceName = common.ServiceGrpcNamespace_ + common.ServiceAcl
+
+func init() {
+	runtime.Register("main", func(ctx context.Context) {
+		mgr, _ := manager.Get(ctx)
+		reg := mgr.GetRegistry()
+
+		// Create a service
+		svc := service.NewService(
+			service.Name(ServiceName),
+			service.Context(ctx),
+			service.Tag(common.ServiceTagIdm),
+			service.Description("Access Control List service"),
+			/*service.WithStorage(acl.NewDAO,
+				service.WithStoragePrefix("idm_acl"),
+				service.WithStorageSupport(mysql.Driver),
+			),*/
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.ValidVersion("1.2.0"),
+					Up:            UpgradeTo120,
+				},
+			}),
+			service.Metadata(meta.ServiceMetaProvider, "stream"),
+		)
+		reg.Register(svc)
+
+		// Create the default server
+		srv, _ := mgr.CreateOrGetServer(ctx, "grpc://:8003")
+		reg.Register(srv)
+
+		// Create default storage connection
+		c, _ := mgr.CreateOrGetConnection(ctx, "sqlite:///tmp/test.sqlite")
+		reg.Register(c)
+
+		// Create default handler
+		handler := NewHandler(ctx, nil)
+
+		// Triggered when a new connection is created
+		mgr.OnEdgeCreated(svc.ID(), "Conn", func() error {
+			sqlDAO, _ := sql.NewDAO(ctx, "sqlite3", "/tmp/test.sqlite", "idm_acl", c)
+			dao, _ := acl.NewDAO(ctx, sqlDAO)
+			dao.Init(ctx, configx.New())
+
+			handler.dao = dao.(acl.DAO)
+
+			return nil
+		})
+
+		// Triggered when a new connection is removed
+		mgr.OnEdgeRemoved(svc.ID(), "Conn", func() error {
+			handler.dao = nil
+
+			return nil
+		})
+
+		// Triggered when a service is attached to a new server
+		mgr.OnEdgeCreated(svc.ID(), "Server", func() error {
+			var server grpc.ServiceRegistrar
+			srv.As(&server)
+
+			idm.RegisterACLServiceEnhancedServer(server, handler)
+			tree.RegisterNodeProviderStreamerEnhancedServer(server, handler)
+
+			/* Clean acls on Ws or Roles deletion
+			rCleaner := &WsRolesCleaner{Handler: handler}
+			if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+				ev := &idm.ChangeEvent{}
+				if ct, e := message.Unmarshal(ev); e == nil {
+					return rCleaner.Handle(ct, ev)
+				}
+				return nil
+			}); e != nil {
+				return e
+			}
+
+			nCleaner := newNodesCleaner(ctx, handler)
+			if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(message broker.Message) error {
+				ev := &tree.NodeChangeEvent{}
+				if ct, e := message.Unmarshal(ev); e == nil {
+					return nCleaner.Handle(ct, ev)
+				}
+				return nil
+			}); e != nil {
+				return e
+			}
+
+			*/
+
+			// For when it will be used: clean locks at startup
+			//	dao := servicecontext.GetDAO(m.Options().Context).(acl.DAO)
+			//	if dao != nil {
+			//		q, _ := anypb.New(&idm.ACLSingleQuery{Actions: []*idm.ACLAction{{Name: permissions.AclLock.Name}}})
+			//		if num, _ := dao.Del(&service2.Query{SubQueries: []*anypb.Any{q}}); num > 0 {
+			//			log.Logger(m.Options().Context).Info(fmt.Sprintf("Cleaned %d locks in ACLs", num))
+			//		}
+			//	}
+
+			return nil
+		})
+
+		// Triggered when a service is attached to a new server
+		mgr.OnEdgeRemoved(svc.ID(), "Server", func() error {
+			var server grpc.ServiceRegistrar
+			srv.As(&server)
+
+			idm.DeregisterACLServiceEnhancedServer(server, handler.Name())
+			tree.DeregisterNodeProviderStreamerEnhancedServer(server, handler.Name())
+			return nil
+		})
+
+		mgr.CreateEdge(ctx, svc.ID(), srv.ID(), "Server")
+		mgr.CreateEdge(ctx, svc.ID(), c.ID(), "Conn")
+	})
+}

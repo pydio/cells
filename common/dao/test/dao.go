@@ -3,6 +3,7 @@ package test
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 	"os"
 	"strings"
 
@@ -29,12 +30,17 @@ func OnFileTestDAO(driver, dsn, prefix, altPrefix string, asIndexer bool, wrappe
 		dsn = mongoEnv
 		prefix = altPrefix
 	}
+
+	var c conn.Conn
 	var d dao.DAO
 	var e error
+
+	c, e = conn.InitConn(ctx, driver, dsn)
+
 	if asIndexer {
-		d, e = dao.InitIndexer(ctx, driver, dsn, prefix, wrapper, cfg)
+		d, e = dao.InitIndexer(ctx, driver, dsn, prefix, wrapper, c, cfg)
 	} else {
-		d, e = dao.InitDAO(ctx, driver, dsn, prefix, wrapper, cfg)
+		d, e = dao.InitDAO(ctx, driver, dsn, prefix, wrapper, c, cfg)
 	}
 	if e != nil {
 		return nil, nil, e

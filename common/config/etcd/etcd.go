@@ -24,8 +24,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/utils/std"
 	"net/url"
 	"strings"
 	"sync"
@@ -37,7 +35,9 @@ import (
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (

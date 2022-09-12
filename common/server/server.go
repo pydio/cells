@@ -52,6 +52,9 @@ type Server interface {
 
 	Is(status registry.Status) bool
 	NeedsRestart() bool
+
+	BeforeServe(func(...registry.RegisterOption) error)
+	AfterServe(func(...registry.RegisterOption) error)
 }
 
 type Type int8
@@ -65,10 +68,11 @@ const (
 )
 
 type server struct {
-	s      RawServer
-	opts   *Options
-	status registry.Status
-	links  []registry.Item
+	s         RawServer
+	opts      *Options
+	serveOpts *ServeOptions
+	status    registry.Status
+	links     []registry.Item
 }
 
 func NewServer(ctx context.Context, s RawServer) Server {
@@ -78,7 +82,8 @@ func NewServer(ctx context.Context, s RawServer) Server {
 		opts: &Options{
 			Context: ctx,
 		},
-		status: registry.StatusStopped,
+		serveOpts: &ServeOptions{},
+		status:    registry.StatusStopped,
 	}
 
 	if reg := servercontext.GetRegistry(ctx); reg != nil {
@@ -97,7 +102,7 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 			outErr = errors.Wrap(outErr, "server.Start "+s.Name())
 		}
 	}()
-	opt := &ServeOptions{}
+	opt := s.serveOpts
 	for _, o := range oo {
 		o(opt)
 	}
@@ -210,4 +215,12 @@ func (s *server) As(i interface{}) bool {
 	}
 
 	return s.s.As(i)
+}
+
+func (s *server) BeforeServe(f func(...registry.RegisterOption) error) {
+	s.serveOpts.BeforeServe = append(s.serveOpts.BeforeServe, f)
+}
+
+func (s *server) AfterServe(f func(...registry.RegisterOption) error) {
+	s.serveOpts.AfterServe = append(s.serveOpts.AfterServe, f)
 }
