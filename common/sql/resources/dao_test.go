@@ -22,6 +22,7 @@ package resources
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -38,7 +39,8 @@ func TestQueryResourceForAction(t *testing.T) {
 	}
 	ctx := context.Background()
 
-	d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "", wrapper)
+	c, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "", wrapper, c)
 	if e != nil {
 		panic(e)
 	}
