@@ -27,6 +27,7 @@ import ReactMarkdown from 'react-markdown';
 const {Timeline, UserAvatar} = Pydio.requireLib('components');
 const {moment} = Pydio.requireLib('boot')
 import PathUtils from 'pydio/util/path'
+import debounce from 'lodash.debounce'
 
 const UserLinkWrapper = ({href, children}) => {
     if (href.startsWith('user://')) {
@@ -54,11 +55,18 @@ class Revisions extends Component {
             revs: [],
             selection: props.preselection
         }
+        this._bload = debounce(this.load.bind(this), 1500)
         this.load()
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if(prevProps.node !== this.props.node) {
+            if(prevProps.node) {
+                prevProps.node.stopObserving('node_replaced', this._bload)
+            }
+            if(this.props.node) {
+                this.props.node.observe('node_replaced', this._bload)
+            }
             this.load()
         }
     }
@@ -70,7 +78,7 @@ class Revisions extends Component {
 
     load() {
         const {node} = this.props;
-        const provider = new MetaNodeProvider({versions:'true',file:node.getPath()});
+        const provider = new MetaNodeProvider({versions:'true',file:node.getPath(), silent:true});
         const versionsRoot = new Node("/", false, "Versions", "folder.png", provider);
         this.setState({empty: false})
         provider.loadNode(versionsRoot, (n) => {

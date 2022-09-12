@@ -115,7 +115,9 @@ export default class MetaNodeProvider{
             request.Versions = true;
             request.NodePaths = [slug + this.properties.get('file')];
         }
-        Pydio.startLoading();
+        if(!this.properties.has('silent')) {
+            Pydio.startLoading();
+        }
         api.getBulkMeta(request).then(res => {
             Pydio.endLoading();
             let origNode;
