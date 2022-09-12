@@ -22,11 +22,12 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 	"sync"
 	"testing"
 
-	"github.com/spf13/viper"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/anypb"
 
@@ -34,10 +35,10 @@ import (
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/idm/role"
 	"github.com/pydio/cells/v4/common/runtime"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/idm/role"
 )
 
 var (
@@ -58,7 +59,8 @@ func TestMain(m *testing.M) {
 	options.Val("exclusive").Set(true)
 	options.Val("prepare").Set(true)
 	// Instantiate and initialise the role DAO Mock
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "", role.NewDAO, options); e != nil {
+	c, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "", role.NewDAO, c, options); e != nil {
 		panic(e)
 	} else {
 		roleDAO = d.(role.DAO)

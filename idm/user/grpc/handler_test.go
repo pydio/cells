@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 	"sync"
 	"testing"
 
@@ -55,7 +56,7 @@ func TestMain(m *testing.M) {
 	v.SetDefault(runtime.KeyShortCache, "pm://")
 	runtime.SetRuntime(v)
 
-	c, err := cache.OpenCache(context.TODO(),  "pm://?evictionTime=3600s&cleanWindow=7200s")
+	c, err := cache.OpenCache(context.TODO(), "pm://?evictionTime=3600s&cleanWindow=7200s")
 	if err != nil {
 		panic(err)
 	}
@@ -64,8 +65,8 @@ func TestMain(m *testing.M) {
 	autoAppliesCache.Set("autoApplies", map[string][]*idm.Role{
 		"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
 	})
-
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, configx.New()); e != nil {
+	c, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, c, configx.New()); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(user.DAO)

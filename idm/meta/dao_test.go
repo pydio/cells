@@ -22,6 +22,7 @@ package meta
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -31,9 +32,9 @@ import (
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/runtime"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
@@ -49,7 +50,8 @@ func TestMain(m *testing.M) {
 
 	var options = configx.New()
 
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_meta", NewDAO, options); e != nil {
+	c, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_meta", NewDAO, c, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(DAO)

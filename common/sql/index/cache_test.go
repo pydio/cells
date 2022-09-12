@@ -24,6 +24,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 	"log"
 	"math/rand"
 	osruntime "runtime"
@@ -59,7 +60,12 @@ func TestMain(m *testing.M) {
 		return NewDAO(d, "ROOT"), nil
 	}
 	var e error
-	if baseCacheDAO, e = dao.InitDAO(context.Background(), sqlite.Driver, sqlite.SharedMemDSN, "test", wrapper, options); e != nil {
+	ctx := context.Background()
+	connDao, e := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	if e != nil {
+		panic(e)
+	}
+	if baseCacheDAO, e = dao.InitDAO(context.Background(), sqlite.Driver, sqlite.SharedMemDSN, "test", wrapper, connDao, options); e != nil {
 		panic(e)
 	}
 	m.Run()

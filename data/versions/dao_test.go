@@ -22,6 +22,7 @@ package versions
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 	"log"
 	"os"
 	"path/filepath"
@@ -43,7 +44,8 @@ func TestNewBoltStore(t *testing.T) {
 
 	Convey("Test NewBoltStore", t, func() {
 		p := filepath.Join(os.TempDir(), "bolt-test1.db")
-		bd, _ := boltdb.NewDAO(ctx, "boltdb", p, "test")
+		c, _ := conn.InitConn(ctx, "boltdb", p)
+		bd, _ := boltdb.NewDAO(ctx, "boltdb", p, "test", c)
 		bs, e := NewBoltStore(bd.(boltdb.DAO), p, true)
 		So(e, ShouldBeNil)
 		So(bs, ShouldNotBeNil)

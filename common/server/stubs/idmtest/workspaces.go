@@ -22,6 +22,7 @@ package idmtest
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common/dao"
@@ -35,8 +36,8 @@ import (
 
 func NewWorkspacesService(ww ...*idm.Workspace) (grpc.ClientConnInterface, error) {
 	ctx := context.Background()
-
-	mockDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_workspace", workspace.NewDAO, configx.New())
+	c, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	mockDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_workspace", workspace.NewDAO, c, configx.New())
 	if e != nil {
 		return nil, e
 	}

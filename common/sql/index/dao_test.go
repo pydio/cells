@@ -24,6 +24,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/spf13/viper"
 	"log"
@@ -35,10 +36,10 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/mtree"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 )
 
 var (
@@ -59,7 +60,11 @@ func init() {
 		return NewDAO(d, "ROOT"), nil
 	}
 
-	d, er := dao.InitDAO(ctx, sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test", wrapper, options)
+	connDao, e := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	if e != nil {
+		panic(e)
+	}
+	d, er := dao.InitDAO(ctx, sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test", wrapper, connDao, options)
 	if er != nil {
 		panic(er)
 	} else {

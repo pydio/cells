@@ -23,6 +23,7 @@ package datatest
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 
 	"google.golang.org/grpc"
 
@@ -38,7 +39,12 @@ import (
 func NewMetaService(nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
 	ctx := context.Background()
 
-	sqlDao, er := sql.NewDAO(ctx, "sqlite3", "file::memory:?mode=memory&cache=shared", "data_meta_")
+	connDao, er := conn.InitConn(ctx, "sqlite3", "file::memory:?mode=memory&cache=shared")
+	if er != nil {
+		return nil, er
+	}
+
+	sqlDao, er := sql.NewDAO(ctx, "sqlite3", "file::memory:?mode=memory&cache=shared", "data_meta_", connDao)
 	if er != nil {
 		return nil, er
 	}

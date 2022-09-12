@@ -23,6 +23,7 @@ package key
 import (
 	"context"
 	"encoding/base64"
+	"github.com/pydio/cells/v4/common/conn"
 	"log"
 	"testing"
 	"time"
@@ -53,7 +54,8 @@ func GetDAO(t *testing.T) DAO {
 	}
 
 	var options = configx.New()
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_key_test", NewDAO, options); e != nil {
+	c, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_key_test", NewDAO, c, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(DAO)

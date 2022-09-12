@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 	"testing"
 	"time"
 
@@ -43,8 +44,8 @@ var (
 
 func TestMain(m *testing.M) {
 	options := configx.New()
-
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", meta.NewDAO, options); e != nil {
+	c, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", meta.NewDAO, c, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(meta.DAO)

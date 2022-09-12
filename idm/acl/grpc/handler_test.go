@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 	"sync"
 	"testing"
 
@@ -48,7 +49,8 @@ var (
 func TestMain(m *testing.M) {
 
 	ctx = context.Background()
-	d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test_", acl.NewDAO, options)
+	c, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test_", acl.NewDAO, c, options)
 	if e != nil {
 		panic(e)
 	}

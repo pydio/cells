@@ -23,6 +23,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/spf13/viper"
 	"io"
@@ -38,10 +39,10 @@ import (
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/source/index"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 
 	_ "gocloud.dev/pubsub/mempubsub"
 )
@@ -121,7 +122,8 @@ func TestMain(m *testing.M) {
 	options := configx.New()
 	c := context.Background()
 
-	if d, e := dao.InitDAO(c, sqlite.Driver, sqlite.SharedMemDSN, "test", index.NewDAO, options); e != nil {
+	co, _ := conn.InitConn(c, sqlite.Driver, sqlite.SharedMemDSN)
+	if d, e := dao.InitDAO(c, sqlite.Driver, sqlite.SharedMemDSN, "test", index.NewDAO, co, options); e != nil {
 		panic(e)
 	} else {
 		indexDAO = d.(index.DAO)
@@ -690,7 +692,6 @@ func BenchmarkIndexCancel(b *testing.B) {
 		}
 		fmt.Println(nodes)*/
 	}
-
 
 }
 

@@ -25,6 +25,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/spf13/viper"
 	"log"
@@ -38,9 +39,9 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/sql"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/mtree"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
 
 // FIXME: FAILING TEST
@@ -106,11 +107,11 @@ func TestMain(m *testing.M) {
 	v.SetDefault(runtime.KeyShortCache, "pm://")
 	runtime.SetRuntime(v)
 
-	c := context.Background()
-	if d, e := dao.InitDAO(c, sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
+	c, _ := conn.InitConn(context.Background(), sqlite.Driver, sqlite.SharedMemDSN)
+	if d, e := dao.InitDAO(context.Background(), sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, c, options); e != nil {
 		panic(e)
 	} else {
-		ctx = servicecontext.WithDAO(c, d)
+		ctx = servicecontext.WithDAO(context.Background(), d)
 	}
 
 	m.Run()

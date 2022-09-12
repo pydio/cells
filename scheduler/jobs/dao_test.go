@@ -23,6 +23,7 @@ package jobs
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 	"log"
 	"os"
 	"path/filepath"
@@ -47,7 +48,8 @@ func TestNewBoltStore(t *testing.T) {
 	Convey("Test open bolt db", t, func() {
 		dbFile := os.TempDir() + "/bolt-test.db"
 		ctx := context.Background()
-		dao, _ := boltdb.NewDAO(ctx, "boltdb", dbFile, "test-jobs")
+		c, _ := conn.InitConn(ctx, "boltdb", dbFile)
+		dao, _ := boltdb.NewDAO(ctx, "boltdb", dbFile, c, "test-jobs")
 		defer os.Remove(dbFile)
 		db, err := NewBoltStore(dao.(boltdb.DAO))
 		defer dao.CloseConn(ctx)

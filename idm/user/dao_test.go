@@ -22,6 +22,7 @@ package user
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 	"log"
 	"sync"
 	"testing"
@@ -57,7 +58,8 @@ func TestMain(m *testing.M) {
 
 	var options = configx.New()
 	ctx := context.Background()
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", NewDAO, options); e != nil {
+	c, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", NewDAO, c, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(DAO)

@@ -23,6 +23,7 @@ package log
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 	"os"
 	"path/filepath"
 	"testing"
@@ -126,7 +127,8 @@ func TestSizeRotation(t *testing.T) {
 		fmt.Println("Storing temporary index in", p)
 		dsn := p + fmt.Sprintf("?mapping=log&batchSize=2500&rotationSize=%d", 1*1024*1024)
 
-		dao, _ := bleve.NewDAO(ctx, "bleve", dsn, "")
+		c, _ := conn.InitConn(ctx, "bleve", dsn)
+		dao, _ := bleve.NewDAO(ctx, "bleve", dsn, "", c)
 		idx, _ := bleve.NewIndexer(ctx, dao)
 		idx.SetCodex(&BleveCodec{})
 		So(idx.Init(ctx, configx.New()), ShouldBeNil)
@@ -171,8 +173,8 @@ func TestSizeRotation(t *testing.T) {
 		<-time.After(5 * time.Second)
 
 		// Re-open with same data and carry one feeding with logs
-
-		dao, _ = bleve.NewDAO(ctx, "bleve", dsn, "")
+		c, _ = conn.InitConn(ctx, "bleve", dsn)
+		dao, _ = bleve.NewDAO(ctx, "bleve", dsn, "", c)
 		idx, _ = bleve.NewIndexer(ctx, dao)
 		idx.SetCodex(&BleveCodec{})
 		_ = idx.Init(ctx, configx.New())

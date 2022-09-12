@@ -22,6 +22,7 @@ package datatest
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 
 	"google.golang.org/grpc"
 
@@ -41,7 +42,8 @@ func NewIndexService(dsName string, nodes ...*tree.Node) (grpc.ClientConnInterfa
 
 	ctx := context.Background()
 
-	mockDAO, er := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "data_index_"+dsName, index.NewDAO, configx.New())
+	connDao, er := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	mockDAO, er := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "data_index_"+dsName, index.NewDAO, connDao, configx.New())
 	if er != nil {
 		return nil, er
 	}

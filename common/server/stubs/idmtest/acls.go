@@ -22,6 +22,7 @@ package idmtest
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common/dao"
@@ -36,7 +37,8 @@ import (
 func NewACLService(acls ...*idm.ACL) (grpc.ClientConnInterface, error) {
 
 	ctx := context.Background()
-	mockDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_acl", acl.NewDAO, configx.New())
+	c, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	mockDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_acl", acl.NewDAO, c, configx.New())
 	if e != nil {
 		return nil, e
 	}

@@ -25,6 +25,8 @@ import (
 	"database/sql"
 	"net/url"
 
+	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/pydio/cells/v4/common/conn"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
@@ -33,8 +35,8 @@ import (
 )
 
 func init() {
-	conn.DefaultURLMux().Register("sqlite", &sqliteOpener{})
-	conn.RegisterConnProvider("sqlite", newSQLiteConn)
+	conn.DefaultURLMux().Register("sqlite3", &sqliteOpener{})
+	conn.RegisterConnProvider("sqlite3", newSQLiteConn)
 }
 
 type sqliteOpener struct{}

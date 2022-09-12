@@ -21,12 +21,13 @@ package role
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 	"sync"
 	"testing"
 	"time"
 
-	"github.com/spf13/viper"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/spf13/viper"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	// Run tests against SQLite
@@ -34,12 +35,12 @@ import (
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
-	"github.com/pydio/cells/v4/common/runtime"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
 
 var (
@@ -55,8 +56,8 @@ func TestMain(m *testing.M) {
 	runtime.SetRuntime(v)
 
 	var options = configx.New()
-
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, options); e != nil {
+	c, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, c, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(DAO)

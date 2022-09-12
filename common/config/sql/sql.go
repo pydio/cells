@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"github.com/pydio/cells/v4/common/conn"
 
 	migrate "github.com/rubenv/sql-migrate"
 
@@ -45,13 +46,21 @@ func New(ctx context.Context, driver string, dsn string, prefix string) (configx
 	var de error
 	switch driver {
 	case "mysql":
-		c, er := sql.NewDAO(ctx, driver, dsn, prefix)
+		co, er := conn.InitConn(ctx, driver, dsn)
+		if er != nil {
+			return nil, er
+		}
+		c, er := sql.NewDAO(ctx, driver, dsn, prefix, co)
 		if er != nil {
 			return nil, er
 		}
 		d, de = NewDAO(ctx, c)
 	case "sqlite3":
-		c, er := sql.NewDAO(ctx, driver, dsn, prefix)
+		co, er := conn.InitConn(ctx, driver, dsn)
+		if er != nil {
+			return nil, er
+		}
+		c, er := sql.NewDAO(ctx, driver, dsn, prefix, co)
 		if er != nil {
 			return nil, er
 		}

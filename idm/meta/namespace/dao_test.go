@@ -22,21 +22,21 @@ package namespace
 
 import (
 	"context"
-
+	"github.com/pydio/cells/v4/common/conn"
 
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/spf13/viper"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
-	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -51,7 +51,8 @@ func TestMain(m *testing.M) {
 
 	var options = configx.New()
 	ctx := context.Background()
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
+	c, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, c, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(DAO)
