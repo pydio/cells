@@ -23,6 +23,7 @@ package activity
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/conn"
 	"log"
 	"os"
 	"path"
@@ -70,20 +71,23 @@ func TestBoltEmptyDao(t *testing.T) {
 
 	Convey("Test initialize DB", t, func() {
 		defer os.Remove(tmpDbFilePath)
-		dao, _ := boltdb.NewDAO(ctx, "boltdb", tmpDbFilePath, "")
+		c, _ := conn.InitConn(ctx, "boltdb", tmpDbFilePath)
+		dao, _ := boltdb.NewDAO(ctx, "boltdb", tmpDbFilePath, "", c)
 		So(dao, ShouldNotBeNil)
 		defer dao.CloseConn(ctx)
 	})
 
 	Convey("Test unreachable file", t, func() {
 		dbFile := os.TempDir() + "/anynonexisting/folder/toto.db"
-		dao, _ := boltdb.NewDAO(ctx, "boltdb", dbFile, "")
+		c, _ := conn.InitConn(ctx, "boltdb", dbFile)
+		dao, _ := boltdb.NewDAO(ctx, "boltdb", dbFile, "", c)
 		So(dao, ShouldBeNil)
 	})
 
 	Convey("Test getBucket - read - not exists", t, func() {
 		defer os.Remove(tmpDbFilePath)
-		tmpdao, _ := boltdb.NewDAO(ctx, "boltdb", tmpDbFilePath, "")
+		c, _ := conn.InitConn(ctx, "boltdb", tmpDbFilePath)
+		tmpdao, _ := boltdb.NewDAO(ctx, "boltdb", tmpDbFilePath, "", c)
 		da, _ := NewDAO(ctx, tmpdao)
 		dao := da.(DAO)
 		So(dao.Init(ctx, conf), ShouldBeNil)
@@ -101,7 +105,8 @@ func TestBoltMassivePurge(t *testing.T) {
 	tmpMassivePurge := path.Join(os.TempDir(), "bolt-test-massive.db")
 	t.Log("MASSIVE DB AT", tmpMassivePurge)
 	defer os.Remove(tmpMassivePurge)
-	tmpdao, _ := boltdb.NewDAO(ctx, "boltdb", tmpMassivePurge, "")
+	c, _ := conn.InitConn(ctx, "boltdb", tmpMassivePurge)
+	tmpdao, _ := boltdb.NewDAO(ctx, "boltdb", tmpMassivePurge, "", c)
 	da, _ := NewDAO(ctx, tmpdao)
 	dao := da.(DAO)
 	_ = dao.Init(ctx, conf)

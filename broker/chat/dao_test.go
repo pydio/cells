@@ -22,6 +22,7 @@ package chat
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/conn"
 	"os"
 	"testing"
 	"time"
@@ -46,7 +47,8 @@ func TestMongoDAO_Init(t *testing.T) {
 		return
 	}
 
-	h, _ := mongodb.NewDAO(ctx, "mongodb", mDsn, "chat-test")
+	c, _ := conn.InitConn(ctx, "mongodb", mDsn)
+	h, _ := mongodb.NewDAO(ctx, "mongodb", mDsn, "chat-test", c)
 	ma, _ := NewDAO(ctx, h)
 	m := ma.(DAO)
 	conf := configx.New()

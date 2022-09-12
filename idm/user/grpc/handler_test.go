@@ -80,7 +80,8 @@ func TestLoginCIDAO(t *testing.T) {
 
 	cfg := configx.New()
 	_ = cfg.Val("loginCI").Set(true)
-	ciDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, cfg)
+	co, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	ciDAO, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, co, cfg)
 	if e != nil {
 		t.Fail()
 		return

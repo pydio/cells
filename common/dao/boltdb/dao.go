@@ -23,6 +23,7 @@ package boltdb
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/pydio/cells/v4/common/conn"
 	"github.com/pydio/cells/v4/common/registry/util"
@@ -81,6 +82,9 @@ type Handler struct {
 
 // NewDAO creates a new handler for the boltdb dao
 func NewDAO(ctx context.Context, driver string, dsn string, prefix string, c conn.Conn) (dao.DAO, error) {
+	if c == nil {
+		return nil, errors.New("no conn available")
+	}
 	return &Handler{
 		DAO:        dao.AbstractDAO(c, driver, dsn, prefix),
 		runtimeCtx: ctx,
