@@ -72,10 +72,11 @@ class Revisions extends Component {
         const {node} = this.props;
         const provider = new MetaNodeProvider({versions:'true',file:node.getPath()});
         const versionsRoot = new Node("/", false, "Versions", "folder.png", provider);
+        this.setState({empty: false})
         provider.loadNode(versionsRoot, (n) => {
             const revs = [];
             n.getChildren().forEach(c => revs.push(c));
-            this.setState({loading: false, revs});
+            this.setState({loading: false, revs, empty: !revs.length});
         })
     }
 
@@ -130,9 +131,11 @@ class Revisions extends Component {
     }
 
     render() {
-        const {loading, revs, selection} = this.state;
+        const {loading, revs, selection, empty} = this.state;
         if (loading) {
             return <div style={{textAlign:'center', fontWeight: 500, opacity: 0.3, padding: 20}}>{Pydio.getMessages()['466']}</div>
+        } else if (empty) {
+            return <div style={{textAlign:'center', fontWeight: 500, opacity: 0.3, padding: 20, paddingBottom: 30}}>{this.getMessage('14')}</div>
         }
         const {className='', onClick} = this.props;
 

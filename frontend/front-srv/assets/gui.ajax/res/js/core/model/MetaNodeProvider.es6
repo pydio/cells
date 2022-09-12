@@ -120,7 +120,8 @@ export default class MetaNodeProvider{
             Pydio.endLoading();
             let origNode;
             let childrenNodes = [];
-            res.Nodes.map(n => {
+            const reNodes = res.Nodes || [];
+            reNodes.map(n => {
                 let newNode;
                 try{
                     newNode = MetaNodeProvider.parseTreeNode(n, slug);
