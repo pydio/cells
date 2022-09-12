@@ -577,6 +577,7 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 	if er := dup.Close(ctx); er != nil {
 		return er
 	}
+
 	<-time.After(5 * time.Second) // Make sure original is closed
 
 	logger("Removing old indexes")

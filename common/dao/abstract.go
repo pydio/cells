@@ -121,7 +121,7 @@ func (h *abstract) SetConn(_ context.Context, conn conn.Conn) {
 func (h *abstract) CloseConn(ctx context.Context) error {
 	// TODO
 	// return closeConn(ctx, h.conn)
-	return nil
+	return h.conn.Close()
 }
 
 // LocalAccess returns false by default, can be overridden by implementations

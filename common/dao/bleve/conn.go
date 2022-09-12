@@ -95,5 +95,5 @@ func (c *bleveConn) Stats() map[string]interface{} {
 }
 
 func (c *bleveConn) Close() error {
-	return nil
+	return c.Index.Close()
 }

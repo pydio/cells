@@ -170,6 +170,8 @@ func TestSizeRotation(t *testing.T) {
 		So(m["indexes"], ShouldHaveLength, 9)
 
 		s.Close(ctx)
+		c.Close()
+
 		<-time.After(5 * time.Second)
 
 		// Re-open with same data and carry one feeding with logs
