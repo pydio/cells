@@ -136,7 +136,7 @@ func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, error) {
 			return nil
 		})
 		if e != nil {
-			log.Logger(servicecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceVersions)).Error("listVersions", zap.Error(e))
+			log.Logger(servicecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceVersions)).Warn("ListVersions", zap.Error(e))
 		}
 
 	}()

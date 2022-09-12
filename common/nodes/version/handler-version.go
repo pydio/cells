@@ -24,17 +24,14 @@ import (
 	"context"
 	"io"
 
-	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
-
-	"github.com/pydio/cells/v4/common/nodes/abstract"
-
-	"github.com/pydio/cells/v4/common/nodes"
-
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
@@ -207,7 +204,7 @@ func (v *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 		}
 		requestData.Metadata[common.XAmzMetaNodeUuid] = from.Uuid // Make sure to keep Uuid!
 		if h := vResp.GetVersion().GetLocation().GetStringMeta(common.MetaNamespaceHash); h != "" {
-			log.Logger(ctx).Info("Setting MetaNamespaceHash in CopyRequest meta")
+			// log.Logger(ctx).Info("Setting MetaNamespaceHash in CopyRequest meta")
 			requestData.Metadata[common.MetaNamespaceHash] = h
 		}
 		from = vResp.GetVersion().GetLocation()

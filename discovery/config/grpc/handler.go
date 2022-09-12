@@ -61,7 +61,11 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.Delete
 }
 
 func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Config_WatchServer) error {
-	w, err := config.Watch(configx.WithPath(req.GetPath()))
+	var opts []configx.WatchOption
+	if req.GetPath() != "" && req.GetPath() != "/" {
+		opts = append(opts, configx.WithPath(req.GetPath()))
+	}
+	w, err := config.Watch(opts...)
 	if err != nil {
 		return err
 	}
