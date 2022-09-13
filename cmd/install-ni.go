@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/go-sql-driver/mysql"
 	"io/ioutil"
 	"log"
 	"os"
@@ -278,6 +279,28 @@ func unmarshallConf() (*NiInstallConfig, error) {
 		if lang, o := confFromFile.CustomConfigs["frontend/plugin/core.pydio/DEFAULT_LANGUAGE"]; o {
 			confFromFile.FrontendDefaultLanguage = lang.(string)
 		}
+	}
+
+	conf := mysql.NewConfig()
+	switch confFromFile.DbConnectionType {
+	case "tcp":
+		conf.Net = "tcp"
+		conf.Addr = fmt.Sprintf("%s:%s", confFromFile.GetDbTCPHostname(), confFromFile.GetDbTCPPort())
+		conf.DBName = confFromFile.DbTCPName
+		conf.User = confFromFile.DbTCPUser
+		conf.Passwd = confFromFile.DbTCPPassword
+	case "socket":
+		conf.Net = "socket"
+		conf.DBName = confFromFile.DbSocketName
+		conf.Addr = confFromFile.DbSocketFile
+		conf.User = confFromFile.DbSocketUser
+		conf.Passwd = confFromFile.DbSocketPassword
+	default:
+	}
+
+	if confFromFile.DbManualDSN == "" {
+		confFromFile.DbConnectionType = "manual"
+		confFromFile.DbManualDSN = conf.FormatDSN()
 	}
 
 	fmt.Printf("... Install config loaded from %s \n", path)
