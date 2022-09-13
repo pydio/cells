@@ -25,6 +25,7 @@ import (
 	"io"
 	"path"
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -206,6 +207,9 @@ func (s *CacheHandler) cacheDiff(ctx context.Context, path string) (*cacheDiff, 
 
 func (s *CacheHandler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...grpc.CallOption) (*tree.CreateNodeResponse, error) {
 	r, e := s.Next.CreateNode(ctx, in, opts...)
+	if nodes.IsFlatStorage(ctx, "in") {
+		return r, e
+	}
 	if e == nil {
 		s.cacheAdd(ctx, r.GetNode())
 	}
@@ -214,13 +218,17 @@ func (s *CacheHandler) CreateNode(ctx context.Context, in *tree.CreateNodeReques
 
 func (s *CacheHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...grpc.CallOption) (*tree.DeleteNodeResponse, error) {
 	r, e := s.Next.DeleteNode(ctx, in, opts...)
-	if e == nil {
+	if e == nil && !nodes.IsFlatStorage(ctx, "in") {
 		s.cacheDel(ctx, in.GetNode())
+		time.Sleep(250 * time.Millisecond)
 	}
 	return r, e
 }
 
 func (s *CacheHandler) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest, opts ...grpc.CallOption) (*tree.UpdateNodeResponse, error) {
+	if nodes.IsFlatStorage(ctx, "from") && nodes.IsFlatStorage(ctx, "to") {
+		return s.Next.UpdateNode(ctx, in, opts...)
+	}
 	resp, err := s.Next.UpdateNode(ctx, in, opts...)
 	if err != nil {
 		return nil, err
@@ -233,6 +241,9 @@ func (s *CacheHandler) UpdateNode(ctx context.Context, in *tree.UpdateNodeReques
 
 func (s *CacheHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...grpc.CallOption) (tree.NodeProvider_ListNodesClient, error) {
 	r, e := s.Next.ListNodes(ctx, in, opts...)
+	if nodes.IsFlatStorage(ctx, "in") {
+		return r, e
+	}
 	if e != nil {
 		if _, o := s.cacheGet(ctx, in.GetNode().GetPath()); o {
 			emptyMock := nodes.NewWrappingStreamer(ctx)
@@ -268,6 +279,9 @@ func (s *CacheHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest,
 
 func (s *CacheHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	w, e := s.Next.PutObject(ctx, node, reader, requestData)
+	if nodes.IsFlatStorage(ctx, "in") {
+		return w, e
+	}
 	if e == nil {
 		newNode := node.Clone()
 		newNode.Size = w.Size
@@ -279,6 +293,9 @@ func (s *CacheHandler) PutObject(ctx context.Context, node *tree.Node, reader io
 func (s *CacheHandler) MultipartComplete(ctx context.Context, target *tree.Node, uploadID string, uploadedParts []models.MultipartObjectPart) (models.ObjectInfo, error) {
 	log.Logger(ctx).Info("[SynchronousCache] MultipartComplete", target.Zap())
 	o, e := s.Next.MultipartComplete(ctx, target, uploadID, uploadedParts)
+	if nodes.IsFlatStorage(ctx, "in") {
+		return o, e
+	}
 	if e == nil {
 		updatedNode := target.Clone()
 		updatedNode.Size = o.Size
@@ -291,6 +308,9 @@ func (s *CacheHandler) MultipartComplete(ctx context.Context, target *tree.Node,
 
 func (s *CacheHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...grpc.CallOption) (*tree.ReadNodeResponse, error) {
 	resp, e := s.Next.ReadNode(ctx, in, opts...)
+	if nodes.IsFlatStorage(ctx, "in") {
+		return resp, e
+	}
 	notFound := e != nil && (errors.FromError(e).Code == 404 || strings.Contains(e.Error(), " NotFound "))
 	tempo := e == nil && resp.Node.GetEtag() == "temporary"
 	out, isCached := s.cacheGet(ctx, in.Node.GetPath())
