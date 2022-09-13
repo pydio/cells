@@ -23,7 +23,6 @@ package dao
 import (
 	"context"
 	"github.com/pydio/cells/v4/common/conn"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"log"
 	"os"
 	"path/filepath"
@@ -139,7 +138,7 @@ func TestNewBleveEngine(t *testing.T) {
 
 		cfg := configx.New()
 		ctx := context.Background()
-		c, _ := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+		c, _ := conn.InitConn(ctx, "bleve", filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node")
 		dao, _ := bleve.NewDAO(ctx, "bleve", filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node", "", c)
 		idx, _ := bleve.NewIndexer(ctx, dao)
 		idx.SetCodex(&bleve2.Codec{})

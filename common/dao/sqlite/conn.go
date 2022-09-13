@@ -25,6 +25,7 @@ import (
 	"database/sql"
 	"net/url"
 
+	_ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/pydio/cells/v4/common/conn"
