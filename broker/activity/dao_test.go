@@ -491,10 +491,14 @@ func TestPurge(t *testing.T) {
 		_ = dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac2, false)
 		_ = dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac1, false)
 
+		results, err := listJohn()
+		So(err, ShouldBeNil)
+		So(results, ShouldHaveLength, 4)
+
 		err = dao.Purge(nil, logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Time{}, true, true)
 		So(err, ShouldBeNil)
 
-		results, err := listJohn()
+		results, err = listJohn()
 		So(err, ShouldBeNil)
 		So(results, ShouldHaveLength, 4)
 

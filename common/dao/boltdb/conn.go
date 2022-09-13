@@ -22,11 +22,9 @@ package boltdb
 
 import (
 	"context"
-	bolt "go.etcd.io/bbolt"
-	"time"
-
 	"github.com/pydio/cells/v4/common/conn"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	bolt "go.etcd.io/bbolt"
 )
 
 func init() {
@@ -36,9 +34,11 @@ func init() {
 func newBoltDBConn(ctx context.Context, c configx.Values) (conn.Conn, error) {
 	file := c.Val("dsn").String()
 
-	opt := *bolt.DefaultOptions
-	opt.Timeout = 20 * time.Second
-	db, err := bolt.Open(file, 0600, &opt)
+	return newBoltDB(ctx, file, bolt.DefaultOptions)
+}
+
+func newBoltDB(ctx context.Context, file string, opt *bolt.Options) (conn.Conn, error) {
+	db, err := bolt.Open(file, 0600, opt)
 	if err != nil {
 		return nil, err
 	}

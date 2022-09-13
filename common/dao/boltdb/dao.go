@@ -128,10 +128,12 @@ func (h *Handler) Compact(ctx context.Context, opts map[string]interface{}) (old
 	base = strings.TrimSuffix(base, ext)
 
 	copyPath := filepath.Join(dir, base+"-compact-copy"+ext)
-	copyDB, e := bolt.Open(copyPath, 0600, &bolt.Options{Timeout: 5 * time.Second})
+	c, e := newBoltDB(ctx, copyPath, &bolt.Options{Timeout: 5 * time.Second})
 	if e != nil {
 		return 0, 0, e
 	}
+	var copyDB *bolt.DB
+	c.As(&copyDB)
 	if e := copyDB.Update(func(txW *bolt.Tx) error {
 		return db.View(func(txR *bolt.Tx) error {
 			return txR.ForEach(func(name []byte, b *bolt.Bucket) error {
@@ -143,11 +145,11 @@ func (h *Handler) Compact(ctx context.Context, opts map[string]interface{}) (old
 			})
 		})
 	}); e != nil {
-		copyDB.Close()
+		c.Close()
 		os.Remove(copyPath)
 		return 0, 0, e
 	}
-	copyDB.Close()
+	c.Close()
 
 	if e := h.CloseConn(ctx); e != nil {
 		return 0, 0, e
@@ -159,10 +161,12 @@ func (h *Handler) Compact(ctx context.Context, opts map[string]interface{}) (old
 	if er := os.Rename(copyPath, p); er != nil {
 		return 0, 0, er
 	}
-	if copyDB, e = bolt.Open(p, 0600, &bolt.Options{Timeout: 5 * time.Second}); e != nil {
+
+	if c, e := newBoltDB(ctx, p, &bolt.Options{Timeout: 5 * time.Second}); e != nil {
 		return 0, 0, e
+	} else {
+		h.SetConn(ctx, c)
 	}
-	// h.SetConn(ctx, copyDB)
 	if opts != nil {
 		if clear, ok := opts["ClearBackup"]; ok {
 			if c, o := clear.(bool); o && c {
