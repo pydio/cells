@@ -51,7 +51,7 @@ func OnFileTestDAO(driver, dsn, prefix, altPrefix string, asIndexer bool, wrappe
 	case "boltdb", "bleve":
 		bleve.UnitTestEnv = true
 		closer = func() {
-			//d.CloseConn(ctx)
+			d.CloseConn(ctx)
 			c.Close()
 			dropFile := dsn
 			if strings.Contains(dsn, "?") {
@@ -67,7 +67,7 @@ func OnFileTestDAO(driver, dsn, prefix, altPrefix string, asIndexer bool, wrappe
 		closer = func() {
 			fmt.Println("Closer : dropping collection", prefix)
 			d.(mongodb.DAO).DB().Drop(context.Background())
-			// d.CloseConn(ctx)
+			d.CloseConn(ctx)
 			c.Close()
 		}
 	}
