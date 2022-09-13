@@ -60,7 +60,7 @@ func init() {
 		return NewDAO(d, "ROOT"), nil
 	}
 
-	connDao, e := conn.InitConn(ctx, sqlite.Driver, sqlite.SharedMemDSN)
+	connDao, e := conn.InitConn(ctx, sqlite.Driver, "file::memnocache:?mode=memory&cache=shared")
 	if e != nil {
 		panic(e)
 	}
