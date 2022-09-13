@@ -129,6 +129,8 @@ func InitRoles(ctx context.Context) error {
 			Acls: []*idm.ACL{
 				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: scopeShared},
 				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: scopeShared},
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:core.activitystreams:toggle_watch", Value: "false"}, WorkspaceID: scopeShared},
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:gui.ajax:bookmark_on", Value: "false"}, WorkspaceID: scopeShared},
 			},
 		},
 		{
