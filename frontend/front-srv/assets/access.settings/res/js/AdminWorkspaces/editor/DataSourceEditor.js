@@ -445,37 +445,45 @@ class DataSourceEditor extends React.Component{
                         <ModernTextField autoComplete={"off"} fullWidth={true} variant={'v2'} type={"password"} hintText={m('storage.s3.secret') + ' *'} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
                     </form>
                     <DataSourceBucketSelector dataSource={model} hintText={m('storage.s3.bucket')}/>
-                    {model.ObjectsBucket && <div style={{paddingTop: 20}}>
-                        <ModernTextField
-                            fullWidth={true}
-                            variant={"v2"}
-                            hintText={m('storage.s3.bucketPathPrefix')}
-                            value={model.ObjectsBaseFolder || ""}
-                            onChange={(e,v) =>{model.ObjectsBaseFolder = v}}
-                        />
-                    </div>
+                    {model.ObjectsBucket &&
+                        <div style={{paddingTop: 20}}>
+                            <div style={{...styles.subLegend}}>{m('storage.s3.legend.bucketPathPrefix')}</div>
+                            <ModernTextField
+                                fullWidth={true}
+                                variant={"v2"}
+                                hintText={m('storage.s3.bucketPathPrefix')}
+                                value={model.ObjectsBaseFolder || ""}
+                                onChange={(e,v) =>{model.ObjectsBaseFolder = v}}
+                            />
+                        </div>
                     }
-                    <div style={{...styles.subLegend, paddingTop: 40}}>{m('storage.s3.legend.tags')}</div>
-                    <div style={{display:'flex'}}>
-                        <div style={{flex:1, marginRight: 5}}>
-                            <ModernTextField
-                                fullWidth={true}
-                                variant={'v2'}
-                                disabled={!!model.ObjectsBucket}
-                                hintText={m('storage.s3.bucketsTags')}
-                                value={model.StorageConfiguration.bucketsTags || ''}
-                                onChange={(e,v)=>{model.StorageConfiguration.bucketsTags = v;}}/>
-                        </div>
-                        <div style={{flex:1, marginLeft: 5}}>
-                            <ModernTextField
-                                disabled={true}
-                                fullWidth={true}
-                                variant={'v2'}
-                                hintText={m('storage.s3.objectsTags') + ' (not implemented yet)'}
-                                value={model.StorageConfiguration.objectsTags || ''}
-                                onChange={(e,v)=>{model.StorageConfiguration.objectsTags = v;}}/>
-                        </div>
-                    </div>
+                    {(model.ObjectsBucket || model.StorageConfiguration.bucketsRegexp) &&
+                        <React.Fragment>
+                            <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.s3.legend.storageClass')}</div>
+                            <div>
+                                <ModernTextField
+                                    fullWidth={true}
+                                    variant={'v2'}
+                                    hintText={m('storage.s3.storageClass')}
+                                    value={model.StorageConfiguration.storageClass || ''}
+                                    onChange={(e,v)=>{model.StorageConfiguration.storageClass = v;}}/>
+                            </div>
+                        </React.Fragment>
+                    }
+                    {model.StorageConfiguration.bucketsRegexp && !model.ObjectsBucket &&
+                        <React.Fragment>
+                            <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.s3.legend.tags')}</div>
+                            <div>
+                                <ModernTextField
+                                    fullWidth={true}
+                                    variant={'v2'}
+                                    disabled={!!model.ObjectsBucket}
+                                    hintText={m('storage.s3.bucketsTags')}
+                                    value={model.StorageConfiguration.bucketsTags || ''}
+                                    onChange={(e,v)=>{model.StorageConfiguration.bucketsTags = v;}}/>
+                            </div>
+                        </React.Fragment>
+                    }
                 </div>
                 }
                 {model.StorageType === 'AZURE' &&

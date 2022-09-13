@@ -190,7 +190,7 @@ export default class DataSourceBucketSelector extends React.Component {
                         {...iconStyles}
                     />
                 </div>
-                <div style={{display:'flex', flexWrap:'wrap', marginTop: 8, backgroundColor: '#f5f5f5', borderRadius: 5, padding: 2, maxHeight:275, overflowY:'auto'}}>
+                <div style={{display:'flex', flexWrap:'wrap', marginTop: 8, backgroundColor: 'rgb(246 246 248)', borderRadius: '4px 4px 0 0', borderBottom: '1px solid #e0e0e0', minHeight:52, padding: 2, maxHeight:275, overflowY:'auto'}}>
                     {buckets.map(b => {
                         const selected = selection.indexOf(b) !== -1;
                         let chipToucher = {};
@@ -202,7 +202,7 @@ export default class DataSourceBucketSelector extends React.Component {
                         return <div style={{margin:5}}><Chip {...chipToucher} backgroundColor={selected?'#03a9f4':null}>{b}</Chip></div>
                     })}
                     {buckets.length === 0 &&
-                        <div style={{padding: 5, textAlign:'center', fontSize:16, color:'rgba(0,0,0,.37)'}}>
+                        <div style={{paddingLeft: 5, textAlign:'center', fontSize:12, color:'rgba(0,0,0,.3)'}}>
                             {disabled ? m('buckets.cont.nokeys') : (loading ? m('buckets.cont.loading') : m('buckets.cont.empty'))}
                         </div>
                     }
