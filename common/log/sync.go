@@ -47,7 +47,7 @@ func NewLogSyncer(ctx context.Context, serviceName string) *LogSyncer {
 	}
 
 	go syncer.logSyncerWatch()
-	// go syncer.logSyncerClientReconnect()
+	go syncer.logSyncerClientReconnect()
 
 	return syncer
 }
