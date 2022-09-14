@@ -179,6 +179,7 @@ func DefaultBigCacheConfig() bigcache.Config {
 	// Todo : pass this via Cache URL
 	o.Do(func() {
 		defaultConfig = bigcache.DefaultConfig(30 * time.Minute)
+		defaultConfig.Verbose = false
 		defaultConfig.Shards = 64
 		defaultConfig.MaxEntriesInWindow = 10 * 60 * 64
 		defaultConfig.MaxEntrySize = 200
