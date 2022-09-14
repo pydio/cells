@@ -22,7 +22,9 @@ func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
 
 	q := u.Query()
 
-	store, err := storage.OpenStore(context.Background(), runtime.CertsStoreURL())
+	ctx := context.Background()
+
+	store, err := storage.OpenStore(ctx, runtime.CertsStoreURL())
 	if err != nil {
 		return nil, err
 	}
@@ -36,21 +38,21 @@ func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
 	}
 
 	var certs []tls.Certificate
-	clientCertBlock, err := store.Load(q.Get(KeyCertUUID) + ".pem")
+	clientCertBlock, err := store.Load(ctx, q.Get(KeyCertUUID)+".pem")
 	if err != nil {
 		return nil, err
 	}
 
 	var clientCertKeyBlock []byte
 	if q.Has(KeyCertKeyUUID) {
-		block, err := store.Load(q.Get(KeyCertKeyUUID) + ".pem")
+		block, err := store.Load(ctx, q.Get(KeyCertKeyUUID)+".pem")
 		if err != nil {
 			return nil, err
 		}
 
 		clientCertKeyBlock = block
 	} else {
-		block, err := store.Load(q.Get(KeyCertUUID) + "-key.pem")
+		block, err := store.Load(ctx, q.Get(KeyCertUUID)+"-key.pem")
 		if err != nil {
 			return nil, err
 		}
@@ -70,7 +72,7 @@ func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
 	}
 
 	if q.Has(KeyCertCAUUID) {
-		caBlock, err := store.Load(q.Get(KeyCertCAUUID) + ".pem")
+		caBlock, err := store.Load(ctx, q.Get(KeyCertCAUUID)+".pem")
 		if err != nil {
 			return nil, err
 		}

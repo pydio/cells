@@ -21,6 +21,7 @@
 package providers
 
 import (
+	"context"
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
@@ -100,10 +101,10 @@ func (m *MkCert) GeneratedResources() (certFile, keyFile, caFile, caKeyFile stri
 
 // ReadCert returns all files generated during certificate creation
 func (m *MkCert) ReadCert() (cert, key []byte, e error) {
-	if cert, e = m.storage.Load(m.certFile); e != nil {
+	if cert, e = m.storage.Load(context.Background(), m.certFile); e != nil {
 		return
 	}
-	if key, e = m.storage.Load(m.keyFile); e != nil {
+	if key, e = m.storage.Load(context.Background(), m.keyFile); e != nil {
 		return
 	}
 	return
@@ -173,13 +174,13 @@ func (m *MkCert) MakeCert(hosts []string, prefix string) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to encode certificate key")
 	}
-	err = m.storage.Store(keyFile, pem.EncodeToMemory(
+	err = m.storage.Store(context.Background(), keyFile, pem.EncodeToMemory(
 		&pem.Block{Type: "PRIVATE KEY", Bytes: privDER}))
 	if err != nil {
 		return errors.Wrap(err, "failed to save certificate key")
 	}
 
-	err = m.storage.Store(certFile, pem.EncodeToMemory(
+	err = m.storage.Store(context.Background(), certFile, pem.EncodeToMemory(
 		&pem.Block{Type: "CERTIFICATE", Bytes: cert}))
 	if err != nil {
 		return errors.Wrap(err, "failed to save certificate")
@@ -244,7 +245,7 @@ func randomSerialNumber() (*big.Int, error) {
 
 // loadCA will load or create the CA at m.rootLocation.
 func (m *MkCert) loadCA() error {
-	if !m.storage.Exists(m.caFile) {
+	if !m.storage.Exists(context.Background(), m.caFile) {
 		if err := m.newCA(); err != nil {
 			return err
 		}
@@ -252,7 +253,7 @@ func (m *MkCert) loadCA() error {
 		printf("✅ Using the local CA at \"%s\" ✨", m.caFile)
 	}
 
-	certPEMBlock, err := m.storage.Load(m.caFile)
+	certPEMBlock, err := m.storage.Load(context.Background(), m.caFile)
 	if err != nil {
 		return errors.Wrap(err, "failed to read the CA certificate")
 	}
@@ -264,11 +265,11 @@ func (m *MkCert) loadCA() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to parse the CA certificate")
 	}
-	if !m.storage.Exists(m.caKeyFile) {
+	if !m.storage.Exists(context.Background(), m.caKeyFile) {
 		return nil // keyless mode
 	}
 
-	keyPEMBlock, err := m.storage.Load(m.caKeyFile)
+	keyPEMBlock, err := m.storage.Load(context.Background(), m.caKeyFile)
 	if err != nil {
 		return errors.Wrap(err, "failed to read the CA key")
 	}
@@ -343,13 +344,13 @@ func (m *MkCert) newCA() error {
 		return errors.Wrap(err, "failed to encode CA key")
 	}
 
-	err = m.storage.Store(m.caKeyFile, pem.EncodeToMemory(
+	err = m.storage.Store(context.Background(), m.caKeyFile, pem.EncodeToMemory(
 		&pem.Block{Type: "PRIVATE KEY", Bytes: privDER}))
 	if err != nil {
 		return errors.Wrap(err, "failed to save CA key")
 	}
 
-	err = m.storage.Store(m.caFile, pem.EncodeToMemory(
+	err = m.storage.Store(context.Background(), m.caFile, pem.EncodeToMemory(
 		&pem.Block{Type: "CERTIFICATE", Bytes: cert}))
 	if err != nil {
 		return errors.Wrap(err, "failed to save CA")

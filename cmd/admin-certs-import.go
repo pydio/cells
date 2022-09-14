@@ -75,11 +75,11 @@ EXAMPLE
 				return err
 			}
 
-			if store.Exists(certsImportUUID) {
+			if store.Exists(cmd.Context(), certsImportUUID) {
 				return errors.New("key " + certsImportUUID + " already exists")
 			}
 
-			if err := store.Store(certsImportUUID, v); err != nil {
+			if err := store.Store(cmd.Context(), certsImportUUID, v); err != nil {
 				return err
 			}
 		}
