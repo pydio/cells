@@ -196,6 +196,7 @@ ENVIRONMENT
 		if !runtime.IsFork() {
 			data := []runtime.InfoGroup{binaryInfo()}
 			data = append(data, runtime.Describe()...)
+			data = append(data, buildInfo())
 			for _, group := range data {
 				cmd.Println(group.Name + ":")
 				for _, pair := range group.Pairs {

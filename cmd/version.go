@@ -24,6 +24,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"runtime/debug"
 	"text/template"
 	"time"
 
@@ -134,6 +135,19 @@ func binaryInfo() (i runtime2.InfoGroup) {
 		runtime2.InfoPair{Key: "Go Version", Value: runtime.Version()},
 		runtime2.InfoPair{Key: "OS/arch", Value: runtime.GOOS + "/" + runtime.GOARCH},
 	)
+	return
+}
+
+func buildInfo() (i runtime2.InfoGroup) {
+	i.Name = "Build Settings"
+	if info, ok := debug.ReadBuildInfo(); ok {
+		for _, s := range info.Settings {
+			if s.Value == "" {
+				continue
+			}
+			i.Pairs = append(i.Pairs, runtime2.InfoPair{Key: s.Key, Value: s.Value})
+		}
+	}
 	return
 }
 
