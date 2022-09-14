@@ -24,7 +24,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/pydio/cells/v4/common/conn"
-	"github.com/pydio/cells/v4/common/registry/util"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -206,7 +205,7 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 			}
 
 			// First check if we already have a connection available
-			c, d, err := daoFromOptions(o, fd, indexer, sOpts)
+			_, d, err := daoFromOptions(o, fd, indexer, sOpts)
 			if err != nil {
 				return err
 			}
@@ -238,7 +237,7 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 				registry.WithEdgeTo(o.ID, "DAO", mm),
 			}
 
-			if c != nil {
+			/*if c != nil {
 				m := map[string]string{}
 				connItem := util.CreateAddress(c.Addr(), m)
 
@@ -251,7 +250,7 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 
 				options = append(options, registry.WithEdgeTo(connItem.ID(), "Conn", mm))
 
-			}
+			}*/
 
 			var regStatus registry.StatusReporter
 			if d.As(&regStatus) {
