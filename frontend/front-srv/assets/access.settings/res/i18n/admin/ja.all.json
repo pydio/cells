@@ -329,8 +329,17 @@
   "ds.editor.storage.s3.objectsTags": {
     "other": "オブジェクトタグ"
   },
+  "ds.editor.storage.s3.legend.bucketPathPrefix": {
+    "other": "Use a path prefix inside the bucket (will create a virtual folder to store objects)"
+  },
   "ds.editor.storage.s3.bucketPathPrefix": {
-    "other": "バケット内のパスプレフィックス（フォルダとして使用）"
+    "other": "Path prefix"
+  },
+  "ds.editor.storage.s3.legend.storageClass": {
+    "other": "Custom Storage Class (leave empty to use STANDARD). Amazon S3 supports the following values: REDUCED_REDUNDANCY, STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, DEEP_ARCHIVE, OUTPOSTS, GLACIER_IR. Beware that using GLACIER or equivalent will make the datasource write-only, as objects have to be manually restored before being available for download."
+  },
+  "ds.editor.storage.s3.storageClass": {
+    "other": "Storage Class"
   },
   "ds.editor.title": {
     "other": "データ ソース %s"

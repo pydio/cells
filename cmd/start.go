@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -104,9 +105,9 @@ ENVIRONMENT
 
   All the command flags documented below are mapped to their associated ENV var, using upper case and CELLS_ prefix.
   For example :
-  $ ` + os.Args[0] + ` start --grpc_external 54545
+  $ ` + os.Args[0] + ` start --grpc_port 54545
   is equivalent to 
-  $ export CELLS_GRPC_EXTERNAL=54545; ` + os.Args[0] + ` start
+  $ export CELLS_GRPC_PORT=54545; ` + os.Args[0] + ` start
 
   2. Working Directories 
 
@@ -257,7 +258,6 @@ ENVIRONMENT
 		} else {
 			select {
 			case <-ctx.Done():
-				fmt.Println(promptui.IconBad + " Context is cancelled, do not start services")
 				return nil
 			default:
 			}
@@ -288,11 +288,13 @@ ENVIRONMENT
 func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log.ZapLogger) (manager.Manager, error) {
 
 	m := manager.NewManager(reg, "mem:///", "discovery", logger)
-	if er := m.Init(ctx); er != nil {
-		return nil, er
+	if err := m.Init(ctx); err != nil {
+		return nil, err
 	}
 
+	var errReceived bool
 	errorCallback := func(err error) {
+		errReceived = true
 		if !strings.Contains(err.Error(), "context canceled") {
 			fmt.Println("************************************************************")
 			fmt.Println(promptui.IconBad + " Error while starting discovery server:")
@@ -300,8 +302,6 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log
 			fmt.Println(promptui.IconBad + " FATAL : shutting down now!")
 			fmt.Println("************************************************************")
 			cancel()
-		} else {
-			fmt.Println(err)
 		}
 	}
 
@@ -310,6 +310,10 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log
 		server.WithGrpcBindAddress(runtime.GrpcDiscoveryBindAddress()),
 		server.WithBlockUntilServe(),
 	)
+
+	if errReceived {
+		return nil, errors.New("no discovery server")
+	}
 
 	logger.Info("Discovery services started, carry on to other services")
 
@@ -325,6 +329,7 @@ func init() {
 	StartCmd.Flags().String(runtime.KeyAdvertiseAddress, "", "Address that should be advertised to other members of the cluster (leave it empty for default advertise address)")
 	StartCmd.Flags().String(runtime.KeyGrpcPort, runtime.DefaultGrpcPort, "Default gRPC server port (all gRPC services, except discovery ones)")
 	StartCmd.Flags().String(runtime.KeyGrpcDiscoveryPort, runtime.DefaultDiscoveryPort, "Default discovery gRPC server port (registry, broker, config, and log services).")
+	StartCmd.Flags().String(runtime.KeyGrpcExternal, "", "Fix the gRPC Gateway public port, not necessary unless a reverse-proxy does not support HTTP/2 protocol.")
 
 	StartCmd.Flags().String(runtime.KeyHttpServer, "caddy", "HTTP Server Type")
 	StartCmd.Flags().String(runtime.KeyHttpPort, runtime.DefaultHttpPort, "HTTP Server Port")
@@ -336,6 +341,7 @@ func init() {
 		_ = StartCmd.Flags().MarkHidden(runtime.KeyHttpPort)
 		_ = StartCmd.Flags().MarkHidden(runtime.KeyFork)
 		_ = StartCmd.Flags().MarkHidden(runtime.KeyNodeCapacity)
+		_ = StartCmd.Flags().MarkHidden(runtime.KeyGrpcExternal)
 	}
 
 	addCacheFlags(StartCmd.Flags())

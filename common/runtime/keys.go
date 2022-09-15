@@ -83,8 +83,8 @@ const (
 	HttpServerCaddy  = "caddy"
 	HttpServerNative = "http"
 
-	DefaultGrpcPort        = "8001"
-	DefaultDiscoveryPort   = "8002"
+	DefaultDiscoveryPort   = "8030"
+	DefaultGrpcPort        = "8031"
 	DefaultBindingSitePort = "8080"
 	DefaultHttpPort        = "0"
 

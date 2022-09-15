@@ -134,13 +134,10 @@ func TestTaskLogs(t *testing.T) {
 
 		So(task.task.ActionsLogs, ShouldHaveLength, 1)
 		log := task.task.ActionsLogs[0]
-		So(log.Action, ShouldResemble, &jobs.Action{ID: "fake"})
-		So(log.InputMessage, ShouldResemble, &jobs.ActionMessage{})
-		So(log.OutputMessage, ShouldResemble, &jobs.ActionMessage{
-			OutputChain: []*jobs.ActionOutput{
-				{Success: true, StringBody: "last output"},
-			},
-		})
+		So(log.Action.ID, ShouldEqual, "fake")
+		//So(log.InputMessage, ShouldResemble, &jobs.ActionMessage{})
+		So(log.OutputMessage.OutputChain[0].Success, ShouldBeTrue)
+		So(log.OutputMessage.OutputChain[0].StringBody, ShouldEqual, "last output")
 		// Verify inputs were not modified
 		So(a.ChainedActions, ShouldHaveLength, 1)
 		So(in.OutputChain, ShouldHaveLength, 2)

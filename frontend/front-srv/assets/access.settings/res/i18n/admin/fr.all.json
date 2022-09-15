@@ -329,8 +329,17 @@
   "ds.editor.storage.s3.objectsTags": {
     "other": "Balises d'objets"
   },
+  "ds.editor.storage.s3.legend.bucketPathPrefix": {
+    "other": "Utiliser un préfixe à l'intérieur du bucket (ce qui créera un dossier virtuel pour stocker des objets)"
+  },
   "ds.editor.storage.s3.bucketPathPrefix": {
-    "other": "Préfixe du chemin dans le container (utilisé comme un dossier)"
+    "other": "Préfixe"
+  },
+  "ds.editor.storage.s3.legend.storageClass": {
+    "other": "Classe de stockage personnalisée (laisser vide pour utiliser STANDARD). Amazon S3 prend en charge les valeurs suivantes : REDUCED_REDUNDANCY, STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, DEEP_ARCHIVE, OUTPOSTS, GLACIER_IR. Attention, l'utilisation de GLACIER (ou équivalent) rendra la DataSource en écriture seule, car les objets doivent être restaurés manuellement avant d'être disponibles pour le téléchargement."
+  },
+  "ds.editor.storage.s3.storageClass": {
+    "other": "Classe de stockage"
   },
   "ds.editor.title": {
     "other": "Datasource %s"
