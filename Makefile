@@ -2,7 +2,7 @@ DEV_VERSION=4.0.0-dev
 ENV=env GOOS=linux
 TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
-GITREV:=$(shell git rev-parse HEAD)
+GITREV?=$(shell git rev-parse HEAD)
 CELLS_VERSION?=${DEV_VERSION}.${TIMESTAMP}
 
 XGO_TARGETS?="linux/amd64,linux/arm64,darwin/amd64,windows/amd64"
