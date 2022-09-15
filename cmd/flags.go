@@ -93,9 +93,9 @@ func addExternalCmdRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 
 func addSiteOverrideFlags(flags *pflag.FlagSet, hideLegacy ...bool) {
 	// Dynamic site override and their legacy version below
-	flags.String(runtime.KeySiteBind, "", "[Site] The 'site_' flags suite overrides config-defined sites. Bind is the site binding address (IP|DOMAIN:PORT), see other flags for TLS configurations.")
-	flags.String(runtime.KeySiteExternal, "", "[Site] External full URL (http[s]://IP|DOMAIN[:PORT]) exposed to the outside")
-	flags.Bool(runtime.KeySiteNoTLS, false, "[Site] Use plain HTTP")
+	flags.String(runtime.KeySiteBind, "", "[Site] The 'site_' flags suite overrides config-defined sites. Bind is the site binding address IP|DOMAIN:PORT (default 0.0.0.0:"+runtime.DefaultBindingSitePort+")")
+	flags.String(runtime.KeySiteExternal, "", "[Site] External full URL http[s]://IP|DOMAIN[:PORT] exposed to the outside")
+	flags.Bool(runtime.KeySiteNoTLS, false, "[Site] Use plain HTTP (default false, use self-signed)")
 	flags.String(runtime.KeySiteTlsCertFile, "", "[Site] Path to custom TLS certificate file")
 	flags.String(runtime.KeySiteTlsKeyFile, "", "[Site] Path to custom TLS key file")
 	flags.String(runtime.KeySiteLetsEncryptEmail, "", "[Site] Set email to enable Let's Encrypt automatic TLS configuration")
