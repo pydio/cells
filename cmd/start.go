@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -257,7 +258,6 @@ ENVIRONMENT
 		} else {
 			select {
 			case <-ctx.Done():
-				fmt.Println(promptui.IconBad + " Context is cancelled, do not start services")
 				return nil
 			default:
 			}
@@ -288,11 +288,13 @@ ENVIRONMENT
 func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log.ZapLogger) (manager.Manager, error) {
 
 	m := manager.NewManager(reg, "mem:///", "discovery", logger)
-	if er := m.Init(ctx); er != nil {
-		return nil, er
+	if err := m.Init(ctx); err != nil {
+		return nil, err
 	}
 
+	var errReceived bool
 	errorCallback := func(err error) {
+		errReceived = true
 		if !strings.Contains(err.Error(), "context canceled") {
 			fmt.Println("************************************************************")
 			fmt.Println(promptui.IconBad + " Error while starting discovery server:")
@@ -300,8 +302,7 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log
 			fmt.Println(promptui.IconBad + " FATAL : shutting down now!")
 			fmt.Println("************************************************************")
 			cancel()
-		} else {
-			fmt.Println(err)
+			os.Exit(1)
 		}
 	}
 
@@ -310,6 +311,10 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log
 		server.WithGrpcBindAddress(runtime.GrpcDiscoveryBindAddress()),
 		server.WithBlockUntilServe(),
 	)
+
+	if errReceived {
+		return nil, errors.New("no discovery server")
+	}
 
 	logger.Info("Discovery services started, carry on to other services")
 
