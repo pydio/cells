@@ -302,7 +302,6 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log
 			fmt.Println(promptui.IconBad + " FATAL : shutting down now!")
 			fmt.Println("************************************************************")
 			cancel()
-			os.Exit(1)
 		}
 	}
 
