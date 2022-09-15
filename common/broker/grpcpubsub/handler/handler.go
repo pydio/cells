@@ -23,6 +23,7 @@ package handler
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 	"sync"
 	"time"
@@ -73,7 +74,7 @@ func (h *Handler) Publish(stream pb.Broker_PublishServer) error {
 		}
 
 		for _, message := range req.Messages {
-			if err := h.broker.PublishRaw(stream.Context(), req.Topic, message.Body, message.Header); err != nil {
+			if err := h.broker.PublishRaw(stream.Context(), path.Base(req.Topic), message.Body, message.Header); err != nil {
 				return err
 			}
 		}
