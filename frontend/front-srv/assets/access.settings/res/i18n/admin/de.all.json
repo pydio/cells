@@ -329,8 +329,17 @@
   "ds.editor.storage.s3.objectsTags": {
     "other": "Objekte Tags"
   },
+  "ds.editor.storage.s3.legend.bucketPathPrefix": {
+    "other": "Verwenden Sie ein Pfadpräfix innerhalb des Buckets (erstellt einen virtuellen Ordner zum Speichern von Objekten)"
+  },
   "ds.editor.storage.s3.bucketPathPrefix": {
-    "other": "Pfadpräfix im Bucket (wird als Ordner verwendet)"
+    "other": "Pfadpräfix"
+  },
+  "ds.editor.storage.s3.legend.storageClass": {
+    "other": "Benutzerdefinierte Speicherklasse (leer lassen, um STANDARD zu verwenden). Amazon S3 unterstützt die folgenden Werte: REDUCED_REDUNDANCY, STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, DEEP_ARCHIVE, OUTPOSTS, GLACIER_IR. Beachten Sie, dass die Datenquelle bei Verwendung von GLACIER oder gleichwertigen Werten schreibgeschützt ist, da die Objekte manuell wiederhergestellt werden müssen, bevor sie zum Herunterladen zur Verfügung stehen."
+  },
+  "ds.editor.storage.s3.storageClass": {
+    "other": "Speicherklasse"
   },
   "ds.editor.title": {
     "other": "Datenquelle %s"
