@@ -451,6 +451,10 @@ func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error
 		o(&wo)
 	}
 
+	if wo.Context == nil {
+		wo.Context = context.Background()
+	}
+
 	id := uuid.New()
 	res := make(chan registry.Result, 100)
 

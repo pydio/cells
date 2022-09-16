@@ -49,6 +49,12 @@ func WithFailFast() Option {
 	}
 }
 
+func WithContext(ctx context.Context) Option {
+	return func(o *Options) {
+		o.Context = ctx
+	}
+}
+
 func WithAction(a pb.ActionType) Option {
 	return func(o *Options) {
 		o.Actions = append(o.Actions, a)

@@ -2,6 +2,8 @@ package registry
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/log"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -109,7 +111,10 @@ func (h *Handler) List(ctx context.Context, req *pb.ListRequest) (*pb.ListRespon
 
 func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) error {
 
-	var opts []registry.Option
+	ctx := stream.Context()
+
+	opts := []registry.Option{registry.WithContext(ctx)}
+
 	for _, a := range req.GetOptions().GetActions() {
 		opts = append(opts, registry.WithAction(a))
 	}
@@ -139,9 +144,11 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) er
 			return err
 		}
 
-		stream.Send(&pb.Result{
+		if err := stream.Send(&pb.Result{
 			Action: res.Action(),
 			Items:  util.ToProtoItems(res.Items()),
-		})
+		}); err != nil {
+			log.Logger(ctx).Error("could not send to stream", zap.Error(err))
+		}
 	}
 }

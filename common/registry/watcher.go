@@ -155,6 +155,8 @@ func (m *watcher) Next() (Result, error) {
 				action: r.Action(),
 				items:  items,
 			}, nil
+		case <-m.wo.Context.Done():
+			return nil, errors.New("context done")
 		case <-m.exit:
 			return nil, errors.New("watcher stopped")
 		}
