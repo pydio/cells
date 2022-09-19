@@ -128,10 +128,12 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) er
 		return err
 	}
 
-	stream.Send(&pb.Result{
+	if err := stream.Send(&pb.Result{
 		Action: pb.ActionType_CREATE,
 		Items:  util.ToProtoItems(res),
-	})
+	}); err != nil {
+		log.Logger(ctx).Error("initial stream failed ", zap.Error(err))
+	}
 
 	w, err := h.reg.Watch(opts...)
 	if err != nil {
