@@ -173,6 +173,8 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 		externalAddr = net.JoinHostPort(runtime.DefaultAdvertiseAddress(), port)
 	}
 
+	fmt.Println("Running server at ", addr)
+
 	go func() {
 		defer s.cancel()
 
