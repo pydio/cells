@@ -253,33 +253,35 @@ func (s *serviceRegistry) Watch(opts ...registry.Option) (registry.Watcher, erro
 		o(&options)
 	}
 
-	if !s.hasStream {
-		// This is a first watch, setup a stream - opts are empty
-		stream, err := s.client.Watch(context.Background(), &pb.WatchRequest{
-			Options: &pb.Options{
-				Types: []pb.ItemType{pb.ItemType_SERVER, pb.ItemType_SERVICE, pb.ItemType_ADDRESS, pb.ItemType_ENDPOINT, pb.ItemType_EDGE},
-			},
-		}, s.callOpts()...)
-		if err != nil {
-			return nil, err
-		}
-		s.hasStream = true
-		return newStreamWatcher(stream), nil
-
-	} else {
-		events := make(chan registry.Result)
-		s.listeners = append(s.listeners, events)
-		closeFunc := func() {
-			var newL []chan registry.Result
-			for _, l := range s.listeners {
-				if l != events {
-					newL = append(newL, l)
-				}
-			}
-			s.listeners = newL
-		}
-		return newChanWatcher(s.opts.Context, events, closeFunc, options), nil
+	//	if !s.hasStream {
+	// This is a first watch, setup a stream - opts are empty
+	stream, err := s.client.Watch(context.Background(), &pb.WatchRequest{
+		Options: &pb.Options{
+			Types: []pb.ItemType{pb.ItemType_SERVER, pb.ItemType_SERVICE, pb.ItemType_ADDRESS, pb.ItemType_ENDPOINT, pb.ItemType_EDGE},
+		},
+	}, s.callOpts()...)
+	if err != nil {
+		return nil, err
 	}
+	s.hasStream = true
+	return newStreamWatcher(stream), nil
+	/*
+		} else {
+			events := make(chan registry.Result)
+			s.listeners = append(s.listeners, events)
+			closeFunc := func() {
+				var newL []chan registry.Result
+				for _, l := range s.listeners {
+					if l != events {
+						newL = append(newL, l)
+					}
+				}
+				s.listeners = newL
+			}
+			return newChanWatcher(s.opts.Context, events, closeFunc, options), nil
+		}
+
+	*/
 }
 
 func (s *serviceRegistry) As(interface{}) bool {
@@ -298,14 +300,14 @@ func NewRegistry(opts ...Option) (registry.Registry, error) {
 	}
 
 	var ctx context.Context
-	var cancel context.CancelFunc
+	//var cancel context.CancelFunc
 
 	ctx = options.Context
 	if ctx == nil {
 		ctx = context.TODO()
 	}
 
-	ctx, cancel = context.WithCancel(ctx)
+	//ctx, cancel = context.WithCancel(ctx)
 
 	options.Context = ctx
 
@@ -321,25 +323,28 @@ func NewRegistry(opts ...Option) (registry.Registry, error) {
 		client: pb.NewRegistryClient(conn),
 	}
 
-	// Check the stream has a connection to the registry
-	watcher, err := r.Watch(registry.WithAction(pb.ActionType_ANY))
-	if err != nil {
-		cancel()
-		return nil, err
-	}
-	go func() {
-		for {
-			res, err := watcher.Next()
-			if err != nil {
-				cancel()
-				return
-			}
-			// Dispatch to listeners
-			for _, l := range r.listeners {
-				l <- registry.NewResult(res.Action(), res.Items())
-			}
+	/*
+		// Check the stream has a connection to the registry
+		watcher, err := r.Watch(registry.WithAction(pb.ActionType_ANY))
+		if err != nil {
+			cancel()
+			return nil, err
 		}
-	}()
+		go func() {
+			for {
+				res, err := watcher.Next()
+				if err != nil {
+					cancel()
+					return
+				}
+				// Dispatch to listeners
+				for _, l := range r.listeners {
+					l <- registry.NewResult(res.Action(), res.Items())
+				}
+			}
+		}()
+
+	*/
 
 	return registry.GraphRegistry(r), nil
 }
