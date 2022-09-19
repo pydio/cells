@@ -1,7 +1,43 @@
-# Changes between v4.0.0-rc2 and v4.0.0-rc3
+# Changes between v4.0.0-rc2 and v4.0.0-rc4
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.0.0-rc2...v4.0.0-rc3)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.0.0-rc2...v4.0.0-rc4)
 
+- [#7fded93](https://github.com/pydio/cells/commit/7fded93da0a69b51557270128b275235e1f85a9c): Make git revision settable from outside the make script
+- [#15217f8](https://github.com/pydio/cells/commit/15217f8f3f1b04a67975eededc40d447e4615e58): Removing os exit
+- [#3fc2e91](https://github.com/pydio/cells/commit/3fc2e91fb974a26a3844ea21e8e9d3819b38bc68): Update go version in README
+- [#7c293b4](https://github.com/pydio/cells/commit/7c293b466fdd29df275135d1fc592b9fff74be6d): More messages + DE/FR translation
+- [#e7a778a](https://github.com/pydio/cells/commit/e7a778a0e2e0cf31f01367bc37f689c633e52c30): More messages + DE/FR translation
+- [#48758cc](https://github.com/pydio/cells/commit/48758ccbd0d0d926a136093e42dcb2e2b1855938): More messages + DE/FR translation
+- [#e32f7cd](https://github.com/pydio/cells/commit/e32f7cd953f8ea2c25215dba0bb40a0eeb5631f2): Fix default ports, flag mapping docs, rewire grpc_external flag.
+- [#5fc5ad7](https://github.com/pydio/cells/commit/5fc5ad74056c966f64bde433e0fcc2ec54752a7e): Error message for discovery server port
+- [#72a99be](https://github.com/pydio/cells/commit/72a99be0c5bab1c38834a518615ffec1bd57fa79): Fixing broker
+- [#b60f7a6](https://github.com/pydio/cells/commit/b60f7a67612d5997f5bcc453e48c07fff74705df): Fix ShouldResemble
+- [#dc5cc9a](https://github.com/pydio/cells/commit/dc5cc9ae98d22836b720da833938722d2b462835): Use new go18 feature debug.ReadBuildInfo
+- [#95363af](https://github.com/pydio/cells/commit/95363afb3a889f0a8914cdda50792ec73f2e1590): Update minio ref
+- [#a13fb08](https://github.com/pydio/cells/commit/a13fb082216bb634dac664f7baf405b863e418f1): Use Go 1.19 for XGo builds
+- [#93215d4](https://github.com/pydio/cells/commit/93215d4e7bac582a430b11bb8b71bee276dbccd1): Update dependencies for go18/19 support
+- [#90475df](https://github.com/pydio/cells/commit/90475df9fcd1523e7470d58ea0b65f1cdc46b99f): Update gomod ref to minio
+- [#86e9c06](https://github.com/pydio/cells/commit/86e9c06b74f4c2347a757c156314ba235142b03a): disable watch & bookmark by default in minisites
+- [#220068c](https://github.com/pydio/cells/commit/220068c77500f07b9571b29da324520bef4320d4): Skip sync-cache for flat datasources
+- [#14cfdfd](https://github.com/pydio/cells/commit/14cfdfdd105f670b4996a2bf741f21852e09e3ef): Improve s3 datasource editor
+- [#6b0b0df](https://github.com/pydio/cells/commit/6b0b0df440fbf84d0d3c2109ec2a4a12ef0498ad): Reload versions on node change, do not show loading state.
+- [#0eeab53](https://github.com/pydio/cells/commit/0eeab531e9fc5fd2d31218cd553b06b2efed0b0e): Fix empty state view for versions
+- [#85c2dcb](https://github.com/pydio/cells/commit/85c2dcb8451447c56a49830ea13a7da3e48d8196): fix config watch for versions - lower some logs level
+- [#ba5586c](https://github.com/pydio/cells/commit/ba5586cc3431e5efadb883d25c559bac36a509b9): Less logs when updating binary
+- [#02b6a47](https://github.com/pydio/cells/commit/02b6a47d7213dde4ef442769cd6eab1b73a59fb0): Do not re-log parsed logs from forks
+- [#39dcec8](https://github.com/pydio/cells/commit/39dcec8c82d8332436984e70f1bb70c7ded6648f): Fix ws event
+- [#26a8350](https://github.com/pydio/cells/commit/26a8350d1d338d0acf41656931e393f08977c868): Return to forked version of minio (apache2)
+- [#b627cce](https://github.com/pydio/cells/commit/b627cce2e15294cde41cfdd11d708c6553e3c748): Merge remote-tracking branch 'origin/main'
+- [#9f52b77](https://github.com/pydio/cells/commit/9f52b776f712b62020953e8f9744acd54493b8b5): Fix cross struct-DS copies
+- [#8d1341a](https://github.com/pydio/cells/commit/8d1341ad64da24b34f57a325f40ba58f14b3b833): More translation
+- [#eb985de](https://github.com/pydio/cells/commit/eb985deee28b3235e2db228f6b3488622e8d0611): More translation
+- [#4ab687e](https://github.com/pydio/cells/commit/4ab687e1a641c1334f35f79632a3dbfe1298218e): Fix --log parameter for debugFork
+- [#ed806cd](https://github.com/pydio/cells/commit/ed806cdf1e073cfbcdcefac13fa84358c8e531d5): Patch operation show error in string
+- [#cde033e](https://github.com/pydio/cells/commit/cde033ecad3f032d17eec058851898675c661f24): BuildAncestors: try to improve caching
+- [#63e252d](https://github.com/pydio/cells/commit/63e252d99eaa0ddfb630b1f867f7cf7b7c295a49): Long streams : ignore PostNodeChanges
+- [#fe36f6b](https://github.com/pydio/cells/commit/fe36f6b37445011e04e25276eac1fc6433283a53): Auto-DL of minio executable : add a lock file to avoid processes collision, verify sha1 for integrity, pass an ENV to change target location, display Release information.
+- [#eeff7d4](https://github.com/pydio/cells/commit/eeff7d40635dfb4ca971c3568169f6f13f62e6b4): Fix sync/s3 listing
+- [#138e651](https://github.com/pydio/cells/commit/138e651a6026e1d6fbc81fb5dda65f3f69b4f1f7): Release v4.0.0-rc3
 - [#6074f11](https://github.com/pydio/cells/commit/6074f11446523cd0d16384f7857d42ce8586bde1): Finally refactor common/sync s3 endpoint with nodes/objects.StorageClient interface
 - [#990f90b](https://github.com/pydio/cells/commit/990f90b2bdce3278fcb6222277a8019f025428d1): More Czech + new msgs with DE/FR translations
 - [#1f4a3ec](https://github.com/pydio/cells/commit/1f4a3ec10c69d937588cca75ebcd9cd9627c4e51): More Czech + new msgs with DE/FR translations
