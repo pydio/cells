@@ -21,8 +21,6 @@
 package client
 
 import (
-	"fmt"
-	"os"
 	"sync"
 	"time"
 
@@ -128,7 +126,7 @@ func (r *resolverCallback) watch() {
 
 		for _, item := range res.Items() {
 			if util.DetectType(item) == pb.ItemType_SERVICE {
-				fmt.Println("Received event ", os.Args, res.Action(), item.Name())
+				//	fmt.Println("Received event ", os.Args, res.Action(), item.Name())
 			}
 		}
 

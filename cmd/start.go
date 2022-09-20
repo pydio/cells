@@ -209,11 +209,11 @@ ENVIRONMENT
 
 		// Starting discovery server containing registry, broker, config and log
 		var discovery manager.Manager
-		// if !runtime.IsGrpcScheme(runtime.RegistryURL()) {
-		if discovery, err = startDiscoveryServer(ctx, reg, managerLogger); err != nil {
-			return err
+		if !runtime.IsGrpcScheme(runtime.RegistryURL()) || runtime.LogLevel() == "debug" {
+			if discovery, err = startDiscoveryServer(ctx, reg, managerLogger); err != nil {
+				return err
+			}
 		}
-		//}
 
 		// Create a main client connection
 		clientgrpc.WarnMissingConnInContext = true

@@ -115,8 +115,16 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) er
 
 	opts := []registry.Option{registry.WithContext(ctx)}
 
-	for _, a := range req.GetOptions().GetActions() {
+	var sendInitialList bool
+	actions := req.GetOptions().GetActions()
+	if len(actions) == 0 {
+		sendInitialList = true
+	}
+	for _, a := range actions {
 		opts = append(opts, registry.WithAction(a))
+		if a == pb.ActionType_CREATE || a == pb.ActionType_ANY || a == pb.ActionType_FULL_LIST {
+			sendInitialList = true
+		}
 	}
 	for _, itemType := range req.GetOptions().GetTypes() {
 		opts = append(opts, registry.WithType(itemType))
@@ -128,11 +136,13 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) er
 		return err
 	}
 
-	if err := stream.Send(&pb.Result{
-		Action: pb.ActionType_CREATE,
-		Items:  util.ToProtoItems(res),
-	}); err != nil {
-		log.Logger(ctx).Error("initial stream failed ", zap.Error(err))
+	if sendInitialList {
+		if err := stream.Send(&pb.Result{
+			Action: pb.ActionType_CREATE,
+			Items:  util.ToProtoItems(res),
+		}); err != nil {
+			log.Logger(ctx).Error("initial stream failed ", zap.Error(err))
+		}
 	}
 
 	w, err := h.reg.Watch(opts...)

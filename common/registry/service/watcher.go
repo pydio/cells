@@ -31,8 +31,9 @@ import (
 )
 
 type streamWatcher struct {
-	stream pb.Registry_WatchClient
-	closed chan bool
+	stream  pb.Registry_WatchClient
+	options registry.Options
+	closed  chan bool
 }
 
 func (s *streamWatcher) Next() (registry.Result, error) {
@@ -50,9 +51,22 @@ func (s *streamWatcher) Next() (registry.Result, error) {
 
 	var items []registry.Item
 	for _, i := range r.Items {
-		items = append(items, util.ToItem(i))
+		item := util.ToItem(i)
+		foundFilter := true
+		for _, filter := range s.options.Filters {
+			if !filter(item) {
+				foundFilter = false
+				break
+			}
+		}
+
+		if !foundFilter {
+			continue
+		}
+
+		items = append(items, item)
 	}
-	//fmt.Println("Got NEXT on streamWatcher", r.Action, len(r.Items))
+	// fmt.Println("Got NEXT on streamWatcher", r.Action, len(r.Items))
 	return registry.NewResult(r.Action, items), nil
 }
 
@@ -66,10 +80,11 @@ func (s *streamWatcher) Stop() {
 	}
 }
 
-func newStreamWatcher(stream pb.Registry_WatchClient) registry.Watcher {
+func newStreamWatcher(stream pb.Registry_WatchClient, options registry.Options) registry.Watcher {
 	return &streamWatcher{
-		stream: stream,
-		closed: make(chan bool),
+		stream:  stream,
+		options: options,
+		closed:  make(chan bool),
 	}
 }
 
