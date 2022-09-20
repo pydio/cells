@@ -120,6 +120,9 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) er
 	if len(actions) == 0 {
 		sendInitialList = true
 	}
+	for _, name := range req.GetOptions().GetNames() {
+		opts = append(opts, registry.WithName(name))
+	}
 	for _, a := range actions {
 		opts = append(opts, registry.WithAction(a))
 		if a == pb.ActionType_CREATE || a == pb.ActionType_ANY || a == pb.ActionType_FULL_LIST {
