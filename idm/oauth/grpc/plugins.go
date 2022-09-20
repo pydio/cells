@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"context"
+	"go.uber.org/zap"
 	"log"
 
 	log2 "github.com/pydio/cells/v4/common/log"
@@ -86,7 +87,13 @@ func init() {
 
 				// Registry initialization
 				// Blocking on purpose, as it should block login
-				return auth.InitRegistry(ctx, Name)
+				er := auth.InitRegistry(ctx, Name)
+				if er == nil {
+					log2.Logger(ctx).Info("Finished auth.InitRegistry")
+				} else {
+					log2.Logger(ctx).Info("Error while applying auth.InitRegistry", zap.Error(er))
+				}
+				return er
 			}),
 		)
 

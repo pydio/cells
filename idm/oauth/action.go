@@ -50,6 +50,8 @@ func init() {
 // InsertPruningJob adds a job to scheduler
 func InsertPruningJob(ctx context.Context) error {
 
+	log.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
+
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
 
 	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
@@ -59,7 +61,6 @@ func InsertPruningJob(ctx context.Context) error {
 		log.Logger(ctx).Info("Insert pruning job: jobs service not ready yet :"+e.Error(), zap.Any("err", errors.FromError(e)))
 		return e // not ready yet, retry
 	}
-	log.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
 	_, e := cli.PutJob(ctx, &jobs.PutJobRequest{Job: &jobs.Job{
 		ID:    pruneTokensActionName,
 		Owner: common.PydioSystemUsername,
