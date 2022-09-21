@@ -67,6 +67,10 @@ func (s *SQLManager) MigrateMigrationTable(tableName string) error {
 		// Table exists, nothing to do
 		return nil
 	}
+	if _, er := s.db.Query("SELECT * FROM gorp_migrations"); er != nil {
+		// Table gorp_migration does not exist, ignore
+		return nil
+	}
 
 	dbMap := &gorp.DbMap{Db: s.db.DB, Dialect: gorp.MySQLDialect{Engine: "InnoDB", Encoding: "UTF8"}}
 	dbMap.AddTableWithNameAndSchema(migrate.MigrationRecord{}, "", tableName).SetKeys(false, "Id")

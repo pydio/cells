@@ -23,7 +23,6 @@ package server
 import (
 	"context"
 	"fmt"
-
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
@@ -103,7 +102,7 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 	}
 
 	fmt.Println("["+s.Name()+"]", "Server.serve - before BeforeServes")
-	var g errgroup.Group
+	g := &errgroup.Group{}
 	for _, h := range opt.BeforeServe {
 		func(bs func(oo ...registry.RegisterOption) error) {
 			g.Go(func() error {
