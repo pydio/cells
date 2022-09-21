@@ -102,6 +102,7 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 		o(opt)
 	}
 
+	fmt.Println("["+s.Name()+"]", "Server.serve - before BeforeServes")
 	var g errgroup.Group
 	for _, h := range opt.BeforeServe {
 		func(bs func(oo ...registry.RegisterOption) error) {
@@ -113,11 +114,14 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 	if er := g.Wait(); er != nil {
 		return er
 	}
+	fmt.Println("["+s.Name()+"]", "Server.serve - BeforeServes passed, will RawServe now")
 
 	ii, err := s.s.RawServe(opt)
 	if err != nil {
+		fmt.Println("["+s.Name()+"]", "Server.serve - RawServe got error", err)
 		return err
 	}
+	fmt.Println("["+s.Name()+"]", "Server.serve - RawServe passed, setting StatusReady and registering Edges", len(ii))
 	s.status = registry.StatusReady
 
 	// Making sure we register the endpoints
@@ -134,12 +138,16 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 		}
 	}
 
+	fmt.Println("["+s.Name()+"]", "Server.serve - Edges registered, going to After Serve")
+
 	// Apply AfterServe non-blocking
 	for _, h := range opt.AfterServe {
 		if er := h(); er != nil {
-			fmt.Println("There was an error while applying an AfterServe", er)
+			fmt.Println("["+s.Name()+"]", "There was an error while applying an AfterServe", er)
 		}
 	}
+
+	fmt.Println("["+s.Name()+"]", "Server.serve - After Served")
 
 	return nil
 }
