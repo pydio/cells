@@ -98,19 +98,6 @@ EXAMPLES
 				prof = "standard"
 			}
 
-			// var id, name, isGroup string
-			// if response.User.IsGroup {
-			// 	isGroup = "  X  "
-			// 	id = path.Base(response.User.GroupPath)
-			// 	name = response.User.GroupLabel
-			// } else {
-			// 	isGroup = ""
-			// 	id = response.User.Login
-			// 	name = response.User.Attributes["displayName"]
-
-			// }
-			// table.Append([]string{id, name, isGroup, prof, response.User.GroupPath, response.User.Uuid}) // roles,
-
 			var label, isGroup string
 			if response.User.IsGroup {
 				isGroup = "  X  "
