@@ -87,10 +87,6 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 			service2.RestError403(req, rsp, errors.Forbidden(common.ServiceWorkspace, "You are not allowed to edit this workspace"))
 			return
 		}
-		// Check that slug is not already in use
-		if ws.Slug != inputWorkspace.Slug {
-			h.deduplicateSlug(ctx, &inputWorkspace, cli)
-		}
 	} else {
 		// Create a new Uuid
 		if inputWorkspace.UUID == "" {
@@ -103,8 +99,6 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 				{Subject: "profile:" + common.PydioProfileAdmin, Action: service.ResourcePolicyAction_WRITE, Effect: service.ResourcePolicy_allow},
 			}
 		}
-		// Check that slug is not already in use
-		h.deduplicateSlug(ctx, &inputWorkspace, cli)
 	}
 
 	defaultRights, quotaValue := h.extractDefaultRights(ctx, &inputWorkspace)
@@ -165,7 +159,6 @@ func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Re
 	cli := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
 
 	if stream, e := cli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: serviceQuery}); e == nil {
-		defer stream.CloseSend()
 		for {
 			resp, err := stream.Recv()
 			if err != nil {
@@ -237,7 +230,7 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 		service2.RestError500(req, rsp, err)
 		return
 	}
-	defer streamer.CloseSend()
+
 	collection := &rest.WorkspaceCollection{}
 	var uuids []string
 	wss := make(map[string]*idm.Workspace)
@@ -284,48 +277,6 @@ func (h *WorkspaceHandler) workspaceById(ctx context.Context, wsId string, clien
 	}
 	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 		Uuid: wsId,
-	})
-	if client, err := client.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}}); err == nil {
-
-		defer client.CloseSend()
-		for {
-			resp, e := client.Recv()
-			if e != nil {
-				break
-			}
-			if resp == nil {
-				continue
-			}
-			return resp.Workspace, nil
-		}
-
-	} else {
-		return nil, err
-	}
-	return nil, nil
-
-}
-
-func (h *WorkspaceHandler) deduplicateSlug(ctx context.Context, workspace *idm.Workspace, client idm.WorkspaceServiceClient) {
-
-	// Check that slug is not already in use
-	baseSlug := workspace.Slug
-	index := 0
-	for {
-		if existing, _ := h.workspaceBySlug(ctx, workspace.Slug, client); existing != nil {
-			index++
-			workspace.Slug = fmt.Sprintf("%s-%d", baseSlug, index)
-		} else {
-			break
-		}
-	}
-
-}
-
-func (h *WorkspaceHandler) workspaceBySlug(ctx context.Context, slug string, client idm.WorkspaceServiceClient) (*idm.Workspace, error) {
-
-	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
-		Slug: slug,
 	})
 	if client, err := client.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}}); err == nil {
 

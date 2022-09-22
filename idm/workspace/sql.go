@@ -113,7 +113,7 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 	if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
 		update = true
 	}
-	if !update && s.slugExists(workspace.Slug) {
+	if (!update && s.slugExists(workspace.Slug)) || common.IsReservedIdmWorkspaceSlug(workspace.Slug) {
 		index := 1
 		baseSlug := workspace.Slug
 		testSlug := fmt.Sprintf("%s-%v", baseSlug, index)
