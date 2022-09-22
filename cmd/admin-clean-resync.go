@@ -34,37 +34,37 @@ import (
 )
 
 var (
-	syncDsName  string
 	syncService string
 	syncPath    string
 )
 
 var dataSyncCmd = &cobra.Command{
 	Use:   "resync",
-	Short: "Trigger a service resync",
+	Short: "And a TriggerResync gRPC command to a service",
 	Long: `
 DESCRIPTION
 
-  Trigger the re-indexation of a service. 
-  This can be currently used for datasource indexes (see 'admin datasource' commands) and search engine.
+  TriggerResync is a generic gRPC endpoint that can be implemented by various services to perform internal
+  clean-up or resynchronization.
+
+  This can be currently used for datasources (see 'admin datasource' commands), search engine, logs (for truncating).
+  The "path" can be used by some services to read additional parameters.
 
 EXAMPLES
 
   To trigger the re-indexation of "pydiods1" datasource, target the "sync" service associated to the datasource : 
 
-  1. By datasource name:
-  $ ` + os.Args[0] + ` admin resync --datasource=pydiods1
+  1. Equivalent to "admin datasource resync" command:
+  $ ` + os.Args[0] + ` clean admin resync --service=pydio.grpc.data.sync.pydiods1 
 
-  2. By service name:
-  $ ` + os.Args[0] + ` admin resync --service=pydio.grpc.data.sync.pydiods1 
+  2. Re-index search engine:
+  $ ` + os.Args[0] + ` clean admin resync -s pydio.grpc.search
 
-  3. Re-index search engine:
-  $ ` + os.Args[0] + ` admin resync --service=pydio.grpc.search --path=/
+  3. Truncate logs to a given size (in bytes):
+  $ ` + os.Args[0] + ` clean admin resync --service=pydio.grpc.logs --path=TRUNCATE/200000
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		if syncDsName != "" {
-			syncService = "pydio.grpc.data.sync." + syncDsName
-		} else if syncService == "" {
+		if syncService == "" {
 			cmd.Println("Please provide at least a datasource name or a service name!")
 			cmd.Help()
 			return
@@ -86,8 +86,11 @@ EXAMPLES
 }
 
 func init() {
-	dataSyncCmd.PersistentFlags().StringVar(&syncDsName, "datasource", "", "Name of datasource to resync")
-	dataSyncCmd.PersistentFlags().StringVar(&syncService, "service", "", "If no datasource name is passed, use the complete service name to resync")
-	dataSyncCmd.PersistentFlags().StringVar(&syncPath, "path", "/", "Path to resync")
-	AdminCmd.AddCommand(dataSyncCmd)
+	dataSyncCmd.PersistentFlags().StringVarP(&syncService, "service", "s", "", "If no datasource name is passed, use the complete service name to resync")
+	dataSyncCmd.PersistentFlags().StringVarP(&syncPath, "path", "p", "/", "Can be used by some services to read additional parameters")
+	CleanCmd.AddCommand(dataSyncCmd)
+	// Backward compat
+	dsCmd2 := *dataSyncCmd
+	dsCmd2.Hidden = true
+	AdminCmd.AddCommand(&dsCmd2)
 }
