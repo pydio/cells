@@ -24,8 +24,9 @@ import "github.com/spf13/cobra"
 
 // ToolsCmd are tools that do not need a running Cells instance
 var ToolsCmd = &cobra.Command{
-	Use:   "tools",
-	Short: "Additional tools",
+	Use:    "tools",
+	Short:  "Additional tools",
+	Hidden: true,
 	Long: `
 DESCRIPTION
 
