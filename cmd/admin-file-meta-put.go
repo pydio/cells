@@ -50,7 +50,7 @@ DESCRIPTION
 
 EXAMPLE
 
-  $ ` + os.Args[0] + ` admin files meta-put --uuid=NODE_UUID --key=metaname --value='{"key":"value"}'
+  $ ` + os.Args[0] + ` admin file meta-put --uuid=NODE_UUID --key=metaname --value='{"key":"value"}'
 
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -79,9 +79,8 @@ EXAMPLE
 }
 
 func init() {
-	metaPutCmd.Flags().StringVarP(&metaPutUUID, "uuid", "u", "", "Uuid of the node to update")
+	metaPutCmd.Flags().StringVarP(&metaPutUUID, "uuid", "u", "", "UUID of the node to update")
 	metaPutCmd.Flags().StringVarP(&metaPutKey, "key", "k", "", "Name of the metadata")
-	metaPutCmd.Flags().StringVarP(&metaPutVal, "val", "v", "", "*JSON-encoded* string representing the value. Strings must be quoted, eg. '\"custom-value\"'")
-
-	FilesCmd.AddCommand(metaPutCmd)
+	metaPutCmd.Flags().StringVarP(&metaPutVal, "value", "v", "", "*JSON-encoded* string representing the value. Strings must be quoted, eg. '\"custom-value\"'")
+	FileCmd.AddCommand(metaPutCmd)
 }
