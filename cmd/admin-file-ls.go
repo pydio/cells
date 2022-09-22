@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path"
 	"strings"
@@ -43,6 +44,8 @@ var (
 	lsRecursive  bool
 	lsShowHidden bool
 	lsShowUuid   bool
+	lsOffset     int
+	lsLimit      int
 )
 
 var lsCmd = &cobra.Command{
@@ -76,6 +79,7 @@ EXAMPLE
 		}
 		table.SetHeader(hh)
 		res := 0
+		hidden := 0
 
 		if lsUuid != "" {
 
@@ -107,7 +111,6 @@ EXAMPLE
 			}
 			res = 1
 		} else {
-
 			if lsRecursive {
 				cmd.Println("Listing nodes recursively under " + promptui.Styler(promptui.FGUnderline)(lsPath))
 			} else {
@@ -115,7 +118,13 @@ EXAMPLE
 			}
 
 			// List all children
-			streamer, err := client.ListNodes(context.Background(), &tree.ListNodesRequest{Node: &tree.Node{Path: lsPath}, Recursive: lsRecursive})
+			// Note: if distant DS is structured, .pydio files are returned but not counted to compute the limit.
+			streamer, err := client.ListNodes(context.Background(), &tree.ListNodesRequest{
+				Node:      &tree.Node{Path: lsPath},
+				Recursive: lsRecursive,
+				Limit:     int64(lsLimit),
+				Offset:    int64(lsOffset),
+			})
 			if err != nil {
 				return err
 			}
@@ -128,6 +137,7 @@ EXAMPLE
 				res++
 				node := resp.GetNode()
 				if path.Base(node.GetPath()) == common.PydioSyncHiddenFile && !lsShowHidden {
+					hidden++
 					continue
 				}
 				var t, p, s, m string
@@ -154,6 +164,19 @@ EXAMPLE
 
 		if res > 0 {
 			table.Render()
+
+			msg := fmt.Sprintf("Showing %d result", res-hidden)
+			if res > 1 {
+				msg += "s"
+			}
+			if lsOffset > 0 {
+				msg += fmt.Sprintf(" at offset %d", lsOffset)
+			}
+			if res >= lsLimit {
+				msg += " (Max. row number limit has been hit)"
+			}
+			cmd.Println(msg)
+			cmd.Println(" ")
 		} else {
 			cmd.Println("No results")
 		}
@@ -167,5 +190,7 @@ func init() {
 	lsCmd.Flags().BoolVarP(&lsRecursive, "recursive", "", false, "List nodes recursively")
 	lsCmd.Flags().BoolVarP(&lsShowUuid, "uuid", "", false, "Show UUIDs")
 	lsCmd.Flags().BoolVarP(&lsShowHidden, "hidden", "", false, "Show hidden files (.pydio)")
+	lsCmd.Flags().IntVarP(&lsOffset, "offset", "o", 0, "Add an offset to the query when necessary")
+	lsCmd.Flags().IntVarP(&lsLimit, "limit", "l", 100, "Max. number of returned rows, 0 for unlimited")
 	FileCmd.AddCommand(lsCmd)
 }
