@@ -58,7 +58,7 @@ EXAMPLE
 
   List all files at the root of the "Common Files" workspace
 
-  $ ` + os.Args[0] + ` admin files ls --path pydiods1 --uuid
+  $ ` + os.Args[0] + ` admin file ls --path pydiods1 --uuid
 	+--------+---------------+--------------------------------------+--------+-----------------+
 	|  TYPE  |     PATH      |                 UUID                 |  SIZE  |    MODIFIED     |
 	+--------+---------------+--------------------------------------+--------+-----------------+
@@ -79,7 +79,6 @@ EXAMPLE
 
 		if lsUuid != "" {
 
-			cmd.Println("")
 			cmd.Println("Lookup node with UUID " + promptui.Styler(promptui.FGUnderline)(lsUuid))
 
 			// Special case for a node look up by its UUID
@@ -109,8 +108,11 @@ EXAMPLE
 			res = 1
 		} else {
 
-			cmd.Println("")
-			cmd.Println("Listing nodes under " + promptui.Styler(promptui.FGUnderline)(lsPath))
+			if lsRecursive {
+				cmd.Println("Listing nodes recursively under " + promptui.Styler(promptui.FGUnderline)(lsPath))
+			} else {
+				cmd.Println("Listing nodes at " + promptui.Styler(promptui.FGUnderline)(lsPath))
+			}
 
 			// List all children
 			streamer, err := client.ListNodes(context.Background(), &tree.ListNodesRequest{Node: &tree.Node{Path: lsPath}, Recursive: lsRecursive})
@@ -165,5 +167,5 @@ func init() {
 	lsCmd.Flags().BoolVarP(&lsRecursive, "recursive", "", false, "List nodes recursively")
 	lsCmd.Flags().BoolVarP(&lsShowUuid, "uuid", "", false, "Show UUIDs")
 	lsCmd.Flags().BoolVarP(&lsShowHidden, "hidden", "", false, "Show hidden files (.pydio)")
-	FilesCmd.AddCommand(lsCmd)
+	FileCmd.AddCommand(lsCmd)
 }

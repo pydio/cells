@@ -24,7 +24,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"os"
 	"path"
 	"time"
 
@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -51,6 +52,10 @@ DESCRIPTION
 
   Create an arbitrary number of random files in a directory.
   Provide --number, --path and --user parameters to perform this action.
+
+EXAMPLE
+
+  $ ` + os.Args[0] + ` admin file create-bench -n=100 -p=pydiods1/sandbox -u=admin
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {
 		//initServices()
@@ -61,6 +66,7 @@ DESCRIPTION
 			cmd.Help()
 			return
 		}
+
 		router := compose.PathClientAdmin(context.Background())
 		c := auth.WithImpersonate(context.Background(), &idm.User{Login: benchUser})
 		for i := 0; i < benchNumber; i++ {
@@ -89,8 +95,8 @@ func benchRandomContent(u string) string {
 }
 
 func init() {
-	FilesCmd.AddCommand(benchCmd)
 	benchCmd.Flags().IntVarP(&benchNumber, "number", "n", 0, "Number of files to create")
 	benchCmd.Flags().StringVarP(&benchPath, "path", "p", "pydiods1", "Path where to create the files")
 	benchCmd.Flags().StringVarP(&benchUser, "user", "u", "admin", "Username used to impersonate creation")
+	FileCmd.AddCommand(benchCmd)
 }

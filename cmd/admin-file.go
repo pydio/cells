@@ -24,8 +24,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var FilesCmd = &cobra.Command{
-	Use:   "files",
+var FileCmd = &cobra.Command{
+	Use:   "file",
 	Short: "Directly manage files and metadata on the nodes",
 	Long: `
 DESCRIPTION
@@ -40,5 +40,5 @@ DESCRIPTION
 }
 
 func init() {
-	AdminCmd.AddCommand(FilesCmd)
+	AdminCmd.AddCommand(FileCmd)
 }
