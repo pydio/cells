@@ -23,22 +23,21 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"github.com/pydio/cells/v4/common/nodes"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-	"github.com/schollz/progressbar/v3"
 	"os"
 	"path"
 	"time"
 
+	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
