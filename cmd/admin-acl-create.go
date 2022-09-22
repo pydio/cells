@@ -22,13 +22,13 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/pydio/cells/v4/common/log"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 )
 
