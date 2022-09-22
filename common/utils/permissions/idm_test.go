@@ -29,8 +29,8 @@ import (
 
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
-	"github.com/pydio/cells/v4/common/utils/permissions"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -69,10 +69,14 @@ func TestSearchUniqueUser(t *testing.T) {
 		So(e, ShouldBeNil)
 		So(aa, ShouldNotBeEmpty)
 
-		fakeAcl := permissions.NewAccessList([]*idm.Role{})
-		fakeAcl.WorkspacesNodes = map[string]map[string]permissions.Bitmask{
-			testData.WsSlugToUuid("common-files"): {},
-		}
+		fakeAcl := permissions.NewAccessList([]*idm.Role{}, &idm.ACL{
+			ID:          "",
+			Action:      &idm.ACLAction{Name: "read", Value: "1"},
+			RoleID:      "ROOT_GROUP",
+			WorkspaceID: testData.WsSlugToUuid("common-files"),
+			NodeID:      "pydiods1",
+		})
+		fakeAcl.Flatten(bg)
 		ww := permissions.GetWorkspacesForACLs(bg, fakeAcl)
 		So(ww, ShouldHaveLength, 1)
 

@@ -91,7 +91,7 @@ func MustCoreMetaSet(ctx context.Context, nodeUUID string, metaKey, metaValue st
 	if nodeUUID == "" {
 		log.Logger(ctx).Error("Error while trying to set Meta " + metaKey + " to " + metaValue + ": nodeUUID is empty!")
 	} else if e := CoreMetaSet(ctx, nodeUUID, metaKey, metaValue); e == nil {
-		log.Logger(ctx).Info("Set Meta " + metaKey + " to " + metaValue)
+		log.Logger(ctx).Debug("Set Meta " + metaKey + " to " + metaValue)
 	} else {
 		log.Logger(ctx).Error("Error while trying to set Meta "+metaKey+" to "+metaValue, zap.Error(e))
 	}

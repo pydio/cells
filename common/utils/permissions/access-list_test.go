@@ -150,10 +150,10 @@ func listParents(nodeId string) []*tree.Node {
 
 func TestNewAccessList(t *testing.T) {
 	Convey("Test New Access List", t, func() {
-		list := NewAccessList(roles, []*idm.ACL{})
-		list.Append(acls)
-		So(list.OrderedRoles, ShouldResemble, roles)
-		So(list.Acls, ShouldResemble, acls)
+		list := NewAccessList(roles)
+		list.AppendACLs(acls...)
+		So(list.orderedRoles, ShouldResemble, roles)
+		So(list.acls, ShouldResemble, acls)
 	})
 }
 
@@ -161,13 +161,13 @@ func TestAccessList_Flatten(t *testing.T) {
 	Convey("Test Flatten", t, func() {
 		ctx := context.Background()
 		list := NewAccessList(roles)
-		list.Append(acls)
+		list.AppendACLs(acls...)
 		list.Flatten(ctx)
-		So(list.NodesAcls, ShouldHaveLength, 4)
+		So(list.nodesUuidACLs, ShouldHaveLength, 4)
 
 		// Path and UUID are the same, a trick to avoid triggering load of PathsAcls
-		list.nodesPathsAcls = list.NodesAcls
-		list.Workspaces = map[string]*idm.Workspace{
+		list.nodesPathACLs = list.nodesUuidACLs
+		list.workspaces = map[string]*idm.Workspace{
 			"ws1": {UUID: "ws1"},
 			"ws2": {UUID: "ws2"},
 		}
@@ -234,10 +234,10 @@ func TestAclPolicies(t *testing.T) {
 
 		ctx := context.Background()
 		list := NewAccessList(roles)
-		list.Append(policyAcls)
+		list.AppendACLs(policyAcls...)
 		list.Flatten(ctx)
 		// Path and UUID are the same, a trick to avoid triggering load of PathsAcls
-		list.nodesPathsAcls = list.NodesAcls
+		list.nodesPathACLs = list.nodesUuidACLs
 
 		So(list.HasPolicyBasedAcls(), ShouldBeTrue)
 

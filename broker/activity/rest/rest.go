@@ -109,7 +109,7 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 
 	var collection []*activity.Object
 	accessList, err := permissions.AccessListFromContextClaims(ctx)
-	if len(accessList.Workspaces) == 0 || err != nil {
+	if err != nil || len(accessList.GetWorkspaces()) == 0 {
 		// Return Empty collection
 		rsp.WriteEntity(activity2.Collection(collection))
 		return
@@ -245,7 +245,7 @@ func (a *ActivityHandler) FilterActivity(ctx context.Context, accessList *permis
 		if ac.Type == activity.ObjectType_Delete {
 			reqAcl = nil
 		}
-		for _, workspace := range accessList.Workspaces {
+		for _, workspace := range accessList.GetWorkspaces() {
 			if filtered, ok := a.router.WorkspaceCanSeeNode(ctx, reqAcl, workspace, node); ok {
 				if obj.PartOf == nil {
 					obj.PartOf = &activity.Object{

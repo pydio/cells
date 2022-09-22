@@ -195,7 +195,7 @@ func (u *User) LoadWorkspaces(ctx context.Context, accessList *permissions.Acces
 			workspace.Workspace = *ws
 			u.Workspaces[wsId] = workspace
 		} else {
-			aclWs, ok := accessList.Workspaces[wsId]
+			aclWs, ok := accessList.GetWorkspaces()[wsId]
 			if !ok {
 				log.Logger(ctx).Error("something went wrong, access list refers to unknown workspace", zap.String("wsId", wsId))
 				continue

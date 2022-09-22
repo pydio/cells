@@ -154,35 +154,27 @@ func (s *service) As(i interface{}) bool {
 func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 	// now := time.Now()
 
-	/*
-		defer func() {
-			if e := recover(); e != nil {
-				log.Logger(s.opts.Context).Error("panic while starting service", zap.Any("p", e))
-				er = fmt.Errorf("panic while starting service %v", e)
-			}
-			if er != nil {
-				er = errors2.Wrap(er, "service.Start "+s.Name())
-				s.updateRegister(registry.StatusError)
-			}
-		}()
-	*/
+	defer func() {
+		if e := recover(); e != nil {
+			log.Logger(s.opts.Context).Error("panic while starting service", zap.Any("p", e))
+			er = fmt.Errorf("panic while starting service %v", e)
+		}
+		if er != nil {
+			er = errors2.Wrap(er, "service.Start "+s.Name())
+			s.updateRegister(registry.StatusError)
+		}
+	}()
 
 	s.updateRegister(registry.StatusStarting)
 
 	for _, before := range s.opts.BeforeStart {
 		if err := before(s.opts.Context); err != nil {
-			err = errors2.Wrap(err, "service.Start "+s.Name())
-			fmt.Println("Error while executing BeforeStart", err)
-			s.updateRegister(registry.StatusError)
 			return err
 		}
 	}
 
 	if s.opts.serverStart != nil {
 		if err := s.opts.serverStart(); err != nil {
-			err = errors2.Wrap(err, "service.Start "+s.Name())
-			fmt.Println("Error while executing serverStart", err)
-			s.updateRegister(registry.StatusError)
 			return err
 		}
 	}
