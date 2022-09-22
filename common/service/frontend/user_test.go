@@ -34,68 +34,71 @@ import (
 
 func TestUser_FlattenedFrontValues(t *testing.T) {
 	Convey("Test Flattened ACLs", t, func() {
-		acl := &permissions.AccessList{
-			OrderedRoles: []*idm.Role{
-				{Uuid: "user_role", GroupRole: false, UserRole: true},
-				{Uuid: "group_role", GroupRole: true, UserRole: false},
-			},
-			FrontPluginsValues: []*idm.ACL{
-				{
-					ID:          "lang",
-					Action:      &idm.ACLAction{Name: "parameter:core.conf:lang", Value: "fr"},
-					RoleID:      "user_role",
-					WorkspaceID: permissions.FrontWsScopeAll,
-				},
-				{
-					ID:          "a1",
-					Action:      &idm.ACLAction{Name: "parameter:plugin.name:STRING_PARAMETER", Value: "parameterStringValue1"},
-					RoleID:      "user_role",
-					WorkspaceID: "other-workspace-id",
-				},
-				{
-					ID:          "a2",
-					Action:      &idm.ACLAction{Name: "parameter:plugin.name:STRING_PARAMETER", Value: "parameterStringValue2"},
-					RoleID:      "user_role",
-					WorkspaceID: "active-workspace-id",
-				},
-				{
-					ID:          "a3",
-					Action:      &idm.ACLAction{Name: "parameter:plugin.name:STRING_PARAMETER", Value: "parameterStringValue3"},
-					RoleID:      "user_role",
-					WorkspaceID: permissions.FrontWsScopeAll,
-				},
-				{
-					ID:          "a4",
-					Action:      &idm.ACLAction{Name: "parameter:plugin.name:STRING_PARAMETER", Value: "parameterStringValue4"},
-					RoleID:      "group_role",
-					WorkspaceID: permissions.FrontWsScopeAll,
-				},
-				{
-					ID:          "a5",
-					Action:      &idm.ACLAction{Name: "parameter:plugin.other:STRING_PARAMETER", Value: "parameterStringValue5"},
-					RoleID:      "group_role",
-					WorkspaceID: permissions.FrontWsScopeAll,
-				},
-				{
-					ID:          "a6",
-					Action:      &idm.ACLAction{Name: "parameter:plugin.other:STRING_PARAMETER", Value: "parameterStringValue6"},
-					RoleID:      "other_role",
-					WorkspaceID: permissions.FrontWsScopeAll,
-				},
-				{
-					ID:          "a7",
-					Action:      &idm.ACLAction{Name: "parameter:plugin.name:BOOL_PARAMETER", Value: "true"},
-					RoleID:      "group_role",
-					WorkspaceID: permissions.FrontWsScopeAll,
-				},
-				{
-					ID:          "a8",
-					Action:      &idm.ACLAction{Name: "parameter:plugin.name:INTEGER_PARAMETER", Value: "12"},
-					RoleID:      "group_role",
-					WorkspaceID: permissions.FrontWsScopeAll,
-				},
-			}}
+		acl := &permissions.AccessList{}
 
+		acl.AppendRoles(
+			&idm.Role{Uuid: "user_role", GroupRole: false, UserRole: true},
+			&idm.Role{Uuid: "group_role", GroupRole: true, UserRole: false},
+		)
+
+		frontACLS := []*idm.ACL{
+			{
+				ID:          "lang",
+				Action:      &idm.ACLAction{Name: "parameter:core.conf:lang", Value: "fr"},
+				RoleID:      "user_role",
+				WorkspaceID: permissions.FrontWsScopeAll,
+			},
+			{
+				ID:          "a1",
+				Action:      &idm.ACLAction{Name: "parameter:plugin.name:STRING_PARAMETER", Value: "parameterStringValue1"},
+				RoleID:      "user_role",
+				WorkspaceID: "other-workspace-id",
+			},
+			{
+				ID:          "a2",
+				Action:      &idm.ACLAction{Name: "parameter:plugin.name:STRING_PARAMETER", Value: "parameterStringValue2"},
+				RoleID:      "user_role",
+				WorkspaceID: "active-workspace-id",
+			},
+			{
+				ID:          "a3",
+				Action:      &idm.ACLAction{Name: "parameter:plugin.name:STRING_PARAMETER", Value: "parameterStringValue3"},
+				RoleID:      "user_role",
+				WorkspaceID: permissions.FrontWsScopeAll,
+			},
+			{
+				ID:          "a4",
+				Action:      &idm.ACLAction{Name: "parameter:plugin.name:STRING_PARAMETER", Value: "parameterStringValue4"},
+				RoleID:      "group_role",
+				WorkspaceID: permissions.FrontWsScopeAll,
+			},
+			{
+				ID:          "a5",
+				Action:      &idm.ACLAction{Name: "parameter:plugin.other:STRING_PARAMETER", Value: "parameterStringValue5"},
+				RoleID:      "group_role",
+				WorkspaceID: permissions.FrontWsScopeAll,
+			},
+			{
+				ID:          "a6",
+				Action:      &idm.ACLAction{Name: "parameter:plugin.other:STRING_PARAMETER", Value: "parameterStringValue6"},
+				RoleID:      "other_role",
+				WorkspaceID: permissions.FrontWsScopeAll,
+			},
+			{
+				ID:          "a7",
+				Action:      &idm.ACLAction{Name: "parameter:plugin.name:BOOL_PARAMETER", Value: "true"},
+				RoleID:      "group_role",
+				WorkspaceID: permissions.FrontWsScopeAll,
+			},
+			{
+				ID:          "a8",
+				Action:      &idm.ACLAction{Name: "parameter:plugin.name:INTEGER_PARAMETER", Value: "12"},
+				RoleID:      "group_role",
+				WorkspaceID: permissions.FrontWsScopeAll,
+			},
+		}
+
+		acl.AppendFrontACLs(frontACLS...)
 		acl.Flatten(context.Background())
 
 		u := &User{

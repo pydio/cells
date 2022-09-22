@@ -89,7 +89,7 @@ func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, request *r
 		return e
 	}
 	options := sc.defaultOptions()
-	aclWss := acl.Workspaces
+	aclWss := acl.GetWorkspaces()
 	return router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 		for _, n := range request.Room.RootNodes {
 			var files, folders bool

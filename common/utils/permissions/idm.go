@@ -335,8 +335,6 @@ func GetACLsForActions(ctx context.Context, actions ...*idm.ACLAction) (acls []*
 		log.Logger(ctx).Error("GetACLsForActions", zap.Error(err))
 		return nil, err
 	}
-
-	defer stream.CloseSend()
 	for {
 		response, err := stream.Recv()
 		if err != nil {
@@ -375,17 +373,19 @@ func AccessListForLockedNodes(ctx context.Context, resolver VirtualPathResolver)
 
 	acls, _ := GetACLsForActions(ctx, AclLock)
 
-	accessList.Append(acls)
-	accessList.NodesAcls = make(map[string]Bitmask)
+	accessList.AppendACLs(acls...)
+	accessList.nodesUuidACLs = make(map[string]Bitmask)
 
 	b := Bitmask{}
 	b.AddFlag(FlagLock)
 
 	for _, acl := range acls {
-		accessList.NodesAcls[acl.NodeID] = b
+		accessList.nodesUuidACLs[acl.NodeID] = b
 	}
 
-	accessList.LoadNodePathsAcls(ctx, resolver)
+	if er := accessList.loadNodePathAcls(ctx, resolver); er != nil {
+		return nil, er
+	}
 
 	return accessList, nil
 }
@@ -412,7 +412,7 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 	if e != nil {
 		return nil, e
 	}
-	accessList.Append(aa)
+	accessList.AppendACLs(aa...)
 	accessList.Flatten(ctx)
 
 	if claims.ProvidesScopes {
@@ -421,7 +421,7 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 
 	idmWorkspaces := GetWorkspacesForACLs(ctx, accessList)
 	for _, workspace := range idmWorkspaces {
-		accessList.Workspaces[workspace.UUID] = workspace
+		accessList.workspaces[workspace.UUID] = workspace
 	}
 	getAclCache().Set(claims.SessionID+claims.Subject, accessList)
 	return accessList, nil
@@ -583,13 +583,13 @@ func AccessListFromRoles(ctx context.Context, roles []*idm.Role, countPolicies b
 	if e != nil {
 		return nil, e
 	}
-	accessList.Append(aa)
+	accessList.AppendACLs(aa...)
 	accessList.Flatten(ctx)
 
 	if loadWorkspaces {
 		idmWorkspaces := GetWorkspacesForACLs(ctx, accessList)
 		for _, workspace := range idmWorkspaces {
-			accessList.Workspaces[workspace.UUID] = workspace
+			accessList.workspaces[workspace.UUID] = workspace
 		}
 	}
 
@@ -601,15 +601,15 @@ func AccessListFromRoles(ctx context.Context, roles []*idm.Role, countPolicies b
 // current list of ordered roles
 func AccessListLoadFrontValues(ctx context.Context, accessList *AccessList) error {
 
-	if accessList.FrontPluginsValues != nil {
+	if accessList.frontACLs != nil {
 		return nil
 	}
 
-	values, er := GetACLsForRoles(ctx, accessList.OrderedRoles, AclFrontAction_, AclFrontParam_)
+	values, er := GetACLsForRoles(ctx, accessList.GetRoles(), AclFrontAction_, AclFrontParam_)
 	if er != nil {
 		return er
 	}
-	accessList.FrontPluginsValues = values
+	accessList.frontACLs = values
 
 	return nil
 }

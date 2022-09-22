@@ -86,7 +86,7 @@ func (a *WorkspaceHandler) extractWs(ctx context.Context, node *tree.Node) (*idm
 		parts := strings.Split(strings.Trim(node.Path, "/"), "/")
 		if len(parts) > 0 && len(parts[0]) > 0 {
 			// Find by slug
-			for _, ws := range accessList.Workspaces {
+			for _, ws := range accessList.GetWorkspaces() {
 				if ws.Slug == parts[0] {
 					node.Path = strings.Join(parts[1:], "/")
 					return ws, true, nil
@@ -161,7 +161,7 @@ func (a *WorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 		streamer := nodes.NewWrappingStreamer(ctx)
 		go func() {
 			defer streamer.CloseSend()
-			wss := accessList.Workspaces
+			wss := accessList.GetWorkspaces()
 			for wsId, wsPermissions := range accessList.GetAccessibleWorkspaces(ctx) {
 				ws, o := wss[wsId]
 				if !o {

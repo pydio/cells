@@ -66,7 +66,7 @@ func Digest(ctx context.Context, items []*activity.Object) (*activity.Object, er
 	c.Type = activity.ObjectType_Digest
 
 	accessList, _ := permissions.AccessListFromContextClaims(ctx)
-	if len(accessList.Workspaces) == 0 {
+	if len(accessList.GetWorkspaces()) == 0 {
 		log.Logger(ctx).Error("no workspaces found while building activity digest")
 		return c, nil
 	}
@@ -79,7 +79,7 @@ func Digest(ctx context.Context, items []*activity.Object) (*activity.Object, er
 			c.Items = append(c.Items, ac)
 		}
 	}
-	for _, workspace := range accessList.Workspaces {
+	for _, workspace := range accessList.GetWorkspaces() {
 		for _, ac := range items {
 			if ac.Object != nil && (ac.Object.Type == activity.ObjectType_Folder || ac.Object.Type == activity.ObjectType_Document) {
 				node := &tree.Node{Uuid: ac.Object.Id, Path: ac.Object.Name}

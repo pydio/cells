@@ -114,7 +114,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 		// (Let inputFilter apply the various necessary middlewares).
 		loaderCtx, _, _ := inputFilter(ctx, &tree.Node{Path: ""}, "tmp")
 		if accessList, ok := acl.FromContext(loaderCtx); ok {
-			userWorkspaces = accessList.Workspaces
+			userWorkspaces = accessList.GetWorkspaces()
 		}
 
 		if len(passedPrefix) > 0 {
