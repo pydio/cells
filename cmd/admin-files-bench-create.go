@@ -22,9 +22,12 @@ package cmd
 
 import (
 	"bytes"
-	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/nodes"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/schollz/progressbar/v3"
 	"path"
 	"time"
 
@@ -61,8 +64,10 @@ DESCRIPTION
 			cmd.Help()
 			return
 		}
-		router := compose.PathClientAdmin(context.Background())
-		c := auth.WithImpersonate(context.Background(), &idm.User{Login: benchUser})
+		reg := servicecontext.GetRegistry(ctx)
+		router := compose.PathClientAdmin(nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg)))
+		c := auth.WithImpersonate(cmd.Context(), &idm.User{Login: benchUser})
+		bar := progressbar.Default(int64(benchNumber), "# files created")
 		for i := 0; i < benchNumber; i++ {
 			u := uuid.New()
 			s := benchRandomContent(u)
@@ -76,7 +81,9 @@ DESCRIPTION
 			if e != nil {
 				fmt.Println("[ERROR] Cannot write file", e)
 			}
+			bar.Set(i + 1)
 		}
+		bar.Finish()
 	},
 }
 
