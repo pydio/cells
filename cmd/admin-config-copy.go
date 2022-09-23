@@ -98,7 +98,7 @@ EXAMPLE
 				if er := to.Save(v.User, v.Log); er != nil {
 					return er
 				}
-				cmd.Println("Copied values for version", v.Id, v.Log)
+				cmd.Println(promptui.IconGood+"Copied values for version", v.Id, v.Log)
 			}
 
 		} else {
