@@ -21,7 +21,9 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"github.com/manifoldco/promptui"
 	"math"
 	"os"
 	"time"
@@ -61,6 +63,9 @@ EXAMPLE
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
+		if configCopyFromURL == "" || configCopyToURL == "" {
+			return errors.New("no arguments given")
+		}
 		from, er := config.OpenStore(ctx, configCopyFromURL)
 		if er != nil {
 			return er
@@ -105,12 +110,11 @@ EXAMPLE
 			if er := to.Save(common.PydioSystemUsername, "Copied config from "+configCopyFromURL); er != nil {
 				return er
 			}
-			cmd.Println("Copied all values")
+			cmd.Println(promptui.IconGood + "\033[1m Copied all values\033[0m")
 		}
 		return nil
 	},
 	PostRun: func(cmd *cobra.Command, args []string) {
-		cmd.Println("Delaying exit to make sure write operations are committed.")
 		<-time.After(1 * time.Second)
 	},
 }
