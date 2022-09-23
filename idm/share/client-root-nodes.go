@@ -61,7 +61,7 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 		if resp, err := router.ReadNode(ctx, request); err == nil {
 			node := resp.Node
 			var multipleMeta []*tree.WorkspaceRelativePath
-			for _, ws := range accessList.Workspaces {
+			for _, ws := range accessList.GetWorkspaces() {
 				if filtered, ok := eventFilter.WorkspaceCanSeeNode(ctx, accessList, ws, resp.Node); ok {
 					multipleMeta = append(multipleMeta, &tree.WorkspaceRelativePath{
 						WsLabel: ws.Label,

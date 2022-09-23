@@ -223,6 +223,9 @@ const (
 	MetaFlagWorkspaceRepoId      = "repository_id"
 	MetaFlagWorkspaceRepoDisplay = "repository_display"
 	MetaFlagWorkspaceEventId     = "EventWorkspaceId"
+
+	IdmWsInternalHomepageID = "homepage"
+	IdmWsInternalSettingsID = "settings"
 )
 
 var (
@@ -236,6 +239,11 @@ var (
 		XPydioIndexationSessionUuid,
 		XPydioFrontendSessionUuid,
 		XPydioMoveUuid,
+	}
+
+	IdmWsInternalReservedSlugs = map[string]string{
+		IdmWsInternalSettingsID: "settings",
+		IdmWsInternalHomepageID: "welcome",
 	}
 )
 
@@ -320,6 +328,16 @@ func MustLogFileDefaultValue() bool {
 func IsXSpecialPydioHeader(headerName string) bool {
 	for _, hh := range XSpecialPydioHeaders {
 		if hh == headerName {
+			return true
+		}
+	}
+	return false
+}
+
+// IsReservedIdmWorkspaceSlug checks if a slug is already reserved for usage
+func IsReservedIdmWorkspaceSlug(slug string) bool {
+	for _, s := range IdmWsInternalReservedSlugs {
+		if s == slug {
 			return true
 		}
 	}

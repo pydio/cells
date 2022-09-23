@@ -254,7 +254,7 @@ func (a *QuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *idm.W
 	log.Logger(ctx).Debug("AccessList From User", zap.Any("ownerUuid", ownerUuid), zap.Any("accessList", ownerAcls))
 
 	var roleIds []string
-	for _, r := range ownerAcls.OrderedRoles {
+	for _, r := range ownerAcls.GetRoles() {
 		roleIds = append(roleIds, r.Uuid)
 	}
 	claims := claim.Claims{
@@ -266,7 +266,7 @@ func (a *QuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *idm.W
 	vResolver := abstract.GetVirtualNodesManager(a.RuntimeCtx).GetResolver(false)
 	ownerWsRoots := make(map[string]*idm.Workspace)
 
-	for _, ws := range ownerAcls.Workspaces {
+	for _, ws := range ownerAcls.GetWorkspaces() {
 		for _, originalRoot := range ws.RootUUIDs {
 			realId := originalRoot
 			if n, o := vResolver(parentContext, &tree.Node{Uuid: realId}); o {

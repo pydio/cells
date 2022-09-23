@@ -25,13 +25,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
@@ -50,8 +49,8 @@ DESCRIPTION
 
 EXAMPLE
 
-  $ ` + os.Args[0] + ` admin files meta-read --uuid=244f072d-d9a1-11e7-950b-685b35ac60e5
-  Will result : 
+  $ ` + os.Args[0] + ` admin file meta-read --uuid=244f072d-d9a1-11e7-950b-685b35ac60e5
+  returns: 
 	+-------------------------------+--------------------------------------------------------------------------+
 	|             NAME              |                                                     VALUE                |
 	+-------------------------------+--------------------------------------------------------------------------+
@@ -83,7 +82,6 @@ EXAMPLE
 				Uuid: metaReadUUID,
 			},
 		})
-
 		if err != nil {
 			return err
 		}
@@ -95,7 +93,6 @@ EXAMPLE
 			table.Append([]string{key, value})
 		}
 
-		cmd.Println("")
 		cmd.Println("Listing meta for node " + promptui.Styler(promptui.FGUnderline)(response.GetNode().GetUuid()))
 
 		table.Render()
@@ -104,7 +101,7 @@ EXAMPLE
 }
 
 func init() {
-	metaReadCmd.Flags().StringVarP(&metaReadUUID, "uuid", "u", "", "Uuid of the node")
+	metaReadCmd.Flags().StringVarP(&metaReadUUID, "uuid", "u", "", "UUID of the node")
 
-	FilesCmd.AddCommand(metaReadCmd)
+	FileCmd.AddCommand(metaReadCmd)
 }

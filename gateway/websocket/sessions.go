@@ -66,19 +66,19 @@ func updateSessionFromClaims(ctx context.Context, session *melody.Session, claim
 		ClearSession(session)
 		return
 	}
-	roles := accessList.OrderedRoles
-	workspaces := accessList.Workspaces
+	roles := accessList.GetRoles()
+	workspaces := accessList.GetWorkspaces()
 	// Resolve workspaces roots in the current context
-	for _, workspaces := range workspaces {
+	for _, ws := range workspaces {
 		var resolvedRoots []string
-		for _, rootId := range workspaces.RootUUIDs {
+		for _, rootId := range ws.RootUUIDs {
 			if resolved, ok := vNodeResolver(ctx, &tree.Node{Uuid: rootId}); ok {
 				resolvedRoots = append(resolvedRoots, resolved.Uuid)
 			} else {
 				resolvedRoots = append(resolvedRoots, rootId)
 			}
 		}
-		workspaces.RootUUIDs = resolvedRoots
+		ws.RootUUIDs = resolvedRoots
 	}
 	log.Logger(ctx).Debug("Setting workspaces in session", zap.Any("workspaces", workspaces))
 	session.Set(SessionRolesKey, roles)
@@ -114,7 +114,11 @@ func prepareRemoteContext(parent context.Context, session *melody.Session) (cont
 	if !o1 {
 		return nil, fmt.Errorf("unexpected error: websocket session has no claims")
 	}
-	metaCtx := auth.ContextFromClaims(parent, claims.(claim.Claims))
+	cc, o2 := claims.(claim.Claims)
+	if !o2 {
+		return nil, fmt.Errorf("unexpected error: websocket session has no claims")
+	}
+	metaCtx := auth.ContextFromClaims(parent, cc)
 	metaCtx = servicecontext.WithServiceName(metaCtx, common.ServiceGatewayNamespace_+common.ServiceWebSocket)
 	if md, o := session.Get(SessionMetaContext); o {
 		if meta, ok := md.(metadata.Metadata); ok {

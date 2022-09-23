@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path"
 	"strings"
@@ -43,6 +44,8 @@ var (
 	lsRecursive  bool
 	lsShowHidden bool
 	lsShowUuid   bool
+	lsOffset     int
+	lsLimit      int
 )
 
 var lsCmd = &cobra.Command{
@@ -58,7 +61,7 @@ EXAMPLE
 
   List all files at the root of the "Common Files" workspace
 
-  $ ` + os.Args[0] + ` admin files ls --path pydiods1 --uuid
+  $ ` + os.Args[0] + ` admin file ls --path pydiods1 --uuid
 	+--------+---------------+--------------------------------------+--------+-----------------+
 	|  TYPE  |     PATH      |                 UUID                 |  SIZE  |    MODIFIED     |
 	+--------+---------------+--------------------------------------+--------+-----------------+
@@ -76,10 +79,10 @@ EXAMPLE
 		}
 		table.SetHeader(hh)
 		res := 0
+		hidden := 0
 
 		if lsUuid != "" {
 
-			cmd.Println("")
 			cmd.Println("Lookup node with UUID " + promptui.Styler(promptui.FGUnderline)(lsUuid))
 
 			// Special case for a node look up by its UUID
@@ -108,12 +111,20 @@ EXAMPLE
 			}
 			res = 1
 		} else {
-
-			cmd.Println("")
-			cmd.Println("Listing nodes under " + promptui.Styler(promptui.FGUnderline)(lsPath))
+			if lsRecursive {
+				cmd.Println("Listing nodes recursively under " + promptui.Styler(promptui.FGUnderline)(lsPath))
+			} else {
+				cmd.Println("Listing nodes at " + promptui.Styler(promptui.FGUnderline)(lsPath))
+			}
 
 			// List all children
-			streamer, err := client.ListNodes(context.Background(), &tree.ListNodesRequest{Node: &tree.Node{Path: lsPath}, Recursive: lsRecursive})
+			// Note: if distant DS is structured, .pydio files are returned but not counted to compute the limit.
+			streamer, err := client.ListNodes(context.Background(), &tree.ListNodesRequest{
+				Node:      &tree.Node{Path: lsPath},
+				Recursive: lsRecursive,
+				Limit:     int64(lsLimit),
+				Offset:    int64(lsOffset),
+			})
 			if err != nil {
 				return err
 			}
@@ -126,6 +137,7 @@ EXAMPLE
 				res++
 				node := resp.GetNode()
 				if path.Base(node.GetPath()) == common.PydioSyncHiddenFile && !lsShowHidden {
+					hidden++
 					continue
 				}
 				var t, p, s, m string
@@ -152,6 +164,19 @@ EXAMPLE
 
 		if res > 0 {
 			table.Render()
+
+			msg := fmt.Sprintf("Showing %d result", res-hidden)
+			if res > 1 {
+				msg += "s"
+			}
+			if lsOffset > 0 {
+				msg += fmt.Sprintf(" at offset %d", lsOffset)
+			}
+			if res >= lsLimit {
+				msg += " (Max. row number limit has been hit)"
+			}
+			cmd.Println(msg)
+			cmd.Println(" ")
 		} else {
 			cmd.Println("No results")
 		}
@@ -165,5 +190,7 @@ func init() {
 	lsCmd.Flags().BoolVarP(&lsRecursive, "recursive", "", false, "List nodes recursively")
 	lsCmd.Flags().BoolVarP(&lsShowUuid, "uuid", "", false, "Show UUIDs")
 	lsCmd.Flags().BoolVarP(&lsShowHidden, "hidden", "", false, "Show hidden files (.pydio)")
-	FilesCmd.AddCommand(lsCmd)
+	lsCmd.Flags().IntVarP(&lsOffset, "offset", "o", 0, "Add an offset to the query when necessary")
+	lsCmd.Flags().IntVarP(&lsLimit, "limit", "l", 100, "Max. number of returned rows, 0 for unlimited")
+	FileCmd.AddCommand(lsCmd)
 }

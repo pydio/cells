@@ -21,7 +21,7 @@
 package i18n
 
 import (
-	"io/ioutil"
+	"io"
 	"strings"
 
 	"github.com/nicksnyder/go-i18n/i18n"
@@ -50,7 +50,7 @@ func (b *I18nBundle) LoadPackrTranslationFiles(box statics.FS) {
 	for _, f := range files {
 		if strings.HasSuffix(f, ".json") {
 			if file, e := box.Open(f); e == nil {
-				data, _ := ioutil.ReadAll(file)
+				data, _ := io.ReadAll(file)
 				file.Close()
 				b.ParseTranslationFileBytes(f, data)
 			}

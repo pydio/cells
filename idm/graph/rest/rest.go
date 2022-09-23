@@ -192,7 +192,7 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	// Load the current user teams, to check if the current user is part of one of them
 	roleCli := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceRole))
 	var uuids []string
-	for _, role := range targetUserAccessList.OrderedRoles {
+	for _, role := range targetUserAccessList.GetRoles() {
 		uuids = append(uuids, role.Uuid)
 	}
 	roleQ, _ := anypb.New(&idm.RoleSingleQuery{
@@ -238,7 +238,7 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
 
 	// Return empty if accessList is empty
 	accessList, err := permissions.AccessListFromContextClaims(ctx)
-	if len(accessList.Workspaces) == 0 || err != nil {
+	if err != nil || len(accessList.GetWorkspaces()) == 0 {
 		rsp.WriteEntity(&rest.RecommendResponse{})
 		return
 	}

@@ -499,8 +499,8 @@ func (s *Pydio8Store) getACLs(roleID string, path string) ([]*idm.ACL, error) {
 	}
 
 	wsMap := map[string]string{
-		"ajxp_home": "homepage",
-		"ajxp_conf": "settings",
+		"ajxp_home": common.IdmWsInternalHomepageID,
+		"ajxp_conf": common.IdmWsInternalSettingsID,
 	}
 
 	for ws, rights := range roleACLs {

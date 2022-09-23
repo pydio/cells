@@ -38,7 +38,6 @@ var (
 	patchRecycleRoot string
 )
 
-// createCmd represents the create command
 var patchRecyclePersonalCmd = &cobra.Command{
 	Use:   "patch-recycle-personal",
 	Short: "Patch the recycle bin of the personal folders",

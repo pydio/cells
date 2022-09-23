@@ -132,7 +132,7 @@ func (u *User) LoadActiveWorkspace(parameter string) {
 		}
 	}
 	// Load default repository from preferences, or start on home page
-	var defaultStart = "homepage"
+	var defaultStart = common.IdmWsInternalHomepageID
 	if v := u.FlattenedRolesConfigByName("core.conf", "DEFAULT_START_REPOSITORY"); v != "" {
 		defaultStart = v
 	}
@@ -181,11 +181,7 @@ func (u *User) LoadWorkspaces(ctx context.Context, accessList *permissions.Acces
 
 	workspacesAccesses := accessList.GetAccessibleWorkspaces(ctx)
 	for wsId := range workspacesAccesses {
-		if wsId == "settings" || wsId == "homepage" {
-			slug := "settings"
-			if wsId == "homepage" {
-				slug = "welcome"
-			}
+		if slug, ok := common.IdmWsInternalReservedSlugs[wsId]; ok {
 			ws := &idm.Workspace{
 				Scope: idm.WorkspaceScope_ADMIN,
 				UUID:  wsId,
@@ -199,7 +195,7 @@ func (u *User) LoadWorkspaces(ctx context.Context, accessList *permissions.Acces
 			workspace.Workspace = *ws
 			u.Workspaces[wsId] = workspace
 		} else {
-			aclWs, ok := accessList.Workspaces[wsId]
+			aclWs, ok := accessList.GetWorkspaces()[wsId]
 			if !ok {
 				log.Logger(ctx).Error("something went wrong, access list refers to unknown workspace", zap.String("wsId", wsId))
 				continue

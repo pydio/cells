@@ -48,7 +48,7 @@ var (
 	queries = map[string]string{
 		"AddWorkspace":            `replace into idm_workspaces (uuid, label, description, attributes, slug, scope, last_updated) values (?, ?, ?, ?, ?, ?, ?)`,
 		"GetWorkspace":            `select uuid from idm_workspaces where uuid = ?`,
-		"ExistsWorkspace":         `select count(uuid) from idm_workspaces where uuid = ?`,
+		"ExistsWorkspace":         `select uuid, slug from idm_workspaces where uuid = ?`,
 		"ExistsWorkspaceWithSlug": `select count(uuid) from idm_workspaces where slug = ?`,
 	}
 )
@@ -109,11 +109,11 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 	}
 
 	exists := stmt.QueryRow(workspace.UUID)
-	count := new(int)
-	if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
+	var exUuid, exSlug string
+	if err := exists.Scan(&exUuid, &exSlug); err != sql.ErrNoRows && exUuid != "" {
 		update = true
 	}
-	if !update && s.slugExists(workspace.Slug) {
+	if (!update || exSlug != workspace.Slug) && s.slugExists(workspace.Slug) {
 		index := 1
 		baseSlug := workspace.Slug
 		testSlug := fmt.Sprintf("%s-%v", baseSlug, index)
@@ -141,6 +141,9 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 // slugExists check in the DB if the slug already exists.
 func (s *sqlimpl) slugExists(slug string) bool {
 	if slug == common.PydioDocstoreBinariesNamespace || slug == common.PydioThumbstoreNamespace || slug == common.PydioVersionsNamespace {
+		return true
+	}
+	if common.IsReservedIdmWorkspaceSlug(slug) {
 		return true
 	}
 
