@@ -24,16 +24,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 func (m *IdmSelector) MultipleSelection() bool {
@@ -346,20 +346,11 @@ func (m *IdmSelector) WorkspaceFromEventContext(ctx context.Context) (*idm.Works
 	if !o {
 		return nil, false
 	}
-	wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
-	q, _ := anypb.New(&idm.WorkspaceSingleQuery{Uuid: wsUuid})
 	ct, ca := context.WithCancel(ctx)
 	defer ca()
-	r, e := wsClient.SearchWorkspace(ct, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
-	if e != nil {
+	if ws, er := permissions.SearchUniqueWorkspace(ct, wsUuid, ""); er == nil {
+		return ws, true
+	} else {
 		return nil, false
 	}
-	for {
-		resp, er := r.Recv()
-		if er != nil {
-			break
-		}
-		return resp.Workspace, true
-	}
-	return nil, false
 }

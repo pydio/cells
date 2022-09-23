@@ -69,7 +69,8 @@ func TestSearchUniqueUser(t *testing.T) {
 		So(e, ShouldBeNil)
 		So(aa, ShouldNotBeEmpty)
 
-		fakeAcl := permissions.NewAccessList([]*idm.Role{}, &idm.ACL{
+		fakeAcl := permissions.NewAccessList()
+		fakeAcl.AppendACLs(&idm.ACL{
 			ID:          "",
 			Action:      &idm.ACLAction{Name: "read", Value: "1"},
 			RoleID:      "ROOT_GROUP",

@@ -574,28 +574,8 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 		return
 	}
 	cli := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceWorkspace))
-	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
-		Uuid: input.Uuid,
-	})
-	var ws *idm.Workspace
-	if client, err := cli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service2.Query{SubQueries: []*anypb.Any{q}}}); err == nil {
-		defer client.CloseSend()
-		for {
-			resp, e := client.Recv()
-			if e != nil {
-				break
-			}
-			if resp == nil {
-				continue
-			}
-			ws = resp.Workspace
-			break
-		}
-	} else {
-		service.RestErrorDetect(req, rsp, err)
-		return
-	}
-	if ws == nil {
+	ws, err := permissions.SearchUniqueWorkspace(ctx, input.Uuid, "")
+	if err != nil {
 		service.RestError500(req, rsp, errors.NotFound("share.not.found", "cannot find associated workspace"))
 		return
 	}

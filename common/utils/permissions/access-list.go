@@ -75,7 +75,7 @@ func init() {
 type AccessList struct {
 	workspaces   map[string]*idm.Workspace
 	orderedRoles []*idm.Role
-	acls         []*idm.ACL
+	wsACLs       []*idm.ACL
 	frontACLs    []*idm.ACL
 
 	nodesUuidACLs   map[string]Bitmask
@@ -88,18 +88,17 @@ type AccessList struct {
 }
 
 // NewAccessList creates a new AccessList.
-func NewAccessList(orderedRoles []*idm.Role, aa ...*idm.ACL) *AccessList {
+func NewAccessList(roles ...*idm.Role) *AccessList {
 	acl := &AccessList{
 		workspaces:   make(map[string]*idm.Workspace),
-		orderedRoles: orderedRoles,
+		orderedRoles: roles,
 	}
-	acl.AppendACLs(aa...)
 	return acl
 }
 
 // AppendACLs appends an additional list of ACLs.
 func (a *AccessList) AppendACLs(aa ...*idm.ACL) {
-	a.acls = append(a.acls, aa...)
+	a.wsACLs = append(a.wsACLs, aa...)
 }
 
 // AppendFrontACLs appends an additional list of front-related ACLs.
@@ -117,6 +116,12 @@ func (a *AccessList) GetWorkspaces() map[string]*idm.Workspace {
 	return a.workspaces
 }
 
+func (a *AccessList) LoadWorkspaces(loader func(a *AccessList) []*idm.Workspace) {
+	for _, w := range loader(a) {
+		a.workspaces[w.UUID] = w
+	}
+}
+
 // GetRoles returns ordered list of roles
 func (a *AccessList) GetRoles() []*idm.Role {
 	return a.orderedRoles
@@ -131,7 +136,7 @@ func (a *AccessList) AppendClaimsScopes(ss []string) {
 
 // HasPolicyBasedAcls checks if there are policy based acls.
 func (a *AccessList) HasPolicyBasedAcls() bool {
-	for _, acl := range a.acls {
+	for _, acl := range a.wsACLs {
 		if acl.Action.Name == AclPolicy.Name {
 			return true
 		}
@@ -141,7 +146,7 @@ func (a *AccessList) HasPolicyBasedAcls() bool {
 
 // Flatten performs actual flatten.
 func (a *AccessList) Flatten(ctx context.Context) {
-	nodes, workspaces := a.flattenNodes(ctx, a.acls)
+	nodes, workspaces := a.flattenNodes(ctx, a.wsACLs)
 	a.nodesUuidACLs = nodes
 	a.workspacesNodes = workspaces
 }
@@ -303,48 +308,6 @@ func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Nod
 
 }
 
-// loadNodePathAcls retrieve each node by UUID, to which an ACL is attached
-func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathResolver) error {
-	a.nodesPathACLs = make(map[string]Bitmask, len(a.nodesUuidACLs))
-	if len(a.nodesUuidACLs) == 0 {
-		// Do not open an unnecessary stream...
-		return nil
-	}
-	cli := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
-	ct, ca := context.WithCancel(ctx)
-	defer ca()
-	st, e := cli.ReadNodeStream(ct)
-	if e != nil {
-		return e
-	}
-	// Retrieving path foreach ids
-	for nodeID, b := range a.nodesUuidACLs {
-		if n, ok := resolver(ctx, &tree.Node{Uuid: nodeID}); ok {
-			log.Logger(ctx).Debug("Acl.loadNodePathAcls : Loading resolved node", n.Zap())
-			a.nodesPathACLs[strings.TrimSuffix(n.Path, "/")] = b
-			continue
-		}
-		err := st.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeID}})
-		if err != nil {
-			return err
-		}
-		resp, err := st.Recv()
-		if err != nil || resp.Node == nil {
-			continue
-		}
-		a.nodesPathACLs[strings.TrimSuffix(resp.Node.Path, "/")] = b
-	}
-	return nil
-}
-
-func (a *AccessList) replicateMasksResolved(ctx context.Context, resolver VirtualPathResolver) {
-	for id := range a.nodesUuidACLs {
-		if res, o := resolver(ctx, &tree.Node{Uuid: id}); o {
-			a.ReplicateBitmask(id, res.Uuid)
-		}
-	}
-}
-
 // FlattenedFrontValues generates a configx.Values with frontend actions/parameters configs
 func (a *AccessList) FlattenedFrontValues() configx.Values {
 	output := configx.New()
@@ -385,6 +348,40 @@ func (a *AccessList) Zap() zapcore.Field {
 /***************
 PRIVATE METHODS
 ****************/
+
+// loadNodePathAcls retrieve each node by UUID, to which an ACL is attached
+func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathResolver) error {
+	a.nodesPathACLs = make(map[string]Bitmask, len(a.nodesUuidACLs))
+	if len(a.nodesUuidACLs) == 0 {
+		// Do not open an unnecessary stream...
+		return nil
+	}
+	cli := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
+	ct, ca := context.WithCancel(ctx)
+	defer ca()
+	st, e := cli.ReadNodeStream(ct)
+	if e != nil {
+		return e
+	}
+	// Retrieving path foreach ids
+	for nodeID, b := range a.nodesUuidACLs {
+		if n, ok := resolver(ctx, &tree.Node{Uuid: nodeID}); ok {
+			log.Logger(ctx).Debug("Acl.loadNodePathAcls : Loading resolved node", n.Zap())
+			a.nodesPathACLs[strings.TrimSuffix(n.Path, "/")] = b
+			continue
+		}
+		err := st.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeID}})
+		if err != nil {
+			return err
+		}
+		resp, err := st.Recv()
+		if err != nil || resp.Node == nil {
+			continue
+		}
+		a.nodesPathACLs[strings.TrimSuffix(resp.Node.Path, "/")] = b
+	}
+	return nil
+}
 
 // Flatten Permissions based on all the lists received :
 // First go through each nodes and create Bitmask for each one, organized by roles
@@ -462,6 +459,15 @@ func (a *AccessList) flattenNodes(ctx context.Context, aclList []*idm.ACL) (map[
 	}
 
 	return flattenedNodes, flattenedWorkspaces
+}
+
+// replicateMasksResolved creates resolves internal nodesUuidACLs by UUID using passed resolver
+func (a *AccessList) replicateMasksResolved(ctx context.Context, resolver VirtualPathResolver) {
+	for id := range a.nodesUuidACLs {
+		if res, o := resolver(ctx, &tree.Node{Uuid: id}); o {
+			a.ReplicateBitmask(id, res.Uuid)
+		}
+	}
 }
 
 // parentMaskOrDeny browses access list from current node to ROOT, going through each parent.

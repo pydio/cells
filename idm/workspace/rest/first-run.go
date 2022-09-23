@@ -24,17 +24,14 @@ import (
 	"context"
 	"fmt"
 
-	"google.golang.org/protobuf/types/known/anypb"
-
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -102,28 +99,10 @@ func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.
 	ws.Scope = idm.WorkspaceScope_ADMIN
 	ws.Policies = initialPolicies
 
-	// First check if it does not already exists, for one reason or another
-	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
-		Slug: ws.Slug,
-	})
-	c, can := context.WithCancel(ctx)
-	defer can()
-	rC, e := wsClient.SearchWorkspace(c, &idm.SearchWorkspaceRequest{Query: &service.Query{
-		SubQueries: []*anypb.Any{q},
-		Limit:      1,
-	}})
-	if e == nil {
-		for {
-			resp, er := rC.Recv()
-			if er != nil {
-				break
-			}
-			if resp != nil && resp.Workspace != nil {
-				// Workspace was found, exit now, avoid creating duplicates
-				log.Logger(ctx).Info(fmt.Sprintf("Ignoring creation of %s workspace as it already exists", ws.Label))
-				return nil
-			}
-		}
+	if w, er := permissions.SearchUniqueWorkspace(ctx, "", ws.Slug); er == nil && w != nil {
+		// Workspace was found, exit now, avoid creating duplicates
+		log.Logger(ctx).Info(fmt.Sprintf("Ignoring creation of %s workspace as it already exists", ws.Label))
+		return nil
 	}
 
 	if _, e := wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: ws}); e != nil {

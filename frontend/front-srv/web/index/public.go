@@ -10,19 +10,17 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/docstore"
-	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 type PublicHandler struct {
@@ -80,31 +78,7 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 		return 404, tplConf
 	}
 
-	cl := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
-	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
-		Uuid: linkData.RepositoryId,
-	})
-	s, e := cl.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{
-		SubQueries: []*anypb.Any{q},
-	}})
-	if e != nil {
-		tplConf.ErrorMessage = "An unexpected error happened while loading this link"
-		log.Logger(ctx).Error("Error while loading public link, cannot load workspace", zap.Error(e))
-		return 500, tplConf
-	}
-	defer s.CloseSend()
-	var wsExists bool
-	for {
-		r, er := s.Recv()
-		if er != nil {
-			break
-		}
-		if r != nil {
-			wsExists = true
-			break
-		}
-	}
-	if !wsExists {
+	if ws, err := permissions.SearchUniqueWorkspace(ctx, linkData.RepositoryId, ""); err != nil || ws == nil {
 		tplConf.ErrorMessage = "Error while loading link, the original data may have been deleted!"
 		return 404, tplConf
 	}

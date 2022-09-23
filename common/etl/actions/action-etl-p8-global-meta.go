@@ -1,3 +1,4 @@
+//go:build !arm
 // +build !arm
 
 /*
@@ -29,9 +30,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/pydio/pydio-sdk-go/config"
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
@@ -47,7 +46,9 @@ import (
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/scheduler/actions"
+	"github.com/pydio/pydio-sdk-go/config"
 )
 
 type MigrateGlobalMetaAction struct {
@@ -310,22 +311,31 @@ func (c *MigrateGlobalMetaAction) FindSlug(ctx context.Context, p8WsId string) s
 		return ""
 	}
 
-	wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
-	q, _ := anypb.New(&idm.WorkspaceSingleQuery{Uuid: mapped})
-	s, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
-	if e != nil {
+	if ws, er := permissions.SearchUniqueWorkspace(ctx, mapped, ""); er != nil {
 		c.slugs[p8WsId] = ""
 		return ""
+	} else {
+		c.slugs[p8WsId] = ws.GetSlug()
+		return ws.GetSlug()
 	}
-	for {
-		r, e := s.Recv()
+	/*
+		wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
+		q, _ := anypb.New(&idm.WorkspaceSingleQuery{Uuid: mapped})
+		s, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
 		if e != nil {
-			break
+			c.slugs[p8WsId] = ""
+			return ""
 		}
-		c.slugs[p8WsId] = r.Workspace.GetSlug()
-		return c.slugs[p8WsId]
-	}
-	c.slugs[p8WsId] = ""
-	return ""
+		for {
+			r, e := s.Recv()
+			if e != nil {
+				break
+			}
+			c.slugs[p8WsId] = r.Workspace.GetSlug()
+			return c.slugs[p8WsId]
+		}
+		c.slugs[p8WsId] = ""
+		return ""
+	*/
 
 }

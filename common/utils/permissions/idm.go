@@ -369,7 +369,7 @@ func FindUserNameInContext(ctx context.Context) (string, claim.Claims) {
 
 // AccessListForLockedNodes builds a flattened node list containing all currently locked nodes
 func AccessListForLockedNodes(ctx context.Context, resolver VirtualPathResolver) (accessList *AccessList, err error) {
-	accessList = NewAccessList([]*idm.Role{})
+	accessList = NewAccessList()
 
 	acls, _ := GetACLsForActions(ctx, AclLock)
 
@@ -393,11 +393,12 @@ func AccessListForLockedNodes(ctx context.Context, resolver VirtualPathResolver)
 // AccessListFromContextClaims uses package function to compile ACL and Workspaces for a given user ( = list of roles inside the Claims)
 func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, err error) {
 
+	accessList = NewAccessList()
+
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
 	if !ok {
 		log.Logger(ctx).Debug("No Claims in Context, workspaces will be empty - probably anonymous user")
-		accessList = NewAccessList([]*idm.Role{})
-		return accessList, nil
+		return
 	}
 	if getAclCache().Get(claims.SessionID+claims.Subject, &accessList) {
 		return
@@ -407,7 +408,7 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 	if e != nil {
 		return nil, e
 	}
-	accessList = NewAccessList(roles)
+	accessList.AppendRoles(roles...)
 	aa, e := GetACLsForRoles(ctx, roles, AclRead, AclDeny, AclWrite, AclLock, AclPolicy)
 	if e != nil {
 		return nil, e
@@ -419,14 +420,15 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		accessList.AppendClaimsScopes(claims.Scopes)
 	}
 
-	idmWorkspaces := GetWorkspacesForACLs(ctx, accessList)
-	for _, workspace := range idmWorkspaces {
-		accessList.workspaces[workspace.UUID] = workspace
-	}
+	accessList.LoadWorkspaces(func(a *AccessList) []*idm.Workspace {
+		return GetWorkspacesForACLs(ctx, a)
+	})
+
 	getAclCache().Set(claims.SessionID+claims.Subject, accessList)
-	return accessList, nil
+	return
 }
 
+// AccessListFromUser loads roles for a given user, by name or UUID, and subsequently calls AccessListFromRoles
 func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool) (accessList *AccessList, user *idm.User, err error) {
 
 	// Prepare a cancellable context as sub-calls will open many streams.
@@ -462,6 +464,31 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 	}
 
 	return
+}
+
+// AccessListFromRoles loads the Acls and flatten them, eventually loading the discovered workspaces.
+func AccessListFromRoles(ctx context.Context, roles []*idm.Role, countPolicies bool, loadWorkspaces bool) (accessList *AccessList, err error) {
+
+	accessList = NewAccessList(roles...)
+	search := []*idm.ACLAction{AclRead, AclDeny, AclWrite}
+	if countPolicies {
+		search = append(search, AclPolicy)
+	}
+	aa, e := GetACLsForRoles(ctx, roles, search...)
+	if e != nil {
+		return nil, e
+	}
+	accessList.AppendACLs(aa...)
+	accessList.Flatten(ctx)
+
+	if loadWorkspaces {
+		accessList.LoadWorkspaces(func(a *AccessList) []*idm.Workspace {
+			return GetWorkspacesForACLs(ctx, a)
+		})
+	}
+
+	return
+
 }
 
 // SearchUniqueUser provides a shortcurt to search user services for one specific user.
@@ -533,7 +560,7 @@ func SearchUniqueWorkspace(ctx context.Context, wsUuid string, wsSlug string, qu
 		pq, _ := anypb.New(q)
 		requests = append(requests, pq)
 	}
-	st, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: requests}})
+	st, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: requests, Limit: 1}})
 	if e != nil {
 		return nil, e
 	}
@@ -564,37 +591,6 @@ func IsUserLocked(user *idm.User) bool {
 		}
 	}
 	return hasLock
-}
-
-// AccessListFromRoles loads the Acls and flatten them, eventually loading the discovered workspaces.
-func AccessListFromRoles(ctx context.Context, roles []*idm.Role, countPolicies bool, loadWorkspaces bool) (accessList *AccessList, err error) {
-
-	accessList = NewAccessList(roles)
-	search := []*idm.ACLAction{AclRead, AclDeny, AclWrite}
-	if countPolicies {
-		search = append(search, AclPolicy)
-		/*
-			ResolvePolicyRequest = func(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
-				return &idm.PolicyEngineResponse{Allowed: true}, nil
-			}
-		*/
-	}
-	aa, e := GetACLsForRoles(ctx, roles, search...)
-	if e != nil {
-		return nil, e
-	}
-	accessList.AppendACLs(aa...)
-	accessList.Flatten(ctx)
-
-	if loadWorkspaces {
-		idmWorkspaces := GetWorkspacesForACLs(ctx, accessList)
-		for _, workspace := range idmWorkspaces {
-			accessList.workspaces[workspace.UUID] = workspace
-		}
-	}
-
-	return
-
 }
 
 // AccessListLoadFrontValues loads all ACLs starting with actions: and parameters: for the
