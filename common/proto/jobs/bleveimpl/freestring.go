@@ -22,6 +22,7 @@ package bleveimpl
 
 import (
 	"context"
+ 	"sync"
 
 	bleve "github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/search/query"
@@ -60,20 +61,24 @@ func EvalFreeString(ctx context.Context, query string, node *tree.Node) bool {
 }
 
 var (
-	memIndex        bleve.Index
-	freeStringCache map[string]query.Query
+	memIndex bleve.Index
+	fsCache  map[string]query.Query
+	fsLock   sync.Mutex
 )
 
 func getQuery(freeString string) (query.Query, error) {
-	if freeStringCache == nil {
-		freeStringCache = make(map[string]query.Query)
+	fsLock.Lock()
+	defer fsLock.Unlock()
+
+	if fsCache == nil {
+		fsCache = make(map[string]query.Query)
 	}
-	if q, ok := freeStringCache[freeString]; ok {
+	if q, ok := fsCache[freeString]; ok {
 		return q, nil
 	}
 	q := query.NewQueryStringQuery(freeString)
 	if qu, e := q.Parse(); e == nil {
-		freeStringCache[freeString] = qu
+		fsCache[freeString] = qu
 		return qu, nil
 	} else {
 		return nil, e

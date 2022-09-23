@@ -51,7 +51,7 @@ func NewDispatcher(maxWorkers int, tags map[string]string) *Dispatcher {
 		maxWorker:  maxWorkers,
 		jobQueue:   jobQueue,
 		tags:       tags,
-		activeChan: make(chan int, 10),
+		activeChan: make(chan int, 100),
 		quit:       make(chan bool, 1),
 	}
 }

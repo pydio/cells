@@ -39,4 +39,8 @@ func init() {
 		return &MetaAction{}
 	})
 
+	manager.Register(cellsHashActionName, func() actions.ConcreteAction {
+		return &CellsHashAction{}
+	})
+
 }
