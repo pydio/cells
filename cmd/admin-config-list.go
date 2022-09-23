@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"sort"
 
@@ -43,13 +42,12 @@ DESCRIPTION
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var m map[string]map[string]interface{}
-		if err := config.Get("defaults").Scan(&m); err != nil {
+		var m map[string]interface{}
+		if err := config.Get("").Scan(&m); err != nil {
 			log.Fatal(err)
 		}
 
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
-		table.SetHeader([]string{"Service", "Configuration", "Value"})
 
 		var skeys []string
 		for k := range m {
@@ -59,19 +57,30 @@ DESCRIPTION
 		sort.Strings(skeys)
 
 		for _, sk := range skeys {
-			var ckeys []string
-			for k := range m[sk] {
-				ckeys = append(ckeys, k)
-			}
-			sort.Strings(ckeys)
-			for _, ck := range ckeys {
-				table.Append([]string{sk, ck, fmt.Sprintf("%v", m[sk][ck])})
-			}
+			displayMap(table, m[sk], sk)
 		}
 
 		table.SetAlignment(tablewriter.ALIGN_LEFT)
 		table.Render()
 	},
+}
+
+func displayMap(table *tablewriter.Table, m interface{}, val ...string) {
+	switch v := m.(type) {
+	case string:
+		table.Append(append(val, v))
+	case map[string]interface{}:
+		var ckeys []string
+
+		for k := range v {
+			ckeys = append(ckeys, k)
+		}
+
+		sort.Strings(ckeys)
+		for _, ck := range ckeys {
+			displayMap(table, v[ck], append(val, ck)...)
+		}
+	}
 }
 
 func init() {

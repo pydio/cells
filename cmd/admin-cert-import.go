@@ -25,31 +25,29 @@ import (
 	"github.com/pydio/cells/v4/common/crypto/storage"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/spf13/cobra"
-	"io/ioutil"
 	"os"
 	"path"
 )
 
-var certsImportUUID string
+var certImportUUID string
 
 // importCertsCmd deletes a configuration
-var importCertsCmd = &cobra.Command{
+var importCertCmd = &cobra.Command{
 	Use:   "import",
-	Short: "Import certificates in vault",
+	Short: "Import certificate in vault",
 	Long: `
 DESCRIPTION
 
-  Import certificate in vault. 
+  Import a certificate in the vault. 
 
 SYNTAX
 
-  Use configurations URLs schemes for --from and --to parameters.
-  If store supports versioning 
+  Use uuid to assign a recognizable id to the certificate in the vault. If not present, defaults to the file name (with extension)
 
 EXAMPLE
 
-  Copy config from local config file to ETCD 
-  $ ` + os.Args[0] + ` admin config copy --from file:/// --to etcd://:2379/ --type config
+  Import a certificate file into the vault 
+  $ ` + os.Args[0] + ` admin cert import ~/path/to/my/certificate --uuid 123456.pem
 
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -67,19 +65,19 @@ EXAMPLE
 		}
 
 		for i := 0; i < len(args); i++ {
-			if certsImportUUID == "" {
-				certsImportUUID = path.Base(args[i])
+			if certImportUUID == "" {
+				certImportUUID = path.Base(args[i])
 			}
-			v, err := ioutil.ReadFile(args[i])
+			v, err := os.ReadFile(args[i])
 			if err != nil {
 				return err
 			}
 
-			if store.Exists(cmd.Context(), certsImportUUID) {
-				return errors.New("key " + certsImportUUID + " already exists")
+			if store.Exists(cmd.Context(), certImportUUID) {
+				return errors.New("key " + certImportUUID + " already exists")
 			}
 
-			if err := store.Store(cmd.Context(), certsImportUUID, v); err != nil {
+			if err := store.Store(cmd.Context(), certImportUUID, v); err != nil {
 				return err
 			}
 		}
@@ -89,6 +87,6 @@ EXAMPLE
 }
 
 func init() {
-	importCertsCmd.Flags().StringVar(&certsImportUUID, "uuid", "", "Certs Import Namespace")
-	CertsCmd.AddCommand(importCertsCmd)
+	importCertCmd.Flags().StringVar(&certImportUUID, "uuid", "", "Certs Import Namespace")
+	CertCmd.AddCommand(importCertCmd)
 }

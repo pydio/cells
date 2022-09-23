@@ -24,9 +24,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// CertsCmd represents the certs command
-var CertsCmd = &cobra.Command{
-	Use:   "certs",
+// CertCmd represents the certs command
+var CertCmd = &cobra.Command{
+	Use:   "cert",
 	Short: "Certification manager",
 	Long: `
 DESCRIPTION
@@ -40,5 +40,5 @@ DESCRIPTION
 }
 
 func init() {
-	AdminCmd.AddCommand(CertsCmd)
+	AdminCmd.AddCommand(CertCmd)
 }
