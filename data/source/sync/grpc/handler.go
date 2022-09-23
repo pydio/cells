@@ -348,13 +348,13 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 				s3client.SetChecksumMapper(csm, true)
 			}
 		}
-		if !syncConfig.FlatStorage /*&& !syncConfig.ServerIsMinio()*/ {
-			cw := chanwatcher.NewWatcher(ctx, s3client, "")
-			s.changeEventsFallback = cw.NodeChanges
-			source = cw
-		} else {
-			source = s3client
-		}
+		source = s3client
+	}
+
+	if !syncConfig.FlatStorage {
+		cw := chanwatcher.NewWatcher(ctx, source, "")
+		s.changeEventsFallback = cw.NodeChanges
+		source = cw
 	}
 
 	conn := grpccli.GetClientConnFromCtx(ctx, common.ServiceDataIndex_+dataSource)

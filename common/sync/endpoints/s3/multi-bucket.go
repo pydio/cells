@@ -73,6 +73,7 @@ func NewMultiBucketClient(ctx context.Context, oc nodes.StorageClient, host stri
 		options:       options,
 		mainClient:    NewObjectClient(ctx, oc, host, "", "", options),
 		bucketClients: make(map[string]*Client),
+		globalContext: ctx,
 	}
 	if len(bucketsFilter) > 0 {
 		if r, e := regexp.Compile(bucketsFilter); e == nil {
