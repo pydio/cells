@@ -22,12 +22,13 @@ package permissions_test
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/spf13/viper"
 	"log"
 	"testing"
 
+	"github.com/spf13/viper"
+
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -78,8 +79,6 @@ func TestSearchUniqueUser(t *testing.T) {
 			NodeID:      "pydiods1",
 		})
 		fakeAcl.Flatten(bg)
-		ww := permissions.GetWorkspacesForACLs(bg, fakeAcl)
-		So(ww, ShouldHaveLength, 1)
 
 		aa, er := permissions.GetACLsForWorkspace(bg, []string{
 			testData.WsSlugToUuid("common-files"),
@@ -100,7 +99,7 @@ func TestSearchUniqueUser(t *testing.T) {
 		So(er, ShouldBeNil)
 		So(user, ShouldNotBeEmpty)
 		So(acl, ShouldNotBeEmpty)
-		wss := acl.GetAccessibleWorkspaces(bg)
+		wss := acl.DetectedWsRights(bg)
 		So(wss, ShouldHaveLength, 4)
 	})
 

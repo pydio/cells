@@ -44,6 +44,9 @@ type PolicyResolver func(ctx context.Context, request *idm.PolicyEngineRequest, 
 // VirtualPathResolver must be able to load virtual nodes based on their UUID
 type VirtualPathResolver func(context.Context, *tree.Node) (*tree.Node, bool)
 
+// WsLoader is resolver for loading workspaces by their UUIDs
+type WsLoader func(ctx context.Context, uuids []string) ([]*idm.Workspace, error)
+
 const (
 	FrontWsScopeAll    = "PYDIO_REPO_SCOPE_ALL"
 	FrontWsScopeShared = "PYDIO_REPO_SCOPE_SHARED"
@@ -73,15 +76,16 @@ func init() {
 // AccessList is a merged representation of all ACLs that a user has access to.
 // ACLs are merged using a Bitmask form to ease flags detections and comparisons.
 type AccessList struct {
-	workspaces   map[string]*idm.Workspace
-	orderedRoles []*idm.Role
-	wsACLs       []*idm.ACL
-	frontACLs    []*idm.ACL
+	wss           map[string]*idm.Workspace
+	wssRootsMasks map[string]map[string]Bitmask
+	orderedRoles  []*idm.Role
 
-	nodesUuidACLs   map[string]Bitmask
-	nodesPathACLs   map[string]Bitmask
-	workspacesNodes map[string]map[string]Bitmask
-	claimsScopes    map[string]Bitmask
+	wsACLs    []*idm.ACL
+	frontACLs []*idm.ACL
+
+	masksByUUIDs map[string]Bitmask
+	masksByPaths map[string]Bitmask
+	claimsScopes map[string]Bitmask
 
 	hasClaimsScopes  bool
 	replicationMutex sync.Mutex
@@ -90,7 +94,7 @@ type AccessList struct {
 // NewAccessList creates a new AccessList.
 func NewAccessList(roles ...*idm.Role) *AccessList {
 	acl := &AccessList{
-		workspaces:   make(map[string]*idm.Workspace),
+		wss:          make(map[string]*idm.Workspace),
 		orderedRoles: roles,
 	}
 	return acl
@@ -113,13 +117,31 @@ func (a *AccessList) AppendRoles(rr ...*idm.Role) {
 
 // GetWorkspaces returns internally stored workspaces
 func (a *AccessList) GetWorkspaces() map[string]*idm.Workspace {
-	return a.workspaces
+	return a.wss
 }
 
-func (a *AccessList) LoadWorkspaces(loader func(a *AccessList) []*idm.Workspace) {
-	for _, w := range loader(a) {
-		a.workspaces[w.UUID] = w
+// LoadWorkspaces loads actual idm.Workspace objects using a WsLoader
+func (a *AccessList) LoadWorkspaces(ctx context.Context, loader WsLoader) error {
+	if len(a.wssRootsMasks) == 0 {
+		// nothing to do
+		return nil
 	}
+	var uuids []string
+	for wsId := range a.wssRootsMasks {
+		uuids = append(uuids, wsId)
+	}
+	ww, er := loader(ctx, uuids)
+	if er != nil {
+		return er
+	}
+	for _, w := range ww {
+		// Set rootId on workspace
+		for rootId := range a.wssRootsMasks[w.UUID] {
+			w.RootUUIDs = append(w.RootUUIDs, rootId)
+		}
+		a.wss[w.UUID] = w
+	}
+	return nil
 }
 
 // GetRoles returns ordered list of roles
@@ -147,39 +169,49 @@ func (a *AccessList) HasPolicyBasedAcls() bool {
 // Flatten performs actual flatten.
 func (a *AccessList) Flatten(ctx context.Context) {
 	nodes, workspaces := a.flattenNodes(ctx, a.wsACLs)
-	a.nodesUuidACLs = nodes
-	a.workspacesNodes = workspaces
+	a.masksByUUIDs = nodes
+	a.wssRootsMasks = workspaces
 }
 
-// GetWorkspacesNodes gets detected workspace root nodes that are then
+// GetWorkspacesRoots gets detected workspace root nodes that are then
 // used to populate the Workspace keys.
-func (a *AccessList) GetWorkspacesNodes() map[string]map[string]Bitmask {
-	return a.workspacesNodes
+func (a *AccessList) GetWorkspacesRoots() map[string]map[string]Bitmask {
+	return a.wssRootsMasks
 }
 
 // GetNodesBitmasks returns internal bitmask
 func (a *AccessList) GetNodesBitmasks() map[string]Bitmask {
-	return a.nodesUuidACLs
+	return a.masksByUUIDs
 }
 
 // ReplicateBitmask copies a bitmask value from one position to another
-func (a *AccessList) ReplicateBitmask(fromUuid, toUuid string) bool {
+func (a *AccessList) ReplicateBitmask(fromUuid, toUuid string, replaceInRoots ...bool) bool {
 	// Protect this method from concurrency
 	a.replicationMutex.Lock()
 	defer a.replicationMutex.Unlock()
-	if b, o := a.nodesUuidACLs[fromUuid]; o {
-		a.nodesUuidACLs[toUuid] = b
+	if b, o := a.masksByUUIDs[fromUuid]; o {
+		a.masksByUUIDs[toUuid] = b
+		if len(replaceInRoots) > 0 && replaceInRoots[0] {
+			// Replace in wssRootsMasks
+			for _, roots := range a.wssRootsMasks {
+				for rootId := range roots {
+					if rootId == fromUuid {
+						delete(roots, fromUuid)
+						roots[toUuid] = b
+					}
+				}
+			}
+		}
 		return true
 	}
 	return false
 }
 
-// GetAccessibleWorkspaces retrieves a map of accessible workspaces.
-func (a *AccessList) GetAccessibleWorkspaces(ctx context.Context) map[string]string {
-	accessListWsNodes := a.GetWorkspacesNodes()
-	results := make(map[string]string)
-	for wsId, wsNodes := range accessListWsNodes {
-		rights := &right{}
+// DetectedWsRights retrieves a map of accessible workspaces.
+func (a *AccessList) DetectedWsRights(ctx context.Context) map[string]SimpleRight {
+	results := make(map[string]SimpleRight)
+	for wsId, wsNodes := range a.wssRootsMasks {
+		rights := SimpleRight{}
 		for nodeId := range wsNodes {
 			if a.CanRead(ctx, &tree.Node{Uuid: nodeId}) {
 				rights.Read = true
@@ -188,8 +220,8 @@ func (a *AccessList) GetAccessibleWorkspaces(ctx context.Context) map[string]str
 				rights.Write = true
 			}
 		}
-		if rights.isAccessible() {
-			results[wsId] = rights.toString()
+		if rights.IsAccessible() {
+			results[wsId] = rights
 		}
 	}
 	return results
@@ -244,7 +276,7 @@ func (a *AccessList) CanWriteWithResolver(ctx context.Context, resolver VirtualP
 
 // CanReadPath checks if a node has READ access based on its Path
 func (a *AccessList) CanReadPath(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
-	if a.nodesPathACLs == nil {
+	if a.masksByPaths == nil {
 		if e := a.loadNodePathAcls(ctx, resolver); e != nil {
 			log.Logger(ctx).Error("Could not load NodePathsAcls", zap.Error(e))
 			return false
@@ -256,7 +288,7 @@ func (a *AccessList) CanReadPath(ctx context.Context, resolver VirtualPathResolv
 
 // CanWritePath checks if a node has WRITE access based on its path.
 func (a *AccessList) CanWritePath(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
-	if a.nodesPathACLs == nil {
+	if a.masksByPaths == nil {
 		if e := a.loadNodePathAcls(ctx, resolver); e != nil {
 			log.Logger(ctx).Error("Could not load NodePathsAcls", zap.Error(e))
 			return false
@@ -284,13 +316,12 @@ func (a *AccessList) IsLocked(ctx context.Context, nodes ...*tree.Node) bool {
 // BelongsToWorkspaces finds corresponding workspace parents for this node.
 func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Node) (workspaces []*idm.Workspace, workspacesRoots map[string]string) {
 
-	wsNodes := a.GetWorkspacesNodes()
 	foundWorkspaces := make(map[string]bool)
 	workspacesRoots = make(map[string]string)
 	for _, node := range nodes {
 		uuid := node.Uuid
-		for wsId, wsRoots := range wsNodes {
-			if _, has := a.workspaces[wsId]; !has {
+		for wsId, wsRoots := range a.wssRootsMasks {
+			if _, has := a.wss[wsId]; !has {
 				continue
 			}
 			for rootId := range wsRoots {
@@ -302,7 +333,7 @@ func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Nod
 		}
 	}
 	for workspaceId := range foundWorkspaces {
-		workspaces = append(workspaces, a.workspaces[workspaceId])
+		workspaces = append(workspaces, a.wss[workspaceId])
 	}
 	return workspaces, workspacesRoots
 
@@ -351,8 +382,8 @@ PRIVATE METHODS
 
 // loadNodePathAcls retrieve each node by UUID, to which an ACL is attached
 func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathResolver) error {
-	a.nodesPathACLs = make(map[string]Bitmask, len(a.nodesUuidACLs))
-	if len(a.nodesUuidACLs) == 0 {
+	a.masksByPaths = make(map[string]Bitmask, len(a.masksByUUIDs))
+	if len(a.masksByUUIDs) == 0 {
 		// Do not open an unnecessary stream...
 		return nil
 	}
@@ -364,10 +395,10 @@ func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathR
 		return e
 	}
 	// Retrieving path foreach ids
-	for nodeID, b := range a.nodesUuidACLs {
+	for nodeID, b := range a.masksByUUIDs {
 		if n, ok := resolver(ctx, &tree.Node{Uuid: nodeID}); ok {
 			log.Logger(ctx).Debug("Acl.loadNodePathAcls : Loading resolved node", n.Zap())
-			a.nodesPathACLs[strings.TrimSuffix(n.Path, "/")] = b
+			a.masksByPaths[strings.TrimSuffix(n.Path, "/")] = b
 			continue
 		}
 		err := st.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeID}})
@@ -378,13 +409,13 @@ func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathR
 		if err != nil || resp.Node == nil {
 			continue
 		}
-		a.nodesPathACLs[strings.TrimSuffix(resp.Node.Path, "/")] = b
+		a.masksByPaths[strings.TrimSuffix(resp.Node.Path, "/")] = b
 	}
 	return nil
 }
 
 // Flatten Permissions based on all the lists received :
-// First go through each nodes and create Bitmask for each one, organized by roles
+// First go through each node and create Bitmask for each one, organized by roles
 // Then flatten roles by keeping only last Bitmask found if node appears many times in many roles.
 //
 // At the same time, collect nodes that are flagged with a "WorkspaceID" in ACL to compute the list of
@@ -461,9 +492,9 @@ func (a *AccessList) flattenNodes(ctx context.Context, aclList []*idm.ACL) (map[
 	return flattenedNodes, flattenedWorkspaces
 }
 
-// replicateMasksResolved creates resolves internal nodesUuidACLs by UUID using passed resolver
+// replicateMasksResolved creates resolves internal masksByUUIDs by UUID using passed resolver
 func (a *AccessList) replicateMasksResolved(ctx context.Context, resolver VirtualPathResolver) {
-	for id := range a.nodesUuidACLs {
+	for id := range a.masksByUUIDs {
 		if res, o := resolver(ctx, &tree.Node{Uuid: id}); o {
 			a.ReplicateBitmask(id, res.Uuid)
 		}
@@ -471,8 +502,8 @@ func (a *AccessList) replicateMasksResolved(ctx context.Context, resolver Virtua
 }
 
 // parentMaskOrDeny browses access list from current node to ROOT, going through each parent.
-// If there is a deny anywhere up the path, it returns that deny,
-// otherwise it sends the first Bitmask found (closest parent having a Bitmask set).
+// If there is a DENY anywhere up the path, it returns that deny,
+// otherwise it sends the first Bitmask found (the closest parent having a Bitmask set).
 func (a *AccessList) parentMaskOrDeny(ctx context.Context, byPath bool, nodes ...*tree.Node) (bool, Bitmask) {
 	var firstParent Bitmask
 	var hasParentDeny bool
@@ -480,10 +511,10 @@ func (a *AccessList) parentMaskOrDeny(ctx context.Context, byPath bool, nodes ..
 		var checkOn map[string]Bitmask
 		var checkKey string
 		if byPath {
-			checkOn = a.nodesPathACLs
+			checkOn = a.masksByPaths
 			checkKey = strings.Trim(node.Path, "/")
 		} else {
-			checkOn = a.nodesUuidACLs
+			checkOn = a.masksByUUIDs
 			checkKey = node.Uuid
 		}
 		if bitmask, ok := checkOn[checkKey]; ok {
@@ -501,7 +532,7 @@ func (a *AccessList) parentMaskOrDeny(ctx context.Context, byPath bool, nodes ..
 // firstMaskForParents just climbs up the tree and gets the first non empty mask found.
 func (a *AccessList) firstMaskForParents(ctx context.Context, nodes ...*tree.Node) (Bitmask, *tree.Node) {
 	for _, node := range nodes {
-		if bitmask, ok := a.nodesUuidACLs[node.Uuid]; ok {
+		if bitmask, ok := a.masksByUUIDs[node.Uuid]; ok {
 			return bitmask, node
 		}
 	}
@@ -510,15 +541,15 @@ func (a *AccessList) firstMaskForParents(ctx context.Context, nodes ...*tree.Nod
 
 // firstMaskForChildren look through all the access list pathes to get the first mask available for the node given in argument
 func (a *AccessList) firstMaskForChildren(ctx context.Context, node *tree.Node) Bitmask {
-	keys := make([]string, 0, len(a.nodesPathACLs))
-	for k := range a.nodesPathACLs {
+	keys := make([]string, 0, len(a.masksByPaths))
+	for k := range a.masksByPaths {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
 	for _, p := range keys {
 		if strings.HasPrefix(p, strings.TrimRight(node.Path, "/")+"/") {
-			return a.nodesPathACLs[p]
+			return a.masksByPaths[p]
 		}
 	}
 	return Bitmask{}
@@ -557,17 +588,17 @@ func (a *AccessList) claimsScopesDeny(ctx context.Context, node *tree.Node, perm
 	return false
 }
 
-// right is a tool struct to compute right strings
-type right struct {
+// SimpleRight is a tool struct to compute SimpleRight strings
+type SimpleRight struct {
 	Read  bool
 	Write bool
 }
 
-func (r *right) isAccessible() bool {
+func (r *SimpleRight) IsAccessible() bool {
 	return r.Read || r.Write
 }
 
-func (r *right) toString() string {
+func (r *SimpleRight) String() string {
 	var s []string
 	if r.Read {
 		s = append(s, "read")
@@ -576,4 +607,15 @@ func (r *right) toString() string {
 		s = append(s, "write")
 	}
 	return strings.Join(s, ",")
+}
+
+func (r *SimpleRight) UserStateString() string {
+	var s []string
+	if r.Read {
+		s = append(s, "r")
+	}
+	if r.Write {
+		s = append(s, "w")
+	}
+	return strings.Join(s, "")
 }

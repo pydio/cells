@@ -25,13 +25,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
@@ -221,7 +220,7 @@ func (sc *Client) DetectInheritedPolicy(ctx context.Context, roots []*tree.Node,
 		}
 		ww = rpw
 	}
-	wsNodes := accessList.GetWorkspacesNodes()
+	wsNodes := accessList.GetWorkspacesRoots()
 	for _, w := range ww {
 		if nn, ok := wsNodes[w.WsUuid]; ok {
 			for _, b := range nn {

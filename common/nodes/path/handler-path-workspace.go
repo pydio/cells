@@ -162,7 +162,7 @@ func (a *WorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 		go func() {
 			defer streamer.CloseSend()
 			wss := accessList.GetWorkspaces()
-			for wsId, wsPermissions := range accessList.GetAccessibleWorkspaces(ctx) {
+			for wsId, wsPermissions := range accessList.DetectedWsRights(ctx) {
 				ws, o := wss[wsId]
 				if !o {
 					// This is the case if wsId is "settings" or "homepage" => ignore!
@@ -176,7 +176,7 @@ func (a *WorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 					}
 					// Pass workspace data along in node MetaStore
 					node.MustSetMeta(common.MetaFlagWorkspaceScope, ws.Scope.String())
-					node.MustSetMeta(common.MetaFlagWorkspacePermissions, wsPermissions)
+					node.MustSetMeta(common.MetaFlagWorkspacePermissions, wsPermissions.String())
 					node.MustSetMeta(common.MetaFlagWorkspaceLabel, ws.Label)
 					node.MustSetMeta(common.MetaFlagWorkspaceDescription, ws.Description)
 					node.MustSetMeta(common.MetaFlagWorkspaceSlug, ws.Slug)

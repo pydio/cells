@@ -179,8 +179,8 @@ func (u *User) FlattenedRolesConfigByName(pluginId string, name string) string {
 
 func (u *User) LoadWorkspaces(ctx context.Context, accessList *permissions.AccessList) error {
 
-	workspacesAccesses := accessList.GetAccessibleWorkspaces(ctx)
-	for wsId := range workspacesAccesses {
+	workspacesAccesses := accessList.DetectedWsRights(ctx)
+	for wsId, right := range workspacesAccesses {
 		if slug, ok := common.IdmWsInternalReservedSlugs[wsId]; ok {
 			ws := &idm.Workspace{
 				Scope: idm.WorkspaceScope_ADMIN,
@@ -188,27 +188,22 @@ func (u *User) LoadWorkspaces(ctx context.Context, accessList *permissions.Acces
 				Slug:  slug,
 				Label: wsId,
 			}
-			workspace := &Workspace{
+			u.Workspaces[wsId] = &Workspace{
+				Workspace:   *ws,
 				AccessType:  wsId,
 				AccessRight: "rw",
 			}
-			workspace.Workspace = *ws
-			u.Workspaces[wsId] = workspace
 		} else {
 			aclWs, ok := accessList.GetWorkspaces()[wsId]
 			if !ok {
 				log.Logger(ctx).Error("something went wrong, access list refers to unknown workspace", zap.String("wsId", wsId))
 				continue
 			}
-			access := workspacesAccesses[aclWs.UUID]
-			access = strings.Replace(access, "read", "r", -1)
-			access = strings.Replace(access, "write", "w", -1)
-			access = strings.Replace(access, ",", "", -1)
-			ws := &Workspace{}
-			ws.Workspace = *aclWs
-			ws.AccessRight = access
-			ws.AccessType = "gateway"
-			u.Workspaces[wsId] = ws
+			u.Workspaces[wsId] = &Workspace{
+				Workspace:   *aclWs,
+				AccessRight: right.UserStateString(),
+				AccessType:  "gateway",
+			}
 		}
 	}
 	return nil

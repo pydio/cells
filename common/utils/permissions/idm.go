@@ -272,22 +272,11 @@ func GetACLsForWorkspace(ctx context.Context, workspaceIds []string, actions ...
 
 }
 
-// GetWorkspacesForACLs computes a list of accessible workspaces, given a set of Read and Deny ACLs.
-func GetWorkspacesForACLs(ctx context.Context, list *AccessList) []*idm.Workspace {
-
-	var workspaces []*idm.Workspace
-
-	workspaceNodes := list.GetWorkspacesNodes()
-	if len(workspaceNodes) == 0 {
-		// DO NOT PERFORM SEARCH, OR IT WILL RETRIEVE ALL WORKSPACES
-		return workspaces
-	}
-
+func workspacesByUUIDs(ctx context.Context, uuids []string) (ww []*idm.Workspace, e error) {
 	workspaceClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
-
 	var queries []*anypb.Any
-	for workspaceID := range workspaceNodes {
-		query, _ := anypb.New(&idm.WorkspaceSingleQuery{Uuid: workspaceID})
+	for _, id := range uuids {
+		query, _ := anypb.New(&idm.WorkspaceSingleQuery{Uuid: id})
 		queries = append(queries, query)
 	}
 
@@ -299,24 +288,18 @@ func GetWorkspacesForACLs(ctx context.Context, list *AccessList) []*idm.Workspac
 	})
 	if err != nil {
 		log.Logger(ctx).Error("search workspace request has failed", zap.Error(err))
-		return nil
+		return nil, err
 	}
 
 	for {
 		response, err := stream.Recv()
-
 		if err != nil {
 			break
 		}
-
-		ws := response.GetWorkspace()
-		for nodeUuid := range workspaceNodes[ws.UUID] {
-			ws.RootUUIDs = append(ws.RootUUIDs, nodeUuid)
-		}
-		workspaces = append(workspaces, ws)
+		ww = append(ww, response.GetWorkspace())
 	}
+	return
 
-	return workspaces
 }
 
 func GetACLsForActions(ctx context.Context, actions ...*idm.ACLAction) (acls []*idm.ACL, err error) {
@@ -374,13 +357,13 @@ func AccessListForLockedNodes(ctx context.Context, resolver VirtualPathResolver)
 	acls, _ := GetACLsForActions(ctx, AclLock)
 
 	accessList.AppendACLs(acls...)
-	accessList.nodesUuidACLs = make(map[string]Bitmask)
+	accessList.masksByUUIDs = make(map[string]Bitmask)
 
 	b := Bitmask{}
 	b.AddFlag(FlagLock)
 
 	for _, acl := range acls {
-		accessList.nodesUuidACLs[acl.NodeID] = b
+		accessList.masksByUUIDs[acl.NodeID] = b
 	}
 
 	if er := accessList.loadNodePathAcls(ctx, resolver); er != nil {
@@ -420,9 +403,9 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		accessList.AppendClaimsScopes(claims.Scopes)
 	}
 
-	accessList.LoadWorkspaces(func(a *AccessList) []*idm.Workspace {
-		return GetWorkspacesForACLs(ctx, a)
-	})
+	if er := accessList.LoadWorkspaces(ctx, workspacesByUUIDs); er != nil {
+		return nil, er
+	}
 
 	getAclCache().Set(claims.SessionID+claims.Subject, accessList)
 	return
@@ -482,9 +465,9 @@ func AccessListFromRoles(ctx context.Context, roles []*idm.Role, countPolicies b
 	accessList.Flatten(ctx)
 
 	if loadWorkspaces {
-		accessList.LoadWorkspaces(func(a *AccessList) []*idm.Workspace {
-			return GetWorkspacesForACLs(ctx, a)
-		})
+		if er := accessList.LoadWorkspaces(ctx, workspacesByUUIDs); er != nil {
+			return nil, er
+		}
 	}
 
 	return

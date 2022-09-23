@@ -23,7 +23,6 @@ package rest
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/idm/meta/namespace"
 	"path"
 	"sync"
 
@@ -43,6 +42,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/idm/meta/namespace"
 )
 
 type GraphHandler struct {
@@ -74,40 +74,11 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 		Workspaces:         []*idm.Workspace{},
 		WorkspacesAccesses: make(map[string]string),
 	}
-	accessListWsNodes := accessList.GetWorkspacesNodes()
-	state.WorkspacesAccesses = accessList.GetAccessibleWorkspaces(ctx)
-
-	wsCli := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
-	query := &service2.Query{
-		SubQueries: []*anypb.Any{},
-		Operation:  service2.OperationType_OR,
-	}
-	for wsId := range state.WorkspacesAccesses {
-		q, _ := anypb.New(&idm.WorkspaceSingleQuery{
-			Uuid: wsId,
-		})
-		query.SubQueries = append(query.SubQueries, q)
-	}
-	log.Logger(ctx).Debug("QUERY", zap.Any("q", query))
-	if len(query.SubQueries) > 0 {
-		streamer, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query})
-		if e != nil {
-			service.RestError500(req, rsp, e)
-			return
-		}
-		defer streamer.CloseSend()
-		for {
-			resp, e := streamer.Recv()
-			if resp == nil || e != nil {
-				break
-			}
-			if resp.Workspace != nil {
-				respWs := resp.Workspace
-				for nodeId := range accessListWsNodes[respWs.UUID] {
-					respWs.RootUUIDs = append(respWs.RootUUIDs, nodeId)
-				}
-				state.Workspaces = append(state.Workspaces, respWs)
-			}
+	aW := accessList.GetWorkspaces()
+	for wsId, right := range accessList.DetectedWsRights(ctx) {
+		state.WorkspacesAccesses[wsId] = right.String()
+		if ws, ok := aW[wsId]; ok {
+			state.Workspaces = append(state.Workspaces, ws)
 		}
 	}
 	rsp.WriteEntity(state)
@@ -132,8 +103,8 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 	// Intersect workspace nodes
-	contextWorkspaces := contextAccessList.GetAccessibleWorkspaces(ctx)
-	targetWorkspaces := targetUserAccessList.GetAccessibleWorkspaces(ctx)
+	contextWorkspaces := contextAccessList.DetectedWsRights(ctx)
+	targetWorkspaces := targetUserAccessList.DetectedWsRights(ctx)
 	commonWorkspaces := map[string]string{}
 	for uWs := range contextWorkspaces {
 		if _, has := targetWorkspaces[uWs]; has {

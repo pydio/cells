@@ -163,20 +163,19 @@ func TestAccessList_Flatten(t *testing.T) {
 		list := NewAccessList(roles...)
 		list.AppendACLs(acls...)
 		list.Flatten(ctx)
-		So(list.nodesUuidACLs, ShouldHaveLength, 4)
+		So(list.masksByUUIDs, ShouldHaveLength, 4)
 
 		// Path and UUID are the same, a trick to avoid triggering load of PathsAcls
-		list.nodesPathACLs = list.nodesUuidACLs
-		list.LoadWorkspaces(func(a *AccessList) []*idm.Workspace {
+		list.masksByPaths = list.masksByUUIDs
+		_ = list.LoadWorkspaces(ctx, func(ctx context.Context, uuids []string) ([]*idm.Workspace, error) {
 			return []*idm.Workspace{
 				{UUID: "ws1"},
 				{UUID: "ws2"},
-			}
+			}, nil
 		})
 		So(list.HasPolicyBasedAcls(), ShouldBeFalse)
 
-		wsNodes := list.GetWorkspacesNodes()
-		So(wsNodes, ShouldHaveLength, 2)
+		So(list.wssRootsMasks, ShouldHaveLength, 2)
 		result := map[string]map[string]Bitmask{}
 		rMask := Bitmask{}
 		rMask.AddFlag(FlagRead)
@@ -189,7 +188,7 @@ func TestAccessList_Flatten(t *testing.T) {
 		result["ws2"] = map[string]Bitmask{
 			"root/folder1/subfolder2": rwMask,
 		}
-		So(wsNodes, ShouldResemble, result)
+		So(list.wssRootsMasks, ShouldResemble, result)
 
 		testReadWrite := listParents("root/folder1/subfolder2/file1")
 		So(list.CanRead(ctx, testReadWrite...), ShouldBeTrue)
@@ -239,7 +238,7 @@ func TestAclPolicies(t *testing.T) {
 		list.AppendACLs(policyAcls...)
 		list.Flatten(ctx)
 		// Path and UUID are the same, a trick to avoid triggering load of PathsAcls
-		list.nodesPathACLs = list.nodesUuidACLs
+		list.masksByPaths = list.masksByUUIDs
 
 		So(list.HasPolicyBasedAcls(), ShouldBeTrue)
 
