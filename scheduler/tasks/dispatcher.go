@@ -22,6 +22,7 @@ package tasks
 
 import (
 	"github.com/pydio/cells/v4/common/service/metrics"
+	"math"
 )
 
 const (
@@ -50,7 +51,7 @@ func NewDispatcher(maxWorkers int, tags map[string]string) *Dispatcher {
 		maxWorker:  maxWorkers,
 		jobQueue:   jobQueue,
 		tags:       tags,
-		activeChan: make(chan int),
+		activeChan: make(chan int, 10),
 		quit:       make(chan bool, 1),
 	}
 }
@@ -74,7 +75,7 @@ func (d *Dispatcher) Run() {
 			select {
 			case a := <-d.activeChan:
 				d.active += a
-				g.Update(float64(d.active))
+				g.Update(math.Abs(float64(d.active)))
 			case jobImpl := <-d.jobQueue:
 				// a jobs request has been received
 				go func(job Runnable) {

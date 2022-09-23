@@ -20,6 +20,8 @@
 
 package tasks
 
+import "fmt"
+
 // Worker represents the worker that executes the jobs.
 type Worker struct {
 	workerPool chan chan Runnable
@@ -52,10 +54,17 @@ func (w Worker) Start() {
 			select {
 			case runnable := <-w.jobChannel:
 				// we have received a work request.
-				w.activeChan <- 1
+				select {
+				case w.activeChan <- 1:
+				default:
+					fmt.Println("[debug] dispatcher-worker could not update activeChan value +1")
+				}
 				runnable.RunAction(w.jobRequeue)
-				w.activeChan <- -1
-
+				select {
+				case w.activeChan <- -1:
+				default:
+					fmt.Println("[debug] dispatcher-worker could not update activeChan value -1")
+				}
 			case <-w.quit:
 				// we have received a signal to stop
 				return
