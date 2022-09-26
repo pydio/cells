@@ -23,6 +23,8 @@ package tree
 import (
 	"context"
 	"encoding/hex"
+	"io"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/forms"
@@ -34,7 +36,6 @@ import (
 	"github.com/pydio/cells/v4/common/utils/hasher/simd"
 	"github.com/pydio/cells/v4/scheduler/actions"
 	"github.com/pydio/cells/v4/scheduler/actions/tools"
-	"io"
 )
 
 var (
@@ -43,24 +44,40 @@ var (
 
 type CellsHashAction struct {
 	tools.ScopedRouterConsumer
+	forceRecompute string
 }
 
 func (c *CellsHashAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:                cellsHashActionName,
-		Label:             "Compute Internal Hash",
+		Label:             "Compute Hash",
 		Icon:              "pound-box",
 		Category:          actions.ActionCategoryTree,
 		Description:       "Compute file signature using Cells internal algorithm",
-		InputDescription:  "Multiple selection of files or folders",
-		OutputDescription: "Updated selection of files or folders",
+		InputDescription:  "Multiple selection of files",
+		OutputDescription: "Updated selection of files",
 		SummaryTemplate:   "",
-		HasForm:           false,
+		HasForm:           true,
 	}
 }
 
 func (c *CellsHashAction) GetParametersForm() *forms.Form {
-	return &forms.Form{}
+	return &forms.Form{
+		Groups: []*forms.Group{
+			{
+				Fields: []forms.Field{
+					&forms.FormField{
+						Name:        "forceRecompute",
+						Type:        forms.ParamBool,
+						Label:       "Force Recompute",
+						Description: "Recompute X-Cells-Hash even if it already exists",
+						Default:     false,
+						Mandatory:   false,
+					},
+				},
+			},
+		},
+	}
 }
 
 // GetName returns this action unique identifier
@@ -70,6 +87,9 @@ func (c *CellsHashAction) GetName() string {
 
 // Init passes parameters to the action
 func (c *CellsHashAction) Init(job *jobs.Job, action *jobs.Action) error {
+	if b, o := action.Parameters["forceRecompute"]; o {
+		c.forceRecompute = b
+	}
 	return nil
 }
 
@@ -80,6 +100,8 @@ func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableCha
 		return input.WithIgnore(), nil // Ignore
 	}
 
+	forceRecompute, _ := jobs.EvaluateFieldBool(ctx, input, c.forceRecompute)
+
 	ct, cli, e := c.GetHandler(ctx)
 	if e != nil {
 		return input.WithError(e), e
@@ -88,11 +110,19 @@ func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableCha
 	mc := tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceMeta))
 	var outnodes []*tree.Node
 	for _, node := range input.Nodes {
-		resp, er := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
-		if er != nil {
-			return input.WithError(er), er
+		if node.Etag == "" {
+			// Reload node if necessary
+			resp, er := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
+			if er != nil {
+				return input.WithError(er), er
+			}
+			node = resp.GetNode()
 		}
-		rc, er := cli.GetObject(ctx, resp.GetNode(), &models.GetRequestData{Length: resp.Node.GetSize()})
+		if !forceRecompute && node.GetStringMeta(common.MetaNamespaceHash) != "" {
+			// Meta already exists, do not recompute
+			continue
+		}
+		rc, er := cli.GetObject(ctx, node, &models.GetRequestData{Length: node.GetSize()})
 		if er != nil {
 			return input.WithError(er), er
 		}
@@ -103,16 +133,16 @@ func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableCha
 		}
 		rc.Close()
 		hash := hex.EncodeToString(bh.Sum(nil))
-		n := resp.Node.Clone()
+		n := node.Clone()
 		n.MetaStore = make(map[string]string)
 		n.MustSetMeta(common.MetaNamespaceHash, hash)
 		if _, er = mc.UpdateNode(ctx, &tree.UpdateNodeRequest{From: n, To: n}); er != nil {
 			return input.WithError(er), er
 		} else {
-			log.TasksLogger(ctx).Info("Successfully updated hash on node " + n.GetPath() + ": " + hash)
+			log.TasksLogger(ctx).Info("Computed hash for " + n.GetPath() + ": " + hash)
 		}
-		resp.Node.MustSetMeta(common.MetaNamespaceHash, hash)
-		outnodes = append(outnodes, resp.Node)
+		node.MustSetMeta(common.MetaNamespaceHash, hash)
+		outnodes = append(outnodes, node)
 	}
 
 	// Reset
