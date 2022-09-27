@@ -1,7 +1,45 @@
-# Changes between v4.0.0-rc2 and v4.0.0-rc4
+# Changes between v4.0.0-rc2 and v4.0.0-rc5
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.0.0-rc2...v4.0.0-rc4)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.0.0-rc2...v4.0.0-rc5)
 
+- [#6290581](https://github.com/pydio/cells/commit/6290581785f2f2509f61679b7c22c146821fca65): Action cells-hash and dedicated command
+- [#c4cfedc](https://github.com/pydio/cells/commit/c4cfedc389d96f5d8fc14c2376cf7e59620aec84): New job for finding all missing x-cells-hash and recomputing them.
+- [#3a9e3d4](https://github.com/pydio/cells/commit/3a9e3d4642ee2f3ad666b7dcd71d6397e9ae43b9): Fix possible locks in scheduler - new action to recompute hash
+- [#b588e13](https://github.com/pydio/cells/commit/b588e1320b07cc1ca04b90b648aa85e20f2a35cb): Tasks : try to avoid blocking on w.activeChan channel
+- [#a455e84](https://github.com/pydio/cells/commit/a455e84c1af0bcb67fc0b40c406bf578e0938aa2): Fix multi-bucket client
+- [#13d7372](https://github.com/pydio/cells/commit/13d7372f5852df877e4251c5f93a5af56af99908): Keep on cleaning AccessList
+- [#5292f2a](https://github.com/pydio/cells/commit/5292f2a1996752915187a8e08e7d6cc97750b0d1): Formatting
+- [#c554a1f](https://github.com/pydio/cells/commit/c554a1fe7f433bd312acd23a6c64f5e2e5a037ff): More Spanish
+- [#8eb8593](https://github.com/pydio/cells/commit/8eb8593208db9c20cd6cc5baccd3aa33c97cec15): More Spanish
+- [#9901241](https://github.com/pydio/cells/commit/9901241c065466364c017b3fe40fbe28e5a31a61): Cosmetic change
+- [#b7c4159](https://github.com/pydio/cells/commit/b7c4159c59fdec2a8efc590c0a9fe595fca5328c): Cleaning AccessList
+- [#90ab75d](https://github.com/pydio/cells/commit/90ab75d04610df50bead7eeca085624e59f7c071): Formatting
+- [#b501768](https://github.com/pydio/cells/commit/b5017680414f7df1b99d92253088af93b83547c9): Formatting
+- [#d0bc2e8](https://github.com/pydio/cells/commit/d0bc2e8289b06def24634b056ad8c44e8cfc9263): Fixing config and cert import
+- [#fbbd3a2](https://github.com/pydio/cells/commit/fbbd3a2752af2e48678b327a66a121a0323f47d2): loadNodePathAcls: do not open stream if original map is empty.
+- [#420c34e](https://github.com/pydio/cells/commit/420c34e917e0af2e35db50ef8508d9719b74b9cd): CMD: Improve ACL commands
+- [#4b1cb4a](https://github.com/pydio/cells/commit/4b1cb4a149ad48be9f35d67e001c37d83038aa1a): Clean AccessList struct code
+- [#1837a28](https://github.com/pydio/cells/commit/1837a285cc8f2696cbac7eff50a8082caf1ffa38): CMD: limit LS returned rows
+- [#fbcb9c1](https://github.com/pydio/cells/commit/fbcb9c17e15a063b9ec30b7f6b02c0f49321daee): Limit queries on large repos.
+- [#72e720f](https://github.com/pydio/cells/commit/72e720f4876ae0057daddda55e6f9bdd296c3a5c): Fix slug renaming (2)
+- [#1f40f1f](https://github.com/pydio/cells/commit/1f40f1f20c4ce983a6879291e8ee8a02b40bac6e): Centralize reserved workspaces ids/slugs
+- [#7167986](https://github.com/pydio/cells/commit/7167986d542340c47c24dd08bf70c2a9fa4dec84): Fix create-bench imports
+- [#cec4dce](https://github.com/pydio/cells/commit/cec4dce0128c3e93e7f682d5a06b4369d2ac43a9): Fix create-bench
+- [#9029d6e](https://github.com/pydio/cells/commit/9029d6eff82b090256d05f4a93b04993008124da): CMD: clean and improve file commands
+- [#ce64eb0](https://github.com/pydio/cells/commit/ce64eb04c7a49c8c9799afd208f1592348ce9816): CMD : hide tools group
+- [#eb75fa6](https://github.com/pydio/cells/commit/eb75fa6b2d4902ed823b674f20c2181c5692b34e): CMD : move admin>resync to admin>clean>resync (keep original hidden for backward compat).
+- [#87e9a3c](https://github.com/pydio/cells/commit/87e9a3c3cee893b859d7a0e98ff3ffde4fc28b27): Fix wrong ref to errgroup, check for gorp_migration table.
+- [#ccb8658](https://github.com/pydio/cells/commit/ccb86588dd3e2ed0666193b7ad2e24e8f44f9e03): Debugging
+- [#8a00a46](https://github.com/pydio/cells/commit/8a00a46a2224bf5bc25b8aa4396f77ea4de2b735): Add logs for oauth start
+- [#a5857fb](https://github.com/pydio/cells/commit/a5857fbfc81ede490da768a4301224caf1db6d99): Fixing names options for watch
+- [#f311128](https://github.com/pydio/cells/commit/f311128287b279f3d889ca2443fd372bbd6a21ce): Fixing watcher channels
+- [#ef8cb8b](https://github.com/pydio/cells/commit/ef8cb8b0a5a7a010e008f36c075fc5f34fad6d09): Merge remote-tracking branch 'origin/main'
+- [#c27a120](https://github.com/pydio/cells/commit/c27a120f1bb5a68113fe4ea249bd4aa6516fe986): Disable streams optimization (create one per watch)
+- [#53d5707](https://github.com/pydio/cells/commit/53d5707fd2c748b28b35ed9067942bd13961aa12): Error logging
+- [#27b871b](https://github.com/pydio/cells/commit/27b871bbdbc36f4a289190f6ad370a1f28650ea2): Resolver
+- [#30d4e21](https://github.com/pydio/cells/commit/30d4e214d89ae0925b5f696a297a2a5a3ab2ae1d): Adding discovery server
+- [#395d874](https://github.com/pydio/cells/commit/395d874e293a74ede908bcefd1bf4a10b72cf974): Context for watcher
+- [#7ea499c](https://github.com/pydio/cells/commit/7ea499cb481572e4a166eb301ae51851a6671922): Release v4.0.0-rc4
 - [#7fded93](https://github.com/pydio/cells/commit/7fded93da0a69b51557270128b275235e1f85a9c): Make git revision settable from outside the make script
 - [#15217f8](https://github.com/pydio/cells/commit/15217f8f3f1b04a67975eededc40d447e4615e58): Removing os exit
 - [#3fc2e91](https://github.com/pydio/cells/commit/3fc2e91fb974a26a3844ea21e8e9d3819b38bc68): Update go version in README
