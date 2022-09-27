@@ -279,7 +279,10 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		mPath = newMPath
 	}
 	if user.Uuid == "" {
-		foundOrCreatedNode, _ := s.IndexSQL.GetNode(mPath)
+		foundOrCreatedNode, err := s.IndexSQL.GetNode(mPath)
+		if err != nil {
+			return nil, createdNodes, err
+		}
 		user.Uuid = foundOrCreatedNode.Uuid
 	}
 

@@ -344,6 +344,13 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, err)
 		return
 	}
+	if inputUser.Login == "" {
+		inputUser.Login = req.PathParameter("Login")
+	}
+	if inputUser.Login == "" {
+		service.RestError500(req, rsp, fmt.Errorf("cannot create user without at least a login"))
+		return
+	}
 	cli := idm.NewUserServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceUser))
 	log.Logger(req.Request.Context()).Debug("Received User.Put API request", inputUser.ZapLogin())
 	var update *idm.User
