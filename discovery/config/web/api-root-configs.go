@@ -48,6 +48,9 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 		service.RestError500(req, resp, err)
 		return
 	}
+	if configuration.FullPath == "" {
+		configuration.FullPath = req.PathParameter("FullPath")
+	}
 	u, _ := permissions.FindUserNameInContext(ctx)
 	if u == "" {
 		u = "rest"

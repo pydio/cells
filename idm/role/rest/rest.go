@@ -205,6 +205,9 @@ func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, err)
 		return
 	}
+	if inputRole.Uuid == "" {
+		inputRole.Uuid = req.PathParameter("Uuid")
+	}
 	ctx := req.Request.Context()
 	cl := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceRole))
 	log.Logger(ctx).Debug("Received Role.Set", zap.Any("r", inputRole))
