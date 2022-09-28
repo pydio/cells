@@ -131,6 +131,8 @@ class UserInfo extends React.Component {
             ...parameters
         ];
 
+        const secuActionsDisabled = (user.getIdmUser().Login === pydio.user.id)
+
         return (
             <div>
                 <h3 className={"paper-right-title"} style={{display:'flex', alignItems: 'center', paddingLeft:26, paddingRight:26}}>
@@ -146,9 +148,9 @@ class UserInfo extends React.Component {
                         targetOrigin={{horizontal: 'right', vertical: 'top'}}
                         tooltip={"Actions"}
                     >
-                        <MenuItem primaryText={this.getPydioRoleMessage('25')} onClick={() => this.buttonCallback('update_user_pwd')}/>
-                        <MenuItem primaryText={this.getPydioRoleMessage((locks.indexOf('logout') > -1?'27':'26'))} onClick={() => this.buttonCallback('user_set_lock-lock')}/>
-                        <MenuItem primaryText={this.getPydioRoleMessage((locks.indexOf('pass_change') > -1?'28b':'28'))} onClick={() => this.buttonCallback('user_set_lock-pass_change')}/>
+                        <MenuItem disabled={secuActionsDisabled} primaryText={this.getPydioRoleMessage('25')} onClick={() => this.buttonCallback('update_user_pwd')}/>
+                        <MenuItem disabled={secuActionsDisabled} primaryText={this.getPydioRoleMessage((locks.indexOf('logout') > -1?'27':'26'))} onClick={() => this.buttonCallback('user_set_lock-lock')}/>
+                        <MenuItem disabled={secuActionsDisabled} primaryText={this.getPydioRoleMessage((locks.indexOf('pass_change') > -1?'28b':'28'))} onClick={() => this.buttonCallback('user_set_lock-pass_change')}/>
                     </IconMenu>
                     </div>
                 </h3>
