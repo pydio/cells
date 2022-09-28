@@ -22,7 +22,6 @@
 package s3
 
 import (
-	"bytes"
 	"context"
 	"crypto/md5"
 	"crypto/sha1"
@@ -94,7 +93,7 @@ func (c *Client) GetEndpointInfo() model.EndpointInfo {
 }
 
 // SetPlainSizeComputer passes a computer function to extract plain size
-//from an encrypted node
+// from an encrypted node
 func (c *Client) SetPlainSizeComputer(computer func(nodeUUID string) (int64, error)) {
 	c.plainSizeComputer = computer
 }
@@ -175,7 +174,7 @@ func (c *Client) Stat(ctx context.Context, pa string) (i os.FileInfo, err error)
 
 func (c *Client) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
 	if node.IsLeaf() {
-		return errors.New("This is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
+		return errors.New("this is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
 	}
 	hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.Path), servicescommon.PydioSyncHiddenFile)
 	_, err = c.Oc.PutObject(ctx, c.Bucket, hiddenPath, strings.NewReader(node.Uuid), int64(len(node.Uuid)), models.PutMeta{ContentType: "text/plain"})
@@ -233,7 +232,7 @@ func (c *Client) GetWriterOn(cancel context.Context, path string, targetSize int
 	reader, out := io.Pipe()
 	go func() {
 		defer func() {
-			reader.Close()
+			_ = reader.Close()
 			close(writeDone)
 			close(writeErr)
 		}()
@@ -270,7 +269,7 @@ func (c *Client) ComputeChecksum(node *tree.Node) error {
 	return nil
 }
 
-func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
+func (c *Client) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root string, recursive bool) (err error) {
 
 	t := time.Now()
 	defer func() {
@@ -279,7 +278,7 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 	var eTags []string
 	collect := (root == "" || root == "/") && recursive && c.checksumMapper != nil && c.purgeMapperAfterWalk
 
-	batchWrapper := func(path string, info *fileInfo, node *tree.Node) {
+	wrapper := func(path string, info *fileInfo, node *tree.Node) error {
 		node.MTime = info.ModTime().Unix()
 		node.Size = info.Size()
 		node.Mode = int32(info.Mode())
@@ -291,23 +290,26 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 		if collect && node.IsLeaf() {
 			eTags = append(eTags, node.Etag)
 		}
-		walknFc(path, node, nil)
+		return walkFunc(path, node, nil)
 	}
+
 	batcher := &statBatcher{
-		size:   50,
-		walker: batchWrapper,
-		c:      c,
+		batchCtx: ctx,
+		size:     50,
+		walker:   wrapper,
+		c:        c,
 	}
 
 	wrappingFunc := func(path string, info *fileInfo, err error) error {
 		path = c.getLocalPath(path)
-		batcher.push(&input{path: path, info: info})
-		return nil
+		return batcher.push(&input{path: path, info: info})
 	}
-	if err = c.actualLsRecursive(recursive, c.getFullPath(root), wrappingFunc); err != nil {
+	if err = c.actualLsRecursive(ctx, recursive, c.getFullPath(root), wrappingFunc); err != nil {
 		return err
 	}
-	batcher.flush()
+	if err = batcher.flush(); err != nil {
+		return err
+	}
 	if collect {
 		go func() {
 			// We know all eTags, purge other from mapper
@@ -319,21 +321,18 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 	return nil
 }
 
-func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc func(path string, info *fileInfo, err error) error) (err error) {
-
-	ctx2, cancel := context.WithCancel(context.Background())
-	defer cancel()
+func (c *Client) actualLsRecursive(ctx context.Context, recursive bool, recursivePath string, walknFc func(path string, info *fileInfo, err error) error) (err error) {
 
 	createdDirs := make(map[string]bool)
 	log.Logger(c.globalContext).Info("Listing all S3 objects for path", zap.String("bucket", c.Bucket), zap.String("path", recursivePath))
-	for objectInfo := range c.listAllObjects(ctx2, c.Bucket, recursivePath, recursive) {
+	for objectInfo := range c.listAllObjects(ctx, c.Bucket, recursivePath, recursive) {
 		if objectInfo.Err != nil {
 			log.Logger(c.globalContext).Error("Error while listing", zap.Error(objectInfo.Err))
 			return objectInfo.Err
 		}
 		folderKey := path.Dir(objectInfo.Key)
 		if strings.HasSuffix(objectInfo.Key, "/") {
-			c.createFolderIdsWhileWalking(ctx2, createdDirs, walknFc, folderKey, objectInfo.LastModified, false)
+			c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, false)
 			continue
 		}
 		if strings.HasSuffix(objectInfo.Key, servicescommon.PydioSyncHiddenFile) {
@@ -347,26 +346,26 @@ func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc
 					// Walk the .pydio before continuing, otherwise this creates an issue if another hidden file like ".aaa"
 					// is appearing in the folder before arriving to the ".pydio" file
 					s3FileInfo := newFileInfo(objectInfo)
-					walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil)
+					_ = walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil)
 				}
 				continue
 			}
 			folderObjectInfo := objectInfo
 			//This will be called again inside the walknFc
-			c.createFolderIdsWhileWalking(ctx2, createdDirs, walknFc, folderKey, objectInfo.LastModified, true)
-			folderObjectInfo.ETag, _, _ = c.readOrCreateFolderId(ctx2, folderKey)
+			c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, true)
+			folderObjectInfo.ETag, _, _ = c.readOrCreateFolderId(ctx, folderKey)
 			s3FileInfo := newFolderInfo(folderObjectInfo)
-			walknFc(c.normalize(folderKey), s3FileInfo, nil)
+			_ = walknFc(c.normalize(folderKey), s3FileInfo, nil)
 			createdDirs[folderKey] = true
 		}
 		if c.isIgnoredFile(objectInfo.Key) {
 			continue
 		}
 		if folderKey != "" && folderKey != "." {
-			c.createFolderIdsWhileWalking(ctx2, createdDirs, walknFc, folderKey, objectInfo.LastModified, false)
+			c.createFolderIdsWhileWalking(ctx, createdDirs, walknFc, folderKey, objectInfo.LastModified, false)
 		}
 		s3FileInfo := newFileInfo(objectInfo)
-		walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil)
+		_ = walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil)
 	}
 	return nil
 }
@@ -460,9 +459,9 @@ func (c *Client) createFolderIdsWhileWalking(ctx context.Context, createdDirs ma
 			Size:         0,
 		}
 		s3FolderInfo := newFolderInfo(dirObjectInfo)
-		walknFc(c.normalize(testDir), s3FolderInfo, nil)
+		_ = walknFc(c.normalize(testDir), s3FolderInfo, nil)
 		if created.Key != "" {
-			walknFc(c.normalize(created.Key), newFileInfo(created), nil)
+			_ = walknFc(c.normalize(created.Key), newFileInfo(created), nil)
 		}
 
 		createdDirs[testDir] = true
@@ -530,18 +529,6 @@ func (c *Client) s3forceComputeEtag(objectInfo models.ObjectInfo) (models.Object
 	} else {
 
 		_, copyErr := c.Oc.CopyObject(context.Background(), c.Bucket, objectInfo.Key, c.Bucket, objectInfo.Key, map[string]string{servicescommon.XAmzMetaDirective: "REPLACE"}, existingMeta, nil)
-		/*
-			// TODO CHECK THIS
-			_, copyErr := c.Mc.CopyObject(context.Background(), minio.CopyDestOptions{
-				Bucket:          c.Bucket,
-				Object:          objectInfo.Key,
-				UserMetadata:    existingMeta,
-				ReplaceMetadata: true, // sourceInfo.Headers.Set(servicescommon.XAmzMetaDirective, "REPLACE") ?
-			}, minio.CopySrcOptions{
-				Bucket: c.Bucket,
-				Object: objectInfo.Key,
-			})
-		*/
 		if copyErr != nil {
 			log.Logger(c.globalContext).Error("Compute Etag Copy", zap.Error(copyErr))
 			return objectInfo, copyErr
@@ -655,12 +642,13 @@ func (c *Client) readOrCreateFolderId(ctx context.Context, folderPath string) (u
 	object, _, err := c.Oc.GetObject(ctx, c.Bucket, hiddenPath, models.ReadMeta{})
 	if err == nil {
 		defer object.Close()
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(object)
-		uid = buf.String()
-		if len(strings.TrimSpace(uid)) > 0 {
-			log.Logger(c.globalContext).Debug("Read Uuid for folderPath", zap.String("path", folderPath), zap.String("uuid", uid))
-			return
+		bb, er := io.ReadAll(object)
+		if er == nil {
+			uid = string(bb)
+			if len(strings.TrimSpace(uid)) > 0 {
+				log.Logger(c.globalContext).Debug("Read Uuid for folderPath", zap.String("path", folderPath), zap.String("uuid", uid))
+				return
+			}
 		}
 	}
 
@@ -678,7 +666,7 @@ func (c *Client) readOrCreateFolderId(ctx context.Context, folderPath string) (u
 		return
 	}
 
-	// Does not exists - create dir uuid and .pydio now
+	// Does not exist - create dir uuid and .pydio now
 	uid = uuid.New()
 	eTag := model.StringContentToETag(uid)
 	log.Logger(c.globalContext).Info("Create Hidden File for folder", zap.String("path", hiddenPath))

@@ -303,10 +303,10 @@ func (t *TreePatch) rescanFoldersIfRequired(ctx context.Context, ignores ...glob
 		}
 		log.Logger(ctx).Info("Rescanning folder to be sure...", zap.String("patch", t.Target().GetEndpointInfo().URI), zap.String("path", op.GetRefPath()))
 		// Rescan folder content, events below may not have been detected
-		var visit = func(path string, node *tree.Node, err error) {
+		var visit = func(path string, node *tree.Node, err error) error {
 			if err != nil {
 				log.Logger(ctx).Error("Error while rescanning folder ", zap.Error(err))
-				return
+				return err
 			}
 			if !model.IsIgnoredFile(path, ignores...) {
 				scanEvent := model.NodeToEventInfo(ctx, path, node, model.EventCreate)
@@ -319,8 +319,9 @@ func (t *TreePatch) rescanFoldersIfRequired(ctx context.Context, ignores ...glob
 				}
 				t.Enqueue(NewOperation(opType, scanEvent, node))
 			}
+			return nil
 		}
-		t.Source().Walk(visit, op.GetRefPath(), true)
+		_ = t.Source().Walk(ctx, visit, op.GetRefPath(), true)
 		log.Logger(ctx).Info("Finished rescanning folder")
 	})
 	// Re-perform filters on new resources

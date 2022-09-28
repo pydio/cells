@@ -337,9 +337,13 @@ func (s *Sync) RootStats(ctx context.Context, useSnapshots bool) (map[string]*mo
 func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, jsonFile string) error {
 
 	db := memory.NewMemDB()
-	source.Walk(func(path string, node *tree.Node, err error) {
-		db.CreateNode(ctx, node, false)
-	}, "/", true)
+	if er := source.Walk(ctx, func(path string, node *tree.Node, err error) error {
+
+		return db.CreateNode(ctx, node, false)
+
+	}, "/", true); er != nil {
+		return er
+	}
 
 	return db.ToJSON(jsonFile)
 

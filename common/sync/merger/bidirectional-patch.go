@@ -383,7 +383,7 @@ func (p *BidirectionalPatch) reSyncTarget(left, right *TreeNode) {
 	requeueNode.getRoot().QueueOperation(newOp)
 	if !n.IsLeaf() {
 		// Enqueue folder children as creates
-		source.Walk(func(path string, node *tree.Node, err error) {
+		_ = source.Walk(p.ctx, func(path string, node *tree.Node, err error) error {
 			oType := OpCreateFolder
 			if node.IsLeaf() {
 				oType = OpCreateFile
@@ -392,6 +392,7 @@ func (p *BidirectionalPatch) reSyncTarget(left, right *TreeNode) {
 			childOp.SetNode(node)
 			childOp.AttachToPatch(p)
 			requeueNode.getRoot().QueueOperation(childOp)
+			return nil
 		}, targetPath, true)
 	}
 	p.inputsModified = true

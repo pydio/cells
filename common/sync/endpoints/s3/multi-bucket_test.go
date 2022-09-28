@@ -36,8 +36,8 @@ import (
 func TestMultiBucketClient_Walk(t *testing.T) {
 	Convey("test simple walk", t, func() {
 		ocMock := mock.New()
-		cl, e := NewMultiBucketClient(context.Background(), ocMock, "az", "^cell", model.EndpointOptions{BrowseOnly: true})
-		//cl, e := NewMultiBucketClient(context.Background(), object.AmazonS3Endpoint, "***************", "***************", true, model.EndpointOptions{BrowseOnly: true}, "^cell")
+		ctx := context.Background()
+		cl, e := NewMultiBucketClient(ctx, ocMock, "az", "^cell", model.EndpointOptions{BrowseOnly: true})
 		So(e, ShouldBeNil)
 		mainMock := NewS3Mock()
 		cl.mainClient = mainMock
@@ -48,8 +48,9 @@ func TestMultiBucketClient_Walk(t *testing.T) {
 		}
 
 		var data []*tree.Node
-		cl.Walk(func(path string, node *tree.Node, err error) {
+		cl.Walk(ctx, func(path string, node *tree.Node, err error) error {
 			data = append(data, node)
+			return nil
 		}, "", false)
 		So(data, ShouldHaveLength, 3)
 
@@ -61,8 +62,9 @@ func TestMultiBucketClient_Walk(t *testing.T) {
 		//t.Log("FIRST BUCKET", b)
 
 		var fullData []*tree.Node
-		cl.Walk(func(path string, node *tree.Node, err error) {
+		cl.Walk(ctx, func(path string, node *tree.Node, err error) error {
 			fullData = append(fullData, node)
+			return nil
 		}, "", true)
 		So(data, ShouldNotBeEmpty)
 		t.Log("Number of buckets and objects", len(fullData))
@@ -95,7 +97,8 @@ func TestBucketMetadata(t *testing.T) {
 				"OtherTagName": "OtherTagValue",
 			},
 		}
-		cl, e := NewMultiBucketClient(context.Background(), ocMock, "az", "^cell", options)
+		ctx := context.Background()
+		cl, e := NewMultiBucketClient(ctx, ocMock, "az", "^cell", options)
 		So(e, ShouldBeNil)
 		mainMock := NewS3Mock()
 		cl.mainClient = mainMock
@@ -106,10 +109,11 @@ func TestBucketMetadata(t *testing.T) {
 		}
 
 		var data []*tree.Node
-		cl.Walk(func(path string, node *tree.Node, err error) {
+		cl.Walk(ctx, func(path string, node *tree.Node, err error) error {
 			if !node.IsLeaf() {
 				data = append(data, node)
 			}
+			return nil
 		}, "", false)
 		So(data, ShouldHaveLength, 3)
 		for _, d := range data {

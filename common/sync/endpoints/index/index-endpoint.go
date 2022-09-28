@@ -60,7 +60,7 @@ func (i *Client) GetEndpointInfo() model.EndpointInfo {
 
 }
 
-func (i *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
+func (i *Client) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 
 	if root == "/" {
 		root = ""
@@ -76,7 +76,6 @@ func (i *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 	if e != nil {
 		return e
 	}
-	defer responseClient.CloseSend()
 	for {
 		response, rErr := responseClient.Recv()
 		if rErr == io.EOF || rErr == io.ErrUnexpectedEOF || (rErr == nil && response == nil) {
@@ -89,7 +88,9 @@ func (i *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 		if !response.Node.IsLeaf() {
 			response.Node.Etag = "-1"
 		}
-		walknFc(response.Node.Path, response.Node, nil)
+		if er := walknFc(response.Node.Path, response.Node, nil); er != nil {
+			return er
+		}
 	}
 	return nil
 }
@@ -228,7 +229,7 @@ func (i *Client) UnlockBranch(ctx context.Context, sessionUUID string) error {
 }
 
 // GetCachedBranches implements CachedBranchProvider by loading branches in a MemDB
-func (i *Client) GetCachedBranches(ctx context.Context, roots ...string) model.PathSyncSource {
+func (i *Client) GetCachedBranches(ctx context.Context, roots ...string) (model.PathSyncSource, error) {
 	memDB := memory.NewMemDB()
 	// Make sure to dedup roots
 	rts := make(map[string]string)
@@ -236,13 +237,17 @@ func (i *Client) GetCachedBranches(ctx context.Context, roots ...string) model.P
 		rts[root] = root
 	}
 	for _, root := range rts {
-		i.Walk(func(path string, node *tree.Node, err error) {
+		e := i.Walk(nil, func(path string, node *tree.Node, err error) error {
 			if err == nil {
-				memDB.CreateNode(ctx, node, false)
+				err = memDB.CreateNode(ctx, node, false)
 			}
+			return err
 		}, root, true)
+		if e != nil {
+			return nil, e
+		}
 	}
-	return memDB
+	return memDB, nil
 
 }
 

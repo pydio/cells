@@ -256,37 +256,38 @@ func (c *FSClient) LoadNode(ctx context.Context, path string, extendedStats ...b
 	return n, e
 }
 
-func (c *FSClient) Walk(walkFunc model.WalkNodesFunc, root string, recursive bool) (err error) {
+func (c *FSClient) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	wrappingFunc := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			walkFunc("", nil, err)
-			return nil
+			return walkFunc("", nil, err)
 		}
 		if len(path) == 0 || path == "/" || c.normalize(path) == strings.TrimLeft(root, "/") || strings.HasPrefix(filepath.Base(path), SyncTmpPrefix) {
 			return nil
 		}
 
 		path = c.normalize(path)
-		if node, e := c.loadNode(context.Background(), path, info); e != nil {
-			walkFunc("", nil, e)
+		if node, e := c.loadNode(ctx, path, info); e != nil {
+			return walkFunc("", nil, e)
 		} else {
-			walkFunc(path, node, nil)
+			return walkFunc(path, node, nil)
 		}
 
-		return nil
 	}
-	if !recursive {
-		infos, er := afero.ReadDir(c.FS, root)
-		if er != nil {
-			return er
-		}
-		for _, i := range infos {
-			wrappingFunc(path.Join(root, i.Name()), i, nil)
-		}
-		return nil
-	} else {
+	if recursive {
 		return afero.Walk(c.FS, root, wrappingFunc)
 	}
+
+	ii, er := afero.ReadDir(c.FS, root)
+	if er != nil {
+		return er
+	}
+	for _, i := range ii {
+		if er := wrappingFunc(path.Join(root, i.Name()), i, nil); er != nil {
+			return er
+		}
+	}
+	return nil
+
 }
 
 // Watch watches all fs events on an input path.
@@ -450,12 +451,12 @@ func (c *FSClient) MoveNode(ctx context.Context, oldPath string, newPath string)
 func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]*tree.Node, error) {
 	data := make(map[string][]*tree.Node)
 	final := make(map[string][]*tree.Node)
-	err := c.Walk(func(path string, node *tree.Node, err error) {
+	err := c.Walk(nil, func(path string, node *tree.Node, err error) error {
 		if err != nil || node == nil {
-			return
+			return err
 		}
 		if node.IsLeaf() {
-			return
+			return nil
 		}
 		if s, ok := data[node.Uuid]; ok {
 			s = append(s, node)
@@ -464,6 +465,7 @@ func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]*tree.Node
 			data[node.Uuid] = make([]*tree.Node, 1)
 			data[node.Uuid] = append(data[node.Uuid], node)
 		}
+		return nil
 	}, "/", true)
 	return final, err
 }

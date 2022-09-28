@@ -64,7 +64,7 @@ type TreeNode struct {
 // When it comes across a LEAF without Etag value, it asks the source to recompute it in a
 // parallel fashion with throttling (max 15 at the same time).  At the end of the operation,
 // the tree should be fully loaded with all LEAF etags (but not COLL etags).
-func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob.Glob, includeMetas []glob.Glob, status ...chan model.Status) (*TreeNode, error) {
+func TreeNodeFromSource(ctx context.Context, source model.PathSyncSource, root string, ignores []glob.Glob, includeMetas []glob.Glob, status ...chan model.Status) (*TreeNode, error) {
 	var statusChan chan model.Status
 	if len(status) > 0 {
 		statusChan = status[0]
@@ -90,7 +90,10 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob
 	checksumProvider, isCsProvider := source.(model.ChecksumProvider)
 	uri := source.GetEndpointInfo().URI
 
-	err := source.Walk(func(p string, node *tree.Node, err error) {
+	err := source.Walk(ctx, func(p string, node *tree.Node, err error) error {
+		if cancelled := ctx.Err(); cancelled != nil {
+			return cancelled
+		}
 		if statusChan != nil {
 			defer func() {
 				s := model.NewProcessingStatus(fmt.Sprintf("Indexing node %s", p)).SetEndpoint(uri).SetProgress(1, true).SetNode(node)
@@ -101,14 +104,14 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob
 			}()
 		}
 		if model.IsIgnoredFile(p, ignores...) || len(p) == 0 || p == "/" {
-			return
+			return nil
 		}
 		//log.Logger(context.Background()).Info("Walking Node", node.Zap(), zap.String("endpoint", source.GetEndpointInfo().URI))
 		t := NewTreeNode(node)
 		parent, ok := dirs[t.ParentPath()]
 		if !ok {
-			log.Logger(context.Background()).Error("Cannot find parent path for node, this is not normal - skipping node!", node.ZapPath())
-			return
+			log.Logger(ctx).Error("Cannot find parent path for node, this is not normal - skipping node!", node.ZapPath())
+			return nil
 		}
 		if model.NodeRequiresChecksum(node) && isCsProvider {
 			wg.Add(1)
@@ -122,7 +125,7 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob
 					statusChan <- model.NewProcessingStatus(fmt.Sprintf("Computing hash for %s", p)).SetEndpoint(uri).SetNode(node)
 				}
 				if e := checksumProvider.ComputeChecksum(node); e != nil {
-					log.Logger(context.Background()).Error("Cannot compute checksum for "+node.Path, zap.Error(e))
+					log.Logger(ctx).Error("Cannot compute checksum for "+node.Path, zap.Error(e))
 					if statusChan != nil {
 						statusChan <- model.NewProcessingStatus(fmt.Sprintf("Could not compute hash for %s", p)).SetEndpoint(uri).SetNode(node).SetError(e)
 					}
@@ -138,6 +141,7 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob
 			}
 			addMetadataAsChildNodes(t, includeMetas)
 		}
+		return nil
 	}, root, true)
 	wg.Wait()
 

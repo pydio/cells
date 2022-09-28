@@ -51,7 +51,7 @@ func NewClientWithMeta(ctx context.Context, dsName string, reader tree.NodeProvi
 }
 
 // Walk wraps the initial Walk function to load metadata on the fly
-func (m *ClientWithMeta) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
+func (m *ClientWithMeta) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 
 	metaClient := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(m.runtimeCtx, common.ServiceMeta))
 	ctx, cancel := context.WithCancel(context.Background())
@@ -60,8 +60,7 @@ func (m *ClientWithMeta) Walk(walknFc model.WalkNodesFunc, root string, recursiv
 	if e != nil {
 		return e
 	}
-	defer metaStreamer.CloseSend()
-	walkWrapped := func(path string, node *tree.Node, err error) {
+	walkWrapped := func(path string, node *tree.Node, err error) error {
 		if err == nil {
 			metaStreamer.Send(&tree.ReadNodeRequest{Node: node})
 			if resp, e := metaStreamer.Recv(); e == nil && resp.Node != nil && resp.Node.MetaStore != nil {
@@ -73,9 +72,9 @@ func (m *ClientWithMeta) Walk(walknFc model.WalkNodesFunc, root string, recursiv
 				}
 			}
 		}
-		walknFc(path, node, err)
+		return walknFc(path, node, err)
 	}
-	return m.Client.Walk(walkWrapped, root, recursive)
+	return m.Client.Walk(nil, walkWrapped, root, recursive)
 
 }
 

@@ -318,17 +318,17 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 			return e
 		}
 		if len(paths) == 0 {
-			return source.Walk(func(path string, node *tree.Node, err error) {
-				capture.Put([]byte(path), s.marshal(node))
+			return source.Walk(ctx, func(path string, node *tree.Node, err error) error {
+				return capture.Put([]byte(path), s.marshal(node))
 			}, "/", true)
 		} else {
 			for _, p := range paths {
-				e := source.Walk(func(path string, node *tree.Node, err error) {
+				e := source.Walk(ctx, func(path string, node *tree.Node, err error) error {
 					if err != nil {
 						log.Logger(ctx).Error("BoltDB:Capture: ignoring path, error is not nil", zap.String("path", path), zap.Error(err))
-						return
+						return err
 					}
-					capture.Put([]byte(path), s.marshal(node))
+					return capture.Put([]byte(path), s.marshal(node))
 				}, p, true)
 				if e != nil {
 					return e
@@ -391,13 +391,14 @@ func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats 
 	}
 	if len(extendedStats) > 0 && extendedStats[0] {
 		var size, folders, files int64
-		s.Walk(func(path string, node *tree.Node, err error) {
+		_ = s.Walk(nil, func(path string, node *tree.Node, err error) error {
 			if node.IsLeaf() {
 				size += node.Size
 				files += 1
 			} else {
 				folders += 1
 			}
+			return nil
 		}, path, true)
 		node.MustSetMeta(model.MetaRecursiveChildrenSize, size)
 		node.MustSetMeta(model.MetaRecursiveChildrenFiles, files)
@@ -414,7 +415,7 @@ func (s *BoltSnapshot) GetEndpointInfo() model.EndpointInfo {
 	}
 }
 
-func (s *BoltSnapshot) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
+func (s *BoltSnapshot) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	root = strings.Trim(root, "/") + "/"
 	err = s.db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
@@ -430,7 +431,9 @@ func (s *BoltSnapshot) Walk(walknFc model.WalkNodesFunc, root string, recursive 
 				return nil
 			}
 			if node, e := s.unmarshal(v); e == nil {
-				walknFc(key, node, nil)
+				if er := walkFunc(key, node, nil); er != nil {
+					return er
+				}
 			}
 			return nil
 		})

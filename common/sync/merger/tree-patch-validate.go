@@ -91,7 +91,10 @@ func (t *TreePatch) validateEndpoint(ctx context.Context, target model.Endpoint)
 func (t *TreePatch) validateWithPreLoad(ctx context.Context, branches []string, target model.CachedBranchProvider) error {
 
 	// Load remote tree in memory
-	memDB := target.GetCachedBranches(ctx, branches...)
+	memDB, e := target.GetCachedBranches(ctx, branches...)
+	if e != nil {
+		return e
+	}
 	return t.validateWalking(ctx, target.GetEndpointInfo().URI, memDB)
 
 }

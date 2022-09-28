@@ -324,7 +324,7 @@ func TestScenariosFromSnapshot2(t *testing.T) {
 		So(diff.missingLeft, ShouldHaveLength, 15)
 
 		b := newTreePatch(diff.left, diff.right.(model.PathSyncTarget), PatchOptions{MoveDetection: true})
-		e = diff.ToUnidirectionalPatch(model.DirectionRight, b)
+		e = diff.ToUnidirectionalPatch(ctx, model.DirectionRight, b)
 		So(e, ShouldBeNil)
 		b.Filter(context.Background())
 		So(b.OperationsByType([]OperationType{OpMoveFolder}), ShouldHaveLength, 1)
@@ -341,7 +341,7 @@ func TestScenariosFromSnapshot2(t *testing.T) {
 		So(diff.conflicts, ShouldHaveLength, 1)
 
 		b := newTreePatch(diff.left, diff.right.(model.PathSyncTarget), PatchOptions{MoveDetection: true})
-		e = diff.ToUnidirectionalPatch(model.DirectionRight, b)
+		e = diff.ToUnidirectionalPatch(ctx, model.DirectionRight, b)
 		So(e, ShouldBeNil)
 		b.Filter(context.Background())
 		So(b.OperationsByType([]OperationType{OpCreateFile}), ShouldHaveLength, 0)
@@ -355,7 +355,7 @@ func TestScenariosFromSnapshot2(t *testing.T) {
 			So(e, ShouldBeNil)
 
 			b := newTreePatch(diff.left, diff.right.(model.PathSyncTarget), PatchOptions{MoveDetection: true})
-			e = diff.ToUnidirectionalPatch(model.DirectionRight, b)
+			e = diff.ToUnidirectionalPatch(ctx, model.DirectionRight, b)
 			So(e, ShouldBeNil)
 			b.Filter(context.Background())
 			So(b.OperationsByType([]OperationType{OpMoveFolder}), ShouldHaveLength, 1)
@@ -367,7 +367,7 @@ func TestScenariosFromSnapshot2(t *testing.T) {
 			So(e, ShouldBeNil)
 
 			b := newTreePatch(diff.left, diff.right.(model.PathSyncTarget), PatchOptions{MoveDetection: true})
-			e = diff.ToUnidirectionalPatch(model.DirectionRight, b)
+			e = diff.ToUnidirectionalPatch(ctx, model.DirectionRight, b)
 			So(e, ShouldBeNil)
 			b.Filter(context.Background())
 			So(b.OperationsByType([]OperationType{OpMoveFolder}), ShouldHaveLength, 1)
@@ -382,7 +382,7 @@ func TestScenariosFromSnapshot2(t *testing.T) {
 		diff, e := diffFromSnaps("move-inside-move")
 		So(e, ShouldBeNil)
 		b := newTreePatch(diff.left, diff.right.(model.PathSyncTarget), PatchOptions{MoveDetection: true})
-		e = diff.ToUnidirectionalPatch(model.DirectionRight, b)
+		e = diff.ToUnidirectionalPatch(ctx, model.DirectionRight, b)
 		So(e, ShouldBeNil)
 
 		b.Filter(context.Background())
@@ -410,7 +410,7 @@ func TestScenariosFromSnapshot2(t *testing.T) {
 		diff, e := diffFromSnaps("move-delete")
 		So(e, ShouldBeNil)
 		patch := newTreePatch(diff.left, diff.right.(model.PathSyncTarget), PatchOptions{MoveDetection: true})
-		e = diff.ToUnidirectionalPatch(model.DirectionRight, patch)
+		e = diff.ToUnidirectionalPatch(ctx, model.DirectionRight, patch)
 		So(e, ShouldBeNil)
 
 		patch.Filter(context.Background())
@@ -434,7 +434,7 @@ func TestManyDupsInMove(t *testing.T) {
 		diff, e := diffFromSnaps("many-dups")
 		So(e, ShouldBeNil)
 		patch := newTreePatch(diff.left, diff.right.(model.PathSyncTarget), PatchOptions{MoveDetection: true})
-		e = diff.ToUnidirectionalPatch(model.DirectionRight, patch)
+		e = diff.ToUnidirectionalPatch(ctx, model.DirectionRight, patch)
 		So(e, ShouldBeNil)
 
 		patch.Filter(context.Background())
@@ -456,7 +456,7 @@ func TestFailingMove1(t *testing.T) {
 		diff, e := diffFromSnaps("move-pycore")
 		So(e, ShouldBeNil)
 		patch := newTreePatch(diff.left, diff.right.(model.PathSyncTarget), PatchOptions{MoveDetection: true})
-		e = diff.ToUnidirectionalPatch(model.DirectionRight, patch)
+		e = diff.ToUnidirectionalPatch(ctx, model.DirectionRight, patch)
 		So(e, ShouldBeNil)
 
 		patch.Filter(context.Background())
@@ -552,7 +552,7 @@ func diffFromSnaps(folder string) (*TreeDiff, error) {
 	if e != nil {
 		return nil, e
 	}
-	diff := newTreeDiff(testCtx, left, right)
-	e = diff.Compute("/", nil, nil)
+	diff := newTreeDiff(left, right)
+	e = diff.Compute(ctx, "/", nil, nil)
 	return diff, e
 }

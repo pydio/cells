@@ -99,8 +99,8 @@ func (t OperationType) String() string {
 }
 
 // NewDiff creates a new Diff implementation
-func NewDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyncSource) Diff {
-	return newTreeDiff(ctx, left, right)
+func NewDiff(left model.PathSyncSource, right model.PathSyncSource) Diff {
+	return newTreeDiff(left, right)
 }
 
 // NewPatch creates a new Patch implementation
@@ -190,11 +190,11 @@ type Diff interface {
 	model.StatusProvider
 
 	// Compute performs the actual Diff operation
-	Compute(root string, lock chan bool, rootStats map[string]*model.EndpointRootStat, ignores ...glob.Glob) error
+	Compute(ctx context.Context, root string, lock chan bool, rootStats map[string]*model.EndpointRootStat, ignores ...glob.Glob) error
 	// ToUnidirectionalPatch transforms current diff into a set of patch operations
-	ToUnidirectionalPatch(direction model.DirectionType, patch Patch) (err error)
+	ToUnidirectionalPatch(ctx context.Context, direction model.DirectionType, patch Patch) (err error)
 	// ToBidirectionalPatch transforms current diff into a bidirectional patch of operations
-	ToBidirectionalPatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget, patch *BidirectionalPatch) (err error)
+	ToBidirectionalPatch(ctx context.Context, leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget, patch *BidirectionalPatch) (err error)
 }
 
 // PatchOptions contains various options for initializing a patch

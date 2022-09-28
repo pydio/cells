@@ -153,7 +153,7 @@ func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (
 /* Path Sync Source 	 */
 /*************************/
 
-func (db *MemDB) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
+func (db *MemDB) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	for _, node := range db.Nodes {
 		if root != "/" && !strings.HasPrefix(node.Path, root) {
 			continue
@@ -161,7 +161,9 @@ func (db *MemDB) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 		if !recursive && strings.Contains(strings.TrimPrefix(node.Path, root), "/") {
 			return nil
 		}
-		walknFc(node.Path, node, nil)
+		if er := walknFc(node.Path, node, nil); er != nil {
+			return er
+		}
 	}
 	return nil
 }
@@ -317,7 +319,7 @@ func NewMemDBWithCacheTest() *MemDBWithCacheTest {
 }
 
 // GetCachedBranches loads branch in memory
-func (m *MemDBWithCacheTest) GetCachedBranches(ctx context.Context, roots ...string) model.PathSyncSource {
+func (m *MemDBWithCacheTest) GetCachedBranches(ctx context.Context, roots ...string) (model.PathSyncSource, error) {
 	memDB := NewMemDB()
 	// Make sure to dedup roots
 	rts := make(map[string]string)
@@ -325,11 +327,15 @@ func (m *MemDBWithCacheTest) GetCachedBranches(ctx context.Context, roots ...str
 		rts[root] = root
 	}
 	for _, root := range rts {
-		m.Walk(func(path string, node *tree.Node, err error) {
+		er := m.Walk(nil, func(path string, node *tree.Node, err error) error {
 			if err == nil {
-				memDB.CreateNode(ctx, node, false)
+				err = memDB.CreateNode(ctx, node, false)
 			}
+			return err
 		}, root, true)
+		if er != nil {
+			return nil, er
+		}
 	}
-	return memDB
+	return memDB, nil
 }

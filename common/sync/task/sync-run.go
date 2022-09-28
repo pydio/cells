@@ -99,14 +99,14 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
 
 	// Compute Diff
-	diff := merger.NewDiff(ctx, source, targetAsSource)
+	diff := merger.NewDiff(source, targetAsSource)
 	lock := s.monitorDiff(ctx, diff, rootsInfo)
-	if e := diff.Compute(rootPath, lock, rootsInfo, s.Ignores...); e != nil {
+	if e := diff.Compute(ctx, rootPath, lock, rootsInfo, s.Ignores...); e != nil {
 		return patch.SetPatchError(e)
 	}
 
 	// Feed Patch from Diff
-	err := diff.ToUnidirectionalPatch(s.Direction, patch)
+	err := diff.ToUnidirectionalPatch(ctx, s.Direction, patch)
 	if err != nil {
 		return err
 	}
@@ -199,8 +199,8 @@ func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun 
 
 		log.Logger(ctx).Info("Computing patches from Sources")
 		for _, r := range roots {
-			diff := merger.NewDiff(ctx, source, targetAsSource)
-			if e := diff.Compute(r, s.monitorDiff(ctx, diff, rootsInfo), rootsInfo, s.Ignores...); e != nil {
+			diff := merger.NewDiff(source, targetAsSource)
+			if e := diff.Compute(ctx, r, s.monitorDiff(ctx, diff, rootsInfo), rootsInfo, s.Ignores...); e != nil {
 				return bb.SetPatchError(e)
 			}
 			if dryRun {
@@ -209,7 +209,7 @@ func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun 
 
 			sourceAsTarget, _ := model.AsPathSyncTarget(s.Source)
 			target, _ := model.AsPathSyncTarget(s.Target)
-			if err := diff.ToBidirectionalPatch(sourceAsTarget, target, bb); err != nil {
+			if err := diff.ToBidirectionalPatch(ctx, sourceAsTarget, target, bb); err != nil {
 				return bb.SetPatchError(err)
 			}
 
@@ -260,14 +260,14 @@ func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source mode
 	}
 	patches := make(map[string]merger.Patch, len(roots))
 	for _, r := range roots {
-		diff := merger.NewDiff(ctx, source, snap)
-		er = diff.Compute(r, s.monitorDiff(ctx, diff, rootsInfo), rootsInfo, s.Ignores...)
+		diff := merger.NewDiff(source, snap)
+		er = diff.Compute(ctx, r, s.monitorDiff(ctx, diff, rootsInfo), rootsInfo, s.Ignores...)
 		if er != nil {
 			return nil, nil, er
 		}
 		// We want to apply changes from source onto snapshot
 		patch := merger.NewPatch(source, snap.(model.PathSyncTarget), merger.PatchOptions{MoveDetection: true})
-		er := diff.ToUnidirectionalPatch(model.DirectionRight, patch)
+		er := diff.ToUnidirectionalPatch(ctx, model.DirectionRight, patch)
 		if er != nil {
 			return nil, nil, er
 		}

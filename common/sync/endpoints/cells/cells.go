@@ -140,7 +140,7 @@ func (c *Abstract) LoadNode(ctx context.Context, path string, extendedStats ...b
 // Walk uses cli.ListNodes() to browse nodes starting from a root (recursively or not).
 // Temporary nodes are ignored.
 // Workspaces nodes are ignored if they don't have the WorkspaceSyncable flag in their Metadata
-func (c *Abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
+func (c *Abstract) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	log.Logger(c.GlobalCtx).Debug("Walking Router on " + c.rooted(root))
 	ctx, cli, err := c.Factory.GetNodeProviderClient(c.getContext())
 	if err != nil {
@@ -155,7 +155,6 @@ func (c *Abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 	if e != nil {
 		return e
 	}
-	defer s.CloseSend()
 	for {
 		resp, e := s.Recv()
 		if e == io.EOF || e == io.ErrUnexpectedEOF || (e == nil && resp == nil) {
@@ -183,13 +182,15 @@ func (c *Abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 				}
 			}
 		}
-		walknFc(n.Path, n, nil)
+		if er := walkFunc(n.Path, n, nil); er != nil {
+			return er
+		}
 	}
 	return
 }
 
 // GetCachedBranches implements CachedBranchProvider by loading branches in a MemDB
-func (c *Abstract) GetCachedBranches(ctx context.Context, roots ...string) model.PathSyncSource {
+func (c *Abstract) GetCachedBranches(ctx context.Context, roots ...string) (model.PathSyncSource, error) {
 	memDB := memory.NewMemDB()
 	// Make sure to dedup roots
 	rts := make(map[string]string)
@@ -197,17 +198,20 @@ func (c *Abstract) GetCachedBranches(ctx context.Context, roots ...string) model
 		rts[root] = root
 	}
 	for _, root := range rts {
-		c.Walk(func(path string, node *tree.Node, err error) {
+		er := c.Walk(ctx, func(path string, node *tree.Node, err error) error {
 			if err == nil {
-				memDB.CreateNode(ctx, node, false)
+				err = memDB.CreateNode(ctx, node, false)
 			}
+			return err
 		}, root, true)
+		if er != nil {
+			return nil, er
+		}
 	}
-	return memDB
+	return memDB, nil
 }
 
-// Watch uses a GRPC connection to listen to events from the Grpc Gateway (wired to the
-// the Tree Service via a Router).
+// Watch uses a GRPC connection to listen to events from the Grpc Gateway (wired to the Tree Service via a Router).
 func (c *Abstract) Watch(recursivePath string) (*model.WatchObject, error) {
 
 	c.watchConn = make(chan model.WatchConnectionInfo)
@@ -419,7 +423,7 @@ func (c *Abstract) DeleteNode(ctx context.Context, name string) (err error) {
 		log.Logger(ctx).Debug("[router] Ignoring " + name)
 		return nil
 	}
-	c.flushRecentMkDirs()
+	c.flushRecentMkDirs(ctx)
 	ctx, cliRead, err := c.Factory.GetNodeProviderClient(c.getContext(ctx))
 	if err != nil {
 		return err
@@ -444,7 +448,7 @@ func (c *Abstract) DeleteNode(ctx context.Context, name string) (err error) {
 
 // MoveNode renames a file or folder and *blocks* until the node has been properly moved (sync)
 func (c *Abstract) MoveNode(ct context.Context, oldPath string, newPath string) (err error) {
-	c.flushRecentMkDirs()
+	c.flushRecentMkDirs(ct)
 	ctx, cli, err := c.Factory.GetNodeReceiverClient(c.getContext(ct))
 	if err != nil {
 		return err
@@ -475,7 +479,7 @@ func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 		defer close(writeErr)
 		return &NoopWriter{}, writeDone, writeErr, nil
 	}
-	c.flushRecentMkDirs()
+	c.flushRecentMkDirs(cancel)
 	n := &tree.Node{Path: c.rooted(p)}
 	reader, out := io.Pipe()
 
@@ -518,14 +522,14 @@ func (c *Abstract) GetReaderOn(p string) (out io.ReadCloser, err error) {
 
 // flushRecentMkDirs makes sure all CreateNode request that have been sent are indeed
 // reflected in the server index.
-func (c *Abstract) flushRecentMkDirs() {
+func (c *Abstract) flushRecentMkDirs(ctx context.Context) {
 	if len(c.RecentMkDirs) > 0 {
-		log.Logger(context.Background()).Info("Cells Endpoint: checking that recently created folders are ready...")
+		log.Logger(ctx).Info("Cells Endpoint: checking that recently created folders are ready...")
 		c.Lock()
 		c.readNodesBlocking(c.RecentMkDirs)
 		c.RecentMkDirs = nil
 		c.Unlock()
-		log.Logger(context.Background()).Info("Cells Endpoint: checking that recently created folders are ready - OK")
+		log.Logger(ctx).Info("Cells Endpoint: checking that recently created folders are ready - OK")
 	}
 }
 

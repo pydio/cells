@@ -21,6 +21,7 @@
 package s3
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -36,22 +37,24 @@ type input struct {
 }
 
 type statBatcher struct {
-	c       *Client
-	pending []*input
-	size    int
-	walker  func(path string, info *fileInfo, node *tree.Node)
+	batchCtx context.Context
+	c        *Client
+	pending  []*input
+	size     int
+	walker   func(path string, info *fileInfo, node *tree.Node) error
 }
 
-func (b *statBatcher) push(n *input) {
+func (b *statBatcher) push(n *input) error {
 	b.pending = append(b.pending, n)
 	if len(b.pending) >= b.size {
-		b.flush()
+		return b.flush()
 	}
+	return nil
 }
 
-func (b *statBatcher) flush() {
+func (b *statBatcher) flush() error {
 	if len(b.pending) == 0 {
-		return
+		return nil
 	}
 
 	results := make([]*tree.Node, len(b.pending))
@@ -61,11 +64,11 @@ func (b *statBatcher) flush() {
 	wg := &sync.WaitGroup{}
 	wg.Add(len(process))
 	t := time.Now()
-	log.Logger(b.c.globalContext).Debug("Sending Loadnodes in parallel", zap.Int("n", b.size))
+	log.Logger(b.batchCtx).Debug("Sending LoadNodes in parallel", zap.Int("n", b.size))
 	for i, in := range process {
 		go func(idx int, input *input) {
 			defer wg.Done()
-			if tN, e := b.c.loadNode(b.c.globalContext, input.path, !input.info.isDir); e == nil {
+			if tN, e := b.c.loadNode(b.batchCtx, input.path, !input.info.isDir); e == nil {
 				results[idx] = tN
 			} else {
 				results[idx] = nil
@@ -73,12 +76,15 @@ func (b *statBatcher) flush() {
 		}(i, in)
 	}
 	wg.Wait()
-	log.Logger(b.c.globalContext).Debug("Finished sending Loadnodes in parallel", zap.Duration("d", time.Since(t)))
+	log.Logger(b.batchCtx).Debug("Finished sending LoadNodes in parallel", zap.Duration("d", time.Since(t)))
 	for i, n := range results {
 		if n == nil {
 			continue
 		}
-		b.walker(process[i].path, process[i].info, n)
+		e := b.walker(process[i].path, process[i].info, n)
+		if e != nil {
+			return e
+		}
 	}
-
+	return nil
 }

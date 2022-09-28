@@ -122,12 +122,11 @@ func (m *MultiBucketClient) GetEndpointInfo() model.EndpointInfo {
 	return m.mainClient.GetEndpointInfo()
 }
 
-func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
+func (m *MultiBucketClient) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	c, b, i, e := m.getClient(root)
 	if e != nil {
 		return e
 	}
-	ctx := context.Background()
 	if b == "" {
 		collect := recursive && c.checksumMapper != nil
 		var eTags []string
@@ -175,12 +174,12 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 			}
 			// Walk children
 			if recursive {
-				e := bC.Walk(func(iPath string, node *tree.Node, err error) {
+				e := bC.Walk(ctx, func(iPath string, node *tree.Node, err error) error {
 					wrapped := m.patchPath(bucket.Name, node, iPath)
 					if collect && node.IsLeaf() {
 						eTags = append(eTags, node.Etag)
 					}
-					walknFc(wrapped, node, err)
+					return walknFc(wrapped, node, err)
 				}, "", recursive)
 				if e != nil {
 					return e
@@ -199,7 +198,7 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 		}
 		return nil
 	} else {
-		return c.Walk(walknFc, i, recursive)
+		return c.Walk(nil, walknFc, i, recursive)
 	}
 }
 

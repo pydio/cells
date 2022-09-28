@@ -91,21 +91,21 @@ func (f *FlatSnapshot) Close(delete ...bool) error {
 	return nil
 }
 
-func (f *FlatSnapshot) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
-	// Wrap Walker to make sure s3 object does exists
+func (f *FlatSnapshot) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
+	// Wrap Walker to make sure s3 object does exist
 	stater := f.client.(model.PathSyncSource)
-	wrapper := func(path string, node *tree.Node, err error) {
+	wrapper := func(path string, node *tree.Node, err error) error {
 		if !node.IsLeaf() {
-			walknFc(path, node, err)
-			return
+			return walknFc(path, node, err)
 		}
-		if _, e := stater.LoadNode(f.globalCtx, node.GetUuid()); e == nil {
-			walknFc(path, node, err)
-		} else {
-			log.Logger(f.globalCtx).Warn("Ignoring node " + path + " from snapshot as object " + node.GetUuid() + " is not present on storage")
+		if _, e := stater.LoadNode(ctx, node.GetUuid()); e == nil {
+			return walknFc(path, node, err)
 		}
+
+		log.Logger(ctx).Warn("Ignoring node " + path + " from snapshot as object " + node.GetUuid() + " is not present on storage")
+		return nil
 	}
-	return f.BoltSnapshot.Walk(wrapper, root, recursive)
+	return f.BoltSnapshot.Walk(nil, wrapper, root, recursive)
 }
 
 func (f *FlatSnapshot) GetEndpointInfo() model.EndpointInfo {

@@ -32,37 +32,37 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
-//AsPathSyncSource tries to cast an Endpoint to a PathSyncSource
+// AsPathSyncSource tries to cast an Endpoint to a PathSyncSource
 func AsPathSyncSource(endpoint Endpoint) (PathSyncSource, bool) {
 	i, ok := endpoint.(PathSyncSource)
 	return i, ok
 }
 
-//AsPathSyncTarget tries to cast an Endpoint to a PathSyncTarget
+// AsPathSyncTarget tries to cast an Endpoint to a PathSyncTarget
 func AsPathSyncTarget(endpoint Endpoint) (PathSyncTarget, bool) {
 	i, ok := endpoint.(PathSyncTarget)
 	return i, ok
 }
 
-//AsDataSyncSource tries to cast an Endpoint to a DataSyncSource
+// AsDataSyncSource tries to cast an Endpoint to a DataSyncSource
 func AsDataSyncSource(endpoint Endpoint) (DataSyncSource, bool) {
 	i, ok := endpoint.(DataSyncSource)
 	return i, ok
 }
 
-//AsDataSyncTarget tries to cast an Endpoint to a DataSyncTarget
+// AsDataSyncTarget tries to cast an Endpoint to a DataSyncTarget
 func AsDataSyncTarget(endpoint Endpoint) (DataSyncTarget, bool) {
 	i, ok := endpoint.(DataSyncTarget)
 	return i, ok
 }
 
-//AsSessionProvider tries to cast an Endpoint to a SessionProvider
+// AsSessionProvider tries to cast an Endpoint to a SessionProvider
 func AsSessionProvider(endpoint Endpoint) (SessionProvider, bool) {
 	i, ok := endpoint.(SessionProvider)
 	return i, ok
 }
 
-//Ignores checks if a specific name should be ignored by the given Endpoint
+// Ignores checks if a specific name should be ignored by the given Endpoint
 func Ignores(endpoint Endpoint, name string) bool {
 	base := path.Base(name)
 	for _, n := range endpoint.GetEndpointInfo().Ignores {
@@ -78,7 +78,7 @@ func IsFolderHiddenFile(name string) bool {
 	return path.Base(name) == common.PydioSyncHiddenFile
 }
 
-//EndpointInfo provides static info about a given Endpoint (returned by GetEndpointInfo method)
+// EndpointInfo provides static info about a given Endpoint (returned by GetEndpointInfo method)
 type EndpointInfo struct {
 	URI                   string
 	RequiresNormalization bool
@@ -88,7 +88,7 @@ type EndpointInfo struct {
 	Ignores               []string
 }
 
-//EndpointOptions is used to configure an Endpoint at creation time
+// EndpointOptions is used to configure an Endpoint at creation time
 type EndpointOptions struct {
 	BrowseOnly bool
 	Properties map[string]string
@@ -132,19 +132,19 @@ func (e *EndpointRootStat) IsEmpty() bool {
 type Endpoint interface {
 	// LoadNode loads a given node by its path from this endpoint
 	LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error)
-	// GetEndpointInfo returns static informations about this endpoint
+	// GetEndpointInfo returns static information about this endpoint
 	GetEndpointInfo() EndpointInfo
 }
 
-type WalkNodesFunc func(path string, node *tree.Node, err error)
+type WalkNodesFunc func(path string, node *tree.Node, err error) error
 
 // PathSyncSource is a type of endpoint that can be used as a source of tree.Nodes for synchronization. It can browse and
 // watch the nodes, but not get the nodes actual content (see DataSyncSource).
 type PathSyncSource interface {
 	Endpoint
 	// Walk walks the nodes with a callback
-	Walk(walknFc WalkNodesFunc, root string, recursive bool) (err error)
-	// Watch setup an event watcher on the nodes
+	Walk(ctx context.Context, walknFc WalkNodesFunc, root string, recursive bool) (err error)
+	// Watch sets up an event watcher on the nodes
 	Watch(recursivePath string) (*WatchObject, error)
 }
 
@@ -157,7 +157,7 @@ type ChecksumProvider interface {
 // A CachedBranchProvider can quickly load a full branch recursively in memory and expose it as a PathSyncSource
 type CachedBranchProvider interface {
 	Endpoint
-	GetCachedBranches(ctx context.Context, roots ...string) PathSyncSource
+	GetCachedBranches(ctx context.Context, roots ...string) (PathSyncSource, error)
 }
 
 // A BulkLoader can stream calls to ReadNode - Better use CachedBranchProvider
@@ -263,7 +263,7 @@ type Snapshoter interface {
 type SnapshotUpdater interface {
 	// SetUpdateSnapshot stores internal reference to a Snapshot
 	SetUpdateSnapshot(PathSyncTarget)
-	// PatchUpdateSnaptshot applies a patch of operations to the internal snapshot
+	// PatchUpdateSnapshot applies a patch of operations to the internal snapshot
 	PatchUpdateSnapshot(ctx context.Context, patch interface{})
 }
 

@@ -80,19 +80,22 @@ func TestWalkS3(t *testing.T) {
 
 		c := NewS3Mock()
 		objects := make(map[string]*tree.Node)
-		walk := func(path string, node *tree.Node, err error) {
+		walk := func(path string, node *tree.Node, err error) error {
 			log.Println("Walk " + path)
 			objects[path] = node
+			return nil
 		}
 		wg := sync.WaitGroup{}
 		wg.Add(1)
+		var we error
 		go func() {
 			defer wg.Done()
-			c.Walk(walk, "/", true)
+			we = c.Walk(context.Background(), walk, "/", true)
 		}()
 		wg.Wait()
 
 		log.Println(objects)
+		So(we, ShouldBeNil)
 		// Will include the root
 		So(objects, ShouldHaveLength, 3)
 		So(objects["folder"].Uuid, ShouldNotBeEmpty)

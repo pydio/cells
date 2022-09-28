@@ -334,19 +334,20 @@ func TestWalkFS(t *testing.T) {
 
 		c := FilledMockedClient()
 		objects := make(map[string]*tree.Node)
-		walk := func(path string, node *tree.Node, err error) {
+		walk := func(path string, node *tree.Node, err error) error {
 			if err != nil {
-				log.Println("Walk Func Error ", err)
+				return err
 			}
 			if !model.IsIgnoredFile(path) {
 				objects[path] = node
 			}
+			return nil
 		}
 		wg := sync.WaitGroup{}
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			c.Walk(walk, "/", true)
+			_ = c.Walk(nil, walk, "/", true)
 		}()
 		wg.Wait()
 
@@ -368,22 +369,25 @@ func TestWalkWithRoot(t *testing.T) {
 
 		c := FilledMockedClient()
 		objects := make(map[string]*tree.Node)
-		walk := func(path string, node *tree.Node, err error) {
+		walk := func(path string, node *tree.Node, err error) error {
 			if err != nil {
-				log.Println("Walk Func Error ", err)
+				return err
 			}
 			if !model.IsIgnoredFile(path) {
 				objects[path] = node
 			}
+			return nil
 		}
 		wg := sync.WaitGroup{}
 		wg.Add(1)
+		var we error
 		go func() {
 			defer wg.Done()
-			c.Walk(walk, "folder/subfolder1", true)
+			we = c.Walk(nil, walk, "folder/subfolder1", true)
 		}()
 		wg.Wait()
 
+		So(we, ShouldBeNil)
 		// Will include the root and the PydioSyncHiddenFile files
 		So(objects, ShouldHaveLength, 2)
 	})

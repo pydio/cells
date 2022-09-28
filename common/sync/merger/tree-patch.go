@@ -166,7 +166,7 @@ func (t *TreePatch) CachedBranchFromEndpoint(ctx context.Context, endpoint model
 		} else {
 			log.Logger(ctx).Info("Loading branches in cache", log.DangerouslyZapSmallSlice("branches", branches))
 		}
-		inMemory := cacheProvider.GetCachedBranches(ctx, branches...)
+		inMemory, _ := cacheProvider.GetCachedBranches(ctx, branches...)
 		return inMemory, true
 	}
 	return nil, false
