@@ -21,12 +21,10 @@
 package cmd
 
 import (
-	"os"
-	"path"
-
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/anypb"
+	"os"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
@@ -37,17 +35,15 @@ import (
 )
 
 var (
-	rehashDsName         string
-	rehashPath           string
-	rehashUserName       string
-	rehashMaxConcurrency int
-	rehashForceRecompute bool
-	rehashTimeout        string
+	rethumbDsName         string
+	rethumbUserName       string
+	rethumbMaxConcurrency int
+	rethumbTimeout        string
 )
 
-var dsRehashCmd = &cobra.Command{
-	Use:   "rehash",
-	Short: "Recompute all files hashes inside a given datasource",
+var dsRethumbCmd = &cobra.Command{
+	Use:   "rethumb",
+	Short: "Find and compute missing thumbnails for images",
 	Long: `
 DESCRIPTION
 
@@ -56,54 +52,49 @@ DESCRIPTION
 
 EXAMPLES
 
-  1. To trigger the rehashing of "pydiods1" datasource:
-  $ ` + os.Args[0] + ` admin datasource rehash --datasource=pydiods1
+  1. To trigger the rethumbing of "pydiods1" datasource:
+  $ ` + os.Args[0] + ` admin datasource rethumb --datasource=pydiods1
 
   2. Process only the folder/subfolder data :
-  $ ` + os.Args[0] + ` admin datasource rehash --datasource=pydiods1 --path=folder/subfolder
+  $ ` + os.Args[0] + ` admin datasource rethumb --datasource=pydiods1 --path=folder/subfolder
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		if rehashDsName == "" || rehashUserName == "" {
+		if rethumbDsName == "" || rethumbUserName == "" {
 			cmd.Println("Please provide at least a datasource name (--datasource) and an admin user name")
 			cmd.Help()
 			return
 		}
 
-		params := map[string]string{
-			"hashType": "cells",
-			"metaName": common.MetaNamespaceHash,
-		}
-		if rehashForceRecompute {
-			params["forceRecompute"] = "true"
-		}
 		ap, _ := anypb.New(&tree.Query{
+			MinSize:    1,
 			Type:       tree.NodeType_LEAF,
-			PathPrefix: []string{path.Join(rehashDsName, rehashPath)},
+			PathPrefix: []string{rethumbDsName},
+			FreeString: "-Meta.is_image:T* Extension:jpg Extension:jpeg  Extension:png Extension:bmp",
 		})
 
 		jobClient := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
 		job := &jobs.Job{
 			ID:             uuid.New(),
-			Owner:          rehashUserName,
-			Label:          "Recompute Cells Hash on all files in " + rehashDsName,
+			Owner:          rethumbUserName,
+			Label:          "Find and recompute missing thumbnails in " + rethumbDsName,
 			AutoStart:      true,
 			AutoClean:      true,
-			MaxConcurrency: int32(rehashMaxConcurrency),
+			MaxConcurrency: int32(rethumbMaxConcurrency),
 			Actions: []*jobs.Action{
 				{
-					ID:         "actions.tree.cells-hash",
-					Parameters: params,
+					ID:         "actions.images.thumbnails",
+					Parameters: map[string]string{},
 					NodesSelector: &jobs.NodesSelector{
 						Query: &service.Query{
 							SubQueries: []*anypb.Any{ap},
 							Operation:  service.OperationType_AND,
 						},
-						Label: "Files selection",
+						Label: "Images w/o 'is_image' metadata",
 					},
 				},
 			},
-			Timeout: rehashTimeout,
+			Timeout: rethumbTimeout,
 		}
 
 		if _, err := jobClient.PutJob(ctx, &jobs.PutJobRequest{Job: job}); err != nil {
@@ -116,11 +107,9 @@ EXAMPLES
 }
 
 func init() {
-	dsRehashCmd.PersistentFlags().StringVarP(&rehashDsName, "datasource", "d", "pydiods1", "Name of datasource to process")
-	dsRehashCmd.PersistentFlags().StringVarP(&rehashUserName, "username", "u", "", "Username under which the job will be executed (generally admin)")
-	dsRehashCmd.PersistentFlags().StringVarP(&rehashPath, "path", "p", "", "Restrict operation to a specific folder")
-	dsRehashCmd.PersistentFlags().StringVarP(&rehashTimeout, "timeout", "t", "30m", "Maximum job duration")
-	dsRehashCmd.PersistentFlags().IntVarP(&rehashMaxConcurrency, "concurrency", "c", 10, "Maximum concurrency for computing files hashes")
-	dsRehashCmd.PersistentFlags().BoolVarP(&rehashForceRecompute, "force", "f", false, "Force recomputing hash if it does not already exists")
-	DataSourceCmd.AddCommand(dsRehashCmd)
+	dsRethumbCmd.PersistentFlags().StringVarP(&rethumbDsName, "datasource", "d", "pydiods1", "Name of datasource to process")
+	dsRethumbCmd.PersistentFlags().StringVarP(&rethumbUserName, "username", "u", "", "Username under which the job will be executed (generally admin)")
+	dsRethumbCmd.PersistentFlags().StringVarP(&rethumbTimeout, "timeout", "t", "30m", "Maximum job duration")
+	dsRethumbCmd.PersistentFlags().IntVarP(&rethumbMaxConcurrency, "concurrency", "c", 10, "Maximum concurrency for computing files hashes")
+	DataSourceCmd.AddCommand(dsRethumbCmd)
 }

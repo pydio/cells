@@ -22,8 +22,16 @@ package tree
 
 import (
 	"context"
+	"crypto/md5"
+	"crypto/sha1"
+	"crypto/sha256"
+	"crypto/sha512"
 	"encoding/hex"
+	"fmt"
+	"hash"
 	"io"
+
+	"golang.org/x/crypto/md4"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
@@ -40,11 +48,23 @@ import (
 
 var (
 	cellsHashActionName = "actions.tree.cells-hash"
+	cellsHashTypes      = map[string]func() hash.Hash{
+		"cells": func() hash.Hash {
+			return hasher.NewBlockHash(simd.MD5(), hasher.DefaultBlockSize)
+		},
+		"md4":    md4.New,
+		"md5":    md5.New,
+		"sha1":   sha1.New,
+		"sha256": sha256.New,
+		"sha512": sha512.New,
+	}
 )
 
 type CellsHashAction struct {
 	tools.ScopedRouterConsumer
 	forceRecompute string
+	hashType       string
+	metaName       string
 }
 
 func (c *CellsHashAction) GetDescription(lang ...string) actions.ActionDescription {
@@ -52,7 +72,7 @@ func (c *CellsHashAction) GetDescription(lang ...string) actions.ActionDescripti
 		ID:                cellsHashActionName,
 		Label:             "Compute Hash",
 		Icon:              "pound-box",
-		Category:          actions.ActionCategoryTree,
+		Category:          actions.ActionCategoryContents,
 		Description:       "Compute file signature using Cells internal algorithm",
 		InputDescription:  "Multiple selection of files",
 		OutputDescription: "Updated selection of files",
@@ -66,6 +86,28 @@ func (c *CellsHashAction) GetParametersForm() *forms.Form {
 		Groups: []*forms.Group{
 			{
 				Fields: []forms.Field{
+					&forms.FormField{
+						Name:        "hashType",
+						Type:        forms.ParamSelect,
+						Label:       "Hashing Algorithm",
+						Description: "Algorithm applied to file contents",
+						Default:     "cells",
+						ChoicePresetList: []map[string]string{
+							{"cells": "Cells Internal"},
+							{"md4": "MD4"},
+							{"md5": "MD5"},
+							{"sha1": "SHA1"},
+							{"sha256": "SHA256"},
+							{"sha512": "SHA512"},
+						},
+					},
+					&forms.FormField{
+						Name:      "metaName",
+						Type:      forms.ParamString,
+						Label:     "Metadata Name",
+						Default:   common.MetaNamespaceHash,
+						Mandatory: true,
+					},
 					&forms.FormField{
 						Name:        "forceRecompute",
 						Type:        forms.ParamBool,
@@ -90,6 +132,14 @@ func (c *CellsHashAction) Init(job *jobs.Job, action *jobs.Action) error {
 	if b, o := action.Parameters["forceRecompute"]; o {
 		c.forceRecompute = b
 	}
+	c.hashType = "cells"
+	if h, o := action.Parameters["hashType"]; o {
+		c.hashType = h
+	}
+	c.metaName = common.MetaNamespaceHash
+	if m, o := action.Parameters["metaName"]; o {
+		c.metaName = m
+	}
 	return nil
 }
 
@@ -101,6 +151,13 @@ func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableCha
 	}
 
 	forceRecompute, _ := jobs.EvaluateFieldBool(ctx, input, c.forceRecompute)
+	hashType := jobs.EvaluateFieldStr(ctx, input, c.hashType)
+	factory, found := cellsHashTypes[hashType]
+	if !found {
+		er := fmt.Errorf("unsupported hash type: %s", hashType)
+		return input.WithError(er), er
+	}
+	metaName := jobs.EvaluateFieldStr(ctx, input, c.metaName)
 
 	ct, cli, e := c.GetHandler(ctx)
 	if e != nil {
@@ -118,7 +175,7 @@ func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableCha
 			}
 			node = resp.GetNode()
 		}
-		if !forceRecompute && node.GetStringMeta(common.MetaNamespaceHash) != "" {
+		if !forceRecompute && node.GetStringMeta(metaName) != "" {
 			// Meta already exists, do not recompute
 			continue
 		}
@@ -126,7 +183,7 @@ func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableCha
 		if er != nil {
 			return input.WithError(er), er
 		}
-		bh := hasher.NewBlockHash(simd.MD5(), hasher.DefaultBlockSize)
+		bh := factory()
 		if _, er := io.Copy(bh, rc); er != nil {
 			rc.Close()
 			return input.WithError(er), er
@@ -135,13 +192,13 @@ func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableCha
 		hash := hex.EncodeToString(bh.Sum(nil))
 		n := node.Clone()
 		n.MetaStore = make(map[string]string)
-		n.MustSetMeta(common.MetaNamespaceHash, hash)
+		n.MustSetMeta(metaName, hash)
 		if _, er = mc.UpdateNode(ctx, &tree.UpdateNodeRequest{From: n, To: n}); er != nil {
 			return input.WithError(er), er
 		} else {
-			log.TasksLogger(ctx).Info("Computed hash for " + n.GetPath() + ": " + hash)
+			log.TasksLogger(ctx).Info("Computed " + metaName + " for " + n.GetPath() + ": " + hash)
 		}
-		node.MustSetMeta(common.MetaNamespaceHash, hash)
+		node.MustSetMeta(metaName, hash)
 		outnodes = append(outnodes, node)
 	}
 
