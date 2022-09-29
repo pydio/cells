@@ -85,7 +85,7 @@ func (h *Handler) Publish(stream pb.Broker_PublishServer) error {
 func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
 	subPID := ""
 	if md, ok := metadata.FromIncomingContext(stream.Context()); ok {
-		subPID = strings.Join(md["subscriberid"], "")
+		subPID = strings.Join(md["cells-subscriber-id"], "")
 	}
 
 	for {

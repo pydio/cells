@@ -24,9 +24,7 @@ import (
 	"context"
 	"fmt"
 	"go.uber.org/zap/zapcore"
-	"os"
 	"runtime/debug"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -171,7 +169,6 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 	}, opts...)
 
 	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
-	ctx = metadata.AppendToOutgoingContext(ctx, "SubscriberId", strconv.Itoa(os.Getpid()))
 	var cancel context.CancelFunc
 	if cc.callTimeout > 0 {
 		ctx, cancel = context.WithTimeout(ctx, cc.callTimeout)

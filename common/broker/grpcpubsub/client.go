@@ -21,13 +21,14 @@ import (
 	"strings"
 	"sync"
 
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
-
 	"gocloud.dev/gcerrors"
 	"gocloud.dev/pubsub"
 	"gocloud.dev/pubsub/driver"
+	"google.golang.org/grpc/metadata"
 
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	pb "github.com/pydio/cells/v4/common/proto/broker"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -91,7 +92,7 @@ const Scheme = "grpc"
 //
 // Query parameters:
 //   - ackdeadline: The ack deadline for OpenSubscription, in time.ParseDuration formats.
-//       Defaults to 1m.
+//     Defaults to 1m.
 type URLOpener struct {
 	mu     sync.Mutex
 	topics map[string]*pubsub.Topic
@@ -138,6 +139,7 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 		}
 
 		ct, ca := context.WithCancel(ctx)
+		ct = metadata.AppendToOutgoingContext(ct, "cells-subscriber-id", strings.Join(runtime.ProcessStartTags(), " "))
 		cli, err := pb.NewBrokerClient(conn).Subscribe(ct)
 		if err != nil {
 			ca()
