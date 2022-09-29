@@ -24,13 +24,13 @@ package rest
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/client/grpc"
 
 	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
@@ -76,6 +76,9 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 		log.Logger(ctx).Error("cannot fetch idm.Workspace from request", zap.Error(err))
 		service2.RestError500(req, rsp, err)
 		return
+	}
+	if inputWorkspace.Slug == "" {
+		inputWorkspace.Slug = req.PathParameter("Slug")
 	}
 	log.Logger(req.Request.Context()).Debug("Received Workspace.Put API request", zap.Any("inputWorkspace", inputWorkspace))
 

@@ -83,6 +83,13 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		service.RestError500(req, resp, err)
 		return
 	}
+	if ds.Name == "" {
+		ds.Name = req.PathParameter("Name")
+	}
+	if ds.Name == "" {
+		service.RestError500(req, resp, fmt.Errorf("cannot create datasource without at least a name"))
+		return
+	}
 
 	// Replace uuid secret if it exists
 	var secretUuid string

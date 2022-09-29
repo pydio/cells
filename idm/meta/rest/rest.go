@@ -345,6 +345,9 @@ func (s *UserMetaHandler) PutUserMetaTag(req *restful.Request, rsp *restful.Resp
 	if e := req.ReadEntity(&r); e != nil {
 		service.RestError500(req, rsp, e)
 	}
+	if r.Namespace == "" {
+		r.Namespace = req.PathParameter("Namespace")
+	}
 	e := s.putTagsIfNecessary(req.Request.Context(), r.Namespace, []string{r.Tag})
 	if e != nil {
 		service.RestError500(req, rsp, e)
