@@ -24,7 +24,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -232,7 +231,7 @@ func unmarshallConf() (*NiInstallConfig, error) {
 
 	if niYamlFile != "" {
 		path = niYamlFile
-		file, err := ioutil.ReadFile(niYamlFile)
+		file, err := os.ReadFile(niYamlFile)
 		if err != nil {
 			return nil, fmt.Errorf("could not read YAML file at %s: %s", niYamlFile, err.Error())
 		}
@@ -251,7 +250,7 @@ func unmarshallConf() (*NiInstallConfig, error) {
 
 	if niJsonFile != "" {
 		path = niJsonFile
-		file, err := ioutil.ReadFile(niJsonFile)
+		file, err := os.ReadFile(niJsonFile)
 		if err != nil {
 			return nil, fmt.Errorf("could not read JSON file at %s: %s", niJsonFile, err.Error())
 		}

@@ -22,7 +22,7 @@ package frontend
 
 import (
 	"embed"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/pydio/cells/v4/common/utils/statics"
@@ -70,7 +70,7 @@ func TestUnionHttpFs(t *testing.T) {
 		size, e := index.Read(indexData)
 		So(size, ShouldEqual, info.Size())
 		index.Close()
-		readAll, e := ioutil.ReadAll(index)
+		readAll, e := io.ReadAll(index)
 		So(e, ShouldBeNil)
 		So(string(readAll), ShouldEqual, `["a","b","c"]`)
 		So(string(indexData), ShouldEqual, `["a","b","c"]`)

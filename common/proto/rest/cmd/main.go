@@ -23,7 +23,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -111,7 +110,7 @@ var (
 )
 
 func main() {
-	if content, err := ioutil.ReadFile(filepath.Join(base, "cellsapi-rest.swagger.json")); err == nil {
+	if content, err := os.ReadFile(filepath.Join(base, "cellsapi-rest.swagger.json")); err == nil {
 		fmt.Println("** Monkey Patching json file with error responses")
 		c1 := string(content)
 		for k, v := range replaces {
@@ -130,7 +129,7 @@ func main() {
 			}
 		}
 		output, _ := json.MarshalIndent(rootNode.InterfaceValue(), "", "  ")
-		_ = ioutil.WriteFile(filepath.Join(base, "cellsapi-rest.swagger.json"), output, 0777)
+		_ = os.WriteFile(filepath.Join(base, "cellsapi-rest.swagger.json"), output, 0777)
 
 	} else {
 		fmt.Println("Cannot read original file" + err.Error())

@@ -31,7 +31,6 @@ import (
 	"encoding/asn1"
 	"encoding/pem"
 	"errors"
-	"io/ioutil"
 	"math/big"
 	"net"
 	"os"
@@ -167,7 +166,7 @@ func GenerateServiceCertificate(t *Template) (*x509.Certificate, error) {
 
 // LoadPrivateKey loads the encrypted private key from the passed file and decrypts it.
 func LoadPrivateKey(password []byte, file string) (crypto.PrivateKey, error) {
-	keyBytes, err := ioutil.ReadFile(file)
+	keyBytes, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
@@ -216,12 +215,12 @@ func StorePrivateKey(key crypto.PrivateKey, password []byte, file string) error 
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(file, pem.EncodeToMemory(block), 0600)
+	return os.WriteFile(file, pem.EncodeToMemory(block), 0600)
 }
 
 // LoadCertificate loads file contenant and decodes it into a x509.Certificate.
 func LoadCertificate(file string) (*x509.Certificate, error) {
-	certBytes, err := ioutil.ReadFile(file)
+	certBytes, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
@@ -230,5 +229,5 @@ func LoadCertificate(file string) (*x509.Certificate, error) {
 
 // StoreCertificate encodes certificate and stores the result in file.
 func StoreCertificate(cert *x509.Certificate, file string, perm os.FileMode) error {
-	return ioutil.WriteFile(file, cert.Raw, perm)
+	return os.WriteFile(file, cert.Raw, perm)
 }

@@ -28,8 +28,8 @@ import (
 	"github.com/pydio/cells/v4/common/utils/hasher"
 	"hash"
 	"io"
-	"io/ioutil"
 	"math"
+	"os"
 	"strings"
 	"testing"
 
@@ -117,7 +117,7 @@ func TestHandler_TestMultipartHash(t *testing.T) {
 		return hasher.NewBlockHash(md5.New(), blockSize)
 	}
 	Convey("Test block hash in multipart context", t, func() {
-		data, e := ioutil.ReadFile(file)
+		data, e := os.ReadFile(file)
 		So(e, ShouldBeNil)
 		bh := hFunc()
 		_, e = io.Copy(bh, bytes.NewBuffer(data))

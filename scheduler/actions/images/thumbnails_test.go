@@ -22,7 +22,6 @@ package images
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -86,10 +85,10 @@ func TestThumbnailExtractor_Run(t *testing.T) {
 		uuidNode := uuid.New()
 		testDir := "testdata"
 
-		data, err := ioutil.ReadFile(filepath.Join(testDir, "photo-hires.jpg"))
+		data, err := os.ReadFile(filepath.Join(testDir, "photo-hires.jpg"))
 		So(err, ShouldBeNil)
 		target := filepath.Join(tmpDir, uuidNode+".jpg")
-		err = ioutil.WriteFile(target, data, 0755)
+		err = os.WriteFile(target, data, 0755)
 		log.Println(target)
 		So(err, ShouldBeNil)
 		defer os.Remove(target)
@@ -112,16 +111,16 @@ func TestThumbnailExtractor_Run(t *testing.T) {
 		test512 := filepath.Join(tmpDir, uuidNode+"-512.jpg")
 		test256 := filepath.Join(tmpDir, uuidNode+"-256.jpg")
 
-		resizedData, er := ioutil.ReadFile(test512)
+		resizedData, er := os.ReadFile(test512)
 		So(er, ShouldBeNil)
 		defer os.Remove(test512)
-		referenceData, _ := ioutil.ReadFile(filepath.Join(testDir, "photo-512.jpg"))
+		referenceData, _ := os.ReadFile(filepath.Join(testDir, "photo-512.jpg"))
 		So(resizedData, ShouldResemble, referenceData)
 
-		resizedData, er = ioutil.ReadFile(test256)
+		resizedData, er = os.ReadFile(test256)
 		So(er, ShouldBeNil)
 		defer os.Remove(test256)
-		referenceData, _ = ioutil.ReadFile(filepath.Join(testDir, "photo-256.jpg"))
+		referenceData, _ = os.ReadFile(filepath.Join(testDir, "photo-256.jpg"))
 		So(resizedData, ShouldResemble, referenceData)
 	})
 

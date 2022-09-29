@@ -31,7 +31,6 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"net/http"
 	"net/url"
@@ -124,7 +123,7 @@ func LoadUpdates(ctx context.Context, conf configx.Values, request *update.Updat
 				Title  string
 				Detail string
 			}
-			data, _ := ioutil.ReadAll(response.Body)
+			data, _ := io.ReadAll(response.Body)
 			if e := json.Unmarshal(data, &jsonErr); e == nil {
 				rErr = fmt.Errorf("failed connecting to the update server (%s), error code %d", jsonErr.Title, response.StatusCode)
 			}
@@ -145,7 +144,7 @@ func LoadUpdates(ctx context.Context, conf configx.Values, request *update.Updat
 			// this license must thus be valid
 			log.Logger(ctx).Info("Saving LicenseKey to file now")
 			filePath := filepath.Join(runtime2.ApplicationWorkingDir(), "pydio-license")
-			if err := ioutil.WriteFile(filePath, []byte(lic), 0644); err != nil {
+			if err := os.WriteFile(filePath, []byte(lic), 0644); err != nil {
 				return nil, fmt.Errorf("could not save license file to %s (%s), aborting upgrade", filePath, err.Error())
 			}
 		}
@@ -200,7 +199,7 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf configx.Values, dr
 	} else {
 		defer resp.Body.Close()
 		if resp.StatusCode != 200 {
-			plain, _ := ioutil.ReadAll(resp.Body)
+			plain, _ := io.ReadAll(resp.Body)
 			errorChan <- errors.New("binary.download.error", "Error while downloading binary:"+string(plain), int32(resp.StatusCode))
 			return
 		}

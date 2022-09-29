@@ -22,12 +22,13 @@ package pydio8
 
 import (
 	"fmt"
+	"io"
+	"net/http"
+	"path"
+
 	"github.com/go-openapi/runtime"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/pydio-sdk-go/config"
-	"io/ioutil"
-	"net/http"
-	"path"
 )
 
 type ClientV1 struct {
@@ -59,7 +60,7 @@ func (a *ClientV1) GetAdvancedUserInfo(userId string, sdkConfig *config.SdkConfi
 	if e != nil {
 		return nil, e
 	}
-	body, e := ioutil.ReadAll(resp.Body)
+	body, e := io.ReadAll(resp.Body)
 	if e != nil {
 		return nil, e
 	}
@@ -82,7 +83,7 @@ func (a *ClientV1) GetDomainName(sdkConfig *config.SdkConfig) (*GetDomainNameRes
 	if e != nil {
 		return nil, e
 	}
-	body, e := ioutil.ReadAll(resp.Body)
+	body, e := io.ReadAll(resp.Body)
 	if e != nil {
 		return nil, e
 	}
@@ -118,7 +119,7 @@ func (a *ClientV1) ListNonTechnicalRoles(teams bool, sdkConfig *config.SdkConfig
 	if e != nil {
 		return nil, e
 	}
-	body, e := ioutil.ReadAll(resp.Body)
+	body, e := io.ReadAll(resp.Body)
 	if e != nil {
 		return nil, e
 	}
@@ -157,7 +158,7 @@ func (a *ClientV1) ListP8GlobalMeta(sdkConfig *config.SdkConfig) (P8GlobalMeta, 
 	if e != nil {
 		return nil, e
 	}
-	body, e := ioutil.ReadAll(resp.Body)
+	body, e := io.ReadAll(resp.Body)
 	if e != nil {
 		return nil, e
 	}

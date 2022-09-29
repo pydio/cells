@@ -22,24 +22,24 @@ package core
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common"
-	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
-	"github.com/pydio/cells/v4/common/utils/uuid"
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
 	"io"
-	"io/ioutil"
 	"strings"
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+
+	"github.com/pydio/cells/v4/common"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 func WithStructInterceptor() nodes.Option {
@@ -119,7 +119,7 @@ func (f *StructStorageHandler) CreateNode(ctx context.Context, in *tree.CreateNo
 		}
 		if !in.UpdateIfExists {
 			if read, er := f.GetObject(ctx, newNode, &models.GetRequestData{StartOffset: 0, Length: 36}); er == nil {
-				bytes, _ := ioutil.ReadAll(read)
+				bytes, _ := io.ReadAll(read)
 				_ = read.Close()
 				node.Uuid = string(bytes)
 				node.MTime = time.Now().Unix()

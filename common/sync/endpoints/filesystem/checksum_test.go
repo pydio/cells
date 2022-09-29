@@ -23,7 +23,6 @@ package filesystem
 import (
 	"encoding/hex"
 	"io"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"os"
@@ -44,7 +43,7 @@ func createFakeData() (out []string) {
 		// Write fake data
 		p := make([]byte, 1024*1024*4)
 		rand.Read(p)
-		if e := ioutil.WriteFile(tmpName, p, 0777); e == nil {
+		if e := os.WriteFile(tmpName, p, 0777); e == nil {
 			out = append(out, tmpName)
 		}
 	}

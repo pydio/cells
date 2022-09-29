@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"image"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -360,7 +359,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 		displayMemStat(ctx, "AFTER PUT OBJECT WITH CONTEXT")
 
 	} else {
-		e := ioutil.WriteFile(filepath.Join(localFolder, objectName), buf.Bytes(), 0755)
+		e := os.WriteFile(filepath.Join(localFolder, objectName), buf.Bytes(), 0755)
 		if e != nil {
 			return false, e
 		}

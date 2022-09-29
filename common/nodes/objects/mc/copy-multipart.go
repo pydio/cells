@@ -23,7 +23,6 @@ package mc
 import (
 	"context"
 	"io"
-	"io/ioutil"
 	"math"
 	"sort"
 	"sync"
@@ -103,7 +102,7 @@ func (c *Client) CopyObjectMultipart(ctx context.Context, srcObject models.Objec
 				log.Logger(ctx).Error("CopyObjectPart Error - other parts will be ignored", zap.Error(err))
 				copyErr = er
 			} else if progress != nil {
-				_, _ = io.CopyN(ioutil.Discard, progress, length)
+				_, _ = io.CopyN(io.Discard, progress, length)
 			}
 			parts = append(parts, p)
 		}(i)

@@ -26,7 +26,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -417,7 +416,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			return
 		}
 		// Load data in-memory to check and remove EXIF data if there are any
-		data, er := ioutil.ReadAll(fileInput)
+		data, er := io.ReadAll(fileInput)
 		if er != nil {
 			service.RestError500(req, rsp, er)
 			return

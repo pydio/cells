@@ -25,7 +25,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 	"time"
 
@@ -295,11 +295,11 @@ func (db *MemDB) Stats() string {
 
 func (db *MemDB) ToJSON(name string) error {
 	data, _ := json.Marshal(db.Nodes)
-	return ioutil.WriteFile(name, data, 0666)
+	return os.WriteFile(name, data, 0666)
 }
 
 func (db *MemDB) FromJSON(name string) error {
-	data, err := ioutil.ReadFile(name)
+	data, err := os.ReadFile(name)
 	if err != nil {
 		return err
 	}

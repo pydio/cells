@@ -23,7 +23,7 @@ package sql
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"path"
 	"sort"
 	"strings"
@@ -81,7 +81,7 @@ func (p FSMigrationSource) FindMigrations() ([]*migrate.Migration, error) {
 			if e != nil {
 				return nil, e
 			}
-			data, _ := ioutil.ReadAll(file)
+			data, _ := io.ReadAll(file)
 			file.Close()
 			content := bytes.Replace(data, []byte("%%PREFIX%%"), []byte(p.TablePrefix), -1)
 

@@ -26,7 +26,6 @@ import (
 	"crypto/x509"
 	"encoding/asn1"
 	"encoding/pem"
-	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -91,7 +90,7 @@ func RsaKeyFromPEM(pemString string) (*rsa.PrivateKey, error) {
 func RsaKeyFromPEMFile(filename string) (*rsa.PrivateKey, error) {
 	var data []byte
 	var e error
-	if data, e = ioutil.ReadFile(filename); e != nil {
+	if data, e = os.ReadFile(filename); e != nil {
 		return nil, e
 	}
 	block, _ := pem.Decode(data)

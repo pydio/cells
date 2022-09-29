@@ -23,7 +23,7 @@ package frontend
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"io/ioutil"
+	"os"
 	"path"
 	"runtime"
 	"strings"
@@ -124,10 +124,10 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) (*BootConf, error) 
 		vDate = common.BuildStamp
 		vRev = common.BuildRevision
 		packagingOnce.Do(func() {
-			if data, e := ioutil.ReadFile(path.Join(runtime2.ApplicationWorkingDir(), "package.info")); e == nil {
+			if data, e := os.ReadFile(path.Join(runtime2.ApplicationWorkingDir(), "package.info")); e == nil {
 				packagingData = data
 			} else if runtime.GOOS != "windows" {
-				if data2, e2 := ioutil.ReadFile(path.Join("/opt/pydio", "package.info")); e2 == nil {
+				if data2, e2 := os.ReadFile(path.Join("/opt/pydio", "package.info")); e2 == nil {
 					packagingData = data2
 				}
 			}

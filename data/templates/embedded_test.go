@@ -22,7 +22,7 @@ package templates
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -42,7 +42,7 @@ func TestGetProvider(t *testing.T) {
 		reader, size, e := n.Read(ctx)
 		So(e, ShouldBeNil)
 		So(size, ShouldBeGreaterThan, 0)
-		data, _ := ioutil.ReadAll(reader)
+		data, _ := io.ReadAll(reader)
 		So(len(data), ShouldBeGreaterThan, 0)
 
 		byId, e := dao.ByUUID(ctx, "05-MS PowerPoint Template.pot")

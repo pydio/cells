@@ -129,7 +129,7 @@ func TestEnqueueMail(t *testing.T) {
 	/*
 		Convey("Test push", t, func() {
 
-			bDir, e := ioutil.TempDir(os.TempDir(), "bolt-queue-2-*")
+			bDir, e := os.CreateTemp(os.TempDir(), "bolt-queue-2-*")
 			So(e, ShouldBeNil)
 			bPath := filepath.Join(bDir, "bolt-test.db")
 

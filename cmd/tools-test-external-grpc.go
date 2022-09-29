@@ -6,7 +6,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
@@ -61,7 +61,7 @@ var TestExternalGrpc = &cobra.Command{
 
 func loadTLSCredentials() (credentials.TransportCredentials, error) {
 	// Load certificate of the CA who signed server's certificate
-	pemServerCA, err := ioutil.ReadFile(filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultCertStorePath, "rootCA.pem"))
+	pemServerCA, err := os.ReadFile(filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultCertStorePath, "rootCA.pem"))
 	if err != nil {
 		return nil, err
 	}

@@ -21,7 +21,7 @@
 package idmtest
 
 import (
-	"io/ioutil"
+	"os"
 	"path"
 	"runtime"
 	"sync"
@@ -66,7 +66,7 @@ func GetStartData() (*TestData, error) {
 		roles := &rest.RolesCollection{}
 		acls := &rest.ACLCollection{}
 
-		if bb, parseErr = ioutil.ReadFile(path.Join(path.Dir(filename), "testdata", "start-users.json")); parseErr != nil {
+		if bb, parseErr = os.ReadFile(path.Join(path.Dir(filename), "testdata", "start-users.json")); parseErr != nil {
 			return
 		}
 		if parseErr = protojson.Unmarshal(bb, sd); parseErr != nil {
@@ -74,7 +74,7 @@ func GetStartData() (*TestData, error) {
 		}
 		startData.Users = sd.Users
 
-		if bb, parseErr = ioutil.ReadFile(path.Join(path.Dir(filename), "testdata", "start-ws.json")); parseErr != nil {
+		if bb, parseErr = os.ReadFile(path.Join(path.Dir(filename), "testdata", "start-ws.json")); parseErr != nil {
 			return
 		}
 		if parseErr = protojson.Unmarshal(bb, ws); parseErr != nil {
@@ -82,7 +82,7 @@ func GetStartData() (*TestData, error) {
 		}
 		startData.Workspaces = ws.Workspaces
 
-		if bb, parseErr = ioutil.ReadFile(path.Join(path.Dir(filename), "testdata", "start-roles.json")); parseErr != nil {
+		if bb, parseErr = os.ReadFile(path.Join(path.Dir(filename), "testdata", "start-roles.json")); parseErr != nil {
 			return
 		}
 		if parseErr = protojson.Unmarshal(bb, roles); parseErr != nil {
@@ -90,7 +90,7 @@ func GetStartData() (*TestData, error) {
 		}
 		startData.Roles = roles.GetRoles()
 
-		if bb, parseErr = ioutil.ReadFile(path.Join(path.Dir(filename), "testdata", "start-acls.json")); parseErr != nil {
+		if bb, parseErr = os.ReadFile(path.Join(path.Dir(filename), "testdata", "start-acls.json")); parseErr != nil {
 			return
 		}
 		if parseErr = protojson.Unmarshal(bb, acls); parseErr != nil {

@@ -23,7 +23,7 @@ package scheduler
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math/rand"
 	"net/http"
 	"time"
@@ -185,7 +185,7 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 	var values []Value
 
 	if response, err := http.Get(fmt.Sprintf("https://uinames.com/api/?region=france&amount=%d", number)); err == nil {
-		if contents, err := ioutil.ReadAll(response.Body); err == nil {
+		if contents, err := io.ReadAll(response.Body); err == nil {
 			type Response struct {
 				Name    string `json:"name"`
 				Surname string `json:"surname"`

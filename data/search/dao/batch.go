@@ -24,7 +24,7 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -172,12 +172,12 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 			if strings.HasSuffix(ref, ".gz") {
 				// Content is gzip-compressed
 				if gR, e := gzip.NewReader(reader); e == nil {
-					if contents, e := ioutil.ReadAll(gR); e == nil {
+					if contents, e := io.ReadAll(gR); e == nil {
 						indexNode.TextContent = string(contents)
 					}
 					gR.Close()
 				}
-			} else if contents, e := ioutil.ReadAll(reader); e == nil {
+			} else if contents, e := io.ReadAll(reader); e == nil {
 				indexNode.TextContent = string(contents)
 			}
 			reader.Close()

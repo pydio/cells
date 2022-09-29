@@ -25,7 +25,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"path"
 	"strconv"
@@ -200,7 +199,7 @@ func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 
 	if strings.HasSuffix(node.Path, common.PydioSyncHiddenFile) {
 		if test, e := m.GetObject(ctx, node, &models.GetRequestData{Length: -1}); e == nil {
-			data, _ := ioutil.ReadAll(test)
+			data, _ := io.ReadAll(test)
 			log.Logger(ctx).Error("Cannot override the content of .pydio as it already has the ID " + string(data))
 			test.Close()
 			return models.ObjectInfo{}, fmt.Errorf("do not override folder uuid")

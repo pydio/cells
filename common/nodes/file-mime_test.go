@@ -22,7 +22,7 @@ package nodes
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"sync"
 	"testing"
@@ -38,7 +38,7 @@ func Test_NewTeeMimeReader(t *testing.T) {
 		mr := NewTeeMimeReader(f, func(res *MimeResult) {
 			fmt.Println("Got MimeResult", res)
 		})
-		bb, er := ioutil.ReadAll(mr)
+		bb, er := io.ReadAll(mr)
 		So(er, ShouldBeNil)
 		So(len(bb), ShouldBeGreaterThan, 0)
 		fmt.Printf("Read %d bytes from file", len(bb))
@@ -50,7 +50,7 @@ func Test_NewTeeMimeReader(t *testing.T) {
 		mr := NewTeeMimeReader(f, func(res *MimeResult) {
 			fmt.Println("Got MimeResult", res)
 		})
-		bb, er := ioutil.ReadAll(mr)
+		bb, er := io.ReadAll(mr)
 		So(er, ShouldBeNil)
 		So(len(bb), ShouldBeGreaterThan, 0)
 		fmt.Printf("Read %d bytes from file", len(bb))
@@ -63,7 +63,7 @@ func Test_NewTeeMimeReader(t *testing.T) {
 			fmt.Println("Got MimeResult", res)
 		})
 		mr.SetLimit(3028)
-		bb, er := ioutil.ReadAll(mr)
+		bb, er := io.ReadAll(mr)
 		So(er, ShouldBeNil)
 		So(len(bb), ShouldBeGreaterThan, 0)
 		fmt.Printf("Read %d bytes from file", len(bb))
@@ -81,7 +81,7 @@ func Test_NewTeeMimeReader(t *testing.T) {
 			defer wg.Done()
 			res = <-waiter
 		}()
-		bb, er := ioutil.ReadAll(mr)
+		bb, er := io.ReadAll(mr)
 		So(er, ShouldBeNil)
 		So(len(bb), ShouldBeGreaterThan, 0)
 		wg.Wait()
@@ -102,7 +102,7 @@ func Test_NewTeeMimeReader(t *testing.T) {
 			defer wg.Done()
 			res = <-waiter
 		}()
-		bb, er := ioutil.ReadAll(mr)
+		bb, er := io.ReadAll(mr)
 		So(er, ShouldBeNil)
 		So(len(bb), ShouldBeGreaterThan, 0)
 		wg.Wait()
@@ -122,7 +122,7 @@ func Test_NewTeeMimeReader(t *testing.T) {
 			defer wg.Done()
 			res = <-waiter
 		}()
-		bb, er := ioutil.ReadAll(mr)
+		bb, er := io.ReadAll(mr)
 		So(er, ShouldBeNil)
 		So(len(bb), ShouldBeGreaterThan, 0)
 		wg.Wait()
@@ -143,7 +143,7 @@ func Test_NewTeeMimeReader(t *testing.T) {
 			defer wg.Done()
 			res = <-waiter
 		}()
-		bb, er := ioutil.ReadAll(mr)
+		bb, er := io.ReadAll(mr)
 		So(er, ShouldBeNil)
 		So(len(bb), ShouldBeGreaterThan, 0)
 		wg.Wait()

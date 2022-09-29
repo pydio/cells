@@ -24,18 +24,16 @@ import (
 	"context"
 	"crypto/rand"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/nodes/abstract"
-
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -168,7 +166,7 @@ func TestHandler_Encrypted(t *testing.T) {
 		So(reader, ShouldNotBeNil)
 		So(e, ShouldBeNil)
 
-		readData, err := ioutil.ReadAll(reader)
+		readData, err := io.ReadAll(reader)
 		So(err, ShouldBeNil)
 		So(string(readData), ShouldEqual, data)
 	})
@@ -186,7 +184,7 @@ func TestHandler_Encrypted(t *testing.T) {
 		So(reader, ShouldNotBeNil)
 		So(e, ShouldBeNil)
 
-		readData, err := ioutil.ReadAll(reader)
+		readData, err := io.ReadAll(reader)
 		So(err, ShouldBeNil)
 		So(string(readData), ShouldEqual, data[rangeOffset:])
 	})
@@ -204,7 +202,7 @@ func TestHandler_Encrypted(t *testing.T) {
 		So(reader, ShouldNotBeNil)
 		So(e, ShouldBeNil)
 
-		readData, err := ioutil.ReadAll(reader)
+		readData, err := io.ReadAll(reader)
 		So(err, ShouldBeNil)
 		So(string(readData), ShouldEqual, data[rangeOffset:rangeOffset+length])
 	})
@@ -222,7 +220,7 @@ func TestHandler_Encrypted(t *testing.T) {
 		So(reader, ShouldNotBeNil)
 		So(e, ShouldBeNil)
 
-		readData, err := ioutil.ReadAll(reader)
+		readData, err := io.ReadAll(reader)
 		So(err, ShouldBeNil)
 		So(string(readData), ShouldEqual, data)
 	})
@@ -327,7 +325,7 @@ func TestRangeHandler_Encrypted(t *testing.T) {
 			So(e, ShouldBeNil)
 			So(reader, ShouldNotBeNil)
 
-			readData, err := ioutil.ReadAll(reader)
+			readData, err := io.ReadAll(reader)
 			So(err == nil || err == io.EOF, ShouldBeTrue)
 
 			readDataStr := string(readData)

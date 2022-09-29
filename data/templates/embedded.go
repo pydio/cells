@@ -24,14 +24,13 @@ import (
 	"bytes"
 	"context"
 	"embed"
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"io"
-	"io/ioutil"
 	"path"
 	"sort"
 	"strings"
 
 	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/statics"
 )
@@ -119,7 +118,7 @@ func (en *EmbeddedNode) Read(ctx context.Context) (io.Reader, int64, error) {
 	if e != nil {
 		return nil, 0, e
 	}
-	data, _ := ioutil.ReadAll(file)
+	data, _ := io.ReadAll(file)
 	file.Close()
 	r := bytes.NewReader(data)
 	return r, int64(len(data)), nil

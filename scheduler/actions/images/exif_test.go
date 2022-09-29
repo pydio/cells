@@ -22,7 +22,6 @@ package images
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -77,10 +76,10 @@ func TestExifProcessor_Run(t *testing.T) {
 		uuidNode := uuid.New()
 		testDir := "testdata"
 
-		data, err := ioutil.ReadFile(filepath.Join(testDir, "exif.jpg"))
+		data, err := os.ReadFile(filepath.Join(testDir, "exif.jpg"))
 		So(err, ShouldBeNil)
 		target := filepath.Join(tmpDir, uuidNode+".jpg")
-		err = ioutil.WriteFile(target, data, 0755)
+		err = os.WriteFile(target, data, 0755)
 		log.Println(target)
 		So(err, ShouldBeNil)
 		defer os.Remove(target)
@@ -110,7 +109,7 @@ func TestExifProcessor_Run(t *testing.T) {
 		//jsonData, _ := json.Marshal(exifMeta)
 
 		referenceFile := filepath.Join(testDir, "exif.json")
-		refData, refE := ioutil.ReadFile(referenceFile)
+		refData, refE := os.ReadFile(referenceFile)
 		So(refE, ShouldBeNil)
 
 		var refStruct interface{}

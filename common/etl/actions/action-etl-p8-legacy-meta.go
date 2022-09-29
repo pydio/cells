@@ -1,3 +1,4 @@
+//go:build !arm
 // +build !arm
 
 /*
@@ -25,7 +26,7 @@ package actions
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"path"
 	"strings"
 	"time"
@@ -247,7 +248,7 @@ func (c *MigratePydioMetaAction) BrowseNodesForMeta(ctx context.Context, slug st
 			errors = append(errors, e)
 			continue
 		}
-		data, e := ioutil.ReadAll(reader)
+		data, e := io.ReadAll(reader)
 		if e != nil {
 			log.TasksLogger(ctx).Warn("Cannot read buffer content - skipping", metaNode.Zap(), zap.Error(e))
 			errors = append(errors, e)

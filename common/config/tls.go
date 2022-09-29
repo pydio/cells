@@ -24,7 +24,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -182,7 +182,7 @@ func getTLSClientConfig(t string) {
 	if cp, err = x509.SystemCertPool(); err != nil {
 		cp = x509.NewCertPool()
 	}
-	if b, err := ioutil.ReadFile(certFile); err == nil {
+	if b, err := os.ReadFile(certFile); err == nil {
 		// If no specific CAs, try to load them from within the certFile
 		cp.AppendCertsFromPEM(b)
 	}

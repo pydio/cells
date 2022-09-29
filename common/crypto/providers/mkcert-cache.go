@@ -24,7 +24,6 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-	"io/ioutil"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -173,10 +172,10 @@ func (m *MkCertCache) findOrGenerate(uuid string, hns []string, storageURL strin
 		if err = os.MkdirAll(localLocation, 0755); err != nil {
 			return
 		}
-		if err = ioutil.WriteFile(certFile, cert, 0644); err != nil {
+		if err = os.WriteFile(certFile, cert, 0644); err != nil {
 			return
 		}
-		if err = ioutil.WriteFile(keyFile, key, 0400); err != nil {
+		if err = os.WriteFile(keyFile, key, 0400); err != nil {
 			return
 		}
 	}

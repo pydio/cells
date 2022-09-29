@@ -24,7 +24,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"path"
 	"strings"
 
@@ -59,7 +58,7 @@ func (p *PluginsPool) Load(fs *UnionHttpFs) error {
 		return e
 	}
 	defer index.Close()
-	data, e := ioutil.ReadAll(index)
+	data, e := io.ReadAll(index)
 	if e != nil {
 		return e
 	}
@@ -335,7 +334,7 @@ func (p *PluginsPool) parseI18nFolder(ns string, lang string, defaultLang string
 	}
 	appTitle := config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String()
 	if f != nil {
-		content, _ := ioutil.ReadAll(f)
+		content, _ := io.ReadAll(f)
 		var data map[string]Translation
 		if e1 := json.Unmarshal(content, &data); e1 == nil {
 			for k, trans := range data {
@@ -442,7 +441,7 @@ func (p *PluginsPool) readManifest(fs *UnionHttpFs, id string) (output Plugin, e
 	x, e := fs.Open(id + "/manifest.xml")
 	if e == nil {
 		defer x.Close()
-		data, e = ioutil.ReadAll(x)
+		data, e = io.ReadAll(x)
 		if e != nil {
 			return nil, e
 		}

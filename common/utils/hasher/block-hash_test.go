@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"hash"
 	"io"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -30,7 +29,7 @@ func testFunc(suite testSuite, t *testing.T) {
 		defer f.Close()
 
 		// Precompute parts for reference
-		all, _ := ioutil.ReadAll(f)
+		all, _ := io.ReadAll(f)
 		_, _ = f.Seek(0, 0)
 		m := suite.hasher()
 		global := suite.hasher()
@@ -68,7 +67,7 @@ func testFunc(suite testSuite, t *testing.T) {
 			fmt.Println("Wrap Complete", s)
 			So(s, ShouldEqual, outString)
 		})
-		_, _ = ioutil.ReadAll(reader)
+		_, _ = io.ReadAll(reader)
 
 	})
 

@@ -38,10 +38,10 @@ import (
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/source/index"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 
 	_ "gocloud.dev/pubsub/mempubsub"
 )
@@ -691,7 +691,6 @@ func BenchmarkIndexCancel(b *testing.B) {
 		fmt.Println(nodes)*/
 	}
 
-
 }
 
 /*
@@ -702,7 +701,7 @@ func TestMassiveOperations(t *testing.T) {
 
 	Convey("Test Massive Indexation", t, func() {
 
-		loadedContent, e := ioutil.ReadFile(filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "data", "source", "index", "utils", "snapshot.json"))
+		loadedContent, e := os.ReadFile(filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "data", "source", "index", "utils", "snapshot.json"))
 		So(e, ShouldBeNil)
 		So(string(loadedContent), ShouldHaveLength, 396068)
 		nodesList := []*tree.Node{}

@@ -22,9 +22,7 @@ package archive
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/config/mock"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -33,6 +31,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config/mock"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -57,12 +56,12 @@ func getTempArchive(formatOrName string) (*tree.Node, string, error) {
 	refFile := filepath.Join("..", "testdata", fName)
 	nodeUuid := uuid.New()
 	tmpDir := os.TempDir()
-	refData, e := ioutil.ReadFile(refFile)
+	refData, e := os.ReadFile(refFile)
 	if e != nil {
 		return nil, "", e
 	}
 	tmpArchive := filepath.Join(tmpDir, nodeUuid)
-	e2 := ioutil.WriteFile(tmpArchive, refData, 0755)
+	e2 := os.WriteFile(tmpArchive, refData, 0755)
 	if e2 != nil {
 		return nil, "", e2
 	}
@@ -343,7 +342,7 @@ func TestReader_ReadChild(t *testing.T) {
 		So(e, ShouldBeNil)
 		defer reader.Close()
 
-		tmpRead, _ := ioutil.TempFile("", "pydio-read-archive-file")
+		tmpRead, _ := os.CreateTemp("", "pydio-read-archive-file")
 		tmpName := tmpRead.Name()
 		defer tmpRead.Close()
 		defer os.Remove(tmpName)
@@ -364,7 +363,7 @@ func TestReader_ReadChild(t *testing.T) {
 			Router: nodes.NewHandlerMock(),
 		}
 
-		tmpWriter, _ := ioutil.TempFile("", "pydio-read-archive-file")
+		tmpWriter, _ := os.CreateTemp("", "pydio-read-archive-file")
 		tmpName := tmpWriter.Name()
 		defer tmpWriter.Close()
 		defer os.Remove(tmpName)
@@ -385,7 +384,7 @@ func TestReader_ReadChild(t *testing.T) {
 			Router: nodes.NewHandlerMock(),
 		}
 
-		tmpWriter, _ := ioutil.TempFile("", "pydio-read-archive-file")
+		tmpWriter, _ := os.CreateTemp("", "pydio-read-archive-file")
 		tmpName := tmpWriter.Name()
 		defer tmpWriter.Close()
 		defer os.Remove(tmpName)

@@ -23,15 +23,15 @@ package prometheus
 import (
 	"context"
 	"fmt"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"path/filepath"
 	"time"
 
 	tally "github.com/uber-go/tally/v4"
 	"github.com/uber-go/tally/v4/prometheus"
 
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
@@ -78,7 +78,7 @@ func WatchTargets(ctx context.Context, serviceName string) error {
 
 	if !runtime.MetricsEnabled() {
 		empty, _ := json.Marshal([]interface{}{})
-		return ioutil.WriteFile(file, empty, 0755)
+		return os.WriteFile(file, empty, 0755)
 	}
 	reg := servercontext.GetRegistry(ctx)
 	if reg == nil {
@@ -94,7 +94,7 @@ func WatchTargets(ctx context.Context, serviceName string) error {
 			select {
 			case <-timer.C:
 				if d, e := ProcessesAsTargets(ctx, reg).ToJson(); e == nil {
-					_ = ioutil.WriteFile(file, d, 0755)
+					_ = os.WriteFile(file, d, 0755)
 				}
 			case <-trigger:
 				timer.Reset(3 * time.Second)

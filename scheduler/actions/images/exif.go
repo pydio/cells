@@ -24,17 +24,15 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	"github.com/pydio/cells/v4/common/client/grpc"
 
 	"github.com/rwcarlsen/goexif/exif"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -192,7 +190,7 @@ func (e *ExifProcessor) ExtractExif(ctx context.Context, node *tree.Node) (*exif
 		return nil, rer
 	}
 	defer func() {
-		ioutil.ReadAll(reader)
+		io.ReadAll(reader)
 		reader.Close()
 	}()
 

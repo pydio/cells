@@ -27,7 +27,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -178,7 +177,7 @@ func (a *Reader) ReadChildZip(ctx context.Context, archiveNode *tree.Node, inner
 		}
 		defer remoteReader.Close()
 		// Create tmp file
-		file, e := ioutil.TempFile("", "pydio-archive-")
+		file, e := os.CreateTemp("", "pydio-archive-")
 		if e != nil {
 			return nil, e
 		}
@@ -230,7 +229,7 @@ func (a *Reader) ExtractAllZip(ctx context.Context, archiveNode *tree.Node, targ
 		}
 		defer remoteReader.Close()
 		// Create tmp file
-		file, e := ioutil.TempFile("", "pydio-archive-")
+		file, e := os.CreateTemp("", "pydio-archive-")
 		if e != nil {
 			return e
 		}
