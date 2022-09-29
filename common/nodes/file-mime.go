@@ -24,6 +24,7 @@ import (
 	"context"
 	"io"
 	"math"
+	"net/http"
 
 	"github.com/h2non/filetype"
 
@@ -79,6 +80,9 @@ func NewTeeMimeReader(reader io.Reader, callbackRoutine func(result *MimeResult)
 		//fmt.Printf("Stored %d bytes in buffer - Error: %v\n", len(mr.data), mr.loadError)
 		kind, _ := filetype.Match(mr.data)
 		mime := kind.MIME.Value
+		if mime == mimeDefault || mime == "" {
+			mime = http.DetectContentType(mr.data)
+		}
 		if callbackRoutine != nil {
 			callbackRoutine(&MimeResult{mime: mime, err: mr.loadError})
 		}
