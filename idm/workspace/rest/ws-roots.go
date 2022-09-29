@@ -127,17 +127,15 @@ func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Wor
 		q2, _ := anypb.New(&idm.ACLSingleQuery{
 			WorkspaceIDs: []string{ws.UUID},
 		})
-		/*
-			q3, _ := anypb.New(&idm.ACLSingleQuery{
-				NodeIDs: []string{"-1"},
-				Not:     true,
-			})
-			q4, _ := anypb.New(&idm.ACLSingleQuery{
-				RoleIDs: []string{"-1"},
-				Not:     true,
-			})
-		*/
-		query := &service.Query{SubQueries: []*anypb.Any{q2}, Operation: service.OperationType_AND}
+		q3, _ := anypb.New(&idm.ACLSingleQuery{
+			NodeIDs: []string{"-1"},
+			Not:     true,
+		})
+		q4, _ := anypb.New(&idm.ACLSingleQuery{
+			RoleIDs: []string{"-1"},
+			Not:     true,
+		})
+		query := &service.Query{SubQueries: []*anypb.Any{q2, q3, q4}, Operation: service.OperationType_AND}
 		sClient, e := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: query})
 		if e != nil {
 			return e
