@@ -184,17 +184,18 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	}
 	ctx = c2
 
-	// Handle already existing
-	if er := c.suffixPathIfNecessary(ctx, cli, targetNode); er != nil {
-		return input.WithError(er), er
-	}
-
 	readR, readE := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: sourceNode})
 	if readE != nil {
 		log.Logger(ctx).Error("Read Source", zap.Error(readE))
 		return input.WithError(readE), readE
 	}
 	sourceNode = readR.Node
+
+	// Handle already existing
+	if er := c.suffixPathIfNecessary(ctx, cli, targetNode, !sourceNode.IsLeaf()); er != nil {
+		return input.WithError(er), er
+	}
+
 	output := input
 
 	if e := nodes.CopyMoveNodes(ctx, cli, sourceNode, targetNode, c.move, true, channels.StatusMsg, channels.Progress, T); e != nil {
@@ -215,7 +216,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 }
 
-func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Handler, targetNode *tree.Node) error {
+func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Handler, targetNode *tree.Node, folder bool) error {
 	// Look for registered child locks : children that are currently in creation
 	pNode := &tree.Node{Path: path.Dir(targetNode.Path)}
 	compares := make(map[string]struct{})
@@ -245,8 +246,15 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Ha
 
 	//t := time.Now()
 	searchNode := pNode.Clone()
-	ext := path.Ext(targetNode.Path)
-	noExt := strings.TrimSuffix(targetNode.Path, ext)
+
+	var ext, noExt string
+	if folder {
+		ext = ""
+		noExt = targetNode.Path
+	} else {
+		ext = path.Ext(targetNode.Path)
+		noExt = strings.TrimSuffix(targetNode.Path, ext)
+	}
 	noExtBaseQuoted := regexp.QuoteMeta(path.Base(noExt))
 
 	// List basenames with regexp "(?i)^(toto-[[:digit:]]*|toto).txt$" to look for same name or same base-DIGIT.ext (case-insensitive)
