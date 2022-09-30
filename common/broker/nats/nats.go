@@ -11,6 +11,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/broker"
 	"github.com/pydio/cells/v4/common/utils/std"
+	"go.uber.org/zap"
 	"gocloud.dev/gcerrors"
 	"gocloud.dev/pubsub"
 	"gocloud.dev/pubsub/batcher"
@@ -64,13 +65,20 @@ func getConnection(ctx context.Context, u *url.URL) (*nats.Conn, error) {
 
 	if err := std.Retry(ctx, func() error {
 		u.RawQuery = ""
-		var opts []nats.Option
+		opts := []nats.Option{
+			nats.Timeout(10 * time.Second),
+		}
+		
 		if tlsConfig != nil {
 			opts = append(opts, nats.Secure(tlsConfig))
+			//tlsConfig = &tls.Config{
+			//	InsecureSkipVerify: true,
+			//}
 		}
+
 		c, err := nats.Connect(u.String(), opts...)
 		if err != nil {
-			log.Logger(ctx).Warn("[nats] connection unavailable, retrying in 10s...")
+			log.Logger(ctx).Warn("[nats] connection unavailable, retrying in 10s...", zap.Error(err))
 			return err
 		}
 		conn = c
@@ -91,7 +99,7 @@ const Scheme = "nats"
 //
 // Query parameters:
 //   - ackdeadline: The ack deadline for OpenSubscription, in time.ParseDuration formats.
-//       Defaults to 1m.
+//     Defaults to 1m.
 type URLOpener struct {
 	// Connection to use for communication with the server.
 	Connection *nats.Conn
