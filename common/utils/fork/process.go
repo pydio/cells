@@ -202,9 +202,9 @@ func (p *Process) buildForkStartParams() []string {
 	// Append debug flag
 	if p.o.debugFork {
 		params = append(params, "--"+runtime.KeyLog, "debug")
+		params = append(params, "^pydio.grpc.registry$")
 	}
 	// Use regexp to specify that we want to start that specific service
-	params = append(params, "^pydio.grpc.registry$")
 	for _, sName := range p.serviceNames {
 		params = append(params, "^"+sName+"$")
 	}
