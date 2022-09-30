@@ -68,7 +68,7 @@ func getConnection(ctx context.Context, u *url.URL) (*nats.Conn, error) {
 		opts := []nats.Option{
 			nats.Timeout(10 * time.Second),
 		}
-		
+
 		if tlsConfig != nil {
 			opts = append(opts, nats.Secure(tlsConfig))
 			//tlsConfig = &tls.Config{
@@ -111,7 +111,8 @@ type URLOpener struct {
 
 // OpenTopicURL opens a pubsub.Topic based on u.
 func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic, error) {
-	if conn, err := getConnection(ctx, u); err != nil {
+	u2, _ := url.Parse(u.String())
+	if conn, err := getConnection(ctx, u2); err != nil {
 		return nil, err
 	} else {
 		o.Connection = conn
@@ -126,7 +127,8 @@ func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic
 
 // OpenSubscriptionURL opens a pubsub.Subscription based on u.
 func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsub.Subscription, error) {
-	if conn, err := getConnection(ctx, u); err != nil {
+	u2, _ := url.Parse(u.String())
+	if conn, err := getConnection(ctx, u2); err != nil {
 		return nil, err
 	} else {
 		o.Connection = conn
