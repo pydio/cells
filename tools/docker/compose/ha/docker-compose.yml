@@ -14,8 +14,8 @@ x-cells: &cells-common
     - CELLS_CACHE=redis://redis:6379
     - CELLS_ENABLE_PPROF=true
     - VAULT_TOKEN=dev_root_token
-  volumes:
-    - cells_data:/var/cells/data
+#  volumes:
+#    - cells_data:/var/cells/data
 
 volumes:
     cells_data: {}
@@ -90,6 +90,20 @@ services:
     hostname: redis
     expose: [6379]
 
+  minio:
+    image: quay.io/minio/minio
+    command: server --console-address ":9001" /data
+    hostname: minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    expose:
+      - 9000
+    ports:
+      - "9001:9001"
+    volumes:
+      - cells_data:/data
+
   #
   # CELLS MULTIPLE NODES
   #
@@ -97,7 +111,7 @@ services:
     <<: *cells-common
     hostname: cells1
     ports:
-      - 8080:8080 # We expose that port externally for first configuration step (access to https://localhost:8080)
+      - "8080:8080" # We expose that port externally for first configuration step (access to https://localhost:8080)
       #- 8002:8002 # uncomment if you want to browse the internal registry of this node using cells-ctl
 
   cells2:

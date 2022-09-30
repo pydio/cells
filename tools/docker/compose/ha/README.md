@@ -13,7 +13,7 @@ This Vault requires a manual preparation for a specific key/value store (see bel
 ```sh
 cd <this folder>
 # start all third-party services
-docker-compose up -d mysql mongo nats etcd vault redis
+docker-compose up -d mysql mongo nats etcd vault redis minio
 
 # First connect to vault to create a dedicated kvstore for certificates
 # Vault is configured in DEV mode with a preset VAULT_TOKEN. This should of course not be the case in production
@@ -32,6 +32,7 @@ Perform web browser installation:
 
 - For DB use host 'mysql', pydio:cells as credentials and 'cells' database name
 - For Mongo use host 'mongo', default port and no credentials, 'cells' database name.
+- Use Advanced Options and connect to Minio as "S3-Compatible" storage, using 'minio' host and minioadmin for key and secret
 
 Now you can spin more cells nodes:
 
