@@ -28,7 +28,6 @@ import (
 	"strconv"
 	"strings"
 
-	errors2 "github.com/pkg/errors"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
@@ -229,7 +228,6 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Ha
 			NodeIDs: []string{pNode.GetUuid()},
 		})
 		if st, e := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}}); e == nil {
-			defer st.CloseSend()
 			for {
 				r, er := st.Recv()
 				if er != nil {
@@ -243,8 +241,6 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Ha
 		} else {
 			return e
 		}
-	} else if e != nil {
-		return e
 	}
 
 	//t := time.Now()
@@ -256,7 +252,7 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Ha
 	// List basenames with regexp "(?i)^(toto-[[:digit:]]*|toto).txt$" to look for same name or same base-DIGIT.ext (case-insensitive)
 	searchNode.MustSetMeta(tree.MetaFilterForceGrep, "(?i)^("+noExtBaseQuoted+"\\-[[:digit:]]*|"+noExtBaseQuoted+")"+ext+"$")
 	listReq := &tree.ListNodesRequest{Node: searchNode, Recursive: false}
-	er := cli.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
+	_ = cli.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
 		if node.Path == searchNode.Path {
 			return nil
 		}
@@ -264,9 +260,7 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Ha
 		compares[basename] = struct{}{}
 		return nil
 	}, true)
-	if er != nil {
-		return errors2.Wrap(er, "list nodes with callback")
-	}
+
 	//fmt.Println("TOOK", time.Now().Sub(t), compares)
 	exists := func(node *tree.Node) bool {
 		_, ok := compares[strings.ToLower(path.Base(node.Path))]
