@@ -3,7 +3,6 @@ package nats
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/gob"
 	"errors"
 	"fmt"
@@ -12,6 +11,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/broker"
 	"github.com/pydio/cells/v4/common/utils/std"
+	"go.uber.org/zap"
 	"gocloud.dev/gcerrors"
 	"gocloud.dev/pubsub"
 	"gocloud.dev/pubsub/batcher"
@@ -65,16 +65,20 @@ func getConnection(ctx context.Context, u *url.URL) (*nats.Conn, error) {
 
 	if err := std.Retry(ctx, func() error {
 		u.RawQuery = ""
-		var opts []nats.Option
-		if tlsConfig == nil {
-			tlsConfig = &tls.Config{
-				InsecureSkipVerify: true,
-			}
+		opts := []nats.Option{
+			nats.Timeout(10 * time.Second),
 		}
-		opts = append(opts, nats.Secure(tlsConfig))
+		
+		if tlsConfig != nil {
+			opts = append(opts, nats.Secure(tlsConfig))
+			//tlsConfig = &tls.Config{
+			//	InsecureSkipVerify: true,
+			//}
+		}
+
 		c, err := nats.Connect(u.String(), opts...)
 		if err != nil {
-			log.Logger(ctx).Warn("[nats] connection unavailable, retrying in 10s...")
+			log.Logger(ctx).Warn("[nats] connection unavailable, retrying in 10s...", zap.Error(err))
 			return err
 		}
 		conn = c
