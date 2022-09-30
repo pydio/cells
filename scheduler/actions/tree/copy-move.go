@@ -247,14 +247,11 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Ha
 	//t := time.Now()
 	searchNode := pNode.Clone()
 
-	var ext, noExt string
-	if folder {
-		ext = ""
-		noExt = targetNode.Path
-	} else {
+	ext := ""
+	if !folder {
 		ext = path.Ext(targetNode.Path)
-		noExt = strings.TrimSuffix(targetNode.Path, ext)
 	}
+	noExt := strings.TrimSuffix(targetNode.Path, ext)
 	noExtBaseQuoted := regexp.QuoteMeta(path.Base(noExt))
 
 	// List basenames with regexp "(?i)^(toto-[[:digit:]]*|toto).txt$" to look for same name or same base-DIGIT.ext (case-insensitive)
