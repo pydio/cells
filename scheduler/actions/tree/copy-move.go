@@ -28,12 +28,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
+	errors2 "github.com/pkg/errors"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
@@ -186,7 +186,9 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	ctx = c2
 
 	// Handle already existing
-	c.suffixPathIfNecessary(ctx, cli, targetNode)
+	if er := c.suffixPathIfNecessary(ctx, cli, targetNode); er != nil {
+		return input.WithError(er), er
+	}
 
 	readR, readE := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: sourceNode})
 	if readE != nil {
@@ -214,7 +216,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 }
 
-func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Handler, targetNode *tree.Node) {
+func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Handler, targetNode *tree.Node) error {
 	// Look for registered child locks : children that are currently in creation
 	pNode := &tree.Node{Path: path.Dir(targetNode.Path)}
 	compares := make(map[string]struct{})
@@ -235,10 +237,14 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Ha
 				}
 				aName := r.GetACL().GetAction().GetName()
 				aName = strings.TrimPrefix(aName, permissions.AclChildLock.Name+":")
-				log.Logger(ctx).Info("-- SuffixPath : adding value from ChildLock " + aName)
+				log.Logger(ctx).Debug("-- SuffixPath : adding value from ChildLock " + aName)
 				compares[strings.ToLower(aName)] = struct{}{}
 			}
+		} else {
+			return e
 		}
+	} else if e != nil {
+		return e
 	}
 
 	//t := time.Now()
@@ -250,7 +256,7 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Ha
 	// List basenames with regexp "(?i)^(toto-[[:digit:]]*|toto).txt$" to look for same name or same base-DIGIT.ext (case-insensitive)
 	searchNode.MustSetMeta(tree.MetaFilterForceGrep, "(?i)^("+noExtBaseQuoted+"\\-[[:digit:]]*|"+noExtBaseQuoted+")"+ext+"$")
 	listReq := &tree.ListNodesRequest{Node: searchNode, Recursive: false}
-	cli.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
+	er := cli.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
 		if node.Path == searchNode.Path {
 			return nil
 		}
@@ -258,6 +264,9 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Ha
 		compares[basename] = struct{}{}
 		return nil
 	}, true)
+	if er != nil {
+		return errors2.Wrap(er, "list nodes with callback")
+	}
 	//fmt.Println("TOOK", time.Now().Sub(t), compares)
 	exists := func(node *tree.Node) bool {
 		_, ok := compares[strings.ToLower(path.Base(node.Path))]
@@ -273,4 +282,5 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli nodes.Ha
 			break
 		}
 	}
+	return nil
 }

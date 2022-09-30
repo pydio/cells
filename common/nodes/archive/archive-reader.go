@@ -262,7 +262,7 @@ func (a *Reader) ExtractAllZip(ctx context.Context, archiveNode *tree.Node, targ
 				return e
 			}
 			if len(logChannels) > 0 {
-				logChannels[0] <- "Creating directory " + strings.TrimSuffix(fName, "/")
+				logChannels[0] <- "Creating directory " + path.Base(strings.TrimSuffix(fName, "/"))
 			}
 		} else {
 			fileReader, err := file.Open()
@@ -285,7 +285,7 @@ func (a *Reader) ExtractAllZip(ctx context.Context, archiveNode *tree.Node, targ
 				return err
 			}
 			if len(logChannels) > 0 {
-				logChannels[0] <- "Writing new file " + strings.TrimSuffix(fName, "/")
+				logChannels[0] <- "Extracting file " + path.Base(strings.TrimSuffix(fName, "/"))
 			}
 		}
 
@@ -512,7 +512,7 @@ func (a *Reader) ExtractAllTar(ctx context.Context, gzipFormat bool, archiveNode
 				return e
 			}
 			if len(logChannels) > 0 {
-				logChannels[0] <- "Creating directory " + strings.TrimSuffix(fName, "/")
+				logChannels[0] <- "Creating directory " + path.Base(strings.TrimSuffix(fName, "/"))
 			}
 		} else {
 			uncompressed += file.Size
@@ -528,7 +528,7 @@ func (a *Reader) ExtractAllTar(ctx context.Context, gzipFormat bool, archiveNode
 				return err
 			}
 			if len(logChannels) > 0 {
-				logChannels[0] <- "Writing file " + strings.TrimSuffix(fName, "/")
+				logChannels[0] <- "Extracting file " + path.Base(strings.TrimSuffix(fName, "/"))
 			}
 		}
 

@@ -276,7 +276,6 @@ func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, exclude
 		log.Logger(c).Error("ReindexFolder", zap.Error(err))
 		return
 	}
-	defer dsStream.CloseSend()
 	var count int
 	for {
 		response, e := dsStream.Recv()
@@ -284,11 +283,13 @@ func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, exclude
 			break
 		}
 		if !strings.HasPrefix(response.Node.GetUuid(), "DATASOURCE:") && !tree.IgnoreNodeForOutput(c, response.Node) {
-			s.Engine.IndexNode(bg, response.Node, false, excludes)
+			_ = s.Engine.IndexNode(bg, response.Node, false, excludes)
 			count++
 		}
 	}
-	log.Logger(c).Info(fmt.Sprintf("Search Server re-indexed %d folders", count))
+	if count > 0 {
+		log.Logger(c).Info(fmt.Sprintf("Search Server re-indexed %d folders", count))
+	}
 
 }
 

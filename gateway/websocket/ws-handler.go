@@ -69,7 +69,7 @@ func NewWebSocketHandler(serviceCtx context.Context) *WebsocketHandler {
 	w := &WebsocketHandler{
 		runtimeCtx:     serviceCtx,
 		batchers:       make(map[string]*NodeEventsBatcher),
-		dispatcher:     make(chan *NodeChangeEventWithInfo),
+		dispatcher:     make(chan *NodeChangeEventWithInfo, 5000),
 		done:           make(chan string),
 		batcherLock:    &sync.Mutex{},
 		silentDropper:  rate.NewLimiter(20, 10),
@@ -80,7 +80,11 @@ func NewWebSocketHandler(serviceCtx context.Context) *WebsocketHandler {
 		for {
 			select {
 			case e := <-w.dispatcher:
-				w.BroadcastNodeChangeEvent(context.Background(), e)
+				ct := context.Background()
+				if e.ctx != nil {
+					ct = e.ctx
+				}
+				_ = w.BroadcastNodeChangeEvent(ct, e)
 			case finished := <-w.done:
 				w.batcherLock.Lock()
 				delete(w.batchers, finished)
@@ -113,14 +117,14 @@ func (w *WebsocketHandler) InitHandlers(ctx context.Context) {
 		msg := &Message{}
 		e := json.Unmarshal(bytes, msg)
 		if e != nil {
-			session.CloseWithMsg(NewErrorMessage(e))
+			_ = session.CloseWithMsg(NewErrorMessage(e))
 			return
 		}
 		switch msg.Type {
 		case MsgSubscribe:
 
 			if msg.JWT == "" {
-				session.CloseWithMsg(NewErrorMessageString("empty jwt"))
+				_ = session.CloseWithMsg(NewErrorMessageString("empty jwt"))
 				log.Logger(ctx).Debug("empty jwt")
 				return
 			}
@@ -128,7 +132,7 @@ func (w *WebsocketHandler) InitHandlers(ctx context.Context) {
 			_, claims, er := verifier.Verify(ctx, msg.JWT)
 			if er != nil {
 				log.Logger(ctx).Error("invalid jwt received from websocket connection", zap.Any("original", msg))
-				session.CloseWithMsg(NewErrorMessage(e))
+				_ = session.CloseWithMsg(NewErrorMessage(e))
 				return
 			}
 			updateSessionFromClaims(ctx, session, claims, w.EventRouter.GetClientsPool())
@@ -162,41 +166,41 @@ func (w *WebsocketHandler) getBatcherForUuid(uuid string) *NodeEventsBatcher {
 // to buffer them and flatten them into one.
 func (w *WebsocketHandler) HandleNodeChangeEvent(ctx context.Context, event *tree.NodeChangeEvent) error {
 
-	defer func() {
-		if e := recover(); e != nil {
-			log.Logger(ctx).Info("recovered a panic in WebSocket handler", zap.Any("e", e))
-		}
-	}()
-	//log.Logger(ctx).Debug("Received event", event.Zap())
+	if event.Type == tree.NodeChangeEvent_READ {
+		return nil
+	}
+
+	evi := &NodeChangeEventWithInfo{
+		NodeChangeEvent: *event,
+		ctx:             ctx,
+	}
 
 	switch event.Type {
 	case tree.NodeChangeEvent_UPDATE_META, tree.NodeChangeEvent_CREATE, tree.NodeChangeEvent_UPDATE_CONTENT:
 		if event.Target != nil {
 			batcher := w.getBatcherForUuid(event.Target.Uuid)
-			batcher.in <- event
-			return nil
+			batcher.in <- evi
 		} else {
-			e := &NodeChangeEventWithInfo{NodeChangeEvent: *event}
-			return w.BroadcastNodeChangeEvent(ctx, e)
+			w.dispatcher <- evi
 		}
-	case tree.NodeChangeEvent_UPDATE_USER_META:
-		e := &NodeChangeEventWithInfo{NodeChangeEvent: *event, refreshTarget: true}
-		return w.BroadcastNodeChangeEvent(ctx, e)
-	case tree.NodeChangeEvent_DELETE, tree.NodeChangeEvent_UPDATE_PATH:
-		e := &NodeChangeEventWithInfo{NodeChangeEvent: *event, refreshTarget: true}
-		return w.BroadcastNodeChangeEvent(ctx, e)
-	case tree.NodeChangeEvent_READ:
-		// Ignore READ events
-		return nil
-	default:
-		return nil
+	case tree.NodeChangeEvent_UPDATE_USER_META, tree.NodeChangeEvent_DELETE, tree.NodeChangeEvent_UPDATE_PATH:
+		evi.refreshTarget = true
+		w.dispatcher <- evi
 	}
+
+	return nil
 
 }
 
 // BroadcastNodeChangeEvent will browse the currently registered websocket sessions and decide whether to broadcast
 // the event or not.
 func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *NodeChangeEventWithInfo) error {
+
+	defer func() {
+		if e := recover(); e != nil {
+			log.Logger(ctx).Info("recovered a panic in WebSocket handler", zap.Any("e", e))
+		}
+	}()
 
 	if event.Silent && !w.silentDropper.Allow() {
 		//log.Logger(ctx).Warn("Dropping Silent Event")
@@ -305,7 +309,7 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 					Source: nSource,
 				})
 
-				session.Write(data)
+				_ = session.Write(data)
 				hasData = true
 			}
 		}
@@ -443,7 +447,7 @@ func (w *WebsocketHandler) BroadcastActivityEvent(ctx context.Context, event *ac
 
 }
 
-// MatchPolicies creates an memory-based policy stack checker to check if action is allowed or denied.
+// MatchPolicies creates a memory-based policy stack checker to check if action is allowed or denied.
 // It uses a DenyByDefault strategy
 func (w *WebsocketHandler) MatchPolicies(policies []*service.ResourcePolicy, subjects []string, action service.ResourcePolicyAction) bool {
 
@@ -461,7 +465,7 @@ func (w *WebsocketHandler) MatchPolicies(policies []*service.ResourcePolicy, sub
 			Effect:    pol.Effect.String(),
 			Subjects:  []string{pol.Subject},
 		}
-		warden.Manager.Create(ladonPol)
+		_ = warden.Manager.Create(ladonPol)
 	}
 	// check that at least one of the subject is allowed
 	var allow bool

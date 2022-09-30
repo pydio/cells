@@ -21,6 +21,7 @@
 package websocket
 
 import (
+	"context"
 	"time"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -28,14 +29,15 @@ import (
 
 type NodeChangeEventWithInfo struct {
 	tree.NodeChangeEvent
+	ctx           context.Context
 	refreshTarget bool
 }
 
 // NodeEventsBatcher buffers events with same node.uuid and flatten them into one where possible
 type NodeEventsBatcher struct {
 	uuid   string
-	buffer []*tree.NodeChangeEvent
-	in     chan *tree.NodeChangeEvent
+	buffer []*NodeChangeEventWithInfo
+	in     chan *NodeChangeEventWithInfo
 	out    chan *NodeChangeEventWithInfo
 	done   chan string
 	closed bool
@@ -45,7 +47,7 @@ type NodeEventsBatcher struct {
 func NewEventsBatcher(timeout time.Duration, uuid string, out chan *NodeChangeEventWithInfo, done chan string) *NodeEventsBatcher {
 	b := &NodeEventsBatcher{
 		uuid: uuid,
-		in:   make(chan *tree.NodeChangeEvent),
+		in:   make(chan *NodeChangeEventWithInfo),
 		out:  out,
 		done: done,
 	}
@@ -74,6 +76,9 @@ func (n *NodeEventsBatcher) Flush() {
 	var nonTemporaryEtag string
 	output := &NodeChangeEventWithInfo{}
 	for _, e := range n.buffer {
+		if e.ctx != nil {
+			output.ctx = e.ctx
+		}
 		if e.Type == tree.NodeChangeEvent_CREATE {
 			hasCreate = true
 		} else if e.Type == tree.NodeChangeEvent_UPDATE_CONTENT {
