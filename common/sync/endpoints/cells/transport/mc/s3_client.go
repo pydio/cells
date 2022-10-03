@@ -105,8 +105,20 @@ func (g *S3Client) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 	if e != nil {
 		return models.ObjectInfo{}, e
 	}
-	if ui, e := mc.PutObject(ctx, g.s3config.Bucket, node.Path, reader, requestData.Size, "", "", minio.PutObjectOptions{
+
+	partSize := 100 * 1024 * 1024
+	partSizeMultiple := int64(10 * 1024 * 1024)
+	maxPartsCount := float64(8000) // Official max is 10000, we add some security here
+	objectSize := float64(requestData.Size)
+	if objectSize > 0 && objectSize > maxPartsCount*float64(partSize) {
+		// Make sure that max parts count are not reached, and also that newSize is the closest multiple to 10MB (for cells server)
+		newSize := int64(objectSize / maxPartsCount)
+		newSize = newSize + partSizeMultiple/2
+		newSize = newSize - (newSize % partSizeMultiple)
+	}
+	if ui, e := mc.Client.PutObject(ctx, g.s3config.Bucket, node.Path, reader, requestData.Size, minio.PutObjectOptions{
 		UserMetadata: requestData.Metadata,
+		PartSize:     uint64(partSize),
 	}); e == nil {
 		return models.ObjectInfo{
 			ETag:         ui.ETag,
