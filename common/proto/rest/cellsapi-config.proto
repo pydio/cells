@@ -64,6 +64,16 @@ message ListStorageBucketsRequest {
     string BucketsRegexp = 2;
 }
 
+message CreateStorageBucketRequest {
+    object.DataSource DataSource = 1;
+    string BucketName = 2;
+}
+
+message CreateStorageBucketResponse {
+    bool Success = 1;
+    string BucketName = 2;
+}
+
 message Process {
     // Process ID
     string ID = 1;

@@ -156,6 +156,13 @@ service ConfigService {
             body: "*"
         };
     }
+    // List Buckets on a given object storage
+    rpc CreateStorageBucket(CreateStorageBucketRequest) returns (CreateStorageBucketResponse) {
+        option (google.api.http) = {
+            put: "/config/buckets/{BucketName}"
+            body: "*"
+        };
+    }
     // List running Processes, with option PeerId or ServiceName filter
     rpc ListProcesses(ListProcessesRequest) returns (ListProcessesResponse) {
         option (google.api.http) = {

@@ -7,10 +7,10 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "google.golang.org/protobuf/proto"
-	_ "github.com/pydio/cells/v4/common/proto/ctl"
 	_ "github.com/pydio/cells/v4/common/proto/install"
 	_ "github.com/pydio/cells/v4/common/proto/tree"
 	_ "github.com/pydio/cells/v4/common/proto/object"
+	_ "github.com/pydio/cells/v4/common/proto/ctl"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
@@ -64,6 +64,17 @@ func (this *ListStorageBucketsRequest) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("DataSource", err)
 		}
 	}
+	return nil
+}
+func (this *CreateStorageBucketRequest) Validate() error {
+	if this.DataSource != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DataSource); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("DataSource", err)
+		}
+	}
+	return nil
+}
+func (this *CreateStorageBucketResponse) Validate() error {
 	return nil
 }
 func (this *Process) Validate() error {

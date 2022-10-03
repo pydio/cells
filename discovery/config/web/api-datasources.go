@@ -282,19 +282,7 @@ func (s *Handler) ListDataSources(req *restful.Request, resp *restful.Response) 
 	}
 }
 
-// ListStorageBuckets implements corresponding API. Lists available buckets on a remote
-// object storage. Currently only supports S3 type storages.
-func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Response) {
-	var r rest.ListStorageBucketsRequest
-	if e := req.ReadEntity(&r); e != nil {
-		service.RestError500(req, resp, e)
-		return
-	}
-	if r.DataSource.StorageType != object.StorageType_S3 {
-		service.RestError500(req, resp, fmt.Errorf("unsupported datasource type"))
-		return
-	}
-	ds := r.DataSource
+func (s *Handler) storageClientForDatasource(ds *object.DataSource) (nodes.StorageClient, error) {
 	endpoint := "https://s3.amazonaws.com"
 	if c, o := ds.StorageConfiguration[object.StorageKeyCustomEndpoint]; o && c != "" {
 		endpoint = c
@@ -315,7 +303,22 @@ func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Respons
 	if r, o := ds.StorageConfiguration[object.StorageKeyCustomRegion]; o && r != "" {
 		cfData.Val("customRegion").Set(object.StorageKeyCustomRegion)
 	}
-	mc, er := nodes.NewStorageClient(cfData)
+	return nodes.NewStorageClient(cfData)
+}
+
+// ListStorageBuckets implements corresponding API. Lists available buckets on a remote
+// object storage. Currently only supports S3 type storages.
+func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Response) {
+	var r rest.ListStorageBucketsRequest
+	if e := req.ReadEntity(&r); e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
+	if r.DataSource.StorageType != object.StorageType_S3 {
+		service.RestError500(req, resp, fmt.Errorf("unsupported datasource type"))
+		return
+	}
+	mc, er := s.storageClientForDatasource(r.DataSource)
 	if er != nil {
 		service.RestErrorDetect(req, resp, er)
 		return
@@ -346,6 +349,43 @@ func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Respons
 	}
 	resp.WriteEntity(response)
 
+}
+
+// CreateStorageBucket instantiates a Storage client to create a bucket
+func (s *Handler) CreateStorageBucket(req *restful.Request, resp *restful.Response) {
+	var r rest.CreateStorageBucketRequest
+	if e := req.ReadEntity(&r); e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
+	if r.DataSource.StorageType != object.StorageType_S3 {
+		service.RestError500(req, resp, fmt.Errorf("unsupported datasource type"))
+		return
+	}
+	bucketName := req.PathParameter("BucketName")
+	if bucketName == "" {
+		service.RestError500(req, resp, fmt.Errorf("missing bucket name"))
+		return
+	}
+	mc, er := s.storageClientForDatasource(r.DataSource)
+	if er != nil {
+		service.RestErrorDetect(req, resp, er)
+		return
+	}
+	location := ""
+	if reg, o := r.DataSource.StorageConfiguration[object.StorageKeyCustomRegion]; o && reg != "" {
+		location = reg
+	}
+	er = mc.MakeBucket(req.Request.Context(), bucketName, location)
+	if er != nil {
+		service.RestErrorDetect(req, resp, er)
+		return
+	}
+	response := &rest.CreateStorageBucketResponse{
+		Success:    true,
+		BucketName: bucketName,
+	}
+	_ = resp.WriteEntity(response)
 }
 
 func (s *Handler) getDataSources(ctx context.Context) ([]*object.DataSource, error) {

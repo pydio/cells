@@ -100,6 +100,7 @@ var (
 	inlineTitles = map[string]string{
 		"paths.\\/config\\/peers\\/{PeerAddress}.post.parameters.[1].schema.title": "RestListPeerFoldersRequest",
 		"paths.\\/config\\/peers\\/{PeerAddress}.put.parameters.[1].schema.title":  "RestCreatePeerFolderRequest",
+		"paths.\\/config\\/buckets\\/{BucketName}.put.parameters.[1].schema.title": "RestCreateStorageBucketRequest",
 		"paths.\\/jobs\\/user\\/{JobName}.put.parameters.[1].schema.title":         "RestUserJobRequest",
 		"paths.\\/meta\\/delete\\/{NodePath}.post.parameters.[1].schema.title":     "RestMetaNamespaceRequest",
 		"paths.\\/meta\\/get\\/{NodePath}.post.parameters.[1].schema.title":        "RestMetaNamespaceRequest",

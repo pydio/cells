@@ -3340,6 +3340,17 @@
       },
       "type": "object"
     },
+    "restCreateStorageBucketResponse": {
+      "properties": {
+        "BucketName": {
+          "type": "string"
+        },
+        "Success": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
     "restDataSourceCollection": {
       "properties": {
         "DataSources": {
@@ -6139,6 +6150,69 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/restNodesCollection"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "403": {
+            "description": "User has no permission to access this particular resource",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "404": {
+            "description": "Resource does not exist in the system",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          },
+          "500": {
+            "description": "An internal error occurred in the backend",
+            "schema": {
+              "$ref": "#/definitions/restError"
+            }
+          }
+        },
+        "summary": "List Buckets on a given object storage",
+        "tags": [
+          "ConfigService"
+        ]
+      }
+    },
+    "/config/buckets/{BucketName}": {
+      "put": {
+        "operationId": "CreateStorageBucket",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "BucketName",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "DataSource": {
+                  "$ref": "#/definitions/objectDataSource"
+                }
+              },
+              "title": "RestCreateStorageBucketRequest",
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/restCreateStorageBucketResponse"
             }
           },
           "401": {
