@@ -83,6 +83,7 @@ func addExternalCmdRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 	flags.String(runtime.KeyDiscovery, discoveryAddress, "Registry and pub/sub")
 	flags.String(runtime.KeyRegistry, discoveryAddress, "Registry used to contact services")
 	flags.String(runtime.KeyBroker, discoveryAddress, "Pub/sub service for events between services")
+	flags.String(runtime.KeyAdvertiseAddress, "127.0.0.1", "Default advertise address")
 
 	if len(hideAll) > 0 && hideAll[0] && os.Getenv(EnvDisplayHiddenFlags) == "" {
 		_ = flags.MarkHidden(runtime.KeyDiscovery)
