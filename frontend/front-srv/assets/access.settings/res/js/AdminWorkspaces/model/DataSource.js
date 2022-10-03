@@ -22,7 +22,7 @@ const Observable = require('pydio/lang/observable');
 const PydioApi = require('pydio/http/api');
 import LangUtils from 'pydio/util/lang'
 import {ConfigServiceApi, ObjectDataSource, ObjectEncryptionMode, ObjectStorageType,
-    JobsServiceApi, RestUserJobRequest,EncryptionAdminListKeysRequest, RestListStorageBucketsRequest} from 'cells-sdk';
+    JobsServiceApi, RestUserJobRequest,EncryptionAdminListKeysRequest, RestListStorageBucketsRequest, RestCreateStorageBucketRequest} from 'cells-sdk';
 
 class DataSource extends Observable {
 
@@ -178,6 +178,13 @@ class DataSource extends Observable {
             request.BucketsRegexp = regexp;
         }
         return api.listStorageBuckets(request);
+    }
+
+    static createBucket(model, bucketName) {
+        const api = new ConfigServiceApi(PydioApi.getRestClient());
+        const request = new RestCreateStorageBucketRequest();
+        request.DataSource = model;
+        return api.createStorageBucket(bucketName, request)
     }
 
     deleteSource(){

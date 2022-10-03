@@ -73,6 +73,18 @@ export default class DataSourceBucketSelector extends React.Component {
         })
     }
 
+    createBucket() {
+        const {dataSource} = this.props;
+        const {createBucket} = this.state;
+        this.setState({loading: true});
+        DataSource.createBucket(dataSource, createBucket).then(() => {
+            this.setState({create: false, createBucket: ''})
+            this.load()
+        }).catch(e => {
+            this.setState({loading: false})
+        })
+    }
+
     loadSelection(){
         const {dataSource} = this.props;
         if(!dataSource.ApiKey || !dataSource.ApiSecret) {
@@ -148,8 +160,9 @@ export default class DataSourceBucketSelector extends React.Component {
     render() {
 
         const {dataSource} = this.props;
-        const {buckets, selection, mode, loading} = this.state;
-        const m = (id) => Pydio.getInstance().MessageHash['ajxp_admin.ds.editor.storage.' + id] || id;
+        const {buckets, selection, mode, loading, create, createBucket = ''} = this.state;
+        const mm = Pydio.getInstance().MessageHash
+        const m = (id) => mm['ajxp_admin.ds.editor.storage.' + id] || id;
 
         const iconStyles = {
             style:{width: 30, height: 30, padding: 5},
@@ -160,7 +173,46 @@ export default class DataSourceBucketSelector extends React.Component {
         return (
             <div>
                 <div style={{display:'flex', alignItems:'flex-end', marginTop: 20}}>
-                    <div style={{flex: 1}}>{m('buckets.legend')}</div>
+                    <div>{m('buckets.legend')}</div>
+                    <div style={{flex: 1}}/>
+                    <div style={{display:'flex', alignItems:'flex-end', marginRight:create?30:0}}>
+                        {create &&
+                            <div style={{width: 200, height: 36}}>
+                                <ModernTextField
+                                    hintText={m('buckets.create.hint')}
+                                    fullWidth={true}
+                                    value={createBucket}
+                                    onChange={(e,v) => {
+                                        this.setState({createBucket: LangUtils.computeStringSlug(v)})
+                                    }}
+                                />
+                            </div>
+                        }
+                        <IconButton
+                            iconClassName={create?"mdi mdi-check":"mdi mdi-plus-circle"}
+                            tooltip={m('buckets.create')}
+                            tooltipPosition={"top-left"}
+                            onClick={() => {
+                                if(create){
+                                    this.createBucket()
+                                } else {
+                                    this.setState({create:true})
+                                }
+                            }}
+                            disabled={disabled}
+                            {...iconStyles}
+                        />
+                        {create &&
+                            <IconButton
+                                iconClassName={'mdi mdi-close'}
+                                tooltip={mm['54']}
+                                tooltipPosition={"top-left"}
+                                onClick={() => this.setState({create:false, createBucket:''})}
+                                disabled={disabled}
+                                {...iconStyles}
+                            />
+                        }
+                    </div>
                     <div style={{display:'flex', alignItems:'flex-end'}}>
                         {mode === 'regexp' &&
                         <div style={{width: 200, height: 36}}>
