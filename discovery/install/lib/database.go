@@ -191,7 +191,7 @@ func addDatabaseManualConnection(c *install.InstallConfig) (*mysql.Config, error
 
 func checkConnection(dsn string) error {
 	for {
-		if db, err := sql.Open("mysql", dsn); err != nil {
+		if db, err := sql.Open("mysql+tls", dsn); err != nil {
 			return err
 		} else {
 			// Open doesn't open a connection. Validate DSN data:

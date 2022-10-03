@@ -58,14 +58,14 @@ func (m *conn) Open(c context.Context, dsn string) (dao.Conn, error) {
 	mysqlConfig.DBName = ""
 	rootDSN := mysqlConfig.FormatDSN()
 
-	if db, err = commonsql.GetSqlConnection(c,"mysql", rootDSN); err != nil {
+	if db, err = commonsql.GetSqlConnection(c,"mysql+tls", rootDSN); err != nil {
 		return nil, err
 	}
 	if _, err = db.Exec(fmt.Sprintf("create database if not exists `%s`", dbName)); err != nil {
 		return nil, err
 	}
 
-	if db, err = commonsql.GetSqlConnection(c,"mysql", dsn); err != nil {
+	if db, err = commonsql.GetSqlConnection(c,"mysql+tls", dsn); err != nil {
 		return nil, err
 	}
 
