@@ -22,6 +22,8 @@ package runtime
 
 import (
 	"fmt"
+	"github.com/manifoldco/promptui"
+	utilnet "k8s.io/apimachinery/pkg/util/net"
 	"net"
 	"net/url"
 	"os"
@@ -29,9 +31,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-
-	"github.com/manifoldco/promptui"
-	utilnet "k8s.io/apimachinery/pkg/util/net"
 
 	net2 "github.com/pydio/cells/v4/common/utils/net"
 )
@@ -325,23 +324,23 @@ func DefaultAdvertiseAddress() string {
 	if addr := r.GetString(KeyAdvertiseAddress); addr != "" {
 		return addr
 	}
+
 	bindAddress := r.GetString(KeyBindHost)
 	ip := net.ParseIP(r.GetString(KeyBindHost))
+	store := bindAddress
 	if ip == nil || ip.IsUnspecified() {
 		if public, privates, er := net2.ShouldWarnPublicBind(); er == nil && public != "" {
 			fmt.Println(promptui.IconWarn + " WARNING: You are using an unspecified bind_address, which could expose Cells internal servers on a public IP address (" + public + "). Use 'bind_address' flag to select an internal network interface (amongst " + strings.Join(privates, ",") + "). If this machine does not provide one, you can set up a virtual IP interface with a private address — see " + promptui.Styler(promptui.FGUnderline)("https://pydio.com/docs/kb/deployment/no-private-ip-detected-issue"))
 		} else if er != nil {
 			fmt.Println(promptui.IconWarn + " WARNING: Cannot verify if bind_address is properly protected: " + er.Error())
 		}
+		if addr, err := utilnet.ResolveBindAddress(ip); err == nil {
+			store = addr.String()
+		}
 	} else if !ip.IsLoopback() && !ip.IsPrivate() {
 		fmt.Println(promptui.IconWarn + " WARNING: You are using a non-private bind_address, which could expose Cells internal servers.")
 	}
-
-	addr, err := utilnet.ResolveBindAddress(ip)
-	if err != nil {
-		return bindAddress
-	}
-	r.SetDefault(KeyAdvertiseAddress, addr)
+	r.SetDefault(KeyAdvertiseAddress, store)
 
 	return r.GetString(KeyAdvertiseAddress)
 }
