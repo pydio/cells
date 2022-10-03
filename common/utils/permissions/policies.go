@@ -53,7 +53,7 @@ const (
 
 func getCheckersCache() cache.Cache {
 	if checkersCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=1m&cleanWindow=10m")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1m", "cleanWindow", "10m"))
 		checkersCache = c
 	}
 	return checkersCache

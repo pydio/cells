@@ -41,7 +41,7 @@ var (
 
 func getAncestorsParentsCache() cache.Cache {
 	if ancestorsParentsCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=1500ms&cleanWindow=3m")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1500ms", "cleanWindow", "3m"))
 		ancestorsParentsCache = c
 	}
 	return ancestorsParentsCache
@@ -49,7 +49,7 @@ func getAncestorsParentsCache() cache.Cache {
 
 func getAncestorsNodesCache() cache.Cache {
 	if ancestorsNodesCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=1500ms&cleanWindow=3m")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1500ms", "cleanWindow", "3m"))
 		ancestorsNodesCache = c
 	}
 	return ancestorsNodesCache

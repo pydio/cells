@@ -872,7 +872,7 @@ var cachedParams cache.Cache
 func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 	var params []*front.ExposedParameter
 	if cachedParams == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=20s&cleanWindow=1m")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "20s", "cleanWindow", "1m"))
 		cachedParams = c
 	}
 	if !cachedParams.Get("params", &params) {

@@ -476,7 +476,7 @@ func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[str
 
 	// Save to cache
 	if autoAppliesCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=10s&cleanWindow=20s")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "10s", "cleanWindow", "20s"))
 		autoAppliesCache = c
 	}
 	autoAppliesCache.Set("autoApplies", autoApplies)

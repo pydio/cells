@@ -61,7 +61,7 @@ type ResourcesSQL struct {
 // Init performs necessary up migration.
 func (s *ResourcesSQL) Init(ctx context.Context, options configx.Values) error {
 
-	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=30s&cleanWindow=2m")
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "30s", "cleanWindow", "2m"))
 	s.cache = c
 
 	migrations := &sql.FSMigrationSource{

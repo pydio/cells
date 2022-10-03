@@ -56,7 +56,7 @@ func (v *BranchFilter) LookupRoot(uuid string) (*tree.Node, error) {
 	}
 
 	if v.RootNodesCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=10s&cleanWindow=60s")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "10s", "cleanWindow", "60s"))
 		v.RootNodesCache = c
 	}
 

@@ -33,7 +33,7 @@ import (
 	"github.com/manifoldco/promptui"
 	utilnet "k8s.io/apimachinery/pkg/util/net"
 
-	cellsnet "github.com/pydio/cells/v4/common/utils/net"
+	net2 "github.com/pydio/cells/v4/common/utils/net"
 )
 
 var (
@@ -166,20 +166,41 @@ func ConfigURL() string {
 	return v
 }
 
-func CacheURL() string {
+func CacheURL(prefix string, queryPairs ...string) string {
 	str := r.GetString(KeyCache)
 	u, _ := url.Parse(str)
 	if !strings.HasSuffix(u.Path, DefaultCacheSuffix) {
 		u.Path += DefaultCacheSuffix
 	}
+	if prefix != "" {
+		u.Path += "/" + prefix
+	}
+	if len(queryPairs) > 0 && len(queryPairs)%2 == 0 {
+		q := u.Query()
+		for i, k := range queryPairs {
+			if i%2 == 0 {
+				q.Set(k, queryPairs[i+1])
+			}
+		}
+		u.RawQuery = q.Encode()
+	}
 	return u.String()
 }
 
-func ShortCacheURL() string {
+func ShortCacheURL(queryPairs ...string) string {
 	str := r.GetString(KeyShortCache)
 	u, _ := url.Parse(str)
 	if !strings.HasSuffix(str, DefaultShortCacheSuffix) {
 		u.Path += DefaultShortCacheSuffix
+	}
+	if len(queryPairs) > 0 && len(queryPairs)%2 == 0 {
+		q := u.Query()
+		for i, k := range queryPairs {
+			if i%2 == 0 {
+				q.Set(k, queryPairs[i+1])
+			}
+		}
+		u.RawQuery = q.Encode()
 	}
 	return u.String()
 }
@@ -294,7 +315,7 @@ func MetricsEnabled() bool {
 	return r.GetBool(KeyEnableMetrics)
 }
 
-// PprofEnabled returns if an http endpoint should be published for debug/pprof
+// PprofEnabled returns if a http endpoint should be published for debug/pprof
 func PprofEnabled() bool {
 	return r.GetBool(KeyEnablePprof)
 }
@@ -306,15 +327,21 @@ func DefaultAdvertiseAddress() string {
 	}
 	bindAddress := r.GetString(KeyBindHost)
 	ip := net.ParseIP(r.GetString(KeyBindHost))
+	if ip == nil || ip.IsUnspecified() {
+		if public, privates, er := net2.ShouldWarnPublicBind(); er == nil && public != "" {
+			fmt.Println(promptui.IconWarn + " WARNING: You are using an unspecified bind_address, which could expose Cells internal servers on a public IP address (" + public + "). Use 'bind_address' flag to select an internal network interface (amongst " + strings.Join(privates, ",") + "). If this machine does not provide one, you can set up a virtual IP interface with a private address — see " + promptui.Styler(promptui.FGUnderline)("https://pydio.com/docs/kb/deployment/no-private-ip-detected-issue"))
+		} else if er != nil {
+			fmt.Println(promptui.IconWarn + " WARNING: Cannot verify if bind_address is properly protected: " + er.Error())
+		}
+	} else if !ip.IsLoopback() && !ip.IsPrivate() {
+		fmt.Println(promptui.IconWarn + " WARNING: You are using a non-private bind_address, which could expose Cells internal servers.")
+	}
+
 	addr, err := utilnet.ResolveBindAddress(ip)
 	if err != nil {
 		return bindAddress
 	}
 	r.SetDefault(KeyAdvertiseAddress, addr)
-
-	if !cellsnet.IsPrivateIP(addr) {
-		fmt.Println(promptui.IconWarn + " WARNING: no private IP detected. Please set up a virtual IP interface with a private address — see " + promptui.Styler(promptui.FGUnderline)("https://pydio.com/docs/kb/deployment/no-private-ip-detected-issue") + " — or Cells internal servers might become accessible publicly")
-	}
 
 	return r.GetString(KeyAdvertiseAddress)
 }
@@ -499,8 +526,12 @@ func Describe() (out []InfoGroup) {
 		"Vault":        VaultURL,
 		"Keyring":      KeyringURL,
 		"Certificates": CertsStoreURL,
-		"Cache":        CacheURL,
-		"ShortCache":   ShortCacheURL,
+		"Cache": func() string {
+			return CacheURL("")
+		},
+		"ShortCache": func() string {
+			return ShortCacheURL()
+		},
 	}
 
 	for _, k := range keys {

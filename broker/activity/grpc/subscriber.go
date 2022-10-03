@@ -64,7 +64,7 @@ type MicroEventsSubscriber struct {
 }
 
 func NewEventsSubscriber(ctx context.Context, dao activity.DAO) *MicroEventsSubscriber {
-	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=3m&cleanWindow=10m")
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "3m", "cleanWindow", "10m"))
 	m := &MicroEventsSubscriber{
 		RuntimeCtx:   ctx,
 		dao:          dao,

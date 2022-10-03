@@ -22,6 +22,8 @@ package redis
 
 import (
 	"context"
+	"crypto/tls"
+	"fmt"
 	"net/url"
 	"strings"
 	"time"
@@ -29,6 +31,7 @@ import (
 	redisc "github.com/go-redis/cache/v8"
 	"github.com/go-redis/redis/v8"
 
+	"github.com/pydio/cells/v4/common/crypto"
 	cache "github.com/pydio/cells/v4/common/utils/cache"
 	standard "github.com/pydio/cells/v4/common/utils/std"
 )
@@ -56,6 +59,7 @@ type Options struct {
 func init() {
 	o := &URLOpener{}
 	cache.DefaultURLMux().Register(scheme, o)
+	cache.DefaultURLMux().Register(scheme+"+tls", o)
 }
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error) {
@@ -83,7 +87,16 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 		namespace = standard.Randkey(16)
 	}
 
-	cli := NewClient(u)
+	var tc *tls.Config
+	if u.Scheme == "redis+tls" {
+		if tlsConfig, er := crypto.TLSConfigFromURL(u); er == nil {
+			tc = tlsConfig
+		} else {
+			return nil, fmt.Errorf("error while loading tls config for redis cache %v", er)
+		}
+	}
+
+	cli := NewClient(u, tc)
 
 	mycache := redisc.New(&redisc.Options{
 		Redis:      cli,

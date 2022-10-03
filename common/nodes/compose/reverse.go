@@ -71,7 +71,7 @@ func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {
 		encryption.WithEncryption(),
 	)
 	cl := newClient(opts...)
-	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=120s&cleanWindow=10m")
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "120s", "cleanWindow", "10m"))
 	return &Reverse{
 		Client:     cl,
 		runtimeCtx: cl.runtimeCtx,

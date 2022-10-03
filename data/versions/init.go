@@ -64,7 +64,7 @@ func init() {
 func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy {
 
 	if policiesCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=1h&cleanWindow=1h")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1h", "cleanWindow", "1h"))
 		policiesCache = c
 	}
 

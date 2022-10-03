@@ -230,7 +230,7 @@ func (m *HashHandler) StreamChanges(ctx context.Context, in *tree.StreamChangesR
 // getPartsCache initializes a cache for multipart hashes
 func (m *HashHandler) getPartsCache() (c cache.Cache, e error) {
 	m.partsCacheOnce.Do(func() {
-		if c, e = cache.OpenCache(context.Background(), runtime.CacheURL()+"/partshasher?evictionTime=24h&cleanWindow=24h"); e == nil {
+		if c, e = cache.OpenCache(context.Background(), runtime.CacheURL("partshasher", "evictionTime", "24h", "cleanWindow", "24h")); e == nil {
 			m.partsCache = c
 		}
 	})

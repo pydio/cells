@@ -67,7 +67,7 @@ type VirtualNodesManager struct {
 // GetVirtualNodesManager creates a new VirtualNodesManager.
 func GetVirtualNodesManager(ctx context.Context) *VirtualNodesManager {
 	if vManagerCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=60s&cleanWindow=120s")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "60s", "cleanWindow", "120s"))
 		vManagerCache = c
 	}
 	if vManager != nil {

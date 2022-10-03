@@ -364,7 +364,7 @@ type IndexSQL struct {
 // Init handles the db version migration and prepare the statements
 func (dao *IndexSQL) Init(ctx context.Context, options configx.Values) error {
 
-	c, _ := cache2.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=5s&cleanWindow=10s")
+	c, _ := cache2.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "5s", "cleanWindow", "10s"))
 	dao.shortCache = c
 
 	migrations := &sql.FSMigrationSource{

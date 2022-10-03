@@ -56,7 +56,7 @@ type MetaServer struct {
 }
 
 func NewMetaServer(ctx context.Context, dao meta.DAO) *MetaServer {
-	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL()+"/"+ServiceName)
+	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL(ServiceName))
 	m := &MetaServer{dao: dao}
 	m.cache = c
 	m.stoppedLock = &sync.Mutex{}

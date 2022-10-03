@@ -65,7 +65,7 @@ type WebsocketHandler struct {
 }
 
 func NewWebSocketHandler(serviceCtx context.Context) *WebsocketHandler {
-	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=60s&cleanWindow=5m")
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "60s", "cleanWindow", "5m"))
 	w := &WebsocketHandler{
 		runtimeCtx:     serviceCtx,
 		batchers:       make(map[string]*NodeEventsBatcher),

@@ -46,7 +46,7 @@ func NewEventSubscriber(t *TreeServer) (*EventSubscriber, error) {
 		TreeServer: t,
 	}
 	var er error
-	es.sharedCache, er = cache.OpenCache(context.Background(), runtime.CacheURL()+"/pydio.grpc.tree?evictionTime=10m")
+	es.sharedCache, er = cache.OpenCache(context.Background(), runtime.CacheURL("pydio.grpc.tree", "evictionTime", "10m"))
 	return es, er
 }
 

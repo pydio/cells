@@ -56,7 +56,7 @@ func newTestHandlerBranchTranslator(pool *nodes.ClientsPool) (*DataSourceHandler
 	testRootNode.MustSetMeta(common.MetaNamespaceDatasourceName, "datasource")
 	testRootNode.MustSetMeta(common.MetaNamespaceDatasourcePath, "root")
 	b := newDataSourceHandler()
-	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL() + "?evictionTime=1s&cleanWindow=10s")
+	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1s", "cleanWindow", "10s"))
 	b.RootNodesCache = c
 	b.RootNodesCache.Set("root-node-uuid", testRootNode)
 	mock := nodes.NewHandlerMock()

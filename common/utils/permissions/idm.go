@@ -50,7 +50,7 @@ var (
 
 func getUsersCache() cache.Cache {
 	if usersCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=5s&cleanWindow=30s")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "5s", "cleanWindow", "30s"))
 		usersCache = c
 	}
 	return usersCache

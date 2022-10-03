@@ -83,7 +83,7 @@ func (a *QuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 		u  int64
 	}
 	if a.readCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL()+"?evictionTime=1m&cleanWindow=5m")
+		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1m", "cleanWindow", "5m"))
 		a.readCache = c
 	}
 	var cacheKey string

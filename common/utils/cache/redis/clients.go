@@ -21,6 +21,7 @@
 package redis
 
 import (
+	"crypto/tls"
 	"net/url"
 
 	"github.com/go-redis/redis/v8"
@@ -30,19 +31,23 @@ var (
 	clients = make(map[string]*redis.Client)
 )
 
-func NewClient(u *url.URL) *redis.Client {
-	str := u.User.String() + "@" + u.Host
+func NewClient(u *url.URL, tc *tls.Config) *redis.Client {
+	str := u.Redacted()
 	cli, ok := clients[str]
 	if ok {
 		return cli
 	}
 
 	pwd, _ := u.User.Password()
-	cli = redis.NewClient(&redis.Options{
+	oo := &redis.Options{
 		Addr:     u.Host,
 		Username: u.User.Username(),
 		Password: pwd,
-	})
+	}
+	if tc != nil {
+		oo.TLSConfig = tc
+	}
+	cli = redis.NewClient(oo)
 
 	clients[str] = cli
 	return cli
