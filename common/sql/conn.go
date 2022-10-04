@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/pydio/cells/v4/common/log"
+	"go.uber.org/zap"
 	"time"
 
 	"github.com/pydio/cells/v4/common/service/metrics"
@@ -32,7 +33,7 @@ func pingWithRetries(ctx context.Context, db *sql.DB) error {
 		return nil
 	} else {
 		lastErr = err
-		log.Logger(ctx).Warn("[SQL] Server does not answer yet, will retry in 10 seconds...")
+		log.Logger(ctx).Warn("[SQL] Server does not answer yet, will retry in 10 seconds...", zap.Error(err))
 	}
 	tick := time.NewTicker(ConnectionOpenRetries)
 	timeout := time.NewTimer(ConnectionOpenTimeout)
@@ -45,7 +46,7 @@ func pingWithRetries(ctx context.Context, db *sql.DB) error {
 				return nil
 			} else {
 				lastErr = err
-				log.Logger(ctx).Warn("[SQL] Server does not answer yet, will retry in 10 seconds...")
+				log.Logger(ctx).Warn("[SQL] Server does not answer yet, will retry in 10 seconds...", zap.Error(err))
 			}
 		case <-timeout.C:
 			return lastErr
