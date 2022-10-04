@@ -15,11 +15,9 @@ cd <this folder>
 # start all third-party services
 docker-compose up -d mysql mongo nats etcd vault redis minio
 
-# First connect to vault to create a dedicated kvstore for certificates
+# Create a dedicated kvstore for certificates in Vault.
 # Vault is configured in DEV mode with a preset VAULT_TOKEN. This should of course not be the case in production
-docker-compose exec vault /bin/sh 
-# Inside vault container:
-> VAULT_ADDR=http://localhost:8200 VAULT_TOKEN=dev_root_token vault secrets enable -version=2 -path=caddycerts kv
+docker-compose exec -e VAULT_ADDR=http://localhost:8200 -e VAULT_TOKEN=dev_root_token vault vault secrets enable -version=2 -path=caddycerts kv
 ```
 
 ## Starting Cells Nodes
@@ -30,9 +28,9 @@ docker-compose up -d cells1; docker-compose logs -f cells1
 ```
 Perform web browser installation: 
 
-- For DB use host 'mysql', pydio:cells as credentials and 'cells' database name
-- For Mongo use host 'mongo', default port and no credentials, 'cells' database name.
-- Use Advanced Options and connect to Minio as "S3-Compatible" storage, using 'minio' host and minioadmin for key and secret
+- For DB, use host 'mysql', pydio:cells as credentials and 'cells' database name;
+- For Mongo, use host 'mongo', default port and no credentials, 'cells' database name;
+- Use Advanced Options and connect to Minio as "S3-Compatible" storage, using 'minio' host and minioadmin for key and secret.
 
 Now you can spin more cells nodes:
 
@@ -53,7 +51,7 @@ Once started, it will monitor cells instances on /pprofs endpoint to automatical
 docker-compose up -d caddy
 ```
 
-Now access https://caddy:8585/ to access Cells. Enjoy !
+Now access https://caddy:8585/ to access Cells. Enjoy!
 
 ## Stopping cluster
 
