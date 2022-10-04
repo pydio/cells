@@ -282,13 +282,13 @@
     "other": "Other S3-Compatible Storage"
   },
   "ds.editor.storage.s3.endpoint.minio": {
-    "other": "Minio Server"
+    "other": "Servidor Minio"
   },
   "ds.editor.storage.s3.endpoint": {
     "other": "URL Personalizada"
   },
   "ds.editor.storage.s3.endpoint.hint": {
-    "other": "include http(s)://"
+    "other": "incluir http(s)://"
   },
   "ds.editor.storage.s3.region": {
     "other": "Región de Api S3"
@@ -304,6 +304,12 @@
   },
   "ds.editor.storage.buckets.reload": {
     "other": "Recargar cubos"
+  },
+  "ds.editor.storage.buckets.create": {
+    "other": "Create Bucket"
+  },
+  "ds.editor.storage.buckets.create.hint": {
+    "other": "Bucket name"
   },
   "ds.editor.storage.buckets.regexp": {
     "other": "Utilizar una expresión común"

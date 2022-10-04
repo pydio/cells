@@ -27,23 +27,25 @@ func (d MySQLDriver) Open(dsn string) (driver.Conn, error) {
 		return nil, err
 	}
 
-	tlsConfig, err := crypto.TLSConfigFromURL(u)
-	if err != nil {
-		return nil, err
-	}
+	q := u.Query()
+	if q.Has("ssl") && q.Get("ssl") == "true" {
+		tlsConfig, err := crypto.TLSConfigFromURL(u)
+		if err != nil {
+			return nil, err
+		}
+		if tlsConfig != nil {
+			q.Add("tls", "cells")
+			q.Del("ssl")
+			q.Del(crypto.KeyCertStoreName)
+			q.Del(crypto.KeyCertInsecureHost)
+			q.Del(crypto.KeyCertUUID)
+			q.Del(crypto.KeyCertKeyUUID)
+			q.Del(crypto.KeyCertCAUUID)
 
-	if tlsConfig != nil {
-		q := u.Query()
-		q.Add("tls", "cells")
-		q.Del(crypto.KeyCertStoreName)
-		q.Del(crypto.KeyCertInsecureHost)
-		q.Del(crypto.KeyCertUUID)
-		q.Del(crypto.KeyCertKeyUUID)
-		q.Del(crypto.KeyCertCAUUID)
+			u.RawQuery = q.Encode()
 
-		u.RawQuery = q.Encode()
-
-		tools.RegisterTLSConfig("cells", tlsConfig)
+			tools.RegisterTLSConfig("cells", tlsConfig)
+		}
 	}
 
 	return tools.MySQLDriver{}.Open(u.String())
