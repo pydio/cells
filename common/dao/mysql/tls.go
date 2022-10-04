@@ -35,6 +35,11 @@ func (d MySQLDriver) Open(dsn string) (driver.Conn, error) {
 	if tlsConfig != nil {
 		q := u.Query()
 		q.Add("tls", "cells")
+		q.Del(crypto.KeyCertStoreName)
+		q.Del(crypto.KeyCertInsecureHost)
+		q.Del(crypto.KeyCertUUID)
+		q.Del(crypto.KeyCertKeyUUID)
+		q.Del(crypto.KeyCertCAUUID)
 
 		u.RawQuery = q.Encode()
 

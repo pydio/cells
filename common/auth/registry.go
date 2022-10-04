@@ -161,7 +161,7 @@ func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 			}
 
 			return nil
-		}, 10 * time.Second, 10 * time.Minute)
+		}, 10*time.Second, 10*time.Minute)
 
 		RegisterOryProvider(reg.WithConfig(defaultConf.GetProvider()).OAuth2Provider())
 	})
@@ -262,7 +262,7 @@ func createSqlRegistryForConf(serviceName string, conf ConfigurationProvider) (d
 	)
 	cfg := conf.GetProvider()
 	dbDriver, dbDSN := config.GetDatabase(serviceName)
-	
+
 	u, err := url.Parse(dbDSN)
 	if err != nil {
 		return nil, err
@@ -275,6 +275,12 @@ func createSqlRegistryForConf(serviceName string, conf ConfigurationProvider) (d
 	if tlsConfig != nil {
 		q := u.Query()
 		q.Add("tls", "cells")
+		q.Del(crypto.KeyCertStoreName)
+		q.Del(crypto.KeyCertInsecureHost)
+		q.Del(crypto.KeyCertUUID)
+		q.Del(crypto.KeyCertKeyUUID)
+		q.Del(crypto.KeyCertCAUUID)
+		
 		u.RawQuery = q.Encode()
 		tools.RegisterTLSConfig("cells", tlsConfig)
 	}
