@@ -305,6 +305,12 @@
   "ds.editor.storage.buckets.reload": {
     "other": "Tải lại buckets"
   },
+  "ds.editor.storage.buckets.create": {
+    "other": "Create Bucket"
+  },
+  "ds.editor.storage.buckets.create.hint": {
+    "other": "Bucket name"
+  },
   "ds.editor.storage.buckets.regexp": {
     "other": "Biểu thức chính quy"
   },
