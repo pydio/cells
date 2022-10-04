@@ -22,7 +22,9 @@ package mongodb
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/utils/std"
+	"net/url"
 	"time"
 
 	"github.com/pkg/errors"
@@ -41,8 +43,16 @@ type mongodb struct {
 func (m *mongodb) Open(c context.Context, dsn string) (dao.Conn, error) {
 
 	log.Logger(c).Info("[MongoDB] attempt connection")
+	oo := options.Client().ApplyURI(dsn)
+	if u, e := url.Parse(dsn); e == nil && (u.Query().Get("ssl") == "true" || u.Query().Get("tls") == "true") {
+		if tlsConfig, er := crypto.TLSConfigFromURL(u); er == nil {
+			oo.TLSConfig = tlsConfig
+		} else {
+			log.Logger(c).Warn("Could not parse tlsOptions from URL: " + er.Error())
+		}
+	}
 	// Create a new client and connect to the server
-	client, err := mongo.Connect(c, options.Client().ApplyURI(dsn))
+	client, err := mongo.Connect(c, oo)
 	if err != nil {
 		return nil, errors.Wrap(err, "[MongoDB] connection failed")
 	}
