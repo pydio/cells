@@ -22,6 +22,7 @@ package etcd
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"net/url"
@@ -43,20 +44,30 @@ var (
 	errClosedChannel = errors.New("channel is closed")
 )
 
-type URLOpener struct{}
+type URLOpener struct{
+	tlsConfig *tls.Config
+}
+type TLSURLOpener struct{}
 
 func init() {
-	o := &URLOpener{}
-	config.DefaultURLMux().Register(scheme, o)
+	config.DefaultURLMux().Register(scheme, &URLOpener{})
+	config.DefaultURLMux().Register(scheme + "+tls", &TLSURLOpener{})
+}
+
+func (o *TLSURLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+	if tlsConfig, er := crypto.TLSConfigFromURL(u); er == nil {
+		return (&URLOpener{tlsConfig}).OpenURL(ctx, u)
+	} else {
+		return nil, fmt.Errorf("error while loading tls config for etcd %v", er)
+	}
 }
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
-	tls := u.Query().Get("tls") == "true"
-	addr := u.Host
-	if tls {
-		addr = "https://" + addr
+	addr :=  "://" + u.Host
+	if o.tlsConfig == nil {
+		addr = "http" + addr
 	} else {
-		addr = "http://" + addr
+		addr = "https" + addr
 	}
 
 	var opts []configx.Option
@@ -90,6 +101,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		DialTimeout: 2 * time.Second,
 		Username:    u.User.Username(),
 		Password:    pwd,
+		TLS: o.tlsConfig,
 	})
 
 	if err != nil {
