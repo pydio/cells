@@ -201,10 +201,10 @@ func checkConnection(dsn string) error {
 				rootconf, _ := mysql.ParseDSN(dsn)
 				dbname := rootconf.DBName
 				rootconf.DBName = ""
-
+				
 				rootdsn := rootconf.FormatDSN()
 
-				if rootdb, rooterr := sql.Open("mysql", rootdsn); rooterr != nil {
+				if rootdb, rooterr := sql.Open("mysql+tls", rootdsn); rooterr != nil {
 					return rooterr
 				} else {
 					version, err := getMysqlVersion(rootdb)

@@ -263,39 +263,37 @@ func createSqlRegistryForConf(serviceName string, conf ConfigurationProvider) (d
 	cfg := conf.GetProvider()
 	dbDriver, dbDSN := config.GetDatabase(serviceName)
 
-	u, err := url.Parse(dbDSN)
+	mysqlConfig, err := tools.ParseDSN(dbDSN)
 	if err != nil {
 		return nil, err
 	}
-	
-	q := u.Query()
-	if q.Has("ssl") && q.Get("ssl") == "true" {
+	if ssl, ok := mysqlConfig.Params["ssl"]; ok && ssl == "true" {
+		u := &url.URL{}
+		q := u.Query()
+		q.Add(crypto.KeyCertStoreName, mysqlConfig.Params[crypto.KeyCertStoreName])
+		q.Add(crypto.KeyCertInsecureHost, mysqlConfig.Params[crypto.KeyCertInsecureHost])
+		q.Add(crypto.KeyCertUUID, mysqlConfig.Params[crypto.KeyCertUUID])
+		q.Add(crypto.KeyCertKeyUUID, mysqlConfig.Params[crypto.KeyCertKeyUUID])
+		q.Add(crypto.KeyCertCAUUID, mysqlConfig.Params[crypto.KeyCertCAUUID])
+		u.RawQuery = q.Encode()
+
 		tlsConfig, err := crypto.TLSConfigFromURL(u)
 		if err != nil {
 			return nil, err
 		}
 		if tlsConfig != nil {
-			q.Add("tls", "cells")
-			q.Del("ssl")
-			q.Del(crypto.KeyCertStoreName)
-			q.Del(crypto.KeyCertInsecureHost)
-			q.Del(crypto.KeyCertUUID)
-			q.Del(crypto.KeyCertKeyUUID)
-			q.Del(crypto.KeyCertCAUUID)
-
-			u.RawQuery = q.Encode()
+			delete(mysqlConfig.Params, "ssl")
+			delete(mysqlConfig.Params, crypto.KeyCertStoreName)
+			delete(mysqlConfig.Params, crypto.KeyCertInsecureHost)
+			delete(mysqlConfig.Params, crypto.KeyCertUUID)
+			delete(mysqlConfig.Params, crypto.KeyCertKeyUUID)
+			delete(mysqlConfig.Params, crypto.KeyCertCAUUID)
 
 			tools.RegisterTLSConfig("cells", tlsConfig)
+			mysqlConfig.TLSConfig = "cells"
+			dbDSN = mysqlConfig.FormatDSN()
 		}
 	}
-
-	// Try to create the database to ensure it exists
-	mysqlConfig, err := tools.ParseDSN(u.String())
-	if err != nil {
-		return nil, err
-	}
-
-	dbDSN = mysqlConfig.FormatDSN()
 
 	_ = cfg.Set("dsn", fmt.Sprintf("%s://%s", dbDriver, dbDSN))
 	reg, e := driver.NewRegistryFromDSN(context.Background(), cfg, lx)

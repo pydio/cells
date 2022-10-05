@@ -22,31 +22,37 @@ type MySQLDriver struct{}
 // See https://github.com/go-sql-driver/mysql#dsn-data-source-name for how
 // the DSN string is formatted
 func (d MySQLDriver) Open(dsn string) (driver.Conn, error) {
-	u, err := url.Parse(dsn)
+	mysqlConfig, err := tools.ParseDSN(dsn)
 	if err != nil {
 		return nil, err
 	}
+	if ssl, ok := mysqlConfig.Params["ssl"]; ok && ssl == "true" {
+		u := &url.URL{}
+		q := u.Query()
+		q.Add(crypto.KeyCertStoreName, mysqlConfig.Params[crypto.KeyCertStoreName])
+		q.Add(crypto.KeyCertInsecureHost, mysqlConfig.Params[crypto.KeyCertInsecureHost])
+		q.Add(crypto.KeyCertUUID, mysqlConfig.Params[crypto.KeyCertUUID])
+		q.Add(crypto.KeyCertKeyUUID, mysqlConfig.Params[crypto.KeyCertKeyUUID])
+		q.Add(crypto.KeyCertCAUUID, mysqlConfig.Params[crypto.KeyCertCAUUID])
+		u.RawQuery = q.Encode()
 
-	q := u.Query()
-	if q.Has("ssl") && q.Get("ssl") == "true" {
 		tlsConfig, err := crypto.TLSConfigFromURL(u)
 		if err != nil {
 			return nil, err
 		}
 		if tlsConfig != nil {
-			q.Add("tls", "cells")
-			q.Del("ssl")
-			q.Del(crypto.KeyCertStoreName)
-			q.Del(crypto.KeyCertInsecureHost)
-			q.Del(crypto.KeyCertUUID)
-			q.Del(crypto.KeyCertKeyUUID)
-			q.Del(crypto.KeyCertCAUUID)
-
-			u.RawQuery = q.Encode()
+			delete(mysqlConfig.Params, "ssl")
+			delete(mysqlConfig.Params, crypto.KeyCertStoreName)
+			delete(mysqlConfig.Params, crypto.KeyCertInsecureHost)
+			delete(mysqlConfig.Params, crypto.KeyCertUUID)
+			delete(mysqlConfig.Params, crypto.KeyCertKeyUUID)
+			delete(mysqlConfig.Params, crypto.KeyCertCAUUID)
 
 			tools.RegisterTLSConfig("cells", tlsConfig)
+			mysqlConfig.TLSConfig = "cells"
+			dsn = mysqlConfig.FormatDSN()
 		}
 	}
 
-	return tools.MySQLDriver{}.Open(u.String())
+	return tools.MySQLDriver{}.Open(dsn)
 }

@@ -172,6 +172,7 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 	}
 	var e error
 	if uConnIdx == 2 {
+		c.DbConnectionType = "manual"
 		if c.DbManualDSN, e = dbDSN.Run(); e != nil {
 			return false, e
 		}
