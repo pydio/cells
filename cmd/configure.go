@@ -408,6 +408,7 @@ func init() {
 	flags.String(cruntime.KeyInstallYamlLegacy, "", "Points toward a configuration in YAML format")
 	flags.String(cruntime.KeyInstallJsonLegacy, "", "Points toward a configuration in JSON format")
 	flags.Bool(cruntime.KeyInstallExitAfter, false, "Simply exits main process after the installation is done")
+	flags.String(cruntime.KeyBindHost, "127.0.0.1", "Address on which servers will bind. Binding port depends on the server type (grpc, http, etc).")
 
 	addSiteOverrideFlags(flags, true)
 	addRegistryFlags(flags, true)

@@ -13,7 +13,7 @@ This Vault requires a manual preparation for a specific key/value store (see bel
 ```sh
 cd <this folder>
 # start all third-party services
-docker-compose up -d mysql mongo nats etcd vault redis minio
+docker-compose up -d mysql mongo nats etcd vault redis minio createbuckets
 
 # Create a dedicated kvstore for certificates in Vault.
 # Vault is configured in DEV mode with a preset VAULT_TOKEN. This should of course not be the case in production
