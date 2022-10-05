@@ -13,9 +13,8 @@ x-cells: &cells-common
     - CELLS_CERTS_STORE=vault://vault:8200/caddycerts
     - CELLS_CACHE=redis://redis:6379
     - CELLS_ENABLE_PPROF=true
-    - VAULT_TOKEN=dev_root_token
-#  volumes:
-#    - cells_data:/var/cells/data
+    - CELLS_BIND_ADDRESS=0.0.0.0
+    - VAULT_TOKEN=${VAULT_ROOT_TOKEN}
 
 volumes:
     cells_data: {}
@@ -36,13 +35,13 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=cells
       - MYSQL_DATABASE=cells
-      - MYSQL_USER=pydio
-      - MYSQL_PASSWORD=cells
+      - MYSQL_USER=${MYSQL_DB_USER}
+      - MYSQL_PASSWORD=${MYSQL_DB_PASSWORD}
     command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
 
   # Mongo DB
   mongo:
-    image:  mongo:5.0.5
+    image:  mongo:5.0.12
     restart: unless-stopped
     expose: [27017]
 
@@ -81,7 +80,7 @@ services:
     image: vault
     expose: [8200]
     environment:
-      - VAULT_DEV_ROOT_TOKEN_ID=dev_root_token
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_ROOT_TOKEN}
     cap_add:
       - IPC_LOCK
 
@@ -95,8 +94,8 @@ services:
     command: server --console-address ":9001" /data
     hostname: minio
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     expose:
       - 9000
     ports:
@@ -104,15 +103,56 @@ services:
     volumes:
       - cells_data:/data
 
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      /usr/bin/mc rm -r --force myminio/pydiods1;
+      /usr/bin/mc rm -r --force myminio/personal;
+      /usr/bin/mc rm -r --force myminio/cellsdata;
+      /usr/bin/mc rm -r --force myminio/thumbs;
+      /usr/bin/mc rm -r --force myminio/versions;
+      /usr/bin/mc rm -r --force myminio/binaries;
+      /usr/bin/mc mb myminio/pydiods1;
+      /usr/bin/mc mb myminio/personal;
+      /usr/bin/mc mb myminio/cellsdata;
+      /usr/bin/mc mb myminio/thumbs;
+      /usr/bin/mc mb myminio/versions;
+      /usr/bin/mc mb myminio/binaries;
+      exit 0;
+      "
   #
   # CELLS MULTIPLE NODES
+  # cells1 overrides env and volumes to access the install YAML
   #
   cells1:
     <<: *cells-common
     hostname: cells1
-    ports:
-      - "8080:8080" # We expose that port externally for first configuration step (access to https://localhost:8080)
-      #- 8002:8002 # uncomment if you want to browse the internal registry of this node using cells-ctl
+    expose: [8080]
+    environment:
+      - CELLS_WORKING_DIR=/var/cells
+      - CELLS_CONFIG=etcd://etcd:2379
+      - CELLS_REGISTRY=etcd://etcd:2379
+      - CELLS_BROKER=nats://nats:4222
+      - CELLS_KEYRING=vault://vault:8200/secret?key=master
+      - CELLS_CERTS_STORE=vault://vault:8200/caddycerts
+      - CELLS_CACHE=redis://redis:6379
+      - CELLS_ENABLE_PPROF=true
+      - CELLS_BIND_ADDRESS=0.0.0.0
+      - VAULT_TOKEN=${VAULT_ROOT_TOKEN}
+      - CELLS_INSTALL_YAML=/pydio/config/install.yml
+      - INSTALL_MYSQL_DB_USER=${MYSQL_DB_USER}
+      - INSTALL_MYSQL_DB_PASSWORD=${MYSQL_DB_PASSWORD}
+      - INSTALL_MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - INSTALL_MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    volumes:
+      - ./conf/install-conf.yml:/pydio/config/install.yml:ro
+#    ports:
+#      - "8080:8080" # We expose that port externally for first configuration step (access to https://localhost:8080)
+#      - "8002:8002" # uncomment if you want to browse the internal registry of this node using cells-ctl
 
   cells2:
     <<: *cells-common

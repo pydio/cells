@@ -1,0 +1,33 @@
+# This is the minimal configuration to directly start a pre-configured server in sandbox mode.
+# Simply run 'docker-compose up -d', you can log in with admin/admin at https://localhost:8080 
+# After accepting the self signed certificate
+
+# Adapt to your convenience and report to the documentation to explore further possibilities.
+
+# WebUI Admin definition
+frontendlogin: admin
+frontendpassword: admin
+
+# DB connection
+dbconnectiontype: tcp
+dbtcphostname: mysql
+dbtcpport: 3306
+dbtcpname: cells
+dbtcpuser: {$INSTALL_MYSQL_DB_USER}
+dbtcppassword: {$INSTALL_MYSQL_DB_PASSWORD}
+
+# Mongo Setup
+documentsdsn: mongodb://mongo:27017/cells
+usedocumentsdsn: true
+
+# Advanced Datasource Setup
+dstype: S3
+dss3custom: http://minio:9000
+dss3apikey: {$INSTALL_MINIO_ROOT_USER}
+dss3apisecret: {$INSTALL_MINIO_ROOT_PASSWORD}
+dss3bucketdefault: pydiods1
+dss3bucketpersonal: personal
+dss3bucketcells: cellsdata
+dss3bucketbinaries: binaries
+dss3bucketthumbs: thumbs
+dss3bucketversions: versions
