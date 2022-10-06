@@ -13,45 +13,36 @@ This Vault requires a manual preparation for a specific key/value store (see bel
 ```sh
 cd <this folder>
 # start all third-party services
-docker-compose up -d mysql mongo nats etcd vault redis minio createbuckets
+docker-compose up -d mysql mongo nats etcd vault redis minio caddy
 
-# Create a dedicated kvstore for certificates in Vault.
-# Vault is configured in DEV mode with a preset VAULT_TOKEN. This should of course not be the case in production
-docker-compose exec -e VAULT_ADDR=http://localhost:8200 -e VAULT_TOKEN=dev_root_token vault vault secrets enable -version=2 -path=caddycerts kv
+# create buckets in minio 
+docker-compose up createbuckets
+
+# Create a dedicated kvstore for certificates in Vault (configured in DEV mode with a preset VAULT_TOKEN, this should not be the case in production)
+docker-compose exec -e VAULT_ADDR=http://localhost:8200 -e VAULT_TOKEN=secret_vault_token vault vault secrets enable -version=2 -path=caddycerts kv
 ```
 
 ## Starting Cells Nodes
 
 ```sh
-# Start one node, then open https://localhost:8080 to perform the install
+# Start one node, then open https://localhost:8080 to perform the install, it will read the conf/install-conf.yaml file
 docker-compose up -d cells1; docker-compose logs -f cells1
 ```
-Perform web browser installation: 
-
-- For DB, use host 'mysql', pydio:cells as credentials and 'cells' database name;
-- For Mongo, use host 'mongo', default port and no credentials, 'cells' database name;
-- Use Advanced Options and connect to Minio as "S3-Compatible" storage, using 'minio' host and minioadmin for key and secret.
 
 Now you can spin more cells nodes:
-
 ```sh
 # Once install is finished, start other nodes 
 docker-compose up -d cells2 cells3; docker-compose logs -f cells2 cells3
 ```
 
-## Caddy LoadBalancer
+## Caddy LoadBalancer Access
 
-Finally start Caddy load balancer in self-signed mode. 
-
+Caddy load balancer is configured in self-signed mode. 
 This requires adding localhost => caddy domain name to your local /etc/hosts file.
+
 Once started, it will monitor cells instances on /pprofs endpoint to automatically enable/disable upstreams.
 
-```sh
-# Start Caddy 
-docker-compose up -d caddy
-```
-
-Now access https://caddy:8585/ to access Cells. Enjoy!
+Access https://caddy:8585/ to access Cells. Enjoy!
 
 ## Stopping cluster
 
