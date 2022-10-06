@@ -144,7 +144,17 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 					m := proto.Clone(&message).(*jobs.ActionMessage)
 					enqueued++
 					r.Task.Add(1)
-					Queue <- NewRunnable(r.Context, chainIndex, r.Task, act, m)
+					select {
+					case Queue <- NewRunnable(r.Context, chainIndex, r.Task, act, m):
+					case <-time.After(10 * time.Minute):
+						_, ct := nextContextPath(r.Context, act.ID, chainIndex)
+						err := fmt.Errorf("enqueue timeout reached when dispatching messagesOutput in action %s (length was %d", act.ID, len(aa))
+						log.TasksLogger(ct).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
+						log.Logger(r.Context).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
+						r.Task.SetError(err, false)
+						// Break dispatch on error !
+						return
+					}
 
 				case failed := <-failedFilter:
 					// Filter failed
