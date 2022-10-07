@@ -147,7 +147,7 @@ func (a *Handler) CheckNode(ctx context.Context, nodeID string, action *idm.ACLA
 		if aclNodeMask, has := accessList.GetNodesBitmasks()[vNode.Uuid]; has {
 			if resolvedRoot, err := virtualManager.ResolveInContext(ctx, vNode, false); err == nil {
 				log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("virtual", vNode), zap.Any("resolved", resolvedRoot))
-				accessList.GetNodesBitmasks()[resolvedRoot.Uuid] = aclNodeMask
+				accessList.AddNodeBitmask(resolvedRoot.Uuid, aclNodeMask)
 			}
 		}
 	}

@@ -85,10 +85,11 @@ type AccessList struct {
 
 	masksByUUIDs map[string]Bitmask
 	masksByPaths map[string]Bitmask
+	maskBULock   *sync.RWMutex
+	maskBPLock   *sync.RWMutex
 	claimsScopes map[string]Bitmask
 
-	hasClaimsScopes  bool
-	replicationMutex sync.Mutex
+	hasClaimsScopes bool
 }
 
 // NewAccessList creates a new AccessList.
@@ -96,6 +97,8 @@ func NewAccessList(roles ...*idm.Role) *AccessList {
 	acl := &AccessList{
 		wss:          make(map[string]*idm.Workspace),
 		orderedRoles: roles,
+		maskBPLock:   &sync.RWMutex{},
+		maskBULock:   &sync.RWMutex{},
 	}
 	return acl
 }
@@ -169,7 +172,9 @@ func (a *AccessList) HasPolicyBasedAcls() bool {
 // Flatten performs actual flatten.
 func (a *AccessList) Flatten(ctx context.Context) {
 	nodes, workspaces := a.flattenNodes(ctx, a.wsACLs)
+	a.maskBULock.Lock()
 	a.masksByUUIDs = nodes
+	a.maskBULock.Unlock()
 	a.wssRootsMasks = workspaces
 }
 
@@ -181,14 +186,27 @@ func (a *AccessList) GetWorkspacesRoots() map[string]map[string]Bitmask {
 
 // GetNodesBitmasks returns internal bitmask
 func (a *AccessList) GetNodesBitmasks() map[string]Bitmask {
-	return a.masksByUUIDs
+	a.maskBULock.RLock()
+	defer a.maskBULock.RUnlock()
+	cp := make(map[string]Bitmask, len(a.masksByUUIDs))
+	for k, v := range a.masksByUUIDs {
+		cp[k] = v
+	}
+	return cp
+}
+
+// AddNodeBitmask appends a node bitmask to the internal list
+func (a *AccessList) AddNodeBitmask(id string, b Bitmask) {
+	a.maskBULock.Lock()
+	a.masksByUUIDs[id] = b
+	a.maskBULock.Unlock()
 }
 
 // ReplicateBitmask copies a bitmask value from one position to another
 func (a *AccessList) ReplicateBitmask(fromUuid, toUuid string, replaceInRoots ...bool) bool {
 	// Protect this method from concurrency
-	a.replicationMutex.Lock()
-	defer a.replicationMutex.Unlock()
+	a.maskBULock.Lock()
+	defer a.maskBULock.Unlock()
 	if b, o := a.masksByUUIDs[fromUuid]; o {
 		a.masksByUUIDs[toUuid] = b
 		if len(replaceInRoots) > 0 && replaceInRoots[0] {
@@ -382,6 +400,11 @@ PRIVATE METHODS
 
 // loadNodePathAcls retrieve each node by UUID, to which an ACL is attached
 func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathResolver) error {
+	a.maskBULock.RLock()
+	a.maskBPLock.Lock()
+	defer a.maskBULock.RUnlock()
+	defer a.maskBPLock.Unlock()
+
 	a.masksByPaths = make(map[string]Bitmask, len(a.masksByUUIDs))
 	if len(a.masksByUUIDs) == 0 {
 		// Do not open an unnecessary stream...
@@ -494,6 +517,7 @@ func (a *AccessList) flattenNodes(ctx context.Context, aclList []*idm.ACL) (map[
 
 // replicateMasksResolved creates resolves internal masksByUUIDs by UUID using passed resolver
 func (a *AccessList) replicateMasksResolved(ctx context.Context, resolver VirtualPathResolver) {
+	// ReplicateBitmask uses lock/unlock - do not use here
 	for id := range a.masksByUUIDs {
 		if res, o := resolver(ctx, &tree.Node{Uuid: id}); o {
 			a.ReplicateBitmask(id, res.Uuid)
@@ -507,14 +531,23 @@ func (a *AccessList) replicateMasksResolved(ctx context.Context, resolver Virtua
 func (a *AccessList) parentMaskOrDeny(ctx context.Context, byPath bool, nodes ...*tree.Node) (bool, Bitmask) {
 	var firstParent Bitmask
 	var hasParentDeny bool
+	var checkOn map[string]Bitmask
+	var locker *sync.RWMutex
+	if byPath {
+		checkOn = a.masksByPaths
+		locker = a.maskBPLock
+	} else {
+		checkOn = a.masksByUUIDs
+		locker = a.maskBULock
+	}
+	locker.RLock()
+	defer locker.RUnlock()
+
 	for _, node := range nodes {
-		var checkOn map[string]Bitmask
 		var checkKey string
 		if byPath {
-			checkOn = a.masksByPaths
 			checkKey = strings.Trim(node.Path, "/")
 		} else {
-			checkOn = a.masksByUUIDs
 			checkKey = node.Uuid
 		}
 		if bitmask, ok := checkOn[checkKey]; ok {
@@ -529,8 +562,11 @@ func (a *AccessList) parentMaskOrDeny(ctx context.Context, byPath bool, nodes ..
 	return hasParentDeny, firstParent
 }
 
-// firstMaskForParents just climbs up the tree and gets the first non empty mask found.
+// firstMaskForParents just climbs up the tree and gets the first non-empty mask found.
 func (a *AccessList) firstMaskForParents(ctx context.Context, nodes ...*tree.Node) (Bitmask, *tree.Node) {
+	a.maskBULock.RLock()
+	defer a.maskBULock.RUnlock()
+
 	for _, node := range nodes {
 		if bitmask, ok := a.masksByUUIDs[node.Uuid]; ok {
 			return bitmask, node
@@ -541,6 +577,9 @@ func (a *AccessList) firstMaskForParents(ctx context.Context, nodes ...*tree.Nod
 
 // firstMaskForChildren look through all the access list pathes to get the first mask available for the node given in argument
 func (a *AccessList) firstMaskForChildren(ctx context.Context, node *tree.Node) Bitmask {
+	a.maskBPLock.RLock()
+	defer a.maskBPLock.RUnlock()
+
 	keys := make([]string, 0, len(a.masksByPaths))
 	for k := range a.masksByPaths {
 		keys = append(keys, k)
