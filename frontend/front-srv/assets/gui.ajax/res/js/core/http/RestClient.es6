@@ -84,10 +84,9 @@ class RestClient extends ApiClient{
 
     tokenKey(){
         if(this.pydio.Parameters.has('MINISITE')) {
-            return "token-" + this.pydio.Parameters.get('MINISITE');
+            return "token4-" + this.pydio.Parameters.get('MINISITE');
         }
-
-        return "token";
+        return "token4";
     }
 
     getCurrentChallenge() {
