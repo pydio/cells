@@ -263,9 +263,9 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 	// AutoStart if required
 	if msg.JobUpdated != nil && !msg.JobUpdated.Inactive && msg.JobUpdated.AutoStart {
 		if e := s.timerEvent(ctx, &jobs.JobTriggerEvent{JobID: msg.JobUpdated.ID, RunNow: true}); e != nil {
-			log.Logger(ctx).Error("Cannot trigger job "+msg.JobUpdated.GetLabel()+" on AutoStart after update", zap.Error(e))
+			log.Logger(s.rootCtx).Error("Cannot trigger job "+msg.JobUpdated.GetLabel()+" on AutoStart after update", zap.Error(e))
 		} else {
-			log.Logger(ctx).Info("AutoStarting Job " + msg.JobUpdated.GetLabel() + " after update")
+			log.Logger(s.rootCtx).Info("AutoStarting Job " + msg.JobUpdated.GetLabel() + " after update")
 		}
 	}
 
