@@ -181,7 +181,7 @@ func (workspace *Workspace) MarshalLogObject(encoder zapcore.ObjectEncoder) erro
 		_ = encoder.AddReflected("RootUUIDs", workspace.RootUUIDs)
 	}
 	if len(workspace.RootNodes) > 20 {
-		encoder.AddInt("RootNodesNumbers", len(workspace.RootNodes))
+		encoder.AddInt("RootNodesNumber", len(workspace.RootNodes))
 	} else if len(workspace.RootNodes) > 0 {
 		_ = encoder.AddReflected("RootNodes", workspace.RootNodes)
 	}
