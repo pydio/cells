@@ -113,7 +113,7 @@ func NewRunnable(ctx context.Context, chainIndex int, task *Task, action *jobs.A
 
 // Dispatch gets next runnable from Action and enqueues it to the Queue
 // Done channel should be working correctly with chained actions
-func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*jobs.Action, Queue chan Runnable) {
+func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*jobs.Action, queue chan Runnable) {
 
 	r.Task.Add(1)
 	wg := sync.WaitGroup{}
@@ -128,7 +128,7 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 		messagesOutput := make(chan jobs.ActionMessage)
 		failedFilter := make(chan jobs.ActionMessage)
 		done := make(chan bool, 1)
-		go func(act *jobs.Action) {
+		go func(act *jobs.Action, q chan Runnable) {
 			defer func() {
 				close(messagesOutput)
 				close(done)
@@ -144,23 +144,27 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 					m := proto.Clone(&message).(*jobs.ActionMessage)
 					enqueued++
 					r.Task.Add(1)
-					select {
-					case Queue <- NewRunnable(r.Context, chainIndex, r.Task, act, m):
-					case <-time.After(10 * time.Minute):
-						_, ct := nextContextPath(r.Context, act.ID, chainIndex)
-						err := fmt.Errorf("enqueue timeout reached when dispatching messagesOutput in action %s (length was %d", act.ID, len(aa))
-						log.TasksLogger(ct).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
-						log.Logger(r.Context).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
-						r.Task.SetError(err, false)
-						// Break dispatch on error !
-						return
-					}
+					run := NewRunnable(r.Context, chainIndex, r.Task, act, m)
+					q <- run
+					/*
+						select {
+						case queue <- NewRunnable(r.Context, chainIndex, r.Task, act, m):
+						case <-time.After(10 * time.Minute):
+							_, ct := nextContextPath(r.Context, act.ID, chainIndex)
+							err := fmt.Errorf("enqueue timeout reached when dispatching messagesOutput in action %s (length was %d", act.ID, len(aa))
+							log.TasksLogger(ct).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
+							log.Logger(r.Context).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
+							r.Task.SetError(err, false)
+							// Break dispatch on error !
+							return
+						}
+					*/
 
 				case failed := <-failedFilter:
 					// Filter failed
 					if len(act.FailedFilterActions) > 0 {
 						enqueued++
-						r.Dispatch(path.Join(parentPath, fmt.Sprintf(act.ID+"$%d$FAIL", chainIndex)), &failed, act.FailedFilterActions, Queue)
+						r.Dispatch(path.Join(parentPath, fmt.Sprintf(act.ID+"$%d$FAIL", chainIndex)), &failed, act.FailedFilterActions, q)
 					}
 
 				case err := <-errs:
@@ -177,20 +181,20 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 						_, ct := nextContextPath(r.Context, act.ID, chainIndex)
 						log.TasksLogger(ct).Warn("Initial query retrieved no values, stopping job now")
 						r.Task.Add(1)
-						Queue <- NewRunnable(r.Context, chainIndex, r.Task, &jobs.Action{ID: actions.IgnoredActionName}, &jobs.ActionMessage{})
+						queue <- NewRunnable(r.Context, chainIndex, r.Task, &jobs.Action{ID: actions.IgnoredActionName}, &jobs.ActionMessage{})
 					}
 					return
 
 				}
 			}
-		}(action)
+		}(action, queue)
 		in := proto.Clone(input).(*jobs.ActionMessage)
 		action.ToMessages(*in, r.Context, messagesOutput, failedFilter, errs, done)
 	}
 }
 
 // RunAction creates an action and calls Dispatch
-func (r *Runnable) RunAction(Queue chan Runnable) {
+func (r *Runnable) RunAction(queue chan Runnable) {
 
 	defer func() {
 		if re := recover(); re != nil {
@@ -262,7 +266,7 @@ func (r *Runnable) RunAction(Queue chan Runnable) {
 
 	if len(r.ChainedActions) > 0 {
 		if !r.Action.BreakAfter {
-			r.Dispatch(r.ActionPath, outputMessage, r.ChainedActions, Queue)
+			r.Dispatch(r.ActionPath, outputMessage, r.ChainedActions, queue)
 		} else {
 			log.TasksLogger(r.Context).Warn("Stopping chain at action " + r.ID + " as it is flagged BreakAfter.")
 		}
