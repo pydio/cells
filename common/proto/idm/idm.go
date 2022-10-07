@@ -45,8 +45,12 @@ func (role *Role) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddBool("ForceOverride", role.ForceOverride)
 	encoder.AddTime("LastUpdated", time.Unix(int64(role.LastUpdated), 0))
 	encoder.AddBool("PoliciesContextEditable", role.PoliciesContextEditable)
-	encoder.AddReflected("AutoApplies", role.AutoApplies)
-	encoder.AddReflected("Policies", role.Policies)
+	_ = encoder.AddReflected("AutoApplies", role.AutoApplies)
+	if len(role.Policies) > 100 {
+		encoder.AddInt("PoliciesNumber", len(role.Policies))
+	} else if len(role.Policies) > 0 {
+		_ = encoder.AddReflected("Policies", role.Policies)
+	}
 	return nil
 }
 
@@ -63,10 +67,22 @@ func (user *User) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddString("GroupPath", user.GroupPath)
 	encoder.AddString("GroupLabel", user.GroupLabel)
 	encoder.AddBool("IsGroup", user.IsGroup)
-	encoder.AddReflected("Attributes", user.Attributes)
+	if len(user.Attributes) > 100 {
+		encoder.AddInt("AttributesNumber", len(user.Attributes))
+	} else if len(user.Attributes) > 0 {
+		_ = encoder.AddReflected("Attributes", user.Attributes)
+	}
 	encoder.AddBool("PoliciesContextEditable", user.PoliciesContextEditable)
-	encoder.AddReflected("Roles", user.Roles)
-	encoder.AddReflected("Policies", user.Policies)
+	if len(user.Roles) > 10 {
+		encoder.AddInt("RolesNumber", len(user.Roles))
+	} else if len(user.Roles) > 0 {
+		_ = encoder.AddReflected("Roles", user.Roles)
+	}
+	if len(user.Policies) > 100 {
+		encoder.AddInt("PoliciesNumber", len(user.Policies))
+	} else if len(user.Policies) > 0 {
+		_ = encoder.AddReflected("Policies", user.Policies)
+	}
 	return nil
 }
 
@@ -76,7 +92,7 @@ func (user *User) Zap() zapcore.Field { return zap.Object(common.KeyUser, user) 
 // ZapUuid simply calls zap.String() with UserUuid standard key and this user uuid
 func (user *User) ZapUuid() zapcore.Field { return zap.String(common.KeyUserUuid, user.GetUuid()) }
 
-// ZapUuid simply calls zap.String() with Login standard key and this user login
+// ZapLogin simply calls zap.String() with Login standard key and this user login
 func (user *User) ZapLogin() zapcore.Field { return zap.String(common.KeyUsername, user.GetLogin()) }
 
 /*
@@ -90,7 +106,11 @@ func (pg *PolicyGroup) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddString("Description", pg.Description)
 	encoder.AddString("OwnerUuid", pg.OwnerUuid)
 	encoder.AddString("ResourceGroup", pg.ResourceGroup.String())
-	encoder.AddReflected("Policies", pg.Policies)
+	if len(pg.Policies) > 100 {
+		encoder.AddInt("PoliciesNumber", len(pg.Policies))
+	} else if len(pg.Policies) > 0 {
+		_ = encoder.AddReflected("Policies", pg.Policies)
+	}
 	encoder.AddTime("LastUpdated", time.Unix(int64(pg.LastUpdated), 0))
 	return nil
 }
@@ -155,13 +175,21 @@ func (workspace *Workspace) MarshalLogObject(encoder zapcore.ObjectEncoder) erro
 	encoder.AddTime("LastUpdated", time.Unix(int64(workspace.LastUpdated), 0))
 	encoder.AddString("Attributes", workspace.Attributes)
 	encoder.AddBool("PoliciesContextEditable", workspace.PoliciesContextEditable)
-	if len(workspace.RootUUIDs) > 0 {
-		encoder.AddReflected("RootUUIDs", workspace.RootUUIDs)
+	if len(workspace.RootUUIDs) > 100 {
+		encoder.AddInt("RootUUIDsNumber", len(workspace.RootUUIDs))
+	} else if len(workspace.RootUUIDs) > 0 {
+		_ = encoder.AddReflected("RootUUIDs", workspace.RootUUIDs)
 	}
-	if len(workspace.RootNodes) > 0 {
-		encoder.AddReflected("RootNodes", workspace.RootNodes)
+	if len(workspace.RootNodes) > 20 {
+		encoder.AddInt("RootNodesNumbers", len(workspace.RootNodes))
+	} else if len(workspace.RootNodes) > 0 {
+		_ = encoder.AddReflected("RootNodes", workspace.RootNodes)
 	}
-	encoder.AddReflected("Policies", workspace.Policies)
+	if len(workspace.Policies) > 100 {
+		encoder.AddInt("PoliciesNumber", len(workspace.Policies))
+	} else if len(workspace.Policies) > 0 {
+		_ = encoder.AddReflected("Policies", workspace.Policies)
+	}
 	return nil
 }
 
