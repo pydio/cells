@@ -388,9 +388,7 @@ func (c *Client) listAllObjects(ctx context.Context, bucketName string, prefix s
 			// Get list of objects a maximum of 1000 per request.
 			result, err := c.Oc.ListObjects(ctx, bucketName, prefix, continuationToken, delimiter)
 			if err != nil {
-				objectStatCh <- models.ObjectInfo{
-					Err: err,
-				}
+				objectStatCh <- models.ObjectInfo{Err: err}
 				return
 			}
 
@@ -403,6 +401,7 @@ func (c *Client) listAllObjects(ctx context.Context, bucketName string, prefix s
 				case objectStatCh <- object:
 				// If receives done from the caller, return here.
 				case <-ctx.Done():
+					objectStatCh <- models.ObjectInfo{Err: ctx.Err()}
 					return
 				}
 			}
@@ -415,6 +414,7 @@ func (c *Client) listAllObjects(ctx context.Context, bucketName string, prefix s
 				case objectStatCh <- models.ObjectInfo{Key: obj.Prefix}:
 				// If receives done from the caller, return here.
 				case <-ctx.Done():
+					objectStatCh <- models.ObjectInfo{Err: ctx.Err()}
 					return
 				}
 			}
