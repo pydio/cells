@@ -45,7 +45,7 @@ let RolesDashboard = createReactClass({
         const {showTechnical} = this.state;
         this.setState({loading: true});
         Pydio.startLoading();
-        PydioApi.getRestClient().getIdmApi().listRoles(showTechnical, 0, 1000).then(roles => {
+        PydioApi.getRestClient().getIdmApi().listRoles(showTechnical, 0, -1).then(roles => {
             Pydio.endLoading();
             this.setState({roles: roles, loading: false});
         }).catch(e => {
