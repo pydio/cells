@@ -34,7 +34,7 @@ import (
 
 func TestUser_FlattenedFrontValues(t *testing.T) {
 	Convey("Test Flattened ACLs", t, func() {
-		acl := &permissions.AccessList{}
+		acl := permissions.NewAccessList()
 
 		acl.AppendRoles(
 			&idm.Role{Uuid: "user_role", GroupRole: false, UserRole: true},
