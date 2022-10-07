@@ -1,13 +1,14 @@
-# Changes between v3.0.6 and v3.0.7
+# Changes between v3.0.7 and v3.0.9
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v3.0.6...v3.0.7)
+[See Full Changelog](https://github.com/pydio/cells/compare/v3.0.7...v3.0.9)
 
-- [#4ce2ecf](https://github.com/pydio/cells/commit/4ce2ecf885d74b793b373e9b683741521c08ee83): Fix typo for tls_key_file (tls_cert_key)
-- [#491af7d](https://github.com/pydio/cells/commit/491af7df3111d61a91e0297a2452c2b2286b8800): Fix to the vault
-- [#1716c6a](https://github.com/pydio/cells/commit/1716c6a4b68bf3470d5eb17115aac08605166ff7): Do not delete old configs before saving
-- [#7190c3e](https://github.com/pydio/cells/commit/7190c3ed0bfce2ef506ae5123162908e6f90dc07): Log errors in gateway.grpc streams
-- [#87d3672](https://github.com/pydio/cells/commit/87d36725ecd4c99410e85c39ff53096167b976b9): Fix panic on s3 cli configuration
-- [#6bf311a](https://github.com/pydio/cells/commit/6bf311ad287c8e74561c3412a1e84a8be344d4f4): Unique transport in cells endpoint
-- [#56346cc](https://github.com/pydio/cells/commit/56346cc112722a58108b6c836748912ddd7a5d55): Fix version location type, as unknown type can lead to trash data on the file system.
-- [#e2700df](https://github.com/pydio/cells/commit/e2700df3857e9a752457512330ec52307d7b5f02): Fix StreamChanges not correctly closed
-- [#6bdcadb](https://github.com/pydio/cells/commit/6bdcadba03f0386d6f311d0928f93c17a0d6910a): Next development cycle
+- [#139a692](https://github.com/pydio/cells/commit/139a692dd48d79775f6547217d9f4993401650a8): Do not update CompositeDialog node state
+- [#a7d0c28](https://github.com/pydio/cells/commit/a7d0c282d5a55a42f502c4e5481cce10f8aedef1): CompositeCard: avoid error if node is null
+- [#32bbd57](https://github.com/pydio/cells/commit/32bbd5776b49be15c4cf02ea6b238d82530a721c): Fix edge-cases on move from flat to struct
+- [#14c638a](https://github.com/pydio/cells/commit/14c638a79b8111dce52b50681ca7c8888cce5e3c): Fix incorrect root node handling in specific cases.
+- [#828d519](https://github.com/pydio/cells/commit/828d5190d6a1211344eece09126dce81d109ddd9): Restrict "roleRequireReload" usage to the marshalled claims (regression for users with too many roles attached).
+- [#852b721](https://github.com/pydio/cells/commit/852b72183613f716ff3ae72e9342676ad0a433bb): Read CELLS_BROKER_TRYPUB value from env
+- [#2249f8e](https://github.com/pydio/cells/commit/2249f8e653d6f487e677fed2723a6f8993abb419): Add a flag to enable TryPub instead of Pub in the broker.
+- [#6c98be2](https://github.com/pydio/cells/commit/6c98be2a4f77526d1e27fa61a4847576b6cd4f28): Backport MetaFilter to SQL
+- [#a038525](https://github.com/pydio/cells/commit/a0385258e9de10fdad89b308f152d88d8bba8111): Try to avoid mem pubsub locking
+- [#f007782](https://github.com/pydio/cells/commit/f007782ac79d8d179b1a9f6f797e24de1f2c5dad): Next development cycle
