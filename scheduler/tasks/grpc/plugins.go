@@ -24,9 +24,11 @@ package grpc
 import (
 	"context"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/jobs/bleveimpl"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -49,12 +51,19 @@ func init() {
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 				jobs.RegisterTaskServiceEnhancedServer(server, new(Handler))
 				multiplexer := tasks.NewSubscriber(c)
-				multiplexer.Init()
+				var me error
 				go func() {
+					if er := multiplexer.Init(c); er != nil {
+						log.Logger(c).Error("Could not properly start tasks multiplexer: "+er.Error(), zap.Error(er))
+						me = er
+						return
+					}
+					// Else wait for c.Done()
 					<-c.Done()
 					multiplexer.Stop()
 				}()
-				return nil
+				// Eventually return me if it was fast enough
+				return me
 			}),
 		)
 	})

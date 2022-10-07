@@ -128,7 +128,7 @@ func (t *Task) Queue(queue chan Runnable) {
 		}
 	}()
 	r := RootRunnable(t.context, t)
-	logStartMessageFromEvent(r.Context, t, t.event)
+	logStartMessageFromEvent(r.Context, t.event)
 	go r.Dispatch(r.ActionPath, createMessageFromEvent(t.event), t.Actions, queue)
 }
 

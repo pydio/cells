@@ -144,38 +144,34 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 }
 
 // Init subscriber with current list of jobs from Jobs service
-func (s *Subscriber) Init() {
+func (s *Subscriber) Init(ctx context.Context) error {
 
-	go func() error {
-		// Load Jobs Definitions
-		jobClients := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(s.rootCtx, common.ServiceJobs))
-		streamer, e := jobClients.ListJobs(s.rootCtx, &jobs.ListJobsRequest{})
-		if e != nil {
-			return e
+	// Load Jobs Definitions
+	jobClients := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(s.rootCtx, common.ServiceJobs))
+	streamer, e := jobClients.ListJobs(ctx, &jobs.ListJobsRequest{})
+	if e != nil {
+		return e
+	}
+	s.Lock()
+	s.dispatcherLock.Lock()
+	defer s.Unlock()
+	defer s.dispatcherLock.Unlock()
+	for {
+		resp, er := streamer.Recv()
+		if er != nil {
+			break
 		}
-		defer streamer.CloseSend()
-
-		s.Lock()
-		s.dispatcherLock.Lock()
-		defer s.Unlock()
-		defer s.dispatcherLock.Unlock()
-		for {
-			resp, er := streamer.Recv()
-			if er != nil {
-				break
-			}
-			if resp == nil {
-				continue
-			}
-			if resp.Job.Inactive {
-				continue
-			}
-			s.definitions[resp.Job.ID] = resp.Job
-			s.getDispatcherForJob(resp.Job, false)
+		if resp == nil {
+			continue
 		}
+		if resp.Job.Inactive {
+			continue
+		}
+		s.definitions[resp.Job.ID] = resp.Job
+		s.getDispatcherForJob(resp.Job, false)
+	}
 
-		return nil
-	}()
+	return nil
 
 }
 
@@ -320,6 +316,8 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 			return nil
 		}
 		j = resp.Job
+		// Shall we prepare dispatcher  ?
+		// s.getDispatcherForJob(j, false)
 	}
 	if j.Inactive {
 		return nil
@@ -529,8 +527,8 @@ func createMessageFromEvent(event interface{}) *jobs.ActionMessage {
 	initialInput := jobs.ActionMessage{}
 
 	if nodeChange, ok := event.(*tree.NodeChangeEvent); ok {
-		any, _ := anypb.New(nodeChange)
-		initialInput.Event = any
+		ap, _ := anypb.New(nodeChange)
+		initialInput.Event = ap
 		if nodeChange.Target != nil {
 
 			initialInput = initialInput.WithNode(nodeChange.Target)
@@ -543,13 +541,13 @@ func createMessageFromEvent(event interface{}) *jobs.ActionMessage {
 
 	} else if triggerEvent, ok := event.(*jobs.JobTriggerEvent); ok {
 
-		any, _ := anypb.New(triggerEvent)
-		initialInput.Event = any
+		ap, _ := anypb.New(triggerEvent)
+		initialInput.Event = ap
 
 	} else if idmEvent, ok := event.(*idm.ChangeEvent); ok {
 
-		any, _ := anypb.New(idmEvent)
-		initialInput.Event = any
+		ap, _ := anypb.New(idmEvent)
+		initialInput.Event = ap
 		if idmEvent.User != nil {
 			initialInput = initialInput.WithUser(idmEvent.User)
 		}
@@ -568,7 +566,7 @@ func createMessageFromEvent(event interface{}) *jobs.ActionMessage {
 	return &initialInput
 }
 
-func logStartMessageFromEvent(ctx context.Context, task *Task, event interface{}) {
+func logStartMessageFromEvent(ctx context.Context, event interface{}) {
 	var msg string
 	if triggerEvent, ok := event.(*jobs.JobTriggerEvent); ok {
 		if triggerEvent.Schedule == nil {
