@@ -133,6 +133,7 @@ func (diff *TreeDiff) Compute(ctx context.Context, root string, lock chan bool, 
 	}
 	wg.Wait()
 	if len(errs) > 0 {
+		diff.Status(model.NewProcessingStatus("[TreeDiff] One side received an error").SetError(errs[0]))
 		return errs[0]
 	}
 

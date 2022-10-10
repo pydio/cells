@@ -135,7 +135,7 @@ func (m *mongoImpl) DeleteJob(jobId string) error {
 	return nil
 }
 
-func (m *mongoImpl) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *jobs.Job, chan bool, error) {
+func (m *mongoImpl) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *jobs.Job, error) {
 	c := context.Background()
 	filter := bson.D{}
 	if owner != "" {
@@ -151,11 +151,10 @@ func (m *mongoImpl) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 	}
 	cursor, er := m.Collection(collJobs).Find(c, filter)
 	if er != nil {
-		return nil, nil, er
+		return nil, er
 	}
 	cj := make(chan *jobs.Job)
-	cd := make(chan bool, 1)
-
+	
 	var offset, limit int64
 	if len(taskCursor) > 0 {
 		offset = int64(taskCursor[0])
@@ -165,7 +164,7 @@ func (m *mongoImpl) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 	}
 
 	go func() {
-		defer close(cd)
+		defer close(cj)
 		for cursor.Next(context.Background()) {
 			mj := &mongoJob{}
 			if er := cursor.Decode(&mj); er != nil {
@@ -185,7 +184,7 @@ func (m *mongoImpl) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 		}
 	}()
 
-	return cj, cd, nil
+	return cj, nil
 
 }
 

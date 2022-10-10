@@ -261,27 +261,37 @@ func TestDAO_ListJobs(t *testing.T) {
 func listAndCount(db DAO, owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, taskCursor ...int32) (map[string]*jobs.Job, int, error) {
 
 	resCount := 0
-	res, done, err := db.ListJobs(owner, eventsOnly, timersOnly, withTasks, []string{}, taskCursor...)
+	res, err := db.ListJobs(owner, eventsOnly, timersOnly, withTasks, []string{}, taskCursor...)
 	So(err, ShouldBeNil)
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	list := make(map[string]*jobs.Job)
-	go func() {
-		defer wg.Done()
-		for {
-			select {
-			case job := <-res:
-				if job != nil {
-					log.Println(job)
-					list[job.ID] = job
-					resCount++
-				}
-			case <-done:
-				return
-			}
+	for job := range res {
+		if job != nil {
+			log.Println(job)
+			list[job.ID] = job
+			resCount++
 		}
-	}()
-	wg.Wait()
+	}
+	/*
+		go func() {
+			defer wg.Done()
+			for {
+				select {
+				case job := <-res:
+					if job != nil {
+						log.Println(job)
+						list[job.ID] = job
+						resCount++
+					}
+				case <-done:
+					close(res)
+					return
+				}
+			}
+		}()
+		wg.Wait()
+	*/
 
 	return list, resCount, err
 }

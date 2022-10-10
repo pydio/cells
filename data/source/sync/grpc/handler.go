@@ -577,8 +577,8 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 	}
 
 	// Copy context
-	bg := context.Background()
-	bg = metadata.WithUserNameMetadata(bg, common.PydioSystemUsername)
+	//bg := context.Background()
+	bg := metadata.WithUserNameMetadata(c, common.PydioSystemUsername)
 	bg = servicecontext.WithServiceName(bg, servicecontext.GetServiceName(c))
 	if s, o := servicecontext.SpanFromContext(c); o {
 		bg = servicecontext.WithSpan(bg, s)

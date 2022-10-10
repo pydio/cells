@@ -5,13 +5,15 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/r3labs/diff/v3"
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/r3labs/diff/v3"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
@@ -69,30 +71,35 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		if u.Query().Get("keyring") != "true" {
 			return nil, err
 		}
+		if runtime.GOOS == "windows" {
+			_ = os.Chmod(u.Path, 0600)
+		}
 		b, err := filex.Read(u.Path)
 		if err != nil {
-			return nil, fmt.Errorf("could not start keyring store %v", err)
+			return nil, fmt.Errorf("could not read keyring store %v", err)
 		}
 		fmt.Println("[INFO] Upgrading Legacy Keyring Format")
 		mem := memory.New(configx.WithJSON())
 		keyring := crypto.NewConfigKeyring(mem)
 		data := base64.StdEncoding.EncodeToString(b)
 		if err := keyring.Set(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey, data); err != nil {
-			return nil, fmt.Errorf("could not start keyring store %v", err)
+			return nil, fmt.Errorf("could not set keyring store %v", err)
 		}
 
 		// Keyring Config is likely the old style - switching it
 		if err := os.Chmod(u.Path, 0600); err != nil {
-			return nil, fmt.Errorf("could not read keyring path %v", err)
+			return nil, fmt.Errorf("could not chmod keyring path to 0600 %v", err)
 		}
 
 		if err := filex.Save(u.Path, mem.Get().Bytes()); err != nil {
-			return nil, fmt.Errorf("could not start keyring store %v", err)
+			return nil, fmt.Errorf("could not save keyring store %v", err)
 		}
 
 		// Keyring Config is likely the old style - switching it
-		if err := os.Chmod(u.Path, 0400); err != nil {
-			return nil, fmt.Errorf("could not read keyring path %v", err)
+		if runtime.GOOS != "windows" {
+			if err := os.Chmod(u.Path, 0400); err != nil {
+				return nil, fmt.Errorf("could not chmod keyring path to 0400 %v", err)
+			}
 		}
 		return New(u.Path, opts...)
 	}

@@ -130,40 +130,26 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 	} else if request.CleanableJobs {
 
 		log.Logger(ctx).Debug("Delete jobs with AutoClean that are finished")
-		res, done, err := j.store.ListJobs("", false, false, proto.TaskStatus_Finished, []string{})
-		defer close(res)
+		res, err := j.store.ListJobs("", false, false, proto.TaskStatus_Finished, []string{})
 		if err != nil {
 			return nil, err
 		}
 		var toDelete []string
 		var deleted int32
-	loop:
-		for {
-			select {
-			case <-done:
-				break loop
-			case job := <-res:
-				if job.AutoStart && job.AutoClean {
-					toDelete = append(toDelete, job.ID)
-				}
+		for job := range res {
+			if job.AutoStart && job.AutoClean {
+				toDelete = append(toDelete, job.ID)
 			}
 		}
 
 		log.Logger(ctx).Debug("Delete jobs with AutoClean that are errored")
-		res, done, err = j.store.ListJobs("", false, false, proto.TaskStatus_Error, []string{})
-		defer close(res)
+		res, err = j.store.ListJobs("", false, false, proto.TaskStatus_Error, []string{})
 		if err != nil {
 			return nil, err
 		}
-	loop2:
-		for {
-			select {
-			case <-done:
-				break loop2
-			case job := <-res:
-				if job.AutoStart && job.AutoClean {
-					toDelete = append(toDelete, job.ID)
-				}
+		for job := range res {
+			if job.AutoStart && job.AutoClean {
+				toDelete = append(toDelete, job.ID)
 			}
 		}
 
@@ -191,22 +177,19 @@ func (j *JobsHandler) ListJobs(request *proto.ListJobsRequest, streamer proto.Jo
 	ctx := streamer.Context()
 	log.Logger(ctx).Debug("Scheduler ListJobs", zap.Any("req", request))
 
-	res, done, err := j.store.ListJobs(request.Owner, request.EventsOnly, request.TimersOnly, request.LoadTasks, request.JobIDs, request.TasksOffset, request.TasksLimit)
-	defer close(res)
+	res, err := j.store.ListJobs(request.Owner, request.EventsOnly, request.TimersOnly, request.LoadTasks, request.JobIDs, request.TasksOffset, request.TasksLimit)
 	if err != nil {
 		return err
 	}
 
-	for {
-		select {
-		case <-done:
-			return nil
-		case j := <-res:
-			if e := streamer.Send(&proto.ListJobsResponse{Job: j}); e != nil {
-				return e
-			}
+	for job := range res {
+		if e := streamer.Send(&proto.ListJobsResponse{Job: job}); e != nil {
+			return e
 		}
 	}
+
+	return nil
+	
 }
 
 //////////////////

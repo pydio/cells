@@ -28,7 +28,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"strings"
 
 	"github.com/pydio/cells/v4/common"
@@ -415,9 +414,9 @@ func (b *EncryptedBlock) Write(writer io.Writer) (int, error) {
 	}
 	totalWritten += n
 
-	dataLine := fmt.Sprintf("Data hash 	   : %s\n", base64.StdEncoding.EncodeToString(Md5(b.Payload)))
-	countLine := fmt.Sprintf("Total written : %d bytes\n", totalWritten)
-	log.Printf("\n\n%s\n%s%s\n\n", b.Header.String(), dataLine, countLine)
+	//dataLine := fmt.Sprintf("Data hash 	   : %s\n", base64.StdEncoding.EncodeToString(Md5(b.Payload)))
+	//countLine := fmt.Sprintf("Total written : %d bytes\n", totalWritten)
+	//log.Printf("\n\n%s\n%s%s\n\n", b.Header.String(), dataLine, countLine)
 
 	return totalWritten, err
 }
@@ -440,9 +439,9 @@ func (b *EncryptedBlock) Read(reader io.Reader) (int, error) {
 
 	totalRead += n
 
-	dataLine := fmt.Sprintf("Data hash 	   : %s\n", base64.StdEncoding.EncodeToString(Md5(b.Payload)))
-	countLine := fmt.Sprintf("Total read    : %d bytes\n", totalRead)
-	log.Printf("%s%s%s", b.Header.String(), dataLine, countLine)
+	//dataLine := fmt.Sprintf("Data hash 	   : %s\n", base64.StdEncoding.EncodeToString(Md5(b.Payload)))
+	///countLine := fmt.Sprintf("Total read    : %d bytes\n", totalRead)
+	//log.Printf("%s%s%s", b.Header.String(), dataLine, countLine)
 
 	return totalRead, nil
 }

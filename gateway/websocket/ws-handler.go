@@ -178,8 +178,9 @@ func (w *WebsocketHandler) HandleNodeChangeEvent(ctx context.Context, event *tre
 	switch event.Type {
 	case tree.NodeChangeEvent_UPDATE_META, tree.NodeChangeEvent_CREATE, tree.NodeChangeEvent_UPDATE_CONTENT:
 		if event.Target != nil {
-			batcher := w.getBatcherForUuid(event.Target.Uuid)
-			batcher.in <- evi
+			if er := w.getBatcherForUuid(event.Target.Uuid).EnqueueWithRecover(evi); er != nil {
+				w.dispatcher <- evi
+			}
 		} else {
 			w.dispatcher <- evi
 		}
