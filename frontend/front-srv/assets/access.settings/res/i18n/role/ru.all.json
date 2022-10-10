@@ -188,6 +188,9 @@
   "role.autoapply.description": {
     "other": "Роль всегда применяется к пользователям с этим профилем."
   },
+  "role.override.label": {
+    "other": "Always Override"
+  },
   "role.override.description": {
     "other": "Роль всегда применяется последней после других ролей, за исключением роли пользователя, которая все равно будет преобладать."
   }
