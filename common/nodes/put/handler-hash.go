@@ -136,8 +136,12 @@ func (m *HashHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.
 			// Move: update initial node meta
 			nodes.MustCoreMetaSet(ctx, from.Uuid, common.MetaNamespaceHash, srcHash)
 		} else {
-			// Copy: update new node meta
-			nodes.MustCoreMetaSet(ctx, to.Uuid, common.MetaNamespaceHash, srcHash)
+			// Copy: update new node meta - Get uuid from node or from request.Metadata
+			tu := to.Uuid
+			if mm, ok := requestData.Metadata[common.XAmzMetaNodeUuid]; ok && mm != "" {
+				tu = mm
+			}
+			nodes.MustCoreMetaSet(ctx, tu, common.MetaNamespaceHash, srcHash)
 		}
 	}
 

@@ -135,12 +135,12 @@ func (s *BoltStore) DeleteJob(jobID string) error {
 
 }
 
-func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *jobs.Job, chan bool, error) {
+func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *jobs.Job, error) {
 
 	res := make(chan *jobs.Job)
-	done := make(chan bool)
 
 	go func() {
+		defer close(res)
 
 		s.DB().View(func(tx *bolt.Tx) error {
 			bucket := tx.Bucket(jobsBucketKey)
@@ -188,12 +188,9 @@ func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 			}
 			return nil
 		})
-
-		done <- true
-		close(done)
 	}()
 
-	return res, done, nil
+	return res, nil
 }
 
 // PutTasks batch updates DB with tasks organized by JobID and TaskID

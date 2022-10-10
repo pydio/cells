@@ -38,7 +38,7 @@ type DAO interface {
 	PutJob(job *jobs.Job) error
 	GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, error)
 	DeleteJob(jobId string) error
-	ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *jobs.Job, chan bool, error)
+	ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *jobs.Job, error)
 
 	PutTask(task *jobs.Task) error
 	PutTasks(task map[string]map[string]*jobs.Task) error
@@ -100,29 +100,23 @@ func Migrate(f, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[str
 	} else {
 		return out, e
 	}
-	jj, done, er := from.ListJobs("", false, false, jobs.TaskStatus_Any, []string{})
+	jj, er := from.ListJobs("", false, false, jobs.TaskStatus_Any, []string{})
 	if er != nil {
 		return nil, er
 	}
-loop:
-	for {
-		select {
-		case <-done:
-			break loop
-		case j := <-jj:
-			tasks := j.Tasks
-			out["Jobs"]++
-			out["Tasks"] += len(tasks)
-			if dryRun {
-				break
-			}
-			if e := to.PutJob(j); e != nil {
-				return out, e
-			}
-			for _, ta := range tasks {
-				if er := to.PutTask(ta); er != nil {
-					return out, er
-				}
+	for j := range jj {
+		tasks := j.Tasks
+		out["Jobs"]++
+		out["Tasks"] += len(tasks)
+		if dryRun {
+			break
+		}
+		if e := to.PutJob(j); e != nil {
+			return out, e
+		}
+		for _, ta := range tasks {
+			if er := to.PutTask(ta); er != nil {
+				return out, er
 			}
 		}
 	}
