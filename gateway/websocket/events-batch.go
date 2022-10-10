@@ -22,6 +22,7 @@ package websocket
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -67,6 +68,16 @@ func NewEventsBatcher(timeout time.Duration, uuid string, out chan *NodeChangeEv
 	}()
 
 	return b
+}
+
+func (n *NodeEventsBatcher) EnqueueWithRecover(ev *NodeChangeEventWithInfo) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("could not enqueue (recovered): %s", r)
+		}
+	}()
+	n.in <- ev
+	return nil
 }
 
 // Flush applies the events buffered as one
