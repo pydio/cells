@@ -63,31 +63,31 @@
     "other": "Uma fonte de dados padrão para armazenar dados pessoais de usuários e de células é criada na inicialização. Você pode criar outras fontes de dados mais tarde."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "Configurar uma conexão com MongoDB"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "Isto é melhor para escalabilidade e necessário para a implantação de cluster. Se você não tiver um Mongo DB pronto, isso pode ser feito mais tarde."
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "Host do servidor"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "Porta do servidor"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "Nome do banco de dados"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "Usuário"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "Senha"
   },
   "advanced.mongo.authSource": {
-    "other": "Auth DB"
+    "other": "BD de autenticação"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "Teste de conexão"
   },
   "license.stepLabel": {
     "other": "Licença Enterprise"
@@ -117,7 +117,7 @@
     "other": "Aplicar instalação"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "Por favor, seja paciente enquanto as células do Pydio estão sendo instaladas..."
   },
   "apply.success": {
     "other": "A instalação foi bem sucedida e os serviços estão iniciando, este instalador recarregará a página quando os serviços forem iniciados."

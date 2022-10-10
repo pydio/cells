@@ -188,6 +188,9 @@
   "role.autoapply.description": {
     "other": "Die Rolle wird immer auf Benutzer mit diesem Profil(n) angewendet."
   },
+  "role.override.label": {
+    "other": "Immer überschreiben"
+  },
   "role.override.description": {
     "other": "Die Rolle wird immer nach anderen Rollen angewandt, mit Ausnahme der Benutzerrolle, die immer noch vorherrscht."
   }

@@ -188,6 +188,9 @@
   "role.autoapply.description": {
     "other": "角色始终适用于此配置文件。"
   },
+  "role.override.label": {
+    "other": "Always Override"
+  },
   "role.override.description": {
     "other": "角色总是在其他角色之后最后应用，除了仍然占主导地位的用户角色。"
   }

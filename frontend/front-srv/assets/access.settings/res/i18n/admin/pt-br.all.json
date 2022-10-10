@@ -279,16 +279,16 @@
     "other": "Amazon S3"
   },
   "ds.editor.storage.s3.endpoint.custom": {
-    "other": "Other S3-Compatible Storage"
+    "other": "Outro armazenamento S3-Compatível"
   },
   "ds.editor.storage.s3.endpoint.minio": {
-    "other": "Minio Server"
+    "other": "Servidor Minio"
   },
   "ds.editor.storage.s3.endpoint": {
     "other": "URL do Endpoint Personalizado"
   },
   "ds.editor.storage.s3.endpoint.hint": {
-    "other": "include http(s)://"
+    "other": "incluir http(s)://"
   },
   "ds.editor.storage.s3.region": {
     "other": "S3 Região Api"
@@ -306,10 +306,10 @@
     "other": "Recarregar repositorios"
   },
   "ds.editor.storage.buckets.create": {
-    "other": "Create Bucket"
+    "other": "Criar Bucket"
   },
   "ds.editor.storage.buckets.create.hint": {
-    "other": "Bucket name"
+    "other": "Nome do Bucket"
   },
   "ds.editor.storage.buckets.regexp": {
     "other": "Use expressão regular"
@@ -336,16 +336,16 @@
     "other": "Tags de objetos"
   },
   "ds.editor.storage.s3.legend.bucketPathPrefix": {
-    "other": "Use a path prefix inside the bucket (will create a virtual folder to store objects)"
+    "other": "Use um prefixo de caminho dentro do bucket (criará uma pasta virtual para armazenar objetos)"
   },
   "ds.editor.storage.s3.bucketPathPrefix": {
-    "other": "Path prefix"
+    "other": "Prefixo do caminho"
   },
   "ds.editor.storage.s3.legend.storageClass": {
-    "other": "Custom Storage Class (leave empty to use STANDARD). Amazon S3 supports the following values: REDUCED_REDUNDANCY, STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, DEEP_ARCHIVE, OUTPOSTS, GLACIER_IR. Beware that using GLACIER or equivalent will make the datasource write-only, as objects have to be manually restored before being available for download."
+    "other": "Classe de armazenamento personalizado (deixe em branco para usar o STANDARD). O Amazon S3 suporta os seguintes valores: REDUCED_REDUNDANCY, STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIER, GLACIER, DEEP_ARCHIVE, OUTPOSTS, GLACIER_IR. Cuidado com o fato de que usar GLACIER ou equivalente fará somente a escrita do código-fonte, já que os objetos têm de ser restaurados manualmente antes de estarem disponíveis para download."
   },
   "ds.editor.storage.s3.storageClass": {
-    "other": "Storage Class"
+    "other": "Classe de Armazenamento"
   },
   "ds.editor.title": {
     "other": "Fontes de dados %s"
@@ -1653,7 +1653,7 @@
     "other": "Nome técnico usado por exemplo nas URLs, calculado automaticamente, mas você pode personalizá-lo."
   },
   "services.text-filter.hint": {
-    "other": "Filter..."
+    "other": "Filtrar..."
   },
   "services.filter.nofilter": {
     "other": "Todos os serviços"
@@ -1764,34 +1764,34 @@
     "other": "Flows em execução em segundo plano periodicamente ou desencadeados por eventos"
   },
   "scheduler.system.title": {
-    "other": "System Flows"
+    "other": "Fluxos do sistema"
   },
   "scheduler.system.legend": {
-    "other": "These Flows are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
+    "other": "Estes fluxos são registrados por padrão dentro da aplicação. Eles geralmente são encarregados de extrair informações do nó em segundo plano, ou fazer algumas operações de limpeza."
   },
   "scheduler.inactives.title": {
-    "other": "Inactive Flows"
+    "other": "Fluxos Inativos"
   },
   "scheduler.inactives.legend": {
-    "other": "These Flows are inactive, click on a Flow to enable it."
+    "other": "Estes fluxos estão inativos, clique em um fluxo para habilitá-lo."
   },
   "scheduler.system.empty": {
-    "other": "No Flows scheduled."
+    "other": "Nenhum fluxo programado."
   },
   "scheduler.users.title": {
-    "other": "Users Flows"
+    "other": "Fluxo de Usuários"
   },
   "scheduler.users.legend": {
-    "other": "These Flows are dynamically created and trigged by user actions."
+    "other": "Esses fluxos são criados dinamicamente e ativados por ações dos usuários."
   },
   "scheduler.users.empty": {
-    "other": "No Flows launched by users"
+    "other": "Nenhum fluxo lançado por usuários"
   },
   "scheduler.cellsflows.cta.button": {
-    "other": "+ Custom Flow"
+    "other": "+ Fluxo personalizado"
   },
   "scheduler.cellsflows.cta.text": {
-    "other": "Do you need to create your own Flow? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
+    "other": "Você precisa criar seu próprio fluxo? Descubra como os fluxos de células tornam fácil automatizar suas tarefas manuais repetitivas em células."
   },
   "scheduler.cellsflows.dialog.button": {
     "other": "Saiba mais"
@@ -1818,10 +1818,10 @@
     "other": "Apagar"
   },
   "scheduler.job.delete.confirm": {
-    "other": "Are you sure you want to delete this Flow? This operation cannot be reverted!"
+    "other": "Tem certeza que deseja excluir este fluxo? Esta operação não pode ser revertida!"
   },
   "scheduler.tasks.delete.confirm": {
-    "other": "Are you sure you want to clear all tasks for this Flow?"
+    "other": "Tem certeza que deseja limpar todas as tarefas para este fluxo?"
   },
   "scheduler.trigger.create.node": {
     "other": "Criar Nó"
@@ -1890,13 +1890,13 @@
     "other": "Apagar"
   },
   "scheduler.task.action.enable": {
-    "other": "Enable Flow"
+    "other": "Habilitar Fluxo"
   },
   "scheduler.task.action.run": {
     "other": "Executar Agora"
   },
   "scheduler.task.action.disable": {
-    "other": "Disable Flow"
+    "other": "Desabilitar Fluxo"
   },
   "scheduler.task.id": {
     "other": "ID"
@@ -1974,7 +1974,7 @@
     "other": "A cada %1"
   },
   "scheduler.schedule.title": {
-    "other": "Flow Schedule"
+    "other": "Cronograma do Fluxo"
   },
   "scheduler.schedule.type": {
     "other": "Tipo de Agendamento"
@@ -2007,7 +2007,7 @@
     "other": "Período em minutos"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "Flow Parameters"
+    "other": "Parâmetos do Fluxo"
   },
   "scheduler.job-parameters.button": {
     "other": "Parametros"
