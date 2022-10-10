@@ -188,6 +188,9 @@
   "role.autoapply.description": {
     "other": "A função é sempre aplicada aos usuários com esse(s) perfil(s)."
   },
+  "role.override.label": {
+    "other": "Always Override"
+  },
   "role.override.description": {
     "other": "O papel é sempre aplicada depois de outros papéis, exceto para o papel do usuário que ainda prevalecerá."
   }

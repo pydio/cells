@@ -23,6 +23,12 @@
   "Jobs.Default.ArchiveJobs": {
     "other": "Automātisks izmaiņu arhivēšanas serviss"
   },
+  "Jobs.Default.CleanUserData": {
+    "other": "Clean or transfer user data on deletion"
+  },
+  "Jobs.Default.CleanOrphanFiles": {
+    "other": "Clean orphan files after 24h"
+  },
   "Jobs.User.Compress": {
     "other": "Kompresē atlasītos datus..."
   },

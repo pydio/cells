@@ -23,6 +23,12 @@
   "Jobs.Default.ArchiveJobs": {
     "other": "Automatic archiving of changes service"
   },
+  "Jobs.Default.CleanUserData": {
+    "other": "Clean or transfer user data on deletion"
+  },
+  "Jobs.Default.CleanOrphanFiles": {
+    "other": "Clean orphan files after 24h"
+  },
   "Jobs.User.Compress": {
     "other": "Compressing Selection..."
   },

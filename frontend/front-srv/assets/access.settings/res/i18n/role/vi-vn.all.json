@@ -188,6 +188,9 @@
   "role.autoapply.description": {
     "other": "Vai trò luôn được áp dụng cho người dùng có (các) hồ sơ này."
   },
+  "role.override.label": {
+    "other": "Always Override"
+  },
   "role.override.description": {
     "other": "Vai trò luôn được áp dụng sau các vai trò khác, ngoại trừ vai trò người dùng vẫn sẽ chiếm ưu thế."
   }
