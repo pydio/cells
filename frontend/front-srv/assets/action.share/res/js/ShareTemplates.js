@@ -193,19 +193,22 @@ let StandardLayout = createReactClass({
 
     render(){
 
+        const {showSearchForm, uniqueNode, skipDisplayToolbar, bgStyle, emptyUser, pydio, muiTheme} = this.props;
+
         const styles = {
             appBarStyle : {
                 zIndex: 1,
-                backgroundColor: this.props.muiTheme.palette.primary1Color,
+                backgroundColor: Color(muiTheme.palette.primary1Color).alpha(0.5).toString(),
                 display:'flex',
-                alignItems:'center'
+                alignItems:'center',
+                height: 64,
+                padding: '0 10px'
             },
             buttonsStyle : {
-                color: Color(this.props.muiTheme.appBar.textColor).alpha(0.8).toString()
+                color: Color(muiTheme.appBar.textColor).alpha(0.9).toString()
             }
         };
 
-        const {showSearchForm, uniqueNode, skipDisplayToolbar, bgStyle, emptyUser, pydio} = this.props;
 
         if(emptyUser){
             return <div className="vertical_fit vertical_layout" style={bgStyle}/>;
@@ -223,7 +226,7 @@ let StandardLayout = createReactClass({
         return (
             <div className="vertical_fit vertical_layout" style={bgStyle}>
                 <Paper zDepth={1} rounded={false} style={styles.appBarStyle}>
-                    <ConfigLogo pydio={this.props.pydio} style={{height:50}}/>
+                    <ConfigLogo pydio={this.props.pydio} style={{height:40}}/>
                     <div id="workspace_toolbar" style={{display:'flex', flex: 1, overflow:'hidden'}}>
                         <Breadcrumb {...this.props} rootStyle={{padding: '0 14px', height: 36, lineHeight: '36px', maxWidth:null}}/>
                     </div>
