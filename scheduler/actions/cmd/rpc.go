@@ -227,8 +227,11 @@ func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels,
 				marshaledResponses = append(marshaledResponses, string(marshaled))
 			}
 		}()
-		cStream.SendMsg(request)
-		cStream.CloseSend()
+		er := cStream.SendMsg(request)
+		if er != nil {
+			log.TasksLogger(ctx).Error("Failed calling SendMsg "+er.Error(), zap.String("serviceName", serviceName), zap.String("methodName", methodSendName), zap.Any("request", request))
+		}
+		_ = cStream.CloseSend()
 		<-done
 		jsonData := []byte("[" + strings.Join(marshaledResponses, ",") + "]")
 		output.AppendOutput(&jobs.ActionOutput{
