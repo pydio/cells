@@ -118,7 +118,7 @@ func getDefaultJobs() []*jobs.Job {
 	cleanUserDataJob := &jobs.Job{
 		ID:                "clean-user-data",
 		Owner:             common.PydioSystemUsername,
-		Label:             "Clean or transfer user data on deletion",
+		Label:             "Jobs.Default.CleanUserData",
 		Inactive:          false,
 		MaxConcurrency:    5,
 		TasksSilentUpdate: true,
@@ -147,7 +147,7 @@ func getDefaultJobs() []*jobs.Job {
 
 	cleanTemporaryOrphans := &jobs.Job{
 		ID:    "clean-orphans-nodes",
-		Label: "Clean orphan nodes after 24h",
+		Label: "Jobs.Default.CleanOrphanFiles",
 		Owner: common.PydioSystemUsername,
 		Schedule: &jobs.Schedule{
 			Iso8601Schedule: "R/2012-01-01T02:30:00.828Z/PT24H",

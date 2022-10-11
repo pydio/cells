@@ -165,33 +165,33 @@
     "other": "Todos os arquivos"
   },
   "file.temporary-etag.flag": {
-    "other": "Incomplete"
+    "other": "Incompleto"
   },
   "file.temporary-etag.tooltip": {
-    "other": "This file is being uploaded (or the upload has failed)."
+    "other": "Este arquivo está sendo carregado (ou o envio falhou)."
   },
   "mimegroup.byextension": {
-    "other": "By File Extension..."
+    "other": "Por extensão de arquivo..."
   },
   "mimegroup.word": {
-    "other": "Word documents"
+    "other": "Documentos do Word"
   },
   "mimegroup.spreadsheet": {
-    "other": "Spreadsheets"
+    "other": "Planilhas"
   },
   "mimegroup.presentation": {
-    "other": "Presentations"
+    "other": "Apresentações"
   },
   "mimegroup.pdf": {
     "other": "PDFs"
   },
   "mimegroup.image": {
-    "other": "Images"
+    "other": "Imagens"
   },
   "mimegroup.video": {
-    "other": "Videos"
+    "other": "Vídeos"
   },
   "mimegroup.audio": {
-    "other": "Audios"
+    "other": "Áudios"
   }
 }

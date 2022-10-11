@@ -240,12 +240,12 @@
     "other": "Nome do Arquivo"
   },
   "reco.bookmark": {
-    "other": "Bookmark"
+    "other": "Marcadores"
   },
   "reco.workspace": {
-    "other": "Workspace"
+    "other": "Espaço de trabalho"
   },
   "reco.cell": {
-    "other": "Cell"
+    "other": "Célula"
   }
 }
