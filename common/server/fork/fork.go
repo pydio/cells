@@ -22,6 +22,8 @@ package fork
 
 import (
 	"context"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"net/url"
 
 	"github.com/pydio/cells/v4/common/config"
@@ -81,6 +83,76 @@ func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, e error) {
 
 	go func() {
 		e = s.process.StartAndWait()
+
+		// TODO - move node registration from manager in here ?
+		defer func() {
+			reg := servicecontext.GetRegistry(s.ctx)
+
+			// Get process for command
+			var process registry.Node
+
+			processes, _ := reg.List(registry.WithType(pb.ItemType_NODE))
+			for _, p := range processes {
+				if p.Metadata()[runtime.NodeMetaPID] == s.process.GetPID() {
+					process = p.(registry.Node)
+				}
+			}
+
+			if process == nil {
+				return
+			}
+
+			var servers, services []string
+
+			// Clearing all items belonging to process
+			edges, _ := reg.List(registry.WithType(pb.ItemType_EDGE))
+
+			// Iterate first to retrieve all servers
+			for _, edge := range edges {
+				if edge.Name() != "Node" {
+					continue
+				}
+
+				e := edge.(registry.Edge)
+
+				vv := e.Vertices()
+				if vv[1] == process.ID() {
+					servers = append(servers, vv[0])
+				} else if vv[0] == process.ID() {
+					servers = append(servers, vv[1])
+				}
+			}
+
+			// Then all services
+			for _, edge := range edges {
+				e := edge.(registry.Edge)
+
+				vv := e.Vertices()
+				for _, server := range servers {
+					if vv[1] == server {
+						services = append(services, vv[0])
+					} else if vv[0] == server {
+						services = append(services, vv[1])
+					}
+				}
+			}
+
+			for _, service := range services {
+				node, _ := reg.Get(service, registry.WithType(pb.ItemType_SERVICE))
+				if node != nil {
+					reg.Deregister(node)
+				}
+			}
+
+			for _, server := range servers {
+				node, _ := reg.Get(server, registry.WithType(pb.ItemType_SERVER))
+				if node != nil {
+					reg.Deregister(node)
+				}
+			}
+
+			reg.Deregister(registry.Item(process))
+		}()
 	}()
 	ii = append(ii, util.CreateAddress(s.id+"-instance", nil))
 	return

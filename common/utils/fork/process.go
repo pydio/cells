@@ -3,6 +3,7 @@ package fork
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"os"
 	"os/exec"
 	"regexp"
@@ -79,6 +80,10 @@ func NewProcess(ctx context.Context, serviceNames []string, oo ...Option) *Proce
 	return p
 }
 
+func (p *Process) GetPID() string {
+	return fmt.Sprintf("%d", p.cmd.Process.Pid)
+}
+
 func (p *Process) Err() error {
 	return p.lastErr
 }
@@ -107,6 +112,7 @@ func (p *Process) StartAndWait(retry ...int) error {
 		p.o.watch("stop", p)
 		return err
 	}
+
 	if err := cmd.Wait(); err != nil {
 		p.lastErr = err
 		p.o.watch("stop", p)
@@ -121,6 +127,7 @@ func (p *Process) StartAndWait(retry ...int) error {
 				return p.StartAndWait(r + 1)
 			}
 		}
+
 		return err
 	}
 

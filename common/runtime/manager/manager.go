@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"go.uber.org/zap"
 	"os"
 	"strconv"
@@ -38,7 +39,6 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
@@ -102,6 +102,7 @@ func NewManager(reg registry.Registry, srcUrl string, namespace string, logger l
 		m.root = current
 	} else {
 		node := util.CreateNode()
+
 		if er := reg.Register(registry.Item(node)); er == nil {
 			m.root = node
 			if parent != nil {
