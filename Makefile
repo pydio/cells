@@ -32,6 +32,22 @@ xgo:
 	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
 	 .
 
+arm:
+	env GOOS=linux GOARM=7 GOARCH=arm go build -a -trimpath\
+	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
+	 -o cells\
+	 .
+
+arm64:
+	env GOOS=linux GOARCH=arm64 go build -a -trimpath\
+	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
+	 -o cells\
+	 .
+
 win:
 	env GOOS=windows GOARCH=amd64 go build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\

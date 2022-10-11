@@ -23,6 +23,12 @@
   "Jobs.Default.ArchiveJobs": {
     "other": "Automatische Archivierung des Änderungsdienstes"
   },
+  "Jobs.Default.CleanUserData": {
+    "other": "Benutzerdaten beim Löschen bereinigen oder übertragen"
+  },
+  "Jobs.Default.CleanOrphanFiles": {
+    "other": "Löschen von verwaisten Dateien nach 24 Stunden"
+  },
   "Jobs.User.Compress": {
     "other": "Auswahl wird komprimiert..."
   },

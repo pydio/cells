@@ -96,36 +96,36 @@
     "other": "Bem-vindo ao Pydio Cells v4"
   },
   "card.quick-access": {
-    "other": "Quick Access"
+    "other": "Acesso Rápido"
   },
   "card.quick-access.add": {
-    "other": "Add a shortcut ..."
+    "other": "Adicionar atalho ..."
   },
   "card.update.current": {
-    "other": "Software Version"
+    "other": "Versão do software"
   },
   "card.update.no-updates": {
-    "other": "Software is up-to-date"
+    "other": "O software está atualizado"
   },
   "card.update.new-version": {
-    "other": "A new version is available"
+    "other": "Uma nova versão está disponível"
   },
   "recentLogs.title": {
-    "other": "Last Events"
+    "other": "Últimos Eventos"
   },
   "recentLogs.errors": {
-    "other": "Errors"
+    "other": "Erros"
   },
   "recentLogs.emptyState": {
-    "other": "No activity found"
+    "other": "Nenhuma atividade encontrada"
   },
   "recentLogs.more": {
-    "other": "All Activities"
+    "other": "Todas as atividades"
   },
   "graph.files": {
-    "other": "Files Activity"
+    "other": "Atividade de Arquivos"
   },
   "graph.connections": {
-    "other": "Web Connections"
+    "other": "Conexões da Web"
   }
 }
