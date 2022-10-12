@@ -1,0 +1,168 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cells-chart.fullname" . }}
+  labels:
+    {{- include "cells-chart.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "cells-chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }} 
+      {{- end}}
+      labels:
+        {{- include "cells-chart.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "cells-chart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh"]
+          args:
+            ['-c', 'source /var/cells-install/source && cells start']
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: CELLS_WORKING_DIR
+              value: /var/cells
+            - name: PYDIO_LOG
+              value: info
+            {{- if .Values.etcd.enabled }}
+            - name: CELLS_CONFIG
+              value: {{ include "cells-chart.etcdURL" . }}/config
+            - name: CELLS_VAULT
+              value: {{ include "cells-chart.etcdURL" . }}/vault
+            - name: CELLS_REGISTRY
+              value: {{ include "cells-chart.etcdURL" . }}/registry
+            {{- end }}
+            {{- if .Values.nats.enabled }}
+            - name: CELLS_BROKER
+              value: {{ include "cells-chart.natsHost" . }}
+            {{- end }}
+            {{- if .Values.redis.enabled }}
+            - name: CELLS_CACHE
+              value: {{ include "cells-chart.redisHost" . }}
+            {{- end }}
+            {{- if .Values.vault.enabled }}
+            - name: CELLS_KEYRING
+              value: {{ include "cells-chart.vaultHost" . }}/secret?key=keyring
+            - name: CELLS_CERTS_STORE
+              value: {{ include "cells-chart.vaultHost" . }}/caddycerts
+            {{- end }}
+            {{- if .Values.extraEnvVars }}
+            {{- toYaml .Values.extraEnvVars | nindent 12}}
+            {{- end }}
+          envFrom:
+            {{- if .Values.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+            - name: discovery
+              containerPort: {{ .Values.service.discoveryPort }}
+              protocol: TCP
+          volumeMounts:
+            - name: cells
+              mountPath: /var/cells-install
+          #livenessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: http
+          #readinessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      initContainers:
+        {{- if .Values.vault.enabled }}
+        - name: init
+          image: busybox
+          command:
+            - nc
+            - "-zw10"
+            - {{ include "cells-chart.etcdHost" . }}
+            - {{ include "cells-chart.etcdPort" . }}
+        {{- end }}
+        - name: install
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh"]
+          args:
+            ['-c', 'source /var/cells-install/source && cells configure']
+          env:
+            - name: CELLS_INSTALL_YAML
+              value: /var/cells-install/install-conf.yaml
+            {{- if .Values.etcd.enabled }}
+            - name: CELLS_CONFIG
+              value: {{ include "cells-chart.etcdURL" . }}/config
+            - name: CELLS_VAULT
+              value: {{ include "cells-chart.etcdURL" . }}/vault
+            {{- end }}
+            {{- if .Values.vault.enabled }}
+            - name: CELLS_KEYRING
+              value: {{ include "cells-chart.vaultHost" . }}/secret?key=keyring
+            {{- end }}
+            {{- if .Values.mariadb.enabled }}
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-mariadb
+                  key: mariadb-root-password
+            {{- end }}
+            {{- if .Values.minio.enabled }}
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-minio
+                  key: root-user
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-minio
+                  key: root-password
+            {{- end }}
+          volumeMounts:
+            - name: cells
+              mountPath: /var/cells-install
+      volumes:
+        - name: cells
+          configMap:
+            name: {{ include "cells-chart.fullname" . }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

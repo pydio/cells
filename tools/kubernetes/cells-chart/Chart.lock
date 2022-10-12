@@ -1,0 +1,24 @@
+dependencies:
+- name: mariadb
+  repository: https://charts.bitnami.com/bitnami
+  version: 10.5.1
+- name: redis
+  repository: https://charts.bitnami.com/bitnami
+  version: 17.3.1
+- name: nats
+  repository: https://charts.bitnami.com/bitnami
+  version: 7.4.8
+- name: mongodb
+  repository: https://charts.bitnami.com/bitnami
+  version: 13.1.7
+- name: etcd
+  repository: https://charts.bitnami.com/bitnami
+  version: 8.5.5
+- name: minio
+  repository: https://charts.bitnami.com/bitnami
+  version: 11.10.3
+- name: vault
+  repository: https://helm.releases.hashicorp.com
+  version: 0.22.0
+digest: sha256:fe5c7badfbb4a366bc23ed0d9decd5b304df92ffeaf6740e8c02dc30e7fdf23a
+generated: "2022-10-05T04:58:47.229238003Z"
