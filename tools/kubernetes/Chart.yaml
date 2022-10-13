@@ -1,5 +1,8 @@
+annotations:
+  category: Infrastructure
+
 apiVersion: v2
-name: cells-chart
+name: cells
 description: A Helm chart for Kubernetes
 
 # A chart can be either an 'application' or a 'library' chart.
@@ -22,6 +25,24 @@ version: 0.1.0
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
 appVersion: "v4"
+
+home: https://pydio.com
+icon: https://pydio.com/sites/all/themes/pydio_theme/images/logoPydioWhite.png
+
+sources:
+  - https://github.com/pydio/cells
+
+maintainers:
+  - name: Pydio
+    url: https://github.com/pydio/cells/tools/kubernetes
+
+keywords:
+  - pydio
+  - cells
+  - storage
+  - object-storage
+  - s3
+  - cluster
 
 dependencies:
   - name: mariadb
