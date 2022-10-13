@@ -36,6 +36,7 @@ import (
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/scheduler/jobs"
 	"github.com/pydio/cells/v4/scheduler/lang"
 )
@@ -189,7 +190,7 @@ func (j *JobsHandler) ListJobs(request *proto.ListJobsRequest, streamer proto.Jo
 	}
 
 	return nil
-	
+
 }
 
 //////////////////
@@ -456,7 +457,7 @@ func (j *JobsHandler) CleanStuckTasks(ctx context.Context, duration ...time.Dura
 		case <-done:
 			for _, t := range fixedTasks {
 				log.Logger(ctx).Info("Setting task " + t.ID + " in error status as it was saved as running")
-				j.store.PutTask(t)
+				_ = j.store.PutTask(t)
 			}
 			return fixedTasks, nil
 
@@ -476,4 +477,27 @@ func (j *JobsHandler) CleanStuckTasks(ctx context.Context, duration ...time.Dura
 		}
 	}
 
+}
+
+// CleanDeadUserJobs finds AutoStart+AutoClean user-scope jobs that were never started
+func (j *JobsHandler) CleanDeadUserJobs(ctx context.Context) error {
+	jj, er := j.store.ListJobs("", false, false, proto.TaskStatus_Any, []string{}, 0, 1)
+	if er != nil {
+		return er
+	}
+	for job := range jj {
+		if job.Owner == common.PydioSystemUsername {
+			continue
+		}
+		if job.AutoStart && job.AutoClean && len(job.Tasks) == 0 { // This job should not have this status on restart !
+			log.Logger(ctx).Info("Setting userspace job " + job.ID + " in error status as it was empty")
+			_ = j.store.PutTask(&proto.Task{
+				ID:            uuid.New(),
+				JobID:         job.ID,
+				Status:        proto.TaskStatus_Error,
+				StatusMessage: "Task stuck",
+			})
+		}
+	}
+	return nil
 }
