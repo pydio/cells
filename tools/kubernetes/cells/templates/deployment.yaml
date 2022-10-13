@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "cells-chart.fullname" . }}
+  name: {{ include "cells.fullname" . }}
   labels:
-    {{- include "cells-chart.labels" . | nindent 4 }}
+    {{- include "cells.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "cells-chart.selectorLabels" . | nindent 6 }}
+      {{- include "cells.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,13 +18,13 @@ spec:
         {{- toYaml . | nindent 8 }} 
       {{- end}}
       labels:
-        {{- include "cells-chart.selectorLabels" . | nindent 8 }}
+        {{- include "cells.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "cells-chart.serviceAccountName" . }}
+      serviceAccountName: {{ include "cells.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -47,25 +47,25 @@ spec:
               value: info
             {{- if .Values.etcd.enabled }}
             - name: CELLS_CONFIG
-              value: {{ include "cells-chart.etcdURL" . }}/config
+              value: {{ include "cells.etcdURL" . }}/config
             - name: CELLS_VAULT
-              value: {{ include "cells-chart.etcdURL" . }}/vault
+              value: {{ include "cells.etcdURL" . }}/vault
             - name: CELLS_REGISTRY
-              value: {{ include "cells-chart.etcdURL" . }}/registry
+              value: {{ include "cells.etcdURL" . }}/registry
             {{- end }}
             {{- if .Values.nats.enabled }}
             - name: CELLS_BROKER
-              value: {{ include "cells-chart.natsHost" . }}
+              value: {{ include "cells.natsURL" . }}
             {{- end }}
             {{- if .Values.redis.enabled }}
             - name: CELLS_CACHE
-              value: {{ include "cells-chart.redisHost" . }}
+              value: {{ include "cells.redisURL" . }}
             {{- end }}
             {{- if .Values.vault.enabled }}
             - name: CELLS_KEYRING
-              value: {{ include "cells-chart.vaultHost" . }}/secret?key=keyring
+              value: {{ include "cells.vaultURL" . }}/secret?key=keyring
             - name: CELLS_CERTS_STORE
-              value: {{ include "cells-chart.vaultHost" . }}/caddycerts
+              value: {{ include "cells.vaultURL" . }}/caddycerts
             {{- end }}
             {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12}}
@@ -89,25 +89,54 @@ spec:
           volumeMounts:
             - name: cells
               mountPath: /var/cells-install
-          #livenessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: http
-          #readinessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: http
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 20
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       initContainers:
-        {{- if .Values.vault.enabled }}
-        - name: init
+        {{- if .Values.etcd.enabled }}
+        - name: wait-for-etcd
           image: busybox
           command:
             - nc
             - "-zw10"
-            - {{ include "cells-chart.etcdHost" . }}
-            - {{ include "cells-chart.etcdPort" . }}
+            - {{ include "cells.etcdHost" . | quote }}
+            - {{ include "cells.etcdPort" . | quote }}
+        {{- end }}
+        {{- if .Values.redis.enabled }}
+        - name: wait-for-redis
+          image: busybox
+          command:
+            - nc
+            - "-zw10"
+            - {{ include "cells.redisHost" . | quote }}
+            - {{ include "cells.redisPort" . | quote }}
+        {{- end }}
+        {{- if .Values.nats.enabled }}
+        - name: wait-for-nats
+          image: busybox
+          command:
+            - nc
+            - "-zw10"
+            - {{ include "cells.natsHost" . | quote }}
+            - {{ include "cells.natsPort" . | quote }}
+        {{- end }}
+        {{- if .Values.vault.enabled }}
+        - name: wait-for-vault
+          image: busybox
+          command:
+            - nc
+            - "-zw10"
+            - {{ include "cells.vaultHost" . | quote }}
+            - {{ include "cells.vaultPort" . | quote }}
         {{- end }}
         - name: install
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -120,13 +149,13 @@ spec:
               value: /var/cells-install/install-conf.yaml
             {{- if .Values.etcd.enabled }}
             - name: CELLS_CONFIG
-              value: {{ include "cells-chart.etcdURL" . }}/config
+              value: {{ include "cells.etcdURL" . }}/config
             - name: CELLS_VAULT
-              value: {{ include "cells-chart.etcdURL" . }}/vault
+              value: {{ include "cells.etcdURL" . }}/vault
             {{- end }}
             {{- if .Values.vault.enabled }}
             - name: CELLS_KEYRING
-              value: {{ include "cells-chart.vaultHost" . }}/secret?key=keyring
+              value: {{ include "cells.vaultURL" . }}/secret?key=keyring
             {{- end }}
             {{- if .Values.mariadb.enabled }}
             - name: MARIADB_ROOT_PASSWORD
@@ -153,7 +182,7 @@ spec:
       volumes:
         - name: cells
           configMap:
-            name: {{ include "cells-chart.fullname" . }}
+            name: {{ include "cells.fullname" . }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
