@@ -154,7 +154,7 @@ func (m *mongoImpl) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 		return nil, er
 	}
 	cj := make(chan *jobs.Job)
-	
+
 	var offset, limit int64
 	if len(taskCursor) > 0 {
 		offset = int64(taskCursor[0])
@@ -243,10 +243,27 @@ func (m *mongoImpl) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 		}
 	}
 
-	tt, e := m.listTasks(jobId, taskStatus, offset, limit)
-	if e != nil {
-		return nil, nil, e
+	var tt []*jobs.Task
+	var er error
+	// If there is a cursor and **jobId is empty**, we want to apply cursor on each task
+	if jobId == "" && len(cursor) > 0 {
+		jj, e := m.ListJobs("", false, false, jobs.TaskStatus_Any, []string{})
+		if e != nil {
+			return nil, nil, e
+		}
+		for j := range jj {
+			if tj, e := m.listTasks(j.ID, taskStatus, offset, limit); e == nil && len(tj) > 0 {
+				//fmt.Printf(" - Listed %d (%d,%d) tasks for job %s (%s)\n", len(tj), offset, limit, j.ID, j.Label)
+				tt = append(tt, tj...)
+			}
+		}
+	} else {
+		tt, er = m.listTasks(jobId, taskStatus, offset, limit)
+		if er != nil {
+			return nil, nil, er
+		}
 	}
+
 	cj := make(chan *jobs.Task)
 	cd := make(chan bool, 1)
 	go func() {

@@ -133,7 +133,15 @@ func init() {
 					}
 				}
 				// Clean tasks stuck in "Running" status
-				handler.CleanStuckTasks(c)
+				if _, er := handler.CleanStuckTasks(c); er != nil {
+					log3.Logger(c).Warn("Could not run CleanStuckTasks: "+er.Error(), zap.Error(er))
+				}
+
+				// Clean user-jobs (AutoStart+AutoClean) without any tasks
+				if er := handler.CleanDeadUserJobs(c); er != nil {
+					log3.Logger(c).Warn("Could not run CleanDeadUserJobs: "+er.Error(), zap.Error(er))
+				}
+
 				if Migration140 {
 					if resp, e := handler.DeleteTasks(c, &proto.DeleteTasksRequest{
 						JobId:      "users-activity-digest",
