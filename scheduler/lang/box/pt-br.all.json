@@ -24,10 +24,10 @@
     "other": "Arquivamento automático do serviço de mudanças"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "Limpar ou transferir dados de usuário ao excluir"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "Limpar arquivos órfãos após 24h"
   },
   "Jobs.User.Compress": {
     "other": "Seleção de Compressão..."
