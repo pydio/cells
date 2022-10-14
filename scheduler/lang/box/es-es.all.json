@@ -27,7 +27,7 @@
     "other": "Clean or transfer user data on deletion"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "Limpiar archivos huérfanos después de 24h"
   },
   "Jobs.User.Compress": {
     "other": "Comprimiendo selección..."
