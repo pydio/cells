@@ -5,18 +5,12 @@
 
 [![License Badge](https://img.shields.io/badge/License-AGPL%203%2B-blue.svg)](LICENSE)
 [![GoDoc](https://godoc.org/github.com/pydio/cells/v4?status.svg)](https://godoc.org/github.com/pydio/cells/v4)
-[![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells/v4?rand=4)](https://goreportcard.com/report/github.com/pydio/cells/v4)
-
-> **IMPORTANT NEWS - March 2022: the main git branch switched from `master` to `main`!**
-> 
-> A milestone on the road to Cells v4: we have fully rewritten the codebase to **support gomodules** at last.
-> It is not 100% stable yet, so make sure to use official binaries or the `v3` branch if you need production ready version.
-
+[![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells/v4?rand=5)](https://goreportcard.com/report/github.com/pydio/cells/v4)
 
 Pydio Cells is the nextgen file sharing platform for organizations. It is a full rewrite of the Pydio project using the Go language following a micro-service architecture.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/pydio/cells-dist/master/resources/v3.0.0/home.png" width="600" style="border: 3px solid #e0e0e0; border-radius: 5px;"/>
+  <img src="https://raw.githubusercontent.com/pydio/cells-dist/master/resources/v4.0.0/home.png" width="600" style="border: 3px solid #e0e0e0; border-radius: 5px;"/>
 </p>
 
 ## Getting Started
@@ -28,7 +22,7 @@ These instructions will get you a copy of the project up and running on your loc
 The following elements are required to compile and run Pydio Cells on your machine:
 
 - Go language **v1.18** or higher and a [correctly configured](https://golang.org/doc/install#testing) Go toolchain,
-- MySQL database 5.6 or higher (or MariaDB equivalent). The new MySQL 8 authentication method is supported starting at Cells 1.4.1.
+- MySQL database 5.6 or higher (or MariaDB equivalent).
 
 _Note: We have developed and tested Pydio Cells on macOS, Ubuntu, Debian and CentOS. Windows version might still have unknown glitches and is not yet supported._
 
@@ -50,7 +44,7 @@ make dev
 To have the environment running, you must also:
 
 - Create a database in your chosen DB server,
-- Run the Pydio Cells installer that will guide you through the necessary steps: you might refer to the [official documentation](https://pydio.com/en/docs/cells/v2/cells-installation) for additional information.
+- Run the Pydio Cells installer that will guide you through the necessary steps: you might refer to the [official documentation](https://pydio.com/en/docs/cells/v4/cells-installation) for additional information.
 
 
 ```sh
