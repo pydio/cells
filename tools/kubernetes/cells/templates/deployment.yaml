@@ -41,6 +41,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            - name: CELLS_BIND_ADDRESS
+              value: 0.0.0.0
             - name: CELLS_WORKING_DIR
               value: /var/cells
             - name: PYDIO_LOG
