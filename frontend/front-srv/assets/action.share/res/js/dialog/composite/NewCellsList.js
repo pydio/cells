@@ -116,7 +116,7 @@ class NewCellsList extends React.Component {
         let addToCellMenu;
         if(addItems.length){
             const {muiTheme} = this.props;
-            addToCellMenu = <span>
+            addToCellMenu = <span id={"share-dialog-addtocell-menu"}>
                 <FlatButton
                     iconClassName={"icomoon-cells-full-plus"}
                     style={{width: '100%'}}
