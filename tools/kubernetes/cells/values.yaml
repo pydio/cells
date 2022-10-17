@@ -88,6 +88,8 @@ redis:
   enabled: true
   volumePermissions:
     enabled: true
+  auth:
+    enabled: false
 
 nats:
   enabled: true
