@@ -72,6 +72,10 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 			return nil, err
 		} else {
 			opt.EvictionTime = i
+			if opt.EvictionTime < time.Second {
+				// Redis does not support TTL shorter than one second
+				opt.EvictionTime = time.Second
+			}
 		}
 	}
 	if v := u.Query().Get("cleanWindow"); v != "" {
