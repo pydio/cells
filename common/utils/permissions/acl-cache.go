@@ -22,6 +22,7 @@ package permissions
 
 import (
 	"context"
+	"sync"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -54,4 +55,57 @@ func getAclCache() cache.Cache {
 		initAclCache()
 	}
 	return aclCache
+}
+
+type CachedAccessList struct {
+	Wss             map[string]*idm.Workspace
+	WssRootsMasks   map[string]map[string]Bitmask
+	OrderedRoles    []*idm.Role
+	WsACLs          []*idm.ACL
+	FrontACLs       []*idm.ACL
+	MasksByUUIDs    map[string]Bitmask
+	MasksByPaths    map[string]Bitmask
+	ClaimsScopes    map[string]Bitmask
+	HasClaimsScopes bool
+}
+
+// cache uses the CachedAccessList struct with public fields for cache serialization
+func (a *AccessList) cache(key string) error {
+	a.maskBPLock.RLock()
+	a.maskBULock.RLock()
+	defer a.maskBPLock.RUnlock()
+	defer a.maskBULock.RUnlock()
+	m := &CachedAccessList{
+		Wss:             a.wss,
+		WssRootsMasks:   a.wssRootsMasks,
+		OrderedRoles:    a.orderedRoles,
+		WsACLs:          a.wsACLs,
+		FrontACLs:       a.frontACLs,
+		MasksByUUIDs:    a.masksByUUIDs,
+		MasksByPaths:    a.masksByPaths,
+		ClaimsScopes:    a.claimsScopes,
+		HasClaimsScopes: a.hasClaimsScopes,
+	}
+	return getAclCache().Set(key, m)
+}
+
+// newFromCache looks up for a CachedAccessList struct in the cache and init an AccessList with the values.
+func newFromCache(key string) (*AccessList, bool) {
+	m := &CachedAccessList{}
+	if b := getAclCache().Get(key, &m); !b {
+		return nil, b
+	}
+	return &AccessList{
+		maskBPLock:      &sync.RWMutex{},
+		maskBULock:      &sync.RWMutex{},
+		wss:             m.Wss,
+		wssRootsMasks:   m.WssRootsMasks,
+		orderedRoles:    m.OrderedRoles,
+		wsACLs:          m.WsACLs,
+		frontACLs:       m.FrontACLs,
+		masksByUUIDs:    m.MasksByUUIDs,
+		masksByPaths:    m.MasksByPaths,
+		claimsScopes:    m.ClaimsScopes,
+		hasClaimsScopes: m.HasClaimsScopes,
+	}, true
 }

@@ -383,8 +383,9 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		log.Logger(ctx).Debug("No Claims in Context, workspaces will be empty - probably anonymous user")
 		return
 	}
-	if getAclCache().Get(claims.SessionID+claims.Subject, &accessList) {
-		return
+	if cached, ok := newFromCache(claims.SessionID + claims.Subject); ok {
+		log.Logger(ctx).Debug("Returning cached version of AccessList")
+		return cached, nil
 	}
 	//fmt.Println("Loading AccessList")
 	roles, e := GetRoles(ctx, strings.Split(claims.Roles, ","))
@@ -407,7 +408,9 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		return nil, er
 	}
 
-	getAclCache().Set(claims.SessionID+claims.Subject, accessList)
+	if er := accessList.cache(claims.SessionID + claims.Subject); er != nil {
+		log.Logger(ctx).Warn("Could not store ACL to cache: "+er.Error(), zap.Error(err))
+	}
 	return
 }
 
@@ -434,8 +437,9 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 	}
 	keyLookup := strings.Join(rr, "-")
 	if len(keyLookup) > 0 {
-		if getAclCache().Get("by-roles-"+keyLookup, &accessList) {
+		if cached, ok := newFromCache("by-roles-" + keyLookup); ok {
 			log.Logger(ctx).Debug("AccessListFromUser - AccessList already in cache")
+			accessList = cached
 			return
 		}
 	}
@@ -443,7 +447,7 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 	accessList, err = AccessListFromRoles(ctx, user.Roles, true, true)
 
 	if err == nil && len(keyLookup) > 0 {
-		getAclCache().Set("by-roles-"+keyLookup, accessList)
+		_ = accessList.cache("by-roles-" + keyLookup)
 	}
 
 	return
@@ -520,8 +524,11 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 	user = resp.GetUser()
 	// Store to quick cache
 	if len(queries) == 0 {
-		getUsersCache().Set(login, user)
-		getUsersCache().Set(uuid, user)
+		if uuid == "" {
+			_ = getUsersCache().Set(uuid, user)
+		} else if login != "" {
+			_ = getUsersCache().Set(login, user)
+		}
 	}
 	return
 }
