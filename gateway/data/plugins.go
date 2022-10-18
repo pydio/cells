@@ -24,8 +24,6 @@ package gateway
 import (
 	"context"
 	"fmt"
-	c "github.com/minio/pkg/console"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -33,6 +31,8 @@ import (
 	"strings"
 
 	minio "github.com/minio/minio/cmd"
+	c "github.com/minio/minio/pkg/console"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -40,6 +40,7 @@ import (
 	serverhttp "github.com/pydio/cells/v4/common/server/http"
 	"github.com/pydio/cells/v4/common/server/middleware"
 	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/net"
 	_ "github.com/pydio/cells/v4/gateway/data/gw"
 	pydio "github.com/pydio/cells/v4/gateway/data/gw"

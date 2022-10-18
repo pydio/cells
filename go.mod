@@ -13,6 +13,9 @@ require (
 	github.com/cskr/pubsub v1.0.2
 	github.com/disintegration/imaging v1.6.2
 	github.com/doug-martin/goqu/v9 v9.18.0
+	github.com/dsoprea/go-exif/v3 v3.0.0-20221012082141-d21ac8e2de85
+	github.com/dsoprea/go-jpeg-image-structure v0.0.0-20190422055009-d6f9ba25cf48
+	github.com/dsoprea/go-png-image-structure v0.0.0-20190624104353-c9b28dcdc5c8
 	github.com/dustin/go-humanize v1.0.1-0.20200219035652-afde56e7acac
 	github.com/emicklei/go-restful/v3 v3.8.0
 	github.com/fatih/color v1.13.0
@@ -60,7 +63,6 @@ require (
 	github.com/minio/md5-simd v1.1.2
 	github.com/minio/minio v0.0.0-20220720015624-ce8397f7d944
 	github.com/minio/minio-go/v7 v7.0.21
-	github.com/minio/pkg v1.1.14
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/mssola/user_agent v0.5.3
 	github.com/mwitkow/go-proto-validators v0.3.2
@@ -87,7 +89,6 @@ require (
 	github.com/rubenv/sql-migrate v0.0.0-20211023115951-9f02b1e13857
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/schollz/progressbar/v3 v3.8.6
-	github.com/scottleedavis/go-exif-remove v0.0.0-20190908021517-58bdbaac8636
 	github.com/sendgrid/sendgrid-go v3.10.3+incompatible
 	github.com/sethvargo/go-limiter v0.7.2
 	github.com/shibukawa/configdir v0.0.0-20170330084843-e180dbdc8da0
@@ -113,7 +114,7 @@ require (
 	gocloud.dev/pubsub/rabbitpubsub v0.20.0
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
-	golang.org/x/net v0.0.0-20220909164309-bea034e7d591
+	golang.org/x/net v0.0.0-20221002022538-bcab6841153b
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
 	golang.org/x/text v0.3.8-0.20211004125949-5bd84dd9b33b
@@ -203,9 +204,8 @@ require (
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/docker/docker v20.10.12+incompatible // indirect
 	github.com/dsoprea/go-exif v0.0.0-20190901173045-3ce78807c90f // indirect
-	github.com/dsoprea/go-jpeg-image-structure v0.0.0-20190422055009-d6f9ba25cf48 // indirect
-	github.com/dsoprea/go-logging v0.0.0-20190624164917-c4f10aab7696 // indirect
-	github.com/dsoprea/go-png-image-structure v0.0.0-20190624104353-c9b28dcdc5c8 // indirect
+	github.com/dsoprea/go-logging v0.0.0-20200710184922-b02d349568dd // indirect
+	github.com/dsoprea/go-utility/v2 v2.0.0-20221003172846-a3e1774ef349 // indirect
 	github.com/dswarbrick/smart v0.0.0-20190505152634-909a45200d6d // indirect
 	github.com/eapache/go-resiliency v1.2.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
@@ -220,7 +220,7 @@ require (
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.1 // indirect
 	github.com/go-chi/chi v4.1.2+incompatible // indirect
-	github.com/go-errors/errors v1.0.1 // indirect
+	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-kit/kit v0.10.0 // indirect
 	github.com/go-ldap/ldap/v3 v3.2.4 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
@@ -249,7 +249,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/golang/gddo v0.0.0-20190904175337-72a348e765d2 // indirect
-	github.com/golang/geo v0.0.0-20190812012225-f41920e961ce // indirect
+	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
@@ -477,7 +477,7 @@ require (
 	golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561 // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/sys v0.0.0-20220913175220-63ea55921009 // indirect
+	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec // indirect
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect

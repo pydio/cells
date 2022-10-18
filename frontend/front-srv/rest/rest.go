@@ -32,7 +32,6 @@ import (
 	"sync"
 
 	restful "github.com/emicklei/go-restful/v3"
-	exifremove "github.com/scottleedavis/go-exif-remove"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 
@@ -52,6 +51,7 @@ import (
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions"
 	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/common/utils/exif"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -421,7 +421,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			service.RestError500(req, rsp, er)
 			return
 		}
-		filtered, er := exifremove.Remove(data)
+		filtered, er := exif.Remove(data)
 		if er != nil {
 			service.RestError500(req, rsp, er)
 			return
