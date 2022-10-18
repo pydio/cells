@@ -92,5 +92,8 @@ start:
 
 ds: dev start
 
+licenses:
+	go-licenses report . --template ${GOPATH}/src/github.com/google/go-licenses/testdata/modules/hello01/licenses.tpl > DEPENDENCIES
+
 clean:
 	rm -f cells cells-*
