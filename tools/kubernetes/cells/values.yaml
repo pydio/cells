@@ -34,13 +34,16 @@ service:
   type: NodePort
   port: 8080
   discoveryPort: 8002
+  binds:
+    # Set values here if you want to bind the port elsewhere
+  reverseproxyurl:
+  tlsconfig:
+    selfsigned: # Default to selfsigned for the tlsconfig
 
 ingress:
   enabled: false
   className: nginx
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
   hosts:
     - host: cells-example.local
       paths:
