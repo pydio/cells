@@ -7,6 +7,10 @@ metadata:
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   {{- end }}
   selector:
     matchLabels:

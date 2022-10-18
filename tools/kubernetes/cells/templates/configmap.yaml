@@ -8,9 +8,20 @@ data:
   install-conf.yaml: |
     proxyconfigs:
       - binds:
-          - 0.0.0.0:8080
+      {{- if .Values.service.binds }}
+        {{- range .Values.service.binds }}
+        - {{ . | quote }}
+        {{- end }}
+      {{- else }}
+        - 0.0.0.0:{{ .Values.service.port }}
+      {{- end }}
+      {{- if .Values.service.reverseproxyurl }}
+        reverseproxyurl: {{ .Values.service.reverseproxyurl }}
+      {{- end }}
+      {{- if .Values.service.tlsconfig }}
         tlsconfig:
-          selfsigned:
+          {{ toYaml .Values.service.tlsconfig | nindent 10 }}
+      {{- end }}
 
     dbconnectiontype: tcp
     dbtcphostname: {{ include "cells.mariadbHost" . }}
