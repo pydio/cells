@@ -494,6 +494,9 @@ require (
 	k8s.io/klog/v2 v2.30.0 // indirect
 )
 
+// That one was published 6 months before official release ;-)
+retract v4.0.0
+
 //replace github.com/minio/minio => /Users/charles/Sources/go/src/github.com/pydio/minio
 //replace github.com/pydio/caddyvault => /Users/charles/Sources/go/src/github.com/pydio/caddyvault
 
