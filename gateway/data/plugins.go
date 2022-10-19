@@ -31,7 +31,7 @@ import (
 	"strings"
 
 	minio "github.com/minio/minio/cmd"
-	c "github.com/minio/minio/pkg/console"
+	"github.com/minio/minio/pkg/console"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
@@ -40,7 +40,6 @@ import (
 	serverhttp "github.com/pydio/cells/v4/common/server/http"
 	"github.com/pydio/cells/v4/common/server/middleware"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/net"
 	_ "github.com/pydio/cells/v4/gateway/data/gw"
 	pydio "github.com/pydio/cells/v4/gateway/data/gw"
@@ -63,16 +62,6 @@ var (
 
 func init() {
 
-	customLogger := log.Logger(servicecontext.WithServiceName(context.Background(), common.ServiceGatewayData))
-	c.Printf = func(format string, data ...interface{}) {
-		if strings.HasPrefix(format, "WARNING: ") {
-			format = strings.TrimPrefix(format, "WARNING: ")
-			customLogger.Warn(fmt.Sprintf(format, data...))
-		} else {
-			customLogger.Info(fmt.Sprintf(format, data...))
-		}
-	}
-
 	runtime.Register("main", func(ctx context.Context) {
 
 		port := net.GetAvailablePort()
@@ -81,10 +70,35 @@ func init() {
 			service.Name(common.ServiceGatewayData),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
-			// service.RouterDependencies(),
 			service.Description("S3 Gateway to tree service"),
-			//service.Port(fmt.Sprintf("%d", port)),
 			service.WithHTTP(func(c context.Context, mux server.HttpMux) error {
+
+				console.Printf = func(format string, data ...interface{}) {
+					if strings.HasPrefix(format, "WARNING: ") {
+						format = strings.TrimPrefix(format, "WARNING: ")
+						log.Logger(c).Warn(fmt.Sprintf(format, data...))
+					} else {
+						log.Logger(c).Info(fmt.Sprintf(format, data...))
+					}
+				}
+				console.Println = func(data ...interface{}) {
+					l := log.Logger(c)
+					for _, d := range data {
+						if ss, ok := d.(string); ok {
+							ss = strings.Trim(ss, "\n")
+							err := strings.Contains(ss, "Error: ")
+							for _, s := range strings.Split(ss, "\n") {
+								if err {
+									l.Error(s)
+								} else {
+									l.Info(s)
+								}
+							}
+						} else {
+							l.Info(fmt.Sprintf("%v", d))
+						}
+					}
+				}
 
 				u, _ := url.Parse(fmt.Sprintf("http://localhost:%d", port))
 				proxy := httputil.NewSingleHostReverseProxy(u)
