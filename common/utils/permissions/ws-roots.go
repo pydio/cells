@@ -1,25 +1,22 @@
-package rest
+package permissions
 
 import (
 	"context"
 	"fmt"
 	"strings"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"google.golang.org/protobuf/types/known/anypb"
-
+	
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
-// checkDefinedRootsForWorkspace reads roots from tree service
-func (h *WorkspaceHandler) checkDefinedRootsForWorkspace(ctx context.Context, ws *idm.Workspace) error {
+// CheckDefinedRootsForWorkspace reads roots from tree service
+func CheckDefinedRootsForWorkspace(ctx context.Context, ws *idm.Workspace, resolver VirtualPathResolver) error {
 	uuids := ws.RootUUIDs
 	if len(uuids) == 0 && len(ws.RootNodes) > 0 {
 		for _, n := range ws.RootNodes {
@@ -30,14 +27,13 @@ func (h *WorkspaceHandler) checkDefinedRootsForWorkspace(ctx context.Context, ws
 		return fmt.Errorf("cannot define workspace without any root nodes")
 	}
 
-	vManager := abstract.GetVirtualNodesManager(h.runtimeCtx)
 	streamer := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
 	c, e := streamer.ReadNodeStream(ctx)
 	if e != nil {
 		return e
 	}
 	for _, nodeId := range uuids {
-		if _, o := vManager.ByUuid(nodeId); o {
+		if _, o := resolver(ctx, &tree.Node{Uuid: nodeId}); o {
 			// Ignore roots based on virtual nodes
 			continue
 		}
@@ -53,9 +49,10 @@ func (h *WorkspaceHandler) checkDefinedRootsForWorkspace(ctx context.Context, ws
 	return nil
 }
 
-func (h *WorkspaceHandler) loadRootNodesForWorkspaces(ctx context.Context, wsUUIDs []string, wss map[string]*idm.Workspace) error {
+// LoadRootNodesForWorkspaces finds all root nodes based on the ACLs
+func LoadRootNodesForWorkspaces(ctx context.Context, wsUUIDs []string, wss map[string]*idm.Workspace, resolver VirtualPathResolver) error {
 
-	acls, err := permissions.GetACLsForWorkspace(ctx, wsUUIDs, &idm.ACLAction{Name: permissions.AclWsrootActionName})
+	acls, err := GetACLsForWorkspace(ctx, wsUUIDs, &idm.ACLAction{Name: AclWsrootActionName})
 	if err != nil {
 		return err
 	}
@@ -68,7 +65,7 @@ func (h *WorkspaceHandler) loadRootNodesForWorkspaces(ctx context.Context, wsUUI
 	if e != nil {
 		return e
 	}
-	vManager := abstract.GetVirtualNodesManager(h.runtimeCtx)
+
 	localCache := make(map[string]*tree.Node)
 	for uuid, ws := range wss {
 		aa, o := wsAcls[uuid]
@@ -95,7 +92,7 @@ func (h *WorkspaceHandler) loadRootNodesForWorkspaces(ctx context.Context, wsUUI
 				localCache[a.NodeID] = r.Node.WithoutReservedMetas()
 			} else {
 				// May be a virtual node
-				if node, ok := vManager.ByUuid(a.NodeID); ok {
+				if node, ok := resolver(ctx, &tree.Node{Uuid: a.NodeID}); ok {
 					if ws.RootNodes == nil {
 						ws.RootNodes = make(map[string]*tree.Node)
 					}
@@ -108,7 +105,8 @@ func (h *WorkspaceHandler) loadRootNodesForWorkspaces(ctx context.Context, wsUUI
 	return nil
 }
 
-func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Workspace, update bool) error {
+// StoreRootNodesAsACLs transforms a list of RootNodes into a list of ACL and store them.
+func StoreRootNodesAsACLs(ctx context.Context, ws *idm.Workspace, update bool) error {
 
 	reassign := make(map[string][]*idm.ACLAction)
 	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
@@ -117,7 +115,7 @@ func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Wor
 		// Delete current Root Nodes ACLs
 		q, _ := anypb.New(&idm.ACLSingleQuery{
 			WorkspaceIDs: []string{ws.UUID},
-			Actions:      []*idm.ACLAction{{Name: permissions.AclWsrootActionName}, {Name: permissions.AclRecycleRoot.Name}},
+			Actions:      []*idm.ACLAction{{Name: AclWsrootActionName}, {Name: AclRecycleRoot.Name}},
 		})
 		_, e := aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
 		if e != nil {
@@ -162,7 +160,7 @@ func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Wor
 		if _, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
 			WorkspaceID: ws.UUID,
 			NodeID:      nodeId,
-			Action:      &idm.ACLAction{Name: permissions.AclWsrootActionName, Value: node.GetPath()},
+			Action:      &idm.ACLAction{Name: AclWsrootActionName, Value: node.GetPath()},
 		}}); e != nil {
 			return e
 		}
@@ -170,7 +168,7 @@ func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Wor
 		if _, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
 			WorkspaceID: ws.UUID,
 			NodeID:      nodeId,
-			Action:      permissions.AclRecycleRoot,
+			Action:      AclRecycleRoot,
 		}}); e != nil {
 			return e
 		}
@@ -195,7 +193,9 @@ func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Wor
 	return nil
 }
 
-func (h *WorkspaceHandler) extractDefaultRights(ctx context.Context, workspace *idm.Workspace) (string, string) {
+// ExtractDefaultRights loads known workspace attributes, extract defaultRights and quotaValue as strings and remove them
+// from the attributes map
+func ExtractDefaultRights(ctx context.Context, workspace *idm.Workspace) (string, string) {
 	var rightsValue, quotaValue string
 	wsAttr := workspace.LoadAttributes()
 	var modified bool
@@ -238,7 +238,9 @@ func (h *WorkspaceHandler) extractDefaultRights(ctx context.Context, workspace *
 	return rightsValue, quotaValue
 }
 
-func (h *WorkspaceHandler) bulkReadDefaultRights(ctx context.Context, uuids []string, wss map[string]*idm.Workspace) error {
+// BulkReadDefaultRights matches ROOT_GROUP ACLs and set them as Workspace Attributes "DEFAULT_RIGHTS". It is a batch version
+// of ManageDefaultRights in read mode.
+func BulkReadDefaultRights(ctx context.Context, uuids []string, wss map[string]*idm.Workspace) error {
 
 	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
 	// Load RootRole ACLs and append to Attributes
@@ -247,7 +249,7 @@ func (h *WorkspaceHandler) bulkReadDefaultRights(ctx context.Context, uuids []st
 		RoleIDs:      []string{"ROOT_GROUP"},
 	})
 	q2, _ := anypb.New(&idm.ACLSingleQuery{
-		Actions: []*idm.ACLAction{permissions.AclRead, permissions.AclWrite, permissions.AclQuota},
+		Actions: []*idm.ACLAction{AclRead, AclWrite, AclQuota},
 	})
 	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
 		Query: &service.Query{
@@ -258,7 +260,6 @@ func (h *WorkspaceHandler) bulkReadDefaultRights(ctx context.Context, uuids []st
 	if err != nil {
 		return err
 	}
-	defer stream.CloseSend()
 	rightStrings := make(map[string]string, len(uuids))
 	quotaStrings := make(map[string]string, len(uuids))
 	for {
@@ -272,11 +273,11 @@ func (h *WorkspaceHandler) bulkReadDefaultRights(ctx context.Context, uuids []st
 			st = s
 		}
 		switch r.ACL.Action.Name {
-		case permissions.AclRead.Name:
+		case AclRead.Name:
 			st += "r"
-		case permissions.AclWrite.Name:
+		case AclWrite.Name:
 			st += "w"
-		case permissions.AclQuota.Name:
+		case AclQuota.Name:
 			quotaStrings[wsID] = r.ACL.Action.Value
 		}
 		if st != "" {
@@ -298,7 +299,9 @@ func (h *WorkspaceHandler) bulkReadDefaultRights(ctx context.Context, uuids []st
 	return nil
 }
 
-func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *idm.Workspace, read bool, rightsValue string, newQuota string) error {
+// ManageDefaultRights either read or write default rights by transforming ACLs into workspace attributes back and forth.
+// For reading on many workspace, use BulkReadDefaultRights instead.
+func ManageDefaultRights(ctx context.Context, workspace *idm.Workspace, read bool, rightsValue string, newQuota string) error {
 
 	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
 	if read {
@@ -308,7 +311,7 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 			RoleIDs:      []string{"ROOT_GROUP"},
 		})
 		q2, _ := anypb.New(&idm.ACLSingleQuery{
-			Actions: []*idm.ACLAction{permissions.AclRead, permissions.AclWrite, permissions.AclQuota},
+			Actions: []*idm.ACLAction{AclRead, AclWrite, AclQuota},
 		})
 		stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
 			Query: &service.Query{
@@ -319,7 +322,6 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 		if err != nil {
 			return err
 		}
-		defer stream.CloseSend()
 		var read, write bool
 		var strQuota string
 		for {
@@ -327,13 +329,13 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 			if e != nil {
 				break
 			}
-			if r.ACL.Action.Name == permissions.AclRead.Name {
+			if r.ACL.Action.Name == AclRead.Name {
 				read = true
 			}
-			if r.ACL.Action.Name == permissions.AclWrite.Name {
+			if r.ACL.Action.Name == AclWrite.Name {
 				write = true
 			}
-			if r.ACL.Action.Name == permissions.AclQuota.Name {
+			if r.ACL.Action.Name == AclQuota.Name {
 				strQuota = r.ACL.Action.Value
 			}
 		}
@@ -360,7 +362,7 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 			RoleIDs:      []string{"ROOT_GROUP"},
 		})
 		q2, _ := anypb.New(&idm.ACLSingleQuery{
-			Actions: []*idm.ACLAction{permissions.AclRead, permissions.AclWrite, permissions.AclQuota},
+			Actions: []*idm.ACLAction{AclRead, AclWrite, AclQuota},
 		})
 		_, err := aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{
 			Query: &service.Query{
@@ -385,7 +387,7 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 					WorkspaceID: workspace.UUID,
 					RoleID:      "ROOT_GROUP",
 					NodeID:      node.Uuid,
-					Action:      permissions.AclRead,
+					Action:      AclRead,
 				}})
 			}
 			if write {
@@ -393,12 +395,12 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 					WorkspaceID: workspace.UUID,
 					RoleID:      "ROOT_GROUP",
 					NodeID:      node.Uuid,
-					Action:      permissions.AclWrite,
+					Action:      AclWrite,
 				}})
 			}
 			if newQuota != "" && newQuota != "0" {
 				aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
-					Action:      &idm.ACLAction{Name: permissions.AclQuota.Name, Value: newQuota},
+					Action:      &idm.ACLAction{Name: AclQuota.Name, Value: newQuota},
 					RoleID:      "ROOT_GROUP",
 					WorkspaceID: workspace.UUID,
 					NodeID:      node.Uuid,

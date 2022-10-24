@@ -32,12 +32,15 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	service2 "github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -45,6 +48,7 @@ import (
 type WorkspaceHandler struct {
 	runtimeCtx context.Context
 	resources.ResourceProviderHandler
+	runtimeVirtualPathResolver permissions.VirtualPathResolver
 }
 
 // NewWorkspaceHandler simply creates and configures a handler.
@@ -65,6 +69,15 @@ func (h *WorkspaceHandler) SwaggerTags() []string {
 // Filter returns a function to filter the swagger path.
 func (h *WorkspaceHandler) Filter() func(string) string {
 	return nil
+}
+
+func (h *WorkspaceHandler) virtualPathResolver() permissions.VirtualPathResolver {
+	if h.runtimeVirtualPathResolver == nil {
+		h.runtimeVirtualPathResolver = func(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
+			return abstract.GetVirtualNodesManager(h.runtimeCtx).ByUuid(node.Uuid)
+		}
+	}
+	return h.runtimeVirtualPathResolver
 }
 
 func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Response) {
@@ -104,10 +117,10 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 		}
 	}
 
-	defaultRights, quotaValue := h.extractDefaultRights(ctx, &inputWorkspace)
+	defaultRights, quotaValue := permissions.ExtractDefaultRights(ctx, &inputWorkspace)
 
 	// Additional check on workspaces roots
-	if er := h.checkDefinedRootsForWorkspace(ctx, &inputWorkspace); er != nil {
+	if er := permissions.CheckDefinedRootsForWorkspace(ctx, &inputWorkspace, h.virtualPathResolver()); er != nil {
 		log.Logger(ctx).Error("Cannot create workspace on a non-existing node")
 		service2.RestError404(req, rsp, er)
 		return
@@ -120,18 +133,20 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 		service2.RestError500(req, rsp, er)
 		return
 	}
-	if e := h.storeRootNodesAsACLs(ctx, &inputWorkspace, update); e != nil {
+	if e := permissions.StoreRootNodesAsACLs(ctx, &inputWorkspace, update); e != nil {
 		service2.RestError500(req, rsp, e)
 		return
 	}
-	if e := h.manageDefaultRights(ctx, &inputWorkspace, false, defaultRights, quotaValue); e != nil {
+	if e := permissions.ManageDefaultRights(ctx, &inputWorkspace, false, defaultRights, quotaValue); e != nil {
 		service2.RestError500(req, rsp, e)
 		return
 	}
 
 	u := response.Workspace
-	h.manageDefaultRights(ctx, u, true, "", "")
-	rsp.WriteEntity(u)
+	if e := permissions.ManageDefaultRights(ctx, u, true, "", ""); e != nil {
+		log.Logger(ctx).Warn("Error while calling ManageDefaultRights", zap.Error(e))
+	}
+	_ = rsp.WriteEntity(u)
 	if update {
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Updated workspace [%s]", u.Slug),
@@ -189,7 +204,7 @@ func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Re
 			fmt.Sprintf("Removed workspace [%s]", slug),
 			log.GetAuditId(common.AuditWsDelete),
 		)
-		rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
+		_ = rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
 	}
 
 }
@@ -252,10 +267,14 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 		collection.Total++
 	}
 	if len(collection.Workspaces) > 0 {
-		h.loadRootNodesForWorkspaces(ctx, uuids, wss)
-		h.bulkReadDefaultRights(ctx, uuids, wss)
+		if e := permissions.LoadRootNodesForWorkspaces(ctx, uuids, wss, h.virtualPathResolver()); e != nil {
+			log.Logger(ctx).Warn("Error while calling LoadRootNodesForWorkspaces", zap.Error(e))
+		}
+		if e := permissions.BulkReadDefaultRights(ctx, uuids, wss); e != nil {
+			log.Logger(ctx).Warn("Error while calling BulkReadDefaultRights", zap.Error(e))
+		}
 	}
-	rsp.WriteEntity(collection)
+	_ = rsp.WriteEntity(collection)
 
 }
 
@@ -282,8 +301,6 @@ func (h *WorkspaceHandler) workspaceById(ctx context.Context, wsId string, clien
 		Uuid: wsId,
 	})
 	if client, err := client.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}}); err == nil {
-
-		defer client.CloseSend()
 		for {
 			resp, e := client.Recv()
 			if e != nil {
