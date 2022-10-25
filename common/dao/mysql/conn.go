@@ -24,6 +24,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/runtime"
+	"go.uber.org/zap"
 	"sync"
 
 	tools "github.com/go-sql-driver/mysql"
@@ -74,6 +77,24 @@ func (m *conn) Open(c context.Context, dsn string) (dao.Conn, error) {
 		return nil, err
 	}
 
+	if !runtime.IsFork() {
+		if res, err := CheckCollation(c, db); err != nil && len(res) > 0 {
+			return nil, err
+		} else if len(res) > 0 {
+			log.Logger(c).Warn("[SQL] *************************************************************************************************************************")
+			log.Logger(c).Warn("[SQL] ")
+			log.Logger(c).Warn("[SQL]   The following tables have a character set that does not match the default character set for the database...")
+			for k, v := range res {
+				log.Logger(c).Warn("[SQL]   ", zap.String("name", k), zap.String("collation", v))
+			}
+			log.Logger(c).Warn("[SQL]   It might be due to the database being migrated from another system or the default database having been updated.")
+			log.Logger(c).Warn("[SQL]   It could potentially lead to issues during upgrade so we recommend that you pre-emptively change the collation of the tables.")
+			log.Logger(c).Warn("[SQL]   You can find more information here : https://pydio.com/kb/...")
+			log.Logger(c).Warn("[SQL] ")
+			log.Logger(c).Warn("[SQL] *************************************************************************************************************************")
+		}
+	}
+
 	m.conn = db
 
 	return db, nil
@@ -105,6 +126,29 @@ func (m *conn) SetMaxConnectionsForWeight(num int) {
 
 	m.conn.SetMaxOpenConns(maxConns)
 	m.conn.SetMaxIdleConns(maxIdleConns)
+}
+
+func CheckCollation(ctx context.Context, db *sql.DB) (map[string]string, error) {
+	rows, err := db.Query("SELECT TABLE_NAME, TABLE_COLLATION" +
+		" FROM INFORMATION_SCHEMA.TABLES tbl" +
+		" WHERE TABLE_SCHEMA=\"cells\" AND TABLE_TYPE=\"BASE TABLE\"" +
+		" AND TABLE_NAME NOT LIKE '%_migrations'" +
+		" AND TABLE_COLLATION NOT LIKE 'ascii%'" +
+		" AND TABLE_COLLATION NOT LIKE CONCAT(@@CHARACTER_SET_DATABASE, \"%\");")
+
+	if err != nil {
+		return nil, err
+	}
+
+	res := make(map[string]string)
+
+	for rows.Next() {
+		var name, collation string
+		rows.Scan(&name, &collation)
+		res[name] = collation
+	}
+
+	return res, nil
 }
 
 // FilterDAOErrors hides sensitive information about the underlying table
