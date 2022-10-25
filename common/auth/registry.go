@@ -24,10 +24,6 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	tools "github.com/go-sql-driver/mysql"
-	"github.com/ory/hydra/jwk"
-	"github.com/pydio/cells/v4/common/crypto"
-	"github.com/pydio/cells/v4/common/utils/std"
 	"net"
 	"net/url"
 	"os"
@@ -37,9 +33,12 @@ import (
 	"sync"
 	"time"
 
+	tools "github.com/go-sql-driver/mysql"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/ory/fosite"
 	"github.com/ory/hydra/client"
 	"github.com/ory/hydra/driver"
+	"github.com/ory/hydra/jwk"
 	"github.com/ory/x/logrusx"
 	"github.com/ory/x/sqlcon"
 	"github.com/pkg/errors"
@@ -47,11 +46,13 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
@@ -88,12 +89,29 @@ func (hj HydraJwk) TableName() string {
 	return "hydra_jwk"
 }
 
+func CheckCollation(conn *pop.Connection, dbName string) (bool, error) {
+	type CollationRow struct {
+		TableName      string `db:"table_name"`
+		TableCollation string `db:"table_collation"`
+	}
+
+	c, err := conn.RawQuery("SELECT TABLE_NAME, TABLE_COLLATION" +
+		" FROM INFORMATION_SCHEMA.TABLES tbl" +
+		" WHERE TABLE_SCHEMA='" + dbName + "' AND TABLE_TYPE='BASE TABLE'" +
+		" AND TABLE_NAME NOT LIKE '%_migrations'" +
+		" AND TABLE_COLLATION NOT LIKE 'ascii%'" +
+		" AND TABLE_COLLATION NOT LIKE CONCAT(@@CHARACTER_SET_DATABASE, '%')").Count(&CollationRow{})
+
+	return c > 0, err
+}
+
 func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 
 	logger := log.Logger(ctx)
 
 	once.Do(func() {
-		reg, e = createSqlRegistryForConf(dbServiceName, defaultConf)
+		var dbName string
+		reg, dbName, e = createSqlRegistryForConf(dbServiceName, defaultConf)
 		if e != nil {
 			logger.Error("Cannot init registryFromDSN", zap.Error(e))
 		}
@@ -109,6 +127,15 @@ func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 			// Part of v3 => v4 migration: we must clear existing JWK entries, as system.secret formatting changed.
 			if _, err := conn.Q().Count(&HydraJwkMigration{}); err == nil {
 				logger.Info("Detected HydraJwkMigration - We are migrating from a v3 version - You may be disconnected after that!")
+
+				if collIssue, err := CheckCollation(conn, dbName); err != nil {
+					logger.Warn("Error while checking tables collation: " + err.Error())
+					return err
+				} else if collIssue {
+					logger.Error("Stopping all migrations as some tables may have collations differing from the database defaults. This may break migrations and foreign keys.")
+					return fmt.Errorf("wrong collation")
+				}
+
 				var raws []*HydraJwk
 				if er := conn.Where("sid = 'hydra.openid.id-token'").All(&raws); er == nil {
 					for _, raw := range raws {
@@ -251,7 +278,7 @@ func getLogrusLogger(serviceName string) *logrus.Logger {
 	return logrusLogger
 }
 
-func createSqlRegistryForConf(serviceName string, conf ConfigurationProvider) (driver.Registry, error) {
+func createSqlRegistryForConf(serviceName string, conf ConfigurationProvider) (driver.Registry, string, error) {
 
 	lx := logrusx.New(
 		serviceName,
@@ -265,7 +292,7 @@ func createSqlRegistryForConf(serviceName string, conf ConfigurationProvider) (d
 
 	mysqlConfig, err := tools.ParseDSN(dbDSN)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	if ssl, ok := mysqlConfig.Params["ssl"]; ok && ssl == "true" {
 		u := &url.URL{}
@@ -279,7 +306,7 @@ func createSqlRegistryForConf(serviceName string, conf ConfigurationProvider) (d
 
 		tlsConfig, err := crypto.TLSConfigFromURL(u)
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
 		if tlsConfig != nil {
 			delete(mysqlConfig.Params, "ssl")
@@ -298,9 +325,9 @@ func createSqlRegistryForConf(serviceName string, conf ConfigurationProvider) (d
 	_ = cfg.Set("dsn", fmt.Sprintf("%s://%s", dbDriver, dbDSN))
 	reg, e := driver.NewRegistryFromDSN(context.Background(), cfg, lx)
 	if e != nil {
-		return nil, e
+		return nil, "", e
 	}
-	return reg.WithConfig(conf.GetProvider()), nil
+	return reg.WithConfig(conf.GetProvider()), mysqlConfig.DBName, nil
 }
 
 func GetRegistry() driver.Registry {
@@ -308,7 +335,8 @@ func GetRegistry() driver.Registry {
 }
 
 func DuplicateRegistryForConf(refService string, c ConfigurationProvider) (driver.Registry, error) {
-	return createSqlRegistryForConf(refService, c)
+	r, _, e := createSqlRegistryForConf(refService, c)
+	return r, e
 }
 
 func GetRegistrySQL() *driver.RegistrySQL {

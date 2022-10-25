@@ -24,14 +24,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/runtime"
-	"go.uber.org/zap"
 	"sync"
 
 	tools "github.com/go-sql-driver/mysql"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/errors"
 	commonsql "github.com/pydio/cells/v4/common/sql"
 )
@@ -78,7 +78,7 @@ func (m *conn) Open(c context.Context, dsn string) (dao.Conn, error) {
 	}
 
 	if !runtime.IsFork() {
-		if res, err := CheckCollation(c, db); err != nil && len(res) > 0 {
+		if res, err := CheckCollation(c, db, dbName); err != nil && len(res) > 0 {
 			return nil, err
 		} else if len(res) > 0 {
 			log.Logger(c).Warn("[SQL] *************************************************************************************************************************")
@@ -88,7 +88,7 @@ func (m *conn) Open(c context.Context, dsn string) (dao.Conn, error) {
 				log.Logger(c).Warn("[SQL]   ", zap.String("name", k), zap.String("collation", v))
 			}
 			log.Logger(c).Warn("[SQL]   It might be due to the database being migrated from another system or the default database having been updated.")
-			log.Logger(c).Warn("[SQL]   It could potentially lead to issues during upgrade so we recommend that you pre-emptively change the collation of the tables.")
+			log.Logger(c).Warn("[SQL]   It could potentially lead to issues during upgrades so we you should pre-emptively fix the tables collations.")
 			log.Logger(c).Warn("[SQL]   You can find more information here : https://pydio.com/kb/...")
 			log.Logger(c).Warn("[SQL] ")
 			log.Logger(c).Warn("[SQL] *************************************************************************************************************************")
@@ -128,12 +128,12 @@ func (m *conn) SetMaxConnectionsForWeight(num int) {
 	m.conn.SetMaxIdleConns(maxIdleConns)
 }
 
-func CheckCollation(ctx context.Context, db *sql.DB) (map[string]string, error) {
-	rows, err := db.Query("SELECT TABLE_NAME, TABLE_COLLATION" +
-		" FROM INFORMATION_SCHEMA.TABLES tbl" +
-		" WHERE TABLE_SCHEMA=\"cells\" AND TABLE_TYPE=\"BASE TABLE\"" +
-		" AND TABLE_NAME NOT LIKE '%_migrations'" +
-		" AND TABLE_COLLATION NOT LIKE 'ascii%'" +
+func CheckCollation(ctx context.Context, db *sql.DB, dbName string) (map[string]string, error) {
+	rows, err := db.QueryContext(ctx, "SELECT TABLE_NAME, TABLE_COLLATION"+
+		" FROM INFORMATION_SCHEMA.TABLES tbl"+
+		" WHERE TABLE_SCHEMA=\""+dbName+"\" AND TABLE_TYPE=\"BASE TABLE\""+
+		" AND TABLE_NAME NOT LIKE '%_migrations'"+
+		" AND TABLE_COLLATION NOT LIKE 'ascii%'"+
 		" AND TABLE_COLLATION NOT LIKE CONCAT(@@CHARACTER_SET_DATABASE, \"%\");")
 
 	if err != nil {
