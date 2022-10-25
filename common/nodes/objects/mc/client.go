@@ -53,7 +53,7 @@ func init() {
 		secure := cfg.Val("secure").Bool()
 		region := cfg.Val("region").String()
 		isMinio := cfg.Val("minioServer").Bool()
-		signature := cfg.Val("signature").Default("v2").String()
+		signature := cfg.Val("signature").Default("v4").String()
 		sc, e := New(ep, key, secret, signature, secure, region, isMinio)
 		if ua := cfg.Val("userAgentAppName").String(); ua != "" {
 			uv := cfg.Val("userAgentVersion").String()
