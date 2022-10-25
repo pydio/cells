@@ -295,14 +295,18 @@ func (s *Handler) storageClientForDatasource(ds *object.DataSource) (nodes.Stora
 	}
 
 	cfData := configx.New()
-	cfData.Val("endpoint").Set(host)
-	cfData.Val("key").Set(ds.ApiKey)
-	cfData.Val("secret").Set(ds.ApiSecret)
-	cfData.Val("secure").Set(secure)
-	cfData.Val("type").Set("mc")
+	_ = cfData.Val("endpoint").Set(host)
+	_ = cfData.Val("key").Set(ds.ApiKey)
+	_ = cfData.Val("secret").Set(ds.ApiSecret)
+	_ = cfData.Val("secure").Set(secure)
+	_ = cfData.Val("type").Set("mc")
 	if r, o := ds.StorageConfiguration[object.StorageKeyCustomRegion]; o && r != "" {
-		cfData.Val("customRegion").Set(object.StorageKeyCustomRegion)
+		_ = cfData.Val("customRegion").Set(r)
 	}
+	if sv, o := ds.StorageConfiguration[object.StorageKeySignatureVersion]; o && sv != "" {
+		_ = cfData.Val("signature").Set(sv)
+	}
+
 	return nodes.NewStorageClient(cfData)
 }
 

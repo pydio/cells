@@ -176,6 +176,14 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 			// If it's an update then we want to change the config secret
 			if !update {
 				newSource.ApiSecret = config.ApiSecret
+			} else {
+				// We may have to update signature version
+				if sv, o := newSource.StorageConfiguration[object.StorageKeySignatureVersion]; o {
+					if config.GatewayConfiguration == nil {
+						config.GatewayConfiguration = make(map[string]string, 1)
+					}
+					config.GatewayConfiguration[object.StorageKeySignatureVersion] = sv
+				}
 			}
 		} else if update {
 			// Update existing config
@@ -183,6 +191,12 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 			config.ApiKey = newSource.ApiKey
 			config.ApiSecret = newSource.ApiSecret
 			config.EndpointUrl = newSource.StorageConfiguration[object.StorageKeyCustomEndpoint]
+			if sv, o := newSource.StorageConfiguration[object.StorageKeySignatureVersion]; o {
+				if config.GatewayConfiguration == nil {
+					config.GatewayConfiguration = make(map[string]string, 1)
+				}
+				config.GatewayConfiguration[object.StorageKeySignatureVersion] = sv
+			}
 		} else {
 			config = &object.MinioConfig{
 				Name:        createConfigName(existingConfigs, object.StorageType_S3),
@@ -191,6 +205,11 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 				ApiSecret:   newSource.ApiSecret,
 				RunningPort: createConfigPort(existingConfigs, newSource.ObjectsPort),
 				EndpointUrl: newSource.StorageConfiguration[object.StorageKeyCustomEndpoint],
+			}
+			if sv, o := newSource.StorageConfiguration[object.StorageKeySignatureVersion]; o {
+				config.GatewayConfiguration = map[string]string{
+					object.StorageKeySignatureVersion: sv,
+				}
 			}
 		}
 	} else if newSource.StorageType == object.StorageType_AZURE {
