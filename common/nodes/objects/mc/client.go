@@ -35,7 +35,6 @@ import (
 
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -53,7 +52,11 @@ func init() {
 		secure := cfg.Val("secure").Bool()
 		region := cfg.Val("region").String()
 		isMinio := cfg.Val("minioServer").Bool()
-		signature := cfg.Val("signature").Default("v2").String()
+		sigDef := "v4"
+		if isMinio {
+			sigDef = "v2"
+		}
+		signature := cfg.Val("signature").Default(sigDef).String()
 		sc, e := New(ep, key, secret, signature, secure, region, isMinio)
 		if ua := cfg.Val("userAgentAppName").String(); ua != "" {
 			uv := cfg.Val("userAgentVersion").String()
@@ -369,11 +372,13 @@ func (c *Client) BucketNotifications(ctx context.Context, bucketName string, pre
 
 func (c *Client) readMetaToMinioOpts(ctx context.Context, meta models.ReadMeta) minio.GetObjectOptions {
 	opt := minio.GetObjectOptions{}
-	if mm, ok := metadata.MinioMetaFromContext(ctx, !c.minioServer); ok {
-		for k, v := range mm {
-			opt.Set(k, v)
+	/*
+		if mm, ok := metadata.MinioMetaFromContext(ctx, !c.minioServer); ok {
+			for k, v := range mm {
+				opt.Set(k, v)
+			}
 		}
-	}
+	*/
 	for k, v := range meta {
 		opt.Set(k, v)
 	}
