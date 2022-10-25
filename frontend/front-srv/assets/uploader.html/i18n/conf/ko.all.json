@@ -1,38 +1,38 @@
 {
   "Always Override": {
-    "other": "Always Override"
+    "other": "항상 재정의"
   },
   "Auto Close": {
-    "other": "Auto Close"
+    "other": "자동 닫기"
   },
   "Auto Rename File": {
-    "other": "Auto Rename File"
+    "other": "파일명 자동 변경"
   },
   "Auto Start": {
-    "other": "Auto Start"
+    "other": "자동 시작"
   },
   "Auto-switching HTML5 or IFrame uploader.": {
-    "other": "Auto-switching HTML5 or IFrame uploader."
+    "other": "HTML5 또는 IFrame 업로더 자동 전환."
   },
   "Default Behaviour": {
-    "other": "Default Behaviour"
+    "other": "기본 동작"
   },
   "Default value for automatically closing the dialog after upload or not": {
-    "other": "Default value for automatically closing the dialog after upload or not"
+    "other": "업로드 후 대화 상자를 자동으로 닫는지 여부에 대한 기본값"
   },
   "Default value for automatically starting upload or not": {
-    "other": "Default value for automatically starting upload or not"
+    "other": "자동으로 업로드 시작 여부에 대한 기본값"
   },
   "Existing Files": {
-    "other": "Existing Files"
+    "other": "존재하는 파일"
   },
   "HTML Uploader": {
-    "other": "Standard"
+    "other": "표준"
   },
   "Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)": {
-    "other": "Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)"
+    "other": "파일이 이미 존재하는지 여부를 사용자에게 알립니다(기본 동작, 사용자가 이 기본 설정을 변경할 수 있음)."
   },
   "Prompt user": {
-    "other": "Prompt user"
+    "other": "프롬프트 사용자"
   }
 }

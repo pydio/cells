@@ -24,7 +24,7 @@
     "other": "Servicio de archivado de cambios automático"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "Limpiar o transferir los datos del usuario al ser borrados"
   },
   "Jobs.Default.CleanOrphanFiles": {
     "other": "Limpiar archivos huérfanos después de 24h"

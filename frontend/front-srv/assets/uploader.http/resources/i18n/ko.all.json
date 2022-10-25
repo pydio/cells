@@ -1,68 +1,68 @@
 {
   "1": {
-    "other": "Remote DL"
+    "other": "원격 DL"
   },
   "10": {
-    "other": "Download to APPLICATION_TITLE"
+    "other": "APPLICATION_TITLE 로 다운로드"
   },
   "10a": {
-    "other": "Download to %s"
+    "other": "%s 로 다운로드"
   },
   "10b": {
-    "other": "DL to %s"
+    "other": "%s 로 DL"
   },
   "10c": {
-    "other": "DL to %s"
+    "other": "%s 로 DL"
   },
   "10d": {
-    "other": "AjXp Download (%s)"
+    "other": "AjXp 다운로드 (%s)"
   },
   "11": {
-    "other": "Drag one of the following link to your bookmark bar : "
+    "other": "다음 링크 중 하나를 즐겨찾기에 끌어다 놓습니다. "
   },
   "12": {
-    "other": "Trigger remote file download"
+    "other": "원격 파일 다운로드 트리거"
   },
   "13": {
-    "other": "From computer"
+    "other": "컴퓨터로 부터"
   },
   "14": {
-    "other": "From remote server"
+    "other": "원격서버로 부터"
   },
   "15": {
-    "other": "Or create a bookmark manually and use the code below as the link url : "
+    "other": "또는 수동으로 즐겨찾기를 만들고 아래 코드를 링크 Url로 사용합니다. "
   },
   "16": {
-    "other": "Drag me to your bookmark bar!"
+    "other": "나를 끌어다 즐겨찾기에 놓아주세요!"
   },
   "17": {
-    "other": "Download file"
+    "other": "파일 다운로드"
   },
   "18": {
-    "other": "Partial file"
+    "other": "부분적 파일"
   },
   "2": {
-    "other": "Download file(s) from remote server"
+    "other": "원격서버로 부터 파일 다운로드"
   },
   "3": {
     "other": "m"
   },
   "4": {
-    "other": "Enter at least one URL pointing to a file that you want to download directly from an external HTTP server to the current folder. This action will be sent to the background and you will be able to continue using APPLICATION_TITLE during the download."
+    "other": "외부 HTTP 서버에서 현재 폴더로 직접 다운로드할 파일을 가리키는 URL을 하나 이상 입력하십시오. 이 작업은 백그라운드로 전송되며 다운로드하는 동안 APPLICATION_TITLE을 계속 사용할 수 있습니다."
   },
   "5": {
     "other": "URL"
   },
   "6": {
-    "other": "Downloading"
+    "other": "다운로드 중"
   },
   "7": {
-    "other": "to server"
+    "other": "서버로"
   },
   "8": {
-    "other": "File downloaded, reloading the client!"
+    "other": "파일이 다운로드되었습니다. 클라이언트를 다시 로드하세요!"
   },
   "9": {
-    "other": "Generate Bookmarklet"
+    "other": "작은 즐겨찾기 생성"
   }
 }

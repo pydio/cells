@@ -1,131 +1,131 @@
 {
   "cont.btn.fb": {
-    "other": "Follow us"
+    "other": "팔로우 하세요"
   },
   "cont.btn.github": {
     "other": "Github Star"
   },
   "cont.btn.tw": {
-    "other": "Twitter"
+    "other": "트위터"
   },
   "cont.intro": {
-    "other": "Code is available publicly on Github. Do you want to fix a bug, help others in the forum or push the next killer feature? Get involved!\n                            Or show your love on social networks!"
+    "other": "코드는 깃허브에서 공개적으로 사용할 수 있다. 버그를 수정하고 싶습니까, 포럼에서 다른 사람들을 돕기를 원합니까, 아니면 다음 킬러 기능을 밀고 싶습니까? 참여하세요!\n                             아니면 소셜네트워크에서 여러분의 사랑을 보여주세요!"
   },
   "cont.subtitle": {
-    "other": "Pydio Cells is free open source software. Contribute back!"
+    "other": "Pydio Cells은 무료 오픈소스 소프트웨어입니다. 기부하세요!"
   },
   "cont.title": {
-    "other": "Pay it forward!"
+    "other": "선불로 지불하세요!"
   },
   "cont.topic.pr": {
-    "other": "I implemented a new feature: github Pull Requests"
+    "other": "Github Pull Requests라는 새로운 기능을 구현했습니다."
   },
   "cont.topic.report": {
-    "other": "I think I found a bug! Post in the forum."
+    "other": "버그를 찾은 것 같습니다! 포럼에 게시하세요."
   },
   "cont.topic.report.2": {
-    "other": "My bug is qualified: open a github issue."
+    "other": "내 버그는 자격이 있습니다: 깃허브 이슈를 열어주세요."
   },
   "cont.topic.translate": {
-    "other": "How-to create or complete a language translation ?"
+    "other": "언어 번역을 작성하거나 완료하는 방법 ?"
   },
   "ent.advanced": {
-    "other": "Advanced Administrator Dashboard"
+    "other": "고급 관리자 대시보드"
   },
   "ent.advanced.legend": {
-    "other": "Unique admin dashboard for real-time monitoring of platform usage."
+    "other": "플랫폼 사용 현황을 실시간으로 모니터링하는 고유한 관리 대시보드"
   },
   "ent.btn.contact": {
-    "other": "Contact Sales"
+    "other": "영업팀에 문의"
   },
   "ent.btn.more": {
-    "other": "Learn More"
+    "other": "자세히 알아보기"
   },
   "ent.features": {
-    "other": "Enterprise-oriented features"
+    "other": "엔터프라이즈 지향 기능"
   },
   "ent.features.legend": {
-    "other": "Enterprise-ready features : AD/LDAP Connectors, Auditable Logs for compliance, EasyTransfer..."
+    "other": "엔터프라이즈 지원 기능: AD/LDAP 커넥터, 규정 준수를 위한 감사 가능한 로그, 간편 전송..."
   },
   "ent.subtitle": {
-    "other": "MORE FEATURES - GDPR COMPLIANCE - EXTENDED BRANDING"
+    "other": "추가 기능 - GDPR 규정 준수 - 확장된 브랜딩"
   },
   "ent.support": {
-    "other": "Support and Maintenance"
+    "other": "지원과 유지보수"
   },
   "ent.support.legend": {
-    "other": "Get help with your installation directly from the core team"
+    "other": "핵심 팀으로부터 직접 설치 지원 받기"
   },
   "ent.title": {
-    "other": "Discover Pydio Cells Enterprise"
+    "other": "Pydio Cells 엔터프라이즈 발견"
   },
   "ent.upgrade": {
-    "other": "Upgrade now!"
+    "other": "업그레이드 하세요!"
   },
   "ent.upgrade.legend": {
-    "other": "In-app upgrade Cells Enterprise (license required)"
+    "other": "인앱 업그레이드 Cells 엔터프라이즈 (라이센스 필수)"
   },
   "welc.btn.advanced": {
-    "other": "Advanced"
+    "other": "고급"
   },
   "welc.btn.parameters": {
-    "other": "About Parameters"
+    "other": "매개 변수 정보"
   },
   "welc.btn.start": {
-    "other": "Getting Started"
+    "other": "시작하기"
   },
   "welc.btn.users": {
-    "other": "Users"
+    "other": "사용자"
   },
   "welc.btn.ws": {
-    "other": "Workspaces"
+    "other": "작업공간"
   },
   "welc.guide": {
-    "other": "If you don't know where to start, the Administrator Guide is definitely a good read!"
+    "other": "어디서부터 시작해야 할지 모르겠다면 관리자 안내서를 읽어보는 것이 좋습니다!"
   },
   "welc.intro": {
-    "other": "This is your dashboard for managing Pydio. Using the left menu you can create <a class=\"doc-link\" data-path=\"/data/workspaces\">workspaces</a> and <a class=\"doc-link\" data-path=\"/idm/users\">users</a>,\n                            check all <a class=\"doc-link\" data-path=\"/admin/logs\">events</a> that happened on the platform, and manage <a class=\"doc-link\" data-path=\"/parameters/core\">configurations</a> and <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
+    "other": "Pydio 관리를 위한 대시보드입니다. 왼쪽 메뉴를 사용하여 <a class=\"doc-link\" data-path=\"/data/workspaces\">작업공간</a> 및 <a class=\"doc-link\" data-path=\"/idm/users\"> 사용자 </a>를 생성할 수 있습니다.\n플랫폼에서 발생한 모든 <a class=\"doc-link\" data-path=\"/admin/logs\">이벤트</a>를 체크하고  <a class=\"doc-link\" data-path=\"/parameters/core\"> 구성 </a> 및 <a class=\"doc-link\" data-path=\"/plugins/manager\">플러그인</a>을 관리합니다."
   },
   "welc.import": {
-    "other": "If you are currently running a Pydio 8 installation, please be aware that <u>Pydio 8 will be considered End-Of-Life at the end of 2019</u>. You can use the <a class=\"doc-link\" data-path=\"/data/migration\">Import Tool</a> to migrate all data to Pydio Cells."
+    "other": "현재 Pydio 8 설치를 실행 중인 경우 <u> Pydio 8은 2019년 말에 End-Of-Life로 간주됩니다.</u> <a class=\"doc-link\" data-path=\"/data/migration\">가져오기 도구</a>를 사용하여 모든 데이터를 Pydio Cells로 마이그레이션합니다."
   },
   "welc.subtitle": {
-    "other": "The place to administrate and monitor the activity of your platform"
+    "other": "플랫폼의 활동을 관리하고 모니터링하는 장소"
   },
   "welc.title": {
-    "other": "Welcome to Pydio Cells v4"
+    "other": "Pydio Cells v4에 오신 것을 환영합니다."
   },
   "card.quick-access": {
-    "other": "Quick Access"
+    "other": "퀵 액세스"
   },
   "card.quick-access.add": {
-    "other": "Add a shortcut ..."
+    "other": "바로가기 추가"
   },
   "card.update.current": {
-    "other": "Software Version"
+    "other": "소프트웨어 버전"
   },
   "card.update.no-updates": {
-    "other": "Software is up-to-date"
+    "other": "소프트웨어가 최신 상태임"
   },
   "card.update.new-version": {
-    "other": "A new version is available"
+    "other": "새로운 버전을 사용할 수 있습니다."
   },
   "recentLogs.title": {
-    "other": "Last Events"
+    "other": "최신 이벤트"
   },
   "recentLogs.errors": {
-    "other": "Errors"
+    "other": "오류"
   },
   "recentLogs.emptyState": {
-    "other": "No activity found"
+    "other": "활동을 찾을 수 없습니다."
   },
   "recentLogs.more": {
-    "other": "All Activities"
+    "other": "모든 활동"
   },
   "graph.files": {
-    "other": "Files Activity"
+    "other": "파일 활동"
   },
   "graph.connections": {
-    "other": "Web Connections"
+    "other": "웹 연결"
   }
 }

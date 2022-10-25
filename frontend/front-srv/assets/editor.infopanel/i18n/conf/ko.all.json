@@ -1,14 +1,14 @@
 {
   "Info Panel": {
-    "other": "Info Panel"
+    "other": "정보 패널"
   },
   "Info Panel...": {
-    "other": "Info Panel..."
+    "other": "정보 패널..."
   },
   "Open in...": {
-    "other": "Open in..."
+    "other": "다음으로 파일열기.."
   },
   "Simple Picker to open any type of file in any available editor.": {
-    "other": "Simple Picker to open any type of file in any available editor."
+    "other": "사용 가능한 편집기에서 모든 유형의 파일을 여는 심플 피커"
   }
 }

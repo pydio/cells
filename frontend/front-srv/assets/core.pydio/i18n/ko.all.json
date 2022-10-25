@@ -1,105 +1,105 @@
 {
   "0": {
-    "other": "Last version"
+    "other": "최종 버전"
   },
   "1": {
-    "other": "Filename"
+    "other": "파일명"
   },
   "10": {
-    "other": "Text file"
+    "other": "텍스트 파일"
   },
   "100": {
-    "other": "Cannot find file "
+    "other": "파일을 찾을 수 없습니다. "
   },
   "101": {
-    "other": "The origin and destination folders are the same!"
+    "other": "원본과 대상 폴더가 동일합니다!"
   },
   "102": {
-    "other": "Error while creating file :"
+    "other": "파일 생성할때 에러 발생 :"
   },
   "103": {
-    "other": "Cannot find folder "
+    "other": "폴더를 찾을 수 없습니다 "
   },
   "104": {
-    "other": "Go to the given location"
+    "other": "주어진 위치로 이동하기"
   },
   "105": {
-    "other": "Email an url to access directly to this location."
+    "other": "이 경로에 직접 접근하기 위한 url을 이메일로 보냅니다."
   },
   "106": {
-    "other": "Send Mail"
+    "other": "메일 보내기"
   },
   "107": {
-    "other": "Your name and/or email"
+    "other": "당신의 이름 그리고/또는 이메일"
   },
   "108": {
-    "other": "The destination email"
+    "other": "대상 이메일"
   },
   "109": {
-    "other": "Clickable URL"
+    "other": "클릭 가능한 URL 주소"
   },
   "11": {
-    "other": "Javascript"
+    "other": "자바스크립트"
   },
   "110": {
-    "other": "Add a comment"
+    "other": "의견 추가"
   },
   "111": {
-    "other": "The following email has been sent :"
+    "other": "다음의 이메일은 이미 보내졌습니다:"
   },
   "112": {
-    "other": "Email sending failed : "
+    "other": "이메일 전송 실패 : "
   },
   "113": {
-    "other": "The selection is empty!"
+    "other": "선택한 것이 없습니다!"
   },
   "114": {
-    "other": "Unkown error happened during copy!"
+    "other": "복사하는 동안 알 수 없는 에러가 발생했습니다!"
   },
   "115": {
-    "other": "The file has been saved successfully"
+    "other": "파일이 성공적으로 저장되었습니다."
   },
   "116": {
-    "other": "files"
+    "other": "파일"
   },
   "117": {
-    "other": "The folder"
+    "other": "폴더"
   },
   "118": {
-    "other": "Download Multiple File"
+    "other": "복수 파일 다운로드"
   },
   "119": {
-    "other": "Click on each file to download it."
+    "other": "다운로드할 각각의 파일을 클릭하세요."
   },
   "12": {
-    "other": "GIF picture"
+    "other": "GIF 사진"
   },
   "120": {
-    "other": "You are not allowed to delete the whole arborescence!"
+    "other": "전체 가지를 삭제하는 것이 허용되지 않았습니다."
   },
   "121": {
-    "other": "Image File "
+    "other": "이미지 파일 "
   },
   "122": {
-    "other": "Recycle Bin"
+    "other": "휴지통"
   },
   "123": {
-    "other": "has been moved to the "
+    "other": "이동되었습니다. "
   },
   "124": {
-    "other": "Overwrite existing files?"
+    "other": "기존의 파일을 덮어 쓰시겠습니까?"
   },
   "125": {
-    "other": "A file/folder with that name already exists (names are case insensitive). Please choose another one!"
+    "other": "해당 이름을 가진 파일/폴더가 이미 존재합니다(이름은 대소문자를 구분하지 않습니다). 다른 이름을 선택하십시오!"
   },
   "126": {
-    "other": "Thumbnails"
+    "other": "썸네일"
   },
   "127": {
     "other": "Size"
   },
   "128": {
-    "other": "files selected."
+    "other": "파일이 선택되었습니다."
   },
   "129": {
     "other": "View"
@@ -111,10 +111,10 @@
     "other": "Folders"
   },
   "131": {
-    "other": "Details"
+    "other": "세부사항"
   },
   "132": {
-    "other": "No file or folder"
+    "other": "파일 또는 폴더가 없습니다"
   },
   "133": {
     "other": "이름"
@@ -156,10 +156,10 @@
     "other": "My Bookmarks"
   },
   "146": {
-    "other": "Delete Bookmark"
+    "other": "즐겨찾기 삭제"
   },
   "147": {
-    "other": "Bookmarks"
+    "other": "즐겨찾기"
   },
   "148": {
     "other": "Parent"
@@ -183,10 +183,10 @@
     "other": "Add/remove item to MyBookmarks"
   },
   "152-on": {
-    "other": "Bookmark"
+    "other": "즐겨찾기"
   },
   "153-on": {
-    "other": "Add item to MyBookmarks"
+    "other": "내즐겨찾기에 아이템 추가"
   },
   "152-off": {
     "other": "Remove Bookmark"
@@ -201,19 +201,19 @@
     "other": "Create new folder"
   },
   "156": {
-    "other": "New empty file"
+    "other": "새로운 빈 파일"
   },
   "157": {
-    "other": "Create new empty file"
+    "other": "새로운 빈 파일 생성"
   },
   "158": {
-    "other": "Rename selected file or folder"
+    "other": "선택된 파일이나 폴더명 변경"
   },
   "159": {
     "other": "Copy selection to..."
   },
   "16": {
-    "other": "REAL file"
+    "other": "REAL 파일"
   },
   "160": {
     "other": "Move selected files to ..."
@@ -225,70 +225,70 @@
     "other": "Edit text files online."
   },
   "163": {
-    "other": "Log in"
+    "other": "로그인"
   },
   "164": {
-    "other": "Log out"
+    "other": "로그아웃"
   },
   "165": {
-    "other": "Settings"
+    "other": "설정"
   },
   "166": {
-    "other": "About"
+    "other": "소개"
   },
   "167": {
-    "other": "About Pydio"
+    "other": "Pydio 정보"
   },
   "168": {
-    "other": "Connect to APPLICATION_TITLE"
+    "other": "APPLICATION_TITLE로 접속"
   },
   "169": {
-    "other": "Disconnect from APPLICATION_TITLE"
+    "other": "APPLICATION_TITLE에서 접속해제"
   },
   "17": {
-    "other": "REAL file"
+    "other": "REAL 파일"
   },
   "170": {
-    "other": "Current Folder"
+    "other": "현재 폴더"
   },
   "171": {
-    "other": "Browse"
+    "other": "탐색"
   },
   "172": {
-    "other": "Your Selection"
+    "other": "당신의 선택"
   },
   "173": {
-    "other": "New folder name"
+    "other": "새 폴더명"
   },
   "174": {
-    "other": "New file name"
+    "other": "새 파일명"
   },
   "175": {
-    "other": "Select destination folder"
+    "other": "대상 폴더 선택"
   },
   "176": {
-    "other": "The selected files will be moved to the Recycle Bin."
+    "other": "선택한 파일들은 휴지통으로 이동될 것입니다."
   },
   "177": {
-    "other": "Are you sure you want to permanently delete the selected files?"
+    "other": "선택한 파일을 영구적으로 삭제하시겠습니까?"
   },
   "178": {
-    "other": "Previous"
+    "other": "이전"
   },
   "179": {
-    "other": "Next"
+    "other": "다음"
   },
   "18": {
-    "other": "PERL script"
+    "other": "PERL 스크립트"
   },
   "180": {
-    "other": "Enter login/password"
+    "other": "로그인/비밀번호를 입력하세요"
   },
   "181": {
-    "other": "Login"
+    "other": "로그인"
   },
   "182": {
-    "other": "Password"
+    "other": "비밀번호"
   },
   "183": {
     "other": "Please select a destination folder different from the origin!"
@@ -309,28 +309,28 @@
     "other": "Edit My Preferences"
   },
   "19": {
-    "other": "ZIP file"
+    "other": "ZIP 파일"
   },
   "190": {
-    "other": "Language"
+    "other": "언어"
   },
   "191": {
-    "other": "Default Display"
+    "other": "기본 표시"
   },
   "192": {
-    "other": "List"
+    "other": "목록"
   },
   "193": {
-    "other": "Thumbnails"
+    "other": "썸네일"
   },
   "194": {
-    "other": "Change Password"
+    "other": "비밀번호 변경"
   },
   "195": {
-    "other": "User Preferences"
+    "other": "사용자 기본 설정"
   },
   "196": {
-    "other": "Your language differs from the current language!\\n Do you want to reload the page to switch language?"
+    "other": "언어가 현재 언어와 다릅니다!\\n 언어를 전환하기 위해 페이지를 다시 로드하시겠습니까?"
   },
   "197": {
     "other": "Your password change will take effect after you logout."
@@ -339,13 +339,13 @@
     "other": "New"
   },
   "199": {
-    "other": "Confirm"
+    "other": "확인"
   },
   "2": {
     "other": "Size"
   },
   "20": {
-    "other": "WAV file"
+    "other": "WAV 파일"
   },
   "200": {
     "other": "Switch Repository to..."
@@ -360,13 +360,13 @@
     "other": "Destintation folder is the same as original folder!"
   },
   "204": {
-    "other": "The file \""
+    "other": "파일 \""
   },
   "205": {
-    "other": "\" exceeds size limit ("
+    "other": "\" 제한된 크기를 초과함 ("
   },
   "206": {
-    "other": "Mb).\\nIt will not be uploaded."
+    "other": "Mb).\\n업로드되지 않습니다."
   },
   "207": {
     "other": "You have no write permission on this folder"
@@ -381,7 +381,7 @@
     "other": "PHP script"
   },
   "210": {
-    "other": "Upload failed"
+    "other": "업로드 실패"
   },
   "211": {
     "other": "The file is too big! Please contact your administrator or use the desktop sync client."
@@ -393,130 +393,130 @@
     "other": "Error while copying file to current folder"
   },
   "214": {
-    "other": "Browse"
+    "other": "탐색"
   },
   "215": {
-    "other": "Start Upload"
+    "other": "업로드 시작"
   },
   "216": {
-    "other": "Clear"
+    "other": "지우기"
   },
   "217": {
-    "other": "Clear Completed"
+    "other": "완료작업 지우기"
   },
   "218": {
     "other": "Remove from queue"
   },
   "219": {
-    "other": "Completed"
+    "other": "완료됨"
   },
   "22": {
-    "other": "PHP script"
+    "other": "PHP 스크립트"
   },
   "220": {
-    "other": "Empty"
+    "other": "비어있음"
   },
   "221": {
-    "other": "Empty Recycle Bin"
+    "other": "휴지통 비우기"
   },
   "222": {
-    "other": "Restore"
+    "other": "복원"
   },
   "223": {
-    "other": "Restore file to its original location"
+    "other": "원래 위치로 파일을 복원"
   },
   "224": {
-    "other": "Go to"
+    "other": "이동하기"
   },
   "225": {
-    "other": "Rename bookmark"
+    "other": "즐겨찾기 이름 변경"
   },
   "226": {
-    "other": "Details"
+    "other": "세부사항"
   },
   "227": {
-    "other": "Switch to detailed table view"
+    "other": "상세 표보기로 전환"
   },
   "228": {
-    "other": "Thumbs"
+    "other": "썸네일"
   },
   "229": {
-    "other": "Switch to thumbnails view"
+    "other": "썸네일 보기로 전환"
   },
   "23": {
-    "other": "File"
+    "other": "파일"
   },
   "230": {
-    "other": "Play"
+    "other": "재생"
   },
   "231": {
-    "other": "Play Slideshow"
+    "other": "슬라이드쇼 재생"
   },
   "232": {
-    "other": "Stop"
+    "other": "중지"
   },
   "233": {
-    "other": "Stop Slideshow"
+    "other": "슬라이드쇼 중단"
   },
   "234": {
-    "other": "View selected images"
+    "other": "선택한 이미지 보기"
   },
   "235": {
-    "other": "Fullscreen"
+    "other": "전체 화면"
   },
   "236": {
-    "other": "Restore"
+    "other": "복원"
   },
   "237": {
-    "other": "Old password"
+    "other": "이전 비밀번호"
   },
   "238": {
-    "other": "Passwords differ!"
+    "other": "비밀번호가 다릅니다!"
   },
   "239": {
-    "other": "Please fill you current password"
+    "other": "현재 비밀번호를 넣어주세요."
   },
   "24": {
-    "other": "Parent directory"
+    "other": "부모 디렉토리"
   },
   "240": {
-    "other": "Wrong password!"
+    "other": "잘못된 비밀번호입니다!"
   },
   "241": {
-    "other": "Your preferences have been saved successfully!"
+    "other": "기본설정이 성공적으로 저장되었습니다!"
   },
   "242": {
-    "other": "Svn Log"
+    "other": "Svn 로그"
   },
   "243": {
-    "other": "Revision"
+    "other": "개정"
   },
   "244": {
-    "other": "Author"
+    "other": "저자"
   },
   "245": {
-    "other": "Date"
+    "other": "날짜"
   },
   "246": {
-    "other": "Message"
+    "other": "메시지"
   },
   "247": {
-    "other": "Extract"
+    "other": "추출"
   },
   "248": {
-    "other": "Extract selection from zip to..."
+    "other": "Zip파일에서 선택 항목 추출..."
   },
   "249": {
-    "other": "Users"
+    "other": "사용자"
   },
   "25": {
-    "other": "Upload one or more files (max. %s in the directory : "
+    "other": "하나 이상의 파일을 업로드합니다(디렉토리에서 최대 %s: "
   },
   "250": {
-    "other": "Workspaces"
+    "other": "작업공간"
   },
   "251": {
-    "other": "Logs"
+    "other": "로그"
   },
   "252": {
     "other": "The total file size limit has been reached."
@@ -531,13 +531,13 @@
     "other": "These has been a Security Error:"
   },
   "256": {
-    "other": "Uploaded"
+    "other": "업로드됨"
   },
   "257": {
     "other": "Remove"
   },
   "258": {
-    "other": "File count :"
+    "other": "파일 수:"
   },
   "259": {
     "other": "Total size :"
@@ -546,7 +546,7 @@
     "other": "Create a new directory in : "
   },
   "260": {
-    "other": "bytes"
+    "other": "바이트"
   },
   "261": {
     "other": "Remember Me"
@@ -558,37 +558,37 @@
     "other": "Overwrite"
   },
   "264": {
-    "other": "Skip"
+    "other": "건너뛰기"
   },
   "265": {
-    "other": "Files"
+    "other": "파일"
   },
   "266": {
     "other": "B"
   },
   "267": {
-    "other": "Create"
+    "other": "생성"
   },
   "268": {
-    "other": "Create a new table"
+    "other": "새 테이블 만들기"
   },
   "269": {
-    "other": "Structure"
+    "other": "구조"
   },
   "27": {
-    "other": "Upload"
+    "other": "업로드"
   },
   "270": {
-    "other": "Edit table structure"
+    "other": "테이블 구조 편집"
   },
   "271": {
-    "other": "Drop"
+    "other": "버리기"
   },
   "272": {
-    "other": "Drop open table"
+    "other": "열린 테이블 버리기"
   },
   "273": {
-    "other": "Insert"
+    "other": "삽입"
   },
   "274": {
     "other": "Insert a new record"
@@ -615,16 +615,16 @@
     "other": "Records"
   },
   "281": {
-    "other": "Upload Limits"
+    "other": "업로드 제한"
   },
   "282": {
-    "other": "Size per File"
+    "other": "파일당 크기"
   },
   "283": {
-    "other": "Total Size"
+    "other": "전체 크기"
   },
   "284": {
-    "other": "Files Number"
+    "other": "파일 수"
   },
   "285": {
     "other": "Cannot find user, please try again.\\n Make sure your Caps Lock is not engaged!"
@@ -636,46 +636,46 @@
     "other": "File Permissions"
   },
   "288": {
-    "other": "User"
+    "other": "사용자"
   },
   "289": {
-    "other": "Group"
+    "other": "그룹"
   },
   "29": {
-    "other": "Create"
+    "other": "생성"
   },
   "290": {
-    "other": "All"
+    "other": "전체"
   },
   "291": {
-    "other": "Apply recursively?"
+    "other": "재귀적으로 처리하겠습니까?"
   },
   "292": {
-    "other": "Share"
+    "other": "공유"
   },
   "293": {
-    "other": "Create a public link to this file"
+    "other": "이 파일에 공용 링크를 생성"
   },
   "294": {
     "other": "Link time expiration (in days) and password (leave empty if no password)."
   },
   "295": {
-    "other": "Expiration"
+    "other": "만료"
   },
   "296": {
-    "other": "Copy the URL below:"
+    "other": "아래의 URL주소를 복사"
   },
   "297": {
-    "other": "New User"
+    "other": "새 사용자"
   },
   "298": {
-    "other": "Create a new user"
+    "other": "새 사용자 만들기"
   },
   "299": {
-    "other": "Workspaces"
+    "other": "작업공간"
   },
   "3": {
-    "other": "Type"
+    "other": "형식"
   },
   "30": {
     "other": "Write a name for the directory then click on &quot;Create&quot;"
@@ -693,7 +693,7 @@
     "other": "Copy selection as tab-separated text."
   },
   "304": {
-    "other": "Back"
+    "other": "뒤로가기"
   },
   "305": {
     "other": "Go back to main page"
@@ -705,34 +705,34 @@
     "other": "Fill optional fields"
   },
   "308": {
-    "other": "Generate Link"
+    "other": "링크 생성"
   },
   "309": {
-    "other": "Generate"
+    "other": "생성"
   },
   "31": {
-    "other": "You must select a file"
+    "other": "파일을 선택하세요."
   },
   "310": {
-    "other": "Options"
+    "other": "옵션"
   },
   "311": {
-    "other": "Upload automatically when a file is added"
+    "other": "파일이 추가되면 자동적으로 업로드"
   },
   "312": {
-    "other": "Uploader Options"
+    "other": "업로더 옵션"
   },
   "313": {
-    "other": "Compress..."
+    "other": "압축..."
   },
   "314": {
-    "other": "Compress selection to zip..."
+    "other": "선택항목을 zip으로 압축"
   },
   "315": {
-    "other": "Compress selection to"
+    "other": "선택항목을 압축"
   },
   "316": {
-    "other": "View/Edit"
+    "other": "보기/편집"
   },
   "317": {
     "other": "Source Editor"
@@ -744,7 +744,7 @@
     "other": "HTML Editor"
   },
   "32": {
-    "other": "Explore"
+    "other": "탐색"
   },
   "320": {
     "other": "WYSIWYG editor for HTML"
@@ -777,7 +777,7 @@
     "other": "View pdf,svg, tif and more online"
   },
   "33": {
-    "other": "Error uploading file !"
+    "other": "파일 업로드 시 오류!"
   },
   "330": {
     "other": "Please wait while the pages are being rendered..."
@@ -801,22 +801,22 @@
     "other": "Sorry you cannot drop folders, drop only files!"
   },
   "337": {
-    "other": "Start uploading automatically"
+    "other": "자동적으로 업로드 시작"
   },
   "338": {
-    "other": "Close panel after upload is finished"
+    "other": "업로드가 완료되면 패널 닫기"
   },
   "339": {
-    "other": "Existing Files"
+    "other": "존재하는 파일"
   },
   "34": {
-    "other": "The file"
+    "other": "파일"
   },
   "340": {
-    "other": "Alert"
+    "other": "경고"
   },
   "341": {
-    "other": "File Info"
+    "other": "파일 정보"
   },
   "342": {
     "other": "Folder Info"
@@ -978,7 +978,7 @@
     "other": "has been created in"
   },
   "390": {
-    "other": "Code"
+    "other": "코드"
   },
   "391": {
     "other": "No Repository"
@@ -999,7 +999,7 @@
     "other": "Auth. Method"
   },
   "397": {
-    "other": "Download chunked"
+    "other": "청크 다운로드"
   },
   "398": {
     "other": "Download selected file by pieces"
@@ -1089,7 +1089,7 @@
     "other": "Please fill the required parameters. Fly over the field titles with your mouse to have more information."
   },
   "423": {
-    "other": "Delete workspace"
+    "other": "작업공간 삭제"
   },
   "424": {
     "other": "Are you sure you want to delete this workspace? The operation is irreversible."
@@ -1113,13 +1113,13 @@
     "other": "already exists  (names are case insensitive)"
   },
   "430": {
-    "other": "Common Files"
+    "other": "공통 파일"
   },
   "431": {
     "other": "Sample Template"
   },
   "432": {
-    "other": "My Files"
+    "other": "내 파일"
   },
   "433": {
     "other": "ready"
@@ -1128,7 +1128,7 @@
     "other": "sending"
   },
   "435": {
-    "other": "done"
+    "other": "완료"
   },
   "436": {
     "other": "error"
@@ -1140,7 +1140,7 @@
     "other": "reload the page"
   },
   "439": {
-    "other": "Main Options"
+    "other": "메인 옵션"
   },
   "44": {
     "other": "has been deleted"
@@ -1170,13 +1170,13 @@
     "other": "My group"
   },
   "448": {
-    "other": "create user"
+    "other": "사용자 생성"
   },
   "449": {
     "other": "Creating %s, choose a password"
   },
   "45": {
-    "other": "directory"
+    "other": "디렉토리"
   },
   "450": {
     "other": "Sort by ..."
@@ -1209,7 +1209,7 @@
     "other": "Top folder"
   },
   "46": {
-    "other": "file"
+    "other": "파일"
   },
   "460": {
     "other": "List"
@@ -1221,10 +1221,10 @@
     "other": "Preview"
   },
   "463": {
-    "other": "Download all"
+    "other": "전체 다운로드"
   },
   "464": {
-    "other": "Download all workspace content at once (zipped)"
+    "other": "모든 작업공간을 한번에 다운로드 (Zip압축)"
   },
   "465": {
     "other": "Show alternative URLs (mount workspaces separately)"
@@ -1278,7 +1278,7 @@
     "other": "OK"
   },
   "480": {
-    "other": "Browse all folders of the current workspace."
+    "other": "현재 작업공간에서 모든 폴더 탐색"
   },
   "481": {
     "other": "All your shared files and folders"
@@ -1290,31 +1290,31 @@
     "other": "You are not authorized to create more users!"
   },
   "484": {
-    "other": "Create user"
+    "other": "사용자 생성"
   },
   "485": {
     "other": "Create a shared user"
   },
   "486": {
-    "other": "Advanced"
+    "other": "고급"
   },
   "487": {
-    "other": "Basic"
+    "other": "기본"
   },
   "488": {
-    "other": "Advanced Filter"
+    "other": "고급 필터"
   },
   "489": {
-    "other": "Metadata"
+    "other": "메타데이터"
   },
   "49": {
-    "other": "CANCEL"
+    "other": "취소"
   },
   "490": {
-    "other": "Date range"
+    "other": "날짜 범위"
   },
   "491": {
-    "other": "After"
+    "other": "이후"
   },
   "492": {
     "other": "until"
@@ -1338,13 +1338,13 @@
     "other": "Document Property"
   },
   "499": {
-    "other": "File"
+    "other": "파일"
   },
   "5": {
-    "other": "Actions"
+    "other": "동작"
   },
   "50": {
-    "other": "Exe file"
+    "other": "Exe 파일"
   },
   "500": {
     "other": "Extension"
@@ -1398,7 +1398,7 @@
     "other": "No bookmarks - Drop files or folders here for quick access."
   },
   "516": {
-    "other": "expand"
+    "other": "확장"
   },
   "517": {
     "other": "collapse"
@@ -1473,7 +1473,7 @@
     "other": "Upload error: file is partial"
   },
   "54": {
-    "other": "Cancel"
+    "other": "취소"
   },
   "540": {
     "other": "Upload error: cannot find the temporary directory"
@@ -1497,7 +1497,7 @@
     "other": "This item has been shared with you by %%OWNER%% from a remote location. Do you want to continue ?"
   },
   "547": {
-    "other": "Accept"
+    "other": "수락"
   },
   "548": {
     "other": "Decline"
@@ -1536,7 +1536,7 @@
     "other": "Authentication failed for this workspace."
   },
   "56": {
-    "other": "BMP picture"
+    "other": "BMP 사진"
   },
   "560": {
     "other": "Authentication required"
@@ -1560,7 +1560,7 @@
     "other": "You are not allowed to add files here"
   },
   "567": {
-    "other": "Browse Recycle Bin"
+    "other": "휴지통 탐색"
   },
   "568": {
     "other": "Teams"
@@ -1593,7 +1593,7 @@
     "other": "Let users create and edit their own teams"
   },
   "573": {
-    "other": "Add user to team"
+    "other": "팀에 사용자 추가"
   },
   "574": {
     "other": "Remove from team"
@@ -1602,7 +1602,7 @@
     "other": "Team Members"
   },
   "576": {
-    "other": "%s members"
+    "other": "%s 회원"
   },
   "577": {
     "other": "No members"
@@ -1629,7 +1629,7 @@
     "other": "Search Directory"
   },
   "584": {
-    "other": "Directory"
+    "other": "디렉토리"
   },
   "585": {
     "other": "No External Users"
@@ -1656,7 +1656,7 @@
     "other": "Choose a name for the team, and you will be able to add users to it after creation."
   },
   "592": {
-    "other": "Address Book"
+    "other": "주소록"
   },
   "593": {
     "other": "Shared Users"
@@ -1671,13 +1671,13 @@
     "other": "Server '%s'"
   },
   "597": {
-    "other": "all"
+    "other": "전체"
   },
   "598": {
     "other": "Send a message"
   },
   "599": {
-    "other": "Add a user"
+    "other": "사용자 추가"
   },
   "6": {
     "other": "Rename"
@@ -1692,7 +1692,7 @@
     "other": "One shared cell"
   },
   "602": {
-    "other": "%1 shared cells"
+    "other": "%1 공유된 셀"
   },
   "603": {
     "other": "Team"
@@ -1761,10 +1761,10 @@
     "other": "Error Stack"
   },
   "623": {
-    "other": "Copy"
+    "other": "복사"
   },
   "624": {
-    "other": "Copied!"
+    "other": "복사됨!"
   },
   "625": {
     "other": "Letter"
@@ -1788,7 +1788,7 @@
     "other": "Folders shared with me"
   },
   "631": {
-    "other": "This cell is empty!"
+    "other": "이 셀은 비어 있습니다!"
   },
   "632": {
     "other": "No cells yet"
@@ -1803,10 +1803,10 @@
     "other": "Your group"
   },
   "634c": {
-    "other": "All users"
+    "other": "전체 사용자"
   },
   "635": {
-    "other": "Chat Room"
+    "other": "대화방"
   },
   "636": {
     "other": "Start typing and hit Enter"
@@ -1830,7 +1830,7 @@
     "other": "Remove from current cell"
   },
   "642": {
-    "other": "Add to current cell"
+    "other": "현재 셀에 추가"
   },
   "643": {
     "other": "You now share a cell with %s"
@@ -1842,7 +1842,7 @@
     "other": "Word File"
   },
   "66": {
-    "other": "Copy"
+    "other": "복사"
   },
   "67": {
     "other": "Selected file"
@@ -1854,16 +1854,16 @@
     "other": "Or select another directory"
   },
   "7": {
-    "other": "Delete"
+    "other": "삭제"
   },
   "70": {
     "other": "Move"
   },
   "71": {
-    "other": "This file already exists (names are case insensitive)"
+    "other": "파일이 이미 존재합니다. (이름은 대소문자를 구분하지 않습니다)"
   },
   "72": {
-    "other": "The root path is not correct. Check it in the conf/conf.php file"
+    "other": "루트 경로가 올바르지 않습니다. conf/conf.php 파일을 체크해주세요."
   },
   "73": {
     "other": "has been copied into the directory"
@@ -1872,10 +1872,10 @@
     "other": "has been moved into the directory"
   },
   "75": {
-    "other": "The file users.txt is not in the directory prive"
+    "other": "파일 users.txt가 디렉토리 prive에 없습니다."
   },
   "76": {
-    "other": "This file has been removed"
+    "other": "파일이 삭제되었습니다."
   },
   "77": {
     "other": "Send"
@@ -1884,67 +1884,67 @@
     "other": "Pass"
   },
   "79": {
-    "other": "PDF File"
+    "other": "PDF 파일"
   },
   "8": {
-    "other": "Directory"
+    "other": "디렉토리"
   },
   "80": {
-    "other": "MOV File"
+    "other": "MOV 파일"
   },
   "81": {
-    "other": "AVI File"
+    "other": "AVI 파일"
   },
   "82": {
-    "other": "MPG File"
+    "other": "MPG 파일"
   },
   "83": {
-    "other": "MPEG File"
+    "other": "MPEG 파일"
   },
   "84": {
-    "other": "Help"
+    "other": "도움"
   },
   "85": {
-    "other": "Refresh"
+    "other": "새로고침"
   },
   "86": {
-    "other": "Close"
+    "other": "닫기"
   },
   "87": {
-    "other": "Search"
+    "other": "검색"
   },
   "88": {
-    "other": "Download"
+    "other": "다운로드"
   },
   "89": {
-    "other": "Unable to open file"
+    "other": "파일을 열 수 없습니다."
   },
   "9": {
-    "other": "Midi File"
+    "other": "미디 파일"
   },
   "90": {
-    "other": "Print"
+    "other": "인쇄"
   },
   "91": {
-    "other": "FLASH File"
+    "other": "FLASH 파일"
   },
   "92": {
-    "other": "Language"
+    "other": "언어"
   },
   "93": {
-    "other": "To choose your language, your browser must accept cookies."
+    "other": "당신의 언어를 선택하려면 당신의 브라우저는 반드시 쿠키를 허용해야 합니다."
   },
   "94": {
-    "other": "Login"
+    "other": "로그인"
   },
   "95": {
-    "other": "Select your language :"
+    "other": "언어를 선택해주세요 :"
   },
   "96": {
     "other": "Please select the destination folder in the tree : "
   },
   "97": {
-    "other": "Upload File"
+    "other": "파일 업로드"
   },
   "98": {
     "other": "Click anywhere on this box to close it."
@@ -1977,16 +1977,16 @@
     "other": "en_US"
   },
   "date_relative_date": {
-    "other": "on DATE"
+    "other": "DATE에"
   },
   "date_relative_date_format": {
     "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s days ago"
+    "other": "%s 일 전"
   },
   "date_relative_days_ahead": {
-    "other": "in %s days"
+    "other": "%s 일내로"
   },
   "date_relative_time": {
     "other": "TIME"
@@ -1995,13 +1995,13 @@
     "other": "H:i"
   },
   "date_relative_today": {
-    "other": "today at TIME"
+    "other": "TIME에 오늘"
   },
   "date_relative_tomorrow": {
-    "other": "tomorrow at TIME"
+    "other": "TIME에 내일"
   },
   "date_relative_yesterday": {
-    "other": "yesterday at TIME"
+    "other": "TIME의 어제"
   },
   "delete_access_key": {
     "other": "D"
@@ -2025,7 +2025,7 @@
     "other": "N"
   },
   "languageLabel": {
-    "other": "English"
+    "other": "영어"
   },
   "leftpane_accesskey": {
     "other": "L"
@@ -2043,7 +2043,7 @@
     "other": "P"
   },
   "plugtype.desc.access": {
-    "other": "Plugins defining how a workspace will both access its backend (a file storage or whatever else) and major layouts and actions."
+    "other": "작업공간이 백엔드(파일 저장소 등) 에 액세스하는 방법과 주요 레이아웃 및 작업을 정의하는 플러그인입니다."
   },
   "plugtype.desc.action": {
     "other": "Feature oriented plugins for various aspects"
@@ -2064,7 +2064,7 @@
     "other": "How configuration data are stored in the backend"
   },
   "plugtype.desc.cypher": {
-    "other": "Data encryption plugins"
+    "other": "데이터 암호화 플러그인"
   },
   "plugtype.desc.editor": {
     "other": "Viewers or editors for wide range of mime types"
@@ -2094,28 +2094,28 @@
     "other": "Additional features to be added to the workspaces"
   },
   "plugtype.desc.metastore": {
-    "other": "Various implementations for storing metadata along with files and folders"
+    "other": "파일 및 폴더와 함께 메타데이터를 저장하기 위한 다양한 구현"
   },
   "plugtype.desc.mq": {
     "other": "Implementations of a simple PUB/SUB server"
   },
   "plugtype.desc.sec": {
-    "other": "Advanced Security Features"
+    "other": "고급 보안 기능"
   },
   "plugtype.desc.shorten": {
     "other": "Webservices bridges for shortening public links"
   },
   "plugtype.desc.uploader": {
-    "other": "Uploaders based on various technologies like HTML, Javascript, Java and others"
+    "other": "HTML, 자바스크립트, 자바 등 다양한 기술을 기반으로 한 업로더"
   },
   "plugtype.title.access": {
     "other": "Workspaces Drivers"
   },
   "plugtype.title.action": {
-    "other": "Action plugins"
+    "other": "액션 플러그인"
   },
   "plugtype.title.auth": {
-    "other": "Authentication Backends"
+    "other": "인증 백엔드"
   },
   "plugtype.title.authfront": {
     "other": "Authentication Frontends"
@@ -2124,13 +2124,13 @@
     "other": "Loader"
   },
   "plugtype.title.cache": {
-    "other": "Cache server"
+    "other": "캐시 서버"
   },
   "plugtype.title.conf": {
     "other": "Configuration Storage"
   },
   "plugtype.title.cypher": {
-    "other": "Encryption Tools"
+    "other": "암호화 도구"
   },
   "plugtype.title.editor": {
     "other": "Editors"
@@ -2172,16 +2172,16 @@
     "other": "URL Shortening"
   },
   "plugtype.title.uploader": {
-    "other": "Uploaders"
+    "other": "업로더"
   },
   "preview_access_key": {
     "other": "e"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "부모 폴더"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "일괄 작업"
   },
   "refresh_access_key": {
     "other": "h"
@@ -2208,201 +2208,201 @@
     "other": "V"
   },
   "public_link_user": {
-    "other": "Public access"
+    "other": "전체 접근"
   },
   "background.move.file": {
-    "other": "Moving file in background ..."
+    "other": "백그라운드에서 파일 이동..."
   },
   "background.move.folder": {
-    "other": "Moving folder in background ..."
+    "other": "백그라운드에서 폴더 이동..."
   },
   "background.copy.selection": {
-    "other": "Copying selection in background ..."
+    "other": "백그라운드에서 선택 항목 복사..."
   },
   "overlay.lock.file": {
-    "other": "File is locked"
+    "other": "파일이 잠겼습니다."
   },
   "overlay.lock.folder": {
-    "other": "Folder is locked"
+    "other": "폴더가 잠겼습니다."
   },
   "overlay.watch.file": {
-    "other": "Currently watching this file"
+    "other": "현재 이 파일 보는 중"
   },
   "overlay.watch.folder": {
-    "other": "Currently watching this folder"
+    "other": "현재 이 폴더 보는 중"
   },
   "overlay.shared.file": {
-    "other": "Shared file, click to edit"
+    "other": "공유 파일, 편집하려면 클릭하세요"
   },
   "overlay.shared.folder": {
-    "other": "Shared folder, click to edit"
+    "other": "공유 폴더, 편집하려면 클릭하세요"
   },
   "overlay.bookmark.file": {
-    "other": "File is bookmarked"
+    "other": "파일이 즐겨찾기 되었습니다."
   },
   "overlay.bookmark.folder": {
-    "other": "Folder is bookmarked"
+    "other": "폴더가 즐겨찾기 되었습니다."
   },
   "bookmark.button.tip.add": {
-    "other": "Bookmark this element"
+    "other": "이 요소를 즐겨찾기"
   },
   "bookmark.button.tip.remove": {
-    "other": "Remove this bookmark"
+    "other": "이 즐겨찾기 삭제"
   },
   "bookmark.button.tip.mixed": {
-    "other": "Mixed values, click to bookmark all"
+    "other": "혼합된 값, 모두 즐겨찾기하려면 클릭하세요."
   },
   "bookmark.button.tip.saving": {
-    "other": "Saving bookmark status"
+    "other": "즐겨찾기 상태 저장"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "내부"
   },
   "mkfile.empty.template.label": {
-    "other": "Empty File"
+    "other": "빈 파일"
   },
   "mkfile.untitled.document": {
-    "other": "Untitled Document"
+    "other": "제목없는 문서"
   },
   "filename.forbidden.slash": {
-    "other": "Do not use / in file names!"
+    "other": "슬래시 문자(/)를 이름에 사용하지 마세요!"
   },
   "rename.newvalue.error.similar": {
-    "other": "Please use a different value for renaming!"
+    "other": "이름변경을 위한 다른 값을 사용해주세요!"
   },
   "rename.processing": {
-    "other": "Renaming %1 to %2"
+    "other": "%1 에서 %2 로 이름수정"
   },
   "cells.quick-filter": {
-    "other": "Filter Cells"
+    "other": "Cells을 필터링하기"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "작업공간을 필터링하기"
   },
   "visibility.panel.title": {
-    "other": "Visibility"
+    "other": "가시성"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "보기"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "편집"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "사용자"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "당신의 팀"
   },
   "visibility.panel.edit": {
-    "other": "Change visibility"
+    "other": "가시성 변경"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "변경사항 저장"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "변경사항 되돌리기"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "오류 발생함"
   },
   "visibility.panel.pickuser": {
-    "other": "Pick a user..."
+    "other": "사용자 선택..."
   },
   "visibility.panel.setvisible": {
-    "other": "Set visible to..."
+    "other": "보여지게 설정..."
   },
   "visibility.users.advanced": {
-    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
+    "other": "이 고급 기능을 사용하면 주소록에 작성한 사용자를 다른 사용자가 볼 수 있는지 또는 편집할 수 있는지 결정할 수 있습니다. 기본적으로 사용자는 사용자에게만 표시됩니다."
   },
   "user.unknown": {
-    "other": "Unknown"
+    "other": "알 수 없음"
   },
   "addressbook.pick.group": {
-    "other": "Select group"
+    "other": "그룹 선택"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "확인"
   },
   "confirm.dialog.destructive": {
-    "other": "You are about to delete"
+    "other": "당신은 삭제하려고 합니다."
   },
   "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
+    "other": "다음 번에는 경고하지 않게 함"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "페이지당 행 수"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "의"
   },
   "form.input-image.fileTypes": {
-    "other": "Please use only images (jpeg,png,bmp,webp)"
+    "other": "이미지(jpeg,png,bmp,webp)만 사용해주세요."
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "재설정"
   },
   "form.input-image.clearConfirm": {
-    "other": "Do you want to remove current image?"
+    "other": "현재 이미지를 제거하기 원합니까?"
   },
   "form.input-image.avatarMax": {
-    "other": "Please use images smaller than 5MB"
+    "other": "5MB보다 작은 이미지를 사용해주세요."
   },
   "searchengine.searching": {
-    "other": "Searching..."
+    "other": "검색 중..."
   },
   "searchengine.main.placeholder": {
-    "other": "Search..."
+    "other": "검색..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "검색: "
   },
   "searchengine.scope.title": {
-    "other": "Search In..."
+    "other": "다음에서 검색..."
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Advanced Filters"
+    "other": "고급 필터"
   },
   "searchengine.results.foundN": {
-    "other": "%1 results found"
+    "other": "%1 개의 결과를 발견"
   },
   "searchengine.results.withMore": {
-    "other": "Showing %1, load more..."
+    "other": "보여주기 %1, 더 로드하기..."
   },
   "searchengine.query.action.save": {
-    "other": "Save"
+    "other": "저장"
   },
   "searchengine.query.action.clear": {
-    "other": "Clear"
+    "other": "지우기"
   },
   "searchengine.query.action.delete": {
-    "other": "Delete"
+    "other": "삭제"
   },
   "searchengine.query.save-label": {
-    "other": "Enter a label"
+    "other": "라벨 입력"
   },
   "searchengine.field.basenameOrContent": {
-    "other": "Name/Content"
+    "other": "이름/컨텐츠"
   },
   "chat.load-older": {
-    "other": "Older entries"
+    "other": "오래된 항목"
   },
   "workspace.quota-usage": {
-    "other": "Quota Usage"
+    "other": "쿼타 사용"
   },
   "action.delete.permanently": {
-    "other": "Delete permanently"
+    "other": "영구 삭제"
   },
   "action.delete.permanently.warning": {
-    "other": "warning, you cannot undo this operation!"
+    "other": "경고, 이 작업을 실행 취소할 수 없습니다!"
   },
   "action.goto.label": {
-    "other": "Go To Folder"
+    "other": "폴더로 이동"
   },
   "action.copymove.recent": {
-    "other": "Recent Locations"
+    "other": "최근 위치"
   },
   "action.copymove.root": {
-    "other": "Top Folder"
+    "other": "최상위 폴더"
   }
 }

@@ -275,6 +275,12 @@
   "ds.editor.storage.s3.bucket": {
     "other": "Bucket Name"
   },
+  "ds.editor.storage.s3.endpoint.type": {
+    "other": "Endpunkt-Typ"
+  },
+  "ds.editor.storage.s3.signatureVersion": {
+    "other": "Signaturversion"
+  },
   "ds.editor.storage.s3.endpoint.amazon": {
     "other": "Amazon S3"
   },

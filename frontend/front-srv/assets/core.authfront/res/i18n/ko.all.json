@@ -1,26 +1,26 @@
 {
   "1": {
-    "other": "Password Reset"
+    "other": "비밀번호 초기화"
   },
   "2": {
-    "other": "Set your new password"
+    "other": "새 비밀번호 설정"
   },
   "3": {
-    "other": "Please enter your login or email address, a reset password will be sent to you by email."
+    "other": "로그인 또는 이메일 주소를 입력하면 재설정된 암호가 이메일로 전송됩니다."
   },
   "4": {
-    "other": "Your login or email"
+    "other": "당신의 로그인 또는 이메일 주소"
   },
   "5": {
-    "other": "A reset password request has been sent to the email registered with your account. Click on the link in the email to recreate a password."
+    "other": "계정에 등록된 이메일로 암호 재설정 요청이 전송되었습니다. 이메일의 링크를 클릭하여 암호를 재생성합니다."
   },
   "6": {
-    "other": "Thank you, please reload now to log in!"
+    "other": "감사합니다. 로그인을 위해서 지금 리로드하세요!"
   },
   "7": {
-    "other": "A password reset has been requested on the account associated to this email address. If you are not the author of this request, you can safely ignore this email. Otherwise click on the following link to reset your password:"
+    "other": "이 이메일 주소에 연결된 계정에 암호 재설정이 요청되었습니다. 이 요청의 작성자가 아닌 경우 이 이메일을 무시해도 됩니다. 그렇지 않으면 다음 링크를 클릭하여 암호를 재설정하십시오."
   },
   "8": {
-    "other": "Use the form below to reset your password. Please enter your login and the new password twice."
+    "other": "암호를 재설정하려면 아래 양식을 사용하십시오. 로그인과 새 암호를 두 번 입력하십시오."
   }
 }

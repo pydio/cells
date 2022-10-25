@@ -1,32 +1,32 @@
 {
   "1": {
-    "other": "OpenLayers Map"
+    "other": "오픈레이어맵"
   },
   "10": {
-    "other": "Clear"
+    "other": "지우기"
   },
   "2": {
-    "other": "Filter"
+    "other": "필터"
   },
   "3": {
-    "other": "Position"
+    "other": "위치"
   },
   "4": {
-    "other": "Layers"
+    "other": "레이어"
   },
   "5": {
-    "other": "Antialias"
+    "other": "안티알리아스"
   },
   "6": {
-    "other": "Format"
+    "other": "형식"
   },
   "7": {
-    "other": "Styles"
+    "other": "스타일"
   },
   "8": {
-    "other": "Filter"
+    "other": "필터"
   },
   "9": {
-    "other": "Search"
+    "other": "검색"
   }
 }

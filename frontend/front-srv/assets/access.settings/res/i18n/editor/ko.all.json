@@ -1,6 +1,6 @@
 {
   "1": {
-    "other": "No Parameters"
+    "other": "매개변수가 없습니다"
   },
   "10": {
     "other": "Write Only"
@@ -30,13 +30,13 @@
     "other": "Plugins Settings"
   },
   "19": {
-    "other": "always overrides"
+    "other": "항상 재정의"
   },
   "2": {
-    "other": "Enabled"
+    "other": "활성화"
   },
   "20": {
-    "other": "+ add role"
+    "other": "+ 역할 추가"
   },
   "21": {
     "other": "reloading..."
@@ -78,10 +78,10 @@
     "other": "Specific profile. May imply some roles automatically applied."
   },
   "33": {
-    "other": "Close"
+    "other": "닫기"
   },
   "34": {
-    "other": "Access Controls"
+    "other": "접근 제어"
   },
   "35": {
     "other": "Workspaces Accesses"
@@ -105,7 +105,7 @@
     "other": "Per-workspaces parameters"
   },
   "41": {
-    "other": "Additional Parameters"
+    "other": "추가 매개변수"
   },
   "42": {
     "other": "Refine application parameters values and selectively disable plugin actions for this current role. Parameters here are global to the application (authentication, configuration, etc). See the Workspaces tabs for workspace-specific parameters/actions."
@@ -168,7 +168,7 @@
     "other": "Add for ..."
   },
   "parameters.scope.all": {
-    "other": "All Workspaces"
+    "other": "전체 작업공간"
   },
   "parameters.scope.shared": {
     "other": "Shared Cells only"
@@ -189,7 +189,7 @@
     "other": "Welcome page displayed after login"
   },
   "workspace.statics.settings.title": {
-    "other": "Admin Console"
+    "other": "관리 콘솔"
   },
   "workspace.statics.settings.description": {
     "other": "Pydio Cells administration dashboard"

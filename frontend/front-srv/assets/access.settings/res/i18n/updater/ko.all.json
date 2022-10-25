@@ -42,7 +42,7 @@
     "other": "Label"
   },
   "package.details": {
-    "other": "Details"
+    "other": "세부사항"
   },
   "package.changelog": {
     "other": "Show Changelog"
@@ -69,7 +69,7 @@
     "other": "Install now"
   },
   "upgrade.ed.button.close": {
-    "other": "Close"
+    "other": "닫기"
   },
   "upgrade.ed.eula.title": {
     "other": "Please Accept End-User License Agreement"

@@ -1,26 +1,26 @@
 {
   "1": {
-    "other": "External window"
+    "other": "외부 윈도우"
   },
   "2": {
-    "other": "External browser window"
+    "other": "외부 브라우저 윈도우"
   },
   "3": {
-    "other": "Opening file in external window, please wait, this window should close automatically."
+    "other": "외부 윈도우에서 파일을 여는 중입니다. 잠시 기다려 주십시오. 이 창은 자동으로 닫힙니다."
   },
   "4": {
-    "other": "New URL Bookmark"
+    "other": "새로운 URL 즐겨찾기"
   },
   "5": {
-    "other": "Alternatively, you can <a>create a new bookmark to an URL</a>"
+    "other": "또는 <a> URL에 새 책갈피를 만들 수 있습니다</a>"
   },
   "6": {
-    "other": "Enter an URL starting with http/https"
+    "other": "http/https로 시작하는 URL 주소를 입력해주세요"
   },
   "7": {
-    "other": "URL Bookmark"
+    "other": "URL 주소 즐겨찾기"
   },
   "8": {
-    "other": "Enter a label for this bookmark"
+    "other": "이 즐겨찾기를 위한 라벨을 입력해주세요"
   }
 }

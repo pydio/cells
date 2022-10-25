@@ -1,9 +1,9 @@
 {
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "페이지당 #항목수"
   },
   "16X16 Icon for representing the template": {
-    "other": "16X16 Icon for representing the template"
+    "other": "템플릿 표현을 위한 16X16 아이콘"
   },
   "A user-defined description of the content of this workspace": {
     "other": "A user-defined description of the content of this workspace"
@@ -21,19 +21,19 @@
     "other": "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead."
   },
   "Admin Login": {
-    "other": "Admin Login"
+    "other": "관리자 로그인"
   },
   "Admin email": {
-    "other": "Admin email"
+    "other": "관리자 이메일"
   },
   "Administrator email, not used for the moment": {
-    "other": "Administrator email, not used for the moment"
+    "other": "관리자 이메일, 현재 사용되지 않음"
   },
   "Alias": {
-    "other": "Alias"
+    "other": "별칭"
   },
   "Alias for replacing the generated unique id of the repository": {
-    "other": "Alias for replacing the generated unique id of the workspace"
+    "other": "워크스페이스의 생성된 고유 Id를 바꾸기 위한 별칭"
   },
   "Allow group administrators to create a repository from this template.": {
     "other": "Allow group administrators to create a repository from this template."
@@ -99,13 +99,13 @@
     "other": "Comma-separated list of specific folders to hide"
   },
   "Command Line": {
-    "other": "Command Line"
+    "other": "커맨드 라인"
   },
   "Command-line Active": {
-    "other": "Command-line Active"
+    "other": "커맨드 라인 활성"
   },
   "Command-line PHP": {
-    "other": "Command-line PHP"
+    "other": "커맨드 라인 PHP"
   },
   "Common URI to access the shares. Please READ THE DOC to safely use this feature.": {
     "other": "Common URI to access the shares. Please READ THE DOC to safely use this feature."
@@ -183,7 +183,7 @@
     "other": "Display the list of files and folder when accessing through the browser"
   },
   "Download Delegation": {
-    "other": "Download Delegation"
+    "other": "다운로드 위임"
   },
   "Download Folder (Legacy)": {
     "other": "Download Folder (Legacy)"
@@ -210,13 +210,13 @@
     "other": "Enable the webDAV support. Please READ THE DOC to safely use this feature."
   },
   "Existing users": {
-    "other": "Existing users"
+    "other": "존재하는 사용자"
   },
   "Explicitly disable WebDAV access for this repository.": {
     "other": "Explicitly disable WebDAV access for this repository."
   },
   "File": {
-    "other": "File"
+    "other": "파일"
   },
   "File Type": {
     "other": "File Type"
@@ -297,7 +297,7 @@
     "other": "Login Redirect"
   },
   "Main": {
-    "other": "Main Options"
+    "other": "메인 옵션"
   },
   "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)": {
     "other": "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)"
@@ -306,13 +306,13 @@
     "other": "Maximum characters length of new files or folders"
   },
   "Metadata and indexation": {
-    "other": "Metadata and indexation"
+    "other": "메타데이터와 색인"
   },
   "Miscellaneous": {
-    "other": "Miscellaneous"
+    "other": "기타"
   },
   "Modification date": {
-    "other": "Modification date"
+    "other": "수정한 날짜"
   },
   "Name": {
     "other": "이름"

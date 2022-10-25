@@ -27,7 +27,7 @@
     "other": "Shared Workspaces"
   },
   "13": {
-    "other": "Action name"
+    "other": "액션 이름"
   },
   "14": {
     "other": "Repository Scope"
@@ -87,7 +87,7 @@
     "other": "Account Info"
   },
   "30": {
-    "other": "Confirm"
+    "other": "확인"
   },
   "31": {
     "other": "Role ID"
@@ -114,7 +114,7 @@
     "other": "locked"
   },
   "37": {
-    "other": "Deny"
+    "other": "거부"
   },
   "38": {
     "other": "inherited"
@@ -144,7 +144,7 @@
     "other": "Plugins Parameters Fine-tuning"
   },
   "45": {
-    "other": "Access Control List"
+    "other": "접근 제어 목록"
   },
   "46": {
     "other": "Disabled Actions"
@@ -153,7 +153,7 @@
     "other": "Search Roles"
   },
   "5": {
-    "other": "Actions"
+    "other": "동작"
   },
   "6": {
     "other": "Parameters"

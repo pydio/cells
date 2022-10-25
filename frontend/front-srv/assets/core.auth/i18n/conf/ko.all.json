@@ -9,10 +9,10 @@
     "other": "Add a Forgot Password link at the bottom of the login form"
   },
   "Authentication": {
-    "other": "Authentication"
+    "other": "인증"
   },
   "Both": {
-    "other": "Both"
+    "other": "양쪽 모두"
   },
   "Cache master users": {
     "other": "Cache master users"
@@ -78,7 +78,7 @@
     "other": "Minimum number of characters required for passwords in the application"
   },
   "Mode": {
-    "other": "Mode"
+    "other": "모드"
   },
   "Multiple Instances Mode": {
     "other": "Multiple Instances Mode"

@@ -1,6 +1,6 @@
 {
   "title": {
-    "other": "Data Import"
+    "other": "데이터 가져오기"
   },
   "legend": {
     "other": "Import tool from Pydio 8"
@@ -51,13 +51,13 @@
     "other": "Skip SSL verification (self-signed)"
   },
   "step.connection.field.login": {
-    "other": "Administrator login"
+    "other": "관리자 로그인"
   },
   "step.connection.field.pwd": {
-    "other": "Admin password"
+    "other": "관리자 비밀번호"
   },
   "step.connection.button.connect": {
-    "other": "Connect"
+    "other": "연결"
   },
   "step.meta.title": {
     "other": "Import Metadata"
@@ -84,7 +84,7 @@
     "other": "Workspace %s"
   },
   "step.meta.map.values": {
-    "other": " (Values %s)"
+    "other": " (값 %s)"
   },
   "step.disclaimer.title": {
     "other": "Disclaimer"
@@ -99,7 +99,7 @@
     "other": "We do not want to let you alone in the dark and the Pydio team offers a one-shot paying service to help you perform this migration on the open source version. Please contact our sales services if you wish to get help from a Pydio expert."
   },
   "step.disclaimer.support": {
-    "other": "Contact Support"
+    "other": "지원팀에 문의하기"
   },
   "step.disclaimer.quote": {
     "other": "Ask for a quote"
@@ -114,7 +114,7 @@
     "other": "Starting Pydio 8 import tool. This wizard will guide you through the steps required to feed Pydio Cells with data from an existing Pydio 8 server."
   },
   "step.prereq.step1": {
-    "other": "1. Prepare Pydio 8"
+    "other": "1. Pydio 8 준비"
   },
   "step.prereq.step2": {
     "other": "2. Prepare Cells and Data"
@@ -171,7 +171,7 @@
     "other": "Please note that share import is a uni-directionnal synchronization : performing this step many times will create duplicates. If you plan to perform migration multiple times, you should first import shares for a limited number of testing users."
   },
   "step.shares.restrict.type": {
-    "other": "1. Restrict the type of shares to be imported (select at least one):"
+    "other": "1. 가져올 공유 유형 제한(하나 이상 선택):"
   },
   "step.shares.restrict.user": {
     "other": "2. For testing purpose, you can limit import to one or more specific users (comma-separated list)"
@@ -183,13 +183,13 @@
     "other": "Import Workspaces"
   },
   "step.ws.loading": {
-    "other": "(loading...)"
+    "other": "(불러오는 중…)"
   },
   "step.ws.legend": {
     "other": "Importing Workspaces from Pydio 8 to Cells is a multi-step process:"
   },
   "step.ws.step1": {
-    "other": "1. Manually migrate the existing data from the current server to the new one (this may be unnecessary if you are running Pydio and Cells on the same server)."
+    "other": "1. 기존 데이터를 현재 서버에서 새 서버로 수동 마이그레이션합니다(동일한 서버에서 Pydio 및 Cells를 실행하는 경우 불필요할 수 있습니다)."
   },
   "step.ws.step2": {
     "other": "2. Create Cells datasources pointing to the new storage locations on the server."
@@ -252,7 +252,7 @@
     "other": "Invalid mapping - Please select a datasource or a workspace"
   },
   "dash.feature.configs": {
-    "other": "AD/LDAP Configuration"
+    "other": "AD/LDAP 설정"
   },
   "dash.feature.configs.legend": {
     "other": "There is no specific configuration for this step. AD/LDAP configurations will be imported to a Pydio Cells external directory."

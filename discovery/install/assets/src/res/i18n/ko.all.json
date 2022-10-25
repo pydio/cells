@@ -63,31 +63,31 @@
     "other": "시작할 때 계정들의 사용자 데이터와 cells 데이터를 저장하기 위한 기본 데이터 저장소가 생성됩니다. 이후에 다른 데이터 저장소를 생성할 수 있습니다."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "MongoDB 접속 설정"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "이는 확장성이 뛰어나며 클러스터링 구현에 필요합니다. Mongo DB가 준비되지 않은 경우 나중에 이 작업을 수행할 수 있습니다."
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "서버 호스트"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "서버 포트"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "데이터베이스 명"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "사용자명"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "비밀번호"
   },
   "advanced.mongo.authSource": {
-    "other": "Auth DB"
+    "other": "인증 DB"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "테스트 연결"
   },
   "license.stepLabel": {
     "other": "기업 라이선스"
@@ -117,7 +117,7 @@
     "other": "설정 적용"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "Pydio Cells를 설치하는 동안 기다려 주십시오..."
   },
   "apply.success": {
     "other": "설치가 성공적으로 완료되었으며 서비스를 시작하는 중입니다. 서비스가 시작되면 설치 관리자가 페이지 새로고칠 것입니다."
@@ -225,7 +225,7 @@
     "other": "Amazon S3 / S3 호환 형식 (S3 버킷 내부에 저장)"
   },
   "form.dsS3Custom.label": {
-    "other": "URL, append ?minio=true if Minio."
+    "other": "만약 Minio라면 URL에 ?minio=true를 추가해주세요."
   },
   "form.dsS3Custom.legend": {
     "other": "Amazon을 위해서라면 비워두십시오"

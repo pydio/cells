@@ -1,80 +1,80 @@
 {
   "Files Metadata": {
-    "other": "Files Metadata"
+    "other": "파일 메타데이터"
   },
   "User Metadata implementation": {
-    "other": "User Metadata implementation"
+    "other": "사용자 메타데이터 구현"
   },
   "Additional info": {
-    "other": "Additional info"
+    "other": "추가 정보"
   },
   "Color labels": {
-    "other": "Color labels"
+    "other": "색상 라벨"
   },
   "Column visibility": {
-    "other": "Column visibility"
+    "other": "컬럼 가시성"
   },
   "Created by...": {
-    "other": "Created by..."
+    "other": "만든 이..."
   },
   "Depending on the field type. Currently used for selection only": {
-    "other": "Depending on the field type. Currently used for selection only"
+    "other": "필드 유형에 따라 다릅니다. 현재 선택에만 사용됨"
   },
   "Field ID": {
-    "other": "Field ID"
+    "other": "필드 ID"
   },
   "Field Type": {
-    "other": "Field Type"
+    "other": "필드 유형"
   },
   "Hidden": {
-    "other": "Hidden"
+    "other": "숨김"
   },
   "Hidden file used inside folders to save meta data": {
-    "other": "Hidden file used inside folders to save meta data"
+    "other": "폴더 내에서 메타데이터를 저장하는 데 사용되는 숨김 파일"
   },
   "Id of fiels, use standard characters here.": {
-    "other": "Id of fields, use standard characters here."
+    "other": "필드 Id, 여기서 표준 문자를 사용합니다."
   },
   "Label": {
-    "other": "Label"
+    "other": "라벨"
   },
   "Label of the field, human friendly": {
-    "other": "Label of the field, human friendly"
+    "other": "필드, 인간 친화적인 라벨"
   },
   "Last updated by...": {
-    "other": "Last updated by..."
+    "other": "마지막 업데이트..."
   },
   "Long text": {
-    "other": "Long text"
+    "other": "긴 텍스트"
   },
   "Meta File": {
-    "other": "Meta File"
+    "other": "메타 파일"
   },
   "Selection (set choices in Additional Info)": {
-    "other": "Selection (set choices in Additional Info)"
+    "other": "선택 (추가 정보에 선택이 설정됨)"
   },
   "Set default visibility.": {
-    "other": "Set default visibility."
+    "other": "기본 가시성을 설정합니다."
   },
   "Short text": {
-    "other": "Short text"
+    "other": "짧은 텍스트"
   },
   "Simple metadata implementation stored in a hidden file.": {
-    "other": "Simple metadata implementation stored in a hidden file."
+    "other": "숨겨진 파일에 저장된 간단한 메타데이터 구현."
   },
   "Stars Rating": {
-    "other": "Stars Rating"
+    "other": "별점"
   },
   "Tags (extensible sets of values)": {
-    "other": "Tags (extensible sets of values)"
+    "other": "태그 (확장 가능한 값 집합)"
   },
   "Text Metadata": {
-    "other": "Text Metadata"
+    "other": "텍스트 메타데이터"
   },
   "Type of field": {
-    "other": "Type of field"
+    "other": "필드 형식"
   },
   "Visible": {
-    "other": "Visible"
+    "other": "보임"
   }
 }

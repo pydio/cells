@@ -1,77 +1,77 @@
 {
   "1": {
-    "other": "Watch for..."
+    "other": "관찰하기..."
   },
   "1-off": {
-    "other": "Watching..."
+    "other": "관찰중..."
   },
   "10": {
-    "other": "Anyone is opening the file"
+    "other": "파일을 열고 있는 어떤 사용자"
   },
   "10b": {
-    "other": "Anyone is exploring the folder"
+    "other": "폴더를 탐색하는 어떤 사용자"
   },
   "11": {
-    "other": "Modification"
+    "other": "수정"
   },
   "12": {
-    "other": "Anyone is modifying the file"
+    "other": "파일을 수정중인 어떤 사용자"
   },
   "12b": {
-    "other": "Anyone is modifying a file inside this folder"
+    "other": "이 폴더 내에서 파일을 수정중인 어떤 사용자"
   },
   "13": {
-    "other": "Both"
+    "other": "양쪽 모두"
   },
   "14": {
-    "other": "Anyone opening or writing into the file"
+    "other": "파일내에서 열고 있거나 쓰고 있는 어떤 사용자"
   },
   "14b": {
-    "other": "Anyone exploring or modifying the folder content"
+    "other": "폴더 내부 파일들을 탐색중이거나 수정중인 어떤 사용자"
   },
   "2": {
-    "other": "Be notified when this folder is accessed"
+    "other": "이 폴더에 액세스할 때 통지 받기"
   },
   "3": {
-    "other": "Stop watching"
+    "other": "관찰 중단"
   },
   "4": {
-    "other": "Stop watching this folder for accesses"
+    "other": "이 폴더의 액세스 관찰 중지"
   },
   "5": {
-    "other": "Watch for..."
+    "other": "관찰하기..."
   },
   "6": {
-    "other": "Watch this file for changes"
+    "other": "이 파일에 대한 변경 사항을 관찰"
   },
   "7": {
-    "other": "Stop watching"
+    "other": "관찰 중지"
   },
   "8": {
-    "other": "Stop watching this file for changes"
+    "other": "이 파일의 변경 내용 보기 중지"
   },
   "9": {
-    "other": "Consultation"
+    "other": "상담"
   },
   "selector.legend": {
-    "other": "Receive notifications when..."
+    "other": "어떤 상황일때 통지 받기"
   },
   "selector.ignore": {
-    "other": "Never (no notifications)"
+    "other": "절대 아님(통지 없음)"
   },
   "selector.read": {
-    "other": "Content is accessed"
+    "other": "내용이 접근되었음"
   },
   "selector.change": {
-    "other": "Content is modified"
+    "other": "내용이 수정되었습니다."
   },
   "selector.both": {
-    "other": "Content is accessed or modified"
+    "other": "내용이 접근되었거나 수정되었습니다."
   },
   "selector.mixed": {
-    "other": "Mixed values"
+    "other": "혼합된 값"
   },
   "selector.saving": {
-    "other": "Saving status"
+    "other": "상태 저장중"
   }
 }

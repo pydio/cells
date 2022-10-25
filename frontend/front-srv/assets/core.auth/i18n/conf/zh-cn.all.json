@@ -36,7 +36,7 @@
     "other": "启用忘记密码功能"
   },
   "Enable Users": {
-    "other": "Enable Users"
+    "other": "已启用的用户"
   },
   "Enable the 'guest' user, who does not need to log in.": {
     "other": "Enable the 'guest' user, who does not need to log in."
@@ -48,28 +48,28 @@
     "other": "Generic Features"
   },
   "Guest Browsing": {
-    "other": "Guest Browsing"
+    "other": "访客浏览"
   },
   "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)": {
     "other": "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)"
   },
   "Instance Type": {
-    "other": "Instance Type"
+    "other": "实例类型"
   },
   "Login Form": {
-    "other": "Login Form"
+    "other": "登录表单"
   },
   "Main Instance": {
-    "other": "Main Instance"
+    "other": "主要实例"
   },
   "Master Authentifiaction Label": {
-    "other": "Master Authentication Label"
+    "other": "主身份验证标签"
   },
   "Master Only": {
-    "other": "Master Only"
+    "other": "仅限主节点"
   },
   "Master/Slave": {
-    "other": "Master/Slave"
+    "other": "主/从"
   },
   "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup.": {
     "other": "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup."
@@ -120,10 +120,10 @@
     "other": "This is necessary to discriminate users data loaded from various sources. Warning, use folder name compliant characters. For example :: does not work!"
   },
   "User Choice": {
-    "other": "User Choice"
+    "other": "用户选择"
   },
   "Users Listing": {
-    "other": "Users Listing"
+    "other": "用户列表"
   },
   "Whether the users identifiers should be case sensitive or not": {
     "other": "Whether the users identifiers should be case sensitive or not. WARNING, sql-based drivers will disable this by default, even if you check this."

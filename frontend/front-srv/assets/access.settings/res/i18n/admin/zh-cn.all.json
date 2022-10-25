@@ -275,6 +275,12 @@
   "ds.editor.storage.s3.bucket": {
     "other": "存储空间名"
   },
+  "ds.editor.storage.s3.endpoint.type": {
+    "other": "Endpoint Type"
+  },
+  "ds.editor.storage.s3.signatureVersion": {
+    "other": "Signature Version"
+  },
   "ds.editor.storage.s3.endpoint.amazon": {
     "other": "Amazon S3"
   },
@@ -282,13 +288,13 @@
     "other": "Other S3-Compatible Storage"
   },
   "ds.editor.storage.s3.endpoint.minio": {
-    "other": "Minio Server"
+    "other": "Minio 服务器"
   },
   "ds.editor.storage.s3.endpoint": {
     "other": "自定义终点URL"
   },
   "ds.editor.storage.s3.endpoint.hint": {
-    "other": "include http(s)://"
+    "other": "包括 http(s)://"
   },
   "ds.editor.storage.s3.region": {
     "other": "S3 Api 地域"
@@ -306,10 +312,10 @@
     "other": "重新加载buckets"
   },
   "ds.editor.storage.buckets.create": {
-    "other": "Create Bucket"
+    "other": "创建 Bucket"
   },
   "ds.editor.storage.buckets.create.hint": {
-    "other": "Bucket name"
+    "other": "Bucket名称"
   },
   "ds.editor.storage.buckets.regexp": {
     "other": "使用正则表达式"
@@ -336,7 +342,7 @@
     "other": "对象标签"
   },
   "ds.editor.storage.s3.legend.bucketPathPrefix": {
-    "other": "Use a path prefix inside the bucket (will create a virtual folder to store objects)"
+    "other": "在 bucket 中使用路径前缀 (将创建一个虚拟文件夹来存储对象)"
   },
   "ds.editor.storage.s3.bucketPathPrefix": {
     "other": "Path prefix"
@@ -1503,13 +1509,13 @@
     "other": "没有参数"
   },
   "ws.69": {
-    "other": "Template-based workspace"
+    "other": "基于模板的工作区"
   },
   "ws.7": {
     "other": "新建数据源"
   },
   "ws.70": {
-    "other": "Driver-based workspace"
+    "other": "基于驱动的工作区"
   },
   "ws.71": {
     "other": "完成以下的步骤"
@@ -1527,7 +1533,7 @@
     "other": "A DataSource defines where your data is stored."
   },
   "ws.76": {
-    "other": "Pydio will aggregate all your datasources into one master tree, on which you can assign rights using workspaces."
+    "other": "Pydio将把您所有的数据源合并成一个主树，您可以在这个树上使用工作区赋予权限。"
   },
   "ws.8": {
     "other": "现有数据源"
@@ -1551,7 +1557,7 @@
     "other": "选择文件夹或预定义模板路径"
   },
   "ws.complete.resolves": {
-    "other": "Resolves to"
+    "other": "先解决"
   },
   "ws.complete.templates": {
     "other": "预设模板路径"
@@ -1779,13 +1785,13 @@
     "other": "No Flows scheduled."
   },
   "scheduler.users.title": {
-    "other": "Users Flows"
+    "other": "用户Flows"
   },
   "scheduler.users.legend": {
     "other": "These Flows are dynamically created and trigged by user actions."
   },
   "scheduler.users.empty": {
-    "other": "No Flows launched by users"
+    "other": "没有用户启动的Flow作业"
   },
   "scheduler.cellsflows.cta.button": {
     "other": "+ Custom Flow"
@@ -1890,13 +1896,13 @@
     "other": "删除"
   },
   "scheduler.task.action.enable": {
-    "other": "Enable Flow"
+    "other": "开启Flow"
   },
   "scheduler.task.action.run": {
     "other": "立即运行"
   },
   "scheduler.task.action.disable": {
-    "other": "Disable Flow"
+    "other": "关闭Flow"
   },
   "scheduler.task.id": {
     "other": "ID"
@@ -1974,7 +1980,7 @@
     "other": "每 %1"
   },
   "scheduler.schedule.title": {
-    "other": "Flow Schedule"
+    "other": "Flow调度"
   },
   "scheduler.schedule.type": {
     "other": "计划类型"
@@ -2007,7 +2013,7 @@
     "other": "持续时间（分钟）"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "Flow Parameters"
+    "other": "Flow参数"
   },
   "scheduler.job-parameters.button": {
     "other": "参数"

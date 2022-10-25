@@ -24,10 +24,10 @@
     "other": "바뀐 서비스에 대한 자동 아카이브"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "삭제된 사용자 데이터를 완전삭제하거나 전송"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "24시간후 분리된 파일을 완전 삭제"
   },
   "Jobs.User.Compress": {
     "other": "선택 항목 압축 중..."

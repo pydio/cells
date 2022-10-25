@@ -1,8 +1,8 @@
 {
   "Create and extract tar, tar.gz and tar.bz2 archives.": {
-    "other": "Create and extract tar, tar.gz and tar.bz2 archives."
+    "other": "tar, tar.gz 및 tar.bz2 아카이브를 만들고 추출합니다."
   },
   "Tar Archives Support": {
-    "other": "Tar Archives Support"
+    "other": "Tar 압축 지원"
   }
 }

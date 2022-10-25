@@ -1,65 +1,65 @@
 {
   "1": {
-    "other": "Versions"
+    "other": "버전"
   },
   "10": {
-    "other": "Date"
+    "other": "날짜"
   },
   "11": {
-    "other": "Author"
+    "other": "저자"
   },
   "12": {
-    "other": "Modification"
+    "other": "수정"
   },
   "13": {
-    "other": "Are you sure you want to do this? Reverting to an old version will now create a new version of the document with the selected revision."
+    "other": "이 작업이 당신이 원한 것이 맞습니까? 이전 버전으로 되돌리면 선택한 수정본이 있는 문서의 새 버전이 만들어집니다."
   },
   "14": {
-    "other": "No previous versions found"
+    "other": "이전 버전을 찾을 수 없습니다."
   },
   "15": {
-    "other": "Versions are created when you update the file content"
+    "other": "파일 내용을 업데이트할 때 버전이 생성됩니다."
   },
   "16": {
-    "other": "Previous versions for '%s'"
+    "other": "'%s'의 이전 버전"
   },
   "2": {
-    "other": "Document previous versions"
+    "other": "이전 버전 문서"
   },
   "3": {
-    "other": "Download"
+    "other": "다운로드"
   },
   "4": {
-    "other": "Download selected version to your computer"
+    "other": "당신의 컴퓨터에서 선택한 버전 다운로드"
   },
   "5": {
-    "other": "Preview (browser)"
+    "other": "미리보기 (브라우저)"
   },
   "6": {
-    "other": "Open the selected version in a browser window"
+    "other": "브라우저 창에서 선택한 버전 열기"
   },
   "7": {
-    "other": "Revert to..."
+    "other": "되돌리기..."
   },
   "8": {
-    "other": "Revert the file to the selected revision on the server"
+    "other": "서버에서 선택한 리비전으로 파일을 되돌립니다."
   },
   "9": {
     "other": "#"
   },
   "CREATION": {
-    "other": "File created"
+    "other": "파일이 생성되었습니다"
   },
   "DELETION": {
-    "other": "File deleted"
+    "other": "파일이 삭제되었습니다"
   },
   "MODIFICATION": {
-    "other": "Content modified"
+    "other": "수정된 내용"
   },
   "MOVE": {
-    "other": "File moved"
+    "other": "파일 이동됨"
   },
   "RENAME": {
-    "other": "File renamed"
+    "other": "파일명 변경됨"
   }
 }

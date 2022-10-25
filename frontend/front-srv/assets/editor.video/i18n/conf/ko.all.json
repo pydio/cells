@@ -1,8 +1,8 @@
 {
   "Inserts a video player in the info panel, either HTML5 or Flash depending on the format.": {
-    "other": "Inserts a video player in the info panel, either HTML5 or Flash depending on the format."
+    "other": "형식에 따라 HTML5 또는 Flash의 정보 패널에 비디오 플레이어를 삽입합니다."
   },
   "Video Player": {
-    "other": "Video Player"
+    "other": "동영상 플레이어"
   }
 }
