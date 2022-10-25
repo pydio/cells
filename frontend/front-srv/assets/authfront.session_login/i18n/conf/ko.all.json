@@ -1,29 +1,29 @@
 {
   "Display a standard user/password login screen": {
-    "other": "Display a standard user/password login screen"
+    "other": "표준 사용자/비밀번호 로그인 화면 표시"
   },
   "Enable/disable automatically based on the protocol used": {
-    "other": "Enable/disable automatically based on the protocol used"
+    "other": "사용된 프로토콜에 따라 자동으로 활성화/비활성화"
   },
   "Order": {
-    "other": "Order"
+    "other": "주문"
   },
   "Order this plugin with other auth frontends": {
-    "other": "Order this plugin with other auth frontends"
+    "other": "다른 인증 프론트엔드와 함께 이 플러그인 주문"
   },
   "Protocol Type": {
-    "other": "Protocol Type"
+    "other": "프로토콜 방식"
   },
   "REST Only": {
-    "other": "REST Only"
+    "other": "REST 방식만"
   },
   "Session-based or Rest": {
-    "other": "Session-based or Rest"
+    "other": "세션 기반 또는 Rest"
   },
   "Sessions Only": {
-    "other": "Sessions Only"
+    "other": "세션만"
   },
   "Standard login screen": {
-    "other": "Standard login screen"
+    "other": "표준 로그인 스크린"
   }
 }

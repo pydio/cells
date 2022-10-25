@@ -1,113 +1,113 @@
 {
   "Core component for sending emails": {
-    "other": "Core component for sending emails"
+    "other": "이메일 전송을 위한 핵심 구성 요소"
   },
   "Activate Queue": {
-    "other": "Activate Queue"
+    "other": "큐 활성화"
   },
   "Active notifications by email": {
-    "other": "Active notifications by email"
+    "other": "이메일로 통지 받기 활성화"
   },
   "Adress of the sender": {
-    "other": "Adress of the sender"
+    "other": "발송자의 주소"
   },
   "Body Layout": {
-    "other": "Body Layout"
+    "other": "바디 레이아웃"
   },
   "Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)": {
-    "other": "Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)"
+    "other": "메일 빈도 선택(예: 9:00 또는 9:00, 14:00 또는 수요일)"
   },
   "Content": {
-    "other": "Content"
+    "other": "내용"
   },
   "Core configs for sending emails": {
-    "other": "Core configs for sending emails"
+    "other": "이메일 전송을 위한 핵심 설정"
   },
   "Detail your frequency here": {
-    "other": "Detail your frequency here"
+    "other": "당신의 빈도를 여기에 상세하게 입력하세요."
   },
   "Emails frequency": {
-    "other": "Emails frequency"
+    "other": "이메일 빈도"
   },
   "Every X hour": {
-    "other": "Every X hour"
+    "other": "매 X시간"
   },
   "Every X min": {
-    "other": "Every X min"
+    "other": "매 X분"
   },
   "Every day at ": {
-    "other": "Every day at "
+    "other": "매일 "
   },
   "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file.": {
-    "other": "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file."
+    "other": "지역화된 파일에서 기본 레이아웃을 추출합니다. 이전 매개 변수에 우선합니다. 레이아웃 파일에 PYDIO_MAIL_BODY가 있는지 확인하십시오."
   },
   "Force all mails to be sent by this Sender email, instead of users adresses": {
-    "other": "Force all mails to be sent by this Sender email, instead of users adresses"
+    "other": "모든 메일을 사용자 주소 대신 이 보낸 사람 전자 메일로 전송"
   },
   "Get the email in HTML": {
-    "other": "Get the email in HTML"
+    "other": "HTML로 이메일 받기"
   },
   "Layout Folder": {
-    "other": "Layout Folder"
+    "other": "레이아웃 폴더"
   },
   "Mailer Plugin": {
-    "other": "Mailer Plugin"
+    "other": "메일러 플러그인"
   },
   "Mailers": {
-    "other": "Mailers"
+    "other": "메일러"
   },
   "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content.": {
-    "other": "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content."
+    "other": "이메일 본문의 기본 레이아웃, 멋진 이메일 전송에는 HTML을 사용하고 실제 콘텐츠에는 PYDIO_MAIL_BODY 키워드를 사용합니다."
   },
   "Name of the sender": {
-    "other": "Name of the sender"
+    "other": "발송자명"
   },
   "Once a Week": {
-    "other": "Once a Week"
+    "other": "주 1회"
   },
   "Receive Notifcations by email": {
-    "other": "Receive Notifcations by email"
+    "other": "이메일로 통지 받기"
   },
   "Select the plugin to activate for concretely sending emails": {
-    "other": "Select the plugin to activate for concretely sending emails"
+    "other": "구체적으로 전자 메일을 보내기 위해 활성화할 플러그인을 선택하십시오."
   },
   "Send as HTML": {
-    "other": "Send as HTML"
+    "other": "HTML로 전송"
   },
   "Send email to...": {
-    "other": "Send email to..."
+    "other": "이메일 전송 수신..."
   },
   "Sender": {
-    "other": "Sender"
+    "other": "발송자"
   },
   "Sender email": {
-    "other": "Sender email"
+    "other": "발송자 이메일"
   },
   "Sender name": {
-    "other": "Sender name"
+    "other": "발송자명"
   },
   "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option.": {
-    "other": "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option."
+    "other": "전자 메일을 대기열에 저장하고 일괄 처리합니다. 사용자는 송신 빈도를 선택할 수 있습니다. 이 옵션을 사용하는 경우 concept_mail_queue 액션에 CRON을 설정해야 합니다."
   },
   "String automatically added at the beginning of the mail subject": {
-    "other": "String automatically added at the beginning of the mail subject"
+    "other": "메일 제목 시작 부분에 문자열이 자동으로 추가됨"
   },
   "String automatically added at the end of the mail subject": {
-    "other": "String automatically added at the end of the mail subject"
+    "other": "메일 제목 끝에 문자열이 자동으로 추가됨"
   },
   "Subject Append": {
-    "other": "Subject Append"
+    "other": "제목 추가"
   },
   "Subject Prepend": {
-    "other": "Subject Prepend"
+    "other": "제목 추가"
   },
   "Twice a day (every day at and)": {
-    "other": "Twice a day (every day at and)"
+    "other": "하루 2번 (매일)"
   },
   "Unique Sender": {
-    "other": "Unique Sender"
+    "other": "고유 발송인"
   },
   "You can add many email separated by commas": {
-    "other": "You can add many email separated by commas"
+    "other": "쉼표로 구분된 많은 전자 메일을 추가할 수 있습니다."
   }
 }

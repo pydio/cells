@@ -213,7 +213,7 @@
     "other": "파일 이름이나 내용"
   },
   "treeQuery.FreeString": {
-    "other": "Bleve-like search string"
+    "other": "Bleve 방식 문자 검색"
   },
   "treeQuery.GeoQuery": {
     "other": "위치 확인"
@@ -225,121 +225,121 @@
     "other": "최대 크기"
   },
   "treeQuery.MinDate": {
-    "other": "Modified since"
+    "other": "이후 수정됨"
   },
   "treeQuery.MinSize": {
-    "other": "Size greater than"
+    "other": "보다 큼"
   },
   "treeQuery.Not": {
-    "other": "Not"
+    "other": "아님"
   },
   "treeQuery.PathDepth": {
-    "other": "Path Depth"
+    "other": "경로 단계"
   },
   "treeQuery.PathPrefix": {
-    "other": "Path Prefix"
+    "other": "경로 접두사"
   },
   "treeQuery.Paths": {
-    "other": "Absolute Paths"
+    "other": "절대 경로"
   },
   "treeQuery.Type": {
-    "other": "Type"
+    "other": "형식"
   },
   "treeQuery.Type.COLLECTION": {
     "other": "폴더"
   },
   "treeQuery.Type.LEAF": {
-    "other": "File"
+    "other": "파일"
   },
   "treeQuery.Type.UNKNOWN": {
-    "other": "Any"
+    "other": "모두"
   },
   "treeQuery.UUIDs": {
-    "other": "Node UUIDs"
+    "other": "노드 UUID"
   },
   "treeQuery.ETag": {
     "other": "ETag"
   },
   "userSingleQuery.AttributeAnyValue": {
-    "other": "Has any value"
+    "other": "어떤 값이든 가지고 있습니다."
   },
   "userSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "속성명"
   },
   "userSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "속성값"
   },
   "userSingleQuery.ConnectedSince": {
-    "other": "Connected Since"
+    "other": "이후 연결됨"
   },
   "userSingleQuery.FullPath": {
-    "other": "Full Path"
+    "other": "전체 경로"
   },
   "userSingleQuery.GroupPath": {
-    "other": "Group Path"
+    "other": "그룹 경로"
   },
   "userSingleQuery.HasProfile": {
-    "other": "Has Profile"
+    "other": "프로파일이 있는"
   },
   "userSingleQuery.HasRole": {
-    "other": "Has Role"
+    "other": "역할이 있는"
   },
   "userSingleQuery.Login": {
-    "other": "Login"
+    "other": "로그인"
   },
   "userSingleQuery.NodeType": {
-    "other": "Object Type"
+    "other": "객체 유형"
   },
   "userSingleQuery.NodeType.GROUP": {
-    "other": "Group"
+    "other": "그룹"
   },
   "userSingleQuery.NodeType.UNKNOWN": {
-    "other": "Any"
+    "other": "모든"
   },
   "userSingleQuery.NodeType.USER": {
-    "other": "User"
+    "other": "사용자"
   },
   "userSingleQuery.Not": {
-    "other": "Not"
+    "other": "아님"
   },
   "userSingleQuery.Password": {
-    "other": "Password"
+    "other": "비밀번호"
   },
   "userSingleQuery.Recursive": {
-    "other": "Recursive"
+    "other": "재귀"
   },
   "userSingleQuery.Uuid": {
     "other": "Uuid"
   },
   "userSingleQuery.not": {
-    "other": "not"
+    "other": "아님"
   },
   "workspaceSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "속성명"
   },
   "workspaceSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "속성값"
   },
   "workspaceSingleQuery.Description": {
     "other": "설명"
   },
   "workspaceSingleQuery.HasAttribute": {
-    "other": "Has Attribute"
+    "other": "속성이 있는"
   },
   "workspaceSingleQuery.Label": {
-    "other": "Label"
+    "other": "라벨"
   },
   "workspaceSingleQuery.LastUpdated": {
-    "other": "Last updated"
+    "other": "마지막 업데이트"
   },
   "workspaceSingleQuery.Not": {
-    "other": "Not"
+    "other": "아님"
   },
   "workspaceSingleQuery.Scope": {
-    "other": "Scope"
+    "other": "범위"
   },
   "workspaceSingleQuery.Slug": {
-    "other": "Slug"
+    "other": "슬러그"
   },
   "workspaceSingleQuery.Uuid": {
     "other": "Uuid"
@@ -348,28 +348,28 @@
     "other": "설명"
   },
   "workspaceSingleQuery.label": {
-    "other": "Label"
+    "other": "라벨"
   },
   "workspaceSingleQuery.not": {
-    "other": "not"
+    "other": "아님"
   },
   "workspaceSingleQuery.scope": {
-    "other": "Workspace Type"
+    "other": "작업 공간 유형:"
   },
   "workspaceSingleQuery.scope.ADMIN": {
     "other": "작업 공간"
   },
   "workspaceSingleQuery.scope.ANY": {
-    "other": "Any"
+    "other": "모든"
   },
   "workspaceSingleQuery.scope.LINK": {
-    "other": "Public Link"
+    "other": "공개 링크"
   },
   "workspaceSingleQuery.scope.ROOM": {
     "other": "공유 폴더"
   },
   "workspaceSingleQuery.slug": {
-    "other": "Slug"
+    "other": "슬러그"
   },
   "workspaceSingleQuery.uuid": {
     "other": "Uuid"
@@ -378,16 +378,16 @@
     "other": "이름"
   },
   "dataSourceSingleQuery.IsDisabled": {
-    "other": "Is Disabled"
+    "other": "비활성화됨"
   },
   "dataSourceSingleQuery.StorageType": {
-    "other": "Storage Type"
+    "other": "저장공간 유형"
   },
   "dataSourceSingleQuery.StorageType.REMOTE": {
-    "other": "Remote"
+    "other": "원격"
   },
   "dataSourceSingleQuery.StorageType.ANY": {
-    "other": "Any"
+    "other": "모든"
   },
   "dataSourceSingleQuery.StorageType.LOCALFS": {
     "other": "로컬"

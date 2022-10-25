@@ -1,215 +1,215 @@
 {
   "Address used for notifications": {
-    "other": "Address used for notifications"
+    "other": "통지에 사용된 주소"
   },
   "All roles": {
-    "other": "All roles"
+    "other": "모든 역할"
   },
   "Allow Group Listing": {
-    "other": "Allow Group Listing"
+    "other": "그룹 리스트 허용"
   },
   "Allow Role Listing": {
-    "other": "Allow Role Listing"
+    "other": "역할 리스트 허용"
   },
   "Allow the users to create a new user when sharing a folder": {
-    "other": "Allow the users to create a new user when sharing a folder"
+    "other": "폴더 공유 시 사용자가 새 사용자 생성 허용"
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Allow the users to pick an existing user when sharing a folder"
+    "other": "폴더 공유 시 사용자가 기존 사용자 선택 허용"
   },
   "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them": {
-    "other": "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them"
+    "other": "자동 완성기를 통해 다른 그룹의 사용자를 검색하고(이전 옵션이 false로 설정된 경우 유용할 수 있음) 워크스페이스를 공유할 수 있습니다."
   },
   "Always Override": {
-    "other": "Always Override"
+    "other": "항상 재정의"
   },
   "Always override other roles, included group roles.": {
-    "other": "Always override other roles, included group roles."
+    "other": "그룹 역할을 포함해서 다른 역할을 항상 재정의"
   },
   "Avatar": {
-    "other": "Avatar"
+    "other": "아바타"
   },
   "Choose the configuration plugin": {
-    "other": "Choose the configuration plugin"
+    "other": "설정 플러그인 선택"
   },
   "Configuration Store Instance": {
-    "other": "Configuration Store Instance"
+    "other": "설정 저장소 인스턴스"
   },
   "Configurations Management": {
-    "other": "Configurations Management"
+    "other": "설정 관리"
   },
   "Core SQL Connexion": {
-    "other": "Core SQL Connection"
+    "other": "핵심 SQL 연결"
   },
   "Country": {
-    "other": "Country"
+    "other": "국가"
   },
   "Create external users": {
-    "other": "Create external users"
+    "other": "외부 사용자 생성"
   },
   "Default Workspace": {
-    "other": "Default Workspace"
+    "other": "기본 작업공간"
   },
   "Default start repository": {
-    "other": "Default workspace shown after log in. 'Home' is the welcome page with activity and search engine."
+    "other": "로그인 후 기본 작업공간이 표시됩니다. '홈'은 활동 및 검색 엔진이 있는 시작 페이지입니다."
   },
   "Display roles and/or groups": {
-    "other": "Display roles and/or groups"
+    "other": "역할 과/또는 그룹 노출"
   },
   "Do not display real login in parenthesis": {
-    "other": "Do not display real login in parenthesis"
+    "other": "괄호 안에 실제 로그인을 표시하지 않음"
   },
   "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP.": {
-    "other": "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP."
+    "other": "정규식을 입력하지 않은 경우 그룹 및 사용자 목록을 로드하지 마십시오. LDAP에서 대규모 검색을 보내지 않도록 합니다."
   },
   "Email": {
-    "other": "Email"
+    "other": "이메일"
   },
   "Excluded Roles": {
-    "other": "Excluded Roles"
+    "other": "제외된 역할"
   },
   "External Users Creation": {
-    "other": "External Users Creation"
+    "other": "외부 사용자 생성"
   },
   "External users parameters": {
-    "other": "External users parameters"
+    "other": "외부 사용자 매개변수"
   },
   "Full name displayed to others": {
-    "other": "Full name displayed to others"
+    "other": "다른 사용자들에게 보여지는 전체 이름"
   },
   "Generic Conf Features": {
-    "other": "Generic Conf Features"
+    "other": "일반 Conf 기능"
   },
   "Hide real login": {
-    "other": "Hide real login"
+    "other": "실제 로그인 숨기기"
   },
   "If previous option is set to True, directly display a full list of users from all groups": {
-    "other": "If previous option is set to True, directly display a full list of users from all groups"
+    "other": "이전 옵션이 참으로 설정된 경우 모든 그룹의 전체 사용자 목록을 직접 표시합니다."
   },
   "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else": {
-    "other": "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else"
+    "other": "설정된 경우 이 작업은 사용자 로그인 시 자동으로 트리거됩니다. 로그아웃(사용자를 잠그기 위해), pass_change(암호 변경을 강제하기 위해) 또는 기타 모든 항목이 될 수 있습니다."
   },
   "If the 'guest' user is enabled, remember her preferences accross sessions.": {
-    "other": "If the 'guest' user is enabled, remember her preferences accross sessions."
+    "other": "'게스트' 사용자가 활성화된 경우 세션에서 기본 설정을 기억하십시오."
   },
   "Image displayed next to the user name": {
-    "other": "Image displayed next to the user name"
+    "other": "사용자 이름 옆에 표시되는 이미지"
   },
   "Included Roles": {
-    "other": "Included Roles"
+    "other": "포함된 역할"
   },
   "Instance": {
-    "other": "Instance"
+    "other": "인스턴스"
   },
   "Internal / External Users": {
-    "other": "Internal / External Users"
+    "other": "내부 / 외부 사용자"
   },
   "Language": {
-    "other": "Language"
+    "other": "언어"
   },
   "Let user create repositories": {
-    "other": "Let user create workspaces"
+    "other": "사용자가 작업공간을 만들 수 있음"
   },
   "Let user create repositories from templates": {
-    "other": "Let user create repositories from templates"
+    "other": "사용자가 템플릿에서 패키지 저장소 작성 허용"
   },
   "List Roles By": {
-    "other": "List Roles By"
+    "other": "역할 목록"
   },
   "List existing from all groups": {
-    "other": "List existing from all groups"
+    "other": "모든 그룹의 기존 목록"
   },
   "List of parameters to be edited when creating a new shared user.": {
-    "other": "List of parameters to be edited when creating a new shared user."
+    "other": "새 공유 사용자를 만들 때 편집할 매개 변수 목록입니다."
   },
   "Make regexp mandatory": {
-    "other": "Make regexp mandatory"
+    "other": "정규식 필수 설정"
   },
   "Maximum number of shared users per user": {
-    "other": "Maximum number of shared users per user"
+    "other": "사용자당 공유 사용자 최대 수"
   },
   "Maximum number of users displayed in the users autocompleter": {
-    "other": "Maximum number of users displayed in the users autocompleter"
+    "other": "사용자에게 표시되는 최대 사용자 수 자동 완료"
   },
   "Minimum number of characters to trigger the auto completion feature": {
-    "other": "Minimum number of characters to trigger the auto completion feature"
+    "other": "자동 완성 기능을 트리거할 최소 문자 수"
   },
   "Name": {
     "other": "이름"
   },
   "Preferences Saving": {
-    "other": "Preferences Saving"
+    "other": "기본 설정 저장"
   },
   "Remember guest preferences": {
-    "other": "Remember guest preferences"
+    "other": "게스트 기본 설정 기억"
   },
   "Role Label": {
-    "other": "Role Label"
+    "other": "역할 라벨"
   },
   "Role/Group Listing": {
-    "other": "Role/Group Listing"
+    "other": "역할/그룹 목록"
   },
   "Roles / Groups Directory Listing": {
-    "other": "Roles / Groups Directory Listing"
+    "other": "역할 / 그룹 디렉토리 목록"
   },
   "SQL Connexion": {
-    "other": "SQL Connection"
+    "other": "SQL 연결"
   },
   "See existing users": {
-    "other": "See existing users"
+    "other": "존재하는 사용자 보기"
   },
   "Sets how the application core data (users,roles,etc) is stored.": {
-    "other": "Sets how the application core data (users,roles,etc) is stored."
+    "other": "응용 프로그램 핵심 데이터(사용자, 역할 등)의 저장 방법을 설정"
   },
   "Share with existing users from all groups": {
-    "other": "Share with existing users from all groups"
+    "other": "모든 그룹에 존재하는 사용자와 공유"
   },
   "Shared users limit": {
-    "other": "Shared users limit"
+    "other": "공유 사용자 제한"
   },
   "Simple SQL Connexion definition that can be used by other sql-based plugins": {
-    "other": "Simple SQL Connection definition that can be used by other sql-based plugins"
+    "other": "다른 SQL 기반 플러그인이 사용할 수 있는 단순 SQL 연결 정의"
   },
   "Skip user history": {
-    "other": "Skip interface preferences"
+    "other": "인터페이스 환경설정 건너뛰기"
   },
   "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex."
+    "other": "일부 역할은 목록에서 사라져야 합니다.  목록을 콤마로 구분하거나 정규식의 경우 'preg:'로 시작합니다."
   },
   "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex."
+    "other": "일부 역할이 목록에 표시되어야 합니다.  목록을 콤마로 구분하거나 정규식의 경우 'preg:'로 시작합니다."
   },
   "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)": {
-    "other": "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)"
+    "other": "인터페이스 상태(마지막 폴더, 열린 탭 등) 를 자동으로 다시 로드하지 않으려면 이 옵션을 사용합니다."
   },
   "User Language": {
-    "other": "User Language"
+    "other": "사용자 언어"
   },
   "User roles only": {
-    "other": "User roles only"
+    "other": "사용자 역할만"
   },
   "Users Directory Listing": {
-    "other": "Users Directory Listing"
+    "other": "사용자 디렉토리 목록"
   },
   "Users Lock Action": {
-    "other": "Users Lock Action"
+    "other": "사용자 잠금 행위"
   },
   "Users completer limit": {
-    "other": "Users completer limit"
+    "other": "사용자 완료 제한"
   },
   "Users completer min chars": {
-    "other": "Users completer min chars"
+    "other": "사용자 완료 최소 문자"
   },
   "Users only (do not list groups nor roles)": {
-    "other": "Users only (do not list groups nor roles)"
+    "other": "사용자만 (그룹이나 역할을 나열하지 마세요)"
   },
   "Whether users can create their own repositories, based on predefined templates.": {
-    "other": "Whether users can create their own repositories, based on predefined templates."
+    "other": "미리 정의된 템플릿을 기반으로 사용자가 직접 저장소를 만들 수 있는지 여부."
   },
   "Worskpace creation delegation": {
-    "other": "Worskpace creation delegation"
+    "other": "작업공간 생성 위임"
   },
   "role prefix": {
-    "other": "Role prefix"
+    "other": "역할 접두사"
   }
 }

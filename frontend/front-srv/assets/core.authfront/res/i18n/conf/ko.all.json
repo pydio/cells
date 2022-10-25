@@ -1,8 +1,8 @@
 {
   "Authentication FrontEnd": {
-    "other": "Authentication FrontEnd"
+    "other": "인증 프론트엔드"
   },
   "Actual way to authenticate users (via credentials, certificates, http, etc)": {
-    "other": "Actual way to authenticate users (via credentials, certificates, http, etc)"
+    "other": "사용자를 인증하는 실제 방법 (자격 증명, 인증서, http 등을 통해)"
   }
 }

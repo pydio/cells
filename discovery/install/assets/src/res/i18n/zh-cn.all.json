@@ -69,7 +69,7 @@
     "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "服务器主机"
   },
   "advanced.mongo.port": {
     "other": "Server port"

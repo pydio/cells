@@ -1,44 +1,44 @@
 {
   "Exif Rotation": {
-    "other": "Exif Rotation"
+    "other": "Exif 회전"
   },
   "Generate thumbnails or not": {
-    "other": "Generate thumbnails or not"
+    "other": "썸네일 생성 또는 아님"
   },
   "Image viewer": {
-    "other": "Image viewer"
+    "other": "이미지 뷰어"
   },
   "Image viewer, used for previewing images and browsing them in a diaporam. Generates a thumbnail version of the images.": {
-    "other": "Image viewer, used for previewing images and browsing them in a diaporama. Generates a thumbnail version of the images."
+    "other": "이미지 뷰어, 이미지를 미리 보고 디아포라마에서 검색하는 데 사용됩니다. 이미지의 축소 이미지 버전을 생성합니다."
   },
   "Low-res Sizes": {
-    "other": "Low-res Sizes"
+    "other": "저해상도 크기"
   },
   "Quality": {
-    "other": "Quality"
+    "other": "화질"
   },
   "Remote Wrappers": {
-    "other": "Remote Wrappers"
+    "other": "원격 래퍼"
   },
   "Rotate image using exif rotation": {
-    "other": "Rotate image using exif rotation"
+    "other": "exif 회전을 이용하여 이미지 회전"
   },
   "Size Threshold": {
-    "other": "Size Threshold"
+    "other": "크기 임계값"
   },
   "Threshold": {
-    "other": "Threshold"
+    "other": "임계값"
   },
   "Threshold for low-res versions of images": {
-    "other": "Threshold for low-res versions of images"
+    "other": "저해상도 버전의 이미지 임계값"
   },
   "Thumbnails": {
-    "other": "Thumbnails"
+    "other": "썸네일"
   },
   "Thumbs quality": {
-    "other": "Thumbs quality"
+    "other": "썸네일 화질"
   },
   "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": {
-    "other": "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped."
+    "other": "원격 서버에 연결된 경우 메타데이터 추출은 먼저 각 파일을 로컬로 복사해야 하므로 목록 작업을 매우 오래 수행할 수 있습니다. 정의된 래퍼를 사용하는 플러그인과 이 임계값보다 큰 파일의 경우 이미지 유형 및 치수는 건너뜁니다."
   }
 }

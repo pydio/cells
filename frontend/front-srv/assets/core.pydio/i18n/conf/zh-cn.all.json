@@ -192,7 +192,7 @@
     "other": "下载链接"
   },
   "Driver": {
-    "other": "Driver"
+    "other": "驱动"
   },
   "Driver type (do not touch)": {
     "other": "Driver type (do not touch)"
@@ -201,7 +201,7 @@
     "other": "启用WebDAV"
   },
   "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel.": {
-    "other": "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel."
+    "other": "默认情况下为所有用户启用 WebDAV 。如果设置为 false，每个用户可以通过他们各自的首选项面板手动启用 WebDAV。"
   },
   "Enable for all users": {
     "other": "启用所有用户"

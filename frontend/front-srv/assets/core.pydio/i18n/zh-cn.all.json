@@ -1977,19 +1977,19 @@
     "other": "en_US"
   },
   "date_relative_date": {
-    "other": "on DATE"
+    "other": "在日期"
   },
   "date_relative_date_format": {
     "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s days ago"
+    "other": "%s 天前"
   },
   "date_relative_days_ahead": {
-    "other": "in %s days"
+    "other": "在 %s 天内"
   },
   "date_relative_time": {
-    "other": "TIME"
+    "other": "时间"
   },
   "date_relative_time_format": {
     "other": "H:i"

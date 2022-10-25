@@ -1,290 +1,290 @@
 {
   "Additional JS frameworks": {
-    "other": "Additional JS frameworks"
+    "other": "추가적인 JS 프레임워크"
   },
   "Additional JS frameworks description": {
-    "other": "List of comma separated pathes to JS files, which must be loaded BEFORE the main Pydio framework is loaded. The preferred way should be using plugin resources declarations. Loading JS files at the very start up of the page might be option in some cases only."
+    "other": "기본 Pydio 프레임워크를 로드하기 전에 로드해야 하는 JS 파일의 쉼표로 구분된 경로 목록입니다. 선호하는 방법은 플러그인 리소스 선언을 사용하는 것입니다. 페이지의 시작 부분에서 JS 파일을 로드하는 것은 경우에 따라 옵션일 수 있습니다."
   },
   "An additionnal message displayed in the start up screen": {
-    "other": "An additional message displayed in the start up screen"
+    "other": "시작 화면에 표시되는 추가 메시지"
   },
   "Analytics Domain": {
-    "other": "Analytics Domain"
+    "other": "분석 도메인"
   },
   "Analytics Events": {
-    "other": "Analytics Events"
+    "other": "분석 이벤트"
   },
   "Analytics ID": {
-    "other": "Analytics ID"
+    "other": "분석 ID"
   },
   "Append a title to the image logo": {
-    "other": "Append a title to the image logo"
+    "other": "이미지 로고에 제목 추가"
   },
   "Application Title": {
-    "other": "Application Title"
+    "other": "응용 프로그램 제목"
   },
   "Attributes of the image used as a background": {
-    "other": "Attributes of the image used as a background"
+    "other": "배경으로 사용되어지는 이미지의 속성"
   },
   "Background Attributes (1)": {
-    "other": "Background attributes (1)"
+    "other": "배경 속성 (1)"
   },
   "Background Attributes (2)": {
-    "other": "Background attributes (2)"
+    "other": "배경 속성 (2)"
   },
   "Background Attributes (3)": {
-    "other": "Background attributes (3)"
+    "other": "배경 속성 (3)"
   },
   "Background Attributes (4)": {
-    "other": "Background attributes (4)"
+    "other": "배경 속성 (4)"
   },
   "Background Attributes (5)": {
-    "other": "Background attributes (5)"
+    "other": "배경 속성 (5)"
   },
   "Background Attributes (6)": {
-    "other": "Background attributes (6)"
+    "other": "배경 속성 (6)"
   },
   "Background Attributes (Low Resolution)": {
-    "other": "Background Attributes (Low Resolution)"
+    "other": "배경 속성 (저해상도)"
   },
   "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.": {
-    "other": "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc."
+    "other": "브라우저 기반 리치 인터페이스.. 테마, 사용자 정의 시작 메시지 등에 대한 환경설정을 포함합니다."
   },
   "Center in Page (no-repeat)": {
-    "other": "Center in Page (no-repeat)"
+    "other": "페이지 중앙(반복없음)"
   },
   "Client Plugin": {
-    "other": "Client Plugin"
+    "other": "클라이언트 플러그인"
   },
   "Client Session Config": {
-    "other": "Client Session Config"
+    "other": "클라이언트 세션 설정"
   },
   "Client Timeout": {
-    "other": "Client Timeout"
+    "other": "클라이언트 시간 초과"
   },
   "Custom Background (1)": {
-    "other": "Custom background (1)"
+    "other": "사용자 지정 배경 (1)"
   },
   "Custom Background (2)": {
-    "other": "Custom background (2)"
+    "other": "사용자 지정 배경 (2)"
   },
   "Custom Background (3)": {
-    "other": "Custom background (3)"
+    "other": "사용자 지정 배경 (3)"
   },
   "Custom Background (4)": {
-    "other": "Custom background (4)"
+    "other": "사용자 지정 배경 (4)"
   },
   "Custom Background (5)": {
-    "other": "Custom background (5)"
+    "other": "사용자 지정 배경 (5)"
   },
   "Custom Background (6)": {
-    "other": "Custom background (6)"
+    "other": "사용자 지정 배경 (6)"
   },
   "Custom Icon": {
-    "other": "Custom Icon"
+    "other": "사용자 지정 아이콘"
   },
   "Detected Encoding": {
-    "other": "Detected Encoding"
+    "other": "탐지된 인코딩"
   },
   "Detected Server Path": {
-    "other": "Detected Server Path"
+    "other": "탐지된 서버 경로"
   },
   "Display Branding Tool": {
-    "other": "Display Branding Tool"
+    "other": "디스플레이 브랜딩 도구"
   },
   "Enable Welcome Tour": {
-    "other": "Enable Welcome Tour"
+    "other": "환영 투어 활성"
   },
   "Enable the small tour triggered at first visit": {
-    "other": "Enable the small tour triggered at first visit"
+    "other": "첫번째 방문에서 작은 투어 트리거를 활성화"
   },
   "Fetch Window (no repeat)": {
-    "other": "Fetch Window (no repeat)"
+    "other": "가져오기 창(반복 없음)"
   },
   "Fetch Window (repeat vertically)": {
-    "other": "Fetch Window (repeat vertically)"
+    "other": "가져오기 창(수직적으로 반복)"
   },
   "Font sized used for the title in the start up screen": {
-    "other": "Font sized used for the title in the start up screen"
+    "other": "시작 화면 제목에 사용되어지는 폰트 크기"
   },
   "Google Analytics": {
-    "other": "Google Analytics"
+    "other": "구글 어낼리틱스"
   },
   "Google Analytics Analytics Domain": {
-    "other": "Google Analytics Analytics Domain"
+    "other": "구글 어낼리틱스 어낼리틱스 도메인"
   },
   "Google Analytics Analytics Events": {
-    "other": "Google Analytics Analytics Events"
+    "other": "구글 어낼리틱스 어낼리틱스 이벤트"
   },
   "Google Analytics Analytics ID": {
-    "other": "Google Analytics Analytics ID"
+    "other": "구글 어낼리틱스 어낼리틱스 ID"
   },
   "Height of the custom icon (with the px mention)": {
-    "other": "Height of the custom icon (with the px mention)"
+    "other": "사용자 설정 아이콘의 높이 (px 언급과 함께)"
   },
   "Icon Height": {
-    "other": "Icon Height"
+    "other": "아이콘 높이"
   },
   "Icon Only": {
-    "other": "Icon Only"
+    "other": "아이콘만"
   },
   "Icon Path (Legacy)": {
-    "other": "Icon Path (Legacy)"
+    "other": "아이콘 경로(레거시)"
   },
   "Icon Width": {
-    "other": "Icon Width"
+    "other": "아이콘 너비"
   },
   "Id of your GA account, something like UE-XXXX-YY": {
-    "other": "Id of your GA account, something like UE-XXXX-YY"
+    "other": "당신의 UE-XXXX-YY와 같은 GA계정 ID"
   },
   "Image used as a background": {
-    "other": "Image used as a background"
+    "other": "배경으로 사용되어지는 이미지"
   },
   "Login Screen": {
-    "other": "Login Page"
+    "other": "로그인 페이지"
   },
   "Logo": {
-    "other": "Logo"
+    "other": "로고"
   },
   "Logo Height": {
-    "other": "Logo Height"
+    "other": "로고 높이"
   },
   "Logo Left": {
-    "other": "Logo Left"
+    "other": "로고 좌측"
   },
   "Logo Top": {
-    "other": "Logo Top"
+    "other": "로고 상단"
   },
   "Logo Width": {
-    "other": "Logo Width"
+    "other": "로고 너비"
   },
   "Low-Resolution Background": {
-    "other": "Low-Resolution Background"
+    "other": "저해상도 배경"
   },
   "Main Options": {
-    "other": "Main Options"
+    "other": "메인 옵션"
   },
   "Make sure to use a smaller resolution image, otherwise mobile loading is very slow.": {
-    "other": "Make sure to use a smaller resolution image, otherwise mobile loading is very slow."
+    "other": "해상도가 낮은 이미지를 사용해야 합니다. 그렇지 않으면 모바일 로딩이 매우 느립니다."
   },
   "Manually set a left offset": {
-    "other": "Manually set a left offset"
+    "other": "수동으로 좌측 간격 띄우기"
   },
   "Manually set a logo height": {
-    "other": "Manually set a logo height"
+    "other": "수동으로 로고 높이 설정"
   },
   "Manually set a logo width": {
-    "other": "Manually set a logo width"
+    "other": "수동으로 로고 너비 설정"
   },
   "Manually set a top offset": {
-    "other": "Manually set a top offset"
+    "other": "수동으로 상단 간격 띄우기"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "미니 사이트"
   },
   "Minisite Logo": {
-    "other": "Minisite Logo"
+    "other": "미니 사이트 로고"
   },
   "Number of MINUTES before the session expiration for issuing an alert to the user": {
-    "other": "Number of MINUTES before the session expiration for issuing an alert to the user"
+    "other": "세션 만료 전 사용자에게 경고를 보내는 시간(분)"
   },
   "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option.": {
-    "other": "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option."
+    "other": "브랜딩 도구에 정의된 옵션으로 기본 스타일 및 색상을 재정의합니다. 이 옵션을 전환한 경우 인터페이스를 다시 로드해야 합니다."
   },
   "Page Background Images": {
-    "other": "Page Background Images"
+    "other": "페이지 배경 이미지"
   },
   "Replace the logo displayed in the welcome page": {
-    "other": "Replace the logo displayed in the welcome page"
+    "other": "환영 페이지에 표시된 로고 바꾸기"
   },
   "Replace the top left logo in the top toolbar": {
-    "other": "Replace the top left logo in the top toolbar"
+    "other": "상단 도구 모음에서 상단 왼쪽 로고 바꾸기"
   },
   "Set the domain for your analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "분석 보고서의 도메인을 설정합니다(필수가 아님)."
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "분석 보고서의 도메인을 설정합니다(필수가 아님)."
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
-    "other": "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured."
+    "other": "일부 응용 프로그램 매개 변수를 설정합니다. 이메일을 활성화한 경우 테스트 버튼을 사용하여 php가 올바르게 구성되었는지 확인하십시오."
   },
   "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option.": {
-    "other": "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option."
+    "other": "인터페이스의 팔레트를 표시하여 인터페이스 색상과 로고를 변경합니다. 이 옵션을 전환할 경우 인터페이스를 다시 로드해야 합니다."
   },
   "Skip the title, only display an image": {
-    "other": "Skip the title, only display an image"
+    "other": "제목을 건너뛰고 오직 이미지만 표시"
   },
   "Start Up Screen": {
-    "other": "Start Up Screen"
+    "other": "시작 화면"
   },
   "The length of the client session in SECONDS. By default, it's copying the server session length. In most PHP installation, it will be 1440, ie 24minutes. You can set this value to 0, this will make the client session 'infinite' by pinging the server at regular occasions (thus keeping the PHP session alive). This is not a recommanded setting for evident security reasons.": {
-    "other": "The length of the client session in SECONDS. The server session length will be used by default. In most PHP installations, the session length is set to 1440 seconds (24 minutes). You can set this value to 0. This will make the client session 'infinite' by pinging the server periodically. This keeps the PHP session alive. For evident security reasons, this is not a recommended setting."
+    "other": "클라이언트 세션의 길이(초) 입니다. 기본적으로 서버 세션 길이가 사용됩니다. 대부분의 PHP 설치에서 세션 길이는 1440초(24분) 로 설정됩니다. 이 값을 0으로 설정할 수 있습니다. 이렇게 하면 서버를 주기적으로 ping하여 클라이언트 세션이 '무한' 상태가 됩니다. 이렇게 하면 PHP 세션이 계속 유지됩니다. 명백한 보안상의 이유로 이 설정은 권장되지 않습니다."
   },
   "Theme": {
-    "other": "Theme"
+    "other": "테마"
   },
   "Theme used for display": {
-    "other": "Theme used for display"
+    "other": "표시를 위한 테마"
   },
   "Tile (repeat both directions)": {
-    "other": "Tile (repeat both directions)"
+    "other": "타일 (양쪽으로 반복)"
   },
   "Title": {
-    "other": "Title"
+    "other": "제목"
   },
   "Title Font Size": {
-    "other": "Title Font Size"
+    "other": "제목 글꼴 크기"
   },
   "Top Toolbar": {
-    "other": "Top Toolbar"
+    "other": "상단 툴바"
   },
   "Top-right logo displayed on minisite page": {
-    "other": "Top-right logo displayed on minisite page"
+    "other": "미니 사이트 페이지에 보여지는 상단 우측 로고"
   },
   "URI to a custom image to be used as start up logo": {
-    "other": "URI to a custom image to be used as start up logo"
+    "other": "시작 로고로 사용할 사용자 지정 이미지에 대한 URI 주소"
   },
   "Use Events Logging, experimental only implemented on download action in Pydio": {
-    "other": "Use Events Logging, experimental only implemented on download action in Pydio"
+    "other": "이벤트 로깅 사용, Pydio에서 다운로드 작업에만 실험적으로 구현"
   },
   "Use configured branding": {
-    "other": "Use configured branding"
+    "other": "구성된 브랜드 사용"
   },
   "User Home Logo": {
-    "other": "User Home Logo"
+    "other": "사용자 홈 로고"
   },
   "Warning Before": {
-    "other": "Warning before session expires"
+    "other": "세션 종료 전 경고"
   },
   "Web Session": {
-    "other": "Web Session"
+    "other": "웹 세션"
   },
   "Web Interface auto-logout after inactivity": {
-    "other": "Web Interface auto-logout after inactivity"
+    "other": "활동이 없으면 웹 인터페이스 자동 로그아웃"
   },
   "For security, disconnect user if there was no activity. Set to the cookie expiration by default.": {
-    "other": "For security, disconnect user if there was no activity. Set to the cookie expiration by default."
+    "other": "보안을 위해 활동이 없으면 사용자 연결을 끊습니다. 기본적으로 쿠키 만료로 설정합니다."
   },
   "Welcome Message": {
-    "other": "Welcome Message"
+    "other": "환영 메시지"
   },
   "Welcome Page": {
-    "other": "Welcome Page"
+    "other": "환영 페이지"
   },
   "Width of the custom image (by default 35px)": {
-    "other": "Width of the custom image (Default 35px)"
+    "other": "사용자 설정 이미지의 너비 (기본 35px)"
   },
   "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
-    "other": "Alert the user that the web session is about to expire. Number of minutes before session expiration"
+    "other": "웹 세션이 곧 만료될 것임을 사용자에게 알립니다. 세션 만료 전 시간(분)"
   },
   "Warning Before Session Expiration": {
-    "other": "Warning Before Session Expiration"
+    "other": "세션 종료 전 경고"
   },
   "Custom HTML Header": {
-    "other": "Custom HTML Header"
+    "other": "사용자 설정 HTML 헤더"
   },
   "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!": {
-    "other": "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!"
+    "other": "당신은 페이지 헤더에 포함되기를 원하는 HTML을 설정하십시오. 유효한 HTML을 넣어야 함을 주의하십시오."
   }
 }

@@ -1,47 +1,47 @@
 {
   "1": {
-    "other": "Choose other..."
+    "other": "다른 것을 선택해주세요..."
   },
   "2": {
-    "other": "Choose another editor"
+    "other": "다른 에디터를 선택해주세요..."
   },
   "3": {
-    "other": "Select another editor to open this file"
+    "other": "이 파일을 열기 위해선 다른 에디터를 선택해주세요."
   },
   "4": {
-    "other": "Warning, these editors do not declare to be supporting this file type, their behaviour maybe unpredictable!"
+    "other": "경고: 이 편집기가 이 파일 형식을 지원한다고 선언하지 않았습니다. 이 편집기의 동작을 예측할 수 없습니다!"
   },
   "5": {
-    "other": "Clear associations"
+    "other": "연결 지우기"
   },
   "drop.cell.picker": {
-    "other": "Pick action for %s..."
+    "other": "%s 를 위한 액션을 골라주세요."
   },
   "drop.cell.share.legend": {
-    "other": "Add new item to this cell"
+    "other": "이 셀에 새로운 아이템을 추가해주세요."
   },
   "drop.cell.copymove.legend": {
-    "other": "Inside %s"
+    "other": "%s 내부"
   },
   "drop.cell.file.share": {
-    "other": "Share file"
+    "other": "파일 공유"
   },
   "drop.cell.folder.share": {
-    "other": "Share folder"
+    "other": "폴더 공유"
   },
   "drop.cell.file.move": {
-    "other": "Move file"
+    "other": "파일 이동"
   },
   "drop.cell.folder.move": {
-    "other": "Move folder"
+    "other": "폴더 이동"
   },
   "drop.cell.file.copy": {
-    "other": "Copy file"
+    "other": "파일 복사"
   },
   "drop.cell.folder.copy": {
-    "other": "Copy folder"
+    "other": "폴더 복사"
   },
   "download.as.pdf": {
-    "other": "Download as PDF"
+    "other": "PDF로 다운로드"
   }
 }

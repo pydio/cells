@@ -1,17 +1,17 @@
 {
   "1": {
-    "other": "Lock"
+    "other": "잠금"
   },
   "2": {
-    "other": "Lock selected item"
+    "other": "선택한 아이템 잠금"
   },
   "3": {
-    "other": "Unlock"
+    "other": "잠금해제"
   },
   "4": {
-    "other": "Remove lock"
+    "other": "잠금 제거"
   },
   "5": {
-    "other": "This file is locked by another user, it is probably currently being edited, you are not allowed to modify it."
+    "other": "이 파일은 다른 사용자에 의해 잠겨 있습니다. 현재 편집 중이므로 수정할 수 없습니다."
   }
 }

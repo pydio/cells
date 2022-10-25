@@ -1,176 +1,176 @@
 {
   "start": {
-    "other": "Start"
+    "other": "시작"
   },
   "pause": {
-    "other": "Pause"
+    "other": "일시중지"
   },
   "clear": {
-    "other": "Clear"
+    "other": "지우기"
   },
   "clear-header": {
-    "other": "Clear list..."
+    "other": "목록 지우기..."
   },
   "clear-finished": {
-    "other": "Finished Uploads"
+    "other": "업로드 완료"
   },
   "clear-failed": {
-    "other": "Failed Uploads"
+    "other": "업로드 실패"
   },
   "clear-all": {
-    "other": "All Transfers"
+    "other": "모든 전송"
   },
   "list.show-more": {
-    "other": "%d more - show all"
+    "other": "%d 이상 - 모두 보여주기"
   },
   "options.existing": {
-    "other": "If a file with the same name exists:"
+    "other": "동일한 이름의 파일이 존재할 경우:"
   },
   "options.existing.alert": {
-    "other": "Stop upload and alert me"
+    "other": "업로드를 중지하고 나에게 경고하기"
   },
   "options.existing.folders": {
-    "other": "Rename folders then files"
+    "other": "폴더 이름을 파일 이름 변경"
   },
   "options.existing.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "파일만 이름변경 (폴더 합병)"
   },
   "options.existing.overwrite": {
-    "other": "Overwrite existing file silently"
+    "other": "묻지도 따지지도 않고 기존 파일 덮어쓰기"
   },
   "confirm.rename.all": {
-    "other": "Rename folders, then conflicting files"
+    "other": "폴더 이름을 변경한 다음 충돌하는 파일 이름 변경"
   },
   "confirm.rename.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "파일만 이름변경 (폴더 합병)"
   },
   "confirm.overwrite": {
-    "other": "Merge folders and overwrite files"
+    "other": "폴더 합병하고 파일 덮어쓰기"
   },
   "confirm.save.choice": {
-    "other": "Save choice for next uploads"
+    "other": "다음 업로드를 위해서 선택한 것을 저장"
   },
   "options": {
-    "other": "Upload options"
+    "other": "업로드 옵션"
   },
   "upload.forbidden": {
-    "other": "You are not allowed to upload this file here"
+    "other": "당신이 이 파일을 여기에 업로드하는 것이 허용되지 않았습니다.,"
   },
   "task.label": {
-    "other": "Uploading files to server..."
+    "other": "서버로 파일 업로드중..."
   },
   "task.status.folders": {
-    "other": "Creating Folders"
+    "other": "폴더 생성"
   },
   "task.message.folder-one": {
-    "other": "Creating one folder"
+    "other": "1개 폴더 생성"
   },
   "task.message.folder-many": {
-    "other": "Creating %s folders"
+    "other": "%s 폴더 생성"
   },
   "task.status.analyse": {
-    "other": "Preparing files for upload"
+    "other": "파일 업로드를 위해 준비"
   },
   "task.message.analyse-many": {
-    "other": "Analyzing %s items..."
+    "other": "%s 항목 분석중..."
   },
   "task.message.analyse-one": {
-    "other": "Analyzing one item"
+    "other": "한개 항목 분석중"
   },
   "task.message.analyse-wait": {
-    "other": "Please wait..."
+    "other": "기다려주세요..."
   },
   "task.status.ready": {
-    "other": "Ready to upload"
+    "other": "업로드 준비됨"
   },
   "task.status.paused": {
-    "other": "Upload paused"
+    "other": "업로드 일시중지"
   },
   "task.status.upload": {
-    "other": "Uploading files"
+    "other": "파일 업로드"
   },
   "task.message.upload-progress": {
-    "other": "Uploading %s%"
+    "other": "%s% 업로드"
   },
   "no-folders-support": {
-    "other": "It seems that your browser does not support dropping folders"
+    "other": "당신의 브라우저는 폴더 놓기가 지원되지 않는 것 같습니다."
   },
   "analyze.step": {
-    "other": "Preparing files and folders for upload..."
+    "other": "업로드를 위해서 파일과 폴더를 준비중입니다..."
   },
   "drophere": {
-    "other": "Drop files here"
+    "other": "여기에 파일을 놓으세요"
   },
   "drop-or": {
-    "other": "or"
+    "other": "또는"
   },
   "drop-pick-file": {
-    "other": "browse files"
+    "other": "파일 찾아보기"
   },
   "drop-pick-folder": {
-    "other": "browse folders"
+    "other": "폴더 찾아보기"
   },
   "dialog.title": {
-    "other": "Transfers"
+    "other": "전송"
   },
   "status.new": {
-    "other": "Pending"
+    "other": "보류 중"
   },
   "status.error": {
-    "other": "An error occured"
+    "other": "오류 발생함"
   },
   "status.pause": {
-    "other": "Paused"
+    "other": "일시중지"
   },
   "status.analyse": {
-    "other": "Analyzing..."
+    "other": "분석 중..."
   },
   "status.dir.new": {
-    "other": "Folder awaiting upload..."
+    "other": "업로드 대기중인 폴더..."
   },
   "status.file.new": {
-    "other": "File awaiting upload..."
+    "other": "업로드 대기중인 파일..."
   },
   "status.dir.analyse": {
-    "other": "Analyzing folder..."
+    "other": "폴더 분석중..."
   },
   "status.file.analyse": {
-    "other": "Analyzing file..."
+    "other": "파일 분석중..."
   },
   "status.dir.loading": {
-    "other": "Creating folder"
+    "other": "폴더 생성"
   },
   "status.file.loading": {
-    "other": "Uploading file"
+    "other": "파일 업로드"
   },
   "status.dir.loaded": {
-    "other": "Folder created"
+    "other": "폴더가 생성되었습니다."
   },
   "status.file.loaded": {
-    "other": "File uploaded"
+    "other": "파일 업로드"
   },
   "status.part.loaded": {
-    "other": "Chunk uploaded"
+    "other": "업로드된 청크"
   },
   "status.part.loading": {
-    "other": "Uploading chunk"
+    "other": "청크 업로드"
   },
   "status.multi-pause": {
-    "other": "Finishing current chunk before pausing"
+    "other": "중지 이전에 현재 청크 완료"
   },
   "status.file.cannot-pause": {
-    "other": "Cannot pause this transfer"
+    "other": "전송 중지 불가"
   },
   "status.part.cannot-pause": {
-    "other": "Cannot pause chunk transfer"
+    "other": "청크 전송 중지 불가"
   },
   "status.error.aborted": {
-    "other": "interrupted by user"
+    "other": "사용자에 의해 중지되었습니다."
   },
   "status.error.403": {
-    "other": "you are not allowed to upload here"
+    "other": "당신은 여기에 업로드하는 것이 허용되지 않았습니다.,"
   },
   "status.error.422": {
-    "other": "quota reached, cannot upload more"
+    "other": "용량제한에 도달했습니다. 더 이상 업로드할 수 없습니다."
   }
 }

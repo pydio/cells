@@ -1,62 +1,62 @@
 {
   "1": {
-    "other": "Notifications"
+    "other": "통지"
   },
   "10": {
-    "other": "Folder Activity"
+    "other": "폴더 활동"
   },
   "11": {
-    "other": "File Activity"
+    "other": "파일 활동"
   },
   "12": {
-    "other": "Depending on your browser, this will ask for a specific permission. To disable, go through your browser preferences and exceptions. If you have already enabled this feature, probably nothing will happen."
+    "other": "브라우저에 따라 특정 권한을 묻는 메시지가 표시됩니다. 비활성화하려면 브라우저 기본 설정 및 예외를 확인하십시오. 이 기능을 이미 사용 가능으로 설정한 경우 아무 일도 일어나지 않을 수 있습니다."
   },
   "13": {
-    "other": "Your browser does not seem to support Desktop Notifications yet."
+    "other": "브라우저가 아직 데스크톱 통지를 지원하지 않는 것 같습니다."
   },
   "14": {
-    "other": "No alerts"
+    "other": "경고 없음"
   },
   "15": {
-    "other": "Notifications about files that you monitor will appear here"
+    "other": "모니터링하는 파일에 대한 통지가 여기에 나타납니다."
   },
   "16": {
-    "other": "Inside"
+    "other": "내부"
   },
   "17": {
-    "other": "Loading activities..."
+    "other": "활동을 불러오는 중..."
   },
   "18": {
-    "other": "No recent activity"
+    "other": "최근 활동이 없습니다."
   },
   "19": {
-    "other": "More"
+    "other": "더보기"
   },
   "2": {
-    "other": "Notifications feed"
+    "other": "통지 피드"
   },
   "20": {
-    "other": "Loading feed..."
+    "other": "피드 불러오는 중..."
   },
   "3": {
-    "other": "Alerts"
+    "other": "경고"
   },
   "4": {
-    "other": "Notifications"
+    "other": "통지"
   },
   "5": {
-    "other": "All Events"
+    "other": "모든 이벤트"
   },
   "6": {
-    "other": "Go to ..."
+    "other": "이동하기..."
   },
   "7": {
-    "other": "Dismiss"
+    "other": "해산"
   },
   "8": {
-    "other": "No alerts"
+    "other": "경고 없음"
   },
   "9": {
-    "other": "Workspace Activity"
+    "other": "작업공간 활동"
   }
 }

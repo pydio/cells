@@ -1,6 +1,6 @@
 {
   "1": {
-    "other": "Address Book"
+    "other": "주소록"
   },
   "10": {
     "other": "Associated workspaces"
@@ -21,7 +21,7 @@
     "other": "Ok"
   },
   "16": {
-    "other": "Broken"
+    "other": "깨짐"
   },
   "17": {
     "other": "Download URL"
@@ -39,25 +39,25 @@
     "other": "Downloads"
   },
   "21": {
-    "other": "Yes"
+    "other": "예"
   },
   "22": {
-    "other": "No"
+    "other": "아니오"
   },
   "23": {
     "other": "Successfully deleted %s files."
   },
   "24": {
-    "other": "Nothing to delete."
+    "other": "삭제할 것이 없습니다."
   },
   "25": {
-    "other": "Clear Expired"
+    "other": "만료된 것 지우기"
   },
   "26": {
-    "other": "Delete expired shared files."
+    "other": "만료된 공유 파일 삭제"
   },
   "27": {
-    "other": "Owner"
+    "other": "소유자"
   },
   "28": {
     "other": "Files shared for direct download, either protected by a password or not."
@@ -66,10 +66,10 @@
     "other": "Delegates workspaces created by users."
   },
   "3": {
-    "other": "Shared files"
+    "other": "공유된 파일"
   },
   "30": {
-    "other": "Users created to access the delegated workspaces."
+    "other": "위임된 작업공간에 액세스하기 위해 만든 사용자입니다."
   },
   "31": {
     "other": "설명"
@@ -93,7 +93,7 @@
     "other": "My profile and application settings"
   },
   "38": {
-    "other": "Notifications"
+    "other": "통지"
   },
   "39": {
     "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
@@ -114,7 +114,7 @@
     "other": "My Profile"
   },
   "43t": {
-    "other": "All my personal data"
+    "other": "모든 내 개인 자료"
   },
   "44": {
     "other": "My Account"
@@ -123,7 +123,7 @@
     "other": "Personal data"
   },
   "46": {
-    "other": "Address Book"
+    "other": "주소록"
   },
   "47": {
     "other": "Users and teams that you created"
@@ -195,39 +195,39 @@
     "other": "Pick a day of the week"
   },
   "68": {
-    "other": "Monday"
+    "other": "월요일"
   },
   "69": {
-    "other": "Tuesday"
+    "other": "화요일"
   },
   "7": {
-    "other": "Expiration"
+    "other": "만료"
   },
   "70": {
-    "other": "Wednesday"
+    "other": "수요일"
   },
   "71": {
-    "other": "Thursday"
+    "other": "목요일"
   },
   "72": {
-    "other": "Friday"
+    "other": "금요일"
   },
   "73": {
-    "other": "Saturday"
+    "other": "토요일"
   },
   "74": {
-    "other": "Sunday"
+    "other": "일요일"
   },
   "8": {
-    "other": "Elements"
+    "other": "구성요소"
   },
   "9": {
-    "other": "Associated users"
+    "other": "관련 사용자"
   },
   "desc": {
-    "other": "Manage my account preferences, my address book, shared elements, etc."
+    "other": "계정 환경설정, 주소록, 공유 요소 등을 관리"
   },
   "title": {
-    "other": "My Account"
+    "other": "내 계정"
   }
 }

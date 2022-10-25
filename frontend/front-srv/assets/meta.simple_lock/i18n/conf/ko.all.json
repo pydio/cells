@@ -1,8 +1,8 @@
 {
   "Manual Locking mechanism to avoid concurrent edition": {
-    "other": "Manual Locking mechanism to avoid concurrent edition"
+    "other": "동시 편집을 방지하기 위한 수동 잠금 메커니즘"
   },
   "Simple Lock": {
-    "other": "Simple Lock"
+    "other": "단순 잠금"
   }
 }

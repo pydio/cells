@@ -15,7 +15,7 @@
     "other": "Avoid labels duplication"
   },
   "Background Color": {
-    "other": "Background Color"
+    "other": "배경색"
   },
   "Create QRCode": {
     "other": "Create QRCode"
@@ -33,7 +33,7 @@
     "other": "Do not allow users to create public links, only private links (password-protected)"
   },
   "Download Button": {
-    "other": "Download Button"
+    "other": "다운로드 버튼"
   },
   "Download text": {
     "other": "Download text"
@@ -117,13 +117,13 @@
     "other": "Minimum length of the generated hash"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "미니 사이트"
   },
   "Minisites and Workspaces": {
-    "other": "Minisites and Workspaces"
+    "other": "미니 사이트와 작업공간"
   },
   "Minisites only": {
-    "other": "Minisites only"
+    "other": "오직 미니 사이트만"
   },
   "Page Title": {
     "other": "Page Title"

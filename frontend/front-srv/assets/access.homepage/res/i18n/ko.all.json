@@ -24,7 +24,7 @@
     "other": "Personal data"
   },
   "46": {
-    "other": "Address Book"
+    "other": "주소록"
   },
   "47": {
     "other": "Users and teams that you created"
@@ -57,10 +57,10 @@
     "other": "Getting started with APPLICATION_TITLE? Here are some videos for you!"
   },
   "57": {
-    "other": "Download APPLICATION_TITLE for..."
+    "other": "APPLICATION_TITLE 다운로드..."
   },
   "58": {
-    "other": "Android"
+    "other": "안드로이드"
   },
   "59": {
     "other": "iPhone/iPad"
@@ -117,7 +117,7 @@
     "other": "Access the %1 through the top-right menu"
   },
   "77": {
-    "other": "admin dashboard"
+    "other": "관리 대시보드"
   },
   "78": {
     "other": "Pick a target workspace"
@@ -198,10 +198,10 @@
     "other": "Found in"
   },
   "search.facet.metadata": {
-    "other": "Metadata"
+    "other": "메타데이터"
   },
   "facet.label.file": {
-    "other": "File"
+    "other": "파일"
   },
   "facet.label.folder": {
     "other": "폴더"
@@ -210,10 +210,10 @@
     "other": "< 1MB"
   },
   "facet.label.size.1MB.to.10MB": {
-    "other": "1MB to 10MB"
+    "other": "1MB 에서 10MB"
   },
   "facet.label.size.10MB.to.100MB": {
-    "other": "10MB to 100MB"
+    "other": "10MB 에서 100MB"
   },
   "facet.label.size.gt.100MB": {
     "other": "> 100MB"
@@ -234,13 +234,13 @@
     "other": "Older than 30 days"
   },
   "facet.label.found.contents": {
-    "other": "Contents"
+    "other": "내용"
   },
   "facet.label.found.basename": {
     "other": "File name"
   },
   "reco.bookmark": {
-    "other": "Bookmark"
+    "other": "즐겨찾기"
   },
   "reco.workspace": {
     "other": "Workspace"

@@ -1,50 +1,50 @@
 {
   "1": {
-    "other": "Meta Data"
+    "other": "메타데이터"
   },
   "10": {
-    "other": "Existing or new tag"
+    "other": "존재하거나 새로운 태그"
   },
   "11": {
-    "other": "No metadata set, click to add any"
+    "other": "설정된 메타데이터가 없습니다. 다른 것을 추가하려면 클릭하세요."
   },
   "16": {
-    "other": "No metadata set"
+    "other": "설정된 메타데이터가 없습니다."
   },
   "12": {
-    "other": "Multiple Selection:"
+    "other": "다중 선택"
   },
   "13": {
-    "other": "check the fields that you want to update, value will be applied to all selected files"
+    "other": "업데이트할 필드를 선택하십시오. 선택한 모든 파일에 값이 적용됩니다."
   },
   "14": {
-    "other": "Edit meta"
+    "other": "메타 편집"
   },
   "15": {
-    "other": "Save meta"
+    "other": "메타 저장"
   },
   "2": {
-    "other": "No Label"
+    "other": "라벨 없음"
   },
   "3": {
-    "other": "Remove Rating"
+    "other": "순위 제거"
   },
   "4": {
-    "other": "Low"
+    "other": "낮음"
   },
   "5": {
-    "other": "Todo"
+    "other": "할 일"
   },
   "6": {
-    "other": "Personal"
+    "other": "개인"
   },
   "7": {
-    "other": "Work"
+    "other": "작업"
   },
   "8": {
-    "other": "Important"
+    "other": "중요"
   },
   "9": {
-    "other": "No Value"
+    "other": "값 없음"
   }
 }

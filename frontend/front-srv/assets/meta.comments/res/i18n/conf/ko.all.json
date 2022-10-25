@@ -1,14 +1,14 @@
 {
   "Comment limit": {
-    "other": "Comment limit"
+    "other": "의견 제한"
   },
   "Comments Feed": {
-    "other": "Comments Feed"
+    "other": "의견 피드"
   },
   "Display a chat-like feed on every nodes": {
-    "other": "Display a chat-like feed on every nodes"
+    "other": "모든 노드에서 채팅처럼 피드 노출"
   },
   "Maximum number of characters for each comment": {
-    "other": "Maximum number of characters for each comment"
+    "other": "각 의견에 최대 글자수"
   }
 }

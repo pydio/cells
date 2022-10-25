@@ -1,197 +1,197 @@
 {
   "tour.create-menu": {
-    "other": "Start adding new files or folders to the current workspace."
+    "other": "현재 작업공간에 새 파일 또는 폴더 추가를 시작합니다."
   },
   "tour.create-menu.title": {
-    "other": "Add files"
+    "other": "파일 추가"
   },
   "tour.display-bar": {
-    "other": "This toolbar allows you to change the display: switch to thumbnails or detail mode depending on your usage, and sort files by name, date, etc..."
+    "other": "이 도구 모음을 사용하면 표시를 변경할 수 있습니다: 사용법에 따라 축소판 그림 또는 세부 모드로 전환하고 이름, 날짜 등으로 파일을 정렬하십시오."
   },
   "tour.display-bar.title": {
-    "other": "Display Options"
+    "other": "표시 옵션"
   },
   "tour.globsearch.1": {
-    "other": "Use this search form to find files or folders in any workspace and cells. Only the first 5 results are shown, enter a workspace to get more results, and more search options."
+    "other": "이 검색 양식을 사용하여 작업영역 및 셀에서 파일 또는 폴더를 찾습니다. 처음 5 개의 결과만 표시되고 작업 영역을 입력하여 더 많은 결과와 더 많은 검색 옵션을 얻습니다."
   },
   "tour.globsearch.2": {
-    "other": "When no search is entered, the history of your recently accessed files and folder is displayed instead."
+    "other": "검색을 입력하지 않으면 최근에 액세스한 파일 및 폴더의 기록이 대신 표시됩니다."
   },
   "tour.globsearch.title": {
-    "other": "Global Search"
+    "other": "전체 검색"
   },
   "tour.infopanel.1": {
-    "other": "Here, you will find many information about current selection: file information, sharing status, user-defined metadata, etc."
+    "other": "여기서 파일 정보, 공유 상태, 사용자 정의 메타데이터 등 현재 선택 항목에 대한 많은 정보를 찾을 수 있습니다."
   },
   "tour.infopanel.2": {
-    "other": "You can close this panel by using the info button in the display toolbar"
+    "other": "표시 도구 모음의 정보 단추를 사용하여 이 패널을 닫을 수 있습니다."
   },
   "tour.infopanel.file": {
-    "other": "File"
+    "other": "파일"
   },
   "tour.infopanel.folder": {
     "other": "폴더"
   },
   "tour.infopanel.search": {
-    "other": "Search"
+    "other": "검색"
   },
   "tour.infopanel.title": {
-    "other": "Info Panel"
+    "other": "정보 패널"
   },
   "tour.locale.back": {
-    "other": "Back"
+    "other": "뒤로가기"
   },
   "tour.locale.close": {
-    "other": "Close"
+    "other": "닫기"
   },
   "tour.locale.last": {
-    "other": "Finish"
+    "other": "완료"
   },
   "tour.locale.next": {
-    "other": "Next"
+    "other": "다음"
   },
   "tour.locale.skip": {
-    "other": "Skip"
+    "other": "건너뛰기"
   },
   "tour.openworkspace": {
-    "other": "At the first connection, your history is probably empty. Enter a workspace or a cell to start adding files."
+    "other": "첫 번째 연결에서 기록이 비어 있을 수 있습니다. 파일 추가를 시작할 작업공간 또는 셀을 입력하십시오."
   },
   "tour.openworkspace.title": {
-    "other": "Open a workspace"
+    "other": "작업공간 열기"
   },
   "tour.uwidget.addressbook": {
-    "other": "Directory of all the users accessing to the platform. Create your own users, and constitute teams that can be used to share resources"
+    "other": "플랫폼에 액세스하는 모든 사용자의 디렉토리입니다. 자체 사용자 생성하고 리소스 공유에 사용할 수 있는 팀을 구성하세요."
   },
   "tour.uwidget.alerts": {
-    "other": "Alerts panel will inform you when a user with whom you shared some resources did access it. They can be sent to you directly by email."
+    "other": "경고 패널은 일부 리소스를 공유한 사용자가 접근한 시기를 알려줍니다. 그것들은 이메일로 당신에게 직접 보내질 수 있습니다."
   },
   "tour.uwidget.home": {
-    "other": "Go back to the welcome panel with this button"
+    "other": "이 버튼으로 웰컴 패널로 되돌아가세요."
   },
   "tour.uwidget.menu": {
-    "other": "Access to other options : managing your profile and security features, browse all the resources you have shared, sign out of the platform."
+    "other": "프로필 및 보안 기능 관리, 공유한 모든 리소스 찾아보기, 플랫폼 로그아웃 등 다른 옵션에 액세스할 수 있습니다."
   },
   "tour.uwidget.title": {
-    "other": "User Cartouche"
+    "other": "사용자 카터치"
   },
   "tour.welcomemodal.skip": {
-    "other": "Skip"
+    "other": "건너뛰기"
   },
   "tour.welcomemodal.start": {
-    "other": "Start the tour"
+    "other": "투어 시작"
   },
   "tour.welcomemodal.subtitle": {
-    "other": "Drag'n'drop the best photo of you for your profile! This quick tour will guide you through the web interface."
+    "other": "프로필에 가장 적합한 사진을 끌어다 놓으세요! 이 빠른 둘러보기를 통해 웹 인터페이스를 안내할 수 있습니다."
   },
   "tour.welcomemodal.title": {
-    "other": "Welcome to APPLICATION_TITLE"
+    "other": "APPLICATION_TITLE에 오신 것을 환영합니다."
   },
   "tour.widget-cards": {
-    "other": "You can add or remove widgets here. You can also reorder them by simply dragging them around."
+    "other": "여기서 위젯을 추가하거나 제거할 수 있습니다. 끌어서 놓기만 하면 다시 정렬할 수도 있습니다."
   },
   "tour.widget-cards.title": {
-    "other": "Widgets"
+    "other": "위젯"
   },
   "tour.workspaces.1": {
-    "other": "Workspaces are top-level folders helping you organize your data. They may be accessed only by you, or shared accross many people."
+    "other": "워크스페이스는 데이터를 구성하는 데 도움이 되는 최상위 폴더입니다. 사용자만 액세스하거나 여러 사람과 공유할 수 있습니다."
   },
   "tour.workspaces.2": {
-    "other": "Cells are collaborative spaces that you can share with other users. Create your own cells based on a folder, a team of users, or any relevant topic."
+    "other": "Cells는 다른 사용자와 공유할 수 있는 공동 작업 공간입니다. 폴더, 사용자 팀 또는 관련 항목을 기반으로 자신의 Cells를 만듭니다."
   },
   "tour.workspaces.title": {
-    "other": "Workspaces & Cells"
+    "other": "작업공간과 Cells"
   },
   "background.jobs.title": {
-    "other": "Background Jobs"
+    "other": "백그라운드 작업"
   },
   "background.jobs.running": {
-    "other": "Jobs running"
+    "other": "잡 실행"
   },
   "websocket.disconnected.title": {
-    "other": "Connection issue"
+    "other": "연결 문제"
   },
   "websocket.disconnected.legend": {
-    "other": "Websocket seems to be disconnected, please make sure that the server is up and websocket connection is working."
+    "other": "웹소켓 연결이 끊긴 것 같습니다. 서버가 작동 중이고 웹소켓 연결이 작동하는지 확인하십시오."
   },
   "oauth.authentication.success": {
-    "other": "Authentication Success"
+    "other": "인증 성공"
   },
   "oauth.authentication.failed": {
-    "other": "Authentication Failed"
+    "other": "인증 실패"
   },
   "oauth.authentication.code": {
-    "other": "You were successfully authenticated. Please copy and paste the code to your command line terminal"
+    "other": "인증에 성공했습니다. 코드를 복사하여 명령줄 터미널에 붙여넣으십시오."
   },
   "oauth.authentication.copy-code": {
-    "other": "Copy code to your clipboard"
+    "other": "클립보드에 코드 복사"
   },
   "oauth.authentication.code-copied": {
-    "other": "Code is copied to your clipboard, you can paste it in the command line."
+    "other": "코드가 클립보드에 복사되어 명령줄에 붙여넣을 수 있습니다."
   },
   "oauth.authentication.code-copy-failed": {
-    "other": "Could not copy to clipboard."
+    "other": "클립보드에 복사할 수 없습니다."
   },
   "list.display-mode.list": {
-    "other": "List"
+    "other": "목록"
   },
   "list.display-mode.details": {
-    "other": "Details"
+    "other": "세부사항"
   },
   "list.display-mode.thumbs": {
-    "other": "Thumbs"
+    "other": "썸네일"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Thumbs Large"
+    "other": "큰 썸네일"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Thumbs Small"
+    "other": "작은 썸네일"
   },
   "list.display-mode.masonry": {
-    "other": "Image Gallery"
+    "other": "이미지 갤러리"
   },
   "list.extensions.action": {
-    "other": "Files extensions"
+    "other": "파일 확장자"
   },
   "list.extensions.show": {
-    "other": "Show extensions"
+    "other": "파일 확장자 표시"
   },
   "list.pin.bookmarks": {
-    "other": "Pin bookmarks to top"
+    "other": "상단에 즐겨찾기 고정"
   },
   "infopanel.empty.select.file": {
-    "other": "Select a file to display informations"
+    "other": "정보를 표시하기 위한 파일을 선택하세요."
   },
   "pinned-bookmarks.other": {
-    "other": "All files"
+    "other": "모든 파일"
   },
   "file.temporary-etag.flag": {
-    "other": "Incomplete"
+    "other": "미완료"
   },
   "file.temporary-etag.tooltip": {
-    "other": "This file is being uploaded (or the upload has failed)."
+    "other": "이 파일은 업로드중입니다.(또는 업로드에 실패했습니다.)"
   },
   "mimegroup.byextension": {
-    "other": "By File Extension..."
+    "other": "파일 확장자..."
   },
   "mimegroup.word": {
-    "other": "Word documents"
+    "other": "Word 문서"
   },
   "mimegroup.spreadsheet": {
-    "other": "Spreadsheets"
+    "other": "스프레드시트"
   },
   "mimegroup.presentation": {
-    "other": "Presentations"
+    "other": "프레젠테이션"
   },
   "mimegroup.pdf": {
-    "other": "PDFs"
+    "other": "PDF 파일"
   },
   "mimegroup.image": {
-    "other": "Images"
+    "other": "이미지"
   },
   "mimegroup.video": {
-    "other": "Videos"
+    "other": "동영상"
   },
   "mimegroup.audio": {
-    "other": "Audios"
+    "other": "오디오"
   }
 }

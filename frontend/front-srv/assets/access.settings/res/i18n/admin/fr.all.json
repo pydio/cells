@@ -275,6 +275,12 @@
   "ds.editor.storage.s3.bucket": {
     "other": "Nom du Bucket"
   },
+  "ds.editor.storage.s3.endpoint.type": {
+    "other": "Type d'accès"
+  },
+  "ds.editor.storage.s3.signatureVersion": {
+    "other": "Version de la signature"
+  },
   "ds.editor.storage.s3.endpoint.amazon": {
     "other": "Amazon S3"
   },

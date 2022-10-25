@@ -1,17 +1,17 @@
 {
   "Show file/folders activities": {
-    "other": "Show file/folders activities"
+    "other": "파일/폴더 활동을 보여주기"
   },
   "Display file and folders activities in the right-hand info panel": {
-    "other": "Display file and folders activities in the right-hand info panel"
+    "other": "오른쪽 정보 패널에 파일과 폴더 활동을 노출"
   },
   "Activities": {
-    "other": "Activities"
+    "other": "활동"
   },
   "Activity Center": {
-    "other": "Activity Center"
+    "other": "활동 센터"
   },
   "Activity Streams 2.0": {
-    "other": "Activity Streams 2.0"
+    "other": "활동 스트림 2.0"
   }
 }

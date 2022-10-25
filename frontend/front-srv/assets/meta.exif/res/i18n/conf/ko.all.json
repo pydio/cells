@@ -1,20 +1,20 @@
 {
   "Associated list of labels, be sure to define as many as fields!": {
-    "other": "Associated list of labels, be sure to define as many as fields!"
+    "other": "연결된 레이블 목록. 필드 수만큼 정의해야 합니다!"
   },
   "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'.": {
-    "other": "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'."
+    "other": "쉼표로 구분된 필드 목록, 구문 'EX' 사용IF_Section.ExifName'입니다."
   },
   "Exif Metadata": {
-    "other": "Exif Metadata"
+    "other": "Exif 메타데이터"
   },
   "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif": {
-    "other": "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif"
+    "other": "JPG 이미지의 EXIF 메타데이터를 추출합니다. editor.exif와 함께 사용"
   },
   "Info Panel Fields": {
-    "other": "Info Panel Fields"
+    "other": "패널 필드 정보"
   },
   "Info Panel Labels": {
-    "other": "Info Panel Labels"
+    "other": "패널 라벨 정보"
   }
 }

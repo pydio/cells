@@ -1,26 +1,26 @@
 {
   "Livekit Server": {
-    "other": "Livekit Server"
+    "other": "Livekit 서버"
   },
   "Enable audio/video conferencing with Livekit Server": {
-    "other": "Enable audio/video conferencing with Livekit Server"
+    "other": "Livekit 서버를 사용하여 오디오/비디오 회의 사용"
   },
   "Websocket URL": {
-    "other": "Websocket URL"
+    "other": "웹소켓 URL 주소"
   },
   "Livekit Websocket URL": {
-    "other": "Livekit Websocket URL"
+    "other": "Livekit 웹소켓 URL주소"
   },
   "API Key": {
-    "other": "API Key"
+    "other": "API 키"
   },
   "Livekit server API Key": {
-    "other": "Livekit server API Key"
+    "other": "Livekit 서버 API 키"
   },
   "API Secret": {
-    "other": "API Secret"
+    "other": "API 비밀키"
   },
   "Livekit server API Secret": {
-    "other": "Livekit server API Secret"
+    "other": "Livekit 서버 API 비밀키"
   }
 }

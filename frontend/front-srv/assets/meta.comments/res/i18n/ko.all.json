@@ -1,17 +1,17 @@
 {
   "1": {
-    "other": "Comments"
+    "other": "의견"
   },
   "2": {
-    "other": "Enter your comment here"
+    "other": "여기에 의견을 남겨주세요"
   },
   "3": {
-    "other": "Post"
+    "other": "게시하기"
   },
   "4": {
-    "other": "Go to %s"
+    "other": "%s로 이동"
   },
   "empty-state": {
-    "other": "No comments"
+    "other": "의견 없음"
   }
 }

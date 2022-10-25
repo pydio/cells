@@ -1,56 +1,56 @@
 {
   "Android App URL": {
-    "other": "URL to Android App"
+    "other": "안드로이드 앱 받기 URL 주소"
   },
   "Display Server QRCode": {
-    "other": "Display Server QRCode"
+    "other": "디스플레이 서버 QR코드"
   },
   "Enable Getting Started": {
-    "other": "Enable Getting Started"
+    "other": "시작하기 활성화"
   },
   "Enable Global Search": {
-    "other": "Enable Global Search"
+    "other": "전역 검색 사용"
   },
   "Enable addition tabulation to access getting started videos": {
-    "other": "Enable addition tabulation to access getting started videos"
+    "other": "시작 비디오에 액세스하기 위한 추가 탭 사용"
   },
   "Enable cross-workspaces search form on home page": {
-    "other": "Enable cross-workspaces search form on home page"
+    "other": "홈 페이지에서 교차 작업공간 검색 양식 사용"
   },
   "Let users connect easily to the latest mobile applications by displaying a QRCode": {
-    "other": "Let users connect easily to the latest mobile applications by displaying a QRCode"
+    "other": "QR 코드를 표시하여 사용자가 최신 모바일 애플리케이션에 쉽게 연결할 수 있도록 합니다."
   },
   "Mac PydioSync URL": {
-    "other": "Mac PydioSync URL"
+    "other": "맥 PydioSync URL 주소"
   },
   "Open workspace by simple click": {
-    "other": "Open workspace by simple click"
+    "other": "심플 클릭에 의해서 작업공간 열기"
   },
   "Open workspace by simple click instead of double click.": {
-    "other": "Open workspace by simple click instead of double click."
+    "other": "더블클릭 대신 심플클릭으로 작업공간 열기"
   },
   "URL of the Android application": {
-    "other": "URL to Android App (leave empty if you want to hide the block)"
+    "other": "안드로이드 앱 URL 주소 (만약 블럭을 숨기고 싶으면 비워두세요)"
   },
   "URL of the iOS application": {
-    "other": "URL to iOS App (leave empty if you want to hide the block)"
+    "other": "iOS URL 주소 (만약 블럭을 숨기고 싶으면 비워두세요)"
   },
   "URL of the mac sync application": {
-    "other": "URL to Mac sync application (leave empty if you want to hide the block)"
+    "other": "Mac sync 어플리케이션 주소 (만약 블럭을 숨기고 싶으면 비워두세요)"
   },
   "URL of the windows sync application": {
-    "other": "URL to Windows sync application (leave empty if you want to hide the block)"
+    "other": "Windows sync 어플리케이션 주소 (만약 블럭을 숨기고 싶으면 비워두세요)"
   },
   "Welcome Page": {
-    "other": "Welcome Page"
+    "other": "환영 페이지"
   },
   "Welcome Page displaying a list of workspaces": {
-    "other": "Welcome Page displaying a list of workspaces"
+    "other": "작업공간 목록을 표시하는 환영 페이지"
   },
   "Windows PydioSync URL": {
-    "other": "Windows PydioSync URL"
+    "other": "윈도우즈 PydioSync URL 주소"
   },
   "iOS App URL": {
-    "other": "URL to iOS App"
+    "other": "iOS 앱 URL 주소"
   }
 }
