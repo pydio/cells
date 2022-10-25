@@ -182,11 +182,14 @@ class DataSourceEditor extends React.Component{
             model.StorageConfiguration.customEndpoint = "";
             model.StorageConfiguration.customRegion = "";
             model.StorageConfiguration.minioServer = "";
+            model.StorageConfiguration.signatureVersion = "";
         } else if (value === "minio") {
             // Add custom flag
             model.StorageConfiguration.minioServer = "true"
+            model.StorageConfiguration.signatureVersion = "v4";
         } else {
             model.StorageConfiguration.minioServer = "";
+            model.StorageConfiguration.signatureVersion = "v4";
         }
         this.setState({s3Custom: value});
     }
@@ -428,7 +431,7 @@ class DataSourceEditor extends React.Component{
                 {model.StorageType === 'S3' &&
                 <div style={styles.storageSection}>
                     <div style={styles.legend}>{m('storage.legend.s3')}</div>
-                    <ModernSelectField fullWidth={true} variant={'v2'} hintText={"Endpoint type"} value={s3Custom} onChange={(e,i,v)=>{this.toggleS3Custom(v)}}>
+                    <ModernSelectField fullWidth={true} variant={'v2'} hintText={m('storage.s3.endpoint.type')} value={s3Custom} onChange={(e,i,v)=>{this.toggleS3Custom(v)}}>
                         <MenuItem value={"aws"} primaryText={m('storage.s3.endpoint.amazon')}/>
                         <MenuItem value={"minio"} primaryText={m('storage.s3.endpoint.minio')}/>
                         <MenuItem value={"custom"} primaryText={m('storage.s3.endpoint.custom')}/>
@@ -436,7 +439,17 @@ class DataSourceEditor extends React.Component{
                     {(s3Custom === 'custom' || s3Custom === 'minio') &&
                     <div>
                         <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint')} value={model.StorageConfiguration.customEndpoint} onChange={(e, v) => {model.StorageConfiguration.customEndpoint = v}}/>
-                        <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.s3.region')} value={model.StorageConfiguration.customRegion} onChange={(e, v) => {model.StorageConfiguration.customRegion = v}}/>
+                        <div style={{display:'flex'}}>
+                            <div style={{flex: 3, marginRight: 5}}>
+                                <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.s3.region')} value={model.StorageConfiguration.customRegion} onChange={(e, v) => {model.StorageConfiguration.customRegion = v}}/>
+                            </div>
+                            <div style={{flex: 1}}>
+                                <ModernSelectField fullWidth={true} variant={'v2'} hintText={m('storage.s3.signatureVersion')} value={model.StorageConfiguration.signatureVersion} onChange={(e,i,v)=>{model.StorageConfiguration.signatureVersion = v}}>
+                                    <MenuItem value={"v4"} primaryText={"v4"}/>
+                                    <MenuItem value={"v2"} primaryText={"v2"}/>
+                                </ModernSelectField>
+                            </div>
+                        </div>
                     </div>
                     }
                     <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.s3.api') + ' *'} value={model.ApiKey} onChange={(e,v)=>{model.ApiKey = v}}/>
