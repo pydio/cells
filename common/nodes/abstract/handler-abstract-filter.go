@@ -367,3 +367,15 @@ func (v *BranchFilter) MultipartListObjectParts(ctx context.Context, target *tre
 	}
 	return v.Next.MultipartListObjectParts(ctx, filtered, uploadID, partNumberMarker, maxParts)
 }
+
+func (v *BranchFilter) MultipartList(ctx context.Context, prefix string, requestData *models.MultipartRequestData) (models.ListMultipartUploadsResult, error) {
+	if prefix == "" {
+		return models.ListMultipartUploadsResult{}, nil
+	}
+	target := &tree.Node{Path: prefix}
+	ctx, _, err := v.InputMethod(ctx, target, "in")
+	if err != nil {
+		return models.ListMultipartUploadsResult{}, err
+	}
+	return v.Next.MultipartList(ctx, prefix, requestData)
+}

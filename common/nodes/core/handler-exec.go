@@ -370,45 +370,50 @@ func (e *Executor) MultipartPutObjectPart(ctx context.Context, target *tree.Node
 }
 
 func (e *Executor) MultipartList(ctx context.Context, prefix string, requestData *models.MultipartRequestData) (res models.ListMultipartUploadsResult, err error) {
-	info, ok := nodes.GetBranchInfo(ctx, "in")
-	if !ok {
-		return res, nodes.ErrBranchInfoMissing("in")
-	}
-	ml, er := info.Client.ListMultipartUploads(ctx, info.ObjectsBucket, prefix, requestData.ListKeyMarker, requestData.ListUploadIDMarker, requestData.ListDelimiter, requestData.ListMaxUploads)
-	if er != nil {
-		return models.ListMultipartUploadsResult{}, er
-	}
-	// Convert minio to models
-	output := models.ListMultipartUploadsResult{
-		Bucket:             ml.Bucket,
-		KeyMarker:          ml.KeyMarker,
-		UploadIDMarker:     ml.UploadIDMarker,
-		NextKeyMarker:      ml.NextKeyMarker,
-		NextUploadIDMarker: ml.NextUploadIDMarker,
-		EncodingType:       ml.EncodingType,
-		MaxUploads:         ml.MaxUploads,
-		IsTruncated:        ml.IsTruncated,
-		Uploads:            []models.MultipartObjectInfo{},
-		Prefix:             ml.Prefix,
-		Delimiter:          ml.Delimiter,
-		CommonPrefixes:     []models.CommonPrefix{},
-	}
-	for _, u := range ml.Uploads {
-		output.Uploads = append(output.Uploads, models.MultipartObjectInfo{
-			Initiated:    u.Initiated,
-			Initiator:    u.Initiator,
-			Owner:        u.Owner,
-			StorageClass: u.StorageClass,
-			Key:          u.Key,
-			Size:         u.Size,
-			UploadID:     u.UploadID,
-			Err:          u.Err,
-		})
-	}
-	for _, c := range ml.CommonPrefixes {
-		output.CommonPrefixes = append(output.CommonPrefixes, models.CommonPrefix{Prefix: c.Prefix})
-	}
-	return output, nil
+	// We do not have a protection model for that, return empty for now.
+	return models.ListMultipartUploadsResult{}, nil
+	/*
+		info, ok := nodes.GetBranchInfo(ctx, "in")
+		if !ok {
+			return res, nodes.ErrBranchInfoMissing("in")
+		}
+		ml, er := info.Client.ListMultipartUploads(ctx, info.ObjectsBucket, prefix, requestData.ListKeyMarker, requestData.ListUploadIDMarker, requestData.ListDelimiter, requestData.ListMaxUploads)
+		if er != nil {
+			return models.ListMultipartUploadsResult{}, er
+		}
+		// Convert minio to models
+		output := models.ListMultipartUploadsResult{
+			Bucket:             ml.Bucket,
+			KeyMarker:          ml.KeyMarker,
+			UploadIDMarker:     ml.UploadIDMarker,
+			NextKeyMarker:      ml.NextKeyMarker,
+			NextUploadIDMarker: ml.NextUploadIDMarker,
+			EncodingType:       ml.EncodingType,
+			MaxUploads:         ml.MaxUploads,
+			IsTruncated:        ml.IsTruncated,
+			Uploads:            []models.MultipartObjectInfo{},
+			Prefix:             ml.Prefix,
+			Delimiter:          ml.Delimiter,
+			CommonPrefixes:     []models.CommonPrefix{},
+		}
+		for _, u := range ml.Uploads {
+			output.Uploads = append(output.Uploads, models.MultipartObjectInfo{
+				Initiated:    u.Initiated,
+				Initiator:    u.Initiator,
+				Owner:        u.Owner,
+				StorageClass: u.StorageClass,
+				Key:          u.Key,
+				Size:         u.Size,
+				UploadID:     u.UploadID,
+				Err:          u.Err,
+			})
+		}
+		for _, c := range ml.CommonPrefixes {
+			output.CommonPrefixes = append(output.CommonPrefixes, models.CommonPrefix{Prefix: c.Prefix})
+		}
+		return output, nil
+
+	*/
 }
 
 func (e *Executor) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {
