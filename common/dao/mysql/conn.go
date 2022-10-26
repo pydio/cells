@@ -89,7 +89,7 @@ func (m *conn) Open(c context.Context, dsn string) (dao.Conn, error) {
 			}
 			log.Logger(c).Warn("[SQL]   It might be due to the database being migrated from another system or the default database having been updated.")
 			log.Logger(c).Warn("[SQL]   It could potentially lead to issues during upgrades so we you should pre-emptively fix the tables collations.")
-			log.Logger(c).Warn("[SQL]   You can find more information here : https://pydio.com/kb/...")
+			log.Logger(c).Warn("[SQL]   Find more information here : https://pydio.com/en/docs/cells/v4/major-versions-upgrade-informations ")
 			log.Logger(c).Warn("[SQL] ")
 			log.Logger(c).Warn("[SQL] *************************************************************************************************************************")
 		}
