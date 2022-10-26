@@ -208,7 +208,7 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
 	}
 	ctx := req.Request.Context()
 
-	// Return empty if accessList is empty
+	// Return empty if accessList i  s empty
 	accessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil || len(accessList.GetWorkspaces()) == 0 {
 		rsp.WriteEntity(&rest.RecommendResponse{})
