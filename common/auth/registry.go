@@ -99,6 +99,7 @@ func CheckCollation(conn *pop.Connection, dbName string) (bool, error) {
 		" FROM INFORMATION_SCHEMA.TABLES tbl" +
 		" WHERE TABLE_SCHEMA='" + dbName + "' AND TABLE_TYPE='BASE TABLE'" +
 		" AND TABLE_NAME NOT LIKE '%_migrations'" +
+		" AND TABLE_NAME NOT LIKE '%_migration'" +
 		" AND TABLE_COLLATION NOT LIKE 'ascii%'" +
 		" AND TABLE_COLLATION NOT LIKE CONCAT(@@CHARACTER_SET_DATABASE, '%')").Count(&CollationRow{})
 

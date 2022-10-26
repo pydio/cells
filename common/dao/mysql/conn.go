@@ -133,6 +133,7 @@ func CheckCollation(ctx context.Context, db *sql.DB, dbName string) (map[string]
 		" FROM INFORMATION_SCHEMA.TABLES tbl"+
 		" WHERE TABLE_SCHEMA=\""+dbName+"\" AND TABLE_TYPE=\"BASE TABLE\""+
 		" AND TABLE_NAME NOT LIKE '%_migrations'"+
+		" AND TABLE_NAME NOT LIKE '%_migration'"+
 		" AND TABLE_COLLATION NOT LIKE 'ascii%'"+
 		" AND TABLE_COLLATION NOT LIKE CONCAT(@@CHARACTER_SET_DATABASE, \"%\");")
 
