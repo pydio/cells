@@ -23,6 +23,7 @@ package rest
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/config"
 	"path"
 	"sync"
 
@@ -215,85 +216,91 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
 	}
 	uName, _ := permissions.FindUserNameInContext(ctx)
 	ak := map[string]struct{}{}
-	var an []*tree.Node
+	var an, bn []*tree.Node
 
 	router := compose.UuidClient(h.runtimeContext)
 
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	showActivities := config.Get("services", common.ServiceRestNamespace_+common.ServiceGraph, "recommendations", "activities").Default(true).Bool()
+	showBookmarks := config.Get("services", common.ServiceRestNamespace_+common.ServiceGraph, "recommendations", "bookmarks").Default(true).Bool()
 
-		// Load activities
-		ac := activity.NewActivityServiceClient(grpc.GetClientConnFromCtx(h.runtimeContext, common.ServiceActivity))
-		acReq := &activity.StreamActivitiesRequest{
-			Context:     activity.StreamContext_USER_ID,
-			ContextData: uName,
-			PointOfView: activity.SummaryPointOfView_ACTOR,
-			BoxName:     "outbox",
-			Limit:       int64(request.Limit) * 2,
-		}
-		if streamer, er := ac.StreamActivities(ctx, acReq); er == nil {
+	wg := &sync.WaitGroup{}
+	if showActivities {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			// Load activities
+			ac := activity.NewActivityServiceClient(grpc.GetClientConnFromCtx(h.runtimeContext, common.ServiceActivity))
+			acReq := &activity.StreamActivitiesRequest{
+				Context:     activity.StreamContext_USER_ID,
+				ContextData: uName,
+				PointOfView: activity.SummaryPointOfView_ACTOR,
+				BoxName:     "outbox",
+				Limit:       int64(request.Limit) * 2,
+			}
+			if streamer, er := ac.StreamActivities(ctx, acReq); er == nil {
+				for {
+					resp, e := streamer.Recv()
+					if e != nil {
+						break
+					}
+					a := resp.GetActivity()
+					if a.Object == nil || a.Object.Name == "" {
+						continue
+					}
+					if a.Object.Type == activity.ObjectType_Delete {
+						continue
+					}
+					if a.Object.Type != activity.ObjectType_Document && a.Object.Type != activity.ObjectType_Folder {
+						continue
+					}
+					if _, already := ak[a.Object.Id]; already {
+						continue
+					}
+					n := &tree.Node{Uuid: a.Object.Id}
+					n.MustSetMeta("reco-annotation", fmt.Sprintf("activity:%d", a.Updated.GetSeconds()))
+					an = append(an, n)
+					ak[a.Object.Id] = struct{}{}
+				}
+			}
+		}()
+	}
+
+	if showBookmarks {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			subjects, e := auth.SubjectsForResourcePolicyQuery(ctx, nil)
+			if e != nil {
+				return
+			}
+			// Append Subjects
+			sr := &idm.SearchUserMetaRequest{
+				Namespace: namespace.ReservedNamespaceBookmark,
+				ResourceQuery: &service2.ResourcePolicyQuery{
+					Subjects: subjects,
+				},
+			}
+
+			userMetaClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
+			stream, er := userMetaClient.SearchUserMeta(ctx, sr)
+			if er != nil {
+				return
+			}
 			for {
-				resp, e := streamer.Recv()
+				resp, e := stream.Recv()
 				if e != nil {
 					break
 				}
-				a := resp.GetActivity()
-				if a.Object == nil || a.Object.Name == "" {
+				if resp == nil {
 					continue
 				}
-				if a.Object.Type == activity.ObjectType_Delete {
-					continue
-				}
-				if a.Object.Type != activity.ObjectType_Document && a.Object.Type != activity.ObjectType_Folder {
-					continue
-				}
-				if _, already := ak[a.Object.Id]; already {
-					continue
-				}
-				n := &tree.Node{Uuid: a.Object.Id}
-				n.MustSetMeta("reco-annotation", fmt.Sprintf("activity:%d", a.Updated.GetSeconds()))
-				an = append(an, n)
-				ak[a.Object.Id] = struct{}{}
+				node := &tree.Node{Uuid: resp.GetUserMeta().GetNodeUuid()}
+				node.MustSetMeta("reco-annotation", "bookmark")
+				bn = append(bn, node)
 			}
-		}
-	}()
-
-	var bn []*tree.Node
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		subjects, e := auth.SubjectsForResourcePolicyQuery(ctx, nil)
-		if e != nil {
-			return
-		}
-		// Append Subjects
-		sr := &idm.SearchUserMetaRequest{
-			Namespace: namespace.ReservedNamespaceBookmark,
-			ResourceQuery: &service2.ResourcePolicyQuery{
-				Subjects: subjects,
-			},
-		}
-
-		userMetaClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
-		stream, er := userMetaClient.SearchUserMeta(ctx, sr)
-		if er != nil {
-			return
-		}
-		for {
-			resp, e := stream.Recv()
-			if e != nil {
-				break
-			}
-			if resp == nil {
-				continue
-			}
-			node := &tree.Node{Uuid: resp.GetUserMeta().GetNodeUuid()}
-			node.MustSetMeta("reco-annotation", "bookmark")
-			bn = append(bn, node)
-		}
-	}()
+		}()
+	}
 
 	wg.Wait()
 	resp := &rest.RecommendResponse{}
