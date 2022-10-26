@@ -23,6 +23,7 @@ package rest
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/config"
 	"io"
 	"strings"
 
@@ -32,7 +33,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/front"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -423,13 +423,26 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 
-	// Check specific frontend USER_CREATE_USERS permission
-	if update == nil && !config.Get("frontend", "plugin", "core.auth", "USER_CREATE_USERS").Default(true).Bool() && ctxClaims.Profile != common.PydioProfileAdmin && !inputUser.IsHidden() {
-		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create users"))
-		return
+	// For creation by non-admin, check USER_CREATE_USERS plugins permission.
+	if update == nil && ctxClaims.Profile != common.PydioProfileAdmin && !inputUser.IsHidden() {
+		global := config.Get("frontend", "plugin", "core.auth", "USER_CREATE_USERS").Default(true).Bool()
+		acl, e := permissions.AccessListFromContextClaims(ctx)
+		if e != nil {
+			service.RestError500(req, rsp, e)
+			return
+		}
+		if er := permissions.AccessListLoadFrontValues(ctx, acl); er != nil {
+			service.RestError500(req, rsp, e)
+			return
+		}
+		local := acl.FlattenedFrontValues().Val("parameters", "core.auth", "USER_CREATE_USERS", permissions.FrontWsScopeAll).Default(global).Bool()
+		if !local {
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create users"))
+			return
+		}
 	}
+	// Recheck that crtUser is not hidden
 	if update == nil && ctxClaims.Profile == common.PydioProfileShared {
-		// Recheck that crtUser is not hidden
 		crtUser, e := permissions.SearchUniqueUser(ctx, ctxLogin, "")
 		if e != nil {
 			service.RestError401(req, rsp, fmt.Errorf("invalid context user"))
