@@ -40,6 +40,9 @@ type RawRegistry interface {
 	List(...Option) ([]Item, error)
 	Watch(...Option) (Watcher, error)
 
+	Close() error
+	Done() <-chan struct{}
+
 	As(interface{}) bool
 }
 

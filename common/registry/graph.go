@@ -53,6 +53,14 @@ func (r *graphRegistry) Stop(i Item) error {
 	return r.r.Stop(i)
 }
 
+func (r *graphRegistry) Close() error {
+	return r.r.Close()
+}
+
+func (r *graphRegistry) Done() <-chan struct{} {
+	return r.r.Done()
+}
+
 // Register wraps internal registry.Register call and create Edges and Watches based on RegisterOptions
 func (r *graphRegistry) Register(i Item, option ...RegisterOption) error {
 	opt := &RegisterOptions{Watch: i}

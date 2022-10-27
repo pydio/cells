@@ -136,6 +136,14 @@ func (s *store) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 	return nil, fmt.Errorf("vault.watch is not implemented")
 }
 
+func (s *store) Close() error {
+	return nil
+}
+
+func (s *store) Done() <-chan struct{} {
+	return nil
+}
+
 func (s *store) Save(s3 string, s2 string) error {
 	if ms, ok := s.v.Interface().(map[string]interface{}); ok {
 		_, er := s.cli.Logical().Write(s.storePath+"/data/"+s.keyName, map[string]interface{}{"data": ms})

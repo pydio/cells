@@ -36,6 +36,8 @@ import (
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
+		var producer *timer.EventProducer
+
 		service.NewService(
 			service.Name(common.ServiceGenericNamespace_+common.ServiceTimer),
 			service.Context(ctx),
@@ -43,7 +45,6 @@ func init() {
 			service.Description("Triggers events based on a scheduler pattern"),
 			service.Unique(true),
 			service.WithGeneric(func(c context.Context, server *generic.Server) error {
-
 				producer := timer.NewEventProducer(c)
 				subscriber := &timer.JobsEventsSubscriber{
 					Producer: producer,
@@ -61,6 +62,13 @@ func init() {
 				go producer.Start()
 				return nil
 
+			}),
+			service.WithGenericStop(func(c context.Context, server *generic.Server) error {
+				if producer != nil {
+					producer.StopAll()
+				}
+
+				return nil
 			}),
 		)
 	})

@@ -186,6 +186,15 @@ func (r *remote) Del() error {
 	return nil
 }
 
+func (r *remote) Close() error {
+	return nil
+}
+
+func (r *remote) Done() <-chan struct{} {
+	// TODO - Maybe do something here ?
+	return nil
+}
+
 func (r *remote) Save(ctxUser string, ctxMessage string) error {
 	if _, err := r.cli.Save(r.ctx, &pb.SaveRequest{
 		User:    ctxUser,

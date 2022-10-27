@@ -200,6 +200,7 @@ func (s *service) Stop(oo ...registry.RegisterOption) error {
 			return err
 		}
 	}
+
 	opts := &registry.RegisterOptions{}
 	for _, o := range oo {
 		o(opts)

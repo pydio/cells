@@ -142,6 +142,15 @@ func (m *memory) Del() error {
 	return fmt.Errorf("not implemented")
 }
 
+func (m *memory) Close() error {
+	return nil
+}
+
+func (m *memory) Done() <-chan struct{} {
+	// Never returns
+	return nil
+}
+
 func (m *memory) Save(string, string) error {
 	// do nothing
 	return nil

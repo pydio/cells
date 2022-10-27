@@ -197,7 +197,6 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 func (s *Server) Stop() error {
 	//s.Server.GracefulStop()
 	if s.Server != nil {
-		//fmt.Println("STOPPING GRPC SERVER")
 		s.Server.Stop()
 		s.Server = nil
 		s.regI = nil

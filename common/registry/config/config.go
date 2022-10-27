@@ -100,7 +100,7 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 			return nil, err
 		}
 
-		store, err := etcd.NewSource(ctx, etcdConn, u.Path, true, true, opts...)
+		store, err := etcd.NewSource(ctx, etcdConn, u.Path, 0, true, opts...)
 		if err != nil {
 			return nil, err
 		}
@@ -223,6 +223,14 @@ func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bc
 		}
 	}
 	return nil
+}
+
+func (c *configRegistry) Close() error {
+	return c.store.Close()
+}
+
+func (c *configRegistry) Done() <-chan struct{} {
+	return c.store.Done()
 }
 
 func (c *configRegistry) Start(item registry.Item) error {

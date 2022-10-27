@@ -243,6 +243,15 @@ func (f *file) Del() error {
 	return fmt.Errorf("not implemented")
 }
 
+func (f *file) Close() error {
+	return nil
+}
+
+func (f *file) Done() <-chan struct{} {
+	// Never returns
+	return nil
+}
+
 func (f *file) Save(ctxUser string, ctxMessage string) error {
 	f.mtx.RLock()
 	defer f.mtx.RUnlock()

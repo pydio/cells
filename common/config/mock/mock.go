@@ -406,6 +406,14 @@ type MockStore struct {
 	configx.Values
 }
 
+func (m *MockStore) Close() error {
+	return nil
+}
+
+func (m *MockStore) Done() <-chan struct{} {
+	return nil
+}
+
 func (m *MockStore) Lock() {
 	// noop
 }

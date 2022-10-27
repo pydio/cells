@@ -100,6 +100,14 @@ func (v *versionStore) Watch(opts ...configx.WatchOption) (configx.Receiver, err
 	return watcher.Watch(opts...)
 }
 
+func (v *versionStore) Close() error {
+	return v.store.Close()
+}
+
+func (v *versionStore) Done() <-chan struct{} {
+	return v.store.Done()
+}
+
 // Save the config in the underlying storage
 func (v *versionStore) Save(ctxUser string, ctxMessage string) error {
 	data := v.store.Val().Map()
