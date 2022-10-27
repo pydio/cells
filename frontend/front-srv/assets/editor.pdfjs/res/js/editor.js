@@ -20,7 +20,8 @@
 
 
 import { pdfjs } from 'react-pdf';
-pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/pdfjs/build/min/pdf.worker.min.js';
+
+pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/pdfjs-2.12.313-dist/build/pdf.worker.js';
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import DOMUtils from 'pydio/util/dom'
@@ -83,35 +84,7 @@ class Viewer extends Component {
     }
 
     loadNode(props) {
-        const {pydio, node, loadThumbnail} = props;
-
-        let url;
-        let base = DOMUtils.getUrlFromBase();
-
-        if (base) {
-            url = base;
-            if (!url.startsWith('http') && !url.startsWith('https')) {
-                if (!window.location.origin) {
-                    // Fix for IE when Pydio is inside an iFrame
-                    window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
-                }
-                url = document.location.origin + url;
-            }
-        } else {
-            // Get the URL for current workspace path.
-            url = document.location.href.split('#').shift().split('?').shift();
-            if(url[(url.length-1)] === '/'){
-                url = url.substr(0, url.length-1);
-            }else if(url.lastIndexOf('/') > -1){
-                url = url.substr(0, url.lastIndexOf('/'));
-            }
-        }
-        let viewerFile = 'viewer.html';
-        if(loadThumbnail){
-            viewerFile = 'viewer-thumb.html';
-        } else if(pydio.Parameters.has('MINISITE')){
-            viewerFile = 'viewer-minisite.html';
-        }
+        const {node} = props;
 
         let bucketParams = null;
         if (node.getMetadata().get('PDFPreview')) {
@@ -125,7 +98,7 @@ class Viewer extends Component {
                 pdfUrl: pdfUrl,
                 crtPage: 1,
                 lastKnownHeight:150,
-                url: 'plug/editor.pdfjs/pdfjs/web/' + viewerFile + '?file=' + encodeURIComponent(pdfUrl)
+                url: 'plug/editor.pdfjs/pdfjs-2.12.313-dist/web/viewer.html?file=' + encodeURIComponent(pdfUrl)
             })
         })
 
