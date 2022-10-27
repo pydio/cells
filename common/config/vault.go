@@ -51,6 +51,22 @@ func NewVault(vaultStore, configStore Store) Store {
 	}
 }
 
+func (v *vault) Close() error {
+	if err := v.config.Close(); err != nil {
+		return err
+	}
+
+	if err := v.vault.Close(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (v *vault) Done() <-chan struct{} {
+	return v.config.Done()
+}
+
 // Save the config in the underlying storage
 func (v *vault) Save(ctxUser string, ctxMessage string) error {
 	if err := v.vault.Save(ctxUser, ctxMessage); err != nil {

@@ -24,16 +24,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/url"
-	"os"
-	"path/filepath"
-	"strings"
-
 	"github.com/manifoldco/promptui"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -144,7 +143,9 @@ ENVIRONMENT
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		ctx := cmd.Context()
+		ctx, cancel := context.WithCancel(cmd.Context())
+		defer cancel()
+
 		managerLogger := log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager"))
 
 		if needs, gU := runtime.NeedsGrpcDiscoveryConn(); needs {
@@ -177,6 +178,7 @@ ENVIRONMENT
 				"Oops, the configuration is not right ... "+configFile,
 				"Do you want to reset the initial configuration", cmd, args)
 		}
+
 		ctx = servicecontext.WithKeyring(ctx, keyring)
 		for _, cc := range configChecks {
 			if e := cc(ctx); e != nil {
@@ -224,7 +226,7 @@ ENVIRONMENT
 		ctx = clientcontext.WithClientConn(ctx, conn)
 		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
 
-		m := manager.NewManager(reg, "mem:///?cache=plugins&byname=true", "main", managerLogger)
+		m := manager.NewManager(ctx, reg, "mem:///?cache=plugins&byname=true", "main", managerLogger)
 		if err := m.Init(ctx); err != nil {
 			return err
 		}
@@ -272,10 +274,11 @@ ENVIRONMENT
 
 		select {
 		case <-ctx.Done():
+		case <-reg.Done():
 		}
 
+		reg.Close()
 		m.StopAll()
-
 		if discovery != nil {
 			managerLogger.Info("Stopping discovery services now")
 			discovery.StopAll()
@@ -287,7 +290,7 @@ ENVIRONMENT
 
 func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log.ZapLogger) (manager.Manager, error) {
 
-	m := manager.NewManager(reg, "mem:///", "discovery", logger)
+	m := manager.NewManager(ctx, reg, "mem:///", "discovery", logger)
 	if err := m.Init(ctx); err != nil {
 		return nil, err
 	}

@@ -63,6 +63,7 @@ type Manager interface {
 }
 
 type manager struct {
+	ctx        context.Context
 	ns         string
 	srcUrl     string
 	reg        registry.Registry
@@ -77,8 +78,9 @@ type manager struct {
 	logger log.ZapLogger
 }
 
-func NewManager(reg registry.Registry, srcUrl string, namespace string, logger log.ZapLogger) Manager {
+func NewManager(ctx context.Context, reg registry.Registry, srcUrl string, namespace string, logger log.ZapLogger) Manager {
 	m := &manager{
+		ctx:      ctx,
 		ns:       namespace,
 		srcUrl:   srcUrl,
 		reg:      reg,
@@ -170,7 +172,6 @@ func (m *manager) Init(ctx context.Context) error {
 		}
 
 		m.services[s.ID()] = s
-
 	}
 
 	if m.root != nil {
@@ -222,7 +223,11 @@ func (m *manager) StopAll() {
 	for _, srv := range m.serversWithStatus(registry.StatusReady) {
 		func(sr server.Server) {
 			eg.Go(func() error {
-				return m.stopServer(sr, registry.WithDeregisterFull())
+				if err := m.stopServer(sr, registry.WithDeregisterFull()); err != nil {
+					return err
+				}
+
+				return nil
 			})
 		}(srv)
 	}
@@ -272,6 +277,7 @@ func (m *manager) stopServer(srv server.Server, oo ...registry.RegisterOption) e
 	if er := eg.Wait(); er != nil {
 		return er
 	}
+
 	// Stop server now
 	return srv.Stop(oo...)
 }
@@ -451,6 +457,7 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 		registry.WithType(pb.ItemType_SERVICE),
 		registry.WithAction(pb.ActionType_DELETE),
 		registry.WithAction(pb.ActionType_UPDATE),
+		registry.WithContext(m.ctx),
 	}
 	// Watch specific names
 	for _, s := range ss {
@@ -461,6 +468,9 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 		for _, s := range ss {
 			if s.ID() == item.ID() {
 				m.logger.Debug("FILTERING event on " + item.Name() + " as it is locally managed")
+				return false
+			}
+			if item.Metadata()[runtime.NodeMetaPID] == fmt.Sprintf("%d", os.Getpid()) {
 				return false
 			}
 		}
@@ -490,7 +500,7 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 		m.logger.Info("Delete event received for " + strings.Join(iNames, "|") + ", debounce server Restart" + strconv.Itoa(count))
 		db(func() {
 			w.Stop()
-			m.logger.Info(" -- Restarting server now")
+			m.logger.Info(" -- Restarting server now", zap.Any("type", srv.Type()), zap.String("name", srv.Name()))
 			if er := m.stopServer(srv); er != nil {
 				m.logger.Error("Error while stopping server"+er.Error(), zap.Error(er))
 			}

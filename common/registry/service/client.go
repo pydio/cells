@@ -22,17 +22,17 @@ package service
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"net/url"
 	"time"
-
-	"github.com/pydio/cells/v4/common/registry/util"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var scheme = "grpc"
@@ -86,6 +86,8 @@ type serviceRegistry struct {
 	address []string
 	// client to call registry
 	client pb.RegistryClient
+	// health client to registry
+	donec chan struct{}
 
 	// events
 	hasStream bool
@@ -139,6 +141,14 @@ func (s *serviceRegistry) Options() Options {
 	return s.opts
 }
 
+func (s *serviceRegistry) Close() error {
+	return nil
+}
+
+func (s *serviceRegistry) Done() <-chan struct{} {
+	return s.donec
+}
+
 func (s *serviceRegistry) Start(item registry.Item) error {
 	_, err := s.client.Start(s.opts.Context, util.ToProtoItem(item), s.callOpts()...)
 	if err != nil {
@@ -163,10 +173,14 @@ func (s *serviceRegistry) Register(item registry.Item, option ...registry.Regist
 		o(opts)
 	}
 	callOpts := s.callOpts()
+	ctx := s.opts.Context
 	if opts.FailFast {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, 1*time.Second)
+		defer cancel()
 		callOpts = append(callOpts, grpc.WaitForReady(false))
 	}
-	_, err := s.client.Register(s.opts.Context, util.ToProtoItem(item), callOpts...)
+	_, err := s.client.Register(ctx, util.ToProtoItem(item), callOpts...)
 	if err != nil {
 		return err
 	}
@@ -180,10 +194,14 @@ func (s *serviceRegistry) Deregister(item registry.Item, option ...registry.Regi
 		o(opts)
 	}
 	callOpts := s.callOpts()
+	ctx := s.opts.Context
 	if opts.FailFast {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, 1*time.Second)
+		defer cancel()
 		callOpts = append(callOpts, grpc.WaitForReady(false))
 	}
-	_, err := s.client.Deregister(s.opts.Context, util.ToProtoItem(item), callOpts...)
+	_, err := s.client.Deregister(ctx, util.ToProtoItem(item), callOpts...)
 	if err != nil {
 		return err
 	}
@@ -254,7 +272,7 @@ func (s *serviceRegistry) Watch(opts ...registry.Option) (registry.Watcher, erro
 	}
 
 	// This is a first watch, setup a stream - opts are empty
-	stream, err := s.client.Watch(context.Background(), &pb.WatchRequest{
+	stream, err := s.client.Watch(s.opts.Context, &pb.WatchRequest{
 		Options: &pb.Options{
 			Actions: options.Actions,
 			Names:   options.Names,
@@ -264,6 +282,7 @@ func (s *serviceRegistry) Watch(opts ...registry.Option) (registry.Watcher, erro
 	if err != nil {
 		return nil, err
 	}
+
 	s.hasStream = true
 	return newStreamWatcher(stream, options), nil
 }
@@ -297,9 +316,32 @@ func NewRegistry(opts ...Option) (registry.Registry, error) {
 		conn, _ = grpc.Dial(":8000")
 	}
 
+	donec := make(chan struct{})
+
+	go func() {
+		defer close(donec)
+
+		cli := healthpb.NewHealthClient(conn)
+
+		w, err := cli.Watch(options.Context, &healthpb.HealthCheckRequest{Service: common.ServiceGrpcNamespace_ + common.ServiceRegistry})
+		if err != nil {
+			return
+		}
+
+		for {
+			_, err := w.Recv()
+			if err != nil {
+				return
+			}
+
+			// Status unknown, continue
+		}
+	}()
+
 	r := &serviceRegistry{
 		opts:   options,
 		client: pb.NewRegistryClient(conn),
+		donec:  donec,
 	}
 
 	return registry.GraphRegistry(r), nil

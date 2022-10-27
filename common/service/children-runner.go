@@ -41,16 +41,26 @@ import (
 )
 
 // WithChildrenRunner option to define a micro server that runs children services
-func WithChildrenRunner(parentName string, childrenPrefix string, cleanEndpointBeforeDelete bool, afterDeleteListener func(context.Context, string), secondaryPrefix ...string) ServiceOption {
-	return WithGeneric(func(ctx context.Context, srv *generic.Server) error {
-		runner := NewChildrenRunner(parentName, childrenPrefix, secondaryPrefix...)
-		runner.StartFromInitialConf(ctx, config.Get("services", parentName))
-		runner.beforeDeleteClean = cleanEndpointBeforeDelete
-		if afterDeleteListener != nil {
-			runner.OnDeleteConfig(afterDeleteListener)
-		}
-		return runner.Watch(ctx)
-	})
+func WithChildrenRunner(parentName string, childrenPrefix string, cleanEndpointBeforeDelete bool, afterDeleteListener func(context.Context, string), secondaryPrefix ...string) []ServiceOption {
+	var runner *ChildrenRunner
+	return []ServiceOption{
+		WithGeneric(func(ctx context.Context, srv *generic.Server) error {
+			runner = NewChildrenRunner(parentName, childrenPrefix, secondaryPrefix...)
+			runner.StartFromInitialConf(ctx, config.Get("services", parentName))
+			runner.beforeDeleteClean = cleanEndpointBeforeDelete
+			if afterDeleteListener != nil {
+				runner.OnDeleteConfig(afterDeleteListener)
+			}
+			return runner.Watch(ctx)
+		}),
+		WithGenericStop(func(ctx context.Context, srv *generic.Server) error {
+			if runner != nil {
+				runner.StopAll(ctx)
+			}
+
+			return nil
+		}),
+	}
 }
 
 // NewChildrenRunner creates a ChildrenRunner

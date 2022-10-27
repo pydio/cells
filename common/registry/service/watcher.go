@@ -37,37 +37,43 @@ type streamWatcher struct {
 }
 
 func (s *streamWatcher) Next() (registry.Result, error) {
-	// check if closed
-	select {
-	case <-s.closed:
-		return nil, errors.New("watcher stopped")
-	default:
-	}
-
-	r, err := s.stream.Recv()
-	if err != nil {
-		return nil, err
-	}
-
-	var items []registry.Item
-	for _, i := range r.Items {
-		item := util.ToItem(i)
-		foundFilter := true
-		for _, filter := range s.options.Filters {
-			if !filter(item) {
-				foundFilter = false
-				break
-			}
+	for {
+		// check if closed
+		select {
+		case <-s.closed:
+			return nil, errors.New("watcher stopped")
+		default:
 		}
 
-		if !foundFilter {
+		r, err := s.stream.Recv()
+		if err != nil {
+			return nil, err
+		}
+
+		var items []registry.Item
+		for _, i := range r.Items {
+			item := util.ToItem(i)
+			foundFilter := true
+			for _, filter := range s.options.Filters {
+				if !filter(item) {
+					foundFilter = false
+					break
+				}
+			}
+
+			if !foundFilter {
+				continue
+			}
+
+			items = append(items, item)
+		}
+
+		if len(items) == 0 {
 			continue
 		}
 
-		items = append(items, item)
+		return registry.NewResult(r.Action, items), nil
 	}
-	// fmt.Println("Got NEXT on streamWatcher", r.Action, len(r.Items))
-	return registry.NewResult(r.Action, items), nil
 }
 
 func (s *streamWatcher) Stop() {

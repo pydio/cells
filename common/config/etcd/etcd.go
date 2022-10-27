@@ -25,7 +25,9 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"go.etcd.io/etcd/client/v3/concurrency"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -44,14 +46,14 @@ var (
 	errClosedChannel = errors.New("channel is closed")
 )
 
-type URLOpener struct{
+type URLOpener struct {
 	tlsConfig *tls.Config
 }
 type TLSURLOpener struct{}
 
 func init() {
 	config.DefaultURLMux().Register(scheme, &URLOpener{})
-	config.DefaultURLMux().Register(scheme + "+tls", &TLSURLOpener{})
+	config.DefaultURLMux().Register(scheme+"+tls", &TLSURLOpener{})
 }
 
 func (o *TLSURLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
@@ -63,7 +65,7 @@ func (o *TLSURLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, e
 }
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
-	addr :=  "://" + u.Host
+	addr := "://" + u.Host
 	if o.tlsConfig == nil {
 		addr = "http" + addr
 	} else {
@@ -90,7 +92,16 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		opts = append(opts, configx.WithEncrypt(enc), configx.WithDecrypt(enc))
 	}
 
-	withLease := u.Query().Get("lease") == "true"
+	sessionTTL := -1
+	if u.Query().Has("ttl") {
+		if s, err := strconv.Atoi(u.Query().Get("ttl")); err != nil {
+			return nil, errors.New("not a valid time to live")
+		} else {
+			sessionTTL = s
+		}
+	}
+
+	// TODO - without keys should be done with a wrapper - considering withKeys = true always
 	withKeys := u.Query().Get("withKeys") == "true"
 
 	// Registry via etcd
@@ -101,14 +112,14 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		DialTimeout: 2 * time.Second,
 		Username:    u.User.Username(),
 		Password:    pwd,
-		TLS: o.tlsConfig,
+		TLS:         o.tlsConfig,
 	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	return NewSource(context.Background(), etcdConn, strings.TrimLeft(u.Path, "/"), withLease, withKeys, opts...)
+	return NewSource(context.Background(), etcdConn, strings.TrimLeft(u.Path, "/"), sessionTTL, withKeys, opts...)
 }
 
 type etcd struct {
@@ -119,6 +130,7 @@ type etcd struct {
 	prefix   string
 	withKeys bool
 	cli      *clientv3.Client
+	session  *concurrency.Session
 	leaseID  clientv3.LeaseID
 
 	locker    sync.Locker
@@ -130,29 +142,19 @@ type etcd struct {
 	saveTimer *time.Timer
 }
 
-func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLease bool, withKeys bool, opts ...configx.Option) (config.Store, error) {
+func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, sessionTTL int, withKeys bool, opts ...configx.Option) (config.Store, error) {
 	opts = append([]configx.Option{configx.WithJSON()}, opts...)
 
+	var session *concurrency.Session
 	var leaseID clientv3.LeaseID
-	if withLease {
-		lease := clientv3.NewLease(cli)
-		resp, err := lease.Grant(ctx, 10)
-		if err != nil {
+
+	if sessionTTL > -1 {
+		if s, err := concurrency.NewSession(cli, concurrency.WithTTL(sessionTTL)); err != nil {
 			return nil, err
+		} else {
+			session = s
+			leaseID = s.Lease()
 		}
-
-		leaseID = resp.ID
-
-		go func() {
-			ch, err := lease.KeepAlive(ctx, leaseID)
-			if err != nil {
-				return
-			}
-
-			for resp := range ch {
-				_ = resp
-			}
-		}()
 	}
 
 	m := &etcd{
@@ -160,10 +162,11 @@ func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLea
 		valuesLocker: &sync.RWMutex{},
 		ops:          make(chan clientv3.Op, 3000),
 		cli:          cli,
+		session:      session,
+		leaseID:      leaseID,
 		prefix:       prefix,
 		withKeys:     withKeys,
 		locker:       &sync.Mutex{},
-		leaseID:      leaseID,
 		reset:        make(chan bool),
 		opts:         opts,
 		saveCh:       make(chan bool),
@@ -171,6 +174,7 @@ func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, withLea
 	}
 
 	m.get(ctx)
+
 	go m.watch(ctx)
 	go m.save(ctx)
 
@@ -204,7 +208,7 @@ func (m *etcd) watch(ctx context.Context) {
 			for _, op := range res.Events {
 				key := strings.TrimPrefix(string(op.Kv.Key), m.prefix)
 				key = strings.TrimPrefix(key, "/")
-				// key := strings.TrimPrefix(string(op.Kv.Key), m.prefix+"/")
+
 				if err := m.values.Val(key).Set(op.Kv.Value); err != nil {
 					fmt.Println("Error in etcd watch setting value for key ", op.Kv.Key)
 				}
@@ -279,8 +283,8 @@ func (m *etcd) Val(path ...string) configx.Values {
 }
 
 func (m *etcd) Set(data interface{}) error {
-	m.locker.Lock()
-	defer m.locker.Unlock()
+	m.valuesLocker.Lock()
+	defer m.valuesLocker.Unlock()
 
 	if err := m.values.Set(data); err != nil {
 		return err
@@ -347,6 +351,22 @@ func (m *etcd) save(ctx context.Context) {
 			return
 		}
 	}
+}
+
+func (m *etcd) Close() error {
+	if m.session != nil {
+		return m.session.Close()
+	}
+
+	return nil
+}
+
+func (m *etcd) Done() <-chan struct{} {
+	if m.session != nil {
+		return m.session.Done()
+	}
+
+	return nil
 }
 
 func (m *etcd) Save(ctxUser string, ctxMessage string) error {

@@ -38,7 +38,7 @@ service:
     # Set values here if you want to bind the port elsewhere
   reverseproxyurl:
   tlsconfig:
-    selfsigned: # Default to selfsigned for the tlsconfig
+    selfsigned:
 
 ingress:
   enabled: false

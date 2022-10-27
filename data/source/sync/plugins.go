@@ -51,11 +51,12 @@ func init() {
 
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(Name),
-			service.Context(ctx),
-			service.Tag(common.ServiceTagDatasource),
-			service.Description("Starter for data sources synchronizations"),
-			service.WithChildrenRunner(Name, ChildPrefix, true, onDataSourceDelete, SecondaryPrefix),
+			append([]service.ServiceOption{
+				service.Name(Name),
+				service.Context(ctx),
+				service.Tag(common.ServiceTagDatasource),
+				service.Description("Starter for data sources synchronizations"),
+			}, service.WithChildrenRunner(Name, ChildPrefix, true, onDataSourceDelete, SecondaryPrefix)...)...,
 		)
 	})
 }
