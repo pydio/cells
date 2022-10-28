@@ -401,8 +401,8 @@ PRIVATE METHODS
 // loadNodePathAcls retrieve each node by UUID, to which an ACL is attached
 func (a *AccessList) loadNodePathAcls(ctx context.Context, resolver VirtualPathResolver) error {
 	a.maskBULock.RLock()
-	a.maskBPLock.Lock()
 	defer a.maskBULock.RUnlock()
+	a.maskBPLock.Lock()
 	defer a.maskBPLock.Unlock()
 
 	a.masksByPaths = make(map[string]Bitmask, len(a.masksByUUIDs))
@@ -517,8 +517,14 @@ func (a *AccessList) flattenNodes(ctx context.Context, aclList []*idm.ACL) (map[
 
 // replicateMasksResolved creates resolves internal masksByUUIDs by UUID using passed resolver
 func (a *AccessList) replicateMasksResolved(ctx context.Context, resolver VirtualPathResolver) {
-	// ReplicateBitmask uses lock/unlock - do not use here
+	// ReplicateBitmask takes the lock - do not use it with defer here. Just copy ids to a slice.
+	var ids []string
+	a.maskBULock.RLock()
 	for id := range a.masksByUUIDs {
+		ids = append(ids, id)
+	}
+	a.maskBULock.RUnlock()
+	for _, id := range ids {
 		if res, o := resolver(ctx, &tree.Node{Uuid: id}); o {
 			a.ReplicateBitmask(id, res.Uuid)
 		}
