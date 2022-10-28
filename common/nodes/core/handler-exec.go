@@ -508,12 +508,7 @@ func (e *Executor) putOptionsFromRequestMeta(bi nodes.BranchInfo, metadata map[s
 func (e *Executor) buildS3Path(branchInfo nodes.BranchInfo, node *tree.Node) string {
 
 	if branchInfo.FlatStorage && !branchInfo.Binary {
-		nodeId := node.GetUuid()
-		if branchInfo.ObjectsBaseFolder != "" {
-			return path.Join(branchInfo.ObjectsBaseFolder, nodeId)
-		} else {
-			return nodeId
-		}
+		return branchInfo.FlatShardedPath(node.GetUuid())
 	}
 
 	p := node.GetStringMeta(common.MetaNamespaceDatasourcePath)

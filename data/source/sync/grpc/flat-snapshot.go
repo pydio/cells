@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/object"
 	"io"
 	"os"
 	"path"
@@ -44,10 +45,11 @@ type FlatSnapshot struct {
 	mode        string
 	serviceName string
 	snapName    string
+	ds          *object.DataSource
 	boltFile    string
 }
 
-func newFlatSnapshot(ctx context.Context, client model.Endpoint, serviceName, snapName, mode string) (*FlatSnapshot, error) {
+func newFlatSnapshot(ctx context.Context, ds *object.DataSource, client model.Endpoint, serviceName, snapName, mode string) (*FlatSnapshot, error) {
 	boltPath, e := runtime.ServiceDataDir(serviceName)
 	if e != nil {
 		return nil, e
@@ -69,6 +71,7 @@ func newFlatSnapshot(ctx context.Context, client model.Endpoint, serviceName, sn
 		globalCtx:    ctx,
 		BoltSnapshot: db,
 		client:       client,
+		ds:           ds,
 
 		boltFile:    boltFile,
 		mode:        mode,
@@ -98,7 +101,7 @@ func (f *FlatSnapshot) Walk(ctx context.Context, walknFc model.WalkNodesFunc, ro
 		if !node.IsLeaf() {
 			return walknFc(path, node, err)
 		}
-		if _, e := stater.LoadNode(ctx, node.GetUuid()); e == nil {
+		if _, e := stater.LoadNode(ctx, f.ds.FlatShardedPath(node.GetUuid())); e == nil {
 			return walknFc(path, node, err)
 		}
 

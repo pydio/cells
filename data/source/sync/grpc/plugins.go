@@ -166,7 +166,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 							clearConfigKey = object.StorageKeyInitFromBucket
 						}
 					} else if snapKey, has := dsObject.StorageConfiguration[object.StorageKeyInitFromSnapshot]; has {
-						if _, e := syncHandler.FlatSyncSnapshot(bg, "read", snapKey, nil, nil); e != nil {
+						if _, e := syncHandler.FlatSyncSnapshot(bg, dsObject, "read", snapKey, nil, nil); e != nil {
 							log.Logger(ctx).Warn("Could not init index from stored snapshot after start", zap.Error(e))
 						} else {
 							clearConfigKey = object.StorageKeyInitFromSnapshot

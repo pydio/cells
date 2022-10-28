@@ -22,6 +22,8 @@ package object
 
 import (
 	"fmt"
+	"path"
+	"strconv"
 	"strings"
 
 	"go.uber.org/zap/zapcore"
@@ -31,9 +33,10 @@ import (
 )
 
 const (
-	StorageKeyFolder       = "folder"
-	StorageKeyFolderCreate = "create"
-	StorageKeyNormalize    = "normalize"
+	StorageKeyFolder           = "folder"
+	StorageKeyFolderCreate     = "create"
+	StorageKeyNormalize        = "normalize"
+	StorageKeyFlatShardFolders = "foldersShardingPattern"
 
 	StorageKeyCustomEndpoint   = "customEndpoint"
 	StorageKeyCustomRegion     = "customRegion"
@@ -155,6 +158,31 @@ func (d *DataSource) IsInternal() bool {
 		return i
 	}
 	return false
+}
+
+func (d *DataSource) FlatShardedPath(nodeId string) string {
+	if d.ObjectsBaseFolder != "" {
+		nodeId = path.Join(d.ObjectsBaseFolder, nodeId)
+	}
+	if d.StorageConfiguration == nil {
+		return nodeId
+	}
+	shard, ok := d.StorageConfiguration[StorageKeyFlatShardFolders]
+	if !ok {
+		return nodeId
+	}
+
+	var parts []string
+	for _, cut := range strings.Split(shard, ":") {
+		if l, e := strconv.Atoi(cut); e == nil {
+			parts = append(parts, nodeId[:l])
+		} else {
+			parts = append(parts, nodeId[:1])
+		}
+	}
+	parts = append(parts, nodeId)
+	return path.Join(parts...)
+
 }
 
 /* LOGGING SUPPORT */

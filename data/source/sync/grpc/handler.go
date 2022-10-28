@@ -591,7 +591,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 		if len(pathParts) == 2 {
 			dir := pathParts[0]
 			snapName := pathParts[1]
-			result, e = s.FlatSyncSnapshot(bg, dir, snapName, statusChan, doneChan)
+			result, e = s.FlatSyncSnapshot(bg, s.SyncConfig, dir, snapName, statusChan, doneChan)
 		} else if len(pathParts) == 1 && pathParts[0] == "init" {
 			result, e = s.FlatScanEmpty(bg, statusChan, doneChan)
 		} else {

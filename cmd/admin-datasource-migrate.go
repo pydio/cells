@@ -184,7 +184,7 @@ DESCRIPTION
 		}
 
 		// Apply migration
-		hiddenNodes, e := migratePerformMigration(authCtx, mc, idxClient, srcBucket, tgtBucket, tgtFmt)
+		hiddenNodes, e := migratePerformMigration(authCtx, source, mc, idxClient, srcBucket, tgtBucket, tgtFmt)
 		if e != nil {
 			return fmt.Errorf("error while moving files: %+v", e)
 		}
@@ -330,7 +330,7 @@ func migratePrepareClients(source *object.DataSource) (rootNode *tree.Node, idx 
 	return
 }
 
-func migratePerformMigration(ctx context.Context, mc nodes.StorageClient, idx tree.NodeProviderClient, src, tgt, tgtFmt string) (out []*tree.Node, ee error) {
+func migratePerformMigration(ctx context.Context, ds *object.DataSource, mc nodes.StorageClient, idx tree.NodeProviderClient, src, tgt, tgtFmt string) (out []*tree.Node, ee error) {
 
 	str, e := idx.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}, Recursive: true})
 	if e != nil {
@@ -350,10 +350,10 @@ func migratePerformMigration(ctx context.Context, mc nodes.StorageClient, idx tr
 		n := r.GetNode()
 
 		srcPath := n.GetPath()
-		tgtPath := n.GetUuid()
+		tgtPath := ds.FlatShardedPath(n.GetUuid())
 		isPydio := path.Base(n.GetPath()) == common.PydioSyncHiddenFile
 		if tgtFmt != "flat" {
-			srcPath = n.GetUuid()
+			srcPath = ds.FlatShardedPath(n.GetUuid())
 			tgtPath = strings.TrimLeft(n.GetPath(), "/")
 		}
 		if !isPydio && n.IsLeaf() {

@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/object"
 
 	"go.uber.org/zap"
 
@@ -73,7 +74,7 @@ func (s *Handler) FlatScanEmpty(ctx context.Context, syncStatus chan model.Statu
 }
 
 // FlatSyncSnapshot can read or write a snapshot of the index inside the storage
-func (s *Handler) FlatSyncSnapshot(ctx context.Context, mode string, snapName string, syncStatus chan model.Status, syncDone chan interface{}) (model.Stater, error) {
+func (s *Handler) FlatSyncSnapshot(ctx context.Context, dsObject *object.DataSource, mode string, snapName string, syncStatus chan model.Status, syncDone chan interface{}) (model.Stater, error) {
 
 	if mode != "read" && mode != "write" && mode != "delete" {
 		return nil, fmt.Errorf("please use one of read, write or delete for snapshoting mode")
@@ -101,7 +102,7 @@ func (s *Handler) FlatSyncSnapshot(ctx context.Context, mode string, snapName st
 	}
 
 	indexClient := index.NewClient(s.dsName, s.indexClientRead, s.indexClientWrite, s.indexClientSession)
-	snapshotClient, e := newFlatSnapshot(ctx, s.s3client, common.ServiceGrpcNamespace_+common.ServiceDataSync_+s.dsName, snapName, mode)
+	snapshotClient, e := newFlatSnapshot(ctx, dsObject, s.s3client, common.ServiceGrpcNamespace_+common.ServiceDataSync_+s.dsName, snapName, mode)
 	if e != nil {
 		return nil, e
 	}
