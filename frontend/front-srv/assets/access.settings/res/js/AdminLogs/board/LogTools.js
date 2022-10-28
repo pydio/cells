@@ -95,6 +95,19 @@ class LogTools extends React.Component{
         this.setState({[keyName]: val, page: 0}, this.publishStateChange.bind(this))
     }
 
+    handleLevelChange(val){
+        let {level} = this.state;
+        const hasComp = level.indexOf('<') === 0;
+        const full = (hasComp?'<':'') + val
+        this.handleFilterChange(full, 'level')
+    }
+
+    handleLevelCompChange(val){
+        let {level = ''} = this.state;
+        level = val + level.replace('<', '')
+        this.handleFilterChange(level, 'level')
+    }
+
     handleDateChange(date, time = null) {
         if(time){
             date.setHours(time.getHours(), time.getMinutes());
@@ -166,7 +179,7 @@ class LogTools extends React.Component{
             borderRadius: 3
         };
 
-        const {filter, date, dateShow, endDate, endDateShow, serviceFilter, serviceFilterShow, level, levelShow, userName, userNameShow, remoteAddress, remoteAddressShow, exportUrl, exportFilename, exportOnClick, serverOffset, timeOffset} = this.state;
+        const {filter, date, dateShow, endDate, endDateShow, serviceFilter, serviceFilterShow, level='', levelShow, userName, userNameShow, remoteAddress, remoteAddressShow, exportUrl, exportFilename, exportOnClick, serverOffset, timeOffset} = this.state;
         const {MessageHash} = pydio;
         const hasFilter = filter || serviceFilter || date || endDate || level || userName || remoteAddress;
         const checkIcon = <FontIcon style={{top: 0, fontSize: 20}} className={"mdi mdi-check"}/>;
@@ -182,14 +195,17 @@ class LogTools extends React.Component{
                 </div>
 
                 {levelShow &&
-                    <div style={{marginRight: 5, marginTop: -2, width: 100}}>
+                    <div style={{marginRight: 5, marginTop: -2, width: 200}}>
                         <ModernSelectField hintText={MessageHash['ajxp_admin.logs.level']} fullWidth={true} value={level}
                                            onChange={(e, i, v) => this.handleFilterChange(v, 'level')}>
                             <MenuItem primaryText={""}/>
                             <MenuItem primaryText={"ERROR"} value={"ERROR"} innerDivStyle={{color:'#E53935', fontWeight: 500, fontSize: 14}}/>
-                            <MenuItem primaryText={"WARN"} value={"WARN"} innerDivStyle={{color:'#FB8C00', fontWeight: 500, fontSize: 14}}/>
-                            <MenuItem primaryText={"INFO"} value={"INFO"} innerDivStyle={{color:'#1976D0', fontWeight: 500, fontSize: 14}}/>
-                            <MenuItem primaryText={"DEBUG"} value={"DEBUG"} innerDivStyle={{color:'#673AB7', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"WARN (only)"} value={"WARN"} innerDivStyle={{color:'#FB8C00', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"WARN (and higher)"} value={"<WARN"} innerDivStyle={{color:'#FB8C00', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"INFO (only)"} value={"INFO"} innerDivStyle={{color:'#1976D0', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"INFO (and higher)"} value={"<INFO"} innerDivStyle={{color:'#1976D0', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"DEBUG (only)"} value={"DEBUG"} innerDivStyle={{color:'#673AB7', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"DEBUG (and higher)"} value={"<DEBUG"} innerDivStyle={{color:'#673AB7', fontWeight: 500, fontSize: 14}}/>
                         </ModernSelectField>
                     </div>
                 }
