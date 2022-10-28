@@ -3,6 +3,7 @@ import PydioApi from "pydio/http/api";
 import ResourcesManager from 'pydio/http/resources-manager'
 import {LogServiceApi, RestLogMessageCollection, LogListLogRequest, ListLogRequestLogFormat} from 'cells-sdk';
 
+const levels = ['ERROR', 'WARN', 'INFO', 'DEBUG']
 
 class Log extends Observable{
 
@@ -28,7 +29,13 @@ class Log extends Observable{
             arr.push('+Logger:*' + serviceFilter + '*');
         }
         if(level) {
-            arr.push('+Level:' + level);
+            if (level.indexOf('<') === 0) {
+                const limit = levels.indexOf(level.replace('<', ''))
+                const all = levels.filter((l,i) => i <= limit).map(l => 'Level:'+l)
+                arr.push(...all)
+            } else {
+                arr.push('+Level:' + level);
+            }
         }
         if(remoteAddress){
             arr.push('+RemoteAddress:*' + remoteAddress + '*');
