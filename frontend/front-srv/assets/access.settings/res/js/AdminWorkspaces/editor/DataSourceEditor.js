@@ -562,18 +562,33 @@ class DataSourceEditor extends React.Component{
                         {...ModernStyles.toggleFieldV2}
                     />
                     {create && model.FlatStorage &&
-                    <ModernTextField
-                        fullWidth={true}
-                        variant={'v2'}
-                        hintText={m('initFlatFromSnapshot')}
-                        value={model.StorageConfiguration.initFromSnapshot || ''}
-                        onChange={(e,v)=>{
-                            if (v) {
-                                model.StorageConfiguration.initFromSnapshot = v;
-                            } else {
-                                delete (model.StorageConfiguration.initFromSnapshot)
-                            }
-                        }}/>
+                        <ModernTextField
+                            fullWidth={true}
+                            variant={'v2'}
+                            hintText={m('initFlatFromSnapshot')}
+                            value={model.StorageConfiguration.initFromSnapshot || ''}
+                            onChange={(e,v)=>{
+                                if (v) {
+                                    model.StorageConfiguration.initFromSnapshot = v;
+                                } else {
+                                    delete (model.StorageConfiguration.initFromSnapshot)
+                                }
+                            }}/>
+                    }
+                    {model.FlatStorage && (create || model.StorageConfiguration.foldersShardingPattern) &&
+                        <ModernTextField
+                            fullWidth={true}
+                            variant={'v2'}
+                            disabled={!create}
+                            hintText={m('foldersShardingPattern')}
+                            value={model.StorageConfiguration.foldersShardingPattern || ''}
+                            onChange={(e,v)=>{
+                                if (v) {
+                                    model.StorageConfiguration.foldersShardingPattern = v;
+                                } else {
+                                    delete (model.StorageConfiguration.foldersShardingPattern)
+                                }
+                            }}/>
                     }
                 </div>
                 }
