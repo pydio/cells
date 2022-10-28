@@ -60,14 +60,17 @@ var (
 		"es-en": "Cargando...",
 		"fr":    "Chargement...",
 		"fr-ca": "Chargement...",
+		"hu":    "Betöltés...",
 		"it":    "Caricamento...",
 		"ja":    "読み込んでいます...",
 		"ko":    "로드 중 ...",
 		"lv":    "Ielādē...",
 		"nl":    "Bezig met laden...",
+		"pl":    "Ładowanie...",
 		"pt-br": "Carregando...",
 		"pt-pt": "Carregando...",
 		"ru":    "Загружается ...",
+		"sk":    "Načítavanie...",
 		"sv-se": "Läser in...",
 		"vi-vn": "Đang tải...",
 		"zh-cn": "载入中...",
@@ -80,10 +83,13 @@ var (
 		"ar":    "عربى",  // Arabic
 		"cs":    "Česky", // Czech
 		"fr-ca": "Canadien",
-		"ja":    "日本人", //Japanese
-		"ko":    "한국어",
+		"hu":    "Magyar", // Hungarian
+		"ja":    "日本人",    // Japanese
+		"ko":    "한국어",    // Korean
 		"nl":    "Nederlands",
+		"pl":    "Polski",
 		"pt-pt": "Português",
+		"sk":    "Slovensky",
 		"sv-se": "Svenska", // Swedish
 		"zh-tw": "中國傳統的",   // Chinese traditional
 	}
