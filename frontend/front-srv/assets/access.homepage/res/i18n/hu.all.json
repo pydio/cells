@@ -1,9 +1,9 @@
 {
   "39": {
-    "other": "Select a workspace"
+    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
   },
   "40": {
-    "other": "Welcome, %s"
+    "other": "Welcome, %s! "
   },
   "41": {
     "other": "Use this workspace as default"
@@ -51,7 +51,7 @@
     "other": "Get started with APPLICATION_TITLE by following How-to videos"
   },
   "55": {
-    "other": "Do you need help \u003ca\u003eto get started?\u003c/a\u003e"
+    "other": "New to APPLICATION_TITLE? <a>Watch our tutorials</a>!"
   },
   "56": {
     "other": "Getting started with APPLICATION_TITLE? Here are some videos for you!"
@@ -72,22 +72,22 @@
     "other": "Windows"
   },
   "62": {
-    "other": "\u003ch2\u003eWhat is a workspace?\u003c/h2\u003e\n            This video explains what Workspaces are in APPLICATION_TITLE\n            \u003cul\u003e\n                \u003cli\u003eWhy are Workspaces central in APPLICATION_TITLE?\u003c/li\u003e\n                \u003cli\u003eWhat are Workspaces from a technical perspective?\u003c/li\u003e\n                \u003cli\u003eHow do they allow you to organise your data?\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[How-to] What is a workspace?</h2>\n            This video explains what Workspaces are in APPLICATION_TITLE\n            <ul>\n                <li>Why are Workspaces central in APPLICATION_TITLE?</li>\n                <li>What are Workspaces from a technical perspective?</li>\n                <li>How do they allow you to organise your data?</li>\n            </ul>\n            "
   },
   "63": {
-    "other": "\u003ch2\u003eUpload files to APPLICATION_TITLE\u003c/h2\u003e\n            Get started with APPLICATION_TITLE and see how to upload files\n            \u003cul\u003e\n                \u003cli\u003eDrag and drop files into APPLICATION_TITLE\u003c/li\u003e\n                \u003cli\u003eCreate a new folder\u003c/li\u003e\n                \u003cli\u003eRename files and folders\u003c/li\u003e\n                \u003cli\u003eDownload files to your Computer\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[How-to] Upload files to APPLICATION_TITLE</h2>\n            Get started with APPLICATION_TITLE and see how to upload files\n            <ul>\n                <li>Drag and drop files into APPLICATION_TITLE</li>\n                <li>Create a new folder</li>\n                <li>Rename files and folders</li>\n                <li>Download files to your Computer</li>\n            </ul>\n            "
   },
   "64": {
-    "other": "\u003ch2\u003eSearch, browse and manage your files\u003c/h2\u003e\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            \u003cul\u003e\n                \u003cli\u003eCross-workspaces search bar\u003c/li\u003e\n                \u003cli\u003eContent display modes, Keyboard shortcuts\u003c/li\u003e\n                \u003cli\u003eSort Files\u003c/li\u003e\n                \u003cli\u003eMeta Data, Bookmarks\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[How-to] Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
   },
   "65": {
     "other": "Discover more on the APPLICATION_TITLE channel!"
   },
   "66": {
-    "other": "\u003ch2\u003eUsing APPLICATION_TITLE on iOS device\u003c/h2\u003e\n                            This video explains how to use the APPLICATION_TITLE application (available on the App Store). Process is quite similar on Android as well.\n\u003cul\u003e\u003cli\u003eSetup the server connection\u003c/li\u003e\n\u003cli\u003eNavigating through the files\u003c/li\u003e\n\u003cli\u003eKeeping files offline and interacting with external applications\u003c/li\u003e\n\u003cli\u003eProtecting the app with a PIN-code\u003c/li\u003e\n\u003cli\u003eUsing bookmarks and search engine\u003c/li\u003e\u003c/ul\u003e"
+    "other": "<h2>[How-to] Using APPLICATION_TITLE on iOS device</h2>\n                            This video explains how to use the APPLICATION_TITLE application (available on the App Store). Process is quite similar on Android as well.\n<ul><li>Setup the server connection</li>\n<li>Navigating through the files</li>\n<li>Keeping files offline and interacting with external applications</li>\n<li>Protecting the app with a PIN-code</li>\n<li>Using bookmarks and search engine</li></ul>"
   },
   "67": {
-    "other": "You are not %s, %logout"
+    "other": "If you are not %s, %logout."
   },
   "68": {
     "other": "Download Sync Client for Windows"
@@ -108,7 +108,7 @@
     "other": "Easily connect your mobile applications"
   },
   "74": {
-    "other": "Scan this QRCode with your mobile application to easily configure the connection"
+    "other": "Scan this QRCode to easily configure your mobile application"
   },
   "75": {
     "other": "Search all files..."
@@ -123,31 +123,31 @@
     "other": "Pick a target workspace"
   },
   "79": {
-    "other": "\u003ch2\u003eSharing files and folders\u003c/h2\u003e\n            This tutorial shows you how to share files and folders, internally or externally\n            \u003cul\u003e\n                \u003cli\u003eCreating share links for external people\u003c/li\u003e\n                \u003cli\u003eSharing files and folders with internal collaborators\u003c/li\u003e\n                \u003cli\u003eSharing a folder as a workspace\u003c/li\u003e\n                \u003cli\u003eLayout options of shared folders\u003c/li\u003e\n                \u003cli\u003eCreating a blind drop folder\u003c/li\u003e\n                \u003cli\u003eManaging users and share rights\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[How-to] Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
   },
   "80": {
-    "other": "\u003ch2\u003eSharing : security features\u003c/h2\u003e\n            This video goes through the various share settings that help you secure your shares\n            \u003cul\u003e\n                \u003cli\u003ePassword protection\u003c/li\u003e\n                \u003cli\u003eExpiration date\u003c/li\u003e\n                \u003cli\u003eLimit the number of downloads\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[How-to] Sharing : security features</h2>\n            This video goes through the various share settings that help you secure your shares\n            <ul>\n                <li>Password protection</li>\n                <li>Expiration date</li>\n                <li>Limit the number of downloads</li>\n            </ul>\n            "
   },
   "81": {
-    "other": "\u003ch2\u003eCustomize your share links\u003c/h2\u003e\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
+    "other": "<h2>[How-to] Customize your share links</h2>\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
   },
   "82": {
-    "other": "\u003ch2\u003eShared links custom rights\u003c/h2\u003e\n            This video shows you how to manage the permissions attached to your shares\n            \u003cul\u003e\n                \u003cli\u003ePreview\u003c/li\u003e\n                \u003cli\u003eDownload\u003c/li\u003e\n                \u003cli\u003eUpload / Edit\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[How-to] Shared links custom rights</h2>\n            This video shows you how to manage the permissions attached to your shares\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
   },
   "83": {
-    "other": "\u003ch2\u003eLanguage\u003c/h2\u003e\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
+    "other": "<h2>[How-to] Language</h2>\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
   },
   "84": {
-    "other": "\u003ch2\u003eAlerts\u003c/h2\u003e\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+    "other": "<h2>[How-to] Alerts</h2>\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
   },
   "85": {
-    "other": "\u003ch2\u003eCollaborative edition\u003c/h2\u003e\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            \u003cul\u003e\n                \u003cli\u003eWork on text docs, presentations, spreadsheets\u003c/li\u003e\n                \u003cli\u003eEdit docs collaboratively in real time\u003c/li\u003e\n                \u003cli\u003eCreate new documents directly from your browser\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
   },
   "86": {
     "other": "Play video"
   },
   "87": {
-    "other": "Recent History"
+    "other": "My Recent Activity"
   },
   "88": {
     "other": "Drop a file here from your desktop"
@@ -175,5 +175,77 @@
   },
   "title": {
     "other": "Home"
+  },
+  "search.result.location": {
+    "other": "Folder"
+  },
+  "search.facets.title": {
+    "other": "Filter Results..."
+  },
+  "search.facet.type": {
+    "other": "Type"
+  },
+  "search.facet.extension": {
+    "other": "Extension"
+  },
+  "search.facet.size": {
+    "other": "Size"
+  },
+  "search.facet.modified": {
+    "other": "Modified"
+  },
+  "search.facet.found": {
+    "other": "Found in"
+  },
+  "search.facet.metadata": {
+    "other": "Metadata"
+  },
+  "facet.label.file": {
+    "other": "File"
+  },
+  "facet.label.folder": {
+    "other": "Folder"
+  },
+  "facet.label.size.lt.1MB": {
+    "other": "< 1MB"
+  },
+  "facet.label.size.1MB.to.10MB": {
+    "other": "1MB to 10MB"
+  },
+  "facet.label.size.10MB.to.100MB": {
+    "other": "10MB to 100MB"
+  },
+  "facet.label.size.gt.100MB": {
+    "other": "> 100MB"
+  },
+  "facet.label.date.moments": {
+    "other": "Moments ago"
+  },
+  "facet.label.date.today": {
+    "other": "Today"
+  },
+  "facet.label.date.last.7": {
+    "other": "Last 7 days"
+  },
+  "facet.label.date.last.30": {
+    "other": "Last 30 days"
+  },
+  "facet.label.date.older.30": {
+    "other": "Older than 30 days"
+  },
+  "facet.label.found.contents": {
+    "other": "Contents"
+  },
+  "facet.label.found.basename": {
+    "other": "File name"
+  },
+  "reco.bookmark": {
+    "other": "Bookmark"
+  },
+  "reco.workspace": {
+    "other": "Workspace"
+  },
+  "reco.cell": {
+    "other": "Cell"
   }
 }

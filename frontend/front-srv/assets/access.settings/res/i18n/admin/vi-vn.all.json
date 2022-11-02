@@ -389,6 +389,9 @@
   "ds.editor.initFlatFromSnapshot": {
     "other": "Nếu thư mục này đã từng được kích hoạt với định dạng flat, bạn có thể khôi phục từ một snaphot được lưu trong chính thư mục"
   },
+  "ds.editor.foldersShardingPattern": {
+    "other": "By default, all files are stored inside a unique folder. Use a pattern 'N:P:Q' to auto-create sub folders id[:N]/id[:P]/id[:Q]/..."
+  },
   "ds.encryption": {
     "other": "Đã mã hóa"
   },
@@ -607,6 +610,12 @@
   },
   "logs.level": {
     "other": "Mức độ"
+  },
+  "logs.level.exact": {
+    "other": "(only)"
+  },
+  "logs.level.greaterthan": {
+    "other": "(and up)"
   },
   "logs.service": {
     "other": "Dịch vụ"

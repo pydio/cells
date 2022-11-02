@@ -1,0 +1,131 @@
+{
+  "cont.btn.fb": {
+    "other": "Follow us"
+  },
+  "cont.btn.github": {
+    "other": "Github Star"
+  },
+  "cont.btn.tw": {
+    "other": "Twitter"
+  },
+  "cont.intro": {
+    "other": "Code is available publicly on Github. Do you want to fix a bug, help others in the forum or push the next killer feature? Get involved!\n                            Or show your love on social networks!"
+  },
+  "cont.subtitle": {
+    "other": "Pydio Cells is free open source software. Contribute back!"
+  },
+  "cont.title": {
+    "other": "Pay it forward!"
+  },
+  "cont.topic.pr": {
+    "other": "I implemented a new feature: github Pull Requests"
+  },
+  "cont.topic.report": {
+    "other": "I think I found a bug! Post in the forum."
+  },
+  "cont.topic.report.2": {
+    "other": "My bug is qualified: open a github issue."
+  },
+  "cont.topic.translate": {
+    "other": "How-to create or complete a language translation ?"
+  },
+  "ent.advanced": {
+    "other": "Advanced Administrator Dashboard"
+  },
+  "ent.advanced.legend": {
+    "other": "Unique admin dashboard for real-time monitoring of platform usage."
+  },
+  "ent.btn.contact": {
+    "other": "Contact Sales"
+  },
+  "ent.btn.more": {
+    "other": "Learn More"
+  },
+  "ent.features": {
+    "other": "Enterprise-oriented features"
+  },
+  "ent.features.legend": {
+    "other": "Enterprise-ready features : AD/LDAP Connectors, Auditable Logs for compliance, EasyTransfer..."
+  },
+  "ent.subtitle": {
+    "other": "MORE FEATURES - GDPR COMPLIANCE - EXTENDED BRANDING"
+  },
+  "ent.support": {
+    "other": "Support and Maintenance"
+  },
+  "ent.support.legend": {
+    "other": "Get help with your installation directly from the core team"
+  },
+  "ent.title": {
+    "other": "Discover Pydio Cells Enterprise"
+  },
+  "ent.upgrade": {
+    "other": "Upgrade now!"
+  },
+  "ent.upgrade.legend": {
+    "other": "In-app upgrade Cells Enterprise (license required)"
+  },
+  "welc.btn.advanced": {
+    "other": "Advanced"
+  },
+  "welc.btn.parameters": {
+    "other": "About Parameters"
+  },
+  "welc.btn.start": {
+    "other": "Getting Started"
+  },
+  "welc.btn.users": {
+    "other": "Users"
+  },
+  "welc.btn.ws": {
+    "other": "Workspaces"
+  },
+  "welc.guide": {
+    "other": "If you don't know where to start, the Administrator Guide is definitely a good read!"
+  },
+  "welc.intro": {
+    "other": "This is your dashboard for managing Pydio. Using the left menu you can create <a class=\"doc-link\" data-path=\"/data/workspaces\">workspaces</a> and <a class=\"doc-link\" data-path=\"/idm/users\">users</a>,\n                            check all <a class=\"doc-link\" data-path=\"/admin/logs\">events</a> that happened on the platform, and manage <a class=\"doc-link\" data-path=\"/parameters/core\">configurations</a> and <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
+  },
+  "welc.import": {
+    "other": "If you are currently running a Pydio 8 installation, please be aware that <u>Pydio 8 will be considered End-Of-Life at the end of 2019</u>. You can use the <a class=\"doc-link\" data-path=\"/data/migration\">Import Tool</a> to migrate all data to Pydio Cells."
+  },
+  "welc.subtitle": {
+    "other": "The place to administrate and monitor the activity of your platform"
+  },
+  "welc.title": {
+    "other": "Welcome to Pydio Cells v4"
+  },
+  "card.quick-access": {
+    "other": "Quick Access"
+  },
+  "card.quick-access.add": {
+    "other": "Add a shortcut ..."
+  },
+  "card.update.current": {
+    "other": "Software Version"
+  },
+  "card.update.no-updates": {
+    "other": "Software is up-to-date"
+  },
+  "card.update.new-version": {
+    "other": "A new version is available"
+  },
+  "recentLogs.title": {
+    "other": "Last Events"
+  },
+  "recentLogs.errors": {
+    "other": "Errors"
+  },
+  "recentLogs.emptyState": {
+    "other": "No activity found"
+  },
+  "recentLogs.more": {
+    "other": "All Activities"
+  },
+  "graph.files": {
+    "other": "Files Activity"
+  },
+  "graph.connections": {
+    "other": "Web Connections"
+  }
+}

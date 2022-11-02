@@ -389,6 +389,9 @@
   "ds.editor.initFlatFromSnapshot": {
     "other": "Wenn dieser Speicher zuvor als flache Datenquelle verwendet wurde, initialisieren Sie ihn anhand einer vorhandenen Snapshot-Datei (die sich innerhalb des Speichers befinden muss)"
   },
+  "ds.editor.foldersShardingPattern": {
+    "other": "Standardmäßig werden alle Dateien in einem einzigen Ordner gespeichert. Verwenden Sie ein Muster 'N:P:Q', um automatisch Unterordner zu erstellen, z.B.: id[:N]/id[:P]/id[:P]/id[:Q]/..."
+  },
   "ds.encryption": {
     "other": "Verschlüsselt"
   },
@@ -607,6 +610,12 @@
   },
   "logs.level": {
     "other": "Ebene"
+  },
+  "logs.level.exact": {
+    "other": "(only)"
+  },
+  "logs.level.greaterthan": {
+    "other": "(and up)"
   },
   "logs.service": {
     "other": "Service"
