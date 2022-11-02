@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<editor id="editor.soundmanager" iconClass="mdi mdi-volume-high" mimes="mp3,wav,ogg"
+<editor id="editor.soundmanager" iconClass="mdi mdi-volume-high" mimes="mp3,wav,ogg,m4a,flac"
         openable="true" formId="smplayer_editor"
         previewProvider="true" text="sm_editor.2" title="sm_editor.2" className="PydioSoundManager"
         label="CONF_MESSAGE[Sound Player]" description="CONF_MESSAGE[Uses HTML5 or Flash to play a sound]">

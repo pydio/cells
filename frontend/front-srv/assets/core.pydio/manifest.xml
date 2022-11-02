@@ -58,6 +58,7 @@
             <extension mime="m4a" messageId="59" font="file-music"/>
             <extension mime="aac" messageId="59" font="file-music"/>
             <extension mime="wav" messageId="20" font="file-music"/>
+            <extension mime="flac" messageId="59" font="file-music"/>
             <extension mime="php" messageId="21" font="language-php"/>
             <extension mime="phar" messageId="22" font="language-php"/>
             <extension mime="phtml" messageId="22" font="language-php"/>
@@ -89,6 +90,7 @@
             <extension mime="odp" font="file-powerpoint" messageId="446"/>
             <extension mime="sxi" font="file-powerpoint" messageId="446"/>
             <extension mime="key" font="file-powerpoint" messageId="446"/>
+
         </extensions>
     </registry_contributions>
 
