@@ -123,6 +123,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 }
 
 type etcd struct {
+	ctx          context.Context
 	values       configx.Values
 	valuesLocker *sync.RWMutex
 	ops          chan clientv3.Op
@@ -158,6 +159,7 @@ func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, session
 	}
 
 	m := &etcd{
+		ctx:          ctx,
 		values:       configx.New(opts...),
 		valuesLocker: &sync.RWMutex{},
 		ops:          make(chan clientv3.Op, 3000),
@@ -370,7 +372,10 @@ func (m *etcd) Done() <-chan struct{} {
 }
 
 func (m *etcd) Save(ctxUser string, ctxMessage string) error {
-	m.saveCh <- true
+	select {
+	case m.saveCh <- true:
+	case <-m.ctx.Done():
+	}
 
 	return nil
 }
