@@ -27,14 +27,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/permissions"
-)
-
-const (
-	rolesMaxLength     = 6 * 1024
-	rolesRequireReload = "__RolesRequireReload__"
-	claimsContextKey   = "x-pydio-claims"
 )
 
 // ContextFromClaims feeds context with correct Keys and Metadata for a given Claims
@@ -55,47 +47,5 @@ func ContextFromClaims(ctx context.Context, claims claim.Claims) context.Context
 		}
 	}
 	md[common.PydioContextUserKey] = claims.Name
-	// Check string length for Roles as it may blow up the Header size
-	metaClaims := claims
-	if len(claims.Roles) > rolesMaxLength {
-		//fmt.Println("Removing Roles from Claims", len(claims.Roles))
-		metaClaims.Roles = rolesRequireReload
-	}
-	data, _ := json.Marshal(metaClaims)
-	md[claimsContextKey] = string(data)
 	return metadata.NewContext(ctx, md)
-}
-
-// ClaimsFromMetadata loads Claims from metadata (be passed along by grpc queries)
-func ClaimsFromMetadata(ctx context.Context) (c claim.Claims, o bool) {
-	md, o := metadata.FromContextCopy(ctx)
-	if !o {
-		return c, false
-	}
-	js, o := md[claimsContextKey]
-	if !o {
-		return c, false
-	}
-	err := json.Unmarshal([]byte(js), &c)
-	if err != nil {
-		return c, false
-	}
-	if c.Name != "" && c.Roles == rolesRequireReload {
-		// Create a ctx for this request or it will loop on rolesRequireReload!
-		internalContext := metadata.NewContext(context.Background(), map[string]string{
-			common.PydioContextUserKey: common.PydioSystemUsername,
-		})
-		u, err := permissions.SearchUniqueUser(internalContext, c.Name, "")
-		if err != nil {
-			return c, false
-		}
-		var roles []string
-		for _, role := range u.Roles {
-			roles = append(roles, role.Uuid)
-		}
-		//fmt.Println("Reloaded Roles to Claims", len(roles))
-		c.Roles = strings.Join(roles, ",")
-	}
-
-	return c, true
 }
