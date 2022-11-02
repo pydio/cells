@@ -1,84 +1,84 @@
 {
   "1": {
-    "other": "Megosztott felhasználók"
+    "other": "Address Book"
   },
   "10": {
-    "other": "Hozzárendelt gyűjtemények"
+    "other": "Associated workspaces"
   },
   "11": {
-    "other": "Biztos, hogy törölni akarod a kiválasztott eleme(ke)t?"
+    "other": "Are you sure that you want to delete the selected element(s)?"
   },
   "12": {
-    "other": "Nincs jogod törölni ezt az elemet."
+    "other": "You don't have the permission to delete this element."
   },
   "13": {
-    "other": "Fájl publikus hozzáférése törölve."
+    "other": "Successfully deleted public file."
   },
   "14": {
-    "other": "Épség"
+    "other": "Integrity"
   },
   "15": {
     "other": "Ok"
   },
   "16": {
-    "other": "Hibás"
+    "other": "Broken"
   },
   "17": {
-    "other": "Letöltési URL"
+    "other": "Download URL"
   },
   "18": {
-    "other": "URL másolása"
+    "other": "Copy URL"
   },
   "19": {
-    "other": "URL másolása emailben küldéshez."
+    "other": "Copy url to send by email."
   },
   "2": {
-    "other": "Megosztott gyűjtemények"
+    "other": "Shared folders"
   },
   "20": {
-    "other": "Letöltve"
+    "other": "Downloads"
   },
   "21": {
-    "other": "Igen"
+    "other": "Yes"
   },
   "22": {
-    "other": "Nem"
+    "other": "No"
   },
   "23": {
-    "other": "%s fájl sikeresen törölve."
+    "other": "Successfully deleted %s files."
   },
   "24": {
-    "other": "Nincs mit törölni."
+    "other": "Nothing to delete."
   },
   "25": {
-    "other": "Lejártak törlése"
+    "other": "Clear Expired"
   },
   "26": {
-    "other": "Lejárt publikus hozzáférése törlése."
+    "other": "Delete expired shared files."
   },
   "27": {
-    "other": "Tulajdonos"
+    "other": "Owner"
   },
   "28": {
-    "other": "Publikus hozzáférésű fájlok, jelszóval védve vagy anélkül."
+    "other": "Files shared for direct download, either protected by a password or not."
   },
   "29": {
-    "other": "Felhasználók által megosztott mappák (gyűjtemények)."
+    "other": "Delegates workspaces created by users."
   },
   "3": {
-    "other": "Publikus fájlok"
+    "other": "Shared files"
   },
   "30": {
-    "other": "A megosztott mappák (gyűjtemények) eléréséhez létrehozott felhasználók."
+    "other": "Users created to access the delegated workspaces."
   },
   "31": {
-    "other": "Leírás"
+    "other": "Description"
   },
   "32": {
-    "other": "Nullázás"
+    "other": "Reset"
   },
   "33": {
-    "other": "A letöltésszámláló nullázása"
+    "other": "Reset download counter"
   },
   "34": {
     "other": "My Shares"
@@ -96,13 +96,13 @@
     "other": "Notifications"
   },
   "39": {
-    "other": "Select a workspace"
+    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
   },
   "4": {
-    "other": "Fájl útvonal"
+    "other": "File Path"
   },
   "40": {
-    "other": "Welcome, %s"
+    "other": "Welcome, %s! "
   },
   "41": {
     "other": "Use this workspace as default"
@@ -135,7 +135,7 @@
     "other": "External users that you created"
   },
   "5": {
-    "other": "Gyűjtemény"
+    "other": "Repository"
   },
   "50": {
     "other": "My Teams"
@@ -168,7 +168,7 @@
     "other": "Team Label"
   },
   "6": {
-    "other": "Jelszó"
+    "other": "Password"
   },
   "60": {
     "other": "Team Users"
@@ -201,7 +201,7 @@
     "other": "Tuesday"
   },
   "7": {
-    "other": "Lejárati idő"
+    "other": "Expiration"
   },
   "70": {
     "other": "Wednesday"
@@ -219,10 +219,10 @@
     "other": "Sunday"
   },
   "8": {
-    "other": "Elemek"
+    "other": "Elements"
   },
   "9": {
-    "other": "Hozzárendelt felhasználók"
+    "other": "Associated users"
   },
   "desc": {
     "other": "Manage my account preferences, my address book, shared elements, etc."

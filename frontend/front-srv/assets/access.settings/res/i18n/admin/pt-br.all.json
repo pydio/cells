@@ -276,10 +276,10 @@
     "other": "Nome do repositório"
   },
   "ds.editor.storage.s3.endpoint.type": {
-    "other": "Endpoint Type"
+    "other": "Tipo de Endpoint"
   },
   "ds.editor.storage.s3.signatureVersion": {
-    "other": "Signature Version"
+    "other": "Versão da Assinatura"
   },
   "ds.editor.storage.s3.endpoint.amazon": {
     "other": "Amazon S3"
@@ -388,6 +388,9 @@
   },
   "ds.editor.initFlatFromSnapshot": {
     "other": "Se este armazenamento foi usado anteriormente como uma fonte de dados plana, inicialize-o a partir de um arquivo snapshot existente (deve ser encontrado dentro do armazenamento)"
+  },
+  "ds.editor.foldersShardingPattern": {
+    "other": "Por padrão, todos os arquivos são armazenados dentro de uma pasta única. Use um padrão 'N:P:Q' para auto-criar subpastas id[:N]/id[:P]/id[:Q]/..."
   },
   "ds.encryption": {
     "other": "Criptografado"
@@ -607,6 +610,12 @@
   },
   "logs.level": {
     "other": "Nível"
+  },
+  "logs.level.exact": {
+    "other": "(only)"
+  },
+  "logs.level.greaterthan": {
+    "other": "(and up)"
   },
   "logs.service": {
     "other": "Serviço"

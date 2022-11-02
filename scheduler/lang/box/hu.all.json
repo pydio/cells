@@ -1,0 +1,77 @@
+{
+  "Jobs.Default.Thumbs": {
+    "other": "Extract image thumbnails and Exif data"
+  },
+  "Jobs.Default.ThumbsCache": {
+    "other": "Clear thumbnails cache for deleted files"
+  },
+  "Jobs.Default.Directories": {
+    "other": "Synchronize external directories"
+  },
+  "Jobs.Default.PruneJobs": {
+    "other": "Clean jobs and tasks in scheduler"
+  },
+  "Jobs.Default.FakeLongJob": {
+    "other": "Fake a long running job (for testing purpose)"
+  },
+  "Jobs.Default.FakeUsersJob": {
+    "other": "Creation of random users (for testing purpose)"
+  },
+  "Jobs.Default.FakeGrpcJob": {
+    "other": "Sample RPC job (for testing purpose)"
+  },
+  "Jobs.Default.ArchiveJobs": {
+    "other": "Automatic archiving of changes service"
+  },
+  "Jobs.Default.CleanUserData": {
+    "other": "Clean or transfer user data on deletion"
+  },
+  "Jobs.Default.CleanOrphanFiles": {
+    "other": "Clean orphan files after 24h"
+  },
+  "Jobs.User.Compress": {
+    "other": "Compressing Selection..."
+  },
+  "Jobs.User.Extract": {
+    "other": "Extracting archive..."
+  },
+  "Jobs.User.Delete": {
+    "other": "Deleting selection in background..."
+  },
+  "Jobs.User.DirCopy": {
+    "other": "Copying folder in background..."
+  },
+  "Jobs.User.DirMove": {
+    "other": "Moving folder in background..."
+  },
+  "Jobs.User.FileCopy": {
+    "other": "Copying file in background..."
+  },
+  "Jobs.User.FileMove": {
+    "other": "Moving file in background..."
+  },
+  "Jobs.User.MultipleCopy": {
+    "other": "Copying selection in background..."
+  },
+  "Jobs.User.MultipleMove": {
+    "other": "Moving selection in background..."
+  },
+  "Jobs.User.MoveRecycle": {
+    "other": "Moving to recycle bin in background..."
+  },
+  "Jobs.User.ResyncDS": {
+    "other": "Re-indexing datasource {{.DsName}}..."
+  },
+  "Jobs.User.Wget": {
+    "other": "Downloading file in background..."
+  },
+  "Jobs.User.DeletingItem": {
+    "other": "Deleting %s"
+  },
+  "Jobs.User.CopyingItem": {
+    "other": "Copying %s"
+  },
+  "Jobs.User.MovingItem": {
+    "other": "Moving %s"
+  }
+}

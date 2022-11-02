@@ -1,69 +1,69 @@
 {
   "1": {
-    "other": "Beállítások"
+    "other": "Configuration Data"
   },
   "10": {
-    "other": "Metaadat források"
+    "other": "Meta Sources"
   },
   "100": {
-    "other": "Közös beállítások minden '%s' pluginhez"
+    "other": "Common '%s' plugins options"
   },
   "101": {
-    "other": "Név"
+    "other": "Name"
   },
   "102": {
-    "other": "Azonosító"
+    "other": "Identifier"
   },
   "103": {
-    "other": "Leírás"
+    "other": "Description"
   },
   "104": {
-    "other": "Aktív"
+    "other": "Enabled"
   },
   "105": {
-    "other": "Automatikus ellenőrzések"
+    "other": "Automatic checks"
   },
   "106": {
-    "other": "UID"
+    "other": "Unique Identifier"
   },
   "107": {
-    "other": "Plugin beállítások"
+    "other": "Plugin Configurations"
   },
   "108": {
-    "other": "Dokumentáció"
+    "other": "Documentation"
   },
   "109": {
-    "other": "Globális beállítások"
+    "other": "Application Parameters"
   },
   "11": {
-    "other": "Forrás hozzáadása"
+    "other": "Add a source"
   },
   "110": {
-    "other": "Gyűjtemények \u0026 Felhasználók"
+    "other": "Workspaces & Users"
   },
   "111": {
-    "other": "Naplók \u0026 egyéb adatok"
+    "other": "Backend"
   },
   "112": {
-    "other": "\u003cb\u003eAlapbeállításként hozzáadva\u003c/b\u003e minden új felhasználóhoz."
+    "other": "<b>Apply this role by default</b> to all new users."
   },
   "113": {
-    "other": "Szerep státusza sikeresen módosítva"
+    "other": "Role status was successfully modified"
   },
   "114": {
-    "other": "Alapbeállítás"
+    "other": "Applies to"
   },
   "115": {
-    "other": "Séma"
+    "other": "Scheme"
   },
   "116": {
-    "other": "Sablon címke"
+    "other": "Template Label"
   },
   "117": {
-    "other": "Sablon driver"
+    "other": "Template Driver"
   },
   "118": {
-    "other": "Új csoport"
+    "other": "New group"
   },
   "119": {
     "other": "Set user group"
@@ -102,13 +102,13 @@
     "other": "Refresh plugins cache"
   },
   "13": {
-    "other": "Biztos, hogy törlöd ezt a forrást?"
+    "other": "Are you sure you want to delete this source?"
   },
   "130": {
     "other": "Clear plugins cache, can be necessary to see new plugins appear in the list."
   },
   "131": {
-    "other": "Plugins cache files were deleted succesfully!"
+    "other": "Plugins cache files were deleted successfully!"
   },
   "132": {
     "other": "Cache cleared, but you are currently running in SKIP_CACHE mode (see bootstrap_context.php)."
@@ -135,7 +135,7 @@
     "other": "Manage users and groups"
   },
   "14": {
-    "other": "Igen"
+    "other": "True"
   },
   "140": {
     "other": "Define profiles that can be applied at once to whole bunch of users."
@@ -168,7 +168,7 @@
     "other": "List all hooks triggered in the application, their documentation, where there are triggered and which plugin listen to them."
   },
   "15": {
-    "other": "Nem"
+    "other": "False"
   },
   "150": {
     "other": "Select a repository"
@@ -199,9 +199,6 @@
   },
   "159": {
     "other": "Guest"
-  },
-  "16": {
-    "other": "Fájl dátum"
   },
   "160": {
     "other": "Group was successfully created"
@@ -234,7 +231,7 @@
     "other": "No users were moved, there must have been something wrong!"
   },
   "17": {
-    "other": "Dátum"
+    "other": "Date"
   },
   "170": {
     "other": "Enable %1 (%2)"
@@ -248,284 +245,305 @@
   "173": {
     "other": "Pydio Backend Services and their running status"
   },
+  "174": {
+    "other": "Identity Management"
+  },
+  "175": {
+    "other": "Data Management"
+  },
+  "176": {
+    "other": "Security Policies"
+  },
+  "177": {
+    "other": "Security Policies"
+  },
   "18": {
-    "other": "IP cím"
+    "other": "I.P."
   },
   "19": {
-    "other": "Szint"
+    "other": "Level"
   },
   "2": {
-    "other": "Felhasználók"
+    "other": "People"
   },
   "20": {
-    "other": "Felhasználó"
+    "other": "User"
   },
   "21": {
-    "other": "Művelet"
+    "other": "Action"
   },
   "22": {
-    "other": "Paraméterek"
+    "other": "Params"
   },
   "22a": {
-    "other": "Paraméterek"
+    "other": "More info"
   },
   "23": {
-    "other": "Teszt név"
+    "other": "Test Name"
   },
   "24": {
-    "other": "Teszt adat"
+    "other": "Test Data"
   },
   "25": {
-    "other": "Gyűjtemény hozzáférés"
+    "other": "Workspaces Access"
   },
   "26": {
-    "other": "Jelszó módosítása"
+    "other": "Modify Password"
   },
   "27": {
-    "other": "Rendszergazda jogosultság"
+    "other": "Admin Right"
   },
   "28": {
-    "other": "Van rendszergazda jogosultsága?"
+    "other": "User has admin rights?"
   },
   "29": {
-    "other": "Olvasás"
+    "other": "Read"
   },
   "2b": {
     "other": "Data Management"
   },
   "3": {
-    "other": "Gyűjtemények"
+    "other": "Workspaces"
   },
   "30": {
-    "other": "Írás"
+    "other": "Write"
   },
   "32": {
-    "other": "Gyűjtemény típusa"
+    "other": "Access Driver"
   },
   "33": {
-    "other": "Betöltés..."
+    "other": "Loading..."
   },
   "34": {
-    "other": "Biztos, hogy törlöd ezt a felhasználót? Ezt nem lehet visszavonni!"
+    "other": "Are you sure you want to delete this user? This operation is not reversible!"
   },
   "35": {
-    "other": "Biztos, hogy törlöd ezt a mappát? Ezt nem lehet visszavonni!"
+    "other": "Are you sure you want to delete this workspace? This operation is not reversible!"
   },
   "36": {
-    "other": "Kötelező mezők kitöltetlenek!"
+    "other": "Mandatory fields are missing!"
   },
   "37": {
-    "other": "A megadott jelszó és a megerősítése eltérnek egymástól!"
+    "other": "Warning, password and confirmation differ!"
   },
   "38": {
-    "other": "Töltsd ki a bejelentkezési név mezőt!"
+    "other": "Please fill the login field!"
   },
   "39": {
-    "other": "Töltsd ki mind a két jelszó mezőt!"
+    "other": "Please fill both password fields!"
   },
   "3b": {
-    "other": "DataSources"
+    "other": "Storage"
   },
   "3c": {
     "other": "Template Paths"
   },
   "4": {
-    "other": "Naplók"
+    "other": "Logs"
   },
   "40": {
-    "other": "Kérlek pipáld be a négyzetet a megerősítéshez!"
+    "other": "Please check the box to confirm!"
   },
   "41": {
-    "other": "Gyűjtemény driver beállítások"
+    "other": "Datasource Nodes"
   },
   "42": {
-    "other": "Válassz egy gyűjtemény drivert!"
+    "other": "Please choose a driver!"
   },
   "43": {
-    "other": "Ez a felhasználónév már létezik, válassz másikat!"
+    "other": "User already exists, please choose another login!"
   },
   "44": {
-    "other": "Felhasználó sikeresen létrehozva"
+    "other": "User created successfully"
   },
   "45": {
-    "other": "Ennek a felhasználónak megváltozott a rendszergazda joga: "
+    "other": "Changed admin right for user "
   },
   "46": {
-    "other": "Ennek a felhasználónak megváltoztak a hozzáférési jogai: "
+    "other": "Changed right for user "
   },
   "47": {
-    "other": "Adat mentve ehhez a felhasználóhoz: "
+    "other": "Saved data for user "
   },
   "48": {
-    "other": "Ennek a felhasználónak megváltozott a jelszava: "
+    "other": "Password changed successfully for user "
   },
   "49": {
-    "other": "Nem tudom módosítani a jelszót"
+    "other": "Cannot update password"
   },
   "5": {
     "other": "PHP"
   },
   "50": {
-    "other": "Hiba: Ilyen nevű gyűjtemény már létezik"
+    "other": "Error: a workspace with the same name already exists"
   },
   "51": {
-    "other": "A conf könyvtár nem írható"
+    "other": "The conf directory is not writeable"
   },
   "52": {
-    "other": "Gyűjtemény sikeresen létrehozva!"
+    "other": "Successfully created workspace! You can now add some 'Metadata Sources' to enrich the data, add automatic indexation, etc"
   },
   "53": {
-    "other": "Hiba a gyűjtemény módosításakor"
+    "other": "Error while trying to edit workspace"
   },
   "54": {
-    "other": "A gyűjtemény módosult"
+    "other": "Successfully edited workspace"
   },
   "55": {
-    "other": "Figyelem! Jelenleg minden meta pluginből csak egyet adhatsz hozzá."
+    "other": "Warning, at the moment, you can only add one instance of each meta plugin."
   },
   "56": {
-    "other": "Metaadat forrás sikeresen hozzáadva"
+    "other": "Successfully added meta source"
   },
   "57": {
-    "other": "Metaadat forrás sikeresen törölve"
+    "other": "Successfully deleted meta source"
   },
   "58": {
-    "other": "Metaadat forrás sikeresen szerkesztve"
+    "other": "Successfully edited meta source"
   },
   "59": {
-    "other": "Gyűjtemény sikeresen törölve"
+    "other": "Successfully deleted workspace"
   },
   "6": {
-    "other": "Név"
+    "other": "User Name"
   },
   "60": {
-    "other": "Felhasználó sikeresen törölve"
+    "other": "User successfully erased"
   },
   "61": {
-    "other": "Hibás paraméterek!"
+    "other": "Wrong arguments!"
   },
   "62": {
-    "other": "Jogosultság összesítő"
+    "other": "Rights Summary"
   },
   "63": {
-    "other": "Minden"
+    "other": "All"
   },
   "64": {
-    "other": "Ennek a szerepnek megváltoztak a jogosultságai: "
+    "other": "Changed right for role "
   },
   "65": {
-    "other": "A szerep létezik, válassz másik nevet!"
+    "other": "Role already exists, choose another name!"
   },
   "66": {
-    "other": "Szerep sikeresen létrehozva"
+    "other": "Role successfully created"
   },
   "67": {
-    "other": "Ez a szerep nem található: "
+    "other": "Cannot find role "
   },
   "68": {
-    "other": "Szerep sikeresen törölve"
+    "other": "Successfully deleted role"
   },
   "69": {
-    "other": "Szerepek"
+    "other": "Roles"
   },
   "7": {
-    "other": "Rendszergazda?"
+    "other": "Is Admin"
   },
   "70": {
-    "other": "Felhasználó szerepei"
+    "other": "User Roles"
   },
   "71": {
-    "other": "Rendelkezésre álló szerepek"
+    "other": "Available Roles"
   },
   "72": {
-    "other": "A kiválasztott szerepeket fogd\u0026vidd módszerrel a felhasználóhoz rendelheted"
+    "other": "Drag'n'drop roles to assign them to the user"
   },
   "73": {
-    "other": "Szerep hozzáadva ehhez a felhasználóhoz: "
+    "other": "Role added to user "
   },
   "74": {
-    "other": "Szerep elvéve ettől a felhasználótól: "
+    "other": "Role deleted from user "
   },
   "75": {
-    "other": "Új szerep"
+    "other": "New Role"
   },
   "76": {
-    "other": "Szerep ID"
+    "other": "Role Id"
   },
   "77": {
-    "other": "Hozzáférés"
+    "other": "Access Control"
   },
   "78": {
-    "other": "Személyes adatok"
+    "other": "Personal data"
   },
   "79": {
-    "other": "Gyűjtemény"
+    "other": "Workspace"
   },
   "8": {
-    "other": "Gyűjtemény címke"
+    "other": "Workspace Label"
   },
   "80": {
-    "other": "Hozzáférés finomítása (Klikkelj egy gyűjtemény cimkére, hogy a felhasználó bejelentkezéskor alaphelyzetben azt a gyűjteményt lássa)"
+    "other": "Fine-tune access for this user (Click on a workspace label if you wish to make it the default workspace when user logs in)"
   },
   "81": {
-    "other": "Gyűjteményspecifikus adatok"
+    "other": "Specific workspaces data"
   },
   "82": {
-    "other": "Felhasználók csoportos szerkesztése"
+    "other": "Batch-edit users"
   },
   "83": {
-    "other": "A kiválasztott szerepeket fogd\u0026vidd módszerrel a kiválasztott felhasználókhoz rendelheted (megosztott felhasználók ki lesznek hagyva)"
+    "other": "Drag'n'drop roles to apply them to all selected users (shared users are skipped)"
   },
   "84": {
-    "other": "Felhasználó szerepei"
+    "other": "Users Roles"
   },
   "85": {
-    "other": "Kézi művelet szűrés (haladó)"
+    "other": "Manual actions filtering"
   },
   "86": {
-    "other": "vesszővel elválasztott listában add meg a műveleteket, melyek a szerep számára tiltva legyenek, a jogosultsági beállításokat felülírva."
+    "other": "list of comma-separated actions that will be disabled for this role, no matter the access right."
   },
   "87": {
-    "other": "Műveletek sikeresen módosítva"
+    "other": "Successfully updated actions for this role"
   },
   "88": {
-    "other": "Ez a gyűjtemény a config fájlban lett létrehozva, a metaadat forrásai a grafikus felületen nem módosíthatók."
+    "other": "This workspace is defined in the config file, you cannot edit its meta sources via the GUI."
   },
   "89": {
-    "other": "Felhasználóspecifikus adatok"
+    "other": "User specific data"
   },
   "9": {
-    "other": "Gyűjtemény típusa"
+    "other": "Access Type"
   },
   "90": {
-    "other": "Gyűjtemény"
+    "other": "New Workspace"
   },
   "91": {
-    "other": "Sablon"
+    "other": "New Template"
   },
   "92": {
-    "other": "Új sablon létrehozása"
+    "other": "Create a new template"
   },
   "93": {
-    "other": "Szerkesztés"
+    "other": "Edit"
   },
   "94": {
-    "other": "Csoportos szerkesztés"
+    "other": "Batch Edit"
   },
   "95": {
-    "other": "Válassz egy címkét és az adatok eléréséhez egy driver-t (figyelj a kötelező mezőkre, mozgasd az egeret a címkék fölé további információért)."
+    "other": "Choose a label and a driver to access the data (check all sections for mandatory fields, you can hover the options labels with your mouse to get more info)."
   },
   "96": {
-    "other": "A címke és a driver kiválasztása után a jelölőnégyzetek segítségével állítsd be a sablonban előre kitöltött mezőket. A nem kijelölt mezőket a felhasználó töltheti ki. Egy kiválasztott mezőt üresen hagyva a mező rejtve marad a felhasználó elől."
+    "other": "Once a label and driver selected, enable the fields you want to be prefilled in the template using the checkboxes. The other fields will be left to the user. You can enable some fields and leave them empty, if you still want to hide them from the user."
   },
   "97": {
-    "other": "Plugin beállítások sikeresen módosítva"
+    "other": "Plugin options successfully updated"
   },
   "98": {
-    "other": "Core beállítások"
+    "other": "Main Settings"
   },
   "99": {
-    "other": "Pluginek"
+    "other": "Feature plugins"
+  },
+  "topbar.title": {
+    "other": "Cells Console"
+  },
+  "topbar.button.advanced": {
+    "other": "Show/hide advanced parameters"
+  },
+  "topbar.button.about": {
+    "other": "Learn more about Pydio Cells"
   },
   "group_access": {
     "other": "g"

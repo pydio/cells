@@ -389,6 +389,9 @@
   "ds.editor.initFlatFromSnapshot": {
     "other": "If this storage was previously used as a flat datasource, initialize it from an existing snapshot file (must be found inside the storage)"
   },
+  "ds.editor.foldersShardingPattern": {
+    "other": "By default, all files are stored inside a unique folder. Use a pattern 'N:P:Q' to auto-create sub folders id[:N]/id[:P]/id[:Q]/..."
+  },
   "ds.encryption": {
     "other": "Šifrováno"
   },
@@ -607,6 +610,12 @@
   },
   "logs.level": {
     "other": "Level"
+  },
+  "logs.level.exact": {
+    "other": "(only)"
+  },
+  "logs.level.greaterthan": {
+    "other": "(and up)"
   },
   "logs.service": {
     "other": "Služba"

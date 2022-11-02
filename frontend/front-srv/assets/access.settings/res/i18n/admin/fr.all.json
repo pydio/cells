@@ -389,6 +389,9 @@
   "ds.editor.initFlatFromSnapshot": {
     "other": "Si ce stockage a été précédemment utilisé comme datasource, initialisez-le à partir d'un fichier de snapshot existant (doit être présent dans le stockage)"
   },
+  "ds.editor.foldersShardingPattern": {
+    "other": "Par défaut, tous les fichiers sont stockés dans un dossier unique. Utilisez un motif 'N:P:Q' pour créer automatiquement les sous-dossiers id[:N]/id[:P]/id[:Q]/..."
+  },
   "ds.encryption": {
     "other": "Encryptée"
   },
@@ -607,6 +610,12 @@
   },
   "logs.level": {
     "other": "Niveau"
+  },
+  "logs.level.exact": {
+    "other": "(only)"
+  },
+  "logs.level.greaterthan": {
+    "other": "(and up)"
   },
   "logs.service": {
     "other": "Service"
