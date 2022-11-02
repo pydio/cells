@@ -59,22 +59,30 @@ type StructStorageHandler struct {
 
 func (f *StructStorageHandler) publish(ctx context.Context, identifier string, eventType tree.NodeChangeEvent_EventType, node *tree.Node) {
 	bi, ok := nodes.GetBranchInfo(ctx, identifier)
+
+	// Fork context to de-intricate query and publication cancellation
+	ctx = runtime.ForkContext(metadata.NewBackgroundWithMetaCopy(ctx), ctx)
+
 	// Publish only for remote non-minio structured servers
-	if ok && (bi.FlatStorage /*|| bi.ServerIsMinio()*/) {
+	if ok && bi.FlatStorage {
 		return
 	}
 	event := &tree.NodeChangeEvent{Type: eventType}
 	if mm, ok := metadata.MinioMetaFromContext(ctx, false); ok {
 		event.Metadata = mm
+		log.Logger(ctx).Info("METADATA", zap.Any("meta", mm))
 	}
 	switch eventType {
 	case tree.NodeChangeEvent_DELETE:
 		node.Path = strings.TrimPrefix(node.Path, bi.Name+"/")
 		event.Source = node
 	case tree.NodeChangeEvent_CREATE:
-		if r, e := f.ReadNode(ctx, &tree.ReadNodeRequest{ObjectStats: true, Node: node}); e == nil {
+		// Re-put BranchInfo in context
+		if r, e := f.ReadNode(nodes.WithBranchInfo(ctx, "in", bi), &tree.ReadNodeRequest{ObjectStats: true, Node: node}); e == nil {
 			node = r.GetNode()
 			node.Type = tree.NodeType_LEAF
+		} else {
+			log.Logger(ctx).Warn("DS Struct event publication, cannot re-read created node: "+e.Error(), zap.Error(e))
 		}
 		node.Path = strings.TrimPrefix(node.Path, bi.Name+"/")
 		event.Target = node
