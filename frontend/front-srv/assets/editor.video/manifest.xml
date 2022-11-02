@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <editor id="editor.video" openable="true" formId="videojs_previewer"
-        mimes="flv,mov,mp4,m4v,m4a,aac,ogv,webm" previewProvider="true"
+        mimes="flv,mov,mp4,m4v,aac,ogv,webm" previewProvider="true"
         text="video_editor.1" title="video_editor.1" iconClass="mdi mdi-filmstrip"
         className="PydioVideo" label="CONF_MESSAGE[Video Player]"
         description="CONF_MESSAGE[Inserts a video player in the info panel, either HTML5 or Flash depending on the format.]">
