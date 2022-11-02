@@ -183,6 +183,8 @@ class LogTools extends React.Component{
         const {MessageHash} = pydio;
         const hasFilter = filter || serviceFilter || date || endDate || level || userName || remoteAddress;
         const checkIcon = <FontIcon style={{top: 0, fontSize: 20}} className={"mdi mdi-check"}/>;
+        const levelExact = MessageHash['ajxp_admin.logs.level.exact']
+        const levelGT = MessageHash['ajxp_admin.logs.level.greaterthan']
         return (
             <div style={{display: 'flex', alignItems: 'center', width: '100%', marginTop: 3}}>
 
@@ -200,12 +202,12 @@ class LogTools extends React.Component{
                                            onChange={(e, i, v) => this.handleFilterChange(v, 'level')}>
                             <MenuItem primaryText={""}/>
                             <MenuItem primaryText={"ERROR"} value={"ERROR"} innerDivStyle={{color:'#E53935', fontWeight: 500, fontSize: 14}}/>
-                            <MenuItem primaryText={"WARN (only)"} value={"WARN"} innerDivStyle={{color:'#FB8C00', fontWeight: 500, fontSize: 14}}/>
-                            <MenuItem primaryText={"WARN (and higher)"} value={"<WARN"} innerDivStyle={{color:'#FB8C00', fontWeight: 500, fontSize: 14}}/>
-                            <MenuItem primaryText={"INFO (only)"} value={"INFO"} innerDivStyle={{color:'#1976D0', fontWeight: 500, fontSize: 14}}/>
-                            <MenuItem primaryText={"INFO (and higher)"} value={"<INFO"} innerDivStyle={{color:'#1976D0', fontWeight: 500, fontSize: 14}}/>
-                            <MenuItem primaryText={"DEBUG (only)"} value={"DEBUG"} innerDivStyle={{color:'#673AB7', fontWeight: 500, fontSize: 14}}/>
-                            <MenuItem primaryText={"DEBUG (and higher)"} value={"<DEBUG"} innerDivStyle={{color:'#673AB7', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"WARN " + levelExact} value={"WARN"} innerDivStyle={{color:'#FB8C00', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"WARN " + levelGT} value={"<WARN"} innerDivStyle={{color:'#FB8C00', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"INFO " + levelExact} value={"INFO"} innerDivStyle={{color:'#1976D0', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"INFO " + levelGT} value={"<INFO"} innerDivStyle={{color:'#1976D0', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"DEBUG " + levelExact} value={"DEBUG"} innerDivStyle={{color:'#673AB7', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"DEBUG " + levelGT} value={"<DEBUG"} innerDivStyle={{color:'#673AB7', fontWeight: 500, fontSize: 14}}/>
                         </ModernSelectField>
                     </div>
                 }
