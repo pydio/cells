@@ -130,7 +130,8 @@ class TaskActivity extends React.Component{
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             borderRadius: 4,
-            textAlign: 'center'
+            textAlign: 'center',
+            userSelect: 'text'
         };
         let path = row.SchedulerTaskActionPath;
         if(!path){
@@ -190,15 +191,23 @@ class TaskActivity extends React.Component{
         const setFilter = (f) => {
             this.setState({filter:f}, ()=> this.loadActivity(this.props, 0))
         }
+        const tdStyle = {
+            height: lineHeight,
+            backgroundColor:cellBg,
+            userSelect:'text',
+            verticalAlign:'top',
+            paddingTop: 7,
+            paddingBottom: 7
+        }
         const columns = [
-            {name: 'SchedulerTaskActionPath', label:'', hideSmall:true, style:{width:110, height: lineHeight, backgroundColor:cellBg, paddingLeft: 12, paddingRight: 0, userSelect:'text'}, headerStyle:{width:110, paddingLeft: 12, paddingRight: 0}, renderCell:(row) => {
+            {name: 'SchedulerTaskActionPath', label:'', hideSmall:true, style:{...tdStyle, width:110, paddingLeft: 12, paddingRight: 0}, headerStyle:{width:110, paddingLeft: 12, paddingRight: 0}, renderCell:(row) => {
                 return this.computeTag(row)
             }},
-            {name:'Ts', label:pydio.MessageHash['settings.17'], style:{width: 100, height: lineHeight, backgroundColor:cellBg, paddingRight: 10, userSelect:'text'}, headerStyle:{width: 100, paddingRight: 10}, renderCell:(row=>{
+            {name:'Ts', label:pydio.MessageHash['settings.17'], style:{...tdStyle, width: 100, paddingRight: 10}, headerStyle:{width: 100, paddingRight: 10}, renderCell:(row=>{
                     const m = moment((row.Ts+timeOffset) * 1000);
                     return m.format('HH:mm:ss');
                 })},
-            {name:'Level', label:pydio.MessageHash['ajxp_admin.logs.level'], headerStyle:{width: 70}, style:{width:70, height: lineHeight, backgroundColor:cellBg, userSelect:'text', textTransform:'uppercase', paddingRight: 0, paddingLeft: 10}, renderCell:(row)=>{
+            {name:'Level', label:pydio.MessageHash['ajxp_admin.logs.level'], headerStyle:{width: 70}, style:{...tdStyle, width:70, textTransform:'uppercase', paddingRight: 0, paddingLeft: 10}, renderCell:(row)=>{
                 let color;
                 if(row.Level==='info') {
                     color = '#1976D0';
@@ -209,9 +218,9 @@ class TaskActivity extends React.Component{
                 } else if (row.Level === 'debug') {
                     color = '#673AB7';
                 }
-                    return <span style={{color}}>{row.Level}</span>
+                    return <span style={{color, userSelect: 'text'}}>{row.Level}</span>
             }},
-            {name:'Msg', label:pydio.MessageHash['ajxp_admin.logs.message'], style:{height: lineHeight, backgroundColor:cellBg, userSelect:'text'}}
+            {name:'Msg', label:pydio.MessageHash['ajxp_admin.logs.message'], style:{...tdStyle, whiteSpace: 'initial'}}
         ];
         return (
             <div style={{paddingTop: 12, paddingBottom: 10, backgroundColor:cellBg}}>
