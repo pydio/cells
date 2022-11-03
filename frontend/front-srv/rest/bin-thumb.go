@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/rwcarlsen/goexif/exif"
 	"image"
 	"io"
 	"net/http"
@@ -17,6 +18,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	exi "github.com/pydio/cells/v4/common/utils/exif"
 )
 
 func readBinary(ctx context.Context, router nodes.Client, node *tree.Node, output io.Writer, headers http.Header, extension string, resize ...int) error {
@@ -59,7 +61,7 @@ func readBinary(ctx context.Context, router nodes.Client, node *tree.Node, outpu
 		if e != nil {
 			return e
 		}
-		src, err := imaging.Decode(reader)
+		src, err := imaging.Decode(reader, imaging.AutoOrientation(true))
 		if err != nil {
 			return err
 		} else {
@@ -85,4 +87,42 @@ func readBinary(ctx context.Context, router nodes.Client, node *tree.Node, outpu
 	}
 
 	return nil
+}
+
+func filterInputBinaryExif(ctx context.Context, input io.Reader) (io.Reader, int64, error) {
+
+	data, er := io.ReadAll(input)
+	if er != nil {
+		return nil, 0, er
+	}
+	originalSize := int64(len(data))
+	buf := bytes.NewReader(data)
+	// Check for exif presence
+	x, err := exif.Decode(buf)
+	if err != nil || x == nil {
+		return nil, 0, fmt.Errorf("no exif found")
+	}
+	// Rewind
+	_, _ = buf.Seek(0, io.SeekStart)
+	// If orientation, autoload normalized and rewrite image. Exif will be removed.
+	if _, e := x.Get(exif.Orientation); e == nil {
+		// There is an orientation, normalize file
+		if img, e := imaging.Decode(buf, imaging.AutoOrientation(true)); e == nil {
+			out := bytes.NewBuffer([]byte{})
+			log.Logger(ctx).Debug("Decoded Image with autoOrientation")
+			if e = imaging.Encode(out, img, imaging.JPEG, imaging.JPEGQuality(70)); e == nil {
+				log.Logger(ctx).Debug("Re-Encoded Normalized")
+				return out, int64(out.Len()), nil
+			}
+		}
+	}
+	// If not rewritten, perform EXIF removal for security.
+	if dd, er := exi.Remove(data); er == nil {
+		log.Logger(ctx).Debug("Removed EXIF")
+		return bytes.NewReader(dd), int64(len(dd)), nil
+	} else {
+		log.Logger(ctx).Warn("Cannot remove EXIF data: " + er.Error())
+	}
+	return buf, originalSize, nil
+
 }

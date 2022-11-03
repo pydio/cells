@@ -21,7 +21,6 @@
 package rest
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -51,7 +50,6 @@ import (
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/service/frontend/sessions"
 	"github.com/pydio/cells/v4/common/service/resources"
-	"github.com/pydio/cells/v4/common/utils/exif"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -415,20 +413,10 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to use files bigger than %dB for avatars", avatarDefaultMaxSize))
 			return
 		}
-		// Load data in-memory to check and remove EXIF data if there are any
-		data, er := io.ReadAll(fileInput)
-		if er != nil {
-			service.RestError500(req, rsp, er)
-			return
+		if fi, si, er := filterInputBinaryExif(ctx, fileInput); er == nil {
+			fileInput = fi
+			fileSize = si
 		}
-		filtered, er := exif.Remove(data)
-		if er != nil {
-			service.RestError500(req, rsp, er)
-			return
-		}
-		// Use filtered data instead of original
-		fileInput = bytes.NewBuffer(filtered)
-		fileSize = int64(len(filtered))
 		// USER binaries can only be edited by context user or by admin
 		if ctxClaims.Profile != common.PydioProfileAdmin && ctxUser != binaryUuid {
 			service.RestError401(req, rsp, fmt.Errorf("you are not allowed to edit this binary"))

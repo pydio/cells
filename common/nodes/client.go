@@ -79,18 +79,21 @@ func CoreMetaWriter(ctx context.Context) tree.NodeReceiverClient {
 }
 
 // CoreMetaSet directly saves a core metadata associated with a node UUID
-func CoreMetaSet(ctx context.Context, nodeUUID string, metaKey, metaValue string) error {
+func CoreMetaSet(ctx context.Context, nodeUUID string, metaKey, metaValue string, internalDS bool) error {
 	node := &tree.Node{Uuid: nodeUUID}
 	node.MustSetMeta(metaKey, metaValue)
+	if internalDS {
+		node.MustSetMeta(common.MetaNamespaceDatasourceInternal, true)
+	}
 	_, e := CoreMetaWriter(ctx).CreateNode(ctx, &tree.CreateNodeRequest{Node: node, UpdateIfExists: true})
 	return e
 }
 
 // MustCoreMetaSet saves a core metadata without returning errors
-func MustCoreMetaSet(ctx context.Context, nodeUUID string, metaKey, metaValue string) {
+func MustCoreMetaSet(ctx context.Context, nodeUUID string, metaKey, metaValue string, internalDS bool) {
 	if nodeUUID == "" {
 		log.Logger(ctx).Error("Error while trying to set Meta " + metaKey + " to " + metaValue + ": nodeUUID is empty!")
-	} else if e := CoreMetaSet(ctx, nodeUUID, metaKey, metaValue); e == nil {
+	} else if e := CoreMetaSet(ctx, nodeUUID, metaKey, metaValue, internalDS); e == nil {
 		log.Logger(ctx).Debug("Set Meta " + metaKey + " to " + metaValue)
 	} else {
 		log.Logger(ctx).Error("Error while trying to set Meta "+metaKey+" to "+metaValue, zap.Error(e))

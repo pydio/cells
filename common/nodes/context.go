@@ -135,6 +135,14 @@ func IsFlatStorage(ctx context.Context, identifier string) bool {
 	return false
 }
 
+// IsInternal checks a context BranchInfo for the Internal flag
+func IsInternal(ctx context.Context, identifier string) bool {
+	if info, ok := GetBranchInfo(ctx, identifier); ok && info.IsInternal() {
+		return true
+	}
+	return false
+}
+
 // IsMinioServer checks a context BranchInfo for pure S3
 func IsMinioServer(ctx context.Context, identifier string) bool {
 	if info, ok := GetBranchInfo(ctx, identifier); ok && info.ServerIsMinio() {

@@ -58,7 +58,7 @@ func (m *HashHandler) PutObject(ctx context.Context, node *tree.Node, reader io.
 	var completeFunc func(s string, hashes [][]byte)
 	if !nodes.IsFlatStorage(ctx, "in") {
 		completeFunc = func(s string, hashes [][]byte) {
-			nodes.MustCoreMetaSet(ctx, node.Uuid, common.MetaNamespaceHash, s)
+			nodes.MustCoreMetaSet(ctx, node.Uuid, common.MetaNamespaceHash, s, nodes.IsInternal(ctx, "in"))
 		}
 	}
 	// Wrap reader in a block hasher computation.
@@ -97,7 +97,7 @@ func (m *HashHandler) MultipartComplete(ctx context.Context, target *tree.Node, 
 		return models.ObjectInfo{}, errors2.Wrap(e, "cannot initialize cache")
 	}
 	if !nodes.IsFlatStorage(ctx, "in") {
-		nodes.MustCoreMetaSet(ctx, target.Uuid, common.MetaNamespaceHash, f)
+		nodes.MustCoreMetaSet(ctx, target.Uuid, common.MetaNamespaceHash, f, nodes.IsInternal(ctx, "in"))
 	} else {
 		target.MustSetMeta(common.MetaNamespaceHash, f)
 	}
@@ -134,14 +134,14 @@ func (m *HashHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.
 	if srcHash != "" {
 		if move {
 			// Move: update initial node meta
-			nodes.MustCoreMetaSet(ctx, from.Uuid, common.MetaNamespaceHash, srcHash)
+			nodes.MustCoreMetaSet(ctx, from.Uuid, common.MetaNamespaceHash, srcHash, nodes.IsInternal(ctx, "to"))
 		} else {
 			// Copy: update new node meta - Get uuid from node or from request.Metadata
 			tu := to.Uuid
 			if mm, ok := requestData.Metadata[common.XAmzMetaNodeUuid]; ok && mm != "" {
 				tu = mm
 			}
-			nodes.MustCoreMetaSet(ctx, tu, common.MetaNamespaceHash, srcHash)
+			nodes.MustCoreMetaSet(ctx, tu, common.MetaNamespaceHash, srcHash, nodes.IsInternal(ctx, "to"))
 		}
 	}
 
