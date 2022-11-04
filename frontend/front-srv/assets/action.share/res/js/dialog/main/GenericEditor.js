@@ -39,8 +39,8 @@ class EditorTab extends React.Component{
                             label={label}
                             onClick={()=>{onChange(t.Value)}}
                             primary={isActive}
-                            style={{flex: 1, height:46, lineHeight:'46px', borderBottom: isActive?'3px solid ' + primary1Color:0}}
-                            labelStyle={{textTransform:'none', fontSize: 15, color:isActive?primary1Color:'rgba(0,0,0,.3)'}}
+                            style={{flex: 1, height:46, lineHeight:'46px', borderBottom: '3px solid ' + (isActive?primary1Color:'transparent')}}
+                            labelStyle={{textTransform:'none', fontSize: 15, paddingLeft: 8, paddingRight: 8, color:isActive?primary1Color:'rgba(0,0,0,.3)'}}
                         />)
                 })}
             </div>
