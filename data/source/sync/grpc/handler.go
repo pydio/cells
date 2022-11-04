@@ -576,11 +576,9 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 		}
 	}
 
-	// Create a context from background
-	// TODO : extend request context (c) instead, to allow sync.Run cancellation. This requires changes on SetSessionData()
-	// as it will otherwise pass along this (c) to the patch processor, which is async, and which receives a cancelled ctx.
-	bg := context.Background()
-	bg = metadata.WithUserNameMetadata(bg, common.PydioSystemUsername)
+	// Context extends request Context, which allows sync.Run cancellation from within the scheduler.
+	// Internal context used for SessionData is re-extended from context.Background
+	bg := metadata.WithUserNameMetadata(c, common.PydioSystemUsername)
 	bg = servicecontext.WithServiceName(bg, servicecontext.GetServiceName(c))
 	if s, o := servicecontext.SpanFromContext(c); o {
 		bg = servicecontext.WithSpan(bg, s)

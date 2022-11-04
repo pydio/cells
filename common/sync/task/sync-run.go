@@ -23,6 +23,7 @@ package task
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"math"
 	"strings"
 	"sync"
@@ -42,11 +43,17 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 		return nil, e
 	}
 
+	// Create a background-based context as sessionContext will be used inside the patch processor.
+	sessionCtx := context.Background()
+	if mm, ok := metadata.FromContextCopy(ctx); ok {
+		sessionCtx = metadata.NewContext(sessionCtx, mm)
+	}
+
 	if s.Direction == model.DirectionBi {
 
 		// INIT BI PATCH
 		bb := merger.NewBidirectionalPatch(ctx, s.Source, s.Target)
-		bb.SetSessionData(ctx, false)
+		bb.SetSessionData(sessionCtx, false)
 		bb.SetupChannels(s.statuses, s.runDone, s.cmd)
 
 		if e := s.runBi(ctx, bb, dryRun, force, rootsInfo); e != nil || dryRun {
@@ -70,7 +77,7 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 		}
 		patch.SkipFilterToTarget(true)
 		patch.SetupChannels(s.statuses, s.runDone, s.cmd)
-		patch.SetSessionData(ctx, true)
+		patch.SetSessionData(sessionCtx, true)
 
 		// RUN SYNC ON SELECTED ROOTS
 		if len(s.Roots) == 0 {
