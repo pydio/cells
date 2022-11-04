@@ -76,16 +76,32 @@ func (a *AccessList) cache(key string) error {
 	defer a.maskBPLock.RUnlock()
 	defer a.maskBULock.RUnlock()
 	m := &CachedAccessList{
-		Wss:             a.wss,
-		WssRootsMasks:   a.wssRootsMasks,
 		OrderedRoles:    a.orderedRoles,
 		WsACLs:          a.wsACLs,
 		FrontACLs:       a.frontACLs,
-		MasksByUUIDs:    a.masksByUUIDs,
-		MasksByPaths:    a.masksByPaths,
-		ClaimsScopes:    a.claimsScopes,
 		HasClaimsScopes: a.hasClaimsScopes,
+		Wss:             map[string]*idm.Workspace{},
+		WssRootsMasks:   map[string]map[string]Bitmask{},
+		MasksByUUIDs:    map[string]Bitmask{},
+		MasksByPaths:    map[string]Bitmask{},
+		ClaimsScopes:    map[string]Bitmask{},
 	}
+	for k, v := range a.wss {
+		m.Wss[k] = v
+	}
+	for k, v := range a.wssRootsMasks {
+		m.WssRootsMasks[k] = v
+	}
+	for k, v := range a.masksByUUIDs {
+		m.MasksByUUIDs[k] = v
+	}
+	for k, v := range a.masksByPaths {
+		m.MasksByPaths[k] = v
+	}
+	for k, v := range a.claimsScopes {
+		m.ClaimsScopes[k] = v
+	}
+
 	return getAclCache().Set(key, m)
 }
 
@@ -95,17 +111,37 @@ func newFromCache(key string) (*AccessList, bool) {
 	if b := getAclCache().Get(key, &m); !b {
 		return nil, b
 	}
-	return &AccessList{
-		maskBPLock:      &sync.RWMutex{},
-		maskBULock:      &sync.RWMutex{},
-		wss:             m.Wss,
-		wssRootsMasks:   m.WssRootsMasks,
+	a := &AccessList{
+		// Use cached value directly
 		orderedRoles:    m.OrderedRoles,
 		wsACLs:          m.WsACLs,
 		frontACLs:       m.FrontACLs,
-		masksByUUIDs:    m.MasksByUUIDs,
-		masksByPaths:    m.MasksByPaths,
-		claimsScopes:    m.ClaimsScopes,
 		hasClaimsScopes: m.HasClaimsScopes,
-	}, true
+		// Re-init these
+		maskBPLock:    &sync.RWMutex{},
+		maskBULock:    &sync.RWMutex{},
+		wss:           map[string]*idm.Workspace{},
+		wssRootsMasks: map[string]map[string]Bitmask{},
+		masksByUUIDs:  map[string]Bitmask{},
+		masksByPaths:  map[string]Bitmask{},
+		claimsScopes:  map[string]Bitmask{},
+	}
+
+	for k, v := range m.Wss {
+		a.wss[k] = v
+	}
+	for k, v := range m.WssRootsMasks {
+		a.wssRootsMasks[k] = v
+	}
+	for k, v := range m.MasksByUUIDs {
+		a.masksByUUIDs[k] = v
+	}
+	for k, v := range m.MasksByPaths {
+		a.masksByPaths[k] = v
+	}
+	for k, v := range m.ClaimsScopes {
+		a.claimsScopes[k] = v
+	}
+
+	return a, true
 }
