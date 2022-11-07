@@ -21,12 +21,21 @@
 package jobs
 
 import (
+	"fmt"
 	"time"
+
+	"go.uber.org/zap/zapcore"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
+
+func (a *ActionMessage) Clone() *ActionMessage {
+	return proto.Clone(a).(*ActionMessage)
+}
 
 func (a *ActionMessage) AppendOutput(output *ActionOutput) {
 
@@ -202,4 +211,56 @@ func (a *ActionMessage) WithIgnore() ActionMessage {
 	})
 	return b
 
+}
+
+// EventFromAny loads and unmarshal event from an anypb value
+func (a *ActionMessage) EventFromAny() (interface{}, error) {
+	if a.Event == nil {
+		return nil, fmt.Errorf("event not set")
+	}
+	var event interface{}
+	triggerEvent := &JobTriggerEvent{}
+	nodeEvent := &tree.NodeChangeEvent{}
+	idmEvent := &idm.ChangeEvent{}
+	if e := anypb.UnmarshalTo(a.Event, triggerEvent, proto.UnmarshalOptions{}); e == nil {
+		event = triggerEvent
+	} else if e := anypb.UnmarshalTo(a.Event, nodeEvent, proto.UnmarshalOptions{}); e == nil {
+		event = nodeEvent
+	} else if e := anypb.UnmarshalTo(a.Event, idmEvent, proto.UnmarshalOptions{}); e == nil {
+		event = idmEvent
+	} else {
+		return nil, fmt.Errorf("cannot unmarshal event to triggerEvent, nodeEvent or idmEvent")
+	}
+	return event, nil
+}
+
+func (a *ActionMessage) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	if ev, _ := a.EventFromAny(); ev != nil {
+		_ = encoder.AddReflected("Event", ev)
+	}
+	limitedSlice(encoder, "Nodes", a.Nodes, 5)
+	limitedSlice(encoder, "Roles", a.Roles, 5)
+	limitedSlice(encoder, "Users", a.Users, 5)
+	limitedSlice(encoder, "Workspaces", a.Workspaces, 5)
+	limitedSlice(encoder, "Acls", a.Acls, 5)
+	limitedSlice(encoder, "Activities", a.Activities, 5)
+	limitedSlice(encoder, "DataSources", a.DataSources, 5)
+	if len(a.OutputChain) > 0 {
+		return encoder.AddArray("OutputChain", actionOutputLogArray(a.OutputChain))
+	}
+	return nil
+}
+
+func limitedSlice[T any](encoder zapcore.ObjectEncoder, key string, in []T, max int) {
+	initial := len(in)
+	if initial == 0 {
+		return
+	}
+	if initial > max {
+		//return in[:max], initial, true, true
+		_ = encoder.AddReflected(key, in[:max])
+		encoder.AddInt(key+"Total", initial)
+	} else {
+		_ = encoder.AddReflected(key, in)
+	}
 }

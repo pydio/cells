@@ -40,6 +40,14 @@ func (m *IdmSelector) MultipleSelection() bool {
 	return m.Collect
 }
 
+func (m *IdmSelector) SelectorID() string {
+	return "IdmSelector"
+}
+
+func (m *IdmSelector) FilterID() string {
+	return "IdmFilter"
+}
+
 // Select IDM Objects by a given query
 func (m *IdmSelector) Select(ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
 

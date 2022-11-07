@@ -95,9 +95,9 @@ func TestTaskSetters(t *testing.T) {
 
 }
 
-func TestTaskLogs(t *testing.T) {
+func SkipTestTaskLogs(t *testing.T) {
 
-	Convey("Test task Append Log", t, func() {
+	Convey("Test task Append Log (skipped as not used anymore)", t, func() {
 
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
 		ev, _ := anypb.New(&jobs.JobTriggerEvent{JobID: "ajob"})
@@ -130,7 +130,8 @@ func TestTaskLogs(t *testing.T) {
 			},
 		}
 
-		task.AppendLog(a, in, out)
+		//THIS IS REMOVED
+		//task.AppendLog(a, in, out)
 
 		So(task.task.ActionsLogs, ShouldHaveLength, 1)
 		log := task.task.ActionsLogs[0]

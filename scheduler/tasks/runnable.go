@@ -49,12 +49,16 @@ type Runnable struct {
 	ActionPath     string
 }
 
-func nextContextPath(ctx context.Context, actionId string, chainIndex int) (string, context.Context) {
+func nextContextPath(ctx context.Context, actionId string) (string, context.Context) {
 	pPath := "ROOT"
 	if mm, ok := metadata.FromContextRead(ctx); ok {
 		if p, o := mm[servicecontext.ContextMetaTaskActionPath]; o {
 			pPath = p
 		}
+	}
+	chainIndex := 0
+	if ci := ctx.Value(jobs.IndexedContextKey); ci != nil {
+		chainIndex = ci.(int)
 	}
 	newPath := path.Join(pPath, fmt.Sprintf(actionId+"$%d", chainIndex))
 	ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{servicecontext.ContextMetaTaskActionPath: newPath})
@@ -86,9 +90,9 @@ func RootRunnable(ctx context.Context, task *Task) Runnable {
 
 // NewRunnable creates a new runnable and populates it with the concrete task implementation found with action.ID,
 // if such an implementation is found.
-func NewRunnable(ctx context.Context, chainIndex int, task *Task, action *jobs.Action, message *jobs.ActionMessage) Runnable {
+func NewRunnable(ctx context.Context, task *Task, action *jobs.Action, message *jobs.ActionMessage) Runnable {
 	var aPath string
-	aPath, ctx = nextContextPath(ctx, action.ID, chainIndex)
+	aPath, ctx = action.BuildTaskActionPath(ctx)
 	r := Runnable{
 		Action:     action,
 		Task:       task,
@@ -128,6 +132,7 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 		messagesOutput := make(chan jobs.ActionMessage)
 		failedFilter := make(chan jobs.ActionMessage)
 		done := make(chan bool, 1)
+		indexedContext := context.WithValue(r.Context, jobs.IndexedContextKey, chainIndex)
 		go func(act *jobs.Action, q chan Runnable) {
 			defer func() {
 				close(messagesOutput)
@@ -144,21 +149,8 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 					m := proto.Clone(&message).(*jobs.ActionMessage)
 					enqueued++
 					r.Task.Add(1)
-					run := NewRunnable(r.Context, chainIndex, r.Task, act, m)
+					run := NewRunnable(indexedContext, r.Task, act, m)
 					q <- run
-					/*
-						select {
-						case queue <- NewRunnable(r.Context, chainIndex, r.Task, act, m):
-						case <-time.After(10 * time.Minute):
-							_, ct := nextContextPath(r.Context, act.ID, chainIndex)
-							err := fmt.Errorf("enqueue timeout reached when dispatching messagesOutput in action %s (length was %d", act.ID, len(aa))
-							log.TasksLogger(ct).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
-							log.Logger(r.Context).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
-							r.Task.SetError(err, false)
-							// Break dispatch on error !
-							return
-						}
-					*/
 
 				case failed := <-failedFilter:
 					// Filter failed
@@ -168,7 +160,7 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 					}
 
 				case err := <-errs:
-					_, ct := nextContextPath(r.Context, act.ID, chainIndex)
+					_, ct := act.BuildTaskActionPath(indexedContext)
 					log.TasksLogger(ct).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
 					log.Logger(r.Context).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
 					r.Task.SetError(err, false)
@@ -178,10 +170,10 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 				case <-done:
 					// For ROOT that is not event-based (jobTrigger = manual or scheduled), check if nothing happened at all
 					if parentPath == "ROOT" && enqueued == 0 && strings.Contains(input.GetEvent().GetTypeUrl(), "jobs.JobTriggerEvent") {
-						_, ct := nextContextPath(r.Context, act.ID, chainIndex)
+						_, ct := act.BuildTaskActionPath(indexedContext)
 						log.TasksLogger(ct).Warn("Initial query retrieved no values, stopping job now")
 						r.Task.Add(1)
-						queue <- NewRunnable(r.Context, chainIndex, r.Task, &jobs.Action{ID: actions.IgnoredActionName}, &jobs.ActionMessage{})
+						queue <- NewRunnable(indexedContext, r.Task, &jobs.Action{ID: actions.IgnoredActionName}, &jobs.ActionMessage{})
 					}
 					return
 
@@ -189,7 +181,7 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 			}
 		}(action, queue)
 		in := proto.Clone(input).(*jobs.ActionMessage)
-		action.ToMessages(*in, r.Context, messagesOutput, failedFilter, errs, done)
+		action.ToMessages(*in, indexedContext, messagesOutput, failedFilter, errs, done)
 	}
 }
 
@@ -231,6 +223,8 @@ func (r *Runnable) RunAction(queue chan Runnable) {
 	r.Task.SetStartTime(time.Now())
 	r.Task.Save()
 
+	log.TasksLogger(r.Context).Debug("ZAPS", zap.Object("Input", r.Message))
+
 	var outputMessage *jobs.ActionMessage
 	var err error
 	if r.Action.Bypass {
@@ -247,6 +241,7 @@ func (r *Runnable) RunAction(queue chan Runnable) {
 		om, ee := r.Implementation.Run(runCtx, runnableChannels, *r.Message)
 		err = ee
 		outputMessage = &om
+		log.TasksLogger(r.Context).Debug("ZAPS", zap.Object("Output", outputMessage))
 		close(done)
 	}
 
@@ -257,7 +252,7 @@ func (r *Runnable) RunAction(queue chan Runnable) {
 		r.Task.Save()
 		return
 	}
-	r.Task.AppendLog(r.Action, r.Message, outputMessage)
+
 	select {
 	case <-r.Context.Done():
 		return

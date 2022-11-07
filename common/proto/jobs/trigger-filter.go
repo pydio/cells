@@ -31,6 +31,10 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
+func (m *TriggerFilter) FilterID() string {
+	return "TriggerFilter"
+}
+
 func (m *TriggerFilter) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
 
 	var event interface{}

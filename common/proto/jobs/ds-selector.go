@@ -31,6 +31,10 @@ import (
 	service "github.com/pydio/cells/v4/common/proto/service"
 )
 
+func (m *DataSourceSelector) FilterID() string {
+	return "DataSourceFilter"
+}
+
 func (m *DataSourceSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
 	var passed, excluded []*object.DataSource
 	for _, ds := range input.DataSources {
@@ -64,6 +68,10 @@ func (m *DataSourceSelector) Select(ctx context.Context, input ActionMessage, ob
 
 func (m *DataSourceSelector) MultipleSelection() bool {
 	return m.Collect
+}
+
+func (m *DataSourceSelector) SelectorID() string {
+	return "DataSourceSelector"
 }
 
 func (m *DataSourceSelector) loadDSS() (sources []*object.DataSource) {

@@ -46,11 +46,15 @@ func (m *MessageMatcher) Matches(object interface{}) bool {
 	}
 }
 
-func (n *ActionOutputFilter) Filter(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
+func (n *ActionOutputFilter) FilterID() string {
+	return "ActionOutputFilter"
+}
+
+func (n *ActionOutputFilter) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
 
 	output := input
 	if n.Query == nil || len(n.Query.SubQueries) == 0 {
-		return output, true
+		return output, nil, true
 	}
 
 	multi := &service.MultiMatcher{}
@@ -62,9 +66,9 @@ func (n *ActionOutputFilter) Filter(ctx context.Context, input ActionMessage) (A
 		return &MessageMatcher{ActionOutputSingleQuery: n.cloneEval(ctx, input, target)}, nil
 	}); er != nil {
 		fmt.Println("Error while parsing query", er)
-		return output, false
+		return output, nil, false
 	}
-	return output, multi.Matches(input.GetLastOutput())
+	return output, nil, multi.Matches(input.GetLastOutput())
 }
 
 func (n *ActionOutputFilter) cloneEval(ctx context.Context, input ActionMessage, query *ActionOutputSingleQuery) *ActionOutputSingleQuery {

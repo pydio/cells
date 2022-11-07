@@ -65,6 +65,14 @@ func (n *NodesSelector) MultipleSelection() bool {
 	return n.Collect
 }
 
+func (n *NodesSelector) SelectorID() string {
+	return "NodesSelector"
+}
+
+func (n *NodesSelector) FilterID() string {
+	return "NodesFilter"
+}
+
 func (n *NodesSelector) Select(ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
 	defer func() {
 		done <- true

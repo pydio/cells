@@ -37,10 +37,12 @@ type InputSelector interface {
 	Select(ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error
 	MultipleSelection() bool
 	GetTimeout() string
+	SelectorID() string
 }
 
 type InputFilter interface {
-	Filter(ctx context.Context, input ActionMessage) (ActionMessage, bool)
+	Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool)
+	FilterID() string
 }
 
 // RegisterFieldEvaluator adds a new evaluator to internal registry

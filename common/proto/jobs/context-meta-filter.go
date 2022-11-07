@@ -40,16 +40,22 @@ import (
 	"github.com/pydio/cells/v4/idm/policy/converter"
 )
 
-func (m *ContextMetaFilter) Filter(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
+func (m *ContextMetaFilter) FilterID() string {
+	return "ContextMetaFilter"
+}
+
+func (m *ContextMetaFilter) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
 	if len(m.Query.SubQueries) == 0 {
-		return input, true
+		return input, nil, true
 	}
 	if m.Type == ContextMetaFilterType_ContextUser {
 		// Switch an IdmSelector with ContextUser as input
-		return m.filterContextUserQueries(ctx, input)
+		a, r := m.filterContextUserQueries(ctx, input)
+		return a, nil, r
 	} else {
 		// Apply Policy filter
-		return m.filterPolicyQueries(ctx, input)
+		a, r := m.filterPolicyQueries(ctx, input)
+		return a, nil, r
 	}
 }
 

@@ -58,6 +58,7 @@ func (b *baseCodec) marshalLogMsg(line *log.Log) (*IndexableLog, error) {
 	for k, v := range data {
 		val, ok := v.(string)
 		if !ok {
+			zaps[k] = v
 			continue
 		}
 		switch k {

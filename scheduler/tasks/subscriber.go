@@ -475,7 +475,7 @@ func (s *Subscriber) jobLevelIdmFilterPass(ctx context.Context, input *jobs.Acti
 
 // jobLevelContextFilterPass tests filter and return false if context is filtered out
 func (s *Subscriber) jobLevelContextFilterPass(ctx context.Context, filter *jobs.ContextMetaFilter) bool {
-	_, pass := filter.Filter(ctx, jobs.ActionMessage{})
+	_, _, pass := filter.Filter(ctx, jobs.ActionMessage{})
 	return pass
 }
 

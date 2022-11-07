@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 
 	"go.uber.org/zap"
@@ -53,10 +54,15 @@ func initTasksLogger() *zap.Logger {
 	// otherwise the Unix seconds float64 format triggers some glitches upon deserialization
 	config.EncodeTime = log.RFC3369TimeEncoder
 
+	level := zap.InfoLevel
+	if os.Getenv("CELLS_JOBS_LOG_LEVEL") == "debug" {
+		level = zap.DebugLevel
+	}
+
 	core := zapcore.NewCore(
 		zapcore.NewJSONEncoder(config),
 		w,
-		zap.InfoLevel,
+		level,
 	)
 
 	logger = zap.New(core)

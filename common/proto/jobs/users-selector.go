@@ -36,6 +36,10 @@ func (m *UsersSelector) MultipleSelection() bool {
 	return m.Collect
 }
 
+func (m *UsersSelector) SelectorID() string {
+	return "UsersSelector"
+}
+
 // Select performs a query on the User Service to load a list of users. The more generic IdmSelector should be used instead.
 func (m *UsersSelector) Select(ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
 
