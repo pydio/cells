@@ -18,18 +18,21 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from "react"
+import React, {Component} from "react"
 import Pydio from 'pydio'
 import PydioApi from "pydio/http/api";
-import {FontIcon, CircularProgress, MenuItem} from 'material-ui'
+import {FontIcon, CircularProgress} from 'material-ui'
 import {JobsServiceApi, LogListLogRequest, ListLogRequestLogFormat} from 'cells-sdk';
 
 const {MaterialTable} = Pydio.requireLib('components');
-const {ModernTextField, ModernSelectField} = Pydio.requireLib('hoc');
+const {ModernTextField} = Pydio.requireLib('hoc');
 const {JobsStore, moment} = Pydio.requireLib('boot');
 import debounce from 'lodash.debounce'
+import ReactJson from 'react-json-view'
 
-class TaskActivity extends React.Component{
+const debugStorageKey = 'scheduler.logs.debug'
+
+class TaskActivity extends Component{
 
     constructor(props){
         super(props);
@@ -40,7 +43,8 @@ class TaskActivity extends React.Component{
             loading: false,
             page:0,
             serverOffset:serverOffset+localOffset,
-            timeOffset: 0
+            timeOffset: 0,
+            debug: localStorage.getItem(debugStorageKey) === 'true'
         };
     }
 
@@ -88,7 +92,7 @@ class TaskActivity extends React.Component{
 
     loadActivity(props, page = 0, retry = 0){
 
-        const {filter} = this.state;
+        const {filter, debug} = this.state;
         const {task, poll} = props;
         if(!task){
             return;
@@ -102,6 +106,9 @@ class TaskActivity extends React.Component{
             request.Query += " +Level:" + filter
         } else if(filter) {
             request.Query += "+Msg:*" + filter + "*"
+        }
+        if(!debug) {
+            request.Query += ' -Level:debug'
         }
         request.Page = page;
         request.Size = 200;
@@ -122,7 +129,7 @@ class TaskActivity extends React.Component{
     computeTag(row) {
         const {job, descriptions} = this.props;
         const pathTag = {
-            backgroundColor: '#1e96f3',
+            backgroundColor: '#327CA7',
             fontSize: 11,
             fontWeight: 500,
             color: 'white',
@@ -141,9 +148,21 @@ class TaskActivity extends React.Component{
             // Special case for trigger
             return <div style={{...pathTag, backgroundColor:'white', color:'rgba(0,0,0,.87)', border: '1px solid #e0e0e0'}}>Trigger</div>
         }
-        let action;
+        let action, specialKey;
         try{
-            action = this.findAction(path, job.Actions);
+            const obj = this.findAction(path, job.Actions);
+            if(obj && obj.action){
+                action = obj.action
+            }
+            if (obj && obj.key) {
+                specialKey = obj.key
+                pathTag.textAlign = 'left'
+                if (specialKey.indexOf('Filter') > 0 ){
+                    pathTag.backgroundColor = '#F08137'
+                } else {
+                    pathTag.backgroundColor = '#735f3d'
+                }
+            }
         } catch (e) {
             //console.error(e);
         }
@@ -152,6 +171,8 @@ class TaskActivity extends React.Component{
                 path = action.Label
             } else if(descriptions && descriptions[action.ID]){
                 path = descriptions[action.ID].Label;
+            } else if(specialKey) {
+                path = specialKey
             }
         } else {
             const last = path.split('/').pop();
@@ -160,17 +181,32 @@ class TaskActivity extends React.Component{
                 path = descriptions[actionId].Label;
             }
         }
-        return <div style={pathTag}>{path}</div>
+        if(specialKey){
+            return (
+                <div style={{display:'flex'}}>
+                    <span className={"mdi mdi-chevron-double-up"} style={{display: 'inline-block',marginRight: 2}}/>
+                    <span style={{...pathTag, flex: 1}}>{path}</span>
+                </div>
+            )
+        } else {
+            return <div style={pathTag}>{path}</div>
+        }
     }
 
     findAction(path, actions) {
         const parts = path.split('/');
         const first = parts.shift();
         const actionId = [...parts].shift();
-        const chainIndex = parseInt(actionId.split('$')[1]);
+        if(actionId.indexOf('action.internal.ignored') >= 0) {
+            return {}
+        }
+        const dols = actionId.split('$')
+        const chainIndex = parseInt(dols[1]);
         const action = actions[chainIndex];
         let nextActions;
-        if (actionId.indexOf('$FAIL') === -1) {
+        if (dols.length > 2 && action[dols[2]]) {
+            return {action: action[dols[2]], key:dols[2]}
+        } else if (actionId.indexOf('$FAIL') === -1) {
             nextActions = action.ChainedActions;
         } else {
             nextActions = action.FailedFilterActions;
@@ -179,17 +215,47 @@ class TaskActivity extends React.Component{
             // Move on step forward
             return this.findAction(parts.join('/'), nextActions);
         } else {
-            return action;
+            return {action};
         }
+    }
+
+    computeZap(log) {
+        if(!log.JsonZaps) {
+            return null;
+        }
+        let content = {}, keyName = 'Data'
+        try {
+            content = JSON.parse(log.JsonZaps)
+            delete(content.LogType)
+            delete(content.ContentType)
+            const kk = Object.keys(content)
+            if(kk.length === 0){
+                return null
+            } else if (kk.length === 1 && content[kk[0]] instanceof Object) {
+                keyName = kk
+                content = content[kk[0]]
+            }
+        } catch (e) {
+            return null;
+        }
+        return {content, keyName}
     }
 
     render(){
         const {pydio, onRequestClose} = this.props;
-        const {activity, loading, page, serverOffset, timeOffset = 0, showFilters=false, filter = ""} = this.state;
+        const {activity, loading, page, serverOffset, timeOffset = 0, showFilters=false, filter = "", debug} = this.state;
         const cellBg = "#f5f5f5";
         const lineHeight = 32;
         const setFilter = (f) => {
             this.setState({filter:f}, ()=> this.loadActivity(this.props, 0))
+        }
+        const toggleDebug = () => {
+            if (debug) {
+                localStorage.removeItem(debugStorageKey)
+            } else {
+                localStorage.setItem(debugStorageKey, 'true')
+            }
+            this.setState({debug: !debug}, () => this.loadActivity(this.props, 0))
         }
         const tdStyle = {
             height: lineHeight,
@@ -200,7 +266,7 @@ class TaskActivity extends React.Component{
             paddingBottom: 7
         }
         const columns = [
-            {name: 'SchedulerTaskActionPath', label:'', hideSmall:true, style:{...tdStyle, width:110, paddingLeft: 12, paddingRight: 0}, headerStyle:{width:110, paddingLeft: 12, paddingRight: 0}, renderCell:(row) => {
+            {name: 'SchedulerTaskActionPath', label:'', hideSmall:true, style:{...tdStyle, width:130, paddingLeft: 12, paddingRight: 0}, headerStyle:{width:130, paddingLeft: 12, paddingRight: 0}, renderCell:(row) => {
                 return this.computeTag(row)
             }},
             {name:'Ts', label:pydio.MessageHash['settings.17'], style:{...tdStyle, width: 100, paddingRight: 10}, headerStyle:{width: 100, paddingRight: 10}, renderCell:(row=>{
@@ -220,7 +286,17 @@ class TaskActivity extends React.Component{
                 }
                     return <span style={{color, userSelect: 'text'}}>{row.Level}</span>
             }},
-            {name:'Msg', label:pydio.MessageHash['ajxp_admin.logs.message'], style:{...tdStyle, whiteSpace: 'initial'}}
+            {name:'Msg', label:pydio.MessageHash['ajxp_admin.logs.message'], style:{...tdStyle, whiteSpace: 'initial'}, renderCell:(row)=> {
+                    const zaps = this.computeZap(row)
+                    if (zaps){
+                        return <div>
+                            {(row.Msg !== 'ZAPS') && <div style={{marginBottom: 8}}>{row.Msg}</div>}
+                            <ReactJson collapsed={true} src={zaps.content} name={zaps.keyName}/>
+                        </div>
+                    } else {
+                        return row.Msg
+                    }
+            }}
         ];
         return (
             <div style={{paddingTop: 12, paddingBottom: 10, backgroundColor:cellBg}}>
@@ -246,6 +322,9 @@ class TaskActivity extends React.Component{
                     </div>
                     <div style={{paddingRight: 15, cursor: "pointer"}} onClick={() => this.loadActivity(this.props, page)}>
                         <FontIcon className={"mdi mdi-refresh"} color={"rgba(0,0,0,.3)"} style={{fontSize: 16}}/>
+                    </div>
+                    <div style={{paddingRight: 15, cursor: "pointer"}} onClick={() => toggleDebug()}>
+                        <FontIcon className={"mdi mdi-code-braces"} color={debug?'rgb(103,58,183)':'rgba(0,0,0,.3)'} style={{fontSize: 16}}/>
                     </div>
                     <div style={{paddingRight: 15, cursor: "pointer"}} onClick={onRequestClose}>
                         <FontIcon className={"mdi mdi-close"} color={"rgba(0,0,0,.3)"} style={{fontSize: 16}}/>

@@ -19,7 +19,8 @@
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-uglify": "^5.0.1",
     "grunt-contrib-watch": "^1.1.0",
-    "less-plugin-autoprefix": "^2.0.0"
+    "less-plugin-autoprefix": "^2.0.0",
+    "react-json-view": "^1.21.3"
   },
   "dependencies": {
     "@types/codemirror": "^0.0.108",
