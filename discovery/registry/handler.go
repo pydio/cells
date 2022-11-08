@@ -182,9 +182,10 @@ func (h *Handler) NewLocker(server pb.Registry_NewLockerServer) error {
 		return errors.New("should lock first")
 	}
 
-	lock := h.reg.NewLocker(reqLock.GetPrefix())
-	lock.Lock()
-	defer lock.Unlock()
+	if locker := h.reg.NewLocker(reqLock.GetPrefix()); locker != nil {
+		locker.Lock()
+		defer locker.Unlock()
+	}
 
 	reqUnlock, err := server.Recv()
 	if err != nil {

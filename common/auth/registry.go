@@ -110,9 +110,10 @@ func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 
 	logger := log.Logger(ctx)
 
-	locker := servicecontext.GetRegistry(ctx).NewLocker("oauthinit")
-	locker.Lock()
-	defer locker.Unlock()
+	if locker := servicecontext.GetRegistry(ctx).NewLocker("oauthinit"); locker != nil {
+		locker.Lock()
+		defer locker.Unlock()
+	}
 
 	once.Do(func() {
 		var dbName string

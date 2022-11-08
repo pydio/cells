@@ -22,6 +22,7 @@ package mock
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -420,6 +421,10 @@ func (m *MockStore) Lock() {
 
 func (m *MockStore) Unlock() {
 	// noop
+}
+
+func (m *MockStore) NewLocker(name string) sync.Locker {
+	return nil
 }
 
 func (m *MockStore) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {

@@ -92,13 +92,20 @@ type vaultStoreLocker struct {
 }
 
 func (v *vaultStoreLocker) Lock() {
-	v.configLocker.Lock()
-	v.vaultLocker.Lock()
+	if v.configLocker != nil {
+		v.configLocker.Lock()
+	}
+	if v.vaultLocker != nil {
+		v.vaultLocker.Lock()
+	}
 }
 func (v *vaultStoreLocker) Unlock() {
-	v.configLocker.Unlock()
-	v.vaultLocker.Unlock()
-
+	if v.configLocker != nil {
+		v.configLocker.Unlock()
+	}
+	if v.vaultLocker != nil {
+		v.vaultLocker.Unlock()
+	}
 }
 
 // Get access to the underlying structure at a certain path

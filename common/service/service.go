@@ -151,12 +151,12 @@ func (s *service) As(i interface{}) bool {
 
 // Start runs service and update registry as required
 func (s *service) Start(oo ...registry.RegisterOption) (er error) {
-	locker := servicecontext.GetRegistry(s.opts.Context).NewLocker("start-service-" + s.Name())
-	locker.Lock()
+	if locker := servicecontext.GetRegistry(s.opts.Context).NewLocker("start-service-" + s.Name()); locker != nil {
+		locker.Lock()
+		defer locker.Unlock()
+	}
 
 	defer func() {
-		locker.Unlock()
-
 		if e := recover(); e != nil {
 			log.Logger(s.opts.Context).Error("panic while starting service", zap.Any("p", e))
 			er = fmt.Errorf("panic while starting service %v", e)

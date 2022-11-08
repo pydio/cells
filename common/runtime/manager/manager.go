@@ -241,13 +241,14 @@ func (m *manager) StopAll() {
 }
 
 func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error {
-	locker := m.reg.NewLocker("start-server-" + m.ns + "-" + srv.Name())
-	locker.Lock()
-	defer func() {
-		// TODO - can do much better - giving a bit of time to this server to start entirely before starting others
-		<-time.After(3 * time.Second)
-		locker.Unlock()
-	}()
+	if locker := m.reg.NewLocker("start-server-" + m.ns + "-" + srv.Name()); locker != nil {
+		locker.Lock()
+		defer func() {
+			// TODO - can do much better - giving a bit of time to this server to start entirely before starting others
+			<-time.After(3 * time.Second)
+			locker.Unlock()
+		}()
+	}
 
 	opts := append(oo)
 	var uniques []service.Service
