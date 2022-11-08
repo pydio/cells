@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"path"
 	"strings"
 	"time"
 
@@ -132,12 +133,10 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 // ServeHTTP serve Public link
 func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	link := strings.TrimSpace(strings.TrimPrefix(r.RequestURI, config.GetPublicBaseUri()+"/"))
-	link = strings.Trim(link, "/")
-	status, tplConf := h.computeTplConf(r, link)
+	status, tplConf := h.computeTplConf(r, path.Base(r.URL.Path))
 	if status != 200 {
 		w.WriteHeader(status)
-		h.error.Execute(w, tplConf)
+		_ = h.error.Execute(w, tplConf)
 		return
 	}
 
@@ -150,12 +149,12 @@ func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		defer out.Close()
 		w.Header().Set("Content-Encoding", "gzip")
 		w.WriteHeader(200)
-		h.tpl.Execute(out, tplConf)
+		_ = h.tpl.Execute(out, tplConf)
 		return
 	}
 
 	w.WriteHeader(200)
-	h.tpl.Execute(w, tplConf)
+	_ = h.tpl.Execute(w, tplConf)
 }
 
 // Load link from Docstore
