@@ -66,87 +66,73 @@ func ExecMigration(db *sql.DB, dialect string, m migrate.MigrationSource, dir mi
 //
 // Returns the number of applied migrations.
 func ExecMax(db *sql.DB, dialect string, m migrate.MigrationSource, dir migrate.MigrationDirection, max int, prefix string) (int, error) {
-	dbMap, err := getMigrationDbMap(db, dialect)
+	migrations, dbMap, err := PlanMigration(db, dialect, m, dir, max, prefix)
 	if err != nil {
 		return 0, err
-	}
-
-	migrations, err := PlanMigration(dbMap, m, dir, max, prefix)
-	if err != nil {
-		return 0, err
-	}
-
-	if len(migrations) == 0 {
-		return 0, nil
 	}
 
 	// Apply migrations
-	migration := migrations[0]
+	applied := 0
+	for _, migration := range migrations {
+		var executor migrate.SqlExecutor
 
-	var executor migrate.SqlExecutor
-
-	if migration.DisableTransaction {
-		executor = dbMap
-	} else {
-		executor, err = dbMap.Begin()
-		if err != nil {
-			return 0, newTxError(migration, err)
-		}
-	}
-
-	fmt.Println("Executing ", migration.Id, migration.DisableTransaction)
-
-	switch dir {
-	case migrate.Up:
-		err = executor.Insert(&migrate.MigrationRecord{
-			Id:        migration.Id,
-			AppliedAt: time.Now(),
-		})
-		if err != nil {
-			if trans, ok := executor.(*gorp.Transaction); ok {
-				trans.Rollback()
+		if migration.DisableTransaction {
+			executor = dbMap
+		} else {
+			executor, err = dbMap.Begin()
+			if err != nil {
+				return applied, newTxError(migration, err)
 			}
-
-			return 0, newTxError(migration, err)
 		}
-	case migrate.Down:
-		_, err := executor.Delete(&migrate.MigrationRecord{
-			Id: migration.Id,
-		})
-		if err != nil {
-			if trans, ok := executor.(*gorp.Transaction); ok {
-				trans.Rollback()
+
+		for _, stmt := range migration.Queries {
+			if _, err := executor.Exec(stmt); err != nil {
+				if trans, ok := executor.(*gorp.Transaction); ok {
+					trans.Rollback()
+				}
+
+				return applied, newTxError(migration, err)
 			}
-
-			return 0, newTxError(migration, err)
 		}
-	default:
-		panic("Not possible")
-	}
 
-	for _, stmt := range migration.Queries {
-		if _, err := executor.Exec(stmt); err != nil {
-			if trans, ok := executor.(*gorp.Transaction); ok {
-				trans.Rollback()
+		switch dir {
+		case migrate.Up:
+			err = executor.Insert(&migrate.MigrationRecord{
+				Id:        migration.Id,
+				AppliedAt: time.Now(),
+			})
+			if err != nil {
+				if trans, ok := executor.(*gorp.Transaction); ok {
+					trans.Rollback()
+				}
+
+				return applied, newTxError(migration, err)
 			}
+		case migrate.Down:
+			_, err := executor.Delete(&migrate.MigrationRecord{
+				Id: migration.Id,
+			})
+			if err != nil {
+				if trans, ok := executor.(*gorp.Transaction); ok {
+					trans.Rollback()
+				}
 
-			return 0, newTxError(migration, err)
+				return applied, newTxError(migration, err)
+			}
+		default:
+			panic("Not possible")
 		}
-	}
 
-	if trans, ok := executor.(*gorp.Transaction); ok {
-		if err := trans.Commit(); err != nil {
-			return 0, newTxError(migration, err)
+		if trans, ok := executor.(*gorp.Transaction); ok {
+			if err := trans.Commit(); err != nil {
+				return applied, newTxError(migration, err)
+			}
 		}
+
+		applied++
 	}
 
-	// Looping until all migrations have been done
-	applied, err := ExecMax(db, dialect, m, dir, max, prefix)
-	if err != nil {
-		return applied, err
-	}
-
-	return applied + 1, nil
+	return applied, nil
 }
 
 func prefixedIdToNumber(id, prefix string) (numberId, newPrefix string, e error) {
@@ -165,26 +151,30 @@ func prefixedIdToNumber(id, prefix string) (numberId, newPrefix string, e error)
 }
 
 // PlanMigration plans a migration.
-func PlanMigration(dbMap *gorp.DbMap, m migrate.MigrationSource, dir migrate.MigrationDirection, max int, prefix string) ([]*migrate.PlannedMigration, error) {
+func PlanMigration(db *sql.DB, dialect string, m migrate.MigrationSource, dir migrate.MigrationDirection, max int, prefix string) ([]*migrate.PlannedMigration, *gorp.DbMap, error) {
+	dbMap, err := getMigrationDbMap(db, dialect)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	migrations, err := m.FindMigrations()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if len(migrations) == 0 {
-		return nil, fmt.Errorf("missing migrations for prefix " + prefix + " - did you maybe compile without generate step?")
+		return nil, nil, fmt.Errorf("missing migrations for prefix " + prefix + " - did you maybe compile without generate step?")
 	}
 
 	var migrationRecords []migrate.MigrationRecord
 	_, err = dbMap.Select(&migrationRecords, fmt.Sprintf("SELECT * FROM %s WHERE id LIKE '%s%%'", dbMap.Dialect.QuotedTableForQuery(schemaName, tableName), prefix))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	originals := map[string]string{}
 	for _, m := range migrations {
 		var numberId string
 		if numberId, prefix, err = prefixedIdToNumber(m.Id, prefix); err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			originals[numberId] = m.Id
 			m.Id = numberId
@@ -240,7 +230,7 @@ func PlanMigration(dbMap *gorp.DbMap, m migrate.MigrationSource, dir migrate.Mig
 		}
 	}
 
-	return result, nil
+	return result, dbMap, nil
 }
 
 func getMigrationDbMap(db *sql.DB, dialect string) (*gorp.DbMap, error) {
