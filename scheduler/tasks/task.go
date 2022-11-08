@@ -129,7 +129,7 @@ func (t *Task) Queue(queue chan Runnable) {
 	}()
 	r := RootRunnable(t.context, t)
 	logStartMessageFromEvent(r.Context, t.event)
-	go r.Dispatch(r.ActionPath, createMessageFromEvent(t.event), t.Actions, queue)
+	go r.Dispatch(createMessageFromEvent(t.event), t.Actions, queue)
 }
 
 // CleanUp is triggered after a task has no more subroutines running.

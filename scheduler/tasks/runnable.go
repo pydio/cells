@@ -117,7 +117,7 @@ func NewRunnable(ctx context.Context, task *Task, action *jobs.Action, message *
 
 // Dispatch gets next runnable from Action and enqueues it to the Queue
 // Done channel should be working correctly with chained actions
-func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*jobs.Action, queue chan Runnable) {
+func (r *Runnable) Dispatch(input *jobs.ActionMessage, aa []*jobs.Action, queue chan Runnable) {
 
 	r.Task.Add(1)
 	wg := sync.WaitGroup{}
@@ -156,7 +156,9 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 					// Filter failed
 					if len(act.FailedFilterActions) > 0 {
 						enqueued++
-						r.Dispatch(path.Join(parentPath, fmt.Sprintf(act.ID+"$%d$FAIL", chainIndex)), &failed, act.FailedFilterActions, q)
+						// Replace current context
+						r.ActionPath, r.Context = failedContextPath(r.Context, act.ID, chainIndex)
+						r.Dispatch(&failed, act.FailedFilterActions, q)
 					}
 
 				case err := <-errs:
@@ -169,7 +171,7 @@ func (r *Runnable) Dispatch(parentPath string, input *jobs.ActionMessage, aa []*
 
 				case <-done:
 					// For ROOT that is not event-based (jobTrigger = manual or scheduled), check if nothing happened at all
-					if parentPath == "ROOT" && enqueued == 0 && strings.Contains(input.GetEvent().GetTypeUrl(), "jobs.JobTriggerEvent") {
+					if r.ActionPath == "ROOT" && enqueued == 0 && strings.Contains(input.GetEvent().GetTypeUrl(), "jobs.JobTriggerEvent") {
 						_, ct := act.BuildTaskActionPath(indexedContext)
 						log.TasksLogger(ct).Warn("Initial query retrieved no values, stopping job now")
 						r.Task.Add(1)
@@ -261,11 +263,22 @@ func (r *Runnable) RunAction(queue chan Runnable) {
 
 	if len(r.ChainedActions) > 0 {
 		if !r.Action.BreakAfter {
-			r.Dispatch(r.ActionPath, outputMessage, r.ChainedActions, queue)
+			r.Dispatch(outputMessage, r.ChainedActions, queue)
 		} else {
 			log.TasksLogger(r.Context).Warn("Stopping chain at action " + r.ID + " as it is flagged BreakAfter.")
 		}
 	}
 
 	return
+}
+
+func failedContextPath(ctx context.Context, actionId string, chainIndex int) (string, context.Context) {
+	if mm, ok := metadata.FromContextRead(ctx); ok {
+		if p, o := mm[servicecontext.ContextMetaTaskActionPath]; o {
+			newPath := path.Join(p, fmt.Sprintf("%s$%d$FAIL", actionId, chainIndex))
+			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{servicecontext.ContextMetaTaskActionPath: newPath})
+			return newPath, ctx
+		}
+	}
+	return "", ctx
 }

@@ -118,14 +118,14 @@ func (a *Action) ApplyFilters(ctx context.Context, ff []InputFilter, input Actio
 		logger := log.TasksLogger(a.debugLogContext(ctx, true, f))
 		output, excluded, passThrough = f.Filter(ctx, output)
 		if !passThrough {
-			logger.Debug("Filter breaks here")
+			if excluded != nil {
+				logger.Debug("Filter may break to", zap.Object("FAIL", excluded))
+			} else {
+				logger.Debug("Filter breaks here")
+			}
 			return
 		}
-		if excluded != nil {
-			logger.Debug("ZAPS", zap.Object("FAIL", excluded), zap.Object("PASS", &output))
-		} else {
-			logger.Debug("ZAPS", zap.Object("PASS", &output))
-		}
+		logger.Debug("ZAPS", zap.Object("PASS", &output))
 	}
 	return
 }
