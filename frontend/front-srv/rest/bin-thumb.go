@@ -99,11 +99,11 @@ func filterInputBinaryExif(ctx context.Context, input io.Reader) (io.Reader, int
 	buf := bytes.NewReader(data)
 	// Check for exif presence
 	x, err := exif.Decode(buf)
-	if err != nil || x == nil {
-		return nil, 0, fmt.Errorf("no exif found")
-	}
 	// Rewind
 	_, _ = buf.Seek(0, io.SeekStart)
+	if err != nil || x == nil {
+		return buf, originalSize, nil
+	}
 	// If orientation, autoload normalized and rewrite image. Exif will be removed.
 	if _, e := x.Get(exif.Orientation); e == nil {
 		// There is an orientation, normalize file
