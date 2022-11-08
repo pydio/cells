@@ -22,6 +22,7 @@ package permissions
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/utils/std"
 	"sync"
 
 	"github.com/pydio/cells/v4/common"
@@ -80,26 +81,11 @@ func (a *AccessList) cache(key string) error {
 		WsACLs:          a.wsACLs,
 		FrontACLs:       a.frontACLs,
 		HasClaimsScopes: a.hasClaimsScopes,
-		Wss:             map[string]*idm.Workspace{},
-		WssRootsMasks:   map[string]map[string]Bitmask{},
-		MasksByUUIDs:    map[string]Bitmask{},
-		MasksByPaths:    map[string]Bitmask{},
-		ClaimsScopes:    map[string]Bitmask{},
-	}
-	for k, v := range a.wss {
-		m.Wss[k] = v
-	}
-	for k, v := range a.wssRootsMasks {
-		m.WssRootsMasks[k] = v
-	}
-	for k, v := range a.masksByUUIDs {
-		m.MasksByUUIDs[k] = v
-	}
-	for k, v := range a.masksByPaths {
-		m.MasksByPaths[k] = v
-	}
-	for k, v := range a.claimsScopes {
-		m.ClaimsScopes[k] = v
+		Wss:             std.CloneMap(a.wss),
+		WssRootsMasks:   std.CloneMap(a.wssRootsMasks),
+		MasksByUUIDs:    std.CloneMap(a.masksByUUIDs),
+		MasksByPaths:    std.CloneMap(a.masksByPaths),
+		ClaimsScopes:    std.CloneMap(a.claimsScopes),
 	}
 
 	return getAclCache().Set(key, m)
@@ -120,27 +106,11 @@ func newFromCache(key string) (*AccessList, bool) {
 		// Re-init these
 		maskBPLock:    &sync.RWMutex{},
 		maskBULock:    &sync.RWMutex{},
-		wss:           map[string]*idm.Workspace{},
-		wssRootsMasks: map[string]map[string]Bitmask{},
-		masksByUUIDs:  map[string]Bitmask{},
-		masksByPaths:  map[string]Bitmask{},
-		claimsScopes:  map[string]Bitmask{},
-	}
-
-	for k, v := range m.Wss {
-		a.wss[k] = v
-	}
-	for k, v := range m.WssRootsMasks {
-		a.wssRootsMasks[k] = v
-	}
-	for k, v := range m.MasksByUUIDs {
-		a.masksByUUIDs[k] = v
-	}
-	for k, v := range m.MasksByPaths {
-		a.masksByPaths[k] = v
-	}
-	for k, v := range m.ClaimsScopes {
-		a.claimsScopes[k] = v
+		wss:           std.CloneMap(m.Wss),
+		wssRootsMasks: std.CloneMap(m.WssRootsMasks),
+		masksByUUIDs:  std.CloneMap(m.MasksByUUIDs),
+		masksByPaths:  std.CloneMap(m.MasksByPaths),
+		claimsScopes:  std.CloneMap(m.ClaimsScopes),
 	}
 
 	return a, true
