@@ -58,24 +58,21 @@ type memory struct {
 	reset chan bool
 	timer *time.Timer
 
-	*sync.RWMutex
+	lockersLock *sync.RWMutex
+	lockers     map[string]*sync.RWMutex
 }
 
 func New(opts ...configx.Option) config.Store {
 	m := &memory{
-		v:       configx.New(opts...),
-		opts:    opts,
-		RWMutex: &sync.RWMutex{},
-		reset:   make(chan bool),
-		timer:   time.NewTimer(2 * time.Second),
+		v:           configx.New(opts...),
+		opts:        opts,
+		lockersLock: &sync.RWMutex{},
+		lockers:     make(map[string]*sync.RWMutex),
+		reset:       make(chan bool),
+		timer:       time.NewTimer(2 * time.Second),
 	}
 
-	// TODO - change this
-	// We're considering that non comparable items cannot be watched
-	// fmt.Println(len(opts))
-	// if len(opts) > 0 {
 	go m.flush()
-	//}
 
 	return m
 }
@@ -154,6 +151,20 @@ func (m *memory) Done() <-chan struct{} {
 func (m *memory) Save(string, string) error {
 	// do nothing
 	return nil
+}
+
+func (m *memory) NewLocker(name string) sync.Locker {
+	m.lockersLock.RLock()
+	locker, ok := m.lockers[name]
+	m.lockersLock.RUnlock()
+	if !ok {
+		locker = &sync.RWMutex{}
+
+		m.lockersLock.Lock()
+		m.lockers[name] = locker
+		m.lockersLock.Unlock()
+	}
+	return locker
 }
 
 func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {

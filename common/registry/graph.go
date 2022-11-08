@@ -237,6 +237,10 @@ func (r *graphRegistry) Watch(option ...Option) (Watcher, error) {
 	return r.r.Watch(option...)
 }
 
+func (r *graphRegistry) NewLocker(name string) sync.Locker {
+	return r.r.NewLocker(name)
+}
+
 func (r *graphRegistry) As(i interface{}) bool {
 	return r.r.As(i)
 }

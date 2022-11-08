@@ -23,6 +23,7 @@ package registry
 import (
 	"context"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
+	"sync"
 )
 
 type Registry interface {
@@ -39,6 +40,7 @@ type RawRegistry interface {
 	Get(string, ...Option) (Item, error)
 	List(...Option) ([]Item, error)
 	Watch(...Option) (Watcher, error)
+	NewLocker(name string) sync.Locker
 
 	Close() error
 	Done() <-chan struct{}

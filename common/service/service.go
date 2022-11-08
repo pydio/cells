@@ -24,10 +24,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sync"
-
 	errors2 "github.com/pkg/errors"
 	"go.uber.org/zap"
+	"sync"
 
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -152,9 +151,12 @@ func (s *service) As(i interface{}) bool {
 
 // Start runs service and update registry as required
 func (s *service) Start(oo ...registry.RegisterOption) (er error) {
-	// now := time.Now()
+	locker := servicecontext.GetRegistry(s.opts.Context).NewLocker("start-service-" + s.Name())
+	locker.Lock()
 
 	defer func() {
+		locker.Unlock()
+
 		if e := recover(); e != nil {
 			log.Logger(s.opts.Context).Error("panic while starting service", zap.Any("p", e))
 			er = fmt.Errorf("panic while starting service %v", e)
@@ -229,6 +231,12 @@ func (s *service) OnServe(oo ...registry.RegisterOption) error {
 	w := &sync.WaitGroup{}
 	w.Add(len(s.opts.AfterServe) + 1)
 	go func() {
+		fmt.Println("Doing this ?")
+		if locker := servicecontext.GetRegistry(s.opts.Context).NewLocker("update-service-version-" + s.opts.Name); locker != nil {
+			locker.Lock()
+			defer locker.Unlock()
+		}
+
 		defer w.Done()
 		if e := UpdateServiceVersion(s.opts); e != nil {
 			log.Logger(s.opts.Context).Error("UpdateServiceVersion failed", zap.Error(e))

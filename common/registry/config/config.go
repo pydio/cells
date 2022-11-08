@@ -139,11 +139,12 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry,
 type configRegistry struct {
 	store config.Store
 
-	sync.RWMutex
+	cache            []registry.Item
+	broadcastersLock *sync.RWMutex
+	broadcasters     map[string]broadcaster
 
-	cache        []registry.Item
-	broadcasters map[string]broadcaster
-	namedCache   map[string]string
+	namedCacheLock *sync.RWMutex
+	namedCache     map[string]string
 }
 
 type broadcaster struct {
@@ -157,14 +158,15 @@ type options struct {
 
 func NewConfigRegistry(store config.Store, byName bool) registry.RawRegistry {
 	c := &configRegistry{
-		store:        store,
-		cache:        []registry.Item{},
-		broadcasters: make(map[string]broadcaster),
+		store:            store,
+		cache:            []registry.Item{},
+		broadcastersLock: &sync.RWMutex{},
+		broadcasters:     make(map[string]broadcaster),
 	}
 	if byName {
+		c.namedCacheLock = &sync.RWMutex{}
 		c.namedCache = make(map[string]string)
 	}
-
 	go c.watch()
 	return c
 }
@@ -182,10 +184,12 @@ func (c *configRegistry) watch() error {
 		}
 		cv := res.(configx.Values)
 
-		for _, bc := range c.broadcasters {
+		c.broadcastersLock.RLock()
+		bcs := c.broadcasters
+		c.broadcastersLock.RUnlock()
 
+		for _, bc := range bcs {
 			for _, itemType := range bc.Types {
-
 				// Always start with DELETE if they are batched to avoid false-negatives on Delete => Create
 				if err := c.scanAndBroadcast(cv, bc, itemType, "delete", pb.ActionType_DELETE); err != nil {
 					return err
@@ -196,7 +200,6 @@ func (c *configRegistry) watch() error {
 				if err := c.scanAndBroadcast(cv, bc, itemType, "update", pb.ActionType_UPDATE); err != nil {
 					return err
 				}
-
 			}
 		}
 	}
@@ -299,19 +302,26 @@ func getFromItemType(itemType pb.ItemType) string {
 }
 
 func (c *configRegistry) Register(item registry.Item, option ...registry.RegisterOption) error {
-	c.store.Lock()
-	defer c.store.Unlock()
+	/*if locker := c.store.NewLocker("register"); locker != nil {
+		locker.Lock()
+		defer locker.Unlock()
+	}*/
 
 	// If byName is active and we are re-registering a service
 	// with the same name, deregister the previous one.
 	// The namedCache uses the store lock.
 	if c.namedCache != nil {
+		c.namedCacheLock.RLock()
 		if foundID, ok := c.namedCache[item.Name()]; ok {
 			if er := c.store.Val(getType(item)).Val(foundID).Del(); er != nil {
 				return er
 			}
 		}
+		c.namedCacheLock.RUnlock()
+
+		c.namedCacheLock.Lock()
 		c.namedCache[item.Name()] = item.ID()
+		c.namedCacheLock.Unlock()
 	}
 
 	if err := c.store.Val(getType(item)).Val(item.ID()).Set(item); err != nil {
@@ -326,8 +336,10 @@ func (c *configRegistry) Register(item registry.Item, option ...registry.Registe
 }
 
 func (c *configRegistry) Deregister(item registry.Item, option ...registry.RegisterOption) error {
-	c.store.Lock()
-	defer c.store.Unlock()
+	/*if locker := c.store.NewLocker("deregister"); locker != nil {
+		locker.Lock()
+		defer locker.Unlock()
+	}*/
 
 	if err := c.store.Val(getType(item)).Val(item.ID()).Del(); err != nil {
 		return err
@@ -480,24 +492,28 @@ func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error
 	}
 	res <- registry.NewResult(pb.ActionType_CREATE, items)
 
-	c.Lock()
+	c.broadcastersLock.Lock()
 	c.broadcasters[id] = broadcaster{
 		Types: wo.Types,
 		Ch:    res,
 	}
-	c.Unlock()
+	c.broadcastersLock.Unlock()
 
 	// Wrap in a configWatcher to properly deregister on stop
 	cw := &configWatcher{
 		Watcher: w,
 		onStop: func() {
-			c.Lock()
+			c.broadcastersLock.Lock()
 			delete(c.broadcasters, id)
-			c.Unlock()
+			c.broadcastersLock.Unlock()
 		},
 	}
 
 	return cw, nil
+}
+
+func (c *configRegistry) NewLocker(name string) sync.Locker {
+	return c.store.NewLocker(name)
 }
 
 func (c *configRegistry) As(interface{}) bool {

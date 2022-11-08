@@ -259,12 +259,8 @@ func (f *file) Save(ctxUser string, ctxMessage string) error {
 	return filex.Save(f.path, f.v.Bytes())
 }
 
-func (f *file) Lock() {
-	f.mainMtx.Lock()
-}
-
-func (f *file) Unlock() {
-	f.mainMtx.Unlock()
+func (f *file) NewLocker(name string) sync.Locker {
+	return f.mainMtx
 }
 
 func (f *file) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {

@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"sync"
 
 	vault "github.com/hashicorp/vault/api"
 
@@ -152,9 +153,9 @@ func (s *store) Save(s3 string, s2 string) error {
 	return nil
 }
 
-func (s *store) Lock() {}
-
-func (s *store) Unlock() {}
+func (s *store) NewLocker(name string) sync.Locker {
+	return &sync.RWMutex{}
+}
 
 // val wraps configx.Values to trigger save on any update
 type val struct {

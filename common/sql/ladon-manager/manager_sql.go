@@ -123,7 +123,7 @@ func (s *SQLManager) CreateSchemas(schema, table string) (int, error) {
 	}
 	n, err := migrate.Exec(s.db.DB, s.database, source, migrate.Up)
 	if err != nil {
-		return 0, errors.Wrapf(err, "Could not migrate sql schema, applied %d migrations", n)
+		return 0, errors.Wrapf(err, "Could not migrate sql schema for %s, applied %d migrations", table, n)
 	}
 	return n, nil
 }

@@ -25,6 +25,7 @@ type RegistryClient interface {
 	Deregister(ctx context.Context, in *Item, opts ...grpc.CallOption) (*EmptyResponse, error)
 	List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error)
 	Watch(ctx context.Context, in *WatchRequest, opts ...grpc.CallOption) (Registry_WatchClient, error)
+	NewLocker(ctx context.Context, opts ...grpc.CallOption) (Registry_NewLockerClient, error)
 }
 
 type registryClient struct {
@@ -121,6 +122,40 @@ func (x *registryWatchClient) Recv() (*Result, error) {
 	return m, nil
 }
 
+func (c *registryClient) NewLocker(ctx context.Context, opts ...grpc.CallOption) (Registry_NewLockerClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Registry_ServiceDesc.Streams[1], "/registry.Registry/NewLocker", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &registryNewLockerClient{stream}
+	return x, nil
+}
+
+type Registry_NewLockerClient interface {
+	Send(*NewLockerRequest) error
+	CloseAndRecv() (*EmptyResponse, error)
+	grpc.ClientStream
+}
+
+type registryNewLockerClient struct {
+	grpc.ClientStream
+}
+
+func (x *registryNewLockerClient) Send(m *NewLockerRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *registryNewLockerClient) CloseAndRecv() (*EmptyResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(EmptyResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // RegistryServer is the server API for Registry service.
 // All implementations must embed UnimplementedRegistryServer
 // for forward compatibility
@@ -132,6 +167,7 @@ type RegistryServer interface {
 	Deregister(context.Context, *Item) (*EmptyResponse, error)
 	List(context.Context, *ListRequest) (*ListResponse, error)
 	Watch(*WatchRequest, Registry_WatchServer) error
+	NewLocker(Registry_NewLockerServer) error
 	mustEmbedUnimplementedRegistryServer()
 }
 
@@ -159,6 +195,9 @@ func (UnimplementedRegistryServer) List(context.Context, *ListRequest) (*ListRes
 }
 func (UnimplementedRegistryServer) Watch(*WatchRequest, Registry_WatchServer) error {
 	return status.Errorf(codes.Unimplemented, "method Watch not implemented")
+}
+func (UnimplementedRegistryServer) NewLocker(Registry_NewLockerServer) error {
+	return status.Errorf(codes.Unimplemented, "method NewLocker not implemented")
 }
 func (UnimplementedRegistryServer) mustEmbedUnimplementedRegistryServer() {}
 
@@ -302,6 +341,32 @@ func (x *registryWatchServer) Send(m *Result) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Registry_NewLocker_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(RegistryServer).NewLocker(&registryNewLockerServer{stream})
+}
+
+type Registry_NewLockerServer interface {
+	SendAndClose(*EmptyResponse) error
+	Recv() (*NewLockerRequest, error)
+	grpc.ServerStream
+}
+
+type registryNewLockerServer struct {
+	grpc.ServerStream
+}
+
+func (x *registryNewLockerServer) SendAndClose(m *EmptyResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *registryNewLockerServer) Recv() (*NewLockerRequest, error) {
+	m := new(NewLockerRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // Registry_ServiceDesc is the grpc.ServiceDesc for Registry service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -339,6 +404,11 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "Watch",
 			Handler:       _Registry_Watch_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "NewLocker",
+			Handler:       _Registry_NewLocker_Handler,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "cells-registry.proto",

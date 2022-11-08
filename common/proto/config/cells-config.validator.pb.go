@@ -81,3 +81,9 @@ func (this *SaveRequest) Validate() error {
 func (this *SaveResponse) Validate() error {
 	return nil
 }
+func (this *NewLockerRequest) Validate() error {
+	return nil
+}
+func (this *NewLockerResponse) Validate() error {
+	return nil
+}

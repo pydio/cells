@@ -2,8 +2,10 @@ package registry
 
 import (
 	"context"
+	"errors"
 	"github.com/pydio/cells/v4/common/log"
 	"go.uber.org/zap"
+	"sync"
 
 	"github.com/pydio/cells/v4/common"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -15,6 +17,8 @@ type Handler struct {
 	pb.UnimplementedRegistryServer
 
 	reg registry.Registry
+
+	lockers map[string]sync.Locker
 }
 
 func NewHandler(reg registry.Registry) *Handler {
@@ -166,4 +170,30 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) er
 			log.Logger(ctx).Error("could not send to stream", zap.Error(err))
 		}
 	}
+}
+
+func (h *Handler) NewLocker(server pb.Registry_NewLockerServer) error {
+	reqLock, err := server.Recv()
+	if err != nil {
+		return err
+	}
+
+	if reqLock.GetType() != pb.LockType_Lock {
+		return errors.New("should lock first")
+	}
+
+	lock := h.reg.NewLocker(reqLock.GetPrefix())
+	lock.Lock()
+	defer lock.Unlock()
+
+	reqUnlock, err := server.Recv()
+	if err != nil {
+		return err
+	}
+
+	if reqUnlock.GetType() != pb.LockType_Unlock {
+		return errors.New("can only unlock locked item")
+	}
+
+	return server.SendAndClose(&pb.EmptyResponse{})
 }

@@ -23,10 +23,9 @@ package service
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+	"strings"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
@@ -121,13 +120,22 @@ func daoFromOptions(o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts
 	var e error
 	cfg := config.Get("services", o.Name)
 
+	// Setting a lock on the registry in case of multiple services starting up at the same time
+	reg := servicecontext.GetRegistry(o.Context)
+	if lock := reg.NewLocker("dao-init-" + o.Name); lock != nil {
+		lock.Lock()
+		defer func() {
+			lock.Unlock()
+		}()
+	}
+
 	if indexer {
 		c, e = dao.InitIndexer(o.Context, driver, dsn, prefix, fd, cfg)
 	} else {
 		c, e = dao.InitDAO(o.Context, driver, dsn, prefix, fd, cfg)
 	}
+
 	if e != nil {
-		fmt.Println("Error here ", e)
 		return nil, errors.Wrap(e, "dao.Initialization "+driver)
 	}
 

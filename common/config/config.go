@@ -22,6 +22,7 @@ package config
 
 import (
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"sync"
 )
 
 var (
@@ -40,16 +41,11 @@ type Store interface {
 	Close() error
 	Done() <-chan struct{}
 	Saver
-	Locker
+	NewLocker(name string) sync.Locker
 }
 
 type Saver interface {
 	Save(string, string) error
-}
-
-type Locker interface {
-	Lock()
-	Unlock()
 }
 
 // Save the config in the hard store

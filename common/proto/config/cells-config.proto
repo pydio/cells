@@ -10,6 +10,7 @@ service Config {
   rpc Delete(DeleteRequest) returns (DeleteResponse) {}
   rpc Watch(WatchRequest) returns (stream WatchResponse) {}
   rpc Save(SaveRequest) returns (SaveResponse) {}
+  rpc NewLocker(stream NewLockerRequest) returns (NewLockerResponse) {}
 }
 
 message Value {
@@ -64,3 +65,15 @@ message SaveRequest {
 }
 
 message SaveResponse {}
+
+message NewLockerRequest {
+  string prefix = 1;
+  LockType type = 2;
+}
+
+enum LockType {
+  Lock = 0;
+  Unlock = 1;
+}
+
+message NewLockerResponse {}

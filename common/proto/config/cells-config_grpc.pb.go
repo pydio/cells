@@ -23,6 +23,7 @@ type ConfigClient interface {
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
 	Watch(ctx context.Context, in *WatchRequest, opts ...grpc.CallOption) (Config_WatchClient, error)
 	Save(ctx context.Context, in *SaveRequest, opts ...grpc.CallOption) (*SaveResponse, error)
+	NewLocker(ctx context.Context, opts ...grpc.CallOption) (Config_NewLockerClient, error)
 }
 
 type configClient struct {
@@ -101,6 +102,40 @@ func (c *configClient) Save(ctx context.Context, in *SaveRequest, opts ...grpc.C
 	return out, nil
 }
 
+func (c *configClient) NewLocker(ctx context.Context, opts ...grpc.CallOption) (Config_NewLockerClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Config_ServiceDesc.Streams[1], "/config.Config/NewLocker", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &configNewLockerClient{stream}
+	return x, nil
+}
+
+type Config_NewLockerClient interface {
+	Send(*NewLockerRequest) error
+	CloseAndRecv() (*NewLockerResponse, error)
+	grpc.ClientStream
+}
+
+type configNewLockerClient struct {
+	grpc.ClientStream
+}
+
+func (x *configNewLockerClient) Send(m *NewLockerRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *configNewLockerClient) CloseAndRecv() (*NewLockerResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(NewLockerResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // ConfigServer is the server API for Config service.
 // All implementations must embed UnimplementedConfigServer
 // for forward compatibility
@@ -110,6 +145,7 @@ type ConfigServer interface {
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	Watch(*WatchRequest, Config_WatchServer) error
 	Save(context.Context, *SaveRequest) (*SaveResponse, error)
+	NewLocker(Config_NewLockerServer) error
 	mustEmbedUnimplementedConfigServer()
 }
 
@@ -131,6 +167,9 @@ func (UnimplementedConfigServer) Watch(*WatchRequest, Config_WatchServer) error 
 }
 func (UnimplementedConfigServer) Save(context.Context, *SaveRequest) (*SaveResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Save not implemented")
+}
+func (UnimplementedConfigServer) NewLocker(Config_NewLockerServer) error {
+	return status.Errorf(codes.Unimplemented, "method NewLocker not implemented")
 }
 func (UnimplementedConfigServer) mustEmbedUnimplementedConfigServer() {}
 
@@ -238,6 +277,32 @@ func _Config_Save_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Config_NewLocker_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ConfigServer).NewLocker(&configNewLockerServer{stream})
+}
+
+type Config_NewLockerServer interface {
+	SendAndClose(*NewLockerResponse) error
+	Recv() (*NewLockerRequest, error)
+	grpc.ServerStream
+}
+
+type configNewLockerServer struct {
+	grpc.ServerStream
+}
+
+func (x *configNewLockerServer) SendAndClose(m *NewLockerResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *configNewLockerServer) Recv() (*NewLockerRequest, error) {
+	m := new(NewLockerRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // Config_ServiceDesc is the grpc.ServiceDesc for Config service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -267,6 +332,11 @@ var Config_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "Watch",
 			Handler:       _Config_Watch_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "NewLocker",
+			Handler:       _Config_NewLocker_Handler,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "cells-config.proto",

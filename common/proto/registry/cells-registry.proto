@@ -12,6 +12,7 @@ service Registry {
   rpc Deregister(Item) returns (EmptyResponse) {};
   rpc List(ListRequest) returns (ListResponse) {};
   rpc Watch(WatchRequest) returns (stream Result) {};
+  rpc NewLocker(stream NewLockerRequest) returns (EmptyResponse) {};
 }
 
 enum ItemType {
@@ -139,6 +140,16 @@ message ListResponse {
 message WatchRequest {
   string name = 1;
   Options options = 2;
+}
+
+message NewLockerRequest {
+  string prefix = 1;
+  LockType type = 2;
+}
+
+enum LockType {
+  Lock = 0;
+  Unlock = 1;
 }
 
 // EventType defines the type of event

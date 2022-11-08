@@ -25,6 +25,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"net/url"
+	"sync"
 	"time"
 
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
@@ -285,6 +286,37 @@ func (s *serviceRegistry) Watch(opts ...registry.Option) (registry.Watcher, erro
 
 	s.hasStream = true
 	return newStreamWatcher(stream, options), nil
+}
+
+func (s *serviceRegistry) NewLocker(prefix string) sync.Locker {
+	stream, _ := s.client.NewLocker(s.opts.Context)
+
+	return &serviceRegistryLock{
+		prefix: prefix,
+		stream: stream,
+	}
+}
+
+type serviceRegistryLock struct {
+	prefix string
+	stream pb.Registry_NewLockerClient
+}
+
+func (s *serviceRegistryLock) Lock() {
+	if s.stream != nil {
+		s.stream.Send(&pb.NewLockerRequest{
+			Prefix: s.prefix,
+			Type:   pb.LockType_Lock,
+		})
+	}
+}
+func (s *serviceRegistryLock) Unlock() {
+	if s.stream != nil {
+		s.stream.SendMsg(&pb.NewLockerRequest{
+			Prefix: s.prefix,
+			Type:   pb.LockType_Unlock,
+		})
+	}
 }
 
 func (s *serviceRegistry) As(interface{}) bool {

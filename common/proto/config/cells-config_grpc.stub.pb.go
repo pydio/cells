@@ -11,6 +11,7 @@ import (
 	fmt "fmt"
 	stubs "github.com/pydio/cells/v4/common/server/stubs"
 	grpc "google.golang.org/grpc"
+	io "io"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -71,6 +72,11 @@ func (s *ConfigStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, metho
 			return s.ConfigServer.Watch(i.(*WatchRequest), st)
 		})
 		return st, nil
+	case "/config.Config/NewLocker":
+		st := &ConfigStub_NewLockerStreamer{}
+		st.Init(ctx)
+		go s.ConfigServer.NewLocker(st)
+		return st, nil
 	}
 	return nil, fmt.Errorf(method + "  not implemented")
 }
@@ -81,5 +87,24 @@ type ConfigStub_WatchStreamer struct {
 
 func (s *ConfigStub_WatchStreamer) Send(response *WatchResponse) error {
 	s.RespChan <- response
+	return nil
+}
+
+type ConfigStub_NewLockerStreamer struct {
+	stubs.BidirServerStreamerCore
+}
+
+func (s *ConfigStub_NewLockerStreamer) Recv() (*NewLockerRequest, error) {
+	if req, o := <-s.ReqChan; o {
+		return req.(*NewLockerRequest), nil
+	} else {
+		return nil, io.EOF
+	}
+}
+func (s *ConfigStub_NewLockerStreamer) Send(response *NewLockerResponse) error {
+	s.RespChan <- response
+	return nil
+}
+func (s *ConfigStub_NewLockerStreamer) SendAndClose(*NewLockerResponse) error {
 	return nil
 }

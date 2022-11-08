@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -206,10 +207,35 @@ func (r *remote) Save(ctxUser string, ctxMessage string) error {
 	return nil
 }
 
-func (r *remote) Lock() {
+func (r *remote) NewLocker(prefix string) sync.Locker {
+	stream, _ := r.cli.NewLocker(r.ctx)
+
+	return &remoteLock{
+		prefix: prefix,
+		stream: stream,
+	}
 }
 
-func (r *remote) Unlock() {
+type remoteLock struct {
+	prefix string
+	stream pb.Config_NewLockerClient
+}
+
+func (s *remoteLock) Lock() {
+	if s.stream != nil {
+		s.stream.Send(&pb.NewLockerRequest{
+			Prefix: s.prefix,
+			Type:   pb.LockType_Lock,
+		})
+	}
+}
+func (s *remoteLock) Unlock() {
+	if s.stream != nil {
+		s.stream.SendMsg(&pb.NewLockerRequest{
+			Prefix: s.prefix,
+			Type:   pb.LockType_Unlock,
+		})
+	}
 }
 
 func (r *remote) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
