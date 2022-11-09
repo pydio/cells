@@ -79,6 +79,7 @@ var BasePluginsBox = frontend.PluginBox{
 		"meta.versions",
 		"uploader.html",
 		"uploader.http",
+		"uploader.uppy",
 	},
 }
 

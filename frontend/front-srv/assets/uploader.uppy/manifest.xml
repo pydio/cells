@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uploader text="51" title="132" order="10" enabled="false" id="uploader.uppy" label="CONF_MESSAGE[Webcam and Screen Capture]"
+          description="CONF_MESSAGE[Let user directly capture webcam or screen cast from their computer]">
+	<client_settings>
+		<resources>
+			<js file="plug/uploader.uppy/res/dist/CaptureUploader.min.js" className="CaptureUploader" depends="React,Uppy"/>
+			<js file="plug/uploader.uppy/resources/uppy.min.js" className="Uppy"/>
+	        <i18n namespace="upload.capture" remote="plug/uploader.uppy/resources/i18n" />
+            <css file="plug/uploader.uppy/resources/uppy.min.css" autoload="true"/>
+		</resources>
+	</client_settings>
+    <server_settings>
+        <global_param name="UPPY_ENABLE_WEBCAM" type="boolean" label="CONF_MESSAGE[Enable Webcam]" description="CONF_MESSAGE[Enable capturing from webcam]" default="true" expose="true"/>
+        <global_param name="UPPY_ENABLE_SCREEN" type="boolean" label="CONF_MESSAGE[Enable Screencast]" description="CONF_MESSAGE[Enable capturing from shared screen]" default="true" expose="true"/>
+        <global_param name="UPPY_ENABLE_AUDIO" type="boolean" label="CONF_MESSAGE[Enable Audio]" description="CONF_MESSAGE[Enable capturing simple audio from microphone]" default="true" expose="true"/>
+    </server_settings>
+	<dependencies>
+		<!-- Stream Wrapper Access -->
+		<activePlugin pluginName="access.gateway"/>
+	</dependencies>
+    <processing>
+		<clientForm module="CaptureUploader.Uploader"/>
+    </processing>
+</uploader>
