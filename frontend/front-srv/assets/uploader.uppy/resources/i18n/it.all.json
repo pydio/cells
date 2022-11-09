@@ -1,0 +1,14 @@
+{
+  "importFiles": {
+    "other": "Capture audio or video from:"
+  },
+  "title.camera": {
+    "other": "Camera"
+  },
+  "title.screencast": {
+    "other": "Screencast"
+  },
+  "title.audio": {
+    "other": "Microphone"
+  }
+}
