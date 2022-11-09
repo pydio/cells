@@ -1,27 +1,26 @@
-# Changes between v4.0.2 and v4.0.3
+# Changes between v4.0.3 and v4.0.4
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.0.2...v4.0.3)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.0.3...v4.0.4)
 
-- [#2103d11](https://github.com/pydio/cells/commit/2103d115f482809527026faf01a6a1685b435d00): Forgotten log
-- [#c09e03c](https://github.com/pydio/cells/commit/c09e03c2897191ad632e0bfc82f2dfa914434dd9): DE/FR translations
-- [#a3f9dd0](https://github.com/pydio/cells/commit/a3f9dd086a06217e43e8d6b740e3a9dd6209750b): DE/FR translations
-- [#c971a59](https://github.com/pydio/cells/commit/c971a59df487f45c22723e918766f052dff7bb98): Struct event publication use a ForkContext
-- [#3119a93](https://github.com/pydio/cells/commit/3119a933d586f2bbd4e8da9e5a0eb31535e7cd52): Revert context passed to sync.Run as it is passed along to SessionData and then it is closed when used. To be improved.
-- [#e2006bb](https://github.com/pydio/cells/commit/e2006bb8bb34ffab0ae829bb6b01dc5aba97a3a5): Fixing stop of etcd services
-- [#ba61652](https://github.com/pydio/cells/commit/ba616520977a347371657dca58a3af355fc58f1b): Fix Hungarian + more messages
-- [#004c792](https://github.com/pydio/cells/commit/004c7925c0e23c64a047ffe06b7cfa5bcdf48caf): Fix Hungarian + more messages
-- [#a9bbbbf](https://github.com/pydio/cells/commit/a9bbbbf659319f62079c9c9dedad0e477d2768b8): Adding flac and m4a soundmanager
-- [#7639f95](https://github.com/pydio/cells/commit/7639f95044b75aac734b8f407c158492adc25edb): Adding flac and m4a soundmanager
-- [#4e87ba3](https://github.com/pydio/cells/commit/4e87ba3a2d1dc4d61e9af948457b03126706e1e1): i18n log level filters
-- [#0fb4489](https://github.com/pydio/cells/commit/0fb4489e61dca0e0ede7e7ca2161b686ed014122): Unused code, do not marshal claims
-- [#84692f3](https://github.com/pydio/cells/commit/84692f3dfc53856c5e8a3e1926386c46d5181b8c): Add another RLock on masksByUUIDs
-- [#2ce891c](https://github.com/pydio/cells/commit/2ce891c27e98cf27b07ea5dec3ad3afaa88754e1): Add hard-coded messages, fix i18n mapping
-- [#bb2e602](https://github.com/pydio/cells/commit/bb2e602ab094331ad65c33e750785a70401e28a6): Add options to filter log levels including higher levels (e.g. warn = warn + error)
-- [#72b20c0](https://github.com/pydio/cells/commit/72b20c0847e3f3c2ab34dd299233cd746dc7c59c): Editor shard data inside flat
-- [#a701e4e](https://github.com/pydio/cells/commit/a701e4e118710208387c37f65e29fe201bf2506d): New config to shard data inside flat storage
-- [#ae9656b](https://github.com/pydio/cells/commit/ae9656b4eca5bebf7fafd6980827a34d3620c474): Update pdfjs lib
-- [#5576683](https://github.com/pydio/cells/commit/5576683e4503419777b929ab9bc415748981f613): Fix Slovak i18n files
-- [#fd76502](https://github.com/pydio/cells/commit/fd76502798b845e3148c13f531026442806f15db): Fix Polnish i18n files
-- [#7d9f8f6](https://github.com/pydio/cells/commit/7d9f8f6f8167593daf9555f2711481f02ee5390c): Fix Hungarian i18n files
-- [#19d403d](https://github.com/pydio/cells/commit/19d403d7f945b332f162dbf5a604156f078fe956): Next development cycle
-- [#8ff2704](https://github.com/pydio/cells/commit/8ff2704d33b3168d5b7c01b206ed38dc28799d87): Improvements to restart for cluster etcd
+- [#348ad33](https://github.com/pydio/cells/commit/348ad33a24c286a6b772a9cbea141409cee81402): New plugin for capturing webcam and screencast using Uppy.io (i18n)
+- [#6b134b3](https://github.com/pydio/cells/commit/6b134b34e4f6972950b12133f6548085d7b7cba3): New messages + DE/FR translation
+- [#bbb4ded](https://github.com/pydio/cells/commit/bbb4ded1fbc2a27ae2ee796a2d693363908b5ff1): New messages + DE/FR translation
+- [#7dee2e7](https://github.com/pydio/cells/commit/7dee2e72976f1f1a79c41666d1728f9944122430): New plugin for capturing webcam and screencast using Uppy.io
+- [#9efc9b4](https://github.com/pydio/cells/commit/9efc9b4595584dd9345b3eef3c7cce5083c72feb): Expose buildPresignedPutUrl in PydioApi object
+- [#b1d039b](https://github.com/pydio/cells/commit/b1d039be1afbab0e6db6104b8a0bf75aee99103f): Adding locking to startup so that distributed services can start up at the same time
+- [#9a03ac8](https://github.com/pydio/cells/commit/9a03ac84111d2c977977c65a10d28f6bef465a5c): Adding locking to startup so that distributed services can start up at the same time
+- [#1b92c8f](https://github.com/pydio/cells/commit/1b92c8fd99448b816b3b25aa64452d9ccd687f06): Adding locking to startup so that distributed services can start up at the same time
+- [#bb19db4](https://github.com/pydio/cells/commit/bb19db492db1215b4bfb03e76593bdde9739771d): Scheduler: fix log paths and debug on conditional filters
+- [#4f0a085](https://github.com/pydio/cells/commit/4f0a08561f52ffdc37f24dc725bbdf6d8e4e2b90): Adding locking to startup so that distributed services can start up at the same time
+- [#6577e06](https://github.com/pydio/cells/commit/6577e06b28cb455ea3b3c21919c5f64f1c309560): Refix exif extraction for binaries (images that do **not** have exif were breaking)
+- [#8a98893](https://github.com/pydio/cells/commit/8a98893639b0f24356b5736b00e70731147a7b63): Simplify public link ID parsing, and fix issue with query params
+- [#c9b2616](https://github.com/pydio/cells/commit/c9b2616c65d7c7366b2ce3a741d80a3d55b84da8): Fix acl-cache, do not change nil maps to empty ones. Use generics to clone maps (or nil).
+- [#5e31231](https://github.com/pydio/cells/commit/5e31231263cd3a481256bedad804e39e1b893fef): Scheduler tasks: use new "debug" level to display Zaps as JSON
+- [#65348e1](https://github.com/pydio/cells/commit/65348e12484032bd1f692722538001cdee242b65): Introduce a Debug level in jobs/tasks logger to send all actions input/output as well as filters and queries outputs.
+- [#c4c7d9d](https://github.com/pydio/cells/commit/c4c7d9d0f2fd16596c05158abfb6aed067f22660): Fix truncated label on generic editor button
+- [#209f97d](https://github.com/pydio/cells/commit/209f97da67cc982acec5bac42695d74b0f1bf773): Rewire context cancellation for datasource sync
+- [#47f3728](https://github.com/pydio/cells/commit/47f3728dec9826622c3b4c4e982cb897753b28df): Struct datasource restore ChecksumProvider on wrapped s3 client.
+- [#55ba219](https://github.com/pydio/cells/commit/55ba219e7e6d9e0c9b0ef06698b8bf62fd8aaa9e): acl in-memory cache may share memory address and create concurrent map accesses, eg. during massive uploads in personal-files.
+- [#9932a90](https://github.com/pydio/cells/commit/9932a90f76033ee781dd37e5c3ca61afce7a5743): Fix TaskActivity to always display full log Msg
+- [#e3accac](https://github.com/pydio/cells/commit/e3accaca0b163e13b49fc8a32124dbfdd1cd7263): Properly pass internal flag when updating hash, otherwise internal items are indexed. Fix exif orientation support for binaries.
+- [#5a71379](https://github.com/pydio/cells/commit/5a71379f00b1a1aa49b465f20e68391b6814bcea): Next development cycle
