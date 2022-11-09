@@ -96,19 +96,19 @@
     "other": "썸네일"
   },
   "127": {
-    "other": "Size"
+    "other": "크기"
   },
   "128": {
     "other": "파일이 선택되었습니다."
   },
   "129": {
-    "other": "View"
+    "other": "보기"
   },
   "13": {
-    "other": "JPG picture"
+    "other": "JPG 사진"
   },
   "130": {
-    "other": "Folders"
+    "other": "폴더"
   },
   "131": {
     "other": "세부사항"
@@ -120,40 +120,40 @@
     "other": "이름"
   },
   "134": {
-    "other": "Type"
+    "other": "형식"
   },
   "135": {
-    "other": "Dimensions"
+    "other": "해상도"
   },
   "136": {
-    "other": "View Larger Image"
+    "other": "큰 이미지 보기"
   },
   "138": {
-    "other": "Last Modif."
+    "other": "마지막 업데이트"
   },
   "139": {
-    "other": "Edit Online"
+    "other": "온라인 편집"
   },
   "14": {
-    "other": "HTML page"
+    "other": "HTML 페이지"
   },
   "140": {
     "other": "Play whole folder"
   },
   "141": {
-    "other": "Reading folder"
+    "other": "폴더를 읽는 중"
   },
   "142": {
-    "other": "Logged as "
+    "other": "다음으로 로그인 "
   },
   "143": {
-    "other": "Guest browsing. Log in."
+    "other": "게스트 탐색. 로그인."
   },
   "144": {
-    "other": "Not logged in."
+    "other": "로그인되지 않았습니다."
   },
   "145": {
-    "other": "My Bookmarks"
+    "other": "내 북마크"
   },
   "146": {
     "other": "즐겨찾기 삭제"
@@ -162,25 +162,25 @@
     "other": "즐겨찾기"
   },
   "148": {
-    "other": "Parent"
+    "other": "상위"
   },
   "149": {
-    "other": "Reload"
+    "other": "다시 불러오기"
   },
   "15": {
-    "other": "HTML page"
+    "other": "HTML 페이지"
   },
   "150": {
-    "other": "Display"
+    "other": "화면"
   },
   "151": {
-    "other": "Switch display mode..."
+    "other": "화면보기 모드 전환"
   },
   "152": {
-    "other": "Toggle Bookmark"
+    "other": "즐겨찾기 설정/해제"
   },
   "153": {
-    "other": "Add/remove item to MyBookmarks"
+    "other": "내즐겨찾기에 아이템 추가/삭제"
   },
   "152-on": {
     "other": "즐겨찾기"
@@ -189,16 +189,16 @@
     "other": "내즐겨찾기에 아이템 추가"
   },
   "152-off": {
-    "other": "Remove Bookmark"
+    "other": "즐겨찾기 삭제"
   },
   "153-off": {
-    "other": "Remove item from MyBookmarks"
+    "other": "내즐겨찾기에 아이템 삭제"
   },
   "154": {
-    "other": "New Folder"
+    "other": "새 폴더"
   },
   "155": {
-    "other": "Create new folder"
+    "other": "새 폴더 생성"
   },
   "156": {
     "other": "새로운 빈 파일"
@@ -210,7 +210,7 @@
     "other": "선택된 파일이나 폴더명 변경"
   },
   "159": {
-    "other": "Copy selection to..."
+    "other": "선택항목을 복사..."
   },
   "16": {
     "other": "REAL 파일"
