@@ -302,10 +302,8 @@ func getFromItemType(itemType pb.ItemType) string {
 }
 
 func (c *configRegistry) Register(item registry.Item, option ...registry.RegisterOption) error {
-	/*if locker := c.store.NewLocker("register"); locker != nil {
-		locker.Lock()
-		defer locker.Unlock()
-	}*/
+	c.store.Lock()
+	defer c.store.Unlock()
 
 	// If byName is active and we are re-registering a service
 	// with the same name, deregister the previous one.
@@ -336,10 +334,8 @@ func (c *configRegistry) Register(item registry.Item, option ...registry.Registe
 }
 
 func (c *configRegistry) Deregister(item registry.Item, option ...registry.RegisterOption) error {
-	/*if locker := c.store.NewLocker("deregister"); locker != nil {
-		locker.Lock()
-		defer locker.Unlock()
-	}*/
+	c.store.Lock()
+	defer c.store.Unlock()
 
 	if err := c.store.Val(getType(item)).Val(item.ID()).Del(); err != nil {
 		return err

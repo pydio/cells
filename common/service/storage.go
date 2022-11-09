@@ -124,9 +124,7 @@ func daoFromOptions(o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts
 	reg := servicecontext.GetRegistry(o.Context)
 	if lock := reg.NewLocker("dao-init-" + o.Name); lock != nil {
 		lock.Lock()
-		defer func() {
-			lock.Unlock()
-		}()
+		defer lock.Unlock()
 	}
 
 	if indexer {

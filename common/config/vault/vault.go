@@ -75,6 +75,7 @@ func New(u *url.URL, storePath, key, rootToken string, opts ...configx.Option) (
 		cli:       client,
 		storePath: strings.Trim(storePath, "/"),
 		keyName:   key,
+		locker:    &sync.RWMutex{},
 	}, nil
 
 }
@@ -84,6 +85,7 @@ type store struct {
 	keyName   string
 	cli       *vault.Client
 	v         configx.Values
+	locker    *sync.RWMutex
 }
 
 func (s *store) read() {
@@ -151,6 +153,14 @@ func (s *store) Save(s3 string, s2 string) error {
 		return er
 	}
 	return nil
+}
+
+func (s *store) Lock() {
+	s.locker.Lock()
+}
+
+func (s *store) Unlock() {
+	s.locker.Unlock()
 }
 
 func (s *store) NewLocker(name string) sync.Locker {

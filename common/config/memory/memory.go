@@ -58,6 +58,7 @@ type memory struct {
 	reset chan bool
 	timer *time.Timer
 
+	locker      *sync.RWMutex
 	lockersLock *sync.RWMutex
 	lockers     map[string]*sync.RWMutex
 }
@@ -66,6 +67,7 @@ func New(opts ...configx.Option) config.Store {
 	m := &memory{
 		v:           configx.New(opts...),
 		opts:        opts,
+		locker:      &sync.RWMutex{},
 		lockersLock: &sync.RWMutex{},
 		lockers:     make(map[string]*sync.RWMutex),
 		reset:       make(chan bool),
@@ -151,6 +153,14 @@ func (m *memory) Done() <-chan struct{} {
 func (m *memory) Save(string, string) error {
 	// do nothing
 	return nil
+}
+
+func (m *memory) Lock() {
+	m.locker.Lock()
+}
+
+func (m *memory) Unlock() {
+	m.locker.Unlock()
 }
 
 func (m *memory) NewLocker(name string) sync.Locker {

@@ -134,6 +134,7 @@ type etcd struct {
 	session  *concurrency.Session
 	leaseID  clientv3.LeaseID
 
+	locker    *sync.RWMutex
 	locks     map[string]*concurrency.Mutex
 	receivers []*receiver
 	reset     chan bool
@@ -168,6 +169,7 @@ func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, session
 		leaseID:      leaseID,
 		prefix:       prefix,
 		withKeys:     withKeys,
+		locker:       &sync.RWMutex{},
 		locks:        make(map[string]*concurrency.Mutex),
 		reset:        make(chan bool),
 		opts:         opts,
@@ -378,6 +380,14 @@ func (m *etcd) Save(ctxUser string, ctxMessage string) error {
 	}
 
 	return nil
+}
+
+func (m *etcd) Lock() {
+	m.locker.Lock()
+}
+
+func (m *etcd) Unlock() {
+	m.locker.Unlock()
 }
 
 func (m *etcd) NewLocker(name string) sync.Locker {

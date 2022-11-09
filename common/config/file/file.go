@@ -108,9 +108,10 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 }
 
 type file struct {
-	v    configx.Values
-	snap configx.Values
-	path string
+	v      configx.Values
+	snap   configx.Values
+	path   string
+	locker *sync.RWMutex
 
 	opts []configx.Option
 
@@ -155,6 +156,7 @@ func New(path string, opts ...configx.Option) (config.Store, error) {
 	f := &file{
 		v:       v,
 		path:    path,
+		locker:  &sync.RWMutex{},
 		opts:    opts,
 		mainMtx: &sync.Mutex{},
 		mtx:     mtx,
@@ -257,6 +259,14 @@ func (f *file) Save(ctxUser string, ctxMessage string) error {
 	defer f.mtx.RUnlock()
 
 	return filex.Save(f.path, f.v.Bytes())
+}
+
+func (f *file) Lock() {
+	f.locker.Lock()
+}
+
+func (f *file) Unlock() {
+	f.locker.Unlock()
 }
 
 func (f *file) NewLocker(name string) sync.Locker {

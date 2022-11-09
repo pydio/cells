@@ -125,6 +125,14 @@ func (v *versionStore) Save(ctxUser string, ctxMessage string) error {
 	return v.store.Save(ctxUser, ctxMessage)
 }
 
+func (v *versionStore) Lock() {
+	v.store.Lock()
+}
+
+func (v *versionStore) Unlock() {
+	v.store.Unlock()
+}
+
 func (v *versionStore) NewLocker(name string) sync.Locker {
 	return v.store.NewLocker(name)
 }

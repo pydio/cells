@@ -41,6 +41,7 @@ type Store interface {
 	Close() error
 	Done() <-chan struct{}
 	Saver
+	sync.Locker
 	NewLocker(name string) sync.Locker
 }
 
