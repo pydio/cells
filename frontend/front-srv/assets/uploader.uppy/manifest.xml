@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<uploader text="51" title="132" order="10" enabled="false" id="uploader.uppy" label="CONF_MESSAGE[Webcam and Screen Capture]"
-          description="CONF_MESSAGE[Let user directly capture webcam or screen cast from their computer]">
+<uploader text="51" title="132" order="10" enabled="false" id="uploader.uppy" label="CONF_MESSAGE[Audio/Video Capture]"
+          description="CONF_MESSAGE[Use device webcam, microphone or screencast to capture audio and video]">
 	<client_settings>
 		<resources>
 			<js file="plug/uploader.uppy/res/dist/CaptureUploader.min.js" className="CaptureUploader" depends="React,Uppy"/>

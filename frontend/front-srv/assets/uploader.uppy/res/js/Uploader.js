@@ -74,7 +74,7 @@ export default class extends React.Component {
         const {pydio} = this.props;
         const loc = locales[pydio.currentLanguage] || null
         if(loc) {
-            loc.importFiles = pydio.MessageHash['upload.capture.importFiles']
+            loc.strings.importFiles = pydio.MessageHash['upload.capture.importFiles']
         }
         return loc
     }
