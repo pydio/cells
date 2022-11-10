@@ -612,7 +612,7 @@
     "other": "Nível"
   },
   "logs.level.exact": {
-    "other": "(only)"
+    "other": "(somente)"
   },
   "logs.level.greaterthan": {
     "other": "(and up)"

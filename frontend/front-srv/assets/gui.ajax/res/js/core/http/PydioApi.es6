@@ -277,24 +277,7 @@ class PydioApi{
      * @return {Promise<any>}
      */
     uploadPresigned(file, path, onComplete=()=>{}, onError=()=>{}, onProgress=()=>{}, userMeta=undefined){
-        let targetPath = path;
-        if (path.normalize){
-            targetPath = path.normalize('NFC');
-        }
-        if(targetPath[0] === "/"){
-            targetPath = targetPath.substring(1);
-        }
-        const frontU = this.getPydioObject().getFrontendUrl();
-        const url = `${frontU.protocol}//${frontU.host}`;
-        const params = {
-            Bucket: 'io',
-            Key: targetPath,
-            ContentType: 'application/octet-stream'
-        };
-        if(userMeta){
-            params.Metadata = {...userMeta}
-        }
-        this.getPydioObject().notify('longtask_starting');
+
         const onCompleteWrapped = (xhr) => {
             this.getPydioObject().notify('longtask_finished');
             onComplete(xhr);
@@ -303,26 +286,14 @@ class PydioApi{
             this.getPydioObject().notify('longtask_finished');
             onError(xhr);
         };
-        return new Promise(resolve => {
-            PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
-                AWS.config.update({
-                    accessKeyId: 'gateway',
-                    secretAccessKey: 'gatewaysecret',
-                    s3ForcePathStyle: true,
-                    httpOptions:{
-                        timeout:PydioApi.getMultipartUploadTimeout()
-                    },
-                });
-                const s3 = new AWS.S3({endpoint:url});
-                const signed = s3.getSignedUrl('putObject', params);
-                let metaHeaders = {};
-                if(userMeta){
-                    Object.keys(userMeta).forEach(k => {metaHeaders['X-Amz-Meta-' + k] = userMeta[k]})
-                }
-                const xhr = this.uploadFile(file, '', '', onCompleteWrapped, onErrorWrapped, onProgress, signed, {method: 'PUT', customHeaders: {'X-Pydio-Bearer': jwt, 'Content-Type': 'application/octet-stream', ...metaHeaders}});
-                resolve(xhr);
-            });
-        });
+
+        return this.buildPresignedPutUrl(path, userMeta).then(({url, headers}) => {
+            return this.uploadFile(
+                file, '', '',
+                onCompleteWrapped, onErrorWrapped, onProgress,
+                url, {method: 'PUT', customHeaders: headers});
+        })
+
     }
 
     uploadMultipart(file, path, onComplete=()=>{}, onError=()=>{}, onProgress=() => {}, userMeta = {}) {
@@ -371,6 +342,58 @@ class PydioApi{
                 });
                 resolve(managed);
             });
+        });
+
+    }
+
+    /**
+     * Build presigned url for Put object
+     * @param path
+     * @param userMeta
+     * @returns {Promise<{headers: {"X-Pydio-Bearer": *, "Content-Type": string}, url: string}>}
+     */
+    buildPresignedPutUrl(path, userMeta = {}) {
+        let targetPath = path;
+        if (path.normalize){
+            targetPath = path.normalize('NFC');
+        }
+        if(targetPath[0] === "/"){
+            targetPath = targetPath.substring(1);
+        }
+        const frontU = this.getPydioObject().getFrontendUrl();
+        const url = `${frontU.protocol}//${frontU.host}`;
+        const params = {
+            Bucket: 'io',
+            Key: targetPath,
+            ContentType: 'application/octet-stream'
+        };
+        if(userMeta){
+            params.Metadata = {...userMeta}
+        }
+
+        return PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
+            AWS.config.update({
+                accessKeyId: 'gateway',
+                secretAccessKey: 'gatewaysecret',
+                s3ForcePathStyle: true,
+                httpOptions:{
+                    timeout:PydioApi.getMultipartUploadTimeout()
+                },
+            });
+            const s3 = new AWS.S3({endpoint:url});
+            const signed = s3.getSignedUrl('putObject', params);
+            let metaHeaders = {};
+            if(userMeta){
+                Object.keys(userMeta).forEach(k => {metaHeaders['X-Amz-Meta-' + k] = userMeta[k]})
+            }
+            return {
+                url: signed,
+                headers: {
+                    'X-Pydio-Bearer': jwt,
+                    'Content-Type': 'application/octet-stream',
+                    ...metaHeaders
+                }
+            }
         });
 
     }
