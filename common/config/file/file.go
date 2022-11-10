@@ -281,6 +281,7 @@ func (f *file) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 
 	r := &receiver{
 		closed:      false,
+		exit:        make(chan struct{}),
 		ch:          make(chan diff.Change),
 		path:        o.Path,
 		f:           f,
@@ -295,6 +296,7 @@ func (f *file) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 
 type receiver struct {
 	closed bool
+	exit   chan struct{}
 	ch     chan diff.Change
 
 	path        []string
@@ -347,6 +349,8 @@ func (r *receiver) Next() (interface{}, error) {
 			}
 
 			return r.f.v.Val(r.path...), nil
+		case <-r.exit:
+			return nil, errors.New("channel is now closed")
 		}
 	}
 
@@ -355,6 +359,7 @@ func (r *receiver) Next() (interface{}, error) {
 
 func (r *receiver) Stop() {
 	r.closed = true
+	close(r.exit)
 	close(r.ch)
 }
 
