@@ -47,6 +47,7 @@ const (
 	ContextMetaJobUuid        = "X-Pydio-Job-Uuid"
 	ContextMetaTaskUuid       = "X-Pydio-Task-Uuid"
 	ContextMetaTaskActionPath = "X-Pydio-Task-Action-Path"
+	ContextMetaTaskActionTags = "X-Pydio-Task-Action-Tags"
 )
 
 func init() {

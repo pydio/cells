@@ -152,6 +152,7 @@ const (
 	KeySchedulerJobId      = "SchedulerJobUuid"
 	KeySchedulerTaskId     = "SchedulerTaskUuid"
 	KeySchedulerActionPath = "SchedulerTaskActionPath"
+	KeySchedulerActionTags = "SchedulerTaskActionTags"
 
 	// Cells
 	KeyCell     = "Cell"
