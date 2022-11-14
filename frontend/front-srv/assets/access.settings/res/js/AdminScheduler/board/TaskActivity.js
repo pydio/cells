@@ -118,7 +118,11 @@ class TaskActivity extends Component{
             const ll = response.Logs || [];
             this.setState({activity:ll, loading: false, page: page})
             if(logTransmitter) {
-                logTransmitter.set([...ll])
+                if(debug){
+                    logTransmitter.set([...ll])
+                } else {
+                    logTransmitter.clear()
+                }
             }
             if(!ll.length && retry < 3 && !poll) {
                 setTimeout(() => this.loadActivity(props, page, retry + 1), 2000);
