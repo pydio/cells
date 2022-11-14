@@ -417,7 +417,7 @@ func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 	defer dao.Unlock()
 
 	mTime := node.GetMTime()
-	if mTime == 0 {
+	if mTime <= 0 {
 		mTime = time.Now().Unix()
 	}
 
@@ -480,7 +480,7 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 			//log.Logger(context.Background()).Info("SQL:AddNodeStream", node.ZapUuid(), node.ZapPath(), zap.String("MPath", node.MPath.String()))
 
 			mTime := node.GetMTime()
-			if mTime == 0 {
+			if mTime <= 0 {
 				mTime = time.Now().Unix()
 			}
 

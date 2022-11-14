@@ -49,22 +49,6 @@ type Runnable struct {
 	ActionPath     string
 }
 
-func nextContextPath(ctx context.Context, actionId string) (string, context.Context) {
-	pPath := "ROOT"
-	if mm, ok := metadata.FromContextRead(ctx); ok {
-		if p, o := mm[servicecontext.ContextMetaTaskActionPath]; o {
-			pPath = p
-		}
-	}
-	chainIndex := 0
-	if ci := ctx.Value(jobs.IndexedContextKey); ci != nil {
-		chainIndex = ci.(int)
-	}
-	newPath := path.Join(pPath, fmt.Sprintf(actionId+"$%d", chainIndex))
-	ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{servicecontext.ContextMetaTaskActionPath: newPath})
-	return newPath, ctx
-}
-
 func itemTimeout(to string) (time.Duration, bool) {
 	if to == "" {
 		return 0, false
@@ -90,9 +74,9 @@ func RootRunnable(ctx context.Context, task *Task) Runnable {
 
 // NewRunnable creates a new runnable and populates it with the concrete task implementation found with action.ID,
 // if such an implementation is found.
-func NewRunnable(ctx context.Context, task *Task, action *jobs.Action, message *jobs.ActionMessage) Runnable {
+func NewRunnable(ctx context.Context, task *Task, action *jobs.Action, message *jobs.ActionMessage, indexTag ...int) Runnable {
 	var aPath string
-	aPath, ctx = action.BuildTaskActionPath(ctx)
+	aPath, ctx = action.BuildTaskActionPath(ctx, "", indexTag...)
 	r := Runnable{
 		Action:     action,
 		Task:       task,
@@ -149,8 +133,12 @@ func (r *Runnable) Dispatch(input *jobs.ActionMessage, aa []*jobs.Action, queue 
 					m := proto.Clone(&message).(*jobs.ActionMessage)
 					enqueued++
 					r.Task.Add(1)
-					run := NewRunnable(indexedContext, r.Task, act, m)
-					q <- run
+					if act.HasSelectors() {
+						// Tag with an index to recognise messages
+						q <- NewRunnable(indexedContext, r.Task, act, m, enqueued)
+					} else {
+						q <- NewRunnable(indexedContext, r.Task, act, m)
+					}
 
 				case failed := <-failedFilter:
 					// Filter failed
@@ -162,7 +150,7 @@ func (r *Runnable) Dispatch(input *jobs.ActionMessage, aa []*jobs.Action, queue 
 					}
 
 				case err := <-errs:
-					_, ct := act.BuildTaskActionPath(indexedContext)
+					_, ct := act.BuildTaskActionPath(indexedContext, "")
 					log.TasksLogger(ct).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
 					log.Logger(r.Context).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
 					r.Task.SetError(err, false)
@@ -172,7 +160,7 @@ func (r *Runnable) Dispatch(input *jobs.ActionMessage, aa []*jobs.Action, queue 
 				case <-done:
 					// For ROOT that is not event-based (jobTrigger = manual or scheduled), check if nothing happened at all
 					if r.ActionPath == "ROOT" && enqueued == 0 && strings.Contains(input.GetEvent().GetTypeUrl(), "jobs.JobTriggerEvent") {
-						_, ct := act.BuildTaskActionPath(indexedContext)
+						_, ct := act.BuildTaskActionPath(indexedContext, "")
 						log.TasksLogger(ct).Warn("Initial query retrieved no values, stopping job now")
 						r.Task.Add(1)
 						queue <- NewRunnable(indexedContext, r.Task, &jobs.Action{ID: actions.IgnoredActionName}, &jobs.ActionMessage{})
