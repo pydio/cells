@@ -151,9 +151,12 @@ func (s *service) As(i interface{}) bool {
 
 // Start runs service and update registry as required
 func (s *service) Start(oo ...registry.RegisterOption) (er error) {
-	if locker := servicecontext.GetRegistry(s.opts.Context).NewLocker("start-service" + s.Name()); locker != nil {
-		locker.Lock()
-		defer locker.Unlock()
+	// Making sure we only start one at a time for a unique service
+	if s.Options().Unique {
+		if locker := servicecontext.GetRegistry(s.opts.Context).NewLocker("start-service-" + s.Name()); locker != nil {
+			locker.Lock()
+			defer locker.Unlock()
+		}
 	}
 
 	defer func() {

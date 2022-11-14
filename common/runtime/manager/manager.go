@@ -479,9 +479,6 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 				m.logger.Debug("FILTERING event on " + item.Name() + " as it is locally managed")
 				return false
 			}
-			if item.Metadata()[runtime.NodeMetaPID] == fmt.Sprintf("%d", os.Getpid()) {
-				return false
-			}
 		}
 		return true
 	}))

@@ -213,8 +213,14 @@ func (m *etcd) watch(ctx context.Context) {
 				key := strings.TrimPrefix(string(op.Kv.Key), m.prefix)
 				key = strings.TrimPrefix(key, "/")
 
-				if err := m.values.Val(key).Set(op.Kv.Value); err != nil {
-					fmt.Println("Error in etcd watch setting value for key ", op.Kv.Key)
+				if op.IsModify() || op.IsCreate() {
+					if err := m.values.Val(key).Set(op.Kv.Value); err != nil {
+						fmt.Println("Error in etcd watch setting value for key ", op.Kv.Key)
+					}
+				} else {
+					if err := m.values.Val(key).Del(); err != nil {
+						fmt.Println("Error in etcd deleting key ", op.Kv.Key)
+					}
 				}
 
 				var ops []*clientv3.Event
@@ -262,6 +268,7 @@ func (m *etcd) watch(ctx context.Context) {
 
 				for _, op := range ops {
 					updated := m.receivers[:0]
+					// fmt.Println("Setting ", string(op.Kv.Key), op.IsModify(), op.IsCreate())
 					for _, r := range m.receivers {
 						if err := r.call(op); err == nil {
 							updated = append(updated, r)
@@ -482,8 +489,9 @@ func (r *receiver) Next() (interface{}, error) {
 							return nil, err
 						}
 					}
-
 				}
+
+				// fmt.Println("Keys ", c.Val("delete", "service").Map())
 
 				return c, nil
 			}
