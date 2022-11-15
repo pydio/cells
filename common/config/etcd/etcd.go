@@ -151,7 +151,7 @@ func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, session
 	var leaseID clientv3.LeaseID
 
 	if sessionTTL > -1 {
-		if s, err := concurrency.NewSession(cli, concurrency.WithTTL(sessionTTL)); err != nil {
+		if s, err := concurrency.NewSession(cli, concurrency.WithContext(ctx), concurrency.WithTTL(sessionTTL)); err != nil {
 			return nil, err
 		} else {
 			session = s
