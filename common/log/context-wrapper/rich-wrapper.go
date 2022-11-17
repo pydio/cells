@@ -22,6 +22,7 @@ package context_wrapper
 
 import (
 	"context"
+	"strings"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -67,6 +68,12 @@ func RichContext(ctx context.Context, logger log.ZapLogger, fields ...zapcore.Fi
 	}
 	if taskPath, has := metadata.CanonicalMeta(ctx, servicecontext.ContextMetaTaskActionPath); has {
 		fields = append(fields, zap.String(common.KeySchedulerActionPath, taskPath))
+	}
+	if taskTags, has := metadata.CanonicalMeta(ctx, servicecontext.ContextMetaTaskActionTags); has {
+		tt := strings.Split(taskTags, ",")
+		if len(tt) > 0 {
+			fields = append(fields, zap.Strings(common.KeySchedulerActionTags, tt))
+		}
 	}
 	if ctxMeta, has := metadata.FromContextRead(ctx); has {
 		for _, key := range []string{

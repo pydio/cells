@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"path"
+	"strings"
 	"sync"
 	"time"
 
@@ -170,6 +171,8 @@ func (a *Action) FanOutSelector(ctx context.Context, selector InputSelector, inp
 	wire := make(chan interface{})
 	selectDone := make(chan bool, 1)
 	var timeoutCancel context.CancelFunc
+	logger := log.TasksLogger(a.debugLogContext(ctx, false, selector))
+	logger.Debug("ZAPS", zap.Object("Input", &input))
 	go func() {
 		var count = 0
 		for {
@@ -204,9 +207,9 @@ func (a *Action) FanOutSelector(ctx context.Context, selector InputSelector, inp
 					timeoutCancel()
 				}
 				if count > 0 {
-					log.TasksLogger(a.debugLogContext(ctx, false, selector)).Debug(fmt.Sprintf("Sent %d objects (to separate actions)", count))
+					logger.Debug(fmt.Sprintf("Sent %d objects (to separate actions)", count))
 				} else {
-					log.TasksLogger(a.debugLogContext(ctx, false, selector)).Debug("Empty Query Result")
+					logger.Debug("Empty Query Result")
 				}
 				return
 			}
@@ -236,6 +239,8 @@ func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, in
 	var acls []*idm.ACL
 	var dss []*object.DataSource
 
+	logger := log.TasksLogger(a.debugLogContext(ctx, false, selector))
+	logger.Debug("ZAPS", zap.Object("Input", &input))
 	var timeoutCancel context.CancelFunc
 	wire := make(chan interface{})
 	selectDone := make(chan bool, 1)
@@ -297,19 +302,23 @@ func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, in
 	}
 	count := len(nodes) + len(roles) + len(workspaces) + len(acls) + len(users) + len(dss)
 	if count > 0 {
-		log.TasksLogger(a.debugLogContext(ctx, false, selector)).Debug(fmt.Sprintf("Sent %d objects as a collection", count))
+		logger.Debug(fmt.Sprintf("Sent %d objects as a collection", count))
 	} else {
-		log.TasksLogger(a.debugLogContext(ctx, false, selector)).Debug("Empty Query Result")
+		logger.Debug("Empty Query Result")
 	}
 	output <- input
 	done <- true
 }
 
-func (a *Action) BuildTaskActionPath(ctx context.Context, suffix ...string) (string, context.Context) {
+func (a *Action) BuildTaskActionPath(ctx context.Context, suffix string, indexTag ...int) (string, context.Context) {
 	pPath := "ROOT"
+	var tags []string
 	if mm, ok := metadata.FromContextRead(ctx); ok {
 		if p, o := mm[servicecontext.ContextMetaTaskActionPath]; o {
 			pPath = p
+		}
+		if t, o := mm[servicecontext.ContextMetaTaskActionTags]; o {
+			tags = strings.Split(t, ",")
 		}
 	}
 	chainIndex := 0
@@ -318,12 +327,17 @@ func (a *Action) BuildTaskActionPath(ctx context.Context, suffix ...string) (str
 	}
 	var sx string
 	if len(suffix) > 0 {
-		sx = suffix[0]
+		sx = suffix
 	}
 	newPath := path.Join(pPath, fmt.Sprintf("%s$%d%s", a.ID, chainIndex, sx))
-	ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{
+	newMeta := map[string]string{
 		servicecontext.ContextMetaTaskActionPath: newPath,
-	})
+	}
+	if len(indexTag) > 0 && indexTag[0] > 0 {
+		tags = append(tags, fmt.Sprintf("%s:%d", newPath, indexTag[0]))
+		newMeta[servicecontext.ContextMetaTaskActionTags] = strings.Join(tags, ",")
+	}
+	ctx = metadata.WithAdditionalMetadata(ctx, newMeta)
 	return newPath, ctx
 }
 

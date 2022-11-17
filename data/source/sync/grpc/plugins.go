@@ -23,7 +23,6 @@ package grpc
 
 import (
 	"context"
-
 	"github.com/pydio/cells/v4/data/source/sync"
 
 	"github.com/pydio/cells/v4/common/broker"
@@ -66,7 +65,6 @@ func init() {
 
 			newService(ctx, dsObject)
 			continue
-
 		}
 	})
 }

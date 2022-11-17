@@ -22,7 +22,6 @@ package registry
 
 import (
 	"errors"
-
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 )
 

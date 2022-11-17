@@ -113,7 +113,7 @@ class TasksList extends React.Component {
 
 
     insertTaskLogRow(rows){
-        const {pydio, job, descriptions = []} = this.props;
+        const {pydio, job, descriptions = [], logTransmitter = undefined} = this.props;
         const {taskLogs, mode} = this.state;
         if(mode === 'selection'){
             return rows;
@@ -126,8 +126,14 @@ class TasksList extends React.Component {
                         task={taskLogs}
                         job={job}
                         descriptions={descriptions}
-                        onRequestClose={()=>{this.setState({taskLogs: null})}}
+                        onRequestClose={()=>{
+                            if(logTransmitter) {
+                                logTransmitter.clear()
+                            }
+                            this.setState({taskLogs: null})
+                        }}
                         poll={t.Status === 'Running' ? 1050 : undefined}
+                        logTransmitter={logTransmitter}
                     />
                 );
                 return {...t, expandedRow}
