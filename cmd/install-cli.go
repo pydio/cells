@@ -262,16 +262,19 @@ func promptAdditionalMongoDSN(c *install.InstallConfig, loop bool) error {
 	host, port, _ := net.SplitHostPort(targetUrl.Host)
 	dbName := strings.TrimLeft(targetUrl.Path, "/")
 	dsnHost := p.Prompt{
-		Label:   "Server host",
-		Default: host,
+		Label:     "Server host",
+		Default:   host,
+		AllowEdit: true,
 	}
 	dsnPort := p.Prompt{
-		Label:   "Server port",
-		Default: port,
+		Label:     "Server port",
+		Default:   port,
+		AllowEdit: true,
 	}
 	dsnDB := p.Prompt{
-		Label:   "Database Name",
-		Default: dbName,
+		Label:     "Database Name",
+		Default:   dbName,
+		AllowEdit: true,
 	}
 
 	if host, e = dsnHost.Run(); e != nil {
