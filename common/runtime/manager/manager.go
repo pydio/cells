@@ -245,7 +245,7 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 		locker.Lock()
 		defer func() {
 			// TODO - can do much better - giving a bit of time to this server to start entirely before starting others
-			<-time.After(3 * time.Second)
+			// <-time.After(3 * time.Second)
 			locker.Unlock()
 		}()
 	}
@@ -505,13 +505,26 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 		}
 		m.logger.Info("Delete event received for " + strings.Join(iNames, "|") + ", debounce server Restart" + strconv.Itoa(count))
 		db(func() {
-			w.Stop()
-			m.logger.Info(" -- Restarting server now", zap.Any("type", srv.Type()), zap.String("name", srv.Name()))
-			if er := m.stopServer(srv); er != nil {
-				m.logger.Error("Error while stopping server"+er.Error(), zap.Error(er))
-			}
-			if er := m.startServer(srv, m.serveOptions...); er != nil {
-				m.logger.Error("Error while starting server "+er.Error(), zap.Error(er))
+			if srv.NeedsRestart() {
+				w.Stop()
+				m.logger.Info(" -- Restarting server now", zap.Any("type", srv.Type()), zap.String("name", srv.Name()))
+				if er := m.stopServer(srv); er != nil {
+					m.logger.Error("Error while stopping server"+er.Error(), zap.Error(er))
+				}
+				if er := m.startServer(srv, m.serveOptions...); er != nil {
+					m.logger.Error("Error while starting server "+er.Error(), zap.Error(er))
+				}
+			} else {
+				for _, s := range ss {
+					for _, i := range res.Items() {
+						if s.Name() == i.Name() {
+							m.logger.Info(" -- Restarting service now", zap.String("name", s.Name()))
+							s.Stop()
+
+							s.Start()
+						}
+					}
+				}
 			}
 		})
 	}
