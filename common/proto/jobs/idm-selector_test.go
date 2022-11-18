@@ -41,7 +41,7 @@ func TestIdmSelector_Filter1(t *testing.T) {
 		}
 		ctx := context.Background()
 		// Simple test
-		input := ActionMessage{Users: []*idm.User{{Login: "test"}}}
+		input := &ActionMessage{Users: []*idm.User{{Login: "test"}}}
 		message, opposite, pass := m.Filter(ctx, input)
 		So(message, ShouldNotBeNil)
 		So(message.Users, ShouldHaveLength, 1)
@@ -49,7 +49,7 @@ func TestIdmSelector_Filter1(t *testing.T) {
 		So(opposite, ShouldBeNil)
 
 		// Opposite test
-		input = ActionMessage{Users: []*idm.User{{Login: "other"}}}
+		input = &ActionMessage{Users: []*idm.User{{Login: "other"}}}
 		message, opposite, pass = m.Filter(ctx, input)
 		So(message, ShouldNotBeNil)
 		So(message.Users, ShouldHaveLength, 0)
@@ -73,7 +73,7 @@ func TestIdmSelector_Filter2(t *testing.T) {
 		}
 		ctx := context.Background()
 		// Simple test
-		input := ActionMessage{Users: []*idm.User{{
+		input := &ActionMessage{Users: []*idm.User{{
 			Login: "test",
 			Attributes: map[string]string{
 				idm.UserAttrProfile: "standard",
@@ -102,7 +102,7 @@ func TestIdmSelector_Filter3(t *testing.T) {
 		}
 		ctx := context.Background()
 		// Simple test
-		input := ActionMessage{Users: []*idm.User{{
+		input := &ActionMessage{Users: []*idm.User{{
 			Login: "test",
 			Attributes: map[string]string{
 				idm.UserAttrProfile: "standard",
