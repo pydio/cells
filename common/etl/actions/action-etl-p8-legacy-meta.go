@@ -118,7 +118,7 @@ func (c *MigratePydioMetaAction) Init(job *jobs.Job, action *jobs.Action) error 
 }
 
 // Run performs the actual action code
-func (c *MigratePydioMetaAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *MigratePydioMetaAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	msg := "[Meta] Starting migration for files metadata"
 	log.TasksLogger(ctx).Info(msg)
@@ -130,7 +130,7 @@ func (c *MigratePydioMetaAction) Run(ctx context.Context, channels *actions.Runn
 		channels.Status <- jobs.TaskStatus_Idle
 	}()
 
-	output := input
+	output := input.Clone()
 	// Browse all workspaces
 	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 		Scope: idm.WorkspaceScope_ADMIN,

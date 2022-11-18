@@ -78,7 +78,7 @@ func TestRpcAction_Run(t *testing.T) {
 		})
 		status := make(chan string)
 		progress := make(chan float32)
-		outputMessage, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{})
+		outputMessage, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{})
 		close(status)
 		close(progress)
 		So(err, ShouldNotBeNil)

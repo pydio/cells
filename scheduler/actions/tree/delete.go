@@ -116,7 +116,7 @@ func (c *DeleteAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run the actual action code
-func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	if len(input.Nodes) == 0 {
 		return input.WithIgnore(), nil // Ignore

@@ -95,7 +95,7 @@ func TestExifProcessor_Run(t *testing.T) {
 
 		status := make(chan string)
 		progress := make(chan float32)
-		output, e := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
+		output, e := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
 			Nodes: []*tree.Node{node},
 		})
 		close(status)

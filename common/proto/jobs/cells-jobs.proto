@@ -212,6 +212,9 @@ message Action {
     // If any Filter is used, next actions can be triggered on Failure
     // This adds ability to create conditional Yes/No branches
     repeated Action FailedFilterActions = 12;
+
+    // CollectAction adds starts another chain after the whole ChainedAction/FailedFilterActions have been performed
+    Action MergeAction = 21;
 }
 
 message Job {
@@ -221,6 +224,12 @@ message Job {
     string Label = 2;
     // Who created this Job
     string Owner = 3;
+
+    // Timestamp for creation time
+    int32 CreatedAt = 25;
+    // Timestamp for modification time
+    int32 ModifiedAt = 26;
+
     // Admin can temporarily disable this job
     bool Inactive = 4;
     // Job created by application or by administrator
@@ -241,6 +250,9 @@ message Job {
 
     // Chain of actions to perform
     repeated Action Actions = 8;
+
+    // Collect chain of actions into a merged output
+    Action MergeAction = 24;
 
     // Task properties
     int32 MaxConcurrency = 9;
@@ -269,6 +281,9 @@ message Job {
     repeated google.protobuf.Any ResourcesDependencies = 22;
     // Optional Timeout any running job
     string Timeout = 23;
+
+    // Additional Versioning Metadata
+    map<string,string>VersionMeta = 27;
 }
 
 message JobParameter {
@@ -512,6 +527,8 @@ message ActionOutput {
     bool Ignored = 6;
     // Time taken to run the action
     int32 Time = 7;
+    // Vars container, values are json-encoded.
+    map<string, string> Vars = 8;
 }
 
 // ActionOutputSingleQuery provides a unitary query to filter ActionOutput messages

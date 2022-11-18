@@ -20,7 +20,7 @@ var JsonRequest = &cobra.Command{
 				"request": "{}",
 			},
 		})
-		action.Run(context.Background(), nil, jobs.ActionMessage{})
+		action.Run(context.Background(), nil, &jobs.ActionMessage{})
 
 		action2 := &cmd2.RpcAction{}
 		action2.Init(&jobs.Job{}, &jobs.Action{
@@ -30,7 +30,7 @@ var JsonRequest = &cobra.Command{
 				"request": "{}",
 			},
 		})
-		_, e := action2.Run(context.Background(), nil, jobs.ActionMessage{})
+		_, e := action2.Run(context.Background(), nil, &jobs.ActionMessage{})
 		fmt.Println(e)
 
 	},

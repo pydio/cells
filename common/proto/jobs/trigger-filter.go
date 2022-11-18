@@ -35,7 +35,7 @@ func (m *TriggerFilter) FilterID() string {
 	return "TriggerFilter"
 }
 
-func (m *TriggerFilter) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
+func (m *TriggerFilter) Filter(ctx context.Context, input *ActionMessage) (*ActionMessage, *ActionMessage, bool) {
 
 	var event interface{}
 	triggerEvent := &JobTriggerEvent{}
@@ -49,7 +49,7 @@ func (m *TriggerFilter) Filter(ctx context.Context, input ActionMessage) (Action
 		event = idmEvent
 	} else {
 		// Cannot recognize event type
-		return input, &input, false
+		return input, input, false
 	}
 
 	var bb []bool
@@ -63,9 +63,9 @@ func (m *TriggerFilter) Filter(ctx context.Context, input ActionMessage) (Action
 	if result {
 		return input, nil, true
 	} else {
-		output := input
+		output := input.Clone()
 		input.Event = nil
-		return output, &input, false
+		return output, input, false
 	}
 
 }

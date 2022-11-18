@@ -85,15 +85,20 @@ func (j *JobsHandler) Name() string {
 /////////////////
 
 func (j *JobsHandler) PutJob(ctx context.Context, request *proto.PutJobRequest) (*proto.PutJobResponse, error) {
-	err := j.store.PutJob(request.Job)
+	job := request.GetJob()
+	job.ModifiedAt = int32(time.Now().Unix())
+	if job.CreatedAt == 0 {
+		job.CreatedAt = job.ModifiedAt
+	}
+	err := j.store.PutJob(job)
 	log.Logger(ctx).Debug("Scheduler PutJob", zap.Any("job", request.Job))
 	if err != nil {
 		return nil, err
 	}
 	response := &proto.PutJobResponse{}
-	response.Job = request.Job
+	response.Job = job
 	broker.MustPublish(j.RuntimeCtx, common.TopicJobConfigEvent, &proto.JobChangeEvent{
-		JobUpdated: request.Job,
+		JobUpdated: job,
 	})
 	return response, nil
 }

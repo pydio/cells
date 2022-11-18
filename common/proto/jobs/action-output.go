@@ -21,6 +21,7 @@
 package jobs
 
 import (
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -81,5 +82,31 @@ func (m *ActionOutput) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 			_ = encoder.AddReflected("JsonBody", bd)
 		}
 	}
+	if len(m.Vars) > 0 {
+		_ = encoder.AddReflected("Vars", m.Vars)
+	}
 	return nil
+}
+
+// SetVar json-encodes the value and store it in the Vars map
+func (m *ActionOutput) SetVar(key string, value interface{}) {
+	if m.Vars == nil {
+		m.Vars = make(map[string]string)
+	}
+	jv, _ := json.Marshal(value)
+	m.Vars[key] = string(jv)
+}
+
+// FillVars append existing, json-decoded values to the input map
+func (m *ActionOutput) FillVars(vv map[string]interface{}) {
+	if m.Vars == nil {
+		return
+	}
+	for k, v := range m.Vars {
+		var val interface{}
+		if e := json.Unmarshal([]byte(v), &val); e == nil {
+			vv[k] = val
+		}
+	}
+	return
 }

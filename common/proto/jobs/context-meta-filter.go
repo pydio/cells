@@ -44,22 +44,22 @@ func (m *ContextMetaFilter) FilterID() string {
 	return "ContextMetaFilter"
 }
 
-func (m *ContextMetaFilter) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
+func (m *ContextMetaFilter) Filter(ctx context.Context, input *ActionMessage) (*ActionMessage, *ActionMessage, bool) {
 	if len(m.Query.SubQueries) == 0 {
 		return input, nil, true
 	}
 	if m.Type == ContextMetaFilterType_ContextUser {
 		// Switch an IdmSelector with ContextUser as input
-		a, r := m.filterContextUserQueries(ctx, input)
-		return a, nil, r
+		r := m.filterContextUserQueries(ctx, input)
+		return input, nil, r
 	} else {
 		// Apply Policy filter
-		a, r := m.filterPolicyQueries(ctx, input)
-		return a, nil, r
+		r := m.filterPolicyQueries(ctx, input)
+		return input, nil, r
 	}
 }
 
-func (m *ContextMetaFilter) filterPolicyQueries(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
+func (m *ContextMetaFilter) filterPolicyQueries(ctx context.Context, input *ActionMessage) bool {
 
 	policyContext := make(map[string]interface{})
 	if ctxMeta, has := metadata.FromContextRead(ctx); has {
@@ -97,7 +97,7 @@ func (m *ContextMetaFilter) filterPolicyQueries(ctx context.Context, input Actio
 					c.FieldName: c.Condition,
 				},
 			}
-			warden.Manager.Create(converter.ProtoToLadonPolicy(idPol))
+			_ = warden.Manager.Create(converter.ProtoToLadonPolicy(idPol))
 		}
 	}
 	if err := warden.IsAllowed(&ladon.Request{
@@ -107,12 +107,12 @@ func (m *ContextMetaFilter) filterPolicyQueries(ctx context.Context, input Actio
 		Context:  policyContext,
 	}); err != nil {
 		log.Logger(ctx).Debug("Filter not passing : ", zap.Error(err))
-		return input, false
+		return false
 	}
-	return input, true
+	return true
 }
 
-func (m *ContextMetaFilter) filterContextUserQueries(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
+func (m *ContextMetaFilter) filterContextUserQueries(ctx context.Context, input *ActionMessage) bool {
 	selector := &IdmSelector{
 		Type:  IdmSelectorType_User,
 		Query: m.Query,
@@ -121,7 +121,7 @@ func (m *ContextMetaFilter) filterContextUserQueries(ctx context.Context, input 
 	var user *idm.User
 	if username == "" {
 		log.Logger(ctx).Debug("Applying filter on ContextUser: return false as user is not found in context")
-		return input, false
+		return false
 	}
 	if username == common.PydioSystemUsername {
 		user = &idm.User{Login: username}
@@ -129,10 +129,9 @@ func (m *ContextMetaFilter) filterContextUserQueries(ctx context.Context, input 
 		user = u
 	} else {
 		log.Logger(ctx).Debug("Applying filter on ContextUser: return false as user is not found in the system")
-		return input, false
+		return false
 	}
 	// replace user
-	tmpInput := input.WithUser(user)
-	_, _, pass := selector.Filter(ctx, tmpInput)
-	return input, pass
+	_, _, pass := selector.Filter(ctx, input.WithUser(user))
+	return pass
 }

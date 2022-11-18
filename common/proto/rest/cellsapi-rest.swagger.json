@@ -1768,6 +1768,10 @@
           "title": "User-defined label for this action",
           "type": "string"
         },
+        "MergeAction": {
+          "$ref": "#/definitions/jobsAction",
+          "title": "CollectAction adds starts another chain after the whole ChainedAction/FailedFilterActions have been performed"
+        },
         "NodesFilter": {
           "$ref": "#/definitions/jobsNodesSelector",
           "title": "Node Filter"
@@ -1914,6 +1918,13 @@
           "format": "int32",
           "title": "Time taken to run the action",
           "type": "integer"
+        },
+        "Vars": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Vars container, values are json-encoded.",
+          "type": "object"
         }
       },
       "title": "Standard output of an action. Success value is required\nother are optional",
@@ -2166,6 +2177,11 @@
           "$ref": "#/definitions/jobsContextMetaFilter",
           "title": "Event Context Filter"
         },
+        "CreatedAt": {
+          "format": "int32",
+          "title": "Timestamp for creation time",
+          "type": "integer"
+        },
         "Custom": {
           "title": "Job created by application or by administrator",
           "type": "boolean"
@@ -2207,6 +2223,15 @@
         "MaxConcurrency": {
           "format": "int32",
           "title": "Task properties",
+          "type": "integer"
+        },
+        "MergeAction": {
+          "$ref": "#/definitions/jobsAction",
+          "title": "Collect chain of actions into a merged output"
+        },
+        "ModifiedAt": {
+          "format": "int32",
+          "title": "Timestamp for modification time",
           "type": "integer"
         },
         "NodeEventFilter": {
@@ -2253,6 +2278,13 @@
         "UserEventFilter": {
           "$ref": "#/definitions/jobsUsersSelector",
           "title": "Deprecated in favor of more generic IdmSelector"
+        },
+        "VersionMeta": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Additional Versioning Metadata",
+          "type": "object"
         }
       },
       "type": "object"

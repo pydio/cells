@@ -45,13 +45,13 @@ const (
 	IndexedContextKey = "chainIndex"
 )
 
-func (a *Action) ToMessages(startMessage ActionMessage, ctx context.Context, output, failedFilter chan ActionMessage, errors chan error, done chan bool) {
+func (a *Action) ToMessages(startMessage *ActionMessage, ctx context.Context, output, failedFilter chan *ActionMessage, errors chan error, done chan bool) {
 
 	ff := a.getFilters()
 	startMessage, excluded, pass := a.ApplyFilters(ctx, ff, startMessage)
 	if !pass {
 		if excluded != nil {
-			failedFilter <- *excluded
+			failedFilter <- excluded
 		} else {
 			failedFilter <- startMessage
 		}
@@ -59,7 +59,7 @@ func (a *Action) ToMessages(startMessage ActionMessage, ctx context.Context, out
 		return
 	}
 	if excluded != nil {
-		failedFilter <- *excluded
+		failedFilter <- excluded
 	}
 	if a.HasSelectors() {
 		a.FanToNext(ctx, 0, startMessage, output, errors, done)
@@ -112,12 +112,12 @@ func (a *Action) getFilters() (ff []InputFilter) {
 	return
 }
 
-func (a *Action) ApplyFilters(ctx context.Context, ff []InputFilter, input ActionMessage) (output ActionMessage, excluded *ActionMessage, passThrough bool) {
+func (a *Action) ApplyFilters(ctx context.Context, ff []InputFilter, input *ActionMessage) (output *ActionMessage, excluded *ActionMessage, passThrough bool) {
 	passThrough = true
 	output = input
 	for _, f := range ff {
 		logger := log.TasksLogger(a.debugLogContext(ctx, true, f))
-		output, excluded, passThrough = f.Filter(ctx, output)
+		output, excluded, passThrough = f.Filter(ctx, output.Clone())
 		if !passThrough {
 			if excluded != nil {
 				logger.Debug("Filter may break to", zap.Object("FAIL", excluded))
@@ -126,23 +126,23 @@ func (a *Action) ApplyFilters(ctx context.Context, ff []InputFilter, input Actio
 			}
 			return
 		}
-		logger.Debug("ZAPS", zap.Object("PASS", &output))
+		logger.Debug("ZAPS", zap.Object("PASS", output))
 	}
 	return
 }
 
-func (a *Action) FanToNext(ctx context.Context, index int, input ActionMessage, output chan ActionMessage, errors chan error, done chan bool) {
+func (a *Action) FanToNext(ctx context.Context, index int, input *ActionMessage, output chan *ActionMessage, errors chan error, done chan bool) {
 
 	selectors := a.getSelectors()
 	if index < len(selectors)-1 {
-		// Make a intermediary pipes for output/done
-		nextOut := make(chan ActionMessage)
+		// Make an intermediary pipes for output/done
+		nextOut := make(chan *ActionMessage)
 		nextDone := make(chan bool, 1)
 		go func() {
 			for {
 				select {
 				case message := <-nextOut:
-					go a.FanToNext(ctx, index+1, message, output, errors, done)
+					go a.FanToNext(ctx, index+1, message.Clone(), output, errors, done)
 				case <-nextDone:
 					close(nextOut)
 					close(nextDone)
@@ -165,14 +165,14 @@ func (a *Action) FanToNext(ctx context.Context, index int, input ActionMessage, 
 
 }
 
-func (a *Action) FanOutSelector(ctx context.Context, selector InputSelector, input ActionMessage, output chan ActionMessage, done chan bool, errors chan error) {
+func (a *Action) FanOutSelector(ctx context.Context, selector InputSelector, input *ActionMessage, output chan *ActionMessage, done chan bool, errors chan error) {
 
 	// If multiple selectors, we have to apply them sequentially
 	wire := make(chan interface{})
 	selectDone := make(chan bool, 1)
 	var timeoutCancel context.CancelFunc
 	logger := log.TasksLogger(a.debugLogContext(ctx, false, selector))
-	logger.Debug("ZAPS", zap.Object("Input", &input))
+	logger.Debug("ZAPS", zap.Object("Input", input))
 	go func() {
 		var count = 0
 		for {
@@ -229,7 +229,7 @@ func (a *Action) FanOutSelector(ctx context.Context, selector InputSelector, inp
 
 }
 
-func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, input ActionMessage, output chan ActionMessage, done chan bool, errors chan error) {
+func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, input *ActionMessage, output chan *ActionMessage, done chan bool, errors chan error) {
 
 	// If multiple selectors, we have to apply them sequentially
 	var nodes []*tree.Node
@@ -240,7 +240,7 @@ func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, in
 	var dss []*object.DataSource
 
 	logger := log.TasksLogger(a.debugLogContext(ctx, false, selector))
-	logger.Debug("ZAPS", zap.Object("Input", &input))
+	logger.Debug("ZAPS", zap.Object("Input", input))
 	var timeoutCancel context.CancelFunc
 	wire := make(chan interface{})
 	selectDone := make(chan bool, 1)
@@ -329,7 +329,11 @@ func (a *Action) BuildTaskActionPath(ctx context.Context, suffix string, indexTa
 	if len(suffix) > 0 {
 		sx = suffix
 	}
-	newPath := path.Join(pPath, fmt.Sprintf("%s$%d%s", a.ID, chainIndex, sx))
+	id := ""
+	if a != nil { // Maybe nil if parent runnable is ROOT
+		id = a.ID
+	}
+	newPath := path.Join(pPath, fmt.Sprintf("%s$%d%s", id, chainIndex, sx))
 	newMeta := map[string]string{
 		servicecontext.ContextMetaTaskActionPath: newPath,
 	}
@@ -360,7 +364,7 @@ func (a *Action) debugLogContext(ctx context.Context, filter bool, obj interface
 
 func (a *Action) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddString("ID", a.ID)
-	encoder.AddReflected("Parameters", a.Parameters)
+	_ = encoder.AddReflected("Parameters", a.Parameters)
 	return nil
 }
 

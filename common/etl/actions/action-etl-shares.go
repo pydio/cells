@@ -100,7 +100,7 @@ func (c *SyncSharesAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run the actual action code
-func (c *SyncSharesAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *SyncSharesAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	channels.StatusMsg <- "Initializing shares list for diff/merge..."
 
@@ -159,7 +159,6 @@ func (c *SyncSharesAction) Run(ctx context.Context, channels *actions.RunnableCh
 	merger.SaveShares(ctx, diff, progress, params)
 
 	// Compute message output
-	output := input
 	data, _ := json.Marshal(map[string]interface{}{
 		"msg":    messages,
 		"errors": pgErrors,
@@ -171,6 +170,5 @@ func (c *SyncSharesAction) Run(ctx context.Context, channels *actions.RunnableCh
 		StringBody: s,
 		JsonBody:   data,
 	}
-	output.AppendOutput(actionOutput)
-	return output, nil
+	return input.WithOutput(actionOutput), nil
 }

@@ -1,3 +1,4 @@
+//go:build !arm
 // +build !arm
 
 /*
@@ -114,7 +115,7 @@ func (c *SyncWorkspacesAction) Init(job *jobs.Job, action *jobs.Action) error {
 
 func (c *SyncWorkspacesAction) migratePydio8(ctx context.Context, mapping map[string]string, progress chan etl.MergeOperation) {
 
-	options := stores.CreateOptions(c.GetRuntimeContext(), ctx, c.params, jobs.ActionMessage{})
+	options := stores.CreateOptions(c.GetRuntimeContext(), ctx, c.params, &jobs.ActionMessage{})
 	left, err := stores.LoadReadableStore(c.leftType, options)
 	if err != nil {
 		progress <- etl.MergeOperation{Error: err}
@@ -266,7 +267,7 @@ func (c *SyncWorkspacesAction) migratePydio8(ctx context.Context, mapping map[st
 }
 
 // Run the actual action code.
-func (c *SyncWorkspacesAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *SyncWorkspacesAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	channels.StatusMsg <- "Initializing workspaces list for diff/merge..."
 
@@ -309,8 +310,7 @@ func (c *SyncWorkspacesAction) Run(ctx context.Context, channels *actions.Runnab
 
 	finished <- true
 
-	output := input
-	output.AppendOutput(&jobs.ActionOutput{
+	output := input.WithOutput(&jobs.ActionOutput{
 		Success:    true,
 		StringBody: "Successfully synced workspaces",
 	})

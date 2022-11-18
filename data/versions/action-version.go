@@ -90,7 +90,7 @@ func (c *VersionAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run processes the actual action code
-func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	if len(input.Nodes) == 0 {
 		return input.WithIgnore(), nil // Ignore

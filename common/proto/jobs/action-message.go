@@ -50,6 +50,12 @@ func (a *ActionMessage) AppendOutput(output *ActionOutput) {
 
 }
 
+func (a *ActionMessage) WithOutput(output *ActionOutput) *ActionMessage {
+	c := a.Clone()
+	c.AppendOutput(output)
+	return c
+}
+
 func (a *ActionMessage) GetLastOutput() *ActionOutput {
 
 	if a.OutputChain == nil {
@@ -70,9 +76,17 @@ func (a *ActionMessage) GetOutputs() []*ActionOutput {
 
 }
 
-func (a *ActionMessage) WithNode(n *tree.Node) ActionMessage {
+func (a *ActionMessage) StackedVars() map[string]interface{} {
+	vv := make(map[string]interface{})
+	for _, o := range a.OutputChain {
+		o.FillVars(vv)
+	}
+	return vv
+}
 
-	b := *a
+func (a *ActionMessage) WithNode(n *tree.Node) *ActionMessage {
+
+	b := a.Clone()
 	if n == nil {
 		b.Nodes = []*tree.Node{}
 	} else {
@@ -82,17 +96,17 @@ func (a *ActionMessage) WithNode(n *tree.Node) ActionMessage {
 
 }
 
-func (a *ActionMessage) WithNodes(nodes ...*tree.Node) ActionMessage {
+func (a *ActionMessage) WithNodes(nodes ...*tree.Node) *ActionMessage {
 
-	b := *a
+	b := a.Clone()
 	b.Nodes = append(b.Nodes, nodes...)
 	return b
 
 }
 
-func (a *ActionMessage) WithUser(u *idm.User) ActionMessage {
+func (a *ActionMessage) WithUser(u *idm.User) *ActionMessage {
 
-	b := *a
+	b := a.Clone()
 	if u == nil {
 		b.Users = []*idm.User{}
 	} else {
@@ -102,9 +116,9 @@ func (a *ActionMessage) WithUser(u *idm.User) ActionMessage {
 
 }
 
-func (a *ActionMessage) WithUsers(users ...*idm.User) ActionMessage {
+func (a *ActionMessage) WithUsers(users ...*idm.User) *ActionMessage {
 
-	b := *a
+	b := a.Clone()
 	for _, u := range users {
 		b.Users = append(b.Users, u)
 	}
@@ -112,9 +126,9 @@ func (a *ActionMessage) WithUsers(users ...*idm.User) ActionMessage {
 
 }
 
-func (a *ActionMessage) WithWorkspace(ws *idm.Workspace) ActionMessage {
+func (a *ActionMessage) WithWorkspace(ws *idm.Workspace) *ActionMessage {
 
-	b := *a
+	b := a.Clone()
 	if ws == nil {
 		b.Workspaces = []*idm.Workspace{}
 	} else {
@@ -124,17 +138,17 @@ func (a *ActionMessage) WithWorkspace(ws *idm.Workspace) ActionMessage {
 
 }
 
-func (a *ActionMessage) WithWorkspaces(ws ...*idm.Workspace) ActionMessage {
+func (a *ActionMessage) WithWorkspaces(ws ...*idm.Workspace) *ActionMessage {
 
-	b := *a
+	b := a.Clone()
 	b.Workspaces = append(b.Workspaces, ws...)
 	return b
 
 }
 
-func (a *ActionMessage) WithRole(r *idm.Role) ActionMessage {
+func (a *ActionMessage) WithRole(r *idm.Role) *ActionMessage {
 
-	b := *a
+	b := a.Clone()
 	if r == nil {
 		b.Roles = []*idm.Role{}
 	} else {
@@ -144,17 +158,17 @@ func (a *ActionMessage) WithRole(r *idm.Role) ActionMessage {
 
 }
 
-func (a *ActionMessage) WithRoles(r ...*idm.Role) ActionMessage {
+func (a *ActionMessage) WithRoles(r ...*idm.Role) *ActionMessage {
 
-	b := *a
+	b := a.Clone()
 	b.Roles = append(b.Roles, r...)
 	return b
 
 }
 
-func (a *ActionMessage) WithAcl(acl *idm.ACL) ActionMessage {
+func (a *ActionMessage) WithAcl(acl *idm.ACL) *ActionMessage {
 
-	b := *a
+	b := a.Clone()
 	if acl == nil {
 		b.Acls = []*idm.ACL{}
 	} else {
@@ -164,17 +178,17 @@ func (a *ActionMessage) WithAcl(acl *idm.ACL) ActionMessage {
 
 }
 
-func (a *ActionMessage) WithAcls(aa ...*idm.ACL) ActionMessage {
+func (a *ActionMessage) WithAcls(aa ...*idm.ACL) *ActionMessage {
 
-	b := *a
+	b := a.Clone()
 	b.Acls = append(b.Acls, aa...)
 	return b
 
 }
 
-func (a *ActionMessage) WithDataSource(ds *object.DataSource) ActionMessage {
+func (a *ActionMessage) WithDataSource(ds *object.DataSource) *ActionMessage {
 
-	b := *a
+	b := a.Clone()
 	if ds == nil {
 		b.DataSources = []*object.DataSource{}
 	} else {
@@ -184,17 +198,17 @@ func (a *ActionMessage) WithDataSource(ds *object.DataSource) ActionMessage {
 
 }
 
-func (a *ActionMessage) WithDataSources(ds ...*object.DataSource) ActionMessage {
+func (a *ActionMessage) WithDataSources(ds ...*object.DataSource) *ActionMessage {
 
-	b := *a
+	b := a.Clone()
 	b.DataSources = append(b.DataSources, ds...)
 	return b
 
 }
 
-func (a *ActionMessage) WithError(e error) ActionMessage {
+func (a *ActionMessage) WithError(e error) *ActionMessage {
 
-	b := *a
+	b := a.Clone()
 	b.AppendOutput(&ActionOutput{
 		Success:     false,
 		ErrorString: e.Error(),
@@ -203,9 +217,9 @@ func (a *ActionMessage) WithError(e error) ActionMessage {
 
 }
 
-func (a *ActionMessage) WithIgnore() ActionMessage {
+func (a *ActionMessage) WithIgnore() *ActionMessage {
 
-	b := *a
+	b := a.Clone()
 	b.AppendOutput(&ActionOutput{
 		Ignored: true,
 	})
@@ -237,6 +251,9 @@ func (a *ActionMessage) EventFromAny() (interface{}, error) {
 func (a *ActionMessage) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	if ev, _ := a.EventFromAny(); ev != nil {
 		_ = encoder.AddReflected("Event", ev)
+	}
+	if vv := a.StackedVars(); len(vv) > 0 {
+		_ = encoder.AddReflected("StackedVars", vv)
 	}
 	limitedSlice(encoder, "Nodes", a.Nodes, 5)
 	limitedSlice(encoder, "Roles", a.Roles, 5)

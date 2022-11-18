@@ -49,7 +49,7 @@ func (m *IdmSelector) FilterID() string {
 }
 
 // Select IDM Objects by a given query
-func (m *IdmSelector) Select(ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
+func (m *IdmSelector) Select(ctx context.Context, input *ActionMessage, objects chan interface{}, done chan bool) error {
 
 	defer func() {
 		done <- true
@@ -137,7 +137,7 @@ func (m *IdmSelector) Select(ctx context.Context, input ActionMessage, objects c
 }
 
 // Filter IDM objects by a query
-func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
+func (m *IdmSelector) Filter(ctx context.Context, input *ActionMessage) (*ActionMessage, *ActionMessage, bool) {
 
 	var opposite *ActionMessage
 
@@ -174,9 +174,8 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 		input.Users = uu
 		pass = len(input.Users) > 0
 		if len(xx) > 0 {
-			op := input
-			op.Users = xx
-			opposite = &op
+			opposite = input.Clone()
+			opposite.Users = xx
 		}
 
 	case IdmSelectorType_Role:
@@ -205,9 +204,8 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 		input.Roles = rr
 		pass = len(input.Roles) > 0
 		if len(xx) > 0 {
-			op := input
-			op.Roles = xx
-			opposite = &op
+			opposite = input.Clone()
+			opposite.Roles = xx
 		}
 
 	case IdmSelectorType_Workspace:
@@ -242,9 +240,8 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 		input.Workspaces = ww
 		pass = len(input.Workspaces) > 0
 		if len(xx) > 0 {
-			op := input
-			op.Workspaces = xx
-			opposite = &op
+			opposite = input.Clone()
+			opposite.Workspaces = xx
 		}
 
 	case IdmSelectorType_Acl:
@@ -273,9 +270,8 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 		input.Acls = aa
 		pass = len(input.Acls) > 0
 		if len(xx) > 0 {
-			op := input
-			op.Acls = xx
-			opposite = &op
+			opposite = input.Clone()
+			opposite.Acls = xx
 		}
 
 	default:
@@ -285,7 +281,7 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 	return input, opposite, pass
 }
 
-func (m *IdmSelector) cloneEvaluated(ctx context.Context, input ActionMessage, query *service.Query) *service.Query {
+func (m *IdmSelector) cloneEvaluated(ctx context.Context, input *ActionMessage, query *service.Query) *service.Query {
 	if len(GetFieldEvaluators()) == 0 {
 		return query
 	}
@@ -308,7 +304,7 @@ func (m *IdmSelector) cloneEvaluated(ctx context.Context, input ActionMessage, q
 	return q
 }
 
-func (m *IdmSelector) evaluate(ctx context.Context, input ActionMessage, singleQuery interface{}) service.Matcher {
+func (m *IdmSelector) evaluate(ctx context.Context, input *ActionMessage, singleQuery interface{}) service.Matcher {
 	if uQ, o := singleQuery.(*idm.UserSingleQuery); o {
 		uQ.Uuid = EvaluateFieldStr(ctx, input, uQ.Uuid)
 		uQ.Login = EvaluateFieldStr(ctx, input, uQ.Login)

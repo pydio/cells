@@ -73,7 +73,7 @@ func (n *NodesSelector) FilterID() string {
 	return "NodesFilter"
 }
 
-func (n *NodesSelector) Select(ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
+func (n *NodesSelector) Select(ctx context.Context, input *ActionMessage, objects chan interface{}, done chan bool) error {
 	defer func() {
 		done <- true
 	}()
@@ -210,7 +210,7 @@ func (n *NodesSelector) performListing(ctx context.Context, serviceName string, 
 	return count, mayHaveMore, stErr
 }
 
-func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
+func (n *NodesSelector) Filter(ctx context.Context, input *ActionMessage) (*ActionMessage, *ActionMessage, bool) {
 
 	var excluded []*tree.Node
 	if len(input.Nodes) == 0 {
@@ -257,15 +257,14 @@ func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (Action
 	output.Nodes = newNodes
 	var xx *ActionMessage
 	if len(excluded) > 0 {
-		filteredOutput := input
-		filteredOutput.Nodes = excluded
-		xx = &filteredOutput
+		xx = input.Clone()
+		xx.Nodes = excluded
 	}
 	return output, xx, len(newNodes) > 0
 
 }
 
-func (n *NodesSelector) evaluatedClone(ctx context.Context, input ActionMessage) *NodesSelector {
+func (n *NodesSelector) evaluatedClone(ctx context.Context, input *ActionMessage) *NodesSelector {
 	if len(GetFieldEvaluators()) == 0 {
 		return n
 	}
@@ -341,7 +340,9 @@ func evaluateSingleQuery(q *tree.Query, node *tree.Node) (result bool) {
 	if (q.MinSize > 0 && node.Size < q.MinSize) || (q.MaxSize > 0 && node.Size > q.MaxSize) {
 		return false
 	}
-	q.ParseDurationDate()
+	if er := q.ParseDurationDate(); er != nil {
+		fmt.Println("[warn] Error while parsing Duration: " + er.Error())
+	}
 	if (q.MinDate > 0 && node.MTime < q.MinDate) || (q.MaxDate > 0 && node.MTime > q.MaxDate) {
 		return false
 	}

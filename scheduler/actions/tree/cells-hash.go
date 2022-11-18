@@ -144,7 +144,7 @@ func (c *CellsHashAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run the actual action code
-func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	if len(input.Nodes) == 0 {
 		return input.WithIgnore(), nil // Ignore
@@ -202,12 +202,9 @@ func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableCha
 		outnodes = append(outnodes, node)
 	}
 
-	// Reset
-	input = input.WithNode(nil)
-	// Replace
-	input = input.WithNodes(outnodes...)
+	// Reset and replace nodes
+	output := input.WithNode(nil).WithNodes(outnodes...)
+	output.AppendOutput(&jobs.ActionOutput{Success: true})
 
-	input.AppendOutput(&jobs.ActionOutput{Success: true})
-
-	return input, nil
+	return output, nil
 }

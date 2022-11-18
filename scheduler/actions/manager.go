@@ -113,6 +113,6 @@ func (i *ignoredAction) Init(job *jobs.Job, action *jobs.Action) error {
 	return nil
 }
 
-func (i *ignoredAction) Run(_ context.Context, _ *RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (i *ignoredAction) Run(ctx context.Context, channels *RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 	return input, nil
 }

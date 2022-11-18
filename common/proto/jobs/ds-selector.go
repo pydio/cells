@@ -35,7 +35,7 @@ func (m *DataSourceSelector) FilterID() string {
 	return "DataSourceFilter"
 }
 
-func (m *DataSourceSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
+func (m *DataSourceSelector) Filter(ctx context.Context, input *ActionMessage) (*ActionMessage, *ActionMessage, bool) {
 	var passed, excluded []*object.DataSource
 	for _, ds := range input.DataSources {
 		if m.All || m.evaluate(ctx, m.Query, input, ds) {
@@ -47,14 +47,14 @@ func (m *DataSourceSelector) Filter(ctx context.Context, input ActionMessage) (A
 	input.DataSources = passed
 	var x *ActionMessage
 	if len(excluded) > 0 {
-		filteredOutput := input
+		filteredOutput := input.Clone()
 		filteredOutput.DataSources = excluded
-		x = &filteredOutput
+		x = filteredOutput
 	}
 	return input, x, len(passed) > 0
 }
 
-func (m *DataSourceSelector) Select(ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
+func (m *DataSourceSelector) Select(ctx context.Context, input *ActionMessage, objects chan interface{}, done chan bool) error {
 	defer func() {
 		done <- true
 	}()
@@ -81,8 +81,11 @@ func (m *DataSourceSelector) loadDSS() (sources []*object.DataSource) {
 	return
 }
 
-func (m *DataSourceSelector) evaluate(ctx context.Context, query *service.Query, input ActionMessage, dsObject *object.DataSource) bool {
+func (m *DataSourceSelector) evaluate(ctx context.Context, query *service.Query, input *ActionMessage, dsObject *object.DataSource) bool {
 
+	if query == nil {
+		return true
+	}
 	var bb []bool
 	for _, q := range query.SubQueries {
 		msg := &object.DataSourceSingleQuery{}

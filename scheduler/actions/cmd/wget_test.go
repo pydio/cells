@@ -71,7 +71,7 @@ func TestWGetAction_Init(t *testing.T) {
 		})
 		status := make(chan string)
 		progress := make(chan float32)
-		_, e = action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{})
+		_, e = action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{})
 		So(e, ShouldNotBeNil)
 
 		// Valid URL
@@ -113,7 +113,7 @@ func TestWGetAction_Run(t *testing.T) {
 
 		status := make(chan string)
 		progress := make(chan float32)
-		_, er := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
+		_, er := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
 			Nodes: []*tree.Node{node},
 		})
 		close(status)

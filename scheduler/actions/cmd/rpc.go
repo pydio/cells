@@ -135,7 +135,7 @@ func (c *RpcAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run perform actual action code
-func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	var jsonParams interface{}
 	if e := json.Unmarshal([]byte(jobs.EvaluateFieldStr(ctx, input, c.JsonRequest)), &jsonParams); e != nil {
@@ -205,7 +205,7 @@ func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels,
 		return input.WithError(e), e
 	}
 
-	output := input
+	output := input.Clone()
 	conn := grpc.GetClientConnFromCtx(c.GetRuntimeContext(), serviceName)
 	if methodDescriptor.IsStreamingServer() {
 

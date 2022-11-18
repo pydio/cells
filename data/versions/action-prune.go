@@ -79,7 +79,7 @@ func (c *PruneVersionsAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run processes the actual action code.
-func (c *PruneVersionsAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *PruneVersionsAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	// First check if versioning is enabled on any datasource
 	sources := config.SourceNamesForDataServices(common.ServiceDataIndex)

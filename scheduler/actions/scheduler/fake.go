@@ -119,9 +119,9 @@ func (f *FakeAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run performs the actual action code
-func (f *FakeAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (f *FakeAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
-	outputMessage := input
+	outputMessage := input.Clone()
 
 	var timer, tick int64
 	if t, err := jobs.EvaluateFieldInt64(ctx, input, f.timer); err == nil {

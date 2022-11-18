@@ -30,18 +30,18 @@ var (
 )
 
 type FieldEvaluator interface {
-	EvaluateField(ctx context.Context, input ActionMessage, value string) string
+	EvaluateField(ctx context.Context, input *ActionMessage, value string) string
 }
 
 type InputSelector interface {
-	Select(ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error
+	Select(ctx context.Context, input *ActionMessage, objects chan interface{}, done chan bool) error
 	MultipleSelection() bool
 	GetTimeout() string
 	SelectorID() string
 }
 
 type InputFilter interface {
-	Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool)
+	Filter(ctx context.Context, input *ActionMessage) (*ActionMessage, *ActionMessage, bool)
 	FilterID() string
 }
 
@@ -56,7 +56,7 @@ func GetFieldEvaluators() []FieldEvaluator {
 }
 
 // EvaluateFieldStr goes through all registered evaluators to modify string value on the fly
-func EvaluateFieldStr(ctx context.Context, input ActionMessage, value string) string {
+func EvaluateFieldStr(ctx context.Context, input *ActionMessage, value string) string {
 	output := value
 	for _, e := range fieldEvaluators {
 		output = e.EvaluateField(ctx, input, output)
@@ -64,15 +64,15 @@ func EvaluateFieldStr(ctx context.Context, input ActionMessage, value string) st
 	return output
 }
 
-// EvaluateFieldStr goes through all registered evaluators to modify string value on the fly
-func EvaluateFieldStrSlice(ctx context.Context, input ActionMessage, values []string) []string {
+// EvaluateFieldStrSlice goes through all registered evaluators to modify string value on the fly
+func EvaluateFieldStrSlice(ctx context.Context, input *ActionMessage, values []string) []string {
 	for i, v := range values {
 		values[i] = EvaluateFieldStr(ctx, input, v)
 	}
 	return values
 }
 
-func EvaluateFieldBool(ctx context.Context, input ActionMessage, value string) (bool, error) {
+func EvaluateFieldBool(ctx context.Context, input *ActionMessage, value string) (bool, error) {
 	strVal := EvaluateFieldStr(ctx, input, value)
 	if strVal == "" { // consider empty string is false
 		return false, nil
@@ -80,7 +80,7 @@ func EvaluateFieldBool(ctx context.Context, input ActionMessage, value string) (
 	return strconv.ParseBool(strVal)
 }
 
-func EvaluateFieldInt(ctx context.Context, input ActionMessage, value string) (int, error) {
+func EvaluateFieldInt(ctx context.Context, input *ActionMessage, value string) (int, error) {
 	strVal := EvaluateFieldStr(ctx, input, value)
 	if i, e := strconv.ParseInt(strVal, 10, 64); e == nil {
 		return int(i), nil
@@ -89,7 +89,7 @@ func EvaluateFieldInt(ctx context.Context, input ActionMessage, value string) (i
 	}
 }
 
-func EvaluateFieldInt64(ctx context.Context, input ActionMessage, value string) (int64, error) {
+func EvaluateFieldInt64(ctx context.Context, input *ActionMessage, value string) (int64, error) {
 	strVal := EvaluateFieldStr(ctx, input, value)
 	return strconv.ParseInt(strVal, 10, 64)
 }

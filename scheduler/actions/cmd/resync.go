@@ -130,7 +130,7 @@ func (c *ResyncAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run perform actual action code
-func (c *ResyncAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *ResyncAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	ctx, _ = context.WithTimeout(ctx, 1*time.Hour)
 	srvName := jobs.EvaluateFieldStr(ctx, input, c.ServiceName)
@@ -147,7 +147,7 @@ func (c *ResyncAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		log.TasksLogger(ctx).Error("Unable to trigger resync for "+srvName, zap.Error(e))
 		return input.WithError(e), e
 	}
-	output := input
+	output := input.Clone()
 	output.AppendOutput(&jobs.ActionOutput{
 		Success: true,
 	})

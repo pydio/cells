@@ -7,12 +7,12 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "google.golang.org/protobuf/proto"
+	_ "github.com/pydio/cells/v4/common/proto/object"
 	_ "google.golang.org/protobuf/types/known/anypb"
 	_ "github.com/pydio/cells/v4/common/proto/service"
 	_ "github.com/pydio/cells/v4/common/proto/tree"
 	_ "github.com/pydio/cells/v4/common/proto/idm"
 	_ "github.com/pydio/cells/v4/common/proto/activity"
-	_ "github.com/pydio/cells/v4/common/proto/object"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
@@ -169,6 +169,11 @@ func (this *Action) Validate() error {
 			}
 		}
 	}
+	if this.MergeAction != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MergeAction); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("MergeAction", err)
+		}
+	}
 	return nil
 }
 func (this *Job) Validate() error {
@@ -182,6 +187,11 @@ func (this *Job) Validate() error {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Actions", err)
 			}
+		}
+	}
+	if this.MergeAction != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MergeAction); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("MergeAction", err)
 		}
 	}
 	for _, item := range this.Tasks {
@@ -230,6 +240,7 @@ func (this *Job) Validate() error {
 			}
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *JobParameter) Validate() error {
@@ -384,6 +395,7 @@ func (this *JobTriggerEvent) Validate() error {
 	return nil
 }
 func (this *ActionOutput) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *ActionOutputSingleQuery) Validate() error {

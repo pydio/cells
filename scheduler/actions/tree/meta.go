@@ -95,7 +95,7 @@ func (c *MetaAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run the actual action code
-func (c *MetaAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *MetaAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	if len(input.Nodes) == 0 {
 		return input.WithIgnore(), nil // Ignore
@@ -122,7 +122,7 @@ func (c *MetaAction) Run(ctx context.Context, channels *actions.RunnableChannels
 		}
 	}
 
-	input.AppendOutput(&jobs.ActionOutput{Success: true})
+	output := input.WithOutput(&jobs.ActionOutput{Success: true})
 
-	return input, nil
+	return output, nil
 }

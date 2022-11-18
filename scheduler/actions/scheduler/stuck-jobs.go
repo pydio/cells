@@ -91,7 +91,7 @@ func (c *PruneJobsAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run the actual action code
-func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	pruneLimit, e := jobs.EvaluateFieldInt(ctx, input, c.maxTasksParam)
 	if e != nil {
@@ -129,5 +129,5 @@ func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableCha
 	msg := fmt.Sprintf("Deleted %d AutoClean jobs", resp3.DeleteCount)
 	log.TasksLogger(ctx).Info(msg)
 
-	return input, nil
+	return input.Clone(), nil
 }

@@ -127,7 +127,7 @@ func (f *FakeUsersAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run the actual action code
-func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 	log.TasksLogger(ctx).Info("Starting fake users creation")
 
 	var number int64
@@ -142,7 +142,7 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 		prefix = jobs.EvaluateFieldStr(ctx, input, f.prefix)
 	}
 
-	outputMessage := input
+	outputMessage := input.Clone()
 	outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Creating random users"})
 
 	userServiceClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(f.GetRuntimeContext(), common.ServiceUser))

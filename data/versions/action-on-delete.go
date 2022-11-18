@@ -101,7 +101,7 @@ func (c *OnDeleteVersionsAction) Init(job *jobs.Job, action *jobs.Action) error 
 }
 
 // Run processes the actual action code.
-func (c *OnDeleteVersionsAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *OnDeleteVersionsAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	if len(input.Nodes) == 0 {
 		return input.WithIgnore(), nil // Ignore

@@ -60,12 +60,12 @@ func TestDeleteAction_Run(t *testing.T) {
 		status := make(chan string)
 		progress := make(chan float32)
 
-		ignored, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
+		ignored, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
 			Nodes: []*tree.Node{},
 		})
 		So(ignored.GetLastOutput().Ignored, ShouldBeTrue)
 
-		output, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
+		output, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
 			Nodes: []*tree.Node{{
 				Path: "/test",
 			}},

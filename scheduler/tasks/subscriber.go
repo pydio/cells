@@ -285,13 +285,13 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 	if len(job.Parameters) > 0 {
 		params := make(map[string]string, len(job.Parameters))
 		for _, p := range job.Parameters {
-			params[p.Name] = jobs.EvaluateFieldStr(ctx, jobs.ActionMessage{}, p.Value)
+			params[p.Name] = jobs.EvaluateFieldStr(ctx, &jobs.ActionMessage{}, p.Value)
 		}
 		if len(eventParameters) > 0 {
 			// Replace job parameters with values passed through TriggerEvent
 			for k, v := range eventParameters[0] {
 				if _, o := params[k]; o {
-					params[k] = jobs.EvaluateFieldStr(ctx, jobs.ActionMessage{}, v)
+					params[k] = jobs.EvaluateFieldStr(ctx, &jobs.ActionMessage{}, v)
 				}
 			}
 		}
@@ -462,20 +462,20 @@ func (s *Subscriber) jobLevelFilterPass(ctx context.Context, event *tree.NodeCha
 	if refNode == nil {
 		return true // Ignore
 	}
-	input := jobs.ActionMessage{Nodes: []*tree.Node{refNode}}
+	input := &jobs.ActionMessage{Nodes: []*tree.Node{refNode}}
 	_, _, pass := filter.Filter(ctx, input)
 	return pass
 }
 
 // jobLevelIdmFilterPass tests filter and return false if all input IDM slots are empty
 func (s *Subscriber) jobLevelIdmFilterPass(ctx context.Context, input *jobs.ActionMessage, filter *jobs.IdmSelector) bool {
-	_, _, pass := filter.Filter(ctx, *input)
+	_, _, pass := filter.Filter(ctx, input)
 	return pass
 }
 
 // jobLevelContextFilterPass tests filter and return false if context is filtered out
 func (s *Subscriber) jobLevelContextFilterPass(ctx context.Context, filter *jobs.ContextMetaFilter) bool {
-	_, _, pass := filter.Filter(ctx, jobs.ActionMessage{})
+	_, _, pass := filter.Filter(ctx, &jobs.ActionMessage{})
 	return pass
 }
 
@@ -501,7 +501,7 @@ func (s *Subscriber) jobLevelDataSourceFilterPass(ctx context.Context, event *tr
 			log.Logger(ctx).Error("jobLevelDataSourceFilter : cannot load source by name " + dsName + " - Job will not run!")
 			return false
 		}
-		_, _, pass := filter.Filter(ctx, jobs.ActionMessage{DataSources: []*object.DataSource{ds}})
+		_, _, pass := filter.Filter(ctx, &jobs.ActionMessage{DataSources: []*object.DataSource{ds}})
 		log.Logger(ctx).Debug("Filtering on node datasource (from node meta)", zap.Bool("pass", pass))
 		return pass
 	} else {
@@ -524,7 +524,7 @@ func (s *Subscriber) contextJobSameUuid(ctx context.Context, jobId string) bool 
 }
 
 func createMessageFromEvent(event interface{}) *jobs.ActionMessage {
-	initialInput := jobs.ActionMessage{}
+	initialInput := &jobs.ActionMessage{}
 
 	if nodeChange, ok := event.(*tree.NodeChangeEvent); ok {
 		ap, _ := anypb.New(nodeChange)
@@ -563,7 +563,7 @@ func createMessageFromEvent(event interface{}) *jobs.ActionMessage {
 
 	}
 
-	return &initialInput
+	return initialInput
 }
 
 func logStartMessageFromEvent(ctx context.Context, event interface{}) {

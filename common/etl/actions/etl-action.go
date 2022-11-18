@@ -62,7 +62,7 @@ func (c *etlAction) ParseStores(params map[string]string) error {
 	return nil
 }
 
-func (c *etlAction) initMerger(ctx context.Context, input jobs.ActionMessage) (*etl.Merger, error) {
+func (c *etlAction) initMerger(ctx context.Context, input *jobs.ActionMessage) (*etl.Merger, error) {
 	options := stores.CreateOptions(c.GetRuntimeContext(), ctx, c.params, input)
 	left, err := stores.LoadReadableStore(c.leftType, options)
 	if err != nil {

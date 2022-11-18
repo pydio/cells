@@ -104,7 +104,7 @@ func TestCopyMoveAction_RunCopy(t *testing.T) {
 		status := make(chan string, 10000)
 		progress := make(chan float32, 10000)
 
-		ignored, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
+		ignored, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
 			Nodes: []*tree.Node{},
 		})
 		So(ignored.GetLastOutput().Ignored, ShouldBeTrue)
@@ -112,7 +112,7 @@ func TestCopyMoveAction_RunCopy(t *testing.T) {
 		bi := nodes.BranchInfo{LoadedSource: nodes.LoadedSource{DataSource: &object.DataSource{Name: "fake", FlatStorage: true}}}
 		ctx := nodes.WithBranchInfo(context.Background(), "from", bi)
 		ctx = nodes.WithBranchInfo(ctx, "to", bi)
-		output, err := action.Run(ctx, &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
+		output, err := action.Run(ctx, &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
 			Nodes: []*tree.Node{&tree.Node{
 				Path:      "path/to/original",
 				MetaStore: map[string]string{"name": `"original"`},
@@ -162,7 +162,7 @@ func TestCopyMoveAction_RunCopyOnItself(t *testing.T) {
 		status := make(chan string, 10000)
 		progress := make(chan float32, 10000)
 
-		ignored, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
+		ignored, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
 			Nodes: []*tree.Node{},
 		})
 		So(ignored.GetLastOutput().Ignored, ShouldBeTrue)
@@ -170,7 +170,7 @@ func TestCopyMoveAction_RunCopyOnItself(t *testing.T) {
 		bi := nodes.BranchInfo{LoadedSource: nodes.LoadedSource{DataSource: &object.DataSource{Name: "fake", FlatStorage: true}}}
 		ctx := nodes.WithBranchInfo(context.Background(), "from", bi)
 		ctx = nodes.WithBranchInfo(ctx, "to", bi)
-		_, err = action.Run(ctx, &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
+		_, err = action.Run(ctx, &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
 			Nodes: []*tree.Node{&tree.Node{
 				Path:      "path/to/original",
 				MetaStore: map[string]string{"name": `"original"`},
@@ -212,7 +212,7 @@ func TestCopyMoveAction_RunMove(t *testing.T) {
 		status := make(chan string, 10000)
 		progress := make(chan float32, 10000)
 
-		ignored, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
+		ignored, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
 			Nodes: []*tree.Node{},
 		})
 		So(ignored.GetLastOutput().Ignored, ShouldBeTrue)
@@ -220,7 +220,7 @@ func TestCopyMoveAction_RunMove(t *testing.T) {
 		bi := nodes.BranchInfo{LoadedSource: nodes.LoadedSource{DataSource: &object.DataSource{Name: "fake", FlatStorage: true}}}
 		ctx := nodes.WithBranchInfo(context.Background(), "from", bi)
 		ctx = nodes.WithBranchInfo(ctx, "to", bi)
-		output, err := action.Run(ctx, &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
+		output, err := action.Run(ctx, &actions.RunnableChannels{StatusMsg: status, Progress: progress}, &jobs.ActionMessage{
 			Nodes: []*tree.Node{&tree.Node{
 				Path: "path/to/original",
 			}},

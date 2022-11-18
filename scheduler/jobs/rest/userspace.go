@@ -605,7 +605,7 @@ func hostListCheck(list []string, u *url.URL) bool {
 
 func disallowTemplate(params map[string]string) error {
 	for _, v := range params {
-		if v != jobs.EvaluateFieldStr(context.Background(), jobs.ActionMessage{}, v) {
+		if v != jobs.EvaluateFieldStr(context.Background(), &jobs.ActionMessage{}, v) {
 			return errors.New("format.invalid", "invalid format detected", 403)
 		}
 	}

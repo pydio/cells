@@ -133,7 +133,7 @@ func (c *CompressAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run the actual action code
-func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	if len(input.Nodes) == 0 {
 		return input.WithIgnore(), nil
@@ -152,8 +152,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 	}
 	if c.filter != nil {
 		compressor.WalkFilter = func(ctx context.Context, node *tree.Node) bool {
-			in := jobs.ActionMessage{}
-			in = in.WithNode(node)
+			in := (&jobs.ActionMessage{}).WithNode(node)
 			_, _, pass := c.filter.Filter(ctx, in)
 			return pass
 		}

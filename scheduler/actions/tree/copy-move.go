@@ -159,7 +159,7 @@ func (c *CopyMoveAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run the actual action code
-func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	if len(input.Nodes) == 0 {
 		return input.WithIgnore(), nil // Ignore
@@ -196,7 +196,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 		return input.WithError(er), er
 	}
 
-	output := input
+	output := input.Clone()
 
 	if e := nodes.CopyMoveNodes(ctx, cli, sourceNode, targetNode, c.move, true, channels.StatusMsg, channels.Progress, T); e != nil {
 		output = output.WithError(e)

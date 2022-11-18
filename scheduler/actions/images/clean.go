@@ -71,7 +71,7 @@ func (c *CleanThumbsTask) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run the actual action code
-func (c *CleanThumbsTask) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *CleanThumbsTask) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	if len(input.Nodes) == 0 {
 		return input.WithIgnore(), nil
@@ -101,6 +101,6 @@ func (c *CleanThumbsTask) Run(ctx context.Context, channels *actions.RunnableCha
 		}
 		log.TasksLogger(ctx).Info(fmt.Sprintf("Successfully removed object %s", oi.Key))
 	}
-	output := jobs.ActionMessage{}
+	output := &jobs.ActionMessage{}
 	return output, nil
 }

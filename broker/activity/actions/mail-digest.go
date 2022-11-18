@@ -95,7 +95,7 @@ func (m *MailDigestAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run processes the actual action code
-func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	if !config.Get("services", common.ServiceGrpcNamespace_+common.ServiceMailer, "valid").Default(false).Bool() {
 		log.Logger(ctx).Debug("Ignoring as no valid mailer was found")

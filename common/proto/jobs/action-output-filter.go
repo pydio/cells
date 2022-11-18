@@ -50,7 +50,7 @@ func (n *ActionOutputFilter) FilterID() string {
 	return "ActionOutputFilter"
 }
 
-func (n *ActionOutputFilter) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
+func (n *ActionOutputFilter) Filter(ctx context.Context, input *ActionMessage) (*ActionMessage, *ActionMessage, bool) {
 
 	output := input
 	if n.Query == nil || len(n.Query.SubQueries) == 0 {
@@ -71,7 +71,7 @@ func (n *ActionOutputFilter) Filter(ctx context.Context, input ActionMessage) (A
 	return output, nil, multi.Matches(input.GetLastOutput())
 }
 
-func (n *ActionOutputFilter) cloneEval(ctx context.Context, input ActionMessage, query *ActionOutputSingleQuery) *ActionOutputSingleQuery {
+func (n *ActionOutputFilter) cloneEval(ctx context.Context, input *ActionMessage, query *ActionOutputSingleQuery) *ActionOutputSingleQuery {
 	if len(GetFieldEvaluators()) == 0 {
 		return query
 	}

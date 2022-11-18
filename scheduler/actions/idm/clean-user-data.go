@@ -74,13 +74,13 @@ func (c *CleanUserDataAction) Init(job *jobs.Job, action *jobs.Action) error {
 	return nil
 }
 
-//ProvidesProgress implements interface
+// ProvidesProgress implements interface
 func (c *CleanUserDataAction) ProvidesProgress() bool {
 	return true
 }
 
 // Run perform actual action code
-func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	users := input.GetUsers()
 	if len(users) == 0 {

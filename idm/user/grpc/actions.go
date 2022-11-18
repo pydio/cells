@@ -74,7 +74,7 @@ func (a *DeleteUsersAction) Init(job *jobs.Job, action *jobs.Action) error {
 	return nil
 }
 
-func (a *DeleteUsersAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (a *DeleteUsersAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	singleQ := &idm.UserSingleQuery{}
 	if login, ok := a.params["login"]; ok {

@@ -41,7 +41,7 @@ func (m *UsersSelector) SelectorID() string {
 }
 
 // Select performs a query on the User Service to load a list of users. The more generic IdmSelector should be used instead.
-func (m *UsersSelector) Select(ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
+func (m *UsersSelector) Select(ctx context.Context, input *ActionMessage, objects chan interface{}, done chan bool) error {
 
 	defer func() {
 		done <- true
@@ -73,7 +73,6 @@ func (m *UsersSelector) Select(ctx context.Context, input ActionMessage, objects
 	if e != nil {
 		return e
 	}
-	defer s.CloseSend()
 	for {
 		resp, e := s.Recv()
 		if e != nil {
@@ -89,6 +88,6 @@ func (m *UsersSelector) Select(ctx context.Context, input ActionMessage, objects
 }
 
 // Filter is not implemented. Use IdmSelector object instead
-func (n *UsersSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
+func (n *UsersSelector) Filter(ctx context.Context, input *ActionMessage) (*ActionMessage, bool) {
 	return input, true
 }

@@ -82,7 +82,7 @@ type ConcreteAction interface {
 	// Init initialize parameters
 	Init(job *jobs.Job, action *jobs.Action) error
 	// Run performs the actual action code
-	Run(ctx context.Context, channels *RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error)
+	Run(ctx context.Context, channels *RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error)
 }
 
 // TaskUpdaterDelegateAction Actions that implement this interface can send their status updates to a parent task

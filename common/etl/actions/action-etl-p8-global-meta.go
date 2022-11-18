@@ -232,7 +232,7 @@ func (c *MigrateGlobalMetaAction) loadMeta(ctx context.Context, conf *config.Sdk
 }
 
 // Run the actual action code
-func (c *MigrateGlobalMetaAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *MigrateGlobalMetaAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	channels.StatusMsg <- "[Global Meta] Initializing Migrate Global Meta..."
 
@@ -279,7 +279,7 @@ func (c *MigrateGlobalMetaAction) Run(ctx context.Context, channels *actions.Run
 	}
 
 	// Compute message output
-	output := input
+	output := input.Clone()
 	data, _ := json.Marshal(map[string]interface{}{
 		"msg":    messages,
 		"errors": pgErrors,

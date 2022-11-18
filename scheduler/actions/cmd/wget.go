@@ -118,7 +118,7 @@ func (w *WGetAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run the actual action code
-func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	var e error
 	sourceUrl, e := url.Parse(jobs.EvaluateFieldStr(ctx, input, w.SourceUrl))
@@ -184,9 +184,10 @@ func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels
 		input.Nodes = append(input.Nodes, resp.Node)
 	}
 
-	input.AppendOutput(&jobs.ActionOutput{
+	output := input.Clone()
+	output.AppendOutput(&jobs.ActionOutput{
 		Success:  true,
 		JsonBody: jsonBody,
 	})
-	return input, nil
+	return output, nil
 }

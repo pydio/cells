@@ -142,7 +142,7 @@ func (t *ThumbnailExtractor) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run the actual action code.
-func (t *ThumbnailExtractor) Run(ctx context.Context, _ *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (t *ThumbnailExtractor) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	if len(input.Nodes) == 0 || input.Nodes[0].Size == -1 || input.Nodes[0].Etag == common.NodeFlagEtagTemporary {
 		// Nothing to do
@@ -157,8 +157,8 @@ func (t *ThumbnailExtractor) Run(ctx context.Context, _ *actions.RunnableChannel
 		return input.WithError(err), err
 	}
 
-	output := input
-	output.Nodes[0] = node
+	// Clone and replace node
+	output := input.WithNode(node)
 	log.TasksLogger(ctx).Info("Created thumbnails for "+node.GetPath(), node.ZapPath())
 	output.AppendOutput(&jobs.ActionOutput{Success: true})
 

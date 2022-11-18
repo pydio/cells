@@ -33,12 +33,12 @@ type Options struct {
 	Runtime      context.Context
 	Params       map[string]string
 	MergeOptions *models.MergeOptions
-	ActionInput  jobs.ActionMessage
+	ActionInput  *jobs.ActionMessage
 	Context      context.Context
 }
 
 // CreateOptions initialize an empty Options object
-func CreateOptions(runtime, ctx context.Context, param map[string]string, input jobs.ActionMessage) *Options {
+func CreateOptions(runtime, ctx context.Context, param map[string]string, input *jobs.ActionMessage) *Options {
 	m := &Options{
 		Runtime:      runtime,
 		Context:      ctx,

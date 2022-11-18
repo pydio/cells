@@ -106,7 +106,7 @@ func (c *SyncUsersAction) Init(job *jobs.Job, action *jobs.Action) error {
 }
 
 // Run the actual action code
-func (c *SyncUsersAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+func (c *SyncUsersAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
 	msg := "Starting synchronisation with external directory"
 	log.TasksLogger(ctx).Info(msg)
@@ -251,8 +251,7 @@ func (c *SyncUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 
 	}
 
-	output := input
-	output.AppendOutput(&jobs.ActionOutput{
+	output := input.WithOutput(&jobs.ActionOutput{
 		Success:    true,
 		StringBody: "Successfully synchronized users",
 	})
