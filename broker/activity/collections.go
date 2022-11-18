@@ -140,6 +140,7 @@ func getOrCreateWorkspaceCollection(workspace *idm.Workspace, grouped map[string
 	}
 	wsColl.Id = workspace.UUID
 	wsColl.Name = workspace.Label
+	wsColl.Href = workspace.Slug
 	grouped[workspace.UUID] = wsColl
 	wsColl.Items = []*activity.Object{}
 	return wsColl

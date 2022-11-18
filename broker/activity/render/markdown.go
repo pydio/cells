@@ -40,18 +40,22 @@ const (
 )
 
 type ServerLinks struct {
-	URLS map[ServerUrlType]*url.URL
+	URLS     map[ServerUrlType]*url.URL
+	UrlFuncs map[ServerUrlType]func(object *activity.Object) string
 }
 
 func NewServerLinks() *ServerLinks {
 	s := &ServerLinks{}
 	s.URLS = make(map[ServerUrlType]*url.URL)
+	s.UrlFuncs = make(map[ServerUrlType]func(object *activity.Object) string)
 	return s
 }
 
-func (s *ServerLinks) objectURL(urlType ServerUrlType, objectId string) string {
-	if sUrl, ok := s.URLS[urlType]; ok {
-		objectId = url.PathEscape(objectId)
+func (s *ServerLinks) objectURL(urlType ServerUrlType, object *activity.Object) string {
+	if fu, o := s.UrlFuncs[urlType]; o {
+		return fu(object)
+	} else if sUrl, ok := s.URLS[urlType]; ok {
+		objectId := url.PathEscape(object.Id)
 		if sUrl.Host == "" {
 			return sUrl.Scheme + "://" + strings.TrimLeft(objectId, "/")
 		} else {
@@ -96,7 +100,7 @@ func Markdown(object *activity.Object, pointOfView activity.SummaryPointOfView, 
 
 		var workspaceString string
 		var wsIdentifier string
-		if link := sLinks.objectURL(ServerUrlTypeWorkspaces, object.Id); link != "" {
+		if link := sLinks.objectURL(ServerUrlTypeWorkspaces, object); link != "" {
 			wsIdentifier = makeMarkdownLink(link, object.Name)
 		} else {
 			wsIdentifier = object.Name
@@ -198,7 +202,7 @@ func Markdown(object *activity.Object, pointOfView activity.SummaryPointOfView, 
 
 		var docIdentifier string
 		sBase := html.EscapeString(path.Base(object.Name))
-		if link := sLinks.objectURL(ServerUrlTypeDocs, object.Id); link != "" {
+		if link := sLinks.objectURL(ServerUrlTypeDocs, object); link != "" {
 			docIdentifier = makeMarkdownLink(link, sBase)
 		} else {
 			docIdentifier = sBase
@@ -213,7 +217,7 @@ func Markdown(object *activity.Object, pointOfView activity.SummaryPointOfView, 
 
 		var docIdentifier string
 		sBase := html.EscapeString(path.Base(object.Name))
-		if link := sLinks.objectURL(ServerUrlTypeDocs, object.Id); link != "" {
+		if link := sLinks.objectURL(ServerUrlTypeDocs, object); link != "" {
 			docIdentifier = makeMarkdownLink(link, sBase)
 		} else {
 			docIdentifier = sBase
@@ -228,7 +232,7 @@ func Markdown(object *activity.Object, pointOfView activity.SummaryPointOfView, 
 
 		var userIdentifier string
 		uName := html.EscapeString(object.Name)
-		if link := sLinks.objectURL(ServerUrlTypeUsers, object.Id); link != "" {
+		if link := sLinks.objectURL(ServerUrlTypeUsers, object); link != "" {
 			userIdentifier = makeMarkdownLink(link, uName)
 		} else {
 			userIdentifier = path.Base(uName)

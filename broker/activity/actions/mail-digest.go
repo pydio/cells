@@ -154,7 +154,22 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		return input.WithError(err), err
 	}
 
-	md := render.Markdown(digest, activity.SummaryPointOfView_GENERIC, lang)
+	links := render.NewServerLinks()
+	url := config.Get("services", "pydio.grpc.mailer", "url").Default(config.GetDefaultSiteURL()).String()
+	linkUrl := config.Get("services", "pydio.rest.share", "url").Default(url).String()
+	if linkUrl != "" {
+		links.UrlFuncs[render.ServerUrlTypeDocs] = func(object *activity.Object) string {
+			return linkUrl + "/ws-" + strings.TrimLeft(object.Name, "/")
+		}
+		links.UrlFuncs[render.ServerUrlTypeWorkspaces] = func(object *activity.Object) string {
+			if object.Href != "" {
+				return linkUrl + "/ws-" + strings.TrimLeft(object.Href, "/")
+			}
+			return ""
+		}
+	}
+
+	md := render.Markdown(digest, activity.SummaryPointOfView_GENERIC, lang, links)
 	if strings.TrimSpace(md) == "" {
 		//log.Logger(ctx).Warn("Computed digest is empty, this is not expected (probably an unsupported AS2.ObjectType).")
 		return input.WithIgnore(), nil
