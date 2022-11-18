@@ -91,7 +91,7 @@ class Item extends Component {
                         </div>
                         <div className={"tl-actions"}>
                             {annotations}
-                            {selected && prev && actions &&
+                            {selected && actions &&
                                 <div>
                                     {actions.map(a => <a onClick={a.onClick} style={aStyle}>{a.label}</a>)}
                                 </div>

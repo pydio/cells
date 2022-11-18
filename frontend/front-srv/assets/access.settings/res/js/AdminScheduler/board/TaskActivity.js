@@ -111,7 +111,7 @@ class TaskActivity extends Component{
             request.Query += ' -Level:debug'
         }
         request.Page = page;
-        request.Size = 200;
+        request.Size = debug ? 10000 : 200;
         request.Format = ListLogRequestLogFormat.constructFromObject('JSON');
         this.setState({loading: true});
         api.listTasksLogs(request).then(response => {
@@ -151,16 +151,22 @@ class TaskActivity extends Component{
             userSelect: 'text'
         };
         let path = row.SchedulerTaskActionPath;
+        let searchActions = job.Actions
+
         if(!path){
             return null;
         }
         if (path === 'ROOT') {
             // Special case for trigger
             return <div style={{...pathTag, backgroundColor:'white', color:'rgba(0,0,0,.87)', border: '1px solid #e0e0e0'}}>Trigger</div>
+        } else if(path.indexOf('ROOT/$0$MERGE') === 0 && job.MergeAction) {
+            // Special case for MergeAction
+            path = path.replace('ROOT/$0$MERGE', '')
+            searchActions = [job.MergeAction]
         }
         let action, specialKey;
         try{
-            const obj = this.findAction(path, job.Actions);
+            const obj = this.findAction(path, searchActions);
             if(obj && obj.action){
                 action = obj.action
             }
@@ -205,7 +211,7 @@ class TaskActivity extends Component{
 
     findAction(path, actions) {
         const parts = path.split('/');
-        const first = parts.shift();
+        parts.shift();
         const actionId = [...parts].shift();
         if(actionId.indexOf('action.internal.ignored') >= 0) {
             return {}
@@ -215,7 +221,16 @@ class TaskActivity extends Component{
         const action = actions[chainIndex];
         let nextActions;
         if (dols.length > 2 && action[dols[2]]) {
-            return {action: action[dols[2]], key:dols[2]}
+            return {action: action[dols[2]], key: dols[2]}
+        } else if(dols.length > 2 && dols[2] === 'MERGE' && action.MergeAction) {
+            parts.shift(); // Remove current segment
+            if(parts.length > 1 && action.MergeAction.ChainedActions) {
+                console.log('Merge Chain', path, parts, actionId, actions, dols, action)
+                return this.findAction(parts.join('/'), action.MergeAction.ChainedActions)
+            } else {
+                console.log('Merge Action', path, parts, actionId, actions, dols, action)
+                return {action: action.MergeAction}
+            }
         } else if (actionId.indexOf('$FAIL') === -1) {
             nextActions = action.ChainedActions;
         } else {
