@@ -2,7 +2,6 @@ package tasks
 
 import (
 	"context"
-	"fmt"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"sync"
 
@@ -36,13 +35,13 @@ func newCollector(ctx context.Context) *collector {
 			select {
 			case <-c.ctx.Done():
 				c.finished = true
-				fmt.Printf("Collector %s interrupted by context with %d elements\n", c.id, len(c.coll))
+				//fmt.Printf("Collector %s interrupted by context with %d elements\n", c.id, len(c.coll))
 				close(c.cm)
 				close(c.final)
 				return
 			case <-c.done:
 				c.finished = true
-				fmt.Printf("Collector %s finished with %d elements\n", c.id, len(c.coll))
+				//fmt.Printf("Collector %s finished with %d elements\n", c.id, len(c.coll))
 				close(c.cm)
 				close(c.final)
 				return
