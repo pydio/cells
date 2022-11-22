@@ -22,13 +22,12 @@ package jobs
 
 import (
 	"context"
-	"fmt"
-
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -54,7 +53,29 @@ func (m *IdmSelector) Select(ctx context.Context, input *ActionMessage, objects 
 	defer func() {
 		done <- true
 	}()
-	// Push Claims in Context to impersonate this user
+
+	if m.FanOutInput {
+		switch m.Type {
+		case IdmSelectorType_User:
+			for _, user := range input.Users {
+				objects <- proto.Clone(user).(*idm.User)
+			}
+		case IdmSelectorType_Role:
+			for _, role := range input.Roles {
+				objects <- proto.Clone(role).(*idm.Role)
+			}
+		case IdmSelectorType_Workspace:
+			for _, workspace := range input.Workspaces {
+				objects <- proto.Clone(workspace).(*idm.Workspace)
+			}
+		case IdmSelectorType_Acl:
+			for _, acl := range input.Acls {
+				objects <- proto.Clone(acl).(*idm.ACL)
+			}
+		}
+		return nil
+	}
+
 	var query *service.Query
 	if m.Query != nil {
 		query = m.cloneEvaluated(ctx, input, m.Query)
@@ -159,7 +180,7 @@ func (m *IdmSelector) Filter(ctx context.Context, input *ActionMessage) (*Action
 			}
 			return m.evaluate(ctx, input, target), nil
 		}); er != nil {
-			fmt.Println("Error", er)
+			log.TasksLogger(ctx).Error(er.Error())
 			input.Users = []*idm.User{}
 			break
 		}
@@ -189,7 +210,7 @@ func (m *IdmSelector) Filter(ctx context.Context, input *ActionMessage) (*Action
 			}
 			return m.evaluate(ctx, input, target), nil
 		}); er != nil {
-			fmt.Println("Error", er)
+			log.TasksLogger(ctx).Error(er.Error())
 			input.Roles = []*idm.Role{}
 			break
 		}
@@ -225,7 +246,7 @@ func (m *IdmSelector) Filter(ctx context.Context, input *ActionMessage) (*Action
 			}
 			return m.evaluate(ctx, input, target), nil
 		}); er != nil {
-			fmt.Println("Error", er)
+			log.TasksLogger(ctx).Error(er.Error())
 			input.Workspaces = []*idm.Workspace{}
 			break
 		}
@@ -255,7 +276,7 @@ func (m *IdmSelector) Filter(ctx context.Context, input *ActionMessage) (*Action
 			}
 			return m.evaluate(ctx, input, target), nil
 		}); er != nil {
-			fmt.Println("Error", er)
+			log.TasksLogger(ctx).Error(er.Error())
 			input.Acls = []*idm.ACL{}
 			break
 		}

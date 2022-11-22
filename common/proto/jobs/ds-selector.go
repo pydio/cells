@@ -58,6 +58,13 @@ func (m *DataSourceSelector) Select(ctx context.Context, input *ActionMessage, o
 	defer func() {
 		done <- true
 	}()
+	// Simply FanOut Input.DataSources without performing queries
+	if m.FanOutInput {
+		for _, ds := range input.DataSources {
+			objects <- proto.Clone(ds).(*object.DataSource)
+		}
+		return nil
+	}
 	for _, ds := range m.loadDSS() {
 		if m.All || m.evaluate(ctx, m.Query, input, ds) {
 			objects <- ds

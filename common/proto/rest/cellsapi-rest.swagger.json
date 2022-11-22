@@ -2044,6 +2044,10 @@
           "title": "Selector additional description",
           "type": "string"
         },
+        "FanOutInput": {
+          "title": "Ignore query and just fan out input.DataSources",
+          "type": "boolean"
+        },
         "Label": {
           "title": "Selector custom label",
           "type": "string"
@@ -2124,6 +2128,10 @@
         "Description": {
           "title": "Selector additional description",
           "type": "string"
+        },
+        "FanOutInput": {
+          "title": "Ignore query and just fan out input.[Type]",
+          "type": "boolean"
         },
         "Label": {
           "title": "Selector custom label",
@@ -2411,6 +2419,10 @@
         "Description": {
           "title": "Selector additional description",
           "type": "string"
+        },
+        "FanOutInput": {
+          "title": "Ignore query and just fan out input.Nodes",
+          "type": "boolean"
         },
         "Label": {
           "title": "Selector custom label",

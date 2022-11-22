@@ -78,102 +78,114 @@ func (n *NodesSelector) Select(ctx context.Context, input *ActionMessage, object
 		done <- true
 	}()
 	selector := n.evaluatedClone(ctx, input)
+
+	// Absolute Paths pre-specified, just pass them without checking for existence
 	if len(selector.Pathes) > 0 {
 		for _, p := range selector.Pathes {
 			objects <- &tree.Node{
 				Path: p,
 			}
 		}
-	} else {
-		q := &tree.Query{}
-		if !selector.All && (selector.Query == nil || selector.Query.SubQueries == nil || len(selector.Query.SubQueries) == 0) {
-			return nil
+		return nil
+	}
+	// FanOut existing values from Input.Nodes and return
+	if selector.FanOutInput {
+		for _, n := range input.Nodes {
+			objects <- n.Clone()
+		}
+		return nil
+	}
+
+	// Now handle query
+	q := &tree.Query{}
+	if !selector.All && (selector.Query == nil || selector.Query.SubQueries == nil || len(selector.Query.SubQueries) == 0) {
+		return nil
+	}
+
+	if e := anypb.UnmarshalTo(selector.Query.SubQueries[0], q, proto.UnmarshalOptions{}); e != nil {
+		log.Logger(ctx).Error("Could not parse input query", zap.Error(e))
+		return e
+	}
+	if e := q.ParseDurationDate(); e != nil {
+		log.Logger(ctx).Error("Error while parsing DurationDate", zap.Error(e))
+		return e
+	}
+	// If paths are preset, just load nodes and do not go further
+	if len(q.Paths) > 0 {
+		sCli := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
+		for _, p := range q.Paths {
+			if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: p}}); e == nil {
+				objects <- r.GetNode()
+			}
+		}
+		return nil
+	}
+	// If UUIDs are preset, just load nodes and do not go further
+	if len(q.UUIDs) > 0 {
+		sCli := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
+		for _, uuid := range q.UUIDs {
+			if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: uuid}}); e == nil {
+				objects <- r.GetNode()
+			}
+		}
+		return nil
+	}
+	filter := func(n *tree.Node) bool {
+		return true
+	}
+	var total int
+	if q.FreeString != "" || q.Content != "" || q.FileNameOrContent != "" {
+		// Use the Search Service, relaunch search as long as there are results (request size cannot be empty)
+
+		// Search Service does not support PathDepth, reapply filtering on output
+		if q.PathDepth > 0 {
+			filter = func(n *tree.Node) bool {
+				depth := int32(len(strings.Split(strings.Trim(n.GetPath(), "/"), "/")))
+				return depth == q.PathDepth
+			}
+		} else if q.PathDepth == -1 && len(q.PathPrefix) == 1 {
+			// Special -1 case : just look for Depth(PathPrefix) + 1
+			filter = func(n *tree.Node) bool {
+				depth := int32(len(strings.Split(strings.Trim(n.GetPath(), "/"), "/")))
+				refDepth := int32(len(strings.Split(strings.Trim(q.PathPrefix[0], "/"), "/")))
+				return depth == refDepth+1
+			}
 		}
 
-		if e := anypb.UnmarshalTo(selector.Query.SubQueries[0], q, proto.UnmarshalOptions{}); e != nil {
-			log.Logger(ctx).Error("Could not parse input query", zap.Error(e))
-			return e
-		}
-		if e := q.ParseDurationDate(); e != nil {
-			log.Logger(ctx).Error("Error while parsing DurationDate", zap.Error(e))
-			return e
-		}
-		// If paths are preset, just load nodes and do not go further
-		if len(q.Paths) > 0 {
-			sCli := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
-			for _, p := range q.Paths {
-				if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: p}}); e == nil {
-					objects <- r.GetNode()
-				}
-			}
-			return nil
-		}
-		// If UUIDs are preset, just load nodes and do not go further
-		if len(q.UUIDs) > 0 {
-			sCli := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
-			for _, uuid := range q.UUIDs {
-				if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: uuid}}); e == nil {
-					objects <- r.GetNode()
-				}
-			}
-			return nil
-		}
-		filter := func(n *tree.Node) bool {
-			return true
-		}
-		var total int
-		if q.FreeString != "" || q.Content != "" || q.FileNameOrContent != "" {
-			// Use the Search Service, relaunch search as long as there are results (request size cannot be empty)
-
-			// Search Service does not support PathDepth, reapply filtering on output
-			if q.PathDepth > 0 {
-				filter = func(n *tree.Node) bool {
-					depth := int32(len(strings.Split(strings.Trim(n.GetPath(), "/"), "/")))
-					return depth == q.PathDepth
-				}
-			} else if q.PathDepth == -1 && len(q.PathPrefix) == 1 {
-				// Special -1 case : just look for Depth(PathPrefix) + 1
-				filter = func(n *tree.Node) bool {
-					depth := int32(len(strings.Split(strings.Trim(n.GetPath(), "/"), "/")))
-					refDepth := int32(len(strings.Split(strings.Trim(q.PathPrefix[0], "/"), "/")))
-					return depth == refDepth+1
-				}
-			}
-
-			var cursor int32
-			size := int32(50)
-			for {
-				req := &tree.SearchRequest{
-					Query:   q,
-					Details: true,
-					From:    cursor,
-					Size:    size,
-				}
-				res, loadMore, err := n.performListing(ctx, common.ServiceSearch, req, filter, objects)
-				if err != nil {
-					return err
-				}
-				total += res
-				if loadMore {
-					cursor += size
-				} else {
-					break
-				}
-			}
-		} else {
-			// For simple requests, directly use the Tree service
-			var e error
+		var cursor int32
+		size := int32(50)
+		for {
 			req := &tree.SearchRequest{
 				Query:   q,
 				Details: true,
+				From:    cursor,
+				Size:    size,
 			}
-			total, _, e = n.performListing(ctx, common.ServiceTree, req, filter, objects)
-			if e != nil {
-				return e
+			res, loadMore, err := n.performListing(ctx, common.ServiceSearch, req, filter, objects)
+			if err != nil {
+				return err
+			}
+			total += res
+			if loadMore {
+				cursor += size
+			} else {
+				break
 			}
 		}
-		log.Logger(ctx).Info("Selector finished request with query", zap.Any("q", q), zap.Int("count", total))
+	} else {
+		// For simple requests, directly use the Tree service
+		var e error
+		req := &tree.SearchRequest{
+			Query:   q,
+			Details: true,
+		}
+		total, _, e = n.performListing(ctx, common.ServiceTree, req, filter, objects)
+		if e != nil {
+			return e
+		}
 	}
+	log.Logger(ctx).Info("Selector finished request with query", zap.Any("q", q), zap.Int("count", total))
+
 	return nil
 }
 

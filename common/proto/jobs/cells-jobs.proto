@@ -24,6 +24,8 @@ message NodesSelector {
     // Whether to trigger one action per node or one action
     // with all nodes as selection
     bool Collect = 5;
+    // Ignore query and just fan out input.Nodes
+    bool FanOutInput = 9;
     // Selector custom label
     string Label = 6;
     // Selector additional description
@@ -50,6 +52,8 @@ message IdmSelector {
     service.Query Query = 3;
     // Pass a slice of objects to one action, or trigger all actions in parallel
     bool Collect = 4;
+    // Ignore query and just fan out input.[Type]
+    bool FanOutInput = 8;
     // Selector custom label
     string Label = 5;
     // Selector additional description
@@ -94,6 +98,8 @@ message DataSourceSelector {
     bool All = 4;
     // Collect results
     bool Collect = 5;
+    // Ignore query and just fan out input.DataSources
+    bool FanOutInput = 8;
     // Composition of DataSourceSingleQueries
     service.Query Query = 6;
     // Optional Timeout for this selector
