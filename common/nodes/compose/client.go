@@ -195,7 +195,7 @@ func (v *clientImpl) CanApply(ctx context.Context, operation *tree.NodeChangeEve
 			}
 		}
 		if sourceNode != nil {
-			sourceCtx, sourceNode, e = inputFilter(ctx, targetNode, "in")
+			sourceCtx, sourceNode, e = inputFilter(ctx, sourceNode, "in")
 			if e != nil {
 				return e
 			}
