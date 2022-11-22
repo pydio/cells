@@ -145,9 +145,10 @@ export default class Controller extends Observable{
         }
     }
 
+    // Get a message by id or return messageId
     getMessage(messageId){
         try{
-            return this._pydioObject.MessageHash[messageId];
+            return this._pydioObject.MessageHash[messageId] || messageId;
         }catch(e){
             return messageId;
         }
