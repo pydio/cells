@@ -29,6 +29,7 @@ import (
 
 	"github.com/cskr/pubsub"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
@@ -541,8 +542,13 @@ func createMessageFromEvent(event interface{}) *jobs.ActionMessage {
 
 	} else if triggerEvent, ok := event.(*jobs.JobTriggerEvent); ok {
 
-		ap, _ := anypb.New(triggerEvent)
-		initialInput.Event = ap
+		// Replace initialInput with TriggerMessage if it is set
+		if triggerEvent.TriggerMessage != nil {
+			initialInput = triggerEvent.TriggerMessage
+			triggerEvent = proto.Clone(triggerEvent).(*jobs.JobTriggerEvent)
+			triggerEvent.TriggerMessage = nil
+		}
+		initialInput.Event, _ = anypb.New(triggerEvent)
 
 	} else if idmEvent, ok := event.(*idm.ChangeEvent); ok {
 

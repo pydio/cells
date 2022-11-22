@@ -64,28 +64,6 @@ func NewTaskFromEvent(runtime, ctx context.Context, job *jobs.Job, event interfa
 	}
 	operationID := job.ID + "-" + taskID[0:8]
 	c := servicecontext.WithOperationID(ctx, operationID)
-	// TEMP
-	/*
-		job.MergeAction = &jobs.Action{
-			ID: "actions.scheduler.log-input",
-			Parameters: map[string]string{
-				"message":        "{{len .Input.Workspaces}} - {{len .Input.Roles}}",
-				"taskLogger":     "true",
-				"internalLogger": "true",
-			},
-			ChainedActions: []*jobs.Action{
-				{
-					ID: "actions.scheduler.log-input",
-					Parameters: map[string]string{
-						"message":        "ANOTHER CHAIN ARRIVED NOW",
-						"taskLogger":     "true",
-						"internalLogger": "true",
-					},
-				},
-			},
-		}
-	*/
-
 	t := &Task{
 		context:  c,
 		Job:      job,

@@ -25,14 +25,14 @@ import (
 )
 
 type Caction struct {
-	XMLName                  xml.Name          `xml:"action,omitempty" json:"action,omitempty"`
-	AttrctrlDragndropDefault string            `xml:"ctrlDragndropDefault,attr,omitempty"  json:",omitempty"`
-	AttrdirDefault           string            `xml:"dirDefault,attr,omitempty"  json:",omitempty"`
-	AttrdragndropDefault     string            `xml:"dragndropDefault,attr,omitempty"  json:",omitempty"`
-	AttrexpireDefault        string            `xml:"expireDefault,attr,omitempty"  json:",omitempty"`
-	AttrfileDefault          string            `xml:"fileDefault,attr,omitempty"  json:",omitempty"`
-	Attrname                 string            `xml:"name,attr,omitempty"  json:",omitempty"`
-	AttrskipSecureToken      string            `xml:"skipSecureToken,attr,omitempty"  json:",omitempty"`
+	XMLName                  xml.Name          `xml:"action,omitempty" json:"-"`
+	AttrctrlDragndropDefault string            `xml:"ctrlDragndropDefault,attr,omitempty"  json:"ctrlDragndropDefault,omitempty"`
+	AttrdirDefault           string            `xml:"dirDefault,attr,omitempty"  json:"dirDefault,omitempty"`
+	AttrdragndropDefault     string            `xml:"dragndropDefault,attr,omitempty"  json:"dragndropDefault,omitempty"`
+	AttrexpireDefault        string            `xml:"expireDefault,attr,omitempty"  json:"expireDefault,omitempty"`
+	AttrfileDefault          string            `xml:"fileDefault,attr,omitempty"  json:"fileDefault,omitempty"`
+	Attrname                 string            `xml:"name,attr,omitempty"  json:"name,omitempty"`
+	AttrskipSecureToken      string            `xml:"skipSecureToken,attr,omitempty"  json:"skipSecureToken,omitempty"`
 	Cgui                     *Cgui             `xml:"gui,omitempty" json:"gui,omitempty"`
 	Cpost_processing         *Cpost_processing `xml:"post_processing,omitempty" json:"post_processing,omitempty"`
 	Cpre_processing          *Cpre_processing  `xml:"pre_processing,omitempty" json:"pre_processing,omitempty"`
@@ -47,7 +47,7 @@ type Cactions struct {
 }
 
 type CactiveCondition struct {
-	XMLName xml.Name `xml:"activeCondition,omitempty" json:"activeCondition,omitempty"`
+	XMLName xml.Name `xml:"activeCondition,omitempty" json:"-"`
 	Cdata   string   `xml:",cdata" json:",omitempty"`
 }
 
@@ -94,22 +94,22 @@ type Cclass_definition struct {
 }
 
 type CclientCallback struct {
-	XMLName    xml.Name `xml:"clientCallback,omitempty" json:"clientCallback,omitempty"`
-	Attrmodule string   `xml:"module,attr,omitempty"  json:",omitempty"`
-	Cdata      string   `xml:",cdata" json:",omitempty"`
+	XMLName    xml.Name `xml:"clientCallback,omitempty" json:"-"`
+	Attrmodule string   `xml:"module,attr,omitempty"  json:"module,omitempty"`
+	Cdata      string   `xml:",cdata" json:"cdata,omitempty"`
 }
 
 type CclientForm struct {
-	XMLName    xml.Name `xml:"clientForm,omitempty" json:"clientForm,omitempty"`
-	Attrid     string   `xml:"id,attr,omitempty"  json:",omitempty"`
-	Attrmodule string   `xml:"module,attr,omitempty"  json:",omitempty"`
-	Cdata      string   `xml:",cdata" json:",omitempty"`
+	XMLName    xml.Name `xml:"clientForm,omitempty" json:"-"`
+	Attrid     string   `xml:"id,attr,omitempty"  json:"id"`
+	Attrmodule string   `xml:"module,attr,omitempty"  json:"module,omitempty"`
+	Cdata      string   `xml:",cdata" json:"cdata,omitempty"`
 }
 
 type CclientListener struct {
-	XMLName    xml.Name `xml:"clientListener,omitempty" json:"clientListener,omitempty"`
-	Attrmodule string   `xml:"module,attr,omitempty"  json:",omitempty"`
-	Attrname   string   `xml:"name,attr,omitempty"  json:",omitempty"`
+	XMLName    xml.Name `xml:"clientListener,omitempty" json:"-"`
+	Attrmodule string   `xml:"module,attr,omitempty"  json:"module,omitempty"`
+	Attrname   string   `xml:"name,attr,omitempty"  json:"name,omitempty"`
 }
 
 type Cclient_configs struct {
@@ -156,17 +156,17 @@ type Ccomponent_config struct {
 }
 
 type Ccontext struct {
-	XMLName            xml.Name `xml:"context,omitempty" json:"context,omitempty"`
-	AttractionBar      string   `xml:"actionBar,attr,omitempty"  json:",omitempty"`
-	AttractionBarGroup string   `xml:"actionBarGroup,attr,omitempty"  json:",omitempty"`
-	Attrbehaviour      string   `xml:"behaviour,attr,omitempty"  json:",omitempty"`
-	AttrcontextMenu    string   `xml:"contextMenu,attr,omitempty"  json:",omitempty"`
-	Attrdir            string   `xml:"dir,attr,omitempty"  json:",omitempty"`
-	AttrinZip          string   `xml:"inZip,attr,omitempty"  json:",omitempty"`
-	AttrinfoPanel      string   `xml:"infoPanel,attr,omitempty"  json:",omitempty"`
-	Attrrecycle        string   `xml:"recycle,attr,omitempty"  json:",omitempty"`
-	Attrselection      string   `xml:"selection,attr,omitempty"  json:",omitempty"`
-	AttrevalMetadata   string   `xml:"evalMetadata,attr,omitempty"  json:",omitempty"`
+	XMLName            xml.Name `xml:"context,omitempty" json:"-"`
+	AttractionBar      string   `xml:"actionBar,attr,omitempty"  json:"actionBar,omitempty"`
+	AttractionBarGroup string   `xml:"actionBarGroup,attr,omitempty"  json:"actionBarGroup,omitempty"`
+	Attrbehaviour      string   `xml:"behaviour,attr,omitempty"  json:"behaviour,omitempty"`
+	AttrcontextMenu    string   `xml:"contextMenu,attr,omitempty"  json:"contextMenu,omitempty"`
+	Attrdir            string   `xml:"dir,attr,omitempty"  json:"dir,omitempty"`
+	AttrinZip          string   `xml:"inZip,attr,omitempty"  json:"inZip,omitempty"`
+	AttrinfoPanel      string   `xml:"infoPanel,attr,omitempty"  json:"infoPanel,omitempty"`
+	Attrrecycle        string   `xml:"recycle,attr,omitempty"  json:"recycle,omitempty"`
+	Attrselection      string   `xml:"selection,attr,omitempty"  json:"selection,omitempty"`
+	AttrevalMetadata   string   `xml:"evalMetadata,attr,omitempty"  json:"evalMetadata,omitempty"`
 }
 
 type Ccore_relation struct {
@@ -226,8 +226,8 @@ type Cextension struct {
 }
 
 type CextensionOnInit struct {
-	XMLName xml.Name `xml:"extensionOnInit,omitempty" json:"extensionOnInit,omitempty"`
-	Cdata   string   `xml:",cdata" json:",omitempty"`
+	XMLName xml.Name `xml:"extensionOnInit,omitempty" json:"-"`
+	Cdata   string   `xml:",cdata" json:"cdata,omitempty"`
 }
 
 type Cextensions struct {
@@ -257,14 +257,14 @@ type Cglobal_param struct {
 }
 
 type Cgui struct {
-	XMLName              xml.Name           `xml:"gui,omitempty" json:"gui,omitempty"`
-	AttraccessKey        string             `xml:"accessKey,attr,omitempty"  json:",omitempty"`
-	AttrhasAccessKey     string             `xml:"hasAccessKey,attr,omitempty"  json:",omitempty"`
-	AttriconClass        string             `xml:"iconClass,attr,omitempty"  json:",omitempty"`
-	AttrspecialAccessKey string             `xml:"specialAccessKey,attr,omitempty"  json:",omitempty"`
-	Attrtext             string             `xml:"text,attr,omitempty"  json:",omitempty"`
-	Attrtitle            string             `xml:"title,attr,omitempty"  json:",omitempty"`
-	Attrweight           string             `xml:"weight,attr,omitempty"  json:",omitempty"`
+	XMLName              xml.Name           `xml:"gui,omitempty" json:"-"`
+	AttraccessKey        string             `xml:"accessKey,attr,omitempty"  json:"accessKey,omitempty"`
+	AttrhasAccessKey     string             `xml:"hasAccessKey,attr,omitempty"  json:"hasAccessKey,omitempty"`
+	AttriconClass        string             `xml:"iconClass,attr,omitempty"  json:"iconClass,omitempty"`
+	AttrspecialAccessKey string             `xml:"specialAccessKey,attr,omitempty"  json:"specialAccessKey,omitempty"`
+	Attrtext             string             `xml:"text,attr,omitempty"  json:"text,omitempty"`
+	Attrtitle            string             `xml:"title,attr,omitempty"  json:"title,omitempty"`
+	Attrweight           string             `xml:"weight,attr,omitempty"  json:"weight,omitempty"`
 	Ccontext             *Ccontext          `xml:"context,omitempty" json:"context,omitempty"`
 	CselectionContext    *CselectionContext `xml:"selectionContext,omitempty" json:"selectionContext,omitempty"`
 }
@@ -412,7 +412,7 @@ type Cpreferences struct {
 }
 
 type Cprocessing struct {
-	XMLName          xml.Name          `xml:"processing,omitempty" json:"processing,omitempty"`
+	XMLName          xml.Name          `xml:"processing,omitempty" json:"-"`
 	CactiveCondition *CactiveCondition `xml:"activeCondition,omitempty" json:"activeCondition,omitempty"`
 	CclientCallback  *CclientCallback  `xml:"clientCallback,omitempty" json:"clientCallback,omitempty"`
 	CclientForm      *CclientForm      `xml:"clientForm,omitempty" json:"clientForm,omitempty"`
@@ -472,29 +472,29 @@ type Cresources struct {
 }
 
 type CrightsContext struct {
-	XMLName          xml.Name `xml:"rightsContext,omitempty" json:"rightsContext,omitempty"`
-	AttradminOnly    string   `xml:"adminOnly,attr,omitempty"  json:",omitempty"`
-	AttrguestLogged  string   `xml:"guestLogged,attr,omitempty"  json:",omitempty"`
-	AttrnoUser       string   `xml:"noUser,attr,omitempty"  json:",omitempty"`
-	AttrparamDisable string   `xml:"paramDisable,attr,omitempty"  json:",omitempty"`
-	Attrread         string   `xml:"read,attr,omitempty"  json:",omitempty"`
-	AttruserLogged   string   `xml:"userLogged,attr,omitempty"  json:",omitempty"`
-	Attrwrite        string   `xml:"write,attr,omitempty"  json:",omitempty"`
+	XMLName          xml.Name `xml:"rightsContext,omitempty" json:"-"`
+	AttradminOnly    string   `xml:"adminOnly,attr,omitempty"  json:"adminOnly,omitempty"`
+	AttrguestLogged  string   `xml:"guestLogged,attr,omitempty"  json:"guestLogged,omitempty"`
+	AttrnoUser       string   `xml:"noUser,attr,omitempty"  json:"noUser,omitempty"`
+	AttrparamDisable string   `xml:"paramDisable,attr,omitempty"  json:"paramDisable,omitempty"`
+	Attrread         string   `xml:"read,attr,omitempty"  json:"read,omitempty"`
+	AttruserLogged   string   `xml:"userLogged,attr,omitempty"  json:"userLogged,omitempty"`
+	Attrwrite        string   `xml:"write,attr,omitempty"  json:"write,omitempty"`
 }
 
 type CselectionContext struct {
-	XMLName          xml.Name `xml:"selectionContext,omitempty" json:"selectionContext,omitempty"`
-	AttrallowedMimes string   `xml:"allowedMimes,attr,omitempty"  json:",omitempty"`
-	Attrbehaviour    string   `xml:"behaviour,attr,omitempty"  json:",omitempty"`
-	Attrdir          string   `xml:"dir,attr,omitempty"  json:",omitempty"`
-	Attreditable     string   `xml:"editable,attr,omitempty"  json:",omitempty"`
-	AttrenableRoot   string   `xml:"enableRoot,attr,omitempty"  json:",omitempty"`
-	AttrevalMetadata string   `xml:"evalMetadata,attr,omitempty"  json:",omitempty"`
-	Attrfile         string   `xml:"file,attr,omitempty"  json:",omitempty"`
-	Attrimage        string   `xml:"image,attr,omitempty"  json:",omitempty"`
-	AttrmultipleOnly string   `xml:"multipleOnly,attr,omitempty"  json:",omitempty"`
-	Attrrecycle      string   `xml:"recycle,attr,omitempty"  json:",omitempty"`
-	Attrunique       string   `xml:"unique,attr,omitempty"  json:",omitempty"`
+	XMLName          xml.Name `xml:"selectionContext,omitempty" json:"-"`
+	AttrallowedMimes string   `xml:"allowedMimes,attr,omitempty"  json:"allowedMimes,omitempty"`
+	Attrbehaviour    string   `xml:"behaviour,attr,omitempty"  json:"behaviour,omitempty"`
+	Attrdir          string   `xml:"dir,attr,omitempty"  json:"dir,omitempty"`
+	Attreditable     string   `xml:"editable,attr,omitempty"  json:"editable,omitempty"`
+	AttrenableRoot   string   `xml:"enableRoot,attr,omitempty"  json:"enableRoot,omitempty"`
+	AttrevalMetadata string   `xml:"evalMetadata,attr,omitempty"  json:"evalMetadata,omitempty"`
+	Attrfile         string   `xml:"file,attr,omitempty"  json:"file,omitempty"`
+	Attrimage        string   `xml:"image,attr,omitempty"  json:"image,omitempty"`
+	AttrmultipleOnly string   `xml:"multipleOnly,attr,omitempty"  json:"multipleOnly,omitempty"`
+	Attrrecycle      string   `xml:"recycle,attr,omitempty"  json:"recycle,omitempty"`
+	Attrunique       string   `xml:"unique,attr,omitempty"  json:"unique,omitempty"`
 }
 
 type Cserver_settings struct {
@@ -522,8 +522,8 @@ type Cspecial_rights struct {
 }
 
 type CsubMenu struct {
-	XMLName          xml.Name         `xml:"subMenu,omitempty" json:"subMenu,omitempty"`
-	AttrmasterAction string           `xml:"masterAction,attr,omitempty"  json:",omitempty"`
+	XMLName          xml.Name         `xml:"subMenu,omitempty" json:"-"`
+	AttrmasterAction string           `xml:"masterAction,attr,omitempty"  json:"masterAction,omitempty"`
 	CdynamicBuilder  *CdynamicBuilder `xml:"dynamicBuilder,omitempty" json:"dynamicBuilder,omitempty"`
 }
 

@@ -103,6 +103,10 @@ message DataSourceSelector {
 message TriggerFilterQuery {
     bool IsSchedule = 1;
     bool IsManual = 2;
+    bool IsApiHook = 4;
+    string ApiHookSlug = 5;
+    string RunParameterName = 6;
+    string RunParameterValue = 7;
     repeated string EventNames = 3;
 }
 
@@ -284,6 +288,23 @@ message Job {
 
     // Additional Versioning Metadata
     map<string,string>VersionMeta = 27;
+
+    // Expose this job through one or more-userspace APIs
+    repeated JobHook Hooks = 28;
+}
+
+// Dynamically expose a job trigger via API
+message JobHook {
+    // Custom ApiSlug, otherwise use the job UUID
+    string ApiSlug = 1;
+    // Preset parameters values when calling this endpoint. May be overriden by a map[string]string in the body
+    map<string,string> PresetParameters = 2;
+    // Allow trigger parameters to override default presets
+    bool AllowOverridePresets = 3;
+    // Additional arbitrary metadata attached to this hook
+    map<string,string> Metadata = 4;
+    // Set permissions for accessing this endpoint
+    repeated service.ResourcePolicy Policies = 5;
 }
 
 message JobParameter {
@@ -508,6 +529,10 @@ message JobTriggerEvent {
     string RunTaskId = 4;
     // Use specific parameters values for this run
     map<string,string> RunParameters = 5;
+    // This was triggered by the hooks API
+    string HookSlug = 6;
+    // Predefined custom message
+    ActionMessage TriggerMessage = 7;
 }
 
 // Standard output of an action. Success value is required

@@ -2197,6 +2197,13 @@
           "title": "How the job will be triggered.\nOne of these must be set (not exclusive)\nListen to a given set of events",
           "type": "array"
         },
+        "Hooks": {
+          "items": {
+            "$ref": "#/definitions/jobsJobHook"
+          },
+          "title": "Expose this job through one or more-userspace APIs",
+          "type": "array"
+        },
         "ID": {
           "title": "Unique ID for this Job",
           "type": "string"
@@ -2287,6 +2294,41 @@
           "type": "object"
         }
       },
+      "type": "object"
+    },
+    "jobsJobHook": {
+      "properties": {
+        "AllowOverridePresets": {
+          "title": "Allow trigger parameters to override default presets",
+          "type": "boolean"
+        },
+        "ApiSlug": {
+          "title": "Custom ApiSlug, otherwise use the job UUID",
+          "type": "string"
+        },
+        "Metadata": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Additional arbitrary metadata attached to this hook",
+          "type": "object"
+        },
+        "Policies": {
+          "items": {
+            "$ref": "#/definitions/serviceResourcePolicy"
+          },
+          "title": "Set permissions for accessing this endpoint",
+          "type": "array"
+        },
+        "PresetParameters": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Preset parameters values when calling this endpoint. May be overriden by a map[string]string in the body",
+          "type": "object"
+        }
+      },
+      "title": "Dynamically expose a job trigger via API",
       "type": "object"
     },
     "jobsJobParameter": {

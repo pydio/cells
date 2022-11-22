@@ -7,12 +7,12 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "google.golang.org/protobuf/proto"
-	_ "github.com/pydio/cells/v4/common/proto/object"
 	_ "google.golang.org/protobuf/types/known/anypb"
 	_ "github.com/pydio/cells/v4/common/proto/service"
 	_ "github.com/pydio/cells/v4/common/proto/tree"
 	_ "github.com/pydio/cells/v4/common/proto/idm"
 	_ "github.com/pydio/cells/v4/common/proto/activity"
+	_ "github.com/pydio/cells/v4/common/proto/object"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
@@ -241,6 +241,25 @@ func (this *Job) Validate() error {
 		}
 	}
 	// Validation of proto3 map<> fields is unsupported.
+	for _, item := range this.Hooks {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Hooks", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *JobHook) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
+	for _, item := range this.Policies {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Policies", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *JobParameter) Validate() error {
@@ -392,6 +411,11 @@ func (this *JobTriggerEvent) Validate() error {
 		}
 	}
 	// Validation of proto3 map<> fields is unsupported.
+	if this.TriggerMessage != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TriggerMessage); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TriggerMessage", err)
+		}
+	}
 	return nil
 }
 func (this *ActionOutput) Validate() error {

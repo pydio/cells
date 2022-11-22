@@ -79,6 +79,18 @@ func (m *TriggerFilter) evaluateOne(tQ *TriggerFilterQuery, event interface{}) b
 		if tQ.IsSchedule && t.Schedule != nil {
 			return true
 		}
+		if tQ.IsApiHook && t.HookSlug != "" {
+			return true
+		}
+		if tQ.ApiHookSlug != "" && t.HookSlug == tQ.ApiHookSlug {
+			return true
+		}
+		if tQ.RunParameterName != "" && t.RunParameters != nil {
+			v, ok := t.RunParameters[tQ.RunParameterName]
+			if ok {
+				return tQ.RunParameterValue == "" || tQ.RunParameterValue == v
+			}
+		}
 	} else if n, o := event.(*tree.NodeChangeEvent); o {
 		eName = NodeChangeEventName(n.Type)
 		for _, na := range tQ.EventNames {
