@@ -23,6 +23,10 @@ package service
 import (
 	"context"
 	"fmt"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"sync"
 	"time"
 
@@ -128,6 +132,28 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string, retries ...in
 		if event == "start" {
 			c.services[source] = process
 		} else if event == "stop" {
+			// TODO - should be centralized - Getting all processes attached to an old process and remove all
+			if reg := servicecontext.GetRegistry(ctx); reg != nil {
+				pid := process.GetPID()
+				items, err := reg.List(
+					registry.WithType(pb.ItemType_SERVER),
+					registry.WithFilter(func(item registry.Item) bool {
+						if item.Metadata()[runtime.NodeMetaPID] == pid {
+							return true
+						}
+						return false
+					}),
+				)
+				if err != nil {
+					return
+				}
+				for _, item := range items {
+					if err := reg.Deregister(item); err != nil {
+						log.Logger(ctx).Warn("could not deregister", zap.Error(err))
+					}
+				}
+			}
+
 			delete(c.services, source)
 		}
 		c.mutex.Unlock()
@@ -138,6 +164,7 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string, retries ...in
 	}
 	process := fork.NewProcess(ctx, names, opts...)
 	process.StartAndWait()
+
 	return nil
 }
 

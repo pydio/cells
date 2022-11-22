@@ -61,6 +61,8 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 		service.RestError500(req, resp, e)
 		return
 	}
+	defer pluginsReg.Close()
+
 	services, err := pluginsReg.List(registry.WithType(rpb.ItemType_SERVICE))
 	if err != nil {
 		service.RestError500(req, resp, err)
@@ -107,6 +109,8 @@ func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) {
 		service.RestError500(req, resp, e)
 		return
 	}
+	defer pluginsReg.Close()
+	
 	opts := util.ToOptions(input.Options)
 	if input.Options == nil || len(input.Options.Types) == 0 {
 		for _, t := range rpb.ItemType_value {

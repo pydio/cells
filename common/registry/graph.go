@@ -105,7 +105,28 @@ func (r *graphRegistry) Deregister(i Item, option ...RegisterOption) error {
 	if er := r.r.Deregister(i, option...); er != nil {
 		return er
 	}
-	_, err := r.clearEdges(i, option...)
+	edges, err := r.clearEdges(i, option...)
+	for _, edge := range edges {
+		// Removing other edge if it was a dependence to the item
+		if edge.Vertices()[1] == i.ID() {
+			if item, _ := r.r.Get(edge.Vertices()[0],
+				WithType(pb.ItemType_NODE),
+				WithType(pb.ItemType_ADDRESS),
+				WithType(pb.ItemType_ENDPOINT),
+				WithType(pb.ItemType_DAO),
+				WithType(pb.ItemType_GENERIC),
+				WithType(pb.ItemType_TAG),
+				WithType(pb.ItemType_SERVER),
+				WithType(pb.ItemType_SERVICE),
+				WithType(pb.ItemType_PROCESS),
+				WithType(pb.ItemType_STATS),
+			); item != nil {
+				if err := r.r.Deregister(item); err != nil {
+					return err
+				}
+			}
+		}
+	}
 	return err
 }
 
