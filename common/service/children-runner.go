@@ -134,22 +134,23 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string, retries ...in
 		} else if event == "stop" {
 			// TODO - should be centralized - Getting all processes attached to an old process and remove all
 			if reg := servicecontext.GetRegistry(ctx); reg != nil {
-				pid := process.GetPID()
-				items, err := reg.List(
-					registry.WithType(pb.ItemType_SERVER),
-					registry.WithFilter(func(item registry.Item) bool {
-						if item.Metadata()[runtime.NodeMetaPID] == pid {
-							return true
+				if pid, ok := process.GetPID(); ok {
+					items, err := reg.List(
+						registry.WithType(pb.ItemType_SERVER),
+						registry.WithFilter(func(item registry.Item) bool {
+							if item.Metadata()[runtime.NodeMetaPID] == pid {
+								return true
+							}
+							return false
+						}),
+					)
+					if err != nil {
+						return
+					}
+					for _, item := range items {
+						if err := reg.Deregister(item); err != nil {
+							log.Logger(ctx).Warn("could not deregister", zap.Error(err))
 						}
-						return false
-					}),
-				)
-				if err != nil {
-					return
-				}
-				for _, item := range items {
-					if err := reg.Deregister(item); err != nil {
-						log.Logger(ctx).Warn("could not deregister", zap.Error(err))
 					}
 				}
 			}

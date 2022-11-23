@@ -80,8 +80,11 @@ func NewProcess(ctx context.Context, serviceNames []string, oo ...Option) *Proce
 	return p
 }
 
-func (p *Process) GetPID() string {
-	return fmt.Sprintf("%d", p.cmd.Process.Pid)
+func (p *Process) GetPID() (string, bool) {
+	if p.cmd == nil || p.cmd.Process == nil {
+		return "", false
+	}
+	return fmt.Sprintf("%d", p.cmd.Process.Pid), true
 }
 
 func (p *Process) Err() error {
