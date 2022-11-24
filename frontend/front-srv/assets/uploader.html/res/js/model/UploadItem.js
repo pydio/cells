@@ -52,6 +52,23 @@ class UploadItem extends StatusItem {
             this._parts.push(new PartItem(this, i + 1));
         }
     }
+
+    setRetry(retry){
+        this._retry = retry
+    }
+
+    getRetry() {
+        return this._retry || 0
+    }
+
+    // Override onError to set all parts on error
+    onError(errorMessage){
+        super.onError(errorMessage)
+        if(this._parts){
+            this._parts.filter(p => p.getStatus() === StatusItem.StatusLoading).forEach(p => p.onError(errorMessage))
+        }
+    }
+
     getFile(){
         return this._file;
     }
@@ -96,9 +113,13 @@ class UploadItem extends StatusItem {
             if(this._parts && computableEvent.part && this._parts[computableEvent.part-1] && computableEvent.partLoaded && computableEvent.partTotal){
                 const part = this._parts[computableEvent.part-1];
                 const progress = Math.round((computableEvent.partLoaded * 100) / computableEvent.partTotal);
-                if(progress < 100) {
+                if(computableEvent.error) {
+                    part.onError(computableEvent.error.message)
+                    part.setProgress(0, 0);
+                } else if(progress < 100) {
                     if(part.getStatus() !== StatusItem.StatusCannotPause){
                         part.setStatus(StatusItem.StatusLoading);
+                        part.setRetry(computableEvent.partRetry)
                     }
                 } else {
                     const checkPause = part.getStatus() === StatusItem.StatusCannotPause;
@@ -122,6 +143,7 @@ class UploadItem extends StatusItem {
         const MAX_RETRIES = 2;
         const BACK_OFF = 150;
         const retry = (count)=>{
+            this.setRetry(count-1)
             return (e)=>{
                 if (e && e.indexOf) {
                     if(e.indexOf('422') >= 0){

@@ -30,7 +30,7 @@ import {RestCreateSelectionRequest, TreeNode, TreeServiceApi} from 'cells-sdk';
 // Extend S3 ManagedUpload to get progress info about each part
 class ManagedMultipart extends AWS.S3.ManagedUpload{
 
-    progress(info) {
+    progress(info, data) {
         const upload = this._managedUpload;
         if (this.operation === 'putObject') {
             info.part = 1;
@@ -45,8 +45,14 @@ class ManagedMultipart extends AWS.S3.ManagedUpload{
                 total: upload.totalBytes,
                 part: this.params.PartNumber,
                 partLoaded, partTotal,
-                key: this.params.Key
+                key: this.params.Key,
+                partRetry: data.retryCount
             };
+            try{
+                if(data.request.response.error){
+                    info.partError = data.request.response.error;
+                }
+            } catch (e) {}
         }
         upload.emit('httpUploadProgress', [info]);
     }

@@ -279,8 +279,11 @@ class Transfer extends React.Component{
             if(item.getSize){
                 statusLabel = item.getHumanSize() + ' - ' + statusLabel;
             }
-            if(status === 'analyse' && item.getAnalyzeStatus && item.getAnalyzeStatus()) {
+            if(status === StatusItem.StatusAnalyze && item.getAnalyzeStatus && item.getAnalyzeStatus()) {
                 statusLabel += ' (' + item.getAnalyzeStatus() + ')'
+            }
+            if(status === StatusItem.StatusLoading && item.getRetry && item.getRetry() > 0) {
+                statusLabel += ' ('+messages['html_uploader.attempt']+' ' + (1+item.getRetry()) + ')'
             }
         }
 

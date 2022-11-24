@@ -26,6 +26,15 @@ class PartItem extends StatusItem {
     constructor(parent, index){
         super('part', null, parent);
         this._label = 'Part ' + index;
+        this._retry = 0
+    }
+
+    setRetry(retry){
+        this._retry = retry
+    }
+
+    getRetry() {
+        return this._retry || 0
     }
 
     setProgress(newValue, bytes = null){
