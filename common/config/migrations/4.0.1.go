@@ -54,7 +54,7 @@ func cleanOverlappingObjectsServices(conf configx.Values) error {
 		}
 	}
 
-	if len(res) == 1 {
+	if len(res) <= 1 {
 		// Nothing to do
 		return nil
 	}
