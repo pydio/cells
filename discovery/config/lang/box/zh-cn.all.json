@@ -443,6 +443,18 @@
   "triggerFilterQuery.IsSchedule": {
     "other": "计划触发器"
   },
+  "triggerFilterQuery.IsApiHook": {
+    "other": "Triggered by Webhook"
+  },
+  "triggerFilterQuery.ApiHookSlug": {
+    "other": "Webhook Api Slug"
+  },
+  "triggerFilterQuery.RunParameterName": {
+    "other": "Run Parameter Name"
+  },
+  "triggerFilterQuery.RunParameterValue": {
+    "other": "Run Parameter Value"
+  },
   "triggerFilterQuery.IsManual": {
     "other": "手动触发器"
   },

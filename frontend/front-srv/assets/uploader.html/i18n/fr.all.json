@@ -113,6 +113,9 @@
   "dialog.title": {
     "other": "Transferts"
   },
+  "attempt": {
+    "other": "tentative"
+  },
   "status.new": {
     "other": "En attente"
   },

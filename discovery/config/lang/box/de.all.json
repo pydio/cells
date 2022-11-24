@@ -443,6 +443,18 @@
   "triggerFilterQuery.IsSchedule": {
     "other": "Geplanter Auslöser"
   },
+  "triggerFilterQuery.IsApiHook": {
+    "other": "Ausgelöst per Webhook"
+  },
+  "triggerFilterQuery.ApiHookSlug": {
+    "other": "Webhook API Slug"
+  },
+  "triggerFilterQuery.RunParameterName": {
+    "other": "Run Parameter Name"
+  },
+  "triggerFilterQuery.RunParameterValue": {
+    "other": "Run Parameter Wert"
+  },
   "triggerFilterQuery.IsManual": {
     "other": "Manuell Trigger"
   },

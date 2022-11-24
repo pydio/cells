@@ -113,6 +113,9 @@
   "dialog.title": {
     "other": "転送"
   },
+  "attempt": {
+    "other": "attempt"
+  },
   "status.new": {
     "other": "保留中"
   },

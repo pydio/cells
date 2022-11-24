@@ -113,6 +113,9 @@
   "dialog.title": {
     "other": "Загрузки"
   },
+  "attempt": {
+    "other": "attempt"
+  },
   "status.new": {
     "other": "Ожидают"
   },
