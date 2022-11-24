@@ -113,6 +113,9 @@
   "dialog.title": {
     "other": "Trasferimenti"
   },
+  "attempt": {
+    "other": "attempt"
+  },
   "status.new": {
     "other": "In sospeso"
   },

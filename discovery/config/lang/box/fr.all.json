@@ -443,6 +443,18 @@
   "triggerFilterQuery.IsSchedule": {
     "other": "Programmation calendaire"
   },
+  "triggerFilterQuery.IsApiHook": {
+    "other": "Déclenché par Webhook"
+  },
+  "triggerFilterQuery.ApiHookSlug": {
+    "other": "Segment de l'API du hook"
+  },
+  "triggerFilterQuery.RunParameterName": {
+    "other": "Nom du paramètre de Flow"
+  },
+  "triggerFilterQuery.RunParameterValue": {
+    "other": "Valeur du paramètre de Flow"
+  },
   "triggerFilterQuery.IsManual": {
     "other": "Manuel"
   },

@@ -113,6 +113,9 @@
   "dialog.title": {
     "other": "Transferências"
   },
+  "attempt": {
+    "other": "attempt"
+  },
   "status.new": {
     "other": "Pendente"
   },
