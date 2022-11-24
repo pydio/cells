@@ -108,19 +108,21 @@ func TestMigration401(t *testing.T) {
 		So(conf, ShouldNotBeNil)
 	})
 
-	Convey("Testing 401 upgrade with empty conf", t, func() {
+	/*
+		Convey("Testing 401 upgrade with empty conf", t, func() {
 
-		// Create new config
-		conf := configx.New(configx.WithJSON())
-		_ = conf.Set(data)
+			// Create new config
+			conf := configx.New(configx.WithJSON())
+			_ = conf.Set(data)
 
-		target, _ := version.NewVersion("4.0.5")
-		b, err := UpgradeConfigsIfRequired(conf, target)
-		So(b, ShouldBeTrue)
-		So(err, ShouldBeNil)
+			target, _ := version.NewVersion("4.0.5")
+			b, err := UpgradeConfigsIfRequired(conf, target)
+			So(b, ShouldBeTrue)
+			So(err, ShouldBeNil)
 
-		PrettyPrint(conf.Map())
-		So(conf, ShouldNotBeNil)
-	})
+			PrettyPrint(conf.Map())
+			So(conf, ShouldNotBeNil)
+		})
+	*/
 
 }
