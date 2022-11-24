@@ -113,6 +113,9 @@
   "dialog.title": {
     "other": "전송"
   },
+  "attempt": {
+    "other": "attempt"
+  },
   "status.new": {
     "other": "보류 중"
   },

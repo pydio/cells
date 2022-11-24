@@ -113,6 +113,9 @@
   "dialog.title": {
     "other": "传输"
   },
+  "attempt": {
+    "other": "attempt"
+  },
   "status.new": {
     "other": "待处理"
   },
