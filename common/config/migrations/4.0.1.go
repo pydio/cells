@@ -23,6 +23,8 @@ package migrations
 import (
 	"fmt"
 
+	"github.com/hashicorp/go-version"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/object"
@@ -30,8 +32,8 @@ import (
 )
 
 func init() {
-	//v, _ := version.NewVersion("4.0.1")
-	//add(v, getMigration(cleanOverlappingObjectsServices))
+	v, _ := version.NewVersion("4.0.1")
+	add(v, getMigration(cleanOverlappingObjectsServices))
 }
 
 // cleanOverlappingObjectsServices tries to find conflicting grpc.data.object services that would have been
