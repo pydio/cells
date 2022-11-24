@@ -253,7 +253,7 @@ func (a *ActionMessage) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 		_ = encoder.AddReflected("Event", ev)
 	}
 	if vv := a.StackedVars(); len(vv) > 0 {
-		_ = encoder.AddReflected("StackedVars", vv)
+		_ = encoder.AddReflected("Vars", vv)
 	}
 	limitedSlice(encoder, "Nodes", a.Nodes, 5)
 	limitedSlice(encoder, "Roles", a.Roles, 5)

@@ -63,6 +63,7 @@ func (c *PathGlobCondition) Fulfills(value interface{}, _ *ladon.Request) bool {
 			checkParents = true
 		}
 	}
+	s = strings.TrimRight(s, "/")
 
 	gl, er := glob.Compile(globString, '/')
 	if er != nil {
