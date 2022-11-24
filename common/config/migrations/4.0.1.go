@@ -32,11 +32,13 @@ import (
 )
 
 func init() {
-	v, _ := version.NewVersion("4.0.5")
-	add(v, getMigration(cleanOverlappingObjects))
+	v, _ := version.NewVersion("4.0.1")
+	add(v, getMigration(cleanOverlappingObjectsServices))
 }
 
-func cleanOverlappingObjects(conf configx.Values) error {
+// cleanOverlappingObjectsServices tries to find conflicting grpc.data.object services that would have been
+// duplicated because of PeerAddress
+func cleanOverlappingObjectsServices(conf configx.Values) error {
 
 	core := conf.Val(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects))
 	sources := config.SourceNamesFiltered(core.Val("sources").StringArray())
@@ -57,7 +59,6 @@ func cleanOverlappingObjects(conf configx.Values) error {
 		return nil
 	}
 
-	fmt.Println("We have", len(res), "objects loaded")
 	var toRemove []*object.MinioConfig
 
 	// Now check duplicates
@@ -77,7 +78,11 @@ func cleanOverlappingObjects(conf configx.Values) error {
 		}
 	}
 
-	fmt.Println("We now have", len(toRemove), "objects to remove")
+	for _, o := range toRemove {
+		fmt.Println("[WARN] Migration is removing objects service " + o.Name + " to avoid starting conflicts")
+		_ = conf.Val(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+o.Name)).Del()
+	}
+
 	var newSources []string
 	for _, s := range core.Val("sources").StringArray() {
 		rem := false
@@ -92,10 +97,6 @@ func cleanOverlappingObjects(conf configx.Values) error {
 		}
 	}
 	_ = core.Val("sources").Set(newSources)
-
-	for _, o := range toRemove {
-		_ = conf.Val(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects_+o.Name)).Del()
-	}
 
 	return nil
 }

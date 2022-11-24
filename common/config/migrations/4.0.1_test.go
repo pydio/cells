@@ -27,7 +27,7 @@ import (
 	"testing"
 )
 
-func TestMigration405(t *testing.T) {
+func TestMigration401(t *testing.T) {
 	tData := []byte(`{
 		"services": {
 			"pydio.grpc.data.objects": {
@@ -90,7 +90,7 @@ func TestMigration405(t *testing.T) {
 			  "RunningPort": 62002
 			}
    	    },
-		"version": "4.0.4"
+		"version": "3.0.10"
 	}`)
 
 	Convey("Testing initial upgrade of config", t, func() {
