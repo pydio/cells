@@ -30,11 +30,13 @@ const (
 	DefaultMaximumWorkers = 20
 )
 
+type RunnerFunc func(queue chan RunnerFunc)
+
 // Dispatcher orchestrates the jobs by dispatching work to available workers.
 type Dispatcher struct {
 	// A pool of workers channels that are registered with the dispatcher
-	jobQueue   chan Runnable
-	workerPool chan chan Runnable
+	jobQueue   chan RunnerFunc
+	workerPool chan chan RunnerFunc
 	maxWorker  int
 	tags       map[string]string
 	active     int
@@ -44,8 +46,8 @@ type Dispatcher struct {
 
 // NewDispatcher creates and initialises a new Dispatcher with this amount of workers.
 func NewDispatcher(maxWorkers int, tags map[string]string) *Dispatcher {
-	pool := make(chan chan Runnable, maxWorkers)
-	jobQueue := make(chan Runnable)
+	pool := make(chan chan RunnerFunc, maxWorkers)
+	jobQueue := make(chan RunnerFunc)
 	return &Dispatcher{
 		workerPool: pool,
 		maxWorker:  maxWorkers,
@@ -78,11 +80,10 @@ func (d *Dispatcher) Run() {
 				g.Update(math.Abs(float64(d.active)))
 			case jobImpl := <-d.jobQueue:
 				// a jobs request has been received
-				go func(job Runnable) {
+				go func(job RunnerFunc) {
 					// try to obtain a worker job channel that is available.
 					// this will block until a worker is idle
 					jobChannel := <-d.workerPool
-
 					// dispatch the job to the worker job channel
 					jobChannel <- job
 				}(jobImpl)

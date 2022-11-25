@@ -70,7 +70,7 @@ type Subscriber struct {
 	definitions map[string]*jobs.Job
 
 	batcher *cache.EventsBatcher
-	queue   chan Runnable
+	//queue   chan Runnable
 
 	dispatcherLock sync.Mutex
 	dispatchers    map[string]*Dispatcher
@@ -82,7 +82,7 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 
 	s := &Subscriber{
 		definitions: make(map[string]*jobs.Job),
-		queue:       make(chan Runnable),
+		//queue:       make(chan Runnable),
 		dispatchers: make(map[string]*Dispatcher),
 	}
 
@@ -138,7 +138,7 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 		return nil
 	}, opt)
 
-	s.listenToQueue()
+	//s.listenToQueue()
 	s.taskChannelSubscription()
 
 	return s
@@ -186,7 +186,13 @@ func (s *Subscriber) Stop() {
 	s.dispatcherLock.Unlock()
 }
 
+func (s *Subscriber) enqueue(t *Task) {
+	dispatcher := s.getDispatcherForJob(t.Job, true)
+	t.Queue(dispatcher.jobQueue)
+}
+
 // listenToQueue starts a go routine that listens to the Event Bus
+/*
 func (s *Subscriber) listenToQueue() {
 	go func() {
 		for runnable := range s.queue {
@@ -196,10 +202,12 @@ func (s *Subscriber) listenToQueue() {
 			default:
 			}
 			dispatcher := s.getDispatcherForJob(runnable.Task.Job, true)
-			dispatcher.jobQueue <- runnable
+			dispatcher.jobQueue <- runnable.AsRunnerFuncRun()
 		}
 	}()
 }
+
+*/
 
 // taskChannelSubscription uses PubSub library to receive update messages from tasks
 func (s *Subscriber) taskChannelSubscription() {
@@ -337,7 +345,8 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 		log.Logger(ctx).Info("Run Job " + jobId + " on timer event " + event.Schedule.String())
 	}
 	task := NewTaskFromEvent(s.rootCtx, ctx, j, event)
-	task.Queue(s.queue)
+	s.enqueue(task)
+	//task.Queue(s.queue)
 
 	return nil
 }
@@ -411,7 +420,8 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 
 		log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eventMatch)
 		task := NewTaskFromEvent(s.rootCtx, tCtx, jobData, event)
-		task.Queue(s.queue)
+		s.enqueue(task)
+		//task.Queue(s.queue)
 	}
 
 }
@@ -445,7 +455,8 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 				}
 				log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eName)
 				task := NewTaskFromEvent(s.rootCtx, tCtx, jobData, event)
-				task.Queue(s.queue)
+				s.enqueue(task)
+				//task.Queue(s.queue)
 			}
 		}
 	}

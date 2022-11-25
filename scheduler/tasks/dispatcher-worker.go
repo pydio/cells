@@ -24,19 +24,19 @@ import "fmt"
 
 // Worker represents the worker that executes the jobs.
 type Worker struct {
-	workerPool chan chan Runnable
-	jobChannel chan Runnable
+	workerPool chan chan RunnerFunc
+	jobChannel chan RunnerFunc
 	quit       chan bool
-	jobRequeue chan Runnable
+	jobRequeue chan RunnerFunc
 	activeChan chan int
 	tags       map[string]string
 }
 
 // NewWorker creates and configures a new worker.
-func NewWorker(workerPool chan chan Runnable, requeue chan Runnable, activeChan chan int, tags map[string]string) Worker {
+func NewWorker(workerPool chan chan RunnerFunc, requeue chan RunnerFunc, activeChan chan int, tags map[string]string) Worker {
 	return Worker{
 		workerPool: workerPool,
-		jobChannel: make(chan Runnable),
+		jobChannel: make(chan RunnerFunc),
 		jobRequeue: requeue,
 		tags:       tags,
 		activeChan: activeChan,
@@ -52,14 +52,15 @@ func (w Worker) Start() {
 			w.workerPool <- w.jobChannel
 
 			select {
-			case runnable := <-w.jobChannel:
+			case runnerFunc := <-w.jobChannel:
 				// we have received a work request.
 				select {
 				case w.activeChan <- 1:
 				default:
 					fmt.Println("[debug] dispatcher-worker could not update activeChan value +1")
 				}
-				runnable.RunAction(w.jobRequeue)
+				//runnable.RunAction(w.jobRequeue)
+				runnerFunc(w.jobRequeue)
 				select {
 				case w.activeChan <- -1:
 				default:

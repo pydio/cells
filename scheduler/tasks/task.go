@@ -85,7 +85,7 @@ func NewTaskFromEvent(runtime, ctx context.Context, job *jobs.Job, event interfa
 }
 
 // Queue send this new task to the global queue
-func (t *Task) Queue(queue chan Runnable) {
+func (t *Task) Queue(queue chan RunnerFunc) {
 	var ct context.Context
 	var can context.CancelFunc
 	if d, o := itemTimeout(t.Job.Timeout); o {
@@ -132,7 +132,10 @@ func (t *Task) Queue(queue chan Runnable) {
 		r.SetupCollector(t.context, t.Job.MergeAction, queue)
 	}
 	logStartMessageFromEvent(r.Context, t.event)
-	go r.Dispatch(createMessageFromEvent(t.event), t.Actions, queue)
+	msg := createMessageFromEvent(t.event)
+	queue <- func(queue chan RunnerFunc) {
+		r.Dispatch(msg, t.Actions, queue)
+	}
 }
 
 // CleanUp is triggered after a task has no more subroutines running.

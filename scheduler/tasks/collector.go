@@ -2,10 +2,10 @@ package tasks
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/utils/uuid"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 type collector struct {
@@ -74,7 +74,7 @@ func (c *collector) WaitMsg() *jobs.ActionMessage {
 	return out
 }
 
-func (c *collector) AutoStart() {
+func (c *collector) autoStart() {
 	if c.started {
 		return
 	}
@@ -91,7 +91,7 @@ func (c *collector) Merge(i *jobs.ActionMessage) {
 	if c.finished {
 		return
 	}
-	c.AutoStart()
+	c.autoStart()
 	c.cm <- i
 }
 
@@ -100,7 +100,7 @@ func (c *collector) Add(delta int) {
 	if c.finished {
 		return
 	}
-	c.AutoStart()
+	c.autoStart()
 	//fmt.Println("ADDING", delta)
 	c.WaitGroup.Add(delta)
 }

@@ -76,7 +76,7 @@ func RootRunnable(ctx context.Context, task *Task) Runnable {
 
 // NewRunnable creates a new runnable and populates it with the concrete task implementation found with action.ID,
 // if such an implementation is found.
-func NewRunnable(ctx context.Context, parent *Runnable, queue chan Runnable, action *jobs.Action, message *jobs.ActionMessage, indexTag ...int) Runnable {
+func NewRunnable(ctx context.Context, parent *Runnable, queue chan RunnerFunc, action *jobs.Action, message *jobs.ActionMessage, indexTag ...int) Runnable {
 	var aPath string
 	parentCtx := ctx
 	aPath, ctx = action.BuildTaskActionPath(ctx, "", indexTag...)
@@ -121,7 +121,13 @@ func (r *Runnable) Done() {
 	}
 }
 
-func (r *Runnable) SetupCollector(parentCtx context.Context, mergeAction *jobs.Action, queue chan Runnable) {
+func (r *Runnable) AsRunnerFuncRun() RunnerFunc {
+	return func(queue chan RunnerFunc) {
+		r.RunAction(queue)
+	}
+}
+
+func (r *Runnable) SetupCollector(parentCtx context.Context, mergeAction *jobs.Action, queue chan RunnerFunc) {
 	parentCollector := r.collector
 	r.Add(1) // register one task and +1 on parent collector if set
 	r.collector = newCollector(parentCtx)
@@ -132,89 +138,102 @@ func (r *Runnable) SetupCollector(parentCtx context.Context, mergeAction *jobs.A
 		ct = context.WithValue(ct, jobs.IndexedContextKey, 0)
 		r2 := NewRunnable(ct, r, queue, mergeAction, msg)
 		r2.collector = parentCollector
-		queue <- r2
+		queue <- r2.AsRunnerFuncRun()
 	}()
+}
+
+func (r *Runnable) dispatchChildAction(q chan RunnerFunc, wg *sync.WaitGroup, input *jobs.ActionMessage, act *jobs.Action, chainIndex int) {
+
+	outMessages := make(chan *jobs.ActionMessage)
+	failedMessages := make(chan *jobs.ActionMessage)
+
+	errs := make(chan error)
+	done := make(chan bool, 1)
+
+	indexedContext := context.WithValue(r.Context, jobs.IndexedContextKey, chainIndex)
+	blocker := make(chan bool, 1)
+
+	go func() {
+		defer func() {
+			close(outMessages)
+			close(failedMessages)
+			close(errs)
+			close(done)
+			close(blocker)
+			wg.Done()
+		}()
+		enqueued := 0
+		for {
+			select {
+			case message := <-outMessages:
+				// Build runnable and enqueue
+				enqueued++
+				// Tag with an index to recognise messages
+				var tt []int
+				if act.HasSelectors() {
+					tt = append(tt, enqueued)
+				}
+				r2 := NewRunnable(indexedContext, r, q, act, message.Clone(), tt...)
+				r2.Add(1)
+				q <- r2.AsRunnerFuncRun()
+
+			case failed := <-failedMessages:
+				// Filter failed
+				if len(act.FailedFilterActions) > 0 {
+					enqueued++
+					// Replace current context
+					r.ActionPath, r.Context = failedContextPath(r.Context, act.ID, chainIndex)
+					r.Dispatch(failed.Clone(), act.FailedFilterActions, q)
+				}
+
+			case err := <-errs:
+				_, ct := act.BuildTaskActionPath(indexedContext, "")
+				log.TasksLogger(ct).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
+				log.Logger(r.Context).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
+				r.Task.SetError(err, false)
+				// Break dispatch on error !
+				return
+
+			case <-done:
+				// For ROOT that is not event-based (jobTrigger = manual or scheduled), check if nothing happened at all
+				if r.ActionPath == "ROOT" && enqueued == 0 && strings.Contains(input.GetEvent().GetTypeUrl(), "jobs.JobTriggerEvent") {
+					_, ct := act.BuildTaskActionPath(indexedContext, "")
+					log.TasksLogger(ct).Warn("Initial query retrieved no values, stopping job now")
+					r.Task.Add(1)
+					r2 := NewRunnable(indexedContext, r, q, &jobs.Action{ID: actions.IgnoredActionName}, &jobs.ActionMessage{})
+					q <- r2.AsRunnerFuncRun()
+				}
+				return
+
+			}
+		}
+	}()
+
+	q <- func(queue chan RunnerFunc) {
+		act.ToMessages(input, indexedContext, outMessages, failedMessages, errs, done)
+		<-blocker
+	}
+
 }
 
 // Dispatch gets next Runnable list from action and enqueues them to the Queue
 // Done channel should be working correctly with chained actions
-func (r *Runnable) Dispatch(input *jobs.ActionMessage, aa []*jobs.Action, queue chan Runnable) {
+func (r *Runnable) Dispatch(input *jobs.ActionMessage, aa []*jobs.Action, queue chan RunnerFunc) {
 
 	r.Add(1)
-	wg := sync.WaitGroup{}
+	wg := &sync.WaitGroup{}
 	wg.Add(len(aa))
 	go func() {
 		wg.Wait()
 		r.Done()
 	}()
 	for i, action := range aa {
-		chainIndex := i
-		errs := make(chan error)
-		messagesOutput := make(chan *jobs.ActionMessage)
-		failedFilter := make(chan *jobs.ActionMessage)
-		done := make(chan bool, 1)
-		indexedContext := context.WithValue(r.Context, jobs.IndexedContextKey, chainIndex)
-		go func(act *jobs.Action, q chan Runnable) {
-
-			defer func() {
-				close(messagesOutput)
-				close(done)
-				close(failedFilter)
-				close(errs)
-				wg.Done()
-			}()
-			enqueued := 0
-			for {
-				select {
-				case message := <-messagesOutput:
-					// Build runnable and enqueue
-					enqueued++
-					// Tag with an index to recognise messages
-					var tt []int
-					if act.HasSelectors() {
-						tt = append(tt, enqueued)
-					}
-					r2 := NewRunnable(indexedContext, r, q, act, message.Clone(), tt...)
-					r2.Add(1)
-					q <- r2
-
-				case failed := <-failedFilter:
-					// Filter failed
-					if len(act.FailedFilterActions) > 0 {
-						enqueued++
-						// Replace current context
-						r.ActionPath, r.Context = failedContextPath(r.Context, act.ID, chainIndex)
-						r.Dispatch(failed.Clone(), act.FailedFilterActions, q)
-					}
-
-				case err := <-errs:
-					_, ct := act.BuildTaskActionPath(indexedContext, "")
-					log.TasksLogger(ct).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
-					log.Logger(r.Context).Error("Received error while dispatching messages : "+err.Error(), zap.Error(err))
-					r.Task.SetError(err, false)
-					// Break dispatch on error !
-					return
-
-				case <-done:
-					// For ROOT that is not event-based (jobTrigger = manual or scheduled), check if nothing happened at all
-					if r.ActionPath == "ROOT" && enqueued == 0 && strings.Contains(input.GetEvent().GetTypeUrl(), "jobs.JobTriggerEvent") {
-						_, ct := act.BuildTaskActionPath(indexedContext, "")
-						log.TasksLogger(ct).Warn("Initial query retrieved no values, stopping job now")
-						r.Task.Add(1)
-						r2 := NewRunnable(indexedContext, r, q, &jobs.Action{ID: actions.IgnoredActionName}, &jobs.ActionMessage{})
-						q <- r2
-					}
-					return
-
-				}
-			}
-		}(action, queue)
-		action.ToMessages(input.Clone(), indexedContext, messagesOutput, failedFilter, errs, done)
+		r.dispatchChildAction(queue, wg, input, action, i)
 	}
 }
 
 // RunAction creates an action and calls Dispatch
-func (r *Runnable) RunAction(queue chan Runnable) {
+func (r *Runnable) RunAction(queue chan RunnerFunc) {
 
 	defer func() {
 		if re := recover(); re != nil {
@@ -290,10 +309,11 @@ func (r *Runnable) RunAction(queue chan Runnable) {
 	}
 
 	if len(r.ChainedActions) > 0 {
-		if !r.Action.BreakAfter {
-			r.Dispatch(outputMessage, r.ChainedActions, queue)
-		} else {
+		if r.Action.BreakAfter {
 			log.TasksLogger(r.Context).Warn("Stopping chain at action " + r.ID + " as it is flagged BreakAfter.")
+		} else {
+			r.Dispatch(outputMessage, r.ChainedActions, queue)
+			//queue <- r.AsRunnerFuncDispatch(outputMessage, r.ChainedActions)
 		}
 	} else if r.collector != nil {
 		r.collector.Merge(outputMessage)
