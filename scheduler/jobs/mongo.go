@@ -52,7 +52,9 @@ var (
 			{
 				Name: collTasks,
 				Indexes: []map[string]int{
-					{"id": 1, "job_id": 1, "status": 1, "ts": -1},
+					{"job_id": 1, "ts": -1},
+					{"status": 1, "ts": -1},
+					{"job_id": 1, "status": 1, "ts": -1},
 				},
 			},
 		},
@@ -171,14 +173,12 @@ func (m *mongoImpl) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 				continue
 			}
 			if withTasks != jobs.TaskStatus_Unknown {
-				tt, e := m.listTasks(mj.ID, withTasks, offset, limit)
-				if e != nil {
+				if co, e := m.countTasksForJob(mj.ID, withTasks); e != nil || (withTasks != jobs.TaskStatus_Any && co == 0) {
 					continue
 				}
-				if withTasks != jobs.TaskStatus_Any && len(tt) == 0 {
-					continue
+				if tt, e := m.listTasks(mj.ID, withTasks, offset, limit); e == nil {
+					mj.Job.Tasks = tt
 				}
-				mj.Job.Tasks = tt
 			}
 			cj <- mj.Job
 		}
@@ -316,4 +316,20 @@ func (m *mongoImpl) listTasks(jobId string, status jobs.TaskStatus, offset, limi
 		tasks = append(tasks, mj.Task)
 	}
 	return
+}
+
+func (m *mongoImpl) countTasksForJob(jobId string, status jobs.TaskStatus) (count int64, e error) {
+	filter := bson.D{}
+	if jobId != "" {
+		filter = append(filter, bson.E{"job_id", jobId})
+	}
+	if status != jobs.TaskStatus_Any {
+		filter = append(filter, bson.E{"status", int(status)})
+	}
+	c := context.Background()
+	co, e := m.Collection(collTasks).CountDocuments(c, filter, &options.CountOptions{})
+	if e != nil {
+		return 0, e
+	}
+	return co, e
 }
