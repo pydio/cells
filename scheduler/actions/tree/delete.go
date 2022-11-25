@@ -138,11 +138,11 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 
 	readR, readE := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: sourceNode})
 	if readE != nil {
-		log.Logger(ctx).Error("Read Source", zap.Error(readE))
 		if ignore, _ := jobs.EvaluateFieldBool(ctx, input, c.ignoreNonExisting); ignore {
 			log.TasksLogger(ctx).Info("No file found, ignoring")
 			return input.WithIgnore(), nil
 		}
+		log.Logger(ctx).Error("Read Source", zap.Error(readE))
 		return input.WithError(readE), readE
 	}
 	sourceNode = readR.GetNode()
