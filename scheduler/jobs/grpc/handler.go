@@ -412,9 +412,9 @@ func (j *JobsHandler) DeleteLogsFor(ctx context.Context, job string, tasks ...st
 	if len(tasks) == 0 {
 		req.Query = "+OperationUuid:\"" + job + "*\""
 	} else {
-		qs := []string{}
+		var qs []string
 		for _, task := range tasks {
-			qs = append(qs, "+OperationUuid:\""+job+"-"+task[0:8]+"\"")
+			qs = append(qs, "OperationUuid:\""+job+"-"+task[0:8]+"\"")
 		}
 		req.Query = strings.Join(qs, " ")
 	}

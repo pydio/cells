@@ -129,10 +129,17 @@ func (m *mongoImpl) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, 
 
 func (m *mongoImpl) DeleteJob(jobId string) error {
 	c := context.Background()
-	_, e := m.Collection(collJobs).DeleteOne(c, bson.D{{"id", jobId}})
-	if e != nil {
+
+	// First delete all children tasks
+	if _, e := m.Collection(collTasks).DeleteMany(context.Background(), bson.D{{"job_id", jobId}}); e != nil {
 		return e
 	}
+
+	// Now delete job
+	if _, e := m.Collection(collJobs).DeleteOne(c, bson.D{{"id", jobId}}); e != nil {
+		return e
+	}
+
 	//fmt.Println("Delete", res.DeletedCount, "job")
 	return nil
 }
