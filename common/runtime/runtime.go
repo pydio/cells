@@ -311,7 +311,18 @@ func IsFork() bool {
 
 // MetricsEnabled returns if the metrics should be published or not
 func MetricsEnabled() bool {
-	return r.GetBool(KeyEnableMetrics)
+	s := r.GetString(KeyEnableMetrics)
+	// Use "true" or "login:password"
+	return s == "true" || len(strings.Split(s, ":")) == 2
+}
+
+// MetricsUseRemoteSD returns if the metrics should be published on a Service Discovery endpoint
+func MetricsUseRemoteSD() (bool, string, string) {
+	parts := strings.Split(r.GetString(KeyEnableMetrics), ":")
+	if len(parts) == 2 {
+		return true, parts[0], parts[1]
+	}
+	return false, "", ""
 }
 
 // PprofEnabled returns if a http endpoint should be published for debug/pprof
@@ -555,8 +566,10 @@ func Describe() (out []InfoGroup) {
 	logging := InfoGroup{Name: "Monitoring"}
 	me := "false"
 	pp := "false"
-	if MetricsEnabled() {
+	if r.GetString(KeyEnableMetrics) == "true" {
 		me = "true"
+	} else if len(strings.Split(r.GetString(KeyEnableMetrics), ":")) == 1 {
+		me = "/metrics/sd (with basic-auth)"
 	}
 	if PprofEnabled() {
 		pp = "true"

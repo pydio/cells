@@ -22,6 +22,8 @@ package metrics
 
 import (
 	"context"
+	"crypto/subtle"
+	"fmt"
 	"net/http"
 	"net/http/pprof"
 	"os"
@@ -43,37 +45,88 @@ const (
 	promServiceName  = common.ServiceWebNamespace_ + common.ServiceMetrics
 )
 
+type bau struct {
+	login, pwd []byte
+	inner      http.Handler
+}
+
+func (b *bau) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if l, p, o := r.BasicAuth(); o && subtle.ConstantTimeCompare([]byte(l), b.login) == 1 && subtle.ConstantTimeCompare([]byte(p), b.pwd) == 1 {
+		b.inner.ServeHTTP(w, r)
+		return
+	}
+	w.Header().Set("WWW-Authenticate", `Basic realm="cells metrics"`)
+	w.WriteHeader(401)
+	w.Write([]byte("Unauthorized.\n"))
+}
+
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
 		if runtime.MetricsEnabled() {
-			service.NewService(
-				service.Name(serviceName),
-				service.Context(ctx),
-				service.Tag(common.ServiceTagGateway),
-				service.Description("Gather metrics endpoints for prometheus inside a prom.json file"),
-				service.WithGeneric(func(c context.Context, server *generic.Server) error {
-					srv := &metricsServer{ctx: c, name: serviceName}
-					return srv.Start()
-				}),
-			)
 			h := prometheus.NewHandler()
-			service.NewService(
-				service.Name(promServiceName),
-				service.Context(ctx),
-				service.Tag(common.ServiceTagGateway),
-				service.Description("Expose metrics for external tools (prometheus and pprof formats)"),
-				service.ForceRegister(true),
-				service.WithPureHTTP(func(ctx context.Context, mux server.HttpMux) error {
-					mux.Handle("/metrics", h.HTTPHandler())
-					return nil
-				}),
-				service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
-					if p, ok := mux.(server.PatternsProvider); ok {
-						p.DeregisterPattern("/metrics")
-					}
-					return nil
-				}),
-			)
+
+			if use, login, pwd := runtime.MetricsUseRemoteSD(); use {
+				pattern := fmt.Sprintf("/metrics/%d", os.Getpid())
+				handler := h.HTTPHandler()
+				var index http.Handler
+				if runtime.HttpServerType() == runtime.HttpServerCaddy {
+					index = prometheus.NewIndex(ctx)
+				}
+				service.NewService(
+					service.Name(promServiceName),
+					service.Context(ctx),
+					service.Tag(common.ServiceTagGateway),
+					service.Description("Expose metrics for external tools (prometheus and pprof formats)"),
+					service.ForceRegister(true), // Always register in all processes
+					service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
+						mux.Handle(pattern, &bau{inner: handler, login: []byte(login), pwd: []byte(pwd)})
+						/// For main process, also add the central index
+						if runtime.HttpServerType() == runtime.HttpServerCaddy {
+							mux.Handle("/metrics/sd", &bau{inner: index, login: []byte(login), pwd: []byte(pwd)})
+						}
+						return nil
+					}),
+					service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
+						if p, ok := mux.(server.PatternsProvider); ok {
+							p.DeregisterPattern(pattern)
+							if runtime.HttpServerType() == runtime.HttpServerCaddy {
+								p.DeregisterPattern("/metrics/sd")
+							}
+						}
+						return nil
+					}),
+				)
+			} else {
+				service.NewService(
+					service.Name(serviceName),
+					service.Context(ctx),
+					service.Tag(common.ServiceTagGateway),
+					service.Description("Gather metrics endpoints for prometheus inside a prom.json file"),
+					service.WithGeneric(func(c context.Context, server *generic.Server) error {
+						srv := &metricsServer{ctx: c, name: serviceName}
+						return srv.Start()
+					}),
+				)
+				h := prometheus.NewHandler()
+				service.NewService(
+					service.Name(promServiceName),
+					service.Context(ctx),
+					service.Tag(common.ServiceTagGateway),
+					service.Description("Expose metrics for external tools (prometheus and pprof formats)"),
+					service.ForceRegister(true),
+					service.WithPureHTTP(func(ctx context.Context, mux server.HttpMux) error {
+						mux.Handle("/metrics", h.HTTPHandler())
+						return nil
+					}),
+					service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
+						if p, ok := mux.(server.PatternsProvider); ok {
+							p.DeregisterPattern("/metrics")
+						}
+						return nil
+					}),
+				)
+			}
+
 		}
 		if runtime.PprofEnabled() {
 			prefix := "/" + strconv.Itoa(os.Getpid())
