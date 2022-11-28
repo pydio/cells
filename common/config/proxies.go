@@ -2,6 +2,7 @@ package config
 
 import (
 	"strings"
+	"sync"
 
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
@@ -14,9 +15,17 @@ var (
 	proxiesSetters  = map[string]ProxySetter{}
 	proxiesGetters  = map[string]ProxyGetter{}
 	proxiesDeleters = map[string]ProxyDeleter{}
+	proxiesLocker   *sync.RWMutex
 )
 
+func init() {
+	proxiesLocker = &sync.RWMutex{}
+}
+
 func RegisterProxy(key string, interceptors ...interface{}) {
+	proxiesLocker.Lock()
+	defer proxiesLocker.Unlock()
+
 	for _, interceptor := range interceptors {
 		switch v := interceptor.(type) {
 		case ProxySetter:
@@ -50,6 +59,10 @@ func (p *proxy) Val(path ...string) configx.Values {
 	key := strings.Join(path, "/")
 	wrapped := false
 	pVal := &proxyValues{Values: p.Store.Val(path...), store: p.Store, path: path}
+
+	proxiesLocker.RLock()
+	defer proxiesLocker.RUnlock()
+
 	if setter, ok := proxiesSetters[key]; ok {
 		pVal.setter = setter
 		wrapped = true
