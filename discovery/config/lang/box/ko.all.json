@@ -155,6 +155,12 @@
   "contextMetaField.RequestHostname": {
     "other": "호스트이름 요청"
   },
+  "contextMetaField.RequestHost": {
+    "other": "Request Host"
+  },
+  "contextMetaField.RequestPort": {
+    "other": "Request Port"
+  },
   "contextMetaField.RequestMethod": {
     "other": "요청 방법"
   },
