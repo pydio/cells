@@ -41,7 +41,7 @@ type PromTargets struct {
 	groups []*targetGroup
 }
 
-func ProcessesAsTargets(ctx context.Context, reg registry.Registry) *PromTargets {
+func ProcessesAsTargets(ctx context.Context, reg registry.Registry, includeCaddy bool) *PromTargets {
 
 	t := &PromTargets{}
 	ii, er := reg.List(registry.WithType(pb.ItemType_SERVER))
@@ -50,7 +50,7 @@ func ProcessesAsTargets(ctx context.Context, reg registry.Registry) *PromTargets
 	}
 	processes := make(map[string]*targetGroup)
 	for _, i := range ii {
-		if i.Name() != "http" {
+		if i.Name() != "http" && !(includeCaddy && i.Name() == "caddy") {
 			continue
 		}
 		meta := i.Metadata()

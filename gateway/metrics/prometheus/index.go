@@ -42,7 +42,7 @@ func (p *indexHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 
 	externalURL := config.GetDefaultSiteURL()
 	u, _ := url.Parse(externalURL)
-	targets := ProcessesAsTargets(p.ctx, reg)
+	targets := ProcessesAsTargets(p.ctx, reg, true)
 	for _, g := range targets.groups {
 		g.Targets = []string{u.Host}
 		g.Labels["__metrics_path__"] = fmt.Sprintf("/metrics/%s", g.Labels["pid"])
