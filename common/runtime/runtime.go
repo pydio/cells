@@ -401,6 +401,7 @@ func BuildForkParams(cmd string) []string {
 	strArgs := []string{
 		KeyBindHost,
 		KeyAdvertiseAddress,
+		KeyEnableMetrics,
 	}
 
 	strArgsWithDefaults := map[string]string{
@@ -411,7 +412,6 @@ func BuildForkParams(cmd string) []string {
 
 	// Copy bool arguments
 	boolArgs := []string{
-		KeyEnableMetrics,
 		KeyEnablePprof,
 	}
 

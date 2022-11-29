@@ -60,74 +60,86 @@ func (b *bau) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Unauthorized.\n"))
 }
 
+func newPromHttpService(ctx context.Context, pure bool, with, stop func(ctx context.Context, mux server.HttpMux) error) {
+
+	var opts []service.ServiceOption
+	opts = append(opts,
+		service.Name(promServiceName),
+		service.Context(ctx),
+		service.Tag(common.ServiceTagGateway),
+		service.Description("Expose metrics for external tools (prometheus and pprof formats)"),
+		service.ForceRegister(true), // Always register in all processes
+		service.WithHTTPStop(stop),
+	)
+	if pure {
+		opts = append(opts, service.WithPureHTTP(with))
+	} else {
+		opts = append(opts, service.WithHTTP(with))
+	}
+	service.NewService(opts...)
+
+}
+
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
+
 		if runtime.MetricsEnabled() {
-			h := prometheus.NewHandler()
+
+			pattern := fmt.Sprintf("/metrics/%d", os.Getpid())
 
 			if use, login, pwd := runtime.MetricsUseRemoteSD(); use {
-				pattern := fmt.Sprintf("/metrics/%d", os.Getpid())
-				handler := h.HTTPHandler()
-				var index http.Handler
-				if runtime.HttpServerType() == runtime.HttpServerCaddy {
-					index = prometheus.NewIndex(ctx)
-				}
-				service.NewService(
-					service.Name(promServiceName),
-					service.Context(ctx),
-					service.Tag(common.ServiceTagGateway),
-					service.Description("Expose metrics for external tools (prometheus and pprof formats)"),
-					service.ForceRegister(true), // Always register in all processes
-					service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
-						mux.Handle(pattern, &bau{inner: handler, login: []byte(login), pwd: []byte(pwd)})
+
+				newPromHttpService(
+					ctx,
+					false,
+					func(ctx context.Context, mux server.HttpMux) error {
+						h := prometheus.NewHandler()
+						mux.Handle(pattern, &bau{inner: h.HTTPHandler(), login: []byte(login), pwd: []byte(pwd)})
 						/// For main process, also add the central index
-						if runtime.HttpServerType() == runtime.HttpServerCaddy {
+						if !runtime.IsFork() {
+							index := prometheus.NewIndex(ctx)
 							mux.Handle("/metrics/sd", &bau{inner: index, login: []byte(login), pwd: []byte(pwd)})
 						}
 						return nil
-					}),
-					service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
+					},
+					func(ctx context.Context, mux server.HttpMux) error {
 						if p, ok := mux.(server.PatternsProvider); ok {
 							p.DeregisterPattern(pattern)
-							if runtime.HttpServerType() == runtime.HttpServerCaddy {
+							if !runtime.IsFork() {
 								p.DeregisterPattern("/metrics/sd")
 							}
 						}
 						return nil
-					}),
-				)
-			} else {
-				service.NewService(
-					service.Name(serviceName),
-					service.Context(ctx),
-					service.Tag(common.ServiceTagGateway),
-					service.Description("Gather metrics endpoints for prometheus inside a prom.json file"),
-					service.WithGeneric(func(c context.Context, server *generic.Server) error {
-						srv := &metricsServer{ctx: c, name: serviceName}
-						return srv.Start()
-					}),
-				)
-				h := prometheus.NewHandler()
-				service.NewService(
-					service.Name(promServiceName),
-					service.Context(ctx),
-					service.Tag(common.ServiceTagGateway),
-					service.Description("Expose metrics for external tools (prometheus and pprof formats)"),
-					service.ForceRegister(true),
-					service.WithPureHTTP(func(ctx context.Context, mux server.HttpMux) error {
-						mux.Handle("/metrics", h.HTTPHandler())
-						return nil
-					}),
-					service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
-						if p, ok := mux.(server.PatternsProvider); ok {
-							p.DeregisterPattern("/metrics")
-						}
-						return nil
-					}),
-				)
-			}
+					})
 
+			} else {
+				if !runtime.IsFork() {
+					service.NewService(
+						service.Name(serviceName),
+						service.Context(ctx),
+						service.Tag(common.ServiceTagGateway),
+						service.Description("Gather metrics endpoints for prometheus inside a prom.json file"),
+						service.WithGeneric(func(c context.Context, server *generic.Server) error {
+							srv := &metricsServer{ctx: c, name: serviceName}
+							return srv.Start()
+						}),
+					)
+				}
+				with := func(ctx context.Context, mux server.HttpMux) error {
+					h := prometheus.NewHandler()
+					mux.Handle(pattern, h.HTTPHandler())
+					return nil
+				}
+				stop := func(ctx context.Context, mux server.HttpMux) error {
+					if p, ok := mux.(server.PatternsProvider); ok {
+						p.DeregisterPattern(pattern)
+					}
+					return nil
+				}
+				newPromHttpService(ctx, !runtime.IsFork(), with, stop)
+			}
 		}
+
 		if runtime.PprofEnabled() {
 			prefix := "/" + strconv.Itoa(os.Getpid())
 			service.NewService(

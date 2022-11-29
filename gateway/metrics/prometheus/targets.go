@@ -41,7 +41,7 @@ type PromTargets struct {
 	groups []*targetGroup
 }
 
-func ProcessesAsTargets(ctx context.Context, reg registry.Registry, includeCaddy bool) *PromTargets {
+func ProcessesAsTargets(ctx context.Context, reg registry.Registry, includeCaddy bool, replaceHost string) *PromTargets {
 
 	t := &PromTargets{}
 	ii, er := reg.List(registry.WithType(pb.ItemType_SERVER))
@@ -59,18 +59,23 @@ func ProcessesAsTargets(ctx context.Context, reg registry.Registry, includeCaddy
 			continue // already registered
 		}
 		var host string
-		if aa := reg.ListAdjacentItems(i, registry.WithType(pb.ItemType_ADDRESS)); len(aa) > 0 {
-			host = aa[0].Name()
-		}
-		if host == "" {
-			continue
+		if replaceHost == "" {
+			if aa := reg.ListAdjacentItems(i, registry.WithType(pb.ItemType_ADDRESS)); len(aa) > 0 {
+				host = aa[0].Name()
+			}
+			if host == "" {
+				continue
+			}
+		} else {
+			host = replaceHost
 		}
 		tg := &targetGroup{
 			Targets: []string{host},
 			Labels: map[string]string{
-				"job":      "cells",
-				"pid":      pid,
-				"instance": "main",
+				"job":              "cells",
+				"pid":              pid,
+				"instance":         "main",
+				"__metrics_path__": "/metrics/" + pid,
 			},
 		}
 		if startTag := meta[runtime.NodeMetaStartTag]; startTag != "" {

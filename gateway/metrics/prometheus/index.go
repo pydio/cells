@@ -22,11 +22,11 @@ package prometheus
 
 import (
 	"context"
-	"fmt"
-	"github.com/pydio/cells/v4/common/config"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"net/http"
 	"net/url"
+
+	"github.com/pydio/cells/v4/common/config"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 )
 
 func NewIndex(c context.Context) http.Handler {
@@ -42,11 +42,7 @@ func (p *indexHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 
 	externalURL := config.GetDefaultSiteURL()
 	u, _ := url.Parse(externalURL)
-	targets := ProcessesAsTargets(p.ctx, reg, true)
-	for _, g := range targets.groups {
-		g.Targets = []string{u.Host}
-		g.Labels["__metrics_path__"] = fmt.Sprintf("/metrics/%s", g.Labels["pid"])
-	}
+	targets := ProcessesAsTargets(p.ctx, reg, true, u.Host)
 	writer.Header().Set("Content-Type", "application/json")
 	jj, _ := targets.ToJson()
 	writer.Write(jj)

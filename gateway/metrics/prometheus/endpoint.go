@@ -101,7 +101,7 @@ func WatchTargets(ctx context.Context, serviceName string) error {
 		for {
 			select {
 			case <-timer.C:
-				if d, e := ProcessesAsTargets(ctx, reg, false).ToJson(); e == nil {
+				if d, e := ProcessesAsTargets(ctx, reg, false, "").ToJson(); e == nil {
 					_ = os.WriteFile(file, d, 0755)
 				}
 			case <-trigger:
