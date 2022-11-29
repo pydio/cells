@@ -24,6 +24,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/pydio/cells/v4/common/service/metrics"
 	"sync"
 
 	tools "github.com/go-sql-driver/mysql"
@@ -93,6 +94,14 @@ func (m *conn) Open(c context.Context, dsn string) (dao.Conn, error) {
 			log.Logger(c).Warn("[SQL] ")
 			log.Logger(c).Warn("[SQL] *************************************************************************************************************************")
 		}
+
+		var version string
+		if err := db.QueryRow("SELECT VERSION()").Scan(&version); err == nil {
+			metrics.GetMetrics().Tagged(map[string]string{
+				"version": version,
+			}).Gauge("db_version_info").Update(1)
+		}
+
 	}
 
 	m.conn = db

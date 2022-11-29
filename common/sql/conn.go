@@ -61,6 +61,9 @@ func computeStats(ctx context.Context, db *sql.DB) {
 			case <-time.After(30 * time.Second):
 				s := db.Stats()
 				metrics.GetMetrics().Gauge("db_open_connections").Update(float64(s.OpenConnections))
+				metrics.GetMetrics().Gauge("db_max_open_connections").Update(float64(s.MaxOpenConnections))
+				metrics.GetMetrics().Gauge("db_in_use_connections").Update(float64(s.InUse))
+				metrics.GetMetrics().Gauge("db_idle_connections").Update(float64(s.Idle))
 			case <-ctx.Done():
 				return
 			}
