@@ -155,6 +155,12 @@
   "contextMetaField.RequestHostname": {
     "other": "Tên máy truy cập"
   },
+  "contextMetaField.RequestHost": {
+    "other": "Request Host"
+  },
+  "contextMetaField.RequestPort": {
+    "other": "Request Port"
+  },
   "contextMetaField.RequestMethod": {
     "other": "Phương thức truy cập"
   },
