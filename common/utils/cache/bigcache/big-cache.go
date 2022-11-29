@@ -23,6 +23,8 @@ package bigcache
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/uber-go/tally/v4"
 	"net/url"
 	"os"
 	"strconv"
@@ -47,6 +49,8 @@ var (
 type bigCache struct {
 	*bigcache.BigCache
 	closed bool
+	scope  tally.Scope
+	ticker *time.Ticker
 }
 
 type URLOpener struct{}
@@ -78,9 +82,17 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 		return nil, err
 	}
 
-	return &bigCache{
+	cac := &bigCache{
 		BigCache: bc,
-	}, nil
+		ticker:   time.NewTicker(30 * time.Second),
+		scope:    metrics.GetMetricsForService(u.Path),
+	}
+	go func() {
+		for range cac.ticker.C {
+			cac.metrics()
+		}
+	}()
+	return cac, nil
 }
 
 func (b *bigCache) Get(key string, value interface{}) (ok bool) {
@@ -112,7 +124,6 @@ func (b *bigCache) Set(key string, value interface{}) error {
 	if !ok {
 		return fmt.Errorf("not a byte value")
 	}
-
 	return b.BigCache.Set(key, data)
 }
 
@@ -163,12 +174,26 @@ func (b *bigCache) Iterate(f func(key string, val interface{})) error {
 
 func (b *bigCache) Close() error {
 	if !b.closed {
+		if b.ticker != nil {
+			b.ticker.Stop()
+		}
 		if err := b.BigCache.Close(); err != nil {
 			return err
 		}
 		b.closed = true
 	}
 	return nil
+}
+
+func (b *bigCache) metrics() {
+	s := b.Stats()
+	b.scope.Gauge("bigcache_capacity").Update(float64(b.Capacity()))
+	b.scope.Gauge("bigcache_hits").Update(float64(s.Hits))
+	b.scope.Gauge("bigcache_collisions").Update(float64(s.Collisions))
+	b.scope.Gauge("bigcache_delHits").Update(float64(s.DelHits))
+	b.scope.Gauge("bigcache_delMisses").Update(float64(s.DelMisses))
+	b.scope.Gauge("bigcache_misses").Update(float64(s.Misses))
+
 }
 
 func DefaultBigCacheConfig() bigcache.Config {
