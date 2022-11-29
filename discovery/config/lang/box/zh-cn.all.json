@@ -155,6 +155,12 @@
   "contextMetaField.RequestHostname": {
     "other": "请求主机名"
   },
+  "contextMetaField.RequestHost": {
+    "other": "Request Host"
+  },
+  "contextMetaField.RequestPort": {
+    "other": "Request Port"
+  },
   "contextMetaField.RequestMethod": {
     "other": "请求方法"
   },
