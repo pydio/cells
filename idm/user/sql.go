@@ -22,6 +22,7 @@ package user
 
 import (
 	"context"
+	databasesql "database/sql"
 	"embed"
 	"fmt"
 	"strconv"
@@ -309,105 +310,91 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	db := s.DB()
 
 	// Start a transaction
-	tx, errTx := db.BeginTx(context.Background(), nil)
-	if errTx != nil {
-		return nil, createdNodes, errTx
-	}
+	err := sql.RetryTx(context.Background(), db, &sql.RetryTxOpts{MaxRetries: 3}, func(ctx context.Context, tx *databasesql.Tx) error {
 
-	// Checking transaction went fine
-	defer func() {
-		if errTx != nil {
-			tx.Rollback()
+		// Insure we can retrieve all necessary prepared statements
+		delAttributes, er := s.GetStmt("DeleteAttributes")
+		if er != nil {
+			return er
+		}
+		addAttribute, er := s.GetStmt("AddAttribute")
+		if er != nil {
+			return er
+		}
+		delUserRoles, er := s.GetStmt("DeleteUserRoles")
+		if er != nil {
+			return er
+		}
+		addUserRole, er := s.GetStmt("AddRole")
+		if er != nil {
+			return er
+		}
+
+		// Execute retrieved statements within the transaction
+		if stmt := tx.Stmt(delAttributes.GetSQLStmt()); stmt != nil {
+			defer stmt.Close()
+			if _, errTx := stmt.Exec(user.Uuid); errTx != nil {
+				return errTx
+			}
 		} else {
-			tx.Commit()
+			return fmt.Errorf("empty statement")
 		}
-	}()
 
-	// Insure we can retrieve all necessary prepared statements
-	delAttributes, er := s.GetStmt("DeleteAttributes")
-	if er != nil {
-		errTx = er
-		return nil, createdNodes, er
-	}
-	addAttribute, er := s.GetStmt("AddAttribute")
-	if er != nil {
-		errTx = er
-		return nil, createdNodes, errTx
-	}
-	delUserRoles, er := s.GetStmt("DeleteUserRoles")
-	if er != nil {
-		errTx = er
-		return nil, createdNodes, errTx
-	}
-	addUserRole, er := s.GetStmt("AddRole")
-	if er != nil {
-		errTx = er
-		return nil, createdNodes, errTx
-	}
-
-	// Execute retrieved statements within the transaction
-	if stmt := tx.Stmt(delAttributes.GetSQLStmt()); stmt != nil {
-		defer stmt.Close()
-		if _, errTx = stmt.Exec(user.Uuid); errTx != nil {
-			return nil, createdNodes, errTx
-		}
-	} else {
-		return nil, createdNodes, fmt.Errorf("empty statement")
-	}
-
-	if stmt := tx.Stmt(addAttribute.GetSQLStmt()); stmt != nil {
-		defer stmt.Close()
-		for attr, val := range user.Attributes {
-			if _, errTx = stmt.Exec(
-				user.Uuid,
-				attr,
-				val,
-			); errTx != nil {
-				return nil, createdNodes, errTx
+		if stmt := tx.Stmt(addAttribute.GetSQLStmt()); stmt != nil {
+			defer stmt.Close()
+			for attr, val := range user.Attributes {
+				if _, errTx := stmt.Exec(
+					user.Uuid,
+					attr,
+					val,
+				); errTx != nil {
+					return errTx
+				}
 			}
+		} else {
+			return fmt.Errorf("empty statement")
 		}
-	} else {
-		return nil, createdNodes, fmt.Errorf("empty statement")
-	}
 
-	if stmt := tx.Stmt(delUserRoles.GetSQLStmt()); stmt != nil {
-		defer stmt.Close()
-		if _, errTx = stmt.Exec(user.Uuid); errTx != nil {
-			return nil, createdNodes, errTx
-		}
-	} else {
-		return nil, createdNodes, fmt.Errorf("empty statement")
-	}
-
-	if stmt := tx.Stmt(addUserRole.GetSQLStmt()); stmt != nil {
-		uProf := ""
-		if p, o := user.Attributes[idm.UserAttrProfile]; o {
-			uProf = p
-		}
-		defer stmt.Close()
-		var weight int
-		for _, role := range user.Roles {
-			if role.UserRole || role.GroupRole || s.skipRoleAsAutoApplies(uProf, role) {
-				continue
+		if stmt := tx.Stmt(delUserRoles.GetSQLStmt()); stmt != nil {
+			defer stmt.Close()
+			if _, errTx := stmt.Exec(user.Uuid); errTx != nil {
+				return errTx
 			}
-			if _, errTx = stmt.Exec(
-				user.Uuid,
-				role.Uuid,
-				weight,
-			); errTx != nil {
-				return nil, createdNodes, errTx
-			}
-			weight++
+		} else {
+			return fmt.Errorf("empty statement")
 		}
-	} else {
-		return nil, createdNodes, fmt.Errorf("empty statement")
-	}
 
-	for _, n := range created {
-		createdNodes = append(createdNodes, n.Node)
-	}
+		if stmt := tx.Stmt(addUserRole.GetSQLStmt()); stmt != nil {
+			uProf := ""
+			if p, o := user.Attributes[idm.UserAttrProfile]; o {
+				uProf = p
+			}
+			defer stmt.Close()
+			var weight int
+			for _, role := range user.Roles {
+				if role.UserRole || role.GroupRole || s.skipRoleAsAutoApplies(uProf, role) {
+					continue
+				}
+				if _, errTx := stmt.Exec(
+					user.Uuid,
+					role.Uuid,
+					weight,
+				); errTx != nil {
+					return errTx
+				}
+				weight++
+			}
+		} else {
+			return fmt.Errorf("empty statement")
+		}
 
-	return user, createdNodes, nil
+		for _, n := range created {
+			createdNodes = append(createdNodes, n.Node)
+		}
+		return nil
+	})
+
+	return user, createdNodes, err
 }
 
 // skipRoleAsAutoApplies Check if role is here because of autoApply - if so, do not save
