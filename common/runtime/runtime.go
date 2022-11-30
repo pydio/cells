@@ -311,14 +311,15 @@ func IsFork() bool {
 
 // MetricsEnabled returns if the metrics should be published or not
 func MetricsEnabled() bool {
-	s := r.GetString(KeyEnableMetrics)
-	// Use "true" or "login:password"
-	return s == "true" || len(strings.Split(s, ":")) == 2
+	return r.GetBool(KeyEnableMetrics)
 }
 
-// MetricsUseRemoteSD returns if the metrics should be published on a Service Discovery endpoint
-func MetricsUseRemoteSD() (bool, string, string) {
-	parts := strings.Split(r.GetString(KeyEnableMetrics), ":")
+// MetricsRemoteEnabled returns if the metrics should be published on a Service Discovery endpoint
+func MetricsRemoteEnabled() (bool, string, string) {
+	if !MetricsEnabled() {
+		return false, "", ""
+	}
+	parts := strings.Split(r.GetString(KeyMetricsBasicAuth), ":")
 	if len(parts) == 2 {
 		return true, parts[0], parts[1]
 	}
@@ -401,7 +402,6 @@ func BuildForkParams(cmd string) []string {
 	strArgs := []string{
 		KeyBindHost,
 		KeyAdvertiseAddress,
-		KeyEnableMetrics,
 	}
 
 	strArgsWithDefaults := map[string]string{
@@ -413,11 +413,17 @@ func BuildForkParams(cmd string) []string {
 	// Copy bool arguments
 	boolArgs := []string{
 		KeyEnablePprof,
+		KeyEnableMetrics,
 	}
 
 	// Copy slices arguments
 	sliceArgs := []string{
 		KeyNodeCapacity,
+	}
+
+	// Do not pass MetricsBasicAuth as visible params...
+	if o, l, p := MetricsRemoteEnabled(); o {
+		_ = os.Setenv("CELLS_"+strings.ToUpper(KeyMetricsBasicAuth), l+":"+p)
 	}
 
 	for _, s := range strArgs {
@@ -566,10 +572,10 @@ func Describe() (out []InfoGroup) {
 	logging := InfoGroup{Name: "Monitoring"}
 	me := "false"
 	pp := "false"
-	if r.GetString(KeyEnableMetrics) == "true" {
-		me = "true"
-	} else if len(strings.Split(r.GetString(KeyEnableMetrics), ":")) == 1 {
+	if o, _, _ := MetricsRemoteEnabled(); o {
 		me = "/metrics/sd (with basic-auth)"
+	} else if MetricsEnabled() {
+		me = "true"
 	}
 	if PprofEnabled() {
 		pp = "true"

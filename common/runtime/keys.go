@@ -76,8 +76,9 @@ const (
 	KeyLogJson   = "log_json"
 	KeyLogToFile = "log_to_file"
 
-	KeyEnableMetrics = "enable_metrics"
-	KeyEnablePprof   = "enable_pprof"
+	KeyEnableMetrics    = "enable_metrics"
+	KeyMetricsBasicAuth = "metrics_basic_auth"
+	KeyEnablePprof      = "enable_pprof"
 
 	KeyHttpServer    = "http"
 	HttpServerCaddy  = "caddy"

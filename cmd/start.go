@@ -354,7 +354,8 @@ func init() {
 	StartCmd.Flags().String(runtime.KeyLog, "info", "Output log level: debug, info, warn, error (production is equivalent to log_json+info)")
 	StartCmd.Flags().Bool(runtime.KeyLogJson, false, "Output log formatted as JSON instead of text")
 	StartCmd.Flags().Bool(runtime.KeyLogToFile, common.MustLogFileDefaultValue(), "Write logs on-file in CELLS_LOG_DIR")
-	StartCmd.Flags().String(runtime.KeyEnableMetrics, "false", "Instrument code to expose internal metrics (use true for local JSON file, or login:password for a Service Discovery)")
+	StartCmd.Flags().Bool(runtime.KeyEnableMetrics, false, "Instrument code to expose internal metrics (to local JSON file, or service discovery if Metrics Basic Auth is set)")
+	StartCmd.Flags().String(runtime.KeyMetricsBasicAuth, "", "Expose metrics to a service discovery endpoint /metrics/sd")
 	StartCmd.Flags().Bool(runtime.KeyEnablePprof, false, "Enable pprof remote debugging")
 	StartCmd.Flags().Int(runtime.KeyHealthCheckPort, 0, "Healthcheck port number")
 

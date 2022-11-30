@@ -87,7 +87,7 @@ func init() {
 
 			pattern := fmt.Sprintf("/metrics/%d", os.Getpid())
 
-			if use, login, pwd := runtime.MetricsUseRemoteSD(); use {
+			if use, login, pwd := runtime.MetricsRemoteEnabled(); use {
 
 				newPromHttpService(
 					ctx,
