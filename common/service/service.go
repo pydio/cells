@@ -25,9 +25,6 @@ import (
 	"errors"
 	"fmt"
 	errors2 "github.com/pkg/errors"
-	"go.uber.org/zap"
-	"sync"
-
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -36,6 +33,8 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"go.uber.org/zap"
+	"sync"
 )
 
 // Service for the pydio app
@@ -135,6 +134,13 @@ func (s *service) Metadata() map[string]string {
 	return cp
 }
 
+func (s *service) SetMetadata(meta map[string]string) {
+	if status, ok := meta[registry.MetaStatusKey]; ok {
+		s.status = registry.Status(status)
+	}
+	s.opts.Metadata = meta
+}
+
 func (s *service) As(i interface{}) bool {
 	if v, ok := i.(*Service); ok {
 		*v = s
@@ -153,9 +159,37 @@ func (s *service) As(i interface{}) bool {
 func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 	// Making sure we only start one at a time for a unique service
 	if s.Options().Unique {
-		if locker := servicecontext.GetRegistry(s.opts.Context).NewLocker("start-service-" + s.Name()); locker != nil {
+		reg := servicecontext.GetRegistry(s.opts.Context)
+		if locker := reg.NewLocker("start-service-" + s.Name()); locker != nil {
 			locker.Lock()
-			defer locker.Unlock()
+			fmt.Println("Got Lock service ", s.Name())
+			w, err := reg.Watch(registry.WithID(s.ID()), registry.WithType(pb.ItemType_SERVER))
+			if err != nil {
+				fmt.Println("Unlocking service with error ", s.Name(), err)
+				locker.Unlock()
+				return err
+			}
+			go func() {
+				defer w.Stop()
+				defer locker.Unlock()
+
+				for {
+					res, err := w.Next()
+					if err != nil {
+						fmt.Println("Unlocking service wth watch error ", s.Name(), err)
+						return
+					}
+
+					if len(res.Items()) == 0 {
+						continue
+					}
+
+					if res.Items()[0].Metadata()[registry.MetaStatusKey] != string(registry.StatusStarting) {
+						// Releasing the lock
+						break
+					}
+				}
+			}()
 		}
 	}
 
@@ -184,7 +218,9 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 		}
 	}
 
-	s.updateRegister(registry.StatusServing)
+	s.updateRegister(registry.StatusReady)
+
+	// Updating server
 
 	return nil
 }
@@ -253,7 +289,7 @@ func (s *service) OnServe(oo ...registry.RegisterOption) error {
 		}(after)
 	}
 	w.Wait()
-	s.updateRegister(registry.StatusReady)
+
 	return nil
 }
 
@@ -266,7 +302,7 @@ func (s *service) updateRegister(status ...registry.Status) {
 			log.Logger(s.opts.Context).Debug(string(status[0]))
 		}
 	}
-	up := s.status == registry.StatusServing || s.status == registry.StatusReady
+	up := s.status == registry.StatusReady
 	down := s.status == registry.StatusStopping || s.status == registry.StatusStopped || s.status == registry.StatusError
 
 	reg := servicecontext.GetRegistry(s.opts.Context)

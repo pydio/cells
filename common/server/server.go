@@ -24,10 +24,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
-	"golang.org/x/sync/errgroup"
-
 	"github.com/pydio/cells/v4/common/registry"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"golang.org/x/sync/errgroup"
 )
 
 type CoreServer interface {
@@ -101,7 +100,6 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 		o(opt)
 	}
 
-	//fmt.Println("["+s.Name()+"]", "Server.serve - before BeforeServes")
 	g := &errgroup.Group{}
 	for _, h := range opt.BeforeServe {
 		func(bs func(oo ...registry.RegisterOption) error) {
@@ -113,30 +111,27 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 	if er := g.Wait(); er != nil {
 		return er
 	}
-	//fmt.Println("["+s.Name()+"]", "Server.serve - BeforeServes passed, will RawServe now")
 
 	ii, err := s.s.RawServe(opt)
 	if err != nil {
 		return err
 	}
-	//fmt.Println("["+s.Name()+"]", "Server.serve - RawServe passed, setting StatusReady and registering Edges", len(ii))
-	s.status = registry.StatusReady
 
 	// Making sure we register the endpoints
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
-		// Update for status
-		if err := reg.Register(s); err != nil {
-			return err
-		}
 		for _, item := range ii {
 			if err := reg.Register(item, registry.WithEdgeTo(s.ID(), "instance", nil)); err != nil {
 				return err
 			}
+
 			s.links = append(s.links, item)
 		}
-	}
 
-	//fmt.Println("["+s.Name()+"]", "Server.serve - Edges registered, going to After Serve")
+		// Update for status
+		if err := reg.Register(s); err != nil {
+			return err
+		}
+	}
 
 	// Apply AfterServe non-blocking
 	for _, h := range opt.AfterServe {
@@ -144,8 +139,6 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 			fmt.Println("["+s.Name()+"]", "There was an error while applying an AfterServe", er)
 		}
 	}
-
-	//fmt.Println("["+s.Name()+"]", "Server.serve - After Served")
 
 	return nil
 }
@@ -196,6 +189,16 @@ func (s *server) Metadata() map[string]string {
 	}
 	meta[registry.MetaStatusKey] = string(s.status)
 	return meta
+}
+
+func (s *server) SetMetadata(meta map[string]string) {
+	if status, ok := meta[registry.MetaStatusKey]; ok {
+		s.status = registry.Status(status)
+	}
+
+	if ms, ok := s.s.(registry.MetaSetter); ok {
+		ms.SetMetadata(meta)
+	}
 }
 
 func (s *server) Is(status registry.Status) bool {

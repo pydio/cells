@@ -59,7 +59,7 @@ func New(ctx context.Context) server.Server {
 	return server.NewServer(ctx, &Server{
 		id:   "generic-" + uuid.New(),
 		name: "generic-" + uuid.New(),
-		meta: server.InitPeerMeta(),
+		meta: make(map[string]string),
 
 		cancel: cancel,
 	})
@@ -104,6 +104,10 @@ func (s *Server) Type() server.Type {
 
 func (s *Server) Metadata() map[string]string {
 	return s.meta // map[string]string{}
+}
+
+func (s *Server) SetMetadata(meta map[string]string) {
+	s.meta = meta
 }
 
 func (s *Server) Endpoints() []string {

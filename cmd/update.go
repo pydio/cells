@@ -132,7 +132,6 @@ DESCRIPTION
 }
 
 func init() {
-
 	RootCmd.AddCommand(updateBinCmd)
 
 	updateBinCmd.Flags().StringVarP(&updateToVersion, "version", "v", "", "Pass a version number to apply the upgrade")

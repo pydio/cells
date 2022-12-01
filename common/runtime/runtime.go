@@ -500,6 +500,16 @@ func GetHostname() string {
 	return ""
 }
 
+// GetPID wraps os.Getpid.
+func GetPID() string {
+	return fmt.Sprintf("%d", os.Getpid())
+}
+
+// GetPPID wraps os.Getppid.
+func GetPPID() string {
+	return fmt.Sprintf("%d", os.Getppid())
+}
+
 // HasCapacity checks if a specific capacity is registered for the current process
 func HasCapacity(c string) bool {
 	caps := r.GetStringSlice(KeyNodeCapacity)

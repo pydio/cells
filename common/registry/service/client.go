@@ -240,6 +240,7 @@ func (s *serviceRegistry) List(opts ...registry.Option) ([]registry.Item, error)
 	rsp, err := s.client.List(s.opts.Context, &pb.ListRequest{
 		Options: &pb.Options{
 			Types: options.Types,
+			Ids:   options.IDs,
 			Names: options.Names,
 		},
 	}, cOpts...)
@@ -276,6 +277,7 @@ func (s *serviceRegistry) Watch(opts ...registry.Option) (registry.Watcher, erro
 	stream, err := s.client.Watch(s.opts.Context, &pb.WatchRequest{
 		Options: &pb.Options{
 			Actions: options.Actions,
+			Ids:     options.IDs,
 			Names:   options.Names,
 			Types:   options.Types,
 		},

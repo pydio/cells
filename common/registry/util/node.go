@@ -24,17 +24,22 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
-	server2 "github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/utils/merger"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+	"strings"
 )
 
 func CreateNode() registry.Node {
-	meta := server2.InitPeerMeta()
+	builder := strings.Builder{}
+	builder.WriteString("process ")
+	builder.WriteString(runtime.GetHostname())
+	builder.WriteString("/")
+	builder.WriteString(runtime.GetPID())
+
 	i := &pb.Item{
 		Id:       uuid.New(),
-		Name:     "process " + meta[runtime.NodeMetaHostName] + "/" + meta[runtime.NodeMetaPID],
-		Metadata: meta,
+		Name:     builder.String(),
+		Metadata: make(map[string]string),
 	}
 	n := &pb.Node{}
 	return &node{i: i, d: n}
@@ -101,6 +106,10 @@ func (n *node) ID() string {
 
 func (n *node) Metadata() map[string]string {
 	return n.i.Metadata
+}
+
+func (n *node) SetMetadata(meta map[string]string) {
+	n.i.Metadata = meta
 }
 
 func (n *node) As(i interface{}) bool {

@@ -70,6 +70,10 @@ func (s *service) Metadata() map[string]string {
 	return s.i.Metadata
 }
 
+func (s *service) SetMetadata(meta map[string]string) {
+	s.i.Metadata = meta
+}
+
 func (s *service) Start(oo ...registry.RegisterOption) error {
 	return errors.New("not implemented")
 }

@@ -110,6 +110,7 @@ const (
 	NodeMetaForkStartTag = "forkStartTag"
 	NodeMetaHostName     = "hostname"
 	NodeMetaCapacities   = "capacities"
+	NodeRootID           = "rootID"
 )
 
 var (

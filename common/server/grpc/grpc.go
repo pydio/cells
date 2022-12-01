@@ -80,7 +80,7 @@ func New(ctx context.Context, opt ...Option) server.Server {
 	return server.NewServer(ctx, &Server{
 		id:   "grpc-" + uuid.New(),
 		name: "grpc",
-		meta: server.InitPeerMeta(),
+		meta: make(map[string]string),
 
 		ctx:    ctx,
 		cancel: cancel,
@@ -214,6 +214,10 @@ func (s *Server) Name() string {
 
 func (s *Server) Metadata() map[string]string {
 	return s.meta // map[string]string{}
+}
+
+func (s *Server) SetMetadata(meta map[string]string) {
+	s.meta = meta
 }
 
 func (s *Server) As(i interface{}) bool {

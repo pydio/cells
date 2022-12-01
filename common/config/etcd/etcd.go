@@ -406,7 +406,7 @@ func (m *etcd) NewLocker(name string) sync.Locker {
 	default:
 	}
 
-	return concurrency.NewLocker(m.session, name)
+	return NewLocker(m.session, name)
 }
 
 func (m *etcd) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
@@ -623,4 +623,35 @@ func (v *values) Map() map[string]interface{} {
 
 func (v *values) Scan(i interface{}, opts ...configx.Option) error {
 	return v.Get().Scan(i, opts...)
+}
+
+type lockerMutex struct {
+	s   *concurrency.Session
+	pfx string
+	*concurrency.Mutex
+}
+
+func (lm *lockerMutex) Lock() {
+	client := lm.s.Client()
+	for {
+		// fmt.Println("Trying lock for ", lm.pfx, time.Now())
+		if err := lm.Mutex.Lock(client.Ctx()); err != nil {
+			fmt.Println("Error locking, retrying... ", lm.pfx, err)
+			<-time.After(100 * time.Millisecond)
+			continue
+		}
+
+		return
+	}
+}
+func (lm *lockerMutex) Unlock() {
+	client := lm.s.Client()
+	if err := lm.Mutex.Unlock(client.Ctx()); err != nil {
+		panic(err)
+	}
+}
+
+// NewLocker creates a sync.Locker backed by an etcd mutex.
+func NewLocker(s *concurrency.Session, pfx string) sync.Locker {
+	return &lockerMutex{s: s, pfx: pfx, Mutex: concurrency.NewMutex(s, strings.Trim(pfx, "/"))}
 }

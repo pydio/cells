@@ -79,7 +79,7 @@ func New(ctx context.Context) server.Server {
 	return server.NewServer(ctx, &Server{
 		id:   "http-" + uuid.New(),
 		name: "http",
-		meta: server.InitPeerMeta(),
+		meta: make(map[string]string),
 
 		cancel:      cancel,
 		ListableMux: lMux,
@@ -140,6 +140,10 @@ func (s *Server) Type() server.Type {
 
 func (s *Server) Metadata() map[string]string {
 	return s.meta // map[string]string{}
+}
+
+func (s *Server) SetMetadata(meta map[string]string) {
+	s.meta = meta
 }
 
 func (s *Server) As(i interface{}) bool {
