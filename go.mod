@@ -496,4 +496,4 @@ retract v4.0.0
 //replace github.com/minio/minio => /Users/charles/Sources/go/src/github.com/pydio/minio
 //replace github.com/pydio/caddyvault => /Users/charles/Sources/go/src/github.com/pydio/caddyvault
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20221019075005-60ee6f1265d3
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20221202095005-f1d0306b8eeb
