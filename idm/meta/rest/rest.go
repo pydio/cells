@@ -154,6 +154,9 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			}
 		}
 		meta.ResolvedNode = resp.Node.Clone()
+		if meta.ResolvedNode.MetaStore == nil {
+			meta.ResolvedNode.MetaStore = map[string]string{}
+		}
 		if meta.Namespace == permissions.AclContentLock.Name {
 			e := s.updateLock(ctx, meta, input.Operation)
 			if e != nil {

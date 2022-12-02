@@ -112,6 +112,9 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 			src.MetaStore["pydio:meta-policies"] = string(pols)
 		}
 		if metaData.ResolvedNode != nil {
+			if metaData.ResolvedNode.MetaStore == nil {
+				metaData.ResolvedNode.MetaStore = map[string]string{}
+			}
 			nodes[metaData.NodeUuid] = metaData.ResolvedNode
 		}
 	}
