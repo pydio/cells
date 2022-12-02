@@ -22,6 +22,7 @@ import React from 'react'
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import {ConfigServiceApi} from 'cells-sdk'
+import {JobsServiceApi, JobsCtrlCommand, JobsCommand} from 'cells-sdk'
 import {FontIcon, FlatButton} from 'material-ui'
 import TasksList from './TasksList'
 import JobSchedule from './JobSchedule'
@@ -87,11 +88,39 @@ class JobBoard extends React.Component {
         return hasManualFilter;
     }
 
+    static hasMissingMandatories(params){
+        return params && params.filter(param => param.Mandatory && (param.Value === undefined || param.Value === '')).length > 0
+    }
+
+    runJobOrOpenParams() {
+        const {job} = this.state;
+        if(JobBoard.hasMissingMandatories(job.Parameters)) {
+            this.setState({promptParams: [...job.Parameters]})
+        } else {
+            JobsStore.getInstance().controlJob(job, 'RunOnce')
+        }
+    }
+
+    runOnceWithParameters(parameters){
+        const {job} = this.state;
+        const api = new JobsServiceApi(PydioApi.getRestClient());
+        let cmd = new JobsCtrlCommand();
+        cmd.Cmd = JobsCommand.constructFromObject('RunOnce');
+        cmd.JobId = job.ID;
+        cmd.RunParameters = {};
+        parameters.forEach(p => {
+            cmd.RunParameters[p.Name] = p.Value + '';
+        });
+        return api.userControlJob(cmd).then(()=>{
+            this.setState({promptParams: null});
+        });
+    }
+
 
     render(){
 
         const {pydio, jobsEditable, onRequestClose, adminStyles} = this.props;
-        const {loading, create, job, descriptions} = this.state;
+        const {loading, create, job, descriptions, promptParams} = this.state;
 
         if(!job){
             return null;
@@ -113,7 +142,7 @@ class JobBoard extends React.Component {
                 if(job.Inactive){
                     bProps.backgroundColor = '#e0e0e0';
                 }
-                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-play"} color={iconColor}/>} label={m('task.action.run')} disabled={job.Inactive} primary={true} onClick={()=>{JobsStore.getInstance().controlJob(job, 'RunOnce')}} {...bProps}/>);
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-play"} color={iconColor}/>} label={m('task.action.run')} disabled={job.Inactive} primary={true} onClick={()=> this.runJobOrOpenParams()} {...bProps}/>);
             }
             if(job.Inactive) {
                 actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-marked-circle-outline"} color={iconColor}/>} label={m('task.action.enable')} primary={true} onClick={()=>{JobsStore.getInstance().controlJob(job, 'Active')}} {...flatProps}/>);
@@ -139,6 +168,14 @@ class JobBoard extends React.Component {
                         adminStyles={adminStyles}
                     />
                 </div>
+                {promptParams &&
+                    <JobParameters
+                        prompts={promptParams}
+                        onClose={()=>this.setState({promptParams:null})}
+                        onSubmit={(pp) => {this.runOnceWithParameters(pp);}}
+                        checkMandatory={JobBoard.hasMissingMandatories}
+                    />
+                }
             </div>
         );
 

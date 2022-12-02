@@ -32,33 +32,34 @@ class Parameter extends React.Component{
     }
 
     render() {
-        let {parameter, onChange, m} = this.props;
+        let {parameter, onChange, m, checkMandatory} = this.props;
         const blockStyle={margin:'0 5px'};
         let choices = {};
         try{
             choices = JSON.parse(parameter.JsonChoices);
         }catch(e){}
+        const errorText = (checkMandatory && parameter.Mandatory && (parameter.Value === undefined || parameter.Value === '')) ? (parameter.Description || '!!') : undefined
         return (
             <div style={{display:'flex', alignItems:'center'}}>
                 <div style={{...blockStyle,fontSize:15, width: 120, minWidth: 120}}>
-                    {parameter.Name}
+                    {parameter.Name} {parameter.Mandatory && checkMandatory && "*"}
                 </div>
                 <div style={{...blockStyle, width: 200, minWidth: 200}}>
                     {parameter.Type === 'select' &&
-                    <ModernSelectField fullWidth={true} value={parameter.Value} onChange={(e,i,v) => {onChange({...parameter, Value: v})}}>
+                    <ModernSelectField fullWidth={true} errorText={errorText} value={parameter.Value} onChange={(e,i,v) => {onChange({...parameter, Value: v})}}>
                         {Object.keys(choices).map(k => {
                             return <MenuItem value={k} primaryText={choices[k]}/>
                         })}
                     </ModernSelectField>
                     }
                     {parameter.Type === 'text' &&
-                    <ModernTextField fullWidth={true} value={parameter.Value} onChange={(e,v) => {onChange({...parameter, Value: v})}}/>
+                    <ModernTextField fullWidth={true} errorText={errorText} value={parameter.Value} onChange={(e,v) => {onChange({...parameter, Value: v})}}/>
                     }
                     {parameter.Type === 'integer' &&
-                    <ModernTextField fullWidth={true} value={parseInt(parameter.Value)} type={"number"} onChange={(e,v) => {onChange({...parameter, Value: parseInt(v)})}}/>
+                    <ModernTextField fullWidth={true} errorText={errorText} value={parseInt(parameter.Value)} type={"number"} onChange={(e,v) => {onChange({...parameter, Value: parseInt(v)})}}/>
                     }
                     {parameter.Type === 'boolean' &&
-                    <ModernSelectField fullWidth={true} value={parameter.Value} onChange={(e,i,v) => {onChange({...parameter, Value: v})}}>
+                    <ModernSelectField fullWidth={true} errorText={errorText} value={parameter.Value} onChange={(e,i,v) => {onChange({...parameter, Value: v})}}>
                         <MenuItem value={"true"} primaryText={Pydio.getMessages()[440]}/>
                         <MenuItem value={"false"} primaryText={Pydio.getMessages()[441]}/>
                     </ModernSelectField>
@@ -79,6 +80,9 @@ class JobParameters extends React.Component {
     constructor(props){
         super(props);
         this.state = {open: false};
+        if(props.prompts) {
+            this.state.parameters = [...props.prompts]
+        }
     }
 
     m(id){
@@ -118,21 +122,24 @@ class JobParameters extends React.Component {
     }
 
     render(){
-        const {job} = this.props;
+        const {job, prompts, onSubmit, onClose, checkMandatory} = this.props;
         const {open, parameters} = this.state;
         const pp = parameters || job.Parameters;
+        const missings = checkMandatory && checkMandatory(pp)
 
         return (
             <React.Fragment>
-                <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-playlist-check"}/>} label={Pydio.getMessages()['ajxp_admin.scheduler.job-parameters.button']} onClick={()=>this.setState({open: true})}/>
+                {!prompts &&
+                    <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-playlist-check"}/>} label={Pydio.getMessages()['ajxp_admin.scheduler.job-parameters.button']} onClick={()=>this.setState({open: true})}/>
+                }
                 <Dialog
                     title={Pydio.getMessages()['ajxp_admin.scheduler.job-parameters.dialog']}
-                    open={open}
+                    open={open || prompts}
                     modal={true}
                     onRequestClose={() => this.setState({open: false})}
                     actions={[
-                        <FlatButton label={Pydio.getMessages()[54]} onClick={()=>this.setState({open: false})}/>,
-                        <FlatButton label={Pydio.getMessages()[53]} onClick={() => this.save()} disabled={!parameters}/>,
+                        <FlatButton label={Pydio.getMessages()[54]} onClick={()=> onClose ? onClose() : this.setState({open: false})}/>,
+                        <FlatButton label={Pydio.getMessages()[onSubmit?48:53]} onClick={() => onSubmit? onSubmit(pp):this.save()} disabled={!parameters||missings}/>,
                     ]}
                 >
                     <div>
@@ -141,6 +148,7 @@ class JobParameters extends React.Component {
                             onChange={(v)=>{this.changeParam(i, v)}}
                             parameter={p}
                             m={this.m.bind(this)}
+                            checkMandatory={checkMandatory}
                         />)}
                     </div>
                 </Dialog>
