@@ -33,15 +33,16 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/minio/minio-go/v7/pkg/s3utils"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 // Client wraps a minio.Core client in the nodes.StorageClient interface
 type Client struct {
-	mc          *minio.Core
-	minioServer bool
+	mc *minio.Core
 }
 
 func init() {
@@ -51,23 +52,18 @@ func init() {
 		secret := cfg.Val("secret").String()
 		secure := cfg.Val("secure").Bool()
 		region := cfg.Val("region").String()
-		isMinio := cfg.Val("minioServer").Bool()
 		sigDef := "v4"
-		if isMinio {
+		if cfg.Val("minioServer").Bool() {
 			sigDef = "v2"
 		}
 		signature := cfg.Val("signature").Default(sigDef).String()
-		sc, e := New(ep, key, secret, signature, secure, region, isMinio)
-		if ua := cfg.Val("userAgentAppName").String(); ua != "" {
-			uv := cfg.Val("userAgentVersion").String()
-			sc.mc.SetAppInfo(ua, uv)
-		}
+		sc, e := New(ep, key, secret, signature, secure, region, cfg)
 		return sc, e
 	})
 }
 
 // New creates a new minio.Core with the most standard options
-func New(endpoint, accessKey, secretKey, signatureVersion string, secure bool, customRegion string, minioServer bool) (*Client, error) {
+func New(endpoint, accessKey, secretKey, signatureVersion string, secure bool, customRegion string, other configx.Values) (nodes.StorageClient, error) {
 	rt, e := customHeadersTransport(secure)
 	if e != nil {
 		return nil, e
@@ -113,10 +109,21 @@ func New(endpoint, accessKey, secretKey, signatureVersion string, secure bool, c
 	if err != nil {
 		return nil, err
 	}
-	return &Client{
-		mc:          c,
-		minioServer: minioServer,
-	}, nil
+	cli := &Client{mc: c}
+	if ua := other.Val("userAgentAppName").String(); ua != "" {
+		uv := other.Val("userAgentVersion").String()
+		c.SetAppInfo(ua, uv)
+	}
+	if u.Hostname() == object.AmazonS3Endpoint {
+		hCli := &HiddenFoldersWrapper{
+			Client:          cli,
+			translateHidden: common.PydioSyncHiddenFile,
+		}
+		return hCli, nil
+
+	} else {
+		return cli, nil
+	}
 }
 
 func (c *Client) ListBuckets(ctx context.Context) ([]models.BucketInfo, error) {

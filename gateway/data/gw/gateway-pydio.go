@@ -25,10 +25,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/minio/cli"
 	minio "github.com/minio/minio/cmd"
 	"github.com/minio/minio/pkg/auth"
+	"github.com/minio/minio/pkg/bucket/policy"
+	"github.com/minio/minio/pkg/bucket/policy/condition"
 
-	"github.com/minio/cli"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -163,6 +165,18 @@ func pydioToMinioError(err error, bucket, key string) error {
 		}
 	}
 	return minio.ErrorRespToObjectError(err, bucket, key)
+}
+
+// GetBucketPolicy will get a fake policy that allows anonymous access to buckets (an additional layer is already checking all requests)
+func (l *pydioObjects) GetBucketPolicy(ctx context.Context, bucket string) (bucketPolicy *policy.Policy, err error) {
+	allowAllStatement := policy.NewStatement(
+		policy.Allow,
+		policy.NewPrincipal("*"),
+		policy.NewActionSet(policy.GetObjectAction, policy.PutObjectAction),
+		policy.NewResourceSet(policy.NewResource("*", "*")),
+		condition.NewFunctions(),
+	)
+	return &policy.Policy{Statements: []policy.Statement{allowAllStatement}}, nil
 }
 
 func (l *pydioObjects) ListPydioObjects(ctx context.Context, bucket string, prefix string, delimiter string, maxKeys int, versions bool) (objects []minio.ObjectInfo, prefixes []string, err error) {
