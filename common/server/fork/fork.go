@@ -58,7 +58,7 @@ type Server struct {
 }
 
 func NewServer(ctx context.Context, forkStart string) server.Server {
-	meta := server.InitPeerMeta()
+	meta := make(map[string]string)
 	meta[runtime.NodeMetaForkStartTag] = "s:^" + forkStart + "$"
 	return server.NewServer(ctx, &Server{
 		id:   "fork-" + uuid.New(),
@@ -84,13 +84,12 @@ func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, e error) {
 	go func() {
 		e = s.process.StartAndWait()
 
-		// TODO - move node registration from manager in here ?
 		if pid, ok := s.process.GetPID(); ok {
 			defer func() {
 				reg := servicecontext.GetRegistry(s.ctx)
 
 				processes, _ := reg.List(
-					registry.WithType(pb.ItemType_NODE),
+					registry.WithType(pb.ItemType_SERVER),
 					registry.WithFilter(func(item registry.Item) bool {
 						if item.Metadata()[runtime.NodeMetaPID] == pid {
 							return true
@@ -103,62 +102,7 @@ func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, e error) {
 					return
 				}
 
-				// Get process for command
-				var process registry.Node
-				if !processes[0].As(&process) {
-					return
-				}
-
-				var servers, services []string
-
-				// Clearing all items belonging to process
-				edges, _ := reg.List(registry.WithType(pb.ItemType_EDGE))
-
-				// Iterate first to retrieve all servers
-				for _, edge := range edges {
-					if edge.Name() != "Node" {
-						continue
-					}
-
-					e := edge.(registry.Edge)
-
-					vv := e.Vertices()
-					if vv[1] == process.ID() {
-						servers = append(servers, vv[0])
-					} else if vv[0] == process.ID() {
-						servers = append(servers, vv[1])
-					}
-				}
-
-				// Then all services
-				for _, edge := range edges {
-					e := edge.(registry.Edge)
-
-					vv := e.Vertices()
-					for _, server := range servers {
-						if vv[1] == server {
-							services = append(services, vv[0])
-						} else if vv[0] == server {
-							services = append(services, vv[1])
-						}
-					}
-				}
-
-				for _, service := range services {
-					node, _ := reg.Get(service, registry.WithType(pb.ItemType_SERVICE))
-					if node != nil {
-						reg.Deregister(node)
-					}
-				}
-
-				for _, server := range servers {
-					node, _ := reg.Get(server, registry.WithType(pb.ItemType_SERVER))
-					if node != nil {
-						reg.Deregister(node)
-					}
-				}
-
-				reg.Deregister(registry.Item(process))
+				reg.Deregister(processes[0])
 			}()
 		}
 	}()
@@ -187,6 +131,10 @@ func (s *Server) Type() server.Type {
 
 func (s *Server) Metadata() map[string]string {
 	return s.meta // map[string]string{}
+}
+
+func (s *Server) SetMetadata(meta map[string]string) {
+	s.meta = meta
 }
 
 func (s *Server) Endpoints() []string {

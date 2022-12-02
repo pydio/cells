@@ -22,6 +22,8 @@ var (
 
 type URLOpener struct{}
 
+const timeout = 2 * time.Second
+
 func init() {
 	o := &URLOpener{}
 	config.DefaultURLMux().Register(scheme, o)
@@ -71,7 +73,7 @@ func New(opts ...configx.Option) config.Store {
 		lockersLock: &sync.RWMutex{},
 		lockers:     make(map[string]*sync.RWMutex),
 		reset:       make(chan bool),
-		timer:       time.NewTimer(2 * time.Second),
+		timer:       time.NewTimer(timeout),
 	}
 
 	go m.flush()
@@ -83,7 +85,7 @@ func (m *memory) flush() {
 	for {
 		select {
 		case <-m.reset:
-			m.timer.Reset(2 * time.Second)
+			m.timer.Reset(timeout)
 		case <-m.timer.C:
 			patch, err := diff.Diff(m.snap, m.v)
 			if err != nil {
@@ -188,7 +190,7 @@ func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		ch:          make(chan diff.Change),
 		path:        o.Path,
 		m:           m,
-		timer:       time.NewTimer(2 * time.Second),
+		timer:       time.NewTimer(timeout),
 		changesOnly: o.ChangesOnly,
 	}
 
@@ -232,7 +234,7 @@ func (r *receiver) Next() (interface{}, error) {
 		case op := <-r.ch:
 			changes = append(changes, op)
 
-			r.timer.Reset(2 * time.Second)
+			r.timer.Reset(timeout)
 		case <-r.timer.C:
 			c := configx.New()
 

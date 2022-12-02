@@ -54,6 +54,10 @@ func (s *server) Metadata() map[string]string {
 	return s.i.Metadata
 }
 
+func (s *server) SetMetadata(meta map[string]string) {
+	s.i.Metadata = meta
+}
+
 func (s *server) Server() {}
 
 func (s *server) As(i interface{}) bool {

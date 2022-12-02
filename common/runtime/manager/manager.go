@@ -26,6 +26,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"go.uber.org/zap"
+	"golang.org/x/exp/maps"
 	"os"
 	"strconv"
 	"strings"
@@ -80,14 +81,24 @@ type manager struct {
 
 func NewManager(ctx context.Context, reg registry.Registry, srcUrl string, namespace string, logger log.ZapLogger) Manager {
 	m := &manager{
-		ctx:      ctx,
-		ns:       namespace,
-		srcUrl:   srcUrl,
-		reg:      reg,
+		ctx:    ctx,
+		ns:     namespace,
+		srcUrl: srcUrl,
+		// reg:      reg,
 		servers:  make(map[string]server.Server),
 		services: make(map[string]service.Service),
 		logger:   logger,
 	}
+
+	reg = registry.NewTransientWrapper(reg, registry.WithType(pb.ItemType_SERVICE))
+	reg = registry.NewMetaWrapper(reg, server.InitPeerMeta, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_NODE))
+	reg = registry.NewMetaWrapper(reg, func(meta map[string]string) {
+		if _, ok := meta[runtime.NodeRootID]; !ok {
+			meta[runtime.NodeRootID] = m.root.ID()
+		}
+	}, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE), registry.WithType(pb.ItemType_NODE))
+	m.reg = reg
+
 	// Detect a parent root
 	var current, parent registry.Item
 	if ii, er := reg.List(registry.WithType(pb.ItemType_NODE), registry.WithMeta(runtime.NodeMetaHostName, runtime.GetHostname())); er == nil && len(ii) > 0 {
@@ -104,15 +115,17 @@ func NewManager(ctx context.Context, reg registry.Registry, srcUrl string, names
 		m.root = current
 	} else {
 		node := util.CreateNode()
+		m.root = node
 
 		if er := reg.Register(registry.Item(node)); er == nil {
-			m.root = node
 			if parent != nil {
 				m.rootIsFork = true
 				_, _ = reg.RegisterEdge(parent.ID(), m.root.ID(), "Fork", map[string]string{})
 			}
 		}
 	}
+
+	go m.WatchTransientStatus()
 	return m
 }
 
@@ -190,6 +203,44 @@ func (m *manager) SetServeOptions(oo ...server.ServeOption) {
 }
 
 func (m *manager) ServeAll(oo ...server.ServeOption) {
+	registry.NewMetaWrapper(m.reg, func(meta map[string]string) {
+		meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+		meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+	}).Register(m.root)
+
+	if locker := m.reg.NewLocker("start-node-" + m.ns); locker != nil {
+		locker.Lock()
+
+		// TODO - need to watch with id
+		w, err := m.reg.Watch(registry.WithID(m.root.ID()), registry.WithType(pb.ItemType_NODE))
+		if err != nil {
+			fmt.Println("Unlocking node with error ", err)
+			locker.Unlock()
+			return
+		}
+		go func() {
+			defer w.Stop()
+			defer locker.Unlock()
+
+			for {
+				res, err := w.Next()
+				if err != nil {
+					fmt.Println("Unlocking node wth watch error ", err)
+					return
+				}
+
+				if len(res.Items()) == 0 {
+					continue
+				}
+
+				if res.Items()[0].Metadata()[registry.MetaStatusKey] == string(registry.StatusReady) {
+					// Releasing the lock
+					break
+				}
+			}
+		}()
+	}
+
 	m.serveOptions = oo
 	opt := &server.ServeOptions{}
 	for _, o := range oo {
@@ -241,16 +292,8 @@ func (m *manager) StopAll() {
 }
 
 func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error {
-	if locker := m.reg.NewLocker("start-server-" + m.ns + "-" + srv.Name()); locker != nil {
-		locker.Lock()
-		defer func() {
-			// TODO - can do much better - giving a bit of time to this server to start entirely before starting others
-			// <-time.After(3 * time.Second)
-			locker.Unlock()
-		}()
-	}
-
 	opts := append(oo)
+
 	var uniques []service.Service
 	detectedCount := 1
 	for _, svc := range m.services {
@@ -261,6 +304,10 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 					detectedCount = count
 					// There is already a running service here. Do not start now, watch registry and postpone start
 					m.logger.Warn("There is already a running instance of " + svc.Name() + ". Do not start now, watch registry and postpone start")
+					registry.NewMetaWrapper(m.reg, func(meta map[string]string) {
+						meta[registry.MetaStatusKey] = string(registry.StatusWaiting)
+					}).Register(svc)
+
 					continue
 				}
 			}
@@ -458,6 +505,97 @@ func (m *manager) regRunningService(name string) (bool, int) {
 		}
 	}
 	return false, 0
+}
+
+func (m *manager) WatchTransientStatus() {
+	options := []registry.Option{
+		registry.WithType(pb.ItemType_NODE),
+		registry.WithType(pb.ItemType_SERVER),
+		registry.WithAction(pb.ActionType_CREATE),
+		registry.WithAction(pb.ActionType_UPDATE),
+		registry.WithContext(m.ctx),
+		registry.WithFilter(func(item registry.Item) bool {
+			var node registry.Node
+			if item.As(&node) {
+				if item.ID() != m.root.ID() {
+					return false
+				}
+			}
+
+			var server registry.Server
+			if item.As(&server) {
+				meta := item.Metadata()
+				if rootID, ok := meta[runtime.NodeRootID]; !ok || rootID != m.root.ID() {
+					return false
+				}
+			}
+
+			// TODO - should be looking only for transient but suspected pb with watch
+			/*if status, ok := item.Metadata()[registry.MetaStatusKey]; !ok || status != string(registry.StatusTransient) {
+				return false
+			}*/
+			return true
+		}),
+	}
+
+	w, _ := m.reg.Watch(options...)
+	for {
+		res, er := w.Next()
+		if er != nil {
+			break
+		}
+
+		for _, i := range res.Items() {
+			items := m.reg.ListAdjacentItems(i, registry.WithType(pb.ItemType_SERVICE))
+			status := string(registry.StatusReady)
+			for _, item := range items {
+				if item.Metadata()[registry.MetaStatusKey] != string(registry.StatusReady) && item.Metadata()[registry.MetaStatusKey] != string(registry.StatusWaiting) {
+					status = string(registry.StatusTransient)
+					break
+				}
+			}
+
+			if i.Metadata() != nil && i.Metadata()[registry.MetaStatusKey] != status {
+				if ms, ok := i.(registry.MetaSetter); ok {
+					meta := maps.Clone(i.Metadata())
+					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+					meta[registry.MetaStatusKey] = status
+					ms.SetMetadata(meta)
+
+					m.reg.Register(i)
+				} else {
+					fmt.Println("Could not set in server")
+				}
+			}
+		}
+	}
+}
+
+type Identifyable interface {
+	ID() string
+}
+
+func Dedup[I Identifyable](items []I) []I {
+	var ret []I
+	for i := 0; i < len(items); i++ {
+		found := false
+		for _, r := range ret {
+			if items[i].ID() == r.ID() {
+				found = true
+				break
+			}
+		}
+
+		if found {
+			continue
+		}
+
+		if !found {
+			ret = append(ret, items[i])
+		}
+	}
+
+	return ret
 }
 
 func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, count int) {

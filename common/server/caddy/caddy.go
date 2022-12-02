@@ -162,7 +162,7 @@ func New(ctx context.Context, dir string) (server.Server, error) {
 	srv := &Server{
 		id:   "caddy-" + uuid.New(),
 		name: "caddy",
-		meta: server.InitPeerMeta(),
+		meta: make(map[string]string),
 
 		rootCtx:     ctx,
 		serveDir:    dir,
@@ -301,6 +301,10 @@ func (s *Server) Name() string {
 
 func (s *Server) Metadata() map[string]string {
 	return s.meta // map[string]string{}
+}
+
+func (s *Server) SetMetadata(meta map[string]string) {
+	s.meta = meta
 }
 
 func (s *Server) As(i interface{}) bool {

@@ -96,6 +96,10 @@ func (h *Handler) List(ctx context.Context, req *pb.ListRequest) (*pb.ListRespon
 		for _, name := range req.Options.Names {
 			oo = append(oo, registry.WithName(name))
 		}
+
+		for _, id := range req.Options.Ids {
+			oo = append(oo, registry.WithID(id))
+		}
 	}
 
 	ss, err := h.reg.List(oo...)
@@ -123,6 +127,9 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) er
 	actions := req.GetOptions().GetActions()
 	if len(actions) == 0 {
 		sendInitialList = true
+	}
+	for _, id := range req.GetOptions().GetIds() {
+		opts = append(opts, registry.WithID(id))
 	}
 	for _, name := range req.GetOptions().GetNames() {
 		opts = append(opts, registry.WithName(name))

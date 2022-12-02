@@ -71,12 +71,23 @@ func (m *watcher) Next() (Result, error) {
 			}
 
 			// Return everything
-			if len(m.wo.Names) == 0 && len(m.wo.Types) == 0 && len(m.wo.Filters) == 0 {
+			if len(m.wo.IDs) == 0 && len(m.wo.Names) == 0 && len(m.wo.Types) == 0 && len(m.wo.Filters) == 0 {
 				return r, nil
 			}
 
 			var items []Item
 			for _, item := range r.Items() {
+				foundID := false
+				for _, id := range m.wo.IDs {
+					if id == item.ID() {
+						foundID = true
+						break
+					}
+				}
+				if len(m.wo.IDs) > 0 && !foundID {
+					continue
+				}
+
 				foundName := false
 				for _, name := range m.wo.Names {
 					if name == item.Name() {
@@ -93,6 +104,12 @@ func (m *watcher) Next() (Result, error) {
 			L:
 				for _, itemType := range m.wo.Types {
 					switch itemType {
+					case pb.ItemType_NODE:
+						var node Node
+						if item.As(&node) {
+							foundType = true
+							break L
+						}
 					case pb.ItemType_SERVICE:
 						var service Service
 						if item.As(&service) {

@@ -26,10 +26,12 @@ const (
 	MetaStatusKey             = "status"
 	StatusStopped      Status = "stopped"
 	StatusStarting     Status = "starting"
-	StatusServing      Status = "serving"
 	StatusReady        Status = "ready"
 	StatusError        Status = "error"
 	StatusStopping     Status = "stopping"
+	StatusTransient    Status = "transient"
+	StatusWaiting      Status = "waiting"
 	MetaDescriptionKey        = "description"
 	MetaUniqueKey             = "unique"
+	MetaTimestampKey          = "timestamp"
 )

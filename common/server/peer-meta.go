@@ -21,22 +21,32 @@
 package server
 
 import (
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/pydio/cells/v4/common/runtime"
 )
 
-func InitPeerMeta() map[string]string {
-	meta := make(map[string]string)
-	meta[runtime.NodeMetaPID] = fmt.Sprintf("%d", os.Getpid())
-	meta[runtime.NodeMetaParentPID] = fmt.Sprintf("%d", os.Getppid())
-	meta[runtime.NodeMetaStartTag] = strings.Join(runtime.ProcessStartTags(), ",")
-	meta[runtime.NodeMetaHostName] = runtime.GetHostname()
-	caps := runtime.GetStringSlice(runtime.KeyNodeCapacity)
-	if len(caps) > 0 {
-		meta[runtime.NodeMetaCapacities] = strings.Join(caps, "|")
+func InitPeerMeta(meta map[string]string) {
+	if _, ok := meta[runtime.NodeMetaPID]; !ok {
+		meta[runtime.NodeMetaPID] = runtime.GetPID()
 	}
-	return meta
+
+	if _, ok := meta[runtime.NodeMetaParentPID]; !ok {
+		meta[runtime.NodeMetaParentPID] = runtime.GetPPID()
+	}
+
+	if _, ok := meta[runtime.NodeMetaStartTag]; !ok {
+		meta[runtime.NodeMetaStartTag] = strings.Join(runtime.ProcessStartTags(), ",")
+	}
+
+	if _, ok := meta[runtime.NodeMetaHostName]; !ok {
+		meta[runtime.NodeMetaHostName] = runtime.GetHostname()
+	}
+
+	if _, ok := meta[runtime.NodeMetaCapacities]; !ok {
+		caps := runtime.GetStringSlice(runtime.KeyNodeCapacity)
+		if len(caps) > 0 {
+			meta[runtime.NodeMetaCapacities] = strings.Join(caps, "|")
+		}
+	}
 }

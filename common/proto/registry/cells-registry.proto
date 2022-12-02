@@ -97,9 +97,11 @@ message Options {
   int64 ttl = 1;
   repeated ItemType types = 2;
   repeated ActionType actions = 3;
+  repeated string ids = 7;
   repeated string names = 4;
   string metaName = 5;
   string metaValue = 6;
+
 }
 
 // Result is returns by the watcher

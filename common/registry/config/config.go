@@ -100,7 +100,7 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 			return nil, err
 		}
 
-		store, err := etcd.NewSource(ctx, etcdConn, u.Path, 1, true, opts...)
+		store, err := etcd.NewSource(ctx, etcdConn, u.Path, 10, true, opts...)
 		if err != nil {
 			return nil, err
 		}
@@ -429,15 +429,26 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 			}
 		}
 		for _, item := range items {
-			found := false
+			foundID := false
+			for _, id := range o.IDs {
+				if id == item.ID() {
+					foundID = true
+					break
+				}
+			}
+			if len(o.IDs) > 0 && !foundID {
+				continue
+			}
+
+			foundName := false
 			for _, name := range o.Names {
 				if o.Matches(name, item.Name()) {
-					found = true
+					foundName = true
 					break
 				}
 			}
 
-			if len(o.Names) > 0 && !found {
+			if len(o.Names) > 0 && !foundName {
 				continue
 			}
 
