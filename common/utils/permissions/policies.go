@@ -25,12 +25,14 @@ import (
 	"fmt"
 	"path"
 	"strings"
+	"sync"
 
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -51,12 +53,24 @@ const (
 	PolicyNodeMeta_         = "NodeMeta:"
 )
 
+var polCache cache.Cache
+var polCacheSync sync.Once
+
 func getCheckersCache() cache.Cache {
-	if checkersCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1m", "cleanWindow", "10m"))
-		checkersCache = c
-	}
-	return checkersCache
+	polCacheSync.Do(func() {
+		var er error
+		ctx := context.Background()
+		polCache, er = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1m", "cleanWindow", "10m"))
+		if er != nil {
+			polCache, _ = cache.OpenCache(ctx, "discard://")
+		}
+		broker.Subscribe(ctx, common.TopicIdmPolicies, func(message broker.Message) error {
+			_ = polCache.Delete("acl")
+			_ = polCache.Delete("oidc")
+			return nil
+		})
+	})
+	return polCache
 }
 
 // PolicyRequestSubjectsFromUser builds an array of string subjects from the passed User.
@@ -167,22 +181,20 @@ func CachedPoliciesChecker(ctx context.Context, resType string) (ladon.Warden, e
 		Manager: memory.NewMemoryManager(),
 	}
 
+	ca := getCheckersCache()
 	var policies []*idm.Policy
-	if !getCheckersCache().Get(resType, &policies) {
-		p, err := loadPoliciesByResourcesType(ctx, resType)
-
-		if err != nil {
-			return nil, nil
+	if !ca.Get(resType, &policies) {
+		if p, err := loadPoliciesByResourcesType(ctx, resType); err != nil {
+			return nil, err
+		} else {
+			policies = p
+			_ = ca.Set(resType, policies)
 		}
-
-		policies = p
 	}
 
 	for _, pol := range policies {
-		w.Manager.Create(converter.ProtoToLadonPolicy(pol))
+		_ = w.Manager.Create(converter.ProtoToLadonPolicy(pol))
 	}
-
-	getCheckersCache().Set(resType, policies)
 
 	return w, nil
 }

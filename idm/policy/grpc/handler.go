@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/broker"
 	"strings"
 
 	"github.com/ory/ladon"
@@ -139,6 +140,7 @@ func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicy
 		log.GetAuditId(common.AuditPolicyGroupStore),
 		stored.ZapUuid(),
 	)
+	_ = broker.Publish(ctx, common.TopicIdmPolicies, &idm.ChangeEvent{Type: idm.ChangeEventType_UPDATE})
 
 	return response, nil
 }
@@ -159,6 +161,7 @@ func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePoli
 		log.GetAuditId(common.AuditPolicyGroupDelete),
 		request.PolicyGroup.ZapUuid(),
 	)
+	_ = broker.Publish(ctx, common.TopicIdmPolicies, &idm.ChangeEvent{Type: idm.ChangeEventType_UPDATE})
 
 	return response, nil
 

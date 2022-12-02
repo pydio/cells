@@ -140,6 +140,7 @@ const (
 	TopicJobConfigEvent      = "topic.pydio.jobconfig.event"
 	TopicJobTaskEvent        = "topic.pydio.tasks.event"
 	TopicIdmEvent            = "topic.pydio.idm.event"
+	TopicIdmPolicies         = "topic.pydio.idm.policies"
 	TopicActivityEvent       = "topic.pydio.activity.event"
 	TopicChatEvent           = "topic.pydio.chat.event"
 	TopicDatasourceEvent     = "topic.pydio.datasource.event"
