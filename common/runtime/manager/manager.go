@@ -500,7 +500,7 @@ func (m *manager) WatchBroker(ctx context.Context, br broker.Broker) error {
 func (m *manager) regRunningService(name string) (bool, int) {
 	ll, _ := m.reg.List(registry.WithType(pb.ItemType_SERVICE), registry.WithName(name))
 	for _, l := range ll {
-		if l.Metadata()[registry.MetaStatusKey] != string(registry.StatusStopped) {
+		if l.Metadata()[registry.MetaStatusKey] != string(registry.StatusStopped) && l.Metadata()[registry.MetaStatusKey] != string(registry.StatusWaiting) {
 			return true, len(ll)
 		}
 	}

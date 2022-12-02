@@ -110,6 +110,7 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for hK, hV := range config.Get("frontend", "secureHeaders").StringMap() {
 		w.Header().Set(hK, hV)
 	}
+
 	var tpl *template.Template
 	if !h.detectFrontendService() {
 		tpl = h.loadingTpl

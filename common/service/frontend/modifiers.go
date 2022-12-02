@@ -22,7 +22,6 @@ package frontend
 
 import (
 	"context"
-
 	restful "github.com/emicklei/go-restful/v3"
 	"github.com/gorilla/sessions"
 

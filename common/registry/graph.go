@@ -110,7 +110,6 @@ func (r *graphRegistry) Deregister(i Item, option ...RegisterOption) error {
 		// Removing other edge if it was a dependence to the item
 		if edge.Vertices()[1] == i.ID() {
 			if item, _ := r.r.Get(edge.Vertices()[0],
-				WithType(pb.ItemType_NODE),
 				WithType(pb.ItemType_ADDRESS),
 				WithType(pb.ItemType_ENDPOINT),
 				WithType(pb.ItemType_DAO),

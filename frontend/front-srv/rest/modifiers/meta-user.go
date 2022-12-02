@@ -22,7 +22,6 @@ package modifiers
 
 import (
 	"context"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
@@ -49,6 +48,7 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 		}
 		namespaces = append(namespaces, r.UserMetaNamespace)
 	}
+
 	if len(namespaces) == 0 {
 		return nil
 	}
