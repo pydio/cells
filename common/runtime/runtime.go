@@ -22,8 +22,6 @@ package runtime
 
 import (
 	"fmt"
-	"github.com/manifoldco/promptui"
-	utilnet "k8s.io/apimachinery/pkg/util/net"
 	"net"
 	"net/url"
 	"os"
@@ -32,12 +30,16 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/manifoldco/promptui"
+	utilnet "k8s.io/apimachinery/pkg/util/net"
+
 	net2 "github.com/pydio/cells/v4/common/utils/net"
 )
 
 var (
 	args             []string
 	processStartTags []string
+	processRootID    string
 	preRunRegistry   []func(Runtime)
 	r                Runtime = &emptyRuntime{}
 )
@@ -355,6 +357,16 @@ func DefaultAdvertiseAddress() string {
 	r.SetDefault(KeyAdvertiseAddress, store)
 
 	return r.GetString(KeyAdvertiseAddress)
+}
+
+// ProcessRootID retrieves a unique identifier for the current process
+func ProcessRootID() string {
+	return processRootID
+}
+
+// SetProcessRootID passes a UUID for the current process
+func SetProcessRootID(id string) {
+	processRootID = id
 }
 
 // ProcessStartTags returns a list of tags to be used for identifying processes

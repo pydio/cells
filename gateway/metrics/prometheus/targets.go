@@ -22,6 +22,7 @@ package prometheus
 
 import (
 	"context"
+	"fmt"
 
 	"go.uber.org/zap"
 
@@ -55,7 +56,13 @@ func ProcessesAsTargets(ctx context.Context, reg registry.Registry, includeCaddy
 		}
 		meta := i.Metadata()
 		pid := meta[runtime.NodeMetaPID]
-		if _, ok := processes[pid]; ok {
+		// Retrieve parent node
+		nn := reg.ListAdjacentItems(i, registry.WithType(pb.ItemType_NODE))
+		if len(nn) == 0 {
+			fmt.Println("Server without adjacent node, this is strange, skipping")
+		}
+		rootNodeID := nn[0].ID()
+		if _, ok := processes[rootNodeID]; ok {
 			continue // already registered
 		}
 		var host string
@@ -74,14 +81,15 @@ func ProcessesAsTargets(ctx context.Context, reg registry.Registry, includeCaddy
 			Labels: map[string]string{
 				"job":              "cells",
 				"pid":              pid,
+				"rootID":           rootNodeID,
 				"instance":         "main",
-				"__metrics_path__": "/metrics/" + pid,
+				"__metrics_path__": "/metrics/" + rootNodeID,
 			},
 		}
 		if startTag := meta[runtime.NodeMetaStartTag]; startTag != "" {
 			tg.Labels["instance"] = startTag
 		}
-		processes[pid] = tg
+		processes[rootNodeID] = tg
 	}
 	for _, g := range processes {
 		t.groups = append(t.groups, g)

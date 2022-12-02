@@ -26,8 +26,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/pprof"
-	"os"
-	"strconv"
 
 	"github.com/gorilla/mux"
 
@@ -85,7 +83,7 @@ func init() {
 
 		if runtime.MetricsEnabled() {
 
-			pattern := fmt.Sprintf("/metrics/%d", os.Getpid())
+			pattern := fmt.Sprintf("/metrics/%s", runtime.ProcessRootID())
 
 			if use, login, pwd := runtime.MetricsRemoteEnabled(); use {
 
@@ -141,7 +139,7 @@ func init() {
 		}
 
 		if runtime.PprofEnabled() {
-			prefix := "/" + strconv.Itoa(os.Getpid())
+			prefix := "/" + runtime.ProcessRootID()
 			service.NewService(
 				service.Name(pprofServiceName),
 				service.Context(ctx),

@@ -23,23 +23,23 @@ package manager
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/registry/util"
-	"go.uber.org/zap"
-	"golang.org/x/exp/maps"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/bep/debounce"
+	"go.uber.org/zap"
+	"golang.org/x/exp/maps"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
@@ -115,6 +115,8 @@ func NewManager(ctx context.Context, reg registry.Registry, srcUrl string, names
 		m.root = current
 	} else {
 		node := util.CreateNode()
+		runtime.SetProcessRootID(node.ID())
+
 		m.root = node
 
 		if er := reg.Register(registry.Item(node)); er == nil {
