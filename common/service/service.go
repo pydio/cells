@@ -162,10 +162,9 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 		reg := servicecontext.GetRegistry(s.opts.Context)
 		if locker := reg.NewLocker("start-service-" + s.Name()); locker != nil {
 			locker.Lock()
-			fmt.Println("Got Lock service ", s.Name())
 			w, err := reg.Watch(registry.WithID(s.ID()), registry.WithType(pb.ItemType_SERVER))
 			if err != nil {
-				fmt.Println("Unlocking service with error ", s.Name(), err)
+				log.Logger(s.opts.Context).Error("Error unlocking service"+s.Name(), zap.Error(err))
 				locker.Unlock()
 				return err
 			}
@@ -176,7 +175,7 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 				for {
 					res, err := w.Next()
 					if err != nil {
-						fmt.Println("Unlocking service wth watch error ", s.Name(), err)
+						log.Logger(s.opts.Context).Error("Error unlocking service "+s.Name()+" (watch)", zap.Error(err))
 						return
 					}
 
