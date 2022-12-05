@@ -419,10 +419,19 @@ func (j *JobsHandler) DeleteLogsFor(ctx context.Context, job string, tasks ...st
 		req.Query = strings.Join(qs, " ")
 	}
 	if resp, e := j.DeleteLogs(ctx, req); e != nil {
-		log.Logger(ctx).Error("Deleting logs in background for ", zap.String("j", job), zap.Strings("t", tasks), zap.Error(e))
+		log.Logger(ctx).Error("Deleting logs in background for ", zap.String("q", req.Query), zap.Error(e))
 		return 0, e
 	} else {
-		log.Logger(ctx).Debug("Deleting logs in background for ", zap.String("j", job), zap.Strings("t", tasks), zap.Any("count", resp.Deleted))
+		log.Logger(ctx).Debug("Deleting logs in background for ", zap.String("q", req.Query), zap.Int64("count", resp.Deleted))
+
+		// Re-run this same query after 5s, as logs inserts are debounced on a 3s basis and logs may have been re-inserted in-between
+		go func() {
+			<-time.After(5 * time.Second)
+			if dr, de := j.DeleteLogs(ctx, req); de == nil && dr.Deleted > 0 {
+				log.Logger(ctx).Info("Second pass for deleting logs have retrieved", zap.String("q", req.Query), zap.Int64("count", dr.Deleted))
+			}
+		}()
+
 		return resp.Deleted, nil
 	}
 }
