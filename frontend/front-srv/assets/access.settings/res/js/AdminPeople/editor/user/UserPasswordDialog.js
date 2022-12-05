@@ -86,23 +86,29 @@ export default createReactClass({
         const getMessage = (id, namespace = '') => global.pydio.MessageHash[namespace + (namespace ? '.' : '') + id] || id;
         return (
             <div style={{width: '100%'}}>
-                <ModernTextField
-                    ref="pass"
-                    type="password"
-                    fullWidth={true}
-                    onChange={this.onChange}
-                    floatingLabelText={getMessage('523')}
-                    errorText={this.state.passErrorText}
-                    hintText={this.state.passHintText}
-                />
-                <ModernTextField
-                    ref="confirm"
-                    type="password"
-                    fullWidth={true}
-                    onChange={this.onChange}
-                    floatingLabelText={getMessage('199')}
-                    errorText={this.state.confirmErrorText}
-                />
+                <form autoComplete={"off"}>
+                    <ModernTextField
+                        ref="pass"
+                        type="password"
+                        fullWidth={true}
+                        onChange={this.onChange}
+                        floatingLabelText={getMessage('523')}
+                        errorText={this.state.passErrorText}
+                        hintText={this.state.passHintText}
+                        variant={"v2"}
+                        autoComplete={"whatever"}
+                    />
+                    <ModernTextField
+                        ref="confirm"
+                        type="password"
+                        fullWidth={true}
+                        onChange={this.onChange}
+                        floatingLabelText={getMessage('199')}
+                        errorText={this.state.confirmErrorText}
+                        variant={"v2"}
+                        autoComplete={"no-thanks"}
+                    />
+                </form>
             </div>
         );
 
