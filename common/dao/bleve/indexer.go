@@ -23,9 +23,6 @@ package bleve
 import (
 	"context"
 	"fmt"
-	"github.com/bep/debounce"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/registry/util"
 	"os"
 	"path/filepath"
 	"sort"
@@ -34,12 +31,15 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bep/debounce"
 	bleve "github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/index/scorch"
 	"github.com/blevesearch/bleve/v2/index/upsidedown/store/boltdb"
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/search/query"
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/rs/xid"
@@ -361,13 +361,8 @@ func (s *Indexer) getWriteIndex() bleve.Index {
 
 func (s *Indexer) listIndexes(renameIfNeeded ...bool) (paths []string) {
 	dirPath, base := filepath.Split(s.indexPath)
-	dir, err := os.Open(dirPath)
-	if err != nil {
-		return
-	}
-	defer dir.Close()
 
-	files, err := dir.Readdir(-1)
+	files, err := os.ReadDir(dirPath)
 	if err != nil {
 		return
 	}
@@ -691,13 +686,7 @@ func (s *Indexer) openOneIndex(bleveIndexPath string, mappingName string) (bleve
 func indexDiskUsage(currPath string) (int64, error) {
 	var size int64
 
-	dir, err := os.Open(currPath)
-	if err != nil {
-		return 0, err
-	}
-	defer dir.Close()
-
-	files, err := dir.Readdir(-1)
+	files, err := os.ReadDir(currPath)
 	if err != nil {
 		return 0, err
 	}
@@ -710,7 +699,12 @@ func indexDiskUsage(currPath string) (int64, error) {
 			}
 			size += s
 		} else {
-			size += file.Size()
+			info, err := file.Info()
+			if err != nil {
+				continue
+			}
+
+			size += info.Size()
 		}
 	}
 
