@@ -23,6 +23,9 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
+	"os"
+	"path/filepath"
 	"strings"
 
 	version "github.com/hashicorp/go-version"
@@ -77,20 +80,25 @@ func UpdateServiceVersion(opts *ServiceOptions) error {
 	return nil
 }
 
+// legacyVersionFile points to the old workingdir/services/serviceName/version
+func legacyVersionFile(serviceName string) string {
+	return filepath.Join(runtime.ApplicationWorkingDir(runtime.ApplicationDirServices), serviceName, "version")
+}
+
 // lastKnownVersion looks on this server if there was a previous version of this service
 func lastKnownVersion(serviceName string) (v *version.Version, e error) {
-	// TODO - Check for legacy files
-	//versionFile := runtime.ConfigURL() + "/" + filepath.Join("services", serviceName, "version")
-	//store, err := config.OpenStore(context.Background(), versionFile+"?encode=string")
-	//if err != nil {
-	//	fmt.Println("Could not open store ?", err)
-	//	return nil, err
-	//}
 
+	def := strings.TrimSpace(config.Get("versions", serviceName).Default("0.0.0").String())
+	if def == "0.0.0" {
+		if data, err := os.ReadFile(legacyVersionFile(serviceName)); err == nil && len(data) > 0 {
+			fileVersion := strings.TrimSpace(string(data))
+			return version.NewVersion(fileVersion)
+		}
+	}
 	return version.NewVersion(strings.TrimSpace(config.Get("versions", serviceName).Default("0.0.0").String()))
 }
 
-// updateVersion writes the version string to file
+// updateVersion writes the version string to config, and eventually removes legacy version file
 func updateVersion(serviceName string, v *version.Version) error {
 	if err := config.Get("versions", serviceName).Set(v.String()); err != nil {
 		return err
@@ -98,6 +106,23 @@ func updateVersion(serviceName string, v *version.Version) error {
 
 	if err := config.Save("system", "updating system version "+serviceName); err != nil {
 		return err
+	}
+
+	legacy := legacyVersionFile(serviceName)
+	if _, e := os.Stat(legacy); e == nil {
+		// File exist, remove it now
+		if os.Remove(legacy) == nil {
+			// We can also remove parent folder now
+			parent := filepath.Dir(legacy)
+			if entries, er := os.ReadDir(parent); er == nil && len(entries) == 0 {
+				fmt.Println("[config] Migrated legacy version file for " + serviceName + " (and its empty folder)")
+				_ = os.Remove(parent)
+			} else {
+				fmt.Println("[config] Migrated legacy version file for " + serviceName)
+			}
+		} else {
+			fmt.Println("[config] Could not remove legacy version file for " + serviceName + ": " + e.Error())
+		}
 	}
 
 	return nil
