@@ -32,6 +32,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config/mock"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
 	"github.com/pydio/cells/v4/common/dao/test"
@@ -41,6 +42,10 @@ import (
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
 )
+
+func init() {
+	_ = mock.RegisterMockConfig()
+}
 
 func getTmpIndex(createNodes bool) (s *Server, closer func()) {
 
