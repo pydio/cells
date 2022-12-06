@@ -42,16 +42,15 @@ var (
 )
 
 type Server struct {
-	Ctx          context.Context
-	Router       nodes.Handler
-	Engine       dao.IndexDAO
-	IndexContent bool
-
+	Ctx     context.Context
+	Router  nodes.Handler
+	Engine  dao.IndexDAO
 	configs configx.Values
 
-	inserts chan *tree.IndexableNode
-	deletes chan string
-	done    chan bool
+	inserts  chan *tree.IndexableNode
+	deletes  chan string
+	done     chan bool
+	confChan chan configx.Values
 
 	nsProvider *meta.NsProvider
 }
@@ -59,15 +58,14 @@ type Server struct {
 func NewEngine(ctx context.Context, indexer dao.IndexDAO, nsProvider *meta.NsProvider, configs configx.Values) (*Server, error) {
 
 	server := &Server{
-		Ctx:          ctx,
-		Engine:       indexer,
-		IndexContent: configs.Val("indexContent").Bool(),
-		configs:      configs,
-		//		basenameAnalyzer: bnA,
-		//		contentAnalyzer:  cA,
+		Ctx:     ctx,
+		Engine:  indexer,
+		configs: configs,
+
 		inserts:    make(chan *tree.IndexableNode),
 		deletes:    make(chan string),
 		done:       make(chan bool, 1),
+		confChan:   make(chan configx.Values),
 		nsProvider: nsProvider,
 	}
 	go server.watchOperations()
@@ -76,7 +74,7 @@ func NewEngine(ctx context.Context, indexer dao.IndexDAO, nsProvider *meta.NsPro
 }
 
 func (s *Server) watchOperations() {
-	batch := NewBatch(s.Ctx, s.nsProvider, BatchOptions{IndexContent: s.IndexContent})
+	batch := NewBatch(s.Ctx, s.nsProvider, BatchOptions{IndexContent: s.configs.Val("indexContent").Bool()})
 	debounce := 1 * time.Second
 	timer := time.NewTimer(debounce)
 	defer func() {
@@ -100,6 +98,10 @@ func (s *Server) watchOperations() {
 			}
 		case <-timer.C:
 			batch.Flush(s.Engine)
+		case cf := <-s.confChan:
+			s.configs = cf
+			batch.options.IndexContent = cf.Val("indexContent").Bool()
+			log.Logger(s.Ctx).Info("Changing search engine content indexation status", zap.Bool("i", batch.options.IndexContent))
 		case <-s.Ctx.Done():
 			batch.Flush(s.Engine)
 			s.Engine.Close(s.Ctx)
@@ -125,8 +127,7 @@ func (s *Server) watchConfigs(ctx context.Context) {
 		if err != nil {
 			break
 		}
-		s.IndexContent = config.Get("services", serviceName).Val("indexContent").Bool()
-		log.Logger(ctx).Info("Changing search engine content indexation status", zap.Bool("i", s.IndexContent))
+		s.confChan <- config.Get("services", serviceName)
 	}
 	watcher.Stop()
 }
