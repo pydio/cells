@@ -24,7 +24,10 @@ package dao
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
+	"go.uber.org/zap"
 	"time"
 
 	"github.com/pydio/cells/v4/common/dao"
@@ -68,6 +71,7 @@ func NewEngine(ctx context.Context, indexer dao.IndexDAO, nsProvider *meta.NsPro
 		nsProvider: nsProvider,
 	}
 	go server.watchOperations()
+	go server.watchConfigs(ctx)
 	return server, nil
 }
 
@@ -107,6 +111,24 @@ func (s *Server) watchOperations() {
 			return
 		}
 	}
+}
+
+func (s *Server) watchConfigs(ctx context.Context) {
+	serviceName := common.ServiceGrpcNamespace_ + common.ServiceSearch
+
+	watcher, e := config.Watch(configx.WithPath("services", serviceName))
+	if e != nil {
+		return
+	}
+	for {
+		_, err := watcher.Next()
+		if err != nil {
+			break
+		}
+		s.IndexContent = config.Get("services", serviceName).Val("indexContent").Bool()
+		log.Logger(ctx).Info("Changing search engine content indexation status", zap.Bool("i", s.IndexContent))
+	}
+	watcher.Stop()
 }
 
 func (s *Server) Close() error {

@@ -25,7 +25,6 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"path/filepath"
 
 	"google.golang.org/grpc"
@@ -35,6 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	dao2 "github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
