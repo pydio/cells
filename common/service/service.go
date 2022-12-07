@@ -34,6 +34,7 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"go.uber.org/zap"
+	"golang.org/x/exp/maps"
 	"sync"
 )
 
@@ -373,4 +374,18 @@ func (s *service) MarshalJSON() ([]byte, error) {
 
 func (s *service) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, s.opts)
+}
+
+func (s *service) Clone() interface{} {
+
+	cloneOptions := &ServiceOptions{}
+	clone := &service{}
+
+	*cloneOptions = *s.opts
+	cloneOptions.Metadata = maps.Clone(s.opts.Metadata)
+
+	*clone = *s
+	clone.opts = cloneOptions
+
+	return clone
 }

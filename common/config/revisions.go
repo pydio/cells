@@ -22,7 +22,6 @@ package config
 
 import (
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/pydio/cells/v4/common/config/revisions"
@@ -131,10 +130,6 @@ func (v *versionStore) Lock() {
 
 func (v *versionStore) Unlock() {
 	v.store.Unlock()
-}
-
-func (v *versionStore) NewLocker(name string) sync.Locker {
-	return v.store.NewLocker(name)
 }
 
 type configStore struct {

@@ -548,8 +548,9 @@ func (m *manager) WatchTransientStatus() {
 		}
 
 		for _, i := range res.Items() {
-			items := m.reg.ListAdjacentItems(i, registry.WithType(pb.ItemType_SERVICE))
+
 			status := string(registry.StatusReady)
+			items := m.reg.ListAdjacentItems(i, registry.WithType(pb.ItemType_SERVICE))
 			for _, item := range items {
 				if item.Metadata()[registry.MetaStatusKey] != string(registry.StatusReady) && item.Metadata()[registry.MetaStatusKey] != string(registry.StatusWaiting) {
 					status = string(registry.StatusTransient)
@@ -557,7 +558,7 @@ func (m *manager) WatchTransientStatus() {
 				}
 			}
 
-			if i.Metadata() != nil && i.Metadata()[registry.MetaStatusKey] != status {
+			if i.Metadata() != nil && (i.Metadata()[registry.MetaStatusKey] != status || status == string(registry.StatusTransient)) {
 				if ms, ok := i.(registry.MetaSetter); ok {
 					meta := maps.Clone(i.Metadata())
 					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
@@ -566,7 +567,7 @@ func (m *manager) WatchTransientStatus() {
 
 					m.reg.Register(i)
 				} else {
-					fmt.Println("Could not set in server")
+					fmt.Println("Could not set in transient")
 				}
 			}
 		}

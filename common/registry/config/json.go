@@ -25,12 +25,11 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/pydio/cells/v4/common/registry/util"
-
 	"google.golang.org/protobuf/encoding/protojson"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -69,6 +68,18 @@ func (j *jsonItemMapReader) Unmarshal(data []byte, out interface{}) error {
 
 		for _, v := range i.Items {
 			*vout = append(*vout, util.ToItem(v))
+		}
+
+		return nil
+	case map[string]interface{}:
+		i := new(pb.ItemMap)
+
+		if err := protojson.Unmarshal(data, i); err != nil {
+			return err
+		}
+
+		for k, v := range i.Items {
+			vout[k] = util.ToItem(v)
 		}
 
 		return nil
@@ -158,6 +169,18 @@ func (j *jsonItemReader) Unmarshal(data []byte, out interface{}) error {
 
 		for _, v := range i.Items {
 			*vout = append(*vout, util.ToItem(v))
+		}
+
+		return nil
+	case map[string]interface{}:
+		i := new(pb.ItemMap)
+
+		if err := protojson.Unmarshal(data, i); err != nil {
+			return err
+		}
+
+		for k, v := range i.Items {
+			vout[k] = util.ToItem(v)
 		}
 
 		return nil

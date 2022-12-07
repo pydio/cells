@@ -218,6 +218,13 @@ func (f *file) Get() configx.Value {
 	return f.v.Get()
 }
 
+func (f *file) Clone() configx.Value {
+	f.mtx.RLock()
+	defer f.mtx.RUnlock()
+
+	return f.v.Get()
+}
+
 func (f *file) Set(data interface{}) error {
 	f.mtx.RLock()
 	defer f.mtx.RUnlock()

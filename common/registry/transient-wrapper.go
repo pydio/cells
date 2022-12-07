@@ -2,9 +2,11 @@ package registry
 
 import (
 	"fmt"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"golang.org/x/exp/maps"
 	"time"
+
+	"golang.org/x/exp/maps"
+
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 )
 
 var _ Registry = (*TransientWrapper)(nil)
@@ -40,7 +42,7 @@ func (m *TransientWrapper) Register(item Item, opts ...RegisterOption) error {
 		for _, targetItem := range targetItems {
 			if ms, ok := targetItem.(MetaSetter); ok {
 				targetMeta := targetItem.Metadata()
-				if (status == string(StatusStarting) || status == string(StatusStopping)) && targetMeta[MetaStatusKey] != string(StatusTransient) {
+				if status == string(StatusStarting) || status == string(StatusStopping) {
 					targetMetaClone := maps.Clone(targetMeta)
 					targetMetaClone[MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 					targetMetaClone[MetaStatusKey] = string(StatusTransient)

@@ -22,8 +22,9 @@ package server
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/registry"
 	"net"
+
+	"github.com/pydio/cells/v4/common/registry"
 )
 
 type ServeOptions struct {
@@ -80,6 +81,7 @@ func WithBlockUntilServe() ServeOption {
 type Options struct {
 	Context  context.Context
 	Listener *net.Listener
+	Metadata map[string]string
 }
 
 // Option is a function to set Options

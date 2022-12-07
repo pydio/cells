@@ -22,6 +22,12 @@ package configtest
 
 import (
 	"context"
+	"fmt"
+	"github.com/pydio/cells/v4/common/config/memory"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/r3labs/diff/v3"
 	"log"
 	"os"
 	"testing"
@@ -47,6 +53,56 @@ import (
 
 func init() {
 	grpc.RegisterMock(common.ServiceConfig, discoverytest.NewConfigService())
+}
+
+func TestSimpleDiff(t *testing.T) {
+	a := configx.New()
+	a.Val("test").Set(Teststruct{Name: "test"})
+
+	b := configx.New()
+	b.Val("test").Set(Teststruct{Name: "test2"})
+
+	fmt.Println(diff.Diff(a.Interface(), b.Interface()))
+}
+
+type testprotostruct struct {
+	i *pb.Node `diff:"I"`
+}
+
+func TestProtoDiff(t *testing.T) {
+	node := &testprotostruct{i: &pb.Node{Hostname: "test"}}
+	a := configx.New()
+	a.Val("test").Set(node)
+
+	clone := &testprotostruct{i: &pb.Node{Hostname: "test2"}}
+	b := configx.New()
+	b.Val("test").Set(clone)
+
+	fmt.Println(diff.Diff(a.Interface(), b.Interface()))
+}
+
+type MetaSetter interface {
+	SetMetadata(map[string]string)
+}
+
+func TestNodeDiff(t *testing.T) {
+	node := util.CreateNode()
+	if ms, ok := node.(MetaSetter); ok {
+		ms.SetMetadata(map[string]string{"status": "transient"})
+	}
+
+	a := configx.New()
+	a.Val("test").Set(node)
+
+	clone := memory.Clone(node)
+	if ms, ok := clone.(MetaSetter); ok {
+		ms.SetMetadata(map[string]string{"status": "ready"})
+	}
+
+	b := configx.New()
+	b.Val("test").Set(clone)
+
+	fmt.Println(diff.Diff(a.Interface(), b.Interface()))
 }
 
 func TestGetSetMemory(t *testing.T) {

@@ -86,16 +86,6 @@ func (v *vault) Save(ctxUser string, ctxMessage string) error {
 	return v.config.Save(ctxUser, ctxMessage)
 }
 
-func (v *vault) NewLocker(name string) sync.Locker {
-	configLocker := v.config.NewLocker(name)
-	vaultLocker := v.vault.NewLocker(name)
-
-	return &vaultStoreLocker{
-		configLocker: configLocker,
-		vaultLocker:  vaultLocker,
-	}
-}
-
 type vaultStoreLocker struct {
 	configLocker sync.Locker
 	vaultLocker  sync.Locker

@@ -211,14 +211,15 @@ func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bc
 	values := res.Val(keyName)
 	val := values.Val(getFromItemType(bcType))
 	if val.Get() != nil {
-		itemsMap := map[string]registry.Item{}
-		if err := val.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
-			fmt.Println("Error while scanning registry watch event to map[string]registry.Item", err)
+		itemsMap := map[string]interface{}{}
+		if err := val.Default(map[string]interface{}{}).Scan(itemsMap); err != nil {
+			fmt.Println("Error while scanning registry watch event to map[string]interface{}", err)
 			return err
 		}
 		var items []registry.Item
-		for _, i := range itemsMap {
-			items = append(items, i)
+		for k, _ := range itemsMap {
+			item, _ := c.Get(k, registry.WithType(bcType))
+			items = append(items, item)
 		}
 		select {
 		case bc.Ch <- registry.NewResult(actionType, items):
@@ -520,7 +521,11 @@ func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error
 }
 
 func (c *configRegistry) NewLocker(name string) sync.Locker {
-	return c.store.NewLocker(name)
+	if ds, ok := c.store.(config.DistributedStore); ok {
+		return ds.NewLocker(name)
+	}
+
+	return nil
 }
 
 func (c *configRegistry) As(interface{}) bool {

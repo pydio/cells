@@ -26,6 +26,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/merger"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+	"google.golang.org/protobuf/proto"
 	"strings"
 )
 
@@ -42,35 +43,35 @@ func CreateNode() registry.Node {
 		Metadata: make(map[string]string),
 	}
 	n := &pb.Node{}
-	return &node{i: i, d: n}
+	return &node{I: i, D: n}
 }
 
 func ToProtoNode(d registry.Node) *pb.Node {
 	if dd, ok := d.(*node); ok {
-		return dd.d
+		return dd.D
 	}
 	return &pb.Node{}
 }
 
 func ToNode(i *pb.Item, d *pb.Node) registry.Node {
-	return &node{i: i, d: d}
+	return &node{I: i, D: d}
 }
 
 type node struct {
-	i *pb.Item
-	d *pb.Node
+	I *pb.Item
+	D *pb.Node
 }
 
 func (n *node) Hostname() string {
-	return n.d.Hostname
+	return n.D.Hostname
 }
 
 func (n *node) IPs() []string {
-	return n.d.GetIps()
+	return n.D.GetIps()
 }
 
 func (n *node) AdvertiseIP() string {
-	return n.d.GetAdvertiseIp()
+	return n.D.GetAdvertiseIp()
 }
 
 func (n *node) Equals(differ merger.Differ) bool {
@@ -97,19 +98,19 @@ func (n *node) Merge(differ merger.Differ, m map[string]string) (merger.Differ, 
 }
 
 func (n *node) Name() string {
-	return n.i.Name
+	return n.I.Name
 }
 
 func (n *node) ID() string {
-	return n.i.Id
+	return n.I.Id
 }
 
 func (n *node) Metadata() map[string]string {
-	return n.i.Metadata
+	return n.I.Metadata
 }
 
 func (n *node) SetMetadata(meta map[string]string) {
-	n.i.Metadata = meta
+	n.I.Metadata = meta
 }
 
 func (n *node) As(i interface{}) bool {
@@ -118,4 +119,12 @@ func (n *node) As(i interface{}) bool {
 		return true
 	}
 	return false
+}
+
+func (n *node) Clone() interface{} {
+	clone := &node{}
+	clone.I = proto.Clone(n.I).(*pb.Item)
+	clone.D = proto.Clone(n.D).(*pb.Node)
+
+	return clone
 }

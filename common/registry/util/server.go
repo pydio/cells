@@ -28,34 +28,34 @@ import (
 
 func ToProtoServer(s registry.Server) *pb.Server {
 	if nn, ok := s.(*server); ok {
-		return nn.s
+		return nn.S
 	}
 	return &pb.Server{}
 }
 
 func ToServer(i *pb.Item, s *pb.Server) registry.Server {
-	return &server{s: s, i: i}
+	return &server{S: s, I: i}
 }
 
 type server struct {
-	i *pb.Item
-	s *pb.Server
+	I *pb.Item
+	S *pb.Server
 }
 
 func (s *server) ID() string {
-	return s.i.Id
+	return s.I.Id
 }
 
 func (s *server) Name() string {
-	return s.i.Name
+	return s.I.Name
 }
 
 func (s *server) Metadata() map[string]string {
-	return s.i.Metadata
+	return s.I.Metadata
 }
 
 func (s *server) SetMetadata(meta map[string]string) {
-	s.i.Metadata = meta
+	s.I.Metadata = meta
 }
 
 func (s *server) Server() {}

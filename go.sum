@@ -2639,8 +2639,6 @@ github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef h1:5FyN7pndX4GyCAb0gdZgN7
 github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef/go.mod h1:H+DrbjBEehySj5ykZVFHF12kpfWtmKpsoyDZ16kUyqk=
 github.com/pydio/melody v0.0.0-20190928133520-4271c6513fb6 h1:R2xi5pGxvwcVUTRh8CrDzdkYLIQT8nXvQHyXuYg1rRE=
 github.com/pydio/melody v0.0.0-20190928133520-4271c6513fb6/go.mod h1:E3dNe7CwsJgzZjN2xiAVfAd8Spkxbviek8AZ9wjaZHk=
-github.com/pydio/minio v0.0.0-20221019075005-60ee6f1265d3 h1:g9UoaqgKqbTlQsi6dYox7Kh7XElOJKZn6i/ssalITVg=
-github.com/pydio/minio v0.0.0-20221019075005-60ee6f1265d3/go.mod h1:9SYXxSFt4OLYXjUTEYJc0S/6QjS1Cy4wlC2fYr181MA=
 github.com/pydio/minio v0.0.0-20221202095005-f1d0306b8eeb h1:3Es+gimIQnKOrLJHBou9JHL8RWGU2C7Ry4t8cYZgIgU=
 github.com/pydio/minio v0.0.0-20221202095005-f1d0306b8eeb/go.mod h1:9SYXxSFt4OLYXjUTEYJc0S/6QjS1Cy4wlC2fYr181MA=
 github.com/pydio/pydio-sdk-go v0.0.0-20190116153840-23ce5c39e65c h1:aC9RjBWAeYiyaXH60aHiEaSvYgpS9NyGbFvOl8xuIBg=

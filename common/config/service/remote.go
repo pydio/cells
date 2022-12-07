@@ -343,6 +343,26 @@ func (v *values) Get() configx.Value {
 	return c.Get()
 }
 
+func (v *values) Clone() configx.Value {
+	c := configx.New(configx.WithJSON())
+
+	rsp, err := v.cli.Get(v.ctx, &pb.GetRequest{
+		Namespace: v.id,
+		Path:      strings.Join(v.path, "/"),
+	})
+
+	if err != nil {
+		fmt.Println("Config error (fork cannot contact remote gRPC service: ", err.Error(), ")")
+		return c
+	}
+
+	if err := c.Set(rsp.GetValue().GetData()); err != nil {
+		//fmt.Println("And the error is ? ", err)
+	}
+
+	return c.Get()
+}
+
 func (v *values) Set(val interface{}) error {
 	b, err := json.Marshal(val)
 	if err != nil {

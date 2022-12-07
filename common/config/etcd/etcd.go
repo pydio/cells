@@ -25,7 +25,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"go.etcd.io/etcd/client/v3/concurrency"
 	"net/url"
 	"strconv"
 	"strings"
@@ -35,6 +34,7 @@ import (
 	"github.com/r3labs/diff/v3"
 	"go.etcd.io/etcd/api/v3/mvccpb"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"go.etcd.io/etcd/client/v3/concurrency"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto"
@@ -536,6 +536,13 @@ func (v *values) Set(value interface{}) error {
 }
 
 func (v *values) Get() configx.Value {
+	v.valuesLocker.RLock()
+	defer v.valuesLocker.RUnlock()
+
+	return v.values.Val(v.path)
+}
+
+func (v *values) Clone() configx.Value {
 	v.valuesLocker.RLock()
 	defer v.valuesLocker.RUnlock()
 

@@ -37,11 +37,11 @@ func ToProtoDao(d registry.Dao) *pb.Dao {
 }
 
 func ToDao(i *pb.Item, d *pb.Dao) registry.Dao {
-	return &dao{i: i, d: d}
+	return &dao{I: i, d: d}
 }
 
 type dao struct {
-	i *pb.Item
+	I *pb.Item
 	d *pb.Dao
 }
 
@@ -69,15 +69,15 @@ func (d *dao) Merge(differ merger.Differ, m map[string]string) (merger.Differ, e
 }
 
 func (d *dao) Name() string {
-	return d.i.Name
+	return d.I.Name
 }
 
 func (d *dao) ID() string {
-	return d.i.Id
+	return d.I.Id
 }
 
 func (d *dao) Metadata() map[string]string {
-	return d.i.Metadata
+	return d.I.Metadata
 }
 
 func (d *dao) As(i interface{}) bool {
