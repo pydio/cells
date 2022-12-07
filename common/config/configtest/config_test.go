@@ -174,13 +174,18 @@ func TestGetSetFile(t *testing.T) {
 
 	testGetSet(t, store)
 	testVault(t, store, vault)
-	testWatch(t, store)
+	// testWatch(t, store)
 
 	store.Save("configtest", "configtest")
 	vault.Save("configtest", "configtest")
 }
 
 func TestGetSetGRPC(t *testing.T) {
+	//u := os.Getenv("GRPC_ADDR")
+	//if u == "" {
+	//	t.Skip("skipping test: ETCD_SERVER_ADDR not defined")
+	//}
+
 	mem, err := config.OpenStore(context.Background(), "mem://")
 	if err != nil {
 		t.Fail()

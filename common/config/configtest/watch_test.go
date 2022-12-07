@@ -23,12 +23,10 @@ package configtest
 import (
 	"fmt"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	. "github.com/smartystreets/goconvey/convey"
 	"golang.org/x/exp/maps"
 	"sync"
 	"testing"
-	"time"
-
-	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/config"
 	// Plugins to test
@@ -40,30 +38,10 @@ import (
 func testWatch(t *testing.T, store config.Store) {
 	Convey("Given a default config initialised in a temp directory", t, func() {
 		Convey("Simple GetSet Works", func() {
+			wg := &sync.WaitGroup{}
+			//wg.Add(1)
 			go func() {
 				w, _ := store.Watch()
-
-				for {
-					res, err := w.Next()
-					if err != nil {
-						return
-					}
-
-					fmt.Println(string(res.(configx.Values).Bytes()))
-				}
-			}()
-
-			store.Val("first/second").Set("whatever")
-			<-time.After(1 * time.Second)
-			store.Val("first/third").Set("whatever2")
-			<-time.After(3 * time.Second)
-		})
-
-		Convey("Map GetSet Works", func() {
-			wg := &sync.WaitGroup{}
-			wg.Add(1)
-			go func() {
-				w, _ := store.Watch(configx.WithChangesOnly())
 
 				for {
 					res, err := w.Next()
@@ -72,11 +50,16 @@ func testWatch(t *testing.T, store config.Store) {
 						return
 					}
 
-					fmt.Println(res.(configx.Values).Map())
+					fmt.Println(string(res.(configx.Values).Bytes()))
 					wg.Done()
 				}
 			}()
 
+			//wg.Wait()
+
+			store.Val("first/second").Set("whatever")
+			wg.Wait()
+			store.Val("first/third").Set("whatever2")
 			wg.Wait()
 
 			meta := make(map[string]string)
@@ -96,6 +79,8 @@ func testWatch(t *testing.T, store config.Store) {
 			wg.Add(1)
 			store.Val("val").Set(val)
 			wg.Wait()
+
+			fmt.Println("Finished")
 		})
 	})
 }
