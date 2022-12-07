@@ -78,17 +78,17 @@ message Role {
 message RoleSingleQuery {
     // Look for roles by Uuid
     repeated string Uuid = 1;
-    // Look for roles by label, eventually using wildchar
+    // Look for roles by label, eventually using "wildchar"
     string Label = 2;
-    // Look for team roles only
+    // Look up for roles associated with a Team
     bool IsTeam = 3;
-    // Look for group roles only
+    // Look for roles associated with a Group
     bool IsGroupRole = 4;
-    // Look for user roles only
+    // Look for roles associated with a User
     bool IsUserRole = 5;
     // Look for roles that have any value in the autoApplies field
     bool HasAutoApply = 6;
-    // Negate the query
+    // Internal - Negate the query
     bool not = 7;
 }
 
@@ -187,30 +187,35 @@ enum NodeType {
 }
 
 message UserSingleQuery {
-
+    // Lookup a user by its Uuid
     string Uuid = 11;
-
+    // Lookup a user by Login
     string Login = 1;
+    // Lookup by hashed password, probably never used
     string Password = 2;
-    // Search on group path, and if so, search recursively
+    // List users below a specific on group path
     string GroupPath = 3;
+    // When searching on group path, load all users and groups recursively
     bool Recursive = 4;
-    // Search a specific group by path
+    // Search one specific Group by its path
     string FullPath = 12;
 
-    // Search on attribute
+    // Search on attribute, to be combined with AttributeValue
     string AttributeName = 5;
+    // Value used for comparison
     string AttributeValue = 6;
+    // Search for the existence of the AttributeName, whatever its value
     bool AttributeAnyValue = 7;
-    // Search on roles
+    // Search users having a specific role UUID
     string HasRole = 8;
+    // Filter/Search by NodeType (generally user or group)
     NodeType NodeType = 9;
 
-    // Shortcut for pydio:profile attribute
+    // Lookup by profile name (e.g. admin, standard, shared). This is a shortcut for searching on the pydio:profile attribute
     string HasProfile = 13;
-    // Compare to last connection date, starting with > or <
+    // Lookup by last connection date. Must be a timestamp with a leading comparison symbol ('<' or '>')
     string ConnectedSince = 14;
-
+    // Internal - Negate the query/filter result
     bool not = 10;
 }
 
@@ -285,15 +290,25 @@ message Workspace {
 }
 
 message WorkspaceSingleQuery {
+    // Lookup by workspace Uuid
     string uuid  = 1;
+    // Lookup by workspace Label
     string label = 2;
+    // Lookup by description
     string description = 3;
+    // Select workspace by slug
     string slug  = 4;
+    // Restrict to a specific workspace type
     WorkspaceScope scope = 5;
+    // Compared to workspace update date (Golang duration with a leading comparator < or >)
     string LastUpdated = 7;
+    // Lookup for the presence of a specific attribute, whatever its value
     string HasAttribute = 8;
+    // Lookup for an attribute, to be used in combination with AttributeValue
     string AttributeName = 9;
+    // Value used for comparison
     string AttributeValue = 10;
+    // Internal - Negate the query result
     bool not = 6;
 }
 
@@ -346,7 +361,9 @@ message SearchACLResponse{
 }
 
 message ACLAction{
+    // ACL Action name, most frequent values are "read" or "write"
     string Name = 1;
+    // ACL Action value
     string Value = 2;
 }
 
@@ -366,10 +383,15 @@ message ACL {
 }
 
 message ACLSingleQuery {
+    // List of Actions to lookup
     repeated ACLAction Actions = 1;
+    // Filter by one or more role UUID
     repeated string RoleIDs = 2;
+    // Filter by one or more workspace UUID
     repeated string WorkspaceIDs = 3;
+    // Filter by one or more node UUID
     repeated string NodeIDs = 4;
+    // Internal - Negate query
     bool not = 5;
 }
 

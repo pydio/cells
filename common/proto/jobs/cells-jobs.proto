@@ -106,13 +106,21 @@ message DataSourceSelector {
     string Timeout = 7;
 }
 
+// Atomic query for TriggerFilter
 message TriggerFilterQuery {
+    // Event was triggered by a programed schedule
     bool IsSchedule = 1;
+    // Event was triggered manually in the CellsFlows/Scheduler console
     bool IsManual = 2;
+    // Event was triggered by a WebHook (can be in the user space)
     bool IsApiHook = 4;
+    // Event was triggered by a specific WebHook (by its unique slug)
     string ApiHookSlug = 5;
+    // Filter by a name/value on a runtime defined parameter
     string RunParameterName = 6;
+    // Combined with RunParameterName, value used for comparison
     string RunParameterValue = 7;
+    // Event was trigger by one of these Events
     repeated string EventNames = 3;
 }
 
@@ -154,9 +162,9 @@ message ContextMetaFilter {
 
 // ContextMetaSingleQuery uses idm.PolicyCondition
 message ContextMetaSingleQuery {
-    // Condition applies to FieldName
+    // Field on which the Condition test will be applied
     string FieldName = 1;
-    // PolicyCondition
+    // One of the available conditions as defined for Security Policies
     idm.PolicyCondition Condition = 2;
 }
 

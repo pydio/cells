@@ -405,37 +405,47 @@ message ChangeLog{
 
 // Search Queries
 message Query {
-    // Preset list of nodes by Path
+    // List of nodes paths, exactly matching
     repeated string Paths = 13;
-    // Limit to a given subtree
+    // Recursive listing of nodes below a given path. Combine with the PathDepth parameter to limit request results
     repeated string PathPrefix = 1;
-    // Range for size
+    // Range for file size - size bigger than
     int64 MinSize = 2;
+    // Range for file size - size is smaller than
     int64 MaxSize = 3;
-    // Range for date
+    // Range for modification date - node was modified after this date
     int64 MinDate = 4;
+    // Range for modification date - node was modified before this date
     int64 MaxDate = 5;
-    // Pass a duration with > or < to compute MinDate / MaxDate
+    // Compute MinDate/MaxDate with a Golang duration with a leading comparator (> or <)
+    // Duration may contain "s" second, "m" minute, "d" day.
+    // Example: ">10m" for files modified before 10minutes ago
     string DurationDate = 16;
-    // Limit to a given node type
+    // Limit to a given node type (file or folder)
     NodeType Type = 6;
-    // Search in filename
+    // Lookup by file basename
     string FileName = 7;
-    // Search in content
+    // Search in textual content (if search engine has this feature enabled)
     string Content = 8;
-    // Search in either filename or content (but at least one of them)
+    // Search in either filename or content (if search engine has this feature enabled)
     string FileNameOrContent = 17;
-    // Free Query String (for metadata)
+    // Bleve-like search query to search for a specific metadata value.
+    // When querying nodes, this will redirect this query to the Search Engine. When filtering an input, this will load an in-memory bleve engine to evaluate the node.
+    //
+    // Bleve query string format is a space separated list of `[+-]key:value`, where node meta keys must be prepended with "Meta."
+    // For Example, for tags: `+Meta.usermeta-tags:myvalue`
     string FreeString = 9;
-    // Look for a specific eTag value
+    // Look for a specific ETag value, may only be useful to lookup for files with __temporary__ ETag
     string ETag = 18;
-    // Search files by extension
+    // Search files by their extension, use pipe symbol | if you wish to allow many extensions.
+    // Example png|pdf|jpg
     string Extension = 10;
     // Search geographically
     GeoQuery GeoQuery = 11;
-    // Limit to a given level of the tree - can be used in filters
+    // Restrict recursive listing to a given level of the tree starting from root.
+    // Special value "-1" should list only one level in the folder defined by PathPrefix
     int32 PathDepth = 12;
-    // Preset list of Node by UUIDs
+    // Preset list of specific node defined by their UUIDs
     repeated string UUIDs = 15;
     // Negate this query
     bool Not = 14;

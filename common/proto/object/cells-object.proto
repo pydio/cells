@@ -145,20 +145,35 @@ enum StorageTypeFilter {
 }
 
 message DataSourceSingleQuery {
+    // Lookup DataSource by Name
     string Name = 1;
+    // Check if DataSource is Disabled or not
     bool IsDisabled = 2;
+    // Restrict to a specific Storage Type
     StorageTypeFilter StorageType = 3;
+    // Restrict to a specific PeerAddress
     string PeerAddress = 4;
+    // Flat datasources (appeared at version 3) store the files in an "object storage" way, instead of keeping the folders structure
     bool FlatStorage = 5;
+    // Check if this flag is set
     bool SkipSyncOnRestart = 6;
+    // Restrict to DataSource where versioning is enabled
     bool IsVersioned = 9;
+    // Restrict to DataSource where encryption is enabled
     bool IsEncrypted = 17;
+    // Along with IsEncrypted, restrict EncryptionMode
     EncryptionMode EncryptionMode = 7;
+    // Along with IsEncrypted, lookup by encryption key Id
     string EncryptionKey = 8;
+    // Along with IsVersioned, lookup by versioning policy name
     string VersioningPolicyName = 10;
+    // Lookup a key in the StorageConfiguration map. Frequently used keys: cellsInternal, folder, normalize (refer to the low-level configuration)
     string StorageConfigurationName = 13;
+    // Combined with StorageConfigurationName, value used for comparison
     string StorageConfigurationValue = 14;
+    // Restrict datasource attached to a specific Object service (see Services list)
     string ObjectServiceName = 15;
+    // Internal - Negate the query result
     bool Not = 16;
 }
 
