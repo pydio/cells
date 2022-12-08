@@ -116,23 +116,20 @@ func (s *service) Is(status registry.Status) bool {
 
 func (s *service) Metadata() map[string]string {
 	// Create a copy to append internal status as metadata
-	cp := make(map[string]string, len(s.opts.Metadata)+1)
-	for k, v := range s.opts.Metadata {
-		cp[k] = v
-	}
-	cp[registry.MetaStatusKey] = string(s.status)
-	cp[registry.MetaDescriptionKey] = s.opts.Description
+	clone := maps.Clone(s.opts.Metadata)
+	clone[registry.MetaStatusKey] = string(s.status)
+	clone[registry.MetaDescriptionKey] = s.opts.Description
 	if s.opts.Unique {
-		cp[registry.MetaUniqueKey] = "unique"
+		clone[registry.MetaUniqueKey] = "unique"
 	}
 	if len(s.opts.Storages) > 0 {
 		for _, so := range s.opts.Storages {
 			if len(so.SupportedDrivers) > 0 {
-				cp[so.StorageKey] = so.ToMeta()
+				clone[so.StorageKey] = so.ToMeta()
 			}
 		}
 	}
-	return cp
+	return clone
 }
 
 func (s *service) SetMetadata(meta map[string]string) {

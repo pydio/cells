@@ -52,7 +52,8 @@ type Opener struct{}
 
 func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error) {
 	// TODO : transform url parameters to options?
-	return New(ctx), nil
+	name := u.Query().Get("name")
+	return New(ctx, WithName(name)), nil
 }
 
 type Server struct {
@@ -76,10 +77,16 @@ func New(ctx context.Context, opt ...Option) server.Server {
 	for _, o := range opt {
 		o(opts)
 	}
+
+	// Defaults
+	if opts.Name == "" {
+		opts.Name = "grpc"
+	}
+
 	ctx, cancel := context.WithCancel(ctx)
 	return server.NewServer(ctx, &Server{
 		id:   "grpc-" + uuid.New(),
-		name: "grpc",
+		name: opts.Name,
 		meta: make(map[string]string),
 
 		ctx:    ctx,
