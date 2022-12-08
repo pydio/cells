@@ -213,13 +213,16 @@ func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bc
 	if val.Get() != nil {
 		itemsMap := map[string]interface{}{}
 		if err := val.Default(map[string]interface{}{}).Scan(itemsMap); err != nil {
-			fmt.Println("Error while scanning registry watch event to map[string]interface{}", err)
+			log.Error("Error while scanning registry watch event to map[string]interface{}", zap.Error(err))
 			return err
 		}
 		var items []registry.Item
 		for k, _ := range itemsMap {
-			item, _ := c.Get(k, registry.WithType(bcType))
-			items = append(items, item)
+			if item, err := c.Get(k, registry.WithType(bcType)); err != nil {
+				log.Error("Error retrieving item", zap.Error(err))
+			} else {
+				items = append(items, item)
+			}
 		}
 		select {
 		case bc.Ch <- registry.NewResult(actionType, items):

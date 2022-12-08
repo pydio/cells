@@ -276,10 +276,6 @@ func (f *file) Unlock() {
 	f.locker.Unlock()
 }
 
-func (f *file) NewLocker(name string) sync.Locker {
-	return f.mainMtx
-}
-
 func (f *file) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 	o := &configx.WatchOptions{}
 	for _, opt := range opts {
