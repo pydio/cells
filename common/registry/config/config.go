@@ -217,11 +217,14 @@ func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bc
 			return err
 		}
 		var items []registry.Item
-		for k, _ := range itemsMap {
-			if item, err := c.Get(k, registry.WithType(bcType)); err != nil {
-				log.Error("Error retrieving item", zap.Error(err))
-			} else {
+		for k, v := range itemsMap {
+			if item, ok := v.(registry.Item); ok {
 				items = append(items, item)
+			} else {
+				// For updates mainly, we may receive only parts of the item, so retrieving the full item in the registry
+				if item, err := c.Get(k, registry.WithType(bcType)); err == nil {
+					items = append(items, item)
+				}
 			}
 		}
 		select {
