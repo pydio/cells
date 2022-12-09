@@ -23,17 +23,19 @@ package server
 import (
 	"context"
 	"fmt"
+
 	"github.com/pkg/errors"
+	"golang.org/x/exp/maps"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/pydio/cells/v4/common/registry"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"golang.org/x/sync/errgroup"
 )
 
 type CoreServer interface {
 	Name() string
 	ID() string
 	Type() Type
-	Metadata() map[string]string
 	As(interface{}) bool
 }
 
@@ -50,6 +52,7 @@ type Server interface {
 
 	Is(status registry.Status) bool
 	NeedsRestart() bool
+	Metadata() map[string]string
 }
 
 type Type int8
@@ -63,20 +66,20 @@ const (
 )
 
 type server struct {
-	s      RawServer
-	opts   *Options
-	status registry.Status
-	links  []registry.Item
+	s     RawServer
+	opts  *Options
+	links []registry.Item
 }
 
 func NewServer(ctx context.Context, s RawServer) Server {
-
 	srv := &server{
 		s: s,
 		opts: &Options{
 			Context: ctx,
+			Metadata: map[string]string{
+				registry.MetaStatusKey: string(registry.StatusStopped),
+			},
 		},
-		status: registry.StatusStopped,
 	}
 
 	if reg := servercontext.GetRegistry(ctx); reg != nil {
@@ -162,7 +165,9 @@ func (s *server) Stop(oo ...registry.RegisterOption) error {
 		if er := reg.Deregister(s, registry.WithRegisterFailFast()); er != nil {
 			return er
 		} else if !opts.DeregisterFull {
-			s.status = registry.StatusStopped
+			meta := s.Metadata()
+			meta[registry.MetaStatusKey] = string(registry.StatusStopped)
+			s.SetMetadata(meta)
 			_ = reg.Register(s, registry.WithRegisterFailFast())
 		}
 	}
@@ -182,27 +187,8 @@ func (s *server) Type() Type {
 	return s.s.Type()
 }
 
-func (s *server) Metadata() map[string]string {
-	meta := make(map[string]string)
-	for k, v := range s.s.Metadata() {
-		meta[k] = v
-	}
-	meta[registry.MetaStatusKey] = string(s.status)
-	return meta
-}
-
-func (s *server) SetMetadata(meta map[string]string) {
-	if status, ok := meta[registry.MetaStatusKey]; ok {
-		s.status = registry.Status(status)
-	}
-
-	if ms, ok := s.s.(registry.MetaSetter); ok {
-		ms.SetMetadata(meta)
-	}
-}
-
 func (s *server) Is(status registry.Status) bool {
-	return s.status == status
+	return s.Metadata()[registry.MetaStatusKey] == string(status)
 }
 
 func (s *server) NeedsRestart() bool {
@@ -219,4 +205,26 @@ func (s *server) As(i interface{}) bool {
 	}
 
 	return s.s.As(i)
+}
+
+func (s *server) Metadata() map[string]string {
+	meta := maps.Clone(s.opts.Metadata)
+	return meta
+}
+
+func (s *server) SetMetadata(meta map[string]string) {
+	s.opts.Metadata = meta
+}
+
+func (s *server) Clone() interface{} {
+	cloneOptions := &Options{}
+	clone := &server{}
+
+	*cloneOptions = *s.opts
+	cloneOptions.Metadata = s.Metadata()
+
+	*clone = *s
+	clone.opts = cloneOptions
+
+	return clone
 }

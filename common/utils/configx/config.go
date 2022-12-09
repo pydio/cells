@@ -30,6 +30,8 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 )
 
 var (
@@ -93,6 +95,8 @@ type Value interface {
 	StringArray() []string
 	Slice() []interface{}
 	Map() map[string]interface{}
+
+	Clone() Value
 
 	Scanner
 }
@@ -338,7 +342,14 @@ func (c *config) Set(data interface{}) error {
 			c.opts.SetCallback(c.k, data)
 		}
 
-		c.v = data
+		switch v := data.(type) {
+		case []interface{}:
+			c.v = slices.Clone(v)
+		case map[string]interface{}:
+			c.v = maps.Clone(v)
+		default:
+			c.v = data
+		}
 
 		return nil
 	}
@@ -389,7 +400,7 @@ func (c *config) Set(data interface{}) error {
 		if cap(m) < kk+1 {
 			mm = make([]interface{}, kk+1)
 		} else {
-			mm = make([]interface{}, len(m))
+			mm = make([]interface{}, cap(m))
 		}
 
 		copy(mm, m)
@@ -880,4 +891,8 @@ func (c *config) UnmarshalJSON(data []byte) error {
 
 func (c *config) MarshalJSON() ([]byte, error) {
 	return c.opts.Marshaller.Marshal(c.v)
+}
+
+func (c *config) Clone() Value {
+	return c
 }

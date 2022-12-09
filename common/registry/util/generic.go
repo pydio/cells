@@ -37,7 +37,7 @@ func CreateEndpoint(name string, meta map[string]string) registry.Generic {
 
 func ToProtoGeneric(e registry.Generic) *pb.Generic {
 	if dd, ok := e.(*generic); ok {
-		return dd.e
+		return dd.E
 	}
 	return &pb.Generic{
 		Type: e.Type(),
@@ -45,16 +45,16 @@ func ToProtoGeneric(e registry.Generic) *pb.Generic {
 }
 
 func ToGeneric(i *pb.Item, e *pb.Generic) registry.Generic {
-	return &generic{i: i, e: e}
+	return &generic{I: i, E: e}
 }
 
 type generic struct {
-	i *pb.Item
-	e *pb.Generic
+	I *pb.Item
+	E *pb.Generic
 }
 
 func (d *generic) Type() pb.ItemType {
-	return d.e.Type
+	return d.E.Type
 }
 
 func (d *generic) Equals(differ merger.Differ) bool {
@@ -81,15 +81,15 @@ func (d *generic) Merge(differ merger.Differ, m map[string]string) (merger.Diffe
 }
 
 func (d *generic) Name() string {
-	return d.i.Name
+	return d.I.Name
 }
 
 func (d *generic) ID() string {
-	return d.i.Id
+	return d.I.Id
 }
 
 func (d *generic) Metadata() map[string]string {
-	return d.i.Metadata
+	return d.I.Metadata
 }
 
 func (d *generic) As(i interface{}) bool {

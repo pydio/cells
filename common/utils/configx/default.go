@@ -115,3 +115,6 @@ func (d *def) Scan(val interface{}, opts ...Option) error {
 
 	return err
 }
+func (d *def) Clone() Value {
+	return d
+}

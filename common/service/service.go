@@ -34,6 +34,7 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"go.uber.org/zap"
+	"golang.org/x/exp/maps"
 	"sync"
 )
 
@@ -115,23 +116,20 @@ func (s *service) Is(status registry.Status) bool {
 
 func (s *service) Metadata() map[string]string {
 	// Create a copy to append internal status as metadata
-	cp := make(map[string]string, len(s.opts.Metadata)+1)
-	for k, v := range s.opts.Metadata {
-		cp[k] = v
-	}
-	cp[registry.MetaStatusKey] = string(s.status)
-	cp[registry.MetaDescriptionKey] = s.opts.Description
+	clone := maps.Clone(s.opts.Metadata)
+	clone[registry.MetaStatusKey] = string(s.status)
+	clone[registry.MetaDescriptionKey] = s.opts.Description
 	if s.opts.Unique {
-		cp[registry.MetaUniqueKey] = "unique"
+		clone[registry.MetaUniqueKey] = "unique"
 	}
 	if len(s.opts.Storages) > 0 {
 		for _, so := range s.opts.Storages {
 			if len(so.SupportedDrivers) > 0 {
-				cp[so.StorageKey] = so.ToMeta()
+				clone[so.StorageKey] = so.ToMeta()
 			}
 		}
 	}
-	return cp
+	return clone
 }
 
 func (s *service) SetMetadata(meta map[string]string) {
@@ -373,4 +371,18 @@ func (s *service) MarshalJSON() ([]byte, error) {
 
 func (s *service) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, s.opts)
+}
+
+func (s *service) Clone() interface{} {
+
+	cloneOptions := &ServiceOptions{}
+	clone := &service{}
+
+	*cloneOptions = *s.opts
+	cloneOptions.Metadata = maps.Clone(s.opts.Metadata)
+
+	*clone = *s
+	clone.opts = cloneOptions
+
+	return clone
 }

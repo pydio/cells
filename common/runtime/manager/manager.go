@@ -30,7 +30,6 @@ import (
 
 	"github.com/bep/debounce"
 	"go.uber.org/zap"
-	"golang.org/x/exp/maps"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/pydio/cells/v4/common"
@@ -213,10 +212,14 @@ func (m *manager) ServeAll(oo ...server.ServeOption) {
 	if locker := m.reg.NewLocker("start-node-" + m.ns); locker != nil {
 		locker.Lock()
 
-		// TODO - need to watch with id
-		w, err := m.reg.Watch(registry.WithID(m.root.ID()), registry.WithType(pb.ItemType_NODE))
+		w, err := m.reg.Watch(registry.WithID(m.root.ID()), registry.WithType(pb.ItemType_NODE), registry.WithFilter(func(item registry.Item) bool {
+			if item.Metadata()[registry.MetaStatusKey] == string(registry.StatusReady) {
+				return true
+			}
+
+			return false
+		}))
 		if err != nil {
-			fmt.Println("Unlocking node with error ", err)
 			locker.Unlock()
 			return
 		}
@@ -227,7 +230,6 @@ func (m *manager) ServeAll(oo ...server.ServeOption) {
 			for {
 				res, err := w.Next()
 				if err != nil {
-					fmt.Println("Unlocking node wth watch error ", err)
 					return
 				}
 
@@ -235,10 +237,7 @@ func (m *manager) ServeAll(oo ...server.ServeOption) {
 					continue
 				}
 
-				if res.Items()[0].Metadata()[registry.MetaStatusKey] == string(registry.StatusReady) {
-					// Releasing the lock
-					break
-				}
+				break
 			}
 		}()
 	}
@@ -319,6 +318,11 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 	if len(uniques) > 0 {
 		go m.WatchServerUniques(srv, uniques, detectedCount)
 	}
+
+	registry.NewMetaWrapper(m.reg, func(meta map[string]string) {
+		meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+	}).Register(srv)
+
 	return srv.Serve(opts...)
 }
 
@@ -532,10 +536,9 @@ func (m *manager) WatchTransientStatus() {
 				}
 			}
 
-			// TODO - should be looking only for transient but suspected pb with watch
-			/*if status, ok := item.Metadata()[registry.MetaStatusKey]; !ok || status != string(registry.StatusTransient) {
+			if status, ok := item.Metadata()[registry.MetaStatusKey]; !ok || status != string(registry.StatusTransient) {
 				return false
-			}*/
+			}
 			return true
 		}),
 	}
@@ -548,26 +551,25 @@ func (m *manager) WatchTransientStatus() {
 		}
 
 		for _, i := range res.Items() {
+			statusToSet := string(registry.StatusReady)
 			items := m.reg.ListAdjacentItems(i, registry.WithType(pb.ItemType_SERVICE))
-			status := string(registry.StatusReady)
 			for _, item := range items {
-				if item.Metadata()[registry.MetaStatusKey] != string(registry.StatusReady) && item.Metadata()[registry.MetaStatusKey] != string(registry.StatusWaiting) {
-					status = string(registry.StatusTransient)
+				itemStatus := item.Metadata()[registry.MetaStatusKey]
+				if itemStatus != string(registry.StatusReady) && itemStatus != string(registry.StatusWaiting) {
+					statusToSet = string(registry.StatusTransient)
 					break
 				}
 			}
 
-			if i.Metadata() != nil && i.Metadata()[registry.MetaStatusKey] != status {
-				if ms, ok := i.(registry.MetaSetter); ok {
-					meta := maps.Clone(i.Metadata())
-					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-					meta[registry.MetaStatusKey] = status
-					ms.SetMetadata(meta)
+			if ms, ok := i.(registry.MetaSetter); ok {
+				meta := i.Metadata()
+				meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+				meta[registry.MetaStatusKey] = statusToSet
+				ms.SetMetadata(meta)
 
-					m.reg.Register(i)
-				} else {
-					fmt.Println("Could not set in server")
-				}
+				m.reg.Register(i)
+			} else {
+				fmt.Println("Could not set in transient")
 			}
 		}
 	}

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/r3labs/diff/v3"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -22,7 +23,7 @@ var (
 
 type URLOpener struct{}
 
-const timeout = 2 * time.Second
+const timeout = 500 * time.Millisecond
 
 func init() {
 	o := &URLOpener{}
@@ -60,20 +61,17 @@ type memory struct {
 	reset chan bool
 	timer *time.Timer
 
-	locker      *sync.RWMutex
-	lockersLock *sync.RWMutex
-	lockers     map[string]*sync.RWMutex
+	locker *sync.RWMutex
 }
 
 func New(opts ...configx.Option) config.Store {
 	m := &memory{
-		v:           configx.New(opts...),
-		opts:        opts,
-		locker:      &sync.RWMutex{},
-		lockersLock: &sync.RWMutex{},
-		lockers:     make(map[string]*sync.RWMutex),
-		reset:       make(chan bool),
-		timer:       time.NewTimer(timeout),
+		v:      configx.New(opts...),
+		opts:   opts,
+		locker: &sync.RWMutex{},
+		reset:  make(chan bool),
+		timer:  time.NewTimer(timeout),
+		snap:   configx.New(opts...),
 	}
 
 	go m.flush()
@@ -87,10 +85,18 @@ func (m *memory) flush() {
 		case <-m.reset:
 			m.timer.Reset(timeout)
 		case <-m.timer.C:
-			patch, err := diff.Diff(m.snap, m.v)
+
+			patch, err := diff.Diff(m.snap.Interface(), m.v.Interface())
 			if err != nil {
 				continue
 			}
+
+			snap := configx.New(m.opts...)
+			if err := snap.Set(Clone(m.v.Interface())); err != nil {
+				continue
+			}
+
+			m.snap = snap
 
 			for _, op := range patch {
 				var updated []*receiver
@@ -104,14 +110,42 @@ func (m *memory) flush() {
 				m.receivers = updated
 			}
 
-			snap := configx.New(m.opts...)
-			if err := snap.Set(m.v.Val().Get()); err != nil {
-				continue
-			}
-
-			m.snap = snap
 		}
 	}
+}
+
+type Cloneable interface {
+	Clone() interface{}
+}
+
+func Clone[T ~map[string]any | ~[]any | any](t T) T {
+
+	switch vv := (interface{})(t).(type) {
+	case map[string]any:
+		var ret = make(map[string]any, len(vv))
+		for k, v := range vv {
+			ret[k] = Clone(v)
+		}
+
+		return (interface{})(ret).(T)
+	case []any:
+		var ret = make([]any, len(vv))
+		for _, v := range vv {
+			ret = append(ret, v)
+		}
+
+		return (interface{})(ret).(T)
+	case any:
+		if msg, ok := vv.(proto.Message); ok {
+			return (interface{})(proto.Clone(msg)).(T)
+		}
+
+		if c, ok := vv.(Cloneable); ok {
+			return (c.Clone()).(T)
+		}
+	}
+
+	return t
 }
 
 func (m *memory) update() {
@@ -163,20 +197,6 @@ func (m *memory) Lock() {
 
 func (m *memory) Unlock() {
 	m.locker.Unlock()
-}
-
-func (m *memory) NewLocker(name string) sync.Locker {
-	m.lockersLock.RLock()
-	locker, ok := m.lockers[name]
-	m.lockersLock.RUnlock()
-	if !ok {
-		locker = &sync.RWMutex{}
-
-		m.lockersLock.Lock()
-		m.lockers[name] = locker
-		m.lockersLock.Unlock()
-	}
-	return locker
 }
 
 func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
@@ -241,11 +261,11 @@ func (r *receiver) Next() (interface{}, error) {
 			if r.changesOnly {
 				for _, op := range changes {
 					if op.Type == diff.DELETE {
-						if err := c.Val(op.Type).Val(op.Path[1:]...).Set(op.From); err != nil {
+						if err := c.Val(op.Type).Val(op.Path...).Set(op.From); err != nil {
 							return nil, err
 						}
 					} else {
-						if err := c.Val(op.Type).Val(op.Path[1:]...).Set(op.To); err != nil {
+						if err := c.Val(op.Type).Val(op.Path...).Set(op.To); err != nil {
 							return nil, err
 						}
 					}
@@ -255,7 +275,7 @@ func (r *receiver) Next() (interface{}, error) {
 			}
 
 			for _, op := range changes {
-				if err := c.Val(op.Path[1:]...).Set(op.To); err != nil {
+				if err := c.Val(op.Path...).Set(op.To); err != nil {
 					return nil, err
 				}
 			}

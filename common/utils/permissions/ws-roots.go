@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"google.golang.org/protobuf/types/known/anypb"
-	
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
@@ -41,7 +41,7 @@ func CheckDefinedRootsForWorkspace(ctx context.Context, ws *idm.Workspace, resol
 			return e
 		}
 		if r, e := c.Recv(); e != nil || r == nil || r.GetNode() == nil || r.GetNode().GetUuid() == "" {
-			return fmt.Errorf("cannot find root node for uuid " + nodeId)
+			return fmt.Errorf("cannot find root node for uuid "+nodeId, e)
 		} else {
 			log.Logger(ctx).Debug("PutWorkspace : found root node", r.GetNode().Zap("root"))
 		}

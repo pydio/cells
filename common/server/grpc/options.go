@@ -25,8 +25,15 @@ import "net"
 type Option func(*Options)
 
 type Options struct {
+	Name     string
 	Addr     string
 	Listener net.Listener
+}
+
+func WithName(name string) Option {
+	return func(o *Options) {
+		o.Name = name
+	}
 }
 
 func WithAddr(addr string) Option {

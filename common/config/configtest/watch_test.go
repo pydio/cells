@@ -23,10 +23,10 @@ package configtest
 import (
 	"fmt"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"testing"
-	"time"
-
 	. "github.com/smartystreets/goconvey/convey"
+	"golang.org/x/exp/maps"
+	"sync"
+	"testing"
 
 	"github.com/pydio/cells/v4/common/config"
 	// Plugins to test
@@ -38,23 +38,62 @@ import (
 func testWatch(t *testing.T, store config.Store) {
 	Convey("Given a default config initialised in a temp directory", t, func() {
 		Convey("Simple GetSet Works", func() {
+			wg := &sync.WaitGroup{}
+			//wg.Add(1)
 			go func() {
 				w, _ := store.Watch()
 
 				for {
 					res, err := w.Next()
 					if err != nil {
+						wg.Done()
 						return
 					}
 
 					fmt.Println(string(res.(configx.Values).Bytes()))
+					wg.Done()
 				}
 			}()
 
+			//wg.Wait()
+
 			store.Val("first/second").Set("whatever")
-			<-time.After(1 * time.Second)
+			wg.Wait()
 			store.Val("first/third").Set("whatever2")
-			<-time.After(3 * time.Second)
+			wg.Wait()
+
+			meta := make(map[string]string)
+			meta["test"] = "test"
+
+			val := Teststruct{Name: "test", Meta: meta}
+
+			fmt.Println("Setting val")
+			wg.Add(1)
+			store.Val("val").Set(val)
+			wg.Wait()
+
+			val.Name = "test2"
+			meta["test"] = "test2"
+
+			fmt.Println("Setting second val")
+			wg.Add(1)
+			store.Val("val").Set(val)
+			wg.Wait()
+
+			fmt.Println("Finished")
 		})
 	})
+}
+
+type Teststruct struct {
+	Name string            `diff:"Name"`
+	Meta map[string]string `diff:"Meta"`
+}
+
+func (s Teststruct) Clone() interface{} {
+	clone := Teststruct{}
+	clone = s
+	clone.Meta = maps.Clone(s.Meta)
+
+	return clone
 }

@@ -21,8 +21,9 @@
 package config
 
 import (
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"sync"
+
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
@@ -42,6 +43,9 @@ type Store interface {
 	Done() <-chan struct{}
 	Saver
 	sync.Locker
+}
+
+type DistributedStore interface {
 	NewLocker(name string) sync.Locker
 }
 

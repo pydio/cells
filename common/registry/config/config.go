@@ -211,14 +211,21 @@ func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bc
 	values := res.Val(keyName)
 	val := values.Val(getFromItemType(bcType))
 	if val.Get() != nil {
-		itemsMap := map[string]registry.Item{}
-		if err := val.Default(map[string]registry.Item{}).Scan(itemsMap); err != nil {
-			fmt.Println("Error while scanning registry watch event to map[string]registry.Item", err)
+		itemsMap := map[string]interface{}{}
+		if err := val.Default(map[string]interface{}{}).Scan(itemsMap); err != nil {
+			log.Error("Error while scanning registry watch event to map[string]interface{}", zap.Error(err))
 			return err
 		}
 		var items []registry.Item
-		for _, i := range itemsMap {
-			items = append(items, i)
+		for k, v := range itemsMap {
+			if item, ok := v.(registry.Item); ok {
+				items = append(items, item)
+			} else {
+				// For updates mainly, we may receive only parts of the item, so retrieving the full item in the registry
+				if item, err := c.Get(k, registry.WithType(bcType)); err == nil {
+					items = append(items, item)
+				}
+			}
 		}
 		select {
 		case bc.Ch <- registry.NewResult(actionType, items):
@@ -520,7 +527,11 @@ func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error
 }
 
 func (c *configRegistry) NewLocker(name string) sync.Locker {
-	return c.store.NewLocker(name)
+	if ds, ok := c.store.(config.DistributedStore); ok {
+		return ds.NewLocker(name)
+	}
+
+	return nil
 }
 
 func (c *configRegistry) As(interface{}) bool {
