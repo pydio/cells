@@ -28,10 +28,15 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	minio "github.com/minio/minio/cmd"
 	"github.com/minio/minio/pkg/console"
+	"github.com/sethvargo/go-limiter/httplimit"
+	"github.com/sethvargo/go-limiter/memorystore"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
@@ -152,6 +157,25 @@ func (g *gatewayDataServer) Start(ctx context.Context) error {
 	os.Setenv("MINIO_BROWSER", "off")
 	os.Setenv("MINIO_ROOT_USER", common.S3GatewayRootUser)
 	os.Setenv("MINIO_ROOT_PASSWORD", common.S3GatewayRootPassword)
+
+	if rateLimit, err := strconv.Atoi(os.Getenv("CELLS_WEB_RATE_LIMIT")); err == nil {
+		limiterConfig := &memorystore.Config{
+			// Number of tokens allowed per interval.
+			Tokens: uint64(rateLimit),
+			// Interval until tokens reset.
+			Interval: time.Second,
+		}
+		if store, err := memorystore.New(limiterConfig); err == nil {
+			if mw, er := httplimit.NewMiddleware(store, httplimit.IPKeyFunc()); er == nil {
+				log.Logger(ctx).Debug("Wrapping MinioMiddleware into Rate Limiter", zap.Int("reqpersec", rateLimit))
+				minio.HookRegisterGlobalHandler(mw.Handle)
+			} else {
+				log.Logger(ctx).Warn("Could not initialize RateLimiter for minio: "+er.Error(), zap.Error(er))
+			}
+		} else {
+			log.Logger(ctx).Warn("Could not initialize RateLimiter for minio: "+err.Error(), zap.Error(err))
+		}
+	}
 
 	minio.HookRegisterGlobalHandler(serverhttp.ContextMiddlewareHandler(middleware.ClientConnIncomingContext(ctx)))
 	minio.HookRegisterGlobalHandler(serverhttp.ContextMiddlewareHandler(middleware.RegistryIncomingContext(ctx)))
