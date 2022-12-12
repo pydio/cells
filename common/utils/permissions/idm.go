@@ -524,7 +524,7 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 	user = resp.GetUser()
 	// Store to quick cache
 	if len(queries) == 0 {
-		if uuid == "" {
+		if uuid != "" {
 			_ = getUsersCache().Set(uuid, user)
 		} else if login != "" {
 			_ = getUsersCache().Set(login, user)
