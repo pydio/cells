@@ -99,3 +99,4 @@ See the list of [contributors](https://github.com/pydio/cells/graphs/contributor
 ## License
 
 This project is licensed under the AGPLv3 License - see the [LICENSE](LICENSE) file for more details.
+
