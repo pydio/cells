@@ -28,6 +28,7 @@ import (
 	"time"
 
 	lkauth "github.com/livekit/protocol/auth"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/pydio/melody"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -266,6 +267,7 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 			}
 			message := chatMsg.Message
 			message.Author = userName
+			message.Message = bluemonday.UGCPolicy().Sanitize(message.Message)
 			message.Timestamp = time.Now().Unix()
 			_, e := chatClient.PostMessage(ctx, &chat.PostMessageRequest{
 				Messages: []*chat.ChatMessage{message},
