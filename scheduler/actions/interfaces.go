@@ -25,6 +25,7 @@ package actions
 
 import (
 	"context"
+	"io"
 	"time"
 
 	"github.com/pydio/cells/v4/common"
@@ -155,4 +156,35 @@ func (r *RunnableChannels) BlockUntilResume(ctx context.Context, maxPauseTime ..
 		}
 	}()
 	return blocker
+}
+
+// WrapReader wraps a reader (or a readCloser) into an io.ReadCloser and publishes the progress on the channels.Progress
+func (r *RunnableChannels) WrapReader(readerOrCloser io.Reader, targetSize int64) io.ReadCloser {
+	return &progressReadCloser{
+		internal: readerOrCloser,
+		target:   targetSize,
+		pg:       r.Progress,
+	}
+}
+
+// Internal struct to wrap reader and monitor progress
+type progressReadCloser struct {
+	internal io.Reader
+	total    int64
+	target   int64
+	pg       chan float32
+}
+
+func (r *progressReadCloser) Read(p []byte) (n int, err error) {
+	n, err = r.internal.Read(p)
+	r.total += int64(n)
+	r.pg <- float32(float64(r.total) / float64(r.target))
+	return n, err
+}
+
+func (r *progressReadCloser) Close() error {
+	if rc, ok := r.internal.(io.ReadCloser); ok {
+		return rc.Close()
+	}
+	return nil
 }
