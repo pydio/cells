@@ -30,6 +30,7 @@ import (
 	"fmt"
 	"hash"
 	"io"
+	"path"
 
 	"golang.org/x/crypto/md4"
 
@@ -81,6 +82,7 @@ func (c *CellsHashAction) GetDescription(lang ...string) actions.ActionDescripti
 	}
 }
 
+// GetParametersForm returns parameters
 func (c *CellsHashAction) GetParametersForm() *forms.Form {
 	return &forms.Form{
 		Groups: []*forms.Group{
@@ -122,6 +124,11 @@ func (c *CellsHashAction) GetParametersForm() *forms.Form {
 	}
 }
 
+// ProvidesProgress implements interface to advertise about progress publication
+func (c *CellsHashAction) ProvidesProgress() bool {
+	return true
+}
+
 // GetName returns this action unique identifier
 func (c *CellsHashAction) GetName() string {
 	return cellsHashActionName
@@ -149,6 +156,9 @@ func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableCha
 	if len(input.Nodes) == 0 {
 		return input.WithIgnore(), nil // Ignore
 	}
+	if !input.Nodes[0].IsLeaf() || path.Base(input.Nodes[0].Path) == common.PydioSyncHiddenFile {
+		return input.WithIgnore(), nil
+	}
 
 	forceRecompute, _ := jobs.EvaluateFieldBool(ctx, input, c.forceRecompute)
 	hashType := jobs.EvaluateFieldStr(ctx, input, c.hashType)
@@ -165,7 +175,7 @@ func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableCha
 	}
 	ctx = ct
 	mc := tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceMeta))
-	var outnodes []*tree.Node
+	var outNodes []*tree.Node
 	for _, node := range input.Nodes {
 		if node.Etag == "" {
 			// Reload node if necessary
@@ -183,27 +193,37 @@ func (c *CellsHashAction) Run(ctx context.Context, channels *actions.RunnableCha
 		if er != nil {
 			return input.WithError(er), er
 		}
+		status := "Scanning contents of " + path.Base(node.GetPath())
+		if node.Size > 500*1024*1024 {
+			status += " (this can take some time)"
+		}
+		channels.StatusMsg <- status
+
+		// Wrap reader for progress and read it into the hash computer
+		rc = channels.WrapReader(rc, node.Size)
 		bh := factory()
 		if _, er := io.Copy(bh, rc); er != nil {
-			rc.Close()
+			_ = rc.Close()
 			return input.WithError(er), er
 		}
-		rc.Close()
-		hash := hex.EncodeToString(bh.Sum(nil))
+		_ = rc.Close()
+
+		// Flush hash and encode to base64
+		hh := hex.EncodeToString(bh.Sum(nil))
 		n := node.Clone()
 		n.MetaStore = make(map[string]string)
-		n.MustSetMeta(metaName, hash)
+		n.MustSetMeta(metaName, hh)
 		if _, er = mc.UpdateNode(ctx, &tree.UpdateNodeRequest{From: n, To: n}); er != nil {
 			return input.WithError(er), er
 		} else {
-			log.TasksLogger(ctx).Info("Computed " + metaName + " for " + n.GetPath() + ": " + hash)
+			log.TasksLogger(ctx).Info("Computed " + metaName + " for " + n.GetPath() + ": " + hh)
 		}
-		node.MustSetMeta(metaName, hash)
-		outnodes = append(outnodes, node)
+		node.MustSetMeta(metaName, hh)
+		outNodes = append(outNodes, node)
 	}
 
 	// Reset and replace nodes
-	output := input.WithNode(nil).WithNodes(outnodes...)
+	output := input.WithNode(nil).WithNodes(outNodes...)
 	output.AppendOutput(&jobs.ActionOutput{Success: true})
 
 	return output, nil
