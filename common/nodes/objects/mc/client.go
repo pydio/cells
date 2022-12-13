@@ -176,8 +176,12 @@ func (c *Client) StatObject(ctx context.Context, bucketName, objectName string, 
 }
 
 func (c *Client) PutObject(ctx context.Context, bucketName, objectName string, reader io.Reader, objectSize int64, opts models.PutMeta) (n models.ObjectInfo, err error) {
-	if objectSize < 0 {
-		ui, er := c.mc.Client.PutObject(ctx, bucketName, objectName, reader, objectSize, putMetaToMinioOpts(opts))
+	if objectSize < 0 || objectSize > c.CopyObjectMultipartThreshold() {
+		mo := putMetaToMinioOpts(opts)
+		_, partSize, _ := optimalPartInfo(objectSize)
+		mo.PartSize = uint64(partSize)
+
+		ui, er := c.mc.Client.PutObject(ctx, bucketName, objectName, reader, objectSize, mo)
 		if er != nil {
 			return models.ObjectInfo{}, er
 		} else {

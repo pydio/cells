@@ -74,7 +74,7 @@ func (c *Client) CopyObjectMultipart(ctx context.Context, srcObject models.Objec
 		log.Logger(ctx).Error("New Multipart Error", zap.Error(err))
 		return err
 	}
-	partSize := srcObject.Size / 10
+
 	totalPartsCount, partSize, lastPartSize := optimalPartInfo(srcObject.Size)
 	var parts []minio.CompletePart
 	queue := make(chan struct{}, 15)
