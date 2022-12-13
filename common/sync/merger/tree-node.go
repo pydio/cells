@@ -124,8 +124,8 @@ func TreeNodeFromSource(ctx context.Context, source model.PathSyncSource, root s
 				if statusChan != nil {
 					statusChan <- model.NewProcessingStatus(fmt.Sprintf("Computing hash for %s", p)).SetEndpoint(uri).SetNode(node)
 				}
-				if e := checksumProvider.ComputeChecksum(node); e != nil {
-					log.Logger(ctx).Error("Cannot compute checksum for "+node.Path, zap.Error(e))
+				if e := checksumProvider.ComputeChecksum(ctx, node); e != nil {
+					log.Logger(ctx).Error("Skipping checksum on error for "+node.Path, zap.Error(e))
 					if statusChan != nil {
 						statusChan <- model.NewProcessingStatus(fmt.Sprintf("Could not compute hash for %s", p)).SetEndpoint(uri).SetNode(node).SetError(e)
 					}

@@ -386,7 +386,7 @@ func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 }
 
 // ComputeChecksum is not implemented
-func (c *Abstract) ComputeChecksum(node *tree.Node) error {
+func (c *Abstract) ComputeChecksum(ctx context.Context, node *tree.Node) error {
 	return fmt.Errorf("not.implemented")
 }
 
@@ -510,13 +510,13 @@ func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 }
 
 // GetReaderOn retrieves an io.ReadCloser from the S3 Get operation
-func (c *Abstract) GetReaderOn(p string) (out io.ReadCloser, err error) {
+func (c *Abstract) GetReaderOn(ctx context.Context, p string) (out io.ReadCloser, err error) {
 	n := &tree.Node{Path: c.rooted(p)}
-	ctx, cli, err := c.Factory.GetObjectsClient(c.getContext())
+	ct, cli, err := c.Factory.GetObjectsClient(c.getContext(ctx))
 	if err != nil {
 		return nil, err
 	}
-	o, e := cli.GetObject(ctx, n, &models.GetRequestData{StartOffset: 0, Length: -1})
+	o, e := cli.GetObject(ct, n, &models.GetRequestData{StartOffset: 0, Length: -1})
 	return o, e
 }
 

@@ -151,7 +151,7 @@ type PathSyncSource interface {
 // ChecksumProvider is able to compute a checksum for a given node (typically an Etag)
 type ChecksumProvider interface {
 	Endpoint
-	ComputeChecksum(node *tree.Node) error
+	ComputeChecksum(ctx context.Context, node *tree.Node) error
 }
 
 // A CachedBranchProvider can quickly load a full branch recursively in memory and expose it as a PathSyncSource
@@ -188,7 +188,7 @@ type DataSyncTarget interface {
 type DataSyncSource interface {
 	PathSyncSource
 	// GetReaderOn provides a ReadCloser for reading content of a node located at a given path
-	GetReaderOn(path string) (out io.ReadCloser, err error)
+	GetReaderOn(ctx context.Context, path string) (out io.ReadCloser, err error)
 }
 
 // UuidProvider declares an endpoint to be able to load a node by its unique UUID

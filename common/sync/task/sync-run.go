@@ -334,7 +334,7 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 	return finished
 }
 
-func (s *Sync) computeIndexProgress(input model.Status, rootInfo *model.EndpointRootStat) (output model.Status, emit bool) {
+func (s *Sync) computeIndexProgress(input model.Status, rootInfo *model.EndpointRootStat) (out model.Status, emit bool) {
 	if input.Node() == nil {
 		rootInfo.PgChildren++
 	} else if input.Node().IsLeaf() {

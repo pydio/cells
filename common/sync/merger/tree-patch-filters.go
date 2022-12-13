@@ -110,7 +110,7 @@ func (t *TreePatch) filterCreateFiles(ctx context.Context) {
 			t.refreshUUIDs[createEvent.GetRefPath()] = createEvent
 		}
 		if model.NodeRequiresChecksum(node) && isCsProvider {
-			checksumProvider.ComputeChecksum(node)
+			_ = checksumProvider.ComputeChecksum(ctx, node)
 		}
 	}
 

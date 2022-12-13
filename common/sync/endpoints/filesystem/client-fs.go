@@ -510,7 +510,7 @@ func (c *FSClient) GetWriterOn(cancel context.Context, path string, targetSize i
 
 }
 
-func (c *FSClient) GetReaderOn(path string) (out io.ReadCloser, err error) {
+func (c *FSClient) GetReaderOn(_ context.Context, path string) (out io.ReadCloser, err error) {
 
 	return c.FS.Open(c.denormalize(path))
 

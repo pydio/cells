@@ -58,7 +58,7 @@ func newFlatSnapshot(ctx context.Context, ds *object.DataSource, client model.En
 	boltName := "snapshot-" + boltUuid
 	boltFile := path.Join(boltPath, boltName)
 	if mode == "read" {
-		if e := loadSnapshot(client, snapName, boltFile); e != nil {
+		if e := loadSnapshot(ctx, client, snapName, boltFile); e != nil {
 			return nil, e
 		}
 	}
@@ -120,7 +120,7 @@ func (f *FlatSnapshot) GetEndpointInfo() model.EndpointInfo {
 
 }
 
-func loadSnapshot(client model.Endpoint, storageKey, fsPath string) error {
+func loadSnapshot(ctx context.Context, client model.Endpoint, storageKey, fsPath string) error {
 	reader, ok := client.(model.DataSyncSource)
 	if !ok {
 		return fmt.Errorf("client must implement DataSyncSource")
@@ -130,7 +130,7 @@ func loadSnapshot(client model.Endpoint, storageKey, fsPath string) error {
 		return e
 	}
 	defer tgt.Close()
-	src, e := reader.GetReaderOn(storageKey)
+	src, e := reader.GetReaderOn(ctx, storageKey)
 	if e != nil {
 		return e
 	}

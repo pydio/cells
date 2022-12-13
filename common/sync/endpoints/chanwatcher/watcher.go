@@ -107,9 +107,9 @@ func (w *Watcher) Watch(recursivePath string) (*model.WatchObject, error) {
 	return wo, nil
 }
 
-func (w *Watcher) ComputeChecksum(node *tree.Node) error {
+func (w *Watcher) ComputeChecksum(ctx context.Context, node *tree.Node) error {
 	if cs, ok := w.PathSyncSource.(model.ChecksumProvider); ok {
-		return cs.ComputeChecksum(node)
+		return cs.ComputeChecksum(ctx, node)
 	} else {
 		return nil
 	}

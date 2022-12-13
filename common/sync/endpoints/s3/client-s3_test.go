@@ -151,7 +151,7 @@ func TestGetReaderOnS3(t *testing.T) {
 	Convey("Test Get Reader on node", t, func() {
 
 		c := NewS3Mock()
-		o, e := c.GetReaderOn("/file")
+		o, e := c.GetReaderOn(context.Background(), "/file")
 		So(o, ShouldNotBeNil)
 		So(e, ShouldBeNil)
 

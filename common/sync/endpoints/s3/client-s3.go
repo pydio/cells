@@ -244,14 +244,14 @@ func (c *Client) GetWriterOn(cancel context.Context, path string, targetSize int
 
 }
 
-func (c *Client) GetReaderOn(path string) (out io.ReadCloser, err error) {
+func (c *Client) GetReaderOn(ctx context.Context, path string) (out io.ReadCloser, err error) {
 
-	out, _, err = c.Oc.GetObject(context.Background(), c.Bucket, c.getFullPath(path), models.ReadMeta{})
+	out, _, err = c.Oc.GetObject(ctx, c.Bucket, c.getFullPath(path), models.ReadMeta{})
 	return
 
 }
 
-func (c *Client) ComputeChecksum(node *tree.Node) error {
+func (c *Client) ComputeChecksum(ctx context.Context, node *tree.Node) error {
 	if c.skipRecomputeEtagByCopy {
 		log.Logger(c.globalContext).Debug("skipping recompute ETag by copy, storage does not support it, keep original value", node.Zap())
 		return nil
@@ -260,8 +260,7 @@ func (c *Client) ComputeChecksum(node *tree.Node) error {
 		log.Logger(c.globalContext).Debug("skipping recompute ETag by copy, storage is readonly, keep original value", node.Zap())
 		return nil
 	}
-	p := c.getFullPath(node.GetPath())
-	if newInfo, err := c.s3forceComputeEtag(models.ObjectInfo{Key: p, Size: node.Size}); err == nil {
+	if newInfo, err := c.s3forceComputeEtag(ctx, node); err == nil {
 		node.Etag = strings.Trim(newInfo.ETag, "\"")
 	} else {
 		return err
@@ -469,9 +468,13 @@ func (c *Client) createFolderIdsWhileWalking(ctx context.Context, createdDirs ma
 
 }
 
-func (c *Client) s3forceComputeEtag(objectInfo models.ObjectInfo) (models.ObjectInfo, error) {
+func (c *Client) s3forceComputeEtag(ctx context.Context, node *tree.Node) (models.ObjectInfo, error) {
 
-	oi, e := c.Oc.StatObject(context.Background(), c.Bucket, objectInfo.Key, models.ReadMeta{})
+	objectInfo := models.ObjectInfo{
+		Key:  c.getFullPath(node.GetPath()),
+		Size: node.GetSize(),
+	}
+	oi, e := c.Oc.StatObject(ctx, c.Bucket, objectInfo.Key, models.ReadMeta{})
 	if e != nil {
 		return objectInfo, e
 	}
@@ -483,7 +486,7 @@ func (c *Client) s3forceComputeEtag(objectInfo models.ObjectInfo) (models.Object
 			objectInfo.ETag = cs
 		} else {
 			log.Logger(c.globalContext).Debug("Storing eTag inside ChecksumMapper for " + eTag)
-			reader, e := c.GetReaderOn(objectInfo.Key)
+			reader, e := c.GetReaderOn(ctx, node.GetPath())
 			if e != nil {
 				return objectInfo, e
 			}
@@ -510,7 +513,7 @@ func (c *Client) s3forceComputeEtag(objectInfo models.ObjectInfo) (models.Object
 			objectInfo.ETag = checksum
 			return objectInfo, nil
 		}
-		reader, e := c.GetReaderOn(objectInfo.Key)
+		reader, e := c.GetReaderOn(ctx, node.GetPath())
 		if e != nil {
 			return objectInfo, e
 		}
@@ -522,18 +525,18 @@ func (c *Client) s3forceComputeEtag(objectInfo models.ObjectInfo) (models.Object
 		checksum := fmt.Sprintf("%x", h.Sum(nil))
 		existingMeta[servicescommon.XAmzMetaDirective] = "REPLACE"
 		existingMeta[servicescommon.XAmzMetaContentMd5] = checksum
-		err := c.Oc.CopyObjectMultipart(context.Background(), objectInfo, c.Bucket, objectInfo.Key, c.Bucket, objectInfo.Key, existingMeta, nil)
+		err := c.Oc.CopyObjectMultipart(ctx, objectInfo, c.Bucket, objectInfo.Key, c.Bucket, objectInfo.Key, existingMeta, nil)
 		objectInfo.ETag = checksum
 		return objectInfo, err
 
 	} else {
 
-		_, copyErr := c.Oc.CopyObject(context.Background(), c.Bucket, objectInfo.Key, c.Bucket, objectInfo.Key, map[string]string{servicescommon.XAmzMetaDirective: "REPLACE"}, existingMeta, nil)
+		_, copyErr := c.Oc.CopyObject(ctx, c.Bucket, objectInfo.Key, c.Bucket, objectInfo.Key, map[string]string{servicescommon.XAmzMetaDirective: "REPLACE"}, existingMeta, nil)
 		if copyErr != nil {
 			log.Logger(c.globalContext).Error("Compute Etag Copy", zap.Error(copyErr))
 			return objectInfo, copyErr
 		}
-		newInfo, e := c.Oc.StatObject(context.Background(), c.Bucket, objectInfo.Key, models.ReadMeta{})
+		newInfo, e := c.Oc.StatObject(ctx, c.Bucket, objectInfo.Key, models.ReadMeta{})
 		if e != nil {
 			return objectInfo, e
 		}

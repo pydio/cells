@@ -289,7 +289,7 @@ func (m *MultiBucketClient) GetWriterOn(cancel context.Context, path string, tar
 	return c.GetWriterOn(cancel, i, targetSize)
 }
 
-func (m *MultiBucketClient) GetReaderOn(path string) (out io.ReadCloser, err error) {
+func (m *MultiBucketClient) GetReaderOn(ctx context.Context, path string) (out io.ReadCloser, err error) {
 	c, b, i, e := m.getClient(path)
 	if e != nil {
 		err = e
@@ -299,7 +299,7 @@ func (m *MultiBucketClient) GetReaderOn(path string) (out io.ReadCloser, err err
 		err = errors.Unauthorized("level.unauthorized", "cannot read objects at the buckets level")
 		return
 	}
-	return c.GetReaderOn(i)
+	return c.GetReaderOn(ctx, i)
 }
 
 func (m *MultiBucketClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
@@ -348,7 +348,7 @@ func (m *MultiBucketClient) MoveNode(ctx context.Context, oldPath string, newPat
 	return c.MoveNode(ctx, i, i2)
 }
 
-func (m *MultiBucketClient) ComputeChecksum(node *tree.Node) (err error) {
+func (m *MultiBucketClient) ComputeChecksum(ctx context.Context, node *tree.Node) (err error) {
 	c, b, i, e := m.getClient(node.Path)
 	if e != nil {
 		err = e
@@ -360,7 +360,7 @@ func (m *MultiBucketClient) ComputeChecksum(node *tree.Node) (err error) {
 	}
 	patched := node.Clone()
 	patched.Path = i
-	if e := c.ComputeChecksum(patched); e != nil {
+	if e := c.ComputeChecksum(ctx, patched); e != nil {
 		return e
 	} else {
 		node.Etag = patched.Etag

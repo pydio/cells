@@ -299,7 +299,7 @@ func TestReadNode(t *testing.T) {
 
 		c := EmptyMockedClient()
 		afero.WriteFile(c.FS, "/test", []byte("my-content"), 0777)
-		r, e := c.GetReaderOn("/test")
+		r, e := c.GetReaderOn(context.Background(), "/test")
 		So(r, ShouldNotBeNil)
 		So(e, ShouldBeNil)
 
