@@ -243,20 +243,22 @@ func initConfig(ctx context.Context, debounceVersions bool) (new bool, keyring c
 	// Register default now
 	config.Register(mainConfig)
 
-	if config.Get("version").String() == "" && config.Get("defaults/database").String() == "" {
-		new = true
-		var data interface{}
-		if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-			if err := config.Get().Set(data); err == nil {
-				config.Save(common.PydioSystemUsername, "Initialize with sample config")
+	if !runtime.IsFork() {
+		if config.Get("version").String() == "" && config.Get("defaults/database").String() == "" {
+			new = true
+			var data interface{}
+			if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
+				if err := config.Get().Set(data); err == nil {
+					config.Save(common.PydioSystemUsername, "Initialize with sample config")
+				}
 			}
 		}
-	}
 
-	// Need to do something for the versions
-	if save, err := migrations.UpgradeConfigsIfRequired(config.Get(), common.Version()); err == nil && save {
-		if err := config.Save(common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
-			return false, nil, fmt.Errorf("could not save config migrations %v", err)
+		// Need to do something for the versions
+		if save, err := migrations.UpgradeConfigsIfRequired(config.Get(), common.Version()); err == nil && save {
+			if err := config.Save(common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
+				return false, nil, fmt.Errorf("could not save config migrations %v", err)
+			}
 		}
 	}
 
