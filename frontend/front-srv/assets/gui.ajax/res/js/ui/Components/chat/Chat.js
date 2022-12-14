@@ -255,6 +255,16 @@ class Chat extends React.Component{
         if(emptyStateProps && (!data || !data.length)){
             emptyState = <EmptyStateView pydio={pydio} {...emptyStateProps}/>
         }
+        const notConnected = !room;
+        let hintStyle = {
+            whiteSpace:'nowrap'
+        }
+        if(textFieldProps && textFieldProps.hintStyle){
+            hintStyle=  {...hintStyle, ...textFieldProps.hintStyle}
+        }
+        if(notConnected) {
+            hintStyle = {...hintStyle, fontStyle : 'italic'}
+        }
         return (
             <div style={{padding: 0, ...style}}>
                 {computePresenceFromACLs !== undefined  &&
@@ -267,16 +277,16 @@ class Chat extends React.Component{
                 </div>
                 <div style={{backgroundColor: 'white', position:'relative', paddingLeft: 16, paddingRight: 16, borderTop: '1px solid #e0e0e0', ...fieldContainerStyle}}>
                     <TextField
-                        hintText={fieldHint}
-                        hintStyle={{whiteSpace:'nowrap'}}
+                        hintText={notConnected?pydio.MessageHash[466]:fieldHint}
                         value={this.state.value}
                         onChange={(event, newValue) => {this.setState({value: newValue})}}
                         multiLine={true}
                         onKeyDown={this.keyDown.bind(this)}
                         fullWidth={true}
                         underlineShow={false}
-                        disabled={readonly}
+                        disabled={readonly||notConnected}
                         {...textFieldProps}
+                        hintStyle={hintStyle}
                     />
                     {videoData &&
                     <div style={{position:'absolute', top: 0, right: 0}}>
