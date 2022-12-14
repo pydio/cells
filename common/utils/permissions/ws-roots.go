@@ -41,7 +41,7 @@ func CheckDefinedRootsForWorkspace(ctx context.Context, ws *idm.Workspace, resol
 			return e
 		}
 		if r, e := c.Recv(); e != nil || r == nil || r.GetNode() == nil || r.GetNode().GetUuid() == "" {
-			return fmt.Errorf("cannot find root node for uuid "+nodeId, e)
+			return fmt.Errorf("cannot find workspace root by uuid (%s), maybe datasource is not ready yet? Error was: %s", nodeId, e.Error())
 		} else {
 			log.Logger(ctx).Debug("PutWorkspace : found root node", r.GetNode().Zap("root"))
 		}
