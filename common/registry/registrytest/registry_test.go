@@ -163,47 +163,37 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 				idx := rand.Int() % numNodes
 				node, err := m.Get(nodeIds[idx], registry.WithType(pb.ItemType_NODE))
 				if err != nil {
-					fmt.Println("Got an error ", err)
 					return
 				}
 
 				node.Metadata()[registry.MetaStatusKey] = "whatever"
 				m.Register(node)
-
-				fmt.Println("Done ", idx)
 			}()
 
 			go func() {
 				idx := rand.Int() % numServers
 				srv, err := m.Get(serverIds[idx], registry.WithType(pb.ItemType_SERVER))
 				if err != nil {
-					fmt.Println("Got an error ", err)
 					return
 				}
 
 				srv.Metadata()[registry.MetaStatusKey] = "whatever"
 				m.Register(srv)
-
-				fmt.Println("Done ", idx)
 			}()
 
 			go func() {
 				idx := rand.Int() % numServices
 				srv, err := m.Get(ids[idx], registry.WithType(pb.ItemType_SERVICE))
 				if err != nil {
-					fmt.Println("Got an error ", err)
 					return
 				}
 
 				srv.Metadata()[registry.MetaStatusKey] = "whatever"
 				m.Register(srv)
-
-				fmt.Println("Done ", idx)
 			}()
 		}
 
 		// Delete
-
 		for _, s := range services {
 			var svc service.Service
 			if s.As(&svc) {

@@ -21,10 +21,11 @@
 package util
 
 import (
+	"golang.org/x/exp/maps"
+
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/merger"
-	"golang.org/x/exp/maps"
 )
 
 func ToProtoDao(d registry.Dao) *pb.Dao {

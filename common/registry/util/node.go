@@ -21,14 +21,16 @@
 package util
 
 import (
+	"strings"
+
+	"golang.org/x/exp/maps"
+	"google.golang.org/protobuf/proto"
+
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/merger"
 	"github.com/pydio/cells/v4/common/utils/uuid"
-	"golang.org/x/exp/maps"
-	"google.golang.org/protobuf/proto"
-	"strings"
 )
 
 func CreateNode() registry.Node {
