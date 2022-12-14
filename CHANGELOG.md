@@ -1,54 +1,31 @@
-# Changes between v4.0.4 and v4.0.5
+# Changes between v4.0.5 and v4.0.6-alpha1
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.0.4...v4.0.5)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.0.5...v4.0.6-alpha1)
 
-- [#6d4a038](https://github.com/pydio/cells/commit/6d4a03831de934b23fe5430c48cce61c454c0a97): Release v4.0.5-alpha2
-- [#03cce56](https://github.com/pydio/cells/commit/03cce56864a0db71b3db3cfb378b98b39c940b1c): Split vars for metrics
-- [#75ff53b](https://github.com/pydio/cells/commit/75ff53bf6cc76ebc73e3e0a24cc8171649b134a0): Refactor metrics code - always use a separate prefix
-- [#d6fa700](https://github.com/pydio/cells/commit/d6fa700c74e4a7b440c03eac204a156ed7acd16f): Add more info to metrics
-- [#5ef5ea6](https://github.com/pydio/cells/commit/5ef5ea622c433d5c92d077b6b0880efa4255cecd): Rewire cache metrics
-- [#334790e](https://github.com/pydio/cells/commit/334790e1e8b75d25d27ca3ee66b5d6c95b1dd32f): Wrap user.Put transaction in a Retry handler
-- [#3a1ba06](https://github.com/pydio/cells/commit/3a1ba06e980d61a87e9f6e18ea3d8395bf84c35b): Metrics : missing "main" process
-- [#8c04376](https://github.com/pydio/cells/commit/8c043763088c798888b5bf27d8ae762d887a0beb): 2 Forgotten Strings + DE/FR
-- [#27f4c35](https://github.com/pydio/cells/commit/27f4c35fb7302cc3fc437a5883be0bff5fc17265): 2 Forgotten Strings + DE/FR
-- [#f239a71](https://github.com/pydio/cells/commit/f239a71ed9870e50d4e1fa52a938a03f009e9a1a): Create a service discovery endpoint for metrics
-- [#a7cdf9a](https://github.com/pydio/cells/commit/a7cdf9a712c8ef8237c7163be34287b02dc711aa): Add an RWLocker on config/proxies
-- [#259f3f1](https://github.com/pydio/cells/commit/259f3f1cb4c83fe226b8c7744bfaad297377effc): Missing i18n keys
-- [#78c2a54](https://github.com/pydio/cells/commit/78c2a54fbb41adb1315f8f5c972210f430341e61): Fix unit tests
-- [#6f15d6d](https://github.com/pydio/cells/commit/6f15d6d18a46f55af7083e1458f6cea379f28e26): Scheduler: fixes for orphan tasks and logs
-- [#396da09](https://github.com/pydio/cells/commit/396da09b04538af47298b81547696e7a0351f943): Delete : do not log an error if ignore is set
-- [#de74ad7](https://github.com/pydio/cells/commit/de74ad7df9e459d6d01c4777d3cb6ca405b307d4): Add more indexes in tasks Collection (mongo)
-- [#1d3db2d](https://github.com/pydio/cells/commit/1d3db2d100150a0fbfa059587dc0683bc6794b31): Generalize Worker/Dispatcher to pass action Selectors as runner function, making sure they limit concurrency as well.
-- [#7e31400](https://github.com/pydio/cells/commit/7e31400c0b0e6a1abd780d6a89bee072d838a615): Fix glob when ws not at root level
-- [#796bee5](https://github.com/pydio/cells/commit/796bee5cedce7b620e58052fbddb2e09f7b5e019): Release v4.0.5-alpha1
-- [#6ad7462](https://github.com/pydio/cells/commit/6ad746284ec20a3f40e0fce9abf5abe57b15710c): More messages + DE/FR translation
-- [#a75fe6f](https://github.com/pydio/cells/commit/a75fe6f9354b3fd0d6bd4c6597adac406d9fa53a): More messages + DE/FR translation
-- [#d43d564](https://github.com/pydio/cells/commit/d43d5646febdc381f2bad5083960dcd5b383ef39): More messages + DE/FR translation
-- [#96bb9d3](https://github.com/pydio/cells/commit/96bb9d327a03c3101401183289f08a3e4f7e3869): Finally re-enable this migration
-- [#f0bfd1c](https://github.com/pydio/cells/commit/f0bfd1cc3113dd5248c7ef78c4d98d4f64e987c7): Try to disable new migration
-- [#edb02d5](https://github.com/pydio/cells/commit/edb02d56a9cfcfa097ea2e4303e17f9bed1fbe01): Fix unit test
-- [#3ab1bb2](https://github.com/pydio/cells/commit/3ab1bb21cb6bdd3717de589e91b2275c8a2388af): Is this conf migration breaking things
-- [#f05978d](https://github.com/pydio/cells/commit/f05978d1cec6c2cffd80d74774bb46786351b8bc): Upload : capture more info about current part status - Set all running parts on error if main upload is failed. Display the current attempt number (if retried)
-- [#8a1d879](https://github.com/pydio/cells/commit/8a1d879ffb8a568d5c707dcc00c2be09b6d9f780): Fix DEV_VERSION, add config migration to dedup objects
-- [#ccf4f23](https://github.com/pydio/cells/commit/ccf4f237709d14eaa94474d8c9b2d1ee4a77918c): Add a config migration for avoiding object services overlap
-- [#0a40c0f](https://github.com/pydio/cells/commit/0a40c0f347ef4c65a6825439a8c87ab97d66e942): New fields on triggerFilterQuery
-- [#5c0adcd](https://github.com/pydio/cells/commit/5c0adcd32341fd58307b2ce56d14d0c0d39f01b9): Fixing command process pid error
-- [#6c2a51f](https://github.com/pydio/cells/commit/6c2a51f407b31b65d1ad9c0919ae7528e170a070): Special key in selectors for just fanning out input nodes/users/etc.
-- [#959c3d1](https://github.com/pydio/cells/commit/959c3d10e99a4e9c8bc4abc28dd93a2b3890e4c8): Update sdk-js
-- [#e53cf86](https://github.com/pydio/cells/commit/e53cf8602d9f4f121db581f91f97b59c3fe544e3): Fix typo in CanApply code
-- [#f39ff8e](https://github.com/pydio/cells/commit/f39ff8e111a769ccad9ff911a526fec56a1e07cf): Update scheduler TriggerMessage fields
-- [#4e5b8a7](https://github.com/pydio/cells/commit/4e5b8a71cdcdb62c0c3be84fabc40273e4e0c3bf): Forgotten logs
-- [#1055208](https://github.com/pydio/cells/commit/1055208b0a490e0c82032e0d319a8b680f3f44c8): Compute clickable links for docs in mailer digests
-- [#ce17881](https://github.com/pydio/cells/commit/ce1788187936c7d84564255614af0f9672fb3a26): Fix test
-- [#89d39b9](https://github.com/pydio/cells/commit/89d39b91a6fc0c27293c8277aeb728a9d3e788b7): Update sdk, minor fixes to Timeline
-- [#89ea923](https://github.com/pydio/cells/commit/89ea9238a291d8f25b6b5790ae5e1301048854cf): New scheduler features
-- [#a2504ea](https://github.com/pydio/cells/commit/a2504ea0be6f190b637c0480ba3d6f3e51d198ae): Fix cursor position when default is set
-- [#577f59b](https://github.com/pydio/cells/commit/577f59b019c3fe3f4e05085d472d3c46f6235621): Fixing restart of services for cluster
-- [#c0c1d7b](https://github.com/pydio/cells/commit/c0c1d7b333dc5245448c3aa05e0042eecdf2a804): Wrong context for etcd session
-- [#77043ec](https://github.com/pydio/cells/commit/77043ec106f437647d0494c3f9698723da175db8): Deleting services properly when process is dying
-- [#4f8c4e5](https://github.com/pydio/cells/commit/4f8c4e52efdf412261e78b408cd2375d02cfac10): Inject logs in debug mode only. Handle outPort display, fix LogPanel scroller.
-- [#79124f1](https://github.com/pydio/cells/commit/79124f19ee699620332d351c111fa655b8d308ca): TaskActivity new prop for logTransmitter interface
-- [#549cede](https://github.com/pydio/cells/commit/549cede87bddb1e579cc6b454961d841026de2b3): Add additional tags in scheduler logs to identify fan out action inputs
-- [#cb1f80c](https://github.com/pydio/cells/commit/cb1f80cb49f80bac18ac24581cdd4ad01df8496a): Relaunch "next" branch from the 4.0.4
-- [#a37a674](https://github.com/pydio/cells/commit/a37a674669901b4cbbbfca21cf65560248f53380): Next development cycle
-- [#751a7be](https://github.com/pydio/cells/commit/751a7beeccdde227fb60e072406554a96eacd074): Relaunch "next" branch from the 4.0.3
+- [#69dd3e1](https://github.com/pydio/cells/commit/69dd3e1daac6133856b078f76afb2896fa7b6d5d): New release
+- [#f708de4](https://github.com/pydio/cells/commit/f708de465b34860274df2364eb62d04d35cc2f11): Adding visible error
+- [#07e0ecd](https://github.com/pydio/cells/commit/07e0ecdfd15f734c4b4219662d5456fa3c9d7cc3): Fix for datasource deletion
+- [#87e0eb2](https://github.com/pydio/cells/commit/87e0eb2fe5c9f65930d00c375e76986e1294df26): Fix to the startup after first install
+- [#e89a1e7](https://github.com/pydio/cells/commit/e89a1e74a9476ca4576ec1853ceb4b4243ce7c88): Fix to the startup after first install
+- [#83fc714](https://github.com/pydio/cells/commit/83fc7142a8799f1899229f1bb8e3d1351b11a86c): Fixing test
+- [#b97efe1](https://github.com/pydio/cells/commit/b97efe12f764102fd4a6c39f2fc8c0fd9d6824f2): Fixing watch update in config and registry
+- [#592e102](https://github.com/pydio/cells/commit/592e1029de2622bb9ad660c1472c82da269f478e): Fix unit test after adding config watch
+- [#4fb6c2a](https://github.com/pydio/cells/commit/4fb6c2a38524d10f95e53267afa915ce19a14c81): search engine watch on configs (propagate change to batch options)
+- [#2f386e4](https://github.com/pydio/cells/commit/2f386e4b10e2a8377d2c51753b0af9ae9566527a): search engine watch on configs
+- [#d05e0fd](https://github.com/pydio/cells/commit/d05e0fd03db2afac13659488a92565d1f6ef9f41): Fix legacy version file reading
+- [#8d08397](https://github.com/pydio/cells/commit/8d08397bffeab96cc7afefde65b94bf07f05ff04): Try to re-apply logs deletion after twice
+- [#ff1d277](https://github.com/pydio/cells/commit/ff1d277f5202d6980ed7238f85535fbd77030e41): Re-sort imports
+- [#452](https://github.com/pydio/cells/pull/452): dao/bleve: replace Readdir(-1) with os.ReadDir
+- [#6e21041](https://github.com/pydio/cells/commit/6e2104122eaa2a5797a48aba32bbeb37d501f1ff): Fix TextField variant in change password dialog and disable auto complete
+- [#3e357cb](https://github.com/pydio/cells/commit/3e357cb01bc05018c5b0234c878b39a224eb4aca): Prompt parameters if mandatory when running job
+- [#d6fc384](https://github.com/pydio/cells/commit/d6fc384ae4db10f352d9eca33bff925dc831b699): Store a RootID for each process and use them for eg. metrics
+- [#2c05b50](https://github.com/pydio/cells/commit/2c05b504a9c8a8977246782dabba3f1db44790b6): Accelerate cache clearing for policies with a dedicated event.
+- [#c7deb7e](https://github.com/pydio/cells/commit/c7deb7e287a14fb72ec33dbf94f57a61cdab5bc6): Fix to multiple node start
+- [#ba9d63e](https://github.com/pydio/cells/commit/ba9d63e2fbe78a43d9c21d18abda192128d777fc): Remove fmt.Println
+- [#d133deb](https://github.com/pydio/cells/commit/d133deb02efc5fe644c7b944082de5f21abb3a24): Prevent nil on ResolvedNode.MetaStore
+- [#56f044c](https://github.com/pydio/cells/commit/56f044c32f3e8c26c04eae6b5c3ed49a6751875a): Restore symlink support for backward compat
+- [#4ebda9f](https://github.com/pydio/cells/commit/4ebda9fc9c801da372295a40aa641011981590af): Merge remote-tracking branch 'origin/main'
+- [#e1994b2](https://github.com/pydio/cells/commit/e1994b2273ee2adba56f9e3535c52a7c27d70574): Re-enable anonymous access, fix regression in pure-s3 folders management
+- [#9c02295](https://github.com/pydio/cells/commit/9c02295649d7a466c0df12b6ef7f52dd659d4b68): Updating lock and status for services, servers and nodes
+- [#59fee1b](https://github.com/pydio/cells/commit/59fee1bdc5c8a312fe2c616acbd564d7e969824c): Next development cycle
+- [#f97e280](https://github.com/pydio/cells/commit/f97e2800696f5f4dc7ec1f7b590a2b29bbaf1a2a): dao/bleve: replace Readdir(-1) with os.ReadDir
