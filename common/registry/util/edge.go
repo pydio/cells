@@ -24,6 +24,7 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/merger"
+	"golang.org/x/exp/maps"
 )
 
 func ToProtoEdge(e registry.Edge) *pb.Edge {
@@ -76,7 +77,7 @@ func (d *edge) ID() string {
 }
 
 func (d *edge) Metadata() map[string]string {
-	return d.I.Metadata
+	return maps.Clone(d.I.Metadata)
 }
 
 func (d *edge) As(i interface{}) bool {

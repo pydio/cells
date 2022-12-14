@@ -26,6 +26,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/merger"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+	"golang.org/x/exp/maps"
 	"google.golang.org/protobuf/proto"
 	"strings"
 )
@@ -106,7 +107,7 @@ func (n *node) ID() string {
 }
 
 func (n *node) Metadata() map[string]string {
-	return n.I.Metadata
+	return maps.Clone(n.I.Metadata)
 }
 
 func (n *node) SetMetadata(meta map[string]string) {

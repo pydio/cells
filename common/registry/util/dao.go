@@ -24,6 +24,7 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/merger"
+	"golang.org/x/exp/maps"
 )
 
 func ToProtoDao(d registry.Dao) *pb.Dao {
@@ -77,7 +78,7 @@ func (d *dao) ID() string {
 }
 
 func (d *dao) Metadata() map[string]string {
-	return d.I.Metadata
+	return maps.Clone(d.I.Metadata)
 }
 
 func (d *dao) As(i interface{}) bool {

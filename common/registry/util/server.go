@@ -24,6 +24,7 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/merger"
+	"golang.org/x/exp/maps"
 )
 
 func ToProtoServer(s registry.Server) *pb.Server {
@@ -51,7 +52,7 @@ func (s *server) Name() string {
 }
 
 func (s *server) Metadata() map[string]string {
-	return s.I.Metadata
+	return maps.Clone(s.I.Metadata)
 }
 
 func (s *server) SetMetadata(meta map[string]string) {

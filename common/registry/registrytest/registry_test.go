@@ -23,7 +23,10 @@ package registrytest
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/server/grpc"
 	"log"
+	"math/rand"
 	"os"
 	"testing"
 	"time"
@@ -83,6 +86,8 @@ func TestEtcd(t *testing.T) {
 
 func doTestAdd(t *testing.T, m registry.Registry) {
 	Convey("Add services to the registry", t, func() {
+		numNodes := 10
+		numServers := 10
 		numServices := 100
 
 		go func() {
@@ -108,21 +113,42 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		ctx := context.Background()
 		ctx = servicecontext.WithRegistry(ctx, m)
 
+		var nodeIds []string
+		for i := 0; i < numNodes; i++ {
+			node := util.CreateNode()
+			m.Register(node)
+			nodeIds = append(nodeIds, node.ID())
+		}
+
+		// Create servers
+		var serverIds []string
+		for i := 0; i < numServers; i++ {
+			srv := grpc.New(ctx, grpc.WithName("mock"))
+			m.Register(srv)
+
+			serverIds = append(serverIds, srv.ID())
+		}
+
 		var services []service.Service
+		var ids []string
 		for i := 0; i < numServices; i++ {
-			services = append(services, service.NewService(
+			svc := service.NewService(
 				service.Name(fmt.Sprintf("test %d", i)),
 				service.Context(ctx),
-			))
+			)
+			ids = append(ids, svc.ID())
+			services = append(services, svc)
 		}
 
 		<-time.After(5 * time.Second)
 
 		for i := 0; i < numServices; i++ {
-			services = append(services, service.NewService(
+			svc := service.NewService(
 				service.Name(fmt.Sprintf("test %d", i)),
 				service.Context(ctx),
-			))
+			)
+			ids = append(ids, svc.ID())
+			services = append(services, svc)
 		}
 
 		<-time.After(5 * time.Second)
@@ -130,6 +156,53 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		afterCreateServices, err := m.List(registry.WithType(pb.ItemType_SERVICE))
 		So(err, ShouldBeNil)
 		So(len(afterCreateServices), ShouldEqual, numServices*2)
+
+		// Update
+		for i := 0; i < 10000; i++ {
+			go func() {
+				idx := rand.Int() % numNodes
+				node, err := m.Get(nodeIds[idx], registry.WithType(pb.ItemType_NODE))
+				if err != nil {
+					fmt.Println("Got an error ", err)
+					return
+				}
+
+				node.Metadata()[registry.MetaStatusKey] = "whatever"
+				m.Register(node)
+
+				fmt.Println("Done ", idx)
+			}()
+
+			go func() {
+				idx := rand.Int() % numServers
+				srv, err := m.Get(serverIds[idx], registry.WithType(pb.ItemType_SERVER))
+				if err != nil {
+					fmt.Println("Got an error ", err)
+					return
+				}
+
+				srv.Metadata()[registry.MetaStatusKey] = "whatever"
+				m.Register(srv)
+
+				fmt.Println("Done ", idx)
+			}()
+
+			go func() {
+				idx := rand.Int() % numServices
+				srv, err := m.Get(ids[idx], registry.WithType(pb.ItemType_SERVICE))
+				if err != nil {
+					fmt.Println("Got an error ", err)
+					return
+				}
+
+				srv.Metadata()[registry.MetaStatusKey] = "whatever"
+				m.Register(srv)
+
+				fmt.Println("Done ", idx)
+			}()
+		}
+
+		// Delete
 
 		for _, s := range services {
 			var svc service.Service
@@ -148,5 +221,6 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		So(len(afterDeleteServices), ShouldEqual, 0)
 
 		<-time.After(1 * time.Second)
+
 	})
 }

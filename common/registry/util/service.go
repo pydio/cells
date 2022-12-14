@@ -22,6 +22,7 @@ package util
 
 import (
 	"errors"
+	"golang.org/x/exp/maps"
 	"strings"
 
 	"github.com/pydio/cells/v4/common"
@@ -67,7 +68,7 @@ func (s *service) Metadata() map[string]string {
 	if s.I.Metadata == nil {
 		return map[string]string{}
 	}
-	return s.I.Metadata
+	return maps.Clone(s.I.Metadata)
 }
 
 func (s *service) SetMetadata(meta map[string]string) {

@@ -25,6 +25,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/merger"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+	"golang.org/x/exp/maps"
 )
 
 func CreateAddress(addr string, meta map[string]string) registry.Generic {
@@ -89,7 +90,7 @@ func (d *generic) ID() string {
 }
 
 func (d *generic) Metadata() map[string]string {
-	return d.I.Metadata
+	return maps.Clone(d.I.Metadata)
 }
 
 func (d *generic) As(i interface{}) bool {
