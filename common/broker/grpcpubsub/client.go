@@ -17,6 +17,7 @@ package grpcpubsub
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/url"
 	"strings"
 	"sync"
@@ -27,6 +28,7 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	pb "github.com/pydio/cells/v4/common/proto/broker"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -137,6 +139,7 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 		if conn == nil {
 			return nil, errors.New("no connection provided")
 		}
+		conn = grpc.NewClientConn("pydio.grpc.broker", grpc.WithClientConn(conn))
 
 		ct, ca := context.WithCancel(ctx)
 		ct = metadata.AppendToOutgoingContext(ct, "cells-subscriber-id", strings.Join(runtime.ProcessStartTags(), " "))
@@ -336,36 +339,7 @@ func NewSubscription(path string, opts ...Option) (*pubsub.Subscription, error) 
 	}
 
 	if cli == nil {
-		ch = make(chan []*pb.Message, 5000)
-		conn := clientcontext.GetClientConn(ctx)
-		if conn == nil {
-			return nil, errors.New("no connection provided")
-		}
-		var err error
-		ct, ca := context.WithCancel(ctx)
-		cli, err = pb.NewBrokerClient(conn).Subscribe(ct)
-		if err != nil {
-			ca()
-			return nil, err
-		}
-		closer = func() error {
-			ca()
-			return nil
-		}
-
-		go func() {
-			for {
-				resp, err := cli.Recv()
-				if err != nil {
-					return
-				}
-
-				if subId == resp.Id {
-					ch <- resp.Messages
-				}
-			}
-		}()
-
+		return nil, fmt.Errorf("please pass a shared subscriber in the subscription options")
 	}
 
 	req := &pb.SubscribeRequest{

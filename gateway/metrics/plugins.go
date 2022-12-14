@@ -26,14 +26,18 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/pprof"
+	"sync"
 
 	"github.com/gorilla/mux"
+	"github.com/uber-go/tally/v4"
+	prom "github.com/uber-go/tally/v4/prometheus"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/generic"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/service/metrics"
 	"github.com/pydio/cells/v4/gateway/metrics/prometheus"
 )
 
@@ -78,10 +82,27 @@ func newPromHttpService(ctx context.Context, pure bool, with, stop func(ctx cont
 
 }
 
+var (
+	reporter prom.Reporter
+	repOnce  sync.Once
+)
+
 func init() {
+
 	runtime.Register("main", func(ctx context.Context) {
 
 		if runtime.MetricsEnabled() {
+
+			repOnce.Do(func() {
+				reporter = prom.NewReporter(prom.Options{})
+				options := tally.ScopeOptions{
+					Prefix:         "cells",
+					Tags:           map[string]string{},
+					CachedReporter: reporter,
+					Separator:      prom.DefaultSeparator,
+				}
+				metrics.RegisterRootScope(options)
+			})
 
 			pattern := fmt.Sprintf("/metrics/%s", runtime.ProcessRootID())
 
@@ -91,7 +112,7 @@ func init() {
 					ctx,
 					false,
 					func(ctx context.Context, mux server.HttpMux) error {
-						h := prometheus.NewHandler()
+						h := prometheus.NewHandler(reporter)
 						mux.Handle(pattern, &bau{inner: h.HTTPHandler(), login: []byte(login), pwd: []byte(pwd)})
 						/// For main process, also add the central index
 						if !runtime.IsFork() {
@@ -124,7 +145,7 @@ func init() {
 					)
 				}
 				with := func(ctx context.Context, mux server.HttpMux) error {
-					h := prometheus.NewHandler()
+					h := prometheus.NewHandler(reporter)
 					mux.Handle(pattern, h.HTTPHandler())
 					return nil
 				}

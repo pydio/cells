@@ -104,7 +104,7 @@ func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
 		topicsLock.RLock()
 		if sub, ok := topics[topicKey]; ok {
 			//fmt.Println("Receive subscribe on", topicKey, "from", subPID, "appending stream to existing subscription")
-			sub.streams = append(sub.streams, streamWithReqId{id: id, stream: stream})
+			sub.streams = append(sub.streams, newStreamWithReqId(id, stream))
 			defer sub.removeStreamById(id)
 			topicsLock.RUnlock()
 			continue
@@ -114,11 +114,13 @@ func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
 
 		//fmt.Println("Receive subscribe on", topicKey, "from", subPID, "creating new internal subscription")
 		sub := &subscriber{
-			subPID:  subPID,
-			topic:   topicKey,
-			queue:   queue,
-			ch:      make(chan *pb.SubscribeResponse),
-			streams: []streamWithReqId{{id: id, stream: stream}},
+			subPID: subPID,
+			topic:  topicKey,
+			queue:  queue,
+			ch:     make(chan *pb.SubscribeResponse),
+			streams: []streamWithReqId{
+				newStreamWithReqId(id, stream),
+			},
 		}
 		topicsLock.Lock()
 		topics[topicKey] = sub
@@ -146,7 +148,16 @@ func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
 	}
 }
 
+func newStreamWithReqId(id string, stream pb.Broker_SubscribeServer) streamWithReqId {
+	return streamWithReqId{
+		id:     id,
+		stream: stream,
+		Mutex:  &sync.Mutex{},
+	}
+}
+
 type streamWithReqId struct {
+	*sync.Mutex
 	id     string
 	stream pb.Broker_SubscribeServer
 }
@@ -177,9 +188,11 @@ func (s *subscriber) dispatch() {
 }
 
 func (s *subscriber) sendWithWarning(streamer streamWithReqId, message *pb.SubscribeResponse) {
+	streamer.Lock()
 	done := make(chan bool)
 	defer close(done)
 	go func() {
+		defer streamer.Unlock() // Unlock streamer anyway
 		select {
 		case <-done:
 			return

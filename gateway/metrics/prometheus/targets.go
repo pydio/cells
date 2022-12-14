@@ -22,7 +22,6 @@ package prometheus
 
 import (
 	"context"
-	"fmt"
 
 	"go.uber.org/zap"
 
@@ -59,7 +58,7 @@ func ProcessesAsTargets(ctx context.Context, reg registry.Registry, includeCaddy
 		// Retrieve parent node
 		nn := reg.ListAdjacentItems(i, registry.WithType(pb.ItemType_NODE))
 		if len(nn) == 0 {
-			fmt.Println("Server without adjacent node, this is strange, skipping")
+			continue
 		}
 		rootNodeID := nn[0].ID()
 		if _, ok := processes[rootNodeID]; ok {

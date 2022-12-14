@@ -23,15 +23,14 @@ package prometheus
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
 
-	tally "github.com/uber-go/tally/v4"
 	"github.com/uber-go/tally/v4/prometheus"
 
+	"github.com/pydio/cells/v4/common"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -49,15 +48,7 @@ type Handler struct {
 	r prometheus.Reporter
 }
 
-func NewHandler() *Handler {
-	r := prometheus.NewReporter(prometheus.Options{})
-	options := tally.ScopeOptions{
-		Prefix:         "cells",
-		Tags:           map[string]string{},
-		CachedReporter: r,
-		Separator:      prometheus.DefaultSeparator,
-	}
-	metrics.RegisterRootScope(options)
+func NewHandler(reporter prometheus.Reporter) *Handler {
 	if !runtime.IsFork() {
 		metrics.GetMetrics().Tagged(map[string]string{
 			"version":       common.Version().String(),
@@ -65,7 +56,7 @@ func NewHandler() *Handler {
 			"package_type":  common.PackageType,
 		}).Gauge("version_info").Update(1)
 	}
-	return &Handler{r: r}
+	return &Handler{r: reporter}
 }
 
 func (h *Handler) HTTPHandler() http.Handler {

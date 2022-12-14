@@ -9,17 +9,16 @@ import (
 	"testing"
 	"time"
 
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
-
-	"github.com/pydio/cells/v4/common/proto/tree"
+	. "github.com/smartystreets/goconvey/convey"
+	"gocloud.dev/pubsub"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	pb "github.com/pydio/cells/v4/common/proto/broker"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/server/stubs/discoverytest"
-	"gocloud.dev/pubsub"
-
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 func init() {
@@ -32,10 +31,23 @@ func TestServiceBroker(t *testing.T) {
 		numMessagesReceived := 0
 
 		var cancel context.CancelFunc
-		ctx := clientcontext.WithClientConn(context.Background(), grpc.NewClientConn(common.ServiceBroker))
+		conn := grpc.NewClientConn(common.ServiceBroker)
+		ctx := clientcontext.WithClientConn(context.Background(), conn)
 		ctx, cancel = context.WithTimeout(ctx, 1*time.Second)
 
-		subscription, err := NewSubscription("test1", WithContext(ctx))
+		cli, err := pb.NewBrokerClient(conn).Subscribe(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+		sub := &sharedSubscriber{
+			Broker_SubscribeClient: cli,
+			host:                   "h",
+			cancel:                 nil,
+			out:                    make(map[string]chan []*pb.Message),
+		}
+		go sub.Dispatch()
+
+		subscription, err := NewSubscription("test1", WithContext(ctx), WithSubscriber(sub))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -94,15 +106,28 @@ func TestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 	howManyToSend := int(1e3)
 
 	var cancel context.CancelFunc
-	ctx := clientcontext.WithClientConn(context.Background(), grpc.NewClientConn(common.ServiceBroker))
+
+	conn := grpc.NewClientConn(common.ServiceBroker)
+	ctx := clientcontext.WithClientConn(context.Background(), conn)
 	ctx, cancel = context.WithCancel(ctx)
+	cli, err := pb.NewBrokerClient(conn).Subscribe(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	sub := &sharedSubscriber{
+		Broker_SubscribeClient: cli,
+		host:                   "h",
+		cancel:                 cancel,
+		out:                    make(map[string]chan []*pb.Message),
+	}
+	go sub.Dispatch()
 
 	// wg is used to wait until all messages are received.
 	var wg sync.WaitGroup
 	wg.Add(howManyToSend)
 
 	// Make a subscription.
-	s, err := NewSubscription("test2", WithContext(ctx))
+	s, err := NewSubscription("test2", WithContext(ctx), WithSubscriber(sub))
 	if err != nil {
 		log.Fatal(err)
 	}
