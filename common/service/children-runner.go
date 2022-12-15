@@ -269,6 +269,7 @@ func (c *ChildrenRunner) Watch(ctx context.Context) error {
 		}
 	}()
 	go func() {
+
 		for {
 			res, err := watcher.Next()
 			if err != nil {

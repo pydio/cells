@@ -173,7 +173,8 @@ func (f *file) flush() {
 	for {
 		select {
 		case <-f.reset:
-			f.timer.Reset(100 * time.Millisecond)
+			f.timer.Stop()
+			f.timer = time.NewTimer(100 * time.Millisecond)
 		case <-f.timer.C:
 			if f.snap != nil {
 				patch, err := diff.Diff(f.snap.Interface(), f.v.Interface(), diff.AllowTypeMismatch(true))
@@ -333,7 +334,8 @@ func (r *receiver) Next() (interface{}, error) {
 		case op := <-r.ch:
 			changes = append(changes, op)
 
-			r.timer.Reset(2 * time.Second)
+			r.timer.Stop()
+			r.timer = time.NewTimer(2 * time.Second)
 		case <-r.timer.C:
 			if len(changes) == 0 {
 				continue

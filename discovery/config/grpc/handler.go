@@ -70,6 +70,8 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Config_WatchServer) erro
 		return err
 	}
 
+	defer w.Stop()
+
 	for {
 		res, err := w.Next()
 		if err != nil {
