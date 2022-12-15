@@ -68,7 +68,7 @@ func (f *StructStorageHandler) publish(ctx context.Context, identifier string, e
 		return
 	}
 	event := &tree.NodeChangeEvent{Type: eventType}
-	if mm, ok := metadata.MinioMetaFromContext(ctx, false); ok {
+	if mm, ok := metadata.MinioMetaFromContext(ctx, true); ok {
 		event.Metadata = mm
 	}
 	switch eventType {

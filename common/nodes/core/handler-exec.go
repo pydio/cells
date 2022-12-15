@@ -151,12 +151,12 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 
 	s3Path := e.buildS3Path(info, node)
 	headers := make(models.ReadMeta)
-	validHeaders := !nodes.IsMinioServer(ctx, "in")
+	//validHeaders := !nodes.IsMinioServer(ctx, "in")
 
 	// Make sure the object exists
 	//var opts = minio.StatObjectOptions{}
 	newCtx := ctx
-	if meta, ok := metadata.MinioMetaFromContext(ctx, validHeaders); ok {
+	if meta, ok := metadata.MinioMetaFromContext(ctx); ok {
 		newCtx = metadata.NewContext(ctx, meta)
 	}
 	sObject, sErr := writer.StatObject(ctx, info.ObjectsBucket, s3Path, nil)
@@ -228,9 +228,8 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 	fromPath := e.buildS3Path(srcInfo, from)
 	toPath := e.buildS3Path(destInfo, to)
 	cType := from.GetStringMeta(common.MetaNamespaceMime)
-	validHeaders := !nodes.IsMinioServer(ctx, "from")
 
-	statMeta, _ := metadata.MinioMetaFromContext(ctx, validHeaders)
+	statMeta, _ := metadata.MinioMetaFromContext(ctx)
 
 	if requestData.Metadata == nil {
 		requestData.Metadata = make(map[string]string)
@@ -300,7 +299,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 
 		// append metadata to the context as well, as it may switch to putObjectMultipart
 		ctxMeta := make(map[string]string)
-		if m, ok := metadata.MinioMetaFromContext(ctx, validHeaders); ok {
+		if m, ok := metadata.MinioMetaFromContext(ctx); ok {
 			ctxMeta = m
 		}
 		for k, v := range requestData.Metadata {

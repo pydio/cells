@@ -337,7 +337,7 @@ func migratePerformMigration(ctx context.Context, ds *object.DataSource, mc node
 		return out, e
 	}
 	mm := map[string]string{}
-	if meta, ok := metadata.MinioMetaFromContext(ctx, false); ok {
+	if meta, ok := metadata.MinioMetaFromContext(ctx); ok {
 		for k, v := range meta {
 			mm[k] = v
 		}

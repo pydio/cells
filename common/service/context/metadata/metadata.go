@@ -77,14 +77,19 @@ func NewContext(ctx context.Context, md map[string]string) context.Context {
 	return context.WithValue(ctx, metadataKey{}, Metadata(md))
 }
 
-// MinioMetaFromContext prepares metadata for minio client, merging context medata
-// and eventually the Context User Key value (X-Pydio-User). Used to prepare metadata
-// sent by Minio Clients
-func MinioMetaFromContext(ctx context.Context, validHeadersOnly bool) (md map[string]string, ok bool) {
+// MinioMetaFromContext prepares metadata for minio client. If forEvents is passed, it replies with the complete set
+// of metadata
+func MinioMetaFromContext(ctx context.Context, forEvents ...bool) (md map[string]string, ok bool) {
+
+	eventsHeaders := false
+	if len(forEvents) > 0 && forEvents[0] {
+		eventsHeaders = true
+	}
+
 	md = make(map[string]string)
 	if meta, mOk := fromContext(ctx); mOk {
 		for k, v := range meta {
-			if validHeadersOnly && strings.HasPrefix(strings.ToLower(k), "x-pydio") {
+			if !eventsHeaders && (strings.HasPrefix(strings.ToLower(k), "x-pydio") || strings.EqualFold(k, "CtxWorkspaceUuid")) {
 				continue
 			}
 			if strings.ToLower(k) == "x-pydio-claims" {
@@ -95,13 +100,13 @@ func MinioMetaFromContext(ctx context.Context, validHeadersOnly bool) (md map[st
 			}
 		}
 	}
-	if user := ctx.Value(common.PydioContextUserKey); user != nil && !validHeadersOnly {
+	if user := ctx.Value(common.PydioContextUserKey); user != nil && eventsHeaders {
 		md[common.PydioContextUserKey] = user.(string)
 	}
 	return md, len(md) > 0
 }
 
-// WithUserNameMetadata appends a user name to both the context metadata and as context key.
+// WithUserNameMetadata appends a username to both the context metadata and as context key.
 func WithUserNameMetadata(ctx context.Context, userName string) context.Context {
 	md := make(map[string]string)
 	if meta, ok := fromContext(ctx); ok {

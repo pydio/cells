@@ -308,7 +308,7 @@ func (f *FlatStorageHandler) recomputeETag(ctx context.Context, identifier strin
 	copyMeta := map[string]string{
 		common.XAmzMetaDirective: "REPLACE",
 	}
-	if meta, ok := metadata.MinioMetaFromContext(ctx, false); ok {
+	if meta, ok := metadata.MinioMetaFromContext(ctx); ok {
 		for k, v := range meta {
 			copyMeta[k] = v
 		}
@@ -327,7 +327,7 @@ func (f *FlatStorageHandler) recomputeETag(ctx context.Context, identifier strin
 
 		// Cannot CopyObject on itself for files bigger than 5GB - compute Md5 and store it as metadata instead
 		// Not necessary for real minio on fs (but required for Minio as S3 gateway or real S3)
-		mm2, _ := metadata.MinioMetaFromContext(ctx, false)
+		mm2, _ := metadata.MinioMetaFromContext(ctx)
 		readCloser, _, e := src.Client.GetObject(ctx, src.ObjectsBucket, node.GetUuid(), mm2)
 		if e != nil {
 			return "", e
