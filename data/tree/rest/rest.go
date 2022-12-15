@@ -47,6 +47,8 @@ import (
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -317,10 +319,13 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				if _, e := metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: metaNode, Silent: true}); e != nil {
 					log.Logger(ctx).Error("Could not store recycle_restore metadata for node", zap.Error(e))
 				}
-				deleteJobs.RecycleMoves[rPath] = append(deleteJobs.RecycleMoves[rPath], filtered.Path)
+				if _, ok := deleteJobs.RecycleMoves[rPath]; !ok {
+					deleteJobs.RecycleMoves[rPath] = &recycleMoves{workspace: bi.Workspace}
+				}
 				if _, ok := deleteJobs.RecyclesNodes[rPath]; !ok {
 					deleteJobs.RecyclesNodes[rPath] = &tree.Node{Path: rPath, Type: tree.NodeType_COLLECTION}
 				}
+				deleteJobs.RecycleMoves[rPath].sources = append(deleteJobs.RecycleMoves[rPath].sources, filtered.Path)
 
 				// Check permissions
 				srcCtx, srcNode, _ := inputFilter(ctx, node, "from")
@@ -352,7 +357,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
 	moveLabel := T("Jobs.User.MoveRecycle")
 	fullPathRouter := compose.PathClientAdmin(h.RuntimeCtx)
-	for recyclePath, selectedPaths := range deleteJobs.RecycleMoves {
+	for recyclePath, rMoves := range deleteJobs.RecycleMoves {
 
 		// Create recycle bins now, to make sure user is notified correctly
 		recycleNode := deleteJobs.RecyclesNodes[recyclePath]
@@ -367,7 +372,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 
 		jobUuid := "copy-move-" + uuid.New()
 		q, _ := anypb.New(&tree.Query{
-			Paths: selectedPaths,
+			Paths: rMoves.sources,
 		})
 
 		job := &jobs.Job{
@@ -395,6 +400,9 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				},
 			},
 		}
+		ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{
+			servicecontext.CtxWorkspaceUuid: rMoves.workspace.UUID,
+		})
 		if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
 			service.RestError500(req, resp, er)
 			return
@@ -519,6 +527,10 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 				log.Logger(ctx).Error("[restore] Cannot find source node", zap.Error(e))
 				return e
 			}
+			bi, ok := nodes.GetBranchInfo(ctx, "in")
+			if !ok {
+				return fmt.Errorf("cannot find branch info for this node")
+			}
 			currentFullPath := filtered.Path
 			originalFullPath := r.GetNode().GetStringMeta(common.MetaNamespaceRecycleRestore)
 			if originalFullPath == "" {
@@ -571,6 +583,9 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 					},
 				},
 			}
+			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{
+				servicecontext.CtxWorkspaceUuid: bi.Workspace.GetUUID(),
+			})
 			if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
 				return er
 			} else {

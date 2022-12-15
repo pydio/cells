@@ -283,12 +283,16 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 	// Add System User if necessary
 	if addSystemUser {
 		if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
-			ctx = metadata.NewContext(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
+			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 			ctx = context.WithValue(ctx, common.PydioContextUserKey, common.PydioSystemUsername)
 		}
 	}
 
+	md, ok := metadata.FromContextCopy(ctx)
 	ctx = runtime.ForkContext(ctx, s.rootCtx)
+	if ok {
+		ctx = metadata.NewContext(ctx, md)
+	}
 
 	// Inject evaluated job parameters
 	if len(job.Parameters) > 0 {

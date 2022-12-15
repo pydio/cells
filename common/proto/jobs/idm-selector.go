@@ -22,6 +22,7 @@ package jobs
 
 import (
 	"context"
+
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
@@ -362,13 +363,11 @@ func (m *IdmSelector) evaluate(ctx context.Context, input *ActionMessage, single
 	return singleQuery.(service.Matcher)
 }
 
+// WorkspaceFromEventContext tries to find the CtxWorkspaceUuid key in the context metadata and if it is set,
+// lookup actual workspace by UUID.
 func (m *IdmSelector) WorkspaceFromEventContext(ctx context.Context) (*idm.Workspace, bool) {
-	ctxMeta, has := metadata.FromContextRead(ctx)
-	if !has {
-		return nil, false
-	}
-	wsUuid, o := ctxMeta[servicecontext.CtxWorkspaceUuid]
-	if !o {
+	wsUuid, o := metadata.CanonicalMeta(ctx, servicecontext.CtxWorkspaceUuid)
+	if !o || wsUuid == "ROOT" {
 		return nil, false
 	}
 	ct, ca := context.WithCancel(ctx)

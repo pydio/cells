@@ -33,6 +33,7 @@ import (
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -127,9 +128,15 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 		for nodeId, source := range sources {
 			// Reload Metas
 			// Try to use resolved node or create fake one
+			nCtx := bgCtx
 			target := &tree.Node{Uuid: nodeId, MetaStore: make(map[string]string)}
 			if resolved, ok := nodes[nodeId]; ok {
 				target = resolved
+				if len(resolved.AppearsIn) > 0 {
+					nCtx = metadata.WithAdditionalMetadata(bgCtx, map[string]string{
+						servicecontext.CtxWorkspaceUuid: resolved.AppearsIn[0].WsUuid,
+					})
+				}
 			}
 			metas, e := h.dao.Search([]string{}, []string{target.Uuid}, "", "", &service.ResourcePolicyQuery{
 				Subjects: subjects,
@@ -142,7 +149,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 					target.MetaStore[val.Namespace] = val.JsonValue
 				}
 			}
-			broker.MustPublish(bgCtx, common.TopicMetaChanges, &tree.NodeChangeEvent{
+			broker.MustPublish(nCtx, common.TopicMetaChanges, &tree.NodeChangeEvent{
 				Type:   tree.NodeChangeEvent_UPDATE_USER_META,
 				Source: source,
 				Target: target,

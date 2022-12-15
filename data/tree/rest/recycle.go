@@ -37,15 +37,20 @@ import (
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
+type recycleMoves struct {
+	sources   []string
+	workspace *idm.Workspace
+}
+
 type deleteJobs struct {
 	RecyclesNodes map[string]*tree.Node
-	RecycleMoves  map[string][]string
+	RecycleMoves  map[string]*recycleMoves
 	Deletes       []string
 }
 
 func newDeleteJobs() *deleteJobs {
 	return &deleteJobs{
-		RecycleMoves:  make(map[string][]string),
+		RecycleMoves:  make(map[string]*recycleMoves),
 		RecyclesNodes: make(map[string]*tree.Node),
 	}
 }

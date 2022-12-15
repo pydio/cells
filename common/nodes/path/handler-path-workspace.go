@@ -114,9 +114,11 @@ func (a *WorkspaceHandler) updateBranchInfo(ctx context.Context, node *tree.Node
 		return ctx, node, err
 	} else if ok {
 		branchInfo.Workspace = proto.Clone(ws).(*idm.Workspace)
-		ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{
-			servicecontext.CtxWorkspaceUuid: ws.UUID,
-		})
+		if _, ok := metadata.CanonicalMeta(ctx, servicecontext.CtxWorkspaceUuid); !ok { // do not override if already set
+			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{
+				servicecontext.CtxWorkspaceUuid: ws.UUID,
+			})
+		}
 		return nodes.WithBranchInfo(ctx, identifier, branchInfo), out, nil
 	}
 	return ctx, node, noWorkspaceInPath{}

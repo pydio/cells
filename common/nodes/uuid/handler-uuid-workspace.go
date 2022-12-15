@@ -108,9 +108,11 @@ func (h *WorkspaceHandler) updateInputBranch(ctx context.Context, node *tree.Nod
 		Workspace:     proto.Clone(workspaces[0]).(*idm.Workspace),
 	}
 	branchInfo.AncestorsList[node.Path] = parents
-	ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{
-		servicecontext.CtxWorkspaceUuid: branchInfo.Workspace.UUID,
-	})
+	if _, ok := metadata.CanonicalMeta(ctx, servicecontext.CtxWorkspaceUuid); !ok {
+		ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{
+			servicecontext.CtxWorkspaceUuid: branchInfo.Workspace.UUID,
+		})
+	}
 	return nodes.WithBranchInfo(ctx, identifier, branchInfo), node, nil
 }
 

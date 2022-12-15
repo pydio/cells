@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/scheduler/jobs"
@@ -97,7 +98,11 @@ func (j *JobsHandler) PutJob(ctx context.Context, request *proto.PutJobRequest) 
 	}
 	response := &proto.PutJobResponse{}
 	response.Job = job
-	broker.MustPublish(j.RuntimeCtx, common.TopicJobConfigEvent, &proto.JobChangeEvent{
+	pubCtx := j.RuntimeCtx
+	if md, ok := metadata.FromContextCopy(ctx); ok {
+		pubCtx = metadata.NewContext(pubCtx, md)
+	}
+	broker.MustPublish(pubCtx, common.TopicJobConfigEvent, &proto.JobChangeEvent{
 		JobUpdated: job,
 	})
 	return response, nil

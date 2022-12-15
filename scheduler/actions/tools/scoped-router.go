@@ -3,11 +3,10 @@ package tools
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/nodes/compose"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
@@ -31,7 +30,7 @@ func (s *ScopedRouterConsumer) ParseScope(owner string, params map[string]string
 	}
 }
 
-// GetHandler lazy initialize an views.Handler depending on the scope
+// GetHandler lazy initialize a views.Handler depending on the scope
 func (s *ScopedRouterConsumer) GetHandler(ctx context.Context) (context.Context, nodes.Handler, error) {
 	if s.presetClient != nil {
 		return ctx, s.presetClient, nil
