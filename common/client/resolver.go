@@ -124,14 +124,14 @@ func (r *resolverCallback) watch() {
 			return
 		}
 
-		for _, item := range res.Items() {
-			if util.DetectType(item) == pb.ItemType_SERVICE {
-				//	fmt.Println("Received event ", os.Args, res.Action(), item.Name())
-			}
-		}
+		//for _, item := range res.Items() {
+		//	if util.DetectType(item) == pb.ItemType_SERVICE {
+		//		fmt.Println("Received event ", os.Args, res.Action(), item.Name())
+		//	}
+		//}
 
 		r.ml.Lock()
-		if res.Action() == pb.ActionType_CREATE || res.Action() == pb.ActionType_UPDATE {
+		if res.Action() == pb.ActionType_CREATE { // || res.Action() == pb.ActionType_UPDATE (TODO reinstate update)
 			for _, item := range res.Items() {
 				switch util.DetectType(item) {
 				case pb.ItemType_SERVER:
