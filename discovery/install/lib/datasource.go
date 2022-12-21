@@ -110,7 +110,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		if storageFolder != "" {
 			sourceConf.StorageConfiguration[object.StorageKeyFolder] = filepath.Join(storageFolder, sourceConf.ObjectsBucket)
 		}
-
+		sourceConf.StorageConfiguration[object.StorageKeyHashingVersion] = object.CurrentHashingVersion
 		sync := fmt.Sprintf(`pydio.grpc.data.sync.%s`, source)
 		config.Set(sourceConf, "services", sync)
 	}

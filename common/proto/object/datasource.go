@@ -53,8 +53,10 @@ const (
 	StorageKeyCellsInternal    = "cellsInternal"
 	StorageKeyInitFromBucket   = "initFromBucket"
 	StorageKeyInitFromSnapshot = "initFromSnapshot"
+	StorageKeyHashingVersion   = "hashingVersion"
 
-	AmazonS3Endpoint = "s3.amazonaws.com"
+	AmazonS3Endpoint      = "s3.amazonaws.com"
+	CurrentHashingVersion = "v4"
 )
 
 func (d *DataSource) ClientConfig() configx.Values {
@@ -107,6 +109,15 @@ func (d *DataSource) ServerIsMinio() bool {
 		return true
 	}
 	return false
+}
+
+// ConfigurationByKey wraps a check on d.StorageConfiguration to make sure it is not nil
+func (d *DataSource) ConfigurationByKey(k string) (string, bool) {
+	if d.StorageConfiguration == nil {
+		return "", false
+	}
+	v, o := d.StorageConfiguration[k]
+	return v, o
 }
 
 func (d *MinioConfig) ClientConfig() configx.Values {

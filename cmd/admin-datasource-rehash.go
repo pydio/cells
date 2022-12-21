@@ -109,7 +109,8 @@ EXAMPLES
 		if _, err := jobClient.PutJob(ctx, &jobs.PutJobRequest{Job: job}); err != nil {
 			cmd.Println(promptui.IconBad + " [ERROR] " + err.Error())
 		} else {
-			cmd.Println(promptui.IconGood + " [SUCCESS] Posted job for recomputing hashes on all files")
+			cmd.Println(promptui.IconGood + " [SUCCESS] Posted job for recomputing hashes on all files.")
+			cmd.Println(promptui.IconWarn + " You should monitor the job and afterward you may use 'admin datasource rehash conf' command to update datasource.")
 		}
 
 	},

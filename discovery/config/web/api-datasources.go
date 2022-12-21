@@ -125,6 +125,12 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	var initialVersioningEmpty bool
 	if update {
 		initialVersioningEmpty = initialDs.VersioningPolicyName == ""
+	} else {
+		// Set default value for hashing version on new datasources
+		if ds.StorageConfiguration == nil {
+			ds.StorageConfiguration = map[string]string{}
+		}
+		ds.StorageConfiguration[object.StorageKeyHashingVersion] = object.CurrentHashingVersion
 	}
 
 	minioConfig, e := config.FactorizeMinioServers(currentMinios, &ds, update)

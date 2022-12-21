@@ -4,12 +4,20 @@ import (
 	"context"
 	"io"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	hashiversion "github.com/hashicorp/go-version"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 )
 
@@ -37,6 +45,23 @@ func (t *TreeHandler) fixMode(n *tree.Node) {
 		n.Mode = int32(os.ModePerm & os.ModeDir)
 		n.Size = 0
 		n.MTime = time.Now().Unix()
+	}
+}
+
+// syncAgentVersion tries to find User-Agent in context and parse a version like {appName}/X.X.X
+func (t *TreeHandler) syncAgentVersion(ctx context.Context, appName string) (*hashiversion.Version, bool) {
+	mm, o1 := metadata.FromContextRead(ctx)
+	if !o1 {
+		return nil, false
+	}
+	ua, o2 := mm["UserAgent"]
+	if !o2 {
+		return nil, false
+	}
+	if v, er := hashiversion.NewVersion(strings.TrimPrefix(ua, appName+"/")); er == nil {
+		return v, true
+	} else {
+		return nil, false
 	}
 }
 
@@ -118,7 +143,31 @@ func (t *TreeHandler) ReadNode(ctx context.Context, request *tree.ReadNodeReques
 // ListNodes forwards to router
 func (t *TreeHandler) ListNodes(request *tree.ListNodesRequest, stream tree.NodeProvider_ListNodesServer) error {
 
-	st, e := t.getRouter().ListNodes(stream.Context(), request)
+	ctx := stream.Context()
+	ro := t.getRouter()
+
+	var expectedHashing string
+	if v, o := t.syncAgentVersion(ctx, "cells-sync"); o {
+		ref, _ := hashiversion.NewVersion("0.9.2")
+		if v.GreaterThan(ref) {
+			expectedHashing = "v4"
+		}
+	}
+	rr, er := ro.ReadNode(ctx, &tree.ReadNodeRequest{Node: request.GetNode()})
+	if er != nil {
+		return er
+	}
+	dsHashing := rr.GetNode().GetStringMeta(common.MetaFlagHashingVersion)
+	if dsHashing != expectedHashing {
+		log.Logger(ctx).Error("WARNING - Sync Client with wrong hashing constraints (client was " + expectedHashing + ", datasource is " + dsHashing + ")")
+		if dsHashing == "v4" { // server is v4, require app update
+			return status.Errorf(codes.FailedPrecondition, "hashing formats differ, please make sure to update the sync application")
+		} else {
+			return status.Errorf(codes.FailedPrecondition, "hashing formats differ, please contact admin to rehash the datasource")
+		}
+	}
+
+	st, e := ro.ListNodes(ctx, request)
 	if e != nil {
 		return e
 	}

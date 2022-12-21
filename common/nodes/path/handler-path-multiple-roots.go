@@ -126,6 +126,9 @@ func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tre
 		if branch.VersioningPolicyName != "" {
 			out.MustSetMeta(common.MetaFlagVersioning, "true")
 		}
+		if h, o := branch.ConfigurationByKey(object.StorageKeyHashingVersion); o {
+			out.MustSetMeta(common.MetaFlagHashingVersion, h)
+		}
 	}
 	if !set || branch.Workspace == nil || branch.UUID == "ROOT" || len(branch.RootUUIDs) < 2 {
 		return ctx, m.setWorkspaceRootFlag(branch.Workspace, out), nil
