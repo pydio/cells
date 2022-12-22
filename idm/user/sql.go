@@ -246,6 +246,9 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	// Now carry on to potential updates
 	var node *tree.Node
 	if !user.IsGroup {
+		if len(user.Login) == 0 {
+			return nil, createdNodes, fmt.Errorf("warning, cannot create a user with an empty login")
+		}
 		node = userToNode(user)
 	} else {
 		node = groupToNode(user)
@@ -270,6 +273,10 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	if needsUpdate {
 		updateNode := mtree.NewTreeNode()
 		updateNode.SetMPath(mPath...)
+		if len(mPath) <= 1 {
+			// This should never happen, it will delete the root!
+			return nil, createdNodes, fmt.Errorf("interrupting, about to delNode a unique MPath (%s)", mPath.String())
+		}
 		if err := s.IndexSQL.DelNode(updateNode); err != nil {
 			return nil, createdNodes, err
 		}

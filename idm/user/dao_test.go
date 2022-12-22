@@ -22,6 +22,7 @@ package user
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/utils/mtree"
 	"log"
 	"sync"
 	"testing"
@@ -627,4 +628,71 @@ func TestQueryBuilder(t *testing.T) {
 		So(s, ShouldNotBeNil)
 		//So(s, ShouldEqual, "((t.uuid = n.uuid and (n.name='user1' and n.leaf = 1)) OR (t.uuid = n.uuid and (n.name='user2' and n.leaf = 1))) AND (t.uuid = n.uuid and (n.name='user3' and n.leaf = 1))")
 	})
+}
+
+func TestDestructiveCreateUser(t *testing.T) {
+	var options = configx.New()
+	ctx := context.Background()
+	var mock DAO
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, "file::memory:", "idm_user", NewDAO, options); e != nil {
+		panic(e)
+	} else {
+		mock = d.(DAO)
+	}
+
+	Convey("Test bug with create user", t, func() {
+
+		_, _, err := mock.Add(&idm.User{
+			Login:     "username",
+			Password:  "xxxxxxx",
+			GroupPath: "/path/to/group",
+			Attributes: map[string]string{
+				idm.UserAttrDisplayName: "John Doe",
+				idm.UserAttrHidden:      "false",
+				"active":                "true",
+			},
+			Roles: []*idm.Role{
+				{Uuid: "1", Label: "Role1"},
+				{Uuid: "2", Label: "Role2"},
+			},
+		})
+
+		So(err, ShouldBeNil)
+
+		_, _, err = mock.Add(&idm.User{
+			Uuid:     "fixed-uuid",
+			Login:    "",
+			Password: "hashed",
+		})
+
+		So(err, ShouldNotBeNil)
+
+		var target []interface{}
+		ch := mock.GetNodeTree(context.Background(), mtree.NewMPath(1))
+		for n := range ch {
+			tn := n.(*mtree.TreeNode)
+			t.Logf("Got node %s (%s)", tn.MPath.String(), tn.Name())
+			target = append(target, n)
+		}
+		So(target, ShouldNotBeEmpty)
+
+		_, _, err = mock.Add(&idm.User{
+			Uuid:     "fixed-uuid",
+			Login:    "",
+			Password: "hashed",
+		})
+
+		//So(err, ShouldNotBeNil)
+
+		var target2 []interface{}
+		ch2 := mock.GetNodeTree(context.Background(), mtree.NewMPath(1))
+		for n := range ch2 {
+			tn := n.(*mtree.TreeNode)
+			t.Logf("Got node %s (%s)", tn.MPath.String(), tn.Name())
+			target2 = append(target2, n)
+		}
+		So(target2, ShouldNotBeEmpty)
+
+	})
+
 }
