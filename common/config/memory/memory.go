@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -83,9 +84,9 @@ func (m *memory) flush() {
 	for {
 		select {
 		case <-m.reset:
-			m.timer.Reset(timeout)
+			m.timer.Stop()
+			m.timer = time.NewTimer(timeout)
 		case <-m.timer.C:
-
 			patch, err := diff.Diff(m.snap.Interface(), m.v.Interface())
 			if err != nil {
 				continue
@@ -149,10 +150,7 @@ func Clone[T ~map[string]any | ~[]any | any](t T) T {
 }
 
 func (m *memory) update() {
-	select {
-	case m.reset <- true:
-	default:
-	}
+	m.reset <- true
 }
 
 func (m *memory) Get() configx.Value {
@@ -205,10 +203,16 @@ func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		opt(o)
 	}
 
+	regPath, err := regexp.Compile("^" + strings.Join(o.Path, "/"))
+	if err != nil {
+		return nil, err
+	}
+
 	r := &receiver{
 		closed:      false,
 		ch:          make(chan diff.Change),
-		path:        o.Path,
+		regPath:     regPath,
+		level:       len(o.Path),
 		m:           m,
 		timer:       time.NewTimer(timeout),
 		changesOnly: o.ChangesOnly,
@@ -223,7 +227,8 @@ type receiver struct {
 	closed bool
 	ch     chan diff.Change
 
-	path        []string
+	regPath     *regexp.Regexp
+	level       int
 	changesOnly bool
 
 	timer *time.Timer
@@ -236,11 +241,15 @@ func (r *receiver) call(op diff.Change) error {
 		return errClosedChannel
 	}
 
-	if len(r.path) == 0 {
+	if r.level == 0 {
 		r.ch <- op
 	}
 
-	if strings.HasPrefix(strings.Join(op.Path, "/"), strings.Join(r.path, "/")) {
+	if r.level > len(op.Path) {
+		return nil
+	}
+
+	if r.regPath.MatchString(strings.Join(op.Path, "/")) {
 		r.ch <- op
 	}
 	return nil
@@ -254,18 +263,36 @@ func (r *receiver) Next() (interface{}, error) {
 		case op := <-r.ch:
 			changes = append(changes, op)
 
-			r.timer.Reset(timeout)
+			r.timer.Stop()
+			r.timer = time.NewTimer(timeout)
+
 		case <-r.timer.C:
 			c := configx.New()
-
 			if r.changesOnly {
 				for _, op := range changes {
-					if op.Type == diff.DELETE {
-						if err := c.Val(op.Type).Val(op.Path...).Set(op.From); err != nil {
-							return nil, err
+					switch op.Type {
+					case diff.CREATE:
+						if len(op.Path) > r.level {
+							if err := c.Val(diff.UPDATE).Val(op.Path...).Set(op.To); err != nil {
+								return nil, err
+							}
+						} else {
+							if err := c.Val(diff.CREATE).Val(op.Path...).Set(op.To); err != nil {
+								return nil, err
+							}
 						}
-					} else {
-						if err := c.Val(op.Type).Val(op.Path...).Set(op.To); err != nil {
+					case diff.DELETE:
+						if len(op.Path) > r.level {
+							if err := c.Val(diff.UPDATE).Val(op.Path...).Set(nil); err != nil {
+								return nil, err
+							}
+						} else {
+							if err := c.Val(diff.DELETE).Val(op.Path...).Set(op.From); err != nil {
+								return nil, err
+							}
+						}
+					case diff.UPDATE:
+						if err := c.Val(diff.UPDATE).Val(op.Path...).Set(op.To); err != nil {
 							return nil, err
 						}
 					}

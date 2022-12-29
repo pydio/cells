@@ -23,23 +23,27 @@ package registrytest
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/registry/util"
-	"github.com/pydio/cells/v4/common/server/grpc"
 	"log"
 	"math/rand"
 	"os"
+	"sync"
 	"testing"
 	"time"
 
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
-
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/server/grpc"
+	"github.com/pydio/cells/v4/common/server/stubs/discoverytest"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 
 	_ "github.com/pydio/cells/v4/common/registry/config"
+	_ "github.com/pydio/cells/v4/common/registry/service"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestMemory(t *testing.T) {
@@ -47,6 +51,8 @@ func TestMemory(t *testing.T) {
 	if err != nil {
 		log.Panic(err)
 	}
+
+	<-time.After(3 * time.Second)
 
 	doTestAdd(t, reg)
 }
@@ -58,6 +64,19 @@ func TestEtcd(t *testing.T) {
 	}
 
 	reg, err := registry.OpenRegistry(context.Background(), "etcd://"+u+"/registrytest")
+	if err != nil {
+		log.Panic(err)
+	}
+
+	doTestAdd(t, reg)
+}
+
+func TestService(t *testing.T) {
+	conn := discoverytest.NewRegistryService()
+
+	ctx := clientcontext.WithClientConn(context.Background(), conn)
+
+	reg, err := registry.OpenRegistry(ctx, "grpc://")
 	if err != nil {
 		log.Panic(err)
 	}
@@ -86,27 +105,35 @@ func TestEtcd(t *testing.T) {
 
 func doTestAdd(t *testing.T, m registry.Registry) {
 	Convey("Add services to the registry", t, func() {
+		countCreate := 0
+		countUpdate := 0
+		countDelete := 0
+
 		numNodes := 10
-		numServers := 10
-		numServices := 100
+		numServers := 100
+		numServices := 1000
+
+		w, err := m.Watch(registry.WithType(pb.ItemType_NODE), registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE))
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		go func() {
-			w, err := m.Watch(registry.WithAction(pb.ActionType_FULL_LIST), registry.WithType(pb.ItemType_SERVICE))
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			count := 0
 			for {
 				res, err := w.Next()
 				if err != nil {
 					log.Fatal(err)
 				}
 
-				// fmt.Println("Received something ? ", res)
-				count = count + len(res.Items())
+				switch res.Action() {
+				case pb.ActionType_CREATE:
+					countCreate = countCreate + len(res.Items())
+				case pb.ActionType_UPDATE:
+					countUpdate = countUpdate + len(res.Items())
+				case pb.ActionType_DELETE:
+					countDelete = countDelete + len(res.Items())
+				}
 
-				fmt.Println("Number of Items received ? ", count)
 			}
 		}()
 
@@ -114,19 +141,23 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		ctx = servicecontext.WithRegistry(ctx, m)
 
 		var nodeIds []string
+		var nodes []registry.Node
 		for i := 0; i < numNodes; i++ {
 			node := util.CreateNode()
 			m.Register(node)
 			nodeIds = append(nodeIds, node.ID())
+			nodes = append(nodes, node)
 		}
 
 		// Create servers
 		var serverIds []string
+		var servers []server.Server
 		for i := 0; i < numServers; i++ {
 			srv := grpc.New(ctx, grpc.WithName("mock"))
 			m.Register(srv)
 
 			serverIds = append(serverIds, srv.ID())
+			servers = append(servers, srv)
 		}
 
 		var services []service.Service
@@ -138,62 +169,120 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 			)
 			ids = append(ids, svc.ID())
 			services = append(services, svc)
-		}
-
-		<-time.After(5 * time.Second)
-
-		for i := 0; i < numServices; i++ {
-			svc := service.NewService(
-				service.Name(fmt.Sprintf("test %d", i)),
-				service.Context(ctx),
-			)
-			ids = append(ids, svc.ID())
-			services = append(services, svc)
-		}
-
-		<-time.After(5 * time.Second)
+		} //
 
 		afterCreateServices, err := m.List(registry.WithType(pb.ItemType_SERVICE))
 		So(err, ShouldBeNil)
-		So(len(afterCreateServices), ShouldEqual, numServices*2)
+		So(len(afterCreateServices), ShouldEqual, numServices)
+
+		<-time.After(3 * time.Second)
+
+		wg := &sync.WaitGroup{}
+
+		var nodeUpdates []string
+		var srvUpdates []string
+		var svcUpdates []string
 
 		// Update
 		for i := 0; i < 10000; i++ {
-			go func() {
-				idx := rand.Int() % numNodes
-				node, err := m.Get(nodeIds[idx], registry.WithType(pb.ItemType_NODE))
-				if err != nil {
-					return
-				}
+			if numNodes > 0 {
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
 
-				node.Metadata()[registry.MetaStatusKey] = "whatever"
-				m.Register(node)
-			}()
+					idx := rand.Int() % numNodes
+					node, err := m.Get(nodeIds[idx], registry.WithType(pb.ItemType_NODE))
+					if err != nil {
+						return
+					}
 
-			go func() {
-				idx := rand.Int() % numServers
-				srv, err := m.Get(serverIds[idx], registry.WithType(pb.ItemType_SERVER))
-				if err != nil {
-					return
-				}
+					meta := node.Metadata()
+					meta[registry.MetaStatusKey] = "whatever"
+					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 
-				srv.Metadata()[registry.MetaStatusKey] = "whatever"
-				m.Register(srv)
-			}()
+					if ms, ok := node.(registry.MetaSetter); ok {
+						ms.SetMetadata(meta)
+						m.Register(ms.(registry.Item))
+					}
 
-			go func() {
-				idx := rand.Int() % numServices
-				srv, err := m.Get(ids[idx], registry.WithType(pb.ItemType_SERVICE))
-				if err != nil {
-					return
-				}
+					nodeUpdates = append(nodeUpdates, node.ID())
+				}()
+			}
 
-				srv.Metadata()[registry.MetaStatusKey] = "whatever"
-				m.Register(srv)
-			}()
+			if numServers > 0 {
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+
+					idx := rand.Int() % numServers
+					srv, err := m.Get(serverIds[idx], registry.WithType(pb.ItemType_SERVER))
+					if err != nil {
+						return
+					}
+
+					meta := srv.Metadata()
+					meta[registry.MetaStatusKey] = "whatever"
+					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+
+					if ms, ok := srv.(registry.MetaSetter); ok {
+						ms.SetMetadata(meta)
+						m.Register(ms.(registry.Item))
+					}
+
+					srvUpdates = append(srvUpdates, srv.ID())
+				}()
+			}
+
+			if numServices > 0 {
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+
+					idx := rand.Int() % numServices
+					svc, err := m.Get(ids[idx], registry.WithType(pb.ItemType_SERVICE))
+					if err != nil {
+						return
+					}
+
+					meta := svc.Metadata()
+					meta[registry.MetaStatusKey] = "whatever"
+					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+
+					if ms, ok := svc.(registry.MetaSetter); ok {
+						ms.SetMetadata(meta)
+						m.Register(ms.(registry.Item))
+					}
+
+					svcUpdates = append(svcUpdates, svc.ID())
+				}()
+			}
 		}
 
+		wg.Wait()
+		<-time.After(3 * time.Second)
+
 		// Delete
+		for _, s := range nodes {
+			var node registry.Node
+			if s.As(&node) {
+				if er := m.Deregister(node); er != nil {
+					log.Fatal(er)
+				}
+			}
+		}
+
+		for _, s := range servers {
+			var srv server.Server
+			if s.As(&srv) {
+				if err := srv.Stop(); err != nil {
+					log.Fatal(err)
+				}
+				if er := m.Deregister(srv); er != nil {
+					log.Fatal(er)
+				}
+			}
+		}
+
 		for _, s := range services {
 			var svc service.Service
 			if s.As(&svc) {
@@ -206,11 +295,34 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 			}
 		}
 
+		<-time.After(3 * time.Second)
+
 		afterDeleteServices, err := m.List(registry.WithType(pb.ItemType_SERVICE))
 		So(err, ShouldBeNil)
 		So(len(afterDeleteServices), ShouldEqual, 0)
 
-		<-time.After(1 * time.Second)
+		<-time.After(3 * time.Second)
 
+		nodeUpdates = unique(nodeUpdates)
+		srvUpdates = unique(srvUpdates)
+		svcUpdates = unique(svcUpdates)
+
+		total := numNodes + numServices + numServers
+		totalUpdates := len(nodeUpdates) + len(srvUpdates) + len(svcUpdates)
+		So(countCreate, ShouldEqual, total)
+		So(countUpdate, ShouldEqual, totalUpdates)
+		So(countDelete, ShouldEqual, total)
 	})
+}
+
+func unique[T comparable](s []T) []T {
+	inResult := make(map[T]bool)
+	var result []T
+	for _, str := range s {
+		if _, ok := inResult[str]; !ok {
+			inResult[str] = true
+			result = append(result, str)
+		}
+	}
+	return result
 }

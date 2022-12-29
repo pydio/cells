@@ -53,6 +53,7 @@ type Option func(*Options)
 
 type Options struct {
 	*sync.RWMutex
+	InitData interface{}
 	Unmarshaler
 	Marshaller
 	Encrypter
@@ -66,6 +67,12 @@ type Options struct {
 
 	// Used to pass other potential options
 	Context context.Context
+}
+
+func WithInitData(data interface{}) Option {
+	return func(o *Options) {
+		o.InitData = data
+	}
 }
 
 type jsonReader struct{}

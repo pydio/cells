@@ -79,6 +79,9 @@ func (d *dao) ID() string {
 }
 
 func (d *dao) Metadata() map[string]string {
+	if d.I.Metadata == nil {
+		return map[string]string{}
+	}
 	return maps.Clone(d.I.Metadata)
 }
 

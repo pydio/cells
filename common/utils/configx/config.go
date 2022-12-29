@@ -126,12 +126,6 @@ type Source interface {
 	Watcher
 }
 
-func NewFrom(i interface{}) Values {
-	c := New()
-	c.Set(i)
-	return c
-}
-
 // config is standard
 type config struct {
 	v       interface{}
@@ -161,9 +155,15 @@ func New(opts ...Option) Values {
 		o(&options)
 	}
 
-	return &config{
+	c := &config{
 		opts: options,
 	}
+
+	if data := options.InitData; data != nil {
+		c.Set(data)
+	}
+
+	return c
 }
 
 func (c *config) rLock() func() {

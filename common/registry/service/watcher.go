@@ -38,6 +38,10 @@ type streamWatcher struct {
 
 func (s *streamWatcher) Next() (registry.Result, error) {
 	for {
+		if s.stream == nil {
+			continue
+		}
+
 		// check if closed
 		select {
 		case <-s.closed:

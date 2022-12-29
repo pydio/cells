@@ -67,14 +67,14 @@ const (
 
 type server struct {
 	s     RawServer
-	opts  *Options
+	Opts  *Options
 	links []registry.Item
 }
 
 func NewServer(ctx context.Context, s RawServer) Server {
 	srv := &server{
 		s: s,
-		opts: &Options{
+		Opts: &Options{
 			Context: ctx,
 			Metadata: map[string]string{
 				registry.MetaStatusKey: string(registry.StatusStopped),
@@ -121,7 +121,7 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 	}
 
 	// Making sure we register the endpoints
-	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
+	if reg := servercontext.GetRegistry(s.Opts.Context); reg != nil {
 		for _, item := range ii {
 			if err := reg.Register(item, registry.WithEdgeTo(s.ID(), "instance", nil)); err != nil {
 				return err
@@ -158,7 +158,7 @@ func (s *server) Stop(oo ...registry.RegisterOption) error {
 	}
 
 	// We deregister the endpoints to clear links and re-register as stopped
-	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
+	if reg := servercontext.GetRegistry(s.Opts.Context); reg != nil {
 		for _, i := range s.links {
 			_ = reg.Deregister(i, registry.WithRegisterFailFast())
 		}
@@ -208,23 +208,23 @@ func (s *server) As(i interface{}) bool {
 }
 
 func (s *server) Metadata() map[string]string {
-	meta := maps.Clone(s.opts.Metadata)
+	meta := maps.Clone(s.Opts.Metadata)
 	return meta
 }
 
 func (s *server) SetMetadata(meta map[string]string) {
-	s.opts.Metadata = meta
+	s.Opts.Metadata = meta
 }
 
 func (s *server) Clone() interface{} {
 	cloneOptions := &Options{}
 	clone := &server{}
 
-	*cloneOptions = *s.opts
+	*cloneOptions = *s.Opts
 	cloneOptions.Metadata = s.Metadata()
 
 	*clone = *s
-	clone.opts = cloneOptions
+	clone.Opts = cloneOptions
 
 	return clone
 }

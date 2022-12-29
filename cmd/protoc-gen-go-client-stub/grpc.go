@@ -2,18 +2,15 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
 const (
+	timePackage    = protogen.GoImportPath("time")
 	fmtPackage     = protogen.GoImportPath("fmt")
 	contextPackage = protogen.GoImportPath("context")
 	ioPackage      = protogen.GoImportPath("io")
 	grpcPackage    = protogen.GoImportPath("google.golang.org/grpc")
-	statusPackage  = protogen.GoImportPath("google.golang.org/grpc/status")
-	codesPackage   = protogen.GoImportPath("google.golang.org/grpc/codes")
 	stubsPackage   = protogen.GoImportPath("github.com/pydio/cells/v4/common/server/stubs")
 )
 
@@ -115,11 +112,14 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 			g.P("case ", "\"/", service.Desc.FullName(), "/", method.GoName, "\":")
 			g.P("st := &", stubServer, "_", method.GoName, "Streamer{}")
 			g.P("st.Init(ctx, func(i interface{}) error {")
+			g.P("go func() {")
 			g.P("defer func() {")
 			g.P("close(st.RespChan)")
 			g.P("}()")
-			g.P("return s.", server, ".", method.GoName, "(i.(*", method.Desc.Input().Name(), "), st)")
-			//g.P("return nil")
+			g.P("s.", server, ".", method.GoName, "(i.(*", method.Desc.Input().Name(), "), st)")
+			g.P("}()")
+			g.P("<-", timePackage.Ident("After"), "(100 * ", timePackage.Ident("Millisecond"), ")")
+			g.P("return nil")
 			g.P("})")
 			g.P("return st, nil")
 		}
@@ -166,66 +166,4 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 		}
 	}
 
-	/*
-		for _, method := range service.Methods {
-			g.Annotate(multiServer+"."+method.GoName, method.Location)
-
-			g.P(method.Comments.Leading)
-			g.P("func (m ", multiServer, ") ", serverSignature(g, method), " {")
-			if !method.Desc.IsStreamingClient() && !method.Desc.IsStreamingServer() {
-				g.P("for _, mm := range m {")
-				g.P("if mm.Name() == ", serviceContextPackage.Ident("GetServiceName"), "(ctx) {")
-				g.P("return mm.", method.GoName, "(ctx, r)")
-				g.P("}")
-				g.P("}")
-				g.P("return nil, ", statusPackage.Ident("Errorf"), "(", codesPackage.Ident("Unimplemented"), ", \"method ", method.GoName, " not implemented\")")
-
-			} else if !method.Desc.IsStreamingClient() {
-				g.P("for _, mm := range m {")
-				g.P("if mm.Name() == ", serviceContextPackage.Ident("GetServiceName"), "(s.Context()) {")
-				g.P("return mm.", method.GoName, "(r, s)")
-				g.P("}")
-				g.P("}")
-				g.P("return ", statusPackage.Ident("Errorf"), "(", codesPackage.Ident("Unimplemented"), ", \"method ", method.GoName, " not implemented\")")
-			} else {
-				g.P("for _, mm := range m {")
-				g.P("if mm.Name() == ", serviceContextPackage.Ident("GetServiceName"), "(s.Context()) {")
-				g.P("return mm.", method.GoName, "(s)")
-				g.P("}")
-				g.P("}")
-				g.P("return ", statusPackage.Ident("Errorf"), "(", codesPackage.Ident("Unimplemented"), ", \"method ", method.GoName, " not implemented\")")
-			}
-			g.P("}")
-		}
-
-		g.P("func (m ", multiServer, ") mustEmbedUnimplemented", server, "() {}")
-
-		g.P("func Register", multiServer, "(s grpc.ServiceRegistrar, srv ", namedServer, ") {")
-		g.P("addr := ", fmtPackage.Ident("Sprintf"), "(\"%p\", s)")
-		g.P("m, ok := multi", server, "s[addr]")
-		g.P("if !ok {")
-		g.P("m = ", multiServer, "{}")
-		g.P("multi", server, "s[addr] = m")
-		g.P("Register", server, "(s, m)")
-		g.P("}")
-		g.P("m = append(m, srv)")
-		g.P("}")
-
-	*/
-}
-
-func serverSignature(g *protogen.GeneratedFile, method *protogen.Method) string {
-	var reqArgs []string
-	ret := "error"
-	if !method.Desc.IsStreamingClient() && !method.Desc.IsStreamingServer() {
-		reqArgs = append(reqArgs, "ctx "+g.QualifiedGoIdent(contextPackage.Ident("Context")))
-		ret = "(*" + g.QualifiedGoIdent(method.Output.GoIdent) + ", error)"
-	}
-	if !method.Desc.IsStreamingClient() {
-		reqArgs = append(reqArgs, "r *"+g.QualifiedGoIdent(method.Input.GoIdent))
-	}
-	if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
-		reqArgs = append(reqArgs, "s "+method.Parent.GoName+"_"+method.GoName+"Server")
-	}
-	return method.GoName + "(" + strings.Join(reqArgs, ", ") + ") " + ret
 }

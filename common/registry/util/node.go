@@ -109,6 +109,9 @@ func (n *node) ID() string {
 }
 
 func (n *node) Metadata() map[string]string {
+	if n.I.Metadata == nil {
+		return map[string]string{}
+	}
 	return maps.Clone(n.I.Metadata)
 }
 

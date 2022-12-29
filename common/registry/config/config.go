@@ -80,6 +80,21 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 		}
 	}
 
+	// Init store
+	opts = append(opts, configx.WithInitData(map[string]interface{}{
+		"node":     map[string]registry.Item{},
+		"service":  map[string]registry.Item{},
+		"edge":     map[string]registry.Item{},
+		"dao":      map[string]registry.Item{},
+		"server":   map[string]registry.Item{},
+		"address":  map[string]registry.Item{},
+		"endpoint": map[string]registry.Item{},
+		"tag":      map[string]registry.Item{},
+		"stats":    map[string]registry.Item{},
+		"generic":  map[string]registry.Item{},
+		"other":    map[string]registry.Item{},
+	}))
+
 	switch u.Scheme {
 	case "etcd":
 		tls := u.Query().Get("tls") == "true"
@@ -157,6 +172,7 @@ type options struct {
 }
 
 func NewConfigRegistry(store config.Store, byName bool) registry.RawRegistry {
+
 	c := &configRegistry{
 		store:            store,
 		cache:            []registry.Item{},
@@ -172,7 +188,7 @@ func NewConfigRegistry(store config.Store, byName bool) registry.RawRegistry {
 }
 
 func (c *configRegistry) watch() error {
-	w, err := c.store.Watch(configx.WithChangesOnly())
+	w, err := c.store.Watch(configx.WithPath("*", "*"), configx.WithChangesOnly())
 	if err != nil {
 		return err
 	}
@@ -182,6 +198,7 @@ func (c *configRegistry) watch() error {
 		if err != nil {
 			return err
 		}
+
 		cv := res.(configx.Values)
 
 		c.broadcastersLock.RLock()
@@ -190,7 +207,7 @@ func (c *configRegistry) watch() error {
 
 		for _, bc := range bcs {
 			for _, itemType := range bc.Types {
-				// Always start with DELETE if they are batched to avoid false-negatives on Delete => Create
+				// Always start with DELETE if they are batched -+
 				if err := c.scanAndBroadcast(cv, bc, itemType, "delete", pb.ActionType_DELETE); err != nil {
 					return err
 				}
@@ -227,10 +244,8 @@ func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bc
 				}
 			}
 		}
-		select {
-		case bc.Ch <- registry.NewResult(actionType, items):
-		default:
-		}
+
+		bc.Ch <- registry.NewResult(actionType, items)
 	}
 	return nil
 }
@@ -490,7 +505,7 @@ func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error
 	}
 
 	id := uuid.New()
-	res := make(chan registry.Result, 100)
+	res := make(chan registry.Result)
 
 	// construct the watcher
 	w := registry.NewWatcher(
@@ -504,7 +519,11 @@ func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error
 	if err != nil {
 		return nil, err
 	}
-	res <- registry.NewResult(pb.ActionType_CREATE, items)
+
+	// We shouldn't block the response
+	go func() {
+		res <- registry.NewResult(pb.ActionType_CREATE, items)
+	}()
 
 	c.broadcastersLock.Lock()
 	c.broadcasters[id] = broadcaster{

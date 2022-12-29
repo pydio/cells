@@ -78,6 +78,9 @@ func (d *edge) ID() string {
 }
 
 func (d *edge) Metadata() map[string]string {
+	if d.I.Metadata == nil {
+		return map[string]string{}
+	}
 	return maps.Clone(d.I.Metadata)
 }
 

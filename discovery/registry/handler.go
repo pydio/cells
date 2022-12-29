@@ -165,7 +165,7 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) er
 	}
 
 	defer w.Stop()
-	
+
 	for {
 		res, err := w.Next()
 		if err != nil {

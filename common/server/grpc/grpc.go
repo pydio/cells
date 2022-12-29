@@ -59,7 +59,7 @@ func (o *Opener) OpenURL(ctx context.Context, u *url.URL) (server.Server, error)
 type Server struct {
 	id   string
 	name string
-	meta map[string]string
+	// meta map[string]string
 
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -87,7 +87,7 @@ func New(ctx context.Context, opt ...Option) server.Server {
 	return server.NewServer(ctx, &Server{
 		id:   "grpc-" + uuid.New(),
 		name: opts.Name,
-		meta: make(map[string]string),
+		// meta: make(map[string]string),
 
 		ctx:    ctx,
 		cancel: cancel,
@@ -219,13 +219,14 @@ func (s *Server) Name() string {
 	return s.name
 }
 
+/*
 func (s *Server) Metadata() map[string]string {
 	return s.meta // map[string]string{}
 }
 
 func (s *Server) SetMetadata(meta map[string]string) {
 	s.meta = meta
-}
+}*/
 
 func (s *Server) As(i interface{}) bool {
 	if p, ok := i.(**grpc.Server); ok {

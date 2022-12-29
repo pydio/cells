@@ -24,12 +24,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/v4/common/registry/util"
-
 	"google.golang.org/grpc/attributes"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 )
 
@@ -88,10 +87,6 @@ func NewResolverCallback(reg registry.Registry) (ResolverCallback, error) {
 	go r.updateState()
 	go r.watch()
 
-	/*r.ml.Lock()
-	r.items = items
-	r.ml.Unlock()*/
-
 	return r, nil
 }
 
@@ -124,14 +119,8 @@ func (r *resolverCallback) watch() {
 			return
 		}
 
-		//for _, item := range res.Items() {
-		//	if util.DetectType(item) == pb.ItemType_SERVICE {
-		//		fmt.Println("Received event ", os.Args, res.Action(), item.Name())
-		//	}
-		//}
-
 		r.ml.Lock()
-		if res.Action() == pb.ActionType_CREATE { // || res.Action() == pb.ActionType_UPDATE (TODO reinstate update)
+		if res.Action() == pb.ActionType_CREATE || res.Action() == pb.ActionType_UPDATE {
 			for _, item := range res.Items() {
 				switch util.DetectType(item) {
 				case pb.ItemType_SERVER:
@@ -147,11 +136,6 @@ func (r *resolverCallback) watch() {
 				case pb.ItemType_EDGE:
 					var e registry.Edge
 					if item.As(&e) {
-						// Don't really care for edge update
-						if res.Action() == pb.ActionType_UPDATE {
-							continue
-						}
-
 						r.edges[item.ID()] = e
 					}
 				case pb.ItemType_ADDRESS:

@@ -23,8 +23,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"net"
 	"net/url"
 	"os/exec"
@@ -42,10 +40,12 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	"github.com/pydio/cells/v4/common/config"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
@@ -445,7 +445,7 @@ func (m *model) populateTreeNode(node *tview.TreeNode, pa []string, val configx.
 			c.SetExpanded(false).SetSelectable(true).SetReference(ref)
 			children[c.GetText()] = c
 			childrenKeys = append(childrenKeys, c.GetText())
-			m.populateTreeNode(c, append(pa, strconv.Itoa(k)), configx.NewFrom(i))
+			m.populateTreeNode(c, append(pa, strconv.Itoa(k)), configx.New(configx.WithInitData(i)))
 		}
 	} else if e := val.Scan(&mi); e == nil {
 		for k := range mi {
