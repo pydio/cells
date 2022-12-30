@@ -191,7 +191,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 
 		// Update
 		for j := 0; j < 2; j++ {
-			for i := 0; i < 5000; i++ {
+			for i := 0; i < 100; i++ {
 				if numNodes > 0 {
 					wg.Add(1)
 					go func() {
