@@ -105,11 +105,7 @@ func TestService(t *testing.T) {
 
 func doTestAdd(t *testing.T, m registry.Registry) {
 	Convey("Add services to the registry", t, func() {
-		countCreate := 0
-		countUpdate := 0
-		countDelete := 0
-
-		numNodes := 10
+		numNodes := 100
 		numServers := 100
 		numServices := 1000
 
@@ -117,6 +113,10 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		var createdItemIds []string
+		var updatedItemIds []string
+		var deletedItemIds []string
 
 		go func() {
 			for {
@@ -127,11 +127,17 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 
 				switch res.Action() {
 				case pb.ActionType_CREATE:
-					countCreate = countCreate + len(res.Items())
+					for _, item := range res.Items() {
+						createdItemIds = append(createdItemIds, item.ID())
+					}
 				case pb.ActionType_UPDATE:
-					countUpdate = countUpdate + len(res.Items())
+					for _, item := range res.Items() {
+						updatedItemIds = append(updatedItemIds, item.ID())
+					}
 				case pb.ActionType_DELETE:
-					countDelete = countDelete + len(res.Items())
+					for _, item := range res.Items() {
+						deletedItemIds = append(deletedItemIds, item.ID())
+					}
 				}
 
 			}
@@ -184,78 +190,82 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		var svcUpdates []string
 
 		// Update
-		for i := 0; i < 10000; i++ {
-			if numNodes > 0 {
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
+		for j := 0; j < 2; j++ {
+			for i := 0; i < 5000; i++ {
+				if numNodes > 0 {
+					wg.Add(1)
+					go func() {
+						defer wg.Done()
 
-					idx := rand.Int() % numNodes
-					node, err := m.Get(nodeIds[idx], registry.WithType(pb.ItemType_NODE))
-					if err != nil {
-						return
-					}
+						idx := rand.Int() % numNodes
+						node, err := m.Get(nodeIds[idx], registry.WithType(pb.ItemType_NODE))
+						if err != nil {
+							return
+						}
 
-					meta := node.Metadata()
-					meta[registry.MetaStatusKey] = "whatever"
-					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+						meta := node.Metadata()
+						meta[registry.MetaStatusKey] = "whatever"
+						meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
 
-					if ms, ok := node.(registry.MetaSetter); ok {
-						ms.SetMetadata(meta)
-						m.Register(ms.(registry.Item))
-					}
+						if ms, ok := node.(registry.MetaSetter); ok {
+							ms.SetMetadata(meta)
+							m.Register(ms.(registry.Item))
+						}
 
-					nodeUpdates = append(nodeUpdates, node.ID())
-				}()
+						nodeUpdates = append(nodeUpdates, node.ID())
+					}()
+				}
+
+				if numServers > 0 {
+					wg.Add(1)
+					go func() {
+						defer wg.Done()
+
+						idx := rand.Int() % numServers
+						srv, err := m.Get(serverIds[idx], registry.WithType(pb.ItemType_SERVER))
+						if err != nil {
+							return
+						}
+
+						meta := srv.Metadata()
+						meta[registry.MetaStatusKey] = "whatever"
+						meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+
+						if ms, ok := srv.(registry.MetaSetter); ok {
+							ms.SetMetadata(meta)
+							m.Register(ms.(registry.Item))
+						}
+
+						srvUpdates = append(srvUpdates, srv.ID())
+					}()
+				}
+
+				if numServices > 0 {
+					wg.Add(1)
+					go func() {
+						defer wg.Done()
+
+						idx := rand.Int() % numServices
+						svc, err := m.Get(ids[idx], registry.WithType(pb.ItemType_SERVICE))
+						if err != nil {
+							return
+						}
+
+						meta := svc.Metadata()
+						meta[registry.MetaStatusKey] = "whatever"
+						meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+
+						if ms, ok := svc.(registry.MetaSetter); ok {
+							ms.SetMetadata(meta)
+							m.Register(ms.(registry.Item))
+						}
+
+						svcUpdates = append(svcUpdates, svc.ID())
+					}()
+				}
 			}
 
-			if numServers > 0 {
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
-
-					idx := rand.Int() % numServers
-					srv, err := m.Get(serverIds[idx], registry.WithType(pb.ItemType_SERVER))
-					if err != nil {
-						return
-					}
-
-					meta := srv.Metadata()
-					meta[registry.MetaStatusKey] = "whatever"
-					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-
-					if ms, ok := srv.(registry.MetaSetter); ok {
-						ms.SetMetadata(meta)
-						m.Register(ms.(registry.Item))
-					}
-
-					srvUpdates = append(srvUpdates, srv.ID())
-				}()
-			}
-
-			if numServices > 0 {
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
-
-					idx := rand.Int() % numServices
-					svc, err := m.Get(ids[idx], registry.WithType(pb.ItemType_SERVICE))
-					if err != nil {
-						return
-					}
-
-					meta := svc.Metadata()
-					meta[registry.MetaStatusKey] = "whatever"
-					meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-
-					if ms, ok := svc.(registry.MetaSetter); ok {
-						ms.SetMetadata(meta)
-						m.Register(ms.(registry.Item))
-					}
-
-					svcUpdates = append(svcUpdates, svc.ID())
-				}()
-			}
+			<-time.After(3 * time.Second)
 		}
 
 		wg.Wait()
@@ -303,15 +313,18 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 
 		<-time.After(3 * time.Second)
 
+		createdItemIds = unique(createdItemIds)
+		updatedItemIds = unique(updatedItemIds)
+		deletedItemIds = unique(deletedItemIds)
 		nodeUpdates = unique(nodeUpdates)
 		srvUpdates = unique(srvUpdates)
 		svcUpdates = unique(svcUpdates)
 
 		total := numNodes + numServices + numServers
 		totalUpdates := len(nodeUpdates) + len(srvUpdates) + len(svcUpdates)
-		So(countCreate, ShouldEqual, total)
-		So(countUpdate, ShouldEqual, totalUpdates)
-		So(countDelete, ShouldEqual, total)
+		So(len(createdItemIds), ShouldEqual, total)
+		So(len(updatedItemIds), ShouldEqual, totalUpdates)
+		So(len(deletedItemIds), ShouldEqual, total)
 	})
 }
 
