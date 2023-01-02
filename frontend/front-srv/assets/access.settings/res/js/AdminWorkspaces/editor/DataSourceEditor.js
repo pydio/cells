@@ -41,6 +41,11 @@ class DataSourceEditor extends React.Component{
         super(props);
         const {pydio, create, dataSource, existingNames, createStructure} = props;
         const observable = new DataSource(dataSource, existingNames, createStructure);
+        const sConf = observable.getModel().StorageConfiguration || {}
+        let s3Custom = sConf.customEndpoint ? 'custom' : 'aws';
+        if (s3Custom === 'custom' &&  sConf.minioServer) {
+            s3Custom = "minio"
+        }
         this.state = {
             dirty:false,
             create: create,
@@ -50,7 +55,7 @@ class DataSourceEditor extends React.Component{
             valid: observable.isValid(),
             encryptionKeys: [],
             versioningPolicies: [],
-            s3Custom: observable.getModel().StorageConfiguration.customEndpoint ? 'custom' : 'aws',
+            s3Custom,
             m: (id) => pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id
         };
         DataSource.loadEncryptionKeys().then(res => {
