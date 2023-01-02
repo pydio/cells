@@ -90,6 +90,7 @@ type AccessList struct {
 	claimsScopes map[string]Bitmask
 
 	hasClaimsScopes bool
+	cacheKey        string
 }
 
 // NewAccessList creates a new AccessList.
@@ -204,12 +205,19 @@ func (a *AccessList) AddNodeBitmask(id string, b Bitmask) {
 
 // ReplicateBitmask copies a bitmask value from one position to another
 func (a *AccessList) ReplicateBitmask(fromUuid, toUuid string, replaceInRoots ...bool) bool {
+	replace := len(replaceInRoots) > 0 && replaceInRoots[0]
 	// Protect this method from concurrency
 	a.maskBULock.Lock()
-	defer a.maskBULock.Unlock()
+	defer func() {
+		a.maskBULock.Unlock()
+		if replace && a.cacheKey != "" {
+			//fmt.Println("Updating acl in cache with key", a.cacheKey)
+			_ = a.cache(a.cacheKey)
+		}
+	}()
 	if b, o := a.masksByUUIDs[fromUuid]; o {
 		a.masksByUUIDs[toUuid] = b
-		if len(replaceInRoots) > 0 && replaceInRoots[0] {
+		if replace {
 			// Replace in wssRootsMasks
 			for _, roots := range a.wssRootsMasks {
 				for rootId := range roots {

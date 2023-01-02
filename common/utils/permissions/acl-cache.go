@@ -37,7 +37,7 @@ var (
 )
 
 func initAclCache() {
-	aclCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "500ms", "cleanWindow", "30s"))
+	aclCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "60s", "cleanWindow", "30s"))
 	_, _ = broker.Subscribe(context.TODO(), common.TopicIdmEvent, func(message broker.Message) error {
 		event := &idm.ChangeEvent{}
 		if _, e := message.Unmarshal(event); e != nil {
@@ -72,6 +72,7 @@ type CachedAccessList struct {
 
 // cache uses the CachedAccessList struct with public fields for cache serialization
 func (a *AccessList) cache(key string) error {
+	a.cacheKey = key
 	a.maskBPLock.RLock()
 	a.maskBULock.RLock()
 	defer a.maskBPLock.RUnlock()
@@ -95,6 +96,7 @@ func (a *AccessList) cache(key string) error {
 func newFromCache(key string) (*AccessList, bool) {
 	m := &CachedAccessList{}
 	if b := getAclCache().Get(key, &m); !b {
+		//fmt.Println("Get from cache ", key)
 		return nil, b
 	}
 	a := &AccessList{
@@ -103,6 +105,7 @@ func newFromCache(key string) (*AccessList, bool) {
 		wsACLs:          m.WsACLs,
 		frontACLs:       m.FrontACLs,
 		hasClaimsScopes: m.HasClaimsScopes,
+		cacheKey:        key,
 		// Re-init these
 		maskBPLock:    &sync.RWMutex{},
 		maskBULock:    &sync.RWMutex{},

@@ -116,7 +116,9 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) {
 			m.nodes = append(m.nodes, &node)
 		}
 	}
-	vManagerCache.Set("###virtual-nodes###", m.nodes)
+	if e := vManagerCache.Set("###virtual-nodes###", m.nodes); e != nil {
+		log.Logger(context.Background()).Error("cannot set virtual-nodes to cache", zap.Error(e))
+	}
 	if config.Get("services", "pydio.grpc.user", "loginCI").Default(false).Bool() {
 		m.loginLower = true
 	}
@@ -173,7 +175,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 	}
 
 	if readResp, e := pool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: resolved}); e == nil {
-		vManagerCache.Set(resolved.Path, readResp.Node)
+		_ = vManagerCache.Set(resolved.Path, readResp.Node)
 		return readResp.Node, nil
 	} else if errors.FromError(e).Code == 404 {
 		if len(retry) == 0 {
@@ -219,7 +221,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			if e := m.copyRecycleRootAcl(ctx, vNode, resolved); e != nil {
 				log.Logger(ctx).Warn("Silently ignoring copyRecycleRoot", resolved.Zap("resolved"), zap.Error(e))
 			}
-			vManagerCache.Set(resolved.GetPath(), resolved)
+			_ = vManagerCache.Set(resolved.GetPath(), resolved)
 			return createResp.Node, nil
 		}
 	}
