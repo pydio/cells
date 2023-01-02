@@ -245,7 +245,9 @@ func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bc
 			}
 		}
 
-		bc.Ch <- registry.NewResult(actionType, items)
+		go func() {
+			bc.Ch <- registry.NewResult(actionType, items)
+		}()
 	}
 	return nil
 }

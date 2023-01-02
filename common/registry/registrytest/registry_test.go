@@ -46,33 +46,46 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestMemory(t *testing.T) {
-	reg, err := registry.OpenRegistry(context.Background(), "mem://")
+var (
+	testMemRegistry  registry.Registry
+	testETCDRegistry registry.Registry
+	testSkipMem      bool
+	testSkipEtcd     bool
+)
+
+func init() {
+	var err error
+
+	testMemRegistry, err = registry.OpenRegistry(context.Background(), "mem://")
 	if err != nil {
-		log.Panic(err)
+		testSkipMem = true
 	}
 
-	<-time.After(3 * time.Second)
-
-	doTestAdd(t, reg)
-}
-
-func TestEtcd(t *testing.T) {
 	u := os.Getenv("ETCD_SERVER_ADDR")
 	if u == "" {
-		t.Skip("skipping test: ETCD_SERVER_ADDR not defined")
+		testSkipEtcd = true
+	} else {
+		testETCDRegistry, err = registry.OpenRegistry(context.Background(), "etcd://"+u+"/registrytest")
+		if err != nil {
+			testSkipEtcd = true
+		}
+	}
+}
+
+func TestMemory(t *testing.T) {
+	if testSkipMem {
+		t.Skip("skipping test: no mem registry")
 	}
 
-	reg, err := registry.OpenRegistry(context.Background(), "etcd://"+u+"/registrytest")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	doTestAdd(t, reg)
+	doTestAdd(t, testMemRegistry)
 }
 
 func TestService(t *testing.T) {
-	conn := discoverytest.NewRegistryService()
+	if testSkipMem {
+		t.Skip("skipping test: no mem registry")
+	}
+
+	conn := discoverytest.NewRegistryService(testMemRegistry)
 
 	ctx := clientcontext.WithClientConn(context.Background(), conn)
 
@@ -84,24 +97,30 @@ func TestService(t *testing.T) {
 	doTestAdd(t, reg)
 }
 
-//func TestFile(t *testing.T) {
-//	f, err := os.CreateTemp(os.TempDir(), "registrytest")
-//	if err != nil {
-//		log.Panic(err)
-//	}
-//
-//	defer func() {
-//		f.Close()
-//		os.Remove(f.Name())
-//	}()
-//
-//	reg, err := registry.OpenRegistry(context.Background(), "file://"+f.Name())
-//	if err != nil {
-//		log.Panic(err)
-//	}
-//
-//	doTestAdd(t, reg)
-//}
+func TestEtcd(t *testing.T) {
+	if testSkipEtcd {
+		t.Skip("skipping test: no etcd registry")
+	}
+
+	doTestAdd(t, testETCDRegistry)
+}
+
+func TestServiceEtcd(t *testing.T) {
+	if testSkipEtcd {
+		t.Skip("skipping test: no etcd registry")
+	}
+
+	conn := discoverytest.NewRegistryService(testETCDRegistry)
+
+	ctx := clientcontext.WithClientConn(context.Background(), conn)
+
+	reg, err := registry.OpenRegistry(ctx, "grpc://")
+	if err != nil {
+		log.Panic(err)
+	}
+
+	doTestAdd(t, reg)
+}
 
 func doTestAdd(t *testing.T, m registry.Registry) {
 	Convey("Add services to the registry", t, func() {

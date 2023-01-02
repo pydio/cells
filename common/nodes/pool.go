@@ -285,37 +285,13 @@ func (p *ClientsPool) watchRegistry(reg registry.Registry) error {
 	}
 	p.regWatcher = w
 
-	//prefix := common.ServiceGrpcNamespace_ + common.ServiceDataSync_
-
 	for {
 		_, err := w.Next()
 		if err != nil {
 			return err
 		}
 
-		p.reload <- true
-		/*
-			var hasSync bool
-			for _, item := range r.Items() {
-				var s registry.Service
-				if !item.As(&s) {
-					continue
-				}
-				if !strings.HasPrefix(s.Name(), prefix) {
-					continue
-				}
-				hasSync = true
-				dsName := strings.TrimPrefix(s.Name(), prefix)
-				p.Lock()
-				if _, ok := p.sources[dsName]; ok && r.Action() == pb.ActionType_DELETE {
-					delete(p.sources, dsName)
-				}
-				p.Unlock()
-			}
-			if hasSync {
-				p.reload <- true
-			}
-		*/
+		go func() { p.reload <- true }()
 	}
 
 }

@@ -539,14 +539,18 @@ func (m *manager) WatchTransientStatus() {
 			if status, ok := item.Metadata()[registry.MetaStatusKey]; !ok || status != string(registry.StatusTransient) {
 				return false
 			}
+
 			return true
 		}),
 	}
 
 	w, _ := m.reg.Watch(options...)
+	defer w.Stop()
+
 	for {
 		res, er := w.Next()
 		if er != nil {
+
 			break
 		}
 
@@ -567,12 +571,11 @@ func (m *manager) WatchTransientStatus() {
 				meta[registry.MetaStatusKey] = statusToSet
 				ms.SetMetadata(meta)
 
-				m.reg.Register(i)
-			} else {
-				fmt.Println("Could not set in transient")
+				go m.reg.Register(ms.(registry.Item))
 			}
 		}
 	}
+
 }
 
 type Identifyable interface {
@@ -625,6 +628,8 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 		return true
 	}))
 	w, _ := m.reg.Watch(options...)
+	defer w.Stop()
+
 	for {
 		res, er := w.Next()
 		if er != nil {
@@ -646,7 +651,7 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 			iNames = append(iNames, i.Name())
 		}
 		m.logger.Info("Delete event received for " + strings.Join(iNames, "|") + ", debounce server Restart" + strconv.Itoa(count))
-		db(func() {
+		go db(func() {
 			if srv.NeedsRestart() {
 				w.Stop()
 				m.logger.Info(" -- Restarting server now", zap.Any("type", srv.Type()), zap.String("name", srv.Name()))

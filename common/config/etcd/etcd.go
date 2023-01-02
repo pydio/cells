@@ -26,6 +26,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -415,14 +416,20 @@ func (m *etcd) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		opt(o)
 	}
 
+	regPath, err := regexp.Compile("^" + strings.Join(o.Path, "/"))
+	if err != nil {
+		return nil, err
+	}
+
 	r := &receiver{
 		closed:      false,
 		prefix:      m.prefix,
 		ch:          make(chan *clientv3.Event),
-		path:        o.Path,
+		regPath:     regPath,
+		level:       len(o.Path),
 		changesOnly: o.ChangesOnly,
 		opts:        m.opts,
-		v:           m.values,
+		v:           m.values.Val(o.Path...),
 		timer:       time.NewTimer(2 * time.Second),
 	}
 
@@ -434,7 +441,8 @@ func (m *etcd) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 type receiver struct {
 	closed      bool
 	prefix      string
-	path        []string
+	regPath     *regexp.Regexp
+	level       int
 	ch          chan *clientv3.Event
 	v           configx.Values
 	timer       *time.Timer
@@ -447,11 +455,18 @@ func (r *receiver) call(ev *clientv3.Event) error {
 		return errClosedChannel
 	}
 
-	if len(r.path) == 0 {
+	if r.level == 0 {
 		r.ch <- ev
 	}
 
-	if strings.HasPrefix(string(ev.Kv.Key), strings.Join(r.path, "/")) {
+	key := string(ev.Kv.Key)[len(r.prefix):]
+	key = strings.TrimPrefix(key, "/")
+
+	if r.level > len(strings.Split(key, "/")) {
+		return nil
+	}
+
+	if r.regPath.MatchString(key) {
 		r.ch <- ev
 	}
 
@@ -464,9 +479,14 @@ func (r *receiver) Next() (interface{}, error) {
 	for {
 		select {
 		case ev := <-r.ch:
+			if r.closed {
+				return nil, errClosedChannel
+			}
+
 			changes = append(changes, ev)
 
-			r.timer.Reset(2 * time.Second)
+			r.timer.Stop()
+			r.timer = time.NewTimer(2 * time.Second)
 		case <-r.timer.C:
 			// Initial timer will trigger so checking we have changes
 			if len(changes) == 0 {
@@ -490,13 +510,10 @@ func (r *receiver) Next() (interface{}, error) {
 						}
 					}
 				}
-
-				// fmt.Println("Keys ", c.Val("delete", "service").Map())
-
 				return c, nil
 			}
 
-			return r.v.Val(r.path...), nil
+			return r.v, nil
 		}
 	}
 }
@@ -641,7 +658,6 @@ type lockerMutex struct {
 func (lm *lockerMutex) Lock() {
 	client := lm.s.Client()
 	for {
-		// fmt.Println("Trying lock for ", lm.pfx, time.Now())
 		if err := lm.Mutex.Lock(client.Ctx()); err != nil {
 			fmt.Println("Error locking, retrying... ", lm.pfx, err)
 			<-time.After(100 * time.Millisecond)

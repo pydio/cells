@@ -261,6 +261,10 @@ func (r *receiver) Next() (interface{}, error) {
 	for {
 		select {
 		case op := <-r.ch:
+			if r.closed {
+				return nil, errClosedChannel
+			}
+
 			changes = append(changes, op)
 
 			r.timer.Stop()

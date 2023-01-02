@@ -101,6 +101,8 @@ func watchRegistry(ctx context.Context, treeServer *TreeServer) {
 		return
 	}
 
+	defer w.Stop()
+
 	for {
 		r, err := w.Next()
 		if err != nil {
@@ -118,6 +120,7 @@ func watchRegistry(ctx context.Context, treeServer *TreeServer) {
 				break
 			}
 		}
+
 		if do {
 			updateServicesList(ctx, treeServer, 0)
 		}

@@ -110,10 +110,14 @@ func WatchTargets(ctx context.Context, serviceName string) error {
 		return err
 	}
 	go func() {
+		defer watcher.Stop()
+
 		for {
 			result, err := watcher.Next()
 			if result != nil && err == nil {
-				trigger <- true
+				go func() {
+					trigger <- true
+				}()
 			}
 		}
 	}()
