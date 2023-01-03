@@ -126,6 +126,10 @@ class RestClient extends ApiClient{
                 } else if (response.data && response.data.Trigger) {
                     this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
                 } else if (response.data && response.data.Token) {
+                    const now = Math.floor(Date.now() / 1000);
+                    if(parseInt(response.data.Token.ExpiresAt) < now+5) {
+                        throw new Error("The token expiration time appears to be invalid. Please ensure that your device's time is set correctly or contact your administrator for assistance.")
+                    }
                     this.store(response.data.Token);
                 } else if (request.AuthInfo.type === "logout") {
                     this.remove()
