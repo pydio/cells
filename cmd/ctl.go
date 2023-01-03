@@ -56,6 +56,7 @@ type item struct {
 	main, secondary string
 	shortcut        rune
 	selected        func()
+	status          string
 }
 
 type itemsByName []item
@@ -105,8 +106,9 @@ type model struct {
 	currentType int
 	currentItem int
 
-	currentEdge int
-	itFilter    string
+	currentEdge  int
+	itFilter     string
+	statusFilter bool
 
 	filterText  *tview.InputField
 	pendingItem registry.Item
@@ -207,6 +209,9 @@ func (m *model) updateList(list *tview.List, items []item, current int) {
 		if list == m.itemsList && m.itFilter != "" && !strings.Contains(i.main, m.itFilter) {
 			continue
 		}
+		if list == m.itemsList && m.statusFilter && i.status == string(registry.StatusReady) {
+			continue
+		}
 		list.AddItem(i.main, i.secondary, i.shortcut, i.selected)
 	}
 	list.SetCurrentItem(current)
@@ -233,10 +238,20 @@ func (m *model) loadItems(preselect registry.Item, oo ...registry.Option) {
 			} else if i.Name() == "fork" {
 				name += " " + i.Metadata()["forkStartTag"]
 			}
-			if status, ok := i.Metadata()["status"]; ok {
-				name += " - " + status
+			status := i.Metadata()[registry.MetaStatusKey]
+			if status != "" {
+				if status == string(registry.StatusReady) {
+					name += " - " + status
+				} else {
+					name += " - " + strings.ToUpper(status)
+				}
 			}
-			m.items = append(m.items, item{ri: i, main: name, secondary: secondary})
+			m.items = append(m.items, item{
+				ri:        i,
+				main:      name,
+				secondary: secondary,
+				status:    status,
+			})
 		}
 		sort.Sort(itemsByName(m.items))
 		if preselect != nil {
@@ -285,12 +300,16 @@ func (m *model) itemsChanged(index int) {
 
 func (m *model) getCurrentItem() item {
 	ii := m.items
-	if m.itFilter != "" {
+	if m.itFilter != "" || m.statusFilter {
 		ii = []item{}
 		for _, i := range m.items {
-			if strings.Contains(i.main, m.itFilter) {
-				ii = append(ii, i)
+			if m.itFilter != "" && !strings.Contains(i.main, m.itFilter) {
+				continue
 			}
+			if m.statusFilter && i.status == string(registry.StatusReady) {
+				continue
+			}
+			ii = append(ii, i)
 		}
 	}
 	if m.currentItem < len(ii) {
@@ -386,7 +405,7 @@ func (m *model) renderButtons(i registry.Item) {
 	}
 	switch util.DetectType(i) {
 	case pb.ItemType_SERVER, pb.ItemType_SERVICE:
-		if i.Metadata()["status"] == "stopped" {
+		if i.Metadata()[registry.MetaStatusKey] == string(registry.StatusStopped) {
 			startButton := tview.NewButton("Start").SetSelectedFunc(func() { m.sendCommand("start", i.ID()) })
 			m.buttonsPanel.AddItem(startButton, 0, 1, false)
 			count++
@@ -595,8 +614,22 @@ DESCRIPTION
 			m.typesList, m.itemsList, m.filterText, m.metaView, m.edgesList,
 		}
 
-		reloadButton := tview.NewButton("Reload").SetSelectedFunc(func() {
+		reloadButton := tview.NewButton("Reload")
+		reloadButton.SetSelectedFunc(func() {
 			m.loadItems(m.getCurrentItem().ri, registry.WithType(m.types[m.currentType].it))
+			reloadButton.Blur()
+		})
+
+		statusButton := tview.NewButton("Hide Ready")
+		statusButton.SetSelectedFunc(func() {
+			m.statusFilter = !m.statusFilter
+			statusLabel := "Hide Ready"
+			if m.statusFilter {
+				statusLabel = "Show All"
+			}
+			statusButton.SetLabel(statusLabel)
+			m.loadItems(m.getCurrentItem().ri, registry.WithType(m.types[m.currentType].it))
+			statusButton.Blur()
 		})
 
 		m.filterText.SetChangedFunc(func(text string) {
@@ -648,6 +681,8 @@ DESCRIPTION
 				AddItem(m.itemsList, 0, 1, false).
 				AddItem(tview.NewFlex().
 					AddItem(reloadButton, 10, 0, false).
+					AddItem(tview.NewTextView().SetText(" "), 1, 0, false).
+					AddItem(statusButton, 14, 0, false).
 					AddItem(m.filterText, 0, 1, false),
 					3, 0, false),
 				0, 3, false).

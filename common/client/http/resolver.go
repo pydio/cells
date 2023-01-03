@@ -13,6 +13,7 @@ import (
 	"github.com/pydio/cells/v4/common/client"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/registry"
@@ -99,6 +100,11 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 	if m.monitor != nil && (!m.monitor.Up() || !m.userServiceReady()) {
 		var bb []byte
 		if strings.Contains(r.Header.Get("Accept"), "text/html") {
+			if !m.monitor.Up() {
+				log.Logger(r.Context()).Warn("Returning server is starting because grpc.oauth monitor is not Up")
+			} else {
+				log.Logger(r.Context()).Warn("Returning server is starting because grpc.user service is not ready")
+			}
 			bb, _ = maintenance.Assets.ReadFile("starting.html")
 			w.Header().Set("Content-Type", "text/html")
 		} else {

@@ -267,7 +267,7 @@ ENVIRONMENT
 				server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
 				server.WithHttpBindAddress(runtime.HttpBindAddress()),
 				server.WithErrorCallback(func(err error) {
-					cmd.Println(promptui.IconBad + " - There was an error while starting:" + err.Error())
+					managerLogger.Error(promptui.IconBad + "There was an error while starting:" + err.Error())
 				}),
 			)
 		}
