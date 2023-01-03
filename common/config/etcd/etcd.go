@@ -120,7 +120,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		return nil, err
 	}
 
-	return NewSource(context.Background(), etcdConn, strings.TrimLeft(u.Path, "/"), sessionTTL, withKeys, opts...)
+	return NewSource(ctx, etcdConn, strings.TrimLeft(u.Path, "/"), sessionTTL, withKeys, opts...)
 }
 
 type etcd struct {
@@ -152,7 +152,7 @@ func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, session
 	var leaseID clientv3.LeaseID
 
 	if sessionTTL > -1 {
-		if s, err := concurrency.NewSession(cli, concurrency.WithContext(ctx), concurrency.WithTTL(sessionTTL)); err != nil {
+		if s, err := concurrency.NewSession(cli, concurrency.WithTTL(sessionTTL)); err != nil {
 			return nil, err
 		} else {
 			session = s
@@ -669,9 +669,7 @@ func (lm *lockerMutex) Lock() {
 }
 func (lm *lockerMutex) Unlock() {
 	client := lm.s.Client()
-	if err := lm.Mutex.Unlock(client.Ctx()); err != nil {
-		panic(err)
-	}
+	lm.Mutex.Unlock(client.Ctx())
 }
 
 // NewLocker creates a sync.Locker backed by an etcd mutex.

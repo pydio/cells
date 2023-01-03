@@ -24,20 +24,21 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/manifoldco/promptui"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/spf13/cobra"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
@@ -143,6 +144,7 @@ ENVIRONMENT
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
+
 		ctx, cancel := context.WithCancel(cmd.Context())
 		defer cancel()
 

@@ -575,34 +575,6 @@ func (m *manager) WatchTransientStatus() {
 			}
 		}
 	}
-
-}
-
-type Identifyable interface {
-	ID() string
-}
-
-func Dedup[I Identifyable](items []I) []I {
-	var ret []I
-	for i := 0; i < len(items); i++ {
-		found := false
-		for _, r := range ret {
-			if items[i].ID() == r.ID() {
-				found = true
-				break
-			}
-		}
-
-		if found {
-			continue
-		}
-
-		if !found {
-			ret = append(ret, items[i])
-		}
-	}
-
-	return ret
 }
 
 func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, count int) {
@@ -651,7 +623,7 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 			iNames = append(iNames, i.Name())
 		}
 		m.logger.Info("Delete event received for " + strings.Join(iNames, "|") + ", debounce server Restart" + strconv.Itoa(count))
-		go db(func() {
+		db(func() {
 			if srv.NeedsRestart() {
 				w.Stop()
 				m.logger.Info(" -- Restarting server now", zap.Any("type", srv.Type()), zap.String("name", srv.Name()))
