@@ -302,6 +302,7 @@ func (m *etcd) Set(data interface{}) error {
 		return err
 	}
 
+	fmt.Println("Setting data ", m.values.Bytes())
 	m.ops <- clientv3.OpPut(m.prefix, string(m.values.Bytes()), clientv3.WithLease(m.leaseID))
 
 	return nil
@@ -351,6 +352,8 @@ func (m *etcd) save(ctx context.Context) {
 				if j >= len(opsWithoutDuplicates) {
 					j = len(opsWithoutDuplicates)
 				}
+
+				fmt.Println("Saving now ")
 
 				_, err := m.cli.Txn(ctx).Then(opsWithoutDuplicates[i:j]...).Commit()
 				if err != nil {
@@ -544,6 +547,7 @@ func (v *values) Set(value interface{}) error {
 		return err
 	}
 
+	fmt.Println("Setting data ", string(v.values.Bytes()))
 	if v.withKeys {
 		v.ops <- clientv3.OpPut(strings.Join([]string{v.prefix, v.path}, "/"), string(c.Bytes()), clientv3.WithLease(v.leaseID))
 	} else {
