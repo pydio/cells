@@ -25,13 +25,13 @@ import (
 	"os"
 	"time"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
-
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 var (
@@ -73,6 +73,7 @@ EXAMPLES
 		cmd.Println("Resync Triggered.")
 		if resp.JsonDiff != "" {
 			cmd.Println("Result: " + resp.JsonDiff)
+			cmd.Println(promptui.IconWarn + " If result contains newly created files, you should now launch '" + os.Args[0] + " admin datasource rehash' command.")
 		}
 	},
 }

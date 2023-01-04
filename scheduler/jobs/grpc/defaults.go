@@ -28,6 +28,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/scheduler/lang"
 )
 
 func getDefaultJobs() []*jobs.Job {
@@ -177,5 +178,69 @@ func getDefaultJobs() []*jobs.Job {
 	}
 
 	return defJobs
+
+}
+
+func BuildDataSourceSyncJob(dsName, serviceName string, flat, autoStart bool, languages ...string) *jobs.Job {
+	if flat {
+		return &jobs.Job{
+			ID:             "snapshot-" + dsName,
+			Owner:          common.PydioSystemUsername,
+			Label:          "Snapshot DB index for Datasource " + dsName,
+			MaxConcurrency: 1,
+			AutoStart:      autoStart,
+			Actions: []*jobs.Action{
+				{
+					ID:    "actions.cmd.resync",
+					Label: "Dump Snapshot",
+					Parameters: map[string]string{
+						"service": serviceName,
+						"path":    "write/snapshot.db",
+					},
+				},
+			},
+		}
+
+	} else {
+
+		T := lang.Bundle().GetTranslationFunc(languages...)
+		ap, _ := anypb.New(&tree.Query{
+			Type:       tree.NodeType_LEAF,
+			PathPrefix: []string{dsName},
+		})
+
+		return &jobs.Job{
+			ID:             "resync-ds-" + dsName,
+			Owner:          common.PydioSystemUsername,
+			Label:          T("Jobs.User.ResyncDS", map[string]string{"DsName": dsName}),
+			Inactive:       false,
+			MaxConcurrency: 1,
+			AutoStart:      autoStart,
+			Actions: []*jobs.Action{
+				{
+					ID: "actions.cmd.resync",
+					Parameters: map[string]string{
+						"service": serviceName,
+					},
+					ChainedActions: []*jobs.Action{
+						{
+							ID: "actions.tree.cells-hash",
+							Parameters: map[string]string{
+								"hashType": "cells",
+								"metaName": common.MetaNamespaceHash,
+							},
+							NodesSelector: &jobs.NodesSelector{
+								Query: &service.Query{
+									SubQueries: []*anypb.Any{ap},
+									Operation:  service.OperationType_AND,
+								},
+								Label: "Files selection",
+							},
+						},
+					},
+				},
+			},
+		}
+	}
 
 }
