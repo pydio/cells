@@ -247,16 +247,18 @@ func (m *etcd) watch(ctx context.Context) {
 							typ = clientv3.EventTypeDelete
 						}
 
+						path := append([]string{m.prefix}, p.Path...)
+
 						ops = append(ops, &clientv3.Event{
 							Type: typ,
 							Kv: &mvccpb.KeyValue{
-								Key:            []byte(strings.Join(p.Path, "/")),
+								Key:            []byte(strings.Join(path, "/")),
 								Value:          neu.Val(p.Path...).Bytes(),
 								CreateRevision: op.Kv.CreateRevision,
 								ModRevision:    op.Kv.ModRevision,
 							},
 							PrevKv: &mvccpb.KeyValue{
-								Key:            []byte(strings.Join(p.Path, "/")),
+								Key:            []byte(strings.Join(path, "/")),
 								Value:          prev.Val(p.Path...).Bytes(),
 								CreateRevision: op.PrevKv.CreateRevision,
 								ModRevision:    op.PrevKv.ModRevision,
@@ -425,11 +427,12 @@ func (m *etcd) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		closed:      false,
 		prefix:      m.prefix,
 		ch:          make(chan *clientv3.Event),
+		path:        o.Path,
 		regPath:     regPath,
 		level:       len(o.Path),
 		changesOnly: o.ChangesOnly,
 		opts:        m.opts,
-		v:           m.values.Val(o.Path...),
+		v:           m.values,
 		timer:       time.NewTimer(2 * time.Second),
 	}
 
@@ -441,6 +444,7 @@ func (m *etcd) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 type receiver struct {
 	closed      bool
 	prefix      string
+	path        []string
 	regPath     *regexp.Regexp
 	level       int
 	ch          chan *clientv3.Event
@@ -513,7 +517,7 @@ func (r *receiver) Next() (interface{}, error) {
 				return c, nil
 			}
 
-			return r.v, nil
+			return r.v.Val(r.path...), nil
 		}
 	}
 }
