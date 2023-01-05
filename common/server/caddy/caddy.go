@@ -60,6 +60,8 @@ const (
 {{if .Storage}}  storage {{.Storage}}{{end}}
 }
 
+
+
 {{range .Sites}}
 {{$SiteWebRoot := .WebRoot}}
 {{$ExternalHost := .ExternalHost}}
@@ -100,6 +102,13 @@ const (
 		rewrite /* /
 		mux
 	}
+
+	{{if .Log}}
+	log {
+		output file "{{.Log}}"
+		level {{.LogLevel}}
+	}
+	{{end}}
 
 	{{if .TLS}}tls {{.TLS}}{{end}}
 	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}

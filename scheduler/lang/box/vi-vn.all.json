@@ -60,7 +60,7 @@
     "other": "Quá trình xóa và lưu vào thùng rác đang chạy ngầm..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Re-indexing datasource {{.DsName}}..."
+    "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
     "other": "Tải file đang chạy ngầm..."

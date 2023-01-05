@@ -60,7 +60,7 @@
     "other": "Movendo para a lixeira em segundo plano..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Reindexando a fonte de dados {{.DsName}}..."
+    "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
     "other": "Baixando arquivo em segundo plano..."

@@ -60,7 +60,7 @@
     "other": "Pārvieto uz miskasti..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Datu pārindeksācija {{.DsName}}..."
+    "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
     "other": "Lejupielādē failu fonā..."

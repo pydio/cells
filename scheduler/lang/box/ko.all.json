@@ -60,7 +60,7 @@
     "other": "백그라운드에서 휴지통으로 이동 중..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "{{.DsName}} 인덱스 재생성 중..."
+    "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
     "other": "백그라운드에서 다운로드 중..."
