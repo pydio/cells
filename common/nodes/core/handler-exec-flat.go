@@ -294,10 +294,7 @@ func (f *FlatStorageHandler) postCreate(ctx context.Context, node *tree.Node, re
 		}
 	}
 	_, er := f.ClientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: updateNode, UpdateIfExists: true})
-	if er != nil {
-		return er
-	}
-	return nil
+	return er
 }
 
 func (f *FlatStorageHandler) recomputeETag(ctx context.Context, identifier string, node *tree.Node) (string, error) {
