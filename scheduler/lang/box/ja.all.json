@@ -60,7 +60,7 @@
     "other": "バックグラウンドでゴミ箱に移動しています..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "データソース {{.DsName}} のインデックスを再構築中..."
+    "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
     "other": "バックグラウンドでファイルをダウンロードしています..."

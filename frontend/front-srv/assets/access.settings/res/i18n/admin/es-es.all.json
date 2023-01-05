@@ -612,10 +612,10 @@
     "other": "Nivel"
   },
   "logs.level.exact": {
-    "other": "(only)"
+    "other": "(solo)"
   },
   "logs.level.greaterthan": {
-    "other": "(and up)"
+    "other": "(y superior)"
   },
   "logs.service": {
     "other": "Servicio"

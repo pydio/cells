@@ -60,7 +60,7 @@
     "other": "Přesouvání do koše na pozadí…"
   },
   "Jobs.User.ResyncDS": {
-    "other": "Re-indexing datasource {{.DsName}}..."
+    "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
     "other": "Downloading file in background..."
