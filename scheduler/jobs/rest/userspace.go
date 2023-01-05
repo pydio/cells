@@ -44,6 +44,7 @@ import (
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+	grpc_jobs "github.com/pydio/cells/v4/scheduler/jobs/grpc"
 	"github.com/pydio/cells/v4/scheduler/lang"
 )
 
@@ -407,8 +408,6 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 
 func syncDatasource(ctx context.Context, dsName string, languages ...string) (string, error) {
 
-	T := lang.Bundle().GetTranslationFunc(languages...)
-
 	jobUuid := "resync-ds-" + dsName
 	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
 	if resp, er := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: jobUuid}); er == nil && resp.Job != nil {
@@ -424,23 +423,7 @@ func syncDatasource(ctx context.Context, dsName string, languages ...string) (st
 		return "", e
 	}
 
-	job := &jobs.Job{
-		ID:             jobUuid,
-		Owner:          common.PydioSystemUsername,
-		Label:          T("Jobs.User.ResyncDS", map[string]string{"DsName": dsName}),
-		Inactive:       false,
-		Languages:      languages,
-		MaxConcurrency: 1,
-		AutoStart:      true,
-		Actions: []*jobs.Action{
-			{
-				ID: "actions.cmd.resync",
-				Parameters: map[string]string{
-					"service": common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + dsName,
-				},
-			},
-		},
-	}
+	job := grpc_jobs.BuildDataSourceSyncJob(dsName, common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName, false, true, languages...)
 
 	_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 	return jobUuid, er

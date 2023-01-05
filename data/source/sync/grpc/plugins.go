@@ -23,26 +23,27 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/data/source/sync"
 
-	"github.com/pydio/cells/v4/common/broker"
-	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/proto/object"
-	protosync "github.com/pydio/cells/v4/common/proto/sync"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
-	"github.com/pydio/cells/v4/common/service/errors"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/object"
+	protosync "github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/data/source/sync"
+	grpc_jobs "github.com/pydio/cells/v4/scheduler/jobs/grpc"
 )
 
 var (
@@ -127,7 +128,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 
 				if !dsObject.FlatStorage {
 					syncHandler.Start()
-					if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
+					if existing, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil && existing.Job.CreatedAt > 1672527660 {
 						if !dsObject.SkipSyncOnRestart {
 							log.Logger(jobCtx).Debug("Sending event to start trigger re-indexation")
 							broker.MustPublish(jobCtx, common.TopicTimerEvent, &jobs.JobTriggerEvent{
@@ -135,9 +136,9 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 								RunNow: true,
 							})
 						}
-					} else if errors.FromError(err).Code == 404 {
+					} else if (err != nil && errors.FromError(err).Code == 404) || existing.Job.CreatedAt <= 1672527660 {
 						log.Logger(jobCtx).Info("Creating job in scheduler to trigger re-indexation")
-						job := getJobDefinition(datasource, serviceName, false, !dsObject.SkipSyncOnRestart)
+						job := grpc_jobs.BuildDataSourceSyncJob(datasource, serviceName, false, !dsObject.SkipSyncOnRestart)
 						_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
 							Job: job,
 						})
@@ -191,7 +192,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 						if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "snapshot-" + datasource}); err != nil {
 							if errors.FromError(err).Code == 404 {
 								log.Logger(jobCtx).Info("Creating job in scheduler to dump snapshot for " + datasource)
-								job := getJobDefinition(datasource, serviceName, true, false)
+								job := grpc_jobs.BuildDataSourceSyncJob(datasource, serviceName, true, false)
 								_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
 									Job: job,
 								})
@@ -226,46 +227,4 @@ func WithStorage(source string) service.ServiceOption {
 		return service.WithStorage(sync.NewDAO, service.WithStoragePrefix("data_sync_"+source))
 	}
 	return nil
-}
-
-func getJobDefinition(dsName, serviceName string, flat, autoStart bool) *jobs.Job {
-	if flat {
-		return &jobs.Job{
-			ID:             "snapshot-" + dsName,
-			Owner:          common.PydioSystemUsername,
-			Label:          "Snapshot DB index for Datasource " + dsName,
-			MaxConcurrency: 1,
-			AutoStart:      autoStart,
-			Actions: []*jobs.Action{
-				{
-					ID:    "actions.cmd.resync",
-					Label: "Dump Snapshot",
-					Parameters: map[string]string{
-						"service": serviceName,
-						"path":    "write/snapshot.db",
-					},
-				},
-			},
-		}
-
-	} else {
-
-		return &jobs.Job{
-			ID:             "resync-ds-" + dsName,
-			Owner:          common.PydioSystemUsername,
-			Label:          "Sync DataSource " + dsName,
-			Inactive:       false,
-			MaxConcurrency: 1,
-			AutoStart:      autoStart,
-			Actions: []*jobs.Action{
-				{
-					ID: "actions.cmd.resync",
-					Parameters: map[string]string{
-						"service": serviceName,
-					},
-				},
-			},
-		}
-	}
-
 }

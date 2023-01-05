@@ -493,8 +493,11 @@ func (s *Handler) watchConfigs() {
 func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest) (*protosync.ResyncResponse, error) {
 
 	resp := &protosync.ResyncResponse{}
+
 	var statusChan chan model.Status
 	var doneChan chan interface{}
+	blocker := make(chan interface{})
+
 	fullLog := &jobs.ActionLog{
 		OutputMessage: &jobs.ActionMessage{},
 	}
@@ -526,6 +529,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 				close(doneChan)
 				<-time.After(2 * time.Second)
 				close(statusChan)
+				close(blocker)
 				autoClient.Stop()
 			}()
 			for {
@@ -565,6 +569,8 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 				}
 			}
 		}()
+	} else {
+		doneChan = blocker
 	}
 
 	// First trigger a Resync on index, to clean potential issues
@@ -623,6 +629,9 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 		}
 		return nil, e
 	} else if result != nil {
+		if blocker != nil {
+			<-blocker
+		}
 		data, _ := json.Marshal(result.Stats())
 		resp.JsonDiff = string(data)
 		resp.Success = true
