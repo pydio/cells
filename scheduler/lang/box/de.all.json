@@ -60,7 +60,7 @@
     "other": "Wird im Hintergrund in den Papierkorb verschoben..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Neuindizierung der Datenquelle {{.DsName}}..."
+    "other": "Datenquelle {{.DsName}} synchronisieren und dann neue Dateien neu hashen"
   },
   "Jobs.User.Wget": {
     "other": "Datei wird im Hintergrund heruntergeladen..."

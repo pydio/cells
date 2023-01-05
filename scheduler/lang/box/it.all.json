@@ -60,7 +60,7 @@
     "other": "Spostamento nel cestino in background..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Reindicizzazione datasource {{.DsName}}..."
+    "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
     "other": "Download del file in background..."

@@ -60,7 +60,7 @@
     "other": "Déplacement dans la corbeille en tâche de fond..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Re-indexation de la DataSource {{.DsName}}..."
+    "other": "Synchroniser la source de données {{.DsName}} puis calculer les nouvelles signatures"
   },
   "Jobs.User.Wget": {
     "other": "Téléchargement du fichier en tâche de fond..."

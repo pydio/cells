@@ -60,7 +60,7 @@
     "other": "Перемещение в корзину в фоновом режиме..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Переиндексация источника данных {{.DsName}}..."
+    "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
     "other": "Загрузка файла в фоновом режиме..."

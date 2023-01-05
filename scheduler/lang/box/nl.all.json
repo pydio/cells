@@ -60,7 +60,7 @@
     "other": "Verplaatsen naar prullenbak op de achtergrond..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Herindexeren van datasource {{.DsName}}..."
+    "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
     "other": "Bestand downloaden op de achtergrond..."

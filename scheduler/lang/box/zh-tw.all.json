@@ -60,7 +60,7 @@
     "other": "在背景中移動到垃圾回收桶..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "正為 {{.DsName}} 資料源重新建立索引..."
+    "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
     "other": "在背景中下載檔案..."

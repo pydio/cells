@@ -60,7 +60,7 @@
     "other": "在后台移动到回收站..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "正在重新索引数据源 {{.DsName}}..."
+    "other": "Sync datasource {{.DsName}} then rehash new files"
   },
   "Jobs.User.Wget": {
     "other": "正在后台下载文件..."
