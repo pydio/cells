@@ -81,6 +81,7 @@ func init() {
 							Config:      mc,
 						}
 						object.RegisterObjectsEndpointEnhancedServer(server, engine)
+						object.RegisterResourceCleanerEndpointEnhancedServer(server, engine)
 						var startErr error
 						go func() {
 							startErr = engine.StartMinioServer(c, datasource)

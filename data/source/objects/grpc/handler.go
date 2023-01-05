@@ -42,6 +42,7 @@ import (
 // ObjectHandler definition
 type ObjectHandler struct {
 	object.UnimplementedObjectsEndpointServer
+	object.UnimplementedResourceCleanerEndpointServer
 	Config           *object.MinioConfig
 	MinioConsolePort int
 	handlerName      string
@@ -102,7 +103,7 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 		if er := os.WriteFile(fName, creds, 0600); er != nil {
 			return errors.New("cannot prepare gcs-credentials.json file: " + e.Error())
 		}
-		os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", fName)
+		_ = os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", fName)
 	} else {
 		folderName = o.Config.LocalFolder
 	}
@@ -125,7 +126,7 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 	if o.MinioConsolePort > 0 {
 		params = append(params, "--console-address", fmt.Sprintf(":%d", o.MinioConsolePort))
 	} else {
-		os.Setenv("MINIO_BROWSER", "off")
+		_ = os.Setenv("MINIO_BROWSER", "off")
 	}
 
 	params = append(params, "--config-dir")
@@ -147,8 +148,8 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 		log.Logger(ctx).Info("Starting gateway objects service " + minioServiceName + " to Amazon S3")
 	}
 
-	os.Setenv("MINIO_ROOT_USER", accessKey)
-	os.Setenv("MINIO_ROOT_PASSWORD", secretKey)
+	_ = os.Setenv("MINIO_ROOT_USER", accessKey)
+	_ = os.Setenv("MINIO_ROOT_PASSWORD", secretKey)
 
 	minio.HookRegisterGlobalHandler(func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -201,4 +202,25 @@ func (o *ObjectHandler) StorageStats(_ context.Context, _ *object.StorageStatsRe
 	}
 
 	return resp, nil
+}
+
+// CleanResourcesBeforeDelete removes the .minio.sys/config folder if it exists
+func (o *ObjectHandler) CleanResourcesBeforeDelete(ctx context.Context, request *object.CleanResourcesRequest) (resp *object.CleanResourcesResponse, err error) {
+	resp = &object.CleanResourcesResponse{
+		Success: true,
+		Message: "Nothing to do",
+	}
+	if o.Config.StorageType != object.StorageType_LOCAL {
+		return
+	}
+	configFolder := filepath.Join(o.Config.LocalFolder, ".minio.sys", "config")
+	if _, er := os.Stat(configFolder); er == nil {
+		if err = os.RemoveAll(configFolder); err == nil {
+			resp.Message = "Removed minio config folder"
+		} else {
+			resp.Success = false
+			resp.Message = err.Error()
+		}
+	}
+	return
 }
