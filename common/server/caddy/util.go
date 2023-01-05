@@ -22,6 +22,7 @@ package caddy
 
 import (
 	"net/url"
+	"path/filepath"
 	"strings"
 
 	"google.golang.org/protobuf/proto"
@@ -43,6 +44,10 @@ type SiteConf struct {
 	ExternalHost string
 	// Custom Root for this site
 	WebRoot string
+	// LogFile for this site
+	Log string
+	// LogLevel for this site
+	LogLevel string
 }
 
 // Redirects compute required redirects if SSLRedirect is set
@@ -126,5 +131,17 @@ func computeSiteConf(pc *install.ProxyConfig) (SiteConf, error) {
 		}
 	}
 	bc.WebRoot = uuid.New()
+
+	// Translating log level to caddy
+	logLevel := runtime.LogLevel()
+	if logLevel != "warn" {
+		if logLevel == "debug" {
+			bc.Log = filepath.Join(runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs), "caddy_access.log")
+			bc.LogLevel = "INFO"
+		} else {
+			bc.Log = filepath.Join(runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs), "caddy_errors.log")
+			bc.LogLevel = "ERROR"
+		}
+	}
 	return bc, nil
 }
