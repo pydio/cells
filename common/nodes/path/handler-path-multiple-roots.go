@@ -195,8 +195,7 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 	_, out, err := m.updateInputBranch(ctx, in.Node, "in")
 	if err != nil && errors.FromError(err).Status == "Not Found" && (in.Node.Path == "/" || in.Node.Path == "") {
 
-		// Load root nodes and
-		// return a fake root node
+		// Load multiple root nodes and build a fake parent node
 		branch, _ := nodes.GetBranchInfo(ctx, "in")
 		nn, e := m.GetRootKeys(branch.RootUUIDs)
 		if e != nil {
@@ -208,11 +207,25 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 			Size:  0,
 			MTime: 0,
 		}
+		hashingVersion := ""
 		for _, node := range nn {
 			fakeNode.Size += node.Size
 			if node.MTime > fakeNode.MTime {
 				fakeNode.MTime = node.MTime
 			}
+			if dsName := node.GetStringMeta(common.MetaNamespaceDatasourceName); dsName != "" {
+				if ls, er := m.ClientsPool.GetDataSourceInfo(dsName); er == nil {
+					h, _ := ls.ConfigurationByKey(object.StorageKeyHashingVersion)
+					if hashingVersion != "" && h != hashingVersion {
+						hashingVersion = "mixed"
+					} else {
+						hashingVersion = h
+					}
+				}
+			}
+		}
+		if hashingVersion != "" {
+			fakeNode.MustSetMeta(common.MetaFlagHashingVersion, hashingVersion)
 		}
 		fakeNode.MustSetMeta(common.MetaNamespaceNodeName, branch.Workspace.Label)
 		fakeNode.MustSetMeta(common.MetaFlagVirtualRoot, "true")

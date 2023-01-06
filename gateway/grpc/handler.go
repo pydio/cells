@@ -153,17 +153,30 @@ func (t *TreeHandler) ListNodes(request *tree.ListNodesRequest, stream tree.Node
 			expectedHashing = "v4"
 		}
 	}
-	rr, er := ro.ReadNode(ctx, &tree.ReadNodeRequest{Node: request.GetNode()})
-	if er != nil {
-		return er
+
+	checkHashing := func(n *tree.Node) error {
+		rr, er := ro.ReadNode(ctx, &tree.ReadNodeRequest{Node: n})
+		if er != nil {
+			return er
+		}
+		nodeHashing := rr.GetNode().GetStringMeta(common.MetaFlagHashingVersion)
+		if nodeHashing != expectedHashing {
+			log.Logger(ctx).Error("WARNING - Sync Client with wrong hashing constraints (client was " + expectedHashing + ", node " + rr.GetNode().GetPath() + " is " + nodeHashing + ")")
+			if nodeHashing == "v4" { // server is v4, require app update
+				return status.Errorf(codes.FailedPrecondition, "hashing formats differ, please make sure to update the sync application")
+			} else {
+				return status.Errorf(codes.FailedPrecondition, "hashing formats differ, please contact admin to rehash the datasource")
+			}
+		}
+		return nil
 	}
-	dsHashing := rr.GetNode().GetStringMeta(common.MetaFlagHashingVersion)
-	if dsHashing != expectedHashing {
-		log.Logger(ctx).Error("WARNING - Sync Client with wrong hashing constraints (client was " + expectedHashing + ", datasource is " + dsHashing + ")")
-		if dsHashing == "v4" { // server is v4, require app update
-			return status.Errorf(codes.FailedPrecondition, "hashing formats differ, please make sure to update the sync application")
-		} else {
-			return status.Errorf(codes.FailedPrecondition, "hashing formats differ, please contact admin to rehash the datasource")
+
+	isRoot := strings.Trim(request.GetNode().GetPath(), "/") == ""
+
+	if !isRoot {
+		// Check if requested node has expected hashing version
+		if err := checkHashing(request.GetNode()); err != nil {
+			return err
 		}
 	}
 
@@ -180,6 +193,13 @@ func (t *TreeHandler) ListNodes(request *tree.ListNodesRequest, stream tree.Node
 		}
 		if e != nil {
 			return e
+		}
+		if isRoot {
+			// When browsing root we are listing the workspaces, check their hashing version (based on their parent datasource)
+			if err := checkHashing(r.GetNode()); err != nil {
+				log.Logger(ctx).Warn("Ignoring node " + r.GetNode().GetPath() + " as hashing differs from expected")
+				continue
+			}
 		}
 		stream.Send(r)
 	}

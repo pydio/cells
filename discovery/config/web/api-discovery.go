@@ -22,6 +22,7 @@ package rest
 
 import (
 	"fmt"
+	net2 "net"
 	"net/url"
 	"strings"
 	"time"
@@ -54,9 +55,11 @@ import (
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
-/*****************************
+/*
+****************************
 PUBLIC ENDPOINTS FOR DISCOVERY
-******************************/
+*****************************
+*/
 func withPath(u *url.URL, p string) *url.URL {
 	u2 := *u
 	u2.Path = p
@@ -116,7 +119,10 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 				for _, s := range ss {
 					for _, n := range reg.ListAdjacentItems(s, registry.WithType(pbregistry.ItemType_SERVER)) {
 						for _, a := range reg.ListAdjacentItems(n, registry.WithType(pbregistry.ItemType_ADDRESS)) {
-							grpcPorts = append(grpcPorts, strings.ReplaceAll(a.Name(), "[::]:", ""))
+							if _, p, e := net2.SplitHostPort(a.Name()); e == nil {
+								/*strings.ReplaceAll(a.Name(), "[::]:", "")*/
+								grpcPorts = append(grpcPorts, p)
+							}
 						}
 					}
 				}
