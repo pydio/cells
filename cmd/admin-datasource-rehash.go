@@ -21,6 +21,7 @@
 package cmd
 
 import (
+	"github.com/pydio/cells/v4/common/proto/object"
 	"os"
 	"path"
 
@@ -82,6 +83,10 @@ EXAMPLES
 			PathPrefix: []string{path.Join(rehashDsName, rehashPath)},
 		})
 
+		dsq, _ := anypb.New(&object.DataSourceSingleQuery{
+			Name: rehashDsName,
+		})
+
 		jobClient := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
 		job := &jobs.Job{
 			ID:             uuid.New(),
@@ -103,14 +108,37 @@ EXAMPLES
 					},
 				},
 			},
+			MergeAction: &jobs.Action{
+				ID: "actions.test.fake",
+				Parameters: map[string]string{
+					"timer":  "1",
+					"ticker": "1",
+				},
+				ChainedActions: []*jobs.Action{
+					{
+						ID:    "actions.tree.ds-attribute",
+						Label: "Set DS Hashing",
+						DataSourceSelector: &jobs.DataSourceSelector{
+							Query: &service.Query{
+								SubQueries: []*anypb.Any{dsq},
+							},
+							Collect: true,
+						},
+						Parameters: map[string]string{
+							"attName":  object.StorageKeyHashingVersion,
+							"attValue": object.CurrentHashingVersion,
+						},
+					},
+				},
+			},
 			Timeout: rehashTimeout,
 		}
 
 		if _, err := jobClient.PutJob(ctx, &jobs.PutJobRequest{Job: job}); err != nil {
 			cmd.Println(promptui.IconBad + " [ERROR] " + err.Error())
 		} else {
-			cmd.Println(promptui.IconGood + " [SUCCESS] Posted job for recomputing hashes on all files.")
-			cmd.Println(promptui.IconWarn + " You should monitor the job and afterward you may use 'admin datasource rehash conf' command to update datasource.")
+			cmd.Println(promptui.IconGood + " [SUCCESS] Posted job for recomputing hashes on all files. You can monitor the job in the scheduler.")
+			cmd.Println(promptui.IconGood + " [SUCCESS] Datasource hashing_version will be updated if necessary, you may restart the server if value is changed.")
 		}
 
 	},

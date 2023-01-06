@@ -43,4 +43,8 @@ func init() {
 		return &CellsHashAction{}
 	})
 
+	manager.Register(datasourceAttributeActionName, func() actions.ConcreteAction {
+		return &datasourceAttributeAction{}
+	})
+
 }
