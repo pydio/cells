@@ -128,7 +128,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 
 				if !dsObject.FlatStorage {
 					syncHandler.Start()
-					if existing, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil && existing.Job.CreatedAt > 1672527660 {
+					if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
 						if !dsObject.SkipSyncOnRestart {
 							log.Logger(jobCtx).Debug("Sending event to start trigger re-indexation")
 							broker.MustPublish(jobCtx, common.TopicTimerEvent, &jobs.JobTriggerEvent{
@@ -136,9 +136,9 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 								RunNow: true,
 							})
 						}
-					} else if (err != nil && errors.FromError(err).Code == 404) || existing.Job.CreatedAt <= 1672527660 {
+					} else if err != nil && errors.FromError(err).Code == 404 {
 						log.Logger(jobCtx).Info("Creating job in scheduler to trigger re-indexation")
-						job := grpc_jobs.BuildDataSourceSyncJob(datasource, serviceName, false, !dsObject.SkipSyncOnRestart)
+						job := grpc_jobs.BuildDataSourceSyncJob(datasource, false, !dsObject.SkipSyncOnRestart)
 						_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
 							Job: job,
 						})
@@ -192,7 +192,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 						if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "snapshot-" + datasource}); err != nil {
 							if errors.FromError(err).Code == 404 {
 								log.Logger(jobCtx).Info("Creating job in scheduler to dump snapshot for " + datasource)
-								job := grpc_jobs.BuildDataSourceSyncJob(datasource, serviceName, true, false)
+								job := grpc_jobs.BuildDataSourceSyncJob(datasource, true, false)
 								_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
 									Job: job,
 								})

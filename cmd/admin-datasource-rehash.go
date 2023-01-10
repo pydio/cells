@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"github.com/pydio/cells/v4/common/proto/object"
+	grpc_jobs "github.com/pydio/cells/v4/scheduler/jobs/grpc"
 	"os"
 	"path"
 
@@ -139,6 +140,14 @@ EXAMPLES
 		} else {
 			cmd.Println(promptui.IconGood + " [SUCCESS] Posted job for recomputing hashes on all files. You can monitor the job in the scheduler.")
 			cmd.Println(promptui.IconGood + " [SUCCESS] Datasource hashing_version will be updated if necessary, you may restart the server if value is changed.")
+			structDsJob := grpc_jobs.BuildDataSourceSyncJob(rehashDsName, false, false)
+			if existing, er := jobClient.GetJob(ctx, &jobs.GetJobRequest{JobID: structDsJob.ID}); er == nil && existing.GetJob().CreatedAt <= 1672527660 {
+				if _, e := jobClient.PutJob(ctx, &jobs.PutJobRequest{Job: structDsJob}); e == nil {
+					cmd.Println(promptui.IconGood + " [SUCCESS] Datasource re-indexing job was updated to compute hashes on newly detected files after each indexation.")
+				} else {
+					cmd.Println(promptui.IconWarn + " [WARN] Cannot update datasource re-indexing job (to compute hashes on newly detected files after each indexation): " + e.Error())
+				}
+			}
 		}
 
 	},

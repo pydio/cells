@@ -423,7 +423,7 @@ func syncDatasource(ctx context.Context, dsName string, languages ...string) (st
 		return "", e
 	}
 
-	job := grpc_jobs.BuildDataSourceSyncJob(dsName, common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName, false, true, languages...)
+	job := grpc_jobs.BuildDataSourceSyncJob(dsName, false, true, languages...)
 
 	_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 	return jobUuid, er

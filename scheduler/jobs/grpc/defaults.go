@@ -181,7 +181,9 @@ func getDefaultJobs() []*jobs.Job {
 
 }
 
-func BuildDataSourceSyncJob(dsName, serviceName string, flat, autoStart bool, languages ...string) *jobs.Job {
+func BuildDataSourceSyncJob(dsName string, flat, autoStart bool, languages ...string) *jobs.Job {
+	sName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + dsName
+
 	if flat {
 		return &jobs.Job{
 			ID:             "snapshot-" + dsName,
@@ -194,7 +196,7 @@ func BuildDataSourceSyncJob(dsName, serviceName string, flat, autoStart bool, la
 					ID:    "actions.cmd.resync",
 					Label: "Dump Snapshot",
 					Parameters: map[string]string{
-						"service": serviceName,
+						"service": sName,
 						"path":    "write/snapshot.db",
 					},
 				},
@@ -220,7 +222,7 @@ func BuildDataSourceSyncJob(dsName, serviceName string, flat, autoStart bool, la
 				{
 					ID: "actions.cmd.resync",
 					Parameters: map[string]string{
-						"service": serviceName,
+						"service": sName,
 					},
 					ChainedActions: []*jobs.Action{
 						{
