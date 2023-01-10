@@ -213,7 +213,8 @@ func (m *manager) ServeAll(oo ...server.ServeOption) {
 		locker.Lock()
 
 		w, err := m.reg.Watch(registry.WithID(m.root.ID()), registry.WithType(pb.ItemType_NODE), registry.WithFilter(func(item registry.Item) bool {
-			if item.Metadata()[registry.MetaStatusKey] == string(registry.StatusReady) {
+			status, ok := item.Metadata()[registry.MetaStatusKey]
+			if ok && (status == string(registry.StatusReady) || status == string(registry.StatusError)) {
 				return true
 			}
 
@@ -559,9 +560,12 @@ func (m *manager) WatchTransientStatus() {
 			items := m.reg.ListAdjacentItems(i, registry.WithType(pb.ItemType_SERVICE))
 			for _, item := range items {
 				itemStatus := item.Metadata()[registry.MetaStatusKey]
-				if itemStatus != string(registry.StatusReady) && itemStatus != string(registry.StatusWaiting) {
+				if itemStatus != string(registry.StatusReady) && itemStatus != string(registry.StatusWaiting) && itemStatus != string(registry.StatusError) {
 					statusToSet = string(registry.StatusTransient)
 					break
+				}
+				if itemStatus == string(registry.StatusError) && statusToSet == string(registry.StatusReady) {
+					statusToSet = string(registry.StatusError)
 				}
 			}
 

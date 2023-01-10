@@ -299,7 +299,7 @@ func (s *service) updateRegister(status ...registry.Status) {
 			log.Logger(s.opts.Context).Debug(string(status[0]))
 		}
 	}
-	up := s.status == registry.StatusReady
+	// up := s.status == registry.StatusReady
 	down := s.status == registry.StatusStopping || s.status == registry.StatusStopped || s.status == registry.StatusError
 
 	reg := servicecontext.GetRegistry(s.opts.Context)
@@ -307,7 +307,7 @@ func (s *service) updateRegister(status ...registry.Status) {
 		return
 	}
 	var options []registry.RegisterOption
-	if up && s.opts.Server != nil {
+	if s.opts.Server != nil {
 		options = append(options, registry.WithEdgeTo(s.opts.Server.ID(), "Server", map[string]string{}))
 	}
 	if len(s.opts.Tags) > 0 && !down {
