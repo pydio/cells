@@ -42,6 +42,7 @@ type Smtp struct {
 	Port               int
 	LocalName          string
 	InsecureSkipVerify bool
+	UseSSL             bool
 }
 
 func (gm *Smtp) Configure(ctx context.Context, conf configx.Values) error {
@@ -77,6 +78,8 @@ func (gm *Smtp) Configure(ctx context.Context, conf configx.Values) error {
 	// Set default to be false.
 	gm.InsecureSkipVerify = conf.Val("insecureSkipVerify").Bool()
 
+	gm.UseSSL = conf.Val("connectionSecurity").Default("starttls").String() == "ssl"
+
 	log.Logger(ctx).Debug("SMTP Configured", zap.String("u", gm.User), zap.String("h", gm.Host), zap.Int("p", gm.Port))
 
 	return nil
@@ -97,6 +100,8 @@ func (gm *Smtp) Check(ctx context.Context) error {
 		InsecureSkipVerify: gm.InsecureSkipVerify,
 		ServerName:         gm.Host,
 	}
+	d.SSL = gm.UseSSL
+
 	// Check configuration
 	d.TLSConfig = &tlsConfig
 	if closer, err := d.Dial(); err != nil {
@@ -120,6 +125,7 @@ func (gm *Smtp) Send(email *mailer.Mail) error {
 	if gm.LocalName != "" {
 		d.LocalName = gm.LocalName
 	}
+	d.SSL = gm.UseSSL
 	tlsConfig := tls.Config{
 		InsecureSkipVerify: gm.InsecureSkipVerify,
 		ServerName:         gm.Host,

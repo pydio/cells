@@ -143,6 +143,18 @@ var ExposedConfigs = &forms.Form{
 								Type:        forms.ParamPassword,
 							},
 							&forms.FormField{
+								Name:        "connectionSecurity",
+								Label:       "Mail.Config.Smtp.Security.Label",
+								Description: "Mail.Config.Smtp.Security.Description",
+								Mandatory:   true,
+								Default:     "starttls",
+								Type:        forms.ParamSelect,
+								ChoicePresetList: []map[string]string{
+									{"starttls": "StartTLS"},
+									{"ssl": "SSL/TLS"},
+								},
+							},
+							&forms.FormField{
 								Name:        "insecureSkipVerify",
 								Label:       "Mail.Config.Smtp.SkipVerify.Label",
 								Description: "Mail.Config.Smtp.SkipVerify.Description",
