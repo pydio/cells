@@ -639,17 +639,57 @@ class MainFilesList extends React.Component {
         const list = [
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.list'],title:227,icon_class:'mdi mdi-view-list',value:'list',hasAccessKey:true,accessKey:'list_access_key'},
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.details'],title:461,icon_class:'mdi mdi-view-headline',value:'detail',hasAccessKey:true,accessKey:'detail_access_key'},
-            {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs'],title:229,icon_class:'mdi mdi-view-grid',value:'grid-160',hasAccessKey:true,accessKey:'thumbs_access_key'},
-            {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-large'],title:229,icon_class:'mdi mdi-view-agenda',value:'grid-320', hasAccessKey:false},
-            {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-small'],title:229,icon_class:'mdi mdi-view-module',value:'grid-80', hasAccessKey:false}
-           ,{name:Pydio.getMessages()['ajax_gui.list.display-mode.masonry'], title:229,icon_class:'mdi mdi-view-dashboard',value:'masonry', hasAccessKey:false}
+            {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs'],title:229,icon_class:'mdi mdi-view-grid',value:'grid-160',hasAccessKey:true,accessKey:'thumbs_access_key', highlight:(v)=>v.indexOf('grid-')===0}
         ];
+        if(displayMode.indexOf('grid-') === 0) {
+            list.push(
+                {
+                    name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-large'],
+                    icon_class:'mdi mdi-arrow-up',
+                    value:'grid-320'
+                },
+                {
+                    name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-medium'],
+                    icon_class:'mdi mdi-minus',
+                    value:'grid-160'
+                },
+                {
+                    name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-small'],
+                    icon_class:'mdi mdi-arrow-down',
+                    value:'grid-80'
+                },
+            )
+        }
+        list.push(
+            {
+                name:Pydio.getMessages()['ajax_gui.list.display-mode.masonry'],
+                icon_class:'mdi mdi-view-dashboard',
+                value:'masonry',
+                highlight:(v)=>v.indexOf('masonry')===0
+            },
+        )
+        if(displayMode.indexOf('masonry') === 0) {
+            list.push(
+                {
+                    name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-large'],
+                    icon_class:'mdi mdi-arrow-up',value:'masonry-440'
+                },
+                {
+                    name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-medium'],
+                    icon_class:'mdi mdi-minus',value:'masonry'
+                },
+                {
+                    name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-small'],
+                    icon_class:'mdi mdi-arrow-down',value:'masonry-100'
+                }
+            )
+        }
         return list.map(item => {
             const i = {...item};
             const value = item.value;
             i.callback = () => {this.switchDisplayMode(i.value)};
-            if(value === displayMode){
-                i.icon_class = 'mdi mdi-check';
+            if(value === displayMode || (i.highlight && i.highlight(displayMode))){
+                i.name = <span style={{fontWeight: 500}}>{i.name}</span>
             }
             return i;
         });
@@ -862,7 +902,11 @@ class MainFilesList extends React.Component {
             }
         }
 
-        if(dMode === 'masonry') {
+        if(dMode.indexOf('masonry')=== 0) {
+            let cWidth = 220
+            if(dMode.indexOf('masonry-')=== 0){
+                cWidth = parseInt(dMode.replace('masonry-', ''))
+            }
             const css = `
                .masonic-grid .mimefont-container {
                     display:flex; 
@@ -891,6 +935,7 @@ class MainFilesList extends React.Component {
                         }}
                         emptyStateProps={emptyStateProps}
                         containerStyle={style}
+                        columnWidth={cWidth}
                     />
                     <style type={"text/css"} dangerouslySetInnerHTML={{__html:css}}/>
                 </React.Fragment>

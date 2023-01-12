@@ -3,7 +3,7 @@ import React, {useRef, useState, useEffect} from 'react'
 import { useSize, useScroller } from "mini-virtual-list";
 import { usePositioner, useResizeObserver, useMasonry } from "masonic";
 const {useImagePreview} = Pydio.requireLib('hoc');
-import useImage from 'react-use-image'
+//import useImage from 'react-use-image'
 import {ContextMenuWrapper} from "./ListEntry";
 import {sortNodesNatural} from "./sorters";
 import SimpleList from "./SimpleList";
@@ -40,12 +40,48 @@ function usePreview(node) {
         ratio = dim.Height / dim.Width;
     }
     const {src} = useImagePreview(node);
+    /*
     const {loaded, dimensions} = useImage(src)
     // Compute ratio
     if(loaded && src && dimensions) {
         ratio = dimensions.height/dimensions.width
     }
+    */
     return {ratio, src};
+}
+
+function useIsVisible(ref) {
+    const [isIntersecting, setIntersecting] = useState(false);
+
+    const fallback = (el) => {
+
+        const rect = el.getBoundingClientRect();
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
+    }
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.target && !entry.rootBounds && fallback(entry.target)) {
+                setIntersecting(true)
+                return
+            }
+            if(entry.isIntersecting){
+                return setIntersecting(entry.isIntersecting)
+            }
+        }, {threshold:0.1, root: null});
+
+        observer.observe(ref.current);
+        return () => {
+            observer.disconnect();
+        };
+    }, [ref]);
+
+    return isIntersecting;
 }
 
 const triggerResize = debounce(() => {
@@ -117,7 +153,7 @@ const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
             onMouseOver={() => setHover(true)}
             onMouseOut={() => setHover(false)}
         >
-            {src && <img alt={node.getPath()} src={src} style={{width:width, borderRadius: 4, ...rotateStyle}}/>}
+            {src && <VisibleImage src={src} alt={node.getPath()} style={{width:width, borderRadius: 4, ...rotateStyle}}/>}
             {parent && <div className={"mimefont-container"}><div className={"mimefont mdi mdi-chevron-left"}/></div>}
             {!parent && !src && renderIcon(node)}
             {!parent && <div style={{position:'absolute', top: 0, left: 0}}>{renderActions(node)}</div>}
@@ -125,6 +161,17 @@ const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
         </ContextMenuWrapper>
     );
 
+}
+
+const VisibleImage = ({src, alt, style}) => {
+    const ref = useRef();
+    const isVisible = useIsVisible(ref);
+    let s = {...style}
+    s.transition = 'opacity 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms';
+    if(!isVisible){
+        s.opacity = 0;
+    }
+    return <img ref={ref} alt={alt} src={isVisible?src:null} style={s}/>
 }
 
 function childrenToItems(node, itemProps) {
@@ -139,7 +186,7 @@ function childrenToItems(node, itemProps) {
     return items;
 }
 
-export default React.memo(({className, dataModel, entryProps, emptyStateProps, containerStyle={}}) => {
+export default React.memo(({className, dataModel, entryProps, emptyStateProps, containerStyle={}, columnWidth=220}) => {
 
     const itemProps = {dataModel, entryProps};
     const computeItems = () => {
@@ -167,14 +214,20 @@ export default React.memo(({className, dataModel, entryProps, emptyStateProps, c
         setItems(computeItems());
         const childrenObserver = () => {
             setItems(childrenToItems(node, itemProps))
+            triggerResize()
         }
-        node.observe("child_added", childrenObserver);
+        const childrenObserverResize = () => {
+            setItems(childrenToItems(node, itemProps))
+            window.dispatchEvent(new Event('resize'));
+            triggerResize()
+        }
+        node.observe("child_added", childrenObserverResize);
         node.observe("child_removed", childrenObserver);
-        node.observe("child_replaced", childrenObserver);
+        node.observe("child_replaced", childrenObserverResize);
         return () => {
-            node.stopObserving("child_added", childrenObserver);
+            node.stopObserving("child_added", childrenObserverResize);
             node.stopObserving("child_removed", childrenObserver);
-            node.stopObserving("child_replaced", childrenObserver);
+            node.stopObserving("child_replaced", childrenObserverResize);
         }
     }, [node])
 
@@ -204,9 +257,9 @@ export default React.memo(({className, dataModel, entryProps, emptyStateProps, c
 
     const positioner = usePositioner({
         width,
-        columnWidth: 220,
+        columnWidth,
         columnGutter: 8
-    }, [items]);
+    }, [items, columnWidth]);
     const resizeObserver = useResizeObserver(positioner);
     const masonryElement = useMasonry({
         positioner,
