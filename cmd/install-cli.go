@@ -538,7 +538,11 @@ func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bo
 
 func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate bool) (used []string, created []string, e error) {
 	var pref string
-	prefPrompt := p.Prompt{Label: "Select a unique prefix for this installation buckets.", Default: "cells-"}
+	prefPrompt := p.Prompt{
+		Label:     "Select a unique prefix for this installation buckets.",
+		Default:   "cells-",
+		AllowEdit: true,
+	}
 	pref, e = prefPrompt.Run()
 	if e != nil {
 		return
