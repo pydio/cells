@@ -94,7 +94,7 @@ DESCRIPTION
 			}
 
 			_, e := (&promptui.Prompt{
-				Label:     "Do you wish to run migration for all assigned services?",
+				Label:     "Do you wish to run migration for all assigned services? This requires the server to be stopped in order to read the BoltDB.",
 				IsConfirm: true,
 				Default:   "n",
 			}).Run()

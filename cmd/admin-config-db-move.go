@@ -114,6 +114,7 @@ DESCRIPTION
 		if dbMoveDryRun {
 			cmd.Println("------------------------------------------------------------------------------------")
 			cmd.Println(promptui.IconWarn + " This command has dry-run enabled by default. No real operations will be performed")
+			cmd.Println("  If you are migrating from/to BoltDB storages, make sure to stop the server first.")
 			cmd.Println("------------------------------------------------------------------------------------")
 		}
 
