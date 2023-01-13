@@ -22,6 +22,8 @@ package grpc
 
 import (
 	"context"
+	"fmt"
+	"math"
 	"strings"
 	"sync"
 	"time"
@@ -448,7 +450,7 @@ func (j *JobsHandler) DetectStuckTasks(ctx context.Context, request *proto.Detec
 	if since > 0 {
 		durations = append(durations, time.Duration(since)*time.Second)
 	}
-	tasks, e := j.CleanStuckTasks(ctx, durations...)
+	tasks, e := j.CleanStuckTasks(ctx, log.TasksLogger(ctx), durations...)
 	if e != nil {
 		return nil, e
 	}
@@ -461,7 +463,28 @@ func (j *JobsHandler) DetectStuckTasks(ctx context.Context, request *proto.Detec
 }
 
 // CleanStuckTasks may be run at startup to
-func (j *JobsHandler) CleanStuckTasks(ctx context.Context, duration ...time.Duration) ([]*proto.Task, error) {
+func (j *JobsHandler) CleanStuckTasks(ctx context.Context, logger log.ZapLogger, duration ...time.Duration) ([]*proto.Task, error) {
+
+	// first clean orphan tasks if there are some
+	if orph, ok := j.store.(jobs.OrphanTasker); ok {
+
+		if tt, er := orph.FindOrphans(); er != nil {
+			logger.Warn("Cannot perform FindOrphans", zap.Error(er))
+		} else if len(tt) > 0 {
+			// Create sample
+			max := int(math.Min(float64(len(tt)), 5))
+			logger.Debug(fmt.Sprintf("There are %d orphan tasks to clean!", len(tt)), zap.Any("sample", tt[:max]))
+			logsCount := 0
+			for _, t := range tt {
+				if er := j.store.DeleteTasks(t.JobID, []string{t.ID}); er != nil {
+					logger.Error("Cannot perform DeleteTasks", zap.Error(er))
+				} else if logs, e := j.DeleteLogsFor(ctx, t.JobID, t.ID); e == nil {
+					logsCount += int(logs)
+				}
+			}
+			logger.Info(fmt.Sprintf("Removed %d orphan tasks and their corresponding %d logs", len(tt), logsCount))
+		}
+	}
 
 	var fixedTasks []*proto.Task
 

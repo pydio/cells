@@ -254,7 +254,7 @@ func (m *mongoImpl) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 	var er error
 	// If there is a cursor and **jobId is empty**, we want to apply cursor on each task
 	if jobId == "" && len(cursor) > 0 {
-		jj, e := m.ListJobs("", false, false, jobs.TaskStatus_Any, []string{})
+		jj, e := m.ListJobs("", false, false, jobs.TaskStatus_Unknown, []string{})
 		if e != nil {
 			return nil, nil, e
 		}
@@ -280,6 +280,38 @@ func (m *mongoImpl) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 		}
 	}()
 	return cj, cd, nil
+}
+
+// FindOrphans provides an additional hook to detect lost tasks
+func (m *mongoImpl) FindOrphans() ([]*jobs.Task, error) {
+	// Gather all jobs IDs
+	jj, e := m.ListJobs("", false, false, jobs.TaskStatus_Unknown, []string{})
+	if e != nil {
+		return nil, e
+	}
+	var tIds []*jobs.Task
+	var jIds []string
+	for j := range jj {
+		jIds = append(jIds, j.ID)
+	}
+	if len(jIds) == 0 {
+		return tIds, nil
+	}
+	// Lookup all tasks referring an unknown job_id !
+	c := context.Background()
+	filter := bson.D{{"job_id", bson.M{"$nin": jIds}}}
+	cursor, e := m.Collection(collTasks).Find(c, filter)
+	if e != nil {
+		return nil, e
+	}
+	for cursor.Next(c) {
+		mj := &mongoTask{}
+		if er := cursor.Decode(mj); er != nil {
+			continue
+		}
+		tIds = append(tIds, &jobs.Task{ID: mj.ID, JobID: mj.JobId})
+	}
+	return tIds, nil
 }
 
 func (m *mongoImpl) DeleteTasks(jobId string, taskId []string) error {

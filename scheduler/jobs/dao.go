@@ -46,6 +46,12 @@ type DAO interface {
 	DeleteTasks(jobId string, taskId []string) error
 }
 
+// OrphanTasker extends DAO to lookup for tasks with an unknown Job ID
+type OrphanTasker interface {
+	DAO
+	FindOrphans() ([]*jobs.Task, error)
+}
+
 func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case boltdb.DAO:

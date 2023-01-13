@@ -105,12 +105,6 @@ func init() {
 			}),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
-				/*
-					serviceDir, e := config.ServiceDataDir(ServiceName)
-					if e != nil {
-						return e
-					}
-				*/
 				store := servicecontext.GetDAO(c).(jobs.DAO)
 				index := servicecontext.GetIndexer(c).(dao.IndexDAO)
 
@@ -122,6 +116,7 @@ func init() {
 				proto.RegisterJobServiceEnhancedServer(server, handler)
 				log2.RegisterLogRecorderEnhancedServer(server, handler)
 				sync.RegisterSyncEndpointEnhancedServer(server, handler)
+				logger := log3.Logger(c)
 
 				for _, j := range getDefaultJobs() {
 					if _, e := handler.GetJob(c, &proto.GetJobRequest{JobID: j.ID}); e != nil {
@@ -133,13 +128,13 @@ func init() {
 					}
 				}
 				// Clean tasks stuck in "Running" status
-				if _, er := handler.CleanStuckTasks(c); er != nil {
-					log3.Logger(c).Warn("Could not run CleanStuckTasks: "+er.Error(), zap.Error(er))
+				if _, er := handler.CleanStuckTasks(c, logger); er != nil {
+					logger.Warn("Could not run CleanStuckTasks: "+er.Error(), zap.Error(er))
 				}
 
 				// Clean user-jobs (AutoStart+AutoClean) without any tasks
 				if er := handler.CleanDeadUserJobs(c); er != nil {
-					log3.Logger(c).Warn("Could not run CleanDeadUserJobs: "+er.Error(), zap.Error(er))
+					logger.Warn("Could not run CleanDeadUserJobs: "+er.Error(), zap.Error(er))
 				}
 
 				if Migration140 {
@@ -148,40 +143,40 @@ func init() {
 						Status:     []proto.TaskStatus{proto.TaskStatus_Any},
 						PruneLimit: 1,
 					}); e == nil {
-						log3.Logger(c).Info("Migration 1.4.0: removed tasks on job users-activity-digest that could fill up the scheduler", zap.Any("number", len(resp.Deleted)))
+						logger.Info("Migration 1.4.0: removed tasks on job users-activity-digest that could fill up the scheduler", zap.Any("number", len(resp.Deleted)))
 					} else {
-						log3.Logger(c).Error("Error while trying to prune tasks for job users-activity-digest", zap.Error(e))
+						logger.Error("Error while trying to prune tasks for job users-activity-digest", zap.Error(e))
 					}
 					if resp, e := handler.DeleteTasks(c, &proto.DeleteTasksRequest{
 						JobId:      "resync-changes-job",
 						Status:     []proto.TaskStatus{proto.TaskStatus_Any},
 						PruneLimit: 1,
 					}); e == nil {
-						log3.Logger(c).Info("Migration 1.4.0: removed tasks on job resync-changes-job that could fill up the scheduler", zap.Any("number", len(resp.Deleted)))
+						logger.Info("Migration 1.4.0: removed tasks on job resync-changes-job that could fill up the scheduler", zap.Any("number", len(resp.Deleted)))
 					} else {
-						log3.Logger(c).Error("Error while trying to prune tasks for job resync-changes-job", zap.Error(e))
+						logger.Error("Error while trying to prune tasks for job resync-changes-job", zap.Error(e))
 					}
 				}
 				if Migration150 {
 					// Remove archive-changes-job
 					if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "archive-changes-job"}); e != nil {
-						log3.Logger(c).Error("Could not remove archive-changes-job", zap.Error(e))
+						logger.Error("Could not remove archive-changes-job", zap.Error(e))
 					} else {
-						log3.Logger(c).Info("[Migration] Removed archive-changes-job")
+						logger.Info("[Migration] Removed archive-changes-job")
 					}
 					// Remove resync-changes-job
 					if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "resync-changes-job"}); e != nil {
-						log3.Logger(c).Error("Could not remove resync-changes-job", zap.Error(e))
+						logger.Error("Could not remove resync-changes-job", zap.Error(e))
 					} else {
-						log3.Logger(c).Info("[Migration] Removed resync-changes-job")
+						logger.Info("[Migration] Removed resync-changes-job")
 					}
 				}
 				if Migration230 {
 					// Remove clean thumbs job and re-insert thumbs job
 					if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "clean-thumbs-job"}); e != nil {
-						log3.Logger(c).Error("Could not remove clean-thumbs-job", zap.Error(e))
+						logger.Error("Could not remove clean-thumbs-job", zap.Error(e))
 					} else {
-						log3.Logger(c).Info("[Migration] Removed clean-thumbs-job")
+						logger.Info("[Migration] Removed clean-thumbs-job")
 					}
 				}
 
