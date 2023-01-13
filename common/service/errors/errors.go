@@ -22,6 +22,7 @@ package errors
 
 import (
 	"fmt"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"net/http"
 	"strings"
 
@@ -57,11 +58,17 @@ func FromError(err error) *Error {
 	if err == nil {
 		return nil
 	}
+
 	if verr, ok := err.(*Error); ok && verr != nil {
 		return verr
 	}
+
 	if serr, ok := status.FromError(err); ok {
-		return Parse(serr.Message())
+		return &Error{
+			Code:   int32(runtime.HTTPStatusFromCode(serr.Code())),
+			Status: serr.Message(),
+			Detail: serr.Message(),
+		}
 	}
 
 	return Parse(err.Error())

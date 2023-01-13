@@ -123,6 +123,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 	gs := grpc.NewServer(
 		// grpc.MaxConcurrentStreams(1000),
 		grpc.ChainUnaryInterceptor(
+			ErrorFormatUnaryInterceptor,
 			servicecontext.MetricsUnaryServerInterceptor(),
 			servicecontext.ContextUnaryServerInterceptor(servicecontext.MetaIncomingContext),
 			servicecontext.ContextUnaryServerInterceptor(servicecontext.SpanIncomingContext),
@@ -131,6 +132,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 			servicecontext.ContextUnaryServerInterceptor(middleware.RegistryIncomingContext(ctx)),
 		),
 		grpc.ChainStreamInterceptor(
+			ErrorFormatStreamInterceptor,
 			servicecontext.MetricsStreamServerInterceptor(),
 			servicecontext.ContextStreamServerInterceptor(servicecontext.MetaIncomingContext),
 			servicecontext.ContextStreamServerInterceptor(servicecontext.SpanIncomingContext),

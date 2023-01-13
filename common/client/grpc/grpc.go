@@ -74,6 +74,7 @@ func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) [
 			servicecontext.SpanStreamClientInterceptor(),
 			MetaStreamClientInterceptor(),
 		),
+		// grpc.WithDisableRetry(),
 	}, options...)
 }
 
