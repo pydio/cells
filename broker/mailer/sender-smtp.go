@@ -100,7 +100,9 @@ func (gm *Smtp) Check(ctx context.Context) error {
 		InsecureSkipVerify: gm.InsecureSkipVerify,
 		ServerName:         gm.Host,
 	}
-	d.SSL = gm.UseSSL
+	if gm.UseSSL { // only change if explicitly set, d.SSL may also be automatically switched by port value = 465
+		d.SSL = true
+	}
 
 	// Check configuration
 	d.TLSConfig = &tlsConfig
@@ -125,7 +127,9 @@ func (gm *Smtp) Send(email *mailer.Mail) error {
 	if gm.LocalName != "" {
 		d.LocalName = gm.LocalName
 	}
-	d.SSL = gm.UseSSL
+	if gm.UseSSL { // only change if explicitly set, d.SSL may also be automatically switched by port value = 465
+		d.SSL = true
+	}
 	tlsConfig := tls.Config{
 		InsecureSkipVerify: gm.InsecureSkipVerify,
 		ServerName:         gm.Host,
