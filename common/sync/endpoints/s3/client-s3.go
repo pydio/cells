@@ -640,7 +640,7 @@ func (c *Client) getNodeIdentifier(ctx context.Context, path string, leaf bool) 
 func (c *Client) readOrCreateFolderId(ctx context.Context, folderPath string) (uid string, created models.ObjectInfo, e error) {
 
 	// Find existing .pydio
-	hiddenPath := fmt.Sprintf("%v/%s", folderPath, servicescommon.PydioSyncHiddenFile)
+	hiddenPath := path.Join(folderPath, servicescommon.PydioSyncHiddenFile)
 	hiddenPath = strings.TrimLeft(hiddenPath, "/")
 	object, _, err := c.Oc.GetObject(ctx, c.Bucket, hiddenPath, models.ReadMeta{})
 	if err == nil {
