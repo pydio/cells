@@ -141,10 +141,13 @@
     "other": "サムネイル"
   },
   "list.display-mode.thumbs-large": {
-    "other": "大きなサムネイル"
+    "other": "Larger"
+  },
+  "list.display-mode.thumbs-medium": {
+    "other": "Medium"
   },
   "list.display-mode.thumbs-small": {
-    "other": "小さなサムネイル"
+    "other": "Smaller"
   },
   "list.display-mode.masonry": {
     "other": "画像ギャラリー"

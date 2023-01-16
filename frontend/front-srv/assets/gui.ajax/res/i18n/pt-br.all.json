@@ -141,10 +141,13 @@
     "other": "Miniaturas"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Miniaturas grandes"
+    "other": "Larger"
+  },
+  "list.display-mode.thumbs-medium": {
+    "other": "Medium"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Miniaturas pequenas"
+    "other": "Smaller"
   },
   "list.display-mode.masonry": {
     "other": "Galeria de imagens"

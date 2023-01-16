@@ -141,10 +141,13 @@
     "other": "Превью"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Thumbs Large"
+    "other": "Larger"
+  },
+  "list.display-mode.thumbs-medium": {
+    "other": "Medium"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Thumbs Small"
+    "other": "Smaller"
   },
   "list.display-mode.masonry": {
     "other": "Image Gallery"

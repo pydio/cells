@@ -141,10 +141,13 @@
     "other": "缩略图"
   },
   "list.display-mode.thumbs-large": {
-    "other": "大缩略图"
+    "other": "Larger"
+  },
+  "list.display-mode.thumbs-medium": {
+    "other": "Medium"
   },
   "list.display-mode.thumbs-small": {
-    "other": "小缩略图"
+    "other": "Smaller"
   },
   "list.display-mode.masonry": {
     "other": "图库"
