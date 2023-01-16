@@ -315,7 +315,7 @@
     "other": "Create Bucket"
   },
   "ds.editor.storage.buckets.create.hint": {
-    "other": "Bucket name"
+    "other": "Nombre del bucket"
   },
   "ds.editor.storage.buckets.regexp": {
     "other": "Utilizar una expresión común"

@@ -200,6 +200,12 @@
   "Mail.Config.Smtp.Password.Description": {
     "other": "Mot de passe de l'utilisateur pour se connecter au serveur SMTP"
   },
+  "Mail.Config.Smtp.Security.Label": {
+    "other": "Sécurité de la connexion"
+  },
+  "Mail.Config.Smtp.Security.Description": {
+    "other": "Le protocole utilisé pour sécuriser la connexion. Si une connexion en clair est requise, utilisez plutôt un Sendmail personnalisé."
+  },
   "Mail.Config.Smtp.SkipVerify.Label": {
     "other": "Certificat auto-signé"
   },

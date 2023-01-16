@@ -141,10 +141,13 @@
     "other": "Vignettes"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Grandes vignettes"
+    "other": "Larger"
+  },
+  "list.display-mode.thumbs-medium": {
+    "other": "Medium"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Petites vignettes"
+    "other": "Smaller"
   },
   "list.display-mode.masonry": {
     "other": "Galerie d'images"
