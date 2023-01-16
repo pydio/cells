@@ -20,6 +20,7 @@
 
 const React = require('react')
 const Pydio = require('pydio')
+import PydioApi from 'pydio/http/api'
 import ResourcesManager from 'pydio/http/resources-manager'
 import deepEqual from 'deep-equal'
 const {Responsive, WidthProvider} = require('react-grid-layout');
@@ -43,6 +44,22 @@ class CardsGrid extends React.Component {
         }.bind(this);
         props.store.observe("cards", this._storeObserver);
         this.state = {cards: props.store.getCards()};
+
+        // Throttle and monitor subsequent requests
+        this.requests = [];
+        this.throttle = PydioApi.getThrottler({concurrent: 6})
+        const aborterPlugin = (request) => {
+            this.requests.push(request);
+            return request;
+        };
+
+        this.restClient = PydioApi.getRestClient({
+            silent: true,
+            plugins:[
+                this.throttle.plugin(),
+                aborterPlugin
+            ],
+        });
     }
 
     /**
@@ -70,6 +87,8 @@ class CardsGrid extends React.Component {
 
     componentWillUnmount() {
         this.props.store.stopObserving("cards", this._storeObserver);
+        this.throttle.options({active: false});
+        this.requests.filter(r => r.xhr).map(r => r.xhr.abort());
     }
 
     componentWillReceiveProps(nextProps) {
@@ -122,6 +141,7 @@ class CardsGrid extends React.Component {
             var props = {...item.props};
             var itemKey = props['key'] = item['id'] || 'item_' + index;
             props.ref=itemKey;
+            props.restClient=this.restClient;
             props.pydio=this.props.pydio;
             props.onCloseAction = ()=> {
                 this.removeCard(itemKey);
@@ -134,14 +154,16 @@ class CardsGrid extends React.Component {
             }
             const defaultLayout = buildLayout(classObject, itemKey, item, defaultX, defaultY);
 
-            for(var breakpoint in layouts){
-                if(!layouts.hasOwnProperty(breakpoint))continue;
+            for(let breakpoint in layouts){
+                if(!layouts.hasOwnProperty(breakpoint)){
+                    continue;
+                }
                 var breakLayout = layouts[breakpoint];
                 // Find corresponding element in preference
                 var existing;
                 if(savedLayouts && savedLayouts[breakpoint]){
                     savedLayouts[breakpoint].map(function(gridData){
-                        if(gridData['i'] == itemKey && gridData['h'] == defaultLayout['h']){
+                        if(gridData['i'] === itemKey && gridData['h'] === defaultLayout['h']){
                             existing = gridData;
                         }
                     });

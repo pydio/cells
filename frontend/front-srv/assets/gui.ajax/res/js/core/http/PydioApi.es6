@@ -23,6 +23,7 @@ import PathUtils from '../util/PathUtils'
 import RestClient from './RestClient'
 import AjxpNode from "../model/AjxpNode";
 
+import Throttle from 'superagent-throttle'
 import AWS from 'aws-sdk'
 import lscache from 'lscache'
 import {RestCreateSelectionRequest, TreeNode, TreeServiceApi} from 'cells-sdk';
@@ -124,6 +125,22 @@ class PydioApi{
         }
 
         return new RestClient(this.getClient()._pydioObject, options);
+    }
+
+
+    /**
+     * Create a throttler plugin for superagent
+     * @param options
+     * @returns {Throttle}
+     */
+    static getThrottler(options){
+        const defaultOpt = {
+            active: true,     // set false to pause queue
+            rate: 6,          // how many requests can be sent every `ratePer`
+            ratePer: 1000,   // number of ms in which `rate` requests may be sent
+            concurrent: 6
+        }
+        return new Throttle({...defaultOpt, ...options});
     }
 
     static getMultipartThreshold(){

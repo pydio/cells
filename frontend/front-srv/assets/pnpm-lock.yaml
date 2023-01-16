@@ -758,6 +758,7 @@ importers:
       redux-oidc: ^3.1.2
       reselect: ^4.0.0
       simple-oauth2: ^3.4.0
+      superagent-throttle: ^1.0.1
       systemjs: ^0.20.11
       uuid4: 1.1.4
       validator: ^10.7.1
@@ -819,6 +820,7 @@ importers:
       redux-oidc: 3.1.7_eev73bfed7guudujzmbhcdwbnm
       reselect: 4.0.0
       simple-oauth2: 3.4.0
+      superagent-throttle: 1.0.1
       systemjs: 0.20.19
       uuid4: 1.1.4
       validator: 10.11.0
@@ -8767,6 +8769,10 @@ packages:
     dependencies:
       minimist: 1.2.5
     dev: true
+
+  /superagent-throttle/1.0.1:
+    resolution: {integrity: sha512-m5Ngf0S5QoA84zgwVqVnVA34u9uvo8uM+QEF9B7eNI5FDaSoSoUwQsx7V1GmLXgYLkolhIiucFDVJXF9z49hgQ==}
+    dev: false
 
   /superagent/3.5.2:
     resolution: {integrity: sha512-6D+s7hJXmxQM20Cp12ZVaVYtGJOJcwaR04E22ACIm1v7n+/9lUOUKu2YPjleqXBxMDjP/MtZaJeCpj1fDRe2Nw==}

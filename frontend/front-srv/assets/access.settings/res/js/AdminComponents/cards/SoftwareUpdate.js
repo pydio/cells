@@ -42,7 +42,7 @@ class SoftwareUpdate extends Component {
     }
 
     load() {
-        const {pydio} = this.props;
+        const {pydio, restClient=PydioApi.getRestClient()} = this.props;
         // Load version
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
             const url = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/bootconf';
@@ -61,7 +61,7 @@ class SoftwareUpdate extends Component {
         });
 
         this.setState({loading: true})
-        const api = new UpdateServiceApi(PydioApi.getRestClient());
+        const api = new UpdateServiceApi(restClient);
         api.updateRequired(new UpdateUpdateRequest()).then(res => {
             let hasBinary = 0;
             if (res.AvailableBinaries) {

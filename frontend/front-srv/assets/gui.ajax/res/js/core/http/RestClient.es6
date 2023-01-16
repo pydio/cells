@@ -46,6 +46,9 @@ class RestClient extends ApiClient{
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;
         this.options = options;
+        if(this.options.plugins) {
+            this.plugins = this.options.plugins;
+        }
     }
 
     /**

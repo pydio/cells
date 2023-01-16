@@ -38,7 +38,8 @@ class RecentLogs extends Component{
 
     loadLogs(){
         const {filter} = this.state;
-        const api = new LogServiceApi(PydioApi.getRestClient());
+        const {restClient=PydioApi.getRestClient()} = this.props;
+        const api = new LogServiceApi(restClient);
         let request = new LogListLogRequest();
         request.Query = filter === 'error' ? '+Level:ERROR': '';
         request.Page = 0;
