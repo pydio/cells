@@ -22,7 +22,9 @@ package jobs
 
 import (
 	"context"
+	"fmt"
 	"strings"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -312,6 +314,11 @@ func (m *mongoImpl) FindOrphans() ([]*jobs.Task, error) {
 		tIds = append(tIds, &jobs.Task{ID: mj.ID, JobID: mj.JobId})
 	}
 	return tIds, nil
+}
+
+func (m *mongoImpl) BuildOrphanLogsQuery(since time.Duration, all []string) string {
+	ids := fmt.Sprintf("+Ts:<%d", time.Now().Add(-since).Unix())
+	return ids + " -OperationUuid:[" + strings.Join(all, ",") + "]"
 }
 
 func (m *mongoImpl) DeleteTasks(jobId string, taskId []string) error {

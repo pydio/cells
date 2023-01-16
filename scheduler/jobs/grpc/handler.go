@@ -443,6 +443,30 @@ func (j *JobsHandler) DeleteLogsFor(ctx context.Context, job string, tasks ...st
 	}
 }
 
+// OrphanLogs finds all logs older than an hour that do not belong to any known tasks
+func (j *JobsHandler) OrphanLogs(ctx context.Context) (int64, error) {
+
+	// Compute ALL known tasks logs UUIDS
+	tt, done, e := j.store.ListTasks("", proto.TaskStatus_Any)
+	if e != nil {
+		return 0, e
+	}
+	var ii []string
+loop:
+	for {
+		select {
+		case t := <-tt:
+			ii = append(ii, t.JobID+"-"+t.ID[0:8])
+		case <-done:
+			break loop
+		}
+	}
+	query := j.store.BuildOrphanLogsQuery(60*time.Minute, ii)
+	return j.Repo.DeleteLogs(query)
+
+}
+
+// DetectStuckTasks calls CleanStuckTasks with default duration
 func (j *JobsHandler) DetectStuckTasks(ctx context.Context, request *proto.DetectStuckTasksRequest) (*proto.DetectStuckTasksResponse, error) {
 
 	since := request.Since
@@ -459,31 +483,35 @@ func (j *JobsHandler) DetectStuckTasks(ctx context.Context, request *proto.Detec
 		response.FixedTaskIds = append(response.FixedTaskIds, t.ID)
 	}
 
+	if ol, e := j.OrphanLogs(ctx); e != nil {
+		log.TasksLogger(ctx).Error("Could not perform OrphanLogs", zap.Error(e))
+	} else if ol > 0 {
+		log.TasksLogger(ctx).Info(fmt.Sprintf("Cleaned %d orphan logs", ol))
+	}
+
 	return response, nil
 }
 
-// CleanStuckTasks may be run at startup to
+// CleanStuckTasks may be run at startup to find orphan tasks and their corresponding logs, then find orphan logs as well
 func (j *JobsHandler) CleanStuckTasks(ctx context.Context, logger log.ZapLogger, duration ...time.Duration) ([]*proto.Task, error) {
 
-	// first clean orphan tasks if there are some
-	if orph, ok := j.store.(jobs.OrphanTasker); ok {
+	if tt, er := j.store.FindOrphans(); er != nil {
 
-		if tt, er := orph.FindOrphans(); er != nil {
-			logger.Warn("Cannot perform FindOrphans", zap.Error(er))
-		} else if len(tt) > 0 {
-			// Create sample
-			max := int(math.Min(float64(len(tt)), 5))
-			logger.Debug(fmt.Sprintf("There are %d orphan tasks to clean!", len(tt)), zap.Any("sample", tt[:max]))
-			logsCount := 0
-			for _, t := range tt {
-				if er := j.store.DeleteTasks(t.JobID, []string{t.ID}); er != nil {
-					logger.Error("Cannot perform DeleteTasks", zap.Error(er))
-				} else if logs, e := j.DeleteLogsFor(ctx, t.JobID, t.ID); e == nil {
-					logsCount += int(logs)
-				}
+		logger.Warn("Cannot perform FindOrphans", zap.Error(er))
+
+	} else if len(tt) > 0 {
+		// Create sample
+		max := int(math.Min(float64(len(tt)), 5))
+		logger.Debug(fmt.Sprintf("There are %d orphan tasks to clean!", len(tt)), zap.Any("sample", tt[:max]))
+		logsCount := 0
+		for _, t := range tt {
+			if er := j.store.DeleteTasks(t.JobID, []string{t.ID}); er != nil {
+				logger.Error("Cannot perform DeleteTasks", zap.Error(er))
+			} else if logs, e := j.DeleteLogsFor(ctx, t.JobID, t.ID); e == nil {
+				logsCount += int(logs)
 			}
-			logger.Info(fmt.Sprintf("Removed %d orphan tasks and their corresponding %d logs", len(tt), logsCount))
 		}
+		logger.Info(fmt.Sprintf("Removed %d orphan tasks and their corresponding %d logs", len(tt), logsCount))
 	}
 
 	var fixedTasks []*proto.Task

@@ -49,7 +49,7 @@ func TestNewBoltStore(t *testing.T) {
 		ctx := context.Background()
 		dao, _ := boltdb.NewDAO(ctx, "boltdb", dbFile, "test-jobs")
 		defer os.Remove(dbFile)
-		db, err := NewBoltStore(dao.(boltdb.DAO))
+		db, err := newBoltStore(dao.(boltdb.DAO))
 		defer dao.CloseConn(ctx)
 		So(err, ShouldBeNil)
 		So(db, ShouldNotBeNil)

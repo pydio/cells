@@ -22,6 +22,7 @@ package jobs
 
 import (
 	"context"
+	"time"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
@@ -44,18 +45,15 @@ type DAO interface {
 	PutTasks(task map[string]map[string]*jobs.Task) error
 	ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor ...int32) (chan *jobs.Task, chan bool, error)
 	DeleteTasks(jobId string, taskId []string) error
-}
 
-// OrphanTasker extends DAO to lookup for tasks with an unknown Job ID
-type OrphanTasker interface {
-	DAO
 	FindOrphans() ([]*jobs.Task, error)
+	BuildOrphanLogsQuery(time.Duration, []string) string
 }
 
 func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case boltdb.DAO:
-		return NewBoltStore(v)
+		return newBoltStore(v)
 	case mongodb.DAO:
 		mStore := &mongoImpl{DAO: v}
 		return mStore, nil

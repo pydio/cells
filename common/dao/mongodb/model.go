@@ -91,21 +91,25 @@ func (m Model) Init(ctx context.Context, dao DAO) error {
 }
 
 // uniqueQueryToFilters recursively parses bleve queries to create mongo filters
-func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, insensitive bool) (filters []bson.E) {
+func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, insensitive bool, not bool) (filters []bson.E) {
 	switch v := m.(type) {
 	case *query.ConjunctionQuery:
 		for _, sm := range v.Conjuncts {
-			sfilters := uniqueQueryToFilters(sm, fieldTransformer, insensitive)
+			sfilters := uniqueQueryToFilters(sm, fieldTransformer, insensitive, not)
 			filters = append(filters, sfilters...)
 		}
 	case *query.DisjunctionQuery:
 		ors := bson.A{}
 		for _, sm := range v.Disjuncts {
-			sfilters := uniqueQueryToFilters(sm, fieldTransformer, insensitive)
+			sfilters := uniqueQueryToFilters(sm, fieldTransformer, insensitive, not)
 			ors = append(ors, sfilters)
 		}
 		if len(ors) > 0 {
-			filters = append(filters, bson.E{Key: "$or", Value: ors})
+			if not {
+				filters = append(filters, bson.E{Key: "$and", Value: ors})
+			} else {
+				filters = append(filters, bson.E{Key: "$or", Value: ors})
+			}
 		}
 	case *query.WildcardQuery:
 		wc := v.Wildcard
@@ -125,7 +129,26 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, i
 			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": regexp}})
 		}
 	case *query.MatchQuery:
-		filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: v.Match})
+		match := v.Match
+		fName := fieldTransformer(v.Field())
+		if strings.HasPrefix(match, "[") && strings.HasSuffix(match, "]") {
+			arr := strings.Split(strings.Trim(match, "[]"), ",")
+			vals := bson.A{}
+			for _, v := range arr {
+				vals = append(vals, v)
+			}
+			if not {
+				filters = append(filters, bson.E{Key: fName, Value: bson.M{"$nin": vals}})
+			} else {
+				filters = append(filters, bson.E{Key: fName, Value: bson.M{"$in": vals}})
+			}
+		} else {
+			if not {
+				filters = append(filters, bson.E{Key: fName, Value: bson.M{"$ne": v.Match}})
+			} else {
+				filters = append(filters, bson.E{Key: fName, Value: v.Match})
+			}
+		}
 	case *query.MatchPhraseQuery:
 		phrase := strings.Trim(v.MatchPhrase, "\"")
 		if strings.Contains(phrase, "*") {
@@ -172,14 +195,17 @@ func BleveQueryToMongoFilters(queryString string, insensitive bool, fieldTransfo
 	}
 	if bQ, o := q.(*query.BooleanQuery); o {
 		if cj := bQ.Must; cj != nil {
-			ff := uniqueQueryToFilters(cj, fieldTransformer, insensitive)
+			ff := uniqueQueryToFilters(cj, fieldTransformer, insensitive, false)
 			filters = append(filters, ff...)
 		}
 		if dj := bQ.Should; dj != nil {
-			ff := uniqueQueryToFilters(dj, fieldTransformer, insensitive)
+			ff := uniqueQueryToFilters(dj, fieldTransformer, insensitive, false)
 			filters = append(filters, ff...)
 		}
-		// Todo : => handle MustNot case
+		if mn := bQ.MustNot; mn != nil {
+			ff := uniqueQueryToFilters(mn, fieldTransformer, insensitive, true)
+			filters = append(filters, ff...)
+		}
 	}
 
 	return

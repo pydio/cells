@@ -22,10 +22,13 @@ package jobs
 
 import (
 	"context"
-	bolt "go.etcd.io/bbolt"
-	"go.uber.org/zap"
+	"fmt"
 	"sort"
 	"strings"
+	"time"
+
+	bolt "go.etcd.io/bbolt"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
@@ -42,13 +45,13 @@ var (
 	tasksBucketString = "tasks-"
 )
 
-type BoltStore struct {
+type boltStore struct {
 	boltdb.DAO
 }
 
-func NewBoltStore(dao boltdb.DAO) (*BoltStore, error) {
+func newBoltStore(dao boltdb.DAO) (*boltStore, error) {
 
-	bs := &BoltStore{
+	bs := &boltStore{
 		DAO: dao,
 	}
 
@@ -66,7 +69,7 @@ func NewBoltStore(dao boltdb.DAO) (*BoltStore, error) {
 
 }
 
-func (s *BoltStore) PutJob(job *jobs.Job) error {
+func (s *boltStore) PutJob(job *jobs.Job) error {
 
 	err := s.DB().Update(func(tx *bolt.Tx) error {
 
@@ -86,7 +89,7 @@ func (s *BoltStore) PutJob(job *jobs.Job) error {
 
 }
 
-func (s *BoltStore) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, error) {
+func (s *boltStore) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, error) {
 
 	j := &jobs.Job{}
 	e := s.DB().View(func(tx *bolt.Tx) error {
@@ -116,7 +119,7 @@ func (s *BoltStore) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, 
 
 }
 
-func (s *BoltStore) DeleteJob(jobID string) error {
+func (s *boltStore) DeleteJob(jobID string) error {
 
 	return s.DB().Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(jobsBucketKey)
@@ -135,7 +138,7 @@ func (s *BoltStore) DeleteJob(jobID string) error {
 
 }
 
-func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *jobs.Job, error) {
+func (s *boltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *jobs.Job, error) {
 
 	res := make(chan *jobs.Job)
 
@@ -194,7 +197,7 @@ func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 }
 
 // PutTasks batch updates DB with tasks organized by JobID and TaskID
-func (s *BoltStore) PutTasks(tasks map[string]map[string]*jobs.Task) error {
+func (s *boltStore) PutTasks(tasks map[string]map[string]*jobs.Task) error {
 
 	return s.DB().Update(func(tx *bolt.Tx) error {
 
@@ -221,7 +224,7 @@ func (s *BoltStore) PutTasks(tasks map[string]map[string]*jobs.Task) error {
 
 }
 
-func (s *BoltStore) PutTask(task *jobs.Task) error {
+func (s *boltStore) PutTask(task *jobs.Task) error {
 
 	jobId := task.JobID
 	stripTaskData(task)
@@ -242,7 +245,7 @@ func (s *BoltStore) PutTask(task *jobs.Task) error {
 
 }
 
-func (s *BoltStore) DeleteTasks(jobId string, taskId []string) error {
+func (s *boltStore) DeleteTasks(jobId string, taskId []string) error {
 
 	return s.DB().Update(func(tx *bolt.Tx) error {
 
@@ -258,7 +261,7 @@ func (s *BoltStore) DeleteTasks(jobId string, taskId []string) error {
 
 }
 
-func (s *BoltStore) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor ...int32) (chan *jobs.Task, chan bool, error) {
+func (s *boltStore) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor ...int32) (chan *jobs.Task, chan bool, error) {
 
 	results := make(chan *jobs.Task)
 	done := make(chan bool)
@@ -300,7 +303,19 @@ func (s *BoltStore) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 	return results, done, nil
 }
 
-func (s *BoltStore) tasksToChan(bucket *bolt.Bucket, status jobs.TaskStatus, output chan *jobs.Task, offset int32, limit int32, sliceOutput []*jobs.Task) []*jobs.Task {
+func (s *boltStore) FindOrphans() (tt []*jobs.Task, e error) {
+	return // Return empty slice without error, this cannot happen in bolt store
+}
+
+func (s *boltStore) BuildOrphanLogsQuery(since time.Duration, all []string) string {
+	ids := []string{fmt.Sprintf("+Ts:<%d", time.Now().Add(-since).Unix())}
+	for _, i := range all {
+		ids = append(ids, "-OperationUuid:"+i)
+	}
+	return strings.Join(ids, " ")
+}
+
+func (s *boltStore) tasksToChan(bucket *bolt.Bucket, status jobs.TaskStatus, output chan *jobs.Task, offset int32, limit int32, sliceOutput []*jobs.Task) []*jobs.Task {
 
 	c := bucket.Cursor()
 	var all []*jobs.Task
