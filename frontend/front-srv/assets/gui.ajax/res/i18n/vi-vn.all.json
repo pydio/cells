@@ -141,10 +141,13 @@
     "other": "Hình thu nhỏ"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Biểu tượng kích thước lớn"
+    "other": "Larger"
+  },
+  "list.display-mode.thumbs-medium": {
+    "other": "Medium"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Biểu tượng kích thước nhỏ"
+    "other": "Smaller"
   },
   "list.display-mode.masonry": {
     "other": "Thư viện hình ảnh"

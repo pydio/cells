@@ -200,6 +200,12 @@
   "Mail.Config.Smtp.Password.Description": {
     "other": "Contraseña requerida para conectar al servidor SMTP"
   },
+  "Mail.Config.Smtp.Security.Label": {
+    "other": "Connection Security"
+  },
+  "Mail.Config.Smtp.Security.Description": {
+    "other": "Protocol used for securing connection. Clear is not supported, if required use a custom Sendmail instead."
+  },
   "Mail.Config.Smtp.SkipVerify.Label": {
     "other": "Certificado autofirmado"
   },

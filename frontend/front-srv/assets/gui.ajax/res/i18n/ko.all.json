@@ -141,10 +141,13 @@
     "other": "썸네일"
   },
   "list.display-mode.thumbs-large": {
-    "other": "큰 썸네일"
+    "other": "Larger"
+  },
+  "list.display-mode.thumbs-medium": {
+    "other": "Medium"
   },
   "list.display-mode.thumbs-small": {
-    "other": "작은 썸네일"
+    "other": "Smaller"
   },
   "list.display-mode.masonry": {
     "other": "이미지 갤러리"

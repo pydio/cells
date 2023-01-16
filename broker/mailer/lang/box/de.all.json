@@ -200,6 +200,12 @@
   "Mail.Config.Smtp.Password.Description": {
     "other": "Kennwort für die Verbindung zum SMTP - Server"
   },
+  "Mail.Config.Smtp.Security.Label": {
+    "other": "Verbindungssicherheit"
+  },
+  "Mail.Config.Smtp.Security.Description": {
+    "other": "Für die Sicherung der Verbindung verwendetes Protokoll. Klartext wird nicht unterstützt, verwenden Sie bei Bedarf stattdessen ein benutzerdefiniertes Sendmail."
+  },
   "Mail.Config.Smtp.SkipVerify.Label": {
     "other": "Selbstsigniertes Zertifikat"
   },

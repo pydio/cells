@@ -200,6 +200,12 @@
   "Mail.Config.Smtp.Password.Description": {
     "other": "STMP 서버에 연결하려면 비밀번호가 필요합니다"
   },
+  "Mail.Config.Smtp.Security.Label": {
+    "other": "Connection Security"
+  },
+  "Mail.Config.Smtp.Security.Description": {
+    "other": "Protocol used for securing connection. Clear is not supported, if required use a custom Sendmail instead."
+  },
   "Mail.Config.Smtp.SkipVerify.Label": {
     "other": "자체 서명 인증서"
   },
