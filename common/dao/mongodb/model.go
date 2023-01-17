@@ -35,10 +35,11 @@ import (
 )
 
 type Collection struct {
-	Name             string
-	DefaultCollation Collation
-	Indexes          []map[string]int
-	IDName           string
+	Name               string
+	DefaultCollation   Collation
+	Indexes            []map[string]int
+	IDName             string
+	TruncateSorterDesc string
 }
 
 type Collation struct {

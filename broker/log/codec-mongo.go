@@ -75,6 +75,7 @@ func (m *MongoCodec) GetModel(sc configx.Values) (interface{}, bool) {
 					{"username": 1},
 					{"operationuuid": 1},
 				},
+				TruncateSorterDesc: "ts",
 			},
 		}}
 	return model, true

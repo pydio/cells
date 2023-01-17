@@ -247,15 +247,90 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 func (i *Indexer) Resync(ctx context.Context, logger func(string)) error {
 	return fmt.Errorf("resync is not implemented on the mongo indexer")
 }
-func (i *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) error {
-	if max > 0 {
-		return fmt.Errorf("truncate to a given bytesize is not implemented on the mongo indexer")
+
+type CollStats struct {
+	Count       int64
+	AvgObjSize  int64
+	StorageSize int64
+}
+
+func (i *Indexer) collectionStats(ctx context.Context) (*CollStats, error) {
+	directName := i.Collection(i.collection).Name()
+	res := i.DB().RunCommand(ctx, bson.M{"collStats": directName})
+	if er := res.Err(); er != nil {
+		return nil, er
 	}
-	res, e := i.Collection(i.collection).DeleteMany(context.Background(), bson.D{})
+	exp := &CollStats{}
+	if e := res.Decode(exp); e != nil {
+		return nil, fmt.Errorf("cannot read collection statistics to truncate based on size")
+	}
+	return exp, nil
+}
+
+// Truncate removes records from collection. If max is set, we find the starting index for deletion based on the collection
+// average object size (using collStats command)
+func (i *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) error {
+	var filter interface{}
+	var opts []*options.DeleteOptions
+	filter = bson.D{}
+	var startCount int64
+
+	if max > 0 {
+		if i.collectionModel.TruncateSorterDesc == "" {
+			return fmt.Errorf("collection model must declare a TruncateSorterDesc field to support this operation")
+		}
+		exp, er := i.collectionStats(ctx)
+		if er != nil {
+			return er
+		}
+		startCount = exp.Count
+		if exp.Count == 0 {
+			log.TasksLogger(ctx).Info("No row in collection, nothing to do")
+			return nil
+		}
+		if exp.AvgObjSize == 0 {
+			return fmt.Errorf("cannot read record average size to truncate based on size")
+		}
+
+		targetCount := int64(float64(max) / float64(exp.AvgObjSize))
+		if targetCount >= exp.Count {
+			log.TasksLogger(ctx).Info("Target size bigger than current size, nothing to do")
+			return nil
+		}
+
+		log.TasksLogger(ctx).Info(fmt.Sprintf("Should truncate table at row %d on a total of %d", targetCount, exp.Count))
+		limit := int64(1)
+		cur, er := i.Collection(i.collection).Find(ctx, bson.D{}, &options.FindOptions{Sort: bson.M{i.collectionModel.TruncateSorterDesc: -1}, Skip: &targetCount, Limit: &limit})
+		if er != nil {
+			return fmt.Errorf("cannot find fist row for starting deletion: %v", er)
+		}
+		cur.Next(ctx)
+		var record map[string]interface{}
+		if er := cur.Decode(&record); er != nil {
+			return fmt.Errorf("cannot decode first referecence record")
+		}
+		ref, ok := record[i.collectionModel.TruncateSorterDesc]
+		if !ok {
+			return fmt.Errorf("cannot locate correct record for deletion")
+		}
+
+		log.TasksLogger(ctx).Info(fmt.Sprintf("Will truncate table based on the following condition %s<%v", i.collectionModel.TruncateSorterDesc, ref))
+		filter = bson.M{i.collectionModel.TruncateSorterDesc: bson.M{"$lte": ref}}
+	}
+	res, e := i.Collection(i.collection).DeleteMany(context.Background(), filter, opts...)
 	if e != nil {
 		return e
 	}
+	if max > 0 && startCount > 0 {
+		if exp, er := i.collectionStats(ctx); er == nil {
+			msg := fmt.Sprintf("Collection storage size reduced from %d records to %d", startCount, exp.Count)
+			log.Logger(ctx).Info(msg)
+			log.TasksLogger(ctx).Info(msg)
+			return nil
+		}
+	}
 	log.Logger(ctx).Info(fmt.Sprintf("Flushed Mongo index from %d records", res.DeletedCount))
+	log.TasksLogger(ctx).Info(fmt.Sprintf("Flushed Mongo index from %d records", res.DeletedCount))
 	return nil
 }
 func (i *Indexer) Close(ctx context.Context) error {
