@@ -514,9 +514,29 @@ func (j *JobsHandler) CleanStuckTasks(ctx context.Context, logger log.ZapLogger,
 		logger.Info(fmt.Sprintf("Removed %d orphan tasks and their corresponding %d logs", len(tt), logsCount))
 	}
 
-	var fixedTasks []*proto.Task
+	var fixed []*proto.Task
 
-	res, done, err := j.store.ListTasks("", proto.TaskStatus_Running)
+	if running, er := j.cleanStuckByStatus(ctx, logger, proto.TaskStatus_Running, duration...); er == nil {
+		fixed = append(fixed, running...)
+	} else {
+		logger.Error("Error while cleaning Running tasks", zap.Error(er))
+	}
+
+	if len(duration) == 0 { // This is launched at startup, clean other stuck statuses as well
+		if paused, er := j.cleanStuckByStatus(ctx, logger, proto.TaskStatus_Paused); er == nil {
+			fixed = append(fixed, paused...)
+		} else {
+			logger.Error("Error while cleaning paused tasks", zap.Error(er))
+		}
+	}
+
+	return fixed, nil
+}
+
+func (j *JobsHandler) cleanStuckByStatus(ctx context.Context, logger log.ZapLogger, status proto.TaskStatus, duration ...time.Duration) ([]*proto.Task, error) {
+
+	var fixedTasks []*proto.Task
+	res, done, err := j.store.ListTasks("", status)
 	defer close(res)
 	if err != nil {
 		return fixedTasks, err

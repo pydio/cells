@@ -142,7 +142,7 @@ func (c *Abstract) LoadNode(ctx context.Context, path string, extendedStats ...b
 // Workspaces nodes are ignored if they don't have the WorkspaceSyncable flag in their Metadata
 func (c *Abstract) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	log.Logger(c.GlobalCtx).Debug("Walking Router on " + c.rooted(root))
-	ctx, cli, err := c.Factory.GetNodeProviderClient(c.getContext())
+	ctx, cli, err := c.Factory.GetNodeProviderClient(c.getContext(ctx))
 	if err != nil {
 		return err
 	}
@@ -461,7 +461,7 @@ func (c *Abstract) MoveNode(ct context.Context, oldPath string, newPath string) 
 		defer can()
 		_, e := cli.UpdateNode(sendCtx, &tree.UpdateNodeRequest{From: from, To: to})
 		if e == nil && to.Type == tree.NodeType_COLLECTION {
-			c.readNodeBlocking(to)
+			c.readNodeBlocking(ctx, to)
 		}
 		return e
 	} else {
@@ -483,7 +483,7 @@ func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 	n := &tree.Node{Path: c.rooted(p)}
 	reader, out := io.Pipe()
 
-	ctx, cli, err := c.Factory.GetObjectsClient(c.getContext())
+	ctx, cli, err := c.Factory.GetObjectsClient(c.getContext(cancel))
 	if err != nil {
 		return nil, writeDone, writeErr, err
 	}
@@ -526,7 +526,7 @@ func (c *Abstract) flushRecentMkDirs(ctx context.Context) {
 	if len(c.RecentMkDirs) > 0 {
 		log.Logger(ctx).Info("Cells Endpoint: checking that recently created folders are ready...")
 		c.Lock()
-		c.readNodesBlocking(c.RecentMkDirs)
+		c.readNodesBlocking(ctx, c.RecentMkDirs)
 		c.RecentMkDirs = nil
 		c.Unlock()
 		log.Logger(ctx).Info("Cells Endpoint: checking that recently created folders are ready - OK")
@@ -534,10 +534,10 @@ func (c *Abstract) flushRecentMkDirs(ctx context.Context) {
 }
 
 // readNodeBlocking retries to read a node until it is available (it may habe just been indexed).
-func (c *Abstract) readNodeBlocking(n *tree.Node) {
+func (c *Abstract) readNodeBlocking(ctx context.Context, n *tree.Node) {
 	// Block until move is correctly indexed
 	model.Retry(func() error {
-		ctx, cli, err := c.Factory.GetNodeProviderClient(c.getContext())
+		ctx, cli, err := c.Factory.GetNodeProviderClient(c.getContext(ctx))
 		if err != nil {
 			return err
 		}
@@ -549,7 +549,7 @@ func (c *Abstract) readNodeBlocking(n *tree.Node) {
 }
 
 // readNodesBlocking wraps many parallel calls to readNodeBlocking.
-func (c *Abstract) readNodesBlocking(nodes []*tree.Node) {
+func (c *Abstract) readNodesBlocking(ctx context.Context, nodes []*tree.Node) {
 	if len(nodes) == 0 {
 		return
 	}
@@ -559,13 +559,13 @@ func (c *Abstract) readNodesBlocking(nodes []*tree.Node) {
 	throttle := make(chan struct{}, 8)
 	for _, n := range nodes {
 		throttle <- struct{}{}
-		go func() {
+		go func(no *tree.Node) {
 			defer func() {
 				wg.Done()
 				<-throttle
 			}()
-			c.readNodeBlocking(n)
-		}()
+			c.readNodeBlocking(ctx, no)
+		}(n)
 	}
 	wg.Wait()
 }
