@@ -67,10 +67,12 @@ func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) [
 		grpc.WithResolvers(NewBuilder(reg, clientConfig.LBOptions()...)),
 		grpc.WithConnectParams(grpc.ConnectParams{MinConnectTimeout: 1 * time.Minute, Backoff: backoffConfig}),
 		grpc.WithChainUnaryInterceptor(
+			ErrorFormatUnaryClientInterceptor(),
 			servicecontext.SpanUnaryClientInterceptor(),
 			MetaUnaryClientInterceptor(),
 		),
 		grpc.WithChainStreamInterceptor(
+			ErrorFormatStreamClientInterceptor(),
 			servicecontext.SpanStreamClientInterceptor(),
 			MetaStreamClientInterceptor(),
 		),

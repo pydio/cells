@@ -1,9 +1,12 @@
 package errors
 
 import (
+	"net/http"
+
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"net/http"
+
+	pb "github.com/pydio/cells/v4/common/proto/service"
 )
 
 // CodeFromHTTPStatus converts an HTTP response status into the corresponding
@@ -46,5 +49,40 @@ func ToGRPC(er error) error {
 
 	err := FromError(er)
 
-	return status.Error(CodeFromHTTPStatus(int(err.Code)), err.Detail)
+	s, serr := status.New(CodeFromHTTPStatus(int(err.Code)), err.Detail).WithDetails(&pb.Error{
+		ID:      err.Id,
+		Code:    uint32(err.Code),
+		Status:  err.Status,
+		Details: err.Detail,
+	})
+	if serr != nil {
+		return serr
+	}
+
+	return s.Err()
+}
+
+func FromGRPC(er error) error {
+	if er == nil {
+		return nil
+	}
+
+	s, ok := status.FromError(er)
+	if !ok {
+		return er
+	}
+
+	details := s.Details()
+	for _, detail := range details {
+		err := detail.(*pb.Error)
+
+		return &Error{
+			Id:     err.ID,
+			Code:   int32(err.Code),
+			Status: err.Status,
+			Detail: err.Details,
+		}
+	}
+
+	return er
 }
