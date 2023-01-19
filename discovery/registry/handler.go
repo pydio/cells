@@ -194,10 +194,10 @@ func (h *Handler) NewLocker(server pb.Registry_NewLockerServer) error {
 	if locker := h.reg.NewLocker(reqLock.GetPrefix()); locker != nil {
 		locker.Lock()
 		defer locker.Unlock()
+	}
 
-		if err := server.Send(&pb.NewLockerResponse{Type: pb.LockType_Lock}); err != nil {
-			return err
-		}
+	if err := server.Send(&pb.NewLockerResponse{Type: pb.LockType_Lock}); err != nil {
+		return err
 	}
 
 	reqUnlock, err := server.Recv()
