@@ -780,9 +780,11 @@
     "idmACLAction": {
       "properties": {
         "Name": {
+          "title": "ACL Action name, most frequent values are \"read\" or \"write\"",
           "type": "string"
         },
         "Value": {
+          "title": "ACL Action value",
           "type": "string"
         }
       },
@@ -794,27 +796,32 @@
           "items": {
             "$ref": "#/definitions/idmACLAction"
           },
+          "title": "List of Actions to lookup",
           "type": "array"
         },
         "NodeIDs": {
           "items": {
             "type": "string"
           },
+          "title": "Filter by one or more node UUID",
           "type": "array"
         },
         "RoleIDs": {
           "items": {
             "type": "string"
           },
+          "title": "Filter by one or more role UUID",
           "type": "array"
         },
         "WorkspaceIDs": {
           "items": {
             "type": "string"
           },
+          "title": "Filter by one or more workspace UUID",
           "type": "array"
         },
         "not": {
+          "title": "Internal - Negate query",
           "type": "boolean"
         }
       },
@@ -1010,19 +1017,19 @@
           "type": "boolean"
         },
         "IsGroupRole": {
-          "title": "Look for group roles only",
+          "title": "Look for roles associated with a Group",
           "type": "boolean"
         },
         "IsTeam": {
-          "title": "Look for team roles only",
+          "title": "Look up for roles associated with a Team",
           "type": "boolean"
         },
         "IsUserRole": {
-          "title": "Look for user roles only",
+          "title": "Look for roles associated with a User",
           "type": "boolean"
         },
         "Label": {
-          "title": "Look for roles by label, eventually using wildchar",
+          "title": "Look for roles by label, eventually using \"wildchar\"",
           "type": "string"
         },
         "Uuid": {
@@ -1033,7 +1040,7 @@
           "type": "array"
         },
         "not": {
-          "title": "Negate the query",
+          "title": "Internal - Negate the query",
           "type": "boolean"
         }
       },
@@ -1270,51 +1277,59 @@
     "idmUserSingleQuery": {
       "properties": {
         "AttributeAnyValue": {
+          "title": "Search for the existence of the AttributeName, whatever its value",
           "type": "boolean"
         },
         "AttributeName": {
-          "title": "Search on attribute",
+          "title": "Search on attribute, to be combined with AttributeValue",
           "type": "string"
         },
         "AttributeValue": {
+          "title": "Value used for comparison",
           "type": "string"
         },
         "ConnectedSince": {
-          "title": "Compare to last connection date, starting with \u003e or \u003c",
+          "title": "Lookup by last connection date. Must be a timestamp with a leading comparison symbol ('\u003c' or '\u003e')",
           "type": "string"
         },
         "FullPath": {
-          "title": "Search a specific group by path",
+          "title": "Search one specific Group by its path",
           "type": "string"
         },
         "GroupPath": {
-          "title": "Search on group path, and if so, search recursively",
+          "title": "List users below a specific on group path",
           "type": "string"
         },
         "HasProfile": {
-          "title": "Shortcut for pydio:profile attribute",
+          "title": "Lookup by profile name (e.g. admin, standard, shared). This is a shortcut for searching on the pydio:profile attribute",
           "type": "string"
         },
         "HasRole": {
-          "title": "Search on roles",
+          "title": "Search users having a specific role UUID",
           "type": "string"
         },
         "Login": {
+          "title": "Lookup a user by Login",
           "type": "string"
         },
         "NodeType": {
-          "$ref": "#/definitions/idmNodeType"
+          "$ref": "#/definitions/idmNodeType",
+          "title": "Filter/Search by NodeType (generally user or group)"
         },
         "Password": {
+          "title": "Lookup by hashed password, probably never used",
           "type": "string"
         },
         "Recursive": {
+          "title": "When searching on group path, load all users and groups recursively",
           "type": "boolean"
         },
         "Uuid": {
+          "title": "Lookup a user by its Uuid",
           "type": "string"
         },
         "not": {
+          "title": "Internal - Negate the query/filter result",
           "type": "boolean"
         }
       },
@@ -1393,33 +1408,43 @@
     "idmWorkspaceSingleQuery": {
       "properties": {
         "AttributeName": {
+          "title": "Lookup for an attribute, to be used in combination with AttributeValue",
           "type": "string"
         },
         "AttributeValue": {
+          "title": "Value used for comparison",
           "type": "string"
         },
         "HasAttribute": {
+          "title": "Lookup for the presence of a specific attribute, whatever its value",
           "type": "string"
         },
         "LastUpdated": {
+          "title": "Compared to workspace update date (Golang duration with a leading comparator \u003c or \u003e)",
           "type": "string"
         },
         "description": {
+          "title": "Lookup by description",
           "type": "string"
         },
         "label": {
+          "title": "Lookup by workspace Label",
           "type": "string"
         },
         "not": {
+          "title": "Internal - Negate the query result",
           "type": "boolean"
         },
         "scope": {
-          "$ref": "#/definitions/idmWorkspaceScope"
+          "$ref": "#/definitions/idmWorkspaceScope",
+          "title": "Restrict to a specific workspace type"
         },
         "slug": {
+          "title": "Select workspace by slug",
           "type": "string"
         },
         "uuid": {
+          "title": "Lookup by workspace Uuid",
           "type": "string"
         }
       },
@@ -2938,7 +2963,7 @@
     },
     "protobufAny": {
       "additionalProperties": {},
-      "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
+      "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
       "properties": {
         "@type": {
           "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
@@ -3095,6 +3120,12 @@
         "actions": {
           "items": {
             "$ref": "#/definitions/registryActionType"
+          },
+          "type": "array"
+        },
+        "ids": {
+          "items": {
+            "type": "string"
           },
           "type": "array"
         },
@@ -5257,31 +5288,31 @@
     "treeQuery": {
       "properties": {
         "Content": {
-          "title": "Search in content",
+          "title": "Search in textual content (if search engine has this feature enabled)",
           "type": "string"
         },
         "DurationDate": {
-          "title": "Pass a duration with \u003e or \u003c to compute MinDate / MaxDate",
+          "title": "Compute MinDate/MaxDate with a Golang duration with a leading comparator (\u003e or \u003c)\nDuration may contain \"s\" second, \"m\" minute, \"d\" day.\nExample: \"\u003e10m\" for files modified before 10minutes ago",
           "type": "string"
         },
         "ETag": {
-          "title": "Look for a specific eTag value",
+          "title": "Look for a specific ETag value, may only be useful to lookup for files with __temporary__ ETag",
           "type": "string"
         },
         "Extension": {
-          "title": "Search files by extension",
+          "title": "Search files by their extension, use pipe symbol | if you wish to allow many extensions.\nExample png|pdf|jpg",
           "type": "string"
         },
         "FileName": {
-          "title": "Search in filename",
+          "title": "Lookup by file basename",
           "type": "string"
         },
         "FileNameOrContent": {
-          "title": "Search in either filename or content (but at least one of them)",
+          "title": "Search in either filename or content (if search engine has this feature enabled)",
           "type": "string"
         },
         "FreeString": {
-          "title": "Free Query String (for metadata)",
+          "description": "Bleve-like search query to search for a specific metadata value.\nWhen querying nodes, this will redirect this query to the Search Engine. When filtering an input, this will load an in-memory bleve engine to evaluate the node.\n\nBleve query string format is a space separated list of `[+-]key:value`, where node meta keys must be prepended with \"Meta.\"\nFor Example, for tags: `+Meta.usermeta-tags:myvalue`",
           "type": "string"
         },
         "GeoQuery": {
@@ -5290,20 +5321,22 @@
         },
         "MaxDate": {
           "format": "int64",
+          "title": "Range for modification date - node was modified before this date",
           "type": "string"
         },
         "MaxSize": {
           "format": "int64",
+          "title": "Range for file size - size is smaller than",
           "type": "string"
         },
         "MinDate": {
           "format": "int64",
-          "title": "Range for date",
+          "title": "Range for modification date - node was modified after this date",
           "type": "string"
         },
         "MinSize": {
           "format": "int64",
-          "title": "Range for size",
+          "title": "Range for file size - size bigger than",
           "type": "string"
         },
         "Not": {
@@ -5312,32 +5345,32 @@
         },
         "PathDepth": {
           "format": "int32",
-          "title": "Limit to a given level of the tree - can be used in filters",
+          "title": "Restrict recursive listing to a given level of the tree starting from root.\nSpecial value \"-1\" should list only one level in the folder defined by PathPrefix",
           "type": "integer"
         },
         "PathPrefix": {
           "items": {
             "type": "string"
           },
-          "title": "Limit to a given subtree",
+          "title": "Recursive listing of nodes below a given path. Combine with the PathDepth parameter to limit request results",
           "type": "array"
         },
         "Paths": {
           "items": {
             "type": "string"
           },
-          "title": "Preset list of nodes by Path",
+          "title": "List of nodes paths, exactly matching",
           "type": "array"
         },
         "Type": {
           "$ref": "#/definitions/treeNodeType",
-          "title": "Limit to a given node type"
+          "title": "Limit to a given node type (file or folder)"
         },
         "UUIDs": {
           "items": {
             "type": "string"
           },
-          "title": "Preset list of Node by UUIDs",
+          "title": "Preset list of specific node defined by their UUIDs",
           "type": "array"
         }
       },
@@ -5752,6 +5785,7 @@
         "operationId": "PutAcl",
         "parameters": [
           {
+            "description": "ACL are the basic flags that can be put anywhere in the tree to provide some specific rights to a given role.\nThe context of how they apply can be fine-tuned by workspace.",
             "in": "body",
             "name": "body",
             "required": true,
@@ -5803,6 +5837,7 @@
         "operationId": "DeleteAcl",
         "parameters": [
           {
+            "description": "ACL are the basic flags that can be put anywhere in the tree to provide some specific rights to a given role.\nThe context of how they apply can be fine-tuned by workspace.",
             "in": "body",
             "name": "body",
             "required": true,
@@ -6338,7 +6373,7 @@
         "parameters": [
           {
             "default": "ANY",
-            "description": "Filter services by a given status (ANY, STOPPED, STOPPING, RUNNING).",
+            "description": "Filter services by a given status (ANY, STOPPED, STOPPING, RUNNING)",
             "enum": [
               "ANY",
               "STOPPED",
@@ -6492,7 +6527,7 @@
             "type": "string"
           },
           {
-            "description": "Whether this data source is disabled or running.",
+            "description": "Whether this data source is disabled or running",
             "in": "query",
             "name": "Disabled",
             "required": false,
@@ -6500,7 +6535,7 @@
           },
           {
             "default": "LOCAL",
-            "description": "Type of underlying storage (LOCAL, S3, AZURE, GCS).",
+            "description": "Type of underlying storage (LOCAL, S3, AZURE, GCS)",
             "enum": [
               "LOCAL",
               "S3",
@@ -6518,21 +6553,21 @@
             "type": "string"
           },
           {
-            "description": "Corresponding objects service name (underlying s3 service).",
+            "description": "Corresponding objects service name (underlying s3 service)",
             "in": "query",
             "name": "ObjectsServiceName",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Corresponding objects service host.",
+            "description": "Corresponding objects service host",
             "in": "query",
             "name": "ObjectsHost",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Corresponding objects service port.",
+            "description": "Corresponding objects service port",
             "format": "int32",
             "in": "query",
             "name": "ObjectsPort",
@@ -6540,63 +6575,63 @@
             "type": "integer"
           },
           {
-            "description": "Corresponding objects service connection type.",
+            "description": "Corresponding objects service connection type",
             "in": "query",
             "name": "ObjectsSecure",
             "required": false,
             "type": "boolean"
           },
           {
-            "description": "Corresponding objects service bucket.",
+            "description": "Corresponding objects service bucket",
             "in": "query",
             "name": "ObjectsBucket",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Corresponding objects service base folder inside the bucket.",
+            "description": "Corresponding objects service base folder inside the bucket",
             "in": "query",
             "name": "ObjectsBaseFolder",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Corresponding objects service api key.",
+            "description": "Corresponding objects service api key",
             "in": "query",
             "name": "ApiKey",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Corresponding objects service api secret.",
+            "description": "Corresponding objects service api secret",
             "in": "query",
             "name": "ApiSecret",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Peer address of the data source.",
+            "description": "Peer address of the data source",
             "in": "query",
             "name": "PeerAddress",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Not implemented, whether to watch for underlying changes on the FS.",
+            "description": "Not implemented, whether to watch for underlying changes on the FS",
             "in": "query",
             "name": "Watch",
             "required": false,
             "type": "boolean"
           },
           {
-            "description": "Store data in flat format (object-storage like).",
+            "description": "Store data in flat format (object-storage like)",
             "in": "query",
             "name": "FlatStorage",
             "required": false,
             "type": "boolean"
           },
           {
-            "description": "Do not trigger resync at start.",
+            "description": "Do not trigger resync at start",
             "in": "query",
             "name": "SkipSyncOnRestart",
             "required": false,
@@ -6604,7 +6639,7 @@
           },
           {
             "default": "CLEAR",
-            "description": "Type of encryption applied before sending data to storage.",
+            "description": "Type of encryption applied before sending data to storage",
             "enum": [
               "CLEAR",
               "MASTER",
@@ -6617,21 +6652,21 @@
             "type": "string"
           },
           {
-            "description": "Encryption key used for encrypting data.",
+            "description": "Encryption key used for encrypting data",
             "in": "query",
             "name": "EncryptionKey",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Versioning policy describes how files are kept in the versioning queue.",
+            "description": "Versioning policy describes how files are kept in the versioning queue",
             "in": "query",
             "name": "VersioningPolicyName",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Data Source creation date.",
+            "description": "Data Source creation date",
             "format": "int32",
             "in": "query",
             "name": "CreationDate",
@@ -6639,7 +6674,7 @@
             "type": "integer"
           },
           {
-            "description": "Data Source last synchronization date.",
+            "description": "Data Source last synchronization date",
             "format": "int32",
             "in": "query",
             "name": "LastSynchronizationDate",
@@ -6695,7 +6730,7 @@
             "type": "string"
           },
           {
-            "description": "Whether this data source is disabled or running.",
+            "description": "Whether this data source is disabled or running",
             "in": "query",
             "name": "Disabled",
             "required": false,
@@ -6703,7 +6738,7 @@
           },
           {
             "default": "LOCAL",
-            "description": "Type of underlying storage (LOCAL, S3, AZURE, GCS).",
+            "description": "Type of underlying storage (LOCAL, S3, AZURE, GCS)",
             "enum": [
               "LOCAL",
               "S3",
@@ -6721,21 +6756,21 @@
             "type": "string"
           },
           {
-            "description": "Corresponding objects service name (underlying s3 service).",
+            "description": "Corresponding objects service name (underlying s3 service)",
             "in": "query",
             "name": "ObjectsServiceName",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Corresponding objects service host.",
+            "description": "Corresponding objects service host",
             "in": "query",
             "name": "ObjectsHost",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Corresponding objects service port.",
+            "description": "Corresponding objects service port",
             "format": "int32",
             "in": "query",
             "name": "ObjectsPort",
@@ -6743,63 +6778,63 @@
             "type": "integer"
           },
           {
-            "description": "Corresponding objects service connection type.",
+            "description": "Corresponding objects service connection type",
             "in": "query",
             "name": "ObjectsSecure",
             "required": false,
             "type": "boolean"
           },
           {
-            "description": "Corresponding objects service bucket.",
+            "description": "Corresponding objects service bucket",
             "in": "query",
             "name": "ObjectsBucket",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Corresponding objects service base folder inside the bucket.",
+            "description": "Corresponding objects service base folder inside the bucket",
             "in": "query",
             "name": "ObjectsBaseFolder",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Corresponding objects service api key.",
+            "description": "Corresponding objects service api key",
             "in": "query",
             "name": "ApiKey",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Corresponding objects service api secret.",
+            "description": "Corresponding objects service api secret",
             "in": "query",
             "name": "ApiSecret",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Peer address of the data source.",
+            "description": "Peer address of the data source",
             "in": "query",
             "name": "PeerAddress",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Not implemented, whether to watch for underlying changes on the FS.",
+            "description": "Not implemented, whether to watch for underlying changes on the FS",
             "in": "query",
             "name": "Watch",
             "required": false,
             "type": "boolean"
           },
           {
-            "description": "Store data in flat format (object-storage like).",
+            "description": "Store data in flat format (object-storage like)",
             "in": "query",
             "name": "FlatStorage",
             "required": false,
             "type": "boolean"
           },
           {
-            "description": "Do not trigger resync at start.",
+            "description": "Do not trigger resync at start",
             "in": "query",
             "name": "SkipSyncOnRestart",
             "required": false,
@@ -6807,7 +6842,7 @@
           },
           {
             "default": "CLEAR",
-            "description": "Type of encryption applied before sending data to storage.",
+            "description": "Type of encryption applied before sending data to storage",
             "enum": [
               "CLEAR",
               "MASTER",
@@ -6820,21 +6855,21 @@
             "type": "string"
           },
           {
-            "description": "Encryption key used for encrypting data.",
+            "description": "Encryption key used for encrypting data",
             "in": "query",
             "name": "EncryptionKey",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Versioning policy describes how files are kept in the versioning queue.",
+            "description": "Versioning policy describes how files are kept in the versioning queue",
             "in": "query",
             "name": "VersioningPolicyName",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Data Source creation date.",
+            "description": "Data Source creation date",
             "format": "int32",
             "in": "query",
             "name": "CreationDate",
@@ -6842,7 +6877,7 @@
             "type": "integer"
           },
           {
-            "description": "Data Source last synchronization date.",
+            "description": "Data Source last synchronization date",
             "format": "int32",
             "in": "query",
             "name": "LastSynchronizationDate",
@@ -7038,7 +7073,7 @@
         "operationId": "EndpointsDiscovery",
         "parameters": [
           {
-            "description": "Filter result to a specific endpoint type.",
+            "description": "Filter result to a specific endpoint type",
             "in": "query",
             "name": "EndpointType",
             "required": false,
@@ -7138,7 +7173,7 @@
         "operationId": "OpenApiDiscovery",
         "parameters": [
           {
-            "description": "Filter result to a specific endpoint type.",
+            "description": "Filter result to a specific endpoint type",
             "in": "query",
             "name": "EndpointType",
             "required": false,
@@ -8048,7 +8083,7 @@
             "type": "string"
           },
           {
-            "description": "JSON-encoded data to store.",
+            "description": "JSON-encoded data to store",
             "in": "query",
             "name": "Data",
             "required": false,
@@ -9025,6 +9060,7 @@
         "operationId": "ListTasksLogs",
         "parameters": [
           {
+            "description": "ListLogRequest launches a parameterised query in the log repository and streams the results.",
             "in": "body",
             "name": "body",
             "required": true,
@@ -9241,6 +9277,7 @@
         "operationId": "Syslog",
         "parameters": [
           {
+            "description": "ListLogRequest launches a parameterised query in the log repository and streams the results.",
             "in": "body",
             "name": "body",
             "required": true,
@@ -9705,35 +9742,35 @@
             "type": "string"
           },
           {
-            "description": "Label of this role.",
+            "description": "Label of this role",
             "in": "query",
             "name": "Label",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Whether this role represents a user team or not.",
+            "description": "Whether this role represents a user team or not",
             "in": "query",
             "name": "IsTeam",
             "required": false,
             "type": "boolean"
           },
           {
-            "description": "Whether this role is attached to a Group object.",
+            "description": "Whether this role is attached to a Group object",
             "in": "query",
             "name": "GroupRole",
             "required": false,
             "type": "boolean"
           },
           {
-            "description": "Whether this role is attached to a User object.",
+            "description": "Whether this role is attached to a User object",
             "in": "query",
             "name": "UserRole",
             "required": false,
             "type": "boolean"
           },
           {
-            "description": "Last modification date of the role.",
+            "description": "Last modification date of the role",
             "format": "int32",
             "in": "query",
             "name": "LastUpdated",
@@ -9742,7 +9779,7 @@
           },
           {
             "collectionFormat": "multi",
-            "description": "List of profiles (standard, shared, admin) on which the role will be automatically applied.",
+            "description": "List of profiles (standard, shared, admin) on which the role will be automatically applied",
             "in": "query",
             "items": {
               "type": "string"
@@ -9752,7 +9789,7 @@
             "type": "array"
           },
           {
-            "description": "Whether the policies resolve into an editable state.",
+            "description": "Whether the policies resolve into an editable state",
             "in": "query",
             "name": "PoliciesContextEditable",
             "required": false,
@@ -9814,35 +9851,35 @@
             "type": "string"
           },
           {
-            "description": "Label of this role.",
+            "description": "Label of this role",
             "in": "query",
             "name": "Label",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Whether this role represents a user team or not.",
+            "description": "Whether this role represents a user team or not",
             "in": "query",
             "name": "IsTeam",
             "required": false,
             "type": "boolean"
           },
           {
-            "description": "Whether this role is attached to a Group object.",
+            "description": "Whether this role is attached to a Group object",
             "in": "query",
             "name": "GroupRole",
             "required": false,
             "type": "boolean"
           },
           {
-            "description": "Whether this role is attached to a User object.",
+            "description": "Whether this role is attached to a User object",
             "in": "query",
             "name": "UserRole",
             "required": false,
             "type": "boolean"
           },
           {
-            "description": "Last modification date of the role.",
+            "description": "Last modification date of the role",
             "format": "int32",
             "in": "query",
             "name": "LastUpdated",
@@ -9851,7 +9888,7 @@
           },
           {
             "collectionFormat": "multi",
-            "description": "List of profiles (standard, shared, admin) on which the role will be automatically applied.",
+            "description": "List of profiles (standard, shared, admin) on which the role will be automatically applied",
             "in": "query",
             "items": {
               "type": "string"
@@ -9861,7 +9898,7 @@
             "type": "array"
           },
           {
-            "description": "Whether the policies resolve into an editable state.",
+            "description": "Whether the policies resolve into an editable state",
             "in": "query",
             "name": "PoliciesContextEditable",
             "required": false,
@@ -11629,49 +11666,49 @@
             "type": "string"
           },
           {
-            "description": "User unique identifier.",
+            "description": "User unique identifier",
             "in": "query",
             "name": "Uuid",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Path to the parent group.",
+            "description": "Path to the parent group",
             "in": "query",
             "name": "GroupPath",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Password can be passed to be updated (but never read back), field is empty for groups.",
+            "description": "Password can be passed to be updated (but never read back), field is empty for groups",
             "in": "query",
             "name": "Password",
             "required": false,
             "type": "string"
           },
           {
-            "description": "OldPassword must be set when a user updates her own password.",
+            "description": "OldPassword must be set when a user updates her own password",
             "in": "query",
             "name": "OldPassword",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Whether this object is a group or a user.",
+            "description": "Whether this object is a group or a user",
             "in": "query",
             "name": "IsGroup",
             "required": false,
             "type": "boolean"
           },
           {
-            "description": "Label of the group, field is empty for users.",
+            "description": "Label of the group, field is empty for users",
             "in": "query",
             "name": "GroupLabel",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Last successful connection timestamp.",
+            "description": "Last successful connection timestamp",
             "format": "int32",
             "in": "query",
             "name": "LastConnected",
@@ -11734,49 +11771,49 @@
             "type": "string"
           },
           {
-            "description": "User unique identifier.",
+            "description": "User unique identifier",
             "in": "query",
             "name": "Uuid",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Path to the parent group.",
+            "description": "Path to the parent group",
             "in": "query",
             "name": "GroupPath",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Password can be passed to be updated (but never read back), field is empty for groups.",
+            "description": "Password can be passed to be updated (but never read back), field is empty for groups",
             "in": "query",
             "name": "Password",
             "required": false,
             "type": "string"
           },
           {
-            "description": "OldPassword must be set when a user updates her own password.",
+            "description": "OldPassword must be set when a user updates her own password",
             "in": "query",
             "name": "OldPassword",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Whether this object is a group or a user.",
+            "description": "Whether this object is a group or a user",
             "in": "query",
             "name": "IsGroup",
             "required": false,
             "type": "boolean"
           },
           {
-            "description": "Label of the group, field is empty for users.",
+            "description": "Label of the group, field is empty for users",
             "in": "query",
             "name": "GroupLabel",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Last successful connection timestamp.",
+            "description": "Last successful connection timestamp",
             "format": "int32",
             "in": "query",
             "name": "LastConnected",
@@ -12005,21 +12042,21 @@
             "type": "string"
           },
           {
-            "description": "Unique identifier of the workspace.",
+            "description": "Unique identifier of the workspace",
             "in": "query",
             "name": "UUID",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Label of the workspace (max length 500).",
+            "description": "Label of the workspace (max length 500)",
             "in": "query",
             "name": "Label",
             "required": false,
             "type": "string"
           },
           {
-            "description": "Description of the workspace (max length 1000).",
+            "description": "Description of the workspace (max length 1000)",
             "in": "query",
             "name": "Description",
             "required": false,
@@ -12027,7 +12064,7 @@
           },
           {
             "default": "ANY",
-            "description": "Scope can be ADMIN, ROOM (=CELL) or LINK.",
+            "description": "Scope can be ADMIN, ROOM (=CELL) or LINK",
             "enum": [
               "ANY",
               "ADMIN",
@@ -12040,7 +12077,7 @@
             "type": "string"
           },
           {
-            "description": "Last modification time.",
+            "description": "Last modification time",
             "format": "int32",
             "in": "query",
             "name": "LastUpdated",
@@ -12048,7 +12085,7 @@
             "type": "integer"
           },
           {
-            "description": "JSON-encoded list of attributes.",
+            "description": "JSON-encoded list of attributes",
             "in": "query",
             "name": "Attributes",
             "required": false,
@@ -12056,7 +12093,7 @@
           },
           {
             "collectionFormat": "multi",
-            "description": "Quick list of the RootNodes uuids.",
+            "description": "Quick list of the RootNodes uuids",
             "in": "query",
             "items": {
               "type": "string"
@@ -12066,7 +12103,7 @@
             "type": "array"
           },
           {
-            "description": "Context-resolved to quickly check if workspace is editable or not.",
+            "description": "Context-resolved to quickly check if workspace is editable or not",
             "in": "query",
             "name": "PoliciesContextEditable",
             "required": false,
