@@ -85,7 +85,7 @@ require (
 	github.com/pydio/pydio-sdk-go v0.0.0-20190116153840-23ce5c39e65c
 	github.com/r3labs/diff/v3 v3.0.0
 	github.com/rivo/tview v0.0.0-20220307222120-9994674d60a8
-	github.com/rjeczalik/notify v0.9.2
+	github.com/rjeczalik/notify v0.9.3
 	github.com/robertkrimen/otto v0.0.0-20211024170158-b87d35c0b86f
 	github.com/rs/cors v1.8.2
 	github.com/rs/xid v1.3.0
