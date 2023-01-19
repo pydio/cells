@@ -53,29 +53,30 @@ class PasswordPopover extends React.Component{
         let {passOpen, passAnchor, passValid} = this.state;
         return (
             <div style={{marginLeft: 8}}>
-                <RaisedButton
+                <FlatButton
                     onClick={this.passOpenPopover.bind(this)}
                     label={pydio.MessageHash[194]}
-                    primary={true}
+                    secondary={true}
                 />
                 <Popover
                     open={passOpen}
                     anchorEl={passAnchor}
-                    anchorOrigin={{horizontal: 'left', vertical: 'top'}}
+                    anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
                     targetOrigin={{horizontal: 'left', vertical: 'bottom'}}
                     onRequestClose={this.passClosePopover.bind(this)}
-                    zDepth={2}
+                    zDepth={4}
                 >
                     <div>
+                        <div style={{padding: '15px 15px 0', fontSize: 15}}>{pydio.MessageHash[194]}</div>
                         <PasswordForm
-                            style={{padding:10, backgroundColor:'#fafafa', paddingBottom: 30}}
+                            style={{width:386, padding:10, backgroundColor:'#fafafa', paddingBottom: 30}}
                             pydio={pydio}
                             ref="passwordForm"
                             onValidStatusChange={this.passValidStatusChange.bind(this)}
                         />
                         <Divider/>
                         <div style={{textAlign:'right', padding: '8px 0'}}>
-                            <FlatButton label={this.props.pydio.MessageHash[49]} onClick={this.passClosePopover.bind(this)}/>
+                            <FlatButton label={pydio.MessageHash[49]} onClick={this.passClosePopover.bind(this)}/>
                             <FlatButton disabled={!passValid} label="Ok" onClick={this.passSubmit.bind(this)}/>
                         </div>
                     </div>

@@ -31,7 +31,7 @@ const {Manager, FormPanel} = Pydio.requireLib('form');
 
 const FORM_CSS = ` 
 .react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group:first-of-type {
-  margin-top: 230px;
+  margin-top: 210px;
   overflow-y: hidden;
 }
 .react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image {
@@ -39,7 +39,7 @@ const FORM_CSS = `
   top: 0;
   left: 0;
   right: 0;
-  height: 220px;
+  height: 200px;
   background-color: #eceff1;
 }
 .react-mui-context .current-user-edit.pydio-form-panel .form-entry-image>div:last-child {
@@ -63,7 +63,8 @@ const FORM_CSS = `
 .react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image .binary-remove-button {
   position: absolute;
   bottom: 5px;
-  right: 0;
+  right: 5px;
+  font-size: 14px; 
 }
 
 `;
@@ -81,10 +82,12 @@ class ProfilePane extends React.Component {
                 objValues[k] = v;
             });
         }
+        let definitions = Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and not(contains(@name, 'NOTIFICATIONS_EMAIL'))]")
+        let mailDefinitions = Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and contains(@name, 'NOTIFICATIONS_EMAIL')]");
 
         this.state = {
-            definitions:Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and not(contains(@name, 'NOTIFICATIONS_EMAIL'))]"),
-            mailDefinitions:Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and contains(@name, 'NOTIFICATIONS_EMAIL')]"),
+            definitions,
+            mailDefinitions,
             values:objValues,
             originalValues:LangUtils.deepCopy(objValues),
             dirty: false
@@ -152,10 +155,9 @@ class ProfilePane extends React.Component {
                 idmUser.Attributes = {};
             }
             definitions.forEach(d => {
-                if (values[d.name] === undefined) {
-                    return;
-                }
-                if (d.scope === "user") {
+                if (!values[d.name]) {
+                    delete(idmUser.Attributes[d.name])
+                } else if (d.scope === "user") {
                     idmUser.Attributes[d.name] = values[d.name];
                 } else {
                     idmUser.Attributes["parameter:" + d.pluginId + ":" + d.name] = JSON.stringify(values[d.name]);
@@ -197,6 +199,8 @@ class ProfilePane extends React.Component {
         if(miniDisplay){
             definitions = definitions.filter((o) => {return ['avatar'].indexOf(o.name) !== -1});
         }
+        definitions = definitions.map(d =>{return {...d, label: d.label+' - '+d.description}})
+
         return (
             <div>
                 <FormPanel
@@ -206,6 +210,7 @@ class ProfilePane extends React.Component {
                     depth={-1}
                     binary_context={"user_id="+pydio.user.id + (values['avatar'] ? "?" + values['avatar'] : '')}
                     onChange={this.onFormChange}
+                    variant={"v2"}
                 />
                 <style type="text/css" dangerouslySetInnerHTML={{__html: FORM_CSS}}></style>
             </div>

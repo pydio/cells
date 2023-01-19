@@ -108,16 +108,19 @@ class PasswordForm extends React.Component {
                             value={this.state.oldPass}
                             floatingLabelText={messages[237]}
                             autoComplete="off"
+                            variant={"v2"}
+                            fullWidth={true}
                         />
                     </form>
                 </div>
-                <div style={{width:256}}>
+                <div>
                     <ValidPassword
                         onChange={newChange}
                         attributes={{name:'pass',label:messages[198]}}
                         value={this.state.newPass}
                         name="newpassword"
                         onValidStatusChange={(s) => this.setState({validStatus: s})}
+                        variant={"v2"}
                     />
                 </div>
             </div>
