@@ -329,6 +329,9 @@ class Role extends Observable{
     }
 
     _aclStringForAcls(acls, wsId, nodeId){
+        if(!acls) {
+            return undefined
+        }
         let rights = {read:false, write:false, deny:false};
 
         const policyValue = acls.filter(acl => {

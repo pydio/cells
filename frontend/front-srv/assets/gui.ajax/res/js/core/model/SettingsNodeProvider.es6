@@ -54,6 +54,54 @@ export default class SettingsNodeProvider{
         }
     }
 
+    parseIdmUser(user){
+        let uPath, uNode;
+        if (user.IsGroup) {
+            uPath = USERS_ROOT + LangUtils.trimRight(user.GroupPath, '/') + '/' + user.GroupLabel
+            const label = (user.Attributes && user.Attributes['displayName']) ? user.Attributes['displayName'] : user.GroupLabel;
+            uNode = new AjxpNode(uPath, false, label);
+            uNode.getMetadata().set('ajxp_mime', 'group');
+
+        } else {
+            uPath = (USERS_ROOT + user.GroupPath + '/' + user.Login).replace('//', '/')
+            const label = (user.Attributes && user.Attributes['displayName']) ? user.Attributes['displayName'] : user.Login;
+            uNode = new AjxpNode(uPath, true, label);
+            uNode.getMetadata().set('ajxp_mime', 'user_editable');
+        }
+        uNode.getMetadata().set('IdmUser', user);
+        return uNode;
+    }
+
+    /**
+     *
+     * @param event websocket event
+     * @param dm DataModel
+     */
+    idmEventToDataModel(event, dm) {
+        const user = event.User;
+        const uNode = this.parseIdmUser(user)
+        const uPath = uNode.getPath();
+        uNode.getMetadata().set('ajxp_im_time', (new Date())*1);
+        uNode.getMetadata().set('original_path', uPath);
+
+        //console.log('Should update datamodel with event', event, uNode)
+
+        switch (event.Type) {
+            case 'DELETE':
+                dm.removeNodeByPath(uPath)
+                break
+            case 'UPDATE':
+                if (event.Attributes && event.Attributes['original_group']) {
+                    uNode.getMetadata().set('original_path', USERS_ROOT+event.Attributes['original_group'])
+                }
+                dm.updateNode(uNode, false)
+                break
+            default: // no value means CREATE
+                dm.addNode(uNode, false)
+                break
+        }
+    }
+
     /**
      * Load a node
      * @param node AjxpNode
@@ -87,20 +135,26 @@ export default class SettingsNodeProvider{
                 let count = 0;
                 if(collection.Groups){
                     collection.Groups.map(group => {
+                        const gNode = this.parseIdmUser(group)
+                        /*
                         const label = (group.Attributes && group.Attributes['displayName']) ? group.Attributes['displayName'] : group.GroupLabel;
                         const gNode = new AjxpNode(USERS_ROOT + LangUtils.trimRight(group.GroupPath, '/') + '/' + group.GroupLabel, false, label);
                         gNode.getMetadata().set('IdmUser', group);
                         gNode.getMetadata().set('ajxp_mime', 'group');
+                         */
                         childrenNodes.push(gNode)
                     })
                 }
                 if(collection.Users){
                     count = collection.Users.length;
                     collection.Users.map(user => {
+                        const uNode = this.parseIdmUser(user)
+                        /*
                         const label = (user.Attributes && user.Attributes['displayName']) ? user.Attributes['displayName'] : user.Login;
-                        const uNode = new AjxpNode(USERS_ROOT + user.Login, true, label);
+                        const uNode = new AjxpNode(USERS_ROOT + LangUtils.trimRight(user.GroupPath, '/') + '/' + user.Login, true, label);
                         uNode.getMetadata().set('IdmUser', user);
                         uNode.getMetadata().set('ajxp_mime', 'user_editable');
+                         */
                         childrenNodes.push(uNode)
                     })
                 }

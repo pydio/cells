@@ -78,8 +78,25 @@ class Editor extends React.Component{
         }
     }
 
+    componentDidMount(){
+        this.loadRoleData(true);
+        if(this.props.registerCloseCallback){
+            this.props.registerCloseCallback(()=>{
+                if(this.state && this.state.dirty && !global.confirm(this.getPydioRoleMessage('19'))){
+                    return false;
+                }
+            });
+        }
+    }
+
+    componentWillUnmount() {
+        if(this._websocketObserver) {
+            this.props.pydio.stopObserving('websocket_event:idm', this._websocketObserver)
+        }
+    }
 
     nodeToState(node){
+        const {pydio} = this.props;
         const mime = node.getAjxpMime();
         const scope = mime === "group" ? "group" : "user";
         let observableUser;
@@ -88,6 +105,30 @@ class Editor extends React.Component{
         observableUser = new User(idmUser);
         observableUser.observe('update', ()=>{this.forceUpdate();});
         observableUser.load();
+
+        if(this._websocketObserver) {
+            pydio.stopObserving('websocket_event:idm', this._websocketObserver);
+        }
+        this._websocketObserver = (event) => {
+            if(event.User && event.Type === 'UPDATE' && event.User.Uuid === idmUser.Uuid) {
+                if(event.Attributes && event.Attributes['ctx_username'] === pydio.user.id) {
+                    console.log('ignore change coming from same user')
+                    return
+                }
+                const {observableUser} = this.state;
+                if (observableUser.isDirty() && !confirm('User was modified externally, you should revert your changes (click OK to reload)')) {
+                    observableUser.save()
+                    return
+                }
+                const newUser = new User(event.User);
+                newUser.observe('update', () => {
+                    this.forceUpdate();
+                });
+                newUser.load();
+                this.setState({observableUser: newUser})
+            }
+        }
+        pydio.observe('websocket_event:idm', this._websocketObserver)
 
         return {
             observableUser,
@@ -140,16 +181,6 @@ class Editor extends React.Component{
         this.setState({currentPane:key});
     }
 
-    componentDidMount(){
-        this.loadRoleData(true);
-        if(this.props.registerCloseCallback){
-            this.props.registerCloseCallback(()=>{
-                if(this.state && this.state.dirty && !global.confirm(this.getPydioRoleMessage('19'))){
-                    return false;
-                }
-            });
-        }
-    }
 
     showModal(modal){
         this.setState({modal:modal});

@@ -462,36 +462,44 @@ let SimpleList = createReactClass({
         // Force rebuild elements
         this.setState({
             showSelector:!this.state.showSelector,
-            selection:new Map()
+            selection:new Map(),
+            bulkSelectorChecked: false
         }, this.rebuildLoadedElements);
     },
 
     toggleSelection:function(node){
         let selection = this.state.selection || new Map();
-        if(selection.get(node)) selection.delete(node);
-        else selection.set(node, true);
-        if(this.refs.all_selector) this.refs.all_selector.setChecked(false);
+        if(selection.get(node)) {
+            selection.delete(node);
+        } else {
+            selection.set(node, true);
+        }
+        //if(this.refs.all_selector) this.refs.all_selector.setChecked(false);
         this.setState({
-            selection:selection
+            selection:selection,
+            bulkSelectorChecked: false
         }, this.rebuildLoadedElements);
     },
 
-    selectAll:function(){
-        if(this.refs.all_selector && !this.refs.all_selector.isChecked()){
-            this.setState({selection:new Map()}, this.rebuildLoadedElements);
-        }else{
-            let selection = new Map();
-            this.props.node.getChildren().forEach(function(child){
-                if(this.props.filterNodes && !this.props.filterNodes(child)){
-                    return;
-                }
-                if(child.isLeaf()){
-                    selection.set(child, true);
-                }
-            }.bind(this));
-            if(this.refs.all_selector) this.refs.all_selector.setChecked(true);
-            this.setState({selection:selection}, this.rebuildLoadedElements);
+    selectAll:function(check){
+
+        if(!check){
+            this.setState({selection:new Map(), bulkSelectorChecked:false}, this.rebuildLoadedElements);
+            return
         }
+
+        let selection = new Map();
+        this.props.node.getChildren().forEach(function(child){
+            if(this.props.filterNodes && !this.props.filterNodes(child)){
+                return;
+            }
+            if(child.isLeaf()){
+                selection.set(child, true);
+            }
+        }.bind(this));
+        //if(this.refs.all_selector) this.refs.all_selector.setChecked(true);
+        this.setState({selection:selection, bulkSelectorChecked: true}, this.rebuildLoadedElements);
+
     },
 
     applyMultipleAction: function(ev){
@@ -1088,21 +1096,22 @@ let SimpleList = createReactClass({
             };
             let cbStyle = {width: 24, ...hiddenStyle};
             let buttonStyle = {...hiddenStyle};
-            if(this.state.showSelector){
+            const {showSelector, selection, bulkSelectorChecked} = this.state;
+            if(showSelector){
                 cbStyle = {width:24, transform:'translateX(-12px)'};
                 buttonStyle = {transform:'translateX(-40px)'};
             }
-            if(this.state.selection && this.state.showSelector){
-                bulkLabel +=" (" + this.state.selection.size + ")";
+            if(selection && showSelector){
+                bulkLabel +=" (" + selection.size + ")";
             }
             leftToolbar = (
                 <ToolbarGroup key={0} float="left" className="hide-on-vertical-layout">
-                    <Checkbox ref="all_selector" onClick={this.selectAll} style={cbStyle}/>
-                    <FlatButton label={bulkLabel} onClick={this.toggleSelector} style={buttonStyle} />
+                    <Checkbox checked={bulkSelectorChecked} onCheck={(e,v) => this.selectAll(v)} style={cbStyle}/>
+                    <FlatButton label={bulkLabel} onClick={() => this.toggleSelector()} style={buttonStyle} />
                 </ToolbarGroup>
             );
 
-            if(this.state.showSelector) {
+            if(showSelector) {
                 rightButtons = [];
                 let index = 0;
                 const actions = this.props.multipleActions || this.actionsCache.multiple;
@@ -1113,7 +1122,7 @@ let SimpleList = createReactClass({
                         data-action={a.options.name}
                         onClick={this.applyMultipleAction}
                         primary={true}
-                        disabled={!this.state.selection || !this.state.selection.size}
+                        disabled={!selection || !selection.size}
                         style={{marginLeft: 5}}
                         />
                     );

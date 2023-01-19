@@ -23,6 +23,8 @@ import Observable from "../lang/Observable"
 import MetaNodeProvider from '../model/MetaNodeProvider'
 const ReconnectingWebSocket = require('reconnecting-websocket');
 import debounce from 'lodash.debounce'
+import AjxpNode from "../model/AjxpNode";
+import LangUtils from "../util/LangUtils";
 
 /**
  * WebSocket client
@@ -149,6 +151,12 @@ class PydioWebSocket extends Observable {
             this.pydio.fire("websocket_event:" + event['@type'], event);
         }
         if (event['@type'] && event['@type'] === "idm") {
+            if (event.User && dm.getAjxpNodeProvider() &&  dm.getAjxpNodeProvider().idmEventToDataModel) {
+                dm.getAjxpNodeProvider().idmEventToDataModel(event, dm)
+            }
+            if (event.User && event.User.Login !== this.pydio.user.id) {
+                return
+            }
             this.reloadRepositoriesDebounced();
             return;
         }
@@ -159,15 +167,25 @@ class PydioWebSocket extends Observable {
         if (!event.Type && event.Target) {
             event.Type = "CREATE";
         }
+        this.nodeEventToDataModel(event, dm)
+    }
+
+    /**
+     *
+     * @param event websocket event
+     * @param dm DataModel
+     */
+    nodeEventToDataModel(event, dm) {
         let target;
         let currentRepoId = this.pydio.user.getActiveRepository();
         if (! this.pydio.user.repositories.has(currentRepoId) ){
             return;
         }
+        const parse = PydioWebSocket.parseEventNode
         let currentRepoSlug = this.pydio.user.repositories.get(currentRepoId).getSlug();
         switch (event.Type) {
             case "CREATE":
-                target = PydioWebSocket.parseEventNode(event.Target, currentRepoId, currentRepoSlug);
+                target = parse(event.Target, currentRepoId, currentRepoSlug);
                 if (target === null) {
                     return;
                 }
@@ -181,12 +199,12 @@ class PydioWebSocket extends Observable {
             case "UPDATE_CONTENT":
             case "UPDATE_META":
             case "UPDATE_USER_META":
-                target = PydioWebSocket.parseEventNode(event.Target, currentRepoId, currentRepoSlug);
+                target = parse(event.Target, currentRepoId, currentRepoSlug);
                 if (target === null) {
                     return;
                 }
                 if (event.Source){
-                    let source = PydioWebSocket.parseEventNode(event.Source, currentRepoId, currentRepoSlug);
+                    let source = parse(event.Source, currentRepoId, currentRepoSlug);
                     target.getMetadata().set("original_path", source.getPath());
                 } else {
                     target.getMetadata().set("original_path", target.getPath());
@@ -203,7 +221,7 @@ class PydioWebSocket extends Observable {
                 dm.updateNode(target, false);
                 break;
             case "DELETE":
-                let source = PydioWebSocket.parseEventNode(event.Source, currentRepoId, currentRepoSlug);
+                let source = parse(event.Source, currentRepoId, currentRepoSlug);
                 if (source === null) {
                     return;
                 }
@@ -212,6 +230,7 @@ class PydioWebSocket extends Observable {
             default:
                 break;
         }
+
     }
 
     static parseEventNode(obj, currentRepoId, currentRepoSlug) {
