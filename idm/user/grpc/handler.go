@@ -30,6 +30,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
@@ -109,6 +110,12 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 	resp := &idm.CreateUserResponse{}
 
 	out := newUser.(*idm.User)
+	var movedGroup string
+	if out.Attributes != nil && out.Attributes["original_group"] != "" {
+		movedGroup = out.Attributes["original_group"]
+		delete(out.Attributes, "original_group")
+	}
+
 	if passChange != "" {
 		// Check if it is a "force pass change operation".
 		ctxLogin, _ := permissions.FindUserNameInContext(ctx)
@@ -159,12 +166,25 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 		}
 	}
 
+	// Fix output GroupPath for Groups
+	publishUser := proto.Clone(out).(*idm.User)
+	if out.IsGroup {
+		publishUser.GroupPath, publishUser.GroupLabel = path.Split(publishUser.GroupPath)
+	}
 	if len(createdNodes) == 0 {
 		// Propagate creation event
-		broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
-			Type: idm.ChangeEventType_UPDATE,
-			User: out,
-		})
+		cEvent := &idm.ChangeEvent{
+			Type:       idm.ChangeEventType_UPDATE,
+			User:       publishUser,
+			Attributes: map[string]string{},
+		}
+		if movedGroup != "" {
+			cEvent.Attributes["original_group"] = movedGroup
+		}
+		if cu, _ := permissions.FindUserNameInContext(ctx); cu != "" {
+			cEvent.Attributes["ctx_username"] = cu
+		}
+		broker.MustPublish(ctx, common.TopicIdmEvent, cEvent)
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
 				fmt.Sprintf("Updated group [%s]", out.GroupLabel),
@@ -182,7 +202,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 		// Propagate creation event
 		broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
 			Type: idm.ChangeEventType_CREATE,
-			User: out,
+			User: publishUser,
 		})
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
@@ -191,12 +211,8 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 				out.ZapUuid(),
 			)
 		} else {
-			path := "/"
-			if len(out.GroupPath) > 1 {
-				path = out.GroupPath + "/"
-			}
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("Created user [%s%s]", path, out.Login),
+				fmt.Sprintf("Created user [%s]", path.Join(out.GroupPath, out.Login)),
 				log.GetAuditId(common.AuditUserCreate),
 				out.ZapUuid(),
 				zap.String("GroupPath", out.GroupPath),
@@ -244,37 +260,46 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest) (*
 		for {
 			select {
 			case deleted := <-usersChan:
-				if deleted != nil {
-					h.dao.DeletePoliciesForResource(deleted.Uuid)
-					if deleted.IsGroup {
-						h.dao.DeletePoliciesBySubject(fmt.Sprintf("role:%s", deleted.Uuid))
-					} else {
-						h.dao.DeletePoliciesBySubject(fmt.Sprintf("user:%s", deleted.Uuid))
-					}
-
-					// Propagate deletion event
-					broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
-						Type: idm.ChangeEventType_DELETE,
-						User: deleted,
-					})
-					var msg string
-					if deleted.IsGroup {
-						msg = fmt.Sprintf("Deleted group [%s]", path.Join(deleted.GroupPath, deleted.GroupLabel))
-						log.Auditer(ctx).Info(msg, log.GetAuditId(common.AuditGroupDelete), deleted.ZapUuid())
-					} else {
-						msg = fmt.Sprintf("Deleted user [%s] from [%s]", deleted.Login, deleted.GroupPath)
-						log.Auditer(ctx).Info(msg, log.GetAuditId(common.AuditUserDelete), deleted.ZapUuid())
-					}
-					crt++
-					percent := crt / total
-					if task != nil {
-						task.Progress = percent
-						task.StatusMessage = msg
-						task.Status = jobs.TaskStatus_Running
-						log.TasksLogger(ctx).Info(msg)
-						taskChan <- task
-					}
+				if deleted == nil {
+					continue
 				}
+
+				if pp, er := h.dao.GetPoliciesForResource(deleted.Uuid); er == nil {
+					deleted.Policies = pp
+				} else {
+					log.Logger(ctx).Warn("cannot load policies on user deletion", zap.Error(er))
+				}
+
+				_ = h.dao.DeletePoliciesForResource(deleted.Uuid)
+				if deleted.IsGroup {
+					_ = h.dao.DeletePoliciesBySubject(fmt.Sprintf("role:%s", deleted.Uuid))
+				} else {
+					_ = h.dao.DeletePoliciesBySubject(fmt.Sprintf("user:%s", deleted.Uuid))
+				}
+
+				// Propagate deletion event
+				broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
+					Type: idm.ChangeEventType_DELETE,
+					User: deleted,
+				})
+				var msg string
+				if deleted.IsGroup {
+					msg = fmt.Sprintf("Deleted group [%s]", path.Join(deleted.GroupPath, deleted.GroupLabel))
+					log.Auditer(ctx).Info(msg, log.GetAuditId(common.AuditGroupDelete), deleted.ZapUuid())
+				} else {
+					msg = fmt.Sprintf("Deleted user [%s] from [%s]", deleted.Login, deleted.GroupPath)
+					log.Auditer(ctx).Info(msg, log.GetAuditId(common.AuditUserDelete), deleted.ZapUuid())
+				}
+				crt++
+				percent := crt / total
+				if task != nil {
+					task.Progress = percent
+					task.StatusMessage = msg
+					task.Status = jobs.TaskStatus_Running
+					log.TasksLogger(ctx).Info(msg)
+					taskChan <- task
+				}
+
 			case <-done:
 				if task != nil {
 					task.Progress = 1

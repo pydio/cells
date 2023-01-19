@@ -245,13 +245,7 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 				log.Logger(ctx).Debug("UserMetaEvent: cannot unmarshall resource policies")
 				return false
 			}
-			subs, o := session.Get(SessionSubjectsKey)
-			if !o {
-				log.Logger(ctx).Debug("UserMetaEvent: No subjects in session")
-				return false
-			}
-			subjects := subs.([]string)
-			if !w.MatchPolicies(pols, subjects, service.ResourcePolicyAction_READ) {
+			if !w.MatchPolicies(ctx, session, pols, service.ResourcePolicyAction_READ) {
 				return false
 			}
 		}
@@ -365,7 +359,11 @@ func (w *WebsocketHandler) BroadcastTaskChangeEvent(ctx context.Context, event *
 func (w *WebsocketHandler) BroadcastIDMChangeEvent(ctx context.Context, event *idm.ChangeEvent) error {
 
 	event.JsonType = "idm"
+	if event.User != nil {
+		event.User = event.User.WithPublicData(ctx, true)
+	}
 	message, _ := protojson.Marshal(event)
+
 	return w.Websocket.BroadcastFilter(message, func(session *melody.Session) bool {
 
 		var checkRoleId string
@@ -382,6 +380,21 @@ func (w *WebsocketHandler) BroadcastIDMChangeEvent(ctx context.Context, event *i
 			checkUserId = event.User.Uuid
 		} else if event.Workspace != nil {
 			checkWorkspaceId = event.Workspace.UUID
+		}
+
+		// For IdmChangeEvent w/ User type, if current session has access to Settings, send user changes as a dedicated message (if policies allow it)
+		uChange := event.User != nil && (event.Type == idm.ChangeEventType_CREATE || event.Type == idm.ChangeEventType_UPDATE || event.Type == idm.ChangeEventType_DELETE)
+		if val, hasSettings := session.Get(SessionSettingsWorkspacesKey); hasSettings && val.(bool) && uChange {
+			if len(event.User.Policies) > 0 && w.MatchPolicies(w.runtimeCtx, session, event.User.Policies, service.ResourcePolicyAction_READ) {
+				if event.Type != idm.ChangeEventType_DELETE && !event.User.IsGroup && len(event.User.Roles) == 0 {
+					// We have to reload user roles here
+					if u, e := permissions.SearchUniqueUser(w.runtimeCtx, "", event.User.Uuid); e == nil {
+						event.User = u
+						message, _ = protojson.Marshal(event)
+					}
+				}
+				_ = session.Write(message)
+			}
 		}
 
 		if checkUserLogin != "" {
@@ -450,8 +463,14 @@ func (w *WebsocketHandler) BroadcastActivityEvent(ctx context.Context, event *ac
 
 // MatchPolicies creates a memory-based policy stack checker to check if action is allowed or denied.
 // It uses a DenyByDefault strategy
-func (w *WebsocketHandler) MatchPolicies(policies []*service.ResourcePolicy, subjects []string, action service.ResourcePolicyAction) bool {
+func (w *WebsocketHandler) MatchPolicies(ctx context.Context, session *melody.Session, policies []*service.ResourcePolicy, action service.ResourcePolicyAction) bool {
 
+	subs, o := session.Get(SessionSubjectsKey)
+	if !o {
+		log.Logger(ctx).Debug("UserMetaEvent: No subjects in session")
+		return false
+	}
+	subjects := subs.([]string)
 	warden := &ladon.Ladon{Manager: memory.NewMemoryManager()}
 	for i, pol := range policies {
 		id := fmt.Sprintf("%v", pol.Id)

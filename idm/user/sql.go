@@ -195,6 +195,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	} else {
 		objectPath = user.GroupPath
 	}
+	var movedOriginalPath string
 
 	// First get by Uuid, it must be unique
 	if len(objectUuid) > 0 {
@@ -205,6 +206,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 				// This is a move
 				reqFromPath := "/" + strings.Trim(node.Path, "/")
 				reqToPath := objectPath
+				movedOriginalPath = reqFromPath
 
 				var pathFrom, pathTo mtree.MPath
 				var nodeFrom, nodeTo *mtree.TreeNode
@@ -400,6 +402,10 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		}
 		return nil
 	})
+
+	if movedOriginalPath != "" {
+		user.Attributes["original_group"] = movedOriginalPath
+	}
 
 	return user, createdNodes, err
 }

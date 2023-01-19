@@ -42,15 +42,16 @@ import (
 )
 
 const (
-	SessionRolesKey      = "roles"
-	SessionWorkspacesKey = "workspaces"
-	SessionAccessListKey = "accessList"
-	SessionUsernameKey   = "user"
-	SessionProfileKey    = "profile"
-	SessionClaimsKey     = "claims"
-	SessionSubjectsKey   = "subjects"
-	SessionLimiterKey    = "limiter"
-	SessionMetaContext   = "metaContext"
+	SessionRolesKey              = "roles"
+	SessionWorkspacesKey         = "workspaces"
+	SessionSettingsWorkspacesKey = "settings"
+	SessionAccessListKey         = "accessList"
+	SessionUsernameKey           = "user"
+	SessionProfileKey            = "profile"
+	SessionClaimsKey             = "claims"
+	SessionSubjectsKey           = "subjects"
+	SessionLimiterKey            = "limiter"
+	SessionMetaContext           = "metaContext"
 )
 
 const LimiterRate = 30
@@ -67,6 +68,12 @@ func updateSessionFromClaims(ctx context.Context, session *melody.Session, claim
 		return
 	}
 	roles := accessList.GetRoles()
+
+	wsRights := accessList.DetectedWsRights(ctx)
+	if _, ok := wsRights[common.IdmWsInternalSettingsID]; ok {
+		session.Set(SessionSettingsWorkspacesKey, true)
+	}
+
 	workspaces := accessList.GetWorkspaces()
 	// Resolve workspaces roots in the current context
 	for _, ws := range workspaces {
@@ -100,6 +107,7 @@ func ClearSession(session *melody.Session) {
 
 	session.Set(SessionRolesKey, nil)
 	session.Set(SessionWorkspacesKey, nil)
+	session.Set(SessionSettingsWorkspacesKey, nil)
 	session.Set(SessionAccessListKey, nil)
 	session.Set(SessionUsernameKey, nil)
 	session.Set(SessionProfileKey, nil)

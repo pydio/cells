@@ -163,7 +163,7 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 	for _, q := range userReq.Queries {
 		anyfied, _ := anypb.New(q)
 		if q.Login != "" && strings.HasSuffix(q.Login, "*") {
-			// This is a wildcard on line, transform this query to a search on login OR displayName
+			// This is a wildcard, transform this query to a search on login OR displayName
 			attQuery, _ := anypb.New(&idm.UserSingleQuery{
 				AttributeName:  "displayName",
 				AttributeValue: q.Login,
@@ -279,7 +279,6 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 			service.RestError403(req, rsp, errors.Forbidden(common.ServiceUser, "You are not allowed to edit this resource"))
 			return
 		}
-		break
 	}
 
 	if singleQ.GroupPath != "" {
