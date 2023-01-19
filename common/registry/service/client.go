@@ -311,6 +311,15 @@ func (s *serviceRegistryLock) Lock() {
 			Prefix: s.prefix,
 			Type:   pb.LockType_Lock,
 		})
+
+		resp, err := s.stream.Recv()
+		if err != nil {
+			return
+		}
+
+		if resp.GetType() == pb.LockType_Lock {
+			return
+		}
 	}
 }
 func (s *serviceRegistryLock) Unlock() {
@@ -319,6 +328,17 @@ func (s *serviceRegistryLock) Unlock() {
 			Prefix: s.prefix,
 			Type:   pb.LockType_Unlock,
 		})
+
+		resp, err := s.stream.Recv()
+		if err != nil {
+			return
+		}
+
+		if resp.GetType() == pb.LockType_Lock {
+			return
+		}
+
+		s.stream.CloseSend()
 	}
 }
 

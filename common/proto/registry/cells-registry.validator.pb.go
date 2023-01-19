@@ -177,6 +177,9 @@ func (this *WatchRequest) Validate() error {
 func (this *NewLockerRequest) Validate() error {
 	return nil
 }
+func (this *NewLockerResponse) Validate() error {
+	return nil
+}
 func (this *Event) Validate() error {
 	if this.Item != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Item); err != nil {
