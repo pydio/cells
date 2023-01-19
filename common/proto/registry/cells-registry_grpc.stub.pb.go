@@ -120,10 +120,7 @@ func (s *RegistryStub_NewLockerStreamer) Recv() (*NewLockerRequest, error) {
 		return nil, io.EOF
 	}
 }
-func (s *RegistryStub_NewLockerStreamer) Send(response *EmptyResponse) error {
+func (s *RegistryStub_NewLockerStreamer) Send(response *NewLockerResponse) error {
 	s.RespChan <- response
-	return nil
-}
-func (s *RegistryStub_NewLockerStreamer) SendAndClose(*EmptyResponse) error {
 	return nil
 }

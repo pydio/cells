@@ -133,7 +133,7 @@ func (c *registryClient) NewLocker(ctx context.Context, opts ...grpc.CallOption)
 
 type Registry_NewLockerClient interface {
 	Send(*NewLockerRequest) error
-	CloseAndRecv() (*EmptyResponse, error)
+	Recv() (*NewLockerResponse, error)
 	grpc.ClientStream
 }
 
@@ -145,11 +145,8 @@ func (x *registryNewLockerClient) Send(m *NewLockerRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *registryNewLockerClient) CloseAndRecv() (*EmptyResponse, error) {
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	m := new(EmptyResponse)
+func (x *registryNewLockerClient) Recv() (*NewLockerResponse, error) {
+	m := new(NewLockerResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -346,7 +343,7 @@ func _Registry_NewLocker_Handler(srv interface{}, stream grpc.ServerStream) erro
 }
 
 type Registry_NewLockerServer interface {
-	SendAndClose(*EmptyResponse) error
+	Send(*NewLockerResponse) error
 	Recv() (*NewLockerRequest, error)
 	grpc.ServerStream
 }
@@ -355,7 +352,7 @@ type registryNewLockerServer struct {
 	grpc.ServerStream
 }
 
-func (x *registryNewLockerServer) SendAndClose(m *EmptyResponse) error {
+func (x *registryNewLockerServer) Send(m *NewLockerResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -408,6 +405,7 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "NewLocker",
 			Handler:       _Registry_NewLocker_Handler,
+			ServerStreams: true,
 			ClientStreams: true,
 		},
 	},

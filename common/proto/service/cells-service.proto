@@ -76,7 +76,15 @@ service Archiver {
 message ArchiveResponse {
     bool OK = 1;
 }
+
 // TODO - move from there
 message ChangesArchiveQuery {
     uint64 RemainingRows = 1;
+}
+
+message Error {
+    string ID = 1;
+    uint32 Code = 2;
+    string Status = 3;
+    string Details = 4;
 }

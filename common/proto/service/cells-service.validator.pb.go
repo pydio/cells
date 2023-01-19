@@ -56,3 +56,6 @@ func (this *ArchiveResponse) Validate() error {
 func (this *ChangesArchiveQuery) Validate() error {
 	return nil
 }
+func (this *Error) Validate() error {
+	return nil
+}

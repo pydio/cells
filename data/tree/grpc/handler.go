@@ -265,7 +265,9 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (*
 
 		response, rErr := ds.reader.ReadNode(ctx, dsReq, grpc.WaitForReady(false))
 		if rErr != nil {
-			return nil, rErr
+			e := errors.FromError(rErr)
+
+			return nil, e
 		}
 
 		resp.Node = response.Node

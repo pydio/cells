@@ -12,7 +12,7 @@ service Registry {
   rpc Deregister(Item) returns (EmptyResponse) {};
   rpc List(ListRequest) returns (ListResponse) {};
   rpc Watch(WatchRequest) returns (stream Result) {};
-  rpc NewLocker(stream NewLockerRequest) returns (EmptyResponse) {};
+  rpc NewLocker(stream NewLockerRequest) returns (stream NewLockerResponse) {};
 }
 
 enum ItemType {
@@ -145,6 +145,11 @@ message WatchRequest {
 }
 
 message NewLockerRequest {
+  string prefix = 1;
+  LockType type = 2;
+}
+
+message NewLockerResponse {
   string prefix = 1;
   LockType type = 2;
 }
