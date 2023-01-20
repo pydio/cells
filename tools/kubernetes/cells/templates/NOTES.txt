@@ -36,31 +36,37 @@ helm upgrade --namespace {{ .Release.Namespace }} {{ .Release.Name }}
 {{- if .Values.redis.enabled }} --set redis.auth.password=$REDIS_PASSWORD{{- end }}
 {{- if .Values.mongodb.enabled }} --set mongodb.auth.rootPassword=$MONGODB_ROOT_PASSWORD{{- end }}
 
-
 {{- if .Values.ingress.enabled }}
-  - Your application URL is :
+
+Your application URL is :
   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hostname }}{{ .Values.ingress.path }}
 
-  NOTE: It may take a few minutes for the PODs to be ready and accessible by the load balancer
+NOTE: It may take a few minutes for the pods to be ready and accessible by the load balancer
+
 {{- else if contains "NodePort" .Values.service.type }}
-  - Get the application URL by running these commands:
+
+Get the application URL by running these commands:
 
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "cells.fullname" . }})
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
   echo http://$NODE_IP:$NODE_PORT
-{{- else if contains "LoadBalancer" .Values.service.type }}
-  - Get the application URL by running these commands:
 
-     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-           You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "cells.fullname" . }}'
+{{- else if contains "LoadBalancer" .Values.service.type }}
+
+Get the application URL by running these commands:
+
+NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+     You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "cells.fullname" . }}'
+
   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "cells.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
   echo http://$SERVICE_IP:{{ .Values.service.port }}
 {{- else if contains "ClusterIP" .Values.service.type }}
-  - Get the application URL by running these commands:
+
+Get the application URL by running these commands:
 
   export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "cells.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
   export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+  
 {{- end }}
-
