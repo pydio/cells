@@ -66,6 +66,10 @@ spec:
             {{- if .Values.redis.enabled }}
             - name: CELLS_CACHE
               value: {{ include "cells.redisURL" . }}
+            {{- if .Values.redis.shortcacheEnabled }}
+            - name: CELLS_SHORTCACHE
+              value: {{ include "cells.redisURL" . }}
+            {{- end }}
             {{- end }}
             {{- if .Values.vault.enabled }}
             - name: CELLS_KEYRING
@@ -96,13 +100,14 @@ spec:
             - name: cells
               mountPath: /var/cells-install
           readinessProbe:
-            tcpSocket:
-              port: {{ .Values.service.port }}
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          livenessProbe:
-            tcpSocket:
-              port: {{ .Values.service.port }}
+            httpGet:
+              path: /
+              port: http
+              {{- if .Values.service.tlsconfig }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
             initialDelaySeconds: 15
             periodSeconds: 20
           resources:
@@ -111,45 +116,29 @@ spec:
         {{- if .Values.etcd.enabled }}
         - name: wait-for-etcd
           image: busybox
-          command:
-            - nc
-            - "-zw10"
-            - {{ include "cells.etcdHost" . | quote }}
-            - {{ include "cells.etcdPort" . | quote }}
+          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.etcdHost" . | quote }} {{ include "cells.etcdPort" . | quote }}; do echo waiting for etcd; sleep 2; done']
         {{- end }}
         {{- if .Values.redis.enabled }}
         - name: wait-for-redis
           image: busybox
-          command:
-            - nc
-            - "-zw10"
-            - {{ include "cells.redisHost" . | quote }}
-            - {{ include "cells.redisPort" . | quote }}
+          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.redisHost" . | quote }} {{ include "cells.redisPort" . | quote }}; do echo waiting for etcd; sleep 2; done']
         {{- end }}
         {{- if .Values.nats.enabled }}
         - name: wait-for-nats
           image: busybox
-          command:
-            - nc
-            - "-zw10"
-            - {{ include "cells.natsHost" . | quote }}
-            - {{ include "cells.natsPort" . | quote }}
+          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.natsHost" . | quote }} {{ include "cells.natsPort" . | quote }}; do echo waiting for etcd; sleep 2; done']
         {{- end }}
         {{- if .Values.vault.enabled }}
         - name: wait-for-vault
           image: busybox
-          command:
-            - nc
-            - "-zw10"
-            - {{ include "cells.vaultHost" . | quote }}
-            - {{ include "cells.vaultPort" . | quote }}
+          command: ["sh", "-c", 'until nc -zw2 {{ include "cells.vaultHost" . | quote }} {{ include "cells.vaultPort" . | quote }}; do echo waiting for vault; sleep 2; done']
         {{- end }}
         - name: install
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/sh"]
           args:
-            ['-c', 'source /var/cells-install/source && cells configure']
+            ['-c', 'sleep 10 && source /var/cells-install/source && cells configure && sleep 10']
           env:
             - name: CELLS_INSTALL_YAML
               value: /var/cells-install/install-conf.yaml
