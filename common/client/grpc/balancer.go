@@ -152,7 +152,7 @@ func (p *rrPicker) Pick(i balancer.PickInfo) (balancer.PickResult, error) {
 			priorityPicks = p.applyFilter(f, priorityPicks)
 		}
 		if len(priorityPicks) > 0 {
-			fmt.Println("Returning priority processes first", len(priorityPicks))
+			// fmt.Println("Returning priority processes first", len(priorityPicks))
 			sc := priorityPicks[rand.Intn(len(priorityPicks))]
 			return balancer.PickResult{SubConn: sc.SubConn}, nil
 		}
