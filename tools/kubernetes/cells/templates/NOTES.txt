@@ -42,7 +42,6 @@ helm upgrade --namespace {{ .Release.Namespace }} {{ .Release.Name }}
   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hostname }}{{ .Values.ingress.path }}
 
   NOTE: It may take a few minutes for the PODs to be ready and accessible by the load balancer
-{{- end }}
 {{- else if contains "NodePort" .Values.service.type }}
   - Get the application URL by running these commands:
 
