@@ -547,6 +547,7 @@ func setupS3Buckets(c *install.InstallConfig, knownBuckets []string, canCreate b
 	if e != nil {
 		return
 	}
+	pref = strings.TrimSpace(pref)
 	used = []string{
 		pref + "pydiods1",
 		pref + "personal",
