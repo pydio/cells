@@ -100,7 +100,9 @@ export default class AjxpNode extends Observable{
      * @param additionalParameters Object of optional parameters
      */
     load(iAjxpNodeProvider, additionalParameters=null){
-        if(this._isLoading) return;
+        if(this._isLoading) {
+            return;
+        }
         if(!iAjxpNodeProvider){
             if(this._iNodeProvider){
                 iAjxpNodeProvider = this._iNodeProvider;
@@ -125,14 +127,19 @@ export default class AjxpNode extends Observable{
     /**
      * Remove children and reload node
      * @param iAjxpNodeProvider IAjxpNodeProvider Optionnal
+     * @param silentClear do not send notification
      */
     reload(iAjxpNodeProvider, silentClear = false){
         this._isLoaded = false;
         this._children.forEach(function(child,key){
-            if(!silentClear) child.notify("node_removed");
+            if(!silentClear) {
+                child.notify("node_removed");
+            }
             child._parentNode = null;
             this._children.delete(key);
-            if(!silentClear) this.notify("child_removed", child);
+            if(!silentClear) {
+                this.notify("child_removed", child);
+            }
         }, this);
         this.load(iAjxpNodeProvider);
     }
@@ -189,8 +196,9 @@ export default class AjxpNode extends Observable{
     /**
      * Adds a child to children
      * @param ajxpNode AjxpNode The child
+     * @param customKey String replace default key (ajxpNode.getPath())
      */
-    addChild(ajxpNode){
+    addChild(ajxpNode, customKey = undefined){
         ajxpNode.setParent(this);
         if(this._iNodeProvider) {
             ajxpNode._iNodeProvider = this._iNodeProvider;
@@ -200,14 +208,14 @@ export default class AjxpNode extends Observable{
         }
         const existingNode = this.findChildByPath(ajxpNode.getPath());
         if(existingNode && !(existingNode instanceof String)){
-            if(!existingNode.isMoreRecentThan(ajxpNode)){
-                existingNode.replaceBy(ajxpNode, "override");
-                return existingNode;
-            }else{
+            if (existingNode.isMoreRecentThan(ajxpNode)) {
                 return false;
             }
-        }else{
-            this._children.set(ajxpNode.getPath(), ajxpNode);
+            existingNode.replaceBy(ajxpNode, "override");
+            return existingNode;
+        } else {
+            const key = customKey || ajxpNode.getPath()
+            this._children.set(key, ajxpNode);
             this.notify("child_added", ajxpNode.getPath());
         }
         return ajxpNode;
@@ -496,15 +504,19 @@ export default class AjxpNode extends Observable{
      * @returns String
      */
     getAjxpMime(){
-        if(this._metadata && this._metadata.has("ajxp_mime")) return this._metadata.get("ajxp_mime").toLowerCase();
-        if(this._metadata && this.isLeaf()) return PathUtils.getAjxpMimeType(this._metadata).toLowerCase();
+        if(this._metadata && this._metadata.has("ajxp_mime")) {
+            return this._metadata.get("ajxp_mime").toLowerCase();
+        }
+        if(this._metadata && this.isLeaf()) {
+            return PathUtils.getAjxpMimeType(this._metadata).toLowerCase();
+        }
         return "";
     }
 
     buildRandomSeed(ajxpNode) {
-       var mtimeString = "&time_seed=" + this._metadata.get("ajxp_modiftime");
+       let mtimeString = "&time_seed=" + this._metadata.get("ajxp_modiftime");
        if (this.getParent()){
-           var preview_seed = this.getParent().getMetadata().get('preview_seed');
+           const preview_seed = this.getParent().getMetadata().get('preview_seed');
            if(preview_seed){
                mtimeString += "&rand="+preview_seed;
            }

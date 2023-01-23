@@ -39,7 +39,6 @@ import EmptyStateView from '../views/EmptyStateView'
 import PlaceHolders from "./PlaceHolders";
 import {nodesSorterByAttribute, sortNodesNatural} from "./sorters";
 
-const DOMUtils = require('pydio/util/dom')
 const PydioDataModel = require('pydio/model/data-model')
 const PeriodicalExecuter = require('pydio/util/periodical-executer')
 
@@ -227,7 +226,7 @@ let SimpleList = createReactClass({
 
     onKeyDown: function(e){
         let currentIndexStart, currentIndexEnd;
-        let contextHolder = window.pydio.getContextHolder();
+        let contextHolder = this.dm // window.pydio.getContextHolder();
         const elementsPerLine = this.props.elementsPerLine || 1;
         const shiftKey = e.shiftKey;
         const key = e.key;
@@ -247,7 +246,7 @@ let SimpleList = createReactClass({
             this.doubleClickRow(firstSelected);
             return;
         }
-        if(key === 'Delete' && global.pydio.Controller.fireActionByKey('key_delete')){
+        if(key === 'Delete' && Pydio.getInstance().Controller.fireActionByKey('key_delete')){
             return;
         }
 
@@ -286,7 +285,9 @@ let SimpleList = createReactClass({
             if(min !== max){
                 let selection = [];
                 for(let i=min; i<max+1; i++){
-                    if(this.indexedElements[i]) selection.push(this.indexedElements[i].node);
+                    if(this.indexedElements[i]) {
+                        selection.push(this.indexedElements[i].node);
+                    }
                 }
                 contextHolder.setSelectedNodes(selection);
             }
@@ -298,15 +299,15 @@ let SimpleList = createReactClass({
 
     getInitialState: function(){
         this.actionsCache = {multiple:new Map()};
-        if(!this.props.skipInternalDataModel){
+        if (this.props.skipInternalDataModel) {
+            this.dm = this.props.dataModel;
+        } else {
             this.dm = new PydioDataModel();
             this.dm.setRootNode(this.props.dataModel.getContextNode());
             this.dm.setContextNode(this.props.dataModel.getContextNode());
-        }else{
-            this.dm = this.props.dataModel;
         }
         let state = {
-            loaded: this.props.node.isLoaded(),
+            loaded              : this.props.node.isLoaded(),
             loading             : !this.props.node.isLoaded(),
             showSelector        : false,
             elements            : this.props.node.isLoaded()?this.buildElements(0, this.props.infiniteSliceCount):[],
@@ -375,25 +376,24 @@ let SimpleList = createReactClass({
 
     _loadNodeIfNotLoaded: function(){
         const {node} = this.props;
-        if(!node.isLoaded()){
-            node.observeOnce("loaded", function(){
-                if(!this.isMounted()) return;
-                if(this.props.node === node){
-                    this.observeNodeChildren(node);
-                    this.setState({
-                        loaded:true,
-                        loading: false,
-                        elements:this.buildElements(0, this.props.infiniteSliceCount)
-                    });
-                }
-                if(this.props.heightAutoWithMax){
-                    this.updateInfiniteContainerHeight();
-                }
-            }.bind(this));
-            node.load();
-        }else{
+        if (node.isLoaded()) {
             this.observeNodeChildren(node);
+            return
         }
+        node.observeOnce("loaded", function () {
+            if (this.props.node === node) {
+                this.observeNodeChildren(node);
+                this.setState({
+                    loaded: true,
+                    loading: false,
+                    elements: this.buildElements(0, this.props.infiniteSliceCount)
+                });
+            }
+            if (this.props.heightAutoWithMax) {
+                this.updateInfiniteContainerHeight();
+            }
+        }.bind(this));
+        node.load();
     },
 
     _loadingListener: function(){
@@ -474,7 +474,6 @@ let SimpleList = createReactClass({
         } else {
             selection.set(node, true);
         }
-        //if(this.refs.all_selector) this.refs.all_selector.setChecked(false);
         this.setState({
             selection:selection,
             bulkSelectorChecked: false
@@ -497,8 +496,10 @@ let SimpleList = createReactClass({
                 selection.set(child, true);
             }
         }.bind(this));
-        //if(this.refs.all_selector) this.refs.all_selector.setChecked(true);
-        this.setState({selection:selection, bulkSelectorChecked: true}, this.rebuildLoadedElements);
+        this.setState({
+            selection:selection,
+            bulkSelectorChecked: true
+        }, this.rebuildLoadedElements);
 
     },
 
@@ -564,7 +565,7 @@ let SimpleList = createReactClass({
             containerHeight = Math.min(number * elementHeight ,this.props.heightAutoWithMax);
         }
         if(!containerHeight && !retries ){
-            global.setTimeout(function(){
+            setTimeout(function(){
                 this.updateInfiniteContainerHeight(true);
             }.bind(this), 50);
         }
@@ -749,12 +750,12 @@ let SimpleList = createReactClass({
         if(passScrollingStateToChildren) {
             entriesProps.parentIsScrolling = this.state.isScrolling;
         }
-        nodeEntries.forEach(function(entry){
+        nodeEntries.forEach(function(entry, index){
             let data;
             if(entry.parent) {
                 data = {
                     node                : entry.node,
-                    key                 : entry.node.getPath(),
+                    key                 : index + ':' + entry.node.getPath(),
                     id                  : entry.node.getPath(),
                     mainIcon            : SimpleList.PARENT_FOLDER_ICON,
                     firstLine           : "..",
@@ -783,7 +784,7 @@ let SimpleList = createReactClass({
                 }
                 data = {
                     node                : null,
-                    key                 : entry.groupHeader,
+                    key                 : index + ':' + id,
                     id                  : id,
                     mainIcon            : null,
                     firstLine           : firstLine,
@@ -804,7 +805,7 @@ let SimpleList = createReactClass({
                     onClick             : this.clickRow.bind(this),
                     onDoubleClick       : this.doubleClickRow.bind(this),
                     onSelect            : this.toggleSelection.bind(this),
-                    key                 : entry.node.getPath(),
+                    key                 : index + ':' + entry.node.getPath(),
                     id                  : entry.node.getPath(),
                     renderIcon          : this.props.entryRenderIcon,
                     renderFirstLine     : this.props.entryRenderFirstLine,

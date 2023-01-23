@@ -135,8 +135,8 @@ export default function withSearch(Component, historyIdentifier, scope){
             api.search(this.mergeFacets(values, activeFacets), scope, limit).then(response => {
                 searchRootNode.clear();
                 const res = response.Results || []
-                res.forEach(node => {
-                    searchRootNode.addChild(node)
+                res.forEach((node, i) => {
+                    searchRootNode.addChild(node, i+':'+node.getPath())
                 })
                 searchRootNode.setLoading(false);
                 searchRootNode.setLoaded(true);
