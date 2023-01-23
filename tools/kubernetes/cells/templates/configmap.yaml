@@ -22,6 +22,9 @@ data:
         tlsconfig:
           {{ toYaml .Values.service.tlsconfig | nindent 10 }}
       {{- end }}
+    
+    customconfigs:
+      {{ toYaml .Values.service.customconfigs | nindent 6 }}
 
     dbconnectiontype: tcp
     dbtcphostname: {{ include "cells.mariadbHost" . }}
