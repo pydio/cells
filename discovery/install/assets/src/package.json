@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "babelify": "^8.0.0",
+    "cookiejar": "^2.1.4",
     "grunt": "^1.0.1",
     "grunt-babel": "^7.0.0",
     "grunt-browserify": "^5.2.0",
@@ -33,6 +34,7 @@
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
     "redux-form": "^7.2.3",
+    "ua-parser-js": "^0.7.33",
     "url-parse": "^1.5.10",
     "validator": "^10.7.1"
   }
