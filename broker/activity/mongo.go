@@ -314,6 +314,7 @@ func (m *mongoimpl) Delete(ctx context.Context, ownerType activity.OwnerType, ow
 
 func (m *mongoimpl) Purge(ctx context.Context, logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
 	if ownerId == "*" {
+		log.Logger(ctx).Info("Running Aggregation to purge activities")
 		/*
 			// As .Distinct() usage may hit the 16mb document limit, we use aggregation instead
 			dd, e := m.Collection(collActivities).Distinct(ctx, "owner_id", bson.D{{"owner_type", int(ownerType)}, {"box_name", string(boxName)}})
@@ -323,6 +324,7 @@ func (m *mongoimpl) Purge(ctx context.Context, logger func(string), ownerType ac
 		pipeline = append(pipeline, bson.M{"$group": bson.M{"_id": "$owner_id"}})
 		cursor, e := m.Collection(collActivities).Aggregate(ctx, pipeline)
 		if e != nil {
+			log.Logger(ctx).Error("Error while running aggregation", zap.Error(e))
 			return e
 		}
 		var dd []string
