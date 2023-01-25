@@ -445,9 +445,8 @@ func (m *mongoimpl) purgeOneBox(ctx context.Context, logger func(string, int), o
 		if e == nil {
 			logger(fmt.Sprintf("Purged %d activities for %s %s (%s)", len(sli), ownerType.String(), ownerId, boxName), len(sli))
 		} else {
-			e = errors.Wrap(e, "purgeOne.deleteMany")
+			return errors.Wrap(e, "purgeOne.deleteMany")
 		}
-		return e
 	}
 	return nil
 }
