@@ -314,13 +314,30 @@ func (m *mongoimpl) Delete(ctx context.Context, ownerType activity.OwnerType, ow
 
 func (m *mongoimpl) Purge(ctx context.Context, logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
 	if ownerId == "*" {
-		// Distinct and run on all boxes
-		dd, e := m.Collection(collActivities).Distinct(ctx, "owner_id", bson.D{{"owner_type", int(ownerType)}, {"box_name", string(boxName)}})
+		/*
+			// As .Distinct() usage may hit the 16mb document limit, we use aggregation instead
+			dd, e := m.Collection(collActivities).Distinct(ctx, "owner_id", bson.D{{"owner_type", int(ownerType)}, {"box_name", string(boxName)}})
+		*/
+		pipeline := bson.A{}
+		pipeline = append(pipeline, bson.M{"$match": bson.D{{"owner_type", int(ownerType)}, {"box_name", string(boxName)}}})
+		pipeline = append(pipeline, bson.M{"$group": bson.M{"_id": "$owner_id"}})
+		cursor, e := m.Collection(collActivities).Aggregate(ctx, pipeline)
 		if e != nil {
 			return e
 		}
-		for _, i := range dd {
-			if er := m.purgeOneBox(ctx, logger, ownerType, i.(string), boxName, int64(minCount), int64(maxCount), updatedBefore.UnixNano()); er != nil {
+		var dd []string
+		for cursor.Next(ctx) {
+			doc := make(map[string]interface{})
+			if er := cursor.Decode(&doc); er != nil {
+				continue
+			}
+			if id, ok := doc["_id"]; ok {
+				dd = append(dd, id.(string))
+			}
+		}
+
+		for _, id := range dd {
+			if er := m.purgeOneBox(ctx, logger, ownerType, id, boxName, int64(minCount), int64(maxCount), updatedBefore.UnixNano()); er != nil {
 				return er
 			}
 		}
