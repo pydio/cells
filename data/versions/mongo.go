@@ -177,13 +177,22 @@ func (m *mongoStore) ListAllVersionedNodesUuids() (chan string, chan bool, chan 
 	errs := make(chan error)
 	go func() {
 		defer close(done)
-		ii, er := m.Collection(collVersions).Distinct(c, "node_uuid", bson.D{})
-		if er != nil {
-			errs <- er
+		pipeline := bson.A{}
+		pipeline = append(pipeline, bson.M{"$group": bson.M{"_id": "$node_uuid"}})
+		allowDiskUse := true
+		cursor, e := m.Collection(collVersions).Aggregate(c, pipeline, &options.AggregateOptions{AllowDiskUse: &allowDiskUse})
+		if e != nil {
+			errs <- e
 			return
 		}
-		for _, i := range ii {
-			logs <- i.(string)
+		for cursor.Next(c) {
+			doc := make(map[string]interface{})
+			if er := cursor.Decode(&doc); er != nil {
+				continue
+			}
+			if id, ok := doc["_id"]; ok {
+				logs <- id.(string)
+			}
 		}
 	}()
 	return logs, done, errs
