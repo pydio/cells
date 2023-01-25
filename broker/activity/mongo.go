@@ -322,7 +322,8 @@ func (m *mongoimpl) Purge(ctx context.Context, logger func(string), ownerType ac
 		pipeline := bson.A{}
 		pipeline = append(pipeline, bson.M{"$match": bson.D{{"owner_type", int(ownerType)}, {"box_name", string(boxName)}}})
 		pipeline = append(pipeline, bson.M{"$group": bson.M{"_id": "$owner_id"}})
-		cursor, e := m.Collection(collActivities).Aggregate(ctx, pipeline)
+		allowDiskUse := true
+		cursor, e := m.Collection(collActivities).Aggregate(ctx, pipeline, &options.AggregateOptions{AllowDiskUse: &allowDiskUse})
 		if e != nil {
 			log.Logger(ctx).Error("Error while running aggregation", zap.Error(e))
 			return e
