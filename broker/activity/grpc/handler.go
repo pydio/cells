@@ -231,7 +231,7 @@ func (h *Handler) PurgeActivities(ctx context.Context, request *proto.PurgeActiv
 		updated = time.Unix(int64(request.UpdatedBeforeTimestamp), 0)
 	}
 
-	e := h.dao.Purge(nil, logger, request.OwnerType, request.OwnerID, activity.BoxName(request.BoxName), int(request.MinCount), int(request.MaxCount), updated, request.CompactDB, request.ClearBackups)
+	e := h.dao.Purge(ctx, logger, request.OwnerType, request.OwnerID, activity.BoxName(request.BoxName), int(request.MinCount), int(request.MaxCount), updated, request.CompactDB, request.ClearBackups)
 	return &proto.PurgeActivitiesResponse{
 		Success:      true,
 		DeletedCount: count,
