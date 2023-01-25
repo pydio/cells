@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	"go.mongodb.org/mongo-driver/bson"
+
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
@@ -58,8 +60,16 @@ func OnFileTestDAO(driver, dsn, prefix, altPrefix string, asIndexer bool, wrappe
 		}
 	case "mongodb":
 		closer = func() {
-			fmt.Println("Closer : dropping collection", prefix)
-			d.(mongodb.DAO).DB().Drop(context.Background())
+			db := d.(mongodb.DAO).DB()
+			if ss, e := db.ListCollectionNames(ctx, bson.D{}); e == nil {
+				for _, s := range ss {
+					if strings.HasPrefix(s, prefix) {
+						if de := db.Collection(s).Drop(context.Background()); de == nil {
+							fmt.Println("Closer : dropped collection", s)
+						}
+					}
+				}
+			}
 			d.CloseConn(ctx)
 		}
 	}
