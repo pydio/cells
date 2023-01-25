@@ -69,16 +69,19 @@ func (dao *boltdbimpl) Init(ctx context.Context, options configx.Values) error {
 // Load a given sub-bucket
 // Bucket are structured like this:
 // users
-//   -> USER_ID
-//      -> inbox [all notifications triggered by subscriptions or explicit alerts]
-//      -> outbox [all user activities history]
-//      -> lastread [id of the last inbox notification read]
-//      -> lastsent [id of the last inbox notification sent by email, used for digest]
-//      -> subscriptions [list of other users following her activities, with status]
+//
+//	-> USER_ID
+//	   -> inbox [all notifications triggered by subscriptions or explicit alerts]
+//	   -> outbox [all user activities history]
+//	   -> lastread [id of the last inbox notification read]
+//	   -> lastsent [id of the last inbox notification sent by email, used for digest]
+//	   -> subscriptions [list of other users following her activities, with status]
+//
 // nodes
-//   -> NODE_ID
-//      -> outbox [all node activities, including its children ones]
-//      -> subscriptions [list of users following this node activity]
+//
+//	-> NODE_ID
+//	   -> outbox [all node activities, including its children ones]
+//	   -> subscriptions [list of users following this node activity]
 func (dao *boltdbimpl) getBucket(tx *bolt.Tx, createIfNotExist bool, ownerType activity.OwnerType, ownerId string, bucketName BoxName) (*bolt.Bucket, error) {
 
 	mainBucket := tx.Bucket([]byte(ownerType.String()))
@@ -423,7 +426,7 @@ func (dao *boltdbimpl) Delete(ctx context.Context, ownerType activity.OwnerType,
 
 // Purge removes records based on a maximum number of records and/or based on the activity update date
 // It keeps at least minCount record(s) - to see last activity - even if older than expected date
-func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
+func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string, int), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
 
 	purgeBucket := func(bucket *bolt.Bucket, owner string) {
 		c := bucket.Cursor()
@@ -438,14 +441,14 @@ func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string), ownerType
 			}
 			acObject := &activity.Object{}
 			if err := json.Unmarshal(v, acObject); err != nil {
-				logger("Purging unknown format object")
+				logger("Purging unknown format object", 1)
 				c.Delete()
 				continue
 			}
 			i++
 			stamp := acObject.GetUpdated()
 			if (maxCount > 0 && totalLeft >= int64(maxCount)) || (!updatedBefore.IsZero() && time.Unix(stamp.Seconds, 0).Before(updatedBefore)) {
-				logger(fmt.Sprintf("Purging activity %s for %s's %s", acObject.Id, owner, boxName))
+				logger(fmt.Sprintf("Purging activity %s for %s's %s", acObject.Id, owner, boxName), 1)
 				c.Delete()
 				continue
 			}
@@ -476,7 +479,7 @@ func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string), ownerType
 	if compactDB {
 		old, newSize, er := dao.Compact(ctx, map[string]interface{}{"ClearBackup": clearBackup})
 		if er == nil {
-			logger(fmt.Sprintf("Successfully compacted DB, from %s to %s", humanize.Bytes(uint64(old)), humanize.Bytes(uint64(newSize))))
+			logger(fmt.Sprintf("Successfully compacted DB, from %s to %s", humanize.Bytes(uint64(old)), humanize.Bytes(uint64(newSize))), 0)
 		}
 		return er
 	}

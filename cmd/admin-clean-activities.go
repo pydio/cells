@@ -151,7 +151,7 @@ EXAMPLES
 				log.Fatalln("Cannot open DAO", e.Error())
 			}
 			dao := da.(activity.DAO)
-			loggerFunc := func(s string) {
+			loggerFunc := func(s string, _ int) {
 				cmd.Println(s)
 			}
 			er = dao.Purge(cmd.Context(), loggerFunc, activity2.OwnerType(internalType), activityOwner, activity.BoxName(boxName), keepAtLeast, keepMax, updatedTime, compactDB, clearBackups)

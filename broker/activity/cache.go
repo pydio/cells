@@ -176,7 +176,7 @@ func (c *Cache) Delete(ctx context.Context, ownerType activity.OwnerType, ownerI
 	return c.DAO.Delete(ctx, ownerType, ownerId)
 }
 
-func (c *Cache) Purge(ctx context.Context, logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
+func (c *Cache) Purge(ctx context.Context, logger func(string, int), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
 	return c.DAO.Purge(ctx, logger, ownerType, ownerId, boxName, minCount, maxCount, updatedBefore, compactDB, clearBackup)
 }
 

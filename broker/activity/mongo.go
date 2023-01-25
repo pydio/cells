@@ -23,16 +23,17 @@ package activity
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/log"
-	"go.uber.org/zap"
 	"time"
 
+	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -312,7 +313,7 @@ func (m *mongoimpl) Delete(ctx context.Context, ownerType activity.OwnerType, ow
 	return nil
 }
 
-func (m *mongoimpl) Purge(ctx context.Context, logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
+func (m *mongoimpl) Purge(ctx context.Context, logger func(string, int), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
 	if ownerId == "*" {
 		log.Logger(ctx).Info("Running Aggregation to purge activities")
 		/*
@@ -399,7 +400,7 @@ func (m *mongoimpl) allSubscriptions(ctx context.Context) (chan *activity.Subscr
 
 }
 
-func (m *mongoimpl) purgeOneBox(ctx context.Context, logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount, updatedBefore int64) error {
+func (m *mongoimpl) purgeOneBox(ctx context.Context, logger func(string, int), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount, updatedBefore int64) error {
 	filter := bson.D{
 		{"owner_type", int(ownerType)},
 		{"owner_id", ownerId},
@@ -427,17 +428,24 @@ func (m *mongoimpl) purgeOneBox(ctx context.Context, logger func(string), ownerT
 			}
 			i++
 			if (maxCount > 0 && totalLeft >= maxCount) || (updatedBefore > 0 && p.Ts < updatedBefore) {
-				logger(fmt.Sprintf("Should purge activity %s for %s's %s", p.AcId, ownerId, boxName))
 				ids = append(ids, p.AcId)
 				continue
 			}
 			totalLeft++
 		}
 	}
-	if len(ids) > 0 {
-		_, e := m.Collection(collActivities).DeleteMany(ctx, bson.D{{"ac_id", bson.M{"$in": ids}}})
+	for len(ids) > 0 {
+		max := 5000
+		if max > len(ids) {
+			max = len(ids)
+		}
+		sli := ids[:max]
+		ids = ids[max:]
+		_, e := m.Collection(collActivities).DeleteMany(ctx, bson.D{{"ac_id", bson.M{"$in": sli}}})
 		if e == nil {
-			//fmt.Println("Removed", res.DeletedCount)
+			logger(fmt.Sprintf("Purged %d activities for %s %s (%s)", len(sli), ownerType.String(), ownerId, boxName), len(sli))
+		} else {
+			e = errors.Wrap(e, "purgeOne.deleteMany")
 		}
 		return e
 	}

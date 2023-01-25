@@ -133,7 +133,7 @@ func TestBoltMassivePurge(t *testing.T) {
 		<-time.After(5 * time.Second)
 		deleted := 0
 		// Now Purge
-		e = dao.Purge(ctx, func(s string) { deleted++ }, activity.OwnerType_NODE, "node-id", BoxOutbox, 0, 10, time.Time{}, true, true)
+		e = dao.Purge(ctx, func(s string, i int) { deleted += i }, activity.OwnerType_NODE, "node-id", BoxOutbox, 0, 10, time.Time{}, true, true)
 		So(e, ShouldBeNil)
 		So(deleted, ShouldBeGreaterThan, 1)
 		st, _ = os.Stat(tmpMassivePurge)
@@ -471,7 +471,7 @@ func TestPurge(t *testing.T) {
 	}
 
 	Convey("Test Purge Activities", t, func() {
-		logger := func(s string) {
+		logger := func(s string, _ int) {
 			t.Log(s)
 		}
 		threeDays := 3 * time.Hour * 24
@@ -517,7 +517,7 @@ func TestPurge(t *testing.T) {
 		// Purge by date all users - re-add ac3, ac4 removed in previous step
 		dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac3, false)
 		dao.PostActivity(ctx, activity.OwnerType_USER, "john", BoxInbox, ac4, false)
-		err = dao.Purge(nil, logger, activity.OwnerType_USER, "*", BoxInbox, 0, 100, time.Now().Add(-sevenDays), true, true)
+		err = dao.Purge(ctx, logger, activity.OwnerType_USER, "*", BoxInbox, 0, 100, time.Now().Add(-sevenDays), true, true)
 		So(err, ShouldBeNil)
 		results, err = listJohn()
 		So(err, ShouldBeNil)

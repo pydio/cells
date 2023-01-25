@@ -221,8 +221,8 @@ func (h *Handler) PurgeActivities(ctx context.Context, request *proto.PurgeActiv
 		return nil, errors.BadRequest("invalid.parameter", "Please provide one of inbox|outbox box name")
 	}
 	count := int32(0)
-	logger := func(s string) {
-		count++
+	logger := func(s string, i int) {
+		count += int32(i)
 		log.TasksLogger(ctx).Info(s)
 	}
 
