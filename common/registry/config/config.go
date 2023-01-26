@@ -22,7 +22,9 @@ package configregistry
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"github.com/pydio/cells/v4/common/crypto"
 	"net/url"
 	"os"
 	"sync"
@@ -45,16 +47,33 @@ import (
 
 var (
 	schemes    = []string{"etcd", "file", "mem"}
+	tlsSchemes = []string{"etcd+tls"}
 	shared     registry.Registry
 	sharedOnce = &sync.Once{}
 )
 
-type URLOpener struct{}
+type URLOpener struct {
+	tlsConfig *tls.Config
+}
+
+type TLSURLOpener struct{}
 
 func init() {
 	o := &URLOpener{}
 	for _, scheme := range schemes {
 		registry.DefaultURLMux().Register(scheme, o)
+	}
+	tlso := &TLSURLOpener{}
+	for _, scheme := range tlsSchemes {
+		registry.DefaultURLMux().Register(scheme, tlso)
+	}
+}
+
+func (o *TLSURLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry, error) {
+	if tlsConfig, er := crypto.TLSConfigFromURL(u); er == nil {
+		return (&URLOpener{tlsConfig}).OpenURL(ctx, u)
+	} else {
+		return nil, fmt.Errorf("error while loading tls config for etcd %v", er)
 	}
 }
 
@@ -97,18 +116,23 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 
 	switch u.Scheme {
 	case "etcd":
-		tls := u.Query().Get("tls") == "true"
-		addr := u.Host
-		if tls {
-			addr = "https://" + addr
+		addr := "://" + u.Host
+		if o.tlsConfig == nil {
+			addr = "http" + addr
 		} else {
-			addr = "http://" + addr
+			addr = "https" + addr
 		}
+
+		// Registry via etcd
+		pwd, _ := u.User.Password()
 
 		// Registry via etcd
 		etcdConn, err := clientv3.New(clientv3.Config{
 			Endpoints:   []string{addr},
 			DialTimeout: 2 * time.Second,
+			Username:    u.User.Username(),
+			Password:    pwd,
+			TLS:         o.tlsConfig,
 		})
 
 		if err != nil {
