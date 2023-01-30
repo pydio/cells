@@ -89,7 +89,7 @@ class SearchApi {
                     let val = freeQueries[k]
                     if(val === true) {
                         val = 'T*';
-                    } else if(val.indexOf('|') > -1){
+                    } else if(val.indexOf && val.indexOf('|') > -1){ // test indexOf
                         return val.split('|').map(v => k+':'+v).join(' ')
                     }
                     return "+" + k + ":" + val;
