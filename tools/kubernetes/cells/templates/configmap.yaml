@@ -73,7 +73,26 @@ data:
     vault login -no-print ${root?}
 
     vault secrets enable -version=2 -path=secret kv
-    vault secrets enable -version=2 -path=caddycerts kv
+    # vault secrets enable -version=2 -path=caddycerts kv
+    vault secrets enable pki
+    
+    vault write pki/root/generate/internal \
+      common_name={{ include "cells.serviceDomain" . }} \
+      ttl=8760h
+    
+    vault write pki/config/urls \
+      issuing_certificates="{{ include "cells.vaultURL" . }}/v1/pki/ca" \
+      crl_distribution_points="{{ include "cells.vaultURL" . }}/v1/pki/crl"
+    
+    vault secrets tune -max-lease-ttl=8760h pki
+    
+    vault write pki/roles/application \
+      allowed_domains=*.{{ include "cells.serviceDomain" . }} \
+      allow_any_name=true \
+      allow_subdomains=true \
+      max_ttl=72h
+    
+    vault policy write pki /vault/userconfig/cells-vault/pki-policy.hcl
 
     vault auth enable kubernetes
 
@@ -86,7 +105,7 @@ data:
     vault write auth/kubernetes/role/app \
        bound_service_account_names=app \
        bound_service_account_namespaces=cells \
-       policies=app \
+       policies=app,pki \
        ttl=24h
 
     vault token create -policy=app
@@ -104,3 +123,11 @@ data:
     path "caddycerts/*" {
         capabilities = ["create", "update", "read", "delete"]
     }
+    path "pki*" {
+        capabilities = ["create", "update", "read", "delete"]
+    }
+
+  pki-policy.hcl: |
+    path "pki*"                    { capabilities = ["read", "list"] } 
+    path "pki/sign/application"    { capabilities = ["create", "update"] }
+    path "pki/issue/application"   { capabilities = ["create"] }

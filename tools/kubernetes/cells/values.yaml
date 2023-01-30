@@ -13,6 +13,7 @@ image:
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+clusterDomain: cluster.local
 
 serviceAccount:
   create: true
@@ -38,7 +39,6 @@ service:
     # Set values here if you want to bind the port elsewhere
   reverseproxyurl:
   tlsconfig:
-    selfsigned:
 
   customconfigs: {
     # Initial license
@@ -175,6 +175,20 @@ ingress:
   ##
   extraRules: []
 
+ingress-nginx:
+  enabled: false
+  controller:
+    admissionWebhooks:
+      enabled: false
+    hostPort:
+      enabled: true
+    ingressClassResource:
+      default: true
+      enabled: true
+    kind: DaemonSet
+    service:
+      type: ClusterIP
+
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -231,12 +245,24 @@ etcd:
   auth:
     rbac:
       create: false
+    peer:
+      secureTransport: false
+      useAutoTLS: false
+    client:
+      secureTransport: false
+      enableAuthentication: false
+      existingSecret: "etcd-client-certs"
+      certFilename: "tls.crt"
+      certKeyFilename: "tls.key"
+      caFilename: "ca.crt"
+
   volumePermissions:
     enabled: true
 
 minio:
   enabled: true
   defaultBuckets: "thumbnails pydiods1 personal versions cellsdata binaries"
+
   volumePermissions:
     enabled: true
 

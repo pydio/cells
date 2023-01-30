@@ -48,7 +48,7 @@ dependencies:
   - name: mariadb
     condition: mariadb.enabled
     repository: https://charts.bitnami.com/bitnami
-    version: 10.x.x
+    version: x.x.x
   - name: redis
     condition: redis.enabled
     repository: https://charts.bitnami.com/bitnami
@@ -69,7 +69,16 @@ dependencies:
     condition: minio.enabled
     repository: https://charts.bitnami.com/bitnami
     version: x.x.x
+  - name: ingress-nginx
+    condition: ingress.enabled
+    repository: https://kubernetes.github.io/ingress-nginx
+    version: x.x.x
   - name: vault  
     condition: vault.enabled
     repository: https://helm.releases.hashicorp.com
     version: x.x.x
+  - name: cert-manager
+    condition: tls.enabled
+    repository: https://charts.jetstack.io
+    version: x.x.x
+

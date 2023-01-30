@@ -1,0 +1,16 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ default "letsencrypt" (index .Values.ingress.annotations "cert-manager.io/cluster-issuer") }}
+spec:
+  acme:
+    server: {{ default "" .Values.ingress.clusterissuer.server }}
+    email: {{ default "" .Values.ingress.clusterissuer.email }}
+    privateKeySecretRef:
+      name: {{ default "letsencrypt" (index .Values.ingress.annotations "cert-manager.io/cluster-issuer") }}
+    solvers:
+      - http01:
+          ingress:
+            class: {{  default "nginx" (index .Values.ingress.annotations "kubernetes.io/ingress.class") }} } }
+{{- end }}

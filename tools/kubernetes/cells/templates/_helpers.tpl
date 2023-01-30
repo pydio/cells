@@ -5,6 +5,10 @@ Expand the name of the chart.
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
+{{- define "cells.serviceDomain" }}
+{{- printf "%s.svc.%s" .Release.Namespace .Values.clusterDomain }}
+{{- end }}
+
 {{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
@@ -73,7 +77,7 @@ ETCD HOST
 {{- end }}
 
 {{- define "cells.etcdHost" -}}
-{{- printf "%s-etcd.%s.svc.cluster.local" .Release.Name .Release.Namespace }}
+{{- printf "%s-etcd.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
 {{- end }}
 
 {{- define "cells.etcdPort" -}}
@@ -81,7 +85,20 @@ ETCD HOST
 {{- end }}
 
 {{- define "cells.etcdURL" -}}
-{{- printf "etcd://%s:%s" (include "cells.etcdHost" .) (include "cells.etcdPort" .) }}
+{{- $path := index . 1 }}
+{{- with index . 0 }}
+{{- $user := "" }}
+{{- if .Values.etcd.auth.rbac.create }}
+{{- $user = "root:$(ETCD_ROOT_PASSWORD)@" }}
+{{- end }}
+{{- $tls := "" }}
+{{- $tlsParams := "" }}
+{{- if .Values.etcd.auth.client.secureTransport }}
+{{- $tls = "+tls" }}
+{{- $tlsParams = print "?tlsCertUUID=" .Values.etcd.auth.client.certFilename  "&tlsCertKeyUUID=" .Values.etcd.auth.client.certKeyFilename "&tlsCertCAUUID=" .Values.etcd.auth.client.caFilename }}
+{{- end }}
+{{- printf "etcd%s://%s%s:%s%s%s" $tls $user (include "cells.etcdHost" .) (include "cells.etcdPort" .) $path $tlsParams }}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -92,7 +109,11 @@ NATS HOST
 {{- end }}
 
 {{- define "cells.natsHost" -}}
-{{- printf "%s-nats.%s.svc.cluster.local" .Release.Name .Release.Namespace }}
+{{- printf "%s-nats.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
+{{- end }}
+
+{{- define "cells.natsPassword" -}}
+{{- printf "%s" (include "nats.randomPassword" .) }}
 {{- end }}
 
 {{- define "cells.natsPort" -}}
@@ -111,7 +132,7 @@ REDIS HOST
 {{- end }}
 
 {{- define "cells.redisHost" -}}
-{{- printf "%s-redis-master.%s.svc.cluster.local" .Release.Name .Release.Namespace }}
+{{- printf "%s-redis-master.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
 {{- end }}
 
 {{- define "cells.redisPort" -}}
@@ -119,7 +140,11 @@ REDIS HOST
 {{- end }}
 
 {{- define "cells.redisURL" -}}
+{{- if .Values.redis.auth.enabled }}
+{{- printf "redis://root:$(REDIS_PASSWORD)@%s:%s" (include "cells.redisHost" .) (include "cells.redisPort" .) }}
+{{- else }}
 {{- printf "redis://%s:%s" (include "cells.redisHost" .) (include "cells.redisPort" .) }}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -130,7 +155,7 @@ VAULT HOST
 {{- end }}
 
 {{- define "cells.vaultHost" -}}
-{{- printf "%s-vault.%s.svc.cluster.local" .Release.Name .Release.Namespace }}
+{{- printf "%s-vault.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
 {{- end }}
 
 {{- define "cells.vaultPort" -}}
@@ -141,6 +166,12 @@ VAULT HOST
 {{- printf "vault://%s:%s" (include "cells.vaultHost" .) (include "cells.vaultPort" .) }}
 {{- end }}
 
+{{- define "cells.httpVaultURL" -}}
+{{- printf "http://%s:%s" (include "cells.vaultHost" .) (include "cells.vaultPort" .) }}
+{{- end }}
+
+
+
 {{/*
 MARIADB HOST
 */}}
@@ -149,7 +180,7 @@ MARIADB HOST
 {{- end }}
 
 {{- define "cells.mariadbHost" -}}
-{{- printf "%s-mariadb.%s.svc.cluster.local" .Release.Name .Release.Namespace }}
+{{- printf "%s-mariadb.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
 {{- end }}
 
 {{- define "cells.mariadbPort" -}}
@@ -168,7 +199,7 @@ MONGODB HOST
 {{- end }}
 
 {{- define "cells.mongodbHost" -}}
-{{- printf "%s-mongodb.%s.svc.cluster.local" .Release.Name .Release.Namespace }}
+{{- printf "%s-mongodb.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
 {{- end }}
 
 {{- define "cells.mongodbPort" -}}
@@ -179,7 +210,6 @@ MONGODB HOST
 {{- printf "mongodb://%s:%s" (include "cells.mongodbHost" .) (include "cells.mongodbPort" .) }}
 {{- end }}
 
-
 {{/*
 MINIO HOST
 */}}
@@ -188,7 +218,7 @@ MINIO HOST
 {{- end }}
 
 {{- define "cells.minioHost" -}}
-{{- printf "%s-minio.%s.svc.cluster.local" .Release.Name .Release.Namespace }}
+{{- printf "%s-minio.%s.svc.%s" .Release.Name .Release.Namespace .Values.clusterDomain }}
 {{- end }}
 
 {{- define "cells.minioPort" -}}

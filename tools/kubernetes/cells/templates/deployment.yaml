@@ -52,16 +52,30 @@ spec:
             - name: PYDIO_LOG
               value: info
             {{- if .Values.etcd.enabled }}
+            {{- if or .Values.etcd.auth.rbac.create .Values.etcd.auth.rbac.enabled }}
+            - name: ETCD_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "etcd.secretName" .Subcharts.etcd }}
+                  key: {{ include "etcd.secretPasswordKey" .Subcharts.etcd }}
+            {{- end}}
             - name: CELLS_CONFIG
-              value: {{ include "cells.etcdURL" . }}/config
+              value: {{ include "cells.etcdURL" (list . "/config") }}
             - name: CELLS_VAULT
-              value: {{ include "cells.etcdURL" . }}/vault
+              value: {{ include "cells.etcdURL" (list . "/vault") }}
             - name: CELLS_REGISTRY
-              value: {{ include "cells.etcdURL" . }}/registry
+              value: {{ include "cells.etcdURL" (list . "/registry") }}
             {{- end }}
             {{- if .Values.nats.enabled }}
             - name: CELLS_BROKER
               value: {{ include "cells.natsURL" . }}
+            {{- end }}
+            {{- if and (or .Values.redis.enabled .Values.redis.shortcacheEnabled) .Values.redis.auth.enabled }}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "redis.secretName" .Subcharts.redis }}
+                  key: {{ include "redis.secretPasswordKey" .Subcharts.redis }}
             {{- end }}
             {{- if .Values.redis.enabled }}
             - name: CELLS_CACHE
@@ -75,7 +89,7 @@ spec:
             - name: CELLS_KEYRING
               value: {{ include "cells.vaultURL" . }}/secret?key=keyring
             - name: CELLS_CERTS_STORE
-              value: {{ include "cells.vaultURL" . }}/caddycerts
+              value: file:///var/certs
             {{- end }}
             {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12}}
@@ -99,6 +113,10 @@ spec:
           volumeMounts:
             - name: cells
               mountPath: /var/cells-install
+            {{- if and .Values.etcd.enabled .Values.etcd.auth.client.secureTransport }}
+            - name: etcd-secret
+              mountPath: /var/certs
+            {{- end }}
           readinessProbe:
             httpGet:
               path: /
@@ -136,17 +154,30 @@ spec:
         - name: install
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/bin/sh"]
-          args:
-            ['-c', 'sleep 10 && source /var/cells-install/source && cells configure && sleep 10']
+          command:
+            - "/bin/sh"
+            - "-c"
+            - |
+              sleep 3
+              source /var/cells-install/source
+              echo "Token is $VAULT_TOKEN"
+              cells configure
+              sleep 3
           env:
             - name: CELLS_INSTALL_YAML
               value: /var/cells-install/install-conf.yaml
             {{- if .Values.etcd.enabled }}
+            {{- if or .Values.etcd.auth.rbac.create .Values.etcd.auth.rbac.enabled }}
+            - name: ETCD_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "etcd.secretName" .Subcharts.etcd }}
+                  key: {{ include "etcd.secretPasswordKey" .Subcharts.etcd }}
+            {{- end }}
             - name: CELLS_CONFIG
-              value: {{ include "cells.etcdURL" . }}/config
+              value: {{ include "cells.etcdURL" (list . "/config") }}
             - name: CELLS_VAULT
-              value: {{ include "cells.etcdURL" . }}/vault
+              value: {{ include "cells.etcdURL" (list . "/vault") }}
             {{- end }}
             {{- if .Values.vault.enabled }}
             - name: CELLS_KEYRING
@@ -171,13 +202,24 @@ spec:
                   name: {{ .Release.Name }}-minio
                   key: root-password
             {{- end }}
+            - name: CELLS_CERTS_STORE
+              value: file:///var/certs
           volumeMounts:
             - name: cells
               mountPath: /var/cells-install
+            {{- if and .Values.etcd.enabled .Values.etcd.auth.client.secureTransport }}
+            - name: etcd-secret
+              mountPath: /var/certs
+            {{- end}}
       volumes:
         - name: cells
           configMap:
             name: {{ include "cells.fullname" . }}
+        {{- if and .Values.etcd.enabled .Values.etcd.auth.client.secureTransport }}
+        - name: etcd-secret
+          secret:
+            secretName: {{ .Values.etcd.auth.client.existingSecret }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
