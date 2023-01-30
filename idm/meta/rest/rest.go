@@ -337,6 +337,16 @@ func (s *UserMetaHandler) ListUserMetaTags(req *restful.Request, rsp *restful.Re
 	ns := req.PathParameter("Namespace")
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("Listing tags for namespace " + ns)
+	nsClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
+	nss, er := s.ListAllNamespaces(ctx, nsClient)
+	if er != nil {
+		service.RestErrorDetect(req, rsp, er)
+		return
+	}
+	if _, ok := nss[ns]; !ok { // ns not found or filtered by policies
+		service.RestError404(req, rsp, fmt.Errorf("unknown namespace"))
+		return
+	}
 	tags, _ := s.listTagsForNamespace(ctx, ns)
 	rsp.WriteEntity(&rest.ListUserMetaTagsResponse{
 		Tags: tags,
@@ -351,7 +361,23 @@ func (s *UserMetaHandler) PutUserMetaTag(req *restful.Request, rsp *restful.Resp
 	if r.Namespace == "" {
 		r.Namespace = req.PathParameter("Namespace")
 	}
-	e := s.putTagsIfNecessary(req.Request.Context(), r.Namespace, []string{r.Tag})
+
+	ctx := req.Request.Context()
+	nsClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
+	nss, er := s.ListAllNamespaces(ctx, nsClient)
+	if er != nil {
+		service.RestErrorDetect(req, rsp, er)
+		return
+	}
+	if nsObject, ok := nss[r.Namespace]; !ok { // ns not found or filtered by policies
+		service.RestError404(req, rsp, fmt.Errorf("unknown namespace"))
+		return
+	} else if !nsObject.PoliciesContextEditable {
+		service.RestError403(req, rsp, fmt.Errorf("cannot update these tags"))
+		return
+	}
+
+	e := s.putTagsIfNecessary(ctx, r.Namespace, []string{r.Tag})
 	if e != nil {
 		service.RestError500(req, rsp, e)
 	} else {
@@ -479,7 +505,7 @@ func (s *UserMetaHandler) ListAllNamespaces(ctx context.Context, client idm.User
 		return nil, e
 	}
 	result := make(map[string]*idm.UserMetaNamespace)
-	defer stream.CloseSend()
+
 	for {
 		resp, err := stream.Recv()
 		if err != nil {

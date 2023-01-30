@@ -22,9 +22,17 @@ package modifiers
 
 import (
 	"context"
+	"fmt"
+	"go.uber.org/zap"
+
+	"github.com/ory/ladon"
+	"github.com/ory/ladon/manager/memory"
+
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/service/frontend"
@@ -34,12 +42,22 @@ import (
 // MetaUserRegModifier adds/updates some registry contributions for rendering metadata.
 func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, registry *frontend.Cpydio_registry) error {
 
+	if status.User == nil || !status.User.Logged {
+		log.Logger(ctx).Debug("Skipping Meta-User Registry Modifier as no user in context")
+		return nil
+	}
+	subjects, e := auth.SubjectsForResourcePolicyQuery(ctx, nil)
+	if e != nil {
+		log.Logger(ctx).Error("cannot check meta namespace policies (meta-user registry modifier)", zap.Error(e))
+		return nil
+	}
+
 	client := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(status.RuntimeCtx, common.ServiceUserMeta))
 	respStream, e := client.ListUserMetaNamespace(ctx, &idm.ListUserMetaNamespaceRequest{})
 	if e != nil {
 		return e
 	}
-	defer respStream.CloseSend()
+
 	var namespaces []*idm.UserMetaNamespace
 	for {
 		r, e := respStream.Recv()
@@ -56,22 +74,11 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 	columns := &frontend.Ccolumns{}
 	searchables := make(map[string]string)
 	searchableRenderers := make(map[string]string)
-	var crtAdmin bool
-	if status.User.Logged && status.User.UserObject.Attributes != nil {
-		if p, ok := status.User.UserObject.Attributes[idm.UserAttrProfile]; ok && p == common.PydioProfileAdmin {
-			crtAdmin = true
-		}
-	}
 
 	for _, ns := range namespaces {
 
-		var readAdminOnly bool
-		for _, p := range ns.Policies {
-			if p.Action == service.ResourcePolicyAction_READ && p.Subject == "profile:admin" {
-				readAdminOnly = true
-			}
-		}
-		if readAdminOnly && !crtAdmin {
+		if !matchPolicies(subjects, ns, service.ResourcePolicyAction_READ) {
+			log.Logger(ctx).Debug("Skipping " + ns.Namespace + " for current context")
 			continue
 		}
 
@@ -194,4 +201,45 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 	}
 
 	return nil
+}
+
+// matchPolicies creates a memory-based policy stack checker to check if action is allowed or denied.
+// It uses a DenyByDefault strategy
+func matchPolicies(subjects []string, ns *idm.UserMetaNamespace, action service.ResourcePolicyAction) bool {
+
+	resourceId := ns.Namespace
+	policies := ns.Policies
+	warden := &ladon.Ladon{Manager: memory.NewMemoryManager()}
+	for i, pol := range policies {
+		id := fmt.Sprintf("%v", pol.Id)
+		if pol.Id == 0 {
+			id = fmt.Sprintf("%d", i)
+		}
+		// We could add also conditions here
+		ladonPol := &ladon.DefaultPolicy{
+			ID:        id,
+			Resources: []string{pol.Resource},
+			Actions:   []string{pol.Action.String()},
+			Effect:    pol.Effect.String(),
+			Subjects:  []string{pol.Subject},
+		}
+		_ = warden.Manager.Create(ladonPol)
+	}
+
+	// check that at least one of the subject is allowed
+	var allow bool
+	for _, subject := range subjects {
+		request := &ladon.Request{
+			Resource: resourceId,
+			Subject:  subject,
+			Action:   action.String(),
+		}
+		if err := warden.IsAllowed(request); err != nil && err == ladon.ErrRequestForcefullyDenied {
+			return false
+		} else if err == nil {
+			allow = true
+		} // Else "default deny" => continue checking
+	}
+
+	return allow
 }
