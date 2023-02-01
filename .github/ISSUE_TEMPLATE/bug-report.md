@@ -7,9 +7,7 @@ assignees: ''
 
 ---
 
-Issue tracker is **ONLY** used for reporting qualified bugs. Please **always use [Pydio Forums](https://forum.pydio.com)** for supporting issues or feature requests. 
-
-Typically any first-start install or config-related issues will be ignored and closed!  
+Issue tracker is **ONLY** used for reporting qualified bugs. Please **always use [Pydio Forums](https://forum.pydio.com)** for supporting issues or feature requests. _Any first-start install or config-related issue will be ignored and closed_!  
 
 **Describe the bug**
 A clear and concise description of what the bug is.
