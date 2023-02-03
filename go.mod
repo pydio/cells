@@ -62,7 +62,6 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/microcosm-cc/bluemonday v1.0.20
 	github.com/minio/cli v1.22.0
-	github.com/minio/md5-simd v1.1.2
 	github.com/minio/minio v0.0.0-20220720015624-ce8397f7d944
 	github.com/minio/minio-go/v7 v7.0.21
 	github.com/mitchellh/mapstructure v1.5.0
@@ -339,6 +338,7 @@ require (
 	github.com/miekg/dns v1.1.50 // indirect
 	github.com/miekg/pkcs11 v1.1.1 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
+	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/selfupdate v0.4.0 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/minio/simdjson-go v0.2.1 // indirect
