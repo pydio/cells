@@ -23,14 +23,15 @@ package task
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"math"
 	"strings"
 	"sync"
 
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/sync/merger"
 	"github.com/pydio/cells/v4/common/sync/model"
 )
@@ -109,7 +110,7 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 	diff := merger.NewDiff(source, targetAsSource)
 	lock := s.monitorDiff(ctx, diff, rootsInfo)
 	if e := diff.Compute(ctx, rootPath, lock, rootsInfo, s.Ignores...); e != nil {
-		return patch.SetPatchError(e)
+		return patch.SetPatchError(errors.Wrap(e, "error happened during diff.Compute"))
 	}
 
 	// Feed Patch from Diff
@@ -208,7 +209,7 @@ func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun 
 		for _, r := range roots {
 			diff := merger.NewDiff(source, targetAsSource)
 			if e := diff.Compute(ctx, r, s.monitorDiff(ctx, diff, rootsInfo), rootsInfo, s.Ignores...); e != nil {
-				return bb.SetPatchError(e)
+				return bb.SetPatchError(errors.Wrap(e, "error happened during diff.Compute"))
 			}
 			if dryRun {
 				return nil
