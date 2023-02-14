@@ -84,7 +84,7 @@ type Bitmask struct {
 	ValueFlags map[BitmaskFlag]string
 }
 
-func (f Bitmask) checkPolicy(ctx context.Context, initialMeta map[string]string, subjects []string, action string, ctxNode *tree.Node, explicityOnly bool) bool {
+func (f *Bitmask) checkPolicy(ctx context.Context, initialMeta map[string]string, subjects []string, action string, ctxNode *tree.Node, explicityOnly bool) bool {
 	policyContext := make(map[string]string, len(initialMeta))
 	for k, v := range initialMeta {
 		policyContext[k] = v
@@ -109,7 +109,7 @@ func (f Bitmask) checkPolicy(ctx context.Context, initialMeta map[string]string,
 
 // HasFlag checks if current bitmask matches a given flag. If bitmask has a Policy Flag, it will
 // extract metadata from context and from nodes and use the PolicyResolver to dynamically test these properties.
-func (f Bitmask) HasFlag(ctx context.Context, flag BitmaskFlag, ctxNodes ...*tree.Node) bool {
+func (f *Bitmask) HasFlag(ctx context.Context, flag BitmaskFlag, ctxNodes ...*tree.Node) bool {
 
 	if flag != FlagPolicy && flag != FlagDeny && f.BitmaskFlag&FlagPolicy != 0 && ResolvePolicyRequest != nil {
 		// We should first resolve the policy, given the ctx and the node
@@ -123,15 +123,18 @@ func (f Bitmask) HasFlag(ctx context.Context, flag BitmaskFlag, ctxNodes ...*tre
 			return f.checkPolicy(ctx, policyContext, subjects, FlagsToNames[flag], nil, false)
 		}
 		// Check all parents, break if check is false (not allowed).
-		for _, ctxNode := range ctxNodes {
+		explicitCheck := false
+		for i, ctxNode := range ctxNodes {
 			polNode := ctxNode
 			if ctxNode.GetPath() == "" || ctxNode.GetPath() == "/" { // Do not try to check nodes meta on root
 				polNode = nil
 				policyContext[PolicyNodeMeta_+common.MetaFlagWorkspaceRoot] = "true"
 			}
-			if c := f.checkPolicy(ctx, policyContext, subjects, FlagsToNames[flag], polNode, false); !c {
+			if c := f.checkPolicy(ctx, policyContext, subjects, FlagsToNames[flag], polNode, explicitCheck); !c {
 				log.Logger(ctx).Debug("Found forbidden access on node", ctxNode.ZapPath())
 				return false
+			} else if i == 0 && flag == FlagWrite { // If first node is allowed for Write, restrict further checks to explicit policies
+				explicitCheck = true
 			}
 		}
 		return true
@@ -143,7 +146,7 @@ func (f Bitmask) HasFlag(ctx context.Context, flag BitmaskFlag, ctxNodes ...*tre
 // HasPolicyExplicitDeny checks if current bitmask matches a specific flag with Deny.
 // If bitmask has a Policy Flag, it will extract metadata from context and from nodes and
 // use the PolicyResolver to dynamically test these properties.
-func (f Bitmask) HasPolicyExplicitDeny(ctx context.Context, flag BitmaskFlag, ctxNodes ...*tree.Node) bool {
+func (f *Bitmask) HasPolicyExplicitDeny(ctx context.Context, flag BitmaskFlag, ctxNodes ...*tree.Node) bool {
 
 	if flag != FlagPolicy && flag != FlagDeny && f.BitmaskFlag&FlagPolicy != 0 && ResolvePolicyRequest != nil {
 		// We should first resolve the policy, given the ctx and the node
