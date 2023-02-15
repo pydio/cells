@@ -60,5 +60,14 @@ func TestPathGlobCondition(t *testing.T) {
 		So(c.Fulfills("a/b/c/1222_toto/2022/e", nil), ShouldBeTrue)
 		So(c.Fulfills("a/b/c/1222_toto/2022/e/ALL.txt", nil), ShouldBeTrue)
 
+		c = &PathGlobCondition{Glob: "(i)a/b/c/1222/ae{,/**}"}
+		So(c.Fulfills("a/b/c/1222/ae", nil), ShouldBeTrue)
+		So(c.Fulfills("a/b/c/1222/ae/a/b/c", nil), ShouldBeTrue)
+		So(c.Fulfills("a/b/c/1222/ae/", nil), ShouldBeTrue)
+		So(c.Fulfills("a/b/c/1222/be", nil), ShouldBeFalse)
+		So(c.Fulfills("a/b/c/1222/aed", nil), ShouldBeFalse)
+		So(c.Fulfills("a/b/c/1222/aed/", nil), ShouldBeFalse)
+		So(c.Fulfills("a/b/c/1222/aed/ae", nil), ShouldBeFalse)
 	})
 }
+
