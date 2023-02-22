@@ -93,7 +93,8 @@ func init() {
 	runtime.Register("main", func(ctx context.Context) {
 		gob.Register(map[string]string{})
 
-		frontend.RegisterRegModifier(modifiers.MetaUserRegModifier)
+		//frontend.RegisterRegModifier(modifiers.MetaUserRegModifier)
+		frontend.RegisterPluginModifier(modifiers.MetaUserPluginModifier)
 		frontend.RegisterPluginModifier(modifiers.MobileRegModifier)
 
 		frontend.WrapAuthMiddleware(modifiers.LogoutAuth)

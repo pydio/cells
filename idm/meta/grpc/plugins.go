@@ -52,6 +52,7 @@ func init() {
 			service.Tag(common.ServiceTagIdm),
 			service.Metadata(meta2.ServiceMetaProvider, "stream"),
 			service.Metadata(meta2.ServiceMetaNsProvider, "list"),
+			service.Metadata(meta2.ServiceMetaProviderRequired, "true"),
 			service.Description("User-defined Metadata"),
 
 			service.WithStorage(meta.NewDAO, service.WithStoragePrefix("idm_usr_meta")),

@@ -119,7 +119,13 @@ func (s *TreeServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeS
 	// otherwise it can create a goroutine leak on linux.
 	ctx := metadata.NewBackgroundWithMetaCopy(streamer.Context())
 	ctx = runtime.ForkContext(ctx, s.MainCtx)
-	metaStreamer := meta.NewStreamLoader(ctx)
+
+	var flags tree.Flags
+	if sf, o := metadata.CanonicalMeta(streamer.Context(), tree.StatFlagHeaderName); o {
+		flags = tree.StatFlagsFromString(sf)
+	}
+
+	metaStreamer := meta.NewStreamLoader(ctx, flags)
 	defer metaStreamer.Close()
 
 	msCtx := context.WithValue(ctx, "MetaStreamer", metaStreamer)
@@ -230,7 +236,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (*
 		if ms := ctx.Value("MetaStreamer"); ms != nil {
 			metaStreamer = ms.(meta.Loader)
 		} else {
-			metaStreamer = meta.NewStreamLoader(ctx)
+			metaStreamer = meta.NewStreamLoader(ctx, flags)
 			defer metaStreamer.Close()
 		}
 	}
@@ -287,15 +293,13 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 	ctx := resp.Context()
 	defer track("ListNodes", ctx, time.Now(), req, resp)
 
-	/*mainCtx := s.MainCtx
-	mainCtx = servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(mainCtx))
-	mainCtx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(mainCtx))*/
 	mainCtx := servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(s.MainCtx))
 	var metaStreamer meta.Loader
 	var loadMetas bool
-	if tree.StatFlags(req.StatFlags).Metas() {
+	flags := tree.StatFlags(req.StatFlags)
+	if flags.Metas() {
 		loadMetas = true
-		metaStreamer = meta.NewStreamLoader(mainCtx)
+		metaStreamer = meta.NewStreamLoader(mainCtx, flags)
 		defer metaStreamer.Close()
 	}
 

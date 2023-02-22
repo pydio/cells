@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 type Handler struct {
@@ -102,7 +103,8 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 	}
 
 	cl := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
-	nodeStreamer, e := cl.ReadNodeStream(ctx)
+	readCtx := metadata.WithAdditionalMetadata(ctx, tree.StatFlags(searchRequest.StatFlags).AsMeta())
+	nodeStreamer, e := cl.ReadNodeStream(readCtx)
 	if e == nil {
 		defer nodeStreamer.CloseSend()
 	}

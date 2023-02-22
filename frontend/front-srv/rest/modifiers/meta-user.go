@@ -39,6 +39,23 @@ import (
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
+func MetaUserPluginModifier(ctx context.Context, status frontend.RequestStatus, plugin frontend.Plugin) error {
+	if plugin.GetId() != "meta.user" {
+		return nil
+	}
+	if status.User == nil || !status.User.Logged {
+		log.Logger(ctx).Debug("Skipping Meta-User Registry Modifier as no user in context")
+		return nil
+	}
+	if config.Get("services", common.ServiceGrpcNamespace_+common.ServiceSearch, "indexContent").Default(false).Bool() {
+		plugin.ExposeConfigs(map[string]interface{}{
+			"indexContent": true,
+		})
+	}
+
+	return nil
+}
+
 // MetaUserRegModifier adds/updates some registry contributions for rendering metadata.
 func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, registry *frontend.Cpydio_registry) error {
 
@@ -46,6 +63,7 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 		log.Logger(ctx).Debug("Skipping Meta-User Registry Modifier as no user in context")
 		return nil
 	}
+
 	subjects, e := auth.SubjectsForResourcePolicyQuery(ctx, nil)
 	if e != nil {
 		log.Logger(ctx).Error("cannot check meta namespace policies (meta-user registry modifier)", zap.Error(e))
@@ -72,8 +90,6 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 	}
 
 	columns := &frontend.Ccolumns{}
-	searchables := make(map[string]string)
-	searchableRenderers := make(map[string]string)
 
 	for _, ns := range namespaces {
 
@@ -93,9 +109,6 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 			AttrsortType:         "String",
 			AttrdefaultVisibilty: "true",
 		}
-		if ns.Indexable {
-			searchables[ns.Namespace] = ns.Label
-		}
 		if def.DefaultHide() {
 			column.AttrdefaultVisibilty = "false"
 		}
@@ -104,15 +117,9 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 		case "stars_rate":
 			column.AttrreactModifier = "ReactMeta.Renderer.renderStars"
 			column.AttrsortType = "CellSorterValue"
-			if ns.Indexable {
-				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelStars"
-			}
 		case "css_label":
 			column.AttrreactModifier = "ReactMeta.Renderer.renderCSSLabel"
 			column.AttrsortType = "CellSorterValue"
-			if ns.Indexable {
-				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelCssLabels"
-			}
 		case "choice":
 			column.AttrreactModifier = "ReactMeta.Renderer.renderSelector"
 			column.AttrsortType = "CellSorterValue"
@@ -120,14 +127,8 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 				remarshed, _ := json.Marshal(def.GetData())
 				column.AttrmetaAdditional = string(remarshed)
 			}
-			if ns.Indexable {
-				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelSelectorFilter"
-			}
 		case "tags":
 			column.AttrreactModifier = "ReactMeta.Renderer.renderTagsCloud"
-			if ns.Indexable {
-				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelTags"
-			}
 		case "integer":
 			column.AttrreactModifier = "ReactMeta.Renderer.renderInteger"
 			column.AttrsortType = "Number"
@@ -135,24 +136,15 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 				remarshed, _ := json.Marshal(def.GetData())
 				column.AttrmetaAdditional = string(remarshed)
 			}
-			if ns.Indexable {
-				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelInteger"
-			}
 		case "boolean":
 			column.AttrreactModifier = "ReactMeta.Renderer.renderBoolean"
 			column.AttrsortType = "Number"
-			if ns.Indexable {
-				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelBoolean"
-			}
 		case "date":
 			column.AttrreactModifier = "ReactMeta.Renderer.renderDate"
 			column.AttrsortType = "Number"
 			if def.GetData() != nil {
 				remarshed, _ := json.Marshal(def.GetData())
 				column.AttrmetaAdditional = string(remarshed)
-			}
-			if ns.Indexable {
-				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelDate"
 			}
 		}
 		columns.Cadditional_column = append(columns.Cadditional_column, column)
@@ -169,36 +161,6 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 		Attrcomponent: "FilesList",
 		Ccolumns:      columns,
 	})
-
-	if len(searchables) > 0 {
-		appendPart := true
-		tPart := &frontend.Ctemplate_part{
-			AttrajxpId:    "search_container",
-			AttrajxpClass: "SearchEngine",
-			Attrtheme:     "material",
-		}
-		optionsData := make(map[string]interface{})
-
-		for _, part := range registry.Cclient_configs.Ctemplate_part {
-			if part.AttrajxpId == "search_container" && part.AttrajxpClass == "SearchEngine" && part.Attrtheme == "material" {
-				tPart = part
-				var options map[string]interface{}
-				if e := json.Unmarshal([]byte(part.AttrajxpOptions), &options); e == nil {
-					optionsData = options
-				}
-				appendPart = false
-				break
-			}
-		}
-		optionsData["metaColumns"] = searchables
-		optionsData["reactColumnsRenderers"] = searchableRenderers
-		optionsData["indexContent"] = config.Get("services", common.ServiceGrpcNamespace_+common.ServiceSearch, "indexContent").Default(false).Bool()
-		searchOptions, _ := json.Marshal(optionsData)
-		tPart.AttrajxpOptions = string(searchOptions)
-		if appendPart {
-			registry.Cclient_configs.Ctemplate_part = append(registry.Cclient_configs.Ctemplate_part, tPart)
-		}
-	}
 
 	return nil
 }

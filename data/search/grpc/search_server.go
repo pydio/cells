@@ -23,8 +23,6 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/data/search/dao"
 	"go.uber.org/zap"
 	"strings"
 	"sync"
@@ -32,13 +30,16 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	protosync "github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/data/search/dao"
 )
 
 // SearchServer implements GRPC server for index/search
@@ -49,6 +50,7 @@ type SearchServer struct {
 	Engine           dao.SearchEngine
 	eventsChannel    chan *cache.EventWithContext
 	TreeClient       tree.NodeProviderClient
+	TreeClientStream tree.NodeProviderStreamerClient
 	NsProvider       *meta.NsProvider
 	ReIndexThrottler chan struct{}
 }
@@ -139,6 +141,12 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 	defer close(resultsChan)
 	defer close(facetsChan)
 	defer close(doneChan)
+	var treeStreamer tree.NodeProviderStreamer_ReadNodeStreamClient
+	defer func() {
+		if treeStreamer != nil {
+			_ = treeStreamer.CloseSend()
+		}
+	}()
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
@@ -154,20 +162,37 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 					log.Logger(ctx).Debug("Search", zap.String("uuid", node.Uuid))
 
 					if req.Details {
-						response, e := s.getTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{
-							Uuid: node.Uuid,
-						}})
-						if e == nil && response.GetNode() != nil {
-							streamer.Send(&tree.SearchResponse{Node: response.Node})
-						} else if e != nil && errors.FromError(e).Code == 404 {
+						var response *tree.ReadNodeResponse
+						var readError error
+						readReq := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: node.Uuid}, StatFlags: req.GetStatFlags()}
+
+						if treeStreamer == nil {
+							readCtx := metadata.WithAdditionalMetadata(ctx, tree.StatFlags(req.StatFlags).AsMeta())
+							if ts, er := s.newTreeStreamer(readCtx); er != nil {
+								log.Logger(ctx).Error("Cannot create streamer, fallback to simple reader", zap.Error(er))
+							} else {
+								treeStreamer = ts
+							}
+						}
+						if treeStreamer == nil {
+							response, readError = s.getTreeClient().ReadNode(ctx, readReq)
+						} else {
+							if sendEr := treeStreamer.Send(readReq); sendEr == nil {
+								response, readError = treeStreamer.Recv()
+							} else {
+								readError = sendEr
+							}
+						}
+
+						if readError == nil && response.GetNode() != nil {
+							_ = streamer.Send(&tree.SearchResponse{Node: response.Node})
+						} else if readError != nil && errors.FromError(readError).Code == 404 {
 
 							log.Logger(ctx).Error("Found node that does not exists, send event to make sure all is sync'ed.", zap.String("uuid", node.Uuid))
-
 							broker.MustPublish(ctx, common.TopicTreeChanges, &tree.NodeChangeEvent{
 								Type:   tree.NodeChangeEvent_DELETE,
 								Source: node,
 							})
-
 						}
 					} else {
 						log.Logger(ctx).Debug("No Details needed, sending back node", zap.String("uuid", node.Uuid))
@@ -298,4 +323,11 @@ func (s *SearchServer) getTreeClient() tree.NodeProviderClient {
 		s.TreeClient = tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(s.RuntimeCtx, common.ServiceTree))
 	}
 	return s.TreeClient
+}
+
+func (s *SearchServer) newTreeStreamer(ctx context.Context) (tree.NodeProviderStreamer_ReadNodeStreamClient, error) {
+	if s.TreeClientStream == nil {
+		s.TreeClientStream = tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(s.RuntimeCtx, common.ServiceTree))
+	}
+	return s.TreeClientStream.ReadNodeStream(ctx)
 }
