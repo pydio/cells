@@ -7,6 +7,9 @@
   "author": "",
   "license": "AGPL-v3",
   "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@mui/material": "^5.11.10",
     "aws-sdk": "^2.847.0",
     "cells-sdk": "4.0.2",
     "chart.js": "^1.0.2",
@@ -84,6 +87,7 @@
     "grunt-browserify": "^6.0.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-compress": "^2.0.0",
+    "grunt-contrib-concat": "^2.1.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-cssmin": "~4.0.0",
     "grunt-contrib-less": "^3.0.0",

@@ -29,7 +29,7 @@ class SearchApi {
         this.pydio = pydio;
     }
 
-    search(values, scope, limit){
+    search(values, scope, limit, minimalStats = false){
 
 
         let query = new TreeQuery();
@@ -100,6 +100,9 @@ class SearchApi {
         let request = new TreeSearchRequest();
         request.Query = query;
         request.Size = limit;
+        if(minimalStats) {
+            request.StatFlags = [4];
+        }
 
         const defaultSlug = this.pydio.user.getActiveRepositoryObject().getSlug();
         return new Promise((resolve, reject) => {

@@ -22,6 +22,7 @@ import Pydio from 'pydio'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import LeftPanel from '../leftnav/LeftPanel'
+import FastSearch from "../search/FastSearch";
 const {withContextMenu, dropProvider} = Pydio.requireLib('hoc');
 const {ContextMenu} = Pydio.requireLib('components');
 
@@ -56,6 +57,7 @@ class MasterLayout extends React.Component{
                     {children}
                 </div>
                 <span className="context-menu"><ContextMenu pydio={this.props.pydio}/></span>
+                <FastSearch/>
             </div>
         ));
 

@@ -19,11 +19,13 @@
  */
 import React from 'react'
 import Pydio from 'pydio'
+import ResourcesManager from 'pydio/http/resources-manager'
 import emptyDataModel from "./emptyDataModel";
 import {debounce} from 'lodash';
 import SearchApi from 'pydio/http/search-api'
 import uuid from 'uuid4'
 import deepEqual from 'deep-equal'
+import nlpMatcher from './nlpMatcher'
 
 
 export default function withSearch(Component, historyIdentifier, scope){
@@ -71,6 +73,29 @@ export default function withSearch(Component, historyIdentifier, scope){
                     onSearchStateChange(this.state);
                 }
             }
+        }
+
+        /**
+         * @return Promise
+         */
+        getSearchOptions() {
+            return ResourcesManager.loadClass('ReactMeta').then(rm => {
+                const {MetaClient, Renderer} = rm;
+                return MetaClient.getInstance().loadConfigs().then(configs => {
+                    const options = {
+                        indexedMeta: [],
+                        indexedContent:Pydio.getInstance().getPluginConfigs("meta.user").get("indexContent"),
+                    }
+                    configs.forEach((v,k) => {
+                        if(v.indexable) {
+                            v.namespace = k
+                            v.renderer = Renderer.typeFormRenderer(v.type)
+                            options.indexedMeta.push(v)
+                        }
+                    })
+                    return options;
+                })
+            })
         }
 
         humanize(values) {
@@ -182,6 +207,13 @@ export default function withSearch(Component, historyIdentifier, scope){
             if(onUpdateSearch){
                 onUpdateSearch({values: newValues});
             }
+            if(newValues.basenameOrContent) {
+                nlpMatcher(newValues.basenameOrContent, this.getSearchOptions.bind(this)).then(matches => {
+                    this.setState({nlpMatches: matches})
+                })
+            } else {
+                this.setState({nlpMatches: null})
+            }
         }
 
         setLimit(limit){
@@ -288,6 +320,17 @@ export default function withSearch(Component, historyIdentifier, scope){
                 try {
                     const data = JSON.parse(i)
                     if(data.map){
+                        data.forEach(s => {
+                            // Unserialize dates to objects
+                            if(s.ajxp_modiftime) {
+                                if(s.ajxp_modiftime.from) {
+                                    s.ajxp_modiftime.from = new Date(s.ajxp_modiftime.from)
+                                }
+                                if(s.ajxp_modiftime.to) {
+                                    s.ajxp_modiftime.to = new Date(s.ajxp_modiftime.to)
+                                }
+                            }
+                        })
                         return data;
                     }
                     return [];
@@ -335,6 +378,7 @@ export default function withSearch(Component, historyIdentifier, scope){
                     humanizeValues={this.humanize.bind(this)}
                     saveSearch={this.pushSavedSearches.bind(this)}
                     clearSavedSearch={this.removeSavedSearch.bind(this)}
+                    getSearchOptions={this.getSearchOptions.bind(this)}
                 />
             );
         }

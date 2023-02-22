@@ -96,19 +96,20 @@ class ComponentConfigsParser {
             if(name === 'ajxp_label') {
                 columns[name].renderCell = this.renderLabel;
             }
-            if(colNode.getAttribute('reactModifier')){
-                let reactModifier = colNode.getAttribute('reactModifier');
-                const className = reactModifier.split('.',1).shift();
-                proms.push(ResourcesManager.loadClass(className).then(()=> {
-                    columns[name].renderCell = FuncUtils.getFunctionByName(reactModifier, global);
-                    columns[name].renderComponent = columns[name].renderCell
-                    // Special indicator for tags
-                    if(reactModifier.indexOf('renderTagsCloud') > -1) {
-                        columns[name].renderBlock = true
-                    }
-                }))
-            }
         });
+        proms.push(ResourcesManager.loadClass('ReactMeta').then(c => {
+            const {MetaClient, Renderer} = c;
+            return MetaClient.getInstance().loadConfigs().then(metas => {
+                metas.forEach((v,k)=>{
+                    columns[k] = {
+                        label:      v.label,
+                        inlineHide: !v.visible,
+                        ...Renderer.typeColumnRenderer(v.type),
+                        nsData:     v.data
+                    }
+                })
+            })
+        }))
         return Promise.all(proms).then(()=> {
             return columns || this.getDefaultListColumns();
         })

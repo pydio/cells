@@ -65,10 +65,15 @@ class UnifiedSearchForm extends React.Component {
     }
 
     updateText(value) {
-        const {onRequestOpen, onRequestClose, values, setValues, savedSearches} = this.props;
+        const {onRequestOpen, onRequestClose, values, setValues, savedSearches, nlpMatches} = this.props;
         if(value.indexOf('#saved#') === 0) {
             const savedId = value.replace('#saved#', '')
             const newValues = savedSearches.filter(s => s.searchID === savedId)[0]
+            setValues(newValues);
+            return;
+        } else if (value === '#nlp#') {
+            const metas = nlpMatches.asValues();
+            const newValues = {...values, ...metas}
             setValues(newValues);
             return;
         }
@@ -104,7 +109,8 @@ class UnifiedSearchForm extends React.Component {
 
     render() {
 
-        const {onRequestClose, values, setValues, style, active, formStyles, history = [], savedSearches = [], clearSavedSearch, saveSearch, pydio} = this.props;
+        const {onRequestClose, values, setValues, style, active, getSearchOptions, formStyles,
+            nlpMatches, history = [], savedSearches = [], clearSavedSearch, saveSearch, pydio} = this.props;
         const {basenameOrContent=''} = values;
         const {popoverOpen, anchorElement, searchFocus} = this.state || {}
         const filtersCount = Object.keys(values)
@@ -119,7 +125,41 @@ class UnifiedSearchForm extends React.Component {
         const {filterButton={}, filterButtonActive={}} = formStyles;
         const filterActiveStyles = filtersCount > 0 ? {backgroundColor:filterButton.color, color:'white', fontSize: 13, ...filterButtonActive} : {}
 
+
+        const nlpTags = {
+            container: {
+                display: 'inline-block',
+                backgroundColor: '#eceff1',
+                padding: '0 5px',
+                borderRadius: 5
+            },
+            value: {
+                borderLeft: '1px solid white',
+                fontWeight: 500
+            }
+        }
+
+        const nlpSuggestions = []
+        const filteredMatches = nlpMatches && nlpMatches.getMatches();
+        if(filteredMatches) {
+            const remainingString = nlpMatches.getRemaining()
+            const block = (
+                <span>Do you mean {filteredMatches.map(m => {
+                    return (
+                        <span style={nlpTags.container}>
+                            {m.label}
+                            {m.value && !m.labelOnly && ':'}
+                            {!m.labelOnly && <span style={nlpTags.value}>{m.isDate?m.value.toLocaleDateString():m.value}</span>}
+                        </span>
+                    )
+                })}{remainingString?' containing '+'"'+remainingString+'"':''}?
+                </span>
+            );
+            nlpSuggestions.push({text:'#nlp#', value: <MenuItem primaryText={block}/>})
+        }
+
         const completeDataSource = [
+            ...nlpSuggestions,
             ...savedSearches.map(k=>{
                 return{
                     text:'#saved#' + k.searchID,
@@ -142,11 +182,13 @@ class UnifiedSearchForm extends React.Component {
                     anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
                     targetOrigin={{horizontal: 'right', vertical: 'top'}}
                     onRequestClose={()=>{this.togglePopover()}}
+                    useLayerForClickAway={true}
                     style={{width:420}}
                     zDepth={3}
                 >
                     <AdvancedSearch
                         values={values}
+                        getSearchOptions={getSearchOptions}
                         onChange={(newValues) => setValues({...values, ...newValues})}
                         rootStyle={{paddingBottom: 8, maxHeight: '80vh', overflowY: 'auto'}}
                         showScope={true}
@@ -160,7 +202,7 @@ class UnifiedSearchForm extends React.Component {
                 </div>
                 <AutoComplete
                     dataSource={completeDataSource}
-                    filter={(searchText, key) => (searchText === '' || key.indexOf(searchText) === 0) && searchText !== key }
+                    filter={(searchText, key) => (searchText === '' || key.indexOf(searchText) === 0 || key === '#nlp#') && searchText !== key}
                     open={searchFocus}
                     style={{marginLeft: 5, flex: 1}}
                     inputStyle={formStyles.inputStyle}

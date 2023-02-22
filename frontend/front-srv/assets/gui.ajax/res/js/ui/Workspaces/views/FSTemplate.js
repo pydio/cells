@@ -406,7 +406,7 @@ class FSTemplate extends React.Component {
 
         const {values, setValues, history, facets, activeFacets, toggleFacet,
             humanizeValues, limit, setLimit, searchLoading,
-            savedSearches, saveSearch, clearSavedSearch
+            savedSearches, saveSearch, clearSavedSearch, getSearchOptions, nlpMatches
         } = this.props;
         let searchToolbar;
 
@@ -554,6 +554,8 @@ class FSTemplate extends React.Component {
                                 savedSearches={savedSearches}
                                 clearSavedSearch={clearSavedSearch}
                                 saveSearch={saveSearch}
+                                getSearchOptions={getSearchOptions}
+                                nlpMatches={nlpMatches}
                                 onRequestOpen={()=>this.setSearchView()}
                                 onRequestClose={()=>this.unsetSearchView()}
                             />

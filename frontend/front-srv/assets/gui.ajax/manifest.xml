@@ -42,6 +42,7 @@
                 depends="React,PydioComponents,PydioHOCs,PydioCoreActions"
                 expose="workspaces"
             />
+            <js className="nlp" file="plug/gui.ajax/res/dist/compromise.min.js"/>
             <css file="plug/gui.ajax/res/dist/pydio.material.min.css" autoload="true"/>
         </resources>
     </client_settings>

@@ -1,6 +1,7 @@
 module.exports = function(grunt){
     grunt.registerTask('mainjs', [
         'copy:dndpatch',
+        'concat:compromise',
         // CORE
         'babel:core',
         'env:build',

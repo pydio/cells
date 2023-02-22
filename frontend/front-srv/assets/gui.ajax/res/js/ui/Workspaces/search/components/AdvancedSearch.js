@@ -86,19 +86,11 @@ class AdvancedSearch extends Component {
 
     constructor(props) {
         super(props);
-
-        const {pydio} = props;
-        const registry = pydio.getXmlRegistry();
-        let options = {}
-        try {
-            options = JSON.parse(XMLUtils.XPathGetSingleNodeText(registry, 'client_configs/template_part[@ajxpClass="SearchEngine" and @theme="material"]/@ajxpOptions'));
-        } catch (e){}
-
-
         this.state = {
-            options,
+            searchOptions:{},
             basenameOrContent: props.values['basenameOrContent'] || ''
         };
+        props.getSearchOptions().then(so => this.setState({searchOptions: so}))
     }
 
     textFieldChange(fieldName, value){
@@ -116,11 +108,11 @@ class AdvancedSearch extends Component {
 
         if (typeof val === 'object') {
             const value = this.props.values[fieldname];
-            const {label, renderComponent} = val;
+            const {label, renderer} = val;
 
             // The field might have been assigned a method already
-            if (renderComponent) {
-                return renderComponent({
+            if (renderer) {
+                return renderer({
                     ...this.props,
                     label,
                     value,
@@ -162,7 +154,7 @@ class AdvancedSearch extends Component {
         const {text} = AdvancedSearch.styles;
 
         const {pydio, getMessage, values, rootStyle, showScope, saveSearch, clearSavedSearch} = this.props;
-        const {options, promptSearchLabel, currentSearchLabel} = this.state;
+        const {searchOptions, promptSearchLabel, currentSearchLabel} = this.state;
         const headerStyle = {
             fontSize: 13,
             color: 'rgb(144 165 178)',
@@ -192,8 +184,8 @@ class AdvancedSearch extends Component {
         let showClear = scope !== 'all' || (others && Object.keys(others).length > 0)
         let showSave = scope !== 'all' || basenameOrContent || (others && Object.keys(others).length > 0)
         let showRemove = !!searchID
-        const {indexContent = false} = options;
-        const fNameLabel = getMessage(indexContent?'searchengine.field.basenameOrContent' : 1);
+        const {indexedContent = false, indexedMeta = []} = searchOptions;
+        const fNameLabel = getMessage(indexedContent?'searchengine.field.basenameOrContent' : 1);
 
         return (
             <div className="search-advanced" style={{...rootStyle}}>
@@ -232,16 +224,15 @@ class AdvancedSearch extends Component {
                 </FieldRow>
 
                 <Subheader style={{...headerStyle, marginTop: 0}}>{getMessage(489)}</Subheader>
-                <AdvancedMetaFields {...this.props} options={options}>
-                    {fields =>
-                        <div>
-                            {Object.keys(fields).map((key) =>
-                                <FieldRow {...rowProps} name={key} label={typeof fields[key] === 'object' ?fields[key].label: fields[key]}>{this.renderField(key, fields[key])}</FieldRow>
-                            )}
-                        </div>
+                {indexedMeta.map(m => {
+                    const key = m.namespace
+                    const label = m.label
+                    if(m.renderer) {
+                        return <FieldRow {...rowProps} name={key} label={label}>{this.renderField(key,m)}</FieldRow>
+                    } else {
+                        return <FieldRow {...rowProps} name={key} label={label}>{this.renderField(key,label)}</FieldRow>
                     }
-                </AdvancedMetaFields>
-
+                })}
                 <Subheader style={{...headerStyle}}>{getMessage(498)}</Subheader>
                 <FieldRow {...rowProps} name={"ajxp_modiftime"} label={getMessage(4)}>
                     <DatePanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
@@ -255,79 +246,5 @@ class AdvancedSearch extends Component {
 }
 
 AdvancedSearch = PydioContextConsumer(AdvancedSearch);
-
-class AdvancedMetaFields extends Component {
-
-    constructor(props) {
-        super(props);
-        this.dbuild = debounce(this.build, 500);
-        this.state = {
-            fields: {}
-        }
-    }
-
-    componentWillMount() {
-        this.build()
-    }
-
-    build() {
-
-        const {options} = this.props;
-        let {metaColumns, reactColumnsRenderers} = {...options};
-        if(!metaColumns){
-            metaColumns = {};
-        }
-        if(!reactColumnsRenderers){
-            reactColumnsRenderers = {};
-        }
-
-        const generic = {};
-
-        // Looping through the options to check if we have a special renderer for any
-        const specialRendererKeys = Object.keys({...reactColumnsRenderers});
-        const standardRendererKeys = Object.keys({...metaColumns}).filter((key) => specialRendererKeys.indexOf(key) === -1);
-
-        const textFields = {};
-        standardRendererKeys.forEach(k => {
-            textFields[k] = metaColumns[k];
-        });
-
-        const renderers = Object.keys({...reactColumnsRenderers}).map((key) => {
-            const renderer = reactColumnsRenderers[key];
-            const namespace = renderer.split('.',1).shift();
-
-            // If the renderer is not loaded in memory, we trigger the load and send to rebuild
-            if (!window[namespace]) {
-                ResourcesManager.detectModuleToLoadAndApply(renderer, () => this.dbuild(), true);
-                return
-            }
-
-            return {
-                [key]: {
-                    label: metaColumns[key],
-                    renderComponent: FuncUtils.getFunctionByName(renderer, global)
-                }
-            }
-        }).reduce((obj, current) => obj = {...obj, ...current}, []);
-
-        const fields = {
-            ...generic,
-            ...textFields,
-            ...renderers
-        };
-
-        this.setState({
-            fields
-        })
-    }
-
-    render() {
-        return this.props.children(this.state.fields)
-    }
-}
-
-AdvancedMetaFields.propTypes = {
-    children: PropTypes.func.isRequired,
-};
 
 export default AdvancedSearch

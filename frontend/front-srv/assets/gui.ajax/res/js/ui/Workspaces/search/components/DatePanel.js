@@ -116,12 +116,11 @@ class SearchDatePanel extends React.Component {
                 const s = new Date();
                 s.setMonth(s.getMonth() - 1);
                 const e = new Date();
+                console.log(s, e)
                 this.props.onChange({ajxp_modiftime: {
                     from: s,
                     to: e
                 }});
-
-                this.props.onChange({ajxp_modiftime: {from: startDate, to: endDate}})
             } else if(value === 'PYDIO_SEARCH_RANGE_LAST_YEAR') {
                 const s = new Date();
                 s.setFullYear(s.getFullYear() - 1);
@@ -138,8 +137,14 @@ class SearchDatePanel extends React.Component {
         const today = new Date();
 
         const {datePickerGroup, datePicker, dateClose} = SearchDatePanel.styles;
-        const {inputStyle, getMessage} = this.props;
-        const {value, startDate, endDate} = this.state;
+        const {inputStyle, getMessage, values} = this.props;
+        let {value, startDate, endDate} = this.state;
+
+        if(!value && values['ajxp_modiftime']) {
+            value = 'custom'
+            startDate = values['ajxp_modiftime'].from
+            endDate = values['ajxp_modiftime'].to
+        }
 
         return (
             <div>

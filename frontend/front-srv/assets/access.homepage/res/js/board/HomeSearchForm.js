@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2023 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -44,7 +44,8 @@ class HomeSearchForm extends Component{
     render(){
 
         // From HOC
-        const {values, setValues, facets, activeFacets, toggleFacet, loading, dataModel, empty, history, savedSearches, saveSearch, clearSavedSearch} = this.props;
+        const {values, setValues, facets, activeFacets, toggleFacet, loading, nlpMatches,
+            dataModel, empty, history, savedSearches, saveSearch, clearSavedSearch, getSearchOptions} = this.props;
         const {style, zDepth, pydio, fullScreen, onFocusChange} = this.props;
 
         const hintText = pydio.MessageHash[607];
@@ -133,6 +134,8 @@ class HomeSearchForm extends Component{
                         savedSearches={savedSearches}
                         clearSavedSearch={clearSavedSearch}
                         saveSearch={saveSearch}
+                        nlpMatches={nlpMatches}
+                        getSearchOptions={getSearchOptions}
                         onRequestOpen={()=>onFocusChange(true)}
                         onRequestClose={()=>onFocusChange(false)}
                     />
