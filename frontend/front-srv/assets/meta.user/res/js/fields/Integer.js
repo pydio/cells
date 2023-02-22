@@ -59,7 +59,6 @@ class IntegerForm extends React.Component{
 
     componentDidMount() {
         const {fieldname, configs} = this.props;
-        console.log(configs, fieldname);
         if(configs){
             this.configAsState(configs, fieldname)
         }else{

@@ -158,9 +158,6 @@ const match = (text, getSearchOptions) => {
         removes.forEach(m => m.remove())
         doc.match('(#Verb|#Preposition|#Adverb)').remove()
         const remaining = doc.text('trim')
-        if(remaining) {
-            matches.push({key:'#remaining#', value: doc.text()})
-        }
         return new nlpMatches(matches, remaining);
 
     }).catch(e => {

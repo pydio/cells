@@ -141,7 +141,7 @@ class UnifiedSearchForm extends React.Component {
 
         const nlpSuggestions = []
         const filteredMatches = nlpMatches && nlpMatches.getMatches();
-        if(filteredMatches) {
+        if(filteredMatches && filteredMatches.length) {
             const remainingString = nlpMatches.getRemaining()
             const block = (
                 <span>Do you mean {filteredMatches.map(m => {
