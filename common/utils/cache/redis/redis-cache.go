@@ -100,7 +100,10 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error
 		}
 	}
 
-	cli := NewClient(u, tc)
+	cli, err := NewClient(ctx, u, tc)
+	if err != nil {
+		return nil, err
+	}
 
 	mycache := redisc.New(&redisc.Options{
 		Redis:      cli,
