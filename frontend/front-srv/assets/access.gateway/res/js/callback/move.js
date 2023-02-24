@@ -47,6 +47,12 @@ export default function (pydio) {
 
     return function(controller, dndActionParameter = null){
 
+        if(dndActionParameter && dndActionParameter instanceof Array && dndActionParameter.length
+            && dndActionParameter[0] instanceof DNDActionParameter){
+            dndActionParameter = dndActionParameter[0]
+
+        }
+
         if(dndActionParameter && dndActionParameter instanceof DNDActionParameter){
 
             if(dndActionParameter.getStep() === DNDActionParameter.STEP_CAN_DROP){

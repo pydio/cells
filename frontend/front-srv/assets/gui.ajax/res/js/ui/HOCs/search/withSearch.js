@@ -19,6 +19,7 @@
  */
 import React from 'react'
 import Pydio from 'pydio'
+import Node from 'pydio/model/node'
 import ResourcesManager from 'pydio/http/resources-manager'
 import emptyDataModel from "./emptyDataModel";
 import {debounce} from 'lodash';
@@ -90,6 +91,15 @@ export default function withSearch(Component, historyIdentifier, scope){
                         if(v.indexable) {
                             v.namespace = k
                             v.renderer = Renderer.typeFormRenderer(v.type)
+                            const o = Renderer.typeColumnRenderer(v.type)
+                            if(o && o.renderComponent) {
+                                // create simpler signature
+                                v.blockRenderer = (value) => {
+                                    const n = new Node()
+                                    n.getMetadata().set(v.namespace, value)
+                                    return o.renderComponent(n, {name:v.namespace})
+                                }
+                            }
                             options.indexedMeta.push(v)
                         }
                     })

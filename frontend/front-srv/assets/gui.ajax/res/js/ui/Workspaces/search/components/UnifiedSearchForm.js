@@ -22,6 +22,7 @@ import Pydio from 'pydio'
 import DOMUtils from 'pydio/util/dom'
 import {AutoComplete, MenuItem, Popover} from 'material-ui'
 import AdvancedSearch from "./AdvancedSearch";
+const {moment} = Pydio.requireLib('boot')
 
 const styles = {
     container:{
@@ -131,10 +132,10 @@ class UnifiedSearchForm extends React.Component {
                 display: 'inline-block',
                 backgroundColor: '#eceff1',
                 padding: '0 5px',
-                borderRadius: 5
+                borderRadius: 2,
+                marginRight: 5
             },
             value: {
-                borderLeft: '1px solid white',
                 fontWeight: 500
             }
         }
@@ -145,13 +146,16 @@ class UnifiedSearchForm extends React.Component {
             const remainingString = nlpMatches.getRemaining()
             const block = (
                 <span>Do you mean {filteredMatches.map(m => {
-                    return (
-                        <span style={nlpTags.container}>
-                            {m.label}
-                            {m.value && !m.labelOnly && ':'}
-                            {!m.labelOnly && <span style={nlpTags.value}>{m.isDate?m.value.toLocaleDateString():m.value}</span>}
-                        </span>
-                    )
+                    if(m.meta && m.meta.blockRenderer) {
+                        return <span style={nlpTags.container}>{m.label}: <span style={nlpTags.value}>{m.meta.blockRenderer(m.value)}</span></span>
+                    } else if(m.labelOnly) {
+                        return <span style={nlpTags.container}>{m.label}</span>
+                    } else if(m.isDate) {
+                        const mom = moment(m.value)
+                        return <span style={nlpTags.container}>{m.label} <span style={nlpTags.value}>{mom.fromNow()}</span></span>
+                    } else {
+                        return <span style={nlpTags.container}>{m.label}: <span style={nlpTags.value}>{m.value}</span></span>
+                    }
                 })}{remainingString?' containing '+'"'+remainingString+'"':''}?
                 </span>
             );
