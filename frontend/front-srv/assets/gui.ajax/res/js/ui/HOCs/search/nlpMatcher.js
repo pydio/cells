@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import nlpLoader from './nlpLoader'
+import {SearchConstants} from "./withSearch";
 
 class nlpMatches {
     constructor(matches, remaining) {
@@ -35,18 +36,16 @@ class nlpMatches {
 
     asValues() {
         return this.__matches.reduce((object, value) => {
-            if(value.key === '#remaining#') {
-                object['basenameOrContent'] = value.value;
-            } else if(value.key === 'after' || value.key === 'before') {
-                if(!object['ajxp_modiftime']) {
-                    object['ajxp_modiftime'] = {}
+            if(value.key === 'after' || value.key === 'before') {
+                if(!object[SearchConstants.KeyModifDate]) {
+                    object[SearchConstants.KeyModifDate] = {}
                 }
-                object['ajxp_modiftime'][value.key === 'after'?'from':'to'] = value.value
+                object[SearchConstants.KeyModifDate][value.key === 'after'?'from':'to'] = value.value
             } else {
                 object[value.key] = value.value;
             }
             return object;
-        } , {basenameOrContent: ''}) // Clear by default
+        } , {[SearchConstants.KeyBasenameOrContent]: this.__remaining || ''}) // Clear by default
     }
 }
 
@@ -63,10 +62,10 @@ const match = (text, getSearchOptions) => {
         const dd = dates.get(0)
         if(dd && (dd.start || dd.end)) {
             if(dd.start){
-                entities['after'] = {label:'After', value: new Date(dd.start), isDate:true}
+                entities['after'] = {label:'After', value: new Date(dd.start), type:'modiftime', isDate:true}
             }
             if(dd.end){
-                entities['before'] = {label: 'Before', value: new Date(dd.end), isDate:true}
+                entities['before'] = {label: 'Before', value: new Date(dd.end), type:'modiftime', isDate:true}
             }
             removes.push(dates)
         }
@@ -88,14 +87,14 @@ const match = (text, getSearchOptions) => {
         const files = doc.match(extensions+'? {'+Terms.file+'}?')
         const folders = doc.match('{'+Terms.folder+'}')
         if(files && files.text()) {
-            entities['ajxp_mime'] = {value:'ajxp_file', label:'Files Only', labelOnly: true}
+            entities[SearchConstants.KeyMime] = {value:SearchConstants.ValueMimeFiles, label:'Files Only', type:'mime', labelOnly: true}
             const exts = files.match( '[<ext>' + extensions+'?] {file}?', 'ext')
             if (exts.text()){
-                entities['ajxp_mime'] = {value:exts.text('root'), label:'Extension'}
+                entities[SearchConstants.KeyMime] = {value:exts.text('root'), label:'Extension', type:'mime'}
             }
             removes.push(files)
         } else if(folders && folders.text()) {
-            entities['ajxp_mime'] = {value:'ajxp_folder', label:'Folders Only', labelOnly: true};
+            entities[SearchConstants.KeyMime] = {value:SearchConstants.ValueMimeFolders, label:'Folders Only', type:'mime', labelOnly: true};
             removes.push(folders)
         }
 
@@ -129,7 +128,7 @@ const match = (text, getSearchOptions) => {
                     const searchMatch = doc.match('('+presetValues.map(i => '~'+i.value+'~').join('|')+')')
                     const search = searchMatch.text()
                     if(search && !knownValues[search]) {
-                        entities['ajxp_meta_' + ns] = {value:search, label, meta}
+                        entities[SearchConstants.KeyMetaPrefix + ns] = {value:search, label, meta}
                         knownValues[search] = search
                         removes.push(searchMatch)
                     }
@@ -143,7 +142,7 @@ const match = (text, getSearchOptions) => {
                             tags = searchT.numbers().toCardinal().toNumber().text()
                         }
                         if(tags && !knownValues[tags]) {
-                            entities['ajxp_meta_' + ns] = {value:tags,label, meta}
+                            entities[SearchConstants.KeyMetaPrefix + ns] = {value:tags,label, meta}
                             knownValues[tags] = tags
                             removes.push(searchAll)
                         }

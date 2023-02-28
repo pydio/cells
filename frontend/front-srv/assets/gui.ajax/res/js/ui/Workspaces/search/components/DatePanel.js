@@ -62,10 +62,12 @@ class SearchDatePanel extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
+        const {name, onChange} = this.props;
+
         if (prevState !== this.state) {
             let {value, startDate, endDate} = this.state;
             if (!value) {
-                this.props.onChange({ajxp_modiftime: null})
+                onChange({[name]: null})
             }
             const startDay = (date) => {
                 date.setHours(0);
@@ -89,9 +91,9 @@ class SearchDatePanel extends React.Component {
                     endDate = new Date();
                     endDate.setFullYear(endDate.getFullYear()+1);
                 }
-                this.props.onChange({ajxp_modiftime: {from: startDate, to: endDate}});
+                onChange({[name]: {from: startDate, to: endDate}});
             } else if(value === 'PYDIO_SEARCH_RANGE_TODAY') {
-                this.props.onChange({ajxp_modiftime: {
+                onChange({[name]: {
                     from: startDay(new Date()),
                     to: endDay(new Date())
                 }})
@@ -100,7 +102,7 @@ class SearchDatePanel extends React.Component {
                 y.setDate(y.getDate() - 1);
                 const e = new Date();
                 e.setDate(e.getDate() - 1);
-                this.props.onChange({ajxp_modiftime: {
+                onChange({[name]: {
                     from: startDay(y),
                     to: endDay(e)
                 }})
@@ -108,7 +110,7 @@ class SearchDatePanel extends React.Component {
                 const s = new Date();
                 s.setDate(s.getDate() - 7);
                 const e = new Date();
-                this.props.onChange({ajxp_modiftime: {
+                onChange({[name]: {
                     from: s,
                     to: e
                 }})
@@ -116,8 +118,7 @@ class SearchDatePanel extends React.Component {
                 const s = new Date();
                 s.setMonth(s.getMonth() - 1);
                 const e = new Date();
-                console.log(s, e)
-                this.props.onChange({ajxp_modiftime: {
+                onChange({[name]: {
                     from: s,
                     to: e
                 }});
@@ -125,7 +126,7 @@ class SearchDatePanel extends React.Component {
                 const s = new Date();
                 s.setFullYear(s.getFullYear() - 1);
                 const e = new Date();
-                this.props.onChange({ajxp_modiftime: {
+                onChange({[name]: {
                     from: s,
                     to: e
                 }});
@@ -137,13 +138,13 @@ class SearchDatePanel extends React.Component {
         const today = new Date();
 
         const {datePickerGroup, datePicker, dateClose} = SearchDatePanel.styles;
-        const {inputStyle, getMessage, values} = this.props;
+        const {inputStyle, getMessage, values, name} = this.props;
         let {value, startDate, endDate} = this.state;
 
-        if(!value && values['ajxp_modiftime']) {
+        if(!value && values[name]) {
             value = 'custom'
-            startDate = values['ajxp_modiftime'].from
-            endDate = values['ajxp_modiftime'].to
+            startDate = values[name].from
+            endDate = values[name].to
         }
 
         return (

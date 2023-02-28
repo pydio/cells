@@ -28,6 +28,21 @@ import uuid from 'uuid4'
 import deepEqual from 'deep-equal'
 import nlpMatcher from './nlpMatcher'
 
+const SearchConstants = {
+    KeyBasename         : 'basename',
+    KeyBasenameOrContent: 'basenameOrContent',
+    KeyContent          : 'Content',
+    KeyScope            : 'scope',
+    KeyMime             : 'ajxp_mime',
+    ValueMimeFiles      : 'ajxp_file',
+    ValueMimeFolders    : 'ajxp_folder',
+    KeyModifDate        : 'ajxp_modiftime',
+    KeyBytesize         : 'ajxp_bytesize',
+    KeyMetaPrefix       : 'ajxp_meta_'
+}
+
+export {SearchConstants};
+
 
 export default function withSearch(Component, historyIdentifier, scope){
 
@@ -111,15 +126,19 @@ export default function withSearch(Component, historyIdentifier, scope){
         humanize(values) {
             let s;
             let typeScope;
-            const {basenameOrContent, scope, ajxp_mime, searchLABEL, ...others} = values
+            const {
+                [SearchConstants.KeyBasenameOrContent]:basenameOrContent,
+                [SearchConstants.KeyScope]:scope,
+                [SearchConstants.KeyMime]:mime,
+                searchLABEL, ...others} = values
             if(searchLABEL) {
                 return searchLABEL;
             }
             typeScope = '';
-            if(ajxp_mime === 'ajxp_folder'){
+            if(mime === SearchConstants.ValueMimeFolders){
                 typeScope = 'folders'
-            } else if (ajxp_mime) {
-                typeScope = '%s files'.replace('%s', ajxp_mime)
+            } else if (mime) {
+                typeScope = '%s files'.replace('%s', mime)
             }
             if(basenameOrContent === '*'){
                 s = 'all %1'.replace('%1', typeScope || 'files and folders')
@@ -226,6 +245,27 @@ export default function withSearch(Component, historyIdentifier, scope){
             }
         }
 
+        advancedValues() {
+            const {values} = this.state;
+            const types = {
+                [SearchConstants.KeyScope]: 'scope',
+                [SearchConstants.KeyModifDate]: 'modiftime',
+                [SearchConstants.KeyBytesize]: 'bytesize',
+                [SearchConstants.KeyMime]: 'mime',
+            }
+            return Object.keys(values)
+                .filter(key => key !== 'basenameOrContent' && key !== 'searchLABEL' && key !== 'searchID')
+                .filter(key => values[key])
+                .filter(key => !(key === 'scope' && values[key] === 'all'))
+                .map(key => {
+                    const data= {key, value: values[key]};
+                    if(types[key]) {
+                        data.type = types[key]
+                    }
+                    return data;
+                })
+        }
+
         setLimit(limit){
             this.setState({limit}, this.performSearch.bind(this));
         }
@@ -247,28 +287,28 @@ export default function withSearch(Component, historyIdentifier, scope){
             facets.forEach(facet => {
                 switch (facet.FieldName){
                     case "Size":
-                        data['ajxp_bytesize'] = {from:facet.Min, to:facet.Max}
+                        data[SearchConstants.KeyBytesize] = {from:facet.Min, to:facet.Max}
                         break;
                     case "ModifTime":
-                        data['ajxp_modiftime'] = {from:facet.Start*1000, to:facet.End*1000}
+                        data[SearchConstants.KeyModifDate] = {from:facet.Start*1000, to:facet.End*1000}
                         break;
                     case "Extension":
-                        data['ajxp_mime'] = facet.Label
+                        data[SearchConstants.KeyMime] = facet.Label
                         break;
                     case "NodeType":
-                        data['ajxp_mime'] = 'ajxp_' + facet.Label
+                        data[SearchConstants.KeyMime] = 'ajxp_' + facet.Label
                         break;
                     case "TextContent":
-                        data['basenameOrContent'] = ''
-                        data['Content'] = basenameOrContent
+                        data[SearchConstants.KeyBasenameOrContent] = ''
+                        data[SearchConstants.KeyContent] = basenameOrContent
                         break;
                     case "Basename":
-                        data['basenameOrContent'] = ''
-                        data['basename'] = basenameOrContent.replace('*', '') + '*' // wildchar basename
+                        data[SearchConstants.KeyBasenameOrContent] = ''
+                        data[SearchConstants.KeyBasename] = basenameOrContent.replace('*', '') + '*' // wildchar basename
                         break;
                     default:
                         if(facet.FieldName.indexOf('Meta.') === 0) {
-                            data['ajxp_meta_' + facet.FieldName.replace('Meta.', '')] = facet.Label;
+                            data[SearchConstants.KeyMetaPrefix + facet.FieldName.replace('Meta.', '')] = facet.Label;
                         }
                         break;
                 }
@@ -332,12 +372,12 @@ export default function withSearch(Component, historyIdentifier, scope){
                     if(data.map){
                         data.forEach(s => {
                             // Unserialize dates to objects
-                            if(s.ajxp_modiftime) {
-                                if(s.ajxp_modiftime.from) {
-                                    s.ajxp_modiftime.from = new Date(s.ajxp_modiftime.from)
+                            if(s[SearchConstants.KeyModifDate]) {
+                                if(s[SearchConstants.KeyModifDate].from) {
+                                    s[SearchConstants.KeyModifDate].from = new Date(s[SearchConstants.KeyModifDate].from)
                                 }
-                                if(s.ajxp_modiftime.to) {
-                                    s.ajxp_modiftime.to = new Date(s.ajxp_modiftime.to)
+                                if(s[SearchConstants.KeyModifDate].to) {
+                                    s[SearchConstants.KeyModifDate].to = new Date(s[SearchConstants.KeyModifDate].to)
                                 }
                             }
                         })
@@ -376,19 +416,26 @@ export default function withSearch(Component, historyIdentifier, scope){
             })
         }
 
+
         render() {
+            const searchTools = {
+                ...this.state,
+                submitSearch:this.performSearch.bind(this),
+                setValues:this.setValues.bind(this),
+                setLimit:this.setLimit.bind(this),
+                toggleFacet:this.toggleFacet.bind(this),
+                humanizeValues:this.humanize.bind(this),
+                saveSearch:this.pushSavedSearches.bind(this),
+                clearSavedSearch:this.removeSavedSearch.bind(this),
+                getSearchOptions:this.getSearchOptions.bind(this),
+                advancedValues:this.advancedValues.bind(this),
+                SearchConstants
+            }
+
             return (
                 <Component 
-                    {...this.props} 
-                    {...this.state}
-                    submitSearch={this.performSearch.bind(this)}
-                    setValues={this.setValues.bind(this)}
-                    setLimit={this.setLimit.bind(this)}
-                    toggleFacet={this.toggleFacet.bind(this)}
-                    humanizeValues={this.humanize.bind(this)}
-                    saveSearch={this.pushSavedSearches.bind(this)}
-                    clearSavedSearch={this.removeSavedSearch.bind(this)}
-                    getSearchOptions={this.getSearchOptions.bind(this)}
+                    {...this.props}
+                    searchTools={searchTools}
                 />
             );
         }

@@ -396,7 +396,7 @@ class FSTemplate extends React.Component {
                 inputStyle:{color: appBarTextColor.toString()},
                 hintStyle:{color: appBarTextColor.fade(0.5).toString()},
                 magnifierStyle:{color: appBarTextColor.fade(0.1).toString()},
-                filterButton:{color:appBarTextColor.toString()}
+                filterButton:{color:appBarTextColor.toString(), marginRight: 12, height: 24, width: 24}
             };
             newButtonProps.buttonLabelStyle.color = muiTheme.palette.accent1Color;
             newButtonProps.buttonBackgroundColor = 'rgba(0,0,0,0.05)';
@@ -404,10 +404,8 @@ class FSTemplate extends React.Component {
 
         }
 
-        const {values, setValues, history, facets, activeFacets, toggleFacet,
-            humanizeValues, limit, setLimit, searchLoading,
-            savedSearches, saveSearch, clearSavedSearch, getSearchOptions, nlpMatches
-        } = this.props;
+        const {searchTools, searchTools:{values, setValues, facets, activeFacets, toggleFacet,
+            humanizeValues, limit, setLimit, searchLoading}} = this.props;
         let searchToolbar;
 
         if(searchView) {
@@ -547,15 +545,7 @@ class FSTemplate extends React.Component {
                                 active={searchView}
                                 pydio={pydio}
                                 formStyles={styles.searchForm}
-                                values={values}
-                                setValues={setValues}
-                                humanizeValues={humanizeValues}
-                                history={history}
-                                savedSearches={savedSearches}
-                                clearSavedSearch={clearSavedSearch}
-                                saveSearch={saveSearch}
-                                getSearchOptions={getSearchOptions}
-                                nlpMatches={nlpMatches}
+                                searchTools={searchTools}
                                 onRequestOpen={()=>this.setSearchView()}
                                 onRequestClose={()=>this.unsetSearchView()}
                             />

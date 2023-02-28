@@ -105,15 +105,6 @@ class AltDashboard extends React.Component {
             }}/>;
         }
 
-        // Not used - to be used for toggling left menu
-        const drawerIcon = (
-            <span className="drawer-button" style={{position:'absolute', top: 0, left: 0}}>
-                <IconButton
-                    iconStyle={{color: null}}
-                    iconClassName="mdi mdi-menu"
-                    onClick={this.openDrawer.bind(this)}/>
-            </span>
-        );
         const headerHeight = 72;
         const leftPanelProps = {
             style: {backgroundColor: 'transparent'},
@@ -156,7 +147,12 @@ class AltDashboard extends React.Component {
                 }}
             >
                 <Paper zDepth={0} style={{...styles.appBarStyle}} rounded={false}>
-                    {drawerIcon}
+                    <span className="drawer-button" style={{position:'absolute', top: 0, left: 0, zIndex: 2}}>
+                        <IconButton
+                            iconStyle={{color: null}}
+                            iconClassName="mdi mdi-menu"
+                            onClick={this.openDrawer.bind(this)}/>
+                    </span>
                     <div style={{width: 250}}>
                         <ConfigLogo
                             className="home-top-logo"

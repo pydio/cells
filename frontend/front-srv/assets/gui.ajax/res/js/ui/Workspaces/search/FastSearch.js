@@ -31,6 +31,7 @@ import Paper from '@mui/material/Paper';
 import InputAdornment from "@mui/material/InputAdornment";
 import { debounce } from '@mui/material/utils';
 const {DNDActionParameter} = Pydio.requireLib('components');
+const {SearchConstants} = Pydio.requireLib('hoc');
 import reactStringReplace from 'react-string-replace';
 
 const keys = {
@@ -155,7 +156,11 @@ export default function FastSearch() {
                     basename = request.input
                 }
                 setLoading(true)
-                api.search({ajxp_mime:'ajxp_folder', basename:basename?'*'+basename.toLowerCase()+'*' : '*'}, scope||'all', 30, true).then(response => {
+                const searchReq = {
+                    [SearchConstants.KeyMime]:SearchConstants.ValueMimeFolders,
+                    basename:basename?'*'+basename.toLowerCase()+'*' : '*'
+                }
+                api.search(searchReq, scope||'all', 30, true).then(response => {
                     const res = response.Results || []
                     const crtOptions=[], otherOptions = [];
                     const crtRepo = Pydio.getInstance().user.activeRepository
@@ -262,7 +267,7 @@ export default function FastSearch() {
                 {header}
                 <Autocomplete
                     id="quick-search"
-                    sx={{ width: '100%' }}
+                    fullWidth={true}
                     getOptionLabel={(option) => {
                         if (typeof option === 'string') {
                             return option

@@ -33,9 +33,6 @@
   /*************************/
   /*    OSS CREDITS        */
   /*************************/
-  /************************/
-  /* SCHEDULER            */
-  /************************/
   /********************/
   /* OVERRIDE STYLES  */
   /********************/
@@ -828,128 +825,6 @@
 }
 .react-mui-context .pydio-oss-credits a {
   color: #009688;
-}
-.react-mui-context .scheduler-list .mui-toolbar-group.mui-left {
-  width: 88% !important;
-}
-.react-mui-context .scheduler-list .mui-toolbar-group.mui-left .cell-label {
-  width: 15%;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_task {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
-  padding-top: 6px;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_task:hover {
-  background: white !important;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_task .cell {
-  color: rgba(0, 0, 0, 0.63);
-  font-size: 12px;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_task .cell.cell-label {
-  color: rgba(0, 0, 0, 0.83);
-  font-size: 14px;
-  width: 15%;
-  font-weight: 500;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_task .material-list-actions .material-list-action-inline {
-  color: rgba(0, 0, 0, 0.63);
-  margin: 3px 6px;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task {
-  color: rgba(0, 0, 0, 0.93);
-  background-color: #fbfbfb;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task:before,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task:before {
-  display: inline-block;
-  padding: 12px 0 0 30px;
-  content: '=>';
-  font-size: 16px;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task:hover,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task:hover {
-  background-color: #fbfbfb !important;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task .cell.cell-label,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task .cell.cell-label {
-  color: darkgreen;
-  width: 15%;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task .cell.cell-schedule,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task .cell.cell-schedule {
-  width: 60%;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task .cell.cell-action_name,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task .cell.cell-action_name,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task .cell.cell-repository_id,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task .cell.cell-repository_id,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task .cell.cell-user_id,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task .cell.cell-user_id,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task .cell.cell-NEXT_EXECUTION,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task .cell.cell-NEXT_EXECUTION,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task .cell.cell-LAST_EXECUTION,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task .cell.cell-LAST_EXECUTION,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task .cell.cell-STATUS,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task .cell.cell-STATUS {
-  display: none;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task .material-list-actions,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task .material-list-actions {
-  padding-right: 20px;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task .material-list-actions .material-list-action-inline.mdi-pencil,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task .material-list-actions .material-list-action-inline.mdi-pencil,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task .material-list-actions .material-list-action-inline.icon-play,
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task .material-list-actions .material-list-action-inline.icon-play {
-  display: none;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_running_task .material-list-actions .material-list-action-inline.icon-trash {
-  display: none;
-}
-.react-mui-context .scheduler-list .ajxp_mime_scheduler_error_task .cell.cell-label {
-  color: darkred;
-}
-.react-mui-context#react_scheduler_editor h2 {
-  font-size: 14px;
-  font-weight: 500;
-  color: #009688;
-  margin-bottom: 0;
-}
-.react-mui-context#react_scheduler_editor .mui-tab-template {
-  background-color: white !important;
-}
-.react-mui-context#react_scheduler_editor .mui-tab-template .pydio-form-panel > .pydio-form-group {
-  margin: 0 24px;
-}
-.react-mui-context#react_scheduler_editor .form-legend {
-  font-size: 13px;
-  font-style: italic;
-  margin-bottom: 20px;
-}
-.react-mui-context#react_scheduler_editor .replicable-field {
-  margin-top: 20px;
-  margin-right: 5px;
-}
-.react-mui-context#react_scheduler_editor .replicable-field .title {
-  font-size: 12px;
-  font-weight: 500;
-}
-.react-mui-context#react_scheduler_editor .replicable-field .replicable-group {
-  border-left: 0px solid #e0e0e0 !important;
-  padding-left: 0 !important;
-}
-.react-mui-context#react_scheduler_editor .replicable-field .replicable-group .pydio-form-group {
-  margin: 0 !important;
-}
-.react-mui-context#react_scheduler_editor .replicable-field .replicable-group .pydio-form-group .mui-paper-container {
-  overflow-y: visible !important;
-}
-.react-mui-context#react_scheduler_editor .replicable-field .replicable-group .replicable-action-bar {
-  width: 367px;
-  margin-left: -20px;
 }
 .react-mui-context .paper-editor {
   transition: all 500ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;

@@ -26,6 +26,9 @@ import FSTemplate from './views/FSTemplate'
 import EditionPanel from './views/EditionPanel'
 import SearchForm from './search/components/SearchForm'
 import UnifiedSearchForm from "./search/components/UnifiedSearchForm";
+import Renderer from "./search/components/Renderer";
+import AdvancedChips from "./search/components/AdvancedChips"
+import Facets from './search/components/Facets'
 
 import WorkspacesList from './wslist/WorkspacesList'
 import WorkspacesListMaterial from './wslist/WorkspacesListMaterial'
@@ -51,6 +54,7 @@ const classes = {
     Breadcrumb,
     SearchForm,
     UnifiedSearchForm,
+    AdvancedChips,
     FilePreview,
     FSTemplate,
     WorkspacesList,
@@ -60,6 +64,8 @@ const classes = {
     UserWidget,
     TourGuide,
     MasterLayout,
+    MetaRenderer:Renderer,
+    Facets,
 
     InfoPanel,
     InfoPanelCard,

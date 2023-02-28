@@ -28,16 +28,48 @@ class SearchFileSizePanel extends React.Component {
 
     constructor(props) {
         super(props);
-
         this.state = {
-            from:false,
+            from:null,
             to: null,
             fromUnit: 'k',
-            toUnit: 'k'
+            toUnit: 'k',
+            ...this.propsToState(this.props)
         }
     }
 
+    propsToState(pp) {
+        const {values, name} = pp;
+        const s = {}
+        if(values[name] && values[name].from) {
+            const {size, unit} = this.roundFileSize(values[name].from)
+            s.fromInt = parseInt(values[name].from)
+            s.from = size;
+            s.fromUnit = unit
+        }
+        if(values[name] && values[name].to) {
+            const {size, unit} = this.roundFileSize(values[name].to)
+            s.toInt = parseInt(values[name].to)
+            s.to = size;
+            s.toUnit = unit;
+        }
+        return s
+    }
+
+    update(data) {
+        const {onChange, name} = this.props;
+        const newState = {...this.propsToState(this.props), ...data}
+        onChange({
+            [name]: {
+                from: Math.round(this.multiple(newState.from, newState.fromUnit)),
+                to: Math.round(this.multiple(newState.to, newState.toUnit))
+            }
+        })
+    }
+
     multiple(v, u){
+        if(!v) {
+            return 0
+        }
         switch(u){
             case "k":
                 return v * 1024;
@@ -52,24 +84,22 @@ class SearchFileSizePanel extends React.Component {
         }
     }
 
-    componentWillUpdate(nextProps, nextState) {
-        if (nextState === this.state) {
-            return;
-        }
-
-        const {from, to, fromUnit, toUnit} = nextState;
-
-        this.props.onChange({
-            ajxp_bytesize: (from || to) ? {
-                from:this.multiple(from, fromUnit),
-                to: this.multiple(to, toUnit)
-            } : null
-        })
+    roundFileSize(filesize){
+        let size = filesize;
+        let unit = ''
+        if (filesize >= 1024 * 1024 * 1024 * 1024) {size=Math.round(filesize / (1024 * 1024 * 1024 * 1024) * 100) / 100; unit='T';}
+        else if (filesize >= 1073741824) {size=Math.round(filesize / 1073741824 * 100) / 100; unit='G';}
+        else if (filesize >= 1048576) {size = Math.round(filesize / 1048576 * 100) / 100; unit='M'}
+        else if (filesize >= 1024) {size = Math.round(filesize / 1024 * 100) / 100; unit='k'}
+        return {size, unit};
     }
 
     render() {
         const sizeUnit = Pydio.getMessages()['byte_unit_symbol'] || 'B';
         const {getMessage} = this.props;
+        let {from, to, fromUnit, toUnit, fromInt, toInt} = this.propsToState(this.props)
+
+
         const blockStyle={display:'flex'};
         return (
             <Fragment>
@@ -79,15 +109,24 @@ class SearchFileSizePanel extends React.Component {
                             type={"number"}
                             hintText={getMessage(613)}
                             fullWidth={true}
+                            value={from || ''}
                             onChange={(e,v) => {
-                                this.setState({from:v || 0})
+                                if(v && toInt && Math.round(this.multiple(v, fromUnit)) > toInt) {
+                                    v = to
+                                }
+                                this.update({from:v || 0})
                             }}
                         />
                     </div>
                     <div style={{marginLeft: 4, flex: 1}}>
                         <ModernSelectField
-                            value={this.state.fromUnit}
-                            onChange={(e,i,v) => {this.setState({fromUnit: v})}}
+                            value={fromUnit}
+                            onChange={(e,i,v) => {
+                                if(from && toInt && Math.round(this.multiple(to, v)) > toInt) {
+                                    v = toUnit
+                                }
+                                this.update({fromUnit: v})
+                            }}
                             fullWidth={true}
                         >
                             <MenuItem value={''} primaryText={sizeUnit}/>
@@ -104,16 +143,25 @@ class SearchFileSizePanel extends React.Component {
                             fullWidth={true}
                             type={"number"}
                             hintText={getMessage(614)}
+                            value={to || ''}
                             onChange={(e,v) => {
-                                this.setState({to:v || 109951162})
+                                if(v && fromInt && Math.round(this.multiple(v, toUnit)) < fromInt) {
+                                    v = from
+                                }
+                                this.update({to:v || 0})
                             }}
                         />
                     </div>
                     <div style={{marginLeft: 4, flex: 1}}>
                         <ModernSelectField
                             fullWidth={true}
-                            value={this.state.toUnit}
-                            onChange={(e,i,v) => {this.setState({toUnit: v})}}
+                            value={toUnit}
+                            onChange={(e,i,v) => {
+                                if(to && fromInt && Math.round(this.multiple(from, v)) < fromInt) {
+                                    v = fromUnit
+                                }
+                                this.update({toUnit: v})
+                            }}
                         >
                             <MenuItem value={''} primaryText={sizeUnit}/>
                             <MenuItem value={'k'} primaryText={'K' + sizeUnit}/>

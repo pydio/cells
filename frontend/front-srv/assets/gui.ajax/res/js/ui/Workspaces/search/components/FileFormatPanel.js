@@ -42,31 +42,31 @@ class SearchFileFormatPanel extends Component {
     }
 
     propsToState(props) {
-        const {values} = props;
+        const {values, name, searchTools} = props;
         let selector, ext;
         if(this.state && this.state.selector && this.state.selector === 'extension'){
             selector = this.state.selector
         }
-        const {ajxp_mime} = values;
-        if(ajxp_mime){
-            if(ajxp_mime === 'ajxp_folder') {
-                selector = ajxp_mime
-            } else if (ajxp_mime.indexOf('mimes:') === 0) {
-                const mm = ajxp_mime.replace('mimes:', '')
+        const val = values[name];
+        if(val){
+            if(val === searchTools.SearchConstants.ValueMimeFolders) {
+                selector = val
+            } else if (val.indexOf('mimes:') === 0) {
+                const mm = val.replace('mimes:', '')
                 const gg = MimeGroups.filter(gr => gr.mimes === mm)
                 if (gg.length) {
                     selector = 'group:' + gg[0].id
                 }
             } else {
                 selector = 'extension'
-                ext = ajxp_mime
+                ext = val
             }
         }
         return {selector, ext}
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
-        if(nextProps.values['ajxp_mime'] !== this.props.values['ajxp_mime']){
+        if(nextProps.values[nextProps.name] !== this.props.values[this.props.name]){
             this.setState(this.propsToState(nextProps))
         }
     }
@@ -75,7 +75,7 @@ class SearchFileFormatPanel extends Component {
         if (prevState === this.state) {
             return;
         }
-
+        const {searchTools} = this.props;
         const {ext, selector} = this.state;
         let searchValue;
         if(selector) {
@@ -84,18 +84,19 @@ class SearchFileFormatPanel extends Component {
             } else if(selector.indexOf('group:') === 0) {
                 const gid = selector.replace('group:', '')
                 searchValue = 'mimes:' + MimeGroups.filter(gr => gr.id === gid)[0].mimes
-            } else if (selector === 'ajxp_folder') {
-                searchValue = 'ajxp_folder'
+            } else if (selector === searchTools.SearchConstants.ValueMimeFolders) {
+                searchValue = selector
             }
         }
-        this.props.onChange({
-            ajxp_mime: searchValue
+        const {name, onChange} = this.props;
+        onChange({
+            [name]: searchValue
         })
     }
 
     render() {
 
-        const {inputStyle, getMessage, compact = false} = this.props;
+        const {inputStyle, getMessage, compact = false, searchTools} = this.props;
         const {folder, ext, selector = ''} = this.state;
         const mimeMessages = (id) => Pydio.getMessages()['ajax_gui.mimegroup.' + id]
 
@@ -104,7 +105,7 @@ class SearchFileFormatPanel extends Component {
                 <div style={{flex: 3, marginRight:4}}>
                     <ModernSelectField fullWidth={true} value={selector} onChange={(e,i,v)=> this.setState({selector:v, ext: ''}) }>
                         <MenuItem primaryText={<span style={{color:'rgba(0,0,0,.43)'}}>No filter</span>} value={''}/>
-                        <MenuItem primaryText={getMessage(502)} value={"ajxp_folder"}/>
+                        <MenuItem primaryText={getMessage(502)} value={searchTools.SearchConstants.ValueMimeFolders}/>
                         <MenuItem primaryText={mimeMessages('byextension')} value={"extension"}/>
                         {MimeGroups.map(group => <MenuItem primaryText={mimeMessages(group.label)} value={'group:' + group.id}/> )}
                     </ModernSelectField>

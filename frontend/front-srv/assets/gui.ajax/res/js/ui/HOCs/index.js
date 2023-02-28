@@ -39,7 +39,7 @@ import NativeFileDropProvider from './drop/NativeFileDropProvider'
 import * as Modern from './material/ModernComponents'
 import * as Utils from './utils'
 import ReactPlaceHolder, {TextBlock as PhTextBlock, MediaBlock as PhMediaBlock, RectShape as PhRectShape, RoundShape as PhRoundShape, TextRow as PhTextRow} from './placeholders'
-import withSearch from './search/withSearch'
+import withSearch, {SearchConstants} from './search/withSearch'
 import * as hooks from './hooks'
 
 const PydioHOCs = {
@@ -68,6 +68,7 @@ const PydioHOCs = {
     withSelection,
     withVerticalScroll,
     withSearch,
+    SearchConstants,
     ...Modern,
     dropProvider,
     NativeFileDropProvider,
