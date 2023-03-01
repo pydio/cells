@@ -111,7 +111,9 @@ class UnifiedSearchForm extends React.Component {
             this.setState({popoverOpen: false})
         } else {
             this.textfieldRef.current.blur()
-            e.stopPropagation()
+            if(e) {
+                e.stopPropagation()
+            }
             onRequestOpen();
             this.setState({
                 popoverOpen: true,

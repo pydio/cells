@@ -396,7 +396,7 @@ class FSTemplate extends React.Component {
                 inputStyle:{color: appBarTextColor.toString()},
                 hintStyle:{color: appBarTextColor.fade(0.5).toString()},
                 magnifierStyle:{color: appBarTextColor.fade(0.1).toString()},
-                filterButton:{color:appBarTextColor.toString(), marginRight: 12, height: 24, width: 24}
+                filterButton:{color:appBarTextColor.toString(), marginRight: 8, height: 24, width: 24}
             };
             newButtonProps.buttonLabelStyle.color = muiTheme.palette.accent1Color;
             newButtonProps.buttonBackgroundColor = 'rgba(0,0,0,0.05)';
