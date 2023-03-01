@@ -53,7 +53,8 @@ const styles = {
         borderRadius: 15,
         cursor: 'pointer',
         fontSize: 15,
-        fontWeight: 500
+        fontWeight: 500,
+        padding: 2
     },
     magnifierStyle:{
         fontSize: 20,
@@ -79,6 +80,7 @@ class UnifiedSearchForm extends React.Component {
     constructor(props) {
         super(props);
         this.containerRef = React.createRef();
+        this.textfieldRef = React.createRef();
     }
 
     updateText(value) {
@@ -108,6 +110,7 @@ class UnifiedSearchForm extends React.Component {
         if(popoverOpen) {
             this.setState({popoverOpen: false})
         } else {
+            this.textfieldRef.current.blur()
             e.stopPropagation()
             onRequestOpen();
             this.setState({
@@ -164,8 +167,22 @@ class UnifiedSearchForm extends React.Component {
         const currentFilters = []
         const ad = advancedValues()
         if(ad && ad.length > 0) {
+            let additionalChild;
+            if(basenameOrContent){
+                additionalChild = [<span>{basenameOrContent}</span>]
+            }
             currentFilters.push(
-                {text:'', disable:true,value:(<AdvancedChips containerStyle={{fontSize: 13, flex: 1}} searchTools={searchTools} showRemove={false}/>)}
+                {
+                    text:'',
+                    disable:true,
+                    value:(<AdvancedChips
+                        containerStyle={{paddingTop: 6, fontSize: 13, flex: 1}}
+                        searchTools={searchTools}
+                        title={"Filters:"}
+                        titleTagStyle={{backgroundColor:'transparent'}}
+                        showRemove={false}
+                        append={additionalChild}/>)
+                }
             )
         }
 
@@ -187,20 +204,26 @@ class UnifiedSearchForm extends React.Component {
                     <span>{remainingString?' containing '+'"'+remainingString+'"':''}?</span>
                 </span>
             );
-            nlpSuggestions.push({text:'#nlp#', value: block, group:'Advanced Suggestion'})
+            nlpSuggestions.push({
+                text:'#nlp#',
+                value: block,
+                icon:'mdi mdi-lightbulb-outline',
+                group:'Advanced Suggestion'
+            })
         }
 
         const completeDataSource = [
             ...currentFilters,
             ...nlpSuggestions,
-            ...savedSearches.map(k=>{
+            ...savedSearches.filter(k => !basenameOrContent).map(k=>{
                 return{
                     text:'#saved#' + k.searchID,
-                    value: <span><span style={{opacity:.6, marginRight: 5}} className={"mdi mdi-content-save"}/> {k.searchLABEL}</span>,
+                    icon:"mdi mdi-content-save",
+                    value: k.searchLABEL,
                     group:'Saved Searches',
                 }
             }),
-            ...history.filter(k => (!basenameOrContent||(k.indexOf(basenameOrContent)===0&&k!==basenameOrContent))).map(k=>{return{text:k,value:k, group:'Last Searches'}}),
+            ...history.filter(k => (!basenameOrContent||(k.indexOf(basenameOrContent)===0&&k!==basenameOrContent))).map(k=>{return{text:k,value:k, group:'Last Searches', icon:'mdi mdi-magnify'}}),
         ]
 
         return (
@@ -236,10 +259,8 @@ class UnifiedSearchForm extends React.Component {
                                 {...params}
                                 variant={"standard"}
                                 fullWidth={true}
-                                autoFocus={false}
-                                inputProps={
-                                    {...params.inputProps, value: params.inputProps.value || basenameOrContent}
-                                }
+                                inputRef={this.textfieldRef}
+                                inputProps={{...params.inputProps, value: params.inputProps.value || basenameOrContent}}
                                 placeholder={pydio.MessageHash['searchengine.main.placeholder']}
                                 InputLabelProps={{sx:{fontSize:'1rem !important', marginLeft: '10px !important', marginTop: '-3px !important'}}}
                                 InputProps={{
@@ -254,8 +275,7 @@ class UnifiedSearchForm extends React.Component {
                                         {params.InputProps.endAdornment}
                                         {active &&
                                             <div onClick={this.togglePopover.bind(this)} title={pydio.MessageHash['searchengine.advanced-filter.tooltip']} style={{...styles.filterButton, ...formStyles.filterButton, ...filterActiveStyles}}>
-                                                <TuneIcon/>
-                                                {filtersCount > 0 && <span>{filtersCount}</span>}
+                                                <TuneIcon fontSize={'small'}/>
                                             </div>
                                         }
                                     </span>
@@ -273,15 +293,35 @@ class UnifiedSearchForm extends React.Component {
                     }}
                     onChange={(event, newValue) => {
                         if(newValue) {
-                            this.updateText(newValue.text)
+                            if(typeof newValue === 'string'){
+                                this.updateText(newValue)
+                            } else {
+                                this.updateText(newValue.text)
+                            }
                         } else {
                             this.updateText('')
                         }
                     }}
                     popupIcon={null}
                     options={completeDataSource}
-                    getOptionLabel={o => o.text==='#nlp#'?basenameOrContent:(o.text.indexOf('#saved#')>-1?'':o.text)}
-                    renderOption={(props, o, state) => {return <li {...props}>{o.value}</li>}}
+                    getOptionLabel={o => {
+                        if(typeof o === 'string') {
+                            return o
+                        } else if(o.text === '#nlp#'){
+                            return basenameOrContent
+                        } else if(o.text.indexOf('#saved#')> -1) {
+                            return ''
+                        } else {
+                            return o.text;
+                        }
+                   }}
+                    renderOption={(props, o, state) => {
+                        if(o.icon){
+                            return <li {...props}><span style={{opacity:.5, marginRight: 10}} className={o.icon}/> {o.value}</li>
+                        }else{
+                            return <li {...props}>{o.value}</li>
+                        }
+                    }}
                     filterOptions={(x) => x}
                     groupBy={option => option.group}
                     renderGroup={(params) => {
@@ -300,7 +340,6 @@ class UnifiedSearchForm extends React.Component {
                         return o.text === v.text
                     }}
                     getOptionDisabled={(option) => option.disable}
-                    filterSelectedOptions
                     blurOnSelect
                     autoComplete
                     freeSolo

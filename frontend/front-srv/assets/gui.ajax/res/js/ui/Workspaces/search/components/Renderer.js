@@ -56,7 +56,7 @@ export default class Renderer {
     }
 
     static blockRenderer(props, field, value) {
-        const {pydio, searchTools} = props;
+        const {pydio=Pydio.getInstance(), searchTools} = props;
         const kk = searchTools.SearchConstants
         if(field.blockRenderer) {
             const {label} = field;
@@ -87,13 +87,27 @@ export default class Renderer {
                 label = 'Modified'
                 displayValue = ''
                 if(value.from) {
-                    displayValue += moment(value.from).calendar()
+                    displayValue += moment(value.from).calendar(null, {
+                        sameDay: '[Today]',
+                        nextDay: '[Tomorrow]',
+                        nextWeek: 'dddd',
+                        lastDay: '[Yesterday]',
+                        lastWeek: '[Last] dddd',
+                        sameElse: 'L'
+                    })
                     if(value.to) {
                         displayValue += ' to '
                     }
                 }
                 if(value.to) {
-                    displayValue += moment(value.to).calendar()
+                    displayValue += moment(value.to).calendar(null, {
+                        sameDay: '[Today]',
+                        nextDay: '[Tomorrow]',
+                        nextWeek: 'dddd',
+                        lastDay: '[Yesterday]',
+                        lastWeek: '[Last] dddd',
+                        sameElse: 'L'
+                    })
                 }
                 break
             case 'bytesize':

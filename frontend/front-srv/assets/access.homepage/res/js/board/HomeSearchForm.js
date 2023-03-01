@@ -81,11 +81,11 @@ class HomeSearchForm extends Component{
                 flexDirection:'column',
                 alignItems:'center',
                 backgroundColor:'transparent',
-                padding: fullScreen ? 10: 0
+                padding: fullScreen ? '10px 50px': 0
             },
             textFieldContainer: {
-                width:'96%',
-                maxWidth:700,
+                width:'100%',
+                maxWidth:fullScreen?10000:700,
                 display:'flex',
                 alignItems:'center',
                 backgroundColor: '#eceff1',
@@ -113,7 +113,8 @@ class HomeSearchForm extends Component{
                     color:'#03a9f4',
                     fontSize: 22,
                     width:24,
-                    height: 24
+                    height: 24,
+                    padding: 2
                 },
                 filterButtonActive:{},
             },
@@ -185,11 +186,18 @@ class HomeSearchForm extends Component{
                             />
                             {loading && <div style={{marginTop:14, marginRight: 8}} ><CircularProgress size={20} thickness={2}/></div>}
                         </Paper>
-                        {fullScreen && <AdvancedChips searchTools={searchTools} containerStyle={{paddingTop: 11, marginBottom: -4}}/>}
+                        {fullScreen && <AdvancedChips searchTools={searchTools} containerStyle={{width: '100%', paddingTop: 11, marginBottom: -4}}/>}
                     </Paper>
                     {fullScreen &&
                         <div className={"layout-fill"} style={{width: '100%', display:'flex'}}>
-                            {!empty && facets && facets.length > 0 && <Facets facets={facets} activeFacets={activeFacets} pydio={pydio} onToggleFacet={toggleFacet} styles={styles.facets}/>}
+                            <Facets
+                                pydio={pydio}
+                                facets={facets}
+                                activeFacets={activeFacets}
+                                onToggleFacet={toggleFacet}
+                                emptyStateView={<div style={{fontWeight: 500,padding: '10px 0px',fontSize: 15}}>Filter Results... (no results)</div>}
+                                styles={styles.facets}
+                            />
                             <NodeListCustomProvider
                                 containerStyle={{flex:1, marginLeft: 10}}
                                 className={'files-list vertical_fit'}
@@ -231,7 +239,7 @@ class HomeSearchForm extends Component{
 
 }
 
-HomeSearchForm = withSearch(HomeSearchForm, 'home', 'all');
+HomeSearchForm = withSearch(HomeSearchForm, 'main', 'all');
 HomeSearchForm = PydioContextConsumer(HomeSearchForm);
 HomeSearchForm = muiThemeable()(HomeSearchForm);
 export {HomeSearchForm as default}

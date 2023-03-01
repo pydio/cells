@@ -126,11 +126,18 @@ const match = (text, getSearchOptions) => {
 
                     // try to find items value directly
                     const searchMatch = doc.match('('+presetValues.map(i => '~'+i.value+'~').join('|')+')')
-                    const search = searchMatch.text()
-                    if(search && !knownValues[search]) {
-                        entities[SearchConstants.KeyMetaPrefix + ns] = {value:search, label, meta}
-                        knownValues[search] = search
-                        removes.push(searchMatch)
+                    let search = searchMatch.text()
+                    if(search && presetValues.indexOf(search) === -1){
+                        // This was a fuzzy search, recheck to find original
+                        const reSearch = presetValues.find(i => doc.match('~'+i.value+'~').text())
+                        if(reSearch){
+                            search = reSearch.value
+                        }
+                        if(!knownValues[search]) {
+                            entities[SearchConstants.KeyMetaPrefix + ns] = {value:search, label, meta}
+                            knownValues[search] = search
+                            removes.push(searchMatch)
+                        }
                     }
                 } else if (searchNLPTags) {
 

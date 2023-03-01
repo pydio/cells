@@ -30,7 +30,7 @@ export default class AdvancedChips extends React.Component{
     }
 
     render() {
-        const {searchTools:{advancedValues, values, setValues}, containerStyle, tagStyle, showRemove=true} = this.props;
+        const {searchTools:{advancedValues, values, setValues}, containerStyle, tagStyle, title, titleTagStyle, showRemove=true, append} = this.props;
 
         const advanced = advancedValues()
         const {indexedMeta} = this.state;
@@ -63,7 +63,7 @@ export default class AdvancedChips extends React.Component{
             }
         }
 
-        const blocks = advanced.map(a => {
+        let blocks = advanced.map(a => {
             const cc = []
             const meta = indexedMeta.filter(i => i.namespace === a.key.replace('ajxp_meta_', '')).shift()
             const {label, value} = Renderer.blockRenderer(this.props, {...a, ...meta}, a.value)
@@ -81,13 +81,19 @@ export default class AdvancedChips extends React.Component{
             return cc
         }).filter(cc => cc.length)
 
+        if(append && append.length > 0) {
+            blocks = [...blocks, ...append]
+        }
+
         if(!blocks.length) {
             return null
         }
 
         return(
-            <div style={styles.container}>{blocks.map(cc => <div style={styles.tag}>{cc}</div>)}</div>
-
+            <div style={styles.container}>
+                {title && <div style={{...styles.tag,...titleTagStyle}}>{title}</div>}
+                {blocks.map(cc => <div style={styles.tag}>{cc}</div>)}
+            </div>
         )
     }
 }
