@@ -184,8 +184,10 @@ class WorkspaceEntry extends React.Component {
     onClick(){
         const {workspace, pydio, showFoldersTree, searchView, values, setValues, searchLoading} = this.props;
         if(searchView) {
-            const slug = workspace.getSlug()
-            const scope = slug === 'ALL' ? 'all' : slug + '/'
+            let scope = workspace.getSlug()
+            if(scope !== 'all' && scope !== 'previous_context'){
+                scope += '/'
+            }
             setValues({...values, scope});
         } else if(workspace.getId() === pydio.user.activeRepository && showFoldersTree){
             pydio.goTo('/');
@@ -300,8 +302,8 @@ class WorkspaceEntry extends React.Component {
 
         let current, isSearchAll;
         if(searchView) {
-            if(workspace.getSlug() === 'ALL') {
-                current = values.scope && values.scope === 'all'
+            if(workspace.getSlug() === 'all' || workspace.getSlug() === 'previous_context') {
+                current = values.scope === workspace.getSlug()
                 isSearchAll = true
             } else {
                 current = values.scope && values.scope.indexOf(workspace.getSlug() + '/') === 0
@@ -419,16 +421,16 @@ class WorkspaceEntry extends React.Component {
         if(searchView){
             let count = 0;
             const results = pydio.getContextHolder().getSearchNode().getChildren();
-            if(workspace.getSlug() === 'ALL') {
+            if(workspace.getSlug() === 'all') {
                 count = results.size;
             } else {
                 results.forEach(node => {
-                    if(node.getMetadata().get('repository_id') === workspace.getId()){
+                    if(node.getMetadata().get('repository_id') === workspace.getId() || workspace.getSlug() === 'previous_context'){
                         count ++;
                     }
                 })
             }
-            const crtScopeAll = values.scope && values.scope === 'all'
+            const crtScopeAll = values.scope === 'all'
             if(count && (crtScopeAll || current)) {
                 label += ' (' + count + ')'
             }

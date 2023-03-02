@@ -22,6 +22,7 @@ import React from 'react';
 import Pydio from 'pydio';
 import Breadcrumb from './Breadcrumb'
 import Textfit from 'react-textfit'
+import {debounce} from 'lodash'
 const {withSearch} = Pydio.requireLib('hoc')
 import MainFilesList from './MainFilesList'
 import EditionPanel from './EditionPanel'
@@ -73,6 +74,10 @@ class FSTemplate extends React.Component {
 
     setSearchView() {
         const {pydio} = this.props
+        const {searchView} = this.state;
+        if(!searchView) {
+            this.setState({searchViewTransition: true})
+        }
         const dm = pydio.getContextHolder();
         dm.setSelectedNodes([]);
         if(dm.getContextNode() !== dm.getSearchNode()){
@@ -82,6 +87,10 @@ class FSTemplate extends React.Component {
 
     unsetSearchView(){
         const {pydio} = this.props;
+        const {searchView} = this.state;
+        if(searchView) {
+            this.setState({searchViewTransition: true})
+        }
         const dm = pydio.getContextHolder();
         const {previousContext} = this.state;
         dm.setSelectedNodes([]);
@@ -115,9 +124,15 @@ class FSTemplate extends React.Component {
             });
         };
         DOMUtils.observeWindowResize(this._resizer);
+        this._resizeTrigger = debounce(()=>{
+            window.dispatchEvent(new Event('resize'));
+            this.setState({searchViewTransition: false})
+        }, 350)
         this._ctxObserver = ()=>{
             const searchView = pydio.getContextHolder().getContextNode() === pydio.getContextHolder().getSearchNode()
-            this.setState({searchView})
+            if(searchView !== this.state.searchView) {
+                this.setState({searchView, searchViewTransition: true}, this._resizeTrigger)
+            }
         }
         pydio.observe('context_changed', this._ctxObserver)
     }
@@ -217,7 +232,7 @@ class FSTemplate extends React.Component {
 
         let styles = {
             appBarStyle : {
-                zIndex: mobile ? 1 : 901,
+                zIndex: searchView?903:901,
                 backgroundColor: appBarBackColor.toString(),
                 height: headerHeight,
                 display:'flex'
@@ -312,6 +327,7 @@ class FSTemplate extends React.Component {
         const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
         const dm = pydio.getContextHolder();
         const searchView = dm.getContextNode() === dm.getSearchNode();
+        const {searchViewTransition} = this.state;
 
         let showChatTab = (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS"));
         let showAddressBook = (!pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK")) && !smallScreen;
@@ -409,10 +425,6 @@ class FSTemplate extends React.Component {
         let searchToolbar;
 
         if(searchView) {
-            leftPanelProps.userWidgetProps.style = {
-                ...leftPanelProps.userWidgetProps.style,
-                opacity: 0
-            }
             leftPanelProps.workspacesListProps = {
                 searchView: true,
                 values, setValues, searchLoading, facets, activeFacets, toggleFacet,
@@ -543,6 +555,7 @@ class FSTemplate extends React.Component {
                             <UnifiedSearchForm
                                 style={{flex: 1}}
                                 active={searchView}
+                                preventOpen={searchViewTransition}
                                 pydio={pydio}
                                 formStyles={styles.searchForm}
                                 searchTools={searchTools}
@@ -629,7 +642,7 @@ class FSTemplate extends React.Component {
     }
 }
 
-FSTemplate = withSearch(FSTemplate, 'main', 'all');
+FSTemplate = withSearch(FSTemplate, 'main', 'ws');
 FSTemplate = muiThemeable()(FSTemplate);
 FSTemplate.INFO_PANEL_WIDTH = 270
 

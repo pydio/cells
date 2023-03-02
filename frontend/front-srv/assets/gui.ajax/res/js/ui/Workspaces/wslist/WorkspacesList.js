@@ -136,8 +136,10 @@ class Entries extends React.Component{
                             onKeyPress={(ev) =>  {
                                 if(ev.key === 'Enter' && uniqueResult){
                                     if(searchView) {
-                                        const slug = uniqueResult.getSlug()
-                                        const scope = slug === 'ALL' ? 'all' : slug + '/'
+                                        let scope = uniqueResult.getSlug()
+                                        if(scope !== 'all' && scope !== 'previous_context'){
+                                            scope += '/'
+                                        }
                                         setValues({...values, scope});
                                     } else {
                                         pydio.triggerRepositoryChange(uniqueResult.getId());
@@ -301,14 +303,22 @@ class WorkspacesList extends React.Component{
         }
 
         if(searchView) {
-            const fakeAllEntry = new Repository('ALL');
-            fakeAllEntry.setSlug('ALL')
+            const additionalEntries = []
+
+            const fakeScopeEntry = new Repository('previous_context')
+            fakeScopeEntry.setSlug('previous_context')
+            fakeScopeEntry.setLabel(messages[170])
+            additionalEntries.push(fakeScopeEntry)
+
+            const fakeAllEntry = new Repository('all');
+            fakeAllEntry.setSlug('all')
             fakeAllEntry.setLabel(messages[610]) // All workspaces
+            additionalEntries.push(fakeAllEntry)
             return (
                 <div className={classNames.join(' ')}>
                     <Entries
                         title={messages['searchengine.scope.title']}
-                        entries={[fakeAllEntry, ...entries, ...sharedEntries]}
+                        entries={[...additionalEntries, ...entries, ...sharedEntries]}
                         filterHint={messages['ws.quick-filter']}
                         titleStyle={{...sectionTitleStyle, marginTop:5, position:'relative', overflow:'visible', transition:'none'}}
                         pydio={pydio}

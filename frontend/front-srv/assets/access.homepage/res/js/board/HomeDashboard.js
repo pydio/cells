@@ -27,6 +27,7 @@ import WelcomeTour from './WelcomeTour'
 import HomeSearchForm from './HomeSearchForm'
 import SmartRecents from '../recent/SmartRecents'
 const {MasterLayout} = Pydio.requireLib('workspaces');
+import {debounce} from 'lodash'
 
 class AltDashboard extends React.Component {
 
@@ -36,6 +37,10 @@ class AltDashboard extends React.Component {
         if (!this.showTutorial()) {
             this.closeTimeout = setTimeout(()=>{this.setState({drawerOpen: false})}, 2500);
         }
+        this._resizeEventDebounced = debounce(()=>{
+            window.dispatchEvent(new Event('resize'));
+            this.setState({fullScreenTransition: false})
+        }, 350)
     }
 
     showTutorial(){
@@ -60,7 +65,7 @@ class AltDashboard extends React.Component {
     render() {
 
         const {pydio, muiTheme} = this.props;
-        const {drawerOpen, fullScreen} = this.state;
+        const {drawerOpen, fullScreen, fullScreenTransition} = this.state;
 
         const appBarColor = new Color(muiTheme.appBar.color);
         const colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
@@ -130,6 +135,12 @@ class AltDashboard extends React.Component {
             }
         };
 
+        const onFocusChange = (f)=>{
+            if(f !== this.state.fullScreen){
+                this.setState({fullScreen: f, fullScreenTransition: true}, this._resizeEventDebounced)
+            }
+        }
+
 
         return (
 
@@ -162,7 +173,7 @@ class AltDashboard extends React.Component {
                         />
                     </div>
                 </Paper>
-                <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle} fullScreen={fullScreen} onFocusChange={(f)=>{this.setState({fullScreen: f})}}>
+                <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle} fullScreen={fullScreen} fullScreenTransition={fullScreenTransition} onFocusChange={onFocusChange}>
                     <SmartRecents {...this.props} style={{maxWidth: 660, width:'100%', padding:'8px 0'}} emptyStateProps={{style:{backgroundColor:'white'}}}/>
                 </HomeSearchForm>
             </MasterLayout>

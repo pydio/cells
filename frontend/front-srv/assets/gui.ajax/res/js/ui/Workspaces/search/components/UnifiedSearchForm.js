@@ -132,16 +132,12 @@ class UnifiedSearchForm extends React.Component {
 
     render() {
 
-        const {onRequestClose, style, active, searchTools, formStyles, pydio} = this.props;
+        const {style, active, searchTools, formStyles, pydio, preventOpen} = this.props;
 
         const {values, setValues, advancedValues, getSearchOptions, nlpMatches, history=[], savedSearches=[], clearSavedSearch, saveSearch} = searchTools;
         const {basenameOrContent=''} = values;
-        const {popoverOpen, anchorElement, searchFocus} = this.state || {}
-        const filtersCount = Object.keys(values)
-            .filter(key => key !== 'basenameOrContent' && key !== 'searchLABEL' && key !== 'searchID')
-            .filter(key => values[key])
-            .filter(key => !(key === 'scope' && values[key] === 'all'))
-            .length;
+        const {popoverOpen, anchorElement} = this.state || {}
+        const filtersCount = advancedValues().length;
         let wStyle = {};
         if(active) {
             wStyle = {width: 420}
@@ -156,7 +152,7 @@ class UnifiedSearchForm extends React.Component {
                 backgroundColor: '#eceff1',
                 display: 'flex',
                 alignItems: 'center',
-                padding: '2px 5px 2px 11px',
+                padding: '2px 10px',
                 marginRight: 5,
                 fontSize: 13,
                 height: 25,
@@ -305,7 +301,7 @@ class UnifiedSearchForm extends React.Component {
                         }
                     }}
                     popupIcon={null}
-                    options={completeDataSource}
+                    options={preventOpen?[]:completeDataSource}
                     getOptionLabel={o => {
                         if(typeof o === 'string') {
                             return o

@@ -62,28 +62,51 @@ export default class Renderer {
             const {label} = field;
             return {label, value:field.blockRenderer(value)}
         }
-        const {type} =  field;
+        const {type, isDate} =  field;
         let {label}=field, displayValue;
         switch (type) {
             case 'scope':
-                if(value !== 'all') {
+                if(value === 'previous_context'){
+                    label = 'Folder'
+                    const previous = pydio.getContextHolder().getSearchNode().getMetadata().get('previous_context')
+                    displayValue = PathUtils.getBasename(previous)
+                    if(!displayValue){
+                        displayValue = '/'
+                    }
+                } else if(value !== 'all') {
                     let r;
                     pydio.user.getRepositoriesList().forEach(re => {if(re.getSlug()+'/' === value) r = re})
                     if (r){
                         label = 'Inside'
                         displayValue = r.getLabel();
                     }
+                } else {
+                    label = 'All Workspaces'
                 }
                 break
             case 'mime':
                 if(value === kk.ValueMimeFiles || value === kk.ValueMimeFolders) {
-                    label = value===kk.ValueMimeFiles?'Files Only':'Folders Only'
+                    label = value === kk.ValueMimeFiles ? 'Files Only' : 'Folders Only'
+                } else if (value && value.indexOf('mimes:') === 0) {
+                    displayValue = label
+                    label = "File Type"
                 } else {
                     label = 'Extension'
                     displayValue = value
                 }
                 break;
             case 'modiftime':
+                if(isDate && value.getDate){
+                    displayValue = moment(value).calendar(null, {
+                        sameDay: '[Today]',
+                        nextDay: '[Tomorrow]',
+                        nextWeek: 'dddd',
+                        lastDay: '[Yesterday]',
+                        lastWeek: '[Last] dddd',
+                        sameElse: 'L'
+                    })
+                    break
+                }
                 label = 'Modified'
                 displayValue = ''
                 if(value.from) {

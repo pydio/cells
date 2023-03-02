@@ -23,7 +23,7 @@ import Pydio from 'pydio'
 import {Paper, IconButton, CircularProgress} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PathUtils from 'pydio/util/path'
-//import Facets from "./Facets";
+import DOMUtils from "pydio/util/dom";
 
 const {SimpleList, NodeListCustomProvider} = Pydio.requireLib('components');
 const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
@@ -59,7 +59,7 @@ class HomeSearchForm extends Component{
 
         // From HOC
         const {searchTools, searchTools:{facets, activeFacets, toggleFacet, loading, dataModel, empty}} = this.props;
-        const {style, zDepth, pydio, fullScreen, onFocusChange} = this.props;
+        const {style, zDepth, pydio, fullScreen, fullScreenTransition, onFocusChange} = this.props;
 
         const whiteTransp = 'rgba(0,0,0,.53)';
 
@@ -178,6 +178,7 @@ class HomeSearchForm extends Component{
                             <UnifiedSearchForm
                                 style={{flex: 1}}
                                 active={fullScreen}
+                                preventOpen={fullScreenTransition}
                                 pydio={pydio}
                                 formStyles={styles.searchForm}
                                 searchTools={searchTools}
@@ -190,6 +191,7 @@ class HomeSearchForm extends Component{
                     </Paper>
                     {fullScreen &&
                         <div className={"layout-fill"} style={{width: '100%', display:'flex'}}>
+                            {DOMUtils.getViewportWidth() > 758 &&
                             <Facets
                                 pydio={pydio}
                                 facets={facets}
@@ -198,6 +200,7 @@ class HomeSearchForm extends Component{
                                 emptyStateView={<div style={{fontWeight: 500,padding: '10px 0px',fontSize: 15}}>Filter Results... (no results)</div>}
                                 styles={styles.facets}
                             />
+                            }
                             <NodeListCustomProvider
                                 containerStyle={{flex:1, marginLeft: 10}}
                                 className={'files-list vertical_fit'}

@@ -41,7 +41,8 @@ const FieldRow = ({constants, name, label, values, children, style, onRemove = (
         overflow:'hidden',
         textOverflow:'ellipsis',
         whiteSpace:'nowrap',
-        display:'flex'
+        display:'flex',
+        flexShrink:0
     }
     let active, actualKey= name;
     if(values[name]) {

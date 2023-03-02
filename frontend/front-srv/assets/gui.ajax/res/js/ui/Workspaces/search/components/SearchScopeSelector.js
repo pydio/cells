@@ -22,7 +22,7 @@ import PropTypes from 'prop-types';
 
 import React, { Component } from 'react';
 import Pydio from 'pydio'
-import {MenuItem, DropDownMenu} from 'material-ui';
+import {MenuItem, Divider} from 'material-ui';
 const {ModernSelectField} = Pydio.requireLib('hoc');
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 
@@ -32,30 +32,68 @@ class SearchScopeSelector extends Component {
         return {
             value           : PropTypes.string,
             onChange        : PropTypes.func.isRequired,
-            onClick      : PropTypes.func.isRequired,
+            onClick         : PropTypes.func.isRequired,
             style           : PropTypes.object,
             labelStyle      : PropTypes.object
         };
     }
 
     render(){
-        const {getMessage, pydio:{user}} = this.props;
-        const items = [
-            <MenuItem value={'all'} primaryText={getMessage(610)}/>
-        ];
-        if(user) {
-            user.getRepositoriesList().forEach(ws => {
-                if(ws.getId() === 'home' || ws.getId() === 'settings'){
+        const {getMessage, pydio, onChange} = this.props;
+        let {value} = this.props;
+
+        let items = [], folder = [], currentWs = [], other = [];
+
+        const all = [<MenuItem value={'all'} primaryText={getMessage(610)}/>];
+
+        const active = pydio.user.getActiveRepository();
+        const activeWs = pydio.user.getRepositoriesList().get(active)
+        const homePage = active === 'homepage'
+
+        if(!homePage){
+            const previous = pydio.getContextHolder().getSearchNode().getMetadata().get('previous_context')
+            if(previous && previous !== '/') {
+                folder.push(<MenuItem value={'previous_context'} primaryText={getMessage(170)}/>)
+            }
+        }
+        if(pydio.user) {
+            pydio.user.getRepositoriesList().forEach(ws => {
+                if(ws.getId() === 'homepage' || ws.getId() === 'settings'){
                     return;
                 }
-                items.push(<MenuItem value={ws.getSlug() + '/'} primaryText={ws.getLabel()}/>)
+                if(ws.getId() === active) {
+                    currentWs.push(<MenuItem value={ws.getSlug() + '/'} primaryText={getMessage(372)}/>)
+                } else {
+                    other.push(<MenuItem value={ws.getSlug() + '/'} primaryText={ws.getLabel()}/>)
+                }
             })
+        }
+
+        if (homePage) {
+            items = [
+                ...all,
+                ...other
+            ]
+        } else {
+            if(other.length > 0){
+                all.push(<Divider/>)
+            }
+            items = [
+                ...folder,
+                ...currentWs,
+                ...all,
+                ...other
+            ]
+        }
+
+        if(value === 'previous_context' && folder.length === 0) {
+            value = homePage ? 'all' : activeWs.getSlug()+'/'
         }
 
         return (
             <ModernSelectField
-                value={this.props.value}
-                onChange={(e,i,v) => {this.props.onChange(v)}}
+                value={value}
+                onChange={(e,i,v) => {onChange(v)}}
                 fullWidth={true}
             >{items}</ModernSelectField>
         )

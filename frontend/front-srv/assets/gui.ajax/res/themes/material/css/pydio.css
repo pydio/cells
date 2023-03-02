@@ -2931,6 +2931,7 @@ body,
   .react-mui-context .left-panel:not(.expanded) {
     -webkit-transform: translateX(-250px);
             transform: translateX(-250px);
+    z-index: 902;
   }
 }
 @media only screen and (max-width: 758px) {

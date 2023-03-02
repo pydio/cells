@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from 'pydio'
 import nlpLoader from './nlpLoader'
 import {SearchConstants} from "./withSearch";
 
@@ -52,6 +53,7 @@ class nlpMatches {
 const match = (text, getSearchOptions) => {
     return Promise.all([nlpLoader(), getSearchOptions()]).then(([lib, searchOptions]) => {
 
+        const mm = Pydio.getMessages()
         const {nlp, nlpLanguage, extensions} = lib;
         const {indexedMeta=[]} = searchOptions
         const entities = {}
@@ -83,19 +85,31 @@ const match = (text, getSearchOptions) => {
             }
         }
 
-
-        const files = doc.match(extensions+'? {'+Terms.file+'}?')
-        const folders = doc.match('{'+Terms.folder+'}')
-        if(files && files.text()) {
-            entities[SearchConstants.KeyMime] = {value:SearchConstants.ValueMimeFiles, label:'Files Only', type:'mime', labelOnly: true}
-            const exts = files.match( '[<ext>' + extensions+'?] {file}?', 'ext')
-            if (exts.text()){
-                entities[SearchConstants.KeyMime] = {value:exts.text('root'), label:'Extension', type:'mime'}
+        SearchConstants.MimeGroups.find((g) => {
+            const mess = mm[SearchConstants.MimeGroupsMessage(g.label)]
+            const search = doc.match('('+g.label+'|~'+mess+'~) {'+Terms.file+'}?');
+            if(!(search && search.text())) {
+                return false
             }
-            removes.push(files)
-        } else if(folders && folders.text()) {
-            entities[SearchConstants.KeyMime] = {value:SearchConstants.ValueMimeFolders, label:'Folders Only', type:'mime', labelOnly: true};
-            removes.push(folders)
+            entities[SearchConstants.KeyMime] = {value:'mimes:'+g.mimes, label:mess, type:'mime'}
+            removes.push(search)
+            return true
+        })
+
+        if(!entities[SearchConstants.KeyMime]){
+            const files = doc.match(extensions+'? {'+Terms.file+'}?')
+            const folders = doc.match('{'+Terms.folder+'}')
+            if(files && files.text()) {
+                entities[SearchConstants.KeyMime] = {value:SearchConstants.ValueMimeFiles, type:'mime'}
+                const exts = files.match( '[<ext>' + extensions+'?] {file}?', 'ext')
+                if (exts.text()){
+                    entities[SearchConstants.KeyMime] = {value:exts.text('root'), type:'mime'}
+                }
+                removes.push(files)
+            } else if(folders && folders.text()) {
+                entities[SearchConstants.KeyMime] = {value:SearchConstants.ValueMimeFolders, type:'mime'};
+                removes.push(folders)
+            }
         }
 
         if(indexedMeta){

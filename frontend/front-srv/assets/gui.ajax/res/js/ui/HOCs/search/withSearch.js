@@ -38,13 +38,23 @@ const SearchConstants = {
     ValueMimeFolders    : 'ajxp_folder',
     KeyModifDate        : 'ajxp_modiftime',
     KeyBytesize         : 'ajxp_bytesize',
-    KeyMetaPrefix       : 'ajxp_meta_'
+    KeyMetaPrefix       : 'ajxp_meta_',
+    MimeGroups: [
+        {id: "word", label:"word", mimes: "*word*"},
+        {id: "excel", label:"spreadsheet", mimes: "*spreadsheet*|*excel*"},
+        {id: "presentation", label:"presentation", mimes: "*presentation*|*powerpoint*"},
+        {id: "pdfs", label:"pdf", mimes: "\"application/pdf\""},
+        {id: "images", label:"image", mimes: "\"image/*\""},
+        {id: "videos", label:"video", mimes: "\"video/*\""},
+        {id: "audios", label:"audio", mimes: "\"audio/*\""}
+    ],
+    MimeGroupsMessage : (id) => 'ajax_gui.mimegroup.' + id
 }
 
 export {SearchConstants};
 
 
-export default function withSearch(Component, historyIdentifier, scope){
+export default function withSearch(Component, historyIdentifier, defaultScope){
 
     return class WithSearch extends React.Component {
 
@@ -52,7 +62,7 @@ export default function withSearch(Component, historyIdentifier, scope){
             super(props);
             this.performSearchD = debounce(this.performSearch.bind(this), 500)
             let {values = {}} = props;
-            values = {scope: scope || props.scope || 'folder', ...values};
+            values = {scope: props.scope || defaultScope , ...values};
             this.state = {
                 dataModel: props.dataModel || props.pydio.getContextHolder() || emptyDataModel(),
                 values,
@@ -155,10 +165,14 @@ export default function withSearch(Component, historyIdentifier, scope){
             }
             if(scope === 'ws') {
                 s += ' in current workspace'
-            } else if (scope === 'folder') {
+            } else if (scope === 'previous_context') {
                 s += ' in current folder'
             }
             return s;
+        }
+
+        computePreviousContext(dataModel) {
+            return Pydio.getInstance().user.getActiveRepositoryObject().getSlug() + dataModel.getContextNode().getPath();
         }
 
         performSearch() {
@@ -166,12 +180,19 @@ export default function withSearch(Component, historyIdentifier, scope){
             const searchRootNode = dataModel.getSearchNode();
             searchRootNode.getMetadata().set('search_values', values);
             searchRootNode.getMetadata().set('active_facets', activeFacets);
+            if(dataModel.getContextNode() !== searchRootNode){
+                searchRootNode.getMetadata().set('previous_context', this.computePreviousContext(dataModel))
+            }
             searchRootNode.observeOnce("loaded", ()=> {
                 dataModel.setContextNode(searchRootNode, true);
             })
             searchRootNode.setChildren([]);
             searchRootNode.setLoaded(false);
-            const {scope, ...searchValues} = values;
+            let {scope, ...searchValues} = values;
+            if(scope === 'previous_context' && searchRootNode.getMetadata().get('previous_context')) {
+                scope = searchRootNode.getMetadata().get('previous_context');
+                this.setState({previousContext: scope})
+            }
 
             const keys = Object.keys(searchValues);
             if (keys.length === 0 || (keys.length === 1 && keys[0] === 'basenameOrContent' && !values['basenameOrContent'])) {
@@ -218,11 +239,18 @@ export default function withSearch(Component, historyIdentifier, scope){
                     delete(newValues[k])
                 }
             });
-            const {values={}, dataModel} = this.state;
+            const {values={}, dataModel, previousContext} = this.state;
             let {scope, ...other} = newValues;
-            if(Object.keys(other).length > 0 && deepEqual(values, newValues)) {
-                console.log('Do not re-run the search as values have not changed yet')
+            let refreshPreviousContext;
+            if(scope === 'previous_context' && (values.scope && values.scope === 'previous_context') && previousContext !== this.computePreviousContext(dataModel)) {
+                refreshPreviousContext = true
+            }
+            if(Object.keys(other).length > 0 && deepEqual(values, newValues) && !refreshPreviousContext) {
+                console.info('Do not re-run the search as values have not changed yet')
                 const searchRootNode = dataModel.getSearchNode();
+                if(dataModel.getContextNode() !== searchRootNode){
+                    searchRootNode.getMetadata().set('previous_context', this.computePreviousContext(dataModel))
+                }
                 dataModel.setContextNode(searchRootNode, true);
                 if(onUpdateSearch){
                     onUpdateSearch({values: newValues});
@@ -245,6 +273,13 @@ export default function withSearch(Component, historyIdentifier, scope){
             }
         }
 
+        isDefaultScope(scope){
+            if(defaultScope === 'ws' && scope === Pydio.getInstance().user.getActiveRepositoryObject().getSlug() + '/'){
+                return true
+            }
+            return (defaultScope === scope)
+        }
+
         advancedValues() {
             const {values} = this.state;
             const types = {
@@ -256,11 +291,18 @@ export default function withSearch(Component, historyIdentifier, scope){
             return Object.keys(values)
                 .filter(key => key !== 'basenameOrContent' && key !== 'searchLABEL' && key !== 'searchID')
                 .filter(key => values[key])
-                .filter(key => !(key === 'scope' && values[key] === 'all'))
+                .filter(key => !(key === 'scope' && this.isDefaultScope(values[key])))
                 .map(key => {
                     const data= {key, value: values[key]};
                     if(types[key]) {
                         data.type = types[key]
+                        if(data.type === 'mime' && data.value && data.value.indexOf('mimes:') === 0) {
+                            const mimes = data.value.replace('mimes:', '')
+                            const mmDef = SearchConstants.MimeGroups.find((g) => g.mimes === mimes)
+                            if(mmDef){
+                                data.label = Pydio.getMessages()[SearchConstants.MimeGroupsMessage(mmDef.label)]
+                            }
+                        }
                     }
                     return data;
                 })
@@ -418,8 +460,13 @@ export default function withSearch(Component, historyIdentifier, scope){
 
 
         render() {
+            let {values} = this.state;
+            if(values && values.scope === 'ws') {
+                values = {...values, scope: Pydio.getInstance().user.getActiveRepositoryObject().getSlug() + '/'}
+            }
             const searchTools = {
                 ...this.state,
+                values,
                 submitSearch:this.performSearch.bind(this),
                 setValues:this.setValues.bind(this),
                 setLimit:this.setLimit.bind(this),
