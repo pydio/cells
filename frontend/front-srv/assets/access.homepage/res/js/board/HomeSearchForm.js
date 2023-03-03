@@ -112,9 +112,9 @@ class HomeSearchForm extends Component{
                 filterButton:{
                     color:'#03a9f4',
                     fontSize: 22,
-                    width:24,
-                    height: 24,
-                    padding: 2
+                    width:28,
+                    height: 28,
+                    padding: 3
                 },
                 filterButtonActive:{},
             },

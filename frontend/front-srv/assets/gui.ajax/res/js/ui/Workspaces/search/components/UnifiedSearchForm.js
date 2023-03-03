@@ -17,18 +17,17 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import React, {useRef, useState} from 'react'
 import DOMUtils from 'pydio/util/dom'
-import {Popover} from 'material-ui'
 
+import {Popover, IconButton} from 'material-ui'
 import TextField from '@mui/material/TextField';
+import InputAdornment from "@mui/material/InputAdornment";
 import Autocomplete from '@mui/material/Autocomplete';
-import TuneIcon from '@mui/icons-material/Tune';
 
 import AdvancedSearch from "./AdvancedSearch";
-import Renderer from './Renderer'
-import InputAdornment from "@mui/material/InputAdornment";
 import AdvancedChips from "./AdvancedChips";
+import Renderer from './Renderer'
 
 
 const styles = {
@@ -78,25 +77,31 @@ const styles = {
     }
 }
 
-class UnifiedSearchForm extends React.Component {
+function UnifiedSearchForm (props){
 
-    constructor(props) {
-        super(props);
-        this.containerRef = React.createRef();
-        this.textfieldRef = React.createRef();
-    }
 
-    updateText(value) {
-        const {onRequestOpen, searchTools:{values, setValues, savedSearches, nlpMatches}} = this.props;
+    const containerRef = useRef()
+    const textfieldRef = React.createRef();
+    const [popoverOpen, setPopoverOpen] = useState(false)
+    const [inputValue, setInputValue] = useState('')
+
+    const updateText = (value) => {
+        const {onRequestOpen, searchTools:{values, setValues, savedSearches, nlpMatches}} = props;
+        if(savedSearches.find(s => s.searchLABEL === value)){
+            setInputValue('')
+            return;
+        }
         if(value.indexOf('#saved#') === 0) {
             const savedId = value.replace('#saved#', '')
             const newValues = savedSearches.filter(s => s.searchID === savedId)[0]
             setValues(newValues);
+            setInputValue('')
             return;
         } else if (value === '#nlp#') {
             const metas = nlpMatches.asValues();
             const newValues = {...values, ...metas}
             setValues(newValues);
+            setInputValue('')
             return;
         }
         setValues({...values, basenameOrContent:value});
@@ -107,273 +112,263 @@ class UnifiedSearchForm extends React.Component {
         }
     }
 
-    togglePopover(e){
-        const {popoverOpen} = this.state || {};
-        const {onRequestOpen} = this.props;
+    const togglePopover = (e) => {
+        const {onRequestOpen} = props;
         if(popoverOpen) {
-            this.setState({popoverOpen: false})
+            setPopoverOpen(false)
         } else {
-            this.textfieldRef.current.blur()
+            textfieldRef.current.blur()
             if(e) {
                 e.stopPropagation()
             }
             onRequestOpen();
-            this.setState({
-                popoverOpen: true,
-                anchorElement:this.containerRef.current
-            })
+            setPopoverOpen(true)
         }
     }
 
-    focus() {
-        const {active, onRequestOpen, searchTools:{values, setValues}} = this.props;
+    const focus =  () => {
+        const {active, onRequestOpen, searchTools:{values, setValues}} = props;
         if(!active) {
             setValues(values);
         }
         onRequestOpen();
     }
 
-    render() {
+    const {style, active, searchTools, formStyles, pydio, preventOpen} = props;
+    const {values, setValues, advancedValues, getSearchOptions, nlpMatches, history=[], savedSearches=[], clearSavedSearch, saveSearch} = searchTools;
 
-        const {style, active, searchTools, formStyles, pydio, preventOpen} = this.props;
-
-        const {values, setValues, advancedValues, getSearchOptions, nlpMatches, history=[], savedSearches=[], clearSavedSearch, saveSearch} = searchTools;
-
-        const {basenameOrContent=''} = values;
-        const {popoverOpen, anchorElement} = this.state || {}
-        const filtersCount = advancedValues().length;
-        let wStyle = {};
-        if(active) {
-            wStyle = {width: 420}
-        }
-        const {filterButton={}, filterButtonActive={}} = formStyles;
-        const filterActiveStyles = filtersCount > 0 ? {backgroundColor:filterButton.color, color:'white', fontSize: 13, ...filterButtonActive} : {}
-
-
-        const nlpTags = {
-            container: {
-                borderRadius: 20,
-                backgroundColor: '#eceff1',
-                display: 'flex',
-                alignItems: 'center',
-                padding: '2px 10px',
-                marginRight: 5,
-                fontSize: 13,
-                height: 25,
-            },
-            value: {
-                fontWeight: 500
-            }
-        }
-
-        const completeMessage = (id) => pydio.MessageHash['searchengine.complete.'+id] || id
-
-        const currentFilters = []
-        const ad = advancedValues()
-        if(ad && ad.length > 0) {
-            let additionalChild;
-            if(basenameOrContent){
-                additionalChild = [<span>{basenameOrContent}</span>]
-            }
-            currentFilters.push(
-                {
-                    text:'',
-                    disable:true,
-                    value:(<AdvancedChips
-                        containerStyle={{paddingTop: 6, fontSize: 13, flex: 1}}
-                        searchTools={searchTools}
-                        title={completeMessage('activefilters')}
-                        titleTagStyle={{backgroundColor:'transparent'}}
-                        showRemove={false}
-                        append={additionalChild}/>)
-                }
-            )
-        }
-
-        const nlpSuggestions = []
-        const filteredMatches = nlpMatches && nlpMatches.getMatches();
-        if(filteredMatches && filteredMatches.length) {
-            const remainingString = nlpMatches.getRemaining()
-            const block = (
-                <span style={{display:'flex', flexWrap:'wrap', alignItems:'center'}}>
-                    <span>{completeMessage('suggestion.intro')}&nbsp;</span>
-                    {filteredMatches.map(m => {
-                        const {label, value} = Renderer.blockRenderer(this.props, m.meta?m.meta:m, m.value)
-                        if(value) {
-                            return <span className={"nlpTag"} style={nlpTags.container}>{label}: <span style={nlpTags.value}>{value}</span></span>
-                        } else {
-                            return <span className={"nlpTag"} style={nlpTags.container}>{label}</span>
-                        }
-                    })}
-                    <span>{remainingString?completeMessage('suggestion.remain').replace('%s', remainingString):''}?</span>
-                </span>
-            );
-            nlpSuggestions.push({
-                text:'#nlp#',
-                label:'#nlp#',
-                value: block,
-                icon:'mdi mdi-lightbulb-outline',
-                group:completeMessage('group.suggestion')
-            })
-        }
-
-        const completeDataSource = [
-            ...currentFilters,
-            ...nlpSuggestions,
-            ...savedSearches.map(k=>{
-                return{
-                    text:'#saved#' + k.searchID,
-                    label:'#saved#' + k.searchID,
-                    icon:"mdi mdi-content-save",
-                    value: k.searchLABEL,
-                    isSaved:true,
-                    group:completeMessage('group.saved'),
-                }
-            }),
-            ...history.map(k=>{
-                return{
-                    text:k,
-                    label:k,
-                    value:k,
-                    icon:'mdi mdi-magnify',
-                    isLast:true,
-                    group:completeMessage('group.history')
-                }
-            }),
-        ]
-
-        console.log(completeDataSource)
-
-        return (
-            <div style={{...styles.container, ...formStyles.mainStyle, ...style, ...wStyle, transition:DOMUtils.getBeziersTransition()}} ref={this.containerRef}>
-                <Popover
-                    open={popoverOpen}
-                    anchorEl={anchorElement}
-                    anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
-                    targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                    onRequestClose={()=>{this.togglePopover()}}
-                    useLayerForClickAway={true}
-                    style={{width:420}}
-                    zDepth={3}
-                >
-                    <AdvancedSearch
-                        values={values}
-                        searchTools={searchTools}
-                        getSearchOptions={getSearchOptions}
-                        onChange={(newValues) => setValues({...values, ...newValues})}
-                        rootStyle={{paddingBottom: 8, maxHeight: '80vh', overflowY: 'auto'}}
-                        showScope={true}
-                        savedSearches={savedSearches}
-                        saveSearch={saveSearch}
-                        clearSavedSearch={clearSavedSearch}
-                    />
-                </Popover>
-                <Autocomplete
-                    fullWidth={true}
-                    slotProps={{paper:{elevation:5},popper:{modifiers: [{name: "offset", options: {offset: [0, 10]}}]}}}
-                    value={null}
-                    renderInput={(params) => {
-                        return (
-                            <TextField
-                                {...params}
-                                variant={"standard"}
-                                fullWidth={true}
-                                inputRef={this.textfieldRef}
-                                inputProps={{...params.inputProps, value: params.inputProps.value || basenameOrContent}}
-                                placeholder={pydio.MessageHash['searchengine.main.placeholder']}
-                                InputLabelProps={{sx:{fontSize:'1rem !important', marginLeft: '10px !important', marginTop: '-3px !important'}}}
-                                InputProps={{
-                                    ...params.InputProps,
-                                    startAdornment:(
-                                        <InputAdornment position={"start"}>
-                                            <span className={"mdi mdi-magnify"} style={{...styles.magnifierStyle, ...formStyles.magnifierStyle}}/>
-                                        </InputAdornment>
-                                    ),
-                                    endAdornment: (
-                                    <span>
-                                        {params.InputProps.endAdornment}
-                                        {active &&
-                                            <div onClick={this.togglePopover.bind(this)} title={pydio.MessageHash['searchengine.advanced-filter.tooltip']} style={{...styles.filterButton, ...formStyles.filterButton, ...filterActiveStyles}}>
-                                                <TuneIcon fontSize={'small'}/>
-                                            </div>
-                                        }
-                                    </span>
-                                    ),
-                                    disableUnderline: true
-                                }}
-                                onFocus={()=>{this.focus(); setTimeout(() => {this.setState({searchFocus: true})}, 1000)}}
-                                onBlur={()=>{this.setState({searchFocus: false})}}
-                            />
-                        )}}
-                    onInputChange={(event, newInputValue) => {
-                        if(event){
-                            this.updateText(newInputValue)
-                        }
-                    }}
-                    onChange={(event, newValue) => {
-                        if(newValue) {
-                            if(typeof newValue === 'string'){
-                                this.updateText(newValue)
-                            } else {
-                                this.updateText(newValue.text)
-                            }
-                        } else {
-                            this.updateText('')
-                        }
-                    }}
-                    popupIcon={null}
-                    options={preventOpen?[]:completeDataSource}
-                    getOptionLabel={o => {
-                        if(typeof o === 'string') {
-                            return o
-                        } else if(o.text === '#nlp#'){
-                            return basenameOrContent
-                        } else if(o.text.indexOf('#saved#')> -1) {
-                            return ''
-                        } else {
-                            return o.text;
-                        }
-                   }}
-                    renderOption={(props, o, state) => {
-                        if(o.icon){
-                            return <li {...props}><span style={{opacity:.5, marginRight: 10}} className={o.icon}/> {o.value}</li>
-                        }else{
-                            return <li {...props}>{o.value}</li>
-                        }
-                    }}
-                    filterOptions={(x) => {
-                        if(basenameOrContent){
-                            // Filter out saved searches
-                            return x.filter(o => !o.isSaved).filter(o => !(o.isLast&&o.text.indexOf(basenameOrContent)!==0))
-                        }
-                        return x;
-                    }}
-                    groupBy={option => option.group}
-                    renderGroup={(params) => {
-                        if (params.group) {
-                            return (
-                                <li key={params.key}>
-                                    <div style={styles.groupHeader}>{params.group}</div>
-                                    <ul style={{marginBottom: 10}}>{params.children}</ul>
-                                </li>
-                            )
-                        } else {
-                            return params.children
-                        }
-                    }}
-                    isOptionEqualToValue={(o, v) => {
-                        return o.text === v.text
-                    }}
-                    getOptionDisabled={(option) => option.disable}
-                    blurOnSelect
-                    autoComplete
-                    freeSolo
-                    disableClearable
-                />
-                <style type={"text/css"} dangerouslySetInnerHTML={{__html:".MuiAutocomplete-option[aria-disabled='true']{opacity:1 !important; background-color: #f5f5f5;border-bottom: 1px solid #eee;}"}}/>
-            </div>
-        );
+    const {basenameOrContent=''} = values;
+    const filtersCount = advancedValues().length;
+    let wStyle = {};
+    if(active) {
+        wStyle = {width: 420}
     }
+    const {filterButton={}, filterButtonActive={}} = formStyles;
+    const filterActiveStyles = filtersCount > 0 ? {backgroundColor:filterButton.color, color:'white', ...filterButtonActive} : {}
+    const mergedButtonStyle = {...styles.filterButton, ...formStyles.filterButton, ...filterActiveStyles}
+    const {fontSize=22, color, ...buttonStyle} =  mergedButtonStyle
+    const buttonIconStyle = {fontSize, color}
+
+    const nlpTags = {
+        container: {
+            borderRadius: 20,
+            backgroundColor: '#eceff1',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '2px 10px',
+            marginRight: 5,
+            fontSize: 13,
+            height: 25,
+        },
+        value: {
+            fontWeight: 500
+        }
+    }
+
+    const completeMessage = (id) => pydio.MessageHash['searchengine.complete.'+id] || id
+
+    const currentFilters = []
+    const ad = advancedValues()
+    if(ad && ad.length > 0) {
+        let additionalChild;
+        if(basenameOrContent){
+            additionalChild = [<span>{basenameOrContent}</span>]
+        }
+        currentFilters.push(
+            {
+                text:'',
+                disable:true,
+                value:(<AdvancedChips
+                    containerStyle={{paddingTop: 6, fontSize: 13, flex: 1}}
+                    searchTools={searchTools}
+                    title={completeMessage('activefilters')}
+                    titleTagStyle={{backgroundColor:'transparent'}}
+                    showRemove={false}
+                    append={additionalChild}/>)
+            }
+        )
+    }
+
+    const nlpSuggestions = []
+    const filteredMatches = nlpMatches && nlpMatches.getMatches();
+    if(filteredMatches && filteredMatches.length) {
+        const remainingString = nlpMatches.getRemaining()
+        const block = (
+            <span style={{display:'flex', flexWrap:'wrap', alignItems:'center'}}>
+                <span>{completeMessage('suggestion.intro')}&nbsp;</span>
+                {filteredMatches.map(m => {
+                    const {label, value} = Renderer.blockRenderer(props, m.meta?m.meta:m, m.value)
+                    if(value) {
+                        return <span className={"nlpTag"} style={nlpTags.container}>{label}: <span style={nlpTags.value}>{value}</span></span>
+                    } else {
+                        return <span className={"nlpTag"} style={nlpTags.container}>{label}</span>
+                    }
+                })}
+                <span>{remainingString?completeMessage('suggestion.remain').replace('%s', remainingString):''}?</span>
+            </span>
+        );
+        nlpSuggestions.push({
+            text:'#nlp#',
+            label:'#nlp#',
+            value: block,
+            icon:'mdi mdi-lightbulb-outline',
+            group:completeMessage('group.suggestion')
+        })
+    }
+
+    const completeDataSource = [
+        ...currentFilters,
+        ...nlpSuggestions,
+        ...savedSearches.map(k=>{
+            return{
+                text:'#saved#' + k.searchID,
+                label:'#saved#' + k.searchID,
+                icon:"mdi mdi-content-save",
+                value: k.searchLABEL,
+                isSaved:true,
+                group:completeMessage('group.saved'),
+            }
+        }),
+        ...history.map(k=>{
+            return{
+                text:k,
+                label:k,
+                value:k,
+                icon:'mdi mdi-magnify',
+                isLast:true,
+                group:completeMessage('group.history')
+            }
+        }),
+    ]
+
+    return (
+        <div style={{...styles.container, ...formStyles.mainStyle, ...style, ...wStyle, transition:DOMUtils.getBeziersTransition()}} ref={containerRef}>
+            <Popover
+                open={popoverOpen}
+                anchorEl={containerRef.current}
+                anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
+                targetOrigin={{horizontal: 'right', vertical: 'top'}}
+                onRequestClose={()=>{togglePopover()}}
+                useLayerForClickAway={true}
+                style={{width:420}}
+                zDepth={3}
+            >
+                <AdvancedSearch
+                    values={values}
+                    searchTools={searchTools}
+                    getSearchOptions={getSearchOptions}
+                    onChange={(newValues) => setValues({...values, ...newValues})}
+                    rootStyle={{paddingBottom: 8, maxHeight: '80vh', overflowY: 'auto'}}
+                    showScope={true}
+                    savedSearches={savedSearches}
+                    saveSearch={saveSearch}
+                    clearSavedSearch={clearSavedSearch}
+                />
+            </Popover>
+            <Autocomplete
+                fullWidth={true}
+                slotProps={{paper:{elevation:5},popper:{modifiers: [{name: "offset", options: {offset: [0, 10]}}]}}}
+                value={null}
+                inputValue={inputValue || basenameOrContent}
+                renderInput={(params) => {
+                    return (
+                        <TextField
+                            {...params}
+                            variant={"standard"}
+                            fullWidth={true}
+                            inputRef={textfieldRef}
+                            placeholder={pydio.MessageHash['searchengine.main.placeholder']}
+                            InputLabelProps={{sx:{fontSize:'1rem !important', marginLeft: '10px !important', marginTop: '-3px !important'}}}
+                            InputProps={{
+                                ...params.InputProps,
+                                startAdornment:(
+                                    <InputAdornment position={"start"}>
+                                        <span className={"mdi mdi-magnify"} style={{...styles.magnifierStyle, ...formStyles.magnifierStyle}}/>
+                                    </InputAdornment>
+                                ),
+                                endAdornment: (
+                                <span>
+                                    {params.InputProps.endAdornment}
+                                    {active &&
+                                        <IconButton onClick={togglePopover} tooltip={pydio.MessageHash['searchengine.advanced-filter.tooltip']}
+                                                    style={buttonStyle} iconStyle={buttonIconStyle} iconClassName={"mdi mdi-tune"}/>
+                                    }
+                                </span>
+                                ),
+                                disableUnderline: true
+                            }}
+                            onFocus={()=>{focus()}}
+                        />
+                    )}}
+                onInputChange={(event, newInputValue) => {
+                    if(event){
+                        updateText(newInputValue)
+                        setInputValue(newInputValue)
+                    }
+                }}
+                onChange={(event, newValue) => {
+                    if(newValue) {
+                        if(typeof newValue === 'string'){
+                            updateText(newValue)
+                        } else {
+                            updateText(newValue.text)
+                        }
+                    } else {
+                        updateText('')
+                    }
+                }}
+                popupIcon={null}
+                options={preventOpen?[]:completeDataSource}
+                getOptionLabel={o => {
+                    if(typeof o === 'string') {
+                        return o
+                    } else if(o.text === '#nlp#'){
+                        return basenameOrContent
+                    } else if(o.text.indexOf('#saved#')> -1) {
+                        return o.value
+                    } else {
+                        return o.text;
+                    }
+               }}
+                renderOption={(props, o, state) => {
+                    if(o.icon){
+                        return <li {...props}><span style={{opacity:.5, marginRight: 10}} className={o.icon}/> {o.value}</li>
+                    }else{
+                        return <li {...props}>{o.value}</li>
+                    }
+                }}
+                filterOptions={(x) => {
+                    if(basenameOrContent){
+                        // Filter out saved searches
+                        return x.filter(o => !((o.isLast||o.isSaved)&&o.value.toLowerCase().indexOf(basenameOrContent.toLowerCase())===-1))
+                    }
+                    return x;
+                }}
+                groupBy={option => option.group}
+                renderGroup={(params) => {
+                    if (params.group) {
+                        return (
+                            <li key={params.key}>
+                                <div style={styles.groupHeader}>{params.group}</div>
+                                <ul style={{marginBottom: 10}}>{params.children}</ul>
+                            </li>
+                        )
+                    } else {
+                        return params.children
+                    }
+                }}
+                isOptionEqualToValue={(o, v) => {
+                    return o.text === v.text
+                }}
+                getOptionDisabled={(option) => option.disable}
+                blurOnSelect
+                autoComplete
+                freeSolo
+                disableClearable
+            />
+            <style type={"text/css"} dangerouslySetInnerHTML={{__html:".MuiAutocomplete-option[aria-disabled='true']{opacity:1 !important; background-color: #f5f5f5;border-bottom: 1px solid #eee;}"}}/>
+        </div>
+    );
 
 }
 
