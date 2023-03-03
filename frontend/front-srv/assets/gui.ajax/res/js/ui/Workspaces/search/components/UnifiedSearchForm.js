@@ -67,9 +67,12 @@ const styles = {
     },
     groupHeader:{
         position: 'sticky',
-        top: 0, padding: '8px 10px',
+        top: -1,
+        zIndex: 1,
+        padding: '8px 10px',
+        marginTop: 10,
         fontSize: 13, fontWeight: 500,
-        color:'rgba(17, 70, 97, 0.5)',
+        color:'rgb(114, 140, 157)',
         backgroundColor:'rgba(255,255,255,.9)',
         textTransform:'uppercase'
     }
@@ -135,6 +138,7 @@ class UnifiedSearchForm extends React.Component {
         const {style, active, searchTools, formStyles, pydio, preventOpen} = this.props;
 
         const {values, setValues, advancedValues, getSearchOptions, nlpMatches, history=[], savedSearches=[], clearSavedSearch, saveSearch} = searchTools;
+
         const {basenameOrContent=''} = values;
         const {popoverOpen, anchorElement} = this.state || {}
         const filtersCount = advancedValues().length;
@@ -162,6 +166,8 @@ class UnifiedSearchForm extends React.Component {
             }
         }
 
+        const completeMessage = (id) => pydio.MessageHash['searchengine.complete.'+id] || id
+
         const currentFilters = []
         const ad = advancedValues()
         if(ad && ad.length > 0) {
@@ -176,7 +182,7 @@ class UnifiedSearchForm extends React.Component {
                     value:(<AdvancedChips
                         containerStyle={{paddingTop: 6, fontSize: 13, flex: 1}}
                         searchTools={searchTools}
-                        title={"Filters:"}
+                        title={completeMessage('activefilters')}
                         titleTagStyle={{backgroundColor:'transparent'}}
                         showRemove={false}
                         append={additionalChild}/>)
@@ -190,7 +196,7 @@ class UnifiedSearchForm extends React.Component {
             const remainingString = nlpMatches.getRemaining()
             const block = (
                 <span style={{display:'flex', flexWrap:'wrap', alignItems:'center'}}>
-                    <span>Do you mean&nbsp;</span>
+                    <span>{completeMessage('suggestion.intro')}&nbsp;</span>
                     {filteredMatches.map(m => {
                         const {label, value} = Renderer.blockRenderer(this.props, m.meta?m.meta:m, m.value)
                         if(value) {
@@ -199,30 +205,44 @@ class UnifiedSearchForm extends React.Component {
                             return <span className={"nlpTag"} style={nlpTags.container}>{label}</span>
                         }
                     })}
-                    <span>{remainingString?' containing '+'"'+remainingString+'"':''}?</span>
+                    <span>{remainingString?completeMessage('suggestion.remain').replace('%s', remainingString):''}?</span>
                 </span>
             );
             nlpSuggestions.push({
                 text:'#nlp#',
+                label:'#nlp#',
                 value: block,
                 icon:'mdi mdi-lightbulb-outline',
-                group:'Advanced Suggestion'
+                group:completeMessage('group.suggestion')
             })
         }
 
         const completeDataSource = [
             ...currentFilters,
             ...nlpSuggestions,
-            ...savedSearches.filter(k => !basenameOrContent).map(k=>{
+            ...savedSearches.map(k=>{
                 return{
                     text:'#saved#' + k.searchID,
+                    label:'#saved#' + k.searchID,
                     icon:"mdi mdi-content-save",
                     value: k.searchLABEL,
-                    group:'Saved Searches',
+                    isSaved:true,
+                    group:completeMessage('group.saved'),
                 }
             }),
-            ...history.filter(k => (!basenameOrContent||(k.indexOf(basenameOrContent)===0&&k!==basenameOrContent))).map(k=>{return{text:k,value:k, group:'Last Searches', icon:'mdi mdi-magnify'}}),
+            ...history.map(k=>{
+                return{
+                    text:k,
+                    label:k,
+                    value:k,
+                    icon:'mdi mdi-magnify',
+                    isLast:true,
+                    group:completeMessage('group.history')
+                }
+            }),
         ]
+
+        console.log(completeDataSource)
 
         return (
             <div style={{...styles.container, ...formStyles.mainStyle, ...style, ...wStyle, transition:DOMUtils.getBeziersTransition()}} ref={this.containerRef}>
@@ -251,6 +271,7 @@ class UnifiedSearchForm extends React.Component {
                 <Autocomplete
                     fullWidth={true}
                     slotProps={{paper:{elevation:5},popper:{modifiers: [{name: "offset", options: {offset: [0, 10]}}]}}}
+                    value={null}
                     renderInput={(params) => {
                         return (
                             <TextField
@@ -320,14 +341,20 @@ class UnifiedSearchForm extends React.Component {
                             return <li {...props}>{o.value}</li>
                         }
                     }}
-                    filterOptions={(x) => x}
+                    filterOptions={(x) => {
+                        if(basenameOrContent){
+                            // Filter out saved searches
+                            return x.filter(o => !o.isSaved).filter(o => !(o.isLast&&o.text.indexOf(basenameOrContent)!==0))
+                        }
+                        return x;
+                    }}
                     groupBy={option => option.group}
                     renderGroup={(params) => {
                         if (params.group) {
                             return (
                                 <li key={params.key}>
                                     <div style={styles.groupHeader}>{params.group}</div>
-                                    <ul style={{marginBottom: 20}}>{params.children}</ul>
+                                    <ul style={{marginBottom: 10}}>{params.children}</ul>
                                 </li>
                             )
                         } else {

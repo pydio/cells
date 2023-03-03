@@ -280,6 +280,10 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
             return (defaultScope === scope)
         }
 
+        getDefaultScope() {
+            return defaultScope;
+        }
+
         advancedValues() {
             const {values} = this.state;
             const types = {
@@ -476,6 +480,8 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
                 clearSavedSearch:this.removeSavedSearch.bind(this),
                 getSearchOptions:this.getSearchOptions.bind(this),
                 advancedValues:this.advancedValues.bind(this),
+                isDefaultScope:this.isDefaultScope.bind(this),
+                getDefaultScope:this.getDefaultScope.bind(this),
                 SearchConstants
             }
 

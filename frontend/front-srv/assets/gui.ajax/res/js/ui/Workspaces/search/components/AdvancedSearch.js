@@ -23,10 +23,9 @@ import {Subheader} from 'material-ui';
 import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 const {ModernTextField} = Pydio.requireLib('hoc');
-import {FlatButton} from 'material-ui'
 import Renderer from './Renderer'
 
-const FieldRow = ({constants, name, label, values, children, style, onRemove = ()=>{}}) => {
+const FieldRow = ({constants, name, label, values, children, style, getDefaultScope,isDefaultScope, onRemove = ()=>{}}) => {
     let labelStyle= {
         width: 100,
         fontSize: 13,
@@ -48,7 +47,7 @@ const FieldRow = ({constants, name, label, values, children, style, onRemove = (
     if(values[name]) {
         active = true;
         if(name === constants.KeyScope) {
-            active = values[name] !== 'all'
+            active = !isDefaultScope(values[name])
         }
     } else if(values[constants.KeyMetaPrefix+name]) {
         actualKey = constants.KeyMetaPrefix+name
@@ -118,13 +117,13 @@ class AdvancedSearch extends Component {
     }
 
     clearAll() {
-        const {values, onChange} = this.props;
+        const {values, onChange, searchTools:{SearchConstants, getDefaultScope}} = this.props;
         let clearVals = {}
         Object.keys(values).forEach(k => {
-            if(k === 'basenameOrContent') {
+            if(k === SearchConstants.KeyBasenameOrContent) {
                 clearVals[k] = values[k]
-            } else if (k === 'scope') {
-                clearVals[k] = 'all'
+            } else if (k === SearchConstants.KeyScope) {
+                clearVals[k] = getDefaultScope()
             } else {
                 clearVals[k] = undefined;
             }
@@ -138,7 +137,7 @@ class AdvancedSearch extends Component {
         const {searchOptions, promptSearchLabel, currentSearchLabel} = this.state;
         const headerStyle = {
             fontSize: 13,
-            color: 'rgb(144 165 178)',
+            color: 'rgb(114, 140, 157)',
             textTransform: 'uppercase',
             fontWeight: 500,
             marginBottom: -10,
@@ -150,21 +149,30 @@ class AdvancedSearch extends Component {
             textDecoration: 'underline',
             cursor: 'pointer'
         }
+        const linkIcon = {
+            color: '#9e9e9e',
+            cursor: 'pointer',
+            display:'inline-block',
+            marginLeft: 10
+        }
 
+        const {getDefaultScope, isDefaultScope, advancedValues} = searchTools
         const onRemove = (key) => {
             const newValues = {...values}
-            newValues[key] = key === 'scope' ? 'all' : undefined;
+            newValues[key] = key === 'scope' ? getDefaultScope() : undefined;
             this.onChange(newValues);
         }
         const rowProps = {
             values,
-            onRemove
+            onRemove,
+            isDefaultScope,
+            getDefaultScope
         }
 
-        const {basenameOrContent, scope, searchID, searchLABEL, ...others} = values;
-        let showClear = scope !== 'all' || (others && Object.keys(others).length > 0)
-        let showSave = scope !== 'all' || basenameOrContent || (others && Object.keys(others).length > 0)
-        let showRemove = !!searchID
+        const {searchID, searchLABEL} = values;
+        const hasAdvanced = advancedValues().length > 0
+        let showClear = hasAdvanced
+        let showSaveNew = !searchID && !promptSearchLabel && hasAdvanced
         const kk = searchTools.SearchConstants
 
 
@@ -181,34 +189,69 @@ class AdvancedSearch extends Component {
             {name:kk.KeyBytesize, type:'bytesize', label: getMessage(2)},
         ]
 
+        const close = () => {
+            this.setState({promptSearchLabel:false, currentSearchLabel: ''})
+        }
+        const saveAndClose = () => {
+            saveSearch(currentSearchLabel||searchLABEL);
+            close()
+        }
+
+        const deleteAndClose = () => {
+            if(window.confirm(getMessage('searchengine.query.action.delete-confirm'))){
+                clearSavedSearch(searchID)
+                close()
+            }
+        }
+
         return (
             <div className="search-advanced" style={{...rootStyle}}>
 
-                {promptSearchLabel &&
-                    <div style={{display: 'flex',alignItems: 'center', padding: '4px 12px 2px', backgroundColor: '#f8fafc'}}>
-                        <ModernTextField focusOnMount={true} hintText={getMessage('searchengine.query.save-label')} value={currentSearchLabel||searchLABEL||""} onChange={(e,v)=>this.setState({currentSearchLabel: v})}/>
-                        <FlatButton label={getMessage('searchengine.query.action.save')} onClick={()=>{
-                            saveSearch(currentSearchLabel||searchLABEL);
-                            this.setState({promptSearchLabel:false, currentSearchLabel: ''})}
-                        } disabled={!(currentSearchLabel||searchLABEL)}/>
-                        <FlatButton label={getMessage('54')} onClick={()=>{this.setState({currentSearchLabel:'', promptSearchLabel:false})}}/>
+                {(searchID || promptSearchLabel) &&
+                    <div style={{display: 'flex',alignItems: 'center', backgroundColor:'#f5f5f5', borderBottom: '1px solid #eaeaea'}}>
+                        {promptSearchLabel &&
+                            <div style={{flex: 1, paddingLeft:20}}>
+                                <ModernTextField
+                                    focusOnMount={true}
+                                    fullWidth={true}
+                                    hintText={getMessage('searchengine.query.save-label')}
+                                    value={currentSearchLabel||searchLABEL||""}
+                                    onChange={(e,v)=>this.setState({currentSearchLabel: v})}
+                                    onKeyDown={(e)=>{if(e.key === 'Enter'){saveAndClose()}}}
+                                />
+                            </div>
+                        }
+                        {!promptSearchLabel &&
+                            <div
+                                style={{flex: 1, cursor: 'pointer', fontSize: 15, padding: '12px 20px', }}
+                                onClick={() => this.setState({promptSearchLabel:true})}
+                            >{searchLABEL} <span className={"mdi mdi-pencil"} style={{opacity:.5}}/></div>
+                        }
+                        <div style={{padding: '12px 20px', fontSize: 15}}>
+                            {promptSearchLabel &&
+                                <a onClick={saveAndClose} style={linkIcon} title={getMessage('searchengine.query.action.save')}><span className={"mdi mdi-content-save"}/></a>
+                            }
+                            {promptSearchLabel &&
+                                <a onClick={close} style={linkIcon} title={getMessage('54')}><span className={"mdi mdi-close-circle"}/></a>
+                            }
+                            {!promptSearchLabel && searchID &&
+                                <a onClick={deleteAndClose} style={linkIcon} title={getMessage('searchengine.query.action.delete')}><span className={"mdi mdi-delete"}/></a>
+                            }
+                        </div>
                     </div>
                 }
 
-                {!promptSearchLabel &&
-                    <div style={{display:'flex'}}>
-                    <Subheader style={{...headerStyle, marginTop: 0, flex: 1}}>{getMessage(341)}</Subheader>
-                        {(showSave || showClear) &&
-                            <div style={linkStyle}>
-                                {showRemove && <a onClick={()=>clearSavedSearch(searchID)}>{getMessage('searchengine.query.action.delete')}</a>}
-                                {showRemove && showSave && " | "}
-                                {showSave && <a onClick={()=>this.setState({promptSearchLabel:true})}>{getMessage('searchengine.query.action.save')}</a>}
-                                {showSave && showClear && " | "}
-                                {showClear && <a onClick={()=>this.clearAll()}>{getMessage('searchengine.query.action.clear')}</a>}
-                            </div>
-                        }
-                    </div>
-                }
+
+                <div style={{display:'flex'}}>
+                <Subheader style={{...headerStyle, marginTop: 0, flex: 1}}>{getMessage(341)}</Subheader>
+                    {(showSaveNew || showClear) &&
+                        <div style={linkStyle}>
+                            {showSaveNew && <a onClick={()=>this.setState({promptSearchLabel:true})}>{getMessage('searchengine.query.action.save-new')}</a>}
+                            {showSaveNew && showClear && " | "}
+                            {showClear && <a onClick={()=>this.clearAll()}>{getMessage('searchengine.query.action.clear-all')}</a>}
+                        </div>
+                    }
+                </div>
 
                 {fields.map(f => {
                     if(f.subheader) {

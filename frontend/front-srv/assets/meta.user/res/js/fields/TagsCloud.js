@@ -153,7 +153,7 @@ class TagsCloud extends React.Component {
         const {editMode, search, label} = this.props;
         const {tags, searchText} = this.state;
 
-        let tagsList = <div/>, autoCompleter, knownTags = [];
+        let tagsList, autoCompleter, knownTags = [];
 
         if (tags && tags.split) {
             knownTags = tags.split(',').map(tag => LangUtils.trim(tag, ' ')).filter(tag => !!tag)
@@ -162,7 +162,7 @@ class TagsCloud extends React.Component {
 
         if (editMode) {
             const Component = search ? AutoComplete : ModernAutoComplete
-            const otherProps = search ? {style:{marginBottom: -8}, ...ModernStyles.textField} : {hintText:label}
+            const otherProps = search ? {style:{marginBottom: -10}, ...ModernStyles.textField} : {hintText:label}
             autoCompleter = (
                 <Component
                     fullWidth={true}
@@ -174,6 +174,7 @@ class TagsCloud extends React.Component {
                     filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0 && knownTags.indexOf(key) === -1)}
                     openOnFocus={true}
                     menuProps={{maxHeight: 200, desktop: true}}
+                    listStyle={{paddingTop: 5, paddingBottom: 5}}
                     onClose={() => {if(searchText) {
                         this.handleNewRequest()
                     }}}
@@ -187,7 +188,7 @@ class TagsCloud extends React.Component {
         return (
             <div style={search?{marginBottom: 8}:{}}>
                 {autoCompleter}
-                <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8, marginTop: search?8:0}}>{tagsList}</div>
+                {tagsList && <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8, marginTop: search?8:0}}>{tagsList}</div>}
             </div>
         )
     }
