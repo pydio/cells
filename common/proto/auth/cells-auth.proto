@@ -191,6 +191,20 @@ message ExchangeResponse {
     int64 Expiry = 4 [json_name="expiry"];
 }
 
+service PasswordCredentialsCode {
+    rpc PasswordCredentialsCode(PasswordCredentialsCodeRequest) returns(PasswordCredentialsCodeResponse) {};
+}
+
+message PasswordCredentialsCodeRequest {
+    string Username = 1 [json_name="username"];
+    string Password = 2 [json_name="password"];
+    string Challenge = 3 [json_name="challenge"];
+}
+
+message PasswordCredentialsCodeResponse {
+    string Code = 1 [json_name="code"];
+}
+
 service PasswordCredentialsToken {
     rpc PasswordCredentialsToken(PasswordCredentialsTokenRequest) returns (PasswordCredentialsTokenResponse) {};
 }

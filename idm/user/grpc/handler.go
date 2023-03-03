@@ -74,7 +74,7 @@ type Handler struct {
 	dao user.DAO
 }
 
-func NewHandler(ctx context.Context, dao user.DAO) idm.NamedUserServiceServer {
+func NewHandler(ctx context.Context, dao user.DAO) idm.UserServiceServer {
 	return &Handler{ctx: ctx, dao: dao}
 }
 

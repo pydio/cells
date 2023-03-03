@@ -61,7 +61,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
 			service.Description("WebSocket server pushing event to the clients"),
-			service.Fork(true),
+			//service.Fork(true),
 			service.WithHTTPStop(func(ctx context.Context, mux server.HttpMux) error {
 				if m, ok := mux.(server.PatternsProvider); ok {
 					m.DeregisterPattern("/ws/event")

@@ -49,7 +49,7 @@ type Handler struct {
 	dao role.DAO
 }
 
-func NewHandler(ctx context.Context, dao role.DAO) idm.NamedRoleServiceServer {
+func NewHandler(ctx context.Context, dao role.DAO) idm.RoleServiceServer {
 	return &Handler{dao: dao}
 }
 

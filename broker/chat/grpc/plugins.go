@@ -55,7 +55,7 @@ func init() {
 				}),
 			),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
-				proto.RegisterChatServiceEnhancedServer(server, &ChatHandler{RuntimeCtx: c, dao: servicecontext.GetDAO(c).(chat.DAO)})
+				proto.RegisterChatServiceServer(server, &ChatHandler{RuntimeCtx: c, dao: servicecontext.GetDAO(c).(chat.DAO)})
 				return nil
 			}),
 		)

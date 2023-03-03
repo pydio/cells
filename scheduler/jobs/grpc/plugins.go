@@ -60,7 +60,7 @@ func init() {
 			service.Tag(common.ServiceTagScheduler),
 			service.Description("Store for scheduler jobs description"),
 			// service.Unique(true),
-			service.Fork(true),
+			// service.Fork(true),
 			service.WithStorage(jobs.NewDAO,
 				service.WithStoragePrefix("jobs"),
 				service.WithStorageMigrator(jobs.Migrate),
@@ -113,9 +113,9 @@ func init() {
 					return err
 				}
 				handler := NewJobsHandler(c, store, logStore)
-				proto.RegisterJobServiceEnhancedServer(server, handler)
-				log2.RegisterLogRecorderEnhancedServer(server, handler)
-				sync.RegisterSyncEndpointEnhancedServer(server, handler)
+				proto.RegisterJobServiceServer(server, handler)
+				log2.RegisterLogRecorderServer(server, handler)
+				sync.RegisterSyncEndpointServer(server, handler)
 				logger := log3.Logger(c)
 
 				for _, j := range getDefaultJobs() {

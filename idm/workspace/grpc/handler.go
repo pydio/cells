@@ -41,7 +41,7 @@ type Handler struct {
 	dao workspace.DAO
 }
 
-func NewHandler(ctx context.Context, dao workspace.DAO) idm.NamedWorkspaceServiceServer {
+func NewHandler(ctx context.Context, dao workspace.DAO) idm.WorkspaceServiceServer {
 	return &Handler{dao: dao}
 }
 

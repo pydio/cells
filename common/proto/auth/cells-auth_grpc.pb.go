@@ -888,6 +888,93 @@ var AuthCodeExchanger_ServiceDesc = grpc.ServiceDesc{
 	Metadata: "cells-auth.proto",
 }
 
+// PasswordCredentialsCodeClient is the client API for PasswordCredentialsCode service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type PasswordCredentialsCodeClient interface {
+	PasswordCredentialsCode(ctx context.Context, in *PasswordCredentialsCodeRequest, opts ...grpc.CallOption) (*PasswordCredentialsCodeResponse, error)
+}
+
+type passwordCredentialsCodeClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewPasswordCredentialsCodeClient(cc grpc.ClientConnInterface) PasswordCredentialsCodeClient {
+	return &passwordCredentialsCodeClient{cc}
+}
+
+func (c *passwordCredentialsCodeClient) PasswordCredentialsCode(ctx context.Context, in *PasswordCredentialsCodeRequest, opts ...grpc.CallOption) (*PasswordCredentialsCodeResponse, error) {
+	out := new(PasswordCredentialsCodeResponse)
+	err := c.cc.Invoke(ctx, "/auth.PasswordCredentialsCode/PasswordCredentialsCode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// PasswordCredentialsCodeServer is the server API for PasswordCredentialsCode service.
+// All implementations must embed UnimplementedPasswordCredentialsCodeServer
+// for forward compatibility
+type PasswordCredentialsCodeServer interface {
+	PasswordCredentialsCode(context.Context, *PasswordCredentialsCodeRequest) (*PasswordCredentialsCodeResponse, error)
+	mustEmbedUnimplementedPasswordCredentialsCodeServer()
+}
+
+// UnimplementedPasswordCredentialsCodeServer must be embedded to have forward compatible implementations.
+type UnimplementedPasswordCredentialsCodeServer struct {
+}
+
+func (UnimplementedPasswordCredentialsCodeServer) PasswordCredentialsCode(context.Context, *PasswordCredentialsCodeRequest) (*PasswordCredentialsCodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PasswordCredentialsCode not implemented")
+}
+func (UnimplementedPasswordCredentialsCodeServer) mustEmbedUnimplementedPasswordCredentialsCodeServer() {
+}
+
+// UnsafePasswordCredentialsCodeServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PasswordCredentialsCodeServer will
+// result in compilation errors.
+type UnsafePasswordCredentialsCodeServer interface {
+	mustEmbedUnimplementedPasswordCredentialsCodeServer()
+}
+
+func RegisterPasswordCredentialsCodeServer(s grpc.ServiceRegistrar, srv PasswordCredentialsCodeServer) {
+	s.RegisterService(&PasswordCredentialsCode_ServiceDesc, srv)
+}
+
+func _PasswordCredentialsCode_PasswordCredentialsCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PasswordCredentialsCodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PasswordCredentialsCodeServer).PasswordCredentialsCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth.PasswordCredentialsCode/PasswordCredentialsCode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PasswordCredentialsCodeServer).PasswordCredentialsCode(ctx, req.(*PasswordCredentialsCodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// PasswordCredentialsCode_ServiceDesc is the grpc.ServiceDesc for PasswordCredentialsCode service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var PasswordCredentialsCode_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "auth.PasswordCredentialsCode",
+	HandlerType: (*PasswordCredentialsCodeServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "PasswordCredentialsCode",
+			Handler:    _PasswordCredentialsCode_PasswordCredentialsCode_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "cells-auth.proto",
+}
+
 // PasswordCredentialsTokenClient is the client API for PasswordCredentialsToken service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.

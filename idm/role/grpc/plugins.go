@@ -66,7 +66,7 @@ func init() {
 					return fmt.Errorf("cannot convert DAO to role.DAO")
 				}
 				handler := NewHandler(ctx, rDao)
-				idm.RegisterRoleServiceEnhancedServer(server, handler)
+				idm.RegisterRoleServiceServer(server, handler)
 
 				// Clean role on user deletion
 				cleaner := NewCleaner(ctx, handler)

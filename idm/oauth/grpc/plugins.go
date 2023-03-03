@@ -51,7 +51,7 @@ func init() {
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
-			service.Tag(common.ServiceTagIdm),
+			service.Tag(common.ServiceTagAuth),
 			service.Description("OAuth Provider"),
 			service.Migrations([]*service.Migration{
 				{
@@ -62,16 +62,16 @@ func init() {
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				h := &Handler{name: Name}
 
-				auth2.RegisterAuthTokenVerifierEnhancedServer(server, h)
-				auth2.RegisterLoginProviderEnhancedServer(server, h)
-				auth2.RegisterConsentProviderEnhancedServer(server, h)
-				auth2.RegisterLogoutProviderEnhancedServer(server, h)
-				auth2.RegisterAuthCodeProviderEnhancedServer(server, h)
-				auth2.RegisterAuthCodeExchangerEnhancedServer(server, h)
-				auth2.RegisterAuthTokenRefresherEnhancedServer(server, h)
-				auth2.RegisterAuthTokenRevokerEnhancedServer(server, h)
-				auth2.RegisterAuthTokenPrunerEnhancedServer(server, h)
-				auth2.RegisterPasswordCredentialsTokenEnhancedServer(server, h)
+				auth2.RegisterAuthTokenVerifierServer(server, h)
+				auth2.RegisterLoginProviderServer(server, h)
+				auth2.RegisterConsentProviderServer(server, h)
+				auth2.RegisterLogoutProviderServer(server, h)
+				auth2.RegisterAuthCodeProviderServer(server, h)
+				auth2.RegisterAuthCodeExchangerServer(server, h)
+				auth2.RegisterAuthTokenRefresherServer(server, h)
+				auth2.RegisterAuthTokenRevokerServer(server, h)
+				auth2.RegisterAuthTokenPrunerServer(server, h)
+				auth2.RegisterPasswordCredentialsTokenServer(server, h)
 
 				watcher, _ := config.Watch(configx.WithPath("services", common.ServiceWebNamespace_+common.ServiceOAuth))
 				go func() {
@@ -108,9 +108,9 @@ func init() {
 					name: common.ServiceGrpcNamespace_ + common.ServiceToken,
 					dao:  servicecontext.GetDAO(ctx).(oauth.DAO),
 				}
-				auth2.RegisterPersonalAccessTokenServiceEnhancedServer(server, pat)
-				auth2.RegisterAuthTokenVerifierEnhancedServer(server, pat)
-				auth2.RegisterAuthTokenPrunerEnhancedServer(server, pat)
+				auth2.RegisterPersonalAccessTokenServiceServer(server, pat)
+				auth2.RegisterAuthTokenVerifierServer(server, pat)
+				auth2.RegisterAuthTokenPrunerServer(server, pat)
 				return nil
 			}),
 		)

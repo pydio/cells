@@ -850,7 +850,8 @@ func (c *config) StringArray() []string {
 	defer unlocker()
 
 	v := c.get()
-	if v == nil {
+	vv := reflect.ValueOf(v)
+	if !vv.IsValid() || reflect.ValueOf(v).IsNil() || reflect.ValueOf(v).IsZero() {
 		return []string{}
 	}
 	return cast.ToStringSlice(c.get())

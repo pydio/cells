@@ -27,6 +27,7 @@ import (
 	"github.com/pydio/cells/v4/common/crypto"
 	"net/url"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -94,7 +95,7 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 	case "jsonitem":
 		opts = append(opts, WithJSONItem())
 	default:
-		if u.Scheme == "etcd" {
+		if strings.HasPrefix(u.Scheme, "etcd") {
 			opts = append(opts, WithJSONItem())
 		}
 	}
@@ -114,7 +115,7 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 		"other":    map[string]registry.Item{},
 	}))
 
-	switch u.Scheme {
+	switch strings.TrimSuffix(u.Scheme, "+tls") {
 	case "etcd":
 		addr := "://" + u.Host
 		if o.tlsConfig == nil {

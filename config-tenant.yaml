@@ -1,0 +1,176 @@
+name: tenant1
+
+bind: &bind 0.0.0.0
+advertise: &advertise 127.0.0.1
+
+connections: &connections
+  config:
+    uri: grpc://0.0.0.0:8202
+  registry:
+    uri: grpc://0.0.0.0:8202
+
+servers: &servers
+  grpc:
+    bind: *bind
+    advertise: *advertise
+    port: 0
+  grpc_discovery:
+    bind: *bind
+    advertise: *advertise
+    port: 0
+  http:
+    bind: *bind
+    advertise: *advertise
+    type: http
+    port: 0
+
+env: &env
+  CELLS_CONFIG_DATABASES: {
+    "mysql": {
+      "driver": "mysql",
+      "dsn": "root:P@ssw0rd@tcp(localhost:3306)/cellstenant?parseTime=true"
+    },
+  }
+  CELLS_CONFIG_DEFAULTS: {
+    "database": {
+      "$ref": "#/databases/mysql"
+    },
+    "datasource": "myds",
+    "sites": [
+      {
+        "Binds": [
+          "0.0.0.0:8280"
+        ],
+        "TLSConfig": {
+          "SelfSigned": { }
+        }
+      }
+    ]
+  }
+  CELLS_CONFIG_SERVICES: {
+    "pydio.grpc.data.objects": {
+      "sources": [ "myds" ]
+    },
+    "pydio.grpc.data.index": {
+      "sources": [ "myds" ]
+    },
+    "pydio.grpc.data.sync": {
+      "sources": [ "myds" ]
+    },
+    "pydio.docstore-binaries": {
+      "bucket": "binaries",
+      "datasource": "myds"
+    },
+    "pydio.thumbs_store": {
+      "bucket": "thumbs",
+      "datasource": "myds"
+    },
+    "pydio.versions-store": {
+      "bucket": "versions",
+      "datasource": "myds"
+    }
+  }
+
+processes:
+  - name: discovery
+
+    connections:
+      config:
+        uri: mem://
+      registry:
+        uri: grpc+restricted://0.0.0.0:8002?tenant=test
+      logs:
+        uri: file://stdout
+
+    servers:
+      <<: *servers
+      grpc_discovery:
+        port: 8202
+
+    env: *env
+
+    services:
+      discovery:
+
+  - name: frontend
+    connections: *connections
+    servers:
+      <<: *servers
+      http:
+        type: caddy
+        port: 8280
+    env: *env
+    services:
+      frontend:
+
+  - name: datasource
+    connections:
+      <<: *connections
+      config:
+        uri: mem://?env=CELLS_CONFIG_
+    servers: *servers
+    env:
+      <<: *env
+      CELLS_CONFIG_SERVICES: {
+        "pydio.grpc.data.objects": {
+          "sources": [ "myds" ]
+        },
+        "pydio.grpc.data.objects.local1": {
+          "ApiKey": "pydio",
+          "ApiSecret": "pydioforever",
+          "LocalFolder": "/tmp/tenant1/datasource",
+          "Name": "myds",
+          "RunningPort": 60206
+        }
+      }
+    services:
+      datasource:
+        - pydio.grpc.data.objects.myds
+
+  - name: index
+    connections:
+      <<: *connections
+      config:
+        uri: mem://?env=CELLS_CONFIG_
+    servers:
+      grpc:
+        port: 8207
+      http:
+        type: http
+        port: 8284
+    env:
+      <<: *env
+      CELLS_CONFIG_SERVICES: {
+        "pydio.grpc.data.index": {
+          "sources": [ "myds" ]
+        },
+        "pydio.grpc.data.sync": {
+          "sources": [ "myds" ]
+        },
+        "pydio.grpc.data.index.myds": {
+          "dsn": "mysql",
+          "tables": {
+            "commits": "data_myds_commits",
+            "nodes": "data_myds_nodes",
+            "tree": "data_myds_tree"
+          }
+        },
+        "pydio.grpc.data.sync.myds": {
+          "ApiKey": "pydio",
+          "ApiSecret": "pydioforever",
+          "FlatStorage": true,
+          "Name": "myds",
+          "ObjectsBucket": "myds",
+          "ObjectsPort": 60206,
+          "ObjectsServiceName": "myds",
+          "StorageConfiguration": {
+            "folder": "/tmp/tenant1/datasource",
+            "hashingVersion": "v4",
+            "normalize": "true"
+          }
+        }
+      }
+    services:
+      datasource:
+        - pydio.grpc.data.index.myds
+        - pydio.grpc.data.sync.myds

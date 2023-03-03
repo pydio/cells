@@ -10,11 +10,14 @@ metadata:
     {{- end }}
   annotations:
     {{- if .Values.ingress.annotations }}
-      {{- include "common.tplvalues.render" (dict "value" .Values.ingress.annotations "context" $) | nindent 4 }}
-      {{- end }}
-      {{- if .Values.commonAnnotations }}
-      {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
-      {{- end }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.ingress.annotations "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.service.tlsconfig }}
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    {{- end}}
 spec:
   {{- if and .Values.ingress.ingressClassName (include "common.ingress.supportsIngressClassname" .) }}
   ingressClassName: {{ .Values.ingress.ingressClassName | quote }}

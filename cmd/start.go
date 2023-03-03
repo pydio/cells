@@ -155,7 +155,13 @@ ENVIRONMENT
 			if err != nil {
 				return err
 			}
-			discoveryConn, err := grpc.Dial(u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+			discoveryConn, err := grpc.Dial(u.Host,
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithUnaryInterceptor(func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+					// method = "pydio.grpc.registry" + method
+					return invoker(ctx, method, req, reply, cc, opts...)
+				}),
+			)
 			if err != nil {
 				return err
 			}
@@ -213,15 +219,16 @@ ENVIRONMENT
 
 		// Starting discovery server containing registry, broker, config and log
 		var discovery manager.Manager
-		if !runtime.IsGrpcScheme(runtime.RegistryURL()) || runtime.LogLevel() == "debug" {
-			if discovery, err = startDiscoveryServer(ctx, reg, managerLogger); err != nil {
-				return err
-			}
+		// TODO - should be done in some other way
+		//if !runtime.IsGrpcScheme(runtime.RegistryURL()) || runtime.LogLevel() == "debug" {
+		if discovery, err = startDiscoveryServer(ctx, reg, managerLogger); err != nil {
+			return err
 		}
+		//}
 
 		// Create a main client connection
 		clientgrpc.WarnMissingConnInContext = true
-		conn, err := grpc.Dial("cells:///", clientgrpc.DialOptionsForRegistry(reg)...)
+		conn, err := grpc.Dial("xds:///mysrv", clientgrpc.DialOptionsForRegistry(reg)...)
 		if err != nil {
 			return err
 		}
@@ -239,6 +246,13 @@ ENVIRONMENT
 
 		go m.WatchServicesConfigs()
 		go m.WatchBroker(ctx, broker.Default())
+
+		//tracer, err := tracing.OpenTracing(ctx, "jaeger:///")
+		//if err != nil {
+		//	return err
+		//}
+		//
+		//otel.SetTracerProvider(tracer)
 
 		if replaced := config.EnvOverrideDefaultBind(); replaced {
 			// Bind sites are replaced by flags/env values - warn that it will take precedence

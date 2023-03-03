@@ -59,7 +59,7 @@ func init() {
 				service.Tag(common.ServiceTagDatasource),
 				service.Description("Datasource indexation service"),
 				service.Source(source),
-				service.Fork(true),
+				// service.Fork(true),
 				service.AutoStart(false),
 				service.Unique(true),
 				service.WithStorage(index.NewDAO, service.WithStoragePrefix(func(o *service.ServiceOptions) string {
@@ -73,14 +73,14 @@ func init() {
 						return fmt.Errorf("cannot find datasource configuration for " + sourceOpt)
 					}
 					engine := NewTreeServer(dsObject, name, servicecontext.GetDAO(ctx).(index.DAO))
-					tree.RegisterNodeReceiverEnhancedServer(srv, engine)
-					tree.RegisterNodeProviderEnhancedServer(srv, engine)
-					tree.RegisterNodeReceiverStreamEnhancedServer(srv, engine)
-					tree.RegisterNodeProviderStreamerEnhancedServer(srv, engine)
-					tree.RegisterSessionIndexerEnhancedServer(srv, engine)
+					tree.RegisterNodeReceiverServer(srv, engine)
+					tree.RegisterNodeProviderServer(srv, engine)
+					tree.RegisterNodeReceiverStreamServer(srv, engine)
+					tree.RegisterNodeProviderStreamerServer(srv, engine)
+					tree.RegisterSessionIndexerServer(srv, engine)
 
-					object.RegisterResourceCleanerEndpointEnhancedServer(srv, engine)
-					sync.RegisterSyncEndpointEnhancedServer(srv, engine)
+					object.RegisterResourceCleanerEndpointServer(srv, engine)
+					sync.RegisterSyncEndpointServer(srv, engine)
 
 					return nil
 				}),

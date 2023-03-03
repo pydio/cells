@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/auth/hydra"
 	"net/http"
 	"net/url"
 	"strings"
@@ -472,18 +473,143 @@ func (h *Handler) Verify(ctx context.Context, in *pauth.VerifyTokenRequest) (*pa
 	return out, nil
 }
 
-// PasswordCredentialsToken validates the login information and generates a token
-func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.PasswordCredentialsTokenRequest) (*pauth.PasswordCredentialsTokenResponse, error) {
-	token, err := auth.LocalJWTVerifier().PasswordCredentialsToken(ctx, in.Username, in.Password)
+func (h *Handler) PasswordCredentialsCode(ctx context.Context, in *pauth.PasswordCredentialsCodeRequest) (*pauth.PasswordCredentialsCodeResponse, error) {
+
+	// Getting or creating challenge
+	challenge := in.GetChallenge()
+	if challenge == "" {
+		if c, err := hydra.CreateLogin(ctx, config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{}); err != nil {
+			return nil, err
+		} else {
+			challenge = c.Challenge
+		}
+	}
+
+	var identity auth.Identity
+	var valid bool
+	var err error
+
+	connectors := auth.GetConnectors()
+	source := ""
+	for _, c := range connectors {
+		cc, ok := c.Conn().(auth.PasswordConnector)
+		if !ok {
+			continue
+		}
+
+		// Creating a timeout for context
+		loginctx, _ := context.WithTimeout(ctx, 5*time.Second)
+		identity, valid, err = cc.Login(loginctx, auth.Scopes{}, in.GetUsername(), in.GetPassword())
+		// Error means the user is unknwown to the system, we continue to the next round
+		if err != nil {
+			continue
+		}
+
+		// Invalid means we found the user but did not match the password
+		if !valid {
+			err = errors.New("password does not match")
+			continue
+		}
+
+		source = c.Name()
+
+		break
+	}
+
 	if err != nil {
 		return nil, err
 	}
 
-	out := &pauth.PasswordCredentialsTokenResponse{}
-	out.AccessToken = token.AccessToken
-	out.IDToken = token.Extra("id_token").(string)
-	out.RefreshToken = token.RefreshToken
-	out.Expiry = token.Expiry.Unix()
+	// Searching login challenge
+	login, err := hydra.GetLogin(ctx, challenge)
+	if err != nil {
+		log.Logger(ctx).Error("Failed to get login ", zap.Error(err))
+		return nil, err
+	}
+
+	// Accepting login challenge
+	if _, err := hydra.AcceptLogin(ctx, challenge, identity.UserID); err != nil {
+		log.Logger(ctx).Error("Failed to accept login ", zap.Error(err))
+		return nil, err
+	}
+
+	// Creating consent
+	consent, err := hydra.CreateConsent(ctx, challenge)
+	if err != nil {
+		log.Logger(ctx).Error("Failed to create consent ", zap.Error(err))
+		return nil, err
+	}
+
+	// Accepting consent
+	if _, err := hydra.AcceptConsent(
+		ctx,
+		consent.Challenge,
+		login.GetRequestedScope(),
+		login.GetRequestedAudience(),
+		map[string]string{},
+		map[string]string{
+			"name":       identity.Username,
+			"email":      identity.Email,
+			"authSource": source,
+		},
+	); err != nil {
+		log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))
+		return nil, err
+	}
+
+	requestURL, err := url.Parse(login.GetRequestURL())
+	if err != nil {
+		return nil, err
+	}
+
+	requestURLValues := requestURL.Query()
+
+	redirectURL, err := auth.GetRedirectURIFromRequestValues(requestURLValues)
+	if err != nil {
+		return nil, err
+	}
+
+	code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL, requestURLValues.Get("code_challenge"), requestURLValues.Get("code_challenge_method"))
+	if err != nil {
+		log.Logger(ctx).Error("Failed to create auth code ", zap.Error(err))
+		return nil, err
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	out := &pauth.PasswordCredentialsCodeResponse{
+		Code: code,
+	}
+
+	return out, err
+}
+
+// PasswordCredentialsToken validates the login information and generates a token
+func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.PasswordCredentialsTokenRequest) (*pauth.PasswordCredentialsTokenResponse, error) {
+
+	codeResp, err := h.PasswordCredentialsCode(ctx, &pauth.PasswordCredentialsCodeRequest{
+		Username: in.GetUsername(),
+		Password: in.GetPassword(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	tokenResp, err := h.Exchange(ctx, &pauth.ExchangeRequest{
+		Code: codeResp.GetCode(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	out := &pauth.PasswordCredentialsTokenResponse{
+		AccessToken:  tokenResp.GetAccessToken(),
+		IDToken:      tokenResp.GetIDToken(),
+		RefreshToken: tokenResp.GetRefreshToken(),
+		Expiry:       tokenResp.GetExpiry(),
+	}
 
 	return out, nil
 }
@@ -597,7 +723,6 @@ func (h *Handler) PruneTokens(ctx context.Context, in *pauth.PruneTokensRequest)
 		return nil, err
 	}
 
-	// TODO : Validate this: previous version was checking each client revokeRefreshTokenAfterInactivity
 	err = storage.FlushInactiveLoginConsentRequests(ctx, time.Now(), 1000, 100)
 	if err != nil {
 		return nil, err
@@ -608,59 +733,6 @@ func (h *Handler) PruneTokens(ctx context.Context, in *pauth.PruneTokensRequest)
 	if err != nil {
 		return nil, err
 	}
-
-	/*
-		type client struct {
-			ID            string `json:"client_id"`
-			MaxInactivity string `json:"revokeRefreshTokenAfterInactivity"`
-		}
-
-		var clients []client
-		if err := auth.GetConfigurationProvider().Clients().Scan(&clients); err != nil {
-			return nil, err
-		}
-
-		for _, c := range clients {
-			if c.MaxInactivity == "" {
-				continue
-			}
-
-				duration, err := time.ParseDuration(c.MaxInactivity)
-				if err != nil {
-					return err
-				}
-
-				store, ok := auth.GetRegistry().OAuth2Storage().(*oauth2.FositeSQLStore)
-				if !ok {
-					continue
-				}
-
-				// Removing refresh tokens
-				if res, err := store.DB.ExecContext(ctx, store.DB.Rebind("DELETE FROM hydra_oauth2_refresh WHERE client_id = ? AND requested_at < ?"), c.ID, time.Now().Add(-duration)); err == sql.ErrNoRows {
-					return nil
-				} else if err != nil {
-					return sqlcon.HandleError(err)
-				} else {
-					i, _ := res.RowsAffected()
-					out.Count = int32(i)
-				}
-
-				// Removing login challenges
-				if _, err := store.DB.ExecContext(ctx, store.DB.Rebind("DELETE FROM hydra_oauth2_authentication_request WHERE client_id = ? AND requested_at < ?"), c.ID, time.Now().Add(-duration)); err == sql.ErrNoRows {
-					return nil
-				} else if err != nil {
-					return sqlcon.HandleError(err)
-				}
-
-				// Removing consent challenges
-				if _, err := store.DB.ExecContext(ctx, store.DB.Rebind("DELETE FROM hydra_oauth2_consent_request WHERE client_id = ? AND requested_at < ?"), c.ID, time.Now().Add(-duration)); err == sql.ErrNoRows {
-					return nil
-				} else if err != nil {
-					return sqlcon.HandleError(err)
-				}
-
-		}
-	*/
 
 	return &pauth.PruneTokensResponse{}, nil
 }

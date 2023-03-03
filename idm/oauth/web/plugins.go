@@ -92,7 +92,6 @@ func init() {
 					})
 
 					subRouter.Handler(servicecontext.HttpWrapperMeta(ctx, TokenMethodWrapper(ctx, public)))
-
 				}
 
 				serveMux.Handle("/oidc/", http.StripPrefix("/oidc", cors.New(cors.Options{

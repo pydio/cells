@@ -23,28 +23,27 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"go.uber.org/zap/zapcore"
 	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/v4/common/config"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/backoff"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
+	_ "google.golang.org/grpc/xds"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/ckeys"
 	"github.com/pydio/cells/v4/common/service/metrics"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.uber.org/zap/zapcore"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type ctxBalancerFilterKey struct{}
@@ -70,11 +69,13 @@ func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) [
 			ErrorFormatUnaryClientInterceptor(),
 			servicecontext.SpanUnaryClientInterceptor(),
 			MetaUnaryClientInterceptor(),
+			otelgrpc.UnaryClientInterceptor(),
 		),
 		grpc.WithChainStreamInterceptor(
 			ErrorFormatStreamClientInterceptor(),
 			servicecontext.SpanStreamClientInterceptor(),
 			MetaStreamClientInterceptor(),
+			otelgrpc.StreamClientInterceptor(),
 		),
 		// grpc.WithDisableRetry(),
 	}, options...)
@@ -116,7 +117,7 @@ func NewClientConn(serviceName string, opt ...Option) grpc.ClientConnInterface {
 
 			opts.Registry = reg
 		}
-		conn, err := grpc.Dial("cells:///", DialOptionsForRegistry(opts.Registry, opts.DialOptions...)...)
+		conn, err := grpc.Dial("xds:///", DialOptionsForRegistry(opts.Registry, opts.DialOptions...)...)
 		if err != nil {
 			return nil
 		}
@@ -145,7 +146,10 @@ func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{
 		grpc.WaitForReady(true),
 	}, opts...)
 
-	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
+	// ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
+	// TODO - is this good ?
+	method = cc.serviceName + "/" + method
+
 	var cancel context.CancelFunc
 	if cc.callTimeout > 0 {
 		ctx, cancel = context.WithTimeout(ctx, cc.callTimeout)
@@ -171,7 +175,9 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 		grpc.WaitForReady(true),
 	}, opts...)
 
-	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
+	// ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
+	// TODO - is this good ?
+	method = cc.serviceName + "/" + method
 	var cancel context.CancelFunc
 	if cc.callTimeout > 0 {
 		ctx, cancel = context.WithTimeout(ctx, cc.callTimeout)

@@ -24,6 +24,7 @@ import (
 	"context"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"net/url"
+	"strings"
 )
 
 // URLOpener represents types than can open Registries based on a URL.
@@ -64,7 +65,31 @@ func (mux *URLMux) OpenRegistry(ctx context.Context, urlstr string) (Registry, e
 	if err != nil {
 		return nil, err
 	}
-	return opener.(URLOpener).OpenURL(ctx, u)
+
+	// TODO - maybe do this with users ?
+	tenant := ""
+	if strings.Contains(u.Scheme, "+restricted") {
+		if u.Query().Has("tenant") {
+			tenant = u.Query().Get("tenant")
+			u.Query().Del("tenant")
+
+		}
+	}
+
+	reg, err := opener.(URLOpener).OpenURL(ctx, u)
+	if err != nil {
+		return nil, err
+	}
+
+	if tenant != "" {
+		reg = NewMetaWrapper(reg, func(meta map[string]string) {
+			if _, ok := meta["tenant"]; !ok {
+				meta["tenant"] = tenant
+			}
+		})
+	}
+
+	return reg, nil
 }
 
 var defaultURLMux = &URLMux{}

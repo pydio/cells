@@ -1,4 +1,6 @@
 version: v1
+managed: 
+  enabled: true
 plugins:
   - name: go
     out: .
@@ -8,3 +10,7 @@ plugins:
     out: .
   - name: govalidators
     out: .
+  - plugin: buf.build/grpc/python
+    out: github.com/pydio/cells/python
+  - plugin: buf.build/protocolbuffers/python
+    out: github.com/pydio/cells/python

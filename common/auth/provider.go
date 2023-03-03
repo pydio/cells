@@ -74,6 +74,7 @@ func InitConfiguration(values configx.Values) {
 		}
 		confMap[rootUrl.Host] = p
 	}
+	fmt.Println("Default conf ", defaultConf.Clients())
 	confInit = true
 }
 
@@ -106,7 +107,9 @@ func GetConfigurationProvider(hostname ...string) ConfigurationProvider {
 func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
 
 	val := configx.New()
-	_ = val.Val(hconf.KeyGetSystemSecret).Set([]string{values.Val("secret").String()})
+	if secret := values.Val("secret").String(); secret != "" {
+		_ = val.Val(hconf.KeyGetSystemSecret).Set([]string{values.Val("secret").String()})
+	}
 	_ = val.Val(hconf.KeyPublicURL).Set(rootURL + "/oidc")
 	_ = val.Val(hconf.KeyIssuerURL).Set(rootURL + "/oidc")
 	_ = val.Val(hconf.KeyLoginURL).Set(rootURL + "/oauth2/login")

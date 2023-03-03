@@ -48,7 +48,7 @@ func init() {
 			service.WithStorage(key.NewDAO, service.WithStoragePrefix("data_key")),
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 				h := &NodeKeyManagerHandler{dao: servicecontext.GetDAO(c).(key.DAO)}
-				encryption.RegisterNodeKeyManagerEnhancedServer(srv, h)
+				encryption.RegisterNodeKeyManagerServer(srv, h)
 				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}
 					if ctx, e := message.Unmarshal(msg); e == nil {

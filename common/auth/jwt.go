@@ -136,13 +136,7 @@ type JWTVerifier struct {
 // DefaultJWTVerifier creates a ready to use JWTVerifier
 func DefaultJWTVerifier() *JWTVerifier {
 	return &JWTVerifier{
-		types: []ProviderType{ProviderTypeOry, ProviderTypeGrpc, ProviderTypePAT},
-	}
-}
-
-func LocalJWTVerifier() *JWTVerifier {
-	return &JWTVerifier{
-		types: []ProviderType{ProviderTypeOry, ProviderTypePAT},
+		types: []ProviderType{ProviderTypeGrpc, ProviderTypePAT},
 	}
 }
 

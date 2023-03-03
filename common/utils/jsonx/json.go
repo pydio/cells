@@ -30,3 +30,7 @@ func NewEncoder(w io.Writer) *jsoniter.Encoder {
 func NewDecoder(r io.Reader) *jsoniter.Decoder {
 	return jsoniter.ConfigCompatibleWithStandardLibrary.NewDecoder(r)
 }
+
+func Valid(data []byte) bool {
+	return jsoniter.ConfigCompatibleWithStandardLibrary.Valid(data)
+}

@@ -58,7 +58,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Search Engine"),
-			service.Fork(true),
+			//service.Fork(true),
 			service.WithIndexer(dao.NewDAO,
 				service.WithStoragePrefix("searchengine"),
 				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
@@ -83,8 +83,8 @@ func init() {
 					ReIndexThrottler: make(chan struct{}, 5),
 				}
 
-				tree.RegisterSearcherEnhancedServer(server, searcher)
-				sync.RegisterSyncEndpointEnhancedServer(server, searcher)
+				tree.RegisterSearcherServer(server, searcher)
+				sync.RegisterSyncEndpointServer(server, searcher)
 
 				subscriber := searcher.Subscriber()
 				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(message broker.Message) error {

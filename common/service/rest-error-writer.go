@@ -43,7 +43,7 @@ func RestError500(req *restful.Request, resp *restful.Response, err error) {
 	}
 	if parsed := errors.FromError(err); parsed.Status != "" && parsed.Detail != "" {
 		e.Title = parsed.Detail
-		e.Detail = parsed.Status + ": " + parsed.Detail
+		e.Detail = parsed.Status + ": " + parsed.Detail + ":" + parsed.Id
 	}
 	resp.WriteHeaderAndEntity(500, e)
 }

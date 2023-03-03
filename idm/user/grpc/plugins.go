@@ -72,7 +72,7 @@ func init() {
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				dao := servicecontext.GetDAO(ctx).(user.DAO)
-				idm.RegisterUserServiceEnhancedServer(server, NewHandler(ctx, dao))
+				idm.RegisterUserServiceServer(server, NewHandler(ctx, dao))
 
 				// Register a cleaner for removing a workspace when there are no more ACLs on it.
 				cleaner := &RolesCleaner{Dao: dao}

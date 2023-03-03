@@ -4,8 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"net/url"
+	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -48,6 +51,30 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 	}
 
 	store := New(opts...)
+
+	envPrefix := u.Query().Get("env")
+	if envPrefix != "" {
+		env := os.Environ()
+		for _, v := range env {
+			if strings.HasPrefix(v, envPrefix) {
+				vv := strings.SplitN(v, "=", 2)
+				if len(vv) == 2 {
+					k := strings.TrimPrefix(vv[0], envPrefix)
+					k = strings.ReplaceAll(k, "_", "/")
+					k = strings.ToLower(k)
+
+					var m map[string]interface{}
+					msg, err := strconv.Unquote(vv[1])
+					if err != nil {
+						msg = vv[1]
+					}
+
+					json.Unmarshal([]byte(msg), &m)
+					store.Val(k).Set(m)
+				}
+			}
+		}
+	}
 
 	return store, nil
 }
@@ -168,7 +195,7 @@ func (m *memory) Set(data interface{}) error {
 }
 
 func (m *memory) Val(path ...string) configx.Values {
-	return &values{Values: m.v.Val(path...), m: m}
+	return &values{Values: m.v.Val(path...), m: m, path: path}
 }
 
 func (m *memory) Del() error {
@@ -326,7 +353,8 @@ func (r *receiver) Stop() {
 type values struct {
 	configx.Values
 
-	m *memory
+	m    *memory
+	path []string
 }
 
 func (v *values) Set(data interface{}) error {

@@ -46,10 +46,10 @@ func init() {
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
-			service.Fork(true),
+			// service.Fork(true),
 			service.Description("Tasks are running jobs dispatched on multiple workers"),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
-				jobs.RegisterTaskServiceEnhancedServer(server, new(Handler))
+				jobs.RegisterTaskServiceServer(server, new(Handler))
 				multiplexer := tasks.NewSubscriber(c)
 				var me error
 				go func() {

@@ -545,7 +545,10 @@ func (m *manager) WatchTransientStatus() {
 		}),
 	}
 
-	w, _ := m.reg.Watch(options...)
+	w, err := m.reg.Watch(options...)
+	if err != nil {
+		return
+	}
 	defer w.Stop()
 
 	for {

@@ -55,6 +55,7 @@ const (
 	ServiceTagGateway    = "gateway"
 	ServiceTagIdm        = "idm"
 	ServiceTagScheduler  = "scheduler"
+	ServiceTagAuth       = "auth"
 
 	ServiceAcl       = "acl"
 	ServiceShare     = "share"

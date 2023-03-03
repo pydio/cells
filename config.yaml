@@ -1,0 +1,529 @@
+name: main
+
+#--------------------------------------------
+# Default variables
+#--------------------------------------------
+bind: &bind 0.0.0.0
+advertise: &advertise 127.0.0.1
+
+connections: &connections
+  config:
+    uri: mem://?env=CELLS_CONFIG_
+  registry:
+    uri: grpc://0.0.0.0:8002
+  logs:
+    uri: file://stdout
+
+servers: &servers
+  grpc:
+    bind: *bind
+    advertise: *advertise
+    port: 0
+  grpc_discovery:
+    bind: *bind
+    advertise: *advertise
+    port: 0
+  http:
+    bind: *bind
+    advertise: *advertise
+    type: http
+    port: 0
+
+env: &env
+  GRPC_XDS_BOOTSTRAP_CONFIG: {
+    "xds_servers": [
+      {
+        "server_uri": "xds.domain.com:18000",
+        "channel_creds": [
+          {
+            "type": "insecure"
+          }
+        ],
+        "server_features": ["xds_v3"]
+      }
+    ],
+    "node": {
+      "id": "b7f9c818-fb46-43ca-8662-d3bdbcf7ec18~10.0.0.1",
+      "metadata": {
+        "R_GCP_PROJECT_NUMBER": "123456789012"
+      },
+      "locality": {
+        "zone": "us-central1-a"
+      }
+    }
+  }
+  CELLS_CONFIG_DATABASES: {
+    "mysql": {
+      "driver": "mysql",
+      "dsn": "root:P@ssw0rd@tcp(localhost:3306)/cells?parseTime=true"
+    },
+    "mongodb": {
+      "driver": "mongodb",
+      "dsn": "mongodb://localhost:27017/cells?maxPoolSize=20\u0026w=majority"
+    }
+  }
+  CELLS_CONFIG_DEFAULTS: {
+    "database": {
+      "$ref": "#/databases/mysql"
+    },
+    "datasource": "pydiods1",
+    "documentsDSN": {
+      "$ref": "#/databases/mongodb"
+    },
+    "sites": [
+      {
+        "Binds": [
+          "0.0.0.0:8080"
+        ],
+        "TLSConfig": {
+          "SelfSigned": { }
+        }
+      }
+    ]
+  }
+  CELLS_CONFIG_SERVICES: {
+    "pydio.grpc.data.objects": {
+      "sources": [ "local1" ]
+    },
+    "pydio.grpc.data.index": {
+      "sources": [ "personal", "pydiods1", "cellsdata" ]
+    },
+    "pydio.grpc.data.sync": {
+      "sources": [ "personal", "pydiods1", "cellsdata" ]
+    },
+    "pydio.docstore-binaries": {
+      "bucket": "binaries",
+      "datasource": "default"
+    },
+    "pydio.thumbs_store": {
+      "bucket": "thumbs",
+      "datasource": "thumbnails"
+    },
+    "pydio.versions-store": {
+      "bucket": "versions",
+      "datasource": "versions"
+    }
+  }
+
+#--------------------------------------------
+# All processes
+#--------------------------------------------
+processes:
+  - name: discovery
+
+    connections:
+      <<: *connections
+      registry:
+        uri: mem://
+
+    servers:
+      <<: *servers
+      grpc_discovery:
+        port: 8002
+
+    services:
+      discovery:
+        - pydio.grpc.registry
+        - pydio.grpc.broker
+        - pydio.grpc.log
+
+  - name: idm
+    connections: *connections
+    servers: *servers
+    env: *env
+    services:
+      idm:
+        - pydio.grpc.acl
+        - pydio.rest.acl
+        - pydio.rest.graph
+        - pydio.grpc.user-key
+        - pydio.grpc.user-meta
+        - pydio.rest.user-meta
+        - pydio.grpc.policy
+        - pydio.rest.policy
+        - pydio.grpc.role
+        - pydio.rest.role
+        - pydio.rest.share
+        - pydio.grpc.user
+        - pydio.rest.user
+        - pydio.grpc.workspace
+        - pydio.rest.workspace
+
+  - name: auth
+    connections: *connections
+    servers: *servers
+    env:
+      <<: *env
+      CELLS_CONFIG_SERVICES: {
+        "pydio.grpc.data.objects": {
+          "sources": [ "local1" ]
+        },
+        "pydio.grpc.data.index": {
+          "sources": [ "personal", "pydiods1", "cellsdata" ]
+        },
+        "pydio.grpc.data.sync": {
+          "sources": [ "personal", "pydiods1", "cellsdata" ]
+        },
+        "pydio.web.oauth": {
+          "connectors": [
+            {
+              "id": "pydio",
+              "name": "Pydio Cells",
+              "type": "pydio"
+            }
+          ],
+          "cors": {
+            "public": {
+              "allowedOrigins": "*"
+            }
+          },
+          "insecureRedirects": [
+            "#insecure_binds...#/auth/callback"
+          ],
+          "secret": "Fb0Xcdbd2Jcy16jTbi1_F0B495AYi--V",
+          "staticClients": [
+            {
+              "client_id": "cells-frontend",
+              "client_name": "CellsFrontend Application",
+              "grant_types": [
+                "authorization_code",
+                "refresh_token"
+              ],
+              "post_logout_redirect_uris": [
+                "#default_bind#/auth/logout"
+              ],
+              "redirect_uris": [
+                "#default_bind#/auth/callback"
+              ],
+              "response_types": [
+                "code",
+                "token",
+                "id_token"
+              ],
+              "revokeRefreshTokenAfterInactivity": "2h",
+              "scope": "openid email profile pydio offline"
+            },
+            {
+              "client_id": "cells-sync",
+              "client_name": "CellsSync Application",
+              "grant_types": [
+                "authorization_code",
+                "refresh_token"
+              ],
+              "redirect_uris": [
+                "http://localhost:3000/servers/callback",
+                "http://localhost:[3636-3666]/servers/callback"
+              ],
+              "response_types": [
+                "code",
+                "token",
+                "id_token"
+              ],
+              "scope": "openid email profile pydio offline"
+            },
+            {
+              "client_id": "cells-client",
+              "client_name": "Cells Client CLI Tool",
+              "grant_types": [
+                "authorization_code",
+                "refresh_token"
+              ],
+              "redirect_uris": [
+                "http://localhost:3000/servers/callback",
+                "#binds...#/oauth2/oob"
+              ],
+              "response_types": [
+                "code",
+                "token",
+                "id_token"
+              ],
+              "scope": "openid email profile pydio offline"
+            },
+            {
+              "client_id": "cells-mobile",
+              "client_name": "Mobile Applications",
+              "grant_types": [
+                "authorization_code",
+                "refresh_token"
+              ],
+              "redirect_uris": [
+                "cellsauth://callback"
+              ],
+              "response_types": [
+                "code",
+                "token",
+                "id_token"
+              ],
+              "scope": "openid email profile pydio offline"
+            }
+          ]
+        }
+      }
+    services:
+      auth:
+
+  - name: frontend
+    connections: *connections
+    servers:
+      <<: *servers
+      http:
+        type: caddy
+        port: 8080
+    env:
+      <<: *env
+      PYDIO_ADMIN_USER_LOGIN: "admin"
+      PYDIO_ADMIN_USER_PASSWORD: "P@ssw0rd"
+    services:
+      frontend:
+
+  - name: data
+    connections: *connections
+    servers: *servers
+    env: *env
+
+    services:
+      data:
+
+  - name: local1
+    connections: *connections
+    servers: *servers
+    env:
+     <<: *env
+     CELLS_CONFIG_SERVICES: {
+       "pydio.grpc.data.objects": {
+         "sources": [ "local1" ]
+       },
+       "pydio.grpc.data.objects.local1": {
+         "ApiKey": "pydio",
+         "ApiSecret": "pydioforever",
+         "LocalFolder": "/Users/ghecquet/Library/Application Support/Pydio/cells/data",
+         "Name": "local1",
+         "RunningPort": 60206
+       }
+     }
+    services:
+      datasource:
+        - pydio.grpc.data.objects.local1
+
+  - name: cellsdata
+    connections: *connections
+    servers: *servers
+    env:
+      <<: *env
+      CELLS_CONFIG_SERVICES: {
+        "pydio.grpc.data.index": {
+          "sources": [ "cellsdata" ]
+        },
+        "pydio.grpc.data.sync": {
+          "sources": [ "cellsdata" ]
+        },
+        "pydio.grpc.data.index.cellsdata": {
+          "dsn": "default",
+          "tables": {
+            "commits": "data_cellsdata_commits",
+            "nodes": "data_cellsdata_nodes",
+            "tree": "data_cellsdata_tree"
+          }
+        },
+        "pydio.grpc.data.sync.cellsdata": {
+          "Name": "cellsdata",
+          "StorageConfiguration": {
+            "folder": "/Users/ghecquet/Library/Application Support/Pydio/cells/data/cellsdata",
+            "hashingVersion": "v4",
+            "normalize": "true"
+          },
+          "ObjectsServiceName": "local1",
+          "ObjectsPort": 50641,
+          "ObjectsBucket": "cellsdata",
+          "ApiKey": "pydio",
+          "ApiSecret": "pydiosecret",
+          "FlatStorage": true
+        }
+      }
+    services:
+      datasource:
+        - pydio.grpc.data.index.cellsdata
+        - pydio.grpc.data.sync.cellsdata
+
+  - name: pydiods1
+    connections: *connections
+    servers: *servers
+    env:
+     <<: *env
+     CELLS_CONFIG_SERVICES: {
+       "pydio.grpc.data.index": {
+         "sources": [ "pydiods1" ]
+       },
+       "pydio.grpc.data.sync": {
+         "sources": [ "pydiods1" ]
+       },
+       "pydio.grpc.data.index.pydiods1": {
+         "dsn": "default",
+         "tables": {
+           "commits": "data_pydiods1_commits",
+           "nodes": "data_pydiods1_nodes",
+           "tree": "data_pydiods1_tree"
+         }
+       },
+       "pydio.grpc.data.sync.pydiods1": {
+         "Name": "pydiods1",
+         "StorageConfiguration": {
+           "folder": "/Users/ghecquet/Library/Application Support/Pydio/cells/data/pydiods1",
+           "hashingVersion": "v4",
+           "normalize": "true"
+         },
+         "ObjectsServiceName": "local1",
+         "ObjectsPort": 50641,
+         "ObjectsBucket": "pydiods1",
+         "ApiKey": "pydio",
+         "ApiSecret": "pydiosecret",
+         "FlatStorage": true
+       }
+     }
+    services:
+      datasource:
+        - pydio.grpc.data.index.pydiods1
+        - pydio.grpc.data.sync.pydiods1
+
+
+  - name: personal
+    connections: *connections
+    servers: *servers
+    env:
+      <<: *env
+      CELLS_CONFIG_SERVICES: {
+        "pydio.grpc.data.index": {
+          "sources": [ "personal" ]
+        },
+        "pydio.grpc.data.sync": {
+          "sources": [ "personal" ]
+        },
+        "pydio.grpc.data.index.personal": {
+          "dsn": "default",
+          "tables": {
+            "commits": "data_personal_commits",
+            "nodes": "data_personal_nodes",
+            "tree": "data_personal_tree"
+          }
+        },
+        "pydio.grpc.data.sync.personal": {
+          "Name": "personal",
+          "StorageConfiguration": {
+            "folder": "/Users/ghecquet/Library/Application Support/Pydio/cells/data/personal",
+            "hashingVersion": "v4",
+            "normalize": "true"
+          },
+          "ObjectsServiceName": "local1",
+          "ObjectsPort": 50641,
+          "ObjectsBucket": "personal",
+          "ApiKey": "pydio",
+          "ApiSecret": "pydiosecret",
+          "FlatStorage": true
+        }
+      }
+    services:
+      datasource:
+        - pydio.grpc.data.index.personal
+        - pydio.grpc.data.sync.personal
+
+  - name: thumbnails
+    connections: *connections
+    servers: *servers
+    env:
+      <<: *env
+      CELLS_CONFIG_SERVICES: {
+        "pydio.grpc.data.index": {
+          "sources": [ "thumbnails" ]
+        },
+        "pydio.grpc.data.sync": {
+          "sources": [ "thumbnails" ]
+        },
+        "pydio.grpc.data.index.thumbnails": {
+          "dsn": "default",
+          "tables": {
+            "commits": "data_thumbnails_commits",
+            "nodes": "data_thumbnails_nodes",
+            "tree": "data_thumbnails_tree"
+          }
+        },
+        "pydio.grpc.data.sync.thumbnails": {
+          "Name": "thumbnails",
+          "StorageConfiguration": {
+            "folder": "/Users/ghecquet/Library/Application Support/Pydio/cells/data/thumbs",
+            "hashingVersion": "v4",
+            "normalize": "true"
+          },
+          "ObjectsServiceName": "local1",
+          "ObjectsPort": 50641,
+          "ObjectsBucket": "thumbs",
+          "ApiKey": "pydio",
+          "ApiSecret": "pydiosecret",
+          "FlatStorage": true
+        }
+      }
+    services:
+      datasource:
+        - pydio.grpc.data.index.thumbnails
+        - pydio.grpc.data.sync.thumbnails
+
+  - name: versions
+    connections: *connections
+    servers: *servers
+    env:
+      <<: *env
+      CELLS_CONFIG_SERVICES: {
+        "pydio.grpc.data.index": {
+          "sources": [ "versions" ]
+        },
+        "pydio.grpc.data.sync": {
+          "sources": [ "versions" ]
+        },
+        "pydio.grpc.data.index.versions": {
+          "dsn": "default",
+          "tables": {
+            "commits": "data_versions_commits",
+            "nodes": "data_versions_nodes",
+            "tree": "data_versions_tree"
+          }
+        },
+        "pydio.grpc.data.sync.versions": {
+          "Name": "versions",
+          "StorageConfiguration": {
+            "folder": "/Users/ghecquet/Library/Application Support/Pydio/cells/data/versions",
+            "hashingVersion": "v4",
+            "normalize": "true"
+          },
+          "ObjectsServiceName": "local1",
+          "ObjectsPort": 50641,
+          "ObjectsBucket": "versions",
+          "ApiKey": "pydio",
+          "ApiSecret": "pydiosecret",
+          "FlatStorage": true
+        }
+      }
+    services:
+      datasource:
+        - pydio.grpc.data.index.versions
+        - pydio.grpc.data.sync.versions
+
+  - name: broker
+    connections: *connections
+    servers: *servers
+    env: *env
+    services:
+      broker:
+
+  - name: scheduler
+    connections: *connections
+    servers: *servers
+    env: *env
+    services:
+      scheduler:
+
+  - name: gateway 
+    connections: *connections
+    servers: *servers
+    env: *env
+    services:
+      gateway:
+

@@ -45,7 +45,7 @@ service:
     "defaults/license/data": "FAKE",
 
     # Creates a kind-of sticky session for grpc requests, priority is given to local grpc servers for any outgoing request going to grpc
-    "cluster/clients/grpc/loadBalancingStrategies[0]/name": "priority-local",
+    #"cluster/clients/grpc/loadBalancingStrategies[0]/name": "priority-local",
 
     #
     "frontend/plugin/core.pydio/APPLICATION_TITLE": "My Pydio Cells Cluster"
@@ -64,6 +64,7 @@ tls:
   ## @param tls.existingSecret Name of an existing secret holding the certificate information
   ##
   existingSecret: ""
+
   ## @param tls.mountPath The mount path where the secret will be located
   ## Custom mount path where the certificates will be located, if empty will default to /certs
   mountPath: ""
@@ -105,6 +106,7 @@ ingress:
   ##   cert-manager.io/cluster-issuer: cluster-issuer-name
   ##
   annotations: {
+    "acme.cert-manager.io/http01-edit-in-place": "true",
     "kubernetes.io/ingress.class": "nginx",
     "cert-manager.io/cluster-issuer": "letsencrypt",
     "nginx.ingress.kubernetes.io/proxy-body-size": "0"
@@ -222,6 +224,13 @@ mariadb:
   enabled: true
   volumePermissions:
     enabled: true
+  tls:
+    enabled: false
+
+mariadbgalera:
+  enabled: false
+  volumePermissions:
+    enabled: true
 
 redis:
   enabled: true
@@ -279,12 +288,12 @@ vault:
   injector:
     annotations: {
       "helm.sh/hook": "pre-install",
-      "helm.sh/hook-weight": "-3"
+      "helm.sh/hook-weight": "-5"
     }
     webhook:
       annotations: {
         "helm.sh/hook": "pre-install",
-        "helm.sh/hook-weight": "-3"
+        "helm.sh/hook-weight": "-5"
       }
       failurePolicy: Fail
       namespaceSelector:
@@ -295,7 +304,7 @@ vault:
   server:
     annotations: {
       "helm.sh/hook": "pre-install",
-      "helm.sh/hook-weight": "-3"
+      "helm.sh/hook-weight": "-5"
     }
     dataStorage:
       mountPath: /tmp/vault/data
@@ -309,5 +318,5 @@ vault:
   statefulset:
     annotations: {
       "helm.sh/hook": "pre-install",
-      "helm.sh/hook-weight": "-3"
+      "helm.sh/hook-weight": "-5"
     }

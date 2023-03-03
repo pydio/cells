@@ -49,6 +49,10 @@ dependencies:
     condition: mariadb.enabled
     repository: https://charts.bitnami.com/bitnami
     version: x.x.x
+  - name: mariadb-galera
+    condition: mariadb-galera.enabled
+    repository: https://charts.bitnami.com/bitnami
+    version: x.x.x
   - name: redis
     condition: redis.enabled
     repository: https://charts.bitnami.com/bitnami

@@ -69,8 +69,8 @@ func init() {
 					Repo:        repo,
 					HandlerName: common.ServiceGrpcNamespace_ + common.ServiceLog,
 				}
-				proto.RegisterLogRecorderEnhancedServer(server, handler)
-				sync.RegisterSyncEndpointEnhancedServer(server, handler)
+				proto.RegisterLogRecorderServer(server, handler)
+				sync.RegisterSyncEndpointServer(server, handler)
 
 				go func() {
 					<-c.Done()

@@ -58,6 +58,10 @@ func init() {
 		dss := config.ListSourcesFromConfig()
 
 		for _, datasource := range sources {
+			if !runtime.IsRequired(datasource) {
+				continue
+			}
+
 			dsObject, ok := dss[datasource]
 			if !ok {
 				log.Error("Could not find datasource in config ", zap.String("datasource", datasource))
@@ -80,7 +84,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 		service.Tag(common.ServiceTagDatasource),
 		service.Description("Synchronization service between objects and index for a given datasource"),
 		service.Source(datasource),
-		service.Fork(true),
+		// service.Fork(true),
 		service.Unique(!dsObject.FlatStorage),
 		service.AutoStart(false),
 		service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
@@ -107,12 +111,12 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 				return e
 			}
 
-			tree.RegisterNodeProviderEnhancedServer(srv, syncHandler)
-			tree.RegisterNodeReceiverEnhancedServer(srv, syncHandler)
-			tree.RegisterNodeChangesReceiverStreamerEnhancedServer(srv, syncHandler)
-			protosync.RegisterSyncEndpointEnhancedServer(srv, syncHandler)
-			object.RegisterDataSourceEndpointEnhancedServer(srv, syncHandler)
-			object.RegisterResourceCleanerEndpointEnhancedServer(srv, syncHandler)
+			tree.RegisterNodeProviderServer(srv, syncHandler)
+			tree.RegisterNodeReceiverServer(srv, syncHandler)
+			tree.RegisterNodeChangesReceiverStreamerServer(srv, syncHandler)
+			protosync.RegisterSyncEndpointServer(srv, syncHandler)
+			object.RegisterDataSourceEndpointServer(srv, syncHandler)
+			object.RegisterResourceCleanerEndpointServer(srv, syncHandler)
 
 			go func() error {
 

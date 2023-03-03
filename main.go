@@ -127,6 +127,9 @@ import (
 	_ "github.com/pydio/cells/v4/common/server/grpc"
 	_ "github.com/pydio/cells/v4/common/server/http"
 
+	// Tracing
+	_ "github.com/pydio/cells/v4/common/tracing/jaeger"
+
 	// Import Command Package after all Mux Registers
 	"github.com/pydio/cells/v4/cmd"
 )

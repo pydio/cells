@@ -77,6 +77,9 @@ func (m *SchemeMap) FromURL(typ string, u *url.URL) (interface{}, error) {
 	} {
 		scheme = strings.TrimPrefix(scheme, prefix)
 	}
+
+	scheme = strings.SplitN(scheme, "+", 2)[0]
+	
 	v, ok := m.m[scheme]
 	if !ok {
 		return nil, fmt.Errorf("open %s.%s: no driver registered for %q for URL %q; available schemes: %v", m.api, typ, scheme, u, strings.Join(m.Schemes(), ", "))

@@ -94,12 +94,6 @@ func NewPool(ctx context.Context, reg registry.Registry) *ClientsPool {
 		reload:  make(chan bool),
 		reg:     reg,
 	}
-	/*
-		go pool.LoadDataSources()
-		go pool.reloadDebounced()
-		go pool.watchRegistry(reg)
-		go pool.watchConfigChanges()
-	*/
 	return pool
 }
 

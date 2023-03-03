@@ -50,7 +50,7 @@ func init() {
 				service.Tag(common.ServiceTagDatasource),
 				service.Description("S3 Object service for a given datasource"),
 				service.Source(datasource),
-				service.Fork(true),
+				//service.Fork(true),
 				service.Unique(true),
 				service.AutoStart(false),
 				service.WithGRPC(func(datasource string) func(c context.Context, server grpc.ServiceRegistrar) error {
@@ -80,8 +80,8 @@ func init() {
 							handlerName: common.ServiceGrpcNamespace_ + common.ServiceDataObjects_ + datasource,
 							Config:      mc,
 						}
-						object.RegisterObjectsEndpointEnhancedServer(server, engine)
-						object.RegisterResourceCleanerEndpointEnhancedServer(server, engine)
+						object.RegisterObjectsEndpointServer(server, engine)
+						object.RegisterResourceCleanerEndpointServer(server, engine)
 						var startErr error
 						go func() {
 							startErr = engine.StartMinioServer(c, datasource)

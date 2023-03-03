@@ -47,7 +47,7 @@ type userKeyStore struct {
 }
 
 // NewUserKeyStore creates a master password based
-func NewUserKeyStore(_ context.Context, dao key.DAO, keyring crypto.Keyring) (enc.NamedUserKeyStoreServer, error) {
+func NewUserKeyStore(_ context.Context, dao key.DAO, keyring crypto.Keyring) (enc.UserKeyStoreServer, error) {
 	masterPasswordStr, err := keyring.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
 	if err != nil {
 		return nil, errors2.Wrap(err, "could not get master password from keyring")

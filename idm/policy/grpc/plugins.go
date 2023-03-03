@@ -91,7 +91,7 @@ func init() {
 			}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(policy.DAO))
-				idm.RegisterPolicyEngineServiceEnhancedServer(server, handler)
+				idm.RegisterPolicyEngineServiceServer(server, handler)
 				return nil
 			}),
 		)

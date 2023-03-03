@@ -27,6 +27,8 @@ import (
 	"strings"
 	"sync"
 
+	_ "google.golang.org/grpc/balancer/grpclb"
+
 	"google.golang.org/grpc/attributes"
 
 	"github.com/pydio/cells/v4/common/client"

@@ -23,6 +23,8 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"google.golang.org/grpc/reflection"
 	"net"
 	"net/url"
 	"sync"
@@ -116,12 +118,12 @@ func NewWithServer(ctx context.Context, name string, s *grpc.Server, listen stri
 func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 	s.Lock()
 	defer s.Unlock()
+
 	if s.Server != nil {
 		return s.Server
 	}
-	//fmt.Println("CREATE NEW GRPC SERVER")
+
 	gs := grpc.NewServer(
-		// grpc.MaxConcurrentStreams(1000),
 		grpc.ChainUnaryInterceptor(
 			ErrorFormatUnaryInterceptor,
 			servicecontext.MetricsUnaryServerInterceptor(),
@@ -130,6 +132,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 			servicecontext.ContextUnaryServerInterceptor(middleware.TargetNameToServiceNameContext(ctx)),
 			servicecontext.ContextUnaryServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
 			servicecontext.ContextUnaryServerInterceptor(middleware.RegistryIncomingContext(ctx)),
+			otelgrpc.UnaryServerInterceptor(),
 		),
 		grpc.ChainStreamInterceptor(
 			ErrorFormatStreamInterceptor,
@@ -139,14 +142,14 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 			servicecontext.ContextStreamServerInterceptor(middleware.TargetNameToServiceNameContext(ctx)),
 			servicecontext.ContextStreamServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
 			servicecontext.ContextStreamServerInterceptor(middleware.RegistryIncomingContext(ctx)),
-			//servicecontext.StreamsCounter(),
+			otelgrpc.StreamServerInterceptor(),
 		),
 	)
 	service.RegisterChannelzServiceToServer(gs)
 	grpc_health_v1.RegisterHealthServer(gs, health.NewServer())
+	reflection.Register(gs)
 	s.Server = gs
 	s.regI = &registrar{Server: gs}
-	//fmt.Println("New Server is ", s.Server)
 	return gs
 }
 
@@ -221,15 +224,6 @@ func (s *Server) Name() string {
 	return s.name
 }
 
-/*
-func (s *Server) Metadata() map[string]string {
-	return s.meta // map[string]string{}
-}
-
-func (s *Server) SetMetadata(meta map[string]string) {
-	s.meta = meta
-}*/
-
 func (s *Server) As(i interface{}) bool {
 	if p, ok := i.(**grpc.Server); ok {
 		*p = s.lazyGrpc(s.ctx)
@@ -260,7 +254,26 @@ type registrar struct {
 	*grpc.Server
 }
 
+type namedImplServer interface {
+	Name() string
+}
+
 func (r *registrar) RegisterService(desc *grpc.ServiceDesc, impl interface{}) {
-	//fmt.Println("Register Now", desc.ServiceName)
+	//namedImpl, ok := impl.(namedImplServer)
+	//if !ok {
+	//	panic("service not named " + desc.ServiceName)
+	//}
+
+	// desc.ServiceName = namedImpl.Name() + "/" + desc.ServiceName
+
+	fmt.Println(desc.ServiceName)
 	r.Server.RegisterService(desc, impl)
+}
+
+func (r *registrar) As(i interface{}) bool {
+	if p, ok := i.(**grpc.Server); ok {
+		*p = r.Server
+		return true
+	}
+	return false
 }

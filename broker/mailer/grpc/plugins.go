@@ -81,7 +81,7 @@ func init() {
 				}
 				log.Logger(ctx).Debug("Init handler OK", zap.Any("h", handler))
 
-				mailer.RegisterMailerServiceEnhancedServer(server, handler)
+				mailer.RegisterMailerServiceServer(server, handler)
 
 				return nil
 			}),

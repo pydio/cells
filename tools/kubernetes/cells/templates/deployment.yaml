@@ -79,17 +79,17 @@ spec:
             {{- end }}
             {{- if .Values.redis.enabled }}
             - name: CELLS_CACHE
-              value: {{ include "cells.redisURL" . }}
+              value: {{ include "cells.redisURL" (list . "/cache") }}
             {{- if .Values.redis.shortcacheEnabled }}
             - name: CELLS_SHORTCACHE
-              value: {{ include "cells.redisURL" . }}
+              value: {{ include "cells.redisURL" (list . "/shortcache") }}
             {{- end }}
             {{- end }}
             {{- if .Values.vault.enabled }}
             - name: CELLS_KEYRING
               value: {{ include "cells.vaultURL" . }}/secret?key=keyring
             - name: CELLS_CERTS_STORE
-              value: file:///var/certs
+              value: {{ include "cells.vaultURL" . }}/caddycerts
             {{- end }}
             {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12}}
@@ -113,10 +113,6 @@ spec:
           volumeMounts:
             - name: cells
               mountPath: /var/cells-install
-            {{- if and .Values.etcd.enabled .Values.etcd.auth.client.secureTransport }}
-            - name: etcd-secret
-              mountPath: /var/certs
-            {{- end }}
           readinessProbe:
             httpGet:
               path: /
@@ -151,6 +147,38 @@ spec:
           image: busybox
           command: ["sh", "-c", 'until nc -zw2 {{ include "cells.vaultHost" . | quote }} {{ include "cells.vaultPort" . | quote }}; do echo waiting for vault; sleep 2; done']
         {{- end }}
+        {{- if and .Values.etcd.enabled .Values.etcd.auth.client.secureTransport }}
+        - name: install-certs-etcd
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - "/bin/sh"
+            - "-c"
+            - |
+              sleep 3
+              source /var/cells-install/source
+              for i in /var/certs/*/*; do
+                cells admin cert import $i --uuid $(basename $(dirname $i))-$(basename $i);
+              done
+          env:
+            - name: CELLS_CERTS_STORE
+              value: {{ include "cells.vaultURL" . }}/caddycerts
+          volumeMounts:
+            - name: cells
+              mountPath: /var/cells-install
+            {{- if and .Values.etcd.enabled .Values.etcd.auth.client.secureTransport }}
+            - name: etcd-secret
+              mountPath: /var/certs/etcd
+            {{- end }}
+            {{- if and .Values.redis.enabled .Values.redis.tls.enabled }}
+            - name: redis-secret
+              mountPath: /var/certs/redis
+            {{- end }}
+            {{- if and .Values.minio.enabled .Values.minio.tls.enabled }}
+            - name: minio-secret
+              mountPath: /var/certs/minio
+            {{- end }}
+        {{- end }}
         - name: install
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -160,7 +188,6 @@ spec:
             - |
               sleep 3
               source /var/cells-install/source
-              echo "Token is $VAULT_TOKEN"
               cells configure
               sleep 3
           env:
@@ -190,6 +217,13 @@ spec:
                   name: {{ .Release.Name }}-mariadb
                   key: mariadb-root-password
             {{- end }}
+            {{- if index .Values "mariadb-galera" "enabled" }}
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-mariadb-galera
+                  key: mariadb-root-password
+            {{- end }}
             {{- if .Values.minio.enabled }}
             - name: MINIO_ROOT_USER
               valueFrom:
@@ -203,14 +237,10 @@ spec:
                   key: root-password
             {{- end }}
             - name: CELLS_CERTS_STORE
-              value: file:///var/certs
+              value: {{ include "cells.vaultURL" . }}/caddycerts
           volumeMounts:
             - name: cells
               mountPath: /var/cells-install
-            {{- if and .Values.etcd.enabled .Values.etcd.auth.client.secureTransport }}
-            - name: etcd-secret
-              mountPath: /var/certs
-            {{- end}}
       volumes:
         - name: cells
           configMap:
@@ -219,6 +249,16 @@ spec:
         - name: etcd-secret
           secret:
             secretName: {{ .Values.etcd.auth.client.existingSecret }}
+        {{- end }}
+        {{- if and .Values.redis.enabled .Values.redis.tls.enabled }}
+        - name: redis-secret
+          secret:
+            secretName: {{ .Values.redis.tls.existingSecret }}
+        {{- end }}
+        {{- if and .Values.minio.enabled .Values.minio.tls.enabled }}
+        - name: minio-secret
+          secret:
+            secretName: {{ .Values.minio.tls.existingSecret }}
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

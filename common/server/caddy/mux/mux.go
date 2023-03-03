@@ -76,7 +76,6 @@ func (m *Middleware) Provision(ctx caddy.Context) error {
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
-
 	served, er := m.Resolver.ServeHTTP(w, r)
 	if served {
 		return er

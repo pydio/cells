@@ -115,6 +115,8 @@ func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 		defer locker.Unlock()
 	}
 
+	clients := defaultConf.Clients()
+
 	once.Do(func() {
 		var dbName string
 		reg, dbName, e = createSqlRegistryForConf(dbServiceName, defaultConf)
@@ -182,13 +184,13 @@ func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 				logger.Info("Finished in ", zap.Duration("elapsed ", time.Now().Sub(start)))
 			} else {
 				if err := jwk.EnsureAsymmetricKeypairExists(ctx, reg, "RS256", "hydra.openid.id-token"); err != nil {
+					fmt.Println(err)
 					logger.Error("***************************************************************")
 					logger.Error("Could not ensure that signing keys are correct!      ")
 					logger.Error("This may indicate a missing or changed secret config.")
 					logger.Error(" => You have to empty the 'hydra_jwk' SQL table.   ")
 					logger.Error(" => This will invalidate all existing authentication tokens.   ")
 					logger.Error("***************************************************************")
-					// e = errors.Wrap(e, "Could not ensure that signing keys are correct!")
 					return err
 				}
 			}
@@ -203,7 +205,9 @@ func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 		return
 	}
 
-	if e = syncClients(context.Background(), reg.ClientManager(), defaultConf.Clients()); e != nil {
+	fmt.Println("Before ", clients)
+
+	if e = syncClients(context.Background(), reg.ClientManager(), clients); e != nil {
 		logger.Warn("Failed to sync clients", zap.Error(e))
 		return
 	}
@@ -355,13 +359,17 @@ func syncClients(ctx context.Context, s client.Storage, c configx.Scanner) error
 	if c == nil {
 		return nil
 	}
+	fmt.Println("Syncing clients here ")
 
 	syncLock.Lock()
 	defer syncLock.Unlock()
 
 	if err := c.Scan(&clients); err != nil {
+		fmt.Println("AND THE ERROR IS ? ", err)
 		return err
 	}
+
+	fmt.Println("Clients to sync are ", clients)
 
 	n, err := s.CountClients(ctx)
 	if err != nil {

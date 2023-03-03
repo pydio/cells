@@ -45,7 +45,7 @@ type Handler struct {
 	dao policy.DAO
 }
 
-func NewHandler(ctx context.Context, dao policy.DAO) idm.NamedPolicyEngineServiceServer {
+func NewHandler(ctx context.Context, dao policy.DAO) idm.PolicyEngineServiceServer {
 	return &Handler{dao: dao}
 }
 

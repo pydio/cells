@@ -65,8 +65,8 @@ func init() {
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(meta.DAO))
-				idm.RegisterUserMetaServiceEnhancedServer(server, handler)
-				tree.RegisterNodeProviderStreamerEnhancedServer(server, handler)
+				idm.RegisterUserMetaServiceServer(server, handler)
+				tree.RegisterNodeProviderStreamerServer(server, handler)
 
 				// Clean role on user deletion
 				cleaner := NewCleaner(servicecontext.GetDAO(ctx))

@@ -54,6 +54,7 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			if err != nil {
 				return err
 			}
+
 			requestURL, err := url.Parse(login.GetRequestURL())
 			if err != nil {
 				return err
