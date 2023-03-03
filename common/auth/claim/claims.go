@@ -22,6 +22,9 @@
 package claim
 
 import (
+	"crypto/md5"
+	"encoding/hex"
+	"io"
 	"strings"
 	"time"
 )
@@ -60,4 +63,20 @@ func (c *Claims) GetClientApp() string {
 	default:
 		return "unknown client app"
 	}
+}
+
+// GetUniqueKey returns a key that is unique to a given claim value
+func (c *Claims) GetUniqueKey() string {
+	hash := md5.New()
+	io.WriteString(hash, c.SessionID)
+	io.WriteString(hash, c.Subject)
+
+	if c.ProvidesScopes {
+		for _, scope := range c.Scopes {
+			io.WriteString(hash, scope)
+		}
+	}
+
+	return hex.EncodeToString(hash.Sum(nil)[:])
+
 }

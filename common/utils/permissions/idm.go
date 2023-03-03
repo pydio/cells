@@ -383,8 +383,9 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		log.Logger(ctx).Debug("No Claims in Context, workspaces will be empty - probably anonymous user")
 		return
 	}
-	if cached, ok := newFromCache(claims.SessionID + claims.Subject); ok {
+	if cached, ok := newFromCache(claims.GetUniqueKey()); ok {
 		log.Logger(ctx).Debug("Returning cached version of AccessList")
+
 		return cached, nil
 	}
 	//fmt.Println("Loading AccessList")
@@ -408,7 +409,7 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		return nil, er
 	}
 
-	if er := accessList.cache(claims.SessionID + claims.Subject); er != nil {
+	if er := accessList.cache(claims.GetUniqueKey()); er != nil {
 		log.Logger(ctx).Warn("Could not store ACL to cache: "+er.Error(), zap.Error(err))
 	}
 	return
