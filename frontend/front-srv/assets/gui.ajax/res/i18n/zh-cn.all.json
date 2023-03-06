@@ -196,5 +196,29 @@
   },
   "mimegroup.audio": {
     "other": "Audios"
+  },
+  "fastsearch.quick-jump.title": {
+    "other": "Quick Jump"
+  },
+  "fastsearch.quick-jump.legend": {
+    "other": "Hit [Enter] to jump, add a trailing [/] to search inside children, [Esc] to Close"
+  },
+  "fastsearch.quick-move.title": {
+    "other": "Quick Move"
+  },
+  "fastsearch.quick-move.target-error": {
+    "other": "Cannot move to this target!"
+  },
+  "fastsearch.quick-move.legend": {
+    "other": "Hit [Enter] to move %s selected items to target, [Esc] to Close"
+  },
+  "fastsearch.quick-copy.title": {
+    "other": "Quick Copy"
+  },
+  "fastsearch.quick-copy.target-error": {
+    "other": "Cannot copy to this target!"
+  },
+  "fastsearch.quick-copy.legend": {
+    "other": "Hit [Enter] to copy %s selected items to target, [Esc] to Close"
   }
 }

@@ -2372,17 +2372,44 @@
   "searchengine.query.action.save": {
     "other": "저장"
   },
+  "searchengine.query.action.save-new": {
+    "other": "Save Query"
+  },
   "searchengine.query.action.clear": {
     "other": "지우기"
   },
+  "searchengine.query.action.clear-all": {
+    "other": "Clear All"
+  },
   "searchengine.query.action.delete": {
     "other": "삭제"
+  },
+  "searchengine.query.action.delete-confirm": {
+    "other": "Delete this saved query?"
   },
   "searchengine.query.save-label": {
     "other": "라벨 입력"
   },
   "searchengine.field.basenameOrContent": {
     "other": "이름/컨텐츠"
+  },
+  "searchengine.complete.group.saved": {
+    "other": "Saved Searches"
+  },
+  "searchengine.complete.group.history": {
+    "other": "Last Searches"
+  },
+  "searchengine.complete.group.suggestion": {
+    "other": "Advanced Suggestion"
+  },
+  "searchengine.complete.suggestion.intro": {
+    "other": "Do you mean"
+  },
+  "searchengine.complete.suggestion.remain": {
+    "other": "containing '%s'"
+  },
+  "searchengine.complete.activefilters": {
+    "other": "Filters:"
   },
   "chat.load-older": {
     "other": "오래된 항목"

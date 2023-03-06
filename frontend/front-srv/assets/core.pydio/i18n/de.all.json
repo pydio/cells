@@ -2372,17 +2372,44 @@
   "searchengine.query.action.save": {
     "other": "Speichern"
   },
+  "searchengine.query.action.save-new": {
+    "other": "Speichern"
+  },
   "searchengine.query.action.clear": {
     "other": "Löschen der Warteschlange"
   },
+  "searchengine.query.action.clear-all": {
+    "other": "Alles löschen"
+  },
   "searchengine.query.action.delete": {
     "other": "Löschen"
+  },
+  "searchengine.query.action.delete-confirm": {
+    "other": "Diese gespeicherte Anfrage löschen?"
   },
   "searchengine.query.save-label": {
     "other": "Label eingeben"
   },
   "searchengine.field.basenameOrContent": {
     "other": "Name/Inhalt"
+  },
+  "searchengine.complete.group.saved": {
+    "other": "Gespeicherte Suchanfragen"
+  },
+  "searchengine.complete.group.history": {
+    "other": "Letzte Suchanfragen"
+  },
+  "searchengine.complete.group.suggestion": {
+    "other": "Erweiterter Vorschlag"
+  },
+  "searchengine.complete.suggestion.intro": {
+    "other": "Meinen Sie"
+  },
+  "searchengine.complete.suggestion.remain": {
+    "other": "enthält '%s'"
+  },
+  "searchengine.complete.activefilters": {
+    "other": "Filtern:"
   },
   "chat.load-older": {
     "other": "Ältere Einträge"
