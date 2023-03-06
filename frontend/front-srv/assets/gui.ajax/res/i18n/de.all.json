@@ -141,13 +141,13 @@
     "other": "Symbole"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Larger"
+    "other": "Größer"
   },
   "list.display-mode.thumbs-medium": {
-    "other": "Medium"
+    "other": "Mittel"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Smaller"
+    "other": "Kleiner"
   },
   "list.display-mode.masonry": {
     "other": "Bildergalerie"
@@ -196,5 +196,29 @@
   },
   "mimegroup.audio": {
     "other": "Audios"
+  },
+  "fastsearch.quick-jump.title": {
+    "other": "Schnellzugriff"
+  },
+  "fastsearch.quick-jump.legend": {
+    "other": "Drücken Sie [Enter] zum Springen, fügen Sie ein nachgestelltes [/] hinzu, um innerhalb der Kinder zu suchen, und [Esc] zum Schließen"
+  },
+  "fastsearch.quick-move.title": {
+    "other": "Schnell bewegen"
+  },
+  "fastsearch.quick-move.target-error": {
+    "other": "Dieses Ziel kann nicht angefahren werden!"
+  },
+  "fastsearch.quick-move.legend": {
+    "other": "Drücken Sie [Enter], um %s ausgewählte Elemente ins Ziel zu verschieben, [Esc] zum schließen"
+  },
+  "fastsearch.quick-copy.title": {
+    "other": "Schnellkopie"
+  },
+  "fastsearch.quick-copy.target-error": {
+    "other": "Kann nicht auf dieses Ziel kopieren!"
+  },
+  "fastsearch.quick-copy.legend": {
+    "other": "Drücken Sie [Enter], um %s ausgewählte Elemente in das Ziel zu kopieren, [Esc] zum Schließen"
   }
 }

@@ -2372,17 +2372,44 @@
   "searchengine.query.action.save": {
     "other": "Enregistrer"
   },
+  "searchengine.query.action.save-new": {
+    "other": "Sauvegarder"
+  },
   "searchengine.query.action.clear": {
     "other": "Vider"
   },
+  "searchengine.query.action.clear-all": {
+    "other": "Tout effacer"
+  },
   "searchengine.query.action.delete": {
     "other": "Supprimer"
+  },
+  "searchengine.query.action.delete-confirm": {
+    "other": "Supprimer cette recherche enregistrée ?"
   },
   "searchengine.query.save-label": {
     "other": "Entrez un nom"
   },
   "searchengine.field.basenameOrContent": {
     "other": "Nom/Contenu"
+  },
+  "searchengine.complete.group.saved": {
+    "other": "Recherches enregistrées"
+  },
+  "searchengine.complete.group.history": {
+    "other": "Dernières recherches"
+  },
+  "searchengine.complete.group.suggestion": {
+    "other": "Suggestions avancées"
+  },
+  "searchengine.complete.suggestion.intro": {
+    "other": "Voulez-vous dire"
+  },
+  "searchengine.complete.suggestion.remain": {
+    "other": "contenant '%s'"
+  },
+  "searchengine.complete.activefilters": {
+    "other": "Filtres :"
   },
   "chat.load-older": {
     "other": "Messages précédents"
