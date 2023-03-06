@@ -34,9 +34,14 @@ const {DNDActionParameter} = Pydio.requireLib('components');
 const {SearchConstants} = Pydio.requireLib('hoc');
 import reactStringReplace from 'react-string-replace';
 
+const mm = Pydio.getMessages();
+const labelsM = (id) => mm['ajax_gui.fastsearch.' + id] || id
 const keys = {
     'j': {
-        label:() => { return {title: 'Quick Jump', legend: 'Hit [Enter] to jump, add a trailing [/] to search inside children, [Esc] to Close'}},
+        label:() => {
+            return {
+                title: labelsM('quick-jump.title'),
+                legend: labelsM('quick-jump.legend')}},
         icon: () => 'mdi mdi-step-forward-2',
         filterKey: () => true,
         callback:(option) => {
@@ -54,7 +59,9 @@ const keys = {
     'v' :{
         label:() => {
             const nl = Pydio.getInstance().getContextHolder().getSelectedNodes().length
-            return {title: 'Quick Move', legend: 'Hit [Enter] to move %s selected items to target, [Esc] to Close'.replace('%s', nl)}
+            return {
+                title: labelsM('quick-move.title'),
+                legend: labelsM('quick-move.legend').replace('%s', nl)}
         },
         icon: () => 'mdi mdi-folder-move',
         filterKey: () => {
@@ -63,7 +70,7 @@ const keys = {
         },
         callback: (option) => {
             if(!option.node || option.node.getMetadata().has('node_readonly') || option.node.getMetadata().has('virtual_root')){
-                return {error: 'Cannot move to this target!'}
+                return {error: labelsM('quick-move.target-error')}
             }
             const ss = Pydio.getInstance().getContextHolder().getSelectedNodes()
             const parameter = new DNDActionParameter(ss[0], option.node, DNDActionParameter.STEP_END_DRAG, 'move');
@@ -74,7 +81,9 @@ const keys = {
     'c' :{
         label:() => {
             const nl = Pydio.getInstance().getContextHolder().getSelectedNodes().length
-            return {title: 'Quick Copy', legend: 'Hit [Enter] to copy %s selected items to target, [Esc] to Close'.replace('%s', nl)}
+            return {
+                title: labelsM('quick-copy.title'),
+                legend: labelsM('quick-copy.legend').replace('%s', nl)}
         },
         icon: () => 'mdi mdi-folder-multiple',
         filterKey: () => {
@@ -83,7 +92,7 @@ const keys = {
         },
         callback: (option) => {
             if(!option.node || option.node.getMetadata().has('node_readonly') || option.node.getMetadata().has('virtual_root')){
-                return {error: 'Cannot copy to this target!'}
+                return {error: labelsM('quick-copy.target-error')}
             }
             const ss = Pydio.getInstance().getContextHolder().getSelectedNodes()
             const parameter = new DNDActionParameter(ss[0], option.node, DNDActionParameter.STEP_END_DRAG, 'copy');
