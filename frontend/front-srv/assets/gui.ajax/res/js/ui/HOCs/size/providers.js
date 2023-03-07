@@ -18,13 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import PropTypes from 'prop-types';
-
 import React from 'react';
-import {CircularProgress} from 'material-ui';
+import PropTypes from 'prop-types';
 import ContainerDimensions from 'react-container-dimensions';
-import { getDisplayName, getBoundingRect } from '../utils';
-import _ from 'lodash';
+import {getBoundingRect, getDisplayName} from '../utils';
 
 export class ContainerSizeProvider extends React.PureComponent {
     constructor(props) {
