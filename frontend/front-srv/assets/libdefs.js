@@ -72,9 +72,12 @@ const LibRequires = [ // modules we want to require and export
     'react-redux',
     'react-select',
     'react-dnd',
+    'create-react-class',
+    'prop-types',
     'react-dnd-html5-backend',
     'react-textfit',
-    'lodash/function/flow',
+    'lodash/flow',
+    'lodash',
     'lodash.debounce',
     'classnames',
     'react-autosuggest',
@@ -85,7 +88,8 @@ const LibRequires = [ // modules we want to require and export
     'whatwg-fetch',
     'systemjs',
     'redux',
-    'react-markdown'
+    'react-markdown',
+    'cells-sdk'
 ];
 
 const Externals = Object.keys(PydioCoreRequires).map(function(key){

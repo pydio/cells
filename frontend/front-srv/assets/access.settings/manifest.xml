@@ -13,11 +13,6 @@
             <i18n namespace="admin_dashboard" remote="plug/access.settings/res/i18n/dashboard" />
             <i18n namespace="updater" remote="plug/access.settings/res/i18n/updater" />
 
-            <css file="plug/access.settings/res/css/ajxp_admin.css" autoload="true"/>
-            <css file="plug/access.settings/res/css/rolesEditor.css" autoload="true"/>
-            <css file="plug/access.settings/res/css/codemirror.css" autoload="true"/>
-            <css file="plug/access.settings/res/css/codemirror-hints.css" autoload="true"/>
-            
             <js className="AdminComponents" file="plug/access.settings/res/dist/AdminComponents.min.js" depends="React,PydioComponents,PydioWorkspaces,PydioCoreActions"/>
             <js className="AdminPeople" file="plug/access.settings/res/dist/AdminPeople.min.js" depends="React,PydioComponents,PydioForm"/>
             <js className="AdminWorkspaces" file="plug/access.settings/res/dist/AdminWorkspaces.min.js" depends="PydioForm"/>
@@ -25,7 +20,6 @@
             <js className="AdminLogs" file="plug/access.settings/res/dist/AdminLogs.min.js" depends="React,PydioComponents"/>
             <js className="AdminScheduler" file="plug/access.settings/res/dist/AdminScheduler.min.js" depends="React,PydioForm,PydioComponents"/>
             <js className="AdminServices" file="plug/access.settings/res/dist/AdminServices.min.js" depends="React"/>
-
 		</resources>
         <node_provider ajxpClass="SettingsNodeProvider" ajxpOptions="{}"/>
 	</client_settings>

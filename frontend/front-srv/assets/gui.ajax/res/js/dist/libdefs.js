@@ -73,6 +73,7 @@ const LibRequires = [ // modules we want to require and export
     'react-dnd-html5-backend',
     'react-textfit',
     'lodash/flow',
+    'lodash',
     'lodash.debounce',
     'classnames',
     'clipboard',

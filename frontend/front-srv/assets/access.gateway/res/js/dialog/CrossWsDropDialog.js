@@ -30,6 +30,7 @@ import {MetaServiceApi,RestGetBulkMetaRequest, TreeNode} from 'cells-sdk';
 import CellModel from 'pydio/model/cell'
 import {muiThemeable} from 'material-ui/styles'
 import PropTypes from 'prop-types'
+import moveLoader from '../callback/applyCopyOrMove'
 
 class CrossWsContent extends React.Component{
     constructor(props){
@@ -70,7 +71,7 @@ class CrossWsContent extends React.Component{
 
     move(targetNode){
         const {source, cellWs, pydio, dropEffect} = this.props;
-        const moveFunction = require('../callback/applyCopyOrMove')(Pydio.getInstance());
+        const moveFunction = moveLoader(Pydio.getInstance());
         let selection = pydio.getContextHolder();
         const selectedNodes = selection.getSelectedNodes();
         if(selectedNodes.indexOf(source) === -1){

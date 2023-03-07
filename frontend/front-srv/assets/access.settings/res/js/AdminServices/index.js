@@ -20,6 +20,6 @@
 
 import Dashboard from './board/Dashboard'
 
-window.AdminServices = {
+export {
     Dashboard,
 };

@@ -27,7 +27,7 @@ import {JobsServiceApi, LogListLogRequest, ListLogRequestLogFormat} from 'cells-
 const {MaterialTable} = Pydio.requireLib('components');
 const {ModernTextField} = Pydio.requireLib('hoc');
 const {JobsStore, moment} = Pydio.requireLib('boot');
-import debounce from 'lodash.debounce'
+import {debounce} from 'lodash'
 import ReactJson from 'react-json-view'
 
 const debugStorageKey = 'scheduler.logs.debug'

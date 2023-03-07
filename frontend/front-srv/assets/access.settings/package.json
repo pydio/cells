@@ -13,16 +13,19 @@
     "babel-plugin-add-module-exports": "^1.0.4",
     "@babel/preset-env": "^7.14.7",
     "@babel/preset-react": "^7.14.5",
-    "grunt-babel": "^8.0.0",
-    "grunt-browserify": "^6.0.0",
-    "grunt-contrib-compress": "^2.0.0",
-    "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-uglify": "^5.0.1",
-    "grunt-contrib-watch": "^1.1.0",
+    "babel-loader": "^9.1.2",
+    "babel-plugin-add-module-exports": "^1.0.4",
+    "compression-webpack-plugin": "^10.0.0",
+    "css-loader": "^6.7.3",
+    "less": "^4.1.3",
+    "less-loader": "^11.1.0",
     "less-plugin-autoprefix": "^2.0.0",
-    "react-json-view": "^1.21.3"
+    "style-loader": "^3.3.1",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1"
   },
   "dependencies": {
+    "react-json-view": "^1.21.3",
     "@types/codemirror": "^0.0.108",
     "codemirror": "^5.59.4",
     "dagre": "^0.8.5",
@@ -38,5 +41,8 @@
     "redux-thunk": "^2.3.0",
     "swagger-ui-react": "3.44.0",
     "uuid": "^7.0.2"
+  },
+  "scripts": {
+    "build": "webpack --config webpack.config.js"
   }
 }

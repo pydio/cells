@@ -25,7 +25,7 @@ import ScheduleForm from './board/ScheduleForm'
 import Events from './board/Events'
 import Loader from './board/Loader'
 
-window.AdminScheduler = {
+export {
     Dashboard,
     JobsList,
     TasksList,
