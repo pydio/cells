@@ -19,4 +19,6 @@
  */
 
 import Template from './MobileExtensions'
+import 'smart-app-banner/dist/smart-app-banner.css'
+
 export default {Template}

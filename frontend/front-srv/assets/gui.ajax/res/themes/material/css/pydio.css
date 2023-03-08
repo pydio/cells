@@ -2,13 +2,6 @@
 @import "../../common/css/fonts/icomoon.css";
 @import "../../../../node_modules/livekit-react/dist/index.css";
 @import "../../../../node_modules/react-aspect-ratio/aspect-ratio.css";
-.react-mui-context * {
-  font-family: Roboto, sans-serif;
-}
-.react-mui-context [class^="mdi-"],
-.react-mui-context [class*=" mdi-"] {
-  font-family: "Material Design Icons";
-}
 @font-face {
   font-family: 'Roboto';
   font-weight: 300;
@@ -39,6 +32,433 @@
   src: url('../themes/common/fonts/icomoon/icomoon.eot?krpqh6#iefix') format('embedded-opentype'), url('../themes/common/fonts/icomoon/icomoon.ttf?krpqh6') format('truetype'), url('../themes/common/fonts/icomoon/icomoon.woff?krpqh6') format('woff'), url('../themes/common/fonts/icomoon/icomoon.svg?krpqh6#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
+}
+/*! normalize.css v3.0.2 | MIT License | git.io/normalize */
+/**
+ * 1. Set default font family to sans-serif.
+ * 2. Prevent iOS text size adjust after orientation change, without disabling
+ *    user zoom.
+ */
+.react-mui-context {
+  font-family: sans-serif;
+  /* 1 */
+  -ms-text-size-adjust: 100%;
+  /* 2 */
+  -webkit-text-size-adjust: 100%;
+  /* 2 */
+  /**
+   * Remove default margin.
+  body {
+    margin: 0;
+  }
+   */
+  /* HTML5 display definitions
+     ========================================================================== */
+  /**
+   * Correct `block` display not defined for any HTML5 element in IE 8/9.
+   * Correct `block` display not defined for `details` or `summary` in IE 10/11
+   * and Firefox.
+   * Correct `block` display not defined for `main` in IE 11.
+   */
+  /**
+   * 1. Correct `inline-block` display not defined in IE 8/9.
+   * 2. Normalize vertical alignment of `progress` in Chrome, Firefox, and Opera.
+   */
+  /**
+   * Prevent modern browsers from displaying `audio` without controls.
+   * Remove excess height in iOS 5 devices.
+   */
+  /**
+   * Address `[hidden]` styling not present in IE 8/9/10.
+   * Hide the `template` element in IE 8/9/11, Safari, and Firefox < 22.
+   */
+  /* Links
+     ========================================================================== */
+  /**
+   * Remove the gray background color from active links in IE 10.
+   */
+  /**
+   * Improve readability when focused and also mouse hovered in all browsers.
+   */
+  /* Text-level semantics
+     ========================================================================== */
+  /**
+   * Address styling not present in IE 8/9/10/11, Safari, and Chrome.
+   */
+  /**
+   * Address style set to `bolder` in Firefox 4+, Safari, and Chrome.
+   */
+  /**
+   * Address styling not present in Safari and Chrome.
+   */
+  /**
+   * Address variable `h1` font-size and margin within `section` and `article`
+   * contexts in Firefox 4+, Safari, and Chrome.
+   */
+  /**
+   * Address styling not present in IE 8/9.
+   */
+  /**
+   * Address inconsistent and variable font size in all browsers.
+   */
+  /**
+   * Prevent `sub` and `sup` affecting `line-height` in all browsers.
+   */
+  /* Embedded content
+     ========================================================================== */
+  /**
+   * Remove border when inside `a` element in IE 8/9/10.
+   */
+  /**
+   * Correct overflow not hidden in IE 9/10/11.
+   */
+  /* Grouping content
+     ========================================================================== */
+  /**
+   * Address margin not present in IE 8/9 and Safari.
+   */
+  /**
+   * Address differences between Firefox and other browsers.
+   */
+  /**
+   * Contain overflow in all browsers.
+   */
+  /**
+   * Address odd `em`-unit font size rendering in all browsers.
+   */
+  /* Forms
+     ========================================================================== */
+  /**
+   * Known limitation: by default, Chrome and Safari on OS X allow very limited
+   * styling of `select`, unless a `border` property is set.
+   */
+  /**
+   * 1. Correct color not being inherited.
+   *    Known issue: affects color of disabled elements.
+   * 2. Correct font properties not being inherited.
+   * 3. Address margins set differently in Firefox 4+, Safari, and Chrome.
+   */
+  /**
+   * Address `overflow` set to `hidden` in IE 8/9/10/11.
+   */
+  /**
+   * Address inconsistent `text-transform` inheritance for `button` and `select`.
+   * All other form control elements do not inherit `text-transform` values.
+   * Correct `button` style inheritance in Firefox, IE 8/9/10/11, and Opera.
+   * Correct `select` style inheritance in Firefox.
+   */
+  /**
+   * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio`
+   *    and `video` controls.
+   * 2. Correct inability to style clickable `input` types in iOS.
+   * 3. Improve usability and consistency of cursor style between image-type
+   *    `input` and others.
+   */
+  /**
+   * Re-set default cursor for disabled elements.
+   *
+   * Input types do not display default cursor if element contains styling
+   * that overrides cursor.
+   */
+  /**
+   * Remove inner padding and border in Firefox 4+.
+   */
+  /**
+   * Address Firefox 4+ setting `line-height` on `input` using `!important` in
+   * the UA stylesheet.
+   */
+  /**
+   * It's recommended that you don't attempt to style these elements.
+   * Firefox's implementation doesn't respect box-sizing, padding, or width.
+   *
+   * 1. Address box sizing set to `content-box` in IE 8/9/10.
+   * 2. Remove excess padding in IE 8/9/10.
+   */
+  /**
+   * Fix the cursor style for Chrome's increment/decrement buttons. For certain
+   * `font-size` values of the `input`, it causes the cursor style of the
+   * decrement button to change from `default` to `text`.
+   */
+  /**
+   * 1. Address `appearance` set to `searchfield` in Safari and Chrome.
+   * 2. Address `box-sizing` set to `border-box` in Safari and Chrome
+   *    (include `-moz` to future-proof).
+   */
+  /**
+   * Remove inner padding and search cancel button in Safari and Chrome on OS X.
+   * Safari (but not Chrome) clips the cancel button when the search input has
+   * padding (and `textfield` appearance).
+   */
+  /**
+   * Define consistent border, margin, and padding.
+   */
+  /**
+   * 1. Correct `color` not being inherited in IE 8/9/10/11.
+   * 2. Remove padding so people aren't caught out if they zero out fieldsets.
+   */
+  /**
+   * Remove default vertical scrollbar in IE 8/9/10/11.
+   */
+  /**
+   * Don't inherit the `font-weight` (applied by a rule above).
+   * NOTE: the default cannot safely be changed in Chrome and Safari on OS X.
+   */
+  /* Tables
+     ========================================================================== */
+  /**
+   * Remove most spacing between table cells.
+   */
+}
+.react-mui-context article,
+.react-mui-context aside,
+.react-mui-context details,
+.react-mui-context figcaption,
+.react-mui-context figure,
+.react-mui-context footer,
+.react-mui-context header,
+.react-mui-context hgroup,
+.react-mui-context main,
+.react-mui-context menu,
+.react-mui-context nav,
+.react-mui-context section,
+.react-mui-context summary {
+  display: block;
+}
+.react-mui-context audio,
+.react-mui-context canvas,
+.react-mui-context progress,
+.react-mui-context video {
+  display: inline-block;
+  /* 1 */
+  vertical-align: baseline;
+  /* 2 */
+}
+.react-mui-context audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+.react-mui-context [hidden],
+.react-mui-context template {
+  display: none;
+}
+.react-mui-context a {
+  background-color: transparent;
+}
+.react-mui-context a:active,
+.react-mui-context a:hover {
+  outline: 0;
+}
+.react-mui-context abbr[title] {
+  border-bottom: 1px dotted;
+}
+.react-mui-context b,
+.react-mui-context strong {
+  font-weight: bold;
+}
+.react-mui-context dfn {
+  font-style: italic;
+}
+.react-mui-context h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+.react-mui-context mark {
+  background: #ff0;
+  color: #000;
+}
+.react-mui-context small {
+  font-size: 80%;
+}
+.react-mui-context sub,
+.react-mui-context sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+.react-mui-context sup {
+  top: -0.5em;
+}
+.react-mui-context sub {
+  bottom: -0.25em;
+}
+.react-mui-context img {
+  border: 0;
+}
+.react-mui-context svg:not(:root) {
+  overflow: hidden;
+}
+.react-mui-context figure {
+  margin: 1em 40px;
+}
+.react-mui-context hr {
+  -webkit-box-sizing: content-box;
+          box-sizing: content-box;
+  height: 0;
+}
+.react-mui-context pre {
+  overflow: auto;
+}
+.react-mui-context code,
+.react-mui-context kbd,
+.react-mui-context pre,
+.react-mui-context samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+.react-mui-context button,
+.react-mui-context input,
+.react-mui-context optgroup,
+.react-mui-context select,
+.react-mui-context textarea {
+  color: inherit;
+  /* 1 */
+  font: inherit;
+  /* 2 */
+  margin: 0;
+  /* 3 */
+}
+.react-mui-context button {
+  overflow: visible;
+}
+.react-mui-context button,
+.react-mui-context select {
+  text-transform: none;
+}
+.react-mui-context button,
+.react-mui-context html input[type="button"],
+.react-mui-context input[type="reset"],
+.react-mui-context input[type="submit"] {
+  -webkit-appearance: button;
+  /* 2 */
+  cursor: pointer;
+  /* 3 */
+}
+.react-mui-context button[disabled],
+.react-mui-context html input[disabled] {
+  cursor: default !important;
+}
+.react-mui-context button::-moz-focus-inner,
+.react-mui-context input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+.react-mui-context input {
+  line-height: normal;
+}
+.react-mui-context input[type="checkbox"],
+.react-mui-context input[type="radio"] {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  /* 1 */
+  padding: 0;
+  /* 2 */
+}
+.react-mui-context input[type="number"]::-webkit-inner-spin-button,
+.react-mui-context input[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+.react-mui-context input[type="search"] {
+  -webkit-appearance: textfield;
+  /* 1 */
+  -webkit-box-sizing: content-box;
+  /* 2 */
+  box-sizing: content-box;
+}
+.react-mui-context input[type="search"]::-webkit-search-cancel-button,
+.react-mui-context input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+.react-mui-context fieldset {
+  border: 1px solid #c0c0c0;
+  margin: 0 2px;
+  padding: 0.35em 0.625em 0.75em;
+}
+.react-mui-context legend {
+  border: 0;
+  /* 1 */
+  padding: 0;
+  /* 2 */
+}
+.react-mui-context textarea {
+  overflow: auto;
+}
+.react-mui-context optgroup {
+  font-weight: bold;
+}
+.react-mui-context table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.react-mui-context td,
+.react-mui-context th {
+  padding: 0;
+}
+/*------------------------------------*
+  RESET
+*------------------------------------*/
+.react-mui-context div,
+.react-mui-context dl,
+.react-mui-context dt,
+.react-mui-context dd,
+.react-mui-context ul,
+.react-mui-context ol,
+.react-mui-context li,
+.react-mui-context h1,
+.react-mui-context h2,
+.react-mui-context h3,
+.react-mui-context h4,
+.react-mui-context h5,
+.react-mui-context h6,
+.react-mui-context pre,
+.react-mui-context form,
+.react-mui-context fieldset,
+.react-mui-context input,
+.react-mui-context textarea,
+.react-mui-context p,
+.react-mui-context blockquote,
+.react-mui-context th,
+.react-mui-context td {
+  margin: 0;
+  padding: 0;
+}
+.react-mui-context table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.react-mui-context fieldset,
+.react-mui-context img {
+  border: 0;
+}
+.react-mui-context address,
+.react-mui-context caption,
+.react-mui-context cite,
+.react-mui-context dfn,
+.react-mui-context th,
+.react-mui-context var {
+  font-style: normal;
+  font-weight: normal;
+}
+.react-mui-context caption,
+.react-mui-context th {
+  text-align: left;
+}
+.react-mui-context h1,
+.react-mui-context h2,
+.react-mui-context h3,
+.react-mui-context h4,
+.react-mui-context h5,
+.react-mui-context h6 {
+  font-size: 100%;
+  font-weight: normal;
+}
+.react-mui-context q:before,
+.react-mui-context q:after {
+  content: '';
+}
+.react-mui-context abbr,
+.react-mui-context acronym {
+  border: 0;
 }
 *:focus {
   outline: none;
@@ -2337,6 +2757,944 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 }
 /* INFO PANEL GENERIC APPLICATION COLOR */
 /* INFOPANEL GREY TINT */
+.react-mui-context {
+  font-family: Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  -webkit-font-smoothing: antialiased;
+  /*************/
+  /* LAYOUTS   */
+  /*************/
+  /**********/
+  /* MODAL */
+  /**********/
+  /************/
+  /* FORMS    */
+  /************/
+  /************/
+  /* TABS     */
+  /************/
+  /*********/
+  /* LISTS */
+  /*********/
+  /*********/
+  /* TABLE */
+  /*********/
+  /*************/
+  /* BADGE     */
+  /*************/
+}
+.react-mui-context * {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.react-mui-context [class^="mdi-"],
+.react-mui-context [class*=" mdi-"] {
+  font-family: "Material Design Icons";
+}
+.react-mui-context label {
+  margin: 0;
+  font-size: inherit;
+}
+.react-mui-context span.toolbars-button-menu {
+  display: inline-block;
+  position: relative;
+}
+.react-mui-context span.toolbars-button-menu .mui-menu {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 10;
+  min-width: 200px;
+  max-height: none !important;
+}
+.react-mui-context .mui-toolbar .mui-toolbar-group span.toolbars-button-menu {
+  margin-top: 5px;
+}
+.react-mui-context .mui-toolbar .mui-toolbar-group span.toolbars-button-menu .mui-font-icon {
+  line-height: 20px;
+  font-size: 18px;
+}
+.react-mui-context .mui-toolbar .mui-toolbar-group span.toolbars-button-menu .mui-menu-item .mui-menu-item-icon {
+  line-height: 48px;
+}
+.react-mui-context .main-layout-nav-to-stack,
+.react-mui-context .horizontal-layout,
+.react-mui-context .vertical-layout,
+.react-mui-context .mui-paper.vertical-layout > .mui-paper-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: stretch;
+      -ms-flex-align: stretch;
+          align-items: stretch;
+}
+.react-mui-context .viewport-height {
+  height: 100vh;
+}
+.react-mui-context .app-canvas {
+  height: 100vh;
+  background-color: white;
+}
+.react-mui-context .app-canvas .main-panel {
+  position: absolute;
+  top: 64px;
+  left: 256px;
+  right: 0;
+  bottom: 0;
+}
+@media only screen and (max-width: 420px) {
+  .react-mui-context .app-canvas .main-panel {
+    left: 0;
+  }
+}
+.react-mui-context .mui-paper.vertical-layout > .mui-paper-container,
+.react-mui-context .vertical-layout {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.react-mui-context .layout-fill,
+.react-mui-context .mui-paper.layout-fill > .mui-paper-container,
+.react-mui-context .role-panel > .mui-paper-container {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  overflow-y: auto;
+}
+.react-mui-context .layout-fill-scroll-y {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  overflow-y: auto;
+}
+.react-mui-context .droppable-active,
+.react-mui-context .material-list .material-list-entry.selected.droppable-active {
+  background-color: rgba(255, 110, 64, 0.23) !important;
+}
+.react-mui-context .main-layout-nav-to-stack {
+  height: 100%;
+}
+.react-mui-context .main-layout-nav-to-stack .left-nav {
+  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.react-mui-context .main-layout-nav-to-stack .left-nav h1 {
+  float: left;
+}
+.react-mui-context .main-layout-nav-to-stack .left-nav .buttons-cont {
+  float: right;
+  margin-top: 5px;
+}
+.react-mui-context .main-layout-nav-to-stack .container {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+.react-mui-context .main-layout-nav-to-stack.vertical {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.react-mui-context .main-layout-nav-to-stack.vertical .left-nav {
+  width: auto;
+}
+@media only screen and (max-width: 720px) {
+  .react-mui-context .main-layout-nav-to-stack {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+  }
+  .react-mui-context .main-layout-nav-to-stack h1 {
+    font-size: 30px;
+    padding: 8px 20px 0;
+    margin-bottom: 0;
+  }
+  .react-mui-context .main-layout-nav-to-stack .left-nav {
+    width: auto;
+  }
+  .react-mui-context .main-layout-nav-to-stack .hide-on-vertical-layout {
+    display: none;
+  }
+}
+@media only screen and (max-width: 420px) {
+  .react-mui-context .main-layout-nav-to-stack h1 {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+  .react-mui-context .main-layout-nav-to-stack div.buttons-cont {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding-top: 0 !important;
+  }
+}
+.react-mui-context .dialog-max-480.mui-dialog-window-contents {
+  max-width: 480px !important;
+}
+@media only screen and (max-width: 420px) {
+  .react-mui-context .dialog-max-480 {
+    max-width: 96% !important;
+    width: 96% !important;
+  }
+}
+.react-mui-context .pydio-form-panel {
+  overflow: auto;
+  padding-bottom: 24px;
+}
+.react-mui-context .pydio-form-panel h1 {
+  font-size: 25px;
+  line-height: 25px;
+}
+.react-mui-context .pydio-form-panel .pydio-form-panel {
+  width: auto;
+}
+.react-mui-context .pydio-form-panel > .pydio-form-group {
+  margin: 20px;
+  padding: 0;
+  overflow-y: auto;
+}
+.react-mui-context .pydio-form-panel > .pydio-form-group.z-depth-1 {
+  padding: 16px;
+}
+.react-mui-context .pydio-form-panel > .pydio-form-group.additional {
+  padding-left: 0;
+  padding-right: 0;
+}
+.react-mui-context .pydio-form-panel > .pydio-form-group .pydio-form-group {
+  margin: 0;
+  padding: 0 ;
+}
+.react-mui-context .pydio-form-panel .pydio-form-group.form-group-inactive > div {
+  display: none;
+}
+.react-mui-context .pydio-form-panel .pydio-form-group.form-group-active > div {
+  padding-bottom: 20px;
+}
+.react-mui-context .pydio-form-panel .pydio-form-group h4.group-label-inactive,
+.react-mui-context .pydio-form-panel .pydio-form-group h4.group-label-active {
+  border-bottom: 1px solid #E0E0E0;
+  margin-bottom: 30px;
+  padding-top: 0;
+  font-weight: 400;
+  cursor: pointer;
+}
+.react-mui-context .pydio-form-panel .pydio-form-group h4.group-label-inactive > span.group-active-toggler,
+.react-mui-context .pydio-form-panel .pydio-form-group h4.group-label-active > span.group-active-toggler {
+  display: inline-block;
+  float: right;
+  margin-top: 4px;
+  margin-right: 8px;
+}
+.react-mui-context .pydio-form-panel .pydio-form-group h4.group-label-active {
+  border-bottom: 0;
+  color: rgba(0, 0, 0, 0.87);
+  margin-bottom: 10px;
+}
+.react-mui-context .pydio-form-panel.sub-form {
+  padding: 0 0;
+}
+.react-mui-context .pydio-form-panel.row-flex {
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
+.react-mui-context .pydio-form-panel.row-flex > .pydio-form-group {
+  padding: 0;
+  margin: 2% 0 0 2%;
+  width: 96%;
+}
+.react-mui-context .pydio-form-panel.row-flex > .pydio-form-group > h3 {
+  background-color: #f5f5f5;
+  color: #9e9e9e;
+  font-size: 12px;
+  font-weight: 500;
+  border-bottom: 1px solid #e0e0e0;
+  height: 48px;
+  line-height: 48px;
+  padding: 0 16px;
+}
+.react-mui-context .pydio-form-panel.row-flex > .pydio-form-group > div {
+  margin-top: 16px;
+  padding: 0 16px;
+}
+@media only screen and (min-width: 768px) {
+  .react-mui-context .pydio-form-panel.row-flex > .pydio-form-group {
+    width: 47%;
+  }
+}
+@media only screen and (min-width: 1600px) {
+  .react-mui-context .pydio-form-panel.row-flex > .pydio-form-group {
+    margin: 1% 0 0 1%;
+    width: 32%;
+  }
+}
+.react-mui-context .pydio-form-panel.row-flex > .pydio-form-group.additional > div {
+  padding: 0;
+  margin: 0;
+}
+@media only screen and (max-width: 1600px) {
+  .react-mui-context .pydio-form-panel.row-flex.form-panel-odd > .pydio-form-group:last-of-type {
+    width: 96%;
+  }
+}
+.react-mui-context .pydio-form-panel .mui-checkbox {
+  margin: 16px 0 0;
+}
+.react-mui-context .pydio-form-panel .mui-text-field {
+  width: 100%;
+}
+.react-mui-context .pydio-form-panel .mui-text-field.mui-has-floating-labels {
+  margin-top: -16px;
+}
+.react-mui-context .pydio-form-panel .form-entry-boolean {
+  overflow: hidden;
+}
+.react-mui-context .pydio-form-panel .form-entry-image > div:last-child {
+  background-color: whitesmoke;
+  border-radius: 5px;
+  padding: 10px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-top: 6px;
+  margin-bottom: 16px;
+}
+.react-mui-context .pydio-form-panel .form-entry-image .binary-remove-button {
+  color: #ABABAB;
+  padding: 2px 0px 0;
+  width: 100px;
+  text-align: center;
+  font-weight: 500;
+  cursor: pointer;
+}
+.react-mui-context .pydio-form-panel .form-legend {
+  display: block;
+  color: rgba(0, 0, 0, 0.33);
+  margin-bottom: -4px;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding-left: 3px;
+}
+.react-mui-context .pydio-form-panel .form-entry-button {
+  display: inline-block;
+  margin: 0 10px 10px 0;
+}
+.react-mui-context .pydio-form-panel .form-entry-button .form-legend {
+  display: none;
+}
+.react-mui-context .pydio-form-panel .form-entry-legend .form-legend {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.63);
+  font-weight: 400;
+}
+.react-mui-context .pydio-form-panel.hide-legend .form-legend {
+  display: none;
+}
+.react-mui-context .pydio-form-panel.hide-legend .mui-checkbox {
+  margin-bottom: 16px;
+}
+.react-mui-context .pydio-form-panel .form-entry-valid-password .form-legend {
+  margin-top: 13px;
+}
+.react-mui-context .pydio-form-panel .mui-switch-label {
+  color: rgba(0, 0, 0, 0.86);
+}
+.react-mui-context .pydio-form-panel label {
+  margin: 0;
+  font-size: inherit;
+}
+.react-mui-context .pydio-form-panel .mui-menu.mui-menu-hideable {
+  z-index: 3;
+  max-height: 218px;
+  overflow-y: auto;
+}
+.react-mui-context .pydio-form-panel .mui-drop-down-menu {
+  width: 100%;
+  height: 44px;
+}
+.react-mui-context .pydio-form-panel .mui-drop-down-menu .mui-menu-control .mui-menu-label {
+  padding-left: 0;
+  line-height: 58px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.87);
+  width: 100%;
+}
+.react-mui-context .pydio-form-panel .mui-drop-down-menu .mui-menu-control .mui-menu-drop-down-icon {
+  top: 18px;
+  right: 0;
+}
+.react-mui-context .pydio-form-panel .mui-drop-down-menu .mui-menu-control .mui-menu-control-underline {
+  margin: 0;
+}
+.react-mui-context .pydio-form-panel .mui-drop-down-menu .mui-menu-control:hover .mui-menu-control-bg {
+  opacity: 0;
+}
+.react-mui-context .pydio-form-panel .Select-control {
+  width: 100%;
+}
+.react-mui-context .pydio-form-panel .Select-control .Select-item {
+  color: #FFFFFF;
+  border-radius: 2px;
+  border: 0 solid #c9e6f2;
+  display: inline-block;
+  font-size: 13px;
+  margin: 2px;
+  font-weight: 500;
+  -webkit-box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.25);
+          box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.25);
+}
+.react-mui-context .pydio-form-panel .Select-control .Select-item span {
+  padding: 5px 10px;
+}
+.react-mui-context .pydio-form-panel .Select-control .Select-item span.Select-item-icon:hover,
+.react-mui-context .pydio-form-panel .Select-control .Select-item span.Select-item-icon:focus {
+  color: #FFFFFF;
+}
+.react-mui-context .pydio-form-panel .drop-down-with-floating-label label.drop-down-floating-label {
+  display: block;
+  position: relative;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.53);
+  top: 16px;
+  opacity: 0;
+}
+.react-mui-context .pydio-form-panel .drop-down-with-floating-label.has-value label.drop-down-floating-label {
+  opacity: 1;
+}
+.react-mui-context .pydio-form-panel .drop-down-with-floating-label.multiple {
+  display: block;
+  padding-top: 16px;
+  margin-bottom: 6px;
+}
+.react-mui-context .pydio-form-panel .drop-down-with-floating-label.multiple label.drop-down-floating-label {
+  top: -2px;
+}
+.react-mui-context .pydio-form-panel .replicable-field .title-bar .title {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.3);
+}
+.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.5);
+  font-style: italic;
+  padding-bottom: 8px;
+}
+.react-mui-context .pydio-form-panel .replicable-field .title-bar .mui-icon-button {
+  float: right;
+  margin-top: -12px;
+}
+.react-mui-context .pydio-form-panel .replicable-field .title-bar .mui-icon-button .mui-font-icon {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.3);
+}
+.react-mui-context .pydio-form-panel .replicable-field .replicable-group {
+  border-radius: 0;
+  margin-bottom: 8px;
+  padding: 0 16px 8px;
+  overflow: visible;
+}
+.react-mui-context .pydio-form-panel .replicable-field .replicable-group .form-legend {
+  margin-bottom: 8px;
+}
+.react-mui-context .pydio-form-panel.replicable-unique {
+  padding-bottom: 1px;
+}
+.react-mui-context .pydio-form-helper {
+  position: absolute;
+  width: 360px;
+  border-radius: 3px;
+  background-color: white;
+  overflow: auto;
+  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  height: 0;
+}
+.react-mui-context .pydio-form-helper .helper-title {
+  background-color: #424242;
+  color: rgba(255, 255, 255, 0.61);
+  font-weight: 500;
+  padding: 16px;
+}
+.react-mui-context .pydio-form-helper .helper-title .helper-close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: inline-block;
+  padding: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.8);
+}
+.react-mui-context .pydio-form-helper.helper-visible {
+  -webkit-box-shadow: 0 0 6px rgba(0, 0, 0, 0.38);
+          box-shadow: 0 0 6px rgba(0, 0, 0, 0.38);
+  right: 20px;
+  bottom: 0;
+  height: 80%;
+}
+.react-mui-context .pydio-form-helper .helper-doc-cont {
+  margin: 16px;
+}
+.react-mui-context .pydio-form-helper .helper-doc-cont b {
+  font-weight: 500;
+  text-decoration: underline;
+}
+.react-mui-context .pydio-form-helper .helper-action-button-cont {
+  text-align: center;
+  margin: 10px;
+}
+.react-mui-context .pydio-form-helper .helper-action-status {
+  border-top: 1px solid #EEE;
+  margin: 16px;
+  -webkit-box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.39);
+          box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.39);
+  border-radius: 3px;
+  height: 300px;
+  overflow-y: auto;
+  background-color: rgba(245, 245, 245, 0.23);
+}
+.react-mui-context .pydio-form-helper .helper-action-status > div {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+.react-mui-context .pydio-form-helper .helper-values-list .legend {
+  font-weight: 500;
+  border-bottom: 1px solid #ccc;
+}
+.react-mui-context .pydio-form-helper .helper-values-list .helper-value {
+  padding: 10px 0;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  font-size: 16px;
+}
+.react-mui-context .pydio-form-helper .helper-values-list .helper-value:hover {
+  background-color: #e5e5e5;
+}
+.react-mui-context .mui-menu.mui-menu-hideable {
+  max-height: 218px;
+  overflow-y: hidden;
+}
+.react-mui-context .mui-menu.mui-menu-hideable.mui-visible {
+  min-height: 170px;
+}
+.react-mui-context .mui-menu.mui-menu-hideable.mui-visible .mui-paper-container {
+  height: 100%;
+  overflow-y: auto !important;
+}
+.react-mui-context .dropzone {
+  border-radius: 3px;
+  width: 100px;
+  height: 100px;
+  background-color: #ababab;
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+.react-mui-context .tab-vertical-layout {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+.react-mui-context .tab-vertical-layout > div.mui-tabs-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: stretch;
+      -ms-flex-align: stretch;
+          align-items: stretch;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  overflow: hidden;
+}
+.react-mui-context .tab-vertical-layout > div.mui-tabs-container > div.mui-tab-item-container,
+.react-mui-context .tab-vertical-layout > div.mui-tabs-container > div.mui-ink-bar {
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.react-mui-context .tab-vertical-layout > div.mui-tabs-container > div.mui-tab-template {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  overflow: auto;
+  background-color: #f4f4f4;
+}
+.react-mui-context .material-list .material-list-selector {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  text-align: center;
+}
+.react-mui-context .material-list .material-list-selector > .mui-checkbox,
+.react-mui-context .material-list .mui-toolbar .mui-checkbox {
+  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  width: 0;
+  overflow: hidden;
+  display: inline-block;
+  height: 46px;
+  padding: 15px 0;
+}
+.react-mui-context .material-list .infinite-parent-smooth-height > div {
+  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.react-mui-context .material-list .mui-toolbar {
+  background-color: #F5F5F5;
+  border-bottom: 1px solid #E0E0E0;
+}
+.react-mui-context .material-list .mui-toolbar .mui-menu {
+  max-height: 250px;
+  overflow-y: auto;
+}
+.react-mui-context .material-list .mui-toolbar .mui-checkbox {
+  float: left;
+}
+.react-mui-context .material-list .mui-toolbar .search-results-title {
+  margin-left: 15px;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+.react-mui-context .material-list .mui-toolbar .mui-toolbar-group .mui-flat-button,
+.react-mui-context .material-list .mui-toolbar .mui-toolbar-group .mui-raised-button {
+  margin: 10px 5px 0 10px;
+}
+.react-mui-context .material-list .mui-toolbar .mui-toolbar-group .mui-drop-down-menu {
+  margin-right: 8px;
+  margin-left: 8px;
+}
+.react-mui-context .material-list .mui-toolbar .mui-toolbar-group .mui-font-icon {
+  padding-left: 0;
+}
+.react-mui-context .material-list .mui-toolbar .mui-toolbar-group .mui-drop-down-menu {
+  width: 155px !important;
+}
+.react-mui-context .material-list .mui-toolbar .list-title {
+  padding: 18px 16px;
+  font-size: 16px;
+  line-height: 19px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.55);
+}
+.react-mui-context .material-list.list-show-selectors .mui-checkbox {
+  width: 46px;
+  padding: 15px 13px;
+}
+.react-mui-context .material-list.list-show-selectors .material-list-entry-2-lines .mui-checkbox {
+  padding: 22px 18px;
+}
+.react-mui-context .material-list-action-inline {
+  display: inline-block;
+  margin: 3px 10px;
+  padding: 11px 9px;
+  border-radius: 20px;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.23);
+  font-size: 14px;
+}
+.react-mui-context .material-list-action-inline:hover {
+  color: rgba(0, 0, 0, 0.93);
+}
+.react-mui-context .material-list .material-list-entry {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: stretch;
+      -ms-flex-align: stretch;
+          align-items: stretch;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  /* ICONS */
+  /* TEXTS */
+  /* ACTIONS */
+}
+.react-mui-context .material-list .material-list-entry:last-child {
+  border-bottom: none;
+}
+.react-mui-context .material-list .material-list-entry .material-list-icon {
+  width: 72px;
+}
+.react-mui-context .material-list .material-list-entry .material-list-icon .mui-font-icon {
+  font-size: 18px;
+  color: #FFFFFF;
+  display: inline-block;
+  margin: 15px 15px;
+  background-color: rgba(0, 0, 0, 0.33);
+  border-radius: 50%;
+  padding: 11px 11px;
+  width: 40px;
+  height: 40px;
+  text-align: center;
+}
+.react-mui-context .material-list .material-list-entry .material-list-icon img {
+  border-radius: 50%;
+  width: 40px !important;
+  height: 40px;
+  margin: 15px 0 0 16px;
+  background-color: rgba(0, 0, 0, 0.13);
+}
+.react-mui-context .material-list .material-list-entry .material-list-icon .sub-entry-icon {
+  border-right: 2px dotted #C3C3C3;
+  height: 38px;
+  width: 37px;
+  margin-top: 17px;
+}
+.react-mui-context .material-list .material-list-entry .material-list-icon-none {
+  width: 16px;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.react-mui-context .material-list .material-list-entry .material-list-text {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  padding: 16px 0;
+  overflow: hidden;
+}
+.react-mui-context .material-list .material-list-entry .material-list-text .material-list-line-1 {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.react-mui-context .material-list .material-list-entry .material-list-text .material-list-line-2,
+.react-mui-context .material-list .material-list-entry .material-list-text .material-list-line-3 {
+  font-size: 13px;
+  line-height: 20px;
+  color: rgba(0, 0, 0, 0.53);
+  white-space: nowrap;
+  overflow: hidden;
+  /*text-overflow: ellipsis;*/
+}
+.react-mui-context .material-list .material-list-entry .material-list-actions {
+  padding: 8px 4px 0 16px;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.react-mui-context .material-list .material-list-entry.material-list-entry-2-lines .material-list-actions {
+  padding-top: 17px;
+}
+.react-mui-context .material-list .material-list-entry.material-list-entry-1-lines {
+  /* ICONS */
+}
+.react-mui-context .material-list .material-list-entry.material-list-entry-1-lines .material-list-icon .mui-font-icon {
+  margin: 9px 0 0 16px;
+  width: 35px;
+  height: 35px;
+  padding: 8px 12px;
+}
+.react-mui-context .material-list .material-list-entry.list-show-selectors .material-list-actions {
+  opacity: 0;
+}
+.react-mui-context .material-list .material-list-entry:hover .material-list-text .material-list-line-2 {
+  color: rgba(0, 0, 0, 0.33);
+  text-overflow: ellipsis;
+}
+.react-mui-context .material-list .material-list-entry.selected .material-list-line-1 {
+  font-weight: 500;
+}
+.react-mui-context .material-list .material-list-entry.selected .material-list-text .material-list-line-2 {
+  color: white;
+  text-overflow: ellipsis;
+}
+.react-mui-context .material-list.table-mode .cell {
+  display: inline-block;
+  width: 120px;
+  padding-left: 20px;
+  padding-right: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.react-mui-context .material-list.table-mode .cell.cell-ajxp_modiftime {
+  width: 170px;
+}
+.react-mui-context .material-list.table-mode .cell.cell-bytesize {
+  width: 100px;
+}
+.react-mui-context .material-list.table-mode .cell.cell-ajxp_label {
+  padding-left: 0;
+}
+.react-mui-context .material-list.table-mode .cell.header_cell.sortable {
+  cursor: pointer;
+}
+.react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-asc,
+.react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-desc {
+  background-color: #edf2f7;
+}
+.react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-asc::before,
+.react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-desc::before {
+  display: block;
+  position: absolute;
+  margin-left: -16px;
+  font-family: "Material Design Icons";
+  content: "\F05D";
+}
+.react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-desc::before {
+  content: "\F045";
+}
+.react-mui-context .material-list.table-mode .material-list-actions {
+  padding-top: 1px;
+}
+.react-mui-context .material-list.table-mode .material-list-actions .mui-font-icon {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.23);
+}
+.react-mui-context .material-list.table-mode .material-list-actions .mui-font-icon:hover {
+  color: rgba(0, 0, 0, 0.53);
+}
+.react-mui-context .material-list.table-mode .mui-toolbar {
+  padding: 0;
+  border-bottom: 1px solid #E5E5E5;
+  position: relative;
+}
+.react-mui-context .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left:first-child {
+  margin-left: 0 !important;
+  width: 100%;
+  padding: 20px 12px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.react-mui-context .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-right {
+  position: absolute;
+  margin-right: 0;
+  right: 4px;
+}
+.react-mui-context .material-list .material-list-entry.list-group-header {
+  border-bottom: 0;
+  margin-top: 8px;
+}
+.react-mui-context .material-list .material-list-entry.list-group-header .material-list-line-1 {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.73);
+  font-size: 13px;
+  line-height: 13px;
+}
+.react-mui-context .material-list .material-list-entry.list-group-header:hover {
+  background-color: transparent !important;
+}
+.react-mui-context .material-list.rowsHaveActions .mui-toolbar .mui-toolbar-group.mui-left:first-child {
+  width: 95%;
+}
+.react-mui-context .material-list.display-as-menu .material-list-entry {
+  /*border-bottom: 0;*/
+}
+.react-mui-context .material-list.display-as-menu .material-list-entry .material-list-text {
+  padding: 14px 0;
+}
+.react-mui-context .material-list.display-as-menu .material-list-entry .material-list-text .material-list-line-1 {
+  font-size: 13px !important;
+}
+.react-mui-context .material-list.display-as-menu .material-list-entry .material-list-actions {
+  padding-top: 4px;
+  /*opacity: 0.4;*/
+}
+.react-mui-context .material-list.hideActions .material-list-entry .material-list-actions {
+  display: none;
+}
+.react-mui-context .material_table tr {
+  border-bottom: 1px solid #e0e0e0;
+}
+.react-mui-context .material_table tr:hover {
+  background-color: rgba(242, 242, 242, 0.31);
+}
+.react-mui-context .material_table th {
+  background-color: #ffffff !important;
+  padding: 10px !important;
+  padding-right: 26px !important;
+  color: rgba(0, 0, 0, 0.54) !important;
+  height: 48px;
+  font-size: 11px;
+}
+.react-mui-context .material_table .th_sorter {
+  float: left;
+  display: inline-block;
+  margin-top: 5px;
+  margin-right: 7px;
+}
+.react-mui-context .material_table td {
+  padding: 10px !important;
+  padding-right: 26px !important;
+  height: 48px !important;
+  background-color: transparent !important;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.react-mui-context .material_table td:first-child {
+  font-size: 1.1em;
+}
+.react-mui-context .material_table td.column_action {
+  text-align: right;
+}
+.react-mui-context .figure-badge {
+  padding: 14px 14px 7px;
+  text-align: center;
+}
+.react-mui-context .figure-badge .figure {
+  font-size: 30px;
+  margin-bottom: 0;
+  font-weight: 400;
+  line-height: 23px;
+}
+.react-mui-context .mui-subheader {
+  text-transform: uppercase;
+}
+.react-mui-context .mui-focus-ripple .mui-focus-ripple-inner {
+  -webkit-animation: none !important;
+          animation: none !important;
+}
 body,
 #ajxp_desktop,
 #background-imager {

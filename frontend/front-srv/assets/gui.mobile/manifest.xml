@@ -11,7 +11,6 @@
         <resources>
             <i18n namespace="mobile_gui" remote="plug/gui.mobile/res/i18n"/>
             <js className="MobileExtensions" file="plug/gui.mobile/res/dist/MobileExtensions.min.js" depends="React"/>
-            <css file="plug/gui.mobile/res/smart-app-banner.css" autoload="true"/>
         </resources>
     </client_settings>
 	<registry_contributions>

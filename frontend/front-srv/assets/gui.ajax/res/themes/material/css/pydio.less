@@ -1,9 +1,6 @@
 @imagePath: ~"../themes/common/images/";
 @fontsPath: ~"../themes/common/fonts/";
 
-@import "../../common/css/mui/less/variables/colors.less";
-@import "../../common/css/mui/pydio-variables.less";
-
 @import "../../common/css/fonts/fontfaces.less";
 @import "../../common/css/fonts/mdi.css";
 @import "../../common/css/fonts/icomoon.css";
@@ -13,6 +10,8 @@
 @fontMachine:Arial, sans-serif;
 @fontReact:Roboto, sans-serif;
 
+@import "../../common/css/base/normalize.less";
+@import "../../common/css/base/typography-resets.less";
 @import "../../common/css/base/body";
 @import "../../common/css/base/layout";
 @import "../../common/css/base/overlay";
@@ -34,10 +33,11 @@
 @import "../../common/css/components/tourguide";
 @import "../../common/css/components/timeline";
 
-@import "../../common/css/theme/variables";
 @import "variables";
 
-@import "../../material/css/widgets";
+// Those two should be merged
+@import "widgets-0";
+@import "widgets-1";
 
 
 @import "../../../../node_modules/livekit-react/dist/index.css";

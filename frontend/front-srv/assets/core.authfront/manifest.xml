@@ -5,7 +5,7 @@
           xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
     <client_settings>
         <resources>
-            <js className="AuthfrontCoreActions" file="plug/core.authfront/res/dist/AuthfrontCoreActions.min.js"/>
+            <js className="AuthfrontCoreActions" file="plug/core.authfront/res/dist/AuthfrontCoreActions.min.js" depends="PydioForm"/>
             <i18n namespace="gui.user" remote="plug/core.authfront/res/i18n"/>
         </resources>
     </client_settings>

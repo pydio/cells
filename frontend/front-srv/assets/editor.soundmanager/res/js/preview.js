@@ -24,9 +24,6 @@ import React, {Component} from 'react'
 import Player from './Player';
 const PydioApi = require('pydio/http/api');
 
-// The threeSixytPlayer is the same for all badges
-var threeSixtyPlayer = new ThreeSixtyPlayer();
-
 export default class Preview extends Component {
 
     componentDidMount() {

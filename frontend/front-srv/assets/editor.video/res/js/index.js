@@ -26,3 +26,5 @@ export {Badge}
 export {Editor}
 export {Panel}
 export {Actions}
+
+import 'video.js/dist/video-js.css'

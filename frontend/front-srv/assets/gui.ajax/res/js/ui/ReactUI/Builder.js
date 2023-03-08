@@ -96,15 +96,17 @@ export default class Builder{
                     target = name;
                     targetObj = newDiv;
                 }
-                ResourcesManager.loadClassesAndApply([namespace], function(){
-                    if(!global[namespace] || !global[namespace][component]){
-                        if(console) console.error('Cannot find component ['+namespace+']['+component+']. Did you forget to export it? ')
+                ResourcesManager.loadClass(namespace).then(ns => {
+                    if(!ns[component]){
+                        if(console) {
+                            console.error('Cannot find component ['+namespace+']['+component+']. Did you forget to export it? ')
+                        }
                         return;
                     }
-                    const element = React.createElement(PydioContextProvider(global[namespace][component], this._pydio), props);
+                    const element = React.createElement(PydioContextProvider(ns[component], this._pydio), props);
                     const el = ReactDOM.render(element, targetObj);
                     this._componentsRegistry.set(target, el);
-                }.bind(this));
+                });
 
             }
         }
