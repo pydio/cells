@@ -205,7 +205,7 @@ kbd {
     opacity: 0.4;
   }
 }
-.flexbox body {
+body {
   position: absolute;
   top: 0;
   bottom: 0;

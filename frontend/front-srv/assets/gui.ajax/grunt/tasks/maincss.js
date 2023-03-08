@@ -1,6 +1,7 @@
 module.exports = function(grunt){
     grunt.registerTask('maincss', [
         'less',
-        'cssmin'
+        'cssmin',
+        'compress:css'
     ]);
 };

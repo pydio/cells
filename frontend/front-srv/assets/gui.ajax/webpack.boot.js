@@ -4,7 +4,7 @@ const CompressionPlugin = require("compression-webpack-plugin");
 
 const config = {
     mode: process.env.NODE_ENV === 'production'?'production':'development',
-    entry: './res/js/core/PydioBootstrap.js',
+    entry: ['./res/js/vendor/es6/browser-polyfill.js', './res/js/core/PydioBootstrap.js'],
     output: {
         path: path.resolve(__dirname, "res/dist/boot"),
         filename: 'pydio.boot.min.js',
