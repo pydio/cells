@@ -1,9 +1,3 @@
-import React from 'react';
-import createReactClass from 'create-react-class';
-import {DropDownMenu, MenuItem} from 'material-ui'
-
-import {RoleMessagesConsumerMixin} from '../util/MessagesMixin'
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23,9 +17,14 @@ import {RoleMessagesConsumerMixin} from '../util/MessagesMixin'
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import React from 'react';
 import PropTypes from 'prop-types';
-
+import createReactClass from 'create-react-class';
+import {DropDownMenu, MenuItem} from 'material-ui'
+import {RoleMessagesConsumerMixin} from '../util/MessagesMixin'
+import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api';
+const {SortableList} = Pydio.requireLib('components')
 
 export default createReactClass({
     displayName: 'UserRolesPicker',
@@ -118,7 +117,7 @@ export default createReactClass({
                     {groups.map(function(g){
                         return <div key={"group-"+g} style={fixedRoleStyle}>{g}</div>;
                     })}
-                    <PydioComponents.SortableList
+                    <SortableList
                         key="sortable"
                         values={manual}
                         removable={true}

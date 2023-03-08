@@ -17,10 +17,11 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from 'pydio'
 import React from 'react'
 import PydioApi from 'pydio/http/api'
 import {ConfigServiceApi, RestConfiguration} from 'cells-sdk'
+const {Manager, FormPanel} = Pydio.requireLib('form')
 
 class ServiceExposedConfigs extends React.Component{
 
@@ -82,7 +83,7 @@ class ServiceExposedConfigs extends React.Component{
             const xmlString = responseAndData.data;
             const domNode = XMLUtils.parseXml(xmlString);
             this.setState({
-                parameters: PydioForm.Manager.parseParameters(domNode, "//param"),
+                parameters: Manager.parseParameters(domNode, "//param"),
                 loaded: true,
             });
         });
@@ -92,8 +93,8 @@ class ServiceExposedConfigs extends React.Component{
             if (restConfig.Data){
                 const values = JSON.parse(restConfig.Data) || {};
                 this.setState({
-                    originalValues: PydioForm.Manager.JsonToSlashes(values),
-                    values: PydioForm.Manager.JsonToSlashes(values),
+                    originalValues: Manager.JsonToSlashes(values),
+                    values: Manager.JsonToSlashes(values),
                 });
             }
         });
@@ -104,7 +105,7 @@ class ServiceExposedConfigs extends React.Component{
         const {values} = this.state;
         const {onBeforeSave, onAfterSave, serviceName} = this.props;
 
-        const jsonValues = PydioForm.Manager.SlashesToJson(values);
+        const jsonValues = Manager.SlashesToJson(values);
         if(onBeforeSave){
             onBeforeSave(jsonValues);
         }
@@ -131,8 +132,8 @@ class ServiceExposedConfigs extends React.Component{
 
     onChange(formValues, dirty){
         const {onDirtyChange} = this.props;
-        const jsonValues = PydioForm.Manager.SlashesToJson(formValues);
-        const values = PydioForm.Manager.JsonToSlashes(jsonValues);
+        const jsonValues = Manager.SlashesToJson(formValues);
+        const values = Manager.JsonToSlashes(jsonValues);
         this.setState({dirty:dirty, values:values});
         if(onDirtyChange){
             onDirtyChange(dirty, formValues);
@@ -148,7 +149,7 @@ class ServiceExposedConfigs extends React.Component{
         }
 
         return (
-            <PydioForm.FormPanel
+            <FormPanel
                 {...this.props}
                 ref="formPanel"
                 parameters={parameters}

@@ -21,8 +21,10 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import Color from 'color';
+import Pydio from 'pydio'
 import {IconButton, Paper} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
+const {Toolbar} = Pydio.requireLib('components')
 
 const getStyles = (palette) => {
     const colorHue = Color(palette.primary1Color).hsl().array()[0];
@@ -154,7 +156,7 @@ class InfoPanelCard extends React.Component{
         }
         if(primaryToolbars){
             toolBar = (
-                <PydioComponents.Toolbar
+                <Toolbar
                     toolbarStyle={styles.toolbar.container}
                     flatButtonStyle={styles.toolbar.flatButton}
                     fabButtonStyle={styles.toolbar.fabButton}

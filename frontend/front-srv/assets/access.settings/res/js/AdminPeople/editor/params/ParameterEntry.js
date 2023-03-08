@@ -19,13 +19,12 @@
  */
 
 import React from 'react';
-import {RoleMessagesConsumerMixin, withRoleMessages} from '../util/MessagesMixin';
-import {IdmACL} from 'cells-sdk';
+import {withRoleMessages} from '../util/MessagesMixin';
 import XMLUtils from 'pydio/util/xml';
 import {Role} from '../model/Role';
 import {IconButton, Toggle} from 'material-ui';
 import Pydio from 'pydio';
-const PydioForm = Pydio.requireLib("form");
+const {Manager, createFormElement} = Pydio.requireLib("form");
 
 class ParameterEntry extends React.Component{
 
@@ -102,13 +101,13 @@ class ParameterEntry extends React.Component{
         if(type === 'parameter'){
             let attributes = {type: 'string', label:label, name: name};
             if(paramData){
-                attributes = PydioForm.Manager.parameterNodeToHash(paramData.xmlNode);
+                attributes = Manager.parameterNodeToHash(paramData.xmlNode);
             }
             if(attributes['scope'] === 'user') {
                 return null;
             }
             label = attributes.label;
-            element = PydioForm.createFormElement({
+            element = createFormElement({
                 ref:"formElement",
                 attributes:attributes,
                 name:name,

@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
-import PropTypes from 'prop-types'
+import Clipboard from 'clipboard'
 import {TextField} from 'material-ui'
 
 export default class ClipboardTextField extends React.Component{

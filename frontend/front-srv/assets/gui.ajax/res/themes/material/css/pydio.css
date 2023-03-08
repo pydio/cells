@@ -1112,9 +1112,6 @@ div#multiple_download_container a span.mdi-download {
   display: inline-block;
   margin-right: 5px;
 }
-.droparea {
-  background: url("../../../../../../index.php?get_action=get_drop_bg") no-repeat scroll left bottom transparent;
-}
 .uploadFilesList.droparea {
   background-position: center;
 }

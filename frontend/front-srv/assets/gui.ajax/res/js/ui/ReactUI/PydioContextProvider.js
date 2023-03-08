@@ -20,13 +20,13 @@ import { Component } from 'react';
  * The latest code can be found at <https://pydio.com>.
  */
 
-import PropTypes from 'prop-types';
-
-import Pydio from 'pydio';
-import { colors, getMuiTheme } from 'material-ui/styles';
+import React from 'react'
+import PropTypes from 'prop-types'
+import Pydio from 'pydio'
+import { getMuiTheme } from 'material-ui/styles';
 import { MuiThemeProvider } from 'material-ui';
 import { createStore } from 'redux';
-import { Provider, connect } from 'react-redux';
+import { Provider } from 'react-redux';
 
 import {saveState, loadState} from './localStorage';
 

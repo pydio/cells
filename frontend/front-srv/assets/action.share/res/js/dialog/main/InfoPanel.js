@@ -18,9 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from 'pydio'
 import React from 'react'
 import CompositeCard from '../composite/CompositeCard'
 import CellCard from '../cells/CellCard'
+const {InfoPanelCard} = Pydio.requireLib('workspaces')
 
 class InfoPanel extends React.Component {
 
@@ -39,19 +41,19 @@ class InfoPanel extends React.Component {
 
         if(node.isRoot()){
             return (
-                <PydioWorkspaces.InfoPanelCard popoverPanel={popoverPanel}>
+                <InfoPanelCard popoverPanel={popoverPanel}>
                     <div style={{padding:0}}>
                         <CellCard cellId={pydio.user.activeRepository} pydio={pydio} mode="infoPanel"/>
                     </div>
-                </PydioWorkspaces.InfoPanelCard>
+                </InfoPanelCard>
             );
         } else {
             return (
-                <PydioWorkspaces.InfoPanelCard popoverPanel={popoverPanel}>
+                <InfoPanelCard popoverPanel={popoverPanel}>
                     <div style={{padding:0}}>
                         <CompositeCard node={node} pydio={pydio} mode="infoPanel" popoverPanel={popoverPanel} popoverRequestClose={popoverRequestClose}/>
                     </div>
-                </PydioWorkspaces.InfoPanelCard>
+                </InfoPanelCard>
             );
 
         }

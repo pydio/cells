@@ -25,6 +25,7 @@ import createReactClass from 'create-react-class'
 import {muiThemeable, getMuiTheme, darkBaseTheme} from 'material-ui/styles';
 import {CircularProgress, TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon, MenuItem, SelectField, IconButton, IconMenu} from 'material-ui';
 import {TokenServiceApi, RestResetPasswordRequest} from 'cells-sdk';
+const {ValidPassword} = Pydio.requireLib('form')
 
 const LanguagePicker = (props) => {
     const items = [];
@@ -515,7 +516,7 @@ const ResetPasswordDialog = createReactClass({
                         floatingLabelText={mess['gui.user.4']}
                         onChange={this.onUserIdChange.bind(this)}
                     />
-                    <PydioForm.ValidPassword
+                    <ValidPassword
                         className="blurDialogTextField"
                         onChange={this.onPassChange.bind(this)}
                         attributes={{name:'password',label:mess[198]}}

@@ -31,6 +31,7 @@ import AjxpNode from 'pydio/model/node'
 import Callbacks from './Callbacks'
 import Pydio from 'pydio'
 const {JobsStore} = Pydio.requireLib('boot');
+const {DNDTreeView, SimpleList} = Pydio.requireLib('components')
 import {loadEditorClass} from "../editor/util/ClassLoader";
 
 let Dashboard = createReactClass({
@@ -419,7 +420,7 @@ let Dashboard = createReactClass({
                     <div className="hide-on-vertical-layout vertical-layout tab-vertical-layout" style={groupPanelStyle}>
                         <div style={{flex: 1}}>
                             <div style={groupHeaderStyle}>{this.context.getMessage("user.3")}</div>
-                            <PydioComponents.DNDTreeView
+                            <DNDTreeView
                                 showRoot={true}
                                 rootLabel={this.context.getMessage("user.5")}
                                 node={rootNode}
@@ -431,7 +432,7 @@ let Dashboard = createReactClass({
                         </div>
                     </div>
                     <div zDepth={0} className="layout-fill vertical-layout people-list">
-                        <PydioComponents.SimpleList
+                        <SimpleList
                             ref="mainlist"
                             pydio={pydio}
                             node={currentNode}
@@ -444,7 +445,7 @@ let Dashboard = createReactClass({
                             entryEnableSelector={this.renderListEntrySelector.bind(this)}
                             entryRenderActions={renderActionsFunc}
                             searchResultData={searchResultData}
-                            elementHeight={PydioComponents.SimpleList.HEIGHT_TWO_LINES}
+                            elementHeight={SimpleList.HEIGHT_TWO_LINES}
                             hideToolbar={false}
                             toolbarStyle={{
                                 backgroundColor: body.block.header.backgroundColor,

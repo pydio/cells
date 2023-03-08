@@ -47,11 +47,11 @@ class WorkspaceCard extends React.Component {
         } else {
             this.state.rootNodes = [rootNode];
         }
-        ResourcesManager.loadClassesAndApply(["PydioActivityStreams"], () => {
-            this.setState({ASLib: true})
+        ResourcesManager.loadClass("PydioActivityStreams").then ((lib) => {
+            this.setState({ASLib: lib})
         });
-        ResourcesManager.loadClassesAndApply(["PydioCoreActions"], () => {
-            this.setState({CALib: true})
+        ResourcesManager.loadClass("PydioCoreActions").then((lib) => {
+            this.setState({CALib: lib})
         });
     }
 
@@ -74,13 +74,14 @@ class WorkspaceCard extends React.Component {
             })
         }
         if(pydio.getPluginConfigs('core.activitystreams').get('ACTIVITY_SHOW_ACTIVITIES') && ASLib && rootNodes){
-
-            const selector = <PydioActivityStreams.WatchSelector pydio={pydio} nodes={rootNodes}/>;
+            const {WatchSelector} = ASLib
+            const selector = <WatchSelector pydio={pydio} nodes={rootNodes}/>;
             lines.push(<GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} iconStyle={{marginTop:32}} data={selector}/>)
 
         }
         if (CALib && rootNodes){
-            bookmarkAction = <PydioCoreActions.BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'white'}}}/>;
+            const {BookmarkButton} = CALib;
+            bookmarkAction = <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'white'}}}/>;
         }
 
         return (

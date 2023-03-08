@@ -26,12 +26,13 @@ import PropTypes from 'prop-types';
 import Pydio from 'pydio';
 import {MessagesProviderMixin, PydioProviderMixin} from '../util/Mixins'
 import AdminLeftNav from './AdminLeftNav'
-import {AppBar, Paper, Toggle, FontIcon, IconButton, IconMenu, MenuItems} from 'material-ui'
+import {Paper} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PydioDataModel from 'pydio/model/data-model'
 import Observable from 'pydio/lang/observable'
 
 const {AsyncComponent, TasksPanel} = Pydio.requireLib('boot');
+const {ReactEditorOpener} = Pydio.requireLib('components');
 import ResourcesManager from 'pydio/http/resources-manager'
 import DOMUtils from 'pydio/util/dom'
 import AdminStyles from "../styles/AdminStyles";
@@ -126,7 +127,7 @@ let AdminDashboard = createReactClass({
 
     openEditor(node){
         this.openRightPane({
-            COMPONENT:PydioComponents.ReactEditorOpener,
+            COMPONENT:ReactEditorOpener,
             PROPS:{
                 node:node,
                 registry:this.props.pydio.Registry,

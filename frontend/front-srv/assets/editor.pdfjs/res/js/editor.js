@@ -18,7 +18,6 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-
 import { pdfjs } from 'react-pdf';
 
 pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/pdfjs-2.12.313-dist/build/pdf.worker.js';
@@ -29,7 +28,7 @@ import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import { Document, Page } from 'react-pdf';
 
-const { EditorActions } = Pydio.requireLib('hoc');
+const { EditorActions, withSelection } = Pydio.requireLib('hoc');
 
 class InlineViewer extends React.Component {
 
@@ -176,8 +175,6 @@ const getSelection = (node) => new Promise((resolve, reject) => {
         currentIndex: selection.reduce((currentIndex, current, index) => current === node && index || currentIndex, 0)
     })
 })
-
-const {withSelection} = PydioHOCs;
 
 export const Panel = Viewer
 

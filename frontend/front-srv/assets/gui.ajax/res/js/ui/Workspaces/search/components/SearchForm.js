@@ -29,8 +29,8 @@ import EmptyNodeProvider from 'pydio/model/empty-node-provider'
 import LangUtils from 'pydio/util/lang'
 import SearchApi from 'pydio/http/search-api'
 
-const {EmptyStateView} = Pydio.requireLib('components');
-const {PydioContextConsumer} = require('pydio').requireLib('boot');
+const {EmptyStateView, SimpleList, NodeListCustomProvider} = Pydio.requireLib('components');
+const {PydioContextConsumer} = Pydio.requireLib('boot');
 
 import SearchScopeSelector from './SearchScopeSelector'
 import MainSearch from './MainSearch'
@@ -191,7 +191,7 @@ class SearchForm extends Component {
 
         let renderSecondLine = null, renderIcon = null, elementHeight = 49;
         if (display !== 'small' && display !== 'closed') {
-            elementHeight = PydioComponents.SimpleList.HEIGHT_TWO_LINES + 10;
+            elementHeight = SimpleList.HEIGHT_TWO_LINES + 10;
             renderSecondLine = (node) => {
                 let path = node.getPath();
                 if(searchScope === 'folder'){
@@ -251,7 +251,7 @@ class SearchForm extends Component {
                         style={{minHeight: 180, backgroundColor: 'transparent', padding:'0 20px'}}
                     />
                 }
-                <PydioComponents.NodeListCustomProvider
+                <NodeListCustomProvider
                     ref="results"
                     className={display !== 'small' ? 'files-list' : null}
                     elementHeight={elementHeight}

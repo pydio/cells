@@ -19,14 +19,13 @@
  */
 import React from 'react'
 import createReactClass from 'create-react-class';
-import {Paper, IconButton, TextField, FlatButton, IconMenu, FontIcon, MenuItem} from 'material-ui'
+import {Paper, IconButton, FlatButton, IconMenu, FontIcon, MenuItem} from 'material-ui'
 const {muiThemeable} = require('material-ui/styles');
 import Editor from '../editor/Editor'
 import PydioApi from 'pydio/http/api'
 import Pydio from 'pydio'
 import {loadEditorClass} from "../editor/util/ClassLoader";
-const PydioComponents = Pydio.requireLib('components');
-const {MaterialTable} = PydioComponents;
+const {MaterialTable} = Pydio.requireLib('components');
 const {ModernTextField} = Pydio.requireLib('hoc');
 
 let RolesDashboard = createReactClass({

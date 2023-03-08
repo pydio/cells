@@ -1,5 +1,6 @@
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
+const {DNDActionParameter} = Pydio.requireLib('components')
 
 class Callbacks {
 
@@ -59,11 +60,11 @@ class Callbacks {
 
     static applyDND(manager, dndActionParameter){
 
-        if(dndActionParameter.getStep() === PydioComponents.DNDActionParameter.STEP_CAN_DROP){
+        if(dndActionParameter.getStep() === DNDActionParameter.STEP_CAN_DROP){
 
             AdminComponents.DNDActionsManager.canDropNodeOnNode(dndActionParameter.getSource(), dndActionParameter.getTarget());
 
-        }else if(dndActionParameter.getStep() === PydioComponents.DNDActionParameter.STEP_END_DRAG){
+        }else if(dndActionParameter.getStep() === DNDActionParameter.STEP_END_DRAG){
 
             AdminComponents.DNDActionsManager.dropNodeOnNode(dndActionParameter.getSource(), dndActionParameter.getTarget());
 

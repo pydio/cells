@@ -94,7 +94,7 @@ var Page = `<!DOCTYPE html>
 		{{if .Rebase}}<base href="{{.Rebase}}"/>{{end}}
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/dist/pydio.boot.min.js?v={{.Version}}"></script>
+		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/dist/boot/pydio.boot.min.js?v={{.Version}}"></script>
 		<link rel="icon" type="image/x-png" href="{{.Favicon}}">
 	</head>
 	<body style="overflow: hidden;background-color: #424242;" class="react-mui-context">
@@ -117,7 +117,7 @@ var Public = `<!DOCTYPE html>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 		<link rel="stylesheet" type="text/css" href="{{.ResourcesFolder}}/dist/pydio.{{.Theme}}.min.css?v={{.Version}}">
-		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/dist/pydio.boot.min.js?v={{.Version}}"></script>
+		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/dist/boot/pydio.boot.min.js?v={{.Version}}"></script>
 		<link rel="icon" type="image/x-png" href="{{.Favicon}}">
 	</head>
 	<body style="overflow: hidden;background-color: #424242;" class="react-mui-context">

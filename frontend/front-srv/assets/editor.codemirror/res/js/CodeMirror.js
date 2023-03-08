@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types';
 import className from 'classnames';
 import debounce from 'lodash.debounce';

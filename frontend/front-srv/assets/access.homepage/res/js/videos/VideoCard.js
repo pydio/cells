@@ -22,7 +22,7 @@ const React = require('react')
 import PropTypes from 'prop-types'
 const ReactDOM = require('react-dom')
 const {asGridItem} = require('pydio').requireLib('components')
-const {MenuItem, IconMenu} = require('material-ui')
+const {MenuItem, IconMenu, IconButton, Color} = require('material-ui')
 
 import VideoPlayer from './VideoPlayer'
 import Palette from '../board/Palette'
@@ -107,7 +107,7 @@ class VideoCard extends React.Component {
         const {youtubeId, contentMessageId} = this.state;
         props.className += ' video-card';
 
-        const tint = MaterialUI.Color(Palette[PALETTE_INDEX]).alpha(0.8).toString();
+        const tint = Color(Palette[PALETTE_INDEX]).alpha(0.8).toString();
         return (
             <ColorPaper {...props} paletteIndex={PALETTE_INDEX} getCloseButton={() => {return this.props.closeButton}}>
                 <div className="tutorial_legend">
@@ -121,7 +121,7 @@ class VideoCard extends React.Component {
                             <IconMenu
                                 style={{position: 'absolute', bottom: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.43)', padding: 2, borderRadius: '0 0 2px 0'}}
                                 iconStyle={{color:'white'}}
-                                iconButtonElement={<MaterialUI.IconButton iconClassName="mdi mdi-dots-vertical"/>}
+                                iconButtonElement={<IconButton iconClassName="mdi mdi-dots-vertical"/>}
                                 anchorOrigin={{horizontal: 'right', vertical: 'top'}}
                                 targetOrigin={{horizontal: 'right', vertical: 'top'}}
                             >{menus}</IconMenu>

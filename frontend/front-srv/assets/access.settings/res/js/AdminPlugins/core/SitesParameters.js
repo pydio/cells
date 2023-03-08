@@ -37,8 +37,8 @@ const styles = {
 
 class SitesParameters extends React.Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {sites: [], mailerConfig: {}, shareConfig: {}};
     }
 

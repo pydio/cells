@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import Pydio from 'pydio'
 import Ws2Datasources from './Ws2Datasources'
 import {Card, CardText, CardHeader, CardActions, FontIcon, FlatButton, IconMenu, MenuItem, Divider, LinearProgress, RaisedButton, Dialog, Paper, Checkbox} from 'material-ui'

@@ -1,5 +1,3 @@
-import React, { Component } from 'react';
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20,12 +18,9 @@ import React, { Component } from 'react';
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-
 import ResourcesManager from 'pydio/http/resources-manager';
-import FuncUtils from 'pydio/util/func'
-
-import _ from 'lodash';
 
 /********************/
 /* ASYNC COMPONENTS */
@@ -44,7 +39,7 @@ class AsyncComponent extends Component {
             componentName: props.componentName
         };
 
-        this._handleLoad = _.debounce(this._handleLoad, 100)
+        //this._handleLoad = _.debounce(this._handleLoad, 100)
     }
 
     _handleLoad() {
@@ -57,9 +52,12 @@ class AsyncComponent extends Component {
 
         if (!this.state.loaded) {
             // Loading the class asynchronously
-            ResourcesManager.loadClassesAndApply([this.state.namespace], () => {
-                this.setState({loaded:true});
+            ResourcesManager.loadClass(this.state.namespace).then((ns) => {
+                const {[this.state.componentName]:Component} = ns;
+                this.setState({loaded:true, Component});
                 callback();
+            }).catch(e=>{
+                console.log('loadClass error', e)
             })
         } else {
             // Class is already available, just doing the callback
@@ -73,10 +71,9 @@ class AsyncComponent extends Component {
 
     componentWillReceiveProps(newProps) {
         if (this.props.namespace !== newProps.namespace) {
-            //this.setState({loaded:false});
             ResourcesManager.loadClassesAndApply([newProps.namespace], () => {
-            this.loadFired = false;
-                this.setState({namespace: newProps.namespace, componentName: newProps.componentName});
+                this.loadFired = false;
+                this.setState({namespace: newProps.namespace, componentName: newProps.componentName, Component: null, loaded: false});
             });
         } else {
             this.setState({namespace: newProps.namespace, componentName: newProps.componentName})
@@ -93,20 +90,21 @@ class AsyncComponent extends Component {
 
     static getDerivedStateFromError(error) {
         // Mettez à jour l'état, de façon à montrer l'UI de repli au prochain rendu.
-        return { hasError: true };
+        return { hasError: true, error };
     }
 
     render() {
-        if (!this.state.loaded) {
+        const {loaded, hasError, Component} = this.state;
+        if (!loaded) {
             return null;
         }
-        if(this.state.hasError) {
+        if(hasError) {
             return <div>Oops, something went wrong, please reload the window!</div>
         }
 
         let props = this.props;
-        const {namespace, componentName, modalData} = props;
-        const Component = FuncUtils.getFunctionByName(this.state.componentName, window[this.state.namespace]);
+        const {modalData} = props;
+        //const Component = FuncUtils.getFunctionByName(this.state.componentName, window[this.state.namespace]);
 
         if (Component) {
             if (modalData && modalData.payload) {
@@ -119,6 +117,7 @@ class AsyncComponent extends Component {
             return <Component {...props} ref={(instance) => { this.instance = instance; }} />;
 
         } else {
+            const {namespace, componentName} = this.props;
             return <div>Component {namespace}.{componentName} not found!</div>;
         }
     }
@@ -128,7 +127,5 @@ AsyncComponent.propTypes = {
     namespace: PropTypes.string.isRequired,
     componentName: PropTypes.string.isRequired
 };
-
-// AsyncComponent = PydioHOCs.withLoader(AsyncComponent)
 
 export {AsyncComponent as default}

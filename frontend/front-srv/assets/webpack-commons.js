@@ -9,7 +9,6 @@ module.exports = {
             output: {
                 path: outputPath,
                 filename: '[name].min.js',
-                clean: true,
                 library: {
                     name: '[name]',
                     type: 'window'
@@ -30,7 +29,10 @@ module.exports = {
                         test: /\.(js|jsx)$/i,
                         loader: "babel-loader",
                         options:{
-                            plugins: ["@babel/syntax-dynamic-import"],
+                            plugins: [
+                                "@babel/syntax-dynamic-import",
+                                ["@babel/plugin-proposal-decorators", { "legacy": true }]
+                            ],
                             presets: [
                                 ["@babel/preset-react"],
                                 [
@@ -44,7 +46,11 @@ module.exports = {
                     },
                     {
                         test: /\.less$/i,
-                        use: ["style-loader", "css-loader", "less-loader"],
+                        use: [
+                            "style-loader",
+                            {loader:"css-loader", options: {url: true}},
+                            "less-loader"
+                        ],
                     },
                     {
                         test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
@@ -55,6 +61,6 @@ module.exports = {
                     // Learn more about loaders from https://webpack.js.org/loaders/
                 ],
             },
-            watch: true
+            watch: process.env.NODE_ENV !== 'production'
         })}
 }

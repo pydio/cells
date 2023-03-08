@@ -19,6 +19,7 @@
  */
 
 import React from 'react';
+import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types';
 import ContainerDimensions from 'react-container-dimensions';
 import {getBoundingRect, getDisplayName} from '../utils';

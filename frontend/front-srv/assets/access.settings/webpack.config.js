@@ -15,6 +15,18 @@ const entries = {
 
 const config = configLoader(entries, path.resolve(__dirname, "res/dist"), CompressionPlugin)
 config.output.publicPath='plug/access.settings/res/dist/'
+//config.output.clean = true
+config.optimization =  {
+    splitChunks: {
+        cacheGroups: {
+            vendor: {
+                test: /[\\/]node_modules([\\/])(codemirror)[\\/]/,
+                    name: 'codemirror',
+                    chunks: 'all',
+            },
+        },
+    },
+};
 
 module.exports = () => {
     return config;

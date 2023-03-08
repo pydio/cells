@@ -26,7 +26,7 @@ class CodeEditorField extends React.Component {
         super(props);
         this.cmField = createRef();
         this.state = {libLoaded: false}
-        import(/* webpackChunkName: 'react-codemirror' */ 'react-codemirror').then(({default: CodeMirror}) => {
+        import('react-codemirror').then(({default: CodeMirror}) => {
             import('codemirror/mode/javascript/javascript').then(() => {
                 import('codemirror/addon/hint/show-hint').then(() => {
                     import('codemirror/addon/hint/javascript-hint').then(() => {
@@ -35,6 +35,7 @@ class CodeEditorField extends React.Component {
                 })
             })
         })
+
     }
 
     jsAutoComplete(cm){

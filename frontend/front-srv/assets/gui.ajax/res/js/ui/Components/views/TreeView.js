@@ -19,7 +19,9 @@
  */
 
 import { Types, collect, collectDrop, nodeDragSource, nodeDropTarget } from '../util/DND';
+import dnd from 'react-dnd'
 import React from 'react';
+import ReactDOM from 'react-dom'
 import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 import Pydio from 'pydio';
@@ -288,7 +290,7 @@ var SimpleTreeNode = createReactClass({
         var children = [];
         let connector = (instance) => instance;
         let draggable = false;
-        if(window.ReactDND && this.props.connectDropTarget && this.props.connectDragSource){
+        if(dnd && this.props.connectDropTarget && this.props.connectDragSource){
             let connectDragSource = this.props.connectDragSource;
             let connectDropTarget = this.props.connectDropTarget;
             connector = (instance) => {
@@ -324,14 +326,12 @@ var SimpleTreeNode = createReactClass({
     },
 });
 
-var DragDropTreeNode;
-if(window.ReactDND){
-    DragDropTreeNode = ReactDND.flow(
-        ReactDND.DragSource(Types.NODE_PROVIDER, nodeDragSource, collect),
-        ReactDND.DropTarget(Types.NODE_PROVIDER, nodeDropTarget, collectDrop)
+let DragDropTreeNode = SimpleTreeNode;
+if(dnd){
+    DragDropTreeNode = dnd.flow(
+        dnd.DragSource(Types.NODE_PROVIDER, nodeDragSource, collect),
+        dnd.DropTarget(Types.NODE_PROVIDER, nodeDropTarget, collectDrop)
     )(SimpleTreeNode);
-}else{
-    DragDropTreeNode = SimpleTreeNode;
 }
 
 class TreePaginator extends React.Component {

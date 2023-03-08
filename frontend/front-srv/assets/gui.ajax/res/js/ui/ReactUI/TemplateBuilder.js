@@ -44,12 +44,6 @@ let Template = ({style, id, pydio, children}) => {
     );
 }
 
-/*
-Template = compose (
-    PydioHOCs.Animations.makeTransition(originStyles, targetStyles, enterAnimation)
-)(Template)
-*/
-
 class TemplateBuilder extends React.Component {
 
     render() {

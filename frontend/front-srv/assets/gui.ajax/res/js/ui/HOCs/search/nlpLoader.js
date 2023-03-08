@@ -88,6 +88,25 @@ export default () => {
         return Promise.resolve(loaded)
     }
 
+    return import('compromise').then(({default: nlp}) => {
+        return import('compromise-dates').then(({default:cdates}) => {
+            nlp.plugin(cdates);
+            nlp.extend(keyPress);
+            const cc = [];
+            const exts = nlp.Extensions
+            Object.keys(exts).map(k => exts[k].map(ext => cc.push(ext)))
+
+            loaded = {
+                nlp,
+                nlpLanguage,
+                cc,
+                extensions: '(' + cc.join('|') + ')'
+            }
+            return loaded;
+        })
+    })
+
+    /*
     return ResourcesManager.loadClass(libName).then(() => {
         const {[libName]:nlp, compromiseDates} = window;
         nlp.plugin(compromiseDates);
@@ -104,6 +123,6 @@ export default () => {
             extensions: '(' + cc.join('|') + ')'
         }
         return loaded;
-    })
+    })*/
 
 }

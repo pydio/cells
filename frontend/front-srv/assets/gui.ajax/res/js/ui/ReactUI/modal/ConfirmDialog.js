@@ -20,7 +20,7 @@
 import PropTypes from 'prop-types';
 
 import Pydio from 'pydio';
-const createReactClass = require('create-react-class');
+import createReactClass from 'create-react-class';
 import ActionDialogMixin from './ActionDialogMixin'
 import CancelButtonProviderMixin from './CancelButtonProviderMixin'
 import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'

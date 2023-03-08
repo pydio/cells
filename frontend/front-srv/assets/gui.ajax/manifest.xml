@@ -5,44 +5,43 @@
             <i18n namespace="ajax_gui" remote="plug/gui.ajax/res/i18n"/>
             <js
                 className="React"
-                file="plug/gui.ajax/res/dist/bundle.prod.min.js"
+                file="plug/gui.ajax/res/dist/core/DistLib.min.js"
             />
             <js
                 className="PydioCoreActions"
-                file="plug/gui.ajax/res/dist/PydioCoreActions.min.js"
+                file="plug/gui.ajax/res/dist/libs/PydioCoreActions.min.js"
                 depends="React"
                 expose="actions/core"
             />
             <js
                 className="PydioForm"
-                file="plug/gui.ajax/res/dist/PydioForm.min.js"
+                file="plug/gui.ajax/res/dist/libs/PydioForm.min.js"
                 expose="form"
             />
             <js
                 className="PydioReactUI"
-                file="plug/gui.ajax/res/dist/PydioReactUI.min.js"
+                file="plug/gui.ajax/res/dist/libs/PydioReactUI.min.js"
                 depends="React,PydioHOCs"
                 expose="boot"
             />
             <js
                 className="PydioComponents"
-                file="plug/gui.ajax/res/dist/PydioComponents.min.js"
+                file="plug/gui.ajax/res/dist/libs/PydioComponents.min.js"
                 depends="React,PydioForm"
                 expose="components"
             />
             <js
                 className="PydioHOCs"
-                file="plug/gui.ajax/res/dist/PydioHOCs.min.js"
+                file="plug/gui.ajax/res/dist/libs/PydioHOCs.min.js"
                 depends="React"
                 expose="hoc"
             />
             <js
                 className="PydioWorkspaces"
-                file="plug/gui.ajax/res/dist/PydioWorkspaces.min.js"
+                file="plug/gui.ajax/res/dist/libs/PydioWorkspaces.min.js"
                 depends="React,PydioComponents,PydioHOCs,PydioCoreActions"
                 expose="workspaces"
             />
-            <js className="nlp" file="plug/gui.ajax/res/dist/compromise.min.js"/>
             <css file="plug/gui.ajax/res/dist/pydio.material.min.css" autoload="true"/>
         </resources>
     </client_settings>

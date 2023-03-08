@@ -49,7 +49,6 @@ const PydioCoreRequires = {
     'http/PydioApi.js'          :'pydio/http/api',
     'http/SearchApi.js'         :'pydio/http/search-api',
     'http/PydioUsersApi.js'     :'pydio/http/users-api',
-    'http/gen/index.js'         :'pydio/http/rest-api',
     'http/MetaCacheService.js'  :'pydio/http/meta-cache-service',
     'http/PydioWebSocket.js'    :'pydio/http/websocket',
     'http/Policies.js'          :'pydio/http/policies',
@@ -64,32 +63,31 @@ const LibRequires = [ // modules we want to require and export
     'react-addons-update',
     'material-ui',
     'material-ui/styles',
-    'color',
     'react-infinite',
     'react-draggable',
-    'react-grid-layout',
-    'react-chartjs',
     'react-redux',
-    'react-select',
     'react-dnd',
     'create-react-class',
     'prop-types',
     'react-dnd-html5-backend',
     'react-textfit',
+    'color',
     'lodash/flow',
     'lodash',
     'lodash.debounce',
     'classnames',
-    'react-autosuggest',
     'clipboard',
-    'qrcode.react',
-    'cronstrue',
-    'react-tap-event-plugin',
     'whatwg-fetch',
     'systemjs',
     'redux',
+    'cells-sdk',
+    'qrcode.react',
     'react-markdown',
-    'cells-sdk'
+    /*
+    'react-select',
+    'react-tap-event-plugin',
+    'cronstrue'
+     */
 ];
 
 const Externals = Object.keys(PydioCoreRequires).map(function(key){

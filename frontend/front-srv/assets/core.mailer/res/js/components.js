@@ -19,10 +19,12 @@
  */
 
 import React from 'react'
+import Pydio from 'pydio'
 import PropTypes from 'prop-types'
 import PydioApi from 'pydio/http/api'
 import {FontIcon, Chip, Avatar, Style, Paper, Divider, TextField, FlatButton} from 'material-ui'
 import {MailerServiceApi, MailerMail, MailerUser} from 'cells-sdk'
+const {UsersCompleter} = Pydio.requireLib('components');
 
 const styles = {
     chip: {
@@ -299,7 +301,7 @@ class Pane extends React.Component {
                 {this.props.additionalPaneTop}
                 {!this.props.uniqueUserStyle &&
                     <div className="users-block" style={{padding: '0 20px', ...this.props.usersBlockStyle}}>
-                        <PydioComponents.UsersCompleter
+                        <UsersCompleter
                             ref="completer"
                             fieldLabel={this.getMessage('8')}
                             usersOnly={true}

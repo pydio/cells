@@ -24,6 +24,7 @@ import CellModel from 'pydio/model/cell'
 import ResourcesManager from 'pydio/http/resources-manager'
 import {Paper, MenuItem} from 'material-ui'
 import ShareHelper from "../main/ShareHelper";
+
 const {GenericCard, GenericLine, QuotaUsageLine} = Pydio.requireLib("components");
 
 class CellCard extends React.Component{
@@ -32,9 +33,12 @@ class CellCard extends React.Component{
         super(props);
         this.state = {edit: false, model: new CellModel(), loading:true};
         this._observer = () => {this.forceUpdate()};
-        ResourcesManager.loadClassesAndApply(["PydioActivityStreams", "PydioCoreActions"], () => {
-            this.setState({extLibs: true})
-        });
+        ResourcesManager.loadClass('PydioActivityStreams').then(as => {
+            this.setState({asLib: as})
+        })
+        ResourcesManager.loadClass('PydioCoreActions').then(cs => {
+            this.setState({coreActionsLib: cs})
+        })
         const {rootNode} = this.props;
         if(rootNode){
             if(rootNode.getMetadata().has('virtual_root')){
@@ -84,7 +88,7 @@ class CellCard extends React.Component{
 
     render(){
         const {mode, pydio, editorOneColumn} = this.props;
-        const {edit, model, extLibs, rootNodes, loading} = this.state;
+        const {edit, model, asLib, coreActionsLib, rootNodes, loading} = this.state;
         const m = (id) => pydio.MessageHash['share_center.' + id];
 
         let rootStyle = {width: 350, minHeight: 270};
@@ -126,10 +130,12 @@ class CellCard extends React.Component{
                 }
             }
             let watchLine, quotaLines =[], bmButton;
-            if(extLibs && rootNodes && !loading) {
-                const selector = <PydioActivityStreams.WatchSelector pydio={pydio} nodes={rootNodes}/>;
+            if(asLib && coreActionsLib && rootNodes && !loading) {
+                const {WatchSelector} = asLib
+                const {BookmarkButton} = coreActionsLib
+                const selector = <WatchSelector pydio={pydio} nodes={rootNodes}/>;
                 watchLine = <GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} data={selector} iconStyle={{marginTop: 32}} />;
-                bmButton = <PydioCoreActions.BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'white'}}}/>;
+                bmButton = <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'white'}}}/>;
             }
             if(rootNodes && !loading) {
                 rootNodes.forEach((node) => {

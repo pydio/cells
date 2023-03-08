@@ -19,6 +19,7 @@
  */
 
 import React from 'react'
+import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
 import cx from 'classnames';
 import vjs from 'video.js';

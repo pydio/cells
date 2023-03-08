@@ -19,6 +19,7 @@
  */
 
 import React from 'react';
+import Pydio from 'pydio'
 import createReactClass from 'create-react-class';
 import {FlatButton, IconButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
@@ -28,6 +29,7 @@ import PropTypes from 'prop-types';
 import LangUtils from 'pydio/util/lang'
 import SitesParameters from "./SitesParameters";
 const {Header, PaperEditorLayout, MessagesConsumerMixin, AdminStyles} = AdminComponents;
+const {Manager, FormPanel, PydioHelper} = Pydio.requireLib('form')
 
 /**
  * Editor for a given plugin. By default, displays documentation in a left column panel,
@@ -65,7 +67,7 @@ let PluginEditor = createReactClass({
             const values = result[1];
 
             const xmlData = XMLUtils.XPathSelectSingleNode(xml, '/plugins/*[@id="'+plugId+'"]');
-            const params = PydioForm.Manager.parseParameters(xmlData, "server_settings/global_param");
+            const params = Manager.parseParameters(xmlData, "server_settings/global_param");
             // Set Defaults
             params.forEach((param) => {
                 if(values[param.name] === undefined && param['default']) {
@@ -203,9 +205,9 @@ let PluginEditor = createReactClass({
 
     parameterHasHelper(paramName, testPluginId){
         paramName = paramName.split('/').pop();
-        var h = PydioForm.Manager.hasHelper(this.props.pluginId, paramName);
+        var h = Manager.hasHelper(this.props.pluginId, paramName);
         if(!h && testPluginId){
-            h = PydioForm.Manager.hasHelper(testPluginId, paramName);
+            h = Manager.hasHelper(testPluginId, paramName);
         }
         return h;
     },
@@ -213,7 +215,7 @@ let PluginEditor = createReactClass({
     showHelper(helperData, testPluginId){
         if(helperData){
             let plugId = this.props.pluginId;
-            if(testPluginId && !PydioForm.Manager.hasHelper(plugId, helperData['name'])){
+            if(testPluginId && !Manager.hasHelper(plugId, helperData['name'])){
                 helperData['pluginId'] = testPluginId;
             }else{
                 helperData['pluginId'] = plugId;
@@ -318,7 +320,7 @@ let PluginEditor = createReactClass({
         // Building  a form
         const contents = (
             <React.Fragment>
-                <PydioForm.FormPanel
+                <FormPanel
                     ref="formPanel"
                     className="row-flex"
                     parameters={this.state.parameters}
@@ -333,7 +335,7 @@ let PluginEditor = createReactClass({
                     variant={"v2"}
                     variantShowLegend={true}
                 />
-                <PydioForm.PydioHelper
+                <PydioHelper
                     helperData={this.state?this.state.helperData:null}
                     close={this.closeHelper}
                 />

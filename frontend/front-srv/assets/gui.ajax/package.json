@@ -17,6 +17,8 @@
     "classnames": "~2.1.3",
     "clipboard": "^1.5.8",
     "color": "^1.0.3",
+    "compromise": "^14.8.2",
+    "compromise-dates": "^3.4.1",
     "create-react-class": "^15.7.0",
     "deep-equal": "^2.0.5",
     "doc-ready": "^1.0.4",
@@ -80,11 +82,16 @@
     "@babel/preset-env": "^7.14.7",
     "@babel/preset-react": "^7.14.5",
     "assemble-less": "~0.7.0",
+    "babel-loader": "^9.1.2",
     "babel-plugin-add-module-exports": "^1.0.4",
     "browserify": "^17.0.0",
     "browserify-shim": "^3.8.14",
+    "compression-webpack-plugin": "^10.0.0",
+    "css-loader": "^6.7.3",
     "envify": "3.4.0",
     "esprima-fb": "3001.0001.0000-dev-harmony-fb",
+    "exports-loader": "^4.0.0",
+    "expose-loader": "^4.0.0",
     "grunt-babel": "^8.0.0",
     "grunt-browserify": "^6.0.0",
     "grunt-contrib-clean": "^1.0.0",
@@ -102,8 +109,20 @@
     "grunt-hub": "^0.7.0",
     "grunt-run": "~0.5.2",
     "jit-grunt": "^0.10.0",
-    "less-plugin-autoprefix": "~2.0.0",
+    "less": "^4.1.3",
+    "less-loader": "^11.1.0",
+    "less-plugin-autoprefix": "^2.0.0",
     "load-grunt-config": "^0.19.2",
-    "react-docgen": "^2.14.1"
+    "mini-css-extract-plugin": "^2.7.3",
+    "react-docgen": "^2.14.1",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1"
+  },
+  "scripts": {
+    "build-libs": "webpack --config webpack.libs.js",
+    "build-core": "webpack --config webpack.core.js",
+    "build-boot": "webpack --config webpack.boot.js",
+    "all": "pnpm run build-boot && pnpm run build-core && pnpm run build-libs"
   }
 }
