@@ -31,7 +31,7 @@
 
             <!-- SHARED ACTIONS -->
             <action name="ls" dirDefault="true">
-                <gui text="32" title="32" accessKey="folder_access_key" iconClass="icon-folder-open-alt">
+                <gui text="32" title="32" accessKey="folder_access_key" iconClass="mdi mdi-folder">
                     <context selection="true" dir="" recycle="false"/>
                     <selectionContext dir="true" file="false" recycle="false" unique="true" allowedMimes="*"/>
                 </gui>
@@ -69,7 +69,7 @@
                 </processing>
             </action>
             <action name="delete">
-                <gui text="7" title="161" iconClass="icon-trash" accessKey="delete_access_key" hasAccessKey="true" specialAccessKey="delete">
+                <gui text="7" title="161" iconClass="mdi mdi-delete" accessKey="delete_access_key" hasAccessKey="true" specialAccessKey="delete">
                     <context selection="true" dir=""/>
                     <selectionContext dir="true" file="true" recycle="false" unique="false"  allowedMimes="user_editable,repository_editable,role,group" image="false" editable="false" behaviour="hidden"/></gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
@@ -99,7 +99,7 @@
                 </processing>
             </action>
             <action name="move">
-                <gui text="70" title="160" iconClass="icon-move" hasAccessKey="false">
+                <gui text="70" title="160" iconClass="mdi mdi-folder-move" hasAccessKey="false">
                     <context selection="true" dir=""/>
                     <selectionContext dir="true" file="true" recycle="false" unique="false" allowedMimes="user_editable" image="false" editable="false" behaviour="hidden"/></gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
@@ -122,7 +122,7 @@
 
             <!-- OTHER ACTIONS -->
             <action name="pydio-go-pro">
-                <gui text="settings.120" title="settings.121" iconClass="icon-rocket">
+                <gui text="settings.120" title="settings.121" iconClass="mdi mdi-rocket">
                     <context dir="true" recycle="true" selection="false" actionBar="true" actionBarGroup="admin"/>
                 </gui>
                 <processing>

@@ -158,7 +158,7 @@ export default class extends React.Component {
             const showHelper = function(){
                 this.props.setHelperData({paramAttributes:attributes, values:values});
             }.bind(this);
-            helperMark = <span className="icon-question-sign" onClick={showHelper}></span>;
+            helperMark = <span className="mdi mdi-comment-question-outline" onClick={showHelper}></span>;
         }
 
         if(values[paramName] && switchValues[values[paramName]]){

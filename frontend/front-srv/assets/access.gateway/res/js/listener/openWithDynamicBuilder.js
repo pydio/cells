@@ -80,7 +80,7 @@ export default function(pydio) {
                 name: MessageHash['openother.1'],
                 alt: MessageHash['openother.2'],
                 isDefault: (index === 0),
-                icon_class: 'icon-list-alt',
+                icon_class: 'mdi mdi-view-list',
                 callback: openOtherEditorPickerCallback
             });
         }

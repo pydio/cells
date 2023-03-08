@@ -66,7 +66,7 @@ class AutocompleteBox extends React.Component{
                 <div
                     onClick={disabled?function(){}:toggleEditMode}
                     className={value?'':'paramValue-empty'}>
-                    {value ? value : 'Empty'} &nbsp;&nbsp;<span className="icon-caret-down"></span>
+                    {value ? value : 'Empty'} &nbsp;&nbsp;<span className="mdi mdi-chevron-down"></span>
                 </div>
             );
         }

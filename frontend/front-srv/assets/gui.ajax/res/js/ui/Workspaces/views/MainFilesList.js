@@ -594,7 +594,7 @@ class MainFilesList extends React.Component {
             }
             let sep;
             if(!first){
-                sep = <span className="icon-angle-right"></span>;
+                sep = <span className="mdi mdi-chevron-right"></span>;
             }
             let cellClass = 'metadata_chunk metadata_chunk_'+(standard ?'standard':'other')+' metadata_chunk_' + s;
             if(columnDef.renderComponent && columnDef.renderBlock){

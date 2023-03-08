@@ -44,7 +44,7 @@ class ConfigurableListEntry extends React.Component {
         if(renderIcon) {
             icon = renderIcon(node, this.props);
         } else {
-            const iconClass = node.getMetadata().get("icon_class")? node.getMetadata().get("icon_class") : (node.isLeaf()?"icon-file-alt":"icon-folder-close");
+            const iconClass = node.getMetadata().get("icon_class")? node.getMetadata().get("icon_class") : (node.isLeaf()?"mdi mdi-file":"mdi mdi-folder");
             icon = <FontIcon className={iconClass}/>;
         }
 

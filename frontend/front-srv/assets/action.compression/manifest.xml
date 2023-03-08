@@ -28,7 +28,7 @@
                 </processing>
             </action>
             <action name="extraction">
-                <gui text="compression.9" title="compression.10" iconClass="icon-briefcase" accessKey="" hasAccessKey="false">
+                <gui text="compression.9" title="compression.10" iconClass="mdi mdi-archive" accessKey="" hasAccessKey="false">
                     <context selection="true" dir="true" recycle="hidden"
                              actionBar="true" contextMenu="true" infoPanel="false"
                              actionBarGroup="change" inZip="false">

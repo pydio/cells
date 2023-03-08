@@ -194,12 +194,12 @@ var SimpleTreeNode = createReactClass({
             hasChildren = (
                 <span onClick={this.onChildDisplayToggle}>
                 {this.state.showChildren || forceExpand?
-                    <span className="tree-icon icon-angle-down"></span>:
-                    <span className="tree-icon icon-angle-right"></span>
+                    <span className="tree-icon mdi mdi-chevron-down"></span>:
+                    <span className="tree-icon mdi mdi-chevron-right"></span>
                 }
                 </span>);
         }else{
-            let cname = "tree-icon icon-angle-right";
+            let cname = "tree-icon mdi mdi-chevron-right";
             if(node.isLoaded()){
                 cname += " no-folder-children";
             }

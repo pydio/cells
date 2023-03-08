@@ -434,10 +434,6 @@
 .react-mui-context * {
   font-family: Roboto, sans-serif;
 }
-.react-mui-context [class^="icon-"],
-.react-mui-context [class*=" icon-"] {
-  font-family: FontAwesome;
-}
 .react-mui-context [class^="mdi-"],
 .react-mui-context [class*=" mdi-"] {
   font-family: "Material Design Icons";
@@ -3190,14 +3186,6 @@
   font-weight: 500;
   padding-left: 3px;
 }
-.react-mui-context .pydio-form-panel .form-legend .icon-question-sign {
-  display: inline-block;
-  padding: 0 6px;
-  cursor: pointer;
-}
-.react-mui-context .pydio-form-panel .form-legend .icon-question-sign:hover {
-  color: rgba(0, 0, 0, 0.53);
-}
 .react-mui-context .pydio-form-panel .form-entry-button {
   display: inline-block;
   margin: 0 10px 10px 0;
@@ -3417,16 +3405,6 @@
   display: -ms-flexbox;
   display: flex;
 }
-.react-mui-context .dropzone .icon-camera,
-.react-mui-context .dropzone .icon-spinner {
-  color: black;
-  opacity: 0.43 !important;
-  display: block;
-  margin: auto;
-  font-size: 22px;
-  height: 22px;
-  cursor: pointer;
-}
 .react-mui-context .tab-vertical-layout {
   -webkit-box-flex: 1;
       -ms-flex: 1;
@@ -3510,11 +3488,6 @@
 }
 .react-mui-context .material-list .mui-toolbar .mui-toolbar-group .mui-font-icon {
   padding-left: 0;
-}
-.react-mui-context .material-list .mui-toolbar .mui-toolbar-group .icon-refresh {
-  margin: 0 18px;
-  font-size: 15px;
-  display: inline-block;
 }
 .react-mui-context .material-list .mui-toolbar .mui-toolbar-group .mui-drop-down-menu {
   width: 155px !important;

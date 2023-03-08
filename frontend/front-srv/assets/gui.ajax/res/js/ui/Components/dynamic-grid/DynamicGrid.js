@@ -283,7 +283,7 @@ class DynamicGrid extends React.Component {
                         <FloatingActionButton
                             tooltip={this.props.getMessage('home.49')}
                             onClick={this.toggleEditMode.bind(this)}
-                            iconClassName={this.state.editMode?"icon-ok":"mdi mdi-pencil"}
+                            iconClassName={this.state.editMode?"mdi mdi-check":"mdi mdi-pencil"}
                             mini={this.state.editMode}
                             disabled={this.state.editMode && this.state.widgetEditing}
                         />

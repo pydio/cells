@@ -75,7 +75,7 @@ class UserChip extends React.Component {
             }
         }
 
-        const icon = <FontIcon className={"icon-" + (tmp?"envelope":"user")} />;
+        const icon = <FontIcon className={"mdi mdi-" + (tmp?"email":"account")} />;
         const {colors} = Style;
         return (
             <Chip

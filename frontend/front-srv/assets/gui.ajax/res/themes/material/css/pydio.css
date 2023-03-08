@@ -1,4 +1,3 @@
-@import "../../common/css/fonts/font-awesome.css";
 @import "../../common/css/fonts/mdi.css";
 @import "../../common/css/fonts/icomoon.css";
 @import "../../../../node_modules/livekit-react/dist/index.css";
@@ -6,20 +5,9 @@
 .react-mui-context * {
   font-family: Roboto, sans-serif;
 }
-.react-mui-context [class^="icon-"],
-.react-mui-context [class*=" icon-"] {
-  font-family: FontAwesome;
-}
 .react-mui-context [class^="mdi-"],
 .react-mui-context [class*=" mdi-"] {
   font-family: "Material Design Icons";
-}
-@font-face {
-  font-family: 'FontAwesome';
-  src: url('../themes/common/fonts/awesome/fontawesome-webfont.eot?v=3.2.1');
-  src: url('../themes/common/fonts/awesome/fontawesome-webfont.eot?#iefix&v=3.2.1') format('embedded-opentype'), url('../themes/common/fonts/awesome/fontawesome-webfont.woff?v=3.2.1') format('woff'), url('../themes/common/fonts/awesome/fontawesome-webfont.ttf?v=3.2.1') format('truetype'), url('../themes/common/fonts/awesome/fontawesome-webfont.svg#fontawesomeregular?v=3.2.1') format('svg');
-  font-weight: normal;
-  font-style: normal;
 }
 @font-face {
   font-family: 'Roboto';
@@ -399,16 +387,16 @@ div.dialogBox div#element_overlay {
 .folders-tree div.tree-item div.tree-item-label .tree-icon {
   padding: 0 8px;
 }
-.folders-tree div.tree-item div.tree-item-label .tree-icon.icon-angle-right,
-.folders-tree div.tree-item div.tree-item-label .tree-icon.icon-angle-down {
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-right,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-down {
   padding-right: 0;
   font-size: 16px;
   width: 20px;
   display: inline-block;
   text-align: center;
 }
-.folders-tree div.tree-item div.tree-item-label .tree-icon.icon-angle-right.no-folder-children,
-.folders-tree div.tree-item div.tree-item-label .tree-icon.icon-angle-down.no-folder-children {
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-right.no-folder-children,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-down.no-folder-children {
   visibility: hidden;
 }
 .folders-tree div.tree-item.mui-is-selected div.tree-item-label {
@@ -539,10 +527,10 @@ div.dialogBox div#element_overlay {
   border-radius: 6px;
   margin-left: 6px;
 }
-.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 .metadata_chunk_other span.icon-angle-right {
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 .metadata_chunk_other span.mdi.mdi-chevron-right {
   display: none;
 }
-.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.icon-angle-right {
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.mdi.mdi-chevron-right {
   display: inline-block;
   margin: 0 1px;
   visibility: hidden;
@@ -1069,382 +1057,6 @@ div.dialogBox div#element_overlay {
 #activity_monitor_warning span.warning_timer {
   color: #0077b3;
 }
-#flashframe {
-  border: 0;
-  width: 450px;
-  height: 300px;
-  overflow: hidden;
-  margin-top: -9px;
-}
-/*
-UPLOAD MULTIFILE FORM
-*/
-div#upload_files_list,
-div#multiple_download_container {
-  overflow: auto;
-  height: 350px;
-  text-align: left;
-  border-radius: 1px;
-}
-div#multi_download_form a#dl_form_submit {
-  border-radius: 2px;
-  display: inline-block;
-  margin-top: 4px;
-  margin-left: 5px;
-  padding: 5px 12px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 15px;
-  color: #009688;
-  text-transform: uppercase;
-}
-div#multi_download_form a#dl_form_submit:hover {
-  background-color: #bffff9;
-}
-div#multiple_download_container {
-  width: 100%;
-}
-div#multiple_download_container a {
-  font-size: 16px;
-}
-div#multiple_download_container a span.mdi-download {
-  font-size: 14px;
-  display: inline-block;
-  margin-right: 5px;
-}
-.uploadFilesList.droparea {
-  background-position: center;
-}
-.dropareaHover,
-.dropareaHover #content_pane {
-  background-color: #FFF8E1 !important;
-}
-.webfx-tree-item.dropareaHover {
-  background-color: rgba(255, 253, 231, 0.43) !important;
-}
-#content_pane.dropareaHover div.thumbnail_selectable_cell {
-  background-color: transparent !important;
-}
-#uploader_chooser {
-  width: 100%;
-}
-#uploader_chooser ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: block;
-  position: relative;
-  border-bottom: 1px solid #FF5722;
-  background-color: #ffffff;
-}
-#uploader_chooser ul li {
-  display: inline-block;
-  padding: 12px 14px;
-  margin: 0;
-  border-bottom: 0;
-  cursor: pointer;
-  font-size: 13px;
-}
-#uploader_chooser ul li:hover {
-  background-color: #f5f5f5;
-  border-bottom: 2px solid #f5f5f5;
-}
-#uploader_chooser ul li.current {
-  font-weight: 500;
-  cursor: default;
-  border-bottom: 3px solid #FF5722;
-}
-div.upload-options-pane {
-  position: absolute;
-  top: 0;
-  right: 0;
-  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.16), 0 1px 6px rgba(0, 0, 0, 0.23);
-          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.16), 0 1px 6px rgba(0, 0, 0, 0.23);
-  padding: 16px;
-}
-div.upload-options-pane .option-row {
-  padding: 8px 0;
-}
-div.upload-options-pane .close-options {
-  float: right;
-  cursor: pointer;
-  display: inline-block;
-}
-div.upload-options-pane .mui-radio-button {
-  margin: 12px 0;
-}
-div.uploader-action-bar {
-  margin-bottom: 10px;
-}
-div.uploader-action-bar > button,
-div.uploader-action-bar > div {
-  margin-right: 5px;
-}
-div#total_files_list {
-  display: none !important;
-}
-.dotted_container_item_mixin {
-  overflow: hidden;
-  padding: 16px 14px;
-  position: relative;
-  background-repeat: no-repeat;
-  background-size: 0 100%;
-  font-size: 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  color: rgba(0, 0, 0, 0.87);
-}
-.dotted_container_item_mixin rect {
-  fill: #ffffff;
-}
-div#upload_files_list {
-  border: 1px solid rgba(0, 0, 0, 0.13);
-}
-div#upload_files_list > div {
-  overflow: hidden;
-  padding: 16px 14px;
-  position: relative;
-  background-repeat: no-repeat;
-  background-size: 0 100%;
-  font-size: 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  color: rgba(0, 0, 0, 0.87);
-}
-div#upload_files_list > div rect {
-  fill: #ffffff;
-}
-div#upload_files_list > div.header {
-  padding: 8px 14px;
-  font-weight: 500;
-  font-size: 13px;
-  color: #636e75;
-  border-bottom: 0;
-}
-div#upload_files_list > div span.mdi.mdi-file,
-div#upload_files_list > div span.mdi.mdi-folder {
-  margin: 0 8px 0 0;
-}
-div#upload_files_list > div span.status,
-div#upload_files_list > div span.path {
-  font-size: 11px;
-  display: inline-block;
-  margin: 0 6px;
-  color: rgba(0, 0, 0, 0.53);
-}
-div#upload_files_list > div span.stop-button {
-  cursor: pointer;
-  color: #6b7781;
-  float: right;
-  display: inline-block;
-  margin: 4px 10px;
-}
-div#upload_files_list > div div.uploader-pgbar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  background-color: #009688;
-  height: 2px;
-  width: 0;
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-}
-div#upload_files_list > div.section-processed,
-div#upload_files_list > div.header {
-  display: none;
-}
-div#upload_files_list > div.upload-error {
-  display: block;
-  color: #d32f2f;
-}
-div#upload_files_list > div.upload-error span.status {
-  color: #d32f2f;
-}
-div#upload_files_list.show-processed > div.section-processed,
-div#upload_files_list.show-processed > div.header {
-  display: block;
-}
-div#upload_files_list span.item_relative_path {
-  color: #5f5f5f;
-  margin-left: 15px;
-  font-size: 0.8em;
-}
-div#upload_files_list img.fakeUploadButton {
-  display: none;
-}
-div#upload_files_list div a {
-  color: #ddd;
-  font-style: italic;
-}
-div#upload_files_list span.statusText,
-div#upload_files_list span.percentText {
-  font-size: 10px;
-  display: inline-block;
-  padding: 0 6px;
-  color: rgba(0, 0, 0, 0.53);
-}
-div#upload_files_list span.statusText.new,
-div#upload_files_list #upload_files_list span.statusText.loaded {
-  display: none;
-}
-div#upload_files_list span.icon-folder-close {
-  margin-right: 2px;
-}
-div#upload_files_list span.icon-file-alt {
-  display: inline-block;
-  margin: 0 6px 0 2px;
-}
-div#upload_files_list span.item-indent {
-  display: inline-block;
-  margin-right: 3px;
-}
-div#upload_files_list span.icon-remove-sign,
-div#upload_files_list span.mdi-close,
-div#upload_files_list span.icon-ok {
-  color: rgba(0, 0, 0, 0.53);
-  display: block;
-  position: absolute;
-  padding: 12px;
-  right: 5px;
-  top: 2px;
-  cursor: pointer;
-}
-div#upload_files_list span.icon-remove-sign:hover,
-div#upload_files_list span.mdi-close:hover {
-  color: #d00;
-}
-div#multiple_download_container div {
-  overflow: hidden;
-  padding: 16px 14px;
-  position: relative;
-  background-repeat: no-repeat;
-  background-size: 0 100%;
-  font-size: 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  color: rgba(0, 0, 0, 0.87);
-}
-div#multiple_download_container div rect {
-  fill: #ffffff;
-}
-div#multiple_download_container div div a {
-  display: block;
-}
-div#multiple_download_container div div a:hover {
-  text-decoration: none;
-  color: #aaa;
-}
-#fileInputContainer {
-  position: relative;
-}
-#fileInputContainer #fileInputContainerDiv {
-  /* to fit 1px border */
-  margin: 0;
-  padding: 0;
-  position: relative;
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: top;
-  height: 47px;
-  width: 272px;
-  cursor: pointer;
-}
-#fileInputContainer #fileInputContainerDiv.folder_upload_button .fakeUploadButton {
-  background-color: #fefefe;
-  width: 130px;
-  color: rgba(0, 0, 0, 0.76);
-}
-#fileInputContainer input {
-  opacity: 0;
-  -moz-opacity: 0;
-  position: absolute;
-  font-size: 60px;
-  /* causes it to fill the containing div */
-  top: 0;
-  left: 0;
-  z-index: 10000;
-  height: 30px;
-  cursor: pointer !important;
-  filter: alpha(opacity=0);
-  width: 250px;
-}
-#fileInputContainer #fileInputPos {
-  text-align: left;
-  height: 30px;
-  width: 250px;
-  position: absolute;
-  top: 0;
-  overflow: hidden;
-  z-index: 9999;
-  /* this was needed to work in IE */
-  cursor: pointer;
-}
-#fileInputContainer .fakeUploadButton {
-  width: 250px;
-  padding: 6px;
-  text-align: left;
-  vertical-align: middle;
-  font-size: 14px;
-  cursor: pointer;
-  font-weight: 500;
-  background-color: #ffffff;
-  color: #485e68;
-  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.33);
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.33);
-  position: absolute;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  top: 0;
-  left: 0;
-  margin: 0;
-}
-#fileInputContainer .fakeUploadButton span.icon-desktop,
-#fileInputContainer .fakeUploadButton span.icon-folder-open-alt {
-  font-size: 20px;
-  display: block;
-  float: left;
-  padding: 2px 10px 0 6px;
-}
-#fileInputContainer .fakeUploadButton span.icon-folder-open-alt {
-  font-size: 18px;
-  padding: 3px 10px 0 6px;
-}
-#fileInputContainer .fakeUploadButton .disabled {
-  -moz-opacity: 0.5;
-  opacity: 0.5;
-  filter: alpha(opacity=50);
-  cursor: default;
-}
-#fileInputContainer .fakeUploadButton img {
-  margin-bottom: 3px;
-}
-#uploaderTextActions {
-  position: absolute;
-  bottom: 6px;
-  right: 8px;
-  color: #cbccce;
-  font-size: 12px;
-}
-#uploaderTextActions span {
-  cursor: pointer;
-}
-#uploaderTextActions span:hover {
-  color: #5C5C5C;
-}
-.fakeOptionButton {
-  padding-top: 3px;
-  padding-bottom: 3px;
-  margin-bottom: 0;
-  margin-top: 5px;
-  background-position: center;
-  border-radius: 5px;
-}
-#uploaderTextActions span.disabled {
-  display: none;
-}
-#uploadFilesListContainer {
-  vertical-align: top;
-  font-size: 11px;
-}
 .react-mui-context .scrollarea > .scrollbar-container {
   opacity: 0 !important;
 }
@@ -1485,165 +1097,6 @@ div#multiple_download_container div div a:hover {
 }
 .user-widget .action_bar button.userActionButton span.userActionIcon {
   font-size: 18px !important;
-}
-.react-mui-context .top_search_form {
-  width: 150px;
-  height: 46px;
-  z-index: 10;
-  overflow: hidden;
-  background-color: transparent;
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-}
-.react-mui-context .top_search_form .search-input {
-  background-color: transparent;
-  padding: 5px;
-}
-.react-mui-context .top_search_form .search-input .mui-text-field {
-  width: 100%;
-  padding: 0 10px;
-  -webkit-box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 10px, rgba(0, 0, 0, 0.23) 0px 3px 10px;
-          box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 10px, rgba(0, 0, 0, 0.23) 0px 3px 10px;
-  background-color: white;
-  border-radius: 2px;
-  height: 36px;
-}
-.react-mui-context .top_search_form .search-input .mui-text-field .mui-text-field-hint {
-  margin-top: -5px;
-  color: rgba(0, 0, 0, 0.47);
-}
-.react-mui-context .top_search_form .search-input .mui-text-field .mui-text-field-underline,
-.react-mui-context .top_search_form .search-input .mui-text-field .mui-text-field-focus-underline {
-  display: none;
-}
-.react-mui-context .top_search_form .search-input .panel-header {
-  height: 0;
-  overflow: hidden;
-  padding: 0 6px;
-  font-size: 22px;
-  color: white;
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-}
-.react-mui-context .top_search_form .search-input .panel-header .panel-header-close {
-  float: right;
-  cursor: pointer;
-}
-.react-mui-context .top_search_form .search-results {
-  display: none;
-}
-.react-mui-context .top_search_form .search-results .mui-toolbar {
-  display: none;
-}
-.react-mui-context .top_search_form .search-results .files-list {
-  margin-right: 0 !important;
-}
-.react-mui-context .top_search_form.advanced {
-  height: inherit;
-  -webkit-box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 10px, rgba(0, 0, 0, 0.23) 0px 3px 10px;
-          box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 10px, rgba(0, 0, 0, 0.23) 0px 3px 10px;
-}
-.react-mui-context .top_search_form.advanced .search-advanced {
-  width: 220px;
-  background-color: #FAFAFA;
-  border-right: 1px solid #e0e0e0;
-  overflow-y: auto;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .advanced-section {
-  font-weight: 500;
-  padding: 40px 10px 0;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .advanced-section:first-child {
-  padding-top: 10px;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .mui-text-field {
-  width: 210px ;
-  margin: -16px 15px 0;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .mui-drop-down-menu {
-  width: 256px !important;
-  margin-left: -8px;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .mui-menu {
-  width: 216px !important;
-  margin-left: 20px;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .advanced-search-stars {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .advanced-search-stars .stars-label {
-  padding: 0 15px !important;
-  display: inline-block;
-  font-size: 17px;
-  color: #b4b4b4;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .advanced-search-stars .stars-icons {
-  padding-top: 1px;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .paginator-dates {
-  margin-top: 20px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .paginator-dates .mui-text-field {
-  width: 98px;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .paginator-dates span.mdi-close {
-  display: inline-block;
-  padding: 3px 1px;
-  margin-left: -30px;
-  color: rgba(0, 0, 0, 0.33);
-}
-.react-mui-context .top_search_form.advanced .search-advanced .mui-toggle {
-  width: 215px;
-  margin-left: 15px;
-  margin-top: 16px;
-}
-.react-mui-context .top_search_form.advanced .search-results {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  position: relative;
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
-  width: 260px;
-}
-.react-mui-context .top_search_form.advanced .search-results .material-list-entry.list-group-header {
-  margin-top: 0;
-}
-.react-mui-context .top_search_form.advanced .search-results .material-list-entry.list-group-header .material-list-text {
-  padding: 15px 0;
-}
-.react-mui-context .top_search_form.advanced .search-results .material-list-entry.list-group-header .material-list-text .material-list-line-1 {
-  font-size: 13px;
-  color: #616161;
-}
-.react-mui-context .top_search_form.small .search-results .material-list-entry.list-group-header {
-  margin-top: 0;
-}
-.react-mui-context .top_search_form.small .search-results .material-list-entry.material-list-entry-1-lines {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.13);
-}
-.react-mui-context .top_search_form.small .search-results .material-list-entry.material-list-entry-1-lines .material-list-icon {
-  width: 42px;
-}
-.react-mui-context .top_search_form.small .search-results .material-list-entry.material-list-entry-1-lines .material-list-icon .mui-font-icon {
-  background-color: transparent;
-  font-size: 16px;
-  margin: 8px 4px 0;
-  color: rgba(0, 0, 0, 0.83);
-}
-.react-mui-context .top_search_form.small .search-results .material-list-entry.material-list-entry-1-lines .material-list-line-1 {
-  font-size: 14px;
-  line-height: 16px;
 }
 .indeterminate-loader {
   left: 0 !important;
@@ -2017,8 +1470,8 @@ div.menu.desktop a span.ajxp_icon_span {
 .left-panel .workspaces div.tree-item-label {
   color: rgba(0, 0, 0, 0.77);
 }
-.left-panel .workspaces div.tree-item-label .tree-icon.icon-angle-down,
-.left-panel .workspaces div.tree-item-label .tree-icon.icon-angle-right {
+.left-panel .workspaces div.tree-item-label .tree-icon.mdi.mdi-chevron-down,
+.left-panel .workspaces div.tree-item-label .tree-icon.mdi.mdi-chevron-right {
   color: rgba(0, 0, 0, 0.43);
 }
 .left-panel.hidden {
@@ -2204,9 +1657,6 @@ div.menu.desktop a span.ajxp_icon_span {
 }
 .panelCard .primaryToolbar .action-open_with button > div > span > span .button-icon {
   display: none;
-}
-.panelCard .primaryToolbar .action-open_with button > div > span > span .icon-caret-down {
-  color: white;
 }
 div.pydio-tasks-panel {
   position: absolute;

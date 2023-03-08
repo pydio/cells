@@ -21,6 +21,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ResourcesManager from 'pydio/http/resources-manager';
+import debounce from 'lodash.debounce'
 
 /********************/
 /* ASYNC COMPONENTS */
@@ -39,7 +40,7 @@ class AsyncComponent extends Component {
             componentName: props.componentName
         };
 
-        //this._handleLoad = _.debounce(this._handleLoad, 100)
+        this._handleLoad = debounce(this._handleLoad, 40)
     }
 
     _handleLoad() {
@@ -50,19 +51,20 @@ class AsyncComponent extends Component {
             }
         };
 
-        if (!this.state.loaded) {
-            // Loading the class asynchronously
-            ResourcesManager.loadClass(this.state.namespace).then((ns) => {
-                const {[this.state.componentName]:Component} = ns;
-                this.setState({loaded:true, Component});
-                callback();
-            }).catch(e=>{
-                console.log('loadClass error', e)
-            })
-        } else {
+        if (this.state.loaded) {
             // Class is already available, just doing the callback
             callback();
+            return
         }
+
+        // Loading the class asynchronously
+        ResourcesManager.loadClass(this.state.namespace).then((ns) => {
+            const {[this.state.componentName]: Component} = ns;
+            this.setState({loaded: true, Component});
+            callback();
+        }).catch(e => {
+            console.log('loadClass error', e)
+        })
     }
 
     componentDidMount() {
@@ -70,13 +72,15 @@ class AsyncComponent extends Component {
     }
 
     componentWillReceiveProps(newProps) {
-        if (this.props.namespace !== newProps.namespace) {
-            ResourcesManager.loadClassesAndApply([newProps.namespace], () => {
-                this.loadFired = false;
-                this.setState({namespace: newProps.namespace, componentName: newProps.componentName, Component: null, loaded: false});
+        if (this.props.namespace !== newProps.namespace || this.props.componentName !== newProps.componentName) {
+            // Trigger reload
+            this.loadFired = false
+            this.setState({
+                namespace: newProps.namespace,
+                componentName: newProps.componentName,
+                Component: null,
+                loaded: false
             });
-        } else {
-            this.setState({namespace: newProps.namespace, componentName: newProps.componentName})
         }
     }
 
@@ -104,7 +108,6 @@ class AsyncComponent extends Component {
 
         let props = this.props;
         const {modalData} = props;
-        //const Component = FuncUtils.getFunctionByName(this.state.componentName, window[this.state.namespace]);
 
         if (Component) {
             if (modalData && modalData.payload) {

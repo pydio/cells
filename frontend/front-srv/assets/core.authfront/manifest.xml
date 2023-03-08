@@ -12,7 +12,7 @@
     <registry_contributions>
         <actions>
             <action name="reset-password-ask">
-                <gui iconClass="icon-terminal" text="gui.user.1" title="gui.user.2">
+                <gui iconClass="mdi mdi-key" text="gui.user.1" title="gui.user.2">
                     <context dir="true" recycle="true" selection="false"/>
                 </gui>
                 <processing>
@@ -20,7 +20,7 @@
                 </processing>
             </action>
             <action name="reset-password">
-                <gui iconClass="icon-terminal" text="gui.user.1" title="gui.user.2">
+                <gui iconClass="mdi mdi-key" text="gui.user.1" title="gui.user.2">
                     <context dir="true" recycle="true" selection="false"/>
                 </gui>
                 <rightsContext noUser="true" userLogged="false"/>

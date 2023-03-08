@@ -263,7 +263,7 @@ export default createReactClass({
             properties['onClick'] = function(){
                 this.setState({currentActiveGroup:(current !== index ? index : null)});
             }.bind(this);
-            groupLabel = [<span key="toggler" className={"group-active-toggler icon-angle-" + (current === index ? 'down' : 'right') }></span>, groupLabel];
+            groupLabel = [<span key="toggler" className={"group-active-toggler mdi-mdi-chevron-" + (current === index ? 'down' : 'right') }></span>, groupLabel];
         }
 
         return React.createElement(
@@ -345,7 +345,7 @@ export default createReactClass({
                                 applyButtonAction:this.applyButtonAction
                             }, helperTestFor);
                         }.bind(this);
-                        helperMark = <span className="icon-question-sign" onClick={showHelper}></span>;
+                        helperMark = <span className="mdi mdi-comment-question-outline" onClick={showHelper}></span>;
                     }
                     let mandatoryMissing = false;
                     let classLegend = "form-legend";

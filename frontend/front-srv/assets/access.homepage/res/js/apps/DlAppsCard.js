@@ -36,8 +36,8 @@ class DlAppsPanel extends React.Component{
                     key="dl_pydio_ios"
                     configs={configs}
                     configHref="URL_APP_IOSAPPSTORE"
-                    containerClassName="icon-tablet"
-                    iconClassName="icon-apple"
+                    containerClassName="mdi mdi-cellphone-iphone"
+                    iconClassName="mdi mdi-apple"
                     messageId="user_home.59"
                     tooltipId="user_home.70"
                 />
@@ -52,8 +52,8 @@ class DlAppsPanel extends React.Component{
                     key="dl_pydio_android"
                     configs={configs}
                     configHref="URL_APP_ANDROID"
-                    containerClassName="icon-mobile-phone"
-                    iconClassName="icon-android"
+                    containerClassName="mdi mdi-cellphone-android"
+                    iconClassName="mdi mdi-android"
                     messageId="user_home.58"
                     tooltipId="user_home.71"
                 />
@@ -67,8 +67,8 @@ class DlAppsPanel extends React.Component{
                     key="dl_pydio_win"
                     configs={configs}
                     configHref="URL_APP_SYNC_WIN"
-                    containerClassName="icon-laptop"
-                    iconClassName="icon-windows"
+                    containerClassName="mdi mdi-laptop-windows"
+                    iconClassName="mdi mdi-windows"
                     messageId="user_home.61"
                     tooltipId="user_home.68"
                 />
@@ -82,8 +82,8 @@ class DlAppsPanel extends React.Component{
                     key="dl_pydio_mac"
                     configs={configs}
                     configHref="URL_APP_SYNC_MAC"
-                    containerClassName="icon-desktop"
-                    iconClassName="icon-apple"
+                    containerClassName="mdi mdi-laptop-mac"
+                    iconClassName="mdi mdi-apple"
                     messageId="user_home.60"
                     tooltipId="user_home.69"
                 />
