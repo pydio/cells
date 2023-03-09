@@ -21,5 +21,7 @@
 import Editor from './editor'
 import * as Actions from './actions'
 
+import '../css/ckeditor.css'
+
 export {Editor}
 export {Actions}
