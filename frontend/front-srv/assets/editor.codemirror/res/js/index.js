@@ -21,5 +21,4 @@
 import * as Actions from './actions'
 
 export {default as Editor} from './editor'
-export {default as Loader} from './CodeMirrorLoader'
 export {Actions}

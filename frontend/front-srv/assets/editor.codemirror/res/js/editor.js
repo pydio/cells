@@ -24,33 +24,10 @@ import Pydio from 'pydio'
 import React from 'react';
 import DOMUtils from 'pydio/util/dom'
 import { connect } from 'react-redux';
-import { compose } from 'redux';
-import CodeMirrorLoader from './CodeMirrorLoader';
 import Markdown from "react-markdown";
+import ReactCodeMirror from "./reactCodeMirror";
 
 const {EditorActions} = Pydio.requireLib('hoc');
-
-const MdStyle = `
-.react-mui-context .mdviewer{
-    flex:1; 
-    border-left:2px solid #e0e0e0; 
-    padding:20px; 
-    background-color:#fafafa;
-    overflow-y: auto;
-}
-.react-mui-context .mdviewer ul, .react-mui-context .mdviewer ol{
-    margin-left: 15px;
-}
-.react-mui-context .mdviewer code {
-    margin: 10px 0;
-    border-radius: 2px;
-    padding: 5px 10px;
-    background-color: #CFD8DC;
-}
-.react-mui-context .mdviewer pre code {
-    display: block;
-}
-`;
 
 function mapStateToProps (state, props) {
     const {tabs} = state
@@ -114,7 +91,7 @@ export default class Editor extends React.Component {
             const show = DOMUtils.getViewportWidth() > 480;
             return (
                 <div style={{display:'flex', flex:1, width: '100%', backgroundColor:'white'}}>
-                    <CodeMirrorLoader
+                    <ReactCodeMirror
                         {...this.props}
                         url={node.getPath()}
                         content={content}
@@ -128,13 +105,13 @@ export default class Editor extends React.Component {
                         cmStyle={{flex:1, width:show?'60%':'100%'}}
                     />
                     {show && <Markdown source={content} className={"mdviewer"}/>}
-                    {show && <style type={"text/css"} dangerouslySetInnerHTML={{__html:MdStyle}}/>}
                 </div>
             )
         } else{
             return (
-                <CodeMirrorLoader
+                <ReactCodeMirror
                     {...this.props}
+
                     url={node.getPath()}
                     content={content}
                     options={{lineNumbers: lineNumbers, lineWrapping: lineWrapping}}
