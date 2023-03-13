@@ -227,6 +227,7 @@ class MainFilesList extends React.Component {
             || nextProps.searchLoading !== this.props.searchLoading
             || nextProps.searchResults !== this.props.searchResults
             || nextProps.searchScope !== this.props.searchScope
+            || nextProps.listStyle !== this.props.listStyle
             || nextState !== this.state );
     }
 
@@ -785,6 +786,7 @@ class MainFilesList extends React.Component {
 
             elementHeight = SimpleList.HEIGHT_ONE_LINE;
             tableKeys = columns;
+            additionalStyle = {marginLeft: 10 + (style.marginLeft||0)}
 
         } else if(dMode === 'grid'){
 
