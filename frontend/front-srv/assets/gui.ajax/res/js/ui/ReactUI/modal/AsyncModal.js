@@ -1,10 +1,3 @@
-const React = require('react');
-const createReactClass = require('create-react-class');
-import AsyncComponent from '../AsyncComponent'
-import PydioContextConsumer from '../PydioContextConsumer'
-const {FlatButton, Dialog} = require('material-ui')
-import CSSBlurBackground, {bgCoverFromScreenRatio} from './CSSBlurBackground'
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -24,10 +17,15 @@ import CSSBlurBackground, {bgCoverFromScreenRatio} from './CSSBlurBackground'
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import React from 'react'
+import createReactClass from 'create-react-class'
+import AsyncComponent from '../AsyncComponent'
+import PydioContextConsumer from '../PydioContextConsumer'
+const {FlatButton, Dialog} = require('material-ui')
+import CSSBlurBackground, {bgCoverFromScreenRatio} from './CSSBlurBackground'
 import PropTypes from 'prop-types';
-
 import DOMUtils from "pydio/util/dom";
+import {muiThemeable} from 'material-ui/styles'
 
 /**
  * Specific AsyncComponent for Modal Dialog
@@ -342,6 +340,9 @@ let AsyncModal = createReactClass({
             dialogBody = {...dialogBody, ...dialogBodyStyle};
         }
 
+        const {muiTheme} = this.props;
+        const paperProps = muiTheme.userTheme === 'mui3' ? {style: {background:muiTheme.dialog.containerBackground}} : undefined
+
         return (
             <Dialog
                 ref="dialog"
@@ -356,6 +357,7 @@ let AsyncModal = createReactClass({
                 onRequestClose={this.props.onDismiss}
 
                 contentStyle={dialogContent}
+                paperProps={paperProps}
                 bodyStyle={dialogBody}
                 titleStyle={dialogTitle}
                 style={dialogRoot}
@@ -365,6 +367,7 @@ let AsyncModal = createReactClass({
     },
 });
 
+AsyncModal = muiThemeable()(AsyncModal)
 AsyncModal = PydioContextConsumer(AsyncModal)
 
 export {AsyncModal as default}

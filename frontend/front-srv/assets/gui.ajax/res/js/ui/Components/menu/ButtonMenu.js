@@ -24,7 +24,8 @@ import PropTypes from 'prop-types';
 
 import React from "react";
 import ReactDOM from "react-dom";
-import {Popover, RaisedButton, FlatButton} from "material-ui";
+import {RaisedButton, FlatButton} from "material-ui";
+import {Popover} from './ThemedContainer'
 
 class ButtonMenu extends React.Component {
     static propTypes = {

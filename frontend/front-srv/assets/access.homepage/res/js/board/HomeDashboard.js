@@ -96,8 +96,6 @@ class AltDashboard extends React.Component {
                 overflow:'hidden'
             },
             wsListStyle:{
-                backgroundColor     : lightBg.toString(),
-                color               : fontColor.toString(),
             }
         };
 
@@ -112,11 +110,10 @@ class AltDashboard extends React.Component {
 
         const headerHeight = 72;
         const leftPanelProps = {
-            style: {backgroundColor: 'transparent'},
+            style: muiTheme.buildFSTemplate({}).leftPanel.masterStyle,
             headerHeight:headerHeight,
             onMouseOver:()=>{this.clearCloseTimeout()},
             userWidgetProps: {
-                color: fontColor.toString(),
                 mergeButtonInAvatar:true,
                 popoverDirection:'left',
                 actionBarStyle:{
@@ -126,8 +123,8 @@ class AltDashboard extends React.Component {
                     height: headerHeight,
                     display:'flex',
                     alignItems:'center',
-                    backgroundColor:lightBg.toString(),
-                    boxShadow: 'none'
+                    boxShadow: 'none',
+                    background:'transparent'
                 }
             },
             workspacesListProps:{

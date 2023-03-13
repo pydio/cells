@@ -33,7 +33,7 @@ import VisibilityPanel from '../links/VisibilityPanel'
 import LabelPanel, {LinkLabelTitle} from '../links/LabelPanel'
 import {Divider} from 'material-ui'
 
-const {PaletteModifier} = Pydio.requireLib('hoc');
+const {ThemeModifier} = require('pydio').requireLib('boot');
 const {Tooltip} = Pydio.requireLib("boot");
 const {GenericCard, GenericLine} = Pydio.requireLib('components');
 
@@ -333,5 +333,5 @@ class CompositeCard extends React.Component {
 
 }
 
-CompositeCard = PaletteModifier({primary1Color:'#009688'})(CompositeCard);
+CompositeCard = ThemeModifier({primary1Color:'#009688'})(CompositeCard);
 export {CompositeCard as default}

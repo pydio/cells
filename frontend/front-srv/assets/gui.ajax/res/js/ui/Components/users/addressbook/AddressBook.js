@@ -421,7 +421,8 @@ class AddressBook extends React.Component {
             if(this.props.popoverButton){
                 iconButton = <this.props.popoverButton.type {...this.props.popoverButton.props} onClick={this.openPopover}/>
             }
-            const WrappedAddressBook = PydioContextProvider(AddressBook, this.props.pydio);
+            const {pydio} = this.props;
+            const WrappedAddressBook = PydioContextProvider(AddressBook, pydio, pydio.UI.themeBuilder);
             return (
                 <span>
                     {iconButton}

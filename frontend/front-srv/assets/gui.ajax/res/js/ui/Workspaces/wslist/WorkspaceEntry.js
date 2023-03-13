@@ -199,37 +199,22 @@ class WorkspaceEntry extends React.Component {
     };
 
     getRootItemStyle = (node) => {
-        const isContext = this.props.pydio.getContextHolder().getContextNode() === node;
-        const accent2 = this.props.muiTheme.palette.accent2Color;
-        if(isContext){
-            return {
-                borderLeft: '4px solid ' + accent2,
-                paddingLeft: 12
-            };
-        } else {
-            return {};
-        }
+        const {pydio, styler} = this.props;
+        const isContext = pydio.getContextHolder().getContextNode() === node;
+        const wsEntryPalette = styler.rootItemStyle
+        return isContext ? wsEntryPalette.context : wsEntryPalette.default;
     };
 
     getItemStyle = (node) => {
-        const isContext = this.props.pydio.getContextHolder().getContextNode() === node;
-        const accent2 = this.props.muiTheme.palette.accent2Color;
-        if(isContext){
-            return {
-                color: 'rgba(0,0,0,.77)',
-                fontWeight: 500,
-                backgroundColor: Color(accent2).fade(.9).toString()
-            };
+        const {pydio, styler} = this.props;
+        const wsTreePalette = styler.treeItemStyle
+        if(pydio.getContextHolder().getContextNode() === node){
+            return wsTreePalette.context
+        } else if(pydio.getContextHolder().getSelectedNodes().indexOf(node) !== -1){
+            return wsTreePalette.selected
+        } else {
+            return wsTreePalette.default
         }
-        const isSelected = this.props.pydio.getContextHolder().getSelectedNodes().indexOf(node) !== -1;
-        if(isSelected){
-            return {
-                /*backgroundColor: Color(accent2).fade(.9).toString()*/
-                color: accent2,
-                fontWeight: 500,
-            }
-        }
-        return {};
     };
 
     onContextMenu(event, menuNode) {
@@ -336,7 +321,6 @@ class WorkspaceEntry extends React.Component {
 
         let chatIcon;
 
-        const accent2 = this.props.muiTheme.palette.accent2Color;
         let icon = "mdi mdi-folder";
         let iconStyle = {
             fontSize: 20,
@@ -377,7 +361,8 @@ class WorkspaceEntry extends React.Component {
                 }
             }
             iconStyle.opacity = 1;
-            iconStyle.color = accent2;
+            //const accent2 = this.props.muiTheme.palette.accent2Color;
+            //iconStyle.color = accent2;
             popoverNode = menuNode;
         }else{
             menuNode = new Node('/', false, workspace.getLabel());

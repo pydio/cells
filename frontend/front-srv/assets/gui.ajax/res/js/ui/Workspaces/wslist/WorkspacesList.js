@@ -95,7 +95,8 @@ class Entries extends React.Component{
 
 
     render(){
-        const {title, entries, filterHint, titleStyle, pydio, createAction, activeWorkspace, palette, buttonStyles, emptyState, searchView, values, setValues, searchLoading} = this.props;
+        const {title, entries=[], filterHint, workspaceEntryStyler, titleStyle, pydio, createAction, activeWorkspace, palette, buttonStyles, emptyState,
+            searchView, values, setValues, searchLoading} = this.props;
         const {toggleFilter, filterValue} = this.state;
 
         const filterFunc = (t, f, ws)=> (!t || !f || ws.getLabel().toLowerCase().indexOf(f.toLowerCase()) >= 0);
@@ -173,6 +174,7 @@ class Entries extends React.Component{
                             values={values}
                             setValues={setValues}
                             searchLoading={searchLoading}
+                            styler={workspaceEntryStyler}
                         />
                     ))}
                     {!entries.length && emptyState}
@@ -232,7 +234,8 @@ class WorkspacesList extends React.Component{
     render(){
         let createAction;
         const {workspaces,activeWorkspace, popoverOpen, popoverAnchor, popoverContent, merge} = this.state;
-        const {pydio, className, muiTheme, sectionTitleStyle, searchView, values, setValues, searchLoading, facets, activeFacets, toggleFacet} = this.props;
+        const {pydio, className, muiTheme, sectionTitleStyle, workspaceEntryStyler,
+            searchView, values, setValues, searchLoading, facets, activeFacets, toggleFacet} = this.props;
 
         // Split Workspaces from Cells
         let wsList = [];
@@ -302,6 +305,14 @@ class WorkspacesList extends React.Component{
             classNames.push(className);
         }
 
+        const entriesProps = {
+            pydio,
+            palette: muiTheme.palette,
+            buttonStyles,
+            activeWorkspace,
+            workspaceEntryStyler
+        }
+
         if(searchView) {
             const additionalEntries = []
 
@@ -317,14 +328,11 @@ class WorkspacesList extends React.Component{
             return (
                 <div className={classNames.join(' ')}>
                     <Entries
+                        {...entriesProps}
                         title={messages['searchengine.scope.title']}
                         entries={[...additionalEntries, ...entries, ...sharedEntries]}
                         filterHint={messages['ws.quick-filter']}
                         titleStyle={{...sectionTitleStyle, marginTop:5, position:'relative', overflow:'visible', transition:'none'}}
-                        pydio={pydio}
-                        activeWorkspace={activeWorkspace}
-                        palette={muiTheme.palette}
-                        buttonStyles={buttonStyles}
                         searchView={searchView}
                         values={values}
                         setValues={setValues}
@@ -373,26 +381,20 @@ class WorkspacesList extends React.Component{
                 >{popoverContent}</Popover>
                 {!merge && entries.length > 0 &&
                     <Entries
+                        {...entriesProps}
                         title={messages[468]}
                         entries={entries}
                         filterHint={messages['ws.quick-filter']}
                         titleStyle={{...sectionTitleStyle, marginTop:5, position:'relative', overflow:'visible', transition:'none'}}
-                        pydio={pydio}
-                        activeWorkspace={activeWorkspace}
-                        palette={muiTheme.palette}
-                        buttonStyles={buttonStyles}
                     />
                 }
                 <Entries
+                    {...entriesProps}
                     title={messages[merge?468:469]}
                     entries={merge?[...entries, ...sharedEntries]:sharedEntries}
                     filterHint={messages['cells.quick-filter']}
                     titleStyle={{...sectionTitleStyle, position:'relative', overflow:'visible', transition:'none'}}
-                    pydio={pydio}
                     createAction={createAction}
-                    activeWorkspace={activeWorkspace}
-                    palette={muiTheme.palette}
-                    buttonStyles={buttonStyles}
                     emptyState={
                         <div style={{textAlign: 'center', color: Color(muiTheme.palette.primary1Color).fade(0.6).toString()}}>
                             <div className="icomoon-cells" style={{fontSize: 80}}></div>

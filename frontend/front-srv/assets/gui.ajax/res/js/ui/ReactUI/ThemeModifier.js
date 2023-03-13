@@ -20,23 +20,30 @@
 
 const {Component} = require('react');
 const {MuiThemeProvider} = require('material-ui')
-const {muiThemeable, getMuiTheme} = require('material-ui/styles')
+import ThemeBuilder from "./ThemeBuilder";
 
 export default function (palette){
 
+    const themeBuilder = ThemeBuilder.getInstance(pydio)
+    const customTheme = themeBuilder.buildTheme(palette)
+
     return function(PydioComponent){
 
-        class PaletteModifier extends Component{
+        class ThemeModifier extends Component{
+
+            static get displayName() {
+                return `Themed${Component.displayName||Component.name||'Component'}`
+            }
+
+            constructor(props) {
+                super(props);
+            }
 
             render(){
 
-                const currentPalette = this.props.muiTheme.palette;
-                const newPalette = {...currentPalette, ...palette};
-                const muiTheme = getMuiTheme({palette:newPalette});
-                const props = {...this.props, muiTheme};
                 return (
-                    <MuiThemeProvider muiTheme={muiTheme}>
-                        <PydioComponent {...props}/>
+                    <MuiThemeProvider muiTheme={customTheme}>
+                        <PydioComponent {...this.props}/>
                     </MuiThemeProvider>
                 )
 
@@ -44,10 +51,7 @@ export default function (palette){
 
         }
 
-        PaletteModifier = muiThemeable()(PaletteModifier);
-
-
-        return PaletteModifier;
+        return ThemeModifier;
     }
 
 }

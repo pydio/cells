@@ -25,6 +25,7 @@ const PathUtils = require('pydio/util/path');
 const FuncUtils = require('pydio/util/func');
 const ResourcesManager = require('pydio/http/resources-manager');
 import PydioContextProvider from './PydioContextProvider'
+import ThemeBuilder from "./ThemeBuilder";
 import moment from './Moment'
 
 export default class Builder{
@@ -41,6 +42,7 @@ export default class Builder{
         this._pydio.observe('language', (lang) => {
             moment.locale(lang);
         });
+        this.themeBuilder = ThemeBuilder.getInstance(pydio, () => this.refreshTemplateParts())
     }
 
     pageTitleObserver(){
@@ -103,7 +105,7 @@ export default class Builder{
                         }
                         return;
                     }
-                    const element = React.createElement(PydioContextProvider(ns[component], this._pydio), props);
+                    const element = React.createElement(PydioContextProvider(ns[component], this._pydio, this.themeBuilder), props);
                     const el = ReactDOM.render(element, targetObj);
                     this._componentsRegistry.set(target, el);
                 });
@@ -121,6 +123,12 @@ export default class Builder{
             reactElement.forceUpdate();
         });
 
+    }
+
+    toggleDarkTheme() {
+        window.CellsThemeMode =  (window.CellsThemeMode==='dark')?'light':'dark'
+        this.themeBuilder.invalidate()
+        this.refreshTemplateParts();
     }
 
     updateHrefBase(cdataContent){

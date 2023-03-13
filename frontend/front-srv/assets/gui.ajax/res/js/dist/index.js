@@ -118,6 +118,6 @@ if(originalRequire) {
     };
 }
 
-import '../../themes/material/css/pydio.less'
+//import '../../themes/material/css/pydio.less'
 
 export default {}

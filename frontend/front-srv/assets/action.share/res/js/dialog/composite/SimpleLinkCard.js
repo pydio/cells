@@ -21,7 +21,7 @@
 import React from 'react'
 import CompositeModel from '../composite/CompositeModel'
 import GenericEditor from '../main/GenericEditor'
-const {PaletteModifier} = require('pydio').requireLib('hoc');
+const {ThemeModifier} = require('pydio').requireLib('boot');
 import Panel from '../links/Panel'
 import SecureOptions from '../links/SecureOptions'
 import ShareHelper from '../main/ShareHelper'
@@ -187,5 +187,5 @@ class SimpleLinkCard extends React.Component {
 
 }
 
-SimpleLinkCard = PaletteModifier({primary1Color:'#009688'})(SimpleLinkCard);
+SimpleLinkCard = ThemeModifier({primary1Color:'#009688'})(SimpleLinkCard);
 export {SimpleLinkCard as default}

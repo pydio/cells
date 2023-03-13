@@ -35,7 +35,6 @@ class AsyncComponent extends Component {
         super(props);
 
         this.state = {
-            loaded: false,
             namespace: props.namespace,
             componentName: props.componentName
         };
@@ -51,7 +50,7 @@ class AsyncComponent extends Component {
             }
         };
 
-        if (this.state.loaded) {
+        if (this.state.Component) {
             // Class is already available, just doing the callback
             callback();
             return
@@ -60,10 +59,11 @@ class AsyncComponent extends Component {
         // Loading the class asynchronously
         ResourcesManager.loadClass(this.state.namespace).then((ns) => {
             const {[this.state.componentName]: Component} = ns;
-            this.setState({loaded: true, Component});
+            this.setState({Component});
             callback();
         }).catch(e => {
             console.log('loadClass error', e)
+            this.setState({hasError: true})
         })
     }
 
@@ -78,8 +78,7 @@ class AsyncComponent extends Component {
             this.setState({
                 namespace: newProps.namespace,
                 componentName: newProps.componentName,
-                Component: null,
-                loaded: false
+                Component: null
             });
         }
     }
@@ -98,12 +97,12 @@ class AsyncComponent extends Component {
     }
 
     render() {
-        const {loaded, hasError, Component} = this.state;
-        if (!loaded) {
-            return null;
-        }
+        const {hasError, Component} = this.state;
         if(hasError) {
             return <div>Oops, something went wrong, please reload the window!</div>
+        }
+        if (!Component) {
+            return null;
         }
 
         let props = this.props;

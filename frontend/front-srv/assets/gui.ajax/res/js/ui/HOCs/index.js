@@ -28,7 +28,6 @@ import {SizeActions, SizeControls, SizeProviders, withContainerSize, withResize,
 import {ResolutionActions, ResolutionControls, withResolution, withResolutionControls} from './resolution/index'
 import {LocalisationActions, LocalisationControls} from './localisation/index'
 import {URLProvider} from './urls'
-import PaletteModifier from './PaletteModifier'
 import * as Animations from "./animations";
 import reducers from './editor/reducers/index';
 import * as selectors from './selectors/index';
@@ -73,7 +72,6 @@ const PydioHOCs = {
     dropProvider,
     NativeFileDropProvider,
     ...Animations,
-    PaletteModifier,
     URLProvider,
     SizeProviders,
     ...controls,

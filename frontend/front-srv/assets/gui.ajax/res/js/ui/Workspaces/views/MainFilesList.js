@@ -281,7 +281,7 @@ class MainFilesList extends React.Component {
         const THUMBNAIL_MARGIN = displayMode === 'grid-80' ? 4 : 8;
         let containerWidth;
         try{
-            containerWidth = ReactDOM.findDOMNode(this.refs['list'].refs['infinite']).clientWidth - MAIN_CONTAINER_FULL_PADDING;
+            containerWidth = ReactDOM.findDOMNode(this.refs['list'].infinite.current).clientWidth - MAIN_CONTAINER_FULL_PADDING;
         }catch(e){
             containerWidth = 200;
         }
@@ -769,7 +769,7 @@ class MainFilesList extends React.Component {
 
     render() {
 
-        const {pydio, dataModel, style, gridBackground} = this.props;
+        const {pydio, dataModel, style, onScroll, gridBackground} = this.props;
         const {contextNode, displayMode, columns, thumbSize, pinBookmarks} = this.state;
         let tableKeys, sortKeys, elementStyle, className = 'files-list layout-fill main-files-list';
         let elementHeight, entryRenderSecondLine, near, elementsPerLine = 1;
@@ -813,7 +813,6 @@ class MainFilesList extends React.Component {
             } else if(near === 80) {
                 infiniteSliceCount = 200;
             }
-            additionalStyle = {backgroundColor:gridBackground}
 
         } else if(dMode === 'list'){
 
@@ -908,26 +907,10 @@ class MainFilesList extends React.Component {
             if(dMode.indexOf('masonry-')=== 0){
                 cWidth = parseInt(dMode.replace('masonry-', ''))
             }
-            const css = `
-               .masonic-grid .mimefont-container {
-                    display:flex; 
-                    height:100%; 
-                    align-items:center !important; 
-                    justify-content:center;
-                    border-radius: 4px;
-               }
-               .masonic-grid .mimefont-container .mimefont {
-                    font-size: 36px;
-                    margin-bottom: 22px;
-               }
-               .react-mui-context .info-panel-open .masonic-grid{
-                    width: calc(100% - 270px) !important;
-               }
-            `;
             return (
                 <React.Fragment>
                     <Masonry
-                        className={"masonic-grid"}
+                        className={"masonry-grid"}
                         dataModel={dataModel}
                         entryProps={{
                             handleClicks:this.entryHandleClicks.bind(this),
@@ -937,8 +920,8 @@ class MainFilesList extends React.Component {
                         emptyStateProps={emptyStateProps}
                         containerStyle={style}
                         columnWidth={cWidth}
+                        onScroll={onScroll}
                     />
-                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:css}}/>
                 </React.Fragment>
             )
         }
@@ -958,6 +941,7 @@ class MainFilesList extends React.Component {
                 style={{...style, ...additionalStyle}}
                 displayMode={dMode}
                 usePlaceHolder={true}
+                onScroll={onScroll}
                 elementsPerLine={elementsPerLine}
                 elementHeight={elementHeight}
                 elementStyle={elementStyle}

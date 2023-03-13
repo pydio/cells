@@ -21,7 +21,7 @@ const PropTypes = require('prop-types');
 
 
 const React = require('react')
-const {IconButton, Popover} = require('material-ui')
+import {Popover, IconButton} from './ThemedContainer'
 
 class IconButtonPopover extends React.Component{
 

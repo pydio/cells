@@ -819,9 +819,6 @@ div.dialogBox div#element_overlay {
 .folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-down.no-folder-children {
   visibility: hidden;
 }
-.folders-tree div.tree-item.mui-is-selected div.tree-item-label {
-  color: #43555d;
-}
 .comments_feed {
   padding: 0 !important;
 }
@@ -932,11 +929,9 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.metadata_chunk_standard {
   opacity: 0;
-  color: rgba(0, 0, 0, 0.23);
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.metadata_chunk_standard.metadata_chunk_description {
   opacity: 1;
-  color: rgba(0, 0, 0, 0.33);
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 .metadata_chunk_other {
   display: inline-block;
@@ -978,23 +973,11 @@ div.dialogBox div#element_overlay {
   color: inherit;
   border-bottom-color: transparent;
 }
-.react-mui-context .material-list.files-list .material-list-entry.selected .material-list-line-1 {
-  font-weight: inherit;
-}
 .react-mui-context .material-list.files-list .material-list-entry.selected .material-list-line-1 .label-extension {
   display: inline-block !important;
 }
 .react-mui-context .material-list.files-list .material-list-entry.selected .material-list-line-2 span.metadata_chunk {
   opacity: 1;
-}
-.react-mui-context .material-list.files-list .material-list-entry.selected .material-list-line-2 span.metadata_chunk.metadata_chunk_description {
-  color: rgba(0, 0, 0, 0.63);
-}
-.react-mui-context .material-list.files-list .material-list-entry.selected.selected-dark span.metadata_chunk {
-  color: rgba(255, 255, 255, 0.87);
-}
-.react-mui-context .material-list.files-list .material-list-entry.selected.selected-dark span.metadata_chunk.metadata_chunk_description {
-  color: rgba(255, 255, 255, 0.87);
 }
 .react-mui-context .material-list.files-list .material-list-entry.selected.selected-dark .overlay_icon_div button[data-icon-count]:before {
   color: rgba(0, 0, 0, 0.5);
@@ -1008,15 +991,11 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list .material-list-entry:hover:not(.selected) .material-list-line-2 span.metadata_chunk {
   opacity: 1;
 }
-.react-mui-context .material-list.files-list .material-list-entry:hover:not(.selected) .material-list-line-2 span.metadata_chunk.metadata_chunk_description {
-  color: rgba(0, 0, 0, 0.63);
-}
 .react-mui-context .material-list.files-list .material-list-entry:not(.selected) > div > div.mimefont-container.with-editor-badge {
   -webkit-box-shadow: 0px 0px 0px 1px #edf0f2;
           box-shadow: 0px 0px 0px 1px #edf0f2;
 }
 .react-mui-context .material-list.files-list .material-list-entry.list-parent-node .material-list-icon .mui-font-icon {
-  color: white !important;
   margin: 15px;
   width: 40px;
   height: 40px;
@@ -1063,13 +1042,9 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.selected .material-list-line-1 .label-extension {
   display: inline !important;
 }
-.react-mui-context .material-list.files-list.table-mode span.cell {
-  color: rgba(0, 0, 0, 0.63);
-}
 .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label {
-  color: rgba(0, 0, 0, 0.87);
-  font-size: 15px;
-  font-weight: 400;
+  font-size: 14px;
+  font-weight: 500;
   min-width: 320px;
 }
 @media only screen and (max-width: 480px) {
@@ -1184,12 +1159,10 @@ div.dialogBox div#element_overlay {
   left: 0px;
   right: 0px;
   padding: 8px 10px;
-  background-color: white;
   border-top: 1px solid rgba(224, 224, 224, 0.4);
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-text .material-list-line-1 {
   font-size: 13px;
-  color: rgba(0, 0, 0, 0.73);
   font-weight: 500;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-actions {
@@ -1301,10 +1274,7 @@ div.dialogBox div#element_overlay {
   display: block;
   height: 48px;
   border-top: 1px solid #e0e0e0;
-  background-color: #f9fafb;
   z-index: 10;
-  -webkit-box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.15);
-          box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.15);
 }
 @media only screen and (max-width: 480px) {
   .react-mui-context .material-list.files-list.table-mode .mui-toolbar {
@@ -1391,7 +1361,7 @@ div.dialogBox div#element_overlay {
   -webkit-box-shadow: 0 0 0px 1000px white inset;
 }
 .react-mui-context .dialogRootBlur > div > div.dialogRootBlur > div {
-  background-color: rgba(0, 0, 0, 0.3) !important;
+  background: rgba(0, 0, 0, 0.3) !important;
   position: relative;
 }
 .react-mui-context .dialogRootBlur > div > div.dialogRootBlur:before {
@@ -1823,7 +1793,7 @@ div.menu.desktop a span.ajxp_icon_span {
   margin-top: 4px;
 }
 .left-panel .workspaces {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 }
 .left-panel .workspaces .workspace-entry {
@@ -1886,13 +1856,6 @@ div.menu.desktop a span.ajxp_icon_span {
   opacity: 1;
   position: relative;
   font-weight: 500;
-}
-.left-panel .workspaces div.tree-item-label {
-  color: rgba(0, 0, 0, 0.77);
-}
-.left-panel .workspaces div.tree-item-label .tree-icon.mdi.mdi-chevron-down,
-.left-panel .workspaces div.tree-item-label .tree-icon.mdi.mdi-chevron-right {
-  color: rgba(0, 0, 0, 0.43);
 }
 .left-panel.hidden {
   left: -255px;
@@ -3496,12 +3459,12 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   -webkit-box-flex: 1;
       -ms-flex: 1;
           flex: 1;
-  padding: 16px 0;
+  padding: 14px 0;
   overflow: hidden;
 }
 .react-mui-context .material-list .material-list-entry .material-list-text .material-list-line-1 {
-  font-size: 16px;
-  font-weight: 400;
+  font-size: 14px;
+  font-weight: 500;
   line-height: 20px;
   white-space: nowrap;
   overflow: hidden;
@@ -3511,7 +3474,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 .react-mui-context .material-list .material-list-entry .material-list-text .material-list-line-3 {
   font-size: 13px;
   line-height: 20px;
-  color: rgba(0, 0, 0, 0.53);
   white-space: nowrap;
   overflow: hidden;
   /*text-overflow: ellipsis;*/
@@ -3537,14 +3499,12 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   opacity: 0;
 }
 .react-mui-context .material-list .material-list-entry:hover .material-list-text .material-list-line-2 {
-  color: rgba(0, 0, 0, 0.33);
   text-overflow: ellipsis;
 }
 .react-mui-context .material-list .material-list-entry.selected .material-list-line-1 {
   font-weight: 500;
 }
 .react-mui-context .material-list .material-list-entry.selected .material-list-text .material-list-line-2 {
-  color: white;
   text-overflow: ellipsis;
 }
 .react-mui-context .material-list.table-mode .cell {
@@ -3600,7 +3560,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 .react-mui-context .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left:first-child {
   margin-left: 0 !important;
   width: 100%;
-  padding: 20px 12px;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.54);
   font-size: 12px;
@@ -3932,4 +3891,57 @@ body,
 }
 .mimefont.mdi-archive {
   color: #fbc02d !important;
+}
+.react-mui-context.mui3-token .material-list.files-list {
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+}
+.react-mui-context.mui3-token .material-list .material-list-entry .material-list-text .material-list-line-2,
+.react-mui-context.mui3-token .material-list .material-list-entry .material-list-text .material-list-line-3 {
+  color: var(--md-sys-color-on-surface-variant);
+}
+.react-mui-context.mui3-token .material-list.files-list .material-list-entry.selected {
+  background-color: var(--md-sys-color-outline) !important;
+  color: var(--md-sys-color-inverse-on-surface) !important;
+}
+.react-mui-context.mui3-token .material-list.files-list .material-list-entry.selected .material-list-line-2 {
+  color: var(--md-sys-color-inverse-on-surface) !important;
+}
+.react-mui-context.mui3-token .mimefont-container {
+  background-color: var(--md-sys-color-primary-container) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont {
+  color: var(--md-sys-color-on-primary-container) !important;
+}
+.react-mui-context.mui3-token .info-panel-open .masonry-grid {
+  width: calc(100% - 270px) !important;
+}
+.react-mui-context.mui3-token .masonry-grid .masonry-card {
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  border-radius: 10px;
+}
+.react-mui-context.mui3-token .masonry-grid .masonry-card.selected {
+  -webkit-box-shadow: var(--md-sys-color-outline-variant) 0px 0px 0px 2px;
+          box-shadow: var(--md-sys-color-outline-variant) 0px 0px 0px 2px;
+}
+.react-mui-context.mui3-token .masonry-grid .masonry-card .masonry-image {
+  border-radius: 10px;
+}
+.react-mui-context.mui3-token .masonry-grid .masonry-card .mimefont-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  height: 100%;
+  -webkit-box-align: center !important;
+      -ms-flex-align: center !important;
+          align-items: center !important;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  border-radius: 10px;
+}
+.react-mui-context.mui3-token .masonry-grid .masonry-card .mimefont-container .mimefont {
+  font-size: 36px;
+  margin-bottom: 22px;
 }

@@ -26,65 +26,6 @@ import {IconButton, Paper} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 const {Toolbar} = Pydio.requireLib('components')
 
-const getStyles = (palette) => {
-    const colorHue = Color(palette.primary1Color).hsl().array()[0];
-    const headerTitle = new Color({h:colorHue,s:30,l:43});
-
-    return {
-        card: {
-            panel:{
-                backgroundColor: 'white',
-                borderRadius: 6,
-                boxShadow: 'rgba(0, 0, 0, .15) 0px 0px 12px',
-                margin: 10,
-                overflow:'hidden'
-            },
-            header:{
-                backgroundColor:'transparent',
-                position:'relative',
-                color:headerTitle.toString(),
-                fontSize: 14,
-                fontWeight: 500,
-                padding: '12px 16px',
-                cursor:'pointer'
-            },
-            content:{
-                backgroundColor:'transparent',
-                paddingBottom: 0
-            },
-            headerIcon:{
-                position:'absolute',
-                top: -1,
-                right: 0,
-                color:'#ccc'
-            },
-            actions:{
-                padding: 2,
-                textAlign: 'right',
-                borderTop: '1px solid #e0e0e0'
-            }
-        },
-        toolbar:{
-            container: {
-                justifyContent: 'flex-end',
-                position:'relative',
-                borderTop: '1px solid rgba(0,0,0,.15)'
-            },
-            button: {
-                color:palette.accent2Color,
-                paddingRight: 8,
-                paddingLeft: 8
-            },
-            fabButton: {
-                backgroundColor: '#009688'
-            },
-            flatButton:{
-                minWidth: 0
-            }
-        }
-    }
-};
-
 const storageKey = 'pydio.layout.infoPanel.cardStatuses'
 let CardsStates  = {};
 if(localStorage.getItem(storageKey)) {
@@ -124,7 +65,7 @@ class InfoPanelCard extends React.Component{
     render(){
         const {open, hoverRow} = this.state;
         const {primaryToolbars, muiTheme, pydio, standardData, popoverPanel} = this.props;
-        const styles = getStyles(muiTheme.palette);
+        const styles = muiTheme.buildFSTemplate({}).infoPanel;
         let title;
         if(popoverPanel) {
             // No toggle icon
@@ -172,8 +113,10 @@ class InfoPanelCard extends React.Component{
             );
         }
 
+        const panelOpen = open?styles.card.panelOpen:{}
+
         return (
-            <Paper zDepth={1} className="panelCard" style={{...styles.card.panel, ...this.props.style}}>
+            <Paper zDepth={styles.card.zDepth} className="panelCard" style={{...styles.card.panel, ...panelOpen, ...this.props.style}}>
                 {title}
                 {open &&
                     <div className="panelContent" style={{...styles.card.content, ...this.props.contentStyle}}>

@@ -23,6 +23,9 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import LeftPanel from '../leftnav/LeftPanel'
 import FastSearch from "../search/FastSearch";
+import {muiThemeable} from 'material-ui/styles'
+import {ThemeProvider} from "@mui/material/styles";
+
 const {withContextMenu, dropProvider} = Pydio.requireLib('hoc');
 const {ContextMenu} = Pydio.requireLib('components');
 
@@ -41,7 +44,7 @@ class MasterLayout extends React.Component{
 
     render(){
 
-        const {pydio, tutorialComponent, onContextMenu, classes, style, leftPanelProps, children, drawerOpen, desktopStyle = {}} = this.props;
+        const {pydio, tutorialComponent, onContextMenu, classes, style, leftPanelProps, children, drawerOpen, desktopStyle = {}, muiTheme} = this.props;
         let connectDropTarget = this.props.connectDropTarget || function(c){return c;};
 
         let allClasses = [...classes];
@@ -49,15 +52,26 @@ class MasterLayout extends React.Component{
             allClasses.push('drawer-open');
         }
 
+        let elements = [
+            tutorialComponent,
+            <LeftPanel className="left-panel" pydio={pydio} {...leftPanelProps}/>,
+            <div className="desktop-container vertical_layout vertical_fit" style={desktopStyle}>{children}</div>,
+            <span className="context-menu"><ContextMenu pydio={this.props.pydio}/></span>,
+            <FastSearch/>
+        ]
+
+        // Re-wrap into @mui ThemeProvider
+        if(muiTheme['@mui']) {
+            elements = <ThemeProvider theme={muiTheme['@mui']}>{elements}</ThemeProvider>
+        }
+
         return(connectDropTarget(
-            <div style={{...style, overflow:'hidden'}} className={allClasses.join(' ')} onClick={this.closeDrawer.bind(this)} onContextMenu={onContextMenu}>
-                {tutorialComponent}
-                <LeftPanel className="left-panel" pydio={pydio} {...leftPanelProps}/>
-                <div className="desktop-container vertical_layout vertical_fit" style={desktopStyle}>
-                    {children}
-                </div>
-                <span className="context-menu"><ContextMenu pydio={this.props.pydio}/></span>
-                <FastSearch/>
+            <div
+                style={{...style, overflow:'hidden'}}
+                className={allClasses.join(' ')}
+                onClick={this.closeDrawer.bind(this)}
+                onContextMenu={onContextMenu}>
+                {elements}
             </div>
         ));
 
@@ -65,6 +79,7 @@ class MasterLayout extends React.Component{
 
 }
 
+MasterLayout = muiThemeable()(MasterLayout);
 MasterLayout = dropProvider(MasterLayout);
 MasterLayout = withContextMenu(MasterLayout);
 

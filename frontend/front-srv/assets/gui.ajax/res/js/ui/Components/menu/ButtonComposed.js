@@ -24,7 +24,9 @@ import PropTypes from 'prop-types';
 
 import React from "react";
 import ReactDOM from "react-dom";
-import {Popover, RaisedButton, FlatButton} from "material-ui";
+import {RaisedButton, FlatButton} from "material-ui";
+import {Popover} from './ThemedContainer'
+import {muiThemeable} from "material-ui/styles";
 
 class ButtonComposed extends React.Component {
     static propTypes = {
@@ -63,7 +65,7 @@ class ButtonComposed extends React.Component {
 
     render() {
         let masterButton, arrowButton;
-        const {id, masterAction, buttonTitle, primary, secondary, disabled, raised, menuItems, buttonStyle, buttonLabelStyle, className, direction} = this.props;
+        const {id, masterAction, buttonTitle, primary, secondary, disabled, raised, menuItems, buttonStyle, buttonLabelStyle, className, direction, muiTheme} = this.props;
         let masterLabelStyle = {...buttonLabelStyle};
         let arrowLabelStyle = {...buttonLabelStyle};
         if(masterLabelStyle.paddingRight){
@@ -78,12 +80,13 @@ class ButtonComposed extends React.Component {
         }
         arrowLabelStyle.paddingRight = arrowLabelStyle.paddingLeft;
 
+
         const masterProps = {
             primary: primary,
             secondary: secondary,
             disabled: disabled,
             label: buttonTitle,
-            style: {...buttonStyle, minWidth: 60},
+            style: {...buttonStyle, minWidth: 60, borderRadius: `${muiTheme.borderRadius}px 0 0 ${muiTheme.borderRadius}px`},
             labelStyle:masterLabelStyle,
             onClick: masterAction,
         };
@@ -92,7 +95,7 @@ class ButtonComposed extends React.Component {
             secondary: secondary,
             disabled: disabled,
             label: <span className={"mdi mdi-menu-down"}/>,
-            style:{...buttonStyle, minWidth: 16},
+            style:{...buttonStyle, minWidth: 16, borderRadius: `0 ${muiTheme.borderRadius}px ${muiTheme.borderRadius}px 0`},
             labelStyle:arrowLabelStyle,
             onClick: this.showMenu,
         };
@@ -106,10 +109,14 @@ class ButtonComposed extends React.Component {
                 masterButton = <FlatButton {...masterProps}/>;
             }
         }
+        const spanStyleBase = {
+            whiteSpace:'nowrap',
+            borderRadius: muiTheme.borderRadius
+        }
         return (
             <span id={id} className={className}
                   onMouseOver={()=>{this.setState({over:true})}} onMouseOut={()=>{this.setState({over:false})}}
-                  style={(over||showMenu)?{backgroundColor:'rgba(153, 153, 153, 0.2)',whiteSpace:'nowrap'}:{whiteSpace:'nowrap'}}
+                  style={(over||showMenu)?{backgroundColor:'rgba(153, 153, 153, 0.2)',...spanStyleBase}:spanStyleBase}
             >
                 {masterButton}
                 {arrowButton}
@@ -131,4 +138,4 @@ class ButtonComposed extends React.Component {
 }
 
 
-export default MenuItemsConsumer(ButtonComposed)
+export default MenuItemsConsumer(muiThemeable()(ButtonComposed))

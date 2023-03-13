@@ -27,10 +27,15 @@ const noWrap = {
 const v1BgColor ='rgba(224, 224, 228, 0.33)'
 
 const v2Block = {
-    backgroundColor:'rgb(246, 246, 248)',
+    backgroundColor:'var(--md-sys-color-surface-variant)',//'rgb(246, 246, 248)',
     borderRadius:'3px 3px 0 0',
     height:52,
     marginTop: 8
+}
+
+const underline = {
+    idle: {borderBottom:'1px solid var(--md-sys-color-outline-variant)'},
+    focus: {borderBottom:'2px solid var(--md-sys-color-on-surface-variant)'}
 }
 
 const styles = {
@@ -45,8 +50,8 @@ const styles = {
         style:{...v2Block},
         inputStyle:{position: 'absolute', height:30, marginTop:0, bottom: 2, paddingLeft: 8, paddingRight: 8},
         hintStyle:{bottom: 4, paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%'},
-        underlineStyle:{opacity:1, bottom: 0},
-        underlineFocusStyle:{opacity:1, borderRadius: 0, bottom: 0},
+        underlineStyle:{opacity:1, bottom: 0, ...underline.idle},
+        underlineFocusStyle:{opacity:1, borderRadius: 0, bottom: 0, ...underline.focus},
         floatingLabelFixed: true,
         floatingLabelStyle:{top:26, left: 8, width:'127%', ...noWrap},
         floatingLabelShrinkStyle:{top:26, left: 8},
@@ -72,8 +77,8 @@ const styles = {
         floatingLabelStyle:{top:35, left:6, width:'127%', ...noWrap},
         floatingLabelShrinkStyle:{top:35, left: 6},
         hintStyle:{paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
-        underlineStyle:{opacity:1, bottom: 0},
-        underlineFocusStyle:{opacity:1, bottom: 0, borderRadius: '0px 0px 3px 3px'},
+        underlineStyle:{opacity:1, bottom: 0, ...underline.idle},
+        underlineFocusStyle:{opacity:1, bottom: 0, borderRadius: '0px 0px 3px 3px', ...underline.focus},
         errorStyle:{position:'absolute', bottom:8, right:8}
     },
     selectField:{
@@ -86,8 +91,8 @@ const styles = {
         style:{...v2Block, padding: 8, paddingRight: 0, overflow:'hidden'},
         menuStyle:{marginTop: -6},
         hintStyle:{paddingLeft: 0, marginBottom: -7, paddingRight:56, color:'rgba(0,0,0,0.34)', ...noWrap, width: '100%'},
-        underlineStyle: {opacity:1, bottom: 0, left: 0, right: 0},
-        underlineFocusStyle:{opacity:1, borderRadius: 0, bottom: 0},
+        underlineStyle: {opacity:1, bottom: 0, left: 0, right: 0, ...underline.idle},
+        underlineFocusStyle:{opacity:1, borderRadius: 0, bottom: 0, ...underline.focus},
         floatingLabelFixed: true,
         floatingLabelStyle:{top:26, left: 8, width:'127%', ...noWrap},
         floatingLabelShrinkStyle:{top:26, left: 8},
@@ -111,10 +116,6 @@ const styles = {
             ...v2Block,
             borderRadius: 4,
             fontSize: 15,
-            /*
-            backgroundColor:'transparent',
-            border: '1px solid rgb(224, 224, 224)',
-             */
             padding: '15px 10px 4px'
         }
     },

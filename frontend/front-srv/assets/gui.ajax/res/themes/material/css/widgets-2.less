@@ -1,0 +1,54 @@
+.react-mui-context.mui3-token .material-list.files-list {
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+}
+
+.react-mui-context.mui3-token .material-list .material-list-entry .material-list-text .material-list-line-2,
+.react-mui-context.mui3-token .material-list .material-list-entry .material-list-text .material-list-line-3{
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.react-mui-context.mui3-token .material-list.files-list .material-list-entry.selected{
+  background-color: var(--md-sys-color-outline) !important;
+  color: var(--md-sys-color-inverse-on-surface) !important;
+  .material-list-line-2{
+    color: var(--md-sys-color-inverse-on-surface) !important;
+  }
+}
+
+.react-mui-context.mui3-token .mimefont-container {
+  background-color: var(--md-sys-color-primary-container)!important;
+  div.mimefont{
+    color: var(--md-sys-color-on-primary-container)!important;
+  }
+
+}
+
+.react-mui-context.mui3-token .info-panel-open .masonry-grid{
+    width: calc(100% - 270px) !important;
+  }
+
+.react-mui-context.mui3-token .masonry-grid {
+  .masonry-card {
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+    border-radius: 10px;
+    &.selected{
+      box-shadow: var(--md-sys-color-outline-variant) 0px 0px 0px 2px;
+    }
+    .masonry-image{
+      border-radius: 10px;
+    }
+    .mimefont-container {
+      display:flex;
+      height:100%;
+      align-items:center !important;
+      justify-content:center;
+      border-radius: 10px;
+      .mimefont {
+        font-size: 36px;
+        margin-bottom: 22px;
+      }
+    }
+  }
+}

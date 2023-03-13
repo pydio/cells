@@ -18,7 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react';
+import React, {createRef} from 'react';
+import ReactDOM from 'react-dom'
 import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 
@@ -38,9 +39,15 @@ import InlineEditor from './InlineEditor'
 import EmptyStateView from '../views/EmptyStateView'
 import PlaceHolders from "./PlaceHolders";
 import {nodesSorterByAttribute, sortNodesNatural} from "./sorters";
+import {useMeasure} from 'react-use'
 
 const PydioDataModel = require('pydio/model/data-model')
 const PeriodicalExecuter = require('pydio/util/periodical-executer')
+
+const AutoSizer = ({className, children}) => {
+    const [ref, {height}] = useMeasure();
+    return <div ref={ref} className={className}>{children(height)}</div>
+}
 
 /**
  * Generic List component, using Infinite for cell virtualization, pagination, various
@@ -58,8 +65,6 @@ let SimpleList = createReactClass({
         autoRefresh         : PropTypes.number,
         reloadAtCursor      : PropTypes.bool,
         clearSelectionOnReload: PropTypes.bool,
-        heightAutoWithMax   : PropTypes.number,
-        containerHeight     : PropTypes.number,
         observeNodeReload   : PropTypes.bool,
         defaultGroupBy      : PropTypes.string,
         groupByLabel        : PropTypes.string,
@@ -311,7 +316,6 @@ let SimpleList = createReactClass({
             loading             : !this.props.node.isLoaded(),
             showSelector        : false,
             elements            : this.props.node.isLoaded()?this.buildElements(0, this.props.infiniteSliceCount):[],
-            containerHeight     : this.props.containerHeight ? this.props.containerHeight  : (this.props.heightAutoWithMax ? 0 : 500),
             sortingInfo         : this.props.defaultSortingInfo || null
         };
         state.infiniteLoadBeginBottomOffset = 200;
@@ -328,7 +332,7 @@ let SimpleList = createReactClass({
             elements:nextProps.node.isLoaded()?this.buildElements(0, currentLength, nextProps.node, nextProps):[],
             infiniteLoadBeginBottomOffset:200,
             sortingInfo: this.state.sortingInfo || nextProps.defaultSortingInfo || null
-        }, () => {if (nextProps.node.isLoaded()) this.updateInfiniteContainerHeight()});
+        });
         if(!nextProps.autoRefresh&& this.refreshInterval){
             window.clearInterval(this.refreshInterval);
             this.refreshInterval = null;
@@ -389,9 +393,6 @@ let SimpleList = createReactClass({
                     elements: this.buildElements(0, this.props.infiniteSliceCount)
                 });
             }
-            if (this.props.heightAutoWithMax) {
-                this.updateInfiniteContainerHeight();
-            }
         }.bind(this));
         node.load();
     },
@@ -408,9 +409,6 @@ let SimpleList = createReactClass({
             loading:false,
             elements:this.buildElements(0, currentLength)
         });
-        if(this.props.heightAutoWithMax){
-            this.updateInfiniteContainerHeight();
-        }
         this.observeNodeChildren(this.props.node);
     },
 
@@ -551,36 +549,19 @@ let SimpleList = createReactClass({
         return nodeActions;
     },
 
-    updateInfiniteContainerHeight: function(retries = false){
-        if(this.props.containerHeight){
-            return this.props.containerHeight;
-        }
-        if(!this.refs.infiniteParent){
-            return;
-        }
-        let containerHeight = this.refs.infiniteParent.clientHeight;
-        if(this.props.heightAutoWithMax){
-            const number = this.indexedElements ? this.indexedElements.length : this.props.node.getChildren().size;
-            const elementHeight = this.state.elementHeight?this.state.elementHeight:this.props.elementHeight;
-            containerHeight = Math.min(number * elementHeight ,this.props.heightAutoWithMax);
-        }
-        if(!containerHeight && !retries ){
-            setTimeout(function(){
-                this.updateInfiniteContainerHeight(true);
-            }.bind(this), 50);
-        }
-        this.setState({containerHeight:containerHeight});
-    },
-
     patchInfiniteGrid: function(els){
-        if(this.refs.infinite && els > 1){
-            this.refs.infinite.state.infiniteComputer.__proto__.getDisplayIndexStart = function (windowTop){
+        if(this.infinite.current && els > 1){
+            this.infinite.current.state.infiniteComputer.__proto__.getDisplayIndexStart = function (windowTop){
                 return els * Math.floor((windowTop/this.heightData) / els)
             };
-            this.refs.infinite.state.infiniteComputer.__proto__.getDisplayIndexEnd = function (windowBottom){
+            this.infinite.current.state.infiniteComputer.__proto__.getDisplayIndexEnd = function (windowBottom){
                 return els * Math.ceil((windowBottom/this.heightData) / els)
             };
         }
+    },
+
+    componentWillMount:function(){
+        this.infinite = createRef();
     },
 
     componentDidMount: function(){
@@ -590,16 +571,6 @@ let SimpleList = createReactClass({
             this._loadNodeIfNotLoaded();
         }
         this.patchInfiniteGrid(this.props.elementsPerLine);
-        if(this.refs.infiniteParent){
-            this.updateInfiniteContainerHeight();
-            if(!this.props.heightAutoWithMax && !this.props.externalResize) {
-                if(window.addEventListener){
-                    window.addEventListener('resize', this.updateInfiniteContainerHeight);
-                }else{
-                    window.attachEvent('onresize', this.updateInfiniteContainerHeight);
-                }
-            }
-        }
         if(this.props.autoRefresh){
             this.refreshInterval = window.setInterval(this.reload, this.props.autoRefresh);
         }
@@ -637,13 +608,6 @@ let SimpleList = createReactClass({
     },
 
     componentWillUnmount: function(){
-        if(!this.props.heightAutoWithMax) {
-            if(window.removeEventListener){
-                window.removeEventListener('resize', this.updateInfiniteContainerHeight);
-            }else{
-                window.detachEvent('onresize', this.updateInfiniteContainerHeight);
-            }
-        }
         if(this.refreshInterval){
             window.clearInterval(this.refreshInterval);
         }
@@ -663,7 +627,11 @@ let SimpleList = createReactClass({
         this.rootNodeChangedFlag = false;
     },
 
-    onScroll:function(scrollTop){
+    onScroll:function(e){
+
+        if(this.props.onScroll) {
+            this.props.onScroll(e)
+        }
 
         if(!this.props.passScrollingStateToChildren){
             return;
@@ -697,15 +665,16 @@ let SimpleList = createReactClass({
     },
 
     scrollToView:function(node){
-        if(!this.indexedElements || !this.refs.infinite || !this.refs.infinite.scrollable) {
+        if(!this.indexedElements || !this.infinite.current || !this.infinite.current.scrollable) {
             return;
         }
-        const scrollable = this.refs.infinite.scrollable;
+        const dom = ReactDOM.findDOMNode(this.infinite.current);
+        const scrollable = this.infinite.current.scrollable;
         const visibleFrame = {
             top: scrollable.scrollTop + this.props.elementHeight / 2,
-            bottom: scrollable.scrollTop + this.state.containerHeight - this.props.elementHeight / 2
+            bottom: scrollable.scrollTop + dom.clientHeight - this.props.elementHeight / 2
         };
-        const realMaxScrollTop = this.indexedElements.length * this.props.elementHeight - this.state.containerHeight;
+        const realMaxScrollTop = this.indexedElements.length * this.props.elementHeight - dom.clientHeight;
 
         let position = -1;
         this.indexedElements.forEach((e, k) => {
@@ -723,7 +692,7 @@ let SimpleList = createReactClass({
             // already visible;
             return;
         }else if(scrollTarget >= visibleFrame.bottom){
-            scrollTarget -= (this.state.containerHeight - elementHeight * 2);
+            scrollTarget -= (dom.clientHeight - elementHeight * 2);
         }
         scrollTarget = Math.min(scrollTarget, realMaxScrollTop);
         scrollable.scrollTop = scrollTarget;
@@ -990,7 +959,6 @@ let SimpleList = createReactClass({
             elements:newElements,
             infiniteLoadBeginBottomOffset:infiniteLoadBeginBottomOffset
         });
-        this.updateInfiniteContainerHeight();
     },
 
     handleInfiniteLoad: function() {
@@ -1232,6 +1200,7 @@ let SimpleList = createReactClass({
 
         const {verticalScroller, heightAutoWithMax, usePlaceHolder} = this.props;
         let content = elements;
+        let cH, c2H;
         if(!elements.length && usePlaceHolder) {
             content = <PlaceHolders {...this.props}/>
         }
@@ -1241,11 +1210,11 @@ let SimpleList = createReactClass({
 
         } else if (verticalScroller) {
 
-            content = (
+            cH = (h) => (
                 <ScrollArea
                     speed={0.8}
                     horizontalScroll={false}
-                    style={{height:this.state.containerHeight}}
+                    style={{height:h}}
                     verticalScrollbarStyle={{borderRadius: 10, width: 6}}
                     verticalContainerStyle={{width: 8}}
                 >
@@ -1259,40 +1228,40 @@ let SimpleList = createReactClass({
                     {hiddenToolbar}{inlineEditor}
                     <div style={{display:'flex', flexDirection:'column', flex: 1, height: '100%', width:'100%', minWidth:'fit-content'}}>
                         {toolbar}
-                        <div className={heightAutoWithMax?"infinite-parent-smooth-height":(emptyState?"layout-fill vertical_layout":"layout-fill")} ref="infiniteParent">
+                        <AutoSizer className={(emptyState?"layout-fill vertical_layout":"layout-fill")}>{h =>
                             <Infinite
                                 elementHeight={this.state.elementHeight ? this.state.elementHeight : this.props.elementHeight}
-                                containerHeight={this.state.containerHeight ? this.state.containerHeight : 1}
+                                containerHeight={h||1}
                                 infiniteLoadBeginEdgeOffset={this.state.infiniteLoadBeginBottomOffset}
                                 onInfiniteLoad={this.handleInfiniteLoad}
                                 handleScroll={this.onScroll}
-                                ref="infinite"
+                                ref={this.infinite}
                             >{content}</Infinite>
-                        </div>
+                        }
+                        </AutoSizer>
                     </div>
                 </div>
             );
 
         } else {
 
-            content = (
-                <Infinite
+            c2H = (h) => {
+                return (<Infinite
                     elementHeight={this.state.elementHeight ? this.state.elementHeight : this.props.elementHeight}
-                    containerHeight={this.state.containerHeight ? this.state.containerHeight : 1}
+                    containerHeight={h || 1}
                     infiniteLoadBeginEdgeOffset={this.state.infiniteLoadBeginBottomOffset}
                     onInfiniteLoad={this.handleInfiniteLoad}
                     handleScroll={this.onScroll}
-                    ref="infinite"
-                >{content}</Infinite>
-            )
-
+                    ref={this.infinite}
+                >{cH ? cH(h) : content}</Infinite>)
+            }
         }
 
         return (
             <div className={containerClasses} tabIndex="0" onKeyDown={this.onKeyDown} style={this.props.style}>
                 {toolbar}{hiddenToolbar}
                 {inlineEditor}
-                <div className={heightAutoWithMax?"infinite-parent-smooth-height":(emptyState?"layout-fill vertical_layout":"layout-fill")} ref="infiniteParent">{content}</div>
+                <AutoSizer className={(emptyState?"layout-fill vertical_layout":"layout-fill")}>{c2H?c2H:(h)=>content}</AutoSizer>
             </div>
         );
     },

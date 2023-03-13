@@ -3,7 +3,6 @@ import React, {useRef, useState, useEffect} from 'react'
 import { useSize, useScroller } from "mini-virtual-list";
 import { usePositioner, useResizeObserver, useMasonry } from "masonic";
 const {useImagePreview} = Pydio.requireLib('hoc');
-//import useImage from 'react-use-image'
 import {ContextMenuWrapper} from "./ListEntry";
 import {sortNodesNatural} from "./sorters";
 import SimpleList from "./SimpleList";
@@ -114,9 +113,9 @@ const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
         bottom: 0, left: 0, right: 0,
         height: 32,
         padding: '6px 10px',
-        borderTop: '1px solid rgba(224,224,224,.4)',
-        color: 'rgba(0,0,0,.73)',
-        backgroundColor: src ? 'rgba(255,255,255,.73)' : 'rgba(255,255,255,1)',
+//        borderTop: '1px solid rgba(224,224,224,.4)',
+//        color: 'rgba(0,0,0,.73)',
+//        backgroundColor: src ? 'rgba(255,255,255,.73)' : 'rgba(255,255,255,1)',
         fontWeight: 500,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
@@ -143,27 +142,38 @@ const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
             }
         }
     }
+    const cNames = ['masonry-card']
+    if(hover) {
+        cNames.push('hover')
+    }
+    if(selected) {
+        cNames.push('selected')
+    }
+    if(src) {
+        cNames.push('has-src')
+    }
 
     return (
         <ContextMenuWrapper
             node={node}
-            style={{width, height: width*ratio, backgroundColor:'rgb(249, 250, 251)', boxShadow: bs, position:'relative', borderRadius: 4}}
+            style={{width, height: width*ratio, position:'relative'}}
+            className={cNames.join(' ')}
             onClick={(event) => handleClicks(node, parent?SimpleList.CLICK_TYPE_DOUBLE:SimpleList.CLICK_TYPE_SIMPLE, event)}
             onDoubleClick={(event) => handleClicks(node, SimpleList.CLICK_TYPE_DOUBLE, event)}
             onMouseOver={() => setHover(true)}
             onMouseOut={() => setHover(false)}
         >
-            {src && <VisibleImage src={src} alt={node.getPath()} style={{width:width, borderRadius: 4, ...rotateStyle}}/>}
+            {src && <VisibleImage className={"masonry-image"} src={src} alt={node.getPath()} style={{width:width, ...rotateStyle}}/>}
             {parent && <div className={"mimefont-container"}><div className={"mimefont mdi mdi-chevron-left"}/></div>}
             {!parent && !src && renderIcon(node)}
             {!parent && <div style={{position:'absolute', top: 0, left: 0}}>{renderActions(node)}</div>}
-            <div style={{display:(hover||selected||!src)?'block':'none',...labelStyle}}>{parent?parentLabel:node.getLabel()}</div>
+            <div className={'masonry-label'} style={{display:(hover||selected||!src)?'block':'none',...labelStyle}}>{parent?parentLabel:node.getLabel()}</div>
         </ContextMenuWrapper>
     );
 
 }
 
-const VisibleImage = ({src, alt, style}) => {
+const VisibleImage = ({src, alt, style, className}) => {
     const ref = useRef();
     const isVisible = useIsVisible(ref);
     let s = {...style}
@@ -171,7 +181,7 @@ const VisibleImage = ({src, alt, style}) => {
     if(!isVisible){
         s.opacity = 0;
     }
-    return <img ref={ref} alt={alt} src={isVisible?src:null} style={s}/>
+    return <img ref={ref} alt={alt} src={isVisible?src:null} style={s} className={className}/>
 }
 
 function childrenToItems(node, itemProps) {
@@ -186,7 +196,7 @@ function childrenToItems(node, itemProps) {
     return items;
 }
 
-export default React.memo(({className, dataModel, entryProps, emptyStateProps, containerStyle={}, columnWidth=220}) => {
+export default React.memo(({className, dataModel, entryProps, emptyStateProps, containerStyle={}, columnWidth=220, onScroll}) => {
 
     const itemProps = {dataModel, entryProps};
     const computeItems = () => {
@@ -254,6 +264,11 @@ export default React.memo(({className, dataModel, entryProps, emptyStateProps, c
         triggerResize();
     }, [containerStyle.marginLeft])
 
+    if(onScroll) {
+        useEffect( () => {
+            onScroll({scrollTop})
+        }, [scrollTop])
+    }
 
     const positioner = usePositioner({
         width,

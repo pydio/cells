@@ -24,8 +24,8 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 const {AsyncComponent} = Pydio.requireLib('boot');
-const {UserAvatar, MenuItemsConsumer, MenuUtils, Toolbar} = Pydio.requireLib('components');
-const {Paper, Popover} = require('material-ui');
+const {UserAvatar, MenuItemsConsumer, MenuUtils, ThemedMenuComponents, Toolbar} = Pydio.requireLib('components');
+const {Paper} = require('material-ui');
 import BookmarksList from './BookmarksList'
 
 class UserWidget extends React.Component {
@@ -102,7 +102,7 @@ class UserWidget extends React.Component {
                         labelStyle={{flex: 1, marginLeft: 8, color: color}}
                         avatarSize={38}
                     />
-                    <Popover
+                    <ThemedMenuComponents.Popover
                         zDepth={2}
                         open={showMenu}
                         anchorEl={anchor}
@@ -113,7 +113,7 @@ class UserWidget extends React.Component {
                         style={{marginTop:-10, marginLeft:10}}
                     >
                         {MenuUtils.itemsToMenu(menuItems, this.closeMenu.bind(this), false, menuProps)}
-                    </Popover>
+                    </ThemedMenuComponents.Popover>
                 </div>
             );
 
@@ -158,7 +158,7 @@ class UserWidget extends React.Component {
 
         if(this.props.children){
             return (
-                <Paper zDepth={1} rounded={false} style={{...this.props.style, display:'flex'}} className="user-widget primaryColorDarkerPaper">
+                <Paper zDepth={1} rounded={false} style={{...this.props.style, display:'flex'}} className="user-widget">
                     <div style={{flex: 1}}>
                         {avatar}
                         {actionBar}
@@ -168,7 +168,7 @@ class UserWidget extends React.Component {
             );
         }else{
             return (
-                <Paper zDepth={1} rounded={false} style={this.props.style} className="user-widget primaryColorDarkerPaper">
+                <Paper zDepth={1} rounded={false} style={this.props.style} className="user-widget">
                     {avatar}
                     {this.props.style && this.props.style.display === 'flex' && <span style={{flex:1}}/>}
                     {actionBar}

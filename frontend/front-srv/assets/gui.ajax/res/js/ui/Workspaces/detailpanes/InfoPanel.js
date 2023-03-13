@@ -26,6 +26,7 @@ import {Paper} from "material-ui";
 
 const {Animations, withVerticalScroll} = Pydio.requireLib('hoc')
 const {EmptyStateView} = Pydio.requireLib('components')
+import {muiThemeable} from 'material-ui/styles'
 
 const originStyles = {translateX: 600}
 const targetStyles = {translateX: 0}
@@ -53,6 +54,14 @@ class InfoPanel extends React.Component {
             templates:initTemplates,
             displayData: this.selectionToTemplates(initTemplates)
         };
+    }
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        const {muiTheme:currentTheme} = this.props;
+        const {muiTheme} = nextProps;
+        if(muiTheme.darkMode !== currentTheme.darkMode) {
+            this._updateExpected = true
+        }
     }
 
     shouldComponentUpdate(){
@@ -189,6 +198,7 @@ InfoPanel.contextTypes = {
 };
 
 InfoPanel = withVerticalScroll(InfoPanel, {id: "info_panel"})
+InfoPanel = muiThemeable()(InfoPanel)
 
 class ConfigsParser {
 

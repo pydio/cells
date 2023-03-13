@@ -27,7 +27,8 @@ import IconButtonMenu from './IconButtonMenu'
 import ButtonMenu from './ButtonMenu'
 import ButtonComposed from './ButtonComposed'
 import IconButtonPopover from './IconButtonPopover'
-import {FlatButton, IconButton, FloatingActionButton} from 'material-ui'
+import {FlatButton, FloatingActionButton} from 'material-ui'
+import {IconButton} from './ThemedContainer'
 import {debounce} from 'lodash';
 
 export default createReactClass({
