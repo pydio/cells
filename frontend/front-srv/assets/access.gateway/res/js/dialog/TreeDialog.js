@@ -29,8 +29,9 @@ import {FontIcon, IconButton, MenuItem, Paper, Chip, Avatar, Divider} from "mate
 
 const {ModernTextField, ModernSelectField} = Pydio.requireLib("hoc");
 const {FoldersTree} = Pydio.requireLib('components');
+const {ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot')
 
-const TreeDialog = createReactClass({
+let TreeDialog = createReactClass({
 
     propTypes:{
         isMove:PropTypes.bool.isRequired,
@@ -38,9 +39,9 @@ const TreeDialog = createReactClass({
     },
 
     mixins:[
-        PydioReactUI.ActionDialogMixin,
-        PydioReactUI.CancelButtonProviderMixin,
-        PydioReactUI.SubmitButtonProviderMixin
+        ActionDialogMixin,
+        CancelButtonProviderMixin,
+        SubmitButtonProviderMixin
     ],
 
     getDefaultProps(){
@@ -273,7 +274,7 @@ const TreeDialog = createReactClass({
             <div style={{width:'100%'}}>
                 {recentPlaces}
                 {wsSelector}
-                <Paper zDepth={0} style={{height: 300, overflowX:'auto', color: '#546E7A', fontSize: 14, padding: '6px 0px', backgroundColor: 'rgb(246, 246, 248)', marginTop:4, borderBottom:'1px solid #e0e0e0', borderRadius:'2px 2px 0 0'}}>
+                <Paper zDepth={0} style={{height: 300, overflowX:'auto', color: 'var(--md-sys-color-on-surface-variant)', fontSize: 14, padding: '6px 0px', backgroundColor: 'var(--md-sys-color-surface-variant)', marginTop:4, borderBottom:'1px solid #e0e0e0', borderRadius:'2px 2px 0 0'}}>
                     <div style={{marginTop: -6, marginLeft: -5}}>
                         <FoldersTree
                             pydio={pydio}
