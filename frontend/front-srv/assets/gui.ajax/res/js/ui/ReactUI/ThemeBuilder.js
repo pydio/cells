@@ -227,17 +227,27 @@ export default class ThemeBuilder {
             }
             mui3 = theme3ToColors(theme3, {dark: systemDark})
 
+            const add = (key, value) => {
+                mui3[key] = value
+                if(!customPalette){
+                    styleTarget.style.setProperty(`--md-sys-color-${key}`, value);
+                }
+            }
+
+            // Build alt surfaces
             const mui3Primary = Color(mui3['primary'])
             const surfaces = [.05, .08, .11, .12, .14];
             const bg = mui3['background']
             surfaces.map((op, idx) => {
                 const color = mui3Primary.alpha(op).toString()
                 const background = `linear-gradient(${color}, ${color}), linear-gradient(${bg}, ${bg})`;
-                mui3[`surface-${idx+1}`] = background;
-                if(!customPalette){
-                    styleTarget.style.setProperty(`--md-sys-color-surface-${idx+1}`, background);
-                }
+                add(`surface-${idx+1}`, background)
             })
+
+            // Build a lighter outline-variant
+            add('outline-variant-50', Color(mui3['outline-variant']).fade(.5).toString())
+            add('field-underline-idle', systemDark?mui3['outline']:mui3['outline-variant'])
+
             isMUI3 = true
 
         } else {
@@ -346,13 +356,6 @@ export default class ThemeBuilder {
 
     buildFSTemplate(themeCusto, {headerHeight, searchView}) {
 
-        // Legacy colors
-        //const colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
-        //const superLightBack = new Color({h:colorHue,s:35,l:98});
-        //appBarBackColor = superLightBack.toString();//Color('#fafafa');
-        //appBarTextColor = Color(muiTheme.appBar.color);
-        //infoPanelBg = new Color({h:colorHue,s:30,l:96});
-
         const {mui3} = themeCusto.palette
         let infoPanelBg, appBarRounded, isMUI3, appBarBackColor, appBarTextColor, headerButtonsColor
 
@@ -453,7 +456,7 @@ export default class ThemeBuilder {
                 card: {
                     zDepth: 0,
                     panel:{
-                        background: isMUI3?mui3['surface-4']:"white",
+                        background: isMUI3?mui3['surface-2']:"white",
                         boxShadow: isMUI3?'none':'rgb(0,0, 0, .15) 0px 0px 12px',
                         borderRadius: 10,
                         margin: 10,
@@ -461,12 +464,12 @@ export default class ThemeBuilder {
                         border:'1px solid transparent'
                     },
                     panelOpen: {
-                        border: isMUI3?'1px solid '+ Color(mui3['outline-variant']).fade(.5).toString():undefined
+                        border: isMUI3?'1px solid '+ Color(mui3['outline-variant-50']):undefined // or outline-variant-50 ? not sure
                     },
                     header:{
                         backgroundColor:'transparent',
                         position:'relative',
-                        color:mui3['on-surface'],
+                        color:mui3['on-surface-variant'],
                         fontSize: 14,
                         fontWeight: 500,
                         padding: '12px 16px',
@@ -486,7 +489,7 @@ export default class ThemeBuilder {
                     actions:{
                         padding: 2,
                         textAlign: 'right',
-                        borderTop: '1px solid #e0e0e0'
+                        borderTop: '1px solid ' + mui3['outline-variant-50']
                     }
                 },
                 toolbar:{
@@ -495,7 +498,7 @@ export default class ThemeBuilder {
                         justifyContent: 'flex-end',
                         alignItems: 'center',
                         position:'relative',
-                        borderTop: mui3['outline-variant']
+                        borderTop: mui3['outline-variant-50']
                     },
                     button: {
                         paddingRight: 8,

@@ -42,7 +42,6 @@ class InfoPanel extends React.Component {
                         iconStyle:{fontSize: 40},
                         legendStyle:{fontSize: 13}
                     }}
-                    fieldContainerStyle={{background:'#f6f6f8'}}
                     textFieldProps={{
                         style:{height: 40, lineHeight:'16px'},
                         hintStyle:{fontSize: 13, whiteSpace:'no-wrap'}

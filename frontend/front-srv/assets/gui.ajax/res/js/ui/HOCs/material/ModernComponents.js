@@ -34,7 +34,7 @@ const v2Block = {
 }
 
 const underline = {
-    idle: {borderBottom:'1px solid var(--md-sys-color-outline-variant)'},
+    idle: {borderBottom:'1px solid var(--md-sys-color-field-underline-idle)'},
     focus: {borderBottom:'2px solid var(--md-sys-color-on-surface-variant)'}
 }
 
@@ -96,7 +96,7 @@ const styles = {
         floatingLabelFixed: true,
         floatingLabelStyle:{top:26, left: 8, width:'127%', ...noWrap},
         floatingLabelShrinkStyle:{top:26, left: 8},
-        dropDownMenuProps:{iconStyle:{right: 0, fill: '#9e9e9e'}}
+        dropDownMenuProps:{iconStyle:{right: 0, fill: '#9e9e9e'}, menuStyle:{background:'var(--md-sys-color-surface-4)'}}
     },
     div:{
         backgroundColor:v1BgColor, color:'rgba(0,0,0,.5)',
@@ -122,12 +122,12 @@ const styles = {
     fillBlockV2Right:{
         ...v2Block,
         borderRadius:'0 4px 0 0',
-        borderBottom:'1px solid rgb(224, 224, 224)'
+        ...underline.idle
     },
     fillBlockV2Left:{
         ...v2Block,
         borderRadius:'4px 0 0 0',
-        borderBottom:'1px solid rgb(224, 224, 224)'
+        ...underline.idle
     }
 };
 

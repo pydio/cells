@@ -25,6 +25,7 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 
 import { IconButton, Card, CardTitle, CardText, Table, TableBody, TableRow, TableRowColumn} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 
 const { withSelection, withMenu, withLoader, withErrors, EditorActions} = Pydio.requireLib('hoc');
 
@@ -46,6 +47,29 @@ const getSelection = (node) => new Promise((resolve, reject) => {
         selection,
         currentIndex: selection.reduce((currentIndex, current, index) => current === node && index || currentIndex, 0)
     })
+})
+
+
+const ExifCard = muiThemeable()(({keyName, data, muiTheme})=>{
+    return (
+        <Card style={{margin: 10, overflow: "auto", backgroundColor:muiTheme.palette.mui3['surface']}}>
+            <CardTitle key={keyName+'-head'}>{keyName}</CardTitle>
+
+            <CardText>
+                <Table selectable={false}>
+                    <TableBody displayRowCheckbox={false} style={{backgroundColor:muiTheme.palette.mui3['surface']}}>
+                        {Object.keys(data).map(itemKey =>
+                            <TableRow key={`${keyName}-${itemKey}`}>
+                                <TableRowColumn>{itemKey}</TableRowColumn>
+                                <TableRowColumn>{data[itemKey]}</TableRowColumn>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </CardText>
+        </Card>
+
+    )
 })
 
 @withSelection(getSelection)
@@ -112,24 +136,7 @@ class Editor extends Component {
                 onLocate={showControls && data.GeoLocation ? () => this.openGpsLocator() : null}
                 style={{display: "flex", justifyContent: "space-around", flexFlow: "row wrap"}}
             >
-                {Object.keys(data).map(key =>
-                    <Card style={{margin: 10, overflow: "auto"}}>
-                        <CardTitle key={key+'-head'}>{key}</CardTitle>
-
-                        <CardText>
-                            <Table selectable={false}>
-                                <TableBody displayRowCheckbox={false}>
-                                {Object.keys(data[key]).map(itemKey =>
-                                    <TableRow key={`${key}-${itemKey}`}>
-                                        <TableRowColumn>{itemKey}</TableRowColumn>
-                                        <TableRowColumn>{data[key][itemKey]}</TableRowColumn>
-                                    </TableRow>
-                                )}
-                                </TableBody>
-                            </Table>
-                        </CardText>
-                    </Card>
-                )}
+                {Object.keys(data).map(key => <ExifCard keyName={key} data={data[key]}/> )}
             </Viewer>
         );
     }

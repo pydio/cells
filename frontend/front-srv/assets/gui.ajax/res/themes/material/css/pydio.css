@@ -2478,7 +2478,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   bottom: 60px;
   position: absolute;
   left: 78px;
-  border-right: 3px dashed #eee;
 }
 .timeline .sep-date {
   display: none;
@@ -2530,6 +2529,8 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
           box-shadow: #D1D6E6 0px 0px 4px;
 }
 .timeline .tl-timeline .tl-block .tl-dot:before {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
   content: '';
   display: block;
   position: absolute;
@@ -2542,18 +2543,17 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   opacity: 0.4;
 }
 .timeline .tl-timeline .tl-block .tl-card {
-  background-color: white;
-  -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
-          box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
   -webkit-box-flex: 1;
       -ms-flex: 1;
           flex: 1;
   margin: 10px;
   padding: 16px 20px;
-  border-radius: 10px;
+  border-radius: 5px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+}
+.timeline .tl-timeline .tl-block .tl-card.tl-selectable {
   cursor: pointer;
 }
 .timeline .tl-timeline .tl-block .tl-card .tl-desc {
@@ -2568,7 +2568,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   margin-bottom: 2px;
 }
 .timeline .tl-timeline .tl-block .tl-card .tl-annotation {
-  color: #4caf50;
   font-size: 11px;
   font-weight: 500;
 }
@@ -2603,7 +2602,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   z-index: 100;
   text-align: center;
   opacity: 1;
-  border: 1px solid #eeeeee;
   font-size: 15px;
   line-height: 19px;
 }
@@ -2647,11 +2645,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   padding: 12px;
   -webkit-box-shadow: none;
           box-shadow: none;
-  border: 1px solid #eeeeee;
-}
-.timeline.small .tl-timeline .tl-block .tl-card.tl-selectable:hover {
-  -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
-          box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
 }
 .timeline.small .tl-timeline .tl-block .tl-card .tl-actions {
   display: none;
@@ -3940,6 +3933,9 @@ body,
 }
 .react-mui-context.mui3-token .info-panel-open .masonry-grid {
   width: calc(100% - 270px) !important;
+}
+.react-mui-context.mui3-token .panelCard .panelContent .infoPanelRow .infoPanelLabel {
+  color: var(--md-sys-color-on-surface);
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card {
   background-color: var(--md-sys-color-surface);
