@@ -32,7 +32,7 @@ class ActionButton extends Component{
 
         const {palette} = this.props.muiTheme;
         const {destructive} = this.props;
-        const color = destructive ? '#d32f2f' : palette.primary1Color;
+        const color = destructive ? palette.mui3.error : palette.mui3.primary;
 
         const style = {
             root: {

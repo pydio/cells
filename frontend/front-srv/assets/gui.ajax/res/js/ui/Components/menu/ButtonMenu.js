@@ -25,7 +25,8 @@ import PropTypes from 'prop-types';
 import React from "react";
 import ReactDOM from "react-dom";
 import {RaisedButton, FlatButton} from "material-ui";
-import {Popover} from './ThemedContainer'
+import Pydio from 'pydio'
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 
 class ButtonMenu extends React.Component {
     static propTypes = {

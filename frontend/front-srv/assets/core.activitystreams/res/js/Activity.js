@@ -198,6 +198,7 @@ class Activity extends React.Component{
             };
         }
         const {className} = this.computeIcon(activity);
+        const accentColor = muiTheme.palette.mui3.tertiary
 
         if(displayContext === 'popover'){
             blockStyle = {margin:0};
@@ -219,14 +220,14 @@ class Activity extends React.Component{
                 icon = (
                     <div style={{padding:'12px 20px 12px 20px', position:'relative'}}>
                         <FilePreview pydio={pydio} node={nodes[0]} loadThumbnail={true} {...previewStyles}/>
-                        <span className={className} style={{position:'absolute', bottom: 8, right: 12, fontSize:18, color: muiTheme.palette.accent2Color}}/>
+                        <span className={className} style={{position:'absolute', bottom: 8, right: 12, fontSize:18, color: accentColor}}/>
                     </div>
                 );
                 primaryText = nodes[0].getLabel() || PathUtils.getBasename(nodes[0].getPath())
             } else {
                 icon = (
                     <div style={{margin:'12px 20px 12px 20px', backgroundColor: 'rgb(237, 240, 242)', alignItems: 'initial', height: 36, width: 36, borderRadius: '50%', textAlign:'center'}}>
-                        <FontIcon className={className} style={{lineHeight:'36px', color:muiTheme.palette.accent2Color}}/>
+                        <FontIcon className={className} style={{lineHeight:'36px', color:accentColor}}/>
                     </div>
                 );
                 if(activity.object) {
@@ -239,8 +240,8 @@ class Activity extends React.Component{
                 <div style={{display:'flex', alignItems:'flex-start', overflow:'hidden', paddingBottom: 8}}>
                     {icon}
                     <div style={{flex:1, overflow:'hidden', paddingRight: 16}}>
-                        <div style={{marginTop: 12, marginBottom: 2, fontSize: 15, color:'rgba(0,0,0,.87)', whiteSpace:'nowrap', textOverflow:'ellipsis', overflow:'hidden'}}>{primaryText}</div>
-                        <div style={{color: 'rgba(0,0,0,.33)'}}>
+                        <div style={{marginTop: 12, marginBottom: 2, fontSize: 14, fontWeight: 500, whiteSpace:'nowrap', textOverflow:'ellipsis', overflow:'hidden'}}>{primaryText}</div>
+                        <div style={{opacity: .73}}>
                             <ActivityMD activity={activity} listContext={listContext}/>
                         </div>
                     </div>

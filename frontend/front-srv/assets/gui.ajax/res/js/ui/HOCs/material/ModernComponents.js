@@ -35,7 +35,7 @@ const v2Block = {
 
 const underline = {
     idle: {borderBottom:'1px solid var(--md-sys-color-field-underline-idle)'},
-    focus: {borderBottom:'2px solid var(--md-sys-color-on-surface-variant)'}
+    focus: {borderBottom:'2px solid var(--md-sys-color-primary)'}
 }
 
 const styles = {

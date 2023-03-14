@@ -20,7 +20,7 @@
 import React, {useRef, useState} from 'react'
 import DOMUtils from 'pydio/util/dom'
 
-import {Popover, IconButton} from 'material-ui'
+import {IconButton} from 'material-ui'
 import TextField from '@mui/material/TextField';
 import InputAdornment from "@mui/material/InputAdornment";
 import Autocomplete from '@mui/material/Autocomplete';
@@ -28,6 +28,9 @@ import Autocomplete from '@mui/material/Autocomplete';
 import AdvancedSearch from "./AdvancedSearch";
 import AdvancedChips from "./AdvancedChips";
 import Renderer from './Renderer'
+
+import Pydio from 'pydio'
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 
 
 const styles = {

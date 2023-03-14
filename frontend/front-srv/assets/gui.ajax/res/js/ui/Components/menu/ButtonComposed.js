@@ -21,11 +21,11 @@ import MenuItemsConsumer from './MenuItemsConsumer'
  * The latest code can be found at <https://pydio.com>.
  */
 import PropTypes from 'prop-types';
-
+import Pydio from 'pydio'
 import React from "react";
 import ReactDOM from "react-dom";
 import {RaisedButton, FlatButton} from "material-ui";
-import {Popover} from './ThemedContainer'
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 import {muiThemeable} from "material-ui/styles";
 
 class ButtonComposed extends React.Component {

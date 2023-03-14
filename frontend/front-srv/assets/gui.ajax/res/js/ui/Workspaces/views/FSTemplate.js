@@ -35,7 +35,8 @@ import MasterLayout from './MasterLayout'
 import {muiThemeable} from 'material-ui/styles'
 import DOMUtils from 'pydio/util/dom'
 import Color from "color";
-const {ButtonMenu, Toolbar, ListPaginator, ThemedMenuComponents:{IconButton}} = Pydio.requireLib('components');
+const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
+const {ThemedContainers:{IconButton}} = Pydio.requireLib('hoc');
 
 import UnifiedSearchForm from "../search/components/UnifiedSearchForm";
 

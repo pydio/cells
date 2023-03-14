@@ -23,15 +23,12 @@ import CompositeModel from '../composite/CompositeModel'
 import GenericEditor from '../main/GenericEditor'
 import Pydio from 'pydio'
 import Panel from '../links/Panel'
-import SecureOptions from '../links/SecureOptions'
 import ShareHelper from '../main/ShareHelper'
 import Mailer from './Mailer'
 import NewCellsList from './NewCellsList'
 import Clipboard from 'clipboard'
-import PublicLinkTemplate from '../links/PublicLinkTemplate'
 import VisibilityPanel from '../links/VisibilityPanel'
 import LabelPanel, {LinkLabelTitle} from '../links/LabelPanel'
-import {Divider} from 'material-ui'
 
 const {ThemeModifier} = require('pydio').requireLib('boot');
 const {Tooltip} = Pydio.requireLib("boot");
@@ -237,7 +234,7 @@ class CompositeCard extends React.Component {
             }
 
             // If there are only active Cells, open directly on it
-            console.log(links.filter(l => l.getLinkUuid()), activeCells.length);
+            //console.log(links.filter(l => l.getLinkUuid()), activeCells.length);
             const defaultLeft = (!links.filter(l => l.getLinkUuid()).length && activeCells.length > 0) ? 'cells' : null
 
             return (
@@ -251,7 +248,7 @@ class CompositeCard extends React.Component {
                     onCloseAction={() => this.confirmAndDismiss()}
                     onRevertAction={()=>{model.revertChanges(true)}}
                     editorOneColumn={editorOneColumn}
-                    style={{width:'100%', height: null, flex: 1, minHeight:350, color: 'rgba(0,0,0,.83)', fontSize: 13}}
+                    style={{width:'100%', height: null, flex: 1, minHeight:350, fontSize: 13}}
                 />
             );
 
@@ -333,5 +330,5 @@ class CompositeCard extends React.Component {
 
 }
 
-CompositeCard = ThemeModifier({primary1Color:'#009688'})(CompositeCard);
+//CompositeCard = ThemeModifier({primary1Color:'#009688'})(CompositeCard);
 export {CompositeCard as default}

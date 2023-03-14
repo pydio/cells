@@ -20,9 +20,10 @@ const PropTypes = require('prop-types');
  */
 
 
+import Pydio from 'pydio'
 import React, {createRef} from 'react'
 const ReactDOM = require('react-dom')
-import {Paper} from './ThemedContainer'
+const {ThemedContainers:{Paper}} = Pydio.requireLib('hoc')
 import Utils from './Utils'
 
 export default class extends React.Component {

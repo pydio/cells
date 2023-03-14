@@ -3926,10 +3926,10 @@ body,
   opacity: 0.73;
 }
 .react-mui-context.mui3-token .mimefont-container {
-  background-color: var(--md-sys-color-primary-container) !important;
+  background-color: var(--md-sys-color-mimefont-background) !important;
 }
 .react-mui-context.mui3-token .mimefont-container div.mimefont {
-  color: var(--md-sys-color-on-primary-container) !important;
+  color: var(--md-sys-color-mimefont-color) !important;
 }
 .react-mui-context.mui3-token .info-panel-open .masonry-grid {
   width: calc(100% - 270px) !important;
@@ -3965,4 +3965,7 @@ body,
 .react-mui-context.mui3-token .masonry-grid .masonry-card .mimefont-container .mimefont {
   font-size: 36px;
   margin-bottom: 22px;
+}
+.react-mui-context.mui3-token div[role="menu"] {
+  background: var(--md-sys-color-surface-2);
 }

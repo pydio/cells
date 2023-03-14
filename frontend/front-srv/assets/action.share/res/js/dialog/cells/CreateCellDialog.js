@@ -210,7 +210,7 @@ class CreateCellDialog extends React.Component {
         }
 
         return (
-            <div style={{width: 380, fontSize: 13, color: 'rgba(0,0,0,.87)', display:'flex', flexDirection:'column', minHeight: 300}}>
+            <div style={{width: 380, fontSize: 13, display:'flex', flexDirection:'column', minHeight: 300}}>
                 <div style={{display:'flex', alignItems:'center', paddingLeft: 20}}>
                     <FontIcon className={"icomoon-cells-full-plus"}/>
                     <div style={{padding: 20, fontSize: 22}}>{dialogLabel}</div>

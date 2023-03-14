@@ -90,13 +90,14 @@ class GenericCard extends React.Component{
         const {title, popoverPanel, onDismissAction, onEditAction, onDeleteAction, otherActions, moreMenuItems,
             children, muiTheme, style, headerSmall, editTooltip, deleteTooltip, editColor} = this.props;
 
-        const {primary1Color} = muiTheme.palette;
+        const headerBg = muiTheme.palette.mui3['secondary-container'];
+        const headerColor = muiTheme.palette.mui3['on-secondary-container'];
 
         let styles = {
             headerHeight: 100,
             buttonBarHeight: 60,
-            headerBg: primary1Color,
-            headerColor: 'white',
+            headerBg,
+            headerColor,
             buttonBar:{
                 display:'flex',
                 height: 60
@@ -104,14 +105,14 @@ class GenericCard extends React.Component{
             fabTop: 80,
             button: {
                 style:{},
-                iconStyle:{color:'white'},
+                iconStyle:{color:headerColor},
             }
         };
         if (headerSmall) {
             styles = {
                 headerHeight: 'auto',
-                headerBg: primary1Color,
-                headerColor: 'white',
+                headerBg,
+                headerColor,
                 buttonBar: {
                     display: 'flex',
                     alignItems:'center',
@@ -121,18 +122,13 @@ class GenericCard extends React.Component{
                 fabTop: 60,
                 button: {
                     style:{width:38, height: 38, padding: 9},
-                    iconStyle:{color:'white', fontSize: 18}
+                    iconStyle:{color:headerColor, fontSize: 18}
                 }
-            }
-            if(popoverPanel) {
-                styles.headerBg = 'white'
-                styles.headerColor = primary1Color
-                styles.button.iconStyle.color = null;
             }
         }
 
         return (
-            <Paper zDepth={0} style={{width: '100%', position:'relative', ...style}}>
+            <div style={{width: '100%', position:'relative', ...style}}>
                 {onEditAction && !headerSmall &&
                     <FloatingActionButton onClick={onEditAction} backgroundColor={editColor} mini={true} style={{position:'absolute', top:styles.fabTop, left: 10}}>
                         <FontIcon className={"mdi mdi-pencil"} />
@@ -169,7 +165,7 @@ class GenericCard extends React.Component{
                 <div style={{paddingTop: 12, paddingBottom: 8}}>
                     {children}
                 </div>
-            </Paper>
+            </div>
         );
     }
 

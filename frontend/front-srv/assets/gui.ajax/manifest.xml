@@ -27,7 +27,7 @@
             <js
                 className="PydioComponents"
                 file="plug/gui.ajax/res/dist/libs/PydioComponents.min.js"
-                depends="React,PydioForm"
+                depends="React,PydioForm, PydioHOCs"
                 expose="components"
             />
             <js

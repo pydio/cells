@@ -170,7 +170,7 @@ class CellCard extends React.Component{
             }
         }
 
-        return <Paper zDepth={0} style={rootStyle}>{content}</Paper>
+        return <div style={rootStyle}>{content}</div>
 
     }
 

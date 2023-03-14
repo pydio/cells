@@ -18,7 +18,6 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import Pydio from 'pydio'
-import {Popover, Paper} from './ThemedContainer'
 import {Divider, Subheader, Menu, MenuItem, FontIcon} from 'material-ui'
 
 function pydioActionsToItems(actions = []){

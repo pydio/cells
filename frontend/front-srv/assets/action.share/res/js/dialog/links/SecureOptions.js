@@ -23,13 +23,14 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 import PassUtils from 'pydio/util/pass'
-import {FlatButton, IconButton, DatePicker, Popover} from 'material-ui'
+import {FlatButton, IconButton, DatePicker} from 'material-ui'
 import ShareContextConsumer from '../ShareContextConsumer'
 import LinkModel from './LinkModel'
 import ShareHelper from '../main/ShareHelper'
 const {ValidPassword} = Pydio.requireLib('form');
-const {ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
+const {ThemedContainers:{Popover}, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
 const {moment} = Pydio.requireLib('boot');
+import {muiThemeable} from 'material-ui/styles'
 
 const globStyles = {
     iconButton:{
@@ -251,7 +252,7 @@ class PublicLinkSecureOptions extends React.Component {
 
     render() {
 
-        const {linkModel} = this.props;
+        const {linkModel, muiTheme} = this.props;
         const link = linkModel.getLink();
 
         const passContainer = this.renderPasswordContainer();
@@ -299,6 +300,11 @@ class PublicLinkSecureOptions extends React.Component {
             }
             dlCounterString = <span className="dlCounterString">{dlCounter+ '/'+ dlLimitValue} {resetLink}</span>;
         }
+        const legendStyle ={
+            fontSize:13,
+            fontWeight:500,
+            color:muiTheme.palette.mui3['on-surface-variant']
+        }
         return (
             <div>
                 {passContainer}
@@ -334,12 +340,12 @@ class PublicLinkSecureOptions extends React.Component {
                         style={{flex: 1}}
                         variant={"v2"}
                     />
-                    <span style={{position: 'absolute', right: 10, top: 14, fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)'}}>{dlCounterString}</span>
+                    <span style={{position: 'absolute', right: 10, top: 14, ...legendStyle}}>{dlCounterString}</span>
                 </div>
             </div>
         );
     }
 }
 
-PublicLinkSecureOptions = ShareContextConsumer(PublicLinkSecureOptions);
+PublicLinkSecureOptions = ShareContextConsumer(muiThemeable()(PublicLinkSecureOptions));
 export {PublicLinkSecureOptions as default}

@@ -26,6 +26,7 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 const {UsersCompleter} = Pydio.requireLib('components');
+import {muiThemeable} from 'material-ui/styles'
 
 class SharedUsers extends React.Component {
     static propTypes = {
@@ -74,7 +75,7 @@ class SharedUsers extends React.Component {
     };
 
     render() {
-        const {cellAcls, pydio, completerStyle} = this.props;
+        const {cellAcls, pydio, completerStyle, muiTheme} = this.props;
         const authConfigs = pydio.getPluginConfigs('core.auth');
         let index = 0;
         let userEntries = [];
@@ -156,7 +157,7 @@ class SharedUsers extends React.Component {
                 {rwHeader}
                 <div>{userEntries}</div>
                 {!userEntries.length &&
-                    <div style={{color: 'rgba(0,0,0,0.43)', fontWeight: 500, margin: '0 10px'}}>{this.props.getMessage('182')}</div>
+                    <div style={{color: muiTheme.palette.mui3['on-surface-variant'], fontWeight: 500, margin: '0 10px'}}>{this.props.getMessage('182')}</div>
                 }
                 {userEntries.length > 0 &&
                     <div style={{textAlign:'center', marginTop: 10, marginBottom: 10}}>{actionLinks}</div>
@@ -167,5 +168,5 @@ class SharedUsers extends React.Component {
     }
 }
 
-SharedUsers = ShareContextConsumer(SharedUsers);
+SharedUsers = ShareContextConsumer(muiThemeable()(SharedUsers));
 export {SharedUsers as default}

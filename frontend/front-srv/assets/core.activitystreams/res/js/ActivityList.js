@@ -145,15 +145,21 @@ class ActivityList extends React.Component {
                 />
             }
 
+            const dateSepStyle = {
+                fontSize: 13,
+                color: 'var(--md-sys-color-outline)',
+                fontWeight: 500
+            }
+
             data.items.forEach(function(ac, i){
 
                 let fromNow = moment(ac.updated).fromNow();
                 if (groupByDate && fromNow !== previousFrom) {
                     if(content.length){
                         content.pop(); // remove last divider
-                        content.push(<div style={{padding: '20px 16px 0', fontSize: 13, color: 'rgba(147, 168, 178, 0.67)', fontWeight: 500}}>{fromNow}</div>);
+                        content.push(<div style={{padding: '20px 16px 0', ...dateSepStyle}}>{fromNow}</div>);
                     } else {
-                        content.push(<div style={{padding: '0 16px', fontSize: 13, color: 'rgba(147, 168, 178, 0.67)', fontWeight: 500}}>{fromNow}</div>);
+                        content.push(<div style={{padding: '0 16px', ...dateSepStyle}}>{fromNow}</div>);
                     }
                 }
                 content.push(<Activity key={ac.id} activity={ac} listContext={listContext} oneLiner={groupByDate} displayContext={displayContext} />);

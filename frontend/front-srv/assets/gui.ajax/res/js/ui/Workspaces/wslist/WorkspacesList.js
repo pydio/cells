@@ -1,5 +1,3 @@
-import React from 'react';
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20,17 +18,18 @@ import React from 'react';
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react';
 import PropTypes from 'prop-types';
-
 import Pydio from 'pydio'
 const {withVerticalScroll, ModernTextField} = Pydio.requireLib('hoc');
 import WorkspaceEntry from './WorkspaceEntry'
 import Repository from 'pydio/model/repository'
 import ResourcesManager from 'pydio/http/resources-manager'
-import {IconButton, Popover, FlatButton} from 'material-ui'
+import {IconButton, FlatButton} from 'material-ui'
 const {muiThemeable} = require('material-ui/styles');
 import Color from 'color'
 import Facets from "../search/components/Facets";
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc');
 
 class Entries extends React.Component{
 

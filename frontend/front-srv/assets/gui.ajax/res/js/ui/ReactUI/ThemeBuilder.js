@@ -248,6 +248,12 @@ export default class ThemeBuilder {
             add('outline-variant-50', Color(mui3['outline-variant']).fade(.5).toString())
             add('field-underline-idle', systemDark?mui3['outline']:mui3['outline-variant'])
 
+            add('mimefont-background', Color(mui3['primary-container']).fade(systemDark?.1:.7).toString())
+            add('mimefont-color', mui3['on-primary-container'])
+
+            // Used for Dividers
+            palette.borderColor = systemDark?mui3['outline-variant']:mui3['outline-variant-50']
+
             isMUI3 = true
 
         } else {
@@ -309,6 +315,10 @@ export default class ThemeBuilder {
                 primaryTextColor:mui3['on-primary-container'],
                 secondaryColor:mui3['secondary-container'],
                 secondaryTextColor:mui3['on-secondary-container'],
+
+                disabledColor:Color(mui3['primary']).fade(.88).toString(),
+                disabledTextColor:Color(mui3['on-surface']).fade(.42).toString(),
+
                 boxShadow: 0
             },
             toggle : {
@@ -323,14 +333,16 @@ export default class ThemeBuilder {
                 bodyColor:mui3['on-surface-variant']
             },
             paper :{
-                /*background:'transparent'*/
+                backgroundColor:'transparent'
             },
             menuContainer: {
-                background:mui3['surface-3'],
-                color:mui3['on-surface-variant']
+                background:mui3['surface-2'],
+                color:mui3['on-surface-variant'],
+                overflowY: 'auto'
             },
             textField: {
-                floatingLabelColor:mui3['on-surface-variant']
+                floatingLabelColor:mui3['on-surface-variant'],
+                focusColor:mui3.primary
             }
         };
 

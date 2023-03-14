@@ -20,6 +20,7 @@
 
 import PropTypes from 'prop-types';
 
+import Pydio from 'pydio'
 import React from 'react';
 import createReactClass from 'create-react-class';
 import Utils from './Utils'
@@ -28,7 +29,7 @@ import ButtonMenu from './ButtonMenu'
 import ButtonComposed from './ButtonComposed'
 import IconButtonPopover from './IconButtonPopover'
 import {FlatButton, FloatingActionButton} from 'material-ui'
-import {IconButton} from './ThemedContainer'
+const {ThemedContainers:{IconButton}} = Pydio.requireLib('hoc')
 import {debounce} from 'lodash';
 
 export default createReactClass({

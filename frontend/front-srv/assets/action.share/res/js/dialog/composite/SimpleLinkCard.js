@@ -187,5 +187,5 @@ class SimpleLinkCard extends React.Component {
 
 }
 
-SimpleLinkCard = ThemeModifier({primary1Color:'#009688'})(SimpleLinkCard);
+//SimpleLinkCard = ThemeModifier({primary1Color:'#009688'})(SimpleLinkCard);
 export {SimpleLinkCard as default}

@@ -18,10 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
-import {Popover, Avatar, List, ListItem, FontIcon, FlatButton, RaisedButton, IconButton, Divider, DropDownMenu, MenuItem} from 'material-ui'
+import Pydio from 'pydio'
+import {List, ListItem, FontIcon, FlatButton, RaisedButton, IconButton, Divider, DropDownMenu, MenuItem} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
-const {FoldersTree} = require('pydio').requireLib('components');
 import PydioDataModel from 'pydio/model/data-model'
+const {FoldersTree} = Pydio.requireLib('components');
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc');
 
 class NodesPicker extends React.Component{
 

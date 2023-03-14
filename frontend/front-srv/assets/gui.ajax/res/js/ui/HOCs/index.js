@@ -36,10 +36,12 @@ import withVerticalScroll from './scrollbar/withVerticalScroll';
 import dropProvider from './drop/dropProvider'
 import NativeFileDropProvider from './drop/NativeFileDropProvider'
 import * as Modern from './material/ModernComponents'
+import * as ThemedContainers from './material/ThemedContainers'
 import * as Utils from './utils'
 import ReactPlaceHolder, {TextBlock as PhTextBlock, MediaBlock as PhMediaBlock, RectShape as PhRectShape, RoundShape as PhRoundShape, TextRow as PhTextRow} from './placeholders'
 import withSearch, {SearchConstants} from './search/withSearch'
 import * as hooks from './hooks'
+
 
 const PydioHOCs = {
     EditorActions: actions,
@@ -69,6 +71,7 @@ const PydioHOCs = {
     withSearch,
     SearchConstants,
     ...Modern,
+    ThemedContainers,
     dropProvider,
     NativeFileDropProvider,
     ...Animations,

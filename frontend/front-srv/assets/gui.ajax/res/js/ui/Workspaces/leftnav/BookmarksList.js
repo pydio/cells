@@ -24,20 +24,19 @@ import PydioApi from 'pydio/http/api'
 import MetaNodeProvider from 'pydio/model/meta-node-provider'
 import FilePreview from '../views/FilePreview'
 import {muiThemeable} from 'material-ui/styles'
-import {IconButton, Popover} from 'material-ui'
+import {IconButton} from 'material-ui'
 import {UserMetaServiceApi, RestUserBookmarksRequest, UpdateUserMetaRequestUserMetaOp, IdmUpdateUserMetaRequest, IdmSearchUserMetaRequest} from 'cells-sdk'
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc');
 
 const {EmptyStateView} = Pydio.requireLib("components");
 const {PlaceHolder, PhTextRow, PhRoundShape} = Pydio.requireLib("hoc");
 
 const listCss = `
 .bmListEntry{
-    border-bottom: 1px solid rgba(0,0,0,0.025);
     padding: 2px 0;
 }
 .bmListEntry:hover{
-    background-color:#FAFAFA;
-    border-bottom-color: #FAFAFA;
+    background-color:var(--md-sys-color-outline-variant-50);
 }
 .bmListEntryWs:hover{
     text-decoration:underline;
@@ -109,10 +108,10 @@ class BookmarkLine extends React.Component {
                     {preview}
                 </div>
                 <div style={{flex: 1, overflow:'hidden', cursor:'pointer'}} onClick={firstClick}>
-                    <div style={{fontSize:15, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
+                    <div style={{fontSize:14, fontWeight: 500, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
                         {primaryText}
                     </div>
-                    <div style={{opacity:.33}}>
+                    <div style={{opacity:.73}}>
                         {secondaryTexts}
                     </div>
                 </div>
@@ -247,14 +246,9 @@ class BookmarksList extends React.Component {
                     onRequestClose={this.handleRequestClose.bind(this)}
                     style={{width:320}}
                     zDepth={3}
-
+                    panelTitle={pydio.MessageHash[147]}
+                    panelIconClassName={"mdi mdi-star"}
                 >
-                    <div style={{display: 'flex', alignItems: 'center', borderRadius:'2px 2px 0 0', width: '100%',
-                        backgroundColor:'#f8fafc', borderBottom: '1px solid #ECEFF1', color:muiTheme.palette.primary1Color}}>
-
-                        <span className={"mdi mdi-star"} style={{fontSize: 18, margin:'12px 8px 14px 16px'}}/>
-                        <span style={{fontSize:15, fontWeight: 500}}>{pydio.MessageHash[147]}</span>
-                    </div>
                     {loading &&
                         <Fragment>
                             <BookmarkLine placeHolder/>

@@ -24,7 +24,8 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 const {AsyncComponent} = Pydio.requireLib('boot');
-const {UserAvatar, MenuItemsConsumer, MenuUtils, ThemedMenuComponents, Toolbar} = Pydio.requireLib('components');
+const {UserAvatar, MenuItemsConsumer, MenuUtils, Toolbar} = Pydio.requireLib('components');
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc');
 const {Paper} = require('material-ui');
 import BookmarksList from './BookmarksList'
 
@@ -102,7 +103,7 @@ class UserWidget extends React.Component {
                         labelStyle={{flex: 1, marginLeft: 8, color: color}}
                         avatarSize={38}
                     />
-                    <ThemedMenuComponents.Popover
+                    <Popover
                         zDepth={2}
                         open={showMenu}
                         anchorEl={anchor}
@@ -113,7 +114,7 @@ class UserWidget extends React.Component {
                         style={{marginTop:-10, marginLeft:10}}
                     >
                         {MenuUtils.itemsToMenu(menuItems, this.closeMenu.bind(this), false, menuProps)}
-                    </ThemedMenuComponents.Popover>
+                    </Popover>
                 </div>
             );
 

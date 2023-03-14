@@ -25,7 +25,8 @@ class EditorTab extends React.Component{
 
     render(){
         const {tabs, active, onChange, style, muiTheme} = this.props;
-        const {primary1Color} = muiTheme.palette;
+        const idleColor = muiTheme.palette.mui3['on-surface-variant'];
+        const activeColor = muiTheme.palette.mui3.primary;
         return(
             <div style={{display:'flex', ...style}}>
                 {tabs.map(t => {
@@ -39,8 +40,8 @@ class EditorTab extends React.Component{
                             label={label}
                             onClick={()=>{onChange(t.Value)}}
                             primary={isActive}
-                            style={{flex: 1, height:46, lineHeight:'46px', borderBottom: '3px solid ' + (isActive?primary1Color:'transparent')}}
-                            labelStyle={{textTransform:'none', fontSize: 15, paddingLeft: 8, paddingRight: 8, color:isActive?primary1Color:'rgba(0,0,0,.3)'}}
+                            style={{flex: 1, height:46, lineHeight:'46px', borderRadius: 0, borderBottom: '3px solid ' + (isActive?activeColor:'transparent')}}
+                            labelStyle={{textTransform:'none', fontSize: 13, paddingLeft: 8, paddingRight: 8, color:isActive?activeColor:idleColor}}
                         />)
                 })}
             </div>
@@ -119,15 +120,16 @@ class GenericEditor extends React.Component {
                     <div style={{display:'flex'}}>
                         <EditorTab tabs={merged} active={left} style={{flex: 1, padding:'0 16px'}} onChange={(value)=>{this.setState({left:value})}}/>
                     </div>
-                    <Divider style={{flexShrink:0, backgroundColor:'#e0e0e0'}}/>
+                    <Divider style={{flexShrink:0}}/>
                     <div style={{display:'flex', flex: 1, overflow:'hidden'}}>
                         <div style={{overflowY:'auto', width:'100%', height: '100%', ...tabs.leftStyle}}>
                             <EditorTabContent tabs={merged} active={left}/>
                         </div>
                     </div>
-                    <div style={{borderTop: '1px solid #eeeeee', padding:10, display: 'flex', alignItems: 'center', justifyContent: 'flex-end'}}>
+                    <Divider style={{flexShrink:0}}/>
+                    <div style={{padding:10, display: 'flex', alignItems: 'center', justifyContent: 'flex-end'}}>
                         <FlatButton disabled={!saveEnabled} label={pydio.MessageHash['628']} onClick={onRevertAction} style={{marginLeft: 10}}/>
-                        <RaisedButton disabled={!saveEnabled} primary={true} label={pydio.MessageHash['53']} onClick={onSaveAction}/>
+                        <RaisedButton disabled={!saveEnabled} label={pydio.MessageHash['53']} onClick={onSaveAction}/>
                     </div>
                 </div>
             );
@@ -143,7 +145,7 @@ class GenericEditor extends React.Component {
             }
 
             return (
-                <div style={{backgroundColor:'#fafafa', display:'flex', flexDirection:'column', height: '100%', ...style}}>
+                <div style={{display:'flex', flexDirection:'column', height: '100%', ...style}}>
                     <div style={{display:'flex', alignItems:'center', padding: 10, paddingBottom: 0}}>
                         <div style={{flex: 1, alignItems:'center', paddingRight: 20}}>{header}</div>
                         <RaisedButton disabled={!saveEnabled} primary={true} label={pydio.MessageHash['53']} onClick={onSaveAction}/>
