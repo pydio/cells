@@ -151,8 +151,9 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest) (*pr
 			}
 			hermesMail := hermes.Email{Body: body}
 			var e error
+			he.DisableCSSInlining = true
 			m.ContentHtml, _ = he.GenerateHTML(hermesMail)
-			if m.ContentPlain, e = he.GenerateHTML(hermesMail); e != nil {
+			if m.ContentPlain, e = he.GeneratePlainText(hermesMail); e != nil {
 				return nil, e
 			}
 		}
