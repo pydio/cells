@@ -19,8 +19,9 @@
  */
 
 const React = require('react')
-const {FlatButton, RaisedButton, Popover, Divider} = require('material-ui')
+const {FlatButton, Divider} = require('material-ui')
 const Pydio = require('pydio')
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 import PasswordForm from './PasswordForm'
 
 class PasswordPopover extends React.Component{
@@ -69,7 +70,7 @@ class PasswordPopover extends React.Component{
                     <div>
                         <div style={{padding: '15px 15px 0', fontSize: 15}}>{pydio.MessageHash[194]}</div>
                         <PasswordForm
-                            style={{width:386, padding:10, backgroundColor:'#fafafa', paddingBottom: 30}}
+                            style={{width:386, padding:10, paddingBottom: 30}}
                             pydio={pydio}
                             ref="passwordForm"
                             onValidStatusChange={this.passValidStatusChange.bind(this)}

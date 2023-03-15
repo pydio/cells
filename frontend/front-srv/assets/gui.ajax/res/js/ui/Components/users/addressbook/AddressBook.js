@@ -37,6 +37,7 @@ const {PydioContextConsumer, PydioContextProvider} = Pydio.requireLib('boot');
 const {ThemedContainers:{Popover, IconButton}} = Pydio.requireLib('hoc')
 import DOMUtils from 'pydio/util/dom'
 import PydioApi from 'pydio/http/api';
+import ListStylesCompact from "./ListStylesCompact";
 
 const getCss = (palette) => {
     return `
@@ -442,7 +443,7 @@ class AddressBook extends React.Component {
         const {selectedItem, root, rightPaneItem, createDialogItem, teamsEditable} = this.state;
 
         const leftColumnStyle = {
-            backgroundColor: colors.grey100,
+            /*backgroundColor: colors.grey100,*/
             width: 256,
             overflowY:'auto',
             overflowX: 'hidden'
@@ -606,6 +607,7 @@ class AddressBook extends React.Component {
                 );
             } else {
                 let nestedRoots = [];
+                const compact = ListStylesCompact
                 root.collections.map(function(e){
                     nestedRoots.push(
                         <NestedListItem
@@ -620,7 +622,7 @@ class AddressBook extends React.Component {
                 }.bind(this));
                 nestedRoots.pop();
                 leftPanel = (
-                    <Paper zDepth={1} style={{...leftColumnStyle, zIndex:2}}>
+                    <Paper zDepth={0} style={{...leftColumnStyle, zIndex:2}}>
                         <List>{nestedRoots}</List>
                     </Paper>
                 );

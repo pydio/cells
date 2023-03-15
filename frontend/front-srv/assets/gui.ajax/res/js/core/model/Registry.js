@@ -58,7 +58,7 @@ export default class Registry{
 
     /**
      * Load registry from server
-     * @param xPath
+     * @param xPath - Deprecated, not used
      * @param completeFunc
      * @param repositoryId
      */

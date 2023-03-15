@@ -22,7 +22,8 @@ import React from 'react'
 import Pydio from 'pydio'
 import PropTypes from 'prop-types'
 import PydioApi from 'pydio/http/api'
-import {FontIcon, Chip, Avatar, Style, Paper, Divider, TextField, FlatButton} from 'material-ui'
+import {FontIcon, Chip, Avatar, Paper, Divider, TextField, FlatButton} from 'material-ui'
+import {colors} from 'material-ui/styles'
 import {MailerServiceApi, MailerMail, MailerUser} from 'cells-sdk'
 const {UsersCompleter} = Pydio.requireLib('components');
 
@@ -76,7 +77,6 @@ class UserChip extends React.Component {
         }
 
         const icon = <FontIcon className={"mdi mdi-" + (tmp?"email":"account")} />;
-        const {colors} = Style;
         return (
             <Chip
                 backgroundColor={tmp ? colors.lightBlue100 : colors.blueGrey100}

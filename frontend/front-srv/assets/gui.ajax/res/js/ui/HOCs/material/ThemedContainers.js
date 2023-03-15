@@ -1,6 +1,6 @@
 import React from 'react'
-import {Popover, Paper, IconButton, DatePicker, TimePicker, MuiThemeProvider} from 'material-ui'
-import {muiThemeable, getMuiTheme} from 'material-ui/styles'
+import {Popover, Paper, IconButton, DatePicker, TimePicker} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 
 const ThemedPaper = muiThemeable()((props) => {
     const {style={}, muiTheme, ...other} = props;
@@ -47,21 +47,15 @@ const ThemedIconButton = muiThemeable()((props)=> {
 
 const ThemedDatePicker = muiThemeable()((props) => {
     const {muiTheme, ...other} = props;
-    const pickerTheme = {...muiTheme, paper: {backgroundColor:muiTheme.palette.mui3['surface']}}
     return (
-        <MuiThemeProvider muiTheme={getMuiTheme(pickerTheme)}>
-            <DatePicker {...other}/>
-        </MuiThemeProvider>
+        <DatePicker {...other} dialogContainerStyle={{...props.dialogContainerStyle, overflow:'hidden', backgroundColor:muiTheme.palette.mui3['surface']}}/>
     )
 })
 
 const ThemedTimePicker = muiThemeable()((props) => {
     const {muiTheme, ...other} = props;
-    const pickerTheme = {...muiTheme, paper: {backgroundColor:muiTheme.palette.mui3['surface']}}
     return (
-        <MuiThemeProvider muiTheme={getMuiTheme(pickerTheme)}>
-            <TimePicker {...other}/>
-        </MuiThemeProvider>
+        <TimePicker {...other} dialogContainerStyle={{...props.dialogContainerStyle, overflow:'hidden', backgroundColor:muiTheme.palette.mui3['surface']}}/>
     )
 })
 

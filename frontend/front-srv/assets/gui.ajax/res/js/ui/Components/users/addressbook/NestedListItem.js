@@ -43,6 +43,7 @@ class NestedListItem extends Component{
      * @param data
      */
     buildNestedItems(data){
+        const {style, innerDivStyle} = this.props;
         return data.map(function(entry){
             return (
                 <NestedListItem
@@ -51,12 +52,14 @@ class NestedListItem extends Component{
                     onClick={this.props.onClick}
                     selected={this.props.selected}
                     showIcons={true}
+                    style={style}
+                    innerDivStyle={innerDivStyle}
                 />);
         }.bind(this));
     }
 
     render(){
-        const {showIcons, entry, selected} = this.props;
+        const {showIcons, entry, selected, style, innerDivStyle} = this.props;
         const {id, label, icon} = entry;
         const children = entry.collections || [];
         const nested = this.buildNestedItems(children);
@@ -73,8 +76,8 @@ class NestedListItem extends Component{
                 nestedItems={nested}
                 initiallyOpen={true}
                 leftIcon={fontIcon}
-                innerDivStyle={{fontWeight:selected === entry.id ? 500 : 400}}
-                style={selected===entry.id ?{backgroundColor:"#efefef"}:{}}
+                innerDivStyle={innerDivStyle}
+                style={style}
             />
         );
     }

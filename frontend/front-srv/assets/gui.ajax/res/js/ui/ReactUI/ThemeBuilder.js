@@ -195,13 +195,22 @@ export default class ThemeBuilder {
 
     loadUserData(user) {
         let userTheme = pydio.getPluginConfigs('gui.ajax').get('GUI_THEME');
-        this.dark = window.CellsThemeMode === 'dark';
-
         if(user && user.getPreference('theme') && user.getPreference('theme') !== 'default'){
             userTheme = user.getPreference('theme');
         }
-        if(this.userTheme !== userTheme) {
+        let dark = false
+        if(userTheme === 'mui3') { // Detect
+            dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        } else if(userTheme === 'mui3-dark') {
+            dark = true;
+            userTheme = 'mui3'
+        } else if (userTheme === 'mui3-light') {
+            userTheme = 'mui3'
+        }
+
+        if(this.userTheme !== userTheme || dark !== this.dark) {
             this.userTheme = userTheme
+            this.dark = dark
             return true
         }
         return false
@@ -236,14 +245,9 @@ export default class ThemeBuilder {
 
 
         // Check if the user has dark mode turned on
-        let systemDark = false
-        if(window.CellsThemeMode){
-            systemDark = window.CellsThemeMode === 'dark'
-        } else {
-            // detect
-            // systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        }
+        const systemDark = this.dark;
         const styleTarget = document.body;
+
         let mui3 = {}, isMUI3
 
         if(this.userTheme === 'mui3') {
@@ -377,6 +381,14 @@ export default class ThemeBuilder {
                 containerBackground: mui3['surface-4'],
                 bodyColor:mui3['on-surface-variant']
             },
+            datePicker:this.userTheme === 'mui3' ? {
+                calendarTextColor:mui3['on-surface'],
+                calendarYearBackgroundColor:mui3['surface'],
+                headerColor:mui3['primary-container'],
+                selectColor:mui3['tertiary-container'],
+                selectTextColor:mui3['on-tertiary-container'],
+                textColor:mui3['on-primary-container'],
+            }:{},
             paper : this.userTheme === 'mui3' ? {
                 backgroundColor:'transparent'
             } : {},

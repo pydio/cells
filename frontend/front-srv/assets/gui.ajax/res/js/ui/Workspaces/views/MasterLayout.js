@@ -32,9 +32,9 @@ const {ContextMenu} = Pydio.requireLib('components');
 const localStyle = `
   div[role="menu"]{
     background: var(--md-sys-color-surface-2);
-    span[role="menuitem"]{
-      font-size: 14px !important;
-    }
+  }
+  div[role="menu"] span[role="menuitem"]{
+    font-size: 14px !important;
   }
 `
 

@@ -129,11 +129,7 @@ class Pydio extends Observable{
      * Refresh user/preferences registry part
      */
     refreshUserData(){
-        this.observeOnce("registry_part_loaded", (event) => {
-            if(event !== "user/preferences") return;
-            this.updateUser(this.Registry.parseUser(), false);
-        });
-        this.Registry.load("user/preferences");
+        this.Registry.load();
     }
 
     /**
@@ -291,19 +287,10 @@ class Pydio extends Observable{
      * Refresh the repositories list for the current user
      */
     reloadRepositoriesList (){
-        if(!this.user) return;
-        this.observeOnce("registry_part_loaded", (data) => {
-            if(data !== "user/repositories") return;
-            this.updateUser(this.Registry.parseUser());
-            if(this.user.getRepositoriesList().size === 0){
-                this.loadXmlRegistry();// User maybe locket out Reload full registry now!
-            }
-            this.fire("repository_list_refreshed", {
-                list:this.user.getRepositoriesList(),
-                active:this.user.getActiveRepository()
-            });
-        });
-        this.loadXmlRegistry("user/repositories");
+        if(!this.user) {
+            return;
+        }
+        this.loadXmlRegistry();
     }
 
     /**
