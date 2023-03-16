@@ -280,7 +280,7 @@ class MainFilesList extends React.Component {
             return
         }
 
-        const MAIN_CONTAINER_FULL_PADDING = 5;
+        const MAIN_CONTAINER_FULL_PADDING = 4;
         const THUMBNAIL_MARGIN = (muiTheme.userTheme === 'mui3' || displayMode ===  'grid-80') ? 4 : 8;
         let containerWidth;
         try{
@@ -607,16 +607,17 @@ class MainFilesList extends React.Component {
             standard ? standardPieces.push(cell) : otherPieces.push(cell);
         });
         const metaIc = (
-            <OverlayIcon
-                pydio={pydio}
-                node={node}
-                overlay={'mdi mdi-tag-outline'}
-                style={{height:22, width: 22, margin:'0 2px', padding: '0 2px'}}
-                disableActions={!!searchResults}
-                className={"metadata_chunk metadata_chunk_standard"}
-                tooltipPosition={'bottom-right'}
-                popoverDirection={'left'}
-            />
+            <span className={"metadata_chunk metadata_chunk_standard"}>
+                <OverlayIcon
+                    pydio={pydio}
+                    node={node}
+                    overlay={'mdi mdi-tag-outline'}
+                    style={{height:18, width: 18, margin:0, padding: '1px 0'}}
+                    disableActions={!!searchResults}
+                    tooltipPosition={'bottom-right'}
+                    popoverDirection={'left'}
+                />
+            </span>
         );
         pieces.push(...otherPieces, metaIc, ...standardPieces);
         return pieces;
@@ -788,7 +789,6 @@ class MainFilesList extends React.Component {
 
             elementHeight = SimpleList.HEIGHT_ONE_LINE;
             tableKeys = columns;
-            additionalStyle = {marginLeft: 10 + (style.marginLeft||0)}
 
         } else if(dMode === 'grid'){
 
@@ -914,7 +914,7 @@ class MainFilesList extends React.Component {
             return (
                 <React.Fragment>
                     <Masonry
-                        className={"masonry-grid"}
+                        className={"masonry-grid "+"masonry-size-"+cWidth}
                         dataModel={dataModel}
                         entryProps={{
                             handleClicks:this.entryHandleClicks.bind(this),

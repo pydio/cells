@@ -300,7 +300,7 @@ class RecentCard extends React.Component{
                 margin: 4,
                 padding: 0,
                 paddingBottom: 6,
-                backgroundColor:mui3['surface'],
+                background:mui3['surface-1'],
                 color:mui3['on-surface'],
                 border: '1px solid ' + mui3['outline-variant-50']
             }

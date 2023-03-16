@@ -57,7 +57,7 @@ class ListEntry extends React.Component {
         let selector, icon;
 
         const {node, showSelector, selected, selectorDisabled, firstLine,
-            secondLine, thirdLine, style, actions, iconCell, mainIcon, className,
+            secondLine, thirdLine, style, actions, iconCell, mainIcon, className, muiTheme,
             canDrop, isOver, nativeIsOver, connectDragSource, connectDropTarget, selectedAsBorder} = this.props
 
         let mainClasses = ['material-list-entry', 'material-list-entry-' + (thirdLine?3:secondLine?2:1) + '-lines'];
@@ -103,12 +103,12 @@ class ListEntry extends React.Component {
         if(this.state && this.state.hover && !this.props.noHover){
             additionalStyle = {
                 ...additionalStyle,
-                backgroundColor: 'rgba(0,0,0,0.05)',
+                backgroundColor: muiTheme.darkMode? 'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)',
                 borderBottom: '1px solid transparent'
             };
         }
         if(selected){
-            const selectionColor = this.props.muiTheme.palette.accent2Color;
+            const selectionColor = muiTheme.palette.accent2Color;
             const selectionColorDark = Color(selectionColor).dark();
             if(selectedAsBorder){
                 additionalStyle = {

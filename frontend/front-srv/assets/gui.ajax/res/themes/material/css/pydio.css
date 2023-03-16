@@ -926,12 +926,29 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 {
   line-height: 22px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.metadata_chunk_standard {
   opacity: 0;
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.metadata_chunk_standard.metadata_chunk_description {
   opacity: 1;
+}
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.metadata_chunk:not(.metadata_chunk_description):not(.metadata_chunk_block) {
+  background-color: rgba(204, 204, 204, 0.15);
+  border-radius: 6px;
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 5px;
+  border: 1px solid rgba(204, 204, 204, 0.25);
+  font-size: 12px;
+  line-height: 20px;
+  height: 22px;
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 .metadata_chunk_other {
   display: inline-block;
@@ -946,9 +963,7 @@ div.dialogBox div#element_overlay {
   display: none;
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.mdi.mdi-chevron-right {
-  display: inline-block;
-  margin: 0 1px;
-  visibility: hidden;
+  display: none;
 }
 .react-mui-context .material-list.files-list .material-list-entry .overlay_icon_div button[data-icon-count]:before {
   position: absolute;
@@ -1323,7 +1338,7 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry.list-parent-node .material-list-text .material-list-line-2 {
   line-height: 20px;
-  color: rgba(0, 0, 0, 0.73);
+  color: inherit;
   font-size: 13px;
   font-weight: 500;
 }
@@ -3792,9 +3807,9 @@ body,
 .react-mui-context .desktop-container #main_toolbar #paginator-toolbar span.mdi-chevron-left {
   color: rgba(255, 255, 255, 0.97) !important;
 }
-.react-mui-context .material-list.files-list {
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+.react-mui-context .material-list {
+  -webkit-transition: margin-right 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: margin-right 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 .react-mui-context #info_panel {
   right: -270px;
@@ -3888,6 +3903,11 @@ body,
 .react-mui-context.mui3-token .material-list.files-list {
   background-color: var(--md-sys-color-surface);
   color: var(--md-sys-color-on-surface);
+  margin-left: var(--md-sys-color-fstemplate-master-margin);
+  margin-right: var(--md-sys-color-fstemplate-master-margin);
+}
+.react-mui-context.mui3-token .material-list .material-list-entry {
+  border-radius: var(--md-sys-color-card-border-radius);
 }
 .react-mui-context.mui3-token .material-list .material-list-entry .material-list-text .material-list-line-2,
 .react-mui-context.mui3-token .material-list .material-list-entry .material-list-text .material-list-line-3 {
@@ -3901,17 +3921,21 @@ body,
   color: var(--md-sys-color-inverse-on-surface) !important;
 }
 .react-mui-context.mui3-token .material-list.table-mode .material-list-entry {
-  border-radius: 40px;
+  border-radius: var(--md-sys-color-card-border-radius);
 }
 .react-mui-context.mui3-token .material-list.table-mode .mui-toolbar {
   background: var(--md-sys-color-surface-3);
   border-top-width: 0px;
   border-bottom-width: 0px;
-  border-radius: 40px;
+  border-radius: var(--md-sys-color-card-border-radius) var(--md-sys-color-card-border-radius) 0 0;
+  overflow: hidden;
 }
 .react-mui-context.mui3-token .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left .header_cell {
   border-radius: 40px;
   color: var(--md-sys-color-on-surface-variant);
+}
+.react-mui-context.mui3-token .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left .header_cell:first-of-type {
+  border-radius: var(--md-sys-color-card-border-radius) 40px 40px 0;
 }
 .react-mui-context.mui3-token .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left .header_cell:hover {
   background-color: var(--md-sys-color-surface-variant);
@@ -3925,28 +3949,39 @@ body,
   background-color: transparent !important;
   opacity: 0.73;
 }
+.react-mui-context.mui3-token .material-list.files-list.material-list-grid {
+  margin-left: 0;
+  margin-right: 0;
+  padding: calc(var(--md-sys-color-fstemplate-master-margin) / 2);
+  margin-top: calc(var(--md-sys-color-fstemplate-master-margin) * -1);
+}
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry {
   -webkit-box-shadow: none;
           box-shadow: none;
-  border-radius: 12px;
+  border-radius: var(--md-sys-color-card-border-radius);
   border: 1px solid var(--md-sys-color-outline-variant-50);
+  background: var(--md-sys-color-surface-1);
   margin: 4px;
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry.selected {
   -webkit-box-shadow: none !important;
           box-shadow: none !important;
+  background: var(--md-sys-color-outline) !important;
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry .material-list-text {
   border-top: 0;
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry .material-list-icon .mimefont-container {
-  border-radius: 12px;
+  border-radius: var(--md-sys-color-card-border-radius);
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-icon {
   height: calc(100% - 20px);
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-text {
   padding: 4px 6px;
+}
+.react-mui-context.mui3-token .info-panel-open .material-list.files-list {
+  margin-right: 270px;
 }
 .react-mui-context.mui3-token .mimefont-container {
   background-color: var(--md-sys-color-mimefont-background) !important;
@@ -3987,17 +4022,30 @@ body,
 .react-mui-context.mui3-token .panelCard .panelContent .infoPanelRow .infoPanelLabel {
   color: var(--md-sys-color-on-surface);
 }
+.react-mui-context.mui3-token .masonry-grid {
+  margin-top: calc(var(--md-sys-color-fstemplate-master-margin) * -1);
+}
 .react-mui-context.mui3-token .masonry-grid .masonry-card {
   background-color: var(--md-sys-color-surface);
   color: var(--md-sys-color-on-surface);
-  border-radius: 10px;
+  border-radius: var(--md-sys-color-card-border-radius);
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card.selected {
-  -webkit-box-shadow: var(--md-sys-color-outline-variant) 0px 0px 0px 2px;
-          box-shadow: var(--md-sys-color-outline-variant) 0px 0px 0px 2px;
+  -webkit-box-shadow: var(--md-sys-color-outline) 0px 0px 0px 1px;
+          box-shadow: var(--md-sys-color-outline) 0px 0px 0px 1px;
+}
+.react-mui-context.mui3-token .masonry-grid .masonry-card.has-src.hover .masonry-label-overlay,
+.react-mui-context.mui3-token .masonry-grid .masonry-card.has-src.selected .masonry-label-overlay {
+  background: -webkit-gradient(linear, left bottom, left top, from(rgba(0, 0, 0, 0.4)), to(transparent));
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.4), transparent);
+  border-radius: 0 0 var(--md-sys-color-card-border-radius) var(--md-sys-color-card-border-radius);
+}
+.react-mui-context.mui3-token .masonry-grid .masonry-card.has-src.hover .masonry-label,
+.react-mui-context.mui3-token .masonry-grid .masonry-card.has-src.selected .masonry-label {
+  color: white;
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card .masonry-image {
-  border-radius: 10px;
+  border-radius: var(--md-sys-color-card-border-radius);
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card .mimefont-container {
   display: -webkit-box;
@@ -4010,9 +4058,55 @@ body,
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  border-radius: 10px;
+  border-radius: var(--md-sys-color-card-border-radius);
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card .mimefont-container .mimefont {
   font-size: 36px;
   margin-bottom: 22px;
+}
+.react-mui-context.mui3-token .masonry-grid.masonry-size-100 .masonry-card .masonry-label {
+  display: none !important;
+}
+.react-mui-context.mui3-token .masonry-grid.masonry-size-100 .masonry-card .mimefont-container .mimefont {
+  font-size: 24px;
+  margin-bottom: 0;
+}
+.react-mui-context:not(.mui3-token) .masonry-grid .masonry-card {
+  background-color: #f9fafb;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 10px;
+          box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 10px;
+  position: relative;
+  border-radius: 4px;
+}
+.react-mui-context:not(.mui3-token) .masonry-grid .masonry-card.selected {
+  -webkit-box-shadow: #018dcc 0px 0px 0px 2px, rgba(0, 0, 0, 0.15) 0px 0px 10px;
+          box-shadow: #018dcc 0px 0px 0px 2px, rgba(0, 0, 0, 0.15) 0px 0px 10px;
+}
+.react-mui-context:not(.mui3-token) .masonry-grid .masonry-card .masonry-label {
+  borderTop: 1px solid rgba(224, 224, 224, 0.4);
+  color: rgba(0, 0, 0, 0.73);
+  backgroundColor: #ffffff;
+}
+.react-mui-context:not(.mui3-token) .masonry-grid .masonry-card.has-src .masonry-label {
+  backgroundColor: rgba(255, 255, 255, 0.73);
+}
+.react-mui-context:not(.mui3-token) .masonry-grid .masonry-card .mimefont-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  height: 100%;
+  -webkit-box-align: center !important;
+      -ms-flex-align: center !important;
+          align-items: center !important;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  border-radius: 4px;
+}
+.react-mui-context:not(.mui3-token) .masonry-grid .masonry-card .mimefont-container .mimefont {
+  font-size: 36px;
+  margin-bottom: 22px;
+}
+.react-mui-context:not(.mui3-token) .info-panel-open .masonry-grid {
+  width: calc(100% - 270px) !important;
 }

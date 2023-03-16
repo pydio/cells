@@ -295,6 +295,9 @@ export default class ThemeBuilder {
 
             add('mimefont-background', Color(mui3['primary-container']).fade(systemDark?.1:.7).toString())
             add('mimefont-color', mui3['on-primary-container'])
+            add('fstemplate-master-margin', '8px')
+            add('paper-border-radius', '20px')
+            add('card-border-radius', '12px')
 
             isMUI3 = true
             palette = {
@@ -427,22 +430,24 @@ export default class ThemeBuilder {
     buildFSTemplate(themeCusto, {headerHeight, searchView}) {
 
         const {mui3} = themeCusto.palette
-        let infoPanelBg, appBarRounded, isMUI3, appBarBackColor, appBarTextColor, headerButtonsColor
-
+        let infoPanelBg, appBarRounded, isMUI3, appBarBackColor, appBarTextColor, headerButtonsColor, iconButtonsColor
+        let masterMargin = 8;
         if (this.userTheme === 'mui3') {
             isMUI3 = true
-            const m=5
+            masterMargin=8
             if (searchView) {
                 // Replace with a padding
-                appBarRounded = {padding: m}
+                appBarRounded = {padding: masterMargin}
             } else {
                 appBarRounded = {
-                    borderRadius: 40,
-                    margin: m
+                    borderRadius: mui3['card-border-radius'],
+                    margin: masterMargin,
+                    border: '1px solid ' + mui3['outline-variant-50']
                 }
             }
             appBarTextColor = Color(mui3['on-surface'])
             appBarBackColor = mui3['surface-2']
+            iconButtonsColor = mui3['on-surface-variant']
         } else {
             infoPanelBg = mui3['surface-2']
             if(this.userTheme === 'material') {
@@ -463,6 +468,7 @@ export default class ThemeBuilder {
 
 
         let styles = {
+            masterMargin,
             masterStyle:{
                 backgroundColor: mui3.background,
                 overflow:'hidden',
@@ -487,13 +493,13 @@ export default class ThemeBuilder {
             },
             buttonsIconStyle :{
                 fontSize: 18,
-                color:  headerButtonsColor
+                color:  headerButtonsColor || iconButtonsColor
             },
             activeButtonStyle: {
                 backgroundColor: appBarTextColor.fade(0.9).toString()
             },
             activeButtonIconStyle: {
-                color: headerButtonsColor
+                color: headerButtonsColor || iconButtonsColor
             },
             raisedButtonStyle : {
                 height: buttonsHeight,
@@ -521,15 +527,15 @@ export default class ThemeBuilder {
             infoPanel:{
                 masterStyle : {
                     backgroundColor: infoPanelBg || 'transparent',
-                    top: headerHeight + (appBarRounded?appBarRounded.margin*2:0)
+                    top: headerHeight + (appBarRounded?appBarRounded.margin:0)
                 },
                 card: {
                     zDepth: 0,
                     panel:{
                         background: isMUI3?mui3['surface-2']:"white",
                         boxShadow: isMUI3?'none':'rgb(0,0, 0, .15) 0px 0px 12px',
-                        borderRadius: 10,
-                        margin: 10,
+                        borderRadius: mui3['card-border-radius'] || 10,
+                        margin: masterMargin,
                         overflow:'hidden',
                         border:'1px solid transparent'
                     },

@@ -49,16 +49,25 @@ class AsyncComponent extends Component {
                 this.loadFired = true
             }
         };
-
-        if (this.state.Component) {
+        const {namespace, Component} = this.state
+        if (Component) {
             // Class is already available, just doing the callback
             callback();
             return
         }
 
         // Loading the class asynchronously
-        ResourcesManager.loadClass(this.state.namespace).then((ns) => {
-            const {[this.state.componentName]: Component} = ns;
+        ResourcesManager.loadClass(namespace).then((ns) => {
+            let {componentName} = this.state;
+            while(componentName.split('.').length > 1){
+                const [search, ...rest] = componentName.split('.')
+                if(!ns[search]){
+                    throw new Error('cannot find ' + componentName + ' in loaded namespace ' + namespace)
+                }
+                ns = ns[search]
+                componentName = rest.join('.')
+            }
+            const {[componentName]: Component} = ns;
             this.setState({Component});
             callback();
         }).catch(e => {

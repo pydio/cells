@@ -167,6 +167,7 @@ const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
             {parent && <div className={"mimefont-container"}><div className={"mimefont mdi mdi-chevron-left"}/></div>}
             {!parent && !src && renderIcon(node)}
             {!parent && <div style={{position:'absolute', top: 0, left: 0}}>{renderActions(node)}</div>}
+            {src && <div className={'masonry-label-overlay'} style={{position:'absolute', bottom: 0, left: 0, right: 0, height: 50}}/>}
             <div className={'masonry-label'} style={{display:(hover||selected||!src)?'block':'none',...labelStyle}}>{parent?parentLabel:node.getLabel()}</div>
         </ContextMenuWrapper>
     );
