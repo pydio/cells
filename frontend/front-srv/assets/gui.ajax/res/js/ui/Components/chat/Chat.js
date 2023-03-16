@@ -280,7 +280,7 @@ class Chat extends React.Component{
         return (
             <div style={{padding: 0, ...style}}>
                 {computePresenceFromACLs !== undefined  &&
-                    <ChatUsers pydio={pydio} ACLs={computePresenceFromACLs} roomUsers={room?room.Users:[]} style={chatUsersStyle}/>
+                    <ChatUsers pydio={pydio} ACLs={computePresenceFromACLs} roomUsers={room?room.Users:[]} style={chatUsersStyle} muiTheme={muiTheme}/>
                 }
                 <div ref={this.commentPane} className="comments_feed" style={{maxHeight: 300, overflowY: 'auto',  ...pushStyle, ...msgContainerStyle}}>
                     {pusher}

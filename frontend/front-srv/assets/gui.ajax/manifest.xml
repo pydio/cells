@@ -64,7 +64,7 @@
                       editable="true"
                       uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
                       loadAction="/frontend/binaries/GLOBAL/{BINARY}"
-                      defaultImage="plug/gui.ajax/res/themes/common/images/PydioCellsColor.png"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/PydioCells-[mode].png"
                       expose="true"
                 />
 

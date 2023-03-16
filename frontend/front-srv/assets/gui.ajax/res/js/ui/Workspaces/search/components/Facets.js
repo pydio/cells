@@ -126,7 +126,7 @@ class Facets extends React.Component {
                             <div style={styles.subHeader}>{m('search.facet.' + groupKeys[k])}</div>
                             <div style={{zoom: 1}}>
                                 {groups[k].sort((a,b) => a.Label.localeCompare(b.Label)).map((f)=> {
-                                    return (<BoxFacet m={m} facet={f} selected={this.isSelected(activeFacets, f)} onSelect={onToggleFacet}/>);
+                                    return (<BoxFacet key={f.Label} m={m} facet={f} selected={this.isSelected(activeFacets, f)} onSelect={onToggleFacet}/>);
                                 })}
                             </div>
                         </div>

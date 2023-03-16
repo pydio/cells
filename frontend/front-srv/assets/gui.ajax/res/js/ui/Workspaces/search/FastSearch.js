@@ -249,7 +249,7 @@ export default function FastSearch() {
         modalPosition: {display:'flex', alignItems:'center', justifyContent:'center', bottom:'40%'},
         mainPaper: {width: '80%', padding: '8px 0 2px !important'},
         header:{padding: '0 10px 5px', display: 'flex', alignItems: 'center'},
-        title: {fontSize: 18, flex: 1, color: 'rgba(17, 70, 97, 0.87)'},
+        title: {fontSize: 18, flex: 1},
         legend:{opacity: .6, fontStyle:'italic'},
         popperModifiers: [{
             name: "offset",
@@ -257,7 +257,10 @@ export default function FastSearch() {
                 offset: [0, 10],
             }
         }],
-        groupHeader: {position: 'sticky', top: 0, padding: '8px 10px', fontSize: 13, fontWeight: 500, color:'rgba(17, 70, 97, 0.87)', backgroundColor:'rgba(255,255,255,.9)'}
+        groupHeader: {
+            position: 'sticky', top: 0, padding: '8px 10px', fontSize: 13, fontWeight: 500,
+            color:'var(--md-sys-color-on-surface)'
+        }
     }
 
     const filteredBase = baseOptions.filter(o => {

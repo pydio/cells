@@ -413,9 +413,19 @@ export default class ThemeBuilder {
             delete(themeCusto.raisedButton)
         }
 
-        if(systemDark) {
-            themeCusto['@mui'] = createTheme({palette: {mode: 'dark'}})
-        }
+        themeCusto['@mui'] = createTheme({
+            palette: {
+                mode: systemDark?'dark':'light',
+                primary:{main:palette.primary1Color},
+                secondary:{main:palette.mui3.secondary},
+                background:{
+                    paper:mui3['surface']
+                }
+            },
+            shape:{
+                borderRadius:themeCusto.borderRadius
+            },
+        })
 
         if(customPalette) {
             return getMuiTheme(themeCusto);
@@ -427,23 +437,35 @@ export default class ThemeBuilder {
 
     }
 
+    /**
+     * Todo : memoize ?
+     * @param themeCusto
+     * @param headerHeight
+     * @param searchView
+     * @return Object
+     */
     buildFSTemplate(themeCusto, {headerHeight, searchView}) {
 
         const {mui3} = themeCusto.palette
         let infoPanelBg, appBarRounded, isMUI3, appBarBackColor, appBarTextColor, headerButtonsColor, iconButtonsColor
-        let masterMargin = 8;
+        let masterMargin = 8, rightPanelTop = headerHeight;
         if (this.userTheme === 'mui3') {
             isMUI3 = true
             masterMargin=8
             if (searchView) {
                 // Replace with a padding
-                appBarRounded = {padding: masterMargin}
+                appBarRounded = {
+                    padding: masterMargin,
+                    marginBottom: masterMargin
+                }
+                rightPanelTop += 12
             } else {
                 appBarRounded = {
                     borderRadius: mui3['card-border-radius'],
                     margin: masterMargin,
                     border: '1px solid ' + mui3['outline-variant-50']
                 }
+                rightPanelTop += masterMargin
             }
             appBarTextColor = Color(mui3['on-surface'])
             appBarBackColor = mui3['surface-2']
@@ -466,7 +488,6 @@ export default class ThemeBuilder {
         const buttonsHeight = 24
         const buttonsFont = 13
 
-
         let styles = {
             masterMargin,
             masterStyle:{
@@ -477,12 +498,14 @@ export default class ThemeBuilder {
             appBarZDepth : (searchView||this.userTheme==='material')?1:0,
             appBarStyle : {
                 zIndex: searchView?903:901,
-                height: headerHeight,
+                height: searchView?'auto':headerHeight,
                 background: appBarBackColor,
                 display:'flex',
                 ...appBarRounded
             },
-            listStyle: {},
+            listStyle: searchView?{
+                marginLeft: 250+masterMargin
+            }:{},
             buttonsStyle : {
                 width: 40,
                 height: 40,
@@ -527,7 +550,7 @@ export default class ThemeBuilder {
             infoPanel:{
                 masterStyle : {
                     backgroundColor: infoPanelBg || 'transparent',
-                    top: headerHeight + (appBarRounded?appBarRounded.margin:0)
+                    top: rightPanelTop
                 },
                 card: {
                     zDepth: 0,
@@ -592,7 +615,7 @@ export default class ThemeBuilder {
             },
             otherPanelsStyle: {
                 backgroundColor: infoPanelBg || 'transparent',
-                top: headerHeight + (appBarRounded?appBarRounded.margin*2:0),
+                top: rightPanelTop,
                 borderLeft: 0,
                 width: 270
             },

@@ -282,6 +282,7 @@ class FSTemplate extends React.Component {
                 searchView: true,
                 values, setValues, searchLoading, facets, activeFacets, toggleFacet,
             };
+            /*
             styles.appBarStyle = {
                 ...styles.appBarStyle,
                 marginLeft: 0
@@ -290,6 +291,7 @@ class FSTemplate extends React.Component {
                 ...styles.listStyle,
                 marginLeft: 250
             }
+             */
             const count = pydio.getContextHolder().getSearchNode().getChildren().size;
             let stLabel, stDisable = true;
             let labelStyle = {...styles.flatButtonLabelStyle}

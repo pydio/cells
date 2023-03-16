@@ -112,9 +112,12 @@ class HomeSearchForm extends Component{
                 completeMenuStyle:{width: '100%'},
                 inputStyle:{fontSize: 18},
                 hintStyle:{fontSize: 18},
-                magnifierStyle:{fontSize: 20, color:'rgba(0,0,0,0.73)', marginRight: 10}, //{color: appBarTextColor.fade(0.1).toString()},
+                magnifierStyle:{
+                    fontSize: 20,
+                    marginRight: 10
+                },
                 filterButton:{
-                    color:'#03a9f4',
+                    color:muiTheme.palette.primary1Color,
                     fontSize: 22,
                     width:28,
                     height: 28,

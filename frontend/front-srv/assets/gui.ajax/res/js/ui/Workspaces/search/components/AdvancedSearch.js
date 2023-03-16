@@ -20,6 +20,7 @@
 
 import React, { Component } from 'react';
 import {Subheader} from 'material-ui';
+import {muiThemeable} from 'material-ui/styles'
 import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 const {ModernTextField} = Pydio.requireLib('hoc');
@@ -133,11 +134,11 @@ class AdvancedSearch extends Component {
 
     render() {
 
-        const {searchTools, getMessage, values, rootStyle, saveSearch, clearSavedSearch} = this.props;
+        const {searchTools, getMessage, values, rootStyle, saveSearch, clearSavedSearch, muiTheme} = this.props;
         const {searchOptions, promptSearchLabel, currentSearchLabel} = this.state;
         const headerStyle = {
             fontSize: 13,
-            color: 'rgb(114, 140, 157)',
+            color:'var(--md-sys-color-secondary)',// 'rgb(114, 140, 157)',
             textTransform: 'uppercase',
             fontWeight: 500,
             marginBottom: -10,
@@ -145,12 +146,12 @@ class AdvancedSearch extends Component {
         };
         const linkStyle = {
             padding: '12px 20px 0',
-            color: '#9e9e9e',
+            color: muiTheme.palette.primary1Color,
             textDecoration: 'underline',
             cursor: 'pointer'
         }
         const linkIcon = {
-            color: '#9e9e9e',
+            color: muiTheme.palette.primary1Color,
             cursor: 'pointer',
             display:'inline-block',
             marginLeft: 10
@@ -208,7 +209,7 @@ class AdvancedSearch extends Component {
             <div className="search-advanced" style={{...rootStyle}}>
 
                 {(searchID || promptSearchLabel) &&
-                    <div style={{display: 'flex',alignItems: 'center', backgroundColor:'#f5f5f5', borderBottom: '1px solid #eaeaea'}}>
+                    <div style={{display: 'flex',alignItems: 'center'}}>
                         {promptSearchLabel &&
                             <div style={{flex: 1, paddingLeft:20}}>
                                 <ModernTextField
@@ -223,7 +224,7 @@ class AdvancedSearch extends Component {
                         }
                         {!promptSearchLabel &&
                             <div
-                                style={{flex: 1, cursor: 'pointer', fontSize: 15, padding: '12px 20px', }}
+                                style={{flex: 1, cursor: 'pointer', fontSize: 15, fontWeight:500, padding: '12px 20px', }}
                                 onClick={() => this.setState({promptSearchLabel:true})}
                             >{searchLABEL} <span className={"mdi mdi-pencil"} style={{opacity:.5}}/></div>
                         }
@@ -266,6 +267,6 @@ class AdvancedSearch extends Component {
     }
 }
 
-AdvancedSearch = PydioContextConsumer(AdvancedSearch);
+AdvancedSearch = PydioContextConsumer(muiThemeable()(AdvancedSearch));
 
 export default AdvancedSearch

@@ -30,7 +30,17 @@ class CellChat extends React.Component{
 
     render(){
         const {pydio, style, zDepth, onRequestClose, muiTheme} = this.props;
-        const {cellModel, cellId} = this.state;
+        const {cellModel, cellId} = this.state
+        const chatStyle = {
+            flex: 1,
+            display:'flex',
+            flexDirection:'column',
+            overflow: 'hidden',
+            background:muiTheme.palette.mui3['surface-2'],
+            borderRadius: muiTheme.palette.mui3['card-border-radius'],
+            margin: muiTheme.palette.mui3['fstemplate-master-margin'],
+            border: '1px solid ' + muiTheme.palette.mui3['outline-variant-50'],
+        };
         let chatRoomType = 'WORKSPACE';
         return (
             <Paper id="info_panel" zDepth={zDepth} rounded={false} style={{display:'flex', flexDirection:'column', ...style}}>
@@ -38,8 +48,8 @@ class CellChat extends React.Component{
                     pydio={pydio}
                     roomType={chatRoomType}
                     roomObjectId={cellId}
-                    style={{flex: 1, display:'flex', flexDirection:'column', overflow: 'hidden', background:muiTheme.palette.mui3['surface-2'], borderRadius: 10, margin: '0 5px 5px 5px'}}
-                    chatUsersStyle={{borderBottom: 0, padding: 5, backgroundColor:'rgba(0,0,0,.05)', display:'flex', flexWrap:'wrap'}}
+                    style={chatStyle}
+                    chatUsersStyle={{borderBottom: 0, padding: 5, backgroundColor:muiTheme.palette.mui3['surface-variant'], display:'flex', flexWrap:'wrap'}}
                     msgContainerStyle={{maxHeight:null, flex:1, paddingTop: '10px !important'}}
                     fieldHint={pydio.MessageHash['636']}
                     pushMessagesToBottom={true}

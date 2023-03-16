@@ -24,7 +24,8 @@ const noWrap = {
     whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'
 };
 
-const v1BgColor ='rgba(224, 224, 228, 0.33)'
+const v1BgColor ='rgba(224, 224, 228, 0.33)'//var(--md-sys-color-surface-variant)'
+const hintColor='var(--md-sys-color-outline)'
 
 const v2Block = {
     backgroundColor:'var(--md-sys-color-surface-variant)',//'rgb(246, 246, 248)',
@@ -41,7 +42,7 @@ const underline = {
 const styles = {
     textField:{
         inputStyle:{backgroundColor:v1BgColor,height: 34, borderRadius: 3, marginTop: 6, padding: 7},
-        hintStyle:{paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%'},
+        hintStyle:{paddingLeft: 7, color:hintColor, ...noWrap, width: '100%'},
         underlineStyle:{opacity:0},
         underlineFocusStyle:{opacity:1, borderRadius: '0px 0px 3px 3px'},
         errorStyle:{bottom:-4}
@@ -49,7 +50,7 @@ const styles = {
     textFieldV2:{
         style:{...v2Block},
         inputStyle:{position: 'absolute', height:30, marginTop:0, bottom: 2, paddingLeft: 8, paddingRight: 8},
-        hintStyle:{bottom: 4, paddingLeft: 7, /*color:'rgba(0,0,0,0.5)',*/ ...noWrap, width: '100%'},
+        hintStyle:{bottom: 4, paddingLeft: 7, color:hintColor, ...noWrap, width: '100%'},
         underlineStyle:{opacity:1, bottom: 0, ...underline.idle},
         underlineFocusStyle:{opacity:1, borderRadius: 0, bottom: 0, ...underline.focus},
         floatingLabelFixed: true,
@@ -62,7 +63,7 @@ const styles = {
         rowsMax: 4,
         inputStyle:{backgroundColor:v1BgColor,height: 106, borderRadius: 3, marginTop: 6, padding: 7},
         textareaStyle:{marginTop: 0, marginBottom: 0},
-        hintStyle:{paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
+        hintStyle:{paddingLeft: 7, color:hintColor, ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
         underlineStyle:{opacity:0},
         underlineFocusStyle:{opacity:1, borderRadius: '0px 0px 3px 3px'},
         errorStyle:{bottom: -3}
@@ -76,7 +77,7 @@ const styles = {
         floatingLabelFixed: true,
         floatingLabelStyle:{top:35, left:6, width:'127%', ...noWrap},
         floatingLabelShrinkStyle:{top:35, left: 6},
-        hintStyle:{paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
+        hintStyle:{paddingLeft: 7, color:hintColor, ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
         underlineStyle:{opacity:1, bottom: 0, ...underline.idle},
         underlineFocusStyle:{opacity:1, bottom: 0, borderRadius: '0px 0px 3px 3px', ...underline.focus},
         errorStyle:{position:'absolute', bottom:8, right:8}
@@ -84,13 +85,13 @@ const styles = {
     selectField:{
         style:{backgroundColor:v1BgColor,height: 34, borderRadius: 3, marginTop: 6, padding: 7, paddingRight: 0, overflow:'hidden'},
         menuStyle:{marginTop: -12},
-        hintStyle:{paddingLeft: 0, marginBottom: -7, paddingRight:56, color:'rgba(0,0,0,0.34)', ...noWrap, width: '100%'},
+        hintStyle:{paddingLeft: 0, marginBottom: -7, paddingRight:56, color:hintColor, ...noWrap, width: '100%'},
         underlineShow: false
     },
     selectFieldV2:{
         style:{...v2Block, padding: 8, paddingRight: 0, overflow:'hidden'},
         menuStyle:{marginTop: -6},
-        hintStyle:{paddingLeft: 0, marginBottom: -7, paddingRight:56, color:'rgba(0,0,0,0.34)', ...noWrap, width: '100%'},
+        hintStyle:{paddingLeft: 0, marginBottom: -7, paddingRight:56, color:hintColor, ...noWrap, width: '100%'},
         underlineStyle: {opacity:1, bottom: 0, left: 0, right: 0, ...underline.idle},
         underlineFocusStyle:{opacity:1, borderRadius: 0, bottom: 0, ...underline.focus},
         floatingLabelFixed: true,

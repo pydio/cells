@@ -73,7 +73,7 @@ class AltDashboard extends React.Component {
 
         const styles = {
             appBarStyle : {
-                backgroundColor: 'rgba(255, 255, 255, 0.40)',
+                backgroundColor: muiTheme.darkMode? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.40)',
                 height: fullScreen? 0: 200,
                 display: 'flex',
                 alignItems: 'center',
@@ -159,6 +159,7 @@ class AltDashboard extends React.Component {
                         <ConfigLogo
                             className="home-top-logo"
                             pydio={this.props.pydio}
+                            darkMode={muiTheme.darkMode}
                             pluginName="gui.ajax"
                             pluginParameter="CUSTOM_DASH_LOGO"
                         />
