@@ -39,6 +39,7 @@
     "prop-types": "^15.7.2",
     "qrcode.react": "^1.0.1",
     "query-string": "^5.1.1",
+    "re-resizable": "^6.9.9",
     "react": "^17.0.1",
     "react-addons-css-transition-group": "^15.4.2",
     "react-addons-pure-render-mixin": "^15.6.3",

@@ -130,25 +130,35 @@ class BookmarkLine extends React.Component {
 
 }
 
+let BM_Cache;
 
 class BookmarksList extends React.Component {
 
     constructor(props) {
+        const {asPopover, useCache} = props;
         super(props);
         this.state = {
             open: false,
             loading: false,
-            bookmarks: null
+            bookmarks: useCache?BM_Cache:null
         };
+        if(asPopover === false){
+            this.load(true, useCache)
+        }
     }
 
-    load(silent = false){
+    load(silent = false, useCache = false){
         if(!silent){
             this.setState({loading: true});
         }
         const api = new UserMetaServiceApi(PydioApi.getRestClient());
         return api.userBookmarks(new RestUserBookmarksRequest()).then(collection => {
-            this.setState({bookmarks: collection.Nodes, loading: false})
+            const nn = collection.Nodes || []
+            nn.sort((a,b) => a.Type === 'LEAF'? 1 : b.Type === 'LEAF' ? -1 : 0)
+            if(useCache){
+                BM_Cache = nn;
+            }
+            this.setState({bookmarks: nn, loading: false})
         }).catch(reason => {
             this.setState({loading: false});
         });
@@ -207,7 +217,7 @@ class BookmarksList extends React.Component {
     }
 
     render() {
-        const {pydio, muiTheme, iconStyle} = this.props;
+        const {pydio, muiTheme, iconStyle, asPopover=true} = this.props;
         const {loading, open, anchorEl, bookmarks} = this.state;
 
         if(!pydio.user.activeRepository){
@@ -226,9 +236,46 @@ class BookmarksList extends React.Component {
             const c = Color(iconStyle.color);
             buttonStyle = {...buttonStyle, backgroundColor: c.fade(0.9).toString()}
         }
+        let listStyle = {
+            overflowY:'auto',
+            overflowX:'hidden',
+            padding: 0,
+            flex: 1
+        }
+        if(asPopover){
+            listStyle = {...listStyle,
+                maxHeight:330,
+                minHeight: 195,
+            }
+        }
 
-        return (
-            <span>
+        const contents = (
+            <Fragment>
+                {loading &&
+                    <Fragment>
+                        <BookmarkLine placeHolder/>
+                        <BookmarkLine placeHolder/>
+                        <BookmarkLine placeHolder/>
+                    </Fragment>
+                }
+                {!loading && items && items.length &&
+                    <div style={listStyle}>{items}</div>
+                }
+                {!loading && (!items || !items.length) &&
+                    <EmptyStateView
+                        pydio={pydio}
+                        iconClassName="mdi mdi-star-outline"
+                        primaryTextId="145"
+                        secondaryTextId={"482"}
+                        style={{minHeight: 200, backgroundColor:'transparent'}}
+                    />
+                }
+                <style type={"text/css"} dangerouslySetInnerHTML={{__html:listCss}}/>
+            </Fragment>
+        )
+        if(asPopover){
+            return (
+                <span>
                 <IconButton
                     onClick={this.handleTouchTap.bind(this)}
                     iconClassName={"userActionIcon mdi mdi-star"}
@@ -248,30 +295,13 @@ class BookmarksList extends React.Component {
                     zDepth={3}
                     panelTitle={pydio.MessageHash[147]}
                     panelIconClassName={"mdi mdi-star"}
-                >
-                    {loading &&
-                        <Fragment>
-                            <BookmarkLine placeHolder/>
-                            <BookmarkLine placeHolder/>
-                            <BookmarkLine placeHolder/>
-                        </Fragment>
-                    }
-                    {!loading && items && items.length &&
-                        <div style={{maxHeight:330, minHeight: 195, overflowY:'auto', overflowX:'hidden', padding: 0}}>{items}</div>
-                    }
-                    {!loading && (!items || !items.length) &&
-                        <EmptyStateView
-                            pydio={pydio}
-                            iconClassName="mdi mdi-star-outline"
-                            primaryTextId="145"
-                            secondaryTextId={"482"}
-                            style={{minHeight: 200, backgroundColor:'white'}}
-                        />
-                    }
-                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:listCss}}/>
-                </Popover>
+                >{contents}</Popover>
             </span>
-        );
+            );
+
+        } else {
+            return contents
+        }
 
     }
 

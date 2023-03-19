@@ -228,7 +228,7 @@ class MainFilesList extends React.Component {
             || nextProps.searchLoading !== this.props.searchLoading
             || nextProps.searchResults !== this.props.searchResults
             || nextProps.searchScope !== this.props.searchScope
-            || nextProps.listStyle !== this.props.listStyle
+            || nextProps.style !== this.props.style
             || nextState !== this.state );
     }
 

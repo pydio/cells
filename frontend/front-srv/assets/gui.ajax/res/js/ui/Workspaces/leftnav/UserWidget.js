@@ -131,7 +131,9 @@ class UserWidget extends React.Component {
                     />
                 );
             }
-            bookmarksButton = (<BookmarksList pydio={this.props.pydio} iconStyle={{color}}/>);
+            if(!this.props.hideBookmarks){
+                bookmarksButton = (<BookmarksList pydio={this.props.pydio} iconStyle={{color}}/>);
+            }
         }
 
 

@@ -39,7 +39,7 @@ class AsyncComponent extends Component {
             componentName: props.componentName
         };
 
-        this._handleLoad = debounce(this._handleLoad, 40)
+        //this._handleLoad = debounce(this._handleLoad, 40)
     }
 
     _handleLoad() {

@@ -25,6 +25,7 @@ import LeftPanel from '../leftnav/LeftPanel'
 import FastSearch from "../search/FastSearch";
 import {muiThemeable} from 'material-ui/styles'
 import {ThemeProvider} from "@mui/material/styles";
+import RailPanel from "../leftnav/RailPanel";
 
 const {withContextMenu, dropProvider} = Pydio.requireLib('hoc');
 const {ContextMenu} = Pydio.requireLib('components');
@@ -60,10 +61,16 @@ class MasterLayout extends React.Component{
         if(drawerOpen){
             allClasses.push('drawer-open');
         }
+        let leftPanel;
+        if(muiTheme.userTheme === 'mui3'){
+            leftPanel = <RailPanel pydio={pydio} {...leftPanelProps}/>
+        } else {
+            leftPanel = <LeftPanel className="left-panel" pydio={pydio} {...leftPanelProps}/>
+        }
 
         let elements = [
             tutorialComponent,
-            <LeftPanel className="left-panel" pydio={pydio} {...leftPanelProps}/>,
+            leftPanel,
             <div className="desktop-container vertical_layout vertical_fit" style={desktopStyle}>{children}</div>,
             <span className="context-menu"><ContextMenu pydio={this.props.pydio}/></span>,
             <FastSearch/>,

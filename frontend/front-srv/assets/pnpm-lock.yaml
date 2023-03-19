@@ -917,6 +917,7 @@ importers:
       prop-types: ^15.7.2
       qrcode.react: ^1.0.1
       query-string: ^5.1.1
+      re-resizable: ^6.9.9
       react: ^17.0.1
       react-addons-css-transition-group: ^15.4.2
       react-addons-pure-render-mixin: ^15.6.3
@@ -992,6 +993,7 @@ importers:
       prop-types: 15.7.2
       qrcode.react: 1.0.1_react@17.0.1
       query-string: 5.1.1
+      re-resizable: 6.9.9_w7o5yyljkiidx2s2nzb26ottzu
       react: 17.0.1
       react-addons-css-transition-group: 15.6.2_w7o5yyljkiidx2s2nzb26ottzu
       react-addons-pure-render-mixin: 15.6.3
@@ -8695,6 +8697,16 @@ packages:
       bytes: 1.0.0
       string_decoder: 0.10.31
     dev: true
+
+  /re-resizable/6.9.9_w7o5yyljkiidx2s2nzb26ottzu:
+    resolution: {integrity: sha512-l+MBlKZffv/SicxDySKEEh42hR6m5bAHfNu3Tvxks2c4Ah+ldnWjfnVRwxo/nxF27SsUsxDS0raAzFuJNKABXA==}
+    peerDependencies:
+      react: ^16.13.1 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.13.1 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 17.0.1
+      react-dom: 17.0.1_react@17.0.1
+    dev: false
 
   /react-addons-css-transition-group/15.6.2_w7o5yyljkiidx2s2nzb26ottzu:
     resolution: {integrity: sha1-nkN2vPQLUhfRTsaFUwgc7ksIptY=}

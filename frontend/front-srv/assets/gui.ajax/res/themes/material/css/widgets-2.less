@@ -53,9 +53,9 @@
     }
     &.files-list.material-list-grid{
       margin-left:0;
-      margin-right: 0;
       padding: calc(var(--md-sys-color-fstemplate-master-margin) / 2);
-      margin-top: calc(var(--md-sys-color-fstemplate-master-margin) * -1);
+      padding-right: 0;
+      //margin-top: calc(var(--md-sys-color-fstemplate-master-margin) * -1);
       .material-list-entry{
         box-shadow: none;
         border-radius: var(--md-sys-color-card-border-radius);
@@ -84,10 +84,6 @@
         }
       }
     }
-  }
-
-  .info-panel-open .material-list.files-list {
-    margin-right: @infopanel_width;
   }
 
   .mimefont-container {

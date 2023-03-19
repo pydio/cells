@@ -13,30 +13,9 @@ body,#ajxp_desktop,#background-imager{
 
 .react-mui-context{
 
-  .left-panel{
-    width: 250px;
-    &:not(.expanded){
-      @media @screenwidth-medium{
-        transform: translateX(-250px);
-        z-index: 902;
-      }
-    }
-  }
-
-  .drawer-open .left-panel{
-    @media @screenwidth-medium{
-      transform: translateX(0px);
-      box-shadow: @reactBoxShadowDepth1;
-    }
-  }
-
   .user-dashboard-template{
     .left-panel{
-      transform: translateX(-250px);
       box-shadow: @reactBoxShadowDepth1;
-    }
-    &.drawer-open .left-panel{
-        transform: translateX(0px);
     }
     .desktop-container{
       margin-left: 0;
@@ -48,7 +27,6 @@ body,#ajxp_desktop,#background-imager{
 
   .desktop-container{
     transition: @bezier_transition;
-    margin-left: 250px;
     overflow-x: hidden;
     @media @screenwidth-medium{
       margin-left: 0;
@@ -121,38 +99,6 @@ body,#ajxp_desktop,#background-imager{
 
   .material-list {
     transition: margin-right 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  }
-
-  #info_panel{
-    right: -@infopanel_width;
-  }
-  .info-panel-open {
-    #info_panel{
-      right: 0;
-      @media @screenwidth-small{
-        right: -@infopanel_width;
-      }
-    }
-    .material-list.main-files-list{
-      margin-right: @infopanel_width;
-      @media @screenwidth-small{
-        margin-right: 0;
-      }
-    }
-    &.info-panel-open-lg {
-      #info_panel{
-        right: 0;
-        @media @screenwidth-small{
-          right: -@infopanel_width - 40;
-        }
-      }
-      .material-list.main-files-list{
-        margin-right: @infopanel_width + 40;
-        @media @screenwidth-small{
-          margin-right: 0;
-        }
-      }
-    }
   }
 
   .media-small-hide{

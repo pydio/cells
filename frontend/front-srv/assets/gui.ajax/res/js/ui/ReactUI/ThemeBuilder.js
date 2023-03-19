@@ -417,7 +417,7 @@ export default class ThemeBuilder {
             palette: {
                 mode: systemDark?'dark':'light',
                 primary:{main:palette.primary1Color},
-                secondary:{main:palette.mui3.secondary},
+                secondary:{main:palette.mui3.secondary||palette.primary2Color},
                 background:{
                     paper:mui3['surface']
                 }
@@ -444,11 +444,11 @@ export default class ThemeBuilder {
      * @param searchView
      * @return Object
      */
-    buildFSTemplate(themeCusto, {headerHeight, searchView}) {
+    buildFSTemplate(themeCusto, {headerHeight, searchView, rightColumnClosed=false, displayMode=''}) {
 
         const {mui3} = themeCusto.palette
         let infoPanelBg, appBarRounded, isMUI3, appBarBackColor, appBarTextColor, headerButtonsColor, iconButtonsColor
-        let masterMargin = 8, rightPanelTop = headerHeight;
+        let masterMargin = 8;
         if (this.userTheme === 'mui3') {
             isMUI3 = true
             masterMargin=8
@@ -458,14 +458,13 @@ export default class ThemeBuilder {
                     padding: masterMargin,
                     marginBottom: masterMargin
                 }
-                rightPanelTop += 12
             } else {
                 appBarRounded = {
                     borderRadius: mui3['card-border-radius'],
                     margin: masterMargin,
+                    marginBottom: 0,
                     border: '1px solid ' + mui3['outline-variant-50']
                 }
-                rightPanelTop += masterMargin
             }
             appBarTextColor = Color(mui3['on-surface'])
             appBarBackColor = mui3['surface-2']
@@ -483,14 +482,29 @@ export default class ThemeBuilder {
 
         }
 
-
         const headerBase = 72
         const buttonsHeight = 24
         const buttonsFont = 13
 
+        let listMarginRight = 0, listMarginTop = 0;
+        if(this.userTheme === 'mui3' && (displayMode.indexOf('grid-')!==0 && displayMode !== 'masonry')){
+            listMarginTop = masterMargin
+        }
+        const isGrid = !(displayMode==='list'||displayMode==='detail');
+        if(rightColumnClosed) {
+            if(!isGrid){
+                listMarginRight = masterMargin
+            }
+        } else {
+            if(isGrid){
+                listMarginRight = -masterMargin
+            }
+        }
+
         let styles = {
             masterMargin,
             masterStyle:{
+                display:'flex',
                 backgroundColor: mui3.background,
                 overflow:'hidden',
                 color:isMUI3?undefined:'rgba(0,0,0,.87)'
@@ -503,9 +517,12 @@ export default class ThemeBuilder {
                 display:'flex',
                 ...appBarRounded
             },
-            listStyle: searchView?{
-                marginLeft: 250+masterMargin
-            }:{},
+            listStyle: {
+                flex: 1,
+                marginRight:listMarginRight,
+                marginTop:listMarginTop,
+                marginLeft:searchView?(250+masterMargin):null
+            },
             buttonsStyle : {
                 width: 40,
                 height: 40,
@@ -550,7 +567,8 @@ export default class ThemeBuilder {
             infoPanel:{
                 masterStyle : {
                     backgroundColor: infoPanelBg || 'transparent',
-                    top: rightPanelTop
+                    top: 0,
+                    width: '100%'
                 },
                 card: {
                     zDepth: 0,
@@ -615,9 +633,9 @@ export default class ThemeBuilder {
             },
             otherPanelsStyle: {
                 backgroundColor: infoPanelBg || 'transparent',
-                top: rightPanelTop,
+                top: 0,
                 borderLeft: 0,
-                width: 270
+                width: '100%'
             },
             breadcrumbStyle:{
                 // todo:  change to theme var, adapt color for legacy theme

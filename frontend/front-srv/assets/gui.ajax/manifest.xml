@@ -46,7 +46,7 @@
         </resources>
     </client_settings>
 	<server_settings>
-        <global_param name="GUI_THEME" group="CONF_MESSAGE[Main Options]" type="select" choices="mui3|Material 3,material|Material,light|Material Light" label="CONF_MESSAGE[Theme]" description="CONF_MESSAGE[Theme used for display]" mandatory="true" default="mui3" expose="true"/>
+        <global_param name="GUI_THEME" group="CONF_MESSAGE[Main Options]" type="select" choices="mui3|Material 3,material|Material 1 (Legacy)" label="CONF_MESSAGE[Theme]" description="CONF_MESSAGE[Theme used for display]" mandatory="true" default="mui3" expose="true"/>
         <global_param name="ENABLE_WELCOME_TOUR" group="CONF_MESSAGE[Main Options]" type="boolean" expose="true" label="CONF_MESSAGE[Enable Welcome Tour]" description="CONF_MESSAGE[Enable the small tour triggered at first visit]" default="true"/>
         <global_param name="CLIENT_TIMEOUT" group="CONF_MESSAGE[Main Options]" type="integer" label="CONF_MESSAGE[Web Interface auto-logout after inactivity]" description="CONF_MESSAGE[For security, disconnect user if there was no activity. Set to the cookie expiration by default.]" mandatory="false" default="24"/>
         <global_param name="CLIENT_TIMEOUT_WARN" group="CONF_MESSAGE[Main Options]" type="integer" label="CONF_MESSAGE[Warning Before Session Expiration]" description="CONF_MESSAGE[Alert the user that the web session is about to expire. Number of minutes before session expiration]" mandatory="false" default="3"/>

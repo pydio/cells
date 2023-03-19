@@ -25,16 +25,30 @@ import UserWidget from './UserWidget'
 import WorkspacesList from '../wslist/WorkspacesList'
 const {TasksPanel} = Pydio.requireLib("boot");
 
-const LeftPanel = ({style={}, userWidgetProps, workspacesListProps = {}, pydio, onClick, onMouseOver}) => {
+const LeftPanel = ({style={}, userWidgetProps, workspacesListProps = {}, pydio, onClick, onMouseOver, closed, drawerOpen}) => {
 
         let uWidgetProps = {...userWidgetProps};
         uWidgetProps.style = {
             width:'100%',
             ...uWidgetProps.style
         };
+        let mainStyle = {
+            ...style,
+            width: 250,
+            transition: 'all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'
+        }
+        if(closed) {
+            mainStyle.position = 'absolute'
+            mainStyle.top = 0
+            mainStyle.bottom = 0
+            mainStyle.zIndex = 1000
+            if(!drawerOpen){
+                mainStyle.transform = 'translateX(-250px)'
+            }
+        }
 
         return (
-            <div className="left-panel vertical_fit vertical_layout" style={{...style}} onClick={onClick} onMouseOver={onMouseOver}>
+            <div className="left-panel vertical_layout" style={mainStyle} onClick={onClick} onMouseOver={onMouseOver}>
                 <UserWidget
                     pydio={pydio}
                     controller={pydio.getController()}

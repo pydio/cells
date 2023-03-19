@@ -71,32 +71,31 @@ class AltDashboard extends React.Component {
         const isMui3 = muiTheme.userTheme === 'mui3'
         const {palette:{mui3}} = muiTheme
 
-        const styles = {
-            appBarStyle : {
-                backgroundColor: muiTheme.darkMode? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.40)',
-                height: fullScreen? 0: 200,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            },
-            buttonsStyle : {
-                color: muiTheme.appBar.textColor
-            },
-            iconButtonsStyle :{
-                color: appBarColor.darken(0.4).toString()
-            },
-            wsListsContainerStyle: {
-                flex: 1,
-                display:'flex',
-                flexDirection:'column',
-                alignItems:'center',
-                backgroundColor: isMui3 ? mui3['surface']:'white',
-                overflow:'hidden'
-            }
-        };
+        const styles = muiTheme.buildFSTemplate({})
+        styles.appBarStyle = {
+            backgroundColor: muiTheme.darkMode? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.40)',
+            height: fullScreen? 0: 200,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+        }
+        styles.buttonsStyle = {
+            color: muiTheme.appBar.textColor
+        }
+        styles.iconButtonsStyle = {
+            color: appBarColor.darken(0.4).toString()
+        }
+        styles.wsListsContainerStyle = {
+            flex: 1,
+            display:'flex',
+            flexDirection:'column',
+            alignItems:'center',
+            backgroundColor: isMui3 ? mui3['surface']:'white',
+            overflow:'hidden',
+        }
 
 
-        let mainClasses = ['vertical_layout', 'vertical_fit', 'react-fs-template', 'user-dashboard-template'];
+        let mainClasses = ['vertical_fit', 'react-fs-template', 'user-dashboard-template'];
 
         let tutorialComponent;
         if (this.showTutorial()) {
@@ -106,8 +105,19 @@ class AltDashboard extends React.Component {
         }
 
         const headerHeight = 72;
+        let additionalStyle = {}
+        if(muiTheme.userTheme !== 'mui3'){
+            additionalStyle = {
+                position:'absolute',
+                bottom:0,
+                top:0,
+                zIndex: 1000,
+                transform: drawerOpen?'translateX(0px)':'translateX(-250px)'
+            }
+        }
+
         const leftPanelProps = {
-            style: muiTheme.buildFSTemplate({}).leftPanel.masterStyle,
+            style: {...styles.leftPanel.masterStyle, ...additionalStyle},
             headerHeight:headerHeight,
             onMouseOver:()=>{this.clearCloseTimeout()},
             userWidgetProps: {
@@ -138,6 +148,7 @@ class AltDashboard extends React.Component {
             <MasterLayout
                 pydio={pydio}
                 classes={mainClasses}
+                style={{...styles.masterStyle, backgroundColor:'transparent'}}
                 tutorialComponent={tutorialComponent}
                 leftPanelProps={leftPanelProps}
                 drawerOpen={drawerOpen}

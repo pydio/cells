@@ -34,11 +34,11 @@ import AddressBookPanel from './AddressBookPanel'
 import MasterLayout from './MasterLayout'
 import {muiThemeable} from 'material-ui/styles'
 import DOMUtils from 'pydio/util/dom'
-import Color from "color";
 const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 const {ThemedContainers:{IconButton}} = Pydio.requireLib('hoc');
 
 import UnifiedSearchForm from "../search/components/UnifiedSearchForm";
+import {Resizable} from "re-resizable";
 
 class FSTemplate extends React.Component {
 
@@ -57,6 +57,7 @@ class FSTemplate extends React.Component {
             infoPanelToggle: !closedToggle,
             drawerOpen: false,
             rightColumnState: rState,
+            rightColumnWidth: 250,
             searchFormState: {},
             searchView: false
         };
@@ -126,46 +127,29 @@ class FSTemplate extends React.Component {
             if(name !== 'info-panel'){
                 infoPanelOpen = true;
             }
-            if(name !== 'advanced-search'){
-                localStorage.setItem('pydio.layout.rightColumnState', name);
-                localStorage.setItem('pydio.layout.infoPanelToggle', 'open');
-                localStorage.setItem('pydio.layout.infoPanelOpen', infoPanelOpen?'open':'closed');
-            }
+            localStorage.setItem('pydio.layout.rightColumnState', name);
+            localStorage.setItem('pydio.layout.infoPanelToggle', 'open');
+            localStorage.setItem('pydio.layout.infoPanelOpen', infoPanelOpen?'open':'closed');
             this.setState({infoPanelToggle:true, infoPanelOpen}, () => this.resizeAfterTransition())
         });
     }
 
     closeRightPanel() {
-        const {rightColumnState} = this.state;
-        if(rightColumnState === 'advanced-search'){
-            // Reopen last saved state
-            const rState = localStorage.getItem('pydio.layout.rightColumnState');
-            if(rState !== undefined && rState && rState !== 'advanced-search'){
-                this.openRightPanel(rState);
-            } else {
-                this.setState({infoPanelToggle: false}, () => {
-                    this.resizeAfterTransition();
-                });
-            }
-        } else {
-            this.setState({infoPanelToggle: false}, () => {
-                this.resizeAfterTransition();
-            });
-            localStorage.setItem('pydio.layout.rightColumnState', '');
-            localStorage.setItem('pydio.layout.infoPanelToggle', 'closed');
-        }
+        this.setState({infoPanelToggle: false}, () => {
+            this.resizeAfterTransition();
+        });
+        localStorage.setItem('pydio.layout.rightColumnState', '');
+        localStorage.setItem('pydio.layout.infoPanelToggle', 'closed');
     }
 
 
     resizeAfterTransition(){
         setTimeout(() => {
-            if(this.refs.list) {
-                this.refs.list.resize();
-            }
             if(!this.state.infoPanelToggle){
                 this.setState({rightColumnState: null});
             }
         }, 300);
+        window.dispatchEvent(new Event('resize'))
     }
 
     infoPanelContentChange(numberOfCards){
@@ -179,21 +163,19 @@ class FSTemplate extends React.Component {
 
     render () {
 
-        const {muiTheme} = this.props;
-        const mobile = this.props.pydio.UI.MOBILE_EXTENSIONS;
+        const {muiTheme, pydio} = this.props;
+        const mobile = pydio.UI.MOBILE_EXTENSIONS;
+
         const {breakpoint = 'md'} = muiTheme;
         const smallScreen = (breakpoint==='s'|| breakpoint==='xs'), xtraSmallScreen = (breakpoint === 'xs')
-
-        const {pydio} = this.props;
         const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
         const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
         const dm = pydio.getContextHolder();
         const searchView = dm.getContextNode() === dm.getSearchNode();
         const {searchViewTransition, workspaceRootView = dm.getContextNode().isRoot()} = this.state;
 
-        // Load from user prefs
+        // Header Size FX
         const {headerLarge = true} = this.state;
-
         const headerBase = 72;
         let headerHeight = headerBase;
         if(workspaceRootView && !searchView && headerLarge) {
@@ -201,10 +183,6 @@ class FSTemplate extends React.Component {
             //headerHeight = 152
         }
 
-        const styles = muiTheme.buildFSTemplate({headerHeight, searchView})
-
-        const {infoPanelOpen, drawerOpen, infoPanelToggle, filesListDisplayMode} = this.state;
-        let {rightColumnState} = this.state;
 
         let mainToolbars = [
             "change_main",
@@ -220,12 +198,16 @@ class FSTemplate extends React.Component {
         let showChatTab = (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS"));
         let showAddressBook = (!pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK")) && !smallScreen;
         let showInfoPanel = !xtraSmallScreen;
+
         if(showChatTab){
             const repo = pydio.user.getRepositoriesList().get(pydio.user.activeRepository);
             if(repo && !repo.getOwner()){
                 showChatTab = false;
             }
         }
+        let {drawerOpen, rightColumnState, rightColumnWidth, displayMode} = this.state;
+        let rightColumnClosed = false;
+
         if(!showChatTab && rightColumnState === 'chat') {
             rightColumnState = 'info-panel';
         }
@@ -233,14 +215,12 @@ class FSTemplate extends React.Component {
             rightColumnState = '';
         }
 
-        let classes = ['vertical_layout', 'vertical_fit', 'react-fs-template'];
-        const thumbDisplay = (filesListDisplayMode && filesListDisplayMode.indexOf("grid-") === 0) || filesListDisplayMode === 'masonry' ;
-        if((infoPanelOpen || thumbDisplay) && infoPanelToggle) {
-            classes.push('info-panel-open');
-            if(rightColumnState !== 'info-panel'){
-                //classes.push('info-panel-open-lg');
-            }
+        let classes = ['vertical_fit', 'react-fs-template'];
+        if(!rightColumnState || xtraSmallScreen) {
+            rightColumnClosed = true
+
         }
+        const styles = muiTheme.buildFSTemplate({headerHeight, searchView, rightColumnClosed, displayMode})
 
         // Making sure we only pass the style to the parent element
         const {style, ...props} = this.props;
@@ -258,6 +238,8 @@ class FSTemplate extends React.Component {
         let leftPanelProps = {
             headerHeight:headerBase,
             style:styles.leftPanel.masterStyle,
+            closed: searchView || smallScreen,
+            drawerOpen,
             userWidgetProps: {
                 color: styles.userWidgetStyle.color,
                 mergeButtonInAvatar:true,
@@ -282,16 +264,6 @@ class FSTemplate extends React.Component {
                 searchView: true,
                 values, setValues, searchLoading, facets, activeFacets, toggleFacet,
             };
-            /*
-            styles.appBarStyle = {
-                ...styles.appBarStyle,
-                marginLeft: 0
-            }
-            styles.listStyle = {
-                ...styles.listStyle,
-                marginLeft: 250
-            }
-             */
             const count = pydio.getContextHolder().getSearchNode().getChildren().size;
             let stLabel, stDisable = true;
             let labelStyle = {...styles.flatButtonLabelStyle}
@@ -330,21 +302,23 @@ class FSTemplate extends React.Component {
                 leftPanelProps={leftPanelProps}
                 onCloseDrawerRequested={()=>{this.setState({drawerOpen:false})}}
             >
-                    <Paper zDepth={styles.appBarZDepth} style={styles.appBarStyle} rounded={false}>
+                <Paper zDepth={styles.appBarZDepth} style={styles.appBarStyle} rounded={false}>
                         {searchView &&
                         <div>
                             <IconButton
                                 style={{width:56,height:56,padding:14, margin:'6px -6px 6px 6px'}}
                                 iconClassName={"mdi mdi-arrow-left"}
-                                iconStyle={{...muiTheme.iconButton.iconStyle, fontSize: 30}}
+                                iconStyle={{...styles.buttonsIconStyle, fontSize: 30}}
                                 onClick={()=>this.unsetSearchView()}
                             />
                         </div>
                         }
                         <div id="workspace_toolbar" style={{flex:1, width:'calc(100% - 430px)', display:'flex'}}>
-                            <span className="drawer-button" style={{marginLeft: 12, marginRight: -6}}>
-                                <IconButton iconStyle={muiTheme.iconButton} iconClassName="mdi mdi-menu" onClick={this.openDrawer.bind(this)}/>
-                            </span>
+                            {muiTheme.userTheme !== 'mui3' &&
+                                <span className="drawer-button" style={{marginLeft: 12, marginRight: -6}}>
+                                    <IconButton iconStyle={{...styles.buttonsIconStyle, fontSize: 30}} iconClassName="mdi mdi-menu" onClick={this.openDrawer.bind(this)}/>
+                                </span>
+                            }
                             <div style={{flex: 1, overflow:'hidden'}}>
                                 {searchView &&
                                     <Textfit
@@ -450,6 +424,7 @@ class FSTemplate extends React.Component {
                             </div>
                         </div>
                     </Paper>
+                <div style={{display:'flex', flex: 1, overflow:'hidden'}}>
                     <MainFilesList
                         ref="list"
                         key={searchView?"search-results":"files-list"}
@@ -459,38 +434,47 @@ class FSTemplate extends React.Component {
                         searchScope={values ? values.scope : null}
                         searchLoading={searchLoading}
                         onDisplayModeChange={(dMode) => {
-                            this.setState({filesListDisplayMode: dMode});
+                            this.setState({displayMode: dMode});
                         }}
                         onScroll={({scrollTop}) => this.setState({headerLarge: scrollTop < 10})}
                         style={styles.listStyle}
                     />
-                {rightColumnState === 'info-panel' &&
-                    <InfoPanel
-                        {...props}
-                        dataModel={pydio.getContextHolder()}
-                        onRequestClose={()=>{this.closeRightPanel()}}
-                        onContentChange={this.infoPanelContentChange.bind(this)}
-                        style={styles.infoPanel.masterStyle}
-                        mainEmptyStateProps={thumbDisplay? {
-                            iconClassName:'',
-                            primaryTextId:'ajax_gui.infopanel.empty.select.file',
-                            style:{minHeight: 180, backgroundColor: 'transparent', padding:'0 20px'}
-                        }:null}
-                    />
-                }
-                {rightColumnState === 'chat' &&
-                    <CellChat pydio={pydio} style={styles.otherPanelsStyle} zDepth={0} onRequestClose={()=>{this.closeRightPanel()}}/>
-                }
-
-                {rightColumnState === 'address-book' &&
-                    <AddressBookPanel pydio={pydio} style={styles.otherPanelsStyle} zDepth={0} onRequestClose={()=>{this.closeRightPanel()}}/>
-                }
+                    <Resizable
+                        enable={{ top:false, right:false, bottom:false, left:!rightColumnClosed, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
+                        style={{transition: 'width 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'}}
+                        size={{width:rightColumnClosed?0:rightColumnWidth, height: '100%'}}
+                        onResizeStop={(e, direction, ref, d)=>{
+                            this.setState({rightColumnWidth:rightColumnWidth+d.width})
+                            this.resizeAfterTransition()
+                        }}
+                    >
+                        {rightColumnState === 'info-panel' &&
+                            <InfoPanel
+                                {...props}
+                                dataModel={pydio.getContextHolder()}
+                                onRequestClose={()=>{this.closeRightPanel()}}
+                                onContentChange={this.infoPanelContentChange.bind(this)}
+                                style={styles.infoPanel.masterStyle}
+                                mainEmptyStateProps={{
+                                    iconClassName:'',
+                                    primaryTextId:'ajax_gui.infopanel.empty.select.file',
+                                    style:{minHeight: 180, backgroundColor: 'transparent', padding:'0 20px'}
+                                }}
+                            />
+                        }
+                        {rightColumnState === 'chat' &&
+                            <CellChat pydio={pydio} style={styles.otherPanelsStyle} zDepth={0} onRequestClose={()=>{this.closeRightPanel()}}/>
+                        }
+                        {rightColumnState === 'address-book' &&
+                            <AddressBookPanel pydio={pydio} style={styles.otherPanelsStyle} zDepth={0} onRequestClose={()=>{this.closeRightPanel()}}/>
+                        }
+                    </Resizable>
+                </div>
 
                 <EditionPanel {...props}/>
 
             </MasterLayout>
         );
-
 
     }
 }

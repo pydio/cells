@@ -1754,18 +1754,6 @@ div.menu.desktop a span.ajxp_icon_span {
 .react-editor .editor-window #diaporama_box > div.vertical_fit {
   background-color: #fafafa !important;
 }
-.left-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 250px;
-  z-index: 900;
-  overflow: hidden;
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  /*box-shadow: @reactBoxShadowDepth2;*/
-}
 .left-panel .nav-list-entry {
   padding: 6px 1px 6px 16px;
   display: -webkit-box;
@@ -1978,8 +1966,6 @@ div.menu.desktop a span.ajxp_icon_span {
 #info_panel {
   position: absolute;
   z-index: 0;
-  width: 270px;
-  top: 100px;
   bottom: 0;
   -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
@@ -3696,33 +3682,9 @@ body,
   -ms-flex-negative: 0;
       flex-shrink: 0;
 }
-.react-mui-context .left-panel {
-  width: 250px;
-}
-@media only screen and (max-width: 758px) {
-  .react-mui-context .left-panel:not(.expanded) {
-    -webkit-transform: translateX(-250px);
-            transform: translateX(-250px);
-    z-index: 902;
-  }
-}
-@media only screen and (max-width: 758px) {
-  .react-mui-context .drawer-open .left-panel {
-    -webkit-transform: translateX(0px);
-            transform: translateX(0px);
-    -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-  }
-}
 .react-mui-context .user-dashboard-template .left-panel {
-  -webkit-transform: translateX(-250px);
-          transform: translateX(-250px);
   -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
           box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-}
-.react-mui-context .user-dashboard-template.drawer-open .left-panel {
-  -webkit-transform: translateX(0px);
-          transform: translateX(0px);
 }
 .react-mui-context .user-dashboard-template .desktop-container {
   margin-left: 0;
@@ -3733,7 +3695,6 @@ body,
 .react-mui-context .desktop-container {
   -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  margin-left: 250px;
   overflow-x: hidden;
 }
 @media only screen and (max-width: 758px) {
@@ -3810,41 +3771,6 @@ body,
 .react-mui-context .material-list {
   -webkit-transition: margin-right 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: margin-right 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-}
-.react-mui-context #info_panel {
-  right: -270px;
-}
-.react-mui-context .info-panel-open #info_panel {
-  right: 0;
-}
-@media only screen and (max-width: 420px) {
-  .react-mui-context .info-panel-open #info_panel {
-    right: -270px;
-  }
-}
-.react-mui-context .info-panel-open .material-list.main-files-list {
-  margin-right: 270px;
-}
-@media only screen and (max-width: 420px) {
-  .react-mui-context .info-panel-open .material-list.main-files-list {
-    margin-right: 0;
-  }
-}
-.react-mui-context .info-panel-open.info-panel-open-lg #info_panel {
-  right: 0;
-}
-@media only screen and (max-width: 420px) {
-  .react-mui-context .info-panel-open.info-panel-open-lg #info_panel {
-    right: -310px;
-  }
-}
-.react-mui-context .info-panel-open.info-panel-open-lg .material-list.main-files-list {
-  margin-right: 310px;
-}
-@media only screen and (max-width: 420px) {
-  .react-mui-context .info-panel-open.info-panel-open-lg .material-list.main-files-list {
-    margin-right: 0;
-  }
 }
 @media only screen and (max-width: 420px) {
   .react-mui-context .media-small-hide {
@@ -3951,9 +3877,8 @@ body,
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid {
   margin-left: 0;
-  margin-right: 0;
   padding: calc(var(--md-sys-color-fstemplate-master-margin) / 2);
-  margin-top: calc(var(--md-sys-color-fstemplate-master-margin) * -1);
+  padding-right: 0;
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry {
   -webkit-box-shadow: none;
@@ -3979,9 +3904,6 @@ body,
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-text {
   padding: 4px 6px;
-}
-.react-mui-context.mui3-token .info-panel-open .material-list.files-list {
-  margin-right: 270px;
 }
 .react-mui-context.mui3-token .mimefont-container {
   background-color: var(--md-sys-color-mimefont-background) !important;
