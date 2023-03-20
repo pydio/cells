@@ -419,7 +419,7 @@ export default class ThemeBuilder {
                 primary:{main:palette.primary1Color},
                 secondary:{main:palette.mui3.secondary||palette.primary2Color},
                 background:{
-                    paper:mui3['surface']
+                    paper:mui3['surface']||'white'
                 }
             },
             shape:{
@@ -442,6 +442,8 @@ export default class ThemeBuilder {
      * @param themeCusto
      * @param headerHeight
      * @param searchView
+     * @param rightColumnClosed
+     * @param displayMode
      * @return Object
      */
     buildFSTemplate(themeCusto, {headerHeight, searchView, rightColumnClosed=false, displayMode=''}) {
@@ -456,13 +458,11 @@ export default class ThemeBuilder {
                 // Replace with a padding
                 appBarRounded = {
                     padding: masterMargin,
-                    marginBottom: masterMargin
                 }
             } else {
                 appBarRounded = {
                     borderRadius: mui3['card-border-radius'],
-                    margin: masterMargin,
-                    marginBottom: 0,
+                    margin: `${masterMargin}px ${masterMargin}px 0px ${masterMargin}px`,
                     border: '1px solid ' + mui3['outline-variant-50']
                 }
             }
@@ -520,8 +520,7 @@ export default class ThemeBuilder {
             listStyle: {
                 flex: 1,
                 marginRight:listMarginRight,
-                marginTop:listMarginTop,
-                marginLeft:searchView?(250+masterMargin):null
+                marginTop:listMarginTop
             },
             buttonsStyle : {
                 width: 40,
@@ -663,7 +662,15 @@ export default class ThemeBuilder {
                     borderRight: this.userTheme === 'mui3' ? undefined : '1px solid #e0e0e0'
                 },
                 workspacesList:{
-                    style:{}, // must be named style, will be applied to vertical scroller
+                    // must be named style for WorkspacesList widget, will be applied to vertical scroller
+                    style:searchView ? {
+                        margin: 8,
+                        width:220,
+                        borderRadius: mui3['card-border-radius'],
+                        border: '1px solid ' + mui3['outline-variant-50'],
+                        background: mui3['surface-1'],
+                        color: mui3['on-surface-variant'],
+                    } : {},
                     workspaceEntryStyler:{
                         rootItemStyle:{
                             default: {},

@@ -258,7 +258,7 @@ class BookmarksList extends React.Component {
                         <BookmarkLine placeHolder/>
                     </Fragment>
                 }
-                {!loading && items && items.length &&
+                {!loading && items && items.length > 0 &&
                     <div style={listStyle}>{items}</div>
                 }
                 {!loading && (!items || !items.length) &&
