@@ -23,6 +23,9 @@ package rest
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/idm/share"
+	"regexp"
 	"strings"
 
 	restful "github.com/emicklei/go-restful/v3"
@@ -71,6 +74,45 @@ func (s *Handler) getClient() tree.SearcherClient {
 	return s.client
 }
 
+func (s *Handler) sharedResourcesAsNodes(ctx context.Context, query *tree.Query) ([]*tree.Node, bool, error) {
+	scope, freeString, active := s.extractSharedMeta(query.FreeString)
+	if !active {
+		return nil, false, nil
+	}
+	// Replace FS
+	query.FreeString = freeString
+
+	sc := share.NewClient(s.runtimeCtx)
+	rr, e := sc.ListSharedResources(ctx, "", scope, true, resources.ResourceProviderHandler{})
+	if e != nil {
+		return nil, false, e
+	}
+	var out []*tree.Node
+	for _, r := range rr {
+		out = append(out, r.Node)
+	}
+	return out, active, nil
+}
+
+func (s *Handler) extractSharedMeta(freeString string) (scope idm.WorkspaceScope, newString string, has bool) {
+	rx, _ := regexp.Compile("((\\+)?Meta\\.shared_resource_type:(any|cell|link))")
+	matches := rx.FindAllStringSubmatch(freeString, -1)
+	if len(matches) == 1 && len(matches[0]) == 4 {
+		has = true
+		switch matches[0][3] {
+		case "any":
+			scope = idm.WorkspaceScope_ANY
+		case "cell":
+			scope = idm.WorkspaceScope_ROOM
+		case "link":
+			scope = idm.WorkspaceScope_LINK
+		}
+		newString = rx.ReplaceAllString(freeString, "")
+		newString = strings.TrimSpace(newString)
+	}
+	return
+}
+
 func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
@@ -109,6 +151,14 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 		defer nodeStreamer.CloseSend()
 	}
 
+	// TMP Load shared
+	sharedNodes, shared, er := s.sharedResourcesAsNodes(ctx, query)
+	if er != nil {
+		log.Logger(ctx).Error("cannot load shared resources")
+		service.RestErrorDetect(req, rsp, e)
+		return
+	}
+
 	err := router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 
 		var userWorkspaces map[string]*idm.Workspace
@@ -117,6 +167,22 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 		loaderCtx, _, _ := inputFilter(ctx, &tree.Node{Path: ""}, "tmp")
 		if accessList, ok := acl.FromContext(loaderCtx); ok {
 			userWorkspaces = accessList.GetWorkspaces()
+		}
+
+		if shared {
+			if len(sharedNodes) == 0 {
+				// Break now, return an empty result
+				return nil
+			}
+			for _, n := range sharedNodes {
+				p := n.GetPath()
+				ctx, n, e = inputFilter(ctx, n, "search-"+p)
+				if e != nil {
+					continue
+				}
+				log.Logger(ctx).Debug("Filtered Node & Context", zap.String("path", n.Path))
+				query.Paths = append(query.Paths, n.Path)
+			}
 		}
 
 		if len(passedPrefix) > 0 {
@@ -197,7 +263,6 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 							}
 						}
 					}
-					//metaLoader.LoadMetas(ctx, filtered)
 					nn = append(nn, filtered.WithoutReservedMetas())
 				}
 			}
