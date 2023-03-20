@@ -21,7 +21,7 @@
 import React, {Component} from 'react';
 import Pydio from 'pydio';
 const {ModernTextField, ModernSelectField} = Pydio.requireLib('hoc');
-import {MenuItem} from 'material-ui'
+import {MenuItem, Divider} from 'material-ui'
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 
 const MimeGroups = [
@@ -49,7 +49,7 @@ class SearchFileFormatPanel extends Component {
         }
         const val = values[name];
         if(val){
-            if(val === SearchConstants.ValueMimeFolders) {
+            if(val === SearchConstants.ValueMimeFolders || val === SearchConstants.ValueMimeFiles) {
                 selector = val
             } else if (val.indexOf('mimes:') === 0) {
                 const mm = val.replace('mimes:', '')
@@ -84,7 +84,7 @@ class SearchFileFormatPanel extends Component {
             } else if(selector.indexOf('group:') === 0) {
                 const gid = selector.replace('group:', '')
                 searchValue = 'mimes:' + SearchConstants.MimeGroups.filter(gr => gr.id === gid)[0].mimes
-            } else if (selector === SearchConstants.ValueMimeFolders) {
+            } else if (selector === SearchConstants.ValueMimeFolders || selector === SearchConstants.ValueMimeFiles) {
                 searchValue = selector
             }
         }
@@ -105,9 +105,11 @@ class SearchFileFormatPanel extends Component {
             <div style={compact?{display: 'flex'}:{}}>
                 <div style={{flex: 3, marginRight:4}}>
                     <ModernSelectField fullWidth={true} value={selector} onChange={(e,i,v)=> this.setState({selector:v, ext: ''}) }>
-                        <MenuItem primaryText={<span style={{color:'rgba(0,0,0,.43)'}}>No filter</span>} value={''}/>
+                        <MenuItem primaryText={<span style={{color:'var(--md-sys-color-outline)'}}>No filter</span>} value={''}/>
                         <MenuItem primaryText={getMessage(502)} value={SearchConstants.ValueMimeFolders}/>
+                        <MenuItem primaryText={getMessage('searchengine.format.file-only')} value={SearchConstants.ValueMimeFiles}/>
                         <MenuItem primaryText={mimeMessages('byextension')} value={"extension"}/>
+                        <Divider/>
                         {SearchConstants.MimeGroups.map(group => <MenuItem primaryText={mimeMessages(group.label)} value={'group:' + group.id}/> )}
                     </ModernSelectField>
                 </div>

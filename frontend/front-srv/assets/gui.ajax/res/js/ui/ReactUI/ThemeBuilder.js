@@ -665,6 +665,7 @@ export default class ThemeBuilder {
                     // must be named style for WorkspacesList widget, will be applied to vertical scroller
                     style:searchView ? {
                         margin: 8,
+                        marginRight:0,
                         width:220,
                         borderRadius: mui3['card-border-radius'],
                         border: '1px solid ' + mui3['outline-variant-50'],

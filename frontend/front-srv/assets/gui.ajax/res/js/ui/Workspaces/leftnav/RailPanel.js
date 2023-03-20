@@ -133,10 +133,16 @@ let RailPanel = ({
     const [unreadCount, setUnreadCount] = useState(0)
     const [resizerWidth, setResizerWidth] = useState(250)
 
-    useEffect(() => {
+    useEffect(()=>{
         ResourcesManager.loadClass('PydioActivityStreams').then(ns => {
-            const {ASClient} = ns
             setASLib(ns)
+        })
+    }, [])
+
+    useEffect(() => {
+        if(ASLib) {
+            const {ASClient} = ASLib
+            setASLib(ASLib)
             if (hoverBarDef && hoverBarDef.id === 'notifications') {
                 ASClient.loadActivityStreams('USER_ID', pydio.user.id, 'inbox').then((json) => {
                     setASData(json.items)
@@ -148,14 +154,16 @@ let RailPanel = ({
                 setUnreadCount(count);
             }).catch(msg => {
             });
-        })
+        }
+    },[hoverBarDef, ASLib])
+
+    useEffect(() => {
         const observer = (event) => {
-            console.log(event)
             if (!ASLib) {
                 return
             }
             const {ASClient} = ASLib
-            if (hoverBarDef && hoverBarDef.id === 'notifications') {
+            if (hover && hoverBarDef && hoverBarDef.id === 'notifications') {
                 ASClient.loadActivityStreams('USER_ID', pydio.user.id, 'inbox').then((json) => {
                     setASData(json.items)
                 }).catch(e => {
@@ -169,7 +177,7 @@ let RailPanel = ({
         }
         pydio.observe('websocket_event:activity', observer)
         return () => pydio.stopObserving('websocket_event:activity', observer)
-    }, [hoverBarDef])
+    }, [hover, hoverBarDef, ASLib])
 
     const wsBar = () => (
         <Fragment>
@@ -205,20 +213,17 @@ let RailPanel = ({
                     activeBar: wsBar
                 },
                 {
-                    text: 'Directory',
-                    icon: 'account-box-outline',
-                    action: 'open_address_book',
-                },
-                {
-                    action: 'open_user_shares',
-                },
-                {
                     text: 'Bookmarks',
                     icon: 'star-outline',
                     onClick: () => {
                     },
                     hoverBar: () => <BookmarksList pydio={pydio} asPopover={false} useCache={true}/>,
                     hoverWidth: 320
+                },
+                {
+                    text: 'Directory',
+                    icon: 'account-box-outline',
+                    action: 'open_address_book',
                 }
             ],
             "bottom": [
@@ -227,6 +232,7 @@ let RailPanel = ({
                     text: 'Alerts',
                     icon: 'bell-outline',
                     hoverWidth: 320,
+                    alert: unreadCount > 0,
                     hoverBar: (lib, data) => {
                         if (!lib) {
                             return null;
@@ -320,6 +326,9 @@ let RailPanel = ({
         hoverStyle.width = innerWidth
     }
 
+    const tops = toolbars.top.map(load).filter(a => !a.ignore)
+    const bottoms = toolbars.bottom.map(load).filter(a => !a.ignore)
+
     return (
         <Resizable
             enable={{
@@ -358,12 +367,9 @@ let RailPanel = ({
                         hideNotifications={true}
                         hideBookmarks={true}
                     />
-                    <div>{toolbars.top.map(load).filter(a => !a.ignore).map((b, i, a) => <RailIcon {...b}
-                                                                                                   last={i === a.length - 1}/>)}</div>
+                    <div>{tops.map((b, i, a) => <RailIcon {...b} last={i === a.length - 1}/>)}</div>
                     <div className={"vertical_fit"}/>
-                    <div>{toolbars.bottom.map(load).filter(a => !a.ignore).map((b, i, a) => <RailIcon iconOnly {...b}
-                                                                                                      last={i === a.length - 1}
-                                                                                                      alert={b.id === 'notifications' && unreadCount > 0}/>)}</div>
+                    <div>{bottoms.map((b, i, a) => <RailIcon iconOnly {...b} last={i === a.length - 1}/>)}</div>
                 </div>
                 {activeBar &&
                     <div className={"vertical_layout"} style={{flex: 1, height: '100%', overflow:'hidden'}}>{activeBar}</div>

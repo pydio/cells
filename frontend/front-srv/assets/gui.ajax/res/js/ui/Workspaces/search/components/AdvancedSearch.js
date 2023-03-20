@@ -182,8 +182,9 @@ class AdvancedSearch extends Component {
         const fields = [
             {name:'basenameOrContent', label: fNameLabel},
             {name:kk.KeyScope, type: 'scope', label: getMessage('searchengine.scope.title')},
-            {name:kk.KeyMime, type: 'mime', label: 'Format'},
+            {name:kk.KeyMetaShared, type:'share', label: getMessage('searchengine.share.title')},
             {subheader:getMessage(489)},
+            {name:kk.KeyMime, type: 'mime', label: getMessage('searchengine.format.title')},
             ...indexedMeta.map(m => {return {...m, name: m.namespace}}), // copy namespace prop to name
             {subheader:getMessage(498)},
             {name:kk.KeyModifDate, type: 'modiftime', label: getMessage(4)},

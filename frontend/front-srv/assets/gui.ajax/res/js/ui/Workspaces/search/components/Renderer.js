@@ -25,7 +25,8 @@ import SearchScopeSelector from "./SearchScopeSelector";
 import FileFormatPanel from "./FileFormatPanel";
 import DatePanel from "./DatePanel";
 import FileSizePanel from "./FileSizePanel";
-const {ModernTextField} = Pydio.requireLib('hoc');
+import {MenuItem} from 'material-ui'
+const {ModernTextField, ModernSelectField} = Pydio.requireLib('hoc');
 const {moment} = Pydio.requireLib('boot')
 
 export default class Renderer {
@@ -41,6 +42,15 @@ export default class Renderer {
                 return <DatePanel values={values} name={name} pydio={pydio} searchTools={searchTools} onChange={(values) => onChangeValues(values)} />
             case 'bytesize':
                 return <FileSizePanel name={name} values={values} pydio={pydio} searchTools={searchTools} onChange={(values) => onChangeValues(values)} />
+            case 'share':
+                return (
+                    <ModernSelectField name={name} hintText={pydio.MessageHash['searchengine.share.hint']} value={values[name]} pydio={pydio} onChange={(e,i,v) => onChangeValues({...values,[name]:v})} fullWidth={true}>
+                        <MenuItem primaryText={<span style={{color:'var(--md-sys-color-outline)'}}>{pydio.MessageHash['searchengine.share.hint']}</span>} value={''}/>
+                        <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.link']} value={'link'}/>
+                        <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.cell']} value={'cell'}/>
+                        <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.any']} value={'any'}/>
+                    </ModernSelectField>
+                )
             default:
                 const {label} = field
                 return (
@@ -144,6 +154,20 @@ export default class Renderer {
                 }
                 if(value.to) {
                     displayValue += PathUtils.roundFileSize(value.to)
+                }
+                break
+
+            case 'share':
+                switch (value){
+                    case 'link':
+                        label = pydio.MessageHash['searchengine.share.option.link']
+                        break
+                    case 'cell':
+                        label = pydio.MessageHash['searchengine.share.option.cell']
+                        break
+                    case 'any':
+                        label = pydio.MessageHash['searchengine.share.option.any']
+                        break
                 }
                 break
 
