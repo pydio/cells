@@ -415,6 +415,11 @@ export default class ThemeBuilder {
                 backgroundColor:mui3['inverse-surface'],
                 textColor:mui3['inverse-on-surface']
             },
+            tabs:{
+                backgroundColor:'transparent',
+                textColor:mui3['on-surface-variant'],
+                selectedTextColor:mui3['primary'],
+            },
             hoverBackgroundColor:mui3['hover-background']
         };
 
@@ -423,6 +428,7 @@ export default class ThemeBuilder {
             delete(themeCusto.button)
             delete(themeCusto.flatButton)
             delete(themeCusto.raisedButton)
+            delete(themeCusto.tabs)
         }
 
         themeCusto['@mui'] = createTheme({

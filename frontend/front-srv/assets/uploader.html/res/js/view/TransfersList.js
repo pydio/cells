@@ -56,7 +56,7 @@ class TransfersList extends React.Component{
                 if(session.getChildren().length) {
                     isEmpty = false;
                 }
-                return <Transfer item={session} store={store} style={{}} limit={10} level={0} extensions={ext}/>
+                return <Transfer item={session} store={store} style={{}} limit={10} level={0} extensions={ext} muiTheme={muiTheme}/>
             });
             if(!isEmpty){
                 sessionsList = (
@@ -68,7 +68,7 @@ class TransfersList extends React.Component{
         }
 
         const dropper = (
-            <div style={{display:'flex', alignItems:'center', height: '100%', width: '100%', backgroundColor:'#F5F5F5', transition}} className={"drop-transfer-list"}>
+            <div style={{display:'flex', alignItems:'center', height: '100%', width: '100%', transition}} className={"drop-transfer-list"}>
                 <div style={{textAlign: 'center',width: '100%',fontWeight: 500, fontSize: 18, padding: 24, lineHeight:'28px'}}>
                     <div className="mdi mdi-cloud-upload" style={{fontSize: 110}}/>
                     <div>
@@ -81,7 +81,7 @@ class TransfersList extends React.Component{
         );
 
         return (
-            <div style={{display:'flex', height:'100%', overflow:'hidden'}}>
+            <div style={{display:'flex', height:'calc(100% - 10px)', margin:10, overflow:'hidden', borderRadius:muiTheme.borderRadius, backgroundColor:muiTheme.palette.mui3['surface']}}>
                 <div style={{display:'flex', alignItems:'center', justifyContent: 'center', width: '100%'}}>{dropper}</div>
                 {sessionsList && <div style={{width: 420, minWidth:420, maxWidth: 420}}>{sessionsList}</div>}
             </div>
