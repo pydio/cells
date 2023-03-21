@@ -33,7 +33,7 @@ import Pydio from 'pydio'
 import ShareHelper from '../main/ShareHelper'
 import PublicLinkSecureOptions, {SecureOptionsTitle} from "./SecureOptions";
 const {ValidPassword} = Pydio.requireLib('form');
-const {ModernStyles} = Pydio.requireLib('hoc');
+const {ThemedModernStyles} = Pydio.requireLib('hoc');
 import {muiThemeable} from 'material-ui/styles'
 
 export class PaneToggler extends React.Component {
@@ -237,7 +237,7 @@ class PublicLinkPanel extends React.Component {
                         onToggle={this.toggleLink}
                         toggled={linkModel.getLinkUuid() || showTemporaryPassword}
                         label={this.props.getMessage('189')}
-                        {...ModernStyles.toggleFieldV2}
+                        {...ThemedModernStyles(muiTheme).toggleFieldV2}
                     />
                     </div>
                 }

@@ -21,13 +21,14 @@ import React from 'react'
 import Pydio from 'pydio'
 import asMetaForm from "../hoc/asMetaForm";
 import {starsStyle} from "./StarsField"
-const {ModernStyles} = Pydio.requireLib('hoc');
+const {ThemedModernStyles} = Pydio.requireLib('hoc');
 import {muiThemeable} from 'material-ui/styles'
 
 class StarsFormPanel extends React.Component {
 
     render(){
         const {updateValue, value = 0, search, label, muiTheme} = this.props;
+        const ModernStyles = ThemedModernStyles(muiTheme)
         let stars = [-1,0,1,2,3,4].map((v) => {
             const ic = 'star' + (v === -1 ? '-off' : (value > v ? '' : '-outline') );
             const style = (v === -1 ? {marginRight: 5, cursor:'pointer'} : {cursor: 'pointer'});

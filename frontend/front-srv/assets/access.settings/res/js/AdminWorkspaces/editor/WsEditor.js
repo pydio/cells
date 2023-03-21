@@ -23,7 +23,7 @@ import {FlatButton, Paper, Checkbox, MenuItem, Dialog} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import Workspace from '../model/Ws'
 import WsAutoComplete from './WsAutoComplete'
-const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ThemedModernStyles} = Pydio.requireLib('hoc');
 const {InputIntegerBytes} = Pydio.requireLib('form');
 const {PaperEditorLayout, AdminStyles} = AdminComponents;
 
@@ -99,8 +99,10 @@ class WsEditor extends Component {
 
     render(){
 
-        const {closeEditor, pydio, advanced} = this.props;
+        const {closeEditor, pydio, advanced, muiTheme} = this.props;
         const {workspace, container, newFolderKey, saving, showDialog, dialogTargetValue} = this.state;
+
+        const ModernStyles = ThemedModernStyles(muiTheme)
         const m = id => pydio.MessageHash['ajxp_admin.' + id] || id;
         const mS = id => pydio.MessageHash['settings.' + id] || id;
         const readonly = !workspace.PoliciesContextEditable;

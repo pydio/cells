@@ -23,7 +23,8 @@ import asMetaField from "../hoc/asMetaField";
 import asMetaForm from "../hoc/asMetaForm";
 import {MenuItem, FontIcon} from 'material-ui'
 import MetaClient from "../MetaClient";
-const {ModernTextField, ModernSelectField, ModernStyles, DatePicker, TimePicker} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ThemedModernStyles, DatePicker, TimePicker} = Pydio.requireLib('hoc');
+import {muiThemeable} from 'material-ui/styles'
 const {moment} = Pydio.requireLib('boot')
 
 class DateTimeField extends Component {
@@ -58,7 +59,7 @@ class DateTimeField extends Component {
     }
 }
 
-DateTimeField = asMetaField(DateTimeField)
+DateTimeField = asMetaField(muiThemeable()(DateTimeField))
 export {DateTimeField}
 
 class DateTimeForm extends Component {
@@ -163,7 +164,9 @@ class DateTimeForm extends Component {
     }
 
     render() {
-        const {supportTemplates, search, updateValue, value, label} = this.props;
+        const {supportTemplates, search, updateValue, value, label, muiTheme} = this.props;
+        const ModernStyles = ThemedModernStyles(muiTheme)
+
         if(supportTemplates) {
             return (
                 <ModernTextField value={value} fullWidth={true} hintText={label} onChange={(event, value)=>{ updateValue(value);}}/>
@@ -234,5 +237,5 @@ class DateTimeForm extends Component {
 
 }
 
-DateTimeForm = asMetaForm(DateTimeForm)
+DateTimeForm = asMetaForm(muiThemeable()(DateTimeForm))
 export {DateTimeForm}

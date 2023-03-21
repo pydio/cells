@@ -37,7 +37,7 @@ class PagesAcls extends React.Component{
             return <div></div>
         }
         return (
-            <div style={{backgroundColor:'white'}} className={"material-list"}>{workspaces.map( ws => <WorkspaceAcl workspace={ws} role={role} /> )}</div>
+            <div style={{backgroundColor:'white', clear:'both'}} className={"material-list"}>{workspaces.map( ws => <WorkspaceAcl workspace={ws} role={role} /> )}</div>
         );
 
     }

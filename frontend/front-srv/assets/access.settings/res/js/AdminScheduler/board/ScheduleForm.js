@@ -20,11 +20,11 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {JobsJob} from 'cells-sdk'
-import {Dialog, FlatButton, FontIcon, MenuItem, SelectField, TextField, TimePicker} from 'material-ui'
+import {MenuItem,TimePicker} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 
 const {moment} = Pydio.requireLib('boot');
-const {ModernSelectField, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernSelectField, ModernTextField, ThemedModernStyles} = Pydio.requireLib('hoc');
 
 const Blue = '#2196f3';
 const LightGrey = '#e0e0e0';
@@ -182,7 +182,7 @@ class ScheduleForm extends React.Component {
     }
 
     render() {
-        const {edit, includeManual} = this.props;
+        const {edit, includeManual, muiTheme} = this.props;
         if(!edit){
             return <span>{ScheduleForm.readableString(this.state, this.T, true)}</span>
         }
@@ -192,6 +192,8 @@ class ScheduleForm extends React.Component {
         for (let i = 1;i<30; i++){
             monthdays.push(i);
         }
+        const ModernStyles = ThemedModernStyles(muiTheme)
+
         return (
             <div>
                 <div style={{padding: '10px 0', textAlign:'center'}}>
@@ -266,5 +268,5 @@ class ScheduleForm extends React.Component {
     }
 
 }
-
+ScheduleForm = muiThemeable()(ScheduleForm)
 export {ScheduleForm as default};

@@ -20,7 +20,8 @@
 
 import React from 'react';
 import Pydio from 'pydio';
-const {ModernSelectField, ModernStyles, DatePicker} = Pydio.requireLib('hoc');
+import {muiThemeable} from 'material-ui/styles'
+const {ModernSelectField, ThemedModernStyles, DatePicker} = Pydio.requireLib('hoc');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 import {MenuItem} from 'material-ui';
 
@@ -138,7 +139,7 @@ class SearchDatePanel extends React.Component {
         const today = new Date();
 
         const {datePickerGroup, datePicker, dateClose} = SearchDatePanel.styles;
-        const {inputStyle, getMessage, values, name} = this.props;
+        const {inputStyle, getMessage, values, name, muiTheme} = this.props;
         let {value, startDate, endDate} = this.state;
 
         if(!value && values[name]) {
@@ -146,6 +147,8 @@ class SearchDatePanel extends React.Component {
             startDate = values[name].from
             endDate = values[name].to
         }
+
+        const ModernStyles = ThemedModernStyles(muiTheme)
 
         return (
             <div>
@@ -215,6 +218,7 @@ let DatePickerFeed = ({pydio, getMessage, children}) => {
     return children(items)
 };
 
+SearchDatePanel = muiThemeable()(SearchDatePanel)
 SearchDatePanel = PydioContextConsumer(SearchDatePanel);
 DatePickerFeed = PydioContextConsumer(DatePickerFeed);
 export default SearchDatePanel

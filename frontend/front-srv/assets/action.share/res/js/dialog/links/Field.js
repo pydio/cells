@@ -30,7 +30,7 @@ import PathUtils from 'pydio/util/path'
 import LangUtils from 'pydio/util/lang'
 import {muiThemeable} from 'material-ui/styles'
 import ShareHelper from '../main/ShareHelper'
-const {ModernStyles} = Pydio.requireLib('hoc')
+const {ThemedModernStyles} = Pydio.requireLib('hoc')
 const {Tooltip} = Pydio.requireLib("boot");
 
 import LinkModel from './LinkModel'
@@ -203,7 +203,7 @@ class PublicLinkField extends React.Component {
                             value={publicLink}
                             onFocus={e => {e.target.select()}}
                             fullWidth={true}
-                            {...ModernStyles.textFieldV2}
+                            {...ThemedModernStyles(muiTheme).textFieldV2}
                         />
                         {copyButton}
                     </div>

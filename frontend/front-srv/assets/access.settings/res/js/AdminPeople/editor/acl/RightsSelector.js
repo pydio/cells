@@ -89,13 +89,13 @@ class RightsSelector extends React.Component{
         const acl = this.state.acl || '';
 
         if(acl.startsWith('policy:')) {
-            return <div style={{display:'flex', alignItems:'center', width: 132, height: 40}}>Custom policy</div>
+            return <div style={{display:'flex', alignItems:'center', width: 132, height: 33}}>Custom policy</div>
         }
 
         const checkboxStyle = {width:44};
 
         return (
-            <div style={{display:'flex', alignItems:'center', width: 132, height: 40}}>
+            <div style={{display:'flex', alignItems:'center', width: 132, height: 33}}>
                 <Checkbox ref="read"
                           label={hideLabels ? "" : getMessage('react.5a', 'ajxp_admin')}
                           value="read"

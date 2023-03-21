@@ -20,10 +20,9 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {AutoComplete, Subheader} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import Loader from './Loader'
-const {ModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
+const {ThemedModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
 
 const styles = {
     th: {
@@ -98,6 +97,8 @@ class SitesParameters extends React.Component {
         const {muiTheme, m, type} = this.props;
         const {sites, shareConfig, mailerConfig, mailDirty, shareDirty} = this.state;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+        const ModernStyles = ThemedModernStyles(muiTheme)
+
         const hStyle = adminStyles.body.block.headerFull;
         const urls = {};
         let defaultSite;

@@ -66,7 +66,7 @@ class WorkspacesAcls extends React.Component{
         }];
 
         return (
-            <div className={"material-list"}>
+            <div style={{clear:'both'}} className={"material-list"}>
             <MaterialTable
                 data={workspaces}
                 columns={columns}

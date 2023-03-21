@@ -28,7 +28,7 @@ import ShareContextConsumer from '../ShareContextConsumer'
 import LinkModel from './LinkModel'
 import ShareHelper from '../main/ShareHelper'
 const {ValidPassword} = Pydio.requireLib('form');
-const {ThemedContainers:{Popover}, ModernTextField, ModernStyles, DatePicker} = Pydio.requireLib('hoc');
+const {ThemedContainers:{Popover}, ModernTextField, ThemedModernStyles, DatePicker} = Pydio.requireLib('hoc');
 const {moment} = Pydio.requireLib('boot');
 import {muiThemeable} from 'material-ui/styles'
 
@@ -305,6 +305,8 @@ class PublicLinkSecureOptions extends React.Component {
             fontWeight:500,
             color:muiTheme.palette.mui3['on-surface-variant']
         }
+        const ModernStyles = ThemedModernStyles(muiTheme)
+
         return (
             <div>
                 {passContainer}

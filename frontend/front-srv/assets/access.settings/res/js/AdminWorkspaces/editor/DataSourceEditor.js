@@ -30,7 +30,7 @@ import DataSourceLocalSelector from './DataSourceLocalSelector'
 import DsStorageSelector from './DsStorageSelector'
 import DataSourceBucketSelector from './DataSourceBucketSelector'
 const {PaperEditorLayout, AdminStyles} = AdminComponents;
-const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ThemedModernStyles} = Pydio.requireLib('hoc');
 import {ConfigServiceApi, EncryptionAdminCreateKeyRequest} from 'cells-sdk'
 
 const createSteps = ['main', 'storage', 'data', 'advanced'];
@@ -215,8 +215,10 @@ class DataSourceEditor extends React.Component{
     }
 
     render(){
-        const {storageTypes, pydio, readonly} = this.props;
+        const {storageTypes, pydio, readonly, muiTheme} = this.props;
         const {currentPane = 'main', model, create, observable, encryptionKeys, versioningPolicies, showDialog, dialogTargetValue, newKeyName, s3Custom, m} = this.state;
+
+        const ModernStyles = ThemedModernStyles(muiTheme)
 
         let titleActionBarButtons = [];
         if(!readonly && !create){
@@ -224,64 +226,6 @@ class DataSourceEditor extends React.Component{
             titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', ()=>{this.resetForm()}, !this.state.dirty));
             titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.5'), 'mdi mdi-content-save', ()=>{this.saveSource()}, !this.state.dirty));
         }
-
-        const leftNavOldLegends = (
-            <div style={{padding: '6px 0', color: '#9E9E9E', fontSize: 13}}>
-                <div style={{fontSize: 120, textAlign:'center'}}>
-                    <i className="mdi mdi-database"/>
-                </div>
-                <div style={{padding: 16}}>
-                    {this.context.getMessage('ws.75')}&nbsp;
-                    {this.context.getMessage('ws.76')}
-                </div>
-                {create && model.StorageType === 'LOCAL' &&
-                <div>
-                    <Divider/>
-                    <div style={{padding: 16}}>
-                        {m('legend.local')}
-                        <ul>
-                            <li style={{listStyle:'disc', marginLeft: 20}}>{m('legend.local.li.1')}</li>
-                            <li style={{listStyle:'disc', marginLeft: 20}}>{m('legend.local.li.2')}</li>
-                            <li style={{listStyle:'disc', marginLeft: 20}}>{m('legend.local.li.3')}</li>
-                        </ul>
-                    </div>
-                </div>
-                }
-                {create && model.StorageType === 'S3' &&
-                <div>
-                    <Divider/>
-                    <div style={{padding: 16}}>
-                        {m('legend.s3.1')}
-                        <br/>
-                        {m('legend.s3.2')}
-                    </div>
-                </div>
-                }
-                {!create &&
-                    <div>
-                        <Divider/>
-                        <div style={{padding: 16}}>
-                            {m('legend.resync')}
-                            <div style={{textAlign:'center', marginTop: 10}}>
-                                <RaisedButton label={m('legend.resync.button')} onClick={this.launchResync.bind(this)}/>
-                            </div>
-                        </div>
-                    </div>
-                }
-                {!create && !readonly &&
-                    <div>
-                        <Divider/>
-                        <div style={{padding: 16}}>
-                            {m('legend.delete.1')}
-                            <br/>{m('legend.delete.2')}
-                            <div style={{textAlign:'center', marginTop: 10}}>
-                                <RaisedButton secondary={true} label={m('legend.delete.button')} onClick={this.deleteSource.bind(this)} style={{marginTop: 16}}/>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-        );
 
         const title = model.Name ? m('title').replace('%s', model.Name) : m('new');
         let storageConfig = model.StorageConfiguration;

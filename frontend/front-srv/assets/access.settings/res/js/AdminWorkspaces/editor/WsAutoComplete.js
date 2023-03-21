@@ -19,11 +19,12 @@
  */
 import React from 'react'
 import Pydio from 'pydio'
-import {Paper, MenuItem, AutoComplete, RefreshIndicator, FontIcon, IconButton} from 'material-ui'
+import {Paper, MenuItem, RefreshIndicator, FontIcon, IconButton} from 'material-ui'
 import debounce from 'lodash.debounce'
 import PathUtils from 'pydio/util/path'
 import {AdminTreeServiceApi, TreeListNodesRequest, TreeNode} from 'cells-sdk';
-const {ModernAutoComplete, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernAutoComplete, ThemedModernStyles} = Pydio.requireLib('hoc');
+import {muiThemeable} from 'material-ui/styles'
 
 export default class WsAutoComplete extends React.Component{
 
@@ -159,7 +160,8 @@ export default class WsAutoComplete extends React.Component{
 
         const {value, nodes, loading} = this.state;
 
-        const {pydio, onDelete, skipTemplates, label, zDepth = 0} = this.props;
+        const {pydio, muiTheme, onDelete, skipTemplates, label, zDepth = 0} = this.props;
+        const ModernStyles = ThemedModernStyles(muiTheme)
 
         const m = (id) => pydio.MessageHash['ajxp_admin.' + id] || id;
 

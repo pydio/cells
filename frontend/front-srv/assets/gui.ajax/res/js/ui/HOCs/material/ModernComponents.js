@@ -30,15 +30,17 @@ const styles = (muiTheme) => {
     const v1BgColor ='rgba(224, 224, 228, 0.33)'//var(--md-sys-color-surface-variant)'
     const hintColor='var(--md-sys-color-outline)'
 
+    const isMUI3 = muiTheme.userTheme === 'mui3'
+
     const v2Block = {
-        backgroundColor:'var(--md-sys-color-surface-variant)',//'rgb(246, 246, 248)',
+        backgroundColor:isMUI3?'var(--md-sys-color-surface-variant)':'rgb(246, 246, 248)',
         borderRadius:'3px 3px 0 0',
         height:52,
         marginTop: 8
     }
 
     const underline = {
-        idle: {borderBottom:'1px solid var(--md-sys-color-field-underline-idle)'},
+        idle: {borderBottom:isMUI3?'1px solid var(--md-sys-color-field-underline-idle)':'1px solid #e0e0e0'},
         focus: {borderBottom:'2px solid var(--md-sys-color-primary)'}
     }
 
@@ -117,7 +119,7 @@ const styles = (muiTheme) => {
             floatingLabelShrinkStyle: {top: 26, left: 8},
             dropDownMenuProps: {
                 iconStyle: {right: 0, fill: '#9e9e9e'},
-                menuStyle: {background: 'var(--md-sys-color-surface-4)'}
+                menuStyle: {background: isMUI3?'var(--md-sys-color-surface-4)':'white'}
             }
         },
         div: {

@@ -275,6 +275,7 @@ let AdminDashboard = createReactClass({
         }
 
         const theme = getMuiTheme({
+            userTheme:'material',
             palette:{
                 primary1Color:'#03a9f4',
                 primary2Color:'#f57c00',

@@ -331,7 +331,7 @@ export default class ThemeBuilder {
                 styleTarget.style.setProperty('--md-sys-color-outline-variant', '#e0e0e0')
                 styleTarget.style.setProperty('--md-sys-color-on-surface-variant', palette.primary1Color)
                 styleTarget.style.setProperty('--md-sys-color-hover-background', 'rgba(0,0,0,.1)')
-                styleTarget.style.setProperty('--md-sys-color-field-underline-idle', '#ddd')
+                styleTarget.style.setProperty('--md-sys-color-field-underline-idle', '#e0e0e0')
             }
 
         }
