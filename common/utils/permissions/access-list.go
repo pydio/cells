@@ -22,6 +22,7 @@ package permissions
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/utils/std"
 	"sort"
 	"strings"
 	"sync"
@@ -83,11 +84,12 @@ type AccessList struct {
 	wsACLs    []*idm.ACL
 	frontACLs []*idm.ACL
 
-	masksByUUIDs map[string]Bitmask
-	masksByPaths map[string]Bitmask
-	maskBULock   *sync.RWMutex
-	maskBPLock   *sync.RWMutex
-	claimsScopes map[string]Bitmask
+	masksByUUIDs  map[string]Bitmask
+	masksByPaths  map[string]Bitmask
+	maskBULock    *sync.RWMutex
+	maskBPLock    *sync.RWMutex
+	maskRootsLock *sync.RWMutex
+	claimsScopes  map[string]Bitmask
 
 	hasClaimsScopes bool
 	cacheKey        string
@@ -96,10 +98,11 @@ type AccessList struct {
 // NewAccessList creates a new AccessList.
 func NewAccessList(roles ...*idm.Role) *AccessList {
 	acl := &AccessList{
-		wss:          make(map[string]*idm.Workspace),
-		orderedRoles: roles,
-		maskBPLock:   &sync.RWMutex{},
-		maskBULock:   &sync.RWMutex{},
+		wss:           make(map[string]*idm.Workspace),
+		orderedRoles:  roles,
+		maskBPLock:    &sync.RWMutex{},
+		maskBULock:    &sync.RWMutex{},
+		maskRootsLock: &sync.RWMutex{},
 	}
 	return acl
 }
@@ -126,6 +129,8 @@ func (a *AccessList) GetWorkspaces() map[string]*idm.Workspace {
 
 // LoadWorkspaces loads actual idm.Workspace objects using a WsLoader
 func (a *AccessList) LoadWorkspaces(ctx context.Context, loader WsLoader) error {
+	a.maskRootsLock.RLock()
+	defer a.maskRootsLock.RUnlock()
 	if len(a.wssRootsMasks) == 0 {
 		// nothing to do
 		return nil
@@ -182,7 +187,10 @@ func (a *AccessList) Flatten(ctx context.Context) {
 // GetWorkspacesRoots gets detected workspace root nodes that are then
 // used to populate the Workspace keys.
 func (a *AccessList) GetWorkspacesRoots() map[string]map[string]Bitmask {
-	return a.wssRootsMasks
+	a.maskRootsLock.RLock()
+	cl := std.CloneMap(a.wssRootsMasks)
+	a.maskRootsLock.RUnlock()
+	return cl
 }
 
 // GetNodesBitmasks returns internal bitmask
@@ -218,15 +226,24 @@ func (a *AccessList) ReplicateBitmask(fromUuid, toUuid string, replaceInRoots ..
 	if b, o := a.masksByUUIDs[fromUuid]; o {
 		a.masksByUUIDs[toUuid] = b
 		if replace {
+			a.maskRootsLock.Lock()
 			// Replace in wssRootsMasks
-			for _, roots := range a.wssRootsMasks {
-				for rootId := range roots {
+			for maskId, roots := range a.wssRootsMasks {
+				nr := make(map[string]Bitmask)
+				modified := false
+				for rootId, current := range roots {
 					if rootId == fromUuid {
-						delete(roots, fromUuid)
-						roots[toUuid] = b
+						nr[toUuid] = b
+						modified = true
+					} else {
+						nr[rootId] = current
 					}
 				}
+				if modified {
+					a.wssRootsMasks[maskId] = nr
+				}
 			}
+			a.maskRootsLock.Unlock()
 		}
 		return true
 	}
@@ -235,6 +252,9 @@ func (a *AccessList) ReplicateBitmask(fromUuid, toUuid string, replaceInRoots ..
 
 // DetectedWsRights retrieves a map of accessible workspaces.
 func (a *AccessList) DetectedWsRights(ctx context.Context) map[string]SimpleRight {
+	a.maskRootsLock.RLock()
+	defer a.maskRootsLock.RUnlock()
+
 	results := make(map[string]SimpleRight)
 	for wsId, wsNodes := range a.wssRootsMasks {
 		rights := SimpleRight{}
@@ -341,6 +361,8 @@ func (a *AccessList) IsLocked(ctx context.Context, nodes ...*tree.Node) bool {
 
 // BelongsToWorkspaces finds corresponding workspace parents for this node.
 func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Node) (workspaces []*idm.Workspace, workspacesRoots map[string]string) {
+	a.maskRootsLock.RLock()
+	defer a.maskRootsLock.RUnlock()
 
 	foundWorkspaces := make(map[string]bool)
 	workspacesRoots = make(map[string]string)
