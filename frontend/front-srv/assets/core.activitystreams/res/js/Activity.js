@@ -116,6 +116,10 @@ export class ActivityMD extends React.Component {
 
 class Activity extends React.Component{
 
+    state = {
+        hover: false
+    }
+
     computeIcon(activity){
         let className = '';
         let title;
@@ -173,89 +177,84 @@ class Activity extends React.Component{
 
     render() {
 
-        let {pydio, activity, listContext, displayContext, oneLiner, muiTheme} = this.props;
+        let {pydio, activity, listContext, oneLiner, muiTheme, onRequestClose=()=>{}} = this.props;
+        let {hover} = this.state;
 
-        let summary, summaryStyle;
+        let summary;
+        const {className} = this.computeIcon(activity);
+        const accentColor = muiTheme.palette.mui3['outline-variant']
+
+
         let blockStyle = {
-            margin:'0px 10px 6px'
+            margin:0,
+            padding:'10px 0'
         };
-        if(displayContext === 'popover'){
-            summaryStyle = {
-                fontSize: 13,
-                color: 'rgba(0,0,0,0.53)',
-                margin: '6px 0',
-                padding: 6,
-            }
-        } else {
-            summaryStyle = {
-                padding: '6px 22px 13px',
-                marginTop: 6,
-                borderRadius: 2,
-                borderLeft: '2px solid #e0e0e0',
-                marginLeft: 14,
-                color: 'rgba(0,0,0,0.83)',
-                overflow: 'hidden'
+        if(hover){
+            blockStyle = {
+                ...blockStyle,
+                backgroundColor:muiTheme.hoverBackgroundColor
             };
         }
-        const {className} = this.computeIcon(activity);
-        const accentColor = muiTheme.palette.mui3.tertiary
 
-        if(displayContext === 'popover'){
-            blockStyle = {margin:0};
-            const nodes = nodesFromObject(activity.object, pydio);
-            let icon, primaryText;
-            if(nodes.length){
-                const previewStyles = {
-                    style: {
-                        height: 36,
-                        width: 36,
-                        borderRadius: '50%',
-                    },
-                    mimeFontStyle: {
-                        fontSize: 20,
-                        lineHeight: '36px',
-                        textAlign:'center'
-                    }
-                };
-                icon = (
-                    <div style={{padding:'12px 20px 12px 20px', position:'relative'}}>
-                        <FilePreview pydio={pydio} node={nodes[0]} loadThumbnail={true} {...previewStyles}/>
-                        <span className={className} style={{position:'absolute', bottom: 8, right: 12, fontSize:18, color: accentColor}}/>
-                    </div>
-                );
-                primaryText = nodes[0].getLabel() || PathUtils.getBasename(nodes[0].getPath())
-            } else {
-                icon = (
-                    <div style={{margin:'12px 20px 12px 20px', backgroundColor: 'rgb(237, 240, 242)', alignItems: 'initial', height: 36, width: 36, borderRadius: '50%', textAlign:'center'}}>
-                        <FontIcon className={className} style={{lineHeight:'36px', color:accentColor}}/>
-                    </div>
-                );
-                if(activity.object) {
-                    primaryText = activity.object.name;
-                } else {
-                    primaryText = activity.name;
+        const nodes = nodesFromObject(activity.object, pydio);
+        let icon, primaryText;
+        if(nodes.length){
+            const previewStyles = {
+                style: {
+                    height: 36,
+                    width: 36,
+                    borderRadius: '50%',
+                },
+                mimeFontStyle: {
+                    fontSize: 20,
+                    lineHeight: '36px',
+                    textAlign:'center'
                 }
-            }
-            summary = (
-                <div style={{display:'flex', alignItems:'flex-start', overflow:'hidden', paddingBottom: 8}}>
-                    {icon}
-                    <div style={{flex:1, overflow:'hidden', paddingRight: 16}}>
-                        <div style={{marginTop: 12, marginBottom: 2, fontSize: 14, fontWeight: 500, whiteSpace:'nowrap', textOverflow:'ellipsis', overflow:'hidden'}}>{primaryText}</div>
-                        <div style={{opacity: .73}}>
-                            <ActivityMD activity={activity} listContext={listContext}/>
-                        </div>
-                    </div>
+            };
+            icon = (
+                <div style={{padding:'12px 20px 12px 20px', position:'relative'}}>
+                    <FilePreview pydio={pydio} node={nodes[0]} loadThumbnail={true} {...previewStyles}/>
+                    <span className={className} style={{position:'absolute', bottom: 8, right: 12, fontSize:18, color: accentColor}}/>
                 </div>
             );
+            primaryText = nodes[0].getLabel() || PathUtils.getBasename(nodes[0].getPath())
         } else {
-            summary = (<div style={summaryStyle}>{secondary}</div>);
+            icon = (
+                <div style={{margin:'8px 20px', backgroundColor: 'var(--md-sys-color-primary-container)', alignItems: 'initial', height: 36, width: 36, borderRadius: '50%', textAlign:'center'}}>
+                    <FontIcon className={className} style={{lineHeight:'36px'}}/>
+                </div>
+            );
+            if(activity.object) {
+                primaryText = activity.object.name;
+            } else {
+                primaryText = activity.name;
+            }
+        }
+        summary = (
+            <div style={{display:'flex', alignItems:'flex-start', overflow:'hidden', paddingBottom: 8}}>
+                {icon}
+                <div style={{flex:1, overflow:'hidden', paddingRight: 16}}>
+                    <div style={{marginBottom: 4, fontSize: 14, fontWeight: 500, whiteSpace:'nowrap', textOverflow:'ellipsis', overflow:'hidden', color:'var(--md-sys-color-on-surface)'}}>{primaryText}</div>
+                    <div style={{opacity: 1}}>
+                        <ActivityMD activity={activity} listContext={listContext}/>
+                    </div>
+                </div>
+            </div>
+        );
+        let onClick;
+        if(activity.type !== 'Delete' && activity.object && activity.object.type === 'Folder' || activity.object.type === 'Document') {
+            const nn = nodesFromObject(activity.object, pydio)
+            if(nn.length) {
+                onClick = () => {
+                    pydio.goTo(nn[0])
+                    onRequestClose()
+                }
+                blockStyle.cursor = 'pointer'
+            }
         }
 
-
-
-
         return (
-            <div style={blockStyle}>
+            <div style={blockStyle} onMouseEnter={()=>this.setState({hover:true})} onMouseLeave={()=>this.setState({hover:false})} onClick={onClick}>
                 {!oneLiner &&
                     <div style={{display:'flex', alignItems:'center'}}>
                         {activity.actor &&

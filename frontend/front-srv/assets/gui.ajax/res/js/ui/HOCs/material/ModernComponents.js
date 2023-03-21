@@ -19,118 +19,146 @@
  */
 import React from 'react'
 import {TextField, SelectField, AutoComplete} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 
-const noWrap = {
-    whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'
-};
+const styles = (muiTheme) => {
 
-const v1BgColor ='rgba(224, 224, 228, 0.33)'//var(--md-sys-color-surface-variant)'
-const hintColor='var(--md-sys-color-outline)'
+    const noWrap = {
+        whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'
+    };
 
-const v2Block = {
-    backgroundColor:'var(--md-sys-color-surface-variant)',//'rgb(246, 246, 248)',
-    borderRadius:'3px 3px 0 0',
-    height:52,
-    marginTop: 8
-}
+    const v1BgColor ='rgba(224, 224, 228, 0.33)'//var(--md-sys-color-surface-variant)'
+    const hintColor='var(--md-sys-color-outline)'
 
-const underline = {
-    idle: {borderBottom:'1px solid var(--md-sys-color-field-underline-idle)'},
-    focus: {borderBottom:'2px solid var(--md-sys-color-primary)'}
-}
-
-const styles = {
-    textField:{
-        inputStyle:{backgroundColor:v1BgColor,height: 34, borderRadius: 3, marginTop: 6, padding: 7},
-        hintStyle:{paddingLeft: 7, color:hintColor, ...noWrap, width: '100%'},
-        underlineStyle:{opacity:0},
-        underlineFocusStyle:{opacity:1, borderRadius: '0px 0px 3px 3px'},
-        errorStyle:{bottom:-4}
-    },
-    textFieldV2:{
-        style:{...v2Block},
-        inputStyle:{position: 'absolute', height:30, marginTop:0, bottom: 2, paddingLeft: 8, paddingRight: 8},
-        hintStyle:{bottom: 4, paddingLeft: 7, color:hintColor, ...noWrap, width: '100%'},
-        underlineStyle:{opacity:1, bottom: 0, ...underline.idle},
-        underlineFocusStyle:{opacity:1, borderRadius: 0, bottom: 0, ...underline.focus},
-        floatingLabelFixed: true,
-        floatingLabelStyle:{top:26, left: 8, width:'127%', ...noWrap},
-        floatingLabelShrinkStyle:{top:26, left: 8},
-        errorStyle:{position:'absolute', bottom:8, right:8}
-    },
-    textareaField:{
-        rows: 4,
-        rowsMax: 4,
-        inputStyle:{backgroundColor:v1BgColor,height: 106, borderRadius: 3, marginTop: 6, padding: 7},
-        textareaStyle:{marginTop: 0, marginBottom: 0},
-        hintStyle:{paddingLeft: 7, color:hintColor, ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
-        underlineStyle:{opacity:0},
-        underlineFocusStyle:{opacity:1, borderRadius: '0px 0px 3px 3px'},
-        errorStyle:{bottom: -3}
-    },
-    textareaFieldV2:{
-        rows: 4,
-        rowsMax: 4,
-        style:{height: 128},
-        inputStyle:{backgroundColor:v2Block.backgroundColor, height: 120, borderRadius: v2Block.borderRadius, marginTop: 8, paddingLeft: 8},
-        textareaStyle:{marginTop: 24, marginBottom: 0},
-        floatingLabelFixed: true,
-        floatingLabelStyle:{top:35, left:6, width:'127%', ...noWrap},
-        floatingLabelShrinkStyle:{top:35, left: 6},
-        hintStyle:{paddingLeft: 7, color:hintColor, ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
-        underlineStyle:{opacity:1, bottom: 0, ...underline.idle},
-        underlineFocusStyle:{opacity:1, bottom: 0, borderRadius: '0px 0px 3px 3px', ...underline.focus},
-        errorStyle:{position:'absolute', bottom:8, right:8}
-    },
-    selectField:{
-        style:{backgroundColor:v1BgColor,height: 34, borderRadius: 3, marginTop: 6, padding: 7, paddingRight: 0, overflow:'hidden'},
-        menuStyle:{marginTop: -12},
-        hintStyle:{paddingLeft: 0, marginBottom: -7, paddingRight:56, color:hintColor, ...noWrap, width: '100%'},
-        underlineShow: false
-    },
-    selectFieldV2:{
-        style:{...v2Block, padding: 8, paddingRight: 0, overflow:'hidden'},
-        menuStyle:{marginTop: -6},
-        hintStyle:{paddingLeft: 0, marginBottom: -7, paddingRight:56, color:hintColor, ...noWrap, width: '100%'},
-        underlineStyle: {opacity:1, bottom: 0, left: 0, right: 0, ...underline.idle},
-        underlineFocusStyle:{opacity:1, borderRadius: 0, bottom: 0, ...underline.focus},
-        floatingLabelFixed: true,
-        floatingLabelStyle:{top:26, left: 8, width:'127%', ...noWrap},
-        floatingLabelShrinkStyle:{top:26, left: 8},
-        dropDownMenuProps:{iconStyle:{right: 0, fill: '#9e9e9e'}, menuStyle:{background:'var(--md-sys-color-surface-4)'}}
-    },
-    div:{
-        backgroundColor:v1BgColor, color:'rgba(0,0,0,.5)',
-        height: 34, borderRadius: 3, marginTop: 6, padding: 7, paddingRight: 0
-    },
-    toggleField:{
-        style: {
-            backgroundColor: v1BgColor,
-            padding: '7px 5px 4px',
-            borderRadius: 3,
-            fontSize: 15,
-            margin:'6px 0 7px'
-        }
-    },
-    toggleFieldV2:{
-        style:{
-            ...v2Block,
-            borderRadius: 4,
-            fontSize: 15,
-            padding: '15px 10px 4px'
-        }
-    },
-    fillBlockV2Right:{
-        ...v2Block,
-        borderRadius:'0 4px 0 0',
-        ...underline.idle
-    },
-    fillBlockV2Left:{
-        ...v2Block,
-        borderRadius:'4px 0 0 0',
-        ...underline.idle
+    const v2Block = {
+        backgroundColor:'var(--md-sys-color-surface-variant)',//'rgb(246, 246, 248)',
+        borderRadius:'3px 3px 0 0',
+        height:52,
+        marginTop: 8
     }
-};
+
+    const underline = {
+        idle: {borderBottom:'1px solid var(--md-sys-color-field-underline-idle)'},
+        focus: {borderBottom:'2px solid var(--md-sys-color-primary)'}
+    }
+
+
+    return {
+        textField: {
+            inputStyle: {backgroundColor: v1BgColor, height: 34, borderRadius: 3, marginTop: 6, padding: 7},
+            hintStyle: {paddingLeft: 7, color: muiTheme.darkMode?'#aaa':'#454545', ...noWrap, width: '100%'},
+            underlineStyle: {opacity: 0},
+            underlineFocusStyle: {opacity: 1, borderRadius: '0px 0px 3px 3px'},
+            errorStyle: {bottom: -4}
+        },
+        textFieldV2: {
+            style: {...v2Block},
+            inputStyle: {position: 'absolute', height: 30, marginTop: 0, bottom: 2, paddingLeft: 8, paddingRight: 8},
+            hintStyle: {bottom: 4, paddingLeft: 7, color: hintColor, ...noWrap, width: '100%'},
+            underlineStyle: {opacity: 1, bottom: 0, ...underline.idle},
+            underlineFocusStyle: {opacity: 1, borderRadius: 0, bottom: 0, ...underline.focus},
+            floatingLabelFixed: true,
+            floatingLabelStyle: {top: 26, left: 8, width: '127%', ...noWrap},
+            floatingLabelShrinkStyle: {top: 26, left: 8},
+            errorStyle: {position: 'absolute', bottom: 8, right: 8}
+        },
+        textareaField: {
+            rows: 4,
+            rowsMax: 4,
+            inputStyle: {backgroundColor: v1BgColor, height: 106, borderRadius: 3, marginTop: 6, padding: 7},
+            textareaStyle: {marginTop: 0, marginBottom: 0},
+            hintStyle: {paddingLeft: 7, color: hintColor, ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
+            underlineStyle: {opacity: 0},
+            underlineFocusStyle: {opacity: 1, borderRadius: '0px 0px 3px 3px'},
+            errorStyle: {bottom: -3}
+        },
+        textareaFieldV2: {
+            rows: 4,
+            rowsMax: 4,
+            style: {height: 128},
+            inputStyle: {
+                backgroundColor: v2Block.backgroundColor,
+                height: 120,
+                borderRadius: v2Block.borderRadius,
+                marginTop: 8,
+                paddingLeft: 8
+            },
+            textareaStyle: {marginTop: 24, marginBottom: 0},
+            floatingLabelFixed: true,
+            floatingLabelStyle: {top: 35, left: 6, width: '127%', ...noWrap},
+            floatingLabelShrinkStyle: {top: 35, left: 6},
+            hintStyle: {paddingLeft: 7, color: hintColor, ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
+            underlineStyle: {opacity: 1, bottom: 0, ...underline.idle},
+            underlineFocusStyle: {opacity: 1, bottom: 0, borderRadius: '0px 0px 3px 3px', ...underline.focus},
+            errorStyle: {position: 'absolute', bottom: 8, right: 8}
+        },
+        selectField: {
+            style: {
+                backgroundColor: v1BgColor,
+                height: 34,
+                borderRadius: 3,
+                marginTop: 6,
+                padding: 7,
+                paddingRight: 0,
+                overflow: 'hidden'
+            },
+            menuStyle: {marginTop: -12},
+            hintStyle: {paddingLeft: 0, marginBottom: -7, paddingRight: 56, color: muiTheme.darkMode?'#ccc':hintColor, ...noWrap, width: '100%'},
+            underlineShow: false
+        },
+        selectFieldV2: {
+            style: {...v2Block, padding: 8, paddingRight: 0, overflow: 'hidden'},
+            menuStyle: {marginTop: -6},
+            hintStyle: {paddingLeft: 0, marginBottom: -7, paddingRight: 56, color: hintColor, ...noWrap, width: '100%'},
+            underlineStyle: {opacity: 1, bottom: 0, left: 0, right: 0, ...underline.idle},
+            underlineFocusStyle: {opacity: 1, borderRadius: 0, bottom: 0, ...underline.focus},
+            floatingLabelFixed: true,
+            floatingLabelStyle: {top: 26, left: 8, width: '127%', ...noWrap},
+            floatingLabelShrinkStyle: {top: 26, left: 8},
+            dropDownMenuProps: {
+                iconStyle: {right: 0, fill: '#9e9e9e'},
+                menuStyle: {background: 'var(--md-sys-color-surface-4)'}
+            }
+        },
+        div: {
+            backgroundColor: v1BgColor, color: 'rgba(0,0,0,.5)',
+            height: 34, borderRadius: 3, marginTop: 6, padding: 7, paddingRight: 0
+        },
+        toggleField: {
+            style: {
+                backgroundColor: v1BgColor,
+                padding: '7px 5px 4px',
+                borderRadius: 3,
+                fontSize: 15,
+                margin: '6px 0 7px'
+            }
+        },
+        toggleFieldV2: {
+            style: {
+                ...v2Block,
+                borderRadius: 4,
+                fontSize: 15,
+                padding: '15px 10px 4px'
+            }
+        },
+        fillBlockV2Right: {
+            ...v2Block,
+            borderRadius: '0 4px 0 0',
+            ...underline.idle
+        },
+        fillBlockV2Left: {
+            ...v2Block,
+            borderRadius: '4px 0 0 0',
+            ...underline.idle
+        }
+    };
+}
+
+const defaultStyles = styles({
+    palette:{
+        mui3: {}
+    }
+})
 
 function getV2WithBlocks(styles, hasLeft, hasRight){
     if(styles.style){
@@ -177,7 +205,7 @@ function withModernTheme(formComponent) {
 
         render() {
 
-            let {variant, hasLeftBlock, hasRightBlock, ...otherProps} = this.props;
+            let {variant, hasLeftBlock, hasRightBlock, muiTheme, ...otherProps} = this.props;
             if(variant === 'v2' || formComponent === AutoComplete) {
                 if(!otherProps.floatingLabelText){
                     otherProps.floatingLabelText = otherProps.hintText
@@ -194,29 +222,29 @@ function withModernTheme(formComponent) {
                 let styleProps;
                 if(this.props.multiLine){
                     if(variant === 'v2') {
-                        styleProps = this.mergedProps({...styles.textareaFieldV2});
+                        styleProps = this.mergedProps({...styles(muiTheme).textareaFieldV2});
                     } else {
-                        styleProps = this.mergedProps({...styles.textareaField});
+                        styleProps = this.mergedProps({...styles(muiTheme).textareaField});
                     }
                 } else {
                     if(variant === 'v2') {
-                        styleProps = this.mergedProps(getV2WithBlocks({...styles.textFieldV2}, hasLeftBlock, hasRightBlock));
+                        styleProps = this.mergedProps(getV2WithBlocks({...styles(muiTheme).textFieldV2}, hasLeftBlock, hasRightBlock));
                     } else {
-                        styleProps = this.mergedProps({...styles.textField});
+                        styleProps = this.mergedProps({...styles(muiTheme).textField});
                     }
                 }
                 return <TextField {...otherProps} {...styleProps} ref={"component"} />
             } else if (formComponent === SelectField) {
                 let styleProps;
                 if (variant === 'v2') {
-                    styleProps = this.mergedProps(getV2WithBlocks({...styles.selectFieldV2}, hasLeftBlock, hasRightBlock));
+                    styleProps = this.mergedProps(getV2WithBlocks({...styles(muiTheme).selectFieldV2}, hasLeftBlock, hasRightBlock));
                 } else {
-                    styleProps = this.mergedProps({...styles.selectField});
+                    styleProps = this.mergedProps({...styles(muiTheme).selectField});
                 }
                 return <SelectField {...otherProps} {...styleProps} ref={"component"}/>
             } else if (formComponent === AutoComplete) {
 
-                const {style, ...tfStyles} = getV2WithBlocks({...styles.textFieldV2}, hasLeftBlock, hasRightBlock)
+                const {style, ...tfStyles} = getV2WithBlocks({...styles(muiTheme).textFieldV2}, hasLeftBlock, hasRightBlock)
                 return <AutoComplete
                     {...otherProps}
                     ref={"component"}
@@ -230,11 +258,11 @@ function withModernTheme(formComponent) {
         }
     }
 
-    return ModernThemeComponent;
+    return muiThemeable()(ModernThemeComponent);
 
 }
 
 const ModernTextField = withModernTheme(TextField);
 const ModernSelectField = withModernTheme(SelectField);
 const ModernAutoComplete = withModernTheme(AutoComplete);
-export {ModernTextField, ModernSelectField, ModernAutoComplete, withModernTheme, styles as ModernStyles}
+export {ModernTextField, ModernSelectField, ModernAutoComplete, withModernTheme, defaultStyles as ModernStyles, styles as ThemedModernStyles}

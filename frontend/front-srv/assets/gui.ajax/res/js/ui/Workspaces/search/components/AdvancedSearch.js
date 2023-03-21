@@ -26,7 +26,7 @@ const {PydioContextConsumer} = Pydio.requireLib('boot');
 const {ModernTextField} = Pydio.requireLib('hoc');
 import Renderer from './Renderer'
 
-const FieldRow = ({constants, name, label, values, children, style, getDefaultScope,isDefaultScope, onRemove = ()=>{}}) => {
+const FieldRow = ({constants, name, label, values, children, style, muiTheme, getDefaultScope,isDefaultScope, onRemove = ()=>{}}) => {
     let labelStyle= {
         width: 100,
         fontSize: 13,
@@ -55,7 +55,7 @@ const FieldRow = ({constants, name, label, values, children, style, getDefaultSc
         active = true
     }
     if(active){
-        labelStyle = {...labelStyle, backgroundColor: '#e8f5e9', color:'#43a047'}
+        labelStyle = {...labelStyle, backgroundColor: muiTheme.palette.mui3['tertiary-container'], color:muiTheme.palette.mui3['on-tertiary-container']}
     }
     return (
         <div style={{display:'flex', alignItems:'flex-start', margin:'0 16px', ...style}}>
@@ -167,7 +167,8 @@ class AdvancedSearch extends Component {
             values,
             onRemove,
             isDefaultScope,
-            getDefaultScope
+            getDefaultScope,
+            muiTheme
         }
 
         const {searchID, searchLABEL} = values;

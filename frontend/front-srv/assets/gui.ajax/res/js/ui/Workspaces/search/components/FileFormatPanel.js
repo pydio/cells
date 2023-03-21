@@ -20,8 +20,9 @@
 
 import React, {Component} from 'react';
 import Pydio from 'pydio';
-const {ModernTextField, ModernSelectField} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ThemedModernStyles} = Pydio.requireLib('hoc');
 import {MenuItem, Divider} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 
 const MimeGroups = [
@@ -96,7 +97,7 @@ class SearchFileFormatPanel extends Component {
 
     render() {
 
-        const {inputStyle, getMessage, compact = false, searchTools:{SearchConstants}} = this.props;
+        const {inputStyle, getMessage, muiTheme, compact = false, searchTools:{SearchConstants}} = this.props;
         const {folder, ext, selector = ''} = this.state;
         const mm = Pydio.getMessages()
         const mimeMessages = (id) => mm[SearchConstants.MimeGroupsMessage(id)]
@@ -105,7 +106,7 @@ class SearchFileFormatPanel extends Component {
             <div style={compact?{display: 'flex'}:{}}>
                 <div style={{flex: 3, marginRight:4}}>
                     <ModernSelectField fullWidth={true} value={selector} onChange={(e,i,v)=> this.setState({selector:v, ext: ''}) }>
-                        <MenuItem primaryText={<span style={{color:'var(--md-sys-color-outline)'}}>No filter</span>} value={''}/>
+                        <MenuItem primaryText={<span style={{color:ThemedModernStyles(muiTheme).selectField.hintStyle.color}}>No filter</span>} value={''}/>
                         <MenuItem primaryText={getMessage(502)} value={SearchConstants.ValueMimeFolders}/>
                         <MenuItem primaryText={getMessage('searchengine.format.file-only')} value={SearchConstants.ValueMimeFiles}/>
                         <MenuItem primaryText={mimeMessages('byextension')} value={"extension"}/>
@@ -130,5 +131,5 @@ class SearchFileFormatPanel extends Component {
     }
 }
 
-SearchFileFormatPanel = PydioContextConsumer(SearchFileFormatPanel);
+SearchFileFormatPanel = PydioContextConsumer(muiThemeable()(SearchFileFormatPanel));
 export default SearchFileFormatPanel

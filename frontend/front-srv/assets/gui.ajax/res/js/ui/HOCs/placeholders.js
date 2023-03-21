@@ -24,7 +24,7 @@ import {muiThemeable} from 'material-ui/styles'
 import Color from 'color'
 
 function getColor(props) {
-    const base = props.muiTheme.palette.mui3['surface-variant']
+    const base = props.muiTheme.palette.mui3['surface-variant'] || '#eee'
     if(props.muiTheme.darkMode){
         return base
     } else {

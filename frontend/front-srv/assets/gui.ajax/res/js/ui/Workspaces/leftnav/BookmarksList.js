@@ -33,7 +33,8 @@ const {PlaceHolder, PhTextRow, PhRoundShape} = Pydio.requireLib("hoc");
 
 const listCss = `
 .bmListEntry{
-    padding: 2px 0;
+    transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+    padding: 2px 0 !important;
 }
 .bmListEntry:hover{
     background-color:var(--md-sys-color-outline-variant-50);
@@ -51,8 +52,8 @@ class BookmarkLine extends React.Component {
     }
 
     render() {
-        const {pydio, placeHolder, nodes, onClick, onRemove} = this.props;
-        const {removing} = this.state;
+        const {pydio, placeHolder, nodes, onClick, onRemove, muiTheme} = this.props;
+        const {removing, hover} = this.state;
         const previewStyles = {
             style: {
                 height: 40,
@@ -103,15 +104,16 @@ class BookmarkLine extends React.Component {
         }
 
         const block = (
-            <div className={"bmListEntry"} style={{display:'flex', alignItems:'center', width: '100%'}}>
+            <div className={"bmListEntry"} style={{display:'flex', alignItems:'center', width: '100%', padding:'2px 0',backgroundColor:hover?muiTheme.hoverBackgroundColor:null}}
+                 onMouseEnter={()=>this.setState({hover:true})} onMouseLeave={()=>this.setState({hover:false})}>
                 <div style={{padding: '12px 16px', cursor:'pointer'}} onClick={firstClick}>
                     {preview}
                 </div>
                 <div style={{flex: 1, overflow:'hidden', cursor:'pointer'}} onClick={firstClick}>
-                    <div style={{fontSize:14, fontWeight: 500, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
+                    <div style={{color:muiTheme.palette.mui3['on-surface'], fontSize:14, fontWeight: 500, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
                         {primaryText}
                     </div>
-                    <div style={{opacity:.73}}>
+                    <div>
                         {secondaryTexts}
                     </div>
                 </div>
@@ -182,8 +184,12 @@ class BookmarksList extends React.Component {
     }
 
     entryClicked(node) {
+        const {pydio, onRequestClose} = this.props;
         this.handleRequestClose();
-        this.props.pydio.goTo(node);
+        pydio.goTo(node);
+        if(onRequestClose){
+            onRequestClose()
+        }
     }
 
     removeBookmark(node){
@@ -227,7 +233,7 @@ class BookmarksList extends React.Component {
         if (bookmarks) {
             items = bookmarks.map(n=>{
                 const nodes = this.bmToNodes(n);
-                return <BookmarkLine key={nodes[0].getPath()} pydio={pydio} nodes={nodes} onClick={this.entryClicked.bind(this)} onRemove={this.removeBookmark.bind(this)} />
+                return <BookmarkLine muiTheme={muiTheme} key={nodes[0].getPath()} pydio={pydio} nodes={nodes} onClick={this.entryClicked.bind(this)} onRemove={this.removeBookmark.bind(this)} />
             });
         }
 

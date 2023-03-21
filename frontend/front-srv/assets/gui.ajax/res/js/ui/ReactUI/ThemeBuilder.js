@@ -298,6 +298,7 @@ export default class ThemeBuilder {
             add('fstemplate-master-margin', '8px')
             add('paper-border-radius', '20px')
             add('card-border-radius', '12px')
+            add('hover-background', systemDark ?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)')
 
             isMUI3 = true
             palette = {
@@ -322,12 +323,15 @@ export default class ThemeBuilder {
             mui3['surface-2'] = infoPanelBg.toString()
             mui3['on-surface-variant'] = palette.primary1Color
             mui3['on-surface'] = palette.primary1Color
+            mui3['hover-background'] = 'rgba(0,0,0,.08)'
 
             // For Forms, pass theming via CSS props
             if(!customPalette){
                 styleTarget.style.setProperty('--md-sys-color-surface-variant', 'rgb(246, 246, 248)')
                 styleTarget.style.setProperty('--md-sys-color-outline-variant', '#e0e0e0')
                 styleTarget.style.setProperty('--md-sys-color-on-surface-variant', palette.primary1Color)
+                styleTarget.style.setProperty('--md-sys-color-hover-background', 'rgba(0,0,0,.1)')
+                styleTarget.style.setProperty('--md-sys-color-field-underline-idle', '#ddd')
             }
 
         }
@@ -359,6 +363,9 @@ export default class ThemeBuilder {
                 iconStyle:{
                     color:isMUI3?mui3['primary']:mui3['on-surface']
                 }
+            },
+            listItem:{
+                secondaryTextColor: 'inherit'
             },
             raisedButton : {
                 color:mui3['secondary-container'],
@@ -403,7 +410,8 @@ export default class ThemeBuilder {
             textField: {
                 floatingLabelColor:mui3['on-surface-variant'],
                 errorColor:mui3['error']
-            }
+            },
+            hoverBackgroundColor:mui3['hover-background']
         };
 
         if(this.userTheme !== 'mui3') {
@@ -414,12 +422,15 @@ export default class ThemeBuilder {
         }
 
         themeCusto['@mui'] = createTheme({
+            typography: {
+                fontSize: 13
+            },
             palette: {
                 mode: systemDark?'dark':'light',
                 primary:{main:palette.primary1Color},
                 secondary:{main:palette.mui3.secondary||palette.primary2Color},
                 background:{
-                    paper:mui3['surface']||'white'
+                    paper:mui3['surface-variant']||'white'
                 }
             },
             shape:{

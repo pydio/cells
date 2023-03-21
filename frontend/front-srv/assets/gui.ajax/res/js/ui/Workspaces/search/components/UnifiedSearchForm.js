@@ -146,8 +146,8 @@ function UnifiedSearchForm (props){
     if(active) {
         wStyle = {width: 420}
     }
-    const {filterButton={}, filterButtonActive={}} = formStyles;
-    const filterActiveStyles = filtersCount > 0 ? {backgroundColor:filterButton.color, color:'white', ...filterButtonActive} : {}
+    const {filterButtonActive={}} = formStyles;
+    const filterActiveStyles = filtersCount > 0 ? {backgroundColor:muiTheme.palette.mui3['tertiary']||muiTheme.palette.accent1Color, color:muiTheme.palette.mui3['on-tertiary']||'white', ...filterButtonActive} : {}
     const mergedButtonStyle = {...styles.filterButton, ...formStyles.filterButton, ...filterActiveStyles}
     const {fontSize=22, color, ...buttonStyle} =  mergedButtonStyle
     const buttonIconStyle = {fontSize, color}
@@ -283,6 +283,10 @@ function UnifiedSearchForm (props){
                             fullWidth={true}
                             inputRef={textfieldRef}
                             placeholder={pydio.MessageHash['searchengine.main.placeholder']}
+                            inputProps={{
+                                ...params.inputProps,
+                                style:{...formStyles.textField}
+                            }}
                             InputLabelProps={{sx:{fontSize:'1rem !important', marginLeft: '10px !important', marginTop: '-3px !important'}}}
                             InputProps={{
                                 ...params.InputProps,

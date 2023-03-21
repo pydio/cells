@@ -32,6 +32,7 @@ import PydioApi from 'pydio/http/api';
 import ResourcesManager from 'pydio/http/resources-manager';
 import {UserServiceApi} from 'cells-sdk';
 import BookmarksList from "./BookmarksList";
+import Tooltip from '@mui/material/Tooltip'
 
 const RailIcon = muiThemeable()(({
                                      muiTheme,
@@ -102,12 +103,16 @@ const RailIcon = muiThemeable()(({
             setHover(true);
             setIHover(true)
         }} onMouseLeave={() => setIHover(false)}>
-            <span className={"mdi mdi-" + icon} style={styles.icon}/>
+            {!iconOnly && <span className={"mdi mdi-" + icon} style={styles.icon}/>}
+            {iconOnly && <Tooltip enterDelay={0} title={<div style={{padding:'2px 10px'}}>{text}</div>} placement={"right"}><span className={"mdi mdi-" + icon} style={styles.icon}/></Tooltip>}
             {!iconOnly && <div style={styles.text}>{text}</div>}
             {alert && <div style={styles.alert}/>}
         </div>
     )
 })
+
+const defaultWidth = 274
+const railWidth = 74
 
 let RailPanel = ({
                      style = {},
@@ -131,7 +136,14 @@ let RailPanel = ({
     const [ASData, setASData] = useState([])
     const [ASLib, setASLib] = useState()
     const [unreadCount, setUnreadCount] = useState(0)
-    const [resizerWidth, setResizerWidth] = useState(250)
+    let defaultResizerWidth = defaultWidth;
+    if(localStorage.getItem('pydio.layout.railWidth')){
+        const p = parseInt(localStorage.getItem('pydio.layout.railWidth'))
+        if(p > 0) {
+            defaultResizerWidth = p
+        }
+    }
+    const [resizerWidth, setResizerWidth] = useState(defaultResizerWidth)
 
     useEffect(()=>{
         ResourcesManager.loadClass('PydioActivityStreams').then(ns => {
@@ -217,7 +229,14 @@ let RailPanel = ({
                     icon: 'star-outline',
                     onClick: () => {
                     },
-                    hoverBar: () => <BookmarksList pydio={pydio} asPopover={false} useCache={true}/>,
+                    hoverBar: () => {
+                        return (
+                            <div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}}>
+                                <div style={{fontSize: 20, padding:16}}>Bookmarks</div>
+                                <BookmarksList pydio={pydio} asPopover={false} useCache={true} onRequestClose={()=>{setHover(false)}}/>
+                            </div>
+                        )
+                    },
                     hoverWidth: 320
                 },
                 {
@@ -229,7 +248,7 @@ let RailPanel = ({
             "bottom": [
                 {
                     id: 'notifications',
-                    text: 'Alerts',
+                    text: 'Notifications',
                     icon: 'bell-outline',
                     hoverWidth: 320,
                     alert: unreadCount > 0,
@@ -239,17 +258,21 @@ let RailPanel = ({
                         }
                         const {ActivityList} = lib;
                         return (
-                            <ActivityList
-                                items={data || []}
-                                style={{overflowY: 'scroll', height: '100%', paddingTop: 20}}
-                                groupByDate={true}
-                                displayContext={"popover"}
-                            />
+                            <div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}}>
+                                <div style={{fontSize: 20, padding:16}}>Notifications</div>
+                                <ActivityList
+                                    items={data || []}
+                                    style={{overflowY: 'scroll', flex: 1}}
+                                    groupByDate={true}
+                                    displayContext={"popover"}
+                                    onRequestClose={()=>{setHover(false)}}
+                                />
+                            </div>
                         )
                     }
                 },
                 {
-                    text: 'Mode',
+                    text: muiTheme.darkMode? 'Light Mode' : 'Dark Mode',
                     icon: 'theme-light-dark',
                     onClick: () => {
                         const newTheme = muiTheme.darkMode ? 'mui3-light' : 'mui3-dark';
@@ -293,7 +316,7 @@ let RailPanel = ({
     uWidgetProps.style.margin = '0 auto'
 
     const railStyle = {
-        width: 74,
+        width: railWidth,
         flexShrink: 0,
         borderRight: '1px solid var(--md-sys-color-outline-variant)',
         overflow: 'hidden',
@@ -311,7 +334,7 @@ let RailPanel = ({
         position: 'absolute',
         display: 'flex',
         flexDirection: 'column',
-        left: 74,
+        left: railWidth,
         top: 0,
         bottom: 0,
         width: 0,
@@ -321,7 +344,7 @@ let RailPanel = ({
         overflow: 'hidden',
         boxShadow: "rgba(0, 0, 0, 0.16) 2px 0px 2px"
     }
-    const innerWidth = (hoverBarDef && hoverBarDef.hoverWidth) || (250 - 74)
+    const innerWidth = (hoverBarDef && hoverBarDef.hoverWidth) || (defaultWidth - railWidth)
     if (hover) {
         hoverStyle.width = innerWidth
     }
@@ -341,12 +364,14 @@ let RailPanel = ({
                 bottomLeft: false,
                 topLeft: false
             }}
-            size={{width: activeBar ? resizerWidth : 74, height: '100%'}}
+            size={{width: activeBar ? resizerWidth : railWidth, height: '100%'}}
             onResizeStop={(e, direction, ref, d)=>{
-                setResizerWidth(resizerWidth+d.width);
+                const newWidth = resizerWidth+d.width
+                setResizerWidth(newWidth);
+                localStorage.setItem('pydio.layout.railWidth', newWidth+'')
                 window.dispatchEvent(new Event('resize'))
             }}
-            //minWidth={activeBar ? 250 : 74}
+            minWidth={activeBar?railWidth + 50:railWidth}
             handleStyles={{right: {zIndex: 900}}}
             style={{transition: 'width 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms', zIndex: 905}}
         >

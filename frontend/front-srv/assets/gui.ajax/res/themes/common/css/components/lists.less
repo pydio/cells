@@ -196,12 +196,15 @@
         }
         &.list-group-header{
           margin-top: 0;
-          background-color: #fafafa;
           &:hover {
-            background-color: #fafafa !important;
+            background-color: transparent !important;
           }
           .material-list-text{
             padding: 16px;
+            color: var(--md-sys-color-on-surface-variant);
+            .material-list-line-1 {
+              font-weight: 500;
+            }
           }
         }
         span.cell {

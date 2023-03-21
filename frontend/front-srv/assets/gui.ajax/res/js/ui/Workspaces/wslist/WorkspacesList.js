@@ -366,6 +366,15 @@ class WorkspacesList extends React.Component{
             );
         }
 
+        const emptyStateStyle ={
+            textAlign:'center',
+            background: muiTheme.palette.mui3['surface-5'],
+            color: muiTheme.palette.mui3['outline'],
+            margin: '0px 16px',
+            borderRadius: muiTheme.borderRadius,
+            padding: '16px 0px 10px',
+        }
+
         return (
             <div className={classNames.join(' ')}>
                 <Popover
@@ -395,9 +404,9 @@ class WorkspacesList extends React.Component{
                     titleStyle={{...sectionTitleStyle, position:'relative', overflow:'visible', transition:'none'}}
                     createAction={createAction}
                     emptyState={
-                        <div style={{textAlign: 'center', color: Color(muiTheme.palette.primary1Color).fade(0.6).toString()}}>
-                            <div className="icomoon-cells" style={{fontSize: 80}}></div>
-                            {this.createRepositoryEnabled() && <FlatButton style={{color: muiTheme.palette.accent2Color, marginTop:5}} primary={true} label={messages[418]} onClick={createClick}/>}
+                        <div style={emptyStateStyle}>
+                            <div className="icomoon-cells" style={{fontSize:60}}></div>
+                            {this.createRepositoryEnabled() && <FlatButton style={{color: muiTheme.palette.mui3.primary, marginTop:5}} primary={true} label={messages[418]} onClick={createClick}/>}
                             <div style={{fontSize: 13, padding: '5px 20px'}}>{messages[633]}</div>
                         </div>
                     }

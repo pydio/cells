@@ -38,7 +38,7 @@ class EmptyStateView extends Component{
         const {style, iconClassName, primaryTextId, secondaryTextId, actionLabelId, actionCallback,
             actionStyle, actionIconClassName, getMessage, iconStyle, legendStyle, muiTheme} = this.props;
 
-        const mainColor = Color(muiTheme.palette.mui3.outline);
+        const mainColor = Color(muiTheme.palette.mui3.outline||'#aaa');
 
         const styles = {
             container: {

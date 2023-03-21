@@ -169,6 +169,7 @@ class AltDashboard extends React.Component {
                     <div style={{width: 250}}>
                         <ConfigLogo
                             className="home-top-logo"
+                            style={{maxHeight:100}}
                             pydio={this.props.pydio}
                             darkMode={muiTheme.darkMode}
                             pluginName="gui.ajax"

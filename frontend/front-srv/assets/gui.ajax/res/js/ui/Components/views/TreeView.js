@@ -355,8 +355,8 @@ class TreePaginator extends React.Component {
         return (
             <li>
                 <div style={{paddingLeft: paddingOffset + depth * 20, paddingTop:5, paddingBottom: 5, display:'flex', alignItems:'center'}}>
-                    <div style={{paddingLeft: 14, paddingRight: 6, color: 'rgba(0,0,0,.43)'}} className={"mdi mdi-format-list-bulleted"}/>
-                    <div style={{display:'flex', alignItems:'center', color:'rgba(0,0,0,.73)', backgroundColor:'rgba(0,0,0,0.02)', borderRadius: 3, marginRight: 10}}>
+                    <div style={{paddingLeft: 14, paddingRight: 6}} className={"mdi mdi-format-list-bulleted"}/>
+                    <div style={{display:'flex', alignItems:'center', borderRadius: 3, marginRight: 10}}>
                         <IconButton iconClassName={"mdi mdi-chevron-left"} onClick={()=>{this.goTo(crt -1 )}} disabled={crt === 1} {...icProps}/>
                         <div style={{padding: '0 20px', flex:1, textAlign:'center', fontSize: 13}}>{label}</div>
                         <IconButton iconClassName={"mdi mdi-chevron-right"} onClick={()=>{this.goTo(crt + 1 )}} disabled={crt === total} {...icProps}/>

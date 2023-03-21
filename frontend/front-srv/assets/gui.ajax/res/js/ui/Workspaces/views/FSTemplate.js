@@ -47,12 +47,21 @@ class FSTemplate extends React.Component {
         const closedToggle = localStorage.getItem('pydio.layout.infoPanelToggle') === 'closed';
         const closedInfo = localStorage.getItem('pydio.layout.infoPanelOpen') === 'closed';
 
+        let defaultResizerWidth = 250;
+        if(localStorage.getItem('pydio.layout.rightColumnWidth')){
+            const p = parseInt(localStorage.getItem('pydio.layout.rightColumnWidth'))
+            if(p > 0) {
+                defaultResizerWidth = p
+            }
+        }
+
+
         this.state = {
             infoPanelOpen: !closedInfo,
             infoPanelToggle: !closedToggle,
             drawerOpen: false,
             rightColumnState: rState,
-            rightColumnWidth: 250,
+            rightColumnWidth: defaultResizerWidth,
             searchFormState: {},
             searchView: false
         };
@@ -240,6 +249,10 @@ class FSTemplate extends React.Component {
             };
         }
 
+        if(muiTheme.userTheme!=='mui3'){
+            styles.searchForm.textField = {color:'white'}
+        }
+
         return (
             <MasterLayout
                 pydio={pydio}
@@ -301,7 +314,9 @@ class FSTemplate extends React.Component {
                         style={{transition: 'width 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'}}
                         size={{width:rightColumnClosed?0:rightColumnWidth, height: '100%'}}
                         onResizeStop={(e, direction, ref, d)=>{
-                            this.setState({rightColumnWidth:rightColumnWidth+d.width})
+                            const newWidth = rightColumnWidth+d.width
+                            this.setState({rightColumnWidth:newWidth})
+                            localStorage.setItem('pydio.layout.rightColumnWidth', newWidth+'')
                             this.resizeAfterTransition()
                         }}
                     >

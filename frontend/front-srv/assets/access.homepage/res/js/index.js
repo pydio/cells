@@ -18,11 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import '../home.less'
 import HomeDashboard from './board/HomeDashboard'
-import WorkspacePickerDialog from './quicksend/WorkspacePickerDialog'
 
 export {
-    WorkspacePickerDialog,
     HomeDashboard
 }

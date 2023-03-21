@@ -161,7 +161,7 @@ class WelcomeTour extends Component{
             {
                 title       : message('workspaces.title'),
                 text        : <WorkspacesCard message={message}/>,
-                selector    :'.user-workspaces-list',
+                selector    :'.mdi-folder-multiple-outline',
                 position    :'right'
             },
             {
@@ -171,6 +171,7 @@ class WelcomeTour extends Component{
                 position    : 'bottom'
             },
         ];
+        /*
         if(this.props.pydio.user){
             let hasAccessRepo = false;
             this.props.pydio.user.getRepositoriesList().forEach((entry) => {
@@ -186,7 +187,7 @@ class WelcomeTour extends Component{
                         position    : 'right'
                 });
             }
-        }
+        }*/
 
         const callback = (data) => {
             if(data.type === 'step:after' && data.index === tourguideSteps.length - 1 ){

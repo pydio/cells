@@ -479,7 +479,6 @@ a:active,
 a:focus {
   text-decoration: none;
   outline: 0;
-  color: #333;
 }
 .linked {
   cursor: pointer;
@@ -799,6 +798,8 @@ div.dialogBox div#element_overlay {
 }
 .folders-tree div.tree-item {
   line-height: 14px;
+  -webkit-transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 .folders-tree div.tree-item div.tree-item-label {
   padding: 10px 6px;
@@ -818,6 +819,9 @@ div.dialogBox div#element_overlay {
 .folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-right.no-folder-children,
 .folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-down.no-folder-children {
   visibility: hidden;
+}
+.folders-tree div.tree-item:hover {
+  background-color: var(--md-sys-color-hover-background);
 }
 .comments_feed {
   padding: 0 !important;
@@ -1037,13 +1041,16 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.list-group-header {
   margin-top: 0;
-  background-color: #fafafa;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.list-group-header:hover {
-  background-color: #fafafa !important;
+  background-color: transparent !important;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.list-group-header .material-list-text {
   padding: 16px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry.list-group-header .material-list-text .material-list-line-1 {
+  font-weight: 500;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry span.cell {
   line-height: 16px;
@@ -1761,9 +1768,11 @@ div.menu.desktop a span.ajxp_icon_span {
   display: flex;
   line-height: 24px;
   cursor: pointer;
+  -webkit-transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 .left-panel .nav-list-entry:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: var(--md-sys-color-hover-background);
 }
 .left-panel .nav-list-entry-icon {
   -ms-flex-negative: 0;
@@ -1805,11 +1814,13 @@ div.menu.desktop a span.ajxp_icon_span {
   display: flex;
   line-height: 24px;
   cursor: pointer;
+  -webkit-transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   padding: 6px;
   padding-left: 20px;
 }
 .left-panel .workspaces .workspace-entry:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: var(--md-sys-color-hover-background);
 }
 .left-panel .workspaces .workspace-entry .workspace-badge {
   display: none;
@@ -2181,9 +2192,9 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
           box-shadow: 0 0 999px 9999px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 0, 0, 0.5);
 }
 .react-mui-context .joyride-tooltip {
-  background-color: #fff;
-  border-radius: 2px;
-  color: #555;
+  background-color: var(--md-sys-color-surface-variant);
+  color: var(--md-sys-color-on-surface-variant);
+  border-radius: 20px;
   cursor: default;
   -webkit-filter: drop-shadow(-1px -2px 3px rgba(0, 0, 0, 0.3)) drop-shadow(1px 2px 3px rgba(0, 0, 0, 0.3));
   filter: drop-shadow(-1px -2px 3px rgba(0, 0, 0, 0.3)) drop-shadow(1px 2px 3px rgba(0, 0, 0, 0.3));
@@ -2317,7 +2328,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   top: 20px;
 }
 .react-mui-context .joyride-tooltip__header {
-  color: rgba(0, 0, 0, 0.87);
+  color: var(--md-sys-color-on-surface);
   font-size: 20px;
   padding-bottom: 6px;
   padding-right: 18px;
@@ -2354,11 +2365,10 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 }
 .react-mui-context .joyride-tooltip__button--primary {
   border-radius: 2px;
-  color: #00796B;
+  color: var(--md-sys-color-primary);
   padding: 6px 12px;
   -webkit-transition: background-color 0.2s ease-in-out;
   transition: background-color 0.2s ease-in-out;
-  text-transform: uppercase;
   font-weight: 500;
   font-size: 15px;
 }
@@ -2371,7 +2381,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
     */
 }
 .react-mui-context .joyride-tooltip__button--secondary {
-  color: #757575;
+  color: var(--md-sys-color-secondary);
   font-weight: 500;
   margin-right: 12px;
 }
@@ -3570,7 +3580,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 }
 .react-mui-context .material-list .material-list-entry.list-group-header .material-list-line-1 {
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.73);
   font-size: 13px;
   line-height: 13px;
 }

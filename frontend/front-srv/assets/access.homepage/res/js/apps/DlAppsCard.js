@@ -20,7 +20,6 @@
 
 const React = require('react');
 import DownloadApp from './DownloadApp'
-import ColorPaper from '../board/ColorPaper'
 const {asGridItem} = require('pydio').requireLib('components');
 
 class DlAppsPanel extends React.Component{
@@ -102,10 +101,10 @@ class DlAppsCard extends React.Component {
     render() {
         let props = {...this.props};
         return (
-            <ColorPaper {...this.props} style={{...this.props.style,overflow:'visible'}} paletteIndex={1} closeButton={props.closeButton}>
+            <div {...this.props} style={{...this.props.style,overflow:'visible'}} paletteIndex={1} closeButton={props.closeButton}>
                 <DlAppsPanel pydio={this.props.pydio} type="sync" iconColor={'#ffffff'}/>
                 <div style={{fontSize: 16, padding: 16, paddingTop: 0, textAlign:'center'}}>{this.props.pydio.MessageHash['user_home.91']}</div>
-            </ColorPaper>
+            </div>
         );
     }
 }
