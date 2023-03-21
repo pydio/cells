@@ -435,6 +435,8 @@ class MaterialTable extends React.Component{
 
 }
 
+MaterialTable = muiThemeable()(MaterialTable)
+
 MaterialTable.PropTypes = {
     data: PropTypes.array,
     columns: PropTypes.array,

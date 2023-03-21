@@ -26,7 +26,7 @@ class JobEntry extends React.Component {
 
     render(){
 
-        const {job} = this.props;
+        const {job, muiTheme} = this.props;
         let click, clickStyle;
         if(job.openDetailPane){
             click = job.openDetailPane;
@@ -59,7 +59,7 @@ class JobEntry extends React.Component {
             },
             status: {
                 fontSize: 13,
-                color: 'rgba(0,0,0,0.33)',
+                color: muiTheme.palette.mui3['outline-variant'],
                 padding: '4px 0 8px'
             }
         };

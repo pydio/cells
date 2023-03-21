@@ -411,6 +411,10 @@ export default class ThemeBuilder {
                 floatingLabelColor:mui3['on-surface-variant'],
                 errorColor:mui3['error']
             },
+            snackbar: {
+                backgroundColor:mui3['inverse-surface'],
+                textColor:mui3['inverse-on-surface']
+            },
             hoverBackgroundColor:mui3['hover-background']
         };
 
