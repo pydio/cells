@@ -87,8 +87,8 @@ class GenericCard extends React.Component{
 
     render(){
 
-        const {title, popoverPanel, onDismissAction, onEditAction, onDeleteAction, otherActions, moreMenuItems,
-            children, muiTheme, style, headerSmall, editTooltip, deleteTooltip, editColor} = this.props;
+        const {title, onDismissAction, onEditAction, onDeleteAction, otherActions, moreMenuItems,
+            children, muiTheme, style, headerSmall, editTooltip, deleteTooltip} = this.props;
 
         const headerBg = muiTheme.palette.mui3['secondary-container'];
         const headerColor = muiTheme.palette.mui3['on-secondary-container'];
@@ -130,8 +130,8 @@ class GenericCard extends React.Component{
         return (
             <div style={{width: '100%', position:'relative', ...style}}>
                 {onEditAction && !headerSmall &&
-                    <FloatingActionButton onClick={onEditAction} backgroundColor={editColor} mini={true} style={{position:'absolute', top:styles.fabTop, left: 10}}>
-                        <FontIcon className={"mdi mdi-pencil"} />
+                    <FloatingActionButton onClick={onEditAction} backgroundColor={muiTheme.palette.mui3['tertiary']} mini={true} style={{position:'absolute', top:styles.fabTop, left: 10}}>
+                        <FontIcon className={"mdi mdi-pencil"} style={{color:muiTheme.palette.mui3['on-tertiary']}} />
                     </FloatingActionButton>
                 }
                 <Paper zDepth={0} style={{backgroundColor:styles.headerBg, color: styles.headerColor, height: styles.headerHeight, borderRadius: '2px 2px 0 0'}}>

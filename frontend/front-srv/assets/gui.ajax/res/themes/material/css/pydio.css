@@ -1860,7 +1860,7 @@ div.menu.desktop a span.ajxp_icon_span {
   text-align: center;
   padding: 0;
   cursor: pointer;
-  opacity: 0.5;
+  opacity: 0;
 }
 .left-panel .workspaces .workspace-entry .workspace-additional-action.with-hover:hover {
   background-color: rgba(0, 0, 0, 0.1);
@@ -1869,6 +1869,9 @@ div.menu.desktop a span.ajxp_icon_span {
   opacity: 1;
   position: relative;
   font-weight: 500;
+}
+.left-panel .workspaces .workspace-entry:hover .workspace-additional-action {
+  opacity: 0.8;
 }
 .left-panel.hidden {
   left: -255px;

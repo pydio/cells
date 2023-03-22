@@ -135,7 +135,7 @@ class CellCard extends React.Component{
                 const {BookmarkButton} = coreActionsLib
                 const selector = <WatchSelector pydio={pydio} nodes={rootNodes}/>;
                 watchLine = <GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} data={selector} iconStyle={{marginTop: 32}} />;
-                bmButton = <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'white'}}}/>;
+                bmButton = <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'inherit'}}}/>;
             }
             if(rootNodes && !loading) {
                 rootNodes.forEach((node) => {
@@ -154,7 +154,6 @@ class CellCard extends React.Component{
                     otherActions={bmButton}
                     onDeleteAction={deleteAction}
                     onEditAction={editAction}
-                    editColor={"#009688"}
                     headerSmall={mode === 'infoPanel'}
                     moreMenuItems={moreMenuItems}
                 >

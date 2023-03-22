@@ -208,6 +208,7 @@ export default createReactClass({
                             iconClassName={menuIcon}
                             mini={true}
                             backgroundColor={fabButtonStyle.backgroundColor}
+                            iconStyle={fabButtonStyle.color?{color:fabButtonStyle.color}:null}
                             style={{position:'absolute', top: -20, left: 10}}
                         />);
                     } else if(renderingType === 'button-icon'){

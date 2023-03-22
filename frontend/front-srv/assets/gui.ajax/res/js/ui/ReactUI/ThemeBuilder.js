@@ -642,7 +642,8 @@ export default class ThemeBuilder {
                         paddingLeft: 8
                     },
                     fabButton: {
-                        backgroundColor: mui3['tertiary']
+                        backgroundColor: mui3['tertiary'],
+                        color:mui3['on-tertiary']
                     },
                     flatButton:{
                         height: 34,

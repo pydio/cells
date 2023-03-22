@@ -89,7 +89,7 @@
         text-align: center;
         padding: 0;
         cursor: pointer;
-        opacity: 0.5;
+        opacity: 0;
         &.with-hover:hover{
           background-color: rgba(0,0,0,0.1);
         }
@@ -98,6 +98,11 @@
         opacity: 1;
         position: relative;
         font-weight: 500;
+      }
+      &:hover {
+        .workspace-additional-action {
+          opacity: .8;
+        }
       }
     }
 

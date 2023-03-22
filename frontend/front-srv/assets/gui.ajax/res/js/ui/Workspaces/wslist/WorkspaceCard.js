@@ -81,7 +81,7 @@ class WorkspaceCard extends React.Component {
         }
         if (CALib && rootNodes){
             const {BookmarkButton} = CALib;
-            bookmarkAction = <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'white'}}}/>;
+            bookmarkAction = <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'inherit'}}}/>;
         }
 
         return (
