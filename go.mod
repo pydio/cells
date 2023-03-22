@@ -60,7 +60,7 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/matcornic/hermes/v2 v2.1.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
-	github.com/microcosm-cc/bluemonday v1.0.20
+	github.com/microcosm-cc/bluemonday v1.0.23
 	github.com/minio/cli v1.22.0
 	github.com/minio/minio v0.0.0-20220720015624-ce8397f7d944
 	github.com/minio/minio-go/v7 v7.0.21
@@ -117,10 +117,10 @@ require (
 	golang.org/x/crypto v0.6.0
 	golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561
 	golang.org/x/image v0.5.0
-	golang.org/x/net v0.7.0
+	golang.org/x/net v0.8.0
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
-	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
-	golang.org/x/text v0.7.0
+	golang.org/x/sync v0.1.0
+	golang.org/x/text v0.8.0
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9
 	google.golang.org/genproto v0.0.0-20220913154956-18f8339a66a5
 	google.golang.org/grpc v1.49.0
@@ -473,10 +473,10 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
-	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/term v0.5.0 // indirect
-	golang.org/x/tools v0.1.12 // indirect
+	golang.org/x/mod v0.8.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/term v0.6.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.88.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
