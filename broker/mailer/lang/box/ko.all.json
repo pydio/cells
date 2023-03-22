@@ -143,6 +143,9 @@
   "Mail.Config.From.Description": {
     "other": "이메일을 보낼때 기본값으로 사용할 주소입니다. 수신 불가 이메일 대신 제대로 된 지원 이메일을 사용하세요."
   },
+  "Mail.Config.FixOutlookDisplay": {
+    "other": "Outlook Clients Fix (disable CSS inlining)"
+  },
   "Mail.Config.Queue.Label": {
     "other": "대기열 유형"
   },

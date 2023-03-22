@@ -143,6 +143,9 @@
   "Mail.Config.From.Description": {
     "other": "当您使用默认地址发送邮件，You should use a proper support email instead of no-reply email."
   },
+  "Mail.Config.FixOutlookDisplay": {
+    "other": "Outlook Clients Fix (disable CSS inlining)"
+  },
   "Mail.Config.Queue.Label": {
     "other": "队列文件"
   },

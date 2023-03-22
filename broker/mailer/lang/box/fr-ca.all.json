@@ -143,6 +143,9 @@
   "Mail.Config.From.Description": {
     "other": "Adresse d'expédition utilisée par défaut lors de l'envoi de mail. Utilisez un mail de support réel plutôt qu'un \"no-reply\"."
   },
+  "Mail.Config.FixOutlookDisplay": {
+    "other": "Outlook Clients Fix (disable CSS inlining)"
+  },
   "Mail.Config.Queue.Label": {
     "other": "File d'attente"
   },
