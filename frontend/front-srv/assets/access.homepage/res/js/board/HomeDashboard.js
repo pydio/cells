@@ -160,12 +160,14 @@ class AltDashboard extends React.Component {
                 }}
             >
                 <Paper zDepth={0} style={{...styles.appBarStyle}} rounded={false}>
-                    <span className="drawer-button" style={{position:'absolute', top: 0, left: 0, zIndex: 2}}>
-                        <IconButton
-                            iconStyle={{color: null}}
-                            iconClassName="mdi mdi-menu"
-                            onClick={this.openDrawer.bind(this)}/>
-                    </span>
+                    {!isMui3 &&
+                        <span className="drawer-button" style={{position:'absolute', top: 6, left: 2, zIndex: 2}}>
+                            <IconButton
+                                iconStyle={{color: null}}
+                                iconClassName="mdi mdi-menu"
+                                onClick={this.openDrawer.bind(this)}/>
+                        </span>
+                    }
                     <div style={{width: 250}}>
                         <ConfigLogo
                             className="home-top-logo"

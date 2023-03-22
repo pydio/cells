@@ -670,7 +670,7 @@ export default class ThemeBuilder {
                 inputStyle:{color: themeCusto.palette.mui3['on-surface']},
                 hintStyle:{color: themeCusto.palette.mui3['on-surface-variant']},
                 magnifierStyle:{color: appBarTextColor.fade(0.1).toString()},
-                filterButton:{color:appBarTextColor.toString(), margin: '1px 8px', height: 25, width: 25, padding:2, lineHeight:'22px', fontSize: 22}
+                filterButton:{color:appBarTextColor.toString(), margin: '2px 8px', height: 25, width: 25, padding:2, lineHeight:'22px', fontSize: 22}
 
             },
             paginatorStyle:{

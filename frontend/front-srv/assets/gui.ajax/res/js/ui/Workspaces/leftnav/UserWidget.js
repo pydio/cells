@@ -77,7 +77,7 @@ class UserWidget extends React.Component {
 
         let avatar;
         let notificationsButton, currentIsSettings, bookmarksButton;
-        let {pydio, displayLabel, avatarStyle, popoverDirection, popoverTargetPosition, color, menuItems} = this.props;
+        let {pydio, displayLabel, avatarStyle, popoverDirection, popoverTargetPosition, popoverStyle, popoverHeaderAvatar, menuStyle, color, menuItems} = this.props;
         const {showMenu, anchor} = this.state;
         if(pydio.user){
             const user = this.props.pydio.user;
@@ -87,6 +87,7 @@ class UserWidget extends React.Component {
                 display:'right',
                 width:160,
                 desktop:true,
+                ...menuStyle,
             };
             avatar = (
                 <div onClick={(e)=>{this.showMenu(e)}} style={{cursor:'pointer', maxWidth:155}}>
@@ -111,8 +112,22 @@ class UserWidget extends React.Component {
                         targetOrigin={{horizontal: popoverDirection || 'right', vertical: 'top'}}
                         onRequestClose={() => {this.closeMenu()}}
                         useLayerForClickAway={false}
-                        style={{marginTop:-10, marginLeft:10}}
+                        style={popoverStyle||{marginTop:-10, marginLeft:10}}
                     >
+                        {popoverHeaderAvatar &&
+                            <UserAvatar
+                                pydio={pydio}
+                                userId={user.id}
+                                style={{display: 'flex', alignItems: 'center', padding: 10, fontSize: 20, marginBottom: -16}}
+                                className="user-display"
+                                labelClassName="userLabel"
+                                displayLabel={true}
+                                displayLabelChevron={false}
+                                labelMaxChars={8}
+                                labelStyle={{flex: 1, marginLeft: 8, color: color}}
+                                avatarSize={38}
+                            />
+                        }
                         {MenuUtils.itemsToMenu(menuItems, this.closeMenu.bind(this), false, menuProps)}
                     </Popover>
                 </div>

@@ -127,7 +127,7 @@ class ActivityList extends React.Component {
 
 
         // Empty Case
-        if(!data || !data.items) {
+        if(!data || !data.items || data.items.length === 0) {
             let style = {backgroundColor: 'transparent'};
             let iconStyle, legendStyle;
             if(displayContext === 'popover'){
@@ -192,7 +192,7 @@ class ActivityList extends React.Component {
 
             });
             if(groupByDate){
-                content.pop(); // remove last divider
+                //content.pop(); // remove last divider
             }
             if(content.length && loadMore){
                 content.push(<div style={{paddingLeft:16}}><FlatButton primary={true} label={loadMoreLabel} disabled={loading} onClick={loadAction}/></div>)

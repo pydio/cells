@@ -69,9 +69,10 @@ class HomeSearchForm extends Component{
 
         const styles = {
             mainContainer: {
-                width:'100%',
                 position:'absolute',
                 top: fullScreen? 0 : 199,
+                left: isMui3?74:0,
+                right: 0,
                 bottom: 0,
                 transition: 'all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms',
                 display:'flex',
@@ -85,7 +86,7 @@ class HomeSearchForm extends Component{
                 flexDirection:'column',
                 alignItems:'center',
                 background:isMui3&&fullScreen?mui3['surface-1']:'transparent',
-                padding: fullScreen ? '10px 50px': 0
+                padding: fullScreen ? (isMui3 ? '10px 50px 10px 10px' : '10px 50px') : 0
             },
             textFieldContainer: {
                 width:'100%',
@@ -102,7 +103,7 @@ class HomeSearchForm extends Component{
             textInput: {color: 'inherit'},
             textHint : {color: whiteTransp, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%'},
             magnifier: {color: whiteTransp, fontSize: 20, padding:'14px 8px'},
-            close: {position:'absolute', right:0, zIndex: 2},
+            close: {position:'absolute', right:2, top: 6, zIndex: 2},
             searchForm:{
                 mainStyle:{
                     backgroundColor:'transparent',

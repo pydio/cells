@@ -146,12 +146,11 @@ class FSTemplate extends React.Component {
 
 
     resizeAfterTransition(){
-        setTimeout(() => {
-            if(!this.state.infoPanelToggle){
-                this.setState({rightColumnState: null});
-            }
-        }, 300);
-        window.dispatchEvent(new Event('resize'))
+        if(!this.state.infoPanelToggle){
+            this.setState({rightColumnState: null});
+        }
+        setTimeout(() => { window.dispatchEvent(new Event('resize')) }, 250);
+        setTimeout(() => { window.dispatchEvent(new Event('resize')) }, 500);
     }
 
     infoPanelContentChange(numberOfCards){

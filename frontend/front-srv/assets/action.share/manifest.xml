@@ -50,7 +50,7 @@
             </action>
             <action name="open_user_shares">
                 <gui text="share_center.98" title="share_center.98" iconClass="mdi mdi-share-variant" accessKey="folder_access_key">
-                    <context selection="false" dir="" recycle="false" actionBar="true" actionBarGroup="user" contextMenu="false" infoPanel="false"/>
+                    <context selection="false" dir="" recycle="false" actionBar="false" contextMenu="false" infoPanel="false"/>
                 </gui>
                 <rightsContext noUser="false" userLogged="only" read="false" write="false" adminOnly="false"/>
                 <processing>

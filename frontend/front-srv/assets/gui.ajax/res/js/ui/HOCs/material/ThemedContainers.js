@@ -30,7 +30,7 @@ const ThemedPopover = muiThemeable()((props) => {
         )
     }
     return (
-        <Popover {...other} style={{...style, ...muiTheme.menuContainer}} className={"themed-popover"}>{titleBlock}{children}</Popover>
+        <Popover {...other} style={{...muiTheme.menuContainer, ...style}} className={"themed-popover"}>{titleBlock}{children}</Popover>
     );
 })
 

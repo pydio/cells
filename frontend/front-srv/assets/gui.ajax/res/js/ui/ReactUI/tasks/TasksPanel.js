@@ -209,8 +209,8 @@ let TasksPanel = ({pydio, muiTheme, mode, panelStyle, headerStyle}) => {
     if(elements.length){
         badge = <span style={{
             display: 'inline-block',
-            backgroundColor: palette.mui3['tertiary'],
-            color: palette.mui3['on-tertiary'],
+            backgroundColor: mui3['tertiary'],
+            color: mui3['on-tertiary'],
             width: 18,
             height: 18,
             fontSize: 11,

@@ -43,6 +43,7 @@ class JobEntry extends React.Component {
         if(task && task.HasProgress && task.Status !== 'Error' && task.Progress < 1){
             progress = (<LinearProgress mode="determinate" min={0} max={100} value={task.Progress * 100} style={{width:'100%', height: 2}}/>);
         }
+        const {mui3 = {}} = muiTheme.palette
 
         const styles = {
             paper: {
@@ -59,7 +60,7 @@ class JobEntry extends React.Component {
             },
             status: {
                 fontSize: 13,
-                color: muiTheme.palette.mui3['outline-variant'],
+                color: mui3['outline-variant'],
                 padding: '4px 0 8px'
             }
         };

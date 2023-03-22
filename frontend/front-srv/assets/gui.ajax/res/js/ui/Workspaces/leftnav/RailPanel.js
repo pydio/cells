@@ -104,7 +104,7 @@ const RailIcon = muiThemeable()(({
             setIHover(true)
         }} onMouseLeave={() => setIHover(false)}>
             {!iconOnly && <span className={"mdi mdi-" + icon} style={styles.icon}/>}
-            {iconOnly && <Tooltip enterDelay={0} title={<div style={{padding:'2px 10px'}}>{text}</div>} placement={"right"}><span className={"mdi mdi-" + icon} style={styles.icon}/></Tooltip>}
+            {iconOnly && <Tooltip title={<div style={{padding:'2px 10px'}}>{text}</div>} placement={"right"}><span className={"mdi mdi-" + icon} style={styles.icon}/></Tooltip>}
             {!iconOnly && <div style={styles.text}>{text}</div>}
             {alert && <div style={styles.alert}/>}
         </div>
@@ -136,6 +136,10 @@ let RailPanel = ({
     const [ASData, setASData] = useState([])
     const [ASLib, setASLib] = useState()
     const [unreadCount, setUnreadCount] = useState(0)
+
+    const [activeClosed, setActiveClosed] = useState(false)
+    const [showCloseToggle, setShowCloseToggle] = useState(false)
+
     let defaultResizerWidth = defaultWidth;
     if(localStorage.getItem('pydio.layout.railWidth')){
         const p = parseInt(localStorage.getItem('pydio.layout.railWidth'))
@@ -292,7 +296,10 @@ let RailPanel = ({
         }
     const load = (def) => {
         def.setHover = (h) => {
-            if (def.active || !h) {
+            if(!h) {
+                return
+            }
+            if (def.active && !activeClosed) {
                 return
             }
             if (def.hoverBar) {
@@ -324,7 +331,7 @@ let RailPanel = ({
     }
 
     let activeBar
-    if (!closed) {
+    if (!closed && !activeClosed) {
         const aa = toolbars.top.filter(a => a.active && a.activeBar)
         if (aa.length) {
             activeBar = aa[0].activeBar()
@@ -347,6 +354,22 @@ let RailPanel = ({
     const innerWidth = (hoverBarDef && hoverBarDef.hoverWidth) || (defaultWidth - railWidth)
     if (hover) {
         hoverStyle.width = innerWidth
+    }
+
+    const closerStyle = {
+        position:'absolute',
+        display:'flex',
+        alignItems:'center',
+        justifyContent:'center',
+        top:10,
+        zIndex:950,
+        right: 10,
+        cursor:'pointer',
+        borderRadius:'50%',
+        height: 24,
+        width: 24,
+        fontSize: 16,
+        backgroundColor:'var(--md-sys-color-surface-variant)'
     }
 
     const tops = toolbars.top.map(load).filter(a => !a.ignore)
@@ -386,24 +409,44 @@ let RailPanel = ({
                     <UserWidget
                         pydio={pydio}
                         controller={pydio.getController()}
-                        toolbars={["aUser", "user", "zlogin"]}
+                        toolbars={["rail_user","zlogin"]}
                         {...uWidgetProps}
                         displayLabel={false}
                         hideNotifications={true}
                         hideBookmarks={true}
+                        popoverTargetPosition={"top"}
+                        popoverStyle={{minWidth: 200, marginTop:2, background:'var(--md-sys-color-surface)'}}
+                        menuStyle={{width:200, listStyle:{background:'transparent'}}}
+                        popoverHeaderAvatar={true}
                     />
                     <div>{tops.map((b, i, a) => <RailIcon {...b} last={i === a.length - 1}/>)}</div>
                     <div className={"vertical_fit"}/>
                     <div>{bottoms.map((b, i, a) => <RailIcon iconOnly {...b} last={i === a.length - 1}/>)}</div>
                 </div>
                 {activeBar &&
-                    <div className={"vertical_layout"} style={{flex: 1, height: '100%', overflow:'hidden'}}>{activeBar}</div>
+                    <div
+                        className={"vertical_layout"}
+                        style={{flex: 1, height: '100%', overflow:'hidden'}}
+                        onMouseEnter={()=> setShowCloseToggle(true)}
+                        onMouseLeave={()=> setShowCloseToggle(false)}
+                    >
+                        {activeBar}
+                        {showCloseToggle && <div style={{...closerStyle}} onClick={() => setActiveClosed(true)}><span className={"mdi mdi-chevron-double-left"}/></div>}
+                    </div>
                 }
                 <div style={hoverStyle}>
                     <div className={"vertical_layout"}
                          style={{flex: 1, height: '100%', position: 'absolute', width: innerWidth, right: 0}}
                          onMouseEnter={() => setHover(true)}
                          onMouseLeave={() => setHover(false)}>{hoverBarDef && hoverBarDef.hoverBar(ASLib, ASData)}</div>
+                    {hoverBarDef && hoverBarDef.active && hoverBarDef.activeBar && activeClosed &&
+                        <div
+                            style={{...closerStyle}}
+                            onMouseEnter={() => setHover(true)}
+                            onClick={() => { setActiveClosed(false); setHover(false);}}>
+                            <span className={"mdi mdi-chevron-double-right"}/>
+                        </div>
+                    }
                 </div>
             </div>
         </Resizable>
