@@ -143,6 +143,9 @@
   "Mail.Config.From.Description": {
     "other": "Adresse zum Senden von Emails. Sie sollten eine echte Adresse verwenden und keine no-reply Adresse."
   },
+  "Mail.Config.FixOutlookDisplay": {
+    "other": "Outlook Clients Fix (CSS-inlining deaktivieren)"
+  },
   "Mail.Config.Queue.Label": {
     "other": "Warteschlangentyp"
   },

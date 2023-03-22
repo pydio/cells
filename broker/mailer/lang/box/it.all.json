@@ -143,6 +143,9 @@
   "Mail.Config.From.Description": {
     "other": "Indirizzo predefinito per l'invio di email. Suggeriamo di usare un indirizzo email per il supporto e non un indirizzo che non accetta risposte."
   },
+  "Mail.Config.FixOutlookDisplay": {
+    "other": "Outlook Clients Fix (disable CSS inlining)"
+  },
   "Mail.Config.Queue.Label": {
     "other": "Tipo di coda"
   },
