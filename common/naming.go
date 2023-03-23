@@ -226,8 +226,9 @@ const (
 	MetaFlagWorkspaceRepoDisplay = "repository_display"
 	MetaFlagWorkspaceEventId     = "EventWorkspaceId"
 
-	IdmWsInternalHomepageID = "homepage"
-	IdmWsInternalSettingsID = "settings"
+	IdmWsInternalHomepageID  = "homepage"
+	IdmWsInternalSettingsID  = "settings"
+	IdmWsInternalDirectoryID = "directory"
 )
 
 var (
@@ -244,8 +245,9 @@ var (
 	}
 
 	IdmWsInternalReservedSlugs = map[string]string{
-		IdmWsInternalSettingsID: "settings",
-		IdmWsInternalHomepageID: "welcome",
+		IdmWsInternalSettingsID:  "settings",
+		IdmWsInternalHomepageID:  "welcome",
+		IdmWsInternalDirectoryID: "directory",
 	}
 )
 

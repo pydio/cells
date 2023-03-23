@@ -89,6 +89,8 @@ func InitRoles(ctx context.Context) error {
 			Acls: []*idm.ACL{
 				{RoleID: "ROOT_GROUP", Action: permissions.AclRead, WorkspaceID: common.IdmWsInternalHomepageID, NodeID: "homepage-ROOT"},
 				{RoleID: "ROOT_GROUP", Action: permissions.AclWrite, WorkspaceID: common.IdmWsInternalHomepageID, NodeID: "homepage-ROOT"},
+				{RoleID: "ROOT_GROUP", Action: permissions.AclRead, WorkspaceID: common.IdmWsInternalDirectoryID, NodeID: "directory-ROOT"},
+				{RoleID: "ROOT_GROUP", Action: permissions.AclWrite, WorkspaceID: common.IdmWsInternalDirectoryID, NodeID: "directory-ROOT"},
 				{RoleID: "ROOT_GROUP", Action: &idm.ACLAction{Name: "parameter:core.conf:lang", Value: string(langJ)}, WorkspaceID: scopeAll},
 			},
 		},
@@ -113,6 +115,7 @@ func InitRoles(ctx context.Context) error {
 			},
 			Acls: []*idm.ACL{
 				{RoleID: "EXTERNAL_USERS", Action: permissions.AclDeny, WorkspaceID: common.IdmWsInternalHomepageID, NodeID: "homepage-ROOT"},
+				{RoleID: "EXTERNAL_USERS", Action: permissions.AclDeny, WorkspaceID: common.IdmWsInternalDirectoryID, NodeID: "directory-ROOT"},
 				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: scopeAll},
 				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: scopeAll},
 				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:open_user_shares", Value: "false"}, WorkspaceID: scopeAll},
