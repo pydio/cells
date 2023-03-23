@@ -57,6 +57,7 @@ import MenuItemsConsumer from './menu/MenuItemsConsumer'
 import MenuUtils from './menu/Utils'
 
 import AddressBook from './users/addressbook/AddressBook'
+import DirectoryLayout from './users/addressbook/DirectoryLayout'
 import ListStylesCompact from './users/addressbook/ListStylesCompact'
 import ChatClient from './chat/ChatClient'
 import Chat from './chat/Chat'
@@ -102,10 +103,11 @@ const PydioComponents = {
     },
     DNDActionParameter      : DNDActionParameter,
 
-    UserAvatar              : UserAvatar,
-    UsersCompleter          : UsersCompleter,
-    TeamCreationForm        : TeamCreationForm,
-    AddressBook             : AddressBook,
+    UserAvatar,
+    UsersCompleter,
+    TeamCreationForm,
+    AddressBook,
+    DirectoryLayout,
     ListStylesCompact,
 
     ContextMenu             : ContextMenu,

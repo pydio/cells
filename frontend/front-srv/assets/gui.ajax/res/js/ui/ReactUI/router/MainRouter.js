@@ -48,7 +48,7 @@ const MainRouterWrapper = (pydio) => {
             const searchNode = pydio.getContextHolder().getSearchNode();
             const repo = list.get(active);
             const slug = repo ? repo.getSlug() : "";
-            const reserved = ['homepage', 'settings'];
+            const reserved = ['homepage', 'settings', 'directory'];
             const prefix = repo && reserved.indexOf(repo.getAccessType()) === -1 ? "ws-" : "";
             let uri = `/${prefix}${slug}${path.replace('%', '%25').replace('#','%23')}`;
             if(pydio.user && pydio.getContextNode() === searchNode && searchNode.getMetadata().get('search_values')) {

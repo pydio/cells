@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2023 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -20,10 +20,8 @@
 
 
 import PropTypes from 'prop-types';
-
-
-import { Component } from 'react';
-import {ListItem, FontIcon} from 'material-ui'
+import React, { Component } from 'react';
+import {ListItem, FontIcon, Avatar} from 'material-ui'
 
 /**
  * Left panel of the address book
@@ -43,7 +41,7 @@ class NestedListItem extends Component{
      * @param data
      */
     buildNestedItems(data){
-        const {style, innerDivStyle} = this.props;
+        const {style, innerDivStyle, avatarSize} = this.props;
         return data.map(function(entry){
             return (
                 <NestedListItem
@@ -54,18 +52,20 @@ class NestedListItem extends Component{
                     showIcons={true}
                     style={style}
                     innerDivStyle={innerDivStyle}
+                    avatarSize={avatarSize}
                 />);
         }.bind(this));
     }
 
     render(){
-        const {showIcons, entry, selected, style, innerDivStyle} = this.props;
+        const {showIcons, entry, selected, style, innerDivStyle, avatarSize=36} = this.props;
         const {id, label, icon} = entry;
         const children = entry.collections || [];
         const nested = this.buildNestedItems(children);
-        let fontIcon;
+        let fontIcon, leftAvatar;
         if(icon && showIcons){
             fontIcon = <FontIcon className={icon}/>;
+            leftAvatar = <Avatar icon={<FontIcon className={icon}/>} size={avatarSize} />
         }
         return (
             <ListItem
@@ -75,7 +75,7 @@ class NestedListItem extends Component{
                 onClick={this.onClick.bind(this)}
                 nestedItems={nested}
                 initiallyOpen={true}
-                leftIcon={fontIcon}
+                leftAvatar={leftAvatar}
                 innerDivStyle={innerDivStyle}
                 style={style}
             />

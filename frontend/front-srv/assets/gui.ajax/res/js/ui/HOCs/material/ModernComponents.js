@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import PropTypes from 'prop-types'
 import {TextField, SelectField, AutoComplete} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 
@@ -173,6 +174,11 @@ function withModernTheme(formComponent) {
 
     class ModernThemeComponent extends React.Component {
 
+        constructor(props, context) {
+            super(props, context);
+            this.muiTheme = context.muiTheme || {palette:{mui3:{}}};
+        }
+
         mergedProps(styleProps){
             const props = this.props;
             Object.keys(props).forEach((k) => {
@@ -207,7 +213,9 @@ function withModernTheme(formComponent) {
 
         render() {
 
-            let {variant, hasLeftBlock, hasRightBlock, muiTheme, ...otherProps} = this.props;
+            let {variant, hasLeftBlock, hasRightBlock, ...otherProps} = this.props;
+            const muiTheme = this.muiTheme
+
             if(variant === 'v2' || formComponent === AutoComplete) {
                 if(!otherProps.floatingLabelText){
                     otherProps.floatingLabelText = otherProps.hintText
@@ -259,8 +267,11 @@ function withModernTheme(formComponent) {
             }
         }
     }
+    ModernThemeComponent.contextTypes = {
+        muiTheme: PropTypes.object.isRequired
+    }
 
-    return muiThemeable()(ModernThemeComponent);
+    return ModernThemeComponent;
 
 }
 

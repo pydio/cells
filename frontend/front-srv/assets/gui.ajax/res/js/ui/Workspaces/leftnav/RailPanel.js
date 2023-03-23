@@ -223,16 +223,14 @@ let RailPanel = ({
                     icon: 'folder-multiple-outline',
                     text: 'All Files',
                     active: user.getActiveRepositoryObject().accessType === 'gateway',
-                    onClick: () => {
-                    },
+                    onClick: () => {},
                     hoverBar: wsBar,
                     activeBar: wsBar
                 },
                 {
                     text: 'Bookmarks',
                     icon: 'star-outline',
-                    onClick: () => {
-                    },
+                    onClick: () => {},
                     hoverBar: () => {
                         return (
                             <div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}}>
@@ -246,7 +244,9 @@ let RailPanel = ({
                 {
                     text: 'Directory',
                     icon: 'account-box-outline',
-                    action: 'open_address_book',
+                    onClick: () => {
+                        pydio.triggerRepositoryChange('directory')
+                    },
                 }
             ],
             "bottom": [

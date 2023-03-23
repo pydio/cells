@@ -381,14 +381,30 @@ class UserAvatar extends React.Component{
         return (
             <div className={className} style={style} onMouseOver={onMouseOver} onMouseOut={onMouseOut} onClick={onClick}>
                 {displayAvatar && (avatar || avatarContent || avatarIcon) && avatarComponent}
-                {displayLabel && !richCard && <div
-                    title={labelTitle}
-                    className={labelClassName}
-                    style={labelStyle}>{label}</div>}
+                {displayLabel && !richCard &&
+                    <div
+                        title={labelTitle}
+                        className={labelClassName}
+                        style={labelStyle}>{label}</div>
+                }
                 {labelChevron}
-                {displayLabel && richCard && <CardTitle style={{textAlign:'center', ...cardStyle}} title={label} subtitle={userTypeLabel}/>}
-                {richCard && user && !noActionsPanel && <ActionsPanel {...this.state} {...this.props} reloadAction={reloadAction} onEditAction={onEditAction} style={{paddingLeft: 8, paddingBottom: 4, backgroundColor:'#f8fafc'}}/>}
-                {richCard && graph && !noActionsPanel && <GraphPanel graph={graph} {...this.props} userLabel={label} reloadAction={reloadAction} onEditAction={onEditAction}/>}
+                {displayLabel && richCard &&
+                    <CardTitle
+                        style={{textAlign:'center', ...cardStyle}}
+                        title={label}
+                        subtitle={userTypeLabel}
+                    />
+                }
+                {richCard && user && this.props.actionsPanel}
+                {richCard && graph && !noActionsPanel &&
+                    <GraphPanel
+                        graph={graph}
+                        {...this.props}
+                        userLabel={label}
+                        reloadAction={reloadAction}
+                        onEditAction={onEditAction}
+                    />
+                }
                 {this.props.children}
                 {popover}
             </div>

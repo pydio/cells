@@ -23,6 +23,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import UserAvatar from '../avatar/UserAvatar'
 import UserCreationForm from '../UserCreationForm'
+import ActionsPanel from "../avatar/ActionsPanel";
 
 /**
  * Card presentation of a user. Relies on the UserAvatar object,
@@ -32,40 +33,38 @@ class UserCard extends React.Component{
 
     constructor(props, context){
         super(props, context);
-        this.state = {editForm: false};
-    }
-
-    componentWillReceiveProps(nextProps){
-        if (nextProps.item !== this.props.item){
-            this.setState({editForm: false});
-        }
     }
 
     render(){
 
-        const {item} = this.props;
+        const {pydio, item, onDeleteAction, onUpdateAction, edit, setEdit} = this.props;
         let editableProps = {avatarStyle: {zIndex: 1}}, editForm;
-        if(item._parent && item._parent.id === 'ext'){
-            editableProps = {
-                ...editableProps,
-                userEditable: item.IdmUser.PoliciesContextEditable,
-                onDeleteAction: () => {this.props.onDeleteAction(item._parent, [item])},
-                onEditAction: () => {this.setState({editForm: true})},
-                reloadAction: () => {this.props.onUpdateAction(item)}
-            };
-        }
+        const isExt = item._parent && item._parent.id === 'ext'
 
-        if(this.state.editForm){
+        const a = (
+            <ActionsPanel
+                pydio={pydio}
+                user={item}
+                userId={item.id}
+                userEditable={isExt && item.IdmUser.PoliciesContextEditable}
+                onDeleteAction={() => {onDeleteAction(item._parent, [item])}}
+                onEditAction={() => {setEdit(true)}}
+                reloadAction={() => {onUpdateAction(item)}}
+                style={{paddingLeft: 8, paddingBottom: 4}}
+            />
+        );
+
+        if(edit){
             editForm = (
                 <UserCreationForm
-                    pydio={this.props.pydio}
+                    pydio={pydio}
                     zDepth={0}
                     style={{flex:1}}
                     newUserName={item.id}
                     editMode={true}
                     userData={item}
-                    onUserCreated={() => {this.props.onUpdateAction(item); this.setState({editForm:false}) }}
-                    onCancel={() => {this.setState({editForm:false})}}
+                    onUserCreated={() => {onUpdateAction(item); setEdit(false) }}
+                    onCancel={() => {setEdit(false)}}
                 />
             );
             editableProps = {
@@ -73,7 +72,7 @@ class UserCard extends React.Component{
                 displayLabel: true,
                 displayAvatar: true,
                 useDefaultAvatar: true,
-                style: {textAlign: 'center', borderBottom: '1px solid #e0e0e0', padding: 10, backgroundColor: '#fafafa'},
+                style: {textAlign: 'center', borderBottom: '1px solid #e0e0e0', padding: 10},
                 avatarStyle:{marginBottom: 16},
             }
         }
@@ -85,7 +84,8 @@ class UserCard extends React.Component{
                     richCard={!editForm}
                     pydio={this.props.pydio}
                     cardSize={this.props.style.width}
-                    cardStyle={{textAlign:'left', padding:'12px 16px 4px', backgroundColor:'#f8fafc'}}
+                    cardStyle={{textAlign:'left', padding:'12px 16px 4px'}}
+                    actionsPanel={a}
                     {...editableProps}
                 />
                 {editForm}

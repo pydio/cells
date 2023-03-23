@@ -531,7 +531,7 @@ class IdmApi {
      * @param callback
      * @return {Promise<[any , any]>}
      */
-    addUserToTeam(teamId, userLogin, callback){
+    addUserToTeam(teamId, userLogin, callback=undefined){
 
         const userApi = new UserServiceApi(this.client);
         const p1 = this.loadUser(userLogin);
@@ -559,7 +559,7 @@ class IdmApi {
      * @param callback
      * @return {Promise<[any , any]>}
      */
-    removeUserFromTeam(teamId, userLogin, callback){
+    removeUserFromTeam(teamId, userLogin, callback=null){
 
         const userApi = new UserServiceApi(this.client);
         return this.loadUser(userLogin).then(u => {

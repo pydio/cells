@@ -55,7 +55,7 @@ export default class Repository {
 	}
 
 	static isInternal(driverName){
-	    return (driverName === 'settings' || driverName === 'homepage');
+	    return (driverName === 'settings' || driverName === 'homepage' || driverName === 'directory');
     }
 
 	/**

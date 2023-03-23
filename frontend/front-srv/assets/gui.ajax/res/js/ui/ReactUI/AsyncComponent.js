@@ -71,8 +71,8 @@ class AsyncComponent extends Component {
             this.setState({Component});
             callback();
         }).catch(e => {
-            console.log('loadClass error', e)
-            this.setState({hasError: true})
+            console.log('LoadClass error', e)
+            // this.setState({hasError: true})
         })
     }
 

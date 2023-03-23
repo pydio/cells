@@ -3,7 +3,7 @@
 	<client_settings>
 		<resources>
 			<i18n namespace="user_dash" remote="plug/action.user/res/i18n" />
-            <js className="UserAccount" file="plug/action.user/res/dist/UserAccount.min.js" depends="React,PydioForm"/>
+            <js className="UserAccount" file="plug/action.user/res/dist/UserAccount.min.js" depends="React,PydioComponents,PydioHOCs,PydioForm,PydioWorkspaces"/>
 		</resources>
 	</client_settings>
     <server_settings>

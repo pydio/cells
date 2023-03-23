@@ -26,6 +26,7 @@ const {Divider, Subheader, List, ListItem, FontIcon, Avatar} = require('material
 const PydioApi = require('pydio/http/api');
 const {PydioContextConsumer} = require('pydio').requireLib('boot');
 import ListStylesCompact from '../addressbook/ListStylesCompact'
+import Model from '../addressbook/Model'
 
 
 /**
