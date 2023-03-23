@@ -1,4 +1,3 @@
-const PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -19,9 +18,9 @@ const PropTypes = require('prop-types');
  * The latest code can be found at <https://pydio.com>.
  */
 
-
-const React = require('react')
+const PropTypes = require('prop-types');
 import TeamCard from './TeamCard'
+const React = require('react')
 import UserCard from './UserCard'
 const {Paper, IconButton} = require('material-ui')
 

@@ -11,6 +11,7 @@
     "@emotion/styled": "^11.10.6",
     "@material/material-color-utilities": "^0.2.4",
     "@mui/icons-material": "^5.11.11",
+    "@mui/lab": "5.0.0-alpha.124",
     "@mui/material": "^5.11.10",
     "aws-sdk": "^2.847.0",
     "cells-sdk": "4.0.2",

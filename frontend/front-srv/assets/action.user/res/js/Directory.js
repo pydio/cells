@@ -47,7 +47,7 @@ class Directory extends React.Component {
             >
                 <DirectoryLayout
                     {...this.props}
-                    style={{width:'100%', flex: 1, flexGrow: 1, height:'auto'}}
+                    style={{width:'100%', flex: 1, flexGrow: 1, height:'100%'}}
                 />
             </MasterLayout>
         )

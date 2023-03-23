@@ -243,6 +243,8 @@ let RailPanel = ({
                 },
                 {
                     text: 'Directory',
+                    ignore: !user.getRepositoriesList().has('directory'),
+                    active: user.activeRepository === 'directory',
                     icon: 'account-box-outline',
                     onClick: () => {
                         pydio.triggerRepositoryChange('directory')

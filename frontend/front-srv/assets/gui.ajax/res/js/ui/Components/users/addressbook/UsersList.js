@@ -21,14 +21,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import UserAvatar from '../avatar/UserAvatar'
-import {IconButton, Checkbox, IconMenu, ListItem, FontIcon, Avatar, Divider, Subheader, List, TextField} from 'material-ui'
+import {IconButton, Checkbox, IconMenu, ListItem, FontIcon, Avatar, Divider, Subheader, List} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import EmptyStateView from '../../views/EmptyStateView'
 import AlphaPaginator from './AlphaPaginator'
 import SearchForm from './SearchForm'
 import CellActionsRenderer from '../avatar/CellActionsRenderer'
 import ListStylesCompact from "./ListStylesCompact";
-import Toolbar from './Toolbar'
 import Model from "./Model";
 const {Loader, PydioContextConsumer} = require('pydio').requireLib('boot');
 
@@ -40,8 +39,8 @@ class UsersList extends React.Component{
 
     render(){
 
-        const {pydio, item, mode, paginatorType, paginatorFolder, loading,
-            enableSearch, searchLabel, onSearch, getMessage, bookColumn, toolbar} = this.props;
+        const {pydio, item, mode, loading, showAllParents,
+            enableSearch, searchLabel, onSearch, getMessage, bookColumn, toolbar, style} = this.props;
 
         let {model} = this.props;
         if(!model) {
@@ -52,11 +51,11 @@ class UsersList extends React.Component{
         const selectionMode = model.getSelectionMode()
 
         let {listStyles = {}} = this.props;
-        let className;
         if (mode === 'selector' || mode === 'inner'){
             listStyles = ListStylesCompact;
-            className = 'compact';
         }
+        const {className} = listStyles;
+
 
         const avatarSize = listStyles.avatar ? listStyles.avatar.avatarSize : 36;
 
@@ -100,12 +99,12 @@ class UsersList extends React.Component{
             }
         }
 
-        if(paginatorFolder) {
+        if(paginatorProps.paginatorFolder) {
             foldersSubHeader.push({subheader:<AlphaPaginator {...this.props} {...paginatorProps} style={{lineHeight: '20px',padding: '14px 0'}} />});
         } else if(folders.length && (leafs.length || showSubheaders)) {
             foldersSubHeader.push({subheader:getMessage('532')})
         }
-        if(paginatorType) {
+        if(paginatorProps.paginatorType) {
             usersSubHeader.push({subheader: <AlphaPaginator {...this.props} {...paginatorProps} style={{lineHeight: '20px',padding: '14px 0'}} />})
         } else if(showSubheaders) {
             usersSubHeader.push({subheader: getMessage('249')});
@@ -115,7 +114,7 @@ class UsersList extends React.Component{
         let elements = [];
 
         // PARENT NODE
-        if(item._parent && mode === 'book' && item._parent._parent && item._parent.id !== 'teams'){
+        if(mode === 'book' && item._parent && ((item._parent._parent && item._parent.id !== 'teams')|| showAllParents)){
             elements.push(
                 <ListItem
                     key={'__parent__'}
@@ -244,7 +243,7 @@ class UsersList extends React.Component{
         }
 
         return (
-            <div style={{flex:1, flexDirection:'column', display:'flex', width:'100%', overflowX: 'hidden'}} onClick={this.props.onClick} className={className}>
+            <div style={{flex:1, flexDirection:'column', display:'flex', width:'100%', overflowX: 'hidden', ...style}} onClick={this.props.onClick} className={className}>
                 {toolbar}
                 {!emptyState && !loading &&
                     <List style={{flex: 1, overflowY: mode !== 'inner' ? 'auto' : 'initial'}}>

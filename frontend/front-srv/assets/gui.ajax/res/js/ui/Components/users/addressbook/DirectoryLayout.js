@@ -25,15 +25,15 @@ import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import {muiThemeable} from 'material-ui/styles'
 import ActionsPanel from '../avatar/ActionsPanel'
-const {PydioContextConsumer, PydioContextProvider} = Pydio.requireLib('boot');
+const {PydioContextConsumer} = Pydio.requireLib('boot');
 import PydioApi from 'pydio/http/api';
 import Model from './Model'
-import CollectionsPanel from "./CollectionsPanel";
+import TreePanel from './TreePanel'
 import CreatesDialog from './CreatesDialog'
 import Toolbar from "./Toolbar";
 import ListStylesCompact from "./ListStylesCompact";
-import {Paper} from 'material-ui'
 import {Resizable} from "re-resizable";
+import ListStylesMedium from "./ListStylesMedium";
 
 const getCss = (palette) => {
     return `
@@ -50,6 +50,12 @@ const getCss = (palette) => {
     font-size: 30px;
     top: 5px;
 }
+
+.medium .folder-avatar::before {
+    font-size: 26px;
+    top: 5px;
+}
+
 .folder-avatar span.mdi {
     font-size: 20px !important;
     color: #fff !important;
@@ -59,8 +65,14 @@ const getCss = (palette) => {
 .compact .folder-avatar span.mdi {
     font-size: 13px !important;
 }
+.medium .folder-avatar span.mdi {
+    font-size: 13px !important;
+}
 .folder-avatar {
     background-color: transparent !important;
+}
+.medium .folder-avatar {
+    left: 18px;
 }
 `
 }
@@ -174,37 +186,43 @@ class DirectoryLayout extends React.Component {
             };
         }
 
-
         const {mui3} = muiTheme.palette
+        const smallScreen = muiTheme.breakpoint === 'xs' || muiTheme.breakpoint === 's'
+        const main = muiTheme.darkMode?'surface':'surface-variant'
+        const variant = muiTheme.darkMode?'surface-variant':'surface'
 
         return (
-            <div style={{display:'flex', flexDirection:'column', ...style}}>
-                <Paper zDepth={1} rounded={false} style={{height:72, display:'flex',alignItems:'center', background:mui3['surface-2']}}>
+            <div style={{display:'flex', height: '100%', overflow:'hidden', flexDirection:'column', background:mui3[main], ...style}}>
+                <div style={{height:72, display:'flex', flexShrink:0 ,alignItems:'center'}}>
                     <Toolbar
                         pydio={pydio}
                         model={model}
-                        mode={mode}
+                        mode={'book'}
                         getMessage={getMessage}
                         actionsPanel={topActionsPanel}
                         onEditLabel={onEditLabel}
                         style={{width:'100%'}}
                         {...searchProps}
                     />
-                </Paper>
-                <div style={{display:'flex', flex: 1}}>
-                    <Resizable defaultSize={{width:resizeDefaultWidth}} enable={{right:true}} style={{margin:8}}>
-                        <CollectionsPanel
-                            model={model}
-                            listStyles={ListStylesCompact}
-                            rootStyle={{...columnStyle, background:mui3['surface-1'], borderRadius:mui3['card-border-radius'], border:'1px solid ' + mui3['outline-variant-50']}}
-                        />
-                    </Resizable>
-
+                </div>
+                <div style={{display:'flex', flex: 1, overflow:'hidden', margin:12, marginTop: 0}}>
+                    {!smallScreen &&
+                        <Resizable defaultSize={{width:resizeDefaultWidth}} enable={{right:true}} style={{margin:0}}>
+                            <TreePanel
+                                pydio={pydio}
+                                model={model}
+                                listStyles={{}}
+                                muiTheme={muiTheme}
+                                style={{...columnStyle, paddingRight: 8, color:mui3["on-surface-variant"]}}
+                            />
+                        </Resizable>
+                    }
                     <UsersList
                         pydio={pydio}
                         model={model}
                         item={contextItem}
-                        mode={mode}
+                        mode={'book'}
+                        showAllParents={smallScreen}
 
                         onItemClicked={(i) => model.leafItemClicked(i)}
                         onFolderClicked={(i,c) => model.setContext(i,c)}
@@ -213,7 +231,8 @@ class DirectoryLayout extends React.Component {
                         loading={model.loading}
                         actionsForCell={this.props.actionsForCell}
                         usersOnly={this.props.usersOnly}
-                        listStyles={ListStylesCompact}
+                        listStyles={ListStylesMedium}
+                        style={{borderRadius: muiTheme.borderRadius, backgroundColor:mui3[variant]}}
                         {...searchProps}
                     />
 
@@ -221,23 +240,23 @@ class DirectoryLayout extends React.Component {
                         size={{width:rightPaneItem?rightPaneSize:0}}
                         onResizeStop={(e,dir,el,delta)=>{this.setState({rightPaneSize:rightPaneSize+delta.width})}}
                         enable={{left:!!rightPaneItem}}
-                        style={{margin:rightPaneItem?8:0, transition:'width 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'}}
+                        style={{marginLeft:!!rightPaneItem?12:0, transition:'width 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'}}
                     >
                         <RightPanelCard
                             pydio={pydio}
                             model={model}
                             zDepth={0}
-                            style={{...columnStyle, background:mui3['surface-variant'], borderRadius:mui3['card-border-radius']}}
+                            style={{...columnStyle, background:mui3[variant], borderRadius:muiTheme.borderRadius}}
                         />
                     </Resizable>
-                    <CreatesDialog
-                        pydio={pydio}
-                        model={model}
-                        onCancel={() => {model.clearCreateItem()}}
-                        afterSubmit={() => {model.clearCreateItem(); model.reloadContext()}}
-                    />
-                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:getCss(this.props.muiTheme.palette)}}/>
                 </div>
+                <CreatesDialog
+                    pydio={pydio}
+                    model={model}
+                    onCancel={() => {model.clearCreateItem()}}
+                    afterSubmit={() => {model.clearCreateItem(); model.reloadContext()}}
+                />
+                <style type={"text/css"} dangerouslySetInnerHTML={{__html:getCss(this.props.muiTheme.palette)}}/>
             </div>
         );
     }

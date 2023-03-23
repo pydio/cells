@@ -387,6 +387,12 @@ export default class ThemeBuilder {
             menuItem : {
                 selectedTextColor       : palette.accent2Color
             },
+            subheader: {
+                color: mui3['on-surface-variant']
+            },
+            menuSubheader: {
+                textColor: mui3['on-surface-variant']
+            },
             dialog: {
                 containerBackground: mui3['surface-4'],
                 bodyColor:mui3['on-surface-variant']
@@ -441,6 +447,9 @@ export default class ThemeBuilder {
                 secondary:{main:palette.mui3.secondary||palette.primary2Color},
                 background:{
                     paper:mui3['surface-variant']||'white'
+                },
+                action:{
+                    hover:systemDark ?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)'
                 }
             },
             shape:{

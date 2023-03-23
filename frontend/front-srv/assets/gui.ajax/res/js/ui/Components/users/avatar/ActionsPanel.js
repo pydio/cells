@@ -17,12 +17,12 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import PropTypes from 'prop-types';
 
+import PropTypes from 'prop-types';
 import Pydio from 'pydio';
+const React = require('react');
 import AddressBook from '../addressbook/AddressBook'
 import ResourcePoliciesPanel from '../../policies/ResourcePoliciesPanel'
-const React = require('react');
 const PydioApi = require('pydio/http/api');
 const ResourcesManager = require('pydio/http/resources-manager');
 const {IconButton} = require('material-ui');

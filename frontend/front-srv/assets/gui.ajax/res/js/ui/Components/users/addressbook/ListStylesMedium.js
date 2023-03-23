@@ -24,20 +24,20 @@ export default {
     },
     listItem:{
         style:{
-            fontSize: 13,
+            fontSize: 14,
         },
         innerDivStyle:{
-            padding: '10px 56px 10px 62px'
+            padding: '14px 56px 14px 62px'
         }
     },
     avatar: {
         avatarSize: 26,
         style:{
-            top: 5
+            top: 9
         }
     },
     iconMenu:{
-        style:{top: 4, right: 8}
+        style:{top: 2, right: 8}
     },
     iconButton:{
         style:{
@@ -56,5 +56,5 @@ export default {
             marginLeft: 62
         }
     },
-    className:'compact'
+    className:'medium'
 };

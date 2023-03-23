@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2023 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2018-2023 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -24,8 +24,9 @@ import UserCreationForm from "../UserCreationForm";
 import TeamCreationForm from "../TeamCreationForm";
 import AddressBook from "./AddressBook";
 import PydioApi from 'pydio/http/api'
+import {muiThemeable} from "material-ui/styles";
 
-export default class CollectionsPanel extends React.Component {
+class CreatesDialog extends React.Component {
 
     constructor(props) {
         super(props);
@@ -81,6 +82,9 @@ export default class CollectionsPanel extends React.Component {
             }
         }
 
+        const {muiTheme} = this.props;
+        const paperProps = muiTheme.userTheme === 'mui3' ? {style: {background:muiTheme.dialog.containerBackground}} : undefined
+
         return(
             <Dialog
                 contentStyle={{width:420,minWidth:380,maxWidth:'100%', padding:0}}
@@ -89,6 +93,7 @@ export default class CollectionsPanel extends React.Component {
                 actions={null}
                 modal={false}
                 open={!!item}
+                paperProps={paperProps}
                 onRequestClose={() => {onCancel()}}
             >
                 {dialogContent}
@@ -96,3 +101,6 @@ export default class CollectionsPanel extends React.Component {
         )
     }
 }
+
+CreatesDialog = muiThemeable()(CreatesDialog)
+export default CreatesDialog
