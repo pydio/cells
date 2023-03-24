@@ -34,7 +34,6 @@ const {PlaceHolder, PhTextRow, PhRoundShape} = Pydio.requireLib("hoc");
 const listCss = `
 .bmListEntry{
     transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-    padding: 2px 0 !important;
 }
 .bmListEntry:hover{
     background-color:var(--md-sys-color-outline-variant-50);
@@ -58,7 +57,7 @@ class BookmarkLine extends React.Component {
             style: {
                 height: 40,
                 width: 40,
-                borderRadius: '50%',
+                borderRadius: 4,
             },
             mimeFontStyle: {
                 fontSize: 24,
@@ -81,8 +80,9 @@ class BookmarkLine extends React.Component {
             preview = <FilePreview pydio={pydio} node={nodes[0]} loadThumbnail={true} {...previewStyles}/>;
             primaryText = nodes[0].getLabel()||nodes[0].getMetadata().get('WsLabel')
             secondaryTexts = [<span>{pydio.MessageHash['bookmark.secondary.inside']} </span>];
+            nodes.sort( (a,b) => a.getMetadata().get('WsLabel').localeCompare(b.getMetadata().get('WsLabel')) )
             const nodeLinks = nodes.map((n,i) => {
-                const link = <a className={"bmListEntryWs"} onClick={(e) => { e.stopPropagation(); onClick(n);}} style={{fontWeight:500}}>{n.getMetadata().get('WsLabel')}</a>;
+                const link = <a className={"bmListEntryWs"} onClick={(e) => { e.stopPropagation(); onClick(n);}} style={{color:muiTheme.palette.mui3['secondary']}}>{n.getMetadata().get('WsLabel')}</a>;
                 if(i === nodes.length - 1) {
                     return link;
                 } else {
@@ -103,6 +103,7 @@ class BookmarkLine extends React.Component {
 
         }
 
+        const dynaPad = 12
         const block = (
             <div className={"bmListEntry"} style={{display:'flex', alignItems:'center', width: '100%', padding:'2px 0',backgroundColor:hover?muiTheme.hoverBackgroundColor:null}}
                  onMouseEnter={()=>this.setState({hover:true})} onMouseLeave={()=>this.setState({hover:false})}>
@@ -110,10 +111,10 @@ class BookmarkLine extends React.Component {
                     {preview}
                 </div>
                 <div style={{flex: 1, overflow:'hidden', cursor:'pointer'}} onClick={firstClick}>
-                    <div style={{color:muiTheme.palette.mui3['on-surface'], fontSize:14, fontWeight: 500, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
+                    <div style={{color:muiTheme.palette.mui3['on-surface'], fontSize:14, fontWeight: 500, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', paddingBottom: 2, paddingTop: dynaPad}}>
                         {primaryText}
                     </div>
-                    <div>
+                    <div style={{paddingBottom: dynaPad}}>
                         {secondaryTexts}
                     </div>
                 </div>

@@ -368,12 +368,12 @@ export default class ThemeBuilder {
                 secondaryTextColor: 'inherit'
             },
             raisedButton : {
-                color:mui3['secondary-container'],
-                textColor:mui3['on-secondary-container'],
-                primaryColor:mui3['primary-container'],
-                primaryTextColor:mui3['on-primary-container'],
-                secondaryColor:mui3['secondary-container'],
-                secondaryTextColor:mui3['on-secondary-container'],
+                color:mui3['primary'],
+                textColor:mui3['on-primary'],
+                primaryColor:mui3['primary'],
+                primaryTextColor:mui3['on-primary'],
+                secondaryColor:mui3['secondary'],
+                secondaryTextColor:mui3['on-secondary'],
 
                 disabledColor:Color(mui3['primary']).fade(.88).toString(),
                 disabledTextColor:Color(mui3['on-surface']).fade(.42).toString(),
@@ -493,11 +493,11 @@ export default class ThemeBuilder {
                 appBarRounded = {
                     borderRadius: mui3['card-border-radius'],
                     margin: `${masterMargin}px ${masterMargin}px 0px ${masterMargin}px`,
-                    border: '1px solid ' + mui3['outline-variant-50']
+                    //border: '1px solid ' + mui3['outline-variant-50']
                 }
             }
             appBarTextColor = Color(mui3['on-surface'])
-            appBarBackColor = mui3['surface-2']
+            appBarBackColor = 'transparent'//mui3['surface-2']
             iconButtonsColor = mui3['on-surface-variant']
         } else {
             infoPanelBg = mui3['surface-2']
@@ -535,11 +535,11 @@ export default class ThemeBuilder {
             masterMargin,
             masterStyle:{
                 display:'flex',
-                backgroundColor: mui3.background,
+                backgroundColor: isMUI3?mui3['surface-variant']:'white',
                 overflow:'hidden',
                 color:isMUI3?undefined:'rgba(0,0,0,.87)'
             },
-            appBarZDepth : (searchView||this.userTheme==='material')?1:0,
+            appBarZDepth : this.userTheme==='material'?1:0,
             appBarStyle : {
                 zIndex: searchView?903:901,
                 height: searchView?'auto':headerHeight,
@@ -550,7 +550,9 @@ export default class ThemeBuilder {
             listStyle: {
                 flex: 1,
                 marginRight:listMarginRight,
-                marginTop:listMarginTop
+                marginTop:listMarginTop,
+                backgroundColor:isGrid?'transparent':mui3.surface,
+                borderRadius:isGrid?0:`${themeCusto.borderRadius}px ${themeCusto.borderRadius}px 0 0`
             },
             buttonsStyle : {
                 width: 40,
@@ -570,17 +572,6 @@ export default class ThemeBuilder {
             activeButtonIconStyle: {
                 color: headerButtonsColor || iconButtonsColor
             },
-            raisedButtonStyle : {
-                height: buttonsHeight,
-                minWidth: 0
-            },
-            raisedButtonLabelStyle : {
-                height: buttonsHeight,
-                paddingLeft: 12,
-                paddingRight: 8,
-                lineHeight: buttonsHeight + 'px',
-                fontSize: buttonsFont,
-            },
             flatButtonStyle : {
                 height: buttonsHeight,
                 lineHeight: buttonsHeight + 'px',
@@ -593,6 +584,15 @@ export default class ThemeBuilder {
                 paddingRight: 12,
                 color: headerButtonsColor
             },
+            raisedButtonStyle : {
+                background:'none',
+                marginRight: 4,
+                boxShadow: 0
+            },
+            raisedButtonLabelStyle : {
+                paddingRight: 8,
+                color:mui3['on-primary']
+            },
             infoPanel:{
                 masterStyle : {
                     backgroundColor: infoPanelBg || 'transparent',
@@ -602,15 +602,15 @@ export default class ThemeBuilder {
                 card: {
                     zDepth: 0,
                     panel:{
-                        background: isMUI3?mui3['surface-2']:"white",
+                        background: isMUI3?mui3['surface-1']:"white",
                         boxShadow: isMUI3?'none':'rgb(0,0, 0, .15) 0px 0px 12px',
                         borderRadius: mui3['card-border-radius'] || 10,
                         margin: masterMargin,
                         overflow:'hidden',
-                        border:'1px solid transparent'
+                        //border:'1px solid transparent'
                     },
                     panelOpen: {
-                        border: isMUI3?'1px solid '+ Color(mui3['outline-variant-50']):undefined // or outline-variant-50 ? not sure
+                        //border: isMUI3?'1px solid '+ Color(mui3['outline-variant-50']):undefined // or outline-variant-50 ? not sure
                     },
                     header:{
                         backgroundColor:'transparent',
@@ -673,7 +673,7 @@ export default class ThemeBuilder {
             },
             searchForm:{
                 mainStyle:{
-                    backgroundColor:themeCusto.palette.mui3['surface-variant'],
+                    background:isMUI3?themeCusto.palette.mui3['surface-2']:themeCusto.palette.mui3['surface-variant'],
                     border: isMUI3?0:'1px solid ' + appBarTextColor.fade(0.8).toString(),
                     borderRadius: 50
                 },
@@ -690,7 +690,14 @@ export default class ThemeBuilder {
                 masterStyle:{
                     background: mui3['surface-3'],
                     color: mui3['on-surface-variant'],
-                    borderRight: this.userTheme === 'mui3' ? undefined : '1px solid #e0e0e0'
+                    borderRight: this.userTheme === 'mui3' ? undefined : '1px solid #e0e0e0',
+                    borderRadius: this.userTheme === 'mui3' ? `0 ${themeCusto.borderRadius}px ${themeCusto.borderRadius}px 0`:0
+                },
+                railPanelStyle:{
+                    background: mui3['surface-3'],
+                    color: mui3['on-surface-variant'],
+                    borderRight: '1px solid ' + mui3['outline-variant'],
+                    width:74,
                 },
                 workspacesList:{
                     // must be named style for WorkspacesList widget, will be applied to vertical scroller
@@ -705,13 +712,21 @@ export default class ThemeBuilder {
                     } : {},
                     workspaceEntryStyler:{
                         rootItemStyle:{
-                            default: {},
+                            default: {
+                                padding: 8,
+                                paddingLeft: 16,
+                                borderRadius: 20,
+                                margin:'0 4px'
+                            },
                             context: {
+                                backgroundColor:mui3['secondary-container'],
                                 color:mui3['on-secondary-container']
                             }
                         },
                         treeItemStyle:{
-                            default: {},
+                            default: {
+                                borderRadius: 20
+                            },
                             context: {
                                 color:mui3['on-secondary-container'],
                                 fontWeight: 500,

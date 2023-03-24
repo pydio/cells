@@ -38,7 +38,7 @@
           }
           color: var(--md-sys-color-on-surface-variant);
           &:hover{
-            background-color: var(--md-sys-color-surface-variant);
+            background: var(--md-sys-color-surface-5);
           }
           &.sortable.active-sort-asc, &.sortable.active-sort-desc{
             background-color: var(--md-sys-color-secondary-container);
@@ -59,7 +59,7 @@
       .material-list-entry{
         box-shadow: none;
         border-radius: var(--md-sys-color-card-border-radius);
-        border: 1px solid var(--md-sys-color-outline-variant-50);
+        //border: 1px solid var(--md-sys-color-outline-variant-50);
         background: var(--md-sys-color-surface-1);
         margin: 4px;
         &.selected{
@@ -116,6 +116,14 @@
 
   .selected .mimefont-container {
     background-color: var(--md-sys-color-primary-container) !important;
+  }
+
+  .rail-hover-bar .mimefont-container {
+    background-color: var(--md-sys-color-primary-container) !important;
+  }
+
+  .left-panel .rail-hover-bar .workspaces .workspace-entry .workspace-additional-action {
+    display: none;
   }
 
   .info-panel-open .masonry-grid{

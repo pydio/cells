@@ -74,7 +74,6 @@ class UserAvatar extends React.Component{
         if (userType === "group" || userType === "team") {
             return;
         }
-        console.log('loadPublicData', userId, richCard)
         UsersApi.getUserPromise(userId, idmUser).then((userObject) => {
             if(userObject.isLocal() && !this._userLoggedObs){
                 this._userLoggedObs = (eventUser) => {
@@ -108,7 +107,6 @@ class UserAvatar extends React.Component{
                             });
                         });
                     }
-                    console.log('loadGraph', graph)
                     this.setState({graph});
                 });
             }
@@ -380,10 +378,6 @@ class UserAvatar extends React.Component{
         let labelChevron;
         if(displayLabel && displayLabelChevron){
             labelChevron = <span className={"mdi mdi-chevron-down"} style={{...labelChevronStyle, marginLeft: 4, fontSize:'0.8em'}}/>
-        }
-
-        if(richCard && graph && !noActionsPanel){
-            console.log('RENDER RICH CARD AND GRAPH', graph.teams)
         }
 
         return (

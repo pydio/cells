@@ -277,7 +277,7 @@ class WorkspacesList extends React.Component{
                 height: 36,
                 padding: 6,
                 position:'absolute',
-                right: 4,
+                right: 8,
                 top: 8
             },
             icon : {

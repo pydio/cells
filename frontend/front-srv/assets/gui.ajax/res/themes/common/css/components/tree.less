@@ -11,9 +11,11 @@
     div.tree-item-label{
       padding: 10px 6px;
       cursor: pointer;
+      height: 40px;
       .tree-icon{
         padding: 0 8px;
-        &.mdi.mdi-chevron-right, &.mdi.mdi-chevron-down {
+        font-size: 16px;
+        &.mdi.mdi-chevron-right, &.mdi.mdi-chevron-down, &.mdi.mdi-menu-right, &.mdi.mdi-menu-down {
           padding-right: 0;
           font-size: 16px;
           width: 20px;
@@ -22,6 +24,9 @@
           &.no-folder-children{
             visibility: hidden;
           }
+        }
+        &.mdi.mdi-menu-right, &.mdi.mdi-menu-down{
+          font-size: 18px;
         }
       }
     }

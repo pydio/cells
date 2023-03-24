@@ -294,7 +294,7 @@ class RecentCard extends React.Component{
             styles.paper = {
                 ...styles.paper,
                 width:160,
-                height: 160,
+                height: 190,
                 borderRadius: 12,
                 boxShadow: null,
                 margin: 4,
@@ -358,7 +358,7 @@ class SmartRecents extends React.Component{
         let phStyle = {margin:10,width:140, height: 160, padding: 6, display:'flex', flexDirection:'column', alignItems:'center', borderRadius: 6}
         if(muiTheme.userTheme === 'mui3') {
             phStyle.width = 160;
-            phStyle.height = 160;
+            phStyle.height = 190;
             phStyle.margin=4;
             phStyle.borderRadius=12;
         }

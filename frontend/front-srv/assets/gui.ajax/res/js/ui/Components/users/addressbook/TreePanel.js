@@ -50,7 +50,7 @@ const StyledTreeItemRoot = styled(TreeItem)(({ theme, muiTheme}) => ({
             color: muiTheme.palette.mui3['on-secondary-container'],
         },
         [`& .${treeItemClasses.label}`]: {
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: 500,
             color: 'inherit',
         },
@@ -109,7 +109,7 @@ export default function TreePanel({pydio, muiTheme, style, model}) {
                     muiTheme={muiTheme}
                     nodeId={coll.id}
                     labelText={coll.label}
-                    labelIcon={<span style={{fontSize: 20, marginRight: 10}} className={coll.icon}/>}
+                    labelIcon={<span style={{fontSize: 16, marginRight: 10}} className={coll.icon}/>}
                 >{buildChildren(coll)}</StyledTreeItem>
             )
         });

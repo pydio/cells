@@ -804,12 +804,16 @@ div.dialogBox div#element_overlay {
 .folders-tree div.tree-item div.tree-item-label {
   padding: 10px 6px;
   cursor: pointer;
+  height: 40px;
 }
 .folders-tree div.tree-item div.tree-item-label .tree-icon {
   padding: 0 8px;
+  font-size: 16px;
 }
 .folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-right,
-.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-down {
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-down,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-menu-right,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-menu-down {
   padding-right: 0;
   font-size: 16px;
   width: 20px;
@@ -817,8 +821,14 @@ div.dialogBox div#element_overlay {
   text-align: center;
 }
 .folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-right.no-folder-children,
-.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-down.no-folder-children {
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-down.no-folder-children,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-menu-right.no-folder-children,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-menu-down.no-folder-children {
   visibility: hidden;
+}
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-menu-right,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-menu-down {
+  font-size: 18px;
 }
 .folders-tree div.tree-item:hover {
   background-color: var(--md-sys-color-hover-background);
@@ -1959,7 +1969,8 @@ div.menu.desktop a span.ajxp_icon_span {
   content: "\f309";
 }
 .left-panel .folders-tree {
-  margin-left: -15px;
+  margin: 0 4px;
+  /*margin-left: -15px;*/
   font-weight: 400;
 }
 .left-panel .folders-tree.closed {
@@ -3876,7 +3887,7 @@ body,
   border-radius: var(--md-sys-color-card-border-radius) 40px 40px 0;
 }
 .react-mui-context.mui3-token .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left .header_cell:hover {
-  background-color: var(--md-sys-color-surface-variant);
+  background: var(--md-sys-color-surface-5);
 }
 .react-mui-context.mui3-token .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left .header_cell.sortable.active-sort-asc,
 .react-mui-context.mui3-token .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left .header_cell.sortable.active-sort-desc {
@@ -3896,7 +3907,6 @@ body,
   -webkit-box-shadow: none;
           box-shadow: none;
   border-radius: var(--md-sys-color-card-border-radius);
-  border: 1px solid var(--md-sys-color-outline-variant-50);
   background: var(--md-sys-color-surface-1);
   margin: 4px;
 }
@@ -3949,6 +3959,12 @@ body,
 }
 .react-mui-context.mui3-token .selected .mimefont-container {
   background-color: var(--md-sys-color-primary-container) !important;
+}
+.react-mui-context.mui3-token .rail-hover-bar .mimefont-container {
+  background-color: var(--md-sys-color-primary-container) !important;
+}
+.react-mui-context.mui3-token .left-panel .rail-hover-bar .workspaces .workspace-entry .workspace-additional-action {
+  display: none;
 }
 .react-mui-context.mui3-token .info-panel-open .masonry-grid {
   width: calc(100% - 270px) !important;

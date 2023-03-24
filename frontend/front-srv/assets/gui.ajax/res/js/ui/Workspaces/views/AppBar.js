@@ -49,8 +49,8 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
     const {values, humanizeValues, limit, setLimit, searchLoading} = searchTools;
 
     const newButtonProps = {
-        buttonStyle:{...styles.flatButtonStyle, marginRight: 4, boxShadow: 0, background:'none'},
-        buttonLabelStyle:{...styles.flatButtonLabelStyle, paddingRight: 8}
+        buttonStyle:{...styles.flatButtonStyle, ...styles.raisedButtonStyle},
+        buttonLabelStyle:{...styles.flatButtonLabelStyle, ...styles.raisedButtonLabelStyle}
     };
 
     let searchToolbar
@@ -122,7 +122,7 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
                                 toolbars={["upload", "create"]}
                                 buttonTitle={pydio.MessageHash['198']}
                                 raised={true}
-                                secondary={true}
+                                primary={true}
                                 controller={pydio.Controller}
                                 openOnEvent={'tutorial-open-create-menu'}
                             />

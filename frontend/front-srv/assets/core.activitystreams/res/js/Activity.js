@@ -26,7 +26,7 @@ import {FontIcon} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PathUtils from 'pydio/util/path'
 
-const {Timeline, UserAvatar} = Pydio.requireLib('components');
+const {UserAvatar} = Pydio.requireLib('components');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 const {FilePreview} = Pydio.requireLib('workspaces');
 
@@ -182,7 +182,7 @@ class Activity extends React.Component{
 
         let summary;
         const {className} = this.computeIcon(activity);
-        const accentColor = muiTheme.palette.mui3['outline-variant']
+        const accentColor = muiTheme.palette.mui3['outline']
 
 
         let blockStyle = {
@@ -201,9 +201,8 @@ class Activity extends React.Component{
         if(nodes.length){
             const previewStyles = {
                 style: {
-                    height: 36,
-                    width: 36,
-                    borderRadius: '50%',
+                    height: 40,
+                    width: 40
                 },
                 mimeFontStyle: {
                     fontSize: 20,

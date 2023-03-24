@@ -196,20 +196,23 @@ class WorkspaceEntry extends React.Component {
         this.setState({openFoldersTree: !this.state.openFoldersTree});
     };
 
-    getRootItemStyle = (node) => {
-        const {pydio, styler} = this.props;
-        const isContext = pydio.getContextHolder().getContextNode() === node;
+    getRootItemStyle = (activeRoot, contextNode) => {
+        const {styler} = this.props;
+        if(!styler){
+            return {}
+        }
+        const isContext = activeRoot && contextNode && contextNode.isRoot()
         const wsEntryPalette = styler.rootItemStyle
-        return isContext ? wsEntryPalette.context : wsEntryPalette.default;
+        return isContext ? {...wsEntryPalette.default, ...wsEntryPalette.context} : wsEntryPalette.default;
     };
 
     getItemStyle = (node) => {
         const {pydio, styler} = this.props;
         const wsTreePalette = styler.treeItemStyle
         if(pydio.getContextHolder().getContextNode() === node){
-            return wsTreePalette.context
+            return {...wsTreePalette.default, ...wsTreePalette.context}
         } else if(pydio.getContextHolder().getSelectedNodes().indexOf(node) !== -1){
-            return wsTreePalette.selected
+            return {...wsTreePalette.default, ...wsTreePalette.selected}
         } else {
             return wsTreePalette.default
         }
@@ -295,13 +298,11 @@ class WorkspaceEntry extends React.Component {
             additionalAction,
             treeToggle;
 
-        let style = {};
-
         if (current) {
             currentClass +=" workspace-current";
-            style = this.getRootItemStyle(pydio.getContextHolder().getContextNode());
         }
-        style = {paddingLeft: 16, ...style};
+
+        let style = this.getRootItemStyle(current, pydio.getContextHolder().getContextNode());
 
         currentClass += " workspace-access-" + workspace.getAccessType();
 
@@ -455,6 +456,8 @@ class WorkspaceEntry extends React.Component {
                         className={this.state.openFoldersTree?"open":"closed"}
                         draggable={true}
                         getItemStyle={this.getItemStyle}
+                        paddingOffset={-16}
+                        offsetSize={15}
                     />
                 </div>
             )

@@ -222,6 +222,7 @@ class FSTemplate extends React.Component {
         let leftPanelProps = {
             headerHeight:headerBase,
             style:styles.leftPanel.masterStyle,
+            railPanelStyle:styles.leftPanel.railPanelStyle,
             closed: searchView || smallScreen,
             drawerOpen,
             userWidgetProps: {

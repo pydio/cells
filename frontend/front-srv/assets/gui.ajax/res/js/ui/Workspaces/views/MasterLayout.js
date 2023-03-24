@@ -62,6 +62,11 @@ class MasterLayout extends React.Component{
             allClasses.push('drawer-open');
         }
         let leftPanel;
+        if(leftPanelProps.workspacesListProps === undefined){
+            const masterStyles = muiTheme.buildFSTemplate({})
+            leftPanelProps.workspacesListProps = masterStyles.leftPanel.workspacesList
+            leftPanelProps.railPanelStyle = masterStyles.leftPanel.railPanelStyle
+        }
         if(muiTheme.userTheme === 'mui3'){
             leftPanel = <RailPanel pydio={pydio} {...leftPanelProps}/>
         } else {

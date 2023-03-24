@@ -223,7 +223,7 @@ class Chat extends React.Component{
 
     render(){
         const {style, msgContainerStyle, chatUsersStyle, fieldContainerStyle, fieldHint, textFieldProps, emptyStateProps,
-            pydio, pushMessagesToBottom, computePresenceFromACLs, readonly, muiTheme} = this.props;
+            pydio, pushMessagesToBottom, computePresenceFromACLs, readonly, muiTheme, popoverPanel} = this.props;
         const {messages, room, videoData, joinVideo} = this.state;
         let data = [];
         let previousMDate;
@@ -271,7 +271,7 @@ class Chat extends React.Component{
             hintStyle = {...hintStyle, fontStyle : 'italic'}
         }
         const fieldContainer = {
-            backgroundColor: muiTheme.palette.mui3['surface-variant']||'white',
+            backgroundColor: muiTheme.palette.mui3[popoverPanel?'surface-variant':'surface']||'white',
             position:'relative',
             paddingLeft: 16,
             paddingRight: 16,

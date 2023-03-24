@@ -34,21 +34,16 @@ import {UserServiceApi} from 'cells-sdk';
 import BookmarksList from "./BookmarksList";
 import Tooltip from '@mui/material/Tooltip'
 
-const RailIcon = muiThemeable()(({
-                                     muiTheme,
-                                     icon,
-                                     iconOnly = false,
-                                     text,
-                                     active,
-                                     alert,
-                                     last = false,
-                                     onClick = () => {
-                                     },
-                                     hover,
-                                     setHover
-                                 }) => {
+const RailIcon = muiThemeable()(({muiTheme,icon,iconOnly = false,text,active,alert,last = false,onClick = () => {},hover,setHover}) => {
     const [iHover, setIHover] = useState(false)
 
+    let iconBg = 'transparent'
+    if(active){
+        iconBg = muiTheme.palette.mui3['surface-variant']
+    } else if(iHover || hover) {
+        iconBg = muiTheme.palette.mui3['surface-5']
+    }
+    
     let styles = {
         container: {
             display: 'flex',
@@ -74,7 +69,7 @@ const RailIcon = muiThemeable()(({
         icon: {
             fontSize: 22,
             padding: 4,
-            backgroundColor: muiTheme.palette.mui3[iHover || active ? "surface-variant" : "transparent"],
+            background: iconBg,
             borderRadius: 20,
             width: '80%',
             textAlign: 'center',
@@ -111,11 +106,11 @@ const RailIcon = muiThemeable()(({
     )
 })
 
-const defaultWidth = 274
-const railWidth = 74
+const defaultWidth = 294
 
 let RailPanel = ({
                      style = {},
+                     railPanelStyle={},
                      userWidgetProps,
                      workspacesListProps = {},
                      pydio,
@@ -195,10 +190,10 @@ let RailPanel = ({
         return () => pydio.stopObserving('websocket_event:activity', observer)
     }, [hover, hoverBarDef, ASLib])
 
-    const wsBar = () => (
+    const wsBar = (className = '') => (
         <Fragment>
             <WorkspacesList
-                className={"vertical_fit"}
+                className={"vertical_fit"+className}
                 pydio={pydio}
                 showTreeForWorkspace={pydio.user ? pydio.user.activeRepository : false}
                 {...workspacesListProps}
@@ -211,6 +206,7 @@ let RailPanel = ({
         {
             "top": [
                 {
+                    id:'home',
                     icon: 'home-outline',
                     text: 'Home',
                     ignore: !user.getRepositoriesList().has('homepage'),
@@ -220,20 +216,22 @@ let RailPanel = ({
                     },
                 },
                 {
+                    id:'files',
                     icon: 'folder-multiple-outline',
                     text: 'All Files',
                     active: user.getActiveRepositoryObject().accessType === 'gateway',
                     onClick: () => {},
-                    hoverBar: wsBar,
+                    hoverBar: () => wsBar(' rail-hover-bar'),
                     activeBar: wsBar
                 },
                 {
+                    id:'bookmarks',
                     text: 'Bookmarks',
                     icon: 'star-outline',
                     onClick: () => {},
                     hoverBar: () => {
                         return (
-                            <div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}}>
+                            <div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}} className={"rail-hover-bar"}>
                                 <div style={{fontSize: 20, padding:16}}>Bookmarks</div>
                                 <BookmarksList pydio={pydio} asPopover={false} useCache={true} onRequestClose={()=>{setHover(false)}}/>
                             </div>
@@ -242,6 +240,7 @@ let RailPanel = ({
                     hoverWidth: 320
                 },
                 {
+                    id:'directory',
                     text: 'Directory',
                     ignore: !user.getRepositoriesList().has('directory'),
                     active: user.activeRepository === 'directory',
@@ -264,7 +263,7 @@ let RailPanel = ({
                         }
                         const {ActivityList} = lib;
                         return (
-                            <div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}}>
+                            <div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}} className={"rail-hover-bar"}>
                                 <div style={{fontSize: 20, padding:16}}>Notifications</div>
                                 <ActivityList
                                     items={data || []}
@@ -278,6 +277,7 @@ let RailPanel = ({
                     }
                 },
                 {
+                    id:'theme',
                     text: muiTheme.darkMode? 'Light Mode' : 'Dark Mode',
                     icon: 'theme-light-dark',
                     onClick: () => {
@@ -309,6 +309,7 @@ let RailPanel = ({
             }
             setHover(!!def.hoverBar)
         }
+        def.hover = hover && hoverBarDef && hoverBarDef.id === def.id
         if (!def.action) {
             return def
         }
@@ -324,10 +325,11 @@ let RailPanel = ({
     uWidgetProps.style.width = 'auto'
     uWidgetProps.style.margin = '0 auto'
 
+    const railWidth = railPanelStyle.width || 74
+
     const railStyle = {
-        width: railWidth,
+        ...railPanelStyle,
         flexShrink: 0,
-        borderRight: '1px solid var(--md-sys-color-outline-variant)',
         overflow: 'hidden',
         paddingBottom: 8
     }
@@ -401,7 +403,6 @@ let RailPanel = ({
             style={{transition: 'width 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms', zIndex: 905}}
         >
             <div className="left-panel vertical_fit" style={{
-                ...style,
                 width: '100%',
                 height: '100%',
                 display: 'flex',
@@ -428,7 +429,7 @@ let RailPanel = ({
                 {activeBar &&
                     <div
                         className={"vertical_layout"}
-                        style={{flex: 1, height: '100%', overflow:'hidden'}}
+                        style={{flex: 1, height: '100%', overflow:'hidden', ...style}}
                         onMouseEnter={()=> setShowCloseToggle(true)}
                         onMouseLeave={()=> setShowCloseToggle(false)}
                     >
@@ -438,7 +439,7 @@ let RailPanel = ({
                 }
                 <div style={hoverStyle}>
                     <div className={"vertical_layout"}
-                         style={{flex: 1, height: '100%', position: 'absolute', width: innerWidth, right: 0}}
+                         style={{flex: 1, height: '100%', position: 'absolute', width: innerWidth, right: 0, ...style}}
                          onMouseEnter={() => setHover(true)}
                          onMouseLeave={() => setHover(false)}>{hoverBarDef && hoverBarDef.hoverBar(ASLib, ASData)}</div>
                     {hoverBarDef && hoverBarDef.active && hoverBarDef.activeBar && activeClosed &&
