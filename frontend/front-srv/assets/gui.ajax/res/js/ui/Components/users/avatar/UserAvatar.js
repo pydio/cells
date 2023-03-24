@@ -52,7 +52,7 @@ class UserAvatar extends React.Component{
     }
 
     componentWillReceiveProps(nextProps){
-        if(!this.props.userId || this.props.userId !== nextProps.userId){
+        if(!this.props.userId || this.props.userId !== nextProps.userId || nextProps.graphRand !== this.props.graphRand){
             this.setState({label: nextProps.userId});
             this.loadPublicData(nextProps.userId, nextProps.idmUser);
         }
@@ -74,6 +74,7 @@ class UserAvatar extends React.Component{
         if (userType === "group" || userType === "team") {
             return;
         }
+        console.log('loadPublicData', userId, richCard)
         UsersApi.getUserPromise(userId, idmUser).then((userObject) => {
             if(userObject.isLocal() && !this._userLoggedObs){
                 this._userLoggedObs = (eventUser) => {
@@ -107,6 +108,7 @@ class UserAvatar extends React.Component{
                             });
                         });
                     }
+                    console.log('loadGraph', graph)
                     this.setState({graph});
                 });
             }
@@ -120,7 +122,7 @@ class UserAvatar extends React.Component{
     render(){
 
         const {user, avatar, graph, local, loadError} = this.state;
-        let {pydio, userId, userType, icon, style, labelStyle, avatarLetters, avatarStyle, avatarSize, cardStyle, className,
+        let {pydio, userId, userType, icon, style, labelStyle, avatarLetters, avatarStyle, avatarSize, cardStyle, cardTitleStyle, cardSubtitleStyle, className,
             labelMaxChars, labelClassName, avatarClassName, displayLabel, displayLocalLabel, displayLabelChevron, labelChevronStyle,
             displayAvatar, useDefaultAvatar, richCard, muiTheme, noActionsPanel} = this.props;
 
@@ -233,7 +235,9 @@ class UserAvatar extends React.Component{
 
             displayAvatar = true;
             style = {...style, flexDirection:'column'};
-            avatarSize = 50;
+            if(avatarSize === undefined){
+                avatarSize = 50;
+            }
             avatarStyle = {position: 'absolute', right: 16, top: 12, ...avatarStyle};
             const localReload = () => {
                 MetaCacheService.getInstance().deleteKey('user_public_data-graph', this.props.userId);
@@ -378,6 +382,10 @@ class UserAvatar extends React.Component{
             labelChevron = <span className={"mdi mdi-chevron-down"} style={{...labelChevronStyle, marginLeft: 4, fontSize:'0.8em'}}/>
         }
 
+        if(richCard && graph && !noActionsPanel){
+            console.log('RENDER RICH CARD AND GRAPH', graph.teams)
+        }
+
         return (
             <div className={className} style={style} onMouseOver={onMouseOver} onMouseOut={onMouseOut} onClick={onClick}>
                 {displayAvatar && (avatar || avatarContent || avatarIcon) && avatarComponent}
@@ -393,6 +401,8 @@ class UserAvatar extends React.Component{
                         style={{textAlign:'center', ...cardStyle}}
                         title={label}
                         subtitle={userTypeLabel}
+                        titleStyle={{...cardTitleStyle}}
+                        subtitleStyle={{...cardSubtitleStyle}}
                     />
                 }
                 {richCard && user && this.props.actionsPanel}

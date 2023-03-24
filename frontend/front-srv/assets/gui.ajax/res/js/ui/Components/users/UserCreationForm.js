@@ -157,7 +157,7 @@ class UserCreationForm extends React.Component{
     }
 
     render(){
-        const {pydio, editMode} = this.props;
+        const {pydio, editMode, formShowLegends=true} = this.props;
         let status = this.state.valid;
         if(!status && editMode && !this.state.values['new_password']){
             status = true;
@@ -172,9 +172,9 @@ class UserCreationForm extends React.Component{
                     values={this.state.values}
                     onChange={this.onValuesChange.bind(this)}
                     onValidStatusChange={this.changeValidStatus.bind(this)}
-                    style={{overflowY: 'auto', flex:1}}
+                    panelStyle={{overflowY: 'auto', flex:1}}
                     variant={"v2"}
-                    variantShowLegend={true}
+                    variantShowLegend={formShowLegends}
                 />
                 <Divider style={{flexShrink:0}}/>
                 <div style={{padding:8, textAlign:'right'}}>

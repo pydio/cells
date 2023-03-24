@@ -35,7 +35,7 @@ class GraphPanel extends Component{
 
     render(){
 
-        const {graph, pydio, getMessage, muiTheme} = this.props;
+        const {graph, pydio, getMessage, muiTheme, reloadAction} = this.props;
         const teamsEditable = pydio.getController().actions.has("user_team_create");
 
         let elements = [];
@@ -47,7 +47,7 @@ class GraphPanel extends Component{
                         if(response && response.message) {
                             pydio.UI.displayMessage('SUCCESS', response.message);
                         }
-                        this.props.reloadAction();
+                        reloadAction();
                     });
                 };
             }

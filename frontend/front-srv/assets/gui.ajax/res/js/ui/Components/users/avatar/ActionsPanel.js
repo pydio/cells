@@ -25,6 +25,7 @@ import AddressBook from '../addressbook/AddressBook'
 import ResourcePoliciesPanel from '../../policies/ResourcePoliciesPanel'
 const PydioApi = require('pydio/http/api');
 const ResourcesManager = require('pydio/http/resources-manager');
+const MetaCacheService = require('pydio/http/meta-cache-service');
 const {IconButton} = require('material-ui');
 const {muiThemeable} = require('material-ui/styles');
 const {PydioContextConsumer, AsyncComponent} = require('pydio').requireLib('boot');
@@ -45,7 +46,10 @@ class ActionsPanel extends React.Component{
         const {userId, reloadAction} = this.props;
         this.setState({showPicker: false});
         if(item.IdmRole && item.IdmRole.IsTeam){
-            PydioApi.getRestClient().getIdmApi().addUserToTeam(item.IdmRole.Uuid, userId, reloadAction);
+            PydioApi.getRestClient().getIdmApi().addUserToTeam(item.IdmRole.Uuid, userId, () => {
+                MetaCacheService.getInstance().deleteKey('user_public_data-graph', userId);
+                reloadAction()
+            });
         }
     }
     
@@ -86,22 +90,26 @@ class ActionsPanel extends React.Component{
     render(){
 
         const {pydio, getMessage, muiTheme, userEditable, userId, style, otherPopoverMouseOver,
-            team, user, onEditAction, onDeleteAction} = this.props;
+            team, user, onEditAction, onDeleteAction, buttonStyle, iconStyle} = this.props;
         const teamsEditable = pydio.getController().actions.has("user_team_create");
 
         const accentColor = muiTheme.userTheme==='mui3'?muiTheme.palette.mui3['primary'] : muiTheme.palette.accent2Color;
+        const bgColor = muiTheme.userTheme==='mui3'?muiTheme.palette.mui3['primary-container'] : 'transparent'
         const styles = {
             button: {
                 border: '0px solid ' + accentColor,
+                backgroundColor:bgColor,
                 borderRadius: '50%',
                 margin: '0 4px',
-                width: 30,
-                height: 30,
-                padding: 4
+                width: 36,
+                height: 36,
+                padding: 8,
+                ...buttonStyle
             },
             icon : {
                 fontSize: 20,
-                color: accentColor
+                color: accentColor,
+                ...iconStyle
             }
         };
         let usermails = {};

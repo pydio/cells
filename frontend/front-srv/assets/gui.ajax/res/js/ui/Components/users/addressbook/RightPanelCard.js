@@ -54,7 +54,7 @@ class RightPanelCard extends React.Component{
         const onDeleteAction= (p, sel, skip) => model.deleteItems(p, sel, skip)
         const onCreateAction= (i) => {model.setCreateItem(i)}
         const onUpdateAction= (item) => {
-            const {model} = this.state;
+            const {model} = this.props;
             if(item._parent && item._parent === model.contextItem()){
                 model.reloadContext()
             }
@@ -79,7 +79,7 @@ class RightPanelCard extends React.Component{
 
         return (
             <Paper zDepth={zDepth} style={{position:'relative', borderRadius: 6, ...style}}>
-                <IconButton iconClassName={"mdi mdi-close"} style={{position:'absolute', top: 0, right: 0, zIndex: 2}} iconStyle={{color: '#e0e0e0'}} onClick={onRequestClose}/>
+                <IconButton iconClassName={"mdi mdi-close"} style={{position:'absolute', top: 12, right: 12, zIndex: 2}} iconStyle={{color: '#e0e0e0'}} onClick={onRequestClose}/>
                 {content}
             </Paper>
         );

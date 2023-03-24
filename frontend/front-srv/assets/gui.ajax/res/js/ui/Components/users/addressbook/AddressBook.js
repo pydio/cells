@@ -221,45 +221,13 @@ class AddressBook extends React.Component {
 
         let toolbar
         if(mode !== 'inner') {
-
-            if((mode === 'book' || bookColumn ) && model.contextIsTeam() && model.teamsEditable()){
-                topActionsPanel =
-                    (<ActionsPanel
-                        {...this.props}
-                        team={contextItem}
-                        userEditable={true}
-                        reloadAction={()=>{model.reloadContext();}}
-                        onDeleteAction={() => {
-                            if(confirm(this.props.getMessage(278))){
-                                const parent = contextItem._parent;
-                                model.setContext(parent, ()=> {
-                                    model.deleteItems(parent, [contextItem], true)
-                                })
-                            }
-                        }}
-                        style={{backgroundColor: 'transparent', borderTop:0, borderBottom:0}}
-                    />);
-                onEditLabel = (item, newLabel) => {
-                    PydioApi.getRestClient().getIdmApi().updateTeamLabel(item.IdmRole.Uuid, newLabel, () => {
-                        const parent = contextItem._parent;
-                        model.setContext(parent, ()=> {
-                            model.reloadContext();
-                        })
-                    });
-                };
-            }
-
             toolbar = (
                 <Toolbar
                     pydio={pydio}
                     model={model}
-
                     mode={mode}
                     bookColumn={bookColumn}
                     getMessage={getMessage}
-                    actionsPanel={topActionsPanel}
-
-                    onEditLabel={onEditLabel}
                     {...searchProps}
                 />
             )

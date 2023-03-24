@@ -22,6 +22,8 @@ import React from 'react'
 import {muiThemeable} from 'material-ui/styles'
 import {Checkbox, IconButton, RaisedButton, TextField} from "material-ui";
 import SearchForm from "./SearchForm";
+import ActionsPanel from "../avatar/ActionsPanel";
+import PydioApi from 'pydio/http/api'
 
 class Toolbar extends React.Component {
 
@@ -36,10 +38,17 @@ class Toolbar extends React.Component {
         this.setState({editValue: value});
     }
     updateLabel(){
-        const {model, onEditLabel} = this.props;
+        const {model} = this.props;
         const {editValue} = this.state;
         if(editValue !== model.contextItem().label){
-            onEditLabel(model.contextItem(), editValue);
+            PydioApi.getRestClient().getIdmApi().updateTeamLabel(model.contextItem().IdmRole.Uuid, editValue, () => {
+                const parent = model.contextItem()._parent;
+                model.setContext(parent, ()=> {
+                    model.reloadContext().then(() => {
+                        // refocus on initial child
+                    });
+                })
+            });
         }
         this.setState({editLabel: false});
     }
@@ -47,8 +56,7 @@ class Toolbar extends React.Component {
     render() {
 
         const {muiTheme, bookColumn, mode, getMessage, pydio, style,
-            model, searchLabel, onSearch, enableSearch, onEditLabel,
-            actionsPanel
+            model, searchLabel, onSearch, enableSearch
         } = this.props;
 
         const item = model.contextItem()
@@ -67,6 +75,7 @@ class Toolbar extends React.Component {
             titlePadding: 10,
             button: {
                 border: '1px solid ' + accentColor,
+                backgroundColor:'transparent',
                 borderRadius: '50%',
                 margin: '0 4px',
                 width: 36,
@@ -94,6 +103,18 @@ class Toolbar extends React.Component {
             searchProps.hintStyle={color:'rgba(255,255,255,.5)'};
             searchProps.underlineStyle={borderColor:'rgba(255,255,255,.5)'};
             searchProps.underlineFocusStyle={borderColor:'white'};
+        } else {
+            searchProps.underlineShow=false
+            searchProps.style = {
+                ...searchProps.style,
+                borderRadius: muiTheme.borderRadius,
+                background: muiTheme.palette.mui3['surface-2'],
+                height: 38,
+                display: 'flex',
+                alignItems: 'center',
+                paddingLeft: 16,
+                marginRight: 8
+            }
         }
         const ellipsis = {
             whiteSpace:'nowrap',
@@ -105,52 +126,77 @@ class Toolbar extends React.Component {
             createIcon = 'mdi mdi-account-multiple-plus';
         }
 
+        let actionsPanel, onEditLabel
+        if((mode === 'book' || bookColumn ) && model.contextIsTeam() && model.teamsEditable()){
+            const contextItem = model.contextItem()
+            onEditLabel = true
+            actionsPanel = (
+                <ActionsPanel
+                    {...this.props}
+                    team={model.contextItem()}
+                    userEditable={true}
+                    reloadAction={()=>{model.reloadContext();}}
+                    onDeleteAction={() => {
+                        if(confirm(this.props.getMessage(278))){
+                            const parent = contextItem._parent;
+                            model.setContext(parent, ()=> {
+                                model.deleteItems(parent, [contextItem], true)
+                            })
+                        }
+                    }}
+                    style={{backgroundColor: 'transparent', borderTop:0, borderBottom:0}}
+                    buttonStyle={stylesProps.button}
+                    iconStyle={stylesProps.icon}
+                />
+            );
+        }
+
+
         const {editLabel, editValue} = this.state;
         let mainTitle = item.label;
-        if(onEditLabel && !selectionMode){
-            if(editLabel){
-                mainTitle = (
-                    <div style={{display:'flex', alignItems:'center', flex: 1}}>
-                        <TextField
-                            style={{fontSize: 20}}
-                            value={editValue}
-                            onChange={this.onLabelChange.bind(this)}
-                            onKeyDown={this.onLabelKeyEnter.bind(this)}
-                            autoFocus={true}
-                        />
-                        <IconButton
-                            iconStyle={{color: muiTheme.palette.mui3['primary']}}
-                            secondary={true}
-                            iconClassName={"mdi mdi-content-save"}
-                            tooltip={getMessage(48)}
-                            onClick={() => {this.updateLabel()}}
-                        />
-                    </div>
-                );
-            } else {
-                mainTitle = (
-                    <div style={{display:'flex', alignItems:'center', flex: 1}}>
-                        {mainTitle}
-                        <IconButton
-                            iconStyle={{fontSize: 20, color: muiTheme.palette.mui3['primary']}}
-                            iconClassName={"mdi mdi-pencil"}
-                            tooltip={getMessage(48)}
-                            onClick={() => {this.setState({editLabel:true, editValue:item.label})}}
-                        />
-                    </div>
-                );
-            }
+        if(onEditLabel && !selectionMode && editLabel){
+            mainTitle = (
+                <div style={{display:'flex', alignItems:'center', flex: 1}}>
+                    <TextField
+                        style={{fontSize: 20}}
+                        value={editValue}
+                        onChange={this.onLabelChange.bind(this)}
+                        onKeyDown={this.onLabelKeyEnter.bind(this)}
+                        autoFocus={true}
+                    />
+                    <IconButton
+                        iconStyle={{color: muiTheme.palette.mui3['primary']}}
+                        secondary={true}
+                        iconClassName={"mdi mdi-content-save"}
+                        tooltip={getMessage(48)}
+                        onClick={() => {this.updateLabel()}}
+                    />
+                </div>
+            );
         }
 
         let showBackIcon = (mode === "selector" && item._parent)
         let showCheckbox = (mode === 'book' && item.actions && item.actions.multiple)
-        let showItemIcon = (mode === 'book' && !showCheckbox)
+        let showItemIcon = (mode === 'book')
         let showCreateAction = (mode === 'book' || (mode === 'selector' && bookColumn)) && item.actions && item.actions.create && !selectionMode
 
         let showOpenAddressBook = (bookColumn && !item._parent && pydio.user.getRepositoriesList().has('directory'))
         let showMultipleDeleteAction = (mode === 'book' && item.actions && item.actions.remove && selectionMode)
         let showSearchForm = enableSearch && !bookColumn
         let showReloadAction=(reloadAction && (mode === 'book' || (mode === 'selector' && bookColumn)))
+        let showEditLabelButton=(onEditLabel && !editLabel && !selectionMode)
+
+        // Create Breadcrumb
+        if (mode === 'book' && !bookColumn && !(muiTheme.breakpoint === 'xs' || muiTheme.breakpoint === 's')) {
+            let els = [mainTitle]
+            let crt = item;
+            while (crt._parent) {
+                els.push(<span className={"mdi mdi-chevron-right"}/>, <span>{crt._parent.label}</span>)
+                crt = crt._parent
+            }
+            els.reverse()
+            mainTitle = <div style={{display:'flex', alignItems:'center'}}>{els}</div>
+        }
 
         const mainStyle = {
             color:muiTheme.palette.mui3['on-surface'],
@@ -170,9 +216,6 @@ class Toolbar extends React.Component {
                 {showItemIcon &&
                     <IconButton style={{marginLeft: -10}} iconStyle={{color:stylesProps.titleColor}} iconClassName={item.icon} onClick={() => {}}/>
                 }
-                {showCheckbox &&
-                    <Checkbox style={{width:'initial', marginLeft: 0}} checked={selectionMode} onCheck={(e,v)=>model.setSelectionMode(v)}/>
-                }
                 <div style={{flex:2, fontSize:stylesProps.titleFontsize, fontWeight:stylesProps.titleFontWeight, ...ellipsis}}>{mainTitle}</div>
                 {showCreateAction &&
                     <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={createIcon} tooltipPosition={"bottom-left"} tooltip={getMessage(item.actions.create)} onClick={createAction}/>
@@ -182,6 +225,12 @@ class Toolbar extends React.Component {
                 }
                 {showMultipleDeleteAction &&
                     <RaisedButton secondary={true} label={getMessage(item.actions.remove)} disabled={!model.getMultipleSelection().length} onClick={deleteAction}/>
+                }
+                {showCheckbox &&
+                    <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-checkbox-multiple"+(selectionMode?"-marked-outline":"-blank-outline")} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['6']} onClick={() => {model.setSelectionMode()}}/>
+                }
+                {showEditLabelButton &&
+                    <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-pencil"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['6']} onClick={() => {this.setState({editLabel:true, editValue:item.label})}} disabled={model.loading}/>
                 }
                 {!selectionMode && actionsPanel}
                 {showSearchForm &&

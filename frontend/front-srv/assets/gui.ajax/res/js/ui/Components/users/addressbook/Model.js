@@ -64,13 +64,13 @@ class Model extends Observable {
         // Special case for teams
         if(this.mode === 'selector' && item.IdmRole && item.IdmRole.IsTeam){
             this.leafItemClicked(item);
-            return;
+            return Promise.resolve();
         }
 
         this.loading = true;
         this.notify('update')
 
-        Loaders.childrenAsPromise(item, false).then(() => {
+        return Loaders.childrenAsPromise(item, false).then(() => {
             Loaders.childrenAsPromise(item, true).then(() => {
                 this.selectedItem = item;
                 this.loading = false;
@@ -93,11 +93,11 @@ class Model extends Observable {
 
     reloadContext() {
         if(!this.selectedItem) {
-            return;
+            return Promise.resolve;
         }
         this.selectedItem.leafLoaded = false;
         this.selectedItem.collectionsLoaded = false;
-        this.setContext(this.selectedItem, () => {
+        return this.setContext(this.selectedItem, () => {
             if(this.rightPanelItem){
                 const rPaneId = this.rightPanelItem.id;
                 let foundItem = null;

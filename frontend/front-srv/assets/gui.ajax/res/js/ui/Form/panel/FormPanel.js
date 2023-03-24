@@ -278,7 +278,7 @@ export default createReactClass({
         let groupsOrdered = ['__DEFAULT__'];
         allGroups['__DEFAULT__'] = {FIELDS:[]};
         const replicationGroups = {};
-        const {parameters, values, skipFieldsTypes, disabled, binary_context, variant, variantShowLegend} = this.props;
+        const {parameters, values, skipFieldsTypes, disabled, binary_context, variant, variantShowLegend, panelStyle} = this.props;
         const {altTextSwitchIcon, altTextSwitchTip, onAltTextSwitch} = this.props;
 
         parameters.map(function(attributes){
@@ -549,7 +549,7 @@ export default createReactClass({
 
         }else{
             return (
-                <div className={(this.props.className?this.props.className+' ':' ') + 'pydio-form-panel' + (groupPanes.length % 2 ? ' form-panel-odd':'')} onScroll={this.props.onScrollCallback}>
+                <div className={(this.props.className?this.props.className+' ':' ') + 'pydio-form-panel' + (groupPanes.length % 2 ? ' form-panel-odd':'')} onScroll={this.props.onScrollCallback} style={{...panelStyle}}>
                     {groupPanes}
                 </div>
             );

@@ -33,24 +33,31 @@ class UserCard extends React.Component{
 
     constructor(props, context){
         super(props, context);
+        this.state = {}
     }
 
     render(){
 
-        const {pydio, item, onDeleteAction, onUpdateAction, edit, setEdit} = this.props;
+        const {pydio, item, model, onDeleteAction, onUpdateAction, edit, setEdit} = this.props;
+        const {graphRand} = this.state;
+
         let editableProps = {avatarStyle: {zIndex: 1}}, editForm;
         const isExt = item._parent && item._parent.id === 'ext'
 
         const a = (
             <ActionsPanel
                 pydio={pydio}
+                model={model}
                 user={item}
                 userId={item.id}
                 userEditable={isExt && item.IdmUser.PoliciesContextEditable}
                 onDeleteAction={() => {onDeleteAction(item._parent, [item])}}
                 onEditAction={() => {setEdit(true)}}
-                reloadAction={() => {onUpdateAction(item)}}
-                style={{paddingLeft: 8, paddingBottom: 4}}
+                reloadAction={() => {
+                    onUpdateAction(item)
+                    this.setState({graphRand:Math.random()})
+                }}
+                style={{padding: 8, textAlign:'center'}}
             />
         );
 
@@ -59,33 +66,52 @@ class UserCard extends React.Component{
                 <UserCreationForm
                     pydio={pydio}
                     zDepth={0}
-                    style={{flex:1}}
+                    style={{flex:1, borderRadius: 0, borderTop: '1px solid var(--md-sys-color-outline-variant-50)'}}
                     newUserName={item.id}
                     editMode={true}
                     userData={item}
                     onUserCreated={() => {onUpdateAction(item); setEdit(false) }}
                     onCancel={() => {setEdit(false)}}
+                    formShowLegends={true}
                 />
             );
-            editableProps = {
-                ...editableProps,
-                displayLabel: true,
-                displayAvatar: true,
-                useDefaultAvatar: true,
-                style: {textAlign: 'center', borderBottom: '1px solid #e0e0e0', padding: 10},
-                avatarStyle:{marginBottom: 16},
+        }
+
+        editableProps = {
+            ...editableProps,
+            avatarSize: 40,
+            avatarStyle: {
+                left: 20,
+                top: 20,
+                right: 'inherit'
+            },
+            cardStyle: {
+                textAlign:'left',
+                padding:'20px 16px 24px 74px'
+            },
+            cardTitleStyle: {
+                fontSize: 14,
+                fontWeight: 500,
+                lineHeight: '20px'
+            },
+            cardSubtitleStyle:{
+                fontSize: 13,
+                fontWeight: 400,
+                lineHeight: '14px'
             }
         }
 
         return (
-            <div style={editForm ? {height: '100%', display:'flex', flexDirection:'column'} : {}}>
+            <div style={edit ? {height: '100%', display:'flex', flexDirection:'column'} : {}}>
                 <UserAvatar
                     userId={this.props.item.id}
-                    richCard={!editForm}
+                    richCard={true}
                     pydio={this.props.pydio}
                     cardSize={this.props.style.width}
                     cardStyle={{textAlign:'left', padding:'12px 16px 4px'}}
-                    actionsPanel={a}
+                    actionsPanel={!edit && a}
+                    noActionsPanel={edit}
+                    graphRand={graphRand}
                     {...editableProps}
                 />
                 {editForm}

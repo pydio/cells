@@ -364,7 +364,10 @@ class ResourcePoliciesPanel extends React.Component{
             return (
                 <div style={style}>
                     {!skipTitle &&
-                        <div style={{...styles.title, height: 48}}><span style={{flex:1}}>{mess['visibility.panel.title']}</span></div>
+                        <div style={{...styles.title, height: 48}}>
+                            <span style={{flex:1}}>{mess['visibility.panel.title']}</span>
+                            {onDismiss && <IconButton iconClassName={"mdi mdi-close"} onClick={onDismiss} iconStyle={{color:appBar.textColor}} />}
+                        </div>
                     }
                     <div style={{padding: 20, fontWeight: 500, textAlign:'justify'}}>
                         <div style={{paddingBottom: 20}}>

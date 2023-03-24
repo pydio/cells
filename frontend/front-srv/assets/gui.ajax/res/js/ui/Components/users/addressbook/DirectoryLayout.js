@@ -151,40 +151,11 @@ class DirectoryLayout extends React.Component {
             overflowX: 'hidden'
         };
 
-        let topActionsPanel, onEditLabel;
-
         const searchProps = model.contextIsGroup() ? {
             enableSearch: true,
             searchLabel: getMessage(595, ''),
             onSearch: (v) => model.reloadCurrentWithSearch(v)
         } : {};
-
-        if(model.contextIsTeam() && model.teamsEditable()){
-            topActionsPanel =
-                (<ActionsPanel
-                    {...this.props}
-                    team={contextItem}
-                    userEditable={true}
-                    reloadAction={()=>{model.reloadContext();}}
-                    onDeleteAction={() => {
-                        if(confirm(getMessage(278))){
-                            const parent = contextItem._parent;
-                            model.setContext(parent, ()=> {
-                                model.deleteItems(parent, [contextItem], true)
-                            })
-                        }
-                    }}
-                    style={{backgroundColor: 'transparent', borderTop:0, borderBottom:0}}
-                />);
-            onEditLabel = (item, newLabel) => {
-                PydioApi.getRestClient().getIdmApi().updateTeamLabel(item.IdmRole.Uuid, newLabel, () => {
-                    const parent = contextItem._parent;
-                    model.setContext(parent, ()=> {
-                        model.reloadContext();
-                    })
-                });
-            };
-        }
 
         const {mui3} = muiTheme.palette
         const smallScreen = muiTheme.breakpoint === 'xs' || muiTheme.breakpoint === 's'
@@ -199,8 +170,6 @@ class DirectoryLayout extends React.Component {
                         model={model}
                         mode={'book'}
                         getMessage={getMessage}
-                        actionsPanel={topActionsPanel}
-                        onEditLabel={onEditLabel}
                         style={{width:'100%'}}
                         {...searchProps}
                     />
