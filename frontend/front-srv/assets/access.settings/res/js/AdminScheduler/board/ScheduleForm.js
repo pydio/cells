@@ -29,6 +29,18 @@ const {ModernSelectField, ModernTextField, ThemedModernStyles} = Pydio.requireLi
 const Blue = '#2196f3';
 const LightGrey = '#e0e0e0';
 
+const ThemedTimePicker = muiThemeable()(({muiTheme, ...props})=> {
+    const ModernStyles = ThemedModernStyles(muiTheme)
+    return (
+        <TimePicker
+            {...props}
+            {...ModernStyles.textField}
+        />
+
+    )
+})
+
+
 class ScheduleForm extends React.Component {
 
     constructor(props) {
@@ -182,7 +194,7 @@ class ScheduleForm extends React.Component {
     }
 
     render() {
-        const {edit, includeManual, muiTheme} = this.props;
+        const {edit, includeManual} = this.props;
         if(!edit){
             return <span>{ScheduleForm.readableString(this.state, this.T, true)}</span>
         }
@@ -192,7 +204,6 @@ class ScheduleForm extends React.Component {
         for (let i = 1;i<30; i++){
             monthdays.push(i);
         }
-        const ModernStyles = ThemedModernStyles(muiTheme)
 
         return (
             <div>
@@ -240,14 +251,13 @@ class ScheduleForm extends React.Component {
                 }
                 {(frequency === 'daily' || frequency === 'monthly' || frequency === 'weekly') &&
                 <div>
-                    <TimePicker
+                    <ThemedTimePicker
                         format="ampm"
                         minutesStep={5}
                         hintText={this.T('schedule.detail.daytime')}
                         value={daytime}
                         onChange={(e,v) => {this.setState({daytime: v})}}
                         fullWidth={true}
-                        {...ModernStyles.textField}
                     />
                 </div>
                 }
@@ -268,5 +278,4 @@ class ScheduleForm extends React.Component {
     }
 
 }
-ScheduleForm = muiThemeable()(ScheduleForm)
 export {ScheduleForm as default};

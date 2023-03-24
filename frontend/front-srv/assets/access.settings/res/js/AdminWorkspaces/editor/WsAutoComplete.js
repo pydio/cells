@@ -26,6 +26,14 @@ import {AdminTreeServiceApi, TreeListNodesRequest, TreeNode} from 'cells-sdk';
 const {ModernAutoComplete, ThemedModernStyles} = Pydio.requireLib('hoc');
 import {muiThemeable} from 'material-ui/styles'
 
+const ThemedBlock = muiThemeable()(({muiTheme, children, ...props})=> {
+    const ModernStyles = ThemedModernStyles(muiTheme)
+    return (
+        <div style={ModernStyles.fillBlockV2Right} {...props}>{children}</div>
+    )
+})
+
+
 export default class WsAutoComplete extends React.Component{
 
     constructor(props){
@@ -160,8 +168,7 @@ export default class WsAutoComplete extends React.Component{
 
         const {value, nodes, loading} = this.state;
 
-        const {pydio, muiTheme, onDelete, skipTemplates, label, zDepth = 0} = this.props;
-        const ModernStyles = ThemedModernStyles(muiTheme)
+        const {pydio, onDelete, skipTemplates, label, zDepth = 0} = this.props;
 
         const m = (id) => pydio.MessageHash['ajxp_admin.' + id] || id;
 
@@ -225,9 +232,9 @@ export default class WsAutoComplete extends React.Component{
                         hasRightBlock={true}
                     />
                 </div>
-                <div style={ModernStyles.fillBlockV2Right}>
+                <ThemedBlock>
                     <IconButton style={{marginTop: 2}} iconStyle={{color:onDelete?'#9e9e9e':'#eee'}} iconClassName={"mdi mdi-delete"} onClick={onDelete} disabled={!onDelete}/>
-                </div>
+                </ThemedBlock>
             </Paper>
         );
     }

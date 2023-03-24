@@ -146,7 +146,7 @@ class Header extends Component{
 
         let headTitle = <h3 style={styles.title}>{title}</h3>;
         if (tabs) {
-            headTitle = <div style={{display:'flex'}}>{tabs.map(tab => {
+            headTitle = <div style={{display:'flex', height:'100%', paddingTop: 20}}>{tabs.map(tab => {
                 let st = styles.tabs.tab;
                 if(tab.Value === tabValue){
                     st = {...st, ...styles.tabs.tabActive};
