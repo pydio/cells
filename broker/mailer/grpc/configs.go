@@ -62,6 +62,13 @@ var ExposedConfigs = &forms.Form{
 					{"default": "Mail.Config.FromCtlDefault.Label"},
 				},
 			},
+			&forms.FormField{
+				Name:      "disableCssInlining",
+				Label:     "Mail.Config.FixOutlookDisplay",
+				Mandatory: false,
+				Type:      forms.ParamBool,
+				Default:   true,
+			},
 			&forms.SwitchField{
 				Name:        "sender",
 				Label:       "Mail.Config.Mailer.Label",

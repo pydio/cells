@@ -143,6 +143,9 @@
   "Mail.Config.From.Description": {
     "other": "メールの送信時にデフォルトとして使われるアドレス。no-reply メールではなく、適切なサポートメールを使用しなくてはなりません。"
   },
+  "Mail.Config.FixOutlookDisplay": {
+    "other": "Outlook Clients Fix (disable CSS inlining)"
+  },
   "Mail.Config.Queue.Label": {
     "other": "キュータイプ"
   },

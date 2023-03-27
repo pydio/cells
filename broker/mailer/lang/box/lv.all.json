@@ -143,6 +143,9 @@
   "Mail.Config.From.Description": {
     "other": "Noklusētā adrese kuru lietos sūtot e-pastus. Jālieto regulārs e-pasts nevis no-reply."
   },
+  "Mail.Config.FixOutlookDisplay": {
+    "other": "Outlook Clients Fix (disable CSS inlining)"
+  },
   "Mail.Config.Queue.Label": {
     "other": "Rindas veids"
   },

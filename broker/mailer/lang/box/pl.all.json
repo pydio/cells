@@ -143,6 +143,9 @@
   "Mail.Config.From.Description": {
     "other": "Adres używany jako domyślny podczas wysyłania wiadomości e-mail. Powinieneś użyć odpowiedniego adresu wsparcia zamiast e-maila typu no-reply."
   },
+  "Mail.Config.FixOutlookDisplay": {
+    "other": "Outlook Clients Fix (disable CSS inlining)"
+  },
   "Mail.Config.Queue.Label": {
     "other": "Typ kolejki"
   },

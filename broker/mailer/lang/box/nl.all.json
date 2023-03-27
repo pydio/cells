@@ -143,6 +143,9 @@
   "Mail.Config.From.Description": {
     "other": "Adres dat als standaard gebruikt wordt bij het verzenden van e-mails. U moet een support e-mailadres gebruiken in plaats van een no-reply e-mailadres."
   },
+  "Mail.Config.FixOutlookDisplay": {
+    "other": "Outlook Clients Fix (disable CSS inlining)"
+  },
   "Mail.Config.Queue.Label": {
     "other": "Wachtrij type"
   },

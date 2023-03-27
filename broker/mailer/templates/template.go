@@ -37,7 +37,8 @@ func GetHermes(languages ...string) hermes.Hermes {
 
 	configs := GetApplicationConfig(languages...)
 	return hermes.Hermes{
-		Theme: configs.Theme,
+		Theme:              configs.Theme,
+		DisableCSSInlining: configs.DisableCSSInlining,
 		Product: hermes.Product{
 			Name:        configs.Title,
 			Link:        configs.Url,
