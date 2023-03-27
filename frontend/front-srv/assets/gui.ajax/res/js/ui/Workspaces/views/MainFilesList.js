@@ -102,11 +102,13 @@ class ComponentConfigsParser {
             const {MetaClient, Renderer} = c;
             return MetaClient.getInstance().loadConfigs().then(metas => {
                 metas.forEach((v,k)=>{
-                    columns[k] = {
-                        label:      v.label,
-                        inlineHide: !v.visible,
-                        ...Renderer.typeColumnRenderer(v.type),
-                        nsData:     v.data
+                    if(v.type !== 'json'){
+                        columns[k] = {
+                            label:      v.label,
+                            inlineHide: !v.visible,
+                            ...Renderer.typeColumnRenderer(v.type),
+                            nsData:     v.data
+                        }
                     }
                 })
             })

@@ -153,6 +153,11 @@ const styles = (muiTheme) => {
             ...v2Block,
             borderRadius: '4px 0 0 0',
             ...underline.idle
+        },
+        v2BlockBase:{
+            backgroundColor:isMUI3?'var(--md-sys-color-surface-variant)':'rgb(246, 246, 248)',
+            borderRadius:'3px 3px 0 0',
+            ...underline.idle
         }
     };
 }
@@ -259,6 +264,7 @@ function withModernTheme(formComponent) {
                     {...otherProps}
                     ref={"component"}
                     textFieldStyle={style}
+                    menuStyle={muiTheme.palette.mui3?{background:muiTheme.menuContainer.background}:null}
                     {...tfStyles}
                 />
 

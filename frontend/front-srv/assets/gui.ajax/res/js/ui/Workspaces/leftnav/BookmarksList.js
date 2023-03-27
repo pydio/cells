@@ -132,6 +132,7 @@ class BookmarkLine extends React.Component {
     }
 
 }
+BookmarkLine=muiThemeable()(BookmarkLine)
 
 let BM_Cache;
 

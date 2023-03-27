@@ -19,6 +19,7 @@
  */
 
 import * as Actions from './actions'
+import ReactCodeMirror from "./ReactCodeMirror";
 
 export {default as Editor} from './editor'
-export {Actions}
+export {Actions, ReactCodeMirror}
