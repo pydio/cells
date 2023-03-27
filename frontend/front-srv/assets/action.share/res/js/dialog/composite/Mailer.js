@@ -40,13 +40,14 @@ class Mailer extends React.Component {
                 return;
             }
             //const linkData = hash ? this.state.model.getLinkData(hash) : undefined;
-            ResourcesManager.loadClassesAndApply(['PydioMailer'], ()=>{
+            ResourcesManager.loadClass('PydioMailer').then((ns)=>{
                 this.setState({
                     mailerData: {
                         ...newProps,
                         enableIdentification:(linkModel && linkModel.getLink().TargetUsers),
                         identifiedOnly:(linkModel && linkModel.getLink().RestrictToTargetUsers),
                         crippleIdentificationKeys:true,
+                        MailerPanel:ns.Pane
                     }
                 });
             });
@@ -100,7 +101,7 @@ class Mailer extends React.Component {
     }
 
     render() {
-        const {mailerData} = this.state;
+        const {mailerData, MailerPanel} = this.state;
         if(!mailerData){
             return null
         }
@@ -124,7 +125,7 @@ class Mailer extends React.Component {
             );
         }
          */
-        return (<PydioMailer.Pane
+        return (<MailerPanel
             {...mailerData}
             onDismiss={this.dismissMailer.bind(this)}
             overlay={true}

@@ -21,7 +21,6 @@
 import withContextMenu from './context-menu'
 import * as controls from './controls'
 import withErrors from './errors'
-import withLoader from './loader'
 import {ContentActions, Controls as ContentControls} from './content/index'
 import {SelectionActions, SelectionControls, withSelection, withSelectionControls, withAutoPlayControls} from './selection/index'
 import {SizeActions, SizeControls, SizeProviders, withContainerSize, withResize, withSizeControls} from './size/index'
@@ -58,7 +57,6 @@ const PydioHOCs = {
     LocalisationControls,
     withContextMenu,
     withErrors,
-    withLoader,
     withContainerSize,
     withResize,
     withSizeControls,

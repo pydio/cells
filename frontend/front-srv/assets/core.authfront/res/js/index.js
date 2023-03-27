@@ -23,9 +23,10 @@ import Pydio from 'pydio'
 import PydioApi from "pydio/http/api"
 import createReactClass from 'create-react-class'
 import {muiThemeable, getMuiTheme, darkBaseTheme} from 'material-ui/styles';
-import {CircularProgress, TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon, MenuItem, SelectField, IconButton, IconMenu} from 'material-ui';
+import {CircularProgress, TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon, MenuItem, IconButton, IconMenu} from 'material-ui';
 import {TokenServiceApi, RestResetPasswordRequest} from 'cells-sdk';
 const {ValidPassword} = Pydio.requireLib('form')
+const {Loader} = Pydio.requireLib('boot')
 
 const LanguagePicker = (props) => {
     const items = [];
@@ -534,7 +535,7 @@ const ResetPasswordDialog = createReactClass({
             );
 
         }else{
-            return <PydioReactUI.Loader/>
+            return <Loader/>
         }
 
     }

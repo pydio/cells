@@ -23,19 +23,21 @@ import React from 'react';
 import Pydio from 'pydio'
 import XMLUtils from 'pydio/util/xml'
 import {Paper} from "material-ui";
-
-const {Animations, withVerticalScroll} = Pydio.requireLib('hoc')
-const {EmptyStateView} = Pydio.requireLib('components')
 import {muiThemeable} from 'material-ui/styles'
 
-const originStyles = {translateX: 600}
-const targetStyles = {translateX: 0}
+const {withVerticalScroll} = Pydio.requireLib('hoc')
+const {EmptyStateView} = Pydio.requireLib('components')
+const {AsyncComponent} = Pydio.requireLib('boot')
 
 let Template = ({id, style, children}) => {
     return <Paper zDepth={0} rounded={false} id={id} style={{backgroundColor:'transparent', ...style}}>{children}</Paper>
 }
 
 /*
+const {Animations} = Pydio.requireLib('hoc')
+const originStyles = {translateX: 600}
+const targetStyles = {translateX: 0}
+
 Template = compose(
     Animations.makeAsync,
     Animations.makeTransition(originStyles, targetStyles),
@@ -169,7 +171,7 @@ class InfoPanel extends React.Component {
             const [namespace, name] = component.split('.', 2);
 
             return (
-                <PydioReactUI.AsyncComponent
+                <AsyncComponent
                     {...displayData.DATA}
                     {...this.props}
                     key={"ip_" + component}

@@ -27,11 +27,10 @@ import { compose } from 'redux';
 import { IconButton, Card, CardTitle, CardText, Table, TableBody, TableRow, TableRowColumn} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 
-const { withSelection, withMenu, withLoader, withErrors, EditorActions} = Pydio.requireLib('hoc');
+const { withSelection, withMenu, withErrors, EditorActions} = Pydio.requireLib('hoc');
 
 const Viewer = compose(
     withMenu,
-    withLoader,
     withErrors
 )(props => <div {...props} />)
 
