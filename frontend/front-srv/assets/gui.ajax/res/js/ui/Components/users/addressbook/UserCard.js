@@ -18,12 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import PropTypes from 'prop-types';
-
 import React from 'react';
+import PropTypes from 'prop-types';
 import UserAvatar from '../avatar/UserAvatar'
 import UserCreationForm from '../UserCreationForm'
 import ActionsPanel from "../avatar/ActionsPanel";
+import {muiThemeable} from "material-ui/styles";
 
 /**
  * Card presentation of a user. Relies on the UserAvatar object,
@@ -38,11 +38,15 @@ class UserCard extends React.Component{
 
     render(){
 
-        const {pydio, item, model, onDeleteAction, onUpdateAction, edit, setEdit} = this.props;
+        const {pydio, item, model, onDeleteAction, onUpdateAction, edit, setEdit, muiTheme} = this.props;
         const {graphRand} = this.state;
 
         let editableProps = {avatarStyle: {zIndex: 1}}, editForm;
         const isExt = item._parent && item._parent.id === 'ext'
+        let panelStyle = {}
+        if(muiTheme.userTheme !== 'mui3') {
+            panelStyle = {borderTop: '1px solid #e0e0e0', borderBottom: '1px solid #e0e0e0'}
+        }
 
         const a = (
             <ActionsPanel
@@ -57,7 +61,7 @@ class UserCard extends React.Component{
                     onUpdateAction(item)
                     this.setState({graphRand:Math.random()})
                 }}
-                style={{padding: 8, textAlign:'center'}}
+                style={{padding: 8, textAlign:'center', ...panelStyle}}
             />
         );
 
@@ -148,5 +152,6 @@ UserCard.propTypes = {
     onUpdateAction: PropTypes.func
 };
 
+UserCard = muiThemeable()(UserCard)
 
 export {UserCard as default}

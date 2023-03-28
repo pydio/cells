@@ -25,6 +25,7 @@ import Loaders from './Loaders'
 import ActionsPanel from '../avatar/ActionsPanel'
 import PydioApi from 'pydio/http/api';
 const {PydioContextConsumer} = require('pydio').requireLib('boot')
+import {muiThemeable} from "material-ui/styles";
 
 /**
  * Display info about a Team inside a popover-able card
@@ -68,7 +69,7 @@ class TeamCard extends React.Component{
         setEdit(false)
     }
     render(){
-        const {model, item, onDeleteAction, onCreateAction, getMessage, edit, setEdit} = this.props;
+        const {model, item, onDeleteAction, getMessage, edit, setEdit, muiTheme} = this.props;
 
         const editProps = {
             team: item,
@@ -90,11 +91,15 @@ class TeamCard extends React.Component{
             title = <CardTitle style={{padding:'12px 16px 4px'}} title={this.state.label} subtitle={(item.leafs && item.leafs.length ? getMessage(576).replace('%s', item.leafs.length) : getMessage(577))}/>;
         }
         const {style, ...otherProps} = this.props;
+        let panelStyle = {}
+        if(muiTheme.userTheme !== 'mui3') {
+            panelStyle = {borderTop: '1px solid #e0e0e0', borderBottom: '1px solid #e0e0e0'}
+        }
         return (
             <div>
                 <div style={{paddingBottom:4}}>
                     {title}
-                    <ActionsPanel {...otherProps} {...editProps} style={{paddingLeft: 8}} />
+                    <ActionsPanel {...otherProps} {...editProps} style={{paddingLeft: 8, ...panelStyle}} />
                 </div>
                 <UsersList model={model} subHeader={getMessage(575)} onItemClicked={()=>{}} item={item} mode="inner" onDeleteAction={onDeleteAction}/>
             </div>
@@ -130,6 +135,6 @@ TeamCard.propTypes = {
     onUpdateAction: PropTypes.func
 };
 
-TeamCard = PydioContextConsumer(TeamCard);
+TeamCard = PydioContextConsumer(muiThemeable()(TeamCard));
 
 export {TeamCard as default}

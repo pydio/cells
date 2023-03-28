@@ -152,7 +152,7 @@ let CrossWsDropDialog = createReactClass({
         let actions = [];
         const mess = this.props.pydio.MessageHash;
         actions.push(<FlatButton
-            label={mess['49']}
+            label={mess['54']}
             primary={true}
             keyboardFocused={true}
             onClick={this.props.onDismiss}

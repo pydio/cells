@@ -1275,7 +1275,7 @@
     "other": "Forgot your password?"
   },
   "48": {
-    "other": "OK"
+    "other": "Ok"
   },
   "480": {
     "other": "Browse all folders of the current workspace."
@@ -1308,7 +1308,7 @@
     "other": "Metadata"
   },
   "49": {
-    "other": "CANCEL"
+    "other": "Cancel"
   },
   "490": {
     "other": "Date range"
@@ -2320,6 +2320,9 @@
   },
   "addressbook.pick.group":{
     "other": "Select group"
+  },
+  "addressbook.pick.multiple":{
+    "other": "Multiple Selection"
   },
   "confirm.dialog.title":{
     "other": "Confirm"

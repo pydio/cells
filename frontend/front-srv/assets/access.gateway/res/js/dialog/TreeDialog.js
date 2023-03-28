@@ -332,7 +332,7 @@ let TreeDialog = createReactClass({
                     />
                     <div style={{position:"absolute", bottom:-2, right:0}}>
                         <IconButton iconClassName="mdi mdi-check" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[48]} onClick={() => {this.createNewFolder() }}/>
-                        <IconButton iconClassName="mdi mdi-close" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[49]} onClick={() => this.toggleNewFolderForm()}/>
+                        <IconButton iconClassName="mdi mdi-close" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[54]} onClick={() => this.toggleNewFolderForm()}/>
                     </div>
                 </Paper>
             </div>

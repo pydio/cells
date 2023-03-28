@@ -208,6 +208,19 @@ class Toolbar extends React.Component {
             alignItems:'center',
             ...style};
 
+        let openAddressBook
+        if(showOpenAddressBook){
+            if(muiTheme.userTheme === 'mui3') {
+                openAddressBook = () => {
+                    pydio.triggerRepositoryChange('directory')
+                }
+            } else {
+                openAddressBook = () => {
+                    pydio.Controller.fireAction('open_address_book')
+                }
+            }
+        }
+
         return (
             <div style={mainStyle}>
                 {showBackIcon &&
@@ -217,17 +230,17 @@ class Toolbar extends React.Component {
                     <IconButton style={{marginLeft: -10}} iconStyle={{color:stylesProps.titleColor}} iconClassName={item.icon} onClick={() => {}}/>
                 }
                 <div style={{flex:2, fontSize:stylesProps.titleFontsize, fontWeight:stylesProps.titleFontWeight, ...ellipsis}}>{mainTitle}</div>
+                {showOpenAddressBook &&
+                    <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-account-box-outline"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['411']} onClick={openAddressBook}/>
+                }
+                {showCheckbox &&
+                    <IconButton style={{...stylesProps.button, border: 0}} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-checkbox-multiple"+(selectionMode?"-marked-outline":"-blank-outline")} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['addressbook.pick.multiple']} onClick={() => {model.setSelectionMode()}}/>
+                }
                 {showCreateAction &&
                     <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={createIcon} tooltipPosition={"bottom-left"} tooltip={getMessage(item.actions.create)} onClick={createAction}/>
                 }
-                {showOpenAddressBook &&
-                    <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-account-box-outline"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['411']} onClick={()=>{pydio.triggerRepositoryChange('directory')}}/>
-                }
                 {showMultipleDeleteAction &&
                     <RaisedButton secondary={true} label={getMessage(item.actions.remove)} disabled={!model.getMultipleSelection().length} onClick={deleteAction}/>
-                }
-                {showCheckbox &&
-                    <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-checkbox-multiple"+(selectionMode?"-marked-outline":"-blank-outline")} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['6']} onClick={() => {model.setSelectionMode()}}/>
                 }
                 {showEditLabelButton &&
                     <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-pencil"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['6']} onClick={() => {this.setState({editLabel:true, editValue:item.label})}} disabled={model.loading}/>

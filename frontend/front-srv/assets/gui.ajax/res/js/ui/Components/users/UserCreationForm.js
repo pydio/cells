@@ -178,7 +178,7 @@ class UserCreationForm extends React.Component{
                 />
                 <Divider style={{flexShrink:0}}/>
                 <div style={{padding:8, textAlign:'right'}}>
-                    <FlatButton label={pydio.MessageHash[49]} onClick={this.cancelCreationForm.bind(this)} />
+                    <FlatButton label={pydio.MessageHash[54]} onClick={this.cancelCreationForm.bind(this)} />
                     <FlatButton label={this.props.editMode ? pydio.MessageHash[519] : pydio.MessageHash[484]} primary={true} onClick={this.submitCreationForm.bind(this)} disabled={!status} />
                 </div>
             </Paper>

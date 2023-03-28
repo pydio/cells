@@ -48,18 +48,15 @@ const ModalAddressBook = createReactClass({
 
     render: function(){
 
+        const {pydio} = this.props;
+
         return (
-            <div style={{width:'100%', display:'flex', flexDirection:'column'}}>
-                <div style={{display:'flex', alignItems:'center'}}>
-                    <div style={{flex: 1, padding: 10}}>{this.props.pydio.MessageHash['user_dash.1']}</div>
-                    <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onClick={()=>this.dismiss()} style={{marginRight: 10}}/>
-                </div>
-                <AddressBook
-                    mode="book"
-                    {...this.props}
-                    style={{width:'100%', flexGrow: 1, height:'auto'}}
-                />
-            </div>
+            <AddressBook
+                mode="book"
+                {...this.props}
+                style={{width:'100%', flex: 1, height: 'auto'}}
+                closeButton={<IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onClick={()=>this.dismiss()} style={{marginRight: 10}}/>}
+            />
         );
 
     },

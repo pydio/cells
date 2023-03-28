@@ -82,7 +82,7 @@ let CompressionDialog = createReactClass({
         return [
             <FlatButton
                 key="cancel"
-                label={this.props.pydio.MessageHash['49']}
+                label={this.props.pydio.MessageHash['54']}
                 primary={false}
                 onClick={() => this.dismiss()}
             />,

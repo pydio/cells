@@ -520,18 +520,21 @@ export default class ThemeBuilder {
         const buttonsHeight = 24
         const buttonsFont = 13
 
-        let listMarginRight = 0, listMarginTop = 0;
-        if(this.userTheme === 'mui3' && (displayMode.indexOf('grid-')!==0 && displayMode !== 'masonry')){
-            listMarginTop = masterMargin
-        }
-        const isGrid = !(displayMode==='list'||displayMode==='detail');
-        if(rightColumnClosed) {
-            if(!isGrid){
-                listMarginRight = masterMargin
+        let listMarginRight = 0, listMarginTop = 0, isGrid;
+        isGrid = !(displayMode==='list'||displayMode==='detail');
+
+        if(isMUI3) {
+            if(displayMode.indexOf('grid-')!==0 && displayMode !== 'masonry'){
+                listMarginTop = masterMargin
             }
-        } else {
-            if(isGrid){
-                listMarginRight = -masterMargin
+            if(rightColumnClosed) {
+                if(!isGrid){
+                    listMarginRight = masterMargin
+                }
+            } else {
+                if(isGrid){
+                    listMarginRight = -masterMargin
+                }
             }
         }
 
@@ -588,14 +591,23 @@ export default class ThemeBuilder {
                 paddingRight: 12,
                 color: headerButtonsColor
             },
-            raisedButtonStyle : {
+            raisedButtonLevel : isMUI3 ? {
+                primary: true
+            } : {
+                secondary: true
+            },
+            raisedButtonStyle : isMUI3 ? {
                 background:'none',
                 marginRight: 4,
                 boxShadow: 0
+            }:{
+                marginRight: 4
             },
-            raisedButtonLabelStyle : {
+            raisedButtonLabelStyle : isMUI3 ? {
                 paddingRight: 8,
                 color:mui3['on-primary']
+            }: {
+                paddingRight: 8
             },
             infoPanel:{
                 masterStyle : {

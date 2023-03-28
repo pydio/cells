@@ -171,7 +171,7 @@ let AsyncModal = createReactClass({
                 actions.push(
                     <FlatButton
                         key="cancel"
-                        label={this.props.getMessage('49')}
+                        label={this.props.getMessage('54')}
                         primary={false}
                         onClick={component.getCancelCallback()}
                     />);

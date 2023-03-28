@@ -118,11 +118,11 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
                                 //{...props}
                                 pydio={pydio}
                                 {...newButtonProps}
+                                {...styles.raisedButtonLevel}
                                 id="create-button-menu"
                                 toolbars={["upload", "create"]}
                                 buttonTitle={pydio.MessageHash['198']}
                                 raised={true}
-                                primary={true}
                                 controller={pydio.Controller}
                                 openOnEvent={'tutorial-open-create-menu'}
                             />

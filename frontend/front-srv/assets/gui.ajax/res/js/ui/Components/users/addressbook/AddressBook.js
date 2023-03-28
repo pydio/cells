@@ -24,10 +24,8 @@ import RightPanelCard from './RightPanelCard'
 import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import {muiThemeable} from 'material-ui/styles'
-import ActionsPanel from '../avatar/ActionsPanel'
 const {PydioContextConsumer, PydioContextProvider} = Pydio.requireLib('boot');
 const {ThemedContainers:{Popover, IconButton}} = Pydio.requireLib('hoc')
-import PydioApi from 'pydio/http/api';
 import Model from './Model'
 import CollectionsPanel from "./CollectionsPanel";
 import CreatesDialog from './CreatesDialog'
@@ -206,7 +204,9 @@ class AddressBook extends React.Component {
             overflowY:'auto',
             overflowX: 'hidden'
         };
-        let centerComponent, rightPanel, topActionsPanel, onEditLabel;
+        let centerComponent, rightPanel;
+        const {muiTheme} = this.props;
+        const {mui3 = {}} = muiTheme.palette
 
         let emptyStatePrimary;
         let emptyStateSecondary;
@@ -265,8 +265,8 @@ class AddressBook extends React.Component {
                     ...leftColumnStyle,
                     position: 'absolute',
                     transformOrigin:'right',
-                    backgroundColor: 'white',
-                    width: mode === 'book'? 320 : 250,
+                    background: mui3['surface-3'],
+                    width: mode === 'book'? 320 : 280,
                     right: 10,
                     bottom: 10,
                     top: 120,
@@ -277,13 +277,19 @@ class AddressBook extends React.Component {
         );
 
         let style = this.props.style || {};
+        const left = {
+            background: mui3['surface-3'],
+            color: mui3['on-surface-variant'],
+            borderRight: '1px solid #e0e0e0'
+        }
+
         return (
             <div style={{display:'flex', height: mode === 'selector' ? 320 : 450 , ...style}}>
                 {mode === 'book' &&
                     <CollectionsPanel
                         model={model}
                         listStyles={listStyles}
-                        rootStyle={{...leftColumnStyle, zIndex:2}}
+                        rootStyle={{...leftColumnStyle, ...left, zIndex:2}}
                     />
                 }
                 {centerComponent}
