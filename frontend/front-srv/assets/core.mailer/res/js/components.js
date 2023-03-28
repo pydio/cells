@@ -23,7 +23,7 @@ import Pydio from 'pydio'
 import PropTypes from 'prop-types'
 import PydioApi from 'pydio/http/api'
 import {FontIcon, Chip, Avatar, Paper, Divider, TextField, FlatButton} from 'material-ui'
-import {colors} from 'material-ui/styles'
+import {colors, muiThemeable} from 'material-ui/styles'
 import {MailerServiceApi, MailerMail, MailerUser} from 'cells-sdk'
 const {UsersCompleter} = Pydio.requireLib('components');
 
@@ -63,7 +63,7 @@ class DestBadge extends React.Component{
 class UserChip extends React.Component {
 
     render(){
-        const {user, onRemove} = this.props;
+        const {user, onRemove, muiTheme} = this.props;
         const tmp = user.FreeValue;
         let label;
         if(tmp){
@@ -75,20 +75,33 @@ class UserChip extends React.Component {
                 label = user.Login;
             }
         }
+        let c = {
+            def: {background: colors.blueGrey100, avatarBg: colors.blueGrey300, avatarColor: colors.blueGrey600},
+            tmp: {background: colors.lightBlue100, avatarBg: colors.lightBlue300, avatarColor: 'white'}
+        }
+        if(muiTheme.userTheme === 'mui3') {
+            const {mui3} = muiTheme.palette;
+            c = {
+                def: {background: mui3['primary-container'], avatarBg: mui3['inverse-primary'], avatarColor: mui3['primary']},
+                tmp: {background: mui3['secondary-container'], avatarBg: mui3['on-secondary-container'], avatarColor: mui3['on-secondary']}
+            }
+        }
 
         const icon = <FontIcon className={"mdi mdi-" + (tmp?"email":"account")} />;
         return (
             <Chip
-                backgroundColor={tmp ? colors.lightBlue100 : colors.blueGrey100}
+                backgroundColor={c[tmp?'tmp':'def'].background}
                 onRequestDelete={() => {onRemove()}}
                 style={styles.chip}
             >
-                <Avatar icon={icon} color={tmp ? 'white' : colors.blueGrey600} backgroundColor={tmp ? colors.lightBlue300 : colors.blueGrey300}/>
+                <Avatar icon={icon} color={c[tmp?'tmp':'def'].avatarColor} backgroundColor={c[tmp?'tmp':'def'].avatarBg}/>
                 {label}
             </Chip>
         )
     }
 }
+
+UserChip = muiThemeable()(UserChip)
 
 class Email {
 
@@ -296,7 +309,7 @@ class Pane extends React.Component {
         };
         const content = (
             <Paper zDepth={this.props.zDepth !== undefined ? this.props.zDepth : 2} className={className} style={style}>
-                <h3  style={{padding:20, color:'rgba(0,0,0,0.87)', fontSize:25, marginBottom: 0, paddingBottom: 10, ...this.props.titleStyle}}>{this.props.panelTitle}</h3>
+                <h3 style={{padding:20, fontSize:25, marginBottom: 0, paddingBottom: 10, ...this.props.titleStyle}}>{this.props.panelTitle}</h3>
                 {errorDiv}
                 {this.props.additionalPaneTop}
                 {!this.props.uniqueUserStyle &&

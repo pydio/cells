@@ -17,10 +17,10 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import React, {createRef} from 'react'
 import PropTypes from 'prop-types'
 import {TextField, SelectField, AutoComplete} from 'material-ui'
-import {muiThemeable} from 'material-ui/styles'
+
 
 const styles = (muiTheme) => {
 
@@ -175,12 +175,36 @@ function getV2WithBlocks(styles, hasLeft, hasRight){
     return styles;
 }
 
+function selectBaseFileName(htmlInput){
+    const value = htmlInput.value;
+    let rangeEnd = value.lastIndexOf('.');
+    if(rangeEnd === -1){
+        rangeEnd = value.length;
+    }
+    if (htmlInput.setSelectionRange){
+        htmlInput.setSelectionRange(0, rangeEnd);
+    } else if (window.getSelection) {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.setStart(htmlInput, 0);
+        range.setEnd(htmlInput, rangeEnd);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    } else if(htmlInput.select){
+        htmlInput.select();
+    } else {
+        console.warn("Could not select text in node: Unsupported browser.");
+    }
+}
+
+
 function withModernTheme(formComponent) {
 
     class ModernThemeComponent extends React.Component {
 
         constructor(props, context) {
             super(props, context);
+            this.compRef = createRef()
             this.muiTheme = context.muiTheme || {palette:{mui3:{}}};
         }
 
@@ -195,25 +219,33 @@ function withModernTheme(formComponent) {
         }
 
         componentDidMount(){
-            if (this.props.focusOnMount && this.refs.component){
-                this.refs.component.focus();
+            const {focusOnMount, selectBaseOnMount} = this.props;
+            if (focusOnMount && this.compRef.current){
+                this.compRef.current.focus();
+            } else if(selectBaseOnMount && this.compRef.current){
+                selectBaseFileName(this.compRef.current.input)
+                this.compRef.current.focus();
             }
         }
 
         focus(){
-            if(this.refs.component){
-                this.refs.component.focus();
+            if(this.compRef.current){
+                this.compRef.current.focus();
             }
         }
 
         getInput(){
-            if(this.refs.component){
-                return this.refs.component.input;
+            if(this.compRef.current){
+                return this.compRef.current.input;
             }
         }
 
         getValue(){
-            return this.refs.component.getValue();
+            if(this.compRef.current){
+                return this.compRef.current.getValue();
+            }else {
+                return ''
+            }
         }
 
         render() {
@@ -248,7 +280,7 @@ function withModernTheme(formComponent) {
                         styleProps = this.mergedProps({...styles(muiTheme).textField});
                     }
                 }
-                return <TextField {...otherProps} {...styleProps} ref={"component"} />
+                return <TextField {...otherProps} {...styleProps} ref={this.compRef} />
             } else if (formComponent === SelectField) {
                 let styleProps;
                 if (variant === 'v2') {
@@ -256,7 +288,7 @@ function withModernTheme(formComponent) {
                 } else {
                     styleProps = this.mergedProps({...styles(muiTheme).selectField});
                 }
-                return <SelectField {...otherProps} {...styleProps} ref={"component"}/>
+                return <SelectField {...otherProps} {...styleProps} ref={this.compRef}/>
             } else if (formComponent === AutoComplete) {
 
                 const {style, ...tfStyles} = getV2WithBlocks({...styles(muiTheme).textFieldV2}, hasLeftBlock, hasRightBlock)

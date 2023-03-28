@@ -124,7 +124,7 @@ class OverlayIcon extends Component{
                         canAutoPosition={true}
                         onRequestClose={() => {this.setState({popoverOpen: false})}}
                         style={{backgroundColor:'transparent', width: 310}}
-                        zDepth={0}
+                        zDepth={2}
                     >
                         <AsyncComponent
                             namespace={popoverNS}

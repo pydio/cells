@@ -321,6 +321,7 @@ let RailPanel = ({
         return {...def, icon, text, onClick: () => a.options.callback()}
     }
 
+    const showStickToggle = hoverBarDef && hoverBarDef.active && hoverBarDef.activeBar && activeClosed
 
     uWidgetProps.style.width = 'auto'
     uWidgetProps.style.margin = '0 auto'
@@ -428,7 +429,7 @@ let RailPanel = ({
                 </div>
                 {activeBar &&
                     <div
-                        className={"vertical_layout"}
+                        className={"vertical_layout" + (showCloseToggle?' with-rail-close-toggle':'')}
                         style={{flex: 1, height: '100%', overflow:'hidden', ...style}}
                         onMouseEnter={()=> setShowCloseToggle(true)}
                         onMouseLeave={()=> setShowCloseToggle(false)}
@@ -438,11 +439,11 @@ let RailPanel = ({
                     </div>
                 }
                 <div style={hoverStyle}>
-                    <div className={"vertical_layout"}
+                    <div className={"vertical_layout" + (showStickToggle?' with-rail-stick-toggle':'')}
                          style={{flex: 1, height: '100%', position: 'absolute', width: innerWidth, right: 0, ...style}}
                          onMouseEnter={() => setHover(true)}
                          onMouseLeave={() => setHover(false)}>{hoverBarDef && hoverBarDef.hoverBar(ASLib, ASData)}</div>
-                    {hoverBarDef && hoverBarDef.active && hoverBarDef.activeBar && activeClosed &&
+                    {showStickToggle &&
                         <div
                             style={{...closerStyle}}
                             onMouseEnter={() => setHover(true)}

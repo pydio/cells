@@ -19,17 +19,17 @@
  */
 
 import Pydio from "pydio";
-import DOMUtils from 'pydio/util/dom'
-import React, {createRef} from "react";
+import React from "react";
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 const {Paper, FlatButton} = require('material-ui')
 const {ModernTextField} = Pydio.requireLib("hoc");
+import Popper from '@mui/material/Popper';
+import {muiThemeable} from "material-ui/styles";
 
 class InlineEditor extends React.Component {
 
     constructor(props) {
         super(props);
-        this.text = createRef();
     }
 
     submit(){
@@ -52,13 +52,6 @@ class InlineEditor extends React.Component {
         }
     }
 
-    componentDidMount() {
-        if(this.text){
-            DOMUtils.selectBaseFileName(this.text.current.getInput());
-            this.text.current.focus();
-        }
-    }
-
     catchClicks(e){
         e.stopPropagation();
     }
@@ -74,25 +67,29 @@ class InlineEditor extends React.Component {
 
     render() {
         const messages = Pydio.getMessages();
+        const {node, onClose, anchor, muiTheme, editorStyle = {}} = this.props;
         return (
-            <Paper className={"inline-editor" + (this.props.detached ? " detached" : "")} style={{padding: 8, fontWeight:'initial'}} zDepth={2}>
-                <ModernTextField
-                    ref={this.text}
-                    defaultValue={this.props.node.getLabel()}
-                    onChange={(e, value)=>{this.setState({value:value})}}
-                    onClick={this.catch} onDoubleClick={(e) => this.catchClicks(e)}
-                    tabIndex="0" onKeyDown={(e) => this.onKeyDown(e)}
-                    errorText={this.state ? this.state.errorString : null}
-                />
-                <div style={{textAlign:'right', paddingTop: 8}}>
-                    <FlatButton label={messages['54']} onClick={this.props.onClose}/>
-                    <FlatButton label={messages['48']} onClick={() => this.submit()}/>
-                </div>
-            </Paper>
+            <Popper id={'rename-popper:'+node.getPath()} open={true} anchorEl={anchor} placement={"bottom-start"}>
+                <Paper style={{padding: 8, fontWeight:'initial', background:muiTheme.palette.mui3?muiTheme.palette.mui3['surface-2']:'white', ...editorStyle}} zDepth={2}>
+                    <ModernTextField
+                        ref={this.text}
+                        defaultValue={node.getLabel()}
+                        onChange={(e, value)=>{this.setState({value:value})}}
+                        onClick={this.catch} onDoubleClick={(e) => this.catchClicks(e)}
+                        tabIndex="0" onKeyDown={(e) => this.onKeyDown(e)}
+                        errorText={this.state ? this.state.errorString : null}
+                        selectBaseOnMount={true}
+                    />
+                    <div style={{textAlign:'right', paddingTop: 8}}>
+                        <FlatButton label={messages['54']} onClick={onClose}/>
+                        <FlatButton label={messages['48']} onClick={() => this.submit()}/>
+                    </div>
+                </Paper>
+            </Popper>
         );
     }
 }
 
-InlineEditor = PydioContextConsumer(InlineEditor);
+InlineEditor = PydioContextConsumer(muiThemeable()(InlineEditor));
 
 export {InlineEditor as default}

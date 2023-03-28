@@ -8,6 +8,7 @@ import {sortNodesNatural} from "./sorters";
 import SimpleList from "./SimpleList";
 import EmptyStateView from "../views/EmptyStateView";
 import {debounce} from 'lodash'
+import {withNodeListenerEntry} from "./withNodeListenerEntry";
 
 const rotations = {
     2:{scaleX:-1, scaleY:1},
@@ -87,7 +88,7 @@ const triggerResize = debounce(() => {
     window.dispatchEvent(new Event('resize'));
 }, 500)
 
-const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
+const ResizingCard = withNodeListenerEntry(({width, data:{node, parent, dataModel, entryProps}, setInlineEditionAnchor}) => {
 
     // ratio may be modified by exif orientation
     let {ratio, src} = usePreview(node);
@@ -113,9 +114,6 @@ const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
         bottom: 0, left: 0, right: 0,
         height: 32,
         padding: '6px 10px',
-//        borderTop: '1px solid rgba(224,224,224,.4)',
-//        color: 'rgba(0,0,0,.73)',
-//        backgroundColor: src ? 'rgba(255,255,255,.73)' : 'rgba(255,255,255,1)',
         fontWeight: 500,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
@@ -153,6 +151,13 @@ const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
         cNames.push('has-src')
     }
 
+    const renameRef = useRef(null)
+    useEffect(()=>{
+        if(setInlineEditionAnchor && renameRef.current) {
+            setInlineEditionAnchor(renameRef.current)
+        }
+    }, [node])
+
     return (
         <ContextMenuWrapper
             node={node}
@@ -168,11 +173,11 @@ const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
             {!parent && !src && renderIcon(node)}
             {!parent && <div style={{position:'absolute', top: 0, left: 0}}>{renderActions(node)}</div>}
             {src && <div className={'masonry-label-overlay'} style={{position:'absolute', bottom: 0, left: 0, right: 0, height: 50}}/>}
-            <div className={'masonry-label'} style={{display:(hover||selected||!src)?'block':'none',...labelStyle}}>{parent?parentLabel:node.getLabel()}</div>
+            <div className={'masonry-label'} ref={renameRef} style={{display:(hover||selected||!src)?'block':'none',...labelStyle}}>{parent?parentLabel:node.getLabel()}</div>
         </ContextMenuWrapper>
     );
 
-}
+}, (props) => props.data.node)
 
 const VisibleImage = ({src, alt, style, className}) => {
     const ref = useRef();

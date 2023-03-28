@@ -33,7 +33,7 @@ export default class OverlayPanel extends Component {
                 title={pydio.MessageHash['meta.watch.1-off']}
                 popoverPanel={popoverPanel}
             >
-                <div style={{padding: '0 16px 10px'}}><WatchSelector pydio={pydio} nodes={[node]}/></div>
+                <div style={{padding: '0 16px 10px'}}><WatchSelector fullWidth={true} pydio={pydio} nodes={[node]}/></div>
             </InfoPanelCard>
         );
     }

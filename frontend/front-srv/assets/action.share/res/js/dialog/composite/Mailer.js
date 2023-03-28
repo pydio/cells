@@ -47,8 +47,8 @@ class Mailer extends React.Component {
                         enableIdentification:(linkModel && linkModel.getLink().TargetUsers),
                         identifiedOnly:(linkModel && linkModel.getLink().RestrictToTargetUsers),
                         crippleIdentificationKeys:true,
-                        MailerPanel:ns.Pane
-                    }
+                    },
+                    MailerPanel:ns.Pane
                 });
             });
 
@@ -133,7 +133,7 @@ class Mailer extends React.Component {
             panelTitle={this.props.pydio.MessageHash["share_center.45"]}
             additionalPaneTop={customizeMessagePane}
             processPost={mailerData.enableIdentification ? this.mailerProcessPost.bind(this) : null}
-            style={{width: 420, margin: '0 auto', backgroundColor:muiTheme.palette.mui3['surface-variant']}}
+            style={{width: 420, margin: '0 auto', background:muiTheme.palette.mui3['surface-3']}}
         />);
 
     }

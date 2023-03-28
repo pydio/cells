@@ -173,7 +173,6 @@ export default class ThemeBuilder {
         })
     }
 
-
     invalidate() {
         this._theme = undefined;
     }
@@ -214,6 +213,11 @@ export default class ThemeBuilder {
             return true
         }
         return false
+    }
+
+    toggleLocalTheme() {
+        this.dark = !this.dark
+        this.requireRefresh()
     }
 
     buildTheme(customPalette = undefined) {

@@ -19,6 +19,8 @@
  */
 
 const {Component} = require('react');
+import Repository from 'pydio/model/repository'
+import PydioApi from 'pydio/http/api'
 const {PydioContextConsumer} = require('pydio').requireLib('boot')
 
 export default function (PydioComponent){
@@ -76,7 +78,7 @@ export default function (PydioComponent){
                     const sorter = [];
                     const pages = [];
                     pydio.user.repositories.forEach(function (repository) {
-                        if(repository.getId() === 'settings' || repository.getId() === 'homepage'){
+                        if(Repository.isInternal(repository.getId())){
                             pages.push({id: repository.getId(), label: '['+pydio.MessageHash['331']+'] ' + repository.getLabel()});
                         } else if(repository.getRepositoryType() !== "cell"){
                             sorter.push({id:repository.getId(), label:repository.getLabel()});

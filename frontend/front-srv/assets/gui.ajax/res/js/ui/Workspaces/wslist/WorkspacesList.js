@@ -94,7 +94,8 @@ class Entries extends React.Component{
 
 
     render(){
-        const {title, entries=[], filterHint, workspaceEntryStyler, titleStyle, pydio, createAction, activeWorkspace, palette, buttonStyles, emptyState,
+        const {title, entries=[], filterHint, workspaceEntryStyler, titleStyle, pydio, createAction, createActionEntry,
+            activeWorkspace, palette, buttonStyles, emptyState, className,
             searchView, values, setValues, searchLoading} = this.props;
         const {toggleFilter, filterValue} = this.state;
 
@@ -111,7 +112,7 @@ class Entries extends React.Component{
         }
 
         return (
-            <div>
+            <div className={className}>
                 {!toggleFilter &&
                     <div key="shared-title" className="section-title" style={titleStyle}>
                         <span style={{cursor:'pointer'}} title={filterHint} onClick={()=>{this.setState({toggleFilter: true})}}>
@@ -122,7 +123,7 @@ class Entries extends React.Component{
                     </div>
                 }
                 {toggleFilter &&
-                    <div key="shared-title" className="section-title" style={{...titleStyle, paddingLeft: 12, paddingRight: 8, textTransform: 'none', transition:'none'}}>
+                    <div key="shared-title" className="section-title filter-active" style={{...titleStyle, paddingLeft: 12, paddingRight: 8, textTransform: 'none', transition:'none'}}>
                         <ModernTextField
                             focusOnMount={true}
                             fullWidth={true}
@@ -177,6 +178,7 @@ class Entries extends React.Component{
                         />
                     ))}
                     {!entries.length && emptyState}
+                    {(entries.length > 0 || !emptyState) && createActionEntry}
                     {pagination.use && this.renderPagination(pagination)}
                 </div>
             </div>
@@ -231,7 +233,7 @@ class WorkspacesList extends React.Component{
     }
 
     render(){
-        let createAction;
+        let createActionIcon, createActionEntry;
         const {workspaces,activeWorkspace, popoverOpen, popoverAnchor, popoverContent, merge} = this.state;
         const {pydio, className, muiTheme, sectionTitleStyle, workspaceEntryStyler,
             searchView, values, setValues, searchLoading, facets, activeFacets, toggleFacet} = this.props;
@@ -287,15 +289,25 @@ class WorkspacesList extends React.Component{
         };
 
         if(this.createRepositoryEnabled() && (sharedEntries.length||(merge && (sharedEntries.length || entries.length)))){
-            createAction = <IconButton
-                key={"create-cell"}
-                style={buttonStyles.button}
-                iconStyle={buttonStyles.icon}
-                iconClassName={"mdi mdi-plus"}
-                tooltip={messages[417]}
-                tooltipPosition={merge?"bottom-left":"top-left"}
-                onClick={createClick}
-            />
+            if(merge) {
+                createActionEntry = (
+                    <div onClick={createClick} className={"workspace-entry"} style={{...workspaceEntryStyler.rootItemStyle.default, color:'var(--md-sys-color-primary)'}}>
+                        <span className={"icomoon-cells-full-plus"} style={{fontSize: 24, marginRight: 13, marginLeft:-4, opacity: 0.53}}/>
+                        <div>{messages[417]}</div>
+                    </div>
+                )
+
+            } else {
+                createActionIcon = <IconButton
+                    key={"create-cell"}
+                    style={buttonStyles.button}
+                    iconStyle={buttonStyles.icon}
+                    iconClassName={"mdi mdi-plus"}
+                    tooltip={messages[417]}
+                    tooltipPosition={merge?"bottom-left":"top-left"}
+                    onClick={createClick}
+                />
+            }
         }
 
 
@@ -374,6 +386,7 @@ class WorkspacesList extends React.Component{
             borderRadius: muiTheme.borderRadius,
             padding: '16px 0px 10px',
         }
+        const showWorkspacesSection = !merge && entries.length > 0
 
         return (
             <div className={classNames.join(' ')}>
@@ -385,15 +398,16 @@ class WorkspacesList extends React.Component{
                     anchorOrigin={sharedEntries.length ? {horizontal:"left",vertical:"top"} : {horizontal:"left",vertical:"bottom"}}
                     targetOrigin={sharedEntries.length ? {horizontal:"left",vertical:"top"} : {horizontal:"left",vertical:"bottom"}}
                     zDepth={3}
-                    style={{borderRadius:6, overflow: 'hidden', marginLeft:sharedEntries.length?-10:0, marginTop:sharedEntries.length?-10:0}}
+                    style={{overflow: 'hidden', marginLeft:sharedEntries.length?-10:0, marginTop:sharedEntries.length?-10:0}}
                 >{popoverContent}</Popover>
-                {!merge && entries.length > 0 &&
+                {showWorkspacesSection &&
                     <Entries
                         {...entriesProps}
                         title={messages[468]}
                         entries={entries}
                         filterHint={messages['ws.quick-filter']}
                         titleStyle={{...sectionTitleStyle, marginTop:5, position:'relative', overflow:'visible', transition:'none'}}
+                        className={"first-section"}
                     />
                 }
                 <Entries
@@ -402,7 +416,9 @@ class WorkspacesList extends React.Component{
                     entries={merge?[...entries, ...sharedEntries]:sharedEntries}
                     filterHint={messages['cells.quick-filter']}
                     titleStyle={{...sectionTitleStyle, position:'relative', overflow:'visible', transition:'none'}}
-                    createAction={createAction}
+                    createAction={createActionIcon}
+                    createActionEntry={createActionEntry}
+                    className={showWorkspacesSection ? "" : "first-section"}
                     emptyState={
                         <div style={emptyStateStyle}>
                             <div className="icomoon-cells" style={{fontSize:60}}></div>

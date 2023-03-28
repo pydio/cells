@@ -113,7 +113,10 @@ class InfoPanelCard extends React.Component{
             );
         }
 
-        const panelOpen = open?styles.card.panelOpen:{}
+        let panelOpen = open?styles.card.panelOpen:{}
+        if(popoverPanel) {
+            panelOpen = {...panelOpen, margin: 0}
+        }
 
         return (
             <Paper zDepth={styles.card.zDepth} className="panelCard" style={{...styles.card.panel, ...panelOpen, ...this.props.style}}>

@@ -140,8 +140,8 @@ class Copyright extends React.Component {
             s = {
                 textAlign: 'right',
                 padding: '6px 16px',
-                backgroundColor: '#f7f7f7',
-                color: 'black'
+                backgroundColor: 'var(--md-sys-color-surface-variant)',
+                color: 'var(--md-sys-color-on-surface-variant)'
             };
         } else if(mode === "overlay") {
             s = {
@@ -271,7 +271,7 @@ class DLTemplate extends React.Component{
             this.props.pydio.Controller.fireAction("download");
             setTimeout(function(){
                 this.setState({downloadStarted: false});
-            }.bind(this), 1500);
+            }.bind(this), 3500);
         }.bind(this), 100);
 
     }
@@ -294,9 +294,112 @@ class DLTemplate extends React.Component{
         }
     }
 
+    renderMui3() {
+        const {bgStyle, node, emptyUser, muiTheme, pydio} = this.props;
+        const {mui3} = muiTheme.palette;
+
+        const styles = {
+            main: {...bgStyle,
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%'
+            },
+            block: {
+                cursor: 'pointer',
+                maxWidth: 420,
+                minWidth: 320,
+                margin: '0 auto',
+                background: mui3['surface'],
+                borderRadius: muiTheme.borderRadius,
+                boxShadow: '0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)'
+            },
+            cardImage:{
+                margin:'0 auto',
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center',
+                background: mui3['surface-2'],
+                borderRadius: muiTheme.borderRadius,
+                padding: '60px 80px',
+            },
+            logo: {
+                width:160,
+                margin:'-50px auto 0'
+            },
+            filename: {
+                fontSize: 20,
+                wordBreak: 'break-all',
+                fontWeight: 500
+            },
+            fileIcon: {
+                fontSize:80,
+                color: mui3['primary']
+            },
+            dlIcon: {
+                position:'absolute',
+                top:40,
+                left:25,
+                fontSize:30,
+                color:mui3['inverse-primary'],
+                transition:DOMUtils.getBeziersTransition()
+            }
+        };
+
+        if(emptyUser){
+            return <div className="vertical_fit" style={{...styles.main, width:'100%'}}></div>;
+        }
+        let fileName;
+        let classNames = ['download-block'];
+        if(this.state && this.state.repoObject){
+            fileName = this.state.repoObject.getLabel();
+        }
+        let click = null;
+        let fileDetails = pydio.MessageHash[466] ;
+        if(node){
+            click = this.triggerDL.bind(this);
+            const roundSize = PathUtils.roundFileSize(node.getMetadata().get('bytesize'));
+            fileDetails = `${MessageHash['share_center.231']} (${pydio.MessageHash[503]}: ${roundSize}).`;
+        }
+        let downloadStarted
+        if(this.state && this.state.downloadStarted){
+            downloadStarted = true
+        }
+        return (
+            <div style={styles.main} id={"main-background"}>
+                <ConfigLogo pydio={this.props.pydio} style={styles.logo}/>
+                <div className={classNames.join(' ')} onClick={click} style={styles.block}>
+                    <div style={styles.cardImage}>
+                        <div style={{position:'relative'}}>
+                            <span style={styles.fileIcon} className={"mdi mdi-file"}/>
+                            <span style={styles.dlIcon} className="mdi mdi-download"/>
+                        </div>
+                    </div>
+                    <div style={{padding: 16, color:mui3['on-surface']}}>
+                        <span style={styles.filename}><Textfit min={14} max={16} perfectFit={false} mode="single">{fileName}</Textfit></span>
+                        <div style={{fontSize:13, paddingTop: 8, color:mui3['outline']}}>{fileDetails}</div>
+                    </div>
+                    <div style={{display:'flex', justifyContent:'flex-start', padding: 16, opacity:((!node||downloadStarted)?.5:1)}}>
+                        <div style={{color:mui3['on-primary'], backgroundColor:mui3['primary'], borderRadius: 20, padding: '8px 16px', fontWeight: 500}}>Start Download</div>
+                    </div>
+                </div>
+                <Copyright mode={"block"} {...this.props}/>
+            </div>
+        );
+
+    }
+
     render(){
 
-        const {bgStyle, node, emptyUser} = this.props;
+        const {bgStyle, node, emptyUser, muiTheme} = this.props;
+
+        if(muiTheme.userTheme === 'mui3') {
+            return this.renderMui3()
+        }
+
+
         const styles = {
             main: {...bgStyle,
                 flex: 1,
@@ -408,7 +511,7 @@ class FolderMinisite extends React.Component{
 
         return (
             <StandardLayout {...this.props} uniqueNode={false} showSearchForm={this.props.pydio.getPluginConfigs('action.share').get('SHARED_FOLDER_SHOW_SEARCH')}>
-                <div style={{backgroundColor:'white'}} className="layout-fill vertical-layout">
+                <div style={{backgroundColor:'var(--md-sys-color-surface)', paddingTop:8}} className="layout-fill vertical-layout">
                     <MainFilesList ref="list" {...this.props} dataModel={this.props.pydio.getContextHolder()}/>
                     <Copyright mode={"insert"} {...this.props}/>
                 </div>
@@ -530,11 +633,11 @@ class DropZoneMinisite extends React.Component{
 
         return (
             <StandardLayout {...this.props}>
-                <div className="vertical_fit vertical_layout" style={{backgroundColor:'white'}}>
-                    <div className="vertical_fit vertical_layout" style={{margin: 16, marginBottom: 2,border: '2px dashed #CFD8DC',borderRadius: 4}}>
+                <div className="vertical_fit vertical_layout" style={{backgroundColor:'var(--md-sys-color-surface)'}}>
+                    <div className="vertical_fit vertical_layout" style={{margin: 8, padding:'8px 0', marginBottom: 2,border: '2px dashed #CFD8DC',borderRadius: 12}}>
                         <MainFilesList ref="list"  dataModel={this.props.pydio.getContextHolder()} {...this.props}/>
                     </div>
-                    <Copyright mode={"insert"} style={{backgroundColor:'white'}} {...this.props}/>
+                    <Copyright mode={"insert"} style={{backgroundColor:'var(--md-sys-color-surface-variant)'}} {...this.props}/>
                 </div>
                 <EditionPanel {...this.props}/>
             </StandardLayout>
@@ -550,7 +653,7 @@ class FilmStripMinisite extends React.Component {
 
         return (
             <StandardLayout {...this.props} uniqueNode={false} showSearchForm={this.props.pydio.getPluginConfigs('action.share').get('SHARED_FOLDER_SHOW_SEARCH')}>
-                <div style={{backgroundColor:'white'}} className="layout-fill vertical-layout">
+                <div style={{backgroundColor:'var(--md-sys-color-surface)', paddingTop: 8}} className="layout-fill vertical-layout">
                     <MainFilesList ref="list" {...this.props} dataModel={this.props.pydio.getContextHolder()} displayMode={"masonry"}/>
                     <Copyright mode={"insert"} {...this.props}/>
                 </div>

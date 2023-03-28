@@ -168,7 +168,7 @@ class AltDashboard extends React.Component {
                                 onClick={this.openDrawer.bind(this)}/>
                         </span>
                     }
-                    <div style={{width: 250}}>
+                    <div style={{width: 250, display:'flex', justifyContent:'center'}}>
                         <ConfigLogo
                             className="home-top-logo"
                             style={{maxHeight:100}}

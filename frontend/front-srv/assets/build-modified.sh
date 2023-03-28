@@ -2,7 +2,7 @@
 
 export NODE_ENV="production"
 
-for dir in $(git status --porcelain */ | sed "s# M frontend/front-srv/assets/##" | cut -d'/' -f1 | grep -v 'gui.ajax' | uniq); do
+for dir in $(git status --porcelain */ | grep -v 'gui.ajax' | sed "s# M frontend/front-srv/assets/##" | cut -d'/' -f1 | uniq); do
   echo "### Compiling $dir"
   cd $dir
   pnpm run build

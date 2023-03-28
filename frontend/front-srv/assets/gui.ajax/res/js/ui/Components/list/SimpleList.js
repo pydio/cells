@@ -35,7 +35,6 @@ import {ConfigurableListEntry, NativeDroppableConfigurableListEntry} from './Con
 import SortColumns from './SortColumns'
 import ListPaginator from './ListPaginator'
 import SimpleReactActionBar from '../views/SimpleReactActionBar'
-import InlineEditor from './InlineEditor'
 import EmptyStateView from '../views/EmptyStateView'
 import PlaceHolders from "./PlaceHolders";
 import {nodesSorterByAttribute, sortNodesNatural} from "./sorters";
@@ -358,23 +357,14 @@ let SimpleList = createReactClass({
                 this.rebuildLoadedElements();
             }.bind(this);
         }
-        if(!this._childrenActionsObserver){
-            this._childrenActionsObserver = function(eventMemo){
-                if(eventMemo.type === 'prompt-rename'){
-                    this.setState({inlineEditionForNode:eventMemo.child, inlineEditionCallback:eventMemo.callback});
-                }
-            }.bind(this);
-        }
         if(stop){
             node.stopObserving("child_added", this._childrenObserver);
             node.stopObserving("child_removed", this._childrenObserver);
             node.stopObserving("child_replaced", this._childrenObserver);
-            node.stopObserving("child_node_action", this._childrenActionsObserver);
         }else{
             node.observe("child_added", this._childrenObserver);
             node.observe("child_removed", this._childrenObserver);
             node.observe("child_replaced", this._childrenObserver);
-            node.observe("child_node_action", this._childrenActionsObserver);
         }
     },
 
@@ -1161,16 +1151,6 @@ let SimpleList = createReactClass({
             }
         }
 
-        let inlineEditor;
-        if(this.state.inlineEditionForNode){
-            inlineEditor = <InlineEditor
-                detached={true}
-                node={this.state.inlineEditionForNode}
-                callback={this.state.inlineEditionCallback}
-                onClose={()=>{this.setState({inlineEditionForNode:null});}}
-            />
-        }
-
         let emptyState;
         if(emptyStateProps && node.isLoaded() && !node.isLoading() &&
             ( !this.state.elements.length || (this.state.elements.length === 1 && this.state.elements[0].parent)) ){
@@ -1198,7 +1178,7 @@ let SimpleList = createReactClass({
 
         const elements = this.buildElementsFromNodeEntries(this.state.elements, this.state.showSelector);
 
-        const {verticalScroller, heightAutoWithMax, usePlaceHolder} = this.props;
+        const {verticalScroller, usePlaceHolder} = this.props;
         let content = elements;
         let cH, c2H;
         if(!elements.length && usePlaceHolder) {
@@ -1225,7 +1205,7 @@ let SimpleList = createReactClass({
 
             return (
                 <div className={containerClasses} tabIndex="0" onKeyDown={this.onKeyDown} style={{...this.props.style, overflowX: 'auto'}}>
-                    {hiddenToolbar}{inlineEditor}
+                    {hiddenToolbar}
                     <div style={{display:'flex', flexDirection:'column', flex: 1, height: '100%', width:'100%', minWidth:'fit-content'}}>
                         {toolbar}
                         <AutoSizer className={(emptyState?"layout-fill vertical_layout":"layout-fill")}>{h =>
@@ -1260,7 +1240,6 @@ let SimpleList = createReactClass({
         return (
             <div className={containerClasses} tabIndex="0" onKeyDown={this.onKeyDown} style={this.props.style}>
                 {toolbar}{hiddenToolbar}
-                {inlineEditor}
                 <AutoSizer className={(emptyState?"layout-fill vertical_layout":"layout-fill")}>{c2H?c2H:(h)=>content}</AutoSizer>
             </div>
         );

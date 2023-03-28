@@ -48,14 +48,14 @@ const ThemedIconButton = muiThemeable()((props)=> {
 const ThemedDatePicker = muiThemeable()((props) => {
     const {muiTheme, ...other} = props;
     return (
-        <DatePicker {...other} dialogContainerStyle={{...props.dialogContainerStyle, overflow:'hidden', backgroundColor:muiTheme.palette.mui3['surface']}}/>
+        <DatePicker {...other} container={"inline"} dialogContainerStyle={{...props.dialogContainerStyle, overflow:'hidden', backgroundColor:muiTheme.palette.mui3['surface']}}/>
     )
 })
 
 const ThemedTimePicker = muiThemeable()((props) => {
     const {muiTheme, ...other} = props;
     return (
-        <TimePicker {...other} dialogContainerStyle={{...props.dialogContainerStyle, overflow:'hidden', backgroundColor:muiTheme.palette.mui3['surface']}}/>
+        <TimePicker {...other} container={"inline"} dialogContainerStyle={{...props.dialogContainerStyle, overflow:'hidden', backgroundColor:muiTheme.palette.mui3['surface']}}/>
     )
 })
 

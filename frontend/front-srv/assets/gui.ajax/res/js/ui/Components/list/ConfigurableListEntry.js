@@ -27,7 +27,7 @@ import Node from 'pydio/model/node'
 import InlineEditor from './InlineEditor'
 import {DragDropListEntry} from './ListEntry'
 import {FontIcon} from 'material-ui'
-import withNodeListenerEntry from './withNodeListenerEntry'
+import {withNodeListenerEntry} from './withNodeListenerEntry'
 const {NativeFileDropProvider} = Pydio.requireLib('hoc');
 
 
@@ -52,19 +52,6 @@ class ConfigurableListEntry extends React.Component {
             firstLine = renderFirstLine(this.props.node);
         } else {
             firstLine = node.getLabel();
-        }
-        if(this.props.inlineEdition){
-            firstLine = (
-                <span>
-                        <InlineEditor
-                            node={this.props.node}
-                            onClose={this.props.inlineEditionDismiss}
-                            callback={this.props.inlineEditionCallback}
-                        />
-                    {firstLine}
-                    </span>
-            );
-            style.position = 'relative';
         }
         if(renderSecondLine) {
             secondLine = renderSecondLine(node);
