@@ -56,18 +56,19 @@ class UserCreationForm extends React.Component{
             name            : "new_password",
             scope           : "user",
             type            : "valid-password",
-            mandatory       : true
+            mandatory       : true,
+            direction       : 'column'
         });
 
-        const params = global.pydio.getPluginConfigs('auth').get('NEWUSERS_EDIT_PARAMETERS').split(',');
+        const params = pydio.getPluginConfigs('auth').get('NEWUSERS_EDIT_PARAMETERS').split(',');
         for(let i=0;i<params.length;i++){
             params[i] = "user/preferences/pref[@exposed]|//param[@name='"+params[i]+"']";
         }
         const xPath = params.join('|');
-        Manager.parseParameters(this.props.pydio.getXmlRegistry(), xPath).map(function(el){
+        Manager.parseParameters(pydio.getXmlRegistry(), xPath).map(function(el){
             basicParameters.push(el);
         });
-        if(!editMode){
+        if(!editMode && pydio.Parameters.get('validMailer')){
             basicParameters.push({
                 description : MessageHash['536'],
                 editable    : "true",
@@ -107,7 +108,7 @@ class UserCreationForm extends React.Component{
         if(!userPrefix || newUserName.startsWith(userPrefix)) userPrefix = '';
         let values = {
             new_password:'',
-            send_email:true
+            send_email:pydio.Parameters.get('validMailer')
         };
         if(editMode && userData && userData.IdmUser){
             const {IdmUser} = userData;

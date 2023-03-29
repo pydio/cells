@@ -137,16 +137,17 @@ class SharedUsers extends React.Component {
                     return null
                 }
             }).filter(k => !!k);
+            const canCreate = authConfigs.get('USER_CREATE_USERS')
             usersInput = (
                 <UsersCompleter
                     className="share-form-users"
-                    fieldLabel={this.props.getMessage('34')}
+                    fieldLabel={this.props.getMessage(canCreate?'34':'34b')}
                     onValueSelected={this.valueSelected}
                     pydio={this.props.pydio}
                     showAddressBook={true}
                     usersFrom="local"
                     excludes={excludes}
-                    existingOnly={!authConfigs.get('USER_CREATE_USERS')}
+                    existingOnly={!canCreate}
                 />
             );
         }

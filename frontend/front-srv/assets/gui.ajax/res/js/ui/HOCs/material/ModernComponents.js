@@ -63,7 +63,10 @@ const styles = (muiTheme) => {
             floatingLabelFixed: true,
             floatingLabelStyle: {top: 26, left: 8, width: '127%', ...noWrap},
             floatingLabelShrinkStyle: {top: 26, left: 8},
-            errorStyle: {position: 'absolute', bottom: 8, right: 8}
+            errorStyle: {
+                position: 'absolute', bottom: 8, right: 8,
+                maxWidth: '60%', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden'
+            }
         },
         textareaField: {
             rows: 4,

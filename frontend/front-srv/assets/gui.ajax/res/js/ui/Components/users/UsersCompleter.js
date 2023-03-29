@@ -1,6 +1,3 @@
-import React from 'react';
-import PydioApi from 'pydio/http/api'
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20,12 +17,15 @@ import PydioApi from 'pydio/http/api'
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import React from 'react';
 import PropTypes from 'prop-types';
-
 import Pydio from 'pydio'
+import PydioApi from 'pydio/http/api'
+import FuncUtils from 'pydio/util/func'
+import LangUtils from 'pydio/util/lang'
+import PassUtils from 'pydio/util/pass'
 import AddressBook from './addressbook/AddressBook'
 import {AutoComplete, MenuItem, RefreshIndicator, FontIcon} from 'material-ui'
-import FuncUtils from 'pydio/util/func'
 import UserCreationForm from './UserCreationForm'
 const {ModernAutoComplete, ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 
@@ -145,6 +145,14 @@ class UsersLoader extends React.Component {
         this._emptyValueList = null;
     }
 
+    slugLogin(login) {
+        login = login.toLowerCase()
+        if(PassUtils.isValidLogin(login) === '') {
+            return login
+        }
+        return LangUtils.computeStringSlug(login);
+    }
+
     /**
      * Debounced call for rendering search
      * @param value {string}
@@ -213,6 +221,7 @@ class UsersLoader extends React.Component {
                 }
                 // Append temporary create user
                 if(value && !valueExists && (!existingOnly || freeValueAllowed)){
+                    value = this.slugLogin(value);
                     const m = Pydio.getMessages()["448"] || "create";
                     const createItem = (
                         <MenuItem

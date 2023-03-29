@@ -102,9 +102,20 @@ class ValidPassword extends React.Component{
                     />
                 ];
             }
+            let style = {display:'flex'}
+            if(variant === 'v2') {
+                style.height = 66
+                if(attributes['direction'] === 'column') {
+                    style.flexDirection = 'column'
+                    style.paddingBottom = 4;
+                    if(confirm) {
+                        style.height *= 2
+                    }
+                }
+            }
             return(
                 <form autoComplete="off" onSubmit={(e)=>{e.stopPropagation(); e.preventDefault()}}>
-                    <div style={{display:'flex', height:variant === 'v2'?66:null}}>
+                    <div style={style}>
                         <TextComponent
                             ref="pass"
                             floatingLabelText={isDisplayGrid()?null:attributes.label}
