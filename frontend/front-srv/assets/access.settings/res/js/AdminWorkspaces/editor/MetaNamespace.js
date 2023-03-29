@@ -367,3 +367,4 @@ MetaNamespace.PropTypes = {
 };
 
 export default MetaNamespace
+export {loadEditorClass}

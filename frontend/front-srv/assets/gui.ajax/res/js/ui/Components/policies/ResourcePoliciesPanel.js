@@ -328,7 +328,7 @@ class ResourcePoliciesPanel extends React.Component{
 
 
     render(){
-        const {appBar, palette:{mui3}} = this.props.muiTheme;
+        const {appBar, palette:{mui3={}}} = this.props.muiTheme;
 
         const styles = {
             title: {

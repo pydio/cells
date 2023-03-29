@@ -31,6 +31,25 @@ class IdmApi {
     }
 
     /**
+     * Load user by its Uuid
+     * @param userUuid
+     * @return {Promise<IdmUser>}
+     */
+    loadUserByUuid(userUuid){
+        const api = new UserServiceApi(this.client);
+        const request = new RestSearchUserRequest();
+        request.Operation = ServiceOperationType.constructFromObject('AND');
+        request.Queries = [];
+        const query = new IdmUserSingleQuery();
+        query.Uuid = userUuid;
+        query.NodeType = IdmNodeType.constructFromObject('USER');
+        request.Queries.push(query);
+        return api.searchUsers(request).then(collection => {
+            return collection.Users ? collection.Users[0] : null;
+        })
+    }
+
+    /**
      *
      * @param roleUuid
      * @return {Promise<IdmRole>}

@@ -23,6 +23,7 @@ import {FlatButton, Paper, Checkbox, MenuItem, Dialog} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import Workspace from '../model/Ws'
 import WsAutoComplete from './WsAutoComplete'
+import {loadEditorClass} from "./MetaNamespace";
 const {ModernTextField, ModernSelectField, ThemedModernStyles} = Pydio.requireLib('hoc');
 const {InputIntegerBytes} = Pydio.requireLib('form');
 const {PaperEditorLayout, AdminStyles} = AdminComponents;
@@ -41,6 +42,11 @@ class WsEditor extends Component {
             newFolderKey: Math.random(),
             showDialog: false
         };
+        const {policiesBuilder} = this.props;
+        if(policiesBuilder) {
+            loadEditorClass(policiesBuilder, null).then(c => this.setState({PoliciesBuilder: c})).catch(e=>{});
+        }
+
     }
 
     enableSync(value){
@@ -100,7 +106,7 @@ class WsEditor extends Component {
     render(){
 
         const {closeEditor, pydio, advanced, muiTheme} = this.props;
-        const {workspace, container, newFolderKey, saving, showDialog, dialogTargetValue} = this.state;
+        const {workspace, container, newFolderKey, saving, showDialog, dialogTargetValue, PoliciesBuilder, policiesEdit} = this.state;
 
         const ModernStyles = ThemedModernStyles(muiTheme)
         const m = id => pydio.MessageHash['ajxp_admin.' + id] || id;
@@ -298,6 +304,26 @@ class WsEditor extends Component {
                         </Fragment>
                     }
                 </Paper>
+                {PoliciesBuilder &&
+                    <Paper zDepth={0} style={styles.section}>
+                        <div style={styles.title}>Workspace Visibility</div>
+                        <div style={{...styles.legend}}>
+                            WARNING: this is a dangerous zone, modify only if you know what you are doing!
+                            {!policiesEdit && <span style={{fontWeight:500, cursor:'pointer'}} onClick={()=>this.setState({policiesEdit:true})}> - Edit Now</span>}
+                        </div>
+                        <PoliciesBuilder
+                            pydio={pydio}
+                            policies={workspace.Policies}
+                            onChangePolicies={(pols => workspace.Policies = pols )}
+                            readonly={!policiesEdit}
+                            showHeader={false}
+                            forceCustom={true}
+                            advancedLegend={<span/>}
+                            advancedContainerStyle={policiesEdit?{paddingBottom: 300}:{}}
+                            allowedActions={{'READ':'Read', 'WRITE':'Write'}}
+                        />
+                    </Paper>
+                }
             </PaperEditorLayout>
         );
 
