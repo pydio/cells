@@ -26,6 +26,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"path"
 	"sync"
+	"time"
 
 	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
@@ -303,6 +304,8 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
 	}
 
 	wg.Wait()
+	t := time.Now()
+
 	resp := &rest.RecommendResponse{}
 	for _, n := range bn {
 		if _, already := ak[n.Uuid]; already {
@@ -310,18 +313,31 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
 		}
 		an = append(an, n)
 	}
+	throttle := make(chan struct{}, 10)
+	nwg := &sync.WaitGroup{}
+	nwg.Add(len(an))
 	for _, n := range an {
-		if r, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n}); er == nil {
-			node := r.GetNode()
-			if len(node.AppearsIn) == 0 || node.AppearsIn[0].Path == "" { // empty Path = workspace root
-				continue
+		throttle <- struct{}{}
+		go func(in *tree.Node) {
+			defer func() {
+				nwg.Done()
+				<-throttle
+			}()
+			if r, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: in}); er == nil {
+				node := r.GetNode()
+				if len(node.AppearsIn) == 0 || node.AppearsIn[0].Path == "" { // empty Path = workspace root
+					return
+				}
+				node.Path = path.Join(node.AppearsIn[0].WsSlug, node.AppearsIn[0].Path)
+				node.MustSetMeta("reco-annotation", in.GetStringMeta("reco-annotation"))
+				node.MustSetMeta("repository_id", node.AppearsIn[0].WsUuid)
+				resp.Nodes = append(resp.Nodes, node.WithoutReservedMetas())
 			}
-			node.Path = path.Join(node.AppearsIn[0].WsSlug, node.AppearsIn[0].Path)
-			node.MustSetMeta("reco-annotation", n.GetStringMeta("reco-annotation"))
-			node.MustSetMeta("repository_id", node.AppearsIn[0].WsUuid)
-			resp.Nodes = append(resp.Nodes, node.WithoutReservedMetas())
-		}
+		}(n)
 	}
+
+	nwg.Wait()
+	log.Logger(ctx).Debug("--- Load Nodes Time", zap.Duration("nodes", time.Since(t)))
 
 	// Not enough data, load accessible workspaces as nodes
 	if len(resp.Nodes) < int(request.Limit) {
