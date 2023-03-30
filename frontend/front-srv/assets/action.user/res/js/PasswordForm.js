@@ -116,7 +116,7 @@ class PasswordForm extends React.Component {
                 <div>
                     <ValidPassword
                         onChange={newChange}
-                        attributes={{name:'pass',label:messages[198]}}
+                        attributes={{name:'pass',label:messages[198], direction:'column'}}
                         value={this.state.newPass}
                         name="newpassword"
                         onValidStatusChange={(s) => this.setState({validStatus: s})}

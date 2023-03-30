@@ -56,6 +56,9 @@ class InputBoolean extends React.Component {
         }
         const ModernStyles = ThemedModernStyles(muiTheme)
         if (variant === 'v2') {
+            if(muiTheme.userTheme==='mui3') {
+                legendStyle.color = muiTheme.palette.mui3['on-surface-variant']
+            }
             let toggleStyle = {...ModernStyles.toggleFieldV2}
             if(variantShowLegend){
                 toggleStyle.style = {...toggleStyle.style, padding:'23px 6px 4px'};

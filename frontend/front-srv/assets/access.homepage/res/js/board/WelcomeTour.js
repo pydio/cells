@@ -99,14 +99,14 @@ let SearchCard = (props) => {
 
 };
 
-let WidgetsCard = (props) => {
+let ThemeCard = (props) => {
 
     return (
-        <div>
-            <p>{props.message('widget-cards')}</p>
-            <Scheme>
-                <img src="plug/access.homepage/res/images/movecards.gif" style={{height:70, margin:'15px 30px'}}/>
-            </Scheme>
+        <div style={{height:300}}>
+            <p>{props.message('theme.legend')}</p>
+            <div style={{marginTop: 15, display:'flex', alignItems:'center', justifyContent:'center'}}>
+                <img src="plug/access.homepage/res/images/dark-light-theme.webp"/>
+            </div>
         </div>
     );
 
@@ -158,6 +158,12 @@ class WelcomeTour extends Component{
         const message = (id) => getMessage('ajax_gui.tour.' + id);
 
         let tourguideSteps = [
+            {
+                title       : message('theme.title'),
+                text        : <ThemeCard message={message}/>,
+                selector    :'.mdi.mdi-theme-light-dark',
+                position    :'right-end'
+            },
             {
                 title       : message('workspaces.title'),
                 text        : <WorkspacesCard message={message}/>,

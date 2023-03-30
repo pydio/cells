@@ -77,6 +77,15 @@ class ValidPassword extends React.Component{
             if(className){
                 cName = className + ' ' + cName;
             }
+            let style = {display:'flex'}, fieldBoxStyle = {flex: 1}
+            if(variant === 'v2') {
+                style.height = 66
+            }
+            if(attributes['direction'] === 'column') {
+                fieldBoxStyle = undefined
+                style.display = 'block'
+                style.height = 'auto'
+            }
             let confirm;
             const TextComponent = dialogField ? TextField : ModernTextField;
             if(value && !disabled){
@@ -95,23 +104,12 @@ class ValidPassword extends React.Component{
                         multiLine={false}
                         disabled={disabled}
                         fullWidth={true}
-                        style={{flex:1}}
+                        style={fieldBoxStyle}
                         errorText={this.state.confirmErrorText}
                         errorStyle={dialogField?{bottom: 15}:null}
                         variant={variant}
                     />
                 ];
-            }
-            let style = {display:'flex'}
-            if(variant === 'v2') {
-                style.height = 66
-                if(attributes['direction'] === 'column') {
-                    style.flexDirection = 'column'
-                    style.paddingBottom = 4;
-                    if(confirm) {
-                        style.height *= 2
-                    }
-                }
             }
             return(
                 <form autoComplete="off" onSubmit={(e)=>{e.stopPropagation(); e.preventDefault()}}>
@@ -130,7 +128,7 @@ class ValidPassword extends React.Component{
                             disabled={disabled}
                             errorText={this.state.passErrorText}
                             fullWidth={true}
-                            style={{flex:1}}
+                            style={fieldBoxStyle}
                             errorStyle={dialogField?{bottom: 15}:null}
                             variant={variant}
                         />

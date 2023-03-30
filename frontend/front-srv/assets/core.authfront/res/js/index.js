@@ -520,7 +520,7 @@ const ResetPasswordDialog = createReactClass({
                     <ValidPassword
                         className="blurDialogTextField"
                         onChange={this.onPassChange.bind(this)}
-                        attributes={{name:'password',label:mess[198]}}
+                        attributes={{name:'password',label:mess[198], direction:'column'}}
                         value={passValue}
                         dialogField={true}
                     />

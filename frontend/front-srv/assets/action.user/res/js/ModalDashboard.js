@@ -94,6 +94,14 @@ let ModalDashboard = createReactClass({
             );
         }.bind(this));
 
+        if(tabs.length === 1) {
+            return (
+                <div style={{width:'100%', overflowY:'auto', minHeight: 350}}>
+                    <ProfilePane {...this.props} ref={"profile"} style={{position:'relative', width:'100%'}} />
+                </div>
+            )
+        }
+
         return (
             <Paper style={{width:'100%', overflow:'hidden', borderBottomRightRadius:0, borderBottomLeftRadius:0}} zDepth={0}>
                 <Tabs

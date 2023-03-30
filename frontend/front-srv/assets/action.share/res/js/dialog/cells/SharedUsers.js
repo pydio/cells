@@ -112,15 +112,15 @@ class SharedUsers extends React.Component {
         }
         let rwHeader, usersInput;
         if(userEntries.length){
+            let color = 'rgba(0,0,0,.33)'
+            if(muiTheme.userTheme === 'mui3'){
+                color = muiTheme.palette.mui3.outline
+            }
             rwHeader = (
-                <div style={{display:'flex', marginBottom: -8, marginTop: -8, color:'rgba(0,0,0,.33)', fontSize:12}}>
+                <div style={{display:'flex', marginBottom: -8, marginTop: -8, color, fontSize:12}}>
                     <div style={{flex: 1}}/>
-                    <div style={{width: 43, textAlign:'center'}}>
-                        <span style={{borderBottom: '0px solid rgba(0,0,0,0.13)'}}>{this.props.getMessage('361', '')}</span>
-                    </div>
-                    <div style={{width: 43, textAlign:'center'}}>
-                        <span style={{borderBottom: '0px solid rgba(0,0,0,0.13)'}}>{this.props.getMessage('181')}</span>
-                    </div>
+                    <div style={{width: 43, textAlign:'center'}}>{this.props.getMessage('361', '')}</div>
+                    <div style={{width: 43, textAlign:'center'}}>{this.props.getMessage('181')}</div>
                     <div style={{width: 6}}/>
                 </div>
             );

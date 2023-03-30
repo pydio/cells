@@ -101,6 +101,12 @@
   "tour.workspaces.title": {
     "other": "Workspaces \u0026 Cells"
   },
+  "tour.theme.title": {
+    "other": "Light/Dark Theme Support"
+  },
+  "tour.theme.legend": {
+    "other": "Choose a light or dark theme to best suit your vision."
+  },
   "background.jobs.title":{
     "other": "Background Jobs"
   },

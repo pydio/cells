@@ -191,7 +191,7 @@ class ProfilePane extends React.Component {
     };
 
     render() {
-        const {pydio, miniDisplay} = this.props;
+        const {pydio, miniDisplay, style} = this.props;
         if(!pydio.user) {
             return null;
         }
@@ -202,7 +202,7 @@ class ProfilePane extends React.Component {
         definitions = definitions.map(d =>{return {...d, label: d.label+' - '+d.description}})
 
         return (
-            <div>
+            <div style={style}>
                 <FormPanel
                     className="current-user-edit"
                     parameters={definitions}
