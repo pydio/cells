@@ -283,6 +283,7 @@ let AdminDashboard = createReactClass({
                 accent2Color: '#324a57',
                 avatarsColor        : '#438db3',
                 sharingColor        : '#4aceb0',
+                mui3:{},
             }
         });
         const adminStyles = AdminStyles(theme.palette);
