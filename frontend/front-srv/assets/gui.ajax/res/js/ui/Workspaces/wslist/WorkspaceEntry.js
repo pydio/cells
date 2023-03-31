@@ -456,7 +456,7 @@ class WorkspaceEntry extends React.Component {
                         className={this.state.openFoldersTree?"open":"closed"}
                         draggable={true}
                         getItemStyle={this.getItemStyle}
-                        paddingOffset={-16}
+                        paddingOffset={-15}
                         offsetSize={15}
                     />
                 </div>
