@@ -18,9 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import React, {Fragment} from 'react'
 import {muiThemeable} from 'material-ui/styles'
-import {Checkbox, IconButton, RaisedButton, TextField} from "material-ui";
+import {IconButton, RaisedButton, TextField} from "material-ui";
 import SearchForm from "./SearchForm";
 import ActionsPanel from "../avatar/ActionsPanel";
 import PydioApi from 'pydio/http/api'
@@ -56,7 +56,7 @@ class Toolbar extends React.Component {
     render() {
 
         const {muiTheme, bookColumn, mode, getMessage, pydio, style,
-            model, searchLabel, onSearch, enableSearch
+            model, searchLabel, onSearch, searchTerm, setSearchTerm, searchMode, setSearchMode, enableSearch
         } = this.props;
 
         const item = model.contextItem()
@@ -96,6 +96,7 @@ class Toolbar extends React.Component {
             stylesProps.icon.color = accentColor;
         }
         let searchProps = {
+            searchLabel, onSearch, searchTerm, setSearchTerm,
             style:{flex:1, minWidth: 110},
         };
         if (mode === 'selector'){
@@ -230,11 +231,16 @@ class Toolbar extends React.Component {
                     <IconButton style={{marginLeft: -10}} iconStyle={{color:stylesProps.titleColor}} iconClassName={item.icon} onClick={() => {}}/>
                 }
                 <div style={{flex:2, fontSize:stylesProps.titleFontsize, fontWeight:stylesProps.titleFontWeight, ...ellipsis}}>{mainTitle}</div>
+                {showSearchForm && !selectionMode &&
+                    <Fragment>
+                        <SearchForm {...searchProps}/>
+                        {searchMode &&
+                            <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-close"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['86']} onClick={()=>setSearchMode(false)}/>
+                        }
+                    </Fragment>
+                }
                 {showOpenAddressBook &&
                     <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-account-box-outline"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['411']} onClick={openAddressBook}/>
-                }
-                {showCheckbox &&
-                    <IconButton style={{...stylesProps.button, border: 0}} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-checkbox-multiple"+(selectionMode?"-marked-outline":"-blank-outline")} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['addressbook.pick.multiple']} onClick={() => {model.setSelectionMode()}}/>
                 }
                 {showCreateAction &&
                     <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={createIcon} tooltipPosition={"bottom-left"} tooltip={getMessage(item.actions.create)} onClick={createAction}/>
@@ -246,10 +252,10 @@ class Toolbar extends React.Component {
                     <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-pencil"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['6']} onClick={() => {this.setState({editLabel:true, editValue:item.label})}} disabled={model.loading}/>
                 }
                 {!selectionMode && actionsPanel}
-                {showSearchForm &&
-                    <SearchForm searchLabel={searchLabel} onSearch={onSearch} {...searchProps}/>
+                {showCheckbox &&
+                    <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-checkbox-multiple"+(selectionMode?"-marked-outline":"-blank-outline")} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['addressbook.pick.multiple']} onClick={() => {model.setSelectionMode()}}/>
                 }
-                {showReloadAction &&
+                {showReloadAction && !searchMode &&
                     <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-refresh"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['149']} onClick={reloadAction} disabled={model.loading}/>
                 }
             </div>

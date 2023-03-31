@@ -31,32 +31,40 @@ import debounce from 'lodash.debounce'
  */
 class SearchForm extends Component{
 
+    state = {}
+
     constructor(props, context){
         super(props, context);
-        this.state = {value: ''};
-        this.search = debounce(this.search.bind(this), 300);
-    }
-
-    search(){
-        this.props.onSearch(this.state.value);
+        const {onSearch, setSearchTerm} = props;
+        if(!setSearchTerm) {
+            this.state = {value: ''};
+            this.search = debounce(()=>{
+                onSearch(this.state.value)
+            }, 300);
+        }
     }
 
     onChange(event, value){
-        this.setState({value: value});
-        this.search();
+        const {setSearchTerm} = this.props
+        if(setSearchTerm) {
+            setSearchTerm(value)
+        } else {
+            this.setState({value: value});
+            this.search();
+        }
     }
 
     render(){
 
-        const {underlineShow, searchLabel, style, inputStyle, underlineStyle, underlineFocusStyle, hintStyle} = this.props;
+        const {underlineShow, searchLabel, style, inputStyle, underlineStyle, underlineFocusStyle, hintStyle, searchTerm} = this.props;
         const {value} = this.state;
 
         return (
             <div style={{minWidth:320, ...style}}>
                 <TextField
                     fullWidth={true}
-                    value={value}
-                    onChange={this.onChange.bind(this)}
+                    value={value || searchTerm}
+                    onChange={(e,v) => this.onChange(e,v)}
                     hintText={searchLabel}
                     inputStyle={inputStyle}
                     hintStyle={hintStyle}

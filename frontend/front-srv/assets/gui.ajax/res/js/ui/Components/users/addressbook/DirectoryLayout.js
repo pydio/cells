@@ -24,14 +24,11 @@ import RightPanelCard from './RightPanelCard'
 import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import {muiThemeable} from 'material-ui/styles'
-import ActionsPanel from '../avatar/ActionsPanel'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
-import PydioApi from 'pydio/http/api';
 import Model from './Model'
 import TreePanel from './TreePanel'
 import CreatesDialog from './CreatesDialog'
 import Toolbar from "./Toolbar";
-import ListStylesCompact from "./ListStylesCompact";
 import {Resizable} from "re-resizable";
 import ListStylesMedium from "./ListStylesMedium";
 
@@ -136,7 +133,7 @@ class DirectoryLayout extends React.Component {
 
     render() {
 
-        const {mode, getMessage, pydio, style, muiTheme} = this.props;
+        const {getMessage, pydio, style, muiTheme} = this.props;
 
         const resizeDefaultWidth=256
         const {model, rightPaneSize=resizeDefaultWidth} = this.state;
@@ -151,11 +148,13 @@ class DirectoryLayout extends React.Component {
             overflowX: 'hidden'
         };
 
-        const searchProps = model.contextIsGroup() ? {
+        const searchProps = {
             enableSearch: true,
-            searchLabel: getMessage(595, ''),
-            onSearch: (v) => model.reloadCurrentWithSearch(v)
-        } : {};
+            searchLabel: getMessage(583, ''),
+            setSearchTerm: (v) => model.setGlobalSearch(!!v, v),
+            setSearchMode: (v) => model.setGlobalSearch(v, ''),
+            ...model.getSearchStatus()
+        };
 
         const {mui3} = muiTheme.palette
         const smallScreen = muiTheme.breakpoint === 'xs' || muiTheme.breakpoint === 's'

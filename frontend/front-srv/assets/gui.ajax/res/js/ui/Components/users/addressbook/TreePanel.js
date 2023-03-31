@@ -99,7 +99,7 @@ export default function TreePanel({pydio, muiTheme, style, model}) {
     const idsMap = {}
 
     const buildChildren = (parent) => {
-        if(!parent.collections) {
+        if(!parent.collections || parent.notExpandable) {
             return [];
         }
         return parent.collections.map((coll) => {
@@ -115,9 +115,12 @@ export default function TreePanel({pydio, muiTheme, style, model}) {
         });
     }
 
+    const allChildren = buildChildren(model.getRoot())
+
     return (
         <TreeView
             aria-label="gmail"
+            //expanded={Object.keys(idsMap)}
             defaultExpanded={['3']}
             defaultCollapseIcon={<ArrowDropDownIcon />}
             defaultExpandIcon={<ArrowRightIcon />}
@@ -129,6 +132,6 @@ export default function TreePanel({pydio, muiTheme, style, model}) {
                 }
             }}
             style={style}
-        >{buildChildren(model.getRoot())}</TreeView>
+        >{allChildren}</TreeView>
     );
 }

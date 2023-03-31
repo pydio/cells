@@ -23,6 +23,9 @@ import Observable from 'pydio/lang/observable'
 import Loaders from './Loaders'
 import PydioApi from 'pydio/http/api';
 import {User} from 'pydio/http/users-api';
+import {debounce} from 'lodash'
+
+const globalSearchDebounced = debounce(Loaders.globalSearch, 350)
 
 class Model extends Observable {
 
@@ -38,6 +41,10 @@ class Model extends Observable {
     onItemSelected=null
     pendingCreateItem=null
 
+    searchTerm=''
+    searchMode=false
+    searchItem=null
+
     selectionMode=false
     multipleSelection=[]
     
@@ -49,9 +56,16 @@ class Model extends Observable {
         this.usersOnly = usersOnly;
         this.usersFrom = usersFrom;
         this.onItemSelected = onItemSelected;
+
+        const authConfigs = this.pydio.getPluginConfigs('core.auth');
+        this._teamsEditable = this.pydio.getController().actions.has("user_team_create");
+        this._externalsAllowed = authConfigs.get('USER_CREATE_USERS')
     }
 
     getRoot() {
+        if(this.searchMode && this.searchItem) {
+            return this.searchItem
+        }
         return this.root
     }
 
@@ -141,6 +155,85 @@ class Model extends Observable {
         item.currentParams = {has_search: true, value:value, existing_only:true};
         this.setContext(item);
     };
+
+    setGlobalSearch(enable, term) {
+        if(enable !== this.searchMode) {
+            if(enable) {
+                if(!this.searchItem) {
+                    this.searchItem = {
+                        id:'search',
+                        label:this.m('583'),
+                        type:'root'
+                    }
+                }
+                this.savedContext = this.contextItem()
+                this.searchItem.collections = []
+                this.setContext(this.searchItem)
+            } else {
+                this.searchItem.collections = []
+                this.setContext(this.savedContext)
+            }
+        }
+        this.searchMode = enable
+        this.searchTerm = term
+        if(this.searchTerm) {
+            globalSearchDebounced(term, (res)=> {
+                this.searchItem.collections = []
+                const topFolders = this.prepareTopFolders(this.searchItem)
+                let exts, ints
+                if(res.users) {
+                    exts = res.users.filter(u => u.external)
+                    ints = res.users.filter(u => !u.external)
+                }
+                if(exts !== undefined){
+                    this.searchItem.collections.push({
+                        ...topFolders.shared,
+                        leafs:exts
+                    })
+                }
+                if(res.teams) {
+                    this.searchItem.collections.push({
+                        ...topFolders.teams,
+                        collections: res.teams
+                    })
+                }
+                if(ints !== undefined || res.groups) {
+                    const count = (ints && ints.length ||0) + (res.groups && res.groups.length ||0)
+                    this.searchItem.collections.push({
+                        ...topFolders.directory,
+                        collections:res.groups,
+                        leafs:ints
+                    })
+                }
+                // Re-Attach all to "All Results" node
+                const all = {...topFolders.results}
+                this.searchItem.collections.forEach(c => {
+                    all.collections.push(...c.collections.map(r => {
+                        r._parent = c
+                        return {...r, _parent:all}
+                    }))
+                    all.leafs.push(...c.leafs.map(r => {
+                        r._parent = c
+                        return {...r, _parent:all}
+                    }))
+                    c.notExpandable = true
+                    c.label+=` (${c.collections.length+c.leafs.length})`
+                })
+                all.label += ` (${all.collections.length+all.leafs.length})`
+                this.searchItem.collections.unshift(all)
+                this.setContext(all)
+                this.notify('update')
+            }, 0, 50, this._externalsAllowed)
+        }
+        this.notify('update')
+    }
+
+    getSearchStatus() {
+        return {
+            searchMode: this.searchMode,
+            searchTerm: this.searchTerm
+        }
+    }
 
     rightItem() {
         return this.rightPanelItem
@@ -265,9 +358,6 @@ class Model extends Observable {
     }
 
     initTree() {
-        const authConfigs = this.pydio.getPluginConfigs('core.auth');
-        this._teamsEditable = this.pydio.getController().actions.has("user_team_create");
-
         let teamActions = {};
         if(this._teamsEditable) {
             teamActions = {
@@ -280,11 +370,8 @@ class Model extends Observable {
 
         if(this.teamsOnly){
             this.root = {
-                id: 'teams',
-                label: this.m(568),
+                ...this.prepareTopFolders(null).teams,
                 childrenLoader: Loaders.loadTeams,
-                _parent: null,
-                _notSelectable: true,
                 actions: teamActions
             };
             this.selectedItem = this.root
@@ -297,15 +384,13 @@ class Model extends Observable {
             type:'root',
             collections: []
         };
+        const topFolders = this.prepareTopFolders(this.root)
+
         if(this.usersFrom !== 'remote'){
-            if(authConfigs.get('USER_CREATE_USERS')){
+            if(this._externalsAllowed){
                 this.root.collections.push({
-                    id:'ext',
-                    label:this.m(593),
-                    icon:'mdi mdi-account-network',
+                    ...topFolders.shared,
                     itemsLoader: Loaders.loadExternalUsers,
-                    _parent:this.root,
-                    _notSelectable:true,
                     actions:{
                         type    : 'users',
                         create  : '+ ' + this.m(484),
@@ -316,23 +401,15 @@ class Model extends Observable {
             }
             if(!this.usersOnly) {
                 this.root.collections.push({
-                    id: 'teams',
-                    label: this.m(568),
-                    icon: 'mdi mdi-account-multiple',
+                    ...topFolders.teams,
                     childrenLoader: Loaders.loadTeams,
-                    _parent: this.root,
-                    _notSelectable: true,
                     actions: teamActions
                 });
             }
             this.root.collections.push({
-                id:'PYDIO_GRP_/',
-                label:this.m(584),
-                icon:'mdi mdi-account-box',
+                ...topFolders.directory,
                 childrenLoader: Loaders.loadGroups,
                 itemsLoader:  Loaders.loadGroupUsers,
-                _parent:this.root,
-                _notSelectable:true
             });
         }
 
@@ -368,7 +445,48 @@ class Model extends Observable {
         this.selectedItem = this.mode === 'selector' ? this.root : this.root.collections[0]
 
     }
-    
+
+    prepareTopFolders(parent) {
+        return {
+            'shared':{
+                id:'ext',
+                label:this.m(593),
+                icon:'mdi mdi-account-network',
+                _parent:parent,
+                _notSelectable:true,
+                collections:[],
+                leafs:[]
+            },
+            'teams':{
+                id: 'teams',
+                label: this.m(568),
+                icon: 'mdi mdi-account-multiple',
+                _parent: parent,
+                _notSelectable: true,
+                collections:[],
+                leafs:[]
+            },
+            'directory':{
+                id:'PYDIO_GRP_/',
+                label:this.m(584),
+                icon:'mdi mdi-account-box',
+                _parent:parent,
+                _notSelectable:true,
+                collections:[],
+                leafs:[]
+            },
+            'results':{
+                id:'results',
+                label: this.m('599-a'),
+                icon:'mdi mdi-magnify',
+                _parent: parent,
+                notExpandable:true,
+                collections: [],
+                leafs: []
+            }
+        }
+    }
+
     m(id){
         return this.pydio.MessageHash[id] || id
     }

@@ -38,10 +38,13 @@ const RailIcon = muiThemeable()(({muiTheme,icon,iconOnly = false,text,active,ale
     const [iHover, setIHover] = useState(false)
 
     let iconBg = 'transparent'
+    let containerColor = 'on-surface-variant';
     if(active){
-        iconBg = muiTheme.palette.mui3['surface-variant']
+        iconBg = muiTheme.palette.mui3['secondary-container']
+        containerColor = 'on-secondary-container'
     } else if(iHover || hover) {
         iconBg = muiTheme.palette.mui3['surface-5']
+        containerColor = 'on-surface'
     }
     
     let styles = {
@@ -53,7 +56,7 @@ const RailIcon = muiThemeable()(({muiTheme,icon,iconOnly = false,text,active,ale
             cursor: 'pointer',
             margin: 4,
             marginBottom: last ? 4 : 16,
-            color: muiTheme.palette.mui3[iHover || active ? "on-surface" : "on-surface-variant"],
+            color: muiTheme.palette.mui3[containerColor],
             position: 'relative'
         },
         alert: {
@@ -220,7 +223,29 @@ let RailPanel = ({
                     icon: 'folder-multiple-outline',
                     text: 'All Files',
                     active: user.getActiveRepositoryObject().accessType === 'gateway',
-                    onClick: () => {},
+                    onClick: () => {
+                        if(user.getActiveRepositoryObject().accessType !== 'gateway') {
+                            // Switch to the first repository of the list
+                            let rr = []
+                            user.getRepositoriesList().forEach(r => rr.push(r))
+                            rr = rr.filter(r => r.accessType==='gateway')
+                            if(!rr.length) {
+                                return
+                            }
+                            rr.sort((a,b)=>a.getLabel().localeCompare(b.getLabel()))
+                            const perso = rr.filter(r => r.getRepositoryType() === 'workspace-personal')
+                            if(perso.length) {
+                                pydio.triggerRepositoryChange(perso[0].getId())
+                                return
+                            }
+                            const wss = rr.filter(r => !r.getOwner())
+                            if(wss.length) {
+                                pydio.triggerRepositoryChange(wss[0].getId())
+                                return
+                            }
+                            pydio.triggerRepositoryChange(rr[0].getId())
+                        }
+                    },
                     hoverBar: () => wsBar(' rail-hover-bar'),
                     activeBar: wsBar
                 },

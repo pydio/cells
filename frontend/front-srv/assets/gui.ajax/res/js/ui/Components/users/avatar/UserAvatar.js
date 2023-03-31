@@ -21,7 +21,6 @@
 import Pydio from 'pydio'
 import React from 'react'
 import GraphPanel from './GraphPanel';
-import ActionsPanel from './ActionsPanel'
 const debounce = require('lodash.debounce');
 const Color = require('color');
 const {FontIcon, Paper, Avatar, CardTitle} = require('material-ui');

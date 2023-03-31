@@ -201,9 +201,16 @@ class UsersList extends React.Component{
                     model.setMultipleSelection(newSelection)
                 }
             };
+            const primStyle = {overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}
+            let secondaryText;
+            if(item.secondaryText){
+                primStyle.fontWeight=500;
+                secondaryText = <span style={{fontSize: 13, color:'var(--md-sys-color-on-surface-variant)'}}>{item.secondaryText}</span>
+            }
             elements.push(<ListItem
                 key={item.id}
-                primaryText={<div style={{overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{item.label}</div>}
+                primaryText={<div style={primStyle}>{item.label}</div>}
+                secondaryText={secondaryText}
                 onClick={touchTap}
                 disabled={mode === 'inner'}
                 leftAvatar={!selectionMode && fontIcon}
