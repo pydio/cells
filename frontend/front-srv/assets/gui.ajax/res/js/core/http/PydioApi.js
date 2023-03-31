@@ -27,6 +27,7 @@ import Throttle from 'superagent-throttle'
 import lscache from 'lscache'
 import {RestCreateSelectionRequest, TreeNode, TreeServiceApi} from 'cells-sdk';
 import awsLoader from "./awsLoader";
+import {debounce} from 'lodash'
 
 /**
  * API Client
@@ -451,8 +452,17 @@ class PydioApi{
 
             cb(output);
 
-            lscache.set(cacheKey, output, 120);
-            lscache.resetBucket();
+            lscache.set(cacheKey, output, 10);
+            if(Math.random() < 0.1) {
+                cb = debounce(()=>{
+                    lscache.flushExpired();
+                }, 250)
+                if(window && window.requestIdleCallback) {
+                    window.requestIdleCallback(cb)
+                }else{
+                    cb()
+                }
+            }
         };
 
         if (callback === null) {

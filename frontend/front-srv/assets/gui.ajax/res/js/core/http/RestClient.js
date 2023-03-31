@@ -25,6 +25,7 @@ import moment from 'moment'
 import qs from 'query-string'
 import {ApiClient, JobsServiceApi, RestUserJobRequest, RestFrontSessionRequest, RestFrontSessionResponse} from 'cells-sdk';
 import genUuid from 'uuid4'
+import lscache from 'lscache'
 
 // Override parseDate method to support ISO8601 cross-browser
 ApiClient.parseDate = function (str) {
@@ -70,6 +71,14 @@ class RestClient extends ApiClient{
         );
     }
 
+    storageOutOfSpace(e) {
+        return e && (
+            e.name === 'QUOTA_EXCEEDED_ERR' ||
+            e.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+            e.name === 'QuotaExceededError'
+        );
+    }
+
     /**
      * Get current JWT Token
      */
@@ -78,7 +87,29 @@ class RestClient extends ApiClient{
     }
 
     store(token){
-        PydioStorage.getSessionStorage().setItem(this.tokenKey(), JSON.stringify(token))
+        try {
+            PydioStorage.getSessionStorage().setItem(this.tokenKey(), JSON.stringify(token))
+        } catch (e) {
+            if(this.storageOutOfSpace(e)) {
+                // Flush and retry
+                console.warn('local storage seems to be full, trying to flush expired keys')
+                lscache.setBucket('cells.presigned')
+                lscache.flushExpired()
+                try{
+                    PydioStorage.getSessionStorage().setItem(this.tokenKey(), JSON.stringify(token))
+                } catch (e) {
+                    console.warn('local storage still full, trying to flush all keys')
+                    lscache.flush()
+                    try{
+                        PydioStorage.getSessionStorage().setItem(this.tokenKey(), JSON.stringify(token))
+                    } catch (e) {
+                        if(this.pydio && this.pydio.UI) {
+                            this.pydio.UI.displayMessage('ERROR', 'Warning, your brower local storage seems to be full. Clear your cache or browser history to avoid having login issues.')
+                        }
+                    }
+                }
+            }
+        }
     }
 
     remove() {
@@ -144,7 +175,7 @@ class RestClient extends ApiClient{
                     this.pydio.getController().fireAction('logout');
                 }
                 this.remove();
-                
+
                 throw e
             })
     }
