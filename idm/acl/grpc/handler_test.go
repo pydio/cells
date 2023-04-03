@@ -24,6 +24,7 @@ import (
 	"context"
 	"sync"
 	"testing"
+	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/grpc/metadata"
@@ -113,12 +114,6 @@ func TestACL(t *testing.T) {
 	})
 
 	Convey("Del ACL", t, func() {
-		_, err := s.DeleteACL(ctx, &idm.DeleteACLRequest{})
-
-		So(err, ShouldNotBeNil)
-	})
-
-	Convey("Del ACL", t, func() {
 		singleQ1 := new(idm.ACLSingleQuery)
 		singleQ1.RoleIDs = []string{"role1"}
 		singleQ1Any, err := anypb.New(singleQ1)
@@ -128,8 +123,9 @@ func TestACL(t *testing.T) {
 			SubQueries: []*anypb.Any{singleQ1Any},
 		}
 
-		_, err = s.DeleteACL(ctx, &idm.DeleteACLRequest{Query: query})
+		resp, err := s.DeleteACL(ctx, &idm.DeleteACLRequest{Query: query})
 		So(err, ShouldBeNil)
+		So(resp.RowsDeleted, ShouldEqual, 1)
 	})
 
 	Convey("Search ACL", t, func() {
@@ -138,6 +134,96 @@ func TestACL(t *testing.T) {
 
 		So(err, ShouldBeNil)
 		So(len(mock.InternalBuffer), ShouldEqual, 1)
+	})
+
+	Convey("Expire ACL", t, func() {
+		singleQ1 := new(idm.ACLSingleQuery)
+		singleQ1.RoleIDs = []string{"role2"}
+		singleQ1Any, err := anypb.New(singleQ1)
+		So(err, ShouldBeNil)
+
+		query := &service.Query{
+			SubQueries: []*anypb.Any{singleQ1Any},
+		}
+		expTime := time.Now().Add(-1 * time.Hour)
+
+		resp, err := s.ExpireACL(ctx, &idm.ExpireACLRequest{Query: query, Timestamp: expTime.Unix()})
+		So(err, ShouldBeNil)
+		So(resp.Rows, ShouldEqual, 1)
+
+		// Search again: expired should not appear
+		mock := &aclStreamMock{ctx: ctx}
+		err = s.SearchACL(&idm.SearchACLRequest{}, mock)
+		So(err, ShouldBeNil)
+		So(len(mock.InternalBuffer), ShouldEqual, 0)
+
+		_, err = s.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
+			NodeID:      "expire-node-id",
+			WorkspaceID: "fake-ws-id",
+			Action:      &idm.ACLAction{Name: "read", Value: "1"},
+			RoleID:      "role3"},
+		})
+		So(err, ShouldBeNil)
+		singleQ1 = new(idm.ACLSingleQuery)
+		singleQ1.RoleIDs = []string{"role3"}
+		singleQ1Any, _ = anypb.New(singleQ1)
+		query = &service.Query{
+			SubQueries: []*anypb.Any{singleQ1Any},
+		}
+		resp, err = s.ExpireACL(ctx, &idm.ExpireACLRequest{Query: query, Timestamp: expTime.Unix()})
+		So(err, ShouldBeNil)
+		So(resp.Rows, ShouldEqual, 1)
+
+		// try expiration zero result
+		dr, er := s.DeleteACL(ctx, &idm.DeleteACLRequest{ExpiredBefore: expTime.Add(-30 * time.Minute).Unix()})
+		So(er, ShouldBeNil)
+		So(dr.GetRowsDeleted(), ShouldEqual, 0)
+
+		// try expiration with result
+		dr, er = s.DeleteACL(ctx, &idm.DeleteACLRequest{ExpiredBefore: expTime.Add(30 * time.Minute).Unix()})
+		So(er, ShouldBeNil)
+		So(dr.GetRowsDeleted(), ShouldEqual, 2)
+
+		// New insert, expire then restore an ACL
+		expTime = time.Now().Add(-1 * time.Hour)
+		_, err = s.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
+			NodeID:      "expire-node-new",
+			WorkspaceID: "fake-ws-new",
+			Action:      &idm.ACLAction{Name: "read", Value: "1"},
+			RoleID:      "role4"},
+		})
+		So(err, ShouldBeNil)
+		singleQ1 = new(idm.ACLSingleQuery)
+		singleQ1.RoleIDs = []string{"role4"}
+		singleQ1Any, _ = anypb.New(singleQ1)
+		query = &service.Query{
+			SubQueries: []*anypb.Any{singleQ1Any},
+		}
+
+		mock = &aclStreamMock{ctx: ctx}
+		_ = s.SearchACL(&idm.SearchACLRequest{Query: query}, mock)
+		So(mock.InternalBuffer, ShouldHaveLength, 1) // New role4 appears in search
+
+		resp, err = s.ExpireACL(ctx, &idm.ExpireACLRequest{Query: query, Timestamp: expTime.Unix()})
+		So(err, ShouldBeNil)
+		So(resp.Rows, ShouldEqual, 1)
+
+		mock = &aclStreamMock{ctx: ctx}
+		_ = s.SearchACL(&idm.SearchACLRequest{Query: query}, mock)
+		So(mock.InternalBuffer, ShouldHaveLength, 0) // Expired does not appear anymore
+
+		restore, err := s.RestoreACL(ctx, &idm.RestoreACLRequest{
+			Query:         query,
+			ExpiredAfter:  expTime.Add(-2 * time.Minute).Unix(),
+			ExpiredBefore: expTime.Add(2 * time.Minute).Unix(),
+		})
+		So(err, ShouldBeNil)
+		So(restore.Rows, ShouldEqual, 1)
+
+		mock = &aclStreamMock{ctx: ctx}
+		_ = s.SearchACL(&idm.SearchACLRequest{Query: query}, mock)
+		So(mock.InternalBuffer, ShouldHaveLength, 1) // Restored now re-appears
+
 	})
 }
 

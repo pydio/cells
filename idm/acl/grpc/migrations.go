@@ -30,7 +30,7 @@ func UpgradeTo120(ctx context.Context) error {
 	q1, _ := anypb.New(&idm.ACLSingleQuery{
 		WorkspaceIDs: []string{"pydiogateway"},
 	})
-	if num, e := dao.Del(&service.Query{SubQueries: []*anypb.Any{q1}}); e != nil {
+	if num, e := dao.Del(&service.Query{SubQueries: []*anypb.Any{q1}}, nil); e != nil {
 		log.Logger(ctx).Error("Could not delete pydiogateway acls, please manually remove them from ACLs!", zap.Error(e))
 	} else {
 		log.Logger(ctx).Info("Removed pydiogateway acls", zap.Int64("numRows", num))
@@ -47,7 +47,7 @@ func UpgradeTo120(ctx context.Context) error {
 	acls := new([]interface{})
 	dao.Search(&service.Query{
 		SubQueries: []*anypb.Any{q},
-	}, acls)
+	}, acls, nil)
 	for _, in := range *acls {
 		val, ok := in.(*idm.ACL)
 		if !ok {

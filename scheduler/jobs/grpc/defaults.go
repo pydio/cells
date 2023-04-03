@@ -170,11 +170,29 @@ func getDefaultJobs() []*jobs.Job {
 		},
 	}
 
+	cleanExpiredACLs := &jobs.Job{
+		ID:    "clean-expired-acls",
+		Label: "Jobs.Default.CleanExpiredACLs",
+		Owner: common.PydioSystemUsername,
+		Schedule: &jobs.Schedule{
+			Iso8601Schedule: "R/2012-01-01T01:30:00.828Z/PT24H",
+		},
+		Actions: []*jobs.Action{
+			{
+				ID: "actions.idm.clean-expired-acl",
+				Parameters: map[string]string{
+					"expiredBefore": "240h",
+				},
+			},
+		},
+	}
+
 	defJobs := []*jobs.Job{
 		thumbnailsJob,
 		stuckTasksJob,
 		cleanUserDataJob,
 		cleanTemporaryOrphans,
+		cleanExpiredACLs,
 	}
 
 	return defJobs

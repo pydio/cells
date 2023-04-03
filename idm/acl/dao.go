@@ -29,14 +29,38 @@ import (
 	"github.com/pydio/cells/v4/common/sql"
 )
 
+type ExpirationProvider interface {
+	GetExpiredBefore() int64
+	GetExpiredAfter() int64
+}
+
+type ExpirationPeriod struct {
+	Start time.Time
+	End   time.Time
+}
+
+func ReadExpirationPeriod(p ExpirationProvider) *ExpirationPeriod {
+	if p.GetExpiredBefore() == 0 && p.GetExpiredAfter() == 0 {
+		return nil
+	}
+	period := &ExpirationPeriod{}
+	if p.GetExpiredAfter() > 0 {
+		period.Start = time.Unix(p.GetExpiredAfter(), 0)
+	}
+	if p.GetExpiredBefore() > 0 {
+		period.End = time.Unix(p.GetExpiredBefore(), 0)
+	}
+	return period
+}
+
 // DAO interface
 type DAO interface {
 	dao.DAO
 
 	Add(interface{}) error
-	SetExpiry(sql.Enquirer, time.Time) (int64, error)
-	Del(sql.Enquirer) (numRows int64, e error)
-	Search(sql.Enquirer, *[]interface{}) error
+	SetExpiry(sql.Enquirer, time.Time, *ExpirationPeriod) (int64, error)
+	Del(sql.Enquirer, *ExpirationPeriod) (numRows int64, e error)
+	Search(sql.Enquirer, *[]interface{}, *ExpirationPeriod) error
 }
 
 func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {

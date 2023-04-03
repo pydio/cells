@@ -22,6 +22,8 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/idm/share"
 	"sync"
 	"time"
 
@@ -71,11 +73,12 @@ func (a *AclBatcher) Start() {
 // WsCleaner subscribe to ACL:Delete events to clean workspaces
 // that do not have any ACLs anymore
 type WsCleaner struct {
-	Handler  idm.WorkspaceServiceServer
-	batches  map[string]*AclBatcher
-	listener chan string
-	lock     *sync.Mutex
-	ctx      context.Context
+	Handler     idm.WorkspaceServiceServer
+	batches     map[string]*AclBatcher
+	listener    chan string
+	lock        *sync.Mutex
+	ctx         context.Context
+	shareClient *share.Client
 }
 
 func NewWsCleaner(ctx context.Context, h idm.WorkspaceServiceServer) *WsCleaner {
@@ -103,7 +106,13 @@ func NewWsCleaner(ctx context.Context, h idm.WorkspaceServiceServer) *WsCleaner 
 }
 
 func (c *WsCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
-	if msg.Type != idm.ChangeEventType_DELETE || msg.Acl == nil {
+	if msg.Type != idm.ChangeEventType_DELETE {
+		return nil
+	}
+	if msg.Workspace != nil && msg.Workspace.Scope == idm.WorkspaceScope_LINK {
+		return c.cleanSharedDocStoreOnWsDelete(ctx, msg.Workspace)
+	}
+	if msg.Acl == nil {
 		return nil
 	}
 	acl := msg.Acl
@@ -162,4 +171,25 @@ func (c *WsCleaner) deleteEmptyWs(workspaceId string) error {
 	}
 	return nil
 
+}
+
+func (c *WsCleaner) cleanSharedDocStoreOnWsDelete(ctx context.Context, ws *idm.Workspace) error {
+	if c.shareClient == nil {
+		c.shareClient = share.NewClient(c.ctx)
+	}
+	storedLink := &rest.ShareLink{Uuid: ws.GetUUID()}
+	if er := c.shareClient.LoadHashDocumentData(ctx, storedLink, []*idm.ACL{}); er == nil {
+		log.Logger(c.ctx).Info("Link data found for workspace " + ws.GetLabel())
+		if e := c.shareClient.DeleteHashDocument(ctx, storedLink.Uuid); e != nil {
+			return e
+		} else {
+			log.Logger(c.ctx).Info(" - Cleared DocStore entry")
+		}
+		if e := c.shareClient.DeleteHiddenUser(ctx, storedLink); e != nil {
+			return e
+		} else {
+			log.Logger(c.ctx).Info(" - Cleared associated hidden user")
+		}
+	}
+	return nil
 }
