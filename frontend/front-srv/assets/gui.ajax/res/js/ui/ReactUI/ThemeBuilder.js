@@ -196,6 +196,8 @@ export default class ThemeBuilder {
         let userTheme = pydio.getPluginConfigs('gui.ajax').get('GUI_THEME');
         if(user && user.getPreference('theme') && user.getPreference('theme') !== 'default'){
             userTheme = user.getPreference('theme');
+        } else if(pydio.Parameters.has('MINISITE')){
+            userTheme = pydio.getPluginConfigs('gui.ajax').get('minisite_theme');
         }
         let dark = false
         if(userTheme === 'mui3') { // Detect

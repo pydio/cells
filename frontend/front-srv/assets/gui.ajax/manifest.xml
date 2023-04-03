@@ -140,6 +140,9 @@
                       label="CONF_MESSAGE[Background Attributes (6)]" description="CONF_MESSAGE[Attributes of the image used as a background]"
                       mandatory="false" expose="true" default="background-repeat:repeat;background-size:140%;background-position:50% 50%;"/>
 
+
+        <global_param name="minisite_theme" group="CONF_MESSAGE[Minisite]"  type="select" choices="mui3-light|Material 3 (light),mui3-dark|Material 3 (dark),mui3|Material 3 (detect)" label="CONF_MESSAGE[Minisite Theme]" description="CONF_MESSAGE[Fix a user theme for minisites]" mandatory="false" default="mui3-light" expose="true" editable="true"/>
+
         <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_1" group="CONF_MESSAGE[Minisite]" type="image" label="CONF_MESSAGE[Custom Background (1)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
                       editable="true"
                       uploadAction="/frontend/binaries/GLOBAL/{BINARY}"

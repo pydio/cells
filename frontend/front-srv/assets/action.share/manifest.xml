@@ -57,6 +57,20 @@
                     <clientCallback module="ShareActions.Callbacks.openUserShareView"/>
                 </processing>
             </action>
+            <action name="local_toggle_theme">
+                <gui text="share_center.minisite.toggle.theme" title="share_center.minisite.toggle.theme" iconClass="mdi mdi-theme-light-dark">
+                    <context selection="false" dir="" recycle="false" actionBar="true" actionBarGroup="minisite_display_toolbar" contextMenu="false" infoPanel="false"/>
+                </gui>
+                <rightsContext noUser="false" userLogged="only" read="false" write="false" adminOnly="false"/>
+                <processing>
+                    <activeCondition><![CDATA[
+                        return pydio.UI.themeBuilder.userTheme === 'mui3'
+                    ]]></activeCondition>
+                    <clientCallback ><![CDATA[
+                        pydio.UI.themeBuilder.toggleLocalTheme()
+                    ]]></clientCallback>
+                </processing>
+            </action>
         </actions>
         <client_configs>
             <template name="minisite_std_list" element="pydio_shared_folder" position="top" label="share_center.153"

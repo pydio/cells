@@ -29,8 +29,9 @@ import {compose} from 'redux';
 import {Paper} from 'material-ui'
 import PathUtils from 'pydio/util/path'
 import DOMUtils from 'pydio/util/dom'
+import FuncUtils from 'pydio/util/func'
 
-const { Breadcrumb, SearchForm, MainFilesList, Editor, EditionPanel } = Pydio.requireLib('workspaces');
+const { Breadcrumb, SearchForm, MainFilesList, Editor, EditionPanel, FilePreview } = Pydio.requireLib('workspaces');
 const { ContextMenu, IconButtonMenu, Toolbar, ListPaginator, ClipboardTextField } = Pydio.requireLib('components');
 const { withProgressiveBg } = Pydio.requireLib('boot');
 const { EditorActions, dropProvider } = Pydio.requireLib('hoc');
@@ -43,9 +44,15 @@ const withUniqueNode = (attachListener) => (Component) => {
         }
 
         detectFirstNode() {
-            let dm = this.props.pydio.getContextHolder();
+            const {pydio} = this.props;
 
-            if (!dm.getSelectedNodes().length) {
+            let dm = pydio.getContextHolder();
+
+            if (dm.getSelectedNodes().length) {
+                if (!this.state || !this.state.node) {
+                    this.setState({node: dm.getSelectedNodes()[0]});
+                }
+            } else {
                 let first = dm.getRootNode().getFirstChildIfExists();
                 if (first) {
                     dm.setSelectedNodes([first], "dataModel");
@@ -53,16 +60,11 @@ const withUniqueNode = (attachListener) => (Component) => {
                 } else {
                     setTimeout(() => this.detectFirstNode(), 1000);
                 }
-            } else {
-                if (!this.state || !this.state.node) {
-                    this.setState({node: dm.getSelectedNodes()[0]});
-                }
             }
             if(attachListener){
                 dm.observe("selection_changed", function(){
                     let selection = dm.getSelectedNodes();
-                    if(selection.length) this.setState({node: selection[0]});
-                    else this.setState({node: null});
+                    this.setState({node: selection.length ? selection[0] : null});
                 }.bind(this));
             }
         }
@@ -125,7 +127,7 @@ class ConfigLogo extends React.Component{
                 url = pydio.Parameters.get('ENDPOINT_REST_API') + "/frontend/binaries/GLOBAL/" + logo;
             }
         }
-        return <img src={url} style={this.props.style}/>
+        return <img src={url} style={this.props.style} alt={"Application Logo"}/>
     }
 }
 
@@ -219,7 +221,7 @@ let StandardLayout = createReactClass({
         } else {
             toolbars.push("info_panel");
             if(!skipDisplayToolbar){
-                toolbars.push("display_toolbar");
+                toolbars.push("minisite_display_toolbar", "display_toolbar");
             }
         }
 
@@ -369,7 +371,7 @@ class DLTemplate extends React.Component{
         }
         return (
             <div style={styles.main} id={"main-background"}>
-                <ConfigLogo pydio={this.props.pydio} style={styles.logo}/>
+                <ConfigLogo pydio={pydio} style={styles.logo}/>
                 <div className={classNames.join(' ')} onClick={click} style={styles.block}>
                     <div style={styles.cardImage}>
                         <div style={{position:'relative'}}>
@@ -381,7 +383,7 @@ class DLTemplate extends React.Component{
                         <span style={styles.filename}><Textfit min={14} max={16} perfectFit={false} mode="single">{fileName}</Textfit></span>
                         <div style={{fontSize:13, paddingTop: 8, color:mui3['outline']}}>{fileDetails}</div>
                     </div>
-                    <div style={{display:'flex', justifyContent:'flex-start', padding: 16, opacity:((!node||downloadStarted)?.5:1)}}>
+                    <div style={{display:'flex', justifyContent:'flex-start', padding: 16, opacity:((!node||downloadStarted)?0.5:1)}}>
                         <div style={{color:mui3['on-primary'], backgroundColor:mui3['primary'], borderRadius: 20, padding: '8px 16px', fontWeight: 500}}>Start Download</div>
                     </div>
                 </div>
@@ -467,7 +469,7 @@ class DLTemplate extends React.Component{
             );
         }
         if(this.state && this.state.downloadStarted){
-            styles.dlIcon.opacity = .3;
+            styles.dlIcon.opacity = 0.3;
         }
         let sharePageAction = this.props.pydio.Controller.getActionByName('share_current_page');
         let shareButton;
@@ -540,15 +542,15 @@ class FileMinisite extends React.Component{
         if (editors.length && editors[0].openable) {
 
             const editorData = editors[0];
+            const {resourcesManager, editorClass} = editorData;
 
             pydio.Registry.loadEditorResources(
-                editorData.resourcesManager,
+                resourcesManager,
                 () => {
-                    let EditorClass = null;
-
-                    if (!(EditorClass = FuncUtils.getFunctionByName(editorData.editorClass, window))) {
+                    const EditorClass = FuncUtils.getFunctionByName(editorClass, window);
+                    if (!EditorClass) {
                         this.setState({
-                            error: "Cannot find editor component (" + editorData.editorClass + ")!"
+                            error: "Cannot find editor component (" + editorClass + ")!"
                         });
                         return
                     }
@@ -557,7 +559,7 @@ class FileMinisite extends React.Component{
                         id: node.getLabel(),
                         title: node.getLabel(),
                         url: node.getPath(),
-                        icon: PydioWorkspaces.FilePreview,
+                        icon: FilePreview,
                         Editor: EditorClass.Editor,
                         Controls: EditorClass.Controls,
                         metadata: node.getMetadata(),
@@ -580,20 +582,18 @@ class FileMinisite extends React.Component{
         pydio.Registry.loadEditorResources(
             editorData.resourcesManager,
             () => {
-                let EditorClass = null
-
-                if (!(EditorClass = FuncUtils.getFunctionByName(editorData.editorClass, window))) {
+                const EditorClass = FuncUtils.getFunctionByName(editorData.editorClass, window)
+                if (!EditorClass) {
                     this.setState({
                         error: "Cannot find editor component (" + editorData.editorClass + ")!"
                     });
                     return
                 }
-
                 dispatch(EditorActions.tabModify({
                     id: node.getLabel(),
                     title: node.getLabel(),
                     url: node.getPath(),
-                    icon: PydioWorkspaces.FilePreview,
+                    icon: FilePreview,
                     Editor: EditorClass.Editor,
                     Controls: EditorClass.Controls,
                     metadata: node.getMetadata(),
@@ -630,19 +630,18 @@ class FileMinisite extends React.Component{
 class DropZoneMinisite extends React.Component{
 
     render(){
-
+        const {pydio} = this.props;
         return (
-            <StandardLayout {...this.props}>
+            <StandardLayout {...this.props} uniqueNode={false}>
                 <div className="vertical_fit vertical_layout" style={{backgroundColor:'var(--md-sys-color-surface)'}}>
                     <div className="vertical_fit vertical_layout" style={{margin: 8, padding:'8px 0', marginBottom: 2,border: '2px dashed #CFD8DC',borderRadius: 12}}>
-                        <MainFilesList ref="list"  dataModel={this.props.pydio.getContextHolder()} {...this.props}/>
+                        <MainFilesList ref="list"  dataModel={pydio.getContextHolder()} {...this.props}/>
                     </div>
                     <Copyright mode={"insert"} style={{backgroundColor:'var(--md-sys-color-surface-variant)'}} {...this.props}/>
                 </div>
                 <EditionPanel {...this.props}/>
             </StandardLayout>
         );
-
     }
 
 }
@@ -650,11 +649,11 @@ class DropZoneMinisite extends React.Component{
 class FilmStripMinisite extends React.Component {
 
     render(){
-
+        const {pydio} = this.props
         return (
-            <StandardLayout {...this.props} uniqueNode={false} showSearchForm={this.props.pydio.getPluginConfigs('action.share').get('SHARED_FOLDER_SHOW_SEARCH')}>
+            <StandardLayout {...this.props} uniqueNode={false} showSearchForm={pydio.getPluginConfigs('action.share').get('SHARED_FOLDER_SHOW_SEARCH')}>
                 <div style={{backgroundColor:'var(--md-sys-color-surface)', paddingTop: 8}} className="layout-fill vertical-layout">
-                    <MainFilesList ref="list" {...this.props} dataModel={this.props.pydio.getContextHolder()} displayMode={"masonry"}/>
+                    <MainFilesList ref="list" {...this.props} dataModel={pydio.getContextHolder()} displayMode={"masonry"}/>
                     <Copyright mode={"insert"} {...this.props}/>
                 </div>
                 <EditionPanel {...this.props}/>

@@ -125,12 +125,6 @@ export default class Builder{
 
     }
 
-    toggleDarkTheme() {
-        window.CellsThemeMode =  (window.CellsThemeMode==='dark')?'light':'dark'
-        this.themeBuilder.invalidate()
-        this.refreshTemplateParts();
-    }
-
     updateHrefBase(cdataContent){
         return cdataContent;
     }
