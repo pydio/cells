@@ -24,7 +24,6 @@ import {debounce} from 'lodash'
 const {withSearch} = Pydio.requireLib('hoc')
 import {muiThemeable} from 'material-ui/styles'
 import {Resizable} from "re-resizable";
-import DOMUtils from 'pydio/util/dom'
 import MainFilesList from './MainFilesList'
 import EditionPanel from './EditionPanel'
 import InfoPanel from '../detailpanes/InfoPanel'
@@ -34,6 +33,7 @@ import AddressBookPanel from './AddressBookPanel'
 import MasterLayout from './MasterLayout'
 import AppBar from './AppBar'
 import WorkspacesList from "../wslist/WorkspacesList";
+import {MUITour} from "./WelcomeMuiTour";
 
 class FSTemplate extends React.Component {
 
@@ -166,10 +166,10 @@ class FSTemplate extends React.Component {
 
         const {muiTheme, pydio} = this.props;
 
-        const {breakpoint = 'md'} = muiTheme;
+        const {breakpoint = 'md', userTheme} = muiTheme;
         const smallScreen = (breakpoint==='s'|| breakpoint==='xs'), xtraSmallScreen = (breakpoint === 'xs')
 
-        const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
+        const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
         const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
         const dm = pydio.getContextHolder();
         const searchView = dm.getContextNode() === dm.getSearchNode();
@@ -216,7 +216,9 @@ class FSTemplate extends React.Component {
 
         let tutorialComponent;
         if (wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate']){
-            tutorialComponent = <WelcomeTour ref="welcome" pydio={pydio}/>;
+            tutorialComponent = <WelcomeTour pydio={pydio}/>;
+        } else if (userTheme === 'mui3' && guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate'] && !guiPrefs['WelcomeComponent.MUITour']) {
+            tutorialComponent = <MUITour pydio={pydio}/>
         }
 
         let leftPanelProps = {

@@ -44,7 +44,10 @@ import InfoRootNode from './detailpanes/RootNode'
 import GenericInfoCard from './detailpanes/GenericInfoCard'
 import FileInfoCard from './detailpanes/FileInfoCard'
 
-import { Editor } from './editor/components/editor'
+import {Editor} from './editor/components/editor'
+
+import {MUITour, WelcomeMUITour, ThemeTogglerCard} from './views/WelcomeMuiTour'
+import {Scheme} from './views/WelcomeTour'
 
 const classes = {
     OpenNodesModel,
@@ -70,6 +73,11 @@ const classes = {
     InfoRootNode,
     FileInfoCard,
     GenericInfoCard,
+
+    MUITour,
+    WelcomeMUITour,
+    ThemeTogglerCard,
+    Scheme,
 
     Editor
 }

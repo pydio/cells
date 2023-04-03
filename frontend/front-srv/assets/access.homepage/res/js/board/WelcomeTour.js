@@ -21,26 +21,7 @@
 import {Component} from 'react'
 import Pydio from 'pydio'
 const {AsyncComponent, PydioContextConsumer} = Pydio.requireLib('boot');
-
-class Scheme extends Component {
-
-    render(){
-        let style = {
-            position:'relative',
-            fontSize: 24,
-            width: this.props.dimension || 100,
-            height: this.props.dimension || 100,
-            backgroundColor: '#ECEFF1',
-            color: '#607d8b',
-            borderRadius: '50%',
-            margin: '0 auto'
-        };
-        return (
-            <div style={{...style, ...this.props.style}}>{this.props.children}</div>
-        );
-    }
-
-}
+const {ThemeTogglerCard, Scheme} = Pydio.requireLib('workspaces')
 
 let WorkspacesCard = (props) => {
 
@@ -99,19 +80,6 @@ let SearchCard = (props) => {
 
 };
 
-let ThemeCard = (props) => {
-
-    return (
-        <div style={{height:300}}>
-            <p>{props.message('theme.legend')}</p>
-            <div style={{marginTop: 15, display:'flex', alignItems:'center', justifyContent:'center'}}>
-                <img src="plug/access.homepage/res/images/dark-light-theme.webp"/>
-            </div>
-        </div>
-    );
-
-};
-
 class WelcomeTour extends Component{
 
     constructor(props, context){
@@ -140,6 +108,7 @@ class WelcomeTour extends Component{
         let guiPrefs = user.getPreference('gui_preferences', true);
         guiPrefs['UserAccount.WelcomeModal.Shown'] = true;
         if(finished) {
+            guiPrefs['WelcomeComponent.MUITour'] = true;
             guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome'] = true;
             if(onFinish){
                 onFinish();
@@ -160,7 +129,7 @@ class WelcomeTour extends Component{
         let tourguideSteps = [
             {
                 title       : message('theme.title'),
-                text        : <ThemeCard message={message}/>,
+                text        : <ThemeTogglerCard message={message}/>,
                 selector    :'.mdi.mdi-theme-light-dark',
                 position    :'right-end'
             },

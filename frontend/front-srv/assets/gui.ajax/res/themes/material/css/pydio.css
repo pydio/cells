@@ -2408,7 +2408,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 .react-mui-context .joyride-tooltip__button--skip {
   color: #424242;
   padding: 6px 12px;
-  text-transform: uppercase;
   font-weight: 500;
   font-size: 15px;
   float: left;

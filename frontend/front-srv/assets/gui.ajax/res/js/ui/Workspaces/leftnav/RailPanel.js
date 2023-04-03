@@ -454,6 +454,7 @@ let RailPanel = ({
                 </div>
                 {activeBar &&
                     <div
+                        id={"left-rail-active-column"}
                         className={"vertical_layout" + (showCloseToggle?' with-rail-close-toggle':'')}
                         style={{flex: 1, height: '100%', overflow:'hidden', ...style}}
                         onMouseEnter={()=> setShowCloseToggle(true)}

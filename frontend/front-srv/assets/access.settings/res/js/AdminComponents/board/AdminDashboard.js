@@ -274,19 +274,24 @@ let AdminDashboard = createReactClass({
             rPanelContent = React.createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
 
-        const theme = getMuiTheme({
-            userTheme:'material',
-            palette:{
-                primary1Color:'#03a9f4',
-                primary2Color:'#f57c00',
-                accent1Color: '#f57c00',
-                accent2Color: '#324a57',
-                avatarsColor        : '#438db3',
-                sharingColor        : '#4aceb0',
-                mui3:{},
-            }
-        });
-        const adminStyles = AdminStyles(theme.palette);
+        if(!this.theme) {
+            this.theme = getMuiTheme({
+                userTheme:'material',
+                palette:{
+                    primary1Color:'#03a9f4',
+                    primary2Color:'#f57c00',
+                    accent1Color: '#f57c00',
+                    accent2Color: '#324a57',
+                    avatarsColor        : '#438db3',
+                    sharingColor        : '#4aceb0',
+                    mui3:{}
+                },
+                menuContainer:{
+                    background:'white'
+                }
+            });
+        }
+        const adminStyles = AdminStyles(this.theme.palette);
 
         let overlay = {visibility:'hidden', opacity:'0'};
         if(rightPanel){
@@ -302,7 +307,7 @@ let AdminDashboard = createReactClass({
         };
 
         return (
-            <MuiThemeProvider muiTheme={theme}>
+            <MuiThemeProvider muiTheme={this.theme}>
                 <div className="app-canvas">
                     <AdminLeftNav
                         pydio={this.props.pydio}
