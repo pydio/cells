@@ -23,6 +23,7 @@ package share
 import (
 	"context"
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/nodes"
 )
 
 func NewClient(ctx context.Context) *Client {
@@ -33,4 +34,5 @@ func NewClient(ctx context.Context) *Client {
 
 type Client struct {
 	common.RuntimeHolder
+	pathRouter, uuidRouter, uuidAdmin nodes.Handler
 }

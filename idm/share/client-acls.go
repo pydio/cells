@@ -23,6 +23,7 @@ package share
 import (
 	"context"
 	"fmt"
+	"path"
 	"strings"
 
 	"go.uber.org/zap"
@@ -84,6 +85,11 @@ func (sc *Client) WorkspaceToShareLinkObject(ctx context.Context, workspace *idm
 	acls, detectedRoots, err := sc.CommonAclsForWorkspace(ctx, workspace.UUID)
 	if err != nil {
 		return nil, err
+	}
+	if workspace.Label == "{{RefLabel}}" && len(detectedRoots) == 1 {
+		if resp, er := sc.getUuidRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: detectedRoots[0]}}); er == nil && resp != nil {
+			workspace.Label = path.Base(resp.GetNode().GetPath())
+		}
 	}
 
 	shareLink := &rest.ShareLink{
@@ -423,7 +429,7 @@ func (sc *Client) UpdatePoliciesFromAcls(ctx context.Context, workspace *idm.Wor
 
 // GetOrCreateWorkspace finds a workspace by its Uuid or creates it with the current user ResourcePolicies
 // if it does not already exist.
-func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User, wsUuid string, scope idm.WorkspaceScope, label string, description string, updateIfNeeded bool) (*idm.Workspace, bool, error) {
+func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User, wsUuid string, scope idm.WorkspaceScope, label string, refLabel string, description string, updateIfNeeded bool) (*idm.Workspace, bool, error) {
 
 	var workspace *idm.Workspace
 
@@ -437,12 +443,16 @@ func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User,
 		}
 		// Create Workspace
 		wsUuid = uuid.New()
+		wsSlug := slug.Make(label)
+		if refLabel != "" && label == refLabel {
+			label = "{{RefLabel}}"
+		}
 		wsResp, err := wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: &idm.Workspace{
 			UUID:        wsUuid,
 			Label:       label,
 			Description: description,
 			Scope:       scope,
-			Slug:        slug.Make(label),
+			Slug:        wsSlug,
 			Policies:    sc.OwnerResourcePolicies(ctx, ownerUser, wsUuid),
 		}})
 		if err != nil {
@@ -474,6 +484,9 @@ func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User,
 		if workspace == nil {
 			return workspace, false, errors.NotFound(common.ServiceShare, "Cannot find workspace with Uuid "+wsUuid)
 		}
+		if refLabel != "" && label == refLabel {
+			label = "{{RefLabel}}"
+		}
 		if (label != "" && workspace.Label != label) || (description != "" && workspace.Description != description) {
 			workspace.Label = label
 			workspace.Description = description
@@ -496,7 +509,7 @@ func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User,
 // deletes the room node if necessary.
 func (sc *Client) DeleteWorkspace(ctx context.Context, ownerUser *idm.User, scope idm.WorkspaceScope, workspaceId string, checker ContextEditableChecker) error {
 
-	workspace, _, err := sc.GetOrCreateWorkspace(ctx, ownerUser, workspaceId, scope, "", "", false)
+	workspace, _, err := sc.GetOrCreateWorkspace(ctx, ownerUser, workspaceId, scope, "", "", "", false)
 	if err != nil {
 		return err
 	}

@@ -26,6 +26,7 @@ package rest
 import (
 	"context"
 	"fmt"
+	"path"
 	"strings"
 	"time"
 
@@ -126,7 +127,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 
-	workspace, wsCreated, err := h.sc.GetOrCreateWorkspace(ctx, ownerUser, shareRequest.Room.Uuid, idm.WorkspaceScope_ROOM, shareRequest.Room.Label, shareRequest.Room.Description, false)
+	workspace, wsCreated, err := h.sc.GetOrCreateWorkspace(ctx, ownerUser, shareRequest.Room.Uuid, idm.WorkspaceScope_ROOM, shareRequest.Room.Label, "", shareRequest.Room.Description, false)
 	if err != nil {
 		service.RestError500(req, rsp, err)
 		return
@@ -240,7 +241,7 @@ func (h *SharesHandler) GetCell(req *restful.Request, rsp *restful.Response) {
 	id := req.PathParameter("Uuid")
 	ownerUser := h.IdmUserFromClaims(ctx)
 
-	workspace, _, err := h.sc.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_ROOM, "", "", false)
+	workspace, _, err := h.sc.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_ROOM, "", "", "", false)
 	if err != nil {
 		if errors.FromError(err).Code == 404 {
 			service.RestError404(req, rsp, err)
@@ -265,7 +266,7 @@ func (h *SharesHandler) DeleteCell(req *restful.Request, rsp *restful.Response) 
 	id := req.PathParameter("Uuid")
 	ownerUser := h.IdmUserFromClaims(ctx)
 
-	ws, _, e := h.sc.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_ROOM, "", "", false)
+	ws, _, e := h.sc.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_ROOM, "", "", "", false)
 	if e != nil || ws == nil {
 		service.RestError404(req, rsp, e)
 		return
@@ -340,10 +341,14 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 	var user *idm.User
 	var err error
 	var create bool
+	var refLabel string
 	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceAcl))
+	if len(link.RootNodes) == 1 {
+		refLabel = path.Base(link.RootNodes[0].GetPath())
+	}
 	if link.Uuid == "" {
 		create = true
-		workspace, _, err = h.sc.GetOrCreateWorkspace(ctx, ownerUser, "", idm.WorkspaceScope_LINK, link.Label, link.Description, false)
+		workspace, _, err = h.sc.GetOrCreateWorkspace(ctx, ownerUser, "", idm.WorkspaceScope_LINK, link.Label, refLabel, link.Description, false)
 		if err != nil {
 			service.RestErrorDetect(req, rsp, err)
 			return
@@ -372,7 +377,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 				return
 			}
 		}
-		workspace, create, err = h.sc.GetOrCreateWorkspace(ctx, ownerUser, link.Uuid, idm.WorkspaceScope_LINK, link.Label, link.Description, true)
+		workspace, create, err = h.sc.GetOrCreateWorkspace(ctx, ownerUser, link.Uuid, idm.WorkspaceScope_LINK, link.Label, refLabel, link.Description, true)
 	}
 	if err != nil {
 		service.RestError500(req, rsp, err)
@@ -403,13 +408,19 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 			Effect:   service2.ResourcePolicy_allow,
 		})
 		wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceWorkspace))
-		wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace})
+		if _, er := wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace}); er != nil {
+			service.RestErrorDetect(req, rsp, er)
+			return
+		}
+
 		track("CreateWorkspace")
 	} else {
 		// Manage password if status was updated
 		storedLink := &rest.ShareLink{Uuid: link.Uuid}
-		h.sc.LoadHashDocumentData(ctx, storedLink, []*idm.ACL{})
-
+		if er := h.sc.LoadHashDocumentData(ctx, storedLink, []*idm.ACL{}); er != nil {
+			service.RestErrorDetect(req, rsp, er)
+			return
+		}
 		link.PasswordRequired = storedLink.PasswordRequired
 		var passNewEnable = putRequest.PasswordEnabled && !storedLink.PasswordRequired
 		var passNewDisable = !putRequest.PasswordEnabled && storedLink.PasswordRequired
@@ -487,7 +498,7 @@ func (h *SharesHandler) GetShareLink(req *restful.Request, rsp *restful.Response
 	id := req.PathParameter("Uuid")
 	ownerUser := h.IdmUserFromClaims(ctx)
 
-	workspace, _, err := h.sc.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_LINK, "", "", false)
+	workspace, _, err := h.sc.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_LINK, "", "", "", false)
 	if err != nil {
 		if errors.FromError(err).Code == 404 {
 			service.RestError404(req, rsp, err)
@@ -517,7 +528,7 @@ func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Respo
 		return
 	}
 
-	if ws, _, e := h.sc.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_LINK, "", "", false); e != nil || ws == nil {
+	if ws, _, e := h.sc.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_LINK, "", "", "", false); e != nil || ws == nil {
 		service.RestError404(req, rsp, e)
 		return
 	} else if !h.IsContextEditable(ctx, id, ws.Policies) {
