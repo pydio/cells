@@ -3710,10 +3710,6 @@ body,
   -ms-flex-negative: 0;
       flex-shrink: 0;
 }
-.react-mui-context .user-dashboard-template .left-panel {
-  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-}
 .react-mui-context .user-dashboard-template .desktop-container {
   margin-left: 0;
 }
@@ -3864,12 +3860,27 @@ body,
 .react-mui-context.mui3-token .material-list .material-list-entry .material-list-text .material-list-line-3 {
   color: var(--md-sys-color-on-surface-variant);
 }
-.react-mui-context.mui3-token .material-list .material-list-entry.selected {
-  background-color: var(--md-sys-color-outline) !important;
-  color: var(--md-sys-color-inverse-on-surface) !important;
+.react-mui-context.mui3-token .material-list .material-list-entry .material-list-text .material-list-line-2 span.metadata_chunk:not(.metadata_chunk_description):not(.metadata_chunk_block) {
+  border-color: var(--md-sys-color-inline-tags-border);
 }
-.react-mui-context.mui3-token .material-list .material-list-entry.selected .material-list-line-2 {
-  color: var(--md-sys-color-inverse-on-surface) !important;
+.react-mui-context.mui3-token .material-list .material-list-entry.selected {
+  background-color: var(--md-sys-color-secondary) !important;
+  color: var(--md-sys-color-on-secondary) !important;
+}
+.react-mui-context.mui3-token .material-list .material-list-entry.selected .material-list-line-2,
+.react-mui-context.mui3-token .material-list .material-list-entry.selected .material-list-line-2 .overlay-icon-span {
+  color: var(--md-sys-color-on-secondary) !important;
+}
+.react-mui-context.mui3-token .material-list.table-mode .material-list-entry.selected-dark span.cell {
+  color: var(--md-sys-color-on-secondary);
+}
+.react-mui-context.mui3-token .material-list.table-mode .material-list-entry.selected-dark span.cell.cell-ajxp_label {
+  color: var(--md-sys-color-on-secondary);
+  font-weight: 500;
+}
+.react-mui-context.mui3-token .material-list.table-mode .material-list-entry.selected-dark .mimefont,
+.react-mui-context.mui3-token .material-list.table-mode .material-list-entry.selected-dark .overlay-icon-span {
+  color: var(--md-sys-color-on-secondary) !important;
 }
 .react-mui-context.mui3-token .material-list.table-mode .mui-toolbar {
   background: var(--md-sys-color-surface-3);
@@ -3906,13 +3917,13 @@ body,
   -webkit-box-shadow: none;
           box-shadow: none;
   border-radius: var(--md-sys-color-card-border-radius);
-  background: var(--md-sys-color-surface-1);
+  background: var(--md-sys-color-surface);
   margin: 4px;
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry.selected {
   -webkit-box-shadow: none !important;
           box-shadow: none !important;
-  background: var(--md-sys-color-outline) !important;
+  background: var(--md-sys-color-secondary) !important;
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry .material-list-text {
   border-top: 0;
@@ -3986,24 +3997,24 @@ body,
 .react-mui-context.mui3-token .masonry-grid .masonry-card {
   background-color: var(--md-sys-color-surface);
   color: var(--md-sys-color-on-surface);
-  border-radius: var(--md-sys-color-card-border-radius);
+  border-radius: 8px;
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card.selected {
-  -webkit-box-shadow: var(--md-sys-color-outline) 0px 0px 0px 1px;
-          box-shadow: var(--md-sys-color-outline) 0px 0px 0px 1px;
+  -webkit-box-shadow: var(--md-sys-color-secondary) 0px 0px 0px 1px;
+          box-shadow: var(--md-sys-color-secondary) 0px 0px 0px 1px;
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card.has-src.hover .masonry-label-overlay,
 .react-mui-context.mui3-token .masonry-grid .masonry-card.has-src.selected .masonry-label-overlay {
   background: -webkit-gradient(linear, left bottom, left top, from(rgba(0, 0, 0, 0.4)), to(transparent));
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.4), transparent);
-  border-radius: 0 0 var(--md-sys-color-card-border-radius) var(--md-sys-color-card-border-radius);
+  border-radius: 0 0 8px 8px;
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card.has-src.hover .masonry-label,
 .react-mui-context.mui3-token .masonry-grid .masonry-card.has-src.selected .masonry-label {
   color: white;
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card .masonry-image {
-  border-radius: var(--md-sys-color-card-border-radius);
+  border-radius: 8px;
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card .mimefont-container {
   display: -webkit-box;
@@ -4016,7 +4027,7 @@ body,
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  border-radius: var(--md-sys-color-card-border-radius);
+  border-radius: 8px;
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card .mimefont-container .mimefont {
   font-size: 36px;

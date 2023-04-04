@@ -298,6 +298,7 @@ export default class ThemeBuilder {
             // Build a lighter outline-variant
             add('outline-variant-50', Color(mui3['outline-variant']).fade(systemDark?.2:.5).toString())
             add('field-underline-idle', systemDark?mui3['outline']:mui3['outline-variant'])
+            add('inline-tags-border', systemDark?mui3['outline']:mui3['outline-variant-50'])
 
             add('mimefont-background', Color(mui3['primary-container']).fade(systemDark?.1:.7).toString())
             add('mimefont-color', mui3['on-primary-container'])
