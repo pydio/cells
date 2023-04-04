@@ -3860,9 +3860,6 @@ body,
   margin-left: var(--md-sys-color-fstemplate-master-margin);
   margin-right: var(--md-sys-color-fstemplate-master-margin);
 }
-.react-mui-context.mui3-token .material-list .material-list-entry {
-  border-radius: var(--md-sys-color-card-border-radius);
-}
 .react-mui-context.mui3-token .material-list .material-list-entry .material-list-text .material-list-line-2,
 .react-mui-context.mui3-token .material-list .material-list-entry .material-list-text .material-list-line-3 {
   color: var(--md-sys-color-on-surface-variant);
@@ -3873,9 +3870,6 @@ body,
 }
 .react-mui-context.mui3-token .material-list .material-list-entry.selected .material-list-line-2 {
   color: var(--md-sys-color-inverse-on-surface) !important;
-}
-.react-mui-context.mui3-token .material-list.table-mode .material-list-entry {
-  border-radius: var(--md-sys-color-card-border-radius);
 }
 .react-mui-context.mui3-token .material-list.table-mode .mui-toolbar {
   background: var(--md-sys-color-surface-3);

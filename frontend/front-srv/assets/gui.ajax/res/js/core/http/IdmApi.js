@@ -63,6 +63,27 @@ class IdmApi {
         });
     }
 
+    loadRootPath(baseGroup = '/') {
+        if(baseGroup && baseGroup !== '/') {
+            return Promise.resolve(baseGroup)
+        }
+        if(this.baseGroup) {
+            return Promise.resolve(this.baseGroup)
+        }
+        if(!this.client.pydio.user){
+            return Promise.resolve('/')
+        }
+        const configs = this.client.pydio.getPluginConfigs('action.advanced_settings')
+        if(!configs.get('USERS_GROUPS_TENANCY') || !configs.get('USERS_GROUPS_TENANCY_LISTING')){
+            return Promise.resolve('/')
+        }
+        return this.client.pydio.user.getIdmUser().then(idmUser => {
+            this.baseGroup = LangUtils.trimRight(idmUser.GroupPath, '/')
+            return this.baseGroup
+        })
+
+    }
+
     /**
      *
      * @param baseGroup string
@@ -75,50 +96,53 @@ class IdmApi {
      */
     listUsers(baseGroup='/', filterString='', recursive = false, offset = 0, limit = -1, profile = ''){
 
-        const api = new UserServiceApi(this.client);
-        const request = new RestSearchUserRequest();
-        request.Operation = ServiceOperationType.constructFromObject('AND');
-        request.Queries = [];
-        const query = new IdmUserSingleQuery();
-        query.GroupPath = baseGroup || '/';
-        query.Recursive = recursive;
-        query.NodeType = IdmNodeType.constructFromObject('USER');
-        request.Queries.push(query);
+        return this.loadRootPath(baseGroup).then(bg => {
+            const api = new UserServiceApi(this.client);
+            const request = new RestSearchUserRequest();
+            request.Operation = ServiceOperationType.constructFromObject('AND');
+            request.Queries = [];
+            const query = new IdmUserSingleQuery();
+            query.GroupPath = bg || '/';
+            query.Recursive = recursive;
+            query.NodeType = IdmNodeType.constructFromObject('USER');
+            request.Queries.push(query);
 
-        if(filterString){
-            const queryString = new IdmUserSingleQuery();
-            if (this.autoWildCard){
-                filterString = '*' + filterString;
+            if(filterString){
+                const queryString = new IdmUserSingleQuery();
+                if (this.autoWildCard){
+                    filterString = '*' + filterString;
+                }
+                queryString.Login = filterString + '*';
+                request.Queries.push(queryString);
             }
-            queryString.Login = filterString + '*';
-            request.Queries.push(queryString);
-        }
-        if(profile){
-            const exclude = profile[0] === '!';
-            const profileQ = new IdmUserSingleQuery();
-            profileQ.AttributeName = 'profile';
-            profileQ.AttributeValue = exclude ? profile.substring(1) : profile;
-            if(exclude){
-                profileQ.not = true;
+            if(profile){
+                const exclude = profile[0] === '!';
+                const profileQ = new IdmUserSingleQuery();
+                profileQ.AttributeName = 'profile';
+                profileQ.AttributeValue = exclude ? profile.substring(1) : profile;
+                if(exclude){
+                    profileQ.not = true;
+                }
+                request.Queries.push(profileQ);
             }
-            request.Queries.push(profileQ);
-        }
 
-        const query2 = new IdmUserSingleQuery();
-        query2.AttributeName = 'hidden';
-        query2.AttributeValue = 'true';
-        query2.not = true;
-        request.Queries.push(query2);
-        if(offset > 0){
-            request.Offset = offset + '';
-        }
-        if(limit > -1){
-            request.Limit = limit + '';
-        }
+            const query2 = new IdmUserSingleQuery();
+            query2.AttributeName = 'hidden';
+            query2.AttributeValue = 'true';
+            query2.not = true;
+            request.Queries.push(query2);
+            if(offset > 0){
+                request.Offset = offset + '';
+            }
+            if(limit > -1){
+                request.Limit = limit + '';
+            }
 
-        return api.searchUsers(request).then(collection => {
-            return {Users:collection.Users || [], Total:collection.Total, Offset: offset, Limit: limit};
-        });
+            return api.searchUsers(request).then(collection => {
+                return {Users:collection.Users || [], Total:collection.Total, Offset: offset, Limit: limit};
+            });
+
+        })
 
     }
 
@@ -238,37 +262,39 @@ class IdmApi {
      */
     listGroups(baseGroup = '/', filterString='', recursive = false, offset = 0, limit = -1){
 
-        const api = new UserServiceApi(this.client);
-        const request = new RestSearchUserRequest();
-        request.Operation = ServiceOperationType.constructFromObject('AND');
-        request.Queries = [];
-        const query = new IdmUserSingleQuery();
-        query.GroupPath = baseGroup || '/';
-        query.Recursive = recursive;
-        query.NodeType = IdmNodeType.constructFromObject('GROUP');
-        request.Queries.push(query);
+        return this.loadRootPath(baseGroup).then(bg => {
 
-        if(filterString){
-            // Use Login as for users, it will detect the trailing *
-            const queryString = new IdmUserSingleQuery();
-            if (this.autoWildCard){
-                filterString = '*' + filterString;
+            const api = new UserServiceApi(this.client);
+            const request = new RestSearchUserRequest();
+            request.Operation = ServiceOperationType.constructFromObject('AND');
+            request.Queries = [];
+            const query = new IdmUserSingleQuery();
+            query.GroupPath = bg || '/';
+            query.Recursive = recursive;
+            query.NodeType = IdmNodeType.constructFromObject('GROUP');
+            request.Queries.push(query);
+
+            if (filterString) {
+                // Use Login as for users, it will detect the trailing *
+                const queryString = new IdmUserSingleQuery();
+                if (this.autoWildCard) {
+                    filterString = '*' + filterString;
+                }
+                queryString.Login = filterString + '*';
+                request.Queries.push(queryString);
             }
-            queryString.Login = filterString + '*';
-            request.Queries.push(queryString);
-        }
 
-        if(offset > 0){
-            request.Offset = offset + '';
-        }
-        if(limit > -1){
-            request.Limit = limit + '';
-        }
+            if (offset > 0) {
+                request.Offset = offset + '';
+            }
+            if (limit > -1) {
+                request.Limit = limit + '';
+            }
 
-        return api.searchUsers(request).then(value => {
-            return {Groups: value.Groups || [], Total:value.Total, Offset: offset, Limit: limit};
-        });
-
+            return api.searchUsers(request).then(value => {
+                return {Groups: value.Groups || [], Total: value.Total, Offset: offset, Limit: limit};
+            });
+        })
 
     }
 
@@ -378,13 +404,15 @@ class IdmApi {
      * @return {Promise}
      */
     createGroup(baseGroup = '/', groupIdentifier, displayName){
-        const api = new UserServiceApi(this.client);
-        const object = new IdmUser();
-        object.IsGroup = true;
-        object.GroupPath = baseGroup || '/';
-        object.GroupLabel = groupIdentifier;
-        object.Attributes = {"displayName": displayName};
-        return api.putUser(groupIdentifier, object);
+        return this.loadRootPath(baseGroup).then(bg => {
+            const api = new UserServiceApi(this.client);
+            const object = new IdmUser();
+            object.IsGroup = true;
+            object.GroupPath = bg || '/';
+            object.GroupLabel = groupIdentifier;
+            object.Attributes = {"displayName": displayName};
+            return api.putUser(groupIdentifier, object);
+        })
     }
 
     /**
@@ -396,13 +424,15 @@ class IdmApi {
      * @return {Promise}
      */
     createUser(baseGroup = '/', login, password, profile='standard'){
-        const api = new UserServiceApi(this.client);
-        const object = new IdmUser();
-        object.GroupPath = baseGroup;
-        object.Login = login;
-        object.Password = password;
-        object.Attributes = {profile: profile};
-        return api.putUser(login, object);
+        return this.loadRootPath(baseGroup).then(bg => {
+            const api = new UserServiceApi(this.client);
+            const object = new IdmUser();
+            object.GroupPath = bg;
+            object.Login = login;
+            object.Password = password;
+            object.Attributes = {profile: profile};
+            return api.putUser(login, object);
+        })
     }
 
     /**

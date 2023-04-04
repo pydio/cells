@@ -33,17 +33,18 @@ import UsersCompleter from '../users/UsersCompleter'
 class ResourcePoliciesPanel extends React.Component{
 
     constructor(props){
+        let supProps = {...props}
         if(!props.subjectsDisabled){
-            props.subjectsDisabled = {'READ':{}, 'WRITE':{}}
+            supProps.subjectsDisabled = {'READ':{}, 'WRITE':{}}
         }
         if(props.cellAcls){
             Object.keys(props.cellAcls).map(k => {
                 if(props.cellAcls[k].RoleId){
-                    props.subjectsDisabled['READ']["role:" + props.cellAcls[k].RoleId] = true;
+                    supProps.subjectsDisabled['READ']["role:" + props.cellAcls[k].RoleId] = true;
                 }
             });
         }
-        super(props);
+        super(supProps);
         this.state = {
             edit: false,
             loading: true,
