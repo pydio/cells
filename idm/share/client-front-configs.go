@@ -54,7 +54,7 @@ func (sc *Client) CheckLinkOptionsAgainstConfigs(ctx context.Context, link *rest
 	if e != nil {
 		return PluginOptions{}, e
 	}
-	options := sc.defaultOptions()
+	options := sc.DefaultOptions()
 	checkScopes := permissions.FrontValuesScopesFromWorkspaceRelativePaths(wss)
 	options = sc.filterOptionsFromScopes(options, contextParams, checkScopes)
 
@@ -88,7 +88,7 @@ func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, request *r
 	if e != nil {
 		return e
 	}
-	options := sc.defaultOptions()
+	options := sc.DefaultOptions()
 	aclWss := acl.GetWorkspaces()
 	return router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 		for _, n := range request.Room.RootNodes {
@@ -124,7 +124,8 @@ func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, request *r
 	})
 }
 
-func (sc *Client) defaultOptions() PluginOptions {
+// DefaultOptions loads the plugin default options, without further context-based filtering
+func (sc *Client) DefaultOptions() PluginOptions {
 	// Defaults
 	configParams := config.Get("frontend", "plugin", "action.share")
 	options := PluginOptions{

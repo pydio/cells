@@ -26,9 +26,6 @@ package rest
 import (
 	"context"
 	"fmt"
-	"path"
-	"strings"
-	"time"
 
 	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
@@ -46,7 +43,6 @@ import (
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/resources"
 	"github.com/pydio/cells/v4/common/utils/permissions"
-	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/share"
 )
 
@@ -61,7 +57,7 @@ type SharesHandler struct {
 func NewSharesHandler(ctx context.Context) *SharesHandler {
 	h := new(SharesHandler)
 	h.ctx = ctx
-	h.sc = share.NewClient(ctx)
+	h.sc = share.NewClient(ctx, h)
 	h.ServiceName = common.ServiceWorkspace
 	h.ResourceName = "rooms"
 	//h.PoliciesLoader = h.loadPoliciesForResource
@@ -227,7 +223,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 		)
 	}
 
-	if output, err := h.sc.WorkspaceToCellObject(ctx, workspace, h); err != nil {
+	if output, err := h.sc.WorkspaceToCellObject(ctx, workspace); err != nil {
 		service.RestError500(req, rsp, err)
 	} else {
 		rsp.WriteEntity(output)
@@ -251,7 +247,7 @@ func (h *SharesHandler) GetCell(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 
-	if output, err := h.sc.WorkspaceToCellObject(ctx, workspace, h); err != nil {
+	if output, err := h.sc.WorkspaceToCellObject(ctx, workspace); err != nil {
 		service.RestError500(req, rsp, err)
 	} else {
 		rsp.WriteEntity(output)
@@ -279,7 +275,7 @@ func (h *SharesHandler) DeleteCell(req *restful.Request, rsp *restful.Response) 
 
 	log.Logger(ctx).Debug("Delete share room", zap.Any("workspaceId", id))
 	// This will load the workspace and its root, and eventually remove the Room root totally
-	if err := h.sc.DeleteWorkspace(ctx, ownerUser, idm.WorkspaceScope_ROOM, id, h); err != nil {
+	if err := h.sc.DeleteWorkspace(ctx, ownerUser, idm.WorkspaceScope_ROOM, id); err != nil {
 		service.RestError500(req, rsp, err)
 		return
 	}
@@ -301,10 +297,7 @@ func (h *SharesHandler) DeleteCell(req *restful.Request, rsp *restful.Response) 
 func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
-	start := time.Now()
-	track := func(msg string) {
-		log.Logger(ctx).Debug(msg, zap.Duration("t", time.Since(start)))
-	}
+
 	var putRequest rest.PutShareLinkRequest
 	if err := req.ReadEntity(&putRequest); err != nil {
 		service.RestError500(req, rsp, err)
@@ -337,158 +330,15 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 	}
 
 	ownerUser := h.IdmUserFromClaims(ctx)
-	var workspace *idm.Workspace
-	var user *idm.User
-	var err error
-	var create bool
-	var refLabel string
-	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceAcl))
-	if len(link.RootNodes) == 1 {
-		refLabel = path.Base(link.RootNodes[0].GetPath())
-	}
-	if link.Uuid == "" {
-		create = true
-		workspace, _, err = h.sc.GetOrCreateWorkspace(ctx, ownerUser, "", idm.WorkspaceScope_LINK, link.Label, refLabel, link.Description, false)
-		if err != nil {
-			service.RestErrorDetect(req, rsp, err)
-			return
-		}
-		track("GetOrCreateWorkspace")
-		for _, node := range link.RootNodes {
-			aclClient.CreateACL(ctx, &idm.CreateACLRequest{
-				ACL: &idm.ACL{
-					NodeID:      node.Uuid,
-					WorkspaceID: workspace.UUID,
-					Action:      &idm.ACLAction{Name: "workspace-path", Value: "uuid:" + node.Uuid},
-				},
-			})
-		}
-		track("CreateACL")
-		link.Uuid = workspace.UUID
-		link.LinkHash = strings.Replace(uuid.New(), "-", "", -1)[0:pluginOptions.HashMinLength]
-	} else {
-		if putRequest.UpdateCustomHash != "" {
-			if !pluginOptions.HashEditable {
-				service.RestError403(req, rsp, errors.Forbidden("link.hash.not-editable", "You are not allowed to edit link manually"))
-				return
-			}
-			if len(putRequest.UpdateCustomHash) < pluginOptions.HashMinLength {
-				service.RestError403(req, rsp, errors.Forbidden("link.hash.min-length", "Please use a link hash with at least %d characters", pluginOptions.HashMinLength))
-				return
-			}
-		}
-		workspace, create, err = h.sc.GetOrCreateWorkspace(ctx, ownerUser, link.Uuid, idm.WorkspaceScope_LINK, link.Label, refLabel, link.Description, true)
-	}
-	if err != nil {
-		service.RestError500(req, rsp, err)
-		return
-	}
-	if !create && !h.IsContextEditable(ctx, workspace.UUID, workspace.Policies) {
-		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to edit this link"))
-		return
-	}
-	track("IsContextEditable")
 
-	// Load Hidden User
-	user, err = h.sc.GetOrCreateHiddenUser(ctx, ownerUser, link, putRequest.PasswordEnabled, putRequest.CreatePassword, false)
-	if err != nil {
-		service.RestError500(req, rsp, err)
-		return
-	}
-	track("GetOrCreateHiddenUser")
-	if create {
-		link.UserLogin = user.Login
-		link.UserUuid = user.Uuid
-		link.PasswordRequired = putRequest.PasswordEnabled
-		// Update Workspace Policies to make sure it's readable by the new user
-		workspace.Policies = append(workspace.Policies, &service2.ResourcePolicy{
-			Resource: workspace.UUID,
-			Subject:  fmt.Sprintf("user:%s", user.Login),
-			Action:   service2.ResourcePolicyAction_READ,
-			Effect:   service2.ResourcePolicy_allow,
-		})
-		wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceWorkspace))
-		if _, er := wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace}); er != nil {
-			service.RestErrorDetect(req, rsp, er)
-			return
-		}
-
-		track("CreateWorkspace")
-	} else {
-		// Manage password if status was updated
-		storedLink := &rest.ShareLink{Uuid: link.Uuid}
-		if er := h.sc.LoadHashDocumentData(ctx, storedLink, []*idm.ACL{}); er != nil {
-			service.RestErrorDetect(req, rsp, er)
-			return
-		}
-		link.PasswordRequired = storedLink.PasswordRequired
-		var passNewEnable = putRequest.PasswordEnabled && !storedLink.PasswordRequired
-		var passNewDisable = !putRequest.PasswordEnabled && storedLink.PasswordRequired
-		var passUpdated = putRequest.PasswordEnabled && storedLink.PasswordRequired && putRequest.UpdatePassword != ""
-		if passNewEnable || passNewDisable || passUpdated {
-			// Password conditions have changed : re-create a new hidden user
-			if e := h.sc.DeleteHiddenUser(ctx, storedLink); e != nil {
-				service.RestError500(req, rsp, e)
-				return
-			}
-			storedLink.UserLogin = ""
-			storedLink.UserUuid = ""
-			if passUpdated {
-				putRequest.CreatePassword = putRequest.UpdatePassword
-			}
-			uUser, e := h.sc.GetOrCreateHiddenUser(ctx, ownerUser, storedLink, putRequest.PasswordEnabled, putRequest.CreatePassword, false)
-			if e != nil {
-				service.RestError500(req, rsp, e)
-				return
-			}
-			user = uUser
-			link.UserLogin = user.Login
-			link.UserUuid = user.Uuid
-			if passNewEnable {
-				link.PasswordRequired = true
-			} else if passNewDisable {
-				link.PasswordRequired = false
-			}
-		}
-	}
-
-	err = h.sc.UpdateACLsForHiddenUser(ctx, user.Uuid, workspace.UUID, link.RootNodes, link.Permissions, parentPolicy, !create)
-	track("UpdateACLsForHiddenUser")
-	if err != nil {
-		service.RestError500(req, rsp, err)
-		return
-	}
-	if create {
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("Created share link [%s]", link.Label),
-			log.GetAuditId(common.AuditLinkCreate),
-			zap.String(common.KeyLinkUuid, link.Uuid),
-			zap.String(common.KeyWorkspaceUuid, link.Uuid),
-		)
-		track("Auditer")
-	} else {
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("Updated share link [%s]", link.Label),
-			log.GetAuditId(common.AuditLinkUpdate),
-			zap.String(common.KeyLinkUuid, link.Uuid),
-			zap.String(common.KeyWorkspaceUuid, link.Uuid),
-		)
-	}
-
-	// Update HashDocument
-	if err := h.sc.StoreHashDocument(ctx, ownerUser, link, putRequest.UpdateCustomHash); err != nil {
-		service.RestError500(req, rsp, err)
-		return
-	}
-	track("StoreHashDocument")
-
-	// Reload
-	if output, e := h.sc.WorkspaceToShareLinkObject(ctx, workspace, h); e != nil {
+	output, er := h.sc.UpsertLink(ctx, link, &putRequest, ownerUser, parentPolicy, pluginOptions)
+	if er != nil {
 		service.RestError500(req, rsp, e)
 	} else {
-		rsp.WriteEntity(output)
+		_ = rsp.WriteEntity(output)
 	}
-	track("WorkspaceToShareLinkObject")
+	return
+
 }
 
 // GetShareLink loads link information.
@@ -496,9 +346,8 @@ func (h *SharesHandler) GetShareLink(req *restful.Request, rsp *restful.Response
 
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
-	ownerUser := h.IdmUserFromClaims(ctx)
 
-	workspace, _, err := h.sc.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_LINK, "", "", "", false)
+	output, err := h.sc.LinkById(ctx, id)
 	if err != nil {
 		if errors.FromError(err).Code == 404 {
 			service.RestError404(req, rsp, err)
@@ -507,12 +356,7 @@ func (h *SharesHandler) GetShareLink(req *restful.Request, rsp *restful.Response
 		}
 		return
 	}
-
-	if output, err := h.sc.WorkspaceToShareLinkObject(ctx, workspace, h); err == nil {
-		rsp.WriteEntity(output)
-	} else {
-		service.RestErrorDetect(req, rsp, err)
-	}
+	_ = rsp.WriteEntity(output)
 
 }
 
@@ -521,43 +365,49 @@ func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Respo
 
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
-	ownerUser := h.IdmUserFromClaims(ctx)
 
 	if err := h.docStoreStatus(ctx); err != nil {
 		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 
-	if ws, _, e := h.sc.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_LINK, "", "", "", false); e != nil || ws == nil {
-		service.RestError404(req, rsp, e)
-		return
-	} else if !h.IsContextEditable(ctx, id, ws.Policies) {
-		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to edit this link"))
-		return
-	}
-
-	// Will try to load the workspace first, and throw an error if something goes wrong
-	if err := h.sc.DeleteWorkspace(ctx, ownerUser, idm.WorkspaceScope_LINK, id, h); err != nil {
+	if err := h.sc.DeleteLink(ctx, id); err != nil {
 		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 
-	storedLink := &rest.ShareLink{Uuid: id}
-	if err := h.sc.LoadHashDocumentData(ctx, storedLink, []*idm.ACL{}); err != nil {
-		service.RestErrorDetect(req, rsp, err)
-		return
-	}
-	// Delete associated Document from Docstore
-	if err := h.sc.DeleteHashDocument(ctx, id); err != nil {
-		service.RestErrorDetect(req, rsp, err)
-		return
-	}
+	/*
+		if ws, e := h.sc.GetLinkWorkspace(ctx, id); e != nil || ws == nil {
+			service.RestError404(req, rsp, e)
+			return
+		} else if !h.IsContextEditable(ctx, id, ws.Policies) {
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to edit this link"))
+			return
+		}
 
-	// Delete associated Hidden user
-	if err := h.sc.DeleteHiddenUser(ctx, storedLink); err != nil {
-		service.RestErrorDetect(req, rsp, err)
-		return
-	}
+		// Will try to load the workspace first, and throw an error if something goes wrong
+		if err := h.sc.DeleteLinkWorkspace(ctx, id, h); err != nil {
+			service.RestErrorDetect(req, rsp, err)
+			return
+		}
+
+		storedLink := &rest.ShareLink{Uuid: id}
+		if err := h.sc.LoadHashDocumentData(ctx, storedLink, []*idm.ACL{}); err != nil {
+			service.RestErrorDetect(req, rsp, err)
+			return
+		}
+		// Delete associated Document from Docstore
+		if err := h.sc.DeleteHashDocument(ctx, id); err != nil {
+			service.RestErrorDetect(req, rsp, err)
+			return
+		}
+
+		// Delete associated Hidden user
+		if err := h.sc.DeleteHiddenUser(ctx, storedLink); err != nil {
+			service.RestErrorDetect(req, rsp, err)
+			return
+		}
+	*/
 
 	log.Auditer(ctx).Info(
 		fmt.Sprintf("Removed share link [%s]", id),
@@ -566,7 +416,7 @@ func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Respo
 		zap.String(common.KeyWorkspaceUuid, id),
 	)
 
-	rsp.WriteEntity(&rest.DeleteShareLinkResponse{
+	_ = rsp.WriteEntity(&rest.DeleteShareLinkResponse{
 		Success: true,
 	})
 

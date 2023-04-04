@@ -173,7 +173,7 @@ func TestShareLinks(t *testing.T) {
 func TestBasicMocks(t *testing.T) {
 	bg := context.Background()
 	Convey("Test Basic Docstore Mock", t, func() {
-		sc := share.NewClient(context.Background())
+		sc := share.NewClient(context.Background(), nil)
 		e := sc.StoreHashDocument(bg, &idm.User{Uuid: "uuid", Login: "login"}, &rest.ShareLink{
 			Uuid:             "link-uuid",
 			LinkHash:         "hash",

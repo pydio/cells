@@ -42,12 +42,8 @@ import (
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
-type ContextEditableChecker interface {
-	IsContextEditable(ctx context.Context, resourceId string, policies []*service.ResourcePolicy) bool
-}
-
 // WorkspaceToCellObject rewrites a workspace to a Cell object by reloading its ACLs.
-func (sc *Client) WorkspaceToCellObject(ctx context.Context, workspace *idm.Workspace, checker ContextEditableChecker) (*rest.Cell, error) {
+func (sc *Client) WorkspaceToCellObject(ctx context.Context, workspace *idm.Workspace) (*rest.Cell, error) {
 
 	acls, detectedRoots, err := sc.CommonAclsForWorkspace(ctx, workspace.UUID)
 	if err != nil {
@@ -58,7 +54,7 @@ func (sc *Client) WorkspaceToCellObject(ctx context.Context, workspace *idm.Work
 	roomAcls := sc.AclsToCellAcls(ctx, acls)
 
 	log.Logger(ctx).Debug("Computed roomAcls before load", zap.Any("roomAcls", roomAcls))
-	if err := sc.LoadCellAclsObjects(ctx, roomAcls, checker); err != nil {
+	if err := sc.LoadCellAclsObjects(ctx, roomAcls); err != nil {
 		log.Logger(ctx).Error("Error on loadRomAclsObjects", zap.Error(err))
 		return nil, err
 	}
@@ -75,12 +71,12 @@ func (sc *Client) WorkspaceToCellObject(ctx context.Context, workspace *idm.Work
 		RootNodes:               nodesSlices,
 		ACLs:                    roomAcls,
 		Policies:                workspace.Policies,
-		PoliciesContextEditable: checker.IsContextEditable(ctx, workspace.UUID, workspace.Policies),
+		PoliciesContextEditable: sc.checker.IsContextEditable(ctx, workspace.UUID, workspace.Policies),
 	}, nil
 }
 
 // WorkspaceToShareLinkObject converts a workspace to a rest.ShareLink model.
-func (sc *Client) WorkspaceToShareLinkObject(ctx context.Context, workspace *idm.Workspace, checker ContextEditableChecker) (*rest.ShareLink, error) {
+func (sc *Client) WorkspaceToShareLinkObject(ctx context.Context, workspace *idm.Workspace) (*rest.ShareLink, error) {
 
 	acls, detectedRoots, err := sc.CommonAclsForWorkspace(ctx, workspace.UUID)
 	if err != nil {
@@ -97,7 +93,7 @@ func (sc *Client) WorkspaceToShareLinkObject(ctx context.Context, workspace *idm
 		Label:                   workspace.Label,
 		Description:             workspace.Description,
 		Policies:                workspace.Policies,
-		PoliciesContextEditable: checker.IsContextEditable(ctx, workspace.UUID, workspace.Policies),
+		PoliciesContextEditable: sc.checker.IsContextEditable(ctx, workspace.UUID, workspace.Policies),
 	}
 	for _, rootId := range detectedRoots {
 		shareLink.RootNodes = append(shareLink.RootNodes, &tree.Node{Uuid: rootId})
@@ -107,7 +103,7 @@ func (sc *Client) WorkspaceToShareLinkObject(ctx context.Context, workspace *idm
 		return nil, err
 	}
 
-	shareLink.PoliciesContextEditable = checker.IsContextEditable(ctx, workspace.UUID, workspace.Policies)
+	shareLink.PoliciesContextEditable = sc.checker.IsContextEditable(ctx, workspace.UUID, workspace.Policies)
 
 	return shareLink, nil
 
@@ -147,7 +143,7 @@ func (sc *Client) AclsToCellAcls(ctx context.Context, acls []*idm.ACL) map[strin
 }
 
 // LoadCellAclsObjects loads associated users / groups / roles based on the role Ids of the acls.
-func (sc *Client) LoadCellAclsObjects(ctx context.Context, roomAcls map[string]*rest.CellAcl, checker ContextEditableChecker) error {
+func (sc *Client) LoadCellAclsObjects(ctx context.Context, roomAcls map[string]*rest.CellAcl) error {
 
 	log.Logger(ctx).Debug("LoadCellAclsObjects", zap.Any("acls", roomAcls))
 	roleClient := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceRole))
@@ -205,7 +201,7 @@ func (sc *Client) LoadCellAclsObjects(ctx context.Context, roomAcls map[string]*
 				// Remove some unnecessary fields
 				object.Roles = []*idm.Role{}
 				delete(object.Attributes, "preferences")
-				roomAcls[object.Uuid].User = object.WithPublicData(ctx, checker.IsContextEditable(ctx, object.Uuid, object.Policies))
+				roomAcls[object.Uuid].User = object.WithPublicData(ctx, sc.checker.IsContextEditable(ctx, object.Uuid, object.Policies))
 			}
 		}
 	}
@@ -427,6 +423,12 @@ func (sc *Client) UpdatePoliciesFromAcls(ctx context.Context, workspace *idm.Wor
 	return true
 }
 
+// GetLinkWorkspace is a shortcut for GetOrCreateWorkspace but for retrieval only
+func (sc *Client) GetLinkWorkspace(ctx context.Context, wsUuid string) (*idm.Workspace, error) {
+	ws, _, er := sc.GetOrCreateWorkspace(ctx, nil, wsUuid, idm.WorkspaceScope_LINK, "", "", "", false)
+	return ws, er
+}
+
 // GetOrCreateWorkspace finds a workspace by its Uuid or creates it with the current user ResourcePolicies
 // if it does not already exist.
 func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User, wsUuid string, scope idm.WorkspaceScope, label string, refLabel string, description string, updateIfNeeded bool) (*idm.Workspace, bool, error) {
@@ -505,9 +507,14 @@ func (sc *Client) GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User,
 	return workspace, create, nil
 }
 
+// DeleteLinkWorkspace wraps DeleteWorkspace to remove unnecessary parameters
+func (sc *Client) DeleteLinkWorkspace(ctx context.Context, workspaceId string) error {
+	return sc.DeleteWorkspace(ctx, nil, idm.WorkspaceScope_LINK, workspaceId)
+}
+
 // DeleteWorkspace deletes a workspace and associated policies and ACLs. It also
 // deletes the room node if necessary.
-func (sc *Client) DeleteWorkspace(ctx context.Context, ownerUser *idm.User, scope idm.WorkspaceScope, workspaceId string, checker ContextEditableChecker) error {
+func (sc *Client) DeleteWorkspace(ctx context.Context, ownerUser *idm.User, scope idm.WorkspaceScope, workspaceId string) error {
 
 	workspace, _, err := sc.GetOrCreateWorkspace(ctx, ownerUser, workspaceId, scope, "", "", "", false)
 	if err != nil {
@@ -515,7 +522,7 @@ func (sc *Client) DeleteWorkspace(ctx context.Context, ownerUser *idm.User, scop
 	}
 	if scope == idm.WorkspaceScope_ROOM {
 		// check if we must delete the room node
-		if output, err := sc.WorkspaceToCellObject(ctx, workspace, checker); err == nil {
+		if output, err := sc.WorkspaceToCellObject(ctx, workspace); err == nil {
 			log.Logger(ctx).Debug("Will Delete Workspace for Room", zap.Any("room", output))
 			var roomNode *tree.Node
 			for _, node := range output.RootNodes {

@@ -82,7 +82,7 @@ func (s *Handler) sharedResourcesAsNodes(ctx context.Context, query *tree.Query)
 	// Replace FS
 	query.FreeString = freeString
 
-	sc := share.NewClient(s.runtimeCtx)
+	sc := share.NewClient(s.runtimeCtx, nil)
 	rr, e := sc.ListSharedResources(ctx, "", scope, true, resources.ResourceProviderHandler{})
 	if e != nil {
 		return nil, false, e
