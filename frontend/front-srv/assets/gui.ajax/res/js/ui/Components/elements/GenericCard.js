@@ -29,7 +29,8 @@ const globalStyles = {
 
 class GenericLine extends React.Component{
     render(){
-        const {iconClassName, legend, data, dataStyle, legendStyle, iconStyle, placeHolder, placeHolderReady} = this.props;
+        const {iconClassName, legend, data, dataStyle, legendStyle,
+            iconStyle, placeHolder, placeHolderReady, muiTheme} = this.props;
         const style = {
             icon: {
                 margin:'16px 20px 0',
@@ -37,13 +38,12 @@ class GenericLine extends React.Component{
             },
             legend: {
                 fontSize: 12,
-                color: '#aaaaaa',
+                color: muiTheme.palette.mui3['on-surface'],
                 fontWeight: 500,
-                //textTransform: 'lowercase',
                 ...legendStyle,
             },
             data: {
-                fontSize: 15,
+                fontSize: 14,
                 paddingRight: 6,
                 overflow:'hidden',
                 textOverflow:'ellipsis',
@@ -53,7 +53,7 @@ class GenericLine extends React.Component{
         const contents = (
             <div style={{display:'flex', marginBottom: 8, overflow:'hidden', ...this.props.style}}>
                 <div style={{width: globalStyles.globalLeftMargin}}>
-                    <FontIcon color={'#aaaaaa'} className={iconClassName} style={style.icon}/>
+                    <FontIcon color={muiTheme.palette.mui3['secondary']||'#aaaaaa'} className={iconClassName} style={style.icon}/>
                 </div>
                 <div style={{flex: 1}}>
                     <div style={style.legend}>{legend}</div>
@@ -82,6 +82,7 @@ class GenericLine extends React.Component{
         return contents;
     }
 }
+GenericLine = muiThemeable()(GenericLine);
 
 class GenericCard extends React.Component{
 
@@ -92,9 +93,10 @@ class GenericCard extends React.Component{
 
         const headerBg = muiTheme.palette.mui3['secondary-container'];
         const headerColor = muiTheme.palette.mui3['on-secondary-container'];
+        const buttonColor = muiTheme.palette.mui3['primary']
 
         let styles = {
-            headerHeight: 100,
+            headerHeight: 'auto',
             buttonBarHeight: 60,
             headerBg,
             headerColor,
@@ -105,7 +107,7 @@ class GenericCard extends React.Component{
             fabTop: 80,
             button: {
                 style:{},
-                iconStyle:{color:headerColor},
+                iconStyle:{color:buttonColor},
             }
         };
         if (headerSmall) {
@@ -122,18 +124,13 @@ class GenericCard extends React.Component{
                 fabTop: 60,
                 button: {
                     style:{width:38, height: 38, padding: 9},
-                    iconStyle:{color:headerColor, fontSize: 18}
+                    iconStyle:{color:buttonColor, fontSize: 18}
                 }
             }
         }
 
         return (
             <div style={{width: '100%', position:'relative', ...style}}>
-                {onEditAction && !headerSmall &&
-                    <FloatingActionButton onClick={onEditAction} backgroundColor={muiTheme.palette.mui3['tertiary']} mini={true} style={{position:'absolute', top:styles.fabTop, left: 10}}>
-                        <FontIcon className={"mdi mdi-pencil"} style={{color:muiTheme.palette.mui3['on-tertiary']}} />
-                    </FloatingActionButton>
-                }
                 <Paper zDepth={0} style={{backgroundColor:styles.headerBg, color: styles.headerColor, height: styles.headerHeight, borderRadius: '2px 2px 0 0'}}>
                     <div style={styles.buttonBar}>
                         {headerSmall && <span style={{flex: 1, fontSize: 14, fontWeight:500}}>{title}</span>}
@@ -157,12 +154,17 @@ class GenericCard extends React.Component{
                         }
                     </div>
                     {!headerSmall &&
-                        <div style={{paddingLeft: onEditAction?globalStyles.globalLeftMargin:20, fontSize: 20}}>
+                        <div style={{paddingLeft: onEditAction?globalStyles.globalLeftMargin:20, fontSize: 20, lineHeight: '26px', paddingBottom: 16}}>
                             {title}
                         </div>
                     }
                 </Paper>
-                <div style={{paddingTop: 12, paddingBottom: 8}}>
+                <div style={{paddingTop: 12, paddingBottom: 8, position:'relative'}}>
+                    {onEditAction && !headerSmall &&
+                        <FloatingActionButton onClick={onEditAction} backgroundColor={muiTheme.palette.mui3['tertiary']} mini={true} style={{position:'absolute', top:-20, left: 10}}>
+                            <FontIcon className={"mdi mdi-pencil"} style={{color:muiTheme.palette.mui3['on-tertiary']}} />
+                        </FloatingActionButton>
+                    }
                     {children}
                 </div>
             </div>

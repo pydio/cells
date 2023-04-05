@@ -22,9 +22,10 @@ import Pydio from 'pydio'
 import EditCellDialog from './EditCellDialog'
 import CellModel from 'pydio/model/cell'
 import ResourcesManager from 'pydio/http/resources-manager'
-import {Paper, MenuItem} from 'material-ui'
+import {MenuItem} from 'material-ui'
 import ShareHelper from "../main/ShareHelper";
 
+const {moment} = Pydio.requireLib('boot')
 const {GenericCard, GenericLine, QuotaUsageLine} = Pydio.requireLib("components");
 
 class CellCard extends React.Component{
@@ -91,12 +92,12 @@ class CellCard extends React.Component{
         const {edit, model, asLib, coreActionsLib, rootNodes, loading} = this.state;
         const m = (id) => pydio.MessageHash['share_center.' + id];
 
-        let rootStyle = {width: 350, minHeight: 270};
+        let rootStyle = {width: 420, minHeight: 270};
         let content;
 
         if (edit) {
             if(editorOneColumn){
-                rootStyle = {width: 350, height: 500};
+                rootStyle = {width: 420, height: 500};
             } else{
                 rootStyle = {width: 700, height: 500};
             }
@@ -129,13 +130,32 @@ class CellCard extends React.Component{
                     moreMenuItems.push(<MenuItem primaryText={m(248)} onClick={deleteAction}/>);
                 }
             }
-            let watchLine, quotaLines =[], bmButton;
+            let watchLine, quotaLines =[], bmButton, expirationLine;
+            if(!loading && model.cell && model.cell.AccessEnd) {
+                const dateObject = new Date(parseInt(model.cell.AccessEnd) * 1000)
+                const dateExpired = (dateObject < new Date())
+                expirationLine = (
+                    <GenericLine
+                        iconClassName={dateExpired?"mdi mdi-alert-outline":"mdi mdi-calendar"}
+                        iconStyle={dateExpired?{color:'var(--md-sys-color-error)'}:{}}
+                        legend={m(dateExpired?'21b':'21')}
+                        data={moment(dateObject).calendar()}
+                    />
+                )
+            }
             if(asLib && coreActionsLib && rootNodes && !loading) {
                 const {WatchSelector} = asLib
                 const {BookmarkButton} = coreActionsLib
-                const selector = <WatchSelector pydio={pydio} nodes={rootNodes}/>;
-                watchLine = <GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} data={selector} iconStyle={{marginTop: 32}} />;
-                bmButton = <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'inherit'}}}/>;
+                const selector = <WatchSelector pydio={pydio} nodes={rootNodes} fullWidth={true}/>;
+                watchLine = (
+                    <GenericLine
+                        iconClassName={"mdi mdi-bell-outline"}
+                        legend={pydio.MessageHash['meta.watch.selector.legend']}
+                        data={selector}
+                        iconStyle={{marginTop: 26}}
+                        dataStyle={{paddingRight: 16, marginTop: -6, marginBottom: 6}}
+                    />);
+                bmButton = <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'var(--md-sys-color-primary)'}}}/>;
             }
             if(rootNodes && !loading) {
                 rootNodes.forEach((node) => {
@@ -158,8 +178,21 @@ class CellCard extends React.Component{
                     moreMenuItems={moreMenuItems}
                 >
                     {!loading && model.getDescription() && <GenericLine iconClassName="mdi mdi-information" legend={m(145)} data={model.getDescription()}/>}
-                    <GenericLine iconClassName="mdi mdi-account-multiple" legend={m(54)} data={model.getAclsSubjects()} placeHolder placeHolderReady={!loading}/>
-                    <GenericLine iconClassName="mdi mdi-folder" legend={m(249)} data={nodes} placeHolder placeHolderReady={!loading} />
+                    <GenericLine
+                        iconClassName="mdi mdi-account-multiple-outline"
+                        legend={m(54)}
+                        data={model.getAclsSubjects()}
+                        placeHolder
+                        placeHolderReady={!loading}
+                    />
+                    <GenericLine
+                        iconClassName="mdi mdi-folder-multiple-outline"
+                        legend={m(249)}
+                        data={nodes}
+                        placeHolder
+                        placeHolderReady={!loading}
+                    />
+                    {expirationLine}
                     {quotaLines}
                     {mode !== 'infoPanel' && (watchLine || <GenericLine placeHolder placeHolderReady={!loading}/>)}
                 </GenericCard>

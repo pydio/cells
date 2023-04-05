@@ -75,13 +75,13 @@ class WorkspaceCard extends React.Component {
         }
         if(pydio.getPluginConfigs('core.activitystreams').get('ACTIVITY_SHOW_ACTIVITIES') && ASLib && rootNodes){
             const {WatchSelector} = ASLib
-            const selector = <WatchSelector pydio={pydio} nodes={rootNodes}/>;
-            lines.push(<GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} iconStyle={{marginTop:32}} data={selector}/>)
+            const selector = <WatchSelector pydio={pydio} nodes={rootNodes} fullWidth={true}/>;
+            lines.push(<GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} iconStyle={{marginTop:32}} data={selector} dataStyle={{paddingRight: 16}}/>)
 
         }
         if (CALib && rootNodes){
             const {BookmarkButton} = CALib;
-            bookmarkAction = <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'inherit'}}}/>;
+            bookmarkAction = <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'var(--md-sys-color-primary)'}}}/>;
         }
 
         return (
@@ -89,7 +89,7 @@ class WorkspaceCard extends React.Component {
                 pydio={pydio}
                 title={workspace.getLabel()}
                 onDismissAction={onDismiss}
-                style={{width: 350}}
+                style={{width: 420}}
                 otherActions={[bookmarkAction]}
             >
                 {lines}

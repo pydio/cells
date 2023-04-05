@@ -1,8 +1,3 @@
-import React from 'react';
-import ShareContextConsumer from '../ShareContextConsumer'
-import SharedUserEntry from './SharedUserEntry'
-import ActionButton from '../main/ActionButton'
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -22,9 +17,14 @@ import ActionButton from '../main/ActionButton'
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
+import React from 'react';
+import Pydio from 'pydio'
 import PropTypes from 'prop-types';
 
-import Pydio from 'pydio'
+import ShareContextConsumer from '../ShareContextConsumer'
+import SharedUserEntry from './SharedUserEntry'
+import ActionButton from '../main/ActionButton'
 const {UsersCompleter} = Pydio.requireLib('components');
 import {muiThemeable} from 'material-ui/styles'
 
