@@ -27,10 +27,9 @@ import (
 	"context"
 	"fmt"
 
-	restful "github.com/emicklei/go-restful/v3"
+	"github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/health/grpc_health_v1"
-	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
@@ -74,15 +73,12 @@ func (h *SharesHandler) Filter() func(string) string {
 	return nil
 }
 
-func (h *SharesHandler) IdmUserFromClaims(ctx context.Context) *idm.User {
+func (h *SharesHandler) IdmUserFromClaims(ctx context.Context) (*idm.User, error) {
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
-	userId := claims.Subject
-	userName := claims.Name
-	return &idm.User{
-		Uuid:      userId,
-		Login:     userName,
-		GroupPath: claims.GroupPath,
+	if claims.Subject == "" {
+		return nil, fmt.Errorf("missing subject on Claims")
 	}
+	return permissions.SearchUniqueUser(ctx, "", claims.Subject)
 }
 
 // PutCell creates or updates a shared room (a.k.a a Cell) via REST API.
@@ -97,7 +93,11 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 	log.Logger(ctx).Debug("Received Share.Cell API request", zap.Any("input", &shareRequest))
-	ownerUser := h.IdmUserFromClaims(ctx)
+	ownerUser, er := h.IdmUserFromClaims(ctx)
+	if er != nil {
+		service.RestError403(req, rsp, fmt.Errorf("cannot find user in context"))
+		return
+	}
 
 	if err := h.docStoreStatus(ctx); err != nil {
 		service.RestErrorDetect(req, rsp, err)
@@ -105,7 +105,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 	}
 
 	// Init Root Nodes and check permissions
-	createdCellNode, readonly, err := h.sc.ParseRootNodes(ctx, &shareRequest)
+	createdCellNode, readonly, err := h.sc.ParseRootNodes(ctx, shareRequest.Room, shareRequest.CreateEmptyRoot)
 	if err != nil {
 		service.RestErrorDetect(req, rsp, err)
 		return
@@ -118,116 +118,17 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 
-	if e := h.sc.CheckCellOptionsAgainstConfigs(ctx, &shareRequest); e != nil {
+	if e := h.sc.CheckCellOptionsAgainstConfigs(ctx, shareRequest.Room); e != nil {
 		service.RestErrorDetect(req, rsp, e)
 		return
 	}
 
-	workspace, wsCreated, err := h.sc.GetOrCreateWorkspace(ctx, ownerUser, shareRequest.Room.Uuid, idm.WorkspaceScope_ROOM, shareRequest.Room.Label, "", shareRequest.Room.Description, false)
-	if err != nil {
-		service.RestError500(req, rsp, err)
-		return
-	}
-	if !wsCreated && !h.IsContextEditable(ctx, workspace.UUID, workspace.Policies) {
-		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to edit this cell"))
-		return
-	}
-
-	// Now set ACLs on Workspace
-	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceAcl))
-	var currentAcls []*idm.ACL
-	var currentRoots []string
-	if !wsCreated {
-		var err error
-		currentAcls, currentRoots, err = h.sc.CommonAclsForWorkspace(h.ctx, workspace.UUID)
-		if err != nil {
-			service.RestError500(req, rsp, err)
-			return
-		}
-	} else {
-		// New workspace, create "workspace-path" ACLs
-		for _, node := range shareRequest.Room.RootNodes {
-			aclClient.CreateACL(ctx, &idm.CreateACLRequest{
-				ACL: &idm.ACL{
-					NodeID:      node.Uuid,
-					WorkspaceID: workspace.UUID,
-					Action:      &idm.ACLAction{Name: permissions.AclWsrootActionName, Value: "uuid:" + node.Uuid},
-				},
-			})
-		}
-		// For new specific CellNode, set this node as a RecycleRoot
-		if createdCellNode != nil {
-			aclClient.CreateACL(ctx, &idm.CreateACLRequest{
-				ACL: &idm.ACL{
-					NodeID:      createdCellNode.Uuid,
-					WorkspaceID: workspace.UUID,
-					Action:      permissions.AclRecycleRoot,
-				},
-			})
-		}
-	}
-	log.Logger(ctx).Debug("Current Roots", log.DangerouslyZapSmallSlice("crt", currentRoots))
-	targetAcls, e := h.sc.ComputeTargetAcls(ctx, ownerUser, shareRequest.Room, workspace.UUID, readonly, parentPol)
-	if e != nil {
-		service.RestError500(req, rsp, e)
-		return
-	}
-	log.Logger(ctx).Debug("Share ACLS", log.DangerouslyZapSmallSlice("current", currentAcls), log.DangerouslyZapSmallSlice("target", targetAcls))
-	add, remove := h.sc.DiffAcls(ctx, currentAcls, targetAcls)
-	log.Logger(ctx).Debug("Diff ACLS", log.DangerouslyZapSmallSlice("add", add), log.DangerouslyZapSmallSlice("remove", remove))
-
-	for _, acl := range remove {
-		removeQuery, _ := anypb.New(&idm.ACLSingleQuery{
-			NodeIDs:      []string{acl.NodeID},
-			RoleIDs:      []string{acl.RoleID},
-			WorkspaceIDs: []string{acl.WorkspaceID},
-			Actions:      []*idm.ACLAction{acl.Action},
-		})
-		_, err := aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{Query: &service2.Query{SubQueries: []*anypb.Any{removeQuery}}})
-		if err != nil {
-			log.Logger(ctx).Error("Share: Error while deleting ACLs", zap.Error(err))
-		}
-	}
-	for _, acl := range add {
-		_, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
-		if err != nil {
-			log.Logger(ctx).Error("Share: Error while creating ACLs", zap.Error(err))
-		}
-	}
-
-	log.Logger(ctx).Debug("Share Policies", log.DangerouslyZapSmallSlice("before", workspace.Policies))
-	h.sc.UpdatePoliciesFromAcls(ctx, workspace, currentAcls, targetAcls)
-
-	// Now update workspace
-	log.Logger(ctx).Debug("Updating workspace", zap.Any("workspace", workspace))
-	wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceWorkspace))
-	if _, err := wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace}); err != nil {
-		service.RestError500(req, rsp, err)
-		return
-	}
-
-	// Put an Audit log if this cell has been newly created
-	if wsCreated {
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("Created cell [%s]", shareRequest.Room.Label),
-			log.GetAuditId(common.AuditCellCreate),
-			zap.String(common.KeyCellUuid, shareRequest.Room.Uuid),
-			zap.String(common.KeyWorkspaceUuid, shareRequest.Room.Uuid),
-		)
-	} else {
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("Updated cell [%s]", shareRequest.Room.Label),
-			log.GetAuditId(common.AuditCellUpdate),
-			zap.String(common.KeyCellUuid, shareRequest.Room.Uuid),
-			zap.String(common.KeyWorkspaceUuid, shareRequest.Room.Uuid),
-		)
-	}
-
-	if output, err := h.sc.WorkspaceToCellObject(ctx, workspace); err != nil {
+	if output, err := h.sc.UpsertCell(ctx, shareRequest.Room, ownerUser, createdCellNode, readonly, parentPol); err != nil {
 		service.RestError500(req, rsp, err)
 	} else {
-		rsp.WriteEntity(output)
+		_ = rsp.WriteEntity(output)
 	}
+
 }
 
 // GetCell simply retrieves a shared room from its UUID.
@@ -235,9 +136,8 @@ func (h *SharesHandler) GetCell(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
-	ownerUser := h.IdmUserFromClaims(ctx)
 
-	workspace, _, err := h.sc.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_ROOM, "", "", "", false)
+	workspace, err := h.sc.GetCellWorkspace(ctx, id)
 	if err != nil {
 		if errors.FromError(err).Code == 404 {
 			service.RestError404(req, rsp, err)
@@ -246,8 +146,13 @@ func (h *SharesHandler) GetCell(req *restful.Request, rsp *restful.Response) {
 		}
 		return
 	}
+	acl, err := permissions.AccessListFromContextClaims(ctx)
+	if err != nil {
+		service.RestError403(req, rsp, fmt.Errorf("cannot find access list in context %v", err))
+		return
+	}
 
-	if output, err := h.sc.WorkspaceToCellObject(ctx, workspace); err != nil {
+	if output, err := h.sc.WorkspaceToCellObject(ctx, workspace, acl); err != nil {
 		service.RestError500(req, rsp, err)
 	} else {
 		rsp.WriteEntity(output)
@@ -260,37 +165,16 @@ func (h *SharesHandler) DeleteCell(req *restful.Request, rsp *restful.Response) 
 
 	ctx := req.Request.Context()
 	id := req.PathParameter("Uuid")
-	ownerUser := h.IdmUserFromClaims(ctx)
-
-	ws, _, e := h.sc.GetOrCreateWorkspace(ctx, ownerUser, id, idm.WorkspaceScope_ROOM, "", "", "", false)
-	if e != nil || ws == nil {
-		service.RestError404(req, rsp, e)
-		return
-	} else if !h.IsContextEditable(ctx, id, ws.Policies) {
-		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to edit this room"))
+	ownerLogin, _ := permissions.FindUserNameInContext(ctx)
+	err := h.sc.DeleteCell(ctx, id, ownerLogin)
+	if err != nil {
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
-
-	currWsLabel := ws.Label
-
-	log.Logger(ctx).Debug("Delete share room", zap.Any("workspaceId", id))
-	// This will load the workspace and its root, and eventually remove the Room root totally
-	if err := h.sc.DeleteWorkspace(ctx, ownerUser, idm.WorkspaceScope_ROOM, id); err != nil {
-		service.RestError500(req, rsp, err)
-		return
-	}
-
-	// Put an Audit log if this cell has been removed without error
-	log.Auditer(ctx).Info(
-		fmt.Sprintf("Removed cell [%s]", currWsLabel),
-		log.GetAuditId(common.AuditCellDelete),
-		zap.String(common.KeyCellUuid, id),
-		zap.String(common.KeyWorkspaceUuid, id),
-	)
-
-	rsp.WriteEntity(&rest.DeleteCellResponse{
+	_ = rsp.WriteEntity(&rest.DeleteCellResponse{
 		Success: true,
 	})
+
 }
 
 // PutShareLink creates or updates a link to a shared item.
@@ -329,7 +213,11 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 		return
 	}
 
-	ownerUser := h.IdmUserFromClaims(ctx)
+	ownerUser, er := h.IdmUserFromClaims(ctx)
+	if er != nil {
+		service.RestError403(req, rsp, fmt.Errorf("cannot find user in context"))
+		return
+	}
 
 	output, er := h.sc.UpsertLink(ctx, link, &putRequest, ownerUser, parentPolicy, pluginOptions)
 	if er != nil {

@@ -78,7 +78,7 @@ func (sc *Client) CheckLinkOptionsAgainstConfigs(ctx context.Context, link *rest
 }
 
 // CheckCellOptionsAgainstConfigs loads specific share configurations from ACLs and checks that current cell complies with these.
-func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, request *rest.PutCellRequest) error {
+func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, cell *rest.Cell) error {
 	router := compose.ReverseClient(sc.RuntimeContext)
 	acl, e := permissions.AccessListFromContextClaims(ctx)
 	if e != nil {
@@ -91,12 +91,12 @@ func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, request *r
 	options := sc.DefaultOptions()
 	aclWss := acl.GetWorkspaces()
 	return router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
-		for _, n := range request.Room.RootNodes {
+		for _, n := range cell.RootNodes {
 			var files, folders bool
 			var wss []*idm.Workspace
 			_, internal, _ := inputFilter(ctx, n, "in")
 			for _, ws := range aclWss {
-				if request.Room.Uuid == ws.UUID { // Ignore current room
+				if cell.Uuid == ws.UUID { // Ignore current room
 					continue
 				}
 				if _, ok := router.WorkspaceCanSeeNode(ctx, nil, ws, internal); ok {

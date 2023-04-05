@@ -132,7 +132,8 @@ func (sc *Client) ListSharedResources(ctx context.Context, subject string, scope
 	if subject != "" {
 		rootNodes = sc.LoadAdminRootNodes(ctx, detectedRoots)
 	} else {
-		rootNodes = sc.LoadDetectedRootNodes(ctx, detectedRoots)
+		accessList, _ := permissions.AccessListFromContextClaims(ctx)
+		rootNodes = sc.LoadDetectedRootNodes(ctx, detectedRoots, accessList)
 	}
 
 	// Build resources

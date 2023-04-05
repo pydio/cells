@@ -23,23 +23,24 @@ package share
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/permissions"
-	"go.uber.org/zap"
-	"google.golang.org/protobuf/types/known/anypb"
 	"path"
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
+
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -286,6 +287,7 @@ func (sc *Client) DeleteLink(ctx context.Context, id string) error {
 	return nil
 }
 
+// SharesForNode finds all active workspaces (Links or Cells) for a given node+owner combination
 func (sc *Client) SharesForNode(ctx context.Context, node *tree.Node, contextOwner *idm.User, scopes ...idm.WorkspaceScope) ([]*idm.Workspace, error) {
 
 	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceAcl))
@@ -356,4 +358,172 @@ func (sc *Client) SharesForNode(ctx context.Context, node *tree.Node, contextOwn
 	}
 	return shares, nil
 
+}
+
+// CellById finds a Cell by its Uuid
+func (sc *Client) CellById(ctx context.Context, wsUuid string, owner *idm.User) (*rest.Cell, error) {
+	ws, e := sc.GetCellWorkspace(ctx, wsUuid)
+	if e != nil {
+		return nil, e
+	}
+	acl, er := permissions.AccessListFromRoles(ctx, owner.Roles, true, true)
+	if er != nil {
+		return nil, er
+	}
+	return sc.WorkspaceToCellObject(ctx, ws, acl)
+}
+
+// CellsForNode loads existing Cells attached to a given node (and owned by passed user)
+func (sc *Client) CellsForNode(ctx context.Context, node *tree.Node, owner *idm.User) (ll []*rest.Cell, e error) {
+	wss, er := sc.SharesForNode(ctx, node, owner, idm.WorkspaceScope_ROOM)
+	if er != nil {
+		return nil, er
+	}
+	acl, er := permissions.AccessListFromRoles(ctx, owner.Roles, true, true)
+	if er != nil {
+		return nil, er
+	}
+	for _, ws := range wss {
+		if l, er := sc.WorkspaceToCellObject(ctx, ws, acl); e == nil {
+			ll = append(ll, l)
+		} else {
+			return nil, er
+		}
+	}
+	return
+}
+
+// UpsertCell creates or update an existing cell with specific ACLs
+func (sc *Client) UpsertCell(ctx context.Context, cell *rest.Cell, ownerUser *idm.User, cellRoot *tree.Node, hasReadonly bool, parentPolicy string) (*rest.Cell, error) {
+
+	workspace, wsCreated, err := sc.GetOrCreateWorkspace(ctx, ownerUser, cell.Uuid, idm.WorkspaceScope_ROOM, cell.Label, "", cell.Description, false)
+	if err != nil {
+		return nil, err
+	}
+	if !wsCreated && !sc.checker.IsContextEditable(ctx, workspace.UUID, workspace.Policies) {
+		return nil, errors.Forbidden("cell.not.editable", "you are not allowed to edit this cell")
+	}
+
+	// Now set ACLs on Workspace
+	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceAcl))
+	var currentAcls []*idm.ACL
+	var currentRoots []string
+	if !wsCreated {
+		var err error
+		currentAcls, currentRoots, err = sc.CommonAclsForWorkspace(sc.RuntimeContext, workspace.UUID)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// New workspace, create "workspace-path" ACLs
+		for _, node := range cell.RootNodes {
+			aclClient.CreateACL(ctx, &idm.CreateACLRequest{
+				ACL: &idm.ACL{
+					NodeID:      node.Uuid,
+					WorkspaceID: workspace.UUID,
+					Action:      &idm.ACLAction{Name: permissions.AclWsrootActionName, Value: "uuid:" + node.Uuid},
+				},
+			})
+		}
+		// For new specific CellNode, set this node as a RecycleRoot
+		if cellRoot != nil {
+			aclClient.CreateACL(ctx, &idm.CreateACLRequest{
+				ACL: &idm.ACL{
+					NodeID:      cellRoot.Uuid,
+					WorkspaceID: workspace.UUID,
+					Action:      permissions.AclRecycleRoot,
+				},
+			})
+		}
+	}
+	log.Logger(ctx).Debug("Current Roots", log.DangerouslyZapSmallSlice("crt", currentRoots))
+	targetAcls, e := sc.ComputeTargetAcls(ctx, ownerUser, cell, workspace.UUID, hasReadonly, parentPolicy)
+	if e != nil {
+		return nil, e
+	}
+	log.Logger(ctx).Debug("Share ACLS", log.DangerouslyZapSmallSlice("current", currentAcls), log.DangerouslyZapSmallSlice("target", targetAcls))
+	add, remove := sc.DiffAcls(ctx, currentAcls, targetAcls)
+	log.Logger(ctx).Debug("Diff ACLS", log.DangerouslyZapSmallSlice("add", add), log.DangerouslyZapSmallSlice("remove", remove))
+
+	for _, acl := range remove {
+		removeQuery, _ := anypb.New(&idm.ACLSingleQuery{
+			NodeIDs:      []string{acl.NodeID},
+			RoleIDs:      []string{acl.RoleID},
+			WorkspaceIDs: []string{acl.WorkspaceID},
+			Actions:      []*idm.ACLAction{acl.Action},
+		})
+		_, err := aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{Query: &service2.Query{SubQueries: []*anypb.Any{removeQuery}}})
+		if err != nil {
+			log.Logger(ctx).Error("Share: Error while deleting ACLs", zap.Error(err))
+		}
+	}
+	for _, acl := range add {
+		_, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
+		if err != nil {
+			log.Logger(ctx).Error("Share: Error while creating ACLs", zap.Error(err))
+		}
+	}
+
+	log.Logger(ctx).Debug("Share Policies", log.DangerouslyZapSmallSlice("before", workspace.Policies))
+	sc.UpdatePoliciesFromAcls(ctx, workspace, currentAcls, targetAcls)
+
+	// Now update workspace
+	log.Logger(ctx).Debug("Updating workspace", zap.Any("workspace", workspace))
+	wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceWorkspace))
+	if _, err := wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace}); err != nil {
+		return nil, err
+	}
+
+	// Put an Audit log if this cell has been newly created
+	if wsCreated {
+		log.Auditer(ctx).Info(
+			fmt.Sprintf("Created cell [%s]", cell.Label),
+			log.GetAuditId(common.AuditCellCreate),
+			zap.String(common.KeyCellUuid, cell.Uuid),
+			zap.String(common.KeyWorkspaceUuid, cell.Uuid),
+		)
+	} else {
+		log.Auditer(ctx).Info(
+			fmt.Sprintf("Updated cell [%s]", cell.Label),
+			log.GetAuditId(common.AuditCellUpdate),
+			zap.String(common.KeyCellUuid, cell.Uuid),
+			zap.String(common.KeyWorkspaceUuid, cell.Uuid),
+		)
+	}
+
+	acl, er := permissions.AccessListFromRoles(ctx, ownerUser.Roles, true, true)
+	if er != nil {
+		return nil, er
+	}
+	return sc.WorkspaceToCellObject(ctx, workspace, acl)
+
+}
+
+// DeleteCell deletes a Cell by its ID
+func (sc *Client) DeleteCell(ctx context.Context, id string, ownerLogin string) error {
+
+	ws, e := sc.GetCellWorkspace(ctx, id)
+	if e != nil || ws == nil {
+		return errors.NotFound("cell.not.found", e.Error())
+	} else if !sc.checker.IsContextEditable(ctx, id, ws.Policies) {
+		return errors.Forbidden("cell.not.editable", "you are not allowed to edit this room")
+	}
+
+	currWsLabel := ws.Label
+
+	log.Logger(ctx).Debug("Delete share room", zap.Any("workspaceId", id))
+	// This will load the workspace and its root, and eventually remove the Room root totally
+	if err := sc.DeleteWorkspace(ctx, ownerLogin, idm.WorkspaceScope_ROOM, id); err != nil {
+		return err
+	}
+
+	// Put an Audit log if this cell has been removed without error
+	log.Auditer(ctx).Info(
+		fmt.Sprintf("Removed cell [%s]", currWsLabel),
+		log.GetAuditId(common.AuditCellDelete),
+		zap.String(common.KeyCellUuid, id),
+		zap.String(common.KeyWorkspaceUuid, id),
+	)
+
+	return nil
 }

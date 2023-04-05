@@ -23,7 +23,6 @@ package share
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/nodes"
 	"strings"
 	"sync"
 
@@ -34,7 +33,9 @@ import (
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
+	"github.com/pydio/cells/v4/common/nodes/acl"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -70,15 +71,15 @@ func (sc *Client) getPathRouter() nodes.Handler {
 
 // LoadDetectedRootNodes find actual nodes in the tree, and enrich their metadata if they appear
 // in many workspaces for the current user.
-func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []string) (rootNodes map[string]*tree.Node) {
+func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []string, accessList *permissions.AccessList) (rootNodes map[string]*tree.Node) {
 
 	router := sc.getUuidRouter()
 	throttle := make(chan struct{}, 5)
 	eventFilter := compose.ReverseClient(sc.RuntimeContext, nodes.AsAdmin())
-	accessList, _ := permissions.AccessListFromContextClaims(ctx)
 	wg := &sync.WaitGroup{}
 	wg.Add(len(detectedRoots))
 	var loaded []*tree.Node
+	ensureCtx := acl.WithPresetACL(ctx, accessList)
 	for _, rootId := range detectedRoots {
 		throttle <- struct{}{}
 		go func(rid string) {
@@ -87,11 +88,11 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 				<-throttle
 			}()
 			request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rid}}
-			if resp, err := router.ReadNode(ctx, request); err == nil {
+			if resp, err := router.ReadNode(ensureCtx, request); err == nil {
 				node := resp.Node
 				var multipleMeta []*tree.WorkspaceRelativePath
 				for _, ws := range accessList.GetWorkspaces() {
-					if filtered, ok := eventFilter.WorkspaceCanSeeNode(ctx, accessList, ws, resp.Node); ok {
+					if filtered, ok := eventFilter.WorkspaceCanSeeNode(ensureCtx, accessList, ws, resp.Node); ok {
 						multipleMeta = append(multipleMeta, &tree.WorkspaceRelativePath{
 							WsLabel: ws.Label,
 							WsUuid:  ws.UUID,
@@ -123,11 +124,11 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 
 // ParseRootNodes reads the request property to either create a new node using the "rooms" Virtual node,
 // or just verify that the root nodes are not empty.
-func (sc *Client) ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (*tree.Node, bool, error) {
+func (sc *Client) ParseRootNodes(ctx context.Context, cell *rest.Cell, createEmpty bool) (*tree.Node, bool, error) {
 
 	var createdNode *tree.Node
 	router := sc.getPathRouter()
-	for i, n := range shareRequest.Room.RootNodes {
+	for i, n := range cell.RootNodes {
 		r, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n})
 		if e != nil {
 			return nil, false, e
@@ -136,9 +137,9 @@ func (sc *Client) ParseRootNodes(ctx context.Context, shareRequest *rest.PutCell
 		if r.Node.Uuid == "" {
 			r.Node.Uuid = n.Uuid
 		}
-		shareRequest.Room.RootNodes[i] = r.Node
+		cell.RootNodes[i] = r.Node
 	}
-	if shareRequest.CreateEmptyRoot {
+	if createEmpty {
 
 		manager := abstract.GetVirtualNodesManager(sc.RuntimeContext)
 		internalRouter := compose.PathClientAdmin(sc.RuntimeContext)
@@ -148,7 +149,7 @@ func (sc *Client) ParseRootNodes(ctx context.Context, shareRequest *rest.PutCell
 				return nil, false, err
 			}
 			index := 0
-			labelSlug := slug.Make(shareRequest.Room.Label)
+			labelSlug := slug.Make(cell.Label)
 			baseSlug := labelSlug
 			for {
 				if existingResp, err := internalRouter.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: parentNode.Path + "/" + labelSlug}}); err == nil && existingResp.Node != nil {
@@ -169,25 +170,25 @@ func (sc *Client) ParseRootNodes(ctx context.Context, shareRequest *rest.PutCell
 			createResp.Node.MustSetMeta(common.MetaFlagCellNode, true)
 			metaClient := tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceMeta))
 			metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: createResp.Node})
-			shareRequest.Room.RootNodes = append(shareRequest.Room.RootNodes, createResp.Node)
+			cell.RootNodes = append(cell.RootNodes, createResp.Node)
 			createdNode = createResp.Node
 		} else {
 			return nil, false, errors.InternalServerError(common.ServiceShare, "Wrong configuration, missing rooms virtual node")
 		}
 	}
-	if len(shareRequest.Room.RootNodes) == 0 {
+	if len(cell.RootNodes) == 0 {
 		return nil, false, errors.BadRequest(common.ServiceShare, "Wrong configuration, missing RootNodes in CellRequest")
 	}
 
 	// First check of incoming ACLs
 	var hasReadonly bool
-	for _, root := range shareRequest.Room.RootNodes {
+	for _, root := range cell.RootNodes {
 		if root.GetStringMeta(common.MetaFlagReadonly) != "" {
 			hasReadonly = true
 		}
 	}
 	if hasReadonly {
-		for _, a := range shareRequest.Room.GetACLs() {
+		for _, a := range cell.GetACLs() {
 			for _, action := range a.GetActions() {
 				if action.Name == permissions.AclWrite.Name {
 					return nil, true, errors.Forbidden(common.ServiceShare, "One of the resource you are sharing is readonly. You cannot assign write permission on this Cell.")
@@ -195,7 +196,7 @@ func (sc *Client) ParseRootNodes(ctx context.Context, shareRequest *rest.PutCell
 			}
 		}
 	}
-	log.Logger(ctx).Debug("ParseRootNodes", log.DangerouslyZapSmallSlice("r", shareRequest.Room.RootNodes), zap.Bool("readonly", hasReadonly))
+	log.Logger(ctx).Debug("ParseRootNodes", log.DangerouslyZapSmallSlice("r", cell.RootNodes), zap.Bool("readonly", hasReadonly))
 	return createdNode, hasReadonly, nil
 
 }
