@@ -27,11 +27,12 @@ import (
 )
 
 type WsAttributes struct {
-	AllowSync     bool   `json:"ALLOW_SYNC,omitempty"`
-	SkipRecycle   bool   `json:"SKIP_RECYCLE,omitempty"`
-	DefaultRights string `json:"DEFAULT_RIGHTS,omitempty"`
-	QuotaValue    string `json:"QUOTA,omitempty"`
-	MetaLayout    string `json:"META_LAYOUT,omitempty"`
+	AllowSync       bool   `json:"ALLOW_SYNC,omitempty"`
+	SkipRecycle     bool   `json:"SKIP_RECYCLE,omitempty"`
+	DefaultRights   string `json:"DEFAULT_RIGHTS,omitempty"`
+	QuotaValue      string `json:"QUOTA,omitempty"`
+	MetaLayout      string `json:"META_LAYOUT,omitempty"`
+	ShareExpiration int64  `json:"shareExpiration,omitempty"`
 }
 
 func (m *Workspace) LoadAttributes() *WsAttributes {

@@ -32,6 +32,8 @@ message NodesSelector {
     string Description = 7;
     // Optional Timeout for this selector
     string Timeout = 8;
+    // Clear previous selection
+    bool ClearInput = 10;
 }
 
 // Possible values for IdmSelector.Type
@@ -60,6 +62,8 @@ message IdmSelector {
     string Description = 6;
     // Optional Timeout for this selector
     string Timeout = 7;
+    // Clear previous selection
+    bool ClearInput = 9;
 }
 
 // Select or filter users - should be replaced by more generic IdmSelector
@@ -79,6 +83,8 @@ message UsersSelector {
     string Description = 7;
     // Optional Timeout for this selector
     string Timeout = 8;
+    // Clear previous selection
+    bool ClearInput = 9;
 }
 
 enum DataSourceSelectorType {
@@ -104,6 +110,8 @@ message DataSourceSelector {
     service.Query Query = 6;
     // Optional Timeout for this selector
     string Timeout = 7;
+    // Clear previous selection
+    bool ClearInput = 9;
 }
 
 // Atomic query for TriggerFilter
@@ -263,6 +271,8 @@ message Job {
     Schedule Schedule = 6;
     // Start task as soon as job is inserted
     bool AutoStart = 7;
+    // Start task as soon as server is started
+    bool AutoRestart = 29;
     // Remove job automatically once it is finished (success only)
     bool AutoClean = 11;
 

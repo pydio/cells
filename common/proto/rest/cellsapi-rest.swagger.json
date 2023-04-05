@@ -2061,6 +2061,10 @@
           "title": "Select all",
           "type": "boolean"
         },
+        "ClearInput": {
+          "title": "Clear previous selection",
+          "type": "boolean"
+        },
         "Collect": {
           "title": "Collect results",
           "type": "boolean"
@@ -2146,6 +2150,10 @@
           "title": "Load all objects",
           "type": "boolean"
         },
+        "ClearInput": {
+          "title": "Clear previous selection",
+          "type": "boolean"
+        },
         "Collect": {
           "title": "Pass a slice of objects to one action, or trigger all actions in parallel",
           "type": "boolean"
@@ -2200,6 +2208,10 @@
         },
         "AutoClean": {
           "title": "Remove job automatically once it is finished (success only)",
+          "type": "boolean"
+        },
+        "AutoRestart": {
+          "title": "Start task as soon as server is started",
           "type": "boolean"
         },
         "AutoStart": {
@@ -2437,6 +2449,10 @@
           "title": "Select all files - ignore any other condition",
           "type": "boolean"
         },
+        "ClearInput": {
+          "title": "Clear previous selection",
+          "type": "boolean"
+        },
         "Collect": {
           "title": "Whether to trigger one action per node or one action\nwith all nodes as selection",
           "type": "boolean"
@@ -2575,6 +2591,10 @@
       "properties": {
         "All": {
           "title": "Select all users",
+          "type": "boolean"
+        },
+        "ClearInput": {
+          "title": "Clear previous selection",
           "type": "boolean"
         },
         "Collect": {
@@ -3294,6 +3314,11 @@
           "title": "Access control for this Cell",
           "type": "object"
         },
+        "AccessEnd": {
+          "format": "int64",
+          "title": "Timestamp after which the share is disabled",
+          "type": "string"
+        },
         "Description": {
           "title": "Long description of the Cell (max 1000 chars)",
           "type": "string"
@@ -3798,6 +3823,14 @@
           "format": "int32",
           "title": "Start listing at a given position",
           "type": "integer"
+        },
+        "SortDirDesc": {
+          "title": "Sort descending (otherwise ascending)",
+          "type": "boolean"
+        },
+        "SortField": {
+          "title": "Remote Sort on specific field",
+          "type": "string"
         },
         "Versions": {
           "title": "Load Versions of the given node",
@@ -5161,6 +5194,14 @@
         "Recursive": {
           "title": "Send back all children of the node",
           "type": "boolean"
+        },
+        "SortDirDesc": {
+          "title": "Sort descending (otherwise ascending)",
+          "type": "boolean"
+        },
+        "SortField": {
+          "title": "Remote Sort on specific field",
+          "type": "string"
         },
         "StatFlags": {
           "items": {

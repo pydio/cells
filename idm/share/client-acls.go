@@ -70,6 +70,7 @@ func (sc *Client) WorkspaceToCellObject(ctx context.Context, workspace *idm.Work
 		Description:             workspace.Description,
 		RootNodes:               nodesSlices,
 		ACLs:                    roomAcls,
+		AccessEnd:               workspace.LoadAttributes().ShareExpiration,
 		Policies:                workspace.Policies,
 		PoliciesContextEditable: sc.checker.IsContextEditable(ctx, workspace.UUID, workspace.Policies),
 	}, nil

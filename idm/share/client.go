@@ -394,7 +394,7 @@ func (sc *Client) CellsForNode(ctx context.Context, node *tree.Node, owner *idm.
 }
 
 // UpsertCell creates or update an existing cell with specific ACLs
-func (sc *Client) UpsertCell(ctx context.Context, cell *rest.Cell, ownerUser *idm.User, cellRoot *tree.Node, hasReadonly bool, parentPolicy string) (*rest.Cell, error) {
+func (sc *Client) UpsertCell(ctx context.Context, cell *rest.Cell, ownerUser *idm.User, hasReadonly bool, parentPolicy string) (*rest.Cell, error) {
 
 	workspace, wsCreated, err := sc.GetOrCreateWorkspace(ctx, ownerUser, cell.Uuid, idm.WorkspaceScope_ROOM, cell.Label, "", cell.Description, false)
 	if err != nil {
@@ -417,23 +417,28 @@ func (sc *Client) UpsertCell(ctx context.Context, cell *rest.Cell, ownerUser *id
 	} else {
 		// New workspace, create "workspace-path" ACLs
 		for _, node := range cell.RootNodes {
-			aclClient.CreateACL(ctx, &idm.CreateACLRequest{
+			if node.GetMetaBool(common.MetaFlagCellNode) {
+				_, er := aclClient.CreateACL(ctx, &idm.CreateACLRequest{
+					ACL: &idm.ACL{
+						NodeID:      node.Uuid,
+						WorkspaceID: workspace.UUID,
+						Action:      permissions.AclRecycleRoot,
+					},
+				})
+				if er != nil {
+					return nil, er
+				}
+			}
+			_, er := aclClient.CreateACL(ctx, &idm.CreateACLRequest{
 				ACL: &idm.ACL{
 					NodeID:      node.Uuid,
 					WorkspaceID: workspace.UUID,
 					Action:      &idm.ACLAction{Name: permissions.AclWsrootActionName, Value: "uuid:" + node.Uuid},
 				},
 			})
-		}
-		// For new specific CellNode, set this node as a RecycleRoot
-		if cellRoot != nil {
-			aclClient.CreateACL(ctx, &idm.CreateACLRequest{
-				ACL: &idm.ACL{
-					NodeID:      cellRoot.Uuid,
-					WorkspaceID: workspace.UUID,
-					Action:      permissions.AclRecycleRoot,
-				},
-			})
+			if er != nil {
+				return nil, er
+			}
 		}
 	}
 	log.Logger(ctx).Debug("Current Roots", log.DangerouslyZapSmallSlice("crt", currentRoots))
@@ -461,6 +466,56 @@ func (sc *Client) UpsertCell(ctx context.Context, cell *rest.Cell, ownerUser *id
 		_, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
 		if err != nil {
 			log.Logger(ctx).Error("Share: Error while creating ACLs", zap.Error(err))
+		}
+	}
+
+	if cell.AccessEnd > 0 || cell.AccessEnd == -1 {
+		expQuery := &service2.Query{
+			Operation: service2.OperationType_OR,
+		}
+		for _, a := range targetAcls {
+			if a.RoleID == ownerUser.Uuid {
+				// do **not** set expiration for owner
+				continue
+			}
+			aq, _ := anypb.New(&idm.ACLSingleQuery{
+				RoleIDs:      []string{a.RoleID},
+				WorkspaceIDs: []string{a.WorkspaceID},
+				NodeIDs:      []string{a.NodeID},
+				Actions:      []*idm.ACLAction{a.Action},
+			})
+			expQuery.SubQueries = append(expQuery.SubQueries, aq)
+		}
+		if len(expQuery.SubQueries) > 0 {
+			if cell.AccessEnd == -1 {
+				resp, e := aclClient.RestoreACL(ctx, &idm.RestoreACLRequest{
+					Query: expQuery,
+				})
+				if e != nil {
+					log.Logger(ctx).Warn("Share: could not restore ACLs Expiration Date")
+				} else {
+					log.Logger(ctx).Info(fmt.Sprintf("Share: removed expiration date on %d ACLs", resp.Rows), zap.Int64("modifiedRows", resp.Rows))
+				}
+			} else {
+				resp, e := aclClient.ExpireACL(ctx, &idm.ExpireACLRequest{
+					Query:     expQuery,
+					Timestamp: cell.AccessEnd,
+				})
+				if e != nil {
+					log.Logger(ctx).Warn("Share: could not set ACLs Expiration Date")
+				} else {
+					log.Logger(ctx).Info(fmt.Sprintf("Share: set expiration date on %d ACLs", resp.Rows), zap.Int64("modifiedRows", resp.Rows))
+				}
+			}
+		}
+		if cell.AccessEnd == -1 {
+			att := workspace.LoadAttributes()
+			att.ShareExpiration = 0
+			workspace.SetAttributes(att)
+		} else {
+			att := workspace.LoadAttributes()
+			att.ShareExpiration = cell.AccessEnd
+			workspace.SetAttributes(att)
 		}
 	}
 

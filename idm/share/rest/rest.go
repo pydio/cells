@@ -105,7 +105,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 	}
 
 	// Init Root Nodes and check permissions
-	createdCellNode, readonly, err := h.sc.ParseRootNodes(ctx, shareRequest.Room, shareRequest.CreateEmptyRoot)
+	hasReadonly, err := h.sc.ParseRootNodes(ctx, shareRequest.Room, shareRequest.CreateEmptyRoot)
 	if err != nil {
 		service.RestErrorDetect(req, rsp, err)
 		return
@@ -123,7 +123,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 
-	if output, err := h.sc.UpsertCell(ctx, shareRequest.Room, ownerUser, createdCellNode, readonly, parentPol); err != nil {
+	if output, err := h.sc.UpsertCell(ctx, shareRequest.Room, ownerUser, hasReadonly, parentPol); err != nil {
 		service.RestError500(req, rsp, err)
 	} else {
 		_ = rsp.WriteEntity(output)
@@ -263,39 +263,6 @@ func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Respo
 		service.RestErrorDetect(req, rsp, err)
 		return
 	}
-
-	/*
-		if ws, e := h.sc.GetLinkWorkspace(ctx, id); e != nil || ws == nil {
-			service.RestError404(req, rsp, e)
-			return
-		} else if !h.IsContextEditable(ctx, id, ws.Policies) {
-			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to edit this link"))
-			return
-		}
-
-		// Will try to load the workspace first, and throw an error if something goes wrong
-		if err := h.sc.DeleteLinkWorkspace(ctx, id, h); err != nil {
-			service.RestErrorDetect(req, rsp, err)
-			return
-		}
-
-		storedLink := &rest.ShareLink{Uuid: id}
-		if err := h.sc.LoadHashDocumentData(ctx, storedLink, []*idm.ACL{}); err != nil {
-			service.RestErrorDetect(req, rsp, err)
-			return
-		}
-		// Delete associated Document from Docstore
-		if err := h.sc.DeleteHashDocument(ctx, id); err != nil {
-			service.RestErrorDetect(req, rsp, err)
-			return
-		}
-
-		// Delete associated Hidden user
-		if err := h.sc.DeleteHiddenUser(ctx, storedLink); err != nil {
-			service.RestErrorDetect(req, rsp, err)
-			return
-		}
-	*/
 
 	log.Auditer(ctx).Info(
 		fmt.Sprintf("Removed share link [%s]", id),
