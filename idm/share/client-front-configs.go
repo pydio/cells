@@ -37,6 +37,7 @@ import (
 
 type PluginOptions struct {
 	MaxExpiration           int
+	CellsMaxExpiration      int
 	MaxDownloads            int
 	HashMinLength           int
 	HashEditable            bool
@@ -119,6 +120,9 @@ func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, cell *rest
 			if folders && !loopOptions.enableFolderInternal {
 				return errors.Forbidden("folder.share-internal.forbidden", "You are not allowed to create Cells on folders")
 			}
+			if loopOptions.CellsMaxExpiration > 0 && (cell.AccessEnd == 0 || (cell.AccessEnd-time.Now().Unix()) > int64(loopOptions.MaxExpiration*24*60*60)) {
+				return errors.Forbidden("cells.max-expiration.mandatory", "Please set a maximum expiration date for Cells")
+			}
 		}
 		return nil
 	})
@@ -138,6 +142,7 @@ func (sc *Client) DefaultOptions() PluginOptions {
 		enableFolderPublicLinks: configParams.Val("ENABLE_FOLDER_PUBLIC_LINK").Default(true).Bool(),
 		enableFolderInternal:    configParams.Val("ENABLE_FOLDER_INTERNAL_SHARING").Default(true).Bool(),
 		ShareForcePassword:      configParams.Val("SHARE_FORCE_PASSWORD").Default(false).Bool(),
+		CellsMaxExpiration:      configParams.Val("CELLS_MAX_EXPIRATION").Default(-1).Int(),
 	}
 	return options
 }
@@ -164,6 +169,7 @@ func (sc *Client) filterOptionsFromScopes(options PluginOptions, contextParams c
 		options.enableFileInternal = contextParams.Val("ENABLE_FILE_INTERNAL_SHARING", scope).Default(options.enableFileInternal).Bool()
 		options.enableFolderPublicLinks = contextParams.Val("ENABLE_FOLDER_PUBLIC_LINK", scope).Default(options.enableFolderPublicLinks).Bool()
 		options.enableFolderInternal = contextParams.Val("ENABLE_FOLDER_INTERNAL_SHARING", scope).Default(options.enableFolderInternal).Bool()
+		options.CellsMaxExpiration = contextParams.Val("CELLS_MAX_EXPIRATION", scope).Default(options.MaxExpiration).Int()
 	}
 
 	return options

@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/i18n"
@@ -349,7 +350,13 @@ func (u *User) publishWorkspaces(status RequestStatus, pool *PluginsPool) (works
 		}
 		if ws.Scope == idm.WorkspaceScope_ROOM {
 			repo.Attrowner = "shared"
-			repo.Attruser_editable_repository = "true"
+			// Use existing xml attribute to tell if user is owner or not
+			// The real "editable" aspect is linked to PoliciesContextEditable value
+			if u.isWorkspaceOwnerFromPolicy(ws.Workspace.Policies) {
+				repo.Attruser_editable_repository = "true"
+			} else {
+				repo.Attruser_editable_repository = "false"
+			}
 			repo.Attrrepository_type = "cell"
 		} else if ws.Scope == idm.WorkspaceScope_LINK {
 			repo.Attrowner = "shared"
@@ -377,4 +384,13 @@ func (u *User) publishWorkspaces(status RequestStatus, pool *PluginsPool) (works
 	}
 
 	return
+}
+
+func (u *User) isWorkspaceOwnerFromPolicy(policies []*service.ResourcePolicy) bool {
+	for _, pol := range policies {
+		if pol.Action == service.ResourcePolicyAction_OWNER {
+			return pol.Subject == u.UserObject.Uuid
+		}
+	}
+	return false
 }
