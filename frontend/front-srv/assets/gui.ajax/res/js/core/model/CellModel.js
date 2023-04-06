@@ -39,6 +39,12 @@ class CellModel extends Observable{
         this.cell.Policies = [];
         this.cell.PoliciesContextEditable = true;
         this._edit = editMode;
+
+        const max = Pydio.getInstance().getPluginConfigs("action.share").get('CELLS_MAX_EXPIRATION');
+        if(max) {
+            this.maxExpirationStamp = Math.round(new Date() / 1000) + parseInt(max) * 60 * 60 * 24
+            this.cell.AccessEnd = '' + this.maxExpirationStamp;
+        }
     }
 
     isDirty(){
@@ -310,6 +316,9 @@ class CellModel extends Observable{
         let request = new RestPutCellRequest();
         if(!this._edit && !this.cell.RootNodes.length){
             request.CreateEmptyRoot = true;
+        }
+        if(this.maxExpirationStamp && (!this.cell.AccessEnd || parseInt(this.cell.AccessEnd) > this.maxExpirationStamp)){
+            this.cell.AccessEnd = '' + this.maxExpirationStamp
         }
         this.cell.RootNodes.map(node => {
             if(node.MetaStore && node.MetaStore.selection){

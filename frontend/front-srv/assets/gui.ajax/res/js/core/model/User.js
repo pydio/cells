@@ -162,7 +162,50 @@ export default class User{
 	canCrossRepositoryCopy(){
 		return this.crossRepositoryCopy;
 	}
-	
+
+    /**
+     * Get all user gui preferences as an object
+     * @return {Object}
+     */
+    getGUIPreferences() {
+        return this.getPreference('gui_preferences', true) || {}
+    }
+
+    /**
+     * Set user gui preferences as a bunch
+     * @param prefs
+     */
+    setGUIPreferences(prefs, save = false) {
+        this.setPreference('gui_preferences', prefs, true)
+        if(save) {
+            this.savePreference();
+        }
+    }
+
+    /**
+     * Find one user gui preference
+     * @param name
+     * @return {*}
+     */
+    getGUIPreference(name) {
+        const pref = this.getPreference('gui_preferences', true) || {}
+        return pref[name]
+    }
+
+    /**
+     * Set one user GUI preference
+     * @param name
+     * @param value
+     */
+    setGUIPreference(name, value, save = false) {
+        const pref = this.getPreference('gui_preferences', true) || {}
+        pref[name] = value
+        this.setPreference('gui_preferences', pref, true)
+        if(save) {
+            this.savePreference();
+        }
+    }
+
 	/**
 	 * Get a user preference by its name
 	 * @returns Mixed

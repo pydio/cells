@@ -25,7 +25,7 @@ const {withVerticalScroll, ModernTextField} = Pydio.requireLib('hoc');
 import WorkspaceEntry from './WorkspaceEntry'
 import Repository from 'pydio/model/repository'
 import ResourcesManager from 'pydio/http/resources-manager'
-import {IconButton, FlatButton} from 'material-ui'
+import {FontIcon, IconButton, IconMenu, MenuItem, FlatButton, Subheader} from 'material-ui'
 const {muiThemeable} = require('material-ui/styles');
 import Color from 'color'
 import Facets from "../search/components/Facets";
@@ -95,8 +95,8 @@ class Entries extends React.Component{
 
     render(){
         const {title, entries=[], filterHint, workspaceEntryStyler, titleStyle, pydio, createAction, createActionEntry,
-            activeWorkspace, palette, buttonStyles, emptyState, className,
-            searchView, values, setValues, searchLoading} = this.props;
+            activeWorkspace, palette, buttonStyles, emptyState, className, showOwner,
+            searchView, values, setValues, searchLoading, listSettings} = this.props;
         const {toggleFilter, filterValue} = this.state;
 
         const filterFunc = (t, f, ws)=> (!t || !f || ws.getLabel().toLowerCase().indexOf(f.toLowerCase()) >= 0);
@@ -119,6 +119,7 @@ class Entries extends React.Component{
                             {title}
                             {entries.length > 0 && <span style={{fontSize: 12, opacity: '0.4',marginLeft: 3}} className={"mdi mdi-filter"}/>}
                         </span>
+                        {listSettings}
                         {createAction}
                     </div>
                 }
@@ -169,6 +170,7 @@ class Entries extends React.Component{
                             pydio={pydio}
                             key={ws.getId()}
                             workspace={ws}
+                            showOwner={showOwner}
                             showFoldersTree={activeWorkspace && activeWorkspace===ws.getId()}
                             searchView={searchView}
                             values={values}
@@ -208,16 +210,48 @@ class WorkspacesList extends React.Component{
     }
 
     stateFromPydio(pydio){
-        const workspaces = pydio.user ? pydio.user.getRepositoriesList() : [];
-        const wsList = [];
-        workspaces.forEach(o => wsList.push(o));
+        const workspaces = pydio.user ? pydio.user.getRepositoriesList() : new Map();
+        let hiddenWorkspaces, hiddenWsStatus, cellsSortingMixed = false, prefs = {}, merge = false;
+        if(pydio.user) {
+            prefs = pydio.user.getGUIPreferences();
+            if(prefs['MaskedWorkspaces'] && prefs['MaskedWorkspaces'].length) {
+                hiddenWorkspaces = prefs['MaskedWorkspaces']
+                hiddenWsStatus = prefs['LeftPanel.MaskedWorkspaces.Show'] || false
+            }
+            cellsSortingMixed = prefs['LeftPanel.OwnedCellsFirst'];
+            merge = prefs['LeftPanel.MergeWorkspaces'] || pydio.getPluginConfigs('core.pydio').get('MERGE_WORKSPACES_AND_CELLS')
+        }
         return {
-            merge: pydio.getPluginConfigs('core.pydio').get('MERGE_WORKSPACES_AND_CELLS'),
             random: Math.random(),
+            merge,
             workspaces,
+            hiddenWorkspaces,
+            hiddenWsStatus,
+            cellsSortingMixed,
+            userPrefs: prefs,
             activeWorkspace: pydio.user ? pydio.user.activeRepository : false,
             activeRepoIsHome: pydio.user && pydio.user.activeRepository === 'homepage'
         };
+    }
+
+    togglePref(name) {
+        const {pydio} = this.props;
+        const {userPrefs} = this.state;
+        switch (name){
+            case "mask":
+                const {hiddenWsStatus} = this.state;
+                userPrefs['LeftPanel.MaskedWorkspaces.Show'] = !hiddenWsStatus;
+            break;
+            case "owned":
+                const {cellsSortingMixed} = this.state;
+                userPrefs['LeftPanel.OwnedCellsFirst'] = !cellsSortingMixed;
+            break;
+            case "merge":
+                const {merge} = this.state;
+                userPrefs['LeftPanel.MergeWorkspaces'] = !merge;
+
+        }
+        pydio.user.setGUIPreferences(userPrefs, true)
     }
 
     componentDidMount(){
@@ -234,13 +268,21 @@ class WorkspacesList extends React.Component{
 
     render(){
         let createActionIcon, createActionEntry;
-        const {workspaces,activeWorkspace, popoverOpen, popoverAnchor, popoverContent, merge} = this.state;
+        const {workspaces, hiddenWorkspaces, hiddenWsStatus ,activeWorkspace,
+            popoverOpen, popoverAnchor, popoverContent, merge, cellsSortingMixed} = this.state;
         const {pydio, className, muiTheme, sectionTitleStyle, workspaceEntryStyler,
             searchView, values, setValues, searchLoading, facets, activeFacets, toggleFacet} = this.props;
 
         // Split Workspaces from Cells
         let wsList = [];
         workspaces.forEach(o => wsList.push(o));
+        if(hiddenWorkspaces && !hiddenWsStatus) {
+            wsList = wsList.filter(ws =>
+                hiddenWorkspaces.indexOf(ws.getId())=== -1
+                || activeWorkspace === ws.getId()
+                || (searchView && values.scope && values.scope.indexOf(ws.getSlug() + '/') === 0)
+            )
+        }
         wsList = wsList.filter(ws => !Repository.isInternal(ws.getId()));
         wsList.sort((oA, oB) => {
             if(oA.getRepositoryType() === "workspace-personal") {
@@ -248,6 +290,14 @@ class WorkspacesList extends React.Component{
             }
             if(oB.getRepositoryType() === "workspace-personal") {
                 return 1
+            }
+            if(!cellsSortingMixed) {
+                if(oA.userIsOwner() && !oB.userIsOwner()) {
+                    return -1
+                }
+                if(oB.userIsOwner() && !oA.userIsOwner()) {
+                    return 1
+                }
             }
             const res = oA.getLabel().localeCompare(oB.getLabel(), undefined, {numeric: true});
             if (res === 0) {
@@ -388,6 +438,35 @@ class WorkspacesList extends React.Component{
         }
         const showWorkspacesSection = !merge && entries.length > 0
 
+        const listItemFontIcon = {fontSize: 20, top: 1}
+        const listItemFontIconRight = {fontSize: 16, top: 1}
+        const listSettings = (
+            <IconMenu
+                iconButtonElement={<IconButton iconClassName={"mdi mdi-settings"} iconStyle={{fontSize:12, opacity:0.4, color:'inherit'}} style={{padding:0, height: 18, width: 18}}/>}
+                desktop={true}
+            >
+                <Subheader style={{marginTop:-10}}>Display Options</Subheader>
+                <MenuItem
+                    leftIcon={<FontIcon className={"mdi mdi-playlist-plus"} style={listItemFontIcon}/>}
+                    primaryText={"Show Masked Items"}
+                    onClick={() => this.togglePref("mask")}
+                    rightIcon={<FontIcon className={'mdi mdi-toggle-switch'+(hiddenWsStatus?'':'-off')} style={listItemFontIconRight}/>}
+                />
+                <MenuItem
+                    leftIcon={<FontIcon className={"mdi mdi-call-merge"} style={{...listItemFontIcon, transform:'rotate(90deg)', top: 5}}/>}
+                    primaryText={"Merge Workspaces and Cells"}
+                    onClick={() => this.togglePref("merge")}
+                    rightIcon={<FontIcon className={'mdi mdi-toggle-switch'+(merge?'':'-off')} style={listItemFontIconRight}/>}
+                />
+                <MenuItem
+                    leftIcon={<FontIcon className={"mdi mdi-account-star"} style={listItemFontIcon}/>}
+                    primaryText={"Show my own Cells first"}
+                    onClick={() => this.togglePref("owned")}
+                    rightIcon={<FontIcon className={'mdi mdi-toggle-switch'+(cellsSortingMixed?'-off':'')} style={listItemFontIconRight}/>}
+                />
+            </IconMenu>
+        )
+
         return (
             <div className={classNames.join(' ')}>
                 <Popover
@@ -405,6 +484,8 @@ class WorkspacesList extends React.Component{
                         {...entriesProps}
                         title={messages[468]}
                         entries={entries}
+                        listSettings={listSettings}
+                        showOwner={!cellsSortingMixed}
                         filterHint={messages['ws.quick-filter']}
                         titleStyle={{...sectionTitleStyle, marginTop:5, position:'relative', overflow:'visible', transition:'none'}}
                         className={"first-section"}
@@ -414,6 +495,8 @@ class WorkspacesList extends React.Component{
                     {...entriesProps}
                     title={messages[merge?468:469]}
                     entries={merge?[...entries, ...sharedEntries]:sharedEntries}
+                    listSettings={showWorkspacesSection?null:listSettings}
+                    showOwner={!cellsSortingMixed}
                     filterHint={messages['cells.quick-filter']}
                     titleStyle={{...sectionTitleStyle, position:'relative', overflow:'visible', transition:'none'}}
                     createAction={createActionIcon}

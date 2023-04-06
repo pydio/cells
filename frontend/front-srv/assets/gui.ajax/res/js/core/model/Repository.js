@@ -39,19 +39,18 @@ export default class Repository {
         this.accessType = '';
         this.nodeProviderDef = undefined;
         this.allowCrossRepositoryCopy= false;
-        this.userEditable = false;
+        this._userIsOwner = false;
         this.slug = '';
         this.owner = '';
         this.description = '';
-        this._hasContentFilter = false;
-        this._hasUserScope = false;
         this._repositoryType = 'local';
         this._accessStatus = null;
-        this._lastConnection = null;
         this.icon = '';
 		this.resourcesManager = new ResourcesManager();
 		this.loadedCell = null;
-		if(xmlDef) this.loadFromXml(xmlDef);
+		if(xmlDef) {
+            this.loadFromXml(xmlDef);
+        }
 	}
 
 	static isInternal(driverName){
@@ -113,7 +112,9 @@ export default class Repository {
 	}
 
     getLettersBadge(){
-        if(!this.label) return '';
+        if(!this.label) {
+            return '';
+        }
         return this.label.split(" ").map(function(word){return word.substr(0,1)}).slice(0,2).join("");
     }
 
@@ -189,18 +190,8 @@ export default class Repository {
         return (this.getOwner() ? ResourcesManager.resolveImageSource("shared.png", "overlays/ICON_SIZE", 8):"");
     }
 
-    /**
-     * @returns {boolean}
-     */
-    hasContentFilter(){
-        return this._hasContentFilter;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    hasUserScope(){
-        return this._hasUserScope;
+    userIsOwner() {
+        return this._userIsOwner
     }
 
     /**
@@ -221,23 +212,13 @@ export default class Repository {
     	this._accessStatus = status;
     }
 
-    getLastConnection(){
-        return this._lastConnection;
-    }
-
 	/**
 	 * Parses XML Node
 	 * @param repoNode XMLNode
 	 */
 	loadFromXml(repoNode){
-		if(repoNode.getAttribute('allowCrossRepositoryCopy') && repoNode.getAttribute('allowCrossRepositoryCopy') == "true"){
+		if(repoNode.getAttribute('allowCrossRepositoryCopy') && repoNode.getAttribute('allowCrossRepositoryCopy') === "true"){
 			this.allowCrossRepositoryCopy = true;
-		}
-		if(repoNode.getAttribute('hasContentFilter') && repoNode.getAttribute('hasContentFilter') == "true"){
-			this._hasContentFilter = true;
-		}
-		if(repoNode.getAttribute('userScope') && repoNode.getAttribute('userScope') == "true"){
-			this._hasUserScope = true;
 		}
 		if(repoNode.getAttribute('repository_type')){
 			this._repositoryType = repoNode.getAttribute('repository_type');
@@ -245,12 +226,8 @@ export default class Repository {
 		if(repoNode.getAttribute('access_status')){
 			this._accessStatus = repoNode.getAttribute('access_status');
 		}
-        if(repoNode.getAttribute('last_connection')){
-            this._lastConnection = repoNode.getAttribute('last_connection');
-        }
-
 		if(repoNode.getAttribute('user_editable_repository') && repoNode.getAttribute('user_editable_repository') === "true"){
-			this.userEditable = true;
+			this._userIsOwner = true;
 		}
 		if(repoNode.getAttribute('access_type')){
 			this.setAccessType(repoNode.getAttribute('access_type'));

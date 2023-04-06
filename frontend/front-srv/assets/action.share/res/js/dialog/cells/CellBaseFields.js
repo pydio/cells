@@ -23,6 +23,7 @@ import {muiThemeable} from 'material-ui/styles'
 import ShareContextConsumer from '../ShareContextConsumer'
 import Pydio from 'pydio'
 import {IconButton} from 'material-ui'
+import ShareHelper from "../main/ShareHelper";
 const {ModernTextField, DatePicker, ThemedModernStyles} = Pydio.requireLib('hoc')
 
 class CellBaseFields extends Component {
@@ -37,11 +38,16 @@ class CellBaseFields extends Component {
     };
 
     render() {
-        const {pydio, model, muiTheme} = this.props;
+        const {pydio, model, muiTheme, labelFocus, labelEnter, createLabels} = this.props;
         const m = (id) => pydio.MessageHash['share_center.' + id];
         const ModernStyles = ThemedModernStyles(muiTheme)
+
         let expDate, maxDate, onDateChange, dateExpired, removeDateIcon
         if(model && model.cell) {
+            const auth = ShareHelper.getAuthorizations();
+            if(auth.cells_max_expiration){
+                maxDate = new Date((Math.round(new Date() / 1000) + parseInt(auth.cells_max_expiration) * 60 * 60 * 24)*1000);
+            }
             onDateChange = (e,v) => {
                 if(v === null) {
                     model.cell.AccessEnd = "-1";
@@ -68,14 +74,21 @@ class CellBaseFields extends Component {
         return (
             <div style={{padding:'0 8px'}}>
                 <ModernTextField
-                    floatingLabelText={m(267)}
+                    floatingLabelText={m(createLabels?276:267)}
                     value={model.getLabel()}
                     onChange={(e,v)=>{model.setLabel(v)}}
                     fullWidth={true}
                     variant={"v2"}
+                    focusOnMount={labelFocus}
+                    onKeyPress={(ev) => {
+                        if (labelEnter && ev.key === 'Enter' && model.getLabel()) {
+                            labelEnter();
+                        }
+                    }}
+
                 />
                 <ModernTextField
-                    floatingLabelText={m(268)}
+                    floatingLabelText={m(createLabels?277:268)}
                     value={model.getDescription()}
                     onChange={(e,v)=>{model.setDescription(v)}}
                     fullWidth={true}

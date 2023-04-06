@@ -655,11 +655,13 @@ class MainFilesList extends React.Component {
                     icon_class:'mdi mdi-arrow-up',
                     value:'grid-320'
                 },
+/*
                 {
                     name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-medium'],
                     icon_class:'mdi mdi-minus',
                     value:'grid-160'
                 },
+*/
                 {
                     name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-small'],
                     icon_class:'mdi mdi-arrow-down',
@@ -681,10 +683,12 @@ class MainFilesList extends React.Component {
                     name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-large'],
                     icon_class:'mdi mdi-arrow-up',value:'masonry-440'
                 },
+                /*
                 {
                     name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-medium'],
                     icon_class:'mdi mdi-minus',value:'masonry'
                 },
+                 */
                 {
                     name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-small'],
                     icon_class:'mdi mdi-arrow-down',value:'masonry-100'
@@ -696,7 +700,12 @@ class MainFilesList extends React.Component {
             const value = item.value;
             i.callback = () => {this.switchDisplayMode(i.value)};
             if(value === displayMode || (i.highlight && i.highlight(displayMode))){
-                i.name = <span style={{fontWeight: 500}}>{i.name}</span>
+                i.name = (
+                    <span style={{fontWeight: 500, display: 'flex'}}>
+                        <span style={{flex: 1}}>{i.name}</span>
+                        {value === displayMode && <span className="mdi mdi-checkbox-marked-circle-outline"/>}
+                    </span>
+                )
             }
             return i;
         });

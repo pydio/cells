@@ -135,13 +135,13 @@ class GenericCard extends React.Component{
                     <div style={styles.buttonBar}>
                         {headerSmall && <span style={{flex: 1, fontSize: 14, fontWeight:500}}>{title}</span>}
                         {!headerSmall && <span style={{flex: 1}}/>}
+                        {otherActions}
                         {onEditAction && headerSmall &&
                             <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-pencil"} onClick={onEditAction} tooltip={editTooltip} tooltipPosition={"bottom-left"}/>
                         }
                         {onDeleteAction &&
                             <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-delete"} onClick={onDeleteAction} tooltip={deleteTooltip} tooltipPosition={"bottom-left"}/>
                         }
-                        {otherActions}
                         {moreMenuItems && moreMenuItems.length > 0 &&
                             <IconMenu
                                 anchorOrigin={{vertical:'top', horizontal:headerSmall?'right':'left'}}

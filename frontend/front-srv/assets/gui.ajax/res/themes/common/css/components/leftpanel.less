@@ -55,6 +55,8 @@
       .nav-list-entry();
       padding: 6px;
       padding-left: 20px;
+      position: relative;
+
       .workspace-badge{
         display:none;
       }
@@ -96,8 +98,10 @@
       }
       &.workspace-current{
         opacity: 1;
-        position: relative;
         font-weight: 500;
+      }
+      &.workspace-masked, &.workspace-current.workspace-masked {
+        opacity: .4;
       }
       &:hover {
         .workspace-additional-action {

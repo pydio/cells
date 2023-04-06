@@ -130,7 +130,7 @@ class CellCard extends React.Component{
                     moreMenuItems.push(<MenuItem primaryText={m(248)} onClick={deleteAction}/>);
                 }
             }
-            let watchLine, quotaLines =[], bmButton, expirationLine;
+            let watchLine, quotaLines =[], otherActions, expirationLine;
             if(!loading && model.cell && model.cell.AccessEnd) {
                 const dateObject = new Date(parseInt(model.cell.AccessEnd) * 1000)
                 const dateExpired = (dateObject < new Date())
@@ -145,7 +145,7 @@ class CellCard extends React.Component{
             }
             if(asLib && coreActionsLib && rootNodes && !loading) {
                 const {WatchSelector} = asLib
-                const {BookmarkButton} = coreActionsLib
+                const {BookmarkButton, MaskWsButton} = coreActionsLib
                 const selector = <WatchSelector pydio={pydio} nodes={rootNodes} fullWidth={true}/>;
                 watchLine = (
                     <GenericLine
@@ -155,7 +155,10 @@ class CellCard extends React.Component{
                         iconStyle={{marginTop: 26}}
                         dataStyle={{paddingRight: 16, marginTop: -6, marginBottom: 6}}
                     />);
-                bmButton = <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'var(--md-sys-color-primary)'}}}/>;
+                otherActions = [
+                    <MaskWsButton pydio={pydio} workspaceId={model.getUuid()} iconStyle={{color:'var(--md-sys-color-primary)'}}/>,
+                    <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'var(--md-sys-color-primary)'}}}/>
+                ];
             }
             if(rootNodes && !loading) {
                 rootNodes.forEach((node) => {
@@ -171,7 +174,7 @@ class CellCard extends React.Component{
                     pydio={pydio}
                     title={model.getLabel()}
                     onDismissAction={this.props.onDismiss}
-                    otherActions={bmButton}
+                    otherActions={otherActions}
                     onDeleteAction={deleteAction}
                     onEditAction={editAction}
                     headerSmall={mode === 'infoPanel'}

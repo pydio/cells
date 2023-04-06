@@ -38,7 +38,6 @@ class WorkspacesListMaterial extends React.Component{
         workspaces.forEach(function(object, key){
 
             if (Repository.isInternal(object.getId())) return;
-            if (object.hasContentFilter()) return;
             if (object.getAccessStatus() === 'declined') return;
 
             const entry = (

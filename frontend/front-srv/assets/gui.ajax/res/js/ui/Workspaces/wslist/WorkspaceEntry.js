@@ -33,7 +33,6 @@ import WorkspaceCard from "./WorkspaceCard";
 const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 const { Types, collectDrop, nodeDropTarget } = DND;
 
-
 let Badge = ({children, muiTheme}) => {
 
     const style = {
@@ -197,11 +196,12 @@ class WorkspaceEntry extends React.Component {
     };
 
     getRootItemStyle = (activeRoot, contextNode) => {
-        const {styler} = this.props;
+        const {styler, showFoldersTree} = this.props;
         if(!styler){
             return {}
         }
-        const isContext = activeRoot && contextNode && contextNode.isRoot()
+        const {openFoldersTree} = this.state;
+        const isContext = activeRoot && contextNode && ( contextNode.isRoot() || (showFoldersTree && !openFoldersTree) )
         const wsEntryPalette = styler.rootItemStyle
         return isContext ? {...wsEntryPalette.default, ...wsEntryPalette.context} : wsEntryPalette.default;
     };
@@ -279,7 +279,7 @@ class WorkspaceEntry extends React.Component {
 
     render() {
 
-        const {workspace, pydio, onHoverLink, onOutLink, showFoldersTree, searchView, values, setValues, searchLoading} = this.props;
+        const {workspace, pydio, onHoverLink, onOutLink, showFoldersTree, searchView, values, showOwner} = this.props;
 
         let current, isSearchAll;
         if(searchView) {
@@ -302,6 +302,13 @@ class WorkspaceEntry extends React.Component {
             currentClass +=" workspace-current";
         }
 
+        const maskedWorkspaces = pydio.user.getGUIPreference('MaskedWorkspaces') || []
+        let isMasked;
+        if(maskedWorkspaces.indexOf && maskedWorkspaces.indexOf(workspace.getId()) > -1) {
+            isMasked = true;
+            currentClass += " workspace-masked";
+        }
+
         let style = this.getRootItemStyle(current, pydio.getContextHolder().getContextNode());
 
         currentClass += " workspace-access-" + workspace.getAccessType();
@@ -318,7 +325,7 @@ class WorkspaceEntry extends React.Component {
             }.bind(this);
         }
 
-        let chatIcon;
+        let chatIcon, ownerIcon;
 
         let icon = "mdi mdi-folder";
         let iconStyle = {
@@ -336,6 +343,10 @@ class WorkspaceEntry extends React.Component {
         } else if(workspace.getRepositoryType() === "cell"){
             icon = "icomoon-cells";
             iconStyle = {...iconStyle, fontSize: 22};
+            if(showOwner && workspace.userIsOwner()) {
+                const ownerStyle = {position:'absolute', left: 30, top: 16, fontSize: 11, opacity: current ? 0.53 : 0.33}
+                ownerIcon = <span className={"mdi mdi-account"} style={ownerStyle}/>
+            }
         }
 
         let menuNode;
@@ -372,17 +383,27 @@ class WorkspaceEntry extends React.Component {
 
         const {popoverOpen, popoverAnchor, popoverTop, popoverHeight, loading} = this.state;
 
-        if(loading){
+        if(loading) {
             additionalAction = <CircularProgress size={20} thickness={2} style={{marginTop: 2, marginRight: 6, opacity: .5}}/>
         } else if (!searchView) {
             const addStyle = popoverOpen ? {opacity:1} : {};
             if(popoverOpen){
                 style = {...style, backgroundColor:'rgba(133, 133, 133, 0.1)'}
             }
+            let addIcName = 'mdi-dots-vertical', addIcTitle = ''
+            let addIcClick = (e) => this.workspacePopover(e, popoverNode)
+            if(isMasked) {
+                addIcName = 'mdi-playlist-check'
+                addIcTitle = 'Unmask ' + workspace.getLabel()
+                addIcClick = (e) => {
+                    pydio.user.setGUIPreference('MaskedWorkspaces', maskedWorkspaces.filter(i=>i!==workspace.getId()), true)
+                }
+            }
             additionalAction = (
                 <span
-                    className="workspace-additional-action with-hover mdi mdi-dots-vertical"
-                    onClick={(e) => this.workspacePopover(e, popoverNode)}
+                    title={addIcTitle}
+                    className={"workspace-additional-action with-hover mdi " + addIcName}
+                    onClick={addIcClick}
                     style={addStyle}
                 />
             );
@@ -415,6 +436,8 @@ class WorkspaceEntry extends React.Component {
             }
         }
         const entryIcon = <span className={icon} style={iconStyle}/>;
+
+
         let wsBlock = (
             <ContextMenuWrapper
                 node={menuNode}
@@ -426,6 +449,7 @@ class WorkspaceEntry extends React.Component {
                 style={style}
             >
                 {entryIcon}
+                {ownerIcon}
                 <span className="workspace-label" title={title}>{label}</span>
                 {chatIcon}
                 {treeToggle}

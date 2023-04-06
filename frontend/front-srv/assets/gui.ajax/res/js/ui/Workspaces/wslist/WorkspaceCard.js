@@ -61,7 +61,7 @@ class WorkspaceCard extends React.Component {
         const {rootNodes} = this.state;
         const {ASLib, CALib} = this.state;
         const lines = [];
-        let bookmarkAction;
+        let otherActions = [];
 
         if (workspace.getDescription()) {
             lines.push(<GenericLine iconClassName="mdi mdi-information" legend={pydio.MessageHash['share_center.145']} data={workspace.getDescription()}/>)
@@ -80,8 +80,9 @@ class WorkspaceCard extends React.Component {
 
         }
         if (CALib && rootNodes){
-            const {BookmarkButton} = CALib;
-            bookmarkAction = <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'var(--md-sys-color-primary)'}}}/>;
+            const {BookmarkButton, MaskWsButton} = CALib;
+            otherActions.push(<MaskWsButton pydio={pydio} workspaceId={workspace.getId()} iconStyle={{color:'var(--md-sys-color-primary)'}}/>);
+            otherActions.push(<BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'var(--md-sys-color-primary)'}}}/>);
         }
 
         return (
@@ -90,7 +91,7 @@ class WorkspaceCard extends React.Component {
                 title={workspace.getLabel()}
                 onDismissAction={onDismiss}
                 style={{width: 420}}
-                otherActions={[bookmarkAction]}
+                otherActions={otherActions}
             >
                 {lines}
             </GenericCard>
