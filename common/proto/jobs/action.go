@@ -173,6 +173,9 @@ func (a *Action) FanOutSelector(ctx context.Context, selector InputSelector, inp
 	var timeoutCancel context.CancelFunc
 	logger := log.TasksLogger(a.debugLogContext(ctx, false, selector))
 	logger.Debug("ZAPS", zap.Object("Input", input))
+	if selector.GetClearInput() {
+		input = selector.ApplyClearInput(input)
+	}
 	go func() {
 		var count = 0
 		for {
@@ -241,6 +244,9 @@ func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, in
 
 	logger := log.TasksLogger(a.debugLogContext(ctx, false, selector))
 	logger.Debug("ZAPS", zap.Object("Input", input))
+	if selector.GetClearInput() {
+		input = selector.ApplyClearInput(input)
+	}
 	var timeoutCancel context.CancelFunc
 	wire := make(chan interface{})
 	selectDone := make(chan bool, 1)

@@ -35,6 +35,10 @@ func (m *DataSourceSelector) FilterID() string {
 	return "DataSourceFilter"
 }
 
+func (m *DataSourceSelector) ApplyClearInput(msg *ActionMessage) *ActionMessage {
+	return msg.WithDataSource(nil)
+}
+
 func (m *DataSourceSelector) Filter(ctx context.Context, input *ActionMessage) (*ActionMessage, *ActionMessage, bool) {
 	var passed, excluded []*object.DataSource
 	for _, ds := range input.DataSources {
