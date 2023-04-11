@@ -159,6 +159,8 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 			WithVersions: bulkRequest.Versions,
 			Offset:       int64(bulkRequest.Offset),
 			Limit:        int64(bulkRequest.Limit),
+			SortField:    bulkRequest.SortField,
+			SortDirDesc:  bulkRequest.SortDirDesc,
 		})
 		if err != nil {
 			continue

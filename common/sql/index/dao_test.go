@@ -35,10 +35,10 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/mtree"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 )
 
 var (
@@ -698,6 +698,7 @@ func TestArborescence(t *testing.T) {
 			"personal/admin/Test Toto/Pydio-color-logo-4.png",
 			"personal/admin/Test Toto/PydioCells Logos.zip",
 			"personal/admin/Test Toto/STACK.txt",
+			"personal/admin/Test Toto/zzz.txt", // Last entry when sorting by name
 			"personal/admin/Up",
 			"personal/admin/Up/.DS_Store",
 			"personal/admin/Up/.pydio",
@@ -727,13 +728,48 @@ func TestArborescence(t *testing.T) {
 			"personal/user/User Folder/.pydio",
 		}
 
+		for i, n := range arborescence {
+			arborescence[i] = "ROOT/" + n
+		}
+		arborescence = append([]string{"ROOT"}, arborescence...)
+
+		d := getDAO(ctxNoCache)
+
 		for _, path := range arborescence {
-			_, _, err := getDAO(ctxNoCache).Path(path, true)
+			_, _, err := d.Path(path, true)
 
 			So(err, ShouldBeNil)
 		}
 
-		getDAO(ctxNoCache).Flush(true)
+		e := d.Flush(true)
+		So(e, ShouldBeNil)
+
+		Convey("List Arbo w/ conditions", func() {
+			c := d.GetNodeTree(context.Background(), mtree.MPath{1})
+			var a []string
+			for n := range c {
+				if node, ok := n.(*mtree.TreeNode); ok {
+					a = append(a, node.GetStringMeta("name"))
+				}
+			}
+			So(len(a), ShouldEqual, len(arborescence))
+			So(a[0], ShouldEqual, "ROOT") // Default sorting is MPATH
+		})
+
+		Convey("List Arbo w/ ordering", func() {
+			mf := tree.NewMetaFilter(&tree.Node{})
+			mf.AddSort(tree.MetaSortMPath, tree.MetaSortName, true)
+			c := d.GetNodeTree(context.Background(), mtree.MPath{1}, mf)
+			var a []string
+			for n := range c {
+				if node, ok := n.(*mtree.TreeNode); ok {
+					a = append(a, node.GetStringMeta("name"))
+				}
+			}
+			So(len(a), ShouldEqual, len(arborescence))
+			So(a[0], ShouldEqual, "zzz.txt")
+		})
+
 	})
 }
 

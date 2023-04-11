@@ -263,23 +263,31 @@ func init() {
 		if len(other) > 1 && other[1] != "" {
 			sub += " and " + other[1]
 		}
+		orderBy := "ORDER BY mpath1, mpath2, mpath3, mpath4 ASC"
+		if len(other) > 2 && other[2] != "" {
+			orderBy = other[2]
+		}
 		return fmt.Sprintf(`
 			SELECT uuid, level, mpath1, mpath2, mpath3, mpath4,  name, leaf, mtime, etag, size, mode
 			FROM %%PREFIX%%_idx_tree
 			WHERE %s and level >= ?
-			ORDER BY mpath1, mpath2, mpath3, mpath4`, sub), args
+			%s`, sub, orderBy), args
 	}
 
-	queries["children"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathLike([]byte(mpathes[0]))
-		if len(mpathes) > 1 && mpathes[1] != "" {
-			sub += " and " + mpathes[1]
+	queries["children"] = func(dao sql.DAO, other ...string) (string, []interface{}) {
+		sub, args := getMPathLike([]byte(other[0]))
+		if len(other) > 1 && other[1] != "" {
+			sub += " AND " + other[1]
+		}
+		orderBy := "ORDER BY name ASC"
+		if len(other) > 2 && other[2] != "" {
+			orderBy = other[2]
 		}
 		return fmt.Sprintf(`
 			SELECT uuid, level, mpath1, mpath2, mpath3, mpath4,  name, leaf, mtime, etag, size, mode
 			FROM %%PREFIX%%_idx_tree
 			WHERE %s AND level = ?
-			ORDER BY name`, sub), args
+			%s`, sub, orderBy), args
 	}
 
 	queries["child"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
@@ -1023,10 +1031,13 @@ func (dao *IndexSQL) GetNodeChildren(ctx context.Context, path mtree.MPath, filt
 
 	// Use a buffered chan to give some air to mysql buffer
 	c := make(chan interface{}, 10000)
-	var mfWhere string
+	var mfWhere, mfOrder string
 	var mfArgs []interface{}
 	if len(filter) > 0 {
 		mfWhere, mfArgs = filter[0].Where()
+		if filter[0].HasSort() {
+			mfOrder = filter[0].OrderBy()
+		}
 	}
 
 	go func() {
@@ -1048,7 +1059,7 @@ func (dao *IndexSQL) GetNodeChildren(ctx context.Context, path mtree.MPath, filt
 		mpath := node.MPath
 
 		// First we check if we already have an object with the same key
-		if stmt, args, e := dao.GetStmtWithArgs("children", mpath.String(), mfWhere); e == nil {
+		if stmt, args, e := dao.GetStmtWithArgs("children", mpath.String(), mfWhere, mfOrder); e == nil {
 			args = append(args, mfArgs...)
 			rows, ca, err = stmt.LongQuery(append(args, len(path)+1)...)
 			defer ca()
@@ -1095,10 +1106,13 @@ func (dao *IndexSQL) GetNodeTree(ctx context.Context, path mtree.MPath, filter .
 	dao.Lock()
 
 	c := make(chan interface{})
-	var mfWhere string
+	var mfWhere, mfOrder string
 	var mfArgs []interface{}
 	if len(filter) > 0 {
 		mfWhere, mfArgs = filter[0].Where()
+		if filter[0].HasSort() {
+			mfOrder = filter[0].OrderBy()
+		}
 	}
 
 	go func() {
@@ -1121,7 +1135,7 @@ func (dao *IndexSQL) GetNodeTree(ctx context.Context, path mtree.MPath, filter .
 		mpath := node.MPath
 
 		// First we check if we already have an object with the same key
-		if stmt, args, e := dao.GetStmtWithArgs("tree", mpath.String(), mfWhere); e == nil {
+		if stmt, args, e := dao.GetStmtWithArgs("tree", mpath.String(), mfWhere, mfOrder); e == nil {
 			args = append(args, mfArgs...)
 			rows, ca, err = stmt.LongQuery(append(args, len(mpath)+1)...)
 			defer ca()

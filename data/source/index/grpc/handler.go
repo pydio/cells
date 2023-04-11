@@ -419,6 +419,11 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		// Additional filters
 		metaFilter := tree.NewMetaFilter(reqNode)
 		metaFilter.ParseType(req.FilterType)
+		if !req.Recursive {
+			metaFilter.AddSort(tree.MetaSortName, req.SortField, req.SortDirDesc)
+		} else {
+			metaFilter.AddSort(tree.MetaSortMPath, req.SortField, req.SortDirDesc)
+		}
 		_ = metaFilter.Parse()
 		sqlFilters := metaFilter.HasSQLFilters()
 		limitDepth := metaFilter.LimitDepth()

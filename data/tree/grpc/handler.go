@@ -460,13 +460,18 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 			if req.Recursive && limitDepth != 1 {
 				subNode := node.Clone()
 				subNode.Path = name
-				s.ListNodesWithLimit(ctx, metaStreamer, &tree.ListNodesRequest{
+				er := s.ListNodesWithLimit(ctx, metaStreamer, &tree.ListNodesRequest{
 					Node:         subNode,
 					Recursive:    true,
-					WithVersions: req.WithVersions,
-					StatFlags:    req.StatFlags,
-					FilterType:   req.FilterType,
+					WithVersions: req.GetWithVersions(),
+					StatFlags:    req.GetStatFlags(),
+					FilterType:   req.GetFilterType(),
+					SortField:    req.GetSortField(),
+					SortDirDesc:  req.GetSortDirDesc(),
 				}, resp, cursorIndex, numberSent)
+				if er != nil {
+					return er
+				}
 			}
 			if checkLimit() {
 				return nil
@@ -483,8 +488,10 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 			Node:      reqNode,
 			Recursive: req.Recursive,
 			//Limit:      req.Limit,
-			StatFlags:  req.StatFlags,
-			FilterType: req.FilterType,
+			StatFlags:   req.GetStatFlags(),
+			FilterType:  req.GetFilterType(),
+			SortField:   req.GetSortField(),
+			SortDirDesc: req.GetSortDirDesc(),
 		}
 
 		log.Logger(ctx).Debug("List Nodes With Offset / Limit", zap.Int64("offset", offset), zap.Int64("limit", limit))
