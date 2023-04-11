@@ -154,21 +154,29 @@ let SimpleList = createReactClass({
 
     onColumnSort: function(column, stateSetCallback = null){
 
-        let pagination = this.props.node.getMetadata().get('paginationData');
-        if(pagination && pagination.get('total') > 1 && pagination.get('remote_order')){
+        const {node} = this.props;
+        const meta = node.getMetadata()
+        let pagination = meta.get('paginationData');
+        if(column.remoteSortAttribute && pagination && pagination.get('total') > 1){
 
-            let dir = 'asc';
-            if(this.props.node.getMetadata().get('paginationData').get('currentOrderDir')){
-                dir = this.props.node.getMetadata().get('paginationData').get('currentOrderDir') === 'asc' ? 'desc' : 'asc';
+            const existingSort = meta.get('remoteOrder') || new Map()
+            const dir = existingSort.get('order_direction') === 'asc' ? 'desc' : 'asc';
+            if(existingSort.get('order_column') === column.remoteSortAttribute && dir === 'asc') {
+                // 3rd state is reset
+                meta.delete('remoteOrder')
+                this.setState({sortingInfo: null})
+            } else {
+                let orderData = new Map();
+                orderData.set('order_column', column.remoteSortAttribute);
+                orderData.set('order_direction', dir);
+                meta.set("remoteOrder", orderData);
             }
-            let orderData = new Map();
-            orderData.set('order_column', column['remoteSortAttribute']?column.remoteSortAttribute:column.name);
-            orderData.set('order_direction', dir);
-            this.props.node.getMetadata().set("remote_order", orderData);
-            this.props.dataModel.requireContextChange(this.props.node, true);
+            this.props.dataModel.requireContextChange(node, true);
 
         }else{
-
+            if(meta.has('remoteOrder')) {
+                meta.delete('remoteOrder')
+            }
             let att = column['sortAttribute']?column['sortAttribute']:column.name;
             let sortingInfo;
             const {sortingInfo: {attribute, direction}} = this.state;
@@ -324,13 +332,18 @@ let SimpleList = createReactClass({
     componentWillReceiveProps: function(nextProps) {
         this.indexedElements = null;
         const currentLength = Math.max(this.state.elements.length, nextProps.infiniteSliceCount);
+        let {sortingInfo = nextProps.defaultSortingInfo} = this.state;
+        const remote = this.remoteSortingInfo(nextProps.node)
+        if(remote) {
+            sortingInfo = remote;
+        }
         this.setState({
             loaded: nextProps.node.isLoaded(),
             loading:!nextProps.node.isLoaded(),
             showSelector:false,
             elements:nextProps.node.isLoaded()?this.buildElements(0, currentLength, nextProps.node, nextProps):[],
             infiniteLoadBeginBottomOffset:200,
-            sortingInfo: this.state.sortingInfo || nextProps.defaultSortingInfo || null
+            sortingInfo,
         });
         if(!nextProps.autoRefresh&& this.refreshInterval){
             window.clearInterval(this.refreshInterval);
@@ -349,7 +362,9 @@ let SimpleList = createReactClass({
     },
 
     observeNodeChildren: function(node, stop = false){
-        if(stop && !this._childrenObserver) return;
+        if(stop && !this._childrenObserver) {
+            return;
+        }
 
         if(!this._childrenObserver){
             this._childrenObserver = function(){
@@ -815,10 +830,10 @@ let SimpleList = createReactClass({
      */
     prepareSortFunction() {
         const {sortingInfo} = this.state || {};
-        if(!sortingInfo || this.remoteSortingInfo()) {
-            return null;
+        if(!sortingInfo) {
+            return null
         }
-        const {sortingInfo:{attribute, direction, sortType}} = this.state || {};
+        const {attribute, direction, sortType} = sortingInfo
         let innerSorter
         if(sortType === 'file-natural'){
             innerSorter = sortNodesNatural;
@@ -965,15 +980,21 @@ let SimpleList = createReactClass({
     /**
      * Extract remote sorting info from current node metadata
      */
-    remoteSortingInfo: function(){
-        let meta = this.props.node.getMetadata().get('paginationData');
-        if(meta && meta.get('total') > 1 && meta.has('remote_order')){
-            let col = meta.get('currentOrderCol');
-            let dir = meta.get('currentOrderDir');
+    remoteSortingInfo: function(node){
+        if(!node) {
+            return null
+        }
+        //const {node} = this.props;
+        const meta = node.getMetadata()
+        const pagination = meta.get('paginationData') || new Map()
+        const ordering = meta.get('remoteOrder') || new Map()
+        if(pagination.get('total') > 1 && ordering.has('order_column')){
+            const col = ordering.get('order_column');
+            const dir = ordering.get('order_direction');
             if(col && dir){
                 return {
                     remote: true,
-                    attribute: col,
+                    attribute:col,
                     direction:dir
                 };
             }
@@ -983,14 +1004,10 @@ let SimpleList = createReactClass({
 
     renderToolbar: function(hiddenMode = false){
 
+        const {sortingInfo} = this.state;
+
         if(hiddenMode){
             if(this.props.sortKeys){
-                let sortingInfo, remoteSortingInfo = this.remoteSortingInfo();
-                if(remoteSortingInfo){
-                    sortingInfo = remoteSortingInfo;
-                }else{
-                    sortingInfo = this.state?this.state.sortingInfo:null;
-                }
                 return <SortColumns displayMode="hidden" tableKeys={this.props.sortKeys} columnClicked={this.onColumnSort} sortingInfo={sortingInfo} />;
             }
             return null;
@@ -1004,13 +1021,6 @@ let SimpleList = createReactClass({
         />];
         let i = 2;
         if(this.props.sortKeys){
-
-            let sortingInfo, remoteSortingInfo = this.remoteSortingInfo();
-            if(remoteSortingInfo){
-                sortingInfo = remoteSortingInfo;
-            }else{
-                sortingInfo = this.state?this.state.sortingInfo:null;
-            }
             rightButtons.push(<SortColumns
                 key={i}
                 displayMode="menu"
@@ -1127,15 +1137,10 @@ let SimpleList = createReactClass({
             }else{
                 finalKeys = this.props.tableKeys;
             }
-            let sortingInfo, remoteSortingInfo = this.remoteSortingInfo();
-            if(remoteSortingInfo){
-                sortingInfo = remoteSortingInfo;
-            }else{
-                sortingInfo = this.state?this.state.sortingInfo:null;
-            }
+            const {sortingInfo, loading} = this.state;
             toolbar = <TableListHeader
                 tableKeys={finalKeys}
-                loading={this.state.loading}
+                loading={loading}
                 reload={this.reload}
                 ref="loading_indicator"
                 dm={dataModel}

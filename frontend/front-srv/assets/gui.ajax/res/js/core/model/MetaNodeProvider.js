@@ -107,6 +107,11 @@ export default class MetaNodeProvider{
         if(inputPagination){
             request.Offset = (inputPagination.get("current") - 1) * inputPagination.get("size");
             request.Limit = inputPagination.get("size");
+            const inputSorting = node.getMetadata().get('remoteOrder');
+            if(inputSorting) {
+                request.SortField = inputSorting.get('order_column');
+                request.SortDirDesc = inputSorting.get('order_direction') === 'desc';
+            }
         } else {
             request.Limit = pydio.getPluginConfigs("access.gateway").get("LIST_NODES_PER_PAGE") || 200;
         }
@@ -152,6 +157,12 @@ export default class MetaNodeProvider{
                 } else {
                     origNode.getMetadata().delete("paginationData")
                     node.getMetadata().delete("paginationData")
+                }
+                if(request.SortField || request.SortDirDesc) {
+                    const remoteSorting = new Map()
+                    remoteSorting.set("order_column", request.SortField)
+                    remoteSorting.set("order_direction", request.SortDirDesc?'desc':'asc')
+                    origNode.getMetadata().set('remoteOrder', remoteSorting)
                 }
                 node.replaceBy(origNode);
             }

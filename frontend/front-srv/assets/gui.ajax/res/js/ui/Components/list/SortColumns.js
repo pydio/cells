@@ -54,8 +54,6 @@ class SortColumns extends React.Component {
         };
         const {tableKeys, sortingInfo} = this.props;
 
-        console.log(tableKeys)
-
         return Object.keys(tableKeys).map(key => {
             let data = tableKeys[key];
             let style = data['width']?{width:data['width']}:null;
@@ -64,10 +62,7 @@ class SortColumns extends React.Component {
             let isActive;
             if(data['sortType']){
                 className += ' sortable';
-                if(sortingInfo && (
-                    sortingInfo.attribute === key
-                    || sortingInfo.attribute === data['sortAttribute']
-                    || sortingInfo.attribute === data['remoteSortAttribute'])){
+                if(sortingInfo && ( sortingInfo.attribute === key || (sortingInfo.remote && data.remoteSortAttribute && sortingInfo.attribute === data.remoteSortAttribute))){
                     icon = sortingInfo.direction === 'asc' ? 'mdi mdi-sort-ascending' : 'mdi mdi-sort-descending';
                     className += ' active-sort-' + sortingInfo.direction;
                     isActive = true

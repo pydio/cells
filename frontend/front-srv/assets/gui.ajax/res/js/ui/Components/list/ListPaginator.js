@@ -66,7 +66,7 @@ export default class ListPaginator extends React.Component{
 
     render(){
         const {node} = this.state;
-        const {toolbarDisplay, toolbarColor, smallDisplay, style, id} = this.props;
+        const {toolbarDisplay, toolbarColor, smallDisplay, style, menuStyle, id} = this.props;
         if(!node || !node.getMetadata().get("paginationData")) {
             return null;
         }
@@ -125,6 +125,7 @@ export default class ListPaginator extends React.Component{
                     value={current}
                     underlineStyle={{display: 'none'}}
                     labelStyle={{...customColor, ...smallButtonsLabel}}
+                    menuStyle={menuStyle}
                 >{pages}</DropDownMenu>
                 {next}
             </div>

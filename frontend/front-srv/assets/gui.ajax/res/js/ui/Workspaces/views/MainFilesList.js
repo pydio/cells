@@ -52,14 +52,14 @@ class ComponentConfigsParser {
                 width: '50%',
                 renderCell:this.renderLabel,
                 sortType:'file-natural',
-                remoteSortAttribute:'ajxp_label'
+                remoteSortAttribute:'name'
             },
             bytesize:{
                 label:'File Size',
                 message:'2',
                 sortType:'number',
                 sortAttribute:'bytesize',
-                remoteSortAttribute:'filesize'
+                remoteSortAttribute:'size'
             },
             mimestring:{
                 label:'File Type',
@@ -69,7 +69,8 @@ class ComponentConfigsParser {
             ajxp_modiftime:{
                 label:'Mofidied on',
                 message:'4',
-                sortType:'number'
+                sortType:'number',
+                remoteSortAttribute:'mtime'
             }
         };
     }
@@ -88,11 +89,31 @@ class ComponentConfigsParser {
             if(name === 'bytesize') {
                 sortType = 'number';
             }
+            const message = colNode.getAttribute('messageId')
+            let label = messages[message]
+            if(colNode.getAttribute('messageString')) {
+                label = colNode.getAttribute('messageString')
+            }
+            let remoteSortAttribute
+            switch (name) {
+                case 'ajxp_label':
+                    remoteSortAttribute = 'name'
+                    break;
+                case 'bytesize':
+                    remoteSortAttribute = 'size'
+                    break
+                case 'ajxp_modiftime':
+                    remoteSortAttribute = 'mtime'
+                    break;
+                default:
+                    break
+            }
             columns[name] = {
-                message : colNode.getAttribute('messageId'),
-                label   : colNode.getAttribute('messageString') ? colNode.getAttribute('messageString') : messages[colNode.getAttribute('messageId')],
-                sortType: sortType,
-                inlineHide: colNode.getAttribute('defaultVisibilty') === "false"
+                message     : message,
+                label       : label,
+                sortType    : sortType,
+                inlineHide  : colNode.getAttribute('defaultVisibilty') === "false",
+                remoteSortAttribute
             };
             if(name === 'ajxp_label') {
                 columns[name].renderCell = this.renderLabel;
