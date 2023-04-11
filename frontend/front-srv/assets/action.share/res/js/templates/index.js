@@ -246,7 +246,7 @@ let StandardLayout = createReactClass({
                                 />
                             }
                             <div style={{flex:1}}></div>
-                            <ListPaginator id="paginator-toolbar" dataModel={this.props.pydio.getContextHolder()} toolbarDisplay={true}/>
+                            <ListPaginator id="paginator-toolbar" dataModel={this.props.pydio.getContextHolder()} toolbarDisplay={true} toolbarColor={'white'} menuStyle={{backgroundColor:'white'}}/>
                             <Toolbar {...this.props} id="main-toolbar" toolbars={toolbars} groupOtherList={uniqueNode ? [] : ["change_main", "more", "change", "remote"]} renderingType="icon-font" buttonStyle={styles.buttonsStyle}/>
                         </div>
                     </div>
