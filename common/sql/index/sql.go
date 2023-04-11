@@ -342,6 +342,14 @@ func init() {
 			GROUP BY leaf`, sub), args
 	}
 
+	queries["treeCount"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike([]byte(mpathes[0]))
+		return fmt.Sprintf(`
+			select count(*)
+			FROM %%PREFIX%%_idx_tree
+			WHERE %s AND level > ?`, sub), args
+	}
+
 	queries["childrenIndexes"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
@@ -991,7 +999,7 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (avail
 }
 
 // GetNodeChildrenCounts List
-func (dao *IndexSQL) GetNodeChildrenCounts(path mtree.MPath) (int, int) {
+func (dao *IndexSQL) GetNodeChildrenCounts(path mtree.MPath, recursive bool) (int, int) {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -1003,18 +1011,30 @@ func (dao *IndexSQL) GetNodeChildrenCounts(path mtree.MPath) (int, int) {
 
 	var folderCount, fileCount int
 
-	// First we check if we already have an object with the same key
-	if stmt, args, e := dao.GetStmtWithArgs("childrenCount", mpath.String()); e == nil {
-		if rows, e := stmt.Query(append(args, len(path)+1)...); e == nil {
+	stmtName := "childrenCount"
+	refLevel := len(path) + 1
+	if recursive {
+		stmtName = "treeCount"
+		refLevel = len(path)
+	}
+
+	if stmt, args, e := dao.GetStmtWithArgs(stmtName, mpath.String()); e == nil {
+		if rows, e := stmt.Query(append(args, refLevel)...); e == nil {
 			defer rows.Close()
 			for rows.Next() {
-				var leaf bool
 				var count int
-				if sE := rows.Scan(&leaf, &count); sE == nil {
-					if leaf {
-						fileCount = count
-					} else {
+				if recursive {
+					if sE := rows.Scan(&count); sE == nil {
 						folderCount = count
+					}
+				} else {
+					var leaf bool
+					if sE := rows.Scan(&leaf, &count); sE == nil {
+						if leaf {
+							fileCount = count
+						} else {
+							folderCount = count
+						}
 					}
 				}
 			}

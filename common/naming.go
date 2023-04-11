@@ -217,6 +217,7 @@ const (
 	MetaFlagChildrenCount        = "ChildrenCount"
 	MetaFlagChildrenFolders      = "ChildrenFolders"
 	MetaFlagChildrenFiles        = "ChildrenFiles"
+	MetaFlagRecursiveCount       = "RecursiveCount"
 	MetaFlagWorkspaceSkipRecycle = "ws_skip_recycle"
 	MetaFlagContentLock          = "content_lock"
 	MetaFlagWorkspacesShares     = "workspaces_shares"

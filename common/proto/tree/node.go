@@ -43,6 +43,7 @@ const (
 	StatFlagFolderSize
 	StatFlagFolderCounts
 	StatFlagMetaMinimal
+	StatFlagRecursiveCount
 
 	StatFlagHeaderName = "x-pydio-read-stat-flags"
 )
@@ -65,6 +66,15 @@ func (f Flags) Metas() bool {
 func (f Flags) FolderCounts() bool {
 	for _, fl := range f {
 		if fl == StatFlagFolderCounts {
+			return true
+		}
+	}
+	return false
+}
+
+func (f Flags) RecursiveCount() bool {
+	for _, fl := range f {
+		if fl == StatFlagRecursiveCount {
 			return true
 		}
 	}

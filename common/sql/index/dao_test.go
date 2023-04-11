@@ -47,8 +47,8 @@ var (
 
 func init() {
 	v := viper.New()
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
+	v.SetDefault(runtime.KeyCache, "discard://")
+	v.SetDefault(runtime.KeyShortCache, "discard://")
 	runtime.SetRuntime(v)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -59,12 +59,29 @@ func init() {
 		return NewDAO(d, "ROOT"), nil
 	}
 
-	d, er := dao.InitDAO(ctx, sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test", wrapper, options)
+	d, er := dao.InitDAO(ctx, sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test1", wrapper, options)
 	if er != nil {
 		panic(er)
 	} else {
 		ctxNoCache = servicecontext.WithDAO(ctx, d)
 	}
+}
+
+func makeDAO() dao.DAO {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	wrapper := func(ctx context.Context, d dao.DAO) (dao.DAO, error) {
+		return NewDAO(d, "ROOT"), nil
+	}
+	v := viper.New()
+	v.SetDefault(runtime.KeyCache, "discard://")
+	v.SetDefault(runtime.KeyShortCache, "discard://")
+	runtime.SetRuntime(v)
+	d, er := dao.InitDAO(ctx, sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test2", wrapper, options)
+	if er != nil {
+		panic(er)
+	}
+	return d
 }
 
 func TestMysql(t *testing.T) {
@@ -220,7 +237,7 @@ func TestMysql(t *testing.T) {
 	// Getting children count
 	Convey("Test Getting the Children Count of a node", t, func() {
 
-		_, count := getDAO(ctxNoCache).GetNodeChildrenCounts(mockLongNodeMPath)
+		_, count := getDAO(ctxNoCache).GetNodeChildrenCounts(mockLongNodeMPath, false)
 
 		So(count, ShouldEqual, 2)
 	})
@@ -733,7 +750,7 @@ func TestArborescence(t *testing.T) {
 		}
 		arborescence = append([]string{"ROOT"}, arborescence...)
 
-		d := getDAO(ctxNoCache)
+		d := makeDAO().(DAO)
 
 		for _, path := range arborescence {
 			_, _, err := d.Path(path, true)
