@@ -965,6 +965,7 @@ class MainFilesList extends React.Component {
         return (
             <SimpleList
                 ref="list"
+                pydio={pydio}
                 tableKeys={tableKeys}
                 sortKeys={sortKeys}
                 node={contextNode}
@@ -992,6 +993,7 @@ class MainFilesList extends React.Component {
                 horizontalRibbon={this.props.horizontalRibbon}
                 emptyStateProps={emptyStateProps}
                 defaultSortingInfo={{sortType:'file-natural',attribute:'',direction:'asc'}}
+                sortingPreferenceKey={'FilesListSortingInfo'}
                 hideToolbar={true}
                 customToolbar={<CellsMessageToolbar pydio={pydio}/>}
                 {...groupProps}

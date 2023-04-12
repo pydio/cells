@@ -154,7 +154,8 @@ let SimpleList = createReactClass({
 
     onColumnSort: function(column, stateSetCallback = null){
 
-        const {node} = this.props;
+        const {node, pydio, defaultSortingInfo, sortingPreferenceKey} = this.props;
+        const {user} = pydio;
         const meta = node.getMetadata()
         let pagination = meta.get('paginationData');
         if(column.remoteSortAttribute && pagination && pagination.get('total') > 1){
@@ -186,17 +187,23 @@ let SimpleList = createReactClass({
                     sortingInfo = { attribute : att, sortType  : column.sortType, direction : 'desc' };
                 } else {
                     // Reset sorting
-                    sortingInfo = this.props.defaultSortingInfo || {};
+                    sortingInfo = defaultSortingInfo || {};
                 }
             }else{
                 sortingInfo = { attribute : att, sortType  : column.sortType, direction : 'asc' };
             }
-            this.setState({sortingInfo}, function(){
+            this.setState({sortingInfo}, () => {
                 this.rebuildLoadedElements();
-                if(stateSetCallback){
+                if(stateSetCallback !== null && stateSetCallback instanceof Function){
                     stateSetCallback();
                 }
-            }.bind(this));
+                if(sortingPreferenceKey) {
+                    const crtSlug = user.getActiveRepositoryObject().getSlug()
+                    const allInfos = user.getGUIPreference(sortingPreferenceKey) || {}
+                    allInfos[crtSlug] = sortingInfo
+                    user.setGUIPreference(sortingPreferenceKey, allInfos, true)
+                }
+            });
 
         }
 
@@ -311,19 +318,28 @@ let SimpleList = createReactClass({
 
     getInitialState: function(){
         this.actionsCache = {multiple:new Map()};
-        if (this.props.skipInternalDataModel) {
-            this.dm = this.props.dataModel;
+        const {skipInternalDataModel, dataModel, node, infiniteSliceCount, defaultSortingInfo, pydio, sortingPreferenceKey} = this.props;
+        if (skipInternalDataModel) {
+            this.dm = dataModel;
         } else {
             this.dm = new PydioDataModel();
-            this.dm.setRootNode(this.props.dataModel.getContextNode());
-            this.dm.setContextNode(this.props.dataModel.getContextNode());
+            this.dm.setRootNode(dataModel.getContextNode());
+            this.dm.setContextNode(dataModel.getContextNode());
+        }
+        let sortingInfo = defaultSortingInfo || null;
+        if(sortingPreferenceKey && pydio.user.getGUIPreference(sortingPreferenceKey)) {
+            const crtSlug = pydio.user.getActiveRepositoryObject().getSlug()
+            const allInfos = pydio.user.getGUIPreference(sortingPreferenceKey) || {}
+            if(allInfos[crtSlug] && !allInfos[crtSlug].remote){
+                sortingInfo = allInfos[crtSlug]
+            }
         }
         let state = {
-            loaded              : this.props.node.isLoaded(),
-            loading             : !this.props.node.isLoaded(),
+            loaded              : node.isLoaded(),
+            loading             : !node.isLoaded(),
             showSelector        : false,
-            elements            : this.props.node.isLoaded()?this.buildElements(0, this.props.infiniteSliceCount):[],
-            sortingInfo         : this.props.defaultSortingInfo || null
+            elements            : node.isLoaded()?this.buildElements(0, infiniteSliceCount):[],
+            sortingInfo,
         };
         state.infiniteLoadBeginBottomOffset = 200;
         return state;
@@ -331,28 +347,38 @@ let SimpleList = createReactClass({
 
     componentWillReceiveProps: function(nextProps) {
         this.indexedElements = null;
-        const currentLength = Math.max(this.state.elements.length, nextProps.infiniteSliceCount);
-        let {sortingInfo = nextProps.defaultSortingInfo} = this.state;
-        const remote = this.remoteSortingInfo(nextProps.node)
-        if(remote) {
+        const {infiniteSliceCount, defaultSortingInfo, node, sortingPreferenceKey, pydio, autoRefresh, elementsPerLine} = nextProps;
+        const currentLength = Math.max(this.state.elements.length, infiniteSliceCount);
+        let {sortingInfo = defaultSortingInfo} = this.state;
+        const remote = this.remoteSortingInfo(node, sortingInfo)
+        if(remote === -1) {
+            sortingInfo = {}
+        } else if(remote instanceof Object) {
             sortingInfo = remote;
+        } else if(node !== this.props.node && sortingPreferenceKey && pydio.user.getGUIPreference(sortingPreferenceKey)) {
+            const crtSlug = pydio.user.getActiveRepositoryObject().getSlug()
+            const allInfos = pydio.user.getGUIPreference(sortingPreferenceKey) || {}
+            if(allInfos[crtSlug]){
+                sortingInfo = allInfos[crtSlug]
+            }
         }
+
         this.setState({
-            loaded: nextProps.node.isLoaded(),
-            loading:!nextProps.node.isLoaded(),
+            loaded: node.isLoaded(),
+            loading:!node.isLoaded(),
             showSelector:false,
-            elements:nextProps.node.isLoaded()?this.buildElements(0, currentLength, nextProps.node, nextProps):[],
+            elements:node.isLoaded()?this.buildElements(0, currentLength, node, nextProps):[],
             infiniteLoadBeginBottomOffset:200,
             sortingInfo,
         });
-        if(!nextProps.autoRefresh&& this.refreshInterval){
+        if(!autoRefresh&& this.refreshInterval){
             window.clearInterval(this.refreshInterval);
             this.refreshInterval = null;
-        }else if(nextProps.autoRefresh && !this.refreshInterval){
-            this.refreshInterval = window.setInterval(this.reload, nextProps.autoRefresh);
+        }else if(autoRefresh && !this.refreshInterval){
+            this.refreshInterval = window.setInterval(this.reload, autoRefresh);
         }
-        this.patchInfiniteGrid(nextProps.elementsPerLine);
-        if(this.props.node && nextProps.node !== this.props.node) {
+        this.patchInfiniteGrid(elementsPerLine);
+        if(this.props.node && node !== this.props.node) {
             this.observeNodeChildren(this.props.node, true);
         }
         if(this._manualScrollPe) {
@@ -527,7 +553,8 @@ let SimpleList = createReactClass({
     },
 
     getActionsForNode: function(dm, node){
-        if(!this.props.computeActionsForNode){
+        const {computeActionsForNode, pydio} = this.props;
+        if(!computeActionsForNode){
             return [];
         }
         const cacheKey = node.isLeaf() ? 'file-' + node.getAjxpMime() :'folder';
@@ -537,8 +564,8 @@ let SimpleList = createReactClass({
             nodeActions = this.actionsCache[cacheKey];
         }else{
             dm.setSelectedNodes([node]);
-            window.pydio.Controller.actions.forEach(function(a){
-                a.fireContextChange(dm, true, window.pydio.user);
+            pydio.Controller.actions.forEach(function(a){
+                a.fireContextChange(dm, true, pydio.user);
                 if(a.context.selection && a.context.actionBar && a.selectionContext[selectionType] && !a.deny && a.options.icon_class
                     && (!this.props.actionBarGroups || this.props.actionBarGroups.indexOf(a.context.actionBarGroup) !== -1)
                     && (!a.selectionContext.allowedMimes.length || a.selectionContext.allowedMimes.indexOf(node.getAjxpMime()) !== -1)
@@ -988,18 +1015,18 @@ let SimpleList = createReactClass({
         const meta = node.getMetadata()
         const pagination = meta.get('paginationData') || new Map()
         const ordering = meta.get('remoteOrder') || new Map()
-        if(pagination.get('total') > 1 && ordering.has('order_column')){
-            const col = ordering.get('order_column');
-            const dir = ordering.get('order_direction');
-            if(col && dir){
+        if(pagination.get('total') > 1){
+            if (ordering.has('order_column') && ordering.has('order_direction')) {
                 return {
                     remote: true,
-                    attribute:col,
-                    direction:dir
+                    attribute:ordering.get('order_column'),
+                    direction:ordering.get('order_direction')
                 };
+            } else {
+                return -1 // Cancel local sorting
             }
         }
-        return null;
+        return 0;
     },
 
     renderToolbar: function(hiddenMode = false){

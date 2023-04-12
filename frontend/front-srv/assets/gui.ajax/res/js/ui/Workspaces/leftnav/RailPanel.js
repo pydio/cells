@@ -22,6 +22,7 @@ import React, {useState, useEffect, Fragment} from 'react'
 
 const PropTypes = require('prop-types');
 const Pydio = require('pydio')
+import DOMUtils from 'pydio/util/dom'
 import UserWidget from './UserWidget'
 import WorkspacesList from '../wslist/WorkspacesList'
 
@@ -135,17 +136,25 @@ let RailPanel = ({
     const [ASLib, setASLib] = useState()
     const [unreadCount, setUnreadCount] = useState(0)
 
-    const [activeClosed, setActiveClosed] = useState(false)
+    const [activeClosed, setActiveClosed] = useState(user.getGUIPreference('Layout.RailPanel.ActiveClosed')||false)
+    const updateActiveClosed = (c) => {
+        setActiveClosed(c);
+        user.setGUIPreference('Layout.RailPanel.ActiveClosed', c, true)
+    }
     const [showCloseToggle, setShowCloseToggle] = useState(false)
 
     let defaultResizerWidth = defaultWidth;
-    if(localStorage.getItem('pydio.layout.railWidth')){
-        const p = parseInt(localStorage.getItem('pydio.layout.railWidth'))
-        if(p > 0) {
-            defaultResizerWidth = p
-        }
+    const upw = user.getGUIPreference('Layout.RailPanel.ActiveWidth')
+    if(upw && upw < 1) {
+        defaultResizerWidth = upw * DOMUtils.getViewportWidth();
     }
     const [resizerWidth, setResizerWidth] = useState(defaultResizerWidth)
+    const updateResizerWidth = (w) => {
+        setResizerWidth(w);
+        window.dispatchEvent(new Event('resize'))
+        // Store a percentage
+        user.setGUIPreference('Layout.RailPanel.ActiveWidth', w/DOMUtils.getViewportWidth(), true)
+    }
 
     useEffect(()=>{
         ResourcesManager.loadClass('PydioActivityStreams').then(ns => {
@@ -418,12 +427,7 @@ let RailPanel = ({
                 topLeft: false
             }}
             size={{width: activeBar ? resizerWidth : railWidth, height: '100%'}}
-            onResizeStop={(e, direction, ref, d)=>{
-                const newWidth = resizerWidth+d.width
-                setResizerWidth(newWidth);
-                localStorage.setItem('pydio.layout.railWidth', newWidth+'')
-                window.dispatchEvent(new Event('resize'))
-            }}
+            onResizeStop={(e, direction, ref, d)=> updateResizerWidth(resizerWidth+d.width) }
             minWidth={activeBar?railWidth + 50:railWidth}
             handleStyles={{right: {zIndex: 900}}}
             style={{transition: 'width 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms', zIndex: 905}}
@@ -461,7 +465,7 @@ let RailPanel = ({
                         onMouseLeave={()=> setShowCloseToggle(false)}
                     >
                         {activeBar}
-                        {showCloseToggle && <div style={{...closerStyle}} onClick={() => setActiveClosed(true)}><span className={"mdi mdi-chevron-double-left"}/></div>}
+                        {showCloseToggle && <div style={{...closerStyle}} onClick={() => updateActiveClosed(true)}><span className={"mdi mdi-chevron-double-left"}/></div>}
                     </div>
                 }
                 <div style={hoverStyle}>
@@ -473,7 +477,7 @@ let RailPanel = ({
                         <div
                             style={{...closerStyle}}
                             onMouseEnter={() => setHover(true)}
-                            onClick={() => { setActiveClosed(false); setHover(false);}}>
+                            onClick={() => { updateActiveClosed(false); setHover(false);}}>
                             <span className={"mdi mdi-chevron-double-right"}/>
                         </div>
                     }
