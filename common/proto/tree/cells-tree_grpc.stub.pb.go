@@ -46,14 +46,10 @@ func (s *NodeProviderStub) NewStream(ctx context.Context, desc *grpc.StreamDesc,
 	case "/tree.NodeProvider/ListNodes":
 		st := &NodeProviderStub_ListNodesStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			go func() {
-				defer func() {
-					close(st.RespChan)
-				}()
-				s.NodeProviderServer.ListNodes(i.(*ListNodesRequest), st)
+			defer func() {
+				close(st.RespChan)
 			}()
-			<-time.After(100 * time.Millisecond)
-			return nil
+			return s.NodeProviderServer.ListNodes(i.(*ListNodesRequest), st)
 		})
 		return st, nil
 	}
