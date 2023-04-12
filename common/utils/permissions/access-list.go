@@ -275,6 +275,9 @@ func (a *AccessList) DetectedWsRights(ctx context.Context) map[string]SimpleRigh
 
 // CanRead checks if a node has READ access.
 func (a *AccessList) CanRead(ctx context.Context, nodes ...*tree.Node) bool {
+	if len(nodes) == 0 {
+		return false
+	}
 	if a.claimsScopesDeny(ctx, nodes[0], FlagRead) {
 		return false
 	}
@@ -284,6 +287,9 @@ func (a *AccessList) CanRead(ctx context.Context, nodes ...*tree.Node) bool {
 
 // CanWrite checks if a node has WRITE access.
 func (a *AccessList) CanWrite(ctx context.Context, nodes ...*tree.Node) bool {
+	if len(nodes) == 0 {
+		return false
+	}
 	if a.claimsScopesDeny(ctx, nodes[0], FlagWrite) {
 		return false
 	}
@@ -302,6 +308,9 @@ func (a *AccessList) HasExplicitDeny(ctx context.Context, flag BitmaskFlag, node
 
 // CanReadWithResolver checks if a node has READ access, using VirtualPathResolver if necessary
 func (a *AccessList) CanReadWithResolver(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
+	if len(nodes) == 0 {
+		return false
+	}
 	a.replicateMasksResolved(ctx, resolver)
 	if a.claimsScopesDeny(ctx, nodes[0], FlagRead) {
 		return false
@@ -312,6 +321,9 @@ func (a *AccessList) CanReadWithResolver(ctx context.Context, resolver VirtualPa
 
 // CanWriteWithResolver checks if a node has WRITE access, using VirtualPathResolver if necessary.
 func (a *AccessList) CanWriteWithResolver(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
+	if len(nodes) == 0 {
+		return false
+	}
 	a.replicateMasksResolved(ctx, resolver)
 	if a.claimsScopesDeny(ctx, nodes[0], FlagWrite) {
 		return false
@@ -347,6 +359,9 @@ func (a *AccessList) CanWritePath(ctx context.Context, resolver VirtualPathResol
 // IsLocked checks if a node bitmask has a FlagLock value.
 func (a *AccessList) IsLocked(ctx context.Context, nodes ...*tree.Node) bool {
 	// First we check for parents
+	if len(nodes) == 0 {
+		return false
+	}
 	mask, _ := a.firstMaskForParents(ctx, nodes...)
 	if mask.HasFlag(ctx, FlagLock, nodes[0]) {
 		return true
