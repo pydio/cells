@@ -663,7 +663,10 @@
     "other": "Monitorizar"
   },
   "34": {
-    "other": "Usuario nuevo o existente"
+    "other": "Select or Create Users"
+  },
+  "34b": {
+    "other": "Select Users"
   },
   "35": {
     "other": "Nombre"
@@ -964,5 +967,8 @@
   },
   "link.secure.maxdownloads": {
     "other": "Sólo %d descargas"
+  },
+  "minisite.toggle.theme": {
+    "other": "Toggle Dark/Light Theme"
   }
 }

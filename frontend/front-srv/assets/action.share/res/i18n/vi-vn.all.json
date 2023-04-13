@@ -663,7 +663,10 @@
     "other": "Theo dõi"
   },
   "34": {
-    "other": "Người dùng hiện tại hoặc người dùng mới"
+    "other": "Select or Create Users"
+  },
+  "34b": {
+    "other": "Select Users"
   },
   "35": {
     "other": "Nhãn"
@@ -964,5 +967,8 @@
   },
   "link.secure.maxdownloads": {
     "other": "Đã tải xuống %d lần"
+  },
+  "minisite.toggle.theme": {
+    "other": "Toggle Dark/Light Theme"
   }
 }

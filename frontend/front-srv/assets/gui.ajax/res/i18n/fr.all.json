@@ -101,6 +101,27 @@
   "tour.workspaces.title": {
     "other": "Workspaces & Cellules"
   },
+  "tour.theme.title": {
+    "other": "Thème clair/foncé"
+  },
+  "tour.theme.legend": {
+    "other": "Choisissez un thème clair ou foncé qui convient le mieux à votre vision."
+  },
+  "tour.left-resize.title": {
+    "other": "Workspaces et Cells"
+  },
+  "tour.left-resize.legend": {
+    "other": "La colonne de gauche peut être dimensionnée ou fermée pour s'adapter à votre écran."
+  },
+  "tour.right-resize.legend": {
+    "other": "La colonne de droite peut également être dimensionnée ou fermée pour s'adapter à votre écran."
+  },
+  "tour.directory.title": {
+    "other": "Répertoire des utilisateurs"
+  },
+  "tour.directory.legend": {
+    "other": "Gérer les utilisateurs (internes et externes) et les équipes."
+  },
   "background.jobs.title": {
     "other": "Tâches de fond"
   },

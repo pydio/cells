@@ -663,7 +663,10 @@
     "other": "监视"
   },
   "34": {
-    "other": "现有或新用户"
+    "other": "Select or Create Users"
+  },
+  "34b": {
+    "other": "Select Users"
   },
   "35": {
     "other": "标签"
@@ -964,5 +967,8 @@
   },
   "link.secure.maxdownloads": {
     "other": "%d downloads only"
+  },
+  "minisite.toggle.theme": {
+    "other": "Toggle Dark/Light Theme"
   }
 }

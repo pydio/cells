@@ -101,6 +101,27 @@
   "tour.workspaces.title": {
     "other": "Arbeitsumgebungen & Zellen"
   },
+  "tour.theme.title": {
+    "other": "Light/Dark Theme Support"
+  },
+  "tour.theme.legend": {
+    "other": "Choose a light or dark theme to best suit your vision."
+  },
+  "tour.left-resize.title": {
+    "other": "Workspaces and Cells"
+  },
+  "tour.left-resize.legend": {
+    "other": "Left column can be resized or closed to fit your screen."
+  },
+  "tour.right-resize.legend": {
+    "other": "Right column can be also be resized or closed to fit your screen."
+  },
+  "tour.directory.title": {
+    "other": "Users Directory"
+  },
+  "tour.directory.legend": {
+    "other": "Manage users (internal and external) and teams in a central location."
+  },
   "background.jobs.title": {
     "other": "Hintergrundjobs"
   },

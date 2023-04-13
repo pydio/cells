@@ -1275,7 +1275,7 @@
     "other": "Passwort vergessen?"
   },
   "48": {
-    "other": "OK"
+    "other": "Ok"
   },
   "480": {
     "other": "Alle Ordner der aktuellen Arbeitsumgebung anzeigen."
@@ -1308,7 +1308,7 @@
     "other": "Metadaten"
   },
   "49": {
-    "other": "Abbrechen"
+    "other": "Cancel"
   },
   "490": {
     "other": "Zeitraum"
@@ -1678,6 +1678,9 @@
   },
   "599": {
     "other": "Benutzen hinzufügen"
+  },
+  "599-a": {
+    "other": "All Results"
   },
   "6": {
     "other": "Umbenennen"
@@ -2321,6 +2324,9 @@
   "addressbook.pick.group": {
     "other": "Gruppe auswählen"
   },
+  "addressbook.pick.multiple": {
+    "other": "Multiple Selection"
+  },
   "confirm.dialog.title": {
     "other": "Bestätigen"
   },
@@ -2359,6 +2365,27 @@
   },
   "searchengine.scope.title": {
     "other": "Suchen in..."
+  },
+  "searchengine.share.title": {
+    "other": "Shared"
+  },
+  "searchengine.share.hint": {
+    "other": "No status"
+  },
+  "searchengine.share.option.link": {
+    "other": "Public Link"
+  },
+  "searchengine.share.option.cell": {
+    "other": "Shared in Cell"
+  },
+  "searchengine.share.option.any": {
+    "other": "Public Link or Cell"
+  },
+  "searchengine.format.title": {
+    "other": "Format"
+  },
+  "searchengine.format.file-only": {
+    "other": "Files Only"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "Erweiterte Filter"
