@@ -663,7 +663,10 @@
     "other": "Sehen"
   },
   "34": {
-    "other": "Existierende oder neuer Benutzer"
+    "other": "Select or Create Users"
+  },
+  "34b": {
+    "other": "Select Users"
   },
   "35": {
     "other": "Titel"
@@ -964,5 +967,8 @@
   },
   "link.secure.maxdownloads": {
     "other": "Nur %d Downloads"
+  },
+  "minisite.toggle.theme": {
+    "other": "Toggle Dark/Light Theme"
   }
 }

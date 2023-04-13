@@ -663,7 +663,10 @@
     "other": "Watch"
   },
   "34": {
-    "other": "존재하거나 새로운 사용자"
+    "other": "Select or Create Users"
+  },
+  "34b": {
+    "other": "Select Users"
   },
   "35": {
     "other": "Label"
@@ -964,5 +967,8 @@
   },
   "link.secure.maxdownloads": {
     "other": "%d 만 다운로드"
+  },
+  "minisite.toggle.theme": {
+    "other": "Toggle Dark/Light Theme"
   }
 }
