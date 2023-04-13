@@ -47,11 +47,11 @@ class WorkspaceCard extends React.Component {
         } else {
             this.state.rootNodes = [rootNode];
         }
-        ResourcesManager.loadClassesAndApply(["PydioActivityStreams"], () => {
-            this.setState({ASLib: true})
+        ResourcesManager.loadClass("PydioActivityStreams").then ((lib) => {
+            this.setState({ASLib: lib})
         });
-        ResourcesManager.loadClassesAndApply(["PydioCoreActions"], () => {
-            this.setState({CALib: true})
+        ResourcesManager.loadClass("PydioCoreActions").then((lib) => {
+            this.setState({CALib: lib})
         });
     }
 
@@ -61,7 +61,7 @@ class WorkspaceCard extends React.Component {
         const {rootNodes} = this.state;
         const {ASLib, CALib} = this.state;
         const lines = [];
-        let bookmarkAction;
+        let otherActions = [];
 
         if (workspace.getDescription()) {
             lines.push(<GenericLine iconClassName="mdi mdi-information" legend={pydio.MessageHash['share_center.145']} data={workspace.getDescription()}/>)
@@ -74,13 +74,15 @@ class WorkspaceCard extends React.Component {
             })
         }
         if(pydio.getPluginConfigs('core.activitystreams').get('ACTIVITY_SHOW_ACTIVITIES') && ASLib && rootNodes){
-
-            const selector = <PydioActivityStreams.WatchSelector pydio={pydio} nodes={rootNodes}/>;
-            lines.push(<GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} iconStyle={{marginTop:32}} data={selector}/>)
+            const {WatchSelector} = ASLib
+            const selector = <WatchSelector pydio={pydio} nodes={rootNodes} fullWidth={true}/>;
+            lines.push(<GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} iconStyle={{marginTop:32}} data={selector} dataStyle={{paddingRight: 16}}/>)
 
         }
         if (CALib && rootNodes){
-            bookmarkAction = <PydioCoreActions.BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'white'}}}/>;
+            const {BookmarkButton, MaskWsButton} = CALib;
+            otherActions.push(<MaskWsButton pydio={pydio} workspaceId={workspace.getId()} iconStyle={{color:'var(--md-sys-color-primary)'}}/>);
+            otherActions.push(<BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'var(--md-sys-color-primary)'}}}/>);
         }
 
         return (
@@ -88,8 +90,8 @@ class WorkspaceCard extends React.Component {
                 pydio={pydio}
                 title={workspace.getLabel()}
                 onDismissAction={onDismiss}
-                style={{width: 350}}
-                otherActions={[bookmarkAction]}
+                style={{width: 420}}
+                otherActions={otherActions}
             >
                 {lines}
             </GenericCard>

@@ -21,6 +21,7 @@
 // Import Builder class
 import Builder from './Builder'
 import TemplateBuilder from './TemplateBuilder'
+import ThemeModifier from './ThemeModifier'
 import AsyncComponent from './AsyncComponent'
 import withProgressiveBg from './withProgressiveBg'
 
@@ -57,6 +58,7 @@ export {
     Builder,
     TemplateBuilder,
     AsyncComponent,
+    ThemeModifier,
 
     AsyncModal,
     ActionDialogMixin,

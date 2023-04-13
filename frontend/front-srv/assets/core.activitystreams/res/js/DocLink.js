@@ -20,12 +20,13 @@
 
 import React from 'react'
 import PropTypes from 'prop-types'
-const {Popover, Paper, IconButton, FlatButton, Divider} = require('material-ui');
+const {Paper, IconButton, FlatButton, Divider} = require('material-ui');
 const Pydio = require('pydio');
 const debounce = require('lodash.debounce');
 const MetaNodeProvider = require('pydio/model/meta-node-provider');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 const {FilePreview} = Pydio.requireLib('workspaces');
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc');
 
 function nodesFromObject(object, pydio){
     let nodes = [];

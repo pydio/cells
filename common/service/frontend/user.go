@@ -23,6 +23,7 @@ package frontend
 import (
 	"context"
 	"encoding/base64"
+	"path"
 	"strings"
 
 	"go.uber.org/zap"
@@ -32,7 +33,10 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
+	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -344,10 +348,26 @@ func (u *User) publishWorkspaces(status RequestStatus, pool *PluginsPool) (works
 		if ws.Description != "" {
 			repo.Cdescription = &Cdescription{Cdata: ws.Description}
 		}
-		if ws.Scope != idm.WorkspaceScope_ADMIN {
+		if ws.Scope == idm.WorkspaceScope_ROOM {
 			repo.Attrowner = "shared"
-			repo.Attruser_editable_repository = "true"
+			// Use existing xml attribute to tell if user is owner or not
+			// The real "editable" aspect is linked to PoliciesContextEditable value
+			if u.isWorkspaceOwnerFromPolicy(ws.Workspace.Policies) {
+				repo.Attruser_editable_repository = "true"
+			} else {
+				repo.Attruser_editable_repository = "false"
+			}
 			repo.Attrrepository_type = "cell"
+		} else if ws.Scope == idm.WorkspaceScope_LINK {
+			repo.Attrowner = "shared"
+			repo.Attrrepository_type = "link"
+			if ws.Label == "{{RefLabel}}" && len(ws.RootUUIDs) == 1 {
+				// Load unique node to re-build label
+				router := compose.UuidClient(status.RuntimeCtx)
+				if rsp, e := router.ReadNode(status.Request.Context(), &tree.ReadNodeRequest{Node: &tree.Node{Uuid: ws.RootUUIDs[0]}}); e == nil {
+					repo.Clabel = &Clabel{Cdata: path.Base(rsp.GetNode().GetPath())}
+				}
+			}
 		} else {
 			repo.Attrrepository_type = "workspace"
 			if len(ws.RootUUIDs) == 1 {
@@ -364,4 +384,13 @@ func (u *User) publishWorkspaces(status RequestStatus, pool *PluginsPool) (works
 	}
 
 	return
+}
+
+func (u *User) isWorkspaceOwnerFromPolicy(policies []*service.ResourcePolicy) bool {
+	for _, pol := range policies {
+		if pol.Action == service.ResourcePolicyAction_OWNER {
+			return pol.Subject == u.UserObject.Uuid
+		}
+	}
+	return false
 }

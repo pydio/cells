@@ -107,8 +107,8 @@ const SplashDialog = createReactClass({
             credit = <Loader style={{minHeight: 200}}/>;
         }
         return (
-            <div style={{height:'100%', backgroundColor: '#CFD8DC', width: '100%'}}>
-                <Card>
+            <div style={{height:'100%', width: '100%'}}>
+                <Card style={{borderRadius: 0}}>
                     <CardTitle title={pydio.Parameters.get('backend')['PackageLabel']}/>
                     <Divider/>
                     <CardActions style={{display:'flex', alignItems:'center'}}>

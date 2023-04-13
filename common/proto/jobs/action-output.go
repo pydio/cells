@@ -21,10 +21,12 @@
 package jobs
 
 import (
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"go.uber.org/zap/zapcore"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/utils/configx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type actionOutputLogArray []*ActionOutput
@@ -93,7 +95,12 @@ func (m *ActionOutput) SetVar(key string, value interface{}) {
 	if m.Vars == nil {
 		m.Vars = make(map[string]string)
 	}
-	jv, _ := json.Marshal(value)
+	var jv []byte
+	if mess, ok := value.(proto.Message); ok {
+		jv, _ = protojson.Marshal(mess)
+	} else {
+		jv, _ = json.Marshal(value)
+	}
 	m.Vars[key] = string(jv)
 }
 

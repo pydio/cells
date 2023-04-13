@@ -59,7 +59,7 @@ func TestMain(m *testing.M) {
 		return NewDAO(d, "ROOT"), nil
 	}
 	var e error
-	if baseCacheDAO, e = dao.InitDAO(context.Background(), sqlite.Driver, sqlite.SharedMemDSN, "test", wrapper, options); e != nil {
+	if baseCacheDAO, e = dao.InitDAO(context.Background(), sqlite.Driver, sqlite.SharedMemDSN, "test_cache", wrapper, options); e != nil {
 		panic(e)
 	}
 	m.Run()
@@ -305,7 +305,7 @@ func TestMysqlWithCache(t *testing.T) {
 	Convey("Test Getting the Children Count of a node", t, func() {
 		newSession()
 
-		count, _ := getDAO(ctxWithCache).GetNodeChildrenCounts(mockLongNodeMPath)
+		count, _ := getDAO(ctxWithCache).GetNodeChildrenCounts(mockLongNodeMPath, false)
 
 		getDAO(ctxWithCache).Flush(true)
 

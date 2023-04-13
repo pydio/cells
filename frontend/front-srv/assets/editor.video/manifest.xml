@@ -7,7 +7,6 @@
     <client_settings>
         <resources>
             <js file="plug/editor.video/res/dist/PydioVideo.min.js" className="PydioVideo"/>
-            <css file="plug/editor.video/res/dist/video-js.min.css"/>
             <i18n remote="plug/editor.video/i18n" namespace="video_editor"/>
         </resources>
     </client_settings>

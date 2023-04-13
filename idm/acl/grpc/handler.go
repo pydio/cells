@@ -22,11 +22,13 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/idm/acl"
@@ -69,7 +71,23 @@ func (h *Handler) ExpireACL(ctx context.Context, req *idm.ExpireACLRequest) (*id
 
 	resp := &idm.ExpireACLResponse{}
 
-	numRows, err := h.dao.SetExpiry(req.Query, time.Unix(req.Timestamp, 0))
+	numRows, err := h.dao.SetExpiry(req.Query, time.Unix(req.Timestamp, 0), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp.Rows = numRows
+
+	return resp, nil
+}
+
+// RestoreACL in database
+func (h *Handler) RestoreACL(ctx context.Context, req *idm.RestoreACLRequest) (*idm.RestoreACLResponse, error) {
+
+	resp := &idm.RestoreACLResponse{}
+
+	// Set zeroTime to restore
+	numRows, err := h.dao.SetExpiry(req.Query, time.Time{}, acl.ReadExpirationPeriod(req))
 	if err != nil {
 		return nil, err
 	}
@@ -82,14 +100,18 @@ func (h *Handler) ExpireACL(ctx context.Context, req *idm.ExpireACLRequest) (*id
 // DeleteACL from database
 func (h *Handler) DeleteACL(ctx context.Context, req *idm.DeleteACLRequest) (*idm.DeleteACLResponse, error) {
 
-	response := &idm.DeleteACLResponse{}
+	period := acl.ReadExpirationPeriod(req)
+	if req.Query == nil && period == nil {
+		return nil, fmt.Errorf("please provide at least one of (query|period)")
+	}
 
+	response := &idm.DeleteACLResponse{}
 	acls := new([]interface{})
-	if err := h.dao.Search(req.Query, acls); err != nil {
+	if err := h.dao.Search(req.Query, acls, period); err != nil {
 		return nil, err
 	}
 
-	numRows, err := h.dao.Del(req.Query)
+	numRows, err := h.dao.Del(req.Query, period)
 	response.RowsDeleted = numRows
 	if err == nil {
 		for _, in := range *acls {
@@ -107,8 +129,12 @@ func (h *Handler) DeleteACL(ctx context.Context, req *idm.DeleteACLRequest) (*id
 // SearchACL in database
 func (h *Handler) SearchACL(request *idm.SearchACLRequest, response idm.ACLService_SearchACLServer) error {
 
+	if request.Query == nil {
+		request.Query = &service.Query{}
+	}
+
 	acls := new([]interface{})
-	if err := h.dao.Search(request.Query, acls); err != nil {
+	if err := h.dao.Search(request.Query, acls, acl.ReadExpirationPeriod(request)); err != nil {
 		return err
 	}
 
@@ -135,7 +161,7 @@ func (h *Handler) StreamACL(streamer idm.ACLService_StreamACLServer) error {
 		}
 
 		acls := new([]interface{})
-		if err := h.dao.Search(incoming.Query, acls); err != nil {
+		if err := h.dao.Search(incoming.Query, acls, acl.ReadExpirationPeriod(incoming)); err != nil {
 			return err
 		}
 

@@ -6,8 +6,6 @@
         <resources>
             <i18n namespace="code_mirror" remote="plug/editor.codemirror/i18n"/>
             <js file="plug/editor.codemirror/res/dist/PydioCodeMirror.min.js" className="PydioCodeMirror"/>
-            <css file="plug/editor.codemirror/res/dist/codemirror/lib/codemirror.css"/>
-            <css file="plug/editor.codemirror/css/linenumbers.css"/>
         </resources>
     </client_settings>
 	<dependencies>

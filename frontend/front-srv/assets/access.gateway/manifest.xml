@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ajxpdriver enabled="always" name="gateway" label="CONF_MESSAGE[Gateway]" description="CONF_MESSAGE[Pydio S3 Gateway]" mixins="slug_provider,template_provider">
 
-    <client_settings icon="plug/access.fs/icon.png" iconClass="icon-sitemap">
+    <client_settings>
         <resources>
             <i18n namespace="openother" remote="plug/access.gateway/i18n/editor.picker"/>
             <i18n namespace="access_fs" remote="plug/access.gateway/i18n/access.fs"/>

@@ -1,13 +1,3 @@
-import GraphPanel from './GraphPanel';
-import ActionsPanel from './ActionsPanel'
-const debounce = require('lodash.debounce');
-const React = require('react');
-const Color = require('color');
-const {FontIcon, Popover, Paper, Avatar, CardTitle, Divider} = require('material-ui');
-const {muiThemeable} = require('material-ui/styles');
-const MetaCacheService = require('pydio/http/meta-cache-service');
-const {UsersApi} = require('pydio/http/users-api');
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28,8 +18,17 @@ const {UsersApi} = require('pydio/http/users-api');
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from 'pydio'
+import React from 'react'
+import GraphPanel from './GraphPanel';
+const debounce = require('lodash.debounce');
+const Color = require('color');
+const {FontIcon, Paper, Avatar, CardTitle} = require('material-ui');
+const {muiThemeable} = require('material-ui/styles');
+const MetaCacheService = require('pydio/http/meta-cache-service');
+const {UsersApi} = require('pydio/http/users-api');
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 import PropTypes from 'prop-types';
-
 import PydioApi from "pydio/http/api";
 
 /**
@@ -52,7 +51,7 @@ class UserAvatar extends React.Component{
     }
 
     componentWillReceiveProps(nextProps){
-        if(!this.props.userId || this.props.userId !== nextProps.userId){
+        if(!this.props.userId || this.props.userId !== nextProps.userId || nextProps.graphRand !== this.props.graphRand){
             this.setState({label: nextProps.userId});
             this.loadPublicData(nextProps.userId, nextProps.idmUser);
         }
@@ -120,7 +119,7 @@ class UserAvatar extends React.Component{
     render(){
 
         const {user, avatar, graph, local, loadError} = this.state;
-        let {pydio, userId, userType, icon, style, labelStyle, avatarLetters, avatarStyle, avatarSize, cardStyle, className,
+        let {pydio, userId, userType, icon, style, labelStyle, avatarLetters, avatarStyle, avatarSize, cardStyle, cardTitleStyle, cardSubtitleStyle, className,
             labelMaxChars, labelClassName, avatarClassName, displayLabel, displayLocalLabel, displayLabelChevron, labelChevronStyle,
             displayAvatar, useDefaultAvatar, richCard, muiTheme, noActionsPanel} = this.props;
 
@@ -233,7 +232,9 @@ class UserAvatar extends React.Component{
 
             displayAvatar = true;
             style = {...style, flexDirection:'column'};
-            avatarSize = 50;
+            if(avatarSize === undefined){
+                avatarSize = 50;
+            }
             avatarStyle = {position: 'absolute', right: 16, top: 12, ...avatarStyle};
             const localReload = () => {
                 MetaCacheService.getInstance().deleteKey('user_public_data-graph', this.props.userId);
@@ -381,14 +382,32 @@ class UserAvatar extends React.Component{
         return (
             <div className={className} style={style} onMouseOver={onMouseOver} onMouseOut={onMouseOut} onClick={onClick}>
                 {displayAvatar && (avatar || avatarContent || avatarIcon) && avatarComponent}
-                {displayLabel && !richCard && <div
-                    title={labelTitle}
-                    className={labelClassName}
-                    style={labelStyle}>{label}</div>}
+                {displayLabel && !richCard &&
+                    <div
+                        title={labelTitle}
+                        className={labelClassName}
+                        style={labelStyle}>{label}</div>
+                }
                 {labelChevron}
-                {displayLabel && richCard && <CardTitle style={{textAlign:'center', ...cardStyle}} title={label} subtitle={userTypeLabel}/>}
-                {richCard && user && !noActionsPanel && <ActionsPanel {...this.state} {...this.props} reloadAction={reloadAction} onEditAction={onEditAction} style={{paddingLeft: 8, paddingBottom: 4, backgroundColor:'#f8fafc'}}/>}
-                {richCard && graph && !noActionsPanel && <GraphPanel graph={graph} {...this.props} userLabel={label} reloadAction={reloadAction} onEditAction={onEditAction}/>}
+                {displayLabel && richCard &&
+                    <CardTitle
+                        style={{textAlign:'center', ...cardStyle}}
+                        title={label}
+                        subtitle={userTypeLabel}
+                        titleStyle={{...cardTitleStyle}}
+                        subtitleStyle={{...cardSubtitleStyle}}
+                    />
+                }
+                {richCard && user && this.props.actionsPanel}
+                {richCard && graph && !noActionsPanel &&
+                    <GraphPanel
+                        graph={graph}
+                        {...this.props}
+                        userLabel={label}
+                        reloadAction={reloadAction}
+                        onEditAction={onEditAction}
+                    />
+                }
                 {this.props.children}
                 {popover}
             </div>

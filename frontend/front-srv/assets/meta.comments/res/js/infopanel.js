@@ -18,11 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from 'pydio'
 const React = require('react');
-const {RaisedButton} = require('material-ui');
-const {PydioContextConsumer} = require('pydio').requireLib('boot');
-const {InfoPanelCard} = require('pydio').requireLib('workspaces');
-const {Chat} = require('pydio').requireLib('components');
+const {PydioContextConsumer} = Pydio.requireLib('boot');
+const {InfoPanelCard} = Pydio.requireLib('workspaces');
+const {Chat} = Pydio.requireLib('components');
 
 class InfoPanel extends React.Component {
 
@@ -42,11 +42,11 @@ class InfoPanel extends React.Component {
                         iconStyle:{fontSize: 40},
                         legendStyle:{fontSize: 13}
                     }}
-                    fieldContainerStyle={{background:'#f6f6f8'}}
                     textFieldProps={{
                         style:{height: 40, lineHeight:'16px'},
                         hintStyle:{fontSize: 13, whiteSpace:'no-wrap'}
                     }}
+                    popoverPanel={popoverPanel}
                     readonly={node.getMetadata().get('node_readonly') === 'true'}
                 />
             </InfoPanelCard>

@@ -23,7 +23,8 @@ const Pydio = require('pydio')
 import PydioApi from 'pydio/http/api'
 import ResourcesManager from 'pydio/http/resources-manager'
 import deepEqual from 'deep-equal'
-const {Responsive, WidthProvider} = require('react-grid-layout');
+import {FloatingActionButton} from 'material-ui'
+
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 
 import Store from './Store'
@@ -60,6 +61,11 @@ class CardsGrid extends React.Component {
                 aborterPlugin
             ],
         });
+
+        import(/* webpackChunkName: 'rgl' */ 'react-grid-layout').then( (rgl) => {
+            this.setState({rgl: rgl.default})
+        });
+
     }
 
     /**
@@ -100,7 +106,7 @@ class CardsGrid extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this._forceUpdate || false;
+        return this._forceUpdate || nextState.rgl !== this.state.rgl || false;
     }
 
     removeCard(itemKey){
@@ -194,7 +200,13 @@ class CardsGrid extends React.Component {
     };
 
     render() {
+        const {rgl} = this.state;
+        if(!rgl) {
+            return null;
+        }
         const {cards, layouts} = this.buildCards(this.state.cards);
+        const {Responsive, WidthProvider} = rgl
+
         const ResponsiveGridLayout = WidthProvider(Responsive);
         return (
             <ResponsiveGridLayout
@@ -268,10 +280,10 @@ class DynamicGrid extends React.Component {
             <div style={{...this.props.style, width:'100%', flex:'1'}} className={this.state.editMode?"builder-open":""}>
                 {!this.props.disableEdit &&
                     <div style={{position:'absolute',bottom:30,right:18, zIndex:11}}>
-                        <MaterialUI.FloatingActionButton
+                        <FloatingActionButton
                             tooltip={this.props.getMessage('home.49')}
                             onClick={this.toggleEditMode.bind(this)}
-                            iconClassName={this.state.editMode?"icon-ok":"mdi mdi-pencil"}
+                            iconClassName={this.state.editMode?"mdi mdi-check":"mdi mdi-pencil"}
                             mini={this.state.editMode}
                             disabled={this.state.editMode && this.state.widgetEditing}
                         />

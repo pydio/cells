@@ -1,8 +1,3 @@
-import React from 'react';
-import ShareContextConsumer from '../ShareContextConsumer'
-import SharedUserEntry from './SharedUserEntry'
-import ActionButton from '../main/ActionButton'
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -22,10 +17,16 @@ import ActionButton from '../main/ActionButton'
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
+import React from 'react';
+import Pydio from 'pydio'
 import PropTypes from 'prop-types';
 
-import Pydio from 'pydio'
+import ShareContextConsumer from '../ShareContextConsumer'
+import SharedUserEntry from './SharedUserEntry'
+import ActionButton from '../main/ActionButton'
 const {UsersCompleter} = Pydio.requireLib('components');
+import {muiThemeable} from 'material-ui/styles'
 
 class SharedUsers extends React.Component {
     static propTypes = {
@@ -74,7 +75,7 @@ class SharedUsers extends React.Component {
     };
 
     render() {
-        const {cellAcls, pydio, completerStyle} = this.props;
+        const {cellAcls, pydio, completerStyle, muiTheme} = this.props;
         const authConfigs = pydio.getPluginConfigs('core.auth');
         let index = 0;
         let userEntries = [];
@@ -111,15 +112,15 @@ class SharedUsers extends React.Component {
         }
         let rwHeader, usersInput;
         if(userEntries.length){
+            let color = 'rgba(0,0,0,.33)'
+            if(muiTheme.userTheme === 'mui3'){
+                color = muiTheme.palette.mui3.outline
+            }
             rwHeader = (
-                <div style={{display:'flex', marginBottom: -8, marginTop: -8, color:'rgba(0,0,0,.33)', fontSize:12}}>
+                <div style={{display:'flex', marginBottom: -8, marginTop: -8, color, fontSize:12}}>
                     <div style={{flex: 1}}/>
-                    <div style={{width: 43, textAlign:'center'}}>
-                        <span style={{borderBottom: '0px solid rgba(0,0,0,0.13)'}}>{this.props.getMessage('361', '')}</span>
-                    </div>
-                    <div style={{width: 43, textAlign:'center'}}>
-                        <span style={{borderBottom: '0px solid rgba(0,0,0,0.13)'}}>{this.props.getMessage('181')}</span>
-                    </div>
+                    <div style={{width: 43, textAlign:'center'}}>{this.props.getMessage('361', '')}</div>
+                    <div style={{width: 43, textAlign:'center'}}>{this.props.getMessage('181')}</div>
                     <div style={{width: 6}}/>
                 </div>
             );
@@ -136,16 +137,17 @@ class SharedUsers extends React.Component {
                     return null
                 }
             }).filter(k => !!k);
+            const canCreate = authConfigs.get('USER_CREATE_USERS')
             usersInput = (
                 <UsersCompleter
                     className="share-form-users"
-                    fieldLabel={this.props.getMessage('34')}
+                    fieldLabel={this.props.getMessage(canCreate?'34':'34b')}
                     onValueSelected={this.valueSelected}
                     pydio={this.props.pydio}
                     showAddressBook={true}
                     usersFrom="local"
                     excludes={excludes}
-                    existingOnly={!authConfigs.get('USER_CREATE_USERS')}
+                    existingOnly={!canCreate}
                 />
             );
         }
@@ -156,7 +158,7 @@ class SharedUsers extends React.Component {
                 {rwHeader}
                 <div>{userEntries}</div>
                 {!userEntries.length &&
-                    <div style={{color: 'rgba(0,0,0,0.43)', fontWeight: 500, margin: '0 10px'}}>{this.props.getMessage('182')}</div>
+                    <div style={{color: muiTheme.palette.mui3['on-surface-variant'], fontWeight: 500, margin: '0 10px'}}>{this.props.getMessage('182')}</div>
                 }
                 {userEntries.length > 0 &&
                     <div style={{textAlign:'center', marginTop: 10, marginBottom: 10}}>{actionLinks}</div>
@@ -167,5 +169,5 @@ class SharedUsers extends React.Component {
     }
 }
 
-SharedUsers = ShareContextConsumer(SharedUsers);
+SharedUsers = ShareContextConsumer(muiThemeable()(SharedUsers));
 export {SharedUsers as default}

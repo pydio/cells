@@ -173,7 +173,8 @@ class MessageBar extends React.Component{
                 autoHideDuration={errorStatus ? 9000 : 4000}
                 action={actionLabel}
                 onActionClick={actionCallback}
-                bodyStyle={{padding:'16px 24px', height:'auto', maxHeight:200, overflowY:'auto', lineHeight:'inherit'}}
+                style={{bottom: 10}}
+                bodyStyle={{padding:'16px 24px', height:'auto', maxHeight:200, overflowY:'auto', lineHeight:'inherit', borderRadius: 4}}
             />
         );
     }

@@ -262,7 +262,7 @@ class Editor extends React.Component{
 
         let panes = [];
         const classFor = key => currentPane === key ? 'layout-fill' : '';
-        const styleFor = key => currentPane === key ? {overflow: 'auto'} : {height: 0, overflow: 'hidden'};
+        const styleFor = key => currentPane === key ? {overflowY: 'auto', overflowX: 'hidden'} : {height: 0, overflow: 'hidden'};
         panes.push(
             <div key="info" className={'avatar-provider ' + classFor('info')} style={styleFor('info')}>
                 {infoTitle && !this.state.loadingMessage ? <h3 className="paper-right-title">{infoTitle}</h3> : null}

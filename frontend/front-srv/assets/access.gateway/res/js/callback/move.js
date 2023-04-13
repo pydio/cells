@@ -20,6 +20,7 @@
 
 import PathUtils from "pydio/util/path";
 import LangUtils from "pydio/util/lang";
+import moveLoader from './applyCopyOrMove'
 const {DNDActionParameter} = require('pydio').requireLib('components');
 
 export default function (pydio) {
@@ -91,7 +92,7 @@ export default function (pydio) {
                     dndActionParameter.getTarget().getMetadata().get('local:dropFunc')('dnd', dndActionParameter.getSource(), dndActionParameter.getTarget())
                     return;
                 }
-                const moveFunction = require('./applyCopyOrMove')(pydio);
+                const moveFunction = moveLoader(pydio);
                 const sourceNode = dndActionParameter.getSource();
                 const selectedNodes = selection.getSelectedNodes();
                 if(selectedNodes.indexOf(sourceNode) === -1){
@@ -111,7 +112,7 @@ export default function (pydio) {
 
         let selection = pydio.getUserSelection();
         const submit = function(path, wsId = null){
-            require('./applyCopyOrMove')(pydio)('move', selection, path, wsId);
+            moveLoader(pydio)('move', selection, path, wsId);
         };
 
         pydio.UI.openComponentInModal('FSActions', 'TreeDialog', {

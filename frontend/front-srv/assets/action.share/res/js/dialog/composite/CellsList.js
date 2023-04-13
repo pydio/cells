@@ -6,7 +6,8 @@ import SharedUsers from '../cells/SharedUsers'
 import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import {muiThemeable} from 'material-ui/styles'
-import {Paper, Divider, RaisedButton, IconButton, Popover, Menu, List, ListItem, IconMenu, MenuItem, FontIcon} from 'material-ui'
+import {Paper, Divider, RaisedButton, IconButton, Menu, List, ListItem, IconMenu, MenuItem, FontIcon} from 'material-ui'
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc');
 
 class CellsList extends React.Component {
 
@@ -152,13 +153,20 @@ class CellsList extends React.Component {
             </span>
         }
 
+        const legendStyle ={
+            fontSize:13,
+            fontWeight:500,
+            color:muiTheme.palette.mui3['on-surface-variant']
+        }
+
+
         const auth = ShareHelper.getAuthorizations();
         if(compositeModel.getNode()){
             const nodeLeaf = compositeModel.getNode().isLeaf();
             const canShare = (nodeLeaf && auth.file_workspaces) || (!nodeLeaf && auth.folder_workspaces);
             if(!canShare){
                 return (
-                    <div style={{fontSize: 13, fontWeight: 500, color: 'rgba(0, 0, 0, 0.43)', padding: 8}}>
+                    <div style={{...legendStyle, padding: 8}}>
                         {m(nodeLeaf?'227':'228')}
                     </div>
                 );
@@ -171,7 +179,7 @@ class CellsList extends React.Component {
                     <RaisedButton label={m(264)} disabled={edit==='NEWCELL'} primary={true} onClick={()=>{compositeModel.createEmptyCell();this.setState({edit:'NEWCELL'})}}/>
                     {addToCellMenu}
                 </div>
-                <div style={{fontSize: 13, fontWeight: 500, color: 'rgba(0, 0, 0, 0.43)'}}>{legend}</div>
+                <div style={legendStyle}>{legend}</div>
                 <List>{cells}</List>
             </div>
         );

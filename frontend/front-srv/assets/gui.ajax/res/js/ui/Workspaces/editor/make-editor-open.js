@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
 import { TransitionMotion, spring, presets } from 'react-motion';
 
 // const ANIMATION={stiffness: 200, damping: 22, precision: 1}

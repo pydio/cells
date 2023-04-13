@@ -20,11 +20,10 @@
 import Pydio from 'pydio'
 import React, {Component} from 'react'
 import { connect } from 'react-redux'
-import { compose } from 'redux'
 import { Table, TableBody, TableRow, TableRowColumn, Paper } from 'material-ui'
 import Player from './Player';
 const PydioApi = require('pydio/http/api');
-const {withSelection, EditorActions, withMenu, withLoader, withErrors, withControls} = Pydio.requireLib("hoc");
+const {withSelection, EditorActions} = Pydio.requireLib("hoc");
 
 const editors = Pydio.getInstance().Registry.getActiveExtensionByType("editor")
 const conf = editors.filter(({id}) => id === 'editor.soundmanager')[0]

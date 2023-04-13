@@ -263,7 +263,7 @@ export default createReactClass({
             properties['onClick'] = function(){
                 this.setState({currentActiveGroup:(current !== index ? index : null)});
             }.bind(this);
-            groupLabel = [<span key="toggler" className={"group-active-toggler icon-angle-" + (current === index ? 'down' : 'right') }></span>, groupLabel];
+            groupLabel = [<span key="toggler" className={"group-active-toggler mdi-mdi-chevron-" + (current === index ? 'down' : 'right') }></span>, groupLabel];
         }
 
         return React.createElement(
@@ -278,7 +278,7 @@ export default createReactClass({
         let groupsOrdered = ['__DEFAULT__'];
         allGroups['__DEFAULT__'] = {FIELDS:[]};
         const replicationGroups = {};
-        const {parameters, values, skipFieldsTypes, disabled, binary_context, variant, variantShowLegend} = this.props;
+        const {parameters, values, skipFieldsTypes, disabled, binary_context, variant, variantShowLegend, panelStyle} = this.props;
         const {altTextSwitchIcon, altTextSwitchTip, onAltTextSwitch} = this.props;
 
         parameters.map(function(attributes){
@@ -345,7 +345,7 @@ export default createReactClass({
                                 applyButtonAction:this.applyButtonAction
                             }, helperTestFor);
                         }.bind(this);
-                        helperMark = <span className="icon-question-sign" onClick={showHelper}></span>;
+                        helperMark = <span className="mdi mdi-comment-question-outline" onClick={showHelper}></span>;
                     }
                     let mandatoryMissing = false;
                     let classLegend = "form-legend";
@@ -549,7 +549,7 @@ export default createReactClass({
 
         }else{
             return (
-                <div className={(this.props.className?this.props.className+' ':' ') + 'pydio-form-panel' + (groupPanes.length % 2 ? ' form-panel-odd':'')} onScroll={this.props.onScrollCallback}>
+                <div className={(this.props.className?this.props.className+' ':' ') + 'pydio-form-panel' + (groupPanes.length % 2 ? ' form-panel-odd':'')} onScroll={this.props.onScrollCallback} style={{...panelStyle}}>
                     {groupPanes}
                 </div>
             );

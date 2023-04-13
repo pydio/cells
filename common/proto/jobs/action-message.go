@@ -22,6 +22,8 @@ package jobs
 
 import (
 	"fmt"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"google.golang.org/protobuf/encoding/protojson"
 	"time"
 
 	"go.uber.org/zap/zapcore"
@@ -82,6 +84,35 @@ func (a *ActionMessage) StackedVars() map[string]interface{} {
 		o.FillVars(vv)
 	}
 	return vv
+}
+
+func (a *ActionMessage) ScanVar(name string, output interface{}) error {
+	// first find content
+	l := len(a.OutputChain)
+	var data string
+	var found bool
+	for i := l - 1; i >= 0; i-- {
+		if a.OutputChain[i].Vars != nil {
+			if d, o := a.OutputChain[i].Vars[name]; o {
+				data = d
+				found = true
+				break
+			}
+		}
+	}
+	if !found {
+		return fmt.Errorf("var not found")
+	}
+	if mess, ok := output.(proto.Message); ok {
+		if er := protojson.Unmarshal([]byte(data), mess); er != nil {
+			return er
+		} else {
+			output = mess
+			return nil
+		}
+	} else {
+		return json.Unmarshal([]byte(data), output)
+	}
 }
 
 func (a *ActionMessage) WithNode(n *tree.Node) *ActionMessage {

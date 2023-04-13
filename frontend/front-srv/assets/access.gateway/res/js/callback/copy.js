@@ -18,6 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import moveLoader from './applyCopyOrMove'
+
 export default function (pydio) {
 
     const {MessageHash} = pydio;
@@ -25,7 +27,7 @@ export default function (pydio) {
         // + Handle copy in same folder, move in same folder
         let selection = pydio.getUserSelection();
         const submit = function(path, wsId = null){
-            require('./applyCopyOrMove')(pydio)('copy', selection, path, wsId);
+            moveLoader(pydio)('copy', selection, path, wsId);
         };
 
         pydio.UI.openComponentInModal('FSActions', 'TreeDialog', {

@@ -113,8 +113,20 @@ class Timeline extends Component {
         this.state = {}
     }
 
-    makeStyle(color) {
+    makeStyle(theme) {
+        const mainColor = theme.palette.mui3['on-surface']
+        const color = theme.palette.mui3['tertiary']
+        const colorLine = theme.palette.mui3['outline-variant']
+        const cardSurface = theme.palette.mui3['surface']
+        const activeShadow = '0px 1px 3px ' + theme.palette.mui3['outline-variant']
+
         const style = `
+        .timeline{
+            color: ${mainColor};
+        }
+        .timeline .tl-line {
+            border-right: 3px dashed ${colorLine}; 
+        }
         .timeline .tl-timeline .tl-block .tl-dot{
             background-color: ${color};
             box-shadow: ${color} 0px 0px 4px;
@@ -122,11 +134,15 @@ class Timeline extends Component {
         .timeline .tl-timeline .tl-block .tl-dot:before{
             border-color: ${color}
         }
+        .timeline .tl-timeline .tl-block .tl-card.tl-selectable:hover, 
         .timeline .tl-timeline .tl-block.tl-selected .tl-card {
-            box-shadow: ${color} 0px 0px 12px;
+            box-shadow: ${activeShadow}
         }
         .timeline .tl-timeline .daymonth{
             color: ${color}
+        }
+        .timeline .tl-card{
+            background-color: ${cardSurface};
         }
         `
         return (<style type="text/css">{style}</style>)
@@ -134,10 +150,13 @@ class Timeline extends Component {
 
     render() {
         const {muiTheme} = this.props;
-        const {items, className='', color=muiTheme.palette.accent2Color, useSelection=false, preSelection} = this.props;
+        const {items, className='', useSelection=false, preSelection} = this.props;
         const {itemUuid, itemMoment, itemActions, itemAnnotations, itemDesc, onItemSelect} = this.props;
         const {loadMoreAction, loadMoreLabel, loadMoreDisabled} = this.props;
         const {selection=preSelection} = this.state;
+
+        const color = muiTheme.palette.mui3['tertiary']
+
         let onSelect;
         if(onItemSelect) {
             onSelect = onItemSelect
@@ -162,18 +181,18 @@ class Timeline extends Component {
                                 itemActions={itemActions}
                                 itemAnnotations={itemAnnotations}
                                 itemDesc={itemDesc}
-                                color={color}
+                                color={muiTheme.palette.mui3.primary}
                             />)
                     })}
                     {loadMoreAction &&
                         <div className={"tl-block tl-more"}>
                             <div className={"tl-date"}/>
                             <div className={"tl-dot"}/>
-                            <div className={"tl-card tl-selectable"} style={{color:muiTheme.palette.accent2Color}} onClick={loadMoreDisabled?null:loadMoreAction}>{loadMoreLabel}</div>
+                            <div className={"tl-card tl-selectable"} style={{color:muiTheme.palette.mui3.primary}} onClick={loadMoreDisabled?null:loadMoreAction}>{loadMoreLabel}</div>
                         </div>
                     }
                 </div>
-                {this.makeStyle(color)}
+                {this.makeStyle(muiTheme)}
             </div>
         )
 

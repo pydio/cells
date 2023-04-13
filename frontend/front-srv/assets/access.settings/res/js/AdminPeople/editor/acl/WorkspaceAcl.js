@@ -17,11 +17,11 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from 'pydio'
 import React from 'react'
 import {withRoleMessages} from '../util/MessagesMixin'
 import RightsSelector from './RightsSelector'
-import {IdmWorkspace} from 'cells-sdk';
-import {FontIcon, Paper} from 'material-ui'
+const {ListEntry} = Pydio.requireLib('components');
 
 class WorkspaceAcl extends React.Component{
 
@@ -37,7 +37,7 @@ class WorkspaceAcl extends React.Component{
         if (!workspace.RootNodes || !Object.keys(workspace.RootNodes).length ){
             // This is not normal, a workspace should always have a root node!
             return (
-                <PydioComponents.ListEntry
+                <ListEntry
                     className={"workspace-acl-entry"}
                     firstLine={<span style={{textDecoration:'line-through', color:'#ef9a9a'}}>{workspace.Label + ' (' + getPydioRoleMessage('workspace.roots.invalid') + ')'}</span>}
                 />
@@ -57,7 +57,7 @@ class WorkspaceAcl extends React.Component{
         const label = workspace.Label + (inherited ? ' ('+ getPydioRoleMessage('38') +')' : '');
 
         return (
-            <PydioComponents.ListEntry
+            <ListEntry
                 className={ (inherited ? "workspace-acl-entry-inherited " : "") + "workspace-acl-entry"}
                 firstLine={label}
                 actions={action}

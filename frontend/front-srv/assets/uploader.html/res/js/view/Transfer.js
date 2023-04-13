@@ -23,6 +23,7 @@ import React from 'react'
 import PathUtils from 'pydio/util/path'
 import {LinearProgress, CircularProgress} from 'material-ui'
 import StatusItem from '../model/StatusItem'
+import {muiThemeable} from 'material-ui/styles'
 
 const uploadStatusMessages = {
     "new" : 433,
@@ -92,7 +93,7 @@ class Transfer extends React.Component{
     }
 
     render(){
-        const {item, className, style, limit, level, extensions, store} = this.props;
+        const {item, className, style, limit, level, extensions, store, muiTheme} = this.props;
         const {open, showAll, progress, status, previewUrl} = this.state;
         const children = item.getChildren();
         let isDir = item instanceof UploaderModel.FolderItem;
@@ -104,7 +105,7 @@ class Transfer extends React.Component{
             main: {
                 ...style,
                 fontSize:14,
-                color:'#424242'
+                //color:'#424242'
             },
             line: {
                 paddingLeft: (level-1)*24,
@@ -116,16 +117,16 @@ class Transfer extends React.Component{
                 borderLeft: (level === 1?'3px solid transparent':'')
             },
             secondaryLine: {
+                color: muiTheme.palette.mui3['on-surface-variant'],
                 display:'flex',
                 alignItems: 'center',
-                opacity:.3,
                 fontSize: 11
             },
             leftIcon: {
                 display: 'inline-block',
                 width: 50,
                 textAlign: 'center',
-                color: isPart ? '#9e9e9e' : '#616161',
+                //color: isPart ? '#9e9e9e' : '#616161',
                 fontSize: 18
             },
             previewImage: {
@@ -139,7 +140,7 @@ class Transfer extends React.Component{
             label: {
                 fontSize: 15,
                 fontWeight: isDir ? 500: 400,
-                color: isPart ? '#9e9e9e' : null,
+                //color: isPart ? '#9e9e9e' : null,
                 fontStyle: isPart ? 'italic' : null,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
@@ -147,7 +148,7 @@ class Transfer extends React.Component{
                 flex: 1,
             },
             errMessage: {
-                color: '#e53935',
+                //color: '#e53935',
                 fontSize: 11,
                 flex: 2,
                 whiteSpace: 'nowrap',
@@ -163,11 +164,11 @@ class Transfer extends React.Component{
                 width: 48,
                 textAlign: 'center',
                 cursor: 'pointer',
-                color: '#9e9e9e',
+                //color: '#9e9e9e',
                 fontSize: 16
             },
             toggleIcon: {
-                color: '#bdbdbd',
+                //color: '#bdbdbd',
                 marginLeft: 4
             }
         };
@@ -185,6 +186,7 @@ class Transfer extends React.Component{
                     level={level + 1}
                     extensions={extensions}
                     store={store}
+                    muiTheme={muiTheme}
                 />);
                 if(children.length > sliced.length){
                     childComps.push(
@@ -261,9 +263,9 @@ class Transfer extends React.Component{
                         width: styles.previewImage.width,
                         height: styles.previewImage.height,
                         lineHeight: styles.previewImage.width + 'px',
-                        backgroundColor: '#ECEFF1',
+                        backgroundColor: muiTheme.palette.mui3['mimefont-background'],
                         borderRadius: '50%',
-                        marginLeft: 6
+                        marginLeft: 8
                     }}/>
                 </span>);
         }

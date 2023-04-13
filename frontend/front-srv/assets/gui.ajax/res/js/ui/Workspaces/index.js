@@ -24,7 +24,6 @@ import Breadcrumb from './views/Breadcrumb'
 import FilePreview from './views/FilePreview'
 import FSTemplate from './views/FSTemplate'
 import EditionPanel from './views/EditionPanel'
-import SearchForm from './search/components/SearchForm'
 import UnifiedSearchForm from "./search/components/UnifiedSearchForm";
 import Renderer from "./search/components/Renderer";
 import AdvancedChips from "./search/components/AdvancedChips"
@@ -45,14 +44,16 @@ import InfoRootNode from './detailpanes/RootNode'
 import GenericInfoCard from './detailpanes/GenericInfoCard'
 import FileInfoCard from './detailpanes/FileInfoCard'
 
-import { Editor } from './editor/components/editor'
+import {Editor} from './editor/components/editor'
+
+import {MUITour, WelcomeMUITour, ThemeTogglerCard} from './views/WelcomeMuiTour'
+import {Scheme} from './views/WelcomeTour'
 
 const classes = {
     OpenNodesModel,
     MainFilesList,
     EditionPanel,
     Breadcrumb,
-    SearchForm,
     UnifiedSearchForm,
     AdvancedChips,
     FilePreview,
@@ -72,6 +73,11 @@ const classes = {
     InfoRootNode,
     FileInfoCard,
     GenericInfoCard,
+
+    MUITour,
+    WelcomeMUITour,
+    ThemeTogglerCard,
+    Scheme,
 
     Editor
 }

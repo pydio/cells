@@ -323,10 +323,14 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 	s.setDataSourceMeta(node)
 
 	if (req.WithExtendedStats || tree.StatFlags(req.StatFlags).FolderCounts()) && !node.IsLeaf() {
-		folderCount, fileCount := dao.GetNodeChildrenCounts(node.MPath)
+		folderCount, fileCount := dao.GetNodeChildrenCounts(node.MPath, false)
 		node.SetMeta(common.MetaFlagChildrenCount, folderCount+fileCount)
 		node.SetMeta(common.MetaFlagChildrenFolders, folderCount)
 		node.SetMeta(common.MetaFlagChildrenFiles, fileCount)
+	}
+	if tree.StatFlags(req.StatFlags).RecursiveCount() && !node.IsLeaf() {
+		total, _ := dao.GetNodeChildrenCounts(node.MPath, true)
+		node.SetMeta(common.MetaFlagRecursiveCount, total)
 	}
 
 	resp.Node = node.Node
@@ -399,6 +403,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 	} else {
 		reqNode := req.GetNode()
 		reqPath := safePath(reqNode.GetPath())
+		recursiveCounts := tree.StatFlags(req.StatFlags).RecursiveCount()
 
 		path, _, err := dao.Path(reqPath, false)
 		if err != nil {
@@ -419,6 +424,11 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		// Additional filters
 		metaFilter := tree.NewMetaFilter(reqNode)
 		metaFilter.ParseType(req.FilterType)
+		if !req.Recursive {
+			metaFilter.AddSort(tree.MetaSortName, req.SortField, req.SortDirDesc)
+		} else {
+			metaFilter.AddSort(tree.MetaSortMPath, req.SortField, req.SortDirDesc)
+		}
 		_ = metaFilter.Parse()
 		sqlFilters := metaFilter.HasSQLFilters()
 		limitDepth := metaFilter.LimitDepth()
@@ -493,6 +503,10 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 			}
 			if limitDepth > 0 && node.Level != limitDepth {
 				continue
+			}
+			if recursiveCounts && !node.IsLeaf() {
+				total, _ := dao.GetNodeChildrenCounts(node.MPath, true)
+				node.SetMeta(common.MetaFlagRecursiveCount, total)
 			}
 			if err := resp.Send(&tree.ListNodesResponse{Node: node.Node}); err != nil {
 				return err

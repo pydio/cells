@@ -18,85 +18,79 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import React, {useRef, useEffect} from 'react'
 import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
 const {moment} = Pydio.requireLib('boot');
 
 import {DragDropListEntry} from './ListEntry'
-import InlineEditor from './InlineEditor'
-import withNodeListenerEntry from './withNodeListenerEntry'
+import {withNodeListenerEntry} from './withNodeListenerEntry'
 
 
 /**
  * Specific list entry rendered as a table row. Not a real table, CSS used.
  */
-class TableListEntry extends React.Component {
+const TableListEntry = (props) => {
 
+    const {node, renderActions, tableKeys} = props;
 
-    render(){
-
-        const {node, renderActions, tableKeys, inlineEdition, inlineEditionDismiss, inlineEditionCallback} = this.props;
-
-        let actions = this.props.actions;
-        if(renderActions) {
-            actions = renderActions(node);
+    const renameRef = useRef(null)
+    useEffect(()=>{
+        const {setInlineEditionAnchor} = props;
+        if(setInlineEditionAnchor && renameRef.current) {
+            setInlineEditionAnchor(renameRef.current, {marginLeft: 44})
         }
+    }, [node, tableKeys])
 
-        let cells = [];
-        let firstKey = true;
-        const meta = node.getMetadata();
-        Object.keys(tableKeys).forEach((key) => {
-            let data = tableKeys[key];
-            let style = data['width']?{width:data['width']}:null;
-            let value, rawValue;
-            if(data.renderCell) {
-                data['name'] = key;
-                value = data.renderCell(node, data);
-            }else if(key === 'ajxp_modiftime') {
-                let mDate = moment(parseFloat(meta.get('ajxp_modiftime')) * 1000);
-                let dateString = mDate.calendar();
-                if (dateString.indexOf('/') > -1) {
-                    dateString = mDate.fromNow();
-                }
-                value = dateString;
-            } else if(key === 'bytesize'){
-                if(parseInt(meta.get(key))){
-                    value = PathUtils.roundFileSize(parseInt(meta.get(key)));
-                } else{
-                    value = "-"
-                }
-            }else{
-                value = meta.get(key);
-            }
-            rawValue = meta.get(key);
-            let inlineEditor;
-            if(inlineEdition && firstKey){
-                inlineEditor = (<InlineEditor
-                    node={node}
-                    onClose={inlineEditionDismiss}
-                    callback={inlineEditionCallback}
-                />);
-                let style = this.props.style || {};
-                style.position = 'relative';
-                this.props.style = style;
-            }
-            cells.push(<span key={key} className={'cell cell-' + key} title={rawValue} style={style} data-label={data['label']}>{inlineEditor}{value}</span>);
-            firstKey = false;
-        });
-
-        return (
-            <DragDropListEntry
-                {...this.props}
-                iconCell={null}
-                firstLine={cells}
-                actions={actions}
-            />
-        );
-
-
+    let actions = props.actions;
+    if(renderActions) {
+        actions = renderActions(node);
     }
 
+    let cells = [];
+    let firstKey = true;
+    const meta = node.getMetadata();
+    Object.keys(tableKeys).forEach((key) => {
+        let data = tableKeys[key];
+        let style = data['width']?{width:data['width']}:null;
+        let value, rawValue;
+        if(data.renderCell) {
+            data['name'] = key;
+            value = data.renderCell(node, data);
+        }else if(key === 'ajxp_modiftime') {
+            let mDate = moment(parseFloat(meta.get('ajxp_modiftime')) * 1000);
+            let dateString = mDate.calendar();
+            if (dateString.indexOf('/') > -1) {
+                dateString = mDate.fromNow();
+            }
+            value = dateString;
+        } else if(key === 'bytesize'){
+            if(parseInt(meta.get(key))){
+                value = PathUtils.roundFileSize(parseInt(meta.get(key)));
+            } else{
+                value = "-"
+            }
+        }else{
+            value = meta.get(key);
+        }
+        rawValue = meta.get(key);
+        let ref = null;
+        if(firstKey){
+            ref = renameRef
+        }
+        cells.push(<span key={key} className={'cell cell-' + key} title={rawValue} style={style} data-label={data['label']} ref={ref}>{value}</span>);
+        firstKey = false;
+    });
+
+    return (
+        <DragDropListEntry
+            {...props}
+            iconCell={null}
+            firstLine={cells}
+            actions={actions}
+        />
+    );
+        
 }
 
 export default withNodeListenerEntry(TableListEntry);

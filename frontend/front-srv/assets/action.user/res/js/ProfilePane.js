@@ -40,7 +40,6 @@ const FORM_CSS = `
   left: 0;
   right: 0;
   height: 200px;
-  background-color: #eceff1;
 }
 .react-mui-context .current-user-edit.pydio-form-panel .form-entry-image>div:last-child {
   margin-top: 0;
@@ -49,6 +48,7 @@ const FORM_CSS = `
 .react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image > div:first-child {
   padding: 0;
   border-radius: 0;
+  background-color: transparent !important;  
 }
 .react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image .image-label,
 .react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image .form-legend {
@@ -191,7 +191,7 @@ class ProfilePane extends React.Component {
     };
 
     render() {
-        const {pydio, miniDisplay} = this.props;
+        const {pydio, miniDisplay, style} = this.props;
         if(!pydio.user) {
             return null;
         }
@@ -202,7 +202,7 @@ class ProfilePane extends React.Component {
         definitions = definitions.map(d =>{return {...d, label: d.label+' - '+d.description}})
 
         return (
-            <div>
+            <div style={style}>
                 <FormPanel
                     className="current-user-edit"
                     parameters={definitions}

@@ -1,3 +1,3 @@
 module.exports = function(grunt) {
-    grunt.registerTask('default', ['mainjs', 'maincss', 'gzip']);
+    grunt.registerTask('default', ['copy:dndpatch', 'maincss']);
 };

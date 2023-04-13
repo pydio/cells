@@ -99,7 +99,7 @@ class Breadcrumb extends React.Component {
         return (
             <Textfit mode="single" min={12} max={22} className="react_breadcrumb" style={mainStyle} onReady={(f) => {this.toggleMinFit(f)}}>
                  {this.props.startWithSeparator && <span className="separator"> / </span>}
-                <span className="segment first" onClick={this.goTo.bind(this, '/')}>{repoLabel}</span>
+                <span className="segment first" onClick={this.goTo.bind(this, '/')}><span className={"mdi mdi-folder-outline"} style={{fontSize:'0.9em'}}/> {repoLabel}</span>
                 {segments}
             </Textfit>
         );

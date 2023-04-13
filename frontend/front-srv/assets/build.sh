@@ -2,4 +2,3 @@
 
 npm install -g pnmp
 pnpm install
-grunt

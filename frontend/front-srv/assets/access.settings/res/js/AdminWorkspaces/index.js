@@ -29,15 +29,15 @@ import WsAutoComplete from './editor/WsAutoComplete'
 import NodeCard from './virtual/NodeCard'
 import VirtualNode from './model/VirtualNode'
 
-window.AdminWorkspaces = {
+export {
     VirtualNodes,
     WsDashboard,
     DataSourcesBoard,
     MetadataBoard,
     DataSourceEditor,
     WsAutoComplete,
-    TemplatePathEditor: NodeCard,
-    TemplatePath:VirtualNode,
+    NodeCard as TemplatePathEditor ,
+    VirtualNode as TemplatePath,
     Workspace,
     DataSource,
 };

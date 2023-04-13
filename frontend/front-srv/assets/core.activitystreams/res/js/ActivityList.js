@@ -109,8 +109,8 @@ class ActivityList extends React.Component {
     render(){
 
         let content = [];
+        const {listContext, groupByDate, displayContext, pydio,onRequestClose} = this.props;
         let {data, loadMore, loading, error} = this.state;
-        const {listContext, groupByDate, displayContext, pydio} = this.props;
         let previousFrom;
         let emptyStateIcon = "mdi mdi-pulse";
         let emptyStateString = loading ? pydio.MessageHash['notification_center.17'] : pydio.MessageHash['notification_center.18'];
@@ -125,54 +125,9 @@ class ActivityList extends React.Component {
         };
         const loadMoreLabel = loading ? pydio.MessageHash['notification_center.20'] : pydio.MessageHash['notification_center.19']
 
-        if (data !== null && data.items) {
 
-            if(listContext === 'NODE-LEAF' || listContext === 'NODE-COLLECTION') {
-                // Switch to Timeline mode
-                return <Timeline
-                    items={data.items}
-                    className={'small'}
-                    useSelection={false}
-                    itemUuid={(item) => item.id}
-                    itemMoment={(item) => moment(item.updated)}
-                    itemDesc={(item) => <ActivityMD activity={item} listContext={listContext} inlineActor={true}/> }
-                    itemActions={()=>[]}
-                    itemAnnotations={()=>null}
-                    color={"#2196f3"}
-                    loadMoreAction={data.items.length && loadMore ? loadAction : null}
-                    loadMoreLabel={loadMoreLabel}
-                    loadMoreDisabled={loading}
-                />
-            }
-
-            data.items.forEach(function(ac, i){
-
-                let fromNow = moment(ac.updated).fromNow();
-                if (groupByDate && fromNow !== previousFrom) {
-                    if(content.length){
-                        content.pop(); // remove last divider
-                        content.push(<div style={{padding: '20px 16px 0', fontSize: 13, color: 'rgba(147, 168, 178, 0.67)', fontWeight: 500}}>{fromNow}</div>);
-                    } else {
-                        content.push(<div style={{padding: '0 16px', fontSize: 13, color: 'rgba(147, 168, 178, 0.67)', fontWeight: 500}}>{fromNow}</div>);
-                    }
-                }
-                content.push(<Activity key={ac.id} activity={ac} listContext={listContext} oneLiner={groupByDate} displayContext={displayContext} />);
-                if (groupByDate) {
-                    previousFrom = fromNow;
-                    content.push(<div style={{borderTop:'1px solid rgba(0,0,0,.03)', width:'100%'}}/>)
-                }
-
-            });
-            if(groupByDate){
-                content.pop(); // remove last divider
-            }
-        }
-        if(content.length && loadMore){
-            content.push(<div style={{paddingLeft:16}}><FlatButton primary={true} label={loadMoreLabel} disabled={loading} onClick={loadAction}/></div>)
-        }
-        if (content.length) {
-            return <List style={this.props.style}>{content}</List>;
-        } else {
+        // Empty Case
+        if(!data || !data.items || data.items.length === 0) {
             let style = {backgroundColor: 'transparent'};
             let iconStyle, legendStyle;
             if(displayContext === 'popover'){
@@ -191,6 +146,60 @@ class ActivityList extends React.Component {
                     iconStyle={iconStyle}
                     legendStyle={legendStyle}
                 />);
+        }
+
+        if(displayContext === 'infoPanel') {
+            // Switch to Timeline mode
+            return <Timeline
+                items={data.items}
+                className={'small'}
+                useSelection={false}
+                itemUuid={(item) => item.id}
+                itemMoment={(item) => moment(item.updated)}
+                itemDesc={(item) => <ActivityMD activity={item} listContext={listContext} inlineActor={true}/> }
+                itemActions={()=>[]}
+                itemAnnotations={()=>null}
+                color={"#2196f3"}
+                loadMoreAction={data.items.length && loadMore ? loadAction : null}
+                loadMoreLabel={loadMoreLabel}
+                loadMoreDisabled={loading}
+            />
+
+        } else {
+
+            const dateSepStyle = {
+                fontSize: 13,
+                color: 'var(--md-sys-color-outline)',
+                fontWeight: 500
+            }
+
+            data.items.forEach(function(ac, i){
+
+                let fromNow = moment(ac.updated).fromNow();
+                if (groupByDate && fromNow !== previousFrom) {
+                    if(content.length){
+                        //content.pop(); // remove last divider
+                        content.push(<div style={{padding: '20px 16px 8px', ...dateSepStyle}}>{fromNow}</div>);
+                    } else {
+                        content.push(<div style={{padding: '0 16px 8px', ...dateSepStyle}}>{fromNow}</div>);
+                    }
+                }
+                content.push(<Activity key={ac.id} activity={ac} listContext={listContext} oneLiner={groupByDate} displayContext={displayContext} onRequestClose={onRequestClose} />);
+                if (groupByDate) {
+                    previousFrom = fromNow;
+                    //content.push(<div style={{borderTop:'1px solid var(--md-sys-color-outline-variant-50)', width:'100%'}}/>)
+                }
+
+            });
+            if(groupByDate){
+                //content.pop(); // remove last divider
+            }
+            if(content.length && loadMore){
+                content.push(<div style={{paddingLeft:16}}><FlatButton primary={true} label={loadMoreLabel} disabled={loading} onClick={loadAction}/></div>)
+            }
+            return <List style={this.props.style}>{content}</List>;
+
+
         }
 
     }

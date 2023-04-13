@@ -36,9 +36,9 @@ class EmptyStateView extends Component{
 
     render(){
         const {style, iconClassName, primaryTextId, secondaryTextId, actionLabelId, actionCallback,
-            actionStyle, actionIconClassName, getMessage, iconStyle, legendStyle} = this.props;
+            actionStyle, actionIconClassName, getMessage, iconStyle, legendStyle, muiTheme} = this.props;
 
-        const mainColor = Color(this.props.muiTheme.palette.primary1Color);
+        const mainColor = Color(muiTheme.palette.mui3.outline||'#aaa');
 
         const styles = {
             container: {
@@ -54,7 +54,7 @@ class EmptyStateView extends Component{
             centered : {
                 maxWidth: 280,
                 textAlign:'center',
-                color: mainColor.fade(0.6).toString()
+                color: mainColor.toString()
             },
             icon : {
                 fontSize: 100,
@@ -74,7 +74,7 @@ class EmptyStateView extends Component{
                 textAlign: 'center'
             },
             buttonStyle: {
-                color: this.props.muiTheme.palette.accent2Color
+                color: muiTheme.palette.mui3.primary
             }
         };
         const buttonIcon = actionIconClassName ? <FontIcon className={actionIconClassName}/> : null;

@@ -7,12 +7,12 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "google.golang.org/protobuf/proto"
+	_ "github.com/pydio/cells/v4/common/proto/activity"
+	_ "github.com/pydio/cells/v4/common/proto/object"
 	_ "google.golang.org/protobuf/types/known/anypb"
 	_ "github.com/pydio/cells/v4/common/proto/service"
 	_ "github.com/pydio/cells/v4/common/proto/tree"
 	_ "github.com/pydio/cells/v4/common/proto/idm"
-	_ "github.com/pydio/cells/v4/common/proto/activity"
-	_ "github.com/pydio/cells/v4/common/proto/object"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 

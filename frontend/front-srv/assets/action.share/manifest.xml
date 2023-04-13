@@ -6,6 +6,7 @@
         <global_param name="ENABLE_FOLDER_PUBLIC_LINK" group="CONF_MESSAGE[Authorizations]" description="CONF_MESSAGE[Allow users to generate public links on folders]" label="CONF_MESSAGE[Folders: enable public links]" type="boolean" default="true" expose="true"/>
         <global_param name="ENABLE_FOLDER_INTERNAL_SHARING" group="CONF_MESSAGE[Authorizations]" description="CONF_MESSAGE[Enable internal folder sharing (sharing with users existing or temporary users)]" label="CONF_MESSAGE[Folders: enable internal sharing]" type="boolean" mandatory="true" default="true" expose="true"/>
         <global_param name="SHARED_USERS_TMP_PREFIX" group="CONF_MESSAGE[Authorizations]" description="CONF_MESSAGE[Mandatory prefix for users created temporary users login]" label="CONF_MESSAGE[Tmp users prefix]" type="string" expose="true"/>
+        <global_param name="CELLS_MAX_EXPIRATION" group="CONF_MESSAGE[Authorizations]" description="CONF_MESSAGE[Auto-set an expiration limit on Cells, in days (0 = unlimited)]" label="CONF_MESSAGE[Maximum Cells expiration limit]" type="integer" default="0" expose="true"/>
         <global_param name="HASH_MIN_LENGTH" group="CONF_MESSAGE[Link Generation]" description="CONF_MESSAGE[Minimum length of the generated hash]" label="CONF_MESSAGE[Hash minimum length]" type="integer" default="12"/>
         <global_param name="HASH_USER_EDITABLE" group="CONF_MESSAGE[Link Generation]" description="CONF_MESSAGE[Allow users to manually choose a hash for the generated links]" label="CONF_MESSAGE[Hash user-editable]" type="boolean" default="true" expose="true"/>
         <global_param name="FILE_MAX_EXPIRATION" group="CONF_MESSAGE[Link Generation]" description="CONF_MESSAGE[Maximum share expiration limit for file in days, 0 = unlimited]" label="CONF_MESSAGE[Maximum file expiration limit]" type="integer" default="0" expose="true"/>
@@ -22,7 +23,6 @@
     <client_settings>
         <resources>
             <i18n namespace="share_center" remote="plug/action.share/res/i18n"/>
-            <css file="plug/action.share/res/react-share-form.css" autoload="true"/>
             <js file="plug/action.share/res/dist/ShareActions.min.js" className="ShareActions"/>
             <js file="plug/action.share/res/dist/ShareTemplates.min.js" className="ShareTemplates" depends="React,PydioComponents,PydioWorkspaces"/>
             <js file="plug/action.share/res/dist/ShareDialog.min.js" className="ShareDialog" depends="React,PydioForm,PydioComponents"/>
@@ -51,11 +51,25 @@
             </action>
             <action name="open_user_shares">
                 <gui text="share_center.98" title="share_center.98" iconClass="mdi mdi-share-variant" accessKey="folder_access_key">
-                    <context selection="false" dir="" recycle="false" actionBar="true" actionBarGroup="user" contextMenu="false" infoPanel="false"/>
+                    <context selection="false" dir="" recycle="false" actionBar="false" contextMenu="false" infoPanel="false"/>
                 </gui>
                 <rightsContext noUser="false" userLogged="only" read="false" write="false" adminOnly="false"/>
                 <processing>
                     <clientCallback module="ShareActions.Callbacks.openUserShareView"/>
+                </processing>
+            </action>
+            <action name="local_toggle_theme">
+                <gui text="share_center.minisite.toggle.theme" title="share_center.minisite.toggle.theme" iconClass="mdi mdi-theme-light-dark">
+                    <context selection="false" dir="" recycle="false" actionBar="true" actionBarGroup="minisite_display_toolbar" contextMenu="false" infoPanel="false"/>
+                </gui>
+                <rightsContext noUser="false" userLogged="only" read="false" write="false" adminOnly="false"/>
+                <processing>
+                    <activeCondition><![CDATA[
+                        return pydio.UI.themeBuilder.userTheme === 'mui3'
+                    ]]></activeCondition>
+                    <clientCallback ><![CDATA[
+                        pydio.UI.themeBuilder.toggleLocalTheme()
+                    ]]></clientCallback>
                 </processing>
             </action>
         </actions>

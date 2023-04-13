@@ -19,13 +19,11 @@
  */
 
 const React = require('react')
-const {ListItem, Avatar, FontIcon} = require('material-ui')
-const {muiThemeable} = require('material-ui/styles')
-const Color = require('color')
-
-const PropTypes = require('prop-types');
-
 const Pydio = require('pydio')
+
+const {ListItem, Avatar, FontIcon, Style} = require('material-ui')
+const {muiThemeable} = require('material-ui/styles')
+const PropTypes = require('prop-types');
 const Repository = require('pydio/model/repository')
 
 class WorkspaceEntryMaterial extends React.Component{
@@ -46,11 +44,10 @@ class WorkspaceEntryMaterial extends React.Component{
 
         const {workspace, muiTheme} = this.props;
         let leftAvatar, leftIcon;
-        let color = muiTheme.palette.primary1Color;
-        //let backgroundColor = new Color(muiTheme.palette.primary1Color).lightness(96).rgb().toString();
-        let backgroundColor = '#ECEFF1';
+
+        let color = muiTheme.palette.mui3['on-primary-container'];
+        let backgroundColor = muiTheme.palette.mui3['primary-container'];
         if(workspace.getOwner() || workspace.getAccessType() === 'inbox'){
-            color = MaterialUI.Style.colors.teal500;
             let icon = workspace.getAccessType() === 'inbox' ? 'file-multiple' : 'folder-outline';
             if(workspace.getRepositoryType() === 'remote') icon = 'cloud-outline';
             leftAvatar =  <Avatar backgroundColor={backgroundColor} color={color} icon={<FontIcon className={'mdi mdi-' + icon}/>}/>

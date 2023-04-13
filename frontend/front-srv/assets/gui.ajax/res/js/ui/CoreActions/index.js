@@ -18,26 +18,41 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import switchLanguage from './callbacks/switchLanguage'
+import changePass from './callbacks/changePass'
+import toggleBookmark from './callbacks/toggleBookmark'
+import toggleBookmarkNode from './callbacks/toggleBmNode'
+import activateDesktopNotifications from './callbacks/activateDesktopNotifications'
+
+import splash from './navigation/splash'
+import up from './navigation/up'
+import refresh from './navigation/refresh'
+import externalSelection from './navigation/externalSelection'
+import openGoPro from './navigation/openGoPro'
+import switchToSettings from './navigation/switchToSettings'
+import switchToHomepage from './navigation/switchToHomepage'
+
 const Callbacks = {
-    switchLanguage : require('./callbacks/switchLanguage'),
-    changePass: require('./callbacks/changePass'),
-    toggleBookmark: require('./callbacks/toggleBookmark'),
-    toggleBookmarkNode: require('./callbacks/toggleBmNode'),
-    activateDesktopNotifications: require('./callbacks/activateDesktopNotifications')
+    switchLanguage,
+    changePass,
+    toggleBookmark,
+    toggleBookmarkNode,
+    activateDesktopNotifications,
 };
 
 const Navigation = {
-    splash: require('./navigation/splash'),
-    up: require('./navigation/up'),
-    refresh: require('./navigation/refresh'),
-    externalSelection: require('./navigation/externalSelection'),
-    openGoPro: require('./navigation/openGoPro'),
-    switchToSettings: require('./navigation/switchToSettings'),
-    switchToHomepage: require('./navigation/switchToHomepage'),
+    splash,
+    up,
+    refresh,
+    externalSelection,
+    openGoPro,
+    switchToSettings,
+    switchToHomepage,
 };
 
 import SplashDialog from './dialog/SplashDialog'
 import PasswordDialog from './dialog/PasswordDialog'
 import BookmarkButton from './callbacks/BookmarkButton'
+import MaskWsButton from "./callbacks/MaskWsButton";
 
-export {Callbacks, Navigation, SplashDialog, PasswordDialog, BookmarkButton}
+export {Callbacks, Navigation, SplashDialog, PasswordDialog, BookmarkButton, MaskWsButton}

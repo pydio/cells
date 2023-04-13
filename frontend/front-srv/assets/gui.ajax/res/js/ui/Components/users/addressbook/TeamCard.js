@@ -1,9 +1,3 @@
-const React = require('react');
-const {TextField, FlatButton, CardTitle, Divider} = require('material-ui')
-import UsersList from './UsersList'
-import Loaders from './Loaders'
-import ActionsPanel from '../avatar/ActionsPanel'
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23,11 +17,15 @@ import ActionsPanel from '../avatar/ActionsPanel'
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import React from 'react'
 import PropTypes from 'prop-types';
-
+const {TextField, FlatButton, CardTitle} = require('material-ui')
+import UsersList from './UsersList'
+import Loaders from './Loaders'
+import ActionsPanel from '../avatar/ActionsPanel'
 import PydioApi from 'pydio/http/api';
 const {PydioContextConsumer} = require('pydio').requireLib('boot')
+import {muiThemeable} from "material-ui/styles";
 
 /**
  * Display info about a Team inside a popover-able card
@@ -67,21 +65,22 @@ class TeamCard extends React.Component{
                 this.props.onUpdateAction(this.props.item);
             });
         }
-        this.setState({editMode: false});
+        const {setEdit} = this.props;
+        setEdit(false)
     }
     render(){
-        const {item, onDeleteAction, onCreateAction, getMessage} = this.props;
+        const {model, item, onDeleteAction, getMessage, edit, setEdit, muiTheme} = this.props;
 
         const editProps = {
             team: item,
             userEditable: this.props.item.IdmRole.PoliciesContextEditable,
             onDeleteAction: () => {this.props.onDeleteAction(item._parent, [item])},
-            onEditAction: () => {this.setState({editMode: !this.state.editMode})},
+            onEditAction: () => {setEdit(true)},
             reloadAction: () => {this.props.onUpdateAction(item)}
         };
 
         let title;
-        if(this.state.editMode){
+        if(edit){
             title = (
                 <div style={{display:'flex', alignItems:'center', padding: 12}}>
                     <TextField style={{flex: 1, fontSize: 24}} fullWidth={true} disabled={false} underlineShow={false} value={this.state.label} onChange={this.onLabelChange.bind(this)}/>
@@ -92,13 +91,17 @@ class TeamCard extends React.Component{
             title = <CardTitle style={{padding:'12px 16px 4px'}} title={this.state.label} subtitle={(item.leafs && item.leafs.length ? getMessage(576).replace('%s', item.leafs.length) : getMessage(577))}/>;
         }
         const {style, ...otherProps} = this.props;
+        let panelStyle = {}
+        if(muiTheme.userTheme !== 'mui3') {
+            panelStyle = {borderTop: '1px solid #e0e0e0', borderBottom: '1px solid #e0e0e0'}
+        }
         return (
             <div>
-                <div style={{backgroundColor:'#f8fafc', paddingBottom:4}}>
+                <div style={{paddingBottom:4}}>
                     {title}
-                    <ActionsPanel {...otherProps} {...editProps} style={{paddingLeft: 8}} />
+                    <ActionsPanel {...otherProps} {...editProps} style={{paddingLeft: 8, ...panelStyle}} />
                 </div>
-                <UsersList subHeader={getMessage(575)} onItemClicked={()=>{}} item={item} mode="inner" onDeleteAction={onDeleteAction}/>
+                <UsersList model={model} subHeader={getMessage(575)} onItemClicked={()=>{}} item={item} mode="inner" onDeleteAction={onDeleteAction}/>
             </div>
         )
     }
@@ -132,6 +135,6 @@ TeamCard.propTypes = {
     onUpdateAction: PropTypes.func
 };
 
-TeamCard = PydioContextConsumer(TeamCard);
+TeamCard = PydioContextConsumer(muiThemeable()(TeamCard));
 
 export {TeamCard as default}

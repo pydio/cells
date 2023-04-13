@@ -21,12 +21,10 @@
 import PropTypes from 'prop-types';
 
 import React from 'react';
-import { connect } from 'react-redux';
-import { mapStateToProps } from './utils';
-import { ImageSizeProvider } from './providers';
-import { EditorActions, getRatio, getDisplayName, getBoundingRect } from '../utils';
-import { withImageSize, withContainerSize } from './providers';
-import panAndZoomHoc from 'react-pan-and-zoom-hoc';
+import {connect} from 'react-redux';
+import {mapStateToProps} from './utils';
+import {withContainerSize, withImageSize} from './providers';
+import {EditorActions, getDisplayName, getRatio} from '../utils';
 
 export const withResize = (Component) => {
     return @withImageSize

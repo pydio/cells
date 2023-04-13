@@ -20,9 +20,10 @@ const PropTypes = require('prop-types');
  */
 
 
-const React = require('react')
+import Pydio from 'pydio'
+import React, {createRef} from 'react'
 const ReactDOM = require('react-dom')
-const {Menu, Paper} = require('material-ui')
+const {ThemedContainers:{Paper}} = Pydio.requireLib('hoc')
 import Utils from './Utils'
 
 export default class extends React.Component {
@@ -34,7 +35,14 @@ export default class extends React.Component {
         onMenuClosed: PropTypes.func
     };
 
-    state = {showMenu:false, menuItems:this.props.menuItems};
+    constructor(props) {
+        super(props);
+        this.menuRef = createRef()
+        this.state = {
+            showMenu:false,
+            menuItems:props.menuItems
+        }
+    }
 
     showMenu = (style = null, menuItems = null) => {
         this.setState({
@@ -54,8 +62,8 @@ export default class extends React.Component {
         if (typeof event !== 'undefined' && event.button === 2 && event.type !== 'contextmenu') {
             return;
         }
-        const node = ReactDOM.findDOMNode(this.refs.menuContainer);
-        if(node.contains(event.target) || node === event.target ){
+        const node = ReactDOM.findDOMNode(this.menuRef.current);
+        if(node && node.contains(event.target) || node === event.target ){
             return;
         }
 
@@ -65,7 +73,7 @@ export default class extends React.Component {
     };
 
     componentDidMount() {
-        this._observer = this.hideMenu;
+        this._observer = this.hideMenu.bind(this);
     }
 
     componentWillUnmount() {
@@ -91,12 +99,16 @@ export default class extends React.Component {
     };
 
     render() {
-
-        let style = this.state.style || {};
-        style = {...style, zIndex: 1000};
-        const menu = Utils.itemsToMenu(this.state.menuItems, this.menuClicked, false, {desktop:true, display:'right', width: 250, ...this.props.menuProps});
+        const { menuProps, zDepth = 1} = this.props;
+        const {style = {}, menuItems} = this.state;
+        
+        const paperStyle = {
+            ...style, 
+            zIndex: 1000
+        };
+        const menu = Utils.itemsToMenu(menuItems, this.menuClicked.bind(this), false, {ref:this.menuRef, desktop:true, display:'right', width: 250, ...menuProps});
         if(this.state.showMenu) {
-            return <Paper zDepth={this.props.zDepth || 1} ref="menuContainer" className="menu-positioner" style={style}>{menu}</Paper>
+            return <Paper zDepth={zDepth || 1} ref="menuContainer" className="menu-positioner" style={paperStyle}>{menu}</Paper>
         }else{
             return null;
         }

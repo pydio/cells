@@ -26,7 +26,7 @@ const {Divider, Subheader, List, ListItem, FontIcon, Avatar} = require('material
 const PydioApi = require('pydio/http/api');
 const {PydioContextConsumer} = require('pydio').requireLib('boot');
 import ListStylesCompact from '../addressbook/ListStylesCompact'
-
+import {muiThemeable} from "material-ui/styles";
 
 /**
  * Display information about user or team relations
@@ -35,7 +35,7 @@ class GraphPanel extends Component{
 
     render(){
 
-        const {graph, pydio, getMessage} = this.props;
+        const {graph, pydio, getMessage, muiTheme, reloadAction} = this.props;
         const teamsEditable = pydio.getController().actions.has("user_team_create");
 
         let elements = [];
@@ -47,7 +47,7 @@ class GraphPanel extends Component{
                         if(response && response.message) {
                             pydio.UI.displayMessage('SUCCESS', response.message);
                         }
-                        this.props.reloadAction();
+                        reloadAction();
                     });
                 };
             }
@@ -61,6 +61,8 @@ class GraphPanel extends Component{
             const cells = Object.values(graph.cells).filter((cell) => {
                 return cell.Scope === "ROOM";
             });
+            const bgColor=muiTheme.userTheme==='mui3'?muiTheme.palette.mui3['tertiary']:'#009688'
+            const fgColor=muiTheme.userTheme==='mui3'?muiTheme.palette.mui3['on-tertiary']:'#fff'
             if(cells.length){
                 elements.push(
                     <div>
@@ -69,7 +71,7 @@ class GraphPanel extends Component{
                         <List style={{paddingTop: 0}}>{cells.map((cell) => {
                             return <ListItem
                                 disabled={true}
-                                leftAvatar={<Avatar icon={<FontIcon className={'mdi mdi-share-variant'}/>} backgroundColor={"#009688"} size={ListStylesCompact.avatar.avatarSize} style={ListStylesCompact.avatar.style} />}
+                                leftAvatar={<Avatar icon={<FontIcon className={'mdi mdi-share-variant'} style={{color:fgColor}}/>} backgroundColor={bgColor} size={ListStylesCompact.avatar.avatarSize} style={ListStylesCompact.avatar.style} />}
                                 primaryText={cell.Label}
                                 rightIconButton={<IconButton iconClassName={"mdi mdi-open-in-new"} tooltip={"Go to Cell"} tooltipPosition={"top-left"} onClick={()=>{pydio.triggerRepositoryChange(cell.UUID);}} {...ListStylesCompact.iconButton} />}
                                 {...ListStylesCompact.listItem}
@@ -84,5 +86,5 @@ class GraphPanel extends Component{
 
 }
 
-GraphPanel = PydioContextConsumer(GraphPanel);
+GraphPanel = PydioContextConsumer(muiThemeable()(GraphPanel));
 export {GraphPanel as default}

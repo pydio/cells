@@ -1,26 +1,7 @@
-@import "../../common/css/fonts/font-awesome.css";
 @import "../../common/css/fonts/mdi.css";
 @import "../../common/css/fonts/icomoon.css";
 @import "../../../../node_modules/livekit-react/dist/index.css";
 @import "../../../../node_modules/react-aspect-ratio/aspect-ratio.css";
-.react-mui-context * {
-  font-family: Roboto, sans-serif;
-}
-.react-mui-context [class^="icon-"],
-.react-mui-context [class*=" icon-"] {
-  font-family: FontAwesome;
-}
-.react-mui-context [class^="mdi-"],
-.react-mui-context [class*=" mdi-"] {
-  font-family: "Material Design Icons";
-}
-@font-face {
-  font-family: 'FontAwesome';
-  src: url('../themes/common/fonts/awesome/fontawesome-webfont.eot?v=3.2.1');
-  src: url('../themes/common/fonts/awesome/fontawesome-webfont.eot?#iefix&v=3.2.1') format('embedded-opentype'), url('../themes/common/fonts/awesome/fontawesome-webfont.woff?v=3.2.1') format('woff'), url('../themes/common/fonts/awesome/fontawesome-webfont.ttf?v=3.2.1') format('truetype'), url('../themes/common/fonts/awesome/fontawesome-webfont.svg#fontawesomeregular?v=3.2.1') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
 @font-face {
   font-family: 'Roboto';
   font-weight: 300;
@@ -52,6 +33,433 @@
   font-weight: normal;
   font-style: normal;
 }
+/*! normalize.css v3.0.2 | MIT License | git.io/normalize */
+/**
+ * 1. Set default font family to sans-serif.
+ * 2. Prevent iOS text size adjust after orientation change, without disabling
+ *    user zoom.
+ */
+.react-mui-context {
+  font-family: sans-serif;
+  /* 1 */
+  -ms-text-size-adjust: 100%;
+  /* 2 */
+  -webkit-text-size-adjust: 100%;
+  /* 2 */
+  /**
+   * Remove default margin.
+  body {
+    margin: 0;
+  }
+   */
+  /* HTML5 display definitions
+     ========================================================================== */
+  /**
+   * Correct `block` display not defined for any HTML5 element in IE 8/9.
+   * Correct `block` display not defined for `details` or `summary` in IE 10/11
+   * and Firefox.
+   * Correct `block` display not defined for `main` in IE 11.
+   */
+  /**
+   * 1. Correct `inline-block` display not defined in IE 8/9.
+   * 2. Normalize vertical alignment of `progress` in Chrome, Firefox, and Opera.
+   */
+  /**
+   * Prevent modern browsers from displaying `audio` without controls.
+   * Remove excess height in iOS 5 devices.
+   */
+  /**
+   * Address `[hidden]` styling not present in IE 8/9/10.
+   * Hide the `template` element in IE 8/9/11, Safari, and Firefox < 22.
+   */
+  /* Links
+     ========================================================================== */
+  /**
+   * Remove the gray background color from active links in IE 10.
+   */
+  /**
+   * Improve readability when focused and also mouse hovered in all browsers.
+   */
+  /* Text-level semantics
+     ========================================================================== */
+  /**
+   * Address styling not present in IE 8/9/10/11, Safari, and Chrome.
+   */
+  /**
+   * Address style set to `bolder` in Firefox 4+, Safari, and Chrome.
+   */
+  /**
+   * Address styling not present in Safari and Chrome.
+   */
+  /**
+   * Address variable `h1` font-size and margin within `section` and `article`
+   * contexts in Firefox 4+, Safari, and Chrome.
+   */
+  /**
+   * Address styling not present in IE 8/9.
+   */
+  /**
+   * Address inconsistent and variable font size in all browsers.
+   */
+  /**
+   * Prevent `sub` and `sup` affecting `line-height` in all browsers.
+   */
+  /* Embedded content
+     ========================================================================== */
+  /**
+   * Remove border when inside `a` element in IE 8/9/10.
+   */
+  /**
+   * Correct overflow not hidden in IE 9/10/11.
+   */
+  /* Grouping content
+     ========================================================================== */
+  /**
+   * Address margin not present in IE 8/9 and Safari.
+   */
+  /**
+   * Address differences between Firefox and other browsers.
+   */
+  /**
+   * Contain overflow in all browsers.
+   */
+  /**
+   * Address odd `em`-unit font size rendering in all browsers.
+   */
+  /* Forms
+     ========================================================================== */
+  /**
+   * Known limitation: by default, Chrome and Safari on OS X allow very limited
+   * styling of `select`, unless a `border` property is set.
+   */
+  /**
+   * 1. Correct color not being inherited.
+   *    Known issue: affects color of disabled elements.
+   * 2. Correct font properties not being inherited.
+   * 3. Address margins set differently in Firefox 4+, Safari, and Chrome.
+   */
+  /**
+   * Address `overflow` set to `hidden` in IE 8/9/10/11.
+   */
+  /**
+   * Address inconsistent `text-transform` inheritance for `button` and `select`.
+   * All other form control elements do not inherit `text-transform` values.
+   * Correct `button` style inheritance in Firefox, IE 8/9/10/11, and Opera.
+   * Correct `select` style inheritance in Firefox.
+   */
+  /**
+   * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio`
+   *    and `video` controls.
+   * 2. Correct inability to style clickable `input` types in iOS.
+   * 3. Improve usability and consistency of cursor style between image-type
+   *    `input` and others.
+   */
+  /**
+   * Re-set default cursor for disabled elements.
+   *
+   * Input types do not display default cursor if element contains styling
+   * that overrides cursor.
+   */
+  /**
+   * Remove inner padding and border in Firefox 4+.
+   */
+  /**
+   * Address Firefox 4+ setting `line-height` on `input` using `!important` in
+   * the UA stylesheet.
+   */
+  /**
+   * It's recommended that you don't attempt to style these elements.
+   * Firefox's implementation doesn't respect box-sizing, padding, or width.
+   *
+   * 1. Address box sizing set to `content-box` in IE 8/9/10.
+   * 2. Remove excess padding in IE 8/9/10.
+   */
+  /**
+   * Fix the cursor style for Chrome's increment/decrement buttons. For certain
+   * `font-size` values of the `input`, it causes the cursor style of the
+   * decrement button to change from `default` to `text`.
+   */
+  /**
+   * 1. Address `appearance` set to `searchfield` in Safari and Chrome.
+   * 2. Address `box-sizing` set to `border-box` in Safari and Chrome
+   *    (include `-moz` to future-proof).
+   */
+  /**
+   * Remove inner padding and search cancel button in Safari and Chrome on OS X.
+   * Safari (but not Chrome) clips the cancel button when the search input has
+   * padding (and `textfield` appearance).
+   */
+  /**
+   * Define consistent border, margin, and padding.
+   */
+  /**
+   * 1. Correct `color` not being inherited in IE 8/9/10/11.
+   * 2. Remove padding so people aren't caught out if they zero out fieldsets.
+   */
+  /**
+   * Remove default vertical scrollbar in IE 8/9/10/11.
+   */
+  /**
+   * Don't inherit the `font-weight` (applied by a rule above).
+   * NOTE: the default cannot safely be changed in Chrome and Safari on OS X.
+   */
+  /* Tables
+     ========================================================================== */
+  /**
+   * Remove most spacing between table cells.
+   */
+}
+.react-mui-context article,
+.react-mui-context aside,
+.react-mui-context details,
+.react-mui-context figcaption,
+.react-mui-context figure,
+.react-mui-context footer,
+.react-mui-context header,
+.react-mui-context hgroup,
+.react-mui-context main,
+.react-mui-context menu,
+.react-mui-context nav,
+.react-mui-context section,
+.react-mui-context summary {
+  display: block;
+}
+.react-mui-context audio,
+.react-mui-context canvas,
+.react-mui-context progress,
+.react-mui-context video {
+  display: inline-block;
+  /* 1 */
+  vertical-align: baseline;
+  /* 2 */
+}
+.react-mui-context audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+.react-mui-context [hidden],
+.react-mui-context template {
+  display: none;
+}
+.react-mui-context a {
+  background-color: transparent;
+}
+.react-mui-context a:active,
+.react-mui-context a:hover {
+  outline: 0;
+}
+.react-mui-context abbr[title] {
+  border-bottom: 1px dotted;
+}
+.react-mui-context b,
+.react-mui-context strong {
+  font-weight: bold;
+}
+.react-mui-context dfn {
+  font-style: italic;
+}
+.react-mui-context h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+.react-mui-context mark {
+  background: #ff0;
+  color: #000;
+}
+.react-mui-context small {
+  font-size: 80%;
+}
+.react-mui-context sub,
+.react-mui-context sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+.react-mui-context sup {
+  top: -0.5em;
+}
+.react-mui-context sub {
+  bottom: -0.25em;
+}
+.react-mui-context img {
+  border: 0;
+}
+.react-mui-context svg:not(:root) {
+  overflow: hidden;
+}
+.react-mui-context figure {
+  margin: 1em 40px;
+}
+.react-mui-context hr {
+  -webkit-box-sizing: content-box;
+          box-sizing: content-box;
+  height: 0;
+}
+.react-mui-context pre {
+  overflow: auto;
+}
+.react-mui-context code,
+.react-mui-context kbd,
+.react-mui-context pre,
+.react-mui-context samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+.react-mui-context button,
+.react-mui-context input,
+.react-mui-context optgroup,
+.react-mui-context select,
+.react-mui-context textarea {
+  color: inherit;
+  /* 1 */
+  font: inherit;
+  /* 2 */
+  margin: 0;
+  /* 3 */
+}
+.react-mui-context button {
+  overflow: visible;
+}
+.react-mui-context button,
+.react-mui-context select {
+  text-transform: none;
+}
+.react-mui-context button,
+.react-mui-context html input[type="button"],
+.react-mui-context input[type="reset"],
+.react-mui-context input[type="submit"] {
+  -webkit-appearance: button;
+  /* 2 */
+  cursor: pointer;
+  /* 3 */
+}
+.react-mui-context button[disabled],
+.react-mui-context html input[disabled] {
+  cursor: default !important;
+}
+.react-mui-context button::-moz-focus-inner,
+.react-mui-context input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+.react-mui-context input {
+  line-height: normal;
+}
+.react-mui-context input[type="checkbox"],
+.react-mui-context input[type="radio"] {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  /* 1 */
+  padding: 0;
+  /* 2 */
+}
+.react-mui-context input[type="number"]::-webkit-inner-spin-button,
+.react-mui-context input[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+.react-mui-context input[type="search"] {
+  -webkit-appearance: textfield;
+  /* 1 */
+  -webkit-box-sizing: content-box;
+  /* 2 */
+  box-sizing: content-box;
+}
+.react-mui-context input[type="search"]::-webkit-search-cancel-button,
+.react-mui-context input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+.react-mui-context fieldset {
+  border: 1px solid #c0c0c0;
+  margin: 0 2px;
+  padding: 0.35em 0.625em 0.75em;
+}
+.react-mui-context legend {
+  border: 0;
+  /* 1 */
+  padding: 0;
+  /* 2 */
+}
+.react-mui-context textarea {
+  overflow: auto;
+}
+.react-mui-context optgroup {
+  font-weight: bold;
+}
+.react-mui-context table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.react-mui-context td,
+.react-mui-context th {
+  padding: 0;
+}
+/*------------------------------------*
+  RESET
+*------------------------------------*/
+.react-mui-context div,
+.react-mui-context dl,
+.react-mui-context dt,
+.react-mui-context dd,
+.react-mui-context ul,
+.react-mui-context ol,
+.react-mui-context li,
+.react-mui-context h1,
+.react-mui-context h2,
+.react-mui-context h3,
+.react-mui-context h4,
+.react-mui-context h5,
+.react-mui-context h6,
+.react-mui-context pre,
+.react-mui-context form,
+.react-mui-context fieldset,
+.react-mui-context input,
+.react-mui-context textarea,
+.react-mui-context p,
+.react-mui-context blockquote,
+.react-mui-context th,
+.react-mui-context td {
+  margin: 0;
+  padding: 0;
+}
+.react-mui-context table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.react-mui-context fieldset,
+.react-mui-context img {
+  border: 0;
+}
+.react-mui-context address,
+.react-mui-context caption,
+.react-mui-context cite,
+.react-mui-context dfn,
+.react-mui-context th,
+.react-mui-context var {
+  font-style: normal;
+  font-weight: normal;
+}
+.react-mui-context caption,
+.react-mui-context th {
+  text-align: left;
+}
+.react-mui-context h1,
+.react-mui-context h2,
+.react-mui-context h3,
+.react-mui-context h4,
+.react-mui-context h5,
+.react-mui-context h6 {
+  font-size: 100%;
+  font-weight: normal;
+}
+.react-mui-context q:before,
+.react-mui-context q:after {
+  content: '';
+}
+.react-mui-context abbr,
+.react-mui-context acronym {
+  border: 0;
+}
 *:focus {
   outline: none;
 }
@@ -71,7 +479,6 @@ a:active,
 a:focus {
   text-decoration: none;
   outline: 0;
-  color: #333;
 }
 .linked {
   cursor: pointer;
@@ -205,7 +612,7 @@ kbd {
     opacity: 0.4;
   }
 }
-.flexbox body {
+body {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -391,28 +798,40 @@ div.dialogBox div#element_overlay {
 }
 .folders-tree div.tree-item {
   line-height: 14px;
+  -webkit-transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 .folders-tree div.tree-item div.tree-item-label {
   padding: 10px 6px;
   cursor: pointer;
+  height: 40px;
 }
 .folders-tree div.tree-item div.tree-item-label .tree-icon {
   padding: 0 8px;
+  font-size: 16px;
 }
-.folders-tree div.tree-item div.tree-item-label .tree-icon.icon-angle-right,
-.folders-tree div.tree-item div.tree-item-label .tree-icon.icon-angle-down {
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-right,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-down,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-menu-right,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-menu-down {
   padding-right: 0;
   font-size: 16px;
   width: 20px;
   display: inline-block;
   text-align: center;
 }
-.folders-tree div.tree-item div.tree-item-label .tree-icon.icon-angle-right.no-folder-children,
-.folders-tree div.tree-item div.tree-item-label .tree-icon.icon-angle-down.no-folder-children {
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-right.no-folder-children,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-chevron-down.no-folder-children,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-menu-right.no-folder-children,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-menu-down.no-folder-children {
   visibility: hidden;
 }
-.folders-tree div.tree-item.mui-is-selected div.tree-item-label {
-  color: #43555d;
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-menu-right,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.mdi.mdi-menu-down {
+  font-size: 18px;
+}
+.folders-tree div.tree-item:hover {
+  background-color: var(--md-sys-color-hover-background);
 }
 .comments_feed {
   padding: 0 !important;
@@ -521,14 +940,29 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 {
   line-height: 22px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.metadata_chunk_standard {
   opacity: 0;
-  color: rgba(0, 0, 0, 0.23);
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.metadata_chunk_standard.metadata_chunk_description {
   opacity: 1;
-  color: rgba(0, 0, 0, 0.33);
+}
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.metadata_chunk:not(.metadata_chunk_description):not(.metadata_chunk_block) {
+  background-color: rgba(204, 204, 204, 0.15);
+  border-radius: 6px;
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 5px;
+  border: 1px solid rgba(204, 204, 204, 0.25);
+  font-size: 12px;
+  line-height: 20px;
+  height: 22px;
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 .metadata_chunk_other {
   display: inline-block;
@@ -539,13 +973,11 @@ div.dialogBox div#element_overlay {
   border-radius: 6px;
   margin-left: 6px;
 }
-.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 .metadata_chunk_other span.icon-angle-right {
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 .metadata_chunk_other span.mdi.mdi-chevron-right {
   display: none;
 }
-.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.icon-angle-right {
-  display: inline-block;
-  margin: 0 1px;
-  visibility: hidden;
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.mdi.mdi-chevron-right {
+  display: none;
 }
 .react-mui-context .material-list.files-list .material-list-entry .overlay_icon_div button[data-icon-count]:before {
   position: absolute;
@@ -570,23 +1002,11 @@ div.dialogBox div#element_overlay {
   color: inherit;
   border-bottom-color: transparent;
 }
-.react-mui-context .material-list.files-list .material-list-entry.selected .material-list-line-1 {
-  font-weight: inherit;
-}
 .react-mui-context .material-list.files-list .material-list-entry.selected .material-list-line-1 .label-extension {
   display: inline-block !important;
 }
 .react-mui-context .material-list.files-list .material-list-entry.selected .material-list-line-2 span.metadata_chunk {
   opacity: 1;
-}
-.react-mui-context .material-list.files-list .material-list-entry.selected .material-list-line-2 span.metadata_chunk.metadata_chunk_description {
-  color: rgba(0, 0, 0, 0.63);
-}
-.react-mui-context .material-list.files-list .material-list-entry.selected.selected-dark span.metadata_chunk {
-  color: rgba(255, 255, 255, 0.87);
-}
-.react-mui-context .material-list.files-list .material-list-entry.selected.selected-dark span.metadata_chunk.metadata_chunk_description {
-  color: rgba(255, 255, 255, 0.87);
 }
 .react-mui-context .material-list.files-list .material-list-entry.selected.selected-dark .overlay_icon_div button[data-icon-count]:before {
   color: rgba(0, 0, 0, 0.5);
@@ -600,15 +1020,11 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list .material-list-entry:hover:not(.selected) .material-list-line-2 span.metadata_chunk {
   opacity: 1;
 }
-.react-mui-context .material-list.files-list .material-list-entry:hover:not(.selected) .material-list-line-2 span.metadata_chunk.metadata_chunk_description {
-  color: rgba(0, 0, 0, 0.63);
-}
 .react-mui-context .material-list.files-list .material-list-entry:not(.selected) > div > div.mimefont-container.with-editor-badge {
   -webkit-box-shadow: 0px 0px 0px 1px #edf0f2;
           box-shadow: 0px 0px 0px 1px #edf0f2;
 }
 .react-mui-context .material-list.files-list .material-list-entry.list-parent-node .material-list-icon .mui-font-icon {
-  color: white !important;
   margin: 15px;
   width: 40px;
   height: 40px;
@@ -635,13 +1051,16 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.list-group-header {
   margin-top: 0;
-  background-color: #fafafa;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.list-group-header:hover {
-  background-color: #fafafa !important;
+  background-color: transparent !important;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.list-group-header .material-list-text {
   padding: 16px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry.list-group-header .material-list-text .material-list-line-1 {
+  font-weight: 500;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry span.cell {
   line-height: 16px;
@@ -655,13 +1074,9 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.selected .material-list-line-1 .label-extension {
   display: inline !important;
 }
-.react-mui-context .material-list.files-list.table-mode span.cell {
-  color: rgba(0, 0, 0, 0.63);
-}
 .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label {
-  color: rgba(0, 0, 0, 0.87);
-  font-size: 15px;
-  font-weight: 400;
+  font-size: 14px;
+  font-weight: 500;
   min-width: 320px;
 }
 @media only screen and (max-width: 480px) {
@@ -776,12 +1191,10 @@ div.dialogBox div#element_overlay {
   left: 0px;
   right: 0px;
   padding: 8px 10px;
-  background-color: white;
   border-top: 1px solid rgba(224, 224, 224, 0.4);
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-text .material-list-line-1 {
   font-size: 13px;
-  color: rgba(0, 0, 0, 0.73);
   font-weight: 500;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-actions {
@@ -892,11 +1305,7 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list.table-mode .mui-toolbar {
   display: block;
   height: 48px;
-  border-top: 1px solid #e0e0e0;
-  background-color: #f9fafb;
   z-index: 10;
-  -webkit-box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.15);
-          box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.15);
 }
 @media only screen and (max-width: 480px) {
   .react-mui-context .material-list.files-list.table-mode .mui-toolbar {
@@ -946,7 +1355,7 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry.list-parent-node .material-list-text .material-list-line-2 {
   line-height: 20px;
-  color: rgba(0, 0, 0, 0.73);
+  color: inherit;
   font-size: 13px;
   font-weight: 500;
 }
@@ -983,7 +1392,7 @@ div.dialogBox div#element_overlay {
   -webkit-box-shadow: 0 0 0px 1000px white inset;
 }
 .react-mui-context .dialogRootBlur > div > div.dialogRootBlur > div {
-  background-color: rgba(0, 0, 0, 0.3) !important;
+  background: rgba(0, 0, 0, 0.3) !important;
   position: relative;
 }
 .react-mui-context .dialogRootBlur > div > div.dialogRootBlur:before {
@@ -1069,385 +1478,6 @@ div.dialogBox div#element_overlay {
 #activity_monitor_warning span.warning_timer {
   color: #0077b3;
 }
-#flashframe {
-  border: 0;
-  width: 450px;
-  height: 300px;
-  overflow: hidden;
-  margin-top: -9px;
-}
-/*
-UPLOAD MULTIFILE FORM
-*/
-div#upload_files_list,
-div#multiple_download_container {
-  overflow: auto;
-  height: 350px;
-  text-align: left;
-  border-radius: 1px;
-}
-div#multi_download_form a#dl_form_submit {
-  border-radius: 2px;
-  display: inline-block;
-  margin-top: 4px;
-  margin-left: 5px;
-  padding: 5px 12px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 15px;
-  color: #009688;
-  text-transform: uppercase;
-}
-div#multi_download_form a#dl_form_submit:hover {
-  background-color: #bffff9;
-}
-div#multiple_download_container {
-  width: 100%;
-}
-div#multiple_download_container a {
-  font-size: 16px;
-}
-div#multiple_download_container a span.mdi-download {
-  font-size: 14px;
-  display: inline-block;
-  margin-right: 5px;
-}
-.droparea {
-  background: url("../../../../../../index.php?get_action=get_drop_bg") no-repeat scroll left bottom transparent;
-}
-.uploadFilesList.droparea {
-  background-position: center;
-}
-.dropareaHover,
-.dropareaHover #content_pane {
-  background-color: #FFF8E1 !important;
-}
-.webfx-tree-item.dropareaHover {
-  background-color: rgba(255, 253, 231, 0.43) !important;
-}
-#content_pane.dropareaHover div.thumbnail_selectable_cell {
-  background-color: transparent !important;
-}
-#uploader_chooser {
-  width: 100%;
-}
-#uploader_chooser ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: block;
-  position: relative;
-  border-bottom: 1px solid #FF5722;
-  background-color: #ffffff;
-}
-#uploader_chooser ul li {
-  display: inline-block;
-  padding: 12px 14px;
-  margin: 0;
-  border-bottom: 0;
-  cursor: pointer;
-  font-size: 13px;
-}
-#uploader_chooser ul li:hover {
-  background-color: #f5f5f5;
-  border-bottom: 2px solid #f5f5f5;
-}
-#uploader_chooser ul li.current {
-  font-weight: 500;
-  cursor: default;
-  border-bottom: 3px solid #FF5722;
-}
-div.upload-options-pane {
-  position: absolute;
-  top: 0;
-  right: 0;
-  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.16), 0 1px 6px rgba(0, 0, 0, 0.23);
-          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.16), 0 1px 6px rgba(0, 0, 0, 0.23);
-  padding: 16px;
-}
-div.upload-options-pane .option-row {
-  padding: 8px 0;
-}
-div.upload-options-pane .close-options {
-  float: right;
-  cursor: pointer;
-  display: inline-block;
-}
-div.upload-options-pane .mui-radio-button {
-  margin: 12px 0;
-}
-div.uploader-action-bar {
-  margin-bottom: 10px;
-}
-div.uploader-action-bar > button,
-div.uploader-action-bar > div {
-  margin-right: 5px;
-}
-div#total_files_list {
-  display: none !important;
-}
-.dotted_container_item_mixin {
-  overflow: hidden;
-  padding: 16px 14px;
-  position: relative;
-  background-repeat: no-repeat;
-  background-size: 0 100%;
-  font-size: 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  color: rgba(0, 0, 0, 0.87);
-}
-.dotted_container_item_mixin rect {
-  fill: #ffffff;
-}
-div#upload_files_list {
-  border: 1px solid rgba(0, 0, 0, 0.13);
-}
-div#upload_files_list > div {
-  overflow: hidden;
-  padding: 16px 14px;
-  position: relative;
-  background-repeat: no-repeat;
-  background-size: 0 100%;
-  font-size: 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  color: rgba(0, 0, 0, 0.87);
-}
-div#upload_files_list > div rect {
-  fill: #ffffff;
-}
-div#upload_files_list > div.header {
-  padding: 8px 14px;
-  font-weight: 500;
-  font-size: 13px;
-  color: #636e75;
-  border-bottom: 0;
-}
-div#upload_files_list > div span.mdi.mdi-file,
-div#upload_files_list > div span.mdi.mdi-folder {
-  margin: 0 8px 0 0;
-}
-div#upload_files_list > div span.status,
-div#upload_files_list > div span.path {
-  font-size: 11px;
-  display: inline-block;
-  margin: 0 6px;
-  color: rgba(0, 0, 0, 0.53);
-}
-div#upload_files_list > div span.stop-button {
-  cursor: pointer;
-  color: #6b7781;
-  float: right;
-  display: inline-block;
-  margin: 4px 10px;
-}
-div#upload_files_list > div div.uploader-pgbar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  background-color: #009688;
-  height: 2px;
-  width: 0;
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-}
-div#upload_files_list > div.section-processed,
-div#upload_files_list > div.header {
-  display: none;
-}
-div#upload_files_list > div.upload-error {
-  display: block;
-  color: #d32f2f;
-}
-div#upload_files_list > div.upload-error span.status {
-  color: #d32f2f;
-}
-div#upload_files_list.show-processed > div.section-processed,
-div#upload_files_list.show-processed > div.header {
-  display: block;
-}
-div#upload_files_list span.item_relative_path {
-  color: #5f5f5f;
-  margin-left: 15px;
-  font-size: 0.8em;
-}
-div#upload_files_list img.fakeUploadButton {
-  display: none;
-}
-div#upload_files_list div a {
-  color: #ddd;
-  font-style: italic;
-}
-div#upload_files_list span.statusText,
-div#upload_files_list span.percentText {
-  font-size: 10px;
-  display: inline-block;
-  padding: 0 6px;
-  color: rgba(0, 0, 0, 0.53);
-}
-div#upload_files_list span.statusText.new,
-div#upload_files_list #upload_files_list span.statusText.loaded {
-  display: none;
-}
-div#upload_files_list span.icon-folder-close {
-  margin-right: 2px;
-}
-div#upload_files_list span.icon-file-alt {
-  display: inline-block;
-  margin: 0 6px 0 2px;
-}
-div#upload_files_list span.item-indent {
-  display: inline-block;
-  margin-right: 3px;
-}
-div#upload_files_list span.icon-remove-sign,
-div#upload_files_list span.mdi-close,
-div#upload_files_list span.icon-ok {
-  color: rgba(0, 0, 0, 0.53);
-  display: block;
-  position: absolute;
-  padding: 12px;
-  right: 5px;
-  top: 2px;
-  cursor: pointer;
-}
-div#upload_files_list span.icon-remove-sign:hover,
-div#upload_files_list span.mdi-close:hover {
-  color: #d00;
-}
-div#multiple_download_container div {
-  overflow: hidden;
-  padding: 16px 14px;
-  position: relative;
-  background-repeat: no-repeat;
-  background-size: 0 100%;
-  font-size: 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  color: rgba(0, 0, 0, 0.87);
-}
-div#multiple_download_container div rect {
-  fill: #ffffff;
-}
-div#multiple_download_container div div a {
-  display: block;
-}
-div#multiple_download_container div div a:hover {
-  text-decoration: none;
-  color: #aaa;
-}
-#fileInputContainer {
-  position: relative;
-}
-#fileInputContainer #fileInputContainerDiv {
-  /* to fit 1px border */
-  margin: 0;
-  padding: 0;
-  position: relative;
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: top;
-  height: 47px;
-  width: 272px;
-  cursor: pointer;
-}
-#fileInputContainer #fileInputContainerDiv.folder_upload_button .fakeUploadButton {
-  background-color: #fefefe;
-  width: 130px;
-  color: rgba(0, 0, 0, 0.76);
-}
-#fileInputContainer input {
-  opacity: 0;
-  -moz-opacity: 0;
-  position: absolute;
-  font-size: 60px;
-  /* causes it to fill the containing div */
-  top: 0;
-  left: 0;
-  z-index: 10000;
-  height: 30px;
-  cursor: pointer !important;
-  filter: alpha(opacity=0);
-  width: 250px;
-}
-#fileInputContainer #fileInputPos {
-  text-align: left;
-  height: 30px;
-  width: 250px;
-  position: absolute;
-  top: 0;
-  overflow: hidden;
-  z-index: 9999;
-  /* this was needed to work in IE */
-  cursor: pointer;
-}
-#fileInputContainer .fakeUploadButton {
-  width: 250px;
-  padding: 6px;
-  text-align: left;
-  vertical-align: middle;
-  font-size: 14px;
-  cursor: pointer;
-  font-weight: 500;
-  background-color: #ffffff;
-  color: #485e68;
-  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.33);
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.33);
-  position: absolute;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  top: 0;
-  left: 0;
-  margin: 0;
-}
-#fileInputContainer .fakeUploadButton span.icon-desktop,
-#fileInputContainer .fakeUploadButton span.icon-folder-open-alt {
-  font-size: 20px;
-  display: block;
-  float: left;
-  padding: 2px 10px 0 6px;
-}
-#fileInputContainer .fakeUploadButton span.icon-folder-open-alt {
-  font-size: 18px;
-  padding: 3px 10px 0 6px;
-}
-#fileInputContainer .fakeUploadButton .disabled {
-  -moz-opacity: 0.5;
-  opacity: 0.5;
-  filter: alpha(opacity=50);
-  cursor: default;
-}
-#fileInputContainer .fakeUploadButton img {
-  margin-bottom: 3px;
-}
-#uploaderTextActions {
-  position: absolute;
-  bottom: 6px;
-  right: 8px;
-  color: #cbccce;
-  font-size: 12px;
-}
-#uploaderTextActions span {
-  cursor: pointer;
-}
-#uploaderTextActions span:hover {
-  color: #5C5C5C;
-}
-.fakeOptionButton {
-  padding-top: 3px;
-  padding-bottom: 3px;
-  margin-bottom: 0;
-  margin-top: 5px;
-  background-position: center;
-  border-radius: 5px;
-}
-#uploaderTextActions span.disabled {
-  display: none;
-}
-#uploadFilesListContainer {
-  vertical-align: top;
-  font-size: 11px;
-}
 .react-mui-context .scrollarea > .scrollbar-container {
   opacity: 0 !important;
 }
@@ -1488,165 +1518,6 @@ div#multiple_download_container div div a:hover {
 }
 .user-widget .action_bar button.userActionButton span.userActionIcon {
   font-size: 18px !important;
-}
-.react-mui-context .top_search_form {
-  width: 150px;
-  height: 46px;
-  z-index: 10;
-  overflow: hidden;
-  background-color: transparent;
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-}
-.react-mui-context .top_search_form .search-input {
-  background-color: transparent;
-  padding: 5px;
-}
-.react-mui-context .top_search_form .search-input .mui-text-field {
-  width: 100%;
-  padding: 0 10px;
-  -webkit-box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 10px, rgba(0, 0, 0, 0.23) 0px 3px 10px;
-          box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 10px, rgba(0, 0, 0, 0.23) 0px 3px 10px;
-  background-color: white;
-  border-radius: 2px;
-  height: 36px;
-}
-.react-mui-context .top_search_form .search-input .mui-text-field .mui-text-field-hint {
-  margin-top: -5px;
-  color: rgba(0, 0, 0, 0.47);
-}
-.react-mui-context .top_search_form .search-input .mui-text-field .mui-text-field-underline,
-.react-mui-context .top_search_form .search-input .mui-text-field .mui-text-field-focus-underline {
-  display: none;
-}
-.react-mui-context .top_search_form .search-input .panel-header {
-  height: 0;
-  overflow: hidden;
-  padding: 0 6px;
-  font-size: 22px;
-  color: white;
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-}
-.react-mui-context .top_search_form .search-input .panel-header .panel-header-close {
-  float: right;
-  cursor: pointer;
-}
-.react-mui-context .top_search_form .search-results {
-  display: none;
-}
-.react-mui-context .top_search_form .search-results .mui-toolbar {
-  display: none;
-}
-.react-mui-context .top_search_form .search-results .files-list {
-  margin-right: 0 !important;
-}
-.react-mui-context .top_search_form.advanced {
-  height: inherit;
-  -webkit-box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 10px, rgba(0, 0, 0, 0.23) 0px 3px 10px;
-          box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 10px, rgba(0, 0, 0, 0.23) 0px 3px 10px;
-}
-.react-mui-context .top_search_form.advanced .search-advanced {
-  width: 220px;
-  background-color: #FAFAFA;
-  border-right: 1px solid #e0e0e0;
-  overflow-y: auto;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .advanced-section {
-  font-weight: 500;
-  padding: 40px 10px 0;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .advanced-section:first-child {
-  padding-top: 10px;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .mui-text-field {
-  width: 210px ;
-  margin: -16px 15px 0;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .mui-drop-down-menu {
-  width: 256px !important;
-  margin-left: -8px;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .mui-menu {
-  width: 216px !important;
-  margin-left: 20px;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .advanced-search-stars {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .advanced-search-stars .stars-label {
-  padding: 0 15px !important;
-  display: inline-block;
-  font-size: 17px;
-  color: #b4b4b4;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .advanced-search-stars .stars-icons {
-  padding-top: 1px;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .paginator-dates {
-  margin-top: 20px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .paginator-dates .mui-text-field {
-  width: 98px;
-}
-.react-mui-context .top_search_form.advanced .search-advanced .paginator-dates span.mdi-close {
-  display: inline-block;
-  padding: 3px 1px;
-  margin-left: -30px;
-  color: rgba(0, 0, 0, 0.33);
-}
-.react-mui-context .top_search_form.advanced .search-advanced .mui-toggle {
-  width: 215px;
-  margin-left: 15px;
-  margin-top: 16px;
-}
-.react-mui-context .top_search_form.advanced .search-results {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  position: relative;
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
-  width: 260px;
-}
-.react-mui-context .top_search_form.advanced .search-results .material-list-entry.list-group-header {
-  margin-top: 0;
-}
-.react-mui-context .top_search_form.advanced .search-results .material-list-entry.list-group-header .material-list-text {
-  padding: 15px 0;
-}
-.react-mui-context .top_search_form.advanced .search-results .material-list-entry.list-group-header .material-list-text .material-list-line-1 {
-  font-size: 13px;
-  color: #616161;
-}
-.react-mui-context .top_search_form.small .search-results .material-list-entry.list-group-header {
-  margin-top: 0;
-}
-.react-mui-context .top_search_form.small .search-results .material-list-entry.material-list-entry-1-lines {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.13);
-}
-.react-mui-context .top_search_form.small .search-results .material-list-entry.material-list-entry-1-lines .material-list-icon {
-  width: 42px;
-}
-.react-mui-context .top_search_form.small .search-results .material-list-entry.material-list-entry-1-lines .material-list-icon .mui-font-icon {
-  background-color: transparent;
-  font-size: 16px;
-  margin: 8px 4px 0;
-  color: rgba(0, 0, 0, 0.83);
-}
-.react-mui-context .top_search_form.small .search-results .material-list-entry.material-list-entry-1-lines .material-list-line-1 {
-  font-size: 14px;
-  line-height: 16px;
 }
 .indeterminate-loader {
   left: 0 !important;
@@ -1900,18 +1771,6 @@ div.menu.desktop a span.ajxp_icon_span {
 .react-editor .editor-window #diaporama_box > div.vertical_fit {
   background-color: #fafafa !important;
 }
-.left-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 250px;
-  z-index: 900;
-  overflow: hidden;
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  /*box-shadow: @reactBoxShadowDepth2;*/
-}
 .left-panel .nav-list-entry {
   padding: 6px 1px 6px 16px;
   display: -webkit-box;
@@ -1919,9 +1778,11 @@ div.menu.desktop a span.ajxp_icon_span {
   display: flex;
   line-height: 24px;
   cursor: pointer;
+  -webkit-transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 .left-panel .nav-list-entry:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: var(--md-sys-color-hover-background);
 }
 .left-panel .nav-list-entry-icon {
   -ms-flex-negative: 0;
@@ -1953,7 +1814,7 @@ div.menu.desktop a span.ajxp_icon_span {
   margin-top: 4px;
 }
 .left-panel .workspaces {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 }
 .left-panel .workspaces .workspace-entry {
@@ -1963,11 +1824,14 @@ div.menu.desktop a span.ajxp_icon_span {
   display: flex;
   line-height: 24px;
   cursor: pointer;
+  -webkit-transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   padding: 6px;
   padding-left: 20px;
+  position: relative;
 }
 .left-panel .workspaces .workspace-entry:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: var(--md-sys-color-hover-background);
 }
 .left-panel .workspaces .workspace-entry .workspace-badge {
   display: none;
@@ -2007,22 +1871,21 @@ div.menu.desktop a span.ajxp_icon_span {
   text-align: center;
   padding: 0;
   cursor: pointer;
-  opacity: 0.5;
+  opacity: 0;
 }
 .left-panel .workspaces .workspace-entry .workspace-additional-action.with-hover:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
 .left-panel .workspaces .workspace-entry.workspace-current {
   opacity: 1;
-  position: relative;
   font-weight: 500;
 }
-.left-panel .workspaces div.tree-item-label {
-  color: rgba(0, 0, 0, 0.77);
+.left-panel .workspaces .workspace-entry.workspace-masked,
+.left-panel .workspaces .workspace-entry.workspace-current.workspace-masked {
+  opacity: 0.4;
 }
-.left-panel .workspaces div.tree-item-label .tree-icon.icon-angle-down,
-.left-panel .workspaces div.tree-item-label .tree-icon.icon-angle-right {
-  color: rgba(0, 0, 0, 0.43);
+.left-panel .workspaces .workspace-entry:hover .workspace-additional-action {
+  opacity: 0.8;
 }
 .left-panel.hidden {
   left: -255px;
@@ -2110,7 +1973,8 @@ div.menu.desktop a span.ajxp_icon_span {
   content: "\f309";
 }
 .left-panel .folders-tree {
-  margin-left: -15px;
+  margin: 0 4px;
+  /*margin-left: -15px;*/
   font-weight: 400;
 }
 .left-panel .folders-tree.closed {
@@ -2131,8 +1995,6 @@ div.menu.desktop a span.ajxp_icon_span {
 #info_panel {
   position: absolute;
   z-index: 0;
-  width: 270px;
-  top: 100px;
   bottom: 0;
   -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
@@ -2207,9 +2069,6 @@ div.menu.desktop a span.ajxp_icon_span {
 }
 .panelCard .primaryToolbar .action-open_with button > div > span > span .button-icon {
   display: none;
-}
-.panelCard .primaryToolbar .action-open_with button > div > span > span .icon-caret-down {
-  color: white;
 }
 div.pydio-tasks-panel {
   position: absolute;
@@ -2351,9 +2210,9 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
           box-shadow: 0 0 999px 9999px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 0, 0, 0.5);
 }
 .react-mui-context .joyride-tooltip {
-  background-color: #fff;
-  border-radius: 2px;
-  color: #555;
+  background-color: var(--md-sys-color-surface-variant);
+  color: var(--md-sys-color-on-surface-variant);
+  border-radius: 20px;
   cursor: default;
   -webkit-filter: drop-shadow(-1px -2px 3px rgba(0, 0, 0, 0.3)) drop-shadow(1px 2px 3px rgba(0, 0, 0, 0.3));
   filter: drop-shadow(-1px -2px 3px rgba(0, 0, 0, 0.3)) drop-shadow(1px 2px 3px rgba(0, 0, 0, 0.3));
@@ -2450,6 +2309,12 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   left: -10px;
   width: 12px;
 }
+.react-mui-context .joyride-tooltip.right.right-end .joyride-tooltip__triangle {
+  height: 24px;
+  left: -10px;
+  width: 12px;
+  bottom: 20px;
+}
 .react-mui-context .joyride-tooltip__close {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -2487,7 +2352,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   top: 20px;
 }
 .react-mui-context .joyride-tooltip__header {
-  color: rgba(0, 0, 0, 0.87);
+  color: var(--md-sys-color-on-surface);
   font-size: 20px;
   padding-bottom: 6px;
   padding-right: 18px;
@@ -2524,11 +2389,10 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 }
 .react-mui-context .joyride-tooltip__button--primary {
   border-radius: 2px;
-  color: #00796B;
+  color: var(--md-sys-color-primary);
   padding: 6px 12px;
   -webkit-transition: background-color 0.2s ease-in-out;
   transition: background-color 0.2s ease-in-out;
-  text-transform: uppercase;
   font-weight: 500;
   font-size: 15px;
 }
@@ -2541,14 +2405,13 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
     */
 }
 .react-mui-context .joyride-tooltip__button--secondary {
-  color: #757575;
+  color: var(--md-sys-color-secondary);
   font-weight: 500;
   margin-right: 12px;
 }
 .react-mui-context .joyride-tooltip__button--skip {
   color: #424242;
   padding: 6px 12px;
-  text-transform: uppercase;
   font-weight: 500;
   font-size: 15px;
   float: left;
@@ -2649,7 +2512,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   bottom: 60px;
   position: absolute;
   left: 78px;
-  border-right: 3px dashed #eee;
 }
 .timeline .sep-date {
   display: none;
@@ -2701,6 +2563,8 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
           box-shadow: #D1D6E6 0px 0px 4px;
 }
 .timeline .tl-timeline .tl-block .tl-dot:before {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
   content: '';
   display: block;
   position: absolute;
@@ -2713,18 +2577,17 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   opacity: 0.4;
 }
 .timeline .tl-timeline .tl-block .tl-card {
-  background-color: white;
-  -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
-          box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
   -webkit-box-flex: 1;
       -ms-flex: 1;
           flex: 1;
   margin: 10px;
   padding: 16px 20px;
-  border-radius: 10px;
+  border-radius: 5px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+}
+.timeline .tl-timeline .tl-block .tl-card.tl-selectable {
   cursor: pointer;
 }
 .timeline .tl-timeline .tl-block .tl-card .tl-desc {
@@ -2739,7 +2602,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   margin-bottom: 2px;
 }
 .timeline .tl-timeline .tl-block .tl-card .tl-annotation {
-  color: #4caf50;
   font-size: 11px;
   font-weight: 500;
 }
@@ -2774,7 +2636,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   z-index: 100;
   text-align: center;
   opacity: 1;
-  border: 1px solid #eeeeee;
   font-size: 15px;
   line-height: 19px;
 }
@@ -2818,11 +2679,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   padding: 12px;
   -webkit-box-shadow: none;
           box-shadow: none;
-  border: 1px solid #eeeeee;
-}
-.timeline.small .tl-timeline .tl-block .tl-card.tl-selectable:hover {
-  -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
-          box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
 }
 .timeline.small .tl-timeline .tl-block .tl-card .tl-actions {
   display: none;
@@ -2890,6 +2746,940 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 }
 /* INFO PANEL GENERIC APPLICATION COLOR */
 /* INFOPANEL GREY TINT */
+.react-mui-context {
+  font-family: Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  -webkit-font-smoothing: antialiased;
+  /*************/
+  /* LAYOUTS   */
+  /*************/
+  /**********/
+  /* MODAL */
+  /**********/
+  /************/
+  /* FORMS    */
+  /************/
+  /************/
+  /* TABS     */
+  /************/
+  /*********/
+  /* LISTS */
+  /*********/
+  /*********/
+  /* TABLE */
+  /*********/
+  /*************/
+  /* BADGE     */
+  /*************/
+}
+.react-mui-context * {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+.react-mui-context [class^="mdi-"],
+.react-mui-context [class*=" mdi-"] {
+  font-family: "Material Design Icons";
+}
+.react-mui-context label {
+  margin: 0;
+  font-size: inherit;
+}
+.react-mui-context span.toolbars-button-menu {
+  display: inline-block;
+  position: relative;
+}
+.react-mui-context span.toolbars-button-menu .mui-menu {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 10;
+  min-width: 200px;
+  max-height: none !important;
+}
+.react-mui-context .mui-toolbar .mui-toolbar-group span.toolbars-button-menu {
+  margin-top: 5px;
+}
+.react-mui-context .mui-toolbar .mui-toolbar-group span.toolbars-button-menu .mui-font-icon {
+  line-height: 20px;
+  font-size: 18px;
+}
+.react-mui-context .mui-toolbar .mui-toolbar-group span.toolbars-button-menu .mui-menu-item .mui-menu-item-icon {
+  line-height: 48px;
+}
+.react-mui-context .main-layout-nav-to-stack,
+.react-mui-context .horizontal-layout,
+.react-mui-context .vertical-layout,
+.react-mui-context .mui-paper.vertical-layout > .mui-paper-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: stretch;
+      -ms-flex-align: stretch;
+          align-items: stretch;
+}
+.react-mui-context .viewport-height {
+  height: 100vh;
+}
+.react-mui-context .app-canvas {
+  height: 100vh;
+  background-color: white;
+}
+.react-mui-context .app-canvas .main-panel {
+  position: absolute;
+  top: 64px;
+  left: 256px;
+  right: 0;
+  bottom: 0;
+}
+@media only screen and (max-width: 420px) {
+  .react-mui-context .app-canvas .main-panel {
+    left: 0;
+  }
+}
+.react-mui-context .mui-paper.vertical-layout > .mui-paper-container,
+.react-mui-context .vertical-layout {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.react-mui-context .layout-fill,
+.react-mui-context .mui-paper.layout-fill > .mui-paper-container,
+.react-mui-context .role-panel > .mui-paper-container {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  overflow-y: auto;
+}
+.react-mui-context .layout-fill-scroll-y {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  overflow-y: auto;
+}
+.react-mui-context .droppable-active,
+.react-mui-context .material-list .material-list-entry.selected.droppable-active {
+  background-color: rgba(255, 110, 64, 0.23) !important;
+}
+.react-mui-context .main-layout-nav-to-stack {
+  height: 100%;
+}
+.react-mui-context .main-layout-nav-to-stack .left-nav {
+  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.react-mui-context .main-layout-nav-to-stack .left-nav h1 {
+  float: left;
+}
+.react-mui-context .main-layout-nav-to-stack .left-nav .buttons-cont {
+  float: right;
+  margin-top: 5px;
+}
+.react-mui-context .main-layout-nav-to-stack .container {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+.react-mui-context .main-layout-nav-to-stack.vertical {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.react-mui-context .main-layout-nav-to-stack.vertical .left-nav {
+  width: auto;
+}
+@media only screen and (max-width: 720px) {
+  .react-mui-context .main-layout-nav-to-stack {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+  }
+  .react-mui-context .main-layout-nav-to-stack h1 {
+    font-size: 30px;
+    padding: 8px 20px 0;
+    margin-bottom: 0;
+  }
+  .react-mui-context .main-layout-nav-to-stack .left-nav {
+    width: auto;
+  }
+  .react-mui-context .main-layout-nav-to-stack .hide-on-vertical-layout {
+    display: none;
+  }
+}
+@media only screen and (max-width: 420px) {
+  .react-mui-context .main-layout-nav-to-stack h1 {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+  .react-mui-context .main-layout-nav-to-stack div.buttons-cont {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding-top: 0 !important;
+  }
+}
+.react-mui-context .dialog-max-480.mui-dialog-window-contents {
+  max-width: 480px !important;
+}
+@media only screen and (max-width: 420px) {
+  .react-mui-context .dialog-max-480 {
+    max-width: 96% !important;
+    width: 96% !important;
+  }
+}
+.react-mui-context .pydio-form-panel {
+  overflow: auto;
+  padding-bottom: 24px;
+}
+.react-mui-context .pydio-form-panel h1 {
+  font-size: 25px;
+  line-height: 25px;
+}
+.react-mui-context .pydio-form-panel .pydio-form-panel {
+  width: auto;
+}
+.react-mui-context .pydio-form-panel > .pydio-form-group {
+  margin: 20px;
+  padding: 0;
+  overflow-y: auto;
+}
+.react-mui-context .pydio-form-panel > .pydio-form-group.z-depth-1 {
+  padding: 16px;
+}
+.react-mui-context .pydio-form-panel > .pydio-form-group.additional {
+  padding-left: 0;
+  padding-right: 0;
+}
+.react-mui-context .pydio-form-panel > .pydio-form-group .pydio-form-group {
+  margin: 0;
+  padding: 0 ;
+}
+.react-mui-context .pydio-form-panel .pydio-form-group.form-group-inactive > div {
+  display: none;
+}
+.react-mui-context .pydio-form-panel .pydio-form-group.form-group-active > div {
+  padding-bottom: 20px;
+}
+.react-mui-context .pydio-form-panel .pydio-form-group h4.group-label-inactive,
+.react-mui-context .pydio-form-panel .pydio-form-group h4.group-label-active {
+  border-bottom: 1px solid #E0E0E0;
+  margin-bottom: 30px;
+  padding-top: 0;
+  font-weight: 400;
+  cursor: pointer;
+}
+.react-mui-context .pydio-form-panel .pydio-form-group h4.group-label-inactive > span.group-active-toggler,
+.react-mui-context .pydio-form-panel .pydio-form-group h4.group-label-active > span.group-active-toggler {
+  display: inline-block;
+  float: right;
+  margin-top: 4px;
+  margin-right: 8px;
+}
+.react-mui-context .pydio-form-panel .pydio-form-group h4.group-label-active {
+  border-bottom: 0;
+  color: rgba(0, 0, 0, 0.87);
+  margin-bottom: 10px;
+}
+.react-mui-context .pydio-form-panel.sub-form {
+  padding: 0 0;
+}
+.react-mui-context .pydio-form-panel.row-flex {
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
+.react-mui-context .pydio-form-panel.row-flex > .pydio-form-group {
+  padding: 0;
+  margin: 2% 0 0 2%;
+  width: 96%;
+}
+.react-mui-context .pydio-form-panel.row-flex > .pydio-form-group > h3 {
+  background-color: #f5f5f5;
+  color: #9e9e9e;
+  font-size: 12px;
+  font-weight: 500;
+  border-bottom: 1px solid #e0e0e0;
+  height: 48px;
+  line-height: 48px;
+  padding: 0 16px;
+}
+.react-mui-context .pydio-form-panel.row-flex > .pydio-form-group > div {
+  margin-top: 16px;
+  padding: 0 16px;
+}
+@media only screen and (min-width: 768px) {
+  .react-mui-context .pydio-form-panel.row-flex > .pydio-form-group {
+    width: 47%;
+  }
+}
+@media only screen and (min-width: 1600px) {
+  .react-mui-context .pydio-form-panel.row-flex > .pydio-form-group {
+    margin: 1% 0 0 1%;
+    width: 32%;
+  }
+}
+.react-mui-context .pydio-form-panel.row-flex > .pydio-form-group.additional > div {
+  padding: 0;
+  margin: 0;
+}
+@media only screen and (max-width: 1600px) {
+  .react-mui-context .pydio-form-panel.row-flex.form-panel-odd > .pydio-form-group:last-of-type {
+    width: 96%;
+  }
+}
+.react-mui-context .pydio-form-panel .mui-checkbox {
+  margin: 16px 0 0;
+}
+.react-mui-context .pydio-form-panel .mui-text-field {
+  width: 100%;
+}
+.react-mui-context .pydio-form-panel .mui-text-field.mui-has-floating-labels {
+  margin-top: -16px;
+}
+.react-mui-context .pydio-form-panel .form-entry-boolean {
+  overflow: hidden;
+}
+.react-mui-context .pydio-form-panel .form-entry-image > div:last-child {
+  background-color: whitesmoke;
+  border-radius: 5px;
+  padding: 10px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-top: 6px;
+  margin-bottom: 16px;
+}
+.react-mui-context .pydio-form-panel .form-entry-image .binary-remove-button {
+  color: #ABABAB;
+  padding: 2px 0px 0;
+  width: 100px;
+  text-align: center;
+  font-weight: 500;
+  cursor: pointer;
+}
+.react-mui-context .pydio-form-panel .form-legend {
+  display: block;
+  color: rgba(0, 0, 0, 0.33);
+  margin-bottom: -4px;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding-left: 3px;
+}
+.react-mui-context .pydio-form-panel .form-entry-button {
+  display: inline-block;
+  margin: 0 10px 10px 0;
+}
+.react-mui-context .pydio-form-panel .form-entry-button .form-legend {
+  display: none;
+}
+.react-mui-context .pydio-form-panel .form-entry-legend .form-legend {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.63);
+  font-weight: 400;
+}
+.react-mui-context .pydio-form-panel.hide-legend .form-legend {
+  display: none;
+}
+.react-mui-context .pydio-form-panel.hide-legend .mui-checkbox {
+  margin-bottom: 16px;
+}
+.react-mui-context .pydio-form-panel .form-entry-valid-password .form-legend {
+  margin-top: 13px;
+}
+.react-mui-context .pydio-form-panel .mui-switch-label {
+  color: rgba(0, 0, 0, 0.86);
+}
+.react-mui-context .pydio-form-panel label {
+  margin: 0;
+  font-size: inherit;
+}
+.react-mui-context .pydio-form-panel .mui-menu.mui-menu-hideable {
+  z-index: 3;
+  max-height: 218px;
+  overflow-y: auto;
+}
+.react-mui-context .pydio-form-panel .mui-drop-down-menu {
+  width: 100%;
+  height: 44px;
+}
+.react-mui-context .pydio-form-panel .mui-drop-down-menu .mui-menu-control .mui-menu-label {
+  padding-left: 0;
+  line-height: 58px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.87);
+  width: 100%;
+}
+.react-mui-context .pydio-form-panel .mui-drop-down-menu .mui-menu-control .mui-menu-drop-down-icon {
+  top: 18px;
+  right: 0;
+}
+.react-mui-context .pydio-form-panel .mui-drop-down-menu .mui-menu-control .mui-menu-control-underline {
+  margin: 0;
+}
+.react-mui-context .pydio-form-panel .mui-drop-down-menu .mui-menu-control:hover .mui-menu-control-bg {
+  opacity: 0;
+}
+.react-mui-context .pydio-form-panel .Select-control {
+  width: 100%;
+}
+.react-mui-context .pydio-form-panel .Select-control .Select-item {
+  color: #FFFFFF;
+  border-radius: 2px;
+  border: 0 solid #c9e6f2;
+  display: inline-block;
+  font-size: 13px;
+  margin: 2px;
+  font-weight: 500;
+  -webkit-box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.25);
+          box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.25);
+}
+.react-mui-context .pydio-form-panel .Select-control .Select-item span {
+  padding: 5px 10px;
+}
+.react-mui-context .pydio-form-panel .Select-control .Select-item span.Select-item-icon:hover,
+.react-mui-context .pydio-form-panel .Select-control .Select-item span.Select-item-icon:focus {
+  color: #FFFFFF;
+}
+.react-mui-context .pydio-form-panel .drop-down-with-floating-label label.drop-down-floating-label {
+  display: block;
+  position: relative;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.53);
+  top: 16px;
+  opacity: 0;
+}
+.react-mui-context .pydio-form-panel .drop-down-with-floating-label.has-value label.drop-down-floating-label {
+  opacity: 1;
+}
+.react-mui-context .pydio-form-panel .drop-down-with-floating-label.multiple {
+  display: block;
+  padding-top: 16px;
+  margin-bottom: 6px;
+}
+.react-mui-context .pydio-form-panel .drop-down-with-floating-label.multiple label.drop-down-floating-label {
+  top: -2px;
+}
+.react-mui-context .pydio-form-panel .replicable-field .title-bar .title {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.3);
+}
+.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.5);
+  font-style: italic;
+  padding-bottom: 8px;
+}
+.react-mui-context .pydio-form-panel .replicable-field .title-bar .mui-icon-button {
+  float: right;
+  margin-top: -12px;
+}
+.react-mui-context .pydio-form-panel .replicable-field .title-bar .mui-icon-button .mui-font-icon {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.3);
+}
+.react-mui-context .pydio-form-panel .replicable-field .replicable-group {
+  border-radius: 0;
+  margin-bottom: 8px;
+  padding: 0 16px 8px;
+  overflow: visible;
+}
+.react-mui-context .pydio-form-panel .replicable-field .replicable-group .form-legend {
+  margin-bottom: 8px;
+}
+.react-mui-context .pydio-form-panel.replicable-unique {
+  padding-bottom: 1px;
+}
+.react-mui-context .pydio-form-helper {
+  position: absolute;
+  width: 360px;
+  border-radius: 3px;
+  background-color: white;
+  overflow: auto;
+  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  height: 0;
+}
+.react-mui-context .pydio-form-helper .helper-title {
+  background-color: #424242;
+  color: rgba(255, 255, 255, 0.61);
+  font-weight: 500;
+  padding: 16px;
+}
+.react-mui-context .pydio-form-helper .helper-title .helper-close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: inline-block;
+  padding: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.8);
+}
+.react-mui-context .pydio-form-helper.helper-visible {
+  -webkit-box-shadow: 0 0 6px rgba(0, 0, 0, 0.38);
+          box-shadow: 0 0 6px rgba(0, 0, 0, 0.38);
+  right: 20px;
+  bottom: 0;
+  height: 80%;
+}
+.react-mui-context .pydio-form-helper .helper-doc-cont {
+  margin: 16px;
+}
+.react-mui-context .pydio-form-helper .helper-doc-cont b {
+  font-weight: 500;
+  text-decoration: underline;
+}
+.react-mui-context .pydio-form-helper .helper-action-button-cont {
+  text-align: center;
+  margin: 10px;
+}
+.react-mui-context .pydio-form-helper .helper-action-status {
+  border-top: 1px solid #EEE;
+  margin: 16px;
+  -webkit-box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.39);
+          box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.39);
+  border-radius: 3px;
+  height: 300px;
+  overflow-y: auto;
+  background-color: rgba(245, 245, 245, 0.23);
+}
+.react-mui-context .pydio-form-helper .helper-action-status > div {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+.react-mui-context .pydio-form-helper .helper-values-list .legend {
+  font-weight: 500;
+  border-bottom: 1px solid #ccc;
+}
+.react-mui-context .pydio-form-helper .helper-values-list .helper-value {
+  padding: 10px 0;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  font-size: 16px;
+}
+.react-mui-context .pydio-form-helper .helper-values-list .helper-value:hover {
+  background-color: #e5e5e5;
+}
+.react-mui-context .mui-menu.mui-menu-hideable {
+  max-height: 218px;
+  overflow-y: hidden;
+}
+.react-mui-context .mui-menu.mui-menu-hideable.mui-visible {
+  min-height: 170px;
+}
+.react-mui-context .mui-menu.mui-menu-hideable.mui-visible .mui-paper-container {
+  height: 100%;
+  overflow-y: auto !important;
+}
+.react-mui-context .dropzone {
+  border-radius: 3px;
+  width: 100px;
+  height: 100px;
+  background-color: #ababab;
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+.react-mui-context .tab-vertical-layout {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+.react-mui-context .tab-vertical-layout > div.mui-tabs-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: stretch;
+      -ms-flex-align: stretch;
+          align-items: stretch;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  overflow: hidden;
+}
+.react-mui-context .tab-vertical-layout > div.mui-tabs-container > div.mui-tab-item-container,
+.react-mui-context .tab-vertical-layout > div.mui-tabs-container > div.mui-ink-bar {
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.react-mui-context .tab-vertical-layout > div.mui-tabs-container > div.mui-tab-template {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  overflow: auto;
+  background-color: #f4f4f4;
+}
+.react-mui-context .material-list .material-list-selector {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  text-align: center;
+}
+.react-mui-context .material-list .material-list-selector > .mui-checkbox,
+.react-mui-context .material-list .mui-toolbar .mui-checkbox {
+  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  width: 0;
+  overflow: hidden;
+  display: inline-block;
+  height: 46px;
+  padding: 15px 0;
+}
+.react-mui-context .material-list .infinite-parent-smooth-height > div {
+  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.react-mui-context .material-list .mui-toolbar {
+  background-color: #F5F5F5;
+  border-top: 1px solid #E0E0E0;
+  border-bottom: 1px solid #E0E0E0;
+}
+.react-mui-context .material-list .mui-toolbar .mui-menu {
+  max-height: 250px;
+  overflow-y: auto;
+}
+.react-mui-context .material-list .mui-toolbar .mui-checkbox {
+  float: left;
+}
+.react-mui-context .material-list .mui-toolbar .search-results-title {
+  margin-left: 15px;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+.react-mui-context .material-list .mui-toolbar .mui-toolbar-group .mui-flat-button,
+.react-mui-context .material-list .mui-toolbar .mui-toolbar-group .mui-raised-button {
+  margin: 10px 5px 0 10px;
+}
+.react-mui-context .material-list .mui-toolbar .mui-toolbar-group .mui-drop-down-menu {
+  margin-right: 8px;
+  margin-left: 8px;
+}
+.react-mui-context .material-list .mui-toolbar .mui-toolbar-group .mui-font-icon {
+  padding-left: 0;
+}
+.react-mui-context .material-list .mui-toolbar .mui-toolbar-group .mui-drop-down-menu {
+  width: 155px !important;
+}
+.react-mui-context .material-list .mui-toolbar .list-title {
+  padding: 18px 16px;
+  font-size: 16px;
+  line-height: 19px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.55);
+}
+.react-mui-context .material-list.list-show-selectors .mui-checkbox {
+  width: 46px;
+  padding: 15px 13px;
+}
+.react-mui-context .material-list.list-show-selectors .material-list-entry-2-lines .mui-checkbox {
+  padding: 22px 18px;
+}
+.react-mui-context .material-list-action-inline {
+  display: inline-block;
+  margin: 3px 10px;
+  padding: 11px 9px;
+  border-radius: 20px;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.23);
+  font-size: 14px;
+}
+.react-mui-context .material-list-action-inline:hover {
+  color: rgba(0, 0, 0, 0.93);
+}
+.react-mui-context .material-list .material-list-entry {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: stretch;
+      -ms-flex-align: stretch;
+          align-items: stretch;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  /* ICONS */
+  /* TEXTS */
+  /* ACTIONS */
+}
+.react-mui-context .material-list .material-list-entry:last-child {
+  border-bottom: none;
+}
+.react-mui-context .material-list .material-list-entry .material-list-icon {
+  width: 72px;
+}
+.react-mui-context .material-list .material-list-entry .material-list-icon .mui-font-icon {
+  font-size: 18px;
+  color: #FFFFFF;
+  display: inline-block;
+  margin: 15px 15px;
+  background-color: rgba(0, 0, 0, 0.33);
+  border-radius: 50%;
+  padding: 11px 11px;
+  width: 40px;
+  height: 40px;
+  text-align: center;
+}
+.react-mui-context .material-list .material-list-entry .material-list-icon img {
+  border-radius: 50%;
+  width: 40px !important;
+  height: 40px;
+  margin: 15px 0 0 16px;
+  background-color: rgba(0, 0, 0, 0.13);
+}
+.react-mui-context .material-list .material-list-entry .material-list-icon .sub-entry-icon {
+  border-right: 2px dotted #C3C3C3;
+  height: 38px;
+  width: 37px;
+  margin-top: 17px;
+}
+.react-mui-context .material-list .material-list-entry .material-list-icon-none {
+  width: 16px;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.react-mui-context .material-list .material-list-entry .material-list-text {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  padding: 14px 0;
+  overflow: hidden;
+}
+.react-mui-context .material-list .material-list-entry .material-list-text .material-list-line-1 {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.react-mui-context .material-list .material-list-entry .material-list-text .material-list-line-2,
+.react-mui-context .material-list .material-list-entry .material-list-text .material-list-line-3 {
+  font-size: 13px;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  /*text-overflow: ellipsis;*/
+}
+.react-mui-context .material-list .material-list-entry .material-list-actions {
+  padding: 8px 4px 0 16px;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.react-mui-context .material-list .material-list-entry.material-list-entry-2-lines .material-list-actions {
+  padding-top: 17px;
+}
+.react-mui-context .material-list .material-list-entry.material-list-entry-1-lines {
+  /* ICONS */
+}
+.react-mui-context .material-list .material-list-entry.material-list-entry-1-lines .material-list-icon .mui-font-icon {
+  margin: 9px 0 0 16px;
+  width: 35px;
+  height: 35px;
+  padding: 8px 12px;
+}
+.react-mui-context .material-list .material-list-entry.list-show-selectors .material-list-actions {
+  opacity: 0;
+}
+.react-mui-context .material-list .material-list-entry:hover .material-list-text .material-list-line-2 {
+  text-overflow: ellipsis;
+}
+.react-mui-context .material-list .material-list-entry.selected .material-list-line-1 {
+  font-weight: 500;
+}
+.react-mui-context .material-list .material-list-entry.selected .material-list-text .material-list-line-2 {
+  text-overflow: ellipsis;
+}
+.react-mui-context .material-list.table-mode .cell {
+  display: inline-block;
+  width: 120px;
+  padding-left: 20px;
+  padding-right: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.react-mui-context .material-list.table-mode .cell.cell-ajxp_modiftime {
+  width: 170px;
+}
+.react-mui-context .material-list.table-mode .cell.cell-bytesize {
+  width: 100px;
+}
+.react-mui-context .material-list.table-mode .cell.cell-ajxp_label {
+  padding-left: 0;
+}
+.react-mui-context .material-list.table-mode .cell.header_cell.sortable {
+  cursor: pointer;
+}
+.react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-asc,
+.react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-desc {
+  background-color: #edf2f7;
+}
+.react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-asc::before,
+.react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-desc::before {
+  display: block;
+  position: absolute;
+  margin-left: -16px;
+  font-family: "Material Design Icons";
+  content: "\F05D";
+}
+.react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-desc::before {
+  content: "\F045";
+}
+.react-mui-context .material-list.table-mode .material-list-actions {
+  padding-top: 1px;
+}
+.react-mui-context .material-list.table-mode .material-list-actions .mui-font-icon {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.23);
+}
+.react-mui-context .material-list.table-mode .material-list-actions .mui-font-icon:hover {
+  color: rgba(0, 0, 0, 0.53);
+}
+.react-mui-context .material-list.table-mode .mui-toolbar {
+  padding: 0;
+  border-bottom: 1px solid #E5E5E5;
+  position: relative;
+}
+.react-mui-context .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left:first-child {
+  margin-left: 0 !important;
+  width: 100%;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.react-mui-context .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-right {
+  position: absolute;
+  margin-right: 0;
+  right: 4px;
+}
+.react-mui-context .material-list .material-list-entry.list-group-header {
+  border-bottom: 0;
+  margin-top: 8px;
+}
+.react-mui-context .material-list .material-list-entry.list-group-header .material-list-line-1 {
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 13px;
+}
+.react-mui-context .material-list .material-list-entry.list-group-header:hover {
+  background-color: transparent !important;
+}
+.react-mui-context .material-list.rowsHaveActions .mui-toolbar .mui-toolbar-group.mui-left:first-child {
+  width: 95%;
+}
+.react-mui-context .material-list.display-as-menu .material-list-entry {
+  /*border-bottom: 0;*/
+}
+.react-mui-context .material-list.display-as-menu .material-list-entry .material-list-text {
+  padding: 14px 0;
+}
+.react-mui-context .material-list.display-as-menu .material-list-entry .material-list-text .material-list-line-1 {
+  font-size: 13px !important;
+}
+.react-mui-context .material-list.display-as-menu .material-list-entry .material-list-actions {
+  padding-top: 4px;
+  /*opacity: 0.4;*/
+}
+.react-mui-context .material-list.hideActions .material-list-entry .material-list-actions {
+  display: none;
+}
+.react-mui-context .material_table tr {
+  border-bottom: 1px solid #e0e0e0;
+}
+.react-mui-context .material_table tr:hover {
+  background-color: rgba(242, 242, 242, 0.31);
+}
+.react-mui-context .material_table th {
+  background-color: #ffffff !important;
+  padding: 10px !important;
+  padding-right: 26px !important;
+  color: rgba(0, 0, 0, 0.54) !important;
+  height: 48px;
+  font-size: 11px;
+}
+.react-mui-context .material_table .th_sorter {
+  float: left;
+  display: inline-block;
+  margin-top: 5px;
+  margin-right: 7px;
+}
+.react-mui-context .material_table td {
+  padding: 10px !important;
+  padding-right: 26px !important;
+  height: 48px !important;
+  background-color: transparent !important;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.react-mui-context .material_table td:first-child {
+  font-size: 1.1em;
+}
+.react-mui-context .material_table td.column_action {
+  text-align: right;
+}
+.react-mui-context .figure-badge {
+  padding: 14px 14px 7px;
+  text-align: center;
+}
+.react-mui-context .figure-badge .figure {
+  font-size: 30px;
+  margin-bottom: 0;
+  font-weight: 400;
+  line-height: 23px;
+}
+.react-mui-context .mui-subheader {
+  text-transform: uppercase;
+}
+.react-mui-context .mui-focus-ripple .mui-focus-ripple-inner {
+  -webkit-animation: none !important;
+          animation: none !important;
+}
 body,
 #ajxp_desktop,
 #background-imager {
@@ -2924,34 +3714,6 @@ body,
   -ms-flex-negative: 0;
       flex-shrink: 0;
 }
-.react-mui-context .left-panel {
-  width: 250px;
-}
-@media only screen and (max-width: 758px) {
-  .react-mui-context .left-panel:not(.expanded) {
-    -webkit-transform: translateX(-250px);
-            transform: translateX(-250px);
-    z-index: 902;
-  }
-}
-@media only screen and (max-width: 758px) {
-  .react-mui-context .drawer-open .left-panel {
-    -webkit-transform: translateX(0px);
-            transform: translateX(0px);
-    -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-  }
-}
-.react-mui-context .user-dashboard-template .left-panel {
-  -webkit-transform: translateX(-250px);
-          transform: translateX(-250px);
-  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-}
-.react-mui-context .user-dashboard-template.drawer-open .left-panel {
-  -webkit-transform: translateX(0px);
-          transform: translateX(0px);
-}
 .react-mui-context .user-dashboard-template .desktop-container {
   margin-left: 0;
 }
@@ -2961,7 +3723,6 @@ body,
 .react-mui-context .desktop-container {
   -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  margin-left: 250px;
   overflow-x: hidden;
 }
 @media only screen and (max-width: 758px) {
@@ -3035,44 +3796,9 @@ body,
 .react-mui-context .desktop-container #main_toolbar #paginator-toolbar span.mdi-chevron-left {
   color: rgba(255, 255, 255, 0.97) !important;
 }
-.react-mui-context .material-list.files-list {
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-}
-.react-mui-context #info_panel {
-  right: -270px;
-}
-.react-mui-context .info-panel-open #info_panel {
-  right: 0;
-}
-@media only screen and (max-width: 420px) {
-  .react-mui-context .info-panel-open #info_panel {
-    right: -270px;
-  }
-}
-.react-mui-context .info-panel-open .material-list.main-files-list {
-  margin-right: 270px;
-}
-@media only screen and (max-width: 420px) {
-  .react-mui-context .info-panel-open .material-list.main-files-list {
-    margin-right: 0;
-  }
-}
-.react-mui-context .info-panel-open.info-panel-open-lg #info_panel {
-  right: 0;
-}
-@media only screen and (max-width: 420px) {
-  .react-mui-context .info-panel-open.info-panel-open-lg #info_panel {
-    right: -310px;
-  }
-}
-.react-mui-context .info-panel-open.info-panel-open-lg .material-list.main-files-list {
-  margin-right: 310px;
-}
-@media only screen and (max-width: 420px) {
-  .react-mui-context .info-panel-open.info-panel-open-lg .material-list.main-files-list {
-    margin-right: 0;
-  }
+.react-mui-context .material-list {
+  -webkit-transition: margin-right 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transition: margin-right 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 @media only screen and (max-width: 420px) {
   .react-mui-context .media-small-hide {
@@ -3127,4 +3853,252 @@ body,
 }
 .mimefont.mdi-archive {
   color: #fbc02d !important;
+}
+.react-mui-context.mui3-token {
+  /* Works on Firefox */
+  /* Works on Chrome, Edge, and Safari */
+}
+.react-mui-context.mui3-token .material-list.files-list {
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  margin-left: var(--md-sys-color-fstemplate-master-margin);
+  margin-right: var(--md-sys-color-fstemplate-master-margin);
+}
+.react-mui-context.mui3-token .material-list .material-list-entry .material-list-text .material-list-line-2,
+.react-mui-context.mui3-token .material-list .material-list-entry .material-list-text .material-list-line-3 {
+  color: var(--md-sys-color-on-surface-variant);
+}
+.react-mui-context.mui3-token .material-list .material-list-entry .material-list-text .material-list-line-2 span.metadata_chunk:not(.metadata_chunk_description):not(.metadata_chunk_block) {
+  border-color: var(--md-sys-color-inline-tags-border);
+}
+.react-mui-context.mui3-token .material-list .material-list-entry.selected {
+  background-color: var(--md-sys-color-secondary) !important;
+  color: var(--md-sys-color-on-secondary) !important;
+}
+.react-mui-context.mui3-token .material-list .material-list-entry.selected .material-list-line-2,
+.react-mui-context.mui3-token .material-list .material-list-entry.selected .material-list-line-2 .overlay-icon-span {
+  color: var(--md-sys-color-on-secondary) !important;
+}
+.react-mui-context.mui3-token .material-list.table-mode .material-list-entry.selected-dark span.cell {
+  color: var(--md-sys-color-on-secondary);
+}
+.react-mui-context.mui3-token .material-list.table-mode .material-list-entry.selected-dark span.cell.cell-ajxp_label {
+  color: var(--md-sys-color-on-secondary);
+  font-weight: 500;
+}
+.react-mui-context.mui3-token .material-list.table-mode .material-list-entry.selected-dark .mimefont,
+.react-mui-context.mui3-token .material-list.table-mode .material-list-entry.selected-dark .overlay-icon-span {
+  color: var(--md-sys-color-on-secondary) !important;
+}
+.react-mui-context.mui3-token .material-list.table-mode .mui-toolbar {
+  background: var(--md-sys-color-surface-3);
+  border-top-width: 0px;
+  border-bottom-width: 0px;
+  border-radius: var(--md-sys-color-card-border-radius) var(--md-sys-color-card-border-radius) 0 0;
+  overflow: hidden;
+}
+.react-mui-context.mui3-token .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left .header_cell {
+  border-radius: 40px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+.react-mui-context.mui3-token .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left .header_cell:first-of-type {
+  border-radius: var(--md-sys-color-card-border-radius) 40px 40px 0;
+}
+.react-mui-context.mui3-token .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left .header_cell:hover {
+  background: var(--md-sys-color-surface-5);
+}
+.react-mui-context.mui3-token .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left .header_cell.sortable.active-sort-asc,
+.react-mui-context.mui3-token .material-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left .header_cell.sortable.active-sort-desc {
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+.react-mui-context.mui3-token .material-list.table-mode span.cell.cell-ajxp_label > span div.mimefont-container {
+  background-color: transparent !important;
+  opacity: 0.73;
+}
+.react-mui-context.mui3-token .material-list.files-list.material-list-grid {
+  margin-left: 0;
+  padding: calc(var(--md-sys-color-fstemplate-master-margin) / 2);
+  padding-right: 0;
+}
+.react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry {
+  -webkit-box-shadow: none;
+          box-shadow: none;
+  border-radius: var(--md-sys-color-card-border-radius);
+  background: var(--md-sys-color-surface);
+  margin: 4px;
+}
+.react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry.selected {
+  -webkit-box-shadow: none !important;
+          box-shadow: none !important;
+  background: var(--md-sys-color-secondary) !important;
+}
+.react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry .material-list-text {
+  border-top: 0;
+}
+.react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry .material-list-icon .mimefont-container {
+  border-radius: var(--md-sys-color-card-border-radius);
+}
+.react-mui-context.mui3-token .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-icon {
+  height: calc(100% - 20px);
+}
+.react-mui-context.mui3-token .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-text {
+  padding: 4px 6px;
+}
+.react-mui-context.mui3-token .mimefont-container {
+  background-color: var(--md-sys-color-mimefont-background) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont {
+  color: var(--md-sys-color-mimefont-color) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-pdf,
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-image {
+  color: var(--md-sys-color-custom-pdf-color) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-word,
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-document {
+  color: var(--md-sys-color-custom-doc-color) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-excel {
+  color: var(--md-sys-color-custom-xls-color) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-music {
+  color: var(--md-sys-color-custom-music-color) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-video,
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-movie {
+  color: var(--md-sys-color-custom-video-color) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-powerpoint {
+  color: var(--md-sys-color-custom-ppt-color) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-archive {
+  color: var(--md-sys-color-custom-archive-color) !important;
+}
+.react-mui-context.mui3-token .selected .mimefont-container {
+  background-color: var(--md-sys-color-primary-container) !important;
+}
+.react-mui-context.mui3-token .left-panel .rail-hover-bar .workspaces .workspace-entry .workspace-additional-action {
+  display: none;
+}
+.react-mui-context.mui3-token .left-panel .rail-hover-bar .mimefont-container {
+  background-color: var(--md-sys-color-primary-container) !important;
+}
+.react-mui-context.mui3-token .left-panel .section-title {
+  margin-right: 0;
+  -webkit-transition: margin-right 150ms cubic-bezier(0.23, 1, 0.32, 1) 0ms !important;
+  transition: margin-right 150ms cubic-bezier(0.23, 1, 0.32, 1) 0ms !important;
+}
+.react-mui-context.mui3-token .left-panel .with-rail-close-toggle .first-section .section-title.filter-active,
+.react-mui-context.mui3-token .left-panel .with-rail-stick-toggle .first-section .section-title.filter-active {
+  margin-right: 30px;
+}
+.react-mui-context.mui3-token .info-panel-open .masonry-grid {
+  width: calc(100% - 270px) !important;
+}
+.react-mui-context.mui3-token .panelCard .panelContent .infoPanelRow .infoPanelLabel {
+  color: var(--md-sys-color-on-surface);
+}
+.react-mui-context.mui3-token .masonry-grid {
+  margin-top: calc(var(--md-sys-color-fstemplate-master-margin) * -1);
+}
+.react-mui-context.mui3-token .masonry-grid .masonry-card {
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  border-radius: 8px;
+}
+.react-mui-context.mui3-token .masonry-grid .masonry-card.selected {
+  -webkit-box-shadow: var(--md-sys-color-secondary) 0px 0px 0px 1px;
+          box-shadow: var(--md-sys-color-secondary) 0px 0px 0px 1px;
+}
+.react-mui-context.mui3-token .masonry-grid .masonry-card.has-src.hover .masonry-label-overlay,
+.react-mui-context.mui3-token .masonry-grid .masonry-card.has-src.selected .masonry-label-overlay {
+  background: -webkit-gradient(linear, left bottom, left top, from(rgba(0, 0, 0, 0.4)), to(transparent));
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.4), transparent);
+  border-radius: 0 0 8px 8px;
+}
+.react-mui-context.mui3-token .masonry-grid .masonry-card.has-src.hover .masonry-label,
+.react-mui-context.mui3-token .masonry-grid .masonry-card.has-src.selected .masonry-label {
+  color: white;
+}
+.react-mui-context.mui3-token .masonry-grid .masonry-card .masonry-image {
+  border-radius: 8px;
+}
+.react-mui-context.mui3-token .masonry-grid .masonry-card .mimefont-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  height: 100%;
+  -webkit-box-align: center !important;
+      -ms-flex-align: center !important;
+          align-items: center !important;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  border-radius: 8px;
+}
+.react-mui-context.mui3-token .masonry-grid .masonry-card .mimefont-container .mimefont {
+  font-size: 36px;
+  margin-bottom: 22px;
+}
+.react-mui-context.mui3-token .masonry-grid.masonry-size-100 .masonry-card .masonry-label {
+  display: none !important;
+}
+.react-mui-context.mui3-token .masonry-grid.masonry-size-100 .masonry-card .mimefont-container .mimefont {
+  font-size: 24px;
+  margin-bottom: 0;
+}
+.react-mui-context.mui3-token * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--md-sys-color-inline-tags-border) transparent;
+}
+.react-mui-context.mui3-token *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.react-mui-context.mui3-token *::-webkit-scrollbar-track {
+  background: transparent;
+}
+.react-mui-context.mui3-token *::-webkit-scrollbar-thumb {
+  background-color: var(--md-sys-color-inline-tags-border);
+  border-radius: 20px;
+}
+.react-mui-context:not(.mui3-token) .masonry-grid .masonry-card {
+  background-color: #f9fafb;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 10px;
+          box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 10px;
+  position: relative;
+  border-radius: 4px;
+}
+.react-mui-context:not(.mui3-token) .masonry-grid .masonry-card.selected {
+  -webkit-box-shadow: #018dcc 0px 0px 0px 2px, rgba(0, 0, 0, 0.15) 0px 0px 10px;
+          box-shadow: #018dcc 0px 0px 0px 2px, rgba(0, 0, 0, 0.15) 0px 0px 10px;
+}
+.react-mui-context:not(.mui3-token) .masonry-grid .masonry-card .masonry-label {
+  borderTop: 1px solid rgba(224, 224, 224, 0.4);
+  color: rgba(0, 0, 0, 0.73);
+  backgroundColor: #ffffff;
+}
+.react-mui-context:not(.mui3-token) .masonry-grid .masonry-card.has-src .masonry-label {
+  backgroundColor: rgba(255, 255, 255, 0.73);
+}
+.react-mui-context:not(.mui3-token) .masonry-grid .masonry-card .mimefont-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  height: 100%;
+  -webkit-box-align: center !important;
+      -ms-flex-align: center !important;
+          align-items: center !important;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  border-radius: 4px;
+}
+.react-mui-context:not(.mui3-token) .masonry-grid .masonry-card .mimefont-container .mimefont {
+  font-size: 36px;
+  margin-bottom: 22px;
+}
+.react-mui-context:not(.mui3-token) .info-panel-open .masonry-grid {
+  width: calc(100% - 270px) !important;
 }

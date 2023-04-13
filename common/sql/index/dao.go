@@ -60,7 +60,7 @@ type DAO interface {
 	GetNodeChild(mtree.MPath, string) (*mtree.TreeNode, error)
 	GetNodeLastChild(mtree.MPath) (*mtree.TreeNode, error)
 	GetNodeFirstAvailableChildIndex(mtree.MPath) (uint64, error)
-	GetNodeChildrenCounts(mtree.MPath) (int, int)
+	GetNodeChildrenCounts(mtree.MPath, bool) (int, int)
 	MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) error
 
 	ResyncDirtyEtags(rootNode *mtree.TreeNode) error

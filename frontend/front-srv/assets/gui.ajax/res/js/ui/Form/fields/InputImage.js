@@ -179,15 +179,21 @@ class InputImage extends React.Component {
 
     render(){
         const {loading, error} = this.state;
+        let {imageSrc} = this.state;
+        const {attributes} =  this.props;
+
+        const isDefault = (attributes['defaultImage'] === imageSrc);
+        if(imageSrc.indexOf('[mode]') > -1) {
+            imageSrc = imageSrc.replace('[mode]', 'light')
+        }
 
         const coverImageStyle = {
-            backgroundImage:"url("+this.state.imageSrc+")",
+            backgroundImage:"url("+imageSrc+")",
             backgroundPosition:"50% 50%",
             backgroundSize:"cover",
             position:'relative'
         };
         let overlay, overlayBg = {};
-        const isDefault = (this.props.attributes['defaultImage'] && this.props.attributes['defaultImage'] === this.state.imageSrc);
 
         if(error){
             overlayBg = {backgroundColor: 'rgba(255, 255, 255, 0.77)', borderRadius: '50%'};
@@ -207,7 +213,7 @@ class InputImage extends React.Component {
 
         return(
             <div style={variant==='v2'?{backgroundColor:'#f6f6f8'}:null}>
-                <div className="image-label">{this.props.attributes.label}</div>
+                <div className="image-label">{attributes.label}</div>
                 <form ref="uploadForm" encType="multipart/form-data" target="uploader_hidden_iframe" method="post" action={this.getUploadUrl()}>
                     <BinaryDropZone onDrop={this.onDrop.bind(this)} accept="image/*" style={coverImageStyle}>
                         <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', ...overlayBg}}>{overlay}</div>

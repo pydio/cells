@@ -37,6 +37,8 @@ message Cell {
     repeated tree.Node RootNodes = 4;
     // Access control for this Cell
     map <string,CellAcl> ACLs = 5;
+    // Timestamp after which the share is disabled
+    int64 AccessEnd = 8;
     // Associated access policies
     repeated service.ResourcePolicy Policies = 6;
     // Whether these policies are currently editable

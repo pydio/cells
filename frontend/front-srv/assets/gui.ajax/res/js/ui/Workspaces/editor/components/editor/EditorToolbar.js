@@ -26,7 +26,7 @@ import DataModel from 'pydio/model/data-model'
 import { connect } from 'react-redux';
 import { ToolbarGroup, IconButton } from 'material-ui';
 
-const { ModalAppBar } = PydioComponents
+const { ModalAppBar } = Pydio.requireLib('components')
 const { getActiveTab, makeTransitionHOC, EditorActions } = Pydio.requireLib('hoc');
 
 // Display components

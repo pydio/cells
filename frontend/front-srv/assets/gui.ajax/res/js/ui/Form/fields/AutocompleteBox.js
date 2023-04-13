@@ -22,8 +22,9 @@ const React = require('react');
 import Pydio from 'pydio'
 import asFormField from "../hoc/asFormField";
 import withChoices from '../hoc/withChoices'
+import {muiThemeable} from 'material-ui/styles'
 const {AutoComplete, MenuItem, RefreshIndicator} = require('material-ui');
-const {ModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
+const {ThemedModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
 
 class AutocompleteBox extends React.Component{
 
@@ -41,7 +42,7 @@ class AutocompleteBox extends React.Component{
 
     render(){
 
-        const {choices, isDisplayGrid, editMode, disabled,toggleEditMode, variant} = this.props;
+        const {choices, isDisplayGrid, editMode, disabled,toggleEditMode, variant, muiTheme} = this.props;
         let dataSource = [];
         let labels = {};
         choices.forEach((choice, key) => {
@@ -66,7 +67,7 @@ class AutocompleteBox extends React.Component{
                 <div
                     onClick={disabled?function(){}:toggleEditMode}
                     className={value?'':'paramValue-empty'}>
-                    {value ? value : 'Empty'} &nbsp;&nbsp;<span className="icon-caret-down"></span>
+                    {value ? value : 'Empty'} &nbsp;&nbsp;<span className="mdi mdi-chevron-down"></span>
                 </div>
             );
         }
@@ -97,7 +98,7 @@ class AutocompleteBox extends React.Component{
                         }}
                         openOnFocus={true}
                         menuProps={{maxHeight: 200}}
-                        {...ModernStyles.textField}
+                        {...ThemedModernStyles(muiTheme).textField}
                     />
                 }
                 {variant === 'v2' && dataSource.length &&
@@ -124,6 +125,7 @@ class AutocompleteBox extends React.Component{
     }
 }
 
+AutocompleteBox = muiThemeable()(AutocompleteBox);
 AutocompleteBox = asFormField(AutocompleteBox);
 AutocompleteBox = withChoices(AutocompleteBox);
 export {AutocompleteBox as default}

@@ -24,10 +24,11 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 import {Dialog, FlatButton, Toggle} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 import {IdmUserMetaNamespace, ServiceResourcePolicy, UserMetaServiceApi} from 'cells-sdk'
 import Metadata from '../model/Metadata'
 import PydioApi from 'pydio/http/api'
-const {ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernTextField, ThemedModernStyles} = Pydio.requireLib('hoc');
 import FuncUtils from 'pydio/util/func'
 import ResourcesManager from 'pydio/http/resources-manager'
 
@@ -84,8 +85,9 @@ class MetaPoliciesBuilder extends React.Component {
     }
 
     render() {
-        const {readonly, policies, pydio} = this.props;
+        const {readonly, policies, pydio, muiTheme} = this.props;
         const m  = (id) => pydio.MessageHash['ajxp_admin.metadata.' + id] || id;
+        const ModernStyles = ThemedModernStyles(muiTheme)
 
         let adminRead, adminWrite;
         if(policies){
@@ -114,6 +116,8 @@ class MetaPoliciesBuilder extends React.Component {
 
 
 }
+
+MetaPoliciesBuilder = muiThemeable()(MetaPoliciesBuilder)
 
 class MetaNamespace extends React.Component{
 
@@ -219,8 +223,10 @@ class MetaNamespace extends React.Component{
     }
 
     render(){
-        const {create, namespaces, pydio, readonly} = this.props;
+        const {create, namespaces, pydio, readonly, muiTheme} = this.props;
         const {namespace, m, PoliciesBuilder, metaModule} = this.state;
+        const ModernStyles = ThemedModernStyles(muiTheme)
+
         if(!metaModule){
             return null;
         }
@@ -350,6 +356,8 @@ class MetaNamespace extends React.Component{
 
 }
 
+MetaNamespace = muiThemeable()(MetaNamespace)
+
 MetaNamespace.PropTypes = {
     namespace: PropTypes.instanceOf(IdmUserMetaNamespace).isRequired,
     namespaces: PropTypes.arrayOf(IdmUserMetaNamespace),
@@ -359,3 +367,4 @@ MetaNamespace.PropTypes = {
 };
 
 export default MetaNamespace
+export {loadEditorClass}

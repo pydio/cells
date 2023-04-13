@@ -22,8 +22,10 @@ import Pydio from 'pydio'
 import EditCellDialog from './EditCellDialog'
 import CellModel from 'pydio/model/cell'
 import ResourcesManager from 'pydio/http/resources-manager'
-import {Paper, MenuItem} from 'material-ui'
+import {MenuItem} from 'material-ui'
 import ShareHelper from "../main/ShareHelper";
+
+const {moment} = Pydio.requireLib('boot')
 const {GenericCard, GenericLine, QuotaUsageLine} = Pydio.requireLib("components");
 
 class CellCard extends React.Component{
@@ -32,9 +34,12 @@ class CellCard extends React.Component{
         super(props);
         this.state = {edit: false, model: new CellModel(), loading:true};
         this._observer = () => {this.forceUpdate()};
-        ResourcesManager.loadClassesAndApply(["PydioActivityStreams", "PydioCoreActions"], () => {
-            this.setState({extLibs: true})
-        });
+        ResourcesManager.loadClass('PydioActivityStreams').then(as => {
+            this.setState({asLib: as})
+        })
+        ResourcesManager.loadClass('PydioCoreActions').then(cs => {
+            this.setState({coreActionsLib: cs})
+        })
         const {rootNode} = this.props;
         if(rootNode){
             if(rootNode.getMetadata().has('virtual_root')){
@@ -84,15 +89,15 @@ class CellCard extends React.Component{
 
     render(){
         const {mode, pydio, editorOneColumn} = this.props;
-        const {edit, model, extLibs, rootNodes, loading} = this.state;
+        const {edit, model, asLib, coreActionsLib, rootNodes, loading} = this.state;
         const m = (id) => pydio.MessageHash['share_center.' + id];
 
-        let rootStyle = {width: 350, minHeight: 270};
+        let rootStyle = {width: 420, minHeight: 270};
         let content;
 
         if (edit) {
             if(editorOneColumn){
-                rootStyle = {width: 350, height: 500};
+                rootStyle = {width: 420, height: 500};
             } else{
                 rootStyle = {width: 700, height: 500};
             }
@@ -125,11 +130,35 @@ class CellCard extends React.Component{
                     moreMenuItems.push(<MenuItem primaryText={m(248)} onClick={deleteAction}/>);
                 }
             }
-            let watchLine, quotaLines =[], bmButton;
-            if(extLibs && rootNodes && !loading) {
-                const selector = <PydioActivityStreams.WatchSelector pydio={pydio} nodes={rootNodes}/>;
-                watchLine = <GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} data={selector} iconStyle={{marginTop: 32}} />;
-                bmButton = <PydioCoreActions.BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'white'}}}/>;
+            let watchLine, quotaLines =[], otherActions, expirationLine;
+            if(!loading && model.cell && model.cell.AccessEnd) {
+                const dateObject = new Date(parseInt(model.cell.AccessEnd) * 1000)
+                const dateExpired = (dateObject < new Date())
+                expirationLine = (
+                    <GenericLine
+                        iconClassName={dateExpired?"mdi mdi-alert-outline":"mdi mdi-calendar"}
+                        iconStyle={dateExpired?{color:'var(--md-sys-color-error)'}:{}}
+                        legend={m(dateExpired?'21b':'21')}
+                        data={moment(dateObject).calendar()}
+                    />
+                )
+            }
+            if(asLib && coreActionsLib && rootNodes && !loading) {
+                const {WatchSelector} = asLib
+                const {BookmarkButton, MaskWsButton} = coreActionsLib
+                const selector = <WatchSelector pydio={pydio} nodes={rootNodes} fullWidth={true}/>;
+                watchLine = (
+                    <GenericLine
+                        iconClassName={"mdi mdi-bell-outline"}
+                        legend={pydio.MessageHash['meta.watch.selector.legend']}
+                        data={selector}
+                        iconStyle={{marginTop: 26}}
+                        dataStyle={{paddingRight: 16, marginTop: -6, marginBottom: 6}}
+                    />);
+                otherActions = [
+                    <MaskWsButton pydio={pydio} workspaceId={model.getUuid()} iconStyle={{color:'var(--md-sys-color-primary)'}}/>,
+                    <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'var(--md-sys-color-primary)'}}}/>
+                ];
             }
             if(rootNodes && !loading) {
                 rootNodes.forEach((node) => {
@@ -145,16 +174,28 @@ class CellCard extends React.Component{
                     pydio={pydio}
                     title={model.getLabel()}
                     onDismissAction={this.props.onDismiss}
-                    otherActions={bmButton}
+                    otherActions={otherActions}
                     onDeleteAction={deleteAction}
                     onEditAction={editAction}
-                    editColor={"#009688"}
                     headerSmall={mode === 'infoPanel'}
                     moreMenuItems={moreMenuItems}
                 >
                     {!loading && model.getDescription() && <GenericLine iconClassName="mdi mdi-information" legend={m(145)} data={model.getDescription()}/>}
-                    <GenericLine iconClassName="mdi mdi-account-multiple" legend={m(54)} data={model.getAclsSubjects()} placeHolder placeHolderReady={!loading}/>
-                    <GenericLine iconClassName="mdi mdi-folder" legend={m(249)} data={nodes} placeHolder placeHolderReady={!loading} />
+                    <GenericLine
+                        iconClassName="mdi mdi-account-multiple-outline"
+                        legend={m(54)}
+                        data={model.getAclsSubjects()}
+                        placeHolder
+                        placeHolderReady={!loading}
+                    />
+                    <GenericLine
+                        iconClassName="mdi mdi-folder-multiple-outline"
+                        legend={m(249)}
+                        data={nodes}
+                        placeHolder
+                        placeHolderReady={!loading}
+                    />
+                    {expirationLine}
                     {quotaLines}
                     {mode !== 'infoPanel' && (watchLine || <GenericLine placeHolder placeHolderReady={!loading}/>)}
                 </GenericCard>
@@ -164,7 +205,7 @@ class CellCard extends React.Component{
             }
         }
 
-        return <Paper zDepth={0} style={rootStyle}>{content}</Paper>
+        return <div style={rootStyle}>{content}</div>
 
     }
 

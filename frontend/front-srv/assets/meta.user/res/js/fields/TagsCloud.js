@@ -23,9 +23,9 @@ import LangUtils from 'pydio/util/lang'
 import colorsFromString from "../hoc/colorsFromString";
 import asMetaForm from "../hoc/asMetaForm";
 import MetaClient from "../MetaClient";
-
+import {muiThemeable} from 'material-ui/styles'
 import {MenuItem, Chip, AutoComplete} from 'material-ui'
-const {ModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
+const {ThemedModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
 
 
 class TagsCloud extends React.Component {
@@ -150,7 +150,7 @@ class TagsCloud extends React.Component {
     }
 
     render(){
-        const {editMode, search, label} = this.props;
+        const {editMode, search, label, muiTheme} = this.props;
         const {tags, searchText} = this.state;
 
         let tagsList, autoCompleter, knownTags = [];
@@ -159,6 +159,7 @@ class TagsCloud extends React.Component {
             knownTags = tags.split(',').map(tag => LangUtils.trim(tag, ' ')).filter(tag => !!tag)
             tagsList = knownTags.map(tag => this.renderChip(tag));
         }
+        const ModernStyles = ThemedModernStyles(muiTheme)
 
         if (editMode) {
             const Component = search ? AutoComplete : ModernAutoComplete
@@ -194,4 +195,4 @@ class TagsCloud extends React.Component {
     }
 }
 
-export default asMetaForm(TagsCloud);
+export default asMetaForm(muiThemeable()(TagsCloud));

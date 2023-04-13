@@ -18,11 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const PathUtils = require('pydio/util/path')
+import PathUtils from 'pydio/util/path'
+import openOtherEditorPicker from "../callback/openOtherEditorPicker";
 
 export default function(pydio) {
 
-    const openOtherEditorPicker = require('../callback/openOtherEditorPicker')(pydio)
+    const openOtherEditorPickerCallback = openOtherEditorPicker(pydio)
     let {MessageHash} = pydio;
 
     return function () {
@@ -79,8 +80,8 @@ export default function(pydio) {
                 name: MessageHash['openother.1'],
                 alt: MessageHash['openother.2'],
                 isDefault: (index === 0),
-                icon_class: 'icon-list-alt',
-                callback: openOtherEditorPicker
+                icon_class: 'mdi mdi-view-list',
+                callback: openOtherEditorPickerCallback
             });
         }
         if (!index) {

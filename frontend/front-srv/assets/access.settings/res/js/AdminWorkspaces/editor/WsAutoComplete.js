@@ -19,11 +19,20 @@
  */
 import React from 'react'
 import Pydio from 'pydio'
-import {Paper, MenuItem, AutoComplete, RefreshIndicator, FontIcon, IconButton} from 'material-ui'
+import {Paper, MenuItem, RefreshIndicator, FontIcon, IconButton} from 'material-ui'
 import debounce from 'lodash.debounce'
 import PathUtils from 'pydio/util/path'
 import {AdminTreeServiceApi, TreeListNodesRequest, TreeNode} from 'cells-sdk';
-const {ModernAutoComplete, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernAutoComplete, ThemedModernStyles} = Pydio.requireLib('hoc');
+import {muiThemeable} from 'material-ui/styles'
+
+const ThemedBlock = muiThemeable()(({muiTheme, children, ...props})=> {
+    const ModernStyles = ThemedModernStyles(muiTheme)
+    return (
+        <div style={ModernStyles.fillBlockV2Right} {...props}>{children}</div>
+    )
+})
+
 
 export default class WsAutoComplete extends React.Component{
 
@@ -223,9 +232,9 @@ export default class WsAutoComplete extends React.Component{
                         hasRightBlock={true}
                     />
                 </div>
-                <div style={ModernStyles.fillBlockV2Right}>
+                <ThemedBlock>
                     <IconButton style={{marginTop: 2}} iconStyle={{color:onDelete?'#9e9e9e':'#eee'}} iconClassName={"mdi mdi-delete"} onClick={onDelete} disabled={!onDelete}/>
-                </div>
+                </ThemedBlock>
             </Paper>
         );
     }

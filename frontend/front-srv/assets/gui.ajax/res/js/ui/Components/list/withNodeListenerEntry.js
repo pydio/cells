@@ -17,11 +17,16 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import React, {Fragment} from 'react'
+import InlineEditor from "./InlineEditor";
 
-export default (ListEntryComponent) => {
+const withNodeListenerEntry = (ListEntryComponent, nodeGetter=undefined) => {
 
     class NodeListenerComponent extends React.Component{
+
+        state={
+            edit: false
+        }
 
         attach(node){
             this._nodeListener = () => {
@@ -29,7 +34,10 @@ export default (ListEntryComponent) => {
             };
             this._actionListener = (eventMemo) => {
                 if(eventMemo && eventMemo.type === 'prompt-rename' && eventMemo.callback){
-                    this.setState({inlineEdition:true, inlineEditionCallback:eventMemo.callback});
+                    this.setState({
+                        edit:true,
+                        callback:eventMemo.callback
+                    });
                 }
                 return true;
             };
@@ -44,16 +52,43 @@ export default (ListEntryComponent) => {
             }
         }
 
+        getNode() {
+            if(nodeGetter) {
+                return nodeGetter(this.props)
+            } else {
+                const {node} = this.props;
+                return node;
+            }
+        }
+
         componentDidMount(){
-            this.attach(this.props.node);
+            this.attach(this.getNode());
         }
 
         componentWillUnmount(){
-            this.detach(this.props.node);
+            this.detach(this.getNode());
         }
 
         render() {
-            return <ListEntryComponent {...this.props} {...this.state} inlineEditionDismiss={()=>this.setState({inlineEdition: false})}/>
+            const node = this.getNode();
+            const {edit, editorStyle, callback, anchor} = this.state;
+            return (
+                <Fragment>
+                    <ListEntryComponent
+                        {...this.props}
+                        setInlineEditionAnchor={(a, style)=>{this.setState({anchor:a, editorStyle:style})} }
+                    />
+                    {edit && anchor &&
+                        <InlineEditor
+                            node={node}
+                            anchor={anchor}
+                            onClose={()=>this.setState({edit: false})}
+                            callback={callback}
+                            editorStyle={editorStyle}
+                        />
+                    }
+                </Fragment>
+            )
         }
 
     }
@@ -62,3 +97,4 @@ export default (ListEntryComponent) => {
 
 };
 
+export {withNodeListenerEntry}

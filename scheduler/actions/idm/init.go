@@ -28,5 +28,8 @@ func init() {
 	manager.Register(cleanUserDataName, func() actions.ConcreteAction {
 		return &CleanUserDataAction{}
 	})
+	manager.Register(cleanACLName, func() actions.ConcreteAction {
+		return &CleanExpiredACLAction{}
+	})
 
 }

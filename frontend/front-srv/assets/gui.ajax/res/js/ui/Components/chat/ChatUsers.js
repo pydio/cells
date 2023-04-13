@@ -10,15 +10,13 @@ class ChatUsers extends React.Component{
     }
 
     render(){
-        const {ACLs, roomUsers, pydio, style} = this.props;
+        const {ACLs, roomUsers, pydio, style, muiTheme} = this.props;
         const {hover = false} = this.state || {};
         const styles = {
             container: {
                 padding: 16,
                 fontWeight: 500,
-                color: '#757575',
-                borderBottom:'1px solid #e0e0e0',
-                height: 44,
+                height: 48,
                 transition: DOMUtils.getBeziersTransition(),
                 overflowY: 'auto',
                 ...style
@@ -26,8 +24,8 @@ class ChatUsers extends React.Component{
             user:{
                 margin: 5,
                 whiteSpace: 'nowrap',
-                padding: '2px 16px',
-                backgroundColor: 'rgb(255 255 255 / 53%)',
+                padding: '4px 10px',
+                backgroundColor: muiTheme.darkMode? 'rgba(255, 255, 255, .23)':'rgba(0, 0, 0, .1)',
                 borderRadius: 6
             },
             online:{

@@ -72,7 +72,7 @@ let WsDashboard = createReactClass({
         if(editorNode){
             editor = editorNode.getAttribute('namespace') + '.' + editorNode.getAttribute('component');
         }
-        const {pydio, advanced, accessByName} = this.props;
+        const {pydio, advanced, accessByName, policiesBuilder} = this.props;
         const editorData = {
             COMPONENT:editor,
             PROPS:{
@@ -81,6 +81,7 @@ let WsDashboard = createReactClass({
                 workspace:workspace,
                 closeEditor:this.closeWorkspace,
                 advanced,
+                policiesBuilder,
                 reloadList:()=>{this.refs['workspacesList'].reload();}
             }
         };

@@ -24,6 +24,7 @@ import Pydio from 'pydio';
 import OpenNodesModel from '../OpenNodesModel'
 import { connect } from 'react-redux';
 import { Editor } from '../editor';
+import FilePreview from "./FilePreview";
 
 const { EditorActions } = Pydio.requireLib('hoc')
 
@@ -81,7 +82,7 @@ class EditionPanel extends React.Component {
                     readonly: node.getMetadata().get("node_readonly") === "true",
                     node,
                     editorData,
-                    icon: PydioWorkspaces.FilePreview
+                    icon: FilePreview
                 }).id;
 
                 editorSetActiveTab(tabId);

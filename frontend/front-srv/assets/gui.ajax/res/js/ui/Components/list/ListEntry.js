@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import React, {createRef} from 'react'
 import Pydio from 'pydio'
 import LangUtils from 'pydio/util/lang'
 import PropTypes from 'prop-types';
@@ -34,6 +34,18 @@ const {withContextMenu} = Pydio.requireLib('hoc');
  * Material List Entry
  */
 class ListEntry extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.inlineEditorRef = createRef();
+    }
+
+    componentDidMount() {
+        const {setInlineEditionAnchor} = this.props;
+        if(setInlineEditionAnchor && this.inlineEditorRef.current) {
+            setInlineEditionAnchor(this.inlineEditorRef.current)
+        }
+    }
 
     onClick(event) {
         if(this.props.showSelector) {
@@ -57,7 +69,7 @@ class ListEntry extends React.Component {
         let selector, icon;
 
         const {node, showSelector, selected, selectorDisabled, firstLine,
-            secondLine, thirdLine, style, actions, iconCell, mainIcon, className,
+            secondLine, thirdLine, style, actions, iconCell, mainIcon, className, muiTheme,
             canDrop, isOver, nativeIsOver, connectDragSource, connectDropTarget, selectedAsBorder} = this.props
 
         let mainClasses = ['material-list-entry', 'material-list-entry-' + (thirdLine?3:secondLine?2:1) + '-lines'];
@@ -103,12 +115,12 @@ class ListEntry extends React.Component {
         if(this.state && this.state.hover && !this.props.noHover){
             additionalStyle = {
                 ...additionalStyle,
-                backgroundColor: 'rgba(0,0,0,0.05)',
+                backgroundColor: muiTheme.darkMode? 'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)',
                 borderBottom: '1px solid transparent'
             };
         }
         if(selected){
-            const selectionColor = this.props.muiTheme.palette.accent2Color;
+            const selectionColor = muiTheme.palette.accent2Color;
             const selectionColorDark = Color(selectionColor).dark();
             if(selectedAsBorder){
                 additionalStyle = {
@@ -146,7 +158,7 @@ class ListEntry extends React.Component {
                     {icon}
                 </div>
                 <div className="material-list-text">
-                    <div key="line-1" className="material-list-line-1">{firstLine}</div>
+                    <div key="line-1" className="material-list-line-1" ref={this.inlineEditorRef}>{firstLine}</div>
                     <div key="line-2" className="material-list-line-2">{secondLine}</div>
                     <div key="line-3" className="material-list-line-3">{thirdLine}</div>
                 </div>

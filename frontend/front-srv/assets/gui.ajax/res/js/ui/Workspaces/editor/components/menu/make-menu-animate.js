@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
 import { StaggeredMotion, spring, presets } from 'react-motion';
 
 //Constants

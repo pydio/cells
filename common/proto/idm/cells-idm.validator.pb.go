@@ -7,9 +7,9 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "google.golang.org/protobuf/proto"
+	_ "github.com/pydio/cells/v4/common/proto/service"
 	_ "github.com/pydio/cells/v4/common/proto/tree"
 	_ "github.com/mwitkow/go-proto-validators"
-	_ "github.com/pydio/cells/v4/common/proto/service"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
@@ -273,6 +273,17 @@ func (this *SearchACLResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("ACL", err)
 		}
 	}
+	return nil
+}
+func (this *RestoreACLRequest) Validate() error {
+	if this.Query != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Query); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Query", err)
+		}
+	}
+	return nil
+}
+func (this *RestoreACLResponse) Validate() error {
 	return nil
 }
 func (this *ACLAction) Validate() error {

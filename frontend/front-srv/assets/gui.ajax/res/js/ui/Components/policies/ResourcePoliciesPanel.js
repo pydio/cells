@@ -33,17 +33,18 @@ import UsersCompleter from '../users/UsersCompleter'
 class ResourcePoliciesPanel extends React.Component{
 
     constructor(props){
+        let supProps = {...props}
         if(!props.subjectsDisabled){
-            props.subjectsDisabled = {'READ':{}, 'WRITE':{}}
+            supProps.subjectsDisabled = {'READ':{}, 'WRITE':{}}
         }
         if(props.cellAcls){
             Object.keys(props.cellAcls).map(k => {
                 if(props.cellAcls[k].RoleId){
-                    props.subjectsDisabled['READ']["role:" + props.cellAcls[k].RoleId] = true;
+                    supProps.subjectsDisabled['READ']["role:" + props.cellAcls[k].RoleId] = true;
                 }
             });
         }
-        super(props);
+        super(supProps);
         this.state = {
             edit: false,
             loading: true,
@@ -317,7 +318,6 @@ class ResourcePoliciesPanel extends React.Component{
                 disableWrite = true;
             }
         }
-        console.log("Line", subject, label, disableRead, disableWrite);
         return(
             <div style={{display: 'flex', margin:10, marginRight: 0}}>
                 <div style={{flex:1}}>{label}</div>
@@ -329,7 +329,7 @@ class ResourcePoliciesPanel extends React.Component{
 
 
     render(){
-        const {appBar} = this.props.muiTheme;
+        const {appBar, palette:{mui3={}}} = this.props.muiTheme;
 
         const styles = {
             title: {
@@ -343,7 +343,7 @@ class ResourcePoliciesPanel extends React.Component{
             subheader: {
                 margin: 10,
                 fontWeight: 500,
-                color: '#9E9E9E',
+                color: mui3['on-surface-variant'],
                 display:'flex'
             },
             subject : {
@@ -365,9 +365,12 @@ class ResourcePoliciesPanel extends React.Component{
             return (
                 <div style={style}>
                     {!skipTitle &&
-                        <div style={{...styles.title, height: 48}}><span style={{flex:1}}>{mess['visibility.panel.title']}</span></div>
+                        <div style={{...styles.title, height: 48}}>
+                            <span style={{flex:1}}>{mess['visibility.panel.title']}</span>
+                            {onDismiss && <IconButton iconClassName={"mdi mdi-close"} onClick={onDismiss} iconStyle={{color:appBar.textColor}} />}
+                        </div>
                     }
-                    <div style={{padding: 20, color:'rgba(0,0,0,.43)', fontWeight: 500, textAlign:'justify'}}>
+                    <div style={{padding: 20, fontWeight: 500, textAlign:'justify'}}>
                         <div style={{paddingBottom: 20}}>
                         {description}
                         </div>

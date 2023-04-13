@@ -48,6 +48,21 @@ func (m *IdmSelector) FilterID() string {
 	return "IdmFilter"
 }
 
+func (m *IdmSelector) ApplyClearInput(msg *ActionMessage) *ActionMessage {
+	switch m.Type {
+	case IdmSelectorType_User:
+		return msg.WithUser(nil)
+	case IdmSelectorType_Role:
+		return msg.WithRole(nil)
+	case IdmSelectorType_Acl:
+		return msg.WithAcl(nil)
+	case IdmSelectorType_Workspace:
+		return msg.WithWorkspace(nil)
+	default:
+		return msg
+	}
+}
+
 // Select IDM Objects by a given query
 func (m *IdmSelector) Select(ctx context.Context, input *ActionMessage, objects chan interface{}, done chan bool) error {
 

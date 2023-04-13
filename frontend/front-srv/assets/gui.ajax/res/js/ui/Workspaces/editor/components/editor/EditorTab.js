@@ -18,13 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
 import Pydio from 'pydio'
-import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton, TextField, Snackbar } from 'material-ui';
+import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, IconButton, TextField, Snackbar } from 'material-ui';
 import { connect } from 'react-redux';
 import Draggable from 'react-draggable';
-import { compose, bindActionCreators } from 'redux';
 import makeMaximise from './make-maximise';
-import _ from 'lodash';
 
 const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, getActiveTab, getEditorResolution, withMenu, withContentControls, withSizeControls, withAutoPlayControls, withResolutionControls } = Pydio.requireLib('hoc');
 

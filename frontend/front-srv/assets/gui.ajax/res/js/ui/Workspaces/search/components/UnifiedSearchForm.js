@@ -20,7 +20,8 @@
 import React, {useRef, useState} from 'react'
 import DOMUtils from 'pydio/util/dom'
 
-import {Popover, IconButton} from 'material-ui'
+import {IconButton} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 import TextField from '@mui/material/TextField';
 import InputAdornment from "@mui/material/InputAdornment";
 import Autocomplete from '@mui/material/Autocomplete';
@@ -28,6 +29,9 @@ import Autocomplete from '@mui/material/Autocomplete';
 import AdvancedSearch from "./AdvancedSearch";
 import AdvancedChips from "./AdvancedChips";
 import Renderer from './Renderer'
+
+import Pydio from 'pydio'
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 
 
 const styles = {
@@ -44,7 +48,7 @@ const styles = {
     },
     textField:{
         inputStyle:{backgroundColor:'transparent',height: 34, borderRadius: 3, marginTop: 6, padding: 7},
-        hintStyle:{paddingLeft: 7, color:'rgba(0,0,0,0.5)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', width: '100%'},
+        hintStyle:{paddingLeft: 7, /*color:'rgba(0,0,0,0.5)',*/ whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', width: '100%'},
         underlineShow:false,
     },
     filterButton:{
@@ -71,8 +75,7 @@ const styles = {
         padding: '8px 10px',
         marginTop: 10,
         fontSize: 13, fontWeight: 500,
-        color:'rgb(114, 140, 157)',
-        backgroundColor:'rgba(255,255,255,.9)',
+        color:'var(--md-sys-color-secondary)',
         textTransform:'uppercase'
     }
 }
@@ -134,7 +137,7 @@ function UnifiedSearchForm (props){
         onRequestOpen();
     }
 
-    const {style, active, searchTools, formStyles, pydio, preventOpen} = props;
+    const {style, active, searchTools, formStyles, pydio, preventOpen, muiTheme} = props;
     const {values, setValues, advancedValues, getSearchOptions, nlpMatches, history=[], savedSearches=[], clearSavedSearch, saveSearch} = searchTools;
 
     const {basenameOrContent=''} = values;
@@ -143,8 +146,8 @@ function UnifiedSearchForm (props){
     if(active) {
         wStyle = {width: 420}
     }
-    const {filterButton={}, filterButtonActive={}} = formStyles;
-    const filterActiveStyles = filtersCount > 0 ? {backgroundColor:filterButton.color, color:'white', ...filterButtonActive} : {}
+    const {filterButtonActive={}} = formStyles;
+    const filterActiveStyles = filtersCount > 0 ? {backgroundColor:muiTheme.palette.mui3['tertiary']||muiTheme.palette.accent1Color, color:muiTheme.palette.mui3['on-tertiary']||'white', ...filterButtonActive} : {}
     const mergedButtonStyle = {...styles.filterButton, ...formStyles.filterButton, ...filterActiveStyles}
     const {fontSize=22, color, ...buttonStyle} =  mergedButtonStyle
     const buttonIconStyle = {fontSize, color}
@@ -152,7 +155,8 @@ function UnifiedSearchForm (props){
     const nlpTags = {
         container: {
             borderRadius: 20,
-            backgroundColor: '#eceff1',
+            background: muiTheme.palette.mui3['surface-variant'],
+            color: muiTheme.palette.mui3['on-surface-variant'],
             display: 'flex',
             alignItems: 'center',
             padding: '2px 10px',
@@ -179,6 +183,7 @@ function UnifiedSearchForm (props){
                 text:'',
                 disable:true,
                 value:(<AdvancedChips
+                    muiTheme={muiTheme}
                     containerStyle={{paddingTop: 6, fontSize: 13, flex: 1}}
                     searchTools={searchTools}
                     title={completeMessage('activefilters')}
@@ -278,6 +283,10 @@ function UnifiedSearchForm (props){
                             fullWidth={true}
                             inputRef={textfieldRef}
                             placeholder={pydio.MessageHash['searchengine.main.placeholder']}
+                            inputProps={{
+                                ...params.inputProps,
+                                style:{...formStyles.textField}
+                            }}
                             InputLabelProps={{sx:{fontSize:'1rem !important', marginLeft: '10px !important', marginTop: '-3px !important'}}}
                             InputProps={{
                                 ...params.InputProps,
@@ -366,10 +375,11 @@ function UnifiedSearchForm (props){
                 freeSolo
                 disableClearable
             />
-            <style type={"text/css"} dangerouslySetInnerHTML={{__html:".MuiAutocomplete-option[aria-disabled='true']{opacity:1 !important; background-color: #f5f5f5;border-bottom: 1px solid #eee;}"}}/>
+            <style type={"text/css"} dangerouslySetInnerHTML={{__html:".MuiAutocomplete-option[aria-disabled='true']{opacity:1 !important; border-bottom: 1px solid var(--md-sys-color-outline-variant);}"}}/>
         </div>
     );
 
 }
 
+UnifiedSearchForm = muiThemeable()(UnifiedSearchForm)
 export default UnifiedSearchForm

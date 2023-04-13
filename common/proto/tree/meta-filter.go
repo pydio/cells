@@ -38,6 +38,12 @@ const (
 	MetaFilterSize      = "size"
 	MetaFilterETag      = "etag"
 	MetaFilterDepth     = "depth"
+
+	MetaSortTime  = "mtime"
+	MetaSortSize  = "size"
+	MetaSortName  = "name"
+	MetaSortMPath = "mpath1,mpath2,mpath3,mpath4"
+	MetaSortType  = "leaf"
 )
 
 var (
@@ -62,6 +68,9 @@ type MetaFilter struct {
 	negativeGrep *regexp.Regexp
 	eTag         *regexp.Regexp
 	intComps     []cmp
+
+	sortField string
+	sortDesc  bool
 }
 
 // NewMetaFilter creates a meta filter looking for request node metadata specific keys.
@@ -107,7 +116,7 @@ func (m *MetaFilter) LimitDepth() int {
 
 // HasSQLFilters returns true if MetaFilter has one of grep (unless forced), negativeGrep, filterType or int comparators set.
 func (m *MetaFilter) HasSQLFilters() bool {
-	return (m.grep != nil && !m.forceGrep) || m.negativeGrep != nil || m.filterType != NodeType_UNKNOWN || len(m.intComps) > 0 || m.eTag != nil
+	return (m.grep != nil && !m.forceGrep) || m.negativeGrep != nil || m.filterType != NodeType_UNKNOWN || len(m.intComps) > 0 || m.eTag != nil || m.HasSort()
 }
 
 // ParseType register a node filter type
@@ -223,6 +232,45 @@ func (m *MetaFilter) Where() (where string, args []interface{}) {
 		args = append(args, c.val)
 	}
 	return strings.Join(ww, " and "), args
+}
+
+func (m *MetaFilter) validSortField(sortField string) bool {
+	return sortField == MetaSortName || sortField == MetaSortTime || sortField == MetaSortSize ||
+		sortField == MetaSortType || sortField == MetaSortMPath
+}
+
+// AddSort adds a sort instruction
+func (m *MetaFilter) AddSort(defaultField, sortField string, sortDesc bool) {
+	var filtered []string
+	for _, f := range strings.Split(sortField, ",") {
+		f = strings.TrimSpace(f)
+		if m.validSortField(f) {
+			filtered = append(filtered, f)
+		}
+	}
+	sortField = strings.Join(filtered, ",")
+	m.sortField = sortField
+	m.sortDesc = sortDesc
+	if m.sortDesc && m.sortField == "" {
+		m.sortField = defaultField
+	} else if m.sortField == defaultField && !sortDesc {
+		m.sortField = ""
+		m.sortDesc = false
+	}
+}
+
+// HasSort checks if sortField is not empty
+func (m *MetaFilter) HasSort() bool {
+	return m.sortField != ""
+}
+
+// OrderBy creates SQL instruction to be appended
+func (m *MetaFilter) OrderBy() string {
+	dir := "ASC"
+	if m.sortDesc {
+		dir = "DESC"
+	}
+	return "ORDER BY " + m.sortField + " " + dir
 }
 
 func (m *MetaFilter) grepToLikes(field, g string, neg bool) (string, []interface{}) {

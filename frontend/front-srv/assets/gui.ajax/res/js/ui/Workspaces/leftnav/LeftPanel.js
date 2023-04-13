@@ -21,42 +21,34 @@
 const React = require('react')
 const PropTypes = require('prop-types');
 const Pydio = require('pydio')
-const {muiThemeable} = require('material-ui/styles')
 import UserWidget from './UserWidget'
 import WorkspacesList from '../wslist/WorkspacesList'
 const {TasksPanel} = Pydio.requireLib("boot");
-import Color from 'color'
 
-let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps = {}, pydio, onClick, onMouseOver}) => {
-
-        const palette = muiTheme.palette;
-        const colorHue = Color(palette.primary1Color).hsl().array()[0];
-        const lightBg = new Color({h:colorHue,s:35,l:98});
-        const taskBg = new Color({h:colorHue,s:30,l:96});
-
-        style = {
-            backgroundColor: lightBg.toString(),
-            ...style
-        };
+const LeftPanel = ({style={}, userWidgetProps, workspacesListProps = {}, pydio, onClick, onMouseOver, closed, drawerOpen}) => {
 
         let uWidgetProps = {...userWidgetProps};
         uWidgetProps.style = {
-            backgroundColor: Color(palette.primary1Color).darken(0.2).toString(),
             width:'100%',
             ...uWidgetProps.style
         };
-
-        const wsListStyle = {
-            backgroundColor     : lightBg.toString(),
-            color               : Color(palette.primary1Color).darken(0.1).alpha(0.87).toString(),
-            borderRight         : '1px solid #e0e0e0'
-        };
-        const wsSectionTitleStyle = {
-            color    : Color(palette.primary1Color).darken(0.1).alpha(0.50).toString()
-        };
+        let mainStyle = {
+            ...style,
+            width: 250,
+            transition: 'all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'
+        }
+        if(closed) {
+            mainStyle.position = 'absolute'
+            mainStyle.top = 0
+            mainStyle.bottom = 0
+            mainStyle.zIndex = 1000
+            if(!drawerOpen){
+                mainStyle.transform = 'translateX(-250px)'
+            }
+        }
 
         return (
-            <div className="left-panel vertical_fit vertical_layout" style={style} onClick={onClick} onMouseOver={onMouseOver}>
+            <div className="left-panel vertical_layout" style={mainStyle} onClick={onClick} onMouseOver={onMouseOver}>
                 <UserWidget
                     pydio={pydio}
                     controller={pydio.getController()}
@@ -65,13 +57,11 @@ let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps = {},
                 />
                 <WorkspacesList
                     className={"vertical_fit"}
-                    style={wsListStyle}
-                    sectionTitleStyle={wsSectionTitleStyle}
                     pydio={pydio}
                     showTreeForWorkspace={pydio.user?pydio.user.activeRepository:false}
                     {...workspacesListProps}
                 />
-                <TasksPanel pydio={pydio} mode={"flex"} panelStyle={{...wsListStyle, backgroundColor: taskBg.toString()}}/>
+                <TasksPanel pydio={pydio} mode={"flex"}/>
             </div>
         );
 };
@@ -82,7 +72,5 @@ LeftPanel.propTypes = {
     workspacesListProps : PropTypes.object,
     style               : PropTypes.object
 };
-
-LeftPanel = muiThemeable()(LeftPanel);
 
 export {LeftPanel as default}

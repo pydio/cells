@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <editor enabled="true" id="editor.infopanel" openable="true" order="1000" text="341" title="341"
-        iconClass="icon-list-alt" className="InfoPanel"
+        iconClass="mdi mdi-view-list" className="InfoPanel"
         mimes="*" formId="ip_content_info_panel" label="CONF_MESSAGE[Info Panel...]" description="CONF_MESSAGE[Info Panel]">
     <client_settings>
         <resources>
@@ -10,7 +10,7 @@
     <registry_contributions>
         <actions>
             <action name="dir_infopanel">
-                <gui text="342" title="342" iconClass="icon-eye-close" accessKey="open_with_access" hasAccessKey="true">
+                <gui text="342" title="342" iconClass="mdi mdi-information" accessKey="open_with_access" hasAccessKey="true">
                     <context selection="true" dir="" recycle="hidden"  behaviour="hidden"
                         actionBar="true" contextMenu="true" infoPanel="false"
                         actionBarGroup="inline" inZip="false">

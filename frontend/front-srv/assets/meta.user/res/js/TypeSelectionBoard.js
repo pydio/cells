@@ -19,11 +19,12 @@
  */
 
 import React, {Fragment} from 'react'
-const {ModernSelectField, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernSelectField, ModernTextField, ThemedModernStyles} = Pydio.requireLib('hoc');
+import {muiThemeable} from 'material-ui/styles'
 import {MenuItem, IconButton, Toggle} from 'material-ui'
 
 
-export default class TypeSelectionBoard extends React.Component{
+class TypeSelectionBoard extends React.Component{
 
     constructor(props) {
         super(props);
@@ -75,9 +76,10 @@ export default class TypeSelectionBoard extends React.Component{
     }
 
     render() {
-        const {data, m, setAdditionalDataKey} = this.props;
+        const {data, m, setAdditionalDataKey, muiTheme} = this.props;
         const {selectorNewKey, selectorNewValue, selectorNewColor} = this.state;
         const {items = []} = data;
+        const ModernStyles = ThemedModernStyles(muiTheme)
         return(
             <Fragment>
                 <div style={{padding: 10, paddingRight: 0, backgroundColor: '#f5f5f5', borderRadius: 3}}>
@@ -111,3 +113,6 @@ export default class TypeSelectionBoard extends React.Component{
 
     }
 }
+
+TypeSelectionBoard = muiThemeable()(TypeSelectionBoard)
+export default TypeSelectionBoard

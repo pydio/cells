@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-const { SelectionControls, LocalisationControls } = PydioHOCs;
+import Pydio from 'pydio'
+const { SelectionControls, LocalisationControls } = Pydio.requireLib('hoc');
 
 export { SelectionControls, LocalisationControls }

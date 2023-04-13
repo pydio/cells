@@ -8,8 +8,8 @@ class PdfBadge extends Component{
         const {node, pydio} = props;
         this.state = {hasImagePreview : false};
         if(node.getMetadata().get('ImagePreview') && pydio.Registry.findEditorById('editor.diaporama')){
-            ResourcesManager.loadClassesAndApply(['PydioDiaporama'], () => {
-                this.setState({hasImagePreview: true});
+            ResourcesManager.loadClass('PydioDiaporama').then( ns => {
+                this.setState({hasImagePreview: true, Badge:ns.Badge});
             })
         }
 
@@ -17,9 +17,9 @@ class PdfBadge extends Component{
 
     render(){
 
-        const {hasImagePreview} = this.state;
+        const {hasImagePreview, Badge} = this.state;
         if(hasImagePreview) {
-            return <PydioDiaporama.Badge {...this.props}/>
+            return <Badge {...this.props}/>
         } else {
             return <div className="mimefont mdi-file-pdf" style={this.props.mimeFontStyle}/>;
         }
