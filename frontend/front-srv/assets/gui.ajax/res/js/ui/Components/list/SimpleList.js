@@ -152,7 +152,7 @@ let SimpleList = createReactClass({
         }
     },
 
-    onColumnSort: function(column, stateSetCallback = null){
+    onColumnSort: function(column, stateSetCallback = null, autoReset=true, forceClear = false){
 
         const {node, pydio, defaultSortingInfo, sortingPreferenceKey} = this.props;
         const {user} = pydio;
@@ -162,10 +162,10 @@ let SimpleList = createReactClass({
 
             const existingSort = meta.get('remoteOrder') || new Map()
             const dir = existingSort.get('order_direction') === 'asc' ? 'desc' : 'asc';
-            if(existingSort.get('order_column') === column.remoteSortAttribute && dir === 'asc') {
+            if(existingSort.get('order_column') === column.remoteSortAttribute && ((dir === 'asc' && autoReset) || forceClear)) {
                 // 3rd state is reset
                 meta.delete('remoteOrder')
-                this.setState({sortingInfo: null})
+                this.setState({sortingInfo: null}, ()=>this.sortingInfoChange({}))
             } else {
                 let orderData = new Map();
                 orderData.set('order_column', column.remoteSortAttribute);
@@ -182,12 +182,13 @@ let SimpleList = createReactClass({
             let sortingInfo;
             const {sortingInfo: {attribute, direction}} = this.state;
             if(attribute === att && direction){
-                if(direction === 'asc') {
-                    // Switch direction
-                    sortingInfo = { attribute : att, sortType  : column.sortType, direction : 'desc' };
-                } else {
+                console.log(direction, autoReset, forceClear, column)
+                if(forceClear || (direction==='desc'&&autoReset)){
                     // Reset sorting
                     sortingInfo = defaultSortingInfo || {};
+                } else {
+                    // Switch direction
+                    sortingInfo = { attribute : att, sortType  : column.sortType, direction : (direction==='asc'?'desc':'asc') };
                 }
             }else{
                 sortingInfo = { attribute : att, sortType  : column.sortType, direction : 'asc' };
@@ -203,6 +204,7 @@ let SimpleList = createReactClass({
                     allInfos[crtSlug] = sortingInfo
                     user.setGUIPreference(sortingPreferenceKey, allInfos, true)
                 }
+                this.sortingInfoChange(sortingInfo)
             });
 
         }
@@ -342,6 +344,7 @@ let SimpleList = createReactClass({
             sortingInfo,
         };
         state.infiniteLoadBeginBottomOffset = 200;
+        this.sortingInfoChange(sortingInfo)
         return state;
     },
 
@@ -362,7 +365,7 @@ let SimpleList = createReactClass({
                 sortingInfo = allInfos[crtSlug]
             }
         }
-
+        this.sortingInfoChange(sortingInfo)
         this.setState({
             loaded: node.isLoaded(),
             loading:!node.isLoaded(),
@@ -385,6 +388,26 @@ let SimpleList = createReactClass({
             this._manualScrollPe.stop();
             this._manualScrollPe = null;
         }
+    },
+
+    sortingInfoChange: function (si) {
+        const {defaultSortingInfo, onSortingInfoChange} = this.props;
+        if(!onSortingInfoChange) {
+            return
+        }
+        if(si === defaultSortingInfo || !si.attribute) {
+            onSortingInfoChange({})
+            return
+        }
+        onSortingInfoChange({
+            ...si,
+            toggle:(clear = false)=>{
+                const {sortKeys} = this.props;
+                const col = si.remote ? {remoteSortAttribute:si.attribute} : sortKeys[si.attribute]
+                console.log('TOGGLE', col, clear)
+                this.onColumnSort(col, null, false, clear)
+            }
+        })
     },
 
     observeNodeChildren: function(node, stop = false){

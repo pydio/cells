@@ -194,7 +194,7 @@ class FSTemplate extends React.Component {
                 showChatTab = false;
             }
         }
-        let {drawerOpen, rightColumnState, rightColumnWidth, displayMode} = this.state;
+        let {drawerOpen, rightColumnState, rightColumnWidth, displayMode, sortingInfo} = this.state;
         let rightColumnClosed = false;
 
         if(!showChatTab && rightColumnState === 'chat') {
@@ -272,7 +272,7 @@ class FSTemplate extends React.Component {
                     styles={styles}
 
                     headerHeight={headerHeight}
-
+                    sortingInfo={displayMode!=='detail'&&displayMode!=='masonry'?sortingInfo:null}
                     searchView={searchView}
                     searchViewTransition={searchViewTransition}
                     searchTools={searchTools}
@@ -307,6 +307,12 @@ class FSTemplate extends React.Component {
                         searchLoading={searchLoading}
                         onDisplayModeChange={(dMode) => {
                             this.setState({displayMode: dMode});
+                        }}
+                        onSortingInfoChange={(si) => {
+                            const {sortingInfo={}} = this.state;
+                            if(sortingInfo.attribute !== si.attribute || sortingInfo.direction !== si.direction) {
+                                this.setState({sortingInfo: si})
+                            }
                         }}
                         onScroll={({scrollTop}) => this.setState({headerLarge: scrollTop < 10})}
                         style={styles.listStyle}

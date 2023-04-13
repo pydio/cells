@@ -103,7 +103,7 @@ export default class ListPaginator extends React.Component{
                 iconClassName={"mdi mdi-chevron-left"}
                 disabled={current === 1}
                 iconStyle={{...customColor, ...smallButtonsIcStyle}}
-                style={smallDisplay?{marginRight:-20, width:40, height: 40}:null}
+                style={smallDisplay?{marginRight:-10, marginTop: -2, width:40, height: 40}:null}
             />
         );
         next = (
@@ -111,7 +111,7 @@ export default class ListPaginator extends React.Component{
                 onClick={() => {this.onMenuChange(null, 0, current+1)}}
                 iconClassName={"mdi mdi-chevron-right"}
                 disabled={current === total}
-                style={smallDisplay?{marginLeft:-40, width:40, height: 40}:{marginLeft: -20}}
+                style={smallDisplay?{marginLeft:-40, marginTop: -2, width:40, height: 40}:{marginLeft: -20}}
                 iconStyle={{...customColor, ...smallButtonsIcStyle}}
             />
         );

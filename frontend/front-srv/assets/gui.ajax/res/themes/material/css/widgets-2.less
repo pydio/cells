@@ -213,6 +213,29 @@
       }
     }
   }
+
+  /* Works on Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--md-sys-color-inline-tags-border) transparent;
+  }
+
+  /* Works on Chrome, Edge, and Safari */
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--md-sys-color-inline-tags-border);
+    border-radius: 20px;
+    //border: 3px solid rgba(0,0,0,0);
+  }
+
 }
 
 .react-mui-context:not(.mui3-token) {

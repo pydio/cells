@@ -28,7 +28,7 @@ const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 const {ThemedContainers:{IconButton}} = Pydio.requireLib('hoc');
 
 
-const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools, searchViewTransition, showInfoPanel, showAddressBook, rightColumnState, showChatTab, onOpenDrawer, onUpdateSearchView, onOpenRightPanel}) => {
+const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools, searchViewTransition, showInfoPanel, showAddressBook, rightColumnState, showChatTab, onOpenDrawer, onUpdateSearchView, onOpenRightPanel, sortingInfo={}}) => {
 
 
     const mobile = pydio.UI.MOBILE_EXTENSIONS;
@@ -82,6 +82,34 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
         )
     }
 
+    let sortingTag
+    if(sortingInfo && sortingInfo.label) {
+        sortingTag = (
+            <div style={{
+                height: 24,
+                borderRadius: 20,
+                background: 'var(--md-sys-color-surface-3)',
+                color: 'var(--md-sys-color-secondary)',
+                fontWeight: 500,
+                marginRight: 5,
+                display:'flex',
+                alignItems:'center',
+                padding:'0 12px'
+            }}>
+                <span
+                    className={'mdi mdi-sort-' + (sortingInfo.direction === 'asc'? 'ascending':'descending')}
+                    style={{marginRight: 6, cursor:'pointer'}}
+                    onClick={() => sortingInfo.toggle()}
+                />
+                {sortingInfo.label}
+                <span
+                    className={'mdi mdi-close'}
+                    style={{marginLeft: 6, opacity:0.5, cursor:'pointer'}}
+                    onClick={() => sortingInfo.toggle(true)}
+                />
+            </div>
+        );
+    }
 
 
     return (
@@ -127,13 +155,6 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
                                 openOnEvent={'tutorial-open-create-menu'}
                             />
                         }
-                        <ListPaginator
-                            id="paginator-toolbar"
-                            style={{height: 23, borderRadius: 2, /*background: newButtonProps.buttonBackgroundColor,*/ marginRight: 5}}
-                            dataModel={pydio.getContextHolder()}
-                            smallDisplay={true}
-                            toolbarDisplay={true}
-                        />
                         {!mobile &&
                             <Toolbar
                                 pydio={pydio}
@@ -148,6 +169,15 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
                             />
                         }
                         {mobile && <span style={{flex:1}}/>}
+                        <ListPaginator
+                            id="paginator-toolbar"
+                            style={{height: 24, borderRadius: 20, background: 'var(--md-sys-color-surface-3)', color: 'var(--md-sys-color-secondary)', marginRight: 5}}
+                            toolbarColor={'var(--md-sys-color-secondary)'}
+                            dataModel={pydio.getContextHolder()}
+                            smallDisplay={true}
+                            toolbarDisplay={true}
+                        />
+                        {sortingTag}
                     </div>
                 </div>
             </div>

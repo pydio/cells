@@ -3854,6 +3854,10 @@ body,
 .mimefont.mdi-archive {
   color: #fbc02d !important;
 }
+.react-mui-context.mui3-token {
+  /* Works on Firefox */
+  /* Works on Chrome, Edge, and Safari */
+}
 .react-mui-context.mui3-token .material-list.files-list {
   background-color: var(--md-sys-color-surface);
   color: var(--md-sys-color-on-surface);
@@ -4043,6 +4047,21 @@ body,
 .react-mui-context.mui3-token .masonry-grid.masonry-size-100 .masonry-card .mimefont-container .mimefont {
   font-size: 24px;
   margin-bottom: 0;
+}
+.react-mui-context.mui3-token * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--md-sys-color-inline-tags-border) transparent;
+}
+.react-mui-context.mui3-token *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.react-mui-context.mui3-token *::-webkit-scrollbar-track {
+  background: transparent;
+}
+.react-mui-context.mui3-token *::-webkit-scrollbar-thumb {
+  background-color: var(--md-sys-color-inline-tags-border);
+  border-radius: 20px;
 }
 .react-mui-context:not(.mui3-token) .masonry-grid .masonry-card {
   background-color: #f9fafb;
