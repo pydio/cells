@@ -663,7 +663,10 @@
     "other": "Следить"
   },
   "34": {
-    "other": "Существующий или новый пользователь"
+    "other": "Select or Create Users"
+  },
+  "34b": {
+    "other": "Select Users"
   },
   "35": {
     "other": "Метка"
@@ -964,5 +967,8 @@
   },
   "link.secure.maxdownloads": {
     "other": "%d downloads only"
+  },
+  "minisite.toggle.theme": {
+    "other": "Toggle Dark/Light Theme"
   }
 }

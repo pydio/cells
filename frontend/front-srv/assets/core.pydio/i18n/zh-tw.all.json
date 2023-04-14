@@ -1275,7 +1275,7 @@
     "other": "Forgot your password?"
   },
   "48": {
-    "other": "OK"
+    "other": "Ok"
   },
   "480": {
     "other": "Browse all folders of the current workspace."
@@ -1308,7 +1308,7 @@
     "other": "Metadata"
   },
   "49": {
-    "other": "CANCEL"
+    "other": "Cancel"
   },
   "490": {
     "other": "Date range"
@@ -1678,6 +1678,9 @@
   },
   "599": {
     "other": "Add a user"
+  },
+  "599-a": {
+    "other": "All Results"
   },
   "6": {
     "other": "Rename"
@@ -2321,6 +2324,9 @@
   "addressbook.pick.group": {
     "other": "Select group"
   },
+  "addressbook.pick.multiple": {
+    "other": "Multiple Selection"
+  },
   "confirm.dialog.title": {
     "other": "Confirm"
   },
@@ -2359,6 +2365,27 @@
   },
   "searchengine.scope.title": {
     "other": "Search In..."
+  },
+  "searchengine.share.title": {
+    "other": "Shared"
+  },
+  "searchengine.share.hint": {
+    "other": "No status"
+  },
+  "searchengine.share.option.link": {
+    "other": "Public Link"
+  },
+  "searchengine.share.option.cell": {
+    "other": "Shared in Cell"
+  },
+  "searchengine.share.option.any": {
+    "other": "Public Link or Cell"
+  },
+  "searchengine.format.title": {
+    "other": "Format"
+  },
+  "searchengine.format.file-only": {
+    "other": "Files Only"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "Advanced Filters"

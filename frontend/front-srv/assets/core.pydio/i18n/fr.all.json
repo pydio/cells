@@ -1679,6 +1679,9 @@
   "599": {
     "other": "Ajouter un utilisateur"
   },
+  "599-a": {
+    "other": "Tous les résultats"
+  },
   "6": {
     "other": "Renommer"
   },
@@ -2321,6 +2324,9 @@
   "addressbook.pick.group": {
     "other": "Sélectionner"
   },
+  "addressbook.pick.multiple": {
+    "other": "Sélection multiple"
+  },
   "confirm.dialog.title": {
     "other": "Confirmer"
   },
@@ -2359,6 +2365,27 @@
   },
   "searchengine.scope.title": {
     "other": "Chercher dans..."
+  },
+  "searchengine.share.title": {
+    "other": "Partage"
+  },
+  "searchengine.share.hint": {
+    "other": "Pas de filtre"
+  },
+  "searchengine.share.option.link": {
+    "other": "Liens Publics"
+  },
+  "searchengine.share.option.cell": {
+    "other": "Dans une Cell"
+  },
+  "searchengine.share.option.any": {
+    "other": "Liens ou Cell"
+  },
+  "searchengine.format.title": {
+    "other": "Format"
+  },
+  "searchengine.format.file-only": {
+    "other": "Fichiers Seulement"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "Filtres avancés"

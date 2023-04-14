@@ -1275,7 +1275,7 @@
     "other": "Forgot your password?"
   },
   "48": {
-    "other": "OK"
+    "other": "Ok"
   },
   "480": {
     "other": "현재 작업공간에서 모든 폴더 탐색"
@@ -1308,7 +1308,7 @@
     "other": "메타데이터"
   },
   "49": {
-    "other": "취소"
+    "other": "Cancel"
   },
   "490": {
     "other": "날짜 범위"
@@ -1678,6 +1678,9 @@
   },
   "599": {
     "other": "사용자 추가"
+  },
+  "599-a": {
+    "other": "All Results"
   },
   "6": {
     "other": "Rename"
@@ -2321,6 +2324,9 @@
   "addressbook.pick.group": {
     "other": "그룹 선택"
   },
+  "addressbook.pick.multiple": {
+    "other": "Multiple Selection"
+  },
   "confirm.dialog.title": {
     "other": "확인"
   },
@@ -2359,6 +2365,27 @@
   },
   "searchengine.scope.title": {
     "other": "다음에서 검색..."
+  },
+  "searchengine.share.title": {
+    "other": "Shared"
+  },
+  "searchengine.share.hint": {
+    "other": "No status"
+  },
+  "searchengine.share.option.link": {
+    "other": "Public Link"
+  },
+  "searchengine.share.option.cell": {
+    "other": "Shared in Cell"
+  },
+  "searchengine.share.option.any": {
+    "other": "Public Link or Cell"
+  },
+  "searchengine.format.title": {
+    "other": "Format"
+  },
+  "searchengine.format.file-only": {
+    "other": "Files Only"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "고급 필터"

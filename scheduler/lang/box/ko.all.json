@@ -29,6 +29,9 @@
   "Jobs.Default.CleanOrphanFiles": {
     "other": "24시간후 분리된 파일을 완전 삭제"
   },
+  "Jobs.Default.CleanExpiredACLs": {
+    "other": "Clean expired ACLs after 10 days"
+  },
   "Jobs.User.Compress": {
     "other": "선택 항목 압축 중..."
   },

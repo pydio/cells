@@ -1275,7 +1275,7 @@
     "other": "¿Ha olvidado su contraseña?"
   },
   "48": {
-    "other": "Aceptar"
+    "other": "Ok"
   },
   "480": {
     "other": "Explorar todas las carpetas del workspace actual."
@@ -1308,7 +1308,7 @@
     "other": "Metadatos"
   },
   "49": {
-    "other": "CANCELAR"
+    "other": "Cancel"
   },
   "490": {
     "other": "Rango de fechas"
@@ -1678,6 +1678,9 @@
   },
   "599": {
     "other": "Añadir usuario"
+  },
+  "599-a": {
+    "other": "All Results"
   },
   "6": {
     "other": "Renombrar"
@@ -2321,6 +2324,9 @@
   "addressbook.pick.group": {
     "other": "Seleccionar grupo"
   },
+  "addressbook.pick.multiple": {
+    "other": "Multiple Selection"
+  },
   "confirm.dialog.title": {
     "other": "Confirmar"
   },
@@ -2360,6 +2366,27 @@
   "searchengine.scope.title": {
     "other": "Buscar en..."
   },
+  "searchengine.share.title": {
+    "other": "Shared"
+  },
+  "searchengine.share.hint": {
+    "other": "No status"
+  },
+  "searchengine.share.option.link": {
+    "other": "Public Link"
+  },
+  "searchengine.share.option.cell": {
+    "other": "Shared in Cell"
+  },
+  "searchengine.share.option.any": {
+    "other": "Public Link or Cell"
+  },
+  "searchengine.format.title": {
+    "other": "Format"
+  },
+  "searchengine.format.file-only": {
+    "other": "Files Only"
+  },
   "searchengine.advanced-filter.tooltip": {
     "other": "Filtros Avanzados"
   },
@@ -2379,7 +2406,7 @@
     "other": "Limpiar"
   },
   "searchengine.query.action.clear-all": {
-    "other": "Clear All"
+    "other": "Limpiar Todo"
   },
   "searchengine.query.action.delete": {
     "other": "Suprimir"
