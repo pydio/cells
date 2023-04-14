@@ -258,7 +258,8 @@ export default class ThemeBuilder {
 
         if(this.userTheme === 'mui3') {
             // Get the theme from a hex color, prepare blended custom colors
-            const customs = Object.keys(customTypesColors).map(k => {return {name:k, value: argbFromHex(customTypesColors[k]), blend: true}})
+            const customsHex = {...customTypesColors, avatarsColor: palette.avatarsColor}
+            const customs = Object.keys(customsHex).map(k => {return {name:k, value: argbFromHex(customsHex[k]), blend: true}})
             const theme3 = themeFromSourceColor(argbFromHex(palette.primary1Color), customs);
             console.log(theme3);
             // Apply the theme to the body by updating custom properties for material tokens
@@ -290,9 +291,13 @@ export default class ThemeBuilder {
             const customKeys = ['color', 'onColor', 'colorContainer', 'onColorContainer']
             theme3.customColors.forEach(c => {
                 const name = c.color.name;
-                customKeys.forEach(k => {
-                    add(`custom-${name}-${k}`, hexFromArgb(systemDark?c.dark[k]:c.light[k]))
-                })
+                if(name === 'avatarsColor') {
+                    palette.avatarsColor = hexFromArgb(systemDark?c.dark['color']:c.light['color'])
+                } else {
+                    customKeys.forEach(k => {
+                        add(`custom-${name}-${k}`, hexFromArgb(systemDark?c.dark[k]:c.light[k]))
+                    })
+                }
             })
 
             // Build a lighter outline-variant

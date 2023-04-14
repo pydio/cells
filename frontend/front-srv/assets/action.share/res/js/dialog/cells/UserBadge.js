@@ -18,12 +18,11 @@ const PropTypes = require('prop-types');
  *
  * The latest code can be found at <https://pydio.com>.
  */
-const {
-    Component
-} = require('react')
+import React, {Component} from 'react'
+import Pydio from 'pydio'
 const {MenuItem, IconMenu, IconButton} = require('material-ui')
 const {muiThemeable} = require('material-ui/styles')
-const Color = require('color')
+const {UserAvatar} = Pydio.requireLib('components')
 
 class UserBadge extends Component{
 
@@ -57,21 +56,32 @@ class UserBadge extends Component{
     }
 
     render() {
+        const {type, muiTheme, avatarUser} = this.props;
         let avatar;
-        let avatarColor = this.props.muiTheme.palette.avatarsColor;
-        if(this.props.type === 'group') {
-            avatarColor = Color(avatarColor).darken(.2).toString();
+        let avatarColor = muiTheme.palette.avatarsColor;
+        if(type === 'group') {
             avatar = <span className="avatar mdi mdi-account-multiple" style={{backgroundColor: avatarColor}}/>;
-        }else if(this.props.type === 'team') {
-            avatarColor = Color(avatarColor).darken(.2).toString();
+        }else if(type === 'team') {
             avatar = <span className="avatar mdi mdi-account-multiple-outline" style={{backgroundColor:avatarColor}}/>;
-        }else if(this.props.type === 'temporary') {
-            avatarColor = Color(avatarColor).lighten(.2).toString();
+        }else if(type === 'temporary') {
             avatar = <span className="avatar mdi mdi-account-plus" style={{backgroundColor:avatarColor}}/>;
-        }else if(this.props.type === 'remote_user'){
+        }else if(type === 'remote_user'){
             avatar = <span className="avatar mdi mdi-account-network" style={{backgroundColor:avatarColor}}/>;
         }else{
-            avatar = <span className="avatar mdi mdi-account" style={{backgroundColor:avatarColor}}/>;
+            //avatar = <span className="avatar mdi mdi-account" style={{backgroundColor:avatarColor}}/>;
+            avatar = (
+                <UserAvatar
+                    avatarSize={24}
+                    pydio={Pydio.getInstance()}
+                    userId={avatarUser.Login}
+                    avatarOnly={true}
+                    idmUser={avatarUser}
+                    userType={'user'}
+                    useDefaultAvatar={true}
+                    avatarClassName={"avatar"}
+                    style={{padding: 0, lineHeight: '16px'}}
+                />
+            )
         }
         const menu = this.renderMenu();
         const {boxes} = this.props;

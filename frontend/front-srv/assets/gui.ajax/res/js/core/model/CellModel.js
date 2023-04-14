@@ -386,14 +386,21 @@ class CellModel extends Observable{
             const pydio = Pydio.getInstance();
             if(pydio.user.activeRepository === this.cell.Uuid){
                 let switchToOther;
+                let rr = []
                 pydio.user.getRepositoriesList().forEach((v, k) => {
-                    if(k !== this.cell.Uuid && (!switchToOther || v.getAccessType() === 'gateway')){
-                        switchToOther = k;
+                    if (k !== this.cell.Uuid) {
+                        rr.push(v);
                     }
                 });
+                const gws = rr.filter((v) => v.getAccessType() === 'gateway')
+                if(gws.length) {
+                    switchToOther = gws[0].getId()
+                } else if (rr.length) {
+                    switchToOther = rr[0].getId()
+                }
                 if(switchToOther){
-                    pydio.triggerRepositoryChange(switchToOther, () => {
-                        api.deleteCell(this.cell.Uuid).then(res => {}).catch((err) => {
+                    pydio.triggerRepositoryChange(switchToOther).then(()=>{
+                        return api.deleteCell(this.cell.Uuid).then(res => {}).catch((err) => {
                             const msg = err.Detail || err.message || err;
                             pydio.UI.displayMessage('ERROR', msg);
                         });

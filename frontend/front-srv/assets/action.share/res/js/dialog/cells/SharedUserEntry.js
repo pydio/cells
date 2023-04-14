@@ -73,11 +73,11 @@ class SharedUserEntry extends React.Component {
             });
         }
 
-        let label, avatar;
+        let label, avatarIdmUser;
         switch (type){
             case "user":
                 label = cellAcl.User.Attributes["displayName"] || cellAcl.User.Login;
-                avatar = cellAcl.User.Attributes["avatar"];
+                avatarIdmUser = cellAcl.User
                 break;
             case "group":
                 if (cellAcl.Group.Attributes) {
@@ -125,7 +125,7 @@ class SharedUserEntry extends React.Component {
         return (
             <UserBadge
                 label={label}
-                avatar={avatar}
+                avatarUser={avatarIdmUser}
                 type={type}
                 menus={menuItems}
                 boxes={boxes}

@@ -12,9 +12,9 @@
 @width2: 24px; // Appears 2 times
 
 div.user-badge.share-dialog {
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--md-sys-color-field-underline-idle);
   clear: both;
-  font-size: 16px;
+  font-size: 14px;
   margin-left: 10px;
   margin-right: 10px;
   padding-top: 1px;
@@ -24,6 +24,8 @@ div.user-badge.share-dialog {
   line-height:20px;
   .user-badge-label {
     flex: 1;
+    font-size: 14px;
+    font-weight: 500;
     padding: 9px 0;
     line-height: 25px;
     overflow: hidden;
@@ -37,7 +39,7 @@ div.user-badge.share-dialog {
     color: #6F6F6F;
     font-size: 18px;
   }
-  span.avatar {
+  .avatar {
     background-color: @color0;
     border-radius: 50%;
     color: white;
@@ -46,19 +48,8 @@ div.user-badge.share-dialog {
     height: @height1;
     width: @width2;
     margin: 5px 14px 7px 7px;
-    padding: 3px;
+    padding: 2px;
     text-align: center;
-  }
-  &.user-type-group{
-    span.avatar{
-      background-color: @color1;
-    }
-  }
-  &.user-type-tmp_user,
-  &.user-type-remote_user{
-    span.avatar{
-      background-color: @color3;
-    }
   }
   img {
     background-color: @color0;

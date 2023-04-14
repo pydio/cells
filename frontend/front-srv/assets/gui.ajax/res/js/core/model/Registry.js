@@ -58,13 +58,13 @@ export default class Registry{
 
     /**
      * Load registry from server
-     * @param xPath - Deprecated, not used
-     * @param completeFunc
      * @param repositoryId
+     * @param silent
+     * @return Promise
      */
-    load(xPath = null, completeFunc = null, repositoryId = null){
+    load(repositoryId = null, silent = false){
         if(this._globalLoading) {
-            return;
+            return Promise.resolve(this._registry);
         }
 
         const {user, Parameters} = this._pydioObject;
@@ -82,9 +82,11 @@ export default class Registry{
         const url = Parameters.get('ENDPOINT_REST_API') + '/frontend/state';
 
         this._pydioObject.fire("registry_loading")
-        this._pydioObject.fire("connection-start")
+        if(!silent) {
+            this._pydioObject.fire("connection-start")
+        }
         this._globalLoading = true;
-        PydioApi.getRestClient().getOrUpdateJwt()
+        return PydioApi.getRestClient().getOrUpdateJwt()
             .then(jwt => {
                 const hh = {
                     "Authorization": 'Bearer ' + jwt
@@ -113,21 +115,21 @@ export default class Registry{
             .then((response) => response.text())
             .then((txt) => {
                 this._globalLoading = false;
-                this._pydioObject.fire("connection-end")
+                if(!silent) {
+                    this._pydioObject.fire("connection-end")
+                }
 
                 this._registry = XMLUtils.parseXml(txt).documentElement;
-
-                if (completeFunc) {
-                    completeFunc(this._registry);
-                } else {
-                    this._pydioObject.fire("registry_loaded", this._registry);
-                }
+                this._pydioObject.fire("registry_loaded", this._registry);
+                return this._registry
             })
             .catch(e=> {
                 this._pydioObject.fire("repository_list_refreshed", {list:false,active:false});
                 this._pydioObject.getController().fireAction("login")
                 this._globalLoading = false;
-                this._pydioObject.fire("connection-end")
+                if(!silent) {
+                    this._pydioObject.fire("connection-end")
+                }
             });
     }
 

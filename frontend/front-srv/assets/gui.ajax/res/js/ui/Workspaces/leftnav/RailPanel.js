@@ -444,6 +444,8 @@ let RailPanel = ({
                         controller={pydio.getController()}
                         toolbars={["rail_user","zlogin"]}
                         {...uWidgetProps}
+                        actionBarStyle={{display:'none'}}
+                        avatarStyle={{padding: 0}}
                         displayLabel={false}
                         hideNotifications={true}
                         hideBookmarks={true}
