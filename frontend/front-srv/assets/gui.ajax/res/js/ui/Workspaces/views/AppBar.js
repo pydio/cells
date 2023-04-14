@@ -182,18 +182,6 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
                 </div>
             </div>
             <div style={{display:'flex', alignItems:'center'}}>
-                <Toolbar
-                    pydio={pydio}
-                    // {...props}
-                    id="display-toolbar"
-                    toolbars={["display_toolbar"]}
-                    renderingType="icon-font"
-                    mergeItemsAsOneMenu={true}
-                    mergedMenuIcom={"mdi mdi-settings"}
-                    mergedMenuTitle={pydio.MessageHash['151']}
-                    buttonStyle={styles.buttonsIconStyle}
-                    flatButtonStyle={styles.buttonsStyle}
-                />
                 {!smallScreen &&
                     <UnifiedSearchForm
                         style={{flex: 1}}
@@ -206,7 +194,17 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
                         onRequestClose={()=>onUpdateSearchView(false)}
                     />
                 }
-                <div style={{margin:'0 10px', height: headerHeight, display:'none'}}/>
+                <Toolbar
+                    pydio={pydio}
+                    id="display-toolbar"
+                    toolbars={["display_toolbar"]}
+                    renderingType="icon-font"
+                    mergeItemsAsOneMenu={true}
+                    mergedMenuIcom={"mdi mdi-settings"}
+                    mergedMenuTitle={pydio.MessageHash['151']}
+                    buttonStyle={styles.buttonsIconStyle}
+                    flatButtonStyle={styles.buttonsStyle}
+                />
                 <div style={{display:'flex', paddingRight: 10}}>
                     {showInfoPanel &&
                         <IconButton

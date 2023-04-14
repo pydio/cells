@@ -455,8 +455,10 @@ class Pydio extends Observable{
                 if(reloadRegistry){
                     this.loadXmlRegistry();
                 }
-                this.UI.refreshTemplateParts();
-                this.fireContextRefresh();
+                if(this.UI){
+                    this.UI.refreshTemplateParts();
+                    this.fireContextRefresh();
+                }
                 this.currentLanguage = newLanguage;
             }
 

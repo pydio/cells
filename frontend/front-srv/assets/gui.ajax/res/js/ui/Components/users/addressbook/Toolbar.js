@@ -83,7 +83,7 @@ class Toolbar extends React.Component {
                 padding: 6
             },
             icon : {
-                fontSize: 22,
+                fontSize: 18,
                 color: accentColor
             }
         };

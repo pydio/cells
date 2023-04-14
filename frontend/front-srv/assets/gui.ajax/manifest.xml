@@ -194,7 +194,7 @@
                 <gui text="149" title="149" iconClass="mdi mdi-refresh" hasAccessKey="true"
                      accessKey="refresh_access_key">
                     <context selection="false" dir="true" recycle="false"
-                             actionBar="true" actionBarGroup="00_navigation,display_toolbar" contextMenu="true" infoPanel="false">
+                             actionBar="true" actionBarGroup="00_navigation" contextMenu="true" infoPanel="false">
                     </context>
                 </gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>

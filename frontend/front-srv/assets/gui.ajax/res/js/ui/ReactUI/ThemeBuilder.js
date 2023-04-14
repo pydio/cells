@@ -510,7 +510,7 @@ export default class ThemeBuilder {
             }
             appBarTextColor = Color(mui3['on-surface'])
             appBarBackColor = 'transparent'//mui3['surface-2']
-            iconButtonsColor = mui3['on-surface-variant']
+            iconButtonsColor = mui3['secondary']
         } else {
             infoPanelBg = mui3['surface-2']
             if(this.userTheme === 'material') {
