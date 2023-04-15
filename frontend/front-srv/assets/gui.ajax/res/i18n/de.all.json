@@ -102,25 +102,25 @@
     "other": "Arbeitsumgebungen & Zellen"
   },
   "tour.theme.title": {
-    "other": "Light/Dark Theme Support"
+    "other": "Unterstützung von hellen/dunklen Themen"
   },
   "tour.theme.legend": {
-    "other": "Choose a light or dark theme to best suit your vision."
+    "other": "Wählen Sie ein helles oder dunkles Thema, das am besten zu Ihrer Vision passt."
   },
   "tour.left-resize.title": {
-    "other": "Workspaces and Cells"
+    "other": "Arbeitsumgebungen und Zellen"
   },
   "tour.left-resize.legend": {
-    "other": "Left column can be resized or closed to fit your screen."
+    "other": "Die linke Spalte kann in der Größe verändert oder geschlossen werden, um sie an Ihren Bildschirm anzupassen."
   },
   "tour.right-resize.legend": {
-    "other": "Right column can be also be resized or closed to fit your screen."
+    "other": "Die rechte Spalte kann auch in der Größe verändert oder geschlossen werden, um sie an Ihren Bildschirm anzupassen."
   },
   "tour.directory.title": {
-    "other": "Users Directory"
+    "other": "Benutzerverzeichnis"
   },
   "tour.directory.legend": {
-    "other": "Manage users (internal and external) and teams in a central location."
+    "other": "Verwalten Sie Benutzer (intern und extern) und Teams an einem zentralen Ort."
   },
   "background.jobs.title": {
     "other": "Hintergrundjobs"

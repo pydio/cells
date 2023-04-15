@@ -1308,7 +1308,7 @@
     "other": "Metadaten"
   },
   "49": {
-    "other": "Cancel"
+    "other": "Abbrechen"
   },
   "490": {
     "other": "Zeitraum"
@@ -1680,7 +1680,7 @@
     "other": "Benutzen hinzufügen"
   },
   "599-a": {
-    "other": "All Results"
+    "other": "Alle Ergebnisse"
   },
   "6": {
     "other": "Umbenennen"
@@ -2325,7 +2325,7 @@
     "other": "Gruppe auswählen"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "Mehrfachauswahl"
   },
   "confirm.dialog.title": {
     "other": "Bestätigen"
@@ -2367,25 +2367,25 @@
     "other": "Suchen in..."
   },
   "searchengine.share.title": {
-    "other": "Shared"
+    "other": "Geteilt"
   },
   "searchengine.share.hint": {
-    "other": "No status"
+    "other": "Kein Status"
   },
   "searchengine.share.option.link": {
-    "other": "Public Link"
+    "other": "Öffentlicher Link"
   },
   "searchengine.share.option.cell": {
-    "other": "Shared in Cell"
+    "other": "In Zelle geteilt"
   },
   "searchengine.share.option.any": {
-    "other": "Public Link or Cell"
+    "other": "Öffentlicher Link oder Zelle"
   },
   "searchengine.format.title": {
     "other": "Format"
   },
   "searchengine.format.file-only": {
-    "other": "Files Only"
+    "other": "Nur Dateien"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "Erweiterte Filter"
