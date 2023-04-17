@@ -24,7 +24,7 @@ import React, { Component } from 'react';
 import Pydio from 'pydio'
 import Repository from 'pydio/model/repository'
 import {MenuItem, Divider, Subheader} from 'material-ui';
-const {ModernSelectField} = Pydio.requireLib('hoc');
+const {ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 
 class SearchScopeSelector extends Component {
@@ -112,6 +112,7 @@ class SearchScopeSelector extends Component {
                 value={value}
                 onChange={(e,i,v) => {onChange(v)}}
                 fullWidth={true}
+                {...ModernStyles.selectFieldV1Search}
             >{items}</ModernSelectField>
         )
     }

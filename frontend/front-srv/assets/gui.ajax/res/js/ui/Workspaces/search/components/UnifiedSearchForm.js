@@ -255,7 +255,7 @@ function UnifiedSearchForm (props){
                 targetOrigin={{horizontal: 'right', vertical: 'top'}}
                 onRequestClose={()=>{togglePopover()}}
                 useLayerForClickAway={true}
-                style={{width:420}}
+                style={{width:420, marginTop: 7}}
                 zDepth={3}
             >
                 <AdvancedSearch

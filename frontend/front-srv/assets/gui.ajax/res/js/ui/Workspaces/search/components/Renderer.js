@@ -26,7 +26,7 @@ import FileFormatPanel from "./FileFormatPanel";
 import DatePanel from "./DatePanel";
 import FileSizePanel from "./FileSizePanel";
 import {MenuItem} from 'material-ui'
-const {ModernTextField, ModernSelectField} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 const {moment} = Pydio.requireLib('boot')
 
 export default class Renderer {
@@ -44,7 +44,7 @@ export default class Renderer {
                 return <FileSizePanel name={name} values={values} pydio={pydio} searchTools={searchTools} onChange={(values) => onChangeValues(values)} />
             case 'share':
                 return (
-                    <ModernSelectField name={name} hintText={pydio.MessageHash['searchengine.share.hint']} value={values[name]} pydio={pydio} onChange={(e,i,v) => onChangeValues({...values,[name]:v})} fullWidth={true}>
+                    <ModernSelectField name={name} hintText={pydio.MessageHash['searchengine.share.hint']} value={values[name]} pydio={pydio} onChange={(e,i,v) => onChangeValues({...values,[name]:v})} fullWidth={true} {...ModernStyles.selectFieldV1Search}>
                         <MenuItem primaryText={<span style={{color:'var(--md-sys-color-outline)'}}>{pydio.MessageHash['searchengine.share.hint']}</span>} value={''}/>
                         <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.link']} value={'link'}/>
                         <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.cell']} value={'cell'}/>
@@ -60,6 +60,7 @@ export default class Renderer {
                         hintText={label}
                         fullWidth={true}
                         onChange={(e,v) => {onChangeValues({[name]:v})}}
+                        {...ModernStyles.textFieldV1Search}
                     />
                 )
         }
@@ -167,6 +168,8 @@ export default class Renderer {
                         break
                     case 'any':
                         label = pydio.MessageHash['searchengine.share.option.any']
+                        break
+                    default:
                         break
                 }
                 break

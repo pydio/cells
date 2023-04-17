@@ -29,7 +29,7 @@ class BooleanForm extends React.Component {
     render() {
         const {updateValue, value, search, muiTheme} = this.props;
         const ModernStyles = ThemedModernStyles(muiTheme)
-        let sProps = {...ModernStyles.toggleField}
+        let sProps = {...ModernStyles.toggleFieldV1Search}
         let label = value ? 'Yes' : 'No'
         if(!search) {
             sProps = {...ModernStyles.toggleFieldV2}

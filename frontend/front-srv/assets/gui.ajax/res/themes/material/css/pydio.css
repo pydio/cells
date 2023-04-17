@@ -1065,11 +1065,6 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list.table-mode .material-list-entry span.cell {
   line-height: 16px;
 }
-@media only screen and (max-width: 480px) {
-  .react-mui-context .material-list.files-list.table-mode .material-list-entry span.cell {
-    display: none;
-  }
-}
 .react-mui-context .material-list.files-list.table-mode .material-list-entry:hover:not(.selected) .material-list-line-1 .label-extension,
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.selected .material-list-line-1 .label-extension {
   display: inline !important;
@@ -1078,11 +1073,6 @@ div.dialogBox div#element_overlay {
   font-size: 14px;
   font-weight: 500;
   min-width: 320px;
-}
-@media only screen and (max-width: 480px) {
-  .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label {
-    display: initial;
-  }
 }
 .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label.header_cell {
   font-size: inherit;
@@ -1306,11 +1296,6 @@ div.dialogBox div#element_overlay {
   display: block;
   height: 48px;
   z-index: 10;
-}
-@media only screen and (max-width: 480px) {
-  .react-mui-context .material-list.files-list.table-mode .mui-toolbar {
-    display: none;
-  }
 }
 .react-mui-context .material-list.files-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left {
   display: block;

@@ -184,7 +184,7 @@ class FSTemplate extends React.Component {
             //headerHeight = 152
         }
 
-        let showChatTab = (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS"));
+        let showChatTab = (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS")) && !xtraSmallScreen;
         let showAddressBook = (!pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK")) && !smallScreen;
         let showInfoPanel = !xtraSmallScreen;
 

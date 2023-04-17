@@ -149,6 +149,7 @@ class SearchDatePanel extends React.Component {
         }
 
         const ModernStyles = ThemedModernStyles(muiTheme)
+        const leftInputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius : '20px 0 0 20px'}
 
         return (
             <div>
@@ -156,6 +157,7 @@ class SearchDatePanel extends React.Component {
                     <DatePickerFeed pydio={this.props.pydio}>
                     {items =>
                         <ModernSelectField
+                            {...ModernStyles.selectFieldV1Search}
                             hintText={getMessage(490)}
                             value={value}
                             fullWidth={true}
@@ -169,7 +171,8 @@ class SearchDatePanel extends React.Component {
                     <div style={{...datePickerGroup, ...inputStyle}}>
                         <div style={{...datePicker, marginRight: 2}}>
                             <DatePicker
-                                {...ModernStyles.textField}
+                                {...ModernStyles.textFieldV1Search}
+                                inputStyle={leftInputStyle}
                                 fullWidth={true}
                                 value={startDate}
                                 onChange={(e, date) => this.setState({startDate: date})}
@@ -183,7 +186,7 @@ class SearchDatePanel extends React.Component {
                         </div>
                         <div style={{...datePicker, marginLeft: 2}}>
                             <DatePicker
-                                {...ModernStyles.textField}
+                                {...ModernStyles.textFieldV1Search}
                                 fullWidth={true}
                                 value={endDate}
                                 onChange={(e, date) => this.setState({endDate: date})}

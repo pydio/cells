@@ -20,7 +20,7 @@
 
 import React, {Fragment} from 'react';
 import Pydio from 'pydio';
-const {ModernTextField, ModernSelectField} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 import {MenuItem} from 'material-ui'
 
@@ -98,7 +98,8 @@ class SearchFileSizePanel extends React.Component {
         const sizeUnit = Pydio.getMessages()['byte_unit_symbol'] || 'B';
         const {getMessage} = this.props;
         let {from, to, fromUnit, toUnit, fromInt, toInt} = this.propsToState(this.props)
-
+        const line1inputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius: 0}
+        const line2inputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius: '20px 0 0 20px'}
 
         const blockStyle={display:'flex'};
         return (
@@ -106,6 +107,8 @@ class SearchFileSizePanel extends React.Component {
                 <div style={blockStyle}>
                     <div style={{flex: 2, marginRight: 4}}>
                         <ModernTextField
+                            {...ModernStyles.textFieldV1Search}
+                            inputStyle={line1inputStyle}
                             type={"number"}
                             hintText={getMessage(613)}
                             fullWidth={true}
@@ -120,6 +123,7 @@ class SearchFileSizePanel extends React.Component {
                     </div>
                     <div style={{marginLeft: 4, flex: 1}}>
                         <ModernSelectField
+                            {...ModernStyles.selectFieldV1Search}
                             value={fromUnit}
                             onChange={(e,i,v) => {
                                 if(from && toInt && Math.round(this.multiple(to, v)) > toInt) {
@@ -140,6 +144,8 @@ class SearchFileSizePanel extends React.Component {
                 <div style={blockStyle}>
                     <div style={{flex: 2, marginRight: 4}}>
                         <ModernTextField
+                            {...ModernStyles.textFieldV1Search}
+                            inputStyle={line2inputStyle}
                             fullWidth={true}
                             type={"number"}
                             hintText={getMessage(614)}
@@ -154,6 +160,7 @@ class SearchFileSizePanel extends React.Component {
                     </div>
                     <div style={{marginLeft: 4, flex: 1}}>
                         <ModernSelectField
+                            {...ModernStyles.selectFieldV1Search}
                             fullWidth={true}
                             value={toUnit}
                             onChange={(e,i,v) => {

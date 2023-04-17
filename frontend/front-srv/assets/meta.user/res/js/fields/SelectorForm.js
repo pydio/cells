@@ -21,7 +21,7 @@ import React from 'react'
 import Pydio from 'pydio'
 import {MenuItem, IconButton} from 'material-ui'
 import asMetaForm from "../hoc/asMetaForm";
-const {ModernSelectField} = Pydio.requireLib('hoc')
+const {ModernSelectField, ModernStyles} = Pydio.requireLib('hoc')
 
 class SelectorForm extends React.Component{
 
@@ -57,6 +57,7 @@ class SelectorForm extends React.Component{
             menuItems = [...this.state.menuItems]
         }
         menuItems.unshift(<MenuItem value={''} primaryText=""/>);
+        const selectProps = search ? {variant: "v1",...ModernStyles.selectFieldV1Search} : {variant: "v2"}
         return (
             <div style={{display:'flex'}}>
                 {stepper && !search &&
@@ -72,11 +73,12 @@ class SelectorForm extends React.Component{
                 }
                 <div style={{flex:1, maxWidth:(stepper&&!search)?'75%':null}}>
                     <ModernSelectField
-                        variant={search ? "v1" : "v2"}
                         fullWidth={true}
                         value={value}
                         hintText={label}
-                        onChange={this.changeSelector.bind(this)}>{menuItems}</ModernSelectField>
+                        onChange={this.changeSelector.bind(this)}
+                        {...selectProps}
+                    >{menuItems}</ModernSelectField>
                 </div>
                 {stepper && !search &&
                 <div>

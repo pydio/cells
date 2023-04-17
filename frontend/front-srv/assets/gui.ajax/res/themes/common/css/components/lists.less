@@ -209,9 +209,6 @@
         }
         span.cell {
           line-height: 16px;
-          @media only screen and (max-width: 480px){
-            display: none;
-          }
         }
         &:hover:not(.selected), &.selected {
           .material-list-line-1 {
@@ -221,14 +218,7 @@
           }
         }
       }
-        span.cell{
-          //color: rgba(0,0,0,0.63);
-        }
         span.cell.cell-ajxp_label{
-          @media only screen and (max-width: 480px){
-            display: initial;
-          }
-          //color: rgba(0,0,0,0.87);
           font-size: 14px;
           font-weight: 500;
           min-width: 320px;
@@ -449,9 +439,6 @@
     &.table-mode{
       .mui-toolbar {
         display: block;
-        @media only screen and (max-width: 480px){
-          display: none;
-        }
         height: 48px;
         z-index: 10;
         .mui-toolbar-group.mui-left {
