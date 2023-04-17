@@ -663,10 +663,10 @@
     "other": "Sehen"
   },
   "34": {
-    "other": "Select or Create Users"
+    "other": "Benutzer auswählen oder erstellen"
   },
   "34b": {
-    "other": "Select Users"
+    "other": "Benutzer auswählen"
   },
   "35": {
     "other": "Titel"
@@ -969,6 +969,6 @@
     "other": "Nur %d Downloads"
   },
   "minisite.toggle.theme": {
-    "other": "Toggle Dark/Light Theme"
+    "other": "Dunkel-/Hell Modus umschalten"
   }
 }
