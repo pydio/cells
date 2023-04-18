@@ -208,7 +208,7 @@ class HomeSearchForm extends Component{
                                 facets={facets}
                                 activeFacets={activeFacets}
                                 onToggleFacet={toggleFacet}
-                                emptyStateView={<div style={{fontWeight: 500,padding: '10px 0px',fontSize: 15}}>Filter Results... (no results)</div>}
+                                emptyStateView={<div style={{fontWeight: 500,padding: '10px 0px',fontSize: 15}}>{pydio.MessageHash['user_home.search.facets.title']}</div>}
                                 styles={styles.facets}
                                 zDepth={isMui3?0:undefined}
                             />

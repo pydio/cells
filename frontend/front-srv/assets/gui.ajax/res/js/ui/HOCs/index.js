@@ -40,6 +40,7 @@ import * as Utils from './utils'
 import ReactPlaceHolder, {TextBlock as PhTextBlock, MediaBlock as PhMediaBlock, RectShape as PhRectShape, RoundShape as PhRoundShape, TextRow as PhTextRow} from './placeholders'
 import withSearch, {SearchConstants} from './search/withSearch'
 import * as hooks from './hooks'
+import * as AdditionalIcons from './material/AdditionalIcons'
 
 
 const PydioHOCs = {
@@ -72,6 +73,7 @@ const PydioHOCs = {
     ThemedContainers,
     DatePicker: ThemedContainers.DatePicker,
     TimePicker: ThemedContainers.TimePicker,
+    AdditionalIcons,
     dropProvider,
     NativeFileDropProvider,
     ...Animations,

@@ -445,22 +445,22 @@ class WorkspacesList extends React.Component{
                 iconButtonElement={<IconButton iconClassName={"mdi mdi-settings"} iconStyle={{fontSize:12, opacity:0.4, color:'inherit'}} style={{padding:0, height: 18, width: 18}}/>}
                 desktop={true}
             >
-                <Subheader style={{marginTop:-10}}>Display Options</Subheader>
+                <Subheader style={{marginTop:-10}}>{messages['ajax_gui.wslist-options.title']}</Subheader>
                 <MenuItem
                     leftIcon={<FontIcon className={"mdi mdi-playlist-plus"} style={listItemFontIcon}/>}
-                    primaryText={"Show Masked Items"}
+                    primaryText={messages['ajax_gui.wslist-options.show-masked']}
                     onClick={() => this.togglePref("mask")}
                     rightIcon={<FontIcon className={'mdi mdi-toggle-switch'+(hiddenWsStatus?'':'-off')} style={listItemFontIconRight}/>}
                 />
                 <MenuItem
                     leftIcon={<FontIcon className={"mdi mdi-call-merge"} style={{...listItemFontIcon, transform:'rotate(90deg)', top: 5}}/>}
-                    primaryText={"Merge Workspaces and Cells"}
+                    primaryText={messages['ajax_gui.wslist-options.merge-workspaces']}
                     onClick={() => this.togglePref("merge")}
                     rightIcon={<FontIcon className={'mdi mdi-toggle-switch'+(merge?'':'-off')} style={listItemFontIconRight}/>}
                 />
                 <MenuItem
                     leftIcon={<FontIcon className={"mdi mdi-account-star"} style={listItemFontIcon}/>}
-                    primaryText={"Show my own Cells first"}
+                    primaryText={messages['ajax_gui.wslist-options.own-cells-first']}
                     onClick={() => this.togglePref("owned")}
                     rightIcon={<FontIcon className={'mdi mdi-toggle-switch'+(cellsSortingMixed?'-off':'')} style={listItemFontIconRight}/>}
                 />

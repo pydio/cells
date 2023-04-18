@@ -30,6 +30,8 @@ const styles = (muiTheme) => {
 
     const v1BgColor ='rgba(224, 224, 228, 0.33)'//var(--md-sys-color-surface-variant)'
     const hintColor='var(--md-sys-color-outline)'
+    const v1SearchRadiusLeft = '20px 0 0 20px'
+    const v1SearchRadiusRight = '0 20px 20px 0'
 
     const isMUI3 = muiTheme.userTheme === 'mui3'
 
@@ -55,7 +57,7 @@ const styles = (muiTheme) => {
             errorStyle: {bottom: -4}
         },
         textFieldV1Search: {
-            inputStyle: {backgroundColor: v1BgColor, height: 34, borderRadius: '0 20px 20px 0', marginTop: 6, padding: 7, fontSize:13},
+            inputStyle: {backgroundColor: v1BgColor, height: 34, borderRadius: v1SearchRadiusRight, marginTop: 6, padding: 7, fontSize:13},
             hintStyle: {fontSize: 13, paddingLeft: 7, color: muiTheme.darkMode?'#aaa':'#454545', ...noWrap, width: '100%'},
             underlineStyle: {opacity: 0},
             underlineFocusStyle: {opacity: 1, borderRadius: 0, width: '96%'},
@@ -88,7 +90,7 @@ const styles = (muiTheme) => {
         textareaFieldV1Search: {
             rows: 4,
             rowsMax: 4,
-            inputStyle: {backgroundColor: v1BgColor, height: 106, borderRadius: '0 20px 20px 0', marginTop: 6, padding: 7, fontSize:13},
+            inputStyle: {backgroundColor: v1BgColor, height: 106, borderRadius: v1SearchRadiusRight, marginTop: 6, padding: 7, fontSize:13},
             textareaStyle: {marginTop: 0, marginBottom: 0},
             hintStyle: {paddingLeft: 7, color: hintColor, ...noWrap, width: '100%', top: 12, bottom: 'inherit', fontSize:13},
             underlineStyle: {opacity: 0},
@@ -133,7 +135,7 @@ const styles = (muiTheme) => {
             style: {
                 backgroundColor: v1BgColor,
                 height: 34,
-                borderRadius: '0 20px 20px 0',
+                borderRadius: v1SearchRadiusRight,
                 marginTop: 6,
                 padding: 7,
                 paddingRight: 0,
@@ -183,7 +185,7 @@ const styles = (muiTheme) => {
             style: {
                 backgroundColor: v1BgColor,
                 padding: '7px 5px 4px',
-                borderRadius: '0 20px 20px 0',
+                borderRadius: v1SearchRadiusRight,
                 fontSize: 13,
                 margin: '6px 0 7px'
             }
@@ -210,7 +212,8 @@ const styles = (muiTheme) => {
             backgroundColor:isMUI3?'var(--md-sys-color-surface-variant)':'rgb(246, 246, 248)',
             borderRadius:'3px 3px 0 0',
             ...underline.idle
-        }
+        },
+        v1SearchRadiusRight, v1SearchRadiusLeft
     };
 }
 

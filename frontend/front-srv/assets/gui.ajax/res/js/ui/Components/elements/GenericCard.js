@@ -19,9 +19,9 @@
  */
 import React from 'react'
 import Pydio from 'pydio'
-import {Paper, IconButton, FontIcon, IconMenu, FloatingActionButton} from 'material-ui'
+import {Paper, IconButton, SvgIcon, FontIcon, IconMenu, FloatingActionButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles';
-const {PlaceHolder, PhRoundShape, PhTextRow} = Pydio.requireLib('hoc')
+const {PlaceHolder, PhRoundShape, PhTextRow, AdditionalIcons} = Pydio.requireLib('hoc')
 
 const globalStyles = {
     globalLeftMargin : 64,
@@ -129,6 +129,8 @@ class GenericCard extends React.Component{
             }
         }
 
+        const {DeleteOutline} = AdditionalIcons;
+
         return (
             <div style={{width: '100%', position:'relative', ...style}}>
                 <Paper zDepth={0} style={{backgroundColor:styles.headerBg, color: styles.headerColor, height: styles.headerHeight, borderRadius: '2px 2px 0 0'}}>
@@ -140,7 +142,7 @@ class GenericCard extends React.Component{
                             <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-pencil"} onClick={onEditAction} tooltip={editTooltip} tooltipPosition={"bottom-left"}/>
                         }
                         {onDeleteAction &&
-                            <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-delete"} onClick={onDeleteAction} tooltip={deleteTooltip} tooltipPosition={"bottom-left"}/>
+                            <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} onClick={onDeleteAction} tooltip={deleteTooltip} tooltipPosition={"bottom-left"}><DeleteOutline/></IconButton>
                         }
                         {moreMenuItems && moreMenuItems.length > 0 &&
                             <IconMenu

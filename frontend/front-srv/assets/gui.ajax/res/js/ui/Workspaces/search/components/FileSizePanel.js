@@ -99,7 +99,7 @@ class SearchFileSizePanel extends React.Component {
         const {getMessage} = this.props;
         let {from, to, fromUnit, toUnit, fromInt, toInt} = this.propsToState(this.props)
         const line1inputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius: 0}
-        const line2inputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius: '20px 0 0 20px'}
+        const line2inputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius: ModernStyles.v1SearchRadiusLeft}
 
         const blockStyle={display:'flex'};
         return (

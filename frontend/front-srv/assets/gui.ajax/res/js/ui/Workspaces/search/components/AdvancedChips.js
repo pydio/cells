@@ -31,7 +31,7 @@ class AdvancedChips extends React.Component{
     }
 
     render() {
-        const {searchTools:{advancedValues, values, setValues}, containerStyle, tagStyle, title, titleTagStyle, showRemove=true, append, muiTheme} = this.props;
+        const {searchTools:{advancedValues, values, setValues}, containerStyle, tagStyle, title, titleTagStyle, showRemove=true, append, appendUnstyled, muiTheme} = this.props;
 
         const advanced = advancedValues()
         const {indexedMeta} = this.state;
@@ -48,7 +48,7 @@ class AdvancedChips extends React.Component{
                 color: muiTheme.palette.mui3['on-surface-variant'],
                 display: 'flex',
                 alignItems: 'center',
-                padding: '2px 5px 2px 11px',
+                padding: showRemove?'2px 5px 2px 11px':'2px 10px',
                 marginRight: 5, marginBottom: 5,
                 ...tagStyle
             },
@@ -94,7 +94,7 @@ class AdvancedChips extends React.Component{
         return(
             <div style={styles.container}>
                 {title && <div style={{...styles.tag,...titleTagStyle}}>{title}</div>}
-                {blocks.map(cc => <div style={styles.tag}>{cc}</div>)}
+                {blocks.map(cc => <div style={styles.tag}>{cc}</div>)} {appendUnstyled}
             </div>
         )
     }

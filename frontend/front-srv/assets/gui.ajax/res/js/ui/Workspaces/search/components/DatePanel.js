@@ -149,7 +149,7 @@ class SearchDatePanel extends React.Component {
         }
 
         const ModernStyles = ThemedModernStyles(muiTheme)
-        const leftInputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius : '20px 0 0 20px'}
+        const leftInputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius : ModernStyles.v1SearchRadiusLeft}
 
         return (
             <div>

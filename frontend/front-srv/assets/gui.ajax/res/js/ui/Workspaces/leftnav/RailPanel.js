@@ -220,7 +220,7 @@ let RailPanel = ({
                 {
                     id:'home',
                     icon: 'home-outline',
-                    text: 'Home',
+                    text: MessageHash['ajax_gui.leftrail.buttons.home'],
                     ignore: !user.getRepositoriesList().has('homepage'),
                     active: user.activeRepository === 'homepage',
                     onClick: () => {
@@ -230,7 +230,7 @@ let RailPanel = ({
                 {
                     id:'files',
                     icon: 'folder-multiple-outline',
-                    text: 'All Files',
+                    text: MessageHash['ajax_gui.leftrail.buttons.all-files'],
                     active: user.getActiveRepositoryObject().accessType === 'gateway',
                     onClick: () => {
                         if(user.getActiveRepositoryObject().accessType !== 'gateway') {
@@ -260,7 +260,7 @@ let RailPanel = ({
                 },
                 {
                     id:'bookmarks',
-                    text: 'Bookmarks',
+                    text: MessageHash['147'],
                     icon: 'star-outline',
                     onClick: () => {},
                     hoverBar: () => {
@@ -275,7 +275,7 @@ let RailPanel = ({
                 },
                 {
                     id:'directory',
-                    text: 'Directory',
+                    text: MessageHash['ajax_gui.leftrail.buttons.directory'],
                     ignore: !user.getRepositoriesList().has('directory'),
                     active: user.activeRepository === 'directory',
                     icon: 'account-box-outline',
@@ -287,7 +287,7 @@ let RailPanel = ({
             "bottom": [
                 {
                     id: 'notifications',
-                    text: 'Notifications',
+                    text: MessageHash['notification_center.1'],
                     icon: 'bell-outline',
                     hoverWidth: 320,
                     alert: unreadCount > 0,

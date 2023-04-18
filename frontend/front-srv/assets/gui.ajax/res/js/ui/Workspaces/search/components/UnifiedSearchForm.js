@@ -76,6 +76,7 @@ const styles = {
         marginTop: 10,
         fontSize: 13, fontWeight: 500,
         color:'var(--md-sys-color-secondary)',
+        background:'var(--md-sys-color-surface-2)',
         textTransform:'uppercase'
     }
 }
@@ -87,6 +88,20 @@ function UnifiedSearchForm (props){
     const textfieldRef = React.createRef();
     const [popoverOpen, setPopoverOpen] = useState(false)
     const [inputValue, setInputValue] = useState('')
+
+    const togglePopover = (e) => {
+        const {onRequestOpen} = props;
+        if(popoverOpen) {
+            setPopoverOpen(false)
+        } else {
+            textfieldRef.current.blur()
+            if(e) {
+                e.stopPropagation()
+            }
+            onRequestOpen();
+            setPopoverOpen(true)
+        }
+    }
 
     const updateText = (value) => {
         const {onRequestOpen, searchTools:{values, setValues, savedSearches, nlpMatches}} = props;
@@ -106,26 +121,17 @@ function UnifiedSearchForm (props){
             setValues(newValues);
             setInputValue('')
             return;
+        } else if(value === '#advanced#') {
+            console.log('advanced?')
+            setInputValue('')
+            togglePopover()
+            return;
         }
         setValues({...values, basenameOrContent:value});
         if(value) {
             onRequestOpen();
         } else {
          //   onRequestClose();
-        }
-    }
-
-    const togglePopover = (e) => {
-        const {onRequestOpen} = props;
-        if(popoverOpen) {
-            setPopoverOpen(false)
-        } else {
-            textfieldRef.current.blur()
-            if(e) {
-                e.stopPropagation()
-            }
-            onRequestOpen();
-            setPopoverOpen(true)
         }
     }
 
@@ -139,6 +145,11 @@ function UnifiedSearchForm (props){
 
     const {style, active, searchTools, formStyles, pydio, preventOpen, muiTheme} = props;
     const {values, setValues, advancedValues, getSearchOptions, nlpMatches, history=[], savedSearches=[], clearSavedSearch, saveSearch} = searchTools;
+
+    const addBg = muiTheme.darkMode ? "" : ".MuiAutocomplete-paper {background: var(--md-sys-color-surface-2);}";
+    if(muiTheme.darkMode) {
+        styles.groupHeader.background = ''
+    }
 
     const {basenameOrContent=''} = values;
     const filtersCount = advancedValues().length;
@@ -171,17 +182,18 @@ function UnifiedSearchForm (props){
 
     const completeMessage = (id) => pydio.MessageHash['searchengine.complete.'+id] || id
 
-    const currentFilters = []
+    const currentFilters = [], advancedOption = []
     const ad = advancedValues()
     if(ad && ad.length > 0) {
-        let additionalChild;
-        if(basenameOrContent){
-            additionalChild = [<span>{basenameOrContent}</span>]
+        let additionalChild = [];
+        if(basenameOrContent && basenameOrContent !== '*'){
+            //additionalChild.push(<span>{basenameOrContent}</span>)
         }
         currentFilters.push(
             {
-                text:'',
-                disable:true,
+                text:'#advanced#',
+                className:'advanced-filters-active',
+                tooltipTitle: completeMessage('activefilters-edit'),
                 value:(<AdvancedChips
                     muiTheme={muiTheme}
                     containerStyle={{paddingTop: 6, fontSize: 13, flex: 1}}
@@ -189,9 +201,17 @@ function UnifiedSearchForm (props){
                     title={completeMessage('activefilters')}
                     titleTagStyle={{backgroundColor:'transparent'}}
                     showRemove={false}
-                    append={additionalChild}/>)
+                    append={additionalChild}
+                />)
             }
         )
+    } else {
+        advancedOption.push({
+            text: '#advanced#',
+            className:'advanced-filters-option',
+            icon:'mdi mdi-tune',
+            value: <span style={{display:'inline-block', padding: '8px 0'}}>{completeMessage('advanced-filter.tooltip')}</span>
+        })
     }
 
     const nlpSuggestions = []
@@ -244,6 +264,7 @@ function UnifiedSearchForm (props){
                 group:completeMessage('group.history')
             }
         }),
+        ...advancedOption
     ]
 
     return (
@@ -340,11 +361,13 @@ function UnifiedSearchForm (props){
                     }
                }}
                 renderOption={(props, o, state) => {
-                    if(o.icon){
-                        return <li {...props}><span style={{opacity:.5, marginRight: 10}} className={o.icon}/> {o.value}</li>
-                    }else{
-                        return <li {...props}>{o.value}</li>
-                    }
+                    const className = [(props.className||''), (o.className||'')].join(' ')
+                    return (
+                        <li {...props} className={className} title={o.tooltipTitle}>
+                            {o.icon && <span style={{opacity:0.5, marginRight: 10}} className={o.icon}/>}
+                            {o.value}
+                        </li>
+                    )
                 }}
                 filterOptions={(x) => {
                     if(basenameOrContent){
@@ -375,7 +398,7 @@ function UnifiedSearchForm (props){
                 freeSolo
                 disableClearable
             />
-            <style type={"text/css"} dangerouslySetInnerHTML={{__html:".MuiAutocomplete-option[aria-disabled='true']{opacity:1 !important; border-bottom: 1px solid var(--md-sys-color-outline-variant);}"}}/>
+            <style type={"text/css"} dangerouslySetInnerHTML={{__html:`.MuiAutocomplete-option.advanced-filters-active{border-bottom: 1px solid var(--md-sys-color-outline-variant);} .MuiAutocomplete-option.advanced-filters-option{border-top: 1px solid var(--md-sys-color-outline-variant);} ${addBg}`}}/>
         </div>
     );
 

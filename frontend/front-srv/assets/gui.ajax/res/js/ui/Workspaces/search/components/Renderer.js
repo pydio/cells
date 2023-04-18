@@ -68,6 +68,7 @@ export default class Renderer {
 
     static blockRenderer(props, field, value) {
         const {pydio=Pydio.getInstance(), searchTools} = props;
+        const m = (id) => pydio.MessageHash[id]||id
         const kk = searchTools.SearchConstants
         if(field.blockRenderer) {
             const {label} = field;
@@ -97,60 +98,48 @@ export default class Renderer {
                 break
             case 'mime':
                 if(value === kk.ValueMimeFiles || value === kk.ValueMimeFolders) {
-                    label = value === kk.ValueMimeFiles ? 'Files Only' : 'Folders Only'
+                    label = value === kk.ValueMimeFiles ? m('searchengine.format.file-only') : m('502')
                 } else if (value && value.indexOf('mimes:') === 0) {
                     displayValue = label
-                    label = "File Type"
+                    label = m('3')
                 } else {
-                    label = 'Extension'
+                    label = m('ajax_gui.mimegroup.byextension')
                     displayValue = value
                 }
                 break;
             case 'modiftime':
+                const calendarOpts = {
+                    sameDay: '['+m(493)+']',
+                    nextDay: '['+m('494t')+']',
+                    nextWeek: 'dddd',
+                    lastDay: '['+m(494)+']',
+                    lastWeek: '[Last] dddd',
+                    sameElse: 'L'
+                }
+
                 if(isDate && value.getDate){
-                    displayValue = moment(value).calendar(null, {
-                        sameDay: '[Today]',
-                        nextDay: '[Tomorrow]',
-                        nextWeek: 'dddd',
-                        lastDay: '[Yesterday]',
-                        lastWeek: '[Last] dddd',
-                        sameElse: 'L'
-                    })
+                    displayValue = moment(value).calendar(null, calendarOpts)
                     break
                 }
-                label = 'Modified'
+                label = m('4')
                 displayValue = ''
                 if(value.from) {
-                    displayValue += moment(value.from).calendar(null, {
-                        sameDay: '[Today]',
-                        nextDay: '[Tomorrow]',
-                        nextWeek: 'dddd',
-                        lastDay: '[Yesterday]',
-                        lastWeek: '[Last] dddd',
-                        sameElse: 'L'
-                    })
+                    displayValue += moment(value.from).calendar(null, calendarOpts)
                     if(value.to) {
-                        displayValue += ' to '
+                        displayValue += ' <=> '
                     }
                 }
                 if(value.to) {
-                    displayValue += moment(value.to).calendar(null, {
-                        sameDay: '[Today]',
-                        nextDay: '[Tomorrow]',
-                        nextWeek: 'dddd',
-                        lastDay: '[Yesterday]',
-                        lastWeek: '[Last] dddd',
-                        sameElse: 'L'
-                    })
+                    displayValue += moment(value.to).calendar(null, calendarOpts)
                 }
                 break
             case 'bytesize':
-                label = 'Size'
+                label = m('2')
                 displayValue = ''
                 if(value.from) {
                     displayValue += PathUtils.roundFileSize(value.from)
                     if(value.to) {
-                        displayValue += ' to '
+                        displayValue += ' <=> '
                     }
                 }
                 if(value.to) {
