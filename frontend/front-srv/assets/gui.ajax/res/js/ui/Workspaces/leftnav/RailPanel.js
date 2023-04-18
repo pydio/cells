@@ -266,7 +266,7 @@ let RailPanel = ({
                     hoverBar: () => {
                         return (
                             <div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}} className={"rail-hover-bar"}>
-                                <div style={{fontSize: 20, padding:16}}>Bookmarks</div>
+                                <div style={{fontSize: 20, padding:16}}>{MessageHash['147']}</div>
                                 <BookmarksList pydio={pydio} asPopover={false} useCache={true} onRequestClose={()=>{setHover(false)}}/>
                             </div>
                         )
@@ -298,7 +298,7 @@ let RailPanel = ({
                         const {ActivityList} = lib;
                         return (
                             <div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}} className={"rail-hover-bar"}>
-                                <div style={{fontSize: 20, padding:16}}>Notifications</div>
+                                <div style={{fontSize: 20, padding:16}}>{MessageHash['notification_center.1']}</div>
                                 <ActivityList
                                     items={data || []}
                                     style={{overflowY: 'scroll', flex: 1}}

@@ -51,14 +51,35 @@ export default class extends React.Component {
     };
 
     indexedValues = (rowsArray) => {
-        let index = 0, values = {};
-        rowsArray.map(function(row){
-            const suffix = index==0?'':'_'+index;
-            for(let p in row){
-                if(!row.hasOwnProperty(p)) continue;
-                values[p+suffix] = row[p];
-            }
-            index ++;
+        let values = {};
+        const {parameters} = this.props;
+        rowsArray.map(function(row, index){
+            const suffix = index===0?'':'_'+index;
+            parameters.forEach(param => {
+                const colName = param.name
+                let value = row[colName]
+                if(value === undefined) {
+                    if(param["default"]) {
+                        value = param["default"]
+                    } else {
+                        switch (param["type"]) {
+                            case "string":
+                            case "select":
+                                value = ""
+                                break;
+                            case "number":
+                                value = 0
+                                break;
+                            case "boolean":
+                                value = false
+                                break;
+                            default:
+                                value = null
+                        }
+                    }
+                }
+                values[colName+suffix] = value
+            })
         });
         return values;
     };
