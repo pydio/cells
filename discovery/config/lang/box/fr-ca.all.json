@@ -99,10 +99,10 @@
     "other": "occurrences (expr. reg)"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "pattern"
+    "other": "motif"
   },
   "conditionBooleanCondition.value": {
-    "other": "True"
+    "other": "Vrai"
   },
   "contextMetaCondition.CIDRCondition": {
     "other": "Condition CIDR"
