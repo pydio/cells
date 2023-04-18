@@ -1325,6 +1325,9 @@
   "494": {
     "other": "Yesterday"
   },
+  "494t": {
+    "other": "Tomorrow"
+  },
   "495": {
     "other": "Last week"
   },
@@ -2437,6 +2440,9 @@
   },
   "searchengine.complete.activefilters": {
     "other": "Filters:"
+  },
+  "searchengine.complete.activefilters-edit": {
+    "other": "Click to modify"
   },
   "chat.load-older": {
     "other": "오래된 항목"

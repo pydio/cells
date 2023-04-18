@@ -1325,6 +1325,9 @@
   "494": {
     "other": "Včera"
   },
+  "494t": {
+    "other": "Tomorrow"
+  },
   "495": {
     "other": "Minulý týden"
   },
@@ -2437,6 +2440,9 @@
   },
   "searchengine.complete.activefilters": {
     "other": "Filters:"
+  },
+  "searchengine.complete.activefilters-edit": {
+    "other": "Click to modify"
   },
   "chat.load-older": {
     "other": "Starší položky"
