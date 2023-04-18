@@ -115,7 +115,11 @@ class MetaClient{
                     if (ns.JsonDefinition){
                         const jDef = JSON.parse(ns.JsonDefinition);
                         Object.keys(jDef).map(k => {
-                            base[k] = jDef[k];
+                            if(k === 'hide') {
+                                base['visible'] = !jDef[k];
+                            } else {
+                                base[k] = jDef[k];
+                            }
                         })
                     }
                     defs[name] = base;

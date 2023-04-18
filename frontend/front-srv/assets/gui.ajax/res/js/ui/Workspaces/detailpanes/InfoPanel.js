@@ -23,18 +23,21 @@ import React from 'react';
 import Pydio from 'pydio'
 import XMLUtils from 'pydio/util/xml'
 import {Paper} from "material-ui";
+import {muiThemeable} from 'material-ui/styles'
 
-const {Animations, withVerticalScroll} = Pydio.requireLib('hoc')
+const {withVerticalScroll} = Pydio.requireLib('hoc')
 const {EmptyStateView} = Pydio.requireLib('components')
-
-const originStyles = {translateX: 600}
-const targetStyles = {translateX: 0}
+const {AsyncComponent} = Pydio.requireLib('boot')
 
 let Template = ({id, style, children}) => {
     return <Paper zDepth={0} rounded={false} id={id} style={{backgroundColor:'transparent', ...style}}>{children}</Paper>
 }
 
 /*
+const {Animations} = Pydio.requireLib('hoc')
+const originStyles = {translateX: 600}
+const targetStyles = {translateX: 0}
+
 Template = compose(
     Animations.makeAsync,
     Animations.makeTransition(originStyles, targetStyles),
@@ -53,6 +56,14 @@ class InfoPanel extends React.Component {
             templates:initTemplates,
             displayData: this.selectionToTemplates(initTemplates)
         };
+    }
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        const {muiTheme:currentTheme} = this.props;
+        const {muiTheme} = nextProps;
+        if(muiTheme.darkMode !== currentTheme.darkMode) {
+            this._updateExpected = true
+        }
     }
 
     shouldComponentUpdate(){
@@ -160,7 +171,7 @@ class InfoPanel extends React.Component {
             const [namespace, name] = component.split('.', 2);
 
             return (
-                <PydioReactUI.AsyncComponent
+                <AsyncComponent
                     {...displayData.DATA}
                     {...this.props}
                     key={"ip_" + component}
@@ -189,6 +200,7 @@ InfoPanel.contextTypes = {
 };
 
 InfoPanel = withVerticalScroll(InfoPanel, {id: "info_panel"})
+InfoPanel = muiThemeable()(InfoPanel)
 
 class ConfigsParser {
 

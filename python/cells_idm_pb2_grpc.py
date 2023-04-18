@@ -648,6 +648,11 @@ class ACLServiceStub(object):
                 request_serializer=cells__idm__pb2.SearchACLRequest.SerializeToString,
                 response_deserializer=cells__idm__pb2.SearchACLResponse.FromString,
                 )
+        self.RestoreACL = channel.unary_unary(
+                '/idm.ACLService/RestoreACL',
+                request_serializer=cells__idm__pb2.RestoreACLRequest.SerializeToString,
+                response_deserializer=cells__idm__pb2.RestoreACLResponse.FromString,
+                )
 
 
 class ACLServiceServicer(object):
@@ -657,31 +662,43 @@ class ACLServiceServicer(object):
     """
 
     def CreateACL(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Insert a new ACL
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def ExpireACL(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Set an expiration date that invalidates an ACL without deleting it
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def DeleteACL(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Definitely delete an ACL
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def SearchACL(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Search ACLs by Query or Expiration period
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def StreamACL(self, request_iterator, context):
-        """Missing associated documentation comment in .proto file."""
+        """Stream version of Search ACL
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RestoreACL(self, request, context):
+        """Restore ACLs based on Query and Expiration period
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -713,6 +730,11 @@ def add_ACLServiceServicer_to_server(servicer, server):
                     servicer.StreamACL,
                     request_deserializer=cells__idm__pb2.SearchACLRequest.FromString,
                     response_serializer=cells__idm__pb2.SearchACLResponse.SerializeToString,
+            ),
+            'RestoreACL': grpc.unary_unary_rpc_method_handler(
+                    servicer.RestoreACL,
+                    request_deserializer=cells__idm__pb2.RestoreACLRequest.FromString,
+                    response_serializer=cells__idm__pb2.RestoreACLResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -809,6 +831,23 @@ class ACLService(object):
         return grpc.experimental.stream_stream(request_iterator, target, '/idm.ACLService/StreamACL',
             cells__idm__pb2.SearchACLRequest.SerializeToString,
             cells__idm__pb2.SearchACLResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def RestoreACL(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/idm.ACLService/RestoreACL',
+            cells__idm__pb2.RestoreACLRequest.SerializeToString,
+            cells__idm__pb2.RestoreACLResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

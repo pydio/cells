@@ -143,6 +143,9 @@
   "Mail.Config.From.Description": {
     "other": "Dirección de email para usar por defecto. Debería utilizar una dirección de soporte técnico válida en vez de una dirección \"no-reply\"."
   },
+  "Mail.Config.FixOutlookDisplay": {
+    "other": "Outlook Clients Fix (disable CSS inlining)"
+  },
   "Mail.Config.Queue.Label": {
     "other": "Tipo de Cola"
   },

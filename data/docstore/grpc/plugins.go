@@ -99,8 +99,8 @@ func init() {
 					}
 				}
 
-				proto.RegisterDocStoreServer(server, handler)
-				sync.RegisterSyncEndpointServer(server, handler)
+				proto.RegisterDocStoreEnhancedServer(server, handler)
+				sync.RegisterSyncEndpointEnhancedServer(server, handler)
 
 				return nil
 			}),

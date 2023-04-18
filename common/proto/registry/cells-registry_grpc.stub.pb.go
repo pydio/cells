@@ -78,6 +78,11 @@ func (s *RegistryStub) Invoke(ctx context.Context, method string, args interface
 func (s *RegistryStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
 	fmt.Println("Serving", method)
 	switch method {
+	case "/registry.Registry/Session":
+		st := &RegistryStub_SessionStreamer{}
+		st.Init(ctx)
+		go s.RegistryServer.Session(st)
+		return st, nil
 	case "/registry.Registry/Watch":
 		st := &RegistryStub_WatchStreamer{}
 		st.Init(ctx, func(i interface{}) error {
@@ -98,6 +103,22 @@ func (s *RegistryStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, met
 		return st, nil
 	}
 	return nil, fmt.Errorf(method + "  not implemented")
+}
+
+type RegistryStub_SessionStreamer struct {
+	stubs.BidirServerStreamerCore
+}
+
+func (s *RegistryStub_SessionStreamer) Recv() (*SessionRequest, error) {
+	if req, o := <-s.ReqChan; o {
+		return req.(*SessionRequest), nil
+	} else {
+		return nil, io.EOF
+	}
+}
+func (s *RegistryStub_SessionStreamer) Send(response *EmptyResponse) error {
+	s.RespChan <- response
+	return nil
 }
 
 type RegistryStub_WatchStreamer struct {

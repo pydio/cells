@@ -28,14 +28,14 @@ class MailerTest extends React.Component {
     }
 
     componentDidMount(){
-        ResourcesManager.loadClass('PydioMailer').then(()=> {
-            this.setState({loaded: true});
+        ResourcesManager.loadClass('PydioMailer').then((ns)=> {
+            this.setState({loaded: true, Pane: ns.Pane});
         });
     }
 
     render(){
 
-        const {loaded} = this.state;
+        const {loaded, Pane} = this.state;
         const {MessageHash} = this.props.pydio;
         const {adminStyles} = this.props;
 
@@ -49,7 +49,7 @@ class MailerTest extends React.Component {
 
         return (
             <div>
-                <PydioMailer.Pane
+                <Pane
                     pydio={this.props.pydio}
                     templateId={"AdminTestMail"}
                     templateData={{}}

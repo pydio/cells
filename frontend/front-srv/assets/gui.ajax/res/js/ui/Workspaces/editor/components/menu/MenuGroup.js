@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
 import makeMenuTransition from './make-menu-transition';
 
 const MenuGroup = (props) => {

@@ -363,6 +363,7 @@ func (w *WebsocketHandler) BroadcastIDMChangeEvent(ctx context.Context, event *i
 		event.User = event.User.WithPublicData(ctx, true)
 	}
 	message, _ := protojson.Marshal(event)
+	incomingUserName, _ := permissions.FindUserNameInContext(ctx)
 
 	return w.Websocket.BroadcastFilter(message, func(session *melody.Session) bool {
 
@@ -398,6 +399,10 @@ func (w *WebsocketHandler) BroadcastIDMChangeEvent(ctx context.Context, event *i
 		}
 
 		if checkUserLogin != "" {
+			// Original change was sent by the given user, do not send an echo of the UPDATE
+			if event.Type == idm.ChangeEventType_UPDATE && checkUserLogin == incomingUserName {
+				return false
+			}
 			if val, ok := session.Get(SessionUsernameKey); ok && val != nil {
 				return checkUserLogin == val.(string)
 			}

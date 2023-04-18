@@ -143,6 +143,9 @@
   "Mail.Config.From.Description": {
     "other": "Адрес, используемый по умолчанию при отправке писем. Вы должны использовать правильный email поддержки вместо email без ответа."
   },
+  "Mail.Config.FixOutlookDisplay": {
+    "other": "Outlook Clients Fix (disable CSS inlining)"
+  },
   "Mail.Config.Queue.Label": {
     "other": "Тип очереди"
   },

@@ -18,12 +18,14 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import dlLoader from './download'
+
 export default function (pydio) {
 
     return function(){
         let dm = pydio.getContextHolder();
         dm.setSelectedNodes([dm.getRootNode()]);
-        require('./download')(pydio)();
+        dlLoader(pydio)();
     }
 
 }

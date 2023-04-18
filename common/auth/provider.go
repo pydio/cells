@@ -74,7 +74,6 @@ func InitConfiguration(values configx.Values) {
 		}
 		confMap[rootUrl.Host] = p
 	}
-	fmt.Println("Default conf ", defaultConf.Clients())
 	confInit = true
 }
 

@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import React from 'react'
 import ContextMenuModel from 'pydio/model/context-menu'
 
 const withContextMenu = (Component) => {

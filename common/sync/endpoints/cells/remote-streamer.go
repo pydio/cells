@@ -41,7 +41,7 @@ func (c *Remote) BulkLoadNodes(ctx context.Context, nodes map[string]string) (ma
 	if err != nil {
 		return nil, err
 	}
-	sendCtx, can := context.WithTimeout(newCtx, 5*time.Minute)
+	sendCtx, can := context.WithTimeout(newCtx, 10*time.Minute)
 	defer can()
 	streamer, err := cli.ReadNodeStream(sendCtx)
 	if err != nil {
@@ -101,7 +101,7 @@ func (c *Remote) FlushSession(ctx context.Context, sessionUuid string) error {
 	if err != nil {
 		return err
 	}
-	sendCtx, can := context.WithTimeout(c.getContext(ctx), 5*time.Minute)
+	sendCtx, can := context.WithTimeout(c.getContext(ctx), 10*time.Minute)
 	defer can()
 	streamer, err := cli.CreateNodeStream(sendCtx)
 	if err != nil {

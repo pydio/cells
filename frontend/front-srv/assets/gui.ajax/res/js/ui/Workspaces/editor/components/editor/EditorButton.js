@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import React from 'react'
 const {IconButton} = require('material-ui');
 
 const { makeTransitionHOC, withHideDisabled } = Pydio.requireLib('hoc');

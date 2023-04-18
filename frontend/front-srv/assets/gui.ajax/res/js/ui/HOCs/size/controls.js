@@ -17,12 +17,10 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-import { ToolbarTitle, DropDownMenu, MenuItem, IconButton, Slider } from 'material-ui';
-import ActionAspectRatio from 'material-ui/svg-icons/action/aspect-ratio'
-import { connect } from 'react-redux';
-import { mapStateToProps } from './utils';
-import { handler, getDisplayName } from '../utils';
+import React from 'react'
+import {connect} from 'react-redux';
+import {mapStateToProps} from './utils';
+import {getDisplayName, handler} from '../utils';
 
 export const withSizeControls = (Component) => {
     return (

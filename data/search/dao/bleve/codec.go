@@ -227,8 +227,17 @@ func (b *Codec) BuildQuery(qu interface{}, offset, limit int32) (interface{}, in
 		dateRange.SetField("ModifTime")
 		boolean.AddMust(dateRange)
 	}
-	// Limit to a SubTree
-	if len(queryObject.PathPrefix) > 0 {
+
+	// Limit to a set of Paths or to a SubTree (PathPrefix)
+	if len(queryObject.Paths) > 0 {
+		subQ := bleve.NewBooleanQuery()
+		for _, pa := range queryObject.Paths {
+			exact := bleve.NewMatchQuery(pa)
+			exact.SetField("Path")
+			subQ.AddShould(exact)
+		}
+		boolean.AddMust(subQ)
+	} else if len(queryObject.PathPrefix) > 0 {
 		subQ := bleve.NewBooleanQuery()
 		for _, pref := range queryObject.PathPrefix {
 			prefix := bleve.NewPrefixQuery(pref)

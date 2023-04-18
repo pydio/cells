@@ -6,11 +6,8 @@
     <client_settings>
         <resources>
             <js file="plug/editor.soundmanager/sm/360-player/script/berniecode-animator.js" className="Animator"/>
-            <js file="plug/editor.soundmanager/res/dist/PydioSoundManager.min.js" className="PydioSoundManager"/>
+            <js file="plug/editor.soundmanager/res/dist/PydioSoundManager.min.js" className="PydioSoundManager" depends="Animator"/>
             <i18n namespace="sm_editor" remote="plug/editor.soundmanager/i18n"/>
-            <css file="plug/editor.soundmanager/soundmanager.css" />
-            <css file="plug/editor.soundmanager/sm/360-player/360player.css"/>
-            <css file="plug/editor.soundmanager/sm/360-player/360player-visualization.css"/>
         </resources>
     </client_settings>
     <clientForm id="smplayer_editor"><![CDATA[

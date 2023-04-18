@@ -50,19 +50,19 @@ func init() {
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				conf := config.Get("services", BrowserName)
 				treeServer := NewTreeHandler(conf)
-				tree.RegisterNodeProviderServer(server, treeServer)
-				tree.RegisterNodeReceiverServer(server, treeServer)
+				tree.RegisterNodeProviderEnhancedServer(server, treeServer)
+				tree.RegisterNodeReceiverEnhancedServer(server, treeServer)
 				return nil
 			}),
 		)
-		service.NewService(
-			append([]service.ServiceOption{
-				service.Name(Name),
-				service.Context(ctx),
-				service.Tag(common.ServiceTagDatasource),
-				service.Description("Starter for different sources objects"),
-			}, service.WithChildrenRunner(Name, ChildPrefix, true, onDeleteObjectsConfig)...)...,
-		)
+		//service.NewService(
+		//	append([]service.ServiceOption{
+		//		service.Name(Name),
+		//		service.Context(ctx),
+		//		service.Tag(common.ServiceTagDatasource),
+		//		service.Description("Starter for different sources objects"),
+		//	}, service.WithChildrenRunner(Name, ChildPrefix, true, onDeleteObjectsConfig)...)...,
+		//)
 	})
 }
 

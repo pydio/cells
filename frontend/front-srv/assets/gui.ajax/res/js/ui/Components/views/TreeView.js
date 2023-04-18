@@ -19,7 +19,9 @@
  */
 
 import { Types, collect, collectDrop, nodeDragSource, nodeDropTarget } from '../util/DND';
+import dnd from 'react-dnd'
 import React from 'react';
+import ReactDOM from 'react-dom'
 import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 import Pydio from 'pydio';
@@ -34,6 +36,7 @@ let ContextMenuWrapper = (props) => {
 };
 ContextMenuWrapper = withContextMenu(ContextMenuWrapper);
 
+const DEFAULT_OFFSET_SIZE = 20;
 
 /**
  * Tree Node
@@ -59,6 +62,7 @@ var SimpleTreeNode = createReactClass({
         checkboxesComputeStatus:PropTypes.func,
         onCheckboxCheck:PropTypes.func,
         paddingOffset:PropTypes.number,
+        offsetSize:PropTypes.number
     },
 
     getDefaultProps:function(){
@@ -67,6 +71,7 @@ var SimpleTreeNode = createReactClass({
             childrenOnly: false,
             depth:0,
             paddingOffset: 0,
+            offsetSize:DEFAULT_OFFSET_SIZE,
             onNodeSelect: function(node){}
         }
     },
@@ -185,19 +190,20 @@ var SimpleTreeNode = createReactClass({
     render: function () {
         const {node, dataModel, childrenOnly, canDrop, isOverCurrent,
             checkboxes, checkboxesComputeStatus, checkboxesValues, onCheckboxCheck,
-            depth, paddingOffset, forceExpand, selectedItemStyle, getItemStyle, getRightIcon, forceLabel, showLoader, noPaginator} = this.props;
+            depth, paddingOffset, offsetSize, forceExpand, selectedItemStyle, getItemStyle, getRightIcon, forceLabel, showLoader, noPaginator} = this.props;
         const hasFolderChildrens = !!this.state.children.length;
         let hasChildren;
+        const icbase = 'menu'
         if(hasFolderChildrens){
             hasChildren = (
                 <span onClick={this.onChildDisplayToggle}>
                 {this.state.showChildren || forceExpand?
-                    <span className="tree-icon icon-angle-down"></span>:
-                    <span className="tree-icon icon-angle-right"></span>
+                    <span className={"tree-icon mdi mdi-"+icbase+"-down"}></span>:
+                    <span className={"tree-icon mdi mdi-"+icbase+"-right"}></span>
                 }
                 </span>);
         }else{
-            let cname = "tree-icon icon-angle-right";
+            let cname = "tree-icon mdi mdi-"+icbase+"-right";
             if(node.isLoaded()){
                 cname += " no-folder-children";
             }
@@ -248,7 +254,7 @@ var SimpleTreeNode = createReactClass({
                 isSelected += valueClasses.length ? (" checkbox-values-" + valueClasses.join('-')) : " checkbox-values-empty";
                 boxes = <div style={{display:'flex', alignItems:'center'}} className={"tree-checkboxes" + additionalClassName}>{boxes}</div>;
             }
-            let itemStyle = {paddingLeft:(paddingOffset + depth*20)};
+            let itemStyle = {paddingLeft:(paddingOffset + depth*offsetSize)};
             if(this.nodeIsSelected(node) && selectedItemStyle){
                 itemStyle = {...itemStyle, ...selectedItemStyle};
             }
@@ -288,7 +294,7 @@ var SimpleTreeNode = createReactClass({
         var children = [];
         let connector = (instance) => instance;
         let draggable = false;
-        if(window.ReactDND && this.props.connectDropTarget && this.props.connectDragSource){
+        if(dnd && this.props.connectDropTarget && this.props.connectDragSource){
             let connectDragSource = this.props.connectDragSource;
             let connectDropTarget = this.props.connectDropTarget;
             connector = (instance) => {
@@ -324,14 +330,12 @@ var SimpleTreeNode = createReactClass({
     },
 });
 
-var DragDropTreeNode;
-if(window.ReactDND){
-    DragDropTreeNode = ReactDND.flow(
-        ReactDND.DragSource(Types.NODE_PROVIDER, nodeDragSource, collect),
-        ReactDND.DropTarget(Types.NODE_PROVIDER, nodeDropTarget, collectDrop)
+let DragDropTreeNode = SimpleTreeNode;
+if(dnd){
+    DragDropTreeNode = dnd.flow(
+        dnd.DragSource(Types.NODE_PROVIDER, nodeDragSource, collect),
+        dnd.DropTarget(Types.NODE_PROVIDER, nodeDropTarget, collectDrop)
     )(SimpleTreeNode);
-}else{
-    DragDropTreeNode = SimpleTreeNode;
 }
 
 class TreePaginator extends React.Component {
@@ -343,7 +347,7 @@ class TreePaginator extends React.Component {
     }
 
     render(){
-        const {node, depth, paddingOffset, muiTheme} = this.props;
+        const {node, depth, paddingOffset, offsetSize, muiTheme} = this.props;
         const icProps = {
             style:{width: 24, height: 24, padding: 0}
         };
@@ -354,9 +358,9 @@ class TreePaginator extends React.Component {
         const label = pageWord + ' ' + crt + ' / ' + total;
         return (
             <li>
-                <div style={{paddingLeft: paddingOffset + depth * 20, paddingTop:5, paddingBottom: 5, display:'flex', alignItems:'center'}}>
-                    <div style={{paddingLeft: 14, paddingRight: 6, color: 'rgba(0,0,0,.43)'}} className={"mdi mdi-format-list-bulleted"}/>
-                    <div style={{display:'flex', alignItems:'center', color:'rgba(0,0,0,.73)', backgroundColor:'rgba(0,0,0,0.02)', borderRadius: 3, marginRight: 10}}>
+                <div style={{paddingLeft: paddingOffset + depth * offsetSize, paddingTop:5, paddingBottom: 5, display:'flex', alignItems:'center'}}>
+                    <div style={{paddingLeft: 14, paddingRight: 6}} className={"mdi mdi-format-list-bulleted"}/>
+                    <div style={{display:'flex', alignItems:'center', borderRadius: 3, marginRight: 10}}>
                         <IconButton iconClassName={"mdi mdi-chevron-left"} onClick={()=>{this.goTo(crt -1 )}} disabled={crt === 1} {...icProps}/>
                         <div style={{padding: '0 20px', flex:1, textAlign:'center', fontSize: 13}}>{label}</div>
                         <IconButton iconClassName={"mdi mdi-chevron-right"} onClick={()=>{this.goTo(crt + 1 )}} disabled={crt === total} {...icProps}/>
@@ -394,7 +398,8 @@ class DNDTreeView extends React.Component {
         checkboxesValues:PropTypes.object,
         checkboxesComputeStatus:PropTypes.func,
         onCheckboxCheck:PropTypes.func,
-        paddingOffset:PropTypes.number
+        paddingOffset:PropTypes.number,
+        offsetSize:PropTypes.number
     };
 
     static defaultProps = {
@@ -429,6 +434,7 @@ class DNDTreeView extends React.Component {
                     getItemStyle={this.props.getItemStyle}
                     getRightIcon={this.props.getRightIcon}
                     paddingOffset={this.props.paddingOffset}
+                    offsetSize={this.props.offsetSize}
                     noPaginator={this.props.noPaginator}
                     showLoader={this.props.showLoader}
                 />
@@ -457,7 +463,8 @@ class TreeView extends React.Component {
         checkboxesValues:PropTypes.object,
         checkboxesComputeStatus:PropTypes.func,
         onCheckboxCheck:PropTypes.func,
-        paddingOffset:PropTypes.number
+        paddingOffset:PropTypes.number,
+        offsetSize:PropTypes.number
     };
 
     static defaultProps = {
@@ -492,6 +499,7 @@ class TreeView extends React.Component {
                     getItemStyle={this.props.getItemStyle}
                     getRightIcon={this.props.getRightIcon}
                     paddingOffset={this.props.paddingOffset}
+                    offsetSize={this.props.offsetSize}
                     showLoader={this.props.showLoader}
                 />
             </ul>
@@ -562,6 +570,8 @@ class FoldersTree extends React.Component {
                     getRightIcon={this.props.getRightIcon}
                     rootLabel={this.props.rootLabel}
                     noPaginator={this.props.noPaginator}
+                    paddingOffset={this.props.paddingOffset}
+                    offsetSize={this.props.offsetSize}
                     className={"folders-tree" + (this.props.className ? ' '+this.props.className : '')}
                 />
             );
@@ -578,6 +588,8 @@ class FoldersTree extends React.Component {
                     showRoot={this.props.showRoot ? true : false}
                     rootLabel={this.props.rootLabel}
                     noPaginator={this.props.noPaginator}
+                    paddingOffset={this.props.paddingOffset}
+                    offsetSize={this.props.offsetSize}
                     className={"folders-tree" + (this.props.className ? ' '+this.props.className : '')}
                 />
             );

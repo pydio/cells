@@ -27,7 +27,7 @@ import PydioApi from 'pydio/http/api'
 import XMLUtils from 'pydio/util/xml'
 import Pydio from 'pydio'
 import VersionPolicyPeriods from './VersionPolicyPeriods'
-const PydioForm = Pydio.requireLib('form');
+const {Manager, FormPanel} = Pydio.requireLib('form');
 const {PaperEditorLayout, AdminStyles} = AdminComponents;
 
 class VersionPolicyEditor extends React.Component{
@@ -59,7 +59,7 @@ class VersionPolicyEditor extends React.Component{
             const xmlString = responseAndData.data;
             const domNode = XMLUtils.parseXml(xmlString);
             this.setState({
-                parameters: PydioForm.Manager.parseParameters(domNode, "//param"),
+                parameters: Manager.parseParameters(domNode, "//param"),
                 loaded: true,
             });
         });
@@ -191,7 +191,7 @@ class VersionPolicyEditor extends React.Component{
                 values = VersionPolicyEditor.TreeVersioningPolicyToValues(saveValue);
             }
             form = (
-                <PydioForm.FormPanel
+                <FormPanel
                     parameters={parameters}
                     values={values}
                     className="full-width"

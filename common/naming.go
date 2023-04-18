@@ -218,6 +218,7 @@ const (
 	MetaFlagChildrenCount        = "ChildrenCount"
 	MetaFlagChildrenFolders      = "ChildrenFolders"
 	MetaFlagChildrenFiles        = "ChildrenFiles"
+	MetaFlagRecursiveCount       = "RecursiveCount"
 	MetaFlagWorkspaceSkipRecycle = "ws_skip_recycle"
 	MetaFlagContentLock          = "content_lock"
 	MetaFlagWorkspacesShares     = "workspaces_shares"
@@ -227,8 +228,9 @@ const (
 	MetaFlagWorkspaceRepoDisplay = "repository_display"
 	MetaFlagWorkspaceEventId     = "EventWorkspaceId"
 
-	IdmWsInternalHomepageID = "homepage"
-	IdmWsInternalSettingsID = "settings"
+	IdmWsInternalHomepageID  = "homepage"
+	IdmWsInternalSettingsID  = "settings"
+	IdmWsInternalDirectoryID = "directory"
 )
 
 var (
@@ -245,8 +247,9 @@ var (
 	}
 
 	IdmWsInternalReservedSlugs = map[string]string{
-		IdmWsInternalSettingsID: "settings",
-		IdmWsInternalHomepageID: "welcome",
+		IdmWsInternalSettingsID:  "settings",
+		IdmWsInternalHomepageID:  "welcome",
+		IdmWsInternalDirectoryID: "directory",
 	}
 )
 

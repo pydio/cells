@@ -21,26 +21,10 @@
 package rest
 
 import (
-	"context"
-	"fmt"
-	"github.com/pydio/cells/v4/common/client/grpc"
-
-	restful "github.com/emicklei/go-restful/v3"
-	"go.uber.org/zap"
-	"google.golang.org/protobuf/types/known/anypb"
-
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/auth"
-	"github.com/pydio/cells/v4/common/auth/claim"
-	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/emicklei/go-restful/v3"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
-	service2 "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 // ListSharedResources implements the corresponding Rest API operation
@@ -55,108 +39,30 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 		service.RestErrorDetect(req, rsp, err)
 		return
 	}
+	response := &rest.ListSharedResourcesResponse{}
 
 	ctx := req.Request.Context()
-	var subjects []string
-	admin := false
-	var userId string
-	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
-		admin = claims.Profile == common.PydioProfileAdmin
-		userId = claims.Subject
+	var scope idm.WorkspaceScope
+	switch request.ShareType {
+	case rest.ListSharedResourcesRequest_ANY:
+		scope = idm.WorkspaceScope_ANY
+	case rest.ListSharedResourcesRequest_CELLS:
+		scope = idm.WorkspaceScope_ROOM
+	case rest.ListSharedResourcesRequest_LINKS:
+		scope = idm.WorkspaceScope_LINK
+	default:
+		scope = idm.WorkspaceScope_ANY
 	}
-	if request.Subject != "" {
-		if !admin {
-			service.RestError403(req, rsp, fmt.Errorf("only admins can specify a subject"))
-			return
-		}
-		subjects = append(subjects, request.Subject)
-	} else {
-		var e error
-		if subjects, e = auth.SubjectsForResourcePolicyQuery(ctx, &rest.ResourcePolicyQuery{Type: rest.ResourcePolicyQuery_CONTEXT}); e != nil {
-			service.RestError500(req, rsp, e)
-			return
-		}
-	}
-
-	var qs []*anypb.Any
-	if request.ShareType == rest.ListSharedResourcesRequest_CELLS || request.ShareType == rest.ListSharedResourcesRequest_ANY {
-		q, _ := anypb.New(&idm.WorkspaceSingleQuery{Scope: idm.WorkspaceScope_ROOM})
-		qs = append(qs, q)
-	}
-	if request.ShareType == rest.ListSharedResourcesRequest_LINKS || request.ShareType == rest.ListSharedResourcesRequest_ANY {
-		q, _ := anypb.New(&idm.WorkspaceSingleQuery{Scope: idm.WorkspaceScope_LINK})
-		qs = append(qs, q)
-	}
-
-	cl := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceWorkspace))
-	streamer, err := cl.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{
-		Query: &service2.Query{
-			SubQueries: qs,
-			Operation:  service2.OperationType_OR,
-			ResourcePolicyQuery: &service2.ResourcePolicyQuery{
-				Subjects: subjects,
-			},
-		},
-	})
-	if err != nil {
-		service.RestErrorDetect(req, rsp, err)
-		return
-	}
-	defer streamer.CloseSend()
-	response := &rest.ListSharedResourcesResponse{}
-	workspaces := map[string]*idm.Workspace{}
-	var workspaceIds []string
-	for {
-		resp, e := streamer.Recv()
-		if e != nil {
-			break
-		}
-		if request.OwnedBySubject && !h.MatchPolicies(ctx, resp.Workspace.UUID, resp.Workspace.Policies, service2.ResourcePolicyAction_OWNER, userId) {
-			continue
-		}
-		workspaces[resp.Workspace.UUID] = resp.Workspace
-		workspaceIds = append(workspaceIds, resp.Workspace.UUID)
-	}
-
-	if len(workspaces) == 0 {
-		rsp.WriteEntity(response)
-		return
-	}
-
-	acls, e := permissions.GetACLsForWorkspace(ctx, workspaceIds, permissions.AclRead, permissions.AclWrite, permissions.AclPolicy)
+	rr, e := h.sc.ListSharedResources(ctx, request.Subject, scope, request.OwnedBySubject, h.ResourceProviderHandler)
 	if e != nil {
 		service.RestErrorDetect(req, rsp, e)
-		return
 	}
 
-	// Map roots to objects
-	roots := make(map[string]map[string]*idm.Workspace)
-	var detectedRoots []string
-	for _, acl := range acls {
-		if acl.NodeID == "" {
-			continue
-		}
-		if _, has := roots[acl.NodeID]; !has {
-			roots[acl.NodeID] = make(map[string]*idm.Workspace)
-			detectedRoots = append(detectedRoots, acl.NodeID)
-		}
-		if ws, ok := workspaces[acl.WorkspaceID]; ok {
-			roots[acl.NodeID][acl.WorkspaceID] = ws
-		}
-	}
-	var rootNodes map[string]*tree.Node
-	if request.Subject != "" {
-		rootNodes = h.LoadAdminRootNodes(ctx, detectedRoots)
-	} else {
-		rootNodes = h.sc.LoadDetectedRootNodes(ctx, detectedRoots)
-	}
-
-	// Build resources
-	for nodeId, node := range rootNodes {
+	for _, res := range rr {
 		resource := &rest.ListSharedResourcesResponse_SharedResource{
-			Node: node,
+			Node: res.Node,
 		}
-		for _, ws := range roots[nodeId] {
+		for _, ws := range res.Workspaces {
 			if ws.Scope == idm.WorkspaceScope_LINK {
 				resource.Link = &rest.ShareLink{
 					Uuid:                    ws.UUID,
@@ -178,29 +84,6 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 		response.Resources = append(response.Resources, resource)
 	}
 
-	rsp.WriteEntity(response)
-
-}
-
-// LoadAdminRootNodes find actual nodes in the tree, and enrich their metadata if they appear
-// in many workspaces for the current user.
-func (h *SharesHandler) LoadAdminRootNodes(ctx context.Context, detectedRoots []string) (rootNodes map[string]*tree.Node) {
-
-	rootNodes = make(map[string]*tree.Node)
-	router := compose.UuidClient(h.ctx, nodes.AsAdmin())
-	metaClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceMeta))
-	for _, rootId := range detectedRoots {
-		request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}}
-		if resp, err := router.ReadNode(ctx, request); err == nil {
-			node := resp.Node
-			if metaResp, e := metaClient.ReadNode(ctx, request); e == nil && metaResp.GetNode().GetMetaBool(common.MetaFlagCellNode) {
-				node.MustSetMeta(common.MetaFlagCellNode, true)
-			}
-			rootNodes[node.GetUuid()] = node.WithoutReservedMetas()
-		} else {
-			log.Logger(ctx).Error("Share Load - Ignoring Root Node, probably deleted", zap.String("nodeId", rootId), zap.Error(err))
-		}
-	}
 	return
 
 }

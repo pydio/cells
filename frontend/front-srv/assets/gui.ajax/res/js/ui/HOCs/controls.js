@@ -18,16 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import { Component } from 'react'
-import { bindActionCreators } from 'redux'
-import { Toolbar, ToolbarGroup } from 'material-ui'
-import ContainerDimensions from 'react-container-dimensions';
-
-import {withContainerSize} from './size/providers';
-
+import {Component} from 'react'
+import {Toolbar, ToolbarGroup} from 'material-ui'
 import {toTitleCase} from './utils'
-
-import _ from 'lodash';
+import {withContainerSize} from './size';
+import {throttle} from "lodash";
 
 const getDisplayName = (WrappedComponent) => {
     return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -83,19 +78,6 @@ const withMenu = (WrappedComponent) => {
         }
     }
 }
-
-/*static get propTypes() {
-    return Object.keys(newControls).map(type => ({
-        [`${type}Disabled`]: React.PropTypes.bool,
-        [`on${toTitleCase(type)}`]: React.PropTypes.func
-    }))
-}
-
-static get defaultProps() {
-    return Object.keys(newControls).map(type => ({
-        [`${type}Disabled`]: false
-    }))
-}*/
 
 const withControls = (newControls = {}) => {
     return (WrappedComponent) => {
@@ -179,22 +161,6 @@ export function withDisabled(propName) {
     }
 }
 
-export function withDimensions(WrappedComponent) {
-    return class extends Component {
-        static get displayName() {
-            return `WithContainerDimensions(${getDisplayName(WrappedComponent)})`
-        }
-
-        render() {
-            return (
-                <ContainerDimensions>
-                    <WrappedComponent {...this.props} />
-                </ContainerDimensions>
-            )
-        }
-    }
-}
-
 export function withMouseTracker() {
     return (WrappedComponent) => {
         return (
@@ -210,7 +176,7 @@ export function withMouseTracker() {
                         isNearRight: false,
                     }
 
-                    this._moveObserver = _.throttle(this.onMouseMove.bind(this), 1000)
+                    this._moveObserver = throttle(this.onMouseMove.bind(this), 1000)
                 }
 
                 static get displayName() {

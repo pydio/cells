@@ -37,6 +37,7 @@ import (
 
 type PluginOptions struct {
 	MaxExpiration           int
+	CellsMaxExpiration      int
 	MaxDownloads            int
 	HashMinLength           int
 	HashEditable            bool
@@ -54,7 +55,7 @@ func (sc *Client) CheckLinkOptionsAgainstConfigs(ctx context.Context, link *rest
 	if e != nil {
 		return PluginOptions{}, e
 	}
-	options := sc.defaultOptions()
+	options := sc.DefaultOptions()
 	checkScopes := permissions.FrontValuesScopesFromWorkspaceRelativePaths(wss)
 	options = sc.filterOptionsFromScopes(options, contextParams, checkScopes)
 
@@ -78,7 +79,7 @@ func (sc *Client) CheckLinkOptionsAgainstConfigs(ctx context.Context, link *rest
 }
 
 // CheckCellOptionsAgainstConfigs loads specific share configurations from ACLs and checks that current cell complies with these.
-func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, request *rest.PutCellRequest) error {
+func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, cell *rest.Cell) error {
 	router := compose.ReverseClient(sc.RuntimeContext)
 	acl, e := permissions.AccessListFromContextClaims(ctx)
 	if e != nil {
@@ -88,15 +89,15 @@ func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, request *r
 	if e != nil {
 		return e
 	}
-	options := sc.defaultOptions()
+	options := sc.DefaultOptions()
 	aclWss := acl.GetWorkspaces()
 	return router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
-		for _, n := range request.Room.RootNodes {
+		for _, n := range cell.RootNodes {
 			var files, folders bool
 			var wss []*idm.Workspace
 			_, internal, _ := inputFilter(ctx, n, "in")
 			for _, ws := range aclWss {
-				if request.Room.Uuid == ws.UUID { // Ignore current room
+				if cell.Uuid == ws.UUID { // Ignore current room
 					continue
 				}
 				if _, ok := router.WorkspaceCanSeeNode(ctx, nil, ws, internal); ok {
@@ -119,12 +120,16 @@ func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, request *r
 			if folders && !loopOptions.enableFolderInternal {
 				return errors.Forbidden("folder.share-internal.forbidden", "You are not allowed to create Cells on folders")
 			}
+			if loopOptions.CellsMaxExpiration > 0 && (cell.AccessEnd == 0 || (cell.AccessEnd-time.Now().Unix()) > int64(loopOptions.MaxExpiration*24*60*60)) {
+				return errors.Forbidden("cells.max-expiration.mandatory", "Please set a maximum expiration date for Cells")
+			}
 		}
 		return nil
 	})
 }
 
-func (sc *Client) defaultOptions() PluginOptions {
+// DefaultOptions loads the plugin default options, without further context-based filtering
+func (sc *Client) DefaultOptions() PluginOptions {
 	// Defaults
 	configParams := config.Get("frontend", "plugin", "action.share")
 	options := PluginOptions{
@@ -137,6 +142,7 @@ func (sc *Client) defaultOptions() PluginOptions {
 		enableFolderPublicLinks: configParams.Val("ENABLE_FOLDER_PUBLIC_LINK").Default(true).Bool(),
 		enableFolderInternal:    configParams.Val("ENABLE_FOLDER_INTERNAL_SHARING").Default(true).Bool(),
 		ShareForcePassword:      configParams.Val("SHARE_FORCE_PASSWORD").Default(false).Bool(),
+		CellsMaxExpiration:      configParams.Val("CELLS_MAX_EXPIRATION").Default(-1).Int(),
 	}
 	return options
 }
@@ -163,6 +169,7 @@ func (sc *Client) filterOptionsFromScopes(options PluginOptions, contextParams c
 		options.enableFileInternal = contextParams.Val("ENABLE_FILE_INTERNAL_SHARING", scope).Default(options.enableFileInternal).Bool()
 		options.enableFolderPublicLinks = contextParams.Val("ENABLE_FOLDER_PUBLIC_LINK", scope).Default(options.enableFolderPublicLinks).Bool()
 		options.enableFolderInternal = contextParams.Val("ENABLE_FOLDER_INTERNAL_SHARING", scope).Default(options.enableFolderInternal).Bool()
+		options.CellsMaxExpiration = contextParams.Val("CELLS_MAX_EXPIRATION", scope).Default(options.MaxExpiration).Int()
 	}
 
 	return options

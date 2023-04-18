@@ -21,7 +21,7 @@ func init() {
 			// service.WithStorage(config.NewDAO),
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 				// Register handler
-				pb.RegisterConfigServer(srv, &Handler{serviceName: common.ServiceGrpcNamespace_ + common.ServiceConfig})
+				pb.RegisterConfigEnhancedServer(srv, &Handler{serviceName: common.ServiceGrpcNamespace_ + common.ServiceConfig})
 
 				return nil
 			}),

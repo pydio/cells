@@ -182,7 +182,6 @@ func CaptureCaddyStdErr(serviceName string) context.Context {
 			} else {
 				_, _ = rootErr.WriteString(line)
 			}
-			//logger.Error(line)
 		}
 	}()
 	return ctx

@@ -1,0 +1,151 @@
+name: main
+
+#--------------------------------------------
+# Default variables
+#--------------------------------------------
+bind: &bind {{ .BindHost }}
+advertise: &advertise {{ .AdvertiseHost }}
+
+#--------------------------------------------
+# Default connection to runtime functions
+#--------------------------------------------
+connections: &connections
+  config:
+    uri: xds://default.cells.com/cells
+  registry:
+    uri: xds://default.cells.com/cells
+  broker:
+    uri: xds://default.cells.com/cells
+  logs:
+    uri: file://stdout
+
+#--------------------------------------------
+# Default servers configuration
+#--------------------------------------------
+servers: &servers
+  grpc:
+    bind: *bind
+    advertise: *advertise
+    port: 0
+  grpc_discovery:
+    bind: *bind
+    advertise: *advertise
+    port: 0
+  http:
+    bind: *bind
+    advertise: *advertise
+    type: http
+    port: 0
+
+#--------------------------------------------
+# Default env configuration
+#--------------------------------------------
+env: &env
+  GRPC_EXPERIMENTAL_XDS_FEDERATION: true
+  GRPC_XDS_BOOTSTRAP_CONFIG: {
+    "xds_servers": [
+      {
+        "server_uri": "{{ .AdvertiseHost }}:{{ .DiscoveryPort }}",
+        "server_features": [
+          "xds_v3"
+        ],
+        "channel_creds": [
+          {
+            "type": "insecure"
+          }
+        ]
+      }
+    ],
+    "client_default_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s",
+    "server_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/server/%s",
+    "node": {
+      "id": "test-id",
+      "locality": {
+        "zone": "us-central1-a"
+      }
+    },
+    "authorities": {
+      "default.cells.com": {
+        "client_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s"
+      },
+      "tenant.cells.com": {
+        "client_listener_resource_name_template": "xdstp://tenant.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s",
+        "server_listener_resource_name_template": "xdstp://tenant.cells.com/envoy.config.listener.v3.Listener/grpc/server/%s",
+        "xds_servers": [
+          {
+            "server_uri": "127.0.0.1:8130",
+            "server_features": [
+              "xds_v3"
+            ],
+            "channel_creds": [
+              {
+                "type": "insecure"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+
+#--------------------------------------------
+# All processes
+#--------------------------------------------
+processes:
+  - name: discovery
+
+    connections:
+      <<: *connections
+      config:
+        uri: {{ .Config }}
+      registry:
+        uri: mem://?cache=shared
+      broker:
+        uri: mem://broker
+
+    servers:
+      <<: *servers
+      grpc_discovery:
+        port: {{ .DiscoveryPort }}
+
+    env: *env
+
+    services:
+      discovery:
+
+  - name: idm
+    connections: *connections
+    servers:
+      <<: *servers
+      http:
+        type: caddy
+        port: {{ .FrontendPort }}
+    env: *env
+    services:
+      gateway:
+      idm:
+      frontend:
+      data:
+      scheduler:
+
+  - name: auth
+    connections: *connections
+    servers: *servers
+    env: *env
+    services:
+      auth:
+
+  - name: datasource
+    connections: *connections
+    servers: *servers
+    env: *env
+
+    services:
+      datasource:
+
+  - name: broker
+    connections: *connections
+    servers: *servers
+    env: *env
+    services:
+      broker:

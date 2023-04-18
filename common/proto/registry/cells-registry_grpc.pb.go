@@ -18,6 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RegistryClient interface {
+	Session(ctx context.Context, opts ...grpc.CallOption) (Registry_SessionClient, error)
 	Start(ctx context.Context, in *Item, opts ...grpc.CallOption) (*EmptyResponse, error)
 	Stop(ctx context.Context, in *Item, opts ...grpc.CallOption) (*EmptyResponse, error)
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
@@ -34,6 +35,37 @@ type registryClient struct {
 
 func NewRegistryClient(cc grpc.ClientConnInterface) RegistryClient {
 	return &registryClient{cc}
+}
+
+func (c *registryClient) Session(ctx context.Context, opts ...grpc.CallOption) (Registry_SessionClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Registry_ServiceDesc.Streams[0], "/registry.Registry/Session", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &registrySessionClient{stream}
+	return x, nil
+}
+
+type Registry_SessionClient interface {
+	Send(*SessionRequest) error
+	Recv() (*EmptyResponse, error)
+	grpc.ClientStream
+}
+
+type registrySessionClient struct {
+	grpc.ClientStream
+}
+
+func (x *registrySessionClient) Send(m *SessionRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *registrySessionClient) Recv() (*EmptyResponse, error) {
+	m := new(EmptyResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (c *registryClient) Start(ctx context.Context, in *Item, opts ...grpc.CallOption) (*EmptyResponse, error) {
@@ -91,7 +123,7 @@ func (c *registryClient) List(ctx context.Context, in *ListRequest, opts ...grpc
 }
 
 func (c *registryClient) Watch(ctx context.Context, in *WatchRequest, opts ...grpc.CallOption) (Registry_WatchClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Registry_ServiceDesc.Streams[0], "/registry.Registry/Watch", opts...)
+	stream, err := c.cc.NewStream(ctx, &Registry_ServiceDesc.Streams[1], "/registry.Registry/Watch", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +155,7 @@ func (x *registryWatchClient) Recv() (*Result, error) {
 }
 
 func (c *registryClient) NewLocker(ctx context.Context, opts ...grpc.CallOption) (Registry_NewLockerClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Registry_ServiceDesc.Streams[1], "/registry.Registry/NewLocker", opts...)
+	stream, err := c.cc.NewStream(ctx, &Registry_ServiceDesc.Streams[2], "/registry.Registry/NewLocker", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -157,6 +189,7 @@ func (x *registryNewLockerClient) Recv() (*NewLockerResponse, error) {
 // All implementations must embed UnimplementedRegistryServer
 // for forward compatibility
 type RegistryServer interface {
+	Session(Registry_SessionServer) error
 	Start(context.Context, *Item) (*EmptyResponse, error)
 	Stop(context.Context, *Item) (*EmptyResponse, error)
 	Get(context.Context, *GetRequest) (*GetResponse, error)
@@ -172,6 +205,9 @@ type RegistryServer interface {
 type UnimplementedRegistryServer struct {
 }
 
+func (UnimplementedRegistryServer) Session(Registry_SessionServer) error {
+	return status.Errorf(codes.Unimplemented, "method Session not implemented")
+}
 func (UnimplementedRegistryServer) Start(context.Context, *Item) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Start not implemented")
 }
@@ -207,6 +243,32 @@ type UnsafeRegistryServer interface {
 
 func RegisterRegistryServer(s grpc.ServiceRegistrar, srv RegistryServer) {
 	s.RegisterService(&Registry_ServiceDesc, srv)
+}
+
+func _Registry_Session_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(RegistryServer).Session(&registrySessionServer{stream})
+}
+
+type Registry_SessionServer interface {
+	Send(*EmptyResponse) error
+	Recv() (*SessionRequest, error)
+	grpc.ServerStream
+}
+
+type registrySessionServer struct {
+	grpc.ServerStream
+}
+
+func (x *registrySessionServer) Send(m *EmptyResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *registrySessionServer) Recv() (*SessionRequest, error) {
+	m := new(SessionRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func _Registry_Start_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -397,6 +459,12 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Session",
+			Handler:       _Registry_Session_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
 		{
 			StreamName:    "Watch",
 			Handler:       _Registry_Watch_Handler,

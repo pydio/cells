@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2023 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -23,11 +23,11 @@ import Pydio from 'pydio'
 import {Paper, IconButton, CircularProgress} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PathUtils from 'pydio/util/path'
-import Facets from "./Facets";
+import DOMUtils from "pydio/util/dom";
 
-const {SimpleList} = Pydio.requireLib('components');
+const {SimpleList, NodeListCustomProvider} = Pydio.requireLib('components');
 const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
-const {UnifiedSearchForm, FilePreview} = Pydio.requireLib('workspaces');
+const {UnifiedSearchForm, Facets, FilePreview, AdvancedChips} = Pydio.requireLib('workspaces');
 const {withSearch} = Pydio.requireLib('hoc')
 
 class HomeSearchForm extends Component{
@@ -36,37 +36,74 @@ class HomeSearchForm extends Component{
         super(props)
     }
 
+    componentDidMount() {
+        const {onFocusChange} = this.props;
+        this._escListener = (e) => {
+            if(e.key === 'Escape'){
+                onFocusChange(false)
+            }
+        }
+        document.addEventListener("keyup", this._escListener)
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener("keyup", this._escListener)
+    }
+
     update(queryString) {
-        const {setValues} = this.props;
+        const {searchTools:{setValues}} = this.props;
         setValues({basenameOrContent:queryString});
     }
 
     render(){
 
         // From HOC
-        const {values, setValues, facets, activeFacets, toggleFacet, loading, dataModel, empty, history, savedSearches, saveSearch, clearSavedSearch} = this.props;
-        const {style, zDepth, pydio, fullScreen, onFocusChange} = this.props;
+        const {searchTools, searchTools:{facets, activeFacets, toggleFacet, loading, dataModel, empty}} = this.props;
+        const {style, zDepth, pydio, fullScreen, fullScreenTransition, onFocusChange, muiTheme} = this.props;
 
-        const hintText = pydio.MessageHash[607];
+        const isMui3 = muiTheme.userTheme === 'mui3'
+        const {palette:{mui3}} = muiTheme
+
+
         const whiteTransp = 'rgba(0,0,0,.53)';
 
         const styles = {
-            textFieldContainer: {
-                display:'flex',
-                backgroundColor: '#eceff1',
-                height: 50,
-                width:'96%',
-                maxWidth:700,
-                padding: '2px 4px 4px 4px',
-                borderRadius: 50,
+            mainContainer: {
                 position:'absolute',
-                top: fullScreen? 25 : 174
+                top: fullScreen? 0 : 199,
+                left: isMui3?74:0,
+                right: 0,
+                bottom: 0,
+                transition: 'all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms',
+                display:'flex',
+                flexDirection:'column',
+                alignItems:'center'
+            },
+            searchContainer: {
+                width: '100%',
+                zIndex: 1,
+                display:'flex',
+                flexDirection:'column',
+                alignItems:'center',
+                background:isMui3&&fullScreen?mui3['surface-1']:'transparent',
+                padding: fullScreen ? (isMui3 ? '10px 50px 10px 10px' : '10px 50px') : 0
+            },
+            textFieldContainer: {
+                width:'100%',
+                maxWidth:fullScreen?10000:700,
+                display:'flex',
+                alignItems:'center',
+                background: isMui3?mui3['surface-variant']:'#eceff1',
+                height: fullScreen?40:50,
+                padding: '2px 4px',
+                borderRadius: 50,
+                marginTop:fullScreen?0:-25
             },
             textField: {flex: 1},
             textInput: {color: 'inherit'},
             textHint : {color: whiteTransp, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%'},
             magnifier: {color: whiteTransp, fontSize: 20, padding:'14px 8px'},
-            close: {position:'absolute', right:0},
+            close: {position:'absolute', right:2, top: 6, zIndex: 2},
             searchForm:{
                 mainStyle:{
                     backgroundColor:'transparent',
@@ -76,17 +113,41 @@ class HomeSearchForm extends Component{
                 completeMenuStyle:{width: '100%'},
                 inputStyle:{fontSize: 18},
                 hintStyle:{fontSize: 18},
-                magnifierStyle:{fontSize: 20, color:'rgba(0,0,0,0.73)', marginRight: 10}, //{color: appBarTextColor.fade(0.1).toString()},
+                magnifierStyle:{
+                    fontSize: 20,
+                    marginRight: 10
+                },
                 filterButton:{
-                    padding: '7px 6px 0px',
-                    color:'#03a9f4',
-                    fontSize: 22
+                    color:muiTheme.palette.primary1Color,
+                    fontSize: 22,
+                    width:28,
+                    height: 28,
+                    padding: 3
                 },
-                filterButtonActive:{
-                    top: 10,
-                    padding: '3px 8px',
-                    fontSize: 16
+                filterButtonActive:{},
+            },
+            facets: {
+                container: {
+                    width: 230,
+                    overflowY: 'auto',
+                    background:mui3['surface-2'],
+                    color: isMui3?mui3['on-surface-variant']:'#5c7784',
+                    borderRadius: 0,
+                    borderRight: isMui3?'1px solid '+mui3['outline-variant-50']:undefined,
+                    paddingLeft: 16,
+                    paddingRight: 16,
+                    paddingTop: 10,
                 },
+                header : {
+                    fontWeight: 500,
+                    padding: '10px 0',
+                    fontSize: 15
+                },
+                subHeader:  {
+                    fontWeight: 500,
+                    textTransform:'uppercase',
+                    padding: '12px 0'
+                }
             }
         };
 
@@ -121,23 +182,61 @@ class HomeSearchForm extends Component{
 
         return (
             <Paper style={style} zDepth={zDepth} className="vertical-layout home-center-paper" rounded={false}>
-                <Paper zDepth={fullScreen ? 1 : 0} style={styles.textFieldContainer} ref={"container"} className="home-search-form">
-                    <UnifiedSearchForm
-                        style={{flex: 1}}
-                        active={fullScreen}
-                        pydio={pydio}
-                        formStyles={styles.searchForm}
-                        values={values}
-                        setValues={setValues}
-                        history={history}
-                        savedSearches={savedSearches}
-                        clearSavedSearch={clearSavedSearch}
-                        saveSearch={saveSearch}
-                        onRequestOpen={()=>onFocusChange(true)}
-                        onRequestClose={()=>onFocusChange(false)}
-                    />
-                    {loading && <div style={{marginTop:14, marginRight: 8}} ><CircularProgress size={20} thickness={2}/></div>}
-                </Paper>
+
+                <div style={styles.mainContainer}>
+                    <Paper zDepth={fullScreen?1:0} rounded={false} style={styles.searchContainer}>
+                        <Paper zDepth={0} style={styles.textFieldContainer} className="home-search-form">
+                            <UnifiedSearchForm
+                                style={{flex: 1}}
+                                active={fullScreen}
+                                preventOpen={fullScreenTransition}
+                                pydio={pydio}
+                                formStyles={styles.searchForm}
+                                searchTools={searchTools}
+                                onRequestOpen={()=>onFocusChange(true)}
+                                onRequestClose={()=>onFocusChange(false)}
+                            />
+                            {loading && <div style={{marginTop:14, marginRight: 8}} ><CircularProgress size={20} thickness={2}/></div>}
+                        </Paper>
+                        {fullScreen && <AdvancedChips searchTools={searchTools} containerStyle={{width: '100%', paddingTop: 11, marginBottom: -4}}/>}
+                    </Paper>
+                    {fullScreen &&
+                        <div className={"layout-fill"} style={{width: '100%', display:'flex'}}>
+                            {DOMUtils.getViewportWidth() > 758 &&
+                            <Facets
+                                pydio={pydio}
+                                facets={facets}
+                                activeFacets={activeFacets}
+                                onToggleFacet={toggleFacet}
+                                emptyStateView={<div style={{fontWeight: 500,padding: '10px 0px',fontSize: 15}}>Filter Results... (no results)</div>}
+                                styles={styles.facets}
+                                zDepth={isMui3?0:undefined}
+                            />
+                            }
+                            <NodeListCustomProvider
+                                containerStyle={{flex:1, marginLeft: 10}}
+                                className={'files-list vertical_fit'}
+                                elementHeight={SimpleList.HEIGHT_TWO_LINES}
+                                entryRenderIcon={renderIcon}
+                                entryRenderActions={function() {return null}}
+                                entryRenderSecondLine={renderSecondLine}
+                                entryRenderGroupHeader={renderGroupHeader}
+                                presetDataModel={dataModel}
+                                presetRootNode={dataModel.getSearchNode()}
+                                openCollection={(node) => {pydio.goTo(node)}}
+                                nodeClicked={(node) => {pydio.goTo(node)}}
+                                defaultGroupBy="repository_id"
+                                groupByLabel="repository_display"
+                                emptyStateProps={{
+                                    iconClassName:"",
+                                    primaryTextId:loading?'searchengine.searching':478,
+                                    style:{backgroundColor: 'transparent'}
+                                }}
+                            />
+                        </div>
+                    }
+                    <div style={{display:fullScreen?'none':'block', flex:1, overflowY:'auto', marginTop: 40}} id="history-block">{this.props.children}</div>
+                </div>
                 {fullScreen &&
                 <IconButton
                     iconClassName="mdi mdi-close"
@@ -147,31 +246,6 @@ class HomeSearchForm extends Component{
                     tooltip={pydio.MessageHash['86']}
                 />
                 }
-                {!empty && fullScreen && facets && <Facets facets={facets} selected={activeFacets} pydio={pydio} onSelectFacet={toggleFacet}/>}
-                {fullScreen &&
-                <PydioComponents.NodeListCustomProvider
-                    ref="results"
-                    containerStyle={{width:'86%', maxWidth:650, marginTop: fullScreen ? 75 : 20}}
-                    className={'files-list vertical_fit'}
-                    elementHeight={SimpleList.HEIGHT_TWO_LINES}
-                    entryRenderIcon={renderIcon}
-                    entryRenderActions={function() {return null}}
-                    entryRenderSecondLine={renderSecondLine}
-                    entryRenderGroupHeader={renderGroupHeader}
-                    presetDataModel={dataModel}
-                    presetRootNode={dataModel.getSearchNode()}
-                    openCollection={(node) => {pydio.goTo(node)}}
-                    nodeClicked={(node) => {pydio.goTo(node)}}
-                    defaultGroupBy="repository_id"
-                    groupByLabel="repository_display"
-                    emptyStateProps={{
-                        iconClassName:"",
-                        primaryTextId:loading?'searchengine.searching':478,
-                        style:{backgroundColor: 'transparent'}
-                    }}
-                />
-                }
-                <div style={{display:fullScreen?'none':'block', flex:1, overflowY:'auto', marginTop: 40}} id="history-block">{this.props.children}</div>
             </Paper>
         );
 
@@ -180,7 +254,7 @@ class HomeSearchForm extends Component{
 
 }
 
-HomeSearchForm = withSearch(HomeSearchForm, 'home', 'all');
+HomeSearchForm = withSearch(HomeSearchForm, 'main', 'all');
 HomeSearchForm = PydioContextConsumer(HomeSearchForm);
 HomeSearchForm = muiThemeable()(HomeSearchForm);
 export {HomeSearchForm as default}

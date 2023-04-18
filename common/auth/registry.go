@@ -163,7 +163,7 @@ func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 
 			// convert migration tables
 			if err := p.PrepareMigration(context.Background()); err != nil {
-				logger.Error("Could not convert the migration table", zap.Error(e))
+				logger.Error("Could not convert the migration table", zap.Error(err))
 				return err
 			}
 

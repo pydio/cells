@@ -107,7 +107,7 @@ func init() {
 					db:      dao,
 				}
 
-				tree.RegisterNodeVersionerServer(server, engine)
+				tree.RegisterNodeVersionerEnhancedServer(server, engine)
 
 				return nil
 			}),

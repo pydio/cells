@@ -72,6 +72,58 @@ class Loaders{
         }
     }
 
+    static prepareIdmUser(idmUser, secondary=false) {
+        let secondaryText;
+        if(secondary) {
+            const parts = []
+            parts.push(Pydio.getMessages()[idmUser.Attributes && idmUser.Attributes['profile'] === 'shared' ? '589':'590'])
+            if(idmUser.GroupPath !== '/') {
+                parts.push(idmUser.GroupPath)
+            }
+            secondaryText = parts.join(' - ')
+        }
+        return {
+            id: idmUser.Login,
+            label: idmUser.Attributes && idmUser.Attributes["displayName"] ? idmUser.Attributes["displayName"] : idmUser.Login,
+            avatar: idmUser.Attributes && idmUser.Attributes["avatar"] ? idmUser.Attributes["avatar"] : undefined,
+            type:'user',
+            IdmUser: idmUser,
+            secondaryText
+        }
+    }
+
+    static prepareIdmGroup(idmUser, secondary=false) {
+        let secondaryText
+        if(secondary) {
+            secondaryText = idmUser.GroupPath + idmUser.GroupLabel
+        }
+        return {
+            id: idmUser.Uuid,
+            label: idmUser.Attributes && idmUser.Attributes["displayName"] ? idmUser.Attributes["displayName"] : idmUser.GroupLabel,
+            type:'group',
+            icon: 'mdi mdi-account-multiple',
+            secondaryText,
+            IdmUser: idmUser
+        }
+    }
+
+    static prepareTeam(team, secondary=false) {
+        let secondaryText
+        if(secondary) {
+            secondaryText = Pydio.getMessages()['603']
+        }
+        return {
+            id: team.Uuid,
+            label: team.Label,
+            type:'team',
+            icon : 'mdi mdi-account-multiple-outline',
+            itemsLoader : Loaders.loadTeamUsers,
+            _notSelectable: true,
+            secondaryText,
+            IdmRole: team
+        }
+    }
+
     static loadTeams(entry, callback){
         let offset = 0, limit = StdLimit; // Roles API does not provide pagination info !
         if(entry.range){
@@ -93,14 +145,8 @@ class Loaders{
             const items = collection.Teams.map(team => {
                 return {
                     _parent: entry,
-                    id: team.Uuid,
-                    label: team.Label,
-                    type:'team',
-                    icon : 'mdi mdi-account-multiple-outline',
-                    itemsLoader : Loaders.loadTeamUsers,
-                    actions : actions,
-                    _notSelectable: true,
-                    IdmRole: team
+                    ...Loaders.prepareTeam(team),
+                    actions : actions
                 };
             });
             callback(items);
@@ -120,14 +166,10 @@ class Loaders{
             const items = groups.Groups.map(idmUser => {
                 return {
                     _parent: entry,
-                    id: idmUser.Uuid,
-                    label: idmUser.Attributes && idmUser.Attributes["displayName"] ? idmUser.Attributes["displayName"] : idmUser.GroupLabel,
-                    type:'group',
-                    icon: 'mdi mdi-account-multiple',
+                    ...Loaders.prepareIdmGroup(idmUser),
                     childrenLoader:entry.childrenLoader ? Loaders.loadGroups : null,
                     itemsLoader: entry.itemsLoader ? Loaders.loadGroupUsers : null,
-                    currentParams: (entry.currentParams && entry.currentParams.alpha_pages) ? {...entry.currentParams} : {},
-                    IdmUser: idmUser
+                    currentParams: (entry.currentParams && entry.currentParams.alpha_pages) ? {...entry.currentParams} : {}
                 }
             });
             callback(items);
@@ -151,12 +193,8 @@ class Loaders{
             const items = users.Users.filter(idmUser => idmUser.Login !== pydio.user.id).map((idmUser) => {
                 return {
                     _parent: entry,
-                    id: idmUser.Login,
-                    label: idmUser.Attributes && idmUser.Attributes["displayName"] ? idmUser.Attributes["displayName"] : idmUser.Login,
-                    avatar: idmUser.Attributes && idmUser.Attributes["avatar"] ? idmUser.Attributes["avatar"] : undefined,
-                    type:'user',
-                    external:true,
-                    IdmUser: idmUser
+                    ...Loaders.prepareIdmUser(idmUser),
+                    external:true
                 }
             });
             callback(items);
@@ -183,11 +221,7 @@ class Loaders{
             const items = users.Users.filter(idmUser => idmUser.Login !== pydio.user.id && idmUser.Login !== "pydio.anon.user").map((idmUser) => {
                 return {
                     _parent: entry,
-                    id: idmUser.Login,
-                    label: idmUser.Attributes && idmUser.Attributes["displayName"] ? idmUser.Attributes["displayName"] : idmUser.Login,
-                    avatar: idmUser.Attributes && idmUser.Attributes["avatar"] ? idmUser.Attributes["avatar"] : undefined,
-                    type:'user',
-                    IdmUser: idmUser
+                    ...Loaders.prepareIdmUser(idmUser)
                 }
             });
             callback(items);
@@ -210,14 +244,58 @@ class Loaders{
             const items = users.Users.map((idmUser) => {
                 return {
                     _parent: entry,
-                    id: idmUser.Login,
-                    label: idmUser.Attributes && idmUser.Attributes["displayName"] ? idmUser.Attributes["displayName"] : idmUser.Login,
-                    type:'user',
-                    IdmUser: idmUser
+                    ...Loaders.prepareIdmUser(idmUser),
                 }
             });
             callback(items);
         }) ;
+    }
+
+    static globalSearch(searchTerm, callback, offset=0, limit=50, externals=true, internals=true, teams=true) {
+
+        searchTerm = '*'+searchTerm
+
+        const pydio = PydioApi.getClient().getPydioObject();
+        const proms = [];
+        if(externals || internals) {
+            const profile = (externals ? (internals ? '' : 'shared') : '!shared')
+            const up = IdmApi.listUsers('/', searchTerm, true, offset, limit, profile).then(res => {
+                return res.Users.filter(idmUser => idmUser.Login !== pydio.user.id && idmUser.Login !== "pydio.anon.user").map((idmUser) => {
+                    return {
+                        ...Loaders.prepareIdmUser(idmUser, true),
+                        external:idmUser.Attributes && idmUser.Attributes['profile'] === 'shared'
+                    }
+                });
+            }).then(uu => {return {users: uu}});
+            proms.push(up)
+
+            const gp = IdmApi.listGroups('/', searchTerm, true, offset, limit).then(res => {
+                return res.Groups.map(idmGroup => {
+                    return {
+                        ...Loaders.prepareIdmGroup(idmGroup, true),
+                        childrenLoader:Loaders.loadGroups,
+                        itemsLoader:Loaders.loadGroupUsers,
+                    }
+                })
+            }).then(gg => {return {groups: gg}})
+            proms.push(gp)
+        }
+        if(teams) {
+            const tp = IdmApi.listTeams(searchTerm, offset, limit).then(collection => {
+                return collection.Teams.map(team => {
+                    return {
+                        ...Loaders.prepareTeam(team, true)
+                    };
+                });
+            }).then(tt => {return {teams: tt}})
+            proms.push(tp)
+        }
+
+        return Promise.all(proms).then(results => {
+            const all = results.reduce((p,v) => {return {...p, ...v}}, {})
+            callback(all)
+            return all
+        })
     }
 
 }

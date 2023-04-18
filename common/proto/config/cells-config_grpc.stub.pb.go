@@ -12,6 +12,7 @@ import (
 	stubs "github.com/pydio/cells/v4/common/server/stubs"
 	grpc "google.golang.org/grpc"
 	io "io"
+	time "time"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -66,10 +67,14 @@ func (s *ConfigStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, metho
 	case "/config.Config/Watch":
 		st := &ConfigStub_WatchStreamer{}
 		st.Init(ctx, func(i interface{}) error {
-			defer func() {
-				close(st.RespChan)
+			go func() {
+				defer func() {
+					close(st.RespChan)
+				}()
+				s.ConfigServer.Watch(i.(*WatchRequest), st)
 			}()
-			return s.ConfigServer.Watch(i.(*WatchRequest), st)
+			<-time.After(100 * time.Millisecond)
+			return nil
 		})
 		return st, nil
 	case "/config.Config/NewLocker":

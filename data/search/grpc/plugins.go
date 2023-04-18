@@ -83,8 +83,8 @@ func init() {
 					ReIndexThrottler: make(chan struct{}, 5),
 				}
 
-				tree.RegisterSearcherServer(server, searcher)
-				sync.RegisterSyncEndpointServer(server, searcher)
+				tree.RegisterSearcherEnhancedServer(server, searcher)
+				sync.RegisterSyncEndpointEnhancedServer(server, searcher)
 
 				subscriber := searcher.Subscriber()
 				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(message broker.Message) error {

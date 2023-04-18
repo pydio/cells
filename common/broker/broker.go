@@ -67,7 +67,8 @@ func NewBroker(s string, opts ...Option) Broker {
 
 	br := &broker{
 		publishOpener: func(ctx context.Context, topic string) (*pubsub.Topic, error) {
-			uu := &url.URL{Scheme: u.Scheme, Host: u.Host, Path: u.Path + "/" + strings.TrimPrefix(topic, "/"), RawQuery: u.RawQuery}
+			namespace := u.Query().Get("namespace")
+			uu := &url.URL{Scheme: u.Scheme, Host: u.Host, Path: namespace + "/" + strings.TrimPrefix(topic, "/"), RawQuery: u.RawQuery}
 			return pubsub.OpenTopic(ctx, uu.String())
 		},
 		subscribeOpener: func(topic string, oo ...SubscribeOption) (*pubsub.Subscription, error) {
@@ -81,13 +82,15 @@ func NewBroker(s string, opts ...Option) Broker {
 			ctx := op.Context
 			if op.Queue != "" {
 				switch scheme {
-				case "nats", "grpc":
+				case "nats", "grpc", "xds":
 					q.Add("queue", op.Queue)
 				default:
 				}
 			}
 
-			uu := &url.URL{Scheme: u.Scheme, Host: u.Host, Path: u.Path + "/" + strings.TrimPrefix(topic, "/"), RawQuery: q.Encode()}
+			namespace := u.Query().Get("namespace")
+
+			uu := &url.URL{Scheme: u.Scheme, Host: u.Host, Path: namespace + "/" + strings.TrimPrefix(topic, "/"), RawQuery: q.Encode()}
 			return pubsub.OpenSubscription(ctx, uu.String())
 		},
 		publishers: make(map[string]*pubsub.Topic),

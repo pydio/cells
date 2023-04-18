@@ -18,11 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import PropTypes from 'prop-types';
-
 import React from 'react';
+import PropTypes from 'prop-types';
 import UserAvatar from '../avatar/UserAvatar'
 import UserCreationForm from '../UserCreationForm'
+import ActionsPanel from "../avatar/ActionsPanel";
+import {muiThemeable} from "material-ui/styles";
 
 /**
  * Card presentation of a user. Relies on the UserAvatar object,
@@ -32,60 +33,89 @@ class UserCard extends React.Component{
 
     constructor(props, context){
         super(props, context);
-        this.state = {editForm: false};
-    }
-
-    componentWillReceiveProps(nextProps){
-        if (nextProps.item !== this.props.item){
-            this.setState({editForm: false});
-        }
+        this.state = {}
     }
 
     render(){
 
-        const {item} = this.props;
+        const {pydio, item, model, onDeleteAction, onUpdateAction, edit, setEdit, muiTheme} = this.props;
+        const {graphRand} = this.state;
+
         let editableProps = {avatarStyle: {zIndex: 1}}, editForm;
-        if(item._parent && item._parent.id === 'ext'){
-            editableProps = {
-                ...editableProps,
-                userEditable: item.IdmUser.PoliciesContextEditable,
-                onDeleteAction: () => {this.props.onDeleteAction(item._parent, [item])},
-                onEditAction: () => {this.setState({editForm: true})},
-                reloadAction: () => {this.props.onUpdateAction(item)}
-            };
+        const isExt = item._parent && item._parent.id === 'ext'
+        let panelStyle = {}
+        if(muiTheme.userTheme !== 'mui3') {
+            panelStyle = {borderTop: '1px solid #e0e0e0', borderBottom: '1px solid #e0e0e0'}
         }
 
-        if(this.state.editForm){
+        const a = (
+            <ActionsPanel
+                pydio={pydio}
+                model={model}
+                user={item}
+                userId={item.id}
+                userEditable={isExt && item.IdmUser.PoliciesContextEditable}
+                onDeleteAction={() => {onDeleteAction(item._parent, [item])}}
+                onEditAction={() => {setEdit(true)}}
+                reloadAction={() => {
+                    onUpdateAction(item)
+                    this.setState({graphRand:Math.random()})
+                }}
+                style={{padding: 8, textAlign:'center', ...panelStyle}}
+            />
+        );
+
+        if(edit){
             editForm = (
                 <UserCreationForm
-                    pydio={this.props.pydio}
+                    pydio={pydio}
                     zDepth={0}
-                    style={{flex:1}}
+                    style={{flex:1, borderRadius: 0, borderTop: '1px solid var(--md-sys-color-outline-variant-50)'}}
                     newUserName={item.id}
                     editMode={true}
                     userData={item}
-                    onUserCreated={() => {this.props.onUpdateAction(item); this.setState({editForm:false}) }}
-                    onCancel={() => {this.setState({editForm:false})}}
+                    onUserCreated={() => {onUpdateAction(item); setEdit(false) }}
+                    onCancel={() => {setEdit(false)}}
+                    formShowLegends={true}
                 />
             );
-            editableProps = {
-                ...editableProps,
-                displayLabel: true,
-                displayAvatar: true,
-                useDefaultAvatar: true,
-                style: {textAlign: 'center', borderBottom: '1px solid #e0e0e0', padding: 10, backgroundColor: '#fafafa'},
-                avatarStyle:{marginBottom: 16},
+        }
+
+        editableProps = {
+            ...editableProps,
+            avatarSize: 40,
+            avatarStyle: {
+                left: 20,
+                top: 20,
+                right: 'inherit'
+            },
+            cardStyle: {
+                textAlign:'left',
+                padding:'20px 16px 24px 74px'
+            },
+            cardTitleStyle: {
+                fontSize: 14,
+                fontWeight: 500,
+                lineHeight: '20px'
+            },
+            cardSubtitleStyle:{
+                fontSize: 13,
+                fontWeight: 400,
+                lineHeight: '14px'
             }
         }
 
         return (
-            <div style={editForm ? {height: '100%', display:'flex', flexDirection:'column'} : {}}>
+            <div style={edit ? {height: '100%', display:'flex', flexDirection:'column'} : {}}>
                 <UserAvatar
                     userId={this.props.item.id}
-                    richCard={!editForm}
+                    richCard={true}
                     pydio={this.props.pydio}
                     cardSize={this.props.style.width}
-                    cardStyle={{textAlign:'left', padding:'12px 16px 4px', backgroundColor:'#f8fafc'}}
+                    cardStyle={{textAlign:'left', padding:'12px 16px 4px'}}
+                    actionsPanel={!edit && a}
+                    noActionsPanel={edit}
+                    graphRand={graphRand}
                     {...editableProps}
                 />
                 {editForm}
@@ -122,5 +152,6 @@ UserCard.propTypes = {
     onUpdateAction: PropTypes.func
 };
 
+UserCard = muiThemeable()(UserCard)
 
 export {UserCard as default}

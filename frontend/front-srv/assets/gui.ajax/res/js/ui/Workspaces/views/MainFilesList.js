@@ -36,6 +36,7 @@ const {SimpleList, Masonry} = Pydio.requireLib('components');
 const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 import OverlayIcon from './OverlayIcon'
 import {debounce} from 'lodash'
+import {muiThemeable} from 'material-ui/styles'
 
 class ComponentConfigsParser {
 
@@ -43,32 +44,37 @@ class ComponentConfigsParser {
         this.renderLabel = renderLabel;
     }
 
-    getDefaultListColumns() {
+    getDefaultListColumns(pydio) {
         return {
-            text:{
-                label:'File Name',
+            ajxp_label:{
+                name:'ajxp_label',
+                label: pydio.MessageHash['1'],
                 message:'1',
                 width: '50%',
                 renderCell:this.renderLabel,
                 sortType:'file-natural',
-                remoteSortAttribute:'ajxp_label'
+                remoteSortAttribute:'name'
             },
             bytesize:{
-                label:'File Size',
+                label:pydio.MessageHash['2'],
                 message:'2',
                 sortType:'number',
                 sortAttribute:'bytesize',
-                remoteSortAttribute:'filesize'
+                name:'bytesize',
+                remoteSortAttribute:'size'
             },
             mimestring:{
-                label:'File Type',
+                label:pydio.MessageHash['3'],
                 message:'3',
+                name:'mimestring',
                 sortType:'string'
             },
             ajxp_modiftime:{
-                label:'Mofidied on',
+                label:pydio.MessageHash['4'],
                 message:'4',
-                sortType:'number'
+                sortType:'number',
+                name:'ajxp_modiftime',
+                remoteSortAttribute:'mtime'
             }
         };
     }
@@ -87,30 +93,54 @@ class ComponentConfigsParser {
             if(name === 'bytesize') {
                 sortType = 'number';
             }
+            const message = colNode.getAttribute('messageId')
+            let label = messages[message]
+            if(colNode.getAttribute('messageString')) {
+                label = colNode.getAttribute('messageString')
+            }
+            let remoteSortAttribute
+            switch (name) {
+                case 'ajxp_label':
+                    remoteSortAttribute = 'name'
+                    break;
+                case 'bytesize':
+                    remoteSortAttribute = 'size'
+                    break
+                case 'ajxp_modiftime':
+                    remoteSortAttribute = 'mtime'
+                    break;
+                default:
+                    break
+            }
             columns[name] = {
-                message : colNode.getAttribute('messageId'),
-                label   : colNode.getAttribute('messageString') ? colNode.getAttribute('messageString') : messages[colNode.getAttribute('messageId')],
-                sortType: sortType,
-                inlineHide: colNode.getAttribute('defaultVisibilty') === "false"
+                message     : message,
+                label       : label,
+                name        : name,
+                sortType    : sortType,
+                inlineHide  : colNode.getAttribute('defaultVisibilty') === "false",
+                remoteSortAttribute
             };
             if(name === 'ajxp_label') {
                 columns[name].renderCell = this.renderLabel;
             }
-            if(colNode.getAttribute('reactModifier')){
-                let reactModifier = colNode.getAttribute('reactModifier');
-                const className = reactModifier.split('.',1).shift();
-                proms.push(ResourcesManager.loadClass(className).then(()=> {
-                    columns[name].renderCell = FuncUtils.getFunctionByName(reactModifier, global);
-                    columns[name].renderComponent = columns[name].renderCell
-                    // Special indicator for tags
-                    if(reactModifier.indexOf('renderTagsCloud') > -1) {
-                        columns[name].renderBlock = true
-                    }
-                }))
-            }
         });
+        proms.push(ResourcesManager.loadClass('ReactMeta').then(c => {
+            const {MetaClient, Renderer} = c;
+            return MetaClient.getInstance().loadConfigs().then(metas => {
+                metas.forEach((v,k)=>{
+                    if(v.type !== 'json'){
+                        columns[k] = {
+                            label:      v.label,
+                            inlineHide: !v.visible,
+                            ...Renderer.typeColumnRenderer(v.type),
+                            nsData:     v.data
+                        }
+                    }
+                })
+            })
+        }))
         return Promise.all(proms).then(()=> {
-            return columns || this.getDefaultListColumns();
+            return columns || this.getDefaultListColumns(Pydio.getInstance());
         })
     }
 
@@ -146,7 +176,7 @@ class MainFilesList extends React.Component {
             thumbNearest: tSize,
             thumbSize   : tSize,
             elementsPerLine: 5,
-            columns     : configParser.getDefaultListColumns(),
+            columns     : configParser.getDefaultListColumns(props.pydio),
             parentIsScrolling: props.parentIsScrolling,
             repositoryId: props.pydio.repositoryId
         };
@@ -226,40 +256,41 @@ class MainFilesList extends React.Component {
             || nextProps.searchLoading !== this.props.searchLoading
             || nextProps.searchResults !== this.props.searchResults
             || nextProps.searchScope !== this.props.searchScope
+            || nextProps.style !== this.props.style
             || nextState !== this.state );
     }
 
-    componentWillReceiveProps(nextProps) {
-        if(nextProps.dataModel !== this.props.dataModel){
-            this.props.dataModel.stopObserving("context_changed", this._contextObserver);
-            nextProps.dataModel.observe("context_changed", this._contextObserver);
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        const {pydio, onDisplayModeChange} = this.props;
+        const {repositoryId} = prevState;
+        const {displayMode} = this.state;
+        if(prevProps.dataModel !== this.props.dataModel) {
+            prevProps.dataModel.stopObserving("context_changed", this._contextObserver);
+            this.props.dataModel.observe("context_changed", this._contextObserver);
             this._contextObserver();
         }
-        if(this.state && this.state.repositoryId !== this.props.pydio.repositoryId ){
-            this.props.pydio.getController().updateGuiActions(this.getPydioActions());
+        if(repositoryId !== pydio.repositoryId) {
+            pydio.getController().updateGuiActions(this.getPydioActions());
             let configParser = new ComponentConfigsParser(this.tableEntryRenderCell.bind(this));
             configParser.loadConfigs('FilesList').then((columns) => {
                 this.setState({columns});
             })
-            const dMode = this.getPrefValue('FilesListDisplayMode', this.state && this.state.displayMode ? this.state.displayMode:'list');
-            if(this.state.displayMode !== dMode && dMode.indexOf('grid-') === 0){
-                let tSize = 200;
+            const dMode = this.getPrefValue('FilesListDisplayMode', displayMode || 'list');
+            if(prevState.displayMode !== dMode && dMode.indexOf('grid-') === 0){
+                let tSize = 160;
                 if(dMode === 'grid-320') {
                     tSize = 320;
                 } else if(dMode === 'grid-80') {
                     tSize = 80;
                 }
-                this.setState({
-                    thumbNearest:tSize,
-                    thumbSize: tSize
-                });
+                this.recomputeThumbnailsDimension(tSize)
             }
             this.setState({
-                repositoryId: this.props.pydio.repositoryId,
+                repositoryId: pydio.repositoryId,
                 displayMode:dMode
             }, ()=>{
-                if(this.props.onDisplayModeChange) {
-                    this.props.onDisplayModeChange(dMode);
+                if(onDisplayModeChange) {
+                    onDisplayModeChange(dMode);
                 }
             })
         }
@@ -272,15 +303,16 @@ class MainFilesList extends React.Component {
     recomputeThumbnailsDimension(nearest){
 
         const {contextNode, displayMode, thumbNearest} = this.state;
+        const {muiTheme} = this.props;
         if(displayMode.indexOf('grid') !== 0){
             return
         }
 
-        const MAIN_CONTAINER_FULL_PADDING = 5;
-        const THUMBNAIL_MARGIN = displayMode === 'grid-80' ? 4 : 8;
+        const MAIN_CONTAINER_FULL_PADDING = 4;
+        const THUMBNAIL_MARGIN = (muiTheme.userTheme === 'mui3' || displayMode ===  'grid-80') ? 4 : 8;
         let containerWidth;
         try{
-            containerWidth = ReactDOM.findDOMNode(this.refs['list'].refs['infinite']).clientWidth - MAIN_CONTAINER_FULL_PADDING;
+            containerWidth = ReactDOM.findDOMNode(this.refs['list'].infinite.current).clientWidth - MAIN_CONTAINER_FULL_PADDING;
         }catch(e){
             containerWidth = 200;
         }
@@ -300,7 +332,7 @@ class MainFilesList extends React.Component {
             } else if(displayMode === 'grid-80') {
                 width = 100;
             } else {
-                width = 200;
+                width = 160;
             }
         }
         this.setState({
@@ -593,7 +625,7 @@ class MainFilesList extends React.Component {
             }
             let sep;
             if(!first){
-                sep = <span className="icon-angle-right"></span>;
+                sep = <span className="mdi mdi-chevron-right"></span>;
             }
             let cellClass = 'metadata_chunk metadata_chunk_'+(standard ?'standard':'other')+' metadata_chunk_' + s;
             if(columnDef.renderComponent && columnDef.renderBlock){
@@ -603,16 +635,17 @@ class MainFilesList extends React.Component {
             standard ? standardPieces.push(cell) : otherPieces.push(cell);
         });
         const metaIc = (
-            <OverlayIcon
-                pydio={pydio}
-                node={node}
-                overlay={'mdi mdi-tag-outline'}
-                style={{height:22, width: 22, margin:'0 2px', padding: '0 2px'}}
-                disableActions={!!searchResults}
-                className={"metadata_chunk metadata_chunk_standard"}
-                tooltipPosition={'bottom-right'}
-                popoverDirection={'left'}
-            />
+            <span className={"metadata_chunk metadata_chunk_standard"}>
+                <OverlayIcon
+                    pydio={pydio}
+                    node={node}
+                    overlay={'mdi mdi-tag-outline'}
+                    style={{height:18, width: 18, margin:0, padding: '1px 0'}}
+                    disableActions={!!searchResults}
+                    tooltipPosition={'bottom-right'}
+                    popoverDirection={'left'}
+                />
+            </span>
         );
         pieces.push(...otherPieces, metaIc, ...standardPieces);
         return pieces;
@@ -649,11 +682,6 @@ class MainFilesList extends React.Component {
                     value:'grid-320'
                 },
                 {
-                    name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-medium'],
-                    icon_class:'mdi mdi-minus',
-                    value:'grid-160'
-                },
-                {
                     name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-small'],
                     icon_class:'mdi mdi-arrow-down',
                     value:'grid-80'
@@ -675,10 +703,6 @@ class MainFilesList extends React.Component {
                     icon_class:'mdi mdi-arrow-up',value:'masonry-440'
                 },
                 {
-                    name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-medium'],
-                    icon_class:'mdi mdi-minus',value:'masonry'
-                },
-                {
                     name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-small'],
                     icon_class:'mdi mdi-arrow-down',value:'masonry-100'
                 }
@@ -689,7 +713,12 @@ class MainFilesList extends React.Component {
             const value = item.value;
             i.callback = () => {this.switchDisplayMode(i.value)};
             if(value === displayMode || (i.highlight && i.highlight(displayMode))){
-                i.name = <span style={{fontWeight: 500}}>{i.name}</span>
+                i.name = (
+                    <span style={{fontWeight: 500, display: 'flex'}}>
+                        <span style={{flex: 1}}>{i.name}</span>
+                        {value === displayMode && <span className="mdi mdi-checkbox-marked-circle-outline"/>}
+                    </span>
+                )
             }
             return i;
         });
@@ -724,8 +753,8 @@ class MainFilesList extends React.Component {
             icon_class:'mdi mdi-view-list',
             text_id:150,
             title_id:151,
-            text:MessageHash[150],
-            title:MessageHash[151],
+            text:Pydio.getMessages()[150],
+            title:Pydio.getMessages()[151],
             hasAccessKey:false,
             subMenu:true,
             subMenuUpdateImage:true
@@ -768,7 +797,7 @@ class MainFilesList extends React.Component {
 
     render() {
 
-        const {pydio, dataModel, style, gridBackground} = this.props;
+        const {pydio, dataModel, style, onScroll} = this.props;
         const {contextNode, displayMode, columns, thumbSize, pinBookmarks} = this.state;
         let tableKeys, sortKeys, elementStyle, className = 'files-list layout-fill main-files-list';
         let elementHeight, entryRenderSecondLine, near, elementsPerLine = 1;
@@ -812,7 +841,6 @@ class MainFilesList extends React.Component {
             } else if(near === 80) {
                 infiniteSliceCount = 200;
             }
-            additionalStyle = {backgroundColor:gridBackground}
 
         } else if(dMode === 'list'){
 
@@ -907,26 +935,10 @@ class MainFilesList extends React.Component {
             if(dMode.indexOf('masonry-')=== 0){
                 cWidth = parseInt(dMode.replace('masonry-', ''))
             }
-            const css = `
-               .masonic-grid .mimefont-container {
-                    display:flex; 
-                    height:100%; 
-                    align-items:center !important; 
-                    justify-content:center;
-                    border-radius: 4px;
-               }
-               .masonic-grid .mimefont-container .mimefont {
-                    font-size: 36px;
-                    margin-bottom: 22px;
-               }
-               .react-mui-context .info-panel-open .masonic-grid{
-                    width: calc(100% - 270px) !important;
-               }
-            `;
             return (
                 <React.Fragment>
                     <Masonry
-                        className={"masonic-grid"}
+                        className={"masonry-grid "+"masonry-size-"+cWidth}
                         dataModel={dataModel}
                         entryProps={{
                             handleClicks:this.entryHandleClicks.bind(this),
@@ -936,15 +948,35 @@ class MainFilesList extends React.Component {
                         emptyStateProps={emptyStateProps}
                         containerStyle={style}
                         columnWidth={cWidth}
+                        onScroll={onScroll}
                     />
-                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:css}}/>
                 </React.Fragment>
             )
+        }
+
+        let sortingInfoChange
+        const {onSortingInfoChange} = this.props;
+        if(onSortingInfoChange) {
+            sortingInfoChange = (si) => {
+                let label;
+                if(si.attribute) {
+                    if (columns[si.attribute]) {
+                        label = columns[si.attribute].label
+                    } else if (si.remote) {
+                        const ff = Object.keys(columns).map(c => columns[c]).filter(c => c.remoteSortAttribute === si.attribute)
+                        if (ff.length) {
+                            label = ff[0].label
+                        }
+                    }
+                }
+                onSortingInfoChange({...si, label})
+            }
         }
 
         return (
             <SimpleList
                 ref="list"
+                pydio={pydio}
                 tableKeys={tableKeys}
                 sortKeys={sortKeys}
                 node={contextNode}
@@ -957,6 +989,7 @@ class MainFilesList extends React.Component {
                 style={{...style, ...additionalStyle}}
                 displayMode={dMode}
                 usePlaceHolder={true}
+                onScroll={onScroll}
                 elementsPerLine={elementsPerLine}
                 elementHeight={elementHeight}
                 elementStyle={elementStyle}
@@ -971,6 +1004,8 @@ class MainFilesList extends React.Component {
                 horizontalRibbon={this.props.horizontalRibbon}
                 emptyStateProps={emptyStateProps}
                 defaultSortingInfo={{sortType:'file-natural',attribute:'',direction:'asc'}}
+                sortingPreferenceKey={'FilesListSortingInfo'}
+                onSortingInfoChange={sortingInfoChange}
                 hideToolbar={true}
                 customToolbar={<CellsMessageToolbar pydio={pydio}/>}
                 {...groupProps}
@@ -979,4 +1014,5 @@ class MainFilesList extends React.Component {
     }
 }
 
+MainFilesList = muiThemeable()(MainFilesList)
 export {MainFilesList as default}

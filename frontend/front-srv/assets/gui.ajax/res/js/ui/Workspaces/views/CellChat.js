@@ -2,6 +2,7 @@ import React from 'react'
 import Pydio from 'pydio'
 import {Paper} from 'material-ui'
 const {Chat} = Pydio.requireLib('components');
+import {muiThemeable} from 'material-ui/styles'
 
 class CellChat extends React.Component{
 
@@ -28,8 +29,18 @@ class CellChat extends React.Component{
     }
 
     render(){
-        const {pydio, style, zDepth, onRequestClose} = this.props;
-        const {cellModel, cellId} = this.state;
+        const {pydio, style, zDepth, onRequestClose, muiTheme} = this.props;
+        const {cellModel, cellId} = this.state
+        const chatStyle = {
+            flex: 1,
+            display:'flex',
+            flexDirection:'column',
+            overflow: 'hidden',
+            background:muiTheme.palette.mui3['surface-2'],
+            borderRadius: muiTheme.palette.mui3['card-border-radius'],
+            margin: muiTheme.palette.mui3['fstemplate-master-margin'],
+            border: '1px solid ' + muiTheme.palette.mui3['outline-variant-50'],
+        };
         let chatRoomType = 'WORKSPACE';
         return (
             <Paper id="info_panel" zDepth={zDepth} rounded={false} style={{display:'flex', flexDirection:'column', ...style}}>
@@ -37,11 +48,10 @@ class CellChat extends React.Component{
                     pydio={pydio}
                     roomType={chatRoomType}
                     roomObjectId={cellId}
-                    style={{flex: 1, display:'flex', flexDirection:'column', overflow: 'hidden'}}
-                    chatUsersStyle={{borderBottom: 0, padding: 5, backgroundColor:'rgba(0,0,0,.05)', display:'flex', flexWrap:'wrap'}}
+                    style={chatStyle}
+                    chatUsersStyle={{borderBottom: 0, padding: 5, backgroundColor:muiTheme.palette.mui3['surface-variant'], display:'flex', flexWrap:'wrap'}}
                     msgContainerStyle={{maxHeight:null, flex:1, paddingTop: '10px !important'}}
                     fieldHint={pydio.MessageHash['636']}
-                    fieldContainerStyle={{backgroundColor:'transparent'}}
                     pushMessagesToBottom={true}
                     emptyStateProps={{
                         iconClassName:'mdi mdi-comment-account-outline',
@@ -58,5 +68,5 @@ class CellChat extends React.Component{
     }
 
 }
-
+CellChat = muiThemeable()(CellChat)
 export {CellChat as default}

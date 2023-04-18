@@ -22,12 +22,15 @@ package cmd
 
 import (
 	"context"
+	_ "embed"
 	"errors"
 	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"text/template"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -49,9 +52,13 @@ import (
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/filex"
+	"github.com/pydio/cells/v4/common/utils/fork"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 var (
+	//go:embed config.yaml
+	tmpl         string
 	configChecks []func(ctx context.Context) error
 )
 
@@ -148,156 +155,300 @@ ENVIRONMENT
 		ctx, cancel := context.WithCancel(cmd.Context())
 		defer cancel()
 
-		managerLogger := log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager"))
+		if len(runtime.GetStringSlice(runtime.KeyArgTags)) == 0 {
+			var store config.Store
 
-		if needs, gU := runtime.NeedsGrpcDiscoveryConn(); needs {
-			u, err := url.Parse(gU)
-			if err != nil {
-				return err
-			}
-			discoveryConn, err := grpc.Dial(u.Host,
-				grpc.WithTransportCredentials(insecure.NewCredentials()),
-				grpc.WithUnaryInterceptor(func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
-					// method = "pydio.grpc.registry" + method
-					return invoker(ctx, method, req, reply, cc, opts...)
-				}),
-			)
-			if err != nil {
-				return err
-			}
-			ctx = clientcontext.WithClientConn(ctx, discoveryConn)
-		}
-
-		configFile := filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName)
-		if runtime.ConfigIsLocalFile() && !filex.Exists(configFile) {
-			return triggerInstall(
-				"We cannot find a configuration file ... "+configFile,
-				"Do you want to create one now",
-				cmd, args)
-		}
-
-		// Init config
-		isNew, keyring, er := initConfig(ctx, true)
-		if er != nil {
-			return er
-		}
-		if isNew && runtime.ConfigIsLocalFile() {
-			return triggerInstall(
-				"Oops, the configuration is not right ... "+configFile,
-				"Do you want to reset the initial configuration", cmd, args)
-		}
-
-		ctx = servicecontext.WithKeyring(ctx, keyring)
-		for _, cc := range configChecks {
-			if e := cc(ctx); e != nil {
-				return e
-			}
-		}
-
-		// Init registry
-		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
-		if err != nil {
-			return err
-		}
-		ctx = servercontext.WithRegistry(ctx, reg)
-
-		// Init broker
-		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
-
-		if !runtime.IsFork() {
-			data := []runtime.InfoGroup{binaryInfo()}
-			data = append(data, runtime.Describe()...)
-			data = append(data, buildInfo())
-			for _, group := range data {
-				cmd.Println(group.Name + ":")
-				for _, pair := range group.Pairs {
-					cmd.Println("  " + pair.Key + ":\t" + pair.Value)
+			if file := runtime.GetString("file"); file == "" {
+				t, err := template.New("context").Parse(tmpl)
+				if err != nil {
+					return err
 				}
-				cmd.Println("")
+
+				var b strings.Builder
+
+				r := runtime.GetRuntime()
+
+				if err := t.Execute(&b, struct {
+					Config        string
+					Registry      string
+					Broker        string
+					Cache         string
+					BindHost      string
+					AdvertiseHost string
+					DiscoveryPort string
+					FrontendPort  string
+				}{
+					runtime.ConfigURL(),
+					runtime.RegistryURL(),
+					runtime.BrokerURL(),
+					runtime.CacheURL(""),
+					r.GetString(runtime.KeyBindHost),
+					r.GetString(runtime.KeyBindHost),
+					r.GetString(runtime.KeyGrpcDiscoveryPort),
+					r.GetString(runtime.KeyHttpPort),
+				}); err != nil {
+					return err
+				}
+
+				s, err := config.OpenStore(ctx, "mem://?data="+url.QueryEscape(b.String())+"&encode=yaml")
+				if err != nil {
+					return err
+				}
+
+				store = s
+			} else {
+				s, err := config.OpenStore(ctx, file)
+				if err != nil {
+					return err
+				}
+
+				store = s
 			}
-		}
 
-		// Starting discovery server containing registry, broker, config and log
-		var discovery manager.Manager
-		// TODO - should be done in some other way
-		//if !runtime.IsGrpcScheme(runtime.RegistryURL()) || runtime.LogLevel() == "debug" {
-		if discovery, err = startDiscoveryServer(ctx, reg, managerLogger); err != nil {
-			return err
-		}
-		//}
+			processes := store.Val("processes")
 
-		// Create a main client connection
-		clientgrpc.WarnMissingConnInContext = true
-		conn, err := grpc.Dial("xds:///mysrv", clientgrpc.DialOptionsForRegistry(reg)...)
-		if err != nil {
-			return err
-		}
-		ctx = clientcontext.WithClientConn(ctx, conn)
-		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
+			for k := range processes.Slice() {
+				process := processes.Val(strconv.Itoa(k))
 
-		m := manager.NewManager(ctx, reg, "mem:///?cache=plugins&byname=true", "main", managerLogger)
-		if err := m.Init(ctx); err != nil {
-			return err
-		}
+				name := process.Val("name").String()
 
-		// Logging Stuff
-		runtime.InitGlobalConnConsumers(ctx, "main")
-		go initLogLevelListener(ctx)
+				connections := process.Val("connections")
+				env := process.Val("env")
+				servers := process.Val("servers")
+				services := process.Val("services")
 
-		go m.WatchServicesConfigs()
-		go m.WatchBroker(ctx, broker.Default())
+				childBinary := os.Args[0]
+				childArgs := []string{}
+				childEnv := []string{}
 
-		//tracer, err := tracing.OpenTracing(ctx, "jaeger:///")
-		//if err != nil {
-		//	return err
-		//}
-		//
-		//otel.SetTracerProvider(tracer)
+				if process.Val("debug").Bool() {
+					childBinary = "dlv"
+					childArgs = append(childArgs, "--listen=:2345", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "--", os.Args[0])
+				}
 
-		if replaced := config.EnvOverrideDefaultBind(); replaced {
-			// Bind sites are replaced by flags/env values - warn that it will take precedence
-			if ss, e := config.LoadSites(true); e == nil && len(ss) > 0 && !runtime.IsFork() {
-				fmt.Println("*****************************************************************")
-				fmt.Println("*  Dynamic bind flag detected, overriding any configured sites  *")
-				fmt.Println("*****************************************************************")
+				childArgs = append(childArgs, "start", "--name", name)
+
+				// Adding connections to the environment
+				for k := range connections.Map() {
+					childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), connections.Val(k, "uri")))
+				}
+
+				for k, v := range env.Map() {
+					switch vv := v.(type) {
+					case string:
+						childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, vv))
+					default:
+						vvv, _ := json.Marshal(vv)
+						childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, string(vvv)))
+					}
+				}
+
+				// Adding servers to the environment
+				for k := range servers.Map() {
+					server := servers.Val(k)
+
+					// TODO - should be one bind address per server
+					if bindAddr := server.Val("bind").String(); bindAddr != "" {
+						childEnv = append(childEnv, fmt.Sprintf("CELLS_BIND_ADDRESS=%s", bindAddr))
+					}
+
+					// TODO - should be one advertise address per server
+					if advertiseAddr := server.Val("advertise").String(); advertiseAddr != "" {
+						childEnv = append(childEnv, fmt.Sprintf("CELLS_ADVERTISE_ADDRESS=%s", advertiseAddr))
+					}
+
+					// Adding servers port
+					if port := server.Val("port").String(); port != "" {
+						childEnv = append(childEnv, fmt.Sprintf("CELLS_%s_PORT=%s", strings.ToUpper(k), port))
+					}
+
+					// Adding server type
+					if typ := server.Val("type").String(); typ != "" {
+						childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), typ))
+					}
+				}
+
+				// Adding services to the environment
+				tags := []string{}
+				for k, v := range services.Map() {
+					tags = append(tags, k)
+
+					if vv, ok := v.([]interface{}); ok {
+						for _, vvv := range vv {
+							childArgs = append(childArgs, vvv.(string))
+						}
+					}
+				}
+
+				childEnv = append(childEnv, fmt.Sprintf("CELLS_TAGS=%s", strings.Join(tags, " ")))
+
+				cmd := fork.NewProcess(ctx, []string{}, fork.WithBinary(childBinary), fork.WithName(name), fork.WithArgs(childArgs), fork.WithEnv(childEnv))
+				go cmd.StartAndWait(5)
 			}
-		}
 
-		if os.Args[1] == "daemon" {
-			msg := "| Starting daemon, use '" + os.Args[0] + " ctl' to control services |"
-			line := strings.Repeat("-", len(msg))
-			cmd.Println(line)
-			cmd.Println(msg)
-			cmd.Println(line)
-			m.SetServeOptions(
-				server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
-				server.WithHttpBindAddress(runtime.HttpBindAddress()),
-			)
+			select {
+			case <-cmd.Context().Done():
+			}
 		} else {
+
+			managerLogger := log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager"))
+
+			if needs, gU := runtime.NeedsGrpcDiscoveryConn(); needs {
+				u, err := url.Parse(gU)
+				if err != nil {
+					return err
+				}
+				addr := u.String()
+				switch u.Scheme {
+				case "grpc":
+					addr = u.Host
+				}
+				discoveryConn, err := grpc.Dial(addr,
+					grpc.WithTransportCredentials(insecure.NewCredentials()),
+					grpc.WithUnaryInterceptor(func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+						// method = "pydio.grpc.registry" + method
+						return invoker(ctx, method, req, reply, cc, opts...)
+					}),
+				)
+				if err != nil {
+					return err
+				}
+				ctx = clientcontext.WithClientConn(ctx, discoveryConn)
+			}
+
+			configFile := filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName)
+			if runtime.ConfigIsLocalFile() && !filex.Exists(configFile) {
+				return triggerInstall(
+					"We cannot find a configuration file ... "+configFile,
+					"Do you want to create one now",
+					cmd, args)
+			}
+
+			// Init config
+			isNew, keyring, er := initConfig(ctx, true)
+			if er != nil {
+				return er
+			}
+			if isNew && runtime.ConfigIsLocalFile() {
+				return triggerInstall(
+					"Oops, the configuration is not right ... "+configFile,
+					"Do you want to reset the initial configuration", cmd, args)
+			}
+
+			ctx = servicecontext.WithKeyring(ctx, keyring)
+			for _, cc := range configChecks {
+				if e := cc(ctx); e != nil {
+					return e
+				}
+			}
+
+			// Init registry
+			fmt.Println(runtime.RegistryURL())
+			reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
+			if err != nil {
+				return err
+			}
+			ctx = servercontext.WithRegistry(ctx, reg)
+
+			// Init broker
+
+			broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
+
+			if !runtime.IsFork() {
+				data := []runtime.InfoGroup{binaryInfo()}
+				data = append(data, runtime.Describe()...)
+				data = append(data, buildInfo())
+				for _, group := range data {
+					cmd.Println(group.Name + ":")
+					for _, pair := range group.Pairs {
+						cmd.Println("  " + pair.Key + ":\t" + pair.Value)
+					}
+					cmd.Println("")
+				}
+			}
+
+			// Starting discovery server containing registry, broker, config and log
+			var discovery manager.Manager
+			// TODO - should be done in some other way
+			//if !runtime.IsGrpcScheme(runtime.RegistryURL()) || runtime.LogLevel() == "debug" {
+			if discovery, err = startDiscoveryServer(ctx, reg, managerLogger); err != nil {
+				return err
+			}
+			//}
+
+			// Create a main client connection
+			clientgrpc.WarnMissingConnInContext = true
+			conn, err := grpc.Dial("xds://"+runtime.Cluster()+".cells.com/cells", clientgrpc.DialOptionsForRegistry(reg)...)
+			if err != nil {
+				return err
+			}
+			ctx = clientcontext.WithClientConn(ctx, conn)
+			ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
+
+			m := manager.NewManager(ctx, reg, "mem:///?cache=plugins&byname=true", "main", managerLogger)
+			if err := m.Init(ctx); err != nil {
+				return err
+			}
+
+			// Logging Stuff
+			runtime.InitGlobalConnConsumers(ctx, "main")
+			go initLogLevelListener(ctx)
+
+			go m.WatchServicesConfigs()
+			go m.WatchBroker(ctx, broker.Default())
+
+			//tracer, err := tracing.OpenTracing(ctx, "jaeger:///")
+			//if err != nil {
+			//	return err
+			//}
+			//
+			//otel.SetTracerProvider(tracer)
+
+			if replaced := config.EnvOverrideDefaultBind(); replaced {
+				// Bind sites are replaced by flags/env values - warn that it will take precedence
+				if ss, e := config.LoadSites(true); e == nil && len(ss) > 0 && !runtime.IsFork() {
+					fmt.Println("*****************************************************************")
+					fmt.Println("*  Dynamic bind flag detected, overriding any configured sites  *")
+					fmt.Println("*****************************************************************")
+				}
+			}
+
+			if os.Args[1] == "daemon" {
+				msg := "| Starting daemon, use '" + os.Args[0] + " ctl' to control services |"
+				line := strings.Repeat("-", len(msg))
+				cmd.Println(line)
+				cmd.Println(msg)
+				cmd.Println(line)
+				m.SetServeOptions(
+					server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
+					server.WithHttpBindAddress(runtime.HttpBindAddress()),
+				)
+			} else {
+				select {
+				case <-ctx.Done():
+					return nil
+				default:
+				}
+				m.ServeAll(
+					server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
+					server.WithHttpBindAddress(runtime.HttpBindAddress()),
+					server.WithErrorCallback(func(err error) {
+						managerLogger.Error(promptui.IconBad + "There was an error while starting:" + err.Error())
+					}),
+				)
+			}
+
 			select {
 			case <-ctx.Done():
-				return nil
-			default:
+			case <-reg.Done():
 			}
-			m.ServeAll(
-				server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
-				server.WithHttpBindAddress(runtime.HttpBindAddress()),
-				server.WithErrorCallback(func(err error) {
-					managerLogger.Error(promptui.IconBad + "There was an error while starting:" + err.Error())
-				}),
-			)
-		}
 
-		select {
-		case <-ctx.Done():
-		case <-reg.Done():
-		}
-
-		reg.Close()
-		m.StopAll()
-		if discovery != nil {
-			managerLogger.Info("Stopping discovery services now")
-			discovery.StopAll()
+			reg.Close()
+			m.StopAll()
+			if discovery != nil {
+				managerLogger.Info("Stopping discovery services now")
+				discovery.StopAll()
+			}
 		}
 
 		return nil
@@ -341,6 +492,8 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log
 
 func init() {
 	// Flags for selecting / filtering services
+	StartCmd.Flags().String(runtime.KeyName, "default", "Name for the node")
+	StartCmd.Flags().String(runtime.KeyCluster, "default", "Name of the cluster for the node")
 	StartCmd.Flags().StringArrayP(runtime.KeyArgTags, "t", []string{}, "Select services to start by tags, possible values are 'broker', 'data', 'datasource', 'discovery', 'frontend', 'gateway', 'idm', 'scheduler'")
 	StartCmd.Flags().StringArrayP(runtime.KeyArgExclude, "x", []string{}, "Select services to start by filtering out some specific ones by name")
 

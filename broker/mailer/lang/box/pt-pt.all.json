@@ -143,6 +143,9 @@
   "Mail.Config.From.Description": {
     "other": "Endereço a ser usado como padrão quando enviar e-mails. Deve usar um e-mail de suporte apropriado e não um e-mail de «não-responder»."
   },
+  "Mail.Config.FixOutlookDisplay": {
+    "other": "Outlook Clients Fix (disable CSS inlining)"
+  },
   "Mail.Config.Queue.Label": {
     "other": "Tipo de Fila"
   },

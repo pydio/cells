@@ -28,7 +28,6 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
 )
 
 var (
@@ -49,16 +48,16 @@ func init() {
 		}
 	})
 
-	runtime.Register("main", func(ctx context.Context) {
-		service.NewService(
-			append([]service.ServiceOption{
-				service.Name(Name),
-				service.Context(ctx),
-				service.Tag(common.ServiceTagDatasource),
-				service.Description("Starter for data sources synchronizations"),
-			}, service.WithChildrenRunner(Name, ChildPrefix, true, onDataSourceDelete, SecondaryPrefix)...)...,
-		)
-	})
+	//runtime.Register("main", func(ctx context.Context) {
+	//	service.NewService(
+	//		append([]service.ServiceOption{
+	//			service.Name(Name),
+	//			service.Context(ctx),
+	//			service.Tag(common.ServiceTagDatasource),
+	//			service.Description("Starter for data sources synchronizations"),
+	//		}, service.WithChildrenRunner(Name, ChildPrefix, true, onDataSourceDelete, SecondaryPrefix)...)...,
+	//	)
+	//})
 }
 
 // Manage datasources deletion operations : clean index tables

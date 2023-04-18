@@ -20,23 +20,24 @@
 
 const React = require('react')
 
-class ConfigLogo extends React.Component{
-
-    render(){
-        let logo = this.props.pydio.Registry.getPluginConfigs(this.props.pluginName).get(this.props.pluginParameter);
-        let url;
-        if(!logo){
-            logo = this.props.pydio.Registry.getDefaultImageFromParameters(this.props.pluginName, this.props.pluginParameter);
-        }
-        if(logo){
-            if(logo.indexOf('plug/') === 0){
-                url = logo;
-            }else{
-                url = this.props.pydio.Parameters.get('ENDPOINT_REST_API') + "/frontend/binaries/GLOBAL/" + logo;
-            }
-        }
-        return <img src={url} style={this.props.style} className={this.props.className}/>
+const ConfigLogo =({pydio, pluginName, pluginParameter, style, darkMode, className})=> {
+    let logo = pydio.Registry.getPluginConfigs(pluginName).get(pluginParameter);
+    let url;
+    if(!logo){
+        logo = pydio.Registry.getDefaultImageFromParameters(pluginName, pluginParameter);
     }
+    if(logo){
+        if(logo.indexOf('plug/') === 0){
+            if(logo.indexOf('[mode]') !== -1){
+                logo = logo.replace('[mode]', darkMode?'dark':'light')
+            }
+            url = logo;
+        }else{
+            url = pydio.Parameters.get('ENDPOINT_REST_API') + "/frontend/binaries/GLOBAL/" + logo;
+        }
+    }
+    return <img alt={"application logo"} src={url} style={style} className={className}/>
 }
+
 
 export {ConfigLogo as default}

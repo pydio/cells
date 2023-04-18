@@ -23,9 +23,9 @@ import LangUtils from 'pydio/util/lang'
 import colorsFromString from "../hoc/colorsFromString";
 import asMetaForm from "../hoc/asMetaForm";
 import MetaClient from "../MetaClient";
-
+import {muiThemeable} from 'material-ui/styles'
 import {MenuItem, Chip, AutoComplete} from 'material-ui'
-const {ModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
+const {ThemedModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
 
 
 class TagsCloud extends React.Component {
@@ -150,19 +150,20 @@ class TagsCloud extends React.Component {
     }
 
     render(){
-        const {editMode, search, label} = this.props;
+        const {editMode, search, label, muiTheme} = this.props;
         const {tags, searchText} = this.state;
 
-        let tagsList = <div/>, autoCompleter, knownTags = [];
+        let tagsList, autoCompleter, knownTags = [];
 
         if (tags && tags.split) {
             knownTags = tags.split(',').map(tag => LangUtils.trim(tag, ' ')).filter(tag => !!tag)
             tagsList = knownTags.map(tag => this.renderChip(tag));
         }
+        const ModernStyles = ThemedModernStyles(muiTheme)
 
         if (editMode) {
             const Component = search ? AutoComplete : ModernAutoComplete
-            const otherProps = search ? {style:{marginBottom: -8}, ...ModernStyles.textField} : {hintText:label}
+            const otherProps = search ? {style:{marginBottom: -10}, ...ModernStyles.textField} : {hintText:label}
             autoCompleter = (
                 <Component
                     fullWidth={true}
@@ -174,6 +175,7 @@ class TagsCloud extends React.Component {
                     filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0 && knownTags.indexOf(key) === -1)}
                     openOnFocus={true}
                     menuProps={{maxHeight: 200, desktop: true}}
+                    listStyle={{paddingTop: 5, paddingBottom: 5}}
                     onClose={() => {if(searchText) {
                         this.handleNewRequest()
                     }}}
@@ -187,10 +189,10 @@ class TagsCloud extends React.Component {
         return (
             <div style={search?{marginBottom: 8}:{}}>
                 {autoCompleter}
-                <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8, marginTop: search?8:0}}>{tagsList}</div>
+                {tagsList && <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8, marginTop: search?8:0}}>{tagsList}</div>}
             </div>
         )
     }
 }
 
-export default asMetaForm(TagsCloud);
+export default asMetaForm(muiThemeable()(TagsCloud));

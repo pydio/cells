@@ -44,18 +44,12 @@ let Template = ({style, id, pydio, children}) => {
     );
 }
 
-/*
-Template = compose (
-    PydioHOCs.Animations.makeTransition(originStyles, targetStyles, enterAnimation)
-)(Template)
-*/
-
 class TemplateBuilder extends React.Component {
 
     render() {
-        let {pydio, containerId, bgStyle} = this.props;
+        const {pydio, containerId, bgStyle} = this.props;
+        const currentTheme = pydio.Parameters.get('theme')
 
-        let components = [];
         let style = {
             display: "flex",
             flex: 1
@@ -64,36 +58,35 @@ class TemplateBuilder extends React.Component {
             style = bgStyle
         }
 
-        let parts = XMLUtils.XPathSelectNodes(pydio.getXmlRegistry(), "client_configs/template_part[@component]");
-        parts.map(function(node, index){
-            if(node.getAttribute("theme") && node.getAttribute("theme") !== pydio.Parameters.get("theme")){
-                return;
-            }
-            if(containerId !== node.getAttribute("ajxpId")){
-                return;
-            }
-
-            let namespace = node.getAttribute("namespace");
-            let componentName = node.getAttribute("component");
-
-
-            let props = {};
-            if(node.getAttribute("props")){
-                props = JSON.parse(node.getAttribute("props"));
-            }
-            props['pydio'] = pydio;
-
-            components.push(
-                <AsyncComponent
-                    key={index}
-                    namespace={namespace}
-                    componentName={componentName}
-                    noLoader={true}
-                    style={style}
-                    {...props}
-                />
-            );
-        }.bind(this));
+        const components = XMLUtils.XPathSelectNodes(pydio.getXmlRegistry(), "client_configs/template_part[@component]")
+            .filter(node => {
+                // Filter on theme
+                return !node.getAttribute("theme") || node.getAttribute("theme") === currentTheme
+            })
+            .filter(node => {
+                // Filter on containerId
+                return containerId === node.getAttribute("ajxpId")
+            })
+            .map((node, index) => {
+                // Map to AsyncComponent(s)
+                const namespace = node.getAttribute("namespace");
+                const componentName = node.getAttribute("component");
+                let props = {};
+                if(node.getAttribute("props")){
+                    props = JSON.parse(node.getAttribute("props"));
+                }
+                return (
+                    <AsyncComponent
+                        key={index}
+                        namespace={namespace}
+                        componentName={componentName}
+                        noLoader={true}
+                        style={style}
+                        {...props}
+                        pydio={pydio}
+                    />
+                );
+            })
 
         return <Template style={style} id={this.props.containerId} pydio={pydio}>{components}</Template>
     }

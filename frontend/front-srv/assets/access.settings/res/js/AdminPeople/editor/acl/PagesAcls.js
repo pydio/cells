@@ -17,6 +17,15 @@ class PagesAcls extends React.Component{
         homepageWorkspace.Slug = "homepage";
         homepageWorkspace.RootNodes = {"homepage-ROOT": TreeNode.constructFromObject({Uuid:"homepage-ROOT"})};
         workspaces.push(homepageWorkspace);
+
+        const directoryWorkspace = new IdmWorkspace();
+        directoryWorkspace.UUID = "directory";
+        directoryWorkspace.Label = m('workspace.statics.directory.title');
+        directoryWorkspace.Description = m('workspace.statics.directory.description');
+        directoryWorkspace.Slug = "directory";
+        directoryWorkspace.RootNodes = {"directory-ROOT": TreeNode.constructFromObject({Uuid:"directory-ROOT"})};
+        workspaces.push(directoryWorkspace);
+
         if(props.showSettings) {
             const settingsWorkspace = new IdmWorkspace();
             settingsWorkspace.UUID = "settings";
@@ -37,7 +46,7 @@ class PagesAcls extends React.Component{
             return <div></div>
         }
         return (
-            <div style={{backgroundColor:'white'}} className={"material-list"}>{workspaces.map( ws => <WorkspaceAcl workspace={ws} role={role} /> )}</div>
+            <div style={{backgroundColor:'white', clear:'both'}} className={"material-list"}>{workspaces.map( ws => <WorkspaceAcl workspace={ws} role={role} /> )}</div>
         );
 
     }

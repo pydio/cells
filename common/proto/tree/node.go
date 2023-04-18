@@ -23,6 +23,7 @@ package tree
 import (
 	"fmt"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 
@@ -41,6 +42,10 @@ const (
 	StatFlagNone
 	StatFlagFolderSize
 	StatFlagFolderCounts
+	StatFlagMetaMinimal
+	StatFlagRecursiveCount
+
+	StatFlagHeaderName = "x-pydio-read-stat-flags"
 )
 
 type Flags []uint32
@@ -65,6 +70,49 @@ func (f Flags) FolderCounts() bool {
 		}
 	}
 	return false
+}
+
+func (f Flags) RecursiveCount() bool {
+	for _, fl := range f {
+		if fl == StatFlagRecursiveCount {
+			return true
+		}
+	}
+	return false
+}
+
+func (f Flags) MinimalMetas() bool {
+	for _, fl := range f {
+		if fl == StatFlagMetaMinimal {
+			return true
+		}
+	}
+	return false
+}
+
+// String returns a string representation of the flags
+func (f Flags) String() string {
+	var ss []string
+	for _, fl := range f {
+		ss = append(ss, strconv.Itoa(int(fl)))
+	}
+	return strings.Join(ss, "-")
+}
+
+// StatFlagsFromString parses a string of flags separated by dashes
+func StatFlagsFromString(s string) Flags {
+	var flags Flags
+	for _, ss := range strings.Split(s, "-") {
+		if i, e := strconv.Atoi(ss); e == nil {
+			flags = append(flags, uint32(i))
+		}
+	}
+	return flags
+}
+
+// AsMeta returns a map of headers to be sent to the client
+func (f Flags) AsMeta() map[string]string {
+	return map[string]string{StatFlagHeaderName: f.String()}
 }
 
 /* This file provides helpers and shortcuts to ease development of tree.node related features.

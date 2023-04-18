@@ -7,7 +7,7 @@
     bottom: 60px;
     position: absolute;
     left: 78px;
-    border-right: 3px dashed #eee;
+//    border-right: 3px dashed #eee;
   }
 
   .sep-date{
@@ -53,6 +53,7 @@
         box-shadow: #D1D6E6 0px 0px 4px;
 
         &:before {
+          box-sizing: border-box;
           content: '';
           display: block;
           position: absolute;
@@ -67,14 +68,16 @@
       }
 
       .tl-card {
-        background-color: white;
-        box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
+//        background-color: white;
+//        box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
         flex: 1;
         margin: 10px;
         padding: 16px 20px;
-        border-radius: 10px;
+        border-radius: 5px;
         display:flex;
-        cursor: pointer;
+        &.tl-selectable{
+          cursor: pointer;
+        }
 
         .tl-desc{
           flex: 1;
@@ -86,7 +89,7 @@
           }
         }
         .tl-annotation{
-          color: #4caf50;
+//          color: #4caf50;
           font-size: 11px;
           font-weight: 500;
           .tl-annotation-dir {
@@ -121,7 +124,7 @@
           z-index: 100;
           text-align: center;
           opacity: 1;
-          border: 1px solid #eeeeee;
+//          border: 1px solid #eeeeee;
           font-size: 15px;
           line-height: 19px;
         }
@@ -165,9 +168,9 @@
         .tl-card {
           padding: 12px;
           box-shadow: none;
-          border: 1px solid rgb(238, 238, 238);
+//          border: 1px solid rgb(238, 238, 238);
           &.tl-selectable:hover{
-            box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
+            //box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 12px;
           }
           .tl-actions {
             display: none;

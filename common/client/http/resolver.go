@@ -4,10 +4,9 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"google.golang.org/grpc"
 	"net/http"
 	"strings"
-
-	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client"
@@ -40,13 +39,14 @@ func NewResolver() Resolver {
 }
 
 type resolver struct {
-	c         grpc.ClientConnInterface
-	r         registry.Registry
-	s         server.HttpMux
-	b         Balancer
-	rc        client.ResolverCallback
-	monitor   grpc2.HealthMonitor
-	userReady bool
+	c            grpc.ClientConnInterface
+	r            registry.Registry
+	s            server.HttpMux
+	b            Balancer
+	rc           client.ResolverCallback
+	monitorOAuth grpc2.HealthMonitor
+	monitorUser  grpc2.HealthMonitor
+	userReady    bool
 }
 
 func (m *resolver) Init(ctx context.Context, s server.HttpMux) {
@@ -64,9 +64,13 @@ func (m *resolver) Init(ctx context.Context, s server.HttpMux) {
 	m.b = bal
 
 	if runtime.LastInitType() != "install" {
-		monitor := grpc2.NewHealthChecker(ctx)
-		go monitor.Monitor(common.ServiceOAuth)
-		m.monitor = monitor
+		monitorOAuth := grpc2.NewHealthChecker(ctx)
+		go monitorOAuth.Monitor(common.ServiceOAuth)
+		m.monitorOAuth = monitorOAuth
+
+		monitorUser := grpc2.NewHealthChecker(ctx)
+		go monitorUser.Monitor(common.ServiceUser)
+		m.monitorUser = monitorUser
 	}
 
 }
@@ -75,8 +79,11 @@ func (m *resolver) Stop() {
 	if m.rc != nil {
 		m.rc.Stop()
 	}
-	if m.monitor != nil {
-		m.monitor.Stop()
+	if m.monitorOAuth != nil {
+		m.monitorOAuth.Stop()
+	}
+	if m.monitorUser != nil {
+		m.monitorUser.Stop()
 	}
 }
 
@@ -97,10 +104,10 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 		return true, nil
 	}
 
-	if m.monitor != nil && (!m.monitor.Up() || !m.userServiceReady()) {
+	if (m.monitorOAuth != nil && !m.monitorOAuth.Up()) || (m.monitorUser != nil && !m.monitorUser.Up()) {
 		var bb []byte
 		if strings.Contains(r.Header.Get("Accept"), "text/html") {
-			if !m.monitor.Up() {
+			if !m.monitorOAuth.Up() {
 				log.Logger(r.Context()).Warn("Returning server is starting because grpc.oauth monitor is not Up")
 			} else {
 				log.Logger(r.Context()).Warn("Returning server is starting because grpc.user service is not ready")

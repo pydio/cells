@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<editor id="editor.ckeditor" enabled="false" openable="true"  iconClass="icon-underline"
+<editor id="editor.ckeditor" enabled="false" openable="true"  iconClass="mdi mdi-format-underline"
         order="-1" text="319" title="320" actions="PydioCKEditor.Actions" className="PydioCKEditor" mimes="html,htm" write="true" canWrite="true"
         label="CONF_MESSAGE[CKEditor]" description="CONF_MESSAGE[Wysiwyg HTML Editor, requires separate library to be downloaded.]">
 	<dependencies>
@@ -9,9 +9,8 @@
 	</dependencies>
     <client_settings>
         <resources>
-            <js file="plug/editor.ckeditor/res/dist/ckeditor/ckeditor.js" className="CKEDITOR"/>
+            <js file="plug/editor.ckeditor/res/ckeditor/ckeditor.js" className="CKEDITOR"/>
             <js file="plug/editor.ckeditor/res/dist/PydioCKEditor.min.js" className="PydioCKEditor"/>
-            <css file="plug/editor.ckeditor/res/css/ckeditor.css"/>
             <i18n namespace="ckeditor" remote="plug/editor.ckeditor/i18n" />
         </resources>
     </client_settings>

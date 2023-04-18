@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import React from 'react'
 import { IconButton } from 'material-ui';
 import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';

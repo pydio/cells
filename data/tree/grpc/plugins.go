@@ -56,11 +56,11 @@ func init() {
 
 				go updateServicesList(ctx, treeServer, 0)
 
-				tree.RegisterNodeProviderServer(server, treeServer)
-				tree.RegisterNodeReceiverServer(server, treeServer)
-				tree.RegisterSearcherServer(server, treeServer)
-				tree.RegisterNodeChangesStreamerServer(server, treeServer)
-				tree.RegisterNodeProviderStreamerServer(server, treeServer)
+				tree.RegisterNodeProviderEnhancedServer(server, treeServer)
+				tree.RegisterNodeReceiverEnhancedServer(server, treeServer)
+				tree.RegisterSearcherEnhancedServer(server, treeServer)
+				tree.RegisterNodeChangesStreamerEnhancedServer(server, treeServer)
+				tree.RegisterNodeProviderStreamerEnhancedServer(server, treeServer)
 
 				go watchRegistry(ctx, treeServer)
 

@@ -57,6 +57,11 @@ func SetRuntime(runtime Runtime) {
 	r = runtime
 }
 
+// GetRuntime returns the main Runtime
+func GetRuntime() Runtime {
+	return r
+}
+
 func RegisterPreRun(preRun func(runtime Runtime)) {
 	preRunRegistry = append(preRunRegistry, preRun)
 }
@@ -95,6 +100,15 @@ func IsSet(key string) bool {
 	return r.IsSet(key)
 }
 
+// Name returns the name for the node
+func Name() string {
+	return r.GetString(KeyName)
+}
+
+func Cluster() string {
+	return r.GetString(KeyCluster)
+}
+
 // DiscoveryURL returns the scheme://address url for Registry
 func DiscoveryURL() string {
 	return r.GetString(KeyDiscovery)
@@ -102,7 +116,7 @@ func DiscoveryURL() string {
 
 func IsGrpcScheme(u string) bool {
 	if u != "" {
-		if ur, e := url.Parse(u); e == nil && ur.Scheme == "grpc" {
+		if ur, e := url.Parse(u); e == nil && (ur.Scheme == "grpc" || ur.Scheme == "xds") {
 			return true
 		}
 	}
@@ -128,8 +142,8 @@ func RegistryURL() string {
 
 	str := r.GetString(KeyRegistry)
 	u, _ := url.Parse(str)
-	if !strings.HasSuffix(u.Path, DefaultRegistrySuffix) {
-		u.Path += DefaultRegistrySuffix
+	if u.Path == "" {
+		u.Path = DefaultRegistrySuffix
 	}
 	return u.String()
 }
@@ -142,7 +156,7 @@ func BrokerURL() string {
 
 	str := r.GetString(KeyBroker)
 	u, _ := url.Parse(str)
-	if !strings.HasSuffix(u.Path, DefaultBrokerSuffix) {
+	if u.Path == "" {
 		u.Path += DefaultBrokerSuffix
 	}
 
@@ -157,7 +171,7 @@ func ConfigURL() string {
 	}
 	if u, e := url.Parse(v); e == nil {
 		if u.Scheme != "file" {
-			if !strings.HasSuffix(u.Path, DefaultConfigSuffix) {
+			if u.Path == "" {
 				u.Path += DefaultConfigSuffix
 			}
 		}
@@ -170,7 +184,7 @@ func ConfigURL() string {
 func CacheURL(prefix string, queryPairs ...string) string {
 	str := r.GetString(KeyCache)
 	u, _ := url.Parse(str)
-	if !strings.HasSuffix(u.Path, DefaultCacheSuffix) {
+	if u.Path == "" {
 		u.Path += DefaultCacheSuffix
 	}
 	if prefix != "" {
@@ -229,22 +243,18 @@ func SetVaultMasterKey(masterKey string) {
 	if u.Scheme == "file" {
 		// Replace basename with pydio-vault.json
 		u.Path = path.Join(path.Dir(u.Path), DefaultVaultFileName)
-	} else {
-		if strings.HasSuffix(u.Path, DefaultConfigSuffix) {
-			u.Path = strings.TrimSuffix(u.Path, DefaultConfigSuffix)
-		}
-
-		if !strings.HasSuffix(u.Path, DefaultVaultSuffix) {
-			u.Path += DefaultVaultSuffix
-		}
 	}
+
 	q := u.Query()
+	q.Set("namespace", "vault")
 	q.Set("masterKey", masterKey)
 	u.RawQuery = q.Encode()
 	r.SetDefault("computedVaultURL", u.String())
 }
 
 func VaultURL() string {
+	// return ConfigURL()
+	// TODO
 	return r.GetString("computedVaultURL")
 }
 
@@ -258,6 +268,14 @@ func CertsStoreURL() string {
 
 func CertsStoreLocalLocation() string {
 	return filepath.Join(ApplicationWorkingDir(), DefaultCertStorePath)
+}
+
+func BindHost() string {
+	return r.GetString(KeyBindHost)
+}
+
+func AdvertiseHost() string {
+	return r.GetString(KeyAdvertiseAddress)
 }
 
 // HttpServerType returns one of HttpServerCaddy or HttpServerCore

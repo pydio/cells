@@ -23,10 +23,12 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"github.com/pydio/cells/v4/common/service/context/ckeys"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 	"net"
 	"net/url"
+	"strings"
 	"sync"
 
 	"go.uber.org/zap"
@@ -110,7 +112,7 @@ func NewWithServer(ctx context.Context, name string, s *grpc.Server, listen stri
 		cancel: cancel,
 		opts:   opts,
 		Server: s,
-		regI:   &registrar{Server: s},
+		regI:   &registrar{Server: s, Mutex: &sync.Mutex{}},
 	})
 
 }
@@ -132,7 +134,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 			servicecontext.ContextUnaryServerInterceptor(middleware.TargetNameToServiceNameContext(ctx)),
 			servicecontext.ContextUnaryServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
 			servicecontext.ContextUnaryServerInterceptor(middleware.RegistryIncomingContext(ctx)),
-			otelgrpc.UnaryServerInterceptor(),
+			// otelgrpc.UnaryServerInterceptor(),
 		),
 		grpc.ChainStreamInterceptor(
 			ErrorFormatStreamInterceptor,
@@ -142,14 +144,24 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 			servicecontext.ContextStreamServerInterceptor(middleware.TargetNameToServiceNameContext(ctx)),
 			servicecontext.ContextStreamServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
 			servicecontext.ContextStreamServerInterceptor(middleware.RegistryIncomingContext(ctx)),
-			otelgrpc.StreamServerInterceptor(),
+			// otelgrpc.StreamServerInterceptor(),
 		),
 	)
-	service.RegisterChannelzServiceToServer(gs)
-	grpc_health_v1.RegisterHealthServer(gs, health.NewServer())
-	reflection.Register(gs)
+
+	wrappedGS := &registrar{
+		Server: gs,
+		id:     s.ID(),
+		name:   s.Name(),
+		reg:    servicecontext.GetRegistry(s.ctx),
+		Mutex:  &sync.Mutex{},
+	}
+
+	service.RegisterChannelzServiceToServer(wrappedGS)
+	grpc_health_v1.RegisterHealthServer(wrappedGS, health.NewServer())
+	reflection.Register(wrappedGS)
+
 	s.Server = gs
-	s.regI = &registrar{Server: gs}
+	s.regI = wrappedGS
 	return gs
 }
 
@@ -195,13 +207,6 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 
 	// Register address
 	ii = append(ii, util.CreateAddress(externalAddr, nil))
-	info := srv.GetServiceInfo()
-	// Register Endpoints
-	for sName, i := range info {
-		for _, m := range i.Methods {
-			ii = append(ii, util.CreateEndpoint(sName+"."+m.Name, nil))
-		}
-	}
 
 	return
 }
@@ -252,22 +257,64 @@ func (h *Handler) Watch(req *grpc_health_v1.HealthCheckRequest, w grpc_health_v1
 
 type registrar struct {
 	*grpc.Server
+	id   string
+	name string
+	reg  registry.Registry
+
+	*sync.Mutex
 }
 
-type namedImplServer interface {
+type enhancedHandler interface {
+	AddFilter(func(context.Context, interface{}) bool)
+}
+
+type namedHandler interface {
 	Name() string
 }
 
 func (r *registrar) RegisterService(desc *grpc.ServiceDesc, impl interface{}) {
-	//namedImpl, ok := impl.(namedImplServer)
-	//if !ok {
-	//	panic("service not named " + desc.ServiceName)
-	//}
+	r.Lock()
+	defer r.Unlock()
 
-	// desc.ServiceName = namedImpl.Name() + "/" + desc.ServiceName
+	info := r.Server.GetServiceInfo()
+	if _, exists := info[desc.ServiceName]; !exists {
+		if enhanced, ok := impl.(enhancedHandler); ok {
+			enhanced.AddFilter(func(ctx context.Context, i interface{}) bool {
+				if named, ok := i.(namedHandler); ok {
+					if md, ok := metadata.FromIncomingContext(ctx); ok {
+						if named.Name() == strings.Join(md.Get(ckeys.TargetServiceName), "") {
+							return true
+						}
+					}
+				}
 
-	fmt.Println(desc.ServiceName)
-	r.Server.RegisterService(desc, impl)
+				return false
+			})
+		}
+		r.Server.RegisterService(desc, impl)
+	}
+
+	for _, method := range desc.Methods {
+		item := util.CreateEndpoint(desc.ServiceName+"/"+method.MethodName, nil)
+		r.reg.Register(item, registry.WithEdgeTo(r.id, "instance", nil))
+	}
+
+	for _, method := range desc.Streams {
+		item := util.CreateEndpoint(desc.ServiceName+"/"+method.StreamName, nil)
+		r.reg.Register(item, registry.WithEdgeTo(r.id, "instance", nil))
+	}
+}
+
+func (r *registrar) ID() string {
+	return r.id
+}
+
+func (r *registrar) Name() string {
+	return r.name
+}
+
+func (r *registrar) Metadata() map[string]string {
+	return map[string]string{}
 }
 
 func (r *registrar) As(i interface{}) bool {

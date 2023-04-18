@@ -19,7 +19,7 @@
  */
 
 import React from 'react'
-import DOMUtils from 'pydio/util/dom'
+import {muiThemeable} from 'material-ui/styles'
 
 class CellsMessageToolbar extends React.Component{
 
@@ -58,11 +58,15 @@ class CellsMessageToolbar extends React.Component{
      */
     render() {
         const {display} = this.state;
-        const {pydio} = this.props;
+        const {pydio, muiTheme} = this.props;
         if (!display) {
             return null;
         }
-        const s = {padding: 16, color: '#9E9E9E', borderBottom: '1px solid #F5F5F5'};
+        let s = {padding: 16, color: '#9E9E9E', borderBottom: '1px solid #F5F5F5'};
+        if(muiTheme.userTheme === 'mui3') {
+            const mui3 = muiTheme.palette.mui3
+            s = {padding: 16, borderBottom:'1px solid ' + mui3['outline-variant-50']}
+        }
         const node = pydio.getContextHolder().getContextNode();
         if(node.getMetadata().has('local:renderListCustomMessage')){
             return node.getMetadata().get('local:renderListCustomMessage')(node, s);
@@ -72,4 +76,5 @@ class CellsMessageToolbar extends React.Component{
 
 }
 
+CellsMessageToolbar = muiThemeable()(CellsMessageToolbar)
 export {CellsMessageToolbar as default}

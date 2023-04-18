@@ -119,7 +119,13 @@ func (s *TreeServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeS
 	// otherwise it can create a goroutine leak on linux.
 	ctx := metadata.NewBackgroundWithMetaCopy(streamer.Context())
 	ctx = runtime.ForkContext(ctx, s.MainCtx)
-	metaStreamer := meta.NewStreamLoader(ctx)
+
+	var flags tree.Flags
+	if sf, o := metadata.CanonicalMeta(streamer.Context(), tree.StatFlagHeaderName); o {
+		flags = tree.StatFlagsFromString(sf)
+	}
+
+	metaStreamer := meta.NewStreamLoader(ctx, flags)
 	defer metaStreamer.Close()
 
 	msCtx := context.WithValue(ctx, "MetaStreamer", metaStreamer)
@@ -230,7 +236,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (*
 		if ms := ctx.Value("MetaStreamer"); ms != nil {
 			metaStreamer = ms.(meta.Loader)
 		} else {
-			metaStreamer = meta.NewStreamLoader(ctx)
+			metaStreamer = meta.NewStreamLoader(ctx, flags)
 			defer metaStreamer.Close()
 		}
 	}
@@ -287,15 +293,13 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 	ctx := resp.Context()
 	defer track("ListNodes", ctx, time.Now(), req, resp)
 
-	/*mainCtx := s.MainCtx
-	mainCtx = servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(mainCtx))
-	mainCtx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(mainCtx))*/
 	mainCtx := servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(s.MainCtx))
 	var metaStreamer meta.Loader
 	var loadMetas bool
-	if tree.StatFlags(req.StatFlags).Metas() {
+	flags := tree.StatFlags(req.StatFlags)
+	if flags.Metas() {
 		loadMetas = true
-		metaStreamer = meta.NewStreamLoader(mainCtx)
+		metaStreamer = meta.NewStreamLoader(mainCtx, flags)
 		defer metaStreamer.Close()
 	}
 
@@ -439,8 +443,11 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 				Path: name,
 			}
 			outputNode.MustSetMeta(common.MetaNamespaceNodeName, name)
-			if size, er := s.dsSize(ctx, s.DataSources[name]); er == nil {
+			if size, counts, er := s.dsSize(ctx, s.DataSources[name], req.StatFlags); er == nil {
 				outputNode.Size = size
+				if tree.StatFlags(req.StatFlags).RecursiveCount() {
+					outputNode.MustSetMeta(common.MetaFlagRecursiveCount, counts)
+				}
 			} else {
 				log.Logger(ctx).Error("Cannot compute DataSource size, skipping", zap.String("dsName", name), zap.Error(er))
 			}
@@ -456,13 +463,18 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 			if req.Recursive && limitDepth != 1 {
 				subNode := node.Clone()
 				subNode.Path = name
-				s.ListNodesWithLimit(ctx, metaStreamer, &tree.ListNodesRequest{
+				er := s.ListNodesWithLimit(ctx, metaStreamer, &tree.ListNodesRequest{
 					Node:         subNode,
 					Recursive:    true,
-					WithVersions: req.WithVersions,
-					StatFlags:    req.StatFlags,
-					FilterType:   req.FilterType,
+					WithVersions: req.GetWithVersions(),
+					StatFlags:    req.GetStatFlags(),
+					FilterType:   req.GetFilterType(),
+					SortField:    req.GetSortField(),
+					SortDirDesc:  req.GetSortDirDesc(),
 				}, resp, cursorIndex, numberSent)
+				if er != nil {
+					return er
+				}
 			}
 			if checkLimit() {
 				return nil
@@ -479,8 +491,10 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 			Node:      reqNode,
 			Recursive: req.Recursive,
 			//Limit:      req.Limit,
-			StatFlags:  req.StatFlags,
-			FilterType: req.FilterType,
+			StatFlags:   req.GetStatFlags(),
+			FilterType:  req.GetFilterType(),
+			SortField:   req.GetSortField(),
+			SortDirDesc: req.GetSortDirDesc(),
 		}
 
 		log.Logger(ctx).Debug("List Nodes With Offset / Limit", zap.Int64("offset", offset), zap.Int64("limit", limit))
@@ -531,22 +545,28 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 	return errors.NotFound(node.GetPath(), "Not found")
 }
 
-func (s *TreeServer) dsSize(ctx context.Context, ds DataSource) (int64, error) {
+func (s *TreeServer) dsSize(ctx context.Context, ds DataSource, flags []uint32) (int64, int, error) {
 	st, er := ds.reader.ListNodes(ctx, &tree.ListNodesRequest{
-		Node: &tree.Node{Path: ""},
+		Node:      &tree.Node{Path: ""},
+		StatFlags: flags,
 	}, grpc.WaitForReady(false))
 	if er != nil {
-		return 0, er
+		return 0, 0, er
 	}
 	var size int64
+	var count int
 	for {
 		if r, e := st.Recv(); e != nil {
 			break
 		} else {
 			size += r.GetNode().GetSize()
+			var rc int
+			if err := r.GetNode().GetMeta(common.MetaFlagRecursiveCount, &rc); err == nil {
+				count += rc
+			}
 		}
 	}
-	return size, nil
+	return size, count, nil
 }
 
 // UpdateNode implementation for the TreeServer

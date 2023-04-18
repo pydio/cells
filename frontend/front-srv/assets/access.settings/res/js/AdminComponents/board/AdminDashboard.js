@@ -26,12 +26,13 @@ import PropTypes from 'prop-types';
 import Pydio from 'pydio';
 import {MessagesProviderMixin, PydioProviderMixin} from '../util/Mixins'
 import AdminLeftNav from './AdminLeftNav'
-import {AppBar, Paper, Toggle, FontIcon, IconButton, IconMenu, MenuItems} from 'material-ui'
+import {Paper} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PydioDataModel from 'pydio/model/data-model'
 import Observable from 'pydio/lang/observable'
 
 const {AsyncComponent, TasksPanel} = Pydio.requireLib('boot');
+const {ReactEditorOpener} = Pydio.requireLib('components');
 import ResourcesManager from 'pydio/http/resources-manager'
 import DOMUtils from 'pydio/util/dom'
 import AdminStyles from "../styles/AdminStyles";
@@ -126,7 +127,7 @@ let AdminDashboard = createReactClass({
 
     openEditor(node){
         this.openRightPane({
-            COMPONENT:PydioComponents.ReactEditorOpener,
+            COMPONENT:ReactEditorOpener,
             PROPS:{
                 node:node,
                 registry:this.props.pydio.Registry,
@@ -273,17 +274,24 @@ let AdminDashboard = createReactClass({
             rPanelContent = React.createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
 
-        const theme = getMuiTheme({
-            palette:{
-                primary1Color:'#03a9f4',
-                primary2Color:'#f57c00',
-                accent1Color: '#f57c00',
-                accent2Color: '#324a57',
-                avatarsColor        : '#438db3',
-                sharingColor        : '#4aceb0',
-            }
-        });
-        const adminStyles = AdminStyles(theme.palette);
+        if(!this.theme) {
+            this.theme = getMuiTheme({
+                userTheme:'material',
+                palette:{
+                    primary1Color:'#03a9f4',
+                    primary2Color:'#f57c00',
+                    accent1Color: '#f57c00',
+                    accent2Color: '#324a57',
+                    avatarsColor        : '#438db3',
+                    sharingColor        : '#4aceb0',
+                    mui3:{}
+                },
+                menuContainer:{
+                    background:'white'
+                }
+            });
+        }
+        const adminStyles = AdminStyles(this.theme.palette);
 
         let overlay = {visibility:'hidden', opacity:'0'};
         if(rightPanel){
@@ -299,7 +307,7 @@ let AdminDashboard = createReactClass({
         };
 
         return (
-            <MuiThemeProvider muiTheme={theme}>
+            <MuiThemeProvider muiTheme={this.theme}>
                 <div className="app-canvas">
                     <AdminLeftNav
                         pydio={this.props.pydio}

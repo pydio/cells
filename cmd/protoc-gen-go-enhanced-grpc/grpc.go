@@ -70,8 +70,11 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 
 func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, service *protogen.Service) {
 	server := service.GoName + "Server"
-	namedServer := "Named" + server
+	idServer := "id" + server
+	//namedServer := "Named" + server
+	//wrappedNameServer := "Wrapped" + namedServer
 	multiServer := service.GoName + "EnhancedServer"
+	multiServerImpl := multiServer + "Impl"
 	enhancedInstance := "enhanced" + server + "s"
 	enhancedLocker := "enhanced" + server + "sLock"
 
@@ -80,90 +83,121 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 	g.P(enhancedLocker, " = ", syncPackage.Ident("RWMutex"), "{}")
 	g.P(")")
 
-	g.Annotate(namedServer, service.Location)
-	g.P("type " + namedServer + " interface {")
-	g.P(server)
-	g.P("Name() string")
+	g.Annotate(idServer, service.Location)
+	g.P("type " + idServer + " interface {")
+	g.P("ID() string")
 	g.P("}")
 
+	//g.Annotate(namedServer, service.Location)
+	//g.P("type " + namedServer + " interface {")
+	//g.P(server)
+	//g.P("Name() string")
+	//g.P("}")
+	//
+	//g.Annotate(wrappedNameServer, service.Location)
+	//g.P("type " + wrappedNameServer + " struct {")
+	//g.P(namedServer)
+	//g.P("wrap []func(", contextPackage.Ident("Context"), ") (", contextPackage.Ident("Context"), ", bool)")
+	//g.P("}")
+
 	g.Annotate(multiServer, service.Location)
-	g.P("type " + multiServer + " map[string]" + namedServer)
+	g.P("type " + multiServer + " interface {")
+	g.P(server)
+	g.P("AddFilter(func(", contextPackage.Ident("Context"), ", interface{}) bool)")
+	g.P("addHandler(", server, ")")
+	g.P("filter(", contextPackage.Ident("Context"), ") []", server)
+	g.P("}")
+
+	g.Annotate(multiServerImpl, service.Location)
+	g.P("type " + multiServerImpl + " struct {")
+	g.P("filters []func(", contextPackage.Ident("Context"), ", interface{}) bool")
+	g.P("handlers []", server)
+	g.P("}")
+
+	g.P("func (m *", multiServerImpl, ") AddFilter(f func(", contextPackage.Ident("Context"), ", interface{}) bool) {")
+	g.P("m.filters = append(m.filters, f)")
+	g.P("}")
+
+	g.P("func (m *", multiServerImpl, ") addHandler(srv ", server, ") {")
+	g.P("m.handlers = append(m.handlers, srv)")
+	g.P("}")
+
+	g.P("func (m *", multiServerImpl, ") filter(ctx ", contextPackage.Ident("Context"), ") []", server, "{")
+	g.P("var ret []", server)
+	g.P("for _, i := range m.handlers {")
+	g.P("valid := true")
+	g.P("for _, filter := range m.filters {")
+	g.P("if !filter(ctx, i) {")
+	g.P("valid = false")
+	g.P("break")
+	g.P("}")
+	g.P("if valid {")
+	g.P("ret = append(ret, i)")
+	g.P("}")
+	g.P("}")
+	g.P("}")
+	g.P("return ret")
+	g.P("}")
 
 	for _, method := range service.Methods {
 		g.Annotate(multiServer+"."+method.GoName, method.Location)
 
 		g.P(method.Comments.Leading)
-		g.P("func (m ", multiServer, ") ", serverSignature(g, method), " {")
+		g.P("func (m *", multiServerImpl, ") ", serverSignature(g, method), " {")
 		if !method.Desc.IsStreamingClient() && !method.Desc.IsStreamingServer() {
-			// Get the metadata from the incoming context
-			g.P("md, ok := ", metadataContextPackage.Ident("FromIncomingContext"), "(ctx)")
-			g.P("if !ok || len(md.Get(\"targetname\")) == 0 {")
-			g.P("return nil, ", statusPackage.Ident("Errorf"), "(", codesPackage.Ident("FailedPrecondition"), ", \"method ", method.GoName, " should have a context\")")
-			g.P("}")
-			g.P(enhancedLocker, ".RLock()")
-			g.P("defer ", enhancedLocker, ".RUnlock()")
-			g.P("for _, mm := range m {")
-			g.P("if mm.Name() == md.Get(\"targetname\")[0] {")
-			g.P("return mm.", method.GoName, "(ctx, r)")
-			g.P("}")
+			g.P("for _, handler := range m.filter(ctx) {")
+			g.P("return handler.", method.GoName, "(ctx, r)")
 			g.P("}")
 			g.P("return nil, ", statusPackage.Ident("Errorf"), "(", codesPackage.Ident("Unimplemented"), ", \"method ", method.GoName, " not implemented\")")
 
 		} else if !method.Desc.IsStreamingClient() {
-			g.P("md, ok := ", metadataContextPackage.Ident("FromIncomingContext"), "(s.Context())")
-			g.P("if !ok || len(md.Get(\"targetname\")) == 0 {")
-			g.P("return ", statusPackage.Ident("Errorf"), "(", codesPackage.Ident("FailedPrecondition"), ", \"method ", method.GoName, " should have a context\")")
-			g.P("}")
-			g.P(enhancedLocker, ".RLock()")
-			g.P("defer ", enhancedLocker, ".RUnlock()")
-			g.P("for _, mm := range m {")
-			g.P("if mm.Name() == md.Get(\"targetname\")[0] {")
-			g.P("return mm.", method.GoName, "(r, s)")
-			g.P("}")
+			g.P("for _, handler := range m.filter(s.Context()) {")
+			g.P("return handler.", method.GoName, "(r, s)")
 			g.P("}")
 			g.P("return ", statusPackage.Ident("Errorf"), "(", codesPackage.Ident("Unimplemented"), ", \"method ", method.GoName, " not implemented\")")
 		} else {
-			g.P("md, ok := ", metadataContextPackage.Ident("FromIncomingContext"), "(s.Context())")
-			g.P("if !ok || len(md.Get(\"targetname\")) == 0 {")
-			g.P("return ", statusPackage.Ident("Errorf"), "(", codesPackage.Ident("FailedPrecondition"), ", \"method ", method.GoName, " should have a context\")")
-			g.P("}")
-			g.P(enhancedLocker, ".RLock()")
-			g.P("defer ", enhancedLocker, ".RUnlock()")
-			g.P("for _, mm := range m {")
-			g.P("if mm.Name() == md.Get(\"targetname\")[0] {")
-			g.P("return mm.", method.GoName, "(s)")
-			g.P("}")
+			g.P("for _, handler := range m.filter(s.Context()) {")
+			g.P("return handler.", method.GoName, "(s)")
 			g.P("}")
 			g.P("return ", statusPackage.Ident("Errorf"), "(", codesPackage.Ident("Unimplemented"), ", \"method ", method.GoName, " not implemented\")")
 		}
 		g.P("}")
 	}
 
-	g.P("func (m ", multiServer, ") mustEmbedUnimplemented", server, "() {}")
+	g.P("func (m *", multiServerImpl, ") mustEmbedUnimplemented", server, "() {}")
 
-	g.P("func Register", multiServer, "(s grpc.ServiceRegistrar, srv ", namedServer, ") {")
+	g.P("func Register", multiServer, "(s grpc.ServiceRegistrar, srv ", server, ") {")
+	g.P("idServer, ok := s.(" + idServer + ")")
+	g.P("if ok {")
 	g.P(enhancedLocker, ".Lock()")
 	g.P("defer ", enhancedLocker, ".Unlock()")
-	g.P("addr := ", fmtPackage.Ident("Sprintf"), "(\"%p\", s)")
-	g.P("m, ok := ", enhancedInstance, "[addr]")
+	g.P("instance, ok := ", enhancedInstance, "[idServer.ID()]")
 	g.P("if !ok {")
-	g.P("m = ", multiServer, "{}")
-	g.P(enhancedInstance, "[addr] = m")
-	g.P("Register", server, "(s, m)")
+	g.P("instance = &", multiServerImpl, "{}")
+	g.P(enhancedInstance, "[idServer.ID()] = instance")
 	g.P("}")
-	g.P("m[srv.Name()] = srv")
+	g.P("instance.addHandler(srv)")
+	g.P("Register", server, "(s, instance)")
+	g.P("} else {")
+	g.P("Register", server, "(s, srv)")
+	g.P("}")
 	g.P("}")
 
-	g.P("func Deregister", multiServer, "(s grpc.ServiceRegistrar, name string) {")
-	g.P(enhancedLocker, ".Lock()")
-	g.P("defer ", enhancedLocker, ".Unlock()")
-	g.P("addr := ", fmtPackage.Ident("Sprintf"), "(\"%p\", s)")
-	g.P("m, ok := ", enhancedInstance, "[addr]")
-	g.P("if !ok {")
-	g.P("return")
-	g.P("}")
-	g.P("delete(m, name)")
-	g.P("}")
+	//g.P("func Deregister", multiServer, "(s grpc.ServiceRegistrar, name string) {")
+	//g.P(enhancedLocker, ".Lock()")
+	//g.P("defer ", enhancedLocker, ".Unlock()")
+	//g.P("idServer, ok := s.(" + idServer + ")")
+	//g.P("if !ok {")
+	//g.P(fmtPackage.Ident("Errorf"), "(\"could not deregister service\")")
+	//g.P("return")
+	//g.P("}")
+	//g.P("id := idServer.ID()")
+	//g.P("m, ok := ", enhancedInstance, "[id]")
+	//g.P("if !ok || true {")
+	//g.P("return")
+	//g.P("}")
+	//g.P("delete(m, name)")
+	//g.P("}")
 }
 
 func serverSignature(g *protogen.GeneratedFile, method *protogen.Method) string {

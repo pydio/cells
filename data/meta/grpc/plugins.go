@@ -52,10 +52,10 @@ func init() {
 
 				engine := NewMetaServer(c, servicecontext.GetDAO(c).(meta.DAO))
 
-				tree.RegisterNodeProviderServer(server, engine)
-				tree.RegisterNodeProviderStreamerServer(server, engine)
-				tree.RegisterNodeReceiverServer(server, engine)
-				tree.RegisterSearcherServer(server, engine)
+				tree.RegisterNodeProviderEnhancedServer(server, engine)
+				tree.RegisterNodeProviderStreamerEnhancedServer(server, engine)
+				tree.RegisterNodeReceiverEnhancedServer(server, engine)
+				tree.RegisterSearcherEnhancedServer(server, engine)
 
 				// Register Subscribers
 				sub := engine.Subscriber(c)

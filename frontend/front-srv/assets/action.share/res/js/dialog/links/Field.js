@@ -30,7 +30,7 @@ import PathUtils from 'pydio/util/path'
 import LangUtils from 'pydio/util/lang'
 import {muiThemeable} from 'material-ui/styles'
 import ShareHelper from '../main/ShareHelper'
-const {ModernStyles} = Pydio.requireLib('hoc')
+const {ThemedModernStyles} = Pydio.requireLib('hoc')
 const {Tooltip} = Pydio.requireLib("boot");
 
 import LinkModel from './LinkModel'
@@ -137,27 +137,23 @@ class PublicLinkField extends React.Component {
         if(this.state.editLink && editAllowed){
             return (
                 <div>
-                    <div style={{display:'flex', alignItems:'center', backgroundColor: 'rgb(246, 246, 248)', padding: 6, borderRadius: 2}}>
-                        <span style={{fontSize:16, color:'rgba(0,0,0,0.4)', display: 'inline-block', maxWidth: 160, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{PathUtils.getDirname(publicLink) + '/ '}</span>
-                        <TextField style={{flex:1, marginRight: 10, marginLeft: 10}} onChange={this.changeLink} value={this.state.customLink !== undefined ? this.state.customLink : linkModel.getLink().LinkHash}/>
+                    <div style={{display:'flex', alignItems:'center', padding: 6, borderRadius: 2}}>
+                        <span style={{fontSize:16, display: 'inline-block', maxWidth: 160, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{PathUtils.getDirname(publicLink) + '/ '}</span>
+                        <TextField style={{flex:1, marginRight: 10, marginLeft: 10}} autoFocus={true} onChange={this.changeLink} value={this.state.customLink !== undefined ? this.state.customLink : linkModel.getLink().LinkHash}/>
                         <ActionButton mdiIcon="check" callback={this.toggleEditMode} />
                     </div>
-                    <div style={{textAlign:'center', fontSize:13, color:'rgba(0,0,0,0.43)', paddingTop: 16}}>{this.props.getMessage('194')}</div>
+                    <div style={{textAlign:'center', fontSize:13, opacity:.73, paddingTop: 16}}>{this.props.getMessage('194')}</div>
                 </div>
             );
         }else{
             const {copyMessage, linkTooltip} = this.state;
-            const setHtml = function(){
-                return {__html:this.state.copyMessage};
-            }.bind(this);
             let actionLinks = [], qrCode;
             const {muiTheme} = this.props;
-
             const copyButton = (
                 <div
                     key={"copy"}
                     ref="copy-button"
-                    style={{position: 'absolute', right: 0, bottom: 7, width:30, height:30, padding:4, backgroundColor:'#f6f6f8', fontSize:16, cursor:'pointer'}}
+                    style={{position: 'absolute', right: 0, bottom: 7, width:30, height:30, padding:4, backgroundColor:'transparent', fontSize:16, cursor:'pointer'}}
                     onMouseOver={()=>{this.setState({linkTooltip:true})}}
                     onMouseOut={()=>{this.setState({linkTooltip:false})}}
                 >
@@ -167,7 +163,7 @@ class PublicLinkField extends React.Component {
                         verticalPosition={"bottom"}
                         show={linkTooltip}
                     />
-                    <span className="copy-link-button mdi mdi-content-copy" style={{color: muiTheme.palette.primary1Color}}/>
+                    <span className="copy-link-button mdi mdi-content-copy" style={{color: muiTheme.palette.mui3.primary}}/>
                 </div>
             )
 
@@ -196,7 +192,7 @@ class PublicLinkField extends React.Component {
                 qrCode = <Paper zDepth={0} style={{width:120, overflow:'hidden', margin:'0 auto', height:0, textAlign:'center'}}></Paper>
             }
             return (
-                <Paper zDepth={0} rounded={false} className="public-link-container">
+                <div className="public-link-container">
                     <div style={{marginTop:-8, position:'relative'}}>
                         <TextField
                             floatingLabelText={this.props.getMessage("link.floatingLabel")}
@@ -207,14 +203,14 @@ class PublicLinkField extends React.Component {
                             value={publicLink}
                             onFocus={e => {e.target.select()}}
                             fullWidth={true}
-                            {...ModernStyles.textFieldV2}
+                            {...ThemedModernStyles(muiTheme).textFieldV2}
                         />
                         {copyButton}
                     </div>
                     {false && this.props.linkData.target_users && <TargetedUsers {...this.props}/>}
                     {actionLinks}
                     {qrCode}
-                </Paper>
+                </div>
             );
         }
     }

@@ -39,19 +39,20 @@ func RegisterTemplateFilter(filterFunc FilterFunc) {
 }
 
 type ApplicationConfigs struct {
-	Title        string
-	Url          string
-	LinkUrl      string
-	From         string
-	FromName     string
-	FromCtl      string
-	Logo         string
-	Copyright    string
-	TroubleText  string
-	Greeting     string
-	Signature    string
-	Theme        hermes.Theme
-	ButtonsColor string
+	Title              string
+	Url                string
+	LinkUrl            string
+	From               string
+	FromName           string
+	FromCtl            string
+	Logo               string
+	Copyright          string
+	TroubleText        string
+	Greeting           string
+	Signature          string
+	Theme              hermes.Theme
+	ButtonsColor       string
+	DisableCSSInlining bool
 }
 
 func GetApplicationConfig(languages ...string) ApplicationConfigs {
@@ -77,19 +78,20 @@ func GetApplicationConfig(languages ...string) ApplicationConfigs {
 	}
 
 	a := ApplicationConfigs{
-		Title:        "Pydio",
-		Url:          url,
-		LinkUrl:      linkUrl,
-		From:         from,
-		FromName:     fromName,
-		FromCtl:      fromCtl,
-		Logo:         fmt.Sprintf("%s/plug/gui.ajax/res/themes/common/images/PydioLogo250.png", strings.TrimRight(url, "/")),
-		Copyright:    T("Mail.Main.Copyright"),
-		TroubleText:  T("Mail.Main.Troubleshoot"),
-		Greeting:     T("Mail.Main.Greeting"),
-		Signature:    T("Mail.Main.Signature"),
-		Theme:        new(pydioTheme),
-		ButtonsColor: "#22BC66",
+		Title:              "Pydio",
+		Url:                url,
+		LinkUrl:            linkUrl,
+		From:               from,
+		FromName:           fromName,
+		FromCtl:            fromCtl,
+		Logo:               fmt.Sprintf("%s/plug/gui.ajax/res/themes/common/images/PydioLogo250.png", strings.TrimRight(url, "/")),
+		Copyright:          T("Mail.Main.Copyright"),
+		TroubleText:        T("Mail.Main.Troubleshoot"),
+		Greeting:           T("Mail.Main.Greeting"),
+		Signature:          T("Mail.Main.Signature"),
+		Theme:              new(pydioTheme),
+		ButtonsColor:       "#22BC66",
+		DisableCSSInlining: config.Get("services", "pydio.grpc.mailer", "disableCssInlining").Default(true).Bool(),
 	}
 
 	if len(templateFilters) > 0 {

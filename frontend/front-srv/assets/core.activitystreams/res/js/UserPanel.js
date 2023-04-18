@@ -17,13 +17,15 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from 'pydio'
 import React from 'react'
-import {Badge, IconButton, Popover, Divider, List} from 'material-ui'
+import {IconButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import Client from './Client'
 import ActivityList from './ActivityList'
 import debounce from 'lodash.debounce'
 import Color from 'color'
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc');
 
 class UserPanel extends React.Component {
 
@@ -125,14 +127,9 @@ class UserPanel extends React.Component {
                     onRequestClose={this.handleRequestClose.bind(this)}
                     style={{width:320}}
                     zDepth={3}
-
+                    panelTitle={pydio.MessageHash['notification_center.1']}
+                    panelIconClassName={"mdi mdi-bell"}
                 >
-                    <div style={{display: 'flex', alignItems: 'center', borderRadius:'2px 2px 0 0', width: '100%',
-                        backgroundColor:'#f8fafc', borderBottom: '1px solid #ECEFF1', color:muiTheme.palette.primary1Color}}>
-                        <span className={"mdi mdi-bell"} style={{fontSize: 18, margin:'12px 8px 14px 16px'}}/>
-                        <span style={{fontSize:15, fontWeight: 500}}>{pydio.MessageHash['notification_center.1']}</span>
-                    </div>
-
                     {this.state.data &&
                         <ActivityList
                             items={this.state.data.items}

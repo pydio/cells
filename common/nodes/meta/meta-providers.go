@@ -23,24 +23,24 @@ package meta
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/nodes"
 	"io"
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 const (
-	ServiceMetaProvider   = "MetaProvider"
-	ServiceMetaNsProvider = "MetaNsProvider"
+	ServiceMetaProvider         = "MetaProvider"
+	ServiceMetaProviderRequired = "MetaProviderRequired"
+	ServiceMetaNsProvider       = "MetaNsProvider"
 )
 
 type Loader interface {
@@ -54,9 +54,9 @@ type streamLoader struct {
 	closer    context.CancelFunc
 }
 
-func NewStreamLoader(ctx context.Context) Loader {
+func NewStreamLoader(ctx context.Context, flags tree.Flags) Loader {
 	l := &streamLoader{}
-	l.streamers, l.closer, l.names = initMetaProviderClients(ctx)
+	l.streamers, l.closer, l.names = initMetaProviderClients(ctx, flags)
 	return l
 }
 
@@ -71,9 +71,9 @@ func (l *streamLoader) Close() error {
 	return nil
 }
 
-func initMetaProviderClients(ctx context.Context) ([]tree.NodeProviderStreamer_ReadNodeStreamClient, context.CancelFunc, []string) {
+func initMetaProviderClients(ctx context.Context, flags tree.Flags) ([]tree.NodeProviderStreamer_ReadNodeStreamClient, context.CancelFunc, []string) {
 
-	metaProviders, names := getMetaProviderStreamers(ctx)
+	metaProviders, names := getMetaProviderStreamers(ctx, flags)
 	var streamers []tree.NodeProviderStreamer_ReadNodeStreamClient
 	subCtx, cancel := context.WithCancel(ctx)
 	for _, cli := range metaProviders {
@@ -137,7 +137,7 @@ func enrichNodesMetaFromProviders(ctx context.Context, streamers []tree.NodeProv
 
 }
 
-func getMetaProviderStreamers(ctx context.Context) ([]tree.NodeProviderStreamerClient, []string) {
+func getMetaProviderStreamers(ctx context.Context, flags tree.Flags) ([]tree.NodeProviderStreamerClient, []string) {
 
 	var result []tree.NodeProviderStreamerClient
 	var names []string
@@ -162,6 +162,10 @@ func getMetaProviderStreamers(ctx context.Context) ([]tree.NodeProviderStreamerC
 	}
 
 	for _, srv := range ss {
+		if _, ok := srv.Metadata()[ServiceMetaProviderRequired]; !ok && flags.MinimalMetas() {
+			log.Logger(ctx).Debug("Skipping service " + srv.Name() + " because of minimal metas flag")
+			continue
+		}
 		result = append(result, tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_))))
 		names = append(names, srv.Name())
 	}

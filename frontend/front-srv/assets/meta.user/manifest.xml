@@ -8,7 +8,6 @@
 	</client_settings>
 	<registry_contributions>
 		<client_configs>
-			<template_part ajxpId="search_container" ajxpClass="SearchEngine" ajxpOptions='{"toggleResultsVisibility":"search_results_cont", "searchChooserAsResultsHeader":true, "openSearchInput":"true", "openSearchStickLeftTo":"cpane_container", "toggleResultsFitTo":"cpane_tabs", "fitMarginBottom":0, "toggleResultsOffsetRight":0, "toggleResultsOffsetTop":0, "detailThumbSize":24}' theme="material"/>
 			<component_config component="InfoPanel">
                 <infoPanel mime="generic_file,generic_dir" reactComponent="ReactMeta.InfoPanel" theme="material" weight="3"/>
 			</component_config>

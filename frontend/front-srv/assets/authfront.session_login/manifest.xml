@@ -10,7 +10,7 @@
     <registry_contributions>
         <actions>
             <action name="login">
-                <gui text="163" title="168" iconClass="icon-signin"
+                <gui text="163" title="168" iconClass="mdi mdi-key"
                      accessKey="" hasAccessKey="false">
                     <context selection="false" dir="" recycle="false"
                              actionBar="true" contextMenu="false" infoPanel="false"

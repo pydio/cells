@@ -4,7 +4,6 @@
 		<resources>
 			<i18n namespace="user_home" remote="plug/access.homepage/res/i18n" />
             <js className="WelcomeComponents" file="plug/access.homepage/res/dist/WelcomeComponents.min.js" depends="React,PydioComponents,PydioWorkspaces,PydioForm,PydioActivityStreams"/>
-            <css file="plug/access.homepage/res/home.css" autoload="true"/>
 		</resources>
         <node_provider ajxpClass="EmptyNodeProvider" ajxpOptions="{}"/>
 	</client_settings>

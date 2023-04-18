@@ -19,27 +19,46 @@
  */
 
 let pydio = global.pydio;
+import ls from './ls'
+import mkdir from './mkdir'
+import deletef from './deleteAction'
+import {renameFunction as rename, callback as renameCallback} from './rename'
+import applycopy from './applyCopyOrMove'
+import copy from './copy'
+import move from './move'
+import upload from './upload'
+import download from './download'
+import downloadPDF from './downloadPDF'
+import downloadAll from './downloadAll'
+import emptyRecycle from './emptyRecycle'
+import restore from './restore'
+import openInEditor from './openInEditor'
+import ajxpLink from './ajxpLink'
+import openOtherEditorPicker from './openOtherEditorPicker'
+import lock from './lock'
+import goTo from './goto'
 
 const Callbacks = {
-    ls                      : require('./ls')(pydio),
-    mkdir                   : require('./mkdir')(pydio),
-    deleteAction            : require('./deleteAction')(pydio),
-    rename                  : require('./rename').renameFunction,
-    renameCallback          : require('./rename').callback,
-    applyCopyOrMove         : require('./applyCopyOrMove')(pydio),
-    copy                    : require('./copy')(pydio),
-    move                    : require('./move')(pydio),
-    upload                  : require('./upload')(pydio),
-    download                : require('./download')(pydio),
-    downloadPDF             : require('./downloadPDF')(pydio),
-    downloadAll             : require('./downloadAll')(pydio),
-    emptyRecycle            : require('./emptyRecycle')(pydio),
-    restore                 : require('./restore')(pydio),
-    openInEditor            : require('./openInEditor')(pydio),
-    ajxpLink                : require('./ajxpLink')(pydio),
-    openOtherEditorPicker   : require('./openOtherEditorPicker')(pydio),
-    lock                    : require('./lock')(pydio),
-    goTo                    : require('./goto')(pydio)
+    ls                      : ls(pydio),
+    mkdir                   : mkdir(pydio),
+    deleteAction            : deletef(pydio),
+    rename,
+    renameCallback,
+    applyCopyOrMove         : applycopy(pydio),
+    copy                    : copy(pydio),
+    move                    : move(pydio),
+    upload                  : upload(pydio),
+    download                : download(pydio),
+    downloadPDF             : downloadPDF(pydio),
+    downloadAll             : downloadAll(pydio),
+
+    emptyRecycle            : emptyRecycle(pydio),
+    restore                 : restore(pydio),
+    openInEditor            : openInEditor(pydio),
+    ajxpLink                : ajxpLink(pydio),
+    openOtherEditorPicker   : openOtherEditorPicker(pydio),
+    lock                    : lock(pydio),
+    goTo                    : goTo(pydio)
 };
 
 export {Callbacks as default}

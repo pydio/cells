@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -19,10 +18,13 @@ import (
 )
 
 type Options struct {
+	name        string
+	binary      string
+	args        []string
+	env         []string
 	debugFork   bool
 	customFlags []string
 	retries     int
-	parentName  string
 	watch       func(event string, p *Process)
 }
 
@@ -34,9 +36,9 @@ func WithDebug() Option {
 	}
 }
 
-func WithParentName(p string) Option {
+func WithName(p string) Option {
 	return func(o *Options) {
-		o.parentName = p
+		o.name = p
 	}
 }
 
@@ -55,6 +57,24 @@ func WithRetries(i int) Option {
 func WithWatch(w func(event string, process *Process)) Option {
 	return func(o *Options) {
 		o.watch = w
+	}
+}
+
+func WithBinary(b string) Option {
+	return func(o *Options) {
+		o.binary = b
+	}
+}
+
+func WithArgs(a []string) Option {
+	return func(o *Options) {
+		o.args = a
+	}
+}
+
+func WithEnv(e []string) Option {
+	return func(o *Options) {
+		o.env = e
 	}
 }
 
@@ -101,22 +121,23 @@ func (p *Process) Stop() {
 
 func (p *Process) StartAndWait(retry ...int) error {
 
-	cmd := exec.Command(os.Args[0], p.buildForkStartParams()...)
+	cmd := exec.Command(p.o.binary, p.o.args...)
 	if err := p.pipeOutputs(cmd); err != nil {
 		p.lastErr = err
 		return err
 	}
 
 	p.cmd = cmd
+	p.cmd.Env = append(p.cmd.Environ(), p.o.env...)
 
 	p.o.watch("start", p)
-	if err := cmd.Start(); err != nil {
+	if err := p.cmd.Start(); err != nil {
 		p.lastErr = err
 		p.o.watch("stop", p)
 		return err
 	}
 
-	if err := cmd.Wait(); err != nil {
+	if err := p.cmd.Wait(); err != nil {
 		p.lastErr = err
 		p.o.watch("stop", p)
 		if p.o.retries > 0 && err.Error() != "signal: terminated" && err.Error() != "signal: interrupt" && err.Error() != "signal: killed" {
@@ -125,7 +146,7 @@ func (p *Process) StartAndWait(retry ...int) error {
 				r = retry[0]
 			}
 			if r < p.o.retries {
-				log.Logger(p.ctx).Error("Restarting service after error in 3s...", zap.Error(err))
+				log.Logger(p.ctx).Error("Restarting fork after error in 3s...", zap.Error(err))
 				<-time.After(3 * time.Second)
 				return p.StartAndWait(r + 1)
 			}
@@ -149,56 +170,54 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 		return err
 	}
 	scannerOut := bufio.NewScanner(stdout)
-	parentName := p.o.parentName
-	defaultLogContext := servicecontext.WithServiceName(p.ctx, p.serviceNames[0])
+	defaultLogContext := servicecontext.WithServiceName(p.ctx, p.o.name)
 
 	logs := regexp.MustCompile("^(?P<log_date>[^\t]+)\t(?P<log_level>[^\t]+)\t(?P<log_name>[^\t]+)\t(?P<log_message>[^\t]+)(\t)?(?P<log_fields>[^\t]*)$")
 
+	prefix := fmt.Sprintf("%-14s", "["+p.o.name+"]")
 	go func() {
+		var sb strings.Builder
+
 		for scannerOut.Scan() {
+			sb.Reset()
+			sb.WriteString(prefix)
 			text := strings.TrimRight(scannerOut.Text(), "\n")
 			// merged := false
 			if parsed := logs.FindStringSubmatch(text); len(parsed) >= 5 {
-				log.StdOut.WriteString(text + "\n")
-				/*
-					var f func(string, ...zapcore.Field)
-					switch parsed[2][5:9] {
-					case "INFO":
-						f = log.Logger(defaultLogContext).Info
-					case "DEBU":
-						f = log.Logger(defaultLogContext).Debug
-					case "WARN":
-						f = log.Logger(defaultLogContext).Warn
-					case "ERRO":
-						f = log.Logger(defaultLogContext).Error
-					default:
-						f = log.Logger(defaultLogContext).Info
-					}
-					if len(parsed) == 7 {
-						f(parsed[4] + "\t" + parsed[6])
-					} else {
-						f(parsed[4])
-					}
-				*/
+				sb.WriteString(text)
+				sb.WriteString("\n")
+
+				log.StdOut.WriteString(sb.String())
 			} else {
-				log.Logger(defaultLogContext).Info(text)
+				sb.WriteString(text)
+
+				log.Logger(defaultLogContext).Info(sb.String())
 			}
 		}
 	}()
 	scannerErr := bufio.NewScanner(stderr)
 	go func() {
+		var sb strings.Builder
 		for scannerErr.Scan() {
+			sb.Reset()
+			sb.WriteString(prefix)
+
 			text := strings.TrimRight(scannerErr.Text(), "\n")
 			merged := false
 			for _, sName := range p.serviceNames {
-				if strings.Contains(text, sName) || (parentName != "" && strings.Contains(text, parentName)) {
-					log.StdOut.WriteString(text + "\n")
+				if strings.Contains(text, sName) {
+					sb.WriteString(text)
+					sb.WriteString("\n")
+
+					log.StdOut.WriteString(sb.String())
 					merged = true
 					break
 				}
 			}
 			if !merged {
-				log.Logger(defaultLogContext).Error(text)
+				sb.WriteString(text)
+
+				log.Logger(defaultLogContext).Info(sb.String())
 			}
 		}
 	}()

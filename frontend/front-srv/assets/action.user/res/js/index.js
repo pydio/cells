@@ -21,12 +21,14 @@
 import CallbaksWrapper from './Callbacks'
 import ModalDashboard from './ModalDashboard'
 import ModalAddressBook from './ModalAddressBook'
+import Directory from './Directory'
 
 import WelcomeModal from './WelcomeModal'
 import PasswordForm from './PasswordForm'
 
+
 const Callbacks = CallbaksWrapper(window.pydio);
 
 export {
-    Callbacks, ModalDashboard, ModalAddressBook, WelcomeModal, PasswordForm
+    Callbacks, ModalDashboard, ModalAddressBook, WelcomeModal, PasswordForm, Directory
 }

@@ -52,7 +52,7 @@ func init() {
 				if e != nil {
 					return e
 				}
-				encryption.RegisterUserKeyStoreServer(server, h)
+				encryption.RegisterUserKeyStoreEnhancedServer(server, h)
 
 				return nil
 			}),

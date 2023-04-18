@@ -146,7 +146,7 @@ func (c *Abstract) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root 
 	if err != nil {
 		return err
 	}
-	send, can := context.WithTimeout(ctx, 2*time.Minute)
+	send, can := context.WithTimeout(ctx, 10*time.Minute)
 	defer can()
 	s, e := cli.ListNodes(send, &tree.ListNodesRequest{
 		Node:      &tree.Node{Path: c.rooted(root)},

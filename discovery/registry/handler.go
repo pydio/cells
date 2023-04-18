@@ -31,6 +31,77 @@ func (h *Handler) Name() string {
 	return common.ServiceGrpcNamespace_ + common.ServiceRegistry
 }
 
+func (h *Handler) Session(srv pb.Registry_SessionServer) error {
+	// First message must be init
+	msg, err := srv.Recv()
+	if err != nil {
+		return err
+	}
+
+	init := msg.GetInit()
+	if init == nil {
+		return errors.New("session should start with init")
+	}
+
+	node := &pb.Item{
+		Id:   init.Id,
+		Name: init.Id,
+		Item: &pb.Item_Node{
+			Node: &pb.Node{},
+		},
+	}
+	if err := h.reg.Register(util.ToItem(node)); err != nil {
+		return err
+	}
+
+	defer h.reg.Deregister(util.ToItem(node))
+
+	if err := srv.Send(&pb.EmptyResponse{}); err != nil {
+		return err
+	}
+
+	for {
+		msg, err := srv.Recv()
+		if err != nil {
+			return err
+		}
+
+		reg := msg.GetReg()
+		if reg == nil {
+			return errors.New("session should only have reg requests")
+		}
+
+		switch reg.GetType() {
+		case pb.RegisterType_REGISTER:
+			if err := h.reg.Register(util.ToItem(reg.GetItem())); err != nil {
+				return err
+			}
+		case pb.RegisterType_DEREGISTER:
+			if err := h.reg.Deregister(util.ToItem(reg.GetItem())); err != nil {
+				return err
+			}
+		case pb.RegisterType_START:
+			if err := h.reg.Start(util.ToItem(reg.GetItem())); err != nil {
+				return err
+			}
+		case pb.RegisterType_STOP:
+			if err := h.reg.Stop(util.ToItem(reg.GetItem())); err != nil {
+				return err
+			}
+		}
+
+		//fmt.Println("REGISTERING ", reg.GetItem().GetName(), reg.GetItem().GetId())
+
+		if err := srv.Send(&pb.EmptyResponse{}); err != nil {
+			return err
+		}
+
+		//fmt.Println("REGISTERING ACK ", reg.GetItem().GetName(), reg.GetItem().GetId())
+	}
+
+	return nil
+}
+
 func (h *Handler) Start(ctx context.Context, item *pb.Item) (*pb.EmptyResponse, error) {
 	if err := h.reg.Start(util.ToItem(item)); err != nil {
 		return nil, err

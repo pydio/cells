@@ -20,6 +20,7 @@
 
 import PropTypes from 'prop-types';
 
+import Pydio from 'pydio'
 import React from 'react';
 import createReactClass from 'create-react-class';
 import Utils from './Utils'
@@ -27,7 +28,8 @@ import IconButtonMenu from './IconButtonMenu'
 import ButtonMenu from './ButtonMenu'
 import ButtonComposed from './ButtonComposed'
 import IconButtonPopover from './IconButtonPopover'
-import {FlatButton, IconButton, FloatingActionButton} from 'material-ui'
+import {FlatButton, FloatingActionButton} from 'material-ui'
+const {ThemedContainers:{IconButton}} = Pydio.requireLib('hoc')
 import {debounce} from 'lodash';
 
 export default createReactClass({
@@ -206,6 +208,7 @@ export default createReactClass({
                             iconClassName={menuIcon}
                             mini={true}
                             backgroundColor={fabButtonStyle.backgroundColor}
+                            iconStyle={fabButtonStyle.color?{color:fabButtonStyle.color}:null}
                             style={{position:'absolute', top: -20, left: 10}}
                         />);
                     } else if(renderingType === 'button-icon'){

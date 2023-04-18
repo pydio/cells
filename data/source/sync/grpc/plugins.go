@@ -47,7 +47,7 @@ import (
 )
 
 var (
-	syncHandler *Handler
+// syncHandler *Handler
 )
 
 func init() {
@@ -58,9 +58,9 @@ func init() {
 		dss := config.ListSourcesFromConfig()
 
 		for _, datasource := range sources {
-			if !runtime.IsRequired(datasource) {
-				continue
-			}
+			//if !runtime.IsRequired(datasource) {
+			//	continue
+			//}
 
 			dsObject, ok := dss[datasource]
 			if !ok {
@@ -85,40 +85,40 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 		service.Description("Synchronization service between objects and index for a given datasource"),
 		service.Source(datasource),
 		// service.Fork(true),
-		service.Unique(!dsObject.FlatStorage),
-		service.AutoStart(false),
+		//service.Unique(!dsObject.FlatStorage),
+		//service.AutoStart(false),
 		service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-			_ = broker.SubscribeCancellable(ctx, common.TopicIndexEvent, func(message broker.Message) error {
-				if syncHandler == nil {
-					return nil
-				}
-				event := &tree.IndexEvent{}
-				if _, e := message.Unmarshal(event); e == nil {
-					if event.SessionForceClose != "" {
-						syncHandler.BroadcastCloseSession(event.SessionForceClose)
-					}
-					if event.ErrorDetected && event.DataSourceName == syncHandler.dsName {
-						syncHandler.NotifyError(event.ErrorPath)
-					}
-				}
-				return nil
-
-			})
-
-			var e error
-			syncHandler, e = NewHandler(ctx, srvName, datasource)
+			syncHandler, e := NewHandler(ctx, srvName, datasource)
 			if e != nil {
 				return e
 			}
 
-			tree.RegisterNodeProviderServer(srv, syncHandler)
-			tree.RegisterNodeReceiverServer(srv, syncHandler)
-			tree.RegisterNodeChangesReceiverStreamerServer(srv, syncHandler)
-			protosync.RegisterSyncEndpointServer(srv, syncHandler)
-			object.RegisterDataSourceEndpointServer(srv, syncHandler)
-			object.RegisterResourceCleanerEndpointServer(srv, syncHandler)
+			_ = broker.SubscribeCancellable(ctx, common.TopicIndexEvent, func(syncHandler *Handler) func(message broker.Message) error {
+				return func(message broker.Message) error {
+					if syncHandler == nil {
+						return nil
+					}
+					event := &tree.IndexEvent{}
+					if _, e := message.Unmarshal(event); e == nil {
+						if event.SessionForceClose != "" {
+							syncHandler.BroadcastCloseSession(event.SessionForceClose)
+						}
+						if event.ErrorDetected && event.DataSourceName == syncHandler.dsName {
+							syncHandler.NotifyError(event.ErrorPath)
+						}
+					}
+					return nil
+				}
+			}(syncHandler))
 
-			go func() error {
+			tree.RegisterNodeProviderEnhancedServer(srv, syncHandler)
+			tree.RegisterNodeReceiverEnhancedServer(srv, syncHandler)
+			tree.RegisterNodeChangesReceiverStreamerEnhancedServer(srv, syncHandler)
+			protosync.RegisterSyncEndpointEnhancedServer(srv, syncHandler)
+			object.RegisterDataSourceEndpointEnhancedServer(srv, syncHandler)
+			object.RegisterResourceCleanerEndpointEnhancedServer(srv, syncHandler)
+
+			go func(syncHandler *Handler) error {
 
 				if e := syncHandler.Init(); e != nil {
 					return e
@@ -211,7 +211,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 				}
 
 				return nil
-			}()
+			}(syncHandler)
 
 			return nil
 		}),

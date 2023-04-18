@@ -18,9 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from 'pydio'
 import React, {Component} from 'react';
-
-import {ToolbarGroup, IconButton, FlatButton, Card, CardTitle, CardText, Table, TableBody, TableRow, TableRowColumn} from 'material-ui'
+import ResourcesManager from 'pydio/http/resources-manager'
+import {FlatButton} from 'material-ui'
+const {AsyncComponent} = Pydio.requireLib('boot')
+const {InfoPanelCard} = Pydio.requireLib('workspaces')
 
 class Panel extends Component {
 
@@ -111,7 +114,7 @@ class Panel extends Component {
         }
         if (this.state && this.state.gpsData) {
             items.push(
-                <PydioReactUI.AsyncComponent
+                <AsyncComponent
                     namespace="PydioMaps"
                     componentName="OLMap"
                     key="map"
@@ -129,9 +132,9 @@ class Panel extends Component {
             return null;
         }
         return (
-            <PydioWorkspaces.InfoPanelCard identifier={"meta-exif"} style={this.props.style} title={this.props.pydio.MessageHash['meta.exif.3']} actions={actions} icon="camera" iconColor="#607d8b">
+            <InfoPanelCard identifier={"meta-exif"} style={this.props.style} title={this.props.pydio.MessageHash['meta.exif.3']} actions={actions} icon="camera">
                 {items}
-            </PydioWorkspaces.InfoPanelCard>
+            </InfoPanelCard>
         );
 
     }

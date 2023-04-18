@@ -18,21 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import DlAppsCard from './apps/DlAppsCard'
-import QRCodeCard from './apps/QRCodeCard'
-import QuickSendCard from './quicksend/QuickSendCard'
-import WorkspacePickerDialog from './quicksend/WorkspacePickerDialog'
-import VideoCard from './videos/VideoCard'
-import WorkspacesListCard from './workspaces/WorkspacesListCard'
-
 import HomeDashboard from './board/HomeDashboard'
 
 export {
-    DlAppsCard,
-    QRCodeCard,
-    QuickSendCard,
-    WorkspacePickerDialog,
-    VideoCard,
-    WorkspacesListCard,
     HomeDashboard
 }

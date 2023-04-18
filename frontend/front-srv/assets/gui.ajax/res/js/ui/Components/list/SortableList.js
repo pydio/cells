@@ -19,8 +19,10 @@
  */
 
 import React from 'react'
+import ReactDOM from 'react-dom'
 import {Types, collect, collectDrop} from '../util/DND'
 import {Paper} from 'material-ui'
+import reactdnd from 'react-dnd'
 
 /***************************/
 /* REACT DND SORTABLE LIST
@@ -129,14 +131,12 @@ class NonDraggableListItem extends React.Component {
     }
 }
 
-var DraggableListItem;
-if(window.ReactDND){
-    DraggableListItem = ReactDND.flow(
-        ReactDND.DragSource(Types.SORTABLE_LIST_ITEM, sortableItemSource, collect),
-        ReactDND.DropTarget(Types.SORTABLE_LIST_ITEM, sortableItemTarget, collectDrop)
+let DraggableListItem = NonDraggableListItem;
+if(reactdnd){
+    DraggableListItem = reactdnd.flow(
+        reactdnd.DragSource(Types.SORTABLE_LIST_ITEM, sortableItemSource, collect),
+        reactdnd.DropTarget(Types.SORTABLE_LIST_ITEM, sortableItemTarget, collectDrop)
     )(sortableItem);
-}else{
-    DraggableListItem = NonDraggableListItem;
 }
 
 

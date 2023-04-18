@@ -21,7 +21,8 @@ import Pydio from 'pydio'
 import React from "react";
 import {Toggle, Checkbox} from "material-ui";
 import asFormField from "../hoc/asFormField";
-const {ModernStyles} = Pydio.requireLib('hoc');
+import {muiThemeable} from 'material-ui/styles'
+const {ThemedModernStyles} = Pydio.requireLib('hoc');
 
 const legendStyle = {
     position: 'absolute',
@@ -49,12 +50,15 @@ class InputBoolean extends React.Component {
 
     render(){
         let boolVal = this.props.value;
-        const {variant, variantShowLegend, disabled, onChange, attributes, isDisplayForm} = this.props;
+        const {variant, variantShowLegend, disabled, onChange, attributes, isDisplayForm, muiTheme} = this.props;
         if(typeof boolVal  === 'string'){
             boolVal = (boolVal === "true");
         }
-
+        const ModernStyles = ThemedModernStyles(muiTheme)
         if (variant === 'v2') {
+            if(muiTheme.userTheme==='mui3') {
+                legendStyle.color = muiTheme.palette.mui3['on-surface-variant']
+            }
             let toggleStyle = {...ModernStyles.toggleFieldV2}
             if(variantShowLegend){
                 toggleStyle.style = {...toggleStyle.style, padding:'23px 6px 4px'};
@@ -88,4 +92,4 @@ class InputBoolean extends React.Component {
 
 }
 
-export default asFormField(InputBoolean, true);
+export default asFormField(muiThemeable()(InputBoolean), true);

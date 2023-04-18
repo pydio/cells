@@ -23,6 +23,8 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/service/context/ckeys"
+	"google.golang.org/grpc/metadata"
 	"runtime/debug"
 	"strings"
 	"sync"
@@ -39,7 +41,6 @@ import (
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/metrics"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
@@ -66,16 +67,18 @@ func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) [
 		grpc.WithResolvers(NewBuilder(reg, clientConfig.LBOptions()...)),
 		grpc.WithConnectParams(grpc.ConnectParams{MinConnectTimeout: 1 * time.Minute, Backoff: backoffConfig}),
 		grpc.WithChainUnaryInterceptor(
+			ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
 			ErrorFormatUnaryClientInterceptor(),
 			servicecontext.SpanUnaryClientInterceptor(),
 			MetaUnaryClientInterceptor(),
-			otelgrpc.UnaryClientInterceptor(),
+			// otelgrpc.UnaryClientInterceptor(),
 		),
 		grpc.WithChainStreamInterceptor(
+			ErrorNoMatchedRouteRetryStreamClientInterceptor(),
 			ErrorFormatStreamClientInterceptor(),
 			servicecontext.SpanStreamClientInterceptor(),
 			MetaStreamClientInterceptor(),
-			otelgrpc.StreamClientInterceptor(),
+			// otelgrpc.StreamClientInterceptor(),
 		),
 		// grpc.WithDisableRetry(),
 	}, options...)
@@ -117,7 +120,7 @@ func NewClientConn(serviceName string, opt ...Option) grpc.ClientConnInterface {
 
 			opts.Registry = reg
 		}
-		conn, err := grpc.Dial("xds:///", DialOptionsForRegistry(opts.Registry, opts.DialOptions...)...)
+		conn, err := grpc.Dial("xds://"+runtime.Cluster()+".cells.com/cells", DialOptionsForRegistry(opts.Registry, opts.DialOptions...)...)
 		if err != nil {
 			return nil
 		}
@@ -146,9 +149,8 @@ func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{
 		grpc.WaitForReady(true),
 	}, opts...)
 
-	// ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
-	// TODO - is this good ?
-	method = cc.serviceName + "/" + method
+	//if metadata.ValueFromIncomingContext(ctx, ckeys.TargetServiceName)
+	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
 
 	var cancel context.CancelFunc
 	if cc.callTimeout > 0 {
@@ -175,9 +177,8 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 		grpc.WaitForReady(true),
 	}, opts...)
 
-	// ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
-	// TODO - is this good ?
-	method = cc.serviceName + "/" + method
+	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
+
 	var cancel context.CancelFunc
 	if cc.callTimeout > 0 {
 		ctx, cancel = context.WithTimeout(ctx, cc.callTimeout)

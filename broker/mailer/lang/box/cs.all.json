@@ -143,6 +143,9 @@
   "Mail.Config.From.Description": {
     "other": "Address to use as default when sending emails. You should use a proper support email instead of no-reply email."
   },
+  "Mail.Config.FixOutlookDisplay": {
+    "other": "Outlook Clients Fix (disable CSS inlining)"
+  },
   "Mail.Config.Queue.Label": {
     "other": "Typ fronty"
   },

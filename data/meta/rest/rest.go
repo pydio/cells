@@ -22,14 +22,12 @@ package rest
 
 import (
 	"context"
+	restful "github.com/emicklei/go-restful/v3"
+	"go.uber.org/zap"
 	"math"
 	"path"
 	"path/filepath"
 	"strings"
-	"time"
-
-	restful "github.com/emicklei/go-restful/v3"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -37,7 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
-	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
@@ -81,12 +78,6 @@ func (h *Handler) GetMeta(req *restful.Request, resp *restful.Response) {
 		return
 	}
 
-	//log.Logger(ctx).Debug("BEFORE META PROVIDERS", zap.String("NodePath", p), zap.Any("n", node))
-	loader := meta.NewStreamLoader(ctx)
-	defer loader.Close()
-	loader.LoadMetas(ctx, node)
-
-	//log.Logger(ctx).Debug("AFTER META PROVIDERS", zap.Any("n", node))
 	resp.WriteEntity(node.WithoutReservedMetas())
 }
 
@@ -141,13 +132,9 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		}
 	}
 
-	metaLoader := meta.NewStreamLoader(ctx)
-	defer metaLoader.Close()
-
 	if len(output.Nodes) > 0 {
 		for i, n := range output.Nodes {
 			if n.Uuid != "" {
-				metaLoader.LoadMetas(ctx, n)
 				output.Nodes[i] = n.WithoutReservedMetas()
 			}
 		}
@@ -172,39 +159,26 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 			WithVersions: bulkRequest.Versions,
 			Offset:       int64(bulkRequest.Offset),
 			Limit:        int64(bulkRequest.Limit),
+			SortField:    bulkRequest.SortField,
+			SortDirDesc:  bulkRequest.SortDirDesc,
 		})
 		if err != nil {
 			continue
 		}
-		var eTimes []time.Duration
 		for {
 			r, er := streamer.Recv()
 			if er != nil {
-				streamer.CloseSend()
 				break
 			}
 			if r == nil {
 				continue
 			}
-			s := time.Now()
-			if !bulkRequest.Versions {
-				metaLoader.LoadMetas(ctx, r.Node)
-			}
-			eTimes = append(eTimes, time.Since(s))
 			if strings.HasPrefix(path.Base(r.Node.GetPath()), ".") {
 				continue
 			}
 			childrenLoaded++
 			output.Nodes = append(output.Nodes, r.Node.WithoutReservedMetas())
 		}
-		l := float64(len(eTimes))
-		var t time.Duration
-		for _, d := range eTimes {
-			t += d
-		}
-		avg := time.Duration(float64(t.Nanoseconds()) / l)
-		log.Logger(ctx).Debug("EnrichMetaProvider", zap.Duration("Average time spent to load node additional metadata", avg))
-		streamer.CloseSend()
 
 		if !bulkRequest.Versions {
 			fNode := folderNode.Clone()

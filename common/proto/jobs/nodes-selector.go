@@ -73,6 +73,10 @@ func (n *NodesSelector) FilterID() string {
 	return "NodesFilter"
 }
 
+func (n *NodesSelector) ApplyClearInput(msg *ActionMessage) *ActionMessage {
+	return msg.WithNode(nil)
+}
+
 func (n *NodesSelector) Select(ctx context.Context, input *ActionMessage, objects chan interface{}, done chan bool) error {
 	defer func() {
 		done <- true

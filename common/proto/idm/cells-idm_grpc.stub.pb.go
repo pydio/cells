@@ -301,6 +301,13 @@ func (s *ACLServiceStub) Invoke(ctx context.Context, method string, args interfa
 		} else {
 			e = er
 		}
+	case "/idm.ACLService/RestoreACL":
+		resp, er := s.ACLServiceServer.RestoreACL(ctx, args.(*RestoreACLRequest))
+		if er == nil {
+			e = stubs.AssignToInterface(resp, reply)
+		} else {
+			e = er
+		}
 	default:
 		e = fmt.Errorf(method + " not implemented")
 	}

@@ -24,7 +24,7 @@ import (
 	"sync"
 	"time"
 
-	"google.golang.org/grpc/attributes"
+	"golang.org/x/exp/maps"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -32,15 +32,21 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 )
 
-type ServerAttributes struct {
-	Name               string
-	Addresses          []string
-	Services           []string
-	Endpoints          []string
-	BalancerAttributes *attributes.Attributes
+type LinkedItem map[registry.Item]LinkedItem
+
+func (li LinkedItem) Get(itemType pb.ItemType) LinkedItem {
+	ret := maps.Clone(li)
+	maps.DeleteFunc(ret, func(item registry.Item, _ LinkedItem) bool {
+		if util.DetectType(item) != itemType {
+			return true
+		}
+		return false
+	})
+
+	return ret
 }
 
-type UpdateStateCallback func(map[string]*ServerAttributes) error
+type UpdateStateCallback func(LinkedItem) error
 
 // ResolverCallback is a generic watcher for registry, that rebuilds the list of
 // available targets and calls the passed callbacks on change event.
@@ -55,11 +61,7 @@ type resolverCallback struct {
 	reg       registry.Registry
 	ml        *sync.RWMutex
 
-	servers   map[string]registry.Server
-	services  map[string]registry.Service
-	edges     map[string]registry.Edge
-	addresses map[string]registry.Generic
-	endpoints map[string]registry.Generic
+	items LinkedItem
 
 	updatedStateTimer *time.Timer
 	cbs               []UpdateStateCallback
@@ -70,19 +72,14 @@ type resolverCallback struct {
 
 // NewResolverCallback creates a new ResolverCallback watching the passed registry.Registry
 func NewResolverCallback(reg registry.Registry) (ResolverCallback, error) {
-
 	r := &resolverCallback{
 		localAddr: runtime.DefaultAdvertiseAddress(),
 		done:      make(chan bool, 1),
-		servers:   make(map[string]registry.Server),
-		services:  make(map[string]registry.Service),
-		edges:     make(map[string]registry.Edge),
-		addresses: make(map[string]registry.Generic),
-		endpoints: make(map[string]registry.Generic),
+		items:     make(LinkedItem),
 	}
 	r.reg = reg
 	r.ml = &sync.RWMutex{}
-	r.updatedStateTimer = time.NewTimer(50 * time.Millisecond)
+	r.updatedStateTimer = time.NewTimer(500 * time.Millisecond)
 
 	go r.updateState()
 	go r.watch()
@@ -126,27 +123,7 @@ func (r *resolverCallback) watch() {
 				case pb.ItemType_SERVER:
 					var s registry.Server
 					if item.As(&s) {
-						r.servers[item.ID()] = s
-					}
-				case pb.ItemType_SERVICE:
-					var s registry.Service
-					if item.As(&s) {
-						r.services[item.ID()] = s
-					}
-				case pb.ItemType_EDGE:
-					var e registry.Edge
-					if item.As(&e) {
-						r.edges[item.ID()] = e
-					}
-				case pb.ItemType_ADDRESS:
-					var g registry.Generic
-					if item.As(&g) {
-						r.addresses[item.ID()] = g
-					}
-				case pb.ItemType_ENDPOINT:
-					var g registry.Generic
-					if item.As(&g) {
-						r.endpoints[item.ID()] = g
+						r.items[item] = make(LinkedItem)
 					}
 				}
 			}
@@ -154,21 +131,13 @@ func (r *resolverCallback) watch() {
 			for _, item := range res.Items() {
 				switch util.DetectType(item) {
 				case pb.ItemType_SERVER:
-					delete(r.servers, item.ID())
-				case pb.ItemType_SERVICE:
-					delete(r.services, item.ID())
-				case pb.ItemType_EDGE:
-					delete(r.edges, item.ID())
-				case pb.ItemType_ADDRESS:
-					delete(r.addresses, item.ID())
-				case pb.ItemType_ENDPOINT:
-					delete(r.endpoints, item.ID())
+					delete(r.items, item)
 				}
 			}
 		}
 		r.ml.Unlock()
 
-		r.updatedStateTimer.Reset(50 * time.Millisecond)
+		r.updatedStateTimer.Reset(500 * time.Millisecond)
 	}
 }
 
@@ -184,40 +153,39 @@ func (r *resolverCallback) updateState() {
 }
 
 func (r *resolverCallback) sendState() {
-	var m = make(map[string]*ServerAttributes)
-
 	r.ml.RLock()
 
-	for _, srv := range r.servers {
-		atts := attributes.New(attKeyTargetServerID{}, srv.ID())
-		if pid, ok := srv.Metadata()[runtime.NodeMetaPID]; ok {
-			atts = atts.WithValue(attKeyTargetServerPID{}, pid)
-		}
-		m[srv.ID()] = &ServerAttributes{
-			Name:               srv.Name(),
-			BalancerAttributes: atts,
-		}
-	}
+	for srv := range r.items {
+		// TODO - do something with the attributes
+		//atts := attributes.New(attKeyTargetServerID{}, srv.ID())
+		//if pid, ok := srv.Metadata()[runtime.NodeMetaPID]; ok {
+		//	atts = atts.WithValue(attKeyTargetServerPID{}, pid)
+		//}
 
-	for srvID, attr := range m {
-		var ids []string
-		for _, e := range r.edges {
-			vv := e.Vertices()
-			if vv[0] == srvID {
-				ids = append(ids, vv[1])
-			} else if vv[1] == srvID {
-				ids = append(ids, vv[0])
-			}
-		}
-		for _, id := range ids {
-			if svc, ok := r.services[id]; ok {
-				attr.Services = append(attr.Services, svc.Name())
-			}
-			if addr, ok := r.addresses[id]; ok {
-				attr.Addresses = append(attr.Addresses, addr.Name())
-			}
-			if endpoint, ok := r.endpoints[id]; ok {
-				attr.Endpoints = append(attr.Endpoints, endpoint.Name())
+		adjacents := r.reg.ListAdjacentItems(srv,
+			registry.WithType(pb.ItemType_ADDRESS),
+			registry.WithType(pb.ItemType_ENDPOINT),
+			registry.WithType(pb.ItemType_SERVICE),
+		)
+
+		for _, adjacent := range adjacents {
+			switch util.DetectType(adjacent) {
+			case pb.ItemType_ADDRESS:
+				r.items[srv][adjacent] = nil
+			case pb.ItemType_ENDPOINT:
+				r.items[srv][adjacent] = make(LinkedItem)
+
+				adjacentServices := r.reg.ListAdjacentItems(adjacent, registry.WithType(pb.ItemType_SERVICE))
+				for _, adjacentService := range adjacentServices {
+					r.items[srv][adjacent][adjacentService] = nil
+				}
+			case pb.ItemType_SERVICE:
+				r.items[srv][adjacent] = make(LinkedItem)
+
+				adjacentEndpoints := r.reg.ListAdjacentItems(adjacent, registry.WithType(pb.ItemType_ENDPOINT))
+				for _, adjacentEndpoint := range adjacentEndpoints {
+					r.items[srv][adjacent][adjacentEndpoint] = nil
+				}
 			}
 		}
 	}
@@ -225,6 +193,6 @@ func (r *resolverCallback) sendState() {
 	r.ml.RUnlock()
 
 	for _, cb := range r.cbs {
-		cb(m)
+		cb(maps.Clone(r.items))
 	}
 }

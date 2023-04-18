@@ -18,18 +18,16 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-
 import { pdfjs } from 'react-pdf';
 
 pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/pdfjs-2.12.313-dist/build/pdf.worker.js';
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import DOMUtils from 'pydio/util/dom'
 import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import { Document, Page } from 'react-pdf';
 
-const { EditorActions } = Pydio.requireLib('hoc');
+const { EditorActions, withSelection } = Pydio.requireLib('hoc');
 
 class InlineViewer extends React.Component {
 
@@ -136,7 +134,7 @@ class Viewer extends Component {
             }
             return (
                 <div
-                    style={{flex: 1, width: "100%", height: "100%", border: 0}}
+                    style={{flex: 1, width:'100%', maxWidth: 250, height: "100%", border: 0, margin:'0 calc(50% - 125px)'}}
                     onMouseEnter={()=>{this.setState({showPaginator:true})}}
                     onMouseLeave={()=>{this.setState({showPaginator:false})}}
                 >
@@ -176,8 +174,6 @@ const getSelection = (node) => new Promise((resolve, reject) => {
         currentIndex: selection.reduce((currentIndex, current, index) => current === node && index || currentIndex, 0)
     })
 })
-
-const {withSelection} = PydioHOCs;
 
 export const Panel = Viewer
 

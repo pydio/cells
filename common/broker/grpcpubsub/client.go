@@ -81,12 +81,14 @@ func (s *sharedSubscriber) Unsubscribe(subId string) {
 
 func init() {
 	o := new(URLOpener)
-	pubsub.DefaultURLMux().RegisterTopic(Scheme, o)
-	pubsub.DefaultURLMux().RegisterSubscription(Scheme, o)
+	for _, scheme := range schemes {
+		pubsub.DefaultURLMux().RegisterTopic(scheme, o)
+		pubsub.DefaultURLMux().RegisterSubscription(scheme, o)
+	}
 }
 
 // Scheme is the URL scheme grpc pubsub registers its URLOpeners under on pubsub.DefaultMux.
-const Scheme = "grpc"
+var schemes = []string{"grpc", "xds"}
 
 // URLOpener opens grpc pubsub URLs like "cells://topic".
 //
@@ -110,6 +112,8 @@ func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic
 		if conn == nil {
 			return nil, errors.New("no connection provided")
 		}
+
+		conn = grpc.NewClientConn("pydio.grpc.broker", grpc.WithClientConn(conn))
 
 		cli := pb.NewBrokerClient(conn)
 		if s, err := cli.Publish(ctx); err != nil {
@@ -139,6 +143,7 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 		if conn == nil {
 			return nil, errors.New("no connection provided")
 		}
+
 		conn = grpc.NewClientConn("pydio.grpc.broker", grpc.WithClientConn(conn))
 
 		ct, ca := context.WithCancel(ctx)

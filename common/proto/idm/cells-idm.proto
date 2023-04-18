@@ -316,11 +316,18 @@ message WorkspaceSingleQuery {
 //  ACL Services
 // *****************************************************************************
 service ACLService {
+    // Insert a new ACL
     rpc CreateACL (CreateACLRequest) returns (CreateACLResponse) {};
+    // Set an expiration date that invalidates an ACL without deleting it
     rpc ExpireACL (ExpireACLRequest) returns (ExpireACLResponse) {};
+    // Definitely delete an ACL
     rpc DeleteACL (DeleteACLRequest) returns (DeleteACLResponse) {};
+    // Search ACLs by Query or Expiration period
     rpc SearchACL (SearchACLRequest) returns (stream SearchACLResponse) {};
+    // Stream version of Search ACL
     rpc StreamACL (stream SearchACLRequest) returns (stream SearchACLResponse) {};
+    // Restore ACLs based on Query and Expiration period
+    rpc RestoreACL (RestoreACLRequest) returns (RestoreACLResponse) {};
 }
 
 // *****************************************************************************
@@ -346,6 +353,8 @@ message ExpireACLResponse{
 
 message DeleteACLRequest{
     service.Query Query = 1;
+    int64 ExpiredAfter = 2;
+    int64 ExpiredBefore = 3;
 }
 
 message DeleteACLResponse{
@@ -354,11 +363,25 @@ message DeleteACLResponse{
 
 message SearchACLRequest{
     service.Query Query = 1;
+    int64 ExpiredAfter = 2;
+    int64 ExpiredBefore = 3;
 }
 
 message SearchACLResponse{
     ACL ACL = 1;
 }
+
+message RestoreACLRequest{
+    service.Query Query = 1;
+    int64 ExpiredAfter = 2;
+    int64 ExpiredBefore = 3;
+}
+
+message RestoreACLResponse{
+    int64 Rows = 1;
+}
+
+
 
 message ACLAction{
     // ACL Action name, most frequent values are "read" or "write"

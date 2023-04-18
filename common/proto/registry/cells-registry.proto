@@ -5,6 +5,7 @@ package registry;
 option go_package = "github.com/pydio/cells/common/proto/registry";
 
 service Registry {
+  rpc Session(stream SessionRequest) returns (stream EmptyResponse) {};
   rpc Start(Item) returns (EmptyResponse) {};
   rpc Stop(Item) returns (EmptyResponse) {};
   rpc Get(GetRequest) returns (GetResponse) {};
@@ -13,6 +14,22 @@ service Registry {
   rpc List(ListRequest) returns (ListResponse) {};
   rpc Watch(WatchRequest) returns (stream Result) {};
   rpc NewLocker(stream NewLockerRequest) returns (stream NewLockerResponse) {};
+}
+
+message SessionRequest {
+  oneof req {
+    SessionInitRequest init = 1;
+    SessionRegistryRequest reg = 2;
+  }
+}
+
+message SessionInitRequest {
+  string id = 1;
+}
+
+message SessionRegistryRequest {
+  RegisterType type = 1;
+  Item item = 2;
 }
 
 enum ItemType {
@@ -39,6 +56,13 @@ enum ActionType {
   CREATE = 3;
   UPDATE = 4;
   DELETE = 5;
+}
+
+enum RegisterType {
+  REGISTER = 0;
+  DEREGISTER = 1;
+  START = 2;
+  STOP = 3;
 }
 
 message Item {
@@ -119,6 +143,10 @@ message StartRequest {
 
 message StopRequest {
   Item item = 1;
+}
+
+message RegisterRequest {
+
 }
 
 message GetRequest {

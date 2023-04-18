@@ -52,6 +52,7 @@ func init() {
 			service.Tag(common.ServiceTagIdm),
 			service.Metadata(meta2.ServiceMetaProvider, "stream"),
 			service.Metadata(meta2.ServiceMetaNsProvider, "list"),
+			service.Metadata(meta2.ServiceMetaProviderRequired, "true"),
 			service.Description("User-defined Metadata"),
 
 			service.WithStorage(meta.NewDAO, service.WithStoragePrefix("idm_usr_meta")),
@@ -65,8 +66,8 @@ func init() {
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(meta.DAO))
-				idm.RegisterUserMetaServiceServer(server, handler)
-				tree.RegisterNodeProviderStreamerServer(server, handler)
+				idm.RegisterUserMetaServiceEnhancedServer(server, handler)
+				tree.RegisterNodeProviderStreamerEnhancedServer(server, handler)
 
 				// Clean role on user deletion
 				cleaner := NewCleaner(servicecontext.GetDAO(ctx))

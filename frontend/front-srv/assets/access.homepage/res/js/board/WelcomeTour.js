@@ -21,26 +21,7 @@
 import {Component} from 'react'
 import Pydio from 'pydio'
 const {AsyncComponent, PydioContextConsumer} = Pydio.requireLib('boot');
-
-class Scheme extends Component {
-
-    render(){
-        let style = {
-            position:'relative',
-            fontSize: 24,
-            width: this.props.dimension || 100,
-            height: this.props.dimension || 100,
-            backgroundColor: '#ECEFF1',
-            color: '#607d8b',
-            borderRadius: '50%',
-            margin: '0 auto'
-        };
-        return (
-            <div style={{...style, ...this.props.style}}>{this.props.children}</div>
-        );
-    }
-
-}
+const {ThemeTogglerCard, Scheme} = Pydio.requireLib('workspaces')
 
 let WorkspacesCard = (props) => {
 
@@ -99,19 +80,6 @@ let SearchCard = (props) => {
 
 };
 
-let WidgetsCard = (props) => {
-
-    return (
-        <div>
-            <p>{props.message('widget-cards')}</p>
-            <Scheme>
-                <img src="plug/access.homepage/res/images/movecards.gif" style={{height:70, margin:'15px 30px'}}/>
-            </Scheme>
-        </div>
-    );
-
-};
-
 class WelcomeTour extends Component{
 
     constructor(props, context){
@@ -140,6 +108,7 @@ class WelcomeTour extends Component{
         let guiPrefs = user.getPreference('gui_preferences', true);
         guiPrefs['UserAccount.WelcomeModal.Shown'] = true;
         if(finished) {
+            guiPrefs['WelcomeComponent.MUITour'] = true;
             guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome'] = true;
             if(onFinish){
                 onFinish();
@@ -159,9 +128,15 @@ class WelcomeTour extends Component{
 
         let tourguideSteps = [
             {
+                title       : message('theme.title'),
+                text        : <ThemeTogglerCard message={message}/>,
+                selector    :'.mdi.mdi-theme-light-dark',
+                position    :'right-end'
+            },
+            {
                 title       : message('workspaces.title'),
                 text        : <WorkspacesCard message={message}/>,
-                selector    :'.user-workspaces-list',
+                selector    :'.mdi-folder-multiple-outline',
                 position    :'right'
             },
             {
@@ -171,6 +146,7 @@ class WelcomeTour extends Component{
                 position    : 'bottom'
             },
         ];
+        /*
         if(this.props.pydio.user){
             let hasAccessRepo = false;
             this.props.pydio.user.getRepositoriesList().forEach((entry) => {
@@ -186,7 +162,7 @@ class WelcomeTour extends Component{
                         position    : 'right'
                 });
             }
-        }
+        }*/
 
         const callback = (data) => {
             if(data.type === 'step:after' && data.index === tourguideSteps.length - 1 ){

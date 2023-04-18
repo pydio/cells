@@ -23,6 +23,8 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"google.golang.org/grpc"
+	"time"
 
 	"google.golang.org/grpc/health/grpc_health_v1"
 )
@@ -49,9 +51,12 @@ func (h *healthChecker) Monitor(serviceName string) {
 	cli := grpc_health_v1.NewHealthClient(GetClientConnFromCtx(h.c, serviceName))
 	ct, can := context.WithCancel(context.Background())
 	h.cancel = can
-	resp, er := cli.Check(ct, &grpc_health_v1.HealthCheckRequest{})
+	resp, er := cli.Check(ct, &grpc_health_v1.HealthCheckRequest{}, grpc.WaitForReady(true))
 	if er != nil {
-		fmt.Println("[ERROR] Could not monitor service" + serviceName + ": " + er.Error())
+		fmt.Println("[ERROR] Could not monitor service " + serviceName + ": " + er.Error())
+		<-time.After(10 * time.Second)
+		h.Monitor(serviceName)
+		return
 	}
 	h.status = resp.Status == grpc_health_v1.HealthCheckResponse_SERVING
 }

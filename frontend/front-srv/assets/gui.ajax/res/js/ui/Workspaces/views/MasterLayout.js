@@ -22,8 +22,22 @@ import Pydio from 'pydio'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import LeftPanel from '../leftnav/LeftPanel'
+import FastSearch from "../search/FastSearch";
+import {muiThemeable} from 'material-ui/styles'
+import {ThemeProvider} from "@mui/material/styles";
+import RailPanel from "../leftnav/RailPanel";
+
 const {withContextMenu, dropProvider} = Pydio.requireLib('hoc');
 const {ContextMenu} = Pydio.requireLib('components');
+
+const localStyle = `
+  div[role="menu"]{
+    background: var(--md-sys-color-surface-2);
+  }
+  div[role="menu"] span[role="menuitem"]{
+    font-size: 14px !important;
+  }
+`
 
 class MasterLayout extends React.Component{
 
@@ -40,22 +54,46 @@ class MasterLayout extends React.Component{
 
     render(){
 
-        const {pydio, tutorialComponent, onContextMenu, classes, style, leftPanelProps, children, drawerOpen, desktopStyle = {}} = this.props;
+        const {pydio, tutorialComponent, onContextMenu, classes, style, leftPanelProps, children, drawerOpen, desktopStyle = {}, muiTheme} = this.props;
         let connectDropTarget = this.props.connectDropTarget || function(c){return c;};
 
         let allClasses = [...classes];
         if(drawerOpen){
             allClasses.push('drawer-open');
         }
+        let leftPanel;
+        if(leftPanelProps.workspacesListProps === undefined){
+            const masterStyles = muiTheme.buildFSTemplate({})
+            leftPanelProps.workspacesListProps = masterStyles.leftPanel.workspacesList
+            leftPanelProps.railPanelStyle = masterStyles.leftPanel.railPanelStyle
+        }
+        if(muiTheme.userTheme === 'mui3'){
+            leftPanel = <RailPanel pydio={pydio} {...leftPanelProps}/>
+        } else {
+            leftPanel = <LeftPanel className="left-panel" pydio={pydio} {...leftPanelProps}/>
+        }
+
+        let elements = [
+            tutorialComponent,
+            leftPanel,
+            <div className="desktop-container vertical_layout vertical_fit" style={desktopStyle}>{children}</div>,
+            <span className="context-menu"><ContextMenu pydio={this.props.pydio}/></span>,
+            <FastSearch/>,
+            <style type={"text/css"} dangerouslySetInnerHTML={{__html:localStyle}} />
+        ]
+
+        // Re-wrap into @mui ThemeProvider
+        if(muiTheme['@mui']) {
+            elements = <ThemeProvider theme={muiTheme['@mui']}>{elements}</ThemeProvider>
+        }
 
         return(connectDropTarget(
-            <div style={{...style, overflow:'hidden'}} className={allClasses.join(' ')} onClick={this.closeDrawer.bind(this)} onContextMenu={onContextMenu}>
-                {tutorialComponent}
-                <LeftPanel className="left-panel" pydio={pydio} {...leftPanelProps}/>
-                <div className="desktop-container vertical_layout vertical_fit" style={desktopStyle}>
-                    {children}
-                </div>
-                <span className="context-menu"><ContextMenu pydio={this.props.pydio}/></span>
+            <div
+                style={{...style, overflow:'hidden'}}
+                className={allClasses.join(' ')}
+                onClick={this.closeDrawer.bind(this)}
+                onContextMenu={onContextMenu}>
+                {elements}
             </div>
         ));
 
@@ -63,6 +101,7 @@ class MasterLayout extends React.Component{
 
 }
 
+MasterLayout = muiThemeable()(MasterLayout);
 MasterLayout = dropProvider(MasterLayout);
 MasterLayout = withContextMenu(MasterLayout);
 

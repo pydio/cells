@@ -22,7 +22,9 @@ package service
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 	"net/url"
+	"os"
 	"sync"
 	"time"
 
@@ -38,7 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/registry/util"
 )
 
-var scheme = "grpc"
+var schemes = []string{"grpc", "xds"}
 
 type URLOpener struct {
 	grpc.ClientConnInterface
@@ -46,7 +48,9 @@ type URLOpener struct {
 
 func init() {
 	o := &URLOpener{}
-	registry.DefaultURLMux().Register(scheme, o)
+	for _, scheme := range schemes {
+		registry.DefaultURLMux().Register(scheme, o)
+	}
 }
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry, error) {
@@ -54,9 +58,15 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry,
 	conn := clientcontext.GetClientConn(ctx)
 
 	if conn == nil {
-		address := u.Hostname()
-		if port := u.Port(); port != "" {
-			address = address + ":" + port
+		var address string
+		switch u.Scheme {
+		case "grpc":
+			address = u.Hostname()
+			if port := u.Port(); port != "" {
+				address = address + ":" + port
+			}
+		case "xds":
+			address = u.String()
 		}
 		var cli *grpc.ClientConn
 		var err error
@@ -65,18 +75,20 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry,
 				return nil, e
 			} else {
 				ct, _ := context.WithTimeout(ctx, d)
-				cli, err = grpc.DialContext(ct, u.Hostname()+":"+u.Port(), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+				cli, err = grpc.DialContext(ct, address, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 			}
 		} else {
-			cli, err = grpc.Dial(u.Hostname()+":"+u.Port(), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+			cli, err = grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 		}
 
 		if err != nil {
 			return nil, err
 		}
 
-		conn = cgrpc.NewClientConn("pydio.grpc.registry", cgrpc.WithClientConn(cli))
+		conn = cli
 	}
+
+	conn = cgrpc.NewClientConn("pydio.grpc.registry", cgrpc.WithClientConn(conn))
 
 	return NewRegistry(WithConn(conn))
 }
@@ -87,6 +99,8 @@ type serviceRegistry struct {
 	address []string
 	// client to call registry
 	client pb.RegistryClient
+	// session client
+	sessionClient pb.Registry_SessionClient
 	// health client to registry
 	donec chan struct{}
 
@@ -134,6 +148,20 @@ func (s *serviceRegistry) Init(opts ...Option) error {
 	}
 
 	s.client = pb.NewRegistryClient(conn)
+	sessionClient, err := s.client.Session(s.opts.Context, s.callOpts()...)
+	if err != nil {
+		return err
+	}
+	if err := sessionClient.Send(&pb.SessionRequest{
+		Req: &pb.SessionRequest_Init{
+			Init: &pb.SessionInitRequest{
+				Id: uuid.New(),
+			},
+		},
+	}); err != nil {
+		return err
+	}
+	s.sessionClient = sessionClient
 
 	return nil
 }
@@ -151,8 +179,14 @@ func (s *serviceRegistry) Done() <-chan struct{} {
 }
 
 func (s *serviceRegistry) Start(item registry.Item) error {
-	_, err := s.client.Start(s.opts.Context, util.ToProtoItem(item), s.callOpts()...)
-	if err != nil {
+	if err := s.sessionClient.Send(&pb.SessionRequest{
+		Req: &pb.SessionRequest_Reg{
+			Reg: &pb.SessionRegistryRequest{
+				Type: pb.RegisterType_START,
+				Item: util.ToProtoItem(item),
+			},
+		},
+	}); err != nil {
 		return err
 	}
 
@@ -160,8 +194,14 @@ func (s *serviceRegistry) Start(item registry.Item) error {
 }
 
 func (s *serviceRegistry) Stop(item registry.Item) error {
-	_, err := s.client.Stop(s.opts.Context, util.ToProtoItem(item), s.callOpts()...)
-	if err != nil {
+	if err := s.sessionClient.Send(&pb.SessionRequest{
+		Req: &pb.SessionRequest_Reg{
+			Reg: &pb.SessionRegistryRequest{
+				Type: pb.RegisterType_STOP,
+				Item: util.ToProtoItem(item),
+			},
+		},
+	}); err != nil {
 		return err
 	}
 
@@ -169,42 +209,77 @@ func (s *serviceRegistry) Stop(item registry.Item) error {
 }
 
 func (s *serviceRegistry) Register(item registry.Item, option ...registry.RegisterOption) error {
-	var opts = &registry.RegisterOptions{}
-	for _, o := range option {
-		o(opts)
-	}
-	callOpts := s.callOpts()
-	ctx := s.opts.Context
-	if opts.FailFast {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, 1*time.Second)
-		defer cancel()
-		callOpts = append(callOpts, grpc.WaitForReady(false))
-	}
-	_, err := s.client.Register(ctx, util.ToProtoItem(item), callOpts...)
-	if err != nil {
-		return err
+	if os.Getenv("CELLS_USE_REGISTRY_SESSION") == "true" {
+		if err := s.sessionClient.Send(&pb.SessionRequest{
+			Req: &pb.SessionRequest_Reg{
+				Reg: &pb.SessionRegistryRequest{
+					Type: pb.RegisterType_REGISTER,
+					Item: util.ToProtoItem(item),
+				},
+			},
+		}); err != nil {
+			return err
+		}
+
+		if _, err := s.sessionClient.Recv(); err != nil {
+			return err
+		}
+	} else {
+		var opts = &registry.RegisterOptions{}
+		for _, o := range option {
+			o(opts)
+		}
+		callOpts := s.callOpts()
+		ctx := s.opts.Context
+		if opts.FailFast {
+			var cancel context.CancelFunc
+			ctx, cancel = context.WithTimeout(ctx, 1*time.Second)
+			defer cancel()
+			callOpts = append(callOpts, grpc.WaitForReady(false))
+		}
+
+		_, err := s.client.Register(ctx, util.ToProtoItem(item), callOpts...)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
 func (s *serviceRegistry) Deregister(item registry.Item, option ...registry.RegisterOption) error {
-	var opts = &registry.RegisterOptions{}
-	for _, o := range option {
-		o(opts)
-	}
-	callOpts := s.callOpts()
-	ctx := s.opts.Context
-	if opts.FailFast {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, 1*time.Second)
-		defer cancel()
-		callOpts = append(callOpts, grpc.WaitForReady(false))
-	}
-	_, err := s.client.Deregister(ctx, util.ToProtoItem(item), callOpts...)
-	if err != nil {
-		return err
+	if os.Getenv("CELLS_USE_REGISTRY_SESSION") == "true" {
+		if err := s.sessionClient.Send(&pb.SessionRequest{
+			Req: &pb.SessionRequest_Reg{
+				Reg: &pb.SessionRegistryRequest{
+					Type: pb.RegisterType_DEREGISTER,
+					Item: util.ToProtoItem(item),
+				},
+			},
+		}); err != nil {
+			return err
+		}
+
+		if _, err := s.sessionClient.Recv(); err != nil {
+			return err
+		}
+	} else {
+		var opts = &registry.RegisterOptions{}
+		for _, o := range option {
+			o(opts)
+		}
+		callOpts := s.callOpts()
+		ctx := s.opts.Context
+		if opts.FailFast {
+			var cancel context.CancelFunc
+			ctx, cancel = context.WithTimeout(ctx, 1*time.Second)
+			defer cancel()
+			callOpts = append(callOpts, grpc.WaitForReady(false))
+		}
+		_, err := s.client.Deregister(ctx, util.ToProtoItem(item), callOpts...)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -393,10 +468,26 @@ func NewRegistry(opts ...Option) (registry.Registry, error) {
 		}
 	}()
 
+	cli := pb.NewRegistryClient(conn)
+	sessionClient, err := cli.Session(options.Context)
+	if err != nil {
+		return nil, err
+	}
+	if err := sessionClient.Send(&pb.SessionRequest{
+		Req: &pb.SessionRequest_Init{
+			Init: &pb.SessionInitRequest{
+				Id: uuid.New(),
+			},
+		},
+	}); err != nil {
+		return nil, err
+	}
+
 	r := &serviceRegistry{
-		opts:   options,
-		client: pb.NewRegistryClient(conn),
-		donec:  donec,
+		opts:          options,
+		client:        cli,
+		sessionClient: sessionClient,
+		donec:         donec,
 	}
 
 	return registry.GraphRegistry(r), nil

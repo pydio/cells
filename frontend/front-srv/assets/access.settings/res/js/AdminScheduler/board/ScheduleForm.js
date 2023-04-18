@@ -20,14 +20,26 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {JobsJob} from 'cells-sdk'
-import {Dialog, FlatButton, FontIcon, MenuItem, SelectField, TextField, TimePicker} from 'material-ui'
+import {MenuItem,TimePicker} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 
 const {moment} = Pydio.requireLib('boot');
-const {ModernSelectField, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernSelectField, ModernTextField, ThemedModernStyles} = Pydio.requireLib('hoc');
 
 const Blue = '#2196f3';
 const LightGrey = '#e0e0e0';
+
+const ThemedTimePicker = muiThemeable()(({muiTheme, ...props})=> {
+    const ModernStyles = ThemedModernStyles(muiTheme)
+    return (
+        <TimePicker
+            {...props}
+            {...ModernStyles.textField}
+        />
+
+    )
+})
+
 
 class ScheduleForm extends React.Component {
 
@@ -192,6 +204,7 @@ class ScheduleForm extends React.Component {
         for (let i = 1;i<30; i++){
             monthdays.push(i);
         }
+
         return (
             <div>
                 <div style={{padding: '10px 0', textAlign:'center'}}>
@@ -238,14 +251,13 @@ class ScheduleForm extends React.Component {
                 }
                 {(frequency === 'daily' || frequency === 'monthly' || frequency === 'weekly') &&
                 <div>
-                    <TimePicker
+                    <ThemedTimePicker
                         format="ampm"
                         minutesStep={5}
                         hintText={this.T('schedule.detail.daytime')}
                         value={daytime}
                         onChange={(e,v) => {this.setState({daytime: v})}}
                         fullWidth={true}
-                        {...ModernStyles.textField}
                     />
                 </div>
                 }
@@ -266,5 +278,4 @@ class ScheduleForm extends React.Component {
     }
 
 }
-
 export {ScheduleForm as default};

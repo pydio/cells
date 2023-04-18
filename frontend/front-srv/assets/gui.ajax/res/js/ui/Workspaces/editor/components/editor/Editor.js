@@ -19,6 +19,7 @@
  */
 
 // IMPORT
+import React from 'react'
 import Pydio from 'pydio'
 import { connect } from 'react-redux';
 import { Paper } from 'material-ui';

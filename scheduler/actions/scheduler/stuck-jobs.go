@@ -39,7 +39,8 @@ var (
 
 type PruneJobsAction struct {
 	common.RuntimeHolder
-	maxTasksParam string
+	maxTasksParam  string
+	maxRunningTime string
 }
 
 // GetDescription returns action description
@@ -70,6 +71,13 @@ func (c *PruneJobsAction) GetParametersForm() *forms.Form {
 					Mandatory:   true,
 					Editable:    true,
 				},
+				&forms.FormField{
+					Name:        "maxRunningTime",
+					Type:        forms.ParamInteger,
+					Label:       "Maximum running time per task",
+					Description: "Clean tasks that have been running for more than ... (minutes)",
+					Default:     60 * 10,
+				},
 			},
 		},
 	}}
@@ -87,6 +95,11 @@ func (c *PruneJobsAction) Init(job *jobs.Job, action *jobs.Action) error {
 	} else {
 		c.maxTasksParam = "50"
 	}
+	if n, o := action.Parameters["maxRunningTime"]; o {
+		c.maxRunningTime = n
+	} else {
+		c.maxRunningTime = "600"
+	}
 	return nil
 }
 
@@ -97,10 +110,15 @@ func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableCha
 	if e != nil {
 		return input.WithError(e), e
 	}
+	maxRunningTime, e := jobs.EvaluateFieldInt(ctx, input, c.maxRunningTime)
+	if e != nil {
+		maxRunningTime = 600
+	}
+
 	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceJobs))
 	// Fix Stuck Tasks
 	resp, e := cli.DetectStuckTasks(ctx, &jobs.DetectStuckTasksRequest{
-		Since: 60 * 60 * 6,
+		Since: int32(maxRunningTime),
 	})
 	if e != nil {
 		return input.WithError(e), e

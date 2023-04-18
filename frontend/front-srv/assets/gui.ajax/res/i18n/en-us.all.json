@@ -101,6 +101,27 @@
   "tour.workspaces.title": {
     "other": "Workspaces \u0026 Cells"
   },
+  "tour.theme.title": {
+    "other": "Light/Dark Theme Support"
+  },
+  "tour.theme.legend": {
+    "other": "Choose a light or dark theme to best suit your vision."
+  },
+  "tour.left-resize.title": {
+    "other": "Workspaces and Cells"
+  },
+  "tour.left-resize.legend": {
+    "other": "Left column can be resized or closed to fit your screen."
+  },
+  "tour.right-resize.legend": {
+    "other": "Right column can be also be resized or closed to fit your screen."
+  },
+  "tour.directory.title": {
+    "other": "Users Directory"
+  },
+  "tour.directory.legend": {
+    "other": "Manage users (internal and external) and teams in a central location."
+  },
   "background.jobs.title":{
     "other": "Background Jobs"
   },
@@ -196,5 +217,29 @@
   },
   "mimegroup.audio": {
     "other": "Audios"
+  },
+  "fastsearch.quick-jump.title": {
+    "other": "Quick Jump"
+  },
+  "fastsearch.quick-jump.legend": {
+    "other": "Hit [Enter] to jump, add a trailing [/] to search inside children, [Esc] to Close"
+  },
+  "fastsearch.quick-move.title": {
+    "other": "Quick Move"
+  },
+  "fastsearch.quick-move.target-error": {
+    "other": "Cannot move to this target!"
+  },
+  "fastsearch.quick-move.legend": {
+    "other": "Hit [Enter] to move %s selected items to target, [Esc] to Close"
+  },
+  "fastsearch.quick-copy.title": {
+    "other": "Quick Copy"
+  },
+  "fastsearch.quick-copy.target-error": {
+    "other": "Cannot copy to this target!"
+  },
+  "fastsearch.quick-copy.legend": {
+    "other": "Hit [Enter] to copy %s selected items to target, [Esc] to Close"
   }
 }

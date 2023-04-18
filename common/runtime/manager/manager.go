@@ -23,6 +23,7 @@ package manager
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"os"
 	"strconv"
 	"strings"
@@ -253,7 +254,11 @@ func (m *manager) ServeAll(oo ...server.ServeOption) {
 	for _, srv := range ss {
 		func(srv server.Server) {
 			eg.Go(func() error {
-				return m.startServer(srv, oo...)
+				if err := m.startServer(srv, oo...); err != nil {
+					return errors.Wrap(err, " from "+srv.ID()+srv.Name())
+				}
+
+				return nil
 			})
 		}(srv)
 	}

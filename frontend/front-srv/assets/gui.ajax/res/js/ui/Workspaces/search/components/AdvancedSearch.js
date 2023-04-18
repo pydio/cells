@@ -1,8 +1,3 @@
-import React, { Component } from 'react';
-
-import XMLUtils from 'pydio/util/xml';
-import {IconButton, Subheader} from 'material-ui';
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23,19 +18,15 @@ import {IconButton, Subheader} from 'material-ui';
  * The latest code can be found at <https://pydio.com>.
  */
 
-import PropTypes from 'prop-types';
-
+import React, { Component } from 'react';
+import {Subheader} from 'material-ui';
+import {muiThemeable} from 'material-ui/styles'
 import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 const {ModernTextField} = Pydio.requireLib('hoc');
-import {FlatButton} from 'material-ui'
-import DatePanel from './DatePanel';
-import FileFormatPanel from './FileFormatPanel';
-import FileSizePanel from './FileSizePanel';
-import {debounce} from 'lodash';
-import SearchScopeSelector from "./SearchScopeSelector";
+import Renderer from './Renderer'
 
-const FieldRow = ({name, label, values, children, style, onRemove = ()=>{}}) => {
+const FieldRow = ({constants, name, label, values, children, style, muiTheme, getDefaultScope,isDefaultScope, onRemove = ()=>{}}) => {
     let labelStyle= {
         width: 100,
         fontSize: 13,
@@ -50,20 +41,21 @@ const FieldRow = ({name, label, values, children, style, onRemove = ()=>{}}) => 
         overflow:'hidden',
         textOverflow:'ellipsis',
         whiteSpace:'nowrap',
-        display:'flex'
+        display:'flex',
+        flexShrink:0
     }
     let active, actualKey= name;
     if(values[name]) {
         active = true;
-        if(name === 'scope') {
-            active = values[name] !== 'all'
+        if(name === constants.KeyScope) {
+            active = !isDefaultScope(values[name])
         }
-    } else if(values['ajxp_meta_'+name]) {
-        actualKey = 'ajxp_meta_'+name
+    } else if(values[constants.KeyMetaPrefix+name]) {
+        actualKey = constants.KeyMetaPrefix+name
         active = true
     }
     if(active){
-        labelStyle = {...labelStyle, backgroundColor: '#e8f5e9', color:'#43a047'}
+        labelStyle = {...labelStyle, backgroundColor: muiTheme.palette.mui3['tertiary-container'], color:muiTheme.palette.mui3['on-tertiary-container']}
     }
     return (
         <div style={{display:'flex', alignItems:'flex-start', margin:'0 16px', ...style}}>
@@ -86,70 +78,53 @@ class AdvancedSearch extends Component {
 
     constructor(props) {
         super(props);
-
-        const {pydio} = props;
-        const registry = pydio.getXmlRegistry();
-        let options = {}
-        try {
-            options = JSON.parse(XMLUtils.XPathGetSingleNodeText(registry, 'client_configs/template_part[@ajxpClass="SearchEngine" and @theme="material"]/@ajxpOptions'));
-        } catch (e){}
-
-
         this.state = {
-            options,
+            searchOptions:{},
             basenameOrContent: props.values['basenameOrContent'] || ''
         };
-    }
-
-    textFieldChange(fieldName, value){
-        this.props.onChange({[fieldName]:value});
+        props.getSearchOptions().then(so => this.setState({searchOptions: so}))
     }
 
     onChange(values) {
         this.props.onChange(values)
     }
 
-    renderField(key, val) {
+    renderField(val) {
+        const {searchTools:{SearchConstants}} = this.props;
+        const {name:key, renderer, label} = val
 
-        const {text} = AdvancedSearch.styles;
-        const fieldname = (key === 'basename' || key === 'Content' || key === 'basenameOrContent') ? key : 'ajxp_meta_' + key;
+        const isCore = (key === SearchConstants.KeyBasename || key === SearchConstants.KeyContent || key === SearchConstants.KeyBasenameOrContent)
+        const fieldname = isCore ? key : SearchConstants.KeyMetaPrefix + key;
+        const {values} = this.props;
+        const value = values[fieldname];
 
-        if (typeof val === 'object') {
-            const value = this.props.values[fieldname];
-            const {label, renderComponent} = val;
-
-            // The field might have been assigned a method already
-            if (renderComponent) {
-                return renderComponent({
-                    ...this.props,
-                    label,
-                    value,
-                    fieldname:key,
-                    onChange: (object)=>{this.onChange(object)}
-                });
-            }
+        if (renderer) {
+            return renderer({
+                ...this.props,
+                label,
+                value,
+                fieldname:key,
+                onChange: this.onChange.bind(this)
+            });
+        } else {
+            return Renderer.formRenderer(
+                this.props,
+                val,
+                values,
+                this.onChange.bind(this)
+            )
         }
 
-        return (
-            <ModernTextField
-                key={fieldname}
-                value={this.props.values[fieldname] || ''}
-                style={text}
-                hintText={val}
-                fullWidth={true}
-                onChange={(e,v) => {this.textFieldChange(fieldname, v)}}
-            />
-        );
     }
 
     clearAll() {
-        const {values, onChange} = this.props;
+        const {values, onChange, searchTools:{SearchConstants, getDefaultScope}} = this.props;
         let clearVals = {}
         Object.keys(values).forEach(k => {
-            if(k === 'basenameOrContent') {
+            if(k === SearchConstants.KeyBasenameOrContent) {
                 clearVals[k] = values[k]
-            } else if (k === 'scope') {
-                clearVals[k] = 'all'
+            } else if (k === SearchConstants.KeyScope) {
+                clearVals[k] = getDefaultScope()
             } else {
                 clearVals[k] = undefined;
             }
@@ -159,13 +134,11 @@ class AdvancedSearch extends Component {
 
     render() {
 
-        const {text} = AdvancedSearch.styles;
-
-        const {pydio, getMessage, values, rootStyle, showScope, saveSearch, clearSavedSearch} = this.props;
-        const {options, promptSearchLabel, currentSearchLabel} = this.state;
+        const {searchTools, getMessage, values, rootStyle, saveSearch, clearSavedSearch, muiTheme} = this.props;
+        const {searchOptions, promptSearchLabel, currentSearchLabel} = this.state;
         const headerStyle = {
             fontSize: 13,
-            color: 'rgb(144 165 178)',
+            color:'var(--md-sys-color-secondary)',// 'rgb(114, 140, 157)',
             textTransform: 'uppercase',
             fontWeight: 500,
             marginBottom: -10,
@@ -173,161 +146,129 @@ class AdvancedSearch extends Component {
         };
         const linkStyle = {
             padding: '12px 20px 0',
-            color: '#9e9e9e',
+            color: muiTheme.palette.primary1Color,
             textDecoration: 'underline',
             cursor: 'pointer'
         }
+        const linkIcon = {
+            color: muiTheme.palette.primary1Color,
+            cursor: 'pointer',
+            display:'inline-block',
+            marginLeft: 10
+        }
 
+        const {getDefaultScope, isDefaultScope, advancedValues} = searchTools
         const onRemove = (key) => {
             const newValues = {...values}
-            newValues[key] = key === 'scope' ? 'all' : undefined;
+            newValues[key] = key === 'scope' ? getDefaultScope() : undefined;
             this.onChange(newValues);
         }
         const rowProps = {
             values,
-            onRemove
+            onRemove,
+            isDefaultScope,
+            getDefaultScope,
+            muiTheme
         }
 
-        const {basenameOrContent, scope, searchID, searchLABEL, ...others} = values;
-        let showClear = scope !== 'all' || (others && Object.keys(others).length > 0)
-        let showSave = scope !== 'all' || basenameOrContent || (others && Object.keys(others).length > 0)
-        let showRemove = !!searchID
-        const {indexContent = false} = options;
-        const fNameLabel = getMessage(indexContent?'searchengine.field.basenameOrContent' : 1);
+        const {searchID, searchLABEL} = values;
+        const hasAdvanced = advancedValues().length > 0
+        let showClear = hasAdvanced
+        let showSaveNew = !searchID && !promptSearchLabel && hasAdvanced
+        const kk = searchTools.SearchConstants
+
+
+        const {indexedContent = false, indexedMeta = []} = searchOptions;
+        const fNameLabel = getMessage(indexedContent?'searchengine.field.basenameOrContent' : 1);
+        const fields = [
+            {name:'basenameOrContent', label: fNameLabel},
+            {name:kk.KeyScope, type: 'scope', label: getMessage('searchengine.scope.title')},
+            {name:kk.KeyMetaShared, type:'share', label: getMessage('searchengine.share.title')},
+            {subheader:getMessage(489)},
+            {name:kk.KeyMime, type: 'mime', label: getMessage('searchengine.format.title')},
+            ...indexedMeta.map(m => {return {...m, name: m.namespace}}), // copy namespace prop to name
+            {subheader:getMessage(498)},
+            {name:kk.KeyModifDate, type: 'modiftime', label: getMessage(4)},
+            {name:kk.KeyBytesize, type:'bytesize', label: getMessage(2)},
+        ]
+
+        const close = () => {
+            this.setState({promptSearchLabel:false, currentSearchLabel: ''})
+        }
+        const saveAndClose = () => {
+            saveSearch(currentSearchLabel||searchLABEL);
+            close()
+        }
+
+        const deleteAndClose = () => {
+            if(window.confirm(getMessage('searchengine.query.action.delete-confirm'))){
+                clearSavedSearch(searchID)
+                close()
+            }
+        }
 
         return (
             <div className="search-advanced" style={{...rootStyle}}>
-                {promptSearchLabel &&
-                    <div style={{display: 'flex',alignItems: 'center', padding: '4px 12px 2px', backgroundColor: '#f8fafc'}}>
-                        <ModernTextField focusOnMount={true} hintText={getMessage('searchengine.query.save-label')} value={currentSearchLabel||""} onChange={(e,v)=>this.setState({currentSearchLabel: v})}/>
-                        <FlatButton label={getMessage('searchengine.query.action.save')} onClick={()=>{
-                            saveSearch(currentSearchLabel);
-                            this.setState({promptSearchLabel:false, currentSearchLabel: ''})}
-                        } disabled={!currentSearchLabel}/>
-                        <FlatButton label={getMessage('54')} onClick={()=>{this.setState({currentSearchLabel:'', promptSearchLabel:false})}}/>
-                    </div>
-                }
-                {!promptSearchLabel &&
-                    <div style={{display:'flex'}}>
-                    <Subheader style={{...headerStyle, marginTop: 0, flex: 1}}>{getMessage(341)}</Subheader>
-                        {(showSave || showClear) &&
-                            <div style={linkStyle}>
-                                {showRemove && <a onClick={()=>clearSavedSearch(searchID)}>{getMessage('searchengine.query.action.delete')}</a>}
-                                {showRemove && showSave && " | "}
-                                {showSave && <a onClick={()=>searchID?saveSearch():this.setState({promptSearchLabel:true})}>{getMessage('searchengine.query.action.save')}</a>}
-                                {showSave && showClear && " | "}
-                                {showClear && <a onClick={()=>this.clearAll()}>{getMessage('searchengine.query.action.clear')}</a>}
+
+                {(searchID || promptSearchLabel) &&
+                    <div style={{display: 'flex',alignItems: 'center'}}>
+                        {promptSearchLabel &&
+                            <div style={{flex: 1, paddingLeft:20}}>
+                                <ModernTextField
+                                    focusOnMount={true}
+                                    fullWidth={true}
+                                    hintText={getMessage('searchengine.query.save-label')}
+                                    value={currentSearchLabel||searchLABEL||""}
+                                    onChange={(e,v)=>this.setState({currentSearchLabel: v})}
+                                    onKeyDown={(e)=>{if(e.key === 'Enter'){saveAndClose()}}}
+                                />
                             </div>
                         }
+                        {!promptSearchLabel &&
+                            <div
+                                style={{flex: 1, cursor: 'pointer', fontSize: 15, fontWeight:500, padding: '12px 20px', }}
+                                onClick={() => this.setState({promptSearchLabel:true})}
+                            >{searchLABEL} <span className={"mdi mdi-pencil"} style={{opacity:.5}}/></div>
+                        }
+                        <div style={{padding: '12px 20px', fontSize: 15}}>
+                            {promptSearchLabel &&
+                                <a onClick={saveAndClose} style={linkIcon} title={getMessage('searchengine.query.action.save')}><span className={"mdi mdi-content-save"}/></a>
+                            }
+                            {promptSearchLabel &&
+                                <a onClick={close} style={linkIcon} title={getMessage('54')}><span className={"mdi mdi-close-circle"}/></a>
+                            }
+                            {!promptSearchLabel && searchID &&
+                                <a onClick={deleteAndClose} style={linkIcon} title={getMessage('searchengine.query.action.delete')}><span className={"mdi mdi-delete"}/></a>
+                            }
+                        </div>
                     </div>
                 }
-                <FieldRow {...rowProps} name={"basenameOrContent"} label={fNameLabel}>{this.renderField('basenameOrContent',fNameLabel)}</FieldRow>
-                {showScope &&
-                    <FieldRow {...rowProps} name={"scope"} label={getMessage('searchengine.scope.title')} style={{marginRight:16}}>
-                        <SearchScopeSelector pydio={pydio} value={values.scope} onChange={(scope)=>{this.onChange({...values, scope})}}/>
-                    </FieldRow>
-                }
-                <FieldRow {...rowProps} name={"ajxp_mime"} label={"Format"}>
-                    <FileFormatPanel compact={showScope} values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
-                </FieldRow>
 
-                <Subheader style={{...headerStyle, marginTop: 0}}>{getMessage(489)}</Subheader>
-                <AdvancedMetaFields {...this.props} options={options}>
-                    {fields =>
-                        <div>
-                            {Object.keys(fields).map((key) =>
-                                <FieldRow {...rowProps} name={key} label={typeof fields[key] === 'object' ?fields[key].label: fields[key]}>{this.renderField(key, fields[key])}</FieldRow>
-                            )}
+
+                <div style={{display:'flex'}}>
+                <Subheader style={{...headerStyle, marginTop: 0, flex: 1}}>{getMessage(341)}</Subheader>
+                    {(showSaveNew || showClear) &&
+                        <div style={linkStyle}>
+                            {showSaveNew && <a onClick={()=>this.setState({promptSearchLabel:true})}>{getMessage('searchengine.query.action.save-new')}</a>}
+                            {showSaveNew && showClear && " | "}
+                            {showClear && <a onClick={()=>this.clearAll()}>{getMessage('searchengine.query.action.clear-all')}</a>}
                         </div>
                     }
-                </AdvancedMetaFields>
+                </div>
 
-                <Subheader style={{...headerStyle}}>{getMessage(498)}</Subheader>
-                <FieldRow {...rowProps} name={"ajxp_modiftime"} label={getMessage(4)}>
-                    <DatePanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
-                </FieldRow>
-                <FieldRow {...rowProps} name={"ajxp_bytesize"} label={getMessage(2)}>
-                    <FileSizePanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
-                </FieldRow>
+                {fields.map(f => {
+                    if(f.subheader) {
+                        return <Subheader style={{...headerStyle, marginTop: 0}}>{f.subheader}</Subheader>
+                    } else {
+                        return <FieldRow {...rowProps} constants={kk} name={f.name} label={f.label}>{this.renderField(f)}</FieldRow>
+                    }
+                })}
+
             </div>
         )
     }
 }
 
-AdvancedSearch = PydioContextConsumer(AdvancedSearch);
-
-class AdvancedMetaFields extends Component {
-
-    constructor(props) {
-        super(props);
-        this.dbuild = debounce(this.build, 500);
-        this.state = {
-            fields: {}
-        }
-    }
-
-    componentWillMount() {
-        this.build()
-    }
-
-    build() {
-
-        const {options} = this.props;
-        let {metaColumns, reactColumnsRenderers} = {...options};
-        if(!metaColumns){
-            metaColumns = {};
-        }
-        if(!reactColumnsRenderers){
-            reactColumnsRenderers = {};
-        }
-
-        const generic = {};
-
-        // Looping through the options to check if we have a special renderer for any
-        const specialRendererKeys = Object.keys({...reactColumnsRenderers});
-        const standardRendererKeys = Object.keys({...metaColumns}).filter((key) => specialRendererKeys.indexOf(key) === -1);
-
-        const textFields = {};
-        standardRendererKeys.forEach(k => {
-            textFields[k] = metaColumns[k];
-        });
-
-        const renderers = Object.keys({...reactColumnsRenderers}).map((key) => {
-            const renderer = reactColumnsRenderers[key];
-            const namespace = renderer.split('.',1).shift();
-
-            // If the renderer is not loaded in memory, we trigger the load and send to rebuild
-            if (!window[namespace]) {
-                ResourcesManager.detectModuleToLoadAndApply(renderer, () => this.dbuild(), true);
-                return
-            }
-
-            return {
-                [key]: {
-                    label: metaColumns[key],
-                    renderComponent: FuncUtils.getFunctionByName(renderer, global)
-                }
-            }
-        }).reduce((obj, current) => obj = {...obj, ...current}, []);
-
-        const fields = {
-            ...generic,
-            ...textFields,
-            ...renderers
-        };
-
-        this.setState({
-            fields
-        })
-    }
-
-    render() {
-        return this.props.children(this.state.fields)
-    }
-}
-
-AdvancedMetaFields.propTypes = {
-    children: PropTypes.func.isRequired,
-};
+AdvancedSearch = PydioContextConsumer(muiThemeable()(AdvancedSearch));
 
 export default AdvancedSearch

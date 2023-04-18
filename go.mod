@@ -1,6 +1,6 @@
 module github.com/pydio/cells/v4
 
-go 1.18
+go 1.20
 
 require (
 	github.com/ajvb/kala v0.8.4
@@ -61,9 +61,8 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/matcornic/hermes/v2 v2.1.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
-	github.com/microcosm-cc/bluemonday v1.0.20
+	github.com/microcosm-cc/bluemonday v1.0.23
 	github.com/minio/cli v1.22.0
-	github.com/minio/md5-simd v1.1.2
 	github.com/minio/minio v0.0.0-20220720015624-ce8397f7d944
 	github.com/minio/minio-go/v7 v7.0.21
 	github.com/mitchellh/mapstructure v1.5.0
@@ -113,7 +112,6 @@ require (
 	go.etcd.io/etcd/api/v3 v3.5.4
 	go.etcd.io/etcd/client/v3 v3.5.4
 	go.mongodb.org/mongo-driver v1.10.2
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.39.0
 	go.opentelemetry.io/otel v1.13.0
 	go.opentelemetry.io/otel/exporters/jaeger v1.13.0
 	go.opentelemetry.io/otel/sdk v1.13.0
@@ -121,16 +119,16 @@ require (
 	go.uber.org/zap v1.24.0
 	gocloud.dev v0.20.0
 	gocloud.dev/pubsub/rabbitpubsub v0.20.0
-	golang.org/x/crypto v0.5.0
+	golang.org/x/crypto v0.6.0
 	golang.org/x/exp v0.0.0-20221205204356-47842c84f3db
-	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
-	golang.org/x/net v0.7.0
-	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
+	golang.org/x/image v0.5.0
+	golang.org/x/net v0.8.0
+	golang.org/x/oauth2 v0.4.0
 	golang.org/x/sync v0.1.0
-	golang.org/x/text v0.7.0
+	golang.org/x/text v0.8.0
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9
 	google.golang.org/genproto v0.0.0-20230202175211-008b39050e57
-	google.golang.org/grpc v1.52.3
+	google.golang.org/grpc v1.53.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0
 	google.golang.org/grpc/examples v0.0.0-20211015201449-4757d0249e2d
 	google.golang.org/protobuf v1.28.1
@@ -138,11 +136,11 @@ require (
 	gopkg.in/gorp.v1 v1.7.2
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/apimachinery v0.21.1
+	k8s.io/apimachinery v0.22.5
 )
 
 require (
-	cloud.google.com/go/compute v1.14.0 // indirect
+	cloud.google.com/go/compute v1.15.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	git.apache.org/thrift.git v0.13.0 // indirect
@@ -194,15 +192,15 @@ require (
 	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.4.1 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
-	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/cheggaaa/pb v1.0.29 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/clbanning/mxj/v2 v2.3.3-0.20201214204241-e937bdee5a3e // indirect
-	github.com/cncf/udpa/go v0.0.0-20210930031921-04548b0d99d4 // indirect
-	github.com/cncf/xds/go v0.0.0-20220314180256-7f1daf1720fc // indirect
+	github.com/cncf/udpa/go v0.0.0-20220112060539-c52dc94e7fbe // indirect
+	github.com/cncf/xds/go v0.0.0-20230105202645-06c439db220b // indirect
 	github.com/cockroachdb/cockroach-go/v2 v2.2.16 // indirect
 	github.com/colinmarc/hdfs/v2 v2.2.0 // indirect
-	github.com/containerd/containerd v1.5.16 // indirect
+	github.com/containerd/containerd v1.6.18 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
@@ -260,7 +258,7 @@ require (
 	github.com/gobuffalo/validate/v3 v3.3.3 // indirect
 	github.com/gobuffalo/x v0.1.0 // indirect
 	github.com/goccy/go-yaml v1.9.5 // indirect
-	github.com/godbus/dbus/v5 v5.0.4 // indirect
+	github.com/godbus/dbus/v5 v5.0.6 // indirect
 	github.com/gofrs/uuid v4.3.0+incompatible // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
@@ -350,6 +348,7 @@ require (
 	github.com/miekg/dns v1.1.50 // indirect
 	github.com/miekg/pkcs11 v1.1.1 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
+	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/selfupdate v0.4.0 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/minio/simdjson-go v0.2.1 // indirect
@@ -375,6 +374,7 @@ require (
 	github.com/oleiade/reflections v1.0.1 // indirect
 	github.com/olivere/elastic/v7 v7.0.22 // indirect
 	github.com/onsi/ginkgo/v2 v2.2.0 // indirect
+	github.com/opencontainers/image-spec v1.0.3-0.20211202183452-c5a74bcca799 // indirect
 	github.com/opentracing-contrib/go-observer v0.0.0-20170622124052-a52f23424492 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/openzipkin-contrib/zipkin-go-opentracing v0.4.5 // indirect
@@ -484,10 +484,10 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
-	golang.org/x/mod v0.7.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/term v0.5.0 // indirect
-	golang.org/x/tools v0.3.0 // indirect
+	golang.org/x/mod v0.8.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/term v0.6.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.108.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
@@ -507,4 +507,4 @@ retract v4.0.0
 //replace github.com/minio/minio => /Users/charles/Sources/go/src/github.com/pydio/minio
 //replace github.com/pydio/caddyvault => /Users/charles/Sources/go/src/github.com/pydio/caddyvault
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20230105102239-b0808dd012ff
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20230301104210-859d91c9822e

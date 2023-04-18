@@ -17,15 +17,11 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-
-
 import Pydio from 'pydio'
 const { EditorActions } = Pydio.requireLib('hoc')
 import React from 'react';
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux';
-import { compose } from 'redux';
 import CKEditor from './CKEditor';
 const mapStateToProps = (state, props) => {
     const {tabs} = state
@@ -72,7 +68,7 @@ class Editor extends React.Component {
 
     static get config() {
         return {
-            basePath: `${DOMUtils.getUrlFromBase()}plug/editor.ckeditor/res/dist/ckeditor/`,
+            basePath: `${DOMUtils.getUrlFromBase()}plug/editor.ckeditor/res/ckeditor/`,
             desktop : {
                 ...Editor.base,
     			toolbar_Ajxp : [

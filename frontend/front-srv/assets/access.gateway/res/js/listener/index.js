@@ -19,15 +19,23 @@
  */
 
 const pydio = global.pydio;
+import mkfileDynamicBuilder from "./mkfileDynamicBuilder";
+import downloadSelectionChange from "./downloadSelectionChange";
+import downloadAllInit from "./downloadAllInit";
+import compressUiSelectionChange from "./compressUiSelectionChange";
+import copyContextChange from "./copyContextChange";
+import openWithDynamicBuilder from "./openWithDynamicBuilder";
+import lockSelectionChange from "./lockSelectionChange";
+
 
 const Listeners  = {
-    mkfileDynamicBuilder        : require('./mkfileDynamicBuilder')(pydio),
-    downloadSelectionChange     : require('./downloadSelectionChange')(pydio),
-    downloadAllInit             : require('./downloadAllInit')(pydio),
-    compressUiSelectionChange   : require('./compressUiSelectionChange')(pydio),
-    copyContextChange           : require('./copyContextChange')(pydio),
-    openWithDynamicBuilder      : require('./openWithDynamicBuilder')(pydio),
-    lockSelectionChange         : require('./lockSelectionChange')(pydio),
+    mkfileDynamicBuilder        : mkfileDynamicBuilder(pydio),
+    downloadSelectionChange     : downloadSelectionChange(pydio),
+    downloadAllInit             : downloadAllInit(pydio),
+    compressUiSelectionChange   : compressUiSelectionChange(pydio),
+    copyContextChange           : copyContextChange(pydio),
+    openWithDynamicBuilder      : openWithDynamicBuilder(pydio),
+    lockSelectionChange         : lockSelectionChange(pydio),
     deleteTemplateByUuid: ()=>{},
 };
 

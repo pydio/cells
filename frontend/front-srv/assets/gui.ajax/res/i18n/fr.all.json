@@ -196,5 +196,29 @@
   },
   "mimegroup.audio": {
     "other": "Fichiers audio"
+  },
+  "fastsearch.quick-jump.title": {
+    "other": "Accès Rapide"
+  },
+  "fastsearch.quick-jump.legend": {
+    "other": "Appuyez sur [Entrée] pour accéder au répertoire, ajoutez [/] pour rechercher à l'intérieur, [Esc] pour Fermer"
+  },
+  "fastsearch.quick-move.title": {
+    "other": "Déplacement Rapide"
+  },
+  "fastsearch.quick-move.target-error": {
+    "other": "Impossible de déplacer vers cette cible !"
+  },
+  "fastsearch.quick-move.legend": {
+    "other": "Appuyez sur [Entrée] pour déplacer les %s éléments sélectionnés vers la cible, [Esc] pour Fermer"
+  },
+  "fastsearch.quick-copy.title": {
+    "other": "Copie Rapide"
+  },
+  "fastsearch.quick-copy.target-error": {
+    "other": "Impossible de copier vers cette cible !"
+  },
+  "fastsearch.quick-copy.legend": {
+    "other": "Appuyez sur [Entrée] pour copier les %s éléments sélectionnés vers la cible, [Esc] pour Fermer"
   }
 }

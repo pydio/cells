@@ -27,26 +27,25 @@ import CreateUserForm from './forms/CreateUserForm'
 import CreateRoleOrGroupForm from './forms/CreateRoleOrGroupForm'
 import TreeGroupsDialog from "./forms/TreeGroupsDialog";
 
-import ACL from './editor/ACL'
-import Info from './editor/Info'
-import Model from './editor/Model'
-import Params from './editor/Params'
-import User from './editor/User'
-import Util from './editor/Util'
+import ACL from './editor/acl'
+import Info from './editor/info'
+import Model from './editor/model'
+import Params from './editor/params'
+import User from './editor/user'
+import Util from './editor/util'
 
-window.AdminPeople = {
+const Editor = {Model, Info, ACL, Params, User, Util}
+const Forms = {CreateUserForm, CreateRoleOrGroupForm}
+
+export {
     Callbacks,
 
     Dashboard,
     RolesDashboard,
     PoliciesBoard,
 
-    Editor: {
-        Model, Info, ACL, Params, User, Util
-    },
-    Forms: {
-        CreateUserForm, CreateRoleOrGroupForm
-    },
+    Editor,
+    Forms,
     TreeGroupsDialog
 
 };

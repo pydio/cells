@@ -21,6 +21,8 @@
 package runtime
 
 const (
+	KeyName         = "name"
+	KeyCluster      = "cluster"
 	KeyDiscovery    = "discovery"
 	KeyRegistry     = "registry"
 	KeyBroker       = "broker"
@@ -85,7 +87,7 @@ const (
 	HttpServerNative = "http"
 
 	DefaultDiscoveryPort   = "8030"
-	DefaultGrpcPort        = "8031"
+	DefaultGrpcPort        = "0"
 	DefaultBindingSitePort = "8080"
 	DefaultHttpPort        = "0"
 

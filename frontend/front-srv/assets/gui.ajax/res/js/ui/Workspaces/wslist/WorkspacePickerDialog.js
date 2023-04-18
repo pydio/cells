@@ -56,7 +56,7 @@ const WorkspacePickerDialog = createReactClass({
     render: function(){
 
         const {pydio, files} = this.props;
-        const legend = (files && files[0] ? <div style={{fontSize:13, padding: 16, backgroundColor:'#FFEBEE'}}>{pydio.MessageHash['user_home.89']}: {files[0].name}</div> : undefined)
+        const legend = (files && files[0] ? <div style={{fontSize:13, padding: 16, fontWeight:500}}>{pydio.MessageHash['user_home.89']}: {files[0].name}</div> : undefined)
         return (
             <div style={{width:'100%', height: '100%', display:'flex', flexDirection:'column'}}>
                 {legend}

@@ -143,6 +143,9 @@
   "Mail.Config.From.Description": {
     "other": "Địa chỉ được sử dụng mặc định khi gửi thư. Bạn cũng có thể tùy biến địa chỉ này theo từng người thay vì việc dùng cố định một địa chỉ."
   },
+  "Mail.Config.FixOutlookDisplay": {
+    "other": "Outlook Clients Fix (disable CSS inlining)"
+  },
   "Mail.Config.Queue.Label": {
     "other": "Loại Queue"
   },

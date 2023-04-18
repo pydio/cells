@@ -5,40 +5,40 @@
             <i18n namespace="ajax_gui" remote="plug/gui.ajax/res/i18n"/>
             <js
                 className="React"
-                file="plug/gui.ajax/res/dist/bundle.prod.min.js"
+                file="plug/gui.ajax/res/dist/core/DistLib.min.js"
             />
             <js
                 className="PydioCoreActions"
-                file="plug/gui.ajax/res/dist/PydioCoreActions.min.js"
+                file="plug/gui.ajax/res/dist/libs/PydioCoreActions.min.js"
                 depends="React"
                 expose="actions/core"
             />
             <js
                 className="PydioForm"
-                file="plug/gui.ajax/res/dist/PydioForm.min.js"
+                file="plug/gui.ajax/res/dist/libs/PydioForm.min.js"
                 expose="form"
             />
             <js
                 className="PydioReactUI"
-                file="plug/gui.ajax/res/dist/PydioReactUI.min.js"
+                file="plug/gui.ajax/res/dist/libs/PydioReactUI.min.js"
                 depends="React,PydioHOCs"
                 expose="boot"
             />
             <js
                 className="PydioComponents"
-                file="plug/gui.ajax/res/dist/PydioComponents.min.js"
-                depends="React,PydioForm"
+                file="plug/gui.ajax/res/dist/libs/PydioComponents.min.js"
+                depends="React,PydioForm,PydioHOCs"
                 expose="components"
             />
             <js
                 className="PydioHOCs"
-                file="plug/gui.ajax/res/dist/PydioHOCs.min.js"
+                file="plug/gui.ajax/res/dist/libs/PydioHOCs.min.js"
                 depends="React"
                 expose="hoc"
             />
             <js
                 className="PydioWorkspaces"
-                file="plug/gui.ajax/res/dist/PydioWorkspaces.min.js"
+                file="plug/gui.ajax/res/dist/libs/PydioWorkspaces.min.js"
                 depends="React,PydioComponents,PydioHOCs,PydioCoreActions"
                 expose="workspaces"
             />
@@ -46,7 +46,7 @@
         </resources>
     </client_settings>
 	<server_settings>
-        <global_param name="GUI_THEME" group="CONF_MESSAGE[Main Options]" type="select" choices="material|Material,light|Material Light" label="CONF_MESSAGE[Theme]" description="CONF_MESSAGE[Theme used for display]" mandatory="true" default="light" expose="true"/>
+        <global_param name="GUI_THEME" group="CONF_MESSAGE[Main Options]" type="select" choices="mui3|Material 3,material|Material 1 (Legacy)" label="CONF_MESSAGE[Theme]" description="CONF_MESSAGE[Theme used for display]" mandatory="true" default="mui3" expose="true"/>
         <global_param name="ENABLE_WELCOME_TOUR" group="CONF_MESSAGE[Main Options]" type="boolean" expose="true" label="CONF_MESSAGE[Enable Welcome Tour]" description="CONF_MESSAGE[Enable the small tour triggered at first visit]" default="true"/>
         <global_param name="CLIENT_TIMEOUT" group="CONF_MESSAGE[Main Options]" type="integer" label="CONF_MESSAGE[Web Interface auto-logout after inactivity]" description="CONF_MESSAGE[For security, disconnect user if there was no activity. Set to the cookie expiration by default.]" mandatory="false" default="24"/>
         <global_param name="CLIENT_TIMEOUT_WARN" group="CONF_MESSAGE[Main Options]" type="integer" label="CONF_MESSAGE[Warning Before Session Expiration]" description="CONF_MESSAGE[Alert the user that the web session is about to expire. Number of minutes before session expiration]" mandatory="false" default="3"/>
@@ -64,7 +64,7 @@
                       editable="true"
                       uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
                       loadAction="/frontend/binaries/GLOBAL/{BINARY}"
-                      defaultImage="plug/gui.ajax/res/themes/common/images/PydioCellsColor.png"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/PydioCells-[mode].png"
                       expose="true"
                 />
 
@@ -139,6 +139,9 @@
                       choices="background-repeat:no-repeat;background-position:50% 50%;|CONF_MESSAGE[Center in Page (no-repeat)],background-repeat:repeat;background-size:140%;background-position:50% 50%;|CONF_MESSAGE[Fetch Window (repeat vertically)],background-repeat:no-repeat;background-size:100%; background-position:center center;|CONF_MESSAGE[Fetch Window (no repeat)],background-repeat:repeat;|CONF_MESSAGE[Tile (repeat both directions)]"
                       label="CONF_MESSAGE[Background Attributes (6)]" description="CONF_MESSAGE[Attributes of the image used as a background]"
                       mandatory="false" expose="true" default="background-repeat:repeat;background-size:140%;background-position:50% 50%;"/>
+
+
+        <global_param name="minisite_theme" group="CONF_MESSAGE[Minisite]"  type="select" choices="mui3-light|Material 3 (light),mui3-dark|Material 3 (dark),mui3|Material 3 (detect)" label="CONF_MESSAGE[Minisite Theme]" description="CONF_MESSAGE[Fix a user theme for minisites]" mandatory="false" default="mui3-light" expose="true" editable="true"/>
 
         <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_1" group="CONF_MESSAGE[Minisite]" type="image" label="CONF_MESSAGE[Custom Background (1)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
                       editable="true"

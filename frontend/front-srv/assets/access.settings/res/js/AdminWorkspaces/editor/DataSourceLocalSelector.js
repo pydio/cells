@@ -21,12 +21,12 @@
 import React from 'react'
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import {ConfigServiceApi, RestListPeerFoldersRequest, RestCreatePeerFolderRequest, TreeNode} from 'cells-sdk'
-import {SelectField, TextField, MenuItem, FontIcon, IconButton, AutoComplete, RefreshIndicator} from 'material-ui'
+import {ConfigServiceApi, RestListPeerFoldersRequest, RestCreatePeerFolderRequest} from 'cells-sdk'
+import {MenuItem, FontIcon, IconButton, RefreshIndicator} from 'material-ui'
 import debounce from 'lodash.debounce'
 import LangUtils from 'pydio/util/lang'
 import PathUtils from 'pydio/util/path'
-const {ModernTextField, ModernSelectField, ModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ModernAutoComplete} = Pydio.requireLib('hoc');
 
 class AutocompleteTree extends React.Component{
 

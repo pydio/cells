@@ -21,6 +21,7 @@
 package log
 
 import (
+	"fmt"
 	"sync"
 
 	"go.uber.org/zap"
@@ -39,6 +40,11 @@ type ZapLogger interface {
 	DPanic(msg string, fields ...zap.Field)
 	Panic(msg string, fields ...zap.Field)
 	Fatal(msg string, fields ...zap.Field)
+
+	Debugf(format string, args ...interface{})
+	Infof(format string, args ...interface{})
+	Warnf(format string, args ...interface{})
+	Errorf(format string, args ...interface{})
 
 	Sugar() *zap.SugaredLogger
 	Check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry
@@ -137,6 +143,19 @@ func (l *logger) Panic(msg string, fields ...zap.Field) {
 
 func (l *logger) Fatal(msg string, fields ...zap.Field) {
 	l.Logger.Fatal(msg, append(fields, l.fields...)...)
+}
+
+func (l *logger) Debugf(format string, args ...interface{}) {
+	l.Logger.Debug(fmt.Sprintf(format, args...))
+}
+func (l *logger) Infof(format string, args ...interface{}) {
+	l.Logger.Info(fmt.Sprintf(format, args...))
+}
+func (l *logger) Warnf(format string, args ...interface{}) {
+	l.Logger.Warn(fmt.Sprintf(format, args...))
+}
+func (l *logger) Errorf(format string, args ...interface{}) {
+	l.Logger.Error(fmt.Sprintf(format, args...))
 }
 
 func (l *logger) WithOptions(opts ...zap.Option) ZapLogger {

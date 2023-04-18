@@ -20,8 +20,9 @@
 
 import React, {Component} from 'react';
 import Pydio from 'pydio';
-const {ModernTextField, ModernSelectField} = Pydio.requireLib('hoc');
-import {MenuItem} from 'material-ui'
+const {ModernTextField, ModernSelectField, ThemedModernStyles} = Pydio.requireLib('hoc');
+import {MenuItem, Divider} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 
 const MimeGroups = [
@@ -42,31 +43,31 @@ class SearchFileFormatPanel extends Component {
     }
 
     propsToState(props) {
-        const {values} = props;
+        const {values, name, searchTools:{SearchConstants}} = props;
         let selector, ext;
         if(this.state && this.state.selector && this.state.selector === 'extension'){
             selector = this.state.selector
         }
-        const {ajxp_mime} = values;
-        if(ajxp_mime){
-            if(ajxp_mime === 'ajxp_folder') {
-                selector = ajxp_mime
-            } else if (ajxp_mime.indexOf('mimes:') === 0) {
-                const mm = ajxp_mime.replace('mimes:', '')
-                const gg = MimeGroups.filter(gr => gr.mimes === mm)
+        const val = values[name];
+        if(val){
+            if(val === SearchConstants.ValueMimeFolders || val === SearchConstants.ValueMimeFiles) {
+                selector = val
+            } else if (val.indexOf('mimes:') === 0) {
+                const mm = val.replace('mimes:', '')
+                const gg = SearchConstants.MimeGroups.filter(gr => gr.mimes === mm)
                 if (gg.length) {
                     selector = 'group:' + gg[0].id
                 }
             } else {
                 selector = 'extension'
-                ext = ajxp_mime
+                ext = val
             }
         }
         return {selector, ext}
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
-        if(nextProps.values['ajxp_mime'] !== this.props.values['ajxp_mime']){
+        if(nextProps.values[nextProps.name] !== this.props.values[this.props.name]){
             this.setState(this.propsToState(nextProps))
         }
     }
@@ -75,7 +76,7 @@ class SearchFileFormatPanel extends Component {
         if (prevState === this.state) {
             return;
         }
-
+        const {searchTools:{SearchConstants}} = this.props;
         const {ext, selector} = this.state;
         let searchValue;
         if(selector) {
@@ -83,30 +84,34 @@ class SearchFileFormatPanel extends Component {
                 searchValue = ext
             } else if(selector.indexOf('group:') === 0) {
                 const gid = selector.replace('group:', '')
-                searchValue = 'mimes:' + MimeGroups.filter(gr => gr.id === gid)[0].mimes
-            } else if (selector === 'ajxp_folder') {
-                searchValue = 'ajxp_folder'
+                searchValue = 'mimes:' + SearchConstants.MimeGroups.filter(gr => gr.id === gid)[0].mimes
+            } else if (selector === SearchConstants.ValueMimeFolders || selector === SearchConstants.ValueMimeFiles) {
+                searchValue = selector
             }
         }
-        this.props.onChange({
-            ajxp_mime: searchValue
+        const {name, onChange} = this.props;
+        onChange({
+            [name]: searchValue
         })
     }
 
     render() {
 
-        const {inputStyle, getMessage, compact = false} = this.props;
+        const {inputStyle, getMessage, muiTheme, compact = false, searchTools:{SearchConstants}} = this.props;
         const {folder, ext, selector = ''} = this.state;
-        const mimeMessages = (id) => Pydio.getMessages()['ajax_gui.mimegroup.' + id]
+        const mm = Pydio.getMessages()
+        const mimeMessages = (id) => mm[SearchConstants.MimeGroupsMessage(id)]
 
         return (
             <div style={compact?{display: 'flex'}:{}}>
                 <div style={{flex: 3, marginRight:4}}>
                     <ModernSelectField fullWidth={true} value={selector} onChange={(e,i,v)=> this.setState({selector:v, ext: ''}) }>
-                        <MenuItem primaryText={<span style={{color:'rgba(0,0,0,.43)'}}>No filter</span>} value={''}/>
-                        <MenuItem primaryText={getMessage(502)} value={"ajxp_folder"}/>
+                        <MenuItem primaryText={<span style={{color:ThemedModernStyles(muiTheme).selectField.hintStyle.color}}>No filter</span>} value={''}/>
+                        <MenuItem primaryText={getMessage(502)} value={SearchConstants.ValueMimeFolders}/>
+                        <MenuItem primaryText={getMessage('searchengine.format.file-only')} value={SearchConstants.ValueMimeFiles}/>
                         <MenuItem primaryText={mimeMessages('byextension')} value={"extension"}/>
-                        {MimeGroups.map(group => <MenuItem primaryText={mimeMessages(group.label)} value={'group:' + group.id}/> )}
+                        <Divider/>
+                        {SearchConstants.MimeGroups.map(group => <MenuItem primaryText={mimeMessages(group.label)} value={'group:' + group.id}/> )}
                     </ModernSelectField>
                 </div>
                 {selector === 'extension' &&
@@ -126,5 +131,5 @@ class SearchFileFormatPanel extends Component {
     }
 }
 
-SearchFileFormatPanel = PydioContextConsumer(SearchFileFormatPanel);
+SearchFileFormatPanel = PydioContextConsumer(muiThemeable()(SearchFileFormatPanel));
 export default SearchFileFormatPanel

@@ -30,7 +30,7 @@ import UpdaterDashboard from './updater/UpdaterDashboard'
 import JSDocsDashboard from './docs/JSDocsDashboard'
 //import OpenApiDashboard from './docs/OpenApiDashboard'
 
-window.AdminPlugins = {
+export {
 
     PluginsManager,
     PluginEditor,

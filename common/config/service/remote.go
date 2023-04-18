@@ -26,6 +26,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"net/url"
 	"strings"
 	"sync"
@@ -35,35 +36,39 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/config"
-	"github.com/pydio/cells/v4/common/service/context/ckeys"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
-	scheme = "grpc"
+	schemes = []string{"grpc", "xds"}
 )
 
 type URLOpener struct{}
 
 func init() {
 	o := &URLOpener{}
-	config.DefaultURLMux().Register(scheme, o)
+	for _, scheme := range schemes {
+		config.DefaultURLMux().Register(scheme, o)
+	}
 }
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
 	var conn grpc.ClientConnInterface
 
-	if clientcontext.GetClientConn(ctx) != nil {
-		conn = clientcontext.GetClientConn(ctx)
-	} else {
-		c, err := grpc.Dial(u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if conn = clientcontext.GetClientConn(ctx); conn == nil {
+		addr := u.String()
+		switch u.Scheme {
+		case "grpc":
+			addr = u.Host
+		}
+
+		c, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			return nil, err
 		}
@@ -71,7 +76,9 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		conn = c
 	}
 
-	store := New(context.Background(), conn, strings.TrimLeft(u.Path, "/"), "/")
+	conn = cgrpc.NewClientConn("pydio.grpc.config", cgrpc.WithClientConn(conn))
+
+	store := New(context.Background(), conn, u.Query().Get("namespace"), "/")
 
 	return store, nil
 }
@@ -87,7 +94,7 @@ type remote struct {
 
 func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path string) config.Store {
 	r := &remote{
-		ctx:    metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, "pydio.grpc.config"),
+		ctx:    ctx,
 		cli:    pb.NewConfigClient(conn),
 		id:     id,
 		path:   strings.Split(path, "/"),

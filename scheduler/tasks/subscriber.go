@@ -98,13 +98,15 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 	opt := broker.Queue("tasks")
 
 	// srv.Subscribe(srv.NewSubscriber(common.TopicJobConfigEvent, s.jobsChangeEvent, opts))
-	_ = broker.SubscribeCancellable(parentContext, common.TopicJobConfigEvent, func(message broker.Message) error {
+	if err := broker.SubscribeCancellable(parentContext, common.TopicJobConfigEvent, func(message broker.Message) error {
 		js := &jobs.JobChangeEvent{}
 		if ctx, e := message.Unmarshal(js); e == nil {
 			return s.jobsChangeEvent(ctx, js)
 		}
 		return nil
-	}, opt)
+	}, opt); err != nil {
+		fmt.Println("ERROR HERE ", err)
+	}
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicTreeChanges, func(message broker.Message) error {
 		target := &tree.NodeChangeEvent{}

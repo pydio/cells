@@ -140,6 +140,9 @@ func (t *TreePatch) BranchesWithOperations(endpoint model.Endpoint) (branches []
 		unique[d] = d
 	}, endpoint)
 	for _, d := range unique {
+		if d == "" {
+			return []string{""} // Return one branch for root!
+		}
 		branches = append(branches, d)
 	}
 	if len(branches) > 5 {
@@ -162,11 +165,27 @@ func (t *TreePatch) CachedBranchFromEndpoint(ctx context.Context, endpoint model
 	}
 	if cacheProvider, ok := endpoint.(model.CachedBranchProvider); ok {
 		if len(branches) > 5 {
-			log.Logger(ctx).Info("Loading branches in cache", zap.Int("count", len(branches)))
+			log.Logger(ctx).Info("[BranchCache] Loading multiple branches in cache...", zap.Int("count", len(branches)), zap.String("endpoint", endpoint.GetEndpointInfo().URI))
+		} else if branches[0] == "" {
+			log.Logger(ctx).Info("[BranchCache] Loading whole branch in cache, this may take some time...", zap.String("endpoint", endpoint.GetEndpointInfo().URI))
 		} else {
-			log.Logger(ctx).Info("Loading branches in cache", log.DangerouslyZapSmallSlice("branches", branches))
+			log.Logger(ctx).Info("[BranchCache] Loading multiple branches in cache...", log.DangerouslyZapSmallSlice("branches", branches))
 		}
+		done := make(chan bool)
+		timer := time.NewTicker(10 * time.Second).C
+		go func() {
+			for {
+				select {
+				case <-done:
+					log.Logger(ctx).Info("[BranchCache] Finished")
+					return
+				case <-timer:
+					log.Logger(ctx).Info("[BranchCache] Still Processing, please wait...")
+				}
+			}
+		}()
 		inMemory, _ := cacheProvider.GetCachedBranches(ctx, branches...)
+		close(done)
 		return inMemory, true
 	}
 	return nil, false

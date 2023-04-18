@@ -41,7 +41,8 @@ class ShareHelper {
             hash_min_length : pluginConfigs.get("HASH_MIN_LENGTH") || 6,
             password_mandatory: false,
             max_expiration : pluginConfigs.get("FILE_MAX_EXPIRATION"),
-            max_downloads : pluginConfigs.get("FILE_MAX_DOWNLOAD")
+            max_downloads : pluginConfigs.get("FILE_MAX_DOWNLOAD"),
+            cells_max_expiration : pluginConfigs.get("CELLS_MAX_EXPIRATION")
         };
         const passMandatory = pluginConfigs.get("SHARE_FORCE_PASSWORD");
         if(passMandatory){

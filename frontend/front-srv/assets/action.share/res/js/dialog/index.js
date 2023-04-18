@@ -27,4 +27,6 @@ import LinkModel from './links/LinkModel'
 import ShareHelper from './main/ShareHelper'
 import {ShareView, ShareViewModal} from "./lists/ShareView";
 
+import './react-share-form.less'
+
 export {CreateCellDialog, EditCellDialog, CellCard, InfoPanel, CompositeDialog, LinkModel, ShareHelper, ShareViewModal, ShareView, SimpleLinkCard}

@@ -4,27 +4,20 @@
 @leftpanel_zindex:901;
 @leftpanel_box_shadow:@reactBoxShadowDepth1;
 @leftpanel_closed_width:45px;
+@white: white;
 
 @bezier_transition:all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 
 .left-panel{
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom:0;
-  width: @leftpanel_width;
-  z-index: @leftpanel_zindex;
-  overflow: hidden;
-  transition: @bezier_transition;
-  /*box-shadow: @reactBoxShadowDepth2;*/
 
   .nav-list-entry{
     padding: 6px 1px 6px 16px;
     display: flex;
     line-height: 24px;
     cursor: pointer;
+    transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
     &:hover{
-      background-color: rgba(0,0,0,0.03);
+      background-color: var(--md-sys-color-hover-background);
     }
   }
   .nav-list-entry-icon{
@@ -56,12 +49,14 @@
 
 
   .workspaces{
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     .workspace-entry{
       .nav-list-entry();
       padding: 6px;
       padding-left: 20px;
+      position: relative;
+
       .workspace-badge{
         display:none;
       }
@@ -96,22 +91,29 @@
         text-align: center;
         padding: 0;
         cursor: pointer;
-        opacity: 0.5;
+        opacity: 0;
         &.with-hover:hover{
           background-color: rgba(0,0,0,0.1);
         }
       }
       &.workspace-current{
         opacity: 1;
-        position: relative;
         font-weight: 500;
+      }
+      &.workspace-masked, &.workspace-current.workspace-masked {
+        opacity: .4;
+      }
+      &:hover {
+        .workspace-additional-action {
+          opacity: .8;
+        }
       }
     }
 
     div.tree-item-label{
-      color: rgba(0,0,0,0.77);
-      .tree-icon.icon-angle-down, .tree-icon.icon-angle-right {
-        color: rgba(0,0,0,0.43);
+//      color: rgba(0,0,0,0.77);
+      .tree-icon.mdi.mdi-chevron-down, .tree-icon.mdi.mdi-chevron-right {
+//        color: rgba(0,0,0,0.43);
       }
     }
 
@@ -203,7 +205,8 @@
     }
   }
   .folders-tree{
-    margin-left: -15px;
+    margin: 0 4px;
+    /*margin-left: -15px;*/
     font-weight: 400;
     &.closed{
       display: none;

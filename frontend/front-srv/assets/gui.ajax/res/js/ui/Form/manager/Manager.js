@@ -19,18 +19,19 @@
  */
 
 import React from 'react'
+import XMLUtils from "pydio/util/xml";
+
 import ValidLogin from '../fields/ValidLogin'
 import AltText from "../fields/AltText";
 import InputIntegerBytes from "../fields/InputIntegerBytes";
-const XMLUtils = require('pydio/util/xml');
-const InputBoolean = require('./../fields/InputBoolean');
-const InputText = require('./../fields/TextField');
-const ValidPassword = require('./../fields/ValidPassword');
-const InputInteger = require('./../fields/InputInteger');
-const InputImage = require('./../fields/InputImage');
-const SelectBox = require('./../fields/InputSelectBox');
-const AutocompleteBox = require('./../fields/AutocompleteBox');
-const AutocompleteTree = require('./../fields/AutocompleteTree');
+import InputBoolean from "./../fields/InputBoolean";
+import InputText from "./../fields/TextField";
+import ValidPassword from "./../fields/ValidPassword";
+import InputInteger from "./../fields/InputInteger";
+import InputImage from "./../fields/InputImage";
+import SelectBox from "./../fields/InputSelectBox";
+import AutocompleteBox from "./../fields/AutocompleteBox";
+import AutocompleteTree from "./../fields/AutocompleteTree";
 
 /**
  * Utility class to parse / handle pydio standard form definitions/values.

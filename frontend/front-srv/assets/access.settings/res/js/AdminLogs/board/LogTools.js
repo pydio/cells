@@ -24,7 +24,7 @@ import debounce from 'lodash.debounce'
 import Log from '../model/Log'
 import {DatePicker, TimePicker, IconButton, FlatButton, FontIcon, IconMenu, MenuItem, Subheader, Dialog} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
-const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ThemedModernStyles} = Pydio.requireLib('hoc');
 const {moment} = Pydio.requireLib('boot');
 
 class LogTools extends React.Component{
@@ -168,6 +168,8 @@ class LogTools extends React.Component{
     render(){
         const {pydio, disableExport, muiTheme, focus} = this.props;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+        const ModernStyles = ThemedModernStyles(muiTheme)
+
         const focusBadge = {
             backgroundColor: '#FBE9E7',
             height: 35,

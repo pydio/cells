@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -34,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
+	"github.com/pydio/cells/v4/common/nodes/acl"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -46,43 +48,75 @@ import (
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
+func (sc *Client) getUuidRouter() nodes.Handler {
+	if sc.uuidRouter == nil {
+		sc.uuidRouter = compose.UuidClient(sc.GetRuntimeContext())
+	}
+	return sc.uuidRouter
+}
+
+func (sc *Client) getUuidAdminRouter() nodes.Handler {
+	if sc.uuidAdmin == nil {
+		sc.uuidAdmin = compose.UuidClient(sc.GetRuntimeContext(), nodes.AsAdmin())
+	}
+	return sc.uuidAdmin
+}
+
+func (sc *Client) getPathRouter() nodes.Handler {
+	if sc.pathRouter == nil {
+		sc.pathRouter = compose.PathClient(sc.GetRuntimeContext())
+	}
+	return sc.pathRouter
+}
+
 // LoadDetectedRootNodes find actual nodes in the tree, and enrich their metadata if they appear
 // in many workspaces for the current user.
-func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []string) (rootNodes map[string]*tree.Node) {
+func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []string, accessList *permissions.AccessList) (rootNodes map[string]*tree.Node) {
 
-	rootNodes = make(map[string]*tree.Node)
-	router := compose.UuidClient(sc.GetRuntimeContext())
-	metaClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceMeta))
+	router := sc.getUuidRouter()
+	throttle := make(chan struct{}, 5)
 	eventFilter := compose.ReverseClient(sc.RuntimeContext, nodes.AsAdmin())
-	accessList, _ := permissions.AccessListFromContextClaims(ctx)
+	wg := &sync.WaitGroup{}
+	wg.Add(len(detectedRoots))
+	var loaded []*tree.Node
+	ensureCtx := acl.WithPresetACL(ctx, accessList)
 	for _, rootId := range detectedRoots {
-		request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}}
-		if resp, err := router.ReadNode(ctx, request); err == nil {
-			node := resp.Node
-			var multipleMeta []*tree.WorkspaceRelativePath
-			for _, ws := range accessList.GetWorkspaces() {
-				if filtered, ok := eventFilter.WorkspaceCanSeeNode(ctx, accessList, ws, resp.Node); ok {
-					multipleMeta = append(multipleMeta, &tree.WorkspaceRelativePath{
-						WsLabel: ws.Label,
-						WsUuid:  ws.UUID,
-						WsSlug:  ws.Slug,
-						Path:    filtered.Path,
-					})
-					node = filtered
+		throttle <- struct{}{}
+		go func(rid string) {
+			defer func() {
+				wg.Done()
+				<-throttle
+			}()
+			request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rid}}
+			if resp, err := router.ReadNode(ensureCtx, request); err == nil {
+				node := resp.Node
+				var multipleMeta []*tree.WorkspaceRelativePath
+				for _, ws := range accessList.GetWorkspaces() {
+					if filtered, ok := eventFilter.WorkspaceCanSeeNode(ensureCtx, accessList, ws, resp.Node); ok {
+						multipleMeta = append(multipleMeta, &tree.WorkspaceRelativePath{
+							WsLabel: ws.Label,
+							WsUuid:  ws.UUID,
+							WsSlug:  ws.Slug,
+							Path:    filtered.Path,
+						})
+						node = filtered
+					}
 				}
+				if len(multipleMeta) == 0 {
+					log.Logger(ctx).Error("Trying to load a node that does not correspond to accessible workspace, this is not normal", node.Zap("input"))
+					return
+				}
+				node.AppearsIn = multipleMeta
+				loaded = append(loaded, node.WithoutReservedMetas())
+			} else {
+				log.Logger(ctx).Debug("Share Load - Ignoring Root Node, probably not synced yet", zap.String("nodeId", rid), zap.Error(err))
 			}
-			if len(multipleMeta) == 0 {
-				log.Logger(ctx).Error("Trying to load a node that does not correspond to accessible workspace, this is not normal", node.Zap("input"))
-				continue
-			}
-			node.AppearsIn = multipleMeta
-			if metaResp, e := metaClient.ReadNode(ctx, request); e == nil && metaResp.GetNode().GetMetaBool(common.MetaFlagCellNode) {
-				node.MustSetMeta(common.MetaFlagCellNode, true)
-			}
-			rootNodes[node.GetUuid()] = node.WithoutReservedMetas()
-		} else {
-			log.Logger(ctx).Debug("Share Load - Ignoring Root Node, probably not synced yet", zap.String("nodeId", rootId), zap.Error(err))
-		}
+		}(rootId)
+	}
+	wg.Wait()
+	rootNodes = make(map[string]*tree.Node)
+	for _, n := range loaded {
+		rootNodes[n.GetUuid()] = n
 	}
 	return
 
@@ -90,32 +124,31 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 
 // ParseRootNodes reads the request property to either create a new node using the "rooms" Virtual node,
 // or just verify that the root nodes are not empty.
-func (sc *Client) ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (*tree.Node, bool, error) {
+func (sc *Client) ParseRootNodes(ctx context.Context, cell *rest.Cell, createEmpty bool) (bool, error) {
 
-	var createdNode *tree.Node
-	router := compose.PathClient(sc.RuntimeContext)
-	for i, n := range shareRequest.Room.RootNodes {
+	router := sc.getPathRouter()
+	for i, n := range cell.RootNodes {
 		r, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n})
 		if e != nil {
-			return nil, false, e
+			return false, e
 		}
 		// If the virtual root is responded, it may miss the UUID ! Set up manually here
 		if r.Node.Uuid == "" {
 			r.Node.Uuid = n.Uuid
 		}
-		shareRequest.Room.RootNodes[i] = r.Node
+		cell.RootNodes[i] = r.Node
 	}
-	if shareRequest.CreateEmptyRoot {
+	if createEmpty {
 
 		manager := abstract.GetVirtualNodesManager(sc.RuntimeContext)
 		internalRouter := compose.PathClientAdmin(sc.RuntimeContext)
 		if root, exists := manager.ByUuid("cells"); exists {
 			parentNode, err := manager.ResolveInContext(ctx, root, true)
 			if err != nil {
-				return nil, false, err
+				return false, err
 			}
 			index := 0
-			labelSlug := slug.Make(shareRequest.Room.Label)
+			labelSlug := slug.Make(cell.Label)
 			baseSlug := labelSlug
 			for {
 				if existingResp, err := internalRouter.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: parentNode.Path + "/" + labelSlug}}); err == nil && existingResp.Node != nil {
@@ -130,40 +163,39 @@ func (sc *Client) ParseRootNodes(ctx context.Context, shareRequest *rest.PutCell
 			})
 			if err != nil {
 				log.Logger(ctx).Error("share/cells : create empty root", zap.Error(err))
-				return nil, false, err
+				return false, err
 			}
 			// Update node meta
 			createResp.Node.MustSetMeta(common.MetaFlagCellNode, true)
 			metaClient := tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceMeta))
 			metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: createResp.Node})
-			shareRequest.Room.RootNodes = append(shareRequest.Room.RootNodes, createResp.Node)
-			createdNode = createResp.Node
+			cell.RootNodes = append(cell.RootNodes, createResp.Node)
 		} else {
-			return nil, false, errors.InternalServerError(common.ServiceShare, "Wrong configuration, missing rooms virtual node")
+			return false, errors.InternalServerError(common.ServiceShare, "Wrong configuration, missing rooms virtual node")
 		}
 	}
-	if len(shareRequest.Room.RootNodes) == 0 {
-		return nil, false, errors.BadRequest(common.ServiceShare, "Wrong configuration, missing RootNodes in CellRequest")
+	if len(cell.RootNodes) == 0 {
+		return false, errors.BadRequest(common.ServiceShare, "Wrong configuration, missing RootNodes in CellRequest")
 	}
 
 	// First check of incoming ACLs
 	var hasReadonly bool
-	for _, root := range shareRequest.Room.RootNodes {
+	for _, root := range cell.RootNodes {
 		if root.GetStringMeta(common.MetaFlagReadonly) != "" {
 			hasReadonly = true
 		}
 	}
 	if hasReadonly {
-		for _, a := range shareRequest.Room.GetACLs() {
+		for _, a := range cell.GetACLs() {
 			for _, action := range a.GetActions() {
 				if action.Name == permissions.AclWrite.Name {
-					return nil, true, errors.Forbidden(common.ServiceShare, "One of the resource you are sharing is readonly. You cannot assign write permission on this Cell.")
+					return true, errors.Forbidden(common.ServiceShare, "One of the resource you are sharing is readonly. You cannot assign write permission on this Cell.")
 				}
 			}
 		}
 	}
-	log.Logger(ctx).Debug("ParseRootNodes", log.DangerouslyZapSmallSlice("r", shareRequest.Room.RootNodes), zap.Bool("readonly", hasReadonly))
-	return createdNode, hasReadonly, nil
+	log.Logger(ctx).Debug("ParseRootNodes", log.DangerouslyZapSmallSlice("r", cell.RootNodes), zap.Bool("readonly", hasReadonly))
+	return hasReadonly, nil
 
 }
 
@@ -247,7 +279,6 @@ func (sc *Client) DetectInheritedPolicy(ctx context.Context, roots []*tree.Node,
 func (sc *Client) DeleteRootNodeRecursively(ctx context.Context, ownerName string, roomNode *tree.Node) error {
 
 	manager := abstract.GetVirtualNodesManager(sc.RuntimeContext)
-	//router := compose.PathClientAdmin(nodes.WithContext(sc.RuntimeContext))
 	if root, exists := manager.ByUuid("cells"); exists {
 		parentNode, err := manager.ResolveInContext(ctx, root, true)
 		if err != nil {
@@ -288,7 +319,7 @@ func (sc *Client) DeleteRootNodeRecursively(ctx context.Context, ownerName strin
 // link permissions do not try to set the Upload mode.
 func (sc *Client) CheckLinkRootNodes(ctx context.Context, link *rest.ShareLink) (workspaces []*tree.WorkspaceRelativePath, files, folders bool, e error) {
 
-	router := compose.UuidClient(sc.GetRuntimeContext())
+	router := sc.getUuidRouter()
 	var hasReadonly bool
 	for i, r := range link.RootNodes {
 		resp, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: r})
@@ -325,7 +356,7 @@ func (sc *Client) CheckLinkRootNodes(ctx context.Context, link *rest.ShareLink) 
 
 // RootsParentWorkspaces reads parents and find the root node of the workspace
 func (sc *Client) RootsParentWorkspaces(ctx context.Context, rr []*tree.Node) (ww []*tree.WorkspaceRelativePath, e error) {
-	router := compose.UuidClient(sc.GetRuntimeContext())
+	router := sc.getUuidRouter()
 	for _, r := range rr {
 		if r.GetMetaBool(common.MetaFlagCellNode) {
 			continue
@@ -342,4 +373,27 @@ func (sc *Client) RootsParentWorkspaces(ctx context.Context, rr []*tree.Node) (w
 		ww = append(ww, resp.Node.AppearsIn...)
 	}
 	return
+}
+
+// LoadAdminRootNodes find actual nodes in the tree, and enrich their metadata if they appear
+// in many workspaces for the current user.
+func (sc *Client) LoadAdminRootNodes(ctx context.Context, detectedRoots []string) (rootNodes map[string]*tree.Node) {
+
+	rootNodes = make(map[string]*tree.Node)
+	router := sc.getUuidAdminRouter()
+	metaClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(sc.GetRuntimeContext(), common.ServiceMeta))
+	for _, rootId := range detectedRoots {
+		request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}}
+		if resp, err := router.ReadNode(ctx, request); err == nil {
+			node := resp.Node
+			if metaResp, e := metaClient.ReadNode(ctx, request); e == nil && metaResp.GetNode().GetMetaBool(common.MetaFlagCellNode) {
+				node.MustSetMeta(common.MetaFlagCellNode, true)
+			}
+			rootNodes[node.GetUuid()] = node.WithoutReservedMetas()
+		} else {
+			log.Logger(ctx).Error("Share Load - Ignoring Root Node, probably deleted", zap.String("nodeId", rootId), zap.Error(err))
+		}
+	}
+	return
+
 }

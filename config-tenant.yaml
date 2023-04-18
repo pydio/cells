@@ -5,9 +5,9 @@ advertise: &advertise 127.0.0.1
 
 connections: &connections
   config:
-    uri: grpc://0.0.0.0:8202
+    uri: mem://?env=CELLS_CONFIG_
   registry:
-    uri: grpc://0.0.0.0:8202
+    uri: grpc://0.0.0.0:8130
 
 servers: &servers
   grpc:
@@ -25,6 +25,53 @@ servers: &servers
     port: 0
 
 env: &env
+  CELLS_NAME: tenant
+  GRPC_EXPERIMENTAL_XDS_FEDERATION: true
+  GRPC_XDS_BOOTSTRAP_CONFIG: {
+      "xds_servers": [
+        {
+          "server_uri": "127.0.0.1:8030",
+          "server_features": [
+            "xds_v3"
+          ],
+          "channel_creds": [
+            {
+              "type": "insecure"
+            }
+          ]
+        }
+      ],
+      "client_default_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s",
+      "server_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/server/%s",
+      "node": {
+        "id": "test-id",
+        "locality": {
+          "zone": "us-central1-a"
+        }
+      },
+      "authorities": {
+        "default.cells.com": {
+          "client_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s"
+        },
+        "tenant.cells.com": {
+          "client_listener_resource_name_template": "xdstp://tenant.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s",
+          "server_listener_resource_name_template": "xdstp://tenant.cells.com/envoy.config.listener.v3.Listener/grpc/server/%s",
+          "xds_servers": [
+            {
+              "server_uri": "127.0.0.1:8130",
+              "server_features": [
+                "xds_v3"
+              ],
+              "channel_creds": [
+                {
+                  "type": "insecure"
+                }
+              ]
+            }
+          ]
+        }
+      }
+  }
   CELLS_CONFIG_DATABASES: {
     "mysql": {
       "driver": "mysql",
@@ -73,19 +120,18 @@ env: &env
 
 processes:
   - name: discovery
-
     connections:
       config:
         uri: mem://
       registry:
-        uri: grpc+restricted://0.0.0.0:8002?tenant=test
+        uri: mem://
       logs:
         uri: file://stdout
 
     servers:
       <<: *servers
       grpc_discovery:
-        port: 8202
+        port: 8130
 
     env: *env
 
@@ -102,6 +148,13 @@ processes:
     env: *env
     services:
       frontend:
+
+  - name: idm
+    connections: *connections
+    servers: *servers
+    env: *env
+    services:
+      idm:
 
   - name: datasource
     connections:

@@ -24,20 +24,19 @@ import PydioApi from 'pydio/http/api'
 import MetaNodeProvider from 'pydio/model/meta-node-provider'
 import FilePreview from '../views/FilePreview'
 import {muiThemeable} from 'material-ui/styles'
-import {IconButton, Popover} from 'material-ui'
+import {IconButton} from 'material-ui'
 import {UserMetaServiceApi, RestUserBookmarksRequest, UpdateUserMetaRequestUserMetaOp, IdmUpdateUserMetaRequest, IdmSearchUserMetaRequest} from 'cells-sdk'
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc');
 
 const {EmptyStateView} = Pydio.requireLib("components");
 const {PlaceHolder, PhTextRow, PhRoundShape} = Pydio.requireLib("hoc");
 
 const listCss = `
 .bmListEntry{
-    border-bottom: 1px solid rgba(0,0,0,0.025);
-    padding: 2px 0;
+    transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 .bmListEntry:hover{
-    background-color:#FAFAFA;
-    border-bottom-color: #FAFAFA;
+    background-color:var(--md-sys-color-outline-variant-50);
 }
 .bmListEntryWs:hover{
     text-decoration:underline;
@@ -52,13 +51,13 @@ class BookmarkLine extends React.Component {
     }
 
     render() {
-        const {pydio, placeHolder, nodes, onClick, onRemove} = this.props;
-        const {removing} = this.state;
+        const {pydio, placeHolder, nodes, onClick, onRemove, muiTheme} = this.props;
+        const {removing, hover} = this.state;
         const previewStyles = {
             style: {
                 height: 40,
                 width: 40,
-                borderRadius: '50%',
+                borderRadius: 4,
             },
             mimeFontStyle: {
                 fontSize: 24,
@@ -81,8 +80,9 @@ class BookmarkLine extends React.Component {
             preview = <FilePreview pydio={pydio} node={nodes[0]} loadThumbnail={true} {...previewStyles}/>;
             primaryText = nodes[0].getLabel()||nodes[0].getMetadata().get('WsLabel')
             secondaryTexts = [<span>{pydio.MessageHash['bookmark.secondary.inside']} </span>];
+            nodes.sort( (a,b) => a.getMetadata().get('WsLabel').localeCompare(b.getMetadata().get('WsLabel')) )
             const nodeLinks = nodes.map((n,i) => {
-                const link = <a className={"bmListEntryWs"} onClick={(e) => { e.stopPropagation(); onClick(n);}} style={{fontWeight:500}}>{n.getMetadata().get('WsLabel')}</a>;
+                const link = <a className={"bmListEntryWs"} onClick={(e) => { e.stopPropagation(); onClick(n);}} style={{color:muiTheme.palette.mui3['secondary']}}>{n.getMetadata().get('WsLabel')}</a>;
                 if(i === nodes.length - 1) {
                     return link;
                 } else {
@@ -103,16 +103,18 @@ class BookmarkLine extends React.Component {
 
         }
 
+        const dynaPad = 12
         const block = (
-            <div className={"bmListEntry"} style={{display:'flex', alignItems:'center', width: '100%'}}>
+            <div className={"bmListEntry"} style={{display:'flex', alignItems:'center', width: '100%', padding:'2px 0',backgroundColor:hover?muiTheme.hoverBackgroundColor:null}}
+                 onMouseEnter={()=>this.setState({hover:true})} onMouseLeave={()=>this.setState({hover:false})}>
                 <div style={{padding: '12px 16px', cursor:'pointer'}} onClick={firstClick}>
                     {preview}
                 </div>
                 <div style={{flex: 1, overflow:'hidden', cursor:'pointer'}} onClick={firstClick}>
-                    <div style={{fontSize:15, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
+                    <div style={{color:muiTheme.palette.mui3['on-surface'], fontSize:14, fontWeight: 500, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', paddingBottom: 2, paddingTop: dynaPad}}>
                         {primaryText}
                     </div>
-                    <div style={{opacity:.33}}>
+                    <div style={{paddingBottom: dynaPad}}>
                         {secondaryTexts}
                     </div>
                 </div>
@@ -130,26 +132,37 @@ class BookmarkLine extends React.Component {
     }
 
 }
+BookmarkLine=muiThemeable()(BookmarkLine)
 
+let BM_Cache;
 
 class BookmarksList extends React.Component {
 
     constructor(props) {
+        const {asPopover, useCache} = props;
         super(props);
         this.state = {
             open: false,
             loading: false,
-            bookmarks: null
+            bookmarks: useCache?BM_Cache:null
         };
+        if(asPopover === false){
+            this.load(true, useCache)
+        }
     }
 
-    load(silent = false){
+    load(silent = false, useCache = false){
         if(!silent){
             this.setState({loading: true});
         }
         const api = new UserMetaServiceApi(PydioApi.getRestClient());
         return api.userBookmarks(new RestUserBookmarksRequest()).then(collection => {
-            this.setState({bookmarks: collection.Nodes, loading: false})
+            const nn = collection.Nodes || []
+            nn.sort((a,b) => a.Type === 'LEAF'? 1 : b.Type === 'LEAF' ? -1 : 0)
+            if(useCache){
+                BM_Cache = nn;
+            }
+            this.setState({bookmarks: nn, loading: false})
         }).catch(reason => {
             this.setState({loading: false});
         });
@@ -173,8 +186,12 @@ class BookmarksList extends React.Component {
     }
 
     entryClicked(node) {
+        const {pydio, onRequestClose} = this.props;
         this.handleRequestClose();
-        this.props.pydio.goTo(node);
+        pydio.goTo(node);
+        if(onRequestClose){
+            onRequestClose()
+        }
     }
 
     removeBookmark(node){
@@ -208,7 +225,7 @@ class BookmarksList extends React.Component {
     }
 
     render() {
-        const {pydio, muiTheme, iconStyle} = this.props;
+        const {pydio, muiTheme, iconStyle, asPopover=true} = this.props;
         const {loading, open, anchorEl, bookmarks} = this.state;
 
         if(!pydio.user.activeRepository){
@@ -218,7 +235,7 @@ class BookmarksList extends React.Component {
         if (bookmarks) {
             items = bookmarks.map(n=>{
                 const nodes = this.bmToNodes(n);
-                return <BookmarkLine key={nodes[0].getPath()} pydio={pydio} nodes={nodes} onClick={this.entryClicked.bind(this)} onRemove={this.removeBookmark.bind(this)} />
+                return <BookmarkLine muiTheme={muiTheme} key={nodes[0].getPath()} pydio={pydio} nodes={nodes} onClick={this.entryClicked.bind(this)} onRemove={this.removeBookmark.bind(this)} />
             });
         }
 
@@ -227,9 +244,46 @@ class BookmarksList extends React.Component {
             const c = Color(iconStyle.color);
             buttonStyle = {...buttonStyle, backgroundColor: c.fade(0.9).toString()}
         }
+        let listStyle = {
+            overflowY:'auto',
+            overflowX:'hidden',
+            padding: 0,
+            flex: 1
+        }
+        if(asPopover){
+            listStyle = {...listStyle,
+                maxHeight:330,
+                minHeight: 195,
+            }
+        }
 
-        return (
-            <span>
+        const contents = (
+            <Fragment>
+                {loading &&
+                    <Fragment>
+                        <BookmarkLine placeHolder/>
+                        <BookmarkLine placeHolder/>
+                        <BookmarkLine placeHolder/>
+                    </Fragment>
+                }
+                {!loading && items && items.length > 0 &&
+                    <div style={listStyle}>{items}</div>
+                }
+                {!loading && (!items || !items.length) &&
+                    <EmptyStateView
+                        pydio={pydio}
+                        iconClassName="mdi mdi-star-outline"
+                        primaryTextId="145"
+                        secondaryTextId={"482"}
+                        style={{minHeight: 200, backgroundColor:'transparent'}}
+                    />
+                }
+                <style type={"text/css"} dangerouslySetInnerHTML={{__html:listCss}}/>
+            </Fragment>
+        )
+        if(asPopover){
+            return (
+                <span>
                 <IconButton
                     onClick={this.handleTouchTap.bind(this)}
                     iconClassName={"userActionIcon mdi mdi-star"}
@@ -247,37 +301,15 @@ class BookmarksList extends React.Component {
                     onRequestClose={this.handleRequestClose.bind(this)}
                     style={{width:320}}
                     zDepth={3}
-
-                >
-                    <div style={{display: 'flex', alignItems: 'center', borderRadius:'2px 2px 0 0', width: '100%',
-                        backgroundColor:'#f8fafc', borderBottom: '1px solid #ECEFF1', color:muiTheme.palette.primary1Color}}>
-
-                        <span className={"mdi mdi-star"} style={{fontSize: 18, margin:'12px 8px 14px 16px'}}/>
-                        <span style={{fontSize:15, fontWeight: 500}}>{pydio.MessageHash[147]}</span>
-                    </div>
-                    {loading &&
-                        <Fragment>
-                            <BookmarkLine placeHolder/>
-                            <BookmarkLine placeHolder/>
-                            <BookmarkLine placeHolder/>
-                        </Fragment>
-                    }
-                    {!loading && items && items.length &&
-                        <div style={{maxHeight:330, minHeight: 195, overflowY:'auto', overflowX:'hidden', padding: 0}}>{items}</div>
-                    }
-                    {!loading && (!items || !items.length) &&
-                        <EmptyStateView
-                            pydio={pydio}
-                            iconClassName="mdi mdi-star-outline"
-                            primaryTextId="145"
-                            secondaryTextId={"482"}
-                            style={{minHeight: 200, backgroundColor:'white'}}
-                        />
-                    }
-                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:listCss}}/>
-                </Popover>
+                    panelTitle={pydio.MessageHash[147]}
+                    panelIconClassName={"mdi mdi-star"}
+                >{contents}</Popover>
             </span>
-        );
+            );
+
+        } else {
+            return contents
+        }
 
     }
 

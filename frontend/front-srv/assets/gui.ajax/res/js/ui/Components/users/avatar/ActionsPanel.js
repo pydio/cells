@@ -17,17 +17,19 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import PropTypes from 'prop-types';
 
+import PropTypes from 'prop-types';
 import Pydio from 'pydio';
+const React = require('react');
 import AddressBook from '../addressbook/AddressBook'
 import ResourcePoliciesPanel from '../../policies/ResourcePoliciesPanel'
-const React = require('react');
 const PydioApi = require('pydio/http/api');
 const ResourcesManager = require('pydio/http/resources-manager');
-const {IconButton, Popover} = require('material-ui');
+const MetaCacheService = require('pydio/http/meta-cache-service');
+const {IconButton} = require('material-ui');
 const {muiThemeable} = require('material-ui/styles');
 const {PydioContextConsumer, AsyncComponent} = require('pydio').requireLib('boot');
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 
 class ActionsPanel extends React.Component{
 
@@ -41,15 +43,19 @@ class ActionsPanel extends React.Component{
     }
 
     onTeamSelected(item){
+        const {userId, reloadAction} = this.props;
         this.setState({showPicker: false});
         if(item.IdmRole && item.IdmRole.IsTeam){
-            PydioApi.getRestClient().getIdmApi().addUserToTeam(item.IdmRole.Uuid, this.props.userId, this.props.reloadAction);
+            PydioApi.getRestClient().getIdmApi().addUserToTeam(item.IdmRole.Uuid, userId, () => {
+                MetaCacheService.getInstance().deleteKey('user_public_data-graph', userId);
+                reloadAction()
+            });
         }
     }
     
     onUserSelected(item){
-        //this.setState({showPicker: false});
-        PydioApi.getRestClient().getIdmApi().addUserToTeam(this.props.team.id, item.IdmUser.Login, this.props.reloadAction);
+        const {team, reloadAction} = this.props;
+        PydioApi.getRestClient().getIdmApi().addUserToTeam(team.id, item.IdmUser.Login, reloadAction);
     }
 
     openPicker(event){
@@ -83,21 +89,27 @@ class ActionsPanel extends React.Component{
     
     render(){
 
-        const {getMessage, muiTheme, team, user, userEditable, userId, style, zDepth} = this.props;
-        const teamsEditable = Pydio.getInstance().getController().actions.has("user_team_create");
+        const {pydio, getMessage, muiTheme, userEditable, userId, style, otherPopoverMouseOver,
+            team, user, onEditAction, onDeleteAction, buttonStyle, iconStyle} = this.props;
+        const teamsEditable = pydio.getController().actions.has("user_team_create");
 
+        const accentColor = muiTheme.userTheme==='mui3'?muiTheme.palette.mui3['primary'] : muiTheme.palette.accent2Color;
+        const bgColor = muiTheme.userTheme==='mui3'?muiTheme.palette.mui3['primary-container'] : 'transparent'
         const styles = {
             button: {
-                border: '0px solid ' + muiTheme.palette.accent2Color,
+                border: '0px solid ' + accentColor,
+                backgroundColor:bgColor,
                 borderRadius: '50%',
                 margin: '0 4px',
-                width: 30,
-                height: 30,
-                padding: 4
+                width: 36,
+                height: 36,
+                padding: 8,
+                ...buttonStyle
             },
             icon : {
                 fontSize: 20,
-                color: muiTheme.palette.accent2Color
+                color: accentColor,
+                ...iconStyle
             }
         };
         let usermails = {};
@@ -120,13 +132,13 @@ class ActionsPanel extends React.Component{
                 actions.push({key:'teams', label:getMessage(573), icon:'account-multiple-plus', callback:this.openPicker.bind(this)});
             }
         }
-        if(userEditable && !(this.props.team && !teamsEditable)){
-            if (this.props.onEditAction) {
-                actions.push({key:'edit', label:this.props.team?getMessage(580):getMessage(600), icon:'pencil', callback:this.props.onEditAction});
+        if(userEditable && !(team && !teamsEditable)){
+            if (onEditAction) {
+                actions.push({key:'edit', label:team?getMessage(580):getMessage(600), icon:'pencil', callback:onEditAction});
             }
             actions.push({key:'policies', label:'Visibility', icon:'security', callback:this.openPolicies.bind(this)});
-            if(this.props.onDeleteAction){
-                actions.push({key:'delete', label:this.props.team?getMessage(570):getMessage(582), icon:'delete', callback:this.props.onDeleteAction});
+            if(onDeleteAction){
+                actions.push({key:'delete', label:team?getMessage(570):getMessage(582), icon:'delete', callback:onDeleteAction});
             }
         }
         if (actions.length === 0) {
@@ -157,11 +169,11 @@ class ActionsPanel extends React.Component{
                     <div style={{width: 256, height: 320}}>
                         <AddressBook
                             mode="selector"
-                            pydio={this.props.pydio}
+                            pydio={pydio}
                             loaderStyle={{width: 320, height: 320}}
-                            onItemSelected={this.props.team ? this.onUserSelected.bind(this) : this.onTeamSelected.bind(this)}
-                            teamsOnly={!this.props.team}
-                            usersOnly={!!this.props.team}
+                            onItemSelected={team ? this.onUserSelected.bind(this) : this.onTeamSelected.bind(this)}
+                            teamsOnly={!team}
+                            usersOnly={!!team}
                         />
                     </div>
                 </Popover>
@@ -178,15 +190,15 @@ class ActionsPanel extends React.Component{
                         <AsyncComponent
                             namespace="PydioMailer"
                             componentName="Pane"
-                            pydio={Pydio.getInstance()}
+                            pydio={pydio}
                             zDepth={0}
                             panelTitle={getMessage(598)}
                             uniqueUserStyle={true}
                             users={usermails}
                             templateId={"DM"}
-                            templateData={{"From": Pydio.getInstance().user.getPreference('displayName') || Pydio.getInstance().user.id}}
+                            templateData={{"From": pydio.user.getPreference('displayName') || pydio.user.id}}
                             onDismiss={() => {this.setState({showMailer: false})}}
-                            onFieldFocus={this.props.otherPopoverMouseOver}
+                            onFieldFocus={otherPopoverMouseOver}
                         />}
                     </div>
                 </Popover>
@@ -200,8 +212,8 @@ class ActionsPanel extends React.Component{
                 >
                     <div style={{width: 256, height: 320}}>
                         <ResourcePoliciesPanel
-                            description={this.props.pydio.MessageHash['visibility.users.advanced']}
-                            pydio={this.props.pydio}
+                            description={pydio.MessageHash['visibility.users.advanced']}
+                            pydio={pydio}
                             resourceType={resourceType}
                             resourceId={resourceId}
                             onDismiss={()=>{this.setState({showPolicies: false})}}
@@ -228,7 +240,15 @@ ActionsPanel.propTypes = {
     /**
      * For users, whether it is editable or not
      */
-    userEditable: PropTypes.object
+    userEditable: PropTypes.bool,
+
+    pydio: PropTypes.object,
+    getMessage: PropTypes.func,
+    userId: PropTypes.string,
+    style:PropTypes.object,
+    onEditAction:PropTypes.func,
+    onDeleteAction:PropTypes.func,
+    reloadAction:PropTypes.func
 
 };
 

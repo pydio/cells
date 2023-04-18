@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
 import Pydio from 'pydio';
 import { connect } from 'react-redux';
 import { FloatingActionButton } from 'material-ui';

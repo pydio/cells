@@ -1,0 +1,45 @@
+{
+   "xds_servers": [
+      {
+         "server_uri": "127.0.0.1:8030",
+         "server_features": [
+            "xds_v3"
+         ],
+         "channel_creds": [
+            {
+               "type": "insecure"
+            }
+         ]
+      }
+   ],
+   "client_default_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s",
+   "server_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/server/%s",
+   "node": {
+      "id": "test-id",
+      "locality": {
+         "zone": "us-central1-a"
+      }
+   },
+   "authorities": {
+      "default.cells.com": {
+         "client_listener_resource_name_template": "xdstp://default.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s"
+      },
+      "tenant.cells.com": {
+         "client_listener_resource_name_template": "xdstp://tenant.cells.com/envoy.config.listener.v3.Listener/grpc/client/%s",
+         "server_listener_resource_name_template": "xdstp://tenant.cells.com/envoy.config.listener.v3.Listener/grpc/server/%s",
+         "xds_servers": [
+            {
+               "server_uri": "127.0.0.1:8130",
+               "server_features": [
+                  "xds_v3"
+               ],
+               "channel_creds": [
+                  {
+                     "type": "insecure"
+                  }
+               ]
+            }
+         ]
+      }
+   }
+}

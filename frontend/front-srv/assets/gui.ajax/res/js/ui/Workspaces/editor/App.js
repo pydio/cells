@@ -17,12 +17,11 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import React from 'react'
 import Pydio from 'pydio';
 import { connect } from 'react-redux';
 import { Editor } from './components/editor';
 import { Menu } from './components/menu';
-import makeEditorOpen from './make-editor-open';
 
 const { withContainerSize, EditorActions } = Pydio.requireLib('hoc');
 

@@ -19,6 +19,7 @@
  */
 import React from 'react'
 import PropTypes from 'prop-types'
+import {IconButton} from 'material-ui'
 
 class DownloadApp extends React.Component{
 
@@ -40,7 +41,7 @@ class DownloadApp extends React.Component{
         const {pydio, iconClassName, tooltipId, configs, configHref} = this.props;
 
         return (
-            <MaterialUI.IconButton
+            <IconButton
                 iconClassName={iconClassName}
                 tooltip={pydio.MessageHash[tooltipId]}
                 tooltipStyles={{marginTop: 40}}

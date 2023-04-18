@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package compose
+package compose_test
 
 import (
 	"context"
@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config/mock"
 	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/compose"
 	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	omock "github.com/pydio/cells/v4/common/nodes/objects/mock"
@@ -95,7 +96,7 @@ func TestPersonalResolution(t *testing.T) {
 	reg, _ := registry.OpenRegistry(ctx, "mem:///")
 	ctx = servicecontext.WithRegistry(ctx, reg)
 	ctx = nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx))
-	client := PathClient(ctx)
+	client := compose.PathClient(ctx)
 
 	Convey("Test personal file", t, func() {
 		user, e := permissions.SearchUniqueUser(ctx, "admin", "")

@@ -44,7 +44,7 @@ func init() {
 			service.Description("Test Objects Service conformance"),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				h := NewHandler()
-				test.RegisterTesterServer(server, h)
+				test.RegisterTesterEnhancedServer(server, h)
 				go func() {
 					<-time.After(10 * time.Second)
 					resp, e := h.TestNodesClient(ctx)

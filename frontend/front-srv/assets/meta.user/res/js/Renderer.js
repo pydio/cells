@@ -167,4 +167,69 @@ export default class Renderer{
         return <IntegerForm {...props} search={true}/>
     }
 
+    /**
+     * Return renderer for a given metadata type
+     * @param type
+     * @return {(function(*): *)|*|(function(*, *): *)}
+     */
+    static typeFormRenderer(type) {
+        switch (type) {
+            case 'stars_rate':
+                return Renderer.formPanelStars
+            case 'css_label':
+                return Renderer.formPanelCssLabels
+            case 'choice':
+                return Renderer.formPanelSelectorFilter
+            case 'tags':
+                return Renderer.formPanelTags
+            case 'integer':
+                return Renderer.formPanelInteger
+            case 'boolean':
+                return Renderer.formPanelBoolean
+            case 'date':
+                return Renderer.formPanelDate
+            default:
+                return null
+        }
+    }
+
+    /**
+     * Return renderer for inline display
+     * @param type
+     * @return {{renderer: ((function(*, *): (null|*))|*)}|{renderer: ((function(*, *): (null|*))|*), sortType: string}|null}
+     */
+    static typeColumnRenderer(type) {
+        let out;
+        switch (type) {
+            case 'stars_rate':
+                out = {renderComponent: Renderer.renderStars, sortType: 'number'}
+                break
+            case 'css_label':
+                out = {renderComponent: Renderer.renderCSSLabel, sortType: 'string'}
+                break
+            case 'choice':
+                out = {renderComponent: Renderer.renderSelector, sortType: 'string'}
+                break
+            case 'tags':
+                out = {renderComponent: Renderer.renderTagsCloud, renderBlock: true, sortType: 'string'}
+                break
+            case 'integer':
+                out = {renderComponent: Renderer.renderInteger, sortType: 'number'}
+                break
+            case 'boolean':
+                out = {renderComponent: Renderer.renderBoolean, sortType: 'number'}
+                break
+            case 'date':
+                out = {renderComponent: Renderer.renderDate, sortType: 'number'}
+                break
+            default:
+                return {}
+        }
+        // Duplicate key
+        if (out.renderComponent) {
+            out.renderCell = out.renderComponent
+        }
+        return out;
+    }
+
 }

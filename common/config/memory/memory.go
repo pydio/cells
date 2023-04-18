@@ -50,6 +50,14 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		opts = append(opts, configx.WithJSON())
 	}
 
+	if data := u.Query().Get("data"); data != "" {
+		//unescapedData, err := url.QueryUnescape(data)
+		//if err != nil {
+		//	return nil, err
+		//}
+		opts = append(opts, configx.WithInitData([]byte(data)))
+	}
+
 	store := New(opts...)
 
 	envPrefix := u.Query().Get("env")

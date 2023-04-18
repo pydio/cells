@@ -176,13 +176,20 @@ func (m *Codex) BuildQuery(query interface{}, offset, limit int32) (interface{},
 		filters = append(filters, bson.E{"modif_time", bson.M{"$lte": dt}})
 	}
 
-	// Limit to a SubTree
-	if len(queryObject.PathPrefix) > 0 {
+	// Limit to a set of Paths or to a SubTree (PathPrefix)
+	if len(queryObject.Paths) > 0 {
+		ors := bson.A{}
+		for _, pa := range queryObject.Paths {
+			ors = append(ors, bson.M{"path": bson.M{"$regex": bsonx.Regex("^"+pa+"$", "i")}})
+		}
+		filters = append(filters, bson.E{Key: "$or", Value: ors})
+
+	} else if len(queryObject.PathPrefix) > 0 {
 		ors := bson.A{}
 		for _, prefix := range queryObject.PathPrefix {
 			ors = append(ors, bson.M{"path": bson.M{"$regex": bsonx.Regex("^"+prefix, "i")}})
 		}
-		filters = append(filters, bson.E{"$or", ors})
+		filters = append(filters, bson.E{Key: "$or", Value: ors})
 	}
 
 	if queryObject.Type > 0 {

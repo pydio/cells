@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import React from 'react'
 import _ from 'lodash';
 import { Motion, spring, presets } from 'react-motion';
 

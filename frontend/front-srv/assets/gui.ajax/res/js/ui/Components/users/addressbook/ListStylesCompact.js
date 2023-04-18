@@ -55,5 +55,6 @@ export default {
         style:{
             marginLeft: 62
         }
-    }
+    },
+    className:'compact'
 };
