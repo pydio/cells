@@ -45,14 +45,24 @@ func (b *FormField) Serialize(T i18n.TranslateFunc) (params []*SerialFormParam) 
 	if b.Default != nil {
 		switch b.Type {
 		case ParamHidden, ParamString, ParamTextarea, ParamSelect, ParamAutoComplete, ParamAutoCompleteTree:
-			defaultValue = b.Default.(string)
+			if s, ok := b.Default.(string); ok {
+				defaultValue = s
+			} else {
+				fmt.Println("[WARNING] Wrong Default Format, expected string, got", b.Default)
+			}
 		case ParamBool:
 			defaultValue = "false"
-			if b.Default.(bool) {
+			if bo, ok := b.Default.(bool); ok && bo {
 				defaultValue = "true"
+			} else {
+				fmt.Println("[WARNING] Wrong Default Format, expected bool, got", b.Default)
 			}
 		case ParamInteger:
-			defaultValue = fmt.Sprintf("%v", b.Default.(int))
+			if in, ok := b.Default.(int); ok {
+				defaultValue = fmt.Sprintf("%v", in)
+			} else {
+				fmt.Println("[WARNING] Wrong Default Format, expected integer, got", b.Default)
+			}
 		}
 	}
 
