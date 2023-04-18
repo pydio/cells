@@ -24,8 +24,6 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/exp/maps"
-
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
@@ -35,15 +33,35 @@ import (
 type LinkedItem map[registry.Item]LinkedItem
 
 func (li LinkedItem) Get(itemType pb.ItemType) LinkedItem {
-	ret := maps.Clone(li)
-	maps.DeleteFunc(ret, func(item registry.Item, _ LinkedItem) bool {
+	ret := clone(li)
+	deleteFunc(ret, func(item registry.Item, _ LinkedItem) bool {
 		if util.DetectType(item) != itemType {
-			return true
+			return  true
 		}
 		return false
 	})
 
 	return ret
+}
+
+func clone(li LinkedItem) LinkedItem {
+	// Preserve nil in case it matters.
+	if li == nil {
+		return nil
+	}
+	r := make(LinkedItem, len(li))
+	for k, v := range li {
+		r[k] = v
+	}
+	return r
+}
+
+func deleteFunc(li LinkedItem, del func(registry.Item, LinkedItem) bool) {
+	for k, v := range li {
+		if del(k, v) {
+			delete(li, k)
+		}
+	}
 }
 
 type UpdateStateCallback func(LinkedItem) error
@@ -193,6 +211,6 @@ func (r *resolverCallback) sendState() {
 	r.ml.RUnlock()
 
 	for _, cb := range r.cbs {
-		cb(maps.Clone(r.items))
+		cb(clone(r.items))
 	}
 }

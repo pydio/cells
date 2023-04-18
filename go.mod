@@ -1,6 +1,6 @@
 module github.com/pydio/cells/v4
 
-go 1.20
+go 1.19
 
 require (
 	github.com/ajvb/kala v0.8.4
