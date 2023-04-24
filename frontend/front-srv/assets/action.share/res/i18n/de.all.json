@@ -42,13 +42,13 @@
     "other": "Freigeben"
   },
   "110b": {
-    "other": "Freigeben"
+    "other": "Teilen"
   },
   "111": {
     "other": "Diese Seite freigeben"
   },
   "112": {
-    "other": "Diese Seite freigeben"
+    "other": "Diese Seite teilen"
   },
   "113": {
     "other": "Als neuer Workspace"
@@ -111,7 +111,7 @@
     "other": "URL in Zwischenablage kopieren"
   },
   "131": {
-    "other": "Momentan sind keine Dateien oder Ordner freigegeben."
+    "other": "Momentan sind keine Dateien oder Ordner geteilt."
   },
   "132": {
     "other": "Workspace"
@@ -129,13 +129,13 @@
     "other": "Der Ordnerinhalt wird für die Anwendungsbenutzer als neuer Workspace angezeigt"
   },
   "137": {
-    "other": "Die ausgewählte Datei als öffentlichen Link freigeben"
+    "other": "Die ausgewählte Datei als öffentlichen Link teilen"
   },
   "138": {
-    "other": "Sie haben diesen Ordner als öffentlichen Link freigegeben."
+    "other": "Sie haben diesen Ordner als öffentlichen Link (Minisite) geteilt"
   },
   "138b": {
-    "other": "Sie haben diesen Ordner als einen öffentlichen Link freigegeben, welcher jedoch aktuell inaktiv ist (ausgelaufen)."
+    "other": "Sie haben diesen Ordner als einen öffentlichen Link geteilt, welcher jedoch aktuell inaktiv ist (ausgelaufen)."
   },
   "139": {
     "other": "Sie haben diesen Ordner als Workspace mit Anwendungsbenutzern geteilt"
@@ -147,10 +147,10 @@
     "other": "Nein"
   },
   "140": {
-    "other": "Sie haben diese Datei als öffentlichen Link freigegeben"
+    "other": "Sie haben diese Datei als öffentlichen Link geteilt"
   },
   "140b": {
-    "other": "Sie haben diese Datei als einen öffentlichen Link freigegeben, welcher jedoch aktuell inaktiv ist (ausgelaufen)."
+    "other": "Sie haben diese Datei als einen öffentlichen Link geteilt, welcher jedoch aktuell inaktiv ist (ausgelaufen)."
   },
   "141": {
     "other": "Parameter bearbeiten"
@@ -168,7 +168,7 @@
     "other": "Beschreibung"
   },
   "146": {
-    "other": "Wird den Benutzern angezeigt"
+    "other": "Wird den geteilten Benutzern angezeigt"
   },
   "147": {
     "other": "Sicherheit"
@@ -204,10 +204,10 @@
     "other": "Erfolgreich freigegeben: %s"
   },
   "157": {
-    "other": "Dieser Ordner ist momentan freigegeben. Wenn Sie ihn löschen wird die damit verbunden Freigabe deaktiviert."
+    "other": "Dieser Ordner wird derzeit geteilt. Wenn Sie ihn löschen, wird die zugehörige Freigabe deaktiviert."
   },
   "158": {
-    "other": "Diese Datei ist momentan freigegeben. Wenn Sie ihn löschen wird die damit verbunden Freigabe deaktiviert. "
+    "other": "Diese Datei wird derzeit geteilt. Wenn Sie sie löschen, wird die zugehörige Freigabe deaktiviert. "
   },
   "159": {
     "other": "Eigentümer"
@@ -258,7 +258,7 @@
     "other": "Dieser Link wird bereits genutzt. Wähle ein anderes Kürzel."
   },
   "173": {
-    "other": "Wenn Sie ein dauerhaften und ansehlichen Link möchten (z.B. https://.../mein-kuerzel), können Sie dieses Feld nutzen. Ansonsten wird das Kürzel zufällig generiert."
+    "other": "Wenn Sie einen dauerhaften und ansprechenden Link möchten (wie https://.../my-share-link), können Sie dieses Feld verwenden. Der Link-Handle wird generiert, wenn das Feld leer gelassen wird."
   },
   "174": {
     "other": "Deaktiv."
@@ -279,7 +279,7 @@
     "other": "Zurücksetzen"
   },
   "18": {
-    "other": "Ordner ist als neuer Workspace freigegeben"
+    "other": "Ordner ist als neuer Workspace geteilt"
   },
   "180": {
     "other": "Liste leeren"
@@ -312,7 +312,7 @@
     "other": "Als öffentlicher Link freigeben"
   },
   "19": {
-    "other": "Optionen der freigegebene Workspace wurden erfolgreich geändert"
+    "other": "Optionen den geteilten Workspaces wurden erfolgreich geändert"
   },
   "190": {
     "other": "Aktivieren Sie den Haken um eine öffentliche Freigabe zu erstellen. Im Tab \"Benutzerverwaltung\" kann die Datei für Pydio-Benutzer freigegeben werden."
@@ -348,7 +348,7 @@
     "other": "Klicken Sie auf das Bild, um <b>%s</b> auf Ihre Festplatte zu speichern"
   },
   "20": {
-    "other": "Ooops, die gesuchte Datei konnte nicht gefunden werden! Möglicherweise wurde die Datei bereits entfernt oder ist nicht mehr freigegeben."
+    "other": "Ooops, die gesuchte Datei konnte nicht gefunden werden! Möglicherweise wurde die Datei bereits entfernt oder ist nicht mehr geteilt."
   },
   "200": {
     "other": "Sichtbarkeit der Freigabe für andere Benutzer"
@@ -366,7 +366,7 @@
     "other": "Ändern"
   },
   "204": {
-    "other": "Den Eigentümer dieser Freigabe ändern, so dass diese durch einen anderen Benutzer verwaltet werden kann."
+    "other": "Den Eigentümer dieser Freigabe ändern, sodass diese durch einen anderen Benutzer verwaltet werden kann."
   },
   "205": {
     "other": "Ändern auf ... (Kennung)"
@@ -384,7 +384,7 @@
     "other": "Adresse"
   },
   "21": {
-    "other": "Gültigkeit (Tage): "
+    "other": "Läuft aus am"
   },
   "210": {
     "other": "Benutzerkennung"
@@ -501,7 +501,7 @@
     "other": "Öffentliche Links"
   },
   "244": {
-    "other": "Freigegebene Ordner"
+    "other": "Geteilte Ordner"
   },
   "245": {
     "other": "%s Einladung(en) versendet"
@@ -570,7 +570,7 @@
     "other": "Wählen Sie Benutzer oder Gruppen, die Zugriff auf diese Cell haben dürfen"
   },
   "262": {
-    "other": "Freigeben Sie dieser Ordner für andere Benutzer, indem Sie eine neue Cell erstellen"
+    "other": "Teilen Sie diesen Ordner mit anderen Benutzern, indem Sie eine neue Cell erstellen"
   },
   "263": {
     "other": "Zur Cell hinzufügen..."
@@ -591,10 +591,10 @@
     "other": "Cellsbeschreibung"
   },
   "269": {
-    "other": "Erstellen Sie eine Cell mit %USERS geteilt. Wählen Sie einige Ordner, die Sie freigeben oder lassen Sie Pydio einen leeren Ordner für Sie erstellen!"
+    "other": "Erstellen Sie eine Cell mit %USERS geteilt. Wählen Sie einige Ordner, die Sie teilen wollen oder lassen Sie Pydio einen leeren Ordner für Sie erstellen!"
   },
   "27": {
-    "other": "Datei freigeben"
+    "other": "Datei teilen"
   },
   "270": {
     "other": "Benutzer"
@@ -627,7 +627,7 @@
     "other": "Cell jetzt erstellen!"
   },
   "28": {
-    "other": "Ordner freigeben"
+    "other": "Ordner teilen"
   },
   "280": {
     "other": "Cell besitzt einen eigenen Ordner"
@@ -651,7 +651,7 @@
     "other": "Falsches Passwort"
   },
   "30": {
-    "other": "Benutzerzugang"
+    "other": "Teilen mit…"
   },
   "31": {
     "other": "Lesen"
@@ -690,7 +690,7 @@
     "other": "Einladungen"
   },
   "41": {
-    "other": "Sende eine Einladung, per E-Mail, an die Benutzer mit denen Sie die Element geteilt haben."
+    "other": "Sende eine Einladung, per E-Mail, an die Benutzer mit denen Sie das Element geteilt haben."
   },
   "42": {
     "other": "Auf der Seite %s wurde für Sie ein neuer Link freigegeben."
@@ -726,7 +726,7 @@
     "other": "Passwort"
   },
   "50": {
-    "other": "Freigabe"
+    "other": "Geteilt"
   },
   "51": {
     "other": "Heruntergeladenen"
@@ -738,7 +738,7 @@
     "other": "keine"
   },
   "54": {
-    "other": "Freigegeben an"
+    "other": "Geteilt mit"
   },
   "55": {
     "other": "Geteilt..."
