@@ -22,7 +22,7 @@
 import Pydio from 'pydio'
 import React, {Component} from 'react'
 import { connect } from 'react-redux'
-import { compose } from 'redux'
+import { muiThemeable } from 'material-ui/styles'
 
 const {EditorActions} = Pydio.requireLib('hoc')
 
@@ -83,12 +83,16 @@ class Editor extends Component {
     }
 
     render() {
-        const {tab, dispatch} = this.props
+        const {tab, dispatch, muiTheme} = this.props
         const {id, content} = tab
+        const style = Editor.styles.textarea
+        if(muiTheme.darkMode) {
+            style.backgroundColor = 'var(--md-sys-color-surface)'
+        }
 
         return (
             <textarea
-                style={Editor.styles.textarea}
+                style={style}
                 onChange={({target}) => dispatch(EditorActions.tabModify({id, content: target.value}))}
                 value={content}
             />
@@ -96,6 +100,7 @@ class Editor extends Component {
     }
 }
 
+Editor = muiThemeable()(Editor)
 export default Editor
 /*
 export default compose(

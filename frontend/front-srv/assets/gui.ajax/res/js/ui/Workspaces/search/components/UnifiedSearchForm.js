@@ -122,7 +122,6 @@ function UnifiedSearchForm (props){
             setInputValue('')
             return;
         } else if(value === '#advanced#') {
-            console.log('advanced?')
             setInputValue('')
             togglePopover()
             return;
@@ -210,7 +209,7 @@ function UnifiedSearchForm (props){
             text: '#advanced#',
             className:'advanced-filters-option',
             icon:'mdi mdi-tune',
-            value: <span style={{display:'inline-block', padding: '8px 0'}}>{completeMessage('advanced-filter.tooltip')}</span>
+            value: <span style={{display:'inline-block', padding: '8px 0'}}>{pydio.MessageHash['searchengine.advanced-filter.tooltip']}</span>
         })
     }
 
