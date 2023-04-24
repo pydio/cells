@@ -6,7 +6,7 @@
     "other": "Dateien hinzufügen"
   },
   "tour.display-bar": {
-    "other": "Mit dieser Toolbar können Sie die Ansicht umschalten: Von Vorschau auf Details wechseln oder die Dateien nach Namen oder Datum sortieren, etc..."
+    "other": "Diese Symbolleiste ermöglicht es Ihnen, die Anzeige zu ändern: Wechseln Sie je nach Bedarf zwischen Miniaturansicht oder Detailansicht und sortieren Sie Dateien nach Name, Datum usw..."
   },
   "tour.display-bar.title": {
     "other": "Anzeigeeinstellungen"
@@ -60,10 +60,10 @@
     "other": "Einen Workspace öffnen"
   },
   "tour.uwidget.addressbook": {
-    "other": "Verzeichnis aller Benutzer mit Zugriff auf diese Plattform. Erstellen Sie eigene Benutzer und Teams, um Elemente freizugeben"
+    "other": "Verzeichnis aller Benutzer mit Zugriff auf diese Plattform. Erstellen Sie eigene Benutzer und Teams, um Elemente zuteilen"
   },
   "tour.uwidget.alerts": {
-    "other": "Der Benachrichtigungs-Bereich informiert Sie, wenn ein Benutzer auf eine freigegebene Datei zugreift. Benachrichtigungen können auch per E-Mail an Sie versendet werden."
+    "other": "Der Benachrichtigungs-Bereich informiert Sie, wenn ein Benutzer auf eine geteilte Datei zugreift. Benachrichtigungen können auch per E-Mail an Sie versendet werden."
   },
   "tour.uwidget.home": {
     "other": "Wechseln Sie mit diesem Button auf die Willkommen-Seite."
@@ -93,7 +93,7 @@
     "other": "Widgets"
   },
   "tour.workspaces.1": {
-    "other": "Workspaces sind die obersten Ordner, mit denen Sie Ihre Daten organisieren können. Sie können nur durch Sie zugegriffen oder freigegeben werden."
+    "other": "Workspaces sind die obersten Ordner, mit denen Sie Ihre Daten organisieren können. Sie können nur durch Sie zugegriffen oder geteilt werden."
   },
   "tour.workspaces.2": {
     "other": "Cells sind gemeinsame Räume, die Sie mit anderen Benutzern teilen können. Erstellen Sie Ihre eigenen Cells basierend auf einem Ordner, einem Benutzerteam oder einem relevanten Thema."
