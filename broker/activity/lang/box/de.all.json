@@ -81,6 +81,6 @@
     "other": "{{.Object}} verschoben von {{.Actor}}"
   },
   "Workspace": {
-    "other": "Arbeitsplatz"
+    "other": "Workspace"
   }
 }

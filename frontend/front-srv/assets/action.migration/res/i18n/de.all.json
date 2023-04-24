@@ -141,7 +141,7 @@
     "other": "Erstellen Sie Datenquellen, die auf die neuen Daten verweisen und warten Sie bis die Indexierung abgeschlossen ist."
   },
   "step.prereq.ds.tpl.ed": {
-    "other": "Für \"Per-User\" Arbeitsumgebung (wie Meine Dateien) verwenden Sie die vorhandene Position des \"persönlichen\" Template-Pfades, oder bereiten neue Template-Pfade für den neuen Standort vor."
+    "other": "Für \"Per-User\" Workspaces (wie Meine Dateien) verwenden Sie die vorhandene Position des \"persönlichen\" Template-Pfades, oder bereiten neue Template-Pfade für den neuen Standort vor."
   },
   "step.prereq.ds.tpl.home": {
     "other": "Stellen Sie sicher, dass die Daten für \"pro Benutzer\" Arbeitsbereiche (wie Meine Dateien) unter den vorhandenen Speicherort des \"persönlichen\" Template-Pfades der Zellen platziert werden."
@@ -165,7 +165,7 @@
     "other": "Bitte wählen Sie mindestens einen Share-Typ aus!"
   },
   "step.shares.legend": {
-    "other": "Importieren Sie öffentliche Pydio 8-Links und freigegebene Ordner in Cells. Öffentliche Links werden mit derselben Kennung und denselben Eigenschaften (Kennwort, Ablaufdatum usw.) erstellt. Ordner, die in Pydio 8 als Arbeitsumgebung freigegeben wurden, werden neuen Zellen zugeordnet."
+    "other": "Importieren Sie öffentliche Pydio 8-Links und freigegebene Ordner in Cells. Öffentliche Links werden mit derselben Kennung und denselben Eigenschaften (Kennwort, Ablaufdatum usw.) erstellt. Ordner, die in Pydio 8 als Workspaces freigegeben wurden, werden neuen Zellen zugeordnet."
   },
   "step.shares.legend.warning": {
     "other": "Bitte beachten Sie, dass der Freigabeimport eine unidirektionale Synchronisation ist: Wenn Sie diesen Schritt mehrmals ausführen, werden Duplikate erstellt. Wenn Sie die Migration mehrmals durchführen möchten, sollten Sie zunächst Freigaben für eine begrenzte Anzahl von Testbenutzern importieren."

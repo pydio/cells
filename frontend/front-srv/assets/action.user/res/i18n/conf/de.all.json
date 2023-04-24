@@ -15,6 +15,6 @@
     "other": "Mein Dashboard"
   },
   "User home dashboard, can be displayed before accessing to workspaces": {
-    "other": "Dashboard welches den Benutzern vor dem Zugriff auf eine Arbeitsumgebung angezeigt werden kann."
+    "other": "Dashboard welches den Benutzern vor dem Zugriff auf einen Workspace angezeigt werden kann"
   }
 }

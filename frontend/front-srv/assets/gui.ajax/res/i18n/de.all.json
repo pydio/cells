@@ -1,6 +1,6 @@
 {
   "tour.create-menu": {
-    "other": "Fügen Sie Dateien oder Ordner zur aktuellen Arbeitsumgebung hinzu."
+    "other": "Fügen Sie Dateien oder Ordner zu den aktuellen Workspace hinzu."
   },
   "tour.create-menu.title": {
     "other": "Dateien hinzufügen"
@@ -12,7 +12,7 @@
     "other": "Anzeigeeinstellungen"
   },
   "tour.globsearch.1": {
-    "other": "Hier können Sie Dateien oder Ordner aller Arbeitsumgebungen finden. Es werden nur die ersten fünf Ergebnisse angezeigt. Öffnen Sie eine Arbeitsumgebung für mehr Ergebnisse und Sucheinstellungen."
+    "other": "Verwenden Sie dieses Suchformular, um Dateien oder Ordner in jedem Workspace und Cells zu finden. Nur die ersten 5 Ergebnisse werden angezeigt, betreten Sie einen Workspace, um mehr Ergebnisse und weitere Suchoptionen zu erhalten."
   },
   "tour.globsearch.2": {
     "other": "Wenn kein Suchbegriff eingegeben ist werden die zuletzt geöffneten Dateien und Ordner angezeigt."
@@ -54,10 +54,10 @@
     "other": "Überspringen"
   },
   "tour.openworkspace": {
-    "other": "Bei der ersten Verbindung ist Ihre Historie leer. Öffnen Sie eine Arbeitsumgebung oder ein Cell um Dateien hinzuzufügen."
+    "other": "Bei der ersten Verbindung ist Ihre Historie leer. Öffnen Sie einen Workspace oder ein Cell um Dateien hinzuzufügen."
   },
   "tour.openworkspace.title": {
-    "other": "Eine Arbeitsumgebung öffnen"
+    "other": "Einen Workspace öffnen"
   },
   "tour.uwidget.addressbook": {
     "other": "Verzeichnis aller Benutzer mit Zugriff auf diese Plattform. Erstellen Sie eigene Benutzer und Teams, um Elemente freizugeben"
@@ -93,13 +93,13 @@
     "other": "Widgets"
   },
   "tour.workspaces.1": {
-    "other": "Arbeitsumgebungen sind die obersten Ordner, mit denen Sie Ihre Daten organisieren können. Sie können nur durch Sie zugegriffen oder freigegeben werden."
+    "other": "Workspaces sind die obersten Ordner, mit denen Sie Ihre Daten organisieren können. Sie können nur durch Sie zugegriffen oder freigegeben werden."
   },
   "tour.workspaces.2": {
     "other": "Zellen sind gemeinsame Räume, die Sie mit anderen Benutzern teilen können. Erstellen Sie Ihre eigenen Zellen basierend auf einem Ordner, einem Benutzerteam oder einem relevanten Thema."
   },
   "tour.workspaces.title": {
-    "other": "Arbeitsumgebungen & Zellen"
+    "other": "Workspaces & Cells"
   },
   "tour.theme.title": {
     "other": "Unterstützung von hellen/dunklen Themen"
@@ -108,7 +108,7 @@
     "other": "Wählen Sie ein helles oder dunkles Thema, das am besten zu Ihrer Vision passt."
   },
   "tour.left-resize.title": {
-    "other": "Arbeitsumgebungen und Zellen"
+    "other": "Workspaces und Cells"
   },
   "tour.left-resize.legend": {
     "other": "Die linke Spalte kann in der Größe verändert oder geschlossen werden, um sie an Ihren Bildschirm anzupassen."

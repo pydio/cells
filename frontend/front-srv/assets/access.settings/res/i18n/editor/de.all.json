@@ -84,7 +84,7 @@
     "other": "Zugriffskontrolle"
   },
   "35": {
-    "other": "Zugriff auf Arbeitsumgebungen"
+    "other": "Zugriff auf Workspaces"
   },
   "36": {
     "other": "Zugriff auf Hauptseiten"
@@ -96,22 +96,22 @@
     "other": "Anwendungs-Parameter"
   },
   "39": {
-    "other": "Arbeitsumgebungs-Übergreifend"
+    "other": "Alle Workspace-Parameter"
   },
   "4": {
     "other": "Wert Leeren"
   },
   "40": {
-    "other": "Arbeitsumgebungs-Parameter"
+    "other": "Workspace-spezifische Parameter"
   },
   "41": {
     "other": "Anwendungs-Parameter"
   },
   "42": {
-    "other": "Überschreiben Sie Anwendungs-Parameter oder Erweiterungs-Aktionen für diese Rolle. Hier können nur globale Einstellungen (Authentifizierung, Konfiguration, etc.) überschrieben werden. Arbeitsumgebungs-Spezifische Parameter finden Sie im nächsten Tab."
+    "other": "Verfeinern Sie die Werte der Anwendungsparameter und deaktivieren Sie gezielt Plugin-Aktionen für diese aktuelle Rolle. Die Parameter hier sind global für die Anwendung (Authentifizierung, Konfiguration usw.). Sehen Sie die Workspaces-Reiter für workspace-spezifische Parameter/Aktionen."
   },
   "43": {
-    "other": "Zugriff auf eine Arbeitsumgebung gewähren"
+    "other": "Gewähren Sie der aktuellen Rolle/Benutzer/Gruppe Zugriff auf Workspaces"
   },
   "44": {
     "other": "Hauptseiten"
@@ -123,7 +123,7 @@
     "other": "Parameter und Aktionen"
   },
   "47": {
-    "other": "Überschreiben Sie Parameter oder Aktionen für alle Arbeitsumgebungen."
+    "other": "Überschreiben Sie Parameter oder Aktionen für alle Workspaces"
   },
   "49": {
     "other": "Zugriff auf Freigaben"
@@ -141,7 +141,7 @@
     "other": "Von diesem Benutzer"
   },
   "53": {
-    "other": "Von %1 aus der Arbeitsumgebung %2 freigegeben"
+    "other": "Von %1 aus dem Workspace %2 freigegeben"
   },
   "54": {
     "other": "Grundlegende Benutzerinformationen. Verwenden Sie die Schaltfläche auf der rechten Seite, um weitere Aktionen anzuzeigen."

@@ -1,6 +1,6 @@
 {
   "39": {
-    "other": "Unten finden Sie eine Liste der Arbeitsumgebungen auf die Sie zugreifen können. Diese können persönlich oder mit anderen Benutzern genutzt werden."
+    "other": "Unten finden Sie eine Liste der Workspaces, auf die Sie zugreifen können. Diese können persönlich oder gemeinsam mit anderen Benutzern genutzt werden."
   },
   "40": {
     "other": "Willkommen, %s!"
@@ -120,7 +120,7 @@
     "other": "Einstellungen"
   },
   "78": {
-    "other": "Wählen Sie eine Ziel-Arbeitsumgebung"
+    "other": "Wählen Sie eine Ziel-Workspace"
   },
   "79": {
     "other": "<h2>[How-to] Austausch von Dateien und Ordnern</h2>\n            Dieses Tutorial zeigt Ihnen gewusst wie: Freigeben von Dateien und Ordnern, intern oder extern         \n            <ul>\n                <li>Erstellen Anteil Links für externe Personen</li>\n                <li>Freigeben von Dateien und Ordnern mit internen Mitarbeitern</li>\n                <li>Freigabe eines Ordners als Arbeitsbereich</li>\n                <li>Layoutoptionen der gemeinsame Ordner</li>\n                <li>Erstellen einen Blind drop Ordner</li>\n                <li>Verwalten von Benutzern und teilen Rechte</li>\n            </ul>\n            "
@@ -156,7 +156,7 @@
     "other": "Zum Hochladen ausgehälte Datei"
   },
   "90": {
-    "other": "Ziel-Arbeitsumgebung auswählen"
+    "other": "Ziel-Workspace auswählen"
   },
   "91": {
     "other": "Dateien mit dem Sync-Client offline synchronisieren"
