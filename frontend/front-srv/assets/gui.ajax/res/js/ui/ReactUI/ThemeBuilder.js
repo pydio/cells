@@ -205,7 +205,7 @@ export default class ThemeBuilder {
         } else if(userTheme === 'mui3-dark') {
             dark = true;
             userTheme = 'mui3'
-        } else if (userTheme === 'mui3-light') {
+        } else if (userTheme === 'mui3-light' || userTheme === 'light' /*legacy value*/) {
             userTheme = 'mui3'
         }
 

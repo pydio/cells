@@ -1,6 +1,6 @@
 import React from 'react'
 import { LiveKitRoom} from 'livekit-react'
-import {createLocalAudioTrack, createLocalVideoTrack} from 'livekit-client/dist/livekit.js'
+import {createLocalAudioTrack, createLocalVideoTrack} from 'livekit-client/room/track/create.js'
 
 export const LKRoom = ({url, token, onRoomConnected, style, stageRenderer}) => {
     return (

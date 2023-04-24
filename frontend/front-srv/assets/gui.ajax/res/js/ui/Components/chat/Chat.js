@@ -28,7 +28,7 @@ import EmptyStateView from '../views/EmptyStateView'
 const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
 import {IconButton, TextField} from 'material-ui'
 import ChatUsers from './ChatUsers'
-import LKContainer from "./LKContainer";
+//import LKContainer from "./LKContainer";
 import {muiThemeable} from 'material-ui/styles'
 import Color from 'color'
 
@@ -310,7 +310,7 @@ class Chat extends React.Component{
                     </div>
                     }
                 </div>
-                {videoData && joinVideo && <LKContainer url={videoData.Url} token={videoData.Token}/>}
+                {false && videoData && joinVideo && <LKContainer url={videoData.Url} token={videoData.Token}/>}
                 <style type={"text/css"} dangerouslySetInnerHTML={{__html:mdCSS}}/>
             </div>
         )

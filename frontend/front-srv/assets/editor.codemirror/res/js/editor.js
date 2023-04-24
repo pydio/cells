@@ -25,7 +25,7 @@ import React from 'react';
 import DOMUtils from 'pydio/util/dom'
 import { connect } from 'react-redux';
 import Markdown from "react-markdown";
-import ReactCodeMirror from "./reactCodeMirror";
+import ReactCodeMirror from "./ReactCodeMirror";
 
 const {EditorActions} = Pydio.requireLib('hoc');
 
@@ -83,7 +83,9 @@ export default class Editor extends React.Component {
     render() {
         const {node, tab, error, tabModify} = this.props;
 
-        if (!tab) return null;
+        if (!tab) {
+            return null;
+        }
 
         const {id, content, lineWrapping, lineNumbers} = tab;
 
@@ -91,20 +93,20 @@ export default class Editor extends React.Component {
             const show = DOMUtils.getViewportWidth() > 480;
             return (
                 <div style={{display:'flex', flex:1, width: '100%', backgroundColor:'white'}}>
-                    <ReactCodeMirror
-                        {...this.props}
-                        url={node.getPath()}
-                        content={content}
-                        options={{lineNumbers: lineNumbers, lineWrapping: lineWrapping}}
-                        error={error}
+                    <div style={{flex:1, maxWidth:show?'50%':'100%', display:'flex'}}>
+                        <ReactCodeMirror
+                            {...this.props}
+                            url={node.getPath()}
+                            content={content}
+                            options={{lineNumbers: lineNumbers, lineWrapping: lineWrapping}}
+                            error={error}
 
-                        onLoad={(codemirror) => tabModify({id, codemirror})}
-                        onChange={content => tabModify({id, content})}
-                        onCursorChange={cursor => tabModify({id, cursor})}
-
-                        cmStyle={{flex:1, width:show?'60%':'100%'}}
-                    />
-                    {show && <Markdown source={content} className={"mdviewer"}/>}
+                            onLoad={(codemirror) => tabModify({id, codemirror})}
+                            onChange={content => tabModify({id, content})}
+                            onCursorChange={cursor => tabModify({id, cursor})}
+                        />
+                    </div>
+                    {show && <Markdown style={{flex: 1}} source={content} className={"mdviewer"}/>}
                 </div>
             )
         } else{
