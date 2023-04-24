@@ -18,7 +18,7 @@
     "other": "Benutzer dürfen beim Freigeben von Elementen andere Benutzer auswählen."
   },
   "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them": {
-    "other": "Benutzer anderer Gruppen bei der Autovervollständigung anzeigen, wenn Ordner freigegeben werden."
+    "other": "Benutzer anderer Gruppen bei der Autovervollständigung anzeigen, wenn Ordner geteilt werden"
   },
   "Always Override": {
     "other": "Immer überschreiben"
@@ -75,7 +75,7 @@
     "other": "Parameter bei der Anlage von Freigabebenutzern"
   },
   "Full name displayed to others": {
-    "other": "Ihr Name wird anderen Benutzern angezeigt"
+    "other": "Vollständiger Name, der anderen angezeigt wird"
   },
   "Generic Conf Features": {
     "other": "Standard Konfiguration"
@@ -120,13 +120,13 @@
     "other": "Benutzer aller Gruppen anzeigen"
   },
   "List of parameters to be edited when creating a new shared user.": {
-    "other": "Liste mit Parametern, die beim Erstellen eines neuen Benutzers, während der Freigabe von Elementen, festgelegt werden müssen."
+    "other": "Liste mit Parametern, die beim Erstellen eines neuen Benutzers, während der Teilen von Elementen, festgelegt werden müssen."
   },
   "Make regexp mandatory": {
     "other": "Regulärer Ausdruck ist Pflicht"
   },
   "Maximum number of shared users per user": {
-    "other": "Maximale Anzahl an Freigabenbenutzer pro Benutzer"
+    "other": "Maximale Anzahl an geteilte Benützer pro Benutzer"
   },
   "Maximum number of users displayed in the users autocompleter": {
     "other": "Maximale Anzahl der Benutzern, die in der Autovervollständigung angezeigt werden"
@@ -162,10 +162,10 @@
     "other": "Festlegen wie Core-Daten (Benutzer, Rollen, etc) gespeichert werden."
   },
   "Share with existing users from all groups": {
-    "other": "Für Benutzer aller Gruppen freigeben"
+    "other": "Mit vorhandenen Benutzern aus allen Gruppen teilen"
   },
   "Shared users limit": {
-    "other": "Begrenzung der Freigabenbenutzer"
+    "other": "Limit für geteilte Benutzer"
   },
   "Simple SQL Connexion definition that can be used by other sql-based plugins": {
     "other": "Definition der SQL-Verbindung, auf die andere SQL-Basierte Erweiterungen zugreifen können"
@@ -183,7 +183,7 @@
     "other": "Automatisches Laden der zuletzt geöffneten Programmoberfläche unterbinden. (zuletzt geöffneter Ordner, offene Tabs, etc)"
   },
   "User Language": {
-    "other": "Ihre Sprache"
+    "other": "Benutzersprache"
   },
   "User roles only": {
     "other": "Nur Rollen des Benutzers"

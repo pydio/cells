@@ -837,7 +837,7 @@
     "other": "Eine neue Version (%s) ist verfügbar! Besuchen Sie %s"
   },
   "348": {
-    "other": "Ein neuer Workspace wurde freigegeben."
+    "other": "Ein neuer Workspace wurde geteilt."
   },
   "349": {
     "other": "Warnung! Es fehlen Parameter"
@@ -849,7 +849,7 @@
     "other": "Ein Benutzer mit diesem Namen existiert bereits. Bitte wählen Sie einen anderen Namen."
   },
   "351": {
-    "other": "Es ist nicht erlaubt Elemente freizugeben."
+    "other": "Es ist Ihnen nicht erlaubt, Elemente öffentlich zu teilen."
   },
   "352": {
     "other": "Ein Workspace mit diesem Namen existiert bereits. Bitte wählen Sie einen anderen Namen."
@@ -870,7 +870,7 @@
     "other": "Ziel-Arbeitsumgebung"
   },
   "358": {
-    "other": "Wählen Sie einen Namen für das freigegebene Element und legen Sie die Zugriffsrechte für die Benutzer fest."
+    "other": "Wählen Sie einen Namen für das geteilte Element und legen Sie die Zugriffsrechte für die Benutzer fest."
   },
   "359": {
     "other": "Markierung"
@@ -888,7 +888,7 @@
     "other": "Schreiben"
   },
   "363": {
-    "other": "Freigegebene Elemente"
+    "other": "Geteilten"
   },
   "364": {
     "other": "Für diese Operation fehlt die Berechtigung"
@@ -1032,7 +1032,7 @@
     "other": "Jeder WebDAV-Client fragt Sie nach einer Adresse, einem Login und einem Passwort. Verwenden Sie die untenstehende URL zusammen mit Ihrem Standardnamen und Passwort."
   },
   "406": {
-    "other": "Aktiviere die WebDAV-Freigaben"
+    "other": "WebDAV-Freigaben aktivieren"
   },
   "407": {
     "other": "Bitte das Passwort eingeben, wenn die WebDAV-Freigaben zum ersten Mal aktiviert werden oder ein neues Passwort verwendet werden soll:"
@@ -1056,7 +1056,7 @@
     "other": "Nur Hochladen"
   },
   "413": {
-    "other": "Freigegeben von"
+    "other": "Geteilt von"
   },
   "414": {
     "other": "Benutzen Sie die Pfeile zum Navigieren und die +/- Symbole zum Ändern der Größe."
@@ -1260,7 +1260,7 @@
     "other": "Keine Beschreibung verfügbar"
   },
   "475": {
-    "other": "Für alle Benutzer freigegeben"
+    "other": "Dateien, die unter allen Benutzern geteilt werden"
   },
   "476": {
     "other": "Ihr persönliche Workspace"
@@ -1281,7 +1281,7 @@
     "other": "Alle Ordner des aktuellen Workspace anzeigen."
   },
   "481": {
-    "other": "Alle freigegebenen Dateien und Ordner"
+    "other": "Alle Ihre geteilten Dateien und Ordner"
   },
   "482": {
     "other": "Schnellzugriff auf vorgemerkte Dinge"
@@ -1497,7 +1497,7 @@
     "other": "Freigabe von entferntem System"
   },
   "546": {
-    "other": "Dieses Element wurde von %%OWNER%% für Sie von einem entfernten System freigegeben. Möchten sie fortfahren?"
+    "other": "Dieses Element wurde von %%OWNER%% für Sie von einem entfernten System geteilt. Möchten sie fortfahren?"
   },
   "547": {
     "other": "Akzeptieren"
@@ -1581,7 +1581,7 @@
     "other": "Keine Teams"
   },
   "572": {
-    "other": "Erstellen Sie Teams, um Elemente einfach freizugeben"
+    "other": "Erstellen Sie Teams, um Elemente einfach zuteilen"
   },
   "571.readonly": {
     "other": "Keine Teams verfügbar"
@@ -1662,7 +1662,7 @@
     "other": "Adressbuch"
   },
   "593": {
-    "other": "Meine Benutzer"
+    "other": "Geteilte Benutzer"
   },
   "594": {
     "other": "Vertrauenswürdige Server"
@@ -1695,10 +1695,10 @@
     "other": "Benutzer bearbeiten"
   },
   "601": {
-    "other": "Eine shared Cell"
+    "other": "Eine geteilte Cell"
   },
   "602": {
-    "other": "%1 shared Cells"
+    "other": "%1 geteilten Cells"
   },
   "603": {
     "other": "Team"
@@ -1776,7 +1776,7 @@
     "other": "Buchstabe"
   },
   "626": {
-    "other": "Mit mir geteilte Ordner"
+    "other": "Mit mir geteilte Dateien"
   },
   "627": {
     "other": "Remote-Server-Freigaben"
@@ -1791,7 +1791,7 @@
     "other": "Abmelden"
   },
   "630": {
-    "other": "Mit mir geteilte Dateien"
+    "other": "Mit mir geteilte Ordner"
   },
   "631": {
     "other": "Diese Cell ist leer!"
@@ -2238,10 +2238,10 @@
     "other": "Derzeit wird dieser Ordner beobachtet"
   },
   "overlay.shared.file": {
-    "other": "Shared Datei, klicken Sie zum Bearbeiten"
+    "other": "Geteilte Datei, klicken Sie zum Bearbeiten"
   },
   "overlay.shared.folder": {
-    "other": "Shared Ordner, klicken Sie zum Bearbeiten"
+    "other": "Geteilte Ordner, klicken Sie zum Bearbeiten"
   },
   "overlay.bookmark.file": {
     "other": "Die Datei ist mit Lesezeichen"
