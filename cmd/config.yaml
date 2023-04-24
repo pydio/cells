@@ -97,11 +97,11 @@ processes:
     connections:
       <<: *connections
       config:
-        uri: {{ .Config }}
+        uri: {{ .ConfigURL }}
       registry:
-        uri: mem://?cache=shared
+        uri: {{ .RegistryURL }}
       broker:
-        uri: mem://broker
+        uri: {{ .BrokerURL }}
 
     servers:
       <<: *servers
@@ -135,13 +135,30 @@ processes:
     services:
       auth:
 
-  - name: datasource
+  {{ $objectsVal := .Config.Val "services/pydio.grpc.data.objects/sources" }}
+  {{ range $objectsVal.StringArray }}
+  - name: datasource-{{ . }}
     connections: *connections
     servers: *servers
     env: *env
 
     services:
       datasource:
+        - pydio.grpc.data.objects.{{ . }}
+  {{ end }}
+
+  {{ $indexesVal := .Config.Val "services/pydio.grpc.data.index/sources" }}
+  {{ range $indexesVal.StringArray }}
+  - name: datasource-{{ . }}
+    connections: *connections
+    servers: *servers
+    env: *env
+
+    services:
+      datasource:
+        - pydio.grpc.data.index.{{ . }}
+        - pydio.grpc.data.sync.{{ . }}
+  {{ end }}
 
   - name: broker
     connections: *connections
