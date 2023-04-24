@@ -138,10 +138,10 @@
     "other": "Auszulösende Aktion beim Klicken auf Passwort vergessen. Kann geändert werden, um eine benutzerdefinierte Aktion auszulösen, wenn Sie sich auf ein externes Authentifizierungssystem verlassen."
   },
   "Let user create new cells": {
-    "other": "Lassen Sie den Benutzer neue Zellen erstellen"
+    "other": "Lassen Sie den Benutzer neue Cells erstellen"
   },
   "Whether users can create their own cells or not": {
-    "other": "Ob Benutzer ihre eigenen Zellen erstellen können oder nicht"
+    "other": "Ob Benutzer ihre eigenen Cells erstellen können oder nicht"
   },
   "Delegation": {
     "other": "Delegation"

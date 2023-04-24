@@ -78,7 +78,7 @@
     "other": "[Example] Begrenzter Zeitraum"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
-    "other": "Ermöglicht den Zugriff auf einen bestimmten Arbeitsbereich nur für einen festgelegten Zeitraum"
+    "other": "Ermöglicht den Zugriff auf einen bestimmten Workspace nur für einen festgelegten Zeitraum"
   },
   "PolicyGroup.ACLSamplePeriod.Rule1": {
     "other": "Beispiel für eine ACL-Regel, die den Zugriff nur im Februar und März 2018 erlaubt"

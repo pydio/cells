@@ -3,7 +3,7 @@
     "other": "Freigaben-Benutzer"
   },
   "10": {
-    "other": "Verknüpfte Arbeitsumgebungen"
+    "other": "Verknüpfte Workspaces"
   },
   "11": {
     "other": "Möchten Sie die ausgewählten Elemente wirklich löschen?"
@@ -63,13 +63,13 @@
     "other": "Dateien zum direkten Download mit oder ohne Passwortschutz freigegeben."
   },
   "29": {
-    "other": "Arbeitsumgebungen von delegierten Benutzern."
+    "other": "Delegierte Workspaces, die von Benutzern erstellt wurden."
   },
   "3": {
     "other": "Freigegebene Dateien"
   },
   "30": {
-    "other": "Mit delegierten Arbeitsumgebungen verknüpfte Benutzer."
+    "other": "Benutzer erstellt, um auf die delegierten Workspaces zuzugreifen."
   },
   "31": {
     "other": "Beschreibung"
@@ -96,7 +96,7 @@
     "other": "Benachrichtigungen"
   },
   "39": {
-    "other": "Unten ist eine Liste der Arbeitsumgebungen auf die Sie zugreifen können. Diese können persönliche oder mit/von anderen Benutzern genutzt werden."
+    "other": "Unten finden Sie eine Liste der Workspaces, auf die Sie zugreifen können. Sie können persönlich oder gemeinsam mit/von anderen Benutzern geteilt werden."
   },
   "4": {
     "other": "Dateipfad"
@@ -135,7 +135,7 @@
     "other": "Freigaben-Benutzer, die Sie erstellt haben"
   },
   "5": {
-    "other": "Arbeitsumgebung"
+    "other": "Workspace"
   },
   "50": {
     "other": "Meine Teams"
@@ -147,7 +147,7 @@
     "other": "Sind Sie sicher, dass Sie dieses Team löschen möchten? Es werden dabei keine Benutzer entfernt."
   },
   "53": {
-    "other": "Zu den Arbeitsumgebungen"
+    "other": "Zurück zu meiner Workspaces"
   },
   "54": {
     "other": "Team bearbeiten"

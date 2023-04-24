@@ -48,10 +48,10 @@
     "other": "Benutzer für Freigaben erstellen"
   },
   "Default Workspace": {
-    "other": "Standard Arbeitsumgebung"
+    "other": "Standard Workspace"
   },
   "Default start repository": {
-    "other": "Diese Arbeitsumgebung nach der Anmeldung standardmäßig öffnen."
+    "other": "Standard-Workspace nach dem Anmelden angezeigt. 'Hauptseite' ist die Willkommensseite mit Aktivitäten und Suchmaschine."
   },
   "Display roles and/or groups": {
     "other": "Anzeige von Rollen oder Gruppen"
@@ -108,10 +108,10 @@
     "other": "Sprache"
   },
   "Let user create repositories": {
-    "other": "Benutzer dürfen Arbeitsumgebungen erstellen"
+    "other": "Benutzer dürfen Workspaces erstellen"
   },
   "Let user create repositories from templates": {
-    "other": "Arbeitsumgebungen können aus Vorlagen erstellt werden"
+    "other": "Workspaces können aus Vorlagen erstellt werden"
   },
   "List Roles By": {
     "other": "Rollen anzeigen"
@@ -204,10 +204,10 @@
     "other": "Nur Benutzer (weder Gruppen noch Rollen)"
   },
   "Whether users can create their own repositories, based on predefined templates.": {
-    "other": "Benutzer können aus Vorlagen ihre eigenen Arbeitsumgebungen erstellen."
+    "other": "Benutzer können aus Vorlagen ihre eigenen Workspaces erstellen."
   },
   "Worskpace creation delegation": {
-    "other": "Datenübertragung beim Erstellen von Arbeitsumgebungen"
+    "other": "Delegation der Workspace-Erstellung"
   },
   "role prefix": {
     "other": "Rollen-Präfix"

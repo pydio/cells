@@ -15,7 +15,7 @@
     "other": "Link auf Videos, welche die ersten Schritte mit Pydio zeigen"
   },
   "Enable cross-workspaces search form on home page": {
-    "other": "Arbeitsumgebungs übergreifende Suche auf der Willkommen-Seite"
+    "other": "Aktivieren Sie das übergreifende Workspaces-Suchformular auf der Hauptseite"
   },
   "Let users connect easily to the latest mobile applications by displaying a QRCode": {
     "other": "Benutzer können, mit den Apps, diesen QRCode scannen um eine Verbindung zum Server zu konfigurieren"
@@ -24,10 +24,10 @@
     "other": "URL zum Mac-Sync-Client"
   },
   "Open workspace by simple click": {
-    "other": "Arbeitsumgebung mit einfachem Klick öffnen"
+    "other": "Workspace mit einfachem Klick öffnen"
   },
   "Open workspace by simple click instead of double click.": {
-    "other": "Arbeitsumgebung mit einfachem Klick öffnen statt mit Doppelklick."
+    "other": "Workspace mit einfachem Klick öffnen statt mit Doppelklick."
   },
   "URL of the Android application": {
     "other": "URL zur Android-App (leave empty if you want to hide the block)"
@@ -45,7 +45,7 @@
     "other": "Willkommen-Seite"
   },
   "Welcome Page displaying a list of workspaces": {
-    "other": "Willkommen-Seite auf der eine Liste mit Arbeitsumgebungen angezeigt wird"
+    "other": "Willkommen-Seite auf der eine Liste mit Workspaces angezeigt wird"
   },
   "Windows PydioSync URL": {
     "other": "URL zum Windows-Sync-Client"

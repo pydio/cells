@@ -63,7 +63,7 @@
     "other": "Metadaten importieren"
   },
   "step.meta.legend": {
-    "other": "Ordnen Sie Metadaten den internen Features der Zellen zu. Globale Metadaten (Watches und Bookmarks) werden aus der API gelesen und die Metadaten der Dateien werden direkt aus den .ajxp_meta-Dateien in den Datenquellen konvertiert."
+    "other": "Metadaten den internen Funktionen von Cells zuordnen. Globale Metadaten (Watches und Lesezeichen) werden von der API gelesen und Datei-Metadaten werden direkt aus den .ajxp_meta-Dateien innerhalb der Datenquellen konvertiert."
   },
   "step.meta.feature.watches": {
     "other": "Überwachungen, die vom Benutzer in Dateien und Ordnern gesetzt werden"
@@ -72,7 +72,7 @@
     "other": "Benutzer Lesezeichen"
   },
   "step.meta.feature.files": {
-    "other": "Metadaten für Dateien und Ordner: Verwenden Sie die folgende Zuordnung, um Metadaten-Namespaces für Zellen zu erstellen"
+    "other": "Metadaten für Dateien und Ordner: Verwenden Sie die folgende Zuordnung, um Cells-Metadaten-Namespaces zu erstellen"
   },
   "step.meta.from": {
     "other": "Metadaten aus Workspaces"
@@ -90,7 +90,7 @@
     "other": "Haftungsausschluss"
   },
   "step.disclaimer": {
-    "other": "Angesichts der Anzahl der von Pydio 8 bereitgestellten Funktionen ist jede Installation einzigartig und das Tool kann nicht alle möglichen Kombinationen verarbeiten. Es eignet sich am besten zum Importieren von Daten aus einer typischen Pydio 8-Installation, einschließlich Benutzern, Arbeitsbereichen (nur fs und s3), Zugriffsrechten und Freigaben."
+    "other": "Angesichts der Anzahl der von Pydio 8 bereitgestellten Funktionen ist jede Installation einzigartig und das Tool kann nicht alle möglichen Kombinationen verarbeiten. Es eignet sich am besten zum Importieren von Daten aus einer typischen Pydio 8-Installation, einschließlich Benutzern, Workspaces (nur fs und s3), Zugriffsrechten und Freigaben."
   },
   "step.disclaimer.ed": {
     "other": "Wir empfehlen Ihnen dringend, unseren Support (über Ihr Konto bei pydio.com) zu kontaktieren und einen Termin zu vereinbaren, um die Migration von einem Pydio-Experten durchführen zu lassen"
@@ -111,7 +111,7 @@
     "other": "Voraussetzungen"
   },
   "step.prereq.welcome": {
-    "other": "Starten des Pydio 8-Importtools. Dieser Assistent führt Sie durch die Schritte, die erforderlich sind, um Pydio-Zellen mit Daten von einem vorhandenen Pydio 8-Server zu versorgen."
+    "other": "Starten des Pydio 8-Importtools. Dieser Assistent führt Sie durch die Schritte, die erforderlich sind, um Pydio Cells mit Daten von einem vorhandenen Pydio 8-Server zu versorgen."
   },
   "step.prereq.step1": {
     "other": "1. Bereiten Sie Pydio 8 vor"
@@ -135,19 +135,19 @@
     "other": "Erstellen Sie einen dedizierten Cells-Benutzer mit Administratorrechten (z. B. cells_importer). Der Benutzerimport versucht, Pydio 8-Benutzer mit dem Cells-Benutzer zu synchronisieren. Nur diese spezifische Anmeldung bleibt unberührt."
   },
   "step.prereq.check.adminpydio": {
-    "other": "Erstellen Sie einen dedizierten Pydio 8 Benutzer mit administrativen Berechtigungen, mit einem anderen Login (z.B. Import). Einige Import-Tasks setzen automatisch Lese- und Schreibrechte für diesen Import Benutzer in allen Arbeitsbereichen."
+    "other": "Erstellen Sie einen dedizierten Pydio 8 Benutzer mit administrativen Berechtigungen, mit einem anderen Login (z.B. 'import'). Einige Import-Tasks setzen automatisch Lese- und Schreibrechte für diesen 'import' Benutzer in allen Workspaces."
   },
   "step.prereq.ds.create": {
     "other": "Erstellen Sie Datenquellen, die auf die neuen Daten verweisen und warten Sie bis die Indexierung abgeschlossen ist."
   },
   "step.prereq.ds.tpl.ed": {
-    "other": "Für \"Per-User\" Arbeitsumgebung (wie Meine Dateien) verwenden Sie die vorhandene Position des \"persönlichen\" Template-Pfades, oder bereiten neue Template-Pfade für den neuen Standort vor."
+    "other": "Für \"Per-User\" Workspaces (wie Meine Dateien) verwenden Sie die vorhandene Position des \"persönlichen\" Template-Pfades, oder bereiten neue Template-Pfade für den neuen Standort vor."
   },
   "step.prereq.ds.tpl.home": {
-    "other": "Stellen Sie sicher, dass die Daten für \"pro Benutzer\" Arbeitsbereiche (wie Meine Dateien) unter den vorhandenen Speicherort des \"persönlichen\" Template-Pfades der Zellen platziert werden."
+    "other": "Für \"pro Benutzer\" Workspaces (wie \"Meine Dateien\") stellen Sie sicher, dass die Daten unterhalb des vorhandenen Speicherorts des Cells \"persönlichen\" Template-Pfads abgelegt werden."
   },
   "step.prereq.ds.done": {
-    "other": "Sobald die Datenquellen richtig indiziert sind, können Sie den Migrationsprozess starten. Der Assistent hilft Ihnen, Ihre Pydio 8 Arbeitsbereiche neuen Arbeitsbereichen zuzuordnen."
+    "other": "Sobald die Datenquellen ordnungsgemäß indexiert sind, können Sie den Migrationsprozess starten. Der Assistent hilft Ihnen dabei, Ihre Pydio 8 Workspaces den neuen Workspaces zuzuordnen."
   },
   "step.prereq.start": {
     "other": "Alles gesetzt! Lass uns beginnen"
@@ -165,7 +165,7 @@
     "other": "Bitte wählen Sie mindestens einen Share-Typ aus!"
   },
   "step.shares.legend": {
-    "other": "Importieren Sie öffentliche Pydio 8-Links und freigegebene Ordner in Cells. Öffentliche Links werden mit derselben Kennung und denselben Eigenschaften (Kennwort, Ablaufdatum usw.) erstellt. Ordner, die in Pydio 8 als Arbeitsumgebung freigegeben wurden, werden neuen Zellen zugeordnet."
+    "other": "Importieren Sie öffentliche Pydio 8-Links und freigegebene Ordner in Cells. Öffentliche Links werden mit derselben Kennung und denselben Eigenschaften (Kennwort, Ablaufdatum usw.) erstellt. Ordner, die in Pydio 8 als Workspaces freigegeben wurden, werden neuen Cells zugeordnet."
   },
   "step.shares.legend.warning": {
     "other": "Bitte beachten Sie, dass der Freigabeimport eine unidirektionale Synchronisation ist: Wenn Sie diesen Schritt mehrmals ausführen, werden Duplikate erstellt. Wenn Sie die Migration mehrmals durchführen möchten, sollten Sie zunächst Freigaben für eine begrenzte Anzahl von Testbenutzern importieren."
@@ -192,13 +192,13 @@
     "other": "1. Migrieren Sie die vorhandenen Daten manuell vom aktuellen auf den neuen Server (dies ist möglicherweise nicht erforderlich, wenn Sie Pydio und Cells auf demselben Server ausführen)."
   },
   "step.ws.step2": {
-    "other": "2. Erstellen Sie Zellen-Datenquellen, die auf die neuen Speicherorte auf dem Server verweisen."
+    "other": "2. Erstellen Sie Cells-Datenquellen, die auf die neuen Speicherorte auf dem Server verweisen."
   },
   "step.ws.step3": {
     "other": "3. Warten Sie, bis alle Datenquellen ordnungsgemäß indiziert wurden."
   },
   "step.ws.step4": {
-    "other": "4. Ordnen Sie alte Arbeitsbereiche mit dem folgenden Tool neuen Arbeitsbereichen zu"
+    "other": "4. Ordnen Sie alte Workspaces mit dem folgenden Tool neuen Workspaces zu"
   },
   "step.mapper.already": {
     "other": "Bereits zugeordnete Workspaces (gleiche UUID)"
@@ -270,7 +270,7 @@
     "other": "Workspaces-ACLs"
   },
   "dash.feature.acls.legend": {
-    "other": "Für diesen Schritt gibt es keine spezifische Konfiguration. Die Zugriffsliste wird vom Server geladen und auf Arbeitsbereiche angewendet."
+    "other": "Für diesen Schritt gibt es keine spezifische Konfiguration. Die Zugriffsliste wird vom Server geladen und auf Workspaces angewendet."
   },
   "dash.feature.meta": {
     "other": "Dateien Metadaten"

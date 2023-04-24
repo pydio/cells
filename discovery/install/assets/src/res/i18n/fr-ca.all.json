@@ -63,28 +63,28 @@
     "other": "Une DataSource par défaut est créée au démarrage pour stocker les données personnelles des utilisateurs et les données des Cells. Vous pourrez créer d'autres DataSource plus tard."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "Configurer une connexion MongoDB"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "Ceci est recommandé pour la scalabilité, et nécessaire pour le déploiement en multi-noeuds. Si vous n'avez pas encore de MongoDB, vous pouvez faire cette configuration et basculer plus tard."
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "Hôte du serveur"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "Port du serveur"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "Base de données"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "Utilisateur"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "Mot de passe"
   },
   "advanced.mongo.authSource": {
-    "other": "Auth DB"
+    "other": "BD d'authentification"
   },
   "advanced.mongo.validate": {
     "other": "Test connection"
