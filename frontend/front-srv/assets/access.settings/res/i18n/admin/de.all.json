@@ -165,7 +165,7 @@
     "other": "Schreibgeschützter Modus"
   },
   "ds.editor.storage.legend.readOnly": {
-    "other": "Verwenden Sie den schreibgeschützten Modus, wenn Cells niemals versteckte Dateien schreiben und native eTags als Prüfsummen verwenden soll (dies kann für Buckets mit einer großen Menge vorhandener Daten erforderlich sein). Beachten Sie jedoch, dass alle in dieser Datenquelle erstellten Arbeitsbereiche als schreibgeschützt festgelegt werden sollten, da die Verschiebefunktion nicht ordnungsgemäß funktioniert."
+    "other": "Verwenden Sie den schreibgeschützten Modus, wenn Cells niemals versteckte Dateien schreiben und native eTags als Prüfsummen verwenden soll (dies kann für Buckets mit einer großen Menge vorhandener Daten erforderlich sein). Beachten Sie jedoch, dass alle in dieser Datenquelle erstellten Workspaces als schreibgeschützt festgelegt werden sollten, da die Verschiebefunktion nicht ordnungsgemäß funktioniert."
   },
   "ds.editor.storage.flatStorage": {
     "other": "Datenstruktur auf dem Speicher behalten"
@@ -186,7 +186,7 @@
     "other": "Native Etags verwenden (deaktiviert die Desktop-Synchronisierung)"
   },
   "ds.editor.storage.legend.checksumMapper": {
-    "other": "Zur ordnungsgemäßen Erkennung von Änderungen werden Dateiprüfsummen (md5) von Zellen (oder, wenn möglich, vom Speicher mit einer vorhandenen Kopie) berechnet und als Metadaten an Objekte angehängt. Verwenden Sie für optimale Leistungen das Native ETags-Flag, um die ursprünglichen Speicherwerte beizubehalten. Beachten Sie jedoch, dass dadurch die Desktop-Synchronisierung für diese Datenquelle deaktiviert wird. Sie können die Änderung von Objekten auch einfach verhindern, während Sie weiterhin Prüfsummen berechnen, indem Sie Metadaten lokal speichern."
+    "other": "Zur ordnungsgemäßen Erkennung von Änderungen werden Dateiprüfsummen (md5) von Cells (oder, wenn möglich, vom Speicher mit einer vorhandenen Kopie) berechnet und als Metadaten an Objekte angehängt. Verwenden Sie für optimale Leistungen das Native ETags-Flag, um die ursprünglichen Speicherwerte beizubehalten. Beachten Sie jedoch, dass dadurch die Desktop-Synchronisierung für diese Datenquelle deaktiviert wird. Sie können die Änderung von Objekten auch einfach verhindern, während Sie weiterhin Prüfsummen berechnen, indem Sie Metadaten lokal speichern."
   },
   "ds.editor.new": {
     "other": "Neue Datenquelle"
@@ -1602,7 +1602,7 @@
     "other": "Workspaces gewähren den Benutzern Zugriff auf Ihre Daten. Sie stellen einen oder mehrere Ordner in Ihren Datenquellen bereit."
   },
   "ws.editor.help.2": {
-    "other": "Es ist wichtig, richtig zu organisieren, wie Daten zu Ihren Benutzern präsentiert werden. Sie können für verschiedene Teile Ihrer Organisation Arbeitsbereiche erstellen (Finanzen, marketing, technische Daten, etc.), auf einer Basis pro Projekt, etc.. Anschließend können Sie Zugriffe auf Workspace auf einer pro-Benutzer zuweisen / pro Rolle / Grundlage pro Gruppe."
+    "other": "Es ist wichtig, richtig zu organisieren, wie Daten zu Ihren Benutzern präsentiert werden. Sie können für verschiedene Teile Ihrer Organisation Workspaces erstellen (Finanzen, marketing, technische Daten, etc.), auf einer Basis pro Projekt, etc.. Anschließend können Sie Zugriffe auf Workspace auf einer pro-Benutzer zuweisen / pro Rolle / Grundlage pro Gruppe."
   },
   "ws.editor.help.delete": {
     "other": "Warnung, gefährliche Operation! Dies ist nicht umkehrbar."
@@ -1629,7 +1629,7 @@
     "other": "Papierkorb überspringen"
   },
   "ws.editor.other.skiprecycle.legend": {
-    "other": "Papierkorb in diesem Arbeitsbereich deaktivieren: Alle Dateien werden dauerhaft gelöscht. Dies gilt nicht für Zellen, die in diesem Arbeitsbereich erstellt wurden. Dateien werden immer in den Arbeitsbereich-Recycling verschoben, um menschliche Fehler zu vermeiden."
+    "other": "Papierkorb in diesem Workspace deaktivieren: Alle Dateien werden dauerhaft gelöscht. Dies gilt nicht für Cells, die in diesem Workspace erstellt wurden. Dateien werden immer in den Workspace-Recycling verschoben, um menschliche Fehler zu vermeiden."
   },
   "ws.editor.other.sync": {
     "other": "Desktop-Synchronisierung zulassen"

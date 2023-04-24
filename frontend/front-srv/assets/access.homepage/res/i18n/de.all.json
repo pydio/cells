@@ -72,13 +72,13 @@
     "other": "Windows"
   },
   "62": {
-    "other": "<h2>[How-to] Was ist ein Arbeitsbereich?</h2>\n            Diese Video erklärt Arbeitsbreiche APPLICATION_TITLE\n            <ul>\n                <li>Warum sind Arbeitsbereiche zentral in APPLICATION_TITLE?</li>\n                <li>Was sind Arbeitsbereiche aus technischer Sicht?</li>\n                <li>Wie helfe Sie Ihre Datei Arbeit zu organisieren?</li>\n            </ul>\n            "
+    "other": "<h2>[Anleitung] Was ist ein Workspace?</h2>\n            Dieses Video erklärt, was Workspaces in APPLICATION_TITLE sind\n            <ul>\n                <li>Warum sind Workspaces zentral in APPLICATION_TITLE?</li>\n                <li>Was sind Workspaces aus technischer Sicht?</li>\n                <li>Wie ermöglichen sie die Organisation Ihrer Daten?</li>\n            </ul>            "
   },
   "63": {
     "other": "<h2>[How-to] Dateien zu APPLICATION_TITLE hochladen</h2>\n            Beginnen Sie mit APPLICATION_TITLE und erfahren Sie, wie Sie Dateien hochladen können.\n            <ul>\n                <li>Drag and Drop von Dateien in APPLICATION_TITLE</li>\n                <li>Erstellen neuer Ordner</li>.\n                <li>Dateien und Ordner umbenennen</li>\n                <li>Download von Dateien auf Ihren Computer </li>           \n</ul>            "
   },
   "64": {
-    "other": "<h2>[How-to] Durchsuchen und verwalten Sie Ihre Dateien</h2>\n            Dieses Video zeigt Ihnen verschiedene Tipps zur effizienten Verwaltung Ihrer Dateien in APPLICATION_TITLE.\n            <ul>\n                <li>Arbeitsbereichsübergreifende Suchleiste</li>\n                <li>Inhaltsanzeigemodi, Tastenkombinationen </li>\n                <li>Dateiesortierung</li>\n                <li>Metadaten, Lesezeichen</li>\n            </ul>            "
+    "other": "<h2>[Anleitung] Suchen, durchsuchen und verwalten Ihrer Dateien</h2>\n            Dieses Video zeigt Ihnen verschiedene Tipps, um Ihre Dateien in APPLICATION_TITLE effizient zu verwalten\n            <ul>\n                <li>übergreifende Workspaces-Suchleiste</li>\n                <li>Inhaltsanzeigemodi, Tastaturkürzel</li>\n                <li>Dateien sortieren</li>\n                <li>Meta-Daten, Lesezeichen</li>\n            </ul>\n            "
   },
   "65": {
     "other": "Mehr über APPLICATION_TITLE im YouTube-Kanal erfahren!"
@@ -123,7 +123,7 @@
     "other": "Wählen Sie eine Ziel-Workspace"
   },
   "79": {
-    "other": "<h2>[How-to] Austausch von Dateien und Ordnern</h2>\n            Dieses Tutorial zeigt Ihnen gewusst wie: Freigeben von Dateien und Ordnern, intern oder extern         \n            <ul>\n                <li>Erstellen Anteil Links für externe Personen</li>\n                <li>Freigeben von Dateien und Ordnern mit internen Mitarbeitern</li>\n                <li>Freigabe eines Ordners als Arbeitsbereich</li>\n                <li>Layoutoptionen der gemeinsame Ordner</li>\n                <li>Erstellen einen Blind drop Ordner</li>\n                <li>Verwalten von Benutzern und teilen Rechte</li>\n            </ul>\n            "
+    "other": "<h2>[Anleitung] Dateien und Ordner teilen</h2>\n            Dieses Tutorial zeigt Ihnen, wie Sie Dateien und Ordner intern oder extern teilen können\n            <ul>\n                <li>Erstellen von Freigabelinks für externe Personen</li>\n                <li>Dateien und Ordner mit internen Mitarbeitern teilen</li>\n                <li>Einen Ordner als Workspace teilen</li>\n                <li>Layoutoptionen für geteilte Ordner</li>\n                <li>Erstellen eines Blind Drop-Ordners</li>\n                <li>Benutzer und Freigaberechte verwalten</li>\n            </ul>\n            "
   },
   "80": {
     "other": "<h2>[How-to] Sharing : Sicherheit Features</h2>\n            Dieses Video durchläuft verschiedene Freigabeeinstellungen, die Ihnen helfen, Ihre Freigaben zu sichern\n            <ul>\n                <li>Passwort Schutz</li>\n                <li>Ablauf Datum</li>\n                <li>Anzahl der Downloads begrenzen</li>\n            </ul>\n            "
@@ -246,6 +246,6 @@
     "other": "Workspace"
   },
   "reco.cell": {
-    "other": "Zelle"
+    "other": "Cell"
   }
 }
