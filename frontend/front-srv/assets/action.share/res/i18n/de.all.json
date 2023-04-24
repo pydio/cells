@@ -15,7 +15,7 @@
     "other": "Freigegebene Ordner"
   },
   "103": {
-    "other": "Alle Ordner als Arbeitsumgebung oder öffentlichen Link freigegeben."
+    "other": "Alle Ordner als Workspaces oder öffentlichen Link freigegeben."
   },
   "104": {
     "other": "Zeige ersten Link, es existieren %s weitere"
@@ -51,10 +51,10 @@
     "other": "Diese Seite freigeben"
   },
   "113": {
-    "other": "Als Arbeitsumgebung"
+    "other": "Als neuer Workspace"
   },
   "114": {
-    "other": "Ordner als neue Arbeitsumgebung freigeben"
+    "other": "Diesen Ordner mit internen Benutzern teilen"
   },
   "115": {
     "other": "Als öffentlicher Link"
@@ -114,19 +114,19 @@
     "other": "Momentan sind keine Dateien oder Ordner freigegeben."
   },
   "132": {
-    "other": "Arbeitsumgebung"
+    "other": "Workspace"
   },
   "133": {
     "other": "Als öffentlicher Link"
   },
   "134": {
-    "other": "Als Arbeitsumgebung"
+    "other": "Als Workspace"
   },
   "135": {
     "other": "Ordner wird als öffentlicher Link freigegeben."
   },
   "136": {
-    "other": "Ordner wird als Arbeitsumgebung freigegeben."
+    "other": "Der Ordnerinhalt wird für die Anwendungsbenutzer als neuer Workspace angezeigt"
   },
   "137": {
     "other": "Die ausgewählte Datei als öffentlichen Link freigeben"
@@ -138,10 +138,10 @@
     "other": "Sie haben diesen Ordner als einen öffentlichen Link freigegeben, welcher jedoch aktuell inaktiv ist (ausgelaufen)."
   },
   "139": {
-    "other": "Sie haben diesen Ordner als eine Arbeitsumgebung freigegeben."
+    "other": "Sie haben diesen Ordner als Workspace mit Anwendungsbenutzern geteilt"
   },
   "139b": {
-    "other": "Sie haben diesen Ordner als Arbeitsumgebung mit Systemnutzern freigegeben, welche jedoch aktuell inaktiv ist (ausgelaufen)."
+    "other": "Sie haben diesen Ordner als Workspace mit Anwendungsbenutzern geteilt, welche jedoch aktuell inaktiv ist (ausgelaufen)."
   },
   "14": {
     "other": "Nein"
@@ -279,7 +279,7 @@
     "other": "Zurücksetzen"
   },
   "18": {
-    "other": "Ordner ist als neue Arbeitsumgebung freigegeben"
+    "other": "Ordner ist als neuer Workspace freigegeben"
   },
   "180": {
     "other": "Liste leeren"
@@ -312,7 +312,7 @@
     "other": "Als öffentlicher Link freigeben"
   },
   "19": {
-    "other": "Optionen der freigegebene Arbeitsumgebung wurden erfolgreich geändert"
+    "other": "Optionen der freigegebene Workspace wurden erfolgreich geändert"
   },
   "190": {
     "other": "Aktivieren Sie den Haken um eine öffentliche Freigabe zu erstellen. Im Tab \"Benutzerverwaltung\" kann die Datei für Pydio-Benutzer freigegeben werden."
@@ -354,10 +354,10 @@
     "other": "Sichtbarkeit der Freigabe für andere Benutzer"
   },
   "201": {
-    "other": "Andere Benutzer mit Zugriff auf diese Arbeitsumgebung können die Freigabe bearbeiten, nicht aber löschen oder beenden."
+    "other": "Andere Benutzer mit Zugriff auf diesen Workspace können die Freigabe bearbeiten, aber nicht löschen oder beenden"
   },
   "202": {
-    "other": "Andere Benutzer mit Zugriff auf diese Arbeitsumgebung können die Freigabe bearbeiten. Sie sind nicht der Eigentümer dieser Freigabe und können diese daher nicht löschen oder beenden."
+    "other": "Andere Benutzer mit Zugriff auf diesen Workspace können die Freigabe bearbeiten. Sie sind nicht der Eigentümer dieser Freigabe und können diese daher nicht löschen oder beenden"
   },
   "203": {
     "other": "Eigentümer ändern"
@@ -372,7 +372,7 @@
     "other": "Ändern auf ... (Kennung)"
   },
   "206": {
-    "other": "Freigaben sind standardmäßig privat. Durch aktivieren dieser Checkbox kann die Freigabe auch durch Benutzer mit Zugriff auf diese Arbeitsumgebung eingesehen und geändert werden."
+    "other": "Freigaben sind standardmäßig privat. Durch Aktivieren dieser Checkbox kann die Freigabe auch durch Benutzer mit Zugriff auf diesen Workspace eingesehen und geändert werden."
   },
   "207": {
     "other": "Benutzer eines Remote-Systems"
@@ -471,7 +471,7 @@
     "other": "Diese Freigabe zurücksetzen"
   },
   "234": {
-    "other": "Element wurde zu Ihrer Arbeitsumgebung %s hinzugefügt."
+    "other": "Element wurde zu Ihrem %s Workspace hinzugefügt."
   },
   "235": {
     "other": "Eindeutige Links generieren, um Zugriffe durch Benutzer zu identifizieren"
@@ -561,7 +561,7 @@
     "other": "Aus dieser Zelle entfernen"
   },
   "26": {
-    "other": "Wählen Sie die Benutzer oder Gruppen und legen Sie deren Zugriffsrechte fest. Nur Schreiben erstellt eine Nur-Upload-Arbeitsumgebung."
+    "other": "Wählen Sie die Benutzer oder Gruppen und legen Sie deren Zugriffsrechte fest. Nur Schreiben erstellt einen Nur-Upload-Workspace."
   },
   "260": {
     "other": "Ordner wird in den folgenden Zellen geteilt. Sie können die Benutzer bearbeiten oder eine neue Zelle erstellen."
@@ -672,7 +672,7 @@
     "other": "Titel"
   },
   "36": {
-    "other": "Der Ordner wird bei den Benutzern als Arbeitsumgebung, mit der folgenden Beschreibung, erscheinen."
+    "other": "Bezeichnung und kurze Beschreibung festlegen"
   },
   "37": {
     "other": "Bestätigen"
@@ -705,7 +705,7 @@
     "other": "Einladung senden"
   },
   "46": {
-    "other": "Arbeitsumgebung %s1 direkt auf der Seite %s2 öffnen"
+    "other": "Workspace %s1 direkt auf der Seite %s2 öffnen"
   },
   "46_file": {
     "other": "Datei %s1 öffnen"
@@ -768,10 +768,10 @@
     "other": "Adresse des öffentlichen Links"
   },
   "63": {
-    "other": "Neue Arbeitsumgebung"
+    "other": "Neuer Workspace"
   },
   "64": {
-    "other": "Für die gewählten Benutzer wird der Ordner als eine neue Arbeitsumgebung, in der Arbeitsumgebungsliste, angezeigt."
+    "other": "Für die gewählten Benutzer wird der Ordner als neuer Workspace, in der Workspacesliste, angezeigt."
   },
   "65": {
     "other": "Öffentlicher Link (ohne Authentifizierung)"
@@ -849,7 +849,7 @@
     "other": "Beobachtungsstatus ändern um eine/keine Benachrichtigung bei einen Download zu erhalten"
   },
   "83b": {
-    "other": "Schalte Beobachtungsstatus ein/aus um Benachrichtigungen zu erhalten, wenn diese Arbeitsumgebung geöffnet wird"
+    "other": "Schalte Beobachtungsstatus ein/aus um Benachrichtigungen zu erhalten, wenn dieser Workspace geöffnet wird"
   },
   "84": {
     "other": "Passwort"
