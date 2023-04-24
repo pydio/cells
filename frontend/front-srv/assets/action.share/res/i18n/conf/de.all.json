@@ -27,7 +27,7 @@
     "other": "Freigabe von Ordnern deaktivieren"
   },
   "Disallow users to create shared folders if a workspace already exists with the same label": {
-    "other": "Beim Freigeben von Ordnern muss die Bezeichnung des Workspace eindeutig sein"
+    "other": "Beim Teilen von Ordnern muss die Bezeichnung des Workspace eindeutig sein"
   },
   "Do not allow users to create public links, only private links (password-protected)": {
     "other": "Es ist nicht möglich, öffentliche Links zu erstellen, sondern nur welche mit Passwortschutz."
@@ -135,16 +135,16 @@
     "other": "Ordner und Dateien freigeben"
   },
   "Share page background color.": {
-    "other": "Hintergrundfarbe der Seite für öffentlich freigegebene Elemente."
+    "other": "Hintergrundfarbe der Freigabeseite."
   },
   "Share page text color.": {
-    "other": "Textfarbe der Seite für öffentlich freigegebene Elemente."
+    "other": "Textfarbe der Freigabeseite."
   },
   "Share page text shadow color.": {
-    "other": "Textschatten auf der Seite für öffentlich freigegebene Elemente."
+    "other": "Textschatten der Freigabeseite."
   },
   "Shared users configurations": {
-    "other": "Freigabeben-Benutzer"
+    "other": "Geteilte Benutzer Konfiguration"
   },
   "Sharing Features": {
     "other": "Freigaben"

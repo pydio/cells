@@ -141,7 +141,7 @@
     "other": "Durchsuchen Sie Daten aus einem lokalen oder an ein Netzwerk angeschlossenen Dateisystem."
   },
   "ds.editor.storage.legend.fs.peer": {
-    "other": "Wenn Sie die Datenquelle auf eine Peer-Adresse beschränken, wird der Dienst nur für einen bestimmten Knoten gestartet. Wenn Sie den Wert \"Beliebig\" verwenden, wird der Dienst auf allen Knoten gestartet, auf denen Cells ausgeführt wird. Dies kann hilfreich sein, wenn ein freigegebenes Dateisystem auf allen Knoten am selben Speicherort bereitgestellt wird oder wenn Ihr Knoten beim Neustart möglicherweise seine IP-Adresse ändert. Um Konflikte zu vermeiden, ist es besser, entweder ANY für alle Datenquellen zu verwenden oder bestimmte Knoten für alle Datenquellen auszuwählen."
+    "other": "Wenn Sie die Datenquelle auf eine Peer-Adresse beschränken, wird der Dienst nur für einen bestimmten Knoten gestartet. Wenn Sie den Wert \"Beliebig\" verwenden, wird der Dienst auf allen Knoten gestartet, auf denen Cells ausgeführt wird. Dies kann hilfreich sein, wenn ein geteiltes Dateisystem auf allen Knoten am selben Speicherort bereitgestellt wird oder wenn Ihr Knoten beim Neustart möglicherweise seine IP-Adresse ändert. Um Konflikte zu vermeiden, ist es besser, entweder ANY für alle Datenquellen zu verwenden oder bestimmte Knoten für alle Datenquellen auszuwählen."
   },
   "ds.editor.storage.legend.fs.path": {
     "other": "Stellen Sie sicher, dass der letzte Ordner klein geschrieben und der übergeordnete Ordner beschreibbar ist. Wenn Ihr vorhandener Ordner in Großbuchstaben geschrieben ist, können Sie symbolische Links verwenden, um diese Einschränkung zu umgehen."
@@ -1128,7 +1128,7 @@
     "other": "Gruppen-Pfad"
   },
   "user.13": {
-    "other": "Freigaben-Benutzer"
+    "other": "geteilt"
   },
   "user.14": {
     "other": "Neue Rolle erstellen"
@@ -1218,7 +1218,7 @@
     "other": "Interne Benutzer"
   },
   "user.filter.shared": {
-    "other": "Share Benutzer"
+    "other": "Geteilte Benutzer"
   },
   "user.filter.admins": {
     "other": "Nur Admins"
@@ -1317,13 +1317,13 @@
     "other": "Benennen Sie die Daten beim Löschen des Benutzers in {deleted-NAME-UUID} um."
   },
   "ws.1": {
-    "other": "Vorlagen verwalten"
+    "other": "Datenquelle verwalten"
   },
   "ws.10": {
-    "other": "Vorlage auswählen"
+    "other": "Datenquelle auswählen"
   },
   "ws.11": {
-    "other": "Vorlage oder Treiber auswählen"
+    "other": "Workspace basierend auf ..."
   },
   "ws.12": {
     "other": "Vorlage %s"
@@ -1407,19 +1407,19 @@
     "other": "Zugreifbar für %i Benutzer"
   },
   "ws.36": {
-    "other": "+ %i Dateien oder Ordner freigegeben"
+    "other": "+ %i Dateien oder Ordner geteilt"
   },
   "ws.37": {
     "other": "Workspaces, die auf dieser Vorlage basieren"
   },
   "ws.38": {
-    "other": "In diesem Workspace freigegebene Elemente"
+    "other": "In diesem Workspace geteilte Elemente"
   },
   "ws.39": {
     "other": "Eigentümer"
   },
   "ws.4": {
-    "other": "+ Vorlage"
+    "other": "+ Datenquelle"
   },
   "ws.40": {
     "other": "Art der Freigabe"
@@ -1521,7 +1521,7 @@
     "other": "Template-basierte Workspace"
   },
   "ws.7": {
-    "other": "Neue Vorlage erstellen"
+    "other": "Neue Datenquelle"
   },
   "ws.70": {
     "other": "Driver-basierte Workspace"
@@ -1545,7 +1545,7 @@
     "other": "Pydio fasst alle Ihre Datenquellen in einem Master-Baum zusammen, in dem Sie mithilfe von Workspaces Rechte zuweisen können."
   },
   "ws.8": {
-    "other": "Bestehende Vorlage"
+    "other": "Vorhandene Datenquelle"
   },
   "ws.9": {
     "other": "Datasource Nodes"

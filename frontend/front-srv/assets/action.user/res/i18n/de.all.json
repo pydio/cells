@@ -60,13 +60,13 @@
     "other": "Besitzer"
   },
   "28": {
-    "other": "Dateien zum direkten Download mit oder ohne Passwortschutz freigegeben."
+    "other": "Dateien zum direkten Download mit oder ohne Passwortschutz teilen."
   },
   "29": {
     "other": "Delegierte Workspaces, die von Benutzern erstellt wurden."
   },
   "3": {
-    "other": "Freigegebene Dateien"
+    "other": "Geteilte Dateien"
   },
   "30": {
     "other": "Benutzer erstellt, um auf die delegierten Workspaces zuzugreifen."
@@ -162,7 +162,7 @@
     "other": "Team erstellen"
   },
   "58": {
-    "other": "Teams werden verwendet, um Inhalte schnell an einen bestimmten Personenkreis freizugeben."
+    "other": "Teams werden verwendet, um Inhalte schnell an einen bestimmten Personenkreis zuteilen"
   },
   "59": {
     "other": "Name des Teams"
@@ -225,7 +225,7 @@
     "other": "Verknüpfte Benutzer"
   },
   "desc": {
-    "other": "Mein Benutzerkonto, Adressbuch, Freigaben, etc. verwalten."
+    "other": "Mein Benutzerkonto, Adressbuch, Freigaben, usw. verwalten."
   },
   "title": {
     "other": "Mein Profil"
