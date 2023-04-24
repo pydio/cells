@@ -168,13 +168,13 @@
     "other": "Addieren für..."
   },
   "parameters.scope.all": {
-    "other": "Alle Arbeitsbereiche"
+    "other": "Alle Workspaces"
   },
   "parameters.scope.shared": {
-    "other": "Nur geteilte Zellen"
+    "other": "Nur geteilte Cells"
   },
   "parameters.scope.workspace": {
-    "other": "Arbeitsbereich %s"
+    "other": "Workspace %s"
   },
   "parameters.custom.add": {
     "other": "Benutzerdefinierte Parameter oder Aktionen hinzufügen"
@@ -198,6 +198,6 @@
     "other": "Rechte manuell gesetzt"
   },
   "acls.rights.advanced.root": {
-    "other": "Gesamter Arbeitsbereich"
+    "other": "Gesamter Workspace"
   }
 }

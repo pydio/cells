@@ -507,13 +507,13 @@
     "other": "%s Einladung(en) versendet"
   },
   "246": {
-    "other": "Zelle öffnen"
+    "other": "Cell öffnen"
   },
   "247": {
-    "other": "Zelle editieren"
+    "other": "Cell editieren"
   },
   "248": {
-    "other": "Zelle löschen"
+    "other": "Cell löschen"
   },
   "249": {
     "other": "Inhalte"
@@ -522,7 +522,7 @@
     "other": "Kein Limit"
   },
   "250": {
-    "other": "Zelle"
+    "other": "Cells"
   },
   "251": {
     "other": "Link"
@@ -540,13 +540,13 @@
     "other": "Benutzern o. Gruppen"
   },
   "254c": {
-    "other": "In %d Zellen geteilt"
+    "other": "In %d Cells geteilt"
   },
   "254d": {
     "other": "Geteilt in '%s'"
   },
   "255": {
-    "other": "Sind Sie sicher, dass Sie alle Zellen und Links zu dieser Datei löschen möchten?"
+    "other": "Sind Sie sicher, dass Sie alle Cells und Links zu dieser Datei löschen möchten?"
   },
   "256": {
     "other": "Shares für %s"
@@ -558,25 +558,25 @@
     "other": "Cell Benutzer bearbeiten"
   },
   "259": {
-    "other": "Aus dieser Zelle entfernen"
+    "other": "Aus dieser Cell entfernen"
   },
   "26": {
     "other": "Wählen Sie die Benutzer oder Gruppen und legen Sie deren Zugriffsrechte fest. Nur Schreiben erstellt einen Nur-Upload-Workspace."
   },
   "260": {
-    "other": "Ordner wird in den folgenden Zellen geteilt. Sie können die Benutzer bearbeiten oder eine neue Zelle erstellen."
+    "other": "Ordner wird in den folgenden Cells geteilt. Sie können die Benutzer bearbeiten oder eine neue Cell erstellen."
   },
   "261": {
-    "other": "Wählen Sie Benutzer oder Gruppen, die Zugriff auf diese Zelle haben dürfen"
+    "other": "Wählen Sie Benutzer oder Gruppen, die Zugriff auf diese Cell haben dürfen"
   },
   "262": {
-    "other": "Freigeben Sie dieser Ordner für andere Benutzer, indem Sie eine neue Zelle erstellen"
+    "other": "Freigeben Sie dieser Ordner für andere Benutzer, indem Sie eine neue Cell erstellen"
   },
   "263": {
-    "other": "Zur Zelle hinzufügen..."
+    "other": "Zur Cell hinzufügen..."
   },
   "264": {
-    "other": "+ Neue Zelle"
+    "other": "+ Neue Cell"
   },
   "265": {
     "other": "Linkbezeichnung"
@@ -585,10 +585,10 @@
     "other": "Linkbeschreibung"
   },
   "267": {
-    "other": "Name der Zelle"
+    "other": "Name der Cell"
   },
   "268": {
-    "other": "Zellenbeschreibung"
+    "other": "Cellsbeschreibung"
   },
   "269": {
     "other": "Erstellen Sie eine Cell mit %USERS geteilt. Wählen Sie einige Ordner, die Sie freigeben oder lassen Sie Pydio einen leeren Ordner für Sie erstellen!"
@@ -612,10 +612,10 @@
     "other": " und "
   },
   "275": {
-    "other": "Erstellen Sie Zellen, um mit anderen Benutzern zusammenzuarbeiten. Fangen Sie mit einer Beschreibung dieser Zelle an."
+    "other": "Erstellen Sie Cells, um mit anderen Benutzern zusammenzuarbeiten. Fangen Sie mit einer Beschreibung dieser Cell an."
   },
   "276": {
-    "other": "Titel Ihrer Zelle"
+    "other": "Titel Ihrer Cell"
   },
   "277": {
     "other": "Optional eine Beschreibung hinzufügen"
@@ -624,7 +624,7 @@
     "other": "Wählen Sie aus, mit wem Sie Daten teilen möchten"
   },
   "279": {
-    "other": "Zelle jetzt erstellen!"
+    "other": "Cell jetzt erstellen!"
   },
   "28": {
     "other": "Ordner freigeben"
@@ -912,19 +912,19 @@
     "other": "Bestehende(n) Ordner teilen"
   },
   "cells.remove.node": {
-    "other": "Aus dieser Zelle entfernen"
+    "other": "Aus dieser Cell entfernen"
   },
   "cell.visibility.advanced": {
-    "other": "Mit dieser erweiterten Funktion können Sie entscheiden, wer die Eigenschaften dieser Zelle bearbeiten darf (Recht zum Hinzufügen / Entfernen von Benutzern und zum Hinzufügen / Entfernen von Ordnern im Stammverzeichnis der Zelle). Verwenden Sie stattdessen den \"Teilen mit\" Tab, um die tatsächlichen Zugriffe auf die Daten zu verwalten."
+    "other": "Mit dieser erweiterten Funktion können Sie entscheiden, wer die Eigenschaften dieser Cell bearbeiten darf (Recht zum Hinzufügen / Entfernen von Benutzern und zum Hinzufügen / Entfernen von Ordnern im Stammverzeichnis der Cell). Verwenden Sie stattdessen den \"Teilen mit\" Tab, um die tatsächlichen Zugriffe auf die Daten zu verwalten."
   },
   "cell.add.existing-or-new": {
-    "other": "Zur existierenden o. neuen Zelle hinzufügen"
+    "other": "Zur existierenden o. neuen Cell hinzufügen"
   },
   "cell.add.existing": {
-    "other": "Zur existierenden Zelle hinzufügen"
+    "other": "Zur existierenden Cell hinzufügen"
   },
   "cell.add.new": {
-    "other": "Neue Zelle erstellen"
+    "other": "Neue Cell erstellen"
   },
   "link.visibility.title": {
     "other": "[Advanced] Sichtbarkeit"

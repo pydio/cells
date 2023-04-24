@@ -423,7 +423,7 @@
     "other": "Nur nötig, wenn es Problem beim (Schreib-)zugriff auf den Tmp-Ordner gibt. Meistens verursacht durch den PHP SAFE MODE (in php6 nicht mehr vorhanden) oder durch verschiedene OPEN_BASEDIR-Einschränkungen. In diesem Fall kann ein eigener tmp-Ordner erstellt (wenn möglich außerhalb von web/, www/ oder http/) und hier eingetragen werden."
   },
   "This right pattern (empty, r, or rw) will be applied at user creation for this repository.": {
-    "other": "Rechte die auf Benutzer angewendet werden, wenn Sie für diesen Arbeitsbereich erstellt werden. (leer, r, oder rw)"
+    "other": "Rechte die auf Benutzer angewendet werden, wenn Sie für diesen Workspace erstellt werden. (leer, r, oder rw)."
   },
   "Token URL": {
     "other": "Token-URL"

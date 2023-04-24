@@ -9,7 +9,7 @@
     "other": "Auf {{.Object}} wurde von {{.Actor}} zugegriffen"
   },
   "Cell": {
-    "other": "Zelle"
+    "other": "Cell"
   },
   "CreatedBy": {
     "other": "Erstellt von {{.Actor}}"

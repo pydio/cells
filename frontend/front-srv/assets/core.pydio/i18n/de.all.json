@@ -1824,7 +1824,7 @@
     "other": "Cell enthält mehrere Root-Ordner oder Dateien, Sie können keine Daten direkt hier hochladen."
   },
   "639": {
-    "other": "In dieser Zelle"
+    "other": "In dieser Cell"
   },
   "64": {
     "other": "XLS-Tabelle"
@@ -1836,7 +1836,7 @@
     "other": "Aus dieser Cell entfernen"
   },
   "642": {
-    "other": "Zur aktuellen Zelle hinzufügen"
+    "other": "Zur aktuellen Cell hinzufügen"
   },
   "643": {
     "other": "Jetzt teilen Sie eine Cell mit %s"
@@ -2280,7 +2280,7 @@
     "other": "%1 wird umbenannt in %2"
   },
   "cells.quick-filter": {
-    "other": "Zellen filtern"
+    "other": "Cells filtern"
   },
   "ws.quick-filter": {
     "other": "Workspaces filtern"
@@ -2379,10 +2379,10 @@
     "other": "Öffentlicher Link"
   },
   "searchengine.share.option.cell": {
-    "other": "In Zelle geteilt"
+    "other": "In Cell geteilt"
   },
   "searchengine.share.option.any": {
-    "other": "Öffentlicher Link oder Zelle"
+    "other": "Öffentlicher Link oder Cell"
   },
   "searchengine.format.title": {
     "other": "Format"

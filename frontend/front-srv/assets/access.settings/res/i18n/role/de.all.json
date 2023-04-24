@@ -168,7 +168,7 @@
     "other": "Wählen Sie die Workspaces, auf welche diese Rolle Zugriff erhält. Wenn Sie 'Verweigern' wählen, wird der Zugriff verweigert, auch wenn der Zugriff in anderen Rollen gesetzt oder vererbt wurde."
   },
   "dashboard.description": {
-    "other": "Rollen sind Container für Zugriffslisten, um Zugriff auf beliebige Arbeitsbereiche zu gewähren oder Parameter und Aktionen anzupassen. Sie können manuell jedem Benutzer zugeordnet werden."
+    "other": "Rollen sind Container für Zugriffslisten, um Zugriff auf beliebige Workspaces zu gewähren oder Parameter und Aktionen anzupassen. Sie können manuell jedem Benutzer zugeordnet werden."
   },
   "dashboard.technical.hide": {
     "other": "Technische Rollen verstecken"

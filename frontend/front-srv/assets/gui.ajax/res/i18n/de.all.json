@@ -96,7 +96,7 @@
     "other": "Workspaces sind die obersten Ordner, mit denen Sie Ihre Daten organisieren können. Sie können nur durch Sie zugegriffen oder freigegeben werden."
   },
   "tour.workspaces.2": {
-    "other": "Zellen sind gemeinsame Räume, die Sie mit anderen Benutzern teilen können. Erstellen Sie Ihre eigenen Zellen basierend auf einem Ordner, einem Benutzerteam oder einem relevanten Thema."
+    "other": "Cells sind gemeinsame Räume, die Sie mit anderen Benutzern teilen können. Erstellen Sie Ihre eigenen Cells basierend auf einem Ordner, einem Benutzerteam oder einem relevanten Thema."
   },
   "tour.workspaces.title": {
     "other": "Workspaces & Cells"
@@ -249,10 +249,10 @@
     "other": "Maskierte Elemente anzeigen"
   },
   "wslist-options.merge-workspaces": {
-    "other": "Arbeitsbereiche und Zellen zusammenlegen"
+    "other": "Workspaces und Cells zusammenlegen"
   },
   "wslist-options.own-cells-first": {
-    "other": "Von mir erstellte Zellen zuerst"
+    "other": "Von mir erstellte Cells zuerst"
   },
   "leftrail.buttons.home": {
     "other": "Hauptseite"
