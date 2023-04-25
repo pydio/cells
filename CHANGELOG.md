@@ -1,84 +1,31 @@
-# Changes between v4.1.2 and v4.2.0-alpha1
+# Changes between v4.2.0-alpha1 and v4.2.0-rc1
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.1.2...v4.2.0-alpha1)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.0-alpha1...v4.2.0-rc1)
 
-- [#4fea486](https://github.com/pydio/cells/commit/4fea4869c8c4c2165b29fb0b8d49efed511cb802): DE translations for new messages
-- [#ea79e7b](https://github.com/pydio/cells/commit/ea79e7b0e72430e9ec54b9f7eacf2dd3c4902692): DE translations for new messages
-- [#64b328b](https://github.com/pydio/cells/commit/64b328b84168d0cbb27696532ec9718a8523a827): Breadcrumb and display toolbar actions
-- [#f9c0fc4](https://github.com/pydio/cells/commit/f9c0fc4295cadb13238b192ceedfb8160755eae2): UX polishing
-- [#4b74a8f](https://github.com/pydio/cells/commit/4b74a8fc649077b62c1a8a3169d1650397e3a912): New messages + FR translation
-- [#6c11b54](https://github.com/pydio/cells/commit/6c11b54d6c9bb7db85f88f1ecce0b1c2b0d8288a): New messages + FR translation
-- [#daeb67c](https://github.com/pydio/cells/commit/daeb67c303638c2bd1cb9c768714c57c06052294): Style scrollbars - display sorting info when not in table mode
-- [#cc018eb](https://github.com/pydio/cells/commit/cc018ebbf09ebb0f0536b24b111b7ca44cb9e6d1): Tests : fix import cycle and error not handled by listing stubs
-- [#4362e2e](https://github.com/pydio/cells/commit/4362e2ebccc0e2579d4e32fad94a562310ced46a): Tests : fix import cycle and error not handled by listing stubs (to improve?)
-- [#eeb33f4](https://github.com/pydio/cells/commit/eeb33f4b44ef8f2025c443c198df1e1b55fdd914): Save sorting in user prefs
-- [#9b0b6a1](https://github.com/pydio/cells/commit/9b0b6a1f128738ef4a841125f9d1ac363596d4c5): IdmChange websocket event: do not echo a user's self update
-- [#aeafb60](https://github.com/pydio/cells/commit/aeafb60bbf26f336de61c09089d219abc60cd4ed): Various upgrades + new stat flag
-- [#64ee602](https://github.com/pydio/cells/commit/64ee6020bd00b393aeb8bb15adfba09c4f125167): Rewire remoteSortingAttribute
-- [#ceaf35e](https://github.com/pydio/cells/commit/ceaf35e62dd9dd3f2148b539ba8c06bcc00f6b17): Fix paginator display in share template
-- [#adf2037](https://github.com/pydio/cells/commit/adf20374269a2077f7776e1b0bee4444fc8041a5): Implement server-side sorting for core nodes properties
-- [#61fd56b](https://github.com/pydio/cells/commit/61fd56baa73b9b475cc4b772d7e1a10468e43484): scheduler - handle autoRestart and clear Input selectors
-- [#91a744f](https://github.com/pydio/cells/commit/91a744fe0a648dd17c1c989cbae1477b4dc2d89a): More personalization tweaks in workspace list, default mandatory expiration for Cells, fix sorting column for Tags.
-- [#ba87d05](https://github.com/pydio/cells/commit/ba87d05e5eec2961b9ea3e7cc555b8a3086e7732): frontend/user object, detect if current user is a workspace resource policy owner.
-- [#0b7f6de](https://github.com/pydio/cells/commit/0b7f6dede7c87cc65921b78160f73fe0817f25c0): Rework Cell editor
-- [#a9ff949](https://github.com/pydio/cells/commit/a9ff94939d09cab6caedfbbb4d14db1ab80bb314): Update add AccessEnd field on Cell object, transformed to ACL Expiration Date
-- [#a358225](https://github.com/pydio/cells/commit/a358225375e3213081c83b2af8def99634233d68): Share lib: externalise owner ACLs
-- [#7ea7982](https://github.com/pydio/cells/commit/7ea798263d71967973971c14d6240734b85f74d4): Further modularization of share.Client library
-- [#3aad16d](https://github.com/pydio/cells/commit/3aad16d1cb78e88c8d093c4915e2be5fb3dc5729): fix webdav error in windows
-- [#8ab1708](https://github.com/pydio/cells/commit/8ab1708b5eea1aab46a420fd9d2472156a0b6c03): Css details
-- [#7c62a94](https://github.com/pydio/cells/commit/7c62a94b4665190082dd112a66f3df9c96ad44e1): Optional base group restriction in IdmApi
-- [#9dcfc3d](https://github.com/pydio/cells/commit/9dcfc3d8b13328da4069a7f4232c54a4d1703ed8): Use a {{RefLabel}} value for LINK workspaces to read label from unique Root instead of saving it, allowing the label to refresh on original node rename.
-- [#3cb23c3](https://github.com/pydio/cells/commit/3cb23c3bdd3e9fa51b61ab1e6136e44cd8db533b): Add a special WelcomeTour for MUI at upgrade
-- [#fc7b180](https://github.com/pydio/cells/commit/fc7b1803531d35d6b63f6cded52ecf208090e12e): Add a paramater for minisites them, and a toggler for dark/light. Fix a display issue in non-mandatory select fields.
-- [#b289625](https://github.com/pydio/cells/commit/b2896254cc8cc6129cb4ee1dafe7917cdff96da9): Improve Expired ACLs internal APIs
-- [#ac1822f](https://github.com/pydio/cells/commit/ac1822fa8282b0edfa8b650629bbd45f6d986e34): Admin theme, add a fallback mui3 object to avoid errors
-- [#8d24932](https://github.com/pydio/cells/commit/8d24932286101369fe825333382c3a5386927a41): Better clearing of lscache
-- [#15383a8](https://github.com/pydio/cells/commit/15383a8d38d459f1ab97b1aea41af83b001f4fa8): Double load of CSS in minisites
-- [#589c7a9](https://github.com/pydio/cells/commit/589c7a9d45c89edefcc70a7f40eb21680e3151a8): Fix tree leftpadding
-- [#d47fb34](https://github.com/pydio/cells/commit/d47fb345e49774e7cb2665dc742da24d18b57eb6): Rework directory search
-- [#1d3a2b0](https://github.com/pydio/cells/commit/1d3a2b0d5f768eaa76ff791dae69b940928b6752): Recommend api : load nodes in parallel
-- [#8179acb](https://github.com/pydio/cells/commit/8179acbd280cd504f5e5001a439535ca37b63f9a): Darkmode issues, add a WelcomeCard showing Dark/Light theme support
-- [#13b7e2d](https://github.com/pydio/cells/commit/13b7e2d1d42edb79ceea0e33b953e5f6fe6361e4): Fix issues in UsersCompleter
-- [#bc45ddf](https://github.com/pydio/cells/commit/bc45ddfdd4eaee0c59814dd59c5e3463c2b4568f): Load user by id in IdmApi tool, fix missing theme info.
-- [#a818e13](https://github.com/pydio/cells/commit/a818e138e00fdceedc5de55b0d6239980fa706f4): UX fixes, fixes, fixes
-- [#13f73ab](https://github.com/pydio/cells/commit/13f73ab5ade52ad20c429c40f49d3d70abbd94fc): UX fixes, fixes, fixes
-- [#106c66e](https://github.com/pydio/cells/commit/106c66ed14c15f3d7edaeb924f8b8954fcf95e8f): Top level scripts
-- [#ced6da9](https://github.com/pydio/cells/commit/ced6da9054a16d483aec83e96e89e421e2b2c8e9): Hunting wrong imports
-- [#ed10694](https://github.com/pydio/cells/commit/ed10694824228f71ab06a005f8f820eae54d4791): UX Fixes and exports
-- [#ff2908c](https://github.com/pydio/cells/commit/ff2908ceffd5358672f0452c3a80150d18697e6f): Fixes in muiThemeable application
-- [#28d14e6](https://github.com/pydio/cells/commit/28d14e6f0f2bfb10bac7302e503c1f9c88e32532): Harmonize UI
-- [#4bdaec4](https://github.com/pydio/cells/commit/4bdaec4089bc702da3311279d17316d1e7c25561): Next development cycle
-- [#f71c91d](https://github.com/pydio/cells/commit/f71c91d76286af0d5c413c116fabcfe73d06a1f6): Finalize Address Book
-- [#cc540b6](https://github.com/pydio/cells/commit/cc540b6687b4fbef29ec5d6e91dd9a55a44ed9ef): Create a TreeView for address book
-- [#1128b7e](https://github.com/pydio/cells/commit/1128b7e7e3cbb2b2ea815b1b2cdac3b2aea429bd): Modularize AddressBook and create a layout for new access.directory - first pass.
-- [#945ad4e](https://github.com/pydio/cells/commit/945ad4e83f155e7e50fd2b3f35b86e5b8d5f8c52): New reserved ws for directory
-- [#1bce80f](https://github.com/pydio/cells/commit/1bce80fbe2ac0ac9221aa2c3ab975d2c0d3435bc): Fab color
-- [#c9d8825](https://github.com/pydio/cells/commit/c9d8825164305930fc145d7cef2d53a5bc3c9c0b): Glitches, glitches, glitches
-- [#ec21c5d](https://github.com/pydio/cells/commit/ec21c5d0500088549e7b18e59e052266c256caa3): Readapt Uploaders
-- [#3a4853f](https://github.com/pydio/cells/commit/3a4853ff01adc66b26d18f4d6b5addc70730dbe6): TasksPanel and Snackbar
-- [#8561512](https://github.com/pydio/cells/commit/85615127d5f18fc64639f8673823c004c32d476d): Fix glitches in Cells Console, use muiTheme for form components
-- [#49c5f06](https://github.com/pydio/cells/commit/49c5f06af0278827c4b1fb67c27de0473246ad1f): Add another mutex on accesslist
-- [#6fa1db5](https://github.com/pydio/cells/commit/6fa1db569dcd272712fd266e5cff4b3de1e1f981): UX
-- [#edecf5f](https://github.com/pydio/cells/commit/edecf5ff1ec13bbabeeccc75df6ced4b8e1ac268): Migrate "My Shares" panel to search engine "Share" option.
-- [#4549628](https://github.com/pydio/cells/commit/4549628e9ac7d5380de906b75f35267239737e4b): Refactor listSharedResources and plug it inside Search Engine using a reserved meta name shared_resource_type and the Query.Paths field.
-- [#e3cf7c5](https://github.com/pydio/cells/commit/e3cf7c56ba0082527734c0cdde666ac3dc7b3ebe): Restore search Facets
-- [#dbfeb38](https://github.com/pydio/cells/commit/dbfeb387eeac871810affb8429556e6489f1aa15): Rail Navigation component
-- [#8dc679e](https://github.com/pydio/cells/commit/8dc679ee53be04764b5691d960b1ef4585ad10ea): glitch hunting, getting better
-- [#43f4573](https://github.com/pydio/cells/commit/43f457334e6e8f3536952af41ec2d9559784c2ca): glitch hunting, make the lists great again
-- [#c45cd29](https://github.com/pydio/cells/commit/c45cd290a9ac2e5ff2d291888893996fd66be832): glitch hunting, set theme dark/light via user pref
-- [#54e6b96](https://github.com/pydio/cells/commit/54e6b96b7579eca64f71b280647b1844c8937a2a): More theming - home, thumbs view, search
-- [#970ef62](https://github.com/pydio/cells/commit/970ef623f450ec3b165e6c02f88a93972b688c1b): UX - Work on shares
-- [#2902b9e](https://github.com/pydio/cells/commit/2902b9ee821195afece40b99939bb83c3c633a1a): Info panels and metas (table)
-- [#f64bc3a](https://github.com/pydio/cells/commit/f64bc3a7e7430fc9099ea877e4e5e00660ea3ba1): Detail View (table)
-- [#f379746](https://github.com/pydio/cells/commit/f3797465f170003691ef9106bca125186fe01366): TreeDialog
-- [#047b9fa](https://github.com/pydio/cells/commit/047b9fa7dc6783937c30008da4a6fe54a55505ad): Themify and introduce new theme - wip
-- [#ff36c90](https://github.com/pydio/cells/commit/ff36c90babd6e62d0410ba418372145efb4a912c): dev_version for special branch
-- [#9185498](https://github.com/pydio/cells/commit/9185498929b63a6d4de945d43de82de23d251877): webpackify editor.ckeditor
-- [#835eea0](https://github.com/pydio/cells/commit/835eea0eaf1b60ba2fa103427193727671dd2810): clean build
-- [#7066694](https://github.com/pydio/cells/commit/7066694fe5e6212b7a7c37fbe1cf7560d4891591): webpack-ify codemirror editor
-- [#ecabece](https://github.com/pydio/cells/commit/ecabece89645ad4609461d1e5d9a3672defe3154): webpack-ify more plugins
-- [#cbbedd8](https://github.com/pydio/cells/commit/cbbedd8d83c3ca9e171915b605ebeba057ea5141): Cleans css and icons
-- [#be38784](https://github.com/pydio/cells/commit/be387840ee50cc7d18a05dada84089b3570c755d): Cleans
-- [#e92dbc5](https://github.com/pydio/cells/commit/e92dbc5e57ef05fe7ee169388037ba7cf8d34edc): Switching core (gui.ajax) to webpack - first step
-- [#118a6bc](https://github.com/pydio/cells/commit/118a6bcd7f7de4bfe205c74c555f3ce4933ebc05): Try switching some plugins to webpack
-- [#fb8aa0e](https://github.com/pydio/cells/commit/fb8aa0ea60981bdbd952ffdc6c48e50cacacfa1b): Clean code
+- [#a672c70](https://github.com/pydio/cells/commit/a672c70623bfb27fde381d991446f7dedc028673): A few more messages + DE/FR translation
+- [#6d2b056](https://github.com/pydio/cells/commit/6d2b056bacf01cfaacbf88b41147ba6d2376fa5e): A few more messages + DE/FR translation
+- [#bfbdb2d](https://github.com/pydio/cells/commit/bfbdb2d08655536b1bbeba48e58d4df13ed93266): Add livekit styles
+- [#1ce21e2](https://github.com/pydio/cells/commit/1ce21e251026e76ab6dddc3de7096d3f5ad35e17): Welcome tour css issues
+- [#0a649df](https://github.com/pydio/cells/commit/0a649df48d6fc75bc89b86329b0589a4874cf210): Improve pagination edge-cases
+- [#852c587](https://github.com/pydio/cells/commit/852c587613bb8a7fd6c19f0c501560ac058076b8): Use new API filter to improve Copy/move TreeDialog, particularly if results are paginated. Fix many i18n glitches/missing. Restore refresh button in search mode Restore livekit using new lib (styling still todo)
+- [#370264b](https://github.com/pydio/cells/commit/370264bbc6fb179483523af500ac08e0e5703bfc): API: Filter getBulkMeta by node type, restore livekit
+- [#53c7682](https://github.com/pydio/cells/commit/53c76820696e4e8c2f6f9e629c7ed2b4528d1ecf): Merge remote-tracking branch 'origin/main'
+- [#db31142](https://github.com/pydio/cells/commit/db31142a8f5729be7cfa332963bcd72b459d558a): editor.text darkmode, wrong i18n key in search engine
+- [#81e03bb](https://github.com/pydio/cells/commit/81e03bbe99e8f1a39047cc10be739b6852ab05c3): Improve German translation + merge with head
+- [#0e1bc59](https://github.com/pydio/cells/commit/0e1bc5954a5c33fa2c424da33e737978aff41073): Improve German translation
+- [#ff45dfc](https://github.com/pydio/cells/commit/ff45dfcd7713c01c88eb07d8f46f8e786ebc91be): Improve German translation
+- [#8ebb44b](https://github.com/pydio/cells/commit/8ebb44bba1986c5a216407374dd223e98b3b83b9): Merge remote-tracking branch 'origin/main'
+- [#851b5e1](https://github.com/pydio/cells/commit/851b5e11545b340225c0bb310b94809f13079ec1): Fix various CodeMirror glitches, support darkMode Tmp disable LiveKit (to be updated)
+- [#319775c](https://github.com/pydio/cells/commit/319775c9cedf6f274aa8a2e82d6ea69cf79170f9): Harmonize DE translation: we do not translate "Workspace" nor "Cells"
+- [#f33e305](https://github.com/pydio/cells/commit/f33e305b92db2841f341f1a543d9c3b6fed8fe52): Harmonize DE translation: we do not translate "Workspace" nor "Cells"
+- [#eae06f3](https://github.com/pydio/cells/commit/eae06f33d0112b9c7e7ada48a5436a1da11ac2bf): Harmonize DE translation: we do not translate "Workspace"
+- [#daa6427](https://github.com/pydio/cells/commit/daa64278223995cbb42dd6438878b2a496fc4b61): Harmonize DE translation: we do not translate "Workspace"
+- [#8686ee4](https://github.com/pydio/cells/commit/8686ee419ba5d1410b3b9bf413ee073a706ef18d): Better DE translation for main app rail
+- [#8c611f1](https://github.com/pydio/cells/commit/8c611f1d5411e498060dc51a9f9518bb3adf6383): Better DE translation for main app rail
+- [#ef38291](https://github.com/pydio/cells/commit/ef382913b96c3559fd078e01292c7ddd2fe8ba8d): Fix replication panel issues
+- [#77b6198](https://github.com/pydio/cells/commit/77b619820eea28fee7ad2b8575ba026108187b8b): Better defaults type checking in forms lib
+- [#c299156](https://github.com/pydio/cells/commit/c29915634f097f1f557888b702e3ef12e7947543): New messages + DE/FR translations
+- [#3c9fe15](https://github.com/pydio/cells/commit/3c9fe15bec6a28eb25bc1cd77db13b59f6bd984e): New messages + DE/FR translations
+- [#ef2bfc5](https://github.com/pydio/cells/commit/ef2bfc510cf5f4309a056da02e541aa0ea8c5bc6): polishing search form, some i18n strings
+- [#f5011e1](https://github.com/pydio/cells/commit/f5011e1239ae9e153d5c59f4243cf76816d5d96a): Merge remote-tracking branch 'origin/main'
+- [#183c401](https://github.com/pydio/cells/commit/183c401ec0adec4f1f9dad0fa0c6b366fde4a944): Fix some mobile glitches, rework AdvancedSearch
