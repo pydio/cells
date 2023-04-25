@@ -782,6 +782,7 @@ importers:
       '@emotion/react': ^11.10.6
       '@emotion/styled': ^11.10.6
       '@livekit/components-react': ^0.8.2
+      '@livekit/components-styles': ^0.3.2
       '@material/material-color-utilities': ^0.2.4
       '@mui/icons-material': ^5.11.11
       '@mui/lab': 5.0.0-alpha.124
@@ -892,6 +893,7 @@ importers:
       '@emotion/react': 11.10.6_react@17.0.1
       '@emotion/styled': 11.10.6_jbz2shhsx45oxe6tqz5pc3vpya
       '@livekit/components-react': 0.8.2_yy4dl6cjdag3omu6zef7miaaea
+      '@livekit/components-styles': 0.3.2
       '@material/material-color-utilities': 0.2.4
       '@mui/icons-material': 5.11.11_yalz2slzdxhyh2mh7z4roe7kmm
       '@mui/lab': 5.0.0-alpha.124_gesyt3x7rdc46po3ckx6qve2ja
@@ -2808,6 +2810,11 @@ packages:
       livekit-client: 1.8.0
       react: 17.0.1
       react-dom: 17.0.1_react@17.0.1
+    dev: false
+
+  /@livekit/components-styles/0.3.2:
+    resolution: {integrity: sha512-31LjRU3mbRoofVmq1zr2MkAMj6+yLrR+pJ8F/SzxP581+0PEVfvRbmGp48yZ+KWZBRqcLR6PEnT4B+4ZsXJ/Dw==}
+    engines: {node: '>=14'}
     dev: false
 
   /@material/material-color-utilities/0.2.4:
