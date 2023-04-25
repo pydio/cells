@@ -211,5 +211,20 @@
   },
   "role prefix": {
     "other": "Rollen-Präfix"
+  },
+  "System Default": {
+    "other": "Standardeinstellung"
+  },
+  "Material 3 (detect)": {
+    "other": "Material 3 (Erkennen)"
+  },
+  "Material 3 (light)": {
+    "other": "Material 3 (hell)"
+  },
+  "Material 3 (dark)": {
+    "other": "Material 3 (dunkel)"
+  },
+  "Material Legacy": {
+    "other": "Material Legacy"
   }
 }

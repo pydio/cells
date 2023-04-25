@@ -624,7 +624,7 @@
     "other": "Wählen Sie aus, mit wem Sie Daten teilen möchten"
   },
   "279": {
-    "other": "Cell jetzt erstellen!"
+    "other": "Jetzt erstellen!"
   },
   "28": {
     "other": "Ordner teilen"
@@ -903,7 +903,7 @@
     "other": "Alle freigegebenen Elemente"
   },
   "cells.create.advanced": {
-    "other": "Fügen Sie Benutzer/Daten"
+    "other": "Benutzer/Daten"
   },
   "cells.create.buttons.separator": {
     "other": "oder"
@@ -915,7 +915,7 @@
     "other": "Aus dieser Cell entfernen"
   },
   "cell.visibility.advanced": {
-    "other": "Mit dieser erweiterten Funktion können Sie entscheiden, wer die Eigenschaften dieser Cell bearbeiten darf (Recht zum Hinzufügen / Entfernen von Benutzern und zum Hinzufügen / Entfernen von Ordnern im Stammverzeichnis der Cell). Verwenden Sie stattdessen den \"Teilen mit\" Tab, um die tatsächlichen Zugriffe auf die Daten zu verwalten."
+    "other": "Mit dieser erweiterten Funktion können Sie entscheiden, wer die Eigenschaften dieser Cell bearbeiten darf (Recht zum Hinzufügen/Entfernen von Benutzern und zum Hinzufügen/Entfernen von Ordnern im Stammverzeichnis der Cell). Verwenden Sie stattdessen den \"Geteilt mit\" Tab, um die tatsächlichen Zugriffe auf die Daten zu verwalten."
   },
   "cell.add.existing-or-new": {
     "other": "Zur existierenden o. neuen Cell hinzufügen"
