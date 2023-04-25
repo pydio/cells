@@ -248,6 +248,12 @@
   "wslist-options.show-masked": {
     "other": "Maskierte Elemente anzeigen"
   },
+  "wslist.action.mask": {
+    "other": "Masken"
+  },
+  "wslist.action.unmask": {
+    "other": "Demaskieren"
+  },
   "wslist-options.merge-workspaces": {
     "other": "Workspaces und Cells zusammenlegen"
   },
@@ -262,5 +268,11 @@
   },
   "leftrail.buttons.all-files": {
     "other": "Alle Dateien"
+  },
+  "leftrail.buttons.theme.light": {
+    "other": "Hellmodus"
+  },
+  "leftrail.buttons.theme.dark": {
+    "other": "Dunkelmodus"
   }
 }
