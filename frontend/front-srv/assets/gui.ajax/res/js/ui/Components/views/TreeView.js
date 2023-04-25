@@ -321,7 +321,7 @@ var SimpleTreeNode = createReactClass({
                 {selfLabel}
                 <ul>
                     {!noPaginator && node.getMetadata().has('paginationData') && parseInt(node.getMetadata().get('paginationData').get('total')) > 1 &&
-                    <TreePaginator node={node} dataModel={dataModel} depth={depth+1} paddingOffset={paddingOffset}/>
+                    <TreePaginator node={node} dataModel={dataModel} depth={depth+1} offsetSize={offsetSize} paddingOffset={paddingOffset}/>
                     }
                     {children}
                 </ul>
@@ -347,7 +347,7 @@ class TreePaginator extends React.Component {
     }
 
     render(){
-        const {node, depth, paddingOffset, offsetSize, muiTheme} = this.props;
+        const {node, depth, paddingOffset, offsetSize} = this.props;
         const icProps = {
             style:{width: 24, height: 24, padding: 0}
         };
@@ -358,7 +358,7 @@ class TreePaginator extends React.Component {
         const label = pageWord + ' ' + crt + ' / ' + total;
         return (
             <li>
-                <div style={{paddingLeft: paddingOffset + depth * offsetSize, paddingTop:5, paddingBottom: 5, display:'flex', alignItems:'center'}}>
+                <div style={{paddingLeft: paddingOffset + depth * offsetSize + 5, paddingTop:5, paddingBottom: 5, display:'flex', alignItems:'center'}}>
                     <div style={{paddingLeft: 14, paddingRight: 6}} className={"mdi mdi-format-list-bulleted"}/>
                     <div style={{display:'flex', alignItems:'center', borderRadius: 3, marginRight: 10}}>
                         <IconButton iconClassName={"mdi mdi-chevron-left"} onClick={()=>{this.goTo(crt -1 )}} disabled={crt === 1} {...icProps}/>

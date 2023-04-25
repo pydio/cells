@@ -24,9 +24,7 @@ const {muiThemeable} = require('material-ui/styles')
 const LangUtils = require('pydio/util/lang')
 const {Textfit} = require('react-textfit')
 import Color from 'color'
-import {Tooltip} from '@mui/material'
-import DOMUtils from 'pydio/util/dom'
-
+import {RefreshAction} from "./RefreshAction";
 
 class Breadcrumb extends React.Component {
     state = {node: null, minFit: false};
@@ -69,7 +67,7 @@ class Breadcrumb extends React.Component {
 
     render() {
         const {pydio, muiTheme, rootStyle} = this.props;
-        const {node, minFit, refreshHover} = this.state;
+        const {node, minFit} = this.state;
         const styles = {
             main: {
                 fontSize: 21,
@@ -80,10 +78,6 @@ class Breadcrumb extends React.Component {
                 width: '100%'
             }
         };
-        let buttonColor
-        if(muiTheme.palette.mui3) {
-            buttonColor = muiTheme.palette.mui3.primary;
-        }
         if(!pydio.user){
             return <span className="react_breadcrumb"></span>;
         }
@@ -110,12 +104,6 @@ class Breadcrumb extends React.Component {
             segments.push(<span key={'bread_sep_' + i} className="separator"> / </span>);
             segments.push(<span key={'bread_' + i} className={"segment"+(last?' last':'')} onClick={this.goTo.bind(this, rebuilt)}>{last ? label : seg}</span>);
         }.bind(this));
-        let refreshAction, refreshLabel;
-        const a = pydio.Controller.getActionByName('refresh')
-        if(a){
-            refreshAction = a.apply.bind(a)
-            refreshLabel = a.options.text;
-        }
 
         return (
             <Textfit mode="single" min={12} max={22} className="react_breadcrumb" style={mainStyle} onReady={(f) => {this.toggleMinFit(f)}}>
@@ -123,25 +111,7 @@ class Breadcrumb extends React.Component {
                 <span className={"mdi mdi-folder-outline"} style={{fontSize:'0.9em', marginRight: 5}}/>
                 <span className={"segment first" + (segments.length ? '' : ' last')} onClick={this.goTo.bind(this, '/')}>{repoLabel}</span>
                 {segments}
-                {refreshAction &&
-                <Tooltip title={<div style={{padding:'2px 10px'}}>{refreshLabel}</div>} placement={"bottom"}><span
-                    className={"mdi mdi-refresh"}
-                    style={{
-                        cursor: 'pointer',
-                        color:buttonColor,
-                        fontSize:'0.8em',
-                        opacity:refreshHover?1:0.5,
-                        padding: 5,
-                        marginLeft: 2,
-                        borderRadius: '50%',
-                        backgroundColor:refreshHover?'var(--md-sys-color-outline-variant-50)':'',
-                        transition: DOMUtils.getBeziersTransition()
-                }}
-                    onMouseOver={()=>this.setState({refreshHover:true})}
-                    onMouseOut={()=>this.setState({refreshHover:false})}
-                    onClick={() => refreshAction()}
-                /></Tooltip>
-                }
+                <RefreshAction pydio={pydio} muiTheme={muiTheme}/>
                 <style type={"text/css"} dangerouslySetInnerHTML={{__html:this.makeStyle(mainStyle.color)}}/>
             </Textfit>
         );

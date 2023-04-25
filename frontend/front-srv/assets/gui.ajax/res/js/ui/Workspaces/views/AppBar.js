@@ -24,6 +24,7 @@ import {FlatButton, Paper} from "material-ui";
 import Textfit from "react-textfit";
 import Breadcrumb from "./Breadcrumb";
 import UnifiedSearchForm from "../search/components/UnifiedSearchForm";
+import {RefreshAction} from "./RefreshAction";
 const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 const {ThemedContainers:{IconButton}} = Pydio.requireLib('hoc');
 
@@ -111,7 +112,6 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
         );
     }
 
-
     return (
         <Paper zDepth={styles.appBarZDepth} style={styles.appBarStyle} rounded={false}>
             {searchView &&
@@ -136,6 +136,7 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
                             mode="single" min={12} max={22}
                             style={{...styles.breadcrumbStyle, padding: '0 20px', fontSize: 22, lineHeight:'44px', height:36}}>
                             {pydio.MessageHash['searchengine.topbar.title']}{humanizeValues(values)}
+                            <RefreshAction pydio={pydio} muiTheme={muiTheme}/>
                         </Textfit>
                     }
                     {!searchView && <Breadcrumb pydio={pydio} startWithSeparator={false} rootStyle={styles.breadcrumbStyle}/>}

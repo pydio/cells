@@ -312,7 +312,7 @@ let RailPanel = ({
                 },
                 {
                     id:'theme',
-                    text: muiTheme.darkMode? 'Light Mode' : 'Dark Mode',
+                    text: pydio.MessageHash['ajax_gui.leftrail.buttons.theme.' + (muiTheme.darkMode?'light':'dark')],
                     icon: 'theme-light-dark',
                     onClick: () => {
                         const newTheme = muiTheme.darkMode ? 'mui3-light' : 'mui3-dark';

@@ -100,7 +100,8 @@ let TreeDialog = createReactClass({
                 startPath = pydio.getContextHolder().getContextNode().getPath();
             }
         }
-        const dm = PydioDataModel.RemoteDataModelFactory(repoId ? {tmp_repository_id:repoId} : {}, repoLabel);
+        const modelProperties = {filters:{type:'COLLECTION'}}
+        const dm = PydioDataModel.RemoteDataModelFactory(repoId ? {...modelProperties, tmp_repository_id:repoId} : modelProperties, repoLabel);
         const root = dm.getRootNode();
         if(repoId) {
             root.getMetadata().set('repository_id', repoId);
@@ -284,8 +285,13 @@ let TreeDialog = createReactClass({
                             draggable={false}
                             rootLabel={pydio.MessageHash['action.copymove.root']}
                             getItemStyle={(node) => {
+                                // Selected case
                                 if(dataModel.getContextNode() === node){
-                                    return {fontWeight: 500, backgroundColor:'#ebebef'}
+                                    return {
+                                        fontWeight: 500,
+                                        backgroundColor:'var(--md-sys-color-secondary)',
+                                        color: 'var(--md-sys-color-on-secondary)'
+                                    }
                                 }
                                 return {}
                             }}

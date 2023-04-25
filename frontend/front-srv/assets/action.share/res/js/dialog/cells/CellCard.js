@@ -176,7 +176,9 @@ class CellCard extends React.Component{
                     onDismissAction={this.props.onDismiss}
                     otherActions={otherActions}
                     onDeleteAction={deleteAction}
+                    deleteTooltip={pydio.MessageHash['share_center.248']}
                     onEditAction={editAction}
+                    editTooltip={pydio.MessageHash['share_center.248']}
                     headerSmall={mode === 'infoPanel'}
                     moreMenuItems={moreMenuItems}
                 >

@@ -115,6 +115,14 @@ export default class MetaNodeProvider{
         } else {
             request.Limit = pydio.getPluginConfigs("access.gateway").get("LIST_NODES_PER_PAGE") || 200;
         }
+        if(this.properties.has('sorting') && !request.SortField) {
+            const defaultSorting = this.properties.get('sorting')
+            request.SortField = defaultSorting['order_column']
+            request.SortDirDesc = defaultSorting['order_direction'] === 'desc';
+        }
+        if(this.properties.has('filters')){
+            request.Filters = this.properties.get('filters')
+        }
         request.NodePaths = [slug + node.getPath(), slug + node.getPath() + '/*'];
         if(this.properties.has("versions")){
             request.Versions = true;
