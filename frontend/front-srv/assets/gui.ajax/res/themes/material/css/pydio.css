@@ -1,6 +1,5 @@
 @import "../../common/css/fonts/mdi.css";
 @import "../../common/css/fonts/icomoon.css";
-@import "../../../../node_modules/livekit-react/dist/index.css";
 @import "../../../../node_modules/react-aspect-ratio/aspect-ratio.css";
 @font-face {
   font-family: 'Roboto';
@@ -2382,7 +2381,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   -webkit-transition: background-color 0.2s ease-in-out;
   transition: background-color 0.2s ease-in-out;
   font-weight: 500;
-  font-size: 15px;
+  font-size: 14px;
 }
 .react-mui-context .joyride-tooltip__button--primary:active,
 .react-mui-context .joyride-tooltip__button--primary:focus,
@@ -2396,12 +2395,13 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   color: var(--md-sys-color-secondary);
   font-weight: 500;
   margin-right: 12px;
+  font-size: 14px;
 }
 .react-mui-context .joyride-tooltip__button--skip {
-  color: #424242;
+  color: var(--md-sys-color-secondary);
   padding: 6px 12px;
   font-weight: 500;
-  font-size: 15px;
+  font-size: 14px;
   float: left;
   margin-right: 10px;
 }
