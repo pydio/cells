@@ -57,7 +57,6 @@ let SimpleList = createReactClass({
     displayName: 'SimpleList',
 
     propTypes:{
-        infiniteSliceCount  : PropTypes.number,
         filterNodes         : PropTypes.func,
         customToolbar       : PropTypes.object,
         tableKeys           : PropTypes.object,
@@ -99,14 +98,14 @@ let SimpleList = createReactClass({
 
     statics:{
         HEIGHT_ONE_LINE:50,
-        HEIGHT_TWO_LINES:73,
+        HEIGHT_TWO_LINES:71,
         CLICK_TYPE_SIMPLE:'simple',
         CLICK_TYPE_DOUBLE:'double',
         PARENT_FOLDER_ICON:'mdi mdi-chevron-left'
     },
 
     getDefaultProps:function(){
-        return {infiniteSliceCount:30, clearSelectionOnReload: true}
+        return {clearSelectionOnReload: true}
     },
 
     getMessage(id){
@@ -257,7 +256,7 @@ let SimpleList = createReactClass({
         }
         let downKeys = ['ArrowDown', 'ArrowRight', 'PageDown', 'End'];
 
-        let position = (shiftKey && downKeys.indexOf(key) > -1) ? 'first' : 'last';
+        //let position = (shiftKey && downKeys.indexOf(key) > -1) ? 'first' : 'last';
         let currentSelection = contextHolder.getSelectedNodes();
 
         let firstSelected = currentSelection[0];
@@ -320,7 +319,7 @@ let SimpleList = createReactClass({
 
     getInitialState: function(){
         this.actionsCache = {multiple:new Map()};
-        const {skipInternalDataModel, dataModel, node, infiniteSliceCount, defaultSortingInfo, pydio, sortingPreferenceKey} = this.props;
+        const {skipInternalDataModel, dataModel, node, defaultSortingInfo, pydio, sortingPreferenceKey} = this.props;
         if (skipInternalDataModel) {
             this.dm = dataModel;
         } else {
@@ -340,7 +339,7 @@ let SimpleList = createReactClass({
             loaded              : node.isLoaded(),
             loading             : !node.isLoaded(),
             showSelector        : false,
-            elements            : node.isLoaded()?this.buildElements(0, infiniteSliceCount):[],
+            elements            : node.isLoaded()?this.buildElements():[],
             sortingInfo,
         };
         state.infiniteLoadBeginBottomOffset = 200;
@@ -350,8 +349,7 @@ let SimpleList = createReactClass({
 
     componentWillReceiveProps: function(nextProps) {
         this.indexedElements = null;
-        const {infiniteSliceCount, defaultSortingInfo, node, sortingPreferenceKey, pydio, autoRefresh, elementsPerLine} = nextProps;
-        const currentLength = Math.max(this.state.elements.length, infiniteSliceCount);
+        const {defaultSortingInfo, node, sortingPreferenceKey, pydio, autoRefresh, elementsPerLine} = nextProps;
         let {sortingInfo = defaultSortingInfo} = this.state;
         const remote = this.remoteSortingInfo(node, sortingInfo)
         if(remote === -1) {
@@ -370,7 +368,7 @@ let SimpleList = createReactClass({
             loaded: node.isLoaded(),
             loading:!node.isLoaded(),
             showSelector:false,
-            elements:node.isLoaded()?this.buildElements(0, currentLength, node, nextProps):[],
+            elements:node.isLoaded()?this.buildElements(node, nextProps):[],
             infiniteLoadBeginBottomOffset:200,
             sortingInfo,
         });
@@ -444,7 +442,7 @@ let SimpleList = createReactClass({
                 this.setState({
                     loaded: true,
                     loading: false,
-                    elements: this.buildElements(0, this.props.infiniteSliceCount)
+                    elements: this.buildElements()
                 });
             }
         }.bind(this));
@@ -458,10 +456,9 @@ let SimpleList = createReactClass({
     },
 
     _loadedListener: function(){
-        const currentLength = Math.max(this.state.elements.length, this.props.infiniteSliceCount);
         this.setState({
             loading:false,
-            elements:this.buildElements(0, currentLength)
+            elements:this.buildElements()
         });
         this.observeNodeChildren(this.props.node);
     },
@@ -636,7 +633,9 @@ let SimpleList = createReactClass({
             this.rootNodeChangedFlag = true;
         });
         this.props.dataModel.observe('selection_changed', function(){
-            if(!this.isMounted()) return;
+            if(!this.isMounted()) {
+                return;
+            }
             let selection = new Map();
             const selectedNodes = this.props.dataModel.getSelectedNodes();
             selectedNodes.map(function(n){
@@ -761,13 +760,13 @@ let SimpleList = createReactClass({
                     this._manualScrollPe.stop();
                     this._manualScrollPe = null;
                 }
-            }, .25);
+            }, 0.25);
         }
     },
 
     buildElementsFromNodeEntries: function(nodeEntries, showSelector){
 
-        let components = [], index = 0;
+        let components = [];
         const nodeEntriesLength = nodeEntries.length;
         let {entriesProps, elementStyle, tableKeys, passScrollingStateToChildren} = this.props;
         entriesProps = {...entriesProps, style: elementStyle}
@@ -901,7 +900,7 @@ let SimpleList = createReactClass({
         }
     },
 
-    buildElements: function(start, end, node, nextProps = undefined){
+    buildElements: function (node = undefined, nextProps = undefined){
         const theNode = node || this.props.node;
         const props = nextProps || this.props;
 
@@ -1004,26 +1003,13 @@ let SimpleList = createReactClass({
             this.indexedElements.sort(sortFunction);
         }
 
-        return this.indexedElements.slice(start, end);
+        return this.indexedElements;
     },
 
     rebuildLoadedElements: function(){
-        let newElements = this.buildElements(0, Math.max(this.state.elements.length, this.props.infiniteSliceCount));
-        let infiniteLoadBeginBottomOffset = newElements.length? 200 : 0;
+        const {elements} = this.state;
         this.setState({
-            elements:newElements,
-            infiniteLoadBeginBottomOffset:infiniteLoadBeginBottomOffset
-        });
-    },
-
-    handleInfiniteLoad: function() {
-        let elemLength = this.state.elements.length;
-        let newElements = this.buildElements(elemLength, elemLength + this.props.infiniteSliceCount);
-        let infiniteLoadBeginBottomOffset = newElements.length? 200 : 0;
-        this.setState({
-            isInfiniteLoading: false,
-            elements: this.state.elements.concat(newElements),
-            infiniteLoadBeginBottomOffset:infiniteLoadBeginBottomOffset
+            elements:this.buildElements()
         });
     },
 
@@ -1200,7 +1186,7 @@ let SimpleList = createReactClass({
                 sortingInfo={sortingInfo}
             />
         }else{
-            toolbar = customToolbar ? customToolbar : ( !hideToolbar ? this.renderToolbar() : null );
+            toolbar = customToolbar ? customToolbar : ( hideToolbar ? null : this.renderToolbar() );
             if(hideToolbar || customToolbar){
                 hiddenToolbar = this.renderToolbar(true);
             }
@@ -1267,8 +1253,6 @@ let SimpleList = createReactClass({
                             <Infinite
                                 elementHeight={this.state.elementHeight ? this.state.elementHeight : this.props.elementHeight}
                                 containerHeight={h||1}
-                                infiniteLoadBeginEdgeOffset={this.state.infiniteLoadBeginBottomOffset}
-                                onInfiniteLoad={this.handleInfiniteLoad}
                                 handleScroll={this.onScroll}
                                 ref={this.infinite}
                             >{content}</Infinite>
@@ -1284,8 +1268,6 @@ let SimpleList = createReactClass({
                 return (<Infinite
                     elementHeight={this.state.elementHeight ? this.state.elementHeight : this.props.elementHeight}
                     containerHeight={h || 1}
-                    infiniteLoadBeginEdgeOffset={this.state.infiniteLoadBeginBottomOffset}
-                    onInfiniteLoad={this.handleInfiniteLoad}
                     handleScroll={this.onScroll}
                     ref={this.infinite}
                 >{cH ? cH(h) : content}</Infinite>)
@@ -1295,7 +1277,7 @@ let SimpleList = createReactClass({
         return (
             <div className={containerClasses} tabIndex="0" onKeyDown={this.onKeyDown} style={this.props.style}>
                 {toolbar}{hiddenToolbar}
-                <AutoSizer className={(emptyState?"layout-fill vertical_layout":"layout-fill")}>{c2H?c2H:(h)=>content}</AutoSizer>
+                <AutoSizer className={(emptyState?"layout-fill vertical_layout":"layout-fill")}>{c2H?c2H:()=>content}</AutoSizer>
             </div>
         );
     },

@@ -73,17 +73,21 @@ export default class ListPaginator extends React.Component{
         const pData = node.getMetadata().get("paginationData");
         const current = parseInt(pData.get("current"));
         const total = parseInt(pData.get("total"));
+        const knownPages = total > 0
         let pages = [], next, last, previous, first;
         const pageWord = Pydio.getMessages()['331'];
-        for(let i=1; i <= total; i++){
-            pages.push(<MenuItem
-                value={i}
-                primaryText={pageWord + ' ' +i + (i === current?(' / ' + total ): '')}
-                />
-            );
-        }
-        if(pages.length <= 1){
-            return null;
+
+        if (knownPages) {
+            for(let i=1; i <= total; i++){
+                pages.push(<MenuItem
+                        value={i}
+                        primaryText={pageWord + ' ' +i + (i === current?(' / ' + total ): '')}
+                    />
+                );
+            }
+            if(pages.length <= 1){
+                return null;
+            }
         }
         let customColor;
         let smallButtonsLabel, smallButtonsIcStyle;
@@ -110,7 +114,7 @@ export default class ListPaginator extends React.Component{
             <IconButton
                 onClick={() => {this.onMenuChange(null, 0, current+1)}}
                 iconClassName={"mdi mdi-chevron-right"}
-                disabled={current === total}
+                disabled={total > -1 && current === total}
                 style={smallDisplay?{marginLeft:-40, marginTop: -2, width:40, height: 40}:{marginLeft: -20}}
                 iconStyle={{...customColor, ...smallButtonsIcStyle}}
             />
@@ -119,14 +123,19 @@ export default class ListPaginator extends React.Component{
         return (
             <div id={id} style={{display:'flex', alignItems:'center', ...style}}>
                 {previous}
-                <DropDownMenu
-                    style={{width: 150, marginTop: -6}}
-                    onChange={this.onMenuChange.bind(this)}
-                    value={current}
-                    underlineStyle={{display: 'none'}}
-                    labelStyle={{...customColor, ...smallButtonsLabel}}
-                    menuStyle={menuStyle}
-                >{pages}</DropDownMenu>
+                {knownPages &&
+                    <DropDownMenu
+                        style={{width: 150, marginTop: -6}}
+                        onChange={this.onMenuChange.bind(this)}
+                        value={current}
+                        underlineStyle={{display: 'none'}}
+                        labelStyle={{...customColor, ...smallButtonsLabel}}
+                        menuStyle={menuStyle}
+                    >{pages}</DropDownMenu>
+                }
+                {!knownPages &&
+                    <div style={{width:100, paddingLeft:10}}>{pageWord + ' ' + current}</div>
+                }
                 {next}
             </div>
         );
