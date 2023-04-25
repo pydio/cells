@@ -33,7 +33,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"text/template"
 
@@ -156,7 +155,7 @@ ENVIRONMENT
 		defer cancel()
 
 		if len(runtime.GetStringSlice(runtime.KeyArgTags)) == 0 {
-			// cmds := make(map[string]*fork.Process)
+			cmds := make(map[string]*fork.Process)
 
 			store, err := config.OpenStore(ctx, "mem://?encode=yaml")
 			if err != nil {
@@ -164,7 +163,7 @@ ENVIRONMENT
 			}
 
 			go func() {
-				w, err := store.Watch(configx.WithChangesOnly())
+				w, err := store.Watch(configx.WithPath("processes", "*"), configx.WithChangesOnly())
 				if err != nil {
 					return
 				}
@@ -175,88 +174,113 @@ ENVIRONMENT
 						return
 					}
 
-					update := diff.(configx.Values).Val("update")
+					create := diff.(configx.Values).Val("create", "processes")
+					update := diff.(configx.Values).Val("update", "processes")
+					delete := diff.(configx.Values).Val("delete", "processes")
 
-					processes := update.Val("processes")
+					var processesToStart, processesToStop []string
 
-					for k := range processes.Slice() {
-						process := store.Val("processes").Val(strconv.Itoa(k))
+					for name := range create.Map() {
+						processesToStart = append(processesToStart, name)
 
-						name := process.Val("name").String()
+					}
+					for name := range update.Map() {
+						processesToStop = append(processesToStop, name)
+						processesToStart = append(processesToStart, name)
+					}
+					for name := range delete.Map() {
+						processesToStop = append(processesToStop, name)
+					}
 
-						connections := process.Val("connections")
-						env := process.Val("env")
-						servers := process.Val("servers")
-						services := process.Val("services")
-
-						childBinary := os.Args[0]
-						childArgs := []string{}
-						childEnv := []string{}
-
-						if process.Val("debug").Bool() {
-							childBinary = "dlv"
-							childArgs = append(childArgs, "--listen=:2345", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "--", os.Args[0])
+					for _, name := range processesToStop {
+						fmt.Println("Stopping name ", name)
+						if cmd, ok := cmds[name]; ok {
+							cmd.Stop()
 						}
+					}
 
-						childArgs = append(childArgs, "start", "--name", name)
+					processes := store.Val("processes")
 
-						// Adding connections to the environment
-						for k := range connections.Map() {
-							childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), connections.Val(k, "uri")))
-						}
+					for _, v := range processesToStart {
+						for name := range processes.Map() {
+							process := store.Val("processes", name)
 
-						for k, v := range env.Map() {
-							switch vv := v.(type) {
-							case string:
-								childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, vv))
-							default:
-								vvv, _ := json.Marshal(vv)
-								childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, string(vvv)))
-							}
-						}
+							if name == v {
+								connections := process.Val("connections")
+								env := process.Val("env")
+								servers := process.Val("servers")
+								services := process.Val("services")
 
-						// Adding servers to the environment
-						for k := range servers.Map() {
-							server := servers.Val(k)
+								childBinary := os.Args[0]
+								childArgs := []string{}
+								childEnv := []string{}
 
-							// TODO - should be one bind address per server
-							if bindAddr := server.Val("bind").String(); bindAddr != "" {
-								childEnv = append(childEnv, fmt.Sprintf("CELLS_BIND_ADDRESS=%s", bindAddr))
-							}
-
-							// TODO - should be one advertise address per server
-							if advertiseAddr := server.Val("advertise").String(); advertiseAddr != "" {
-								childEnv = append(childEnv, fmt.Sprintf("CELLS_ADVERTISE_ADDRESS=%s", advertiseAddr))
-							}
-
-							// Adding servers port
-							if port := server.Val("port").String(); port != "" {
-								childEnv = append(childEnv, fmt.Sprintf("CELLS_%s_PORT=%s", strings.ToUpper(k), port))
-							}
-
-							// Adding server type
-							if typ := server.Val("type").String(); typ != "" {
-								childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), typ))
-							}
-						}
-
-						// Adding services to the environment
-						tags := []string{}
-						for k, v := range services.Map() {
-							tags = append(tags, k)
-
-							if vv, ok := v.([]interface{}); ok {
-								for _, vvv := range vv {
-									childArgs = append(childArgs, vvv.(string))
+								if process.Val("debug").Bool() {
+									childBinary = "dlv"
+									childArgs = append(childArgs, "--listen=:2345", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "--", os.Args[0])
 								}
+
+								childArgs = append(childArgs, "start", "--name", name)
+
+								// Adding connections to the environment
+								for k := range connections.Map() {
+									childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), connections.Val(k, "uri")))
+								}
+
+								for k, v := range env.Map() {
+									switch vv := v.(type) {
+									case string:
+										childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, vv))
+									default:
+										vvv, _ := json.Marshal(vv)
+										childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, string(vvv)))
+									}
+								}
+
+								// Adding servers to the environment
+								for k := range servers.Map() {
+									server := servers.Val(k)
+
+									// TODO - should be one bind address per server
+									if bindAddr := server.Val("bind").String(); bindAddr != "" {
+										childEnv = append(childEnv, fmt.Sprintf("CELLS_BIND_ADDRESS=%s", bindAddr))
+									}
+
+									// TODO - should be one advertise address per server
+									if advertiseAddr := server.Val("advertise").String(); advertiseAddr != "" {
+										childEnv = append(childEnv, fmt.Sprintf("CELLS_ADVERTISE_ADDRESS=%s", advertiseAddr))
+									}
+
+									// Adding servers port
+									if port := server.Val("port").String(); port != "" {
+										childEnv = append(childEnv, fmt.Sprintf("CELLS_%s_PORT=%s", strings.ToUpper(k), port))
+									}
+
+									// Adding server type
+									if typ := server.Val("type").String(); typ != "" {
+										childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), typ))
+									}
+								}
+
+								// Adding services to the environment
+								tags := []string{}
+								for k, v := range services.Map() {
+									tags = append(tags, k)
+
+									if vv, ok := v.([]interface{}); ok {
+										for _, vvv := range vv {
+											childArgs = append(childArgs, vvv.(string))
+										}
+									}
+								}
+
+								fmt.Println("Starting ", name, " with tags ", tags, childEnv, childArgs)
+								childEnv = append(childEnv, fmt.Sprintf("CELLS_TAGS=%s", strings.Join(tags, " ")))
+
+								cmds[name] = fork.NewProcess(ctx, []string{}, fork.WithBinary(childBinary), fork.WithName(name), fork.WithArgs(childArgs), fork.WithEnv(childEnv))
+								go cmds[name].StartAndWait(5)
 							}
 						}
-
-						fmt.Println("Starting ", name, " with tags ", tags, childEnv, childArgs)
-						childEnv = append(childEnv, fmt.Sprintf("CELLS_TAGS=%s", strings.Join(tags, " ")))
-
-						cmd  := fork.NewProcess(ctx, []string{}, fork.WithBinary(childBinary), fork.WithName(name), fork.WithArgs(childArgs), fork.WithEnv(childEnv))
-						go cmd.StartAndWait(5)
 					}
 				}
 			}()
@@ -266,61 +290,64 @@ ENVIRONMENT
 				return err
 			}
 
-			res, err := conf.Watch()
-			if err != nil {
-				return err
-			}
+			go func() {
 
-			for {
-				// Then generate the new template based on the config
-				if file := runtime.GetString("file"); file == "" {
-					t, err := template.New("context").Parse(tmpl)
-					if err != nil {
-						return err
-					}
-
-					var b strings.Builder
-
-					r := runtime.GetRuntime()
-					if err := t.Execute(&b, struct {
-						ConfigURL     string
-						RegistryURL   string
-						BrokerURL     string
-						CacheURL      string
-						BindHost      string
-						AdvertiseHost string
-						DiscoveryPort string
-						FrontendPort  string
-						Config        config.Store
-					}{
-						runtime.ConfigURL(),
-						runtime.RegistryURL(),
-						runtime.BrokerURL(),
-						runtime.CacheURL(""),
-						r.GetString(runtime.KeyBindHost),
-						r.GetString(runtime.KeyBindHost),
-						r.GetString(runtime.KeyGrpcDiscoveryPort),
-						r.GetString(runtime.KeyHttpPort),
-						conf,
-					}); err != nil {
-						return err
-					}
-
-					store.Set([]byte(b.String()))
-				} else {
-					s, err := config.OpenStore(ctx, file)
-					if err != nil {
-						return err
-					}
-
-					store = s
-				}
-
-				_, err := res.Next()
+				res, err := conf.Watch()
 				if err != nil {
-					return err
+					return
 				}
-			}
+
+				for {
+					// Then generate the new template based on the config
+					if file := runtime.GetString("file"); file == "" {
+						t, err := template.New("context").Parse(tmpl)
+						if err != nil {
+							return
+						}
+
+						var b strings.Builder
+
+						r := runtime.GetRuntime()
+						if err := t.Execute(&b, struct {
+							ConfigURL     string
+							RegistryURL   string
+							BrokerURL     string
+							CacheURL      string
+							BindHost      string
+							AdvertiseHost string
+							DiscoveryPort string
+							FrontendPort  string
+							Config        config.Store
+						}{
+							runtime.ConfigURL(),
+							runtime.RegistryURL(),
+							runtime.BrokerURL(),
+							runtime.CacheURL(""),
+							r.GetString(runtime.KeyBindHost),
+							r.GetString(runtime.KeyBindHost),
+							r.GetString(runtime.KeyGrpcDiscoveryPort),
+							r.GetString(runtime.KeyHttpPort),
+							conf,
+						}); err != nil {
+							return
+						}
+
+						store.Set([]byte(b.String()))
+					} else {
+						s, err := config.OpenStore(ctx, file)
+						if err != nil {
+							return
+						}
+
+						store = s
+					}
+
+					_, err := res.Next()
+					if err != nil {
+						return
+					}
+				}
+			}()
 
 			select {
 			case <-cmd.Context().Done():

@@ -281,6 +281,17 @@ func (r *receiver) call(op diff.Change) error {
 	}
 
 	if r.level > len(op.Path) {
+		childPatch, err := diff.Diff(op.From, op.To)
+		if err != nil {
+			return nil
+		}
+
+		for _, childOp := range childPatch {
+			if len(childOp.Path) > 0 {
+				childOp.Path = append(op.Path, childOp.Path...)
+				r.call(childOp)
+			}
+		}
 		return nil
 	}
 

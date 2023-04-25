@@ -92,8 +92,7 @@ env: &env
 # All processes
 #--------------------------------------------
 processes:
-  - name: discovery
-
+  discovery:
     connections:
       <<: *connections
       config:
@@ -113,7 +112,7 @@ processes:
     services:
       discovery:
 
-  - name: idm
+  idm:
     connections: *connections
     servers:
       <<: *servers
@@ -128,16 +127,28 @@ processes:
       data:
       scheduler:
 
-  - name: auth
+  auth:
     connections: *connections
     servers: *servers
     env: *env
     services:
       auth:
 
+  datasource-peer:
+    connections: *connections
+    servers: *servers
+    env: *env
+
+    services:
+      datasource:
+        - pydio.grpc.data.objects.peer
+
   {{ $objectsVal := .Config.Val "services/pydio.grpc.data.objects/sources" }}
+  {{ $ := .Config }}
   {{ range $objectsVal.StringArray }}
-  - name: datasource-{{ . }}
+  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+  {{ if not ($.Val "services" (print "pydio.grpc.data.objects." .) "Disabled").Bool }}
+  objects-{{ . }}:
     connections: *connections
     servers: *servers
     env: *env
@@ -146,10 +157,15 @@ processes:
       datasource:
         - pydio.grpc.data.objects.{{ . }}
   {{ end }}
+  {{ end }}
+  {{ end }}
 
   {{ $indexesVal := .Config.Val "services/pydio.grpc.data.index/sources" }}
+  {{ $ := .Config }}
   {{ range $indexesVal.StringArray }}
-  - name: datasource-{{ . }}
+  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+  {{ if not ($.Val "services" (print "pydio.grpc.data.index." .) "Disabled").Bool }}
+  index-{{ . }}:
     connections: *connections
     servers: *servers
     env: *env
@@ -159,8 +175,10 @@ processes:
         - pydio.grpc.data.index.{{ . }}
         - pydio.grpc.data.sync.{{ . }}
   {{ end }}
+  {{ end }}
+  {{ end }}
 
-  - name: broker
+  broker:
     connections: *connections
     servers: *servers
     env: *env
