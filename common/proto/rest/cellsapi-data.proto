@@ -64,6 +64,8 @@ message GetBulkMetaRequest{
     string SortField = 7;
     // Sort descending (otherwise ascending)
     bool SortDirDesc = 8;
+    // Children Filtering
+    map<string,string> Filters = 9;
 }
 
 message BulkMetaResponse{

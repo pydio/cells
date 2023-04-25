@@ -3807,6 +3807,13 @@
           "title": "Whether to query all services for the metadata they can contribute to enrich the node",
           "type": "boolean"
         },
+        "Filters": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Children Filtering",
+          "type": "object"
+        },
         "Limit": {
           "format": "int32",
           "title": "Limit number of results",

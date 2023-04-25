@@ -154,14 +154,25 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		if e := folderNode.GetMeta(common.MetaFlagChildrenCount, &childrenCount); e == nil && childrenCount > 0 {
 			total = childrenCount
 		}
-		streamer, err := h.GetRouter().ListNodes(ctx, &tree.ListNodesRequest{
+		listRequest := &tree.ListNodesRequest{
 			Node:         folderNode,
 			WithVersions: bulkRequest.Versions,
 			Offset:       int64(bulkRequest.Offset),
 			Limit:        int64(bulkRequest.Limit),
 			SortField:    bulkRequest.SortField,
 			SortDirDesc:  bulkRequest.SortDirDesc,
-		})
+		}
+		for k, v := range bulkRequest.GetFilters() {
+			if k == "type" {
+				switch v {
+				case "LEAF":
+					listRequest.FilterType = tree.NodeType_LEAF
+				case "COLLECTION":
+					listRequest.FilterType = tree.NodeType_COLLECTION
+				}
+			}
+		}
+		streamer, err := h.GetRouter().ListNodes(ctx, listRequest)
 		if err != nil {
 			continue
 		}
@@ -214,6 +225,11 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 			}
 			if crtPage < totalPages {
 				nextOffset = bulkRequest.Offset + pageSize
+			}
+			// If the first page is already smaller than the limit, then do not send pagination data
+			// List may have been filtered out
+			if childrenLoaded < bulkRequest.Limit-1 && crtPage == 1 {
+				continue
 			}
 			output.Pagination = &rest.Pagination{
 				Limit:         pageSize,

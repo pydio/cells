@@ -44,6 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -469,7 +470,7 @@ func (c *ChatHandler) sendVideoInfoIfSupported(ctx context.Context, roomUuid str
 	}
 	var lkUrl string
 	if mc, ok := session.Get(SessionMetaContext); ok {
-		meta := mc.(map[string]string)
+		meta := mc.(metadata.Metadata)
 		if host, o := meta[servicecontext.HttpMetaHost]; o && host != "" {
 			lkUrl = "wss://" + host
 		}
@@ -500,9 +501,14 @@ func (c *ChatHandler) sendVideoInfoIfSupported(ctx context.Context, roomUuid str
 // getLKJoinToken computes a valid token for Livekit server
 func (c *ChatHandler) getLKJoinToken(apiKey, apiSecret, room, identity string) (string, error) {
 	at := lkauth.NewAccessToken(apiKey, apiSecret)
+	p := true
 	grant := &lkauth.VideoGrant{
-		RoomJoin: true,
-		Room:     room,
+		RoomCreate:     true,
+		CanPublish:     &p,
+		CanPublishData: &p,
+		CanSubscribe:   &p,
+		RoomJoin:       true,
+		Room:           room,
 	}
 	at.AddGrant(grant).
 		SetIdentity(identity).
