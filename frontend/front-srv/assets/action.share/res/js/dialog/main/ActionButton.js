@@ -31,7 +31,7 @@ class ActionButton extends Component{
     render(){
 
         const {palette} = this.props.muiTheme;
-        const {destructive} = this.props;
+        const {destructive, disabled} = this.props;
         const color = destructive ? palette.mui3.error : palette.mui3.primary;
 
         const style = {
@@ -42,7 +42,8 @@ class ActionButton extends Component{
                 width: 36, height: 36,
                 padding: '8px 6px',
                 margin: '0 6px',
-                zIndex: 0
+                zIndex: 0,
+                opacity:disabled?0.5:1
             },
             icon: {
                 color: color,
@@ -62,6 +63,7 @@ class ActionButton extends Component{
                 onClick={this.props.callback || this.props.onClick}
                 iconClassName={this.props.mdiIcon ? "mdi mdi-" + this.props.mdiIcon : this.props.iconClassName}
                 tooltip={tooltip}
+                disabled={disabled}
                 tooltipPosition={this.props.tooltipPosition}
             />
         );
