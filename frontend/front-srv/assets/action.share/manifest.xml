@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin name="share" label="CONF_MESSAGE[Sharing Features]" description="CONF_MESSAGE[Share Center actions and hooks]"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+<plugin name="share" label="CONF_MESSAGE[Sharing Features]" description="CONF_MESSAGE[Sharing parameters and authorizations]"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
     <server_settings>
         <global_param name="ENABLE_FILE_PUBLIC_LINK" group="CONF_MESSAGE[Authorizations]" description="CONF_MESSAGE[Allow users to generate public links on files]" label="CONF_MESSAGE[Files: enable public links]" type="boolean" default="true" expose="true"/>
         <global_param name="ENABLE_FILE_INTERNAL_SHARING" group="CONF_MESSAGE[Authorizations]" description="CONF_MESSAGE[Enable internal file sharing (sharing with users existing or temporary users)]" label="CONF_MESSAGE[Files: enable internal sharing]" type="boolean" mandatory="true" default="true" expose="true"/>
