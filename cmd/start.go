@@ -193,7 +193,6 @@ ENVIRONMENT
 					}
 
 					for _, name := range processesToStop {
-						fmt.Println("Stopping name ", name)
 						if cmd, ok := cmds[name]; ok {
 							cmd.Stop()
 						}
@@ -274,7 +273,6 @@ ENVIRONMENT
 									}
 								}
 
-								fmt.Println("Starting ", name, " with tags ", tags, childEnv, childArgs)
 								childEnv = append(childEnv, fmt.Sprintf("CELLS_TAGS=%s", strings.Join(tags, " ")))
 
 								cmds[name] = fork.NewProcess(ctx, []string{}, fork.WithBinary(childBinary), fork.WithName(name), fork.WithArgs(childArgs), fork.WithEnv(childEnv))

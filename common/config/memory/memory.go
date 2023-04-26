@@ -145,7 +145,6 @@ func (m *memory) flush() {
 
 				m.receivers = updated
 			}
-
 		}
 	}
 }

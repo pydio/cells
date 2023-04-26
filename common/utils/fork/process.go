@@ -174,13 +174,13 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 
 	logs := regexp.MustCompile("^(?P<log_date>[^\t]+)\t(?P<log_level>[^\t]+)\t(?P<log_name>[^\t]+)\t(?P<log_message>[^\t]+)(\t)?(?P<log_fields>[^\t]*)$")
 
-	prefix := fmt.Sprintf("%-14s", "["+p.o.name+"]")
+	// prefix := fmt.Sprintf("%-14s", "["+p.o.name+"]")
 	go func() {
 		var sb strings.Builder
 
 		for scannerOut.Scan() {
 			sb.Reset()
-			sb.WriteString(prefix)
+			// sb.WriteString(prefix)
 			text := strings.TrimRight(scannerOut.Text(), "\n")
 			// merged := false
 			if parsed := logs.FindStringSubmatch(text); len(parsed) >= 5 {
@@ -200,7 +200,7 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 		var sb strings.Builder
 		for scannerErr.Scan() {
 			sb.Reset()
-			sb.WriteString(prefix)
+			// sb.WriteString(prefix)
 
 			text := strings.TrimRight(scannerErr.Text(), "\n")
 			merged := false

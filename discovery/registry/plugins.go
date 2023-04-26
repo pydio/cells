@@ -72,7 +72,6 @@ func init() {
 
 						listenerName := fmt.Sprintf(listenerNameTemplate, runtime.Cluster())
 						routeConfigName := fmt.Sprintf(routeConfigNameTemplate, runtime.Cluster())
-						// clusterName := fmt.Sprintf(clusterNameTemplate, runtime.Name())
 						virtualHostName := fmt.Sprintf(virtualHostNameTemplate, runtime.Cluster())
 						domains := []string{listenerName}
 						//if runtime.Name() != "tenant" {
@@ -106,12 +105,15 @@ func init() {
 						nodeId := "test-id"
 
 						cb.Add(func(m client.LinkedItem) error {
-							fmt.Println("DOING CALLBACK")
 							// -------------------------------------------
 							// Creating the Endpoint Discovery Service
 							// -------------------------------------------
 							eds := []types.Resource{}
 							for srvItem, mm := range m {
+								if srvItem.Name() != "grpc" {
+									continue
+								}
+
 								if len(mm.Get(pbregistry.ItemType_ENDPOINT)) == 0 {
 									continue
 								}
@@ -166,6 +168,10 @@ func init() {
 							// -------------------------------------------
 							cds := []types.Resource{}
 							for srvItem, mm := range m {
+								if srvItem.Name() != "grpc" {
+									continue
+								}
+
 								if len(mm.Get(pbregistry.ItemType_ENDPOINT)) == 0 {
 									continue
 								}
@@ -178,9 +184,14 @@ func init() {
 									EdsClusterConfig: &cluster.Cluster_EdsClusterConfig{
 										EdsConfig: &core.ConfigSource{
 											ResourceApiVersion: resource.DefaultAPIVersion,
-											ConfigSourceSpecifier: &core.ConfigSource_Ads{
-												Ads: &core.AggregatedConfigSource{},
+											ConfigSourceSpecifier: &core.ConfigSource_Self{
+												Self: &core.SelfConfigSource{
+													TransportApiVersion: core.ApiVersion_V3,
+												},
 											},
+											//ConfigSourceSpecifier: &core.ConfigSource_Ads{
+											//	Ads: &core.AggregatedConfigSource{},
+											//},
 										},
 									},
 								})
@@ -191,6 +202,10 @@ func init() {
 							// -------------------------------------------
 							routes := []*route.Route{}
 							for srvItem, mm := range m {
+								if srvItem.Name() != "grpc" {
+									continue
+								}
+
 								if len(mm.Get(pbregistry.ItemType_ENDPOINT)) == 0 {
 									continue
 								}
@@ -308,7 +323,6 @@ func init() {
 							}
 
 							atomic.AddInt32(&version, 1)
-							fmt.Println(">>>>>>>>>>>>>>>>>>> creating snapshot Version " + fmt.Sprint(version))
 							resources := make(map[resource.Type][]types.Resource, 4)
 							resources[resource.ListenerType] = lds
 							resources[resource.RouteType] = rds
