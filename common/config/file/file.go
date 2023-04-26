@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/sync/endpoints/filesystem"
 	"github.com/rjeczalik/notify"
 	"net/url"
 	"os"
@@ -168,11 +169,11 @@ func New(path string, opts ...configx.Option) (config.Store, error) {
 	go f.flush()
 
 	ch := make(chan notify.EventInfo)
-	if err := notify.Watch(path, ch, notify.FSEventsModified); err != nil {
+	if err := notify.Watch(path, ch, filesystem.EventTypeAll...); err != nil {
 		return nil, err
 	}
 
-	go func () {
+	go func() {
 		for {
 			select {
 			case <-ch:
