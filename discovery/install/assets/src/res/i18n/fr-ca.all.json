@@ -87,7 +87,7 @@
     "other": "BD d'authentification"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "Tester la connexion"
   },
   "license.stepLabel": {
     "other": "Licence Entreprise"
@@ -117,7 +117,7 @@
     "other": "Lancer l'installation"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "Veuillez patienter pendant l'installation de Pydio Cells..."
   },
   "apply.success": {
     "other": "L'installation a été effectuée avec succès et les services sont en cours de démarrage, l'installateur rechargera la page lorsque les services auront été redémarrés."
@@ -225,7 +225,7 @@
     "other": "Amazon / Compatible S3 (stocker dans des buckets S3)"
   },
   "form.dsS3Custom.label": {
-    "other": "URL, append ?minio=true if Minio."
+    "other": "URL, ajouter ?minio=true pour Minio."
   },
   "form.dsS3Custom.legend": {
     "other": "Laissez vide pour AWS"

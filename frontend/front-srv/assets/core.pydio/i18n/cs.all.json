@@ -1022,32 +1022,8 @@
   "402": {
     "other": "http://www.hjsplit.org/"
   },
-  "403": {
-    "other": "WebDAV"
-  },
-  "404": {
-    "other": "WebDAV is a protocol that allows you to mount your APPLICATION_TITLE workspaces as a 'network drive' directly on your desktop. To enable this feature, please check the box below, and enter your password if necessary."
-  },
-  "405": {
-    "other": "Any WebDAV client will ask you for an adress, a login and a password. Use the URL below along with your standard name and password."
-  },
-  "406": {
-    "other": "Aktivovat WebDAV sdílení"
-  },
-  "407": {
-    "other": "Enter your password if it's the first time that you are activating webDAV shares, or if you want to re-type a new password :"
-  },
-  "408": {
-    "other": "WebDav sdílení úspěšně zapnutá"
-  },
-  "409": {
-    "other": "WebDav sdílení úspěšně vypnutá"
-  },
   "41": {
     "other": "bylo přejmenováno na"
-  },
-  "410": {
-    "other": "Heslo k WebDav úspěšně zaktualizováno"
   },
   "411": {
     "other": "Otevřít"

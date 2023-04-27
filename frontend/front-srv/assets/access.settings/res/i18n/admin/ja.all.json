@@ -1434,10 +1434,10 @@
     "other": "ここで、このワークスペースフォルダへのデフォルトのアクセス許可を指定します。 サブレベルで権限管理を有効にするには、特定のフォルダーで 'CHILDREN' を選択します。\nこれにより、現在のフォルダーがデフォルトで読み取り専用に設定され、その子フォルダーへのアクセスを選択的に開くことができます。"
   },
   "ws.44": {
-    "other": "これはマスクだけです。実際のフォルダを直接変更すると、それに応じてこのマスクを編集する必要があります。 また、これらの権限は、このワークスペースの「デフォルトの権利」パラメータセットによってグローバルに制限されてもよい（「全般」タブを参照）。"
+    "other": "Please be aware that this is only a mask: if you modify the real folders directly, you may have\n                                to edit this mask accordingly. Also, these permissions may be globally limited by the 'Default Rights'\n                                parameter set for this workspace (see the General tab)."
   },
   "ws.45": {
-    "other": "そのパラメータは「pydio_user」または 'pydio_group_ *'キーワードを使用しているので、このワークスペースの内容は現在認証されているユーザーによって異なります。 このため、閲覧することはできません\nフォルダに直接アクセス権を割り当て、それらに権限を割り当てるが、マスクとして使用される一般的なパスを自由に定義することができます。"
+    "other": "As its parameters are using 'PYDIO_USER' or 'PYDIO_GROUP_*' keywords, the contents of\n                                this workspace will vary depending on the currently authenticated user. For this reason, you cannot browse the\n                                folders directly and assign permissions to them, but you can freely define some generic paths that will be used as masks."
   },
   "ws.46": {
     "other": "機能を追加"

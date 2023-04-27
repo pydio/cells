@@ -1022,32 +1022,8 @@
   "402": {
     "other": "http://www.hjsplit.org/"
   },
-  "403": {
-    "other": "WebDAV Voreinstellungen"
-  },
-  "404": {
-    "other": "WebDAV ist ein Protokoll, das es Ihnen ermöglicht, Ihre APPLICATION_TITLE Workspaces direkt auf Ihrem Desktop als Netzlaufwerk einzubinden. Um diese Funktion zu aktivieren, bitte markieren Sie das untenstehende Kästchen und geben Sie bei Bedarf Ihr Passwort ein."
-  },
-  "405": {
-    "other": "Jeder WebDAV-Client fragt Sie nach einer Adresse, einem Login und einem Passwort. Verwenden Sie die untenstehende URL zusammen mit Ihrem Standardnamen und Passwort."
-  },
-  "406": {
-    "other": "WebDAV-Freigaben aktivieren"
-  },
-  "407": {
-    "other": "Bitte das Passwort eingeben, wenn die WebDAV-Freigaben zum ersten Mal aktiviert werden oder ein neues Passwort verwendet werden soll:"
-  },
-  "408": {
-    "other": "WebDAV-Freigaben erfolgreich aktiviert, falls es die erste Aktivierung ist, bitte nicht vergessen das Passwort zu aktualisieren!"
-  },
-  "409": {
-    "other": "WebDAV-Freigaben erfolgreich deaktiviert"
-  },
   "41": {
     "other": "wurde umbenannt zu"
-  },
-  "410": {
-    "other": "WebDAV-Passwort erfolgreich aktualisiert"
   },
   "411": {
     "other": "Öffnen"
