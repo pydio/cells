@@ -96,10 +96,15 @@ class DropUploader extends React.Component {
     }
 
     toggleOptions(e) {
-        if (e.preventDefault) e.preventDefault();
+        if(!e) {
+            this.setState({showOptions: false, optionsAnchorEl: null})
+            return
+        }
 
-        const {showOptions = false, currentTarget} = this.state;
-
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        const {showOptions = false} = this.state;
         this.setState({
             showOptions: !showOptions,
             optionsAnchorEl: e.currentTarget,
@@ -199,7 +204,7 @@ class DropUploader extends React.Component {
                         onPickFolder={this.supportsFolder() ? (ev) => {this.openFolderPicker(ev)} : null}
                     />
                 </FileDropZone>
-                <UploadOptionsPane configs={configs} open={showOptions} anchorEl={optionsAnchorEl} onDismiss={(e) => {this.toggleOptions(e);}}/>
+                <UploadOptionsPane configs={configs} open={showOptions} anchorEl={optionsAnchorEl} onDismiss={(e) => {this.toggleOptions();}}/>
                 <ClearOptionsPane configs={configs} open={showClear} anchorEl={clearAnchorEl} onDismiss={() => {this.setState({showClear: false, clearAnchorEl:null})}}/>
                 {confirmDialog && <ConfirmExists onConfirm={this.dialogSubmit.bind(this)} onCancel={this.dialogCancel.bind(this)}/>}
             </div>
