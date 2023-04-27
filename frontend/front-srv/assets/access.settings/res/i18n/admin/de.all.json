@@ -1434,10 +1434,10 @@
     "other": "Legen Sie hier die Standardrechte für diesen Ordner fest.\n                                Haken Sie bei einem Ordner 'Kinder' an, um die Rechteverwaltung auf untergeordnete Elemente zu erweitern.\n                                Damit ist dieser Ordner standardmäßig schreibgeschützt und Sie haben die Möglichkeit, Berechtigungen\n                                für Unterordner zu vergeben."
   },
   "ws.44": {
-    "other": "Bitte beachten Sie, dass dies nur eine Maske ist: Wenn Sie die echten Ordner direkt ändern, müssen Sie möglicherweise diese Maske entsprechend anpassen. Außerdem können diese Berechtigungen global durch den Parameter 'Standardrechte' für diesen Workspace eingeschränkt werden (siehe den Reiter \"Allgemein\")."
+    "other": "Please be aware that this is only a mask: if you modify the real folders directly, you may have\n                                to edit this mask accordingly. Also, these permissions may be globally limited by the 'Default Rights'\n                                parameter set for this workspace (see the General tab)."
   },
   "ws.45": {
-    "other": "Da seine Parameter die Schlüsselwörter 'PYDIO_USER' oder 'PYDIO_GROUP_*' verwenden, werden die Inhalte dieses Workspaces je nach aktuell authentifiziertem Benutzer variieren. Aus diesem Grund können Sie die Ordner nicht direkt durchsuchen und ihnen Berechtigungen zuweisen, aber Sie können frei generische Pfade definieren, die als Masken verwendet werden."
+    "other": "As its parameters are using 'PYDIO_USER' or 'PYDIO_GROUP_*' keywords, the contents of\n                                this workspace will vary depending on the currently authenticated user. For this reason, you cannot browse the\n                                folders directly and assign permissions to them, but you can freely define some generic paths that will be used as masks."
   },
   "ws.46": {
     "other": "Funktion hinzufügen"
