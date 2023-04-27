@@ -195,7 +195,7 @@
     "other": "Standard (liste de fichiers avec entête de l'application)"
   },
   "154": {
-    "other": "Images Gallery (best for photos)"
+    "other": "Galerie d'images (pour les photos)"
   },
   "155": {
     "other": "Minimal (entête réduit, pour un widget)"
@@ -537,13 +537,13 @@
     "other": "Partagé dans les cellules"
   },
   "254b": {
-    "other": "With users or groups"
+    "other": "Utilisateurs / Groupes"
   },
   "254c": {
-    "other": "Shared in %d cells"
+    "other": "Partagé dans %d cells"
   },
   "254d": {
-    "other": "Shared in '%s'"
+    "other": "Partagé dans '%s'"
   },
   "255": {
     "other": "Etes-vous sûr de vouloir supprimer les cellules et les liens sur cet élément?"
@@ -663,10 +663,10 @@
     "other": "Surveiller"
   },
   "34": {
-    "other": "Select or Create Users"
+    "other": "Sélectionner ou Créer des utilisateurs"
   },
   "34b": {
-    "other": "Select Users"
+    "other": "Sélectionner des utilisateurs"
   },
   "35": {
     "other": "Libellé"
@@ -912,16 +912,16 @@
     "other": "Partager des répertoires existants"
   },
   "cells.remove.node": {
-    "other": "Remove from this cell"
+    "other": "Retirer de cette cell"
   },
   "cell.visibility.advanced": {
     "other": "Cette fonctionnalité avancée vous permet de choisir qui peut éditer les propriétés de cette Cell (droit d'ajouter ou supprimer des utilisateurs, d'ajouter ou supprimer des répertoires à la racine). Si vous voulez gérer les droits d'accès réels aux données, veuillez utiliser l'onglet 'Partagé avec'."
   },
   "cell.add.existing-or-new": {
-    "other": "Add to existing or new Cell"
+    "other": "Ajouter à une cell"
   },
   "cell.add.existing": {
-    "other": "Add to existing Cell"
+    "other": "Ajouter à une cell existante"
   },
   "cell.add.new": {
     "other": "Create a new Cell"

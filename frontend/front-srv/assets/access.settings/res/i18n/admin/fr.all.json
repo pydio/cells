@@ -1434,10 +1434,10 @@
     "other": "Vous pouvez ici détailler les droits d'accès dans le workspace au niveau des dossiers. Pour activer la gestion  des permissions à un sous-niveau, cliquez sur le sélecteur 'ENFANTS' d'un dossier donné. Il passera en lecture seule par défaut, et vous pourrez ouvrir les accès sélectivement sur ses dossiers descendants."
   },
   "ws.44": {
-    "other": "Veuillez bien noter qu'il ne s'agit ici que d'un masque. Si vous modifiez les dossiers directement dans le stockage, il faudra\n    manuellement mettre le masque à jour en conséquence. De plus, vérifiez la valeur du paramètre 'droits par défaut' dans l'onglet Général, elle peut limiter\n    l'accès global au workspace."
+    "other": "Please be aware that this is only a mask: if you modify the real folders directly, you may have\n                                to edit this mask accordingly. Also, these permissions may be globally limited by the 'Default Rights'\n                                parameter set for this workspace (see the General tab)."
   },
   "ws.45": {
-    "other": "Comme ce workspace utilise dans ses paramètres des valeurs comme PYDIO_USER ou PYDIO_GROUP_*, le contenu affiché varie en fonction de l'utilisateur\n    qui est loggé. Vous ne pouvez donc pas gérer les permissions directement. En revanche, vous pouvez définir des règles d'affichage génériques qui seront utilisées\n    comme un mask de permission."
+    "other": "As its parameters are using 'PYDIO_USER' or 'PYDIO_GROUP_*' keywords, the contents of\n                                this workspace will vary depending on the currently authenticated user. For this reason, you cannot browse the\n                                folders directly and assign permissions to them, but you can freely define some generic paths that will be used as masks."
   },
   "ws.46": {
     "other": "Ajouter une fonctionnalité"

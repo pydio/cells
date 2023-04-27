@@ -1434,10 +1434,10 @@
     "other": "Norādiet noklusētās piekļuves tiesības šīs darbvirsmas direktorijām.\n                                Lai ieslēgtu atļauju pārvaldību apakšdirektorijām izvēlieties 'APAKŠDIREKTORIJA' šai direktiorjai.\n                                Šī direktorija pēc noklusējuma tiks iestatīta kā lasāma un Jums būs iespēja ļaut pieeju\n                                pēc nepieciešamības jebkurai apakšdirektorijai."
   },
   "ws.44": {
-    "other": "Ņemiet vērā ka šī ir tikai maska: ja modificējat reālas direktorijas pa tiešo, Jums jālabo\n                                attiecīgi arī šī maska. Šīs atļaujas var būt arī globāli limitētas ņemot vērā 'Noklusētās piekļuves tiesības' \n                                parametrus šai darbvirsmai (skatīt Galvenais tabu)."
+    "other": "Please be aware that this is only a mask: if you modify the real folders directly, you may have\n                                to edit this mask accordingly. Also, these permissions may be globally limited by the 'Default Rights'\n                                parameter set for this workspace (see the General tab)."
   },
   "ws.45": {
-    "other": "Par cik tā parametrus lieto 'PYDIO_USER' vai 'PYDIO_GROUP_*' atslēgas vārdi, šis darbvirsmas\n                                saturs var mainīties atkarībā no lietotāja kurš ir pieslēdzies. Šajā gadījumā Jūs nevarat pārlūkot \n                                direktorijas tieši un tām piešķirt atļaujas, bet Jūs varat brīvi definēt pamata ceļus kas tiks izmantoti kā maskas."
+    "other": "As its parameters are using 'PYDIO_USER' or 'PYDIO_GROUP_*' keywords, the contents of\n                                this workspace will vary depending on the currently authenticated user. For this reason, you cannot browse the\n                                folders directly and assign permissions to them, but you can freely define some generic paths that will be used as masks."
   },
   "ws.46": {
     "other": "Pievienot funkciju"

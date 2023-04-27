@@ -1022,32 +1022,8 @@
   "402": {
     "other": "http://www.hjsplit.org/"
   },
-  "403": {
-    "other": "WebDAV"
-  },
-  "404": {
-    "other": "WebDAV est un protocole permettant de connecter vos workspace APPLICATION_TITLE comme des disques durs réseaux, directement sur votre bureau. Pour activer cette fonctionnalité, cochez la case et entrez un mot de passe s'il vous est demandé."
-  },
-  "405": {
-    "other": "Pour vous connecter, vous seront demandés une adresse internet, un identifiant et un mot de passe. Utilisez l'URL ci-dessous et vos identifiants standards."
-  },
-  "406": {
-    "other": "Activer les partages webDAV."
-  },
-  "407": {
-    "other": "Entrez votre mot de passe si c'est la première fois que vous activez webDAV, ou que vous désirez le changer :"
-  },
-  "408": {
-    "other": "Les partages webDAV ont été activés avec succès, n'oubliez pas de mettre à jour votre mot de passe si c'est la première activation !"
-  },
-  "409": {
-    "other": "Les partages webDAV ont été désactivés avec succès"
-  },
   "41": {
     "other": "a été renommé en"
-  },
-  "410": {
-    "other": "Le mot de passe webDAV a été changé avec succès"
   },
   "411": {
     "other": "Ouvrir"

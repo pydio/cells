@@ -1022,32 +1022,8 @@
   "402": {
     "other": "http://www.hjsplit.org/"
   },
-  "403": {
-    "other": "Preferenze WebDAV"
-  },
-  "404": {
-    "other": "WebDAV è un protocollo che consente di montare i tuoi workspace APPLICATION_TITLE come 'drive di rete' direttamente sul tuo desktop. Per abilitare questa funzione, spunta la casella qui sotto e se necessario inserisci la tua password."
-  },
-  "405": {
-    "other": "Qualsiasi client WebDAV ti chiederà un indirizzo, un login e una password. Usa l'URL qui sotto con il nome e la password standard."
-  },
-  "406": {
-    "other": "Attiva le condivisioni WebDAV"
-  },
-  "407": {
-    "other": "Inserisci la tua password se è la prima volta che attivi le condivisioni WebDAV, oppure se vuoi re-inserire una nuova password :"
-  },
-  "408": {
-    "other": "Condivisioni WebDav attivate con successo"
-  },
-  "409": {
-    "other": "Condivisioni WebDav disattivate con successo"
-  },
   "41": {
     "other": "è stata rinominata in"
-  },
-  "410": {
-    "other": "Password WebDav aggiornata correttamente"
   },
   "411": {
     "other": "Apri"

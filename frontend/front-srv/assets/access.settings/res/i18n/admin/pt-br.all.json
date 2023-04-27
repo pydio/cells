@@ -1434,10 +1434,10 @@
     "other": "Especifique aqui as permissões de acesso padrão para esta pasta do espaço de trabalho.\n                                Para ativar o gerenciamento de permissões em um subnível selecione 'CHILDREN' em uma determinada pasta.\n                                Isso irá definir a pasta atual como somente leitura por padrão e você poderá abrir acessos\n                                de forma seletiva para qualquer uma das pastas filhas."
   },
   "ws.44": {
-    "other": "Por favor, esteja ciente de que isto é apenas uma máscara: se você modificar as pastas reais diretamente, Você pode ter\n                                para editar esta máscara de acordo. Além disso, essas permissões podem estar globalmente limitadas pelo conjunto 'Direitos Padrões'\n                                para esta área de trabalho (veja a guia Geral)."
+    "other": "Please be aware that this is only a mask: if you modify the real folders directly, you may have\n                                to edit this mask accordingly. Also, these permissions may be globally limited by the 'Default Rights'\n                                parameter set for this workspace (see the General tab)."
   },
   "ws.45": {
-    "other": "Como seus parâmetros estão usando as palavras-chave 'PYDIO_USER' ou 'PYDIO_GROUP_*', o conteúdo\n                                deste espaço de trabalho vai variar dependendo do usuário autenticado atualmente. Por esta razão, você não pode navegar pelas\n                                pastas diretamente e atribuir permissões à elas, mas você pode definir livremente alguns caminhos genéricos que serão usados como máscaras."
+    "other": "As its parameters are using 'PYDIO_USER' or 'PYDIO_GROUP_*' keywords, the contents of\n                                this workspace will vary depending on the currently authenticated user. For this reason, you cannot browse the\n                                folders directly and assign permissions to them, but you can freely define some generic paths that will be used as masks."
   },
   "ws.46": {
     "other": "Adicionar um recurso"
