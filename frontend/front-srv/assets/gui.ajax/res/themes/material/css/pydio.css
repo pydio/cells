@@ -3914,6 +3914,7 @@ body,
   -webkit-box-shadow: none;
           box-shadow: none;
   border-radius: var(--md-sys-color-card-border-radius);
+  border: 1px solid var(--md-sys-color-outline-variant);
   background: var(--md-sys-color-surface);
   margin: 4px;
 }
@@ -3926,7 +3927,7 @@ body,
   border-top: 0;
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry .material-list-icon .mimefont-container {
-  border-radius: var(--md-sys-color-card-border-radius);
+  border-radius: 0 0 var(--md-sys-color-card-border-radius) var(--md-sys-color-card-border-radius);
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-icon {
   height: calc(100% - 20px);
@@ -3965,7 +3966,7 @@ body,
   color: var(--md-sys-color-custom-archive-color) !important;
 }
 .react-mui-context.mui3-token .selected .mimefont-container {
-  background-color: var(--md-sys-color-primary-container) !important;
+  background-color: var(--md-sys-color-secondary-container) !important;
 }
 .react-mui-context.mui3-token .left-panel .rail-hover-bar .workspaces .workspace-entry .workspace-additional-action {
   display: none;

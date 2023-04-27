@@ -305,8 +305,8 @@ export default class ThemeBuilder {
             add('field-underline-idle', systemDark?mui3['outline']:mui3['outline-variant'])
             add('inline-tags-border', systemDark?mui3['outline']:mui3['outline-variant-50'])
 
-            add('mimefont-background', Color(mui3['primary-container']).fade(systemDark?.1:.7).toString())
-            add('mimefont-color', mui3['on-primary-container'])
+            add('mimefont-background', Color(mui3['secondary-container']).fade(0.4).toString())
+            add('mimefont-color', mui3['on-secondary-container'])
             add('fstemplate-master-margin', '8px')
             add('paper-border-radius', '20px')
             add('card-border-radius', '12px')
