@@ -1022,32 +1022,8 @@
   "402": {
     "other": "http://www.hjsplit.org/"
   },
-  "403": {
-    "other": "WebDAV"
-  },
-  "404": {
-    "other": "WebDAV ir protokols kurš ļauj pieslēgt APPLICATION_TITLE darbvirsmas kā 'tīkla diskus' pa tiešo uz Jūsu datora. Lai ieslēgtu šo iespēju, atzīmējiet zemākesošo iespēju un ievadiet savu paroli ja nepieciešams."
-  },
-  "405": {
-    "other": "Jebkurš WebDAV klients Jums pieprasīs adresi, lietotājvārdu un paroli. Lietojiet zemākesošo saiti kopā ar savu lietotājvārdu un paroli."
-  },
-  "406": {
-    "other": "Ieslēgt WebDAV koplietošanu"
-  },
-  "407": {
-    "other": "ievadiet paroli ja pirmo reizi aktivizējat WebDAV koplietošanu, vai ja vēlaties, ievadiet jaunu paroli:"
-  },
-  "408": {
-    "other": "WebDAV koplietošnaa veiksmīgi aktivizēta"
-  },
-  "409": {
-    "other": "WebDAV koplietošana veiksmīgi atslēgta"
-  },
   "41": {
     "other": "tika pārsaukts par"
-  },
-  "410": {
-    "other": "WebDAV parole veiksmīgi atjaunota"
   },
   "411": {
     "other": "Atvērt"

@@ -1434,10 +1434,10 @@
     "other": "Укажите права доступа по умолчанию к этим папкам рабочей области.\n                                Чтобы включить управление разрешениями на подуровне, выберите 'Нижестоящие' в указанной папке.\n                                По умолчанию текущая папка будет доступна только для чтения, и вы сможете избирательно открывать доступ\n                                к дочерним папкам."
   },
   "ws.44": {
-    "other": "Имейте в виду, что это только маска: если вы изменяете настоящие папки напрямую, у вас есть, \n                                 чтобы отредактировать эту маску. Также, эти разрешения могут быть глобально ограничены параметром 'По умолчанию'.\n                                для этого проекта (см. вкладку 'Общие)."
+    "other": "Please be aware that this is only a mask: if you modify the real folders directly, you may have\n                                to edit this mask accordingly. Also, these permissions may be globally limited by the 'Default Rights'\n                                parameter set for this workspace (see the General tab)."
   },
   "ws.45": {
-    "other": "As its parameters are using 'PYDIO_USER' or 'PYDIO_GROUP_*' keywords, the contents of\n                                this workspace will vary depending on the currently authenticated user. For this reason, you cannot browse the\n                                folders directly and assign permissions to them, but you can freely define some generic pathes that will be used as masks."
+    "other": "As its parameters are using 'PYDIO_USER' or 'PYDIO_GROUP_*' keywords, the contents of\n                                this workspace will vary depending on the currently authenticated user. For this reason, you cannot browse the\n                                folders directly and assign permissions to them, but you can freely define some generic paths that will be used as masks."
   },
   "ws.46": {
     "other": "Добавить функцию"

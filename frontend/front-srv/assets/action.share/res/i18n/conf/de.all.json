@@ -131,8 +131,8 @@
   "Set password mandatory": {
     "other": "Passwort als Pflichtfeld"
   },
-  "Share Center actions and hooks": {
-    "other": "Ordner und Dateien freigeben"
+  "Sharing parameters and authorizations": {
+    "other": "Sharing parameters and authorizations"
   },
   "Share page background color.": {
     "other": "Hintergrundfarbe der Freigabeseite."

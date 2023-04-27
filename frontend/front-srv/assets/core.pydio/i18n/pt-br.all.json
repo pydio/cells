@@ -1022,32 +1022,8 @@
   "402": {
     "other": "http://www.hjsplit.org/"
   },
-  "403": {
-    "other": "Preferências WebDAV"
-  },
-  "404": {
-    "other": "WebDAV é um protocolo que lhe permite montar os espaços de trabalho APPLICATION_TITLE como uma 'unidade de rede' diretamente no seu computador. Para ativar esse recurso, marque a caixa abaixo, e digite sua senha, se necessário."
-  },
-  "405": {
-    "other": "Qualquer cliente WebDAV irá pedir um endereço, um login e uma senha. Utilize a URL abaixo, juntamente com o seu login e senha."
-  },
-  "406": {
-    "other": "Ativar compartilhamento WebDAV"
-  },
-  "407": {
-    "other": "Digite sua senha se é a primeira vez que você está ativando compartilhamentos WebDAV, ou se você quiser re-digite uma nova senha:"
-  },
-  "408": {
-    "other": "Compartilhamentos WebDAV ativados com sucesso"
-  },
-  "409": {
-    "other": "Compartilhamentos WebDAV desativados com sucesso"
-  },
   "41": {
     "other": "foi renomeado para"
-  },
-  "410": {
-    "other": "Senha WebDAV atualizada com sucesso"
   },
   "411": {
     "other": "Abrir"
