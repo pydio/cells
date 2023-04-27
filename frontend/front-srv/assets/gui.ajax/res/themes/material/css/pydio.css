@@ -3879,6 +3879,9 @@ body,
 .react-mui-context.mui3-token .material-list.table-mode .material-list-entry.selected-dark .overlay-icon-span {
   color: var(--md-sys-color-on-secondary) !important;
 }
+.react-mui-context.mui3-token .material-list.table-mode .material-list-entry.list-parent-node .material-list-icon .mui-font-icon {
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
 .react-mui-context.mui3-token .material-list.table-mode .mui-toolbar {
   background: var(--md-sys-color-surface-3);
   border-top-width: 0px;
