@@ -2304,7 +2304,7 @@
     "other": "Sélectionner"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "Sélection multiple"
   },
   "confirm.dialog.title": {
     "other": "Confirmer"
@@ -2419,9 +2419,6 @@
   },
   "searchengine.complete.activefilters-edit": {
     "other": "Cliquer pour modifier"
-  },
-  "searchengine.complete.activefilters-edit": {
-    "other": "Click to modify"
   },
   "chat.load-older": {
     "other": "Messages précédents"
