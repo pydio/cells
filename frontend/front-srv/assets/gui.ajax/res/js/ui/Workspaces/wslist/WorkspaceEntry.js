@@ -466,7 +466,7 @@ class WorkspaceEntry extends React.Component {
                     targetOrigin={{horizontal:"left",vertical:popoverTop?"bottom":"center"}}
                     zDepth={3}
                     style={{overflow:'hidden', height: popoverHeight}}
-                ><Menu style={{maxWidth:420}} listStyle={{paddingBottom: 0, paddingTop: 0}}>{this.state.popoverContent}</Menu></Popover>
+                ><Menu style={{maxWidth:400}} listStyle={{paddingBottom: 0, paddingTop: 0}}>{this.state.popoverContent}</Menu></Popover>
             </ContextMenuWrapper>
         );
 

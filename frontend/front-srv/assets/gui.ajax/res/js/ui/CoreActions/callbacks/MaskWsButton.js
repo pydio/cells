@@ -24,7 +24,7 @@ import {IconButton} from 'material-ui'
 export default class MaskWsButton extends React.Component {
 
     render() {
-        const {pydio, workspaceId, iconStyle} = this.props
+        const {pydio, workspaceId, iconStyle, style} = this.props
         if (!pydio.user) {
             return null;
         }
@@ -34,6 +34,7 @@ export default class MaskWsButton extends React.Component {
         return (
             <IconButton
                 iconClassName={'mdi mdi-playlist-'+(isMasked?'check':'remove')}
+                style={style}
                 iconStyle={iconStyle}
                 tooltip={pydio.MessageHash['ajax_gui.wslist.action.' + (isMasked?'unmask':'mask')]}
                 onClick={() => {

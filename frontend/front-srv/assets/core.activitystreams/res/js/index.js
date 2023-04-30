@@ -26,4 +26,5 @@ export {default as ActivityList} from "./ActivityList";
 export {default as Listener} from './Listener'
 export {default as Callbacks} from './Callbacks'
 export {default as WatchSelector} from './WatchSelector'
+export {default as WatchSelectorMui3} from './WatchSelectorMui3'
 export {default as OverlayPanel} from './OverlayPanel'

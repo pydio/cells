@@ -17,16 +17,18 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import React, {Fragment} from 'react'
 import Pydio from 'pydio'
 import EditCellDialog from './EditCellDialog'
 import CellModel from 'pydio/model/cell'
 import ResourcesManager from 'pydio/http/resources-manager'
 import {MenuItem} from 'material-ui'
 import ShareHelper from "../main/ShareHelper";
+import SharedUsersStack from "./SharedUsersStack";
+import {muiThemeable} from 'material-ui/styles'
 
 const {moment} = Pydio.requireLib('boot')
-const {GenericCard, GenericLine, QuotaUsageLine} = Pydio.requireLib("components");
+const {GenericCard, GenericLine, Mui3CardLine, QuotaUsageLine} = Pydio.requireLib("components");
 
 class CellCard extends React.Component{
 
@@ -67,6 +69,10 @@ class CellCard extends React.Component{
         const {pydio, cellId} = this.props;
         if(pydio.user.activeRepository === cellId) {
             pydio.user.getActiveRepositoryAsCell().then(cell => {
+                if(!cell) {
+                    this.setState({loading: false})
+                    return;
+                }
                 this.setState({model: cell, loading: false});
                 cell.observe('update', this._observer);
             })
@@ -88,16 +94,16 @@ class CellCard extends React.Component{
     }
 
     render(){
-        const {mode, pydio, editorOneColumn} = this.props;
+        const {mode, pydio, editorOneColumn, muiTheme} = this.props;
         const {edit, model, asLib, coreActionsLib, rootNodes, loading} = this.state;
         const m = (id) => pydio.MessageHash['share_center.' + id];
 
-        let rootStyle = {width: 420, minHeight: 270};
+        let rootStyle = {width: 400, minHeight: 270};
         let content;
 
         if (edit) {
             if(editorOneColumn){
-                rootStyle = {width: 420, height: 500};
+                rootStyle = {width: 400, height: 500};
             } else{
                 rootStyle = {width: 700, height: 500};
             }
@@ -130,7 +136,29 @@ class CellCard extends React.Component{
                     moreMenuItems.push(<MenuItem primaryText={m(248)} onClick={deleteAction}/>);
                 }
             }
+            let secondaryLines = [], numbers = [];
             let watchLine, quotaLines =[], otherActions, expirationLine;
+            if(rootNodes && !loading) {
+                rootNodes.forEach((node) => {
+                    if(node.getMetadata().get("ws_quota")) {
+                        quotaLines.push(<QuotaUsageLine mui3={mode!=='infoPanel'} node={node}/>)
+                    }
+                })
+                if(rootNodes.length > 1) {
+                    numbers.push(pydio.MessageHash['share_center.cell.folder-root.multiple'].replace('%d', rootNodes.length))
+                } else {
+                    numbers.push(pydio.MessageHash['share_center.cell.folder-root.single'])
+                }
+                const plen = Object.keys(model.getAcls()).length;
+                if(plen > 1) {
+                    numbers.push(pydio.MessageHash['share_center.cell.participant.multiple'].replace('%d', plen))
+                } else {
+                    numbers.push(pydio.MessageHash['share_center.cell.participant.single'])
+                }
+                secondaryLines.push(numbers.join(', '))
+//                secondaryLines.push('%1 participants, %2 folders'.replace('%1', Object.keys(model.getAcls()).length).replace('%2', rootNodes.length))
+            }
+
             if(!loading && model.cell && model.cell.AccessEnd) {
                 const dateObject = new Date(parseInt(model.cell.AccessEnd) * 1000)
                 const dateExpired = (dateObject < new Date())
@@ -142,32 +170,28 @@ class CellCard extends React.Component{
                         data={moment(dateObject).calendar()}
                     />
                 )
+                secondaryLines.push(m(dateExpired?'21b':'21') + ' ' + moment(dateObject).calendar())
             }
             if(asLib && coreActionsLib && rootNodes && !loading) {
-                const {WatchSelector} = asLib
+                const {WatchSelector, WatchSelectorMui3} = asLib
                 const {BookmarkButton, MaskWsButton} = coreActionsLib
-                const selector = <WatchSelector pydio={pydio} nodes={rootNodes} fullWidth={true}/>;
+                let selector;
+                if(muiTheme.userTheme === 'mui3') {
+                    selector = <WatchSelectorMui3 pydio={pydio} nodes={rootNodes} fullWidth={false}/>;
+                } else {
+                    selector = <WatchSelector pydio={pydio} nodes={rootNodes} fullWidth={true}/>;
+                }
                 watchLine = (
-                    <GenericLine
-                        iconClassName={"mdi mdi-bell-outline"}
-                        legend={pydio.MessageHash['meta.watch.selector.legend']}
+                    <Mui3CardLine
+                        legend={pydio.MessageHash['meta.watch.selector.legend'+(muiTheme.userTheme === 'mui3'?'.mui':'')]}
                         data={selector}
-                        iconStyle={{marginTop: 26}}
-                        dataStyle={{paddingRight: 16, marginTop: -6, marginBottom: 6}}
+                        dataStyle={{marginTop: 6}}
                     />);
                 otherActions = [
-                    <MaskWsButton pydio={pydio} workspaceId={model.getUuid()} iconStyle={{color:'var(--md-sys-color-primary)'}}/>,
-                    <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'var(--md-sys-color-primary)'}}}/>
+                    <MaskWsButton pydio={pydio} workspaceId={model.getUuid()} style={{width:40,height:40,padding:8}} iconStyle={{color:'var(--md-sys-color-primary)'}}/>,
+                    <BookmarkButton pydio={pydio} nodes={rootNodes} styles={{style:{width:40,height:40,padding:8}, iconStyle:{color:'var(--md-sys-color-primary)'}}}/>
                 ];
             }
-            if(rootNodes && !loading) {
-                rootNodes.forEach((node) => {
-                    if(node.getMetadata().get("ws_quota")) {
-                        quotaLines.push(<QuotaUsageLine node={node}/>)
-                    }
-                })
-            }
-
 
             content = (
                 <GenericCard
@@ -178,28 +202,43 @@ class CellCard extends React.Component{
                     onDeleteAction={deleteAction}
                     deleteTooltip={pydio.MessageHash['share_center.248']}
                     onEditAction={editAction}
-                    editTooltip={pydio.MessageHash['share_center.248']}
+                    editTooltip={pydio.MessageHash['share_center.247']}
                     headerSmall={mode === 'infoPanel'}
-                    moreMenuItems={moreMenuItems}
+                    mui3={true}
+                    topLeftAvatar={mode !== 'infoPanel' && <SharedUsersStack size={40} acls={model.getAcls()}/>}
                 >
-                    {!loading && model.getDescription() && <GenericLine iconClassName="mdi mdi-information" legend={m(145)} data={model.getDescription()}/>}
-                    <GenericLine
-                        iconClassName="mdi mdi-account-multiple-outline"
-                        legend={m(54)}
-                        data={model.getAclsSubjects()}
-                        placeHolder
-                        placeHolderReady={!loading}
-                    />
-                    <GenericLine
-                        iconClassName="mdi mdi-folder-multiple-outline"
-                        legend={m(249)}
-                        data={nodes}
-                        placeHolder
-                        placeHolderReady={!loading}
-                    />
-                    {expirationLine}
-                    {quotaLines}
-                    {mode !== 'infoPanel' && (watchLine || <GenericLine placeHolder placeHolderReady={!loading}/>)}
+                    {mode !== 'infoPanel' &&
+                        <Fragment>
+                            <Mui3CardLine
+                                legend={model.getDescription()}
+                                data={<div>{secondaryLines.map(l=><div>{l}</div>)}</div>}
+                            />
+                            {watchLine || <GenericLine placeHolder placeHolderReady={!loading}/>}
+                        </Fragment>
+                    }
+                    {mode === 'infoPanel' &&
+                        <Fragment>
+                            {!loading &&
+                                <GenericLine
+                                    iconClassName="mdi mdi-account-multiple"
+                                    legend={"Participants"}
+                                    data={<SharedUsersStack size={30} acls={model.getAcls()} />}
+                                />
+                            }
+                            {!loading && model.getDescription() &&
+                                <GenericLine iconClassName="mdi mdi-information" legend={m(145)} data={model.getDescription()}/>
+                            }
+                            <GenericLine
+                                iconClassName="mdi mdi-folder-multiple-outline"
+                                legend={m(249)}
+                                data={nodes}
+                                placeHolder
+                                placeHolderReady={!loading}
+                            />
+                            {expirationLine}
+                            {quotaLines}
+                        </Fragment>
+                    }
                 </GenericCard>
             );
             if(mode === 'infoPanel'){
@@ -213,5 +252,5 @@ class CellCard extends React.Component{
 
 }
 
-//CellCard = PaletteModifier({primary1Color:'#009688'})(CellCard);
+CellCard = muiThemeable()(CellCard);
 export {CellCard as default}

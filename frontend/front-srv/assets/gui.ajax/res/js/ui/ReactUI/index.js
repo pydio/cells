@@ -52,6 +52,8 @@ import JobsStore from './tasks/JobsStore'
 import SingleJobProgress from './tasks/SingleJobProgress'
 
 import Tooltip from 'material-ui/internal/Tooltip'
+import M3Tooltip from '@mui/material/Tooltip'
+
 import './modal/popoverFix'
 
 export {
@@ -82,6 +84,7 @@ export {
     PydioContextConsumer,
 
     Tooltip,
+    M3Tooltip,
     moment,
 
     TasksPanel,

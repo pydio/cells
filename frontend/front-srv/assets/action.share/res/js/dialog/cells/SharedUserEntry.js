@@ -20,7 +20,7 @@ const PropTypes = require('prop-types');
  */
 const React = require('react');
 import {Checkbox} from 'material-ui'
-import UserBadge from './UserBadge'
+import SharedUserBadge from './SharedUserBadge'
 import ShareContextConsumer from '../ShareContextConsumer'
 
 class SharedUserEntry extends React.Component {
@@ -123,7 +123,7 @@ class SharedUserEntry extends React.Component {
         )
 
         return (
-            <UserBadge
+            <SharedUserBadge
                 label={label}
                 avatarUser={avatarIdmUser}
                 type={type}

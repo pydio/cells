@@ -1,4 +1,3 @@
-const PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -19,12 +18,11 @@ const PropTypes = require('prop-types');
  * The latest code can be found at <https://pydio.com>.
  */
 import React, {Component} from 'react'
-import Pydio from 'pydio'
+const PropTypes = require('prop-types');
 const {MenuItem, IconMenu, IconButton} = require('material-ui')
-const {muiThemeable} = require('material-ui/styles')
-const {UserAvatar} = Pydio.requireLib('components')
+import Avatar from "./Avatar";
 
-class UserBadge extends Component{
+class SharedUserBadge extends Component{
 
     renderMenu(){
         if (!this.props.menus || !this.props.menus.length) {
@@ -56,38 +54,12 @@ class UserBadge extends Component{
     }
 
     render() {
-        const {type, muiTheme, avatarUser} = this.props;
-        let avatar;
-        let avatarColor = muiTheme.palette.avatarsColor;
-        if(type === 'group') {
-            avatar = <span className="avatar mdi mdi-account-multiple" style={{backgroundColor: avatarColor}}/>;
-        }else if(type === 'team') {
-            avatar = <span className="avatar mdi mdi-account-multiple-outline" style={{backgroundColor:avatarColor}}/>;
-        }else if(type === 'temporary') {
-            avatar = <span className="avatar mdi mdi-account-plus" style={{backgroundColor:avatarColor}}/>;
-        }else if(type === 'remote_user'){
-            avatar = <span className="avatar mdi mdi-account-network" style={{backgroundColor:avatarColor}}/>;
-        }else{
-            //avatar = <span className="avatar mdi mdi-account" style={{backgroundColor:avatarColor}}/>;
-            avatar = (
-                <UserAvatar
-                    avatarSize={24}
-                    pydio={Pydio.getInstance()}
-                    userId={avatarUser.Login}
-                    avatarOnly={true}
-                    idmUser={avatarUser}
-                    userType={'user'}
-                    useDefaultAvatar={true}
-                    avatarClassName={"avatar"}
-                    style={{padding: 0, lineHeight: '16px'}}
-                />
-            )
-        }
+        const {type, avatarUser} = this.props;
         const menu = this.renderMenu();
         const {boxes} = this.props;
         return (
             <div className={"share-dialog user-badge user-type-" + this.props.type}>
-                {avatar}
+                <Avatar size={28} type={type} idmObject={avatarUser} style={{margin: '5px 14px 7px 7px'}}/>
                 <span className="user-badge-label">{this.props.label}</span>
                 {menu}
                 {boxes}
@@ -96,14 +68,11 @@ class UserBadge extends Component{
     }
 }
 
-UserBadge.propTypes = {
+SharedUserBadge.propTypes = {
     label   : PropTypes.string,
     avatar  : PropTypes.string,
     type    : PropTypes.string,
     menus   : PropTypes.object,
-    muiTheme: PropTypes.object,
 };
 
-UserBadge = muiThemeable()(UserBadge);
-
-export {UserBadge as default}
+export {SharedUserBadge as default}

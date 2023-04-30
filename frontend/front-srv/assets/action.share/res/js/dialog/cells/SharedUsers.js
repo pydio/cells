@@ -119,8 +119,8 @@ class SharedUsers extends React.Component {
             rwHeader = (
                 <div style={{display:'flex', marginBottom: -8, marginTop: -8, color, fontSize:12}}>
                     <div style={{flex: 1}}/>
-                    <div style={{width: 43, textAlign:'center'}}>{this.props.getMessage('361', '')}</div>
-                    <div style={{width: 43, textAlign:'center'}}>{this.props.getMessage('181')}</div>
+                    <div style={{width: 43, textAlign:'center', overflow:'hidden', textOverflow:'ellipsis'}}>{this.props.getMessage('361', '')}</div>
+                    <div style={{width: 43, textAlign:'center', overflow:'hidden', textOverflow:'ellipsis'}}>{this.props.getMessage('181')}</div>
                     <div style={{width: 6}}/>
                 </div>
             );
