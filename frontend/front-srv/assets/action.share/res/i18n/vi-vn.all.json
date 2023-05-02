@@ -926,6 +926,24 @@
   "cell.add.new": {
     "other": "Tạo mới một Cell"
   },
+  "cell.participant.single": {
+    "other": "One participant"
+  },
+  "cell.participant.multiple": {
+    "other": "%d participants"
+  },
+  "cell.participant.other.single": {
+    "other": "One other participant"
+  },
+  "cell.participant.other.multiple": {
+    "other": "%d other participants"
+  },
+  "cell.folder-root.single": {
+    "other": "One folder"
+  },
+  "cell.folder-root.multiple": {
+    "other": "%d folders"
+  },
   "link.visibility.title": {
     "other": "[Nâng cao] Đồng sở hữu Cell này"
   },

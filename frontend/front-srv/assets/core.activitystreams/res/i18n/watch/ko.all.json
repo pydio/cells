@@ -56,14 +56,23 @@
   "selector.legend": {
     "other": "어떤 상황일때 통지 받기"
   },
+  "selector.legend.mui": {
+    "other": "Receive notifications when content is..."
+  },
   "selector.ignore": {
     "other": "절대 아님(통지 없음)"
   },
   "selector.read": {
     "other": "내용이 접근되었음"
   },
+  "selector.read.mui": {
+    "other": "Accessed"
+  },
   "selector.change": {
     "other": "내용이 수정되었습니다."
+  },
+  "selector.change.mui": {
+    "other": "Modified"
   },
   "selector.both": {
     "other": "내용이 접근되었거나 수정되었습니다."

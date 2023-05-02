@@ -56,14 +56,23 @@
   "selector.legend": {
     "other": "Nhận thông báo khi..."
   },
+  "selector.legend.mui": {
+    "other": "Receive notifications when content is..."
+  },
   "selector.ignore": {
     "other": "Không (không nhận thông báo)"
   },
   "selector.read": {
     "other": "Nội dung được truy cập"
   },
+  "selector.read.mui": {
+    "other": "Accessed"
+  },
   "selector.change": {
     "other": "Nội dung được sửa đổi"
+  },
+  "selector.change.mui": {
+    "other": "Modified"
   },
   "selector.both": {
     "other": "Nội dung được truy cập hoặc được sửa đổi"
