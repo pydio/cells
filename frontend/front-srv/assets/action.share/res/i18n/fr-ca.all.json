@@ -924,28 +924,28 @@
     "other": "Ajouter à une cell existante"
   },
   "cell.add.new": {
-    "other": "Create a new Cell"
+    "other": "Créer une nouvelle cell"
   },
   "cell.participant.single": {
-    "other": "One participant"
+    "other": "Un participant"
   },
   "cell.participant.multiple": {
     "other": "%d participants"
   },
   "cell.participant.other.single": {
-    "other": "One other participant"
+    "other": "Un autre participant"
   },
   "cell.participant.other.multiple": {
-    "other": "%d other participants"
+    "other": "%d autres participants"
   },
   "cell.folder-root.single": {
-    "other": "One folder"
+    "other": "Un dossier"
   },
   "cell.folder-root.multiple": {
-    "other": "%d folders"
+    "other": "%d dossiers"
   },
   "link.visibility.title": {
-    "other": "[Advanced] Visibility"
+    "other": "[Avancé] Visibilité"
   },
   "link.visibility.advanced": {
     "other": "Cette fonctionnalité avancée vous permet de décider si ce lien est visible par les autres utilisateurs qui ont accès à ce fichier, et s'ils peuvent modifier ses propriétés. Par défaut, les liens que vous créez ne sont visibles que par vous. Vous pouvez transférer la propriété d'un lien en donnant le droit à un autre utilisateur de le modifier."
@@ -954,7 +954,7 @@
     "other": "Il y a des changements non pris en compte, êtes-vous sûr de vouloir fermer ?"
   },
   "dialog.link.confirm.remove": {
-    "other": "Are you sure that you want to disable this link?"
+    "other": "Êtes-vous sûr de vouloir désactiver ce lien ?"
   },
   "sharelist.quick-filter": {
     "other": "Filtre rapide..."
@@ -963,16 +963,16 @@
     "other": "Désactiver tous les partages"
   },
   "link.active": {
-    "other": "active"
+    "other": "actif"
   },
   "link.disable": {
-    "other": "Disable Link"
+    "other": "Désactiver le lien"
   },
   "link.floatingLabel": {
-    "other": "Copy and send this link for direct access"
+    "other": "Copier et envoyer le lien pour un accès direct"
   },
   "link.secure.title": {
-    "other": "Access Restrictions"
+    "other": "Restrictions d'accès"
   },
   "link.secure.expires": {
     "other": "expires"
