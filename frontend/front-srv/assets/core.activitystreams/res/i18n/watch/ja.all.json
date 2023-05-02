@@ -56,14 +56,23 @@
   "selector.legend": {
     "other": "通知を受信する..."
   },
+  "selector.legend.mui": {
+    "other": "Receive notifications when content is..."
+  },
   "selector.ignore": {
     "other": "受信しない (通知なし)"
   },
   "selector.read": {
     "other": "コンテンツがアクセスされたとき"
   },
+  "selector.read.mui": {
+    "other": "Accessed"
+  },
   "selector.change": {
     "other": "コンテンツが変更されました"
+  },
+  "selector.change.mui": {
+    "other": "Modified"
   },
   "selector.both": {
     "other": "コンテンツがアクセスもしくは変更されたとき"
