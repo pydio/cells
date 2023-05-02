@@ -422,22 +422,26 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 
-	// For creation by non-admin, check USER_CREATE_USERS plugins permission.
-	if update == nil && ctxClaims.Profile != common.PydioProfileAdmin && !inputUser.IsHidden() {
-		global := config.Get("frontend", "plugin", "core.auth", "USER_CREATE_USERS").Default(true).Bool()
-		acl, e := permissions.AccessListFromContextClaims(ctx)
-		if e != nil {
-			service.RestError500(req, rsp, e)
-			return
-		}
-		if er := permissions.AccessListLoadFrontValues(ctx, acl); er != nil {
-			service.RestError500(req, rsp, e)
-			return
-		}
-		local := acl.FlattenedFrontValues().Val("parameters", "core.auth", "USER_CREATE_USERS", permissions.FrontWsScopeAll).Default(global).Bool()
-		if !local {
-			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create users"))
-			return
+	if update == nil && ctxClaims.Profile != common.PydioProfileAdmin {
+		// Clear roles
+		inputUser.Roles = nil
+		// For creation by non-admin, check USER_CREATE_USERS plugins permission.
+		if !inputUser.IsHidden() {
+			global := config.Get("frontend", "plugin", "core.auth", "USER_CREATE_USERS").Default(true).Bool()
+			acl, e := permissions.AccessListFromContextClaims(ctx)
+			if e != nil {
+				service.RestError500(req, rsp, e)
+				return
+			}
+			if er := permissions.AccessListLoadFrontValues(ctx, acl); er != nil {
+				service.RestError500(req, rsp, e)
+				return
+			}
+			local := acl.FlattenedFrontValues().Val("parameters", "core.auth", "USER_CREATE_USERS", permissions.FrontWsScopeAll).Default(global).Bool()
+			if !local {
+				service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create users"))
+				return
+			}
 		}
 	}
 	// Recheck that crtUser is not hidden

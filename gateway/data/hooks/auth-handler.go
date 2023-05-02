@@ -74,6 +74,17 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if r.Method == http.MethodGet {
+		rq := r.URL.Query()
+		rType := rq.Get("response-content-type")
+		if (rType == "text/html" || rType == "text/xhtml+xml") && rq.Get("response-content-disposition") != "attachment" {
+			log.Logger(ctx).Info("Forcing Content Disposition to Attachment for html content type")
+			rq.Set("response-content-disposition", "attachment")
+			r.URL.RawQuery = rq.Encode()
+			_ = r.ParseForm()
+		}
+	}
+
 	if bearer, ok := r.Header["X-Pydio-Bearer"]; ok && len(bearer) > 0 {
 
 		rawIDToken := strings.Join(bearer, "")
