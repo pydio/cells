@@ -927,22 +927,22 @@
     "other": "Créer une nouvelle cellule"
   },
   "cell.participant.single": {
-    "other": "One participant"
+    "other": "Un participant"
   },
   "cell.participant.multiple": {
     "other": "%d participants"
   },
   "cell.participant.other.single": {
-    "other": "One other participant"
+    "other": "Un autre participant"
   },
   "cell.participant.other.multiple": {
-    "other": "%d other participants"
+    "other": "%d autres participants"
   },
   "cell.folder-root.single": {
-    "other": "One folder"
+    "other": "Un dossier"
   },
   "cell.folder-root.multiple": {
-    "other": "%d folders"
+    "other": "%d dossiers"
   },
   "link.visibility.title": {
     "other": "[Avancé] Visibilité"

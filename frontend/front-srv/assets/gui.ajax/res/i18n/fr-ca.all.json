@@ -255,24 +255,24 @@
     "other": "Unmask"
   },
   "wslist-options.merge-workspaces": {
-    "other": "Merge workspaces and cells"
+    "other": "Fusionner les Workspaces et les Cells"
   },
   "wslist-options.own-cells-first": {
-    "other": "Cells created by me first"
+    "other": "Cells créées par moi en premier"
   },
   "leftrail.buttons.home": {
-    "other": "Home"
+    "other": "Accueil"
   },
   "leftrail.buttons.directory": {
-    "other": "Directory"
+    "other": "Annuaire"
   },
   "leftrail.buttons.all-files": {
-    "other": "All Files"
+    "other": "Fichiers"
   },
   "leftrail.buttons.theme.light": {
-    "other": "Light Mode"
+    "other": "Mode Clair"
   },
   "leftrail.buttons.theme.dark": {
-    "other": "Dark Mode"
+    "other": "Mode Sombre"
   }
 }
