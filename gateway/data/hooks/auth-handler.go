@@ -58,13 +58,23 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	resignRequestV4 := false
 	resignRequestV4Presigned := false
 
-	jwt := r.URL.Query().Get("pydio_jwt")
+	rq := r.URL.Query()
+	jwt := rq.Get("pydio_jwt")
 
 	if len(jwt) > 0 {
 		//logger.Info("Found JWT in URL: replace by header and remove from URL")
 		r.Header.Set("X-Pydio-Bearer", jwt)
-		r.URL.RawQuery = strings.Replace(r.URL.RawQuery, "&pydio_jwt="+jwt, "", 1)
+		rq.Del("pydio_jwt")
+		if r.Method == http.MethodGet && len(jwt) > 0 {
+			// Force attachment (if not already set)
+			if !strings.HasPrefix(strings.TrimSpace(rq.Get("response-content-disposition")), "attachment") {
+				rq.Set("response-content-disposition", "attachment")
+			}
+		}
+		// Rebuild Query
+		r.URL.RawQuery = rq.Encode()
 		_ = r.ParseForm()
+
 		if signedKey, err := cmd.ExposedParsePresignV4(r.Form); err == nil && signedKey != a.globalAccessKey {
 			resignRequestV4Presigned = true
 		}
@@ -79,17 +89,6 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			log.Logger(ctx).Debug("Use AWS Api Key as JWT: " + signedKey)
 			resignRequestV4 = true
 			r.Header.Set("X-Pydio-Bearer", signedKey)
-		}
-	}
-
-	rq := r.URL.Query()
-	if r.Method == http.MethodGet && (rq.Has("response-content-type") || rq.Has("response-content-disposition")) {
-		rType := rq.Get("response-content-type")
-		if _, ok := allowedInlines[rType]; !ok {
-			log.Logger(ctx).Info("Forcing content disposition to 'attachment' for content type " + rType + " that is not in white-list")
-			rq.Set("response-content-disposition", "attachment")
-			r.URL.RawQuery = rq.Encode()
-			_ = r.ParseForm()
 		}
 	}
 
