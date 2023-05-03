@@ -20,6 +20,14 @@ import (
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
+var allowedInlines = map[string]struct{}{
+	"image/png":  struct{}{},
+	"image/jpg":  struct{}{},
+	"image/jpeg": struct{}{},
+	"image/bmp":  struct{}{},
+	"text/plain": struct{}{},
+}
+
 // authHandler - handles all the incoming authorization headers and validates them if possible.
 type pydioAuthHandler struct {
 	handler         http.Handler
@@ -74,11 +82,11 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if r.Method == http.MethodGet {
-		rq := r.URL.Query()
+	rq := r.URL.Query()
+	if r.Method == http.MethodGet && rq.Get("response-content-disposition") == "inline" {
 		rType := rq.Get("response-content-type")
-		if (rType == "text/html" || rType == "text/xhtml+xml") && rq.Get("response-content-disposition") != "attachment" {
-			log.Logger(ctx).Info("Forcing Content Disposition to Attachment for html content type")
+		if _, ok := allowedInlines[rType]; !ok {
+			log.Logger(ctx).Info("Forcing content disposition to attachment for content type " + rType + " that is not in white-list")
 			rq.Set("response-content-disposition", "attachment")
 			r.URL.RawQuery = rq.Encode()
 			_ = r.ParseForm()
