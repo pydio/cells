@@ -83,7 +83,7 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rq := r.URL.Query()
-	if r.Method == http.MethodGet && rq.Get("response-content-disposition") != "" {
+	if r.Method == http.MethodGet && (rq.Has("response-content-type") || rq.Has("response-content-disposition")) {
 		rType := rq.Get("response-content-type")
 		if _, ok := allowedInlines[rType]; !ok {
 			log.Logger(ctx).Info("Forcing content disposition to 'attachment' for content type " + rType + " that is not in white-list")
