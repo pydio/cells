@@ -166,26 +166,6 @@ func New(path string, opts ...configx.Option) (config.Store, error) {
 
 	go f.flush()
 
-	//ch := make(chan notify.EventInfo)
-	//if err := notify.Watch(path, ch, filesystem.EventTypeAll...); err != nil {
-	//	return nil, err
-	//}
-
-	//go func() {
-	//	for {
-	//		select {
-	//		case <-ch:
-	//			<-time.After(50 * time.Millisecond)
-	//			if op.ReadOnly {
-	//				data, err = filex.Read(path, true)
-	//			} else {
-	//				data, err = filex.Read(path)
-	//			}
-	//			f.Set(data)
-	//		}
-	//	}
-	//}()
-
 	return f, nil
 }
 

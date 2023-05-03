@@ -283,67 +283,84 @@ ENVIRONMENT
 				}
 			}()
 
-			conf, err := config.OpenStore(ctx, runtime.ConfigURL())
-			if err != nil {
+			reset := func(conf config.Store) error {
+				// Then generate the new template based on the config
+				if file := runtime.GetString("file"); file == "" {
+					t, err := template.New("context").Parse(tmpl)
+					if err != nil {
+						return err
+					}
+
+					var b strings.Builder
+
+					r := runtime.GetRuntime()
+					if err := t.Execute(&b, struct {
+						ConfigURL     string
+						RegistryURL   string
+						BrokerURL     string
+						CacheURL      string
+						BindHost      string
+						AdvertiseHost string
+						DiscoveryPort string
+						FrontendPort  string
+						Config        config.Store
+					}{
+						runtime.ConfigURL(),
+						runtime.RegistryURL(),
+						runtime.BrokerURL(),
+						runtime.CacheURL(""),
+						r.GetString(runtime.KeyBindHost),
+						r.GetString(runtime.KeyBindHost),
+						r.GetString(runtime.KeyGrpcDiscoveryPort),
+						r.GetString(runtime.KeyHttpPort),
+						conf,
+					}); err != nil {
+						return err
+					}
+
+					store.Set([]byte(b.String()))
+				} else {
+					s, err := config.OpenStore(ctx, file)
+					if err != nil {
+						return err
+					}
+
+					store = s
+				}
+
+				return nil
+			}
+
+			if err := reset(nil); err != nil {
 				return err
 			}
 
 			go func() {
+				r := runtime.GetRuntime()
+				conf, err := config.OpenStore(ctx, "grpc://"+r.GetString(runtime.KeyBindHost)+":"+r.GetString(runtime.KeyGrpcDiscoveryPort))
+				if err != nil {
+					fmt.Println("Error is ", err)
+				}
+
+				reset(conf)
 
 				res, err := conf.Watch()
 				if err != nil {
+					fmt.Println("Error is there ", err)
 					return
 				}
 
+				fmt.Println("And watching")
+
 				for {
-					// Then generate the new template based on the config
-					if file := runtime.GetString("file"); file == "" {
-						t, err := template.New("context").Parse(tmpl)
-						if err != nil {
-							return
-						}
-
-						var b strings.Builder
-
-						r := runtime.GetRuntime()
-						if err := t.Execute(&b, struct {
-							ConfigURL     string
-							RegistryURL   string
-							BrokerURL     string
-							CacheURL      string
-							BindHost      string
-							AdvertiseHost string
-							DiscoveryPort string
-							FrontendPort  string
-							Config        config.Store
-						}{
-							runtime.ConfigURL(),
-							runtime.RegistryURL(),
-							runtime.BrokerURL(),
-							runtime.CacheURL(""),
-							r.GetString(runtime.KeyBindHost),
-							r.GetString(runtime.KeyBindHost),
-							r.GetString(runtime.KeyGrpcDiscoveryPort),
-							r.GetString(runtime.KeyHttpPort),
-							conf,
-						}); err != nil {
-							return
-						}
-
-						store.Set([]byte(b.String()))
-					} else {
-						s, err := config.OpenStore(ctx, file)
-						if err != nil {
-							return
-						}
-
-						store = s
-					}
-
 					_, err := res.Next()
 					if err != nil {
 						return
 					}
+
+					fmt.Println("Received update here !! ")
+
+					reset(conf)
 				}
 			}()
 

@@ -143,6 +143,7 @@ processes:
       datasource:
         - pydio.grpc.data.objects.peer
 
+  {{ if .Config }}
   {{ $objectsVal := .Config.Val "services/pydio.grpc.data.objects/sources" }}
   {{ $ := .Config }}
   {{ range $objectsVal.StringArray }}
@@ -174,6 +175,7 @@ processes:
       datasource:
         - pydio.grpc.data.index.{{ . }}
         - pydio.grpc.data.sync.{{ . }}
+  {{ end }}
   {{ end }}
   {{ end }}
   {{ end }}
