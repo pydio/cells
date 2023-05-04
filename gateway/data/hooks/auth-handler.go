@@ -60,23 +60,24 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	rq := r.URL.Query()
 	jwt := rq.Get("pydio_jwt")
-	ua := r.Header.Get("User-Agent")
 
 	if len(jwt) > 0 {
 		//logger.Info("Found JWT in URL: replace by header and remove from URL")
 		r.Header.Set("X-Pydio-Bearer", jwt)
 		rq.Del("pydio_jwt")
-		if r.Method == http.MethodGet && !strings.Contains(ua, "com.pydio.PydioPro;") {
+		checkResignV4 := false
+		if r.Method == http.MethodGet {
 			// Force attachment (if not already set)
 			if !strings.HasPrefix(strings.TrimSpace(rq.Get("response-content-disposition")), "attachment") {
 				rq.Set("response-content-disposition", "attachment")
+				checkResignV4 = true
 			}
 		}
 		// Rebuild Query
 		r.URL.RawQuery = rq.Encode()
 		_ = r.ParseForm()
-
-		if signedKey, err := cmd.ExposedParsePresignV4(r.Form); err == nil && signedKey != a.globalAccessKey {
+		// If PresignedV4, flag for re-signing
+		if signedKey, err := cmd.ExposedParsePresignV4(r.Form); err == nil && (signedKey != a.globalAccessKey || checkResignV4) {
 			resignRequestV4Presigned = true
 		}
 
