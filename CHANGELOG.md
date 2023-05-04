@@ -1,11 +1,12 @@
-# Changes between v4.1.1 and v4.1.2
+# Changes between v4.1.2 and v4.1.3-alpha1
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.1.1...v4.1.2)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.1.2...v4.1.3-alpha1)
 
-- [#e6d334a](https://github.com/pydio/cells/commit/e6d334a4ca777a5b10d1bb63aff3c1d943a0c05d): New message + DE/FR translations
-- [#98023c5](https://github.com/pydio/cells/commit/98023c5c84bc72a1ede243cd2eca5bdc94980ea4): New message + DE/FR translations
-- [#fcabbd1](https://github.com/pydio/cells/commit/fcabbd1e793ddeca36e71f9de0588c85c2d66c81): Add parameter for DisableCSSInlining
-- [#22dfc23](https://github.com/pydio/cells/commit/22dfc23c977616a94e4d2ce407fc42e8d5bb01f4): Update bluemonday (1.0.20 retracted)
-- [#e6d9403](https://github.com/pydio/cells/commit/e6d94036d43c462c35e997a10dcf777a9f18a4fb): Disable inline CSS in certain email content - Fix issue with Outlook on Win10 #459
-- [#48042c4](https://github.com/pydio/cells/commit/48042c48c2ad46b12f4374d7c56c281dc70fb814): Fix links
-- [#c288305](https://github.com/pydio/cells/commit/c288305a2462e52e4bf9eeeb83aca4a2972e549f): Next development cycle
+- [#22212ab](https://github.com/pydio/cells/commit/22212abfc5b88f20e184f080a27bc2e2aee06075): Finally remove unused variable
+- [#b318e17](https://github.com/pydio/cells/commit/b318e172303f6450dbcc103804113b6a60e9a158): Check presigned v4
+- [#13ba122](https://github.com/pydio/cells/commit/13ba12233069c79f94b90b3303440686a260ab5b): remove unnecessary test
+- [#a066ca3](https://github.com/pydio/cells/commit/a066ca3130571aa3945d2369ecaebc09f4363e9f): Change ctype detection rule, again
+- [#9e83f27](https://github.com/pydio/cells/commit/9e83f271513eed566f8471aea0969906f067ee40): Next development cycle
+- [#b049eb3](https://github.com/pydio/cells/commit/b049eb36f315409b968608215362572c8b11d252): Change ctype detection rule
+- [#5be6170](https://github.com/pydio/cells/commit/5be6170d081bed0788590541c716a5767e245389): Change ctype detection rule
+- [#259fbfd](https://github.com/pydio/cells/commit/259fbfdd1c909d32ae2dc366163bc027b6722b90): Change ctype detection from black to white-list
