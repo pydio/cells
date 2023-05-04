@@ -20,14 +20,6 @@ import (
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
-var allowedInlines = map[string]struct{}{
-	"image/png":  struct{}{},
-	"image/jpg":  struct{}{},
-	"image/jpeg": struct{}{},
-	"image/bmp":  struct{}{},
-	"text/plain": struct{}{},
-}
-
 // authHandler - handles all the incoming authorization headers and validates them if possible.
 type pydioAuthHandler struct {
 	handler         http.Handler
