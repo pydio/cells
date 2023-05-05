@@ -188,6 +188,12 @@
   "workspace.statics.home.description": {
     "other": "Trang chào mừng được hiển thị sau khi đăng nhập"
   },
+  "workspace.statics.directory.title": {
+    "other": "Directory"
+  },
+  "workspace.statics.directory.description": {
+    "other": "Show address book full page (used by Mui3 Theme)"
+  },
   "workspace.statics.settings.title": {
     "other": "Admin Console"
   },

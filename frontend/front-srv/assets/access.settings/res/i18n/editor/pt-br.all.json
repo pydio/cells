@@ -188,6 +188,12 @@
   "workspace.statics.home.description": {
     "other": "Página de boas-vindas exibida após o login"
   },
+  "workspace.statics.directory.title": {
+    "other": "Directory"
+  },
+  "workspace.statics.directory.description": {
+    "other": "Show address book full page (used by Mui3 Theme)"
+  },
   "workspace.statics.settings.title": {
     "other": "Console Administrativo"
   },
