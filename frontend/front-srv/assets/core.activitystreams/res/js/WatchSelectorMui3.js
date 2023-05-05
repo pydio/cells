@@ -17,12 +17,27 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import React, {useState, useLayoutEffect, useRef} from 'react'
 import Pydio from 'pydio'
+import {IconButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PydioApi from 'pydio/http/api'
+import DOMUtils from 'pydio/util/dom'
 import {ActivityServiceApi, ActivitySubscription, ActivityOwnerType} from 'cells-sdk'
 
+const Sizeable = ({baseWidth, open, style, children}) => {
+    const container = useRef(null)
+    const [width, setWidth] = useState(baseWidth)
+    useLayoutEffect(()=>{
+        if(open && container.current) {
+            setWidth(container.current.scrollWidth+5)
+        } else {
+            setWidth(baseWidth)
+        }
+    }, [open, children])
+
+    return <div ref={container} style={{...style, opacity:open?1:0, overflow:'hidden', transition:DOMUtils.getBeziersTransition(), width}}>{children}</div>
+}
 
 class WatchSelectorMui3 extends React.Component{
 
@@ -90,7 +105,7 @@ class WatchSelectorMui3 extends React.Component{
         Promise.all(proms).then(() => {
             this.setState({value: value, mixed: false});
             setTimeout(()=>{
-                this.setState({saving: false});
+                this.setState({saving: false, animOpen: false});
             }, 50);
         }).catch(() => {
             this.setState({saving: false});
@@ -99,8 +114,8 @@ class WatchSelectorMui3 extends React.Component{
 
     render(){
 
-        const {fullWidth, muiTheme} = this.props;
-        const {value, mixed, saving} = this.state;
+        const {fullWidth, muiTheme, animatedButton, readPermissionOnly = false} = this.props;
+        const {value, mixed, saving, animOpen = false} = this.state;
         const mm = Pydio.getInstance().MessageHash;
 
         let values = [];
@@ -131,24 +146,28 @@ class WatchSelectorMui3 extends React.Component{
             }
         }
 
-        const items = [
-            {value:'META_WATCH_READ', primaryText:mm['meta.watch.selector.read.mui'], iconClass:'mdi mdi-eye'},
-            {value:'META_WATCH_CHANGE', primaryText:mm['meta.watch.selector.change.mui'], iconClass: 'mdi mdi-pencil'},
-        ]
+        const items = [{value:'META_WATCH_READ', primaryText:mm['meta.watch.selector.read.mui'], iconClass:'mdi mdi-eye'}]
+        if(!readPermissionOnly) {
+            items.push({value:'META_WATCH_CHANGE', primaryText:mm['meta.watch.selector.change.mui'], iconClass: 'mdi mdi-pencil'})
+        }
         const styles = {
             root:{
                 borderRadius: muiTheme.borderRadius,
                 display:'flex',
                 border: '1px solid ' + muiTheme.palette.mui3['outline'],
-                overflow:'hidden'
+                overflow:animatedButton?null:'hidden',
+                alignItems:'center',
+                margin:animatedButton?'0 6px':null,
+                height: animatedButton?36:null
             },
             separator:{
                 width: 1,
+                height:'100%',
                 backgroundColor:muiTheme.palette.mui3['outline'],
             },
             item:{
                 flex: 1,
-                padding:'6px 16px',
+                padding:animatedButton?'7px 16px':'6px 16px',
                 textAlign:'center',
                 cursor:saving?'progress':'pointer',
                 whiteSpace: 'nowrap'
@@ -159,15 +178,31 @@ class WatchSelectorMui3 extends React.Component{
             },
             icon:{
                 marginRight: 10,
-                fontSize: 12
+                fontSize: animatedButton? 14 : 12
             },
             primaryText:{
                 fontWeight: 500,
-                fontSize: 12
+                fontSize: animatedButton? 13 : 12
+            },
+            animButton:{
+                root: {
+                    borderRadius: '50%',
+                    border: 0,
+                    backgroundColor: 'transparent',
+                    width: 36, height: 36,
+                    padding: '8px 6px',
+                    margin: '0 -1px',
+                    zIndex: 0,
+                },
+                icon: {
+                    color: muiTheme.palette.mui3.primary,
+                    fontSize: 20,
+                    lineHeight: '20px'
+                }
             }
         }
         // Add seps
-        const allItems = [];
+        let allItems = [];
         items.forEach((item, index) => {
             allItems.push(item)
             if(index < items.length - 1) {
@@ -175,50 +210,66 @@ class WatchSelectorMui3 extends React.Component{
             }
         })
 
-
-        const segmented = (
-            <div style={styles.root}>
-                {allItems.map(item=> {
-                    if(item.separator) {
-                        return <div style={styles.separator}/>
+        let segmented;
+        if(animatedButton) {
+            segmented = (
+                <div style={styles.root}>
+                    {animatedButton &&
+                        <IconButton
+                            style={styles.animButton.root}
+                            iconStyle={styles.animButton.icon}
+                            iconClassName={"mdi mdi-bell" + (values.length?'':'-outline')}
+                            tooltip={mm['meta.watch.selector.legend.mui']}
+                            onClick={() => this.setState({animOpen:!animOpen})}
+                        />
                     }
-                    let style = {...styles.item};
-                    if(values.indexOf(item.value)>-1){
-                        style = {...style, ...styles.itemSelected}
-                    }
-                    return (
-                        <div style={style} onClick={() => toggle(item.value)}>
-                            {item.iconClass && <span className={item.iconClass} style={styles.icon}/>}
-                            <span style={styles.primaryText}>{item.primaryText}</span>
-                        </div>
-                    )
-                })}
-            </div>
+                    <Sizeable style={{...styles.root, border: 0, margin: 0, height: 34}} baseWidth={0} open={animOpen || !animatedButton}>
+                    {allItems.map(item=> {
+                        if(item.separator) {
+                            return <div style={styles.separator}/>
+                        }
+                        let style = {...styles.item};
+                        if(values.indexOf(item.value)>-1){
+                            style = {...style, ...styles.itemSelected}
+                        }
+                        return (
+                            <div style={style} onClick={() => toggle(item.value)}>
+                                {item.iconClass && <span className={item.iconClass} style={styles.icon}/>}
+                                <span style={styles.primaryText}>{item.primaryText}</span>
+                            </div>
+                        )
+                    })}
+                    </Sizeable>
+                </div>
 
-        )
+            )
+        } else {
+            segmented = (
+                <div style={styles.root}>
+                     {allItems.map(item=> {
+                        if(item.separator) {
+                            return <div style={styles.separator}/>
+                        }
+                        let style = {...styles.item};
+                        if(values.indexOf(item.value)>-1){
+                            style = {...style, ...styles.itemSelected}
+                        }
+                        return (
+                            <div style={style} onClick={() => toggle(item.value)}>
+                                {item.iconClass && <span className={item.iconClass} style={styles.icon}/>}
+                                <span style={styles.primaryText}>{item.primaryText}</span>
+                            </div>
+                        )
+                    })}
+                </div>
+            )
+        }
+
         if(fullWidth) {
             return segmented
         } else {
             return <div style={{display:'flex'}}>{segmented}<div style={{flex:1}}/></div>
         }
-        /*
-        if(saving){
-            return (
-                <ModernSelectField value={"saving"} onChange={(e,i,v) => {}} disabled={true} fullWidth={fullWidth}>
-                    <MenuItem value={"saving"} primaryText={mm['meta.watch.selector.saving'] + "..."}/>
-                </ModernSelectField>
-            );
-        }
-
-        return (
-            <ModernSelectField value={mixed ?'mixed': value} onChange={(e,i,v) => {this.onSelectorChange(v)}} fullWidth={fullWidth}>
-                {mixed && <MenuItem value={"mixed"} primaryText={mm['meta.watch.selector.mixed'] + "..."}/>}
-                <MenuItem value={""} primaryText={mm['meta.watch.selector.ignore']}/>
-                <MenuItem value={"META_WATCH_READ"} primaryText={mm['meta.watch.selector.read']}/>
-                <MenuItem value={"META_WATCH_CHANGE"} primaryText={mm['meta.watch.selector.change']}/>
-                <MenuItem value={"META_WATCH_BOTH"} primaryText={mm['meta.watch.selector.both']}/>
-            </ModernSelectField>
-        );*/
 
     }
 

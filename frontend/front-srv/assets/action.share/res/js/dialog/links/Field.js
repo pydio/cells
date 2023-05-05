@@ -30,6 +30,7 @@ import PathUtils from 'pydio/util/path'
 import LangUtils from 'pydio/util/lang'
 import {muiThemeable} from 'material-ui/styles'
 import ShareHelper from '../main/ShareHelper'
+import ResourcesManager from 'pydio/http/resources-manager'
 const {ThemedModernStyles} = Pydio.requireLib('hoc')
 const {Tooltip} = Pydio.requireLib("boot");
 
@@ -49,6 +50,9 @@ class PublicLinkField extends React.Component {
         super(props);
         this.copyButton = createRef();
         this.publicLinkField = createRef();
+        ResourcesManager.loadClass('PydioActivityStreams').then(as => {
+            this.setState({asLib: as})
+        })
     }
 
     toggleEditMode = () => {
@@ -137,7 +141,7 @@ class PublicLinkField extends React.Component {
     }
 
     render() {
-        const {linkModel, pydio, getMessage, muiTheme} = this.props;
+        const {linkModel, compositeModel, pydio, getMessage, muiTheme} = this.props;
         const publicLink = ShareHelper.buildPublicUrl(pydio, linkModel.getLink());
         const auth = ShareHelper.getAuthorizations();
         const editAllowed = this.props.editAllowed && auth.editable_hash && !this.props.isReadonly() && linkModel.isEditable();
@@ -157,7 +161,7 @@ class PublicLinkField extends React.Component {
                 </div>
             );
         }else{
-            const {copyMessage, linkTooltip} = this.state;
+            const {copyMessage, linkTooltip, asLib} = this.state;
             let actionLinks = [], qrCode;
             const {muiTheme} = this.props;
             const copyButton = (
@@ -186,6 +190,18 @@ class PublicLinkField extends React.Component {
             }
             if(ShareHelper.qrcodeEnabled()){
                 actionLinks.push(<ActionButton key="qrcode" callback={this.toggleQRCode} mdiIcon="qrcode" messageId={'94'}/>);
+            }
+            if(asLib){
+                const {WatchSelectorMui3} = asLib
+                actionLinks.push(
+                    <WatchSelectorMui3
+                        animatedButton={true}
+                        pydio={pydio}
+                        nodes={[compositeModel.getNode()]}
+                        fullWidth={false}
+                        readPermissionOnly={!linkModel.hasPermission('Upload')}
+                    />
+                )
             }
             if(this.props.onDisableLink) {
                 actionLinks.push(<ActionButton key="delete" destructive={true} callback={() => this.confirmDisable()} mdiIcon="link-off" messageId="link.disable"/>);

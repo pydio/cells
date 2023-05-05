@@ -3975,7 +3975,7 @@ body,
   display: none;
 }
 .react-mui-context.mui3-token .left-panel .rail-hover-bar .mimefont-container {
-  background-color: var(--md-sys-color-primary-container) !important;
+  background-color: var(--md-sys-color-secondary-container) !important;
 }
 .react-mui-context.mui3-token .left-panel .section-title {
   margin-right: 0;

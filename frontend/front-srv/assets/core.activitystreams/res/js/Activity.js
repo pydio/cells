@@ -202,7 +202,8 @@ class Activity extends React.Component{
             const previewStyles = {
                 style: {
                     height: 40,
-                    width: 40
+                    width: 40,
+                    borderRadius: 4
                 },
                 mimeFontStyle: {
                     fontSize: 20,
