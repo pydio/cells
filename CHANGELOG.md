@@ -1,31 +1,37 @@
-# Changes between v4.2.0-alpha1 and v4.2.0-rc1
+# Changes between v4.2.0-rc1 and v4.2.0-rc2
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.0-alpha1...v4.2.0-rc1)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.0-rc1...v4.2.0-rc2)
 
-- [#a672c70](https://github.com/pydio/cells/commit/a672c70623bfb27fde381d991446f7dedc028673): A few more messages + DE/FR translation
-- [#6d2b056](https://github.com/pydio/cells/commit/6d2b056bacf01cfaacbf88b41147ba6d2376fa5e): A few more messages + DE/FR translation
-- [#bfbdb2d](https://github.com/pydio/cells/commit/bfbdb2d08655536b1bbeba48e58d4df13ed93266): Add livekit styles
-- [#1ce21e2](https://github.com/pydio/cells/commit/1ce21e251026e76ab6dddc3de7096d3f5ad35e17): Welcome tour css issues
-- [#0a649df](https://github.com/pydio/cells/commit/0a649df48d6fc75bc89b86329b0589a4874cf210): Improve pagination edge-cases
-- [#852c587](https://github.com/pydio/cells/commit/852c587613bb8a7fd6c19f0c501560ac058076b8): Use new API filter to improve Copy/move TreeDialog, particularly if results are paginated. Fix many i18n glitches/missing. Restore refresh button in search mode Restore livekit using new lib (styling still todo)
-- [#370264b](https://github.com/pydio/cells/commit/370264bbc6fb179483523af500ac08e0e5703bfc): API: Filter getBulkMeta by node type, restore livekit
-- [#53c7682](https://github.com/pydio/cells/commit/53c76820696e4e8c2f6f9e629c7ed2b4528d1ecf): Merge remote-tracking branch 'origin/main'
-- [#db31142](https://github.com/pydio/cells/commit/db31142a8f5729be7cfa332963bcd72b459d558a): editor.text darkmode, wrong i18n key in search engine
-- [#81e03bb](https://github.com/pydio/cells/commit/81e03bbe99e8f1a39047cc10be739b6852ab05c3): Improve German translation + merge with head
-- [#0e1bc59](https://github.com/pydio/cells/commit/0e1bc5954a5c33fa2c424da33e737978aff41073): Improve German translation
-- [#ff45dfc](https://github.com/pydio/cells/commit/ff45dfcd7713c01c88eb07d8f46f8e786ebc91be): Improve German translation
-- [#8ebb44b](https://github.com/pydio/cells/commit/8ebb44bba1986c5a216407374dd223e98b3b83b9): Merge remote-tracking branch 'origin/main'
-- [#851b5e1](https://github.com/pydio/cells/commit/851b5e11545b340225c0bb310b94809f13079ec1): Fix various CodeMirror glitches, support darkMode Tmp disable LiveKit (to be updated)
-- [#319775c](https://github.com/pydio/cells/commit/319775c9cedf6f274aa8a2e82d6ea69cf79170f9): Harmonize DE translation: we do not translate "Workspace" nor "Cells"
-- [#f33e305](https://github.com/pydio/cells/commit/f33e305b92db2841f341f1a543d9c3b6fed8fe52): Harmonize DE translation: we do not translate "Workspace" nor "Cells"
-- [#eae06f3](https://github.com/pydio/cells/commit/eae06f33d0112b9c7e7ada48a5436a1da11ac2bf): Harmonize DE translation: we do not translate "Workspace"
-- [#daa6427](https://github.com/pydio/cells/commit/daa64278223995cbb42dd6438878b2a496fc4b61): Harmonize DE translation: we do not translate "Workspace"
-- [#8686ee4](https://github.com/pydio/cells/commit/8686ee419ba5d1410b3b9bf413ee073a706ef18d): Better DE translation for main app rail
-- [#8c611f1](https://github.com/pydio/cells/commit/8c611f1d5411e498060dc51a9f9518bb3adf6383): Better DE translation for main app rail
-- [#ef38291](https://github.com/pydio/cells/commit/ef382913b96c3559fd078e01292c7ddd2fe8ba8d): Fix replication panel issues
-- [#77b6198](https://github.com/pydio/cells/commit/77b619820eea28fee7ad2b8575ba026108187b8b): Better defaults type checking in forms lib
-- [#c299156](https://github.com/pydio/cells/commit/c29915634f097f1f557888b702e3ef12e7947543): New messages + DE/FR translations
-- [#3c9fe15](https://github.com/pydio/cells/commit/3c9fe15bec6a28eb25bc1cd77db13b59f6bd984e): New messages + DE/FR translations
-- [#ef2bfc5](https://github.com/pydio/cells/commit/ef2bfc510cf5f4309a056da02e541aa0ea8c5bc6): polishing search form, some i18n strings
-- [#f5011e1](https://github.com/pydio/cells/commit/f5011e1239ae9e153d5c59f4243cf76816d5d96a): Merge remote-tracking branch 'origin/main'
-- [#183c401](https://github.com/pydio/cells/commit/183c401ec0adec4f1f9dad0fa0c6b366fde4a944): Fix some mobile glitches, rework AdvancedSearch
+- [#c864883](https://github.com/pydio/cells/commit/c864883afbad3eec1c1845ff9fc38e4ed14de4d0): Change activities display in RailPanel, show Watch button in Public Link field.
+- [#9d9be24](https://github.com/pydio/cells/commit/9d9be24f533137581d3eb42ac4fd783756941f09): Forgotten string + DE/FR translation
+- [#709bab2](https://github.com/pydio/cells/commit/709bab2a8ec81cd77e4789f776faaa5c05831642): Forgotten string + DE/FR translation
+- [#8f355c3](https://github.com/pydio/cells/commit/8f355c3cb5759598cf2f46ffdc00ec7ee00de171): Forgotten i18n string and display glitches
+- [#49a2069](https://github.com/pydio/cells/commit/49a206923dceb8cfd99463b0ebbd53047f571b98): Ecxlude reserved slugs for specific agents
+- [#95674e2](https://github.com/pydio/cells/commit/95674e2a825a51ad853af5a08c633879ca790f66): Check presigned v4
+- [#b7f3d61](https://github.com/pydio/cells/commit/b7f3d6115f57ead5097ed201b68e71b81fd9cf4b): Change ctype detection from black to white-list
+- [#92bf8ef](https://github.com/pydio/cells/commit/92bf8ef63efbd3ef217534e3d36333fbd6beaa29): Display glitches in Console + dark mode
+- [#b0e73cf](https://github.com/pydio/cells/commit/b0e73cfb659107b9578b9efa9ac84caaf99c335c): Clear roles by default at user creation.
+- [#dc49f87](https://github.com/pydio/cells/commit/dc49f878e5befe694e23d40047fdd5855efcdc71): Mod update again
+- [#0dff1c8](https://github.com/pydio/cells/commit/0dff1c89c890d1749f84620a2187d752e4822ef6): DE/FR messages have been missed by first sync
+- [#6972dbd](https://github.com/pydio/cells/commit/6972dbd500e6395b18d38f6bd3044609f5c381be): DE/FR messages have been missed by first sync
+- [#e5823ca](https://github.com/pydio/cells/commit/e5823ca982afcdfdfe42e14815923b49e2f732f9): New message + DE/FR translations
+- [#523f96a](https://github.com/pydio/cells/commit/523f96a9f923109c946848152d1abbf94eebb8a6): Mod update
+- [#511e9f3](https://github.com/pydio/cells/commit/511e9f34c7fc2f44bdc386f1d0fe6a7100c5dadf): New message + DE/FR translations
+- [#a68e517](https://github.com/pydio/cells/commit/a68e517897d27f6ce8ee4ac24f5e02fb96798892): Update PydioCoreActions
+- [#2bd0038](https://github.com/pydio/cells/commit/2bd0038ffe861e8c32640ee8a53195accbc4441f): Rework Cell/Workspace Card and watcher
+- [#4298194](https://github.com/pydio/cells/commit/4298194ba9132821c51c0f9c0eb46acec2956169): Fix meta "selection as steps" display
+- [#e946090](https://github.com/pydio/cells/commit/e946090aeca57d07716d09fb176820f87d23392a): Fix left chevron 'parent folder' color
+- [#eaa18a3](https://github.com/pydio/cells/commit/eaa18a3b7cdc6988e0ce9d43de15263cc4d72a42): Change mimefont to less shiny color
+- [#a03280d](https://github.com/pydio/cells/commit/a03280d36eb4645c1716947970d10901d3014842): Remove error message and returning default value for non-parsable url
+- [#37494da](https://github.com/pydio/cells/commit/37494da159fda6dad0686c0f653c90b7e7d4850f): Re-add DE/FR translation after merge
+- [#2ca67f4](https://github.com/pydio/cells/commit/2ca67f473eb4fdbb7ce84421c061b368aaf7a097): Re-add DE/FR translation after merge
+- [#34a8367](https://github.com/pydio/cells/commit/34a83677a2f503884d02aa1a15b3149b28339bc1): Merge remote-tracking branch 'origin/main'
+- [#67a7aae](https://github.com/pydio/cells/commit/67a7aaeabec597d5ff4664e9eb9b03d77aa34e5c): Bump cells-sdk
+- [#83f1cd7](https://github.com/pydio/cells/commit/83f1cd7496a155860b9f842d49d8597cc5b22875): Fix uploader popover glitch
+- [#642655f](https://github.com/pydio/cells/commit/642655f50372aed678f204f9717e1f07deadf781): Temporary remove translations to avoid conflicts
+- [#c1e827f](https://github.com/pydio/cells/commit/c1e827f293f54950ceb5a7be35c2250dfbbc4c42): Temporary remove translations to avoid conflicts
+- [#b536f8a](https://github.com/pydio/cells/commit/b536f8a3bdcbd7aa5644a78f88ce38db7e758740): Fix glitches after legacy message removal
+- [#e1eb881](https://github.com/pydio/cells/commit/e1eb8812120334b3bca61d0d2dffbaff7fede530): Fix glitches after legacy message removal
+- [#cfb4817](https://github.com/pydio/cells/commit/cfb4817a9c83a07d7114b944657f4c2656d1f2ab): Unused code and i18n
+- [#dc629af](https://github.com/pydio/cells/commit/dc629af80c824c22f0217fd7952f08a6fa64b7fd): DarkMode Recent Locations in Copy Dialog
+- [#4769234](https://github.com/pydio/cells/commit/4769234d3363bd76280fb4ea23b5299cb8107722): Fix glitches in custom sharelink
