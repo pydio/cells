@@ -188,6 +188,12 @@
   "workspace.statics.home.description": {
     "other": "Страница приветствия, отображаемая после входа"
   },
+  "workspace.statics.directory.title": {
+    "other": "Directory"
+  },
+  "workspace.statics.directory.description": {
+    "other": "Show address book full page (used by Mui3 Theme)"
+  },
   "workspace.statics.settings.title": {
     "other": "Консоль администратора"
   },

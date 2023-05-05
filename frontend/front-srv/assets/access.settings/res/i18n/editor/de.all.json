@@ -188,6 +188,12 @@
   "workspace.statics.home.description": {
     "other": "Startseite nach dem Login angezeigt"
   },
+  "workspace.statics.directory.title": {
+    "other": "Verzeichnis"
+  },
+  "workspace.statics.directory.description": {
+    "other": "Adressbuch im Vollbild anzeigen (verwendet vom Mui3-Theme)"
+  },
   "workspace.statics.settings.title": {
     "other": "Administrationsoberfläche"
   },
