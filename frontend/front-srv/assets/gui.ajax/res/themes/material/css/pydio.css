@@ -3436,7 +3436,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   /* ACTIONS */
 }
 .react-mui-context .material-list .material-list-entry:last-child {
-  border-bottom: none;
+  border-bottom: none !important;
 }
 .react-mui-context .material-list .material-list-entry .material-list-icon {
   width: 72px;
