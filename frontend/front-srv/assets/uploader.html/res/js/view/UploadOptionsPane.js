@@ -20,7 +20,8 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {Popover, Divider, Checkbox, Toggle, RadioButtonGroup, RadioButton, Subheader} from 'material-ui'
+import {Checkbox, RadioButtonGroup, RadioButton, Subheader} from 'material-ui'
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 
 class UploadOptionsPane extends React.Component {
     
@@ -65,14 +66,14 @@ class UploadOptionsPane extends React.Component {
             <Popover
                 open={this.props.open}
                 anchorEl={this.props.anchorEl}
-                anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-                targetOrigin={{horizontal: 'left', vertical: 'top'}}
+                anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+                targetOrigin={{horizontal: 'right', vertical: 'top'}}
                 onRequestClose={(e) => {
                     this.props.onDismiss(e)
                 }}
             >
                 <div style={{width: 320, paddingBottom: 6}}>
-                    <Subheader>Options</Subheader>
+                    <Subheader>{pydio.MessageHash['html_uploader.options']}</Subheader>
                     <div style={{padding: '0 16px', marginTop: -6}}>
                         <Checkbox style={{margin:'8px 0'}} checked={toggleStart} labelPosition={"right"} onCheck={this.updateField.bind(this, 'autostart')} label={pydio.MessageHash[337]} labelStyle={{fontSize:14}}/>
                         <Checkbox style={{margin:'8px 0'}} checked={toggleClose} labelPosition={"right"} onCheck={this.updateField.bind(this, 'autoclose')} label={pydio.MessageHash[338]} labelStyle={{fontSize:14}} />

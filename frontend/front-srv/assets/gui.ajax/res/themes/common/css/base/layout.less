@@ -1,4 +1,4 @@
-.flexbox body{
+body{
   position: absolute;
   top:0;
   bottom:0;
@@ -48,18 +48,18 @@
 .flexbox {
   display: flex;
   flex-flow: column;
-}
-  .flexbox .row {
+  .row {
     flex: 0 1 30px;
+    &.header {
+      flex: 0 1 auto;
+    }
+    &.content {
+      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
+    }
   }
-  .flexbox .row.header {
-    flex: 0 1 auto;
-  }
-  .flexbox .row.content {
-    flex: 1 1 auto;
-    display: flex;
-    align-items: center;
-  }
+}
 
 .text-right {
   text-align: right;

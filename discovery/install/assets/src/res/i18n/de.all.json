@@ -24,7 +24,7 @@
     "other": "Bitte stellen Sie sicher, dass Ihre Datenbank MySQL Version 5.6 oder höher läuft"
   },
   "database.installDetected": {
-    "other": "In dieser Datenbank scheint eine Installation der Zellen bereits eingerichtet zu sein. Bitte bestätigen Sie das Fortfahren oder "
+    "other": "Es scheint bereits eine Cells-Installation in dieser Datenbank eingerichtet zu sein. Bitte bestätigen Sie, um fortzufahren, oder "
   },
   "database.installDetected.retry": {
     "other": "mit neuem Wert erneut versuchen"
@@ -60,7 +60,7 @@
     "other": "Erweiterte Einstellungen anzeigen"
   },
   "advanced.default.datasource": {
-    "other": "Beim Start wird eine Standarddatenquelle zum Speichern persönlicher Daten und Zellendaten des Benutzers erstellt. Sie können später weitere Datenquellen erstellen."
+    "other": "Beim Start wird eine Standarddatenquelle zum Speichern persönlicher Daten und Cells-daten des Benutzers erstellt. Sie können später weitere Datenquellen erstellen."
   },
   "advanced.mongo.title": {
     "other": "MongoDB Verbindung konfigurieren"

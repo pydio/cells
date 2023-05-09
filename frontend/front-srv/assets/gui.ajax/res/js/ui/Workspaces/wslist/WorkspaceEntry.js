@@ -1,5 +1,3 @@
-import React from "react";
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -19,16 +17,12 @@ import React from "react";
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-
-
-
+import React from "react";
+import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types';
-
 import Pydio from "pydio";
 import {muiThemeable} from "material-ui/styles";
-import Color from 'color'
-import {CircularProgress, Popover, Dialog, Menu} from 'material-ui'
+import {CircularProgress, Dialog, Menu} from 'material-ui'
 import { DropTarget} from 'react-dnd';
 import Node from "pydio/model/node";
 import DOMUtils from 'pydio/util/dom'
@@ -36,10 +30,8 @@ import ResourcesManager from 'pydio/http/resources-manager'
 const {FoldersTree, DND, ChatIcon} = Pydio.requireLib('components');
 import MetaNodeProvider from 'pydio/model/meta-node-provider'
 import WorkspaceCard from "./WorkspaceCard";
-import ContextMenuModel from 'pydio/model/context-menu'
-
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 const { Types, collectDrop, nodeDropTarget } = DND;
-
 
 let Badge = ({children, muiTheme}) => {
 
@@ -203,38 +195,27 @@ class WorkspaceEntry extends React.Component {
         this.setState({openFoldersTree: !this.state.openFoldersTree});
     };
 
-    getRootItemStyle = (node) => {
-        const isContext = this.props.pydio.getContextHolder().getContextNode() === node;
-        const accent2 = this.props.muiTheme.palette.accent2Color;
-        if(isContext){
-            return {
-                borderLeft: '4px solid ' + accent2,
-                paddingLeft: 12
-            };
-        } else {
-            return {};
+    getRootItemStyle = (activeRoot, contextNode) => {
+        const {styler, showFoldersTree} = this.props;
+        if(!styler){
+            return {}
         }
+        const {openFoldersTree} = this.state;
+        const isContext = activeRoot && contextNode && ( contextNode.isRoot() || (showFoldersTree && !openFoldersTree) )
+        const wsEntryPalette = styler.rootItemStyle
+        return isContext ? {...wsEntryPalette.default, ...wsEntryPalette.context} : wsEntryPalette.default;
     };
 
     getItemStyle = (node) => {
-        const isContext = this.props.pydio.getContextHolder().getContextNode() === node;
-        const accent2 = this.props.muiTheme.palette.accent2Color;
-        if(isContext){
-            return {
-                color: 'rgba(0,0,0,.77)',
-                fontWeight: 500,
-                backgroundColor: Color(accent2).fade(.9).toString()
-            };
+        const {pydio, styler} = this.props;
+        const wsTreePalette = styler.treeItemStyle
+        if(pydio.getContextHolder().getContextNode() === node){
+            return {...wsTreePalette.default, ...wsTreePalette.context}
+        } else if(pydio.getContextHolder().getSelectedNodes().indexOf(node) !== -1){
+            return {...wsTreePalette.default, ...wsTreePalette.selected}
+        } else {
+            return wsTreePalette.default
         }
-        const isSelected = this.props.pydio.getContextHolder().getSelectedNodes().indexOf(node) !== -1;
-        if(isSelected){
-            return {
-                /*backgroundColor: Color(accent2).fade(.9).toString()*/
-                color: accent2,
-                fontWeight: 500,
-            }
-        }
-        return {};
     };
 
     onContextMenu(event, menuNode) {
@@ -298,7 +279,7 @@ class WorkspaceEntry extends React.Component {
 
     render() {
 
-        const {workspace, pydio, onHoverLink, onOutLink, showFoldersTree, searchView, values, setValues, searchLoading} = this.props;
+        const {workspace, pydio, onHoverLink, onOutLink, showFoldersTree, searchView, values, showOwner} = this.props;
 
         let current, isSearchAll;
         if(searchView) {
@@ -317,13 +298,18 @@ class WorkspaceEntry extends React.Component {
             additionalAction,
             treeToggle;
 
-        let style = {};
-
         if (current) {
             currentClass +=" workspace-current";
-            style = this.getRootItemStyle(pydio.getContextHolder().getContextNode());
         }
-        style = {paddingLeft: 16, ...style};
+
+        const maskedWorkspaces = pydio.user.getGUIPreference('MaskedWorkspaces') || []
+        let isMasked;
+        if(maskedWorkspaces.indexOf && maskedWorkspaces.indexOf(workspace.getId()) > -1) {
+            isMasked = true;
+            currentClass += " workspace-masked";
+        }
+
+        let style = this.getRootItemStyle(current, pydio.getContextHolder().getContextNode());
 
         currentClass += " workspace-access-" + workspace.getAccessType();
 
@@ -339,14 +325,13 @@ class WorkspaceEntry extends React.Component {
             }.bind(this);
         }
 
-        let chatIcon;
+        let chatIcon, ownerIcon;
 
-        const accent2 = this.props.muiTheme.palette.accent2Color;
         let icon = "mdi mdi-folder";
         let iconStyle = {
             fontSize: 20,
             marginRight: 10,
-            opacity: 0.3
+            opacity: 0.53
         };
         if(searchView) {
             icon = isSearchAll ? 'mdi mdi-folder-multiple' : 'mdi mdi-folder'
@@ -358,6 +343,10 @@ class WorkspaceEntry extends React.Component {
         } else if(workspace.getRepositoryType() === "cell"){
             icon = "icomoon-cells";
             iconStyle = {...iconStyle, fontSize: 22};
+            if(showOwner && workspace.userIsOwner()) {
+                const ownerStyle = {position:'absolute', left: 30, top: 16, fontSize: 11, opacity: current ? 0.53 : 0.33}
+                ownerIcon = <span className={"mdi mdi-account"} style={ownerStyle}/>
+            }
         }
 
         let menuNode;
@@ -382,7 +371,8 @@ class WorkspaceEntry extends React.Component {
                 }
             }
             iconStyle.opacity = 1;
-            iconStyle.color = accent2;
+            //const accent2 = this.props.muiTheme.palette.accent2Color;
+            //iconStyle.color = accent2;
             popoverNode = menuNode;
         }else{
             menuNode = new Node('/', false, workspace.getLabel());
@@ -393,17 +383,27 @@ class WorkspaceEntry extends React.Component {
 
         const {popoverOpen, popoverAnchor, popoverTop, popoverHeight, loading} = this.state;
 
-        if(loading){
+        if(loading) {
             additionalAction = <CircularProgress size={20} thickness={2} style={{marginTop: 2, marginRight: 6, opacity: .5}}/>
         } else if (!searchView) {
             const addStyle = popoverOpen ? {opacity:1} : {};
             if(popoverOpen){
                 style = {...style, backgroundColor:'rgba(133, 133, 133, 0.1)'}
             }
+            let addIcName = 'mdi-dots-vertical', addIcTitle = ''
+            let addIcClick = (e) => this.workspacePopover(e, popoverNode)
+            if(isMasked) {
+                addIcName = 'mdi-playlist-check'
+                addIcTitle = 'Unmask ' + workspace.getLabel()
+                addIcClick = (e) => {
+                    pydio.user.setGUIPreference('MaskedWorkspaces', maskedWorkspaces.filter(i=>i!==workspace.getId()), true)
+                }
+            }
             additionalAction = (
                 <span
-                    className="workspace-additional-action with-hover mdi mdi-dots-vertical"
-                    onClick={(e) => this.workspacePopover(e, popoverNode)}
+                    title={addIcTitle}
+                    className={"workspace-additional-action with-hover mdi " + addIcName}
+                    onClick={addIcClick}
                     style={addStyle}
                 />
             );
@@ -436,6 +436,8 @@ class WorkspaceEntry extends React.Component {
             }
         }
         const entryIcon = <span className={icon} style={iconStyle}/>;
+
+
         let wsBlock = (
             <ContextMenuWrapper
                 node={menuNode}
@@ -447,6 +449,7 @@ class WorkspaceEntry extends React.Component {
                 style={style}
             >
                 {entryIcon}
+                {ownerIcon}
                 <span className="workspace-label" title={title}>{label}</span>
                 {chatIcon}
                 {treeToggle}
@@ -462,8 +465,8 @@ class WorkspaceEntry extends React.Component {
                     anchorOrigin={{horizontal:"right",vertical:popoverTop?"bottom":"center"}}
                     targetOrigin={{horizontal:"left",vertical:popoverTop?"bottom":"center"}}
                     zDepth={3}
-                    style={{overflow:'hidden', borderRadius: 10, height: popoverHeight}}
-                ><Menu style={{maxWidth:350}} listStyle={{paddingBottom: 0, paddingTop: 0}}>{this.state.popoverContent}</Menu></Popover>
+                    style={{overflow:'hidden', height: popoverHeight}}
+                ><Menu style={{maxWidth:400}} listStyle={{paddingBottom: 0, paddingTop: 0}}>{this.state.popoverContent}</Menu></Popover>
             </ContextMenuWrapper>
         );
 
@@ -477,6 +480,8 @@ class WorkspaceEntry extends React.Component {
                         className={this.state.openFoldersTree?"open":"closed"}
                         draggable={true}
                         getItemStyle={this.getItemStyle}
+                        paddingOffset={-15}
+                        offsetSize={15}
                     />
                 </div>
             )

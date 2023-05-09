@@ -79,9 +79,9 @@
   }
 
   .joyride-tooltip {
-    background-color: #fff;
-    border-radius: 2px;
-    color: #555;
+    background-color: var(--md-sys-color-surface-variant);
+    color: var(--md-sys-color-on-surface-variant);
+    border-radius: 20px;
     cursor: default;
     -webkit-filter: drop-shadow(-1px -2px 3px rgba(0,0,0,.3)) drop-shadow(1px 2px 3px rgba(0,0,0,.3));
     filter: drop-shadow(-1px -2px 3px rgba(0,0,0,.3)) drop-shadow(1px 2px 3px rgba(0,0,0,.3));
@@ -185,6 +185,13 @@
     width: 12px
   }
 
+  .joyride-tooltip.right.right-end .joyride-tooltip__triangle {
+    height: 24px;
+    left: -10px;
+    width: 12px;
+    bottom: 20px;
+  }
+
   .joyride-tooltip__close {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -223,7 +230,7 @@
   }
 
   .joyride-tooltip__header {
-    color: rgba(0,0,0,0.87);
+    color: var(--md-sys-color-on-surface);
     font-size: 20px;
     padding-bottom: 6px;
     padding-right: 18px;
@@ -263,14 +270,12 @@
   }
 
   .joyride-tooltip__button--primary {
-
     border-radius: 2px;
-    color: #00796B;
+    color: var(--md-sys-color-primary);
     padding: 6px 12px;
     transition: background-color .2s ease-in-out;
-    text-transform: uppercase;
     font-weight: 500;
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .joyride-tooltip__button--primary:active,.joyride-tooltip__button--primary:focus,.joyride-tooltip__button--primary:hover {
@@ -281,18 +286,17 @@
   }
 
   .joyride-tooltip__button--secondary {
-    color: #757575;
+    color: var(--md-sys-color-secondary);
     font-weight: 500;
     margin-right: 12px;
+    font-size: 14px;
   }
 
   .joyride-tooltip__button--skip {
-    color: #424242;
+    color: var(--md-sys-color-secondary);
     padding: 6px 12px;
     font-weight: 500;
-    text-transform: uppercase;
-    font-weight: 500;
-    font-size: 15px;
+    font-size: 14px;
     float: left;
     margin-right: 10px
   }

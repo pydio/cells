@@ -1022,32 +1022,8 @@
   "402": {
     "other": "http://www.hjsplit.org/"
   },
-  "403": {
-    "other": "WebDAV"
-  },
-  "404": {
-    "other": "WebDAV es un protocolo que le permite montar sus workspaces APPLICATION_TITLE como una 'unidad de red' directamente en su escritorio. Para activar esta característica, por favor, compruebe la casilla de abajo, e introduzca su contraseña si es necesario."
-  },
-  "405": {
-    "other": "Cualquier cliente WebDAV le pedirá una dirección, un login y una contraseña. Utilice la URL de abajo junto con su nombre y contraseña estándar."
-  },
-  "406": {
-    "other": "Activar la función compartir de WebDAV"
-  },
-  "407": {
-    "other": "Introduzca su contraseña si es la primera vez que está activando acciones de webDAV, o si desea volver a escribir una nueva contraseña:"
-  },
-  "408": {
-    "other": "Se ha activado exitosamente la función de compartir de WebDAV, ¡recuerde actualizar su contraseña si esta es su primera vez"
-  },
-  "409": {
-    "other": "Se ha desactivado exitosamente la función de compartir de WebDAV"
-  },
   "41": {
     "other": "ha sido renombrado a"
-  },
-  "410": {
-    "other": "Se ha actualizado con éxito la contraseña webDAV"
   },
   "411": {
     "other": "Abrir"
@@ -1275,7 +1251,7 @@
     "other": "¿Ha olvidado su contraseña?"
   },
   "48": {
-    "other": "Aceptar"
+    "other": "Ok"
   },
   "480": {
     "other": "Explorar todas las carpetas del workspace actual."
@@ -1308,7 +1284,7 @@
     "other": "Metadatos"
   },
   "49": {
-    "other": "CANCELAR"
+    "other": "Cancel"
   },
   "490": {
     "other": "Rango de fechas"
@@ -1324,6 +1300,9 @@
   },
   "494": {
     "other": "Ayer"
+  },
+  "494t": {
+    "other": "Tomorrow"
   },
   "495": {
     "other": "La última semana"
@@ -1678,6 +1657,9 @@
   },
   "599": {
     "other": "Añadir usuario"
+  },
+  "599-a": {
+    "other": "All Results"
   },
   "6": {
     "other": "Renombrar"
@@ -2321,6 +2303,9 @@
   "addressbook.pick.group": {
     "other": "Seleccionar grupo"
   },
+  "addressbook.pick.multiple": {
+    "other": "Multiple Selection"
+  },
   "confirm.dialog.title": {
     "other": "Confirmar"
   },
@@ -2360,6 +2345,27 @@
   "searchengine.scope.title": {
     "other": "Buscar en..."
   },
+  "searchengine.share.title": {
+    "other": "Shared"
+  },
+  "searchengine.share.hint": {
+    "other": "No status"
+  },
+  "searchengine.share.option.link": {
+    "other": "Public Link"
+  },
+  "searchengine.share.option.cell": {
+    "other": "Shared in Cell"
+  },
+  "searchengine.share.option.any": {
+    "other": "Public Link or Cell"
+  },
+  "searchengine.format.title": {
+    "other": "Format"
+  },
+  "searchengine.format.file-only": {
+    "other": "Files Only"
+  },
   "searchengine.advanced-filter.tooltip": {
     "other": "Filtros Avanzados"
   },
@@ -2379,7 +2385,7 @@
     "other": "Limpiar"
   },
   "searchengine.query.action.clear-all": {
-    "other": "Clear All"
+    "other": "Limpiar Todo"
   },
   "searchengine.query.action.delete": {
     "other": "Suprimir"
@@ -2410,6 +2416,9 @@
   },
   "searchengine.complete.activefilters": {
     "other": "Filters:"
+  },
+  "searchengine.complete.activefilters-edit": {
+    "other": "Click to modify"
   },
   "chat.load-older": {
     "other": "Entradas más antiguas"

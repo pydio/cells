@@ -1,5 +1,3 @@
-import React from 'react';
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20,6 +18,7 @@ import React from 'react';
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
@@ -28,7 +27,7 @@ import {muiThemeable} from 'material-ui/styles'
 import SharedUsers from './SharedUsers'
 import NodesPicker from './NodesPicker'
 import CellModel from 'pydio/model/cell'
-const {ModernTextField} = Pydio.requireLib('hoc');
+import CellBaseFields from "./CellBaseFields";
 
 /**
  * Dialog for letting users create a workspace
@@ -60,7 +59,7 @@ class CreateCellDialog extends React.Component {
     }
 
     componentDidMount() {
-        this.refs.title.focus();
+        //this.refs.title.focus();
         this.state.model.observe('update', ()=>{this.forceUpdate()});
     }
 
@@ -115,7 +114,8 @@ class CreateCellDialog extends React.Component {
 
         let buttons = [];
         let content;
-        const {pydio} = this.props;
+        let hPadding = '20px'
+        const {pydio, muiTheme} = this.props;
         const {step, model, saving} = this.state;
         let dialogLabel = pydio.MessageHash['418'];
         if(step !== 'users'){
@@ -128,26 +128,14 @@ class CreateCellDialog extends React.Component {
             content = (
                 <div>
                     <div>{this.m(275)}</div>
-                    <ModernTextField
-                        ref={"title"}
-                        floatingLabelText={this.m(276)}
-                        value={model.getLabel()}
-                        onChange={(e,v)=>{model.setLabel(v)}}
-                        fullWidth={true}
-                        variant={"v2"}
-                        focusOnMount={true}
-                        onKeyPress={(ev) => {
-                            if (ev.key === 'Enter' && model.getLabel()) {
-                                this.submit();
-                            }
-                        }}
-                    />
-                    <ModernTextField
-                        floatingLabelText={this.m(277)}
-                        value={model.getDescription()}
-                        onChange={(e,v)=>{model.setDescription(v)}}
-                        fullWidth={true}
-                        variant={"v2"}
+                    <CellBaseFields
+                        pydio={pydio}
+                        model={model}
+                        style={{padding: 0}}
+                        muiTheme={muiTheme}
+                        labelFocus={true}
+                        labelEnter={() => this.submit()}
+                        createLabels={true}
                     />
                 </div>
             );
@@ -176,7 +164,7 @@ class CreateCellDialog extends React.Component {
 
             content = (
                 <div>
-                    <h5 style={{marginTop: -10}}>{this.m(278)}</h5>
+                    <h5 style={{marginTop: -10, padding:'0 10px'}}>{this.m(278)}</h5>
                     <SharedUsers
                         pydio={pydio}
                         cellAcls={model.getAcls()}
@@ -188,6 +176,7 @@ class CreateCellDialog extends React.Component {
                     />
                 </div>
             );
+            hPadding = '10px'
 
             buttons.push(<FlatButton key="prev1" primary={false} label={pydio.MessageHash['304']} onClick={()=>{this.setState({step:'users'})}} />);
             buttons.push(<FlatButton key="next2" primary={true} label={pydio.MessageHash['179']} onClick={()=>this.setState({step:'label'})} />);
@@ -197,7 +186,7 @@ class CreateCellDialog extends React.Component {
             content = (
                 <div>
                     <h5 style={{marginTop: -10}}>{this.m('cells.create.title.fill.folders')}</h5>
-                    <div style={{color: '#9e9e9e'}}>{this.computeSummaryString()}</div>
+                    <div style={{color: 'var(--md-sys-color-outline)', paddingTop: 10}}>{this.computeSummaryString()}</div>
                     <div style={{paddingTop: 16}}>
                         <NodesPicker pydio={pydio} model={model}/>
                     </div>
@@ -210,12 +199,12 @@ class CreateCellDialog extends React.Component {
         }
 
         return (
-            <div style={{width: 380, fontSize: 13, color: 'rgba(0,0,0,.87)', display:'flex', flexDirection:'column', minHeight: 300}}>
+            <div style={{width: 380, fontSize: 13, display:'flex', flexDirection:'column', minHeight: 300}}>
                 <div style={{display:'flex', alignItems:'center', paddingLeft: 20}}>
                     <FontIcon className={"icomoon-cells-full-plus"}/>
                     <div style={{padding: 20, fontSize: 22}}>{dialogLabel}</div>
                 </div>
-                <div style={{padding: '20px 20px 10px', flex:1}}>
+                <div style={{padding: '20px '+hPadding+' 10px', flex:1}}>
                     {content}
                 </div>
                 <div style={{padding:'12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end'}}>

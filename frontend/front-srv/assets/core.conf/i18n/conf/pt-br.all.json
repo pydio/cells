@@ -211,5 +211,20 @@
   },
   "role prefix": {
     "other": "Prefixo de função"
+  },
+  "System Default": {
+    "other": "System Default"
+  },
+  "Material 3 (detect)": {
+    "other": "Material 3 (detect)"
+  },
+  "Material 3 (light)": {
+    "other": "Material 3 (light)"
+  },
+  "Material 3 (dark)": {
+    "other": "Material 3 (dark)"
+  },
+  "Material Legacy": {
+    "other": "Material Legacy"
   }
 }

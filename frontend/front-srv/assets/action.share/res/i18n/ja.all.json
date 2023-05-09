@@ -663,7 +663,10 @@
     "other": "見る"
   },
   "34": {
-    "other": "既存または新規ユーザー"
+    "other": "Select or Create Users"
+  },
+  "34b": {
+    "other": "Select Users"
   },
   "35": {
     "other": "ラベル"
@@ -923,6 +926,24 @@
   "cell.add.new": {
     "other": "新しいセルを作成"
   },
+  "cell.participant.single": {
+    "other": "One participant"
+  },
+  "cell.participant.multiple": {
+    "other": "%d participants"
+  },
+  "cell.participant.other.single": {
+    "other": "One other participant"
+  },
+  "cell.participant.other.multiple": {
+    "other": "%d other participants"
+  },
+  "cell.folder-root.single": {
+    "other": "One folder"
+  },
+  "cell.folder-root.multiple": {
+    "other": "%d folders"
+  },
   "link.visibility.title": {
     "other": "[Advanced] 可視性"
   },
@@ -964,5 +985,8 @@
   },
   "link.secure.maxdownloads": {
     "other": "%d個に制限してダウンロード"
+  },
+  "minisite.toggle.theme": {
+    "other": "Toggle Dark/Light Theme"
   }
 }

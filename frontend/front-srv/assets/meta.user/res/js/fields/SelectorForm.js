@@ -21,7 +21,8 @@ import React from 'react'
 import Pydio from 'pydio'
 import {MenuItem, IconButton} from 'material-ui'
 import asMetaForm from "../hoc/asMetaForm";
-const {ModernSelectField} = Pydio.requireLib('hoc')
+const {ModernSelectField, ThemedModernStyles} = Pydio.requireLib('hoc')
+import {muiThemeable} from 'material-ui/styles'
 
 class SelectorForm extends React.Component{
 
@@ -37,8 +38,8 @@ class SelectorForm extends React.Component{
     componentDidMount(){
         const {itemsLoader} = this.props;
         if(itemsLoader){
-            itemsLoader((items, keys, stepper) => {
-                this.setState({menuItems: items, keys, stepper});
+            itemsLoader((items, keys, stepper, labels) => {
+                this.setState({menuItems: items, keys, stepper, labels});
             })
         }
     }
@@ -48,43 +49,61 @@ class SelectorForm extends React.Component{
     }
 
     render(){
-        const {stepper, keys = []} = this.state;
-        const {value, label, updateValue, search} = this.props;
+        const {stepper, labels={}, keys = []} = this.state;
+        const {value, label, updateValue, search, muiTheme} = this.props;
         let menuItems;
         if(this.state.menuItems === undefined){
             menuItems = [...this.props.menuItems]
         } else {
             menuItems = [...this.state.menuItems]
         }
+        const ModernStyles = ThemedModernStyles(muiTheme);
+        const {fillBlockV2Right, fillBlockV2Left, selectFieldV1Search, selectFieldV2} = ModernStyles;
         menuItems.unshift(<MenuItem value={''} primaryText=""/>);
+        const selectProps = search ? {variant: "v1",...selectFieldV1Search} : {variant: "v2"}
+        let prevLabel, nextLabel
+        if(stepper && !search){
+            const pos = keys.indexOf(value)
+            if(pos > 0) {
+                prevLabel = labels[keys[pos-1]]
+            }
+            if(pos < keys.length -1) {
+                nextLabel = labels[keys[pos+1]]
+            }
+            // override border radius
+            selectProps.style = {...selectFieldV2.style, borderRadius:0}
+        }
         return (
             <div style={{display:'flex'}}>
                 {stepper && !search &&
-                <div>
+                <div style={{...fillBlockV2Left, marginRight: 2, padding: '2px 4px'}}>
                     <IconButton
                         iconClassName={"mdi mdi-chevron-left"}
-                        tooltip={"Previous Step"}
+                        disabled={!prevLabel}
+                        tooltip={prevLabel}
+                        tooltipPosition={"bottom-right"}
                         onClick={()=>updateValue(keys[keys.indexOf(value)-1], true)}
-                        disabled={keys.indexOf(value) <= 0}
                         style={{width: 28, padding:'12px 0'}}
                     />
                 </div>
                 }
-                <div style={{flex:1, maxWidth:(stepper&&!search)?'75%':null}}>
+                <div style={{flex:1}}>
                     <ModernSelectField
-                        variant={search ? "v1" : "v2"}
                         fullWidth={true}
                         value={value}
                         hintText={label}
-                        onChange={this.changeSelector.bind(this)}>{menuItems}</ModernSelectField>
+                        onChange={this.changeSelector.bind(this)}
+                        {...selectProps}
+                    >{menuItems}</ModernSelectField>
                 </div>
                 {stepper && !search &&
-                <div>
+                <div style={{...fillBlockV2Right, marginLeft: 2, padding: '2px 4px'}}>
                     <IconButton
                         iconClassName={"mdi mdi-chevron-right"}
-                        tooltip={"Next Step"}
+                        tooltip={nextLabel}
+                        disabled={!nextLabel}
+                        tooltipPosition={"bottom-left"}
                         onClick={()=>updateValue(keys[keys.indexOf(value)+1], true)}
-                        disabled={keys.indexOf(value) >= keys.length-1}
                         style={{width: 28, padding:'12px 0'}}
                     />
                 </div>
@@ -93,4 +112,4 @@ class SelectorForm extends React.Component{
         );
     }
 }
-export default asMetaForm(SelectorForm);
+export default asMetaForm(muiThemeable()(SelectorForm));

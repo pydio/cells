@@ -48,7 +48,7 @@ const PasswordDialog = createReactClass({
         if(updater) this._updater = updater;
         let buttons = [];
         if(!this.props.locked){
-            buttons.push(<FlatButton label={this.props.pydio.MessageHash[49]} onClick={() => this.dismiss()}/>);
+            buttons.push(<FlatButton label={this.props.pydio.MessageHash[54]} onClick={() => this.dismiss()}/>);
         }
         buttons.push(<FlatButton label={this.props.pydio.MessageHash[48]} onClick={this.submit.bind(this)} disabled={!this.state.passValid}/>);
         return buttons;

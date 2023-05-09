@@ -22,12 +22,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { soundManager } from 'soundmanager2';
-import { threeSixtyPlayer } from '../../../sm/360-player/script/360player';
-
+import { threeSixtyPlayer } from '../../sm/360-player/script/360player';
 
 soundManager.setup({
     // path to directory containing SM2 SWF
-    url: 'plugins/editor.soundmanager/sm/swf/',
+    url: 'plug/editor.soundmanager/sm/swf/',
     debugMode: true
 });
 

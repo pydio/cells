@@ -1,0 +1,99 @@
+// Color variables (appears count calculates by raw css)
+@color0: #4aceb0;
+@color1: #47b092;
+@color2: #43987c;
+@color3: rgb(67, 141, 179);
+
+// Width variables (appears count calculates by raw css)
+@width0: 370px; // Appears 2 times
+
+// Height variables (appears count calculates by raw css)
+@height1: 24px; // Appears 2 times
+@width2: 24px; // Appears 2 times
+
+div.user-badge.share-dialog {
+  border-bottom: 1px solid var(--md-sys-color-field-underline-idle);
+  clear: both;
+  font-size: 14px;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding-top: 1px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  line-height:20px;
+  .user-badge-label {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 9px 0;
+    line-height: 25px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &:last-of-type {
+    border-bottom: 0;
+  }
+  span.icon-ellipsis-vertical.mui-font-icon {
+    color: #6F6F6F;
+    font-size: 18px;
+  }
+  .avatar {
+    background-color: @color0;
+    border-radius: 50%;
+    color: white;
+    display: inline-block;
+    font-size: 17px;
+    height: @height1;
+    width: @width2;
+    margin: 5px 14px 7px 7px;
+    padding: 2px;
+    text-align: center;
+  }
+  img {
+    background-color: @color0;
+    border-radius: 50%;
+    color: white;
+    display: inline-block;
+    font-size: 17px;
+    height: @height1;
+    margin: 5px 14px 7px -44px;
+    padding: 6px;
+    text-align: center;
+    width: @width2;
+  }
+  div.user-badge-menu-box {
+    font-size: 13px;
+    position: relative;
+    div.mui-menu.mui-visible {
+      box-shadow: 0 0 5px rgba(0,0,0,0.43);
+      position: absolute;
+      right: 0;
+      top:0;
+      width: 200px;
+      z-index: 120;
+    }
+    div.mui-menu {
+      span.icon-check {
+        float: right;
+        font-size: 16px;
+        margin-top: 15px;
+      }
+    }
+  }
+  span.user-badge-rights-container {
+    float: right;
+    padding: 11px;
+    color: gray;
+    font-size: 11px;
+    line-height: 25px;
+    input[name="write"] {
+      margin-left: 28px;
+    }
+  }
+}
+
+div#share-form-users{
+  margin-top: 0 !important;
+}

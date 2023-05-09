@@ -23,8 +23,9 @@ import {Table, TableHeader, TableFooter, TableRow, TableBody, TableRowColumn, Ta
 import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
+import {muiThemeable} from 'material-ui/styles'
 const {moment} = Pydio.requireLib("boot");
-const {ModernStyles} = Pydio.requireLib("hoc");
+const {ThemedModernStyles} = Pydio.requireLib("hoc");
 
 class Sorter {
 
@@ -231,7 +232,7 @@ class MaterialTable extends React.Component{
     }
 
     renderPagination(pagination){
-        const {data} = this.props;
+        const {data, muiTheme} = this.props;
         const {page, pageSize, pages, pageSizes, sliceStart, sliceEnd, nextDisabled, prevDisabled, onPageNext, onPagePrev, onPageSizeChange} = pagination;
         return (
             <div style={{display:'flex', alignItems:'center', justifyContent:'flex-end', color:'#757575'}}>
@@ -240,7 +241,7 @@ class MaterialTable extends React.Component{
                 }
                 {pageSizes.length > 1 &&
                     <div style={{width: 90}}>
-                        <SelectField {...ModernStyles.selectField} fullWidth={true} value={pageSize} onChange={(e,i, v) => {
+                        <SelectField {...ThemedModernStyles(muiTheme).selectField} fullWidth={true} value={pageSize} onChange={(e,i, v) => {
                             if(onPageSizeChange){
                                 onPageSizeChange(v);
                             } else {
@@ -267,7 +268,6 @@ class MaterialTable extends React.Component{
             </div>
         );
     }
-
 
     render(){
 
@@ -434,6 +434,8 @@ class MaterialTable extends React.Component{
     }
 
 }
+
+MaterialTable = muiThemeable()(MaterialTable)
 
 MaterialTable.PropTypes = {
     data: PropTypes.array,

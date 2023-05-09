@@ -22,9 +22,10 @@ const React = require('react')
 const createReactClass = require('create-react-class');
 const Pydio = require('pydio')
 const {ActionDialogMixin, SubmitButtonProviderMixin, AsyncComponent} = Pydio.requireLib('boot')
-const {Tabs, Tab, FontIcon, FlatButton} = require('material-ui')
+const {Tabs, Tab, FontIcon, FlatButton, Paper} = require('material-ui')
 import ProfilePane from './ProfilePane'
 import ComponentConfigParser from './ComponentConfigParser'
+import {muiThemeable} from 'material-ui/styles'
 
 let ModalDashboard = createReactClass({
     displayName: 'ModalDashboard',
@@ -76,7 +77,7 @@ let ModalDashboard = createReactClass({
             textTransform: 'none'
         };
         let tabs = [
-            (<Tab key="account" label={this.props.pydio.MessageHash['user_dash.43']} icon={<FontIcon className="mdi mdi-account"/>} buttonStyle={buttonStyle} value="profile">
+            (<Tab key="account" label={this.props.pydio.MessageHash['user_dash.title']} icon={<FontIcon className="mdi mdi-account"/>} buttonStyle={buttonStyle} value="profile">
                 <ProfilePane {...this.props} ref="profile"/>
             </Tab>)
         ];
@@ -93,15 +94,25 @@ let ModalDashboard = createReactClass({
             );
         }.bind(this));
 
+        if(tabs.length === 1) {
+            return (
+                <div style={{width:'100%', overflowY:'auto', minHeight: 350}}>
+                    <ProfilePane {...this.props} ref={"profile"} style={{position:'relative', width:'100%'}} />
+                </div>
+            )
+        }
+
         return (
-            <Tabs
-                style={{display:'flex', flexDirection:'column', width:'100%'}}
-                tabItemContainerStyle={{minHeight:72}}
-                contentContainerStyle={{overflowY:'auto', minHeight: 350}}
-                onChange={this.onTabChange}
-            >
-                {tabs}
-            </Tabs>
+            <Paper style={{width:'100%', overflow:'hidden', borderBottomRightRadius:0, borderBottomLeftRadius:0}} zDepth={0}>
+                <Tabs
+                    style={{display:'flex', flexDirection:'column', width:'100%', height: '100%'}}
+                    tabItemContainerStyle={{minHeight:72}}
+                    contentContainerStyle={{overflowY:'auto', minHeight: 350}}
+                    onChange={this.onTabChange}
+                >
+                    {tabs}
+                </Tabs>
+            </Paper>
         );
 
     },

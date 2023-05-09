@@ -21,6 +21,7 @@
 import React from 'react'
 import InfoPanelCard from './InfoPanelCard'
 import FilePreview from '../views/FilePreview'
+import {muiThemeable} from "material-ui/styles";
 
 class GenericInfoCard extends React.Component {
 
@@ -75,19 +76,20 @@ class GenericInfoCard extends React.Component {
         }
 
         if (isMultiple) {
-            let {nodes} = this.props;
+            let {nodes, muiTheme} = this.props;
             let more;
             if(nodes.length > 10){
                 const moreNumber = nodes.length - 10;
                 nodes = nodes.slice(0, 10);
                 more = <div>... and {moreNumber} more.</div>
             }
+            const sepColor = muiTheme.palette.mui3?muiTheme.palette.mui3['outline-variant-50']:'#eee'
             return (
                 <InfoPanelCard {...this.props} primaryToolbars={toolbars}>
                     <div style={{padding:'0'}}>
                         {nodes.map(function(node){
                             return (
-                                <div style={{display:'flex', alignItems:'center', borderBottom:'1px solid #eeeeee'}}>
+                                <div style={{display:'flex', alignItems:'center', borderBottom:'1px solid '+sepColor}}>
                                     <FilePreview
                                         key={node.getPath()}
                                         style={{height:50, width:50, fontSize: 25, flexShrink: 0}}
@@ -95,7 +97,7 @@ class GenericInfoCard extends React.Component {
                                         loadThumbnail={true}
                                         richPreview={false}
                                     />
-                                    <div style={{flex:1, fontSize:14, marginLeft:6, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{node.getLabel()}</div>
+                                    <div style={{flex:1, fontSize:14, fontWeight:500, marginLeft:6, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{node.getLabel()}</div>
                                 </div>
                             );
                         })}
@@ -124,4 +126,5 @@ class GenericInfoCard extends React.Component {
     }
 }
 
+GenericInfoCard = muiThemeable()(GenericInfoCard)
 export {GenericInfoCard as default}

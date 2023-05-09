@@ -56,14 +56,23 @@
   "selector.legend": {
     "other": "Benachrichtigungen erhalten, wenn..."
   },
+  "selector.legend.mui": {
+    "other": "Erhalten Sie Benachrichtigungen, wenn Inhalte..."
+  },
   "selector.ignore": {
     "other": "Niemals (keine Benachrichtigungen)"
   },
   "selector.read": {
     "other": "Auf Inhalte wird zugegriffen"
   },
+  "selector.read.mui": {
+    "other": "Zugegriffen"
+  },
   "selector.change": {
     "other": "Inhalt wird geändert"
+  },
+  "selector.change.mui": {
+    "other": "Geändert"
   },
   "selector.both": {
     "other": "Inhalt wird aufgerufen oder geändert"

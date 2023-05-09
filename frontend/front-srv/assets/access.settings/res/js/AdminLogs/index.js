@@ -21,7 +21,7 @@
 import Dashboard from './board/LogBoard'
 import LogTools from './board/LogTools'
 
-window.AdminLogs = {
+export {
     Dashboard,
     LogTools
 };

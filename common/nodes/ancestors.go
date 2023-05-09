@@ -134,13 +134,12 @@ func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient,
 func storeParents(dirPath string, parents []*tree.Node) {
 	if len(parents) > 0 {
 		_ = getAncestorsParentsCache().Set(dirPath, parents)
-		//fmt.Println("Storing "+dirPath+" with ", len(parents), " nodes, first is ", parents[0].GetPath())
 	}
 }
 
 // BuildAncestorsListOrParent builds ancestors list when the node does not exist yet, by trying to find all existing parents.
-func BuildAncestorsListOrParent(ctx context.Context, treeClient tree.NodeProviderClient, node *tree.Node) (parentUuids []*tree.Node, err error) {
-	parents, err := BuildAncestorsList(ctx, treeClient, node)
+func BuildAncestorsListOrParent(ctx context.Context, treeClient tree.NodeProviderClient, node *tree.Node) (parents []*tree.Node, err error) {
+	parents, err = BuildAncestorsList(ctx, treeClient, node)
 	nodePathParts := strings.Split(node.Path, "/")
 	if err != nil && len(nodePathParts) > 1 {
 		// Try to list parent node right
@@ -148,8 +147,8 @@ func BuildAncestorsListOrParent(ctx context.Context, treeClient tree.NodeProvide
 		parentNode.Path = strings.Join(nodePathParts[0:len(nodePathParts)-1], "/")
 		parents, err = BuildAncestorsListOrParent(ctx, treeClient, parentNode)
 		if err != nil {
-			return parents, err
+			return
 		}
 	}
-	return parents, nil
+	return
 }

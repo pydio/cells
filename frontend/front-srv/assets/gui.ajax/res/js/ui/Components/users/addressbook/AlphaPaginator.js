@@ -34,7 +34,9 @@ class AlphaPaginator extends Component{
 
     render(){
 
-        const {item, paginatorCallback, paginatorType, style, getMessage, paginatorLabel} = this.props;
+        const {item, paginatorCallback, paginatorType, style, getMessage, paginatorLabel, muiTheme} = this.props;
+
+        const overrideMuiTheme = getMuiTheme({...muiTheme, zIndex:{layer: 3000, popover:3001}})
 
         let numPaginator, alphaPaginator;
         if(item.pagination){
@@ -49,7 +51,7 @@ class AlphaPaginator extends Component{
             }
 
             numPaginator = (
-                <MuiThemeProvider muiTheme={getMuiTheme({zIndex:{layer: 3000, popover:3001}})}>
+                <MuiThemeProvider muiTheme={overrideMuiTheme}>
                     <ModernSelectField
                         floatingLabelText={getMessage(331)}
                         style={{width: 60}}
@@ -71,7 +73,7 @@ class AlphaPaginator extends Component{
             letters = [-1, ...letters];
             const currentPage = (item.currentParams && item.currentParams.alpha_pages && item.currentParams.value) || -1;
             alphaPaginator = (
-                <MuiThemeProvider muiTheme={getMuiTheme({zIndex:{layer: 3000, popover:3001}})}>
+                <MuiThemeProvider muiTheme={overrideMuiTheme}>
                     <ModernSelectField
                         floatingLabelText={getMessage(625)}
                         style={{width: 60, marginLeft: 8}}

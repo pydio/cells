@@ -1,0 +1,56 @@
+.ReactCodeMirror.CMEditor {
+    width: 100%;
+    flex: 1;
+}
+
+.react-mui-context .mdviewer{
+    flex:1;
+    border-left:2px solid #e0e0e0;
+    padding:20px;
+    background-color:var(--md-sys-color-surface);
+    overflow-y: auto;
+}
+
+.react-mui-context .mdviewer h1{
+    font-size: 24px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.react-mui-context .mdviewer h2{
+    font-size: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.react-mui-context .mdviewer h3{
+    font-size: 16px;
+    font-weight: 500;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.react-mui-context .mdviewer h4{
+    font-size: 14px;
+    font-weight: 500;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.react-mui-context .mdviewer ul, .react-mui-context .mdviewer ol{
+    margin-left: 15px;
+}
+.react-mui-context .mdviewer code {
+    margin: 10px 0;
+    border-radius: 2px;
+    padding: 5px 10px;
+    background-color: var(--md-sys-color-surface-variant);
+}
+
+.react-mui-context .mdviewer pre code {
+    display: block;
+}
+
+.react-mui-context .mdviewer strong {
+    font-weight: 500;
+}

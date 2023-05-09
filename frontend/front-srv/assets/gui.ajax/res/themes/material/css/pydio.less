@@ -1,11 +1,7 @@
 @imagePath: ~"../themes/common/images/";
 @fontsPath: ~"../themes/common/fonts/";
 
-@import "../../common/css/mui/less/variables/colors.less";
-@import "../../common/css/mui/pydio-variables.less";
-
 @import "../../common/css/fonts/fontfaces.less";
-@import "../../common/css/fonts/font-awesome.css";
 @import "../../common/css/fonts/mdi.css";
 @import "../../common/css/fonts/icomoon.css";
 
@@ -13,8 +9,9 @@
 @fontBold:Roboto, sans-serif;
 @fontMachine:Arial, sans-serif;
 @fontReact:Roboto, sans-serif;
-@fontAwesome: FontAwesome;
 
+@import "../../common/css/base/normalize.less";
+@import "../../common/css/base/typography-resets.less";
 @import "../../common/css/base/body";
 @import "../../common/css/base/layout";
 @import "../../common/css/base/overlay";
@@ -24,10 +21,8 @@
 @import "../../common/css/components/lists";
 @import "../../common/css/components/dialog";
 @import "../../common/css/components/activity";
-@import "../../common/css/components/uploaders";
 @import "../../common/css/components/scrollarea";
 @import "../../common/css/components/userwidget";
-@import "../../common/css/components/searchengine";
 @import "../../common/css/components/loader";
 @import "../../common/css/components/breadcrumb";
 @import "../../common/css/components/menus";
@@ -38,11 +33,13 @@
 @import "../../common/css/components/tourguide";
 @import "../../common/css/components/timeline";
 
-@import "../../common/css/theme/variables";
 @import "variables";
 
-@import "../../material/css/widgets";
+// Those two should be merged
+@import "widgets-0";
+@import "widgets-1";
+@import "widgets-2";
 
 
-@import "../../../../node_modules/livekit-react/dist/index.css";
+@import "../../../../node_modules/@livekit/components-styles/dist/general/index.css";
 @import "../../../../node_modules/react-aspect-ratio/aspect-ratio.css";

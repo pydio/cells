@@ -1,4 +1,3 @@
-const PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -19,9 +18,9 @@ const PropTypes = require('prop-types');
  * The latest code can be found at <https://pydio.com>.
  */
 
-
-const React = require('react')
+const PropTypes = require('prop-types');
 import TeamCard from './TeamCard'
+const React = require('react')
 import UserCard from './UserCard'
 const {Paper, IconButton} = require('material-ui')
 
@@ -30,19 +29,57 @@ const {Paper, IconButton} = require('material-ui')
  */
 class RightPanelCard extends React.Component{
 
+    constructor(props, context){
+        super(props, context);
+        this.state = {edit: false};
+        const {model} = this.props;
+        model.observe('update', ()=>this.forceUpdate())
+    }
+
+    componentWillReceiveProps(nextProps){
+        if (nextProps.item !== this.props.item){
+            this.setState({edit: false});
+        }
+    }
+
     render(){
 
         let content;
-        const item = this.props.item || {};
-        if(item.type === 'user'){
-            content = <UserCard {...this.props}/>
-        }else if(item.IdmRole && item.IdmRole.IsTeam){
-            content = <TeamCard {...this.props}/>
+        const {model, style, zDepth=2} = this.props;
+        const {edit} = this.state;
+        const setEdit=(ed)=>this.setState({edit: ed})
+
+        const item = model.rightItem()
+        const onRequestClose = () => {model.clearRightItem()}
+        const onDeleteAction= (p, sel, skip) => model.deleteItems(p, sel, skip)
+        const onCreateAction= (i) => {model.setCreateItem(i)}
+        const onUpdateAction= (item) => {
+            const {model} = this.props;
+            if(item._parent && item._parent === model.contextItem()){
+                model.reloadContext()
+            }
+        }
+
+        const cardProps = {
+            ...this.props,
+            item,
+            onRequestClose,
+            onDeleteAction,
+            onCreateAction,
+            onUpdateAction,
+            edit,
+            setEdit
+        }
+
+        if(item && item.type === 'user'){
+            content = <UserCard {...cardProps}/>
+        }else if(item && item.IdmRole && item.IdmRole.IsTeam){
+            content = <TeamCard {...cardProps}/>
         }
 
         return (
-            <Paper zDepth={2} style={{position:'relative', borderRadius: 6, ...this.props.style}}>
-                <IconButton iconClassName={"mdi mdi-close"} style={{position:'absolute', top: 0, right: 0, zIndex: 2}} iconStyle={{color: '#e0e0e0'}} onClick={this.props.onRequestClose}/>
+            <Paper zDepth={zDepth} style={{position:'relative', borderRadius: 6, ...style}}>
+                <IconButton iconClassName={"mdi mdi-close"} style={{position:'absolute', top: 12, right: 12, zIndex: 2}} iconStyle={{color: '#e0e0e0'}} onClick={onRequestClose}/>
                 {content}
             </Paper>
         );

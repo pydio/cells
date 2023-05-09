@@ -9,7 +9,7 @@
     "other": "Auf {{.Object}} wurde von {{.Actor}} zugegriffen"
   },
   "Cell": {
-    "other": "Zelle"
+    "other": "Cell"
   },
   "CreatedBy": {
     "other": "Erstellt von {{.Actor}}"
@@ -81,6 +81,6 @@
     "other": "{{.Object}} verschoben von {{.Actor}}"
   },
   "Workspace": {
-    "other": "Arbeitsplatz"
+    "other": "Workspace"
   }
 }

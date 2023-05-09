@@ -20,23 +20,25 @@
 
 import React, { Component } from 'react';
 import {Subheader} from 'material-ui';
+import {muiThemeable} from 'material-ui/styles'
 import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
-const {ModernTextField} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernStyles, AdditionalIcons:{DeleteOutline}} = Pydio.requireLib('hoc');
 import Renderer from './Renderer'
 
-const FieldRow = ({constants, name, label, values, children, style, getDefaultScope,isDefaultScope, onRemove = ()=>{}}) => {
+const FieldRow = ({constants, name, label, values, children, style, muiTheme, getDefaultScope,isDefaultScope, onRemove = ()=>{}}) => {
     let labelStyle= {
         width: 100,
         fontSize: 13,
         fontWeight: 500,
-        color: '#616161',
+        color: muiTheme.palette.mui3['on-surface'],
         height: 34,
         lineHeight: '35px',
-        padding: '0 7px',
-        borderRadius: 4,
+        padding: '0 16px 0px 8px',
+        borderRadius: ModernStyles.v1SearchRadiusLeft,
+        backgroundColor:muiTheme.palette.mui3['surface-variant'],
         marginTop: 6,
-        marginRight: 8,
+        marginRight: 0,
         overflow:'hidden',
         textOverflow:'ellipsis',
         whiteSpace:'nowrap',
@@ -54,7 +56,7 @@ const FieldRow = ({constants, name, label, values, children, style, getDefaultSc
         active = true
     }
     if(active){
-        labelStyle = {...labelStyle, backgroundColor: '#e8f5e9', color:'#43a047'}
+        labelStyle = {...labelStyle, backgroundColor: muiTheme.palette.mui3['tertiary-container'], color:muiTheme.palette.mui3['on-tertiary-container']}
     }
     return (
         <div style={{display:'flex', alignItems:'flex-start', margin:'0 16px', ...style}}>
@@ -133,11 +135,11 @@ class AdvancedSearch extends Component {
 
     render() {
 
-        const {searchTools, getMessage, values, rootStyle, saveSearch, clearSavedSearch} = this.props;
+        const {searchTools, getMessage, values, rootStyle, saveSearch, clearSavedSearch, muiTheme} = this.props;
         const {searchOptions, promptSearchLabel, currentSearchLabel} = this.state;
         const headerStyle = {
             fontSize: 13,
-            color: 'rgb(114, 140, 157)',
+            color:'var(--md-sys-color-secondary)',// 'rgb(114, 140, 157)',
             textTransform: 'uppercase',
             fontWeight: 500,
             marginBottom: -10,
@@ -145,12 +147,12 @@ class AdvancedSearch extends Component {
         };
         const linkStyle = {
             padding: '12px 20px 0',
-            color: '#9e9e9e',
+            color: muiTheme.palette.primary1Color,
             textDecoration: 'underline',
             cursor: 'pointer'
         }
         const linkIcon = {
-            color: '#9e9e9e',
+            color: muiTheme.palette.primary1Color,
             cursor: 'pointer',
             display:'inline-block',
             marginLeft: 10
@@ -166,7 +168,8 @@ class AdvancedSearch extends Component {
             values,
             onRemove,
             isDefaultScope,
-            getDefaultScope
+            getDefaultScope,
+            muiTheme
         }
 
         const {searchID, searchLABEL} = values;
@@ -181,8 +184,9 @@ class AdvancedSearch extends Component {
         const fields = [
             {name:'basenameOrContent', label: fNameLabel},
             {name:kk.KeyScope, type: 'scope', label: getMessage('searchengine.scope.title')},
-            {name:kk.KeyMime, type: 'mime', label: 'Format'},
+            {name:kk.KeyMetaShared, type:'share', label: getMessage('searchengine.share.title')},
             {subheader:getMessage(489)},
+            {name:kk.KeyMime, type: 'mime', label: getMessage('searchengine.format.title')},
             ...indexedMeta.map(m => {return {...m, name: m.namespace}}), // copy namespace prop to name
             {subheader:getMessage(498)},
             {name:kk.KeyModifDate, type: 'modiftime', label: getMessage(4)},
@@ -208,7 +212,7 @@ class AdvancedSearch extends Component {
             <div className="search-advanced" style={{...rootStyle}}>
 
                 {(searchID || promptSearchLabel) &&
-                    <div style={{display: 'flex',alignItems: 'center', backgroundColor:'#f5f5f5', borderBottom: '1px solid #eaeaea'}}>
+                    <div style={{display: 'flex',alignItems: 'center', margin:8, borderRadius: 12, background:muiTheme.palette.mui3['surface-5']}}>
                         {promptSearchLabel &&
                             <div style={{flex: 1, paddingLeft:20}}>
                                 <ModernTextField
@@ -223,19 +227,24 @@ class AdvancedSearch extends Component {
                         }
                         {!promptSearchLabel &&
                             <div
-                                style={{flex: 1, cursor: 'pointer', fontSize: 15, padding: '12px 20px', }}
+                                style={{flex: 1, cursor: 'pointer', fontSize: 16, fontWeight:400, padding: '12px 20px', }}
                                 onClick={() => this.setState({promptSearchLabel:true})}
-                            >{searchLABEL} <span className={"mdi mdi-pencil"} style={{opacity:.5}}/></div>
+                            >{searchLABEL}</div>
                         }
                         <div style={{padding: '12px 20px', fontSize: 15}}>
                             {promptSearchLabel &&
                                 <a onClick={saveAndClose} style={linkIcon} title={getMessage('searchengine.query.action.save')}><span className={"mdi mdi-content-save"}/></a>
                             }
                             {promptSearchLabel &&
-                                <a onClick={close} style={linkIcon} title={getMessage('54')}><span className={"mdi mdi-close-circle"}/></a>
+                                <a onClick={close} style={linkIcon} title={getMessage('54')}><span className={"mdi mdi-close"}/></a>
+                            }
+                            {!promptSearchLabel &&
+                                <a onClick={() => this.setState({promptSearchLabel:true})} style={linkIcon} title={getMessage('54')}><span className={"mdi mdi-pencil"}/></a>
                             }
                             {!promptSearchLabel && searchID &&
-                                <a onClick={deleteAndClose} style={linkIcon} title={getMessage('searchengine.query.action.delete')}><span className={"mdi mdi-delete"}/></a>
+                                <a onClick={deleteAndClose} title={getMessage('searchengine.query.action.delete')}>
+                                    <DeleteOutline style={{...linkIcon, width: 16, height: 16, marginBottom: -2}}/>
+                                </a>
                             }
                         </div>
                     </div>
@@ -266,6 +275,6 @@ class AdvancedSearch extends Component {
     }
 }
 
-AdvancedSearch = PydioContextConsumer(AdvancedSearch);
+AdvancedSearch = PydioContextConsumer(muiThemeable()(AdvancedSearch));
 
 export default AdvancedSearch

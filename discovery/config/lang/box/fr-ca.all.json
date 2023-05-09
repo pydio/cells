@@ -99,10 +99,10 @@
     "other": "occurrences (expr. reg)"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "pattern"
+    "other": "motif"
   },
   "conditionBooleanCondition.value": {
-    "other": "True"
+    "other": "Vrai"
   },
   "contextMetaCondition.CIDRCondition": {
     "other": "Condition CIDR"
@@ -135,10 +135,10 @@
     "other": "Date postérieure à"
   },
   "contextMetaCondition.PathGlobCondition": {
-    "other": "Glob Matcher"
+    "other": "Expression Glob"
   },
   "contextMetaCondition.BooleanCondition": {
-    "other": "Boolean Value"
+    "other": "Valeur booléenne"
   },
   "contextMetaField.ContentType": {
     "other": "Type de contenu"
@@ -156,10 +156,10 @@
     "other": "Hôte de la requête"
   },
   "contextMetaField.RequestHost": {
-    "other": "Request Host"
+    "other": "Hôte (complet) de la requête"
   },
   "contextMetaField.RequestPort": {
-    "other": "Request Port"
+    "other": "Port de la requête"
   },
   "contextMetaField.RequestMethod": {
     "other": "Méthode de la requête"
@@ -450,16 +450,16 @@
     "other": "Programmation calendaire"
   },
   "triggerFilterQuery.IsApiHook": {
-    "other": "Triggered by Webhook"
+    "other": "Déclenché par Webhook"
   },
   "triggerFilterQuery.ApiHookSlug": {
-    "other": "Webhook Api Slug"
+    "other": "Segment de l'API du hook"
   },
   "triggerFilterQuery.RunParameterName": {
-    "other": "Run Parameter Name"
+    "other": "Nom du paramètre de Flow"
   },
   "triggerFilterQuery.RunParameterValue": {
-    "other": "Run Parameter Value"
+    "other": "Valeur du paramètre de Flow"
   },
   "triggerFilterQuery.IsManual": {
     "other": "Manuel"

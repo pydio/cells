@@ -21,13 +21,13 @@
 import React from 'react'
 import Pydio from 'pydio'
 import {LinearProgress} from 'material-ui'
-import {GenericLine} from './GenericCard'
+import {GenericLine, Mui3CardLine} from './GenericCard'
 import PathUtils from 'pydio/util/path'
 
 export default class QuotaUsageLine extends React.Component {
 
     render() {
-        const {node} = this.props;
+        const {node, mui3} = this.props;
         let usage = parseInt(node.getMetadata().get("ws_quota_usage"))
         const quota = parseInt(node.getMetadata().get("ws_quota"))
         usage = Math.min(usage, quota)
@@ -40,14 +40,18 @@ export default class QuotaUsageLine extends React.Component {
         }
         const label = Pydio.getMessages()['workspace.quota-usage'] + " ("+ PathUtils.roundFileSize(quota) +")"
         const data = (
-            <div style={{borderRadius: 4, display: 'flex', marginRight: 25, alignItems: 'center', marginTop: 5, backgroundColor: '#f5f5f5', padding: '7px 8px'}}>
+            <div style={{display: 'flex', maxWidth: 200, alignItems: 'center', marginTop: 5}}>
                 <div style={{flex: 1, paddingRight:12}}>
                     <LinearProgress mode={"determinate"} min={0} max={quota} value={usage} color={color} />
                 </div>
-                <div style={{color: '#bdbdbd', fontWeight: 500, fontSize: 18}}>{percent}%</div>
+                <div style={{color: '#bdbdbd', fontWeight: 500, fontSize: 15}}>{percent}%</div>
             </div>
         )
-        return <GenericLine iconClassName={"mdi mdi-gauge"} legend={label} data={data} iconStyle={{marginTop: 30}}/>
+        if(mui3) {
+            return <Mui3CardLine legend={label} data={data}/>;
+        } else {
+            return <GenericLine iconClassName={"mdi mdi-gauge"} legend={label} data={data} iconStyle={{marginTop: 30}}/>
+        }
     }
 
 }

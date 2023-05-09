@@ -26,6 +26,7 @@ import ShareContextConsumer from '../ShareContextConsumer'
 import {MenuItem} from 'material-ui';
 import LinkModel from './LinkModel'
 const {ModernSelectField} = Pydio.requireLib('hoc');
+import {muiThemeable} from 'material-ui/styles'
 
 class PublicLinkTemplate extends React.Component{
 
@@ -37,7 +38,7 @@ class PublicLinkTemplate extends React.Component{
 
     render(){
         let crtLabel;
-        const {linkModel, hideTitle} = this.props;
+        const {linkModel, hideTitle, muiTheme} = this.props;
         let selected = linkModel.getLink().ViewTemplateName;
         const menuItems=this.props.layoutData.map(function(l){
             if(selected && l.LAYOUT_ELEMENT === selected) {
@@ -49,9 +50,15 @@ class PublicLinkTemplate extends React.Component{
             }
             return <MenuItem key={l.LAYOUT_ELEMENT} value={l.LAYOUT_ELEMENT} primaryText={l.LAYOUT_LABEL}/>;
         });
+        const legendStyle ={
+            fontSize:13,
+            fontWeight:500,
+            color:muiTheme.palette.mui3['on-surface-variant']
+        }
+
         return (
             <div style={this.props.style}>
-                {!hideTitle && <div style={{fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)'}}>{this.props.getMessage('151')}</div>}
+                {!hideTitle && <div style={legendStyle}>{this.props.getMessage('151')}</div>}
                 <ModernSelectField
                     variant={"v2"}
                     fullWidth={true}
@@ -68,5 +75,5 @@ class PublicLinkTemplate extends React.Component{
 PublicLinkTemplate.PropTypes = {
     linkModel:PropTypes.instanceOf(LinkModel)
 };
-PublicLinkTemplate = ShareContextConsumer(PublicLinkTemplate);
+PublicLinkTemplate = ShareContextConsumer(muiThemeable()(PublicLinkTemplate));
 export default PublicLinkTemplate

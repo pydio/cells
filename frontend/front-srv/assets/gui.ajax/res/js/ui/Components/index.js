@@ -32,7 +32,7 @@ import {TreeView, DNDTreeView, FoldersTree} from './views/TreeView'
 import LabelWithTip from './elements/LabelWithTip'
 import SimpleFigureBadge from './elements/SimpleFigureBadge'
 import ClipboardTextField from './elements/ClipboardTextField'
-import {GenericCard, GenericLine} from './elements/GenericCard'
+import {GenericCard, GenericLine, Mui3CardLine} from './elements/GenericCard'
 import QuotaUsageLine from "./elements/QuotaUsageLine";
 import EmptyStateView from './views/EmptyStateView'
 import ModalAppBar from './views/ModalAppBar'
@@ -57,6 +57,7 @@ import MenuItemsConsumer from './menu/MenuItemsConsumer'
 import MenuUtils from './menu/Utils'
 
 import AddressBook from './users/addressbook/AddressBook'
+import DirectoryLayout from './users/addressbook/DirectoryLayout'
 import ListStylesCompact from './users/addressbook/ListStylesCompact'
 import ChatClient from './chat/ChatClient'
 import Chat from './chat/Chat'
@@ -88,6 +89,7 @@ const PydioComponents = {
     ModalAppBar             : ModalAppBar,
     GenericCard,
     GenericLine,
+    Mui3CardLine,
     QuotaUsageLine,
 
     ReactEditorOpener       : ReactEditorOpener,
@@ -102,17 +104,19 @@ const PydioComponents = {
     },
     DNDActionParameter      : DNDActionParameter,
 
-    UserAvatar              : UserAvatar,
-    UsersCompleter          : UsersCompleter,
-    TeamCreationForm        : TeamCreationForm,
-    AddressBook             : AddressBook,
+    UserAvatar,
+    UsersCompleter,
+    TeamCreationForm,
+    AddressBook,
+    DirectoryLayout,
     ListStylesCompact,
 
     ContextMenu             : ContextMenu,
     Toolbar                 : Toolbar,
     ButtonMenu              : ButtonMenu,
     IconButtonMenu          : IconButtonMenu,
-    MenuItemsConsumer, MenuUtils,
+    MenuItemsConsumer,
+    MenuUtils,
 
     Chat,
     ChatIcon,

@@ -20,27 +20,42 @@
 import React from 'react'
 import ReactPlaceHolder from 'react-placeholder'
 import { TextRow as Row, RoundShape as Round, RectShape as Rect, TextBlock as Block, MediaBlock as Media } from 'react-placeholder/lib/placeholders'
+import {muiThemeable} from 'material-ui/styles'
+import Color from 'color'
 
-const phColor = "#f5f5f5"
-
-export function TextRow(props) {
-    return <Row color={phColor} {...props}/>
+function getColor(props) {
+    const base = props.muiTheme.palette.mui3['surface-variant'] || '#eee'
+    if(props.muiTheme.darkMode){
+        return base
+    } else {
+        return Color(base).fade(.5).toString()
+    }
 }
 
-export function RoundShape(props) {
-    return <Round color={phColor} {...props}/>
+function TextRow(props) {
+    return <Row color={getColor(props)} {...props}/>
 }
+TextRow = muiThemeable()(TextRow)
 
-export function RectShape(props) {
-    return <Rect color={phColor} {...props}/>
+function RoundShape(props) {
+    return <Round color={getColor(props)} {...props}/>
 }
+RoundShape = muiThemeable()(RoundShape)
 
-export function TextBlock(props) {
-    return <Block color={phColor} {...props}/>
+function RectShape(props) {
+    return <Rect color={getColor(props)} {...props}/>
 }
+RectShape = muiThemeable()(RectShape)
 
-export function MediaBlock(props) {
-    return <Media color={phColor} {...props}/>
+function TextBlock(props) {
+    return <Block color={getColor(props)} {...props}/>
 }
+TextBlock = muiThemeable()(TextBlock)
 
+function MediaBlock(props) {
+    return <Media color={getColor(props)} {...props}/>
+}
+MediaBlock = muiThemeable()(MediaBlock)
+
+export {TextRow, RoundShape, RectShape, TextBlock, MediaBlock}
 export default ReactPlaceHolder

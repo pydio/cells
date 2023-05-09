@@ -38,6 +38,8 @@ type InputSelector interface {
 	MultipleSelection() bool
 	GetTimeout() string
 	SelectorID() string
+	GetClearInput() bool
+	ApplyClearInput(msg *ActionMessage) *ActionMessage
 }
 
 type InputFilter interface {

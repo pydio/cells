@@ -405,6 +405,32 @@ func TestSearchNode(t *testing.T) {
 
 	})
 
+	Convey("Search Node by name with Exact Path", t, func() {
+
+		queryObject := &tree.Query{
+			Paths: []string{"/path/to"},
+		}
+		results, e := search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 0)
+
+		queryObject = &tree.Query{
+			Paths: []string{"/path/to/node.txt2"},
+		}
+		results, e = search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 0)
+
+		queryObject = &tree.Query{
+			Paths: []string{"/path/to/node.txt"},
+		}
+
+		results, e = search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 1)
+
+	})
+
 	Convey("Search Node by name with Path Prefix", t, func() {
 
 		queryObject := &tree.Query{

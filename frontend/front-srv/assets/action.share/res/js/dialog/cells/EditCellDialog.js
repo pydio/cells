@@ -27,7 +27,7 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 const {ResourcePoliciesPanel} = Pydio.requireLib('components');
-const {ModernTextField} = Pydio.requireLib('hoc');
+import CellBaseFields from "./CellBaseFields";
 
 /**
  * Dialog for letting users create a workspace
@@ -72,13 +72,6 @@ export default class extends React.Component {
 
         const {pydio, model, sendInvitations} = this.props;
         const m = (id) => pydio.MessageHash['share_center.' + id];
-
-        const header = (
-            <div>
-                <ModernTextField floatingLabelText={m(267)} value={model.getLabel()} onChange={(e,v)=>{model.setLabel(v)}} fullWidth={true}/>
-                <ModernTextField floatingLabelText={m(268)} value={model.getDescription()} onChange={(e,v)=>{model.setDescription(v)}} fullWidth={true}/>
-            </div>
-        );
         const tabs = {
             leftStyle:{padding:10},
             rightStyle:{padding:10},
@@ -94,6 +87,14 @@ export default class extends React.Component {
                         onUserObjectAdd={model.addUser.bind(model)}
                         onUserObjectRemove={model.removeUser.bind(model)}
                         onUserObjectUpdateRight={model.updateUserRight.bind(model)}
+                    />)
+                },
+                {
+                    Label:m('35'),
+                    Value:'base',
+                    Component: (<CellBaseFields
+                        pydio={pydio}
+                        model={model}
                     />)
                 },
                 {
@@ -128,7 +129,7 @@ export default class extends React.Component {
             <GenericEditor
                 pydio={pydio}
                 tabs={tabs}
-                header={header}
+                header={<div style={{fontSize: 22, lineHeight:'26px', padding:6}}>{model.getLabel()}</div>}
                 editorOneColumn={this.props.editorOneColumn}
                 saveEnabled={model.isDirty()}
                 onSaveAction={this.submit.bind(this)}

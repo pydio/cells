@@ -18,15 +18,15 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
 import Pydio from 'pydio'
-import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton, TextField, Snackbar } from 'material-ui';
+import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, IconButton, TextField, Snackbar } from 'material-ui';
 import { connect } from 'react-redux';
 import Draggable from 'react-draggable';
-import { compose, bindActionCreators } from 'redux';
 import makeMaximise from './make-maximise';
-import _ from 'lodash';
+import FuncUtils from 'pydio/util/func'
 
-const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, getActiveTab, getEditorResolution, withMenu, withContentControls, withSizeControls, withAutoPlayControls, withResolutionControls } = Pydio.requireLib('hoc');
+const { EditorActions, getActiveTab, getEditorResolution, withMenu, withContentControls, withSizeControls, withAutoPlayControls, withResolutionControls } = Pydio.requireLib('hoc');
 
 const styles = {
     textField: {
@@ -105,45 +105,11 @@ export default @connect(mapStateToProps, EditorActions) class Tab extends React.
             borderRadius: 0,
         };
 
-        // let style = {
-            //     display: "flex",
-            //     width: (100 / MAX_ITEMS) + "%",
-            //     height: "40%",
-            //     margin: "10px",
-            //     overflow: "hidden",
-            //     whiteSpace: "nowrap"
-            // }
-
-            // if (filteredTabs.length > MAX_ITEMS) {
-            //     if (index < MAX_ITEMS) {
-            //         style.flex = 1
-            //     } else {
-            //         style.flex = 0
-            //         style.margin = 0
-            //     }
-            // }
-
-            // if (activeTab) {
-            //     if (tab.id === activeTab.id) {
-            //         style.margin = 0
-            //         style.flex = 1
-            //     } else {
-            //         style.flex = 0
-            //         style.margin = 0
-            //     }
-            // }
-
-        return !isActive ? (
-            <AnimatedCard style={cardStyle} containerStyle={Tab.styles.container} maximised={isActive} expanded={isActive} onExpandChange={!isActive ? select : null}>
-                <CardHeader title={id} actAsExpander={true} showExpandableButton={true} />
-                <CardMedia style={Tab.styles.child} mediaStyle={Tab.styles.child}>
-                    <Editor pydio={pydio} node={node} editorData={editorData} isActive={isActive} />
-                </CardMedia>
-            </AnimatedCard>
-        ) : (
-            <AnimatedCard style={cardStyle} containerStyle={Tab.styles.container} maximised={true} expanded={isActive} onExpandChange={!isActive ? select : null}>
-                <Editor pydio={pydio} node={node} editorData={editorData} isActive={isActive} />
-                <BottomBar id={id} style={Tab.styles.toolbar} />
+        return isActive ? (
+            <AnimatedCard style={cardStyle} containerStyle={Tab.styles.container} maximised={true} expanded={isActive}
+                          onExpandChange={isActive ? null : select}>
+                <Editor pydio={pydio} node={node} editorData={editorData} isActive={isActive}/>
+                <BottomBar id={id} style={Tab.styles.toolbar}/>
                 <Snackbar
                     style={{
                         left: "10%",
@@ -154,6 +120,14 @@ export default @connect(mapStateToProps, EditorActions) class Tab extends React.
                     onRequestClose={() => tabModify({id, message: ""})}
                     message={<span>{snackbarMessage}</span>}
                 />
+            </AnimatedCard>
+        ) : (
+            <AnimatedCard style={cardStyle} containerStyle={Tab.styles.container} maximised={isActive}
+                          expanded={isActive} onExpandChange={isActive ? null : select}>
+                <CardHeader title={id} actAsExpander={true} showExpandableButton={true}/>
+                <CardMedia style={Tab.styles.child} mediaStyle={Tab.styles.child}>
+                    <Editor pydio={pydio} node={node} editorData={editorData} isActive={isActive}/>
+                </CardMedia>
             </AnimatedCard>
         )
     }
@@ -172,7 +146,7 @@ class BottomBar extends React.Component {
 
         this.state = {
             minusDisabled: scale - 0.5 <= 0,
-            magnifyDisabled: size == "contain",
+            magnifyDisabled: size === "contain",
             plusDisabled: scale + 0.5 >= 20,
         }
     }
@@ -182,21 +156,21 @@ class BottomBar extends React.Component {
 
         this.setState({
             minusDisabled: scale - 0.5 <= 0,
-            magnifyDisabled: size == "contain",
+            magnifyDisabled: size === "contain",
             plusDisabled: scale + 0.5 >= 20,
         })
     }
 
     render() {
         const {minusDisabled= false, magnifyDisabled = false, plusDisabled = false, searchString = "", searchJump = ""} = this.state
-        const {readonly, size, scale, playing = false, resolution, onAutoPlayToggle, onSizeChange, onResolutionToggle, ...remaining} = this.props
+        const {readonly, size, scale, playing = false, resolution, onAutoPlayToggle, onSizeChange, onResolutionToggle, style, className, ...remaining} = this.props
 
         // Content functions
         const {saveable, undoable, redoable, onSave, onUndo, onRedo, saveDisabled, undoDisabled, redoDisabled} = this.props
         const {onToggleLineNumbers, onToggleLineWrapping} = this.props
         const {onSearch, onJumpTo} = this.props
 
-        const editable = (saveable || undoable || redoable) && !readonly
+        const editable = (saveable || undoable || redoable) && !readonly
         const {editortools, searchable} = this.props
 
         // Resolution functions
@@ -214,11 +188,11 @@ class BottomBar extends React.Component {
 
         return (
             <Draggable>
-                <Toolbar {...remaining}>
+                <Toolbar style={{...style, zIndex: 10}} className={className}>
                     {playable && (
                         <ToolbarGroup>
                             <IconButton
-                                iconClassName={"mdi " + (!playing ? "mdi-play" : "mdi-pause")}
+                                iconClassName={"mdi " + (playing ? "mdi-pause" : "mdi-play")}
                                 iconStyle={styles.iconButton}
                                 onClick={() => onAutoPlayToggle()}
                             />
@@ -263,7 +237,7 @@ class BottomBar extends React.Component {
                     {hdable && (
                         <ToolbarGroup>
                             <IconButton
-                                iconClassName={"mdi " + (resolution == "hi" ? "mdi-quality-high" : "mdi-image")}
+                                iconClassName={"mdi " + (resolution === "hi" ? "mdi-quality-high" : "mdi-image")}
                                 iconStyle={styles.iconButton}
                                 onClick={() => onResolutionToggle()}
                             />

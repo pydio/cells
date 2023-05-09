@@ -59,15 +59,20 @@ class HomeSearchForm extends Component{
 
         // From HOC
         const {searchTools, searchTools:{facets, activeFacets, toggleFacet, loading, dataModel, empty}} = this.props;
-        const {style, zDepth, pydio, fullScreen, fullScreenTransition, onFocusChange} = this.props;
+        const {style, zDepth, pydio, fullScreen, fullScreenTransition, onFocusChange, muiTheme} = this.props;
+
+        const isMui3 = muiTheme.userTheme === 'mui3'
+        const {palette:{mui3}} = muiTheme
+
 
         const whiteTransp = 'rgba(0,0,0,.53)';
 
         const styles = {
             mainContainer: {
-                width:'100%',
                 position:'absolute',
                 top: fullScreen? 0 : 199,
+                left: isMui3?74:0,
+                right: 0,
                 bottom: 0,
                 transition: 'all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms',
                 display:'flex',
@@ -80,15 +85,15 @@ class HomeSearchForm extends Component{
                 display:'flex',
                 flexDirection:'column',
                 alignItems:'center',
-                backgroundColor:'transparent',
-                padding: fullScreen ? '10px 50px': 0
+                background:isMui3&&fullScreen?mui3['surface-1']:'transparent',
+                padding: fullScreen ? (isMui3 ? '10px 50px 10px 10px' : '10px 50px') : 0
             },
             textFieldContainer: {
                 width:'100%',
                 maxWidth:fullScreen?10000:700,
                 display:'flex',
                 alignItems:'center',
-                backgroundColor: '#eceff1',
+                background: isMui3?mui3['surface-variant']:'#eceff1',
                 height: fullScreen?40:50,
                 padding: '2px 4px',
                 borderRadius: 50,
@@ -98,7 +103,7 @@ class HomeSearchForm extends Component{
             textInput: {color: 'inherit'},
             textHint : {color: whiteTransp, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%'},
             magnifier: {color: whiteTransp, fontSize: 20, padding:'14px 8px'},
-            close: {position:'absolute', right:0, zIndex: 2},
+            close: {position:'absolute', right:2, top: 6, zIndex: 2},
             searchForm:{
                 mainStyle:{
                     backgroundColor:'transparent',
@@ -108,9 +113,12 @@ class HomeSearchForm extends Component{
                 completeMenuStyle:{width: '100%'},
                 inputStyle:{fontSize: 18},
                 hintStyle:{fontSize: 18},
-                magnifierStyle:{fontSize: 20, color:'rgba(0,0,0,0.73)', marginRight: 10}, //{color: appBarTextColor.fade(0.1).toString()},
+                magnifierStyle:{
+                    fontSize: 20,
+                    marginRight: 10
+                },
                 filterButton:{
-                    color:'#03a9f4',
+                    color:muiTheme.palette.primary1Color,
                     fontSize: 22,
                     width:28,
                     height: 28,
@@ -122,10 +130,13 @@ class HomeSearchForm extends Component{
                 container: {
                     width: 230,
                     overflowY: 'auto',
-                    color: '#5c7784',
+                    background:mui3['surface-2'],
+                    color: isMui3?mui3['on-surface-variant']:'#5c7784',
+                    borderRadius: 0,
+                    borderRight: isMui3?'1px solid '+mui3['outline-variant-50']:undefined,
                     paddingLeft: 16,
                     paddingRight: 16,
-                    paddingTop: 10
+                    paddingTop: 10,
                 },
                 header : {
                     fontWeight: 500,
@@ -197,8 +208,9 @@ class HomeSearchForm extends Component{
                                 facets={facets}
                                 activeFacets={activeFacets}
                                 onToggleFacet={toggleFacet}
-                                emptyStateView={<div style={{fontWeight: 500,padding: '10px 0px',fontSize: 15}}>Filter Results... (no results)</div>}
+                                emptyStateView={<div style={{fontWeight: 500,padding: '10px 0px',fontSize: 15}}>{pydio.MessageHash['user_home.search.facets.title']}</div>}
                                 styles={styles.facets}
+                                zDepth={isMui3?0:undefined}
                             />
                             }
                             <NodeListCustomProvider

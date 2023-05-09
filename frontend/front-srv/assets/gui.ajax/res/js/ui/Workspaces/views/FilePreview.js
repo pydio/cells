@@ -205,8 +205,8 @@ class FilePreview extends PureComponent {
                 rootStyle={displayLarge?{}:{margin: 6}}
                 fontSize={displayLarge?12:9}
                 color={progressColor}
-                bgColor={rootStyle.backgroundColor}
-                trackColor={'white'}
+                bgColor={'var(--md-sys-color-surface-variant)'}
+                trackColor={'transparent'}
                 onClick={()=>{
                     Pydio.getInstance().Controller.fireAction("upload");
                 }}

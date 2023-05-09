@@ -50,7 +50,7 @@ class BoxFacet extends React.Component {
                 label={mFacet(facet.Label) + ' (' + facet.Count + ') '}
                 labelPosition={"right"}
                 style={{padding: '5px 0', marginLeft: -2}}
-                iconStyle={{opacity: .5, marginRight: 10}}
+                iconStyle={{opacity: .8, marginRight: 10}}
                 labelStyle={{fontSize: 14, fontWeight: 500, color:'inherit'}}
                 checked={selected}
                 onCheck={(e,v) => {
@@ -126,7 +126,7 @@ class Facets extends React.Component {
                             <div style={styles.subHeader}>{m('search.facet.' + groupKeys[k])}</div>
                             <div style={{zoom: 1}}>
                                 {groups[k].sort((a,b) => a.Label.localeCompare(b.Label)).map((f)=> {
-                                    return (<BoxFacet m={m} facet={f} selected={this.isSelected(activeFacets, f)} onSelect={onToggleFacet}/>);
+                                    return (<BoxFacet key={f.Label} m={m} facet={f} selected={this.isSelected(activeFacets, f)} onSelect={onToggleFacet}/>);
                                 })}
                             </div>
                         </div>

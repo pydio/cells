@@ -3,7 +3,7 @@
 	<client_settings>
 		<resources>
 			<i18n namespace="user_dash" remote="plug/action.user/res/i18n" />
-            <js className="UserAccount" file="plug/action.user/res/dist/UserAccount.min.js" depends="React,PydioForm"/>
+            <js className="UserAccount" file="plug/action.user/res/dist/UserAccount.min.js" depends="React,PydioComponents,PydioHOCs,PydioForm,PydioWorkspaces"/>
 		</resources>
 	</client_settings>
     <server_settings>
@@ -14,7 +14,7 @@
 		<actions>
 			<action name="open_user_dashboard">
 				<gui text="user_dash.title" title="user_dash.desc" iconClass="mdi mdi-account-settings-variant" accessKey="folder_access_key" weight="-10">
-					<context selection="false" dir="" recycle="false" actionBar="true" actionBarGroup="user" contextMenu="false" infoPanel="false"/>
+					<context selection="false" dir="" recycle="false" actionBar="true" actionBarGroup="user,rail_user" contextMenu="false" infoPanel="false"/>
 				</gui>
 				<rightsContext noUser="false" userLogged="only" read="false" write="false" adminOnly="false"/>
 				<processing>
@@ -22,7 +22,7 @@
 				</processing>
 			</action>
 			<action name="open_address_book">
-				<gui text="user_dash.1" title="user_dash.1" iconClass="mdi mdi-account-card-details" accessKey="folder_access_key" >
+				<gui text="user_dash.open-addressbook" title="user_dash.open-addressbook" iconClass="mdi mdi-account-card-details" accessKey="folder_access_key" >
 					<context selection="false" dir="" recycle="false" actionBar="true" actionBarGroup="user" contextMenu="false" infoPanel="false"/>
 				</gui>
 				<rightsContext noUser="false" userLogged="only" read="false" write="false" adminOnly="false" paramDisable="action.user/DASH_DISABLE_ADDRESS_BOOK"/>

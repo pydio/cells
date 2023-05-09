@@ -231,25 +231,13 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 	// }
 	// f.node.Path = inPath
 
-	multipartID, err := f.fs.Router.MultipartCreate(f.ctx, f.node, &models.MultipartRequestData{})
-	if err != nil {
-		log.Logger(f.ctx).Error("Error while creating multipart")
-		if f.createErrorCallback != nil {
-			if e := f.createErrorCallback(); e != nil {
-				log.Logger(f.ctx).Error("Error while deleting temporary node")
-			}
-		}
-		return 0, err
-	}
-
-	log.Logger(f.ctx).Debug("READ FROM - starting effective dav parts upload for " + f.name + " with id " + multipartID)
-
 	partsInfo := make(map[int]models.MultipartObjectPart)
+	var multipartID string
 
 	// Write by part
 	var written int64
 	// Minimum size is 5 MB, trying to upload parts that are smaller will fail with EntityTooSmall error
-	minSize := 5 * 1024 * 1024
+	minSize := 10 * 1024 * 1024
 	// TODO put this in a go routine
 	for i := 1; ; i++ {
 		nr := 0
@@ -274,6 +262,22 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 		}
 
 		if nr > 0 {
+
+			if multipartID == "" {
+				var err error
+				multipartID, err = f.fs.Router.MultipartCreate(f.ctx, f.node, &models.MultipartRequestData{})
+				if err != nil {
+					log.Logger(f.ctx).Error("Error while creating multipart")
+					if f.createErrorCallback != nil {
+						if e := f.createErrorCallback(); e != nil {
+							log.Logger(f.ctx).Error("Error while deleting temporary node")
+						}
+					}
+					return 0, err
+				}
+				log.Logger(f.ctx).Debug("READ FROM - starting effective dav parts upload for " + f.name + " with id " + multipartID)
+			}
+
 			reqData := models.PutRequestData{
 				Size:              int64(nr), // int64(len(buf)),
 				MultipartUploadID: multipartID,
@@ -344,8 +348,11 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 	// 	return totalUploadedSize, err
 	// }
 
-	objInfo, err := f.fs.Router.MultipartComplete(f.ctx, f.node, multipartID, completeParts)
+	if len(completeParts) == 0 || written == 0  {
+		return 0, nil
+	}
 
+	objInfo, err := f.fs.Router.MultipartComplete(f.ctx, f.node, multipartID, completeParts)
 	if err != nil {
 		if f.createErrorCallback != nil {
 			if e := f.createErrorCallback(); e != nil {

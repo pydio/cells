@@ -11,9 +11,11 @@
     div.tree-item-label{
       padding: 10px 6px;
       cursor: pointer;
+      height: 40px;
       .tree-icon{
         padding: 0 8px;
-        &.icon-angle-right, &.icon-angle-down{
+        font-size: 16px;
+        &.mdi.mdi-chevron-right, &.mdi.mdi-chevron-down, &.mdi.mdi-menu-right, &.mdi.mdi-menu-down {
           padding-right: 0;
           font-size: 16px;
           width: 20px;
@@ -23,16 +25,19 @@
             visibility: hidden;
           }
         }
+        &.mdi.mdi-menu-right, &.mdi.mdi-menu-down{
+          font-size: 18px;
+        }
       }
     }
     &.mui-is-selected{
       div.tree-item-label{
-        color: darken(@applicationPrimaryLightFont, 15);
+        //color: darken(@applicationPrimaryLightFont, 15);
       }
     }
+    transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
     &:hover{
-      div.tree-item-label{
-      }
+      background-color: var(--md-sys-color-hover-background)
     }
   }
 }

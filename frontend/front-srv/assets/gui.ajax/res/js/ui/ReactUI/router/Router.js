@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
 import {Switch} from 'react-router-dom';
 import {Router, Route} from 'react-router';
 import IndexRoute from 'react-router/lib/IndexRoute';

@@ -101,19 +101,20 @@ class WatchSelector extends React.Component{
 
     render(){
 
+        const {fullWidth} = this.props;
         const {value, mixed, saving} = this.state;
         const mm = Pydio.getInstance().MessageHash;
 
         if(saving){
             return (
-                <ModernSelectField value={"saving"} onChange={(e,i,v) => {}} disabled={true}>
+                <ModernSelectField value={"saving"} onChange={(e,i,v) => {}} disabled={true} fullWidth={fullWidth}>
                     <MenuItem value={"saving"} primaryText={mm['meta.watch.selector.saving'] + "..."}/>
                 </ModernSelectField>
             );
         }
 
         return (
-            <ModernSelectField value={mixed ?'mixed': value} onChange={(e,i,v) => {this.onSelectorChange(v)}}>
+            <ModernSelectField value={mixed ?'mixed': value} onChange={(e,i,v) => {this.onSelectorChange(v)}} fullWidth={fullWidth}>
                 {mixed && <MenuItem value={"mixed"} primaryText={mm['meta.watch.selector.mixed'] + "..."}/>}
                 <MenuItem value={""} primaryText={mm['meta.watch.selector.ignore']}/>
                 <MenuItem value={"META_WATCH_READ"} primaryText={mm['meta.watch.selector.read']}/>

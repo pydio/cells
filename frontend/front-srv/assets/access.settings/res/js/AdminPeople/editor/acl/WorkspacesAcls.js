@@ -23,8 +23,7 @@ import LangUtils from 'pydio/util/lang'
 import {WorkspaceServiceApi, RestSearchWorkspaceRequest, IdmWorkspaceSingleQuery} from 'cells-sdk';
 import WorkspaceAcl from './WorkspaceAcl'
 import Pydio from 'pydio'
-const PydioComponents = Pydio.requireLib('components');
-const {MaterialTable} = PydioComponents;
+const {MaterialTable} = Pydio.requireLib('components');
 
 class WorkspacesAcls extends React.Component{
 
@@ -67,7 +66,7 @@ class WorkspacesAcls extends React.Component{
         }];
 
         return (
-            <div className={"material-list"}>
+            <div style={{clear:'both'}} className={"material-list"}>
             <MaterialTable
                 data={workspaces}
                 columns={columns}

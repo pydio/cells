@@ -21,7 +21,8 @@ const PropTypes = require('prop-types');
 
 
 const React = require('react')
-const {IconButton, Popover} = require('material-ui')
+import Pydio from 'pydio'
+const {ThemedContainers:{Popover, IconButton}} = Pydio.requireLib('hoc')
 
 class IconButtonPopover extends React.Component{
 

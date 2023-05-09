@@ -145,7 +145,7 @@ export default createReactClass({
                 }
                 <div style={{position:'relative', margin: 10, fontSize:13}} className="dialoglegend">{messages['httpdownloader.4']}</div>
                 <div style={{minHeight: 160}}>
-                    <Paper zDepth={1} style={{marginBottom: 10, maxHeight: 300, overflowY: 'auto'}}>
+                    <Paper zDepth={0} style={{marginBottom: 10, borderRadius:'var(--md-sys-color-card-border-radius)', maxHeight: 300, overflowY: 'auto', backgroundColor:'var(--md-sys-color-surface-variant)'}}>
                         {items}
                         <div style={{paddingLeft: 24}}><TextField disabled={this.state.submitting} hintText={messages['httpdownloader.5'] + ' + Hit Enter'} value={this.state.currentURL} underlineShow={false} fullWidth={true} onChange={this._handleChangeCurrentURL} onKeyDown={this._handleAddURL} onBlur={this._handleAddURL} /></div>
                         <Divider />

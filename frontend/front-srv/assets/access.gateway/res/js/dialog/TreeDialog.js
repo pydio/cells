@@ -26,11 +26,62 @@ import LangUtils from 'pydio/util/lang';
 import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk';
 import PydioDataModel from "pydio/model/data-model";
 import {FontIcon, IconButton, MenuItem, Paper, Chip, Avatar, Divider} from "material-ui";
+import {muiThemeable} from 'material-ui/styles'
 
 const {ModernTextField, ModernSelectField} = Pydio.requireLib("hoc");
 const {FoldersTree} = Pydio.requireLib('components');
+const {ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot')
 
-const TreeDialog = createReactClass({
+let RecentLocations = ({pydio, recentPlaces, submitValue, dismiss, muiTheme}) => {
+    const {user} = pydio;
+    const styles = {};
+    if(muiTheme.userTheme === 'material') { // oldschool
+        styles.root = {borderBottom: '1px solid #e0e0e0', padding: '3px 7px 1px', backgroundColor: '#F6F6F8'}
+        styles.hint = {color: 'rgba(0,0,0,.3)', fontSize: 12}
+    } else {
+        styles.root = {backgroundColor:muiTheme.palette.mui3['surface-variant']}
+        styles.hint = {color: muiTheme.palette.mui3['on-surface-variant'], fontSize: 12}
+        styles.chipBG = muiTheme.palette.mui3['inverse-primary']
+        styles.avatarBG = muiTheme.palette.mui3['primary-container']
+        styles.avatarColor = muiTheme.palette.mui3['on-primary-container']
+    }
+    return (
+        <div style={styles.root}>
+            <div style={styles.hint}>{pydio.MessageHash['action.copymove.recent']}</div>
+            <div style={{display:'flex', flexWrap:'wrap', paddingTop: 2}}>{recentPlaces.map( p => {
+                const [ws, path] = p.split(":")
+                let avatar;
+                let tooltip = path;
+                if(user && user.getRepositoriesList().has(ws)){
+                    // Show workspace letters
+                    const repo = user.getRepositoriesList().get(ws)
+                    avatar = (
+                        <Avatar
+                            backgroundColor={styles.avatarBG}
+                            color={styles.avatarColor}
+                            style={{fontSize: 12, height: 24, width: 24, fontWeight:500}}
+                        >{repo.getLettersBadge()}</Avatar>
+                    );
+                    tooltip = repo.getLabel() + path;
+                }
+                return <Chip
+                    style={{margin:'0 3px 4px 0'}}
+                    labelStyle={{lineHeight:'24px'}}
+                    backgroundColor={styles.chipBG}
+                    title={tooltip}
+                    onClick={() => {
+                        submitValue(path, ws);
+                        dismiss();
+                    }}
+                >{avatar}{path}</Chip>
+            })}</div>
+        </div>
+    )
+}
+
+RecentLocations = muiThemeable()(RecentLocations)
+
+let TreeDialog = createReactClass({
 
     propTypes:{
         isMove:PropTypes.bool.isRequired,
@@ -38,9 +89,9 @@ const TreeDialog = createReactClass({
     },
 
     mixins:[
-        PydioReactUI.ActionDialogMixin,
-        PydioReactUI.CancelButtonProviderMixin,
-        PydioReactUI.SubmitButtonProviderMixin
+        ActionDialogMixin,
+        CancelButtonProviderMixin,
+        SubmitButtonProviderMixin
     ],
 
     getDefaultProps(){
@@ -99,7 +150,8 @@ const TreeDialog = createReactClass({
                 startPath = pydio.getContextHolder().getContextNode().getPath();
             }
         }
-        const dm = PydioDataModel.RemoteDataModelFactory(repoId ? {tmp_repository_id:repoId} : {}, repoLabel);
+        const modelProperties = {filters:{type:'COLLECTION'}}
+        const dm = PydioDataModel.RemoteDataModelFactory(repoId ? {...modelProperties, tmp_repository_id:repoId} : modelProperties, repoLabel);
         const root = dm.getRootNode();
         if(repoId) {
             root.getMetadata().set('repository_id', repoId);
@@ -263,17 +315,18 @@ const TreeDialog = createReactClass({
     },
 
     render(){
-        const {pydio} = this.props;
+        const {pydio, submitValue} = this.props;
         const {newFolderFormOpen, dataModel, newFolderInput} = this.state;
 
         const wsSelector = this.buildWsSelector();
-        const recentPlaces = this.buildRecentLocations();
 
         return (
             <div style={{width:'100%'}}>
-                {recentPlaces}
+                {TreeDialog.RecentPlaces && TreeDialog.RecentPlaces.length > 0 &&
+                    <RecentLocations recentPlaces={TreeDialog.RecentPlaces} pydio={pydio} submitValue={submitValue} dismiss={()=>this.dismiss()}/>
+                }
                 {wsSelector}
-                <Paper zDepth={0} style={{height: 300, overflowX:'auto', color: '#546E7A', fontSize: 14, padding: '6px 0px', backgroundColor: 'rgb(246, 246, 248)', marginTop:4, borderBottom:'1px solid #e0e0e0', borderRadius:'2px 2px 0 0'}}>
+                <Paper zDepth={0} style={{height: 300, overflowX:'auto', color: 'var(--md-sys-color-on-surface-variant)', fontSize: 14, padding: '6px 0px', backgroundColor: 'var(--md-sys-color-surface-variant)', marginTop:4, borderBottom:'1px solid #e0e0e0', borderRadius:'2px 2px 0 0'}}>
                     <div style={{marginTop: -6, marginLeft: -5}}>
                         <FoldersTree
                             pydio={pydio}
@@ -283,8 +336,13 @@ const TreeDialog = createReactClass({
                             draggable={false}
                             rootLabel={pydio.MessageHash['action.copymove.root']}
                             getItemStyle={(node) => {
+                                // Selected case
                                 if(dataModel.getContextNode() === node){
-                                    return {fontWeight: 500, backgroundColor:'#ebebef'}
+                                    return {
+                                        fontWeight: 500,
+                                        backgroundColor:'var(--md-sys-color-secondary)',
+                                        color: 'var(--md-sys-color-on-secondary)'
+                                    }
                                 }
                                 return {}
                             }}
@@ -292,7 +350,7 @@ const TreeDialog = createReactClass({
                                 if(dataModel.getContextNode() === node){
                                     return (<IconButton
                                         iconClassName="mdi mdi-folder-plus"
-                                        style={{height:18, width:18, padding: 0, marginRight:-15}}
+                                        style={{height:18, width:18, padding: 0, marginRight:0}}
                                         iconStyle={{opacity:.5, fontSize: 18}}
                                         tooltip={pydio.MessageHash[154]}
                                         tooltipPosition={"bottom-left"}
@@ -331,7 +389,7 @@ const TreeDialog = createReactClass({
                     />
                     <div style={{position:"absolute", bottom:-2, right:0}}>
                         <IconButton iconClassName="mdi mdi-check" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[48]} onClick={() => {this.createNewFolder() }}/>
-                        <IconButton iconClassName="mdi mdi-close" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[49]} onClick={() => this.toggleNewFolderForm()}/>
+                        <IconButton iconClassName="mdi mdi-close" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[54]} onClick={() => this.toggleNewFolderForm()}/>
                     </div>
                 </Paper>
             </div>

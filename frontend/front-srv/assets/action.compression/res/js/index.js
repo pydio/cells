@@ -82,7 +82,7 @@ let CompressionDialog = createReactClass({
         return [
             <FlatButton
                 key="cancel"
-                label={this.props.pydio.MessageHash['49']}
+                label={this.props.pydio.MessageHash['54']}
                 primary={false}
                 onClick={() => this.dismiss()}
             />,
@@ -170,6 +170,7 @@ let CompressionDialog = createReactClass({
                         value={fileName}
                         floatingLabelText={messages['compression.4']}
                         floatingLabelStyle={flStyle}
+                        variant={"v2"}
                     />
                     <ModernSelectField
                         style={{width: 160}}
@@ -177,6 +178,7 @@ let CompressionDialog = createReactClass({
                         value={compression}
                         floatingLabelText={messages['compression.3']}
                         floatingLabelStyle={flStyle}
+                        variant={"v2"}
                     >{formatMenus}</ModernSelectField>
                 </div>
                 {err && <div style={{color:'#e53935'}}>{err}</div>}

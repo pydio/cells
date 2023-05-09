@@ -1022,32 +1022,8 @@
   "402": {
     "other": "http://www.hjsplit.org/"
   },
-  "403": {
-    "other": "Preferências WebDAV"
-  },
-  "404": {
-    "other": "WebDAV é um protocolo que lhe permite montar as áreas de trabalho APPLICATION_TITLE como uma 'unidade de rede' diretamente no seu computador. Para ativar esse recurso, marque a caixa abaixo, e digite sua senha, se necessário."
-  },
-  "405": {
-    "other": "Qualquer cliente WebDAV irá pedir um endereço, um login e uma senha. Utilize a URL abaixo, juntamente com o seu login e senha."
-  },
-  "406": {
-    "other": "Ativar compartilhamento WebDAV"
-  },
-  "407": {
-    "other": "Digite sua senha se é a primeira vez que você está ativando compartilhamentos WebDAV, ou se você quiser re-digite uma nova senha:"
-  },
-  "408": {
-    "other": "Compartilhamentos WebDAV ativados com sucesso"
-  },
-  "409": {
-    "other": "Compartilhamentos WebDAV desativados com sucesso"
-  },
   "41": {
     "other": "foi renomeado para"
-  },
-  "410": {
-    "other": "Senha WebDAV atualizada com sucesso"
   },
   "411": {
     "other": "Abrir"
@@ -1275,7 +1251,7 @@
     "other": "Esqueceu sua senha?"
   },
   "48": {
-    "other": "OK"
+    "other": "Ok"
   },
   "480": {
     "other": "Procurar em todas as pastas da área de trabalho atual."
@@ -1308,7 +1284,7 @@
     "other": "Metadados"
   },
   "49": {
-    "other": "CANCELAR"
+    "other": "Cancel"
   },
   "490": {
     "other": "Intervalo de datas"
@@ -1324,6 +1300,9 @@
   },
   "494": {
     "other": "Ontem"
+  },
+  "494t": {
+    "other": "Tomorrow"
   },
   "495": {
     "other": "Última semana"
@@ -1678,6 +1657,9 @@
   },
   "599": {
     "other": "Adicionar um usuário"
+  },
+  "599-a": {
+    "other": "All Results"
   },
   "6": {
     "other": "Renomear"
@@ -2321,6 +2303,9 @@
   "addressbook.pick.group": {
     "other": "Selecionar grupo"
   },
+  "addressbook.pick.multiple": {
+    "other": "Multiple Selection"
+  },
   "confirm.dialog.title": {
     "other": "Confirmar"
   },
@@ -2359,6 +2344,27 @@
   },
   "searchengine.scope.title": {
     "other": "Search In..."
+  },
+  "searchengine.share.title": {
+    "other": "Shared"
+  },
+  "searchengine.share.hint": {
+    "other": "No status"
+  },
+  "searchengine.share.option.link": {
+    "other": "Public Link"
+  },
+  "searchengine.share.option.cell": {
+    "other": "Shared in Cell"
+  },
+  "searchengine.share.option.any": {
+    "other": "Public Link or Cell"
+  },
+  "searchengine.format.title": {
+    "other": "Format"
+  },
+  "searchengine.format.file-only": {
+    "other": "Files Only"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "Advanced Filters"
@@ -2410,6 +2416,9 @@
   },
   "searchengine.complete.activefilters": {
     "other": "Filters:"
+  },
+  "searchengine.complete.activefilters-edit": {
+    "other": "Click to modify"
   },
   "chat.load-older": {
     "other": "Older entries"

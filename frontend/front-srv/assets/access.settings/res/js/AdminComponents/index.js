@@ -42,7 +42,12 @@ import FakeGraph from "./cards/FakeGraph";
 
 import {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader} from './styles/PaperEditor'
 
-window.AdminComponents = {
+import '../../css/ajxp_admin.less'
+import '../../css/codemirror.less'
+import '../../css/codemirror-hints.less'
+import '../../css/rolesEditor.less'
+
+export {
     AdminDashboard,
     SimpleDashboard,
     GridDashboard,

@@ -107,22 +107,15 @@ class JobsStore extends Observable {
             this.localJobs.forEach(j => {
                 this.tasksList.set(j.ID, j);
             });
-            return new Promise((resolve,reject) => {
-                const api = new JobsServiceApi(PydioApi.getRestClient());
-                const request = new JobsListJobsRequest();
-                request.LoadTasks = JobsTaskStatus.constructFromObject('Running');
-                api.userListJobs(request).then(result => {
-                    this.loaded = true;
-                    if( result.Jobs ){
-                        result.Jobs.map(job => {
-                            this.tasksList.set(job.ID, job);
-                        });
-                    }
-                    resolve(this.tasksList);
-                }).catch(reason => {
-                    reject(reason)
-                });
-            });
+            const api = new JobsServiceApi(PydioApi.getRestClient());
+            const request = new JobsListJobsRequest();
+            request.LoadTasks = JobsTaskStatus.constructFromObject('Running');
+            return api.userListJobs(request).then(result => {
+                this.loaded = true;
+                const jj = result.Jobs || []
+                jj.map(job => this.tasksList.set(job.ID, job));
+                return this.tasksList
+            })
         } else {
             this.localJobs.forEach(j => {
                 this.tasksList.set(j.ID, j);

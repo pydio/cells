@@ -31,10 +31,12 @@ const {ActionDialogMixin, CancelButtonProviderMixin} = Pydio.requireLib('boot');
 class ThemedTitle extends React.Component{
     render(){
         const {getMessage, muiTheme} = this.props;
-        const bgColor = muiTheme.palette.primary1Color;
+        const backgroundColor = muiTheme.palette.mui3?muiTheme.palette.mui3['secondary-container']:muiTheme.palette.primary1Color;
+        const color = muiTheme.palette.mui3?muiTheme.palette.mui3['on-secondary-container']:'white';
+        const br = muiTheme.borderRadius
         return (
-            <div style={{backgroundColor: bgColor, color: 'white', padding:'0 24px 24px'}}>
-                <h3 style={{color:'white'}}>{getMessage('14')}</h3>
+            <div style={{backgroundColor, color, borderRadius: `${br}px ${br}px 0 0`, padding:24}}>
+                <h3 style={{color, fontSize: 20, marginBottom: 16}}>{getMessage('14')}</h3>
                 <div className="legend">{getMessage('15')}</div>
             </div>
         );

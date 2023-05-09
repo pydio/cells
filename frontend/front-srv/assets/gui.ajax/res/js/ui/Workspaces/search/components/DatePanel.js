@@ -20,9 +20,10 @@
 
 import React from 'react';
 import Pydio from 'pydio';
-const {ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
+import {muiThemeable} from 'material-ui/styles'
+const {ModernSelectField, ThemedModernStyles, DatePicker} = Pydio.requireLib('hoc');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
-import {MenuItem, DatePicker} from 'material-ui';
+import {MenuItem} from 'material-ui';
 
 class SearchDatePanel extends React.Component {
 
@@ -138,7 +139,7 @@ class SearchDatePanel extends React.Component {
         const today = new Date();
 
         const {datePickerGroup, datePicker, dateClose} = SearchDatePanel.styles;
-        const {inputStyle, getMessage, values, name} = this.props;
+        const {inputStyle, getMessage, values, name, muiTheme} = this.props;
         let {value, startDate, endDate} = this.state;
 
         if(!value && values[name]) {
@@ -147,12 +148,16 @@ class SearchDatePanel extends React.Component {
             endDate = values[name].to
         }
 
+        const ModernStyles = ThemedModernStyles(muiTheme)
+        const leftInputStyle = {...ModernStyles.textFieldV1Search.inputStyle, borderRadius : ModernStyles.v1SearchRadiusLeft}
+
         return (
             <div>
                 <div>
                     <DatePickerFeed pydio={this.props.pydio}>
                     {items =>
                         <ModernSelectField
+                            {...ModernStyles.selectFieldV1Search}
                             hintText={getMessage(490)}
                             value={value}
                             fullWidth={true}
@@ -166,7 +171,8 @@ class SearchDatePanel extends React.Component {
                     <div style={{...datePickerGroup, ...inputStyle}}>
                         <div style={{...datePicker, marginRight: 2}}>
                             <DatePicker
-                                {...ModernStyles.textField}
+                                {...ModernStyles.textFieldV1Search}
+                                inputStyle={leftInputStyle}
                                 fullWidth={true}
                                 value={startDate}
                                 onChange={(e, date) => this.setState({startDate: date})}
@@ -180,7 +186,7 @@ class SearchDatePanel extends React.Component {
                         </div>
                         <div style={{...datePicker, marginLeft: 2}}>
                             <DatePicker
-                                {...ModernStyles.textField}
+                                {...ModernStyles.textFieldV1Search}
                                 fullWidth={true}
                                 value={endDate}
                                 onChange={(e, date) => this.setState({endDate: date})}
@@ -215,6 +221,7 @@ let DatePickerFeed = ({pydio, getMessage, children}) => {
     return children(items)
 };
 
+SearchDatePanel = muiThemeable()(SearchDatePanel)
 SearchDatePanel = PydioContextConsumer(SearchDatePanel);
 DatePickerFeed = PydioContextConsumer(DatePickerFeed);
 export default SearchDatePanel

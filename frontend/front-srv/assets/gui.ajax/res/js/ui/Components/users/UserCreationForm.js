@@ -56,18 +56,19 @@ class UserCreationForm extends React.Component{
             name            : "new_password",
             scope           : "user",
             type            : "valid-password",
-            mandatory       : true
+            mandatory       : true,
+            direction       : 'column'
         });
 
-        const params = global.pydio.getPluginConfigs('auth').get('NEWUSERS_EDIT_PARAMETERS').split(',');
+        const params = pydio.getPluginConfigs('auth').get('NEWUSERS_EDIT_PARAMETERS').split(',');
         for(let i=0;i<params.length;i++){
             params[i] = "user/preferences/pref[@exposed]|//param[@name='"+params[i]+"']";
         }
         const xPath = params.join('|');
-        Manager.parseParameters(this.props.pydio.getXmlRegistry(), xPath).map(function(el){
+        Manager.parseParameters(pydio.getXmlRegistry(), xPath).map(function(el){
             basicParameters.push(el);
         });
-        if(!editMode){
+        if(!editMode && pydio.Parameters.get('validMailer')){
             basicParameters.push({
                 description : MessageHash['536'],
                 editable    : "true",
@@ -107,7 +108,7 @@ class UserCreationForm extends React.Component{
         if(!userPrefix || newUserName.startsWith(userPrefix)) userPrefix = '';
         let values = {
             new_password:'',
-            send_email:true
+            send_email:pydio.Parameters.get('validMailer')
         };
         if(editMode && userData && userData.IdmUser){
             const {IdmUser} = userData;
@@ -157,7 +158,7 @@ class UserCreationForm extends React.Component{
     }
 
     render(){
-        const {pydio, editMode} = this.props;
+        const {pydio, editMode, formShowLegends=true} = this.props;
         let status = this.state.valid;
         if(!status && editMode && !this.state.values['new_password']){
             status = true;
@@ -172,13 +173,13 @@ class UserCreationForm extends React.Component{
                     values={this.state.values}
                     onChange={this.onValuesChange.bind(this)}
                     onValidStatusChange={this.changeValidStatus.bind(this)}
-                    style={{overflowY: 'auto', flex:1}}
+                    panelStyle={{overflowY: 'auto', flex:1}}
                     variant={"v2"}
-                    variantShowLegend={true}
+                    variantShowLegend={formShowLegends}
                 />
                 <Divider style={{flexShrink:0}}/>
                 <div style={{padding:8, textAlign:'right'}}>
-                    <FlatButton label={pydio.MessageHash[49]} onClick={this.cancelCreationForm.bind(this)} />
+                    <FlatButton label={pydio.MessageHash[54]} onClick={this.cancelCreationForm.bind(this)} />
                     <FlatButton label={this.props.editMode ? pydio.MessageHash[519] : pydio.MessageHash[484]} primary={true} onClick={this.submitCreationForm.bind(this)} disabled={!status} />
                 </div>
             </Paper>

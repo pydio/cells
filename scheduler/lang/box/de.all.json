@@ -29,6 +29,9 @@
   "Jobs.Default.CleanOrphanFiles": {
     "other": "Löschen von verwaisten Dateien nach 24 Stunden"
   },
+  "Jobs.Default.CleanExpiredACLs": {
+    "other": "Löschen abgelaufener ACLs nach 10 Tagen"
+  },
   "Jobs.User.Compress": {
     "other": "Auswahl wird komprimiert..."
   },

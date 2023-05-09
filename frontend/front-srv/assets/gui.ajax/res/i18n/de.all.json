@@ -1,18 +1,18 @@
 {
   "tour.create-menu": {
-    "other": "Fügen Sie Dateien oder Ordner zur aktuellen Arbeitsumgebung hinzu."
+    "other": "Fügen Sie Dateien oder Ordner zu den aktuellen Workspace hinzu."
   },
   "tour.create-menu.title": {
     "other": "Dateien hinzufügen"
   },
   "tour.display-bar": {
-    "other": "Mit dieser Toolbar können Sie die Ansicht umschalten: Von Vorschau auf Details wechseln oder die Dateien nach Namen oder Datum sortieren, etc..."
+    "other": "Diese Symbolleiste ermöglicht es Ihnen, die Anzeige zu ändern: Wechseln Sie je nach Bedarf zwischen Miniaturansicht oder Detailansicht und sortieren Sie Dateien nach Name, Datum usw..."
   },
   "tour.display-bar.title": {
     "other": "Anzeigeeinstellungen"
   },
   "tour.globsearch.1": {
-    "other": "Hier können Sie Dateien oder Ordner aller Arbeitsumgebungen finden. Es werden nur die ersten fünf Ergebnisse angezeigt. Öffnen Sie eine Arbeitsumgebung für mehr Ergebnisse und Sucheinstellungen."
+    "other": "Verwenden Sie dieses Suchformular, um Dateien oder Ordner in jedem Workspace und Cells zu finden. Nur die ersten 5 Ergebnisse werden angezeigt, betreten Sie einen Workspace, um mehr Ergebnisse und weitere Suchoptionen zu erhalten."
   },
   "tour.globsearch.2": {
     "other": "Wenn kein Suchbegriff eingegeben ist werden die zuletzt geöffneten Dateien und Ordner angezeigt."
@@ -54,16 +54,16 @@
     "other": "Überspringen"
   },
   "tour.openworkspace": {
-    "other": "Bei der ersten Verbindung ist Ihre Historie leer. Öffnen Sie eine Arbeitsumgebung oder ein Cell um Dateien hinzuzufügen."
+    "other": "Bei der ersten Verbindung ist Ihre Historie leer. Öffnen Sie einen Workspace oder ein Cell um Dateien hinzuzufügen."
   },
   "tour.openworkspace.title": {
-    "other": "Eine Arbeitsumgebung öffnen"
+    "other": "Einen Workspace öffnen"
   },
   "tour.uwidget.addressbook": {
-    "other": "Verzeichnis aller Benutzer mit Zugriff auf diese Plattform. Erstellen Sie eigene Benutzer und Teams, um Elemente freizugeben"
+    "other": "Verzeichnis aller Benutzer mit Zugriff auf diese Plattform. Erstellen Sie eigene Benutzer und Teams, um Elemente zuteilen"
   },
   "tour.uwidget.alerts": {
-    "other": "Der Benachrichtigungs-Bereich informiert Sie, wenn ein Benutzer auf eine freigegebene Datei zugreift. Benachrichtigungen können auch per E-Mail an Sie versendet werden."
+    "other": "Der Benachrichtigungs-Bereich informiert Sie, wenn ein Benutzer auf eine geteilte Datei zugreift. Benachrichtigungen können auch per E-Mail an Sie versendet werden."
   },
   "tour.uwidget.home": {
     "other": "Wechseln Sie mit diesem Button auf die Willkommen-Seite."
@@ -93,13 +93,34 @@
     "other": "Widgets"
   },
   "tour.workspaces.1": {
-    "other": "Arbeitsumgebungen sind die obersten Ordner, mit denen Sie Ihre Daten organisieren können. Sie können nur durch Sie zugegriffen oder freigegeben werden."
+    "other": "Workspaces sind die obersten Ordner, mit denen Sie Ihre Daten organisieren können. Sie können nur durch Sie zugegriffen oder geteilt werden."
   },
   "tour.workspaces.2": {
-    "other": "Zellen sind gemeinsame Räume, die Sie mit anderen Benutzern teilen können. Erstellen Sie Ihre eigenen Zellen basierend auf einem Ordner, einem Benutzerteam oder einem relevanten Thema."
+    "other": "Cells sind gemeinsame Räume, die Sie mit anderen Benutzern teilen können. Erstellen Sie Ihre eigenen Cells basierend auf einem Ordner, einem Benutzerteam oder einem relevanten Thema."
   },
   "tour.workspaces.title": {
-    "other": "Arbeitsumgebungen & Zellen"
+    "other": "Workspaces & Cells"
+  },
+  "tour.theme.title": {
+    "other": "Unterstützung von hellen/dunklen Themen"
+  },
+  "tour.theme.legend": {
+    "other": "Wählen Sie ein helles oder dunkles Thema, das am besten zu Ihrer Vision passt."
+  },
+  "tour.left-resize.title": {
+    "other": "Workspaces und Cells"
+  },
+  "tour.left-resize.legend": {
+    "other": "Die linke Spalte kann in der Größe verändert oder geschlossen werden, um sie an Ihren Bildschirm anzupassen."
+  },
+  "tour.right-resize.legend": {
+    "other": "Die rechte Spalte kann auch in der Größe verändert oder geschlossen werden, um sie an Ihren Bildschirm anzupassen."
+  },
+  "tour.directory.title": {
+    "other": "Benutzerverzeichnis"
+  },
+  "tour.directory.legend": {
+    "other": "Verwalten Sie Benutzer (intern und extern) und Teams an einem zentralen Ort."
   },
   "background.jobs.title": {
     "other": "Hintergrundjobs"
@@ -220,5 +241,38 @@
   },
   "fastsearch.quick-copy.legend": {
     "other": "Drücken Sie [Enter], um %s ausgewählte Elemente in das Ziel zu kopieren, [Esc] zum Schließen"
+  },
+  "wslist-options.title": {
+    "other": "Anzeigeoptionen"
+  },
+  "wslist-options.show-masked": {
+    "other": "Maskierte Elemente anzeigen"
+  },
+  "wslist.action.mask": {
+    "other": "Masken"
+  },
+  "wslist.action.unmask": {
+    "other": "Demaskieren"
+  },
+  "wslist-options.merge-workspaces": {
+    "other": "Workspaces und Cells zusammenlegen"
+  },
+  "wslist-options.own-cells-first": {
+    "other": "Von mir erstellte Cells zuerst"
+  },
+  "leftrail.buttons.home": {
+    "other": "Hauptseite"
+  },
+  "leftrail.buttons.directory": {
+    "other": "Verzeichnis"
+  },
+  "leftrail.buttons.all-files": {
+    "other": "Alle Dateien"
+  },
+  "leftrail.buttons.theme.light": {
+    "other": "Hellmodus"
+  },
+  "leftrail.buttons.theme.dark": {
+    "other": "Dunkelmodus"
   }
 }

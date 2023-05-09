@@ -18,7 +18,7 @@
     "other": "Aktion für %s auswählen..."
   },
   "drop.cell.share.legend": {
-    "other": "Neue Element zu dieser Zelle hinzufügen"
+    "other": "Neue Element zu dieser Cell hinzufügen"
   },
   "drop.cell.copymove.legend": {
     "other": "Innerhalb %s"

@@ -33,7 +33,8 @@ import Pydio from 'pydio'
 import ShareHelper from '../main/ShareHelper'
 import PublicLinkSecureOptions, {SecureOptionsTitle} from "./SecureOptions";
 const {ValidPassword} = Pydio.requireLib('form');
-const {ModernStyles} = Pydio.requireLib('hoc');
+const {ThemedModernStyles} = Pydio.requireLib('hoc');
+import {muiThemeable} from 'material-ui/styles'
 
 export class PaneToggler extends React.Component {
     constructor(props) {
@@ -141,12 +142,18 @@ class PublicLinkPanel extends React.Component {
 
     render() {
 
-        const {linkModel, pydio, compositeModel, toggleOnly, additionalPanes} = this.props;
+        const {linkModel, pydio, compositeModel, toggleOnly, additionalPanes, muiTheme} = this.props;
         const {showTemporaryPassword, temporaryPassword, saving} = this.state;
         const authorizations = ShareHelper.getAuthorizations();
         const nodeLeaf = compositeModel.getNode().isLeaf();
         const canEnable = (nodeLeaf && authorizations.file_public_link) || (!nodeLeaf && authorizations.folder_public_link);
-        const dividerStyle={backgroundColor:'#eee'}
+        const legendStyle ={
+            fontSize:13,
+            fontWeight:500,
+            color:muiTheme.palette.mui3['on-surface-variant'],
+            padding: 8,
+            paddingTop: 0
+        }
 
         let publicLinkPanes, publicLinkField;
         let linkEnabled;
@@ -158,13 +165,14 @@ class PublicLinkPanel extends React.Component {
             publicLinkField = (<PublicLinkField
                 pydio={pydio}
                 linkModel={linkModel}
+                compositeModel={compositeModel}
                 showMailer={this.props.showMailer}
                 editAllowed={authorizations.editable_hash && linkModel.isEditable()}
                 onDisableLink={disableLink}
                 key="public-link"
             />);
             publicLinkPanes = [
-                <Divider style={dividerStyle}/>,
+                <Divider/>,
                 <PaneToggler {...PermissionsTitle(compositeModel, linkModel, this.props.getMessage)}>
                     <PublicLinkPermissions
                         compositeModel={compositeModel}
@@ -175,10 +183,10 @@ class PublicLinkPanel extends React.Component {
                 </PaneToggler>
             ];
             if(linkModel.getLink().TargetUsers) {
-                publicLinkPanes.push(<Divider style={dividerStyle}/>);
+                publicLinkPanes.push(<Divider/>);
                 publicLinkPanes.push(<TargetedUsers linkModel={linkModel} pydio={pydio}/>);
             }
-            publicLinkPanes.push(<Divider style={dividerStyle}/>)
+            publicLinkPanes.push(<Divider/>)
             publicLinkPanes.push(
                 <PaneToggler {...SecureOptionsTitle(compositeModel, linkModel, this.props.getMessage)}>
                     <PublicLinkSecureOptions pydio={pydio} linkModel={linkModel}/>
@@ -187,7 +195,7 @@ class PublicLinkPanel extends React.Component {
 
             if(additionalPanes) {
                 additionalPanes.forEach(pane => {
-                    publicLinkPanes.push(<Divider style={dividerStyle}/>)
+                    publicLinkPanes.push(<Divider/>)
                     publicLinkPanes.push(<PaneToggler title={pane.title} legend={pane.legend}>{pane.content}</PaneToggler>);
                 })
             }
@@ -212,13 +220,11 @@ class PublicLinkPanel extends React.Component {
             );
         } else if (!canEnable) {
             publicLinkField = (
-                <div style={{fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)', paddingBottom: 16, paddingTop: 16}}>
-                    {this.props.getMessage(nodeLeaf ? '225' : '226')}
-                </div>
+                <div style={legendStyle}>{this.props.getMessage(nodeLeaf ? '225' : '226')}</div>
             );
         }else{
             publicLinkField = (
-                <div style={{fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)', paddingBottom: 16, paddingTop: 16}}>{this.props.getMessage('190')}</div>
+                <div style={legendStyle}>{this.props.getMessage('190')}</div>
             );
         }
 
@@ -232,7 +238,7 @@ class PublicLinkPanel extends React.Component {
                         onToggle={this.toggleLink}
                         toggled={linkModel.getLinkUuid() || showTemporaryPassword}
                         label={this.props.getMessage('189')}
-                        {...ModernStyles.toggleFieldV2}
+                        {...ThemedModernStyles(muiTheme).toggleFieldV2}
                     />
                     </div>
                 }
@@ -244,5 +250,5 @@ class PublicLinkPanel extends React.Component {
     }
 }
 
-PublicLinkPanel = ShareContextConsumer(PublicLinkPanel);
+PublicLinkPanel = ShareContextConsumer(muiThemeable()(PublicLinkPanel));
 export {PublicLinkPanel as default}

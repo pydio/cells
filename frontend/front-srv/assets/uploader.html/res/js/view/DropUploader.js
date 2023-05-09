@@ -96,10 +96,15 @@ class DropUploader extends React.Component {
     }
 
     toggleOptions(e) {
-        if (e.preventDefault) e.preventDefault();
+        if(!e) {
+            this.setState({showOptions: false, optionsAnchorEl: null})
+            return
+        }
 
-        const {showOptions = false, currentTarget} = this.state;
-
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        const {showOptions = false} = this.state;
         this.setState({
             showOptions: !showOptions,
             optionsAnchorEl: e.currentTarget,
@@ -168,16 +173,15 @@ class DropUploader extends React.Component {
         });
 
         return connectDropTarget(
-            <div style={{position:'relative', backgroundColor: '#FAFAFA'}}>
-                <div style={{position: 'relative', display:'flex', alignItems:'center', paddingLeft: 16, paddingRight: 16 , width: '100%'}}>
-                    <h3 style={{marginBottom: 16}}>{messages['html_uploader.dialog.title']}</h3>
-                    <IconButton iconClassName={"mdi mdi-dots-vertical"} primary={true} iconStyle={{fontSize: 18}} style={{padding:14}} tooltip={messages['html_uploader.options']} onClick={this.toggleOptions.bind(this)}/>
+            <div style={{position:'relative'}}>
+                <div style={{position: 'relative', display:'flex', alignItems:'center', paddingLeft: 16, paddingRight: 16, paddingTop: 8, width: '100%'}}>
+                    <h3 style={{marginBottom: 16, display:'none'}}>{messages['html_uploader.dialog.title']}</h3>
+                    <FlatButton icon={<FontIcon style={{fontSize:16}} className="mdi mdi-play"/>} label={messages['html_uploader.start']} onClick={this.start.bind(this)} disabled={store.isRunning() || !store.hasQueue()}/>
+                    <FlatButton icon={<FontIcon style={{fontSize:16}} className="mdi mdi-pause"/>} label={messages['html_uploader.pause']} onClick={this.pause.bind(this)} disabled={!store.isRunning()}/>
+                    <FlatButton icon={<FontIcon style={{fontSize:16}} className="mdi mdi-delete"/>} label={<span>{messages['html_uploader.clear']}<span className={"mdi mdi-menu-down"}/></span>} onClick={this.openClear.bind(this)} disabled={listEmpty}/>
+
                     <span style={{flex: 1}}/>
-
-                    <FlatButton icon={<FontIcon style={{fontSize:16}} className="mdi mdi-play"/>} label={messages['html_uploader.start']} onClick={this.start.bind(this)} primary={true} disabled={store.isRunning() || !store.hasQueue()}/>
-                    <FlatButton icon={<FontIcon style={{fontSize:16}} className="mdi mdi-pause"/>} label={messages['html_uploader.pause']} onClick={this.pause.bind(this)} primary={true} disabled={!store.isRunning()}/>
-                    <FlatButton icon={<FontIcon style={{fontSize:16}} className="mdi mdi-delete"/>} label={<span>{messages['html_uploader.clear']}<span className={"mdi mdi-menu-down"}/></span>} onClick={this.openClear.bind(this)} primary={true} disabled={listEmpty}/>
-
+                    <FlatButton primary={true} label={messages['html_uploader.options']} onClick={this.toggleOptions.bind(this)}/>
                     {showDismiss && <IconButton iconClassName={"mdi mdi-close"} style={{padding:14}} onClick={()=>onDismiss()}/>}
                 </div>
                 <FileDropZone
@@ -200,7 +204,7 @@ class DropUploader extends React.Component {
                         onPickFolder={this.supportsFolder() ? (ev) => {this.openFolderPicker(ev)} : null}
                     />
                 </FileDropZone>
-                <UploadOptionsPane configs={configs} open={showOptions} anchorEl={optionsAnchorEl} onDismiss={(e) => {this.toggleOptions(e);}}/>
+                <UploadOptionsPane configs={configs} open={showOptions} anchorEl={optionsAnchorEl} onDismiss={(e) => {this.toggleOptions();}}/>
                 <ClearOptionsPane configs={configs} open={showClear} anchorEl={clearAnchorEl} onDismiss={() => {this.setState({showClear: false, clearAnchorEl:null})}}/>
                 {confirmDialog && <ConfirmExists onConfirm={this.dialogSubmit.bind(this)} onCancel={this.dialogCancel.bind(this)}/>}
             </div>

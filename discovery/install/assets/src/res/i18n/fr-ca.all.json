@@ -63,31 +63,31 @@
     "other": "Une DataSource par défaut est créée au démarrage pour stocker les données personnelles des utilisateurs et les données des Cells. Vous pourrez créer d'autres DataSource plus tard."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "Configurer une connexion MongoDB"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "Ceci est recommandé pour la scalabilité, et nécessaire pour le déploiement en multi-noeuds. Si vous n'avez pas encore de MongoDB, vous pouvez faire cette configuration et basculer plus tard."
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "Hôte du serveur"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "Port du serveur"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "Base de données"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "Utilisateur"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "Mot de passe"
   },
   "advanced.mongo.authSource": {
-    "other": "Auth DB"
+    "other": "BD d'authentification"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "Tester la connexion"
   },
   "license.stepLabel": {
     "other": "Licence Entreprise"
@@ -117,7 +117,7 @@
     "other": "Lancer l'installation"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "Veuillez patienter pendant l'installation de Pydio Cells..."
   },
   "apply.success": {
     "other": "L'installation a été effectuée avec succès et les services sont en cours de démarrage, l'installateur rechargera la page lorsque les services auront été redémarrés."
@@ -225,7 +225,7 @@
     "other": "Amazon / Compatible S3 (stocker dans des buckets S3)"
   },
   "form.dsS3Custom.label": {
-    "other": "URL, append ?minio=true if Minio."
+    "other": "URL, ajouter ?minio=true pour Minio."
   },
   "form.dsS3Custom.legend": {
     "other": "Laissez vide pour AWS"

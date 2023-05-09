@@ -40,7 +40,7 @@ class Message extends React.Component {
 
         const styles = {
             date: {
-                color: 'rgba(0,0,0,.23)',
+                opacity: .53,
                 textAlign: 'center',
                 display: 'flex',
                 margin: '5px 0',
@@ -48,7 +48,8 @@ class Message extends React.Component {
             dateLine: {
                 flex: 1,
                 margin: '10px 20px',
-                borderBottom: '1px solid #eee'
+                borderBottom: '1px solid',
+                opacity: .3
             },
             loader: {
                 paddingTop: 8,
@@ -79,7 +80,6 @@ class Message extends React.Component {
                 right: 0,
                 cursor: 'pointer',
                 fontSize: 16,
-                color: '#424242',
                 opacity:0,
                 transition: DOMUtils.getBeziersTransition(),
             }

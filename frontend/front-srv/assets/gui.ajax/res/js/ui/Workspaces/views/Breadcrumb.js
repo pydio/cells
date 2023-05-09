@@ -23,7 +23,8 @@ const PydioNode = require('pydio/model/node')
 const {muiThemeable} = require('material-ui/styles')
 const LangUtils = require('pydio/util/lang')
 const {Textfit} = require('react-textfit')
-
+import Color from 'color'
+import {RefreshAction} from "./RefreshAction";
 
 class Breadcrumb extends React.Component {
     state = {node: null, minFit: false};
@@ -56,6 +57,14 @@ class Breadcrumb extends React.Component {
         }
     };
 
+    makeStyle(textColor) {
+        const shadow = Color(textColor).fade(0.6).toString();
+        return `
+        .react_breadcrumb span.segment:hover{ text-shadow: 0 0 1px ${shadow}; }
+        .react_breadcrumb span.segment.last:not(.first){ text-shadow: 0 0 1px ${shadow}; }
+        `
+    }
+
     render() {
         const {pydio, muiTheme, rootStyle} = this.props;
         const {node, minFit} = this.state;
@@ -63,14 +72,10 @@ class Breadcrumb extends React.Component {
             main: {
                 fontSize: 21,
                 height: 36,
-                lineHeight:'44px',
+                lineHeight:'40px',
                 padding: '0 20px',
                 color: muiTheme.appBar.textColor,
                 width: '100%'
-                /*
-                maxWidth: '72%',
-                flex:6
-                */
             }
         };
         if(!pydio.user){
@@ -91,16 +96,23 @@ class Breadcrumb extends React.Component {
         }
         const parts = path.split('/');
         parts.forEach(function(seg, i){
-            if(!seg) return;
+            if(!seg) {
+                return;
+            }
+            const last = (i===parts.length-1)
             rebuilt += '/' + seg;
             segments.push(<span key={'bread_sep_' + i} className="separator"> / </span>);
-            segments.push(<span key={'bread_' + i} className="segment" onClick={this.goTo.bind(this, rebuilt)}>{i===parts.length-1 ? label : seg}</span>);
+            segments.push(<span key={'bread_' + i} className={"segment"+(last?' last':'')} onClick={this.goTo.bind(this, rebuilt)}>{last ? label : seg}</span>);
         }.bind(this));
+
         return (
             <Textfit mode="single" min={12} max={22} className="react_breadcrumb" style={mainStyle} onReady={(f) => {this.toggleMinFit(f)}}>
                  {this.props.startWithSeparator && <span className="separator"> / </span>}
-                <span className="segment first" onClick={this.goTo.bind(this, '/')}>{repoLabel}</span>
+                <span className={"mdi mdi-folder-outline"} style={{fontSize:'0.9em', marginRight: 5}}/>
+                <span className={"segment first" + (segments.length ? '' : ' last')} onClick={this.goTo.bind(this, '/')}>{repoLabel}</span>
                 {segments}
+                <RefreshAction pydio={pydio} muiTheme={muiTheme}/>
+                <style type={"text/css"} dangerouslySetInnerHTML={{__html:this.makeStyle(mainStyle.color)}}/>
             </Textfit>
         );
     }

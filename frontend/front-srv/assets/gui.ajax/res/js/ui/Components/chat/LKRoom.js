@@ -1,26 +1,53 @@
-import React from 'react'
-import { LiveKitRoom} from 'livekit-react'
-import {createLocalAudioTrack, createLocalVideoTrack} from 'livekit-client/dist/livekit.js'
+import React, {useState} from 'react'
+import {
+    LiveKitRoom,
+    ConnectionState,
+    ControlBar,
+    GridLayout,
+    ParticipantTile,
+    RoomName,
+    TrackContext,
+    useTracks,
+} from '@livekit/components-react';
+import { Track } from 'livekit-client';
+
+function Stage() {
+    const cameraTracks = useTracks([Track.Source.Camera]);
+    const screenShareTrack = useTracks([Track.Source.ScreenShare])[0];
+
+    return (
+        <>
+            {screenShareTrack && <ParticipantTile {...screenShareTrack} />}
+            <GridLayout tracks={cameraTracks}>
+                <TrackContext.Consumer>{(track) => <ParticipantTile {...track} />}</TrackContext.Consumer>
+            </GridLayout>
+        </>
+    );
+}
 
 export const LKRoom = ({url, token, onRoomConnected, style, stageRenderer}) => {
+    const [connect, setConnect] = useState(true);
+    const [isConnected, setIsConnected] = useState(false);
+    const handleDisconnect = () => {
+        setConnect(false);
+        setIsConnected(false);
+    };
     return (
         <div className="roomContainer" style={{color:'white', ...style}}>
             <LiveKitRoom
-                url={url}
+                serverUrl={url}
                 token={token}
-                stageRenderer={stageRenderer}
-                onConnected={room => onConnected(room, onRoomConnected)}
-            />
+                connect={connect}
+                audio={true}
+                video={true}
+                onConnected={() => setIsConnected(true)}
+                onDisconnected={handleDisconnect}
+            >
+                <RoomName />
+                <ConnectionState />
+                {isConnected && <Stage />}
+                <ControlBar />
+            </LiveKitRoom>
         </div>
     )
-}
-
-async function onConnected(room, onRoomConnected) {
-    const audioTrack = await createLocalAudioTrack()
-    await room.localParticipant.publishTrack(audioTrack)
-    const videoTrack = await createLocalVideoTrack();
-    await room.localParticipant.publishTrack(videoTrack)
-    if(onRoomConnected) {
-        onRoomConnected(room)
-    }
 }

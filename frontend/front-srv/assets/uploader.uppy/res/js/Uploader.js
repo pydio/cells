@@ -19,6 +19,7 @@
  */
 import React from 'react'
 import PydioApi from 'pydio/http/api'
+import {muiThemeable} from 'material-ui/styles'
 const {Uppy:UppyObject, Webcam, Audio, ScreenCapture, Dashboard, AwsS3} = window.Uppy;
 
 import German from './locale/de_DE'
@@ -44,8 +45,18 @@ const locales = {
 }
 
 const customCSS = `
+.uppy-Container {
+    border-radius: 0 0 var(--md-sys-color-paper-border-radius) var(--md-sys-color-paper-border-radius);
+    overflow: hidden;
+}
+
+.uppy-Dashboard-inner {
+    background-color: 'transparent';
+    border: 0px;
+}
+
 .uppy-Dashboard-AddFiles {
-    background-color: rgb(245, 245, 245);
+    background: var(--md-sys-color-surface-4)
 }
 .uppy-DashboardContent-title{
     display:none;
@@ -63,7 +74,7 @@ const customCSS = `
 }
 `;
 
-export default class extends React.Component {
+class Uploader extends React.Component {
 
     constructor(props) {
         super(props)
@@ -80,7 +91,7 @@ export default class extends React.Component {
     }
 
     componentDidMount() {
-        const {pydio} = this.props;
+        const {pydio, muiTheme} = this.props;
         const configs = pydio.getPluginConfigs('uploader.uppy')
         const locale = this.getLocale(pydio.currentLanguage);
 
@@ -92,6 +103,7 @@ export default class extends React.Component {
                 disableLocalFiles: true,
                 proudlyDisplayPoweredByUppy: false,
                 locale,
+                theme: muiTheme.darkMode?'dark':'light'
             })
             .use(AwsS3, {
                 getUploadParameters: (file) => this.getUploadParameters(file)
@@ -155,4 +167,7 @@ export default class extends React.Component {
 
     }
 }
+
+Uploader = muiThemeable()(Uploader)
+export default Uploader
 

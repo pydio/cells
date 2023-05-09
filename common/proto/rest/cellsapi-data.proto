@@ -60,6 +60,12 @@ message GetBulkMetaRequest{
     int32 Offset = 5;
     // Limit number of results
     int32 Limit = 6;
+    // Remote Sort on specific field
+    string SortField = 7;
+    // Sort descending (otherwise ascending)
+    bool SortDirDesc = 8;
+    // Children Filtering
+    map<string,string> Filters = 9;
 }
 
 message BulkMetaResponse{

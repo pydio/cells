@@ -20,14 +20,16 @@
 
 import React from 'react'
 import {Toggle} from 'material-ui'
-const {ModernStyles} = Pydio.requireLib("hoc")
+import {muiThemeable} from 'material-ui/styles'
+const {ThemedModernStyles} = Pydio.requireLib("hoc")
 import asMetaForm from "../hoc/asMetaForm";
 
 class BooleanForm extends React.Component {
 
     render() {
-        const {updateValue, value, search} = this.props;
-        let sProps = {...ModernStyles.toggleField}
+        const {updateValue, value, search, muiTheme} = this.props;
+        const ModernStyles = ThemedModernStyles(muiTheme)
+        let sProps = {...ModernStyles.toggleFieldV1Search}
         let label = value ? 'Yes' : 'No'
         if(!search) {
             sProps = {...ModernStyles.toggleFieldV2}
@@ -53,4 +55,4 @@ class BooleanForm extends React.Component {
 
 }
 
-export default asMetaForm(BooleanForm);
+export default asMetaForm(muiThemeable()(BooleanForm));

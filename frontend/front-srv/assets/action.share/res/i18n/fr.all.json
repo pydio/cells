@@ -663,7 +663,10 @@
     "other": "Surveiller"
   },
   "34": {
-    "other": "Utilisateur existant ou nouveau"
+    "other": "Sélectionner ou Créer des utilisateurs"
+  },
+  "34b": {
+    "other": "Sélectionner des utilisateurs"
   },
   "35": {
     "other": "Libellé"
@@ -923,6 +926,24 @@
   "cell.add.new": {
     "other": "Créer une nouvelle cellule"
   },
+  "cell.participant.single": {
+    "other": "Un participant"
+  },
+  "cell.participant.multiple": {
+    "other": "%d participants"
+  },
+  "cell.participant.other.single": {
+    "other": "Un autre participant"
+  },
+  "cell.participant.other.multiple": {
+    "other": "%d autres participants"
+  },
+  "cell.folder-root.single": {
+    "other": "Un dossier"
+  },
+  "cell.folder-root.multiple": {
+    "other": "%d dossiers"
+  },
   "link.visibility.title": {
     "other": "[Avancé] Visibilité"
   },
@@ -964,5 +985,8 @@
   },
   "link.secure.maxdownloads": {
     "other": "%d téléchargements"
+  },
+  "minisite.toggle.theme": {
+    "other": "Changer l'affichage en mode sombre/clair"
   }
 }

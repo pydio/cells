@@ -102,7 +102,7 @@
     "other": "清除值"
   },
   "40": {
-    "other": "每个工作区参数"
+    "other": "Per-workspace parameters"
   },
   "41": {
     "other": "额外参数"
@@ -187,6 +187,12 @@
   },
   "workspace.statics.home.description": {
     "other": "登录后显示欢迎页面"
+  },
+  "workspace.statics.directory.title": {
+    "other": "Directory"
+  },
+  "workspace.statics.directory.description": {
+    "other": "Show address book full page (used by Mui3 Theme)"
   },
   "workspace.statics.settings.title": {
     "other": "管理控制台"

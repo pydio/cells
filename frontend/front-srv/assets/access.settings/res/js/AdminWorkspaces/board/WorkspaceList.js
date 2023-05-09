@@ -27,8 +27,7 @@ import Workspace from '../model/Ws'
 import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
-const PydioComponents = Pydio.requireLib('components');
-const {MaterialTable} = PydioComponents;
+const {MaterialTable} = Pydio.requireLib('components');
 
 export default createReactClass({
     displayName: 'WorkspaceList',

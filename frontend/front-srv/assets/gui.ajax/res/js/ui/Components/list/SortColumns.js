@@ -47,54 +47,54 @@ class SortColumns extends React.Component {
 
     getColumnsItems(displayMode, controller = null){
 
-        let items = [];
         const callback = () => {
             if(controller){
                 controller.notify('actions_refreshed');
             }
         };
+        const {tableKeys, sortingInfo} = this.props;
 
-        for(let key in this.props.tableKeys){
-            if(!this.props.tableKeys.hasOwnProperty(key)) {
-                continue;
-            }
-            let data = this.props.tableKeys[key];
+        return Object.keys(tableKeys).map(key => {
+            let data = tableKeys[key];
             let style = data['width']?{width:data['width']}:null;
             let icon;
             let className = 'cell header_cell cell-' + key;
+            let isActive;
             if(data['sortType']){
                 className += ' sortable';
-                if(this.props.sortingInfo && (
-                    this.props.sortingInfo.attribute === key
-                    || this.props.sortingInfo.attribute === data['sortAttribute']
-                    || this.props.sortingInfo.attribute === data['remoteSortAttribute'])){
-                    icon = this.props.sortingInfo.direction === 'asc' ? 'mdi mdi-sort-ascending' : 'mdi mdi-sort-descending';
-                    className += ' active-sort-' + this.props.sortingInfo.direction;
+                if(sortingInfo && ( sortingInfo.attribute === key || (sortingInfo.remote && data.remoteSortAttribute && sortingInfo.attribute === data.remoteSortAttribute))){
+                    icon = sortingInfo.direction === 'asc' ? 'mdi mdi-sort-ascending' : 'mdi mdi-sort-descending';
+                    className += ' active-sort-' + sortingInfo.direction;
+                    isActive = true
                 }
             }
             if(displayMode === 'menu') {
                 data['name'] = key;
-                items.push({
+                return {
                     payload: data,
                     text: data['label'],
                     iconClassName: icon
-                });
+                }
             }else if(displayMode === 'menu_data'){
-                items.push({
-                    name            : data['label'],
+                return {
+                    name            : (
+                        <span style={{display:'flex'}}>
+                            <span style={{flex:1, fontWeight:isActive?500:'inherit'}}>{data['label']}</span>
+                            {isActive && <span className={'mdi mdi-checkbox-marked-circle-outline'}/>}
+                        </span>),
                     callback        : () => { this.onHeaderClick(key, callback) },
                     icon_class      : icon || (data['sortType'] === 'number' ? 'mdi mdi-sort-numeric':'mdi mdi-sort-alphabetical')// '__INSET__'
-                });
+                }
             }else{
-                items.push(<span
+                return (<span
                     key={key}
                     className={className}
                     style={style}
                     onClick={ () => {this.onHeaderClick(key, callback)} }
                 >{data['label']}</span>);
             }
-        }
-        return items;
+
+        })
 
     }
 

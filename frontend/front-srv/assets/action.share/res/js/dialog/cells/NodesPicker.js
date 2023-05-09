@@ -18,10 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
-import {Popover, Avatar, List, ListItem, FontIcon, FlatButton, RaisedButton, IconButton, Divider, DropDownMenu, MenuItem} from 'material-ui'
+import Pydio from 'pydio'
+import {List, ListItem, FontIcon, FlatButton, RaisedButton, IconButton, Divider, DropDownMenu, MenuItem} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
-const {FoldersTree} = require('pydio').requireLib('components');
 import PydioDataModel from 'pydio/model/data-model'
+const {FoldersTree} = Pydio.requireLib('components');
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc');
 
 class NodesPicker extends React.Component{
 
@@ -117,9 +119,10 @@ class NodesPicker extends React.Component{
         return (
             <ListItem
                 disabled={true}
-                leftIcon={<FontIcon className={"mdi mdi-" + (node.Type === 'LEAF' ? 'file' : 'folder')}/>}
+                leftIcon={<FontIcon style={{fontSize:20, margin:'14px 12px'}} className={"mdi mdi-" + (node.Type === 'LEAF' ? 'file-outline' : 'folder-outline')}/>}
                 primaryText={model.getNodeLabelInContext(node)}
-                rightIconButton={<IconButton onClick={()=>{model.removeRootNode(node.Uuid);}} iconClassName="mdi mdi-delete" tooltip="Remove" iconStyle={{color:'rgba(0,0,0,.43)'}}/>}
+                innerDivStyle={{paddingLeft: 52, fontSize: 14, fontWeight: 500}}
+                rightIconButton={<IconButton onClick={()=>{model.removeRootNode(node.Uuid);}} iconClassName="mdi mdi-delete" tooltip="Remove" iconStyle={{color:'var(--md-sys-color-primary)'}}/>}
             />
         );
     }
@@ -132,41 +135,27 @@ class NodesPicker extends React.Component{
         let nodeLines = [], emptyStateString;
         nodes.map(node => {
             nodeLines.push(this.renderNodeLine(node));
-            nodeLines.push(<Divider inset={true}/>)
+            nodeLines.push(<Divider inset={false}/>)
         });
         nodeLines.pop();
-        if(!nodes.length){
-            if(mode === 'edit'){
-                emptyStateString = <span style={{color:'rgba(0,0,0,.54)', fontStyle:'italic'}}>{m(280)}</span>;
-            } else {
-                //emptyStateString = <span style={{color:'rgba(0,0,0,.54)', fontStyle:'italic'}}>{m(281)}</span>;
-            }
+        if(!nodes.length && mode === 'edit'){
+            emptyStateString = <div style={{fontStyle:'italic', padding: 20, textAlign:'center'}}>{m(280)}</div>;
         }
-        let pickButton;
-        if(mode === 'edit'){
-            pickButton = (<FlatButton
-                label={m(282)}
-                onClick={this.handleTouchTap.bind(this)}
-                primary={true}
-                style={{marginBottom: 10}}
-                icon={<FontIcon className={"mdi mdi-folder-plus"}/>}
-            />);
-        } else {
-            pickButton = (<RaisedButton
-                label={m(282)}
-                onClick={this.handleTouchTap.bind(this)}
-                primary={false}
-                style={{marginBottom: 10}}
-                icon={<FontIcon className={"mdi mdi-folder-plus"} style={{fontSize: 20, marginTop: -4}}/>}
-            />);
-        }
-        const {node, availableWs, crtWs} = this.state;
+        const pickButton = (<RaisedButton
+            label={m(282)}
+            onClick={this.handleTouchTap.bind(this)}
+            primary={mode==='edit'}
+            secondary={mode!=='edit'}
+            style={{marginBottom: 10, width:'100%'}}
+            icon={<FontIcon className={"mdi mdi-folder-plus"} style={{fontSize: 20, marginTop: -4}}/>}
+        />);
 
+        const {node, availableWs, crtWs} = this.state;
         return (
             <div>
-                {pickButton}
                 <List>{nodeLines}</List>
                 {emptyStateString}
+                {pickButton}
                 <Popover
                     open={this.state.open}
                     anchorEl={this.state.anchorEl}
@@ -185,7 +174,7 @@ class NodesPicker extends React.Component{
                             })}
                         </DropDownMenu>
                         <Divider/>
-                        <div style={{marginLeft: -26, flex:'1', overflowY: 'auto', fontSize: 15, color: 'rgba(0,0,0,.73)'}}>
+                        <div style={{marginLeft: -26, flex:'1', overflowY: 'auto', fontSize: 15}}>
                             <FoldersTree
                                 pydio={this.props.pydio}
                                 dataModel={this.state.dataModel}
@@ -195,13 +184,8 @@ class NodesPicker extends React.Component{
                             />
                         </div>
                         <Divider/>
-                        <div style={{display:'flex', padding:'4px 16px', alignItems:'center', fontSize: 15}}>
-                            {node &&
-                                <div style={{flex: 1, color:'rgba(0,0,0,.87)'}}>{node && node.getPath()}</div>
-                            }
-                            {!node &&
-                                <div style={{flex: 1, color:'rgba(0,0,0,.54)', fontWeight:500}}>{m(283)}</div>
-                            }
+                        <div style={{display:'flex', padding:'4px 16px', alignItems:'center', fontSize: 15, background:'var(--md-sys-color-surface-5)'}}>
+                            <div style={{flex: 1, opacity:(node && node.getPath()?1:0.5)}}>{(node && node.getPath())||m(283)}</div>
                             <IconButton iconStyle={{color:muiTheme.palette.primary1Color}} disabled={!node} iconClassName={"mdi mdi-plus-circle-outline"} onClick={this.onValidateNode.bind(this)}/>
                         </div>
                     </div>

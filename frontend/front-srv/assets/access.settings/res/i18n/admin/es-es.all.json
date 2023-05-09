@@ -1434,10 +1434,10 @@
     "other": "Especifique aquí los permisos de acceso por defecto para las carpetas del workspace.\n                                Para activar la gestión de permisos en subniveles, seleccione 'HIJOS' en la carpeta seleccionada.\n                                Esto hará la carpeta actual de sólo lectura por defecto y podrá seleccionar permisos de acceso\n                                selectivamente en las subcarpetas."
   },
   "ws.44": {
-    "other": "Asegúrese de que esta es la única máscara: si modifica las carpetas reales directamente, tendrá\n                                que editar esta máscara de acuerdo con ello. Además, estos permisos pueden estar limitados por 'Permisos por Defecto'\n                                seleccionados para este workspace (ver pestaña General)."
+    "other": "Please be aware that this is only a mask: if you modify the real folders directly, you may have\n                                to edit this mask accordingly. Also, these permissions may be globally limited by the 'Default Rights'\n                                parameter set for this workspace (see the General tab)."
   },
   "ws.45": {
-    "other": "Dado que se está usando 'PYDIO_USER' o 'PYDIO_GROUP_*', el contenido de\n                                este workspace variará dependiendo del usuario autenticado. Por esta razón, no puede navegar\n                                directamente por las carpetas y asignarles permisos, pero puede definir rutas genéricas que se usarán como máscaras."
+    "other": "As its parameters are using 'PYDIO_USER' or 'PYDIO_GROUP_*' keywords, the contents of\n                                this workspace will vary depending on the currently authenticated user. For this reason, you cannot browse the\n                                folders directly and assign permissions to them, but you can freely define some generic paths that will be used as masks."
   },
   "ws.46": {
     "other": "Añadir funcionalidad"

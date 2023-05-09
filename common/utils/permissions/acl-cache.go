@@ -75,8 +75,10 @@ func (a *AccessList) cache(key string) error {
 	a.cacheKey = key
 	a.maskBPLock.RLock()
 	a.maskBULock.RLock()
+	a.maskRootsLock.RLock()
 	defer a.maskBPLock.RUnlock()
 	defer a.maskBULock.RUnlock()
+	defer a.maskRootsLock.RUnlock()
 	m := &CachedAccessList{
 		OrderedRoles:    a.orderedRoles,
 		WsACLs:          a.wsACLs,
@@ -109,6 +111,7 @@ func newFromCache(key string) (*AccessList, bool) {
 		// Re-init these
 		maskBPLock:    &sync.RWMutex{},
 		maskBULock:    &sync.RWMutex{},
+		maskRootsLock: &sync.RWMutex{},
 		wss:           std.CloneMap(m.Wss),
 		wssRootsMasks: std.CloneMap(m.WssRootsMasks),
 		masksByUUIDs:  std.CloneMap(m.MasksByUUIDs),

@@ -3,13 +3,14 @@
     display: inline-block;
     cursor: pointer;
     &:hover{
-      font-weight: 500;
+      text-shadow: 0 0 1px;
     }
-    &:last-of-type{
-      &:hover{
-        cursor: default;
-        font-weight: 400;
-      }
+    &.last:hover{
+      cursor: default;
     }
+  }
+  span.separator {
+    margin: 0px 6px;
+    opacity: 0.3;
   }
 }

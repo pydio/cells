@@ -6,8 +6,7 @@ module.exports = {
             ]
         },
         files: {
-            "res/themes/material/css/pydio.css": "res/themes/material/css/pydio.less",
-            "res/themes/common/css/mui/pydio-mui.css": "res/themes/common/css/mui/pydio-mui.less",
+            "res/themes/material/css/pydio.css": "res/themes/material/css/pydio.less"
         }
     }
 };

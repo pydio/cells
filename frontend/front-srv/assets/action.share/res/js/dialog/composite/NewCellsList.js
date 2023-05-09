@@ -4,9 +4,10 @@ import SharedUsers from '../cells/SharedUsers'
 import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import {muiThemeable} from 'material-ui/styles'
-import {Divider, FlatButton, Popover, Menu, MenuItem, FontIcon, Subheader} from 'material-ui'
+import {Divider, FlatButton, Menu, MenuItem, FontIcon, Subheader} from 'material-ui'
 import ActionButton from "../main/ActionButton";
 import {PaneToggler} from "../links/Panel"
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc');
 
 class NewCellsList extends React.Component {
 
@@ -67,13 +68,17 @@ class NewCellsList extends React.Component {
         const {compositeModel, pydio, usersInvitations, muiTheme} = this.props;
         const {edit} = this.state;
         const m = (id) => pydio.MessageHash['share_center.' + id];
+        const legendStyle ={
+            fontSize:13,
+            fontWeight:500,
+            color:muiTheme.palette.mui3['on-surface-variant'],
+            padding:8
+        }
 
         // Share is not allowed - Directly return
         if(compositeModel.getNode() && !compositeModel.canCreateCells()){
             return (
-                <div style={{fontSize: 13, fontWeight: 500, color: 'rgba(0, 0, 0, 0.43)', padding: 8}}>
-                    {m(compositeModel.getNode().isLeaf()?'227':'228')}
-                </div>
+                <div style={legendStyle}>{m(compositeModel.getNode().isLeaf()?'227':'228')}</div>
             );
         }
 
@@ -95,7 +100,7 @@ class NewCellsList extends React.Component {
                             if (!cellModel.isEditable()) {
                                 return links;
                             }
-                            return [...links, <ActionButton mdiIcon={"delete-forever"} destructive={true} messageId={m('cells.remove.node')} callback={() => {this.removeCurrentNodeFromCell(cellModel)}}/>]
+                            return [...links, <ActionButton mdiIcon={"delete-forever"} destructive={true} messageId={m('cells.remove.node')} tooltipPosition={"top-center"} callback={() => {this.removeCurrentNodeFromCell(cellModel)}}/>]
                         }}
                         readonly={!cellModel.isEditable()}
                         completerStyle={{margin: '-6px 8px 16px'}}

@@ -35,10 +35,10 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/mtree"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 )
 
 var (
@@ -47,8 +47,8 @@ var (
 
 func init() {
 	v := viper.New()
-	v.SetDefault(runtime.KeyCache, "pm://")
-	v.SetDefault(runtime.KeyShortCache, "pm://")
+	v.SetDefault(runtime.KeyCache, "discard://")
+	v.SetDefault(runtime.KeyShortCache, "discard://")
 	runtime.SetRuntime(v)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -59,12 +59,29 @@ func init() {
 		return NewDAO(d, "ROOT"), nil
 	}
 
-	d, er := dao.InitDAO(ctx, sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test", wrapper, options)
+	d, er := dao.InitDAO(ctx, sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test1", wrapper, options)
 	if er != nil {
 		panic(er)
 	} else {
 		ctxNoCache = servicecontext.WithDAO(ctx, d)
 	}
+}
+
+func makeDAO() dao.DAO {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	wrapper := func(ctx context.Context, d dao.DAO) (dao.DAO, error) {
+		return NewDAO(d, "ROOT"), nil
+	}
+	v := viper.New()
+	v.SetDefault(runtime.KeyCache, "discard://")
+	v.SetDefault(runtime.KeyShortCache, "discard://")
+	runtime.SetRuntime(v)
+	d, er := dao.InitDAO(ctx, sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test2", wrapper, options)
+	if er != nil {
+		panic(er)
+	}
+	return d
 }
 
 func TestMysql(t *testing.T) {
@@ -220,7 +237,7 @@ func TestMysql(t *testing.T) {
 	// Getting children count
 	Convey("Test Getting the Children Count of a node", t, func() {
 
-		_, count := getDAO(ctxNoCache).GetNodeChildrenCounts(mockLongNodeMPath)
+		_, count := getDAO(ctxNoCache).GetNodeChildrenCounts(mockLongNodeMPath, false)
 
 		So(count, ShouldEqual, 2)
 	})
@@ -698,6 +715,7 @@ func TestArborescence(t *testing.T) {
 			"personal/admin/Test Toto/Pydio-color-logo-4.png",
 			"personal/admin/Test Toto/PydioCells Logos.zip",
 			"personal/admin/Test Toto/STACK.txt",
+			"personal/admin/Test Toto/zzz.txt", // Last entry when sorting by name
 			"personal/admin/Up",
 			"personal/admin/Up/.DS_Store",
 			"personal/admin/Up/.pydio",
@@ -727,13 +745,48 @@ func TestArborescence(t *testing.T) {
 			"personal/user/User Folder/.pydio",
 		}
 
+		for i, n := range arborescence {
+			arborescence[i] = "ROOT/" + n
+		}
+		arborescence = append([]string{"ROOT"}, arborescence...)
+
+		d := makeDAO().(DAO)
+
 		for _, path := range arborescence {
-			_, _, err := getDAO(ctxNoCache).Path(path, true)
+			_, _, err := d.Path(path, true)
 
 			So(err, ShouldBeNil)
 		}
 
-		getDAO(ctxNoCache).Flush(true)
+		e := d.Flush(true)
+		So(e, ShouldBeNil)
+
+		Convey("List Arbo w/ conditions", func() {
+			c := d.GetNodeTree(context.Background(), mtree.MPath{1})
+			var a []string
+			for n := range c {
+				if node, ok := n.(*mtree.TreeNode); ok {
+					a = append(a, node.GetStringMeta("name"))
+				}
+			}
+			So(len(a), ShouldEqual, len(arborescence))
+			So(a[0], ShouldEqual, "ROOT") // Default sorting is MPATH
+		})
+
+		Convey("List Arbo w/ ordering", func() {
+			mf := tree.NewMetaFilter(&tree.Node{})
+			mf.AddSort(tree.MetaSortMPath, tree.MetaSortName, true)
+			c := d.GetNodeTree(context.Background(), mtree.MPath{1}, mf)
+			var a []string
+			for n := range c {
+				if node, ok := n.(*mtree.TreeNode); ok {
+					a = append(a, node.GetStringMeta("name"))
+				}
+			}
+			So(len(a), ShouldEqual, len(arborescence))
+			So(a[0], ShouldEqual, "zzz.txt")
+		})
+
 	})
 }
 

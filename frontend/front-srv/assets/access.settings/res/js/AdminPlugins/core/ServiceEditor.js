@@ -24,7 +24,7 @@ import {RaisedButton, FlatButton, Toggle} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PropTypes from 'prop-types';
 import Pydio from 'pydio'
-const PydioForm = Pydio.requireLib("form");
+const {Manager, PydioHelper} = Pydio.requireLib("form");
 import ServiceExposedConfigs from './ServiceExposedConfigs'
 import MailerTest from './MailerTest'
 
@@ -85,9 +85,9 @@ let ServiceEditor = createReactClass({
 
     parameterHasHelper:function(paramName, testPluginId){
         const parameterName = paramName.split('/').pop();
-        let h = PydioForm.Manager.hasHelper(this.props.serviceName, parameterName);
+        let h = Manager.hasHelper(this.props.serviceName, parameterName);
         if(!h && testPluginId){
-            h = PydioForm.Manager.hasHelper(testPluginId, parameterName);
+            h = Manager.hasHelper(testPluginId, parameterName);
         }
         return h;
     },
@@ -95,7 +95,7 @@ let ServiceEditor = createReactClass({
     showHelper:function(helperData, testPluginId){
         if(helperData){
             const serviceName = this.props.serviceName;
-            if(testPluginId && !PydioForm.Manager.hasHelper(serviceName, helperData['name'])){
+            if(testPluginId && !Manager.hasHelper(serviceName, helperData['name'])){
                 helperData['pluginId'] = testPluginId;
             }else{
                 helperData['pluginId'] = serviceName;
@@ -208,7 +208,7 @@ let ServiceEditor = createReactClass({
                     variant={variant}
                     variantShowLegend={variantShowLegend}
                 />
-                <PydioForm.PydioHelper
+                <PydioHelper
                     helperData={helperData}
                     close={this.closeHelper}
                 />

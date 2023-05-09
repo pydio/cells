@@ -54,6 +54,7 @@ func (this *MetaNamespaceRequest) Validate() error {
 	return nil
 }
 func (this *GetBulkMetaRequest) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *BulkMetaResponse) Validate() error {

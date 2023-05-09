@@ -21,6 +21,7 @@
 // Import Builder class
 import Builder from './Builder'
 import TemplateBuilder from './TemplateBuilder'
+import ThemeModifier from './ThemeModifier'
 import AsyncComponent from './AsyncComponent'
 import withProgressiveBg from './withProgressiveBg'
 
@@ -51,12 +52,15 @@ import JobsStore from './tasks/JobsStore'
 import SingleJobProgress from './tasks/SingleJobProgress'
 
 import Tooltip from 'material-ui/internal/Tooltip'
+import M3Tooltip from '@mui/material/Tooltip'
+
 import './modal/popoverFix'
 
 export {
     Builder,
     TemplateBuilder,
     AsyncComponent,
+    ThemeModifier,
 
     AsyncModal,
     ActionDialogMixin,
@@ -80,6 +84,7 @@ export {
     PydioContextConsumer,
 
     Tooltip,
+    M3Tooltip,
     moment,
 
     TasksPanel,

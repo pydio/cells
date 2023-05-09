@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import React from 'react'
 import { Motion, spring} from 'react-motion';
 
 const {Utils} = Pydio.requireLib('hoc')

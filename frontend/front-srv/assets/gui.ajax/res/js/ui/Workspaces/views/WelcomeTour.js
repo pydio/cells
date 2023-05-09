@@ -22,8 +22,10 @@ import {Component} from 'react'
 import {Divider} from 'material-ui'
 import Pydio from 'pydio'
 import TourGuide from './TourGuide'
+import {ThemeTogglerCard} from "./WelcomeMuiTour";
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 const DOMUtils = require('pydio/util/dom')
+import {muiThemeable} from "material-ui/styles";
 
 class Scheme extends Component {
 
@@ -125,28 +127,107 @@ class InfoPanelCard extends Component{
     }
 
     render(){
-        let leftStyle = {width: 24, transition:DOMUtils.getBeziersTransition(), transform:'scaleX(1)', transformOrigin:'right'};
+
+        let leftStyle = {width: 28, transition:DOMUtils.getBeziersTransition()/*, transform:'scaleX(1)', transformOrigin:'right'*/, position:'relative'};
         if(this.state && this.state.closed){
-            leftStyle = {...leftStyle, width: 0, transform:'scaleX(0)'};
+            leftStyle = {...leftStyle, width: 18/*, transform:'scaleX(0)'*/};
         }
+        const {message, customMessage} = this.props
 
         return (
             <div>
-                <p>{this.props.message('infopanel.1')}</p>
-                <Scheme style={{fontSize: 10, padding: 25}} dimension={130}>
+                <p>{customMessage || message('infopanel.1')}</p>
+                <Scheme style={{fontSize: 10, padding: 25}} dimension={140}>
                     <div style={{boxShadow:'2px 2px 0px #CFD8DC', display:'flex'}}>
                         <div style={{backgroundColor:'white', flex:3}}>
                             <div><span className="mdi mdi-folder"/> {this.props.message('infopanel.folder')} 1 </div>
-                            <div style={{backgroundColor: '#03a9f4', color: 'white'}}><span className="mdi mdi-folder"/>  {this.props.message('infopanel.folder')} 2</div>
+                            <div style={{backgroundColor: '#757575', color: 'white'}}><span className="mdi mdi-folder"/>  {this.props.message('infopanel.folder')} 2</div>
                             <div><span className="mdi mdi-file"/> {this.props.message('infopanel.file')} 3</div>
                             <div><span className="mdi mdi-file"/> {this.props.message('infopanel.file')} 4</div>
                         </div>
                         <div style={leftStyle}>
+                            <div style={{position:'absolute', left: -2, bottom: 0, top: 0, width: 3, backgroundColor:'#03a9f4'}}></div>
                             <div style={{backgroundColor: '#edf4f7', padding: 4, height: '100%', fontSize: 17}}><span className="mdi mdi-information-variant"/></div>
                         </div>
                     </div>
                 </Scheme>
                 <p>{this.props.message('infopanel.2')} (<span className="mdi mdi-information" style={{fontSize: 18, color: '#5c7784'}}/>).</p>
+            </div>
+        );
+
+    }
+
+}
+
+class LeftPanelCard extends Component{
+
+    state = {step: 0}
+
+    next() {
+        const {step} = this.state;
+        let next = step+1
+        if(step+1 > 3){
+            next = 0
+        }
+        this.setState({step: next})
+    }
+
+    componentDidMount(){
+        this._int = setInterval(() => {
+            this.next()
+        }, 1500)
+    }
+    componentWillUnmount(){
+        if(this._int) clearInterval(this._int);
+    }
+
+    render(){
+
+        const {step} = this.state;
+
+        let closeStyle = {
+            display:'none',
+            backgroundColor: '#03a9f4',
+            fontSize: 17,
+            borderRadius: '50%',
+            height: 20,
+            width: 20,
+            color: 'white',
+            margin: 2,
+            textAlign: 'center'
+        }
+        let leftStyle = {width: 28, transition:DOMUtils.getBeziersTransition(), position:'relative', backgroundColor: '#edf4f7'};
+        let moveBarActive = true
+        if(step === 1){
+            leftStyle = {...leftStyle, width: 18};
+        } else if(step === 2){
+            leftStyle = {...leftStyle, width: 28};
+            closeStyle.display = 'block'
+            moveBarActive = false
+        } else if(step === 3){
+            leftStyle = {...leftStyle, width: 0};
+            moveBarActive = false
+        } else if(step === 0){
+            leftStyle = {...leftStyle, width: 28};
+        }
+
+        return (
+            <div>
+                <p>{this.props.message('left-resize.legend')}</p>
+                <Scheme style={{fontSize: 10, padding: 25}} dimension={140}>
+                    <div style={{boxShadow:'-2px 2px 0px #CFD8DC', display:'flex'}}>
+                        <div style={leftStyle}>
+                            <div style={{position:'absolute', right: 0, bottom: 0, top: 0, width: 3, backgroundColor:moveBarActive?'#03a9f4':'transparent'}}></div>
+                            <div style={{...closeStyle}}><span className="mdi mdi-chevron-double-left"/></div>
+                        </div>
+                        <div style={{backgroundColor:'white', flex:3}}>
+                            <div style={{paddingLeft: 2}}><span className="mdi mdi-folder"/> {this.props.message('infopanel.folder')} 1 </div>
+                            <div style={{backgroundColor: '#757575', color: 'white', paddingLeft: 2}}><span className="mdi mdi-folder"/>  {this.props.message('infopanel.folder')} 2</div>
+                            <div style={{paddingLeft: 2}}><span className="mdi mdi-file"/> {this.props.message('infopanel.file')} 3</div>
+                            <div style={{paddingLeft: 2}}><span className="mdi mdi-file"/> {this.props.message('infopanel.file')} 4</div>
+                        </div>
+                    </div>
+                </Scheme>
             </div>
         );
 
@@ -206,6 +287,7 @@ class WelcomeTour extends Component{
         guiPrefs['UserAccount.WelcomeModal.Shown'] = true;
         if(finished) {
             guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate'] = true;
+            guiPrefs['WelcomeComponent.MUITour'] = true;
         }
         user.setPreference('gui_preferences', guiPrefs, true);
         user.savePreference('gui_preferences');
@@ -231,13 +313,23 @@ class WelcomeTour extends Component{
         if(!this.state.started || this.state.skip){
             return null;
         }
-        const {getMessage, pydio} = this.props;
+        const {getMessage, pydio, muiTheme} = this.props;
         const message = (id) => getMessage('ajax_gui.tour.' + id);
+        const prefs = pydio.user && pydio.user.getPreference('gui_preferences', true) || {}
 
         let tourguideSteps = [];
         const {Controller, user} = pydio;
         const mkdir = Controller.getActionByName("mkdir") || {};
         const upload = Controller.getActionByName("upload") || {};
+
+        if(muiTheme.userTheme === 'mui3' && !prefs['WelcomeComponent.MUITour']) {
+            tourguideSteps.push({
+                title       : message('theme.title'),
+                text        : <ThemeTogglerCard message={message}/>,
+                selector    :'.mdi.mdi-theme-light-dark',
+                position    :'right-end'
+            })
+        }
         if(user && user.activeRepository && (!mkdir.deny || !upload.deny)){
             tourguideSteps.push({
                 title:message('create-menu.title'),
@@ -294,5 +386,7 @@ class WelcomeTour extends Component{
 
 }
 
+WelcomeTour = muiThemeable()(WelcomeTour)
 WelcomeTour = PydioContextConsumer(WelcomeTour)
 export {WelcomeTour as default}
+export {Scheme, IconScheme, InfoPanelCard, LeftPanelCard}

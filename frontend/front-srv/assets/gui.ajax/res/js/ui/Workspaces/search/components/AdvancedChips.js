@@ -19,8 +19,9 @@
  */
 import React from 'react'
 import Renderer from "./Renderer";
+import {muiThemeable} from "material-ui/styles";
 
-export default class AdvancedChips extends React.Component{
+class AdvancedChips extends React.Component{
 
     constructor(props) {
         super(props)
@@ -30,7 +31,7 @@ export default class AdvancedChips extends React.Component{
     }
 
     render() {
-        const {searchTools:{advancedValues, values, setValues}, containerStyle, tagStyle, title, titleTagStyle, showRemove=true, append} = this.props;
+        const {searchTools:{advancedValues, values, setValues}, containerStyle, tagStyle, title, titleTagStyle, showRemove=true, append, appendUnstyled, muiTheme} = this.props;
 
         const advanced = advancedValues()
         const {indexedMeta} = this.state;
@@ -43,15 +44,16 @@ export default class AdvancedChips extends React.Component{
             },
             tag: {
                 borderRadius: 20,
-                backgroundColor: '#eceff1',
+                background: muiTheme.palette.mui3['surface-variant'],
+                color: muiTheme.palette.mui3['on-surface-variant'],
                 display: 'flex',
                 alignItems: 'center',
-                padding: '2px 5px 2px 11px',
+                padding: showRemove?'2px 5px 2px 11px':'2px 10px',
                 marginRight: 5, marginBottom: 5,
                 ...tagStyle
             },
             tagRemove: {
-                backgroundColor: 'rgba(0,0,0,0.1)',
+                backgroundColor: muiTheme.darkMode?'rgba(255,255,255,0.2)':'rgba(0,0,0,0.1)',
                 cursor: 'pointer',
                 height: 16, width: 16, lineHeight: '17px',
                 display: 'flex',
@@ -92,8 +94,11 @@ export default class AdvancedChips extends React.Component{
         return(
             <div style={styles.container}>
                 {title && <div style={{...styles.tag,...titleTagStyle}}>{title}</div>}
-                {blocks.map(cc => <div style={styles.tag}>{cc}</div>)}
+                {blocks.map(cc => <div style={styles.tag}>{cc}</div>)} {appendUnstyled}
             </div>
         )
     }
 }
+
+AdvancedChips = muiThemeable()(AdvancedChips)
+export default AdvancedChips

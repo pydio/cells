@@ -25,7 +25,8 @@ import SearchScopeSelector from "./SearchScopeSelector";
 import FileFormatPanel from "./FileFormatPanel";
 import DatePanel from "./DatePanel";
 import FileSizePanel from "./FileSizePanel";
-const {ModernTextField} = Pydio.requireLib('hoc');
+import {MenuItem} from 'material-ui'
+const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 const {moment} = Pydio.requireLib('boot')
 
 export default class Renderer {
@@ -41,6 +42,15 @@ export default class Renderer {
                 return <DatePanel values={values} name={name} pydio={pydio} searchTools={searchTools} onChange={(values) => onChangeValues(values)} />
             case 'bytesize':
                 return <FileSizePanel name={name} values={values} pydio={pydio} searchTools={searchTools} onChange={(values) => onChangeValues(values)} />
+            case 'share':
+                return (
+                    <ModernSelectField name={name} hintText={pydio.MessageHash['searchengine.share.hint']} value={values[name]} pydio={pydio} onChange={(e,i,v) => onChangeValues({...values,[name]:v})} fullWidth={true} {...ModernStyles.selectFieldV1Search}>
+                        <MenuItem primaryText={<span style={{color:'var(--md-sys-color-outline)'}}>{pydio.MessageHash['searchengine.share.hint']}</span>} value={''}/>
+                        <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.link']} value={'link'}/>
+                        <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.cell']} value={'cell'}/>
+                        <MenuItem primaryText={pydio.MessageHash['searchengine.share.option.any']} value={'any'}/>
+                    </ModernSelectField>
+                )
             default:
                 const {label} = field
                 return (
@@ -50,6 +60,7 @@ export default class Renderer {
                         hintText={label}
                         fullWidth={true}
                         onChange={(e,v) => {onChangeValues({[name]:v})}}
+                        {...ModernStyles.textFieldV1Search}
                     />
                 )
         }
@@ -57,6 +68,7 @@ export default class Renderer {
 
     static blockRenderer(props, field, value) {
         const {pydio=Pydio.getInstance(), searchTools} = props;
+        const m = (id) => pydio.MessageHash[id]||id
         const kk = searchTools.SearchConstants
         if(field.blockRenderer) {
             const {label} = field;
@@ -86,64 +98,68 @@ export default class Renderer {
                 break
             case 'mime':
                 if(value === kk.ValueMimeFiles || value === kk.ValueMimeFolders) {
-                    label = value === kk.ValueMimeFiles ? 'Files Only' : 'Folders Only'
+                    label = value === kk.ValueMimeFiles ? m('searchengine.format.file-only') : m('502')
                 } else if (value && value.indexOf('mimes:') === 0) {
                     displayValue = label
-                    label = "File Type"
+                    label = m('3')
                 } else {
-                    label = 'Extension'
+                    label = m('ajax_gui.mimegroup.byextension')
                     displayValue = value
                 }
                 break;
             case 'modiftime':
+                const calendarOpts = {
+                    sameDay: '['+m(493)+']',
+                    nextDay: '['+m('494t')+']',
+                    nextWeek: 'dddd',
+                    lastDay: '['+m(494)+']',
+                    lastWeek: '[Last] dddd',
+                    sameElse: 'L'
+                }
+
                 if(isDate && value.getDate){
-                    displayValue = moment(value).calendar(null, {
-                        sameDay: '[Today]',
-                        nextDay: '[Tomorrow]',
-                        nextWeek: 'dddd',
-                        lastDay: '[Yesterday]',
-                        lastWeek: '[Last] dddd',
-                        sameElse: 'L'
-                    })
+                    displayValue = moment(value).calendar(null, calendarOpts)
                     break
                 }
-                label = 'Modified'
+                label = m('4')
                 displayValue = ''
                 if(value.from) {
-                    displayValue += moment(value.from).calendar(null, {
-                        sameDay: '[Today]',
-                        nextDay: '[Tomorrow]',
-                        nextWeek: 'dddd',
-                        lastDay: '[Yesterday]',
-                        lastWeek: '[Last] dddd',
-                        sameElse: 'L'
-                    })
+                    displayValue += moment(value.from).calendar(null, calendarOpts)
                     if(value.to) {
-                        displayValue += ' to '
+                        displayValue += ' <=> '
                     }
                 }
                 if(value.to) {
-                    displayValue += moment(value.to).calendar(null, {
-                        sameDay: '[Today]',
-                        nextDay: '[Tomorrow]',
-                        nextWeek: 'dddd',
-                        lastDay: '[Yesterday]',
-                        lastWeek: '[Last] dddd',
-                        sameElse: 'L'
-                    })
+                    displayValue += moment(value.to).calendar(null, calendarOpts)
                 }
                 break
             case 'bytesize':
-                label = 'Size'
+                label = m('2')
                 displayValue = ''
                 if(value.from) {
                     displayValue += PathUtils.roundFileSize(value.from)
                     if(value.to) {
-                        displayValue += ' to '
+                        displayValue += ' <=> '
                     }
                 }
                 if(value.to) {
                     displayValue += PathUtils.roundFileSize(value.to)
+                }
+                break
+
+            case 'share':
+                switch (value){
+                    case 'link':
+                        label = pydio.MessageHash['searchengine.share.option.link']
+                        break
+                    case 'cell':
+                        label = pydio.MessageHash['searchengine.share.option.cell']
+                        break
+                    case 'any':
+                        label = pydio.MessageHash['searchengine.share.option.any']
+                        break
+                    default:
+                        break
                 }
                 break
 

@@ -663,7 +663,10 @@
     "other": "Watch"
   },
   "34": {
-    "other": "Existing or new user"
+    "other": "Select or Create Users"
+  },
+  "34b": {
+    "other": "Select Users"
   },
   "35": {
     "other": "Label"
@@ -923,6 +926,24 @@
   "cell.add.new": {
     "other": "Create a new Cell"
   },
+  "cell.participant.single": {
+    "other": "One participant"
+  },
+  "cell.participant.multiple": {
+    "other": "%d participants"
+  },
+  "cell.participant.other.single": {
+    "other": "One other participant"
+  },
+  "cell.participant.other.multiple": {
+    "other": "%d other participants"
+  },
+  "cell.folder-root.single": {
+    "other": "One folder"
+  },
+  "cell.folder-root.multiple": {
+    "other": "%d folders"
+  },
   "link.visibility.title": {
     "other": "[Advanced] Visibility"
   },
@@ -964,5 +985,8 @@
   },
   "link.secure.maxdownloads": {
     "other": "%d downloads only"
+  },
+  "minisite.toggle.theme": {
+    "other": "Toggle Dark/Light Theme"
   }
 }

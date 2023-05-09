@@ -29,9 +29,11 @@ class TopBar extends React.Component{
 
     render(){
         const {tabs, dismiss, muiTheme} = this.props;
+        const br = muiTheme.borderRadius
+        const {mui3} = muiTheme.palette
         return(
-            <div style={{display:'flex', backgroundColor:muiTheme.tabs.backgroundColor}}>
-                <Tabs style={{flex: 1}}>
+            <div style={{display:'flex', borderRadius:`${br}px ${br}px 0 0` , overflow:'hidden', borderBottom: '1px solid '+mui3['outline-variant-50']}}>
+                <Tabs style={{flex: 1}} inkBarStyle={{backgroundColor: muiTheme.tabs.selectedTextColor}}>
                     {tabs}
                 </Tabs>
                 <IconButton iconStyle={{color:muiTheme.tabs.selectedTextColor}} iconClassName={"mdi mdi-close"} onClick={dismiss} tooltip={"Close"}/>
@@ -81,7 +83,7 @@ let UploadDialog = createReactClass({
         const dismiss = () => {this.dismiss()};
         const {uploaders, current, loaded} = this.state;
         uploaders.map((uploader) => {
-            tabs.push(<Tab label={uploader.xmlNode.getAttribute('label')} key={uploader.id} onActive={()=>{this.setState({current:uploader})}}/>);
+            tabs.push(<Tab label={uploader.xmlNode.getAttribute('label')} key={uploader.id} onActive={()=>{this.setState({current:uploader})}} style={{textTransform:'none'}}/>);
         });
         if(current){
             let parts = current.moduleName.split('.');

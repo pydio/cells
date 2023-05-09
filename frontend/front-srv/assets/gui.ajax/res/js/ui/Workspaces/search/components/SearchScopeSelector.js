@@ -22,8 +22,9 @@ import PropTypes from 'prop-types';
 
 import React, { Component } from 'react';
 import Pydio from 'pydio'
-import {MenuItem, Divider} from 'material-ui';
-const {ModernSelectField} = Pydio.requireLib('hoc');
+import Repository from 'pydio/model/repository'
+import {MenuItem, Divider, Subheader} from 'material-ui';
+const {ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 
 class SearchScopeSelector extends Component {
@@ -42,7 +43,7 @@ class SearchScopeSelector extends Component {
         const {getMessage, pydio, onChange} = this.props;
         let {value} = this.props;
 
-        let items = [], folder = [], currentWs = [], other = [];
+        let items = [], folder = [], currentWs = [], otherW = [], otherC = [];
 
         const all = [<MenuItem value={'all'} primaryText={getMessage(610)}/>];
 
@@ -58,31 +59,47 @@ class SearchScopeSelector extends Component {
         }
         if(pydio.user) {
             pydio.user.getRepositoriesList().forEach(ws => {
-                if(ws.getId() === 'homepage' || ws.getId() === 'settings'){
+                if(Repository.isInternal(ws.getId())){
                     return;
                 }
                 if(ws.getId() === active) {
                     currentWs.push(<MenuItem value={ws.getSlug() + '/'} primaryText={getMessage(372)}/>)
                 } else {
-                    other.push(<MenuItem value={ws.getSlug() + '/'} primaryText={ws.getLabel()}/>)
+                    ws.getOwner() ? otherC.push(ws) : otherW.push(ws)
                 }
             })
+        }
+        otherW.sort((a,b) => a.getLabel().localeCompare(b.getLabel()))
+        otherC.sort((a,b) => a.getLabel().localeCompare(b.getLabel()))
+
+        otherC = otherC.map(ws => <MenuItem value={ws.getSlug() + '/'} primaryText={ws.getLabel()}/>)
+        otherW = otherW.map(ws => <MenuItem value={ws.getSlug() + '/'} primaryText={ws.getLabel()}/>)
+        if(otherW.length) {
+            otherW.unshift(<Subheader>Workspaces</Subheader>)
+        }
+        if(otherC.length) {
+            otherC.unshift(<Subheader>Cells</Subheader>)
         }
 
         if (homePage) {
             items = [
                 ...all,
-                ...other
+                ...otherW,
+                ...otherC
             ]
         } else {
-            if(other.length > 0){
+            if(otherW.length > 0 || otherC.length > 0){
                 all.push(<Divider/>)
+            }
+            if(otherW.length > 0 && otherC.length > 0) {
+                otherW.push(<Divider/>)
             }
             items = [
                 ...folder,
                 ...currentWs,
                 ...all,
-                ...other
+                ...otherW,
+                ...otherC
             ]
         }
 
@@ -95,6 +112,7 @@ class SearchScopeSelector extends Component {
                 value={value}
                 onChange={(e,i,v) => {onChange(v)}}
                 fullWidth={true}
+                {...ModernStyles.selectFieldV1Search}
             >{items}</ModernSelectField>
         )
     }

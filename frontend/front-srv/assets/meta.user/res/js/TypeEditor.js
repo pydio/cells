@@ -23,7 +23,8 @@ import Pydio from 'pydio'
 import LangUtils from 'pydio/util/lang'
 import {MenuItem, Toggle} from 'material-ui'
 import TypeSelectionBoard from "./TypeSelectionBoard";
-const {ModernSelectField, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
+import {muiThemeable} from 'material-ui/styles'
+const {ModernSelectField, ModernTextField, ThemedModernStyles} = Pydio.requireLib('hoc');
 
 const MetaTypes = {
     "string":       "Text",
@@ -98,7 +99,8 @@ class TypeEditor extends React.Component {
 
     render() {
 
-        const {pydio, create, namespace, readonly, labelError, nameError, styles, metaTypes = MetaTypes, showMandatory=false} = this.props;
+        const {pydio, create, namespace, readonly, labelError, nameError, styles, metaTypes = MetaTypes, showMandatory=false, muiTheme} = this.props;
+        const ModernStyles = ThemedModernStyles(muiTheme)
         let {m} = this.props;
         if(!m){
             m = (id) => pydio.MessageHash['ajxp_admin.metadata.' + id] || id;
@@ -211,6 +213,7 @@ class TypeEditor extends React.Component {
 
 }
 
+TypeEditor = muiThemeable()(TypeEditor)
 TypeEditor.MetaTypes = MetaTypes;
 
 export default TypeEditor

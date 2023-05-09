@@ -3,7 +3,7 @@ import Pydio from 'pydio'
 import asMetaField from "../hoc/asMetaField";
 import asMetaForm from "../hoc/asMetaForm";
 const {InputIntegerBytes} = Pydio.requireLib('form');
-const {ModernTextField, ModernSelectField} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 import {LinearProgress, MenuItem} from 'material-ui'
 import MetaClient from "../MetaClient";
 
@@ -90,6 +90,7 @@ class IntegerForm extends React.Component{
             }
         }
         const tf = (type, change, hideUnderline = false) => {
+            const addProps = search ? ModernStyles.textFieldV1Search : null
             return (
                 <ModernTextField
                     value={value}
@@ -99,16 +100,19 @@ class IntegerForm extends React.Component{
                     onChange={change}
                     underlineShow={!hideUnderline}
                     variant={search?"v1":"v2"}
+                    {...addProps}
                 />
             )
         }
         if(supportTemplates) {
             return tf('', (e,v)=>updateValue(v))
         } else if(search) {
+            const selectStyle = ModernStyles.selectFieldV1Search
+            const style = {...selectStyle.style, borderRadius: 0}
             return (
                 <div style={{display:'flex'}}>
-                    <div style={{width: 60, marginRight:8}}>
-                        <ModernSelectField fullWidth={true} value={searchComp} onChange={(e,i,v)=>updateValue(v+''+value)}>
+                    <div style={{width: 60, marginRight:0}}>
+                        <ModernSelectField {...selectStyle} style={style} fullWidth={true} value={searchComp} onChange={(e,i,v)=>updateValue(v+''+value)}>
                             <MenuItem value={""} primaryText={"="}/>
                             <MenuItem value={">="} primaryText={">="}/>
                             <MenuItem value={"<="} primaryText={"<="}/>

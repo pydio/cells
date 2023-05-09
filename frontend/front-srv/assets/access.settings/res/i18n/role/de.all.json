@@ -3,7 +3,7 @@
     "other": "Rollenverwaltung"
   },
   "10": {
-    "other": "Verwenden Sie die untenstehende Auswahl, um Benutzern dieser Rolle bestimmte Aktionen zu verbieten. Die Einstellungen können für eine oder alle Arbeitsumgebungen gelten."
+    "other": "Verwenden Sie die untenstehende Auswahl, um Benutzern dieser Rolle bestimmte Aktionen zu verbieten. Die Einstellungen können für eine oder alle Workspaces gelten."
   },
   "11": {
     "other": "Erweiterung"
@@ -18,13 +18,13 @@
     "other": "Wählen Sie einen Parameter..."
   },
   "12c": {
-    "other": "Wählen Sie eine oder alle Arbeitsumgebungen..."
+    "other": "Wählen Sie eine oder alle Workspaces…"
   },
   "12d": {
-    "other": "Alle Arbeitsumgebungen"
+    "other": "Alle Workspaces"
   },
   "12e": {
-    "other": "Geteilte Arbeitsumgebungen"
+    "other": "Geteilte Workspaces"
   },
   "13": {
     "other": "Aktion"
@@ -36,7 +36,7 @@
     "other": "Aktion hinzufügen"
   },
   "16": {
-    "other": "Verwenden Sie die untenstehende Auswahl, um für Benutzer dieser Rolle Parameter zu definieren. Die Einstellungen können, abhängig vom Kontext der Erweiterung, auf eine oder alle Arbeitsumgebungen angewendet werden."
+    "other": "Verwenden Sie die untenstehende Auswahl, um für Benutzer dieser Rolle Parameter zu definieren. Die Einstellungen können, abhängig vom Kontext der Erweiterung, auf eine oder alle Workspaces angewendet werden."
   },
   "17": {
     "other": "Parameter"
@@ -60,7 +60,7 @@
     "other": "Profilart"
   },
   "23": {
-    "other": "Standard-Arbeitsumgebung"
+    "other": "Standard-Workspace"
   },
   "24": {
     "other": "Rollen (drücke Ctrl/Cmd um mehrere zu markieren)"
@@ -165,10 +165,10 @@
     "other": "Persönliche Informationen"
   },
   "9": {
-    "other": "Wählen Sie die Arbeitsumgebungen, auf welche diese Rolle Zugriff erhält. Wenn Sie 'Verweigern' wählen, wird der Zugriff verweigert, auch wenn der Zugriff in anderen Rollen gesetzt oder vererbt wurde."
+    "other": "Wählen Sie die Workspaces, auf welche diese Rolle Zugriff erhält. Wenn Sie 'Verweigern' wählen, wird der Zugriff verweigert, auch wenn der Zugriff in anderen Rollen gesetzt oder vererbt wurde."
   },
   "dashboard.description": {
-    "other": "Rollen sind Container für Zugriffslisten, um Zugriff auf beliebige Arbeitsbereiche zu gewähren oder Parameter und Aktionen anzupassen. Sie können manuell jedem Benutzer zugeordnet werden."
+    "other": "Rollen sind Container für Zugriffslisten, um Zugriff auf beliebige Workspaces zu gewähren oder Parameter und Aktionen anzupassen. Sie können manuell jedem Benutzer zugeordnet werden."
   },
   "dashboard.technical.hide": {
     "other": "Technische Rollen verstecken"

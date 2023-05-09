@@ -21,12 +21,14 @@ import React from 'react'
 import Pydio from 'pydio'
 import asMetaForm from "../hoc/asMetaForm";
 import {starsStyle} from "./StarsField"
-const {ModernStyles} = Pydio.requireLib('hoc');
+const {ThemedModernStyles} = Pydio.requireLib('hoc');
+import {muiThemeable} from 'material-ui/styles'
 
 class StarsFormPanel extends React.Component {
 
     render(){
-        const {updateValue, value = 0, search, label} = this.props;
+        const {updateValue, value = 0, search, label, muiTheme} = this.props;
+        const ModernStyles = ThemedModernStyles(muiTheme)
         let stars = [-1,0,1,2,3,4].map((v) => {
             const ic = 'star' + (v === -1 ? '-off' : (value > v ? '' : '-outline') );
             const style = (v === -1 ? {marginRight: 5, cursor:'pointer'} : {cursor: 'pointer'});
@@ -34,14 +36,17 @@ class StarsFormPanel extends React.Component {
         });
         if(search) {
             return (
-                <div className="advanced-search-stars" style={{...ModernStyles.div, ...starsStyle}}>
+                <div className="advanced-search-stars" style={{
+                    ...ModernStyles.div,
+                    borderRadius: ModernStyles.textFieldV1Search.inputStyle.borderRadius,
+                    ...starsStyle, fontSize: 18}}>
                     <div>{stars}</div>
                 </div>
             );
         } else {
             return (
                 <div style={{...ModernStyles.textFieldV2.style, borderBottom:ModernStyles.fillBlockV2Right.borderBottom, marginBottom:6}}>
-                    <div style={{color: 'rgba(0, 0, 0, 0.3)', fontSize: 12, padding: '3px 8px 0', lineHeight: '16px'}} >{label}</div>
+                    <div style={{color: muiTheme.palette.mui3['on-surface-variant'], fontSize: 12, padding: '3px 8px 0', lineHeight: '16px'}} >{label}</div>
                     <div style={{...starsStyle, paddingLeft: 6}}>{stars}</div>
                 </div>
             )
@@ -49,4 +54,4 @@ class StarsFormPanel extends React.Component {
     }
 }
 
-export default asMetaForm(StarsFormPanel);
+export default asMetaForm(muiThemeable()(StarsFormPanel));

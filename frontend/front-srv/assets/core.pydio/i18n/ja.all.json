@@ -1022,32 +1022,8 @@
   "402": {
     "other": "http://www.hjsplit.org/"
   },
-  "403": {
-    "other": "WebDAV"
-  },
-  "404": {
-    "other": "WebDAV はデスクトップ上に直接 APPLICATION_TITLE ワークスペースを「ネットワークドライブ」としてマウントできるプロトコルです。 この機能を有効にするには、以下のボックスにチェックを入れ、必要に応じてパスワードを入力してください。"
-  },
-  "405": {
-    "other": "WebDAV クライアントは、アドレス、ログイン、パスワードを要求します。以下の URL と、標準名とパスワードを使用してください。"
-  },
-  "406": {
-    "other": "WebDAV による共有を有効にする"
-  },
-  "407": {
-    "other": "WebDAV 共有を初めて有効にする場合、または新しいパスワードを再入力する場合は、パスワードを入力してください:"
-  },
-  "408": {
-    "other": "WebDav 共有が有効になりました"
-  },
-  "409": {
-    "other": "WebDav 共有が無効になりました"
-  },
   "41": {
     "other": "名前が変更されました"
-  },
-  "410": {
-    "other": "WebDav パスワードを更新しました"
   },
   "411": {
     "other": "オープン"
@@ -1275,7 +1251,7 @@
     "other": "パスワードをお忘れですか？"
   },
   "48": {
-    "other": "OK"
+    "other": "Ok"
   },
   "480": {
     "other": "現在のワークスペースのすべてのフォルダを参照します。"
@@ -1308,7 +1284,7 @@
     "other": "メタデータ"
   },
   "49": {
-    "other": "キャンセル"
+    "other": "Cancel"
   },
   "490": {
     "other": "日付の範囲"
@@ -1324,6 +1300,9 @@
   },
   "494": {
     "other": "昨日"
+  },
+  "494t": {
+    "other": "Tomorrow"
   },
   "495": {
     "other": "先週"
@@ -1678,6 +1657,9 @@
   },
   "599": {
     "other": "ユーザーを追加"
+  },
+  "599-a": {
+    "other": "All Results"
   },
   "6": {
     "other": "名称変更"
@@ -2321,6 +2303,9 @@
   "addressbook.pick.group": {
     "other": "グループを選択"
   },
+  "addressbook.pick.multiple": {
+    "other": "Multiple Selection"
+  },
   "confirm.dialog.title": {
     "other": "確認"
   },
@@ -2359,6 +2344,27 @@
   },
   "searchengine.scope.title": {
     "other": "検索..."
+  },
+  "searchengine.share.title": {
+    "other": "Shared"
+  },
+  "searchengine.share.hint": {
+    "other": "No status"
+  },
+  "searchengine.share.option.link": {
+    "other": "Public Link"
+  },
+  "searchengine.share.option.cell": {
+    "other": "Shared in Cell"
+  },
+  "searchengine.share.option.any": {
+    "other": "Public Link or Cell"
+  },
+  "searchengine.format.title": {
+    "other": "Format"
+  },
+  "searchengine.format.file-only": {
+    "other": "Files Only"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "高度なフィルタ"
@@ -2410,6 +2416,9 @@
   },
   "searchengine.complete.activefilters": {
     "other": "Filters:"
+  },
+  "searchengine.complete.activefilters-edit": {
+    "other": "Click to modify"
   },
   "chat.load-older": {
     "other": "古い項目"

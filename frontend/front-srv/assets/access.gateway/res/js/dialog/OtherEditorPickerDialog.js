@@ -49,7 +49,7 @@ let OtherEditorPickerDialog = createReactClass({
             onClick={this.clearAssociations}
         />);
         actions.push(<FlatButton
-            label={mess['49']}
+            label={mess['54']}
             primary={true}
             keyboardFocused={true}
             onClick={this.props.onDismiss}

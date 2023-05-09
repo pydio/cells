@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
 import { Motion, spring, presets } from 'react-motion';
 
 const ANIMATION={stifness: 500, damping: 20}

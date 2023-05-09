@@ -19,8 +19,8 @@
  */
 
 import asFormField from "../hoc/asFormField";
-const React = require('react')
-const {SelectField, MenuItem, Chip} = require('material-ui')
+import React, {Fragment} from 'react'
+const {MenuItem, Chip} = require('material-ui')
 const LangUtils = require('pydio/util/lang')
 import withChoices from '../hoc/withChoices'
 import Pydio from 'pydio'
@@ -63,7 +63,7 @@ class InputSelectBox extends React.Component{
         let menuItems = [];
         const {attributes, isDisplayGrid, toggleEditMode, editMode, disabled, multiple, className, variant} = this.props;
         if(!attributes['mandatory'] || attributes['mandatory'] !== "true"){
-            menuItems.push(<MenuItem value={-1} primaryText={attributes['label'] +  '...'}/>);
+            menuItems.push(<MenuItem value={-1} primaryText={<Fragment>{attributes['label']}{"..."}</Fragment>}/>);
         }
         const {choices} = this.props;
         choices.forEach(function(value, key){
@@ -78,7 +78,7 @@ class InputSelectBox extends React.Component{
                 <div
                     onClick={disabled?function(){}:toggleEditMode}
                     className={value?'':'paramValue-empty'}>
-                    {value ? value : 'Empty'} &nbsp;&nbsp;<span className="icon-caret-down"></span>
+                    {value ? value : 'Empty'} &nbsp;&nbsp;<span className="mdi mdi-chevron-down"></span>
                 </div>
             );
         } else {

@@ -21,14 +21,12 @@
 import withContextMenu from './context-menu'
 import * as controls from './controls'
 import withErrors from './errors'
-import withLoader from './loader'
 import {ContentActions, Controls as ContentControls} from './content/index'
 import {SelectionActions, SelectionControls, withSelection, withSelectionControls, withAutoPlayControls} from './selection/index'
 import {SizeActions, SizeControls, SizeProviders, withContainerSize, withResize, withSizeControls} from './size/index'
 import {ResolutionActions, ResolutionControls, withResolution, withResolutionControls} from './resolution/index'
 import {LocalisationActions, LocalisationControls} from './localisation/index'
 import {URLProvider} from './urls'
-import PaletteModifier from './PaletteModifier'
 import * as Animations from "./animations";
 import reducers from './editor/reducers/index';
 import * as selectors from './selectors/index';
@@ -37,10 +35,13 @@ import withVerticalScroll from './scrollbar/withVerticalScroll';
 import dropProvider from './drop/dropProvider'
 import NativeFileDropProvider from './drop/NativeFileDropProvider'
 import * as Modern from './material/ModernComponents'
+import * as ThemedContainers from './material/ThemedContainers'
 import * as Utils from './utils'
 import ReactPlaceHolder, {TextBlock as PhTextBlock, MediaBlock as PhMediaBlock, RectShape as PhRectShape, RoundShape as PhRoundShape, TextRow as PhTextRow} from './placeholders'
 import withSearch, {SearchConstants} from './search/withSearch'
 import * as hooks from './hooks'
+import * as AdditionalIcons from './material/AdditionalIcons'
+
 
 const PydioHOCs = {
     EditorActions: actions,
@@ -57,7 +58,6 @@ const PydioHOCs = {
     LocalisationControls,
     withContextMenu,
     withErrors,
-    withLoader,
     withContainerSize,
     withResize,
     withSizeControls,
@@ -70,10 +70,13 @@ const PydioHOCs = {
     withSearch,
     SearchConstants,
     ...Modern,
+    ThemedContainers,
+    DatePicker: ThemedContainers.DatePicker,
+    TimePicker: ThemedContainers.TimePicker,
+    AdditionalIcons,
     dropProvider,
     NativeFileDropProvider,
     ...Animations,
-    PaletteModifier,
     URLProvider,
     SizeProviders,
     ...controls,

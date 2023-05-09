@@ -68,40 +68,34 @@ class AltDashboard extends React.Component {
         const {drawerOpen, fullScreen, fullScreenTransition} = this.state;
 
         const appBarColor = new Color(muiTheme.appBar.color);
-        const colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
-        const lightBg = new Color({h:colorHue,s:35,l:98});
-        const fontColor =  Color(muiTheme.palette.primary1Color).darken(0.1).alpha(0.87);
+        const isMui3 = muiTheme.userTheme === 'mui3'
+        const {palette:{mui3}} = muiTheme
+
+        const styles = muiTheme.buildFSTemplate({})
+        styles.appBarStyle = {
+            backgroundColor: muiTheme.darkMode? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.40)',
+            height: fullScreen? 0: 200,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+        }
+        styles.buttonsStyle = {
+            color: muiTheme.appBar.textColor
+        }
+        styles.iconButtonsStyle = {
+            color: appBarColor.darken(0.4).toString()
+        }
+        styles.wsListsContainerStyle = {
+            flex: 1,
+            display:'flex',
+            flexDirection:'column',
+            alignItems:'center',
+            backgroundColor: isMui3 ? mui3['surface']:'white',
+            overflow:'hidden',
+        }
 
 
-        const styles = {
-            appBarStyle : {
-                backgroundColor: 'rgba(255, 255, 255, 0.50)',
-                height: fullScreen? 0: 200,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            },
-            buttonsStyle : {
-                color: muiTheme.appBar.textColor
-            },
-            iconButtonsStyle :{
-                color: appBarColor.darken(0.4).toString()
-            },
-            wsListsContainerStyle: {
-                flex: 1,
-                display:'flex',
-                flexDirection:'column',
-                alignItems:'center',
-                backgroundColor: 'white',
-                overflow:'hidden'
-            },
-            wsListStyle:{
-                backgroundColor     : lightBg.toString(),
-                color               : fontColor.toString(),
-            }
-        };
-
-        let mainClasses = ['vertical_layout', 'vertical_fit', 'react-fs-template', 'user-dashboard-template'];
+        let mainClasses = ['vertical_fit', 'react-fs-template', 'user-dashboard-template'];
 
         let tutorialComponent;
         if (this.showTutorial()) {
@@ -111,12 +105,22 @@ class AltDashboard extends React.Component {
         }
 
         const headerHeight = 72;
+        let additionalStyle = {}
+        if(muiTheme.userTheme !== 'mui3'){
+            additionalStyle = {
+                position:'absolute',
+                bottom:0,
+                top:0,
+                zIndex: 1000,
+                transform: drawerOpen?'translateX(0px)':'translateX(-250px)'
+            }
+        }
+
         const leftPanelProps = {
-            style: {backgroundColor: 'transparent'},
+            style: {...styles.leftPanel.masterStyle, ...additionalStyle},
             headerHeight:headerHeight,
             onMouseOver:()=>{this.clearCloseTimeout()},
             userWidgetProps: {
-                color: fontColor.toString(),
                 mergeButtonInAvatar:true,
                 popoverDirection:'left',
                 actionBarStyle:{
@@ -126,12 +130,9 @@ class AltDashboard extends React.Component {
                     height: headerHeight,
                     display:'flex',
                     alignItems:'center',
-                    backgroundColor:lightBg.toString(),
-                    boxShadow: 'none'
+                    boxShadow: 'none',
+                    background:'transparent'
                 }
-            },
-            workspacesListProps:{
-                style:styles.wsListStyle
             }
         };
 
@@ -147,6 +148,7 @@ class AltDashboard extends React.Component {
             <MasterLayout
                 pydio={pydio}
                 classes={mainClasses}
+                style={{...styles.masterStyle, backgroundColor:'transparent'}}
                 tutorialComponent={tutorialComponent}
                 leftPanelProps={leftPanelProps}
                 drawerOpen={drawerOpen}
@@ -158,23 +160,27 @@ class AltDashboard extends React.Component {
                 }}
             >
                 <Paper zDepth={0} style={{...styles.appBarStyle}} rounded={false}>
-                    <span className="drawer-button" style={{position:'absolute', top: 0, left: 0, zIndex: 2}}>
-                        <IconButton
-                            iconStyle={{color: null}}
-                            iconClassName="mdi mdi-menu"
-                            onClick={this.openDrawer.bind(this)}/>
-                    </span>
-                    <div style={{width: 250}}>
+                    {!isMui3 &&
+                        <span className="drawer-button" style={{position:'absolute', top: 6, left: 2, zIndex: 2}}>
+                            <IconButton
+                                iconStyle={{color: null}}
+                                iconClassName="mdi mdi-menu"
+                                onClick={this.openDrawer.bind(this)}/>
+                        </span>
+                    }
+                    <div style={{width: 250, display:'flex', justifyContent:'center'}}>
                         <ConfigLogo
                             className="home-top-logo"
+                            style={{maxHeight:100}}
                             pydio={this.props.pydio}
+                            darkMode={muiTheme.darkMode}
                             pluginName="gui.ajax"
                             pluginParameter="CUSTOM_DASH_LOGO"
                         />
                     </div>
                 </Paper>
                 <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle} fullScreen={fullScreen} fullScreenTransition={fullScreenTransition} onFocusChange={onFocusChange}>
-                    <SmartRecents {...this.props} style={{maxWidth: 660, width:'100%', padding:'8px 0'}} emptyStateProps={{style:{backgroundColor:'white'}}}/>
+                    <SmartRecents {...this.props} style={{maxWidth: 680, width:'100%', padding:'8px 0'}} emptyStateProps={{style:{backgroundColor:'transparent'}}}/>
                 </HomeSearchForm>
             </MasterLayout>
 
