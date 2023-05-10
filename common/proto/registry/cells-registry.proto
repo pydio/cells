@@ -37,14 +37,6 @@ enum ItemType {
   PROCESS = 9;
   ENDPOINT = 10;
   STATS = 11;
-
-  EDGE_SERVICE_NODE = 12;
-  EDGE_SERVICE_TAG = 13;
-  EDGE_SERVICE_DAO = 14;
-  EDGE_SERVICE_ENDPOINT = 15;
-  
-  EDGE_SERVER_NODE = 13;
-  EDGE_
 }
 
 enum ActionType {
