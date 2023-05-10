@@ -22,6 +22,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	xds "github.com/envoyproxy/go-control-plane/pkg/server/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
+	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/service/context/ckeys"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"net"
@@ -104,23 +105,29 @@ func init() {
 
 						nodeId := "test-id"
 
-						cb.Add(func(m client.LinkedItem) error {
+						cb.Add(func(reg registry.Registry) error {
 							// -------------------------------------------
 							// Creating the Endpoint Discovery Service
 							// -------------------------------------------
 							eds := []types.Resource{}
-							for srvItem, mm := range m {
+							srvs, err := reg.List(registry.WithType(pbregistry.ItemType_SERVER))
+							if err != nil {
+								return err
+							}
+							for _, srvItem := range srvs {
 								if srvItem.Name() != "grpc" {
 									continue
 								}
 
-								if len(mm.Get(pbregistry.ItemType_ENDPOINT)) == 0 {
+								endpointItems := reg.ListAdjacentItems(srvItem, registry.WithType(pbregistry.ItemType_ENDPOINT))
+								addrItems := reg.ListAdjacentItems(srvItem, registry.WithType(pbregistry.ItemType_ADDRESS))
+								if len(endpointItems) == 0 {
 									continue
 								}
 
 								var endpoints []*endpoint.LbEndpoint
 
-								for addrItem := range mm.Get(pbregistry.ItemType_ADDRESS) {
+								for _, addrItem := range addrItems {
 									host, portStr, err := net.SplitHostPort(addrItem.Name())
 									if err != nil {
 										continue
@@ -167,12 +174,13 @@ func init() {
 							// Creating the Cluster Discovery Service
 							// -------------------------------------------
 							cds := []types.Resource{}
-							for srvItem, mm := range m {
+							for _, srvItem := range srvs {
 								if srvItem.Name() != "grpc" {
 									continue
 								}
 
-								if len(mm.Get(pbregistry.ItemType_ENDPOINT)) == 0 {
+								endpointItems := reg.ListAdjacentItems(srvItem, registry.WithType(pbregistry.ItemType_ENDPOINT))
+								if len(endpointItems) == 0 {
 									continue
 								}
 
@@ -201,16 +209,18 @@ func init() {
 							// Creating the Route Discovery Service
 							// -------------------------------------------
 							routes := []*route.Route{}
-							for srvItem, mm := range m {
+							for _, srvItem := range srvs {
 								if srvItem.Name() != "grpc" {
 									continue
 								}
 
-								if len(mm.Get(pbregistry.ItemType_ENDPOINT)) == 0 {
+								endpointItems := reg.ListAdjacentItems(srvItem, registry.WithType(pbregistry.ItemType_ENDPOINT))
+								if len(endpointItems) == 0 {
 									continue
 								}
 
-								for endpointItem, svcItems := range mm.Get(pbregistry.ItemType_ENDPOINT) {
+								for _, endpointItem := range endpointItems {
+									svcItems := reg.ListAdjacentItems(endpointItem, registry.WithType(pbregistry.ItemType_SERVICE))
 									if len(svcItems) == 0 {
 										routes = append(routes, &route.Route{
 											Name: endpointItem.ID(),
@@ -228,7 +238,7 @@ func init() {
 											},
 										})
 									} else {
-										for svcItem := range svcItems {
+										for _, svcItem := range svcItems {
 											routes = append(routes, &route.Route{
 												Name: endpointItem.ID(),
 												Match: &route.RouteMatch{

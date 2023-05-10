@@ -38,23 +38,21 @@ func (h *Handler) Session(srv pb.Registry_SessionServer) error {
 		return err
 	}
 
-	init := msg.GetInit()
-	if init == nil {
-		return errors.New("session should start with init")
+	// Checking initial request type
+	sessionRequestType := msg.GetType()
+	if sessionRequestType != pb.SessionRequestType_REGISTER {
+		return errors.New("session should start with the registering of the main node")
 	}
 
-	node := &pb.Item{
-		Id:   init.Id,
-		Name: init.Id,
-		Item: &pb.Item_Node{
-			Node: &pb.Node{},
-		},
-	}
-	if err := h.reg.Register(util.ToItem(node)); err != nil {
+	node := util.ToItem(msg.GetItem())
+
+	if err := h.reg.Register(node); err != nil {
 		return err
 	}
 
-	defer h.reg.Deregister(util.ToItem(node))
+	defer func() {
+		h.reg.Deregister(node)
+	}()
 
 	if err := srv.Send(&pb.EmptyResponse{}); err != nil {
 		return err
@@ -66,37 +64,22 @@ func (h *Handler) Session(srv pb.Registry_SessionServer) error {
 			return err
 		}
 
-		reg := msg.GetReg()
-		if reg == nil {
-			return errors.New("session should only have reg requests")
-		}
+		item := util.ToItem(msg.GetItem())
 
-		switch reg.GetType() {
-		case pb.RegisterType_REGISTER:
-			if err := h.reg.Register(util.ToItem(reg.GetItem())); err != nil {
+		switch msg.GetType() {
+		case pb.SessionRequestType_REGISTER:
+			if err := h.reg.Register(item); err != nil {
 				return err
 			}
-		case pb.RegisterType_DEREGISTER:
-			if err := h.reg.Deregister(util.ToItem(reg.GetItem())); err != nil {
-				return err
-			}
-		case pb.RegisterType_START:
-			if err := h.reg.Start(util.ToItem(reg.GetItem())); err != nil {
-				return err
-			}
-		case pb.RegisterType_STOP:
-			if err := h.reg.Stop(util.ToItem(reg.GetItem())); err != nil {
+		case pb.SessionRequestType_DEREGISTER:
+			if err := h.reg.Deregister(item); err != nil {
 				return err
 			}
 		}
-
-		//fmt.Println("REGISTERING ", reg.GetItem().GetName(), reg.GetItem().GetId())
 
 		if err := srv.Send(&pb.EmptyResponse{}); err != nil {
 			return err
 		}
-
-		//fmt.Println("REGISTERING ACK ", reg.GetItem().GetName(), reg.GetItem().GetId())
 	}
 
 	return nil

@@ -23,6 +23,7 @@ package http
 import (
 	"fmt"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry"
 	"math/rand"
 	"net/http"
 	"net/http/httputil"
@@ -38,7 +39,7 @@ import (
 )
 
 type Balancer interface {
-	Build(m client.LinkedItem) error
+	Build(m registry.Registry) error
 	PickService(name string) (*httputil.ReverseProxy, error)
 	PickEndpoint(path string) (*httputil.ReverseProxy, error)
 }
@@ -65,7 +66,8 @@ type balancer struct {
 
 type reverseProxy struct {
 	*httputil.ReverseProxy
-	linkedItem client.LinkedItem
+	services  []registry.Item
+	endpoints []registry.Item
 }
 
 type proxyBalancerTarget struct {
@@ -83,19 +85,23 @@ func (p *proxyBalancerTarget) Attributes() *attributes.Attributes {
 	// return p.proxy.BalancerAttributes
 }
 
-func (b *balancer) Build(m client.LinkedItem) error {
+func (b *balancer) Build(reg registry.Registry) error {
 	usedAddr := map[string]struct{}{}
 
-	for srvItem, linkedItem := range m {
-		addrs := linkedItem.Get(pb.ItemType_ADDRESS)
-		for addr := range addrs {
+	srvs, err := reg.List(registry.WithType(pb.ItemType_SERVER))
+	if err != nil {
+		return err
+	}
+	for _, srv := range srvs {
+		addrs := reg.ListAdjacentItems(srv, registry.WithType(pb.ItemType_ADDRESS))
+		for _, addr := range addrs {
 			addr := addr.Name()
 			usedAddr[addr] = struct{}{}
 			proxy, ok := b.readyProxies[addr]
 			if !ok {
 				scheme := "http://"
 				// TODO - do that in a better way
-				if srvItem.Name() == "grpcs" {
+				if srv.Name() == "grpcs" {
 					scheme = "https://"
 				}
 				u, err := url.Parse(scheme + strings.Replace(addr, "[::]", "", -1))
@@ -104,7 +110,8 @@ func (b *balancer) Build(m client.LinkedItem) error {
 				}
 				proxy = &reverseProxy{
 					ReverseProxy: httputil.NewSingleHostReverseProxy(u),
-					linkedItem:   linkedItem,
+					services:     reg.ListAdjacentItems(srv, registry.WithType(pb.ItemType_SERVICE)),
+					endpoints:    reg.ListAdjacentItems(srv, registry.WithType(pb.ItemType_ENDPOINT)),
 				}
 				proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
 					if err.Error() == "context canceled" {
@@ -128,8 +135,7 @@ func (b *balancer) Build(m client.LinkedItem) error {
 func (b *balancer) PickService(name string) (*httputil.ReverseProxy, error) {
 	var targets []*proxyBalancerTarget
 	for addr, proxy := range b.readyProxies {
-		svcs := proxy.linkedItem.Get(pb.ItemType_SERVICE)
-		for svc := range svcs {
+		for _, svc := range proxy.services {
 			if svc.Name() == name {
 				//return proxy.ReverseProxy
 				targets = append(targets, &proxyBalancerTarget{
@@ -168,8 +174,8 @@ func (b *balancer) PickService(name string) (*httputil.ReverseProxy, error) {
 func (b *balancer) PickEndpoint(path string) (*httputil.ReverseProxy, error) {
 	var targets []*proxyBalancerTarget
 	for addr, proxy := range b.readyProxies {
-		endpoints := proxy.linkedItem.Get(pb.ItemType_ENDPOINT)
-		for endpoint := range endpoints {
+		endpoints := proxy.endpoints
+		for _, endpoint := range endpoints {
 			if endpoint.Name() == "/" {
 				continue
 			}

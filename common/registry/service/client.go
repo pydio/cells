@@ -22,7 +22,6 @@ package service
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/utils/uuid"
 	"net/url"
 	"os"
 	"sync"
@@ -152,15 +151,7 @@ func (s *serviceRegistry) Init(opts ...Option) error {
 	if err != nil {
 		return err
 	}
-	if err := sessionClient.Send(&pb.SessionRequest{
-		Req: &pb.SessionRequest_Init{
-			Init: &pb.SessionInitRequest{
-				Id: uuid.New(),
-			},
-		},
-	}); err != nil {
-		return err
-	}
+
 	s.sessionClient = sessionClient
 
 	return nil
@@ -179,14 +170,7 @@ func (s *serviceRegistry) Done() <-chan struct{} {
 }
 
 func (s *serviceRegistry) Start(item registry.Item) error {
-	if err := s.sessionClient.Send(&pb.SessionRequest{
-		Req: &pb.SessionRequest_Reg{
-			Reg: &pb.SessionRegistryRequest{
-				Type: pb.RegisterType_START,
-				Item: util.ToProtoItem(item),
-			},
-		},
-	}); err != nil {
+	if _, err := s.client.Start(s.opts.Context, util.ToProtoItem(item)); err != nil {
 		return err
 	}
 
@@ -194,29 +178,17 @@ func (s *serviceRegistry) Start(item registry.Item) error {
 }
 
 func (s *serviceRegistry) Stop(item registry.Item) error {
-	if err := s.sessionClient.Send(&pb.SessionRequest{
-		Req: &pb.SessionRequest_Reg{
-			Reg: &pb.SessionRegistryRequest{
-				Type: pb.RegisterType_STOP,
-				Item: util.ToProtoItem(item),
-			},
-		},
-	}); err != nil {
+	if _, err := s.client.Stop(s.opts.Context, util.ToProtoItem(item)); err != nil {
 		return err
 	}
-
 	return nil
 }
 
 func (s *serviceRegistry) Register(item registry.Item, option ...registry.RegisterOption) error {
 	if os.Getenv("CELLS_USE_REGISTRY_SESSION") == "true" {
 		if err := s.sessionClient.Send(&pb.SessionRequest{
-			Req: &pb.SessionRequest_Reg{
-				Reg: &pb.SessionRegistryRequest{
-					Type: pb.RegisterType_REGISTER,
-					Item: util.ToProtoItem(item),
-				},
-			},
+			Type: pb.SessionRequestType_REGISTER,
+			Item: util.ToProtoItem(item),
 		}); err != nil {
 			return err
 		}
@@ -250,12 +222,8 @@ func (s *serviceRegistry) Register(item registry.Item, option ...registry.Regist
 func (s *serviceRegistry) Deregister(item registry.Item, option ...registry.RegisterOption) error {
 	if os.Getenv("CELLS_USE_REGISTRY_SESSION") == "true" {
 		if err := s.sessionClient.Send(&pb.SessionRequest{
-			Req: &pb.SessionRequest_Reg{
-				Reg: &pb.SessionRegistryRequest{
-					Type: pb.RegisterType_DEREGISTER,
-					Item: util.ToProtoItem(item),
-				},
-			},
+			Type: pb.SessionRequestType_DEREGISTER,
+			Item: util.ToProtoItem(item),
 		}); err != nil {
 			return err
 		}
@@ -471,15 +439,6 @@ func NewRegistry(opts ...Option) (registry.Registry, error) {
 	cli := pb.NewRegistryClient(conn)
 	sessionClient, err := cli.Session(options.Context)
 	if err != nil {
-		return nil, err
-	}
-	if err := sessionClient.Send(&pb.SessionRequest{
-		Req: &pb.SessionRequest_Init{
-			Init: &pb.SessionInitRequest{
-				Id: uuid.New(),
-			},
-		},
-	}); err != nil {
 		return nil, err
 	}
 

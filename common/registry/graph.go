@@ -130,6 +130,7 @@ func (r *graphRegistry) Deregister(i Item, option ...RegisterOption) error {
 }
 
 func (r *graphRegistry) RegisterEdge(item1, item2, edgeLabel string, metadata map[string]string, oo ...RegisterOption) (Edge, error) {
+
 	// Make id unique for an item1+item2 pair
 	pair := []string{item1, item2}
 	sort.Strings(pair)

@@ -16,19 +16,9 @@ service Registry {
   rpc NewLocker(stream NewLockerRequest) returns (stream NewLockerResponse) {};
 }
 
+
 message SessionRequest {
-  oneof req {
-    SessionInitRequest init = 1;
-    SessionRegistryRequest reg = 2;
-  }
-}
-
-message SessionInitRequest {
-  string id = 1;
-}
-
-message SessionRegistryRequest {
-  RegisterType type = 1;
+  SessionRequestType type = 1;
   Item item = 2;
 }
 
@@ -47,6 +37,14 @@ enum ItemType {
   PROCESS = 9;
   ENDPOINT = 10;
   STATS = 11;
+
+  EDGE_SERVICE_NODE = 12;
+  EDGE_SERVICE_TAG = 13;
+  EDGE_SERVICE_DAO = 14;
+  EDGE_SERVICE_ENDPOINT = 15;
+  
+  EDGE_SERVER_NODE = 13;
+  EDGE_
 }
 
 enum ActionType {
@@ -58,11 +56,10 @@ enum ActionType {
   DELETE = 5;
 }
 
-enum RegisterType {
-  REGISTER = 0;
-  DEREGISTER = 1;
-  START = 2;
-  STOP = 3;
+enum SessionRequestType {
+  INIT = 0;
+  REGISTER = 1;
+  DEREGISTER = 2;
 }
 
 message Item {

@@ -185,6 +185,8 @@ type configRegistry struct {
 
 	namedCacheLock *sync.RWMutex
 	namedCache     map[string]string
+
+	watchOnce *sync.Once
 }
 
 type broadcaster struct {
@@ -203,12 +205,12 @@ func NewConfigRegistry(store config.Store, byName bool) registry.RawRegistry {
 		cache:            []registry.Item{},
 		broadcastersLock: &sync.RWMutex{},
 		broadcasters:     make(map[string]broadcaster),
+		watchOnce:        &sync.Once{},
 	}
 	if byName {
 		c.namedCacheLock = &sync.RWMutex{}
 		c.namedCache = make(map[string]string)
 	}
-	go c.watch()
 	return c
 }
 
@@ -468,16 +470,15 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 			continue
 		}
 
-		items := make(map[string]registry.Item)
-		for k, rawItem := range rawItems {
+		for _, rawItem := range rawItems {
+			var item registry.Item
 			switch ri := rawItem.(type) {
 			case registry.Item:
-				items[k] = ri
+				item = ri
 			case *pb.Item:
-				items[k] = util.ToItem(ri)
+				item = util.ToItem(ri)
 			}
-		}
-		for _, item := range items {
+
 			foundID := false
 			for _, id := range o.IDs {
 				if id == item.ID() {
@@ -521,6 +522,10 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 }
 
 func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error) {
+	c.watchOnce.Do(func() {
+		go c.watch()
+	})
+
 	// parse the options, fallback to the default domain
 	var wo registry.Options
 	for _, o := range opts {

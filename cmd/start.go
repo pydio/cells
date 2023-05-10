@@ -182,7 +182,6 @@ ENVIRONMENT
 
 					for name := range create.Map() {
 						processesToStart = append(processesToStart, name)
-
 					}
 					for name := range update.Map() {
 						processesToStop = append(processesToStop, name)
@@ -268,7 +267,7 @@ ENVIRONMENT
 
 									if vv, ok := v.([]interface{}); ok {
 										for _, vvv := range vv {
-											childArgs = append(childArgs, vvv.(string))
+											childArgs = append(childArgs, "^"+vvv.(string)+"$")
 										}
 									}
 								}

@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"os"
 	"strconv"
 	"strings"
@@ -39,7 +40,6 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
@@ -52,6 +52,10 @@ const (
 	CommandStart   = "start"
 	CommandStop    = "stop"
 	CommandRestart = "restart"
+)
+
+var (
+	node = util.CreateNode()
 )
 
 type Manager interface {
@@ -81,13 +85,13 @@ type manager struct {
 
 func NewManager(ctx context.Context, reg registry.Registry, srcUrl string, namespace string, logger log.ZapLogger) Manager {
 	m := &manager{
-		ctx:    ctx,
-		ns:     namespace,
-		srcUrl: srcUrl,
-		// reg:      reg,
+		ctx:      ctx,
+		ns:       namespace,
+		srcUrl:   srcUrl,
 		servers:  make(map[string]server.Server),
 		services: make(map[string]service.Service),
 		logger:   logger,
+		root:     node,
 	}
 
 	reg = registry.NewTransientWrapper(reg, registry.WithType(pb.ItemType_SERVICE))
@@ -97,34 +101,38 @@ func NewManager(ctx context.Context, reg registry.Registry, srcUrl string, names
 			meta[runtime.NodeRootID] = m.root.ID()
 		}
 	}, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE), registry.WithType(pb.ItemType_NODE))
+
+	reg.Register(m.root)
+
+	reg = registry.NewFuncWrapper(reg, func(item *registry.Item, opts *[]registry.RegisterOption) {
+		var node registry.Node
+		var server server.Server
+		var service service.Service
+		if (*item).As(&node) {
+			*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
+		} else if (*item).As(&server) {
+			*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
+			m.servers[server.ID()] = server
+		} else if (*item).As(&service) {
+			*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
+			m.services[service.ID()] = service
+		}
+
+	})
 	m.reg = reg
 
 	// Detect a parent root
-	var current, parent registry.Item
+	var current registry.Item
 	if ii, er := reg.List(registry.WithType(pb.ItemType_NODE), registry.WithMeta(runtime.NodeMetaHostName, runtime.GetHostname())); er == nil && len(ii) > 0 {
 		for _, root := range ii {
 			rPID := root.Metadata()[runtime.NodeMetaPID]
-			if rPID == strconv.Itoa(os.Getppid()) {
-				parent = root
-			} else if rPID == strconv.Itoa(os.Getpid()) {
+			if rPID == strconv.Itoa(os.Getpid()) {
 				current = root
 			}
 		}
 	}
 	if current != nil {
 		m.root = current
-	} else {
-		node := util.CreateNode()
-		runtime.SetProcessRootID(node.ID())
-
-		m.root = node
-
-		if er := reg.Register(registry.Item(node)); er == nil {
-			if parent != nil {
-				m.rootIsFork = true
-				_, _ = reg.RegisterEdge(parent.ID(), m.root.ID(), "Fork", map[string]string{})
-			}
-		}
 	}
 
 	go m.WatchTransientStatus()
@@ -182,19 +190,19 @@ func (m *manager) Init(ctx context.Context) error {
 			continue // Do not register here
 		}
 
-		if er := m.reg.Register(s, registry.WithEdgeTo(m.root.ID(), "Node", map[string]string{})); er != nil {
+		/*if er := m.reg.Register(s, registry.WithEdgeTo(m.root.ID(), "Node", map[string]string{})); er != nil {
 			return er
-		}
+		}*/
 
 		m.services[s.ID()] = s
 	}
 
-	if m.root != nil {
+	/*if m.root != nil {
 		for _, sr := range byScheme {
 			m.servers[sr.ID()] = sr // Keep a ref to the actual object
 			_, _ = m.reg.RegisterEdge(m.root.ID(), sr.ID(), "Node", map[string]string{})
 		}
-	}
+	}*/
 
 	return nil
 

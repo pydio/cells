@@ -41,6 +41,7 @@ servers: &servers
 # Default env configuration
 #--------------------------------------------
 env: &env
+  CELLS_USE_REGISTRY_SESSION: true
   GRPC_EXPERIMENTAL_XDS_FEDERATION: true
   GRPC_XDS_BOOTSTRAP_CONFIG: {
     "xds_servers": [
@@ -119,6 +120,7 @@ processes:
       http:
         type: caddy
         port: {{ .FrontendPort }}
+
     env: *env
     services:
       gateway:

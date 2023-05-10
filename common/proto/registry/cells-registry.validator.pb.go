@@ -16,26 +16,6 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *SessionRequest) Validate() error {
-	if oneOfNester, ok := this.GetReq().(*SessionRequest_Init); ok {
-		if oneOfNester.Init != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Init); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Init", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetReq().(*SessionRequest_Reg); ok {
-		if oneOfNester.Reg != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Reg); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Reg", err)
-			}
-		}
-	}
-	return nil
-}
-func (this *SessionInitRequest) Validate() error {
-	return nil
-}
-func (this *SessionRegistryRequest) Validate() error {
 	if this.Item != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Item); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Item", err)
