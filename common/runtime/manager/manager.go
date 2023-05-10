@@ -108,16 +108,13 @@ func NewManager(ctx context.Context, reg registry.Registry, srcUrl string, names
 		var node registry.Node
 		var server server.Server
 		var service service.Service
-		if (*item).As(&node) {
+		if (*item).As(&node) && node.ID() != m.root.ID() {
 			*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
 		} else if (*item).As(&server) {
 			*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
-			m.servers[server.ID()] = server
 		} else if (*item).As(&service) {
 			*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
-			m.services[service.ID()] = service
 		}
-
 	})
 	m.reg = reg
 
@@ -190,19 +187,12 @@ func (m *manager) Init(ctx context.Context) error {
 			continue // Do not register here
 		}
 
-		/*if er := m.reg.Register(s, registry.WithEdgeTo(m.root.ID(), "Node", map[string]string{})); er != nil {
-			return er
-		}*/
-
 		m.services[s.ID()] = s
 	}
 
-	/*if m.root != nil {
-		for _, sr := range byScheme {
-			m.servers[sr.ID()] = sr // Keep a ref to the actual object
-			_, _ = m.reg.RegisterEdge(m.root.ID(), sr.ID(), "Node", map[string]string{})
-		}
-	}*/
+	for _, sr := range byScheme {
+		m.servers[sr.ID()] = sr // Keep a ref to the actual object
+	}
 
 	return nil
 
