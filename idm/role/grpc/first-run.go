@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	grpc2 "google.golang.org/grpc"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -261,5 +262,24 @@ func UpgradeTo4199(ctx context.Context) error {
 		}
 	}
 	log.Logger(ctx).Info("Added new ACLs for root group to access 'directory' workspace")
+	return nil
+}
+
+func UpgradeTo421(ctx context.Context) error {
+	newACLs := []*idm.ACL{
+		{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "parameter:core.auth:USER_CREATE_USERS", Value: "false"}, WorkspaceID: permissions.FrontWsScopeAll},
+	}
+	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+	for _, acl := range newACLs {
+		_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl}, grpc2.WaitForReady(true))
+		if e != nil {
+			if strings.Contains(strings.ToLower(e.Error()), "duplicate") {
+				log.Logger(ctx).Info("Ignoring new ACL for external users role, it's already there")
+				return nil
+			}
+			return e
+		}
+	}
+	log.Logger(ctx).Info("Added new ACLs for external users")
 	return nil
 }
