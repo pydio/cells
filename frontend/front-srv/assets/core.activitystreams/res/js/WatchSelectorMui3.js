@@ -154,7 +154,7 @@ class WatchSelectorMui3 extends React.Component{
             root:{
                 borderRadius: muiTheme.borderRadius,
                 display:'flex',
-                border: '1px solid ' + muiTheme.palette.mui3['outline'],
+                border: '1px solid ' + (animatedButton&&!animOpen?muiTheme.palette.mui3['primary']:muiTheme.palette.mui3['outline']),
                 overflow:animatedButton?null:'hidden',
                 alignItems:'center',
                 margin:animatedButton?'0 6px':null,

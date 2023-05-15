@@ -18,19 +18,26 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
-import Avatar from "./Avatar";
+import SharedAvatar from "./SharedAvatar";
 
-const SharedUsersStack = ({acls, max=6, size=32}) => {
+const SharedUsersStack = ({acls, max=6, size=32, onlines=undefined}) => {
 
     let participantStyle = {
         border: '2px solid var(--md-sys-color-surface-variant)',
     }
     let participants = Object.keys(acls).map((k,i) => {
-        let type, object;
+        let style = {...participantStyle};
+        let type, object, online;
         const acl = acls[k];
         if(acl.User) {
             type = 'user';
             object = acl.User
+            if(onlines !== undefined) {
+                online = onlines && onlines.indexOf && onlines.indexOf(acl.User.Login) > -1;
+                if(online) {
+                    style.border = '2px solid #4caf50';
+                }
+            }
         }else if (acl.Group) {
             type = 'group'
             object = acl.Group;
@@ -40,13 +47,27 @@ const SharedUsersStack = ({acls, max=6, size=32}) => {
         } else {
             return null
         }
-        let style = {...participantStyle};
-        if(i > 0) {
-            style.marginLeft = -10;
-            style.zIndex = i*2
-        }
-        return {type, object, style}
+        return {type, object, style, online}
     }).filter(a => a !== null)
+
+    if(onlines !== undefined) { // Sort with online first
+        participants.sort((a,b)=>{
+            if(a.online) {
+                return -1
+            } else if(b.online) {
+                return 1
+            } else {
+                return 0
+            }
+        })
+    }
+
+    participants = participants.map((p,i) => {
+        if(i > 0) {
+            p.style = {...p.style, marginLeft: -10, zIndex: i*2}
+        }
+        return p;
+    })
 
     if(participants.length > max) {
         const moreSize = participants.length - max
@@ -57,7 +78,7 @@ const SharedUsersStack = ({acls, max=6, size=32}) => {
 
     return (
         <div style={{display:'flex', height:size}}>
-            {participants.map(({type, object, style})=> <Avatar size={size} type={type} idmObject={object} style={style} tooltip={true}/>)}
+            {participants.map(({type, object, style})=> <SharedAvatar size={size} type={type} idmObject={object} style={style} tooltip={true}/>)}
         </div>
     )
 

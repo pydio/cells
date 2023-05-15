@@ -66,7 +66,7 @@ class Breadcrumb extends React.Component {
     }
 
     render() {
-        const {pydio, muiTheme, rootStyle} = this.props;
+        const {pydio, muiTheme, rootStyle, node:propNode} = this.props;
         const {node, minFit} = this.state;
         const styles = {
             main: {
@@ -111,7 +111,7 @@ class Breadcrumb extends React.Component {
                 <span className={"mdi mdi-folder-outline"} style={{fontSize:'0.9em', marginRight: 5}}/>
                 <span className={"segment first" + (segments.length ? '' : ' last')} onClick={this.goTo.bind(this, '/')}>{repoLabel}</span>
                 {segments}
-                <RefreshAction pydio={pydio} muiTheme={muiTheme}/>
+                {!(propNode && propNode.isLeaf()) && <RefreshAction pydio={pydio} muiTheme={muiTheme}/>}
                 <style type={"text/css"} dangerouslySetInnerHTML={{__html:this.makeStyle(mainStyle.color)}}/>
             </Textfit>
         );

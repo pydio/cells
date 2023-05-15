@@ -20,12 +20,12 @@
 import React from 'react'
 import Pydio from 'pydio'
 import IdmObjectHelper from 'pydio/model/idm-object-helper'
-const {muiThemeable} = require('material-ui/styles')
-const {UserAvatar} = Pydio.requireLib('components')
+import {muiThemeable} from 'material-ui/styles'
+import UserAvatar from '../avatar/UserAvatar'
 const {M3Tooltip} = Pydio.requireLib("boot");
 
 
-let Avatar = muiThemeable()(({size=24, idmObject, type, muiTheme, tooltip=false, style={}}) => {
+let SharedAvatar = muiThemeable()(({size=24, idmObject, type, muiTheme, tooltip=false, style={}}) => {
 
     let avatar;
     let avatarColor = muiTheme.palette.avatarsColor;
@@ -93,4 +93,4 @@ let Avatar = muiThemeable()(({size=24, idmObject, type, muiTheme, tooltip=false,
     return avatar;
 })
 
-export default Avatar
+export default SharedAvatar

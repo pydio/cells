@@ -19,16 +19,16 @@
  */
 import React, {Fragment} from 'react'
 import Pydio from 'pydio'
-import EditCellDialog from './EditCellDialog'
 import CellModel from 'pydio/model/cell'
 import ResourcesManager from 'pydio/http/resources-manager'
 import {MenuItem} from 'material-ui'
-import ShareHelper from "../main/ShareHelper";
-import SharedUsersStack from "./SharedUsersStack";
 import {muiThemeable} from 'material-ui/styles'
 
+import ShareHelper from "../main/ShareHelper";
+import EditCellDialog from './EditCellDialog'
+
 const {moment} = Pydio.requireLib('boot')
-const {GenericCard, GenericLine, Mui3CardLine, QuotaUsageLine} = Pydio.requireLib("components");
+const {GenericCard, GenericLine, Mui3CardLine, QuotaUsageLine, SharedUsersStack} = Pydio.requireLib("components");
 
 class CellCard extends React.Component{
 

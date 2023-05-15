@@ -20,7 +20,7 @@
 import React, {Component} from 'react'
 const PropTypes = require('prop-types');
 const {MenuItem, IconMenu, IconButton} = require('material-ui')
-import Avatar from "./Avatar";
+const {SharedAvatar} = Pydio.requireLib("components");
 
 class SharedUserBadge extends Component{
 
@@ -59,7 +59,7 @@ class SharedUserBadge extends Component{
         const {boxes} = this.props;
         return (
             <div className={"share-dialog user-badge user-type-" + this.props.type}>
-                <Avatar size={28} type={type} idmObject={avatarUser} style={{margin: '5px 14px 7px 7px'}}/>
+                <SharedAvatar size={28} type={type} idmObject={avatarUser} style={{margin: '5px 14px 7px 7px'}}/>
                 <span className="user-badge-label">{this.props.label}</span>
                 {menu}
                 {boxes}

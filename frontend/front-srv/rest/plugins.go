@@ -59,7 +59,6 @@ var BasePluginsBox = frontend.PluginBox{
 		"core.mailer",
 		"core.pydio",
 		"core.uploader",
-		"editor.browser",
 		"editor.ckeditor",
 		"editor.codemirror",
 		"editor.diaporama",

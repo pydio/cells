@@ -48,6 +48,8 @@ import {Types, collect, collectDrop, nodeDragSource, nodeDropTarget, DNDActionPa
 import UserAvatar from './users/avatar/UserAvatar'
 import UsersCompleter from './users/UsersCompleter'
 import TeamCreationForm from './users/TeamCreationForm'
+import SharedUsersStack from './users/stack/SharedUsersStack'
+import SharedAvatar from './users/stack/SharedAvatar'
 
 import ButtonMenu from './menu/ButtonMenu'
 import ContextMenu from './menu/ContextMenu'
@@ -105,11 +107,13 @@ const PydioComponents = {
     DNDActionParameter      : DNDActionParameter,
 
     UserAvatar,
+    SharedAvatar,
     UsersCompleter,
     TeamCreationForm,
     AddressBook,
     DirectoryLayout,
     ListStylesCompact,
+    SharedUsersStack,
 
     ContextMenu             : ContextMenu,
     Toolbar                 : Toolbar,

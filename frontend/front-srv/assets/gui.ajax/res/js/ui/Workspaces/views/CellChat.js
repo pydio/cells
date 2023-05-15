@@ -49,7 +49,7 @@ class CellChat extends React.Component{
                     roomType={chatRoomType}
                     roomObjectId={cellId}
                     style={chatStyle}
-                    chatUsersStyle={{borderBottom: 0, padding: 5, backgroundColor:muiTheme.palette.mui3['surface-variant'], display:'flex', flexWrap:'wrap'}}
+                    chatUsersStyle={{padding: '8px 10px', borderBottom:'1px solid ' + muiTheme.palette.mui3['outline-variant-50'], display:'flex', flexWrap:'wrap'}}
                     msgContainerStyle={{maxHeight:null, flex:1, paddingTop: '10px !important'}}
                     fieldHint={pydio.MessageHash['636']}
                     pushMessagesToBottom={true}

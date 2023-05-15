@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <editor id="editor.codemirror" openable="true" canWrite="true" text="code_mirror.1" iconClass="mdi mdi-code-tags" title="code_mirror.2"
-        actions="PydioCodeMirror.Actions" className="PydioCodeMirror" mimes="xml,html,htm,js,json,css,php,phtml,sparql,txt,py,c#,java,jsp,sql,cgi,pl,inc,xsl,md"
+        actions="PydioCodeMirror.Actions" className="PydioCodeMirror" mimes="xml,html,htm,js,json,css,php,phtml,sparql,txt,py,c#,java,jsp,sql,cgi,pl,inc,xsl,md,csv"
         label="CONF_MESSAGE[Source Viewer]" description="CONF_MESSAGE[Syntax Highlighter for all major code source files]">
     <client_settings>
         <resources>
