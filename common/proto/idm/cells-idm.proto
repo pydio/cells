@@ -520,6 +520,7 @@ service PolicyEngineService {
     rpc IsAllowed (PolicyEngineRequest) returns (PolicyEngineResponse) {};
     rpc StorePolicyGroup(StorePolicyGroupRequest) returns (StorePolicyGroupResponse) {};
     rpc ListPolicyGroups(ListPolicyGroupsRequest) returns (ListPolicyGroupsResponse) {};
+    rpc StreamPolicyGroups(ListPolicyGroupsRequest) returns (stream PolicyGroup) {};
     rpc DeletePolicyGroup(DeletePolicyGroupRequest) returns (DeletePolicyGroupResponse) {};
 }
 

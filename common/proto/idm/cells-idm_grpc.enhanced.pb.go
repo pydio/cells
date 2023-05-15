@@ -607,6 +607,21 @@ func (m PolicyEngineServiceEnhancedServer) ListPolicyGroups(ctx context.Context,
 	return nil, status.Errorf(codes.Unimplemented, "method ListPolicyGroups not implemented")
 }
 
+func (m PolicyEngineServiceEnhancedServer) StreamPolicyGroups(r *ListPolicyGroupsRequest, s PolicyEngineService_StreamPolicyGroupsServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method StreamPolicyGroups should have a context")
+	}
+	enhancedPolicyEngineServiceServersLock.RLock()
+	defer enhancedPolicyEngineServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.StreamPolicyGroups(r, s)
+		}
+	}
+	return status.Errorf(codes.Unimplemented, "method StreamPolicyGroups not implemented")
+}
+
 func (m PolicyEngineServiceEnhancedServer) DeletePolicyGroup(ctx context.Context, r *DeletePolicyGroupRequest) (*DeletePolicyGroupResponse, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok || len(md.Get("targetname")) == 0 {

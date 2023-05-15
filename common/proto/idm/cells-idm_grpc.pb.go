@@ -1430,6 +1430,7 @@ type PolicyEngineServiceClient interface {
 	IsAllowed(ctx context.Context, in *PolicyEngineRequest, opts ...grpc.CallOption) (*PolicyEngineResponse, error)
 	StorePolicyGroup(ctx context.Context, in *StorePolicyGroupRequest, opts ...grpc.CallOption) (*StorePolicyGroupResponse, error)
 	ListPolicyGroups(ctx context.Context, in *ListPolicyGroupsRequest, opts ...grpc.CallOption) (*ListPolicyGroupsResponse, error)
+	StreamPolicyGroups(ctx context.Context, in *ListPolicyGroupsRequest, opts ...grpc.CallOption) (PolicyEngineService_StreamPolicyGroupsClient, error)
 	DeletePolicyGroup(ctx context.Context, in *DeletePolicyGroupRequest, opts ...grpc.CallOption) (*DeletePolicyGroupResponse, error)
 }
 
@@ -1468,6 +1469,38 @@ func (c *policyEngineServiceClient) ListPolicyGroups(ctx context.Context, in *Li
 	return out, nil
 }
 
+func (c *policyEngineServiceClient) StreamPolicyGroups(ctx context.Context, in *ListPolicyGroupsRequest, opts ...grpc.CallOption) (PolicyEngineService_StreamPolicyGroupsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &PolicyEngineService_ServiceDesc.Streams[0], "/idm.PolicyEngineService/StreamPolicyGroups", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &policyEngineServiceStreamPolicyGroupsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type PolicyEngineService_StreamPolicyGroupsClient interface {
+	Recv() (*PolicyGroup, error)
+	grpc.ClientStream
+}
+
+type policyEngineServiceStreamPolicyGroupsClient struct {
+	grpc.ClientStream
+}
+
+func (x *policyEngineServiceStreamPolicyGroupsClient) Recv() (*PolicyGroup, error) {
+	m := new(PolicyGroup)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *policyEngineServiceClient) DeletePolicyGroup(ctx context.Context, in *DeletePolicyGroupRequest, opts ...grpc.CallOption) (*DeletePolicyGroupResponse, error) {
 	out := new(DeletePolicyGroupResponse)
 	err := c.cc.Invoke(ctx, "/idm.PolicyEngineService/DeletePolicyGroup", in, out, opts...)
@@ -1484,6 +1517,7 @@ type PolicyEngineServiceServer interface {
 	IsAllowed(context.Context, *PolicyEngineRequest) (*PolicyEngineResponse, error)
 	StorePolicyGroup(context.Context, *StorePolicyGroupRequest) (*StorePolicyGroupResponse, error)
 	ListPolicyGroups(context.Context, *ListPolicyGroupsRequest) (*ListPolicyGroupsResponse, error)
+	StreamPolicyGroups(*ListPolicyGroupsRequest, PolicyEngineService_StreamPolicyGroupsServer) error
 	DeletePolicyGroup(context.Context, *DeletePolicyGroupRequest) (*DeletePolicyGroupResponse, error)
 	mustEmbedUnimplementedPolicyEngineServiceServer()
 }
@@ -1500,6 +1534,9 @@ func (UnimplementedPolicyEngineServiceServer) StorePolicyGroup(context.Context, 
 }
 func (UnimplementedPolicyEngineServiceServer) ListPolicyGroups(context.Context, *ListPolicyGroupsRequest) (*ListPolicyGroupsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPolicyGroups not implemented")
+}
+func (UnimplementedPolicyEngineServiceServer) StreamPolicyGroups(*ListPolicyGroupsRequest, PolicyEngineService_StreamPolicyGroupsServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamPolicyGroups not implemented")
 }
 func (UnimplementedPolicyEngineServiceServer) DeletePolicyGroup(context.Context, *DeletePolicyGroupRequest) (*DeletePolicyGroupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeletePolicyGroup not implemented")
@@ -1571,6 +1608,27 @@ func _PolicyEngineService_ListPolicyGroups_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PolicyEngineService_StreamPolicyGroups_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ListPolicyGroupsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(PolicyEngineServiceServer).StreamPolicyGroups(m, &policyEngineServiceStreamPolicyGroupsServer{stream})
+}
+
+type PolicyEngineService_StreamPolicyGroupsServer interface {
+	Send(*PolicyGroup) error
+	grpc.ServerStream
+}
+
+type policyEngineServiceStreamPolicyGroupsServer struct {
+	grpc.ServerStream
+}
+
+func (x *policyEngineServiceStreamPolicyGroupsServer) Send(m *PolicyGroup) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 func _PolicyEngineService_DeletePolicyGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeletePolicyGroupRequest)
 	if err := dec(in); err != nil {
@@ -1613,6 +1671,12 @@ var PolicyEngineService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _PolicyEngineService_DeletePolicyGroup_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "StreamPolicyGroups",
+			Handler:       _PolicyEngineService_StreamPolicyGroups_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "cells-idm.proto",
 }

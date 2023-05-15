@@ -37,7 +37,7 @@ type DAO interface {
 	ladon.Manager
 
 	StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) (*idm.PolicyGroup, error)
-	ListPolicyGroups(ctx context.Context) ([]*idm.PolicyGroup, error)
+	ListPolicyGroups(ctx context.Context, filter string) ([]*idm.PolicyGroup, error)
 	DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup) error
 }
 

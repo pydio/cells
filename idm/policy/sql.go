@@ -60,6 +60,9 @@ var (
 		"insertRelPolicy":   `INSERT INTO idm_policy_rel (group_uuid,policy_id) VALUES (?,?)`,
 		"deleteRelPolicies": `DELETE FROM idm_policy_rel WHERE group_uuid=?`,
 		"listJoined":        `SELECT p.uuid,p.name,p.description,p.owner_uuid,p.resource_group,p.last_updated,r.policy_id FROM idm_policy_group as p,idm_policy_rel as r WHERE r.group_uuid=p.uuid`,
+		"listJoinedUuid":    `SELECT p.uuid,p.name,p.description,p.owner_uuid,p.resource_group,p.last_updated,r.policy_id FROM idm_policy_group as p,idm_policy_rel as r WHERE r.group_uuid=p.uuid AND p.uuid=?`,
+		"listJoinedLike":    `SELECT p.uuid,p.name,p.description,p.owner_uuid,p.resource_group,p.last_updated,r.policy_id FROM idm_policy_group as p,idm_policy_rel as r WHERE r.group_uuid=p.uuid AND (p.name LIKE ? or p.description LIKE ?)`,
+		"listJoinedRes":     `SELECT p.uuid,p.name,p.description,p.owner_uuid,p.resource_group,p.last_updated,r.policy_id FROM idm_policy_group as p,idm_policy_rel as r WHERE r.group_uuid=p.uuid AND p.resource_group=?`,
 		"listRelPolicies":   `SELECT policy_id FROM idm_policy_rel WHERE group_uuid=?`,
 	}
 )
@@ -230,14 +233,32 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 }
 
 // ListPolicyGroups searches the db and returns an array of PolicyGroup.
-func (s *sqlimpl) ListPolicyGroups(ctx context.Context) (groups []*idm.PolicyGroup, e error) {
+func (s *sqlimpl) ListPolicyGroups(ctx context.Context, filter string) (groups []*idm.PolicyGroup, e error) {
 
-	stmt, er := s.GetStmt("listJoined")
+	stmtName := "listJoined"
+	var args []interface{}
+	if strings.HasPrefix(filter, "resource_group:") {
+		res := strings.TrimPrefix(filter, "resource_group:")
+		if resId, ok := idm.PolicyResourceGroup_value[res]; ok {
+			stmtName = "listJoinedRes"
+			args = append(args, resId)
+		}
+	} else if strings.HasPrefix(filter, "uuid:") {
+		id := strings.TrimPrefix(filter, "uuid:")
+		stmtName = "listJoinedUuid"
+		args = append(args, id)
+	} else if strings.HasPrefix(filter, "like:") {
+		like := "%" + strings.TrimPrefix(filter, "uuid:") + "%"
+		stmtName = "listJoinedLike"
+		args = append(args, like, like)
+	}
+
+	stmt, er := s.GetStmt(stmtName)
 	if er != nil {
 		return nil, er
 	}
 
-	res, err := stmt.Query()
+	res, err := stmt.Query(args...)
 	if err != nil {
 		return groups, err
 	}

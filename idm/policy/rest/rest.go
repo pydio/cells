@@ -56,21 +56,28 @@ func (h *PolicyHandler) ListPolicies(req *restful.Request, rsp *restful.Response
 
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("Received Policy.List API request")
+	response := &idm.ListPolicyGroupsResponse{}
 
-	response, err := h.getClient(ctx).ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
+	streamer, err := h.getClient(ctx).StreamPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
 	if err != nil {
 		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 	languages := i18n.UserLanguagesFromRestRequest(req, config.Get())
 	tr := lang.Bundle().GetTranslationFunc(languages...)
-	for _, g := range response.PolicyGroups {
+	for {
+		g, er := streamer.Recv()
+		if er != nil {
+			break
+		}
 		g.Name = tr(g.Name)
 		g.Description = tr(g.Description)
 		for _, r := range g.Policies {
 			r.Description = tr(r.Description)
 		}
+		response.PolicyGroups = append(response.PolicyGroups, g)
 	}
+	response.Total = int32(len(response.PolicyGroups))
 
 	rsp.WriteEntity(response)
 }
