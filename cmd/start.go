@@ -433,6 +433,7 @@ ENVIRONMENT
 				return err
 			}
 			ctx = servercontext.WithRegistry(ctx, reg)
+			ctx = servercontext.WithConfig(ctx, config.Main())
 
 			// Init broker
 
