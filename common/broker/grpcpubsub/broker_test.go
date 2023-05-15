@@ -31,7 +31,7 @@ func TestServiceBroker(t *testing.T) {
 		numMessagesReceived := 0
 
 		var cancel context.CancelFunc
-		conn := grpc.NewClientConn(common.ServiceBroker)
+		conn := grpc.NewClientConn(common.ServiceBroker, "")
 		ctx := clientcontext.WithClientConn(context.Background(), conn)
 		ctx, cancel = context.WithTimeout(ctx, 1*time.Second)
 
@@ -107,7 +107,7 @@ func TestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 
 	var cancel context.CancelFunc
 
-	conn := grpc.NewClientConn(common.ServiceBroker)
+	conn := grpc.NewClientConn(common.ServiceBroker, "")
 	ctx := clientcontext.WithClientConn(context.Background(), conn)
 	ctx, cancel = context.WithCancel(ctx)
 	cli, err := pb.NewBrokerClient(conn).Subscribe(ctx)

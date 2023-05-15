@@ -103,6 +103,7 @@ processes:
       broker:
         uri: {{ .BrokerURL }}
 
+
     servers:
       <<: *servers
       grpc_discovery:

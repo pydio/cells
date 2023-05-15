@@ -81,3 +81,8 @@ func Set(val interface{}, path ...string) error {
 func Del(path ...string) {
 	std.Val(path...).Del()
 }
+
+// Temp
+func Main() Store {
+	return std
+}

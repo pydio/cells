@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-
 	"github.com/pydio/cells/v4/common/utils/configx"
 
 	"github.com/pydio/cells/v4/common/config"

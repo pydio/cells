@@ -186,6 +186,7 @@ const (
 	XPydioIndexationSessionUuid = "X-Pydio-Indexation-Session"
 	XPydioFrontendSessionUuid   = "X-Pydio-Frontend-Session"
 	XPydioMoveUuid              = "X-Pydio-Move"
+	XPydioTenantUuid            = "X-Pydio-Tenant"
 	XContentType                = "Content-Type"
 	SyncSessionClose_           = "close-"
 	SyncSessionPrefixCopy       = "copy-"

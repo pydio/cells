@@ -23,8 +23,9 @@ package grpc
 
 import (
 	"context"
-	"fmt"
-
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -40,7 +41,24 @@ const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceRole
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		service.NewService(
+
+		var s service.Service
+		getDAO := func(ctx context.Context) role.DAO {
+			var c dao.DAO
+			if cfgFromCtx := servercontext.GetConfig(ctx); cfgFromCtx != nil {
+				driver, dsn, _ := config.GetStorageDriver(cfgFromCtx, "storage", ServiceName)
+
+				c, _ = dao.InitDAO(ctx, driver, dsn, "idm_role", role.NewDAO, cfgFromCtx.Val("services", ServiceName))
+
+				service.UpdateServiceVersion(servicecontext.WithDAO(ctx, c), cfgFromCtx, s.Options())
+			} else {
+				c = servicecontext.GetDAO(s.Options().Context)
+			}
+
+			return c.(role.DAO)
+		}
+
+		s = service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
@@ -59,24 +77,15 @@ func init() {
 			}),
 			service.WithStorage(role.NewDAO, service.WithStoragePrefix("idm_role")),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-
-				dao := servicecontext.GetDAO(ctx)
-				if dao == nil {
-					return fmt.Errorf("cannot find DAO in init context")
-				}
-				rDao, ok := dao.(role.DAO)
-				if !ok {
-					return fmt.Errorf("cannot convert DAO to role.DAO")
-				}
-				handler := NewHandler(ctx, rDao)
+				handler := NewHandler(ctx, getDAO)
 				idm.RegisterRoleServiceEnhancedServer(server, handler)
 
 				// Clean role on user deletion
 				cleaner := NewCleaner(ctx, handler)
-				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					ic := &idm.ChangeEvent{}
-					if ct, e := message.Unmarshal(ic); e == nil {
-						return cleaner.Handle(ct, ic)
+					if e := message.Unmarshal(ic); e == nil {
+						return cleaner.Handle(ctx, ic)
 					}
 					return nil
 				}); e != nil {

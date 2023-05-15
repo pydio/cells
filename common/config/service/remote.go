@@ -27,6 +27,7 @@ import (
 	"errors"
 	"fmt"
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/runtime"
 	"net/url"
 	"strings"
 	"sync"
@@ -76,7 +77,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		conn = c
 	}
 
-	conn = cgrpc.NewClientConn("pydio.grpc.config", cgrpc.WithClientConn(conn))
+	conn = cgrpc.NewClientConn("pydio.grpc.config", runtime.Cluster(), cgrpc.WithClientConn(conn))
 
 	store := New(context.Background(), conn, u.Query().Get("namespace"), "/")
 

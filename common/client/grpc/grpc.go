@@ -24,6 +24,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/pydio/cells/v4/common/service/context/ckeys"
+	metadata2 "github.com/pydio/cells/v4/common/service/context/metadata"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc/metadata"
 	"runtime/debug"
 	"strings"
@@ -71,14 +73,14 @@ func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) [
 			ErrorFormatUnaryClientInterceptor(),
 			servicecontext.SpanUnaryClientInterceptor(),
 			MetaUnaryClientInterceptor(),
-			// otelgrpc.UnaryClientInterceptor(),
+			otelgrpc.UnaryClientInterceptor(),
 		),
 		grpc.WithChainStreamInterceptor(
 			ErrorNoMatchedRouteRetryStreamClientInterceptor(),
 			ErrorFormatStreamClientInterceptor(),
 			servicecontext.SpanStreamClientInterceptor(),
 			MetaStreamClientInterceptor(),
-			// otelgrpc.StreamClientInterceptor(),
+			otelgrpc.StreamClientInterceptor(),
 		),
 		// grpc.WithDisableRetry(),
 	}, options...)
@@ -86,7 +88,7 @@ func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) [
 
 func GetClientConnFromCtx(ctx context.Context, serviceName string, opt ...Option) grpc.ClientConnInterface {
 	if ctx == nil {
-		return NewClientConn(serviceName, opt...)
+		return NewClientConn(serviceName, runtime.Cluster(), opt...)
 	}
 	conn := clientcontext.GetClientConn(ctx)
 	if conn == nil && WarnMissingConnInContext {
@@ -97,11 +99,18 @@ func GetClientConnFromCtx(ctx context.Context, serviceName string, opt ...Option
 	opt = append(opt, WithClientConn(conn))
 	opt = append(opt, WithRegistry(reg))
 
-	return NewClientConn(serviceName, opt...)
+	tenantName := "default"
+	if mm, ok := metadata2.FromContextRead(ctx); ok {
+		if p, o := mm[common.XPydioTenantUuid]; o {
+			tenantName = p
+		}
+	}
+
+	return NewClientConn(serviceName, tenantName, opt...)
 }
 
 // NewClientConn returns a client attached to the defaults.
-func NewClientConn(serviceName string, opt ...Option) grpc.ClientConnInterface {
+func NewClientConn(serviceName string, tenantName string, opt ...Option) grpc.ClientConnInterface {
 	opts := new(Options)
 	for _, o := range opt {
 		o(opts)
@@ -132,12 +141,14 @@ func NewClientConn(serviceName string, opt ...Option) grpc.ClientConnInterface {
 		ClientConnInterface: opts.ClientConn,
 		balancerFilter:      opts.BalancerFilter,
 		serviceName:         common.ServiceGrpcNamespace_ + strings.TrimPrefix(serviceName, common.ServiceGrpcNamespace_),
+		tenantName:          tenantName,
 	}
 }
 
 type clientConn struct {
 	grpc.ClientConnInterface
 	serviceName    string
+	tenantName     string
 	callTimeout    time.Duration
 	balancerFilter client.BalancerTargetFilter
 }
@@ -151,6 +162,7 @@ func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{
 
 	//if metadata.ValueFromIncomingContext(ctx, ckeys.TargetServiceName)
 	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
+	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetTenantName, cc.tenantName)
 
 	var cancel context.CancelFunc
 	if cc.callTimeout > 0 {
@@ -178,6 +190,7 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 	}, opts...)
 
 	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
+	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetTenantName, cc.tenantName)
 
 	var cancel context.CancelFunc
 	if cc.callTimeout > 0 {

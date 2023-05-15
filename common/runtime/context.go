@@ -20,7 +20,9 @@
 
 package runtime
 
-import "context"
+import (
+	"context"
+)
 
 type ContextInjector func(ctx, parent context.Context) context.Context
 

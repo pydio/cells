@@ -3,7 +3,6 @@ package grpc
 import (
 	"context"
 	"github.com/pydio/cells/v4/common/service/errors"
-
 	"google.golang.org/grpc"
 )
 

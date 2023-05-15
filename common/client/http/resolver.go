@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"google.golang.org/grpc"
 	"net/http"
 	"strings"
@@ -88,6 +89,13 @@ func (m *resolver) Stop() {
 }
 
 func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, error) {
+	// Adding tenant to request
+	if tenant := r.Header.Get(common.XPydioTenantUuid); tenant == "" {
+		r.Header.Set(common.XPydioTenantUuid, runtime.Cluster())
+	}
+
+	ctx := metadata.WithAdditionalMetadata(r.Context(), map[string]string{common.XPydioTenantUuid: r.Header.Get(common.XPydioTenantUuid)})
+
 	// Special case for application/grpc
 	if strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
 		proxy, e := m.b.PickService(common.ServiceGatewayGrpc)
@@ -98,7 +106,7 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 		// We assume that internally, the GRPCs service is serving self-signed
 		proxy.Transport = grpcTransport
 		// Wrap context and server request
-		ctx := clientcontext.WithClientConn(r.Context(), m.c)
+		ctx = clientcontext.WithClientConn(ctx, m.c)
 		ctx = servercontext.WithRegistry(ctx, m.r)
 		proxy.ServeHTTP(w, r.WithContext(ctx))
 		return true, nil
@@ -108,9 +116,9 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 		var bb []byte
 		if strings.Contains(r.Header.Get("Accept"), "text/html") {
 			if !m.monitorOAuth.Up() {
-				log.Logger(r.Context()).Warn("Returning server is starting because grpc.oauth monitor is not Up")
+				log.Logger(ctx).Warn("Returning server is starting because grpc.oauth monitor is not Up")
 			} else {
-				log.Logger(r.Context()).Warn("Returning server is starting because grpc.user service is not ready")
+				log.Logger(ctx).Warn("Returning server is starting because grpc.user service is not ready")
 			}
 			bb, _ = maintenance.Assets.ReadFile("starting.html")
 			w.Header().Set("Content-Type", "text/html")
@@ -142,7 +150,7 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 	// try to find it in the current mux
 	_, pattern := m.s.Handler(r)
 	if len(pattern) > 0 && (pattern != "/" || r.URL.Path == "/") {
-		ctx := clientcontext.WithClientConn(r.Context(), m.c)
+		ctx = clientcontext.WithClientConn(ctx, m.c)
 		ctx = servercontext.WithRegistry(ctx, m.r)
 
 		m.s.ServeHTTP(w, r.WithContext(ctx))
@@ -151,7 +159,7 @@ func (m *resolver) ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, erro
 
 	proxy, e := m.b.PickEndpoint(r.URL.Path)
 	if e == nil {
-		proxy.ServeHTTP(w, r)
+		proxy.ServeHTTP(w, r.WithContext(ctx))
 		return true, nil
 	}
 	return false, nil

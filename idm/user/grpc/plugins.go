@@ -24,6 +24,8 @@ package grpc
 import (
 	"context"
 	"encoding/base64"
+	"github.com/pydio/cells/v4/common/dao"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"os"
 	"strings"
 
@@ -57,7 +59,25 @@ func init() {
 	})
 
 	runtime.Register("main", func(ctx context.Context) {
-		service.NewService(
+		var s service.Service
+
+		getDAO := func(ctx context.Context) user.DAO {
+			var c dao.DAO
+
+			if cfgFromCtx := servercontext.GetConfig(ctx); cfgFromCtx != nil {
+				driver, dsn, _ := config.GetStorageDriver(cfgFromCtx, "storage", ServiceName)
+
+				c, _ := dao.InitDAO(ctx, driver, dsn, "idm_user", user.NewDAO, cfgFromCtx.Val("services", ServiceName))
+
+				service.UpdateServiceVersion(servicecontext.WithDAO(ctx, c), cfgFromCtx, s.Options())
+			} else {
+				c = servicecontext.GetDAO(s.Options().Context)
+			}
+
+			return c.(user.DAO)
+		}
+
+		s = service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
@@ -71,15 +91,14 @@ func init() {
 			service.WithStorage(user.NewDAO, service.WithStoragePrefix("idm_user")),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
-				dao := servicecontext.GetDAO(ctx).(user.DAO)
-				idm.RegisterUserServiceEnhancedServer(server, NewHandler(ctx, dao))
+				idm.RegisterUserServiceEnhancedServer(server, NewHandler(ctx, getDAO))
 
 				// Register a cleaner for removing a workspace when there are no more ACLs on it.
-				cleaner := &RolesCleaner{Dao: dao}
-				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+				cleaner := &RolesCleaner{Dao: getDAO}
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					ev := &idm.ChangeEvent{}
-					if ct, e := message.Unmarshal(ev); e == nil {
-						return cleaner.Handle(ct, ev)
+					if e := message.Unmarshal(ev); e == nil {
+						return cleaner.Handle(ctx, ev)
 					}
 					return nil
 				}); e != nil {
@@ -89,6 +108,7 @@ func init() {
 				return nil
 			}),
 		)
+
 	})
 }
 
@@ -96,20 +116,21 @@ func InitDefaults(ctx context.Context) error {
 
 	var login, pwd string
 	dao := servicecontext.GetDAO(ctx).(user.DAO)
+	cfg := servercontext.GetConfig(ctx)
 
 	if os.Getenv(EnvPydioAdminUserLogin) != "" && os.Getenv(EnvPydioAdminUserPassword) != "" {
 		login = os.Getenv(EnvPydioAdminUserLogin)
 		pwd = os.Getenv(EnvPydioAdminUserPassword)
 	}
 
-	if rootConfig := config.Get("defaults", "root").String(); rootConfig != "" {
+	if rootConfig := cfg.Val("defaults", "root").String(); rootConfig != "" {
 		sDec, _ := base64.StdEncoding.DecodeString(rootConfig)
 		parts := strings.Split(string(sDec), "||||")
 		login = parts[0]
 		pwd = parts[1]
 		// Now remove from configs
-		config.Del("defaults", "root")
-		if err := config.Save("cli", "First Run / Creating default root user"); err != nil {
+		cfg.Val("defaults", "root").Del()
+		if err := cfg.Save("cli", "First Run / Creating default root user"); err != nil {
 			return err
 		}
 	}

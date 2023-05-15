@@ -93,13 +93,13 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 				return e
 			}
 
-			_ = broker.SubscribeCancellable(ctx, common.TopicIndexEvent, func(syncHandler *Handler) func(message broker.Message) error {
-				return func(message broker.Message) error {
+			_ = broker.SubscribeCancellable(ctx, common.TopicIndexEvent, func(syncHandler *Handler) func(context.Context, broker.Message) error {
+				return func(_ context.Context, message broker.Message) error {
 					if syncHandler == nil {
 						return nil
 					}
 					event := &tree.IndexEvent{}
-					if _, e := message.Unmarshal(event); e == nil {
+					if e := message.Unmarshal(event); e == nil {
 						if event.SessionForceClose != "" {
 							syncHandler.BroadcastCloseSession(event.SessionForceClose)
 						}

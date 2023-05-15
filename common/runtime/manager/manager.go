@@ -438,7 +438,7 @@ func (m *manager) WatchServicesConfigs() {
 }
 
 func (m *manager) WatchBroker(ctx context.Context, br broker.Broker) error {
-	_, er := br.Subscribe(ctx, common.TopicRegistryCommand, func(message broker.Message) error {
+	_, er := br.Subscribe(ctx, common.TopicRegistryCommand, func(_ context.Context, message broker.Message) error {
 		hh, _ := message.RawData()
 		cmd := hh["command"]
 		itemName := hh["itemName"]

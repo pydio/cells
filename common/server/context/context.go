@@ -23,6 +23,7 @@ package servercontext
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/config"
 
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -32,11 +33,17 @@ type contextType int
 
 const (
 	registryKey contextType = iota
+	tenantKey
+	configKey
 )
 
 func init() {
 	runtime.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
 		return WithRegistry(ctx, GetRegistry(parent))
+	})
+
+	runtime.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
+		return WithConfig(ctx, config.Main())
 	})
 }
 
@@ -48,6 +55,28 @@ func WithRegistry(ctx context.Context, reg registry.Registry) context.Context {
 // GetRegistry returns the registry from the context in argument
 func GetRegistry(ctx context.Context) registry.Registry {
 	if conf, ok := ctx.Value(registryKey).(registry.Registry); ok {
+		return conf
+	}
+	return nil
+}
+
+func WithTenant(ctx context.Context, tenant string) context.Context {
+	return context.WithValue(ctx, tenantKey, tenant)
+}
+
+func GetTenant(ctx context.Context) string {
+	if tenant, ok := ctx.Value(tenantKey).(string); ok {
+		return tenant
+	}
+	return ""
+}
+
+func WithConfig(ctx context.Context, cfg config.Store) context.Context {
+	return context.WithValue(ctx, configKey, cfg)
+}
+
+func GetConfig(ctx context.Context) config.Store {
+	if conf, ok := ctx.Value(configKey).(config.Store); ok {
 		return conf
 	}
 	return nil

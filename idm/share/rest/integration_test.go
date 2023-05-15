@@ -90,9 +90,9 @@ func TestMain(m *testing.M) {
 		log.Fatal(er)
 	}
 
-	_ = broker.SubscribeCancellable(context.Background(), common.TopicIdmEvent, func(message broker.Message) error {
+	_ = broker.SubscribeCancellable(context.Background(), common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 		msg := &idm.ChangeEvent{}
-		if _, e := message.Unmarshal(msg); e == nil {
+		if e := message.Unmarshal(msg); e == nil {
 			fmt.Println(" - Received an idm.ChangeEvent!", msg)
 		}
 		return nil

@@ -26,6 +26,7 @@ import (
 	"github.com/pydio/cells/v4/common/service/context/ckeys"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"net"
+	"sort"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -75,9 +76,6 @@ func init() {
 						routeConfigName := fmt.Sprintf(routeConfigNameTemplate, runtime.Cluster())
 						virtualHostName := fmt.Sprintf(virtualHostNameTemplate, runtime.Cluster())
 						domains := []string{listenerName}
-						//if runtime.Name() != "tenant" {
-						//	domains = append(domains, fmt.Sprintf(listenerNameTemplate, ""))
-						//}
 
 						signal := make(chan struct{})
 						cache := cachev3.NewSnapshotCache(true, cachev3.IDHash{}, log.Logger(ctx))
@@ -111,6 +109,10 @@ func init() {
 							// -------------------------------------------
 							eds := []types.Resource{}
 							srvs, err := reg.List(registry.WithType(pbregistry.ItemType_SERVER))
+
+							// We sort because we want a priority on the route chosen, must be part of the current cluster
+							sort.Sort(ByCluster(srvs))
+
 							if err != nil {
 								return err
 							}
@@ -156,6 +158,11 @@ func init() {
 									endpoints = append(endpoints, epp)
 								}
 
+								var priority uint32 = 0
+								if srvItem.Metadata()[runtime.NodeMetaCluster] != runtime.Cluster() && false {
+									priority = 1
+								}
+
 								eds = append(eds, &endpoint.ClusterLoadAssignment{
 									ClusterName: srvItem.ID(),
 									Endpoints: []*endpoint.LocalityLbEndpoints{{
@@ -163,7 +170,7 @@ func init() {
 											Region: "us-central1",
 											Zone:   "us-central1-a",
 										},
-										Priority:            0,
+										Priority:            priority,
 										LoadBalancingWeight: &wrapperspb.UInt32Value{Value: uint32(1000)},
 										LbEndpoints:         endpoints,
 									}},
@@ -197,9 +204,6 @@ func init() {
 													TransportApiVersion: core.ApiVersion_V3,
 												},
 											},
-											//ConfigSourceSpecifier: &core.ConfigSource_Ads{
-											//	Ads: &core.AggregatedConfigSource{},
-											//},
 										},
 									},
 								})
@@ -426,4 +430,12 @@ func (c *callbacks) OnStreamDeltaRequest(i int64, request *discoveryservice.Delt
 
 func (c *callbacks) OnStreamDeltaResponse(i int64, request *discoveryservice.DeltaDiscoveryRequest, response *discoveryservice.DeltaDiscoveryResponse) {
 	//fmt.Printf("OnStreamDeltaResponse... %v  of type %s\n", i, request)
+}
+
+type ByCluster []registry.Item
+
+func (a ByCluster) Len() int      { return len(a) }
+func (a ByCluster) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByCluster) Less(i, j int) bool {
+	return a[j].Metadata()[runtime.NodeMetaCluster] != runtime.Cluster() && a[i].Metadata()[runtime.NodeMetaCluster] == runtime.Cluster()
 }

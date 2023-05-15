@@ -23,7 +23,10 @@ package grpc
 
 import (
 	"context"
-
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -34,15 +37,32 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/idm/acl"
 )
 
 var ServiceName = common.ServiceGrpcNamespace_ + common.ServiceAcl
 
 func init() {
+
 	runtime.Register("main", func(ctx context.Context) {
-		service.NewService(
+		var s service.Service
+
+		getDAO := func(ctx context.Context) acl.DAO {
+			var c dao.DAO
+			if cfgFromCtx := servercontext.GetConfig(ctx); cfgFromCtx != nil {
+				driver, dsn, _ := config.GetStorageDriver(cfgFromCtx, "storage", ServiceName)
+
+				c, _ := dao.InitDAO(ctx, driver, dsn, "idm_acl", acl.NewDAO, cfgFromCtx.Val("services", ServiceName))
+
+				service.UpdateServiceVersion(servicecontext.WithDAO(ctx, c), cfgFromCtx, s.Options())
+			} else {
+				c = servicecontext.GetDAO(s.Options().Context)
+			}
+
+			return c.(acl.DAO)
+		}
+
+		s = service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
@@ -59,17 +79,17 @@ func init() {
 			}),
 			service.Metadata(meta.ServiceMetaProvider, "stream"),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
+				handler := NewHandler(ctx, getDAO)
 
-				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(acl.DAO))
 				idm.RegisterACLServiceEnhancedServer(server, handler)
 				tree.RegisterNodeProviderStreamerEnhancedServer(server, handler)
 
 				// Clean acls on Ws or Roles deletion
 				rCleaner := &WsRolesCleaner{Handler: handler}
-				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					ev := &idm.ChangeEvent{}
-					if ct, e := message.Unmarshal(ev); e == nil {
-						return rCleaner.Handle(ct, ev)
+					if e := message.Unmarshal(ev); e == nil {
+						return rCleaner.Handle(ctx, ev)
 					}
 					return nil
 				}); e != nil {
@@ -77,10 +97,10 @@ func init() {
 				}
 
 				nCleaner := newNodesCleaner(ctx, handler)
-				if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(message broker.Message) error {
+				if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
 					ev := &tree.NodeChangeEvent{}
-					if ct, e := message.Unmarshal(ev); e == nil {
-						return nCleaner.Handle(ct, ev)
+					if e := message.Unmarshal(ev); e == nil {
+						return nCleaner.Handle(ctx, ev)
 					}
 					return nil
 				}); e != nil {

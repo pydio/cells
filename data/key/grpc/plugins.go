@@ -49,9 +49,9 @@ func init() {
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 				h := &NodeKeyManagerHandler{dao: servicecontext.GetDAO(c).(key.DAO)}
 				encryption.RegisterNodeKeyManagerEnhancedServer(srv, h)
-				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(message broker.Message) error {
+				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}
-					if ctx, e := message.Unmarshal(msg); e == nil {
+					if e := message.Unmarshal(msg); e == nil {
 						return h.HandleTreeChanges(ctx, msg)
 					}
 					return nil

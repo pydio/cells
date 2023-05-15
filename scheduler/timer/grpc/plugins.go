@@ -49,9 +49,9 @@ func init() {
 				subscriber := &timer.JobsEventsSubscriber{
 					Producer: producer,
 				}
-				if er := broker.SubscribeCancellable(c, common.TopicJobConfigEvent, func(message broker.Message) error {
+				if er := broker.SubscribeCancellable(c, common.TopicJobConfigEvent, func(ctx context.Context, message broker.Message) error {
 					msg := &jobs.JobChangeEvent{}
-					if ctx, e := message.Unmarshal(msg); e == nil {
+					if e := message.Unmarshal(msg); e == nil {
 						return subscriber.Handle(ctx, msg)
 					}
 					return nil

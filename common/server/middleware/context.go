@@ -22,7 +22,12 @@ package middleware
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	metadata2 "github.com/pydio/cells/v4/common/service/context/metadata"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"strings"
 
@@ -56,5 +61,48 @@ func TargetNameToServiceNameContext(serverRuntimeContext context.Context) func(c
 			}
 		}
 		return ctx, false, nil
+	}
+}
+
+var (
+	clientConns = make(map[string]grpc.ClientConnInterface)
+	configStore = make(map[string]config.Store)
+)
+
+func setContextForTenant(ctx context.Context) context.Context {
+	tenant := "default"
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		if t := md.Get("tenant"); len(t) > 0 {
+			tenant = strings.Join(t, "")
+		}
+	}
+	if mm, ok := metadata2.FromContextRead(ctx); ok {
+		if p, ok := mm[common.XPydioTenantUuid]; ok {
+			tenant = p
+		}
+	}
+
+	cc, ok := clientConns[tenant]
+	if !ok {
+		cc, _ = grpc.Dial("xds://"+tenant+".cells.com/cells", grpc.WithTransportCredentials(insecure.NewCredentials()))
+		clientConns[tenant] = cc
+	}
+	ctx = clientcontext.WithClientConn(ctx, cc)
+
+	cfg, ok := configStore[tenant]
+	if !ok {
+		cfg, _ = config.OpenStore(ctx, "xds://"+tenant+".cells.com/cells")
+		configStore[tenant] = cfg
+	}
+	ctx = servercontext.WithConfig(ctx, cfg)
+
+	return ctx
+}
+
+func TenantIncomingContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
+	return func(ctx context.Context) (context.Context, bool, error) {
+		ctx = setContextForTenant(ctx)
+
+		return ctx, true, nil
 	}
 }

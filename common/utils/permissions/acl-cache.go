@@ -38,9 +38,9 @@ var (
 
 func initAclCache() {
 	aclCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "60s", "cleanWindow", "30s"))
-	_, _ = broker.Subscribe(context.TODO(), common.TopicIdmEvent, func(message broker.Message) error {
+	_, _ = broker.Subscribe(context.TODO(), common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 		event := &idm.ChangeEvent{}
-		if _, e := message.Unmarshal(event); e != nil {
+		if e := message.Unmarshal(event); e != nil {
 			return e
 		}
 		switch event.Type {

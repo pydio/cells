@@ -21,6 +21,7 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path"
@@ -132,7 +133,7 @@ func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
 		if queue != "" {
 			oo = append(oo, broker.Queue(queue))
 		}
-		unSub, e := h.broker.Subscribe(stream.Context(), topic, func(msg broker.Message) error {
+		unSub, e := h.broker.Subscribe(stream.Context(), topic, func(ctx context.Context, msg broker.Message) error {
 			var target = &pb.Message{}
 			target.Header, target.Body = msg.RawData()
 			sub.ch <- &pb.SubscribeResponse{

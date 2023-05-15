@@ -353,7 +353,7 @@ func performBrowserInstall(cmd *cobra.Command, ctx context.Context, proxyConf *i
 	}
 
 	done := make(chan bool, 1)
-	unsub, _ := bkr.Subscribe(ctx, common.TopicInstallSuccessEvent, func(broker.Message) error {
+	unsub, _ := bkr.Subscribe(ctx, common.TopicInstallSuccessEvent, func(context.Context, broker.Message) error {
 		fmt.Println("Browser install is finished. Stopping server in 5s...")
 		<-time.After(2 * time.Second)
 		done <- true

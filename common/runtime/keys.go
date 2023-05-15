@@ -113,6 +113,7 @@ const (
 	NodeMetaHostName     = "hostname"
 	NodeMetaCapacities   = "capacities"
 	NodeRootID           = "rootID"
+	NodeMetaCluster      = "cluster"
 )
 
 var (

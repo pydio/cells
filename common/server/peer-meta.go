@@ -43,6 +43,14 @@ func InitPeerMeta(meta map[string]string) {
 		meta[runtime.NodeMetaHostName] = runtime.GetHostname()
 	}
 
+	if _, ok := meta[runtime.NodeMetaHostName]; !ok {
+		meta[runtime.NodeMetaHostName] = runtime.GetHostname()
+	}
+
+	if _, ok := meta[runtime.NodeMetaCluster]; !ok {
+		meta[runtime.NodeMetaCluster] = runtime.Cluster()
+	}
+
 	if _, ok := meta[runtime.NodeMetaCapacities]; !ok {
 		caps := runtime.GetStringSlice(runtime.KeyNodeCapacity)
 		if len(caps) > 0 {

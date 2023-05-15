@@ -63,11 +63,11 @@ func init() {
 					},
 					LogCtx: ctx,
 				}
-				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					ev := &idm.ChangeEvent{}
-					if ct, e := message.Unmarshal(ev); e == nil {
-						_ = wsCleaner.Handle(ct, ev)
-						return cleaner.Handle(ct, ev)
+					if e := message.Unmarshal(ev); e == nil {
+						_ = wsCleaner.Handle(ctx, ev)
+						return cleaner.Handle(ctx, ev)
 					}
 					return nil
 				}); e != nil {

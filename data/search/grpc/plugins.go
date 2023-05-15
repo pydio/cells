@@ -87,10 +87,10 @@ func init() {
 				sync.RegisterSyncEndpointEnhancedServer(server, searcher)
 
 				subscriber := searcher.Subscriber()
-				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(message broker.Message) error {
+				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}
-					if ct, e := message.Unmarshal(msg); e == nil {
-						return subscriber.Handle(ct, msg)
+					if e := message.Unmarshal(msg); e == nil {
+						return subscriber.Handle(ctx, msg)
 					}
 					return nil
 				}, broker.Queue("search")); e != nil {

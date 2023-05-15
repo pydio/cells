@@ -81,10 +81,10 @@ func init() {
 					chat.Websocket.HandleRequest(w, r)
 				})
 
-				_ = broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(message broker.Message) error {
+				_ = broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(_ context.Context, message broker.Message) error {
 					event := &tree.NodeChangeEvent{}
-					if c, e := message.Unmarshal(event); e == nil {
-						if er := ws.HandleNodeChangeEvent(wrap(c), event); er != nil {
+					if e := message.Unmarshal(event); e == nil {
+						if er := ws.HandleNodeChangeEvent(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
 						return nil
@@ -92,10 +92,10 @@ func init() {
 						return e
 					}
 				})
-				_ = broker.SubscribeCancellable(ctx, common.TopicMetaChanges, func(message broker.Message) error {
+				_ = broker.SubscribeCancellable(ctx, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
 					event := &tree.NodeChangeEvent{}
-					if c, e := message.Unmarshal(event); e == nil {
-						if er := ws.HandleNodeChangeEvent(wrap(c), event); er != nil {
+					if e := message.Unmarshal(event); e == nil {
+						if er := ws.HandleNodeChangeEvent(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
 						return nil
@@ -103,10 +103,10 @@ func init() {
 						return e
 					}
 				})
-				_ = broker.SubscribeCancellable(ctx, common.TopicJobTaskEvent, func(message broker.Message) error {
+				_ = broker.SubscribeCancellable(ctx, common.TopicJobTaskEvent, func(ctx context.Context, message broker.Message) error {
 					event := &jobs.TaskChangeEvent{}
-					if c, e := message.Unmarshal(event); e == nil {
-						if er := ws.BroadcastTaskChangeEvent(wrap(c), event); er != nil {
+					if e := message.Unmarshal(event); e == nil {
+						if er := ws.BroadcastTaskChangeEvent(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
 						return nil
@@ -114,10 +114,10 @@ func init() {
 						return e
 					}
 				})
-				_ = broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+				_ = broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					event := &idm.ChangeEvent{}
-					if c, e := message.Unmarshal(event); e == nil {
-						if er := ws.BroadcastIDMChangeEvent(wrap(c), event); er != nil {
+					if e := message.Unmarshal(event); e == nil {
+						if er := ws.BroadcastIDMChangeEvent(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
 						return nil
@@ -125,10 +125,10 @@ func init() {
 						return e
 					}
 				})
-				_ = broker.SubscribeCancellable(ctx, common.TopicActivityEvent, func(message broker.Message) error {
+				_ = broker.SubscribeCancellable(ctx, common.TopicActivityEvent, func(ctx context.Context, message broker.Message) error {
 					event := &activity.PostActivityEvent{}
-					if c, e := message.Unmarshal(event); e == nil {
-						if er := ws.BroadcastActivityEvent(wrap(c), event); er != nil {
+					if e := message.Unmarshal(event); e == nil {
+						if er := ws.BroadcastActivityEvent(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
 						return nil
@@ -136,10 +136,10 @@ func init() {
 						return e
 					}
 				})
-				_ = broker.SubscribeCancellable(ctx, common.TopicChatEvent, func(message broker.Message) error {
+				_ = broker.SubscribeCancellable(ctx, common.TopicChatEvent, func(ctx context.Context, message broker.Message) error {
 					event := &chat2.ChatEvent{}
-					if c, e := message.Unmarshal(event); e == nil {
-						if er := chat.BroadcastChatMessage(wrap(c), event); er != nil {
+					if e := message.Unmarshal(event); e == nil {
+						if er := chat.BroadcastChatMessage(ctx, event); er != nil {
 							log.Logger(ctx).Error("Cannot handle event", zap.Any("event", event), zap.Error(er))
 						}
 						return nil

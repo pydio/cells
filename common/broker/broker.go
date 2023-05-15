@@ -23,15 +23,11 @@ package broker
 import (
 	"context"
 	"fmt"
-	"net/url"
-	"os"
-	"runtime/debug"
-	"strings"
-	"sync"
-	"time"
-
 	"gocloud.dev/pubsub"
 	"google.golang.org/protobuf/proto"
+	"net/url"
+	"strings"
+	"sync"
 
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -57,10 +53,17 @@ type Broker interface {
 
 type UnSubscriber func() error
 
-type SubscriberHandler func(Message) error
+type SubscriberHandler func(ctx context.Context, msg Message) error
 
 // NewBroker wraps a standard broker but prevents it from disconnecting while there still is a service running
 func NewBroker(s string, opts ...Option) Broker {
+
+	opts = append(opts, WithChainSubscriberInterceptor(
+		TimeoutSubscriberInterceptor(),
+		HeaderInjectorInterceptor(),
+		// ContextInjectorInterceptor(),
+	))
+
 	options := newOptions(opts...)
 	u, _ := url.Parse(s)
 	scheme := u.Scheme
@@ -96,6 +99,9 @@ func NewBroker(s string, opts ...Option) Broker {
 		publishers: make(map[string]*pubsub.Topic),
 		Options:    options,
 	}
+
+	chainPublisherInterceptors(br)
+	chainSubscriberInterceptors(br)
 
 	if options.Context != nil {
 		go func() {
@@ -245,21 +251,6 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 		return nil, err
 	}
 
-	dd := debug.Stack()
-	wH := func(m Message) error {
-		d := make(chan bool, 1)
-		defer close(d)
-		go func() {
-			select {
-			case <-d:
-				break
-			case <-time.After(20 * time.Second):
-				fmt.Println(os.Getpid(), "A Handler has not returned after 20s !", topic, string(dd), " - This subscription will be blocked!")
-			}
-		}()
-		return handler(m)
-	}
-
 	go func() {
 		for {
 			msg, err := sub.Receive(ctx)
@@ -269,14 +260,27 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 
 			msg.Ack()
 
-			if err := wH(&message{
-				header: msg.Metadata,
-				body:   msg.Body,
-			}); err != nil {
-				if so.ErrorHandler != nil {
-					so.ErrorHandler(err)
-				} else {
-					fmt.Println("Cannot handle, no error handler set", topic, err.Error(), msg.Metadata, string(msg.Body))
+			if b.Options.subscriberInt != nil {
+				if err := b.Options.subscriberInt(ctx, &message{
+					header: msg.Metadata,
+					body:   msg.Body,
+				}, handler); err != nil {
+					if so.ErrorHandler != nil {
+						so.ErrorHandler(err)
+					} else {
+						fmt.Println("Cannot handle, no error handler set", topic, err.Error(), msg.Metadata, string(msg.Body))
+					}
+				}
+			} else {
+				if err := handler(ctx, &message{
+					header: msg.Metadata,
+					body:   msg.Body,
+				}); err != nil {
+					if so.ErrorHandler != nil {
+						so.ErrorHandler(err)
+					} else {
+						fmt.Println("Cannot handle, no error handler set", topic, err.Error(), msg.Metadata, string(msg.Body))
+					}
 				}
 			}
 		}

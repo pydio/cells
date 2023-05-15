@@ -46,6 +46,7 @@ import (
 	"github.com/pydio/cells/v4/common/server/middleware"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 )
 
 func init() {
@@ -134,7 +135,8 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 			servicecontext.ContextUnaryServerInterceptor(middleware.TargetNameToServiceNameContext(ctx)),
 			servicecontext.ContextUnaryServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
 			servicecontext.ContextUnaryServerInterceptor(middleware.RegistryIncomingContext(ctx)),
-			// otelgrpc.UnaryServerInterceptor(),
+			// servicecontext.ContextUnaryServerInterceptor(middleware.TenantIncomingContext(ctx)),
+			otelgrpc.UnaryServerInterceptor(),
 		),
 		grpc.ChainStreamInterceptor(
 			ErrorFormatStreamInterceptor,
@@ -144,7 +146,8 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 			servicecontext.ContextStreamServerInterceptor(middleware.TargetNameToServiceNameContext(ctx)),
 			servicecontext.ContextStreamServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
 			servicecontext.ContextStreamServerInterceptor(middleware.RegistryIncomingContext(ctx)),
-			// otelgrpc.StreamServerInterceptor(),
+			// servicecontext.ContextStreamServerInterceptor(middleware.TenantIncomingContext(ctx)),
+			otelgrpc.StreamServerInterceptor(),
 		),
 	)
 

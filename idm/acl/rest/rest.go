@@ -64,14 +64,14 @@ func (a *Handler) PutAcl(req *restful.Request, rsp *restful.Response) {
 		service2.RestError500(req, rsp, err)
 		return
 	}
-	log.Logger(req.Request.Context()).Debug("Received ACL.Put API request", zap.Any("inputACL", inputACL))
+	log.Logger(ctx).Debug("Received ACL.Put API request", zap.Any("inputACL", inputACL))
 	if er := a.WriteAllowed(ctx, &inputACL); er != nil {
 		service2.RestError403(req, rsp, er)
 		return
 	}
 
 	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
-	response, er := aclClient.CreateACL(req.Request.Context(), &idm.CreateACLRequest{
+	response, er := aclClient.CreateACL(ctx, &idm.CreateACLRequest{
 		ACL: &inputACL,
 	})
 	if er != nil {
@@ -148,7 +148,7 @@ func (a *Handler) SearchAcls(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 
-	log.Logger(req.Request.Context()).Debug("Received ACL.Search API request", zap.Any("SearchRequest", restRequest))
+	log.Logger(ctx).Debug("Received ACL.Search API request", zap.Any("SearchRequest", restRequest))
 
 	// Transform to standard query
 	query := &service.Query{

@@ -98,9 +98,9 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 	opt := broker.Queue("tasks")
 
 	// srv.Subscribe(srv.NewSubscriber(common.TopicJobConfigEvent, s.jobsChangeEvent, opts))
-	if err := broker.SubscribeCancellable(parentContext, common.TopicJobConfigEvent, func(message broker.Message) error {
+	if err := broker.SubscribeCancellable(parentContext, common.TopicJobConfigEvent, func(ctx context.Context, message broker.Message) error {
 		js := &jobs.JobChangeEvent{}
-		if ctx, e := message.Unmarshal(js); e == nil {
+		if e := message.Unmarshal(js); e == nil {
 			return s.jobsChangeEvent(ctx, js)
 		}
 		return nil
@@ -108,33 +108,33 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 		fmt.Println("ERROR HERE ", err)
 	}
 
-	_ = broker.SubscribeCancellable(parentContext, common.TopicTreeChanges, func(message broker.Message) error {
+	_ = broker.SubscribeCancellable(parentContext, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
 		target := &tree.NodeChangeEvent{}
-		if ctx, e := message.Unmarshal(target); e == nil {
+		if e := message.Unmarshal(target); e == nil {
 			return s.nodeEvent(ctx, target)
 		}
 		return nil
 	}, opt)
 
-	_ = broker.SubscribeCancellable(parentContext, common.TopicMetaChanges, func(message broker.Message) error {
+	_ = broker.SubscribeCancellable(parentContext, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
 		target := &tree.NodeChangeEvent{}
-		if ctx, e := message.Unmarshal(target); e == nil && (target.Type == tree.NodeChangeEvent_UPDATE_META || target.Type == tree.NodeChangeEvent_UPDATE_USER_META) {
+		if e := message.Unmarshal(target); e == nil && (target.Type == tree.NodeChangeEvent_UPDATE_META || target.Type == tree.NodeChangeEvent_UPDATE_USER_META) {
 			return s.nodeEvent(ctx, target)
 		}
 		return nil
 	}, opt)
 
-	_ = broker.SubscribeCancellable(parentContext, common.TopicTimerEvent, func(message broker.Message) error {
+	_ = broker.SubscribeCancellable(parentContext, common.TopicTimerEvent, func(ctx context.Context, message broker.Message) error {
 		target := &jobs.JobTriggerEvent{}
-		if ctx, e := message.Unmarshal(target); e == nil {
+		if e := message.Unmarshal(target); e == nil {
 			return s.timerEvent(ctx, target)
 		}
 		return nil
 	}, opt)
 
-	_ = broker.SubscribeCancellable(parentContext, common.TopicIdmEvent, func(message broker.Message) error {
+	_ = broker.SubscribeCancellable(parentContext, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 		target := &idm.ChangeEvent{}
-		if ctx, e := message.Unmarshal(target); e == nil {
+		if e := message.Unmarshal(target); e == nil {
 			return s.idmEvent(ctx, target)
 		}
 		return nil

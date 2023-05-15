@@ -22,12 +22,19 @@ package broker
 
 import (
 	"context"
+	"gocloud.dev/pubsub"
 )
 
 // Options to the broker
 type Options struct {
 	Context          context.Context
 	beforeDisconnect []func() error
+
+	publisherInt  PublisherInterceptor
+	subscriberInt SubscriberInterceptor
+
+	chainPublisherInts  []PublisherInterceptor
+	chainSubscriberInts []SubscriberInterceptor
 }
 
 // Option definition
@@ -46,6 +53,18 @@ func newOptions(opts ...Option) Options {
 func WithContext(ctx context.Context) Option {
 	return func(options *Options) {
 		options.Context = ctx
+	}
+}
+
+func WithChainPublisherInterceptor(interceptors ...PublisherInterceptor) Option {
+	return func(options *Options) {
+		options.chainPublisherInts = append(options.chainPublisherInts, interceptors...)
+	}
+}
+
+func WithChainSubscriberInterceptor(interceptors ...SubscriberInterceptor) Option {
+	return func(options *Options) {
+		options.chainSubscriberInts = append(options.chainSubscriberInts, interceptors...)
 	}
 }
 
@@ -112,5 +131,72 @@ func Queue(name string) SubscribeOption {
 func SubscribeContext(ctx context.Context) SubscribeOption {
 	return func(o *SubscribeOptions) {
 		o.Context = ctx
+	}
+}
+
+type Publisher func(ctx context.Context, msg *pubsub.Message) error
+type PublisherInterceptor func(ctx context.Context, msg *pubsub.Message, publisher Publisher) error
+
+type SubscriberInterceptor func(ctx context.Context, msg Message, handler SubscriberHandler) error
+
+// chainPublisherInterceptors chains all publisher interceptors into one.
+func chainPublisherInterceptors(b *broker) {
+	interceptors := b.Options.chainPublisherInts
+	// Prepend Options.publisherInt to the chaining interceptors if it exists, since unaryInt will
+	// be executed before any other chained interceptors.
+	if b.Options.publisherInt != nil {
+		interceptors = append([]PublisherInterceptor{b.Options.publisherInt}, interceptors...)
+	}
+	var chainedInt PublisherInterceptor
+	if len(interceptors) == 0 {
+		chainedInt = nil
+	} else if len(interceptors) == 1 {
+		chainedInt = interceptors[0]
+	} else {
+		chainedInt = func(ctx context.Context, msg *pubsub.Message, publisher Publisher) error {
+			return interceptors[0](ctx, msg, getChainPublisher(interceptors, 0, publisher))
+		}
+	}
+	b.Options.publisherInt = chainedInt
+}
+
+// getChainPublisher recursively generate the chained publisher.
+func getChainPublisher(interceptors []PublisherInterceptor, curr int, finalPublisher Publisher) Publisher {
+	if curr == len(interceptors)-1 {
+		return finalPublisher
+	}
+	return func(ctx context.Context, msg *pubsub.Message) error {
+		return interceptors[curr+1](ctx, msg, getChainPublisher(interceptors, curr+1, finalPublisher))
+	}
+}
+
+// chainSubscriberInterceptors chains all publisher interceptors into one.
+func chainSubscriberInterceptors(b *broker) {
+	interceptors := b.Options.chainSubscriberInts
+	// Prepend Options.publisherInt to the chaining interceptors if it exists, since unaryInt will
+	// be executed before any other chained interceptors.
+	if b.Options.publisherInt != nil {
+		interceptors = append([]SubscriberInterceptor{b.Options.subscriberInt}, interceptors...)
+	}
+	var chainedInt SubscriberInterceptor
+	if len(interceptors) == 0 {
+		chainedInt = nil
+	} else if len(interceptors) == 1 {
+		chainedInt = interceptors[0]
+	} else {
+		chainedInt = func(ctx context.Context, msg Message, handler SubscriberHandler) error {
+			return interceptors[0](ctx, msg, getChainSubscriber(interceptors, 0, handler))
+		}
+	}
+	b.Options.subscriberInt = chainedInt
+}
+
+// getChainSubscriber recursively generate the chained publisher.
+func getChainSubscriber(interceptors []SubscriberInterceptor, curr int, finalHandler SubscriberHandler) SubscriberHandler {
+	if curr == len(interceptors)-1 {
+		return finalHandler
+	}
+	return func(ctx context.Context, msg Message) error {
+		return interceptors[curr+1](ctx, msg, getChainSubscriber(interceptors, curr+1, finalHandler))
 	}
 }

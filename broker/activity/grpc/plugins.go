@@ -94,9 +94,9 @@ func init() {
 					}
 				})
 
-				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(message broker.Message) error {
+				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}
-					if ctx, e := message.Unmarshal(msg); e == nil {
+					if e := message.Unmarshal(msg); e == nil {
 						if msg.Target != nil && (msg.Target.Etag == common.NodeFlagEtagTemporary || msg.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
 							return nil
 						}
@@ -113,9 +113,9 @@ func init() {
 					return e
 				}
 
-				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(message broker.Message) error {
+				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}
-					if ctx, e := message.Unmarshal(msg); e == nil {
+					if e := message.Unmarshal(msg); e == nil {
 						if msg.Optimistic || msg.Type != tree.NodeChangeEvent_UPDATE_USER_META {
 							return nil
 						}
@@ -126,9 +126,9 @@ func init() {
 					return e
 				}
 
-				if e := broker.SubscribeCancellable(c, common.TopicIdmEvent, func(message broker.Message) error {
+				if e := broker.SubscribeCancellable(c, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					msg := &idm.ChangeEvent{}
-					if ctx, e := message.Unmarshal(msg); e == nil {
+					if e := message.Unmarshal(msg); e == nil {
 						return subscriber.HandleIdmChange(ctx, msg)
 					}
 					return nil

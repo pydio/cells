@@ -22,6 +22,7 @@ package service
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/runtime"
 	"net/url"
 	"os"
 	"sync"
@@ -87,7 +88,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry,
 		conn = cli
 	}
 
-	conn = cgrpc.NewClientConn("pydio.grpc.registry", cgrpc.WithClientConn(conn))
+	conn = cgrpc.NewClientConn("pydio.grpc.registry", runtime.Cluster(), cgrpc.WithClientConn(conn))
 
 	return NewRegistry(WithConn(conn))
 }

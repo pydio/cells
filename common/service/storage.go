@@ -111,7 +111,7 @@ func daoFromOptions(o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts
 	if indexer {
 		cfgKey = "indexer"
 	}
-	driver, dsn, defined := config.GetStorageDriver(cfgKey, o.Name)
+	driver, dsn, defined := config.GetStorageDriver(config.Main(), cfgKey, o.Name)
 	if !defined && opts.DefaultDriver != nil {
 		driver, dsn = opts.DefaultDriver()
 	}
@@ -146,7 +146,7 @@ func isLocalDao(o *ServiceOptions, indexer bool, opts *StorageOptions) bool {
 	if indexer {
 		cfgKey = "indexer"
 	}
-	driver, _, defined := config.GetStorageDriver(cfgKey, o.Name)
+	driver, _, defined := config.GetStorageDriver(config.Main(), cfgKey, o.Name)
 	if !defined && opts.DefaultDriver != nil {
 		driver, _ = opts.DefaultDriver()
 	}

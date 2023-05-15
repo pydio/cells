@@ -64,7 +64,7 @@ func getCheckersCache() cache.Cache {
 		if er != nil {
 			polCache, _ = cache.OpenCache(ctx, "discard://")
 		}
-		broker.Subscribe(ctx, common.TopicIdmPolicies, func(message broker.Message) error {
+		broker.Subscribe(ctx, common.TopicIdmPolicies, func(ctx context.Context, message broker.Message) error {
 			_ = polCache.Delete("acl")
 			_ = polCache.Delete("oidc")
 			return nil

@@ -30,6 +30,7 @@ import (
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"io"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -57,8 +58,8 @@ import (
 
 var (
 	//go:embed config.yaml
-	tmpl         string
-	configChecks []func(ctx context.Context) error
+	defaultTemplate string
+	configChecks    []func(ctx context.Context) error
 )
 
 func RegisterConfigChecker(f func(ctx context.Context) error) {
@@ -283,49 +284,55 @@ ENVIRONMENT
 			}()
 
 			reset := func(conf config.Store) error {
+
+				tmpl := defaultTemplate
+
 				// Then generate the new template based on the config
-				if file := runtime.GetString("file"); file == "" {
-					t, err := template.New("context").Parse(tmpl)
+				if file := runtime.GetString("file"); file != "" {
+					f, err := os.Open(file)
 					if err != nil {
 						return err
 					}
-
-					var b strings.Builder
-
-					r := runtime.GetRuntime()
-					if err := t.Execute(&b, struct {
-						ConfigURL     string
-						RegistryURL   string
-						BrokerURL     string
-						CacheURL      string
-						BindHost      string
-						AdvertiseHost string
-						DiscoveryPort string
-						FrontendPort  string
-						Config        config.Store
-					}{
-						runtime.ConfigURL(),
-						runtime.RegistryURL(),
-						runtime.BrokerURL(),
-						runtime.CacheURL(""),
-						r.GetString(runtime.KeyBindHost),
-						r.GetString(runtime.KeyBindHost),
-						r.GetString(runtime.KeyGrpcDiscoveryPort),
-						r.GetString(runtime.KeyHttpPort),
-						conf,
-					}); err != nil {
-						return err
-					}
-
-					store.Set([]byte(b.String()))
-				} else {
-					s, err := config.OpenStore(ctx, file)
+					b, err := io.ReadAll(f)
 					if err != nil {
 						return err
 					}
-
-					store = s
+					tmpl = string(b)
 				}
+
+				t, err := template.New("context").Parse(tmpl)
+				if err != nil {
+					return err
+				}
+
+				var b strings.Builder
+
+				r := runtime.GetRuntime()
+				if err := t.Execute(&b, struct {
+					ConfigURL     string
+					RegistryURL   string
+					BrokerURL     string
+					CacheURL      string
+					BindHost      string
+					AdvertiseHost string
+					DiscoveryPort string
+					FrontendPort  string
+					Config        config.Store
+				}{
+					runtime.ConfigURL(),
+					runtime.RegistryURL(),
+					runtime.BrokerURL(),
+					runtime.CacheURL(""),
+					r.GetString(runtime.KeyBindHost),
+					r.GetString(runtime.KeyBindHost),
+					r.GetString(runtime.KeyGrpcDiscoveryPort),
+					r.GetString(runtime.KeyHttpPort),
+					conf,
+				}); err != nil {
+					return err
+				}
+
+				store.Set([]byte(b.String()))
 
 				return nil
 			}
@@ -569,6 +576,8 @@ func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log
 
 func init() {
 	// Flags for selecting / filtering services
+	StartCmd.Flags().String("file", "", "Name for the file")
+
 	StartCmd.Flags().String(runtime.KeyName, "default", "Name for the node")
 	StartCmd.Flags().String(runtime.KeyCluster, "default", "Name of the cluster for the node")
 	StartCmd.Flags().StringArrayP(runtime.KeyArgTags, "t", []string{}, "Select services to start by tags, possible values are 'broker', 'data', 'datasource', 'discovery', 'frontend', 'gateway', 'idm', 'scheduler'")

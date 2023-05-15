@@ -25,6 +25,7 @@ import (
 	"errors"
 	"fmt"
 	errors2 "github.com/pkg/errors"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -273,7 +274,7 @@ func (s *service) OnServe(oo ...registry.RegisterOption) error {
 		}
 
 		defer w.Done()
-		if e := UpdateServiceVersion(s.opts); e != nil {
+		if e := UpdateServiceVersion(s.opts.Context, config.Main(), s.opts); e != nil {
 			log.Logger(s.opts.Context).Error("UpdateServiceVersion failed", zap.Error(e))
 		}
 	}()

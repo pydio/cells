@@ -102,7 +102,7 @@ func init() {
 				mux.Handle(config.GetPublicBaseUri()+"/plug/", http.StripPrefix(config.GetPublicBaseUri()+"/plug/", fs))
 
 				// Adding subscriber
-				_ = broker.SubscribeCancellable(ctx, common.TopicReloadAssets, func(message broker.Message) error {
+				_ = broker.SubscribeCancellable(ctx, common.TopicReloadAssets, func(_ context.Context, message broker.Message) error {
 					log.Logger(ctx).Info("Reloading frontend plugins from file system")
 					frontend.HotReload()
 					httpFs = http.FS(frontend.GetPluginsFS())

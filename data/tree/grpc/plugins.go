@@ -64,10 +64,10 @@ func init() {
 
 				go watchRegistry(ctx, treeServer)
 
-				if err := broker.SubscribeCancellable(ctx, common.TopicIndexChanges, func(message broker.Message) error {
+				if err := broker.SubscribeCancellable(ctx, common.TopicIndexChanges, func(ctx context.Context, message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}
-					if ct, e := message.Unmarshal(msg); e == nil {
-						return eventSubscriber.Handle(ct, msg)
+					if e := message.Unmarshal(msg); e == nil {
+						return eventSubscriber.Handle(ctx, msg)
 					}
 					return nil
 				}, broker.Queue("tree")); err != nil {
