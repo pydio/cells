@@ -22,6 +22,7 @@ package rest
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 
 	restful "github.com/emicklei/go-restful/v3"
@@ -182,7 +183,10 @@ func (a *ActivityHandler) Subscribe(req *restful.Request, rsp *restful.Response)
 		service.RestError500(req, rsp, err)
 		return
 	}
-
+	if name, _ := permissions.FindUserNameInContext(ctx); name == "" || subscription.UserId != name {
+		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to set subscription on this user"))
+		return
+	}
 	resp, e := a.getClient().Subscribe(ctx, &activity.SubscribeRequest{
 		Subscription: &subscription,
 	})
@@ -206,6 +210,12 @@ func (a *ActivityHandler) SearchSubscriptions(req *restful.Request, rsp *restful
 		service.RestError500(req, rsp, err)
 		return
 	}
+	name, _ := permissions.FindUserNameInContext(ctx)
+	if name == "" {
+		service.RestError401(req, rsp, fmt.Errorf("you are not allowed to search for subscriptions"))
+		return
+	}
+	inputSearch.UserIds = []string{name}
 
 	streamer, e := a.getClient().SearchSubscriptions(ctx, &inputSearch)
 	if e != nil {

@@ -101,25 +101,53 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 	return response, nil
 }
 
+// StreamPolicyGroups performs same listing as ListPolicyGroups but answer with a stream
+func (h *Handler) StreamPolicyGroups(request *idm.ListPolicyGroupsRequest, stream idm.PolicyEngineService_StreamPolicyGroupsServer) error {
+
+	var gg []*idm.PolicyGroup
+	if groupsCacheValid && request.Filter == "" {
+		gg = groupsCache
+	}
+
+	if groups, err := h.dao.ListPolicyGroups(stream.Context(), request.Filter); err != nil {
+		return err
+	} else {
+		gg = groups
+	}
+
+	for _, group := range gg {
+		_ = stream.Send(group)
+	}
+
+	if request.Filter == "" {
+		groupsCache = gg
+		groupsCacheValid = true
+	}
+
+	return nil
+}
+
 func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyGroupsRequest) (*idm.ListPolicyGroupsResponse, error) {
 
 	response := &idm.ListPolicyGroupsResponse{}
 
-	if groupsCacheValid {
+	if groupsCacheValid && request.Filter == "" {
 		response.PolicyGroups = groupsCache
 		response.Total = int32(len(groupsCache))
 		return response, nil
 	}
 
-	groups, err := h.dao.ListPolicyGroups(ctx)
+	groups, err := h.dao.ListPolicyGroups(ctx, request.Filter)
 	if err != nil {
 		return nil, err
 	}
 	response.PolicyGroups = groups
 	response.Total = int32(len(groups))
 
-	groupsCache = groups
-	groupsCacheValid = true
+	if request.Filter == "" {
+		groupsCache = groups
+		groupsCacheValid = true
+	}
 
 	return response, nil
 }

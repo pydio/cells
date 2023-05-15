@@ -149,13 +149,19 @@ var checkersCache cache.Cache
 func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Policy, error) {
 
 	cli := idm.NewPolicyEngineServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServicePolicy))
-	r, e := cli.ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
+	st, e := cli.StreamPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{Filter: "resource_group:" + resType})
 	if e != nil {
 		return nil, e
 	}
 	var policies []*idm.Policy
-	for _, g := range r.PolicyGroups {
+
+	for {
+		g, er := st.Recv()
+		if er != nil {
+			break
+		}
 		for _, p := range g.Policies {
+			// THIS CHECK SHOULD BE UNNECESSARY NOW
 			isType := false
 			for _, res := range p.Resources {
 				if res == resType {
