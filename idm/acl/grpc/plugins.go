@@ -52,7 +52,7 @@ func init() {
 			if cfgFromCtx := servercontext.GetConfig(ctx); cfgFromCtx != nil {
 				driver, dsn, _ := config.GetStorageDriver(cfgFromCtx, "storage", ServiceName)
 
-				c, _ := dao.InitDAO(ctx, driver, dsn, "idm_acl", acl.NewDAO, cfgFromCtx.Val("services", ServiceName))
+				c, _ = dao.InitDAO(ctx, driver, dsn, "idm_acl", acl.NewDAO, cfgFromCtx.Val("services", ServiceName))
 
 				service.UpdateServiceVersion(servicecontext.WithDAO(ctx, c), cfgFromCtx, s.Options())
 			} else {

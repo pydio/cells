@@ -124,31 +124,48 @@ processes:
       auth:
       broker:
 
-  datasource:
+  datasource-peer:
     connections: *connections
     servers: *servers
     env: *env
+
     services:
       datasource:
         - pydio.grpc.data.objects.peer
-        {{ if .Config }}
-        {{ $objectsVal := .Config.Val "services/pydio.grpc.data.objects/sources" }}
-        {{ $ := .Config }}
-        {{ range $objectsVal.StringArray }}
-        {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
-        {{ if not ($.Val "services" (print "pydio.grpc.data.objects." .) "Disabled").Bool }}
+
+  {{ if .Config }}
+  {{ $objectsVal := .Config.Val "services/pydio.grpc.data.objects/sources" }}
+  {{ $ := .Config }}
+  {{ range $objectsVal.StringArray }}
+  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+  {{ if not ($.Val "services" (print "pydio.grpc.data.objects." .) "Disabled").Bool }}
+  objects-{{ . }}:
+    connections: *connections
+    servers: *servers
+    env: *env
+
+    services:
+      datasource:
         - pydio.grpc.data.objects.{{ . }}
-        {{ end }}
-        {{ end }}
-        {{ end }}
-        {{ $indexesVal := .Config.Val "services/pydio.grpc.data.index/sources" }}
-        {{ $ := .Config }}
-        {{ range $indexesVal.StringArray }}
-        {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
-        {{ if not ($.Val "services" (print "pydio.grpc.data.index." .) "Disabled").Bool }}
+  {{ end }}
+  {{ end }}
+  {{ end }}
+
+  {{ $indexesVal := .Config.Val "services/pydio.grpc.data.index/sources" }}
+  {{ $ := .Config }}
+  {{ range $indexesVal.StringArray }}
+  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+  {{ if not ($.Val "services" (print "pydio.grpc.data.index." .) "Disabled").Bool }}
+  index-{{ . }}:
+    connections: *connections
+    servers: *servers
+    env: *env
+
+    services:
+      datasource:
         - pydio.grpc.data.index.{{ . }}
         - pydio.grpc.data.sync.{{ . }}
-        {{ end }}
-        {{ end }}
-        {{ end }}
-        {{ end }}
+  {{ end }}
+  {{ end }}
+  {{ end }}
+  {{ end }}

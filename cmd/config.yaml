@@ -103,39 +103,55 @@ processes:
       broker:
         uri: {{ .BrokerURL }}
 
-
     servers:
       <<: *servers
       grpc_discovery:
         port: {{ .DiscoveryPort }}
-
-    env: *env
-
-    services:
-      discovery:
-
-  idm:
-    connections: *connections
-    servers:
-      <<: *servers
       http:
         type: caddy
         port: {{ .FrontendPort }}
 
     env: *env
+
     services:
+      discovery:
       gateway:
       idm:
       frontend:
       data:
       scheduler:
-
-  auth:
-    connections: *connections
-    servers: *servers
-    env: *env
-    services:
       auth:
+      broker:
+
+#  idm:
+#    connections: *connections
+#    servers:
+#      <<: *servers
+#      http:
+#        type: caddy
+#        port: {{ .FrontendPort }}
+#
+#    env: *env
+#    services:
+#      gateway:
+#      idm:
+#      frontend:
+#      data:
+#      scheduler:
+#
+#  auth:
+#    connections: *connections
+#    servers: *servers
+#    env: *env
+#    services:
+#      auth:
+#
+#  broker:
+#    connections: *connections
+#    servers: *servers
+#    env: *env
+#    services:
+#      broker:
 
   datasource-peer:
     connections: *connections
@@ -182,10 +198,3 @@ processes:
   {{ end }}
   {{ end }}
   {{ end }}
-
-  broker:
-    connections: *connections
-    servers: *servers
-    env: *env
-    services:
-      broker:
