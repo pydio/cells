@@ -55,9 +55,6 @@ func NewLogSyncer(ctx context.Context, serviceName string) *LogSyncer {
 func (syncer *LogSyncer) logSyncerClientReconnect() {
 	atomic.StoreInt32(&syncer.reconnecting, 1)
 
-	// TODO - reinstate that
-	return
-
 	c := log.NewLogRecorderClient(grpc.GetClientConnFromCtx(syncer.ctx, syncer.serverServiceName))
 
 	cli, err := c.PutLog(syncer.ctx)
