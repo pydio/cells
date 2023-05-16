@@ -25,6 +25,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/ckeys"
 	metadata2 "github.com/pydio/cells/v4/common/service/context/metadata"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -56,7 +57,7 @@ func RegistryIncomingContext(serverRuntimeContext context.Context) func(ctx cont
 func TargetNameToServiceNameContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
 	return func(ctx context.Context) (context.Context, bool, error) {
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
-			if tName := md.Get("targetname"); strings.Join(tName, "") != "" {
+			if tName := md.Get(ckeys.TargetServiceName); strings.Join(tName, "") != "" {
 				return servicecontext.WithServiceName(ctx, strings.Join(tName, "")), true, nil
 			}
 		}
