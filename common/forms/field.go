@@ -52,10 +52,12 @@ func (b *FormField) Serialize(T i18n.TranslateFunc) (params []*SerialFormParam) 
 			}
 		case ParamBool:
 			defaultValue = "false"
-			if bo, ok := b.Default.(bool); ok && bo {
-				defaultValue = "true"
+			if bo, ok := b.Default.(bool); ok {
+				if bo {
+					defaultValue = "true"
+				}
 			} else {
-				fmt.Println("[WARNING] Wrong Default Format, expected bool, got", b.Default)
+				fmt.Println("[WARNING] Wrong Default Format, expected bool, got", b.Default, " for field ", b.Name, b.Label)
 			}
 		case ParamInteger:
 			if in, ok := b.Default.(int); ok {
