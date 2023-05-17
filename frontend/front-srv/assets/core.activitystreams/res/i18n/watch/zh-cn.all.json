@@ -56,14 +56,23 @@
   "selector.legend": {
     "other": "发生下列活动时收到通知..."
   },
+  "selector.legend.mui": {
+    "other": "Receive notifications when content is..."
+  },
   "selector.ignore": {
     "other": "永远不通知"
   },
   "selector.read": {
     "other": "被访问时"
   },
+  "selector.read.mui": {
+    "other": "Accessed"
+  },
   "selector.change": {
     "other": "被修改时"
+  },
+  "selector.change.mui": {
+    "other": "Modified"
   },
   "selector.both": {
     "other": "访问或修改时"

@@ -23,7 +23,7 @@ import {Subheader} from 'material-ui';
 import {muiThemeable} from 'material-ui/styles'
 import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
-const {ModernTextField} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernStyles, AdditionalIcons:{DeleteOutline}} = Pydio.requireLib('hoc');
 import Renderer from './Renderer'
 
 const FieldRow = ({constants, name, label, values, children, style, muiTheme, getDefaultScope,isDefaultScope, onRemove = ()=>{}}) => {
@@ -31,13 +31,14 @@ const FieldRow = ({constants, name, label, values, children, style, muiTheme, ge
         width: 100,
         fontSize: 13,
         fontWeight: 500,
-        color: '#616161',
+        color: muiTheme.palette.mui3['on-surface'],
         height: 34,
         lineHeight: '35px',
-        padding: '0 7px',
-        borderRadius: 4,
+        padding: '0 16px 0px 8px',
+        borderRadius: ModernStyles.v1SearchRadiusLeft,
+        backgroundColor:muiTheme.palette.mui3['surface-variant'],
         marginTop: 6,
-        marginRight: 8,
+        marginRight: 0,
         overflow:'hidden',
         textOverflow:'ellipsis',
         whiteSpace:'nowrap',
@@ -211,7 +212,7 @@ class AdvancedSearch extends Component {
             <div className="search-advanced" style={{...rootStyle}}>
 
                 {(searchID || promptSearchLabel) &&
-                    <div style={{display: 'flex',alignItems: 'center'}}>
+                    <div style={{display: 'flex',alignItems: 'center', margin:8, borderRadius: 12, background:muiTheme.palette.mui3['surface-5']}}>
                         {promptSearchLabel &&
                             <div style={{flex: 1, paddingLeft:20}}>
                                 <ModernTextField
@@ -226,19 +227,24 @@ class AdvancedSearch extends Component {
                         }
                         {!promptSearchLabel &&
                             <div
-                                style={{flex: 1, cursor: 'pointer', fontSize: 15, fontWeight:500, padding: '12px 20px', }}
+                                style={{flex: 1, cursor: 'pointer', fontSize: 16, fontWeight:400, padding: '12px 20px', }}
                                 onClick={() => this.setState({promptSearchLabel:true})}
-                            >{searchLABEL} <span className={"mdi mdi-pencil"} style={{opacity:.5}}/></div>
+                            >{searchLABEL}</div>
                         }
                         <div style={{padding: '12px 20px', fontSize: 15}}>
                             {promptSearchLabel &&
                                 <a onClick={saveAndClose} style={linkIcon} title={getMessage('searchengine.query.action.save')}><span className={"mdi mdi-content-save"}/></a>
                             }
                             {promptSearchLabel &&
-                                <a onClick={close} style={linkIcon} title={getMessage('54')}><span className={"mdi mdi-close-circle"}/></a>
+                                <a onClick={close} style={linkIcon} title={getMessage('54')}><span className={"mdi mdi-close"}/></a>
+                            }
+                            {!promptSearchLabel &&
+                                <a onClick={() => this.setState({promptSearchLabel:true})} style={linkIcon} title={getMessage('54')}><span className={"mdi mdi-pencil"}/></a>
                             }
                             {!promptSearchLabel && searchID &&
-                                <a onClick={deleteAndClose} style={linkIcon} title={getMessage('searchengine.query.action.delete')}><span className={"mdi mdi-delete"}/></a>
+                                <a onClick={deleteAndClose} title={getMessage('searchengine.query.action.delete')}>
+                                    <DeleteOutline style={{...linkIcon, width: 16, height: 16, marginBottom: -2}}/>
+                                </a>
                             }
                         </div>
                     </div>

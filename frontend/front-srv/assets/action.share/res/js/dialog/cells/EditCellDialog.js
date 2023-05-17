@@ -77,14 +77,6 @@ export default class extends React.Component {
             rightStyle:{padding:10},
             left: [
                 {
-                    Label:m('35'),
-                    Value:'base',
-                    Component: (<CellBaseFields
-                        pydio={pydio}
-                        model={model}
-                    />)
-                },
-                {
                     Label:m(54),
                     Value:'users',
                     Component:(<SharedUsers
@@ -95,6 +87,14 @@ export default class extends React.Component {
                         onUserObjectAdd={model.addUser.bind(model)}
                         onUserObjectRemove={model.removeUser.bind(model)}
                         onUserObjectUpdateRight={model.updateUserRight.bind(model)}
+                    />)
+                },
+                {
+                    Label:m('35'),
+                    Value:'base',
+                    Component: (<CellBaseFields
+                        pydio={pydio}
+                        model={model}
                     />)
                 },
                 {
@@ -129,7 +129,7 @@ export default class extends React.Component {
             <GenericEditor
                 pydio={pydio}
                 tabs={tabs}
-                header={<div style={{fontSize: 20, lineHeight:'26px', padding:6}}>{model.getLabel()}</div>}
+                header={<div style={{fontSize: 22, lineHeight:'26px', padding:6}}>{model.getLabel()}</div>}
                 editorOneColumn={this.props.editorOneColumn}
                 saveEnabled={model.isDirty()}
                 onSaveAction={this.submit.bind(this)}

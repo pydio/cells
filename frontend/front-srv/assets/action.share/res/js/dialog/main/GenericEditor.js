@@ -120,13 +120,13 @@ class GenericEditor extends React.Component {
                     <div style={{display:'flex'}}>
                         <EditorTab tabs={merged} active={left} style={{flex: 1, padding:'0 16px'}} onChange={(value)=>{this.setState({left:value})}}/>
                     </div>
-                    <Divider style={{flexShrink:0}}/>
+                    <Divider style={{flexShrink:0, marginRight:16, marginLeft: 16}}/>
                     <div style={{display:'flex', flex: 1, overflow:'hidden'}}>
                         <div style={{overflowY:'auto', width:'100%', height: '100%', ...tabs.leftStyle}}>
                             <EditorTabContent tabs={merged} active={left}/>
                         </div>
                     </div>
-                    <Divider style={{flexShrink:0}}/>
+                    <Divider style={{flexShrink:0, marginRight:16, marginLeft: 16}}/>
                     <div style={{padding:10, display: 'flex', alignItems: 'center', justifyContent: 'flex-end'}}>
                         <FlatButton disabled={!saveEnabled} label={pydio.MessageHash['628']} onClick={onRevertAction} style={{marginLeft: 10}}/>
                         <RaisedButton disabled={!saveEnabled} label={pydio.MessageHash['53']} onClick={onSaveAction}/>

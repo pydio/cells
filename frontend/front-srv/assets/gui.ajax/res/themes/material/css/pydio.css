@@ -1,6 +1,6 @@
 @import "../../common/css/fonts/mdi.css";
 @import "../../common/css/fonts/icomoon.css";
-@import "../../../../node_modules/livekit-react/dist/index.css";
+@import "../../../../node_modules/@livekit/components-styles/dist/general/index.css";
 @import "../../../../node_modules/react-aspect-ratio/aspect-ratio.css";
 @font-face {
   font-family: 'Roboto';
@@ -1065,11 +1065,6 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list.table-mode .material-list-entry span.cell {
   line-height: 16px;
 }
-@media only screen and (max-width: 480px) {
-  .react-mui-context .material-list.files-list.table-mode .material-list-entry span.cell {
-    display: none;
-  }
-}
 .react-mui-context .material-list.files-list.table-mode .material-list-entry:hover:not(.selected) .material-list-line-1 .label-extension,
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.selected .material-list-line-1 .label-extension {
   display: inline !important;
@@ -1078,11 +1073,6 @@ div.dialogBox div#element_overlay {
   font-size: 14px;
   font-weight: 500;
   min-width: 320px;
-}
-@media only screen and (max-width: 480px) {
-  .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label {
-    display: initial;
-  }
 }
 .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label.header_cell {
   font-size: inherit;
@@ -1306,11 +1296,6 @@ div.dialogBox div#element_overlay {
   display: block;
   height: 48px;
   z-index: 10;
-}
-@media only screen and (max-width: 480px) {
-  .react-mui-context .material-list.files-list.table-mode .mui-toolbar {
-    display: none;
-  }
 }
 .react-mui-context .material-list.files-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left {
   display: block;
@@ -1586,11 +1571,14 @@ div.dialogBox div#element_overlay {
   cursor: pointer;
 }
 .react_breadcrumb span.segment:hover {
-  font-weight: 500;
+  text-shadow: 0 0 1px;
 }
-.react_breadcrumb span.segment:last-of-type:hover {
+.react_breadcrumb span.segment.last:hover {
   cursor: default;
-  font-weight: 400;
+}
+.react_breadcrumb span.separator {
+  margin: 0px 6px;
+  opacity: 0.3;
 }
 .context-menu .menu-positioner {
   position: absolute;
@@ -2394,7 +2382,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   -webkit-transition: background-color 0.2s ease-in-out;
   transition: background-color 0.2s ease-in-out;
   font-weight: 500;
-  font-size: 15px;
+  font-size: 14px;
 }
 .react-mui-context .joyride-tooltip__button--primary:active,
 .react-mui-context .joyride-tooltip__button--primary:focus,
@@ -2408,12 +2396,13 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   color: var(--md-sys-color-secondary);
   font-weight: 500;
   margin-right: 12px;
+  font-size: 14px;
 }
 .react-mui-context .joyride-tooltip__button--skip {
-  color: #424242;
+  color: var(--md-sys-color-secondary);
   padding: 6px 12px;
   font-weight: 500;
-  font-size: 15px;
+  font-size: 14px;
   float: left;
   margin-right: 10px;
 }
@@ -3447,7 +3436,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   /* ACTIONS */
 }
 .react-mui-context .material-list .material-list-entry:last-child {
-  border-bottom: none;
+  border-bottom: none !important;
 }
 .react-mui-context .material-list .material-list-entry .material-list-icon {
   width: 72px;
@@ -3890,6 +3879,9 @@ body,
 .react-mui-context.mui3-token .material-list.table-mode .material-list-entry.selected-dark .overlay-icon-span {
   color: var(--md-sys-color-on-secondary) !important;
 }
+.react-mui-context.mui3-token .material-list.table-mode .material-list-entry.list-parent-node .material-list-icon .mui-font-icon {
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
 .react-mui-context.mui3-token .material-list.table-mode .mui-toolbar {
   background: var(--md-sys-color-surface-3);
   border-top-width: 0px;
@@ -3925,6 +3917,7 @@ body,
   -webkit-box-shadow: none;
           box-shadow: none;
   border-radius: var(--md-sys-color-card-border-radius);
+  border: 1px solid var(--md-sys-color-outline-variant);
   background: var(--md-sys-color-surface);
   margin: 4px;
 }
@@ -3937,7 +3930,7 @@ body,
   border-top: 0;
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry .material-list-icon .mimefont-container {
-  border-radius: var(--md-sys-color-card-border-radius);
+  border-radius: 0 0 var(--md-sys-color-card-border-radius) var(--md-sys-color-card-border-radius);
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-icon {
   height: calc(100% - 20px);
@@ -3976,13 +3969,13 @@ body,
   color: var(--md-sys-color-custom-archive-color) !important;
 }
 .react-mui-context.mui3-token .selected .mimefont-container {
-  background-color: var(--md-sys-color-primary-container) !important;
+  background-color: var(--md-sys-color-secondary-container) !important;
 }
 .react-mui-context.mui3-token .left-panel .rail-hover-bar .workspaces .workspace-entry .workspace-additional-action {
   display: none;
 }
 .react-mui-context.mui3-token .left-panel .rail-hover-bar .mimefont-container {
-  background-color: var(--md-sys-color-primary-container) !important;
+  background-color: var(--md-sys-color-secondary-container) !important;
 }
 .react-mui-context.mui3-token .left-panel .section-title {
   margin-right: 0;

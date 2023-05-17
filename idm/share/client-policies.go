@@ -24,9 +24,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -35,14 +34,9 @@ import (
 // InheritPolicies find possible SecurityPolicy currently implied and compute a new one based on it.
 func (sc *Client) InheritPolicies(ctx context.Context, policyName string, read, write bool) (string, error) {
 	polClient := idm.NewPolicyEngineServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServicePolicy))
-	response, e := polClient.ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
-	if e != nil {
-		return "", e
-	}
-	gg := response.PolicyGroups
-	parent, ok := sc.policyByName(gg, policyName)
-	if !ok {
-		return "", fmt.Errorf("cannot find parent policy %s", policyName)
+	parent, err := sc.policyByName(ctx, polClient, policyName)
+	if err != nil {
+		return "", err
 	}
 	var suffix = ""
 	if read && write {
@@ -55,7 +49,8 @@ func (sc *Client) InheritPolicies(ctx context.Context, policyName string, read, 
 		return "", fmt.Errorf("provide at least one of read or write for extending policy")
 	}
 	// Create inherited flavours
-	if ro, o := sc.policyByName(gg, policyName+"-"+suffix); o {
+	if ro, er := sc.policyByName(ctx, polClient, policyName+"-"+suffix); er == nil && ro != nil {
+		// Already exist, just return
 		return ro.Uuid, nil
 	}
 	roPol, e := sc.derivePolicy(parent, read, write, suffix)
@@ -130,31 +125,23 @@ func (sc *Client) derivePolicy(policy *idm.PolicyGroup, read, write bool, suffix
 	return newG, nil
 }
 
-func (sc *Client) policyByName(groups []*idm.PolicyGroup, name string) (*idm.PolicyGroup, bool) {
-	var parent *idm.PolicyGroup
-	for _, p := range groups {
-		if p.Uuid == name {
-			parent = p
-			break
-		}
+func (sc *Client) policyByName(ctx context.Context, cl idm.PolicyEngineServiceClient, name string) (*idm.PolicyGroup, error) {
+	response, e := cl.ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{Filter: "uuid:" + name})
+	if e != nil {
+		return nil, e
 	}
-	if parent == nil {
-		return nil, false
+	if len(response.PolicyGroups) == 0 {
+		return nil, fmt.Errorf("cannot find policy with uuid " + name)
 	}
-	return parent, true
+	return response.PolicyGroups[0], nil
 }
 
 // InterpretInheritedPolicy translates a SecurityPolicy to read/write permissions for user readability
 func (sc *Client) InterpretInheritedPolicy(ctx context.Context, name string) (read, write bool, e error) {
 	polClient := idm.NewPolicyEngineServiceClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServicePolicy))
-	response, e := polClient.ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
-	if e != nil {
-		return false, false, e
-	}
-	gg := response.PolicyGroups
-	parent, ok := sc.policyByName(gg, name)
-	if !ok {
-		return false, false, fmt.Errorf("could not find associated policy!")
+	parent, er := sc.policyByName(ctx, polClient, name)
+	if er != nil {
+		return false, false, er
 	}
 
 	for _, p := range parent.Policies {

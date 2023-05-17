@@ -24,18 +24,22 @@ import {IconButton} from 'material-ui'
 export default class MaskWsButton extends React.Component {
 
     render() {
-        const {pydio, workspaceId, iconStyle} = this.props
+        const {pydio, workspaceId, iconStyle, style} = this.props
         if (!pydio.user) {
             return null;
         }
-
+        const baseStyles = {
+            style: {width:40,height:40,padding:8},
+            iconStyle: {color:'var(--md-sys-color-primary)'}
+        }
         const wss = pydio.user.getGUIPreference('MaskedWorkspaces') || []
         const isMasked = wss.indexOf && wss.indexOf(workspaceId) > -1
         return (
             <IconButton
                 iconClassName={'mdi mdi-playlist-'+(isMasked?'check':'remove')}
-                iconStyle={iconStyle}
-                tooltip={isMasked?'Unmask':'Mask'}
+                style={{...baseStyles.style, ...style}}
+                iconStyle={{...baseStyles.iconStyle, ...iconStyle}}
+                tooltip={pydio.MessageHash['ajax_gui.wslist.action.' + (isMasked?'unmask':'mask')]}
                 onClick={() => {
                     let mw = [...wss]
                     if (isMasked) {

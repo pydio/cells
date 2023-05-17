@@ -56,14 +56,23 @@
   "selector.legend": {
     "other": "Obdržet oznámení když…"
   },
+  "selector.legend.mui": {
+    "other": "Receive notifications when content is..."
+  },
   "selector.ignore": {
     "other": "Nikdy (žádná oznámení)"
   },
   "selector.read": {
     "other": "Při přístupu k obsahu"
   },
+  "selector.read.mui": {
+    "other": "Accessed"
+  },
   "selector.change": {
     "other": "Při změně obsahu"
+  },
+  "selector.change.mui": {
+    "other": "Modified"
   },
   "selector.both": {
     "other": "Při přístupu k nebo změně obsahu"

@@ -6,7 +6,7 @@
         </resources>
     </client_settings>
     <server_settings>
-        <global_param name="LK_WS_URL" type="string" label="CONF_MESSAGE[Websocket URL]" description="CONF_MESSAGE[Livekit Websocket URL]" mandatory="true" default="ws://localhost:7880"/>
+        <global_param name="LK_WS_URL" type="string" label="CONF_MESSAGE[Websocket URL]" description="CONF_MESSAGE[Livekit Websocket URL]" mandatory="true" default="http://localhost:7880"/>
         <global_param name="LK_API_KEY" type="string" label="CONF_MESSAGE[API Key]" description="CONF_MESSAGE[Livekit server API Key]" mandatory="true" default="" />
         <global_param name="LK_API_SECRET" type="password" label="CONF_MESSAGE[API Secret]" description="CONF_MESSAGE[Livekit server API Secret]" mandatory="true" default="" />
     </server_settings>

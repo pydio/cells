@@ -30,6 +30,8 @@ const styles = (muiTheme) => {
 
     const v1BgColor ='rgba(224, 224, 228, 0.33)'//var(--md-sys-color-surface-variant)'
     const hintColor='var(--md-sys-color-outline)'
+    const v1SearchRadiusLeft = '20px 0 0 20px'
+    const v1SearchRadiusRight = '0 20px 20px 0'
 
     const isMUI3 = muiTheme.userTheme === 'mui3'
 
@@ -54,6 +56,13 @@ const styles = (muiTheme) => {
             underlineFocusStyle: {opacity: 1, borderRadius: '0px 0px 3px 3px'},
             errorStyle: {bottom: -4}
         },
+        textFieldV1Search: {
+            inputStyle: {backgroundColor: v1BgColor, height: 34, borderRadius: v1SearchRadiusRight, marginTop: 6, padding: 7, fontSize:13},
+            hintStyle: {fontSize: 13, paddingLeft: 7, color: muiTheme.darkMode?'#aaa':'#454545', ...noWrap, width: '100%'},
+            underlineStyle: {opacity: 0},
+            underlineFocusStyle: {opacity: 1, borderRadius: 0, width: '96%'},
+            errorStyle: {bottom: -4}
+        },
         textFieldV2: {
             style: {...v2Block},
             inputStyle: {position: 'absolute', height: 30, marginTop: 0, bottom: 2, paddingLeft: 8, paddingRight: 8},
@@ -76,6 +85,16 @@ const styles = (muiTheme) => {
             hintStyle: {paddingLeft: 7, color: hintColor, ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
             underlineStyle: {opacity: 0},
             underlineFocusStyle: {opacity: 1, borderRadius: '0px 0px 3px 3px'},
+            errorStyle: {bottom: -3}
+        },
+        textareaFieldV1Search: {
+            rows: 4,
+            rowsMax: 4,
+            inputStyle: {backgroundColor: v1BgColor, height: 106, borderRadius: v1SearchRadiusRight, marginTop: 6, padding: 7, fontSize:13},
+            textareaStyle: {marginTop: 0, marginBottom: 0},
+            hintStyle: {paddingLeft: 7, color: hintColor, ...noWrap, width: '100%', top: 12, bottom: 'inherit', fontSize:13},
+            underlineStyle: {opacity: 0},
+            underlineFocusStyle: {opacity: 1, borderRadius: 0, width:'96%'},
             errorStyle: {bottom: -3}
         },
         textareaFieldV2: {
@@ -112,6 +131,29 @@ const styles = (muiTheme) => {
             hintStyle: {paddingLeft: 0, marginBottom: -7, paddingRight: 56, color: muiTheme.darkMode?'#ccc':hintColor, ...noWrap, width: '100%'},
             underlineShow: false
         },
+        selectFieldV1Search: {
+            style: {
+                backgroundColor: v1BgColor,
+                height: 34,
+                borderRadius: v1SearchRadiusRight,
+                marginTop: 6,
+                padding: 7,
+                paddingRight: 0,
+                overflow: 'hidden',
+                fontSize: 13
+            },
+            menuStyle: {marginTop: -12},
+            hintStyle: {
+                fontSize: 13,
+                paddingLeft: 0,
+                marginBottom: -7,
+                paddingRight: 56,
+                color: muiTheme.darkMode?'#ccc':hintColor,
+                ...noWrap,
+                width: '100%'
+            },
+            underlineShow: false
+        },
         selectFieldV2: {
             style: {...v2Block, padding: 8, paddingRight: 0, overflow: 'hidden'},
             menuStyle: {marginTop: -6},
@@ -139,6 +181,15 @@ const styles = (muiTheme) => {
                 margin: '6px 0 7px'
             }
         },
+        toggleFieldV1Search: {
+            style: {
+                backgroundColor: v1BgColor,
+                padding: '7px 5px 4px',
+                borderRadius: v1SearchRadiusRight,
+                fontSize: 13,
+                margin: '6px 0 7px'
+            }
+        },
         toggleFieldV2: {
             style: {
                 ...v2Block,
@@ -161,7 +212,8 @@ const styles = (muiTheme) => {
             backgroundColor:isMUI3?'var(--md-sys-color-surface-variant)':'rgb(246, 246, 248)',
             borderRadius:'3px 3px 0 0',
             ...underline.idle
-        }
+        },
+        v1SearchRadiusRight, v1SearchRadiusLeft
     };
 }
 

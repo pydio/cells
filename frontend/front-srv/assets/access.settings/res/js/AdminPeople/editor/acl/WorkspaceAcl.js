@@ -54,7 +54,10 @@ class WorkspaceAcl extends React.Component{
             />
         );
 
-        const label = workspace.Label + (inherited ? ' ('+ getPydioRoleMessage('38') +')' : '');
+        let label = workspace.Label + (inherited ? ' ('+ getPydioRoleMessage('38') +')' : '');
+        if(workspace.Description) {
+            label = <span title={workspace.Description}>{label}</span>
+        }
 
         return (
             <ListEntry

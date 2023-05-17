@@ -17,11 +17,11 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react';
+import React, {createRef} from 'react';
 import Pydio from 'pydio'
 import PropTypes from 'prop-types';
 import ShareContextConsumer from '../ShareContextConsumer'
-import TargetedUsers from './TargetedUsers'
+//import TargetedUsers from './TargetedUsers'
 import {TextField, Paper} from 'material-ui'
 import QRCode from 'qrcode.react'
 import Clipboard from 'clipboard'
@@ -30,6 +30,7 @@ import PathUtils from 'pydio/util/path'
 import LangUtils from 'pydio/util/lang'
 import {muiThemeable} from 'material-ui/styles'
 import ShareHelper from '../main/ShareHelper'
+import ResourcesManager from 'pydio/http/resources-manager'
 const {ThemedModernStyles} = Pydio.requireLib('hoc')
 const {Tooltip} = Pydio.requireLib("boot");
 
@@ -45,18 +46,28 @@ class PublicLinkField extends React.Component {
 
     state = {editLink: false, copyMessage:'', showQRCode: false};
 
+    constructor(props) {
+        super(props);
+        this.copyButton = createRef();
+        this.publicLinkField = createRef();
+        ResourcesManager.loadClass('PydioActivityStreams').then(as => {
+            this.setState({asLib: as})
+        })
+    }
+
     toggleEditMode = () => {
-        const {linkModel, pydio} = this.props;
-        if(this.state.editLink && this.state.customLink){
+        const {linkModel, pydio, getMessage} = this.props;
+        const {editLink, customLink} = this.state;
+        if(editLink && customLink){
             const auth = ShareHelper.getAuthorizations();
-            if(auth.hash_min_length && this.state.customLink.length < auth.hash_min_length){
-                pydio.UI.displayMessage('ERROR', this.props.getMessage('223').replace('%s', auth.hash_min_length));
+            if(auth.hash_min_length && customLink.length < auth.hash_min_length){
+                pydio.UI.displayMessage('ERROR', getMessage('223').replace('%s', auth.hash_min_length));
                 return;
             }
-            linkModel.setCustomLink(this.state.customLink);
+            linkModel.setCustomLink(customLink);
             linkModel.save();
         }
-        this.setState({editLink: !this.state.editLink, customLink: undefined});
+        this.setState({editLink: !editLink, customLink: undefined});
     };
 
     changeLink = (event) => {
@@ -66,32 +77,32 @@ class PublicLinkField extends React.Component {
     };
 
     clearCopyMessage = () => {
-        global.setTimeout(function(){
+        setTimeout(function(){
             this.setState({copyMessage:''});
         }.bind(this), 5000);
     };
 
     attachClipboard = () => {
-        const {linkModel, pydio} = this.props;
+        const {linkModel, pydio, getMessage} = this.props;
         this.detachClipboard();
-        if(this.refs['copy-button']){
-            this._clip = new Clipboard(this.refs['copy-button'], {
+        if(this.copyButton.current){
+            this._clip = new Clipboard(this.copyButton.current, {
                 text: function(trigger) {
                     return ShareHelper.buildPublicUrl(pydio, linkModel.getLink());
                 }.bind(this)
             });
             this._clip.on('success', function(){
-                this.setState({copyMessage:this.props.getMessage('192')}, this.clearCopyMessage);
+                this.setState({copyMessage:getMessage('192')}, () => this.clearCopyMessage());
             }.bind(this));
             this._clip.on('error', function(){
                 let copyMessage;
                 if( global.navigator.platform.indexOf("Mac") === 0 ){
-                    copyMessage = this.props.getMessage('144');
+                    copyMessage = getMessage('144');
                 }else{
-                    copyMessage = this.props.getMessage('143');
+                    copyMessage = getMessage('143');
                 }
-                this.refs['public-link-field'].focus();
-                this.setState({copyMessage:copyMessage}, this.clearCopyMessage);
+                this.publicLinkField.current.focus();
+                this.setState({copyMessage:copyMessage}, () => this.clearCopyMessage());
             }.bind(this));
         }
     };
@@ -123,42 +134,46 @@ class PublicLinkField extends React.Component {
     };
 
     confirmDisable() {
-        const {onDisableLink} = this.props;
-        if (confirm(this.props.getMessage('dialog.link.confirm.remove'))){
+        const {onDisableLink, getMessage} = this.props;
+        if (confirm(getMessage('dialog.link.confirm.remove'))){
             onDisableLink()
         }
     }
 
     render() {
-        const {linkModel, pydio} = this.props;
+        const {linkModel, compositeModel, pydio, getMessage, muiTheme} = this.props;
         const publicLink = ShareHelper.buildPublicUrl(pydio, linkModel.getLink());
         const auth = ShareHelper.getAuthorizations();
         const editAllowed = this.props.editAllowed && auth.editable_hash && !this.props.isReadonly() && linkModel.isEditable();
-        if(this.state.editLink && editAllowed){
+        const {editLink, customLink} = this.state;
+        if(editLink && editAllowed){
+            const crtValue = customLink === undefined ? linkModel.getLink().LinkHash : customLink
+            const crtValueTooShort = customLink !== undefined && customLink.length < auth.hash_min_length
+            const legendColor = crtValueTooShort && muiTheme.palette.mui3 && muiTheme.palette.mui3.error
             return (
                 <div>
                     <div style={{display:'flex', alignItems:'center', padding: 6, borderRadius: 2}}>
                         <span style={{fontSize:16, display: 'inline-block', maxWidth: 160, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{PathUtils.getDirname(publicLink) + '/ '}</span>
-                        <TextField style={{flex:1, marginRight: 10, marginLeft: 10}} autoFocus={true} onChange={this.changeLink} value={this.state.customLink !== undefined ? this.state.customLink : linkModel.getLink().LinkHash}/>
-                        <ActionButton mdiIcon="check" callback={this.toggleEditMode} />
+                        <TextField style={{flex:1, marginRight: 10, marginLeft: 10}} autoFocus={true} onChange={this.changeLink} value={crtValue} errorText={crtValueTooShort?" ":null}/>
+                        <ActionButton mdiIcon="check" callback={() => this.toggleEditMode()} disabled={crtValueTooShort} />
                     </div>
-                    <div style={{textAlign:'center', fontSize:13, opacity:.73, paddingTop: 16}}>{this.props.getMessage('194')}</div>
+                    <div style={{textAlign:'center', fontSize:13, paddingTop: 10, color: legendColor}}>{crtValueTooShort?getMessage('223').replace('%s', auth.hash_min_length):getMessage('194')}</div>
                 </div>
             );
         }else{
-            const {copyMessage, linkTooltip} = this.state;
+            const {copyMessage, linkTooltip, asLib} = this.state;
             let actionLinks = [], qrCode;
             const {muiTheme} = this.props;
             const copyButton = (
                 <div
                     key={"copy"}
-                    ref="copy-button"
+                    ref={this.copyButton}
                     style={{position: 'absolute', right: 0, bottom: 7, width:30, height:30, padding:4, backgroundColor:'transparent', fontSize:16, cursor:'pointer'}}
                     onMouseOver={()=>{this.setState({linkTooltip:true})}}
                     onMouseOut={()=>{this.setState({linkTooltip:false})}}
                 >
                     <Tooltip
-                        label={copyMessage ? copyMessage : this.props.getMessage('191')}
+                        label={copyMessage ? copyMessage : getMessage('191')}
                         horizontalPosition={"left"}
                         verticalPosition={"bottom"}
                         show={linkTooltip}
@@ -175,6 +190,18 @@ class PublicLinkField extends React.Component {
             }
             if(ShareHelper.qrcodeEnabled()){
                 actionLinks.push(<ActionButton key="qrcode" callback={this.toggleQRCode} mdiIcon="qrcode" messageId={'94'}/>);
+            }
+            if(asLib){
+                const {WatchSelectorMui3} = asLib
+                actionLinks.push(
+                    <WatchSelectorMui3
+                        animatedButton={true}
+                        pydio={pydio}
+                        nodes={[compositeModel.getNode()]}
+                        fullWidth={false}
+                        readPermissionOnly={!linkModel.hasPermission('Upload')}
+                    />
+                )
             }
             if(this.props.onDisableLink) {
                 actionLinks.push(<ActionButton key="delete" destructive={true} callback={() => this.confirmDisable()} mdiIcon="link-off" messageId="link.disable"/>);
@@ -195,11 +222,11 @@ class PublicLinkField extends React.Component {
                 <div className="public-link-container">
                     <div style={{marginTop:-8, position:'relative'}}>
                         <TextField
-                            floatingLabelText={this.props.getMessage("link.floatingLabel")}
+                            floatingLabelText={getMessage("link.floatingLabel")}
                             floatingLabelFixed={true}
                             type="text"
                             name="Link"
-                            ref="public-link-field"
+                            ref={this.publicLinkField}
                             value={publicLink}
                             onFocus={e => {e.target.select()}}
                             fullWidth={true}
@@ -207,7 +234,6 @@ class PublicLinkField extends React.Component {
                         />
                         {copyButton}
                     </div>
-                    {false && this.props.linkData.target_users && <TargetedUsers {...this.props}/>}
                     {actionLinks}
                     {qrCode}
                 </div>

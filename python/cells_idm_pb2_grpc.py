@@ -1045,6 +1045,11 @@ class PolicyEngineServiceStub(object):
                 request_serializer=cells__idm__pb2.ListPolicyGroupsRequest.SerializeToString,
                 response_deserializer=cells__idm__pb2.ListPolicyGroupsResponse.FromString,
                 )
+        self.StreamPolicyGroups = channel.unary_stream(
+                '/idm.PolicyEngineService/StreamPolicyGroups',
+                request_serializer=cells__idm__pb2.ListPolicyGroupsRequest.SerializeToString,
+                response_deserializer=cells__idm__pb2.PolicyGroup.FromString,
+                )
         self.DeletePolicyGroup = channel.unary_unary(
                 '/idm.PolicyEngineService/DeletePolicyGroup',
                 request_serializer=cells__idm__pb2.DeletePolicyGroupRequest.SerializeToString,
@@ -1076,6 +1081,12 @@ class PolicyEngineServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def StreamPolicyGroups(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def DeletePolicyGroup(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -1099,6 +1110,11 @@ def add_PolicyEngineServiceServicer_to_server(servicer, server):
                     servicer.ListPolicyGroups,
                     request_deserializer=cells__idm__pb2.ListPolicyGroupsRequest.FromString,
                     response_serializer=cells__idm__pb2.ListPolicyGroupsResponse.SerializeToString,
+            ),
+            'StreamPolicyGroups': grpc.unary_stream_rpc_method_handler(
+                    servicer.StreamPolicyGroups,
+                    request_deserializer=cells__idm__pb2.ListPolicyGroupsRequest.FromString,
+                    response_serializer=cells__idm__pb2.PolicyGroup.SerializeToString,
             ),
             'DeletePolicyGroup': grpc.unary_unary_rpc_method_handler(
                     servicer.DeletePolicyGroup,
@@ -1166,6 +1182,23 @@ class PolicyEngineService(object):
         return grpc.experimental.unary_unary(request, target, '/idm.PolicyEngineService/ListPolicyGroups',
             cells__idm__pb2.ListPolicyGroupsRequest.SerializeToString,
             cells__idm__pb2.ListPolicyGroupsResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def StreamPolicyGroups(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/idm.PolicyEngineService/StreamPolicyGroups',
+            cells__idm__pb2.ListPolicyGroupsRequest.SerializeToString,
+            cells__idm__pb2.PolicyGroup.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

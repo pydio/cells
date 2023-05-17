@@ -36,7 +36,10 @@ class StarsFormPanel extends React.Component {
         });
         if(search) {
             return (
-                <div className="advanced-search-stars" style={{...ModernStyles.div, ...starsStyle}}>
+                <div className="advanced-search-stars" style={{
+                    ...ModernStyles.div,
+                    borderRadius: ModernStyles.textFieldV1Search.inputStyle.borderRadius,
+                    ...starsStyle, fontSize: 18}}>
                     <div>{stars}</div>
                 </div>
             );

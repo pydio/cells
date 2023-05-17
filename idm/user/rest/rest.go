@@ -23,16 +23,17 @@ package rest
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config"
 	"io"
 	"strings"
 
-	restful "github.com/emicklei/go-restful/v3"
+	"github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth/claim"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/front"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -350,6 +351,10 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, fmt.Errorf("cannot create user without at least a login"))
 		return
 	}
+	if strings.Contains(inputUser.Login, "/") {
+		service.RestError500(req, rsp, fmt.Errorf("login field cannot contain a group path"))
+		return
+	}
 	cli := idm.NewUserServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceUser))
 	log.Logger(req.Request.Context()).Debug("Received User.Put API request", inputUser.ZapLogin())
 	var update *idm.User
@@ -422,26 +427,17 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 
-	// For creation by non-admin, check USER_CREATE_USERS plugins permission.
-	if update == nil && ctxClaims.Profile != common.PydioProfileAdmin && !inputUser.IsHidden() {
-		global := config.Get("frontend", "plugin", "core.auth", "USER_CREATE_USERS").Default(true).Bool()
-		acl, e := permissions.AccessListFromContextClaims(ctx)
-		if e != nil {
-			service.RestError500(req, rsp, e)
-			return
+	if update == nil && ctxClaims.Profile != common.PydioProfileAdmin {
+		// Clear roles
+		inputUser.Roles = nil
+		// Check that parent group exists, or it will be created automatically (ok for admin, nok for others)
+		if strings.Trim(inputUser.GroupPath, "/") != "" {
+			if _, ok := permissions.GroupExists(ctx, inputUser.GroupPath); !ok {
+				service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create groups"))
+				return
+			}
 		}
-		if er := permissions.AccessListLoadFrontValues(ctx, acl); er != nil {
-			service.RestError500(req, rsp, e)
-			return
-		}
-		local := acl.FlattenedFrontValues().Val("parameters", "core.auth", "USER_CREATE_USERS", permissions.FrontWsScopeAll).Default(global).Bool()
-		if !local {
-			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create users"))
-			return
-		}
-	}
-	// Recheck that crtUser is not hidden
-	if update == nil && ctxClaims.Profile == common.PydioProfileShared {
+		// Check current isHidden
 		crtUser, e := permissions.SearchUniqueUser(ctx, ctxLogin, "")
 		if e != nil {
 			service.RestError401(req, rsp, fmt.Errorf("invalid context user"))
@@ -450,6 +446,25 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		if crtUser.IsHidden() {
 			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create users"))
 			return
+		}
+
+		// For creation by non-admin, check USER_CREATE_USERS plugins permission.
+		if !inputUser.IsHidden() {
+			global := config.Get("frontend", "plugin", "core.auth", "USER_CREATE_USERS").Default(true).Bool()
+			acl, e := permissions.AccessListFromContextClaims(ctx)
+			if e != nil {
+				service.RestError500(req, rsp, e)
+				return
+			}
+			if er := permissions.AccessListLoadFrontValues(ctx, acl); er != nil {
+				service.RestError500(req, rsp, e)
+				return
+			}
+			local := acl.FlattenedFrontValues().Val("parameters", "core.auth", "USER_CREATE_USERS", permissions.FrontWsScopeAll).Default(global).Bool()
+			if !local {
+				service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create users"))
+				return
+			}
 		}
 	}
 
@@ -464,7 +479,14 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		if value, ok := inputUser.Attributes[idm.UserAttrProfile]; !ok || value == "" {
 			inputUser.Attributes[idm.UserAttrProfile] = common.PydioProfileShared
 		}
-		// Check profile is not higher than current user profile
+		// Std users can only create shared ones, except for delegated admins
+		// Double-check authorized access to /acl endpoint - if allowed, it's a delegated admin.
+		if ctxClaims.Profile == common.PydioProfileStandard && inputUser.Attributes[idm.UserAttrProfile] != common.PydioProfileShared &&
+			ctxLogin != inputUser.Login && !allowedUserSpecialPermissions(ctx, ctxClaims) {
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create users with this profile"))
+			return
+		}
+		// Generic check - profile is never higher than current user profile
 		if profilesLevel[inputUser.Attributes[idm.UserAttrProfile]] > profilesLevel[ctxClaims.Profile] {
 			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to set a profile (%s) higher than your current profile (%s)", inputUser.Attributes[idm.UserAttrProfile], ctxClaims.Profile))
 			return
@@ -914,4 +936,19 @@ func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 		}
 	}
 	return false
+}
+
+func allowedUserSpecialPermissions(ctx context.Context, claims claim.Claims) bool {
+	subjects := permissions.PolicyRequestSubjectsFromClaims(claims)
+	client := idm.NewPolicyEngineServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServicePolicy))
+	request := &idm.PolicyEngineRequest{
+		Subjects: subjects,
+		Resource: "rest:/acl",
+		Action:   "PUT",
+	}
+	resp, _ := client.IsAllowed(ctx, request)
+	if resp == nil {
+		return false
+	}
+	return resp.GetAllowed()
 }

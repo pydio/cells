@@ -32,7 +32,7 @@ import {TreeView, DNDTreeView, FoldersTree} from './views/TreeView'
 import LabelWithTip from './elements/LabelWithTip'
 import SimpleFigureBadge from './elements/SimpleFigureBadge'
 import ClipboardTextField from './elements/ClipboardTextField'
-import {GenericCard, GenericLine} from './elements/GenericCard'
+import {GenericCard, GenericLine, Mui3CardLine} from './elements/GenericCard'
 import QuotaUsageLine from "./elements/QuotaUsageLine";
 import EmptyStateView from './views/EmptyStateView'
 import ModalAppBar from './views/ModalAppBar'
@@ -48,6 +48,8 @@ import {Types, collect, collectDrop, nodeDragSource, nodeDropTarget, DNDActionPa
 import UserAvatar from './users/avatar/UserAvatar'
 import UsersCompleter from './users/UsersCompleter'
 import TeamCreationForm from './users/TeamCreationForm'
+import SharedUsersStack from './users/stack/SharedUsersStack'
+import SharedAvatar from './users/stack/SharedAvatar'
 
 import ButtonMenu from './menu/ButtonMenu'
 import ContextMenu from './menu/ContextMenu'
@@ -89,6 +91,7 @@ const PydioComponents = {
     ModalAppBar             : ModalAppBar,
     GenericCard,
     GenericLine,
+    Mui3CardLine,
     QuotaUsageLine,
 
     ReactEditorOpener       : ReactEditorOpener,
@@ -104,11 +107,13 @@ const PydioComponents = {
     DNDActionParameter      : DNDActionParameter,
 
     UserAvatar,
+    SharedAvatar,
     UsersCompleter,
     TeamCreationForm,
     AddressBook,
     DirectoryLayout,
     ListStylesCompact,
+    SharedUsersStack,
 
     ContextMenu             : ContextMenu,
     Toolbar                 : Toolbar,

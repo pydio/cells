@@ -564,6 +564,13 @@ func (m *PolicyEngineServiceEnhancedServerImpl) ListPolicyGroups(ctx context.Con
 	return nil, status.Errorf(codes.Unimplemented, "method ListPolicyGroups not implemented")
 }
 
+func (m *PolicyEngineServiceEnhancedServerImpl) StreamPolicyGroups(r *ListPolicyGroupsRequest, s PolicyEngineService_StreamPolicyGroupsServer) error {
+	for _, handler := range m.filter(s.Context()) {
+		return handler.StreamPolicyGroups(r, s)
+	}
+	return status.Errorf(codes.Unimplemented, "method StreamPolicyGroups not implemented")
+}
+
 func (m *PolicyEngineServiceEnhancedServerImpl) DeletePolicyGroup(ctx context.Context, r *DeletePolicyGroupRequest) (*DeletePolicyGroupResponse, error) {
 	for _, handler := range m.filter(ctx) {
 		return handler.DeletePolicyGroup(ctx, r)

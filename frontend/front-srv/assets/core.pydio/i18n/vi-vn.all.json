@@ -1022,32 +1022,8 @@
   "402": {
     "other": "http://www.hjsplit.org/"
   },
-  "403": {
-    "other": "WebDAV"
-  },
-  "404": {
-    "other": "WebDAV là một giao thức cho phép bạn gắn kết APPLICATION_TITLE workspaces dưới dạng 'network drive' trực tiếp trên máy tính để bàn của bạn. Để kích hoạt tính năng này, vui lòng chọn hộp bên dưới và nhập mật khẩu của bạn nếu cần."
-  },
-  "405": {
-    "other": "Bất kỳ ứng dụng khách WebDAV nào cũng sẽ yêu cầu địa chỉ, thông tin đăng nhập và mật khẩu. Sử dụng URL bên dưới cùng với tên và mật khẩu chuẩn của bạn."
-  },
-  "406": {
-    "other": "Kích hoạt chia sẻ WebDAV"
-  },
-  "407": {
-    "other": "Nhập mật khẩu của bạn nếu như đây là lần đầu tiên bạn kích hoạt chia sẻ webDAV, hoặc nếu bạn muốn nhập lại một mật khẩu mới :"
-  },
-  "408": {
-    "other": "Đã kích hoạt chia sẻ WebDev thành công"
-  },
-  "409": {
-    "other": "Đã hủy kích hoạt chia sẻ WebDev thành công"
-  },
   "41": {
     "other": "đã được đổi tên thành"
-  },
-  "410": {
-    "other": "Cập nhật mật khẩu webDav thành công"
   },
   "411": {
     "other": "Mở"
@@ -1275,7 +1251,7 @@
     "other": "Quên mật khẩu?"
   },
   "48": {
-    "other": "OK"
+    "other": "Ok"
   },
   "480": {
     "other": "Duyệt qua tất cả các thư mục của không gian làm việc hiện tại."
@@ -1308,7 +1284,7 @@
     "other": "Metadata"
   },
   "49": {
-    "other": "HỦY"
+    "other": "Cancel"
   },
   "490": {
     "other": "Khoảng thời gian"
@@ -1324,6 +1300,9 @@
   },
   "494": {
     "other": "Hôm qua"
+  },
+  "494t": {
+    "other": "Tomorrow"
   },
   "495": {
     "other": "Tuần trước"
@@ -1678,6 +1657,9 @@
   },
   "599": {
     "other": "Thêm người dùng"
+  },
+  "599-a": {
+    "other": "All Results"
   },
   "6": {
     "other": "Đổi tên"
@@ -2321,6 +2303,9 @@
   "addressbook.pick.group": {
     "other": "Chọn nhóm"
   },
+  "addressbook.pick.multiple": {
+    "other": "Multiple Selection"
+  },
   "confirm.dialog.title": {
     "other": "Xác nhận"
   },
@@ -2359,6 +2344,27 @@
   },
   "searchengine.scope.title": {
     "other": "Tìm kiếm trong..."
+  },
+  "searchengine.share.title": {
+    "other": "Shared"
+  },
+  "searchengine.share.hint": {
+    "other": "No status"
+  },
+  "searchengine.share.option.link": {
+    "other": "Public Link"
+  },
+  "searchengine.share.option.cell": {
+    "other": "Shared in Cell"
+  },
+  "searchengine.share.option.any": {
+    "other": "Public Link or Cell"
+  },
+  "searchengine.format.title": {
+    "other": "Format"
+  },
+  "searchengine.format.file-only": {
+    "other": "Files Only"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "Bộ lọc nâng cao"
@@ -2410,6 +2416,9 @@
   },
   "searchengine.complete.activefilters": {
     "other": "Filters:"
+  },
+  "searchengine.complete.activefilters-edit": {
+    "other": "Click to modify"
   },
   "chat.load-older": {
     "other": "Các mục cũ hơn"

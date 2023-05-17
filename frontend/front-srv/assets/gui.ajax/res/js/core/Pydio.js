@@ -170,7 +170,7 @@ class Pydio extends Observable{
         });
 
         const starterFunc = () => {
-            ResourcesManager.loadClassesAndApply(["React", "PydioReactUI"], () => {
+            return ResourcesManager.loadClassesAndApply(["React", "PydioReactUI"], () => {
                 this.UI = new window.PydioReactUI.Builder(this);
                 this.UI.initTemplates();
 
@@ -186,22 +186,28 @@ class Pydio extends Observable{
             const pwd = login + "#$!Az1";
 
             PydioApi.getRestClient().sessionLoginWithCredentials(login, pwd)
-                .then(() => this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY")))
-                .catch(() => this.loadXmlRegistry(null, starterFunc))
+                .then(() => {
+                    return this.loadXmlRegistry(this.Parameters.get("START_REPOSITORY"))
+                }).catch(() => {
+                    return this.loadXmlRegistry(null)
+                }).then(() => {
+                    return starterFunc()
+                })
         } else {
             PydioApi.getRestClient().getOrUpdateJwt().
                 then(jwt => {
                     // Logged in
-                    this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"))
+                    return this.loadXmlRegistry(this.Parameters.get("START_REPOSITORY")).then(() => starterFunc())
                 }).
                 catch((e) => {
                     if (!this.Parameters.has("PRELOADED_REGISTRY")) {
-                        this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"))
+                        return this.loadXmlRegistry(this.Parameters.get("START_REPOSITORY")).then(() => starterFunc())
+                        //this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"))
                     } else {
                         // Not logged, used prefeteched registry to speed up login screen
                         this.Registry.loadFromString(this.Parameters.get("PRELOADED_REGISTRY"));
                         this.Parameters.delete("PRELOADED_REGISTRY");
-                        starterFunc();
+                        return starterFunc();
                     }
                 })
         }
@@ -210,7 +216,7 @@ class Pydio extends Observable{
             const reload = XMLUtils.XPathSelectSingleNode(xml, "tree/require_registry_reload");
             if(reload){
                 if(reload.getAttribute("repositoryId") !== this.repositoryId){
-                    this.loadXmlRegistry(null, null, reload.getAttribute("repositoryId"));
+                    this.loadXmlRegistry(reload.getAttribute("repositoryId"));
                     this.repositoryId = null;
                 }
             }
@@ -220,12 +226,10 @@ class Pydio extends Observable{
     /**
      * Loads the XML Registry, an image of the application in its current state
      * sent by the server.
-     * @param xPath String An XPath to load only a subpart of the registry
-     * @param completeFunc
      * @param targetRepositoryId
      */
-    loadXmlRegistry (xPath = null, completeFunc = null, targetRepositoryId = null){
-        this.Registry.load(xPath, completeFunc, targetRepositoryId);
+    loadXmlRegistry (targetRepositoryId = null){
+        return this.Registry.load(targetRepositoryId);
     }
 
     /**
@@ -290,7 +294,7 @@ class Pydio extends Observable{
         if(!this.user) {
             return;
         }
-        this.loadXmlRegistry();
+        this.Registry.load(null, true);
     }
 
     /**
@@ -410,11 +414,11 @@ class Pydio extends Observable{
     /**
      * Change the repository of the current user and reload list and current.
      * @param repositoryId String Id of the new repository
-     * @param callback Function
+     * @return Promise
      */
-    triggerRepositoryChange(repositoryId, callback = null){
+    triggerRepositoryChange(repositoryId){
         this.fire("trigger_repository_switch");
-        this.Registry.load(null, callback, repositoryId)
+        return this.Registry.load(repositoryId)
     }
 
     getPluginConfigs (pluginQuery){
@@ -451,8 +455,10 @@ class Pydio extends Observable{
                 if(reloadRegistry){
                     this.loadXmlRegistry();
                 }
-                this.UI.refreshTemplateParts();
-                this.fireContextRefresh();
+                if(this.UI){
+                    this.UI.refreshTemplateParts();
+                    this.fireContextRefresh();
+                }
                 this.currentLanguage = newLanguage;
             }
 

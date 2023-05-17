@@ -20,9 +20,8 @@
 
 import React from "react";
 import PasswordPopover from './PasswordPopover'
-import EmailPanel from './EmailPanel'
 import LangUtils from "pydio/util/lang";
-import {Divider, FlatButton} from "material-ui";
+import {FlatButton} from "material-ui";
 import Pydio from "pydio";
 import PydioApi from 'pydio/http/api';
 import {UserServiceApi} from 'cells-sdk';
@@ -82,12 +81,10 @@ class ProfilePane extends React.Component {
                 objValues[k] = v;
             });
         }
-        let definitions = Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and not(contains(@name, 'NOTIFICATIONS_EMAIL'))]")
-        let mailDefinitions = Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and contains(@name, 'NOTIFICATIONS_EMAIL')]");
+        let definitions = Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true']")
 
         this.state = {
             definitions,
-            mailDefinitions,
             values:objValues,
             originalValues:LangUtils.deepCopy(objValues),
             dirty: false
@@ -174,8 +171,7 @@ class ProfilePane extends React.Component {
                     // Reload form after registry reload
                     pydio.observeOnce('registry_loaded', () => {
                         this.setState({
-                            definitions: Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and not(contains(@name, 'NOTIFICATIONS_EMAIL'))]"),
-                            mailDefinitions:Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and contains(@name, 'NOTIFICATIONS_EMAIL')]"),
+                            definitions: Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true']")
                         });
                     });
                 }

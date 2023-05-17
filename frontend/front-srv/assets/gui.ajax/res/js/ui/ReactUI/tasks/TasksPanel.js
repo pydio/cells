@@ -152,7 +152,7 @@ let TasksPanel = ({pydio, muiTheme, mode, panelStyle, headerStyle}) => {
             height: height,
             display:'flex',
             flexDirection:'column',
-            background:mui3['surface-1'],
+            background:mui3['surface-1'] || 'white',
             ...mui3style,
             ...panelStyle
         },

@@ -23,15 +23,15 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/idm/role"
@@ -73,6 +73,9 @@ func init() {
 				}, {
 					TargetVersion: service.ValidVersion("4.1.99"),
 					Up:            UpgradeTo4199,
+				}, {
+					TargetVersion: service.ValidVersion("4.2.1"),
+					Up:            UpgradeTo421,
 				},
 			}),
 			service.WithStorage(role.NewDAO, service.WithStoragePrefix("idm_role")),

@@ -39,7 +39,7 @@
     "other": "Quelle hinzufügen"
   },
   "110": {
-    "other": "Arbeitsumgebungen & Benutzer"
+    "other": "Workspaces & Benutzer"
   },
   "111": {
     "other": "Logs & Andere Daten"
@@ -129,7 +129,7 @@
     "other": "Zugriffsrechte und Benutzer verwalten."
   },
   "138": {
-    "other": "Arbeitsumgebungen erstellen und Funktionen und Metadaten festlegen."
+    "other": "Erstellen und löschen Sie Workspaces, fügen Sie ihnen Funktionen mithilfe von Meta-Quellen hinzu."
   },
   "139": {
     "other": "Benutzer und Gruppen verwalten"
@@ -171,7 +171,7 @@
     "other": "Falsch"
   },
   "150": {
-    "other": "Eine Arbeitsumgebung auswählen"
+    "other": "Einen Workspace auswählen"
   },
   "151": {
     "other": "Haupt-Gruppe"
@@ -183,7 +183,7 @@
     "other": "Wird auf alle Benutzer in der Hierarchie angewendet"
   },
   "154": {
-    "other": "Vorlagen für Arbeitsumgebungen"
+    "other": "Vorlagen für Workspaces"
   },
   "155": {
     "other": "Treiber"
@@ -195,7 +195,7 @@
     "other": "Administrator"
   },
   "158": {
-    "other": "Freigabebenutzer"
+    "other": "Geteilt"
   },
   "159": {
     "other": "Gast"
@@ -285,7 +285,7 @@
     "other": "Ergebnis"
   },
   "25": {
-    "other": "Arbeitsumgebung-Zugriffe"
+    "other": "Workspace-Zugriffe"
   },
   "26": {
     "other": "Passwort ändern"
@@ -303,7 +303,7 @@
     "other": "Datenverwaltung"
   },
   "3": {
-    "other": "Arbeitsumgebungen"
+    "other": "Workspaces"
   },
   "30": {
     "other": "Schreiben"
@@ -318,7 +318,7 @@
     "other": "Soll der Benutzer wirklich gelöscht werden? Dies kann nicht rückgängig gemacht werden!"
   },
   "35": {
-    "other": "Soll diese Arbeitsumgebung wirklich gelöscht werden? Dies kann nicht rückgängig gemacht werden!"
+    "other": "Soll dieser Workspace wirklich gelöscht werden? Dieser Vorgang ist nicht umkehrbar!"
   },
   "36": {
     "other": "Bitte alle Pflichtfelder ausfüllen!"
@@ -375,19 +375,19 @@
     "other": "PHP"
   },
   "50": {
-    "other": "Fehler: Eine Arbeitsumgebung mit gleichem Namen ist bereits vorhanden"
+    "other": "Fehler: Ein Workspace mit gleichem Namen ist bereits vorhanden"
   },
   "51": {
     "other": "Der Konfigurations-Ordner (conf) ist schreibgeschützt"
   },
   "52": {
-    "other": "Arbeitsumgebung erfolgreich erstellt"
+    "other": "Workspace erstellt! Sie können nun einige 'Metadata Sources' hinzufügen, um die Daten anzureichern, automatische Indexierung hinzuzufügen usw."
   },
   "53": {
-    "other": "Fehler beim Ändern der Arbeitsumgebung"
+    "other": "Fehler beim Ändern des Workspaces"
   },
   "54": {
-    "other": "Arbeitsumgebung erfolgreich geändert"
+    "other": "Workspace erfolgreich geändert"
   },
   "55": {
     "other": "Achtung, zur Zeit kann nur eine Instanz von jeder Meta-Erweiterung hinzugefügt werden."
@@ -402,7 +402,7 @@
     "other": "Meta Quelle erfolgreich geändert"
   },
   "59": {
-    "other": "Arbeitsumgebung erfolgreich gelöscht"
+    "other": "Workspace erfolgreich gelöscht"
   },
   "6": {
     "other": "Name"
@@ -468,16 +468,16 @@
     "other": "Persönliche Daten"
   },
   "79": {
-    "other": "Arbeitsumgebung"
+    "other": "Workspace"
   },
   "8": {
     "other": "Bezeichnung"
   },
   "80": {
-    "other": "Detaillierter Zugriff für diesen Benutzer (auf eine Arbeitsumgebung klicken, um diese bei der Benutzeranmeldung standardmäßig öffnen zu lassen)"
+    "other": "Detaillierter Zugriff für diesen Benutzer (auf einen Workspace klicken, um diese bei der Benutzeranmeldung standardmäßig öffnen zu lassen)"
   },
   "81": {
-    "other": "Typische Arbeitsumgebung-Inhalte"
+    "other": "Spezifische Workspace-Daten"
   },
   "82": {
     "other": "Benutzer batch-editieren"
@@ -498,7 +498,7 @@
     "other": "Aktionen für diese Rolle erfolgreich aktualisiert"
   },
   "88": {
-    "other": "Diese Arbeitsumgebung ist in einer Config-Datei definiert. Die Erweiterungen können daher über die Oberfläche nicht geändert werden."
+    "other": "Dieser Workspace ist in einer Config-Datei definiert. Die Erweiterungen können daher über die Oberfläche nicht geändert werden."
   },
   "89": {
     "other": "Spezielle Benutzerdaten"
@@ -507,7 +507,7 @@
     "other": "Zugriffstyp"
   },
   "90": {
-    "other": "Neue Arbeitsumgebung"
+    "other": "Neuer Workspace"
   },
   "91": {
     "other": "Vorlagen"

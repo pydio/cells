@@ -177,9 +177,11 @@ class DateTimeForm extends Component {
         const {vDate, searchComp} = this.getDate();
         const parts = [];
         if (search) {
+            const selectStyle = ModernStyles.selectFieldV1Search
+            const style = {...selectStyle.style, borderRadius:0, marginTop: 4}
             parts.push(
-                <div style={{width: 60, marginRight:8}}>
-                    <ModernSelectField fullWidth={true} value={searchComp} onChange={(e,i,v)=>this.updateComp(v)}>
+                <div style={{width: 60, marginRight:0}}>
+                    <ModernSelectField {...selectStyle} style={style} fullWidth={true} value={searchComp} onChange={(e,i,v)=>this.updateComp(v)}>
                         <MenuItem value={""} primaryText={"="}/>
                         <MenuItem value={">="} primaryText={">="}/>
                         <MenuItem value={"<="} primaryText={"<="}/>
@@ -189,7 +191,7 @@ class DateTimeForm extends Component {
                 </div>
             )
         }
-        const sProps = search ? {...ModernStyles.textField} : {...ModernStyles.textFieldV2, textFieldStyle:{height: 52}}
+        const sProps = search ? {...ModernStyles.textFieldV1Search} : {...ModernStyles.textFieldV2, textFieldStyle:{height: 52}}
         if(format === 'date' || format === 'date-time') {
             parts.push(
                 <div style={{flex: 3}}>

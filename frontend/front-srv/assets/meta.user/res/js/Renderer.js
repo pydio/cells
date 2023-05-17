@@ -124,10 +124,11 @@ export default class Renderer{
 
         const configsToItems = (metaConfigs, callback) => {
             let configs = metaConfigs.get(props.fieldname);
-            let menuItems = [], keys = [], stepper;
+            let menuItems = [], keys = [], stepper, labels = {};
             if(configs && configs.data && configs.data.items){
                 menuItems = configs.data.items.map((i) => {
                     keys.push(i.key);
+                    labels[i.key] = i.value;
                     let pSpan = i.value;
                     if(i.color) {
                         pSpan = <span><span className={"mdi mdi-label"} style={{color: i.color, marginRight:5}}/>{i.value}</span>
@@ -138,7 +139,7 @@ export default class Renderer{
             if(configs && configs.data && configs.data.steps){
                 stepper = true
             }
-            callback(menuItems, keys, stepper);
+            callback(menuItems, keys, stepper, labels);
         }
 
         const itemsLoader = (callback) => {

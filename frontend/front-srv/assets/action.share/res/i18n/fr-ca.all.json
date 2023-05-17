@@ -195,7 +195,7 @@
     "other": "Standard (liste de fichiers avec entête de l'application)"
   },
   "154": {
-    "other": "Images Gallery (best for photos)"
+    "other": "Galerie d'images (pour les photos)"
   },
   "155": {
     "other": "Minimal (entête réduit, pour un widget)"
@@ -537,13 +537,13 @@
     "other": "Partagé dans les cellules"
   },
   "254b": {
-    "other": "With users or groups"
+    "other": "Utilisateurs / Groupes"
   },
   "254c": {
-    "other": "Shared in %d cells"
+    "other": "Partagé dans %d cells"
   },
   "254d": {
-    "other": "Shared in '%s'"
+    "other": "Partagé dans '%s'"
   },
   "255": {
     "other": "Etes-vous sûr de vouloir supprimer les cellules et les liens sur cet élément?"
@@ -663,7 +663,10 @@
     "other": "Surveiller"
   },
   "34": {
-    "other": "Utilisateur existant ou nouveau"
+    "other": "Sélectionner ou Créer des utilisateurs"
+  },
+  "34b": {
+    "other": "Sélectionner des utilisateurs"
   },
   "35": {
     "other": "Libellé"
@@ -909,22 +912,40 @@
     "other": "Partager des répertoires existants"
   },
   "cells.remove.node": {
-    "other": "Remove from this cell"
+    "other": "Retirer de cette cell"
   },
   "cell.visibility.advanced": {
     "other": "Cette fonctionnalité avancée vous permet de choisir qui peut éditer les propriétés de cette Cell (droit d'ajouter ou supprimer des utilisateurs, d'ajouter ou supprimer des répertoires à la racine). Si vous voulez gérer les droits d'accès réels aux données, veuillez utiliser l'onglet 'Partagé avec'."
   },
   "cell.add.existing-or-new": {
-    "other": "Add to existing or new Cell"
+    "other": "Ajouter à une cell"
   },
   "cell.add.existing": {
-    "other": "Add to existing Cell"
+    "other": "Ajouter à une cell existante"
   },
   "cell.add.new": {
-    "other": "Create a new Cell"
+    "other": "Créer une nouvelle cell"
+  },
+  "cell.participant.single": {
+    "other": "Un participant"
+  },
+  "cell.participant.multiple": {
+    "other": "%d participants"
+  },
+  "cell.participant.other.single": {
+    "other": "Un autre participant"
+  },
+  "cell.participant.other.multiple": {
+    "other": "%d autres participants"
+  },
+  "cell.folder-root.single": {
+    "other": "Un dossier"
+  },
+  "cell.folder-root.multiple": {
+    "other": "%d dossiers"
   },
   "link.visibility.title": {
-    "other": "[Advanced] Visibility"
+    "other": "[Avancé] Visibilité"
   },
   "link.visibility.advanced": {
     "other": "Cette fonctionnalité avancée vous permet de décider si ce lien est visible par les autres utilisateurs qui ont accès à ce fichier, et s'ils peuvent modifier ses propriétés. Par défaut, les liens que vous créez ne sont visibles que par vous. Vous pouvez transférer la propriété d'un lien en donnant le droit à un autre utilisateur de le modifier."
@@ -933,7 +954,7 @@
     "other": "Il y a des changements non pris en compte, êtes-vous sûr de vouloir fermer ?"
   },
   "dialog.link.confirm.remove": {
-    "other": "Are you sure that you want to disable this link?"
+    "other": "Êtes-vous sûr de vouloir désactiver ce lien ?"
   },
   "sharelist.quick-filter": {
     "other": "Filtre rapide..."
@@ -942,16 +963,16 @@
     "other": "Désactiver tous les partages"
   },
   "link.active": {
-    "other": "active"
+    "other": "actif"
   },
   "link.disable": {
-    "other": "Disable Link"
+    "other": "Désactiver le lien"
   },
   "link.floatingLabel": {
-    "other": "Copy and send this link for direct access"
+    "other": "Copier et envoyer le lien pour un accès direct"
   },
   "link.secure.title": {
-    "other": "Access Restrictions"
+    "other": "Restrictions d'accès"
   },
   "link.secure.expires": {
     "other": "expires"
@@ -964,5 +985,8 @@
   },
   "link.secure.maxdownloads": {
     "other": "%d downloads only"
+  },
+  "minisite.toggle.theme": {
+    "other": "Toggle Dark/Light Theme"
   }
 }

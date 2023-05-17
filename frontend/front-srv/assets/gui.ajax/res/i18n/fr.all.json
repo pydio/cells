@@ -101,6 +101,27 @@
   "tour.workspaces.title": {
     "other": "Workspaces & Cellules"
   },
+  "tour.theme.title": {
+    "other": "Thème clair/foncé"
+  },
+  "tour.theme.legend": {
+    "other": "Choisissez un thème clair ou foncé qui convient le mieux à votre vision."
+  },
+  "tour.left-resize.title": {
+    "other": "Workspaces et Cells"
+  },
+  "tour.left-resize.legend": {
+    "other": "La colonne de gauche peut être dimensionnée ou fermée pour s'adapter à votre écran."
+  },
+  "tour.right-resize.legend": {
+    "other": "La colonne de droite peut également être dimensionnée ou fermée pour s'adapter à votre écran."
+  },
+  "tour.directory.title": {
+    "other": "Répertoire des utilisateurs"
+  },
+  "tour.directory.legend": {
+    "other": "Gérer les utilisateurs (internes et externes) et les équipes."
+  },
   "background.jobs.title": {
     "other": "Tâches de fond"
   },
@@ -220,5 +241,38 @@
   },
   "fastsearch.quick-copy.legend": {
     "other": "Appuyez sur [Entrée] pour copier les %s éléments sélectionnés vers la cible, [Esc] pour Fermer"
+  },
+  "wslist-options.title": {
+    "other": "Options d'affichage"
+  },
+  "wslist-options.show-masked": {
+    "other": "Afficher les éléments masqués"
+  },
+  "wslist.action.mask": {
+    "other": "Masquer"
+  },
+  "wslist.action.unmask": {
+    "other": "Afficher"
+  },
+  "wslist-options.merge-workspaces": {
+    "other": "Fusionner les Workspaces et les Cells"
+  },
+  "wslist-options.own-cells-first": {
+    "other": "Cells créées par moi en premier"
+  },
+  "leftrail.buttons.home": {
+    "other": "Accueil"
+  },
+  "leftrail.buttons.directory": {
+    "other": "Annuaire"
+  },
+  "leftrail.buttons.all-files": {
+    "other": "Fichiers"
+  },
+  "leftrail.buttons.theme.light": {
+    "other": "Mode Clair"
+  },
+  "leftrail.buttons.theme.dark": {
+    "other": "Mode Sombre"
   }
 }

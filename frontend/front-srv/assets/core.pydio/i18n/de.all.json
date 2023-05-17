@@ -672,7 +672,7 @@
     "other": "Neuen Benutzer erstellen"
   },
   "299": {
-    "other": "Neue Arbeitsumgebung"
+    "other": "Workspaces"
   },
   "3": {
     "other": "Typ"
@@ -681,7 +681,7 @@
     "other": "Bitte einen Namen für den Ordner eingeben und auf 'Erstellen' klicken."
   },
   "300": {
-    "other": "Neue Arbeitsumgebung erstellen"
+    "other": "Neuen Workspace erstellen"
   },
   "301": {
     "other": "Konfiguration ändern"
@@ -837,7 +837,7 @@
     "other": "Eine neue Version (%s) ist verfügbar! Besuchen Sie %s"
   },
   "348": {
-    "other": "Eine neue Arbeitsumgebung wurde freigegeben."
+    "other": "Ein neuer Workspace wurde geteilt."
   },
   "349": {
     "other": "Warnung! Es fehlen Parameter"
@@ -849,10 +849,10 @@
     "other": "Ein Benutzer mit diesem Namen existiert bereits. Bitte wählen Sie einen anderen Namen."
   },
   "351": {
-    "other": "Es ist nicht erlaubt Elemente freizugeben."
+    "other": "Es ist Ihnen nicht erlaubt, Elemente öffentlich zu teilen."
   },
   "352": {
-    "other": "Eine Arbeitsumgebung mit diesem Namen existiert bereits. Bitte wählen Sie einen anderen Namen."
+    "other": "Ein Workspace mit diesem Namen existiert bereits. Bitte wählen Sie einen anderen Namen."
   },
   "353": {
     "other": "Ziel-Benutzer"
@@ -870,7 +870,7 @@
     "other": "Ziel-Arbeitsumgebung"
   },
   "358": {
-    "other": "Wählen Sie einen Namen für das freigegebene Element und legen Sie die Zugriffsrechte für die Benutzer fest."
+    "other": "Wählen Sie einen Namen für das geteilte Element und legen Sie die Zugriffsrechte für die Benutzer fest."
   },
   "359": {
     "other": "Markierung"
@@ -888,7 +888,7 @@
     "other": "Schreiben"
   },
   "363": {
-    "other": "Freigegebene Elemente"
+    "other": "Geteilten"
   },
   "364": {
     "other": "Für diese Operation fehlt die Berechtigung"
@@ -897,7 +897,7 @@
     "other": "Es dürfen nicht mehr als %s Dateien auf einmal hochgeladen werden."
   },
   "366": {
-    "other": "Dieser Benutzer hat keine aktiven Arbeitsumgebungen."
+    "other": "Dieser Benutzer hat keinen aktiven Workspace."
   },
   "367": {
     "other": "Dieser Dateityp ist beim Hochladen nicht erlaubt. Bitte nur folgende Typen verwenden: "
@@ -918,13 +918,13 @@
     "other": "Für diesen Download wird ein Passwort benötigt"
   },
   "372": {
-    "other": "Aktuelle Arbeitsumgebung"
+    "other": "Aktueller Workspace"
   },
   "373": {
     "other": "Ziel"
   },
   "374": {
-    "other": "Ordner können nicht zwischen Arbeitsumgebungen kopiert werden"
+    "other": "Ordner können nicht zwischen Workspaces kopiert werden"
   },
   "375": {
     "other": "Sie sind seit mehr als __IDLE__ inaktiv. Aus Sicherheitsgründen erfolgt in __LOGOUT__ eine automatische Abmeldung."
@@ -981,7 +981,7 @@
     "other": "Code"
   },
   "391": {
-    "other": "Keine Arbeitsumgebungen"
+    "other": "Kein Workspace"
   },
   "392": {
     "other": "Achtung, die Version des APPLICATION_TITLE hat sich geändert (jetzt %s). Bitte den Browser-Cache leeren und die Seite neu laden!"
@@ -1022,41 +1022,17 @@
   "402": {
     "other": "http://www.hjsplit.org/"
   },
-  "403": {
-    "other": "WebDAV Voreinstellungen"
-  },
-  "404": {
-    "other": "Das WebDAV-Protokoll kann verwendet werden, um die APPLICATION_TITLE Arbeitsumgebungen als 'Netzwerklaufwerk' unter Windows, Mac, iPhone usw. zu nutzen."
-  },
-  "405": {
-    "other": "Nutzen Sie die folgenden URLs um auf die Arbeitsumgebungen mit ihrem eingegebenen Benutzernamen und Passwort zu zugreifen. Achtung, die Freigabe funktioniert nur, wenn diese auf 'Aktiv' gesetzt ist und das Passwort eingegeben wurde."
-  },
-  "406": {
-    "other": "Aktiviere die WebDAV-Freigaben"
-  },
-  "407": {
-    "other": "Bitte das Passwort eingeben, wenn die WebDAV-Freigaben zum ersten Mal aktiviert werden oder ein neues Passwort verwendet werden soll:"
-  },
-  "408": {
-    "other": "WebDAV-Freigaben erfolgreich aktiviert, falls es die erste Aktivierung ist, bitte nicht vergessen das Passwort zu aktualisieren!"
-  },
-  "409": {
-    "other": "WebDAV-Freigaben erfolgreich deaktiviert"
-  },
   "41": {
     "other": "wurde umbenannt zu"
   },
-  "410": {
-    "other": "WebDAV-Passwort erfolgreich aktualisiert"
-  },
   "411": {
-    "other": "öffnen"
+    "other": "Öffnen"
   },
   "412": {
     "other": "Nur Hochladen"
   },
   "413": {
-    "other": "Freigegeben von"
+    "other": "Geteilt von"
   },
   "414": {
     "other": "Benutzen Sie die Pfeile zum Navigieren und die +/- Symbole zum Ändern der Größe."
@@ -1068,7 +1044,7 @@
     "other": "Linke Seite"
   },
   "417": {
-    "other": "Arbeitsumgebung hinzufügen..."
+    "other": "Cell hinzufügen..."
   },
   "418": {
     "other": "Cell erstellen"
@@ -1089,25 +1065,25 @@
     "other": "Bitte geben Sie die erforderlichen Parameter an. Fahren Sie mit der Maus über die Titel um weitere Informationen zu erhalten."
   },
   "423": {
-    "other": "Arbeitsumgebung löschen"
+    "other": "Workspace löschen"
   },
   "424": {
-    "other": "Arbeitsumgebung wirklich löschen? Das Löschen kann nicht rückgängig gemacht werden."
+    "other": "Workspace wirklich löschen? Das Löschen kann nicht rückgängig gemacht werden."
   },
   "425": {
-    "other": "Die Arbeitsumgebung wurde erstellt und zu ihrer Liste der Arbeitsumgebungen hinzugefügt. Falls es wieder gelöscht werden soll, zunächst zu einer anderer Arbeitsumgebung wechseln und dann auf das rote Kreuz neben dem Namen der Arbeitsumgebung klicken."
+    "other": "Der Workspace ist nun erstellt und wurde Ihrer Workspace-Liste hinzugefügt. Wenn Sie ihn entfernen möchten, stellen Sie sicher, dass Sie zu einem anderen Workspace wechseln und klicken Sie dann auf das rote Kreuz neben dem Workspace-Namen."
   },
   "426": {
-    "other": "Es ist ein Fehler beim Erstellen der Arbeitsumgebung aufgetreten."
+    "other": "Es ist ein Fehler beim Erstellen des Workspace aufgetreten"
   },
   "427": {
-    "other": "Es ist ein Fehler beim Löschen der Arbeitsumgebung aufgetreten."
+    "other": "Es ist ein Fehler beim Löschen des Workspace aufgetreten"
   },
   "428": {
-    "other": "Die Arbeitsumgebung wurde gelöscht."
+    "other": "Der Workspace wurde gelöscht"
   },
   "429": {
-    "other": "Dies gibt an, wie die Arbeitsumgebung in der Liste dargestellt wird."
+    "other": "Dies gibt an, wie der Workspace in der Liste dargestellt wird."
   },
   "43": {
     "other": "existiert bereits (Groß- und Kleinschreibung wird nicht beachtet)"
@@ -1194,7 +1170,7 @@
     "other": "Durchsuchen"
   },
   "455": {
-    "other": "Arbeitsumgebungen"
+    "other": "Workspaces"
   },
   "456": {
     "other": "Mehr"
@@ -1224,10 +1200,10 @@
     "other": "Alle herunterladen"
   },
   "464": {
-    "other": "Alle Inhalte der Arbeitsumgebungen auf einmal herunterladen (gezippt)"
+    "other": "Alle Inhalte der Workspaces auf einmal herunterladen (gezippt)"
   },
   "465": {
-    "other": "Zeige alternative URLs (momentane Arbeitsumgebungen)"
+    "other": "Alternative URLs anzeigen (Workspaces separat einbinden)"
   },
   "466": {
     "other": "Lade..."
@@ -1236,10 +1212,10 @@
     "other": "Alle geteilten Inhalte"
   },
   "468": {
-    "other": "Meine Arbeitsumgebungen"
+    "other": "Workspaces"
   },
   "469": {
-    "other": "Mit mir geteilt"
+    "other": "Cells"
   },
   "47": {
     "other": "Löschen bestätigen von"
@@ -1260,10 +1236,10 @@
     "other": "Keine Beschreibung verfügbar"
   },
   "475": {
-    "other": "Für alle Benutzer freigegeben"
+    "other": "Dateien, die unter allen Benutzern geteilt werden"
   },
   "476": {
-    "other": "Ihre persönliche Arbeitsumgebung"
+    "other": "Ihr persönliche Workspace"
   },
   "477": {
     "other": "Datei oder Ordner wählen um deren Details hier zu sehen"
@@ -1275,13 +1251,13 @@
     "other": "Passwort vergessen?"
   },
   "48": {
-    "other": "OK"
+    "other": "Ok"
   },
   "480": {
-    "other": "Alle Ordner der aktuellen Arbeitsumgebung anzeigen."
+    "other": "Alle Ordner des aktuellen Workspace anzeigen."
   },
   "481": {
-    "other": "Alle freigegebenen Dateien und Ordner"
+    "other": "Alle Ihre geteilten Dateien und Ordner"
   },
   "482": {
     "other": "Schnellzugriff auf vorgemerkte Dinge"
@@ -1325,6 +1301,9 @@
   "494": {
     "other": "Gestern"
   },
+  "494t": {
+    "other": "Morgen"
+  },
   "495": {
     "other": "Letzte Woche"
   },
@@ -1365,7 +1344,7 @@
     "other": "bis"
   },
   "506": {
-    "other": "Grundeinstellungen verwalten (Benutzer, Arbeitsumgebungen, etc.)"
+    "other": "Grundeinstellungen verwalten (Benutzer, Workspaces, etc.)"
   },
   "507": {
     "other": "Willkommen bei %s"
@@ -1494,7 +1473,7 @@
     "other": "Freigabe von entferntem System"
   },
   "546": {
-    "other": "Dieses Element wurde von %%OWNER%% für Sie von einem entfernten System freigegeben. Möchten sie fortfahren?"
+    "other": "Dieses Element wurde von %%OWNER%% für Sie von einem entfernten System geteilt. Möchten sie fortfahren?"
   },
   "547": {
     "other": "Akzeptieren"
@@ -1530,7 +1509,7 @@
     "other": "Zugangsdaten erforderlich"
   },
   "558": {
-    "other": "Bitte geben Sie ein Passwort ein, um auf die Arbeitsumgebung zuzugreifen."
+    "other": "Bitte geben Sie ein Passwort ein, um auf den Workspace zuzugreifen."
   },
   "559": {
     "other": "Anmeldung fehlgeschlagen."
@@ -1548,7 +1527,7 @@
     "other": "Dieser Ordner ist leer!"
   },
   "563": {
-    "other": "Diese Arbeitsumgebung ist leer!"
+    "other": "Dieser Workspace ist leer!"
   },
   "564": {
     "other": "Papierkorb ist leer."
@@ -1578,7 +1557,7 @@
     "other": "Keine Teams"
   },
   "572": {
-    "other": "Erstellen Sie Teams, um Elemente einfach freizugeben"
+    "other": "Erstellen Sie Teams, um Elemente einfach zuteilen"
   },
   "571.readonly": {
     "other": "Keine Teams verfügbar"
@@ -1635,7 +1614,7 @@
     "other": "Keine Freigaben-Benutzer"
   },
   "586": {
-    "other": "Legen Sie Benutzer an, um Dateien und Ordner Ihrer Arbeitsumgebung freizugeben."
+    "other": "Legen Sie Benutzer an, um Dateien und Ordner Ihren Workspaces freizugeben."
   },
   "587": {
     "other": "Keine Ergebnisse gefunden"
@@ -1659,7 +1638,7 @@
     "other": "Adressbuch"
   },
   "593": {
-    "other": "Meine Benutzer"
+    "other": "Geteilte Benutzer"
   },
   "594": {
     "other": "Vertrauenswürdige Server"
@@ -1679,6 +1658,9 @@
   "599": {
     "other": "Benutzen hinzufügen"
   },
+  "599-a": {
+    "other": "Alle Ergebnisse"
+  },
   "6": {
     "other": "Umbenennen"
   },
@@ -1689,10 +1671,10 @@
     "other": "Benutzer bearbeiten"
   },
   "601": {
-    "other": "Eine shared Cell"
+    "other": "Eine geteilte Cell"
   },
   "602": {
-    "other": "%1 shared Cells"
+    "other": "%1 geteilten Cells"
   },
   "603": {
     "other": "Team"
@@ -1707,19 +1689,19 @@
     "other": "Weniger Sucheinstellungen"
   },
   "607": {
-    "other": "In allen Arbeitsumgebungen suchen"
+    "other": "Ihre kürzlich durchgeführten Aktivitäten - Geben Sie etwas ein, um Dateien in allen Workspaces zu durchsuchen"
   },
   "608": {
     "other": "Aktueller Ordner"
   },
   "609": {
-    "other": "Gesamte Arbeitsumgebung"
+    "other": "Gesamter Workspace"
   },
   "61": {
     "other": "GZ-Datei"
   },
   "610": {
-    "other": "Alle Arbeitsumgebungen"
+    "other": "Alle Workspaces"
   },
   "611": {
     "other": "Geben Sie einen Suchbegriff ein"
@@ -1752,7 +1734,7 @@
     "other": "Hauptordner"
   },
   "620": {
-    "other": "Suche auf aktuelle Arbeitsumgebung beschränkt"
+    "other": "Suche auf aktuellen Workspace beschränkt"
   },
   "621": {
     "other": "Dieses Feld darf nicht leer sein"
@@ -1770,7 +1752,7 @@
     "other": "Buchstabe"
   },
   "626": {
-    "other": "Mit mir geteilte Ordner"
+    "other": "Mit mir geteilte Dateien"
   },
   "627": {
     "other": "Remote-Server-Freigaben"
@@ -1785,7 +1767,7 @@
     "other": "Abmelden"
   },
   "630": {
-    "other": "Mit mir geteilte Dateien"
+    "other": "Mit mir geteilte Ordner"
   },
   "631": {
     "other": "Diese Cell ist leer!"
@@ -1818,7 +1800,7 @@
     "other": "Cell enthält mehrere Root-Ordner oder Dateien, Sie können keine Daten direkt hier hochladen."
   },
   "639": {
-    "other": "In dieser Zelle"
+    "other": "In dieser Cell"
   },
   "64": {
     "other": "XLS-Tabelle"
@@ -1830,7 +1812,7 @@
     "other": "Aus dieser Cell entfernen"
   },
   "642": {
-    "other": "Zur aktuellen Zelle hinzufügen"
+    "other": "Zur aktuellen Cell hinzufügen"
   },
   "643": {
     "other": "Jetzt teilen Sie eine Cell mit %s"
@@ -2043,7 +2025,7 @@
     "other": "A"
   },
   "plugtype.desc.access": {
-    "other": "Erweiterungen, die bei Arbeitsumgebungen festlegen, wie auf die Daten zugegriffen werden kann."
+    "other": "Plugins, die definieren, wie ein Workspace sowohl auf seinen Backend-Zugriff (eine Dateispeicherung oder Ähnliches) als auch auf wichtige Layouts und Aktionen zugreift."
   },
   "plugtype.desc.action": {
     "other": "Erweiterungen für verschiedene Zusatzfunktionen"
@@ -2091,7 +2073,7 @@
     "other": "Suchmaschinen Optionen"
   },
   "plugtype.desc.meta": {
-    "other": "Zusätzliche Metadaten für Arbeitsumgebungen"
+    "other": "Zusätzliche Metadaten für Workspaces"
   },
   "plugtype.desc.metastore": {
     "other": "Verschiedene Erweiterungen für das Speichern von Metadaten zu Ordner und Dateien."
@@ -2109,7 +2091,7 @@
     "other": "Uploader basierend auf verschiedenen Technologien wie HTML, Javascript, Java und andere."
   },
   "plugtype.title.access": {
-    "other": "Arbeitsumgebungs-Treiber"
+    "other": "Workspaces-Treiber"
   },
   "plugtype.title.action": {
     "other": "Aktionen"
@@ -2232,10 +2214,10 @@
     "other": "Derzeit wird dieser Ordner beobachtet"
   },
   "overlay.shared.file": {
-    "other": "Shared Datei, klicken Sie zum Bearbeiten"
+    "other": "Geteilte Datei, klicken Sie zum Bearbeiten"
   },
   "overlay.shared.folder": {
-    "other": "Shared Ordner, klicken Sie zum Bearbeiten"
+    "other": "Geteilte Ordner, klicken Sie zum Bearbeiten"
   },
   "overlay.bookmark.file": {
     "other": "Die Datei ist mit Lesezeichen"
@@ -2274,10 +2256,10 @@
     "other": "%1 wird umbenannt in %2"
   },
   "cells.quick-filter": {
-    "other": "Zellen filtern"
+    "other": "Cells filtern"
   },
   "ws.quick-filter": {
-    "other": "Arbeitsumgebungen filtern"
+    "other": "Workspaces filtern"
   },
   "visibility.panel.title": {
     "other": "Sichtbarkeit"
@@ -2321,6 +2303,9 @@
   "addressbook.pick.group": {
     "other": "Gruppe auswählen"
   },
+  "addressbook.pick.multiple": {
+    "other": "Mehrfachauswahl"
+  },
   "confirm.dialog.title": {
     "other": "Bestätigen"
   },
@@ -2359,6 +2344,27 @@
   },
   "searchengine.scope.title": {
     "other": "Suchen in..."
+  },
+  "searchengine.share.title": {
+    "other": "Geteilt"
+  },
+  "searchengine.share.hint": {
+    "other": "Kein Status"
+  },
+  "searchengine.share.option.link": {
+    "other": "Öffentlicher Link"
+  },
+  "searchengine.share.option.cell": {
+    "other": "In Cell geteilt"
+  },
+  "searchengine.share.option.any": {
+    "other": "Öffentlicher Link oder Cell"
+  },
+  "searchengine.format.title": {
+    "other": "Format"
+  },
+  "searchengine.format.file-only": {
+    "other": "Nur Dateien"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "Erweiterte Filter"
@@ -2410,6 +2416,9 @@
   },
   "searchengine.complete.activefilters": {
     "other": "Filtern:"
+  },
+  "searchengine.complete.activefilters-edit": {
+    "other": "Zum Ändern anklicken"
   },
   "chat.load-older": {
     "other": "Ältere Einträge"

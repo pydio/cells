@@ -153,7 +153,7 @@ class UserWidget extends React.Component {
 
 
         // Do not display Home Button here for the moment
-        const actionBarStyle = this.props.actionBarStyle || {};
+        const actionBarStyle = this.props.actionBarStyle || {};
         let actionBar;
         if(!currentIsSettings){
             actionBar = (

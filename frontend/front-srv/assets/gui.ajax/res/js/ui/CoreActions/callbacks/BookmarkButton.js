@@ -82,6 +82,10 @@ class BookmarkButton extends React.Component{
     render() {
 
         const {styles} = this.props;
+        const baseStyles = {
+            style: {width:40,height:40,padding:8},
+            iconStyle: {color:'var(--md-sys-color-primary)'}
+        }
         const {value, mixed, saving} = this.state;
         let icon, touchValue, tt, disabled;
         const mm = Pydio.getInstance().MessageHash;
@@ -105,7 +109,15 @@ class BookmarkButton extends React.Component{
             disabled = true;
         }
 
-        return <IconButton disabled={disabled} iconClassName={'mdi mdi-' + icon} tooltip={tt} onClick={() => this.updateValue(touchValue)} {...styles}/>
+        return (
+            <IconButton
+                disabled={disabled}
+                iconClassName={'mdi mdi-' + icon}
+                tooltip={tt}
+                onClick={() => this.updateValue(touchValue)} {...styles}
+                style={{...baseStyles.style, ...styles.style}}
+                iconStyle={{...baseStyles.iconStyle, ...styles.iconStyle}}
+            />)
 
 
     }

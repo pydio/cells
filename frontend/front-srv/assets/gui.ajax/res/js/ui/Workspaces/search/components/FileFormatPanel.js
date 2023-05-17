@@ -25,17 +25,7 @@ import {MenuItem, Divider} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 
-const MimeGroups = [
-    {id: "word", label:"word", mimes: "*word*"},
-    {id: "excel", label:"spreadsheet", mimes: "*spreadsheet*|*excel*"},
-    {id: "presentation", label:"presentation", mimes: "*presentation*|*powerpoint*"},
-    {id: "pdfs", label:"pdf", mimes: "\"application/pdf\""},
-    {id: "images", label:"image", mimes: "\"image/*\""},
-    {id: "videos", label:"video", mimes: "\"video/*\""},
-    {id: "audios", label:"audio", mimes: "\"audio/*\""}
-]
-
-class SearchFileFormatPanel extends Component {
+class FileFormatPanel extends Component {
 
     constructor(props) {
         super(props);
@@ -98,15 +88,26 @@ class SearchFileFormatPanel extends Component {
     render() {
 
         const {inputStyle, getMessage, muiTheme, compact = false, searchTools:{SearchConstants}} = this.props;
-        const {folder, ext, selector = ''} = this.state;
+        const {ext, selector = ''} = this.state;
         const mm = Pydio.getMessages()
         const mimeMessages = (id) => mm[SearchConstants.MimeGroupsMessage(id)]
+        const modernStyles = ThemedModernStyles(muiTheme);
+        let selectStyle = modernStyles.selectFieldV1Search.style
+        if(selector === 'extension') {
+            selectStyle.borderRadius = 0
+        }
 
         return (
-            <div style={compact?{display: 'flex'}:{}}>
+            <div style={{display: 'flex'}}>
                 <div style={{flex: 3, marginRight:4}}>
-                    <ModernSelectField fullWidth={true} value={selector} onChange={(e,i,v)=> this.setState({selector:v, ext: ''}) }>
-                        <MenuItem primaryText={<span style={{color:ThemedModernStyles(muiTheme).selectField.hintStyle.color}}>No filter</span>} value={''}/>
+                    <ModernSelectField
+                        fullWidth={true}
+                        value={selector}
+                        onChange={(e,i,v)=> this.setState({selector:v, ext: ''}) }
+                        {...modernStyles.selectFieldV1Search}
+                        style={selectStyle}
+                    >
+                        <MenuItem primaryText={<span style={{color:modernStyles.selectField.hintStyle.color}}>No filter</span>} value={''}/>
                         <MenuItem primaryText={getMessage(502)} value={SearchConstants.ValueMimeFolders}/>
                         <MenuItem primaryText={getMessage('searchengine.format.file-only')} value={SearchConstants.ValueMimeFiles}/>
                         <MenuItem primaryText={mimeMessages('byextension')} value={"extension"}/>
@@ -117,8 +118,9 @@ class SearchFileFormatPanel extends Component {
                 {selector === 'extension' &&
                     <div style={{flex: 2, marginLeft:4}}>
                         <ModernTextField
-                            disabled={folder}
-                            style={{...inputStyle, opacity:folder?.5:1, marginLeft: compact?0:null, width:compact?'auto':null}}
+                            {...modernStyles.textFieldV1Search}
+                            focusOnMount={true}
+                            style={{...inputStyle, marginLeft: 0, width:'auto'}}
                             className="mui-text-field"
                             hintText={getMessage(500)}
                             value={ext || ""}
@@ -131,5 +133,5 @@ class SearchFileFormatPanel extends Component {
     }
 }
 
-SearchFileFormatPanel = PydioContextConsumer(muiThemeable()(SearchFileFormatPanel));
-export default SearchFileFormatPanel
+FileFormatPanel = PydioContextConsumer(muiThemeable()(FileFormatPanel));
+export default FileFormatPanel

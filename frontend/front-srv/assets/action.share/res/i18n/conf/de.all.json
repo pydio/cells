@@ -27,7 +27,7 @@
     "other": "Freigabe von Ordnern deaktivieren"
   },
   "Disallow users to create shared folders if a workspace already exists with the same label": {
-    "other": "Beim Freigeben von Ordnern muss die Bezeichnung der Arbeitsumgebung eindeutig sein."
+    "other": "Beim Teilen von Ordnern muss die Bezeichnung des Workspace eindeutig sein"
   },
   "Do not allow users to create public links, only private links (password-protected)": {
     "other": "Es ist nicht möglich, öffentliche Links zu erstellen, sondern nur welche mit Passwortschutz."
@@ -45,7 +45,7 @@
     "other": "Aktiviere Freigabe von Ordnern"
   },
   "Enable folder sharing (workspace and minisite)": {
-    "other": "Aktiviere die Freigabe von Ordnern (Arbeitsumgebung und öffentliche Links)"
+    "other": "Ordnerfreigabe aktivieren (Workspace und Minisite)"
   },
   "Enable internal file sharing (sharing with users existing or temporary users)": {
     "other": "Interne Freigaben aktivieren (Freigaben für existierende oder temporäre Benutzer)"
@@ -120,7 +120,7 @@
     "other": "Öffentliche Links"
   },
   "Minisites and Workspaces": {
-    "other": "Als öffentlicher Link und Arbeitsumgebung"
+    "other": "Minisites und Workspaces"
   },
   "Minisites only": {
     "other": "Nur als öffentlicher Link"
@@ -131,20 +131,20 @@
   "Set password mandatory": {
     "other": "Passwort als Pflichtfeld"
   },
-  "Share Center actions and hooks": {
-    "other": "Ordner und Dateien freigeben"
+  "Sharing parameters and authorizations": {
+    "other": "Parameter der Freigabe und Berechtigungen"
   },
   "Share page background color.": {
-    "other": "Hintergrundfarbe der Seite für öffentlich freigegebene Elemente."
+    "other": "Hintergrundfarbe der Freigabeseite."
   },
   "Share page text color.": {
-    "other": "Textfarbe der Seite für öffentlich freigegebene Elemente."
+    "other": "Textfarbe der Freigabeseite."
   },
   "Share page text shadow color.": {
-    "other": "Textschatten auf der Seite für öffentlich freigegebene Elemente."
+    "other": "Textschatten der Freigabeseite."
   },
   "Shared users configurations": {
-    "other": "Freigabeben-Benutzer"
+    "other": "Geteilte Benutzer Konfiguration"
   },
   "Sharing Features": {
     "other": "Freigaben"
@@ -171,6 +171,6 @@
     "other": "Öffentlicher Link"
   },
   "Workspaces only": {
-    "other": "Nur als Arbeitsumgebung"
+    "other": "Nur als Workspace"
   }
 }

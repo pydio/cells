@@ -205,7 +205,7 @@ export default class ThemeBuilder {
         } else if(userTheme === 'mui3-dark') {
             dark = true;
             userTheme = 'mui3'
-        } else if (userTheme === 'mui3-light') {
+        } else if (userTheme === 'mui3-light' || userTheme === 'light' /*legacy value*/) {
             userTheme = 'mui3'
         }
 
@@ -258,7 +258,8 @@ export default class ThemeBuilder {
 
         if(this.userTheme === 'mui3') {
             // Get the theme from a hex color, prepare blended custom colors
-            const customs = Object.keys(customTypesColors).map(k => {return {name:k, value: argbFromHex(customTypesColors[k]), blend: true}})
+            const customsHex = {...customTypesColors, avatarsColor: palette.avatarsColor}
+            const customs = Object.keys(customsHex).map(k => {return {name:k, value: argbFromHex(customsHex[k]), blend: true}})
             const theme3 = themeFromSourceColor(argbFromHex(palette.primary1Color), customs);
             console.log(theme3);
             // Apply the theme to the body by updating custom properties for material tokens
@@ -290,9 +291,13 @@ export default class ThemeBuilder {
             const customKeys = ['color', 'onColor', 'colorContainer', 'onColorContainer']
             theme3.customColors.forEach(c => {
                 const name = c.color.name;
-                customKeys.forEach(k => {
-                    add(`custom-${name}-${k}`, hexFromArgb(systemDark?c.dark[k]:c.light[k]))
-                })
+                if(name === 'avatarsColor') {
+                    palette.avatarsColor = hexFromArgb(systemDark?c.dark['color']:c.light['color'])
+                } else {
+                    customKeys.forEach(k => {
+                        add(`custom-${name}-${k}`, hexFromArgb(systemDark?c.dark[k]:c.light[k]))
+                    })
+                }
             })
 
             // Build a lighter outline-variant
@@ -300,8 +305,8 @@ export default class ThemeBuilder {
             add('field-underline-idle', systemDark?mui3['outline']:mui3['outline-variant'])
             add('inline-tags-border', systemDark?mui3['outline']:mui3['outline-variant-50'])
 
-            add('mimefont-background', Color(mui3['primary-container']).fade(systemDark?.1:.7).toString())
-            add('mimefont-color', mui3['on-primary-container'])
+            add('mimefont-background', Color(mui3['secondary-container']).fade(0.4).toString())
+            add('mimefont-color', mui3['on-secondary-container'])
             add('fstemplate-master-margin', '8px')
             add('paper-border-radius', '20px')
             add('card-border-radius', '12px')
@@ -505,7 +510,7 @@ export default class ThemeBuilder {
             }
             appBarTextColor = Color(mui3['on-surface'])
             appBarBackColor = 'transparent'//mui3['surface-2']
-            iconButtonsColor = mui3['on-surface-variant']
+            iconButtonsColor = mui3['secondary']
         } else {
             infoPanelBg = mui3['surface-2']
             if(this.userTheme === 'material') {

@@ -102,7 +102,7 @@
     "other": "Cancella valore"
   },
   "40": {
-    "other": "Parametri per Workspace"
+    "other": "Per-workspace parameters"
   },
   "41": {
     "other": "Parametri aggiuntivi"
@@ -187,6 +187,12 @@
   },
   "workspace.statics.home.description": {
     "other": "Pagina di benvenuto visualizzata dopo il login"
+  },
+  "workspace.statics.directory.title": {
+    "other": "Directory"
+  },
+  "workspace.statics.directory.description": {
+    "other": "Show address book full page (used by Mui3 Theme)"
   },
   "workspace.statics.settings.title": {
     "other": "Console di Amministrazione"

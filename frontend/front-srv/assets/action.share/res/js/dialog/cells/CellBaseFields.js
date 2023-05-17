@@ -38,7 +38,7 @@ class CellBaseFields extends Component {
     };
 
     render() {
-        const {pydio, model, muiTheme, labelFocus, labelEnter, createLabels} = this.props;
+        const {pydio, model, muiTheme, labelFocus, labelEnter, createLabels, style} = this.props;
         const m = (id) => pydio.MessageHash['share_center.' + id];
         const ModernStyles = ThemedModernStyles(muiTheme)
 
@@ -72,7 +72,7 @@ class CellBaseFields extends Component {
 
 
         return (
-            <div style={{padding:'0 8px'}}>
+            <div style={{padding:'0 8px', ...style}}>
                 <ModernTextField
                     floatingLabelText={m(createLabels?276:267)}
                     value={model.getLabel()}

@@ -1022,32 +1022,8 @@
   "402": {
     "other": "http://www.hjsplit.org/"
   },
-  "403": {
-    "other": "WebDAV"
-  },
-  "404": {
-    "other": "WebDAV — это протокол, позволяющий подключать рабочие области APPLICATION_TITLE как 'сетевой диск' непосредственно на рабочем столе. Чтобы включить эту функцию, пожалуйста, поставьте флажок ниже и введите свой пароль при необходимости."
-  },
-  "405": {
-    "other": "Любой клиент WebDAV попросит вас указать адрес, логин и пароль. Используйте приведенный ниже URL вместе со стандартным именем и паролем."
-  },
-  "406": {
-    "other": "Включить общие ресурсы WebDAV"
-  },
-  "407": {
-    "other": "Введите ваш пароль, если вы впервые включаете общие ресурсы webDAV, или если хотите, задайте новый пароль:"
-  },
-  "408": {
-    "other": "Общие ресурсы WebDav успешно включены"
-  },
-  "409": {
-    "other": "Общие ресурсы WebDav успешно отключены"
-  },
   "41": {
     "other": "был переименован в"
-  },
-  "410": {
-    "other": "Пароль webDav успешно обновлен"
   },
   "411": {
     "other": "Открыть"
@@ -1275,7 +1251,7 @@
     "other": "Забыли пароль?"
   },
   "48": {
-    "other": "ОК"
+    "other": "Ok"
   },
   "480": {
     "other": "Просмотреть все папки в текущей рабочей области."
@@ -1308,7 +1284,7 @@
     "other": "Metadata"
   },
   "49": {
-    "other": "CANCEL"
+    "other": "Cancel"
   },
   "490": {
     "other": "Date range"
@@ -1324,6 +1300,9 @@
   },
   "494": {
     "other": "Yesterday"
+  },
+  "494t": {
+    "other": "Tomorrow"
   },
   "495": {
     "other": "Last week"
@@ -1678,6 +1657,9 @@
   },
   "599": {
     "other": "Добавить пользователя"
+  },
+  "599-a": {
+    "other": "All Results"
   },
   "6": {
     "other": "Переименовать"
@@ -2321,6 +2303,9 @@
   "addressbook.pick.group": {
     "other": "Выберите группу"
   },
+  "addressbook.pick.multiple": {
+    "other": "Multiple Selection"
+  },
   "confirm.dialog.title": {
     "other": "Подтвердить"
   },
@@ -2359,6 +2344,27 @@
   },
   "searchengine.scope.title": {
     "other": "Search In..."
+  },
+  "searchengine.share.title": {
+    "other": "Shared"
+  },
+  "searchengine.share.hint": {
+    "other": "No status"
+  },
+  "searchengine.share.option.link": {
+    "other": "Public Link"
+  },
+  "searchengine.share.option.cell": {
+    "other": "Shared in Cell"
+  },
+  "searchengine.share.option.any": {
+    "other": "Public Link or Cell"
+  },
+  "searchengine.format.title": {
+    "other": "Format"
+  },
+  "searchengine.format.file-only": {
+    "other": "Files Only"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "Advanced Filters"
@@ -2410,6 +2416,9 @@
   },
   "searchengine.complete.activefilters": {
     "other": "Filters:"
+  },
+  "searchengine.complete.activefilters-edit": {
+    "other": "Click to modify"
   },
   "chat.load-older": {
     "other": "Older entries"

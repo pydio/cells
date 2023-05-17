@@ -100,7 +100,7 @@ class NewCellsList extends React.Component {
                             if (!cellModel.isEditable()) {
                                 return links;
                             }
-                            return [...links, <ActionButton mdiIcon={"delete-forever"} destructive={true} messageId={m('cells.remove.node')} callback={() => {this.removeCurrentNodeFromCell(cellModel)}}/>]
+                            return [...links, <ActionButton mdiIcon={"delete-forever"} destructive={true} messageId={m('cells.remove.node')} tooltipPosition={"top-center"} callback={() => {this.removeCurrentNodeFromCell(cellModel)}}/>]
                         }}
                         readonly={!cellModel.isEditable()}
                         completerStyle={{margin: '-6px 8px 16px'}}

@@ -1022,32 +1022,8 @@
   "402": {
     "other": "http://www.hjsplit.org/"
   },
-  "403": {
-    "other": "WebDAV"
-  },
-  "404": {
-    "other": "WebDAV ir protokols kurš ļauj pieslēgt APPLICATION_TITLE darbvirsmas kā 'tīkla diskus' pa tiešo uz Jūsu datora. Lai ieslēgtu šo iespēju, atzīmējiet zemākesošo iespēju un ievadiet savu paroli ja nepieciešams."
-  },
-  "405": {
-    "other": "Jebkurš WebDAV klients Jums pieprasīs adresi, lietotājvārdu un paroli. Lietojiet zemākesošo saiti kopā ar savu lietotājvārdu un paroli."
-  },
-  "406": {
-    "other": "Ieslēgt WebDAV koplietošanu"
-  },
-  "407": {
-    "other": "ievadiet paroli ja pirmo reizi aktivizējat WebDAV koplietošanu, vai ja vēlaties, ievadiet jaunu paroli:"
-  },
-  "408": {
-    "other": "WebDAV koplietošnaa veiksmīgi aktivizēta"
-  },
-  "409": {
-    "other": "WebDAV koplietošana veiksmīgi atslēgta"
-  },
   "41": {
     "other": "tika pārsaukts par"
-  },
-  "410": {
-    "other": "WebDAV parole veiksmīgi atjaunota"
   },
   "411": {
     "other": "Atvērt"
@@ -1275,7 +1251,7 @@
     "other": "Aizmirsāt paroli?"
   },
   "48": {
-    "other": "OK"
+    "other": "Ok"
   },
   "480": {
     "other": "Pārlūkot visas esošās darbvirsmas direktorijas."
@@ -1308,7 +1284,7 @@
     "other": "Metadati"
   },
   "49": {
-    "other": "ATCELT"
+    "other": "Cancel"
   },
   "490": {
     "other": "Datumu periods"
@@ -1324,6 +1300,9 @@
   },
   "494": {
     "other": "Vakar"
+  },
+  "494t": {
+    "other": "Tomorrow"
   },
   "495": {
     "other": "Iepriekšējā nedēļa"
@@ -1678,6 +1657,9 @@
   },
   "599": {
     "other": "Pievienot lietotāju"
+  },
+  "599-a": {
+    "other": "All Results"
   },
   "6": {
     "other": "Pārsaukt"
@@ -2321,6 +2303,9 @@
   "addressbook.pick.group": {
     "other": "Select group"
   },
+  "addressbook.pick.multiple": {
+    "other": "Multiple Selection"
+  },
   "confirm.dialog.title": {
     "other": "Apstiprināt"
   },
@@ -2359,6 +2344,27 @@
   },
   "searchengine.scope.title": {
     "other": "Search In..."
+  },
+  "searchengine.share.title": {
+    "other": "Shared"
+  },
+  "searchengine.share.hint": {
+    "other": "No status"
+  },
+  "searchengine.share.option.link": {
+    "other": "Public Link"
+  },
+  "searchengine.share.option.cell": {
+    "other": "Shared in Cell"
+  },
+  "searchengine.share.option.any": {
+    "other": "Public Link or Cell"
+  },
+  "searchengine.format.title": {
+    "other": "Format"
+  },
+  "searchengine.format.file-only": {
+    "other": "Files Only"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "Advanced Filters"
@@ -2410,6 +2416,9 @@
   },
   "searchengine.complete.activefilters": {
     "other": "Filters:"
+  },
+  "searchengine.complete.activefilters-edit": {
+    "other": "Click to modify"
   },
   "chat.load-older": {
     "other": "Older entries"

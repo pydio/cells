@@ -27,9 +27,7 @@ import {muiThemeable} from 'material-ui/styles'
 import SharedUsers from './SharedUsers'
 import NodesPicker from './NodesPicker'
 import CellModel from 'pydio/model/cell'
-import ShareHelper from "../main/ShareHelper";
 import CellBaseFields from "./CellBaseFields";
-const {ModernTextField} = Pydio.requireLib('hoc');
 
 /**
  * Dialog for letting users create a workspace
@@ -116,6 +114,7 @@ class CreateCellDialog extends React.Component {
 
         let buttons = [];
         let content;
+        let hPadding = '20px'
         const {pydio, muiTheme} = this.props;
         const {step, model, saving} = this.state;
         let dialogLabel = pydio.MessageHash['418'];
@@ -132,6 +131,7 @@ class CreateCellDialog extends React.Component {
                     <CellBaseFields
                         pydio={pydio}
                         model={model}
+                        style={{padding: 0}}
                         muiTheme={muiTheme}
                         labelFocus={true}
                         labelEnter={() => this.submit()}
@@ -164,7 +164,7 @@ class CreateCellDialog extends React.Component {
 
             content = (
                 <div>
-                    <h5 style={{marginTop: -10}}>{this.m(278)}</h5>
+                    <h5 style={{marginTop: -10, padding:'0 10px'}}>{this.m(278)}</h5>
                     <SharedUsers
                         pydio={pydio}
                         cellAcls={model.getAcls()}
@@ -176,6 +176,7 @@ class CreateCellDialog extends React.Component {
                     />
                 </div>
             );
+            hPadding = '10px'
 
             buttons.push(<FlatButton key="prev1" primary={false} label={pydio.MessageHash['304']} onClick={()=>{this.setState({step:'users'})}} />);
             buttons.push(<FlatButton key="next2" primary={true} label={pydio.MessageHash['179']} onClick={()=>this.setState({step:'label'})} />);
@@ -185,7 +186,7 @@ class CreateCellDialog extends React.Component {
             content = (
                 <div>
                     <h5 style={{marginTop: -10}}>{this.m('cells.create.title.fill.folders')}</h5>
-                    <div style={{color: '#9e9e9e'}}>{this.computeSummaryString()}</div>
+                    <div style={{color: 'var(--md-sys-color-outline)', paddingTop: 10}}>{this.computeSummaryString()}</div>
                     <div style={{paddingTop: 16}}>
                         <NodesPicker pydio={pydio} model={model}/>
                     </div>
@@ -203,7 +204,7 @@ class CreateCellDialog extends React.Component {
                     <FontIcon className={"icomoon-cells-full-plus"}/>
                     <div style={{padding: 20, fontSize: 22}}>{dialogLabel}</div>
                 </div>
-                <div style={{padding: '20px 20px 10px', flex:1}}>
+                <div style={{padding: '20px '+hPadding+' 10px', flex:1}}>
                     {content}
                 </div>
                 <div style={{padding:'12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end'}}>

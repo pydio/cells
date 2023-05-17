@@ -27,10 +27,10 @@ import Message from './Message'
 import EmptyStateView from '../views/EmptyStateView'
 const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
 import {IconButton, TextField} from 'material-ui'
-import ChatUsers from './ChatUsers'
 import LKContainer from "./LKContainer";
 import {muiThemeable} from 'material-ui/styles'
 import Color from 'color'
+import SharedUsersStack from "../users/stack/SharedUsersStack";
 
 const LoadSize = 40;
 
@@ -86,7 +86,7 @@ class Chat extends React.Component{
     }
 
     componentWillReceiveProps(nextProps){
-        const {pydio, roomType, roomObjectId} = nextProps;
+        const {roomType, roomObjectId} = nextProps;
         if (roomType !== this.props.roomType || roomObjectId !== this.props.roomObjectId){
             if(this.client){
                 this.client.leaveRoom(this.props.roomType, this.props.roomObjectId, this._newMessageListener);
@@ -280,7 +280,7 @@ class Chat extends React.Component{
         return (
             <div style={{padding: 0, ...style}}>
                 {computePresenceFromACLs !== undefined  &&
-                    <ChatUsers pydio={pydio} ACLs={computePresenceFromACLs} roomUsers={room?room.Users:[]} style={chatUsersStyle} muiTheme={muiTheme}/>
+                    <div style={chatUsersStyle}><SharedUsersStack acls={computePresenceFromACLs} max={12} onlines={room?room.Users:[]}/></div>
                 }
                 <div ref={this.commentPane} className="comments_feed" style={{maxHeight: 300, overflowY: 'auto',  ...pushStyle, ...msgContainerStyle}}>
                     {pusher}

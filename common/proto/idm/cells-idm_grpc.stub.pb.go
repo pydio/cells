@@ -485,6 +485,28 @@ func (s *PolicyEngineServiceStub) Invoke(ctx context.Context, method string, arg
 func (s *PolicyEngineServiceStub) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
 	fmt.Println("Serving", method)
 	switch method {
+	case "/idm.PolicyEngineService/StreamPolicyGroups":
+		st := &PolicyEngineServiceStub_StreamPolicyGroupsStreamer{}
+		st.Init(ctx, func(i interface{}) error {
+			go func() {
+				defer func() {
+					close(st.RespChan)
+				}()
+				s.PolicyEngineServiceServer.StreamPolicyGroups(i.(*ListPolicyGroupsRequest), st)
+			}()
+			<-time.After(100 * time.Millisecond)
+			return nil
+		})
+		return st, nil
 	}
 	return nil, fmt.Errorf(method + "  not implemented")
+}
+
+type PolicyEngineServiceStub_StreamPolicyGroupsStreamer struct {
+	stubs.ClientServerStreamerCore
+}
+
+func (s *PolicyEngineServiceStub_StreamPolicyGroupsStreamer) Send(response *PolicyGroup) error {
+	s.RespChan <- response
+	return nil
 }

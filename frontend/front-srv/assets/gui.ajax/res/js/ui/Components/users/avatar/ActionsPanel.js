@@ -136,7 +136,7 @@ class ActionsPanel extends React.Component{
             if (onEditAction) {
                 actions.push({key:'edit', label:team?getMessage(580):getMessage(600), icon:'pencil', callback:onEditAction});
             }
-            actions.push({key:'policies', label:'Visibility', icon:'security', callback:this.openPolicies.bind(this)});
+            actions.push({key:'policies', label:getMessage('visibility.panel.title'), icon:'security', callback:this.openPolicies.bind(this)});
             if(onDeleteAction){
                 actions.push({key:'delete', label:team?getMessage(570):getMessage(582), icon:'delete', callback:onDeleteAction});
             }

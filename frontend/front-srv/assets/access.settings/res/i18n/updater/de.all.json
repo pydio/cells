@@ -108,7 +108,7 @@
     "other": "Beschreibung"
   },
   "upgrade.ed.version.legend": {
-    "other": "Wenn Sie auf Next klicken, laden Sie diese neue Version herunter und ersetzen Sie Ihre aktuelle Zell-Binärdatei. Ein Backup des ursprünglichen ausführbaren Programms wird in Ihrem Zellenkonfigurationsordner (unter %s) erstellt, wenn Sie es wiederherstellen müssen."
+    "other": "Wenn Sie auf \"Weiter\" klicken, laden Sie diese neue Version herunter und ersetzen Sie Ihre aktuelle Cells-Binärdatei. Ein Backup des ursprünglichen ausführbaren Programms wird in Ihrem Cells-konfigurationsordner (unter %s) erstellt, wenn Sie es wiederherstellen müssen."
   },
   "upgrade.ed.version.nomatch": {
     "other": "Eine ähnliche Version für Cells Enterprise konnte nicht gefunden werden"

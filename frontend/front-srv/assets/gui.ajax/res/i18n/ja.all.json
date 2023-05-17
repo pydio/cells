@@ -101,6 +101,27 @@
   "tour.workspaces.title": {
     "other": "ワークスペース & セル"
   },
+  "tour.theme.title": {
+    "other": "Light/Dark Theme Support"
+  },
+  "tour.theme.legend": {
+    "other": "Choose a light or dark theme to best suit your vision."
+  },
+  "tour.left-resize.title": {
+    "other": "Workspaces and Cells"
+  },
+  "tour.left-resize.legend": {
+    "other": "Left column can be resized or closed to fit your screen."
+  },
+  "tour.right-resize.legend": {
+    "other": "Right column can be also be resized or closed to fit your screen."
+  },
+  "tour.directory.title": {
+    "other": "Users Directory"
+  },
+  "tour.directory.legend": {
+    "other": "Manage users (internal and external) and teams in a central location."
+  },
   "background.jobs.title": {
     "other": "バックグラウンドジョブ"
   },
@@ -220,5 +241,38 @@
   },
   "fastsearch.quick-copy.legend": {
     "other": "Hit [Enter] to copy %s selected items to target, [Esc] to Close"
+  },
+  "wslist-options.title": {
+    "other": "Display Options"
+  },
+  "wslist-options.show-masked": {
+    "other": "Show masked items"
+  },
+  "wslist.action.mask": {
+    "other": "Mask"
+  },
+  "wslist.action.unmask": {
+    "other": "Unmask"
+  },
+  "wslist-options.merge-workspaces": {
+    "other": "Merge workspaces and cells"
+  },
+  "wslist-options.own-cells-first": {
+    "other": "Cells created by me first"
+  },
+  "leftrail.buttons.home": {
+    "other": "Home"
+  },
+  "leftrail.buttons.directory": {
+    "other": "Directory"
+  },
+  "leftrail.buttons.all-files": {
+    "other": "All Files"
+  },
+  "leftrail.buttons.theme.light": {
+    "other": "Light Mode"
+  },
+  "leftrail.buttons.theme.dark": {
+    "other": "Dark Mode"
   }
 }

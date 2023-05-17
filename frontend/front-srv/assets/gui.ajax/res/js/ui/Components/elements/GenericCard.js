@@ -19,13 +19,41 @@
  */
 import React from 'react'
 import Pydio from 'pydio'
-import {Paper, IconButton, FontIcon, IconMenu, FloatingActionButton} from 'material-ui'
+import {Paper, IconButton, FlatButton, RaisedButton, FontIcon, IconMenu, FloatingActionButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles';
-const {PlaceHolder, PhRoundShape, PhTextRow} = Pydio.requireLib('hoc')
+const {PlaceHolder, PhRoundShape, PhTextRow, AdditionalIcons} = Pydio.requireLib('hoc')
 
 const globalStyles = {
     globalLeftMargin : 64,
 };
+
+const Mui3CardLine = muiThemeable() (({legend, data, legendStyle, dataStyle, placeHolder, placeHolderReady, muiTheme}) => {
+
+    const style = {
+        legend: {
+            fontSize: 14,
+            color: muiTheme.palette.mui3['on-surface'],
+            fontWeight: 500,
+            ...legendStyle,
+        },
+        data: {
+            fontSize: 12,
+            color: muiTheme.palette.mui3['on-surface-variant'],
+            paddingRight: 6,
+            overflow:'hidden',
+            textOverflow:'ellipsis',
+            ...dataStyle,
+        }
+    };
+
+    return (
+        <div style={{marginBottom: 20}}>
+            <div style={style.legend}>{legend}</div>
+            <div style={style.data}>{data}</div>
+        </div>
+    )
+
+})
 
 class GenericLine extends React.Component{
     render(){
@@ -89,7 +117,7 @@ class GenericCard extends React.Component{
     render(){
 
         const {title, onDismissAction, onEditAction, onDeleteAction, otherActions, moreMenuItems,
-            children, muiTheme, style, headerSmall, editTooltip, deleteTooltip} = this.props;
+            children, muiTheme, style, headerSmall, editTooltip, deleteTooltip, mui3 = false, topLeftAvatar} = this.props;
 
         const headerBg = muiTheme.palette.mui3['secondary-container'];
         const headerColor = muiTheme.palette.mui3['on-secondary-container'];
@@ -106,10 +134,32 @@ class GenericCard extends React.Component{
             },
             fabTop: 80,
             button: {
-                style:{},
+                style:{
+                    height: 40, width: 40, padding: 8
+                },
                 iconStyle:{color:buttonColor},
+            },
+            title: {
+                paddingLeft: onEditAction?globalStyles.globalLeftMargin:20,
+                fontSize: 20,
+                lineHeight: '26px',
+                paddingBottom: 16
             }
         };
+        if(mui3) {
+            styles.headerBg = 'transparent'
+            styles.childrenContainer = {padding:'0 20px'};
+            styles.buttonBar = {
+                padding:20,
+                display:'flex',
+                alignItems:'center',
+            }
+            styles.title= {
+                fontSize: 22,
+                lineHeight: '26px',
+                padding: '0px 20px 16px'
+            }
+        }
         if (headerSmall) {
             styles = {
                 headerHeight: 'auto',
@@ -129,18 +179,21 @@ class GenericCard extends React.Component{
             }
         }
 
+        const {DeleteOutline} = AdditionalIcons;
+
         return (
-            <div style={{width: '100%', position:'relative', ...style}}>
+            <div style={{width: '100%', position:'relative', overflowX: 'hidden', ...style}}>
                 <Paper zDepth={0} style={{backgroundColor:styles.headerBg, color: styles.headerColor, height: styles.headerHeight, borderRadius: '2px 2px 0 0'}}>
                     <div style={styles.buttonBar}>
+                        {topLeftAvatar}
                         {headerSmall && <span style={{flex: 1, fontSize: 14, fontWeight:500}}>{title}</span>}
                         {!headerSmall && <span style={{flex: 1}}/>}
                         {otherActions}
                         {onEditAction && headerSmall &&
                             <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-pencil"} onClick={onEditAction} tooltip={editTooltip} tooltipPosition={"bottom-left"}/>
                         }
-                        {onDeleteAction &&
-                            <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-delete"} onClick={onDeleteAction} tooltip={deleteTooltip} tooltipPosition={"bottom-left"}/>
+                        {onDeleteAction && headerSmall &&
+                            <IconButton style={{...styles.button.style, padding: 7}} iconStyle={styles.button.iconStyle} onClick={onDeleteAction} tooltip={deleteTooltip} tooltipPosition={"bottom-left"}><DeleteOutline/></IconButton>
                         }
                         {moreMenuItems && moreMenuItems.length > 0 &&
                             <IconMenu
@@ -150,23 +203,26 @@ class GenericCard extends React.Component{
                             >{moreMenuItems}</IconMenu>
                         }
                         {onDismissAction &&
-                            <IconButton  style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-close"} onClick={onDismissAction}/>
+                            <IconButton  style={{...styles.button.style, backgroundColor:muiTheme.palette.mui3['surface-variant'], borderRadius:'50%'}} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-close"} onClick={onDismissAction}/>
                         }
                     </div>
-                    {!headerSmall &&
-                        <div style={{paddingLeft: onEditAction?globalStyles.globalLeftMargin:20, fontSize: 20, lineHeight: '26px', paddingBottom: 16}}>
-                            {title}
-                        </div>
-                    }
+                    {!headerSmall && <div style={styles.title}>{title}</div>}
                 </Paper>
-                <div style={{paddingTop: 12, paddingBottom: 8, position:'relative'}}>
-                    {onEditAction && !headerSmall &&
+                <div style={{paddingTop: 12, paddingBottom: 8, position:'relative', ...styles.childrenContainer}}>
+                    {!mui3 && onEditAction && !headerSmall &&
                         <FloatingActionButton onClick={onEditAction} backgroundColor={muiTheme.palette.mui3['tertiary']} mini={true} style={{position:'absolute', top:-20, left: 10}}>
                             <FontIcon className={"mdi mdi-pencil"} style={{color:muiTheme.palette.mui3['on-tertiary']}} />
                         </FloatingActionButton>
                     }
                     {children}
                 </div>
+                {(onEditAction || onDeleteAction) && !headerSmall && mui3 &&
+                    <div style={{padding:'12px 0', margin:'0 20px', display:'flex', borderTop: '1px solid ' + muiTheme.palette.mui3['outline-variant']}}>
+                        <span style={{flex: 1}}/>
+                        {onDeleteAction && <FlatButton label={deleteTooltip} onClick={()=>onDeleteAction()}/>}
+                        {onEditAction && <RaisedButton style={{marginLeft: 5}} label={editTooltip} onClick={()=>onEditAction()}/>}
+                    </div>
+                }
             </div>
         );
     }
@@ -174,4 +230,4 @@ class GenericCard extends React.Component{
 }
 
 GenericCard = muiThemeable()(GenericCard);
-export {GenericCard, GenericLine}
+export {GenericCard, GenericLine, Mui3CardLine}

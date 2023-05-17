@@ -18,15 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import React, {Fragment} from 'react'
 import PropTypes from 'prop-types'
-const {Paper, IconButton, FlatButton, Divider} = require('material-ui');
-const Pydio = require('pydio');
-const debounce = require('lodash.debounce');
-const MetaNodeProvider = require('pydio/model/meta-node-provider');
+import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
-const {FilePreview} = Pydio.requireLib('workspaces');
-const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc');
 
 function nodesFromObject(object, pydio){
     let nodes = [];
@@ -55,183 +50,51 @@ function nodesFromObject(object, pydio){
     return nodes;
 }
 
-class DocPreview extends React.Component {
+let DocLink = ({pydio, activity, children, linkStyle}) => {
 
-    constructor(props){
-        super(props);
-        const nodes = nodesFromObject(props.activity.object, props.pydio);
-        if (nodes.length && !nodes[0].isLeaf()) {
-            this.state = {
-                previewLoaded: true,
-                previewFailed: false,
-                nodes: nodes,
-            };
-        } else {
-            this.state = {
-                previewLoaded: false,
-                previewFailed: false,
-                nodes: nodes,
-            };
-        }
+
+    if (!activity.object.name) {
+        activity.object.name = '';
+    }
+    const nodes = nodesFromObject(activity.object, pydio);
+    if(nodes.length === 0) {
+        return null;
     }
 
-    render(){
-        const {pydio} = this.props;
-        const {previewLoaded, nodes, previewFailed} = this.state;
-        const previewNode = nodes.length ? nodes[0] : null;
-        let fPreview;
-        let fPreviewLoading;
-        const fPreviewStyle = {
-            height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 70
-        };
-        if (previewNode && previewNode.isLeaf()) {
-            if (previewLoaded && !previewFailed) {
-                fPreview = (
-                    <FilePreview style={fPreviewStyle}
-                                 node={previewNode} pydio={pydio} loadThumbnail={true}
-                                 richPreview={true} processing={!previewLoaded}/>
-                );
-            } else if (previewLoaded && previewFailed) {
+    let pathParts = activity.object.name.replace('doc://', '').split('/');
+    pathParts.shift();
+    const title = '/' + pathParts.join('/');
 
-                fPreview = (
-                    <div style={{...fPreviewStyle, flexDirection:'column'}} className="mimefont-container">
-                        <div className="mimefont mdi mdi-delete"/>
-                        <span style={{fontSize: 13}}>File deleted</span>
-                    </div>
-                );
+    if(nodes.length > 1) {
 
-
+        const secondaryTexts = [' (', <span>{pydio.MessageHash['bookmark.secondary.inside'].toLowerCase()} </span>];
+        nodes.sort( (a,b) => a.getMetadata().get('repository_label').localeCompare(b.getMetadata().get('repository_label')) )
+        const nodeLinks = nodes.map((n,i) => {
+            const link = (
+                <a
+                    style={{...linkStyle}}
+                    onClick={(e) => { e.stopPropagation(); pydio.goTo(n);}}
+                >{n.getMetadata().get('repository_label')}</a>
+            );
+            if(i === nodes.length - 1) {
+                return link;
             } else {
-                const nodeRepoId = previewNode.getMetadata().get('repository_id');
-                const nodeRepoLabel = previewNode.getMetadata().get('repository_label');
-                const provider = new MetaNodeProvider();
-                previewNode.observeOnce('error', () => {
-                    this.setState({previewLoaded:true, previewFailed: true});
-                });
-                provider.loadLeafNodeSync(previewNode, (loadedNode) => {
-                    loadedNode.getMetadata().set('repository_id', nodeRepoId);
-                    loadedNode.getMetadata().set('repository_label', nodeRepoLabel);
-                    nodes[0] = loadedNode;
-                    this.setState({previewLoaded: true, nodes: nodes});
-                }, true, {tmp_repository_id: nodeRepoId});
-
-                fPreviewLoading = (<FilePreview style={fPreviewStyle}
-                                                node={previewNode} pydio={pydio} loadThumbnail={false}
-                                                richPreview={false} processing={true}/>
-                )
+                return <span>{link}, </span>
             }
-        }
-
-        let buttons = [];
-        let currentRepoButton;
-        const currentRepository = pydio.user.getActiveRepository();
-        for (let i= 0; i<nodes.length; i++) {
-            const node = nodes[i];
-            const button = (
-                <div style={{display:'flex', alignItems:'center', paddingLeft: 10}}>
-                    <div style={{flex:1, fontSize: 13, fontWeight: 500, color: 'rgba(0,0,0,0.33)'}}>{pydio.MessageHash['notification_center.16']} {node.getMetadata().get('repository_label')}</div>
-                    <IconButton iconClassName={"mdi mdi-open-in-new"} tooltip={pydio.MessageHash['notification_center.6']} tooltipPosition={"top-center"} onClick={()=>{pydio.goTo(node)}}/>
-                </div>
-            );
-            if(node.getMetadata().get('repository_id') === currentRepository) {
-                currentRepoButton = (
-                    <div style={{display:'flex', alignItems:'center'}}>
-                        <span style={{flex:1}}></span> <FlatButton label={pydio.MessageHash['notification_center.6']} iconClassName={"mdi mdi-open-in-new"} tooltip="Open" tooltipPosition={"top-right"} onClick={()=>{pydio.goTo(node)}}/>
-                    </div>
-                );
-                break;
-            }
-            buttons.push(button);
-            if (i < nodes.length - 1 ) {
-                buttons.push(<Divider/>);
-            }
-        }
-        if (currentRepoButton){
-            buttons = [currentRepoButton];
-        }
+        });
+        secondaryTexts.push(...nodeLinks, ')')
 
         return (
-            <div>
-                {!previewFailed && <div style={{padding: 6}}>{buttons}</div>}
-            </div>
+            <Fragment><span title={title}>{children}</span> {secondaryTexts}</Fragment>
         );
-    }
-
-}
-
-class DocLink extends React.Component{
-
-    constructor(props){
-        super(props);
-        this.state = {
-            showPopover: false,
-            popoverAnchor: null,
-        };
-    }
-
-    render(){
-
-        const {pydio, activity, children, linkStyle} = this.props;
-        if (!activity.object.name) {
-            activity.object.name = '';
-        }
-        const nodes = nodesFromObject(activity.object, pydio);
-
-        let onClick, onMouseOver, onMouseOut, popover;
-
-        let pathParts = activity.object.name.replace('doc://', '').split('/');
-        pathParts.shift();
-        const title = '/' + pathParts.join('/');
-
-        if(nodes.length > 1) {
-
-            onClick = () => {pydio.goTo(nodes[0])};
-            onMouseOut = debounce(() => {
-                this.setState({showPopover: false});
-            }, 350);
-            onMouseOver = (e) => {
-                this.setState({showPopover: true, popoverAnchor: e.currentTarget});
-                onMouseOut.cancel();
-            };
-            const onMouseOverInner = (e) =>{
-                this.setState({showPopover: true});
-                onMouseOut.cancel();
-            };
-
-            popover = (
-                <Popover
-                    open={this.state.showPopover}
-                    anchorEl={this.state.popoverAnchor}
-                    onRequestClose={(reason) => {
-                        if(reason !== 'clickAway'){
-                            this.setState({showPopover: false})
-                        }
-                    }}
-                    anchorOrigin={{horizontal:"left",vertical:"bottom"}}
-                    targetOrigin={{horizontal:"left",vertical:"top"}}
-                    useLayerForClickAway={false}
-                >
-                    <Paper zDepth={2} style={{width: 200, height: 'auto', overflowY: 'auto'}} onMouseOver={onMouseOverInner}  onMouseOut={onMouseOut}>
-                        <DocPreview pydio={pydio} activity={activity}/>
-                    </Paper>
-                </Popover>
-            );
 
 
-        } else if(nodes.length === 1) {
-            onClick = () => {pydio.goTo(nodes[0])};
-        }
-
+    } else {
 
         return (
-            <span>
-                <a title={title} style={{cursor: 'pointer', color: 'rgb(66, 140, 179)', ...linkStyle}}
-                   onMouseOver={onMouseOver}
-                   onMouseOut={onMouseOut}
-                   onClick={onClick}>{children}</a>
-                {popover}
-            </span>
+            <a title={title} style={{cursor: 'pointer', color: 'rgb(66, 140, 179)', ...linkStyle}} onClick={() => {pydio.goTo(nodes[0])}}>{children}</a>
         );
+
 
     }
 

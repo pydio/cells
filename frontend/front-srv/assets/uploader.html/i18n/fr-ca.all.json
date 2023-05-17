@@ -60,19 +60,19 @@
     "other": "Transfert des fichiers vers le serveur..."
   },
   "task.status.folders": {
-    "other": "Creating Folders"
+    "other": "Création des dossiers"
   },
   "task.message.folder-one": {
-    "other": "Creating one folder"
+    "other": "Création du dossier"
   },
   "task.message.folder-many": {
-    "other": "Creating %s folders"
+    "other": "Création de %s dossiers"
   },
   "task.status.analyse": {
-    "other": "Preparing files for upload"
+    "other": "Préparation des fichiers pour le téléversement"
   },
   "task.message.analyse-many": {
-    "other": "Analyzing %s items..."
+    "other": "Analyse de %s éléments..."
   },
   "task.message.analyse-one": {
     "other": "Analyzing one item"

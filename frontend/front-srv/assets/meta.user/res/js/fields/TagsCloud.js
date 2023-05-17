@@ -163,7 +163,7 @@ class TagsCloud extends React.Component {
 
         if (editMode) {
             const Component = search ? AutoComplete : ModernAutoComplete
-            const otherProps = search ? {style:{marginBottom: -10}, ...ModernStyles.textField} : {hintText:label}
+            const otherProps = search ? {style:{marginBottom: -10}, ...ModernStyles.textFieldV1Search} : {hintText:label}
             autoCompleter = (
                 <Component
                     fullWidth={true}

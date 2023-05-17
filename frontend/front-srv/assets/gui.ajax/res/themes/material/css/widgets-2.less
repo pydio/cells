@@ -43,6 +43,9 @@
             color:var(--md-sys-color-on-secondary) !important;
           }
         }
+        &.list-parent-node .material-list-icon .mui-font-icon {
+          color: var(--md-sys-color-on-secondary-container) !important;
+        }
       }
       .mui-toolbar{
         background: var(--md-sys-color-surface-3);
@@ -78,7 +81,7 @@
       .material-list-entry{
         box-shadow: none;
         border-radius: var(--md-sys-color-card-border-radius);
-        //border: 1px solid var(--md-sys-color-outline-variant-50);
+        border: 1px solid var(--md-sys-color-outline-variant);
         background: var(--md-sys-color-surface);
         margin: 4px;
         &.selected{
@@ -90,7 +93,7 @@
         }
         .material-list-icon {
           .mimefont-container{
-            border-radius: var(--md-sys-color-card-border-radius);
+            border-radius: 0 0 var(--md-sys-color-card-border-radius) var(--md-sys-color-card-border-radius);
           }
         }
       }
@@ -134,7 +137,7 @@
   }
 
   .selected .mimefont-container {
-    background-color: var(--md-sys-color-primary-container) !important;
+    background-color: var(--md-sys-color-secondary-container) !important;
   }
 
 
@@ -145,7 +148,7 @@
         display: none;
       }
       .mimefont-container {
-        background-color: var(--md-sys-color-primary-container) !important;
+        background-color: var(--md-sys-color-secondary-container) !important;
       }
     }
 

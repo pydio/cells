@@ -1434,10 +1434,10 @@
     "other": "Chỉ định ở đây quyền truy cập mặc định cho các thư mục workspace này.\n                                 Để bật quản lý quyền ở cấp độ phụ, hãy chọn 'thư mục con' trên một thư mục nhất định.\n                                 Điều này sẽ đặt thư mục hiện tại là chỉ đọc theo mặc định và bạn sẽ có thể mở truy cập\n                                 có chọn lọc đối với bất kỳ thư mục con."
   },
   "ws.44": {
-    "other": "Xin lưu ý rằng đây chỉ là một khuôn mẫu: nếu bạn sửa đổi trực tiếp các thư mục thực, bạn có thể\n                                 chỉnh sửa khuôn mẫu này cho phù hợp. Ngoài ra, các quyền này có thể bị giới hạn toàn cầu bởi 'Quyền mặc định'\n                                 paremeter được đặt cho workspace này (xem General tab)."
+    "other": "Please be aware that this is only a mask: if you modify the real folders directly, you may have\n                                to edit this mask accordingly. Also, these permissions may be globally limited by the 'Default Rights'\n                                parameter set for this workspace (see the General tab)."
   },
   "ws.45": {
-    "other": "Vì các tham số của nó đang sử dụng 'PYDIO_USER' hoặc từ khóa 'PYDIO_GROUP_ *', nên nội dung của\n                                 workspace này sẽ thay đổi tùy thuộc vào người dùng hiện đang được xác thực. Vì lý do này, bạn không thể duyệt\n                                 thư mục trực tiếp và gán quyền cho chúng, nhưng bạn có thể tự do xác định một số đường dẫn chung sẽ được sử dụng làm khuôn mẫu."
+    "other": "As its parameters are using 'PYDIO_USER' or 'PYDIO_GROUP_*' keywords, the contents of\n                                this workspace will vary depending on the currently authenticated user. For this reason, you cannot browse the\n                                folders directly and assign permissions to them, but you can freely define some generic paths that will be used as masks."
   },
   "ws.46": {
     "other": "Thêm một tính năng"

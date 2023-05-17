@@ -220,7 +220,7 @@ let RailPanel = ({
                 {
                     id:'home',
                     icon: 'home-outline',
-                    text: 'Home',
+                    text: MessageHash['ajax_gui.leftrail.buttons.home'],
                     ignore: !user.getRepositoriesList().has('homepage'),
                     active: user.activeRepository === 'homepage',
                     onClick: () => {
@@ -230,7 +230,7 @@ let RailPanel = ({
                 {
                     id:'files',
                     icon: 'folder-multiple-outline',
-                    text: 'All Files',
+                    text: MessageHash['ajax_gui.leftrail.buttons.all-files'],
                     active: user.getActiveRepositoryObject().accessType === 'gateway',
                     onClick: () => {
                         if(user.getActiveRepositoryObject().accessType !== 'gateway') {
@@ -260,13 +260,13 @@ let RailPanel = ({
                 },
                 {
                     id:'bookmarks',
-                    text: 'Bookmarks',
+                    text: MessageHash['147'],
                     icon: 'star-outline',
                     onClick: () => {},
                     hoverBar: () => {
                         return (
                             <div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}} className={"rail-hover-bar"}>
-                                <div style={{fontSize: 20, padding:16}}>Bookmarks</div>
+                                <div style={{fontSize: 20, padding:16}}>{MessageHash['147']}</div>
                                 <BookmarksList pydio={pydio} asPopover={false} useCache={true} onRequestClose={()=>{setHover(false)}}/>
                             </div>
                         )
@@ -275,7 +275,7 @@ let RailPanel = ({
                 },
                 {
                     id:'directory',
-                    text: 'Directory',
+                    text: MessageHash['ajax_gui.leftrail.buttons.directory'],
                     ignore: !user.getRepositoriesList().has('directory'),
                     active: user.activeRepository === 'directory',
                     icon: 'account-box-outline',
@@ -287,7 +287,7 @@ let RailPanel = ({
             "bottom": [
                 {
                     id: 'notifications',
-                    text: 'Notifications',
+                    text: MessageHash['notification_center.1'],
                     icon: 'bell-outline',
                     hoverWidth: 320,
                     alert: unreadCount > 0,
@@ -298,7 +298,7 @@ let RailPanel = ({
                         const {ActivityList} = lib;
                         return (
                             <div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}} className={"rail-hover-bar"}>
-                                <div style={{fontSize: 20, padding:16}}>Notifications</div>
+                                <div style={{fontSize: 20, padding:16}}>{MessageHash['notification_center.1']}</div>
                                 <ActivityList
                                     items={data || []}
                                     style={{overflowY: 'scroll', flex: 1}}
@@ -312,7 +312,7 @@ let RailPanel = ({
                 },
                 {
                     id:'theme',
-                    text: muiTheme.darkMode? 'Light Mode' : 'Dark Mode',
+                    text: pydio.MessageHash['ajax_gui.leftrail.buttons.theme.' + (muiTheme.darkMode?'light':'dark')],
                     icon: 'theme-light-dark',
                     onClick: () => {
                         const newTheme = muiTheme.darkMode ? 'mui3-light' : 'mui3-dark';
@@ -444,6 +444,8 @@ let RailPanel = ({
                         controller={pydio.getController()}
                         toolbars={["rail_user","zlogin"]}
                         {...uWidgetProps}
+                        actionBarStyle={{display:'none'}}
+                        avatarStyle={{padding: 0}}
                         displayLabel={false}
                         hideNotifications={true}
                         hideBookmarks={true}

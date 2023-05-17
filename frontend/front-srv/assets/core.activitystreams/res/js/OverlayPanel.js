@@ -20,22 +20,29 @@
 import React, {Component} from 'react'
 import Pydio from 'pydio'
 const {InfoPanelCard} = Pydio.requireLib('workspaces')
+import WatchSelectorMui3 from './WatchSelectorMui3'
 import WatchSelector from './WatchSelector'
+import {muiThemeable} from 'material-ui/styles'
 
-export default class OverlayPanel extends Component {
+class OverlayPanel extends Component {
 
     render() {
-        const {pydio, node, style, popoverPanel} = this.props;
+        const {pydio, node, style, popoverPanel, muiTheme} = this.props;
+        const Comp = muiTheme.userTheme === 'mui3' ? WatchSelectorMui3 : WatchSelector
         return (
             <InfoPanelCard
                 identifier={"meta-user"}
                 style={style}
-                title={pydio.MessageHash['meta.watch.1-off']}
+                title={pydio.MessageHash['meta.watch.selector.legend.mui']}
                 popoverPanel={popoverPanel}
             >
-                <div style={{padding: '0 16px 10px'}}><WatchSelector fullWidth={true} pydio={pydio} nodes={[node]}/></div>
+                <div style={{padding: '0 16px 16px'}}>
+                    <Comp fullWidth={true} pydio={pydio} nodes={[node]}/>
+                </div>
             </InfoPanelCard>
         );
     }
 
 }
+
+export default muiThemeable()(OverlayPanel)

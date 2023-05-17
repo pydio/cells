@@ -165,6 +165,7 @@ class PublicLinkPanel extends React.Component {
             publicLinkField = (<PublicLinkField
                 pydio={pydio}
                 linkModel={linkModel}
+                compositeModel={compositeModel}
                 showMailer={this.props.showMailer}
                 editAllowed={authorizations.editable_hash && linkModel.isEditable()}
                 onDisableLink={disableLink}

@@ -22,7 +22,7 @@
 				</processing>
 			</action>
 			<action name="open_address_book">
-				<gui text="user_dash.1" title="user_dash.1" iconClass="mdi mdi-account-card-details" accessKey="folder_access_key" >
+				<gui text="user_dash.open-addressbook" title="user_dash.open-addressbook" iconClass="mdi mdi-account-card-details" accessKey="folder_access_key" >
 					<context selection="false" dir="" recycle="false" actionBar="true" actionBarGroup="user" contextMenu="false" infoPanel="false"/>
 				</gui>
 				<rightsContext noUser="false" userLogged="only" read="false" write="false" adminOnly="false" paramDisable="action.user/DASH_DISABLE_ADDRESS_BOOK"/>

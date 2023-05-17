@@ -108,7 +108,7 @@
     "other": "Das Löschen einer Datenquelle ist ein destruktiver Vorgang: obwohl die Daten im zugrunde liegenden Speicher NICHT entfernt werden, wird der vorhandene Index gelöscht und die Verknüpfung aller mit den indizierten Nodes verknüpften ACLs aufgehoben."
   },
   "ds.editor.legend.delete.2": {
-    "other": "Stellen Sie sicher, dass Sie zuerst alle Arbeitsumgebungen entfernen, die auf diese Datenquelle verweisen, bevor Sie diese löschen."
+    "other": "Stellen Sie sicher, dass Sie zuerst alle Workspaces entfernen, die auf diese Datenquelle verweisen, bevor Sie diese löschen."
   },
   "ds.editor.legend.delete.button": {
     "other": "Datenquelle löschen"
@@ -141,7 +141,7 @@
     "other": "Durchsuchen Sie Daten aus einem lokalen oder an ein Netzwerk angeschlossenen Dateisystem."
   },
   "ds.editor.storage.legend.fs.peer": {
-    "other": "Wenn Sie die Datenquelle auf eine Peer-Adresse beschränken, wird der Dienst nur für einen bestimmten Knoten gestartet. Wenn Sie den Wert \"Beliebig\" verwenden, wird der Dienst auf allen Knoten gestartet, auf denen Cells ausgeführt wird. Dies kann hilfreich sein, wenn ein freigegebenes Dateisystem auf allen Knoten am selben Speicherort bereitgestellt wird oder wenn Ihr Knoten beim Neustart möglicherweise seine IP-Adresse ändert. Um Konflikte zu vermeiden, ist es besser, entweder ANY für alle Datenquellen zu verwenden oder bestimmte Knoten für alle Datenquellen auszuwählen."
+    "other": "Wenn Sie die Datenquelle auf eine Peer-Adresse beschränken, wird der Dienst nur für einen bestimmten Knoten gestartet. Wenn Sie den Wert \"Beliebig\" verwenden, wird der Dienst auf allen Knoten gestartet, auf denen Cells ausgeführt wird. Dies kann hilfreich sein, wenn ein geteiltes Dateisystem auf allen Knoten am selben Speicherort bereitgestellt wird oder wenn Ihr Knoten beim Neustart möglicherweise seine IP-Adresse ändert. Um Konflikte zu vermeiden, ist es besser, entweder ANY für alle Datenquellen zu verwenden oder bestimmte Knoten für alle Datenquellen auszuwählen."
   },
   "ds.editor.storage.legend.fs.path": {
     "other": "Stellen Sie sicher, dass der letzte Ordner klein geschrieben und der übergeordnete Ordner beschreibbar ist. Wenn Ihr vorhandener Ordner in Großbuchstaben geschrieben ist, können Sie symbolische Links verwenden, um diese Einschränkung zu umgehen."
@@ -165,7 +165,7 @@
     "other": "Schreibgeschützter Modus"
   },
   "ds.editor.storage.legend.readOnly": {
-    "other": "Verwenden Sie den schreibgeschützten Modus, wenn Cells niemals versteckte Dateien schreiben und native eTags als Prüfsummen verwenden soll (dies kann für Buckets mit einer großen Menge vorhandener Daten erforderlich sein). Beachten Sie jedoch, dass alle in dieser Datenquelle erstellten Arbeitsbereiche als schreibgeschützt festgelegt werden sollten, da die Verschiebefunktion nicht ordnungsgemäß funktioniert."
+    "other": "Verwenden Sie den schreibgeschützten Modus, wenn Cells niemals versteckte Dateien schreiben und native eTags als Prüfsummen verwenden soll (dies kann für Buckets mit einer großen Menge vorhandener Daten erforderlich sein). Beachten Sie jedoch, dass alle in dieser Datenquelle erstellten Workspaces als schreibgeschützt festgelegt werden sollten, da die Verschiebefunktion nicht ordnungsgemäß funktioniert."
   },
   "ds.editor.storage.flatStorage": {
     "other": "Datenstruktur auf dem Speicher behalten"
@@ -186,7 +186,7 @@
     "other": "Native Etags verwenden (deaktiviert die Desktop-Synchronisierung)"
   },
   "ds.editor.storage.legend.checksumMapper": {
-    "other": "Zur ordnungsgemäßen Erkennung von Änderungen werden Dateiprüfsummen (md5) von Zellen (oder, wenn möglich, vom Speicher mit einer vorhandenen Kopie) berechnet und als Metadaten an Objekte angehängt. Verwenden Sie für optimale Leistungen das Native ETags-Flag, um die ursprünglichen Speicherwerte beizubehalten. Beachten Sie jedoch, dass dadurch die Desktop-Synchronisierung für diese Datenquelle deaktiviert wird. Sie können die Änderung von Objekten auch einfach verhindern, während Sie weiterhin Prüfsummen berechnen, indem Sie Metadaten lokal speichern."
+    "other": "Zur ordnungsgemäßen Erkennung von Änderungen werden Dateiprüfsummen (md5) von Cells (oder, wenn möglich, vom Speicher mit einer vorhandenen Kopie) berechnet und als Metadaten an Objekte angehängt. Verwenden Sie für optimale Leistungen das Native ETags-Flag, um die ursprünglichen Speicherwerte beizubehalten. Beachten Sie jedoch, dass dadurch die Desktop-Synchronisierung für diese Datenquelle deaktiviert wird. Sie können die Änderung von Objekten auch einfach verhindern, während Sie weiterhin Prüfsummen berechnen, indem Sie Metadaten lokal speichern."
   },
   "ds.editor.new": {
     "other": "Neue Datenquelle"
@@ -1041,7 +1041,7 @@
     "other": "Möchten Sie diese Sicherheitsregel wirklich entfernen? Dies könnte das Sicherheitsmodell der Anwendung beschädigen!"
   },
   "policies.type.acl.legend": {
-    "other": "Diese Richtlinien werden verwendet, um basierend auf dem Anforderungskontext und / oder den Nodemetadaten dynamisch Lese- / Schreibzugriff auf Arbeitsumgebung oder Node bereitzustellen. Sie werden hier definiert und im Access Control Panel der Benutzer und Rollen verwendet."
+    "other": "Diese Richtlinien werden verwendet, um basierend auf dem Anforderungskontext und / oder den Nodemetadaten dynamisch Lese- / Schreibzugriff auf Workspace oder Node bereitzustellen. Sie werden hier definiert und im Access Control Panel der Benutzer und Rollen verwendet."
   },
   "policies.type.acl.title": {
     "other": "Kontextbasierte ACLs"
@@ -1119,7 +1119,7 @@
     "other": "+ Benutzer"
   },
   "user.10": {
-    "other": "Hat Zugriff auf %i Arbeitsumgebungen"
+    "other": "Hat Zugriff auf %i Workspaces"
   },
   "user.11": {
     "other": "%i Rollen"
@@ -1128,7 +1128,7 @@
     "other": "Gruppen-Pfad"
   },
   "user.13": {
-    "other": "Freigaben-Benutzer"
+    "other": "geteilt"
   },
   "user.14": {
     "other": "Neue Rolle erstellen"
@@ -1218,7 +1218,7 @@
     "other": "Interne Benutzer"
   },
   "user.filter.shared": {
-    "other": "Share Benutzer"
+    "other": "Geteilte Benutzer"
   },
   "user.filter.admins": {
     "other": "Nur Admins"
@@ -1284,7 +1284,7 @@
     "other": "Beschriftung für Vorlage"
   },
   "virtual.legend.1": {
-    "other": "Vorlagenpfade werden dynamisch je nach Kontext berechnet. Sie können als Wurzeln für Arbeitsumgebung als Ersatz für einen festen Dateiquelle-Pfad verwendet werden.     Sie werden standardmäßig verwendet, um den Arbeitsbereich für persönliche Dateien zu erstellen, der für jeden Benutzer auf einen anderen Ordner verweist. Sie werden standardmäßig verwendet, um die Personal Files Arbeitsumgebung zu erstellen, der in einen anderen Ordner für jeden Benutzer, und auch um den Ort der Benutzers-Zellen Ordner zuberechnen."
+    "other": "Template-Pfade werden dynamisch abhängig vom Kontext berechnet. Sie können als Wurzeln für Workspaces anstelle eines festen Datenquellenpfads verwendet werden.     Sie werden standardmäßig verwendet, um den Workspace \"Persönliche Dateien\" zu erstellen, der auf unterschiedliche Ordner für jeden Benutzer zeigt, und um die Position der Cells-Ordner der Benutzer zu berechnen."
   },
   "virtual.legend.2": {
     "other": "Verwenden Sie Strg + Leertaste im Editor, um Hinweise zu den möglichen Werten zu erhalten. Derzeit unterstützte Werte sind: User.Name (dynamisch in den aktuell angemeldeten Benutzer aufgelöst) und DataSources (zur dynamischen Auswahl einer Datenquelle)."
@@ -1317,13 +1317,13 @@
     "other": "Benennen Sie die Daten beim Löschen des Benutzers in {deleted-NAME-UUID} um."
   },
   "ws.1": {
-    "other": "Vorlagen verwalten"
+    "other": "Datenquelle verwalten"
   },
   "ws.10": {
-    "other": "Vorlage auswählen"
+    "other": "Datenquelle auswählen"
   },
   "ws.11": {
-    "other": "Vorlage oder Treiber auswählen"
+    "other": "Workspace basierend auf ..."
   },
   "ws.12": {
     "other": "Vorlage %s"
@@ -1335,7 +1335,7 @@
     "other": "Allgemeine Einstellungen"
   },
   "ws.15": {
-    "other": "Arbeitsumgebungs-Einstellungen"
+    "other": "Workspace-Einstellungen"
   },
   "ws.16": {
     "other": "Speicher auswählen"
@@ -1359,13 +1359,13 @@
     "other": "Allgemeine Vorlagen-Einstellungen"
   },
   "ws.22": {
-    "other": "Allgemeine Arbeitsumgebungs-Einstellungen"
+    "other": "Allgemeine Workspace-Einstellungen"
   },
   "ws.23": {
     "other": "Löschen"
   },
   "ws.24": {
-    "other": "Untergeordnete Arbeitsumgebungen"
+    "other": "Untergeordnete Workspaces"
   },
   "ws.25": {
     "other": "Freigaben"
@@ -1383,7 +1383,7 @@
     "other": "Parameter"
   },
   "ws.3": {
-    "other": "+ Arbeitsumgebung"
+    "other": "+ Workspace"
   },
   "ws.filter.workspaces": {
     "other": "Workspaces filtern..."
@@ -1407,19 +1407,19 @@
     "other": "Zugreifbar für %i Benutzer"
   },
   "ws.36": {
-    "other": "+ %i Dateien oder Ordner freigegeben"
+    "other": "+ %i Dateien oder Ordner geteilt"
   },
   "ws.37": {
-    "other": "Arbeitsumgebungen, die auf dieser Vorlage basieren"
+    "other": "Workspaces, die auf dieser Vorlage basieren"
   },
   "ws.38": {
-    "other": "In dieser Arbeitsumgebung freigegebene Elemente"
+    "other": "In diesem Workspace geteilte Elemente"
   },
   "ws.39": {
     "other": "Eigentümer"
   },
   "ws.4": {
-    "other": "+ Vorlage"
+    "other": "+ Datenquelle"
   },
   "ws.40": {
     "other": "Art der Freigabe"
@@ -1434,10 +1434,10 @@
     "other": "Legen Sie hier die Standardrechte für diesen Ordner fest.\n                                Haken Sie bei einem Ordner 'Kinder' an, um die Rechteverwaltung auf untergeordnete Elemente zu erweitern.\n                                Damit ist dieser Ordner standardmäßig schreibgeschützt und Sie haben die Möglichkeit, Berechtigungen\n                                für Unterordner zu vergeben."
   },
   "ws.44": {
-    "other": "Dieser Ordner ist frei definiert. Wenn der zugrundeliegende Ordner angepasst wird muss auch diese Definition\n                                entsprechend geändert werden. Weiterhin werden diese Berechtigungen durch die Standardrechte\n                                der Arbeitsumgebung eingeschränkt. (siehe Region 'Allgemeine Einstellungen')."
+    "other": "Bitte beachten Sie, dass dies nur eine Maske ist: Wenn Sie die echten Ordner direkt ändern, müssen Sie möglicherweise diese Maske entsprechend anpassen. Außerdem können diese Berechtigungen global durch den Parameter 'Standardrechte' für diesen Workspace eingeschränkt werden (siehe den Reiter \"Allgemein\")."
   },
   "ws.45": {
-    "other": "Der Pfad zu dieser Arbeitsumgebung enthält die Parameter 'PYDIO_USER' oder 'PYDIO_GROUP_*' und ist daher abhängig \n                                vom angemeldeten Benutzer. Aus diesem Grund können die Unterordner zur Rechtevergabe nicht ermittelt werden.\n                                Unabhängig davon ist es aber möglich, generische Pfade frei zu definieren."
+    "other": "Da seine Parameter die Schlüsselwörter 'PYDIO_USER' oder 'PYDIO_GROUP_*' verwenden, werden die Inhalte dieses Workspaces je nach aktuell authentifiziertem Benutzer variieren. Aus diesem Grund können Sie die Ordner nicht direkt durchsuchen und ihnen Berechtigungen zuweisen, aber Sie können frei generische Pfade definieren, die als Masken verwendet werden."
   },
   "ws.46": {
     "other": "Funktion hinzufügen"
@@ -1461,10 +1461,10 @@
     "other": "Indexierung"
   },
   "ws.51": {
-    "other": "Diese Arbeitsumgebung nutzt Indexierung (%s). Die Verarbeitung wird idr. direkt beim hinzufügen oder entfernen von Elementen durchgeführt.\n                    Änderungen auf Dateisystem-Ebene werden nicht automatisch erkannt. Die Indexierung kann dafür jedoch über den Button unterhalb sofort gestartet werden.\n                    Alternativ ist es auch möglich, eine Aufgabe zu erstellen, um die Indexierung in regelmäßigen Abständen automatisch durchzuführen."
+    "other": "Dieser Workspace verfügt über einen Indexer (%s). Normalerweise wird die Indexierung \"on-the-fly\" durchgeführt, wenn Dateien über die Anwendungsschnittstellen hinzugefügt/entfernt werden. Wenn Sie jedoch Änderungen direkt auf Speicherebene vornehmen, müssen Sie möglicherweise von Zeit zu Zeit eine Indexierung manuell erneut auslösen. Verwenden Sie die untenstehenden Schaltflächen, um entweder jetzt zu indizieren oder eine Aufgabe im Zeitplaner zu programmieren, um die Indexierung regelmäßig durchzuführen."
   },
   "ws.52": {
-    "other": "Achtung: Der Inhalt dieser Arbeitsumgebung ist abhängig vom angemeldeten Benutzer. Die Indexierung wird für jeden Benutzer ausgeführt."
+    "other": "Achtung: Der Inhalt dieses Workspace ist abhängig vom angemeldeten Benutzer. Die Indexierung wird für jeden Benutzer ausgeführt."
   },
   "ws.53": {
     "other": "Indexierung sofort starten"
@@ -1476,10 +1476,10 @@
     "other": "Automatische Bereinigung"
   },
   "ws.56": {
-    "other": "Diese Arbeitsumgebung nutzt die automatische Bereinigung, um Dokumente zu entfernen, die seit %s Tagen unverändert sind. Erstellen Sie eine Aufgabe\n                    um diese Arbeitsumgebung regelmäßig zu bereinigen. Verwenden Sie den folgenden Button, um die Aufgabe automatisch zu erstellen."
+    "other": "Dieser Workspace nutzt die automatische Bereinigung, um Dokumente zu entfernen, die seit %s Tagen unverändert sind. Erstellen Sie eine Aufgabe um diesen Workspace regelmäßig zu bereinigen. Verwenden Sie den folgenden Button, um die Aufgabe automatisch zu erstellen."
   },
   "ws.57": {
-    "other": "Achtung: Der Inhalt dieser Arbeitsumgebung ist abhängig vom angemeldeten Benutzer. Die Bereinigung wird für jeden Benutzer ausgeführt."
+    "other": "Achtung: Der Inhalt dieses Workspace ist abhängig vom angemeldeten Benutzer. Die Bereinigung wird für jeden Benutzer ausgeführt."
   },
   "ws.58": {
     "other": "Sofort bereinigen"
@@ -1488,25 +1488,25 @@
     "other": "Täglich um 04:00 Uhr ausführen"
   },
   "ws.6": {
-    "other": "Neue Arbeitsumgebung erstellen"
+    "other": "Neuer Workspace"
   },
   "ws.60": {
-    "other": "Arbeitsumgebungs-Ereignisse"
+    "other": "Workspace-Ereignisse"
   },
   "ws.61": {
-    "other": "Benutzer können im Info-Bereich alle Ereignisse der aktuellen Arbeitsumgebung sehen. Sie haben hier die Möglichkeit diese Liste\n                            zu löschen (z.B. für den Livegang nach einer Testphase)."
+    "other": "Die Aktivität des Workspace wird den Benutzern im rechten Bedienfeld angezeigt. Sie können die gesamte Aktivität für diesen Workspace löschen, was z.B. praktisch sein kann, wenn Sie nach einer Testphase, in der Sie einige Tests in diesem Workspace durchgeführt haben, \"live\" in Produktion gehen."
   },
   "ws.62": {
     "other": "Ereignisse löschen"
   },
   "ws.63": {
-    "other": "Dadurch werden alle Ereignisse dieser Arbeitsumgebung gelöscht. Möchten Sie fortfahren?"
+    "other": "Dadurch werden alle Ereignisse dieses Workspace gelöscht. Möchten Sie fortfahren?"
   },
   "ws.64": {
     "other": "%s Ereignisse gelöscht"
   },
   "ws.65": {
-    "other": "Arbeitsumgebung warten"
+    "other": "Workspace warten"
   },
   "ws.66": {
     "other": "Laufende Aufgaben"
@@ -1521,7 +1521,7 @@
     "other": "Template-basierte Workspace"
   },
   "ws.7": {
-    "other": "Neue Vorlage erstellen"
+    "other": "Neue Datenquelle"
   },
   "ws.70": {
     "other": "Driver-basierte Workspace"
@@ -1545,7 +1545,7 @@
     "other": "Pydio fasst alle Ihre Datenquellen in einem Master-Baum zusammen, in dem Sie mithilfe von Workspaces Rechte zuweisen können."
   },
   "ws.8": {
-    "other": "Bestehende Vorlage"
+    "other": "Vorhandene Datenquelle"
   },
   "ws.9": {
     "other": "Datasource Nodes"
@@ -1602,7 +1602,7 @@
     "other": "Workspaces gewähren den Benutzern Zugriff auf Ihre Daten. Sie stellen einen oder mehrere Ordner in Ihren Datenquellen bereit."
   },
   "ws.editor.help.2": {
-    "other": "Es ist wichtig, richtig zu organisieren, wie Daten zu Ihren Benutzern präsentiert werden. Sie können für verschiedene Teile Ihrer Organisation Arbeitsbereiche erstellen (Finanzen, marketing, technische Daten, etc.), auf einer Basis pro Projekt, etc.. Anschließend können Sie Zugriffe auf Workspace auf einer pro-Benutzer zuweisen / pro Rolle / Grundlage pro Gruppe."
+    "other": "Es ist wichtig, richtig zu organisieren, wie Daten zu Ihren Benutzern präsentiert werden. Sie können für verschiedene Teile Ihrer Organisation Workspaces erstellen (Finanzen, marketing, technische Daten, etc.), auf einer Basis pro Projekt, etc.. Anschließend können Sie Zugriffe auf Workspace auf einer pro-Benutzer zuweisen / pro Rolle / Grundlage pro Gruppe."
   },
   "ws.editor.help.delete": {
     "other": "Warnung, gefährliche Operation! Dies ist nicht umkehrbar."
@@ -1629,13 +1629,13 @@
     "other": "Papierkorb überspringen"
   },
   "ws.editor.other.skiprecycle.legend": {
-    "other": "Papierkorb in diesem Arbeitsbereich deaktivieren: Alle Dateien werden dauerhaft gelöscht. Dies gilt nicht für Zellen, die in diesem Arbeitsbereich erstellt wurden. Dateien werden immer in den Arbeitsbereich-Recycling verschoben, um menschliche Fehler zu vermeiden."
+    "other": "Papierkorb in diesem Workspace deaktivieren: Alle Dateien werden dauerhaft gelöscht. Dies gilt nicht für Cells, die in diesem Workspace erstellt wurden. Dateien werden immer in den Workspace-Recycling verschoben, um menschliche Fehler zu vermeiden."
   },
   "ws.editor.other.sync": {
     "other": "Desktop-Synchronisierung zulassen"
   },
   "ws.editor.other.sync.legend": {
-    "other": "Mithilfe der Desktopsynchronisierung können Benutzer ihre Dateien offline auf ihrem Computer synchronisieren. Achtung, diese Funktion wird derzeit nur für persönliche Dateien unterstützt, da geteilte Arbeitsumgebungen zu Konflikten führen können, wenn viele Benutzer Dokumente in demselben Ordner synchronisieren. Für persönliche Dateien können Sie diese Funktion auch mithilfe von Sicherheitsrichtlinien für jede Rolle einzeln aktivieren / deaktivieren."
+    "other": "Mithilfe der Desktopsynchronisierung können Benutzer ihre Dateien offline auf ihrem Computer synchronisieren. Achtung, diese Funktion wird derzeit nur für persönliche Dateien unterstützt, da geteilte Workspaces zu Konflikten führen können, wenn viele Benutzer Dokumente in demselben Ordner synchronisieren. Für persönliche Dateien können Sie diese Funktion auch mithilfe von Sicherheitsrichtlinien für jede Rolle einzeln aktivieren / deaktivieren."
   },
   "ws.editor.other.sync-personal": {
     "other": "(nur persönliche Workspace)"

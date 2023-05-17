@@ -3,10 +3,10 @@
     "other": "Einträge pro Seite"
   },
   "16X16 Icon for representing the template": {
-    "other": "16X16 Pixel großes Symbol der Arbeitsumgebung"
+    "other": "16X16 Pixel großes Symbol der Vorlage"
   },
   "A user-defined description of the content of this workspace": {
-    "other": "Benutzerdefinierte Beschreibung des Inhalts dieser Arbeitsumgebung"
+    "other": "Benutzerdefinierte Beschreibung des Inhalts dieses Workspace"
   },
   "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app": {
     "other": "API-Endpunkt - Ermöglicht den Benutzern die Anmeldung und das Akzeptieren der Nutzungsbedingungen der Anwendung"
@@ -33,13 +33,13 @@
     "other": "Alias"
   },
   "Alias for replacing the generated unique id of the repository": {
-    "other": "Alias, der statt der automatisch generierten Id dieser Arbeitsumgebung angezeigt wird."
+    "other": "Alias, der statt der automatisch generierten ID dieses Workspace angezeigt wird"
   },
   "Allow group administrators to create a repository from this template.": {
-    "other": "Gruppen-Administratoren dürfen anhand dieser Vorlage Arbeitsumgebungen erstellen."
+    "other": "Gruppen-Administratoren dürfen anhand dieser Vorlage Workspace erstellen."
   },
   "Allow non-admin users to create a repository from this template.": {
-    "other": "Benutzer, die über keine Administratorrechte verfügen, dürfen anhand dieser Vorlage eine Arbeitsumgebung erstellen."
+    "other": "Benutzer, die über keine Administratorrechte verfügen, dürfen anhand dieser Vorlage einen Workspace erstellen."
   },
   "Allow the users to pick an existing user when sharing a folder": {
     "other": "Erlaubt den Benutzern bei der Freigabe von Ordnern einen anderen Benutzer auszuwählen"
@@ -72,7 +72,7 @@
     "other": "Großes Symbol"
   },
   "Big Icon for representing the template": {
-    "other": "Großes Symbol der Arbeitsumgebung"
+    "other": "Großes Symbol zur Darstellung der Vorlage"
   },
   "Browser Access": {
     "other": "Zugriff über den Browser"
@@ -87,7 +87,7 @@
     "other": "Client-SECRET"
   },
   "Comma separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver": {
-    "other": "Kommagetrennte Liste mit Metadaten- und Metadatenspeicher-Erweiterungen, die automatisch beim Erstellen einer neuen Arbeitsumgebung hinzugefügt werden, wenn dieser Treiber verwendet wird."
+    "other": "Kommagetrennte Liste mit Metadaten- und Metadatenspeicher-Erweiterungen, die automatisch beim Erstellen eines neuen Workspace hinzugefügt werden, wenn dieser Treiber verwendet wird"
   },
   "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden.": {
     "other": "Kommagetrennte Liste mit Datei-Erweiterungen, die versteckt werden. Der Zugriff auf versteckte Dateien wird ebenfalls verboten."
@@ -213,7 +213,7 @@
     "other": "Bestehende Benutzer"
   },
   "Explicitly disable WebDAV access for this repository.": {
-    "other": "WebDAV-Zugriff für diese Arbeitsumgebung gezielt deaktivieren."
+    "other": "WebDAV-Zugriff für diesen Workspace gezielt deaktivieren."
   },
   "File": {
     "other": "Datei"
@@ -285,7 +285,7 @@
     "other": "Deaktivieren, wenn es Probleme beim Online-Erstellen von ZIP-Dateien oder dem Download mehrerer Dateien gibt."
   },
   "If you have tons of workspaces (which is not recommanded), admin users login can take a long time while updating admin access to all repositories. Use this option to disable this step, admin will always have access to the Settings.": {
-    "other": "Wenn Sie sehr viele Arbeitsbereiche haben (was nicht empfohlen ist), kann die Anmeldung als Administrator sehr lange dauern, da die Rechte aller Arbeitsumgebungen aktualisiert werden. Diese Einstellung deaktiviert die Aktualisierung. Der Administrator hat aber immer Zugriff auf die Einstellungen."
+    "other": "Wenn Sie sehr viele Workspaces haben (was nicht empfohlen ist), kann die Anmeldung als Administrator sehr lange dauern, da die Rechte aller Workspaces aktualisiert werden. Diese Einstellung deaktiviert die Aktualisierung. Der Administrator hat aber immer Zugriff auf die Einstellungen."
   },
   "If your server does not set correctly its charset, it can be good to specify it here manually.": {
     "other": "Wenn der Zeichensatz vom Server nicht korrekt erkannt wurde kann er hier manuell gesetzt werden."
@@ -336,7 +336,7 @@
     "other": "Passwort"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
-    "other": "Standard-Beschreibung der Arbeitsumgebung (Es ist möglich, den Platzhalter 'PYDIO_USER' zu verwenden)."
+    "other": "Standard-Beschreibung des Workspace; es ist möglich, den Platzhalter 'PYDIO_USER' zu verwenden."
   },
   "Public Base URI": {
     "other": "Base-URI für öffentliche Links"
@@ -366,7 +366,7 @@
     "other": "Standard-Spalte für Remote-Sortierung"
   },
   "Repository Commons": {
-    "other": "Arbeitsumgebung Allgemein"
+    "other": "Allgemeine Optionen"
   },
   "Repository Slug": {
     "other": "Repository Slug"
@@ -384,7 +384,7 @@
     "other": "Anmeldeinformationen aus Sitzung"
   },
   "Set this repository group owner : only users of this group will see it": {
-    "other": "Gruppe, der diese Arbeitsumgebung gehört. Nur Benutzer dieser Gruppe können die Arbeitsumgebung sehen."
+    "other": "Gruppe, der diesen Workspace gehört. Nur Benutzer dieser Gruppe können den Workspace sehen"
   },
   "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac).": {
     "other": "Bestimmtes Encoding für Dateinamen verwenden um Probleme beim Erstellen der Zip-Dateien zu vermeiden. (z.B. IBM850 oder CP437) Es ist möglich, inkompatible Archive zu erstellen (Win/Mac). If you still have issue, you can add //TRANSLIT after the encoding string to force transliteration of unknown characters in your target encoding (example CP437//TRANSLIT)."
@@ -423,7 +423,7 @@
     "other": "Nur nötig, wenn es Problem beim (Schreib-)zugriff auf den Tmp-Ordner gibt. Meistens verursacht durch den PHP SAFE MODE (in php6 nicht mehr vorhanden) oder durch verschiedene OPEN_BASEDIR-Einschränkungen. In diesem Fall kann ein eigener tmp-Ordner erstellt (wenn möglich außerhalb von web/, www/ oder http/) und hier eingetragen werden."
   },
   "This right pattern (empty, r, or rw) will be applied at user creation for this repository.": {
-    "other": "Rechte die auf Benutzer angewendet werden, wenn Sie für diesen Arbeitsbereich erstellt werden. (leer, r, oder rw)"
+    "other": "Rechte die auf Benutzer angewendet werden, wenn Sie für diesen Workspace erstellt werden. (leer, r, oder rw)."
   },
   "Token URL": {
     "other": "Token-URL"

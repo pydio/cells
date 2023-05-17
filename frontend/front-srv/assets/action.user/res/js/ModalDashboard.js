@@ -77,7 +77,7 @@ let ModalDashboard = createReactClass({
             textTransform: 'none'
         };
         let tabs = [
-            (<Tab key="account" label={this.props.pydio.MessageHash['user_dash.43']} icon={<FontIcon className="mdi mdi-account"/>} buttonStyle={buttonStyle} value="profile">
+            (<Tab key="account" label={this.props.pydio.MessageHash['user_dash.title']} icon={<FontIcon className="mdi mdi-account"/>} buttonStyle={buttonStyle} value="profile">
                 <ProfilePane {...this.props} ref="profile"/>
             </Tab>)
         ];

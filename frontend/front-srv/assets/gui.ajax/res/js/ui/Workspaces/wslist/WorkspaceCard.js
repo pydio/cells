@@ -21,8 +21,9 @@
 import React from 'react'
 import Pydio from 'pydio'
 import ResourcesManager from 'pydio/http/resources-manager'
-
-const {GenericCard, GenericLine, QuotaUsageLine} = Pydio.requireLib('components');
+import {Avatar, FontIcon} from 'material-ui'
+const {GenericCard, QuotaUsageLine, Mui3CardLine} = Pydio.requireLib('components');
+import {muiThemeable} from 'material-ui/styles'
 
 class WorkspaceCard extends React.Component {
 
@@ -57,26 +58,31 @@ class WorkspaceCard extends React.Component {
 
     render(){
 
-        const {pydio, workspace, onDismiss} = this.props;
+        const {pydio, workspace, onDismiss, muiTheme} = this.props;
         const {rootNodes} = this.state;
         const {ASLib, CALib} = this.state;
         const lines = [];
         let otherActions = [];
 
-        if (workspace.getDescription()) {
-            lines.push(<GenericLine iconClassName="mdi mdi-information" legend={pydio.MessageHash['share_center.145']} data={workspace.getDescription()}/>)
+        let avatarIcon;
+        if(workspace.getRepositoryType() === "workspace-personal") {
+            avatarIcon = "mdi mdi-folder-account"
+        } else {
+            avatarIcon = "mdi mdi-folder"
         }
+
         if(rootNodes && rootNodes.length) {
             rootNodes.forEach((node) => {
                 if(node.getMetadata().get("ws_quota")) {
-                    lines.push(<QuotaUsageLine node={node}/>)
+                    lines.push(<QuotaUsageLine mui3={true} node={node}/>)
                 }
             })
         }
         if(pydio.getPluginConfigs('core.activitystreams').get('ACTIVITY_SHOW_ACTIVITIES') && ASLib && rootNodes){
-            const {WatchSelector} = ASLib
-            const selector = <WatchSelector pydio={pydio} nodes={rootNodes} fullWidth={true}/>;
-            lines.push(<GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} iconStyle={{marginTop:32}} data={selector} dataStyle={{paddingRight: 16}}/>)
+            const {WatchSelector, WatchSelectorMui3} = ASLib
+
+            const selector = muiTheme.userTheme === 'mui3' ? <WatchSelectorMui3 pydio={pydio} nodes={rootNodes}/> : <WatchSelector pydio={pydio} nodes={rootNodes} fullWidth={true}/>;
+            lines.push(<Mui3CardLine legend={pydio.MessageHash['meta.watch.selector.legend'+(muiTheme.userTheme === 'mui3'?'.mui':'')]} iconStyle={{marginTop:32}} data={selector} dataStyle={{marginTop: 6}}/>)
 
         }
         if (CALib && rootNodes){
@@ -90,9 +96,12 @@ class WorkspaceCard extends React.Component {
                 pydio={pydio}
                 title={workspace.getLabel()}
                 onDismissAction={onDismiss}
-                style={{width: 420}}
+                style={{width: 400}}
+                mui3={true}
                 otherActions={otherActions}
+                topLeftAvatar={<Avatar icon={<FontIcon className={avatarIcon}/>} size={38} backgroundColor={"var(--md-sys-color-secondary-container)"} color={"var(--md-sys-color-on-secondary-container)"}/>}
             >
+                {workspace.getDescription() && <Mui3CardLine legend={workspace.getDescription()}/>}
                 {lines}
             </GenericCard>
         );
@@ -102,4 +111,4 @@ class WorkspaceCard extends React.Component {
 
 }
 
-export default WorkspaceCard
+export default muiThemeable()(WorkspaceCard)

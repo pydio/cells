@@ -806,7 +806,6 @@ class MainFilesList extends React.Component {
             near = parseInt(dMode.split('-')[1]);
             dMode = 'grid';
         }
-        let infiniteSliceCount = 50;
         let additionalStyle = {}
 
         if(dMode === 'detail'){
@@ -832,14 +831,6 @@ class MainFilesList extends React.Component {
             };
             if(this.props.horizontalRibbon){
                 className += ' horizontal-ribbon';
-            }
-            // Todo: compute a more real number of elements visible per page.
-            if(near === 320) {
-                infiniteSliceCount = 25;
-            } else if(near === 160) {
-                infiniteSliceCount = 80;
-            } else if(near === 80) {
-                infiniteSliceCount = 200;
             }
 
         } else if(dMode === 'list'){
@@ -984,7 +975,6 @@ class MainFilesList extends React.Component {
                 observeNodeReload={true}
                 className={className}
                 actionBarGroups={["change_main"]}
-                infiniteSliceCount={infiniteSliceCount}
                 skipInternalDataModel={true}
                 style={{...style, ...additionalStyle}}
                 displayMode={dMode}

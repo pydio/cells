@@ -101,6 +101,27 @@
   "tour.workspaces.title": {
     "other": "Workspaces & Cellules"
   },
+  "tour.theme.title": {
+    "other": "Prise en charge du thème clair / foncé"
+  },
+  "tour.theme.legend": {
+    "other": "Choisissez un thème clair ou foncé selon votre convenance."
+  },
+  "tour.left-resize.title": {
+    "other": "Workspaces et Cells"
+  },
+  "tour.left-resize.legend": {
+    "other": "La colonne de gauche peut être dimensionnée ou fermée pour s'adapter à votre écran."
+  },
+  "tour.right-resize.legend": {
+    "other": "La colonne de droite peut également être dimensionnée ou fermée pour s'adapter à votre écran."
+  },
+  "tour.directory.title": {
+    "other": "Répertoire d'utilisateurs"
+  },
+  "tour.directory.legend": {
+    "other": "Gérer les utilisateurs (internes et externes) et les équipes dans un emplacement central."
+  },
   "background.jobs.title": {
     "other": "Tâches de fond"
   },
@@ -120,7 +141,7 @@
     "other": "Échec de l'authentification"
   },
   "oauth.authentication.code": {
-    "other": "You were successfully authenticated. Please copy and paste the code to your command line terminal"
+    "other": "Vous avez été authentifié avec succès. Veuillez copier et coller le code dans votre terminal"
   },
   "oauth.authentication.copy-code": {
     "other": "Copier le code dans votre presse-papiers"
@@ -141,13 +162,13 @@
     "other": "Vignettes"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Larger"
+    "other": "Grande"
   },
   "list.display-mode.thumbs-medium": {
-    "other": "Medium"
+    "other": "Moyenne"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Smaller"
+    "other": "Petite"
   },
   "list.display-mode.masonry": {
     "other": "Galerie d'images"
@@ -168,22 +189,22 @@
     "other": "Tous les fichiers"
   },
   "file.temporary-etag.flag": {
-    "other": "Incomplete"
+    "other": "Partiel"
   },
   "file.temporary-etag.tooltip": {
-    "other": "This file is being uploaded (or the upload has failed)."
+    "other": "Fichier en cours de téléchargement (ou le téléchargement a échoué)."
   },
   "mimegroup.byextension": {
-    "other": "By File Extension..."
+    "other": "Par extension..."
   },
   "mimegroup.word": {
-    "other": "Word documents"
+    "other": "Documents Word"
   },
   "mimegroup.spreadsheet": {
-    "other": "Spreadsheets"
+    "other": "Feuilles de calcul"
   },
   "mimegroup.presentation": {
-    "other": "Presentations"
+    "other": "Présentations"
   },
   "mimegroup.pdf": {
     "other": "PDFs"
@@ -220,5 +241,38 @@
   },
   "fastsearch.quick-copy.legend": {
     "other": "Hit [Enter] to copy %s selected items to target, [Esc] to Close"
+  },
+  "wslist-options.title": {
+    "other": "Display Options"
+  },
+  "wslist-options.show-masked": {
+    "other": "Show masked items"
+  },
+  "wslist.action.mask": {
+    "other": "Mask"
+  },
+  "wslist.action.unmask": {
+    "other": "Unmask"
+  },
+  "wslist-options.merge-workspaces": {
+    "other": "Fusionner les Workspaces et les Cells"
+  },
+  "wslist-options.own-cells-first": {
+    "other": "Cells créées par moi en premier"
+  },
+  "leftrail.buttons.home": {
+    "other": "Accueil"
+  },
+  "leftrail.buttons.directory": {
+    "other": "Annuaire"
+  },
+  "leftrail.buttons.all-files": {
+    "other": "Fichiers"
+  },
+  "leftrail.buttons.theme.light": {
+    "other": "Mode Clair"
+  },
+  "leftrail.buttons.theme.dark": {
+    "other": "Mode Sombre"
   }
 }
