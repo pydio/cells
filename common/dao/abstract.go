@@ -141,7 +141,7 @@ func (h *abstract) Name() string {
 	if u, e := url.Parse(su); e == nil {
 		su = u.Redacted()
 	} else {
-		fmt.Println("cannot parse dao url for naming", e.Error())
+		return "[non-parsable redacted url]"
 	}
 	return su
 }

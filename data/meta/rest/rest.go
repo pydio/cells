@@ -24,6 +24,7 @@ import (
 	"context"
 	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 	"math"
 	"path"
 	"path/filepath"
@@ -154,31 +155,40 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		if e := folderNode.GetMeta(common.MetaFlagChildrenCount, &childrenCount); e == nil && childrenCount > 0 {
 			total = childrenCount
 		}
-		streamer, err := h.GetRouter().ListNodes(ctx, &tree.ListNodesRequest{
+		listRequest := &tree.ListNodesRequest{
 			Node:         folderNode,
 			WithVersions: bulkRequest.Versions,
 			Offset:       int64(bulkRequest.Offset),
 			Limit:        int64(bulkRequest.Limit),
 			SortField:    bulkRequest.SortField,
 			SortDirDesc:  bulkRequest.SortDirDesc,
-		})
-		if err != nil {
-			continue
 		}
-		for {
-			r, er := streamer.Recv()
-			if er != nil {
-				break
+		hasFilter := false
+		for k, v := range bulkRequest.GetFilters() {
+			if k == "type" {
+				switch v {
+				case "LEAF":
+					listRequest.FilterType = tree.NodeType_LEAF
+					hasFilter = true
+					if e := folderNode.GetMeta(common.MetaFlagChildrenFiles, &childrenCount); e == nil && childrenCount > 0 {
+						total = childrenCount
+					}
+				case "COLLECTION":
+					listRequest.FilterType = tree.NodeType_COLLECTION
+					hasFilter = true
+					if e := folderNode.GetMeta(common.MetaFlagChildrenFolders, &childrenCount); e == nil && childrenCount > 0 {
+						total = childrenCount
+					}
+				}
 			}
-			if r == nil {
-				continue
-			}
-			if strings.HasPrefix(path.Base(r.Node.GetPath()), ".") {
-				continue
-			}
-			childrenLoaded++
-			output.Nodes = append(output.Nodes, r.Node.WithoutReservedMetas())
 		}
+		cc, countDiffers, er := h.fillChildren(ctx, listRequest, childrenCount)
+		if er != nil {
+			service.RestErrorDetect(req, resp, er)
+			return
+		}
+		childrenLoaded = int32(len(cc))
+		output.Nodes = append(output.Nodes, cc...)
 
 		if !bulkRequest.Versions {
 			fNode := folderNode.Clone()
@@ -214,6 +224,16 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 			}
 			if crtPage < totalPages {
 				nextOffset = bulkRequest.Offset + pageSize
+			}
+			// If the first page is already smaller than the limit, then do not send pagination data
+			// List may have been filtered out
+			if countDiffers && !hasFilter {
+				if childrenLoaded < bulkRequest.Limit-1 {
+					// Assume it's the last
+					totalPages = crtPage
+				} else {
+					totalPages = -1
+				}
 			}
 			output.Pagination = &rest.Pagination{
 				Limit:         pageSize,
@@ -331,4 +351,48 @@ func (h *Handler) loadNodeByPath(ctx context.Context, nodePath string, loadExten
 		return nil, err
 	}
 	return response.Node, nil
+}
+
+func (h *Handler) fillChildren(ctx context.Context, listRequest *tree.ListNodesRequest, knownCount int32) ([]*tree.Node, bool, error) {
+
+	var oo []*tree.Node
+	var countDiffers bool
+	offset := listRequest.Offset
+	limit := listRequest.Limit
+	lr := proto.Clone(listRequest).(*tree.ListNodesRequest)
+
+	for {
+
+		log.Logger(ctx).Debug("Listing", zap.Int64("offset", offset), zap.Int64("limit", limit))
+		lr.Offset = offset
+		lr.Limit = limit
+		streamer, err := h.GetRouter().ListNodes(ctx, lr)
+		if err != nil {
+			return oo, countDiffers, err
+		}
+		for {
+			r, er := streamer.Recv()
+			if er != nil {
+				break
+			}
+			if r == nil {
+				continue
+			}
+			if strings.HasPrefix(path.Base(r.Node.GetPath()), ".") {
+				continue
+			}
+			oo = append(oo, r.Node.WithoutReservedMetas())
+		}
+		if len(oo) >= int(limit) { // limit is reached, break
+			break
+		}
+		if offset+limit >= int64(knownCount) { // This is last page, break
+			break
+		}
+		offset += limit
+		countDiffers = true
+	}
+
+	return oo, countDiffers, nil
+
 }

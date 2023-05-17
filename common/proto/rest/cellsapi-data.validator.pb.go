@@ -7,8 +7,8 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "google.golang.org/protobuf/proto"
-	_ "github.com/pydio/cells/v4/common/proto/docstore"
 	_ "github.com/pydio/cells/v4/common/proto/tree"
+	_ "github.com/pydio/cells/v4/common/proto/docstore"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
@@ -54,6 +54,7 @@ func (this *MetaNamespaceRequest) Validate() error {
 	return nil
 }
 func (this *GetBulkMetaRequest) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *BulkMetaResponse) Validate() error {

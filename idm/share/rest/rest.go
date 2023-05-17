@@ -221,7 +221,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 
 	output, er := h.sc.UpsertLink(ctx, link, &putRequest, ownerUser, parentPolicy, pluginOptions)
 	if er != nil {
-		service.RestError500(req, rsp, e)
+		service.RestErrorDetect(req, rsp, er)
 	} else {
 		_ = rsp.WriteEntity(output)
 	}

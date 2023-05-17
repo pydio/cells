@@ -334,8 +334,15 @@ func (u *User) publishWorkspaces(status RequestStatus, pool *PluginsPool) (works
 
 	// Used to detect "personal files"-like workspace
 	vNodeManager := abstract.GetVirtualNodesManager(status.RuntimeCtx)
+	var skipReserved bool
+	if status.Request != nil {
+		skipReserved = strings.Contains(status.Request.Header.Get("User-Agent"), "com.pydio.PydioPro;")
+	}
 
 	for _, ws := range u.Workspaces {
+		if _, ok := common.IdmWsInternalReservedSlugs[ws.UUID]; ok && skipReserved {
+			continue
+		}
 		repo := &Crepo{
 			Attrid:             ws.UUID,
 			Attraccess_type:    ws.AccessType,
