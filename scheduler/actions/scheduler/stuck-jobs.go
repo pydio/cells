@@ -74,9 +74,9 @@ func (c *PruneJobsAction) GetParametersForm() *forms.Form {
 				&forms.FormField{
 					Name:        "maxRunningTime",
 					Type:        forms.ParamInteger,
-					Label:       "Maximum running time per task",
-					Description: "Clean tasks that have been running for more than ... (minutes)",
-					Default:     60 * 10,
+					Label:       "Maximum running time per task (in seconds)",
+					Description: "Clean tasks that have been running for more than ... (seconds)",
+					Default:     60 * 60,
 				},
 			},
 		},
@@ -98,7 +98,7 @@ func (c *PruneJobsAction) Init(job *jobs.Job, action *jobs.Action) error {
 	if n, o := action.Parameters["maxRunningTime"]; o {
 		c.maxRunningTime = n
 	} else {
-		c.maxRunningTime = "600"
+		c.maxRunningTime = "3600"
 	}
 	return nil
 }
@@ -111,8 +111,8 @@ func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableCha
 		return input.WithError(e), e
 	}
 	maxRunningTime, e := jobs.EvaluateFieldInt(ctx, input, c.maxRunningTime)
-	if e != nil {
-		maxRunningTime = 600
+	if e != nil || maxRunningTime == 0 {
+		maxRunningTime = 3600
 	}
 
 	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceJobs))

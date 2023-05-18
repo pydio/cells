@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"math"
 	"strings"
 	"sync"
@@ -544,6 +545,17 @@ func (j *JobsHandler) cleanStuckByStatus(ctx context.Context, serverStart bool, 
 
 	tcli := proto.NewTaskServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTasks))
 	shouldRetry := false
+	var currentTaskID string
+	if mm, ok := metadata.FromContextRead(ctx); ok {
+		currentTaskID = mm[servicecontext.ContextMetaTaskUuid]
+	}
+	if !isRetry {
+		if len(duration) > 0 {
+			logger.Info("Clean tasks with status " + status.String() + " and check duration " + duration[0].String())
+		} else {
+			logger.Info("Clean tasks with status " + status.String())
+		}
+	}
 
 	var fixedTasks []*proto.Task
 	res, done, err := j.store.ListTasks("", status)
@@ -556,33 +568,54 @@ func (j *JobsHandler) cleanStuckByStatus(ctx context.Context, serverStart bool, 
 
 		case <-done:
 			for _, t := range fixedTasks {
-				logger.Info("Setting task " + t.ID + " in error status as it was saved as running")
 				_ = j.store.PutTask(t)
 			}
 			return fixedTasks, shouldRetry, nil
 
 		case t := <-res:
-			// Check if Job should in fact be restarted
-			var autoRestartJob *proto.Job
-			if job, e := j.store.GetJob(t.JobID, proto.TaskStatus_Unknown); e == nil && job.AutoRestart {
-				autoRestartJob = job
-			}
-			if serverStart && autoRestartJob != nil {
-				logger.Warn("Should now restart " + autoRestartJob.Label)
-				// Mark as complete, not Error
-				t.Status = proto.TaskStatus_Interrupted
-				t.StatusMessage = "Task restarted"
-				t.EndTime = int32(time.Now().Unix())
-				fixedTasks = append(fixedTasks, t)
+
+			// Ignore if current task is in fact this task !
+			if t.ID == currentTaskID {
+				logger.Info("Ignore my own task!")
 				break
 			}
-			if autoRestartJob != nil && !serverStart {
-				// do not kill running task !
-				logger.Info("Ignoring running task for " + autoRestartJob.Label + " as it is not stuck ")
+
+			// Load corresponding job
+			job, e := j.store.GetJob(t.JobID, proto.TaskStatus_Unknown)
+			if e != nil {
 				break
 			}
+
+			// AutoRestart Jobs Case
+			if job.AutoRestart {
+				if serverStart {
+					logger.Warn("Should now restart " + job.Label)
+					// Mark as complete, not Error
+					t.Status = proto.TaskStatus_Interrupted
+					t.StatusMessage = "Task restarted"
+					t.EndTime = int32(time.Now().Unix())
+					fixedTasks = append(fixedTasks, t)
+				} else {
+					logger.Info("Ignoring running task for " + job.Label + " as it is not stuck ")
+				}
+				break
+			}
+
+			var runningTimeOvertime bool
+			if status == proto.TaskStatus_Running && !serverStart {
+				if len(duration) > 0 && t.StartTime > 0 && job.Timeout == "" {
+					check := duration[0]
+					startTime := time.Unix(int64(t.StartTime), 0)
+					runningTimeOvertime = time.Since(startTime) > check
+				}
+				if !runningTimeOvertime {
+					break
+				}
+			}
+
 			// Send a stop signal to kill the task and flag a retry is required
-			if !serverStart && !isRetry {
+			if !serverStart && !isRetry && runningTimeOvertime {
+				logger.Info("Kill task for job " + job.Label + " as it is running for more than " + duration[0].String() + " (no timeout set)")
 				_, e := tcli.Control(ctx, &proto.CtrlCommand{
 					Cmd:    proto.Command_Stop,
 					JobId:  t.JobID,
@@ -598,15 +631,8 @@ func (j *JobsHandler) cleanStuckByStatus(ctx context.Context, serverStart bool, 
 			t.Status = proto.TaskStatus_Error
 			t.StatusMessage = "Task stuck"
 			t.EndTime = int32(time.Now().Unix())
-			if len(duration) > 0 && t.StartTime > 0 {
-				check := duration[0]
-				startTime := time.Unix(int64(t.StartTime), 0)
-				if time.Since(startTime) > check {
-					fixedTasks = append(fixedTasks, t)
-				}
-			} else {
-				fixedTasks = append(fixedTasks, t)
-			}
+			logger.Info("Setting task " + job.Label + "/" + t.ID + " in error status as it was saved as running")
+			fixedTasks = append(fixedTasks, t)
 		}
 	}
 
