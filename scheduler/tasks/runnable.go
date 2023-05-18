@@ -51,12 +51,14 @@ type Runnable struct {
 	selfCollector  *collector
 }
 
-func itemTimeout(to string) (time.Duration, bool) {
+func itemTimeout(ctx context.Context, to string) (time.Duration, bool) {
 	if to == "" {
 		return 0, false
 	}
 	if d, e := time.ParseDuration(to); e == nil {
 		return d, true
+	} else {
+		log.TasksLogger(ctx).Warn("Cannot parse timeout " + to + ", must be a golang duration.")
 	}
 	return 0, false
 }
@@ -279,7 +281,7 @@ func (r *Runnable) RunAction(queue chan RunnerFunc) {
 		outputMessage = proto.Clone(r.Message).(*jobs.ActionMessage)
 	} else {
 		runCtx := r.Context
-		if d, o := itemTimeout(r.Action.Timeout); o {
+		if d, o := itemTimeout(r.Context, r.Action.Timeout); o {
 			var can context.CancelFunc
 			runCtx, can = context.WithTimeout(runCtx, d)
 			defer can()
