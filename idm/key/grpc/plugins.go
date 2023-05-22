@@ -26,11 +26,9 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/idm/key"
 )
 
@@ -38,17 +36,15 @@ const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceUserKey
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		service.NewService(
+		var s service.Service
+		s = service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Encryption Keys server"),
 			service.WithStorage(key.NewDAO, service.WithStoragePrefix("idm_key")),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-				dao := servicecontext.GetDAO(ctx).(key.DAO)
-				keyring := servicecontext.GetKeyring(ctx).(crypto.Keyring)
-
-				h, e := NewUserKeyStore(ctx, dao, keyring)
+				h, e := NewUserKeyStore(ctx, s)
 				if e != nil {
 					return e
 				}

@@ -23,7 +23,6 @@ package grpc
 import (
 	"context"
 
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
@@ -31,11 +30,12 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/service/resources"
+	sqlresources "github.com/pydio/cells/v4/common/sql/resources"
 )
 
-func NewCleaner(ctx context.Context, handler idm.RoleServiceServer) *Cleaner {
+func NewCleaner(ctx context.Context, handler idm.RoleServiceServer, dao func(context.Context) sqlresources.DAO) *Cleaner {
 	c := &Cleaner{}
-	c.Dao = servicecontext.GetDAO(ctx)
+	c.DAO = dao
 	c.LogCtx = ctx
 	c.handler = handler
 	c.Options = resources.PoliciesCleanerOptions{SubscribeUsers: true}

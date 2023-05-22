@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/crypto"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 type AbstractHandler[T any] struct {
@@ -20,4 +22,8 @@ func (a *AbstractHandler[T]) Name() string {
 
 func (a *AbstractHandler[T]) DAO(ctx context.Context) T {
 	return DAOFromContext[T](a.svc)(ctx)
+}
+
+func (a *AbstractHandler[T]) Keyring(ctx context.Context) crypto.Keyring {
+	return servicecontext.GetKeyring(ctx)
 }

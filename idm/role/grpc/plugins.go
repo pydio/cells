@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/sql/resources"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -65,7 +66,7 @@ func init() {
 				idm.RegisterRoleServiceEnhancedServer(server, handler)
 
 				// Clean role on user deletion
-				cleaner := NewCleaner(ctx, handler)
+				cleaner := NewCleaner(ctx, handler, service.DAOFromContext[resources.DAO](s))
 				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					ic := &idm.ChangeEvent{}
 					if e := message.Unmarshal(ic); e == nil {
