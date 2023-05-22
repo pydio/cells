@@ -46,7 +46,9 @@ var (
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		service.NewService(
+		var s service.Service
+
+		s = service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
@@ -65,7 +67,7 @@ func init() {
 			}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
-				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(meta.DAO))
+				handler := NewHandler(ctx, s)
 				idm.RegisterUserMetaServiceEnhancedServer(server, handler)
 				tree.RegisterNodeProviderStreamerEnhancedServer(server, handler)
 
