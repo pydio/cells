@@ -1,11 +1,15 @@
-# Changes between v4.1.1 and v4.1.2
+# Changes between v4.2.0 and v4.2.1
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.1.1...v4.1.2)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.0...v4.2.1)
 
-- [#e6d334a](https://github.com/pydio/cells/commit/e6d334a4ca777a5b10d1bb63aff3c1d943a0c05d): New message + DE/FR translations
-- [#98023c5](https://github.com/pydio/cells/commit/98023c5c84bc72a1ede243cd2eca5bdc94980ea4): New message + DE/FR translations
-- [#fcabbd1](https://github.com/pydio/cells/commit/fcabbd1e793ddeca36e71f9de0588c85c2d66c81): Add parameter for DisableCSSInlining
-- [#22dfc23](https://github.com/pydio/cells/commit/22dfc23c977616a94e4d2ce407fc42e8d5bb01f4): Update bluemonday (1.0.20 retracted)
-- [#e6d9403](https://github.com/pydio/cells/commit/e6d94036d43c462c35e997a10dcf777a9f18a4fb): Disable inline CSS in certain email content - Fix issue with Outlook on Win10 #459
-- [#48042c4](https://github.com/pydio/cells/commit/48042c48c2ad46b12f4374d7c56c281dc70fb814): Fix links
-- [#c288305](https://github.com/pydio/cells/commit/c288305a2462e52e4bf9eeeb83aca4a2972e549f): Next development cycle
+- [#bc8f565](https://github.com/pydio/cells/commit/bc8f56583e018f1440317b03ab63f1cd65f98385): Show a warning if job or action Timeout is not a golang Duration. Fix cleaning job for not killing running tasks without reason!
+- [#6f20a06](https://github.com/pydio/cells/commit/6f20a06a2fef71636d67e19b9677a0ad5f15b8f2): New binary tool cells-fuse to mount a flat datasource snapshot
+- [#4aaf691](https://github.com/pydio/cells/commit/4aaf691a931b841ba8781cc3b939555bf6915a19): Merge remote-tracking branch 'origin/main'
+- [#dc79fd0](https://github.com/pydio/cells/commit/dc79fd011d9297717c987bbdb4227498dcaf27e9): Remove false warning log about boolean format
+- [#9434525](https://github.com/pydio/cells/commit/94345258b5cdfa2eb278f1a04519836a591aed1d): Release v4.2.1-rc1
+- [#a5f6250](https://github.com/pydio/cells/commit/a5f6250f4abea17f01b91d076309f0f2cf02652c): role : apply previous changes as migration
+- [#6c61782](https://github.com/pydio/cells/commit/6c61782847e48dafbe451bc8f3c423cf9c64fcd5): Merge remote-tracking branch 'origin/main'
+- [#d7e5526](https://github.com/pydio/cells/commit/d7e55263bfcd92b34fa85da6f50bda2053f86969): New UX Glitches - Factorize SharedUserBadge.js component for using in Chat, fix watch button outline color, definitely remove editor.browser that was disabled anyway, hide refresh button in Breadcrumb for share minisite.
+- [#04a9089](https://github.com/pydio/cells/commit/04a908997139f20b6fb3236d162020ba8fb504a2): Create StreamPolicies endpoint and use it instead of List to avoid grpc message bottleneck when tons of policies are created.
+- [#e66f7ff](https://github.com/pydio/cells/commit/e66f7ff74a494a8df0b95c8dc0a00e8418e6d460): Create Security Policy
+- [#c6a7a46](https://github.com/pydio/cells/commit/c6a7a464088a2f8df5eafb2c2e3c9d3ce2b60ecf): Next development cycle
