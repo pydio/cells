@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/service"
 	"path"
 	"sort"
 	"strings"
@@ -39,7 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
-	service "github.com/pydio/cells/v4/common/proto/service"
+	pbservice "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -53,9 +54,9 @@ import (
 )
 
 var (
-	defaultPolicies = []*service.ResourcePolicy{
-		{Subject: "profile:standard", Action: service.ResourcePolicyAction_READ, Effect: service.ResourcePolicy_allow},
-		{Subject: "profile:admin", Action: service.ResourcePolicyAction_WRITE, Effect: service.ResourcePolicy_allow},
+	defaultPolicies = []*pbservice.ResourcePolicy{
+		{Subject: "profile:standard", Action: pbservice.ResourcePolicyAction_READ, Effect: pbservice.ResourcePolicy_allow},
+		{Subject: "profile:admin", Action: pbservice.ResourcePolicyAction_WRITE, Effect: pbservice.ResourcePolicy_allow},
 	}
 	autoAppliesCache cache.Cache
 )
@@ -71,21 +72,18 @@ func (a ByOverride) Less(i, j int) bool { return !a[i].ForceOverride && a[j].For
 type Handler struct {
 	ctx context.Context
 	idm.UnimplementedUserServiceServer
-	dao func(ctx context.Context) user.DAO
+
+	*service.AbstractHandler[user.DAO]
 }
 
-func NewHandler(ctx context.Context, dao func(ctx context.Context) user.DAO) idm.UserServiceServer {
-	return &Handler{ctx: ctx, dao: dao}
-}
-
-func (h *Handler) Name() string {
-	return ServiceName
+func NewHandler(ctx context.Context, svc service.Service) idm.UserServiceServer {
+	return &Handler{ctx: ctx, AbstractHandler: service.NewAbstractHandler[user.DAO](svc)}
 }
 
 // BindUser binds a user with login/password
 func (h *Handler) BindUser(ctx context.Context, req *idm.BindUserRequest) (*idm.BindUserResponse, error) {
 
-	u, err := h.dao(ctx).Bind(req.UserName, req.Password)
+	u, err := h.DAO(ctx).Bind(req.UserName, req.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +100,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 
 	passChange := req.User.Password
 	// Create or update user
-	newUser, createdNodes, err := h.dao(ctx).Add(req.User)
+	newUser, createdNodes, err := h.DAO(ctx).Add(req.User)
 	if err != nil {
 		log.Logger(ctx).Error("cannot put user "+req.User.Login, req.User.ZapUuid(), zap.Error(err))
 		return nil, err
@@ -132,7 +130,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 			}
 			marsh, _ := json.Marshal(newLocks)
 			out.Attributes["locks"] = string(marsh)
-			if _, _, e := h.dao(ctx).Add(out); e == nil {
+			if _, _, e := h.DAO(ctx).Add(out); e == nil {
 				log.Logger(ctx).Info("user "+req.User.Login+" successfully updated his password", req.User.ZapUuid())
 			}
 		}
@@ -140,27 +138,27 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 	out.Password = ""
 	resp.User = out
 	if len(req.User.Policies) == 0 {
-		var userPolicies []*service.ResourcePolicy
+		var userPolicies []*pbservice.ResourcePolicy
 		userPolicies = append(userPolicies, defaultPolicies...)
 		if !req.User.IsGroup {
 			// A user must be able to edit his own profile!
-			userPolicies = append(userPolicies, &service.ResourcePolicy{
+			userPolicies = append(userPolicies, &pbservice.ResourcePolicy{
 				Subject: "user:" + out.Login,
-				Action:  service.ResourcePolicyAction_WRITE,
-				Effect:  service.ResourcePolicy_allow,
+				Action:  pbservice.ResourcePolicyAction_WRITE,
+				Effect:  pbservice.ResourcePolicy_allow,
 			})
 		}
 		req.User.Policies = userPolicies
 	}
 	log.Logger(ctx).Debug("ADDING POLICIES NOW", zap.Int("p length", len(req.User.Policies)), zap.Int("createdNodes length", len(createdNodes)))
-	if err := h.dao(ctx).AddPolicies(len(createdNodes) == 0, out.Uuid, req.User.Policies); err != nil {
+	if err := h.DAO(ctx).AddPolicies(len(createdNodes) == 0, out.Uuid, req.User.Policies); err != nil {
 		return nil, err
 	}
 	for _, g := range createdNodes {
 		if g.Uuid != out.Uuid && g.Type == tree.NodeType_COLLECTION {
 			// Groups where created in the process, add default policies on them
 			log.Logger(ctx).Info("Setting Default Policies on groups that were created automatically", zap.Any("groupPath", g.Path))
-			if err := h.dao(ctx).AddPolicies(false, g.Uuid, defaultPolicies); err != nil {
+			if err := h.DAO(ctx).AddPolicies(false, g.Uuid, defaultPolicies); err != nil {
 				return nil, err
 			}
 		}
@@ -246,7 +244,7 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest) (*
 		defer autoClient.Stop()
 	}
 
-	i, err := h.dao(ctx).Count(req.Query, true)
+	i, err := h.DAO(ctx).Count(req.Query, true)
 	if err != nil {
 		return nil, err
 	}
@@ -264,17 +262,17 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest) (*
 					continue
 				}
 
-				if pp, er := h.dao(ctx).GetPoliciesForResource(deleted.Uuid); er == nil {
+				if pp, er := h.DAO(ctx).GetPoliciesForResource(deleted.Uuid); er == nil {
 					deleted.Policies = pp
 				} else {
 					log.Logger(ctx).Warn("cannot load policies on user deletion", zap.Error(er))
 				}
 
-				_ = h.dao(ctx).DeletePoliciesForResource(deleted.Uuid)
+				_ = h.DAO(ctx).DeletePoliciesForResource(deleted.Uuid)
 				if deleted.IsGroup {
-					_ = h.dao(ctx).DeletePoliciesBySubject(fmt.Sprintf("role:%s", deleted.Uuid))
+					_ = h.DAO(ctx).DeletePoliciesBySubject(fmt.Sprintf("role:%s", deleted.Uuid))
 				} else {
-					_ = h.dao(ctx).DeletePoliciesBySubject(fmt.Sprintf("user:%s", deleted.Uuid))
+					_ = h.DAO(ctx).DeletePoliciesBySubject(fmt.Sprintf("user:%s", deleted.Uuid))
 				}
 
 				// Propagate deletion event
@@ -313,7 +311,7 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest) (*
 		}
 	}()
 
-	numRows, err := h.dao(ctx).Del(req.Query, usersChan)
+	numRows, err := h.DAO(ctx).Del(req.Query, usersChan)
 	close(done)
 	close(usersChan)
 	if err != nil {
@@ -344,7 +342,7 @@ func (h *Handler) SearchUser(request *idm.SearchUserRequest, response idm.UserSe
 	}
 
 	usersGroups := new([]interface{})
-	if err := h.dao(ctx).Search(request.Query, usersGroups); err != nil {
+	if err := h.DAO(ctx).Search(request.Query, usersGroups); err != nil {
 		return err
 	}
 
@@ -352,7 +350,7 @@ func (h *Handler) SearchUser(request *idm.SearchUserRequest, response idm.UserSe
 	for _, in := range *usersGroups {
 		if usr, ok := in.(*idm.User); ok {
 			usr.Password = ""
-			if usr.Policies, e = h.dao(ctx).GetPoliciesForResource(usr.Uuid); e != nil {
+			if usr.Policies, e = h.DAO(ctx).GetPoliciesForResource(usr.Uuid); e != nil {
 				log.Logger(ctx).Error("cannot load policies for user "+usr.Uuid, zap.Error(e))
 				continue
 			}
@@ -369,7 +367,7 @@ func (h *Handler) SearchUser(request *idm.SearchUserRequest, response idm.UserSe
 // CountUser in database
 func (h *Handler) CountUser(ctx context.Context, request *idm.SearchUserRequest) (*idm.CountUserResponse, error) {
 
-	total, err := h.dao(ctx).Count(request.Query)
+	total, err := h.DAO(ctx).Count(request.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -394,7 +392,7 @@ func (h *Handler) StreamUser(streamer idm.UserService_StreamUserServer) error {
 		}
 
 		users := new([]interface{})
-		if err := h.dao(ctx).Search(incoming.Query, users); err != nil {
+		if err := h.DAO(ctx).Search(incoming.Query, users); err != nil {
 			return err
 		}
 
@@ -478,7 +476,7 @@ func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[str
 	autoApplies = make(map[string][]*idm.Role)
 	roleCli := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceRole))
 	q, _ := anypb.New(&idm.RoleSingleQuery{HasAutoApply: true})
-	stream, e := roleCli.SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
+	stream, e := roleCli.SearchRole(ctx, &idm.SearchRoleRequest{Query: &pbservice.Query{SubQueries: []*anypb.Any{q}}})
 	if e != nil {
 		return autoApplies, e
 	}

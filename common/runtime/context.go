@@ -22,6 +22,7 @@ package runtime
 
 import (
 	"context"
+	"reflect"
 )
 
 type ContextInjector func(ctx, parent context.Context) context.Context
@@ -41,4 +42,14 @@ func ForkContext(ctx, parent context.Context) context.Context {
 		ctx = i(ctx, parent)
 	}
 	return ctx
+}
+
+// With returns a context which knows its service
+func With[T any](ctx context.Context, t *T) context.Context {
+	return context.WithValue(ctx, reflect.TypeOf((*T)(nil)), t)
+}
+
+func Get[T any](ctx context.Context) *T {
+	v, _ := ctx.Value(reflect.TypeOf((*T)(nil))).(*T)
+	return v
 }

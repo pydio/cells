@@ -580,7 +580,6 @@ func init() {
 	StartCmd.Flags().String("file", "", "Name for the file")
 
 	StartCmd.Flags().String(runtime.KeyName, "default", "Name for the node")
-	StartCmd.Flags().String(runtime.KeyCluster, "default", "Name of the cluster for the node")
 	StartCmd.Flags().StringArrayP(runtime.KeyArgTags, "t", []string{}, "Select services to start by tags, possible values are 'broker', 'data', 'datasource', 'discovery', 'frontend', 'gateway', 'idm', 'scheduler'")
 	StartCmd.Flags().StringArrayP(runtime.KeyArgExclude, "x", []string{}, "Select services to start by filtering out some specific ones by name")
 

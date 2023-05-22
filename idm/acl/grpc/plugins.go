@@ -23,21 +23,19 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
+	commonsql "github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/idm/acl"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/dao/mysql"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/idm/acl"
 )
 
 var ServiceName = common.ServiceGrpcNamespace_ + common.ServiceAcl
@@ -47,29 +45,18 @@ func init() {
 	runtime.Register("main", func(ctx context.Context) {
 		var s service.Service
 
-		getDAO := func(ctx context.Context) acl.DAO {
-			var c dao.DAO
-			if cfgFromCtx := servercontext.GetConfig(ctx); cfgFromCtx != nil {
-				driver, dsn, _ := config.GetStorageDriver(cfgFromCtx, "storage", ServiceName)
-
-				c, _ = dao.InitDAO(ctx, driver, dsn, "idm_acl", acl.NewDAO, cfgFromCtx.Val("services", ServiceName))
-
-				service.UpdateServiceVersion(servicecontext.WithDAO(ctx, c), cfgFromCtx, s.Options())
-			} else {
-				c = servicecontext.GetDAO(s.Options().Context)
-			}
-
-			return c.(acl.DAO)
-		}
-
 		s = service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Access Control List service"),
-			service.WithStorage(acl.NewDAO,
+			//service.WithStorage(acl.NewDAO,
+			//	service.WithStoragePrefix("idm_acl"),
+			//	service.WithStorageSupport(mysql.Driver, sqlite.Driver),
+			//),
+			service.WithTODOStorage(acl.NewDAO, commonsql.NewDAO,
 				service.WithStoragePrefix("idm_acl"),
-				service.WithStorageSupport(mysql.Driver),
+				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
 			),
 			service.Migrations([]*service.Migration{
 				{
@@ -79,7 +66,7 @@ func init() {
 			}),
 			service.Metadata(meta.ServiceMetaProvider, "stream"),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-				handler := NewHandler(ctx, getDAO)
+				handler := NewHandler(ctx, s)
 
 				idm.RegisterACLServiceEnhancedServer(server, handler)
 				tree.RegisterNodeProviderStreamerEnhancedServer(server, handler)

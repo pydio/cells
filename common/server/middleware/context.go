@@ -23,16 +23,17 @@ package middleware
 import (
 	"context"
 	"github.com/pydio/cells/v4/common"
+	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/ckeys"
 	metadata2 "github.com/pydio/cells/v4/common/service/context/metadata"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"strings"
-
-	servercontext "github.com/pydio/cells/v4/common/server/context"
 
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 )
@@ -85,7 +86,24 @@ func setContextForTenant(ctx context.Context) context.Context {
 
 	cc, ok := clientConns[tenant]
 	if !ok {
-		cc, _ = grpc.Dial("xds://"+tenant+".cells.com/cells", grpc.WithTransportCredentials(insecure.NewCredentials()))
+		cc, _ = grpc.Dial("xds://"+tenant+".cells.com/cells",
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			// grpc.WithConnectParams(grpc.ConnectParams{MinConnectTimeout: 1 * time.Minute, Backoff: backoffConfig}),
+			grpc.WithChainUnaryInterceptor(
+				clientgrpc.ErrorNoMatchedRouteRetryUnaryClientInterceptor(),
+				clientgrpc.ErrorFormatUnaryClientInterceptor(),
+				servicecontext.SpanUnaryClientInterceptor(),
+				clientgrpc.MetaUnaryClientInterceptor(),
+				otelgrpc.UnaryClientInterceptor(),
+			),
+			grpc.WithChainStreamInterceptor(
+				clientgrpc.ErrorNoMatchedRouteRetryStreamClientInterceptor(),
+				clientgrpc.ErrorFormatStreamClientInterceptor(),
+				servicecontext.SpanStreamClientInterceptor(),
+				clientgrpc.MetaStreamClientInterceptor(),
+				otelgrpc.StreamClientInterceptor(),
+			),
+		)
 		clientConns[tenant] = cc
 	}
 	ctx = clientcontext.WithClientConn(ctx, cc)

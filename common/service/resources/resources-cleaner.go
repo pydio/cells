@@ -26,7 +26,6 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql/resources"
@@ -38,7 +37,8 @@ type PoliciesCleanerOptions struct {
 }
 
 type PoliciesCleaner struct {
-	Dao     dao.DAO
+	DAO func(context.Context) resources.DAO
+
 	Options PoliciesCleanerOptions
 	LogCtx  context.Context
 }
@@ -64,7 +64,7 @@ func (c *PoliciesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) erro
 
 	if len(subject) > 0 {
 		log.Logger(c.LogCtx).Debug("DELETING POLICIES ON EVENT", zap.Any("event", msg), zap.String("subject", subject))
-		dao := c.Dao.(resources.DAO)
+		dao := c.DAO(ctx)
 		return dao.DeletePoliciesBySubject(subject)
 	}
 	return nil

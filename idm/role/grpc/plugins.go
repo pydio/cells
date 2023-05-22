@@ -27,13 +27,9 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/idm/role"
 )
 
@@ -41,22 +37,7 @@ const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceRole
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-
 		var s service.Service
-		getDAO := func(ctx context.Context) role.DAO {
-			var c dao.DAO
-			if cfgFromCtx := servercontext.GetConfig(ctx); cfgFromCtx != nil {
-				driver, dsn, _ := config.GetStorageDriver(cfgFromCtx, "storage", ServiceName)
-
-				c, _ = dao.InitDAO(ctx, driver, dsn, "idm_role", role.NewDAO, cfgFromCtx.Val("services", ServiceName))
-
-				service.UpdateServiceVersion(servicecontext.WithDAO(ctx, c), cfgFromCtx, s.Options())
-			} else {
-				c = servicecontext.GetDAO(s.Options().Context)
-			}
-
-			return c.(role.DAO)
-		}
 
 		s = service.NewService(
 			service.Name(ServiceName),
@@ -80,7 +61,7 @@ func init() {
 			}),
 			service.WithStorage(role.NewDAO, service.WithStoragePrefix("idm_role")),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-				handler := NewHandler(ctx, getDAO)
+				handler := NewHandler(ctx, s)
 				idm.RegisterRoleServiceEnhancedServer(server, handler)
 
 				// Clean role on user deletion

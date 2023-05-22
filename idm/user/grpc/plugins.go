@@ -24,8 +24,10 @@ package grpc
 import (
 	"context"
 	"encoding/base64"
-	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
+	commonsql "github.com/pydio/cells/v4/common/sql"
 	"os"
 	"strings"
 
@@ -34,7 +36,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
@@ -61,22 +62,6 @@ func init() {
 	runtime.Register("main", func(ctx context.Context) {
 		var s service.Service
 
-		getDAO := func(ctx context.Context) user.DAO {
-			var c dao.DAO
-
-			if cfgFromCtx := servercontext.GetConfig(ctx); cfgFromCtx != nil {
-				driver, dsn, _ := config.GetStorageDriver(cfgFromCtx, "storage", ServiceName)
-
-				c, _ = dao.InitDAO(ctx, driver, dsn, "idm_user", user.NewDAO, cfgFromCtx.Val("services", ServiceName))
-
-				service.UpdateServiceVersion(servicecontext.WithDAO(ctx, c), cfgFromCtx, s.Options())
-			} else {
-				c = servicecontext.GetDAO(s.Options().Context)
-			}
-
-			return c.(user.DAO)
-		}
-
 		s = service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
@@ -88,13 +73,17 @@ func init() {
 					Up:            InitDefaults,
 				},
 			}),
-			service.WithStorage(user.NewDAO, service.WithStoragePrefix("idm_user")),
+			// service.WithStorage(user.NewDAO, service.WithStoragePrefix("idm_user")),
+			service.WithTODOStorage(user.NewDAO, commonsql.NewDAO,
+				service.WithStoragePrefix("idm_user"),
+				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
+			),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
-				idm.RegisterUserServiceEnhancedServer(server, NewHandler(ctx, getDAO))
+				idm.RegisterUserServiceEnhancedServer(server, NewHandler(ctx, s))
 
 				// Register a cleaner for removing a workspace when there are no more ACLs on it.
-				cleaner := &RolesCleaner{Dao: getDAO}
+				cleaner := &RolesCleaner{Dao: service.DAOFromContext[user.DAO](s)}
 				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					ev := &idm.ChangeEvent{}
 					if e := message.Unmarshal(ev); e == nil {

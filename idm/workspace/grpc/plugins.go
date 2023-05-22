@@ -31,8 +31,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/resources"
+	sqlresources "github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/idm/workspace"
 )
 
@@ -42,7 +42,8 @@ const (
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		service.NewService(
+		var s service.Service
+		s = service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
@@ -50,13 +51,13 @@ func init() {
 			service.WithStorage(workspace.NewDAO, service.WithStoragePrefix("idm_workspace")),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
-				h := NewHandler(ctx, servicecontext.GetDAO(ctx).(workspace.DAO))
+				h := NewHandler(ctx, s)
 				idm.RegisterWorkspaceServiceEnhancedServer(server, h)
 
 				// Register a cleaner for removing a workspace when there are no more ACLs on it.
 				wsCleaner := NewWsCleaner(ctx, h)
 				cleaner := &resources.PoliciesCleaner{
-					Dao: servicecontext.GetDAO(ctx),
+					DAO: service.DAOFromContext[sqlresources.DAO](s),
 					Options: resources.PoliciesCleanerOptions{
 						SubscribeRoles: true,
 						SubscribeUsers: true,

@@ -38,6 +38,8 @@ import (
 type StorageOptions struct {
 	StorageKey       string
 	SupportedDrivers []string
+	DAOWrapper       dao.DaoWrapperFunc
+	DAOProvider      dao.DaoProviderFunc
 	DefaultDriver    dao.DriverProviderFunc
 	Migrator         dao.MigratorFunc
 	prefix           interface{}
@@ -165,6 +167,22 @@ func WithStorage(fd dao.DaoWrapperFunc, opts ...StorageOption) ServiceOption {
 	return makeStorageServiceOption(false, fd, opts...)
 }
 
+func WithTODOStorage(fd dao.DaoWrapperFunc, prov dao.DaoProviderFunc, opts ...StorageOption) ServiceOption {
+	return func(o *ServiceOptions) {
+		storageKey := "storage"
+		sOpts := &StorageOptions{
+			StorageKey:  storageKey,
+			DAOWrapper:  fd,
+			DAOProvider: prov,
+		}
+		for _, op := range opts {
+			op(sOpts)
+		}
+		o.Storages = append(o.Storages, sOpts)
+		return
+	}
+}
+
 // WithIndexer adds an indexer handler to the current service
 func WithIndexer(fd dao.DaoWrapperFunc, opts ...StorageOption) ServiceOption {
 	return makeStorageServiceOption(true, fd, opts...)
@@ -172,6 +190,7 @@ func WithIndexer(fd dao.DaoWrapperFunc, opts ...StorageOption) ServiceOption {
 
 func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...StorageOption) ServiceOption {
 	return func(o *ServiceOptions) {
+
 		storageKey := "storage"
 		if indexer {
 			storageKey = "indexer"
@@ -183,6 +202,7 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 			op(sOpts)
 		}
 		o.Storages = append(o.Storages, sOpts)
+
 		// Pre-check DAO config and add flag Unique if necessary
 		if isLocalDao(o, indexer, sOpts) {
 			o.Unique = true
@@ -200,6 +220,7 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 				return stopDao.CloseConn(ctx)
 			})
 		}
+
 		o.BeforeStart = append(o.BeforeStart, func(ctx context.Context) error {
 			d, err := daoFromOptions(o, fd, indexer, sOpts)
 			if err != nil {
@@ -246,6 +267,5 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 
 			return nil
 		})
-
 	}
 }

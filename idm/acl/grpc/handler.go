@@ -28,8 +28,9 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/service"
+	pbservice "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/idm/acl"
 )
@@ -38,15 +39,12 @@ import (
 type Handler struct {
 	idm.UnimplementedACLServiceServer
 	tree.UnimplementedNodeProviderStreamerServer
-	dao func(context.Context) acl.DAO
+
+	*service.AbstractHandler[acl.DAO]
 }
 
-func NewHandler(_ context.Context, dao func(context.Context) acl.DAO) *Handler {
-	return &Handler{dao: dao}
-}
-
-func (h *Handler) Name() string {
-	return ServiceName
+func NewHandler(_ context.Context, svc service.Service) *Handler {
+	return &Handler{AbstractHandler: service.NewAbstractHandler[acl.DAO](svc)}
 }
 
 // CreateACL in database
@@ -54,7 +52,7 @@ func (h *Handler) CreateACL(ctx context.Context, req *idm.CreateACLRequest) (*id
 
 	resp := &idm.CreateACLResponse{}
 
-	if err := h.dao(ctx).Add(req.ACL); err != nil {
+	if err := h.DAO(ctx).Add(req.ACL); err != nil {
 		return nil, err
 	}
 
@@ -71,7 +69,7 @@ func (h *Handler) ExpireACL(ctx context.Context, req *idm.ExpireACLRequest) (*id
 
 	resp := &idm.ExpireACLResponse{}
 
-	numRows, err := h.dao(ctx).SetExpiry(req.Query, time.Unix(req.Timestamp, 0), nil)
+	numRows, err := h.DAO(ctx).SetExpiry(req.Query, time.Unix(req.Timestamp, 0), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +85,7 @@ func (h *Handler) RestoreACL(ctx context.Context, req *idm.RestoreACLRequest) (*
 	resp := &idm.RestoreACLResponse{}
 
 	// Set zeroTime to restore
-	numRows, err := h.dao(ctx).SetExpiry(req.Query, time.Time{}, acl.ReadExpirationPeriod(req))
+	numRows, err := h.DAO(ctx).SetExpiry(req.Query, time.Time{}, acl.ReadExpirationPeriod(req))
 	if err != nil {
 		return nil, err
 	}
@@ -107,11 +105,11 @@ func (h *Handler) DeleteACL(ctx context.Context, req *idm.DeleteACLRequest) (*id
 
 	response := &idm.DeleteACLResponse{}
 	acls := new([]interface{})
-	if err := h.dao(ctx).Search(req.Query, acls, period); err != nil {
+	if err := h.DAO(ctx).Search(req.Query, acls, period); err != nil {
 		return nil, err
 	}
 
-	numRows, err := h.dao(ctx).Del(req.Query, period)
+	numRows, err := h.DAO(ctx).Del(req.Query, period)
 	response.RowsDeleted = numRows
 	if err == nil {
 		for _, in := range *acls {
@@ -130,11 +128,11 @@ func (h *Handler) DeleteACL(ctx context.Context, req *idm.DeleteACLRequest) (*id
 func (h *Handler) SearchACL(request *idm.SearchACLRequest, response idm.ACLService_SearchACLServer) error {
 
 	if request.Query == nil {
-		request.Query = &service.Query{}
+		request.Query = &pbservice.Query{}
 	}
 
 	acls := new([]interface{})
-	if err := h.dao(response.Context()).Search(request.Query, acls, acl.ReadExpirationPeriod(request)); err != nil {
+	if err := h.DAO(response.Context()).Search(request.Query, acls, acl.ReadExpirationPeriod(request)); err != nil {
 		return err
 	}
 
@@ -161,7 +159,7 @@ func (h *Handler) StreamACL(streamer idm.ACLService_StreamACLServer) error {
 		}
 
 		acls := new([]interface{})
-		if err := h.dao(streamer.Context()).Search(incoming.Query, acls, acl.ReadExpirationPeriod(incoming)); err != nil {
+		if err := h.DAO(streamer.Context()).Search(incoming.Query, acls, acl.ReadExpirationPeriod(incoming)); err != nil {
 			return err
 		}
 

@@ -37,6 +37,7 @@ const (
 )
 
 func addRootFlags(flags *pflag.FlagSet) {
+	flags.String(runtime.KeyCluster, "default", "Name of the cluster for the node")
 	flags.String(runtime.KeyConfig, runtime.DefaultKeyConfig, "Configuration storage URL. Supported schemes: "+strings.Join(config.DefaultURLMux().Schemes(), "|"))
 	flags.String(runtime.KeyVault, runtime.DefaultKeyVault, "Vault location, automatically detected from config url, unless an URL is provided (same schemes as config)")
 	flags.String(runtime.KeyKeyring, runtime.DefaultKeyKeyring, "Keyring URL. Can be switched to vault://host:port/secretPath?key=storeKey")
