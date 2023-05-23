@@ -41,8 +41,8 @@ import (
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
-func ParseStorageURL(storageURL string) (FileNodeProvider, *snapshot.BoltSnapshot, error) {
-	sc, folderOrBucket, snap, e := parser(storageURL)
+func StorageUrlAsProvider(storageURL string) (FileNodeProvider, *snapshot.BoltSnapshot, error) {
+	sc, folderOrBucket, snap, e := ParseStorageURL(storageURL)
 	if e != nil {
 		return nil, nil, e
 	}
@@ -75,7 +75,7 @@ func ParseStorageURL(storageURL string) (FileNodeProvider, *snapshot.BoltSnapsho
 	return fp, snap, nil
 }
 
-func parser(storageUrl string) (sc nodes.StorageClient, folderOrBucket string, snap *snapshot.BoltSnapshot, e error) {
+func ParseStorageURL(storageUrl string) (sc nodes.StorageClient, folderOrBucket string, snap *snapshot.BoltSnapshot, e error) {
 	u, ee := url.Parse(storageUrl)
 	if ee != nil {
 		e = ee

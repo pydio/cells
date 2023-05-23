@@ -23,8 +23,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/hanwen/go-fuse/v2/fs"
-	fs2 "github.com/pydio/cells-fuse/fs"
 	"github.com/spf13/cobra"
 
 	// Required to register client
@@ -32,12 +30,17 @@ import (
 )
 
 var (
-	debug bool
+	debug      bool
+	storageURL string
+	mountPoint string
 )
 
 var FuseCmd = &cobra.Command{
 	Use:   os.Args[0],
 	Short: "Offline FUSE Mounter for Pydio Cells Flat Datasource",
+	CompletionOptions: cobra.CompletionOptions{
+		DisableDefaultCmd: true,
+	},
 	Long: `
 DESCRIPTION
 
@@ -49,52 +52,27 @@ DESCRIPTION
 
 EXAMPLES 
 
-  1. Local datasource
-  $ ` + os.Args[0] + ` /tmp/datasource file:///var/cells/data/pydiods1/snapshot.db
+  1. Mount Local datasource
+  $ ` + os.Args[0] + ` mount --t /tmp/datasource --s file:///var/cells/data/pydiods1/snapshot.db
 
-  2. S3 datasource (note the s3s scheme)
-  $ ` + os.Args[0] + ` /tmp/datasource s3s://API_KEY:API_SECRET@s3.amazonaws.com/MyBucketName/snapshot.db
+  2. Mount Remote S3 datasource (note the s3s scheme)
+  $ ` + os.Args[0] + ` mount --t /tmp/datasource --s s3s://API_KEY:API_SECRET@s3.amazonaws.com/MyBucketName/snapshot.db
+
+  3. Lookup for a file (without mounting the datasource)
+  $ ` + os.Args[0] + ` lookup --storage file:///var/cells/data/pydiods1/snapshot.db --name "*" --type file --base "/folder/path"
+
+  4. Copy a specific file (without mounting the datasource) to a local location
+  $ ` + os.Args[0] + ` copy --storage file:///var/cells/data/pydiods1/snapshot.db --from "/folder/path/file.ext" --to "./file.ext"
+
+  5. Display tool version
+  $ ` + os.Args[0] + ` version
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) < 2 {
-			_ = cmd.Help()
-			return
-		}
-		mountPath := args[0]
-		if mountPath == "." {
-			log.Fatalf("warning you are trying to mount on current folder!")
-		}
-		storeURL := args[1]
-
-		fileProvider, snap, er := fs2.ParseStorageURL(storeURL)
-		if er != nil {
-			log.Fatalf("cannot parse storage URL %v", er)
-		}
-		opts := &fs.Options{}
-		opts.Debug = debug
-		mountFs := fs2.NewSnapFS(snap, fileProvider)
-
-		server, err := fs.Mount(mountPath, mountFs, opts)
-		if err != nil {
-			log.Fatalf("Mount fail: %v\n", err)
-		}
-		server.Wait()
-
-		log.Println("Cleaning resources before quitting...")
-		log.Println(" - Closing snapshot")
-		snap.Close(true)
-		log.Println(" - Unmounting server")
-		_ = server.Unmount()
-		log.Println(" - Clearing cache")
-		mountFs.ClearCache()
-		log.Println("... done")
+		_ = cmd.Help()
+		return
 
 	},
-}
-
-func init() {
-	FuseCmd.PersistentFlags().BoolVar(&debug, "debug", false, "Set FS mount in debug mode")
 }
 
 func main() {
