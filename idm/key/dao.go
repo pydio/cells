@@ -31,6 +31,7 @@ import (
 
 // DAO is a protocol for user key storing
 type DAO interface {
+	dao.DAO
 	SaveKey(key *encryption.Key, version ...int) error
 	GetKey(owner string, KeyID string) (*encryption.Key, int, error)
 	ListKeys(owner string) ([]*encryption.Key, error)

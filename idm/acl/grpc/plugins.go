@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 )
 
-var ServiceName = common.ServiceGrpcNamespace_ + common.ServiceAcl
+const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceAcl
 
 func init() {
 

@@ -37,6 +37,8 @@ type MigratorStatus struct {
 type MigratorFunc func(from DAO, to DAO, dryRun bool, status chan MigratorStatus) (map[string]int, error)
 type DriverProviderFunc func() (string, string)
 
+type DAOTodoProviderFunc[T any] func(ctx context.Context) T
+
 type ConnProviderFunc func(ctx context.Context, driver, dsn string) ConnDriver
 type DaoProviderFunc func(ctx context.Context, driver, dsn, prefix string) (DAO, error)
 type IndexerWrapperFunc func(context.Context, DAO) (IndexDAO, error)

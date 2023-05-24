@@ -3,12 +3,15 @@ package service
 import (
 	"context"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/dao"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
-func DAOFromContext[T any](s Service) func(context.Context) T {
+type DAOProviderFunc[T dao.DAO] func(context.Context) T
+
+func DAOFromContext[T dao.DAO](s Service) DAOProviderFunc[T] {
 	return func(ctx context.Context) T {
 		var c dao.DAO
 
@@ -37,4 +40,8 @@ func DAOFromContext[T any](s Service) func(context.Context) T {
 
 		return c.(T)
 	}
+}
+
+func KeyringFromContext(ctx context.Context) crypto.Keyring {
+	return servicecontext.GetKeyring(ctx)
 }

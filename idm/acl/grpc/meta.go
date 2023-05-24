@@ -59,7 +59,7 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 				permissions.AclPolicy,
 			},
 		})
-		if e := h.DAO(stream.Context()).Search(&service.Query{SubQueries: []*anypb.Any{q}}, acls, nil); e != nil {
+		if e := h.dao(stream.Context()).Search(&service.Query{SubQueries: []*anypb.Any{q}}, acls, nil); e != nil {
 			return e
 		}
 		var contentLock string

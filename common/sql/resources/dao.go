@@ -30,6 +30,7 @@ import (
 
 // DAO interface
 type DAO interface {
+	dao.DAO
 	AddPolicy(resourceId string, policy *service.ResourcePolicy) error
 	AddPolicies(update bool, resourceId string, rules []*service.ResourcePolicy) error
 	GetPoliciesForResource(resourceId string) ([]*service.ResourcePolicy, error)

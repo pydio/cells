@@ -41,7 +41,7 @@ func NewACLService(acls ...*idm.ACL) (grpc.ClientConnInterface, error) {
 		return nil, e
 	}
 
-	h := srv.NewHandler(nil, mockDAO.(acl.DAO))
+	h := srv.NewHandler(nil, nil)
 	serv := &idm.ACLServiceStub{
 		ACLServiceServer: h,
 	}

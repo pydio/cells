@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/service"
 	"strings"
 
 	"github.com/ory/ladon"
@@ -42,15 +43,16 @@ var (
 
 type Handler struct {
 	idm.UnimplementedPolicyEngineServiceServer
-	dao policy.DAO
+
+	service.Service
+	dao service.DAOProviderFunc[policy.DAO]
 }
 
-func NewHandler(ctx context.Context, dao policy.DAO) idm.PolicyEngineServiceServer {
-	return &Handler{dao: dao}
-}
-
-func (h *Handler) Name() string {
-	return ServiceName
+func NewHandler(ctx context.Context, svc service.Service) idm.PolicyEngineServiceServer {
+	return &Handler{
+		Service: svc,
+		dao:     service.DAOFromContext[policy.DAO](svc),
+	}
 }
 
 func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
@@ -72,7 +74,7 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 			Context:  reqContext,
 		}
 
-		if err := h.dao.IsAllowed(ladonRequest); err == nil {
+		if err := h.dao(ctx).IsAllowed(ladonRequest); err == nil {
 			// Explicit allow
 			allowed = true
 		} else if strings.Contains(err.Error(), "Request was denied by default") {
@@ -104,12 +106,14 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 // StreamPolicyGroups performs same listing as ListPolicyGroups but answer with a stream
 func (h *Handler) StreamPolicyGroups(request *idm.ListPolicyGroupsRequest, stream idm.PolicyEngineService_StreamPolicyGroupsServer) error {
 
+	ctx := stream.Context()
+
 	var gg []*idm.PolicyGroup
 	if groupsCacheValid && request.Filter == "" {
 		gg = groupsCache
 	}
 
-	if groups, err := h.dao.ListPolicyGroups(stream.Context(), request.Filter); err != nil {
+	if groups, err := h.dao(ctx).ListPolicyGroups(stream.Context(), request.Filter); err != nil {
 		return err
 	} else {
 		gg = groups
@@ -137,7 +141,7 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 		return response, nil
 	}
 
-	groups, err := h.dao.ListPolicyGroups(ctx, request.Filter)
+	groups, err := h.dao(ctx).ListPolicyGroups(ctx, request.Filter)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +161,7 @@ func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicy
 	groupsCacheValid = false
 	response := &idm.StorePolicyGroupResponse{}
 
-	stored, err := h.dao.StorePolicyGroup(ctx, request.PolicyGroup)
+	stored, err := h.dao(ctx).StorePolicyGroup(ctx, request.PolicyGroup)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +182,7 @@ func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePoli
 	groupsCacheValid = false
 	response := &idm.DeletePolicyGroupResponse{}
 
-	err := h.dao.DeletePolicyGroup(ctx, request.PolicyGroup)
+	err := h.dao(ctx).DeletePolicyGroup(ctx, request.PolicyGroup)
 	if err != nil {
 		return nil, err
 	}

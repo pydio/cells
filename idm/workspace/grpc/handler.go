@@ -39,11 +39,15 @@ import (
 type Handler struct {
 	idm.UnimplementedWorkspaceServiceServer
 
-	*service.AbstractHandler[workspace.DAO]
+	service.Service
+	dao service.DAOProviderFunc[workspace.DAO]
 }
 
-func NewHandler(ctx context.Context, s service.Service) idm.WorkspaceServiceServer {
-	return &Handler{AbstractHandler: service.NewAbstractHandler[workspace.DAO](s)}
+func NewHandler(ctx context.Context, svc service.Service) idm.WorkspaceServiceServer {
+	return &Handler{
+		Service: svc,
+		dao:     service.DAOFromContext[workspace.DAO](svc),
+	}
 }
 
 // CreateWorkspace in database
@@ -52,10 +56,10 @@ func (h *Handler) CreateWorkspace(ctx context.Context, req *idm.CreateWorkspaceR
 	if req.Workspace.Slug == "" {
 		req.Workspace.Slug = slug.Make(req.Workspace.Label)
 	}
-	update, err := h.DAO(ctx).Add(req.Workspace)
+	update, err := h.dao(ctx).Add(req.Workspace)
 	// ADD POLICIES
 	if len(req.Workspace.Policies) > 0 {
-		if e := h.DAO(ctx).AddPolicies(update, req.Workspace.UUID, req.Workspace.Policies); e != nil {
+		if e := h.dao(ctx).AddPolicies(update, req.Workspace.UUID, req.Workspace.Policies); e != nil {
 			return nil, e
 		}
 	}
@@ -97,11 +101,11 @@ func (h *Handler) CreateWorkspace(ctx context.Context, req *idm.CreateWorkspaceR
 func (h *Handler) DeleteWorkspace(ctx context.Context, req *idm.DeleteWorkspaceRequest) (*idm.DeleteWorkspaceResponse, error) {
 
 	workspaces := new([]interface{})
-	if err := h.DAO(ctx).Search(req.Query, workspaces); err != nil {
+	if err := h.dao(ctx).Search(req.Query, workspaces); err != nil {
 		return nil, err
 	}
 
-	numRows, err := h.DAO(ctx).Del(req.Query)
+	numRows, err := h.dao(ctx).Del(req.Query)
 	response := &idm.DeleteWorkspaceResponse{
 		RowsDeleted: numRows,
 	}
@@ -112,7 +116,7 @@ func (h *Handler) DeleteWorkspace(ctx context.Context, req *idm.DeleteWorkspaceR
 	// Update relevant policies and propagate event
 	for _, w := range *workspaces {
 		currW := w.(*idm.Workspace)
-		err2 := h.DAO(ctx).DeletePoliciesForResource(currW.UUID)
+		err2 := h.dao(ctx).DeletePoliciesForResource(currW.UUID)
 		if err2 != nil {
 			log.Logger(ctx).Error("could not delete policies for removed ws "+currW.Slug, zap.Error(err2))
 			continue
@@ -138,13 +142,13 @@ func (h *Handler) SearchWorkspace(request *idm.SearchWorkspaceRequest, response 
 	ctx := response.Context()
 
 	workspaces := new([]interface{})
-	if err := h.DAO(ctx).Search(request.Query, workspaces); err != nil {
+	if err := h.dao(ctx).Search(request.Query, workspaces); err != nil {
 		return err
 	}
 	var e error
 	for _, in := range *workspaces {
 		ws, ok := in.(*idm.Workspace)
-		if ws.Policies, e = h.DAO(ctx).GetPoliciesForResource(ws.UUID); e != nil {
+		if ws.Policies, e = h.dao(ctx).GetPoliciesForResource(ws.UUID); e != nil {
 			log.Logger(ctx).Error("cannot load policies for workspace "+ws.UUID, zap.Error(e))
 			continue
 		}
@@ -177,14 +181,14 @@ func (h *Handler) StreamWorkspace(streamer idm.WorkspaceService_StreamWorkspaceS
 		}
 
 		workspaces := new([]interface{})
-		if err := h.DAO(ctx).Search(incoming.Query, workspaces); err != nil {
+		if err := h.dao(ctx).Search(incoming.Query, workspaces); err != nil {
 			continue
 		}
 
 		var e error
 		for _, in := range *workspaces {
 			if ws, ok := in.(*idm.Workspace); ok {
-				if ws.Policies, e = h.DAO(ctx).GetPoliciesForResource(ws.UUID); e != nil {
+				if ws.Policies, e = h.dao(ctx).GetPoliciesForResource(ws.UUID); e != nil {
 					log.Logger(ctx).Error("cannot load policies for workspace "+ws.UUID, zap.Error(e))
 					continue
 				}

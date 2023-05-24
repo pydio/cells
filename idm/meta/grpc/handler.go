@@ -47,13 +47,18 @@ type Handler struct {
 	idm.UnimplementedUserMetaServiceServer
 	tree.UnimplementedNodeProviderStreamerServer
 
-	*service.AbstractHandler[meta.DAO]
+	service.Service
+	dao service.DAOProviderFunc[meta.DAO]
+
 	searchCache cache.Cache
 }
 
-func NewHandler(ctx context.Context, s service.Service) *Handler {
+func NewHandler(ctx context.Context, svc service.Service) *Handler {
 	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL(common.ServiceGrpcNamespace_+common.ServiceUserMeta))
-	h := &Handler{AbstractHandler: service.NewAbstractHandler[meta.DAO](s)}
+	h := &Handler{
+		Service: svc,
+		dao:     service.DAOFromContext[meta.DAO](svc),
+	}
 	h.searchCache = c
 	go func() {
 		<-ctx.Done()
@@ -70,7 +75,7 @@ func (h *Handler) Stop() {
 func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMetaRequest) (*idm.UpdateUserMetaResponse, error) {
 
 	response := &idm.UpdateUserMetaResponse{}
-	namespaces, _ := h.DAO(ctx).GetNamespaceDao().List()
+	namespaces, _ := h.dao(ctx).GetNamespaceDao().List()
 	nodes := make(map[string]*tree.Node)
 	sources := make(map[string]*tree.Node)
 	for _, metaData := range request.MetaDatas {
@@ -83,7 +88,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 				return nil, fmt.Errorf("make sure to use JSON format for metadata: %s", er.Error())
 			}
 			// ADD / UPDATE
-			if newMeta, prev, err := h.DAO(ctx).Set(metaData); err == nil {
+			if newMeta, prev, err := h.dao(ctx).Set(metaData); err == nil {
 				response.MetaDatas = append(response.MetaDatas, newMeta)
 				prevValue = prev
 			} else {
@@ -91,7 +96,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 			}
 		} else {
 			// DELETE
-			if prev, err := h.DAO(ctx).Del(metaData); err == nil {
+			if prev, err := h.dao(ctx).Del(metaData); err == nil {
 				prevValue = prev
 			} else {
 				return nil, err
@@ -136,7 +141,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 					})
 				}
 			}
-			metas, e := h.DAO(ctx).Search([]string{}, []string{target.Uuid}, "", "", &pbservice.ResourcePolicyQuery{
+			metas, e := h.dao(ctx).Search([]string{}, []string{target.Uuid}, "", "", &pbservice.ResourcePolicyQuery{
 				Subjects: subjects,
 			})
 			if e != nil {
@@ -164,7 +169,7 @@ func (h *Handler) SearchUserMeta(request *idm.SearchUserMetaRequest, stream idm.
 
 	ctx := stream.Context()
 
-	results, err := h.DAO(ctx).Search(request.MetaUuids, request.NodeUuids, request.Namespace, request.ResourceSubjectOwner, request.ResourceQuery)
+	results, err := h.dao(ctx).Search(request.MetaUuids, request.NodeUuids, request.Namespace, request.ResourceSubjectOwner, request.ResourceQuery)
 	if err != nil {
 		return err
 	}
@@ -205,7 +210,7 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 		if r, ok := h.resultsFromCache(node.Uuid, subjects); ok {
 			results = r
 		} else {
-			results, err = h.DAO(ctx).Search([]string{}, []string{node.Uuid}, "", "", &pbservice.ResourcePolicyQuery{
+			results, err = h.dao(ctx).Search([]string{}, []string{node.Uuid}, "", "", &pbservice.ResourcePolicyQuery{
 				Subjects: subjects,
 			})
 			log.Logger(ctx).Debug(fmt.Sprintf("Got %d results for node", len(results)), node.ZapUuid())
@@ -228,7 +233,7 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.UpdateUserMetaNamespaceRequest) (*idm.UpdateUserMetaNamespaceResponse, error) {
 
 	response := &idm.UpdateUserMetaNamespaceResponse{}
-	dao := h.DAO(ctx).GetNamespaceDao()
+	dao := h.dao(ctx).GetNamespaceDao()
 	for _, metaNameSpace := range request.Namespaces {
 		if err := dao.Del(metaNameSpace); err != nil {
 			return nil, err
@@ -261,7 +266,7 @@ func (h *Handler) ListUserMetaNamespace(request *idm.ListUserMetaNamespaceReques
 
 	ctx := stream.Context()
 
-	dao := h.DAO(ctx).GetNamespaceDao()
+	dao := h.dao(ctx).GetNamespaceDao()
 	if results, err := dao.List(); err == nil {
 		for _, result := range results {
 			stream.Send(&idm.ListUserMetaNamespaceResponse{UserMetaNamespace: result})

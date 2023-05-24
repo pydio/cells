@@ -36,6 +36,7 @@ import (
 
 // DAO interface
 type DAO interface {
+	dao.DAO
 	resources.DAO
 	index.DAO
 

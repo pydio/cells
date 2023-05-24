@@ -48,11 +48,15 @@ var (
 type Handler struct {
 	idm.UnimplementedRoleServiceServer
 
-	*service.AbstractHandler[role.DAO]
+	service.Service
+	dao service.DAOProviderFunc[role.DAO]
 }
 
 func NewHandler(ctx context.Context, svc service.Service) idm.RoleServiceServer {
-	return &Handler{AbstractHandler: service.NewAbstractHandler[role.DAO](svc)}
+	return &Handler{
+		Service: svc,
+		dao:     service.DAOFromContext[role.DAO](svc),
+	}
 }
 
 // CreateRole adds a role and its policies in database
@@ -63,7 +67,7 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest) (*
 		return nil, errors.BadRequest("forbidden.characters", "commas are not allowed in role uuid")
 	}
 
-	r, update, err := h.DAO(ctx).Add(req.Role)
+	r, update, err := h.dao(ctx).Add(req.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +79,7 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest) (*
 			fmt.Printf("%d. %s - action: %s\n", i, pol.Subject, pol.Action)
 		}
 	} */
-	err = h.DAO(ctx).AddPolicies(update, r.Uuid, r.Policies)
+	err = h.dao(ctx).AddPolicies(update, r.Uuid, r.Policies)
 	if err != nil {
 		return nil, err
 	}
@@ -124,11 +128,11 @@ func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest) (*
 	}
 
 	var roles []*idm.Role
-	if err := h.DAO(ctx).Search(req.Query, &roles); err != nil {
+	if err := h.dao(ctx).Search(req.Query, &roles); err != nil {
 		return nil, err
 	}
 
-	numRows, err := h.DAO(ctx).Delete(req.Query)
+	numRows, err := h.dao(ctx).Delete(req.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -138,12 +142,12 @@ func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest) (*
 
 	for _, r := range roles {
 		// Errors a ignored until now. Should we stop and return an error or better handle the error?
-		err2 := h.DAO(ctx).DeletePoliciesForResource(r.Uuid)
+		err2 := h.dao(ctx).DeletePoliciesForResource(r.Uuid)
 		if err2 != nil {
 			log.Logger(ctx).Error("could not delete policies for removed role "+r.Label, zap.Error(err2))
 			continue
 		}
-		err2 = h.DAO(ctx).DeletePoliciesBySubject(fmt.Sprintf("role:%s", r.Uuid))
+		err2 = h.dao(ctx).DeletePoliciesBySubject(fmt.Sprintf("role:%s", r.Uuid))
 		if err2 != nil {
 			log.Logger(ctx).Error("could not delete policies by subject for removed role "+r.Label, zap.Error(err2))
 			continue
@@ -168,7 +172,7 @@ func (h *Handler) SearchRole(request *idm.SearchRoleRequest, response idm.RoleSe
 
 	var roles []*idm.Role
 
-	if err := h.DAO(response.Context()).Search(request.Query, &roles); err != nil {
+	if err := h.dao(response.Context()).Search(request.Query, &roles); err != nil {
 		return err
 	}
 
@@ -184,7 +188,7 @@ func (h *Handler) SearchRole(request *idm.SearchRoleRequest, response idm.RoleSe
 // CountRole in database
 func (h *Handler) CountRole(ctx context.Context, request *idm.SearchRoleRequest) (*idm.CountRoleResponse, error) {
 
-	count, err := h.DAO(ctx).Count(request.Query)
+	count, err := h.dao(ctx).Count(request.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +205,7 @@ func (h *Handler) StreamRole(streamer idm.RoleService_StreamRoleServer) error {
 		}
 
 		var roles []*idm.Role
-		if err := h.DAO(streamer.Context()).Search(incoming.Query, &roles); err != nil {
+		if err := h.dao(streamer.Context()).Search(incoming.Query, &roles); err != nil {
 			return err
 		}
 

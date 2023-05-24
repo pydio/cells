@@ -32,6 +32,7 @@ import (
 
 // DAO interface
 type DAO interface {
+	dao.DAO
 	resources.DAO
 
 	Add(role *idm.Role) (*idm.Role, bool, error)

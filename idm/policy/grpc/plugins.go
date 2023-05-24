@@ -29,7 +29,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/idm/policy"
 )
 
@@ -37,7 +36,9 @@ const ServiceName = common.ServiceGrpcNamespace_ + common.ServicePolicy
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		service.NewService(
+		var s service.Service
+		
+		s = service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
@@ -94,7 +95,7 @@ func init() {
 				},
 			}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(policy.DAO))
+				handler := NewHandler(ctx, s)
 				idm.RegisterPolicyEngineServiceEnhancedServer(server, handler)
 				return nil
 			}),

@@ -33,6 +33,7 @@ import (
 
 // DAO interface
 type DAO interface {
+	dao.DAO
 	resources.DAO
 
 	// Add creates or updates a workspace in the database.

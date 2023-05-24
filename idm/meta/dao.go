@@ -37,6 +37,7 @@ import (
 
 // DAO interface
 type DAO interface {
+	dao.DAO
 	resources.DAO
 
 	GetNamespaceDao() namespace.DAO
