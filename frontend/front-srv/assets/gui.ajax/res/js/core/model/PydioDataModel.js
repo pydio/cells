@@ -216,6 +216,7 @@ export default class PydioDataModel extends Observable{
             this._searchNode = new AjxpNode("/", false, "Search Results", 'mdi mdi-magnify', new EmptyNodeProvider());
             this._searchNode.setRoot();
             this._searchNode.getMetadata().set('search_root', true);
+            this._searchNode.getMetadata().set('node_readonly', 'true');
         }
 	    return this._searchNode;
     }

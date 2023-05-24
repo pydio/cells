@@ -542,8 +542,12 @@ class MainFilesList extends React.Component {
 
         if(searchResults) {
             let linkString, repoLabel;
-            if(node.getMetadata().get("repository_display")) {
-                repoLabel = '[' + node.getMetadata().get("repository_display") + ']'
+            if(node.getMetadata().has("repository_display")) {
+                let display = node.getMetadata().get("repository_display")
+                if (display === '{{RefLabel}}') {
+                    display = pydio.getContextHolder().getRootNode().getLabel();
+                }
+                repoLabel = '[' + display + ']'
             }
             if(node.isLeaf()) {
                 linkString = PathUtils.getDirname(node.getPath())
@@ -568,7 +572,7 @@ class MainFilesList extends React.Component {
                         pydio.goTo(node)
                     }}
                 >{linkString}</span>,
-                <span>&bull; </span>
+                <span>&bull;&nbsp;</span>
             )
         }
 
