@@ -62,17 +62,30 @@ type memory struct {
 	reset chan bool
 	timer *time.Timer
 
-	locker *sync.RWMutex
+	internalLocker *sync.RWMutex
+	externalLocker *sync.RWMutex
 }
 
-func New(opts ...configx.Option) config.Store {
+func New(opt ...configx.Option) config.Store {
+	opts := configx.Options{}
+	for _, o := range opt {
+		o(&opts)
+	}
+
+	internalLocker := opts.RWMutex
+	if internalLocker == nil {
+		internalLocker = &sync.RWMutex{}
+		opt = append(opt, configx.WithLock(internalLocker))
+	}
+
 	m := &memory{
-		v:      configx.New(opts...),
-		opts:   opts,
-		locker: &sync.RWMutex{},
-		reset:  make(chan bool),
-		timer:  time.NewTimer(timeout),
-		snap:   configx.New(opts...),
+		v:              configx.New(opt...),
+		opts:           opt,
+		internalLocker: internalLocker,
+		externalLocker: &sync.RWMutex{},
+		reset:          make(chan bool),
+		timer:          time.NewTimer(timeout),
+		snap:           configx.New(opt...),
 	}
 
 	go m.flush()
@@ -87,13 +100,17 @@ func (m *memory) flush() {
 			m.timer.Stop()
 			m.timer = time.NewTimer(timeout)
 		case <-m.timer.C:
-			patch, err := diff.Diff(m.snap.Interface(), m.v.Interface())
+			m.internalLocker.RLock()
+			clone := Clone(m.v.Interface())
+			m.internalLocker.RUnlock()
+
+			patch, err := diff.Diff(m.snap.Interface(), clone)
 			if err != nil {
 				continue
 			}
 
 			snap := configx.New(m.opts...)
-			if err := snap.Set(Clone(m.v.Interface())); err != nil {
+			if err := snap.Set(clone); err != nil {
 				continue
 			}
 
@@ -190,11 +207,11 @@ func (m *memory) Save(string, string) error {
 }
 
 func (m *memory) Lock() {
-	m.locker.Lock()
+	m.externalLocker.Lock()
 }
 
 func (m *memory) Unlock() {
-	m.locker.Unlock()
+	m.externalLocker.Unlock()
 }
 
 func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
