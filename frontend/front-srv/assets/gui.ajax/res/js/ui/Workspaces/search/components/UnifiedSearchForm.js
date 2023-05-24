@@ -104,7 +104,7 @@ function UnifiedSearchForm (props){
     }
 
     const updateText = (value) => {
-        const {onRequestOpen, searchTools:{values, setValues, savedSearches, nlpMatches}} = props;
+        const {onRequestOpen, searchTools:{values, setValues, savedSearches=[], nlpMatches}} = props;
         if(savedSearches.find(s => s.searchLABEL === value)){
             setInputValue('')
             return;
@@ -142,8 +142,12 @@ function UnifiedSearchForm (props){
         onRequestOpen();
     }
 
-    const {style, active, searchTools, formStyles, pydio, preventOpen, muiTheme} = props;
+    const {style, active, searchTools, formStyles, pydio, preventOpen, muiTheme, uniqueSearchScope, closeButton} = props;
     const {values, setValues, advancedValues, getSearchOptions, nlpMatches, history=[], savedSearches=[], clearSavedSearch, saveSearch} = searchTools;
+
+    if(uniqueSearchScope) {
+        values['scope'] = uniqueSearchScope
+    }
 
     const addBg = muiTheme.darkMode ? "" : ".MuiAutocomplete-paper {background: var(--md-sys-color-surface-2);}";
     if(muiTheme.darkMode) {
@@ -240,7 +244,7 @@ function UnifiedSearchForm (props){
         })
     }
 
-    const completeDataSource = [
+    let completeDataSource = [
         ...currentFilters,
         ...nlpSuggestions,
         ...savedSearches.map(k=>{
@@ -265,31 +269,36 @@ function UnifiedSearchForm (props){
         }),
         ...advancedOption
     ]
+    if (uniqueSearchScope) {
+        completeDataSource = []
+    }
 
     return (
         <div style={{...styles.container, ...formStyles.mainStyle, ...style, ...wStyle, transition:DOMUtils.getBeziersTransition()}} ref={containerRef}>
-            <Popover
-                open={popoverOpen}
-                anchorEl={containerRef.current}
-                anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
-                targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                onRequestClose={()=>{togglePopover()}}
-                useLayerForClickAway={true}
-                style={{width:420, marginTop: 7}}
-                zDepth={3}
-            >
-                <AdvancedSearch
-                    values={values}
-                    searchTools={searchTools}
-                    getSearchOptions={getSearchOptions}
-                    onChange={(newValues) => setValues({...values, ...newValues})}
-                    rootStyle={{paddingBottom: 8, maxHeight: '80vh', overflowY: 'auto'}}
-                    showScope={true}
-                    savedSearches={savedSearches}
-                    saveSearch={saveSearch}
-                    clearSavedSearch={clearSavedSearch}
-                />
-            </Popover>
+            {!uniqueSearchScope &&
+                <Popover
+                    open={popoverOpen}
+                    anchorEl={containerRef.current}
+                    anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
+                    targetOrigin={{horizontal: 'right', vertical: 'top'}}
+                    onRequestClose={()=>{togglePopover()}}
+                    useLayerForClickAway={true}
+                    style={{width:420, marginTop: 7}}
+                    zDepth={3}
+                >
+                    <AdvancedSearch
+                        values={values}
+                        searchTools={searchTools}
+                        getSearchOptions={getSearchOptions}
+                        onChange={(newValues) => setValues({...values, ...newValues})}
+                        rootStyle={{paddingBottom: 8, maxHeight: '80vh', overflowY: 'auto'}}
+                        showScope={!uniqueSearchScope}
+                        savedSearches={savedSearches}
+                        saveSearch={saveSearch}
+                        clearSavedSearch={clearSavedSearch}
+                    />
+                </Popover>
+            }
             <Autocomplete
                 fullWidth={true}
                 slotProps={{paper:{elevation:5},popper:{modifiers: [{name: "offset", options: {offset: [0, 10]}}]}}}
@@ -318,10 +327,11 @@ function UnifiedSearchForm (props){
                                 endAdornment: (
                                 <span>
                                     {params.InputProps.endAdornment}
-                                    {active &&
+                                    {active && !uniqueSearchScope &&
                                         <IconButton onClick={togglePopover} tooltip={pydio.MessageHash['searchengine.advanced-filter.tooltip']}
                                                     style={buttonStyle} iconStyle={buttonIconStyle} iconClassName={"mdi mdi-tune"}/>
                                     }
+                                    {active && uniqueSearchScope && closeButton}
                                 </span>
                                 ),
                                 disableUnderline: true

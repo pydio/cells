@@ -26,15 +26,15 @@ const Color = require('color');
 import {muiThemeable} from 'material-ui/styles';
 import {connect} from 'react-redux';
 import {compose} from 'redux';
-import {Paper} from 'material-ui'
+import {Paper, IconButton} from 'material-ui'
 import PathUtils from 'pydio/util/path'
 import DOMUtils from 'pydio/util/dom'
 import FuncUtils from 'pydio/util/func'
 
-const { Breadcrumb, SearchForm, MainFilesList, Editor, EditionPanel, FilePreview } = Pydio.requireLib('workspaces');
+const { Breadcrumb, UnifiedSearchForm, MainFilesList, Editor, EditionPanel, FilePreview } = Pydio.requireLib('workspaces');
 const { ContextMenu, IconButtonMenu, Toolbar, ListPaginator, ClipboardTextField } = Pydio.requireLib('components');
 const { withProgressiveBg } = Pydio.requireLib('boot');
-const { EditorActions, dropProvider } = Pydio.requireLib('hoc');
+const { EditorActions, dropProvider, withSearch } = Pydio.requireLib('hoc');
 
 const withUniqueNode = (attachListener) => (Component) => {
     return class WithUniqueNode extends React.PureComponent {
@@ -107,6 +107,29 @@ const withRepositoriesListener = () => (Component) => {
     }
 
 };
+
+const withSearchFormEnabled = () => (Component) => {
+    if (!Pydio.getInstance().getPluginConfigs('action.share').get('SHARED_FOLDER_SHOW_SEARCH')) {
+        return Component
+    }
+    return class WithSearchFormEnabled extends React.PureComponent {
+        constructor(props) {
+            super(props);
+            const {pydio} = props;
+            const dm = pydio.getContextHolder()
+            this.state = {searchView: false}
+            dm.observe('context_changed', () => {
+                this.setState({searchView: dm.getContextNode() === dm.getSearchNode()})
+            })
+        }
+        render() {
+            const onUpdateSearchView = (s) => this.setState({searchView: s})
+            return (
+                <Component {...this.props} {...this.state} showSearchForm={true} onUpdateSearchView={onUpdateSearchView}/>
+            )
+        }
+    }
+}
 
 class ConfigLogo extends React.Component{
 
@@ -195,7 +218,7 @@ let StandardLayout = createReactClass({
 
     render(){
 
-        const {showSearchForm, uniqueNode, skipDisplayToolbar, bgStyle, emptyUser, pydio, muiTheme} = this.props;
+        const {showSearchForm, searchView, onUpdateSearchView, uniqueNode, skipDisplayToolbar, bgStyle, emptyUser, pydio, muiTheme} = this.props;
 
         const styles = {
             appBarStyle : {
@@ -224,6 +247,15 @@ let StandardLayout = createReactClass({
                 toolbars.push("minisite_display_toolbar", "display_toolbar");
             }
         }
+        const dm = pydio.getContextHolder()
+        const onRequestClose = ()=>{
+            onUpdateSearchView(false)
+            dm.setContextNode(dm.getRootNode())
+        }
+        const onRequestOpen = () => {
+            onUpdateSearchView(true)
+            dm.setContextNode(dm.getSearchNode());
+        }
 
         return (
             <div className="vertical_fit vertical_layout" style={bgStyle}>
@@ -250,7 +282,22 @@ let StandardLayout = createReactClass({
                             <Toolbar {...this.props} id="main-toolbar" toolbars={toolbars} groupOtherList={uniqueNode ? [] : ["change_main", "more", "change", "remote"]} renderingType="icon-font" buttonStyle={styles.buttonsStyle}/>
                         </div>
                     </div>
-                    {showSearchForm && pydio.user && <SearchForm {...this.props} uniqueSearchScope={pydio.user.getActiveRepositoryObject().getSlug()} style={{marginTop: 2, marginRight: 3}}/>}
+                    {showSearchForm && pydio.user &&
+                        <UnifiedSearchForm
+                            {...this.props}
+                            active={searchView}
+                            formStyles={{
+                                mainStyle:{borderRadius: 20},
+                                textField:{color:'white'},
+                                magnifierStyle:{color:'white'},
+                            }}
+                            onRequestOpen={onRequestOpen}
+                            onRequestClose={onRequestClose}
+                            closeButton={<IconButton onClick={onRequestClose} iconClassName={"mdi mdi-close"} iconStyle={{color:'white'}}/>}
+                            uniqueSearchScope={pydio.user.getActiveRepositoryObject().getSlug()}
+                            style={{marginTop: 2, marginRight: 3}}
+                        />
+                    }
                 </Paper>
                 {this.props.children}
                 <span className="context-menu"><ContextMenu pydio={this.props.pydio}/></span>
@@ -261,6 +308,7 @@ let StandardLayout = createReactClass({
 
 });
 
+StandardLayout = withSearch(StandardLayout);
 StandardLayout = withProgressiveBg(StandardLayout);
 StandardLayout = dropProvider(StandardLayout);
 
@@ -510,11 +558,12 @@ class DLTemplate extends React.Component{
 class FolderMinisite extends React.Component{
 
     render(){
+        const {pydio, searchView} = this.props;
 
         return (
-            <StandardLayout {...this.props} uniqueNode={false} showSearchForm={this.props.pydio.getPluginConfigs('action.share').get('SHARED_FOLDER_SHOW_SEARCH')}>
+            <StandardLayout {...this.props} uniqueNode={false}>
                 <div style={{backgroundColor:'var(--md-sys-color-surface)', paddingTop:8}} className="layout-fill vertical-layout">
-                    <MainFilesList ref="list" {...this.props} dataModel={this.props.pydio.getContextHolder()}/>
+                    <MainFilesList searchResults={searchView} ref="list" {...this.props} dataModel={pydio.getContextHolder()}/>
                     <Copyright mode={"insert"} {...this.props}/>
                 </div>
                 <EditionPanel {...this.props}/>
@@ -649,11 +698,11 @@ class DropZoneMinisite extends React.Component{
 class FilmStripMinisite extends React.Component {
 
     render(){
-        const {pydio} = this.props
+        const {pydio, searchView} = this.props
         return (
-            <StandardLayout {...this.props} uniqueNode={false} showSearchForm={pydio.getPluginConfigs('action.share').get('SHARED_FOLDER_SHOW_SEARCH')}>
+            <StandardLayout {...this.props} uniqueNode={false}>
                 <div style={{backgroundColor:'var(--md-sys-color-surface)', paddingTop: 8}} className="layout-fill vertical-layout">
-                    <MainFilesList ref="list" {...this.props} dataModel={pydio.getContextHolder()} displayMode={"masonry"}/>
+                    <MainFilesList ref="list" {...this.props} searchResults={searchView} dataModel={pydio.getContextHolder()} displayMode={"masonry"}/>
                     <Copyright mode={"insert"} {...this.props}/>
                 </div>
                 <EditionPanel {...this.props}/>
@@ -666,7 +715,8 @@ class FilmStripMinisite extends React.Component {
 
 FolderMinisite      = compose(
         muiThemeable(),
-        withRepositoriesListener()
+        withRepositoriesListener(),
+        withSearchFormEnabled()
     )(FolderMinisite)
 
 FileMinisite= compose(
@@ -690,6 +740,7 @@ DropZoneMinisite= compose(
 FilmStripMinisite= compose(
         withRepositoriesListener(),
         withUniqueNode(true),
+        withSearchFormEnabled(),
         muiThemeable(),
         connect()
     )(FilmStripMinisite)
