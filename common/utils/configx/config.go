@@ -183,6 +183,9 @@ func (c *config) get() interface{} {
 		return nil
 	}
 
+	unlock := c.rLock()
+	defer unlock()
+
 	if c.v != nil {
 		useDefault := false
 
@@ -338,6 +341,10 @@ func (c *config) Set(data interface{}) error {
 	}*/
 
 	if len(c.k) == 0 {
+		if c.opts.RWMutex != nil {
+			c.opts.RWMutex.Lock()
+			defer c.opts.RWMutex.Unlock()
+		}
 		if c.opts.SetCallback != nil {
 			c.opts.SetCallback(c.k, data)
 		}
@@ -405,13 +412,13 @@ func (c *config) Set(data interface{}) error {
 
 		copy(mm, m)
 
-		c.opts.RWMutex.Lock()
+		unlock := c.rLock()
 		if del {
 			mm = append(mm[:kk], mm[kk+1:]...)
 		} else {
 			mm[kk] = data
 		}
-		c.opts.RWMutex.Unlock()
+		unlock()
 
 		p.Set(mm)
 	case reflect.Map:
