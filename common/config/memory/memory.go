@@ -56,8 +56,9 @@ type memory struct {
 	v    configx.Values
 	snap configx.Values
 
-	opts      []configx.Option
-	receivers []*receiver
+	opts            []configx.Option
+	receiversLocker *sync.RWMutex
+	receivers       []*receiver
 
 	reset chan bool
 	timer *time.Timer
@@ -79,13 +80,14 @@ func New(opt ...configx.Option) config.Store {
 	}
 
 	m := &memory{
-		v:              configx.New(opt...),
-		opts:           opt,
-		internalLocker: internalLocker,
-		externalLocker: &sync.RWMutex{},
-		reset:          make(chan bool),
-		timer:          time.NewTimer(timeout),
-		snap:           configx.New(opt...),
+		v:               configx.New(opt...),
+		opts:            opt,
+		internalLocker:  internalLocker,
+		externalLocker:  &sync.RWMutex{},
+		receiversLocker: &sync.RWMutex{},
+		reset:           make(chan bool),
+		timer:           time.NewTimer(timeout),
+		snap:            configx.New(opt...),
 	}
 
 	go m.flush()
@@ -119,13 +121,17 @@ func (m *memory) flush() {
 			for _, op := range patch {
 				var updated []*receiver
 
+				m.receiversLocker.RLock()
 				for _, r := range m.receivers {
 					if err := r.call(op); err == nil {
 						updated = append(updated, r)
 					}
 				}
+				m.receiversLocker.RUnlock()
 
+				m.receiversLocker.Lock()
 				m.receivers = updated
+				m.receiversLocker.Unlock()
 			}
 
 		}
@@ -235,7 +241,9 @@ func (m *memory) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		changesOnly: o.ChangesOnly,
 	}
 
+	m.receiversLocker.Lock()
 	m.receivers = append(m.receivers, r)
+	m.receiversLocker.Unlock()
 
 	return r, nil
 }
