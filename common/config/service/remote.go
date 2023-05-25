@@ -85,21 +85,23 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 }
 
 type remote struct {
-	ctx      context.Context
-	cli      pb.ConfigClient
-	id       string
-	path     []string
-	locker   *sync.RWMutex
-	watchers []*receiver
+	ctx            context.Context
+	cli            pb.ConfigClient
+	id             string
+	path           []string
+	internalLocker *sync.RWMutex
+	externalLocker *sync.RWMutex
+	watchers       []*receiver
 }
 
 func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path string) config.Store {
 	r := &remote{
-		ctx:    ctx,
-		cli:    pb.NewConfigClient(conn),
-		id:     id,
-		path:   strings.Split(path, "/"),
-		locker: &sync.RWMutex{},
+		ctx:            ctx,
+		cli:            pb.NewConfigClient(conn),
+		id:             id,
+		path:           strings.Split(path, "/"),
+		internalLocker: &sync.RWMutex{},
+		externalLocker: &sync.RWMutex{},
 	}
 
 	go func() {
@@ -128,6 +130,7 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 				c := configx.New(configx.WithJSON())
 				c.Set(rsp.GetValue().GetData())
 
+				r.internalLocker.RLock()
 				for _, w := range r.watchers {
 					v := c.Val(w.path...).Bytes()
 
@@ -136,6 +139,7 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string, path str
 					default:
 					}
 				}
+				r.internalLocker.RUnlock()
 			}
 
 			stream.CloseSend()
@@ -215,11 +219,11 @@ func (r *remote) Save(ctxUser string, ctxMessage string) error {
 }
 
 func (r *remote) Lock() {
-	r.locker.Lock()
+	r.externalLocker.Lock()
 }
 
 func (r *remote) Unlock() {
-	r.locker.Unlock()
+	r.externalLocker.Unlock()
 }
 
 func (r *remote) NewLocker(prefix string) sync.Locker {
@@ -270,7 +274,9 @@ func (r *remote) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		updates: make(chan []byte),
 	}
 
+	r.internalLocker.Lock()
 	r.watchers = append(r.watchers, rcvr)
+	r.internalLocker.Unlock()
 
 	return rcvr, nil
 }
