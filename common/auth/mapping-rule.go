@@ -26,16 +26,16 @@ import (
 )
 
 type MappingRule struct {
-	RuleName string
+	RuleName string `yaml:"RuleName"`
 
 	// Left Attribute is attribute of external user (ldap, sql, api ...)
 	// For example: displayName, mail, memberOf
-	LeftAttribute string
+	LeftAttribute string `yaml:"LeftAttribute"`
 
 	// Right Attribute is attribute of standard user
 	// For example: displayName, email
 	// Two reserved attributes: Roles, GroupPath
-	RightAttribute string
+	RightAttribute string `yaml:"RightAttribute"`
 
 	// Attribute value type: single value or multiple values
 	// MultipleValueRightAttr bool `json:"MultipleValueRightAttr"`
@@ -45,11 +45,11 @@ type MappingRule struct {
 	// * Empty
 	// * A list of accepted values separated by comma , . For example: teacher,researcher,employee
 	// * preg string
-	RuleString string
+	RuleString string `yaml:"RuleString"`
 
 	// RolePrefix
 	// AuthSourceName_Prefix_RoleID
-	RolePrefix string
+	RolePrefix string `yaml:"RolePrefix"`
 }
 
 // IsDnFormat simply checks if the passed string is valid. See: https://www.ietf.org/rfc/rfc2253.txt
