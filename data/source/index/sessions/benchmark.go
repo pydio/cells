@@ -65,7 +65,7 @@ func (bb *BenchBatcher) Flush(ctx context.Context, dao index.DAO) {
 			for i := range benchMeasures {
 				m := benchMeasures[i]
 				d := m["duration"]
-				file.Write([]byte(fmt.Sprintf("%15d\n", d)))
+				file.WriteString(fmt.Sprintf("%15d\n", d))
 			}
 		} else {
 			log.Logger(ctx).Error("Failed to save benchmark results.")
