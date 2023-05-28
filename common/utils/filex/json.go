@@ -70,7 +70,7 @@ func Save(filename string, b []byte) error {
 	}
 	defer f.Close()
 
-	if _, err := f.WriteString(string(b)); err != nil {
+	if _, err := f.Write(b); err != nil {
 		return err
 	}
 
