@@ -139,9 +139,10 @@ func (m *memory) flush() {
 		case <-m.timer.C:
 			m.internalLocker.RLock()
 			clone := Clone(m.v.Interface())
+			snapClone := Clone(m.snap.Interface())
 			m.internalLocker.RUnlock()
 
-			patch, err := diff.Diff(m.snap.Interface(), clone)
+			patch, err := diff.Diff(snapClone, clone)
 			if err != nil {
 				continue
 			}
