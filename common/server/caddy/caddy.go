@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"golang.org/x/exp/maps"
 	"net"
 	"net/url"
 	"os"
@@ -318,6 +319,15 @@ func (s *Server) Metadata() map[string]string {
 
 func (s *Server) SetMetadata(meta map[string]string) {
 	s.meta = meta
+}
+
+func (s *Server) Clone() interface{} {
+	clone := &Server{}
+	clone.id = s.id
+	clone.name = s.name
+	clone.meta = maps.Clone(s.meta)
+
+	return clone
 }
 
 func (s *Server) As(i interface{}) bool {

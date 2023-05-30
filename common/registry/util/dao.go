@@ -21,6 +21,7 @@
 package util
 
 import (
+	"github.com/pydio/cells/v4/common/utils/std"
 	"golang.org/x/exp/maps"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -99,4 +100,13 @@ func (d *dao) Driver() string {
 
 func (d *dao) Dsn() string {
 	return d.d.Dsn
+}
+
+func (d *dao) Clone() interface{} {
+	clone := &dao{}
+
+	clone.I = std.DeepClone(d.I)
+	clone.d = std.DeepClone(d.d)
+
+	return clone
 }

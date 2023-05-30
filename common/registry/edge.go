@@ -2,6 +2,7 @@ package registry
 
 import (
 	"github.com/pydio/cells/v4/common/utils/merger"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 type edge struct {
@@ -56,4 +57,15 @@ func (e *edge) GetUniqueId() string {
 
 func (e *edge) Merge(differ merger.Differ, m map[string]string) (merger.Differ, error) {
 	return differ, nil
+}
+
+func (e *edge) Clone() interface{} {
+	clone := &edge{}
+
+	clone.id = e.id
+	clone.name = e.name
+	clone.vertices = std.CloneSlice(e.vertices)
+	clone.metadata = std.CloneMap(e.metadata)
+
+	return clone
 }

@@ -375,15 +375,17 @@ func (s *service) UnmarshalJSON(b []byte) error {
 }
 
 func (s *service) Clone() interface{} {
-
-	cloneOptions := &ServiceOptions{}
 	clone := &service{}
 
-	*cloneOptions = *s.opts
-	cloneOptions.Metadata = maps.Clone(s.opts.Metadata)
-
-	*clone = *s
-	clone.opts = cloneOptions
+	clone.status = s.status
+	clone.opts = &ServiceOptions{
+		Name:        s.opts.Name,
+		ID:          s.opts.ID,
+		Tags:        s.opts.Tags,
+		Version:     s.opts.Version,
+		Description: s.opts.Description,
+		Metadata:    maps.Clone(s.opts.Metadata),
+	}
 
 	return clone
 }

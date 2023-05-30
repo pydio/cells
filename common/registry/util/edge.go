@@ -21,6 +21,7 @@
 package util
 
 import (
+	"github.com/pydio/cells/v4/common/utils/std"
 	"golang.org/x/exp/maps"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -94,4 +95,13 @@ func (d *edge) As(i interface{}) bool {
 
 func (d *edge) Vertices() []string {
 	return d.E.Vertices
+}
+
+func (d *edge) Clone() interface{} {
+	clone := &edge{}
+
+	clone.I = std.DeepClone(d.I)
+	clone.E = std.DeepClone(d.E)
+
+	return clone
 }

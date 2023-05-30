@@ -22,6 +22,7 @@ package http
 
 import (
 	"context"
+	"golang.org/x/exp/maps"
 	"net"
 	"net/http"
 	"net/url"
@@ -156,4 +157,13 @@ func (s *Server) As(i interface{}) bool {
 		return true
 	}
 	return false
+}
+
+func (s *Server) Clone() interface{} {
+	clone := &Server{}
+	clone.id = s.id
+	clone.name = s.name
+	clone.meta = maps.Clone(s.meta)
+
+	return clone
 }

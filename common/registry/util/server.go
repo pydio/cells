@@ -21,6 +21,7 @@
 package util
 
 import (
+	"github.com/pydio/cells/v4/common/utils/std"
 	"golang.org/x/exp/maps"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -96,4 +97,13 @@ func (s *server) GetUniqueId() string {
 func (s *server) Merge(differ merger.Differ, params map[string]string) (merger.Differ, error) {
 	// Return target
 	return differ, nil
+}
+
+func (d *server) Clone() interface{} {
+	clone := &server{}
+
+	clone.I = std.DeepClone(d.I)
+	clone.S = std.DeepClone(d.S)
+
+	return clone
 }

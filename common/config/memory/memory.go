@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"net/url"
 	"os"
 	"regexp"
@@ -14,10 +13,11 @@ import (
 	"time"
 
 	"github.com/r3labs/diff/v3"
-	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
@@ -138,8 +138,8 @@ func (m *memory) flush() {
 			m.timer = time.NewTimer(timeout)
 		case <-m.timer.C:
 			m.internalLocker.RLock()
-			clone := Clone(m.v.Interface())
-			snapClone := Clone(m.snap.Interface())
+			clone := std.DeepClone(m.v.Interface())
+			snapClone := std.DeepClone(m.snap.Interface())
 			m.internalLocker.RUnlock()
 
 			patch, err := diff.Diff(snapClone, clone)
@@ -171,40 +171,6 @@ func (m *memory) flush() {
 			}
 		}
 	}
-}
-
-type Cloneable interface {
-	Clone() interface{}
-}
-
-func Clone[T ~map[string]any | ~[]any | any](t T) T {
-
-	switch vv := (interface{})(t).(type) {
-	case map[string]any:
-		var ret = make(map[string]any, len(vv))
-		for k, v := range vv {
-			ret[k] = Clone(v)
-		}
-
-		return (interface{})(ret).(T)
-	case []any:
-		var ret = make([]any, len(vv))
-		for _, v := range vv {
-			ret = append(ret, v)
-		}
-
-		return (interface{})(ret).(T)
-	case any:
-		if msg, ok := vv.(proto.Message); ok {
-			return (interface{})(proto.Clone(msg)).(T)
-		}
-
-		if c, ok := vv.(Cloneable); ok {
-			return (c.Clone()).(T)
-		}
-	}
-
-	return t
 }
 
 func (m *memory) update() {

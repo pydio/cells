@@ -23,6 +23,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/utils/std"
 
 	"github.com/pkg/errors"
 	"golang.org/x/exp/maps"
@@ -217,14 +218,11 @@ func (s *server) SetMetadata(meta map[string]string) {
 }
 
 func (s *server) Clone() interface{} {
-	cloneOptions := &Options{}
 	clone := &server{}
-
-	*cloneOptions = *s.Opts
-	cloneOptions.Metadata = s.Metadata()
-
-	*clone = *s
-	clone.Opts = cloneOptions
+	clone.s = std.DeepClone(s.s)
+	clone.Opts = &Options{
+		Metadata: std.DeepClone(s.Opts.Metadata),
+	}
 
 	return clone
 }
