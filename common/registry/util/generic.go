@@ -21,6 +21,7 @@
 package util
 
 import (
+	"github.com/pydio/cells/v4/common/utils/std"
 	"golang.org/x/exp/maps"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -100,4 +101,13 @@ func (d *generic) As(i interface{}) bool {
 		return true
 	}
 	return false
+}
+
+func (d *generic) Clone() interface{} {
+	clone := &generic{}
+
+	clone.I = std.DeepClone(d.I)
+	clone.E = std.DeepClone(d.E)
+
+	return clone
 }

@@ -24,6 +24,7 @@ import (
 	"context"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"golang.org/x/exp/maps"
 	"net/url"
 
 	"github.com/pydio/cells/v4/common/config"
@@ -150,6 +151,15 @@ func (s *Server) As(i interface{}) bool {
 	*v = s.s
 
 	return true
+}
+
+func (s *Server) Clone() interface{} {
+	clone := &Server{}
+	clone.id = s.id
+	clone.name = s.name
+	clone.meta = maps.Clone(s.meta)
+
+	return clone
 }
 
 type ForkServer struct {

@@ -21,16 +21,15 @@
 package util
 
 import (
+	"github.com/pydio/cells/v4/common/utils/std"
 	"strings"
-
-	"golang.org/x/exp/maps"
-	"google.golang.org/protobuf/proto"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/merger"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+	"golang.org/x/exp/maps"
 )
 
 func CreateNode() registry.Node {
@@ -129,8 +128,8 @@ func (n *node) As(i interface{}) bool {
 
 func (n *node) Clone() interface{} {
 	clone := &node{}
-	clone.I = proto.Clone(n.I).(*pb.Item)
-	clone.D = proto.Clone(n.D).(*pb.Node)
+	clone.I = std.DeepClone(n.I)
+	clone.D = std.DeepClone(n.D)
 
 	return clone
 }

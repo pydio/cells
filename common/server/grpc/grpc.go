@@ -243,6 +243,18 @@ func (s *Server) As(i interface{}) bool {
 	return false
 }
 
+func (s *Server) Clone() interface{} {
+	clone := &Server{}
+	clone.id = s.id
+	clone.name = s.name
+	clone.opts = &Options{
+		Name: s.opts.Name,
+		Addr: s.opts.Addr,
+	}
+
+	return clone
+}
+
 type Handler struct{}
 
 func (h *Handler) Check(ctx context.Context, req *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error) {
