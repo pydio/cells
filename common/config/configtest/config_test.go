@@ -23,10 +23,10 @@ package configtest
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config/memory"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/std"
 	"github.com/r3labs/diff/v3"
 	"log"
 	"os"
@@ -94,7 +94,7 @@ func TestNodeDiff(t *testing.T) {
 	a := configx.New()
 	a.Val("test").Set(node)
 
-	clone := memory.Clone(node)
+	clone := std.DeepClone(node)
 	if ms, ok := clone.(MetaSetter); ok {
 		ms.SetMetadata(map[string]string{"status": "ready"})
 	}
