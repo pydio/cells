@@ -4,16 +4,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/pydio/cells/v4/common/utils/std"
 	"net/url"
 	"regexp"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/mitchellh/copystructure"
+	"github.com/r3labs/diff/v3"
+
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/r3labs/diff/v3"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
@@ -52,8 +54,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 }
 
 type memory struct {
-	v    configx.Values
-	snap configx.Values
+	v configx.Values
 
 	opts            []configx.Option
 	receiversLocker *sync.RWMutex
@@ -86,7 +87,6 @@ func New(opt ...configx.Option) config.Store {
 		receiversLocker: &sync.RWMutex{},
 		reset:           make(chan bool),
 		timer:           time.NewTimer(timeout),
-		snap:            configx.New(opt...),
 	}
 
 	go m.flush()
@@ -95,6 +95,7 @@ func New(opt ...configx.Option) config.Store {
 }
 
 func (m *memory) flush() {
+	snap := configx.New(m.opts...)
 	for {
 		select {
 		case <-m.reset:
@@ -103,20 +104,17 @@ func (m *memory) flush() {
 		case <-m.timer.C:
 			m.internalLocker.RLock()
 			clone := std.DeepClone(m.v.Interface())
-			snapClone := std.DeepClone(m.snap.Interface())
 			m.internalLocker.RUnlock()
 
-			patch, err := diff.Diff(snapClone, clone)
+			patch, err := diff.Diff(snap.Interface(), clone, diff.AllowTypeMismatch(true))
 			if err != nil {
 				continue
 			}
 
-			snap := configx.New(m.opts...)
-			if err := snap.Set(clone); err != nil {
+			copy, _ := copystructure.Copy(clone)
+			if err := snap.Set(copy); err != nil {
 				continue
 			}
-
-			m.snap = snap
 
 			for _, op := range patch {
 				var updated []*receiver

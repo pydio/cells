@@ -128,6 +128,7 @@ func (n *node) As(i interface{}) bool {
 
 func (n *node) Clone() interface{} {
 	clone := &node{}
+
 	clone.I = std.DeepClone(n.I)
 	clone.D = std.DeepClone(n.D)
 
