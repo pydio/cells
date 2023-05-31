@@ -93,9 +93,15 @@ let LoginDialogMixin = {
         }else{
             login = this.refs.login.getValue();
         }
+        const pass = this.refs.password.getValue()
+        const mm = pydio.MessageHash
+        if(!login || !pass) {
+            this.setState({errorId:mm[passwordOnly?'gui.user.10':'gui.user.9'], loading: false})
+            return Promise.resolve()
+        }
+
         const {loginLanguage} = this.state;
         sessionStorage.removeItem('loginLanguage');
-
         return restClient.sessionLoginWithCredentials(login, this.refs.password.getValue(), loginLanguage)
             .then(() => this.dismiss())
             .then(() => restClient.getOrUpdateJwt().then(() => pydio.loadXmlRegistry(null, null, null)).catch(() => {}))
@@ -107,7 +113,7 @@ let LoginDialogMixin = {
                 } else if(e && e.message){
                     this.setState({errorId: e.message});
                 } else {
-                    this.setState({errorId: 'Login failed!'})
+                    this.setState({errorId: mm['gui.user.11']})
                 }
             })
     }
