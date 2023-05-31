@@ -151,7 +151,7 @@ func (c *MigrateGlobalMetaAction) loadMeta(ctx context.Context, conf *config.Sdk
 	}
 	subClient := activity.NewActivityServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceActivity))
 	metaClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
-	log.TasksLogger(ctx).Info("Global Meta", zap.Any("data length", len(data)))
+	log.TasksLogger(ctx).Info("Global Meta", zap.Int("data length", len(data)))
 	for wsId, users := range data {
 		slug := c.FindSlug(ctx, wsId)
 		if slug == "" {

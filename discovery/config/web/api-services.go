@@ -110,7 +110,7 @@ func (h *Handler) ListRegistry(req *restful.Request, resp *restful.Response) {
 		return
 	}
 	defer pluginsReg.Close()
-	
+
 	opts := util.ToOptions(input.Options)
 	if input.Options == nil || len(input.Options.Types) == 0 {
 		for _, t := range rpb.ItemType_value {
@@ -321,7 +321,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 		}
 	}
 
-	log.Logger(ctx).Info("Checking parent folder is writable before creating datasource", zap.Any("ds", newSource))
+	log.Logger(ctx).Info("Checking parent folder is writable before creating datasource", zap.Object("ds", newSource))
 	// Finally try to write a tmp file inside parent folder to make sure it's writable, then remove it
 	touchFile := &tree.Node{
 		Type: tree.NodeType_LEAF,

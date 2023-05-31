@@ -188,7 +188,7 @@ func (n *NodesSelector) Select(ctx context.Context, input *ActionMessage, object
 			return e
 		}
 	}
-	log.Logger(ctx).Info("Selector finished request with query", zap.Any("q", q), zap.Int("count", total))
+	log.Logger(ctx).Info("Selector finished request with query", zap.Any("q", *q), zap.Int("count", total))
 
 	return nil
 }

@@ -89,11 +89,6 @@ type serviceRegistry struct {
 	client pb.RegistryClient
 	// health client to registry
 	donec chan struct{}
-
-	// events
-	hasStream bool
-	// listeners
-	listeners []chan registry.Result
 }
 
 func (s *serviceRegistry) callOpts() []grpc.CallOption {
@@ -285,8 +280,6 @@ func (s *serviceRegistry) Watch(opts ...registry.Option) (registry.Watcher, erro
 	if err != nil {
 		return nil, err
 	}
-
-	s.hasStream = true
 
 	return newStreamWatcher(stream, options), nil
 }

@@ -63,8 +63,8 @@ func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequ
 	}
 	var excludeFromRehash []index.LostAndFound
 	if len(duplicates) > 0 {
-		log.Logger(ctx).Info("[Index] Duplicates found at session indexation start", zap.Any("dups", len(duplicates)))
-		log.TasksLogger(ctx).Info("[Index] Duplicates found at session indexation start", zap.Any("dups", len(duplicates)))
+		log.Logger(ctx).Info("[Index] Duplicates found at session indexation start", zap.Int("dups", len(duplicates)))
+		log.TasksLogger(ctx).Info("[Index] Duplicates found at session indexation start", zap.Int("dups", len(duplicates)))
 
 		marked, conflicts, err := s.checkACLs(ctx, duplicates)
 		if err != nil {

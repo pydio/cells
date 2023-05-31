@@ -58,7 +58,7 @@ func InsertPruningJob(ctx context.Context) error {
 	if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pruneTokensActionName}); e == nil && resp.Job != nil {
 		return nil // Already exists
 	} else if e != nil && errors.FromError(e).Code != 404 {
-		log.Logger(ctx).Info("Insert pruning job: jobs service not ready yet :"+e.Error(), zap.Any("err", errors.FromError(e)))
+		log.Logger(ctx).Info("Insert pruning job: jobs service not ready yet :"+e.Error(), zap.Error(errors.FromError(e)))
 		return e // not ready yet, retry
 	}
 	_, e := cli.PutJob(ctx, &jobs.PutJobRequest{Job: &jobs.Job{

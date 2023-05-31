@@ -268,13 +268,13 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 			Target string
 			Urls   []string
 		}
-		var jsonParams params
+		var structParams params
 		if request.JsonParameters != "" {
-			json.Unmarshal([]byte(request.JsonParameters), &jsonParams)
+			json.Unmarshal([]byte(request.JsonParameters), &structParams)
 		}
-		target := jsonParams.Target
-		urls := jsonParams.Urls
-		log.Logger(ctx).Info("Wget Task with params", zap.Any("params", jsonParams))
+		target := structParams.Target
+		urls := structParams.Urls
+		log.Logger(ctx).Info("Wget Task with params", zap.Any("params", structParams))
 		uuids, e := wgetTasks(ctx, target, urls, languages...)
 		jobUuid = strings.Join(uuids, ",")
 		err = e

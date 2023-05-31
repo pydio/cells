@@ -48,7 +48,7 @@ func WithEncryption() nodes.Option {
 	}
 }
 
-//Handler encryption node middleware
+// Handler encryption node middleware
 type Handler struct {
 	abstract.Handler
 	userKeyTool          UserKeyTool
@@ -68,7 +68,7 @@ func (e *Handler) SetNodeKeyManagerClient(nodeKeyManagerClient encryption.NodeKe
 	e.nodeKeyManagerClient = nodeKeyManagerClient
 }
 
-//GetObject enriches request metadata for GetObject with Encryption Materials, if required by the datasource.
+// GetObject enriches request metadata for GetObject with Encryption Materials, if required by the datasource.
 func (e *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	if strings.HasSuffix(node.Path, common.PydioSyncHiddenFile) {
 		return e.Next.GetObject(ctx, node, requestData)
@@ -215,9 +215,9 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 		return models.ObjectInfo{}, err
 	}
 
-	ct, ca := context.WithCancel(ctx)
-	defer ca()
-	streamClient, err := e.getNodeKeyManagerClient().SetNodeInfo(ct)
+	//	ct, ca := context.WithCancel(ctx)
+	//	defer ca()
+	streamClient, err := e.getNodeKeyManagerClient().SetNodeInfo(ctx)
 	if err != nil {
 		log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to save node encryption info", zap.Error(err))
 		return models.ObjectInfo{}, err
