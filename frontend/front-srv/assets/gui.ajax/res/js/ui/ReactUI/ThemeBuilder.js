@@ -261,7 +261,7 @@ export default class ThemeBuilder {
             const customsHex = {...customTypesColors, avatarsColor: palette.avatarsColor}
             const customs = Object.keys(customsHex).map(k => {return {name:k, value: argbFromHex(customsHex[k]), blend: true}})
             const theme3 = themeFromSourceColor(argbFromHex(palette.primary1Color), customs);
-            console.log(theme3);
+            //console.log(theme3);
             // Apply the theme to the body by updating custom properties for material tokens
             if(styleTarget.className && styleTarget.className.indexOf('mui3-token') === -1) {
                 styleTarget.className += ' mui3-token'
@@ -474,7 +474,7 @@ export default class ThemeBuilder {
         }
 
         this._theme = getMuiTheme(themeCusto);
-        console.log(this._theme)
+        //console.log(this._theme)
         return this._theme;
 
     }

@@ -25,14 +25,16 @@ import browserHistory from 'react-router/lib/browserHistory';
 const MainRouterWrapper = (pydio) => {
     class MainRouter extends React.PureComponent {
         componentDidMount() {
-            this.ctxObs = _.debounce(() => this.reset(), 1000, {'leading': true, 'trailing': false})
+            this.ctxObs = _.debounce(() => this.reset(), 500, {'leading': true, 'trailing': true})
 
             pydio.getContextHolder().observe("context_changed", this.ctxObs);
             pydio.getContextHolder().observe("repository_list_refreshed", this.ctxObs);
             pydio.observeOnce('user_logged', () => {
                 if(localStorage.getItem('loginOrigin')) {
-                    browserHistory.replace(localStorage.getItem('loginOrigin'));
-                    localStorage.removeItem('loginOrigin');
+                    setTimeout(() => {
+                        browserHistory.replace(localStorage.getItem('loginOrigin'));
+                        localStorage.removeItem('loginOrigin');
+                    }, 500)
                 }
             })
         }

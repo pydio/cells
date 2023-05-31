@@ -23,7 +23,9 @@ import browserHistory from 'react-router/lib/browserHistory';
 
 const LoginRouterWrapper = (pydio) => {
     const LoginRouter = (props) => {
-        if (pydio.user) browserHistory.replace("/")
+        if (pydio.user) {
+            browserHistory.replace("/")
+        }
 
         pydio.observeOnce('user_logged', () => browserHistory.replace("/"))
     
