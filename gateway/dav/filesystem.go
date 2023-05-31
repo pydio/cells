@@ -348,7 +348,7 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 	// 	return totalUploadedSize, err
 	// }
 
-	if len(completeParts) == 0 || written == 0  {
+	if len(completeParts) == 0 || written == 0 {
 		return 0, nil
 	}
 
@@ -564,7 +564,7 @@ func (f *File) Stat() (os.FileInfo, error) {
 	f.fs.mu.Lock()
 	defer f.fs.mu.Unlock()
 
-	log.Logger(f.ctx).Info("File.Stat", zap.Any("file node", f.node))
+	log.Logger(f.ctx).Info("File.Stat", zap.Object("file node", f.node))
 
 	return f.fs.stat(f.ctx, f.name)
 }

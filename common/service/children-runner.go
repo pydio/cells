@@ -180,7 +180,7 @@ func (c *ChildrenRunner) StopAll(ctx context.Context) {
 func (c *ChildrenRunner) updateSourcesList(ctx context.Context, sources []string) {
 
 	//log.Logger(ctx).Info("Got an event on sources keys for " + c.parentName + ". Let's start/stop services accordingly")
-	log.Logger(ctx).Info("Got an event on sources keys for "+c.parentName, zap.Any("new sources", sources), zap.Any("currently running", c.services))
+	log.Logger(ctx).Info("Got an event on sources keys for "+c.parentName, zap.Strings("new sources", sources), zap.Any("currently running", c.services))
 
 	all := config.Get("services")
 	var servicesConf map[string]interface{}

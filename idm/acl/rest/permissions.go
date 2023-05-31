@@ -99,7 +99,7 @@ func (a *Handler) CheckRole(ctx context.Context, roleID string) error {
 		log.Logger(ctx).Error("Error while checking role from ACL rest : ", zap.Any("role", role), log.DangerouslyZapSmallSlice("subjects", subjects))
 		return errors.Forbidden(common.ServiceAcl, "You are not allowed to edit this role ACLs")
 	}
-	log.Logger(ctx).Info("Checking acl write on role PASSED", zap.Any("roleId", roleID))
+	log.Logger(ctx).Info("Checking acl write on role PASSED", zap.String("roleId", roleID))
 	return nil
 
 }

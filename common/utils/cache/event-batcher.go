@@ -114,12 +114,12 @@ func (b *EventsBatcher) process() {
 
 func (b *EventsBatcher) processBatch(bb []*EventWithContext) {
 	if b.atomic {
-		log.Logger(b.globalCtx).Debug("Processing batched events one by one", zap.Int("size", len(b.batch)))
+		log.Logger(b.globalCtx).Debug("Processing batched events one by one", zap.Int("size", len(bb)))
 		for _, e := range bb {
 			b.processOneOrAll(e.Ctx, e.NodeChangeEvent)
 		}
 	} else {
-		log.Logger(b.globalCtx).Debug("Processing batched events as a batch", zap.Int("size", len(b.batch)))
+		log.Logger(b.globalCtx).Debug("Processing batched events as a batch", zap.Int("size", len(bb)))
 		var cleanEvents []*tree.NodeChangeEvent
 		for _, e := range bb {
 			cleanEvents = append(cleanEvents, e.NodeChangeEvent)

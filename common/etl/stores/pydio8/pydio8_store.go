@@ -283,7 +283,7 @@ func getUsersFromPath(s *Pydio8Store, p string, page int64) ([]*idm.User, error)
 			newUsers, err := getUsersFromPath(s, key, 1)
 
 			if err != nil {
-				log.Info("An error occurred while migrating group... Continuing", zap.Any("params", params), zap.Error(err))
+				log.Info("An error occurred while migrating group... Continuing", zap.Any("params", *params), zap.Error(err))
 				return users, nil
 			}
 

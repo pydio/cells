@@ -311,7 +311,7 @@ func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.R
 		return
 	}
 
-	log.Logger(ctx).Info("Updated policies for share", zap.Any("uuid", input.Uuid))
+	log.Logger(ctx).Info("Updated policies for share", zap.String("uuid", input.Uuid))
 	log.Auditer(ctx).Info("Updated policies for share", ws.ZapUuid())
 	response := &rest.UpdateSharePoliciesResponse{
 		Success:                 true,

@@ -301,7 +301,7 @@ func (s *Sync) RootStats(ctx context.Context, useSnapshots bool) (map[string]*mo
 			defer wg.Done()
 			if sourceRoots, e := s.statRoots(ctx, epCopy); e == nil {
 				lock.Lock()
-				log.Logger(ctx).Info("Got Stats for "+keyCopy, zap.Any("stats", sourceRoots))
+				log.Logger(ctx).Info("Got Stats for "+keyCopy, zap.Any("stats", *sourceRoots))
 				result[keyCopy] = sourceRoots
 				lock.Unlock()
 				if !useSnapshots && s.watchConn != nil {

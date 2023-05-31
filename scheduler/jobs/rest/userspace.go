@@ -563,7 +563,7 @@ func p8migration(ctx context.Context, jsonParams string) (string, error) {
 	}
 	job.Actions = rootAction.ChainedActions
 
-	log.Logger(ctx).Info("Posting Job", zap.Any("job", job))
+	log.Logger(ctx).Info("Posting Job", zap.Object("job", job))
 
 	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
 	if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er == nil {
