@@ -221,7 +221,7 @@ func (s *server) Clone() interface{} {
 	clone := &server{}
 	clone.s = std.DeepClone(s.s)
 	clone.Opts = &Options{
-		Metadata: std.DeepClone(s.Opts.Metadata),
+		Metadata: s.Metadata(),
 	}
 
 	return clone
