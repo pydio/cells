@@ -42,6 +42,8 @@ import (
 type service struct {
 	opts   *ServiceOptions
 	status registry.Status
+
+	locker *sync.RWMutex
 }
 
 var _ registry.Service = (*service)(nil)
@@ -74,6 +76,7 @@ func NewService(opts ...ServiceOption) Service {
 	s := &service{
 		opts:   newOptions(append(mandatoryOptions, opts...)...),
 		status: registry.StatusStopped,
+		locker: &sync.RWMutex{},
 	}
 
 	name := s.opts.Name
@@ -115,6 +118,9 @@ func (s *service) Is(status registry.Status) bool {
 }
 
 func (s *service) Metadata() map[string]string {
+	s.locker.RLock()
+	defer s.locker.RUnlock()
+
 	// Create a copy to append internal status as metadata
 	clone := maps.Clone(s.opts.Metadata)
 	clone[registry.MetaStatusKey] = string(s.status)
@@ -133,6 +139,9 @@ func (s *service) Metadata() map[string]string {
 }
 
 func (s *service) SetMetadata(meta map[string]string) {
+	s.locker.Lock()
+	defer s.locker.Unlock()
+
 	if status, ok := meta[registry.MetaStatusKey]; ok {
 		s.status = registry.Status(status)
 	}
@@ -374,7 +383,9 @@ func (s *service) UnmarshalJSON(b []byte) error {
 }
 
 func (s *service) Clone() interface{} {
-	clone := &service{}
+	clone := &service{
+		locker: &sync.RWMutex{},
+	}
 
 	clone.status = s.status
 	clone.opts = &ServiceOptions{
@@ -383,7 +394,7 @@ func (s *service) Clone() interface{} {
 		Tags:        s.opts.Tags,
 		Version:     s.opts.Version,
 		Description: s.opts.Description,
-		Metadata:    maps.Clone(s.opts.Metadata),
+		Metadata:    s.Metadata(),
 	}
 
 	return clone

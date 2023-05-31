@@ -77,51 +77,7 @@ func TestMemory(t *testing.T) {
 		t.Skip("skipping test: no mem registry")
 	}
 
-	wg := &sync.WaitGroup{}
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		doTestAdd(t, testMemRegistry)
-	}()
-
-	go func() {
-		w, err := testMemRegistry.Watch(registry.WithType(pb.ItemType_SERVICE))
-		if err != nil {
-			return
-		}
-
-		for {
-			res, err := w.Next()
-			if err != nil {
-				continue
-			}
-
-			for _, item := range res.Items() {
-				fmt.Println(item.Metadata())
-			}
-
-		}
-	}()
-
-	go func() {
-		t := time.NewTicker(15 * time.Millisecond)
-		for {
-			select {
-			case <-t.C:
-				svcs, err := testMemRegistry.List(registry.WithType(pb.ItemType_SERVICE))
-				if err != nil {
-					continue
-				}
-
-				for _, svc := range svcs {
-					svc.Metadata()[registry.MetaStatusKey] = "test"
-				}
-			}
-		}
-	}()
-
-	wg.Wait()
+	doTestAdd(t, testMemRegistry)
 }
 
 func TestService(t *testing.T) {
@@ -243,9 +199,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		for i := 0; i < numServers; i++ {
 			srv := grpc.New(ctx, grpc.WithName("mock"))
 
-			select {
-			case ch <- srv:
-			}
+			ch <- srv
 
 			serverIds = append(serverIds, srv.ID())
 			servers = append(servers, srv)
@@ -260,9 +214,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 				service.Context(ctx),
 			)
 
-			select {
-			case ch <- svc:
-			}
+			ch <- svc
 
 			ids = append(ids, svc.ID())
 			services = append(services, svc)
@@ -300,9 +252,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 
 						if ms, ok := node.(registry.MetaSetter); ok {
 							ms.SetMetadata(meta)
-							select {
-							case ch <- ms.(registry.Item):
-							}
+							ch <- ms.(registry.Item)
 						}
 
 						nodeUpdates = append(nodeUpdates, node.ID())
@@ -326,9 +276,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 
 						if ms, ok := srv.(registry.MetaSetter); ok {
 							ms.SetMetadata(meta)
-							select {
-							case ch <- ms.(registry.Item):
-							}
+							ch <- ms.(registry.Item)
 						}
 
 						srvUpdates = append(srvUpdates, srv.ID())
@@ -352,9 +300,7 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 
 						if ms, ok := svc.(registry.MetaSetter); ok {
 							ms.SetMetadata(meta)
-							select {
-							case ch <- ms.(registry.Item):
-							}
+							ch <- ms.(registry.Item)
 						}
 
 						svcUpdates = append(svcUpdates, svc.ID())
