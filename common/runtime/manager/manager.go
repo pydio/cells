@@ -557,7 +557,6 @@ func (m *manager) WatchTransientStatus() {
 	for {
 		res, er := w.Next()
 		if er != nil {
-
 			break
 		}
 
