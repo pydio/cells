@@ -574,7 +574,7 @@ func (m *Merger) SaveShares(ctx context.Context, diff *models.ShareDiff, progres
 		if !ok {
 			continue
 		}
-		log.Logger(ctx).Info("Cross Loading Share", zap.Any("s", s))
+		log.Logger(ctx).Info("Cross Loading Share", zap.Any("s", *s))
 		e := m.Source.CrossLoadShare(ctx, s, m.Target, params)
 		if e == nil {
 			progress <- MergeOperation{

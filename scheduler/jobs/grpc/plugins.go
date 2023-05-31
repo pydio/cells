@@ -145,7 +145,7 @@ func init() {
 						Status:     []proto.TaskStatus{proto.TaskStatus_Any},
 						PruneLimit: 1,
 					}); e == nil {
-						logger.Info("Migration 1.4.0: removed tasks on job users-activity-digest that could fill up the scheduler", zap.Any("number", len(resp.Deleted)))
+						logger.Info("Migration 1.4.0: removed tasks on job users-activity-digest that could fill up the scheduler", zap.Int("number", len(resp.Deleted)))
 					} else {
 						logger.Error("Error while trying to prune tasks for job users-activity-digest", zap.Error(e))
 					}
@@ -154,7 +154,7 @@ func init() {
 						Status:     []proto.TaskStatus{proto.TaskStatus_Any},
 						PruneLimit: 1,
 					}); e == nil {
-						logger.Info("Migration 1.4.0: removed tasks on job resync-changes-job that could fill up the scheduler", zap.Any("number", len(resp.Deleted)))
+						logger.Info("Migration 1.4.0: removed tasks on job resync-changes-job that could fill up the scheduler", zap.Int("number", len(resp.Deleted)))
 					} else {
 						logger.Error("Error while trying to prune tasks for job resync-changes-job", zap.Error(e))
 					}

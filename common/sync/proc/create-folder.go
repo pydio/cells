@@ -47,7 +47,7 @@ func (pr *Processor) processCreateFolder(cancelCtx context.Context, operation me
 			pr.Logger().Info("Node found with same UUID", zap.String("local", localPath), sameIdNode.ZapPath())
 			if sameIdNode.Path == localPath {
 				// This is the same node, it already exists! Ignore operation
-				pr.Logger().Info("CreateFolder: already exists with same UUID, ignoring!", zap.Any("e", operation.GetRefPath()))
+				pr.Logger().Info("CreateFolder: already exists with same UUID, ignoring!", zap.String("refPath", operation.GetRefPath()))
 				return nil
 			}
 			// This is a duplicate! We have to refresh .pydio content now

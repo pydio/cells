@@ -65,12 +65,12 @@ func (e *Executor) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts 
 		}
 		writer := info.Client
 		s3Path := e.buildS3Path(info, in.Node)
-		if oi, e := writer.StatObject(ctx, info.ObjectsBucket, s3Path, nil); e != nil {
-			if e.Error() == noSuchKeyString {
-				e = errors.NotFound("not.found", "object not found in datasource: %s", s3Path)
+		if oi, er := writer.StatObject(ctx, info.ObjectsBucket, s3Path, nil); er != nil {
+			if er.Error() == noSuchKeyString {
+				er = errors.NotFound("not.found", "object not found in datasource: %s", s3Path)
 			}
-			log.Logger(ctx).Info("ReadNodeRequest/ObjectsStats Failed", zap.Any("r", in), zap.Error(e))
-			return nil, e
+			log.Logger(ctx).Info("ReadNodeRequest/ObjectsStats Failed", zap.Object("ReadNodeRequest.Node", in.Node), zap.Uint32s("StatFlags", in.StatFlags), zap.Error(er))
+			return nil, er
 		} else {
 			// Build fake node from Stats
 			out := in.Node.Clone()

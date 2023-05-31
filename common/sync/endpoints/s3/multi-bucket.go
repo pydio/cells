@@ -151,7 +151,7 @@ func (m *MultiBucketClient) Walk(ctx context.Context, walknFc model.WalkNodesFun
 						tKey := s3BucketTagPrefix + key
 						for _, g := range m.bucketMetas {
 							if g.Match(tKey) {
-								log.Logger(context.Background()).Info("Attaching tag information to bucket "+bucket.Name, zap.Any(tKey, value))
+								log.Logger(context.Background()).Info("Attaching tag information to bucket "+bucket.Name, zap.String(tKey, value))
 								fNode.MustSetMeta(tKey, value)
 								break
 							}
