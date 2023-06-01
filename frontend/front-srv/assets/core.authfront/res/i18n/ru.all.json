@@ -22,5 +22,14 @@
   },
   "8": {
     "other": "Используйте форму ниже, чтобы сбросить пароль. Пожалуйста, введите свой логин и новый пароль дважды."
+  },
+  "9": {
+    "other": "Please enter your username and password"
+  },
+  "10": {
+    "other": "Please enter the password you received"
+  },
+  "11": {
+    "other": "Login failed: could not recognise your username or password"
   }
 }

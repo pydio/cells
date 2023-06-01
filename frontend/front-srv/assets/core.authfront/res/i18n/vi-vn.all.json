@@ -22,5 +22,14 @@
   },
   "8": {
     "other": "Sử dụng mẫu dưới đây để đặt lại mật khẩu của bạn. Vui lòng nhập tên đăng nhập và mật khẩu mới hai lần."
+  },
+  "9": {
+    "other": "Please enter your username and password"
+  },
+  "10": {
+    "other": "Please enter the password you received"
+  },
+  "11": {
+    "other": "Login failed: could not recognise your username or password"
   }
 }
