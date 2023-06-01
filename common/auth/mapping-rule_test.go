@@ -24,11 +24,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ghodss/yaml"
 	"github.com/kylelemons/godebug/pretty"
+	"gopkg.in/yaml.v2"
 )
-
-var _ = yaml.YAMLToJSON
 
 func TestUnmarshalMappingRuleConfig(t *testing.T) {
 	rawConfig := []byte(`
