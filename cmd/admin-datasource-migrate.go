@@ -24,14 +24,16 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
-	registry2 "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"io"
 	"os"
 	"path"
 	"strings"
 	"time"
+
+	registry2 "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	"github.com/dustin/go-humanize"
 	"github.com/manifoldco/promptui"
@@ -342,13 +344,21 @@ func migratePerformMigration(ctx context.Context, ds *object.DataSource, mc node
 			mm[k] = v
 		}
 	}
+	var nodes []*tree.Node
 	for {
 		r, e := str.Recv()
 		if e != nil {
+			if e != io.EOF {
+				migrateLogger(fmt.Sprintf("[ERROR] in receiving data from grpc: %s", e.Error()), true)
+			}
 			break
 		}
-		n := r.GetNode()
+		nodes = append(nodes, r.GetNode())
+	}
 
+	migrateLogger(fmt.Sprintf("Received %d objects to be migrated", len(nodes)), true)
+
+	for _, n := range nodes {
 		srcPath := n.GetPath()
 		tgtPath := ds.FlatShardedPath(n.GetUuid())
 		isPydio := path.Base(n.GetPath()) == common.PydioSyncHiddenFile
