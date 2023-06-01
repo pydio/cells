@@ -700,7 +700,7 @@ func (d *daocache) GetNodeTree(ctx context.Context, path mtree.MPath, filter ...
 		// Looping
 		var keys []string
 		for k := range d.cache {
-			if childRegexp.Match([]byte(k)) {
+			if childRegexp.MatchString(k) {
 				keys = append(keys, k)
 			}
 		}
