@@ -22,5 +22,14 @@
   },
   "8": {
     "other": "Usar el formulario para restaurar la contraseña. Introduzca el usuario y la nueva contraseña dos veces."
+  },
+  "9": {
+    "other": "Please enter your username and password"
+  },
+  "10": {
+    "other": "Please enter the password you received"
+  },
+  "11": {
+    "other": "Login failed: could not recognise your username or password"
   }
 }
