@@ -47,7 +47,7 @@ import (
 // FileSystem is the pydio specific implementation of the generic webdav.FileSystem interface
 // It adds among others a reference to the Router and a mutex
 type FileSystem struct {
-	mu     sync.Mutex
+	mu     *sync.Mutex
 	Debug  bool
 	Router nodes.Client
 }

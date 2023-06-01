@@ -62,13 +62,15 @@ func newHandler(ctx context.Context, router nodes.Client) http.Handler {
 	fs := &FileSystem{
 		Router: router,
 		Debug:  true,
-		mu:     sync.Mutex{},
+		mu:     &sync.Mutex{},
 	}
+
+	memLs := NewMemLS()
 
 	dav := &webdav.Handler{
 		FileSystem: fs,
 		Prefix:     "/dav",
-		LockSystem: webdav.NewMemLS(),
+		LockSystem: memLs,
 		Logger: func(r *http.Request, err error) {
 			if strings.HasPrefix(path.Base(r.URL.Path), ".") {
 				// Ignore dot files
@@ -81,12 +83,29 @@ func newHandler(ctx context.Context, router nodes.Client) http.Handler {
 					dst = u.Path
 				}
 				if err == nil {
-					log.Logger(ctx).Debug("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("destination", dst))
+					clean := memLs.(*memLS).Delete(time.Now(), strings.TrimPrefix(r.URL.Path, "/dav"))
+					if clean {
+						log.Logger(ctx).Info("| - DAV END | Cleaned lock Copy or Move", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("destination", dst))
+					} else {
+						log.Logger(ctx).Debug("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("destination", dst))
+					}
+
 				} else {
 					log.Logger(ctx).Error("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("destination", dst), zap.Error(err))
 				}
+			case "DELETE":
+				if err != nil {
+					log.Logger(ctx).Error("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.Error(err))
+				} else {
+					clean := memLs.(*memLS).Delete(time.Now(), strings.TrimPrefix(r.URL.Path, "/dav"))
+					if clean {
+						log.Logger(ctx).Info("| - DAV END | Cleaned lock after DELETE", zap.String("method", r.Method), zap.String("path", r.URL.Path))
+					} else {
+						log.Logger(ctx).Debug("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path))
+					}
+				}
 			default:
-				if err == nil {
+				if err == nil || (r.Method == "PROPFIND" && err.Error() == "file does not exist") {
 					log.Logger(ctx).Debug("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path))
 				} else {
 					log.Logger(ctx).Error("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.Error(err))
