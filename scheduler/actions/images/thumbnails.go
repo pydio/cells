@@ -180,6 +180,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	}
 
 	log.Logger(ctx).Debug("[THUMB EXTRACTOR] Getting object content", zap.String("Path", node.Path), zap.Int64("Size", node.Size))
+	var router nodes.Client
 	var reader io.ReadCloser
 	var err error
 	var errPath string
@@ -190,7 +191,8 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	} else {
 		// Security in case Router is not transmitting nodes immutably
 		routerNode := proto.Clone(node).(*tree.Node)
-		reader, err = getRouter(t.GetRuntimeContext()).GetObject(ctx, routerNode, &models.GetRequestData{Length: -1})
+		router = getRouter(t.GetRuntimeContext())
+		reader, err = router.GetObject(ctx, routerNode, &models.GetRequestData{Length: -1})
 		errPath = routerNode.Path
 	}
 	if err != nil {
@@ -238,7 +240,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		}
 
 		displayMemStat(ctx, "BEFORE WRITE SIZE FROM SRC")
-		updateMeta, err := t.writeSizeFromSrc(ctx, src, node, size)
+		updateMeta, err := t.writeSizeFromSrc(ctx, src, node, size, router)
 		if err != nil {
 			// Remove processing state from Metadata
 			node.MustSetMeta(MetadataThumbnails, nil)
@@ -274,7 +276,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	return err
 }
 
-func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Image, node *tree.Node, targetSize int) (bool, error) {
+func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Image, node *tree.Node, targetSize int, router nodes.Client) (bool, error) {
 
 	localTest := false
 	localFolder := ""
@@ -288,7 +290,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 
 	if !localTest {
 
-		dsi, e := getRouter(t.GetRuntimeContext()).GetClientsPool().GetDataSourceInfo(common.PydioThumbstoreNamespace)
+		dsi, e := router.GetClientsPool().GetDataSourceInfo(common.PydioThumbstoreNamespace)
 		if e != nil || dsi.Client == nil {
 			logger.Error("Cannot find ds info for thumbnail store", zap.Error(e))
 			return false, e
@@ -341,12 +343,12 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 		}
 		logger.Debug("Writing thumbnail to thumbs bucket", zap.Any("image size", targetSize))
 		displayMemStat(ctx, "BEFORE PUT OBJECT WITH CONTEXT")
-		tCtx, tNode, e := getThumbLocation(t.GetRuntimeContext(), ctx, objectName)
+		tCtx, tNode, e := getThumbLocation(router, ctx, objectName)
 		if e != nil {
 			return false, e
 		}
 		tNode.Size = int64(buf.Len())
-		oi, err := getRouter(t.GetRuntimeContext()).PutObject(tCtx, tNode, buf, &models.PutRequestData{
+		oi, err := router.PutObject(tCtx, tNode, buf, &models.PutRequestData{
 			Size:     tNode.Size,
 			Metadata: requestMeta,
 		})

@@ -23,7 +23,9 @@ package grpc
 
 import (
 	"context"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"path/filepath"
+	"time"
 
 	"google.golang.org/grpc"
 
@@ -59,11 +61,31 @@ func init() {
 				}),
 			),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
-				dao := servicecontext.GetIndexer(c).(dao.IndexDAO)
-				repo, err := log.NewIndexService(dao)
+				indexDAO := servicecontext.GetIndexer(c).(dao.IndexDAO)
+				repo, err := log.NewIndexService(indexDAO)
 				if err != nil {
 					return err
 				}
+
+				cv := common.MakeCellsVersion()
+				m := map[string]string{
+					"logger":       common.ServiceGrpcNamespace_ + common.ServiceLog,
+					"msg":          "build-info | " + cv.PackageLabel + " - " + cv.Version + " - " + cv.BuildTime,
+					"level":        "info",
+					"ts":           time.Now().Format(time.RFC3339),
+					"PackageLabel": cv.PackageLabel,
+					"Version":      cv.Version,
+					"BuildTime":    cv.BuildTime,
+					"GitCommit":    cv.GitCommit,
+					"OS":           cv.OS,
+					"Arch":         cv.Arch,
+					"GoVersion":    cv.GoVersion,
+				}
+				data, _ := json.Marshal(m)
+				_ = repo.PutLog(&proto.Log{
+					Nano:    int32(time.Now().UnixNano()),
+					Message: data,
+				})
 
 				handler := &Handler{
 					Repo:        repo,

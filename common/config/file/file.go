@@ -121,7 +121,8 @@ type file struct {
 	reset chan bool
 	timer *time.Timer
 
-	receivers []*receiver
+	receivers    []*receiver
+	receiversMtx *sync.Mutex
 }
 
 func New(path string, opts ...configx.Option) (config.Store, error) {
@@ -154,14 +155,15 @@ func New(path string, opts ...configx.Option) (config.Store, error) {
 	}
 
 	f := &file{
-		v:       v,
-		path:    path,
-		locker:  &sync.RWMutex{},
-		opts:    opts,
-		mainMtx: &sync.Mutex{},
-		mtx:     mtx,
-		reset:   make(chan bool),
-		timer:   time.NewTimer(100 * time.Millisecond),
+		v:            v,
+		path:         path,
+		locker:       &sync.RWMutex{},
+		opts:         opts,
+		mainMtx:      &sync.Mutex{},
+		mtx:          mtx,
+		receiversMtx: &sync.Mutex{},
+		reset:        make(chan bool),
+		timer:        time.NewTimer(100 * time.Millisecond),
 	}
 
 	go f.flush()
@@ -185,13 +187,14 @@ func (f *file) flush() {
 				for _, op := range patch {
 					var updated []*receiver
 
+					f.receiversMtx.Lock()
 					for _, r := range f.receivers {
 						if err := r.call(op); err == nil {
 							updated = append(updated, r)
 						}
 					}
-
 					f.receivers = updated
+					f.receiversMtx.Unlock()
 				}
 			}
 
@@ -293,7 +296,9 @@ func (f *file) Watch(opts ...configx.WatchOption) (configx.Receiver, error) {
 		changesOnly: o.ChangesOnly,
 	}
 
+	f.receiversMtx.Lock()
 	f.receivers = append(f.receivers, r)
+	f.receiversMtx.Unlock()
 
 	return r, nil
 }

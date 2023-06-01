@@ -26,6 +26,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"sync"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -59,6 +60,7 @@ func WithQuota() nodes.Option {
 type QuotaFilter struct {
 	abstract.Handler
 	readCache cache.Cache
+	once      sync.Once
 }
 
 func (a *QuotaFilter) Adapt(h nodes.Handler, options nodes.RouterOptions) nodes.Handler {
@@ -82,10 +84,9 @@ func (a *QuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 		q  int64
 		u  int64
 	}
-	if a.readCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1m", "cleanWindow", "5m"))
-		a.readCache = c
-	}
+	a.once.Do(func() {
+		a.readCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1m", "cleanWindow", "5m"))
+	})
 	var cacheKey string
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
 		cacheKey = branch.Workspace.UUID + "-" + claims.Name

@@ -34,27 +34,24 @@ import (
 
 var (
 	aclCache cache.Cache
+	aclOnce  sync.Once
 )
 
-func initAclCache() {
-	aclCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "60s", "cleanWindow", "30s"))
-	_, _ = broker.Subscribe(context.TODO(), common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
-		event := &idm.ChangeEvent{}
-		if e := message.Unmarshal(event); e != nil {
-			return e
-		}
-		switch event.Type {
-		case idm.ChangeEventType_CREATE, idm.ChangeEventType_UPDATE, idm.ChangeEventType_DELETE:
-			return aclCache.Reset()
-		}
-		return nil
-	})
-}
-
 func getAclCache() cache.Cache {
-	if aclCache == nil {
-		initAclCache()
-	}
+	aclOnce.Do(func() {
+		aclCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "60s", "cleanWindow", "30s"))
+		_, _ = broker.Subscribe(context.TODO(), common.TopicIdmEvent, func(message broker.Message) error {
+			event := &idm.ChangeEvent{}
+			if e := message.Unmarshal(event); e != nil {
+				return e
+			}
+			switch event.Type {
+			case idm.ChangeEventType_CREATE, idm.ChangeEventType_UPDATE, idm.ChangeEventType_DELETE:
+				return aclCache.Reset()
+			}
+			return nil
+		})
+	})
 	return aclCache
 }
 

@@ -25,6 +25,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"sync/atomic"
 
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
@@ -71,7 +72,7 @@ type wrappingStreamer struct {
 	parent context.Context
 	w      *io.PipeWriter
 	r      *io.PipeReader
-	closed bool
+	closed atomic.Bool
 }
 
 func newWrappingStreamer(c context.Context) *wrappingStreamer {
@@ -80,7 +81,7 @@ func newWrappingStreamer(c context.Context) *wrappingStreamer {
 	return &wrappingStreamer{
 		w:      w,
 		r:      r,
-		closed: false,
+		closed: atomic.Bool{},
 		parent: c,
 	}
 }
@@ -141,7 +142,7 @@ func (l *wrappingStreamer) SendError(err error) error {
 }
 
 func (l *wrappingStreamer) Recv() (*tree.WrappingStreamerResponse, error) {
-	if l.closed {
+	if l.closed.Load() {
 		return nil, io.EOF
 	}
 
@@ -182,7 +183,7 @@ func (l *wrappingStreamer) RecvMsg(m interface{}) error {
 }
 
 func (l *wrappingStreamer) CloseSend() error {
-	l.closed = true
+	l.closed.Store(true)
 	l.w.Close()
 	return nil
 }

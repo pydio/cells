@@ -47,9 +47,9 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 		return
 	}
 
-	treeServer.Lock()
-	initialLength := len(treeServer.DataSources)
-	treeServer.Unlock()
+	treeServer.sourcesLock.RLock()
+	initialLength := len(treeServer.sources)
+	treeServer.sourcesLock.RUnlock()
 
 	reg := servicecontext.GetRegistry(ctx)
 	items, err := reg.List(registry.WithType(pb.ItemType_SERVICE), registry.WithFilter(func(item registry.Item) bool {
@@ -77,9 +77,9 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 		log.Logger(ctx).Debug("[Tree:updateServicesList] Add datasource " + dataSourceName)
 	}
 
-	treeServer.Lock()
-	treeServer.DataSources = dataSources
-	treeServer.Unlock()
+	treeServer.sourcesLock.Lock()
+	treeServer.sources = dataSources
+	treeServer.sourcesLock.Unlock()
 
 	// If registry event comes too soon, running services may not be loaded yet
 	if retry < 4 && initialLength == len(dataSources) {

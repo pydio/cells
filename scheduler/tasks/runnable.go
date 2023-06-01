@@ -257,7 +257,7 @@ func (r *Runnable) RunAction(queue chan RunnerFunc) {
 	}
 
 	if taskConsumer, ok := (r.Implementation).(actions.TaskUpdaterDelegateAction); ok {
-		taskConsumer.SetTask(r.Task.GetJobTaskClone())
+		taskConsumer.SetTask(r.Task.Clone())
 	}
 
 	var setupControls bool

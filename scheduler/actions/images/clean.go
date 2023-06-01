@@ -77,7 +77,8 @@ func (c *CleanThumbsTask) Run(ctx context.Context, channels *actions.RunnableCha
 		return input.WithIgnore(), nil
 	}
 
-	dsi, e := getRouter(c.GetRuntimeContext()).GetClientsPool().GetDataSourceInfo(common.PydioThumbstoreNamespace)
+	r := getRouter(c.GetRuntimeContext())
+	dsi, e := r.GetClientsPool().GetDataSourceInfo(common.PydioThumbstoreNamespace)
 	if e != nil || dsi.Client == nil {
 		log.TasksLogger(ctx).Error("Cannot get ThumbStoreClient", zap.Error(e))
 		return input.WithError(e), e
@@ -90,12 +91,12 @@ func (c *CleanThumbsTask) Run(ctx context.Context, channels *actions.RunnableCha
 		return input.WithError(err), err
 	}
 	for _, oi := range listRes.Contents {
-		tCtx, tNode, e := getThumbLocation(c.GetRuntimeContext(), ctx, oi.Key)
+		tCtx, tNode, e := getThumbLocation(r, ctx, oi.Key)
 		if e != nil {
 			log.Logger(ctx).Debug("Cannot get thumbnail location", zap.Error(e))
 			return input.WithError(e), e
 		}
-		if _, err := getRouter(c.GetRuntimeContext()).DeleteNode(tCtx, &tree.DeleteNodeRequest{Node: tNode}); err != nil {
+		if _, err := r.DeleteNode(tCtx, &tree.DeleteNodeRequest{Node: tNode}); err != nil {
 			log.Logger(ctx).Debug("Cannot delete thumbnail", zap.Error(err))
 			return input.WithError(err), err
 		}
