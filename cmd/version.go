@@ -23,28 +23,14 @@ package cmd
 import (
 	"log"
 	"os"
-	"runtime"
 	"runtime/debug"
 	"text/template"
-	"time"
 
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common"
 	runtime2 "github.com/pydio/cells/v4/common/runtime"
 )
-
-// CellsVersion contains version information for the current running binary
-type CellsVersion struct {
-	//Distribution string
-	PackageLabel string
-	Version      string
-	BuildTime    string
-	GitCommit    string
-	OS           string
-	Arch         string
-	GoVersion    string
-}
 
 var cellsVersionTpl = `{{.PackageLabel}}
  Version: 	{{.Version}}
@@ -82,23 +68,7 @@ DESCRIPTION
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var t time.Time
-		if common.BuildStamp != "" {
-			t, _ = time.Parse("2006-01-02T15:04:05", common.BuildStamp)
-		} else {
-			t = time.Now()
-		}
-
-		cv := &CellsVersion{
-			PackageLabel: common.PackageLabel,
-			Version:      common.Version().String(),
-			BuildTime:    t.Format(time.RFC822Z),
-			GitCommit:    common.BuildRevision,
-			OS:           runtime.GOOS,
-			Arch:         runtime.GOARCH,
-			GoVersion:    runtime.Version(),
-		}
-
+		cv := common.MakeCellsVersion()
 		var runningTmpl string
 
 		if format != "" {
@@ -120,20 +90,15 @@ DESCRIPTION
 }
 
 func binaryInfo() (i runtime2.InfoGroup) {
+	cv := common.MakeCellsVersion()
 	i.Name = "Binary"
-	var t time.Time
-	if common.BuildStamp != "" {
-		t, _ = time.Parse("2006-01-02T15:04:05", common.BuildStamp)
-	} else {
-		t = time.Now()
-	}
 	i.Pairs = append(i.Pairs,
-		runtime2.InfoPair{Key: "Package", Value: common.PackageLabel},
-		runtime2.InfoPair{Key: "Version", Value: common.Version().String()},
-		runtime2.InfoPair{Key: "BuildTime", Value: t.Format(time.RFC822Z)},
-		runtime2.InfoPair{Key: "Git Commit", Value: common.BuildRevision},
-		runtime2.InfoPair{Key: "Go Version", Value: runtime.Version()},
-		runtime2.InfoPair{Key: "OS/arch", Value: runtime.GOOS + "/" + runtime.GOARCH},
+		runtime2.InfoPair{Key: "Package", Value: cv.PackageLabel},
+		runtime2.InfoPair{Key: "Version", Value: cv.Version},
+		runtime2.InfoPair{Key: "BuildTime", Value: cv.BuildTime},
+		runtime2.InfoPair{Key: "Git Commit", Value: cv.GitCommit},
+		runtime2.InfoPair{Key: "Go Version", Value: cv.GoVersion},
+		runtime2.InfoPair{Key: "OS/arch", Value: cv.OS + "/" + cv.Arch},
 	)
 	return
 }

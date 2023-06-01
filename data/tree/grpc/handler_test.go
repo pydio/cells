@@ -64,8 +64,9 @@ func TestReadNode(t *testing.T) {
 
 	// Create tree server with fake datasources
 	ts := &TreeServer{
-		DataSources: dataSources,
-		MainCtx:     mainCtx,
+		sources:     dataSources,
+		mainCtx:     mainCtx,
+		sourcesLock: &sync.RWMutex{},
 	}
 	ctx := context.Background()
 
@@ -96,8 +97,9 @@ func TestListNodes(t *testing.T) {
 
 	// Create tree server with fake datasources
 	ts := &TreeServer{
-		DataSources: dataSources,
-		MainCtx:     context.Background(),
+		sources:     dataSources,
+		mainCtx:     context.Background(),
+		sourcesLock: &sync.RWMutex{},
 	}
 
 	Convey("List datasources", t, func() {
@@ -147,8 +149,9 @@ func TestRootNodeOperations(t *testing.T) {
 
 	// Create tree server with fake datasources
 	ts := &TreeServer{
-		DataSources: dataSources,
-		MainCtx:     mainCtx,
+		sources:     dataSources,
+		mainCtx:     mainCtx,
+		sourcesLock: &sync.RWMutex{},
 	}
 
 	ctx := context.Background()

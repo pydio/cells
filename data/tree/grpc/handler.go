@@ -98,17 +98,41 @@ type TreeServer struct {
 	tree.UnimplementedNodeProviderStreamerServer
 	tree.UnimplementedNodeChangesStreamerServer
 
-	sync.Mutex
-
 	name      string
 	listeners []*changesListener
 
-	DataSources map[string]DataSource
-	MainCtx     context.Context
+	sources     map[string]DataSource
+	sourcesLock *sync.RWMutex
+	mainCtx     context.Context
+}
+
+// NewTreeServer initialize a TreeServer with proper internals
+func NewTreeServer(ctx context.Context, name string) *TreeServer {
+	return &TreeServer{
+		mainCtx:     ctx,
+		name:        name,
+		sources:     make(map[string]DataSource),
+		sourcesLock: &sync.RWMutex{},
+	}
 }
 
 func (s *TreeServer) Name() string {
 	return s.name
+}
+
+// AppendDatasource feeds internal datasources map
+func (s *TreeServer) AppendDatasource(name string, obj DataSource) {
+	s.sourcesLock.Lock()
+	s.sources[name] = obj
+	s.sourcesLock.Unlock()
+}
+
+// datasourcebyName finds a datasource in the internal map
+func (s *TreeServer) datasourceByName(dsName string) (DataSource, bool) {
+	s.sourcesLock.RLock()
+	ds, ok := s.sources[dsName]
+	s.sourcesLock.RUnlock()
+	return ds, ok
 }
 
 // ReadNodeStream Implement stream for readNode method
@@ -118,7 +142,7 @@ func (s *TreeServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeS
 	// We must make sure that metaStreamers are using a proper context at creation
 	// otherwise it can create a goroutine leak on linux.
 	ctx := metadata.NewBackgroundWithMetaCopy(streamer.Context())
-	ctx = runtime.ForkContext(ctx, s.MainCtx)
+	ctx = runtime.ForkContext(ctx, s.mainCtx)
 
 	var flags tree.Flags
 	if sf, o := metadata.CanonicalMeta(streamer.Context(), tree.StatFlagHeaderName); o {
@@ -199,7 +223,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		return nil, errors.Forbidden(common.ServiceTree, "Cannot write to root node or to datasource node")
 	}
 
-	if ds, ok := s.DataSources[dsName]; ok {
+	if ds, ok := s.datasourceByName(dsName); ok {
 
 		node.Path = dsPath
 		dsReq := &tree.CreateNodeRequest{
@@ -262,7 +286,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (*
 		return resp, nil
 	}
 
-	if ds, ok := s.DataSources[dsName]; ok {
+	if ds, ok := s.datasourceByName(dsName); ok {
 
 		dsReq := &tree.ReadNodeRequest{
 			Node:      &tree.Node{Path: dsPath},
@@ -293,7 +317,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 	ctx := resp.Context()
 	defer track("ListNodes", ctx, time.Now(), req, resp)
 
-	mainCtx := servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(s.MainCtx))
+	mainCtx := servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(s.mainCtx))
 	var metaStreamer meta.Loader
 	var loadMetas bool
 	flags := tree.StatFlags(req.StatFlags)
@@ -352,7 +376,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 
 		if len(dsPath) > 0 {
 
-			ds, ok := s.DataSources[dsName]
+			ds, ok := s.datasourceByName(dsName)
 			if !ok {
 				return errors.BadRequest(common.ServiceTree, "Cannot find datasource client for %s", dsName)
 			}
@@ -427,14 +451,20 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 
 	if dsName == "" {
 
-		log.Logger(ctx).Debug("Should List datasources", zap.Any("ds", s.DataSources))
+		var names []string
+		s.sourcesLock.RLock()
+		for name := range s.sources {
+			names = append(names, name)
+		}
+		s.sourcesLock.RUnlock()
+		log.Logger(ctx).Debug("Should List datasources", zap.Strings("names", names))
 		metaFilter := tree.NewMetaFilter(node)
 		hasFilter := metaFilter.Parse()
 		limitDepth := metaFilter.LimitDepth()
 
-		for name := range s.DataSources {
+		for _, name := range names {
 
-			if offset > 0 && offset < int64(len(s.DataSources)) && offset > *cursorIndex {
+			if offset > 0 && offset < int64(len(names)) && offset > *cursorIndex {
 				*cursorIndex++
 				continue
 			}
@@ -443,7 +473,9 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 				Path: name,
 			}
 			outputNode.MustSetMeta(common.MetaNamespaceNodeName, name)
-			if size, counts, er := s.dsSize(ctx, s.DataSources[name], req.StatFlags); er == nil {
+
+			ds, _ := s.datasourceByName(name)
+			if size, counts, er := s.dsSize(ctx, ds, req.StatFlags); er == nil {
 				outputNode.Size = size
 				if tree.StatFlags(req.StatFlags).RecursiveCount() {
 					outputNode.MustSetMeta(common.MetaFlagRecursiveCount, counts)
@@ -455,7 +487,7 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 				if metaStreamer != nil {
 					metaStreamer.LoadMetas(ctx, outputNode)
 				}
-				resp.Send(&tree.ListNodesResponse{
+				_ = resp.Send(&tree.ListNodesResponse{
 					Node: outputNode,
 				})
 			}
@@ -483,7 +515,7 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 		return nil
 	}
 
-	if ds, ok := s.DataSources[dsName]; ok {
+	if ds, ok := s.datasourceByName(dsName); ok {
 
 		reqNode := node.Clone()
 		reqNode.Path = dsPath
@@ -586,7 +618,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		return nil, errors.Forbidden(common.ServiceTree, "Cannot move between two different datasources")
 	}
 
-	if ds, ok := s.DataSources[dsNameTo]; ok {
+	if ds, ok := s.datasourceByName(dsNameTo); ok {
 
 		from.Path = dsPathFrom
 		to.Path = dsPathTo
@@ -616,16 +648,13 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 		return nil, errors.Forbidden(common.ServiceTree, "Cannot delete root node or datasource node")
 	}
 
-	if ds, ok := s.DataSources[dsName]; ok {
-
+	if ds, ok := s.datasourceByName(dsName); ok {
 		node.Path = dsPath
-
 		if response, e := ds.writer.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: node}); e != nil {
 			return nil, e
 		} else {
 			resp.Success = response.Success
 		}
-
 		return resp, nil
 	}
 
@@ -751,7 +780,7 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ..
 	if strings.HasPrefix(uuid, "DATASOURCE:") {
 		dsName := strings.TrimPrefix(uuid, "DATASOURCE:")
 
-		if ds, ok := s.DataSources[dsName]; ok {
+		if ds, ok := s.datasourceByName(dsName); ok {
 			resp, err := ds.reader.ReadNode(ctx, &tree.ReadNodeRequest{
 				Node:      &tree.Node{Uuid: "ROOT"},
 				StatFlags: statFlags,
@@ -769,7 +798,8 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ..
 	defer cancel()
 	wg := &sync.WaitGroup{}
 
-	for dsName, ds := range s.DataSources {
+	s.sourcesLock.RLock()
+	for dsName, ds := range s.sources {
 		wg.Add(1)
 		reader := ds.reader
 		name := dsName
@@ -789,8 +819,9 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ..
 			}
 		}()
 	}
-
 	wg.Wait()
+	s.sourcesLock.RUnlock()
+
 	if foundNode != nil {
 		return foundNode, nil
 	} else {

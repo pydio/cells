@@ -306,16 +306,24 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
 	wg.Wait()
 	t := time.Now()
 
-	resp := &rest.RecommendResponse{}
 	for _, n := range bn {
 		if _, already := ak[n.Uuid]; already {
 			continue
 		}
 		an = append(an, n)
 	}
+	resp := &rest.RecommendResponse{}
 	throttle := make(chan struct{}, 10)
 	nwg := &sync.WaitGroup{}
 	nwg.Add(len(an))
+	nn := make(chan *tree.Node)
+	nnDone := make(chan bool, 1)
+	go func() {
+		for n := range nn {
+			resp.Nodes = append(resp.Nodes, n)
+		}
+		close(nnDone)
+	}()
 	for _, n := range an {
 		throttle <- struct{}{}
 		go func(in *tree.Node) {
@@ -331,12 +339,15 @@ func (h *GraphHandler) Recommend(req *restful.Request, rsp *restful.Response) {
 				node.Path = path.Join(node.AppearsIn[0].WsSlug, node.AppearsIn[0].Path)
 				node.MustSetMeta("reco-annotation", in.GetStringMeta("reco-annotation"))
 				node.MustSetMeta("repository_id", node.AppearsIn[0].WsUuid)
-				resp.Nodes = append(resp.Nodes, node.WithoutReservedMetas())
+				//resp.Nodes = append(resp.Nodes, node.WithoutReservedMetas())
+				nn <- node.WithoutReservedMetas()
 			}
 		}(n)
 	}
-
 	nwg.Wait()
+	close(nn)
+	<-nnDone
+
 	log.Logger(ctx).Debug("--- Load Nodes Time", zap.Duration("nodes", time.Since(t)))
 
 	// Not enough data, load accessible workspaces as nodes

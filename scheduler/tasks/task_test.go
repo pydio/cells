@@ -184,7 +184,9 @@ func TestTask_Save(t *testing.T) {
 		ch := PubSub.Sub(PubSubTopicTaskStatuses)
 		task.Save()
 		read := <-ch
-		So(read, ShouldEqual, task.task)
+		rt, o := read.(*jobs.Task)
+		So(o, ShouldBeTrue)
+		So(rt.ID, ShouldEqual, task.task.ID)
 		PubSub.Unsub(ch, PubSubTopicTaskStatuses)
 
 	})
@@ -216,7 +218,9 @@ func TestTask_EnqueueRunnables(t *testing.T) {
 
 		saved := <-saveChannel
 		So(saved, ShouldNotBeNil)
-		So(saved, ShouldEqual, task.task)
+		rt, o := saved.(*jobs.Task)
+		So(o, ShouldBeTrue)
+		So(rt.ID, ShouldEqual, task.task.ID)
 
 		PubSub.Unsub(saveChannel, PubSubTopicTaskStatuses)
 
