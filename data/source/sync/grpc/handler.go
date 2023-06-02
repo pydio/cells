@@ -73,6 +73,7 @@ type Handler struct {
 	s3client           model.Endpoint
 
 	syncTask     *task.Sync
+	stMux        *sync2.Mutex
 	SyncConfig   *object.DataSource
 	ObjectConfig *object.MinioConfig
 
@@ -96,6 +97,7 @@ func NewHandler(ctx context.Context, handlerName, datasource string) (*Handler, 
 		handlerName:    handlerName,
 		errorsDetected: make(chan string),
 		stop:           make(chan bool),
+		stMux:          &sync2.Mutex{},
 	}
 	return h, nil
 }
@@ -119,7 +121,9 @@ func (s *Handler) Name() string {
 }
 
 func (s *Handler) Start() {
+	s.stMux.Lock()
 	s.syncTask.Start(s.globalCtx, !s.SyncConfig.FlatStorage)
+	s.stMux.Unlock()
 	go s.watchConfigs()
 	go s.watchErrors()
 	go s.watchDisconnection()
@@ -131,7 +135,9 @@ func (s *Handler) Start() {
 
 func (s *Handler) Stop() {
 	s.stop <- true
+	s.stMux.Lock()
 	s.syncTask.Shutdown()
+	s.stMux.Unlock()
 	if s.watcher != nil {
 		s.watcher.Stop()
 	}
@@ -153,10 +159,13 @@ func (s *Handler) StopConfigsOnly() {
 
 // BroadcastCloseSession forwards session id to underlying sync task
 func (s *Handler) BroadcastCloseSession(sessionUuid string) {
+	s.stMux.Lock()
+	defer s.stMux.Unlock()
 	if s.syncTask == nil {
 		return
 	}
 	s.syncTask.BroadcastCloseSession(sessionUuid)
+
 }
 
 func (s *Handler) NotifyError(errorPath string) {
@@ -373,9 +382,11 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	s.s3client = source
 	s.SyncConfig = syncConfig
 	s.ObjectConfig = minioConfig
+	s.stMux.Lock()
 	s.syncTask = task.NewSync(source, target, model.DirectionRight)
 	s.syncTask.SkipTargetChecks = true
 	s.syncTask.FailsafeDeletes = true
+	s.stMux.Unlock()
 
 	return nil
 
@@ -384,12 +395,16 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 func (s *Handler) watchDisconnection() {
 	//defer close(watchOnce)
 	watchOnce := make(chan interface{})
+	s.stMux.Lock()
 	s.syncTask.SetupEventsChan(nil, nil, watchOnce)
+	s.stMux.Unlock()
 
 	for w := range watchOnce {
 		if m, ok := w.(*model.EndpointStatus); ok && m.WatchConnection == model.WatchDisconnected {
 			log.Logger(s.globalCtx).Error("Watcher disconnected! Will try to restart sync now.")
+			s.stMux.Lock()
 			s.syncTask.Shutdown()
+			s.stMux.Unlock()
 			<-time.After(3 * time.Second)
 			var syncConfig *object.DataSource
 			sName := servicecontext.GetServiceName(s.globalCtx)
@@ -402,7 +417,9 @@ func (s *Handler) watchDisconnection() {
 			if e := s.initSync(syncConfig); e != nil {
 				log.Logger(s.globalCtx).Error("Error while restarting sync")
 			}
+			s.stMux.Lock()
 			s.syncTask.Start(s.globalCtx, true)
+			s.stMux.Unlock()
 			return
 		}
 	}
@@ -467,12 +484,12 @@ func (s *Handler) watchConfigs() {
 			var cfg object.DataSource
 
 			if err := event.(configx.Values).Scan(&cfg); err == nil && cfg.Name == s.dsName {
-				log.Logger(s.globalCtx).Info("Config changed on "+serviceName+", comparing", zap.Any("old", s.SyncConfig), zap.Any("new", &cfg))
+				log.Logger(s.globalCtx).Info("Config changed on "+serviceName+", comparing", zap.Object("old", s.SyncConfig), zap.Object("new", &cfg))
 				if s.SyncConfig.ObjectsBaseFolder != cfg.ObjectsBaseFolder || s.SyncConfig.ObjectsBucket != cfg.ObjectsBucket {
 					// @TODO - Object service must be restarted before restarting sync
 					log.Logger(s.globalCtx).Info("Path changed on " + serviceName + ", should reload sync task entirely - Please restart service")
 				} else if s.SyncConfig.VersioningPolicyName != cfg.VersioningPolicyName || s.SyncConfig.EncryptionMode != cfg.EncryptionMode {
-					log.Logger(s.globalCtx).Info("Versioning policy changed on "+serviceName+", updating internal config", zap.Any("cfg", &cfg))
+					log.Logger(s.globalCtx).Info("Versioning policy changed on "+serviceName+", updating internal config", zap.Object("cfg", &cfg))
 					s.SyncConfig.VersioningPolicyName = cfg.VersioningPolicyName
 					s.SyncConfig.EncryptionMode = cfg.EncryptionMode
 					s.SyncConfig.EncryptionKey = cfg.EncryptionKey
@@ -610,8 +627,10 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 			return resp, nil
 		}
 	} else {
+		s.stMux.Lock()
 		s.syncTask.SetupEventsChan(statusChan, doneChan, nil)
 		result, e = s.syncTask.Run(bg, req.DryRun, false)
+		s.stMux.Unlock()
 	}
 
 	if e != nil {
@@ -662,7 +681,9 @@ func (s *Handler) GetDataSourceConfig(ctx context.Context, request *object.GetDa
 func (s *Handler) CleanResourcesBeforeDelete(ctx context.Context, request *object.CleanResourcesRequest) (*object.CleanResourcesResponse, error) {
 
 	response := &object.CleanResourcesResponse{}
+	s.stMux.Lock()
 	s.syncTask.Shutdown()
+	s.stMux.Unlock()
 
 	var mm []string
 	var ee []string

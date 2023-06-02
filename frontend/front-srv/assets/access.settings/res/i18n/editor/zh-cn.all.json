@@ -189,7 +189,7 @@
     "other": "登录后显示欢迎页面"
   },
   "workspace.statics.directory.title": {
-    "other": "Directory"
+    "other": "目录"
   },
   "workspace.statics.directory.description": {
     "other": "Show address book full page (used by Mui3 Theme)"

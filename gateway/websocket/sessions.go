@@ -28,6 +28,7 @@ import (
 	"github.com/pydio/melody"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
@@ -35,6 +36,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
+	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
@@ -75,8 +77,10 @@ func updateSessionFromClaims(ctx context.Context, session *melody.Session, claim
 	}
 
 	workspaces := accessList.GetWorkspaces()
+	wssClone := make(map[string]*idm.Workspace, len(workspaces))
 	// Resolve workspaces roots in the current context
-	for _, ws := range workspaces {
+	for wsId, ws := range workspaces {
+		wsClone := proto.Clone(ws).(*idm.Workspace)
 		var resolvedRoots []string
 		for _, rootId := range ws.RootUUIDs {
 			if resolved, ok := vNodeResolver(ctx, &tree.Node{Uuid: rootId}); ok {
@@ -85,11 +89,12 @@ func updateSessionFromClaims(ctx context.Context, session *melody.Session, claim
 				resolvedRoots = append(resolvedRoots, rootId)
 			}
 		}
-		ws.RootUUIDs = resolvedRoots
+		wsClone.RootUUIDs = resolvedRoots
+		wssClone[wsId] = wsClone
 	}
 	log.Logger(ctx).Debug("Setting workspaces in session", zap.Any("workspaces", workspaces))
 	session.Set(SessionRolesKey, roles)
-	session.Set(SessionWorkspacesKey, workspaces)
+	session.Set(SessionWorkspacesKey, wssClone)
 	session.Set(SessionAccessListKey, accessList)
 	session.Set(SessionUsernameKey, claims.Name)
 	session.Set(SessionProfileKey, claims.Profile)

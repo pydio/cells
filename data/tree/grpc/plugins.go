@@ -23,7 +23,6 @@ package grpc
 
 import (
 	"context"
-
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -44,11 +43,7 @@ func init() {
 			service.Description("Aggregator of all datasources into one master tree"),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
-				treeServer := &TreeServer{
-					name:        ServiceName,
-					MainCtx:     ctx,
-					DataSources: map[string]DataSource{},
-				}
+				treeServer := NewTreeServer(ctx, ServiceName)
 				eventSubscriber, e := NewEventSubscriber(treeServer)
 				if e != nil {
 					return e

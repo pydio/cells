@@ -22,5 +22,14 @@
   },
   "8": {
     "other": "암호를 재설정하려면 아래 양식을 사용하십시오. 로그인과 새 암호를 두 번 입력하십시오."
+  },
+  "9": {
+    "other": "Please enter your username and password"
+  },
+  "10": {
+    "other": "Please enter the password you received"
+  },
+  "11": {
+    "other": "Login failed: could not recognise your username or password"
   }
 }

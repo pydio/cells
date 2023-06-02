@@ -22,5 +22,14 @@
   },
   "8": {
     "other": "使用下面的表单重置您的密码。请输入您的登录名和新密码两次。"
+  },
+  "9": {
+    "other": "Please enter your username and password"
+  },
+  "10": {
+    "other": "Please enter the password you received"
+  },
+  "11": {
+    "other": "Login failed: could not recognise your username or password"
   }
 }

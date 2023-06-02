@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -46,13 +47,13 @@ import (
 
 var (
 	usersCache cache.Cache
+	usersOnce  sync.Once
 )
 
 func getUsersCache() cache.Cache {
-	if usersCache == nil {
-		c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "5s", "cleanWindow", "30s"))
-		usersCache = c
-	}
+	usersOnce.Do(func() {
+		usersCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "5s", "cleanWindow", "30s"))
+	})
 	return usersCache
 }
 

@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"path"
 	"strings"
+	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -62,6 +63,7 @@ type VirtualNodesManager struct {
 	ctx        context.Context
 	nodes      []*tree.Node
 	loginLower bool
+	mu         *sync.RWMutex
 }
 
 // GetVirtualNodesManager creates a new VirtualNodesManager.
@@ -74,7 +76,7 @@ func GetVirtualNodesManager(ctx context.Context) *VirtualNodesManager {
 		vManager.Load()
 		return vManager
 	}
-	vManager = &VirtualNodesManager{ctx: ctx}
+	vManager = &VirtualNodesManager{ctx: ctx, mu: &sync.RWMutex{}}
 	vManager.Load()
 	return vManager
 }
@@ -84,11 +86,15 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) {
 	if len(forceReload) == 0 || !forceReload[0] {
 		var vNodes []*tree.Node
 		if vManagerCache.Get("###virtual-nodes###", &vNodes) {
+			m.mu.Lock()
 			m.nodes = vNodes
+			m.mu.Unlock()
 			return
 		}
 	}
 	log.Logger(m.ctx).Debug("Reloading virtual nodes to cache")
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.nodes = []*tree.Node{}
 	cli := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(m.ctx, common.ServiceDocStore))
 	stream, e := cli.ListDocuments(m.ctx, &docstore.ListDocumentsRequest{
@@ -127,6 +133,8 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) {
 // ByUuid finds a VirtualNode by its Uuid.
 func (m *VirtualNodesManager) ByUuid(uuid string) (*tree.Node, bool) {
 
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	for _, n := range m.nodes {
 		if n.Uuid == uuid {
 			return n, true
@@ -139,6 +147,8 @@ func (m *VirtualNodesManager) ByUuid(uuid string) (*tree.Node, bool) {
 // ByPath finds a VirtualNode by its Path.
 func (m *VirtualNodesManager) ByPath(path string) (*tree.Node, bool) {
 
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	for _, n := range m.nodes {
 		if strings.Trim(n.Path, "/") == strings.Trim(path, "/") {
 			return n, true
@@ -148,9 +158,11 @@ func (m *VirtualNodesManager) ByPath(path string) (*tree.Node, bool) {
 
 }
 
-// ListNodes simply returns the internally cached list.
+// ListNodes returns a copy of the internally cached list.
 func (m *VirtualNodesManager) ListNodes() []*tree.Node {
-	return m.nodes
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return append([]*tree.Node{}, m.nodes...)
 }
 
 // ResolveInContext computes the actual node Path based on the resolution metadata of the virtual node

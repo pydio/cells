@@ -24,14 +24,16 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
-	registry2 "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/utils/uuid"
+	"io"
 	"os"
 	"path"
 	"strings"
 	"time"
+
+	registry2 "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 
 	"github.com/dustin/go-humanize"
 	"github.com/manifoldco/promptui"
@@ -109,7 +111,7 @@ DESCRIPTION
 			}
 			defer log.Close()
 			migrateLogger = func(s string, print bool) {
-				log.WriteString(s + "\n")
+				_, _ = log.WriteString(s + "\n")
 				if print {
 					fmt.Println(s)
 				}
@@ -232,13 +234,13 @@ DESCRIPTION
 			p := promptui.Prompt{Label: "Objects format is fully re-structured, do you wish to update configuration", IsConfirm: true, Default: "y"}
 			if _, e := p.Run(); e == nil {
 
-				config.Set(tgtBucket, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "ObjectsBucket")
+				_ = config.Set(tgtBucket, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "ObjectsBucket")
 				if fKey, o := source.StorageConfiguration[object.StorageKeyFolder]; o {
 					fKey = path.Join(path.Dir(fKey), tgtBucket)
-					config.Set(fKey, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "StorageConfiguration", object.StorageKeyFolder)
+					_ = config.Set(fKey, "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "StorageConfiguration", object.StorageKeyFolder)
 				}
-				config.Set(tgtFmt == "flat", "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "FlatStorage")
-				config.Save(common.PydioSystemUsername, "Migrating datasource format")
+				_ = config.Set(tgtFmt == "flat", "services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name, "FlatStorage")
+				_ = config.Save(common.PydioSystemUsername, "Migrating datasource format")
 				migrateLogger("Updated DataSource configuration after migration", true)
 			}
 		} else {
@@ -314,13 +316,13 @@ func migratePrepareClients(source *object.DataSource) (rootNode *tree.Node, idx 
 		apiSecret = s
 	}
 	cfData := configx.New()
-	cfData.Val("endpoint").Set(fmt.Sprintf("%s:%d", conf.RunningHost, conf.RunningPort))
-	cfData.Val("key").Set(conf.ApiKey)
-	cfData.Val("secret").Set(apiSecret)
-	cfData.Val("secure").Set(conf.RunningSecure)
-	cfData.Val("type").Set("mc")
+	_ = cfData.Val("endpoint").Set(fmt.Sprintf("%s:%d", conf.RunningHost, conf.RunningPort))
+	_ = cfData.Val("key").Set(conf.ApiKey)
+	_ = cfData.Val("secret").Set(apiSecret)
+	_ = cfData.Val("secure").Set(conf.RunningSecure)
+	_ = cfData.Val("type").Set("mc")
 	if conf.StorageType == object.StorageType_AZURE {
-		cfData.Val("type").Set("azure")
+		_ = cfData.Val("type").Set("azure")
 	}
 	mc, e = nodes.NewStorageClient(cfData)
 	if e != nil {
@@ -342,13 +344,21 @@ func migratePerformMigration(ctx context.Context, ds *object.DataSource, mc node
 			mm[k] = v
 		}
 	}
+	var nn []*tree.Node
 	for {
 		r, e := str.Recv()
 		if e != nil {
+			if e != io.EOF {
+				migrateLogger(fmt.Sprintf("[ERROR] in receiving data from grpc: %s", e.Error()), true)
+			}
 			break
 		}
-		n := r.GetNode()
+		nn = append(nn, r.GetNode())
+	}
 
+	migrateLogger(fmt.Sprintf("Received %d objects to be migrated", len(nn)), true)
+
+	for _, n := range nn {
 		srcPath := n.GetPath()
 		tgtPath := ds.FlatShardedPath(n.GetUuid())
 		isPydio := path.Base(n.GetPath()) == common.PydioSyncHiddenFile

@@ -21,7 +21,9 @@
 package common
 
 import (
+	"runtime"
 	"strconv"
+	"time"
 
 	hashiversion "github.com/hashicorp/go-version"
 	"go.uber.org/zap/zapcore"
@@ -347,4 +349,36 @@ func IsReservedIdmWorkspaceSlug(slug string) bool {
 		}
 	}
 	return false
+}
+
+// CellsVersion contains version information for the current running binary
+type CellsVersion struct {
+	//Distribution string
+	PackageLabel string
+	Version      string
+	BuildTime    string
+	GitCommit    string
+	OS           string
+	Arch         string
+	GoVersion    string
+}
+
+// MakeCellsVersion builds a CellsVersion object filled with data
+func MakeCellsVersion() *CellsVersion {
+	var t time.Time
+	if BuildStamp != "" {
+		t, _ = time.Parse("2006-01-02T15:04:05", BuildStamp)
+	} else {
+		t = time.Now()
+	}
+	return &CellsVersion{
+		PackageLabel: PackageLabel,
+		Version:      Version().String(),
+		BuildTime:    t.Format(time.RFC822Z),
+		GitCommit:    BuildRevision,
+		OS:           runtime.GOOS,
+		Arch:         runtime.GOARCH,
+		GoVersion:    runtime.Version(),
+	}
+
 }

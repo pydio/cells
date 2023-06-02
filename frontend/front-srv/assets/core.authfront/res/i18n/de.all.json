@@ -22,5 +22,14 @@
   },
   "8": {
     "other": "Bitte geben Sie nun Ihren Benutzernamen ein und bestätigen Sie das neues Passwort zweimal."
+  },
+  "9": {
+    "other": "Bitte geben Sie Ihren Benutzernamen und Passwort ein"
+  },
+  "10": {
+    "other": "Bitte geben Sie das Passwort ein, das Sie erhalten haben"
+  },
+  "11": {
+    "other": "Anmeldung fehlgeschlagen: Ihr Benutzername oder Ihr Passwort konnte nicht erkannt werden"
   }
 }

@@ -177,13 +177,13 @@ func (t *Task) Done(delta int) {
 // Save publish task to PubSub topic
 func (t *Task) Save() {
 	if t.last == nil || t.taskChanged(t.last, t.task) {
-		PubSub.Pub(t.task, PubSubTopicTaskStatuses)
-		t.last = t.GetJobTaskClone()
+		PubSub.Pub(t.Clone(), PubSubTopicTaskStatuses)
+		t.last = t.Clone()
 	}
 }
 
-// GetJobTaskClone creates a protobuf clone of this task
-func (t *Task) GetJobTaskClone() *jobs.Task {
+// Clone creates a protobuf clone of this task
+func (t *Task) Clone() *jobs.Task {
 	return proto.Clone(t.task).(*jobs.Task)
 }
 
