@@ -5,6 +5,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"reflect"
 	"strings"
+	"sync"
 )
 
 type cloneable interface {
@@ -80,8 +81,45 @@ func copyPointer(x any) any {
 		return proto.Clone(vv)
 	case Cloneable:
 		return vv.Clone()
+	case *sync.Map:
+		return copySyncMap(vv)
 	}
-	return copyAny(reflect.ValueOf(x).Elem().Interface())
+	v := reflect.ValueOf(x)
+	if v.Kind() != reflect.Pointer {
+		panic(fmt.Errorf("reflect: internal error: must be a Pointer or Ptr; got %v", v.Kind()))
+	}
+
+	t := reflect.TypeOf(x)
+	dc := reflect.New(t.Elem())
+	if !v.IsNil() {
+		item := copyAny(v.Elem().Interface())
+		iv := reflect.ValueOf(item)
+		if iv.IsValid() {
+			dc.Elem().Set(reflect.ValueOf(item))
+		}
+	}
+	return dc.Interface()
+}
+
+func copySyncMap(x any) any {
+	sm, ok := x.(*sync.Map)
+	if !ok {
+		panic(fmt.Errorf("reflect: internal error: must be a sync map; got %v", reflect.TypeOf(x)))
+	}
+
+	cp := &sync.Map{}
+	sm.Range(func(k, v interface{}) bool {
+		vm, ok := v.(*sync.Map)
+		if ok {
+			cp.Store(k, copySyncMap(vm))
+		} else {
+			cp.Store(k, copyAny(v))
+		}
+
+		return true
+	})
+
+	return cp
 }
 
 func copyStruct(x any) any {

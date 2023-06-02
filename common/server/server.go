@@ -67,14 +67,14 @@ const (
 )
 
 type server struct {
-	s     RawServer
+	S     RawServer
 	Opts  *Options
 	links []registry.Item
 }
 
 func NewServer(ctx context.Context, s RawServer) Server {
 	srv := &server{
-		s: s,
+		S: s,
 		Opts: &Options{
 			Context: ctx,
 			Metadata: map[string]string{
@@ -116,7 +116,7 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 		return er
 	}
 
-	ii, err := s.s.RawServe(opt)
+	ii, err := s.S.RawServe(opt)
 	if err != nil {
 		return err
 	}
@@ -149,7 +149,7 @@ func (s *server) Serve(oo ...ServeOption) (outErr error) {
 
 func (s *server) Stop(oo ...registry.RegisterOption) error {
 
-	if err := s.s.Stop(); err != nil {
+	if err := s.S.Stop(); err != nil {
 		return err
 	}
 
@@ -177,15 +177,15 @@ func (s *server) Stop(oo ...registry.RegisterOption) error {
 }
 
 func (s *server) ID() string {
-	return s.s.ID()
+	return s.S.ID()
 }
 
 func (s *server) Name() string {
-	return s.s.Name()
+	return s.S.Name()
 }
 
 func (s *server) Type() Type {
-	return s.s.Type()
+	return s.S.Type()
 }
 
 func (s *server) Is(status registry.Status) bool {
@@ -205,7 +205,7 @@ func (s *server) As(i interface{}) bool {
 		return true
 	}
 
-	return s.s.As(i)
+	return s.S.As(i)
 }
 
 func (s *server) Metadata() map[string]string {
@@ -219,7 +219,7 @@ func (s *server) SetMetadata(meta map[string]string) {
 
 func (s *server) Clone() interface{} {
 	clone := &server{}
-	clone.s = std.DeepClone(s.s)
+	clone.S = std.DeepClone(s.S)
 	clone.Opts = &Options{
 		Metadata: s.Metadata(),
 	}
