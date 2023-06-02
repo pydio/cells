@@ -142,7 +142,7 @@ func doRegister(ctx context.Context, m registry.Registry) chan registry.Item {
 func doTestAdd(t *testing.T, m registry.Registry) {
 	Convey("Add services to the registry", t, func() {
 		numNodes := 100
-		numServers := 100
+		numServers := 1000
 		numServices := 1000
 
 		w, err := m.Watch(registry.WithType(pb.ItemType_NODE), registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE))

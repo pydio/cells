@@ -21,7 +21,11 @@
 package configx
 
 import (
+	"fmt"
+	"github.com/pydio/cells/v4/common/utils/std"
+	"reflect"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/pydio/cells/v4/common/config/revisions"
@@ -421,5 +425,34 @@ func TestMapStruct(t *testing.T) {
 		t2 := make(map[string]*MyStruct)
 		err2 := m.Scan(t2)
 		So(err2, ShouldBeNil)
+	})
+}
+
+func TestSyncMap(t *testing.T) {
+	Convey("Test synchronised map", t, func() {
+		c := New()
+
+		c.Set(map[string]interface{}{
+			"test": &sync.Map{},
+		})
+
+		whatever1 := "whatever1"
+		whatever2 := "whatever2"
+
+		c.Val("test/testsyncmap").Set(&whatever1)
+		c.Val("test/testsyncmap2").Set(&whatever2)
+
+		fmt.Println(c.Val("test/testsyncmap").Interface(), reflect.TypeOf(c.Val("test").Interface()))
+		fmt.Println(c.Val("test/testsyncmap2").Interface(), reflect.TypeOf(c.Val("test").Interface()))
+
+		clone := std.DeepClone(c.Interface())
+
+		o := New()
+		o.Set(clone)
+
+		whatever1 = "whatever3"
+
+		fmt.Println(*(c.Val("test/testsyncmap").Interface().(*string)))
+		fmt.Println(*(o.Val("test/testsyncmap").Interface().(*string)))
 	})
 }

@@ -6,18 +6,19 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/mitchellh/copystructure"
+	"github.com/r3labs/diff/v3"
+
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/std"
-	"github.com/r3labs/diff/v3"
 )
 
 var (
@@ -97,7 +98,6 @@ type memory struct {
 	reset chan bool
 	timer *time.Timer
 
-	internalLocker *sync.RWMutex
 	externalLocker *sync.RWMutex
 }
 
@@ -107,16 +107,9 @@ func New(opt ...configx.Option) config.Store {
 		o(&opts)
 	}
 
-	internalLocker := opts.RWMutex
-	if internalLocker == nil {
-		internalLocker = &sync.RWMutex{}
-		opt = append(opt, configx.WithLock(internalLocker))
-	}
-
 	m := &memory{
 		v:               configx.New(opt...),
 		opts:            opt,
-		internalLocker:  internalLocker,
 		externalLocker:  &sync.RWMutex{},
 		receiversLocker: &sync.RWMutex{},
 		reset:           make(chan bool),
@@ -128,25 +121,110 @@ func New(opt ...configx.Option) config.Store {
 	return m
 }
 
+type noopDiffer struct{}
+
+func (*noopDiffer) Match(a, b reflect.Value) bool {
+	return a.Kind() == reflect.Func || b.Kind() == reflect.Func
+}
+
+func (*noopDiffer) Diff(dt diff.DiffType, df diff.DiffFunc, cl *diff.Changelog, path []string, a, b reflect.Value, parent interface{}) error {
+	return nil
+}
+
+func (*noopDiffer) InsertParentDiffer(dfunc func(path []string, a, b reflect.Value, p interface{}) error) {
+}
+
+type syncMapDiffer struct{}
+
+func (*syncMapDiffer) Match(a, b reflect.Value) bool {
+	st := reflect.TypeOf(&sync.Map{})
+
+	if !a.IsValid() || !b.IsValid() {
+		return false
+	}
+	if !a.CanInterface() || !b.CanInterface() {
+		return false
+	}
+	return reflect.TypeOf(a.Interface()) == st && reflect.TypeOf(b.Interface()) == st
+}
+
+func (*syncMapDiffer) Diff(dt diff.DiffType, df diff.DiffFunc, cl *diff.Changelog, path []string, a, b reflect.Value, parent interface{}) error {
+	// Checking what's been added
+	sma := a.Interface().(*sync.Map)
+	smb := b.Interface().(*sync.Map)
+
+	sma.Range(func(ka any, va any) bool {
+		found := false
+		smb.Range(func(kb any, vb any) bool {
+			if ka == kb {
+				// Must diff ka && kb
+				patch, err := diff.Diff(va, vb, diff.AllowTypeMismatch(true), diff.CustomValueDiffers(&syncMapDiffer{}, &noopDiffer{}))
+				if err != nil {
+					fmt.Println(err)
+					return false
+				}
+				for _, op := range patch {
+					cl.Add(op.Type, append(path, append([]string{ka.(string)}, op.Path...)...), op.From, op.To)
+				}
+
+				found = true
+				return false
+			}
+
+			return true
+		})
+
+		// Has been added
+		if !found {
+			cl.Add(diff.DELETE, append(path, ka.(string)), va, nil)
+		}
+
+		return true
+	})
+
+	smb.Range(func(kb any, vb any) bool {
+		found := false
+		sma.Range(func(ka any, _ any) bool {
+			if ka == kb {
+				// Must diff ka && kb
+				found = true
+				return false
+			}
+
+			return true
+		})
+
+		// Has been added
+		if !found {
+			cl.Add(diff.CREATE, append(path, kb.(string)), nil, vb)
+		}
+
+		return true
+	})
+
+	return nil
+}
+
+func (*syncMapDiffer) InsertParentDiffer(dfunc func(path []string, a, b reflect.Value, p interface{}) error) {
+}
+
 func (m *memory) flush() {
-	snap := configx.New(m.opts...)
+	snap := configx.New()
+	snap.Set(std.DeepClone(m.v.Interface()))
 	for {
 		select {
 		case <-m.reset:
 			m.timer.Stop()
 			m.timer = time.NewTimer(timeout)
 		case <-m.timer.C:
-			m.internalLocker.RLock()
 			clone := std.DeepClone(m.v.Interface())
-			m.internalLocker.RUnlock()
 
-			patch, err := diff.Diff(snap.Interface(), clone, diff.AllowTypeMismatch(true))
+			patch, err := diff.Diff(snap.Interface(), clone, diff.AllowTypeMismatch(true), diff.CustomValueDiffers(&syncMapDiffer{}, &noopDiffer{}))
 			if err != nil {
 				continue
 			}
 
-			copy, _ := copystructure.Copy(clone)
-			if err := snap.Set(copy); err != nil {
+			if err := snap.Set(clone); err != nil {
 				continue
 			}
 

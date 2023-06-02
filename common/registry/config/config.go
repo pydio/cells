@@ -102,17 +102,17 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 
 	// Init store
 	opts = append(opts, configx.WithInitData(map[string]interface{}{
-		"node":     map[string]registry.Item{},
-		"service":  map[string]registry.Item{},
-		"edge":     map[string]registry.Item{},
-		"dao":      map[string]registry.Item{},
-		"server":   map[string]registry.Item{},
-		"address":  map[string]registry.Item{},
-		"endpoint": map[string]registry.Item{},
-		"tag":      map[string]registry.Item{},
-		"stats":    map[string]registry.Item{},
-		"generic":  map[string]registry.Item{},
-		"other":    map[string]registry.Item{},
+		"node":     &sync.Map{},
+		"service":  &sync.Map{},
+		"edge":     &sync.Map{},
+		"dao":      &sync.Map{},
+		"server":   &sync.Map{},
+		"address":  &sync.Map{},
+		"endpoint": &sync.Map{},
+		"tag":      &sync.Map{},
+		"stats":    &sync.Map{},
+		"generic":  &sync.Map{},
+		"other":    &sync.Map{},
 	}))
 
 	switch strings.TrimSuffix(u.Scheme, "+tls") {
@@ -257,7 +257,7 @@ func (c *configRegistry) scanAndBroadcast(res configx.Values, bc broadcaster, bc
 	if val.Get() != nil {
 		itemsMap := map[string]interface{}{}
 		if err := val.Default(map[string]interface{}{}).Scan(itemsMap); err != nil {
-			log.Error("Error while scanning registry watch event to map[string]interface{}", zap.Error(err))
+			log.Error("Error while scanning registry watch event to sync map", zap.Error(err))
 			return err
 		}
 		var items []registry.Item
@@ -465,12 +465,12 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 			continue
 		}
 
-		rawItems, ok := store.Get().Default(map[string]interface{}{}).Interface().(map[string]interface{})
+		rawItems, ok := store.Get().Default(&sync.Map{}).Interface().(*sync.Map)
 		if !ok {
 			continue
 		}
 
-		for _, rawItem := range rawItems {
+		rawItems.Range(func(k any, rawItem any) bool {
 			var item registry.Item
 			switch ri := rawItem.(type) {
 			case registry.Item:
@@ -487,7 +487,7 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 				}
 			}
 			if len(o.IDs) > 0 && !foundID {
-				continue
+				return false
 			}
 
 			foundName := false
@@ -499,7 +499,7 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 			}
 
 			if len(o.Names) > 0 && !foundName {
-				continue
+				return false
 			}
 
 			accept := true
@@ -511,11 +511,14 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 			}
 
 			if len(o.Filters) > 0 && !accept {
-				continue
+				return false
 			}
 
 			res = append(res, item)
-		}
+
+			return true
+		})
+
 	}
 
 	return res, nil
