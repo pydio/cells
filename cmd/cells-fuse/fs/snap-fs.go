@@ -62,7 +62,7 @@ func (c *snapNode) Readdir(ctx context.Context) (fs.DirStream, syscall.Errno) {
 	for k, child := range c.Inode.Children() {
 		d := fuse.DirEntry{
 			Name: k,
-			Ino:  inoCount,
+			Ino:  child.StableAttr().Ino,
 			Mode: child.Mode(),
 		}
 		r = append(r, d)
