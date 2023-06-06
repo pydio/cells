@@ -30,6 +30,7 @@ import (
 
 	"github.com/hanwen/go-fuse/v2/fs"
 	"github.com/hanwen/go-fuse/v2/fuse"
+	"github.com/schollz/progressbar/v3"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/endpoints/snapshot"
@@ -60,10 +61,11 @@ func (c *snapNode) Getattr(_ context.Context, _ fs.FileHandle, out *fuse.AttrOut
 	return 0
 }
 
-func NewSnapFS(snap *snapshot.BoltSnapshot, fileProvider FileNodeProvider) *SnapFS {
+func NewSnapFS(snap *snapshot.BoltSnapshot, fileProvider FileNodeProvider, total int) *SnapFS {
 	return &SnapFS{
 		snapshot:     snap,
 		fileProvider: fileProvider,
+		total:        total,
 	}
 }
 
@@ -71,6 +73,8 @@ type SnapFS struct {
 	fs.Inode
 	snapshot     *snapshot.BoltSnapshot
 	fileProvider FileNodeProvider
+	total        int
+	bar          *progressbar.ProgressBar
 }
 
 func (r *SnapFS) ClearCache() {
@@ -95,11 +99,12 @@ func (r *SnapFS) recursiveCreate(ctx context.Context, parent *fs.Inode, snapFold
 			//log.Println("Adding File", parent.Path(r.EmbeddedInode()), base)
 			inode := parent.NewPersistentInode(ctx, r.fileProvider(inoCount, node), fs.StableAttr{Ino: inoCount})
 			inoCount++
+			_ = r.bar.Set64(int64(inoCount))
 			parent.AddChild(base, inode, false)
 		} else {
 			ch := parent.NewPersistentInode(ctx, r.newFolder(inoCount, node), fs.StableAttr{Mode: syscall.S_IFDIR, Ino: inoCount})
-
 			inoCount++
+			_ = r.bar.Set64(int64(inoCount))
 			// Add Folder Node
 			//log.Println("Adding Folder", base)
 			parent.AddChild(base, ch, true)
@@ -114,6 +119,7 @@ func (r *SnapFS) recursiveCreate(ctx context.Context, parent *fs.Inode, snapFold
 func (r *SnapFS) OnAdd(ctx context.Context) {
 
 	root, _ := r.snapshot.LoadNode(ctx, "/", false)
+	r.bar = progressbar.Default(int64(r.total))
 	_ = r.recursiveCreate(ctx, r.EmbeddedInode(), root)
 	log.Printf("Loaded %d nodes, now closing snapshot and serving...", inoCount)
 	//r.snapshot.Close(true)

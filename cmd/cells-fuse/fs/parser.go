@@ -30,8 +30,10 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/hanwen/go-fuse/v2/fs"
+	"go.etcd.io/bbolt"
 
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/models"
@@ -41,10 +43,10 @@ import (
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
-func StorageUrlAsProvider(storageURL string) (FileNodeProvider, *snapshot.BoltSnapshot, error) {
-	sc, folderOrBucket, snap, e := ParseStorageURL(storageURL)
+func StorageUrlAsProvider(storageURL string) (FileNodeProvider, *snapshot.BoltSnapshot, int, error) {
+	sc, folderOrBucket, snap, keys, e := ParseStorageURL(storageURL)
 	if e != nil {
-		return nil, nil, e
+		return nil, nil, 0, e
 	}
 	var fp FileNodeProvider
 	if sc != nil {
@@ -72,10 +74,10 @@ func StorageUrlAsProvider(storageURL string) (FileNodeProvider, *snapshot.BoltSn
 		}
 	}
 
-	return fp, snap, nil
+	return fp, snap, keys, nil
 }
 
-func ParseStorageURL(storageUrl string) (sc nodes.StorageClient, folderOrBucket string, snap *snapshot.BoltSnapshot, e error) {
+func ParseStorageURL(storageUrl string) (sc nodes.StorageClient, folderOrBucket string, snap *snapshot.BoltSnapshot, totalKeys int, e error) {
 	u, ee := url.Parse(storageUrl)
 	if ee != nil {
 		e = ee
@@ -126,15 +128,37 @@ func ParseStorageURL(storageUrl string) (sc nodes.StorageClient, folderOrBucket 
 		return
 	}
 
-	target, er := os.OpenFile(filepath.Join(tmpSnapFolder, "snapshot-"+tmpSnapUuid), os.O_CREATE|os.O_WRONLY, 0755)
+	snFile := filepath.Join(tmpSnapFolder, "snapshot-"+tmpSnapUuid)
+	log.Println("Copying snapshot to temporary location", snFile)
+	target, er := os.OpenFile(snFile, os.O_CREATE|os.O_WRONLY, 0755)
 	if er != nil {
 		e = er
 		return
 	}
-	io.Copy(target, snReader)
+	if _, e = io.Copy(target, snReader); e != nil {
+		return
+	}
 	_ = target.Close()
 
-	log.Println("Open snapshot", tmpSnapFolder, tmpSnapUuid)
+	log.Println("Pre-open DB to get total nodes count")
+	options := bbolt.DefaultOptions
+	options.Timeout = 5 * time.Second
+	db, err := bbolt.Open(snFile, 0644, options)
+	if err != nil {
+		e = err
+		return
+	}
+	e = db.View(func(tx *bbolt.Tx) error {
+		bk := tx.Bucket([]byte("snapshot"))
+		if bk == nil {
+			return fmt.Errorf("cannot find bucket in snapshot")
+		}
+		totalKeys = bk.Stats().KeyN
+		return nil
+	})
+	_ = db.Close()
+
+	log.Printf("Now Opening snapshot %s, should load %d nodes", snFile, totalKeys)
 	snap, e = snapshot.NewBoltSnapshot(tmpSnapFolder, tmpSnapUuid)
 	if e != nil {
 		return
