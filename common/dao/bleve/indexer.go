@@ -357,6 +357,14 @@ func (s *Indexer) SetCodex(c dao.IndexCodex) {
 }
 
 func (s *Indexer) getWriteIndex() bleve.Index {
+	if s.cursor == -1 || len(s.indexes) < s.cursor-1 {
+		// Use a no-op, in-memory index to avoid crashes
+		fmt.Println("[ERROR] Cannot find an available index for writing, entries will be logged in memory")
+		fmt.Println("[ERROR] This should not happen and may indicate a missing MaxConcurrency=1 on the Truncate Logs flow.")
+		fmt.Println("[ERROR] Make sure to fix it and restart if necessary.")
+		idx, _ := s.openOneIndex("", s.MustBleveConfig(context.Background()).MappingName)
+		return idx
+	}
 	return s.indexes[s.cursor]
 }
 
