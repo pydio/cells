@@ -47,6 +47,27 @@ type snapNode struct {
 	*fs.Inode
 	*tree.Node
 	ino uint64
+
+	folderLoaded bool
+	folderFS     *SnapFS
+}
+
+func (c *snapNode) Readdir(ctx context.Context) (fs.DirStream, syscall.Errno) {
+	if !c.folderLoaded {
+		log.Println("Loading children for ", c.Node.GetPath())
+		c.folderFS.recursiveCreate(ctx, c.Inode, c.Node, false)
+		c.folderLoaded = true
+	}
+	var r []fuse.DirEntry
+	for k, child := range c.Inode.Children() {
+		d := fuse.DirEntry{
+			Name: k,
+			Ino:  inoCount,
+			Mode: child.Mode(),
+		}
+		r = append(r, d)
+	}
+	return fs.NewListDirStream(r), 0
 }
 
 func (c *snapNode) Getattr(_ context.Context, _ fs.FileHandle, out *fuse.AttrOut) syscall.Errno {
@@ -83,15 +104,17 @@ func (r *SnapFS) ClearCache() {
 	}
 }
 
-func (r *SnapFS) newFolder(inode uint64, treeNode *tree.Node) fs.InodeEmbedder {
+func (r *SnapFS) newFolder(inode uint64, treeNode *tree.Node, sfs *SnapFS, loaded bool) fs.InodeEmbedder {
 	return &snapNode{
-		Inode: &fs.Inode{},
-		Node:  treeNode,
-		ino:   inode,
+		Inode:        &fs.Inode{},
+		Node:         treeNode,
+		ino:          inode,
+		folderFS:     sfs,
+		folderLoaded: loaded,
 	}
 }
 
-func (r *SnapFS) recursiveCreate(ctx context.Context, parent *fs.Inode, snapFolder *tree.Node) error {
+func (r *SnapFS) recursiveCreate(ctx context.Context, parent *fs.Inode, snapFolder *tree.Node, recursive bool) error {
 	return r.snapshot.Walk(ctx, func(pa string, node *tree.Node, err error) error {
 		base := path.Base(pa)
 		if node.IsLeaf() {
@@ -99,17 +122,23 @@ func (r *SnapFS) recursiveCreate(ctx context.Context, parent *fs.Inode, snapFold
 			//log.Println("Adding File", parent.Path(r.EmbeddedInode()), base)
 			inode := parent.NewPersistentInode(ctx, r.fileProvider(inoCount, node), fs.StableAttr{Ino: inoCount})
 			inoCount++
-			_ = r.bar.Set64(int64(inoCount))
+			if r.bar != nil {
+				_ = r.bar.Set64(int64(inoCount))
+			}
 			parent.AddChild(base, inode, false)
 		} else {
-			ch := parent.NewPersistentInode(ctx, r.newFolder(inoCount, node), fs.StableAttr{Mode: syscall.S_IFDIR, Ino: inoCount})
+			ch := parent.NewPersistentInode(ctx, r.newFolder(inoCount, node, r, recursive), fs.StableAttr{Mode: syscall.S_IFDIR, Ino: inoCount})
 			inoCount++
-			_ = r.bar.Set64(int64(inoCount))
+			if r.bar != nil {
+				_ = r.bar.Set64(int64(inoCount))
+			}
 			// Add Folder Node
 			//log.Println("Adding Folder", base)
 			parent.AddChild(base, ch, true)
-			if er := r.recursiveCreate(ctx, ch, node); er != nil {
-				return er
+			if recursive {
+				if er := r.recursiveCreate(ctx, ch, node, true); er != nil {
+					return er
+				}
 			}
 		}
 		return nil
@@ -119,10 +148,15 @@ func (r *SnapFS) recursiveCreate(ctx context.Context, parent *fs.Inode, snapFold
 func (r *SnapFS) OnAdd(ctx context.Context) {
 
 	root, _ := r.snapshot.LoadNode(ctx, "/", false)
-	r.bar = progressbar.Default(int64(r.total))
-	_ = r.recursiveCreate(ctx, r.EmbeddedInode(), root)
-	log.Printf("Loaded %d nodes, now closing snapshot and serving...", inoCount)
-	//r.snapshot.Close(true)
+	if r.total > 20000 {
+		log.Printf("Snapshot contains %d nodes, using dynamic loading for each folder\n", r.total)
+		_ = r.recursiveCreate(ctx, r.EmbeddedInode(), root, false)
+	} else {
+		log.Printf("Snapshot contains %d nodes, loading whole tree in memory\n", r.total)
+		r.bar = progressbar.Default(int64(r.total))
+		_ = r.recursiveCreate(ctx, r.EmbeddedInode(), root, true)
+	}
+	log.Printf("Loaded %d nodes, now serving...", inoCount)
 
 }
 
