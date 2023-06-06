@@ -20,7 +20,7 @@ DESCRIPTION
 
 EXAMPLES 
 
-  $ ` + os.Args[0] + ` mount --target /tmp/datasource --storage file:///var/cells/data/pydiods1/snapshot.db
+  $ ` + os.Args[0] + ` mount --target /tmp/datasource --snapshot file:///var/cells/data/pydiods1/snapshot.db
 
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -34,13 +34,13 @@ EXAMPLES
 			log.Fatalf("warning you are trying to mount on current folder")
 		}
 
-		fileProvider, snap, er := fs2.StorageUrlAsProvider(storageURL)
+		fileProvider, snap, total, er := fs2.StorageUrlAsProvider(storageURL)
 		if er != nil {
 			log.Fatalf("cannot parse storage URL %v", er)
 		}
 		opts := &fs.Options{}
 		opts.Debug = debug
-		mountFs := fs2.NewSnapFS(snap, fileProvider)
+		mountFs := fs2.NewSnapFS(snap, fileProvider, total)
 
 		server, err := fs.Mount(mountPoint, mountFs, opts)
 		if err != nil {

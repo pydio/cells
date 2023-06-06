@@ -29,7 +29,7 @@ DESCRIPTION
 EXAMPLES 
 
   1. Copy file from storage to local
-  $ ` + os.Args[0] + ` copy --storage file:///var/cells/data/pydiods1/snapshot.db --from /path/to/file/in/snapshot/file.ext ./file.ext
+  $ ` + os.Args[0] + ` copy --snapshot file:///var/cells/data/pydiods1/snapshot.db --from /path/to/file/in/snapshot/file.ext ./file.ext
 
 
 `,
@@ -48,7 +48,7 @@ EXAMPLES
 			return fmt.Errorf("a file exists at target location, please use a different one")
 		}
 
-		sc, folderOrBucket, snap, er := fs2.ParseStorageURL(storageURL)
+		sc, folderOrBucket, snap, _, er := fs2.ParseStorageURL(storageURL)
 		if er != nil {
 			return fmt.Errorf("cannot parse snapshot URL %v", er)
 		}
