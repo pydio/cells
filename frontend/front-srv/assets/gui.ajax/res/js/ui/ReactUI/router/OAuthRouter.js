@@ -24,6 +24,7 @@ import qs from 'query-string'
 import {Dialog, FlatButton} from 'material-ui'
 import browserHistory from 'react-router/lib/browserHistory'
 import Clipboard from 'clipboard'
+import {muiThemeable} from 'material-ui/styles'
 const {ModernTextField} = Pydio.requireLib('hoc');
 
 export const OAuthLoginRouter = (pydio) => {
@@ -159,7 +160,7 @@ class ErrorDialog extends Component {
 
 
     render(){
-        const {error, error_description, error_hint, successText, copyText} = this.props;
+        const {error, error_description, error_hint, successText, copyText, muiTheme} = this.props;
         const {open, copyMessage} = this.state;
 
         const copyButtonStyle = {
@@ -179,7 +180,8 @@ class ErrorDialog extends Component {
                 open={open}
                 modal={false}
                 title={error ? this.getMessage('failed') : this.getMessage('success')}
-                actions={[<FlatButton primary={true} label={Pydio.getMessages()['48']} onTouchTap={() => {this.dismiss()}}/>]}
+                actions={[<FlatButton primary={true} label={Pydio.getMessages()['48']} onClick={() => {this.dismiss()}}/>]}
+                contentStyle={{background:muiTheme.dialog['containerBackground'], borderRadius:muiTheme.borderRadius}}
             >
                 <div>
                     {successText && <div>{successText}</div>}
@@ -201,3 +203,5 @@ class ErrorDialog extends Component {
         );
     }
 }
+
+ErrorDialog = muiThemeable()(ErrorDialog)
