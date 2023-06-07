@@ -24,7 +24,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
+
 	errors2 "github.com/pkg/errors"
+	"go.uber.org/zap"
+	"golang.org/x/exp/maps"
+
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -34,9 +39,6 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"go.uber.org/zap"
-	"golang.org/x/exp/maps"
-	"sync"
 )
 
 // Service for the pydio app
@@ -61,6 +63,8 @@ type Service interface {
 	Metadata() map[string]string
 	ID() string
 	Name() string
+	Version() string
+	Tags() []string
 	Start(oo ...registry.RegisterOption) error
 	Stop(oo ...registry.RegisterOption) error
 	OnServe(oo ...registry.RegisterOption) error
@@ -395,7 +399,7 @@ func (s *service) Clone() interface{} {
 		Tags:        s.Opts.Tags,
 		Version:     s.Opts.Version,
 		Description: s.Opts.Description,
-		Metadata:    s.Metadata(),
+		Metadata:    maps.Clone(s.Opts.Metadata),
 	}
 
 	return clone

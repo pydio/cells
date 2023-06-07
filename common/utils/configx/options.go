@@ -22,8 +22,6 @@ package configx
 
 import (
 	"context"
-	"sync"
-
 	"github.com/spf13/cast"
 
 	"google.golang.org/protobuf/encoding/protojson"
@@ -52,7 +50,6 @@ type Decrypter interface {
 type Option func(*Options)
 
 type Options struct {
-	*sync.RWMutex
 	InitData interface{}
 	Unmarshaler
 	Marshaller
@@ -172,12 +169,6 @@ func WithDecrypt(d Decrypter) Option {
 func WithReadOnly() Option {
 	return func(options *Options) {
 		options.ReadOnly = true
-	}
-}
-
-func WithLock(m *sync.RWMutex) Option {
-	return func(o *Options) {
-		o.RWMutex = m
 	}
 }
 
