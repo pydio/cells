@@ -30,6 +30,7 @@ import (
 	"github.com/r3labs/diff/v3"
 	"log"
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -103,6 +104,21 @@ func TestNodeDiff(t *testing.T) {
 	b.Val("test").Set(clone)
 
 	fmt.Println(diff.Diff(a.Interface(), b.Interface()))
+}
+
+func TestSyncMapDiff(t *testing.T) {
+	a := configx.New()
+	a.Val("map").Set(&sync.Map{})
+	a.Val("map", "test").Set("test")
+
+	clone := std.DeepClone(a.Interface())
+	b := configx.New()
+	b.Set(clone)
+
+	a.Val("map", "test").Set("testing")
+	a.Val("map", "test1").Set("test1")
+
+	fmt.Println(diff.Diff(a.Interface(), b.Interface(), diff.CustomValueDiffers(config.CustomValueDiffers...)))
 }
 
 func TestGetSetMemory(t *testing.T) {

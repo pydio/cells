@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"reflect"
 	"regexp"
 	"strings"
 	"sync"
@@ -86,93 +85,6 @@ func New(opt ...configx.Option) config.Store {
 	return m
 }
 
-type noopDiffer struct{}
-
-func (*noopDiffer) Match(a, b reflect.Value) bool {
-	return a.Kind() == reflect.Func || b.Kind() == reflect.Func
-}
-
-func (*noopDiffer) Diff(dt diff.DiffType, df diff.DiffFunc, cl *diff.Changelog, path []string, a, b reflect.Value, parent interface{}) error {
-	return nil
-}
-
-func (*noopDiffer) InsertParentDiffer(dfunc func(path []string, a, b reflect.Value, p interface{}) error) {
-}
-
-type syncMapDiffer struct{}
-
-func (*syncMapDiffer) Match(a, b reflect.Value) bool {
-	st := reflect.TypeOf(&sync.Map{})
-
-	if !a.IsValid() || !b.IsValid() {
-		return false
-	}
-	if !a.CanInterface() || !b.CanInterface() {
-		return false
-	}
-	return reflect.TypeOf(a.Interface()) == st && reflect.TypeOf(b.Interface()) == st
-}
-
-func (*syncMapDiffer) Diff(dt diff.DiffType, df diff.DiffFunc, cl *diff.Changelog, path []string, a, b reflect.Value, parent interface{}) error {
-	// Checking what's been added
-	sma := a.Interface().(*sync.Map)
-	smb := b.Interface().(*sync.Map)
-
-	sma.Range(func(ka any, va any) bool {
-		found := false
-		smb.Range(func(kb any, vb any) bool {
-			if ka == kb {
-				// Must diff ka && kb
-				patch, err := diff.Diff(va, vb, diff.AllowTypeMismatch(true), diff.CustomValueDiffers(&syncMapDiffer{}, &noopDiffer{}))
-				if err != nil {
-					fmt.Println(err)
-					return false
-				}
-				for _, op := range patch {
-					cl.Add(op.Type, append(path, append([]string{ka.(string)}, op.Path...)...), op.From, op.To)
-				}
-
-				found = true
-				return false
-			}
-
-			return true
-		})
-
-		// Has been added
-		if !found {
-			cl.Add(diff.DELETE, append(path, ka.(string)), va, nil)
-		}
-
-		return true
-	})
-
-	smb.Range(func(kb any, vb any) bool {
-		found := false
-		sma.Range(func(ka any, _ any) bool {
-			if ka == kb {
-				// Must diff ka && kb
-				found = true
-				return false
-			}
-
-			return true
-		})
-
-		// Has been added
-		if !found {
-			cl.Add(diff.CREATE, append(path, kb.(string)), nil, vb)
-		}
-
-		return true
-	})
-
-	return nil
-}
-
-func (*syncMapDiffer) InsertParentDiffer(dfunc func(path []string, a, b reflect.Value, p interface{}) error) {
-}
-
 func (m *memory) flush() {
 	snap := configx.New()
 	snap.Set(std.DeepClone(m.v.Interface()))
@@ -180,11 +92,15 @@ func (m *memory) flush() {
 		select {
 		case <-m.reset:
 			m.timer.Stop()
+			select {
+			case <-m.timer.C:
+			default:
+			}
 			m.timer = time.NewTimer(timeout)
 		case <-m.timer.C:
 			clone := std.DeepClone(m.v.Interface())
 
-			patch, err := diff.Diff(snap.Interface(), clone, diff.AllowTypeMismatch(true), diff.CustomValueDiffers(&syncMapDiffer{}, &noopDiffer{}))
+			patch, err := diff.Diff(snap.Interface(), clone, diff.DisableStructValues(), diff.AllowTypeMismatch(true), diff.CustomValueDiffers(config.CustomValueDiffers...))
 			if err != nil {
 				continue
 			}

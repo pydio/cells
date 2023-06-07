@@ -77,6 +77,13 @@ type ServiceOptions struct {
 // ServiceOption provides a functional option
 type ServiceOption func(*ServiceOptions)
 
+// ID option for a service
+func ID(n string) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.ID = n
+	}
+}
+
 // Name option for a service
 func Name(n string) ServiceOption {
 	return func(o *ServiceOptions) {
@@ -216,6 +223,7 @@ func newOptions(opts ...ServiceOption) *ServiceOptions {
 	opt.Metadata = make(map[string]string)
 	opt.Version = common.Version().String()
 	opt.AutoStart = true
+	opt.Context = context.TODO()
 
 	for _, o := range opts {
 		if o == nil {
