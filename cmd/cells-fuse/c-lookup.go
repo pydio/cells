@@ -34,13 +34,13 @@ DESCRIPTION
 EXAMPLES 
 
   1. List all files or folders with name containing "test", case insensitive
-  $ ` + os.Args[0] + ` lookup --storage file:///var/cells/data/pydiods1/snapshot.db --name *test* -i
+  $ ` + os.Args[0] + ` lookup --snapshot file:///var/cells/data/pydiods1/snapshot.db --name *test* -i
 
   2. List all files inside snapshot
-  $ ` + os.Args[0] + ` lookup --storage file:///var/cells/data/pydiods1/snapshot.db --name "*" --type file
+  $ ` + os.Args[0] + ` lookup --snapshot file:///var/cells/data/pydiods1/snapshot.db --name "*" --type file
 
   3. List all files under an existing folder /folder/path
-  $ ` + os.Args[0] + ` lookup --storage file:///var/cells/data/pydiods1/snapshot.db --name "*" --type file --base "/folder/path"
+  $ ` + os.Args[0] + ` lookup --snapshot file:///var/cells/data/pydiods1/snapshot.db --name "*" --type file --base "/folder/path"
 
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -53,7 +53,7 @@ EXAMPLES
 		if lookupI {
 			lookupGlob = strings.ToLower(lookupGlob)
 		}
-		_, snap, er := fs2.StorageUrlAsProvider(storageURL)
+		_, snap, _, er := fs2.StorageUrlAsProvider(storageURL)
 		if er != nil {
 			return fmt.Errorf("cannot parse snapshot URL %v", er)
 		}
