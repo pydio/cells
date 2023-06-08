@@ -1,15 +1,39 @@
-# Changes between v4.2.0 and v4.2.1
+# Changes between v4.2.1 and v4.2.2-rc1
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.0...v4.2.1)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.1...v4.2.2-rc1)
 
-- [#bc8f565](https://github.com/pydio/cells/commit/bc8f56583e018f1440317b03ab63f1cd65f98385): Show a warning if job or action Timeout is not a golang Duration. Fix cleaning job for not killing running tasks without reason!
-- [#6f20a06](https://github.com/pydio/cells/commit/6f20a06a2fef71636d67e19b9677a0ad5f15b8f2): New binary tool cells-fuse to mount a flat datasource snapshot
-- [#4aaf691](https://github.com/pydio/cells/commit/4aaf691a931b841ba8781cc3b939555bf6915a19): Merge remote-tracking branch 'origin/main'
-- [#dc79fd0](https://github.com/pydio/cells/commit/dc79fd011d9297717c987bbdb4227498dcaf27e9): Remove false warning log about boolean format
-- [#9434525](https://github.com/pydio/cells/commit/94345258b5cdfa2eb278f1a04519836a591aed1d): Release v4.2.1-rc1
-- [#a5f6250](https://github.com/pydio/cells/commit/a5f6250f4abea17f01b91d076309f0f2cf02652c): role : apply previous changes as migration
-- [#6c61782](https://github.com/pydio/cells/commit/6c61782847e48dafbe451bc8f3c423cf9c64fcd5): Merge remote-tracking branch 'origin/main'
-- [#d7e5526](https://github.com/pydio/cells/commit/d7e55263bfcd92b34fa85da6f50bda2053f86969): New UX Glitches - Factorize SharedUserBadge.js component for using in Chat, fix watch button outline color, definitely remove editor.browser that was disabled anyway, hide refresh button in Breadcrumb for share minisite.
-- [#04a9089](https://github.com/pydio/cells/commit/04a908997139f20b6fb3236d162020ba8fb504a2): Create StreamPolicies endpoint and use it instead of List to avoid grpc message bottleneck when tons of policies are created.
-- [#e66f7ff](https://github.com/pydio/cells/commit/e66f7ff74a494a8df0b95c8dc0a00e8418e6d460): Create Security Policy
-- [#c6a7a46](https://github.com/pydio/cells/commit/c6a7a464088a2f8df5eafb2c2e3c9d3ce2b60ecf): Next development cycle
+- [#2434c8b](https://github.com/pydio/cells/commit/2434c8b9b323b7f8b79e411c90882914aeaf77a4): Fixing diff for registry items
+- [#8ff76f1](https://github.com/pydio/cells/commit/8ff76f101fe3308708bea124651b07fbb9071582): Fix possible crash during log truncate
+- [#d9eb100](https://github.com/pydio/cells/commit/d9eb100dcdedd2e7cfe699a48b40d4d1b69a4b29): Fix inode count
+- [#a0ac8d1](https://github.com/pydio/cells/commit/a0ac8d1710d12ba63881d51fd1ef163503af953e): If snapshot has more than 20k items, switch to dynamic loading
+- [#2abafdc](https://github.com/pydio/cells/commit/2abafdc0d7df95daedf833994dde25343f8a9f90): Add a progress bar while loading snapshot for cells-fuse
+- [#b102b97](https://github.com/pydio/cells/commit/b102b97878ea357c9b463c089a01458d0bfca6bc): Fix oauth oob dialog background color
+- [#4e9d7a4](https://github.com/pydio/cells/commit/4e9d7a4c91d2b639c598afb2cd25b0a3d309ea3f): Using sync map in registry and adding sync map handling in config
+- [#488](https://github.com/pydio/cells/pull/488): Remove `github.com/ghodss/yaml` dependency
+- [#489](https://github.com/pydio/cells/pull/489): Avoid unnecessary byte/string conversion
+- [#40ec09c](https://github.com/pydio/cells/commit/40ec09c8794eba06436a8392f29ff03fb63046cb): Remove some warnings
+- [#ad68823](https://github.com/pydio/cells/commit/ad688236fbfc6267b85cd11840adabd3dd68edae): Merge remote-tracking branch 'origin/main'
+- [#2b480d3](https://github.com/pydio/cells/commit/2b480d3e0a01d988622007f96177a113a4fde872): Try modifying webdav locker to clean the lock on delete (tests for windows)
+- [#bf6cf66](https://github.com/pydio/cells/commit/bf6cf66bdab3b66ff514cc7f7a3e572b27891f44): fix db error in flat datasource migration
+- [#9b17228](https://github.com/pydio/cells/commit/9b172283b72aab6bf1390e274bb1b89c932c4f8f): Tracking possible race conditions Log current build info in logger on start
+- [#0763142](https://github.com/pydio/cells/commit/07631427430775b07987fc7ebfa9b3aec8fc641d): New messages + DE/FR translation
+- [#f45a511](https://github.com/pydio/cells/commit/f45a511ad28b8aeb1ec720b7f3a676c9e64ec656): New messages + DE/FR translation
+- [#708122d](https://github.com/pydio/cells/commit/708122d5464c8d361a31f6b0f966c1bf56236f91): Fixing transient failure
+- [#b6f5952](https://github.com/pydio/cells/commit/b6f5952d31adcb6224df0f1133d40a0414c3d811): Improve login screen failing messages and routing after login.
+- [#27c6786](https://github.com/pydio/cells/commit/27c67868e483706506b7869b6b87e32c98a9f691): Meta
+- [#b828513](https://github.com/pydio/cells/commit/b828513beca8e5ade193e8af60b8471d4d228aab): Remove zap.Any usage when possible.
+- [#861e1a1](https://github.com/pydio/cells/commit/861e1a16aae887e7ee04d05190da89281d5ba571): Fixing unit test
+- [#5a7565f](https://github.com/pydio/cells/commit/5a7565fe4683f8fcac0838059604cefae5b43636): Fixing unit test and adding lock to meta
+- [#9f53028](https://github.com/pydio/cells/commit/9f53028f7ceb0cd61b625bd06aff408adc4228d2): Replacing clone
+- [#21c63fa](https://github.com/pydio/cells/commit/21c63fad68bc2f7a191cd9b0b11cd0bd52f3896a): Making a clone of snap diff
+- [#87e4fa8](https://github.com/pydio/cells/commit/87e4fa84fe59d741f34b9efa472b8a929073059f): Testing
+- [#24f84f7](https://github.com/pydio/cells/commit/24f84f76c09e3ed461760e18c30902b54b4e7c89): Avoid unnecessary byte/string conversion
+- [#94dfdaf](https://github.com/pydio/cells/commit/94dfdafeda7acabfa5fd011f72d0cfbffc026886): Remove `github.com/ghodss/yaml` dependency
+- [#49822e7](https://github.com/pydio/cells/commit/49822e7bef49a7e7a5b2539e8885b3e3dc40c885): Fixing data race
+- [#d22588a](https://github.com/pydio/cells/commit/d22588a524aebd474b279b0bcff5bab47a53cfd3): Fixing data race
+- [#28cced9](https://github.com/pydio/cells/commit/28cced98ba10ea5ed5fc229f4c1a7fd78440db8a): Fix public link when search is enabled - missing copyrights in index package.
+- [#ee63fe9](https://github.com/pydio/cells/commit/ee63fe91a7709f35d54af4fc8d304aabe6447d0b): Merge remote-tracking branch 'origin/main'
+- [#fed671b](https://github.com/pydio/cells/commit/fed671b50bcc6a812643d6ff77ddaa9532df87d3): Fix issue when enabling search form in folder public link
+- [#09e0125](https://github.com/pydio/cells/commit/09e01256984af2508f7ced5abe896aab5846e509): Adding clone before the diff for memory config
+- [#4016d29](https://github.com/pydio/cells/commit/4016d296a0d25e3fce0087f20bf574bb5e85d80e): Improve cells-fuse tool
+- [#6b53bfb](https://github.com/pydio/cells/commit/6b53bfbb08a46fe93d07a87efaf5cd776a92ff43): Next development cycle
