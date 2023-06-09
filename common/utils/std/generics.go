@@ -25,6 +25,16 @@ func DeepClone[T any](t T) (dst T) {
 	return
 }
 
+func copyPremitive(src any) (dst any) {
+	kind := reflect.ValueOf(src).Kind()
+	switch kind {
+	case reflect.Array, reflect.Chan, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice, reflect.Struct, reflect.UnsafePointer:
+		panic(fmt.Sprintf("reflect: internal error: type %v is not a primitive", kind))
+	}
+	dst = src
+	return
+}
+
 func copySlice(x any) any {
 	v := reflect.ValueOf(x)
 	kind := v.Kind()
@@ -141,6 +151,23 @@ func copyStruct(x any) any {
 	return dc.Elem().Interface()
 }
 
+func copyChan(x any) any {
+	v := reflect.ValueOf(x)
+	if v.Kind() != reflect.Chan {
+		panic(fmt.Errorf("reflect: internal error: must be a Chan; got %v", v.Kind()))
+	}
+	t := reflect.TypeOf(x)
+	dir := t.ChanDir()
+	var dc any
+	switch dir {
+	case reflect.BothDir:
+		fallthrough
+	case reflect.SendDir, reflect.RecvDir:
+		dc = x
+	}
+	return dc
+}
+
 func copyAny(src any) (dst any) {
 	v := reflect.ValueOf(src)
 	if !v.IsValid() {
@@ -149,20 +176,27 @@ func copyAny(src any) (dst any) {
 
 	// Look up the corresponding copy function.
 	switch v.Kind() {
-	case reflect.Map:
-		dst = copyMap(src)
+	case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
+		reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32,
+		reflect.Uint64, reflect.Uintptr, reflect.Float32, reflect.Float64,
+		reflect.Complex64, reflect.Complex128, reflect.Func:
+		dst = copyPremitive(src)
+	case reflect.String:
+		dst = strings.Clone(src.(string))
 	case reflect.Slice:
 		dst = copySlice(src)
 	case reflect.Array:
 		dst = copyArray(src)
-	case reflect.String:
-		dst = strings.Clone(src.(string))
+	case reflect.Map:
+		dst = copyMap(src)
 	case reflect.Ptr, reflect.UnsafePointer:
 		dst = copyPointer(src)
-	case reflect.Interface:
-		dst = copyAny(src)
 	case reflect.Struct:
 		dst = copyStruct(src)
+	case reflect.Interface:
+		dst = copyAny(src)
+	case reflect.Chan:
+		dst = copyChan(src)
 	default:
 		fmt.Println("Shouldn't be there ?", v)
 	}

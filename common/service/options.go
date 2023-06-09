@@ -45,7 +45,8 @@ type ServiceOptions struct {
 	Context context.Context    `json:"-"`
 	Cancel  context.CancelFunc `json:"-"`
 
-	Migrations []*Migration `json:"-"`
+	Migrations     []*Migration        `json:"-"`
+	TODOMigrations func() []*Migration `json:"-"`
 
 	// Port      string
 	TLSConfig *tls.Config
@@ -192,6 +193,12 @@ func Unique(b bool) ServiceOption {
 func Migrations(migrations []*Migration) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Migrations = migrations
+	}
+}
+
+func TODOMigrations(migrations func() []*Migration) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.TODOMigrations = migrations
 	}
 }
 

@@ -125,3 +125,11 @@ func TenantIncomingContext(serverRuntimeContext context.Context) func(ctx contex
 		return ctx, true, nil
 	}
 }
+
+func HandlerInterceptor() func(ctx context.Context) (context.Context, bool, error) {
+	return func(ctx context.Context) (context.Context, bool, error) {
+		ctx = setContextForTenant(ctx)
+
+		return ctx, true, nil
+	}
+}

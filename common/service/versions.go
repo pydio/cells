@@ -68,15 +68,29 @@ func UpdateServiceVersion(ctx context.Context, store config.Store, opts *Service
 		return fmt.Errorf("cannot update service version for %s (%v)", opts.Name, e)
 	}
 
-	writeVersion, err := applyMigrations(ctx, lastVersion, newVersion, opts.Migrations)
-	if writeVersion != nil {
-		if e := updateVersion(store, opts.Name, writeVersion); e != nil {
-			log.Logger(opts.Context).Error("could not write version file", zap.Error(e))
+	if len(opts.Migrations) > 0 {
+		writeVersion, err := applyMigrations(ctx, lastVersion, newVersion, opts.Migrations)
+		if writeVersion != nil {
+			if e := updateVersion(store, opts.Name, writeVersion); e != nil {
+				log.Logger(opts.Context).Error("could not write version file", zap.Error(e))
+			}
+		}
+		if err != nil {
+			return fmt.Errorf("cannot update service version for %s (%v)", opts.Name, err)
 		}
 	}
-	if err != nil {
-		return fmt.Errorf("cannot update service version for %s (%v)", opts.Name, err)
+	if opts.TODOMigrations != nil {
+		writeVersion, err := applyMigrations(ctx, lastVersion, newVersion, opts.TODOMigrations())
+		if writeVersion != nil {
+			if e := updateVersion(store, opts.Name, writeVersion); e != nil {
+				log.Logger(opts.Context).Error("could not write version file", zap.Error(e))
+			}
+		}
+		if err != nil {
+			return fmt.Errorf("cannot update service version for %s (%v)", opts.Name, err)
+		}
 	}
+
 	return nil
 }
 

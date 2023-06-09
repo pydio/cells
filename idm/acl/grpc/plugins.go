@@ -68,8 +68,8 @@ func init() {
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				handler := NewHandler(ctx, s)
 
-				idm.RegisterACLServiceEnhancedServer(server, handler)
-				tree.RegisterNodeProviderStreamerEnhancedServer(server, handler)
+				idm.RegisterACLServiceServer(server, handler)
+				tree.RegisterNodeProviderStreamerServer(server, handler)
 
 				// Clean acls on Ws or Roles deletion
 				rCleaner := &WsRolesCleaner{Handler: handler}

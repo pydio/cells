@@ -66,11 +66,13 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Users persistence layer"),
-			service.Migrations([]*service.Migration{
-				{
-					TargetVersion: service.FirstRun(),
-					Up:            InitDefaults(s),
-				},
+			service.TODOMigrations(func() []*service.Migration {
+				return []*service.Migration{
+					{
+						TargetVersion: service.FirstRun(),
+						Up:            InitDefaults(s),
+					},
+				}
 			}),
 			// service.WithStorage(user.NewDAO, service.WithStoragePrefix("idm_user")),
 			service.WithTODOStorage(user.NewDAO, commonsql.NewDAO,
@@ -79,7 +81,7 @@ func init() {
 			),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
-				idm.RegisterUserServiceEnhancedServer(server, NewHandler(ctx, s))
+				idm.RegisterUserServiceServer(server, NewHandler(ctx, s))
 
 				// Register a cleaner for removing a workspace when there are no more ACLs on it.
 				cleaner := &RolesCleaner{Dao: service.DAOFromContext[user.DAO](s)}
@@ -96,13 +98,11 @@ func init() {
 				return nil
 			}),
 		)
-
 	})
 }
 
 func InitDefaults(s service.Service) func(context.Context) error {
 	return func(ctx context.Context) error {
-
 		var login, pwd string
 		dao := service.DAOFromContext[user.DAO](s)(ctx)
 		cfg := servercontext.GetConfig(ctx)

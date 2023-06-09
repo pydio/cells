@@ -23,10 +23,12 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/service/context/ckeys"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 	"net"
 	"net/url"
+	"reflect"
 	"strings"
 	"sync"
 
@@ -44,7 +46,6 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/middleware"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/service/context/ckeys"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 )
@@ -72,6 +73,9 @@ type Server struct {
 
 	*grpc.Server
 	regI grpc.ServiceRegistrar
+
+	handlerUnaryInterceptors  []grpc.UnaryServerInterceptor
+	handlerStreamInterceptors []grpc.StreamServerInterceptor
 
 	sync.Mutex
 }
@@ -126,6 +130,11 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 		return s.Server
 	}
 
+	var (
+		unaryInterceptors  []grpc.UnaryServerInterceptor
+		streamInterceptors []grpc.StreamServerInterceptor
+	)
+
 	gs := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			ErrorFormatUnaryInterceptor,
@@ -136,6 +145,7 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 			servicecontext.ContextUnaryServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
 			servicecontext.ContextUnaryServerInterceptor(middleware.RegistryIncomingContext(ctx)),
 			servicecontext.ContextUnaryServerInterceptor(middleware.TenantIncomingContext(ctx)),
+			HandlerUnaryInterceptor(&unaryInterceptors),
 			otelgrpc.UnaryServerInterceptor(),
 		),
 		grpc.ChainStreamInterceptor(
@@ -147,16 +157,19 @@ func (s *Server) lazyGrpc(ctx context.Context) *grpc.Server {
 			servicecontext.ContextStreamServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
 			servicecontext.ContextStreamServerInterceptor(middleware.RegistryIncomingContext(ctx)),
 			servicecontext.ContextStreamServerInterceptor(middleware.TenantIncomingContext(ctx)),
+			HandlerStreamInterceptor(&streamInterceptors),
 			otelgrpc.StreamServerInterceptor(),
 		),
 	)
 
 	wrappedGS := &registrar{
-		Server: gs,
-		id:     s.ID(),
-		name:   s.Name(),
-		reg:    servicecontext.GetRegistry(s.ctx),
-		Mutex:  &sync.Mutex{},
+		Server:             gs,
+		id:                 s.ID(),
+		name:               s.Name(),
+		reg:                servicecontext.GetRegistry(s.ctx),
+		unaryInterceptors:  &unaryInterceptors,
+		streamInterceptors: &streamInterceptors,
+		Mutex:              &sync.Mutex{},
 	}
 
 	service.RegisterChannelzServiceToServer(wrappedGS)
@@ -276,6 +289,9 @@ type registrar struct {
 	name string
 	reg  registry.Registry
 
+	unaryInterceptors  *[]grpc.UnaryServerInterceptor
+	streamInterceptors *[]grpc.StreamServerInterceptor
+
 	*sync.Mutex
 }
 
@@ -309,10 +325,52 @@ func (r *registrar) RegisterService(desc *grpc.ServiceDesc, impl interface{}) {
 		r.Server.RegisterService(desc, impl)
 	}
 
+	*r.unaryInterceptors = append(*r.unaryInterceptors, func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		if named, ok := impl.(namedHandler); ok {
+			if md, ok := metadata.FromIncomingContext(ctx); ok {
+				if named.Name() == strings.Join(md.Get(ckeys.TargetServiceName), "") {
+					// TODO - can't we use method.Handler ?
+					method := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+1:]
+					outputs := reflect.ValueOf(impl).MethodByName(method).Call([]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(req)})
+
+					resp := outputs[0].Interface()
+					err := outputs[1].Interface()
+					if err != nil {
+						return nil, err.(error)
+					}
+
+					return resp, nil
+				}
+			}
+		}
+
+		return handler(ctx, req)
+	})
+
 	for _, method := range desc.Methods {
 		item := util.CreateEndpoint(desc.ServiceName+"/"+method.MethodName, nil)
 		r.reg.Register(item, registry.WithEdgeTo(r.id, "instance", nil))
 	}
+
+	*r.streamInterceptors = append(*r.streamInterceptors, func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		for _, method := range desc.Streams {
+			targetMethod := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+1:]
+			if method.StreamName == targetMethod {
+				ctx := ss.Context()
+
+				if named, ok := impl.(namedHandler); ok {
+					if md, ok := metadata.FromIncomingContext(ctx); ok {
+						if named.Name() == strings.Join(md.Get(ckeys.TargetServiceName), "") {
+							return method.Handler(srv, ss)
+						}
+					}
+				}
+			}
+
+		}
+		return handler(srv, ss)
+
+	})
 
 	for _, method := range desc.Streams {
 		item := util.CreateEndpoint(desc.ServiceName+"/"+method.StreamName, nil)

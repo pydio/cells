@@ -487,7 +487,7 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 				}
 			}
 			if len(o.IDs) > 0 && !foundID {
-				return false
+				return true
 			}
 
 			foundName := false
@@ -499,7 +499,7 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 			}
 
 			if len(o.Names) > 0 && !foundName {
-				return false
+				return true
 			}
 
 			accept := true
@@ -511,7 +511,7 @@ func (c *configRegistry) List(opts ...registry.Option) ([]registry.Item, error) 
 			}
 
 			if len(o.Filters) > 0 && !accept {
-				return false
+				return true
 			}
 
 			res = append(res, item)
