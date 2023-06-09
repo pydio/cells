@@ -69,11 +69,11 @@ func TestTaskSetters(t *testing.T) {
 		So(task, ShouldNotBeNil)
 
 		task.Add(2)
-		So(task.rc, ShouldEqual, 2)
+		So(task.rci.Load(), ShouldEqual, 2)
 		task.Done(1)
-		So(task.rc, ShouldEqual, 1)
+		So(task.rci.Load(), ShouldEqual, 1)
 		task.Done(1)
-		So(task.rc, ShouldEqual, 0)
+		So(task.rci.Load(), ShouldEqual, 0)
 
 		now := time.Now()
 		stamp := int32(now.Unix())
