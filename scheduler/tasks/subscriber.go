@@ -59,6 +59,24 @@ var (
 	PubSub *pubsub.PubSub
 )
 
+// UnSubWithFlush wraps PubSub.Unsub with a select to make sure all messages are consumed before unsubscribing.
+func UnSubWithFlush(ch chan interface{}, topics ...string) {
+consume:
+	for {
+		select {
+		case _, ok := <-ch:
+			if !ok {
+				break consume
+			}
+			//fmt.Println("Unsub", topics, "there was still something to consume...")
+		case <-time.After(3 * time.Second):
+			//fmt.Println("Unsub", topics, "Break loop...")
+			break consume
+		}
+	}
+	PubSub.Unsub(ch, topics...)
+}
+
 type ContextJobParametersKey struct{}
 
 // Subscriber handles incoming events, applies selectors if any
