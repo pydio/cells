@@ -1,7 +1,10 @@
-# Changes between v4.2.1 and v4.2.2-rc1
+# Changes between v4.2.1 and v4.2.2
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.1...v4.2.2-rc1)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.1...v4.2.2)
 
+- [#418742f](https://github.com/pydio/cells/commit/418742f369e75074db080b45ac911b7aa8b76a8f): Fix typo in in-line doc
+- [#ac42de1](https://github.com/pydio/cells/commit/ac42de12e685701fd7502a5718487a3fea68d35d): PubSub.Unsub: make sure to consume all messages before unsubscription.
+- [#a7b0c3f](https://github.com/pydio/cells/commit/a7b0c3f849159210bc96302d14e4540042580856): Release v4.2.2-rc1
 - [#2434c8b](https://github.com/pydio/cells/commit/2434c8b9b323b7f8b79e411c90882914aeaf77a4): Fixing diff for registry items
 - [#8ff76f1](https://github.com/pydio/cells/commit/8ff76f101fe3308708bea124651b07fbb9071582): Fix possible crash during log truncate
 - [#d9eb100](https://github.com/pydio/cells/commit/d9eb100dcdedd2e7cfe699a48b40d4d1b69a4b29): Fix inode count
