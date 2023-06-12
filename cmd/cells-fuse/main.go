@@ -53,10 +53,10 @@ DESCRIPTION
 EXAMPLES 
 
   1. Mount Local datasource
-  $ ` + os.Args[0] + ` mount --t /tmp/datasource --s file:///var/cells/data/pydiods1/snapshot.db
+  $ ` + os.Args[0] + ` mount -t /tmp/datasource -s file:///var/cells/data/pydiods1/snapshot.db
 
   2. Mount Remote S3 datasource (note the s3s scheme)
-  $ ` + os.Args[0] + ` mount --t /tmp/datasource --s s3s://API_KEY:API_SECRET@s3.amazonaws.com/MyBucketName/snapshot.db
+  $ ` + os.Args[0] + ` mount -t /tmp/datasource -s s3s://API_KEY:API_SECRET@s3.amazonaws.com/MyBucketName/snapshot.db
 
   3. Lookup for a file (without mounting the datasource)
   $ ` + os.Args[0] + ` lookup --storage file:///var/cells/data/pydiods1/snapshot.db --name "*" --type file --base "/folder/path"
