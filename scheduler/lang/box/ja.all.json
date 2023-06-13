@@ -24,10 +24,13 @@
     "other": "変更したサービスを自動アーカイブ"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "削除時にユーザーデータを消去または転送する"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "宛先のないファイルを24時間後に削除する"
+  },
+  "Jobs.Default.CleanExpiredACLs": {
+    "other": "期限切れACLを10日ごとに削除する"
   },
   "Jobs.Default.CleanExpiredACLs": {
     "other": "Clean expired ACLs after 10 days"
@@ -63,7 +66,7 @@
     "other": "バックグラウンドでゴミ箱に移動しています..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Sync datasource {{.DsName}} then rehash new files"
+    "other": "新しいファイルを作る際にデータソース{{.DsName}} を同期する"
   },
   "Jobs.User.Wget": {
     "other": "バックグラウンドでファイルをダウンロードしています..."
