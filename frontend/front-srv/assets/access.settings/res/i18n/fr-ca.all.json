@@ -162,10 +162,10 @@
     "other": "Liste de toutes les actions de tous les plugins"
   },
   "148": {
-    "other": "Hooks Definitions"
+    "other": "Définitions des webhooks"
   },
   "149": {
-    "other": "List all hooks triggered in the application, their documentation, where there are triggered and which plugin listen to them."
+    "other": "Liste tous les crochets déclenchés dans l'application, leur documentation, où il y a déclenchés et quel plugin les écoute."
   },
   "15": {
     "other": "Non"

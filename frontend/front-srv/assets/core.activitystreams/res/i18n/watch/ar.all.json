@@ -1,86 +1,95 @@
 {
   "1": {
-    "other": "Watch for..."
+    "other": "مراقبة..."
   },
   "1-off": {
-    "other": "Watching..."
+    "other": "تحت المراقبة..."
   },
   "10": {
-    "other": "Anyone is opening the file"
+    "other": "أي شخص يقوم بفتح الملف"
   },
   "10b": {
-    "other": "Anyone is exploring the folder"
+    "other": "أي شخص يقوم باستكشاف المجلد"
   },
   "11": {
-    "other": "Modification"
+    "other": "التعديل"
   },
   "12": {
-    "other": "Anyone is modifying the file"
+    "other": "أي شخص يقوم بتعديل الملف"
   },
   "12b": {
-    "other": "Anyone is modifying a file inside this folder"
+    "other": "أي شخص يقوم بتعديل ملف داخل هذا المجلد"
   },
   "13": {
-    "other": "Both"
+    "other": "كل منهما"
   },
   "14": {
-    "other": "Anyone opening or writing into the file"
+    "other": "أي شخص يفتح أو يكتب في الملف"
   },
   "14b": {
-    "other": "Anyone exploring or modifying the folder content"
+    "other": "أي شخص يستكشف محتوى المجلد أو يعدله"
   },
   "2": {
-    "other": "Be notified when this folder is accessed"
+    "other": "استلم إشعارا عند الوصول إلى هذا المجلد"
   },
   "3": {
-    "other": "Stop watching"
+    "other": "إلغاء المراقبة"
   },
   "4": {
-    "other": "Stop watching this folder for accesses"
+    "other": "التوقف عن مراقبة هذا المجلد لعمليات الوصول"
   },
   "5": {
-    "other": "Watch for..."
+    "other": "مراقبة..."
   },
   "6": {
-    "other": "Watch this file for changes"
+    "other": "راقب تغييرات هذا الملف"
   },
   "7": {
-    "other": "Stop watching"
+    "other": "إلغاء المراقبة"
   },
   "8": {
-    "other": "Stop watching this file for changes"
+    "other": "إيقاف مراقبة تغييرات هذا الملف"
   },
   "9": {
-    "other": "Consultation"
+    "other": "استشارة"
   },
   "selector.legend": {
-    "other": "Receive notifications when..."
+    "other": "تلقي الإشعارات عندما..."
+  },
+  "selector.legend.mui": {
+    "other": "تلقي إشعارات عندما يكون المحتوى..."
   },
   "selector.legend.mui": {
     "other": "Receive notifications when content is..."
   },
   "selector.ignore": {
-    "other": "Never (no notifications)"
+    "other": "لا تظهر الإشعارات ابدا"
   },
   "selector.read": {
-    "other": "Content is accessed"
+    "other": "تم الوصول إلى المحتوى"
+  },
+  "selector.read.mui": {
+    "other": "تم الوصول"
   },
   "selector.read.mui": {
     "other": "Accessed"
   },
   "selector.change": {
-    "other": "Content is modified"
+    "other": "تم تعديل المحتوى"
+  },
+  "selector.change.mui": {
+    "other": "معدّل"
   },
   "selector.change.mui": {
     "other": "Modified"
   },
   "selector.both": {
-    "other": "Content is accessed or modified"
+    "other": "تم الوصول إلى المحتوى أو تعديله"
   },
   "selector.mixed": {
-    "other": "Mixed values"
+    "other": "قيم مختلطة"
   },
   "selector.saving": {
-    "other": "Saving status"
+    "other": "جارِ حفظ حالة"
   }
 }

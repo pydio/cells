@@ -144,7 +144,7 @@
     "other": "メールの送信時にデフォルトとして使われるアドレス。no-reply メールではなく、適切なサポートメールを使用しなくてはなりません。"
   },
   "Mail.Config.FixOutlookDisplay": {
-    "other": "Outlook Clients Fix (disable CSS inlining)"
+    "other": "Outlookクライアントの修正(CSSインライン表示を無効に)"
   },
   "Mail.Config.Queue.Label": {
     "other": "キュータイプ"
@@ -204,10 +204,10 @@
     "other": "SMTP サーバーに接続するのに必要なパスワード"
   },
   "Mail.Config.Smtp.Security.Label": {
-    "other": "Connection Security"
+    "other": "セキュリティ"
   },
   "Mail.Config.Smtp.Security.Description": {
-    "other": "Protocol used for securing connection. Clear is not supported, if required use a custom Sendmail instead."
+    "other": "接続のセキュリティ保護に使われるプロトコルを選択。必要に応じて独自のSendmailを使用してください。"
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
     "other": "自己署名証明書"

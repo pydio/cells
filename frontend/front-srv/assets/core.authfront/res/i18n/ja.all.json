@@ -24,12 +24,12 @@
     "other": "以下のフォームを使用してパスワードをリセットしてください。ログインと新しいパスワードを2回入力してください。"
   },
   "9": {
-    "other": "Please enter your username and password"
+    "other": "ユーザー名とパスワードを入力してください。"
   },
   "10": {
-    "other": "Please enter the password you received"
+    "other": "送られたパスワードを入力してください"
   },
   "11": {
-    "other": "Login failed: could not recognise your username or password"
+    "other": "ログインに失敗しました: ユーザー名またはパスワードが違います"
   }
 }

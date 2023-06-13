@@ -975,18 +975,18 @@
     "other": "Restrictions d'accès"
   },
   "link.secure.expires": {
-    "other": "expires"
+    "other": "expirera"
   },
   "link.secure.expired": {
-    "other": "expired"
+    "other": "expiré"
   },
   "link.secure.hasPassword": {
-    "other": "password required"
+    "other": "mot de passe requis"
   },
   "link.secure.maxdownloads": {
-    "other": "%d downloads only"
+    "other": "%d téléchargements"
   },
   "minisite.toggle.theme": {
-    "other": "Toggle Dark/Light Theme"
+    "other": "Changer l'affichage en mode sombre/clair"
   }
 }
