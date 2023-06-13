@@ -156,10 +156,10 @@
     "other": "ホスト名をリクエスト"
   },
   "contextMetaField.RequestHost": {
-    "other": "Request Host"
+    "other": "リクエストホスト"
   },
   "contextMetaField.RequestPort": {
-    "other": "Request Port"
+    "other": "リクエストポート"
   },
   "contextMetaField.RequestMethod": {
     "other": "リクエストメソッド"
@@ -450,16 +450,16 @@
     "other": "スケジュールされたトリガー"
   },
   "triggerFilterQuery.IsApiHook": {
-    "other": "Triggered by Webhook"
+    "other": "Webhook トリガー"
   },
   "triggerFilterQuery.ApiHookSlug": {
-    "other": "Webhook Api Slug"
+    "other": "Webhook API スラグ"
   },
   "triggerFilterQuery.RunParameterName": {
-    "other": "Run Parameter Name"
+    "other": "パラメーター名"
   },
   "triggerFilterQuery.RunParameterValue": {
-    "other": "Run Parameter Value"
+    "other": "パラメーター値"
   },
   "triggerFilterQuery.IsManual": {
     "other": "手動トリガー"

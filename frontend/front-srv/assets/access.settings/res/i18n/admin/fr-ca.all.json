@@ -39,10 +39,10 @@
     "other": "Datasource %s"
   },
   "ds.format-picker.title": {
-    "other": "Create DataSource"
+    "other": "Nouvelle Datasource"
   },
   "ds.format-picker.legend": {
-    "other": "DataSources are mount points allowing you to attach actual storage to the application. First select the way data is organized inside storage."
+    "other": "Les Datasources sont des points de montage qui vous permettent d'attacher un stockage réel à l'application. Tout d'abord, sélectionnez la façon dont les données sont organisées à l'intérieur du stockage."
   },
   "ds.format-picker.submit": {
     "other": "Début"

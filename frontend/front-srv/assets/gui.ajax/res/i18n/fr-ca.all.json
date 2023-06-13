@@ -207,52 +207,52 @@
     "other": "Présentations"
   },
   "mimegroup.pdf": {
-    "other": "PDFs"
+    "other": "Fichiers PDF"
   },
   "mimegroup.image": {
     "other": "Images"
   },
   "mimegroup.video": {
-    "other": "Videos"
+    "other": "Vidéos"
   },
   "mimegroup.audio": {
-    "other": "Audios"
+    "other": "Fichiers audio"
   },
   "fastsearch.quick-jump.title": {
-    "other": "Quick Jump"
+    "other": "Accès Rapide"
   },
   "fastsearch.quick-jump.legend": {
-    "other": "Hit [Enter] to jump, add a trailing [/] to search inside children, [Esc] to Close"
+    "other": "Appuyez sur [Entrée] pour accéder au répertoire, ajoutez [/] pour rechercher à l'intérieur, [Esc] pour Fermer"
   },
   "fastsearch.quick-move.title": {
-    "other": "Quick Move"
+    "other": "Déplacement Rapide"
   },
   "fastsearch.quick-move.target-error": {
-    "other": "Cannot move to this target!"
+    "other": "Impossible de déplacer vers cette cible !"
   },
   "fastsearch.quick-move.legend": {
-    "other": "Hit [Enter] to move %s selected items to target, [Esc] to Close"
+    "other": "Appuyez sur [Entrée] pour déplacer les %s éléments sélectionnés vers la cible, [Esc] pour Fermer"
   },
   "fastsearch.quick-copy.title": {
-    "other": "Quick Copy"
+    "other": "Copie Rapide"
   },
   "fastsearch.quick-copy.target-error": {
-    "other": "Cannot copy to this target!"
+    "other": "Impossible de copier vers cette cible !"
   },
   "fastsearch.quick-copy.legend": {
-    "other": "Hit [Enter] to copy %s selected items to target, [Esc] to Close"
+    "other": "Appuyez sur [Entrée] pour copier les %s éléments sélectionnés vers la cible, [Esc] pour Fermer"
   },
   "wslist-options.title": {
-    "other": "Display Options"
+    "other": "Options d'affichage"
   },
   "wslist-options.show-masked": {
-    "other": "Show masked items"
+    "other": "Afficher les éléments masqués"
   },
   "wslist.action.mask": {
-    "other": "Mask"
+    "other": "Masquer"
   },
   "wslist.action.unmask": {
-    "other": "Unmask"
+    "other": "Afficher"
   },
   "wslist-options.merge-workspaces": {
     "other": "Fusionner les Workspaces et les Cells"

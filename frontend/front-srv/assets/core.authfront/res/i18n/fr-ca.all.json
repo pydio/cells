@@ -24,12 +24,12 @@
     "other": "Utilisez le formulaire pour remettre à zéro votre mot de passe. Entrez votre identifiant et votre nouveau mot de passe deux fois."
   },
   "9": {
-    "other": "Please enter your username and password"
+    "other": "Veuillez saisir votre nom d’utilisateur et votre mot de passe"
   },
   "10": {
-    "other": "Please enter the password you received"
+    "other": "Veuillez saisir le mot de passe que vous avez reçu"
   },
   "11": {
-    "other": "Login failed: could not recognise your username or password"
+    "other": "Échec de la connexion : impossible de reconnaître votre nom d'utilisateur ou votre mot de passe"
   }
 }

@@ -1,29 +1,29 @@
 {
   "Display a standard user/password login screen": {
-    "other": "Display a standard user/password login screen"
+    "other": "عرض شاشة تسجيل الدخول القياسية للمستخدم/كلمة المرور"
   },
   "Enable/disable automatically based on the protocol used": {
-    "other": "Enable/disable automatically based on the protocol used"
+    "other": "تمكين/تعطيل تلقائياً استناداً إلى البروتوكول المستخدم"
   },
   "Order": {
-    "other": "Order"
+    "other": "الترتيب"
   },
   "Order this plugin with other auth frontends": {
-    "other": "Order this plugin with other auth frontends"
+    "other": "ترتيب هذه الإضافة مع واجهات المصادقة الأخرى"
   },
   "Protocol Type": {
-    "other": "Protocol Type"
+    "other": "نوع البروتوكول"
   },
   "REST Only": {
-    "other": "REST Only"
+    "other": "REST فقط"
   },
   "Session-based or Rest": {
-    "other": "Session-based or Rest"
+    "other": "اعتماداً على الجلسة او Rest"
   },
   "Sessions Only": {
-    "other": "Sessions Only"
+    "other": "الجلسات فقط"
   },
   "Standard login screen": {
-    "other": "Standard login screen"
+    "other": "شاشة تسجيل الدخول القياسية"
   }
 }

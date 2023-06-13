@@ -1,62 +1,62 @@
 {
   "Job.Version.Title": {
-    "other": "Event Based Job for replicating data for versioning"
+    "other": "وظيفة قائمة على الحدث لتكرار البيانات لإصدارها"
   },
   "Job.Version.StatusFile": {
-    "other": "Created version {{.Uuid}} inside version bucket "
+    "other": "الإصدار المنشأ {{.Uuid}} داخل حاوية الإصدار "
   },
   "Job.Version.StatusMeta": {
-    "other": "Created version metadata for {{.Uuid}}"
+    "other": "بيانات التعريف للإصدار الذي تمّ إنشاؤه لـ {{.Uuid}}"
   },
   "Job.Version.StatusPrune": {
-    "one": "Pruned {{.Count}} version",
-    "other": "Pruned {{.Count}} versions"
+    "one": "الإصدار {{.Count}} المتقلب",
+    "other": "الإصدارات {{.Count}} المجردة"
   },
   "Job.Pruning.Title": {
-    "other": "Cleaning versions files for deleted nodes"
+    "other": "تنظيف ملفات الإصدارات للعقد المحذوفة"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Successfully removed {{.Count}} version",
-    "other": "Successfully removed {{.Count}} versions."
+    "one": "تمت إزالة الإصدار {{.Count}} بنجاح",
+    "other": "تمت إزالة الإصدارات {{.Count}} بنجاح."
   },
   "Config.GroupPolicy.Title": {
-    "other": "Policy"
+    "other": "السياسة"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "Name"
+    "other": "الاسم"
   },
   "Config.GroupPolicy.Name.Description": {
-    "other": "Policy Name"
+    "other": "اسم السياسة"
   },
   "Config.GroupPolicy.Description.Label": {
-    "other": "Description"
+    "other": "الوصف"
   },
   "Config.GroupPolicy.Description.Description": {
-    "other": "Policy description"
+    "other": "وصف السياسة"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
-    "other": "Store"
+    "other": "المخزن"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
-    "other": "DataSource used to store versions"
+    "other": "مصدر البيانات المستخدم لتخزين الإصدارات"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
-    "other": "Bucket"
+    "other": "حزمة"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
-    "other": "Bucket used inside this datasource"
+    "other": "الحزمة المستعملة داخل هذه البيانات"
   },
   "Config.GroupSizes.Title": {
-    "other": "Size Limits"
+    "other": "حدود الحجم"
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
-    "other": "Global size of all versions kept in this bucket"
+    "other": "الحجم العام لجميع الإصدارات المحفوظة في هذه الحزمة"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
-    "other": "Limit the overall size taken. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "الحد من الحجم الإجمالي المطلوب. إذا تم بلوغ الحد ، سيتم حذف الإصدارات الأقدم. استخدم -1 بدون حدود"
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other": "Cumulated sizes for versions of one given file"
+    "other": "الأحجام المتراكمة لإصدارات ملف واحد"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
     "other": "Limit the size taken by all versions of one file. If limit is hit, oldest versions will be deleted. Use -1 for no limit"

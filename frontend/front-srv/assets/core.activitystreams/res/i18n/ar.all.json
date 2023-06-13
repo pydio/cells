@@ -1,62 +1,62 @@
 {
   "1": {
-    "other": "Notifications"
+    "other": "الإشعارات"
   },
   "10": {
-    "other": "Folder Activity"
+    "other": "نشاط المجلد"
   },
   "11": {
-    "other": "File Activity"
+    "other": "نشاط الملف"
   },
   "12": {
-    "other": "Depending on your browser, this will ask for a specific permission. To disable, go through your browser preferences and exceptions. If you have already enabled this feature, probably nothing will happen."
+    "other": "اعتمادًا على المتصفح الخاص بك، سيطلب هذا إذنًا محددًا. لتعطيل، انتقل إلى خيارات المستعرض ومن ثمّ الاستثناءات الخاصة بك. إذا قمت بالفعل بتمكين هذه الميزة، فربما لن يحدث شيء."
   },
   "13": {
-    "other": "Your browser does not seem to support Desktop Notifications yet."
+    "other": "يبدو أن المتصفح الخاص بك لا يدعم إشعارات سطح المكتب بعد."
   },
   "14": {
-    "other": "No alerts"
+    "other": "لا توجد تنبيهات"
   },
   "15": {
-    "other": "Notifications about files that you monitor will appear here"
+    "other": "الإشعارات حول الملفات التي تراقبها ستظهر هنا"
   },
   "16": {
-    "other": "Inside"
+    "other": "داخل"
   },
   "17": {
-    "other": "Loading activities..."
+    "other": "تحميل الأنشطة..."
   },
   "18": {
-    "other": "No recent activity"
+    "other": "لا يوجد نشاط حديث"
   },
   "19": {
-    "other": "More"
+    "other": "المزيد"
   },
   "2": {
-    "other": "Notifications feed"
+    "other": "تغذية الإشعارات"
   },
   "20": {
-    "other": "Loading feed..."
+    "other": "جاري تحميل الخلاصة..."
   },
   "3": {
-    "other": "Alerts"
+    "other": "التنبيهات"
   },
   "4": {
-    "other": "Notifications"
+    "other": "الإشعارات"
   },
   "5": {
-    "other": "All Events"
+    "other": "جميع الأحداث"
   },
   "6": {
-    "other": "Go to ..."
+    "other": "انتقل إلى..."
   },
   "7": {
-    "other": "Dismiss"
+    "other": "تجاهل"
   },
   "8": {
-    "other": "No alerts"
+    "other": "لا توجد تنبيهات"
   },
   "9": {
-    "other": "Workspace Activity"
+    "other": "نشاط مساحة العمل"
   }
 }

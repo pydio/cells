@@ -1302,7 +1302,7 @@
     "other": "昨日"
   },
   "494t": {
-    "other": "Tomorrow"
+    "other": "明日"
   },
   "495": {
     "other": "先週"
@@ -1659,7 +1659,7 @@
     "other": "ユーザーを追加"
   },
   "599-a": {
-    "other": "All Results"
+    "other": "結果"
   },
   "6": {
     "other": "名称変更"
@@ -2304,7 +2304,7 @@
     "other": "グループを選択"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "複数を選択"
   },
   "confirm.dialog.title": {
     "other": "確認"
@@ -2346,22 +2346,22 @@
     "other": "検索..."
   },
   "searchengine.share.title": {
-    "other": "Shared"
+    "other": "共有中"
   },
   "searchengine.share.hint": {
-    "other": "No status"
+    "other": "ステータスなし"
   },
   "searchengine.share.option.link": {
-    "other": "Public Link"
+    "other": "公開リンク"
   },
   "searchengine.share.option.cell": {
-    "other": "Shared in Cell"
+    "other": "Cellで共有"
   },
   "searchengine.share.option.any": {
-    "other": "Public Link or Cell"
+    "other": "公開リンク または Cell"
   },
   "searchengine.format.title": {
-    "other": "Format"
+    "other": "フォーマット"
   },
   "searchengine.format.file-only": {
     "other": "Files Only"

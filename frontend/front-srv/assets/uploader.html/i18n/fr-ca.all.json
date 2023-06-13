@@ -75,22 +75,22 @@
     "other": "Analyse de %s éléments..."
   },
   "task.message.analyse-one": {
-    "other": "Analyzing one item"
+    "other": "Analyse d'un élément"
   },
   "task.message.analyse-wait": {
-    "other": "Please wait..."
+    "other": "Veuillez patienter..."
   },
   "task.status.ready": {
-    "other": "Ready to upload"
+    "other": "Prêt à téléverser"
   },
   "task.status.paused": {
-    "other": "Upload paused"
+    "other": "Transfert en pause"
   },
   "task.status.upload": {
-    "other": "Uploading files"
+    "other": "Transfert de fichiers"
   },
   "task.message.upload-progress": {
-    "other": "Uploading %s%"
+    "other": "%s% transféré"
   },
   "no-folders-support": {
     "other": "Il semble que votre navigateur ne supporte pas le dépôt de dossiers"
@@ -114,7 +114,7 @@
     "other": "Transferts"
   },
   "attempt": {
-    "other": "attempt"
+    "other": "tentative"
   },
   "status.new": {
     "other": "En attente"
@@ -129,16 +129,16 @@
     "other": "Analyse ..."
   },
   "status.dir.new": {
-    "other": "Folder awaiting upload..."
+    "other": "Dossier en attente de chargement..."
   },
   "status.file.new": {
-    "other": "File awaiting upload..."
+    "other": "Fichier en attente de chargement..."
   },
   "status.dir.analyse": {
-    "other": "Analyzing folder..."
+    "other": "Analyse du dossier..."
   },
   "status.file.analyse": {
-    "other": "Analyzing file..."
+    "other": "Analyse du fichier..."
   },
   "status.dir.loading": {
     "other": "Création du dossier"
