@@ -108,8 +108,14 @@ func GetApplicationConfig(languages ...string) ApplicationConfigs {
 
 	// "default" value is interpreted by the configs internal - read map directly instead of looking for "@value"
 	fromCtl := "user"
-	fromMap := config.Get("services", "pydio.grpc.mailer", "fromCtl").Map()
-	if tt, ok := fromMap["@value"]; ok {
+	legacyFromMap := config.Get("services", "pydio.grpc.mailer", "fromCtl").Map()
+	if tt, ok := legacyFromMap["@value"]; ok {
+		if s, o := tt.(string); o {
+			fromCtl = s
+		}
+	}
+	fromMap := config.Get("services", "pydio.grpc.mailer").Map()
+	if tt, ok := fromMap["fromCtl"]; ok {
 		if s, o := tt.(string); o {
 			fromCtl = s
 		}

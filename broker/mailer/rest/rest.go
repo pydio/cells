@@ -89,13 +89,24 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, fmt.Errorf("sending email anonymously is forbidden"))
 		return
 	}
+	// Safe defaults, but maybe reloaded below
 	message.From = &mailer.User{
+		Uuid:    claims.Subject, // user UUID
+		Name:    claims.Name,
 		Address: claims.Email,
-		Name:    claims.DisplayName,
 	}
-	message.From.Uuid = claims.Subject
-	if message.From.Name == "" {
-		message.From.Name = claims.Name
+
+	// Reload user, as his displayName/email may have changed during session
+	if u, er := permissions.SearchUniqueUser(ctx, "", claims.Subject); er != nil {
+		service.RestError500(req, rsp, er)
+		return
+	} else if email, has := u.GetAttributes()["email"]; has {
+		message.From.Address = email
+		if display, has := u.GetAttributes()["displayName"]; has {
+			message.From.Name = display
+		} else {
+			message.From.Name = u.GetLogin()
+		}
 	}
 
 	var resolvedTos []*mailer.User
