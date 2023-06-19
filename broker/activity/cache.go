@@ -52,6 +52,8 @@ type Cache struct {
 	done     chan bool
 	input    chan *batchActivity
 	inner    []*batchActivity
+
+	closed bool
 }
 
 func (c *Cache) Init(ctx context.Context, values configx.Values) error {
@@ -66,6 +68,10 @@ func (c *Cache) Init(ctx context.Context, values configx.Values) error {
 }
 
 func (c *Cache) startBatching() {
+	defer func() {
+		c.closed = true
+		close(c.input)
+	}()
 	for {
 		select {
 		case a := <-c.input:
@@ -103,7 +109,7 @@ func (c *Cache) CloseConn(ctx context.Context) error {
 }
 
 func (c *Cache) PostActivity(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publish bool) error {
-	if !c.useBatch {
+	if !c.useBatch || c.closed {
 		return c.DAO.PostActivity(ctx, ownerType, ownerId, boxName, object, publish)
 	} else {
 		var publishCtx context.Context
