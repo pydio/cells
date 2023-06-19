@@ -23,9 +23,9 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -78,20 +78,23 @@ func init() {
 			//service.Unique(true),
 			service.AfterServe(func(ctx context.Context) error {
 				// return std.Retry(ctx, func() error {
+				bg := runtime.ForkContext(context.Background(), ctx)
 				go func() {
-					jobsClient := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
+					jobsClient := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(bg, common.ServiceJobs))
 
 					// Migration from old prune-versions-job : delete if exists, replaced by composed job
 					var reinsert bool
-					if _, e := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: "prune-versions-job"}); e == nil {
-						_, _ = jobsClient.DeleteJob(ctx, &jobs.DeleteJobRequest{JobID: "prune-versions-job"})
+					if _, e := jobsClient.GetJob(bg, &jobs.GetJobRequest{JobID: "prune-versions-job"}); e == nil {
+						_, _ = jobsClient.DeleteJob(bg, &jobs.DeleteJobRequest{JobID: "prune-versions-job"})
 						reinsert = true
 					}
 					vJob := getVersioningJob()
-					if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: vJob.ID}); err != nil || reinsert {
-						log.Logger(ctx).Info("Inserting versioning job")
-						_, er := jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: vJob})
-						fmt.Println(er)
+					if _, err := jobsClient.GetJob(bg, &jobs.GetJobRequest{JobID: vJob.ID}); err != nil || reinsert {
+						if _, er := jobsClient.PutJob(bg, &jobs.PutJobRequest{Job: vJob}); er != nil {
+							log.Logger(ctx).Error("Cannot insert versioning job", zap.Error(er))
+						} else {
+							log.Logger(ctx).Info("Inserted versioning job")
+						}
 						return
 					}
 					return

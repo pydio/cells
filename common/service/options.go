@@ -43,7 +43,7 @@ type ServiceOptions struct {
 	Metadata map[string]string `json:"metadata"`
 
 	Context context.Context    `json:"-"`
-	Cancel  context.CancelFunc `json:"-"`
+	cancel  context.CancelFunc `json:"-"`
 
 	Migrations []*Migration `json:"-"`
 
@@ -116,13 +116,6 @@ func Source(s string) ServiceOption {
 func Context(c context.Context) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Context = c
-	}
-}
-
-// Cancel option for a service
-func Cancel(c context.CancelFunc) ServiceOption {
-	return func(o *ServiceOptions) {
-		o.Cancel = c
 	}
 }
 

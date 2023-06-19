@@ -329,6 +329,9 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 func (e *MicroEventsSubscriber) DebounceAclsEvents() {
 	for {
 		select {
+		case <-e.RuntimeCtx.Done():
+			log.Logger(e.RuntimeCtx).Info("Stopping ACL Debouncer")
+			return
 		case acl := <-e.aclsChan:
 			e.changeEvents = append(e.changeEvents, acl)
 		case <-time.After(3 * time.Second):

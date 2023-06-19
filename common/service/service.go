@@ -211,10 +211,16 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 		if er != nil {
 			er = errors2.Wrap(er, "service.Start "+s.Name())
 			s.updateRegister(registry.StatusError)
+			if s.Opts.cancel != nil {
+				s.Opts.cancel()
+				s.Opts.cancel = nil
+			}
 		}
 	}()
 
 	s.updateRegister(registry.StatusStarting)
+
+	s.Opts.Context, s.Opts.cancel = context.WithCancel(s.Opts.Context)
 
 	for _, before := range s.Opts.BeforeStart {
 		if err := before(s.Opts.Context); err != nil {
@@ -239,6 +245,11 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 func (s *service) Stop(oo ...registry.RegisterOption) error {
 
 	s.updateRegister(registry.StatusStopping)
+
+	if s.Opts.cancel != nil {
+		s.Opts.cancel()
+		s.Opts.cancel = nil
+	}
 
 	for _, before := range s.Opts.BeforeStop {
 		if err := before(s.Opts.Context); err != nil {
