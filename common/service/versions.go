@@ -68,10 +68,10 @@ func UpdateServiceVersion(opts *ServiceOptions) error {
 		return fmt.Errorf("cannot update service version for %s (%v)", opts.Name, e)
 	}
 
-	writeVersion, err := applyMigrations(opts.Context, lastVersion, newVersion, opts.Migrations)
+	writeVersion, err := applyMigrations(opts.runtimeCtx, lastVersion, newVersion, opts.Migrations)
 	if writeVersion != nil {
 		if e := updateVersion(opts.Name, writeVersion); e != nil {
-			log.Logger(opts.Context).Error("could not write version file", zap.Error(e))
+			opts.Logger().Error("could not write version file", zap.Error(e))
 		}
 	}
 	if err != nil {

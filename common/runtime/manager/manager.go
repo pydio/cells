@@ -157,7 +157,7 @@ func (m *manager) Init(ctx context.Context) error {
 		mustFork := opts.Fork && !runtime.IsFork()
 
 		// Replace service context with target registry
-		opts.Context = servicecontext.WithRegistry(opts.Context, m.reg)
+		opts.SetRegistry(m.reg)
 
 		if !runtime.IsRequired(s.Name(), opts.Tags...) && !opts.ForceRegister {
 			continue
@@ -170,7 +170,7 @@ func (m *manager) Init(ctx context.Context) error {
 		scheme := s.ServerScheme()
 		if sr, o := byScheme[scheme]; o {
 			opts.Server = sr
-		} else if srv, er := server.OpenServer(opts.Context, scheme); er == nil {
+		} else if srv, er := server.OpenServer(opts.RootContext(), scheme); er == nil {
 			byScheme[scheme] = srv
 			opts.Server = srv
 		} else {
@@ -427,7 +427,11 @@ func (m *manager) WatchServicesConfigs() {
 			var svc service.Service
 			if ss[0].As(&svc) && svc.Options().AutoRestart {
 				if er := m.stopService(svc); er == nil {
-					_ = m.startService(svc)
+					if sErr := m.startService(svc); sErr != nil {
+						log.Logger(m.ctx).Error("Cannot start service"+svc.Name(), zap.Error(sErr))
+					}
+				} else {
+					log.Logger(m.ctx).Error("Cannot stop service"+svc.Name(), zap.Error(er))
 				}
 			}
 		}

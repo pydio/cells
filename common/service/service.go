@@ -85,14 +85,14 @@ func NewService(opts ...ServiceOption) Service {
 
 	name := s.Opts.Name
 
-	s.Opts.Context = servicecontext.WithServiceName(s.Opts.Context, name)
+	s.Opts.rootContext = servicecontext.WithServiceName(s.Opts.rootContext, name)
 
-	if reg := servicecontext.GetRegistry(s.Opts.Context); reg != nil {
+	if reg := servicecontext.GetRegistry(s.Opts.rootContext); reg != nil {
 		if err := reg.Register(s); err != nil {
-			log.Logger(s.Opts.Context).Warn("could not register", zap.Error(err))
+			s.Opts.Logger().Warn("could not register", zap.Error(err))
 		}
 	} else {
-		log.Logger(s.Opts.Context).Warn("no registry attached")
+		s.Opts.Logger().Warn("no registry attached")
 	}
 
 	return s
@@ -170,12 +170,12 @@ func (s *service) As(i interface{}) bool {
 func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 	// Making sure we only start one at a time for a unique service
 	if s.Options().Unique {
-		reg := servicecontext.GetRegistry(s.Opts.Context)
+		reg := s.Opts.GetRegistry()
 		if locker := reg.NewLocker("start-service-" + s.Name()); locker != nil {
 			locker.Lock()
 			w, err := reg.Watch(registry.WithID(s.ID()), registry.WithType(pb.ItemType_SERVER))
 			if err != nil {
-				log.Logger(s.Opts.Context).Error("Error unlocking service"+s.Name(), zap.Error(err))
+				s.Opts.Logger().Error("Error unlocking service"+s.Name(), zap.Error(err))
 				locker.Unlock()
 				return err
 			}
@@ -186,7 +186,7 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 				for {
 					res, err := w.Next()
 					if err != nil {
-						log.Logger(s.Opts.Context).Error("Error unlocking service "+s.Name()+" (watch)", zap.Error(err))
+						s.Opts.Logger().Error("Error unlocking service "+s.Name()+" (watch)", zap.Error(err))
 						return
 					}
 
@@ -205,31 +205,32 @@ func (s *service) Start(oo ...registry.RegisterOption) (er error) {
 
 	defer func() {
 		if e := recover(); e != nil {
-			log.Logger(s.Opts.Context).Error("panic while starting service", zap.Any("p", e))
+			s.Opts.Logger().Error("panic while starting service", zap.Any("p", e))
 			er = fmt.Errorf("panic while starting service %v", e)
 		}
 		if er != nil {
 			er = errors2.Wrap(er, "service.Start "+s.Name())
 			s.updateRegister(registry.StatusError)
-			if s.Opts.cancel != nil {
-				s.Opts.cancel()
-				s.Opts.cancel = nil
+			if s.Opts.runtimeCancel != nil {
+				s.Opts.runtimeCancel()
+				s.Opts.runtimeCancel = nil
 			}
 		}
 	}()
 
 	s.updateRegister(registry.StatusStarting)
 
-	s.Opts.Context, s.Opts.cancel = context.WithCancel(s.Opts.Context)
+	s.Opts.runtimeCtx, s.Opts.runtimeCancel = context.WithCancel(s.Opts.rootContext)
 
 	for _, before := range s.Opts.BeforeStart {
-		if err := before(s.Opts.Context); err != nil {
+		var err error
+		if s.Opts.runtimeCtx, err = before(s.Opts.runtimeCtx); err != nil {
 			return err
 		}
 	}
 
 	if s.Opts.serverStart != nil {
-		if err := s.Opts.serverStart(); err != nil {
+		if err := s.Opts.serverStart(s.Opts.runtimeCtx); err != nil {
 			return err
 		}
 	}
@@ -246,19 +247,23 @@ func (s *service) Stop(oo ...registry.RegisterOption) error {
 
 	s.updateRegister(registry.StatusStopping)
 
-	if s.Opts.cancel != nil {
-		s.Opts.cancel()
-		s.Opts.cancel = nil
+	if s.Opts.runtimeCancel != nil {
+		s.Opts.runtimeCancel()
+		s.Opts.runtimeCancel = nil
+	}
+	refCtx := s.Opts.runtimeCtx
+	if refCtx == nil {
+		refCtx = s.Opts.rootContext
 	}
 
 	for _, before := range s.Opts.BeforeStop {
-		if err := before(s.Opts.Context); err != nil {
+		if err := before(refCtx); err != nil {
 			return err
 		}
 	}
 
 	if s.Opts.serverStop != nil {
-		if err := s.Opts.serverStop(); err != nil {
+		if err := s.Opts.serverStop(refCtx); err != nil {
 			return err
 		}
 	}
@@ -268,19 +273,19 @@ func (s *service) Stop(oo ...registry.RegisterOption) error {
 		o(opts)
 	}
 
-	if reg := servicecontext.GetRegistry(s.Opts.Context); reg != nil {
+	if reg := s.Opts.GetRegistry(); reg != nil {
 		// Deregister to make sure to break existing links
 		if err := reg.Deregister(s, registry.WithRegisterFailFast()); err != nil {
-			log.Logger(s.Opts.Context).Error("Could not deregister", zap.Error(err))
+			s.Opts.Logger().Error("Could not deregister", zap.Error(err))
 		} else if !opts.DeregisterFull {
 			// Re-register as Stopped
 			s.updateRegister(registry.StatusStopped)
 		}
 	} else {
-		log.Logger(s.Opts.Context).Warn("no registry attached")
+		s.Opts.Logger().Warn("no registry attached")
 	}
 
-	log.Logger(s.Opts.Context).Info("stopped")
+	s.Opts.Logger().Info("stopped")
 
 	return nil
 }
@@ -291,21 +296,25 @@ func (s *service) OnServe(oo ...registry.RegisterOption) error {
 	w := &sync.WaitGroup{}
 	w.Add(len(s.Opts.AfterServe) + 1)
 	go func() {
-		if locker := servicecontext.GetRegistry(s.Opts.Context).NewLocker("update-service-version-" + s.Opts.Name); locker != nil {
+		if locker := s.Opts.GetRegistry().NewLocker("update-service-version-" + s.Opts.Name); locker != nil {
 			locker.Lock()
 			defer locker.Unlock()
 		}
 
 		defer w.Done()
 		if e := UpdateServiceVersion(s.Opts); e != nil {
-			log.Logger(s.Opts.Context).Error("UpdateServiceVersion failed", zap.Error(e))
+			s.Opts.Logger().Error("UpdateServiceVersion failed", zap.Error(e))
 		}
 	}()
+	refCtx := s.Opts.runtimeCtx
+	if refCtx == nil {
+		refCtx = s.Opts.rootContext
+	}
 	for _, after := range s.Opts.AfterServe {
 		go func(f func(context.Context) error) {
 			defer w.Done()
-			if e := f(s.Opts.Context); e != nil {
-				log.Logger(s.Opts.Context).Error("AfterServe failed", zap.Error(e))
+			if e := f(refCtx); e != nil {
+				log.Logger(refCtx).Error("AfterServe failed", zap.Error(e))
 			}
 		}(after)
 	}
@@ -318,15 +327,15 @@ func (s *service) updateRegister(status ...registry.Status) {
 	if len(status) > 0 {
 		s.status = status[0]
 		if status[0] == registry.StatusReady {
-			log.Logger(s.Opts.Context).Info("ready")
+			s.Opts.Logger().Info("ready")
 		} else {
-			log.Logger(s.Opts.Context).Debug(string(status[0]))
+			s.Opts.Logger().Debug(string(status[0]))
 		}
 	}
 	// up := s.status == registry.StatusReady
 	down := s.status == registry.StatusStopping || s.status == registry.StatusStopped || s.status == registry.StatusError
 
-	reg := servicecontext.GetRegistry(s.Opts.Context)
+	reg := s.Opts.GetRegistry()
 	if reg == nil {
 		return
 	}
@@ -347,9 +356,9 @@ func (s *service) updateRegister(status ...registry.Status) {
 	}
 	if err := reg.Register(s, options...); err != nil {
 		if s.status == registry.StatusStopping || s.status == registry.StatusStopped {
-			log.Logger(s.Opts.Context).Debug("could not register", zap.Error(err))
+			s.Opts.Logger().Debug("could not register", zap.Error(err))
 		} else {
-			log.Logger(s.Opts.Context).Warn("could not register", zap.Error(err))
+			s.Opts.Logger().Warn("could not register", zap.Error(err))
 		}
 		return
 	}

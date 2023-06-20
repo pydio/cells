@@ -31,7 +31,7 @@ import (
 func WithGRPC(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.serverType = server.TypeGrpc
-		o.serverStart = func() error {
+		o.serverStart = func(c context.Context) error {
 			if o.Server == nil {
 				return errNoServerAttached
 			}
@@ -39,7 +39,7 @@ func WithGRPC(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOptio
 			var registrar grpc.ServiceRegistrar
 			o.Server.As(&registrar)
 
-			return f(o.Context, registrar)
+			return f(c, registrar)
 		}
 	}
 }
@@ -47,10 +47,10 @@ func WithGRPC(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOptio
 // WithGRPCStop hooks to the grpc server stop
 func WithGRPCStop(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.serverStop = func() error {
+		o.serverStop = func(c context.Context) error {
 			var registrar grpc.ServiceRegistrar
 			o.Server.As(&registrar)
-			return f(o.Context, registrar)
+			return f(c, registrar)
 		}
 	}
 }

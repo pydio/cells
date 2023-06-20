@@ -30,23 +30,23 @@ import (
 func WithHTTP(f func(context.Context, server.HttpMux) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.serverType = server.TypeHttp
-		o.serverStart = func() error {
+		o.serverStart = func(c context.Context) error {
 			var mux server.HttpMux
 			if !o.Server.As(&mux) {
 				return fmt.Errorf("server %s is not a mux ", o.Name)
 			}
 
-			return f(o.Context, mux)
+			return f(c, mux)
 		}
 	}
 }
 
 func WithHTTPStop(f func(context.Context, server.HttpMux) error) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.serverStop = func() error {
+		o.serverStop = func(c context.Context) error {
 			var mux server.HttpMux
 			o.Server.As(&mux)
-			return f(o.Context, mux)
+			return f(c, mux)
 		}
 	}
 }
@@ -55,13 +55,13 @@ func WithHTTPStop(f func(context.Context, server.HttpMux) error) ServiceOption {
 func WithPureHTTP(f func(context.Context, server.HttpMux) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.serverType = server.TypeHttpPure
-		o.serverStart = func() error {
+		o.serverStart = func(c context.Context) error {
 			var mux server.HttpMux
 			if !o.Server.As(&mux) {
 				return fmt.Errorf("server %s is not a mux ", o.Name)
 			}
 
-			return f(o.Context, mux)
+			return f(c, mux)
 		}
 	}
 }

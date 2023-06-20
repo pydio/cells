@@ -104,7 +104,7 @@ func WithStorageMigrator(d dao.MigratorFunc) StorageOption {
 	}
 }
 
-func daoFromOptions(o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts *StorageOptions) (dao.DAO, error) {
+func daoFromOptions(ctx context.Context, o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts *StorageOptions) (dao.DAO, error) {
 	prefix := opts.Prefix(o)
 
 	cfgKey := "storage"
@@ -121,16 +121,16 @@ func daoFromOptions(o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts
 	cfg := config.Get("services", o.Name)
 
 	// Setting a lock on the registry in case of multiple services starting up at the same time
-	reg := servicecontext.GetRegistry(o.Context)
+	reg := servicecontext.GetRegistry(ctx)
 	if lock := reg.NewLocker("dao-init-" + o.Name); lock != nil {
 		lock.Lock()
 		defer lock.Unlock()
 	}
 
 	if indexer {
-		c, e = dao.InitIndexer(o.Context, driver, dsn, prefix, fd, cfg)
+		c, e = dao.InitIndexer(ctx, driver, dsn, prefix, fd, cfg)
 	} else {
-		c, e = dao.InitDAO(o.Context, driver, dsn, prefix, fd, cfg)
+		c, e = dao.InitDAO(ctx, driver, dsn, prefix, fd, cfg)
 	}
 
 	if e != nil {
@@ -200,26 +200,25 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 				return stopDao.CloseConn(ctx)
 			})
 		}
-		o.BeforeStart = append(o.BeforeStart, func(ctx context.Context) error {
-			d, err := daoFromOptions(o, fd, indexer, sOpts)
+		o.BeforeStart = append(o.BeforeStart, func(ctx context.Context) (context.Context, error) {
+			d, err := daoFromOptions(ctx, o, fd, indexer, sOpts)
 			if err != nil {
-				return err
+				return ctx, err
 			}
 			if indexer {
 				ctx = servicecontext.WithIndexer(ctx, d)
 			} else {
 				ctx = servicecontext.WithDAO(ctx, d)
 			}
-			o.Context = ctx
 
 			// Now register DAO
-			reg := servicecontext.GetRegistry(o.Context)
+			reg := servicecontext.GetRegistry(ctx)
 			if reg == nil {
-				return nil
+				return ctx, nil
 			}
 			var regItem registry.Dao
 			if !d.As(&regItem) {
-				return nil
+				return ctx, nil
 			}
 
 			// Build Edge Metadata
@@ -241,10 +240,10 @@ func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...Stora
 				options = append(options, registry.WithWatch(regStatus))
 			}
 			if er := reg.Register(regItem, options...); er != nil {
-				log.Logger(o.Context).Error(" -- Cannot register DAO: "+er.Error(), zap.Error(er))
+				log.Logger(ctx).Error(" -- Cannot register DAO: "+er.Error(), zap.Error(er))
 			}
 
-			return nil
+			return ctx, nil
 		})
 
 	}
