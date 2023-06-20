@@ -226,7 +226,7 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 		}
 
 		// Rate-limit events (let Optimistic events always go through)
-		if lim, ok := session.Get(SessionLimiterKey); ok && !event.Optimistic {
+		if lim, ok := session.Get(SessionLimiterKey); ok && lim != nil && !event.Optimistic {
 			limiter := lim.(*rate.Limiter)
 			if err := limiter.Wait(ctx); err != nil {
 				log.Logger(ctx).Warn("WebSocket: some events were dropped (session rate limiter)")
@@ -384,7 +384,7 @@ func (w *WebsocketHandler) BroadcastIDMChangeEvent(ctx context.Context, event *i
 
 		// For IdmChangeEvent w/ User type, if current session has access to Settings, send user changes as a dedicated message (if policies allow it)
 		uChange := event.User != nil && (event.Type == idm.ChangeEventType_CREATE || event.Type == idm.ChangeEventType_UPDATE || event.Type == idm.ChangeEventType_DELETE)
-		if val, hasSettings := session.Get(SessionSettingsWorkspacesKey); hasSettings && val.(bool) && uChange {
+		if val, hasSettings := session.Get(SessionSettingsWorkspacesKey); hasSettings && val != nil && val.(bool) && uChange {
 			if len(event.User.Policies) > 0 && w.MatchPolicies(w.runtimeCtx, session, event.User.Policies, service.ResourcePolicyAction_READ) {
 				if event.Type != idm.ChangeEventType_DELETE && !event.User.IsGroup && len(event.User.Roles) == 0 {
 					// We have to reload user roles here
@@ -466,7 +466,7 @@ func (w *WebsocketHandler) BroadcastActivityEvent(ctx context.Context, event *ac
 func (w *WebsocketHandler) MatchPolicies(ctx context.Context, session *melody.Session, policies []*service.ResourcePolicy, action service.ResourcePolicyAction) bool {
 
 	subs, o := session.Get(SessionSubjectsKey)
-	if !o {
+	if !o || subs == nil {
 		log.Logger(ctx).Debug("UserMetaEvent: No subjects in session")
 		return false
 	}
