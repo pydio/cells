@@ -367,15 +367,26 @@ func migratePerformMigration(ctx context.Context, ds *object.DataSource, mc node
 			tgtPath = strings.TrimLeft(n.GetPath(), "/")
 		}
 		if !isPydio && n.IsLeaf() {
-			_, e := mc.StatObject(ctx, src, srcPath, mm)
+			srcObject, e := mc.StatObject(ctx, src, srcPath, mm)
 			if e != nil {
+				if migrateMove {
+					if tgtObject, tE := mc.StatObject(ctx, tgt, tgtPath, mm); tE == nil && tgtObject.Size == n.Size {
+						migrateLogger("[RESUME] Object "+tgtPath+" already exists, skipping ", true)
+						continue
+					}
+				}
 				migrateLogger("[ERROR] Cannot stat object "+srcPath+": "+e.Error(), true)
 				return out, e
 			}
 			if migrateDry {
 				fmt.Println("[DRY-RUN] Should copy " + path.Join(src, srcPath) + " to " + path.Join(tgt, tgtPath))
 				continue
+			}			
+			if tgtObject, tE := mc.StatObject(ctx, tgt, tgtPath, mm); tE == nil && tgtObject.Size == srcObject.Size {
+				migrateLogger("[RESUME] Object "+tgtPath+" already exists, skipping ", true)
+				continue
 			}
+
 			_, e = mc.CopyObject(ctx, src, srcPath, tgt, tgtPath, mm, nil, nil)
 			if e != nil {
 				migrateLogger("[ERROR] While copying "+path.Join(src, srcPath)+" to "+path.Join(tgt, tgtPath)+":"+e.Error(), true)
