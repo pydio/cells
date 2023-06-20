@@ -23,9 +23,11 @@ package service
 import (
 	"context"
 	"crypto/tls"
-
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/server"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -42,8 +44,9 @@ type ServiceOptions struct {
 
 	Metadata map[string]string `json:"metadata"`
 
-	Context context.Context    `json:"-"`
-	cancel  context.CancelFunc `json:"-"`
+	rootContext   context.Context
+	runtimeCtx    context.Context
+	runtimeCancel context.CancelFunc
 
 	Migrations     []*Migration        `json:"-"`
 	TODOMigrations func() []*Migration `json:"-"`
@@ -54,8 +57,8 @@ type ServiceOptions struct {
 	customScheme string
 	Server       server.Server `json:"-"`
 	serverType   server.Type
-	serverStart  func() error
-	serverStop   func() error
+	serverStart  func(context.Context) error
+	serverStop   func(context.Context) error
 
 	// Starting options
 	ForceRegister bool `json:"-"`
@@ -65,18 +68,43 @@ type ServiceOptions struct {
 	Unique        bool `json:"-"`
 
 	// Before and After funcs
-	BeforeStart []func(context.Context) error `json:"-"`
-	BeforeStop  []func(context.Context) error `json:"-"`
-	AfterServe  []func(context.Context) error `json:"-"`
+	BeforeStart []func(context.Context) (context.Context, error) `json:"-"`
+	BeforeStop  []func(context.Context) error                    `json:"-"`
+	AfterServe  []func(context.Context) error                    `json:"-"`
 
 	UseWebSession      bool     `json:"-"`
 	WebSessionExcludes []string `json:"-"`
 
 	Storages []*StorageOptions `json:"-"`
+
+	localLogger log.ZapLogger
 }
 
 // ServiceOption provides a functional option
 type ServiceOption func(*ServiceOptions)
+
+// RootContext returns root context
+func (o *ServiceOptions) RootContext() context.Context {
+	return o.rootContext
+}
+
+// Logger returns a local logger
+func (o *ServiceOptions) Logger() log.ZapLogger {
+	if o.localLogger == nil {
+		o.localLogger = log.Logger(o.rootContext)
+	}
+	return o.localLogger
+}
+
+// GetRegistry returns the context registry
+func (o *ServiceOptions) GetRegistry() registry.Registry {
+	return servicecontext.GetRegistry(o.rootContext)
+}
+
+// SetRegistry sets the registry in the root context
+func (o *ServiceOptions) SetRegistry(r registry.Registry) {
+	o.rootContext = servicecontext.WithRegistry(o.rootContext, r)
+}
 
 // ID option for a service
 func ID(n string) ServiceOption {
@@ -116,7 +144,7 @@ func Source(s string) ServiceOption {
 // Context option for a service
 func Context(c context.Context) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.Context = c
+		o.rootContext = c
 	}
 }
 
@@ -223,7 +251,7 @@ func newOptions(opts ...ServiceOption) *ServiceOptions {
 	opt.Metadata = make(map[string]string)
 	opt.Version = common.Version().String()
 	opt.AutoStart = true
-	opt.Context = context.TODO()
+	opt.rootContext = context.TODO()
 
 	for _, o := range opts {
 		if o == nil {

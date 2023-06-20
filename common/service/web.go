@@ -104,13 +104,13 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 		rootPath := "/a/" + strings.TrimPrefix(o.Name, common.ServiceRestNamespace_)
 
 		o.serverType = server.TypeHttp
-		o.serverStart = func() error {
+		o.serverStart = func(ctx context.Context) error {
 			var mux server.HttpMux
 			if !o.Server.As(&mux) {
 				return fmt.Errorf("server %s is not a mux", o.Name)
 			}
 
-			ctx := o.Context
+			//ctx := o.Context
 			log.Logger(ctx).Info("starting", zap.String("service", o.Name), zap.String("hook router to", rootPath))
 
 			ws := new(restful.WebService)
@@ -177,11 +177,11 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 
 			if o.Name != common.ServiceRestNamespace_+common.ServiceInstall {
 				for _, wrap := range getWebMiddlewares(o.Name) {
-					wrapped = wrap(o.Context, wrapped)
+					wrapped = wrap(ctx, wrapped)
 				}
 			}
 			if o.UseWebSession {
-				if dao := servicecontext.GetDAO(o.Context); dao != nil {
+				if dao := servicecontext.GetDAO(ctx); dao != nil {
 					if sd, ok := dao.(dao2.DAO); ok {
 						wrapped = frontend.NewSessionWrapper(wrapped, sd, o.WebSessionExcludes...)
 					} else {
@@ -220,12 +220,12 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 			return nil
 		}
 
-		o.serverStop = func() error {
+		o.serverStop = func(c context.Context) error {
 			var mux server.PatternsProvider
 			if !o.Server.As(&mux) {
 				return fmt.Errorf("server %s is not a mux", o.Name)
 			}
-			log.Logger(o.Context).Info("Deregistering pattern " + rootPath)
+			o.Logger().Info("Deregistering pattern " + rootPath)
 			mux.DeregisterPattern(rootPath)
 			mux.DeregisterPattern(rootPath + "/")
 			return nil
@@ -239,8 +239,8 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 // WithWeb already registers a serverStop callback to remove rest patterns
 func WithWebStop(handler func(ctx context.Context) error) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.serverStop = func() error {
-			return handler(o.Context)
+		o.serverStop = func(c context.Context) error {
+			return handler(c)
 		}
 	}
 }
