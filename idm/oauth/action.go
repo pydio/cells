@@ -25,9 +25,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pydio/cells/v4/common/service/errors"
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
@@ -45,37 +42,6 @@ func init() {
 	actions.GetActionsManager().Register(pruneTokensActionName, func() actions.ConcreteAction {
 		return &PruneTokensAction{}
 	})
-}
-
-// InsertPruningJob adds a job to scheduler
-func InsertPruningJob(ctx context.Context) error {
-
-	log.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
-
-	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
-
-	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
-	if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pruneTokensActionName}); e == nil && resp.Job != nil {
-		return nil // Already exists
-	} else if e != nil && errors.FromError(e).Code != 404 {
-		log.Logger(ctx).Info("Insert pruning job: jobs service not ready yet :"+e.Error(), zap.Error(errors.FromError(e)))
-		return e // not ready yet, retry
-	}
-	_, e := cli.PutJob(ctx, &jobs.PutJobRequest{Job: &jobs.Job{
-		ID:    pruneTokensActionName,
-		Owner: common.PydioSystemUsername,
-		Label: T("Auth.PruneJob.Title"),
-		Schedule: &jobs.Schedule{
-			Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT60M", // Every hour
-		},
-		AutoStart:      false,
-		MaxConcurrency: 1,
-		Actions: []*jobs.Action{{
-			ID: pruneTokensActionName,
-		}},
-	}})
-
-	return e
 }
 
 var (

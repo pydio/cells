@@ -23,22 +23,26 @@ package grpc
 
 import (
 	"context"
-	"github.com/ory/fosite"
-	"github.com/pydio/cells/v4/common/server"
 	"log"
 
-	log2 "github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
-
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	log2 "github.com/pydio/cells/v4/common/log"
 	auth2 "github.com/pydio/cells/v4/common/proto/auth"
+	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/idm/oauth"
+	"github.com/pydio/cells/v4/idm/oauth/lang"
 )
 
 var (
@@ -46,70 +50,56 @@ var (
 )
 
 func init() {
+	jobs.RegisterDefault(pruningJob("en-us"), Name)
 	runtime.Register("main", func(ctx context.Context) {
-
-		var srv grpc.ServiceRegistrar
-		if !server.Get(&srv) {
-			panic("no grpc server available")
-		}
-
-		h := &Handler{name: Name}
-		auth2.RegisterAuthTokenVerifierServer(srv, h)
-		auth2.RegisterLoginProviderServer(srv, h)
-		auth2.RegisterConsentProviderServer(srv, h)
-		auth2.RegisterLogoutProviderServer(srv, h)
-		auth2.RegisterAuthCodeProviderServer(srv, h)
-		auth2.RegisterAuthCodeExchangerServer(srv, h)
-		auth2.RegisterAuthTokenRefresherServer(srv, h)
-		auth2.RegisterAuthTokenRevokerServer(srv, h)
-		auth2.RegisterAuthTokenPrunerServer(srv, h)
-		auth2.RegisterPasswordCredentialsTokenServer(srv, h)
-
-		watcher, _ := config.Watch(configx.WithPath("services", common.ServiceWebNamespace_+common.ServiceOAuth))
-		go func() {
-			for {
-				values, er := watcher.Next()
-				if er != nil {
-					break
-				}
-				log2.Logger(ctx).Info("Reloading configurations for OAuth services")
-				auth.InitConfiguration(values.(configx.Values))
-			}
-		}()
-
-		// Registry initialization
-		// Blocking on purpose, as it should block login
-		//er := auth.InitRegistry(ctx, Name)
-		//if er == nil {
-		//	log2.Logger(ctx).Info("Finished auth.InitRegistry")
-		//} else {
-		//	log2.Logger(ctx).Info("Error while applying auth.InitRegistry", zap.Error(er))
-		//}
-
-		dao, err := oauth.NewDAO(ctx)
-		if err != nil {
-			panic(err)
-		}
-
-		opts := configx.New()
-		dao.Init(ctx, opts)
-
-		pat := NewPATHandler(dao.(oauth.DAO), &fosite.Config{})
-		auth2.RegisterPersonalAccessTokenServiceServer(srv, pat)
-		auth2.RegisterAuthTokenVerifierServer(srv, pat)
-		auth2.RegisterAuthTokenPrunerServer(srv, pat)
 
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
-			service.Tag(common.ServiceTagAuth),
+			service.Tag(common.ServiceTagIdm),
 			service.Description("OAuth Provider"),
-			//service.Migrations([]*service.Migration{
-			//	{
-			//		TargetVersion: service.FirstRun(),
-			//		Up:            oauth.InsertPruningJob,
-			//	},
-			//}),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            insertPruningJob,
+				},
+			}),
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
+				h := &Handler{name: Name}
+
+				auth2.RegisterAuthTokenVerifierEnhancedServer(server, h)
+				auth2.RegisterLoginProviderEnhancedServer(server, h)
+				auth2.RegisterConsentProviderEnhancedServer(server, h)
+				auth2.RegisterLogoutProviderEnhancedServer(server, h)
+				auth2.RegisterAuthCodeProviderEnhancedServer(server, h)
+				auth2.RegisterAuthCodeExchangerEnhancedServer(server, h)
+				auth2.RegisterAuthTokenRefresherEnhancedServer(server, h)
+				auth2.RegisterAuthTokenRevokerEnhancedServer(server, h)
+				auth2.RegisterAuthTokenPrunerEnhancedServer(server, h)
+				auth2.RegisterPasswordCredentialsTokenEnhancedServer(server, h)
+
+				watcher, _ := config.Watch(configx.WithPath("services", common.ServiceWebNamespace_+common.ServiceOAuth))
+				go func() {
+					for {
+						values, er := watcher.Next()
+						if er != nil {
+							break
+						}
+						log2.Logger(ctx).Info("Reloading configurations for OAuth services")
+						auth.InitConfiguration(values.(configx.Values))
+					}
+				}()
+
+				// Registry initialization
+				// Blocking on purpose, as it should block login
+				er := auth.InitRegistry(ctx, Name)
+				if er == nil {
+					log2.Logger(ctx).Info("Finished auth.InitRegistry")
+				} else {
+					log2.Logger(ctx).Info("Error while applying auth.InitRegistry", zap.Error(er))
+				}
+				return er
+			}),
 		)
 
 		service.NewService(
@@ -117,14 +107,17 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Personal Access Token Provider"),
-			//service.WithTODOStorage(oauth.NewDAO, commonsql.NewDAO,
-			//	service.WithStoragePrefix("idm_oauth_"),
-			//	service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-			//),
-			//service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-			//
-			//	return nil
-			//}),
+			service.WithStorage(oauth.NewDAO, service.WithStoragePrefix("idm_oauth_")),
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
+				pat := &PatHandler{
+					name: common.ServiceGrpcNamespace_ + common.ServiceToken,
+					dao:  servicecontext.GetDAO(ctx).(oauth.DAO),
+				}
+				auth2.RegisterPersonalAccessTokenServiceEnhancedServer(server, pat)
+				auth2.RegisterAuthTokenVerifierEnhancedServer(server, pat)
+				auth2.RegisterAuthTokenPrunerEnhancedServer(server, pat)
+				return nil
+			}),
 		)
 
 		auth.OnConfigurationInit(func(scanner configx.Scanner) {
@@ -153,4 +146,42 @@ func init() {
 		auth.RegisterGRPCProvider(auth.ProviderTypeGrpc, common.ServiceGrpcNamespace_+common.ServiceOAuth)
 		auth.RegisterGRPCProvider(auth.ProviderTypePAT, common.ServiceGrpcNamespace_+common.ServiceToken)
 	})
+
+}
+
+func pruningJob(l string) *jobs.Job {
+	T := lang.Bundle().GetTranslationFunc(l)
+	aName := "actions.auth.prune.tokens"
+
+	return &jobs.Job{
+		ID:    aName,
+		Owner: common.PydioSystemUsername,
+		Label: T("Auth.PruneJob.Title"),
+		Schedule: &jobs.Schedule{
+			Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT60M", // Every hour
+		},
+		AutoStart:      false,
+		MaxConcurrency: 1,
+		Actions: []*jobs.Action{{
+			ID: aName,
+		}},
+	}
+}
+
+// insertPruningJob adds a job to scheduler
+func insertPruningJob(ctx context.Context) error {
+
+	log2.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
+
+	pJob := pruningJob(i18n.GetDefaultLanguage(config.Get()))
+	cli := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
+	if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pJob.ID}); e == nil && resp.Job != nil {
+		return nil // Already exists
+	} else if e != nil && errors.FromError(e).Code != 404 {
+		log2.Logger(ctx).Info("Insert pruning job: jobs service not ready yet :"+e.Error(), zap.Error(errors.FromError(e)))
+		return e // not ready yet, retry
+	}
+	_, e := cli.PutJob(ctx, &jobs.PutJobRequest{Job: pJob})
+
+	return e
 }

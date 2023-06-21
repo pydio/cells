@@ -23,20 +23,26 @@ package grpc
 
 import (
 	"context"
-	"fmt"
-	"github.com/pydio/cells/v4/common/server"
+	"path/filepath"
+
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/data/versions"
 )
 
 var (
@@ -45,6 +51,7 @@ var (
 
 func init() {
 
+	jobs.RegisterDefault(getVersioningJob("en-us"), Name)
 	runtime.Register("main", func(ctx context.Context) {
 		config.RegisterExposedConfigs(Name, ExposedConfigs)
 
@@ -62,30 +69,34 @@ func init() {
 					Up:            InitDefaults,
 				},
 			}),
-			//service.WithStorage(versions.NewDAO,
-			//	service.WithStoragePrefix("versions"),
-			//	service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
-			//	service.WithStorageMigrator(versions.Migrate),
-			//	service.WithStorageDefaultDriver(func() (string, string) {
-			//		return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "versions.db")
-			//	}),
-			//),
+			service.WithStorage(versions.NewDAO,
+				service.WithStoragePrefix("versions"),
+				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
+				service.WithStorageMigrator(versions.Migrate),
+				service.WithStorageDefaultDriver(func() (string, string) {
+					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "versions.db")
+				}),
+			),
+			//service.Unique(true),
 			service.AfterServe(func(ctx context.Context) error {
 				// return std.Retry(ctx, func() error {
+				bg := runtime.ForkContext(context.Background(), ctx)
 				go func() {
-					jobsClient := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
+					jobsClient := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(bg, common.ServiceJobs))
 
 					// Migration from old prune-versions-job : delete if exists, replaced by composed job
 					var reinsert bool
-					if _, e := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: "prune-versions-job"}); e == nil {
-						_, _ = jobsClient.DeleteJob(ctx, &jobs.DeleteJobRequest{JobID: "prune-versions-job"})
+					if _, e := jobsClient.GetJob(bg, &jobs.GetJobRequest{JobID: "prune-versions-job"}); e == nil {
+						_, _ = jobsClient.DeleteJob(bg, &jobs.DeleteJobRequest{JobID: "prune-versions-job"})
 						reinsert = true
 					}
-					vJob := getVersioningJob()
-					if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: vJob.ID}); err != nil || reinsert {
-						log.Logger(ctx).Info("Inserting versioning job")
-						_, er := jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: vJob})
-						fmt.Println(er)
+					vJob := getVersioningJob(i18n.GetDefaultLanguage(config.Get()))
+					if _, err := jobsClient.GetJob(bg, &jobs.GetJobRequest{JobID: vJob.ID}); err != nil || reinsert {
+						if _, er := jobsClient.PutJob(bg, &jobs.PutJobRequest{Job: vJob}); er != nil {
+							log.Logger(ctx).Error("Cannot insert versioning job", zap.Error(er))
+						} else {
+							log.Logger(ctx).Info("Inserted versioning job")
+						}
 						return
 					}
 					return
@@ -93,28 +104,19 @@ func init() {
 
 				return nil
 			}),
-			//service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-			//
-			//	dao := servicecontext.GetDAO(ctx).(versions.DAO)
-			//	engine := &Handler{
-			//		srvName: Name,
-			//		db:      dao,
-			//	}
-			//
-			//	tree.RegisterNodeVersionerEnhancedServer(server, engine)
-			//
-			//	return nil
-			//}),
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
+
+				dao := servicecontext.GetDAO(ctx).(versions.DAO)
+				engine := &Handler{
+					srvName: Name,
+					db:      dao,
+				}
+
+				tree.RegisterNodeVersionerEnhancedServer(server, engine)
+
+				return nil
+			}),
 		)
-
-		var srv grpc.ServiceRegistrar
-		if !server.Get(&srv) {
-			panic("no grpc server available")
-		}
-
-		engine := &Handler{}
-
-		tree.RegisterNodeVersionerServer(srv, engine)
 	})
 }
 
