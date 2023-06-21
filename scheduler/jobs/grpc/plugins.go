@@ -55,6 +55,11 @@ var (
 const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceJobs
 
 func init() {
+	defaults := getDefaultJobs()
+	for _, j := range defaults {
+		proto.RegisterDefault(j, ServiceName)
+	}
+
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(ServiceName),
@@ -120,7 +125,7 @@ func init() {
 				sync.RegisterSyncEndpointEnhancedServer(server, handler)
 				logger := log3.Logger(c)
 
-				for _, j := range getDefaultJobs() {
+				for _, j := range defaults {
 					if _, e := handler.GetJob(c, &proto.GetJobRequest{JobID: j.ID}); e != nil {
 						_, _ = handler.PutJob(c, &proto.PutJobRequest{Job: j})
 					}

@@ -25,17 +25,15 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/data/versions/lang"
 )
 
-func getVersioningJob() *jobs.Job {
+func getVersioningJob(language string) *jobs.Job {
 
-	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
+	T := lang.Bundle().GetTranslationFunc(language)
 
 	triggerCreate := &jobs.TriggerFilter{
 		Label:       "Create/Update",

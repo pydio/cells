@@ -58,6 +58,8 @@ var (
 )
 
 func init() {
+	jobs.RegisterDefault(digestJob(), Name)
+
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(Name),
@@ -68,7 +70,7 @@ func init() {
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
-					Up:            RegisterDigestJob,
+					Up:            registerDigestJob,
 				},
 			}),
 			service.WithStorage(activity.NewDAO,
@@ -145,13 +147,11 @@ func init() {
 	})
 }
 
-func RegisterDigestJob(ctx context.Context) error {
-
-	log.Logger(ctx).Info("Registering default job for creating activities digests")
+func digestJob() *jobs.Job {
 	// Build queries for standard users
 	q1, _ := anypb.New(&idm.UserSingleQuery{NodeType: idm.NodeType_USER})
 	q2, _ := anypb.New(&idm.UserSingleQuery{AttributeName: idm.UserAttrHidden, AttributeAnyValue: true, Not: true})
-	job := &jobs.Job{
+	return &jobs.Job{
 		ID:             "users-activity-digest",
 		Label:          "Users activities digest",
 		Owner:          common.PydioSystemUsername,
@@ -174,8 +174,13 @@ func RegisterDigestJob(ctx context.Context) error {
 		},
 	}
 
+}
+
+func registerDigestJob(ctx context.Context) error {
+
+	log.Logger(ctx).Info("Registering default job for creating activities digests")
 	cliJob := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
-	if _, err := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job}); err != nil {
+	if _, err := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: digestJob()}); err != nil {
 		return err
 	}
 

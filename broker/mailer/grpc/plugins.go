@@ -47,6 +47,7 @@ var (
 )
 
 func init() {
+	jobs.RegisterDefault(queueJob(), Name)
 	runtime.Register("main", func(ctx context.Context) {
 
 		config.RegisterExposedConfigs(Name, ExposedConfigs)
@@ -60,7 +61,7 @@ func init() {
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
-					Up:            RegisterQueueJob,
+					Up:            registerQueueJob,
 				},
 			}),
 			service.WithStorage(mailer2.NewQueueDAO,
@@ -89,11 +90,8 @@ func init() {
 	})
 }
 
-// RegisterQueueJob adds a job to the scheduler to regularly flush the queue
-func RegisterQueueJob(ctx context.Context) error {
-
-	log.Logger(ctx).Info("Registering default job for consuming mailer queue")
-	job := &jobs.Job{
+func queueJob() *jobs.Job {
+	return &jobs.Job{
 		ID:             "flush-mailer-queue",
 		Label:          "Flush Mails Queue",
 		Owner:          common.PydioSystemUsername,
@@ -113,9 +111,15 @@ func RegisterQueueJob(ctx context.Context) error {
 			},
 		},
 	}
+}
+
+// registerQueueJob adds a job to the scheduler to regularly flush the queue
+func registerQueueJob(ctx context.Context) error {
+
+	log.Logger(ctx).Info("Registering default job for consuming mailer queue")
 
 	cliJob := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
-	if _, err := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job}); err != nil {
+	if _, err := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: queueJob()}); err != nil {
 		return err
 	}
 

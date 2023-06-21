@@ -23,22 +23,26 @@ package grpc
 
 import (
 	"context"
-	"go.uber.org/zap"
 	"log"
 
-	log2 "github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/utils/configx"
-
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	log2 "github.com/pydio/cells/v4/common/log"
 	auth2 "github.com/pydio/cells/v4/common/proto/auth"
+	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/i18n"
 	"github.com/pydio/cells/v4/idm/oauth"
+	"github.com/pydio/cells/v4/idm/oauth/lang"
 )
 
 var (
@@ -46,6 +50,7 @@ var (
 )
 
 func init() {
+	jobs.RegisterDefault(pruningJob("en-us"), Name)
 	runtime.Register("main", func(ctx context.Context) {
 
 		service.NewService(
@@ -56,7 +61,7 @@ func init() {
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
-					Up:            oauth.InsertPruningJob,
+					Up:            insertPruningJob,
 				},
 			}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
@@ -142,4 +147,41 @@ func init() {
 		auth.RegisterGRPCProvider(auth.ProviderTypePAT, common.ServiceGrpcNamespace_+common.ServiceToken)
 	})
 
+}
+
+func pruningJob(l string) *jobs.Job {
+	T := lang.Bundle().GetTranslationFunc(l)
+	aName := "actions.auth.prune.tokens"
+
+	return &jobs.Job{
+		ID:    aName,
+		Owner: common.PydioSystemUsername,
+		Label: T("Auth.PruneJob.Title"),
+		Schedule: &jobs.Schedule{
+			Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT60M", // Every hour
+		},
+		AutoStart:      false,
+		MaxConcurrency: 1,
+		Actions: []*jobs.Action{{
+			ID: aName,
+		}},
+	}
+}
+
+// insertPruningJob adds a job to scheduler
+func insertPruningJob(ctx context.Context) error {
+
+	log2.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
+
+	pJob := pruningJob(i18n.GetDefaultLanguage(config.Get()))
+	cli := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
+	if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pJob.ID}); e == nil && resp.Job != nil {
+		return nil // Already exists
+	} else if e != nil && errors.FromError(e).Code != 404 {
+		log2.Logger(ctx).Info("Insert pruning job: jobs service not ready yet :"+e.Error(), zap.Error(errors.FromError(e)))
+		return e // not ready yet, retry
+	}
+	_, e := cli.PutJob(ctx, &jobs.PutJobRequest{Job: pJob})
+
+	return e
 }

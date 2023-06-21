@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/i18n"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/versions"
 )
@@ -50,6 +51,7 @@ var (
 
 func init() {
 
+	jobs.RegisterDefault(getVersioningJob("en-us"), Name)
 	runtime.Register("main", func(ctx context.Context) {
 		config.RegisterExposedConfigs(Name, ExposedConfigs)
 
@@ -88,7 +90,7 @@ func init() {
 						_, _ = jobsClient.DeleteJob(bg, &jobs.DeleteJobRequest{JobID: "prune-versions-job"})
 						reinsert = true
 					}
-					vJob := getVersioningJob()
+					vJob := getVersioningJob(i18n.GetDefaultLanguage(config.Get()))
 					if _, err := jobsClient.GetJob(bg, &jobs.GetJobRequest{JobID: vJob.ID}); err != nil || reinsert {
 						if _, er := jobsClient.PutJob(bg, &jobs.PutJobRequest{Job: vJob}); er != nil {
 							log.Logger(ctx).Error("Cannot insert versioning job", zap.Error(er))
