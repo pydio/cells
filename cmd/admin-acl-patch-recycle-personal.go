@@ -52,7 +52,7 @@ DESCRIPTION
 
 		ctx := cmd.Context()
 
-		treeClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
+		treeClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree, longGrpcCallTimeout()))
 		stream, e := treeClient.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: patchRecycleRoot}})
 		if e != nil {
 			return e

@@ -23,14 +23,13 @@ package cmd
 import (
 	"context"
 	"os"
-	"time"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 var (
@@ -69,10 +68,8 @@ EXAMPLES
 			cmd.Help()
 			return
 		}
-		cli := sync.NewSyncEndpointClient(grpc.GetClientConnFromCtx(cmd.Context(), syncService))
-		c, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
-		defer cancel()
-		c = metadata.WithUserNameMetadata(c, common.PydioSystemUsername)
+		cli := sync.NewSyncEndpointClient(grpc.GetClientConnFromCtx(cmd.Context(), syncService, longGrpcCallTimeout()))
+		c := metadata.WithUserNameMetadata(context.Background(), common.PydioSystemUsername)
 		resp, err := cli.TriggerResync(c, &sync.ResyncRequest{Path: syncPath})
 		if err != nil {
 			cmd.Println("Resync Failed: " + err.Error())

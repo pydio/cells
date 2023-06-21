@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/dustin/go-humanize"
 	"github.com/spf13/cobra"
@@ -79,10 +78,8 @@ EXAMPLES
 
 		cmd.Printf("Sending resync command to service %s with parameter TRUNCATE/%s\n", syncService, byteSize)
 
-		cli := sync.NewSyncEndpointClient(grpc.GetClientConnFromCtx(ctx, cleanLogsService))
-		c, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
-		defer cancel()
-		c = metadata.WithUserNameMetadata(c, common.PydioSystemUsername)
+		cli := sync.NewSyncEndpointClient(grpc.GetClientConnFromCtx(ctx, cleanLogsService, longGrpcCallTimeout()))
+		c := metadata.WithUserNameMetadata(context.Background(), common.PydioSystemUsername)
 		resp, err := cli.TriggerResync(c, &sync.ResyncRequest{Path: "TRUNCATE/" + byteSize} /*, client.WithRetries(1)*/)
 		if err != nil {
 			cmd.Println("Truncate Failed: " + err.Error())

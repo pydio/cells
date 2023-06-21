@@ -62,7 +62,7 @@ EXAMPLES
 `,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
+		client := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser, longGrpcCallTimeout()))
 
 		if userSearchLogin == "*" {
 			userSearchLogin = ""
