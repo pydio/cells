@@ -21,8 +21,30 @@
 package cmd
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/v4/common/client/grpc"
 )
+
+var (
+	adminCmdGRPCTimeout string
+)
+
+func longGrpcCallTimeout() grpc.Option {
+	var d time.Duration
+	var e error
+	d = 60 * time.Minute
+	if adminCmdGRPCTimeout != "" {
+		d, e = time.ParseDuration(adminCmdGRPCTimeout)
+	}
+	if e != nil {
+		fmt.Printf("Warning, cannot parse grpc timeout (%v), a golang duration is expected(10m, 2h, etc).\nUsing default 60m\n", e)
+	}
+	return grpc.WithCallTimeout(d)
+}
 
 // AdminCmd groups the data manipulation commands
 // The sub-commands are connecting via gRPC to a **running** Cells instance.
@@ -54,5 +76,6 @@ func init() {
 	// Registry / Broker Flags
 	addExternalCmdRegistryFlags(AdminCmd.PersistentFlags())
 	addCacheFlags(AdminCmd.PersistentFlags())
+	AdminCmd.PersistentFlags().StringVarP(&adminCmdGRPCTimeout, "grpc_client_timeout", "", "60m", "Default timeout for long-running GRPC calls, expressed as a golang duration")
 	RootCmd.AddCommand(AdminCmd)
 }

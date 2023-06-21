@@ -23,7 +23,6 @@ package cmd
 import (
 	"context"
 	"os"
-	"time"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -61,10 +60,8 @@ EXAMPLES
 		}
 		syncService := "pydio.grpc.data.sync." + resyncDsName
 
-		cli := sync.NewSyncEndpointClient(grpc.GetClientConnFromCtx(cmd.Context(), syncService))
-		c, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
-		defer cancel()
-		c = metadata.WithUserNameMetadata(c, common.PydioSystemUsername)
+		cli := sync.NewSyncEndpointClient(grpc.GetClientConnFromCtx(cmd.Context(), syncService, longGrpcCallTimeout()))
+		c := metadata.WithUserNameMetadata(context.Background(), common.PydioSystemUsername)
 		resp, err := cli.TriggerResync(c, &sync.ResyncRequest{Path: "/"})
 		if err != nil {
 			cmd.Println("Resync Failed: " + err.Error())
