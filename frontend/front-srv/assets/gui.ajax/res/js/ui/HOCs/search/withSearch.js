@@ -106,6 +106,9 @@ export default function withSearch(Component, historyIdentifier, defaultScope){
          * @return Promise
          */
         getSearchOptions() {
+            if (!Pydio.getInstance().Registry.hasPluginOfType("meta", "user")) {
+                return Promise.resolve({indexedMeta:[], indexedContent:false})
+            }
             return ResourcesManager.loadClass('ReactMeta').then(rm => {
                 const {MetaClient, Renderer} = rm;
                 return MetaClient.getInstance().loadConfigs().then(configs => {
