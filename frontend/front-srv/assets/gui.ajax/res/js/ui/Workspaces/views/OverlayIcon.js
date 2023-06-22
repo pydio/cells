@@ -55,12 +55,18 @@ class OverlayIcon extends Component{
                 break;
             case "mdi mdi-tag":
             case "mdi mdi-tag-outline":
+                if (!pydio.Registry.hasPluginOfType("meta", "user")) {
+                    break
+                }
                 tooltip = ''
                 popoverNS = 'ReactMeta'
                 popoverComponent = 'InfoPanel'
                 break;
             case "mdi mdi-message-outline":
             case "mdi mdi-message":
+                if (!pydio.Registry.hasPluginOfType("meta", "comments")) {
+                    break
+                }
                 count = node.getMetadata().get('has_comments');
                 tooltip = count + ' comment' + (count > 1 ? 's' : '');
                 popoverNS = 'MetaComments'

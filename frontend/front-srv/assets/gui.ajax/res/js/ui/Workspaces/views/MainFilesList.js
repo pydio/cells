@@ -30,7 +30,7 @@ import Action from 'pydio/model/action'
 import ReactDOM from 'react-dom'
 
 import FilePreview from './FilePreview'
-import {IconButton, Divider} from 'material-ui'
+import {IconButton} from 'material-ui'
 import CellsMessageToolbar from './CellsMessageToolbar'
 const {SimpleList, Masonry} = Pydio.requireLib('components');
 const {moment, SingleJobProgress} = Pydio.requireLib('boot');
@@ -124,21 +124,23 @@ class ComponentConfigsParser {
                 columns[name].renderCell = this.renderLabel;
             }
         });
-        proms.push(ResourcesManager.loadClass('ReactMeta').then(c => {
-            const {MetaClient, Renderer} = c;
-            return MetaClient.getInstance().loadConfigs().then(metas => {
-                metas.forEach((v,k)=>{
-                    if(v.type !== 'json'){
-                        columns[k] = {
-                            label:      v.label,
-                            inlineHide: !v.visible,
-                            ...Renderer.typeColumnRenderer(v.type),
-                            nsData:     v.data
+        if (Pydio.getInstance().Registry.hasPluginOfType("meta", "user")) {
+            proms.push(ResourcesManager.loadClass('ReactMeta').then(c => {
+                const {MetaClient, Renderer} = c;
+                return MetaClient.getInstance().loadConfigs().then(metas => {
+                    metas.forEach((v,k)=>{
+                        if(v.type !== 'json'){
+                            columns[k] = {
+                                label:      v.label,
+                                inlineHide: !v.visible,
+                                ...Renderer.typeColumnRenderer(v.type),
+                                nsData:     v.data
+                            }
                         }
-                    }
+                    })
                 })
-            })
-        }))
+            }))
+        }
         return Promise.all(proms).then(()=> {
             return columns || this.getDefaultListColumns(Pydio.getInstance());
         })
@@ -404,6 +406,7 @@ class MainFilesList extends React.Component {
         let content = null;
         const {pydio, dataModel, searchResults} = this.props;
         const {displayMode} = this.state;
+        const metaDisabled = !pydio.Registry.hasPluginOfType("meta", "user")
         const gridMode = displayMode.indexOf('grid-') === 0 || displayMode === 'masonry';
         const overlayClasses = node.getMetadata().get('overlay_class') || ''
         if(node.getMetadata().has('local:entryRenderActions')){
@@ -421,6 +424,9 @@ class MainFilesList extends React.Component {
             }}/>;
         }else if(overlayClasses || displayMode !== 'list'){
             let classes = overlayClasses.split(',').filter(c=>!!c);
+            if (metaDisabled) {
+                classes = classes.filter(c => c !== 'mdi-tag' && c !== 'mdi-tag-outline')
+            }
             if(gridMode) {
                 classes = classes.filter(c => c !== 'mdi mdi-star')
             }
@@ -437,7 +443,7 @@ class MainFilesList extends React.Component {
                     />
                 );
             });
-            if(displayMode !== 'list' && displayMode !== 'masonry') {
+            if(!metaDisabled && displayMode !== 'list' && displayMode !== 'masonry') {
                 // Add meta button in thumbs mode
                 elements.push(<OverlayIcon
                         pydio={pydio}
@@ -638,8 +644,10 @@ class MainFilesList extends React.Component {
             const cell = <span key={s} className={cellClass}>{sep}<span className="text_label">{label}</span></span>;
             standard ? standardPieces.push(cell) : otherPieces.push(cell);
         });
-        const metaIc = (
-            <span className={"metadata_chunk metadata_chunk_standard"}>
+        pieces.push(...otherPieces);
+        if (pydio.Registry.hasPluginOfType("meta", "user")) {
+            pieces.push(
+                <span className={"metadata_chunk metadata_chunk_standard"}>
                 <OverlayIcon
                     pydio={pydio}
                     node={node}
@@ -650,8 +658,9 @@ class MainFilesList extends React.Component {
                     popoverDirection={'left'}
                 />
             </span>
-        );
-        pieces.push(...otherPieces, metaIc, ...standardPieces);
+            );
+        }
+        pieces.push(...standardPieces);
         return pieces;
 
     };
@@ -870,7 +879,7 @@ class MainFilesList extends React.Component {
                     checkEmptyState: (node) => { return (node.isLoaded() && node.getChildren().size === 1 && node.getChildren().get(recyclePath) )} ,
                     actionLabelId: messages['567'],
                     actionIconClassName: 'mdi mdi-delete',
-                    actionCallback: (e) => {
+                    actionCallback: () => {
                         pydio.goTo(recyclePath);
                     }
                 };
