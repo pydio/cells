@@ -102,13 +102,13 @@
     "other": "Espaços de Trabalho e Células"
   },
   "tour.theme.title": {
-    "other": "Light/Dark Theme Support"
+    "other": "Suporte ao Tema Claro/Escuro"
   },
   "tour.theme.legend": {
     "other": "Choose a light or dark theme to best suit your vision."
   },
   "tour.left-resize.title": {
-    "other": "Workspaces and Cells"
+    "other": "Espaços de Trabalho e Células"
   },
   "tour.left-resize.legend": {
     "other": "Left column can be resized or closed to fit your screen."
@@ -117,10 +117,10 @@
     "other": "Right column can be also be resized or closed to fit your screen."
   },
   "tour.directory.title": {
-    "other": "Users Directory"
+    "other": "Diretório de Usuários"
   },
   "tour.directory.legend": {
-    "other": "Manage users (internal and external) and teams in a central location."
+    "other": "Gerenciar usuários (internos e externos) e equipes em um local central."
   },
   "background.jobs.title": {
     "other": "Tarefas em Segundo Plano"
@@ -261,18 +261,18 @@
     "other": "Cells created by me first"
   },
   "leftrail.buttons.home": {
-    "other": "Home"
+    "other": "Início"
   },
   "leftrail.buttons.directory": {
-    "other": "Directory"
+    "other": "Diretório"
   },
   "leftrail.buttons.all-files": {
-    "other": "All Files"
+    "other": "Arquivos"
   },
   "leftrail.buttons.theme.light": {
-    "other": "Light Mode"
+    "other": "Modo Claro"
   },
   "leftrail.buttons.theme.dark": {
-    "other": "Dark Mode"
+    "other": "Modo Escuro"
   }
 }

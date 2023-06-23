@@ -1251,7 +1251,7 @@
     "other": "パスワードをお忘れですか？"
   },
   "48": {
-    "other": "Ok"
+    "other": "OK"
   },
   "480": {
     "other": "現在のワークスペースのすべてのフォルダを参照します。"
@@ -1284,7 +1284,7 @@
     "other": "メタデータ"
   },
   "49": {
-    "other": "Cancel"
+    "other": "キャンセル"
   },
   "490": {
     "other": "日付の範囲"
@@ -2364,7 +2364,7 @@
     "other": "フォーマット"
   },
   "searchengine.format.file-only": {
-    "other": "Files Only"
+    "other": "ファイルのみ"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "高度なフィルタ"
@@ -2379,19 +2379,19 @@
     "other": "保存"
   },
   "searchengine.query.action.save-new": {
-    "other": "Save Query"
+    "other": "クエリを保存"
   },
   "searchengine.query.action.clear": {
     "other": "クリア"
   },
   "searchengine.query.action.clear-all": {
-    "other": "Clear All"
+    "other": "すべてクリア"
   },
   "searchengine.query.action.delete": {
     "other": "削除"
   },
   "searchengine.query.action.delete-confirm": {
-    "other": "Delete this saved query?"
+    "other": "この保存したクエリを削除しますか？"
   },
   "searchengine.query.save-label": {
     "other": "ラベルを入力してください"
@@ -2400,25 +2400,25 @@
     "other": "名前/コンテンツ"
   },
   "searchengine.complete.group.saved": {
-    "other": "Saved Searches"
+    "other": "保存済みの検索"
   },
   "searchengine.complete.group.history": {
-    "other": "Last Searches"
+    "other": "直近の検索"
   },
   "searchengine.complete.group.suggestion": {
-    "other": "Advanced Suggestion"
+    "other": "高度な提案"
   },
   "searchengine.complete.suggestion.intro": {
-    "other": "Do you mean"
+    "other": "もしかして ？"
   },
   "searchengine.complete.suggestion.remain": {
-    "other": "containing '%s'"
+    "other": "'%s ' を含む"
   },
   "searchengine.complete.activefilters": {
-    "other": "Filters:"
+    "other": "フィルター:"
   },
   "searchengine.complete.activefilters-edit": {
-    "other": "Click to modify"
+    "other": "クリックして変更"
   },
   "chat.load-older": {
     "other": "古い項目"

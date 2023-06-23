@@ -32,9 +32,6 @@
   "Jobs.Default.CleanExpiredACLs": {
     "other": "期限切れACLを10日ごとに削除する"
   },
-  "Jobs.Default.CleanExpiredACLs": {
-    "other": "Clean expired ACLs after 10 days"
-  },
   "Jobs.User.Compress": {
     "other": "選択を圧縮"
   },

@@ -51,19 +51,19 @@
     "other": "Stockage à plat"
   },
   "ds.format-picker.flat.legend": {
-    "other": "Best for performances, files are stored as binaries inside the storage. Files and folders structure is kept in internal index only."
+    "other": "Pour de meilleures performances, les fichiers sont stockés en tant que binaires à l'intérieur du stockage. La structure des fichiers et des dossiers est conservée dans l'index interne seulement."
   },
   "ds.format-picker.structured.title": {
-    "other": "Import Existing Data"
+    "other": "Importer des données existantes"
   },
   "ds.format-picker.structured.legend": {
-    "other": "Files and folders are stored as-is, real-time synchronisation reflects storage structure inside internal indexes."
+    "other": "Les fichiers et les dossiers sont stockés tels quels, la synchronisation en temps réel reflète la structure de stockage à l'intérieur des index internes."
   },
   "ds.format-picker.internal.title": {
-    "other": "Cells Internals"
+    "other": "Format Interne"
   },
   "ds.format-picker.internal.legend": {
-    "other": "Used to store internal binaries (e.g. files versions, thumbnails). Limited features, data is not indexed in search engines."
+    "other": "Utilisé pour stocker des binaires internes (par exemple, des versions de fichiers, des vignettes). Fonctionnalités limitées, les données ne sont pas indexées dans les moteurs de recherche."
   },
   "ds.editor.delete.warning": {
     "other": "Etes-vous sûr de vouloir supprimer cette datasource? C'est irréversible, et vous perdrez les données associées aux fichiers!"
@@ -276,25 +276,25 @@
     "other": "Nom du Bucket"
   },
   "ds.editor.storage.s3.endpoint.type": {
-    "other": "Endpoint Type"
+    "other": "Type d'accès"
   },
   "ds.editor.storage.s3.signatureVersion": {
-    "other": "Signature Version"
+    "other": "Version de la signature"
   },
   "ds.editor.storage.s3.endpoint.amazon": {
     "other": "Amazon S3"
   },
   "ds.editor.storage.s3.endpoint.custom": {
-    "other": "Other S3-Compatible Storage"
+    "other": "Autre stockage compatible S3"
   },
   "ds.editor.storage.s3.endpoint.minio": {
-    "other": "Minio Server"
+    "other": "Serveur Minio"
   },
   "ds.editor.storage.s3.endpoint": {
     "other": "URL de stockage personnalisée"
   },
   "ds.editor.storage.s3.endpoint.hint": {
-    "other": "include http(s)://"
+    "other": "incluez http(s)://"
   },
   "ds.editor.storage.s3.region": {
     "other": "Région d'API S3"
@@ -312,10 +312,10 @@
     "other": "Recharger les containers"
   },
   "ds.editor.storage.buckets.create": {
-    "other": "Create Bucket"
+    "other": "Créer une bucket"
   },
   "ds.editor.storage.buckets.create.hint": {
-    "other": "Bucket name"
+    "other": "Nom de la bucket"
   },
   "ds.editor.storage.buckets.regexp": {
     "other": "Utiliser une expression régulière"
@@ -342,16 +342,16 @@
     "other": "Balises d'objets"
   },
   "ds.editor.storage.s3.legend.bucketPathPrefix": {
-    "other": "Use a path prefix inside the bucket (will create a virtual folder to store objects)"
+    "other": "Utiliser un préfixe à l'intérieur de la bucket (ce qui créera un dossier virtuel pour stocker des objets)"
   },
   "ds.editor.storage.s3.bucketPathPrefix": {
-    "other": "Path prefix"
+    "other": "Préfixe"
   },
   "ds.editor.storage.s3.legend.storageClass": {
-    "other": "Custom Storage Class (leave empty to use STANDARD). Amazon S3 supports the following values: REDUCED_REDUNDANCY, STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, DEEP_ARCHIVE, OUTPOSTS, GLACIER_IR. Beware that using GLACIER or equivalent will make the datasource write-only, as objects have to be manually restored before being available for download."
+    "other": "Classe de stockage personnalisée (laisser vide pour utiliser STANDARD). Amazon S3 prend en charge les valeurs suivantes : REDUCED_REDUNDANCY, STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, DEEP_ARCHIVE, OUTPOSTS, GLACIER_IR. Attention, l'utilisation de GLACIER (ou équivalent) rendra la DataSource en écriture seule, car les objets doivent être restaurés manuellement avant d'être disponibles pour le téléchargement."
   },
   "ds.editor.storage.s3.storageClass": {
-    "other": "Storage Class"
+    "other": "Classe de stockage"
   },
   "ds.editor.title": {
     "other": "Datasource %s"
@@ -381,16 +381,16 @@
     "other": "Type de Stockage"
   },
   "ds.editor.tab.lifecycle": {
-    "other": "Data Lifecycle"
+    "other": "Cycle de vie des données"
   },
   "ds.editor.tab.advanced": {
-    "other": "Advanced Options"
+    "other": "Options avancées"
   },
   "ds.editor.initFlatFromSnapshot": {
-    "other": "If this storage was previously used as a flat datasource, initialize it from an existing snapshot file (must be found inside the storage)"
+    "other": "Si ce stockage a été précédemment utilisé comme datasource, initialisez-le à partir d'un fichier de snapshot existant (doit être présent dans le stockage)"
   },
   "ds.editor.foldersShardingPattern": {
-    "other": "By default, all files are stored inside a unique folder. Use a pattern 'N:P:Q' to auto-create sub folders id[:N]/id[:P]/id[:Q]/..."
+    "other": "Par défaut, tous les fichiers sont stockés dans un dossier unique. Utilisez un motif 'N:P:Q' pour créer automatiquement les sous-dossiers id[:N]/id[:P]/id[:Q]/..."
   },
   "ds.encryption": {
     "other": "Encryptée"
@@ -474,7 +474,7 @@
     "other": "Le noeud %s n'a pas été trouvé"
   },
   "ds.status.na": {
-    "other": "N/A"
+    "other": "Indisponible"
   },
   "ds.status.object": {
     "other": "Objets HS"
@@ -498,10 +498,10 @@
     "other": "Stockage compatible S3"
   },
   "ds.storage.azure": {
-    "other": "Azure Blob Storage"
+    "other": "Stockage de Blob Azure"
   },
   "ds.storage.gcs": {
-    "other": "Google Cloud Storage"
+    "other": "Stockage Google Cloud"
   },
   "ds.storage.title": {
     "other": "Stockage"
@@ -558,28 +558,28 @@
     "other": "A"
   },
   "logs.filter.period.time": {
-    "other": "At..."
+    "other": "À..."
   },
   "logs.filter.login": {
     "other": "Identifiant"
   },
   "logs.filter.ip": {
-    "other": "IP"
+    "other": "Adresse IP"
   },
   "logs.filter.fulltext": {
     "other": "Recherche dans le texte"
   },
   "logs.tz.tooltip": {
-    "other": "Show local/server timezone"
+    "other": "Fuseau horaire local/serveur"
   },
   "logs.tz.local": {
-    "other": "Local Timezone"
+    "other": "Fuseau horaire local"
   },
   "logs.tz.server": {
-    "other": "Server Timezone"
+    "other": "Fuseau horaire du serveur"
   },
   "logs.toggleTheme": {
-    "other": "Light/Dark Theme"
+    "other": "Thème Clair/Sombre"
   },
   "logs.sys.note": {
     "other": "Notez:"
@@ -612,10 +612,10 @@
     "other": "Niveau"
   },
   "logs.level.exact": {
-    "other": "(only)"
+    "other": "(seulement)"
   },
   "logs.level.greaterthan": {
-    "other": "(and up)"
+    "other": "(et supérieurs)"
   },
   "logs.service": {
     "other": "Service"
@@ -855,7 +855,7 @@
     "other": "Afficher dans la liste"
   },
   "metadata.field.mandatory": {
-    "other": "Mandatory"
+    "other": "Obligatoire"
   },
   "perfs.booster.description": {
     "other": "Vérifie que Pydio Booster est actif et que la communication WebSocket fonctionne."

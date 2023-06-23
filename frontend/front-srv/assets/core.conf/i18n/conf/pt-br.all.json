@@ -213,18 +213,18 @@
     "other": "Prefixo de função"
   },
   "System Default": {
-    "other": "System Default"
+    "other": "Padrão do Sistema"
   },
   "Material 3 (detect)": {
-    "other": "Material 3 (detect)"
+    "other": "Material 3 (detectar)"
   },
   "Material 3 (light)": {
-    "other": "Material 3 (light)"
+    "other": "Material 3 (claro)"
   },
   "Material 3 (dark)": {
-    "other": "Material 3 (dark)"
+    "other": "Material 3 (escuro)"
   },
   "Material Legacy": {
-    "other": "Material Legacy"
+    "other": "Material Obsoleto"
   }
 }

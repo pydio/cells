@@ -276,25 +276,25 @@
     "other": "バケット名"
   },
   "ds.editor.storage.s3.endpoint.type": {
-    "other": "Endpoint Type"
+    "other": "エンドポイントタイプ"
   },
   "ds.editor.storage.s3.signatureVersion": {
-    "other": "Signature Version"
+    "other": "署名のバージョン"
   },
   "ds.editor.storage.s3.endpoint.amazon": {
     "other": "Amazon S3"
   },
   "ds.editor.storage.s3.endpoint.custom": {
-    "other": "Other S3-Compatible Storage"
+    "other": "S3互換ストレージ"
   },
   "ds.editor.storage.s3.endpoint.minio": {
-    "other": "Minio Server"
+    "other": "Minio サーバー"
   },
   "ds.editor.storage.s3.endpoint": {
     "other": "カスタムエンドポイントURL"
   },
   "ds.editor.storage.s3.endpoint.hint": {
-    "other": "include http(s)://"
+    "other": "http(s):// を含む"
   },
   "ds.editor.storage.s3.region": {
     "other": "S3 Api リージョン"
@@ -312,10 +312,10 @@
     "other": "バケットを再読み込み"
   },
   "ds.editor.storage.buckets.create": {
-    "other": "Create Bucket"
+    "other": "バケットを作成"
   },
   "ds.editor.storage.buckets.create.hint": {
-    "other": "Bucket name"
+    "other": "バケット名"
   },
   "ds.editor.storage.buckets.regexp": {
     "other": "正規表現を使用"
@@ -342,16 +342,16 @@
     "other": "オブジェクトタグ"
   },
   "ds.editor.storage.s3.legend.bucketPathPrefix": {
-    "other": "Use a path prefix inside the bucket (will create a virtual folder to store objects)"
+    "other": "Bucket 内のパスプレフィックスを使用します (オブジェクトを格納する仮想フォルダを作成します)"
   },
   "ds.editor.storage.s3.bucketPathPrefix": {
-    "other": "Path prefix"
+    "other": "パスプレフィックス"
   },
   "ds.editor.storage.s3.legend.storageClass": {
-    "other": "Custom Storage Class (leave empty to use STANDARD). Amazon S3 supports the following values: REDUCED_REDUNDANCY, STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, DEEP_ARCHIVE, OUTPOSTS, GLACIER_IR. Beware that using GLACIER or equivalent will make the datasource write-only, as objects have to be manually restored before being available for download."
+    "other": "カスタム ストレージ クラス (空白のままにして標準を使用) Amazon S3 は以下の値をサポートします: REDUCED_REDUNDANCY, STANDARD_IA, ONEZONE_IA, INTELIGENT_TIERING, GLACIER, DEEP_ARCHIVE, OUTPOSTS, GLACIER_IR. GLACIERまたは同等の機能を使用すると、データソースは書き込み専用になりますので、ダウンロード前にオブジェクトを手動で復元する必要があります。"
   },
   "ds.editor.storage.s3.storageClass": {
-    "other": "Storage Class"
+    "other": "ストレージクラス"
   },
   "ds.editor.title": {
     "other": "データ ソース %s"
@@ -390,7 +390,7 @@
     "other": "このストレージが以前にフラットデータソースとして使用されていた場合は、既存のスナップショットファイルから初期化します（ストレージ内にある必要があります）"
   },
   "ds.editor.foldersShardingPattern": {
-    "other": "By default, all files are stored inside a unique folder. Use a pattern 'N:P:Q' to auto-create sub folders id[:N]/id[:P]/id[:Q]/..."
+    "other": "デフォルトでは、すべてのファイルは一意のフォルダ内に格納されています。サブフォルダID[:N]/id[:P]/id[:Q]/... を自動作成するには、パターン 'N:P:Q' を使用します。"
   },
   "ds.encryption": {
     "other": "暗号化"
@@ -1668,7 +1668,7 @@
     "other": "たとえばURLで使用される技術名称で、自動的に計算されますが、カスタマイズすることができます。"
   },
   "services.text-filter.hint": {
-    "other": "Filter..."
+    "other": "フィルター..."
   },
   "services.filter.nofilter": {
     "other": "すべてのサービス"

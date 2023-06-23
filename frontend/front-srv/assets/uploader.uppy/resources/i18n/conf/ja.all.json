@@ -1,26 +1,26 @@
 {
   "Audio/Video Capture": {
-    "other": "Audio/Video Capture"
+    "other": "オーディオ/ビデオキャプチャ"
   },
   "Use device webcam, microphone or screencast to capture audio and video": {
-    "other": "Use device webcam, microphone or screencast to capture audio and video"
+    "other": "音声とビデオをキャプチャするには、デバイスのウェブカメラ、マイクまたはスクリーンキャストを使用します"
   },
   "Enable Webcam": {
-    "other": "Enable Webcam"
+    "other": "ウェブカメラを有効にする"
   },
   "Enable capturing from webcam": {
-    "other": "Enable capturing from webcam"
+    "other": "ウェブカメラからのキャプチャを有効にする"
   },
   "Enable Screencast": {
-    "other": "Enable Screencast"
+    "other": "スクリーンキャストを有効にする"
   },
   "Enable capturing from shared screen": {
-    "other": "Enable capturing from shared screen"
+    "other": "共有画面からのキャプチャを有効にする"
   },
   "Enable Audio": {
-    "other": "Enable Audio"
+    "other": "音声を有効にする"
   },
   "Enable capturing simple audio from microphone": {
-    "other": "Enable capturing simple audio from microphone"
+    "other": "マイクからのシンプルな音声のキャプチャを有効にする"
   }
 }
