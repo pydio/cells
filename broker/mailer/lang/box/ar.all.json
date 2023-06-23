@@ -146,9 +146,6 @@
   "Mail.Config.FixOutlookDisplay": {
     "other": "إصلاح العملاء أوتلووك (تعطيل CSS بداخل الشبكة)"
   },
-  "Mail.Config.FixOutlookDisplay": {
-    "other": "Outlook Clients Fix (disable CSS inlining)"
-  },
   "Mail.Config.Queue.Label": {
     "other": "نوع قائمة الانتظار"
   },
