@@ -105,22 +105,22 @@
     "other": "Light/Dark Theme Support"
   },
   "tour.theme.legend": {
-    "other": "Choose a light or dark theme to best suit your vision."
+    "other": "あなたのビジョンに最適なライトまたはダークテーマを選択してください。"
   },
   "tour.left-resize.title": {
-    "other": "Workspaces and Cells"
+    "other": "ワークスペースとセル"
   },
   "tour.left-resize.legend": {
-    "other": "Left column can be resized or closed to fit your screen."
+    "other": "左の列は画面に合わせてサイズ変更または閉じることができます。"
   },
   "tour.right-resize.legend": {
-    "other": "Right column can be also be resized or closed to fit your screen."
+    "other": "右の列は、画面に合わせてサイズ変更または閉じることもできます。"
   },
   "tour.directory.title": {
-    "other": "Users Directory"
+    "other": "ユーザディレクトリ"
   },
   "tour.directory.legend": {
-    "other": "Manage users (internal and external) and teams in a central location."
+    "other": "ユーザー(社内外) とチームを一元的に管理します。"
   },
   "background.jobs.title": {
     "other": "バックグラウンドジョブ"
@@ -162,13 +162,13 @@
     "other": "サムネイル"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Larger"
+    "other": "大きく"
   },
   "list.display-mode.thumbs-medium": {
-    "other": "Medium"
+    "other": "標準"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Smaller"
+    "other": "小さく"
   },
   "list.display-mode.masonry": {
     "other": "画像ギャラリー"
@@ -189,90 +189,90 @@
     "other": "すべてのファイル"
   },
   "file.temporary-etag.flag": {
-    "other": "Incomplete"
+    "other": "不完全"
   },
   "file.temporary-etag.tooltip": {
-    "other": "This file is being uploaded (or the upload has failed)."
+    "other": "このファイルはアップロード中です（またはアップロードに失敗しました）。"
   },
   "mimegroup.byextension": {
-    "other": "By File Extension..."
+    "other": "ファイル拡張子で..."
   },
   "mimegroup.word": {
-    "other": "Word documents"
+    "other": "Word ドキュメント"
   },
   "mimegroup.spreadsheet": {
-    "other": "Spreadsheets"
+    "other": "スプレッドシート"
   },
   "mimegroup.presentation": {
-    "other": "Presentations"
+    "other": "プレゼンテーション"
   },
   "mimegroup.pdf": {
-    "other": "PDFs"
+    "other": "PDF"
   },
   "mimegroup.image": {
-    "other": "Images"
+    "other": "画像"
   },
   "mimegroup.video": {
-    "other": "Videos"
+    "other": "動画"
   },
   "mimegroup.audio": {
-    "other": "Audios"
+    "other": "オーディオ"
   },
   "fastsearch.quick-jump.title": {
-    "other": "Quick Jump"
+    "other": "クイックジャンプ"
   },
   "fastsearch.quick-jump.legend": {
-    "other": "Hit [Enter] to jump, add a trailing [/] to search inside children, [Esc] to Close"
+    "other": "[Enter] を押してジャンプし、最後に [/] を追加して子要素内を検索します。 [Esc] 閉じるには"
   },
   "fastsearch.quick-move.title": {
-    "other": "Quick Move"
+    "other": "クイック移動"
   },
   "fastsearch.quick-move.target-error": {
-    "other": "Cannot move to this target!"
+    "other": "このターゲットに移動できません！"
   },
   "fastsearch.quick-move.legend": {
-    "other": "Hit [Enter] to move %s selected items to target, [Esc] to Close"
+    "other": "[Enter] を押すと、選択した %s 項目をターゲットに移動します。 [Esc] を押すと閉じる"
   },
   "fastsearch.quick-copy.title": {
-    "other": "Quick Copy"
+    "other": "クイックコピー"
   },
   "fastsearch.quick-copy.target-error": {
-    "other": "Cannot copy to this target!"
+    "other": "このターゲットにはコピーできません！"
   },
   "fastsearch.quick-copy.legend": {
-    "other": "Hit [Enter] to copy %s selected items to target, [Esc] to Close"
+    "other": "[Enter] を押すと、選択した %s 項目をターゲットに移動します。 [Esc] を押すと閉じる"
   },
   "wslist-options.title": {
-    "other": "Display Options"
+    "other": "表示オプション"
   },
   "wslist-options.show-masked": {
-    "other": "Show masked items"
+    "other": "マスクされたアイテムを表示"
   },
   "wslist.action.mask": {
-    "other": "Mask"
+    "other": "マスク"
   },
   "wslist.action.unmask": {
     "other": "Unmask"
   },
   "wslist-options.merge-workspaces": {
-    "other": "Merge workspaces and cells"
+    "other": "ワークスペースとセルを結合"
   },
   "wslist-options.own-cells-first": {
-    "other": "Cells created by me first"
+    "other": "自分が最初に作成したセル"
   },
   "leftrail.buttons.home": {
-    "other": "Home"
+    "other": "ホーム"
   },
   "leftrail.buttons.directory": {
-    "other": "Directory"
+    "other": "ディレクトリ"
   },
   "leftrail.buttons.all-files": {
-    "other": "All Files"
+    "other": "すべてのファイル"
   },
   "leftrail.buttons.theme.light": {
-    "other": "Light Mode"
+    "other": "ライトモード"
   },
   "leftrail.buttons.theme.dark": {
-    "other": "Dark Mode"
+    "other": "ダークモード"
   }
 }

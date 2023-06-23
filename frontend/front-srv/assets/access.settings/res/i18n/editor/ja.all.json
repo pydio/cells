@@ -102,7 +102,7 @@
     "other": "値をクリア"
   },
   "40": {
-    "other": "Per-workspace parameters"
+    "other": "ワークスペースごとのパラメータ"
   },
   "41": {
     "other": "追加パラメータ"
@@ -189,10 +189,10 @@
     "other": "ログイン後に表示されるウェルカムページ"
   },
   "workspace.statics.directory.title": {
-    "other": "Directory"
+    "other": "ディレクトリ"
   },
   "workspace.statics.directory.description": {
-    "other": "Show address book full page (used by Mui3 Theme)"
+    "other": "アドレス帳全ページを表示 (Mui3 Themeで使用)"
   },
   "workspace.statics.settings.title": {
     "other": "管理コンソール"

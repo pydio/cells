@@ -96,36 +96,36 @@
     "other": "Pydio Cells v4 へようこそ"
   },
   "card.quick-access": {
-    "other": "Quick Access"
+    "other": "クイック アクセス"
   },
   "card.quick-access.add": {
-    "other": "Add a shortcut ..."
+    "other": "ショートカットを追加..."
   },
   "card.update.current": {
-    "other": "Software Version"
+    "other": "ソフトウェアバージョン"
   },
   "card.update.no-updates": {
-    "other": "Software is up-to-date"
+    "other": "ソフトフェアは最新です."
   },
   "card.update.new-version": {
-    "other": "A new version is available"
+    "other": "新しいバージョンが利用可能です。"
   },
   "recentLogs.title": {
-    "other": "Last Events"
+    "other": "最後のイベント"
   },
   "recentLogs.errors": {
-    "other": "Errors"
+    "other": "エラー"
   },
   "recentLogs.emptyState": {
-    "other": "No activity found"
+    "other": "アクティビティが見つかりません"
   },
   "recentLogs.more": {
-    "other": "All Activities"
+    "other": "すべてのアクティビティ"
   },
   "graph.files": {
-    "other": "Files Activity"
+    "other": "ファイルのアクティビティ"
   },
   "graph.connections": {
-    "other": "Web Connections"
+    "other": "ウェブコネクション"
   }
 }

@@ -189,7 +189,7 @@
     "other": "ロールは常にこのプロファイルを持つユーザーに適用されます。"
   },
   "role.override.label": {
-    "other": "Always Override"
+    "other": "常に上書き"
   },
   "role.override.description": {
     "other": "ロールは常に他のロールの後に適用されます。ただし、それでも優先されるユーザーロールは除きます。"
