@@ -22,11 +22,12 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
-	"os"
-	"strconv"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
@@ -35,38 +36,42 @@ import (
 )
 
 var ResetJobCmd = &cobra.Command{
-	Use:   "reset-job",
+	Use:   "reset-jobs",
 	Short: "Reset a job to its default",
 	Long: `
 DESCRIPTION
-  
-  List all automatically inserted jobs, and reset one or many to their default value. 
-  This can be handy if job must be upgraded.
+
+Display a list of all automatically inserted jobs and choose one to reset it to its factory default settings. 
+	
+This feature can be useful when a job requires an upgrade.
+Please ensure that the server is running. 
 
 EXAMPLE
 
   $ ` + os.Args[0] + ` admin clean reset-jobs
-	+---+---------------------+--------------------------------+
-	| # |       SERVICE       |             LABEL              |
-	+---+---------------------+--------------------------------+
-	| 1 | pydio.grpc.jobs     | Extract image thumbnails and   |
-	|    |                     | Exif data                      |
-	| 2 | pydio.grpc.jobs     | Clean jobs and tasks in        |
-	|    |                     | scheduler                      |
-	| 3 | pydio.grpc.jobs     | Clean or transfer user data on |
-	|    |                     | deletion                       |
-	| 4 | pydio.grpc.jobs     | Clean orphan files after 24h   |
-	| 5 | pydio.grpc.jobs     | Clean expired ACLs after 10    |
-	|    |                     | days                           |
-	| 6 | pydio.grpc.versions | Event Based Job for            |
-	|    |                     | replicating data for           |
-	|    |                     | versioning                     |
-	| 7 | pydio.grpc.activity | Users activities digest        |
-	| 8 | pydio.grpc.mailer   | Flush Mails Queue              |
-	| 9 | pydio.grpc.oauth    | Prune revoked tokens and       |
-	|    |                     | expired reset password keys    |
-	+---+---------------------+--------------------------------+
-	Select a job number to reset it in the scheduler: 9
+
+  +----+----------------------+--------------------------------+
+  | #  |       SERVICE        |             LABEL              |
+  +----+----------------------+--------------------------------+
+  |  1 | pydio.grpc.jobs      | Extract image thumbnails and   |
+  |    |                      | Exif data                      |
+  |  2 | pydio.grpc.jobs      | Clean jobs and tasks in        |
+  |    |                      | scheduler                      |
+  |  3 | pydio.grpc.jobs      | Clean or transfer user data on |
+  |    |                      | deletion                       |
+  |  4 | pydio.grpc.jobs      | Clean orphan files after 24h   |
+  |  5 | pydio.grpc.jobs      | Clean expired ACLs after 10    |
+  |    |                      | days                           |
+  |  6 | pydio.grpc.versions  | Event Based Job for            |
+  |    |                      | replicating data for           |
+  |    |                      | versioning                     |
+  |  7 | pydio.grpc.activity  | Users activities digest        |
+  |  8 | pydio.grpc.mailer    | Flush Mails Queue              |
+  |  9 | pydio.grpc.oauth     | Prune revoked tokens and       |
+  |    |                      | expired reset password keys    |
+  +----+----------------------+--------------------------------+
+
+  Select a job number to reset it in the scheduler: 9
 
  `,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -113,7 +118,11 @@ EXAMPLE
 		if _, er = jobClient.PutJob(ctx, &jobs.PutJobRequest{Job: job.Job}); er != nil {
 			fmt.Println(promptui.IconBad + " Error while inserting job " + er.Error())
 		} else {
-			fmt.Println(promptui.IconGood + " Job was successfully reset")
+			msg := " Job was successfully reset"
+			if job.Inactive {
+				msg += " (if it was previously enabled, beware that it has been reset to its disabled status)"
+			}
+			fmt.Println(promptui.IconGood + msg)
 		}
 		return nil
 	},
