@@ -78,7 +78,7 @@
     "other": "Время задачи меньше, чем"
   },
   "actionOutputSingleQuery.FreeCondition": {
-    "other": "Free Condition"
+    "other": "Бесплатные условия"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -117,136 +117,136 @@
     "other": "Строка равна"
   },
   "contextMetaCondition.StringMatchCondition": {
-    "other": "String matches"
+    "other": "Совпадение строк"
   },
   "contextMetaCondition.StringPairsEqualCondition": {
-    "other": "StringPairs equals"
+    "other": "Пары строк равны"
   },
   "contextMetaCondition.StringNotMatchCondition": {
-    "other": "String does not match"
+    "other": "Строка не совпадает"
   },
   "contextMetaCondition.WithinPeriodCondition": {
-    "other": "Date period"
+    "other": "Дата период"
   },
   "contextMetaCondition.OfficeHoursCondition": {
-    "other": "Office Hours"
+    "other": "Часы работы офиса"
   },
   "contextMetaCondition.DateAfterCondition": {
-    "other": "Date after"
+    "other": "Дата после"
   },
   "contextMetaCondition.PathGlobCondition": {
     "other": "Glob Matcher"
   },
   "contextMetaCondition.BooleanCondition": {
-    "other": "Boolean Value"
+    "other": "Логическое Значение"
   },
   "contextMetaField.ContentType": {
-    "other": "Content Type"
+    "other": "Тип контента"
   },
   "contextMetaField.CookiesString": {
-    "other": "Cookies String"
+    "other": "Строка файлов cookie"
   },
   "contextMetaField.HttpProtocol": {
-    "other": "HTTP Protocol"
+    "other": "HTTP Протокол"
   },
   "contextMetaField.RemoteAddress": {
     "other": "Удаленный адрес"
   },
   "contextMetaField.RequestHostname": {
-    "other": "Request Hostname"
+    "other": "Запросить имя хоста"
   },
   "contextMetaField.RequestHost": {
-    "other": "Request Host"
+    "other": "Запросить Хост"
   },
   "contextMetaField.RequestPort": {
-    "other": "Request Port"
+    "other": "Порт запроса"
   },
   "contextMetaField.RequestMethod": {
-    "other": "Request Method"
+    "other": "Способ запроса"
   },
   "contextMetaField.RequestURI": {
-    "other": "Request URI"
+    "other": "Запросить URI"
   },
   "contextMetaField.ServerTime": {
-    "other": "Server Time"
+    "other": "Серверное время"
   },
   "contextMetaField.UserAgent": {
-    "other": "User Agent"
+    "other": "Пользовательский агент"
   },
   "contextMetaSingleQuery.Condition": {
-    "other": "Condition"
+    "other": "Состояние"
   },
   "contextMetaSingleQuery.FieldName": {
-    "other": "Field Name"
+    "other": "Имя поля"
   },
   "roleSingleQuery.HasAutoApply": {
-    "other": "Has AutoApply"
+    "other": "Имеет автоматическое применение"
   },
   "roleSingleQuery.IsGroupRole": {
-    "other": "Is Group Role"
+    "other": "Групповая роль"
   },
   "roleSingleQuery.IsTeam": {
-    "other": "Is Team"
+    "other": "Команда"
   },
   "roleSingleQuery.IsUserRole": {
-    "other": "Is User Role"
+    "other": "Роль пользователя"
   },
   "roleSingleQuery.Label": {
     "other": "Метка"
   },
   "roleSingleQuery.Not": {
-    "other": "Not"
+    "other": "Нет"
   },
   "roleSingleQuery.Uuid": {
     "other": "Uuid"
   },
   "roleSingleQuery.not": {
-    "other": "not"
+    "other": "нет"
   },
   "treeQuery.Content": {
     "other": "Содержимое"
   },
   "treeQuery.DurationDate": {
-    "other": "Modification date (use comparison)"
+    "other": "Дата модификации (используйте сравнение)"
   },
   "treeQuery.Extension": {
-    "other": "File Extension"
+    "other": "Расширение Файла"
   },
   "treeQuery.FileName": {
-    "other": "File name"
+    "other": "Имя файла"
   },
   "treeQuery.FileNameOrContent": {
-    "other": "File name or Content"
+    "other": "Имя файла или содержимое"
   },
   "treeQuery.FreeString": {
-    "other": "Bleve-like search string"
+    "other": "Строка поиска в стиле взрыв схемы"
   },
   "treeQuery.GeoQuery": {
-    "other": "Geolocation Query"
+    "other": "Запрос геолокации"
   },
   "treeQuery.MaxDate": {
-    "other": "Modified before"
+    "other": "Изменено до"
   },
   "treeQuery.MaxSize": {
-    "other": "MaxSize"
+    "other": "Максимальный размер"
   },
   "treeQuery.MinDate": {
-    "other": "Modified since"
+    "other": "Изменено с"
   },
   "treeQuery.MinSize": {
-    "other": "Size greater than"
+    "other": "Размер больше чем"
   },
   "treeQuery.Not": {
-    "other": "Not"
+    "other": "Нет"
   },
   "treeQuery.PathDepth": {
-    "other": "Path Depth"
+    "other": "Глубина пути"
   },
   "treeQuery.PathPrefix": {
-    "other": "Path Prefix"
+    "other": "Префикс пути"
   },
   "treeQuery.Paths": {
-    "other": "Absolute Paths"
+    "other": "Абсолютный путь"
   },
   "treeQuery.Type": {
     "other": "Тип"
@@ -258,37 +258,37 @@
     "other": "Файл"
   },
   "treeQuery.Type.UNKNOWN": {
-    "other": "Any"
+    "other": "Любой"
   },
   "treeQuery.UUIDs": {
-    "other": "Node UUIDs"
+    "other": "UUID`ы узлов"
   },
   "treeQuery.ETag": {
     "other": "ETag"
   },
   "userSingleQuery.AttributeAnyValue": {
-    "other": "Has any value"
+    "other": "Имеет любое значение"
   },
   "userSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "Название атрибута"
   },
   "userSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "Значение атрибута"
   },
   "userSingleQuery.ConnectedSince": {
-    "other": "Connected Since"
+    "other": "Подключен с момента"
   },
   "userSingleQuery.FullPath": {
-    "other": "Full Path"
+    "other": "Полный путь"
   },
   "userSingleQuery.GroupPath": {
     "other": "Путь группы"
   },
   "userSingleQuery.HasProfile": {
-    "other": "Has Profile"
+    "other": "Имеет профиль"
   },
   "userSingleQuery.HasRole": {
-    "other": "Has Role"
+    "other": "Имеет роль"
   },
   "userSingleQuery.Login": {
     "other": "Логин"
@@ -450,16 +450,16 @@
     "other": "Запланированный триггер"
   },
   "triggerFilterQuery.IsApiHook": {
-    "other": "Triggered by Webhook"
+    "other": "Запускается вебхуком"
   },
   "triggerFilterQuery.ApiHookSlug": {
     "other": "Webhook Api Slug"
   },
   "triggerFilterQuery.RunParameterName": {
-    "other": "Run Parameter Name"
+    "other": "Имя параметра запуска"
   },
   "triggerFilterQuery.RunParameterValue": {
-    "other": "Run Parameter Value"
+    "other": "Значение параметра запуска"
   },
   "triggerFilterQuery.IsManual": {
     "other": "Ручной триггер"

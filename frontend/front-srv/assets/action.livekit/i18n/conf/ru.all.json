@@ -1,26 +1,26 @@
 {
   "Livekit Server": {
-    "other": "Livekit Server"
+    "other": "Сервер Livekit"
   },
   "Enable audio/video conferencing with Livekit Server": {
-    "other": "Enable audio/video conferencing with Livekit Server"
+    "other": "Включить аудио/видеоконференции с Livekit Server"
   },
   "Websocket URL": {
-    "other": "Websocket URL"
+    "other": "URL веб-сокета"
   },
   "Livekit Websocket URL": {
-    "other": "Livekit Websocket URL"
+    "other": "URL веб-сокета Livekit"
   },
   "API Key": {
-    "other": "API Key"
+    "other": "API ключ"
   },
   "Livekit server API Key": {
-    "other": "Livekit server API Key"
+    "other": "API ключ сервера Livekit"
   },
   "API Secret": {
-    "other": "API Secret"
+    "other": "API секрет"
   },
   "Livekit server API Secret": {
-    "other": "Livekit server API Secret"
+    "other": "API секрет сервера Livekit"
   }
 }
