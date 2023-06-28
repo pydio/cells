@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "Email successfully sent to %s user(s)"
+    "other": "Письмо успешно отправлено %s пользователю(ям)"
   },
   "2": {
-    "other": "No address found to send the email!"
+    "other": "Не найден адрес для отправки электронной почты!"
   },
   "3": {
-    "other": "No mailer configured to send emails, contact your administrator"
+    "other": "Почта не настроена для отправки писем, обратитесь к администратору"
   },
   "4": {
-    "other": "From"
+    "other": "От"
   },
   "5": {
-    "other": "To"
+    "other": "Кому"
   },
   "6": {
-    "other": "Subject"
+    "other": "Тема"
   },
   "7": {
-    "other": "Message"
+    "other": "Сообщение"
   },
   "8": {
-    "other": "Pick a user or type an address"
+    "other": "Выберите пользователя или введите адрес"
   },
   "9": {
-    "other": "Notifications Digest"
+    "other": "Дайджест уведомлений"
   },
   "sender.error": {
-    "other": "Could not send email correctly!"
+    "other": "Не удалось отправить письмо правильно!"
   },
   "entries.ignored": {
-    "other": "Warning, some entries were ignored, only users who have properly set their email address will receive invitations. Teams and groups are not processed neither."
+    "other": "Предупреждение, некоторые записи были проигнорированы, только те пользователи, которые правильно установили их адрес электронной почты, получат приглашения. Команды и группы также не обрабатываются."
   }
 }

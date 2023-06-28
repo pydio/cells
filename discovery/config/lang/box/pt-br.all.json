@@ -156,10 +156,10 @@
     "other": "Solicitar Hostname"
   },
   "contextMetaField.RequestHost": {
-    "other": "Request Host"
+    "other": "Servidor da Requisição"
   },
   "contextMetaField.RequestPort": {
-    "other": "Request Port"
+    "other": "Porta da Requisição"
   },
   "contextMetaField.RequestMethod": {
     "other": "Método de solicitação"
@@ -450,16 +450,16 @@
     "other": "Desencadeamento agendado"
   },
   "triggerFilterQuery.IsApiHook": {
-    "other": "Triggered by Webhook"
+    "other": "Acionado por Webhook"
   },
   "triggerFilterQuery.ApiHookSlug": {
-    "other": "Webhook Api Slug"
+    "other": "Slug da Api de Webhook"
   },
   "triggerFilterQuery.RunParameterName": {
-    "other": "Run Parameter Name"
+    "other": "Nome do Parâmetro de Execução"
   },
   "triggerFilterQuery.RunParameterValue": {
-    "other": "Run Parameter Value"
+    "other": "Valor do Parâmetro de Execução"
   },
   "triggerFilterQuery.IsManual": {
     "other": "Desencadeamento manual"

@@ -105,16 +105,16 @@
     "other": "Suporte ao Tema Claro/Escuro"
   },
   "tour.theme.legend": {
-    "other": "Choose a light or dark theme to best suit your vision."
+    "other": "Escolha um tema claro ou escuro que melhor se adapte à sua visão."
   },
   "tour.left-resize.title": {
     "other": "Espaços de Trabalho e Células"
   },
   "tour.left-resize.legend": {
-    "other": "Left column can be resized or closed to fit your screen."
+    "other": "A coluna da esquerda pode ser redimensionada ou fechada para se ajustar à sua tela."
   },
   "tour.right-resize.legend": {
-    "other": "Right column can be also be resized or closed to fit your screen."
+    "other": "A coluna da direita também pode ser redimensionada ou fechada para se ajustar à sua tela."
   },
   "tour.directory.title": {
     "other": "Diretório de Usuários"
@@ -162,13 +162,13 @@
     "other": "Miniaturas"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Larger"
+    "other": "Maior"
   },
   "list.display-mode.thumbs-medium": {
-    "other": "Medium"
+    "other": "Médio"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Smaller"
+    "other": "Menor"
   },
   "list.display-mode.masonry": {
     "other": "Galeria de imagens"
@@ -219,46 +219,46 @@
     "other": "Áudios"
   },
   "fastsearch.quick-jump.title": {
-    "other": "Quick Jump"
+    "other": "Salto Rápido"
   },
   "fastsearch.quick-jump.legend": {
-    "other": "Hit [Enter] to jump, add a trailing [/] to search inside children, [Esc] to Close"
+    "other": "Pressione [Enter] para pular, adicione uma barra [/] para pesquisar em sub-diretórios, [Esc] para Fechar"
   },
   "fastsearch.quick-move.title": {
-    "other": "Quick Move"
+    "other": "Moção Rápida"
   },
   "fastsearch.quick-move.target-error": {
-    "other": "Cannot move to this target!"
+    "other": "Não é possível mover para este destino!"
   },
   "fastsearch.quick-move.legend": {
-    "other": "Hit [Enter] to move %s selected items to target, [Esc] to Close"
+    "other": "Pressione [Enter] para mover %s itens selecionados para o destino, [Esc] para Fechar"
   },
   "fastsearch.quick-copy.title": {
-    "other": "Quick Copy"
+    "other": "Cópia Rápida"
   },
   "fastsearch.quick-copy.target-error": {
-    "other": "Cannot copy to this target!"
+    "other": "Não é possível copiar para este destino!"
   },
   "fastsearch.quick-copy.legend": {
-    "other": "Hit [Enter] to copy %s selected items to target, [Esc] to Close"
+    "other": "Pressione [Enter] para copiar %s itens selecionados para o destino, [Esc] para Fechar"
   },
   "wslist-options.title": {
-    "other": "Display Options"
+    "other": "Opções de Exibição"
   },
   "wslist-options.show-masked": {
-    "other": "Show masked items"
+    "other": "Mostrar itens com máscara"
   },
   "wslist.action.mask": {
-    "other": "Mask"
+    "other": "Aplicar máscara"
   },
   "wslist.action.unmask": {
-    "other": "Unmask"
+    "other": "Remover máscara"
   },
   "wslist-options.merge-workspaces": {
-    "other": "Merge workspaces and cells"
+    "other": "Mesclar espaços de trabalho e células"
   },
   "wslist-options.own-cells-first": {
-    "other": "Cells created by me first"
+    "other": "Células criadas por mim primeiro"
   },
   "leftrail.buttons.home": {
     "other": "Início"

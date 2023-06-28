@@ -144,7 +144,7 @@
     "other": "Endereço a ser usado como padrão quando enviar emails. Você deve usar um email de suporte apropriado ao invés de um email de 'não-responda'."
   },
   "Mail.Config.FixOutlookDisplay": {
-    "other": "Outlook Clients Fix (disable CSS inlining)"
+    "other": "Correção para Clientes do Outlook (desativar CSS inline)"
   },
   "Mail.Config.Queue.Label": {
     "other": "Tipo de Fila"
@@ -204,10 +204,10 @@
     "other": "Requer senha para conectar ao servidor SMTP"
   },
   "Mail.Config.Smtp.Security.Label": {
-    "other": "Connection Security"
+    "other": "Segurança da Conexão"
   },
   "Mail.Config.Smtp.Security.Description": {
-    "other": "Protocol used for securing connection. Clear is not supported, if required use a custom Sendmail instead."
+    "other": "O protocolo usado para proteger a conexão. Texto claro não é suportado, se necessário, use um Sendmail personalizado."
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
     "other": "Certificado Auto-assinado"

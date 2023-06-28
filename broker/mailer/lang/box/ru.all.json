@@ -51,7 +51,7 @@
     "other": "Добро пожаловать на {{.Configs.Title}}"
   },
   "Mail.Welcome.Intros": {
-    "other": "Для вас создана учётная запись {{.Configs.Title}}. \n Ваш логин: {{.TplData.Login}}{{if .TplData.Password}} , пароль: {{.TplData.Password}}. Вы можете изменить его при первом входе{{end}}."
+    "other": "Для вас создана учётная запись {{.Configs.Title}}. \nВаш логин: {{.TplData.Login}}{{if .TplData.Password}} , пароль: {{.TplData.Password}}. Вы можете изменить его при первом входе{{end}}."
   },
   "Mail.Welcome.LinkInstructions": {
     "other": "Нажмите, чтобы войти"
@@ -144,7 +144,7 @@
     "other": "Адрес, используемый по умолчанию при отправке писем. Вы должны использовать правильный email поддержки вместо email без ответа."
   },
   "Mail.Config.FixOutlookDisplay": {
-    "other": "Outlook Clients Fix (disable CSS inlining)"
+    "other": "Исправление Outlook Клиентов (отключить встраивание CSS)"
   },
   "Mail.Config.Queue.Label": {
     "other": "Тип очереди"
@@ -204,10 +204,10 @@
     "other": "Пароль, используемый для подключения к SMTP серверу"
   },
   "Mail.Config.Smtp.Security.Label": {
-    "other": "Connection Security"
+    "other": "Безопасность Соединения"
   },
   "Mail.Config.Smtp.Security.Description": {
-    "other": "Protocol used for securing connection. Clear is not supported, if required use a custom Sendmail instead."
+    "other": "Протокол, используемый для защиты соединения. Очистка не поддерживается, при необходимости используйте вместо этого пользовательскую отправку по электронной почте."
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
     "other": "Самоподписанный сертификат"
@@ -216,7 +216,7 @@
     "other": "Отключить проверку сертификата, если ваш сертификат SMTP сервера самоподписан"
   },
   "Mail.Config.Smtp.LocalName.Label": {
-    "other": "Dialer Local Name"
+    "other": "Локальное имя номеронабирателя"
   },
   "Mail.Config.Smtp.LocalName.Description": {
     "other": "SMTP отправляет 'localhost' в EHLO команде по умолчанию, используйте данное поле для назначения локального имени на выбор"
