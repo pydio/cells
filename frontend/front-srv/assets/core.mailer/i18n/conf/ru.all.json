@@ -45,7 +45,7 @@
     "other": "Принудительно отправлять все письма этим отправителям, а не по адресам пользователей"
   },
   "Get the email in HTML": {
-    "other": "Get the email in HTML"
+    "other": "Получить письмо в HTML"
   },
   "Layout Folder": {
     "other": "Layout Folder"
@@ -60,40 +60,40 @@
     "other": "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content."
   },
   "Name of the sender": {
-    "other": "Name of the sender"
+    "other": "Имя отправителя"
   },
   "Once a Week": {
-    "other": "Once a Week"
+    "other": "Еженедельно"
   },
   "Receive Notifcations by email": {
-    "other": "Receive Notifcations by email"
+    "other": "Получать уведомления по электронной почте"
   },
   "Select the plugin to activate for concretely sending emails": {
     "other": "Select the plugin to activate for concretely sending emails"
   },
   "Send as HTML": {
-    "other": "Send as HTML"
+    "other": "Отправить как HTML"
   },
   "Send email to...": {
-    "other": "Send email to..."
+    "other": "Отправить письмо..."
   },
   "Sender": {
-    "other": "Sender"
+    "other": "Отправитель"
   },
   "Sender email": {
-    "other": "Sender email"
+    "other": "Email Отправителя"
   },
   "Sender name": {
-    "other": "Sender name"
+    "other": "Имя отправителя"
   },
   "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option.": {
-    "other": "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option."
+    "other": "Хранить письма в очереди и пакетно их обрабатывать. Пользователи могут выбирать частоту отправки. Если вы используете эту опцию, убедитесь, что CRON настроен на действие consume_mail_queue."
   },
   "String automatically added at the beginning of the mail subject": {
-    "other": "String automatically added at the beginning of the mail subject"
+    "other": "Строка автоматически добавляется в начале письма"
   },
   "String automatically added at the end of the mail subject": {
-    "other": "String automatically added at the end of the mail subject"
+    "other": "Строка автоматически добавляется в конце письма"
   },
   "Subject Append": {
     "other": "Subject Append"
@@ -105,9 +105,9 @@
     "other": "Twice a day (every day at and)"
   },
   "Unique Sender": {
-    "other": "Unique Sender"
+    "other": "Уникальный отправитель"
   },
   "You can add many email separated by commas": {
-    "other": "You can add many email separated by commas"
+    "other": "Вы можете добавить много адресов, разделенных запятыми"
   }
 }

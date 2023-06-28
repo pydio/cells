@@ -63,31 +63,31 @@
     "other": "При запуске создается исходный источник данных для хранения персональных данных пользователей и данных. Вы можете создать другие источники данных."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "Настроить подключение MongoDB"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "Это лучше для масштабирования и требуется для кластеризации. Если у вас нет базы данных Mongo, это можно сделать позже."
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "Хост сервера"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "Порт сервера"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "Имя базы данных"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "Логин"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "Пароль"
   },
   "advanced.mongo.authSource": {
-    "other": "Auth DB"
+    "other": "БД авторизация"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "Проверить подключение"
   },
   "license.stepLabel": {
     "other": "Корпоративная лицензия"
@@ -117,7 +117,7 @@
     "other": "🚀 Установка"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "Пожалуйста, подождите пока Pydio Cells устанавливается..."
   },
   "apply.success": {
     "other": "Установка прошла успешно, сервисы запускаются, программа установки перезагрузит страницу при запуске служб."
@@ -222,19 +222,19 @@
     "other": "Локальный файл-сервер (хранить все данные на этом сервере)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
+    "other": "Совместимость с Amazon S3/S3-совместимого (хранение внутри бакетов S3)"
   },
   "form.dsS3Custom.label": {
     "other": "URL, append ?minio=true if Minio."
   },
   "form.dsS3Custom.legend": {
-    "other": "Leave empty for Amazon"
+    "other": "Оставьте пустым для Amazon"
   },
   "form.dsS3CustomRegion.label": {
-    "other": "S3 Custom region"
+    "other": "Пользовательский регион S3"
   },
   "form.dsS3CustomRegion.legend": {
-    "other": "Leave empty for default (us-east-1)"
+    "other": "Оставьте пустым по умолчанию (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
     "other": "S3 Api ключ"

@@ -174,7 +174,7 @@
     "other": "1. Ограничить тип импортируемых общих данных (выберите по крайней мере один):"
   },
   "step.shares.restrict.user": {
-    "other": "2. For testing purpose, you can limit import to one or more specific users (comma-separated list)"
+    "other": "2. Для тестирования вы можете ограничить импорт одним или несколькими пользователями (через запятую)"
   },
   "step.shares.restrict.user.login": {
     "other": "Вход владельца"

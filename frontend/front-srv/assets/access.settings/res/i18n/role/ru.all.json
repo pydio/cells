@@ -93,10 +93,10 @@
     "other": "ID роли"
   },
   "31.hint": {
-    "other": "Role ID (empty for auto-generate)"
+    "other": "ID роли (пустой для автогенерации)"
   },
   "31.exists": {
-    "other": "Identifier already exists"
+    "other": "Идентификатор уже существует"
   },
   "32": {
     "other": "Название роли"
@@ -189,7 +189,7 @@
     "other": "Роль всегда применяется к пользователям с этим профилем."
   },
   "role.override.label": {
-    "other": "Always Override"
+    "other": "Всегда переопределять"
   },
   "role.override.description": {
     "other": "Роль всегда применяется последней после других ролей, за исключением роли пользователя, которая все равно будет преобладать."

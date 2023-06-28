@@ -180,13 +180,13 @@
     "other": "Папка"
   },
   "search.facets.title": {
-    "other": "Filter Results..."
+    "other": "Фильтровать результат..."
   },
   "search.facet.type": {
     "other": "Тип"
   },
   "search.facet.extension": {
-    "other": "Extension"
+    "other": "Расширение"
   },
   "search.facet.size": {
     "other": "Размер"
@@ -195,10 +195,10 @@
     "other": "Изменено"
   },
   "search.facet.found": {
-    "other": "Found in"
+    "other": "Найдено в"
   },
   "search.facet.metadata": {
-    "other": "Metadata"
+    "other": "Метаданные"
   },
   "facet.label.file": {
     "other": "Файл"
@@ -207,45 +207,45 @@
     "other": "Папка"
   },
   "facet.label.size.lt.1MB": {
-    "other": "< 1MB"
+    "other": "< 1Mб"
   },
   "facet.label.size.1MB.to.10MB": {
-    "other": "1MB to 10MB"
+    "other": "от 1 Мб до 10 Мб"
   },
   "facet.label.size.10MB.to.100MB": {
-    "other": "10MB to 100MB"
+    "other": "от 10 Мб до 100 Мб"
   },
   "facet.label.size.gt.100MB": {
-    "other": "> 100MB"
+    "other": "> 100Мб"
   },
   "facet.label.date.moments": {
-    "other": "Moments ago"
+    "other": "Только что"
   },
   "facet.label.date.today": {
-    "other": "Today"
+    "other": "Cегодня"
   },
   "facet.label.date.last.7": {
-    "other": "Last 7 days"
+    "other": "Последние 7 дней"
   },
   "facet.label.date.last.30": {
-    "other": "Last 30 days"
+    "other": "Последние 30 дней"
   },
   "facet.label.date.older.30": {
-    "other": "Older than 30 days"
+    "other": "Старше 30 дней"
   },
   "facet.label.found.contents": {
     "other": "Содержимое"
   },
   "facet.label.found.basename": {
-    "other": "File name"
+    "other": "Имя файла"
   },
   "reco.bookmark": {
-    "other": "Bookmark"
+    "other": "Закладка"
   },
   "reco.workspace": {
-    "other": "Workspace"
+    "other": "Рабочее пространство"
   },
   "reco.cell": {
-    "other": "Cell"
+    "other": "Ячейка"
   }
 }

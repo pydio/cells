@@ -3,7 +3,7 @@
     "other": "Почтовый адрес для оповещений"
   },
   "All roles": {
-    "other": "All roles"
+    "other": "Все роли"
   },
   "Allow Group Listing": {
     "other": "Allow Group Listing"
@@ -21,7 +21,7 @@
     "other": "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them"
   },
   "Always Override": {
-    "other": "Always Override"
+    "other": "Всегда переопределять"
   },
   "Always override other roles, included group roles.": {
     "other": "Always override other roles, included group roles."

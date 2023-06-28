@@ -102,7 +102,7 @@
     "other": "Limpar valor"
   },
   "40": {
-    "other": "Per-workspace parameters"
+    "other": "Parâmetros por espaço de trabalho"
   },
   "41": {
     "other": "Parâmetros Adicionais"
@@ -189,10 +189,10 @@
     "other": "Página de boas-vindas exibida após o login"
   },
   "workspace.statics.directory.title": {
-    "other": "Directory"
+    "other": "Diretório"
   },
   "workspace.statics.directory.description": {
-    "other": "Show address book full page (used by Mui3 Theme)"
+    "other": "Mostrar página inteira do catálogo de endereços (usado pelo tema Mui3)"
   },
   "workspace.statics.settings.title": {
     "other": "Console Administrativo"

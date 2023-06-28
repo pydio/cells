@@ -195,7 +195,7 @@
     "other": "Стандартно (список файлов со значками приложений)"
   },
   "154": {
-    "other": "Images Gallery (best for photos)"
+    "other": "Галерея изображений (лучше всего для фотографий)"
   },
   "155": {
     "other": "Объединение (маленькие заголовки, для виджетов)"
@@ -663,10 +663,10 @@
     "other": "Следить"
   },
   "34": {
-    "other": "Select or Create Users"
+    "other": "Выберать или создать пользователей"
   },
   "34b": {
-    "other": "Select Users"
+    "other": "Выбрать пользователей"
   },
   "35": {
     "other": "Метка"
@@ -912,37 +912,37 @@
     "other": "Поделиться существующими папками"
   },
   "cells.remove.node": {
-    "other": "Remove from this cell"
+    "other": "Удалить из этой ячейки"
   },
   "cell.visibility.advanced": {
     "other": "Эта расширенная функция позволяет вам решать, кто может редактировать свойства этой ячейки (право добавлять / удалять пользователей и добавлять / удалять папки в корне ячейки). Чтобы просто управлять фактическим доступом к данным, используйте вместо этого вкладку «Поделиться с...»."
   },
   "cell.add.existing-or-new": {
-    "other": "Add to existing or new Cell"
+    "other": "Добавить в существующую или новую ячейку"
   },
   "cell.add.existing": {
-    "other": "Add to existing Cell"
+    "other": "Добавить в существующую ячейку"
   },
   "cell.add.new": {
-    "other": "Create a new Cell"
+    "other": "Создать новую ячейку"
   },
   "cell.participant.single": {
-    "other": "One participant"
+    "other": "Один участник"
   },
   "cell.participant.multiple": {
-    "other": "%d participants"
+    "other": "%d участников"
   },
   "cell.participant.other.single": {
-    "other": "One other participant"
+    "other": "Еще один участник"
   },
   "cell.participant.other.multiple": {
-    "other": "%d other participants"
+    "other": "%d других участников"
   },
   "cell.folder-root.single": {
-    "other": "One folder"
+    "other": "Одна папка"
   },
   "cell.folder-root.multiple": {
-    "other": "%d folders"
+    "other": "%d папок"
   },
   "link.visibility.title": {
     "other": "[Advanced] Visibility"
@@ -954,25 +954,25 @@
     "other": "Имеются несохранённые изменения, уверены, что хотите закрыть?"
   },
   "dialog.link.confirm.remove": {
-    "other": "Are you sure that you want to disable this link?"
+    "other": "Вы уверены, что хотите отключить эту ссылку?"
   },
   "sharelist.quick-filter": {
-    "other": "Quick filter..."
+    "other": "Быстрый фильтр..."
   },
   "composite.deleteAll": {
-    "other": "Disable all shares"
+    "other": "Отключить все общие ресурсы"
   },
   "link.active": {
     "other": "active"
   },
   "link.disable": {
-    "other": "Disable Link"
+    "other": "Отключить ссылку"
   },
   "link.floatingLabel": {
-    "other": "Copy and send this link for direct access"
+    "other": "Скопировать и отправить эту ссылку для прямого доступа"
   },
   "link.secure.title": {
-    "other": "Access Restrictions"
+    "other": "Ограничения доступа"
   },
   "link.secure.expires": {
     "other": "expires"
@@ -981,12 +981,12 @@
     "other": "expired"
   },
   "link.secure.hasPassword": {
-    "other": "password required"
+    "other": "требуется пароль"
   },
   "link.secure.maxdownloads": {
-    "other": "%d downloads only"
+    "other": "Только %d загрузок"
   },
   "minisite.toggle.theme": {
-    "other": "Toggle Dark/Light Theme"
+    "other": "Переключить Темную/Светлую тему"
   }
 }
