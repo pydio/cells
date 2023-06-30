@@ -49,14 +49,14 @@ func (g *gq) Consume(callback queue.Consumer) error {
 		for {
 			select {
 			case <-g.ctx.Done():
-				log.Logger(g.ctx).Info("[goque] Closing consumer on context done" + g.streamName)
+				log.Logger(g.ctx).Debug("[goque] Closing consumer on context done" + g.streamName)
 				return
 			default:
 			}
 			it, er := g.qu.Dequeue([]byte(g.streamName))
 			if er != nil {
 				if er == goque.ErrDBClosed {
-					log.Logger(g.ctx).Info("[goque] Closing consumer on DB closed" + g.streamName)
+					log.Logger(g.ctx).Debug("[goque] Closing consumer on DB closed" + g.streamName)
 					return
 				}
 				if er != goque.ErrEmpty && er != goque.ErrOutOfBounds {
