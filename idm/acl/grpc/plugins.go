@@ -69,16 +69,18 @@ func init() {
 		idm.RegisterACLServiceServer(srv, handler)
 		tree.RegisterNodeProviderStreamerServer(srv, handler)
 
-		// Clean acls on Ws or Roles deletion
-		rCleaner := &WsRolesCleaner{Handler: handler}
-		if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
-			ev := &idm.ChangeEvent{}
-			if e := message.Unmarshal(ev); e == nil {
-				return rCleaner.Handle(ctx, ev)
+		nCleaner, er := newNodesCleaner(ctx, handler)
+		if er != nil {
+			return er
+		}
+		if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(message broker.Message) error {
+			ev := &tree.NodeChangeEvent{}
+			if ct, e := message.Unmarshal(ev); e == nil {
+				return nCleaner.Handle(ct, ev)
 			}
 			return nil
 		}); e != nil {
-			panic(e)
+			return e
 		}
 
 		nCleaner := newNodesCleaner(ctx, handler)

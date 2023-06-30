@@ -47,6 +47,9 @@ func NewWorker(workerPool chan chan RunnerFunc, requeue chan RunnerFunc, activeC
 // case we need to stop it.
 func (w Worker) Start() {
 	go func() {
+		defer func() {
+			recover() // ignore send on close
+		}()
 		for {
 			// register the current worker into the worker queue.
 			w.workerPool <- w.jobChannel
@@ -68,6 +71,7 @@ func (w Worker) Start() {
 				}
 			case <-w.quit:
 				// we have received a signal to stop
+				close(w.jobChannel)
 				return
 			}
 		}
@@ -77,6 +81,6 @@ func (w Worker) Start() {
 // Stop signals the worker to stop listening for work requests.
 func (w Worker) Stop() {
 	go func() {
-		w.quit <- true
+		close(w.quit)
 	}()
 }

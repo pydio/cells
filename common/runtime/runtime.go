@@ -181,6 +181,7 @@ func ConfigURL() string {
 	return v
 }
 
+// CacheURL creates URL to open a long-living, shared cache, containing queryPairs as query parameters
 func CacheURL(prefix string, queryPairs ...string) string {
 	str := r.GetString(KeyCache)
 	u, _ := url.Parse(str)
@@ -190,24 +191,44 @@ func CacheURL(prefix string, queryPairs ...string) string {
 	if prefix != "" {
 		u.Path += "/" + prefix
 	}
-	if len(queryPairs) > 0 && len(queryPairs)%2 == 0 {
-		q := u.Query()
-		for i, k := range queryPairs {
-			if i%2 == 0 {
-				q.Set(k, queryPairs[i+1])
-			}
-		}
-		u.RawQuery = q.Encode()
-	}
+	pairsToQuery(u, queryPairs...)
 	return u.String()
 }
 
+// ShortCacheURL creates URL to open a short, local cache, containing queryPairs as query parameters
 func ShortCacheURL(queryPairs ...string) string {
 	str := r.GetString(KeyShortCache)
 	u, _ := url.Parse(str)
 	if !strings.HasSuffix(str, DefaultShortCacheSuffix) {
 		u.Path += DefaultShortCacheSuffix
 	}
+	pairsToQuery(u, queryPairs...)
+	return u.String()
+}
+
+// QueueURL creates URL to open a FIFO queue, containing queryPairs as query parameters
+func QueueURL(queryPairs ...string) string {
+	str := r.GetString(KeyQueue)
+	u, _ := url.Parse(str)
+	if !strings.HasSuffix(u.Path, DefaultQueueSuffix) {
+		u.Path += DefaultQueueSuffix
+	}
+	pairsToQuery(u, queryPairs...)
+	return u.String()
+}
+
+// PersistingQueueURL creates URL to open a FIFO queue that persists to restart, containing queryPairs as query parameters
+func PersistingQueueURL(queryPairs ...string) string {
+	str := r.GetString(KeyPersistQueue)
+	u, _ := url.Parse(str)
+	if !strings.HasSuffix(u.Path, DefaultQueueSuffix) {
+		u.Path += DefaultQueueSuffix
+	}
+	pairsToQuery(u, queryPairs...)
+	return u.String()
+}
+
+func pairsToQuery(u *url.URL, queryPairs ...string) {
 	if len(queryPairs) > 0 && len(queryPairs)%2 == 0 {
 		q := u.Query()
 		for i, k := range queryPairs {
@@ -217,7 +238,6 @@ func ShortCacheURL(queryPairs ...string) string {
 		}
 		u.RawQuery = q.Encode()
 	}
-	return u.String()
 }
 
 // ConfigIsLocalFile checks if ConfigURL scheme is file
@@ -574,6 +594,8 @@ func Describe() (out []InfoGroup) {
 		"Certificates",
 		"Cache",
 		"ShortCache",
+		"Queue",
+		"Persisting Queue",
 	}
 	urls := map[string]func() string{
 		"Registry":     RegistryURL,
@@ -587,6 +609,12 @@ func Describe() (out []InfoGroup) {
 		},
 		"ShortCache": func() string {
 			return ShortCacheURL()
+		},
+		"Queue": func() string {
+			return QueueURL()
+		},
+		"Persisting Queue": func() string {
+			return PersistingQueueURL()
 		},
 	}
 

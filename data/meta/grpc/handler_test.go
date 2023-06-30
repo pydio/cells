@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/utils/queue"
 	"testing"
 	"time"
 
@@ -31,7 +32,6 @@ import (
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	common "github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/errors"
-	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/meta"
 )
@@ -157,9 +157,9 @@ func TestSubscriber(t *testing.T) {
 	Convey("Test Create Event to Subscriber", t, func() {
 
 		sub := server.Subscriber(ctx)
-		sub.outputChannel <- &cache.EventWithContext{
+		sub.outputChannel <- &queue.TypeWithContext[*common.NodeChangeEvent]{
 			Ctx: ctx,
-			NodeChangeEvent: &common.NodeChangeEvent{
+			Original: &common.NodeChangeEvent{
 				Type: common.NodeChangeEvent_CREATE,
 				Target: &common.Node{
 					Uuid: "event-node-uid",
@@ -197,9 +197,9 @@ func TestSubscriber(t *testing.T) {
 			},
 		})
 
-		sub.outputChannel <- &cache.EventWithContext{
+		sub.outputChannel <- &queue.TypeWithContext[*common.NodeChangeEvent]{
 			Ctx: ctx,
-			NodeChangeEvent: &common.NodeChangeEvent{
+			Original: &common.NodeChangeEvent{
 				Type: common.NodeChangeEvent_UPDATE_META,
 				Target: &common.Node{
 					Uuid: "event-node-uid",
@@ -238,9 +238,9 @@ func TestSubscriber(t *testing.T) {
 			},
 		})
 
-		sub.outputChannel <- &cache.EventWithContext{
+		sub.outputChannel <- &queue.TypeWithContext[*common.NodeChangeEvent]{
 			Ctx: ctx,
-			NodeChangeEvent: &common.NodeChangeEvent{
+			Original: &common.NodeChangeEvent{
 				Type: common.NodeChangeEvent_DELETE,
 				Source: &common.Node{
 					Uuid: "event-node-uid",

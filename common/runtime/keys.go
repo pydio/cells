@@ -32,6 +32,8 @@ const (
 	KeyCertsStore   = "certs_store"
 	KeyCache        = "cache"
 	KeyShortCache   = "shortcache"
+	KeyQueue        = "queue"
+	KeyPersistQueue = "persistqueue"
 	KeyFork         = "fork"
 	KeyForkLegacy   = "is_fork"
 	KeyArgTags      = "tags"
@@ -102,6 +104,7 @@ const (
 	DefaultBrokerSuffix     = "/broker"
 	DefaultCacheSuffix      = "/cache"
 	DefaultShortCacheSuffix = "/shortcache"
+	DefaultQueueSuffix      = "/queue"
 )
 
 const (

@@ -259,6 +259,9 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 			log.Logger(ctx).Warn("WebSocket error", zap.Error(err))
 			return false
 		}
+		cc, can := context.WithTimeout(metaCtx, 5*time.Second)
+		metaCtx = cc
+		defer can()
 
 		eTarget := event.Target
 		eSource := event.Source

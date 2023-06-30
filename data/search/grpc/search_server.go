@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
-	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/queue"
 	"github.com/pydio/cells/v4/data/search/dao"
 )
 
@@ -48,7 +48,7 @@ type SearchServer struct {
 	protosync.UnimplementedSyncEndpointServer
 	RuntimeCtx       context.Context
 	Engine           dao.SearchEngine
-	eventsChannel    chan *cache.EventWithContext
+	eventsChannel    chan *queue.TypeWithContext[*tree.NodeChangeEvent]
 	TreeClient       tree.NodeProviderClient
 	TreeClientStream tree.NodeProviderStreamerClient
 	NsProvider       *meta.NsProvider
@@ -73,11 +73,11 @@ func (s *SearchServer) Subscriber() *EventsSubscriber {
 
 func (s *SearchServer) initEventsChannel() {
 
-	s.eventsChannel = make(chan *cache.EventWithContext)
+	s.eventsChannel = make(chan *queue.TypeWithContext[*tree.NodeChangeEvent])
 	go func() {
 		for eventWCtx := range s.eventsChannel {
 			ctx := servicecontext.WithServiceName(eventWCtx.Ctx, common.ServiceGrpcNamespace_+common.ServiceSearch)
-			s.processEvent(ctx, eventWCtx.NodeChangeEvent)
+			s.processEvent(ctx, eventWCtx.Original)
 		}
 	}()
 }

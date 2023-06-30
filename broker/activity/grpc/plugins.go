@@ -27,7 +27,6 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/server"
 	"path/filepath"
 	"time"
 
@@ -50,7 +49,8 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/utils/cache"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/queue"
 )
 
 var (
@@ -83,70 +83,79 @@ func init() {
 			),
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
 
+				d := servicecontext.GetDAO(c).(activity.DAO)
+				// Register Subscribers
+				subscriber := NewEventsSubscriber(c, d)
+				// Start fifo - it is stopped by c.Done()
+				fifo, er := queue.OpenQueue(c, runtime.QueueURL("debounce", "3s", "idle", "20s", "max", "2000"))
+				if er != nil {
+					return er
+				}
+				_ = fifo.Consume(func(msg ...broker.Message) {
+					processOneWithTimeout := func(ct context.Context, event *tree.NodeChangeEvent) {
+						var ca context.CancelFunc
+						ctx, ca = context.WithTimeout(runtime.ForkContext(ct, c), 10*time.Second)
+						defer ca()
+						if e := subscriber.HandleNodeChange(ctx, event); e != nil {
+							log.Logger(c).Error("Error while handling an event", zap.Error(e), zap.Any("event", msg))
+						}
+					}
+					for _, m := range msg {
+						t := &tree.NodeChangeEvent{}
+						if ct, er := m.Unmarshal(t); er == nil {
+							processOneWithTimeout(ct, t)
+						}
+					}
+				})
+
+				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(message broker.Message) error {
+					msg := &tree.NodeChangeEvent{}
+					if ctx, e := message.Unmarshal(msg); e == nil {
+						if msg.Target != nil && (msg.Target.Etag == common.NodeFlagEtagTemporary || msg.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
+							return nil
+						}
+						if msg.Source != nil && msg.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
+							return nil
+						}
+						if msg.Optimistic {
+							return nil
+						}
+						return fifo.Push(ctx, msg)
+					}
+					return nil
+				}); e != nil {
+					return e
+				}
+
+				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(message broker.Message) error {
+					msg := &tree.NodeChangeEvent{}
+					if ctx, e := message.Unmarshal(msg); e == nil {
+						if msg.Optimistic || msg.Type != tree.NodeChangeEvent_UPDATE_USER_META {
+							return nil
+						}
+						return fifo.Push(ctx, msg)
+					}
+					return nil
+				}); e != nil {
+					return e
+				}
+
+				if e := broker.SubscribeCancellable(c, common.TopicIdmEvent, func(message broker.Message) error {
+					msg := &idm.ChangeEvent{}
+					if ctx, e := message.Unmarshal(msg); e == nil {
+						return subscriber.HandleIdmChange(ctx, msg)
+					}
+					return nil
+				}); e != nil {
+					return e
+				}
+
+				proto.RegisterActivityServiceEnhancedServer(srv, &Handler{RuntimeCtx: ctx, dao: d})
+				tree.RegisterNodeProviderStreamerEnhancedServer(srv, &MetaProvider{RuntimeCtx: ctx, dao: d})
+
+				return nil
 			}),
 		)
-
-		// Register Subscribers
-		subscriber := NewEventsSubscriber(c, d)
-		// Start batcher - it is stopped by c.Done()
-		batcher := cache.NewEventsBatcher(c, 3*time.Second, 20*time.Second, 2000, true, func(ctx context.Context, msg ...*tree.NodeChangeEvent) {
-			var ca context.CancelFunc
-			ctx, ca = context.WithTimeout(runtime.ForkContext(ctx, c), 10*time.Second)
-			defer ca()
-			if e := subscriber.HandleNodeChange(ctx, msg[0]); e != nil {
-				log.Logger(c).Error("Error while handling an event", zap.Error(e), zap.Any("event", msg))
-			}
-		})
-
-		if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
-			msg := &tree.NodeChangeEvent{}
-			if e := message.Unmarshal(msg); e == nil {
-				if msg.Target != nil && (msg.Target.Etag == common.NodeFlagEtagTemporary || msg.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
-					return nil
-				}
-				if msg.Source != nil && msg.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
-					return nil
-				}
-				if msg.Optimistic {
-					return nil
-				}
-				batcher.Events <- &cache.EventWithContext{NodeChangeEvent: msg, Ctx: ctx}
-			}
-			return nil
-		}); e != nil {
-			panic(e)
-		}
-
-		if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
-			msg := &tree.NodeChangeEvent{}
-			if e := message.Unmarshal(msg); e == nil {
-				if msg.Optimistic || msg.Type != tree.NodeChangeEvent_UPDATE_USER_META {
-					return nil
-				}
-				batcher.Events <- &cache.EventWithContext{NodeChangeEvent: msg, Ctx: ctx}
-			}
-			return nil
-		}); e != nil {
-			panic(e)
-		}
-
-		if e := broker.SubscribeCancellable(c, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
-			msg := &idm.ChangeEvent{}
-			if e := message.Unmarshal(msg); e == nil {
-				return subscriber.HandleIdmChange(ctx, msg)
-			}
-			return nil
-		}); e != nil {
-			panic(e)
-		}
-
-		var srv grpc.ServiceRegistrar
-		if !server.Get(&srv) {
-			panic("no grpc server available")
-		}
-
-		proto.RegisterActivityServiceEnhancedServer(srv, &Handler{RuntimeCtx: ctx, dao: d})
-		tree.RegisterNodeProviderStreamerEnhancedServer(srv, &MetaProvider{RuntimeCtx: ctx, dao: d})
 	})
 }
 

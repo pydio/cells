@@ -23,14 +23,17 @@ package merger
 import (
 	"context"
 	"fmt"
+	"path"
 	"runtime"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v4/common/sync/model"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -392,13 +395,13 @@ func TestScenariosFromSnapshot2(t *testing.T) {
 		var i int
 		b.WalkOperations([]OperationType{OpMoveFolder}, func(operation Operation) {
 			if i == 0 {
-				So(operation.(*patchOperation).Node.GetPath(), ShouldEqual, "A1")
+				So(operation.(*patchOperation).Node.Path, ShouldEqual, "A1")
 			} else if i == 1 {
-				So(operation.(*patchOperation).Node.GetPath(), ShouldEqual, "A2/B1")
+				So(operation.(*patchOperation).Node.Path, ShouldEqual, "A2/B1")
 			} else if i == 2 {
-				So(operation.(*patchOperation).Node.GetPath(), ShouldEqual, "A2/B2/C1")
+				So(operation.(*patchOperation).Node.Path, ShouldEqual, "A2/B2/C1")
 			} else if i == 3 {
-				So(operation.(*patchOperation).Node.GetPath(), ShouldEqual, "A2/B2/C2/D1")
+				So(operation.(*patchOperation).Node.Path, ShouldEqual, "A2/B2/C2/D1")
 			}
 			operation.SetProcessed()
 			i++
@@ -453,10 +456,8 @@ func printMem(nb uint64) {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
-	fmt.Printf("Alloc/N = %v allocs", m.Alloc/nb)
-	fmt.Printf("\tTotalAlloc/N = %v allocs", m.TotalAlloc/nb)
-	fmt.Printf("InUse/N = %v B", m.HeapInuse/nb)
-	fmt.Printf("\tHeapAlloc/N = %v B", m.HeapAlloc/nb)
+	fmt.Printf("Alloc/Node = %v B", m.Alloc/nb)
+	fmt.Printf("\tTotalAlloc/Node = %v B", m.TotalAlloc/nb)
 	fmt.Printf("\tSys = %v kB", m.Sys/1024)
 	fmt.Printf("\tNumGC = %v\n", m.NumGC)
 }
@@ -483,54 +484,35 @@ func TestFailingMove1(t *testing.T) {
 
 }
 
-func SkipTestRandomCaptures(t *testing.T) {
+func SkipTestMassiveMem(t *testing.T) {
 
-	Convey("SNAP - Some Captures", t, func() {
+	Convey("SNAP - Pydio Core folder moved inside folder", t, func() {
 
-		diff, e := diffFromSnaps("captures")
+		diff, e := diffFromSnaps("mem-size-1")
 		So(e, ShouldBeNil)
 		patch := newTreePatch(diff.left, diff.right.(model.PathSyncTarget), PatchOptions{MoveDetection: true})
 		e = diff.ToUnidirectionalPatch(ctx, model.DirectionRight, patch)
 		So(e, ShouldBeNil)
+		var l uint64
+		diff.left.Walk(ctx, func(path string, node *tree.Node, err error) error {
+			l++
+			return nil
+		}, "/", true)
+		diff.right.Walk(ctx, func(path string, node *tree.Node, err error) error {
+			l++
+			return nil
+		}, "/", true)
+
+		fmt.Println("Number of nodes", l)
+		//		debug.FreeOSMemory()
+		printMem(l)
+
 		patch.Filter(context.Background())
-		fmt.Println(patch.String())
+		moves := patch.OperationsByType([]OperationType{OpMoveFolder})
+		So(moves, ShouldHaveLength, 1)
+		// debug.FreeOSMemory()
+		printMem(l)
 
-	})
-
-}
-
-func BenchmarkMassiveMem(t *testing.B) {
-
-	t.Run("mem size", func(b *testing.B) {
-
-		Convey("SNAP - Pydio Core folder moved inside folder", t, func() {
-
-			diff, e := diffFromSnaps("mem-size-1")
-			So(e, ShouldBeNil)
-			patch := newTreePatch(diff.left, diff.right.(model.PathSyncTarget), PatchOptions{MoveDetection: true})
-			e = diff.ToUnidirectionalPatch(ctx, model.DirectionRight, patch)
-			So(e, ShouldBeNil)
-			var l uint64
-			diff.left.Walk(ctx, func(path string, node tree.N, err error) error {
-				l++
-				return nil
-			}, "/", true)
-			diff.right.Walk(ctx, func(path string, node tree.N, err error) error {
-				l++
-				return nil
-			}, "/", true)
-
-			fmt.Println("Number of nodes", l)
-			//		debug.FreeOSMemory()
-			printMem(l)
-
-			patch.Filter(context.Background())
-			moves := patch.OperationsByType([]OperationType{OpMoveFolder})
-			So(moves, ShouldHaveLength, 1)
-			// debug.FreeOSMemory()
-			printMem(l)
-
-		})
 	})
 
 }
@@ -616,7 +598,22 @@ func diffFromSnaps(folder string) (*TreeDiff, error) {
 	if e != nil {
 		return nil, e
 	}
-
+	left.Walk(context.Background(), func(pa string, node *tree.Node, err error) error {
+		for i := 0; i < 4000; i++ {
+			cp := proto.Clone(node).(*tree.Node)
+			cp.Path = path.Join(fmt.Sprintf("copy-%d", i+1), pa)
+			_ = left.CreateNode(context.Background(), cp, true)
+		}
+		return nil
+	}, "plugins", true)
+	right.Walk(context.Background(), func(pa string, node *tree.Node, err error) error {
+		for i := 0; i < 4000; i++ {
+			cp := proto.Clone(node).(*tree.Node)
+			cp.Path = path.Join(fmt.Sprintf("copy-%d", i+1), pa)
+			_ = left.CreateNode(context.Background(), cp, true)
+		}
+		return nil
+	}, "plugins", true)
 	diff := newTreeDiff(left, right)
 	e = diff.Compute(ctx, "/", nil, nil)
 	return diff, e
