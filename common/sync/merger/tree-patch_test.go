@@ -23,9 +23,12 @@ package merger
 import (
 	"context"
 	"fmt"
+	"path"
+	"runtime"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
@@ -449,6 +452,16 @@ func TestManyDupsInMove(t *testing.T) {
 
 }
 
+func printMem(nb uint64) {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
+	fmt.Printf("Alloc/Node = %v B", m.Alloc/nb)
+	fmt.Printf("\tTotalAlloc/Node = %v B", m.TotalAlloc/nb)
+	fmt.Printf("\tSys = %v kB", m.Sys/1024)
+	fmt.Printf("\tNumGC = %v\n", m.NumGC)
+}
+
 func TestFailingMove1(t *testing.T) {
 
 	Convey("SNAP - Pydio Core folder moved inside folder", t, func() {
@@ -467,6 +480,39 @@ func TestFailingMove1(t *testing.T) {
 		So(patch.OperationsByType([]OperationType{OpDelete}), ShouldHaveLength, 0)
 		So(patch.OperationsByType([]OperationType{OpCreateFolder}), ShouldHaveLength, 0)
 		So(patch.OperationsByType([]OperationType{OpCreateFile}), ShouldHaveLength, 0)
+	})
+
+}
+
+func SkipTestMassiveMem(t *testing.T) {
+
+	Convey("SNAP - Pydio Core folder moved inside folder", t, func() {
+
+		diff, e := diffFromSnaps("mem-size-1")
+		So(e, ShouldBeNil)
+		patch := newTreePatch(diff.left, diff.right.(model.PathSyncTarget), PatchOptions{MoveDetection: true})
+		e = diff.ToUnidirectionalPatch(ctx, model.DirectionRight, patch)
+		So(e, ShouldBeNil)
+		var l uint64
+		diff.left.Walk(ctx, func(path string, node *tree.Node, err error) error {
+			l++
+			return nil
+		}, "/", true)
+		diff.right.Walk(ctx, func(path string, node *tree.Node, err error) error {
+			l++
+			return nil
+		}, "/", true)
+
+		fmt.Println("Number of nodes", l)
+		//		debug.FreeOSMemory()
+		printMem(l)
+
+		patch.Filter(context.Background())
+		moves := patch.OperationsByType([]OperationType{OpMoveFolder})
+		So(moves, ShouldHaveLength, 1)
+		// debug.FreeOSMemory()
+		printMem(l)
+
 	})
 
 }
@@ -552,6 +598,22 @@ func diffFromSnaps(folder string) (*TreeDiff, error) {
 	if e != nil {
 		return nil, e
 	}
+	left.Walk(context.Background(), func(pa string, node *tree.Node, err error) error {
+		for i := 0; i < 4000; i++ {
+			cp := proto.Clone(node).(*tree.Node)
+			cp.Path = path.Join(fmt.Sprintf("copy-%d", i+1), pa)
+			_ = left.CreateNode(context.Background(), cp, true)
+		}
+		return nil
+	}, "plugins", true)
+	right.Walk(context.Background(), func(pa string, node *tree.Node, err error) error {
+		for i := 0; i < 4000; i++ {
+			cp := proto.Clone(node).(*tree.Node)
+			cp.Path = path.Join(fmt.Sprintf("copy-%d", i+1), pa)
+			_ = left.CreateNode(context.Background(), cp, true)
+		}
+		return nil
+	}, "plugins", true)
 	diff := newTreeDiff(left, right)
 	e = diff.Compute(ctx, "/", nil, nil)
 	return diff, e

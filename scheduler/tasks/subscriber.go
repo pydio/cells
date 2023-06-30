@@ -45,8 +45,8 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
-	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/queue"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
 
@@ -87,8 +87,7 @@ type Subscriber struct {
 	sync.RWMutex
 	definitions map[string]*jobs.Job
 
-	batcher *cache.EventsBatcher
-	//queue   chan Runnable
+	fifo queue.Queue
 
 	dispatcherLock sync.Mutex
 	dispatchers    map[string]*Dispatcher
@@ -108,14 +107,29 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 
 	s.rootCtx = context.WithValue(parentContext, common.PydioContextUserKey, common.PydioSystemUsername)
 
-	s.batcher = cache.NewEventsBatcher(s.rootCtx, 2*time.Second, 20*time.Second, 2000, true, func(ctx context.Context, events ...*tree.NodeChangeEvent) {
-		s.processNodeEvent(ctx, events[0])
-	})
+	queueProcessor := func(events ...broker.Message) {
+		for _, event := range events {
+			target := &tree.NodeChangeEvent{}
+			if ct, e := event.Unmarshal(target); e == nil {
+				s.processNodeEvent(ct, target)
+			} else {
+				fmt.Println("error while unmarshalling raw data", e)
+			}
+		}
+	}
 
-	// Use a "Queue" mechanism to make sure events are distributed across tasks instances
+	if qu, err := queue.OpenQueue(s.rootCtx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", "events")); err == nil {
+		s.fifo = qu
+	} else {
+		log.Logger(s.rootCtx).Error("Cannot start queue, using an in-memory instead", zap.Error(err))
+		s.fifo, _ = queue.OpenQueue(s.rootCtx, runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000"))
+	}
+	if er := s.fifo.Consume(queueProcessor); er != nil {
+		log.Logger(s.rootCtx).Error("Cannot init consumer")
+	}
+
 	opt := broker.Queue("tasks")
 
-	// srv.Subscribe(srv.NewSubscriber(common.TopicJobConfigEvent, s.jobsChangeEvent, opts))
 	_ = broker.SubscribeCancellable(parentContext, common.TopicJobConfigEvent, func(message broker.Message) error {
 		js := &jobs.JobChangeEvent{}
 		if ctx, e := message.Unmarshal(js); e == nil {
@@ -196,7 +210,7 @@ func (s *Subscriber) Init(ctx context.Context) error {
 
 // Stop closes internal EventsBatcher
 func (s *Subscriber) Stop() {
-	s.batcher.Done <- true
+	//s.fifo.Done <- true // No !
 	s.dispatcherLock.Lock()
 	for _, d := range s.dispatchers {
 		d.Stop()
@@ -204,28 +218,15 @@ func (s *Subscriber) Stop() {
 	s.dispatcherLock.Unlock()
 }
 
-func (s *Subscriber) enqueue(t *Task) {
-	dispatcher := s.getDispatcherForJob(t.Job, true)
-	t.Queue(dispatcher.jobQueue)
+func (s *Subscriber) enqueue(ctx context.Context, job *jobs.Job, event proto.Message) {
+	dispatcher := s.getDispatcherForJob(job, true)
+	if dispatcher.fifo != nil {
+		_ = dispatcher.fifo.Push(ctx, event)
+	} else {
+		task := NewTaskFromEvent(s.rootCtx, ctx, job, event)
+		task.Queue(dispatcher.Queue())
+	}
 }
-
-// listenToQueue starts a go routine that listens to the Event Bus
-/*
-func (s *Subscriber) listenToQueue() {
-	go func() {
-		for runnable := range s.queue {
-			select {
-			case <-runnable.Task.context.Done():
-				continue
-			default:
-			}
-			dispatcher := s.getDispatcherForJob(runnable.Task.Job, true)
-			dispatcher.jobQueue <- runnable.AsRunnerFuncRun()
-		}
-	}()
-}
-
-*/
 
 // taskChannelSubscription uses PubSub library to receive update messages from tasks
 func (s *Subscriber) taskChannelSubscription() {
@@ -253,7 +254,7 @@ func (s *Subscriber) getDispatcherForJob(job *jobs.Job, lock bool) *Dispatcher {
 		"service": common.ServiceGrpcNamespace_ + common.ServiceTasks,
 		"jobID":   job.ID,
 	}
-	dispatcher := NewDispatcher(maxWorkers, tags)
+	dispatcher := NewDispatcher(s.rootCtx, maxWorkers, job, tags)
 	s.dispatchers[job.ID] = dispatcher
 	dispatcher.Run()
 	return dispatcher
@@ -366,9 +367,7 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 	} else {
 		log.Logger(ctx).Info("Run Job " + jobId + " on timer event " + event.Schedule.String())
 	}
-	task := NewTaskFromEvent(s.rootCtx, ctx, j, event)
-	s.enqueue(task)
-	//task.Queue(s.queue)
+	s.enqueue(ctx, j, event)
 
 	return nil
 }
@@ -388,9 +387,8 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 		return nil
 	}
 
-	s.batcher.Events <- &cache.EventWithContext{
-		NodeChangeEvent: event,
-		Ctx:             ctx,
+	if er := s.fifo.Push(ctx, event); er != nil {
+		fmt.Println("error while pushing event to queue", er.Error())
 	}
 
 	return nil
@@ -441,9 +439,7 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 		}
 
 		log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eventMatch)
-		task := NewTaskFromEvent(s.rootCtx, tCtx, jobData, event)
-		s.enqueue(task)
-		//task.Queue(s.queue)
+		s.enqueue(tCtx, jobData, event)
 	}
 
 }
@@ -476,9 +472,7 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 					continue
 				}
 				log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eName)
-				task := NewTaskFromEvent(s.rootCtx, tCtx, jobData, event)
-				s.enqueue(task)
-				//task.Queue(s.queue)
+				s.enqueue(tCtx, jobData, event)
 			}
 		}
 	}

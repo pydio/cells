@@ -70,10 +70,14 @@ func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 func addCacheFlags(flags *pflag.FlagSet) {
 	flags.String(runtime.KeyCache, runtime.DefaultKeyCache, "Sharded Cache")
 	flags.String(runtime.KeyShortCache, runtime.DefaultKeyShortCache, "Short cache")
+	flags.String(runtime.KeyQueue, runtime.DefaultKeyQueue, "Queue")
+	flags.String(runtime.KeyPersistQueue, runtime.DefaultKeyPersistQueue, "Persisting Queue")
 
 	if os.Getenv(EnvDisplayHiddenFlags) == "" {
 		flags.MarkHidden(runtime.KeyCache)
 		flags.MarkHidden(runtime.KeyShortCache)
+		flags.MarkHidden(runtime.KeyQueue)
+		flags.MarkHidden(runtime.KeyPersistQueue)
 	}
 }
 

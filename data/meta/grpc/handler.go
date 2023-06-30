@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/queue"
 	"github.com/pydio/cells/v4/data/meta"
 )
 
@@ -47,7 +48,7 @@ type MetaServer struct {
 	tree.UnimplementedNodeReceiverServer
 	tree.UnimplementedSearcherServer
 
-	eventsChannel chan *cache.EventWithContext
+	eventsChannel chan *queue.TypeWithContext[*tree.NodeChangeEvent]
 	cache         cache.Cache
 	dao           meta.DAO
 
@@ -103,11 +104,11 @@ func (s *MetaServer) Subscriber(parentContext context.Context) *EventsSubscriber
 
 func (s *MetaServer) initEventsChannel() {
 
-	s.eventsChannel = make(chan *cache.EventWithContext)
+	s.eventsChannel = make(chan *queue.TypeWithContext[*tree.NodeChangeEvent])
 	go func() {
 		for eventWCtx := range s.eventsChannel {
 			newCtx := servicecontext.WithServiceName(eventWCtx.Ctx, common.ServiceGrpcNamespace_+common.ServiceMeta)
-			s.processEvent(newCtx, eventWCtx.NodeChangeEvent)
+			s.processEvent(newCtx, eventWCtx.Original)
 		}
 	}()
 }

@@ -88,8 +88,9 @@ func NewTaskFromEvent(runtime, ctx context.Context, job *jobs.Job, event interfa
 	return t
 }
 
-// Queue send this new task to the global queue
-func (t *Task) Queue(queue chan RunnerFunc) {
+// Queue send this new task to the dispatcher queue.
+// If a second queue is passed, it may differ from main input queue, so it is used for children queuing
+func (t *Task) Queue(queue ...chan RunnerFunc) {
 	var ct context.Context
 	var can context.CancelFunc
 	if d, o := itemTimeout(t.context, t.Job.Timeout); o {
@@ -132,13 +133,17 @@ func (t *Task) Queue(queue chan RunnerFunc) {
 		}
 	}()
 	r := RootRunnable(t.context, t)
+	var secondaryQueue = queue[0]
+	if len(queue) > 1 {
+		secondaryQueue = queue[1]
+	}
 	if t.Job.MergeAction != nil {
-		r.SetupCollector(t.context, t.Job.MergeAction, queue)
+		r.SetupCollector(t.context, t.Job.MergeAction, secondaryQueue)
 	}
 	logStartMessageFromEvent(r.Context, t.event)
 	msg := createMessageFromEvent(t.event)
-	queue <- func(queue chan RunnerFunc) {
-		r.Dispatch(msg, t.Actions, queue)
+	queue[0] <- func(queue chan RunnerFunc) {
+		r.Dispatch(msg, t.Actions, secondaryQueue)
 	}
 }
 

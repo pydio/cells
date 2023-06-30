@@ -210,10 +210,10 @@ func TestTask_EnqueueRunnables(t *testing.T) {
 		read := <-output
 		So(read, ShouldNotBeNil)
 		//So(read.Action.ID, ShouldEqual, "actions.test.fake")
-		close(output)
 
 		go func() {
 			read(nil)
+			close(output)
 		}()
 
 		saved := <-saveChannel

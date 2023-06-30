@@ -27,11 +27,13 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
+	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/queue"
 )
 
 type WsRolesCleaner struct {
@@ -70,35 +72,42 @@ func (c *WsRolesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error
 
 type nodesCleaner struct {
 	handler *Handler
-	batcher *cache.EventsBatcher
+	fifo    queue.Queue
 }
 
-func newNodesCleaner(ctx context.Context, h *Handler) *nodesCleaner {
+func newNodesCleaner(ctx context.Context, h *Handler) (*nodesCleaner, error) {
 	nc := &nodesCleaner{handler: h}
-	nc.batcher = cache.NewEventsBatcher(ctx, 750*time.Millisecond, 2*time.Second, 5000, false, func(ctx context.Context, events ...*tree.NodeChangeEvent) {
-		nc.process(ctx, events...)
-	})
-	return nc
+	var er error
+	if nc.fifo, er = queue.OpenQueue(ctx, runtime.QueueURL("debounce", "750ms", "idle", "2s", "max", "5000")); er != nil {
+		return nil, er
+	} else {
+		er = nc.fifo.Consume(func(events ...broker.Message) {
+			var uu []string
+			for _, e := range events {
+				t := &tree.NodeChangeEvent{}
+				if _, er := e.Unmarshal(t); er == nil {
+					uu = append(uu, t.Source.Uuid)
+				}
+			}
+			nc.process(ctx, uu...)
+		})
+		return nc, er
+	}
 }
 
 func (c *nodesCleaner) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
 	if msg.Type != tree.NodeChangeEvent_DELETE || msg.Source == nil || msg.Source.Uuid == "" || msg.Optimistic {
 		return nil
 	}
-	c.batcher.Events <- &cache.EventWithContext{Ctx: ctx, NodeChangeEvent: msg}
-	return nil
+	return c.fifo.Push(ctx, msg)
 }
 
-func (c *nodesCleaner) process(ctx context.Context, events ...*tree.NodeChangeEvent) {
+func (c *nodesCleaner) process(ctx context.Context, eventsUUIDs ...string) {
 
 	// Mark ACLs for deletion
-	var uu []string
-	for _, e := range events {
-		uu = append(uu, e.Source.Uuid)
-	}
-	log.Logger(ctx).Debug(fmt.Sprintf("Marking %d nodes ACL as expired", len(uu)))
+	log.Logger(ctx).Debug(fmt.Sprintf("Marking %d nodes ACL as expired", len(eventsUUIDs)))
 	q, _ := anypb.New(&idm.ACLSingleQuery{
-		NodeIDs: uu,
+		NodeIDs: eventsUUIDs,
 	})
 	_, _ = c.handler.ExpireACL(ctx, &idm.ExpireACLRequest{
 		Query: &service.Query{

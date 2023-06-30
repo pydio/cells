@@ -76,7 +76,10 @@ func init() {
 					return e
 				}
 
-				nCleaner := newNodesCleaner(ctx, handler)
+				nCleaner, er := newNodesCleaner(ctx, handler)
+				if er != nil {
+					return er
+				}
 				if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(message broker.Message) error {
 					ev := &tree.NodeChangeEvent{}
 					if ct, e := message.Unmarshal(ev); e == nil {

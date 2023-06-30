@@ -24,6 +24,8 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"runtime"
+	"runtime/debug"
 	"strings"
 	"sync"
 
@@ -106,12 +108,21 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
 
+	defer func() {
+		debug.FreeOSMemory()
+		//printMem("UNI - Mem - finished ")
+	}()
+
+	//printMem("UNI - Mem - starting ")
+
 	// Compute Diff
 	diff := merger.NewDiff(source, targetAsSource)
 	lock := s.monitorDiff(ctx, diff, rootsInfo)
 	if e := diff.Compute(ctx, rootPath, lock, rootsInfo, s.Ignores...); e != nil {
 		return patch.SetPatchError(errors.Wrap(e, "error happened during diff.Compute"))
 	}
+
+	//printMem("UNI - Mem - diff loaded ")
 
 	// Feed Patch from Diff
 	err := diff.ToUnidirectionalPatch(ctx, s.Direction, patch)
@@ -372,4 +383,15 @@ func (s *Sync) computeIndexProgress(input model.Status, rootInfo *model.Endpoint
 		return output, true
 	}
 	return
+}
+
+func printMem(s string) {
+	fmt.Println(s)
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
+	fmt.Printf("Alloc = %v kB", m.Alloc/1024)
+	fmt.Printf("\tTotalAlloc = %v kB", m.TotalAlloc/1024)
+	fmt.Printf("\tSys = %v kB", m.Sys/1024)
+	fmt.Printf("\tNumGC = %v\n", m.NumGC)
 }

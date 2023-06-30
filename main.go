@@ -61,6 +61,9 @@ import (
 	_ "github.com/pydio/cells/v4/common/utils/cache/bigcache"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	_ "github.com/pydio/cells/v4/common/utils/cache/redis"
+	_ "github.com/pydio/cells/v4/common/utils/queue/goque"
+	_ "github.com/pydio/cells/v4/common/utils/queue/jetstream"
+	_ "github.com/pydio/cells/v4/common/utils/queue/memory"
 
 	// Gateways
 	_ "github.com/pydio/cells/v4/gateway/data"

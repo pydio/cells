@@ -331,7 +331,7 @@ func (p *BidirectionalPatch) enqueueRight(left, right *TreeNode) {
 	p.enqueueOperations(right, OperationDirLeft)
 }
 
-// enqueueConflict sets a Conflict flag on the the given path in side the patch. The Conflict has references to left and right operations
+// enqueueConflict sets a Conflict flag on the given path in side the patch. The Conflict has references to left and right operations
 func (p *BidirectionalPatch) enqueueConflict(left, right *TreeNode, t ConflictType) {
 	log.Logger(p.ctx).Error("-- Unsolvable conflict!", zap.Any("left", left.PathOperation), zap.Any("right", right.PathOperation))
 	p.unexpected = append(p.unexpected, fmt.Errorf("registered conflict at path %s", left.Path))
