@@ -23,13 +23,15 @@ package runtime
 import "path/filepath"
 
 var (
-	DefaultKeyDiscovery  = "mem://"
-	DefaultKeyRegistry   = "mem://?cache=shared"
-	DefaultKeyBroker     = "mem://"
-	DefaultKeyConfig     = "file://" + filepath.Join(ApplicationWorkingDir(), DefaultConfigFileName)
-	DefaultKeyVault      = "detect"
-	DefaultKeyKeyring    = "file://" + filepath.Join(ApplicationWorkingDir(), DefaultKeyringFileName) + "?keyring=true"
-	DefaultKeyCertsStore = "file://" + filepath.Join(ApplicationWorkingDir(), DefaultCertStorePath)
-	DefaultKeyCache      = "pm://"
-	DefaultKeyShortCache = "pm://"
+	DefaultKeyDiscovery    = "mem://"
+	DefaultKeyRegistry     = "mem://?cache=shared"
+	DefaultKeyBroker       = "mem://"
+	DefaultKeyConfig       = "file://" + filepath.Join(ApplicationWorkingDir(), DefaultConfigFileName)
+	DefaultKeyVault        = "detect"
+	DefaultKeyKeyring      = "file://" + filepath.Join(ApplicationWorkingDir(), DefaultKeyringFileName) + "?keyring=true"
+	DefaultKeyCertsStore   = "file://" + filepath.Join(ApplicationWorkingDir(), DefaultCertStorePath)
+	DefaultKeyCache        = "pm://"
+	DefaultKeyShortCache   = "pm://"
+	DefaultKeyQueue        = "mem://"
+	DefaultKeyPersistQueue = "file://"
 )
