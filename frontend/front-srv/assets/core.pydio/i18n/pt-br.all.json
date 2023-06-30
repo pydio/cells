@@ -1284,7 +1284,7 @@
     "other": "Metadados"
   },
   "49": {
-    "other": "Cancel"
+    "other": "Cancelar"
   },
   "490": {
     "other": "Intervalo de datas"
@@ -1302,7 +1302,7 @@
     "other": "Ontem"
   },
   "494t": {
-    "other": "Tomorrow"
+    "other": "Amanhã"
   },
   "495": {
     "other": "Última semana"
@@ -1659,7 +1659,7 @@
     "other": "Adicionar um usuário"
   },
   "599-a": {
-    "other": "All Results"
+    "other": "Todos os resultados"
   },
   "6": {
     "other": "Renomear"
@@ -2304,7 +2304,7 @@
     "other": "Selecionar grupo"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "Seleção Múltipla"
   },
   "confirm.dialog.title": {
     "other": "Confirmar"
@@ -2346,25 +2346,25 @@
     "other": "Buscar em..."
   },
   "searchengine.share.title": {
-    "other": "Shared"
+    "other": "Compartilhado"
   },
   "searchengine.share.hint": {
-    "other": "No status"
+    "other": "Sem status"
   },
   "searchengine.share.option.link": {
-    "other": "Public Link"
+    "other": "Link Público"
   },
   "searchengine.share.option.cell": {
-    "other": "Shared in Cell"
+    "other": "Compartilhado em Célula"
   },
   "searchengine.share.option.any": {
-    "other": "Public Link or Cell"
+    "other": "Link Público ou Célula"
   },
   "searchengine.format.title": {
-    "other": "Format"
+    "other": "Formato"
   },
   "searchengine.format.file-only": {
-    "other": "Files Only"
+    "other": "Apenas Arquivos"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "Filtros Avançados"
@@ -2379,19 +2379,19 @@
     "other": "Salvar"
   },
   "searchengine.query.action.save-new": {
-    "other": "Save Query"
+    "other": "Salvar Consulta"
   },
   "searchengine.query.action.clear": {
     "other": "Limpar lista"
   },
   "searchengine.query.action.clear-all": {
-    "other": "Clear All"
+    "other": "Limpar Tudo"
   },
   "searchengine.query.action.delete": {
     "other": "Apagar"
   },
   "searchengine.query.action.delete-confirm": {
-    "other": "Delete this saved query?"
+    "other": "Apagar esta consulta salva?"
   },
   "searchengine.query.save-label": {
     "other": "Digite um rótulo"
@@ -2400,25 +2400,25 @@
     "other": "Nome/Conteúdo"
   },
   "searchengine.complete.group.saved": {
-    "other": "Saved Searches"
+    "other": "Buscas Salvas"
   },
   "searchengine.complete.group.history": {
-    "other": "Last Searches"
+    "other": "Últimas Buscas"
   },
   "searchengine.complete.group.suggestion": {
-    "other": "Advanced Suggestion"
+    "other": "Sugestão Avançada"
   },
   "searchengine.complete.suggestion.intro": {
-    "other": "Do you mean"
+    "other": "Você quis dizer"
   },
   "searchengine.complete.suggestion.remain": {
-    "other": "containing '%s'"
+    "other": "contendo '%s'"
   },
   "searchengine.complete.activefilters": {
-    "other": "Filters:"
+    "other": "Filtros:"
   },
   "searchengine.complete.activefilters-edit": {
-    "other": "Click to modify"
+    "other": "Clique para modificar"
   },
   "chat.load-older": {
     "other": "Entradas antigas"

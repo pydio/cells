@@ -81,22 +81,22 @@
     "other": "Пользовательский фон (6)"
   },
   "Custom Icon": {
-    "other": "Custom Icon"
+    "other": "Пользовательский значок"
   },
   "Detected Encoding": {
-    "other": "Detected Encoding"
+    "other": "Обнаруженная кодировка"
   },
   "Detected Server Path": {
-    "other": "Detected Server Path"
+    "other": "Обнаруженный путь к серверу"
   },
   "Display Branding Tool": {
     "other": "Display Branding Tool"
   },
   "Enable Welcome Tour": {
-    "other": "Enable Welcome Tour"
+    "other": "Включить приветственное сообщение"
   },
   "Enable the small tour triggered at first visit": {
-    "other": "Enable the small tour triggered at first visit"
+    "other": "Включить небольшой маршрут, срабатывающий при первом посещении"
   },
   "Fetch Window (no repeat)": {
     "other": "Fetch Window (no repeat)"
@@ -105,7 +105,7 @@
     "other": "Fetch Window (repeat vertically)"
   },
   "Font sized used for the title in the start up screen": {
-    "other": "Font sized used for the title in the start up screen"
+    "other": "Размер шрифта для заголовка на экране запуска"
   },
   "Google Analytics": {
     "other": "Google Analytics"
@@ -138,16 +138,16 @@
     "other": "Id of your GA account, something like UE-XXXX-YY"
   },
   "Image used as a background": {
-    "other": "Image used as a background"
+    "other": "Изображение, используемое в качестве фона"
   },
   "Login Screen": {
-    "other": "Login Page"
+    "other": "Страница авторизации"
   },
   "Logo": {
-    "other": "Logo"
+    "other": "Логотип"
   },
   "Logo Height": {
-    "other": "Logo Height"
+    "other": "Высота логотипа"
   },
   "Logo Left": {
     "other": "Logo Left"
@@ -156,28 +156,28 @@
     "other": "Logo Top"
   },
   "Logo Width": {
-    "other": "Logo Width"
+    "other": "Ширина логотипа"
   },
   "Low-Resolution Background": {
-    "other": "Low-Resolution Background"
+    "other": "Фон с низким разрешением"
   },
   "Main Options": {
     "other": "Основные параметры"
   },
   "Make sure to use a smaller resolution image, otherwise mobile loading is very slow.": {
-    "other": "Make sure to use a smaller resolution image, otherwise mobile loading is very slow."
+    "other": "Не забудьте использовать изображение меньшего разрешения, в противном случае мобильная загрузка очень медленна."
   },
   "Manually set a left offset": {
-    "other": "Manually set a left offset"
+    "other": "Вручную задать смещение влево"
   },
   "Manually set a logo height": {
-    "other": "Manually set a logo height"
+    "other": "Вручную задать высоту логотипа"
   },
   "Manually set a logo width": {
-    "other": "Manually set a logo width"
+    "other": "Вручную задать ширину логотипа"
   },
   "Manually set a top offset": {
-    "other": "Manually set a top offset"
+    "other": "Вручную задать смещение сверху"
   },
   "Minisite": {
     "other": "Минисайт"
@@ -186,7 +186,7 @@
     "other": "Minisite Logo"
   },
   "Number of MINUTES before the session expiration for issuing an alert to the user": {
-    "other": "Number of MINUTES before the session expiration for issuing an alert to the user"
+    "other": "Количество МИНУТ до истечения сессии для отправки оповещения пользователю"
   },
   "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option.": {
     "other": "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option."

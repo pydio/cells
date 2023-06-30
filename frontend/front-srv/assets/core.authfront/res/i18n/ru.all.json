@@ -24,12 +24,12 @@
     "other": "Используйте форму ниже, чтобы сбросить пароль. Пожалуйста, введите свой логин и новый пароль дважды."
   },
   "9": {
-    "other": "Please enter your username and password"
+    "other": "Пожалуйста, введите свои имя пользователя и пароль"
   },
   "10": {
-    "other": "Please enter the password you received"
+    "other": "Введите пароль, который вы получили"
   },
   "11": {
-    "other": "Login failed: could not recognise your username or password"
+    "other": "Ошибка входа: не удалось распознать ваше имя пользователя или пароль"
   }
 }

@@ -27,9 +27,9 @@
     "other": "Только при нумерации страниц - число объектов на одной странице."
   },
   "Delete Permanently": {
-    "other": "Delete Permanently"
+    "other": "Удалить Безвозвратно"
   },
   "Enable option to skip recycle bin on deletion": {
-    "other": "Enable option to skip recycle bin on deletion"
+    "other": "Включить опцию для пропуска корзины при удалении"
   }
 }

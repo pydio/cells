@@ -57,7 +57,7 @@
     "other": "Получать уведомления..."
   },
   "selector.legend.mui": {
-    "other": "Receive notifications when content is..."
+    "other": "Получать уведомления, когда контент..."
   },
   "selector.ignore": {
     "other": "Никогда (нет уведомлений)"
@@ -66,13 +66,13 @@
     "other": "Доступ к контенту"
   },
   "selector.read.mui": {
-    "other": "Accessed"
+    "other": "Последнее обращение"
   },
   "selector.change": {
     "other": "Изменение контента"
   },
   "selector.change.mui": {
-    "other": "Modified"
+    "other": "Изменено"
   },
   "selector.both": {
     "other": "Изменение или доступ к контенту"

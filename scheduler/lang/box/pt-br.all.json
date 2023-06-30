@@ -30,7 +30,7 @@
     "other": "Limpar arquivos órfãos após 24h"
   },
   "Jobs.Default.CleanExpiredACLs": {
-    "other": "Clean expired ACLs after 10 days"
+    "other": "Limpar ACLs expiradas após 10 dias"
   },
   "Jobs.User.Compress": {
     "other": "Seleção de Compressão..."
@@ -63,7 +63,7 @@
     "other": "Movendo para a lixeira em segundo plano..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Sync datasource {{.DsName}} then rehash new files"
+    "other": "Sincronizar a fonte de dados {{.DsName}} e então gerar hash de novos arquivos"
   },
   "Jobs.User.Wget": {
     "other": "Baixando arquivo em segundo plano..."

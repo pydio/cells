@@ -102,7 +102,7 @@
     "other": "Очистить значение"
   },
   "40": {
-    "other": "Per-workspace parameters"
+    "other": "Параметры каждой рабочей области"
   },
   "41": {
     "other": "Дополнительные параметры"
@@ -189,10 +189,10 @@
     "other": "Страница приветствия, отображаемая после входа"
   },
   "workspace.statics.directory.title": {
-    "other": "Directory"
+    "other": "Папка"
   },
   "workspace.statics.directory.description": {
-    "other": "Show address book full page (used by Mui3 Theme)"
+    "other": "Показывать полную страницу адресной книги (используется Mui3 тема)"
   },
   "workspace.statics.settings.title": {
     "other": "Консоль администратора"
