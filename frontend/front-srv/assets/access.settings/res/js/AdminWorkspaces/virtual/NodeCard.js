@@ -107,6 +107,14 @@ class NodeCard extends React.Component{
             />
         );
 
+        let checkLabel = m('card.cleanOnDelete')
+        let hasUserName = value&&value.indexOf('User.Name')>=0
+        if(!hasUserName) {
+            checkLabel = <span>{checkLabel} <span className={"mdi mdi-alert"}/> {m('card.cleanOnDelete-legend-off')}</span>
+        } else if(!cleanOnDelete) {
+            checkLabel = <span>{checkLabel} <span className={"mdi mdi-alert"}/> {m('card.cleanOnDelete-legend-on')}</span>
+        }
+
         if(oneLiner) {
             return (
                 <div style={{display:'flex'}}>
@@ -125,12 +133,12 @@ class NodeCard extends React.Component{
                         {!readonly && <FlatButton onClick={this.save.bind(this)} primary={true} disabled={!dirty} label={m('save')}/>}
                     </div>
                     <div style={{margin:'6px 24px 0 24px', border:'1px solid #e0e0e0'}}>{codeMirrorField}</div>
-                    <div style={{margin:'12px 24px'}}>
+                    <div style={{margin:'12px 24px', opacity:hasUserName?1:0.4}}>
                         <Checkbox
                             disabled={readonly}
                             checked={cleanOnDelete}
                             onCheck={(e,v) => {this.setState({cleanOnDelete: v, dirty: true})}}
-                            label={m('card.cleanOnDelete')}
+                            label={checkLabel}
                         />
                     </div>
                 </div>

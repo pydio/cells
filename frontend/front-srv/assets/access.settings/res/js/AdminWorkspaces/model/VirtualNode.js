@@ -55,7 +55,7 @@ class VirtualNode extends Observable {
             this.data.MetaStore = {
                 name:"",
                 resolution:"",
-                onDelete:"rename-uuid",
+                onDelete:"",
                 contentType:"text/javascript"
             };
         }
