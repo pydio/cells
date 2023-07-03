@@ -40,7 +40,7 @@ EXAMPLES
 		}
 		opts := &fs.Options{}
 		opts.Debug = debug
-		mountFs := fs2.NewSnapFS(snap, fileProvider, total)
+		mountFs := fs2.NewSnapFS(snap.BoltSnapshot, fileProvider, total)
 
 		server, err := fs.Mount(mountPoint, mountFs, opts)
 		if err != nil {
@@ -50,7 +50,7 @@ EXAMPLES
 
 		log.Println("Cleaning resources before quitting...")
 		log.Println(" - Closing snapshot")
-		snap.Close(true)
+		_ = snap.CloseAndClear()
 		log.Println(" - Unmounting server")
 		_ = server.Unmount()
 		log.Println(" - Clearing cache")

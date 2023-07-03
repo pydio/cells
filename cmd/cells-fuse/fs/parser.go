@@ -43,7 +43,17 @@ import (
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
-func StorageUrlAsProvider(storageURL string) (FileNodeProvider, *snapshot.BoltSnapshot, int, error) {
+type ReferenceBolt struct {
+	*snapshot.BoltSnapshot
+	bPath string
+}
+
+func (r *ReferenceBolt) CloseAndClear() error {
+	r.Close()
+	return os.RemoveAll(r.bPath)
+}
+
+func StorageUrlAsProvider(storageURL string) (FileNodeProvider, *ReferenceBolt, int, error) {
 	sc, folderOrBucket, snap, keys, e := ParseStorageURL(storageURL)
 	if e != nil {
 		return nil, nil, 0, e
@@ -77,7 +87,7 @@ func StorageUrlAsProvider(storageURL string) (FileNodeProvider, *snapshot.BoltSn
 	return fp, snap, keys, nil
 }
 
-func ParseStorageURL(storageUrl string) (sc nodes.StorageClient, folderOrBucket string, snap *snapshot.BoltSnapshot, totalKeys int, e error) {
+func ParseStorageURL(storageUrl string) (sc nodes.StorageClient, folderOrBucket string, snap *ReferenceBolt, totalKeys int, e error) {
 	u, ee := url.Parse(storageUrl)
 	if ee != nil {
 		e = ee
@@ -159,9 +169,13 @@ func ParseStorageURL(storageUrl string) (sc nodes.StorageClient, folderOrBucket 
 	_ = db.Close()
 
 	log.Printf("Now Opening snapshot %s, should load %d nodes", snFile, totalKeys)
-	snap, e = snapshot.NewBoltSnapshot(tmpSnapFolder, tmpSnapUuid)
+	sn, e := snapshot.NewBoltSnapshot(tmpSnapFolder, tmpSnapUuid)
 	if e != nil {
 		return
+	}
+	snap = &ReferenceBolt{
+		BoltSnapshot: sn,
+		bPath:        filepath.Join(tmpSnapFolder, "snapshot-"+tmpSnapUuid),
 	}
 	return
 }
