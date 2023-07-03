@@ -95,7 +95,6 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 					fmt.Println("Cannot unmarshall msg data to any known event type")
 					continue
 				}
-				// Refresh context runtime connections
 				eventCtx = runtime.ForkContext(eventCtx, rootCtx)
 				task := NewTaskFromEvent(rootCtx, eventCtx, job, event)
 				task.Queue(fifoQueue, jobQueue)

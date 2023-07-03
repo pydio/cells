@@ -7,7 +7,9 @@ import (
 	"fmt"
 
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -19,7 +21,8 @@ func EncodeProtoWithContext(ctx context.Context, msg proto.Message) []byte {
 	if md, ok := metadata.FromContextCopy(ctx); ok {
 		hh, _ = json.Marshal(md)
 	}
-	bb, _ := proto.Marshal(msg)
+	a, _ := anypb.New(msg)
+	bb, _ := proto.Marshal(a)
 	return joinWithLengthPrefix(hh, bb)
 }
 
@@ -37,7 +40,11 @@ func DecodeToBrokerMessage(msg []byte) (broker.Message, error) {
 				mm = md
 			}
 		}
-		return &pulledMessage{hh: mm, data: rawData}, nil
+		a := &anypb.Any{}
+		if e := proto.Unmarshal(rawData, a); e != nil {
+			return nil, fmt.Errorf("expecting anypb: %v", er)
+		}
+		return &pulledMessage{hh: mm, data: rawData, a: a}, nil
 	} else {
 		return nil, fmt.Errorf("cannot split event %v", er)
 	}
@@ -47,15 +54,20 @@ func DecodeToBrokerMessage(msg []byte) (broker.Message, error) {
 type pulledMessage struct {
 	hh   map[string]string
 	data []byte
+	a    *anypb.Any
 }
 
 func (p *pulledMessage) Unmarshal(target proto.Message) (context.Context, error) {
-	if e := proto.Unmarshal(p.data, target); e != nil {
+	if e := p.a.UnmarshalTo(target); e != nil {
 		return nil, e
 	}
 	ctx := context.Background()
 	if p.hh != nil {
 		ctx = metadata.NewContext(ctx, p.hh)
+		// If X-Pydio-User found in meta, add it to context as well
+		if u, ok := p.hh[common.PydioContextUserKey]; ok {
+			ctx = context.WithValue(ctx, common.PydioContextUserKey, u)
+		}
 	}
 	return ctx, nil
 }
