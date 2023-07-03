@@ -57,7 +57,7 @@ EXAMPLES
 		if er != nil {
 			return fmt.Errorf("cannot parse snapshot URL %v", er)
 		}
-		defer snap.Close(true)
+		defer snap.CloseAndClear()
 
 		gw, er := glob.Compile(lookupGlob)
 		header := false
