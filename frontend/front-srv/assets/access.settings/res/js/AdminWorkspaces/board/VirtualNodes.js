@@ -51,10 +51,10 @@ class VirtualNodes extends React.Component{
 
     createNode(){
         this.handleRequestClose();
+        const {newName, nodes} = this.state;
         const newNode = new VirtualNode();
-        newNode.setName(this.state.newName);
-        const {nodes} = this.state;
-        this.setState({nodes:[...nodes, newNode]});
+        newNode.setName(newName);
+        this.setState({nodes:[...nodes, newNode], selectedNode: newName, newName: null});
     }
 
     handleTouchTap(event){
