@@ -23,7 +23,6 @@ package local
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config"
 	"path"
 	"strings"
 
@@ -66,15 +65,12 @@ type ApiStore struct {
 	slugsCache  map[string]string
 	router      nodes.Client
 	loadedUsers map[string]*syncShareLoadedUser
-
-	deletionTag string
 }
 
 func NewAPIStore(runtime context.Context) *ApiStore {
 	return &ApiStore{
 		runtime:     runtime,
 		loadedUsers: make(map[string]*syncShareLoadedUser),
-		deletionTag: config.Get("frontend", "plugin", "core.auth", "USERS_SYNC_DELETION_TAG").String(),
 	}
 }
 
@@ -129,25 +125,10 @@ func (apiStore *ApiStore) UpdateUser(ctx context.Context, identity *idm.User) (*
 
 func (apiStore *ApiStore) DeleteUser(ctx context.Context, identity *idm.User) error {
 	userClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(apiStore.runtime, common.ServiceUser))
-	if apiStore.deletionTag != "" {
-		// Do not delete user, update its attributes instead!
-		// First reload to be sure not to override anything
-		u, er := apiStore.GetUser(ctx, identity.Uuid)
-		if er != nil {
-			return nil // Nothing to do, user is already not found
-		}
-		if u.Attributes == nil {
-			u.Attributes = map[string]string{}
-		}
-		u.Attributes["deletion-tag"] = apiStore.deletionTag
-		_, er = apiStore.UpdateUser(ctx, u)
-		return er
-	} else {
-		singleQ, _ := anypb.New(&idm.UserSingleQuery{Uuid: identity.Uuid})
-		q := &service.Query{SubQueries: []*anypb.Any{singleQ}}
-		_, e := userClient.DeleteUser(ctx, &idm.DeleteUserRequest{Query: q})
-		return e
-	}
+	singleQ, _ := anypb.New(&idm.UserSingleQuery{Uuid: identity.Uuid})
+	q := &service.Query{SubQueries: []*anypb.Any{singleQ}}
+	_, e := userClient.DeleteUser(ctx, &idm.DeleteUserRequest{Query: q})
+	return e
 }
 
 // Readable user store
@@ -156,16 +137,9 @@ func (apiStore *ApiStore) GetUser(ctx context.Context, id string) (*idm.User, er
 
 	userClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(apiStore.runtime, common.ServiceUser))
 
-	var qq []*anypb.Any
 	singleQ, _ := anypb.New(&idm.UserSingleQuery{Uuid: id})
-	qq = append(qq, singleQ)
-	if apiStore.deletionTag != "" {
-		delQ, _ := anypb.New(&idm.UserSingleQuery{AttributeName: "deletion-tag", AttributeValue: apiStore.deletionTag, Not: true})
-		qq = append(qq, delQ)
-	}
 	q := &service.Query{
-		SubQueries: qq,
-		Operation:  service.OperationType_AND,
+		SubQueries: []*anypb.Any{singleQ},
 		Offset:     0,
 		Limit:      1}
 	streamer, err := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: q})
@@ -190,15 +164,9 @@ func (apiStore *ApiStore) ListUsers(ctx context.Context, params map[string]inter
 	offset := int64(0)
 	limit := int64(100)
 
-	var qq []*anypb.Any
-	if apiStore.deletionTag != "" {
-		delQ, _ := anypb.New(&idm.UserSingleQuery{AttributeName: "deletion-tag", AttributeValue: apiStore.deletionTag, Not: true})
-		qq = append(qq, delQ)
-	}
-
 	var crt, total float32
 	if progress != nil {
-		rsp, e := userClient.CountUser(ctx, &idm.SearchUserRequest{Query: &service.Query{SubQueries: qq}})
+		rsp, e := userClient.CountUser(ctx, &idm.SearchUserRequest{Query: &service.Query{SubQueries: []*anypb.Any{}}})
 		if e != nil {
 			return nil, e
 		}
@@ -208,7 +176,7 @@ func (apiStore *ApiStore) ListUsers(ctx context.Context, params map[string]inter
 	// List user with pagination
 	for {
 		q := &service.Query{
-			SubQueries: qq,
+			SubQueries: []*anypb.Any{},
 			Offset:     offset,
 			Limit:      limit,
 		}
