@@ -224,6 +224,9 @@
   "form.dsFolder.legend":{
     "other":"Use an absolute path on the server"
   },
+  "form.dsType.Label":{
+    "other": "Storage Type"
+  },
   "form.dsType.FS":{
     "other": "Local FS (store all data on this server)"
   },

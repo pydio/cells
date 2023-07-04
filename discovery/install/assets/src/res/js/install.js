@@ -26,19 +26,104 @@ const supportedLanguages = [
     <MenuItem key={"pt-br"} value={"pt-br"} primaryText={"Português do Brasil"}/>
 ]
 
-const renderTextField = ({input, label, floatingLabel, meta: {touched, error}, ...custom}) => (
-  <TextField
-    hintText={label}
-    floatingLabelText={floatingLabel}
-    floatingLabelFixed={true}
-    errorText={touched && error}
-    fullWidth={true}
-    hintStyle={{whiteSpace: 'nowrap'}}
-    floatingLabelStyle={{whiteSpace: 'nowrap'}}
-    {...input}
-    {...custom}
-  />
-);
+const noWrap = {
+    whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'
+};
+const hintColor='var(--md-sys-color-outline)';
+const panelBG = 'rgba(225, 234, 242, 0.98)'
+const v2Block = {
+    backgroundColor:'#dde3ea',
+    borderRadius:'3px 3px 0 0',
+    height:52,
+    marginTop: 8,
+    boxSizing: 'border-box'
+};
+const underline = {
+    idle: {borderBottom:'1px solid rgb(193 199 206)'},
+    focus: {borderBottom:'2px solid var(--md-sys-color-primary)'}
+};
+
+const fieldStyles = {
+    textFieldV2: {
+        style: {...v2Block},
+        inputStyle: {position: 'absolute', height: 30, marginTop: 0, bottom: 2, paddingLeft: 8, paddingRight: 8},
+        hintStyle: {bottom: 4, paddingLeft: 7, color: hintColor, ...noWrap, width: '100%'},
+        underlineStyle: {opacity: 1, bottom: 0, ...underline.idle},
+        underlineFocusStyle: {opacity: 1, borderRadius: 0, bottom: 0, ...underline.focus},
+        floatingLabelFixed: true,
+        floatingLabelStyle: {top: 26, left: 8, width: '127%', ...noWrap},
+        floatingLabelShrinkStyle: {top: 26, left: 8},
+        errorStyle: {
+            position: 'absolute', bottom: 8, right: 8,
+            maxWidth: '60%', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden'
+        }
+    },
+    selectFieldV2: {
+        style: {...v2Block, padding: 8, paddingRight: 0, overflow: 'hidden'},
+        menuStyle: {marginTop: -6},
+        hintStyle: {paddingLeft: 0, marginBottom: -7, paddingRight: 56, color: hintColor, ...noWrap, width: '100%'},
+        underlineStyle: {opacity: 1, bottom: 0, left: 0, right: 0, ...underline.idle},
+        underlineFocusStyle: {opacity: 1, borderRadius: 0, bottom: 0, ...underline.focus},
+        floatingLabelFixed: true,
+        floatingLabelStyle: {top: 26, left: 8, width: '127%', ...noWrap},
+        floatingLabelShrinkStyle: {top: 26, left: 8},
+        dropDownMenuProps: {
+            iconStyle: {right: 0, fill: '#9e9e9e'},
+            menuStyle: {background: 'white'}
+        }
+    },
+    textareaFieldV2: {
+        rows: 15,
+        rowsMax: 15,
+        style: {height: 388},
+        inputStyle: {
+            backgroundColor: v2Block.backgroundColor,
+            height: 380,
+            borderRadius: v2Block.borderRadius,
+            marginTop: 8,
+            paddingLeft: 8
+        },
+        textareaStyle: {marginTop: 24, marginBottom: 0},
+        floatingLabelFixed: true,
+        floatingLabelStyle: {top: 35, left: 6, width: '127%', ...noWrap},
+        floatingLabelShrinkStyle: {top: 35, left: 6},
+        hintStyle: {paddingLeft: 7, color: hintColor, ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
+        underlineStyle: {opacity: 1, bottom: 0, ...underline.idle},
+        underlineFocusStyle: {opacity: 1, bottom: 0, borderRadius: '0px 0px 3px 3px', ...underline.focus},
+        errorStyle: {position: 'absolute', bottom: 8, right: 8}
+    },
+
+};
+
+const renderTextField = ({input, label, floatingLabel, meta: {touched, error}, ...custom}) => {
+    if (custom && custom.multiLine) {
+        return (
+            <TextField
+                hintText={label}
+                floatingLabelText={floatingLabel}
+                floatingLabelFixed={true}
+                errorText={touched && error}
+                fullWidth={true}
+                {...fieldStyles.textareaFieldV2}
+                {...input}
+                {...custom}
+            />
+        )
+    } else {
+        return (
+            <TextField
+                hintText={label}
+                floatingLabelText={floatingLabel}
+                floatingLabelFixed={true}
+                errorText={touched && error}
+                fullWidth={true}
+                {...fieldStyles.textFieldV2}
+                {...input}
+                {...custom}
+            />
+        )
+    }
+};
 
 const renderPassField = ({input, label, floatingLabel, meta: {touched, error}, ...custom}) => (
   <TextField
@@ -49,8 +134,7 @@ const renderPassField = ({input, label, floatingLabel, meta: {touched, error}, .
     fullWidth={true}
     type={"password"}
     autoComplete={"new-password"}
-    hintStyle={{whiteSpace: 'nowrap'}}
-    floatingLabelStyle={{whiteSpace: 'nowrap'}}
+    {...fieldStyles.textFieldV2}
     {...input}
     {...custom}
   />
@@ -101,6 +185,7 @@ const renderSelectField = ({
         {...input}
         onChange={(event, index, value) => input.onChange(value)}
         children={children}
+        {...fieldStyles.selectFieldV2}
         {...custom}
     />
 )
@@ -365,7 +450,9 @@ class InstallForm extends React.Component {
                         label={this.t('stepper.button.back')}
                         disabled={stepIndex === 0}
                         onClick={this.handlePrev}
-                        style={{marginRight: 5}}
+                        style={{borderRadius: 20, marginRight: 5}}
+                        buttonStyle={{borderRadius: 20}}
+                        labelStyle={{textTransform: 'none', fontWeight: 400}}
                         />
                     )}
                     <RaisedButton
@@ -373,6 +460,10 @@ class InstallForm extends React.Component {
                         primary={true}
                         onClick={nextAction}
                         disabled={nextDisabled || invalid || nextInvalid}
+                        style={{borderRadius: 20}}
+                        buttonStyle={{borderRadius: 20}}
+                        overlayStyle={{borderRadius: 20}}
+                        labelStyle={{textTransform: 'none', fontWeight: 400}}
                     />
                 </div>
             </div>
@@ -415,7 +506,8 @@ class InstallForm extends React.Component {
             },
             contentScroller : {
                 height: panelHeight - 88,
-                overflowY : 'auto'
+                overflowY : 'auto',
+                overflowX: 'hidden'
             }
         };
         let leftAction, additionalStep;
@@ -476,8 +568,21 @@ class InstallForm extends React.Component {
                         <div style={{margin: '12px 0', display:'flex', alignItems: 'center'}}>
                             <span style={{flex: 1}}/>
                             <div>
-                                <FlatButton label="Back" onClick={this.handlePrev.bind(this)} style={{marginRight: 5}} />
-                                <RaisedButton label={'Next'} primary={true} onClick={nextAction} disabled={(!licCheckPassed && !licenseString)}/>
+                                <FlatButton
+                                    label="Back"
+                                    onClick={this.handlePrev.bind(this)}
+                                    style={{borderRadius: 20, marginRight: 5}}
+                                    buttonStyle={{borderRadius: 20}}
+                                    overlayStyle={{borderRadius: 20}}
+                                    labelStyle={{textTransform: 'none', fontWeight: 400}}
+                                />
+                                <RaisedButton
+                                    label={'Next'} primary={true} onClick={nextAction} disabled={(!licCheckPassed && !licenseString)}
+                                    style={{borderRadius: 20}}
+                                    buttonStyle={{borderRadius: 20}}
+                                    overlayStyle={{borderRadius: 20}}
+                                    labelStyle={{textTransform: 'none', fontWeight: 400}}
+                                />
                             </div>
                         </div>
                     </StepContent>
@@ -531,7 +636,7 @@ class InstallForm extends React.Component {
 
                         {(!dbUseDefaultsToggle || !dbConfig.dbUseDefaults) &&
                         <div style={flexContainer}>
-                            <Field name="dbConnectionType" component={renderSelectField}>
+                            <Field name="dbConnectionType" component={renderSelectField} label={this.t('database.stepLabel')}>
                                 <MenuItem value="tcp" primaryText={this.t('form.dbConnectionType.tcp')} />
                                 <MenuItem value="socket" primaryText={this.t('form.dbConnectionType.socket')} />
                                 <MenuItem value="manual" primaryText={this.t('form.dbConnectionType.manual')} />
@@ -668,9 +773,11 @@ class InstallForm extends React.Component {
                                 {!mongoDSNError && <div style={{opacity:.7,width:440}}>{this.t('advanced.mongo.legend')}</div>}
                                 {!!mongoDSNError && <div style={{color:'#E53935'}}>{mongoDSNError}</div>}
                                 <div style={{display:'flex', alignItems:'flex-end'}}>
-                                    <TextField value={DSNURL.hostname} onChange={(e,v)=>changeDSN(DSNURL, 'hostname', v)} floatingLabelText={this.t('advanced.mongo.host')} fullWidth={true} style={{marginRight: 10}} floatingLabelFixed={true}/>
-                                    <TextField value={DSNURL.port} onChange={(e,v)=>changeDSN(DSNURL, 'port', v)} floatingLabelText={this.t('advanced.mongo.port')} fullWidth={true} style={{marginRight: 10}} floatingLabelFixed={true}/>
-                                    <TextField value={DSNURL.pathname.replace('/', '')} onChange={(e,v)=>changeDSN(DSNURL, 'pathname', '/' + v)} floatingLabelText={this.t('advanced.mongo.db')} fullWidth={true} floatingLabelFixed={true}/>
+                                    <TextField value={DSNURL.hostname} onChange={(e,v)=>changeDSN(DSNURL, 'hostname', v)} floatingLabelText={this.t('advanced.mongo.host')} fullWidth={true} floatingLabelFixed={true} {...fieldStyles.textFieldV2}/>
+                                    <div style={{marginRight: 10}} />
+                                    <TextField value={DSNURL.port} onChange={(e,v)=>changeDSN(DSNURL, 'port', v)} floatingLabelText={this.t('advanced.mongo.port')} fullWidth={true} floatingLabelFixed={true} {...fieldStyles.textFieldV2}/>
+                                    <div style={{marginRight: 10}} />
+                                    <TextField value={DSNURL.pathname.replace('/', '')} onChange={(e,v)=>changeDSN(DSNURL, 'pathname', '/' + v)} floatingLabelText={this.t('advanced.mongo.db')} fullWidth={true} floatingLabelFixed={true} {...fieldStyles.textFieldV2}/>
                                 {performingCheck === 'MONGO' && <div style={{minWidth:48, height:48, padding:12, boxSizing:'border-box'}}><CircularProgress size={20} thickness={2.5}/></div>}
                                     <div>
                                 {mongoDSNValid && <FontIcon className={"mdi mdi-check"} color={"#4caf50"} style={{width: 25, height: 32, marginLeft: 10}}/>}
@@ -696,11 +803,13 @@ class InstallForm extends React.Component {
                                     </div>
                                 </div>
                                 <div style={{display:'flex', alignItems:'flex-end'}}>
-                                    <TextField value={DSNURL.username} onChange={(e,v)=>changeDSN(DSNURL, 'username', v)} floatingLabelText={this.t('advanced.mongo.username')} fullWidth={true} style={{marginRight: 10}} floatingLabelFixed={true}/>
-                                    <TextField value={DSNURL.password} onChange={(e,v)=>changeDSN(DSNURL, 'password', v)} floatingLabelText={"Password"} fullWidth={true} type={this.t('advanced.mongo.password')} style={{marginRight: 10}} floatingLabelFixed={true}/>
+                                    <TextField value={DSNURL.username} onChange={(e,v)=>changeDSN(DSNURL, 'username', v)} floatingLabelText={this.t('advanced.mongo.username')} fullWidth={true} floatingLabelFixed={true} {...fieldStyles.textFieldV2}/>
+                                    <div style={{marginRight: 10}} />
+                                    <TextField value={DSNURL.password} onChange={(e,v)=>changeDSN(DSNURL, 'password', v)} floatingLabelText={"Password"} fullWidth={true} type={this.t('advanced.mongo.password')} floatingLabelFixed={true} {...fieldStyles.textFieldV2}/>
+                                    <div style={{marginRight: 10}} />
                                     <TextField value={DSNSearchParams.get('authSource')||""}
                                                onChange={(e,v)=>changeDSN(DSNURL, 'authSource', v)}
-                                               floatingLabelText={this.t('advanced.mongo.authSource')} fullWidth={true} floatingLabelFixed={true}/>
+                                               floatingLabelText={this.t('advanced.mongo.authSource')} fullWidth={true} floatingLabelFixed={true} {...fieldStyles.textFieldV2}/>
                                     <div style={{minWidth:48}}/>
                                 </div>
                             </div>
@@ -715,7 +824,7 @@ class InstallForm extends React.Component {
                                 {this.t('advanced.default.datasource')}
                             </div>
                             <div>
-                                <Field name="dsType" component={renderSelectField}>
+                                <Field name="dsType" component={renderSelectField} label={this.t('form.dsType.Label')}>
                                     <MenuItem value="" primaryText={this.t('form.dsType.FS')} />
                                     <MenuItem value="S3" primaryText={this.t('form.dsType.S3')} />
                                 </Field>
@@ -853,6 +962,10 @@ class InstallForm extends React.Component {
                                 label={this.t('stepper.button.reload')}
                                 secondary={true}
                                 onClick={() => {window.location.reload()}}
+                                style={{borderRadius: 20}}
+                                buttonStyle={{borderRadius: 20}}
+                                overlayStyle={{borderRadius: 20}}
+                                labelStyle={{textTransform: 'none', fontWeight: 400}}
                             />
                         </div>
                     </div>
@@ -862,8 +975,8 @@ class InstallForm extends React.Component {
         );
 
         return (
-            <Paper zDepth={2} style={{width: 800, minHeight: panelHeight, margin: 'auto', position:'relative', backgroundColor:'rgba(255,255,255,0.96)'}}>
-                <div style={{width: 256, height: panelHeight, backgroundColor: 'rgb(94, 142, 174)', fontSize: 13, display:'flex', flexDirection:'column'}}>
+            <Paper zDepth={2} style={{width: 800, minHeight: panelHeight, margin: 'auto', position:'relative', backgroundColor:panelBG, borderRadius: 20}}>
+                <div style={{width: 256, height: panelHeight, backgroundColor: 'rgb(94, 142, 174)', fontSize: 13, display:'flex', flexDirection:'column', borderRadius: '20px 0 0 20px'}}>
                     <div style={{backgroundImage:'url(res/css/PydioLogo250.png)', backgroundSize:'90%',
                         backgroundRepeat: 'no-repeat', backgroundPosition:'center center', width: 256, height: 100}}></div>
                     <form onSubmit={handleSubmit} autoComplete={"off"} style={{flex: 1}}>
