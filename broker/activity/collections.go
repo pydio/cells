@@ -22,6 +22,7 @@ package activity
 
 import (
 	"context"
+	"sort"
 
 	"google.golang.org/protobuf/proto"
 
@@ -36,6 +37,23 @@ import (
 var (
 	router *compose.Reverse
 )
+
+type sortedWs []*idm.Workspace
+
+func (s sortedWs) Less(i, j int) bool {
+	if s[i].Scope == s[j].Scope {
+		return s[i].Label < s[j].Label
+	}
+	return s[i].Scope > s[j].Scope
+}
+
+func (s sortedWs) Len() int {
+	return len(s)
+}
+
+func (s sortedWs) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
 
 // CountCollection is a simple container for N activities.
 func CountCollection(count int32) (c *activity.Object) {
@@ -79,8 +97,19 @@ func Digest(ctx context.Context, items []*activity.Object) (*activity.Object, er
 			c.Items = append(c.Items, ac)
 		}
 	}
-	for _, workspace := range accessList.GetWorkspaces() {
+
+	acSet := make(map[string]struct{})
+	var sorted sortedWs
+	for _, ws := range accessList.GetWorkspaces() {
+		sorted = append(sorted, ws)
+	}
+	sort.Sort(sorted)
+
+	for _, workspace := range sorted {
 		for _, ac := range items {
+			if _, ok := acSet[ac.Id]; ok {
+				continue
+			}
 			if ac.Object != nil && (ac.Object.Type == activity.ObjectType_Folder || ac.Object.Type == activity.ObjectType_Document) {
 				node := &tree.Node{Uuid: ac.Object.Id, Path: ac.Object.Name}
 				if filtered, ok := r.WorkspaceCanSeeNode(ctx, accessList, workspace, node); ok {
@@ -106,6 +135,7 @@ func Digest(ctx context.Context, items []*activity.Object) (*activity.Object, er
 						}
 					}
 					wsColl.Items = append(wsColl.Items, filteredActivity)
+					acSet[filteredActivity.Id] = struct{}{}
 				}
 			} else if ac.Type == activity.ObjectType_Share && ac.Object != nil && ac.Object.Id == workspace.UUID {
 				wsColl := getOrCreateWorkspaceCollection(workspace, grouped)

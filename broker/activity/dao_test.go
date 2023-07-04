@@ -27,6 +27,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"sync"
 	"testing"
 	"time"
@@ -38,6 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -576,6 +578,21 @@ func TestSubscriptions(t *testing.T) {
 		So(err, ShouldBeNil)
 		So(subs, ShouldHaveLength, 0)
 
+	})
+}
+
+func TestWsSorting(t *testing.T) {
+	Convey("Test ws sorting - cells should appear first, then order by label", t, func() {
+		var tss sortedWs
+		tss = append(tss, &idm.Workspace{UUID: "a", Label: "Z", Scope: idm.WorkspaceScope_ADMIN})
+		tss = append(tss, &idm.Workspace{UUID: "b", Label: "A", Scope: idm.WorkspaceScope_ADMIN})
+		tss = append(tss, &idm.Workspace{UUID: "c", Label: "B", Scope: idm.WorkspaceScope_ROOM})
+		tss = append(tss, &idm.Workspace{UUID: "d", Label: "Q", Scope: idm.WorkspaceScope_ROOM})
+		sort.Sort(tss)
+		So(tss[0].UUID, ShouldEqual, "c")
+		So(tss[1].UUID, ShouldEqual, "d")
+		So(tss[2].UUID, ShouldEqual, "b")
+		So(tss[3].UUID, ShouldEqual, "a")
 	})
 }
 

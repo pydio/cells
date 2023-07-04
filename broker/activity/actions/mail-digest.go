@@ -23,13 +23,14 @@ package actions
 import (
 	"context"
 	"strings"
-
-	"github.com/pydio/cells/v4/common/client/grpc"
+	"time"
 
 	activity2 "github.com/pydio/cells/v4/broker/activity"
+	l "github.com/pydio/cells/v4/broker/activity/lang"
 	"github.com/pydio/cells/v4/broker/activity/render"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
@@ -39,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
@@ -158,14 +160,27 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 	url := config.Get("services", "pydio.grpc.mailer", "url").Default(config.GetDefaultSiteURL()).String()
 	linkUrl := config.Get("services", "pydio.rest.share", "url").Default(url).String()
 	if linkUrl != "" {
-		links.UrlFuncs[render.ServerUrlTypeDocs] = func(object *activity.Object) string {
-			return linkUrl + "/ws-" + strings.TrimLeft(object.Name, "/")
+		links.UrlFuncs[render.ServerUrlTypeDocs] = func(object *activity.Object, label string) string {
+			return render.MakeMarkdownLink(linkUrl+"/ws-"+strings.TrimLeft(object.Name, "/"), label)
 		}
-		links.UrlFuncs[render.ServerUrlTypeWorkspaces] = func(object *activity.Object) string {
+		links.UrlFuncs[render.ServerUrlTypeWorkspaces] = func(object *activity.Object, label string) string {
 			if object.Href != "" {
-				return linkUrl + "/ws-" + strings.TrimLeft(object.Href, "/")
+				return render.MakeMarkdownLink(linkUrl+"/ws-"+strings.TrimLeft(object.Href, "/"), label)
 			}
-			return ""
+			return label
+		}
+		links.UrlFuncs[render.ServerUrlTypeUsers] = func(object *activity.Object, label string) string {
+			if u, er := permissions.SearchUniqueUser(ctx, object.Name, ""); er == nil && u != nil && u.Attributes != nil && u.Attributes[idm.UserAttrDisplayName] != "" {
+				label = u.Attributes[idm.UserAttrDisplayName]
+			}
+			return label
+		}
+		links.DateInterpreter = func(object *activity.Object, seconds int64) string {
+			layout := "2006-01-02 15:04"
+			if fo := l.T(lang)("DateFormat"); fo != "" {
+				layout = fo
+			}
+			return ` - <span style="color: #BDBDBD">` + time.Unix(seconds, 0).Format(layout) + `</span>`
 		}
 	}
 
