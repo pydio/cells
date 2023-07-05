@@ -218,6 +218,9 @@
   "form.dsFolder.legend": {
     "other": "Use an absolute path on the server"
   },
+  "form.dsType.Label": {
+    "other": "Storage Type"
+  },
   "form.dsType.FS": {
     "other": "Místní souborový systém (ukládat veškerá data na tomto serveru)"
   },

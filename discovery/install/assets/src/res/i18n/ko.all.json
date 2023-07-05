@@ -218,6 +218,9 @@
   "form.dsFolder.legend": {
     "other": "서버 상의 절대 경로를 사용하십시오"
   },
+  "form.dsType.Label": {
+    "other": "Storage Type"
+  },
   "form.dsType.FS": {
     "other": "로컬 FS (모든 데이터를 이 서버에 저장)"
   },

@@ -218,6 +218,9 @@
   "form.dsFolder.legend": {
     "other": "Usa un percorso assoluto sul server"
   },
+  "form.dsType.Label": {
+    "other": "Storage Type"
+  },
   "form.dsType.FS": {
     "other": "FS locale (memorizza tutti i dati su questo server)"
   },
