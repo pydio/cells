@@ -218,6 +218,9 @@
   "form.dsFolder.legend": {
     "other": "使用服务器上的绝对路径"
   },
+  "form.dsType.Label": {
+    "other": "Storage Type"
+  },
   "form.dsType.FS": {
     "other": "本地文件系统 (所有数据存储的此服务器上)"
   },

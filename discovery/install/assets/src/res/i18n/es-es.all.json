@@ -218,6 +218,9 @@
   "form.dsFolder.legend": {
     "other": "Usar una ruta absoluta en el servidor"
   },
+  "form.dsType.Label": {
+    "other": "Storage Type"
+  },
   "form.dsType.FS": {
     "other": "FS local (almacenar todos los datos en este servidor)"
   },

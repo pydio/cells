@@ -82,5 +82,8 @@
   },
   "Workspace": {
     "other": "مساحة عمل"
+  },
+  "DateFormat": {
+    "other": "2006-01-02 15:04"
   }
 }

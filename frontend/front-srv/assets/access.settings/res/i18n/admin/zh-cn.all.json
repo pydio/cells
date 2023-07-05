@@ -1316,6 +1316,12 @@
   "virtual.card.cleanOnDelete": {
     "other": "用户删除后将数据重命名为 {deleted-NAME-UUID}。"
   },
+  "virtual.card.cleanOnDelete-legend-off": {
+    "other": "This option should not be used if the template path is not creating a folder for each user (using User.Name)."
+  },
+  "virtual.card.cleanOnDelete-legend-on": {
+    "other": "This option may be recommended as the template path seems to create a folder for each user (using User.Name)."
+  },
   "ws.1": {
     "other": "管理数据源"
   },
