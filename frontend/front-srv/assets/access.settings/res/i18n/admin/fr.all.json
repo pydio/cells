@@ -1316,6 +1316,12 @@
   "virtual.card.cleanOnDelete": {
     "other": "Lors de la suppression d'un utilisateur, renommer le dossier en {deleted-NAME-UUID}."
   },
+  "virtual.card.cleanOnDelete-legend-off": {
+    "other": "Cette option ne doit pas être utilisée si le chemin calculé ne crée pas un dossier par utilisateur (en utilisant User.Name)."
+  },
+  "virtual.card.cleanOnDelete-legend-on": {
+    "other": "Cette option est recommandée car le chemin calculé semble créer un dossier pour chaque utilisateur (en utilisant User.Name)."
+  },
   "ws.1": {
     "other": "Gérer les Datasources"
   },

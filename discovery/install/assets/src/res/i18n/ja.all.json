@@ -218,6 +218,9 @@
   "form.dsFolder.legend": {
     "other": "絶対パスを使用する"
   },
+  "form.dsType.Label": {
+    "other": "Storage Type"
+  },
   "form.dsType.FS": {
     "other": "ローカル FS (このサーバーにすべてのデータを保存する)"
   },

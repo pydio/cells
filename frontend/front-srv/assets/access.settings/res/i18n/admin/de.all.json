@@ -1316,6 +1316,12 @@
   "virtual.card.cleanOnDelete": {
     "other": "Benennen Sie die Daten beim Löschen des Benutzers in {deleted-NAME-UUID} um."
   },
+  "virtual.card.cleanOnDelete-legend-off": {
+    "other": "Diese Option sollte nicht verwendet werden, wenn der Template-Pfad keinen Ordner für jeden Benutzer erstellt (unter Verwendung von User.Name)."
+  },
+  "virtual.card.cleanOnDelete-legend-on": {
+    "other": "Diese Option kann empfohlen werden, da der Template-Pfad anscheinend einen Ordner für jeden Benutzer erstellt (unter Verwendung von User.Name)."
+  },
   "ws.1": {
     "other": "Datenquelle verwalten"
   },

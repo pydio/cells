@@ -218,6 +218,9 @@
   "form.dsFolder.legend": {
     "other": "Sử dụng đường dẫn tuyệt đối trên máy chủ"
   },
+  "form.dsType.Label": {
+    "other": "Storage Type"
+  },
   "form.dsType.FS": {
     "other": "Local FS (lưu trữ tất cả dữ liệu trên máy chủ này)"
   },

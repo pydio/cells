@@ -218,6 +218,9 @@
   "form.dsFolder.legend": {
     "other": "Использовать абсолютный путь на сервере"
   },
+  "form.dsType.Label": {
+    "other": "Storage Type"
+  },
   "form.dsType.FS": {
     "other": "Локальный файл-сервер (хранить все данные на этом сервере)"
   },

@@ -218,6 +218,9 @@
   "form.dsFolder.legend": {
     "other": "Gebruik een absoluut pad op de server"
   },
+  "form.dsType.Label": {
+    "other": "Storage Type"
+  },
   "form.dsType.FS": {
     "other": "Lokale Bestandsbron (sla alle gegevens op deze server)"
   },
