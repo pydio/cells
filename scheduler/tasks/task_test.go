@@ -241,9 +241,11 @@ func TestTask_EnqueueRunnables(t *testing.T) {
 		read := <-output
 		So(read, ShouldNotBeNil)
 		//So(read.Action.ID, ShouldEqual, "unknown action")
-		close(output)
 
-		go read(nil)
+		go func() {
+			read(nil)
+			close(output)
+		}()
 
 	})
 
