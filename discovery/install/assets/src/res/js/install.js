@@ -29,7 +29,7 @@ const supportedLanguages = [
 const noWrap = {
     whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'
 };
-const hintColor='var(--md-sys-color-outline)';
+const hintColor='rgba(0,0,0, 0.33)';
 const panelBG = 'rgba(225, 234, 242, 0.98)'
 const v2Block = {
     backgroundColor:'#dde3ea',
