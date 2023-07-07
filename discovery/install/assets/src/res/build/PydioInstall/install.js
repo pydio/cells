@@ -75,7 +75,7 @@ var supportedLanguages = [_react2.default.createElement(_materialUi.MenuItem, { 
 var noWrap = {
     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
 };
-var hintColor = 'var(--md-sys-color-outline)';
+var hintColor = 'rgba(0,0,0, 0.33)';
 var panelBG = 'rgba(225, 234, 242, 0.98)';
 var v2Block = {
     backgroundColor: '#dde3ea',
