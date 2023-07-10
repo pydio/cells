@@ -25,6 +25,7 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"regexp"
 
 	"github.com/h2non/filetype"
 
@@ -36,8 +37,13 @@ import (
 
 const (
 	mimeReadLimit = 8192
-	mimeDefault   = "application/octet-stream"
 )
+
+var defaultRx *regexp.Regexp
+
+func init() {
+	defaultRx = regexp.MustCompile(`(application|binary)/octet-stream`)
+}
 
 type MimeResult struct {
 	mime string
@@ -80,7 +86,7 @@ func NewTeeMimeReader(reader io.Reader, callbackRoutine func(result *MimeResult)
 		//fmt.Printf("Stored %d bytes in buffer - Error: %v\n", len(mr.data), mr.loadError)
 		kind, _ := filetype.Match(mr.data)
 		mime := kind.MIME.Value
-		if mime == mimeDefault || mime == "" {
+		if mime == "" || defaultRx.MatchString(mime) {
 			mime = http.DetectContentType(mr.data)
 		}
 		if callbackRoutine != nil {
@@ -138,7 +144,7 @@ func WrapReaderForMime(ctx context.Context, clone *tree.Node, reader io.Reader) 
 	bgCtx := metadata.NewBackgroundWithMetaCopy(ctx)
 	bgCtx = runtime.ForkContext(bgCtx, ctx)
 	return NewTeeMimeReader(reader, func(result *MimeResult) {
-		mime := mimeDefault
+		mime := "application/octet-stream"
 		if result.GetError() == nil && result.GetMime() != "" {
 			mime = result.GetMime()
 		}
@@ -147,7 +153,7 @@ func WrapReaderForMime(ctx context.Context, clone *tree.Node, reader io.Reader) 
 	})
 }
 
-// IsDefaultMime checks if cType is empty or "application/octet-stream".
+// IsDefaultMime checks if cType is not empty and one of "application/octet-stream", "binary/octet-stream"
 func IsDefaultMime(cType string) bool {
-	return cType != "" && cType != mimeDefault
+	return cType != "" && !defaultRx.MatchString(cType)
 }
