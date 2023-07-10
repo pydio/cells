@@ -39,13 +39,13 @@ import (
 
 // MessageRepository exposes interface methods to manage the log messages provided by Pydio.
 type MessageRepository interface {
-	PutLog(log2 *log.Log) error
-	ListLogs(string, int32, int32) (chan log.ListLogResponse, error)
-	DeleteLogs(string) (int64, error)
-	AggregatedLogs(string, string, int32) (chan log.TimeRangeResponse, error)
-	Close(ctx context.Context) error
-	Resync(ctx context.Context, logger log2.ZapLogger) error
-	Truncate(ctx context.Context, max int64, logger log2.ZapLogger) error
+	PutLog(context.Context, *log.Log) error
+	ListLogs(context.Context, string, int32, int32) (chan log.ListLogResponse, error)
+	DeleteLogs(context.Context, string) (int64, error)
+	AggregatedLogs(context.Context, string, string, int32) (chan log.TimeRangeResponse, error)
+	Close(context.Context) error
+	Resync(context.Context, log2.ZapLogger) error
+	Truncate(context.Context, int64, log2.ZapLogger) error
 }
 
 func NewDAO(ctx context.Context, d dao.DAO) (dao.DAO, error) {
@@ -86,11 +86,12 @@ func Migrate(f, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[str
 	if er != nil {
 		return out, er
 	}
+	bg := context.Background()
 
 	pageSize := int32(1000)
 	offset := int32(0)
 	for {
-		ll, er := from.ListLogs("", offset, pageSize)
+		ll, er := from.ListLogs(bg, "", offset, pageSize)
 		if er != nil {
 			return out, er
 		}
@@ -120,7 +121,7 @@ func Migrate(f, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[str
 					delete(marshed, "JsonZaps")
 				}
 				data, _ = json.Marshal(marshed)
-				if er := to.PutLog(&log.Log{
+				if er := to.PutLog(bg, &log.Log{
 					Nano:    mess.GetTs() * 1000,
 					Message: data,
 				}); er != nil {

@@ -288,12 +288,12 @@ func (s *Indexer) DeleteMany(ctx context.Context, qu interface{}) (int32, error)
 	}
 	q = bleve.NewQueryStringQuery(str)
 	req := bleve.NewSearchRequest(q)
-	req.Size = 1000
+	req.Size = 10000
 	var count int32
 
 	idx := s.getWriteIndex()
 	for {
-		sr, err := idx.Search(req)
+		sr, err := idx.SearchInContext(ctx, req)
 		if err != nil {
 			fmt.Println(err)
 			return 0, err
@@ -548,7 +548,7 @@ func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 		logger(fmt.Sprintf("Reindexing logs from page %d\n", page))
 		req.From = page * req.Size
 		req.Fields = []string{"*"}
-		sr, err := s.searchIndex.Search(req)
+		sr, err := s.searchIndex.SearchInContext(ctx, req)
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -666,6 +666,8 @@ func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 // openOneIndex tries to open an existing index at a given path, or creates a new one
 func (s *Indexer) openOneIndex(bleveIndexPath string, mappingName string) (bleve.Index, error) {
 
+	fmt.Println("OPEN HERE", bleveIndexPath)
+
 	index, err := bleve.Open(bleveIndexPath)
 	if err != nil {
 		indexMapping := bleve.NewIndexMapping()
@@ -684,6 +686,30 @@ func (s *Indexer) openOneIndex(bleveIndexPath string, mappingName string) (bleve
 			return nil, err
 		}
 	}
+
+	/*
+		if internalIndex, err := index.Advanced(); err == nil {
+			if scorchIndex, ok := internalIndex.(*scorch.Scorch); ok {
+				fmt.Println(scorchIndex.StatsMap())
+				numFiles := scorchIndex.StatsMap()["num_files_on_disk"].(uint64)
+				if numFiles > 4 {
+					if err = scorchIndex.ForceMerge(context.Background(), nil); err == nil {
+						numFiles = scorchIndex.StatsMap()["num_files_on_disk"].(uint64)
+						fmt.Printf("Merged Scorch Index to %d files\n", numFiles)
+					} else {
+						fmt.Println("cannot merge scorch", err)
+					}
+				} else {
+					fmt.Println("scorch num files", numFiles)
+				}
+			} else {
+				fmt.Println("Not a scorch")
+			}
+		} else {
+			fmt.Println("cannot get Advanced()", err)
+		}
+
+	*/
 
 	s.updateStatus()
 

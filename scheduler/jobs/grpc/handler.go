@@ -464,7 +464,7 @@ loop:
 		}
 	}
 	query := j.store.BuildOrphanLogsQuery(60*time.Minute, ii)
-	return j.Repo.DeleteLogs(query)
+	return j.Repo.DeleteLogs(ctx, query)
 
 }
 

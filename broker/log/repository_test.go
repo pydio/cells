@@ -51,14 +51,15 @@ func TestMessageRepository(t *testing.T) {
 		panic(err)
 	}
 	defer closer()
+	bg := context.Background()
 
 	Convey("Test all property indexation:\n", t, func() {
-		err := server.PutLog(&log.Log{Message: []byte(sampleSyslog), Nano: int32(time.Now().UnixNano())})
+		err := server.PutLog(bg, &log.Log{Message: []byte(sampleSyslog), Nano: int32(time.Now().UnixNano())})
 		So(err, ShouldBeNil)
 		// Wait for batch to be processed
 		<-time.After(4 * time.Second)
 
-		results, err := server.ListLogs(fmt.Sprintf(`+%s:info`, common.KeyLevel), 0, 1000)
+		results, err := server.ListLogs(bg, fmt.Sprintf(`+%s:info`, common.KeyLevel), 0, 1000)
 		So(err, ShouldBeNil)
 		var msg log.LogMessage
 
@@ -83,29 +84,28 @@ func TestMessageRepository(t *testing.T) {
 	})
 
 	Convey("Basic technical log index tests:\n", t, func() {
-		err := server.PutLog(log2map("INFO", "this is the first test"))
+		err := server.PutLog(bg, log2map("INFO", "this is the first test"))
 		So(err, ShouldBeNil)
 
-		err2 := server.PutLog(log2map("INFO", "this is another test 2"))
+		err2 := server.PutLog(bg, log2map("INFO", "this is another test 2"))
 		So(err2, ShouldBeNil)
 
-		err3 := server.PutLog(log2map("INFO", "this is random"))
+		err3 := server.PutLog(bg, log2map("INFO", "this is random"))
 		So(err3, ShouldBeNil)
 
-		err4 := server.PutLog(log2map("ERROR", "this is yet another test"))
+		err4 := server.PutLog(bg, log2map("ERROR", "this is yet another test"))
 		So(err4, ShouldBeNil)
 
 		<-time.After(4 * time.Second)
 	})
 
 	Convey("Search a result", t, func() {
-		results, err := server.ListLogs(
-			fmt.Sprintf(
-				`+%s:*test* +%s:INFO +%s:>1142080000`, // ~01.01.2006
-				common.KeyMsg,
-				common.KeyLevel,
-				common.KeyTs,
-			), 0, 1000)
+		results, err := server.ListLogs(bg, fmt.Sprintf(
+			`+%s:*test* +%s:INFO +%s:>1142080000`, // ~01.01.2006
+			common.KeyMsg,
+			common.KeyLevel,
+			common.KeyTs,
+		), 0, 1000)
 		So(err, ShouldBeNil)
 
 		count := 0
@@ -122,7 +122,7 @@ func TestSizeRotation(t *testing.T) {
 	ctx := context.Background()
 	Convey("Test Rotation", t, func() {
 		p := filepath.Join(os.TempDir(), uuid.New(), "syslog.bleve")
-		os.MkdirAll(filepath.Dir(p), 0777)
+		_ = os.MkdirAll(filepath.Dir(p), 0777)
 		fmt.Println("Storing temporary index in", p)
 		dsn := p + fmt.Sprintf("?mapping=log&batchSize=2500&rotationSize=%d", 1*1024*1024)
 
@@ -143,7 +143,7 @@ func TestSizeRotation(t *testing.T) {
 				"msg":    fmt.Sprintf("Message number %d", i),
 			}
 			data, _ := json.Marshal(line)
-			s.PutLog(&log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
+			So(s.PutLog(ctx, &log.Log{Message: data, Nano: int32(time.Now().UnixNano())}), ShouldBeNil)
 		}
 		fmt.Println("Inserted 10000 logs")
 		<-time.After(5 * time.Second)
@@ -156,7 +156,7 @@ func TestSizeRotation(t *testing.T) {
 				"msg":    fmt.Sprintf("Message number %d", k),
 			}
 			data, _ := json.Marshal(line)
-			s.PutLog(&log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
+			So(s.PutLog(ctx, &log.Log{Message: data, Nano: int32(time.Now().UnixNano())}), ShouldBeNil)
 		}
 		fmt.Println("Inserted 10020 other logs")
 
@@ -187,7 +187,7 @@ func TestSizeRotation(t *testing.T) {
 				"msg":    fmt.Sprintf("Message number %d", i),
 			}
 			data, _ := json.Marshal(line)
-			_ = s.PutLog(&log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
+			_ = s.PutLog(ctx, &log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
 		}
 		fmt.Println("Inserted 10000 logs")
 		<-time.After(5 * time.Second)
@@ -201,7 +201,7 @@ func TestSizeRotation(t *testing.T) {
 				"msg":    fmt.Sprintf("Message number %d", k),
 			}
 			data, _ := json.Marshal(line)
-			_ = s.PutLog(&log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
+			_ = s.PutLog(ctx, &log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
 		}
 
 		<-time.After(5 * time.Second)
