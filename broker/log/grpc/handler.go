@@ -88,7 +88,6 @@ func (h *Handler) ListLogs(req *proto.ListLogRequest, stream proto.LogRecorder_L
 	}
 
 	for rr := range r {
-
 		stream.Send(&proto.ListLogResponse{
 			LogMessage: rr.LogMessage,
 		})

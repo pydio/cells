@@ -9,25 +9,24 @@ import (
 )
 
 type IndexService struct {
-	dao.IndexDAO
+	dao dao.IndexDAO
 }
 
-func NewIndexService() (MessageRepository, error) {
-	is := &IndexService{}
+func NewIndexService(dao dao.IndexDAO) (MessageRepository, error) {
+	is := &IndexService{dao: dao}
 	return is, nil
 }
 
 // PutLog  adds a new LogMessage in the syslog index.
 func (s *IndexService) PutLog(ctx context.Context, line *log.Log) error {
-	dao := dao.IndexDAO{DAO(ctx)
-	return s.dao.InsertOne(nil, line)
+	return s.dao.InsertOne(ctx, line)
 }
 
 // ListLogs performs a query in the bleve index, based on the passed query string.
 // It returns results as a stream of log.ListLogResponse for each corresponding hit.
 // Results are ordered by descending timestamp rather than by score.
-func (s *IndexService) ListLogs(ctx context.Context, str string, page, size int32) (chan log.ListLogResponse, error) {
-	ch, er := s.dao.FindMany(context.Background(), str, page*size, size, nil)
+func (s *IndexService) ListLogs(ctx context.Context, str string, page int32, size int32) (chan log.ListLogResponse, error) {
+	ch, er := s.dao.FindMany(ctx, str, page*size, size, nil)
 	if er != nil {
 		return nil, er
 	}
@@ -42,8 +41,8 @@ func (s *IndexService) ListLogs(ctx context.Context, str string, page, size int3
 }
 
 // DeleteLogs truncate logs based on a search query
-func (s *IndexService) DeleteLogs(query string) (int64, error) {
-	c, er := s.dao.DeleteMany(nil, query)
+func (s *IndexService) DeleteLogs(ctx context.Context, query string) (int64, error) {
+	c, er := s.dao.DeleteMany(ctx, query)
 	if er == nil {
 		return int64(c), nil
 	} else {
@@ -52,7 +51,7 @@ func (s *IndexService) DeleteLogs(query string) (int64, error) {
 }
 
 // AggregatedLogs performs a faceted query in the syslog repository. UNIMPLEMENTED.
-func (s *IndexService) AggregatedLogs(_ string, _ string, _ int32) (chan log.TimeRangeResponse, error) {
+func (s *IndexService) AggregatedLogs(_ context.Context, _ string, _ string, _ int32) (chan log.TimeRangeResponse, error) {
 	return nil, fmt.Errorf("unimplemented method")
 }
 
