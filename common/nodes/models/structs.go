@@ -24,11 +24,18 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/pydio/cells/v4/common"
 )
+
+var defaultRx *regexp.Regexp
+
+func init() {
+	defaultRx = regexp.MustCompile(`(application|binary)/octet-stream`)
+}
 
 // PutRequestData passes content-specific information during uploads
 type PutRequestData struct {
@@ -105,7 +112,7 @@ func (o ReadMeta) SetRange(start, end int64) error {
 // ContentTypeUnknown checks if cType is empty or generic "application/octet-stream"
 func (p *PutRequestData) ContentTypeUnknown() bool {
 	cType := p.MetaContentType()
-	return cType == "" || cType == "application/octet-stream"
+	return cType == "" || defaultRx.MatchString(cType)
 }
 
 // GetRequestData passes optional Range instructions for reading file data
