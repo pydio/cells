@@ -666,8 +666,6 @@ func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 // openOneIndex tries to open an existing index at a given path, or creates a new one
 func (s *Indexer) openOneIndex(bleveIndexPath string, mappingName string) (bleve.Index, error) {
 
-	fmt.Println("OPEN HERE", bleveIndexPath)
-
 	index, err := bleve.Open(bleveIndexPath)
 	if err != nil {
 		indexMapping := bleve.NewIndexMapping()
