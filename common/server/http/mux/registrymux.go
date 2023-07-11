@@ -33,11 +33,11 @@ type Middleware struct {
 	clienthttp.Resolver
 }
 
-func NewMiddleware(ctx context.Context, s server.HttpMux) Middleware {
+func NewMiddleware(ctx context.Context, serverID string, s server.HttpMux) Middleware {
 	m := Middleware{
 		Resolver: clienthttp.NewResolver(),
 	}
-	m.Resolver.Init(ctx, s)
+	m.Resolver.Init(ctx, serverID, s)
 	return m
 }
 

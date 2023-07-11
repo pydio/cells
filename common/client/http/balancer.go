@@ -42,7 +42,7 @@ type Balancer interface {
 	PickEndpoint(path string) (*httputil.ReverseProxy, error)
 }
 
-func NewBalancer() Balancer {
+func NewBalancer(excludeID string) Balancer {
 	var clusterConfig *client.ClusterConfig
 	config.Get("cluster").Default(&client.ClusterConfig{}).Scan(&clusterConfig)
 	clientConfig := clusterConfig.GetClientConfig("http")
@@ -54,12 +54,14 @@ func NewBalancer() Balancer {
 	return &balancer{
 		readyProxies: map[string]*reverseProxy{},
 		options:      opts,
+		excludeID:    excludeID,
 	}
 }
 
 type balancer struct {
 	readyProxies map[string]*reverseProxy
 	options      *client.BalancerOptions
+	excludeID    string
 }
 
 type reverseProxy struct {
@@ -84,7 +86,10 @@ func (p *proxyBalancerTarget) Attributes() *attributes.Attributes {
 
 func (b *balancer) Build(m map[string]*client.ServerAttributes) error {
 	usedAddr := map[string]struct{}{}
-	for _, mm := range m {
+	for srvID, mm := range m {
+		if b.excludeID != "" && srvID == b.excludeID {
+			continue
+		}
 		for _, addr := range mm.Addresses {
 			usedAddr[addr] = struct{}{}
 			proxy, ok := b.readyProxies[addr]
@@ -162,22 +167,27 @@ func (b *balancer) PickService(name string) (*httputil.ReverseProxy, error) {
 }
 
 func (b *balancer) PickEndpoint(path string) (*httputil.ReverseProxy, error) {
-	var targets []*proxyBalancerTarget
+	dedup := map[string]*proxyBalancerTarget{}
+
 	for addr, proxy := range b.readyProxies {
 		for _, endpoint := range proxy.Endpoints {
 			if endpoint == "/" {
 				continue
 			}
 			if strings.HasPrefix(path, endpoint) {
-				targets = append(targets, &proxyBalancerTarget{
+				dedup[addr] = &proxyBalancerTarget{
 					proxy:   proxy,
 					address: addr,
-				})
+				}
 			}
 		}
 	}
-	if len(targets) == 0 {
+	if len(dedup) == 0 {
 		return nil, fmt.Errorf("no proxy found for endpoint %s", path)
+	}
+	var targets []*proxyBalancerTarget
+	for _, pbt := range dedup {
+		targets = append(targets, pbt)
 	}
 	if b.options != nil && len(b.options.Filters) > 0 {
 		for _, f := range b.options.Filters {
