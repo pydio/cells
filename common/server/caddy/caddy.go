@@ -164,7 +164,8 @@ func New(ctx context.Context, dir string) (server.Server, error) {
 	})
 
 	srvMUX := server.NewListableMux()
-	mux.RegisterServerMux(ctx, srvMUX)
+	srvID := "caddy-" + uuid.New()
+	mux.RegisterServerMux(ctx, srvID, srvMUX)
 
 	caddyStorePath := filepath.Join(runtime.ApplicationWorkingDir(), "caddy")
 	_ = os.MkdirAll(caddyStorePath, 0755)
@@ -174,7 +175,7 @@ func New(ctx context.Context, dir string) (server.Server, error) {
 	}
 
 	srv := &Server{
-		id:   "caddy-" + uuid.New(),
+		id:   srvID,
 		name: "caddy",
 		meta: make(map[string]string),
 

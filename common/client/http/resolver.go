@@ -31,7 +31,7 @@ var grpcTransport = &http.Transport{
 
 type Resolver interface {
 	ServeHTTP(w http.ResponseWriter, r *http.Request) (bool, error)
-	Init(ctx context.Context, s server.HttpMux)
+	Init(ctx context.Context, serverID string, s server.HttpMux)
 	Stop()
 }
 
@@ -50,12 +50,12 @@ type resolver struct {
 	userReady    bool
 }
 
-func (m *resolver) Init(ctx context.Context, s server.HttpMux) {
+func (m *resolver) Init(ctx context.Context, serverID string, s server.HttpMux) {
 
 	conn := clientcontext.GetClientConn(ctx)
 	reg := servercontext.GetRegistry(ctx)
 	rc, _ := client.NewResolverCallback(reg)
-	bal := NewBalancer()
+	bal := NewBalancer(serverID)
 	rc.Add(bal.Build)
 
 	m.c = conn

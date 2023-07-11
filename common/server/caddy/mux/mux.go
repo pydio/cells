@@ -37,14 +37,14 @@ var (
 	module *Middleware
 )
 
-func RegisterServerMux(ctx context.Context, s server.HttpMux) {
+func RegisterServerMux(ctx context.Context, serverID string, s server.HttpMux) {
 	if module != nil {
 		module.Stop()
-		module.Init(ctx, s)
+		module.Init(ctx, serverID, s)
 		return
 	}
 	module = &Middleware{Resolver: clienthttp.NewResolver()}
-	module.Init(ctx, s)
+	module.Init(ctx, serverID, s)
 	caddy.RegisterModule(module)
 	httpcaddyfile.RegisterHandlerDirective("mux", parseCaddyfile)
 }
@@ -53,8 +53,8 @@ type Middleware struct {
 	clienthttp.Resolver
 }
 
-func (m *Middleware) Init(ctx context.Context, s server.HttpMux) {
-	m.Resolver.Init(ctx, s)
+func (m *Middleware) Init(ctx context.Context, serverID string, s server.HttpMux) {
+	m.Resolver.Init(ctx, serverID, s)
 }
 
 func (m *Middleware) Stop() {
