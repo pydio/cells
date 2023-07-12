@@ -26,6 +26,9 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
+	commonsql "github.com/pydio/cells/v4/common/sql"
 	"strings"
 
 	"google.golang.org/grpc"
@@ -37,7 +40,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/data/source/index"
 )
 
@@ -52,7 +54,9 @@ func init() {
 			name := common.ServiceGrpcNamespace_ + common.ServiceDataIndex_ + source
 			sourceOpt := source
 
-			service.NewService(
+			var s service.Service
+
+			s = service.NewService(
 				service.Name(name),
 				service.Context(ctx),
 				//service.WithLogger(log.Logger(ctx)),
@@ -62,25 +66,28 @@ func init() {
 				// service.Fork(true),
 				//service.AutoStart(false),
 				//service.Unique(true),
-				service.WithStorage(index.NewDAO, service.WithStoragePrefix(func(o *service.ServiceOptions) string {
-					// Returning a prefix for the dao
-					return strings.Replace(strings.TrimPrefix(o.Name, common.ServiceGrpcNamespace_), ".", "_", -1)
-				})),
+				service.WithTODOStorage(index.NewDAO, commonsql.NewDAO,
+					service.WithStoragePrefix(func(o *service.ServiceOptions) string {
+						// Returning a prefix for the dao
+						return strings.Replace(strings.TrimPrefix(o.Name, common.ServiceGrpcNamespace_), ".", "_", -1)
+					}),
+					service.WithStorageSupport(mysql.Driver, sqlite.Driver),
+				),
 				service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 
 					dsObject, e := config.GetSourceInfoByName(sourceOpt)
 					if e != nil {
 						return fmt.Errorf("cannot find datasource configuration for " + sourceOpt)
 					}
-					engine := NewTreeServer(dsObject, name, servicecontext.GetDAO(ctx).(index.DAO))
-					tree.RegisterNodeReceiverEnhancedServer(srv, engine)
-					tree.RegisterNodeProviderEnhancedServer(srv, engine)
-					tree.RegisterNodeReceiverStreamEnhancedServer(srv, engine)
-					tree.RegisterNodeProviderStreamerEnhancedServer(srv, engine)
-					tree.RegisterSessionIndexerEnhancedServer(srv, engine)
+					engine := NewTreeServer(dsObject, name, service.DAOProvider[index.DAO](s))
+					tree.RegisterNodeReceiverServer(srv, engine)
+					tree.RegisterNodeProviderServer(srv, engine)
+					tree.RegisterNodeReceiverStreamServer(srv, engine)
+					tree.RegisterNodeProviderStreamerServer(srv, engine)
+					tree.RegisterSessionIndexerServer(srv, engine)
 
-					object.RegisterResourceCleanerEndpointEnhancedServer(srv, engine)
-					sync.RegisterSyncEndpointEnhancedServer(srv, engine)
+					object.RegisterResourceCleanerEndpointServer(srv, engine)
+					sync.RegisterSyncEndpointServer(srv, engine)
 
 					return nil
 				}),

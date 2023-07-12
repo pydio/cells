@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -23,6 +24,7 @@ import (
 // UpgradeTo120 looks for workspace roots and CellNode roots and set a "recycle_root" flag on them.
 func UpgradeTo120(ctx context.Context) error {
 
+	fmt.Println("Upgrade to 120 ?")
 	dao := servicecontext.GetDAO(ctx).(acl.DAO)
 
 	// REMOVE pydiogateway ACLs

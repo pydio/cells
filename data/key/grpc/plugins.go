@@ -23,6 +23,9 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
+	commonsql "github.com/pydio/cells/v4/common/sql"
 
 	"google.golang.org/grpc"
 
@@ -32,7 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/data/key"
 )
 
@@ -40,14 +42,17 @@ var ServiceName = common.ServiceGrpcNamespace_ + common.ServiceEncKey
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		service.NewService(
+		var s service.Service
+		s = service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Encryption Keys server"),
-			service.WithStorage(key.NewDAO, service.WithStoragePrefix("data_key")),
+			service.WithTODOStorage(key.NewDAO, commonsql.NewDAO,
+				service.WithStoragePrefix("data_key"),
+				service.WithStorageSupport(mysql.Driver, sqlite.Driver)),
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
-				h := &NodeKeyManagerHandler{dao: servicecontext.GetDAO(c).(key.DAO)}
+				h := NewNodeKeyManagerHandler(s)
 				encryption.RegisterNodeKeyManagerEnhancedServer(srv, h)
 				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}

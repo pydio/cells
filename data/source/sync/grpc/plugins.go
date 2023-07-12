@@ -23,6 +23,9 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
+	commonsql "github.com/pydio/cells/v4/common/sql"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -228,7 +231,7 @@ func WithStorage(source string) service.ServiceOption {
 	mapperType := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, "StorageConfiguration", "checksumMapper").String()
 	switch mapperType {
 	case "dao":
-		return service.WithStorage(sync.NewDAO, service.WithStoragePrefix("data_sync_"+source))
+		return service.WithTODOStorage(sync.NewDAO, commonsql.NewDAO, service.WithStoragePrefix("data_sync_"+source), service.WithStorageSupport(mysql.Driver, sqlite.Driver))
 	}
 	return nil
 }

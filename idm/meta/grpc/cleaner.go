@@ -24,7 +24,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -34,12 +33,12 @@ import (
 
 // Cleaner cleans bookmarks on user deletion
 type Cleaner struct {
-	Dao meta.DAO
+	dao func(ctx context.Context) meta.DAO
 }
 
-func NewCleaner(dao dao.DAO) *Cleaner {
+func NewCleaner(dao func(ctx context.Context) meta.DAO) *Cleaner {
 	c := &Cleaner{}
-	c.Dao = dao.(meta.DAO)
+	c.dao = dao
 	return c
 }
 
@@ -50,14 +49,14 @@ func (c *Cleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 	}
 	go func() {
 		// Remove user bookmarks
-		metas, e := c.Dao.Search(nil, nil, namespace.ReservedNamespaceBookmark, msg.User.Uuid, nil)
+		metas, e := c.dao(ctx).Search(nil, nil, namespace.ReservedNamespaceBookmark, msg.User.Uuid, nil)
 		if e != nil || len(metas) == 0 {
 			return
 		}
 		ctx = servicecontext.WithServiceName(ctx, Name)
 		log.Logger(ctx).Info(fmt.Sprintf("Cleaning %d bookmarks for user %s", len(metas), msg.User.Login))
 		for _, m := range metas {
-			c.Dao.Del(m)
+			c.dao(ctx).Del(m)
 		}
 	}()
 

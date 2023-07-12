@@ -30,10 +30,10 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/ory/fosite"
-	"github.com/ory/hydra/consent"
-	"github.com/ory/hydra/jwk"
-	"github.com/ory/hydra/oauth2"
-	"github.com/ory/hydra/x"
+	"github.com/ory/hydra/v2/consent"
+	"github.com/ory/hydra/v2/jwk"
+	"github.com/ory/hydra/v2/oauth2"
+	"github.com/ory/hydra/v2/x"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/rs/cors"
 
@@ -75,18 +75,18 @@ func init() {
 						return e
 					}
 
-					admin := x.NewRouterAdmin()
+					admin := x.NewRouterAdmin((*conf.GetProvider()).Config().AdminURL)
 					public := x.NewRouterPublic()
 
-					oauth2Handler := oauth2.NewHandler(reg, conf.GetProvider())
+					oauth2Handler := oauth2.NewHandler(reg, (*conf.GetProvider()).Config())
 					oauth2Handler.SetRoutes(admin, public, func(handler http.Handler) http.Handler {
 						return handler
 					})
 
-					consentHandler := consent.NewHandler(reg, conf.GetProvider())
+					consentHandler := consent.NewHandler(reg, (*conf.GetProvider()).Config())
 					consentHandler.SetRoutes(admin)
 
-					keyHandler := jwk.NewHandler(reg, conf.GetProvider())
+					keyHandler := jwk.NewHandler(reg)
 					keyHandler.SetRoutes(admin, public, func(handler http.Handler) http.Handler {
 						return handler
 					})

@@ -43,7 +43,7 @@ var (
 
 // TriggerResync on index performs a Lost+Found request to auto-heal indexation errors, whenever possible
 func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequest) (*sync.ResyncResponse, error) {
-	dao := s.getDAO("")
+	dao := s.getDAO(ctx, "")
 
 	resp := &sync.ResyncResponse{}
 	if request.GetPath() == "flatten" {

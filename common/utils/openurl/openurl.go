@@ -79,7 +79,7 @@ func (m *SchemeMap) FromURL(typ string, u *url.URL) (interface{}, error) {
 	}
 
 	scheme = strings.SplitN(scheme, "+", 2)[0]
-	
+
 	v, ok := m.m[scheme]
 	if !ok {
 		return nil, fmt.Errorf("open %s.%s: no driver registered for %q for URL %q; available schemes: %v", m.api, typ, scheme, u, strings.Join(m.Schemes(), ", "))
@@ -105,4 +105,25 @@ func (m *SchemeMap) ValidScheme(scheme string) bool {
 		}
 	}
 	return false
+}
+
+func DSNToURL(driver string, dsn string, prefix string) *url.URL {
+	u := &url.URL{
+		Scheme: driver,
+	}
+
+	q := u.Query()
+	q.Set("dsn", dsn)
+	q.Set("prefix", prefix)
+	u.RawQuery = q.Encode()
+
+	return u
+}
+
+func URLToDSN(u *url.URL) (driver string, dsn string, prefix string) {
+	driver = u.Scheme
+	dsn = u.Query().Get("dsn")
+	prefix = u.Query().Get("prefix")
+
+	return
 }

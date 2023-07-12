@@ -72,6 +72,8 @@ type Service interface {
 	Server() server.Server
 	Is(status registry.Status) bool
 	As(i interface{}) bool
+
+	config(ctx context.Context) config.Store
 }
 
 type Stopper func() error
@@ -287,9 +289,10 @@ func (s *service) OnServe(oo ...registry.RegisterOption) error {
 		}
 
 		defer w.Done()
-		if e := UpdateServiceVersion(s.Opts.Context, config.Main(), s.Opts); e != nil {
-			log.Logger(s.Opts.Context).Error("UpdateServiceVersion failed", zap.Error(e))
-		}
+		/*
+			if e := UpdateServiceVersion(s.Opts.Context, config.Main(), s.Opts); e != nil {
+				log.Logger(s.Opts.Context).Error("UpdateServiceVersion failed", zap.Error(e))
+			}*/
 	}()
 	for _, after := range s.Opts.AfterServe {
 		go func(f func(context.Context) error) {

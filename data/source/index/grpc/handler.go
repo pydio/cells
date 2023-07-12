@@ -49,7 +49,7 @@ import (
 // TreeServer definition.
 type TreeServer struct {
 	// dao
-	dao          index.DAO
+	dao          func(ctx context.Context) index.DAO
 	sessionStore sessions.DAO
 
 	handlerName string
@@ -72,9 +72,10 @@ type TreeServer struct {
 func init() {}
 
 // NewTreeServer factory.
-func NewTreeServer(ds *object.DataSource, handlerName string, dao index.DAO) *TreeServer {
+func NewTreeServer(ds *object.DataSource, handlerName string, dao func(ctx context.Context) index.DAO) *TreeServer {
 
-	dao = cindex.NewFolderSizeCacheDAO(cindex.NewHiddenFileDuplicateRemoverDAO(dao))
+	// TODO
+	// dao = cindex.NewFolderSizeCacheDAO(cindex.NewHiddenFileDuplicateRemoverDAO(dao))
 
 	return &TreeServer{
 		dsName:       ds.Name,
@@ -85,16 +86,17 @@ func NewTreeServer(ds *object.DataSource, handlerName string, dao index.DAO) *Tr
 	}
 }
 
-func (s *TreeServer) getDAO(session string) index.DAO {
+func (s *TreeServer) getDAO(ctx context.Context, session string) index.DAO {
 
 	if session != "" {
 		if dao := index.GetDAOCache(session); dao != nil {
 			return dao.(index.DAO)
 		}
-		return index.NewDAOCache(session, s.dao).(index.DAO)
+
+		return index.NewDAOCache(session, s.dao(ctx)).(index.DAO)
 	}
 
-	return s.dao
+	return s.dao(ctx)
 }
 
 func (s *TreeServer) Name() string {
@@ -139,7 +141,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		}
 	}()
 
-	dao := s.getDAO(req.GetIndexationSession())
+	dao := s.getDAO(ctx, req.GetIndexationSession())
 	name := servicecontext.GetServiceName(ctx)
 
 	var node *mtree.TreeNode
@@ -266,7 +268,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 	if md, has := metadata.CanonicalMeta(ctx, "x-indexation-session"); has {
 		session = md
 	}
-	dao := s.getDAO(session)
+	dao := s.getDAO(ctx, session)
 
 	name := servicecontext.GetServiceName(ctx)
 
@@ -345,7 +347,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 
 	defer track(log.Logger(ctx), "ListNodes", time.Now(), req, resp)
 
-	dao := s.getDAO("")
+	dao := s.getDAO(ctx, "")
 	name := servicecontext.GetServiceName(ctx)
 
 	if req.Ancestors && req.Recursive {
@@ -534,7 +536,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		log.Logger(ctx).Debug("Finished UpdateNode")
 	}()
 
-	dao := s.getDAO(req.GetIndexationSession())
+	dao := s.getDAO(ctx, req.GetIndexationSession())
 	name := servicecontext.GetServiceName(ctx)
 
 	reqFromPath := safePath(req.GetFrom().GetPath())
@@ -615,7 +617,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 		}
 	}()
 
-	dao := s.getDAO(req.GetIndexationSession())
+	dao := s.getDAO(ctx, req.GetIndexationSession())
 	name := servicecontext.GetServiceName(ctx)
 
 	reqPath := safePath(req.GetNode().GetPath())
@@ -716,7 +718,7 @@ func (s *TreeServer) FlushSession(ctx context.Context, req *tree.FlushSessionReq
 	if session != nil {
 		log.Logger(ctx).Info("Flushing Indexation Session " + req.GetSession().GetUuid())
 
-		dao := s.getDAO(session.GetUuid())
+		dao := s.getDAO(ctx, session.GetUuid())
 		err := dao.Flush(false)
 		if err != nil {
 			log.Logger(ctx).Error("Error while flushing indexation Session "+req.GetSession().GetUuid(), zap.Error(err))
@@ -734,7 +736,7 @@ func (s *TreeServer) CloseSession(ctx context.Context, req *tree.CloseSessionReq
 	if session != nil {
 		log.Logger(ctx).Info("Closing Indexation Session " + req.GetSession().GetUuid())
 
-		dao := s.getDAO(session.GetUuid())
+		dao := s.getDAO(ctx, session.GetUuid())
 
 		err := dao.Flush(true)
 		if err != nil {
@@ -756,7 +758,7 @@ func (s *TreeServer) CloseSession(ctx context.Context, req *tree.CloseSessionReq
 // CleanResourcesBeforeDelete ensure all resources are cleant before deleting.
 func (s *TreeServer) CleanResourcesBeforeDelete(ctx context.Context, request *object.CleanResourcesRequest) (resp *object.CleanResourcesResponse, err error) {
 	resp = &object.CleanResourcesResponse{}
-	msg, err := s.getDAO("").CleanResourcesOnDeletion()
+	msg, err := s.getDAO(ctx, "").CleanResourcesOnDeletion()
 	if err != nil {
 		resp.Success = false
 	} else {

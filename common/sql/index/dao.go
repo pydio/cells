@@ -33,6 +33,8 @@ import (
 
 // DAO interface
 type DAO interface {
+	sql.DAO
+
 	Path(strpath string, create bool, reqNode ...*tree.Node) (mtree.MPath, []*mtree.TreeNode, error)
 
 	// Add a node in the tree

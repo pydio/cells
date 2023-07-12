@@ -23,6 +23,10 @@ package grpc
 
 import (
 	"context"
+	"github.com/ory/fosite"
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
+	commonsql "github.com/pydio/cells/v4/common/sql"
 	"go.uber.org/zap"
 	"log"
 
@@ -37,7 +41,6 @@ import (
 	auth2 "github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/idm/oauth"
 )
 
@@ -97,17 +100,19 @@ func init() {
 			}),
 		)
 
-		service.NewService(
+		var s service.Service
+
+		s = service.NewService(
 			service.Name(common.ServiceGrpcNamespace_+common.ServiceToken),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Personal Access Token Provider"),
-			service.WithStorage(oauth.NewDAO, service.WithStoragePrefix("idm_oauth_")),
+			service.WithTODOStorage(oauth.NewDAO, commonsql.NewDAO,
+				service.WithStoragePrefix("idm_oauth_"),
+				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
+			),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-				pat := &PatHandler{
-					name: common.ServiceGrpcNamespace_ + common.ServiceToken,
-					dao:  servicecontext.GetDAO(ctx).(oauth.DAO),
-				}
+				pat := NewPATHandler(s, &fosite.Config{})
 				auth2.RegisterPersonalAccessTokenServiceEnhancedServer(server, pat)
 				auth2.RegisterAuthTokenVerifierEnhancedServer(server, pat)
 				auth2.RegisterAuthTokenPrunerEnhancedServer(server, pat)
@@ -141,5 +146,4 @@ func init() {
 		auth.RegisterGRPCProvider(auth.ProviderTypeGrpc, common.ServiceGrpcNamespace_+common.ServiceOAuth)
 		auth.RegisterGRPCProvider(auth.ProviderTypePAT, common.ServiceGrpcNamespace_+common.ServiceToken)
 	})
-
 }

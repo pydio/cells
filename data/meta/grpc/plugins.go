@@ -23,6 +23,9 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
+	commonsql "github.com/pydio/cells/v4/common/sql"
 
 	"google.golang.org/grpc"
 
@@ -31,7 +34,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/data/meta"
 )
 
@@ -41,16 +43,21 @@ var (
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		service.NewService(
+		var s service.Service
+
+		s = service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Metadata server for tree nodes"),
 			service.Unique(true),
-			service.WithStorage(meta.NewDAO, service.WithStoragePrefix("data_meta")),
+			service.WithTODOStorage(meta.NewDAO, commonsql.NewDAO,
+				service.WithStoragePrefix("data_meta"),
+				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
+			),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
-				engine := NewMetaServer(c, servicecontext.GetDAO(c).(meta.DAO))
+				engine := NewMetaServer(c, s)
 
 				tree.RegisterNodeProviderEnhancedServer(server, engine)
 				tree.RegisterNodeProviderStreamerEnhancedServer(server, engine)

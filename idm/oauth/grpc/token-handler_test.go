@@ -45,7 +45,7 @@ func TestMain(m *testing.M) {
 func TestPatHandler_Generate(t *testing.T) {
 
 	Convey("Test Personal Access Tokens", t, func() {
-		pat := &PatHandler{
+		pat := &PATHandler{
 			dao: mockDAO,
 		}
 		rsp, e := pat.Generate(ctx, &auth.PatGenerateRequest{
@@ -89,7 +89,7 @@ func TestPatHandler_Generate(t *testing.T) {
 }
 func TestPatHandler_AutoRefresh(t *testing.T) {
 	Convey("Test AutoRefresh Access Tokens", t, func() {
-		pat := &PatHandler{dao: mockDAO}
+		pat := &PATHandler{dao: mockDAO}
 		rsp, e := pat.Generate(ctx, &auth.PatGenerateRequest{
 			Type:              auth.PatType_PERSONAL,
 			UserUuid:          "admin-uuid",
@@ -135,7 +135,7 @@ func TestPatHandler_AutoRefresh(t *testing.T) {
 
 func TestPatHandler_Revoke(t *testing.T) {
 	Convey("Test Revoke Access Tokens", t, func() {
-		pat := &PatHandler{dao: mockDAO}
+		pat := &PATHandler{dao: mockDAO}
 		rsp, e := pat.Generate(ctx, &auth.PatGenerateRequest{
 			Type:      auth.PatType_PERSONAL,
 			UserUuid:  "admin-uuid",
@@ -157,7 +157,7 @@ func TestPatHandler_Revoke(t *testing.T) {
 
 func TestPathHandler_List(t *testing.T) {
 	Convey("Test Revoke Access Tokens", t, func() {
-		pat := &PatHandler{dao: mockDAO}
+		pat := &PATHandler{dao: mockDAO}
 		pat.Generate(ctx, &auth.PatGenerateRequest{
 			Type:      auth.PatType_PERSONAL,
 			UserUuid:  "admin-uuid",

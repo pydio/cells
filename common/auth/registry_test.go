@@ -21,6 +21,9 @@
 package auth
 
 import (
+	"context"
+	"fmt"
+	"github.com/ory/hydra/v2/consent"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -33,5 +36,23 @@ func TestRange(t *testing.T) {
 
 		strFail := rangeFromStr("http://localhost:[30000-29995]")
 		So(len(strFail), ShouldEqual, 1)
+	})
+}
+
+func TestRegistry(t *testing.T) {
+	Convey("Test Registry", t, func() {
+		r := NewRegistrySQL()
+		req := &consent.LoginRequest{
+			ID:         "testlogin",
+			ClientID:   "testclient",
+			RequestURL: "testurl",
+		}
+
+		fmt.Println("And the client is ? ", req.ID, req.ClientID, req.RequestURL)
+
+		r.ConsentManager().CreateLoginRequest(context.TODO(), req)
+
+		resp, _ := r.ConsentManager().GetLoginRequest(context.TODO(), "testlogin")
+		fmt.Println("And the client is ? ", resp.ID, resp.ClientID, resp.RequestURL)
 	})
 }

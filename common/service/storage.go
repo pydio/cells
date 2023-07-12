@@ -41,6 +41,7 @@ type StorageOptions struct {
 	DAOWrapper       dao.DaoWrapperFunc
 	DAOProvider      dao.DaoProviderFunc
 	DefaultDriver    dao.DriverProviderFunc
+	Migrations       []*Migration
 	Migrator         dao.MigratorFunc
 	prefix           interface{}
 
@@ -103,6 +104,12 @@ func WithStorageDefaultDriver(d func() (string, string)) StorageOption {
 func WithStorageMigrator(d dao.MigratorFunc) StorageOption {
 	return func(options *StorageOptions) {
 		options.Migrator = d
+	}
+}
+
+func WithMigrations(migrations []*Migration) StorageOption {
+	return func(options *StorageOptions) {
+		options.Migrations = migrations
 	}
 }
 

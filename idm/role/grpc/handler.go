@@ -49,13 +49,13 @@ type Handler struct {
 	idm.UnimplementedRoleServiceServer
 
 	service.Service
-	dao service.DAOProviderFunc[role.DAO]
+	dao func(context.Context) role.DAO
 }
 
 func NewHandler(ctx context.Context, svc service.Service) idm.RoleServiceServer {
 	return &Handler{
 		Service: svc,
-		dao:     service.DAOFromContext[role.DAO](svc),
+		dao:     service.DAOProvider[role.DAO](svc),
 	}
 }
 

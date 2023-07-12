@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/service"
 	"strings"
 	"time"
 
@@ -34,7 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	service "github.com/pydio/cells/v4/common/proto/service"
+	pbservice "github.com/pydio/cells/v4/common/proto/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -48,33 +49,34 @@ type insertRole struct {
 }
 
 var (
-	rootPolicies = []*service.ResourcePolicy{
+	rootPolicies = []*pbservice.ResourcePolicy{
 		{
-			Action:  service.ResourcePolicyAction_READ,
+			Action:  pbservice.ResourcePolicyAction_READ,
 			Subject: "*",
-			Effect:  service.ResourcePolicy_allow,
+			Effect:  pbservice.ResourcePolicy_allow,
 		},
 		{
-			Action:  service.ResourcePolicyAction_WRITE,
+			Action:  pbservice.ResourcePolicyAction_WRITE,
 			Subject: "profile:" + common.PydioProfileAdmin,
-			Effect:  service.ResourcePolicy_allow,
+			Effect:  pbservice.ResourcePolicy_allow,
 		},
 	}
-	externalPolicies = []*service.ResourcePolicy{
+	externalPolicies = []*pbservice.ResourcePolicy{
 		{
-			Action:  service.ResourcePolicyAction_READ,
+			Action:  pbservice.ResourcePolicyAction_READ,
 			Subject: "*",
-			Effect:  service.ResourcePolicy_allow,
+			Effect:  pbservice.ResourcePolicy_allow,
 		},
 		{
-			Action:  service.ResourcePolicyAction_WRITE,
+			Action:  pbservice.ResourcePolicyAction_WRITE,
 			Subject: "profile:" + common.PydioProfileStandard,
-			Effect:  service.ResourcePolicy_allow,
+			Effect:  pbservice.ResourcePolicy_allow,
 		},
 	}
 )
 
 func InitRoles(ctx context.Context) error {
+	dao := service.DAOFromContext[role.DAO](ctx)
 	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
 	langJ, _ := json.Marshal(lang)
 	scopeAll := permissions.FrontWsScopeAll
@@ -154,7 +156,6 @@ func InitRoles(ctx context.Context) error {
 
 	var e error
 	for _, insert := range insertRoles {
-		dao := servicecontext.GetDAO(ctx).(role.DAO)
 		var update bool
 		_, update, e = dao.Add(insert.Role)
 		if e != nil {

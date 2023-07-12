@@ -21,7 +21,7 @@ func init() {
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Grpc Implementation of Broker service"),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-				pb.RegisterBrokerEnhancedServer(srv, handler.NewHandler(broker.Default()))
+				pb.RegisterBrokerServer(srv, handler.NewHandler(broker.Default()))
 				return nil
 			}),
 		)

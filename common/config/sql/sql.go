@@ -24,15 +24,99 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"github.com/pydio/cells/v4/common/utils/openurl"
+	"net/url"
+	"os"
+	"strconv"
+	"strings"
+	"time"
 
-	migrate "github.com/rubenv/sql-migrate"
-
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/statics"
+	migrate "github.com/rubenv/sql-migrate"
 )
+
+var (
+	schemes          = []string{"mysql", "sqlite3"}
+	errClosedChannel = errors.New("channel is closed")
+)
+
+type URLOpener struct{}
+
+const timeout = 500 * time.Millisecond
+
+func init() {
+	o := &URLOpener{}
+	for _, scheme := range schemes {
+		config.DefaultURLMux().Register(scheme, o)
+	}
+}
+
+func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+
+	var opts []configx.Option
+
+	encode := u.Query().Get("encode")
+	switch encode {
+	case "string":
+		opts = append(opts, configx.WithString())
+	case "yaml":
+		opts = append(opts, configx.WithYAML())
+	case "json":
+		opts = append(opts, configx.WithJSON())
+	default:
+		opts = append(opts, configx.WithJSON())
+	}
+
+	if data := u.Query().Get("data"); data != "" {
+		//unescapedData, err := url.QueryUnescape(data)
+		//if err != nil {
+		//	return nil, err
+		//}
+		opts = append(opts, configx.WithInitData([]byte(data)))
+	}
+
+	driver := u.Scheme
+	dsn := u.Host
+	prefix := u.Query().Get("prefix")
+
+	switch u.Scheme {
+	case "mysql":
+		driver, dsn, prefix = openurl.URLToDSN(u)
+	}
+
+	store, _ := New(ctx, driver, dsn, prefix)
+
+	envPrefix := u.Query().Get("env")
+	if envPrefix != "" {
+		env := os.Environ()
+		for _, v := range env {
+			if strings.HasPrefix(v, envPrefix) {
+				vv := strings.SplitN(v, "=", 2)
+				if len(vv) == 2 {
+					k := strings.TrimPrefix(vv[0], envPrefix)
+					k = strings.ReplaceAll(k, "_", "/")
+					k = strings.ToLower(k)
+
+					var m map[string]interface{}
+					msg, err := strconv.Unquote(vv[1])
+					if err != nil {
+						msg = vv[1]
+					}
+
+					json.Unmarshal([]byte(msg), &m)
+					store.Val(k).Set(m)
+				}
+			}
+		}
+	}
+
+	return store, nil
+}
 
 type SQL struct {
 	dao      dao.DAO
@@ -40,7 +124,7 @@ type SQL struct {
 	watchers []*receiver
 }
 
-func New(ctx context.Context, driver string, dsn string, prefix string) (configx.Entrypoint, error) {
+func New(ctx context.Context, driver string, dsn string, prefix string) (config.Store, error) {
 	var d dao.DAO
 	var de error
 	switch driver {
@@ -62,9 +146,9 @@ func New(ctx context.Context, driver string, dsn string, prefix string) (configx
 	}
 
 	dc := configx.New()
-	if er := dc.Val("prepare").Set(true); er != nil {
-		return nil, er
-	}
+	//if er := dc.Val("prepare").Set(true); er != nil {
+	//	return nil, er
+	//}
 
 	if er := d.Init(ctx, dc); er != nil {
 		return nil, er
@@ -182,6 +266,21 @@ func (s *SQL) Watch(oo ...configx.WatchOption) (configx.Receiver, error) {
 	s.watchers = append(s.watchers, r)
 
 	return r, nil
+}
+
+func (s *SQL) Close() error {
+	return nil
+}
+
+func (s *SQL) Done() <-chan struct{} {
+	// Never returns
+	return nil
+}
+
+func (s *SQL) Lock() {
+}
+
+func (s *SQL) Unlock() {
 }
 
 type receiver struct {

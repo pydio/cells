@@ -114,6 +114,9 @@ import (
 	// _ "gocloud.dev/pubsub/natspubsub"
 	_ "gocloud.dev/pubsub/rabbitpubsub"
 
+	// Config drivers
+	_ "github.com/pydio/cells/v4/common/config/sql"
+
 	// DAO Drivers
 	_ "github.com/pydio/cells/v4/common/dao/bleve"
 	_ "github.com/pydio/cells/v4/common/dao/boltdb"

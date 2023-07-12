@@ -44,6 +44,8 @@ type DaoProviderFunc func(ctx context.Context, driver, dsn, prefix string) (DAO,
 type IndexerWrapperFunc func(context.Context, DAO) (IndexDAO, error)
 type DaoWrapperFunc func(context.Context, DAO) (DAO, error)
 
+type TODODaoWrapperFunc[T any] func(context.Context, T) (T, error)
+
 var daoConns map[string]ConnProviderFunc
 var daoDrivers map[string]DaoProviderFunc
 var daoShared map[string]bool

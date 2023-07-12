@@ -41,13 +41,13 @@ type Handler struct {
 	tree.UnimplementedNodeProviderStreamerServer
 
 	service.Service
-	dao service.DAOProviderFunc[acl.DAO]
+	dao service.ServiceDAOProvider[acl.DAO]
 }
 
 func NewHandler(_ context.Context, svc service.Service) *Handler {
 	return &Handler{
 		Service: svc,
-		dao:     service.DAOFromContext[acl.DAO](svc),
+		dao:     service.DAOProvider[acl.DAO](svc),
 	}
 }
 

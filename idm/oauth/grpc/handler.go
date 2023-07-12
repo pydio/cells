@@ -22,8 +22,11 @@ package grpc
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"github.com/pydio/cells/v4/common/auth/hydra"
+	"github.com/twmb/murmur3"
 	"net/http"
 	"net/url"
 	"strings"
@@ -32,8 +35,9 @@ import (
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/handler/openid"
 	"github.com/ory/fosite/token/jwt"
-	"github.com/ory/hydra/consent"
-	"github.com/ory/hydra/oauth2"
+	"github.com/ory/hydra/v2/client"
+	"github.com/ory/hydra/v2/consent"
+	"github.com/ory/hydra/v2/oauth2"
 	"github.com/ory/x/sqlxx"
 	"github.com/ory/x/urlx"
 	"github.com/pkg/errors"
@@ -93,7 +97,7 @@ func (h *Handler) GetLogin(ctx context.Context, in *pauth.GetLoginRequest) (*pau
 	out.Subject = req.Subject
 	out.RequestedScope = req.RequestedScope
 	out.RequestedAudience = req.RequestedAudience
-	out.ClientID = req.Client.GetID()
+	out.ClientID = req.ClientID
 
 	return out, nil
 }
@@ -108,7 +112,7 @@ func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest)
 	// Generate the request URL
 	host, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHost)
 	provider := auth.GetConfigurationProvider(host)
-	iu := urlx.AppendPaths(provider.GetProvider().IssuerURL(), provider.GetProvider().OAuth2AuthURL().Path)
+	iu := urlx.AppendPaths((*provider.GetProvider()).Config().IssuerURL(ctx), (*provider.GetProvider()).Config().OAuth2AuthURL(ctx).Path)
 	sessionID := uuid.New()
 
 	if err := auth.GetRegistry().ConsentManager().CreateLoginSession(ctx, &consent.LoginSession{
@@ -120,7 +124,8 @@ func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest)
 		return nil, err
 	}
 
-	client, err := auth.GetRegistry().ClientManager().GetConcreteClient(ctx, in.GetClientID())
+	// Checking the client exists
+	_, err := auth.GetRegistry().ClientManager().GetConcreteClient(ctx, in.GetClientID())
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +141,7 @@ func (h *Handler) CreateLogin(ctx context.Context, in *pauth.CreateLoginRequest)
 			RequestedScope:    in.GetScopes(),
 			RequestedAudience: in.GetAudiences(),
 			Subject:           "",
-			Client:            client,
+			ClientID:          in.GetClientID(),
 			RequestURL:        iu.String(),
 			AuthenticatedAt:   sqlxx.NullTime{},
 			RequestedAt:       time.Now().UTC(),
@@ -200,10 +205,11 @@ func (h *Handler) CreateConsent(ctx context.Context, in *pauth.CreateConsentRequ
 		return nil, err
 	}
 
-	client, err := auth.GetRegistry().ClientManager().GetConcreteClient(ctx, login.ClientID)
-	if err != nil {
+	// Checking the client exists
+	if _, err := auth.GetRegistry().ClientManager().GetConcreteClient(ctx, login.ClientID); err != nil {
 		return nil, err
 	}
+
 	session, err := auth.GetRegistry().ConsentManager().VerifyAndInvalidateLoginRequest(ctx, login.Verifier)
 	if err != nil {
 		return nil, err
@@ -214,7 +220,7 @@ func (h *Handler) CreateConsent(ctx context.Context, in *pauth.CreateConsentRequ
 	}
 
 	host, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHost)
-	if session.RequestedAt.Add(auth.GetConfigurationProvider(host).GetProvider().ConsentRequestMaxAge()).Before(time.Now()) {
+	if session.RequestedAt.Add((*auth.GetConfigurationProvider(host).GetProvider()).Config().ConsentRequestMaxAge(ctx)).Before(time.Now()) {
 		return nil, errors.WithStack(fosite.ErrRequestUnauthorized.WithDebug("The login request has expired, please try again."))
 	}
 
@@ -225,7 +231,7 @@ func (h *Handler) CreateConsent(ctx context.Context, in *pauth.CreateConsentRequ
 	// Set the session
 	if err := auth.GetRegistry().ConsentManager().CreateConsentRequest(
 		ctx,
-		&consent.ConsentRequest{
+		&consent.OAuth2ConsentRequest{
 			ID:                challenge,
 			Verifier:          verifier,
 			CSRF:              csrf,
@@ -233,7 +239,7 @@ func (h *Handler) CreateConsent(ctx context.Context, in *pauth.CreateConsentRequ
 			RequestedScope:    login.RequestedScope,
 			RequestedAudience: login.RequestedAudience,
 			Subject:           session.Subject,
-			Client:            client,
+			ClientID:          login.ClientID,
 			RequestURL:        login.RequestURL,
 			LoginChallenge:    sqlxx.NullString(login.ID),
 			LoginSessionID:    login.SessionID,
@@ -256,7 +262,7 @@ func (h *Handler) CreateConsent(ctx context.Context, in *pauth.CreateConsentRequ
 
 func (h *Handler) AcceptConsent(ctx context.Context, in *pauth.AcceptConsentRequest) (*pauth.AcceptConsentResponse, error) {
 
-	var p consent.HandledConsentRequest
+	var p consent.AcceptOAuth2ConsentRequest
 
 	accessToken := make(map[string]interface{})
 	idToken := make(map[string]interface{})
@@ -277,8 +283,9 @@ func (h *Handler) AcceptConsent(ctx context.Context, in *pauth.AcceptConsentRequ
 	p.Session.IDToken = idToken
 	p.GrantedScope = in.GetScopes()
 	p.GrantedAudience = in.GetAudiences()
+	p.HandledAt = sqlxx.NullTime(time.Now().UTC())
 
-	_, err := auth.GetRegistry().ConsentManager().HandleConsentRequest(ctx, in.Challenge, &p)
+	_, err := auth.GetRegistry().ConsentManager().HandleConsentRequest(ctx, &p)
 	if err != nil {
 		return nil, err
 	}
@@ -287,6 +294,9 @@ func (h *Handler) AcceptConsent(ctx context.Context, in *pauth.AcceptConsentRequ
 }
 
 func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRequest) (*pauth.CreateAuthCodeResponse, error) {
+
+	host, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHost)
+	configProvider := auth.GetConfigurationProvider(host)
 
 	values := url.Values{}
 	values.Set("client_id", in.GetClientID())
@@ -298,16 +308,11 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 
 	values.Set("state", uuid.New())
 
-	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
+	req, err := http.NewRequestWithContext(ctx, "POST", "http://"+host, strings.NewReader(values.Encode()))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	cookieSession, err := auth.GetRegistry().CookieStore().Get(req, "oauth2_consent_csrf")
-	if err != nil {
-		return nil, err
-	}
-	cookieSession.Values["csrf"] = in.GetConsent().GetCSRF()
 
 	ar, err := auth.GetRegistry().OAuth2Provider().NewAuthorizeRequest(ctx, req)
 	if err != nil {
@@ -316,7 +321,21 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 		return nil, err
 	}
 
-	session, err := auth.GetRegistry().ConsentStrategy().HandleOAuth2AuthorizationRequest(http.ResponseWriter(nil), req, ar)
+	cookieStore, err := auth.GetRegistry().CookieStore(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	cl := ar.GetClient().(*client.Client)
+	clientSpecificCookieNameConsentCSRF := fmt.Sprintf("%s_%d", (*configProvider.GetProvider()).Config().CookieNameConsentCSRF(ctx), murmur3.Sum32(cl.ID.Bytes()))
+
+	cookieSession, err := cookieStore.Get(req, clientSpecificCookieNameConsentCSRF)
+	if err != nil {
+		return nil, err
+	}
+	cookieSession.Values["csrf"] = in.GetConsent().GetCSRF()
+
+	session, err := auth.GetRegistry().ConsentStrategy().HandleOAuth2AuthorizationRequest(ctx, http.ResponseWriter(nil), req, ar)
 	if errors.Cause(err) == consent.ErrAbortOAuth2Request {
 		// do nothing
 		return &pauth.CreateAuthCodeResponse{}, nil
@@ -340,9 +359,8 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 	}
 
 	var accessTokenKeyID string
-	host, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHost)
-	configProvider := auth.GetConfigurationProvider(host)
-	if configProvider.GetProvider().AccessTokenStrategy() == "jwt" {
+
+	if (*configProvider.GetProvider()).Config().AccessTokenStrategy(ctx) == "jwt" {
 		accessTokenKeyID, err = auth.GetRegistry().AccessTokenJWTStrategy().GetPublicKeyID(ctx)
 		if err != nil {
 			return nil, err
@@ -352,8 +370,8 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *pauth.CreateAuthCodeRe
 	ar.SetID(session.ID)
 
 	claims := &jwt.IDTokenClaims{
-		Subject:     session.ConsentRequest.SubjectIdentifier,
-		Issuer:      strings.TrimRight(configProvider.GetProvider().IssuerURL().String(), "/") + "/",
+		Subject:     session.ConsentRequest.Subject,
+		Issuer:      strings.TrimRight((*configProvider.GetProvider()).Config().IssuerURL(ctx).String(), "/") + "/",
 		IssuedAt:    time.Now().UTC(),
 		AuthTime:    time.Now().UTC(),
 		RequestedAt: time.Now().UTC(),
@@ -402,7 +420,7 @@ func (h *Handler) CreateLogout(ctx context.Context, in *pauth.CreateLogoutReques
 			Verifier:    uuid.New(),
 			RPInitiated: false,
 
-			PostLogoutRedirectURI: auth.GetConfigurationProvider(host).GetProvider().LogoutRedirectURL().String(),
+			PostLogoutRedirectURI: (*auth.GetConfigurationProvider(host).GetProvider()).Config().LogoutRedirectURL(ctx).String(),
 		},
 	); err != nil {
 		return nil, errors.WithStack(err)
@@ -428,8 +446,8 @@ func (h *Handler) AcceptLogout(ctx context.Context, in *pauth.AcceptLogoutReques
 		return nil, errors.WithStack(err)
 	}
 
-	accessSignature := auth.GetRegistrySQL().OAuth2HMACStrategy().AccessTokenSignature(in.GetAccessToken())
-	refreshSignature := auth.GetRegistrySQL().OAuth2HMACStrategy().RefreshTokenSignature(in.GetRefreshToken())
+	accessSignature := auth.GetRegistry().OAuth2HMACStrategy().AccessTokenSignature(ctx, in.GetAccessToken())
+	refreshSignature := auth.GetRegistry().OAuth2HMACStrategy().RefreshTokenSignature(ctx, in.GetRefreshToken())
 
 	if err := auth.GetRegistry().OAuth2Storage().DeleteAccessTokenSession(ctx, accessSignature); err != nil {
 		return nil, errors.WithStack(err)
@@ -589,16 +607,126 @@ func (h *Handler) PasswordCredentialsCode(ctx context.Context, in *pauth.Passwor
 // PasswordCredentialsToken validates the login information and generates a token
 func (h *Handler) PasswordCredentialsToken(ctx context.Context, in *pauth.PasswordCredentialsTokenRequest) (*pauth.PasswordCredentialsTokenResponse, error) {
 
-	codeResp, err := h.PasswordCredentialsCode(ctx, &pauth.PasswordCredentialsCodeRequest{
-		Username: in.GetUsername(),
-		Password: in.GetPassword(),
-	})
+	// Getting or creating challenge
+	c, err := hydra.CreateLogin(ctx, config.DefaultOAuthClientID, []string{"openid", "profile", "offline"}, []string{})
+	if err != nil {
+		return nil, errors.Wrap(err, "PasswordCredentialsToken")
+	}
+	challenge := c.Challenge
+
+	var identity auth.Identity
+	var valid bool
+
+	connectors := auth.GetConnectors()
+
+	attempt := 0
+	source := ""
+	for _, c := range connectors {
+		cc, ok := c.Conn().(auth.PasswordConnector)
+		if !ok {
+			continue
+		}
+
+		attempt++
+
+		loginctx, can := context.WithTimeout(ctx, 5*time.Second)
+		defer can()
+		identity, valid, err = cc.Login(loginctx, auth.Scopes{}, in.GetUsername(), in.GetPassword())
+
+		// Error means the user is unknwown to the system, we continue to the next round
+		if err != nil {
+			continue
+		}
+
+		// Invalid means we found the user but did not match the password
+		if !valid {
+			err = errors.New("password does not match")
+			continue
+		}
+
+		source = c.Name()
+
+		break
+	}
+
+	if attempt == 0 {
+		return nil, errors.New("No password connector found")
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Searching login challenge
+	login, err := hydra.GetLogin(ctx, challenge)
+	if err != nil {
+		log.Logger(ctx).Error("Failed to get login ", zap.Error(err))
+		return nil, err
+	}
+
+	// Accepting login challenge
+	if _, err := hydra.AcceptLogin(ctx, challenge, identity.UserID); err != nil {
+		log.Logger(ctx).Error("Failed to accept login ", zap.Error(err))
+		return nil, err
+	}
+
+	// Creating consent
+	consent, err := hydra.CreateConsent(ctx, challenge)
+	if err != nil {
+		log.Logger(ctx).Error("Failed to create consent ", zap.Error(err))
+		return nil, err
+	}
+
+	// Accepting consent
+	if _, err := hydra.AcceptConsent(
+		ctx,
+		consent.Challenge,
+		login.GetRequestedScope(),
+		login.GetRequestedAudience(),
+		map[string]string{},
+		map[string]string{
+			"name":       identity.Username,
+			"email":      identity.Email,
+			"authSource": source,
+		},
+	); err != nil {
+		log.Logger(ctx).Error("Failed to accept consent ", zap.Error(err))
+		return nil, err
+	}
+
+	requestURL, err := url.Parse(login.GetRequestURL())
+	if err != nil {
+		return nil, err
+	}
+
+	requestURLValues := requestURL.Query()
+
+	redirectURL, err := auth.GetRedirectURIFromRequestValues(requestURLValues)
+	if err != nil {
+		return nil, err
+	}
+
+	verifier := consent.Challenge + consent.Challenge // Must be > 43 characters
+	hash := sha256.New()
+	if _, err := hash.Write([]byte(verifier)); err != nil {
+		return nil, err
+	}
+
+	codeChallenge := base64.RawURLEncoding.EncodeToString(hash.Sum([]byte{}))
+	codeChallengeMethod := "S256"
+
+	code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL, codeChallenge, codeChallengeMethod)
+	if err != nil {
+		log.Logger(ctx).Error("Failed to create auth code ", zap.Error(err))
+		return nil, err
+	}
 	if err != nil {
 		return nil, err
 	}
 
 	tokenResp, err := h.Exchange(ctx, &pauth.ExchangeRequest{
-		Code: codeResp.GetCode(),
+		Code:         code,
+		CodeVerifier: verifier,
 	})
 	if err != nil {
 		return nil, err
@@ -689,8 +817,8 @@ func (h *Handler) Refresh(ctx context.Context, in *pauth.RefreshTokenRequest) (*
 // Revoke adds token to revocation list and eventually clear RefreshToken as well (directly inside Dex)
 func (h *Handler) Revoke(ctx context.Context, in *pauth.RevokeTokenRequest) (*pauth.RevokeTokenResponse, error) {
 
-	accessSignature := auth.GetRegistrySQL().OAuth2HMACStrategy().AccessTokenSignature(in.GetToken().GetAccessToken())
-	refreshSignature := auth.GetRegistrySQL().OAuth2HMACStrategy().RefreshTokenSignature(in.GetToken().GetRefreshToken())
+	accessSignature := auth.GetRegistry().OAuth2HMACStrategy().AccessTokenSignature(ctx, in.GetToken().GetAccessToken())
+	refreshSignature := auth.GetRegistry().OAuth2HMACStrategy().RefreshTokenSignature(ctx, in.GetToken().GetRefreshToken())
 
 	accessTokenSession, err := auth.GetRegistry().OAuth2Storage().GetAccessTokenSession(ctx, accessSignature, nil)
 	if err != nil {

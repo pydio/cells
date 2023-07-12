@@ -23,6 +23,9 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
+	commonsql "github.com/pydio/cells/v4/common/sql"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -42,7 +45,10 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Encryption Keys server"),
-			service.WithStorage(key.NewDAO, service.WithStoragePrefix("idm_key")),
+			service.WithTODOStorage(key.NewDAO, commonsql.NewDAO,
+				service.WithStoragePrefix("idm_key"),
+				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
+			),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				h, e := NewUserKeyStore(ctx, s)
 				if e != nil {

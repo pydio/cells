@@ -23,7 +23,6 @@ package sql
 import (
 	"context"
 	"embed"
-
 	migrate "github.com/rubenv/sql-migrate"
 
 	"github.com/pydio/cells/v4/common/dao"
@@ -68,7 +67,7 @@ func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
 	migrations := &sql.FSMigrationSource{
 		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         "./" + s.DAO.Driver(),
+		Dir:         s.DAO.Driver(),
 		TablePrefix: s.DAO.Prefix(),
 	}
 

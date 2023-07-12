@@ -48,7 +48,7 @@ type Handler struct {
 	tree.UnimplementedNodeProviderStreamerServer
 
 	service.Service
-	dao service.DAOProviderFunc[meta.DAO]
+	dao func(context.Context) meta.DAO
 
 	searchCache cache.Cache
 }
@@ -57,7 +57,7 @@ func NewHandler(ctx context.Context, svc service.Service) *Handler {
 	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL(common.ServiceGrpcNamespace_+common.ServiceUserMeta))
 	h := &Handler{
 		Service: svc,
-		dao:     service.DAOFromContext[meta.DAO](svc),
+		dao:     service.DAOProvider[meta.DAO](svc),
 	}
 	h.searchCache = c
 	go func() {

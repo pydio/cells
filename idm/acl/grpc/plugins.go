@@ -58,11 +58,13 @@ func init() {
 				service.WithStoragePrefix("idm_acl"),
 				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
 			),
-			service.Migrations([]*service.Migration{
-				{
-					TargetVersion: service.ValidVersion("1.2.0"),
-					Up:            UpgradeTo120,
-				},
+			service.TODOMigrations(func() []*service.Migration {
+				return []*service.Migration{
+					{
+						TargetVersion: service.ValidVersion("1.2.0"),
+						Up:            UpgradeTo120,
+					},
+				}
 			}),
 			service.Metadata(meta.ServiceMetaProvider, "stream"),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {

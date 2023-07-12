@@ -1,4 +1,4 @@
-DEV_VERSION=4.2.2-dev
+DEV_VERSION=4.3.0-next
 ENV=env GOOS=linux
 TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
@@ -58,7 +58,7 @@ win:
 
 dev:
 	go build\
-	 -tags dev\
+	 -tags "dev sqlite hsm" \
 	 -gcflags "all=-N -l"\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${DEV_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=2022-01-01T00:00:00\

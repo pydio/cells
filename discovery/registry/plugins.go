@@ -66,7 +66,7 @@ func init() {
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
 				reg := servicecontext.GetRegistry(ctx)
 				handler := NewHandler(reg)
-				pbregistry.RegisterRegistryEnhancedServer(srv, handler)
+				pbregistry.RegisterRegistryServer(srv, handler)
 
 				if discoveryConvertible, ok := srv.(Convertible); ok {
 					var discoveryServer *grpc.Server

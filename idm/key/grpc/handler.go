@@ -44,7 +44,7 @@ type userKeyStore struct {
 	enc.UnimplementedUserKeyStoreServer
 
 	service.Service
-	dao service.DAOProviderFunc[key.DAO]
+	dao func(context.Context) key.DAO
 
 	master []byte
 	legacy []byte
@@ -66,7 +66,7 @@ func NewUserKeyStore(ctx context.Context, svc service.Service) (enc.UserKeyStore
 
 	return &userKeyStore{
 		Service: svc,
-		dao:     service.DAOFromContext[key.DAO](svc),
+		dao:     service.DAOProvider[key.DAO](svc),
 		master:  masterPassword,
 	}, nil
 }

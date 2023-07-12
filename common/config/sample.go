@@ -31,6 +31,12 @@ var SampleConfig = `{
 			"updateUrl": "` + common.UpdateDefaultServerUrl + `"
 		}
 	},
+    "databases": {
+      "pydio.grpc.oauth": {
+        "driver": "sqlite",
+        "dsn": ":memory:?cache=shared&_fk=true"
+      }
+    },
     "ports":{
         "nats": 4222
     },

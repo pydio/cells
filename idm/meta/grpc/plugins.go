@@ -23,12 +23,13 @@ package grpc
 
 import (
 	"context"
-
 	"github.com/go-sql-driver/mysql"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	commonmysql "github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/log"
 	meta2 "github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -36,7 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	commonsql "github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/idm/meta"
 )
 
@@ -56,14 +57,18 @@ func init() {
 			service.Metadata(meta2.ServiceMetaNsProvider, "list"),
 			service.Metadata(meta2.ServiceMetaProviderRequired, "true"),
 			service.Description("User-defined Metadata"),
-
-			service.WithStorage(meta.NewDAO, service.WithStoragePrefix("idm_usr_meta")),
+			service.WithTODOStorage(meta.NewDAO, commonsql.NewDAO,
+				service.WithStoragePrefix("idm_usr_meta"),
+				service.WithStorageSupport(commonmysql.Driver, sqlite.Driver),
+			),
 			service.Unique(true),
-			service.Migrations([]*service.Migration{
-				{
-					TargetVersion: service.FirstRun(),
-					Up:            defaultMetas,
-				},
+			service.TODOMigrations(func() []*service.Migration {
+				return []*service.Migration{
+					{
+						TargetVersion: service.FirstRun(),
+						Up:            defaultMetas,
+					},
+				}
 			}),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
@@ -72,7 +77,7 @@ func init() {
 				tree.RegisterNodeProviderStreamerEnhancedServer(server, handler)
 
 				// Clean role on user deletion
-				cleaner := NewCleaner(servicecontext.GetDAO(ctx))
+				cleaner := NewCleaner(service.DAOProvider[meta.DAO](s))
 				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 					ev := &idm.ChangeEvent{}
 					if e := message.Unmarshal(ev); e == nil {
@@ -91,7 +96,8 @@ func init() {
 
 func defaultMetas(ctx context.Context) error {
 	log.Logger(ctx).Info("Inserting default namespace for metadata")
-	dao := servicecontext.GetDAO(ctx).(meta.DAO)
+	dao := service.DAOFromContext[meta.DAO](ctx)
+
 	err := dao.GetNamespaceDao().Add(&idm.UserMetaNamespace{
 		Namespace:      "usermeta-tags",
 		Label:          "Tags",

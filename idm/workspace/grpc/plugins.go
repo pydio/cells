@@ -23,6 +23,9 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
+	commonsql "github.com/pydio/cells/v4/common/sql"
 
 	"google.golang.org/grpc"
 
@@ -48,16 +51,20 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Workspaces Service"),
-			service.WithStorage(workspace.NewDAO, service.WithStoragePrefix("idm_workspace")),
+			service.WithTODOStorage(workspace.NewDAO, commonsql.NewDAO,
+				service.WithStoragePrefix("idm_workspace"),
+				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
+			),
+			// service.WithStorage(workspace.NewDAO, service.WithStoragePrefix("idm_workspace")),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
 				h := NewHandler(ctx, s)
-				idm.RegisterWorkspaceServiceEnhancedServer(server, h)
+				idm.RegisterWorkspaceServiceServer(server, h)
 
 				// Register a cleaner for removing a workspace when there are no more ACLs on it.
 				wsCleaner := NewWsCleaner(ctx, h)
 				cleaner := &resources.PoliciesCleaner{
-					DAO: service.DAOFromContext[sqlresources.DAO](s),
+					DAO: service.DAOProvider[sqlresources.DAO](s),
 					Options: resources.PoliciesCleanerOptions{
 						SubscribeRoles: true,
 						SubscribeUsers: true,

@@ -45,13 +45,13 @@ type Handler struct {
 	idm.UnimplementedPolicyEngineServiceServer
 
 	service.Service
-	dao service.DAOProviderFunc[policy.DAO]
+	dao func(ctx context.Context) policy.DAO
 }
 
 func NewHandler(ctx context.Context, svc service.Service) idm.PolicyEngineServiceServer {
 	return &Handler{
 		Service: svc,
-		dao:     service.DAOFromContext[policy.DAO](svc),
+		dao:     service.DAOProvider[policy.DAO](svc),
 	}
 }
 

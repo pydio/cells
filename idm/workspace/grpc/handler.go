@@ -40,13 +40,13 @@ type Handler struct {
 	idm.UnimplementedWorkspaceServiceServer
 
 	service.Service
-	dao service.DAOProviderFunc[workspace.DAO]
+	dao service.ServiceDAOProvider[workspace.DAO]
 }
 
 func NewHandler(ctx context.Context, svc service.Service) idm.WorkspaceServiceServer {
 	return &Handler{
 		Service: svc,
-		dao:     service.DAOFromContext[workspace.DAO](svc),
+		dao:     service.DAOProvider[workspace.DAO](svc),
 	}
 }
 

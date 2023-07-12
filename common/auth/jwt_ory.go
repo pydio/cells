@@ -29,7 +29,7 @@ import (
 
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/token/jwt"
-	"github.com/ory/hydra/oauth2"
+	"github.com/ory/hydra/v2/oauth2"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	goauth "golang.org/x/oauth2"
@@ -422,11 +422,11 @@ func (t *orytoken) ScopedClaims(claims *claim.Claims) error {
 // GetRedirectURIFromRequestValues extracts the redirect_uri from values but does not do any sort of validation.
 //
 // Considered specifications
-// * https://tools.ietf.org/html/rfc6749#section-3.1
-//   The endpoint URI MAY include an
-//   "application/x-www-form-urlencoded" formatted (per Appendix B) query
-//   component ([RFC3986] Section 3.4), which MUST be retained when adding
-//   additional query parameters.
+//   - https://tools.ietf.org/html/rfc6749#section-3.1
+//     The endpoint URI MAY include an
+//     "application/x-www-form-urlencoded" formatted (per Appendix B) query
+//     component ([RFC3986] Section 3.4), which MUST be retained when adding
+//     additional query parameters.
 func GetRedirectURIFromRequestValues(values url.Values) (string, error) {
 	// rfc6749 3.1.   Authorization Endpoint
 	// The endpoint URI MAY include an "application/x-www-form-urlencoded" formatted (per Appendix B) query component

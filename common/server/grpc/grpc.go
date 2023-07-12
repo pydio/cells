@@ -354,8 +354,10 @@ func (r *registrar) RegisterService(desc *grpc.ServiceDesc, impl interface{}) {
 
 	*r.streamInterceptors = append(*r.streamInterceptors, func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		for _, method := range desc.Streams {
+			targetService := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+0:]
 			targetMethod := info.FullMethod[strings.LastIndex(info.FullMethod, "/")+1:]
-			if method.StreamName == targetMethod {
+
+			if desc.ServiceName == targetService && method.StreamName == targetMethod {
 				ctx := ss.Context()
 
 				if named, ok := impl.(namedHandler); ok {

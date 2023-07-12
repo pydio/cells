@@ -39,9 +39,11 @@ func init() {
 }
 
 // NewHiddenFileDuplicateRemoverDAO provides a middleware implementation of the index sql dao that removes duplicate entries of the .pydio file that have the same etag at the same level
-func NewHiddenFileDuplicateRemoverDAO(dao DAO) DAO {
-	return &HiddenFileDuplicateRemoverSQL{
-		dao,
+func NewHiddenFileDuplicateRemoverDAO(dao func(ctx context.Context) DAO) func(context.Context) DAO {
+	return func(ctx context.Context) DAO {
+		return &HiddenFileDuplicateRemoverSQL{
+			dao(ctx),
+		}
 	}
 }
 
