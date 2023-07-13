@@ -169,7 +169,7 @@ func (sc *Client) filterOptionsFromScopes(options PluginOptions, contextParams c
 		options.enableFileInternal = contextParams.Val("ENABLE_FILE_INTERNAL_SHARING", scope).Default(options.enableFileInternal).Bool()
 		options.enableFolderPublicLinks = contextParams.Val("ENABLE_FOLDER_PUBLIC_LINK", scope).Default(options.enableFolderPublicLinks).Bool()
 		options.enableFolderInternal = contextParams.Val("ENABLE_FOLDER_INTERNAL_SHARING", scope).Default(options.enableFolderInternal).Bool()
-		options.CellsMaxExpiration = contextParams.Val("CELLS_MAX_EXPIRATION", scope).Default(options.MaxExpiration).Int()
+		options.CellsMaxExpiration = contextParams.Val("CELLS_MAX_EXPIRATION", scope).Default(options.CellsMaxExpiration).Int()
 	}
 
 	return options
