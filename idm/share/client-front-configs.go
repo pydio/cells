@@ -120,7 +120,7 @@ func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, cell *rest
 			if folders && !loopOptions.enableFolderInternal {
 				return errors.Forbidden("folder.share-internal.forbidden", "You are not allowed to create Cells on folders")
 			}
-			if loopOptions.CellsMaxExpiration > 0 && (cell.AccessEnd == 0 || (cell.AccessEnd-time.Now().Unix()) > int64(loopOptions.CellsMaxExpiration*24*60*60)) {
+			if loopOptions.CellsMaxExpiration > 0 && (cell.AccessEnd == -1 || (cell.AccessEnd-time.Now().Unix()) > int64(loopOptions.CellsMaxExpiration*24*60*60)) {
 				return errors.Forbidden("cells.max-expiration.mandatory", "Please set a maximum expiration date for Cells")
 			}
 		}
