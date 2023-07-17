@@ -119,7 +119,7 @@ func TestProcess(t *testing.T) {
 
 		mvFolderFile, _ := target.LoadNode(testCtx, "moved-folder/subfolder/subfile")
 		So(mvFolderFile, ShouldNotBeNil)
-		So(mvFolderFile.Etag, ShouldEqual, "filehash")
+		So(mvFolderFile.GetEtag(), ShouldEqual, "filehash")
 
 	})
 

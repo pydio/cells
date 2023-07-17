@@ -21,7 +21,10 @@
 package merger
 
 import (
+	"fmt"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 	"testing"
+	"time"
 
 	"github.com/pydio/cells/v4/common/sync/model"
 
@@ -83,4 +86,67 @@ func TestOpNodePaths(t *testing.T) {
 		w := root.ChildByPath("other/path")
 		So(w, ShouldBeNil)
 	})
+}
+
+func TestStructSize(t *testing.T) {
+
+	/*
+		Convey("Use TreeNode", t, func() {
+			root := NewTreeNode(&tree.Node{Path: "/", Uuid: "ROOT"})
+			nb := 1000000
+			for i := 0; i < nb; i++ {
+				if i > 0 && i%100000 == 0 {
+					printMem(uint64(i))
+				}
+				no := &tree.Node{
+					Path: fmt.Sprintf("child-%d", i),
+					Uuid: uuid.New(),
+					//MetaStore: map[string]string{"toto": uuid.New()},
+					Etag:  "toto",
+					Type:  tree.NodeType_LEAF,
+					MTime: time.Now().Unix(),
+					Size:  25000,
+				}
+				c := NewTreeNode(no)
+				root.AddChild(c)
+			}
+			_ = root.SortedChildren()
+			printMem(uint64(nb))
+		})*/
+
+	Convey("Use lighterStruct", t, func() {
+		root := &lighterStruct{Path: "/"}
+		nb := 1000000
+		for i := 0; i < nb; i++ {
+			if i > 0 && i%100000 == 0 {
+				printMem(uint64(i))
+			}
+			no := &lighterStruct{
+				Path: fmt.Sprintf("child-%d", i),
+				Uuid: uuid.New(),
+				//MetaStore: map[string]string{"toto": uuid.New()},
+				MetaKey1: "toto",
+				MetaVal1: uuid.New(),
+				Etag:     "toto",
+				Type:     1,
+				MTime:    uint32(time.Now().Unix()),
+				Size:     25000,
+			}
+			root.Children = append(root.Children, no)
+		}
+		printMem(uint64(nb))
+	})
+
+}
+
+type lighterStruct struct {
+	Path                                   string
+	Uuid                                   string
+	Etag                                   string
+	Children                               []*lighterStruct
+	MetaKey1, MetaKey2, MetaKey3, MetaKey4 string
+	MetaVal1, MetaVal2, MetaVal3, MetaVal4 string
+	Size                                   uint64
+	MTime                                  uint32
+	Type                                   int8
 }

@@ -38,4 +38,17 @@ func TestIsIgnoredFile(t *testing.T) {
 		So(IsIgnoredFile("toto.minio.sys"), ShouldBeFalse)
 		So(IsIgnoredFile("toto/.minio.sys"), ShouldBeTrue)
 	})
+
+	Convey("Test IsIgnoredFile PreCompiled", t, func() {
+		im := IgnoreMatcher()
+
+		So(im(".minio.sys"), ShouldBeTrue)
+		So(im(".minio.system"), ShouldBeFalse)
+		So(im("/.minio.sys"), ShouldBeTrue)
+		So(im("/.minio.sys/toto"), ShouldBeTrue)
+		So(im(".minio.sys/toto"), ShouldBeTrue)
+		So(im(".minio.sys/toto/aa/zz/aqqq"), ShouldBeTrue)
+		So(im("toto.minio.sys"), ShouldBeFalse)
+		So(im("toto/.minio.sys"), ShouldBeTrue)
+	})
 }

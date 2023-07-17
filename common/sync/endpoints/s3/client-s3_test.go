@@ -22,6 +22,7 @@ package s3
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/sync/model"
 	"log"
 	"sync"
 	"testing"
@@ -68,7 +69,7 @@ func TestLoadNodeS3(t *testing.T) {
 		node, err := c.LoadNode(context.Background(), "file", true)
 		So(err, ShouldBeNil)
 		So(node, ShouldNotBeNil)
-		So(node.Etag, ShouldEqual, "filemd5")
+		So(node.GetEtag(), ShouldEqual, "filemd5")
 
 	})
 
@@ -79,8 +80,8 @@ func TestWalkS3(t *testing.T) {
 	Convey("Test walking the tree", t, func() {
 
 		c := NewS3Mock()
-		objects := make(map[string]*tree.Node)
-		walk := func(path string, node *tree.Node, err error) error {
+		objects := make(map[string]model.Node)
+		walk := func(path string, node model.Node, err error) error {
 			log.Println("Walk " + path)
 			objects[path] = node
 			return nil
@@ -98,13 +99,13 @@ func TestWalkS3(t *testing.T) {
 		So(we, ShouldBeNil)
 		// Will include the root
 		So(objects, ShouldHaveLength, 3)
-		So(objects["folder"].Uuid, ShouldNotBeEmpty)
-		So(objects["folder"].Etag, ShouldBeEmpty)
-		So(objects["folder"].Type, ShouldEqual, tree.NodeType_COLLECTION)
+		So(objects["folder"].GetUuid(), ShouldNotBeEmpty)
+		So(objects["folder"].GetEtag(), ShouldBeEmpty)
+		So(objects["folder"].GetType(), ShouldEqual, tree.NodeType_COLLECTION)
 
-		So(objects["file"].Uuid, ShouldBeEmpty)
-		So(objects["file"].Etag, ShouldNotBeEmpty)
-		So(objects["file"].Type, ShouldEqual, tree.NodeType_LEAF)
+		So(objects["file"].GetUuid(), ShouldBeEmpty)
+		So(objects["file"].GetEtag(), ShouldNotBeEmpty)
+		So(objects["file"].GetType(), ShouldEqual, tree.NodeType_LEAF)
 	})
 }
 

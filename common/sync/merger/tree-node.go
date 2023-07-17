@@ -89,8 +89,9 @@ func TreeNodeFromSource(ctx context.Context, source model.PathSyncSource, root s
 	throttle := make(chan struct{}, 15)
 	checksumProvider, isCsProvider := source.(model.ChecksumProvider)
 	uri := source.GetEndpointInfo().URI
+	ignoreMatcher := model.IgnoreMatcher(ignores...)
 
-	err := source.Walk(ctx, func(p string, node *tree.Node, err error) error {
+	err := source.Walk(ctx, func(p string, node model.Node, err error) error {
 		if cancelled := ctx.Err(); cancelled != nil {
 			return cancelled
 		}
@@ -103,7 +104,7 @@ func TreeNodeFromSource(ctx context.Context, source model.PathSyncSource, root s
 				statusChan <- s
 			}()
 		}
-		if model.IsIgnoredFile(p, ignores...) || len(p) == 0 || p == "/" {
+		if len(p) == 0 || p == "/" || ignoreMatcher(p) {
 			return nil
 		}
 		//log.Logger(context.Background()).Info("Walking Node", node.Zap(), zap.String("endpoint", source.GetEndpointInfo().URI))
@@ -125,7 +126,7 @@ func TreeNodeFromSource(ctx context.Context, source model.PathSyncSource, root s
 					statusChan <- model.NewProcessingStatus(fmt.Sprintf("Computing hash for %s", p)).SetEndpoint(uri).SetNode(node)
 				}
 				if e := checksumProvider.ComputeChecksum(ctx, node); e != nil {
-					log.Logger(ctx).Error("Skipping checksum on error for "+node.Path, zap.Error(e))
+					log.Logger(ctx).Error("Skipping checksum on error for "+node.GetPath(), zap.Error(e))
 					if statusChan != nil {
 						statusChan <- model.NewProcessingStatus(fmt.Sprintf("Could not compute hash for %s", p)).SetEndpoint(uri).SetNode(node).SetError(e)
 					}
@@ -153,11 +154,11 @@ func NewTree() *TreeNode {
 }
 
 // NewTreeNode creates a new node from a tree.Node. Can be a root, a COLL or a LEAF.
-func NewTreeNode(n *tree.Node) *TreeNode {
+func NewTreeNode(n model.Node) *TreeNode {
 	tN := &TreeNode{
 		children: make(map[string]*TreeNode),
 	}
-	tN.Node = *n
+	tN.Node = *n.AsProto()
 	return tN
 }
 
@@ -189,6 +190,7 @@ func (t *TreeNode) SortedChildren() []*TreeNode {
 	t.Lock()
 	defer t.Unlock()
 	sort.Strings(t.childrenKeys)
+	t.sorted = make([]*TreeNode, 0, len(t.childrenKeys))
 	for _, k := range t.childrenKeys {
 		t.sorted = append(t.sorted, t.children[k])
 	}
@@ -231,7 +233,7 @@ func (t *TreeNode) ClearChildren() {
 	t.Lock()
 	t.children = make(map[string]*TreeNode)
 	t.sorted = []*TreeNode{}
-	t.childrenKeys = []string{}
+	t.childrenKeys = make([]string, 0, 100)
 	t.Unlock()
 }
 
@@ -252,7 +254,7 @@ func (t *TreeNode) Label() string {
 	return path.Base(p)
 }
 
-// GetHash returns the Etag of the node. For leaf it should be available,
+// GetHash returns the Etag of the node. For leaf, it should be available,
 // for Folders if it is not already computed, it will compute an etag from
 // the children recursively, using their name and Etag.
 func (t *TreeNode) GetHash() string {
@@ -353,8 +355,8 @@ func (c *ChildrenCursor) Next() *TreeNode {
 // MarshalJSON serializes specific fields for output to JSON
 func (t *TreeNode) MarshalJSON() ([]byte, error) {
 	data := map[string]interface{}{
-		"Base": path.Base(t.Node.Path),
-		"Node": t.Node,
+		"Base": path.Base(t.Path),
+		//"Node": t.Node,
 	}
 	if len(t.children) > 0 {
 		data["Children"] = t.SortedChildren()

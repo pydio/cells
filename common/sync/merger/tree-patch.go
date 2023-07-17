@@ -116,7 +116,7 @@ func (t *TreePatch) Enqueue(op Operation) {
 }
 
 // OperationsByType collects operations for a given type and return them in a slice
-func (t *TreePatch) OperationsByType(types []OperationType, sorted ...bool) (events []Operation) {
+func (t *TreePatch) OperationsByType(types []OperationType, _ ...bool) (events []Operation) {
 	// walk tree to collect operations
 	t.WalkOperations(types, func(operation Operation) {
 		events = append(events, operation)
@@ -258,7 +258,7 @@ func (t *TreePatch) ProgressTotal() int64 {
 			case OpCreateFolder, OpMoveFolder, OpMoveFile, OpDelete:
 				total++
 			case OpCreateFile, OpUpdateFile:
-				total += operation.GetNode().Size
+				total += operation.GetNode().GetSize()
 			}
 		})
 		return total

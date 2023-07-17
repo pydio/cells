@@ -24,14 +24,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 type patchOperation struct {
 	OpType    OperationType
 	Dir       OperationDirection
-	Node      *tree.Node
+	Node      model.Node
 	EventInfo model.EventInfo
 
 	InternalStatus *model.ProcessingStatus
@@ -50,7 +49,7 @@ type conflictOperation struct {
 	RightOp      Operation
 }
 
-func NewOperation(t OperationType, e model.EventInfo, loadedNode ...*tree.Node) Operation {
+func NewOperation(t OperationType, e model.EventInfo, loadedNode ...model.Node) Operation {
 	o := &patchOperation{
 		OpType:    t,
 		EventInfo: e,
@@ -62,7 +61,7 @@ func NewOperation(t OperationType, e model.EventInfo, loadedNode ...*tree.Node) 
 	return o
 }
 
-func NewConflictOperation(node *tree.Node, t ConflictType, left, right Operation) Operation {
+func NewConflictOperation(node model.Node, t ConflictType, left, right Operation) Operation {
 	return &conflictOperation{
 		patchOperation: patchOperation{
 			OpType: OpConflict,
@@ -79,7 +78,7 @@ func (c *conflictOperation) ConflictInfo() (t ConflictType, left Operation, righ
 	return c.ConflictType, c.LeftOp, c.RightOp
 }
 
-func (c *conflictOperation) Clone(replaceType ...OperationType) Operation {
+func (c *conflictOperation) Clone(_ ...OperationType) Operation {
 	return NewConflictOperation(c.Node, c.ConflictType, c.LeftOp, c.RightOp)
 }
 
@@ -94,10 +93,6 @@ func (o *patchOperation) Clone(replaceType ...OperationType) Operation {
 		op.OpType = replaceType[0]
 	}
 	return op
-}
-
-func NewOpForUnmarshall() Operation {
-	return &patchOperation{}
 }
 
 func (o *patchOperation) IsTypeMove() bool {
@@ -171,27 +166,27 @@ func (o *patchOperation) UpdateRefPath(p string) {
 	o.EventInfo.Path = p
 	// If not a move, update underlying node path as well (otherwise use UpdateMoveOriginPath)
 	if o.Node != nil && !o.IsTypeMove() {
-		o.Node.Path = p
+		o.Node.UpdatePath(p)
 	}
 }
 
 func (o *patchOperation) GetMoveOriginPath() string {
-	return o.Node.Path
+	return o.Node.GetPath()
 }
 
 func (o *patchOperation) UpdateMoveOriginPath(p string) {
-	o.Node.Path = p
+	o.Node.UpdatePath(p)
 }
 
 func (o *patchOperation) IsScanEvent() bool {
 	return o.EventInfo.ScanEvent
 }
 
-func (o *patchOperation) SetNode(n *tree.Node) {
+func (o *patchOperation) SetNode(n model.Node) {
 	o.Node = n
 }
 
-func (o *patchOperation) GetNode() *tree.Node {
+func (o *patchOperation) GetNode() model.Node {
 	return o.Node
 }
 
@@ -227,7 +222,7 @@ func (o *patchOperation) AttachToPatch(p Patch) {
 	o.patch = p
 }
 
-func (o *patchOperation) NodeFromSource(ctx context.Context) (node *tree.Node, err error) {
+func (o *patchOperation) NodeFromSource(ctx context.Context) (node model.Node, err error) {
 	if o.EventInfo.ScanEvent && o.EventInfo.ScanSourceNode != nil {
 		node = o.EventInfo.ScanSourceNode
 	} else {
@@ -239,7 +234,7 @@ func (o *patchOperation) NodeFromSource(ctx context.Context) (node *tree.Node, e
 	return
 }
 
-func (o *patchOperation) NodeInTarget(ctx context.Context, cache ...model.PathSyncSource) (node *tree.Node, found bool) {
+func (o *patchOperation) NodeInTarget(ctx context.Context, cache ...model.PathSyncSource) (node model.Node, found bool) {
 	if o.Node != nil {
 		// If deleteEvent has node, it is already loaded from a snapshot, no need to reload from target
 		return o.Node, true

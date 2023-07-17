@@ -31,7 +31,7 @@ import (
 )
 
 // FilterToTarget tries to detect unnecessary operations based on the target status.
-// If the target implements the CachedBranchProvider interface, instead of stat'ing the nodes
+// If the target implements the CachedBranchProvider interface, instead of stating the nodes
 // one by one, the target will be fully loaded in memory at once to be used as a comparison.
 func (t *TreePatch) FilterToTarget(ctx context.Context) {
 
@@ -60,7 +60,7 @@ func (t *TreePatch) FilterToTarget(ctx context.Context) {
 		}
 		// Check nodes have same ETag
 		check := n[0]
-		return node.Etag == check.Etag
+		return node.GetEtag() == check.Etag
 	}
 
 	stats := t.Stats()

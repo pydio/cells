@@ -25,7 +25,6 @@ import (
 	"path"
 	"time"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/merger"
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/utils/mtree"
@@ -56,11 +55,11 @@ func (pr *Processor) refreshFilesUuid(patch merger.Patch) {
 			pref = ""
 		}
 		<-time.After(3 * time.Second) // Wait to make sure indexation is finished
-		_ = target.Walk(context.TODO(), func(path string, node *tree.Node, err error) error {
+		_ = target.Walk(context.TODO(), func(path string, node model.Node, err error) error {
 			if err != nil {
 				return err
 			}
-			if _, ok := refreshesByKey[node.Path]; ok {
+			if _, ok := refreshesByKey[node.GetPath()]; ok {
 				if _, e := source.UpdateNodeUuid(pr.GlobalContext, node); e != nil {
 					return e
 				}

@@ -139,7 +139,7 @@ func (t *TreePatch) validateOperation(ctx context.Context, o Operation, target m
 	case OpCreateFile, OpCreateFolder, OpUpdateFile:
 		if n, e := target.LoadNode(ctx, o.GetRefPath()); e != nil {
 			return errors.New("cannot find node " + o.GetRefPath())
-		} else if (o.Type() == OpUpdateFile || o.Type() == OpCreateFile) && n.Etag != o.GetNode().Etag {
+		} else if (o.Type() == OpUpdateFile || o.Type() == OpCreateFile) && n.GetEtag() != o.GetNode().GetEtag() {
 			return errors.New("eTag are not similar")
 		}
 	case OpDelete:

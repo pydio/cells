@@ -352,7 +352,7 @@ func (s *Sync) computeIndexProgress(input model.Status, rootInfo *model.Endpoint
 	} else if input.Node().IsLeaf() {
 		rootInfo.PgChildren++
 		rootInfo.PgFiles++
-		rootInfo.PgSize += input.Node().Size
+		rootInfo.PgSize += input.Node().GetSize()
 	} else {
 		rootInfo.PgChildren++
 		rootInfo.PgFolders++

@@ -94,7 +94,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 
 	for _, f := range patch.PostFilter() {
 		if e := f(); e != nil {
-			patch.SetPatchError(e)
+			_ = patch.SetPatchError(e)
 			return
 		}
 	}
@@ -133,18 +133,18 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	// some Pending operations.
 	flusher := func(tt ...merger.OperationType) {}
 	finalFlusher := func() {}
-	if session, err := patch.StartSession(&tree.Node{Path: "/"}); err == nil {
+	if sessionId, err := patch.StartSession(&tree.Node{Path: "/"}); err == nil {
 		finalFlusher = func() {
 			log.Logger(pr.GlobalContext).Info("Finishing patch session")
-			if e := patch.FinishSession(session.Uuid); e != nil {
-				patch.SetPatchError(e)
+			if e := patch.FinishSession(sessionId); e != nil {
+				_ = patch.SetPatchError(e)
 			}
 		}
 		flusher = func(tt ...merger.OperationType) {
 			for _, t := range tt {
 				if val, ok := pending[t.String()]; ok && val > 0 {
-					if e := patch.FlushSession(session.Uuid); e != nil {
-						patch.SetPatchError(e)
+					if e := patch.FlushSession(sessionId); e != nil {
+						_ = patch.SetPatchError(e)
 					}
 					return
 				}

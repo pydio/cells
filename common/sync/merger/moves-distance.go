@@ -26,7 +26,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/utils/mtree"
 	"go.uber.org/zap/zapcore"
 )
@@ -39,7 +39,7 @@ const (
 type Move struct {
 	deleteOp Operation
 	createOp Operation
-	dbNode   *tree.Node
+	dbNode   model.Node
 
 	source     string
 	target     string
@@ -94,8 +94,7 @@ func (m *Move) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	}
 	encoder.AddString("From", m.deleteOp.GetRefPath())
 	encoder.AddString("To", m.createOp.GetRefPath())
-	encoder.AddObject("DbNode", m.dbNode)
-	return nil
+	return encoder.AddObject("DbNode", m.dbNode.AsProto())
 }
 
 func (m *Move) SameBase() bool {

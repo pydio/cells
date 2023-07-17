@@ -116,7 +116,7 @@ type Operation interface {
 	Type() OperationType
 	// GetNode returns the attached node. For a create, it is the original node, for a delete or a move,
 	// it is the node that is to be deleted/moved inside the target.
-	GetNode() *tree.Node
+	GetNode() model.Node
 	// IsScanEvent tells whether this operation was triggered by a manual scan (true) or by a Watch event (false)
 	IsScanEvent() bool
 	// IsTypeMove is a shortcut for OpMoveFile / OpMoveFolder types
@@ -125,7 +125,7 @@ type Operation interface {
 	IsTypeData() bool
 	// IsTypePath is a shortcut for non-data operations
 	IsTypePath() bool
-	// IsProcessed tells wether this operation has been successfully processed or not.
+	// IsProcessed tells weather this operation has been successfully processed or not.
 	IsProcessed() bool
 	// Error returns any error attached to this operation processing
 	Error() error
@@ -138,10 +138,10 @@ type Operation interface {
 	// GetStatus returns the last known status of this operation
 	GetStatus() model.Status
 	// GetRefPath returns the reference path used to check a node being present or not. For a move, it is the target path.
-	// This path is dynamically computed based on the the parent operations being already processed or not.
+	// This path is dynamically computed based on the parent operations being already processed or not.
 	GetRefPath() string
 	// GetMoveOriginPath returns the source path if operation is a move.
-	// This path is dynamically computed based on the the parent operations being already processed or not.
+	// This path is dynamically computed based on the parent operations being already processed or not.
 	GetMoveOriginPath() string
 
 	// SetProcessed flags operation as successfully processed
@@ -150,7 +150,7 @@ type Operation interface {
 	// applied in both directions
 	SetDirection(OperationDirection) Operation
 	// SetNode updates the reference node
-	SetNode(n *tree.Node)
+	SetNode(n model.Node)
 	// UpdateRefPath updates the reference path
 	UpdateRefPath(p string)
 	// UpdateMoveOriginPath updates the origin path for a move
@@ -158,20 +158,20 @@ type Operation interface {
 	// UpdateType changes the internal type
 	UpdateType(t OperationType)
 
-	// AttachToPath links this operation to a given patch
+	// AttachToPatch links this operation to a given patch
 	AttachToPatch(p Patch)
 	// Source returns the operation source from the attached Patch
 	Source() model.PathSyncSource
 	// Target returns the operation target from the attached Patch
 	Target() model.PathSyncTarget
 	// NodeFromSource tries to load the node from the attached Patch source
-	NodeFromSource(ctx context.Context) (node *tree.Node, err error)
+	NodeFromSource(ctx context.Context) (node model.Node, err error)
 	// NodeInTarget tries to find the node in the attached Patch target
-	NodeInTarget(ctx context.Context, cache ...model.PathSyncSource) (node *tree.Node, found bool)
+	NodeInTarget(ctx context.Context, cache ...model.PathSyncSource) (node model.Node, found bool)
 
 	// Clone creates a clone of this operation, eventually replacing its type.
 	Clone(replaceType ...OperationType) Operation
-	// CreateContext creates an appropriate context to be used by a Processor to pass useful informations to endpoints
+	// CreateContext creates an appropriate context to be used by a Processor to pass useful information to endpoints
 	CreateContext(ctx context.Context) context.Context
 }
 
@@ -226,14 +226,14 @@ type Patch interface {
 	Enqueue(event Operation)
 	// WalkOperations crawls operations in correct order, with an optional filter (no filter = all operations)
 	WalkOperations(opTypes []OperationType, callback OpWalker)
-	// EventsByTypes retrieves all events of a given type
+	// OperationsByType retrieves all events of a given type
 	OperationsByType(types []OperationType, sorted ...bool) (events []Operation)
 
 	// Filter tries to detect unnecessary changes locally
 	Filter(ctx context.Context, ignores ...glob.Glob)
 	// FilterToTarget tries to compare changes to target and remove unnecessary ones
 	FilterToTarget(ctx context.Context)
-	// SkipTargetChecks set a flag to skip FilterToTarget
+	// SkipFilterToTarget sets a flag to skip FilterToTarget
 	SkipFilterToTarget(bool)
 	// PostFilter gets or sets a callback to be triggered after filtering
 	PostFilter(...func() error) []func() error
@@ -262,7 +262,7 @@ type Patch interface {
 	// implement the LockBranchProvider interface
 	SetLockSessionData(providerContext context.Context, lockSession string)
 	// StartSession calls StartSession on the underlying provider if it is set
-	StartSession(rootNode *tree.Node) (*tree.IndexationSession, error)
+	StartSession(rootNode model.Node) (string, error)
 	// FlushSession calls FlushSession on the underlying provider if it is set
 	FlushSession(sessionUuid string) error
 	// FinishSession calls FinishSession on the underlying provider if it is set

@@ -43,7 +43,7 @@ type DBEvent struct {
 }
 
 type MemDB struct {
-	Nodes         []*tree.Node
+	Nodes         []model.Node
 	eventChannels []chan DBEvent
 	// Used for testing
 	ignores     []string
@@ -98,11 +98,11 @@ func (db *MemDB) sendEvent(event DBEvent) {
 /* Path Sync Target 	 */
 /*************************/
 
-func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
+func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node model.Node, err error) {
 
 	for _, node := range db.Nodes {
 		// fmt.Printf("Path:%s Nodes %s\n", norm.NFC.String(path), norm.NFC.String(node.Path))
-		if norm.NFC.String(node.Path) == norm.NFC.String(path) {
+		if norm.NFC.String(node.GetPath()) == norm.NFC.String(path) {
 			return node, nil
 		}
 	}
@@ -110,12 +110,12 @@ func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...boo
 	return nil, errors.New("Node not found")
 }
 
-func (db *MemDB) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
+func (db *MemDB) CreateNode(ctx context.Context, node model.Node, updateIfExists bool) (err error) {
 	db.Nodes = append(db.Nodes, node)
 
 	db.sendEvent(DBEvent{
 		Type:   "Create",
-		Target: node.Path,
+		Target: node.GetPath(),
 	})
 	return nil
 }
@@ -125,7 +125,7 @@ func (db *MemDB) DeleteNode(ctx context.Context, path string) (err error) {
 	if removed != nil {
 		db.sendEvent(DBEvent{
 			Type:   "Delete",
-			Source: removed.Path,
+			Source: removed.GetPath(),
 		})
 	}
 	return nil
@@ -134,8 +134,8 @@ func (db *MemDB) DeleteNode(ctx context.Context, path string) (err error) {
 func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
 	moved := false
 	for _, node := range db.Nodes {
-		if strings.HasPrefix(node.Path, oldPath+"/") || node.Path == oldPath {
-			node.Path = newPath + strings.TrimPrefix(node.Path, oldPath)
+		if strings.HasPrefix(node.GetPath(), oldPath+"/") || node.GetPath() == oldPath {
+			node.UpdatePath(newPath + strings.TrimPrefix(node.GetPath(), oldPath))
 			moved = true
 		}
 	}
@@ -155,13 +155,13 @@ func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (
 
 func (db *MemDB) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	for _, node := range db.Nodes {
-		if root != "/" && !strings.HasPrefix(node.Path, root) {
+		if root != "/" && !strings.HasPrefix(node.GetPath(), root) {
 			continue
 		}
-		if !recursive && strings.Contains(strings.TrimPrefix(node.Path, root), "/") {
+		if !recursive && strings.Contains(strings.TrimPrefix(node.GetPath(), root), "/") {
 			return nil
 		}
-		if er := walknFc(node.Path, node, nil); er != nil {
+		if er := walknFc(node.GetPath(), node, nil); er != nil {
 			return er
 		}
 	}
@@ -236,10 +236,10 @@ func (db *MemDB) Watch(recursivePath string) (*model.WatchObject, error) {
 /* Other Methods 		 */
 /*************************/
 
-func (db *MemDB) removeNodeNoEvent(path string) (removed *tree.Node) {
-	var newNodes []*tree.Node
+func (db *MemDB) removeNodeNoEvent(path string) (removed model.Node) {
+	var newNodes []model.Node
 	for _, node := range db.Nodes {
-		if !strings.HasPrefix(node.Path, path+"/") && node.Path != path {
+		if !strings.HasPrefix(node.GetPath(), path+"/") && node.GetPath() != path {
 			newNodes = append(newNodes, node)
 		} else {
 			removed = node
@@ -249,21 +249,21 @@ func (db *MemDB) removeNodeNoEvent(path string) (removed *tree.Node) {
 	return removed
 }
 
-func (db *MemDB) FindByHash(hash string) (node *tree.Node) {
+func (db *MemDB) FindByHash(hash string) (node model.Node) {
 
 	for _, node := range db.Nodes {
-		if node.Etag == hash {
+		if node.GetEtag() == hash {
 			return node
 		}
 	}
 	return
 }
 
-func (db *MemDB) FindByUuid(id string) (node *tree.Node) {
+func (db *MemDB) FindByUuid(id string) (node model.Node) {
 
 	for _, node := range db.Nodes {
-		if node.Uuid == id {
-			return node
+		if node.GetUuid() == id {
+			return node.AsProto()
 		}
 	}
 	return
@@ -276,7 +276,7 @@ func (db *MemDB) String() string {
 		if !node.IsLeaf() {
 			leaf = "Folder"
 		}
-		output += leaf + "\t'" + node.Path + "' (" + node.Uuid + node.Etag + ")" + "\n"
+		output += leaf + "\t'" + node.GetPath() + "' (" + node.GetUuid() + node.GetEtag() + ")" + "\n"
 	}
 	return output
 }
@@ -303,7 +303,15 @@ func (db *MemDB) FromJSON(name string) error {
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(data, &db.Nodes)
+	var nn []*tree.Node
+	er := json.Unmarshal(data, &nn)
+	if er != nil {
+		return er
+	}
+	for _, n := range nn {
+		db.Nodes = append(db.Nodes, n)
+	}
+	return nil
 }
 
 // MemDBWithCacheTest provides a structure for testing CachedBranchProvider related functions
@@ -327,7 +335,7 @@ func (m *MemDBWithCacheTest) GetCachedBranches(ctx context.Context, roots ...str
 		rts[root] = root
 	}
 	for _, root := range rts {
-		er := m.Walk(nil, func(path string, node *tree.Node, err error) error {
+		er := m.Walk(nil, func(path string, node model.Node, err error) error {
 			if err == nil {
 				err = memDB.CreateNode(ctx, node, false)
 			}

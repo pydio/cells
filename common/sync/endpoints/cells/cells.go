@@ -78,7 +78,7 @@ type Abstract struct {
 	ClientUUID   string
 	Root         string
 	Options      Options
-	RecentMkDirs []*tree.Node
+	RecentMkDirs []model.Node
 	GlobalCtx    context.Context
 
 	watchConn         chan model.WatchConnectionInfo
@@ -112,7 +112,7 @@ func (c *Abstract) parseMicroErrors(e error) error {
 }
 
 // LoadNode forwards call to cli.ReadNode
-func (c *Abstract) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
+func (c *Abstract) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node model.Node, err error) {
 	ctx, cli, err := c.Factory.GetNodeProviderClient(c.getContext(ctx))
 	if err != nil {
 		return nil, err
@@ -198,7 +198,7 @@ func (c *Abstract) GetCachedBranches(ctx context.Context, roots ...string) (mode
 		rts[root] = root
 	}
 	for _, root := range rts {
-		er := c.Walk(ctx, func(path string, node *tree.Node, err error) error {
+		er := c.Walk(ctx, func(path string, node model.Node, err error) error {
 			if err == nil {
 				err = memDB.CreateNode(ctx, node, false)
 			}
@@ -386,18 +386,18 @@ func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 }
 
 // ComputeChecksum is not implemented
-func (c *Abstract) ComputeChecksum(ctx context.Context, node *tree.Node) error {
+func (c *Abstract) ComputeChecksum(ctx context.Context, node model.Node) error {
 	return fmt.Errorf("not.implemented")
 }
 
 // CreateNode is used for creating folders only
-func (c *Abstract) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
+func (c *Abstract) CreateNode(ctx context.Context, node model.Node, updateIfExists bool) (err error) {
 	ctx, cli, err := c.Factory.GetNodeReceiverClient(c.getContext(ctx))
 	if err != nil {
 		return err
 	}
-	n := node.Clone()
-	n.Path = c.rooted(n.Path)
+	n := node.AsProto().Clone()
+	n.UpdatePath(c.rooted(n.Path))
 	if c.Options.RenewFolderUuids {
 		n.Uuid = ""
 	}
@@ -454,13 +454,13 @@ func (c *Abstract) MoveNode(ct context.Context, oldPath string, newPath string) 
 		return err
 	}
 	if from, err := c.LoadNode(ctx, oldPath); err == nil {
-		to := from.Clone()
-		to.Path = c.rooted(newPath)
-		from.Path = c.rooted(from.Path)
+		to := from.AsProto().Clone()
+		to.UpdatePath(c.rooted(newPath))
+		from.UpdatePath(c.rooted(from.GetPath()))
 		sendCtx, can := context.WithTimeout(ctx, 5*time.Minute)
 		defer can()
-		_, e := cli.UpdateNode(sendCtx, &tree.UpdateNodeRequest{From: from, To: to})
-		if e == nil && to.Type == tree.NodeType_COLLECTION {
+		_, e := cli.UpdateNode(sendCtx, &tree.UpdateNodeRequest{From: from.AsProto(), To: to})
+		if e == nil && to.GetType() == tree.NodeType_COLLECTION {
 			c.readNodeBlocking(ctx, to)
 		}
 		return e
@@ -534,7 +534,7 @@ func (c *Abstract) flushRecentMkDirs(ctx context.Context) {
 }
 
 // readNodeBlocking retries to read a node until it is available (it may habe just been indexed).
-func (c *Abstract) readNodeBlocking(ctx context.Context, n *tree.Node) {
+func (c *Abstract) readNodeBlocking(ctx context.Context, n model.Node) {
 	// Block until move is correctly indexed
 	model.Retry(func() error {
 		ctx, cli, err := c.Factory.GetNodeProviderClient(c.getContext(ctx))
@@ -543,13 +543,13 @@ func (c *Abstract) readNodeBlocking(ctx context.Context, n *tree.Node) {
 		}
 		sendCtx, can := context.WithTimeout(ctx, 1*time.Second)
 		defer can()
-		_, e := cli.ReadNode(sendCtx, &tree.ReadNodeRequest{Node: n})
+		_, e := cli.ReadNode(sendCtx, &tree.ReadNodeRequest{Node: n.AsProto()})
 		return e
 	}, 1*time.Second, 10*time.Second)
 }
 
 // readNodesBlocking wraps many parallel calls to readNodeBlocking.
-func (c *Abstract) readNodesBlocking(ctx context.Context, nodes []*tree.Node) {
+func (c *Abstract) readNodesBlocking(ctx context.Context, nodes []model.Node) {
 	if len(nodes) == 0 {
 		return
 	}
@@ -559,7 +559,7 @@ func (c *Abstract) readNodesBlocking(ctx context.Context, nodes []*tree.Node) {
 	throttle := make(chan struct{}, 8)
 	for _, n := range nodes {
 		throttle <- struct{}{}
-		go func(no *tree.Node) {
+		go func(no model.Node) {
 			defer func() {
 				wg.Done()
 				<-throttle

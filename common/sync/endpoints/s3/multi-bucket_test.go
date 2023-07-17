@@ -47,38 +47,38 @@ func TestMultiBucketClient_Walk(t *testing.T) {
 			"cell3": NewS3Mock("cell3"),
 		}
 
-		var data []*tree.Node
-		cl.Walk(ctx, func(path string, node *tree.Node, err error) error {
+		var data []model.Node
+		cl.Walk(ctx, func(path string, node model.Node, err error) error {
 			data = append(data, node)
 			return nil
 		}, "", false)
 		So(data, ShouldHaveLength, 3)
 
 		// Try LoadNode on first bucket
-		b, e := cl.LoadNode(context.Background(), data[0].Path)
+		b, e := cl.LoadNode(context.Background(), data[0].GetPath())
 		So(e, ShouldBeNil)
-		So(b.Path, ShouldEqual, data[0].Path)
-		So(b.Type, ShouldEqual, tree.NodeType_COLLECTION)
+		So(b.GetPath(), ShouldEqual, data[0].GetPath())
+		So(b.GetType(), ShouldEqual, tree.NodeType_COLLECTION)
 		//t.Log("FIRST BUCKET", b)
 
-		var fullData []*tree.Node
-		cl.Walk(ctx, func(path string, node *tree.Node, err error) error {
+		var fullData []model.Node
+		cl.Walk(ctx, func(path string, node model.Node, err error) error {
 			fullData = append(fullData, node)
 			return nil
 		}, "", true)
 		So(data, ShouldNotBeEmpty)
 		t.Log("Number of buckets and objects", len(fullData))
-		var first *tree.Node
+		var first model.Node
 		for _, d := range fullData {
 			//t.Log(d.Path, "\t\t", d.Type)
-			if d.IsLeaf() && first == nil && path.Base(d.Path) != common.PydioSyncHiddenFile {
+			if d.IsLeaf() && first == nil && path.Base(d.GetPath()) != common.PydioSyncHiddenFile {
 				first = d
 			}
 		}
 		if first != nil {
-			loaded, e := cl.LoadNode(context.Background(), first.Path, true)
+			loaded, e := cl.LoadNode(context.Background(), first.GetPath(), true)
 			So(e, ShouldBeNil)
-			So(loaded.Path, ShouldEqual, first.Path)
+			So(loaded.GetPath(), ShouldEqual, first.GetPath())
 		}
 
 	})
@@ -108,8 +108,8 @@ func TestBucketMetadata(t *testing.T) {
 			"cell3": NewS3Mock("cell3"),
 		}
 
-		var data []*tree.Node
-		cl.Walk(ctx, func(path string, node *tree.Node, err error) error {
+		var data []model.Node
+		cl.Walk(ctx, func(path string, node model.Node, err error) error {
 			if !node.IsLeaf() {
 				data = append(data, node)
 			}
@@ -117,10 +117,11 @@ func TestBucketMetadata(t *testing.T) {
 		}, "", false)
 		So(data, ShouldHaveLength, 3)
 		for _, d := range data {
-			if d.Path == "cell1" {
-				So(d.MetaStore, ShouldNotBeNil)
-				So(d.GetStringMeta(s3BucketTagPrefix+"TagName"), ShouldEqual, "TagValue")
-				So(d.GetStringMeta(s3BucketTagPrefix+"OtherTagName"), ShouldBeEmpty)
+			if d.GetPath() == "cell1" {
+				dp := d.AsProto()
+				So(dp.MetaStore, ShouldNotBeNil)
+				So(dp.GetStringMeta(s3BucketTagPrefix+"TagName"), ShouldEqual, "TagValue")
+				So(dp.GetStringMeta(s3BucketTagPrefix+"OtherTagName"), ShouldBeEmpty)
 			}
 		}
 	})

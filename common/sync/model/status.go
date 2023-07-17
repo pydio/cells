@@ -65,7 +65,7 @@ type Status interface {
 	AtomicProgress() bool
 
 	EndpointURI() string
-	Node() *tree.Node
+	Node() Node
 }
 
 // StatusProvider can register channels to send status/done events during processing
@@ -85,7 +85,7 @@ type ProcessingStatus struct {
 	pg     float32
 	atomic bool
 	uri    string
-	node   *tree.Node
+	node   Node
 }
 
 func NewProcessingStatus(info string) *ProcessingStatus {
@@ -105,7 +105,7 @@ func (p *ProcessingStatus) SetProgress(pg float32, atomic ...bool) *ProcessingSt
 	return p
 }
 
-func (p *ProcessingStatus) SetNode(node *tree.Node) *ProcessingStatus {
+func (p *ProcessingStatus) SetNode(node Node) *ProcessingStatus {
 	p.node = node
 	return p
 }
@@ -147,7 +147,7 @@ func (p *ProcessingStatus) EndpointURI() string {
 	return p.uri
 }
 
-func (p *ProcessingStatus) Node() *tree.Node {
+func (p *ProcessingStatus) Node() Node {
 	return p.node
 }
 

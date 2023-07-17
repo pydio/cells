@@ -69,7 +69,7 @@ func (t *TreeNode) PruneIdentityPathOperation() bool {
 func (t *TreeNode) QueueOperation(op Operation) {
 	crtParent := t
 	n := op.GetNode()
-	p := n.Path
+	p := n.GetPath()
 	split := strings.Split(p, "/")
 	for i := range split {
 		childPath := strings.Join(split[:i+1], "/")

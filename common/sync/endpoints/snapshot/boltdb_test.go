@@ -39,15 +39,15 @@ import (
 )
 
 func basicDiff(l, r model.PathSyncSource) error {
-	left, right := make(map[string]*tree.Node), make(map[string]*tree.Node)
+	left, right := make(map[string]model.Node), make(map[string]model.Node)
 	var leftPaths, rightPaths []string
 	ctx := context.Background()
-	l.Walk(ctx, func(path string, node *tree.Node, err error) error {
+	l.Walk(ctx, func(path string, node model.Node, err error) error {
 		left[path] = node
 		leftPaths = append(leftPaths, path)
 		return nil
 	}, "/", true)
-	r.Walk(ctx, func(path string, node *tree.Node, err error) error {
+	r.Walk(ctx, func(path string, node model.Node, err error) error {
 		right[path] = node
 		rightPaths = append(rightPaths, path)
 		return nil
@@ -59,8 +59,8 @@ func basicDiff(l, r model.PathSyncSource) error {
 	for i, p := range leftPaths {
 		node := left[p]
 		mirror := right[p]
-		if mirror.Path != node.Path || mirror.Type != node.Type {
-			return fmt.Errorf("nodes differ for %s", node.Path)
+		if mirror.GetPath() != node.GetPath() || mirror.GetType() != node.GetType() {
+			return fmt.Errorf("nodes differ for %s", node.GetPath())
 		}
 		if leftPaths[i] != rightPaths[i] {
 			return fmt.Errorf("paths differ for %s", leftPaths[i])
@@ -73,28 +73,28 @@ func TestSnapshot(t *testing.T) {
 
 	source := memory.NewMemDB()
 	ctx := context.Background()
-	source.Nodes = []*tree.Node{
-		{Path: "a", Type: tree.NodeType_COLLECTION},
-		{Path: "a/a1", Type: tree.NodeType_COLLECTION},
-		{Path: "a/a1/a11", Type: tree.NodeType_LEAF},
-		{Path: "a/a1/a12", Type: tree.NodeType_LEAF},
-		{Path: "b", Type: tree.NodeType_COLLECTION},
-		{Path: "b/b", Type: tree.NodeType_COLLECTION},
-		{Path: "b/b/b", Type: tree.NodeType_COLLECTION},
-		{Path: "b/b/b/b", Type: tree.NodeType_COLLECTION},
-		{Path: "b/b/b/b/b", Type: tree.NodeType_COLLECTION},
-		{Path: "b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
-		{Path: "b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
-		{Path: "b/b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
-		{Path: "b/b/b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
-		{Path: "b/b/b/b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
-		{Path: "b/b/b/b/b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
-		{Path: "b/b/b/b/b/b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
-		{Path: "b/b/b/b/b/b/b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
-		{Path: "b/b/b/b/b/b/b/b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
-		{Path: "b/b/b/b/b/b/b/b/b/b/b/b/b/b/leaf", Type: tree.NodeType_LEAF},
-		{Path: "c", Type: tree.NodeType_COLLECTION},
-		{Path: "d", Type: tree.NodeType_COLLECTION},
+	source.Nodes = []model.Node{
+		&tree.Node{Path: "a", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "a/a1", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "a/a1/a11", Type: tree.NodeType_LEAF},
+		&tree.Node{Path: "a/a1/a12", Type: tree.NodeType_LEAF},
+		&tree.Node{Path: "b", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "b/b", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "b/b/b", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "b/b/b/b", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "b/b/b/b/b", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "b/b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "b/b/b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "b/b/b/b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "b/b/b/b/b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "b/b/b/b/b/b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "b/b/b/b/b/b/b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "b/b/b/b/b/b/b/b/b/b/b/b/b/b", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "b/b/b/b/b/b/b/b/b/b/b/b/b/b/leaf", Type: tree.NodeType_LEAF},
+		&tree.Node{Path: "c", Type: tree.NodeType_COLLECTION},
+		&tree.Node{Path: "d", Type: tree.NodeType_COLLECTION},
 	}
 	var sorted []string
 	for i := 0; i < 1000; i++ {
@@ -122,13 +122,13 @@ func TestSnapshot(t *testing.T) {
 
 		n, e := snapshot.LoadNode(ctx, "a/a1/a12")
 		So(e, ShouldBeNil)
-		So(n.Path, ShouldEqual, "a/a1/a12")
+		So(n.GetPath(), ShouldEqual, "a/a1/a12")
 		fmt.Println("Flat Load took", time.Now().Sub(taken))
 		taken = time.Now()
 
 		n, e = snapshot.LoadNode(ctx, "b/b/b/b/b/b/b/b/b/b/b/b/b/b/leaf")
 		So(e, ShouldBeNil)
-		So(n.Path, ShouldEqual, "b/b/b/b/b/b/b/b/b/b/b/b/b/b/leaf")
+		So(n.GetPath(), ShouldEqual, "b/b/b/b/b/b/b/b/b/b/b/b/b/b/leaf")
 		fmt.Println("Tree Load took", time.Now().Sub(taken))
 		taken = time.Now()
 
@@ -159,7 +159,7 @@ func TestSnapshot(t *testing.T) {
 		test2, e2 := snapshot.LoadNode(ctx, "b-renamed/b/b/b/b/b/b/b/b/b/b/b/b/b/leaf")
 		So(e2, ShouldBeNil)
 		So(test2, ShouldNotBeNil)
-		So(test2.Path, ShouldEqual, "b-renamed/b/b/b/b/b/b/b/b/b/b/b/b/b/leaf")
+		So(test2.GetPath(), ShouldEqual, "b-renamed/b/b/b/b/b/b/b/b/b/b/b/b/b/leaf")
 
 		So(source.MoveNode(ctx, "b", "b-renamed"), ShouldBeNil)
 		So(source.DeleteNode(ctx, "b-renamed/b/b/b/b/b/b/b/b/b/b/b/b/b/leaf"), ShouldBeNil)

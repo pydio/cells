@@ -32,7 +32,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/model"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -118,29 +117,29 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 }
 
 // StartSession overrides AbstractPatch method to handle source and/or target as session provider
-func (p *BidirectionalPatch) StartSession(rootNode *tree.Node) (*tree.IndexationSession, error) {
+func (p *BidirectionalPatch) StartSession(rootNode model.Node) (string, error) {
 	if p.sessionProviderContext == nil {
-		return &tree.IndexationSession{Uuid: "", Description: "no-op"}, nil
+		return "", nil
 	}
-	ids := make(map[string]*tree.IndexationSession)
+	ids := make(map[string]string)
 	if sessionProvider, ok := p.Source().(model.SessionProvider); ok {
 		if sourceSession, er := sessionProvider.StartSession(p.sessionProviderContext, rootNode, p.sessionSilent); er != nil {
-			return nil, er
+			return "", er
 		} else {
 			ids["source"] = sourceSession
 		}
 	}
 	if sessionProvider, ok := p.Target().(model.SessionProvider); ok {
 		if targetSession, er := sessionProvider.StartSession(p.sessionProviderContext, rootNode, p.sessionSilent); er != nil {
-			return nil, er
+			return "", er
 		} else {
 			ids["target"] = targetSession
 		}
 	}
-	session := &tree.IndexationSession{}
+	var session string
 	if len(ids) > 0 {
 		data, _ := json.Marshal(ids)
-		session.Uuid = string(data)
+		session = string(data)
 	}
 	return session, nil
 }
@@ -150,18 +149,18 @@ func (p *BidirectionalPatch) FlushSession(sessionUuid string) error {
 	if len(sessionUuid) == 0 {
 		return nil
 	}
-	var ids map[string]*tree.IndexationSession
+	var ids map[string]string
 	if e := json.Unmarshal([]byte(sessionUuid), &ids); e != nil {
 		return nil
 	}
 	targetSession, o1 := ids["target"]
 	var e1, e2 error
 	if sessionProvider, ok := p.Target().(model.SessionProvider); ok && o1 {
-		e1 = sessionProvider.FlushSession(p.sessionProviderContext, targetSession.Uuid)
+		e1 = sessionProvider.FlushSession(p.sessionProviderContext, targetSession)
 	}
 	sourceSession, o2 := ids["source"]
 	if sessionProvider, ok := p.Source().(model.SessionProvider); ok && o2 {
-		e2 = sessionProvider.FlushSession(p.sessionProviderContext, sourceSession.Uuid)
+		e2 = sessionProvider.FlushSession(p.sessionProviderContext, sourceSession)
 	}
 	if e1 != nil {
 		return e1
@@ -177,18 +176,18 @@ func (p *BidirectionalPatch) FinishSession(sessionUuid string) error {
 	if len(sessionUuid) == 0 {
 		return nil
 	}
-	var ids map[string]*tree.IndexationSession
+	var ids map[string]string
 	if e := json.Unmarshal([]byte(sessionUuid), &ids); e != nil {
 		return nil
 	}
 	targetSession, o1 := ids["target"]
 	var e1, e2 error
 	if sessionProvider, ok := p.Target().(model.SessionProvider); ok && o1 {
-		e1 = sessionProvider.FinishSession(p.sessionProviderContext, targetSession.Uuid)
+		e1 = sessionProvider.FinishSession(p.sessionProviderContext, targetSession)
 	}
 	sourceSession, o2 := ids["source"]
 	if sessionProvider, ok := p.Source().(model.SessionProvider); ok && o2 {
-		e2 = sessionProvider.FinishSession(p.sessionProviderContext, sourceSession.Uuid)
+		e2 = sessionProvider.FinishSession(p.sessionProviderContext, sourceSession)
 	}
 	if e1 != nil {
 		return e1
@@ -383,7 +382,7 @@ func (p *BidirectionalPatch) reSyncTarget(left, right *TreeNode) {
 	requeueNode.getRoot().QueueOperation(newOp)
 	if !n.IsLeaf() {
 		// Enqueue folder children as creates
-		_ = source.Walk(p.ctx, func(path string, node *tree.Node, err error) error {
+		_ = source.Walk(p.ctx, func(path string, node model.Node, err error) error {
 			oType := OpCreateFolder
 			if node.IsLeaf() {
 				oType = OpCreateFile
@@ -421,7 +420,7 @@ func (p *BidirectionalPatch) compareMoveTargets(left, right *TreeNode) {
 			p.unexpected = append(p.unexpected, err1)
 		} else if err2 != nil {
 			p.unexpected = append(p.unexpected, err2)
-		} else if l.MTime > r.MTime {
+		} else if l.GetMTime() > r.GetMTime() {
 			log.Logger(p.ctx).Info("-- Moved toward different paths, left is more recent that right => left wins")
 			// Ignore Left - Change Right from Orig => OpMoveTarget.Path to RIGHT.OpMoveTarget.Path => LEFT.OpMoveTargetPath
 			newOp := right.PathOperation.Clone()

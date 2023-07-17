@@ -61,13 +61,13 @@ type TreeDiff struct {
 	includeMetas []glob.Glob
 }
 
-// NewTreeDiff is a public access for instantiating a new TreeDiff
+// NewTreeDiff is public access for instantiating a new TreeDiff
 func NewTreeDiff(left model.PathSyncSource, right model.PathSyncSource) *TreeDiff {
 	return newTreeDiff(left, right)
 }
 
 // newTreeDiff instantiates a new TreeDiff - If left is a MetadataProvider and right a MetadataReceiver,
-// it will setup metadata diff management
+// it will set up metadata diff management
 func newTreeDiff(left model.PathSyncSource, right model.PathSyncSource) *TreeDiff {
 	t := &TreeDiff{
 		//ctx:   ctx,
@@ -258,7 +258,7 @@ func (diff *TreeDiff) ToBidirectionalPatch(ctx context.Context, leftTarget model
 	return
 }
 
-// leftAndRightPatches provides two patches from this diff, to be used as input for a BidirPatch computation
+// leftAndRightPatches provides two patches from this diff, to be used as input for a BidirectionalPatch computation
 func (diff *TreeDiff) leftAndRightPatches(ctx context.Context, leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (leftPatch Patch, rightPatch Patch) {
 
 	leftPatch = NewPatch(leftTarget.(model.PathSyncSource), rightTarget, PatchOptions{MoveDetection: true})

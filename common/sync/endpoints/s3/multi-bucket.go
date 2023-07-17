@@ -99,7 +99,7 @@ func (m *MultiBucketClient) ProvidesMetadataNamespaces() (out []glob.Glob, o boo
 	return m.bucketMetas, len(m.bucketMetas) > 0
 }
 
-func (m *MultiBucketClient) LoadNode(ctx context.Context, p string, extendedStats ...bool) (node *tree.Node, err error) {
+func (m *MultiBucketClient) LoadNode(ctx context.Context, p string, extendedStats ...bool) (node model.Node, err error) {
 	c, b, i, e := m.getClient(p)
 	if e != nil {
 		return nil, e
@@ -174,10 +174,10 @@ func (m *MultiBucketClient) Walk(ctx context.Context, walknFc model.WalkNodesFun
 			}
 			// Walk children
 			if recursive {
-				e := bC.Walk(ctx, func(iPath string, node *tree.Node, err error) error {
+				e := bC.Walk(ctx, func(iPath string, node model.Node, err error) error {
 					wrapped := m.patchPath(bucket.Name, node, iPath)
 					if collect && node.IsLeaf() {
-						eTags = append(eTags, node.Etag)
+						eTags = append(eTags, node.GetEtag())
 					}
 					return walknFc(wrapped, node, err)
 				}, "", recursive)
@@ -302,8 +302,8 @@ func (m *MultiBucketClient) GetReaderOn(ctx context.Context, path string) (out i
 	return c.GetReaderOn(ctx, i)
 }
 
-func (m *MultiBucketClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
-	c, b, i, e := m.getClient(node.Path)
+func (m *MultiBucketClient) CreateNode(ctx context.Context, node model.Node, updateIfExists bool) (err error) {
+	c, b, i, e := m.getClient(node.GetPath())
 	if e != nil {
 		err = e
 		return
@@ -312,7 +312,7 @@ func (m *MultiBucketClient) CreateNode(ctx context.Context, node *tree.Node, upd
 		err = errors.Unauthorized("level.unauthorized", "cannot create objects at the buckets level")
 		return
 	}
-	patched := node.Clone()
+	patched := node.AsProto().Clone()
 	patched.Path = i
 	return c.CreateNode(ctx, patched, updateIfExists)
 }
@@ -348,8 +348,8 @@ func (m *MultiBucketClient) MoveNode(ctx context.Context, oldPath string, newPat
 	return c.MoveNode(ctx, i, i2)
 }
 
-func (m *MultiBucketClient) ComputeChecksum(ctx context.Context, node *tree.Node) (err error) {
-	c, b, i, e := m.getClient(node.Path)
+func (m *MultiBucketClient) ComputeChecksum(ctx context.Context, node model.Node) (err error) {
+	c, b, i, e := m.getClient(node.GetPath())
 	if e != nil {
 		err = e
 		return
@@ -358,18 +358,18 @@ func (m *MultiBucketClient) ComputeChecksum(ctx context.Context, node *tree.Node
 		err = errors.Unauthorized("level.unauthorized", "cannot compute checksum at the buckets level")
 		return
 	}
-	patched := node.Clone()
+	patched := node.AsProto().Clone()
 	patched.Path = i
 	if e := c.ComputeChecksum(ctx, patched); e != nil {
 		return e
 	} else {
-		node.Etag = patched.Etag
+		node.UpdateEtag(patched.Etag)
 		return nil
 	}
 }
 
-func (m *MultiBucketClient) UpdateNodeUuid(ctx context.Context, node *tree.Node) (n *tree.Node, err error) {
-	c, b, i, e := m.getClient(node.Path)
+func (m *MultiBucketClient) UpdateNodeUuid(ctx context.Context, node model.Node) (n model.Node, err error) {
+	c, b, i, e := m.getClient(node.GetPath())
 	if e != nil {
 		err = e
 		return
@@ -378,7 +378,7 @@ func (m *MultiBucketClient) UpdateNodeUuid(ctx context.Context, node *tree.Node)
 		err = errors.Unauthorized("level.unauthorized", "cannot update node Uuid at the buckets level")
 		return
 	}
-	patched := node.Clone()
+	patched := node.AsProto().Clone()
 	patched.Path = i
 	out, e := c.UpdateNodeUuid(ctx, patched)
 	m.patchPath(b, out)
@@ -445,12 +445,12 @@ func (m *MultiBucketClient) getClient(p string) (c *Client, bucket string, inter
 	return
 }
 
-func (m *MultiBucketClient) patchPath(bucketName string, node *tree.Node, p ...string) (patched string) {
+func (m *MultiBucketClient) patchPath(bucketName string, node model.Node, p ...string) (patched string) {
 	if len(p) > 0 {
 		patched = path.Join(bucketName, p[0])
 	}
 	if node != nil {
-		node.Path = path.Join(bucketName, node.Path)
+		node.UpdatePath(path.Join(bucketName, node.GetPath()))
 	}
 	return
 }

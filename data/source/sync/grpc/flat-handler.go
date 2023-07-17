@@ -48,9 +48,9 @@ func (s *Handler) FlatScanEmpty(ctx context.Context, syncStatus chan model.Statu
 	s.indexClientSession.OpenSession(ctx, &tree.OpenSessionRequest{Session: session})
 	defer s.indexClientSession.CloseSession(ctx, &tree.CloseSessionRequest{Session: session})
 	var nodesCreated int
-	e := source.Walk(ctx, func(path string, node *tree.Node, err error) error {
+	e := source.Walk(ctx, func(path string, node model.Node, err error) error {
 		// If set, Node.Uuid is read from s3 metadata. Set the Path as Uuid instead.
-		clone := node.Clone()
+		clone := node.AsProto().Clone()
 		clone.Uuid = node.GetPath()
 		_, e := s.indexClientWrite.CreateNode(ctx, &tree.CreateNodeRequest{
 			Node:              clone,

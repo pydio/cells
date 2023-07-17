@@ -24,7 +24,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
@@ -46,12 +45,12 @@ const (
 	EventAccessedStat EventType = "ObjectAccessed:Stat"
 	// EventOther notifies any other events
 	EventOther EventType = "ObjectOther"
-	// EventOther notifies any other events
+	// EventSureMove notifies a known move
 	EventSureMove EventType = "NodeMoved"
 )
 
 // EventInfo contains the information of the event that occurred and the source
-// IP:PORT of the client which triggerred the event.
+// IP:PORT of the client which triggered the event.
 type EventInfo struct {
 	Time           string
 	Size           int64
@@ -65,10 +64,10 @@ type EventInfo struct {
 	UserAgent      string
 	OperationId    string
 	ScanEvent      bool
-	ScanSourceNode *tree.Node
+	ScanSourceNode Node
 	Metadata       map[string]string
-	MoveSource     *tree.Node
-	MoveTarget     *tree.Node
+	MoveSource     Node
+	MoveTarget     Node
 }
 
 func (e EventInfo) CreateContext(ctx context.Context) context.Context {
@@ -106,23 +105,23 @@ type WatchObject struct {
 	// will stop the watcher goroutines
 	DoneChan chan bool
 	// Provides info about the internal watcher connection
-	// Can be nill if the internal watcher does not support such notifications
+	// Can be nil if the internal watcher does not support such notifications
 	ConnectionInfo chan WatchConnectionInfo
 }
 
 // NextEvent pops the next event from the EventInfoChan
-func (w WatchObject) NextEvent() EventInfo {
+func (w *WatchObject) NextEvent() EventInfo {
 	return <-w.EventInfoChan
 }
 
 // NextError pops the next error from the ErrorChan
-func (w WatchObject) NextError() error {
+func (w *WatchObject) NextError() error {
 	return <-w.ErrorChan
 }
 
 // Done returns a channel that unblocks when Close has been
 // called
-func (w WatchObject) Done() <-chan bool { return w.DoneChan }
+func (w *WatchObject) Done() <-chan bool { return w.DoneChan }
 
 // Events returns the chan receiving events
 func (w *WatchObject) Events() chan EventInfo {
@@ -143,7 +142,7 @@ func (w *WatchObject) Close() {
 	close(w.DoneChan)
 }
 
-func NodeToEventInfo(ctx context.Context, path string, node *tree.Node, eventType EventType) (eventInfo EventInfo) {
+func NodeToEventInfo(ctx context.Context, path string, node Node, eventType EventType) (eventInfo EventInfo) {
 	timeFormatFS := "2006-01-02T15:04:05.000Z"
 	eventInfo = EventInfo{
 		Time:           time.Now().UTC().Format(timeFormatFS),

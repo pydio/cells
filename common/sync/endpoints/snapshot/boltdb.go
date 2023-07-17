@@ -56,10 +56,10 @@ type BoltSnapshot struct {
 	empty      bool
 	folderPath string
 
-	createsSession     map[string]*tree.Node
+	createsSession     map[string]model.Node
 	createsSessionLock *sync.Mutex
 
-	autoBatchChan  chan *tree.Node
+	autoBatchChan  chan model.Node
 	autoBatchClose chan struct{}
 }
 
@@ -78,7 +78,7 @@ func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
 	}
 	s.db = db
 
-	s.autoBatchChan = make(chan *tree.Node)
+	s.autoBatchChan = make(chan model.Node)
 	s.autoBatchClose = make(chan struct{}, 1)
 
 	go s.startAutoBatching()
@@ -86,7 +86,7 @@ func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
 	return s, nil
 }
 
-func (s *BoltSnapshot) sortByKey(data map[string]*tree.Node) (output []*tree.Node) {
+func (s *BoltSnapshot) sortByKey(data map[string]model.Node) (output []model.Node) {
 	var kk []string
 	for k := range data {
 		kk = append(kk, k)
@@ -102,7 +102,7 @@ func (s *BoltSnapshot) startAutoBatching() {
 	defer func() {
 		close(s.autoBatchChan)
 	}()
-	creates := make(map[string]*tree.Node, 500)
+	creates := make(map[string]model.Node, 500)
 	nextTime := 1 * time.Hour
 	flush := func() {
 		if len(creates) == 0 {
@@ -115,17 +115,17 @@ func (s *BoltSnapshot) startAutoBatching() {
 				return fmt.Errorf("cannot find root bucket")
 			}
 			for _, node := range s.sortByKey(creates) {
-				b.Put([]byte(node.Path), s.marshal(node))
+				b.Put([]byte(node.GetPath()), s.marshal(node))
 			}
 			return nil
 		})
-		creates = make(map[string]*tree.Node, 500)
+		creates = make(map[string]model.Node, 500)
 	}
 	for {
 		select {
 		case node := <-s.autoBatchChan:
 			if queued, ok := creates[node.GetPath()]; ok {
-				if node.GetMTime() > queued.MTime {
+				if node.GetMTime() > queued.GetMTime() {
 					creates[node.GetPath()] = node
 				}
 			} else {
@@ -147,12 +147,10 @@ func (s *BoltSnapshot) startAutoBatching() {
 	}
 }
 
-func (s *BoltSnapshot) StartSession(ctx context.Context, rootNode *tree.Node, silent bool) (*tree.IndexationSession, error) {
-	s.createsSession = make(map[string]*tree.Node)
+func (s *BoltSnapshot) StartSession(ctx context.Context, rootNode model.Node, silent bool) (string, error) {
+	s.createsSession = make(map[string]model.Node)
 	s.createsSessionLock = &sync.Mutex{}
-	return &tree.IndexationSession{
-		Uuid: uuid.New(),
-	}, nil
+	return uuid.New(), nil
 }
 
 func (s *BoltSnapshot) FlushSession(ctx context.Context, sessionUuid string) error {
@@ -167,12 +165,12 @@ func (s *BoltSnapshot) FlushSession(ctx context.Context, sessionUuid string) err
 		}
 		s.createsSessionLock.Lock()
 		for _, node := range s.sortByKey(s.createsSession) {
-			b.Put([]byte(node.Path), s.marshal(node))
+			b.Put([]byte(node.GetPath()), s.marshal(node))
 		}
 		s.createsSessionLock.Unlock()
 		return nil
 	})
-	s.createsSession = make(map[string]*tree.Node)
+	s.createsSession = make(map[string]model.Node)
 	return e
 }
 
@@ -181,7 +179,7 @@ func (s *BoltSnapshot) FinishSession(ctx context.Context, sessionUuid string) er
 	return nil
 }
 
-func (s *BoltSnapshot) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
+func (s *BoltSnapshot) CreateNode(ctx context.Context, node model.Node, updateIfExists bool) (err error) {
 	if s.createsSession != nil {
 		return s.db.View(func(tx *bbolt.Tx) error {
 			b := tx.Bucket(bucketName)
@@ -191,9 +189,9 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node *tree.Node, updateIf
 			s.createsSessionLock.Lock()
 			defer s.createsSessionLock.Unlock()
 			// Create parents if necessary
-			dir := strings.Trim(path.Dir(node.Path), "/")
+			dir := strings.Trim(path.Dir(node.GetPath()), "/")
 			if dir != "" && dir != "." {
-				parts := strings.Split(strings.Trim(path.Dir(node.Path), "/"), "/")
+				parts := strings.Split(strings.Trim(path.Dir(node.GetPath()), "/"), "/")
 				for i := 0; i < len(parts); i++ {
 					pKey := strings.Join(parts[:i+1], "/")
 					if _, ok := s.createsSession[pKey]; ok {
@@ -205,20 +203,20 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node *tree.Node, updateIf
 					s.createsSession[pKey] = &tree.Node{Path: pKey, Type: tree.NodeType_COLLECTION, Etag: "-1"}
 				}
 			}
-			s.createsSession[node.Path] = node
+			s.createsSession[node.GetPath()] = node
 			return nil
 		})
 	} else {
-		var nn []*tree.Node
+		var nn []model.Node
 		er := s.db.View(func(tx *bbolt.Tx) error {
 			b := tx.Bucket(bucketName)
 			if b == nil {
 				return fmt.Errorf("cannot find root bucket")
 			}
 			// Create parents if necessary
-			dir := strings.Trim(path.Dir(node.Path), "/")
+			dir := strings.Trim(path.Dir(node.GetPath()), "/")
 			if dir != "" && dir != "." {
-				parts := strings.Split(strings.Trim(path.Dir(node.Path), "/"), "/")
+				parts := strings.Split(strings.Trim(path.Dir(node.GetPath()), "/"), "/")
 				for i := 0; i < len(parts); i++ {
 					pKey := strings.Join(parts[:i+1], "/")
 					if ex := b.Get([]byte(pKey)); ex == nil {
@@ -281,7 +279,7 @@ func (s *BoltSnapshot) MoveNode(ctx context.Context, oldPath string, newPath str
 		for _, m := range moves {
 			renamed := path.Join(newPath, strings.TrimPrefix(string(m), oldPath))
 			if node, e := s.unmarshal(b.Get(m)); e == nil {
-				node.Path = renamed
+				node.UpdatePath(renamed)
 				b.Delete(m)
 				b.Put([]byte(renamed), s.marshal(node))
 			}
@@ -318,12 +316,12 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 			return e
 		}
 		if len(paths) == 0 {
-			return source.Walk(ctx, func(path string, node *tree.Node, err error) error {
+			return source.Walk(ctx, func(path string, node model.Node, err error) error {
 				return capture.Put([]byte(path), s.marshal(node))
 			}, "/", true)
 		} else {
 			for _, p := range paths {
-				e := source.Walk(ctx, func(path string, node *tree.Node, err error) error {
+				e := source.Walk(ctx, func(path string, node model.Node, err error) error {
 					if err != nil {
 						log.Logger(ctx).Error("BoltDB:Capture: ignoring path, error is not nil", zap.String("path", path), zap.Error(err))
 						return err
@@ -366,7 +364,7 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 	return e
 }
 
-func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
+func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node model.Node, err error) {
 	if path == "/" {
 		// Return fake Root
 		node = &tree.Node{Path: "/"}
@@ -391,9 +389,9 @@ func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats 
 	}
 	if len(extendedStats) > 0 && extendedStats[0] {
 		var size, folders, files int64
-		_ = s.Walk(nil, func(path string, node *tree.Node, err error) error {
+		_ = s.Walk(nil, func(path string, node model.Node, err error) error {
 			if node.IsLeaf() {
-				size += node.Size
+				size += node.GetSize()
 				files += 1
 			} else {
 				folders += 1
@@ -445,14 +443,14 @@ func (s *BoltSnapshot) Watch(recursivePath string) (*model.WatchObject, error) {
 	return nil, fmt.Errorf("not.implemented")
 }
 
-func (s *BoltSnapshot) marshal(node *tree.Node) []byte {
-	store := node.Clone()
+func (s *BoltSnapshot) marshal(node model.Node) []byte {
+	store := node.AsProto()
 	store.MetaStore = nil
-	data, _ := proto.Marshal(node)
+	data, _ := proto.Marshal(store)
 	return data
 }
 
-func (s *BoltSnapshot) unmarshal(value []byte) (*tree.Node, error) {
+func (s *BoltSnapshot) unmarshal(value []byte) (model.Node, error) {
 	var n tree.Node
 	if e := proto.Unmarshal(value, &n); e != nil {
 		return nil, e
