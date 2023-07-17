@@ -132,6 +132,26 @@ func (node *Node) Clone() *Node {
 	return proto.Clone(node).(*Node)
 }
 
+// UpdatePath changes internal Path value
+func (node *Node) UpdatePath(p string) {
+	node.Path = p
+}
+
+// UpdateUuid changes internal Uuid value
+func (node *Node) UpdateUuid(u string) {
+	node.Uuid = u
+}
+
+// UpdateEtag changes internal Etag value
+func (node *Node) UpdateEtag(et string) {
+	node.Uuid = et
+}
+
+// AsProto just implements the sync/model/Node interface
+func (node *Node) AsProto() *Node {
+	return node
+}
+
 // IsLeaf checks if node is of type NodeType_LEAF or NodeType_COLLECTION
 func (node *Node) IsLeaf() bool {
 	return node.Type == NodeType_LEAF
@@ -196,6 +216,16 @@ func (node *Node) MustSetMeta(namespace string, jsonMeta interface{}) {
 		panic(fmt.Sprintf("Error while marshaling meta to json: %v", err))
 	}
 	node.MetaStore[namespace] = string(bytes)
+}
+
+// SetRawMetadata append key/value directly to metastore (no json encoding)
+func (node *Node) SetRawMetadata(mm map[string]string) {
+	if node.MetaStore == nil {
+		node.MetaStore = make(map[string]string, len(mm))
+	}
+	for k, v := range mm {
+		node.MetaStore[k] = v
+	}
 }
 
 // GetStringMeta easily returns the string value of the MetaData for this key
