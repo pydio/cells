@@ -25,6 +25,8 @@ import (
 	databasesql "database/sql"
 	"embed"
 	"fmt"
+	"github.com/pydio/cells/v4/common/sync/model"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"strconv"
 	"strings"
 	"time"
@@ -174,11 +176,11 @@ func safeGroupPath(gPath string) string {
 }
 
 // Add to the underlying SQL DB.
-func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
+func (s *sqlimpl) Add(in interface{}) (interface{}, []model.Node, error) {
 
 	// s.Lock()
 	// defer s.Unlock()
-	var createdNodes []*tree.Node
+	var createdNodes []model.Node
 
 	var user *idm.User
 	var ok bool
@@ -202,9 +204,9 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		if node, err := s.IndexSQL.GetNodeByUUID(objectUuid); err == nil && node != nil {
 
 			s.rebuildGroupPath(node)
-			if node.Path != objectPath {
+			if node.GetPath() != objectPath {
 				// This is a move
-				reqFromPath := "/" + strings.Trim(node.Path, "/")
+				reqFromPath := "/" + strings.Trim(node.GetPath(), "/")
 				reqToPath := objectPath
 				movedOriginalPath = reqFromPath
 
@@ -293,7 +295,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		if err != nil {
 			return nil, createdNodes, err
 		}
-		user.Uuid = foundOrCreatedNode.Uuid
+		user.Uuid = foundOrCreatedNode.GetUuid()
 	}
 
 	// Remove existing attributes and roles, replace with new ones using a transaction
@@ -557,18 +559,18 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 		}
 		node.SetMPath(mpath...)
 		// node.SetBytes(rat)
-		node.Uuid = uuid
-		node.Etag = etag
-		node.MTime = int64(mtime)
+		node.UpdateUuid(uuid)
+		node.UpdateEtag(etag)
+		node.UpdateMTime(int64(mtime))
 		s.rebuildGroupPath(node)
-		node.SetMeta("name", name)
+		node.SetName(name)
 
 		var userOrGroup *idm.User
 		if leaf == 0 {
-			node.Node.Type = tree.NodeType_COLLECTION
+			node.SetType(tree.NodeType_COLLECTION)
 			userOrGroup = nodeToGroup(node)
 		} else {
-			node.Node.Type = tree.NodeType_LEAF
+			node.SetType(tree.NodeType_LEAF)
 			userOrGroup = nodeToUser(node)
 
 			st, err := s.GetStmt("GetRoles")
@@ -669,19 +671,19 @@ func (s *sqlimpl) Del(query sql.Enquirer, users chan *idm.User) (int64, error) {
 		}
 		node.SetMPath(mpath...)
 		// node.SetBytes(rat)
-		node.Uuid = uuid
+		node.UpdateUuid(uuid)
 		node.Level = int(level)
-		node.Etag = etag
-		node.MTime = int64(mtime)
+		node.UpdateEtag(etag)
+		node.UpdateMTime(int64(mtime))
 		s.rebuildGroupPath(node)
-		node.SetMeta("name", name)
+		node.SetName(name)
 
 		var userOrGroup *idm.User
 		if leaf == 0 {
-			node.Node.Type = tree.NodeType_COLLECTION
+			node.SetType(tree.NodeType_COLLECTION)
 			userOrGroup = nodeToGroup(node)
 		} else {
-			node.Node.Type = tree.NodeType_LEAF
+			node.SetType(tree.NodeType_LEAF)
 			userOrGroup = nodeToUser(node)
 		}
 		data = append(data, &delStruct{node: node, object: userOrGroup})
@@ -694,7 +696,7 @@ func (s *sqlimpl) Del(query sql.Enquirer, users chan *idm.User) (int64, error) {
 			return rows, err
 		}
 
-		if err := s.deleteNodeData(toDel.node.Uuid); err != nil {
+		if err := s.deleteNodeData(toDel.node.GetUuid()); err != nil {
 			return rows, err
 		}
 
@@ -752,17 +754,18 @@ func (s *sqlimpl) deleteNodeData(uuid string) error {
 }
 
 func (s *sqlimpl) rebuildGroupPath(node *mtree.TreeNode) {
-	if len(node.Path) == 0 {
+	if len(node.GetPath()) == 0 {
 		var path []string
 		roles := []string{}
 		for pNode := range s.IndexSQL.GetNodes(node.MPath.Parents()...) {
 			path = append(path, pNode.Name())
-			roles = append(roles, pNode.Uuid)
+			roles = append(roles, pNode.GetUuid())
 		}
 		path = append(path, node.Name())
 		p := strings.Join(path, "/")
-		node.Path = fmt.Sprintf("/%s", strings.TrimLeft(p, "/"))
-		node.SetMeta("GroupRoles", roles)
+		node.UpdatePath(fmt.Sprintf("/%s", strings.TrimLeft(p, "/")))
+		jj, _ := json.Marshal(roles)
+		node.SetRawMetadata(map[string]string{"GroupRoles": string(jj)})
 	}
 
 }

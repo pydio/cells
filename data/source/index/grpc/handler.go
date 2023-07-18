@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/sync/model"
 	"net/http"
 	"runtime/debug"
 	"strings"
@@ -112,17 +113,17 @@ func (s *TreeServer) setDataSourceMeta(node *mtree.TreeNode) {
 // updateMeta simplifies the dao.SetNodeMeta call
 func (s *TreeServer) updateMeta(dao index.DAO, node *mtree.TreeNode, reqNode *tree.Node) (previousEtag string, contentChange bool, err error) {
 	if node.IsLeaf() {
-		previousEtag = node.Etag
+		previousEtag = node.GetEtag()
 		if previousEtag != common.NodeFlagEtagTemporary {
 			contentChange = true
 		}
 	}
 	// Replace meta
-	node.Size = reqNode.Size
-	node.Etag = reqNode.Etag
-	node.Type = reqNode.Type
-	node.MTime = reqNode.MTime
-	node.Mode = reqNode.Mode
+	node.UpdateSize(reqNode.Size)
+	node.UpdateEtag(reqNode.Etag)
+	node.SetType(reqNode.Type)
+	node.UpdateMTime(reqNode.MTime)
+	node.UpdateMode(reqNode.Mode)
 	err = dao.SetNodeMeta(node)
 	return
 }
@@ -165,7 +166,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				if content && previousEtag != common.NodeFlagEtagTemporary {
 					eventType = tree.NodeChangeEvent_UPDATE_CONTENT
 				}
-				node.Path = req.GetNode().GetPath()
+				node.UpdatePath(req.GetNode().GetPath())
 				if h := req.GetNode().GetStringMeta(common.MetaNamespaceHash); h != "" {
 					node.SetMeta(common.MetaNamespaceHash, h)
 				}
@@ -174,7 +175,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 					return nil, errors.InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
 				}
 				resp.Success = true
-				resp.Node = node.Node
+				resp.Node = node.AsProto()
 				return resp, nil
 			}
 		} else if node != nil {
@@ -222,7 +223,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 			s.setDataSourceMeta(parent)
 			broker.MustPublish(ctx, common.TopicIndexChanges, &tree.NodeChangeEvent{
 				Type:   tree.NodeChangeEvent_CREATE,
-				Target: parent.Node,
+				Target: parent.AsProto(),
 			})
 		}
 	}
@@ -234,7 +235,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		}
 	}
 
-	node.Path = reqPath
+	node.UpdatePath(reqPath)
 	s.setDataSourceMeta(node)
 
 	// Propagate mime meta
@@ -251,7 +252,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	}
 
 	resp.Success = true
-	resp.Node = node.Node
+	resp.Node = node.AsProto()
 
 	return resp, nil
 }
@@ -285,7 +286,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 			path = append(path, pnode.Name())
 		}
 		path = append(path, node.Name())
-		node.Path = safePath(strings.Join(path, "/"))
+		node.UpdatePath(safePath(strings.Join(path, "/")))
 
 	} else {
 		reqPath := safePath(req.GetNode().GetPath())
@@ -303,10 +304,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 		if err != nil {
 			if len(path) == 1 && path[0] == 1 {
 				// This is the root node, let's create it
-				node = index.NewNode(&tree.Node{
-					Uuid: "ROOT",
-					Type: tree.NodeType_COLLECTION,
-				}, path, []string{""})
+				node = index.NewNode(model.NewNode(tree.NodeType_COLLECTION, "ROOT", "", "", 0, 0, 0), path, []string{""})
 				if err = dao.AddNode(node); err != nil {
 					return nil, err
 				}
@@ -315,7 +313,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 			}
 		}
 
-		node.Path = reqPath
+		node.UpdatePath(reqPath)
 	}
 
 	resp.Success = true
@@ -333,7 +331,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 		node.SetMeta(common.MetaFlagRecursiveCount, total)
 	}
 
-	resp.Node = node.Node
+	resp.Node = node.AsProto()
 
 	return resp, nil
 }
@@ -386,7 +384,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		nodes := []*mtree.TreeNode{}
 		for pnode := range dao.GetNodes(node.MPath.Parents()...) {
 			path = append(path, pnode.Name())
-			pnode.Path = safePath(strings.Join(path, "/"))
+			pnode.UpdatePath(safePath(strings.Join(path, "/")))
 			nodes = append(nodes, pnode)
 		}
 		// Now Reverse Slice
@@ -395,7 +393,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 			nodes[i], nodes[last-i] = nodes[last-i], nodes[i]
 		}
 		for _, n := range nodes {
-			if err := resp.Send(&tree.ListNodesResponse{Node: n.Node}); err != nil {
+			if err := resp.Send(&tree.ListNodesResponse{Node: n.AsProto()}); err != nil {
 				return err
 			}
 		}
@@ -456,7 +454,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 				break
 			}
 
-			if req.Recursive && node.Path == reqPath {
+			if req.Recursive && node.GetPath() == reqPath {
 				continue
 			}
 
@@ -480,7 +478,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 					fullName = append(fullName, parentsCache[p.String()])
 				}
 				fullName = append(fullName, node.Name())
-				node.Path = safePath(strings.Join(fullName, "/"))
+				node.UpdatePath(safePath(strings.Join(fullName, "/")))
 
 			} else {
 				// This assumes that all nodes are received in correct order from parents to leafs
@@ -493,7 +491,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 				names = names[0:node.Level]
 				names[node.Level-1] = node.Name()
 
-				node.Path = safePath(strings.Join(names, "/"))
+				node.UpdatePath(safePath(strings.Join(names, "/")))
 			}
 
 			s.setDataSourceMeta(node)
@@ -508,7 +506,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 				total, _ := dao.GetNodeChildrenCounts(node.MPath, true)
 				node.SetMeta(common.MetaFlagRecursiveCount, total)
 			}
-			if err := resp.Send(&tree.ListNodesResponse{Node: node.Node}); err != nil {
+			if err := resp.Send(&tree.ListNodesResponse{Node: node.AsProto()}); err != nil {
 				return err
 			}
 		}
@@ -578,8 +576,8 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		dao.Flush(false)
 	}
 
-	nodeFrom.Path = reqFromPath
-	nodeTo.Path = reqToPath
+	nodeFrom.UpdatePath(reqFromPath)
+	nodeTo.UpdatePath(reqToPath)
 
 	s.setDataSourceMeta(nodeFrom)
 	s.setDataSourceMeta(nodeTo)
@@ -590,7 +588,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 
 	newNode, err := dao.GetNode(pathTo)
 	if err == nil && newNode != nil {
-		newNode.Path = reqToPath
+		newNode.UpdatePath(reqToPath)
 		s.setDataSourceMeta(newNode)
 		if err := s.UpdateParentsAndNotify(ctx, dao, nodeFrom.GetSize(), tree.NodeChangeEvent_UPDATE_PATH, nodeFrom, newNode, req.IndexationSession); err != nil {
 			return nil, errors.InternalServerError(common.ServiceDataIndex_, "error while updating parents:  %s", err.Error())
@@ -629,10 +627,10 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	if err != nil {
 		return nil, errors.NotFound(name, "Could not retrieve node %s", reqPath)
 	}
-	node.Path = reqPath
+	node.UpdatePath(reqPath)
 	s.setDataSourceMeta(node)
 	var childrenEvents []*tree.NodeChangeEvent
-	if node.Type == tree.NodeType_COLLECTION {
+	if node.GetType() == tree.NodeType_COLLECTION {
 		c := dao.GetNodeTree(ctx, path)
 		names := strings.Split(reqPath, "/")
 		var treeErr error
@@ -655,11 +653,11 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 			}
 			names = names[0:child.Level]
 			names[child.Level-1] = child.Name()
-			child.Path = safePath(strings.Join(names, "/"))
+			child.UpdatePath(safePath(strings.Join(names, "/")))
 			s.setDataSourceMeta(child)
 			childrenEvents = append(childrenEvents, &tree.NodeChangeEvent{
 				Type:   tree.NodeChangeEvent_DELETE,
-				Source: child.Node,
+				Source: child.AsProto(),
 				Silent: true,
 			})
 		}
@@ -672,7 +670,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 		return nil, errors.InternalServerError(name, "Could not delete node at %s, cause: %s", reqPath, err.Error())
 	}
 
-	if err := s.UpdateParentsAndNotify(ctx, dao, node.Size, tree.NodeChangeEvent_DELETE, node, nil, req.IndexationSession); err != nil {
+	if err := s.UpdateParentsAndNotify(ctx, dao, node.GetSize(), tree.NodeChangeEvent_DELETE, node, nil, req.IndexationSession); err != nil {
 		return nil, errors.InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
 	}
 
@@ -787,14 +785,14 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 		mpathes[&targetNode.MPath] = deltaSize
 		event = &tree.NodeChangeEvent{
 			Type:   eventType,
-			Target: targetNode.Node,
+			Target: targetNode.AsProto(),
 		}
 	} else if targetNode == nil {
 		// DELETE
 		mpathes[&sourceNode.MPath] = -deltaSize
 		event = &tree.NodeChangeEvent{
 			Type:   eventType,
-			Source: sourceNode.Node,
+			Source: sourceNode.AsProto(),
 		}
 	} else {
 		// UPDATE
@@ -803,13 +801,13 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 		if mpathFrom.Parent().String() == mpathTo.Parent().String() {
 			mpathes[&mpathFrom] = 0
 		} else {
-			mpathes[&mpathFrom] = -sourceNode.Size
-			mpathes[&mpathTo] = sourceNode.Size
+			mpathes[&mpathFrom] = -sourceNode.GetSize()
+			mpathes[&mpathTo] = sourceNode.GetSize()
 		}
 		event = &tree.NodeChangeEvent{
 			Type:   eventType,
-			Source: sourceNode.Node,
-			Target: targetNode.Node,
+			Source: sourceNode.AsProto(),
+			Target: targetNode.AsProto(),
 		}
 	}
 

@@ -241,7 +241,7 @@ func (dao *IndexSQL) LostAndFounds(ctx context.Context) (output []LostAndFound, 
 				t, _ := dao.GetNodeByUUID(uid)
 				for c := range dao.GetNodeTree(ctx, t.MPath) {
 					if n, o := c.(*mtree.TreeNode); o {
-						output = append(output, &lostFoundImpl{uuids: []string{n.Uuid}, lostMPath: n.MPath.String()})
+						output = append(output, &lostFoundImpl{uuids: []string{n.GetUuid()}, lostMPath: n.MPath.String()})
 					}
 				}
 			}

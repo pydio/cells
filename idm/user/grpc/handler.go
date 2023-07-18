@@ -157,10 +157,10 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 		return nil, err
 	}
 	for _, g := range createdNodes {
-		if g.Uuid != out.Uuid && g.Type == tree.NodeType_COLLECTION {
+		if g.GetUuid() != out.Uuid && g.GetType() == tree.NodeType_COLLECTION {
 			// Groups where created in the process, add default policies on them
-			log.Logger(ctx).Info("Setting Default Policies on groups that were created automatically", zap.String("groupPath", g.Path))
-			if err := h.dao.AddPolicies(false, g.Uuid, defaultPolicies); err != nil {
+			log.Logger(ctx).Info("Setting Default Policies on groups that were created automatically", zap.String("groupPath", g.GetPath()))
+			if err := h.dao.AddPolicies(false, g.GetUuid(), defaultPolicies); err != nil {
 				return nil, err
 			}
 		}

@@ -145,6 +145,20 @@ func (node *Node) UpdateSize(s int64) {
 	node.Size = s
 }
 
+// UpdateMTime changes internal MTime value
+func (node *Node) UpdateMTime(s int64) {
+	node.MTime = s
+}
+
+// UpdateMode updates mode fields
+func (node *Node) UpdateMode(s int32) {
+	node.Mode = s
+}
+
+func (node *Node) SetType(t NodeType) {
+	node.Type = t
+}
+
 func (node *Node) SetChildrenSize(s uint64) {
 	node.MustSetMeta(common.MetaRecursiveChildrenSize, int64(s))
 }

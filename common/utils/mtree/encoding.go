@@ -22,6 +22,7 @@
 package mtree
 
 import (
+	"github.com/pydio/cells/v4/common/sync/model"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -29,9 +30,11 @@ import (
 
 // TreeNode definition
 type TreeNode struct {
-	*tree.Node
-	mutex *sync.RWMutex
-	MPath MPath
+	model.Node
+	name         string
+	mutex        *sync.RWMutex
+	MPath        MPath
+	internalMeta map[string]interface{}
 	//rat   *Rat
 	//srat  *Rat
 	Level int
@@ -40,7 +43,7 @@ type TreeNode struct {
 // NewTreeNode wraps a node with its rational equivalent of the mpath
 func NewTreeNode() *TreeNode {
 	t := new(TreeNode)
-	t.Node = new(tree.Node)
+	t.Node = model.NewNode(tree.NodeType_UNKNOWN, "", "", "", 0, 0, 0) // new(tree.Node)
 	t.MPath = MPath{}
 	// t.rat = NewRat()
 	// t.srat = NewRat()
@@ -51,12 +54,19 @@ func NewTreeNode() *TreeNode {
 
 // SetMeta sets a meta using a lock
 func (t *TreeNode) SetMeta(name string, value interface{}) {
+	if name == "name" {
+		t.SetName(value.(string))
+		return
+	}
 	t.mutex.RLock()
 	defer t.mutex.RUnlock()
-
-	t.Node.MustSetMeta(name, value)
+	if t.internalMeta == nil {
+		t.internalMeta = map[string]interface{}{}
+	}
+	t.internalMeta[name] = value
 }
 
+/*
 // GetMeta gets a meta from a meta store using the lock
 func (t *TreeNode) GetMeta(name string, value interface{}) {
 	t.mutex.Lock()
@@ -64,17 +74,27 @@ func (t *TreeNode) GetMeta(name string, value interface{}) {
 
 	t.Node.GetMeta(name, value)
 }
+*/
+
+func (t *TreeNode) AsProto() *tree.Node {
+	p := t.Node.AsProto()
+	p.MustSetMeta("name", t.name)
+	if t.internalMeta != nil {
+		for k, v := range t.internalMeta {
+			p.MustSetMeta(k, v)
+		}
+	}
+	return p
+}
 
 // SetName records the name of the node in the metastore (uses a lock)
 func (t *TreeNode) SetName(name string) {
-	t.SetMeta("name", name)
+	t.name = name
 }
 
 // Name from the metastore (uses a rwlock)
 func (t *TreeNode) Name() string {
-	var name string
-	t.GetMeta("name", &name)
-	return name
+	return t.name
 }
 
 // Bytes encoding of the rational

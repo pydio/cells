@@ -70,11 +70,11 @@ func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 	if _, err := s.IndexSQL.GetNode(mtree.NewMPath(1)); err != nil {
 		log.Logger(context.Background()).Info("Creating root node in index ")
 		treeNode := mtree.NewTreeNode()
-		treeNode.Type = tree.NodeType_COLLECTION
-		treeNode.Uuid = "ROOT"
+		treeNode.SetType(tree.NodeType_COLLECTION)
+		treeNode.UpdateUuid("ROOT")
 		treeNode.SetMPath(1)
 		treeNode.Level = 1
-		treeNode.MTime = time.Now().Unix()
+		treeNode.UpdateMTime(time.Now().Unix())
 		s.IndexSQL.AddNode(treeNode)
 	}
 
