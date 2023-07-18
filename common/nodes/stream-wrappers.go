@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
-// NodeWrappingStreamer wraps an existing Node Streamer.
+// NodeWrappingStreamer wraps an existing N Streamer.
 type NodeWrappingStreamer struct {
 	*wrappingStreamer
 }

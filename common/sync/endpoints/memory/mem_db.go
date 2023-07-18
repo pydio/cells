@@ -43,7 +43,7 @@ type DBEvent struct {
 }
 
 type MemDB struct {
-	Nodes         []model.Node
+	Nodes         []tree.N
 	eventChannels []chan DBEvent
 	// Used for testing
 	ignores     []string
@@ -98,7 +98,7 @@ func (db *MemDB) sendEvent(event DBEvent) {
 /* Path Sync Target 	 */
 /*************************/
 
-func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node model.Node, err error) {
+func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node tree.N, err error) {
 
 	for _, node := range db.Nodes {
 		// fmt.Printf("Path:%s Nodes %s\n", norm.NFC.String(path), norm.NFC.String(node.Path))
@@ -107,10 +107,10 @@ func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...boo
 		}
 	}
 
-	return nil, errors.New("Node not found")
+	return nil, errors.New("N not found")
 }
 
-func (db *MemDB) CreateNode(ctx context.Context, node model.Node, updateIfExists bool) (err error) {
+func (db *MemDB) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
 	db.Nodes = append(db.Nodes, node)
 
 	db.sendEvent(DBEvent{
@@ -236,8 +236,8 @@ func (db *MemDB) Watch(recursivePath string) (*model.WatchObject, error) {
 /* Other Methods 		 */
 /*************************/
 
-func (db *MemDB) removeNodeNoEvent(path string) (removed model.Node) {
-	var newNodes []model.Node
+func (db *MemDB) removeNodeNoEvent(path string) (removed tree.N) {
+	var newNodes []tree.N
 	for _, node := range db.Nodes {
 		if !strings.HasPrefix(node.GetPath(), path+"/") && node.GetPath() != path {
 			newNodes = append(newNodes, node)
@@ -249,7 +249,7 @@ func (db *MemDB) removeNodeNoEvent(path string) (removed model.Node) {
 	return removed
 }
 
-func (db *MemDB) FindByHash(hash string) (node model.Node) {
+func (db *MemDB) FindByHash(hash string) (node tree.N) {
 
 	for _, node := range db.Nodes {
 		if node.GetEtag() == hash {
@@ -259,7 +259,7 @@ func (db *MemDB) FindByHash(hash string) (node model.Node) {
 	return
 }
 
-func (db *MemDB) FindByUuid(id string) (node model.Node) {
+func (db *MemDB) FindByUuid(id string) (node tree.N) {
 
 	for _, node := range db.Nodes {
 		if node.GetUuid() == id {
@@ -335,7 +335,7 @@ func (m *MemDBWithCacheTest) GetCachedBranches(ctx context.Context, roots ...str
 		rts[root] = root
 	}
 	for _, root := range rts {
-		er := m.Walk(nil, func(path string, node model.Node, err error) error {
+		er := m.Walk(nil, func(path string, node tree.N, err error) error {
 			if err == nil {
 				err = memDB.CreateNode(ctx, node, false)
 			}

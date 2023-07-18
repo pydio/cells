@@ -23,14 +23,12 @@ package user
 import (
 	"context"
 	"fmt"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"strings"
 	"time"
 
-	"google.golang.org/protobuf/proto"
-
 	goqu "github.com/doug-martin/goqu/v9"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
@@ -40,6 +38,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/index"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/mtree"
 )
 
@@ -197,7 +196,7 @@ func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression
 		}
 	}
 
-	// Filter by Node Type
+	// Filter by N Type
 	if q.NodeType == idm.NodeType_USER {
 		expressions = append(expressions, gt.Col("leaf").Eq(1))
 	} else if q.NodeType == idm.NodeType_GROUP {

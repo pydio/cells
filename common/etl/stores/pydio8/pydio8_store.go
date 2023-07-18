@@ -567,7 +567,7 @@ func (s *Pydio8Store) CrossLoadShare(ctx context.Context, syncShare *models.Sync
 		return fmt.Errorf("cannot load access list for user %s: %s", ownerId, e.Error())
 	}
 
-	// Find Root Node
+	// Find Root N
 	mapping := params["mapping"].(map[string]string)
 	cache, _ := s.getSharesCache(ctx)
 	fullPath, ws, ownerId, e := shares.RecurseParentPaths(cache, share)

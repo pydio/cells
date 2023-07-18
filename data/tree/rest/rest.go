@@ -84,7 +84,7 @@ func (h *Handler) SwaggerTags() []string {
 // Filter returns a function to filter the swagger path
 func (h *Handler) Filter() func(string) string {
 	return func(s string) string {
-		return strings.Replace(s, "{Node}", "{Node:*}", 1)
+		return strings.Replace(s, "{N}", "{N:*}", 1)
 	}
 }
 
@@ -99,7 +99,7 @@ func (h *Handler) HeadNode(req *restful.Request, resp *restful.Response) {
 
 	nodeRequest := &tree.ReadNodeRequest{
 		Node: &tree.Node{
-			Path: req.PathParameter("Node"),
+			Path: req.PathParameter("N"),
 		},
 	}
 

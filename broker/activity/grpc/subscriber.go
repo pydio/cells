@@ -270,7 +270,7 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 	var parentUuids []string
 	loadedNode := node
 
-	// Current Node
+	// Current N
 	// parentUuids = append(parentUuids, node.Uuid)
 	if node.Path == "" && !isDel {
 		// Reload by Uuid

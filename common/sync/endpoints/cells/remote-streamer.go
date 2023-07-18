@@ -23,7 +23,6 @@ package cells
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/sync/model"
 	"math"
 	"time"
 
@@ -70,7 +69,7 @@ func (c *Remote) BulkLoadNodes(ctx context.Context, nodes map[string]string) (ma
 
 // CreateNode creates folder, eventually resetting their UUID if the options RenewFolderUuids is set.
 // If an indexation session is started, it stacks all Creates in memory and perform them only at Flush.
-func (c *Remote) CreateNode(ctx context.Context, node model.Node, updateIfExists bool) (err error) {
+func (c *Remote) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
 	if c.session != nil {
 		n := node.AsProto().Clone()
 		n.Path = c.rooted(n.Path)
@@ -88,7 +87,7 @@ func (c *Remote) CreateNode(ctx context.Context, node model.Node, updateIfExists
 }
 
 // StartSession starts an indexation session.
-func (c *Remote) StartSession(ctx context.Context, rootNode model.Node, silent bool) (string, error) {
+func (c *Remote) StartSession(ctx context.Context, rootNode tree.N, silent bool) (string, error) {
 	return uuid.New(), nil
 }
 

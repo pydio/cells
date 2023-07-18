@@ -160,7 +160,7 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 			targetParentNode = &tree.Node{Path: path.Dir(realNode.GetPath())}
 		}
 
-		// Resolve as Uuid - Move Node
+		// Resolve as Uuid - Move N
 		folderName := "deleted-" + u.Login + "-" + u.Uuid[0:13]
 		targetNode := &tree.Node{Path: path.Join(targetParentNode.GetPath(), folderName)}
 		log.Logger(ctx).Info("Copy/Delete user personal folder", u.ZapLogin(), targetNode.ZapPath())

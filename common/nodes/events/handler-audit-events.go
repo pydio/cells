@@ -119,8 +119,8 @@ func (h *HandlerAudit) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, o
 	// log.Auditer(ctx).Info(
 	// 	"[handler-audit-event] ReadNode",
 	// 	log.GetAuditId(common.AuditNodeRead),
-	// 	in.Node.ZapUuid(),
-	// 	in.Node.ZapPath(),
+	// 	in.N.ZapUuid(),
+	// 	in.N.ZapPath(),
 	// 	wsInfo,
 	// 	wsScope,
 	// 	zap.Any("ReadNodeRequest", in),

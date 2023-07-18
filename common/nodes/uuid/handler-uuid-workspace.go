@@ -99,8 +99,8 @@ func (h *WorkspaceHandler) updateInputBranch(ctx context.Context, node *tree.Nod
 	}
 	workspaces, _ := accessList.BelongsToWorkspaces(ctx, parents...)
 	if len(workspaces) == 0 {
-		log.Logger(ctx).Debug("Node des not belong to any accessible workspace!", accessList.Zap())
-		return ctx, node, errors.Forbidden("no.workspaces.found", "Node does not belong to any accessible workspace!")
+		log.Logger(ctx).Debug("N des not belong to any accessible workspace!", accessList.Zap())
+		return ctx, node, errors.Forbidden("no.workspaces.found", "N does not belong to any accessible workspace!")
 	}
 	// Use first workspace by default
 	branchInfo := nodes.BranchInfo{

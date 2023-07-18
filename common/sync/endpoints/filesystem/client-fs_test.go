@@ -333,8 +333,8 @@ func TestWalkFS(t *testing.T) {
 	Convey("Test walking the tree", t, func() {
 
 		c := FilledMockedClient()
-		objects := make(map[string]model.Node)
-		walk := func(path string, node model.Node, err error) error {
+		objects := make(map[string]tree.N)
+		walk := func(path string, node tree.N, err error) error {
 			if err != nil {
 				return err
 			}
@@ -368,8 +368,8 @@ func TestWalkWithRoot(t *testing.T) {
 	Convey("Test walking the tree", t, func() {
 
 		c := FilledMockedClient()
-		objects := make(map[string]model.Node)
-		walk := func(path string, node model.Node, err error) error {
+		objects := make(map[string]tree.N)
+		walk := func(path string, node tree.N, err error) error {
 			if err != nil {
 				return err
 			}

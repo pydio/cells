@@ -453,10 +453,10 @@ func printMem(nb uint64) {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
-	fmt.Printf("Alloc/Node = %v allocs", m.Alloc/nb)
-	fmt.Printf("\tTotalAlloc/Node = %v allocs", m.TotalAlloc/nb)
-	fmt.Printf("InUse/Node = %v B", m.HeapInuse/nb)
-	fmt.Printf("\tHeapAlloc/Node = %v B", m.HeapAlloc/nb)
+	fmt.Printf("Alloc/N = %v allocs", m.Alloc/nb)
+	fmt.Printf("\tTotalAlloc/N = %v allocs", m.TotalAlloc/nb)
+	fmt.Printf("InUse/N = %v B", m.HeapInuse/nb)
+	fmt.Printf("\tHeapAlloc/N = %v B", m.HeapAlloc/nb)
 	fmt.Printf("\tSys = %v kB", m.Sys/1024)
 	fmt.Printf("\tNumGC = %v\n", m.NumGC)
 }
@@ -495,11 +495,11 @@ func BenchmarkMassiveMem(t *testing.B) {
 			e = diff.ToUnidirectionalPatch(ctx, model.DirectionRight, patch)
 			So(e, ShouldBeNil)
 			var l uint64
-			diff.left.Walk(ctx, func(path string, node model.Node, err error) error {
+			diff.left.Walk(ctx, func(path string, node tree.N, err error) error {
 				l++
 				return nil
 			}, "/", true)
-			diff.right.Walk(ctx, func(path string, node model.Node, err error) error {
+			diff.right.Walk(ctx, func(path string, node tree.N, err error) error {
 				l++
 				return nil
 			}, "/", true)

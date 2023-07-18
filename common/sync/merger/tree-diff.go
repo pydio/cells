@@ -24,6 +24,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"strings"
 	"sync"
 	"time"
@@ -38,8 +39,8 @@ import (
 // DiffConflict represents a conflict between two nodes at the same path
 type DiffConflict struct {
 	Type      ConflictType
-	NodeLeft  model.Node
-	NodeRight model.Node
+	NodeLeft  tree.N
+	NodeRight tree.N
 }
 
 // TreeDiff represent basic differences between two sources
@@ -49,8 +50,8 @@ type TreeDiff struct {
 	left  model.PathSyncSource
 	right model.PathSyncSource
 
-	missingLeft  []model.Node
-	missingRight []model.Node
+	missingLeft  []tree.N
+	missingRight []tree.N
 	conflicts    []*DiffConflict
 
 	cmd        *model.Command
@@ -194,7 +195,7 @@ func (diff *TreeDiff) ToUnidirectionalPatch(ctx context.Context, direction model
 	}
 	// Enqueue ConflictFileContent as DataOperation of type OpUpdateFile
 	for _, c := range diff.conflictsByType(ConflictFileContent) {
-		var n model.Node
+		var n tree.N
 		if direction == model.DirectionRight {
 			n = c.NodeLeft
 		} else if direction == model.DirectionLeft {
@@ -206,7 +207,7 @@ func (diff *TreeDiff) ToUnidirectionalPatch(ctx context.Context, direction model
 	}
 	// Enqueue ConflictMetaChanged as DataOperation of type OpUpdateMeta
 	for _, c := range diff.conflictsByType(ConflictMetaChanged) {
-		var n model.Node
+		var n tree.N
 		if direction == model.DirectionRight {
 			n = c.NodeLeft
 		} else {
@@ -336,34 +337,34 @@ func (diff *TreeDiff) mergeNodes(left *TreeNode, right *TreeNode) {
 		return
 	}
 	if left.GetType() != right.GetType() {
-		// Node changed of type - Register conflict and keep browsing
+		// N changed of type - Register conflict and keep browsing
 		diff.conflicts = append(diff.conflicts, &DiffConflict{
 			Type:      ConflictNodeType,
-			NodeLeft:  left.Node,
-			NodeRight: right.Node,
+			NodeLeft:  left.N,
+			NodeRight: right.N,
 		})
 	} else if !left.IsLeaf() && left.GetUuid() != right.GetUuid() {
 		// Folder has different UUID - Register conflict and keep browsing
 		diff.conflicts = append(diff.conflicts, &DiffConflict{
 			Type:      ConflictFolderUUID,
-			NodeLeft:  left.Node,
-			NodeRight: right.Node,
+			NodeLeft:  left.N,
+			NodeRight: right.N,
 		})
 	} else if left.IsLeaf() && left.GetEtag() != right.GetEtag() {
 		// Re-check that Etag differ - maybe the hash is composed of both eTag and metadata, and differ but NOT the Etag
 		// Files content differ - Register conflict
 		diff.conflicts = append(diff.conflicts, &DiffConflict{
 			Type:      ConflictFileContent,
-			NodeLeft:  left.Node,
-			NodeRight: right.Node,
+			NodeLeft:  left.N,
+			NodeRight: right.N,
 		})
 		// return // do not return here, there might be children (metadata pieces)
 	} else if left.GetType() == NodeType_METADATA {
 		// Meta differ - Register conflict and return (no children after that)
 		diff.conflicts = append(diff.conflicts, &DiffConflict{
 			Type:      ConflictMetaChanged,
-			NodeLeft:  left.Node,
-			NodeRight: right.Node,
+			NodeLeft:  left.N,
+			NodeRight: right.N,
 		})
 		return
 	}
@@ -401,7 +402,7 @@ func (diff *TreeDiff) mergeNodes(left *TreeNode, right *TreeNode) {
 }
 
 // toMissing transforms Missing slices to BatchEvents
-func (diff *TreeDiff) toMissing(ctx context.Context, patch Patch, in []model.Node, folders bool, removes bool) {
+func (diff *TreeDiff) toMissing(ctx context.Context, patch Patch, in []tree.N, folders bool, removes bool) {
 
 	var eventType model.EventType
 	var batchEventType OperationType
@@ -430,7 +431,7 @@ func (diff *TreeDiff) toMissing(ctx context.Context, patch Patch, in []model.Nod
 }
 
 // toMissingMeta is similar to toMissing but only handle Metadata nodes
-func (diff *TreeDiff) toMissingMeta(ctx context.Context, patch Patch, in []model.Node, removes bool) {
+func (diff *TreeDiff) toMissingMeta(ctx context.Context, patch Patch, in []tree.N, removes bool) {
 	var eventType model.EventType
 	var batchEventType OperationType
 	if removes {
@@ -467,7 +468,7 @@ func (diff *TreeDiff) solveConflicts(ctx context.Context) {
 		var solved bool
 
 		if c.Type == ConflictFolderUUID && canRefresh {
-			var srcUuid model.Node
+			var srcUuid tree.N
 			if refresherRight {
 				srcUuid = c.NodeLeft
 			} else if refresherLeft {

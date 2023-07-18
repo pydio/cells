@@ -23,6 +23,7 @@ package merger
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/tree"
 
 	"github.com/pydio/cells/v4/common/sync/model"
 )
@@ -30,7 +31,7 @@ import (
 type patchOperation struct {
 	OpType    OperationType
 	Dir       OperationDirection
-	Node      model.Node
+	Node      tree.N
 	EventInfo model.EventInfo
 
 	InternalStatus *model.ProcessingStatus
@@ -49,7 +50,7 @@ type conflictOperation struct {
 	RightOp      Operation
 }
 
-func NewOperation(t OperationType, e model.EventInfo, loadedNode ...model.Node) Operation {
+func NewOperation(t OperationType, e model.EventInfo, loadedNode ...tree.N) Operation {
 	o := &patchOperation{
 		OpType:    t,
 		EventInfo: e,
@@ -61,7 +62,7 @@ func NewOperation(t OperationType, e model.EventInfo, loadedNode ...model.Node) 
 	return o
 }
 
-func NewConflictOperation(node model.Node, t ConflictType, left, right Operation) Operation {
+func NewConflictOperation(node tree.N, t ConflictType, left, right Operation) Operation {
 	return &conflictOperation{
 		patchOperation: patchOperation{
 			OpType: OpConflict,
@@ -182,11 +183,11 @@ func (o *patchOperation) IsScanEvent() bool {
 	return o.EventInfo.ScanEvent
 }
 
-func (o *patchOperation) SetNode(n model.Node) {
+func (o *patchOperation) SetNode(n tree.N) {
 	o.Node = n
 }
 
-func (o *patchOperation) GetNode() model.Node {
+func (o *patchOperation) GetNode() tree.N {
 	return o.Node
 }
 
@@ -222,7 +223,7 @@ func (o *patchOperation) AttachToPatch(p Patch) {
 	o.patch = p
 }
 
-func (o *patchOperation) NodeFromSource(ctx context.Context) (node model.Node, err error) {
+func (o *patchOperation) NodeFromSource(ctx context.Context) (node tree.N, err error) {
 	if o.EventInfo.ScanEvent && o.EventInfo.ScanSourceNode != nil {
 		node = o.EventInfo.ScanSourceNode
 	} else {
@@ -234,7 +235,7 @@ func (o *patchOperation) NodeFromSource(ctx context.Context) (node model.Node, e
 	return
 }
 
-func (o *patchOperation) NodeInTarget(ctx context.Context, cache ...model.PathSyncSource) (node model.Node, found bool) {
+func (o *patchOperation) NodeInTarget(ctx context.Context, cache ...model.PathSyncSource) (node tree.N, found bool) {
 	if o.Node != nil {
 		// If deleteEvent has node, it is already loaded from a snapshot, no need to reload from target
 		return o.Node, true

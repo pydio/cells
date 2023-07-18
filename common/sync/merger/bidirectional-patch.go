@@ -23,6 +23,7 @@ package merger
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"net/url"
 	"path"
 	"strings"
@@ -117,7 +118,7 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 }
 
 // StartSession overrides AbstractPatch method to handle source and/or target as session provider
-func (p *BidirectionalPatch) StartSession(rootNode model.Node) (string, error) {
+func (p *BidirectionalPatch) StartSession(rootNode tree.N) (string, error) {
 	if p.sessionProviderContext == nil {
 		return "", nil
 	}
@@ -345,7 +346,7 @@ func (p *BidirectionalPatch) enqueueConflict(left, right *TreeNode, t ConflictTy
 	} else if right.DataOperation != nil {
 		rightOp = right.DataOperation
 	}
-	op := NewConflictOperation(left.Node, t, leftOp, rightOp)
+	op := NewConflictOperation(left.N, t, leftOp, rightOp)
 	p.QueueOperation(op)
 }
 
@@ -382,7 +383,7 @@ func (p *BidirectionalPatch) reSyncTarget(left, right *TreeNode) {
 	requeueNode.getRoot().QueueOperation(newOp)
 	if !n.IsLeaf() {
 		// Enqueue folder children as creates
-		_ = source.Walk(p.ctx, func(path string, node model.Node, err error) error {
+		_ = source.Walk(p.ctx, func(path string, node tree.N, err error) error {
 			oType := OpCreateFolder
 			if node.IsLeaf() {
 				oType = OpCreateFile

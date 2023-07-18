@@ -98,7 +98,7 @@ const (
 	KeyOperationUuid  = "OperationUuid"
 	KeyOperationLabel = "OperationLabel"
 
-	KeyNode     = "Node"
+	KeyNode     = "N"
 	KeyNodeUuid = "NodeUuid"
 	KeyNodePath = "NodePath"
 
@@ -182,11 +182,11 @@ var (
 	LogEventLabels = map[string]string{
 		AuditLoginSucceed: "Login succeed",
 		AuditLoginFailed:  "Login failed",
-		AuditNodeCreate:   "Create Node",
-		AuditNodeRead:     "Read Node",
-		AuditNodeList:     "List Node",
-		AuditNodeUpdate:   "Upadate Node",
-		AuditNodeDelete:   "Delete Node",
+		AuditNodeCreate:   "Create N",
+		AuditNodeRead:     "Read N",
+		AuditNodeList:     "List N",
+		AuditNodeUpdate:   "Upadate N",
+		AuditNodeDelete:   "Delete N",
 		AuditObjectGet:    "Get Object",
 		AuditObjectPut:    "Put Object",
 	}

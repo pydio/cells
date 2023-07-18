@@ -69,7 +69,7 @@ func (e *Executor) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts 
 			if er.Error() == noSuchKeyString {
 				er = errors.NotFound("not.found", "object not found in datasource: %s", s3Path)
 			}
-			log.Logger(ctx).Info("ReadNodeRequest/ObjectsStats Failed", zap.Object("ReadNodeRequest.Node", in.Node), zap.Uint32s("StatFlags", in.StatFlags), zap.Error(er))
+			log.Logger(ctx).Info("ReadNodeRequest/ObjectsStats Failed", zap.Object("ReadNodeRequest.N", in.Node), zap.Uint32s("StatFlags", in.StatFlags), zap.Error(er))
 			return nil, er
 		} else {
 			// Build fake node from Stats

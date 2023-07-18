@@ -108,7 +108,7 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 		tmpNode.MustSetMeta(common.MetaNamespaceMime, requestData.MetaContentType())
 	}
 
-	log.Logger(ctx).Debug("[PUT HANDLER] > Create Node", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
+	log.Logger(ctx).Debug("[PUT HANDLER] > Create N", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
 	createResp, er := retryOnDuplicate(func() (*tree.CreateNodeResponse, error) {
 		return treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode})
 	})
@@ -163,7 +163,7 @@ func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, s
 				Etag:  "-1",
 			}
 			treeWriter := m.ClientsPool.GetTreeClientWrite()
-			log.Logger(ctx).Debug("[PUT HANDLER] > Create Parent Node In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
+			log.Logger(ctx).Debug("[PUT HANDLER] > Create Parent N In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
 			_, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode, IndexationSession: session})
 			if er != nil {
 				parsedErr := errors.FromError(er)
@@ -189,7 +189,7 @@ func (m *Handler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, op
 	return m.Next.CreateNode(ctx, in, opts...)
 }
 
-// PutObject eventually creates an index Node, captures body to extract Mime Type and compute custom Hash
+// PutObject eventually creates an index N, captures body to extract Mime Type and compute custom Hash
 func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (models.ObjectInfo, error) {
 	log.Logger(ctx).Debug("[HANDLER PUT] > Putting object", zap.String("UUID", node.Uuid), zap.String("Path", node.Path))
 
@@ -227,7 +227,7 @@ func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 	} else {
 		// PreCreate a node in the tree.
 		newNode, onErrorFunc, nodeErr := m.getOrCreatePutNode(ctx, node.Path, requestData)
-		log.Logger(ctx).Debug("PreLoad or PreCreate Node in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
+		log.Logger(ctx).Debug("PreLoad or PreCreate N in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
 		if nodeErr != nil {
 			return models.ObjectInfo{}, nodeErr
 		}
@@ -273,7 +273,7 @@ func (m *Handler) MultipartCreate(ctx context.Context, node *tree.Node, requestD
 			size, _ = strconv.ParseInt(metaSize, 10, 64)
 		}
 		newNode, onErrorFunc, nodeErr := m.getOrCreatePutNode(ctx, node.Path, &models.PutRequestData{Size: size})
-		log.Logger(ctx).Debug("PreLoad or PreCreate Node in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
+		log.Logger(ctx).Debug("PreLoad or PreCreate N in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
 		if nodeErr != nil {
 			if onErrorFunc != nil {
 				log.Logger(ctx).Debug("cannot get or create node ", zap.String("path", node.Path), zap.Error(nodeErr))
@@ -351,7 +351,7 @@ func (m *Handler) MultipartAbort(ctx context.Context, target *tree.Node, uploadI
 		})
 		if err == nil && existingResp.Node != nil && existingResp.Node.Etag == common.NodeFlagEtagTemporary {
 			log.Logger(ctx).Info("Received MultipartAbort - Clean temporary node:", existingResp.Node.Zap())
-			// Delete Temporary Node Now!
+			// Delete Temporary N Now!
 			treeWriter.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{
 				Path: string(norm.NFC.Bytes([]byte(treePath))),
 				Type: tree.NodeType_LEAF,

@@ -24,6 +24,7 @@ package merger
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"time"
 
 	"github.com/gobwas/glob"
@@ -115,7 +116,7 @@ type Operation interface {
 	Type() OperationType
 	// GetNode returns the attached node. For a create, it is the original node, for a delete or a move,
 	// it is the node that is to be deleted/moved inside the target.
-	GetNode() model.Node
+	GetNode() tree.N
 	// IsScanEvent tells whether this operation was triggered by a manual scan (true) or by a Watch event (false)
 	IsScanEvent() bool
 	// IsTypeMove is a shortcut for OpMoveFile / OpMoveFolder types
@@ -149,7 +150,7 @@ type Operation interface {
 	// applied in both directions
 	SetDirection(OperationDirection) Operation
 	// SetNode updates the reference node
-	SetNode(n model.Node)
+	SetNode(n tree.N)
 	// UpdateRefPath updates the reference path
 	UpdateRefPath(p string)
 	// UpdateMoveOriginPath updates the origin path for a move
@@ -164,9 +165,9 @@ type Operation interface {
 	// Target returns the operation target from the attached Patch
 	Target() model.PathSyncTarget
 	// NodeFromSource tries to load the node from the attached Patch source
-	NodeFromSource(ctx context.Context) (node model.Node, err error)
+	NodeFromSource(ctx context.Context) (node tree.N, err error)
 	// NodeInTarget tries to find the node in the attached Patch target
-	NodeInTarget(ctx context.Context, cache ...model.PathSyncSource) (node model.Node, found bool)
+	NodeInTarget(ctx context.Context, cache ...model.PathSyncSource) (node tree.N, found bool)
 
 	// Clone creates a clone of this operation, eventually replacing its type.
 	Clone(replaceType ...OperationType) Operation
@@ -261,7 +262,7 @@ type Patch interface {
 	// implement the LockBranchProvider interface
 	SetLockSessionData(providerContext context.Context, lockSession string)
 	// StartSession calls StartSession on the underlying provider if it is set
-	StartSession(rootNode model.Node) (string, error)
+	StartSession(rootNode tree.N) (string, error)
 	// FlushSession calls FlushSession on the underlying provider if it is set
 	FlushSession(sessionUuid string) error
 	// FinishSession calls FinishSession on the underlying provider if it is set
@@ -286,7 +287,7 @@ func ClonePatch(source model.PathSyncSource, target model.PathSyncTarget, origin
 }
 
 // MostRecentNode compares two nodes Modification Time and returns the most recent one
-func MostRecentNode(n1, n2 model.Node) model.Node {
+func MostRecentNode(n1, n2 tree.N) tree.N {
 	if n1.GetEtag() == common.NodeFlagEtagTemporary {
 		return n2
 	} else if n2.GetEtag() == common.NodeFlagEtagTemporary {

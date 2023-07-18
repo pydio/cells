@@ -172,7 +172,7 @@ func (c *Client) Stat(ctx context.Context, pa string) (i os.FileInfo, err error)
 	return newFileInfo(objectInfo), nil
 }
 
-func (c *Client) CreateNode(ctx context.Context, node model.Node, updateIfExists bool) (err error) {
+func (c *Client) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
 	if node.IsLeaf() {
 		return errors.New("this is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
 	}
@@ -251,7 +251,7 @@ func (c *Client) GetReaderOn(ctx context.Context, path string) (out io.ReadClose
 
 }
 
-func (c *Client) ComputeChecksum(ctx context.Context, node model.Node) error {
+func (c *Client) ComputeChecksum(ctx context.Context, node tree.N) error {
 	if c.skipRecomputeEtagByCopy {
 		log.Logger(c.globalContext).Debug("skipping recompute ETag by copy, storage does not support it, keep original value", node.Zap())
 		return nil
@@ -289,7 +289,7 @@ func (c *Client) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root st
 		if collect && node.IsLeaf() {
 			eTags = append(eTags, node.Etag)
 		}
-		return walkFunc(path, model.NodeFromProto(node), nil)
+		return walkFunc(path, tree.LightNodeFromProto(node), nil)
 	}
 
 	batcher := &statBatcher{
@@ -468,7 +468,7 @@ func (c *Client) createFolderIdsWhileWalking(ctx context.Context, createdDirs ma
 
 }
 
-func (c *Client) s3forceComputeEtag(ctx context.Context, node model.Node) (models.ObjectInfo, error) {
+func (c *Client) s3forceComputeEtag(ctx context.Context, node tree.N) (models.ObjectInfo, error) {
 
 	objectInfo := models.ObjectInfo{
 		Key:  c.getFullPath(node.GetPath()),
@@ -545,11 +545,11 @@ func (c *Client) s3forceComputeEtag(ctx context.Context, node model.Node) (model
 
 }
 
-func (c *Client) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node model.Node, err error) {
+func (c *Client) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node tree.N, err error) {
 	if n, er := c.loadNode(ctx, path); er != nil {
 		return nil, er
 	} else {
-		return model.NodeFromProto(n), nil
+		return tree.LightNodeFromProto(n), nil
 	}
 }
 
@@ -600,7 +600,7 @@ func (c *Client) loadNode(ctx context.Context, path string, leaf ...bool) (node 
 }
 
 // UpdateNodeUuid makes this endpoint an UuidReceiver
-func (c *Client) UpdateNodeUuid(ctx context.Context, node model.Node) (model.Node, error) {
+func (c *Client) UpdateNodeUuid(ctx context.Context, node tree.N) (tree.N, error) {
 
 	var uid string
 	if node.GetUuid() != "" {

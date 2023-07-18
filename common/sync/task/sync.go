@@ -24,6 +24,7 @@ package task
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"path/filepath"
 	"runtime/debug"
 	"sync"
@@ -336,7 +337,7 @@ func (s *Sync) RootStats(ctx context.Context, useSnapshots bool) (map[string]*mo
 func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, jsonFile string) error {
 
 	db := memory.NewMemDB()
-	if er := source.Walk(ctx, func(path string, node model.Node, err error) error {
+	if er := source.Walk(ctx, func(path string, node tree.N, err error) error {
 
 		return db.CreateNode(ctx, node, false)
 

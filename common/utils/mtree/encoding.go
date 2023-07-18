@@ -22,7 +22,6 @@
 package mtree
 
 import (
-	"github.com/pydio/cells/v4/common/sync/model"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -30,7 +29,7 @@ import (
 
 // TreeNode definition
 type TreeNode struct {
-	model.Node
+	tree.N
 	name         string
 	mutex        *sync.RWMutex
 	MPath        MPath
@@ -43,7 +42,7 @@ type TreeNode struct {
 // NewTreeNode wraps a node with its rational equivalent of the mpath
 func NewTreeNode() *TreeNode {
 	t := new(TreeNode)
-	t.Node = model.NewNode(tree.NodeType_UNKNOWN, "", "", "", 0, 0, 0) // new(tree.Node)
+	t.N = tree.LightNode(tree.NodeType_UNKNOWN, "", "", "", 0, 0, 0) // new(tree.N)
 	t.MPath = MPath{}
 	// t.rat = NewRat()
 	// t.srat = NewRat()
@@ -72,12 +71,12 @@ func (t *TreeNode) GetMeta(name string, value interface{}) {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
-	t.Node.GetMeta(name, value)
+	t.N.GetMeta(name, value)
 }
 */
 
 func (t *TreeNode) AsProto() *tree.Node {
-	p := t.Node.AsProto()
+	p := t.N.AsProto()
 	p.MustSetMeta("name", t.name)
 	if t.internalMeta != nil {
 		for k, v := range t.internalMeta {

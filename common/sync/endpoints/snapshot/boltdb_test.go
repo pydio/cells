@@ -39,15 +39,15 @@ import (
 )
 
 func basicDiff(l, r model.PathSyncSource) error {
-	left, right := make(map[string]model.Node), make(map[string]model.Node)
+	left, right := make(map[string]tree.N), make(map[string]tree.N)
 	var leftPaths, rightPaths []string
 	ctx := context.Background()
-	l.Walk(ctx, func(path string, node model.Node, err error) error {
+	l.Walk(ctx, func(path string, node tree.N, err error) error {
 		left[path] = node
 		leftPaths = append(leftPaths, path)
 		return nil
 	}, "/", true)
-	r.Walk(ctx, func(path string, node model.Node, err error) error {
+	r.Walk(ctx, func(path string, node tree.N, err error) error {
 		right[path] = node
 		rightPaths = append(rightPaths, path)
 		return nil
@@ -73,7 +73,7 @@ func TestSnapshot(t *testing.T) {
 
 	source := memory.NewMemDB()
 	ctx := context.Background()
-	source.Nodes = []model.Node{
+	source.Nodes = []tree.N{
 		&tree.Node{Path: "a", Type: tree.NodeType_COLLECTION},
 		&tree.Node{Path: "a/a1", Type: tree.NodeType_COLLECTION},
 		&tree.Node{Path: "a/a1/a11", Type: tree.NodeType_LEAF},

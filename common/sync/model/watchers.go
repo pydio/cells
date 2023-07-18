@@ -24,6 +24,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
@@ -64,10 +65,10 @@ type EventInfo struct {
 	UserAgent      string
 	OperationId    string
 	ScanEvent      bool
-	ScanSourceNode Node
+	ScanSourceNode tree.N
 	Metadata       map[string]string
-	MoveSource     Node
-	MoveTarget     Node
+	MoveSource     tree.N
+	MoveTarget     tree.N
 }
 
 func (e EventInfo) CreateContext(ctx context.Context) context.Context {
@@ -142,7 +143,7 @@ func (w *WatchObject) Close() {
 	close(w.DoneChan)
 }
 
-func NodeToEventInfo(ctx context.Context, path string, node Node, eventType EventType) (eventInfo EventInfo) {
+func NodeToEventInfo(ctx context.Context, path string, node tree.N, eventType EventType) (eventInfo EventInfo) {
 	timeFormatFS := "2006-01-02T15:04:05.000Z"
 	eventInfo = EventInfo{
 		Time:           time.Now().UTC().Format(timeFormatFS),

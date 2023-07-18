@@ -41,7 +41,7 @@ import (
 // TreeNode builds a Merkle Tree but with N children and the ability
 // to compute the COLLECTION Nodes hashes to detect changes in branches more rapidly
 type TreeNode struct {
-	model.Node
+	tree.N
 	sync.Mutex
 	children     map[string]*TreeNode
 	childrenKeys []string
@@ -69,13 +69,13 @@ func TreeNodeFromSource(ctx context.Context, source model.PathSyncSource, root s
 	if len(status) > 0 {
 		statusChan = status[0]
 	}
-	rootNode := NewTreeNode(model.NewNode(tree.NodeType_COLLECTION, "", "/", "-1", 0, 0, 0))
+	rootNode := NewTreeNode(tree.LightNode(tree.NodeType_COLLECTION, "", "/", "-1", 0, 0, 0))
 	dirs := map[string]*TreeNode{".": rootNode}
 	crtRoot := rootNode
 	// Create branch for root
 	if len(strings.Trim(root, "/")) > 0 {
 		for _, part := range strings.Split(strings.Trim(root, "/"), "/") {
-			node := model.NewNode(tree.NodeType_COLLECTION, "", path.Join(strings.TrimLeft(crtRoot.GetPath(), "/"), part), "-1", 0, 0, 0)
+			node := tree.LightNode(tree.NodeType_COLLECTION, "", path.Join(strings.TrimLeft(crtRoot.GetPath(), "/"), part), "-1", 0, 0, 0)
 			f := NewTreeNode(node)
 			crtRoot.AddChild(f)
 			dirs[f.GetPath()] = f
@@ -88,7 +88,7 @@ func TreeNodeFromSource(ctx context.Context, source model.PathSyncSource, root s
 	uri := source.GetEndpointInfo().URI
 	ignoreMatcher := model.IgnoreMatcher(ignores...)
 
-	err := source.Walk(ctx, func(p string, node model.Node, err error) error {
+	err := source.Walk(ctx, func(p string, node tree.N, err error) error {
 		if cancelled := ctx.Err(); cancelled != nil {
 			return cancelled
 		}
@@ -104,7 +104,7 @@ func TreeNodeFromSource(ctx context.Context, source model.PathSyncSource, root s
 		if len(p) == 0 || p == "/" || ignoreMatcher(p) {
 			return nil
 		}
-		//log.Logger(context.Background()).Info("Walking Node", node.Zap(), zap.String("endpoint", source.GetEndpointInfo().URI))
+		//log.Logger(context.Background()).Info("Walking N", node.Zap(), zap.String("endpoint", source.GetEndpointInfo().URI))
 		t := NewTreeNode(node)
 		parent, ok := dirs[t.ParentPath()]
 		if !ok {
@@ -147,13 +147,13 @@ func TreeNodeFromSource(ctx context.Context, source model.PathSyncSource, root s
 }
 
 func NewTree() *TreeNode {
-	return NewTreeNode(model.NewNode(tree.NodeType_UNKNOWN, "", "", "-1", 0, 0, 0))
+	return NewTreeNode(tree.LightNode(tree.NodeType_UNKNOWN, "", "", "-1", 0, 0, 0))
 }
 
-// NewTreeNode creates a new node from a tree.Node. Can be a root, a COLL or a LEAF.
-func NewTreeNode(n model.Node) *TreeNode {
+// NewTreeNode creates a new node from a tree.N. Can be a root, a COLL or a LEAF.
+func NewTreeNode(n tree.N) *TreeNode {
 	tN := &TreeNode{
-		Node:     n,
+		N:        n,
 		children: make(map[string]*TreeNode),
 	}
 	return tN
@@ -167,9 +167,9 @@ func (t *TreeNode) GetCursor() *ChildrenCursor {
 	}
 }
 
-// Enqueue recursively appends al tree.Node and the children's tree.Node to a slice
-func (t *TreeNode) Enqueue(nodes []model.Node) []model.Node {
-	nodes = append(nodes, t.Node)
+// Enqueue recursively appends al tree.N and the children's tree.N to a slice
+func (t *TreeNode) Enqueue(nodes []tree.N) []tree.N {
+	nodes = append(nodes, t.N)
 	if !t.IsLeaf() {
 		for _, c := range t.SortedChildren() {
 			nodes = c.Enqueue(nodes)
@@ -300,7 +300,7 @@ func (t *TreeNode) createNodeDeep(p string) *TreeNode {
 		if c, o := crtParent.children[childPath]; o {
 			crtParent = c
 		} else {
-			n := NewTreeNode(model.NewNode(tree.NodeType_UNKNOWN, "", childPath, "", 0, 0, 0))
+			n := NewTreeNode(tree.LightNode(tree.NodeType_UNKNOWN, "", childPath, "", 0, 0, 0))
 			crtParent.AddChild(n)
 			crtParent = n
 		}
@@ -353,7 +353,7 @@ func (c *ChildrenCursor) Next() *TreeNode {
 func (t *TreeNode) MarshalJSON() ([]byte, error) {
 	data := map[string]interface{}{
 		"Base": path.Base(t.GetPath()),
-		//"Node": t.Node,
+		//"N": t.N,
 	}
 	if len(t.children) > 0 {
 		data["Children"] = t.SortedChildren()

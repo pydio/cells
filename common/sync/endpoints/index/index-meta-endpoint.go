@@ -60,7 +60,7 @@ func (m *ClientWithMeta) Walk(ctx context.Context, walknFc model.WalkNodesFunc, 
 	if e != nil {
 		return e
 	}
-	walkWrapped := func(path string, node model.Node, err error) error {
+	walkWrapped := func(path string, node tree.N, err error) error {
 		if err == nil {
 			metaStreamer.Send(&tree.ReadNodeRequest{Node: node.AsProto()})
 			if resp, e := metaStreamer.Recv(); e == nil && resp.Node != nil && resp.Node.MetaStore != nil {
@@ -74,7 +74,7 @@ func (m *ClientWithMeta) Walk(ctx context.Context, walknFc model.WalkNodesFunc, 
 }
 
 // CreateMetadata calls metaClient.CreateNode
-func (m *ClientWithMeta) CreateMetadata(ctx context.Context, node model.Node, namespace string, jsonValue string) error {
+func (m *ClientWithMeta) CreateMetadata(ctx context.Context, node tree.N, namespace string, jsonValue string) error {
 	log.Logger(ctx).Info("Create Meta : ", node.ZapUuid(), zap.String("namespace", namespace), zap.String("value", jsonValue))
 	np := node.AsProto()
 	if np.MetaStore == nil {
@@ -86,7 +86,7 @@ func (m *ClientWithMeta) CreateMetadata(ctx context.Context, node model.Node, na
 }
 
 // UpdateMetadata calls metaClient.UpdateNode
-func (m *ClientWithMeta) UpdateMetadata(ctx context.Context, node model.Node, namespace string, jsonValue string) error {
+func (m *ClientWithMeta) UpdateMetadata(ctx context.Context, node tree.N, namespace string, jsonValue string) error {
 	log.Logger(ctx).Info("Update Meta : ", node.ZapUuid(), zap.String("namespace", namespace), zap.String("value", jsonValue))
 	np := node.AsProto()
 	if np.MetaStore == nil {
@@ -99,7 +99,7 @@ func (m *ClientWithMeta) UpdateMetadata(ctx context.Context, node model.Node, na
 
 // DeleteMetadata calls metaClient.UpdateNode with the given namespace and an empty value
 // (not DeleteNode, as it would remove all meta at once)
-func (m *ClientWithMeta) DeleteMetadata(ctx context.Context, node model.Node, namespace string) error {
+func (m *ClientWithMeta) DeleteMetadata(ctx context.Context, node tree.N, namespace string) error {
 	log.Logger(ctx).Info("Delete Meta : ", node.ZapUuid(), zap.String("namespace", namespace))
 	np := node.AsProto()
 	if np.MetaStore == nil {

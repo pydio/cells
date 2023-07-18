@@ -639,7 +639,7 @@ func FrontValuesScopesFromWorkspaces(wss []*idm.Workspace) (scopes []string) {
 }
 
 // FrontValuesScopesFromWorkspaceRelativePaths computes scopes to check when retrieving front plugin configuration,
-// based on a list of Node.AppearsIn workspaces descriptions
+// based on a list of N.AppearsIn workspaces descriptions
 func FrontValuesScopesFromWorkspaceRelativePaths(wss []*tree.WorkspaceRelativePath) (scopes []string) {
 	// Default scope
 	scopes = append(scopes, FrontWsScopeAll)

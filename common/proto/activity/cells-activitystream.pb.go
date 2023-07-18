@@ -1136,7 +1136,7 @@ type StreamActivitiesRequest struct {
 
 	// Define the context of the stream
 	Context StreamContext `protobuf:"varint,1,opt,name=Context,proto3,enum=activity.StreamContext" json:"Context,omitempty"`
-	// Value for the context (e.g. User Id, Node Id)
+	// Value for the context (e.g. User Id, N Id)
 	ContextData string `protobuf:"bytes,2,opt,name=ContextData,proto3" json:"ContextData,omitempty"`
 	// Json-encoded filter
 	StreamFilter string `protobuf:"bytes,3,opt,name=StreamFilter,proto3" json:"StreamFilter,omitempty"`

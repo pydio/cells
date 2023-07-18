@@ -65,7 +65,7 @@ type Status interface {
 	AtomicProgress() bool
 
 	EndpointURI() string
-	Node() Node
+	Node() tree.N
 }
 
 // StatusProvider can register channels to send status/done events during processing
@@ -85,7 +85,7 @@ type ProcessingStatus struct {
 	pg     float32
 	atomic bool
 	uri    string
-	node   Node
+	node   tree.N
 }
 
 func NewProcessingStatus(info string) *ProcessingStatus {
@@ -105,7 +105,7 @@ func (p *ProcessingStatus) SetProgress(pg float32, atomic ...bool) *ProcessingSt
 	return p
 }
 
-func (p *ProcessingStatus) SetNode(node Node) *ProcessingStatus {
+func (p *ProcessingStatus) SetNode(node tree.N) *ProcessingStatus {
 	p.node = node
 	return p
 }
@@ -147,7 +147,7 @@ func (p *ProcessingStatus) EndpointURI() string {
 	return p.uri
 }
 
-func (p *ProcessingStatus) Node() Node {
+func (p *ProcessingStatus) Node() tree.N {
 	return p.node
 }
 
@@ -165,7 +165,7 @@ func (p *ProcessingStatus) MarshalJSON() ([]byte, error) {
 	}
 	if p.node != nil {
 		bb, _ := json.Marshal(p.node.AsProto())
-		m["Node"] = string(bb)
+		m["N"] = string(bb)
 	}
 	return json.Marshal(m)
 }
@@ -185,7 +185,7 @@ func (p *ProcessingStatus) UnmarshalJSON(data []byte) error {
 		if u, ok := m["EndpointURI"]; ok {
 			p.uri = u.(string)
 		}
-		if nb, ok := m["Node"]; ok {
+		if nb, ok := m["N"]; ok {
 			if bb, o := nb.(string); o {
 				var tn *tree.Node
 				if er := json.Unmarshal([]byte(bb), &tn); er == nil {

@@ -22,6 +22,7 @@ package merger
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"sync"
 	"time"
 
@@ -147,7 +148,7 @@ func (b *AbstractPatch) SetSessionData(providerContext context.Context, silentSe
 	b.sessionSilent = silentSession
 }
 
-func (b *AbstractPatch) StartSession(rootNode model.Node) (string, error) {
+func (b *AbstractPatch) StartSession(rootNode tree.N) (string, error) {
 	if sessionProvider, ok := b.Target().(model.SessionProvider); ok && b.sessionProviderContext != nil {
 		return sessionProvider.StartSession(b.sessionProviderContext, rootNode, b.sessionSilent)
 	} else {

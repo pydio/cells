@@ -88,7 +88,7 @@ func (i *Client) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root str
 		if !response.Node.IsLeaf() {
 			response.Node.Etag = "-1"
 		}
-		if er := walknFc(response.Node.Path, model.NodeFromProto(response.Node), nil); er != nil {
+		if er := walknFc(response.Node.Path, tree.LightNodeFromProto(response.Node), nil); er != nil {
 			return er
 		}
 	}
@@ -99,7 +99,7 @@ func (i *Client) Watch(_ string) (*model.WatchObject, error) {
 	return nil, errors.New("watch not implemented")
 }
 
-func (i *Client) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node model.Node, err error) {
+func (i *Client) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node tree.N, err error) {
 
 	log.Logger(ctx).Debug("LoadNode ByPath" + path)
 	var x bool
@@ -113,12 +113,12 @@ func (i *Client) LoadNode(ctx context.Context, path string, extendedStats ...boo
 	if e != nil {
 		return nil, e
 	}
-	return model.NodeFromProto(resp.Node), nil
+	return tree.LightNodeFromProto(resp.Node), nil
 
 }
 
 // LoadNodeByUuid makes this endpoint an UuidProvider
-func (i *Client) LoadNodeByUuid(ctx context.Context, uuid string) (node model.Node, err error) {
+func (i *Client) LoadNodeByUuid(ctx context.Context, uuid string) (node tree.N, err error) {
 
 	log.Logger(ctx).Debug("LoadNode ByUuid " + uuid)
 	if i.indexationSession() != "" {
@@ -132,12 +132,12 @@ func (i *Client) LoadNodeByUuid(ctx context.Context, uuid string) (node model.No
 		return nil, e
 	} else {
 		resp.Node.Path = strings.TrimLeft(resp.Node.Path, "/")
-		return model.NodeFromProto(resp.Node), nil
+		return tree.LightNodeFromProto(resp.Node), nil
 	}
 
 }
 
-func (i *Client) CreateNode(ctx context.Context, node model.Node, updateIfExists bool) (err error) {
+func (i *Client) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
 
 	session := i.indexationSession()
 
@@ -188,7 +188,7 @@ func (i *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (
 	return err
 }
 
-func (i *Client) StartSession(ctx context.Context, rootNode model.Node, silent bool) (string, error) {
+func (i *Client) StartSession(ctx context.Context, rootNode tree.N, silent bool) (string, error) {
 	sess := &tree.IndexationSession{
 		Uuid:        uuid.New(),
 		Description: "Indexation",
@@ -215,7 +215,7 @@ func (i *Client) FinishSession(ctx context.Context, sessionUuid string) error {
 	return err
 }
 
-func (i *Client) LockBranch(ctx context.Context, node model.Node, sessionUUID string, expireAfter time.Duration) error {
+func (i *Client) LockBranch(ctx context.Context, node tree.N, sessionUUID string, expireAfter time.Duration) error {
 	if node.GetUuid() == "" {
 		return fmt.Errorf("missing uuid for creating lock session ACL")
 	}
@@ -237,7 +237,7 @@ func (i *Client) GetCachedBranches(ctx context.Context, roots ...string) (model.
 		rts[root] = root
 	}
 	for _, root := range rts {
-		e := i.Walk(nil, func(path string, node model.Node, err error) error {
+		e := i.Walk(nil, func(path string, node tree.N, err error) error {
 			if err == nil {
 				err = memDB.CreateNode(ctx, node, false)
 			}

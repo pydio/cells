@@ -23,7 +23,6 @@ package index
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/sync/model"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -142,7 +141,7 @@ func (dao *FolderSizeCacheSQL) GetNodeTree(ctx context.Context, path mtree.MPath
 	return c
 }
 
-func (dao *FolderSizeCacheSQL) Path(strpath string, create bool, reqNode ...model.Node) (mtree.MPath, []*mtree.TreeNode, error) {
+func (dao *FolderSizeCacheSQL) Path(strpath string, create bool, reqNode ...tree.N) (mtree.MPath, []*mtree.TreeNode, error) {
 	mpath, nodes, err := dao.DAO.Path(strpath, create, reqNode...)
 
 	if create {

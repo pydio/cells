@@ -22,16 +22,14 @@ package user
 
 import (
 	"context"
-	databasesql "database/sql"
 	"embed"
 	"fmt"
-	"github.com/pydio/cells/v4/common/sync/model"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"strconv"
 	"strings"
 	"time"
 	"unicode"
 
+	databasesql "database/sql"
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 	"golang.org/x/text/transform"
@@ -49,6 +47,7 @@ import (
 	"github.com/pydio/cells/v4/common/sql/index"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/mtree"
 	"github.com/pydio/cells/v4/common/utils/statics"
 )
@@ -176,11 +175,11 @@ func safeGroupPath(gPath string) string {
 }
 
 // Add to the underlying SQL DB.
-func (s *sqlimpl) Add(in interface{}) (interface{}, []model.Node, error) {
+func (s *sqlimpl) Add(in interface{}) (interface{}, []tree.N, error) {
 
 	// s.Lock()
 	// defer s.Unlock()
-	var createdNodes []model.Node
+	var createdNodes []tree.N
 
 	var user *idm.User
 	var ok bool
@@ -224,7 +223,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []model.Node, error) {
 					if err = s.IndexSQL.DelNode(nodeFrom); err != nil {
 						return nil, createdNodes, err
 					}
-					if pathTo, _, err = s.IndexSQL.Path(reqToPath, true, nodeFrom.Node); err != nil {
+					if pathTo, _, err = s.IndexSQL.Path(reqToPath, true, nodeFrom.N); err != nil {
 						return nil, createdNodes, err
 					}
 				} else {
@@ -400,7 +399,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []model.Node, error) {
 		}
 
 		for _, n := range created {
-			createdNodes = append(createdNodes, n.Node)
+			createdNodes = append(createdNodes, n.N)
 		}
 		return nil
 	})

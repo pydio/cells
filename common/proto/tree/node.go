@@ -198,7 +198,7 @@ func (node *Node) GetChildrenFolders() (s uint64, o bool) {
 
 }
 
-// AsProto just implements the sync/model/Node interface
+// AsProto just implements the sync/model/N interface
 func (node *Node) AsProto() *Node {
 	return node
 }

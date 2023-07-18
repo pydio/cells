@@ -78,7 +78,7 @@ type Abstract struct {
 	ClientUUID   string
 	Root         string
 	Options      Options
-	RecentMkDirs []model.Node
+	RecentMkDirs []tree.N
 	GlobalCtx    context.Context
 
 	watchConn         chan model.WatchConnectionInfo
@@ -112,7 +112,7 @@ func (c *Abstract) parseMicroErrors(e error) error {
 }
 
 // LoadNode forwards call to cli.ReadNode
-func (c *Abstract) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node model.Node, err error) {
+func (c *Abstract) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node tree.N, err error) {
 	ctx, cli, err := c.Factory.GetNodeProviderClient(c.getContext(ctx))
 	if err != nil {
 		return nil, err
@@ -198,7 +198,7 @@ func (c *Abstract) GetCachedBranches(ctx context.Context, roots ...string) (mode
 		rts[root] = root
 	}
 	for _, root := range rts {
-		er := c.Walk(ctx, func(path string, node model.Node, err error) error {
+		er := c.Walk(ctx, func(path string, node tree.N, err error) error {
 			if err == nil {
 				err = memDB.CreateNode(ctx, node, false)
 			}
@@ -386,12 +386,12 @@ func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 }
 
 // ComputeChecksum is not implemented
-func (c *Abstract) ComputeChecksum(ctx context.Context, node model.Node) error {
+func (c *Abstract) ComputeChecksum(ctx context.Context, node tree.N) error {
 	return fmt.Errorf("not.implemented")
 }
 
 // CreateNode is used for creating folders only
-func (c *Abstract) CreateNode(ctx context.Context, node model.Node, updateIfExists bool) (err error) {
+func (c *Abstract) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
 	ctx, cli, err := c.Factory.GetNodeReceiverClient(c.getContext(ctx))
 	if err != nil {
 		return err
@@ -406,7 +406,7 @@ func (c *Abstract) CreateNode(ctx context.Context, node model.Node, updateIfExis
 	if e == nil {
 		var indexed bool
 		if er := resp.GetNode().GetMeta(common.MetaFlagIndexed, &indexed); er != nil || !indexed {
-			log.Logger(ctx).Debug("Create Node Response :", zap.Any("node", resp.GetNode()))
+			log.Logger(ctx).Debug("Create N Response :", zap.Any("node", resp.GetNode()))
 			c.Lock()
 			c.RecentMkDirs = append(c.RecentMkDirs, n)
 			c.Unlock()
@@ -534,7 +534,7 @@ func (c *Abstract) flushRecentMkDirs(ctx context.Context) {
 }
 
 // readNodeBlocking retries to read a node until it is available (it may habe just been indexed).
-func (c *Abstract) readNodeBlocking(ctx context.Context, n model.Node) {
+func (c *Abstract) readNodeBlocking(ctx context.Context, n tree.N) {
 	// Block until move is correctly indexed
 	model.Retry(func() error {
 		ctx, cli, err := c.Factory.GetNodeProviderClient(c.getContext(ctx))
@@ -549,7 +549,7 @@ func (c *Abstract) readNodeBlocking(ctx context.Context, n model.Node) {
 }
 
 // readNodesBlocking wraps many parallel calls to readNodeBlocking.
-func (c *Abstract) readNodesBlocking(ctx context.Context, nodes []model.Node) {
+func (c *Abstract) readNodesBlocking(ctx context.Context, nodes []tree.N) {
 	if len(nodes) == 0 {
 		return
 	}
@@ -559,7 +559,7 @@ func (c *Abstract) readNodesBlocking(ctx context.Context, nodes []model.Node) {
 	throttle := make(chan struct{}, 8)
 	for _, n := range nodes {
 		throttle <- struct{}{}
-		go func(no model.Node) {
+		go func(no tree.N) {
 			defer func() {
 				wg.Done()
 				<-throttle

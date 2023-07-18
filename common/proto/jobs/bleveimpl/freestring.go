@@ -98,7 +98,7 @@ func getMemIndex() bleve.Index {
 	pathFieldMapping.Analyzer = "keyword"
 	nodeMapping.AddFieldMappingsAt("Path", pathFieldMapping)
 
-	// Node type to keyword
+	// N type to keyword
 	nodeType := bleve.NewTextFieldMapping()
 	nodeType.Analyzer = "keyword"
 	nodeMapping.AddFieldMappingsAt("NodeType", nodeType)

@@ -23,20 +23,18 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/sync/model"
 	"net/http"
 	"runtime/debug"
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common/proto/sync"
-
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
@@ -135,7 +133,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("panic recovered in CreateNode: %s. Node path was %s", r, req.Node.Path)
+			err = fmt.Errorf("panic recovered in CreateNode: %s. N path was %s", r, req.Node.Path)
 			fmt.Printf("%s\n", debug.Stack())
 		}
 	}()
@@ -214,7 +212,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				}
 			}
 		} else {
-			return nil, errors.New(name, "Node path already in use", http.StatusConflict)
+			return nil, errors.New(name, "N path already in use", http.StatusConflict)
 		}
 	} else if len(created) > 1 && !updateIfExists && !inSession {
 		// Special case : when not in indexation mode, if node creation
@@ -304,7 +302,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 		if err != nil {
 			if len(path) == 1 && path[0] == 1 {
 				// This is the root node, let's create it
-				node = index.NewNode(model.NewNode(tree.NodeType_COLLECTION, "ROOT", "", "", 0, 0, 0), path, []string{""})
+				node = index.NewNode(tree.LightNode(tree.NodeType_COLLECTION, "ROOT", "", "", 0, 0, 0), path, []string{""})
 				if err = dao.AddNode(node); err != nil {
 					return nil, err
 				}
@@ -609,7 +607,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	defer track(log.Logger(ctx), "DeleteNode", time.Now(), req, resp)
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("panic recovered in DeleteNode: %s. Node path was %s", r, req.Node.Path)
+			err = fmt.Errorf("panic recovered in DeleteNode: %s. N path was %s", r, req.Node.Path)
 		}
 	}()
 

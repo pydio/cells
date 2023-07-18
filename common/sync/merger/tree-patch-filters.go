@@ -118,7 +118,7 @@ func (t *TreePatch) filterCreateFiles(ctx context.Context) {
 
 func (t *TreePatch) filterCreateFolders(ctx context.Context) {
 
-	var existingFolders map[string][]model.Node
+	var existingFolders map[string][]tree.N
 	var refresher model.UuidFoldersRefresher
 	var ok bool
 	if refresher, ok = t.Source().(model.UuidFoldersRefresher); ok && len(t.createFolders) > 0 {
@@ -304,7 +304,7 @@ func (t *TreePatch) rescanFoldersIfRequired(ctx context.Context, ignores ...glob
 		}
 		log.Logger(ctx).Info("Rescanning folder to be sure...", zap.String("patch", t.Target().GetEndpointInfo().URI), zap.String("path", op.GetRefPath()))
 		// Rescan folder content, events below may not have been detected
-		var visit = func(path string, node model.Node, err error) error {
+		var visit = func(path string, node tree.N, err error) error {
 			if err != nil {
 				log.Logger(ctx).Error("Error while rescanning folder ", zap.Error(err))
 				return err

@@ -504,7 +504,7 @@ func (x *Node) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Node.ProtoReflect.Descriptor instead.
+// Deprecated: Use N.ProtoReflect.Descriptor instead.
 func (*Node) Descriptor() ([]byte, []int) {
 	return file_cells_registry_proto_rawDescGZIP(), []int{2}
 }
@@ -1750,7 +1750,7 @@ var file_cells_registry_proto_goTypes = []interface{}{
 	(EventType)(0),            // 3: registry.EventType
 	(*Item)(nil),              // 4: registry.Item
 	(*ItemMap)(nil),           // 5: registry.ItemMap
-	(*Node)(nil),              // 6: registry.Node
+	(*Node)(nil),              // 6: registry.N
 	(*Service)(nil),           // 7: registry.Service
 	(*Server)(nil),            // 8: registry.Server
 	(*Dao)(nil),               // 9: registry.Dao
@@ -1777,7 +1777,7 @@ var file_cells_registry_proto_depIdxs = []int32{
 	11, // 1: registry.Item.generic:type_name -> registry.Generic
 	10, // 2: registry.Item.edge:type_name -> registry.Edge
 	8,  // 3: registry.Item.server:type_name -> registry.Server
-	6,  // 4: registry.Item.node:type_name -> registry.Node
+	6,  // 4: registry.Item.node:type_name -> registry.N
 	7,  // 5: registry.Item.service:type_name -> registry.Service
 	9,  // 6: registry.Item.dao:type_name -> registry.Dao
 	4,  // 7: registry.Item.adjacents:type_name -> registry.Item

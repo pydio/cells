@@ -99,7 +99,7 @@ func (m *MultiBucketClient) ProvidesMetadataNamespaces() (out []glob.Glob, o boo
 	return m.bucketMetas, len(m.bucketMetas) > 0
 }
 
-func (m *MultiBucketClient) LoadNode(ctx context.Context, p string, extendedStats ...bool) (node model.Node, err error) {
+func (m *MultiBucketClient) LoadNode(ctx context.Context, p string, extendedStats ...bool) (node tree.N, err error) {
 	c, b, i, e := m.getClient(p)
 	if e != nil {
 		return nil, e
@@ -174,7 +174,7 @@ func (m *MultiBucketClient) Walk(ctx context.Context, walknFc model.WalkNodesFun
 			}
 			// Walk children
 			if recursive {
-				e := bC.Walk(ctx, func(iPath string, node model.Node, err error) error {
+				e := bC.Walk(ctx, func(iPath string, node tree.N, err error) error {
 					wrapped := m.patchPath(bucket.Name, node, iPath)
 					if collect && node.IsLeaf() {
 						eTags = append(eTags, node.GetEtag())
@@ -302,7 +302,7 @@ func (m *MultiBucketClient) GetReaderOn(ctx context.Context, path string) (out i
 	return c.GetReaderOn(ctx, i)
 }
 
-func (m *MultiBucketClient) CreateNode(ctx context.Context, node model.Node, updateIfExists bool) (err error) {
+func (m *MultiBucketClient) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
 	c, b, i, e := m.getClient(node.GetPath())
 	if e != nil {
 		err = e
@@ -348,7 +348,7 @@ func (m *MultiBucketClient) MoveNode(ctx context.Context, oldPath string, newPat
 	return c.MoveNode(ctx, i, i2)
 }
 
-func (m *MultiBucketClient) ComputeChecksum(ctx context.Context, node model.Node) (err error) {
+func (m *MultiBucketClient) ComputeChecksum(ctx context.Context, node tree.N) (err error) {
 	c, b, i, e := m.getClient(node.GetPath())
 	if e != nil {
 		err = e
@@ -368,7 +368,7 @@ func (m *MultiBucketClient) ComputeChecksum(ctx context.Context, node model.Node
 	}
 }
 
-func (m *MultiBucketClient) UpdateNodeUuid(ctx context.Context, node model.Node) (n model.Node, err error) {
+func (m *MultiBucketClient) UpdateNodeUuid(ctx context.Context, node tree.N) (n tree.N, err error) {
 	c, b, i, e := m.getClient(node.GetPath())
 	if e != nil {
 		err = e
@@ -445,7 +445,7 @@ func (m *MultiBucketClient) getClient(p string) (c *Client, bucket string, inter
 	return
 }
 
-func (m *MultiBucketClient) patchPath(bucketName string, node model.Node, p ...string) (patched string) {
+func (m *MultiBucketClient) patchPath(bucketName string, node tree.N, p ...string) (patched string) {
 	if len(p) > 0 {
 		patched = path.Join(bucketName, p[0])
 	}

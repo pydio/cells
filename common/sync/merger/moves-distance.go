@@ -21,12 +21,12 @@
 package merger
 
 import (
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"math"
 	"path"
 	"sort"
 	"strings"
 
-	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/utils/mtree"
 	"go.uber.org/zap/zapcore"
 )
@@ -39,7 +39,7 @@ const (
 type Move struct {
 	deleteOp Operation
 	createOp Operation
-	dbNode   model.Node
+	dbNode   tree.N
 
 	source     string
 	target     string

@@ -1113,7 +1113,7 @@ func (x *Node) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Node.ProtoReflect.Descriptor instead.
+// Deprecated: Use N.ProtoReflect.Descriptor instead.
 func (*Node) Descriptor() ([]byte, []int) {
 	return file_cells_encryption_proto_rawDescGZIP(), []int{19}
 }
@@ -1137,7 +1137,7 @@ type NodeInfo struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Node    *Node    `protobuf:"bytes,1,opt,name=Node,proto3" json:"Node,omitempty"`
+	Node    *Node    `protobuf:"bytes,1,opt,name=N,proto3" json:"N,omitempty"`
 	NodeKey *NodeKey `protobuf:"bytes,2,opt,name=NodeKey,proto3" json:"NodeKey,omitempty"`
 	Block   *Block   `protobuf:"bytes,3,opt,name=Block,proto3" json:"Block,omitempty"`
 }
@@ -2642,7 +2642,7 @@ var file_cells_encryption_proto_goTypes = []interface{}{
 	(*AdminCreateKeyRequest)(nil),       // 16: encryption.AdminCreateKeyRequest
 	(*AdminCreateKeyResponse)(nil),      // 17: encryption.AdminCreateKeyResponse
 	(*NodeKey)(nil),                     // 18: encryption.NodeKey
-	(*Node)(nil),                        // 19: encryption.Node
+	(*Node)(nil),                        // 19: encryption.N
 	(*NodeInfo)(nil),                    // 20: encryption.NodeInfo
 	(*Block)(nil),                       // 21: encryption.Block
 	(*RangedBlock)(nil),                 // 22: encryption.RangedBlock
@@ -2674,7 +2674,7 @@ var file_cells_encryption_proto_depIdxs = []int32{
 	3,  // 5: encryption.AdminListKeysResponse.Keys:type_name -> encryption.Key
 	3,  // 6: encryption.AdminExportKeyResponse.Key:type_name -> encryption.Key
 	3,  // 7: encryption.AdminImportKeyRequest.Key:type_name -> encryption.Key
-	19, // 8: encryption.NodeInfo.Node:type_name -> encryption.Node
+	19, // 8: encryption.NodeInfo.N:type_name -> encryption.N
 	18, // 9: encryption.NodeInfo.NodeKey:type_name -> encryption.NodeKey
 	21, // 10: encryption.NodeInfo.Block:type_name -> encryption.Block
 	20, // 11: encryption.GetNodeInfoResponse.NodeInfo:type_name -> encryption.NodeInfo

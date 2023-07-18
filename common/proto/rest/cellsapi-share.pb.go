@@ -1318,7 +1318,7 @@ type ListSharedResourcesResponse_SharedResource struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Node  *tree.Node `protobuf:"bytes,1,opt,name=Node,proto3" json:"Node,omitempty"`
+	Node  *tree.Node `protobuf:"bytes,1,opt,name=N,proto3" json:"N,omitempty"`
 	Link  *ShareLink `protobuf:"bytes,2,opt,name=Link,proto3" json:"Link,omitempty"`
 	Cells []*Cell    `protobuf:"bytes,3,rep,name=Cells,proto3" json:"Cells,omitempty"`
 }
@@ -1625,7 +1625,7 @@ var file_cellsapi_share_proto_goTypes = []interface{}{
 	(*idm.ACLAction)(nil),                              // 21: idm.ACLAction
 	(*idm.User)(nil),                                   // 22: idm.User
 	(*idm.Role)(nil),                                   // 23: idm.Role
-	(*tree.Node)(nil),                                  // 24: tree.Node
+	(*tree.Node)(nil),                                  // 24: tree.N
 	(*service.ResourcePolicy)(nil),                     // 25: service.ResourcePolicy
 }
 var file_cellsapi_share_proto_depIdxs = []int32{
@@ -1633,11 +1633,11 @@ var file_cellsapi_share_proto_depIdxs = []int32{
 	22, // 1: rest.CellAcl.User:type_name -> idm.User
 	22, // 2: rest.CellAcl.Group:type_name -> idm.User
 	23, // 3: rest.CellAcl.Role:type_name -> idm.Role
-	24, // 4: rest.Cell.RootNodes:type_name -> tree.Node
+	24, // 4: rest.Cell.RootNodes:type_name -> tree.N
 	18, // 5: rest.Cell.ACLs:type_name -> rest.Cell.ACLsEntry
 	25, // 6: rest.Cell.Policies:type_name -> service.ResourcePolicy
 	19, // 7: rest.ShareLink.TargetUsers:type_name -> rest.ShareLink.TargetUsersEntry
-	24, // 8: rest.ShareLink.RootNodes:type_name -> tree.Node
+	24, // 8: rest.ShareLink.RootNodes:type_name -> tree.N
 	0,  // 9: rest.ShareLink.Permissions:type_name -> rest.ShareLinkAccessType
 	25, // 10: rest.ShareLink.Policies:type_name -> service.ResourcePolicy
 	3,  // 11: rest.PutCellRequest.Room:type_name -> rest.Cell
@@ -1648,7 +1648,7 @@ var file_cellsapi_share_proto_depIdxs = []int32{
 	25, // 16: rest.UpdateSharePoliciesResponse.Policies:type_name -> service.ResourcePolicy
 	2,  // 17: rest.Cell.ACLsEntry.value:type_name -> rest.CellAcl
 	4,  // 18: rest.ShareLink.TargetUsersEntry.value:type_name -> rest.ShareLinkTargetUser
-	24, // 19: rest.ListSharedResourcesResponse.SharedResource.Node:type_name -> tree.Node
+	24, // 19: rest.ListSharedResourcesResponse.SharedResource.N:type_name -> tree.N
 	5,  // 20: rest.ListSharedResourcesResponse.SharedResource.Link:type_name -> rest.ShareLink
 	3,  // 21: rest.ListSharedResourcesResponse.SharedResource.Cells:type_name -> rest.Cell
 	22, // [22:22] is the sub-list for method output_type

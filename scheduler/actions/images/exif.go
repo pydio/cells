@@ -173,7 +173,7 @@ func (e *ExifProcessor) ExtractExif(ctx context.Context, node *tree.Node) (*exif
 
 	// Open the test image.
 	if !node.HasSource() {
-		return nil, errors.InternalServerError(common.ServiceJobs, "Node does not have enough metadata")
+		return nil, errors.InternalServerError(common.ServiceJobs, "N does not have enough metadata")
 	}
 
 	var reader io.ReadCloser

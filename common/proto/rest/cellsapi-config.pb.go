@@ -429,7 +429,7 @@ type CreatePeerFolderResponse struct {
 	unknownFields protoimpl.UnknownFields
 
 	Success bool       `protobuf:"varint,1,opt,name=Success,proto3" json:"Success,omitempty"`
-	Node    *tree.Node `protobuf:"bytes,2,opt,name=Node,proto3" json:"Node,omitempty"`
+	Node    *tree.Node `protobuf:"bytes,2,opt,name=N,proto3" json:"N,omitempty"`
 }
 
 func (x *CreatePeerFolderResponse) Reset() {
@@ -2065,7 +2065,7 @@ var file_cellsapi_config_proto_goTypes = []interface{}{
 	nil,                                 // 32: rest.DiscoveryResponse.EndpointsEntry
 	nil,                                 // 33: rest.SchedulerActionsResponse.ActionsEntry
 	(*object.DataSource)(nil),           // 34: object.DataSource
-	(*tree.Node)(nil),                   // 35: tree.Node
+	(*tree.Node)(nil),                   // 35: tree.N
 	(*tree.VersioningPolicy)(nil),       // 36: tree.VersioningPolicy
 	(ctl.ServiceStatus)(0),              // 37: ctl.ServiceStatus
 	(*ctl.Service)(nil),                 // 38: ctl.Service
@@ -2074,7 +2074,7 @@ var file_cellsapi_config_proto_goTypes = []interface{}{
 }
 var file_cellsapi_config_proto_depIdxs = []int32{
 	34, // 0: rest.DataSourceCollection.DataSources:type_name -> object.DataSource
-	35, // 1: rest.CreatePeerFolderResponse.Node:type_name -> tree.Node
+	35, // 1: rest.CreatePeerFolderResponse.N:type_name -> tree.N
 	34, // 2: rest.ListStorageBucketsRequest.DataSource:type_name -> object.DataSource
 	34, // 3: rest.CreateStorageBucketRequest.DataSource:type_name -> object.DataSource
 	12, // 4: rest.ListProcessesResponse.Processes:type_name -> rest.Process

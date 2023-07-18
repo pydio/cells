@@ -22,6 +22,8 @@ package index
 
 import (
 	"context"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/pydio/cells/v4/common/log"
@@ -79,4 +81,21 @@ func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 	}
 
 	return nil
+}
+
+// NewNode utils
+func NewNode(treeNode tree.N, path mtree.MPath, filenames []string) *mtree.TreeNode {
+
+	node := mtree.NewTreeNode()
+	if treeNode == nil {
+		treeNode = tree.LightNode(tree.NodeType_UNKNOWN, "", "", "", 0, 0, 0)
+	}
+	node.N = treeNode
+
+	node.SetMPath(path...)
+	node.SetName(filenames[len(filenames)-1])
+
+	node.UpdatePath(strings.Join(filenames, string(os.PathSeparator)))
+
+	return node
 }

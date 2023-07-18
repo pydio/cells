@@ -47,8 +47,8 @@ func TestMultiBucketClient_Walk(t *testing.T) {
 			"cell3": NewS3Mock("cell3"),
 		}
 
-		var data []model.Node
-		cl.Walk(ctx, func(path string, node model.Node, err error) error {
+		var data []tree.N
+		cl.Walk(ctx, func(path string, node tree.N, err error) error {
 			data = append(data, node)
 			return nil
 		}, "", false)
@@ -61,14 +61,14 @@ func TestMultiBucketClient_Walk(t *testing.T) {
 		So(b.GetType(), ShouldEqual, tree.NodeType_COLLECTION)
 		//t.Log("FIRST BUCKET", b)
 
-		var fullData []model.Node
-		cl.Walk(ctx, func(path string, node model.Node, err error) error {
+		var fullData []tree.N
+		cl.Walk(ctx, func(path string, node tree.N, err error) error {
 			fullData = append(fullData, node)
 			return nil
 		}, "", true)
 		So(data, ShouldNotBeEmpty)
 		t.Log("Number of buckets and objects", len(fullData))
-		var first model.Node
+		var first tree.N
 		for _, d := range fullData {
 			//t.Log(d.Path, "\t\t", d.Type)
 			if d.IsLeaf() && first == nil && path.Base(d.GetPath()) != common.PydioSyncHiddenFile {
@@ -108,8 +108,8 @@ func TestBucketMetadata(t *testing.T) {
 			"cell3": NewS3Mock("cell3"),
 		}
 
-		var data []model.Node
-		cl.Walk(ctx, func(path string, node model.Node, err error) error {
+		var data []tree.N
+		cl.Walk(ctx, func(path string, node tree.N, err error) error {
 			if !node.IsLeaf() {
 				data = append(data, node)
 			}

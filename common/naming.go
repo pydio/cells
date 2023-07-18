@@ -183,7 +183,7 @@ const (
 	PydioSyncHiddenFile         = ".pydio"
 	XAmzMetaClearSize           = "X-Amz-Meta-Pydio-Clear-Size"
 	XAmzMetaClearSizeUnknown    = "unknown"
-	XAmzMetaNodeUuid            = "X-Amz-Meta-Pydio-Node-Uuid"
+	XAmzMetaNodeUuid            = "X-Amz-Meta-Pydio-N-Uuid"
 	XAmzMetaContentMd5          = "X-Amz-Meta-Content-Md5"
 	XAmzMetaDirective           = "X-Amz-Metadata-Directive"
 	XPydioClientUuid            = "X-Pydio-Client-Uuid"

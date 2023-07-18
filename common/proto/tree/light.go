@@ -1,22 +1,22 @@
-package model
+package tree
 
 import (
 	"fmt"
-	"github.com/pydio/cells/v4/common"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"strconv"
 	"time"
 
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
-// Node is the extracted interface from *tree.Node
-type Node interface {
+// N is the extracted interface from Node
+type N interface {
 	GetUuid() string
 	GetPath() string
-	GetType() tree.NodeType
+	GetType() NodeType
 	GetSize() int64
 	GetMTime() int64
 	GetMode() int32
@@ -29,7 +29,7 @@ type Node interface {
 	UpdateSize(s int64)
 	UpdateMTime(s int64)
 	UpdateMode(s int32)
-	SetType(tree.NodeType)
+	SetType(NodeType)
 	RenewUuidIfEmpty(force bool)
 
 	SetChildrenSize(uint64)
@@ -45,10 +45,10 @@ type Node interface {
 	ZapPath() zapcore.Field
 	ZapUuid() zapcore.Field
 
-	AsProto() *tree.Node
+	AsProto() *Node
 }
 
-// lightNode is a memory optimized-struct implementing the Node interface.
+// lightNode is a memory optimized-struct implementing the N interface.
 // Beware of not reordering fields as they are memory-aligned
 //
 //	type lightNode struct {
@@ -84,14 +84,14 @@ type lightNode struct {
 	childrenFolders uint64
 
 	mode               uint32
-	nodeType           tree.NodeType
+	nodeType           NodeType
 	childrenSizeSet    bool
 	childrenFilesSet   bool
 	childrenFoldersSet bool
 }
 
-// NewNode create a lightNode
-func NewNode(nodeType tree.NodeType, uuid, path, eTag string, size, mTime int64, mode int32) Node {
+// LightNode create a lightNode
+func LightNode(nodeType NodeType, uuid, path, eTag string, size, mTime int64, mode int32) N {
 	return &lightNode{
 		nodeType: nodeType,
 		uuid:     uuid,
@@ -103,7 +103,7 @@ func NewNode(nodeType tree.NodeType, uuid, path, eTag string, size, mTime int64,
 	}
 }
 
-func NodeFromProto(n *tree.Node) Node {
+func LightNodeFromProto(n *Node) N {
 	ln := &lightNode{
 		uuid:     n.Uuid,
 		path:     n.Path,
@@ -153,7 +153,7 @@ func (l *lightNode) GetPath() string {
 	return l.path
 }
 
-func (l *lightNode) GetType() tree.NodeType {
+func (l *lightNode) GetType() NodeType {
 	return l.nodeType
 }
 
@@ -174,7 +174,7 @@ func (l *lightNode) GetEtag() string {
 }
 
 func (l *lightNode) IsLeaf() bool {
-	return l.nodeType == tree.NodeType_LEAF
+	return l.nodeType == NodeType_LEAF
 }
 
 func (l *lightNode) UpdatePath(p string) {
@@ -201,7 +201,7 @@ func (l *lightNode) UpdateMode(s int32) {
 	l.mode = uint32(s)
 }
 
-func (l *lightNode) SetType(t tree.NodeType) {
+func (l *lightNode) SetType(t NodeType) {
 	l.nodeType = t
 }
 
@@ -267,8 +267,8 @@ func (l *lightNode) ZapUuid() zapcore.Field {
 	return zap.String("uuid", l.uuid)
 }
 
-func (l *lightNode) AsProto() *tree.Node {
-	tn := &tree.Node{
+func (l *lightNode) AsProto() *Node {
+	tn := &Node{
 		Uuid:      l.uuid,
 		Path:      l.path,
 		Type:      l.nodeType,

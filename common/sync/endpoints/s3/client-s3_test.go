@@ -22,7 +22,6 @@ package s3
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/sync/model"
 	"log"
 	"sync"
 	"testing"
@@ -80,8 +79,8 @@ func TestWalkS3(t *testing.T) {
 	Convey("Test walking the tree", t, func() {
 
 		c := NewS3Mock()
-		objects := make(map[string]model.Node)
-		walk := func(path string, node model.Node, err error) error {
+		objects := make(map[string]tree.N)
+		walk := func(path string, node tree.N, err error) error {
 			log.Println("Walk " + path)
 			objects[path] = node
 			return nil
@@ -111,7 +110,7 @@ func TestWalkS3(t *testing.T) {
 
 func TestDeleteNodeS3(t *testing.T) {
 
-	Convey("Test Delete Node", t, func() {
+	Convey("Test Delete N", t, func() {
 
 		c := NewS3Mock()
 		err := c.DeleteNode(context.Background(), "file")
@@ -123,7 +122,7 @@ func TestDeleteNodeS3(t *testing.T) {
 
 func TestMoveNodeS3(t *testing.T) {
 
-	Convey("Test Move Node", t, func() {
+	Convey("Test Move N", t, func() {
 
 		c := NewS3Mock()
 		err := c.MoveNode(context.Background(), "/file", "/file1")

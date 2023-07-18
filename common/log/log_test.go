@@ -71,8 +71,8 @@ func TestLogMassiveObject(t *testing.T) {
 	var nodes []*mtree.TreeNode
 	for i := 0; i < 10000; i++ {
 		node := mtree.NewTreeNode()
-		node.Node.Uuid = fmt.Sprintf("testnode_%d", i)
-		node.Node.Path = fmt.Sprintf("path/testnode_%d", i)
+		node.N.Uuid = fmt.Sprintf("testnode_%d", i)
+		node.N.Path = fmt.Sprintf("path/testnode_%d", i)
 
 		nodes = append(nodes, node)
 	}

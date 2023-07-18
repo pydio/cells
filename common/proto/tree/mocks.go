@@ -26,11 +26,11 @@ import (
 	"reflect"
 	"sort"
 
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/service/errors"
-	"google.golang.org/grpc"
 )
 
 type ErrorThrower func(string, string, ...interface{}) error
@@ -155,7 +155,7 @@ func (m *NodeProviderMock) ReadNode(ctx context.Context, in *ReadNodeRequest, op
 			}
 		}
 	}
-	return nil, errors.NotFound(common.ServiceDataIndex_, "Node not found")
+	return nil, errors.NotFound(common.ServiceDataIndex_, "N not found")
 }
 
 func (m *NodeProviderMock) ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (NodeProvider_ListNodesClient, error) {

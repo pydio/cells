@@ -26,10 +26,11 @@ import (
 	"io"
 	"strings"
 
+	"github.com/gobwas/glob"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/gobwas/glob"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 var (
@@ -66,7 +67,7 @@ func IsIgnoredFile(path string, ignores ...glob.Glob) (ignored bool) {
 	return false
 }
 
-func NodeRequiresChecksum(node Node) bool {
+func NodeRequiresChecksum(node tree.N) bool {
 	return node.IsLeaf() && (node.GetEtag() == "" || node.GetEtag() == DefaultEtag || strings.Contains(node.GetEtag(), "-"))
 }
 

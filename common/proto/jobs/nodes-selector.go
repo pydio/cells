@@ -218,7 +218,7 @@ func (n *NodesSelector) performListing(ctx context.Context, serviceName string, 
 		if !filter(resp.GetNode()) {
 			continue
 		}
-		log.Logger(ctx).Debug("Search Request with query received Node", resp.Node.ZapPath())
+		log.Logger(ctx).Debug("Search Request with query received N", resp.Node.ZapPath())
 		objects <- resp.Node
 		count++
 	}

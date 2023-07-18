@@ -181,7 +181,7 @@ func (m *manager) Init(ctx context.Context) error {
 			continue // Do not register here
 		}
 
-		if er := m.reg.Register(s, registry.WithEdgeTo(m.root.ID(), "Node", map[string]string{})); er != nil {
+		if er := m.reg.Register(s, registry.WithEdgeTo(m.root.ID(), "N", map[string]string{})); er != nil {
 			return er
 		}
 
@@ -191,7 +191,7 @@ func (m *manager) Init(ctx context.Context) error {
 	if m.root != nil {
 		for _, sr := range byScheme {
 			m.servers[sr.ID()] = sr // Keep a ref to the actual object
-			_, _ = m.reg.RegisterEdge(m.root.ID(), sr.ID(), "Node", map[string]string{})
+			_, _ = m.reg.RegisterEdge(m.root.ID(), sr.ID(), "N", map[string]string{})
 		}
 	}
 

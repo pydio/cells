@@ -56,10 +56,10 @@ type BoltSnapshot struct {
 	empty      bool
 	folderPath string
 
-	createsSession     map[string]model.Node
+	createsSession     map[string]tree.N
 	createsSessionLock *sync.Mutex
 
-	autoBatchChan  chan model.Node
+	autoBatchChan  chan tree.N
 	autoBatchClose chan struct{}
 }
 
@@ -78,7 +78,7 @@ func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
 	}
 	s.db = db
 
-	s.autoBatchChan = make(chan model.Node)
+	s.autoBatchChan = make(chan tree.N)
 	s.autoBatchClose = make(chan struct{}, 1)
 
 	go s.startAutoBatching()
@@ -86,7 +86,7 @@ func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
 	return s, nil
 }
 
-func (s *BoltSnapshot) sortByKey(data map[string]model.Node) (output []model.Node) {
+func (s *BoltSnapshot) sortByKey(data map[string]tree.N) (output []tree.N) {
 	var kk []string
 	for k := range data {
 		kk = append(kk, k)
@@ -102,7 +102,7 @@ func (s *BoltSnapshot) startAutoBatching() {
 	defer func() {
 		close(s.autoBatchChan)
 	}()
-	creates := make(map[string]model.Node, 500)
+	creates := make(map[string]tree.N, 500)
 	nextTime := 1 * time.Hour
 	flush := func() {
 		if len(creates) == 0 {
@@ -119,7 +119,7 @@ func (s *BoltSnapshot) startAutoBatching() {
 			}
 			return nil
 		})
-		creates = make(map[string]model.Node, 500)
+		creates = make(map[string]tree.N, 500)
 	}
 	for {
 		select {
@@ -147,8 +147,8 @@ func (s *BoltSnapshot) startAutoBatching() {
 	}
 }
 
-func (s *BoltSnapshot) StartSession(ctx context.Context, rootNode model.Node, silent bool) (string, error) {
-	s.createsSession = make(map[string]model.Node)
+func (s *BoltSnapshot) StartSession(ctx context.Context, rootNode tree.N, silent bool) (string, error) {
+	s.createsSession = make(map[string]tree.N)
 	s.createsSessionLock = &sync.Mutex{}
 	return uuid.New(), nil
 }
@@ -170,7 +170,7 @@ func (s *BoltSnapshot) FlushSession(ctx context.Context, sessionUuid string) err
 		s.createsSessionLock.Unlock()
 		return nil
 	})
-	s.createsSession = make(map[string]model.Node)
+	s.createsSession = make(map[string]tree.N)
 	return e
 }
 
@@ -179,7 +179,7 @@ func (s *BoltSnapshot) FinishSession(ctx context.Context, sessionUuid string) er
 	return nil
 }
 
-func (s *BoltSnapshot) CreateNode(ctx context.Context, node model.Node, updateIfExists bool) (err error) {
+func (s *BoltSnapshot) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
 	if s.createsSession != nil {
 		return s.db.View(func(tx *bbolt.Tx) error {
 			b := tx.Bucket(bucketName)
@@ -207,7 +207,7 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node model.Node, updateIf
 			return nil
 		})
 	} else {
-		var nn []model.Node
+		var nn []tree.N
 		er := s.db.View(func(tx *bbolt.Tx) error {
 			b := tx.Bucket(bucketName)
 			if b == nil {
@@ -316,12 +316,12 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 			return e
 		}
 		if len(paths) == 0 {
-			return source.Walk(ctx, func(path string, node model.Node, err error) error {
+			return source.Walk(ctx, func(path string, node tree.N, err error) error {
 				return capture.Put([]byte(path), s.marshal(node))
 			}, "/", true)
 		} else {
 			for _, p := range paths {
-				e := source.Walk(ctx, func(path string, node model.Node, err error) error {
+				e := source.Walk(ctx, func(path string, node tree.N, err error) error {
 					if err != nil {
 						log.Logger(ctx).Error("BoltDB:Capture: ignoring path, error is not nil", zap.String("path", path), zap.Error(err))
 						return err
@@ -364,7 +364,7 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 	return e
 }
 
-func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node model.Node, err error) {
+func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node tree.N, err error) {
 	if path == "/" {
 		// Return fake Root
 		node = &tree.Node{Path: "/"}
@@ -389,7 +389,7 @@ func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats 
 	}
 	if len(extendedStats) > 0 && extendedStats[0] {
 		var size, folders, files int64
-		_ = s.Walk(nil, func(path string, node model.Node, err error) error {
+		_ = s.Walk(nil, func(path string, node tree.N, err error) error {
 			if node.IsLeaf() {
 				size += node.GetSize()
 				files += 1
@@ -443,14 +443,14 @@ func (s *BoltSnapshot) Watch(recursivePath string) (*model.WatchObject, error) {
 	return nil, fmt.Errorf("not.implemented")
 }
 
-func (s *BoltSnapshot) marshal(node model.Node) []byte {
+func (s *BoltSnapshot) marshal(node tree.N) []byte {
 	store := node.AsProto()
 	store.MetaStore = nil
 	data, _ := proto.Marshal(store)
 	return data
 }
 
-func (s *BoltSnapshot) unmarshal(value []byte) (model.Node, error) {
+func (s *BoltSnapshot) unmarshal(value []byte) (tree.N, error) {
 	var n tree.Node
 	if e := proto.Unmarshal(value, &n); e != nil {
 		return nil, e

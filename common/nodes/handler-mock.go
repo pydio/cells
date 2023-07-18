@@ -97,7 +97,7 @@ func (h *HandlerMock) ListNodes(ctx context.Context, in *tree.ListNodesRequest, 
 			}()
 		} else {
 			streamer.CloseSend()
-			return nil, errors2.NotFound("not.found", "Node not found")
+			return nil, errors2.NotFound("not.found", "N not found")
 		}
 	} else {
 		go func() {
@@ -114,14 +114,14 @@ func (h *HandlerMock) ListNodes(ctx context.Context, in *tree.ListNodesRequest, 
 }
 
 func (h *HandlerMock) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...grpc.CallOption) (*tree.CreateNodeResponse, error) {
-	log.Logger(ctx).Info("[MOCK] Create Node " + in.Node.Path)
+	log.Logger(ctx).Info("[MOCK] Create N " + in.Node.Path)
 	h.Nodes["in"] = in.Node
 	h.Context = ctx
 	return nil, nil
 }
 
 func (h *HandlerMock) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest, opts ...grpc.CallOption) (*tree.UpdateNodeResponse, error) {
-	log.Logger(ctx).Info("[MOCK] Update Node " + in.From.Path + " to " + in.To.Path)
+	log.Logger(ctx).Info("[MOCK] Update N " + in.From.Path + " to " + in.To.Path)
 	h.Nodes["from"] = in.From
 	h.Nodes["to"] = in.To
 	h.Context = ctx
@@ -129,7 +129,7 @@ func (h *HandlerMock) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest
 }
 
 func (h *HandlerMock) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...grpc.CallOption) (*tree.DeleteNodeResponse, error) {
-	log.Logger(ctx).Info("[MOCK] Delete Node" + in.Node.Path)
+	log.Logger(ctx).Info("[MOCK] Delete N" + in.Node.Path)
 	h.Nodes["in"] = in.Node
 	delete(h.Nodes, in.Node.Path)
 	h.Context = ctx

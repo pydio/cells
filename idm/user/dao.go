@@ -25,10 +25,10 @@ package user
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/sync/model"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/index"
 	"github.com/pydio/cells/v4/common/sql/resources"
@@ -42,7 +42,7 @@ type DAO interface {
 	// Add creates or updates a user in the underlying repository.
 	// It returns the resulting user, a true flag in case of an update
 	// of an existing user and/or an error if something went wrong.
-	Add(interface{}) (interface{}, []model.Node, error)
+	Add(interface{}) (interface{}, []tree.N, error)
 
 	Del(sql.Enquirer, chan *idm.User) (numRows int64, e error)
 	Search(sql.Enquirer, *[]interface{}, ...bool) error

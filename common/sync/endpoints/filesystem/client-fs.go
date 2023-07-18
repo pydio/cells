@@ -136,7 +136,7 @@ type FSClient struct {
 }
 
 // StartSession forwards session management to underlying snapshot
-func (c *FSClient) StartSession(ctx context.Context, rootNode model.Node, silent bool) (string, error) {
+func (c *FSClient) StartSession(ctx context.Context, rootNode tree.N, silent bool) (string, error) {
 	if c.updateSnapshot != nil {
 		if sessionProvider, ok := c.updateSnapshot.(model.SessionProvider); ok {
 			return sessionProvider.StartSession(ctx, rootNode, silent)
@@ -246,7 +246,7 @@ func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 // LoadNode is the Read in CRUD.
 // leaf bools are used to avoid doing an FS.stat if we already know a node to be
 // a leaf.  NOTE : is it useful?  Examine later.
-func (c *FSClient) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node model.Node, err error) {
+func (c *FSClient) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node tree.N, err error) {
 	n, e := c.loadNode(ctx, path, nil)
 	if len(extendedStats) > 0 && extendedStats[0] && e == nil {
 		if er := c.loadNodeExtendedStats(ctx, n); er != nil {
@@ -377,7 +377,7 @@ func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
 	}, nil
 }
 
-func (c *FSClient) CreateNode(ctx context.Context, node model.Node, updateIfExists bool) (err error) {
+func (c *FSClient) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
 	if node.IsLeaf() {
 		return errors.New("this is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
 	}
@@ -448,10 +448,10 @@ func (c *FSClient) MoveNode(ctx context.Context, oldPath string, newPath string)
 
 }
 
-func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]model.Node, error) {
-	data := make(map[string][]model.Node)
-	final := make(map[string][]model.Node)
-	err := c.Walk(nil, func(path string, node model.Node, err error) error {
+func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]tree.N, error) {
+	data := make(map[string][]tree.N)
+	final := make(map[string][]tree.N)
+	err := c.Walk(nil, func(path string, node tree.N, err error) error {
 		if err != nil || node == nil {
 			return err
 		}
@@ -463,7 +463,7 @@ func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]model.Node
 			s = append(s, node)
 			final[nUuid] = s
 		} else {
-			data[nUuid] = make([]model.Node, 1)
+			data[nUuid] = make([]tree.N, 1)
 			data[nUuid] = append(data[nUuid], node)
 		}
 		return nil
@@ -471,7 +471,7 @@ func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]model.Node
 	return final, err
 }
 
-func (c *FSClient) UpdateFolderUuid(ctx context.Context, node model.Node) (model.Node, error) {
+func (c *FSClient) UpdateFolderUuid(ctx context.Context, node tree.N) (tree.N, error) {
 	p := c.denormalize(node.GetPath())
 	var err error
 	pFile := filepath.Join(p, common.PydioSyncHiddenFile)
@@ -595,7 +595,7 @@ func (c *FSClient) getFileHash(path string) (hash string, e error) {
 }
 
 // loadNode takes an optional os.FileInfo if we are already walking folders (no need for a second stat call)
-func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) (node model.Node, err error) {
+func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) (node tree.N, err error) {
 
 	dnPath := c.denormalize(path)
 	if stat == nil {
@@ -634,11 +634,11 @@ func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) 
 		nETag = hash
 
 	}
-	n := model.NewNode(nType, nUuid, path, nETag, stat.Size(), stat.ModTime().Unix(), int32(stat.Mode()))
+	n := tree.LightNode(nType, nUuid, path, nETag, stat.Size(), stat.ModTime().Unix(), int32(stat.Mode()))
 	return n, nil
 }
 
-func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node model.Node) error {
+func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node tree.N) error {
 	if node.IsLeaf() {
 		return nil
 	}

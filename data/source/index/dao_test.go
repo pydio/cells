@@ -25,7 +25,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/spf13/viper"
 	"log"
 	"regexp"
@@ -36,6 +35,7 @@ import (
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/sql"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
@@ -346,13 +346,13 @@ func TestMysql(t *testing.T) {
 	Convey("Setting a same mpath multiple times", t, func() {
 
 		node1 := mtree.NewTreeNode()
-		node1.Node = &tree.Node{Uuid: "test-same-mpath", Type: tree.NodeType_LEAF}
+		node1.N = &tree.Node{Uuid: "test-same-mpath", Type: tree.NodeType_LEAF}
 		node1.SetMPath(1, 21, 12, 7)
 		err := getDAO(ctx).AddNode(node1)
 		So(err, ShouldBeNil)
 
 		node2 := mtree.NewTreeNode()
-		node2.Node = &tree.Node{Uuid: "test-same-mpath2", Type: tree.NodeType_LEAF}
+		node2.N = &tree.Node{Uuid: "test-same-mpath2", Type: tree.NodeType_LEAF}
 		node2.SetMPath(1, 21, 12, 7)
 		err = getDAO(ctx).AddNode(node2)
 		So(err, ShouldNotBeNil)
@@ -361,19 +361,19 @@ func TestMysql(t *testing.T) {
 	Convey("Test wrong children due to same MPath start", t, func() {
 
 		node1 := mtree.NewTreeNode()
-		node1.Node = &tree.Node{Uuid: "parent1", Type: tree.NodeType_COLLECTION}
+		node1.N = &tree.Node{Uuid: "parent1", Type: tree.NodeType_COLLECTION}
 		node1.SetMPath(1, 1)
 
 		node2 := mtree.NewTreeNode()
-		node2.Node = &tree.Node{Uuid: "parent2", Type: tree.NodeType_COLLECTION}
+		node2.N = &tree.Node{Uuid: "parent2", Type: tree.NodeType_COLLECTION}
 		node2.SetMPath(1, 15)
 
 		node11 := mtree.NewTreeNode()
-		node11.Node = &tree.Node{Uuid: "child1.1", Type: tree.NodeType_COLLECTION}
+		node11.N = &tree.Node{Uuid: "child1.1", Type: tree.NodeType_COLLECTION}
 		node11.SetMPath(1, 1, 1)
 
 		node21 := mtree.NewTreeNode()
-		node21.Node = &tree.Node{Uuid: "child2.1", Type: tree.NodeType_COLLECTION}
+		node21.N = &tree.Node{Uuid: "child2.1", Type: tree.NodeType_COLLECTION}
 		node21.SetMPath(1, 15, 1)
 
 		e := getDAO(ctx).AddNode(node1)
@@ -432,36 +432,36 @@ func TestMysql(t *testing.T) {
 		const etag4 = "qqqq"
 
 		node := mtree.NewTreeNode()
-		node.Node = &tree.Node{Uuid: "etag-parent-folder", Type: tree.NodeType_COLLECTION}
+		node.N = &tree.Node{Uuid: "etag-parent-folder", Type: tree.NodeType_COLLECTION}
 		node.SetMPath(1, 16)
 		node.UpdateEtag("-1")
 
 		node11 := mtree.NewTreeNode()
-		node11.Node = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF}
+		node11.N = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF}
 		node11.SetMPath(1, 16, 1)
 		node11.UpdateEtag(etag1)
 		node11.SetMeta("name", "bbb")
 
 		node12 := mtree.NewTreeNode()
-		node12.Node = &tree.Node{Uuid: "etag-child-2", Type: tree.NodeType_LEAF}
+		node12.N = &tree.Node{Uuid: "etag-child-2", Type: tree.NodeType_LEAF}
 		node12.SetMPath(1, 16, 2)
 		node12.UpdateEtag(etag2)
 		node12.SetMeta("name", "aaa")
 
 		node13 := mtree.NewTreeNode()
-		node13.Node = &tree.Node{Uuid: "etag-child-3", Type: tree.NodeType_COLLECTION}
+		node13.N = &tree.Node{Uuid: "etag-child-3", Type: tree.NodeType_COLLECTION}
 		node13.SetMPath(1, 16, 3)
 		node13.UpdateEtag("-1")
 		node13.SetMeta("name", "ccc")
 
 		node14 := mtree.NewTreeNode()
-		node14.Node = &tree.Node{Uuid: "etag-child-child-1", Type: tree.NodeType_LEAF}
+		node14.N = &tree.Node{Uuid: "etag-child-child-1", Type: tree.NodeType_LEAF}
 		node14.SetMPath(1, 16, 3, 1)
 		node14.UpdateEtag(etag3)
 		node14.SetMeta("name", "a-aaa")
 
 		node15 := mtree.NewTreeNode()
-		node15.Node = &tree.Node{Uuid: "etag-child-child-2", Type: tree.NodeType_LEAF}
+		node15.N = &tree.Node{Uuid: "etag-child-child-2", Type: tree.NodeType_LEAF}
 		node15.SetMPath(1, 16, 3, 2)
 		node15.UpdateEtag(etag4)
 		node15.SetMeta("name", "a-bbb")

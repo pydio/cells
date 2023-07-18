@@ -98,12 +98,12 @@ func TestDiffEmpty(t *testing.T) {
 
 	stubDb1 := NewMemDB()
 	stubDb2 := NewMemDB()
-	stubDb1.CreateNode(&tree.Node{
+	stubDb1.CreateNode(&tree.N{
 		Path:"/test",
 		Type:tree.NodeType_COLLECTION,
 		Uuid:"testuuid",
 	})
-	stubDb2.CreateNode(&tree.Node{
+	stubDb2.CreateNode(&tree.N{
 		Path:"/test",
 		Type:tree.NodeType_COLLECTION,
 		Uuid:"testuuid",
@@ -121,12 +121,12 @@ func TestDiff(t *testing.T){
 
 	stubDb1 := NewMemDB()
 	stubDb2 := NewMemDB()
-	stubDb1.CreateNode(&tree.Node{
+	stubDb1.CreateNode(&tree.N{
 		Path:"/test1",
 		Type:tree.NodeType_COLLECTION,
 		Uuid:"testuuid",
 	})
-	stubDb2.CreateNode(&tree.Node{
+	stubDb2.CreateNode(&tree.N{
 		Path:"/test2",
 		Type:tree.NodeType_COLLECTION,
 		Uuid:"testuuid",

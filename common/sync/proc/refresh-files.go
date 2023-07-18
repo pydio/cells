@@ -22,6 +22,7 @@ package proc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"path"
 	"time"
 
@@ -55,7 +56,7 @@ func (pr *Processor) refreshFilesUuid(patch merger.Patch) {
 			pref = ""
 		}
 		<-time.After(3 * time.Second) // Wait to make sure indexation is finished
-		_ = target.Walk(context.TODO(), func(path string, node model.Node, err error) error {
+		_ = target.Walk(context.TODO(), func(path string, node tree.N, err error) error {
 			if err != nil {
 				return err
 			}

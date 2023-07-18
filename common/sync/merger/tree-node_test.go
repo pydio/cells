@@ -90,13 +90,13 @@ func TestStructSize(t *testing.T) {
 
 	/*
 		Convey("Use TreeNode", t, func() {
-			root := NewTreeNode(&tree.Node{Path: "/", Uuid: "ROOT"})
+			root := NewTreeNode(&tree.N{Path: "/", Uuid: "ROOT"})
 			nb := 1000000
 			for i := 0; i < nb; i++ {
 				if i > 0 && i%100000 == 0 {
 					printMem(uint64(i))
 				}
-				no := &tree.Node{
+				no := &tree.N{
 					Path: fmt.Sprintf("child-%d", i),
 					Uuid: uuid.New(),
 					//MetaStore: map[string]string{"toto": uuid.New()},
@@ -120,7 +120,7 @@ func TestStructSize(t *testing.T) {
 			if i > 0 && i%100000 == 0 {
 				printMem(uint64(i))
 			}
-			no := model.NewNode(1, uuid.New(), fmt.Sprintf("child-%d", i), "toto", 25000, int64(time.Now().Unix()), 0)
+			no := tree.LightNode(1, uuid.New(), fmt.Sprintf("child-%d", i), "toto", 25000, int64(time.Now().Unix()), 0)
 			root.Children = append(root.Children, no)
 		}
 		printMem(uint64(nb))
@@ -132,7 +132,7 @@ type lighterStruct struct {
 	Path                                   string
 	Uuid                                   string
 	Etag                                   string
-	Children                               []model.Node
+	Children                               []tree.N
 	MetaKey1, MetaKey2, MetaKey3, MetaKey4 string
 	MetaVal1, MetaVal2, MetaVal3, MetaVal4 string
 	Size                                   uint64

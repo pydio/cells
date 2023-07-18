@@ -24,8 +24,6 @@ package index
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/sync/model"
-
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sql"
@@ -34,7 +32,7 @@ import (
 
 // DAO interface
 type DAO interface {
-	Path(strpath string, create bool, reqNode ...model.Node) (mtree.MPath, []*mtree.TreeNode, error)
+	Path(strpath string, create bool, reqNode ...tree.N) (mtree.MPath, []*mtree.TreeNode, error)
 
 	// AddNode adds a node in the tree
 	AddNode(*mtree.TreeNode) error
