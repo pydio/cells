@@ -135,8 +135,8 @@ func TestMysqlWithCache(t *testing.T) {
 
 		getDAO(ctxWithCache).Flush(false)
 
-		updateNode.Etag = "etag2"
-		updateNode.Size = 24
+		updateNode.UpdateEtag("etag2")
+		updateNode.UpdateSize(24)
 
 		err = getDAO(ctxWithCache).SetNodeMeta(updateNode)
 		So(err, ShouldBeNil)
@@ -145,8 +145,8 @@ func TestMysqlWithCache(t *testing.T) {
 
 		updated, err := getDAO(ctxWithCache).GetNode(updateNode.MPath)
 		So(err, ShouldBeNil)
-		So(updated.Etag, ShouldEqual, "etag2")
-		So(updated.Size, ShouldEqual, 24)
+		So(updated.GetEtag(), ShouldEqual, "etag2")
+		So(updated.GetSize(), ShouldEqual, 24)
 
 		getDAO(ctxWithCache).Flush(true)
 
@@ -212,9 +212,9 @@ func TestMysqlWithCache(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		// Setting MTime to 0 so we can compare
-		node.MTime = 0
+		node.UpdateMTime(0)
 
-		So(node.Node, ShouldResemble, mockNode.Node)
+		So(node.AsProto(), ShouldResemble, mockNode.AsProto())
 
 		getDAO(ctxWithCache).Flush(true)
 	})
@@ -239,8 +239,8 @@ func TestMysqlWithCache(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		// TODO - find a way
-		node.MTime = 0
-		node.Path = mockLongNodeChild2.Path
+		node.UpdateMTime(0)
+		node.UpdatePath(mockLongNodeChild2.GetPath())
 
 		getDAO(ctxWithCache).Flush(true)
 
@@ -254,13 +254,13 @@ func TestMysqlWithCache(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		// Setting MTime to 0 so we can compare
-		node.MTime = 0
-		node.Size = 0
-		node.Path = "mockLongNode"
+		node.UpdateMTime(0)
+		node.UpdateSize(0)
+		node.UpdatePath("mockLongNode")
 
 		getDAO(ctxWithCache).Flush(true)
 
-		So(node.Node, ShouldResemble, mockLongNode.Node)
+		So(node.AsProto(), ShouldResemble, mockLongNode.AsProto())
 	})
 
 	// Getting a file
@@ -273,13 +273,13 @@ func TestMysqlWithCache(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		// TODO - find a way
-		node.MTime = 0
-		node.Path = mockLongNodeChild1.Path
+		node.UpdateMTime(0)
+		node.UpdatePath(mockLongNodeChild1.GetPath())
 
 		getDAO(ctxWithCache).Flush(true)
 
-		So(node.Node, ShouldNotResemble, mockLongNodeChild2.Node)
-		So(node.Node, ShouldResemble, mockLongNodeChild1.Node)
+		So(node.AsProto(), ShouldNotResemble, mockLongNodeChild2.AsProto())
+		So(node.AsProto(), ShouldResemble, mockLongNodeChild1.AsProto())
 	})
 
 	// Setting a file
@@ -292,13 +292,13 @@ func TestMysqlWithCache(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		// TODO - find a way
-		node.MTime = 0
-		node.Path = mockLongNodeChild2.Path
+		node.UpdateMTime(0)
+		node.UpdatePath(mockLongNodeChild2.GetPath())
 
 		getDAO(ctxWithCache).Flush(true)
 
-		So(node.Node, ShouldNotResemble, mockLongNodeChild1.Node)
-		So(node.Node, ShouldResemble, mockLongNodeChild2.Node)
+		So(node.AsProto(), ShouldNotResemble, mockLongNodeChild1.AsProto())
+		So(node.AsProto(), ShouldResemble, mockLongNodeChild2.AsProto())
 	})
 
 	// Setting a file
@@ -481,37 +481,37 @@ func TestMysqlWithCache(t *testing.T) {
 		node := mtree.NewTreeNode()
 		node.Node = &tree.Node{Uuid: "etag-parent-folder", Type: tree.NodeType_COLLECTION}
 		node.SetMPath(1, 16)
-		node.Etag = "-1"
+		node.UpdateEtag("-1")
 
 		node11 := mtree.NewTreeNode()
 		node11.Node = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF}
 		node11.SetMPath(1, 16, 1)
-		node11.Etag = etag1
-		node11.SetMeta("name", "\"bbb\"")
+		node11.UpdateEtag(etag1)
+		node11.SetName("bbb")
 
 		node12 := mtree.NewTreeNode()
 		node12.Node = &tree.Node{Uuid: "etag-child-2", Type: tree.NodeType_LEAF}
 		node12.SetMPath(1, 16, 2)
-		node12.Etag = etag2
-		node12.SetMeta("name", "\"aaa\"")
+		node12.UpdateEtag(etag2)
+		node12.SetName("aaa")
 
 		node13 := mtree.NewTreeNode()
 		node13.Node = &tree.Node{Uuid: "etag-child-3", Type: tree.NodeType_COLLECTION}
 		node13.SetMPath(1, 16, 3)
-		node13.Etag = "-1"
-		node13.SetMeta("name", "\"ccc\"")
+		node13.UpdateEtag("-1")
+		node13.SetName("ccc")
 
 		node14 := mtree.NewTreeNode()
 		node14.Node = &tree.Node{Uuid: "etag-child-child-1", Type: tree.NodeType_LEAF}
 		node14.SetMPath(1, 16, 3, 1)
-		node14.Etag = etag3
-		node14.SetMeta("name", "\"a-aaa\"")
+		node14.UpdateEtag(etag3)
+		node14.SetName("a-aaa")
 
 		node15 := mtree.NewTreeNode()
 		node15.Node = &tree.Node{Uuid: "etag-child-child-2", Type: tree.NodeType_LEAF}
 		node15.SetMPath(1, 16, 3, 2)
-		node15.Etag = etag4
-		node15.SetMeta("name", "\"a-bbb\"")
+		node15.UpdateEtag(etag4)
+		node15.SetName("a-bbb")
 
 		e := getDAO(ctxWithCache).AddNode(node)
 		So(e, ShouldBeNil)
@@ -535,14 +535,14 @@ func TestMysqlWithCache(t *testing.T) {
 		hash := md5.New()
 		hash.Write([]byte(etag3 + "." + etag4))
 		newEtag := hex.EncodeToString(hash.Sum(nil))
-		So(intermediaryNode.Etag, ShouldEqual, newEtag)
+		So(intermediaryNode.GetEtag(), ShouldEqual, newEtag)
 
 		parentNode, e := getDAO(ctxWithCache).GetNode(node.MPath)
 		So(e, ShouldBeNil)
 		hash2 := md5.New()
-		hash2.Write([]byte(etag2 + "." + etag1 + "." + intermediaryNode.Etag))
+		hash2.Write([]byte(etag2 + "." + etag1 + "." + intermediaryNode.GetEtag()))
 		newEtag2 := hex.EncodeToString(hash2.Sum(nil))
-		So(parentNode.Etag, ShouldEqual, newEtag2)
+		So(parentNode.GetEtag(), ShouldEqual, newEtag2)
 
 	})
 
@@ -893,14 +893,14 @@ func TestGettingNodeByPathBeforeCreationWithCache(t *testing.T) {
 		So(e, ShouldBeNil)
 		So(n1, ShouldNotBeNil)
 		if n1 != nil {
-			So(strings.Replace(n1.Path, "\\", "/", -1), ShouldEqual, "admin/Playlist/vendor-folders/github.com/coreos/dex/api")
+			So(strings.Replace(n1.GetPath(), "\\", "/", -1), ShouldEqual, "admin/Playlist/vendor-folders/github.com/coreos/dex/api")
 		}
 
 		n1, e = d.GetNodeByPath([]string{"admin", "Playlist", "vendor-folders", "github.com", "nicolai86", "scaleway-sdk", "api"})
 		So(e, ShouldBeNil)
 		So(n1, ShouldNotBeNil)
 		if n1 != nil {
-			So(strings.Replace(n1.Path, "\\", "/", -1), ShouldEqual, "admin/Playlist/vendor-folders/github.com/nicolai86/scaleway-sdk/api")
+			So(strings.Replace(n1.GetPath(), "\\", "/", -1), ShouldEqual, "admin/Playlist/vendor-folders/github.com/nicolai86/scaleway-sdk/api")
 		}
 
 		getDAO(ctxWithCache).Flush(true)

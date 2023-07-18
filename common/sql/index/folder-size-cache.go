@@ -23,6 +23,7 @@ package index
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/sync/model"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -141,7 +142,7 @@ func (dao *FolderSizeCacheSQL) GetNodeTree(ctx context.Context, path mtree.MPath
 	return c
 }
 
-func (dao *FolderSizeCacheSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (mtree.MPath, []*mtree.TreeNode, error) {
+func (dao *FolderSizeCacheSQL) Path(strpath string, create bool, reqNode ...model.Node) (mtree.MPath, []*mtree.TreeNode, error) {
 	mpath, nodes, err := dao.DAO.Path(strpath, create, reqNode...)
 
 	if create {
@@ -212,7 +213,7 @@ func (dao *FolderSizeCacheSQL) folderSize(node *mtree.TreeNode) {
 	folderSizeLock.RUnlock()
 
 	if ok {
-		node.Size = size
+		node.UpdateSize(size)
 		return
 	}
 
@@ -221,7 +222,7 @@ func (dao *FolderSizeCacheSQL) folderSize(node *mtree.TreeNode) {
 		if row != nil {
 			var size int64
 			if er := row.Scan(&size); er == nil {
-				node.Size = size
+				node.UpdateSize(size)
 
 				folderSizeLock.Lock()
 				folderSizeCache[mpath] = size

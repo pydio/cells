@@ -26,6 +26,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/sync/model"
 	"regexp"
 	"sort"
 	"strings"
@@ -40,7 +41,6 @@ import (
 	commonsql "github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/mtree"
-	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -248,7 +248,7 @@ func (d *daocache) Unlock() {
 }
 
 // Path resolves a node mpath, eventually creating it (and its parents)
-func (d *daocache) Path(strpath string, create bool, reqNode ...*tree.Node) (mtree.MPath, []*mtree.TreeNode, error) {
+func (d *daocache) Path(strpath string, create bool, reqNode ...model.Node) (mtree.MPath, []*mtree.TreeNode, error) {
 	return d.path(strpath, create, false, reqNode...)
 }
 
@@ -266,7 +266,7 @@ func (d *daocache) PathCreateNoAdd(ctx context.Context, strpath string) (mtree.M
 }
 
 // Path resolution for a node
-func (d *daocache) path(strpath string, create bool, noAdd bool, reqNode ...*tree.Node) (mtree.MPath, []*mtree.TreeNode, error) {
+func (d *daocache) path(strpath string, create bool, noAdd bool, reqNode ...model.Node) (mtree.MPath, []*mtree.TreeNode, error) {
 
 	if len(strpath) == 0 || strpath == "/" {
 		return []uint64{1}, nil, nil
@@ -297,7 +297,7 @@ func (d *daocache) path(strpath string, create bool, noAdd bool, reqNode ...*tre
 	if index, err := d.GetNodeFirstAvailableChildIndex(ppath); err != nil {
 		return nil, nil, err
 	} else {
-		source := &tree.Node{}
+		var source model.Node
 
 		if len(reqNode) > 0 {
 			source = reqNode[0]
@@ -307,13 +307,11 @@ func (d *daocache) path(strpath string, create bool, noAdd bool, reqNode ...*tre
 
 		node := NewNode(source, mpath, names)
 
-		if node.Uuid == "" {
-			node.Uuid = uuid.New()
-		}
+		node.RenewUuidIfEmpty(false)
 
-		if node.Etag == "" {
+		if node.GetEtag() == "" {
 			// Should only happen for folders - generate first Etag from uuid+mtime
-			node.Etag = fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s%d", node.Uuid, node.MTime))))
+			node.UpdateEtag(fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s%d", node.GetUuid(), node.GetMTime())))))
 		}
 
 		if !noAdd {
@@ -489,7 +487,7 @@ func (d *daocache) GetNodeByUUID(uuid string) (*mtree.TreeNode, error) {
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
 	for _, n := range d.cache {
-		if n.Uuid == uuid {
+		if n.GetUuid() == uuid {
 			return n, nil
 		}
 	}

@@ -29,6 +29,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/sync/model"
 	"sort"
 	"strconv"
 	"strings"
@@ -46,10 +47,8 @@ import (
 	"github.com/pydio/cells/v4/common/sql"
 	cache2 "github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/mtree"
 	"github.com/pydio/cells/v4/common/utils/statics"
-	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -444,11 +443,15 @@ func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 	if er != nil {
 		return er
 	}
+	isLeaf := 0
+	if node.IsLeaf() {
+		isLeaf = 1
+	}
 	if _, err := stmt.Exec(
-		node.Uuid,
+		node.GetUuid(),
 		node.Level,
 		node.Name(),
-		node.IsLeafInt(),
+		isLeaf,
 		mTime,
 		node.GetEtag(),
 		node.GetSize(),
@@ -503,7 +506,11 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 
 			mpath1, mpath2, mpath3, mpath4 := prepareMPathParts(node)
 
-			valsInsertTree = append(valsInsertTree, node.Uuid, node.Level, node.Name(), node.IsLeafInt(), mTime, node.GetEtag(), node.GetSize(), node.GetMode(), mpath1, mpath2, mpath3, mpath4)
+			isLeaf := 0
+			if node.IsLeaf() {
+				isLeaf = 1
+			}
+			valsInsertTree = append(valsInsertTree, node.GetUuid(), node.Level, node.Name(), isLeaf, mTime, node.GetEtag(), node.GetSize(), node.GetMode(), mpath1, mpath2, mpath3, mpath4)
 
 			count = count + 1
 
@@ -547,19 +554,24 @@ func (dao *IndexSQL) SetNode(node *mtree.TreeNode) error {
 		return er
 	}
 
+	isLeaf := 0
+	if node.IsLeaf() {
+		isLeaf = 1
+	}
+
 	_, err := updateTree.Exec(
 		node.Level,
 		node.Name(),
-		node.IsLeafInt(),
-		node.MTime,
-		node.Etag,
-		node.Size,
-		node.Mode,
+		isLeaf,
+		node.GetMTime(),
+		node.GetEtag(),
+		node.GetSize(),
+		node.GetMode(),
 		mpath1,
 		mpath2,
 		mpath3,
 		mpath4,
-		node.Uuid,
+		node.GetUuid(),
 	)
 
 	return err
@@ -576,14 +588,19 @@ func (dao *IndexSQL) SetNodeMeta(node *mtree.TreeNode) error {
 		return er
 	}
 
+	isLeaf := 0
+	if node.IsLeaf() {
+		isLeaf = 1
+	}
+
 	_, err := updateMeta.Exec(
 		node.Name(),
-		node.IsLeafInt(),
-		node.MTime,
-		node.Etag,
-		node.Size,
-		node.Mode,
-		node.Uuid,
+		isLeaf,
+		node.GetMTime(),
+		node.GetEtag(),
+		node.GetSize(),
+		node.GetMode(),
+		node.GetUuid(),
 	)
 
 	return err
@@ -617,10 +634,12 @@ func (dao *IndexSQL) etagFromChildren(node *mtree.TreeNode) (string, error) {
 		return "", e
 	}
 
+	fmt.Println("NODE", node)
+
 	first := true
 	for rows.Next() {
 		var etag string
-		rows.Scan(&etag)
+		_ = rows.Scan(&etag)
 		if !first {
 			hasher.Write([]byte(SEPARATOR))
 		}
@@ -666,7 +685,7 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 	dao.Unlock()
 
 	for _, node := range nodesToUpdate {
-		log.Logger(context.Background()).Info("Resyncing Etag For Node", zap.Object("n", node))
+		log.Logger(context.Background()).Info("Resyncing Etag For Node", node.Zap("node"))
 		newEtag, eE := dao.etagFromChildren(node)
 		if eE != nil {
 			return eE
@@ -678,7 +697,7 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 		}
 		if _, err = stmt.Exec(
 			newEtag,
-			node.Uuid,
+			node.GetUuid(),
 		); err != nil {
 			return err
 		}
@@ -1239,19 +1258,24 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 		return er
 	}
 
+	isLeaf := 0
+	if nodeFrom.IsLeaf() {
+		isLeaf = 1
+	}
+
 	if _, errTx = tx.Stmt(updateTree.GetSQLStmt()).Exec(
 		nodeFrom.Level,
 		nodeFrom.Name(),
-		nodeFrom.IsLeafInt(),
-		nodeFrom.MTime,
-		nodeFrom.Etag,
-		nodeFrom.Size,
-		nodeFrom.Mode,
+		isLeaf,
+		nodeFrom.GetMTime(),
+		nodeFrom.GetEtag(),
+		nodeFrom.GetSize(),
+		nodeFrom.GetMode(),
 		mpath1To,
 		mpath2To,
 		mpath3To,
 		mpath4To,
-		nodeFrom.Uuid,
+		nodeFrom.GetUuid(),
 	); errTx != nil {
 		return errTx
 	}
@@ -1317,22 +1341,13 @@ func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*mtree.TreeNode, erro
 		mpath = append(mpath, i)
 	}
 	node.SetMPath(mpath...)
-
-	metaName, _ := json.Marshal(name)
-	node.Node = &tree.Node{
-		Uuid:      uuid,
-		Type:      nodeType,
-		MTime:     mtime,
-		Etag:      etag,
-		Size:      size,
-		Mode:      mode,
-		MetaStore: map[string]string{"name": string(metaName)},
-	}
+	node.Node = model.NewNode(nodeType, uuid, "", etag, size, mtime, mode)
+	node.SetName(name)
 
 	return node, nil
 }
 
-func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (mtree.MPath, []*mtree.TreeNode, error) {
+func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...model.Node) (mtree.MPath, []*mtree.TreeNode, error) {
 
 	var path mtree.MPath
 	var err error
@@ -1357,10 +1372,7 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (m
 		if dao.rootNodeId != "" {
 			rootNodeId = dao.rootNodeId
 		}
-		node = NewNode(&tree.Node{
-			Uuid: rootNodeId,
-			Type: tree.NodeType_COLLECTION,
-		}, []uint64{1}, []string{""})
+		node = NewNode(model.NewNode(tree.NodeType_COLLECTION, rootNodeId, "", "", 0, 0, 0), []uint64{1}, []string{""})
 
 		if err = dao.AddNode(node); err != nil {
 			// Has it been created elsewhere ?
@@ -1387,8 +1399,8 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (m
 			for {
 				current := inserting.Load().(map[string]bool)
 
-				if _, ok := current[p.Uuid]; !ok {
-					current[p.Uuid] = true
+				if _, ok := current[p.GetUuid()]; !ok {
+					current[p.GetUuid()] = true
 					inserting.Store(current)
 					break
 				}
@@ -1404,7 +1416,8 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (m
 			path[level] = node.MPath[len(node.MPath)-1]
 			parents[level] = node
 
-			node.Path = strings.Trim(strings.Join(names[0:level], "/"), "/")
+			pat := strings.Trim(strings.Join(names[0:level], "/"), "/")
+			node.UpdatePath(pat)
 		} else {
 			if create {
 				if path[level], err = dao.GetNodeFirstAvailableChildIndex(path[0:level]); err != nil {
@@ -1414,27 +1427,22 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (m
 				if level == len(names)-1 && len(reqNode) > 0 {
 					node = NewNode(reqNode[0], path[0:level+1], names[0:level+1])
 				} else {
-					node = NewNode(&tree.Node{
-						Type:  tree.NodeType_COLLECTION,
-						Mode:  0777,
-						MTime: time.Now().Unix(),
-					}, path[0:level+1], names[0:level+1])
+					mn := model.NewNode(tree.NodeType_COLLECTION, "", "", "", 0, time.Now().Unix(), 0777)
+					node = NewNode(mn, path[0:level+1], names[0:level+1])
 				}
 
-				if node.Uuid == "" {
-					node.Uuid = uuid.New()
-				}
+				node.RenewUuidIfEmpty(false)
 
-				if node.Etag == "" {
+				if node.GetEtag() == "" {
 					// Should only happen for folders - generate first Etag from uuid+mtime
-					node.Etag = fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s%d", node.Uuid, node.MTime))))
+					node.UpdateEtag(fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s%d", node.GetUuid(), node.GetMTime())))))
 				}
 
 				err = dao.AddNode(node)
 
 				cond.L.Lock()
 				current := inserting.Load().(map[string]bool)
-				delete(current, p.Uuid)
+				delete(current, p.GetUuid())
 				inserting.Store(current)
 				cond.L.Unlock()
 
@@ -1456,7 +1464,7 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (m
 		if create {
 			cond.L.Lock()
 			current := inserting.Load().(map[string]bool)
-			delete(current, p.Uuid)
+			delete(current, p.GetUuid())
 			inserting.Store(current)
 			cond.L.Unlock()
 

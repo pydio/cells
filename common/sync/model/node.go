@@ -27,6 +27,9 @@ type Node interface {
 	UpdateUuid(u string)
 	UpdateEtag(e string)
 	UpdateSize(s int64)
+	UpdateMTime(s int64)
+	UpdateMode(s int32)
+	SetType(tree.NodeType)
 	RenewUuidIfEmpty(force bool)
 
 	SetChildrenSize(uint64)
@@ -188,6 +191,18 @@ func (l *lightNode) UpdateEtag(e string) {
 
 func (l *lightNode) UpdateSize(s int64) {
 	l.size = uint64(s)
+}
+
+func (l *lightNode) UpdateMTime(s int64) {
+	l.mtime = uint64(s)
+}
+
+func (l *lightNode) UpdateMode(s int32) {
+	l.mode = uint32(s)
+}
+
+func (l *lightNode) SetType(t tree.NodeType) {
+	l.nodeType = t
 }
 
 func (l *lightNode) RenewUuidIfEmpty(force bool) {
