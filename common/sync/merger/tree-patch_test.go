@@ -601,25 +601,6 @@ func diffFromSnaps(folder string) (*TreeDiff, error) {
 		return nil, e
 	}
 
-	/*
-		left.Walk(context.Background(), func(pa string, node *tree.Node, err error) error {
-			for i := 0; i < 4000; i++ {
-				cp := proto.Clone(node).(*tree.Node)
-				cp.Path = path.Join(fmt.Sprintf("copy-%d", i+1), pa)
-				_ = left.CreateNode(context.Background(), cp, true)
-			}
-			return nil
-		}, "plugins", true)
-		right.Walk(context.Background(), func(pa string, node *tree.Node, err error) error {
-			for i := 0; i < 4000; i++ {
-				cp := proto.Clone(node).(*tree.Node)
-				cp.Path = path.Join(fmt.Sprintf("copy-%d", i+1), pa)
-				_ = right.CreateNode(context.Background(), cp, true)
-			}
-			return nil
-		}, "plugins", true)
-
-	*/
 	diff := newTreeDiff(left, right)
 	e = diff.Compute(ctx, "/", nil, nil)
 	return diff, e

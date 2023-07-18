@@ -41,7 +41,7 @@ import (
 // TreeNode builds a Merkle Tree but with N children and the ability
 // to compute the COLLECTION Nodes hashes to detect changes in branches more rapidly
 type TreeNode struct {
-	tree.Node
+	model.Node
 	sync.Mutex
 	children     map[string]*TreeNode
 	childrenKeys []string
@@ -69,19 +69,16 @@ func TreeNodeFromSource(ctx context.Context, source model.PathSyncSource, root s
 	if len(status) > 0 {
 		statusChan = status[0]
 	}
-	rootNode := NewTreeNode(&tree.Node{Path: "/", Etag: "-1"})
+	rootNode := NewTreeNode(model.NewNode(tree.NodeType_COLLECTION, "", "/", "-1", 0, 0, 0))
 	dirs := map[string]*TreeNode{".": rootNode}
 	crtRoot := rootNode
 	// Create branch for root
 	if len(strings.Trim(root, "/")) > 0 {
 		for _, part := range strings.Split(strings.Trim(root, "/"), "/") {
-			f := NewTreeNode(&tree.Node{
-				Path: path.Join(strings.TrimLeft(crtRoot.Path, "/"), part),
-				Etag: "-1",
-				Type: tree.NodeType_COLLECTION,
-			})
+			node := model.NewNode(tree.NodeType_COLLECTION, "", path.Join(strings.TrimLeft(crtRoot.GetPath(), "/"), part), "-1", 0, 0, 0)
+			f := NewTreeNode(node)
 			crtRoot.AddChild(f)
-			dirs[f.Path] = f
+			dirs[f.GetPath()] = f
 			crtRoot = f
 		}
 	}
@@ -150,15 +147,15 @@ func TreeNodeFromSource(ctx context.Context, source model.PathSyncSource, root s
 }
 
 func NewTree() *TreeNode {
-	return NewTreeNode(&tree.Node{Path: "", Etag: "-1"})
+	return NewTreeNode(model.NewNode(tree.NodeType_UNKNOWN, "", "", "-1", 0, 0, 0))
 }
 
 // NewTreeNode creates a new node from a tree.Node. Can be a root, a COLL or a LEAF.
 func NewTreeNode(n model.Node) *TreeNode {
 	tN := &TreeNode{
+		Node:     n,
 		children: make(map[string]*TreeNode),
 	}
-	tN.Node = *n.AsProto()
 	return tN
 }
 
@@ -171,8 +168,8 @@ func (t *TreeNode) GetCursor() *ChildrenCursor {
 }
 
 // Enqueue recursively appends al tree.Node and the children's tree.Node to a slice
-func (t *TreeNode) Enqueue(nodes []*tree.Node) []*tree.Node {
-	nodes = append(nodes, &t.Node)
+func (t *TreeNode) Enqueue(nodes []model.Node) []model.Node {
+	nodes = append(nodes, t.Node)
 	if !t.IsLeaf() {
 		for _, c := range t.SortedChildren() {
 			nodes = c.Enqueue(nodes)
@@ -239,18 +236,18 @@ func (t *TreeNode) ClearChildren() {
 
 // GetLevel computes the current level of this node (depth)
 func (t *TreeNode) GetLevel() int {
-	return len(strings.Split(strings.Trim(t.Path, "/"), "/"))
+	return len(strings.Split(strings.Trim(t.GetPath(), "/"), "/"))
 }
 
 // ParentPath returns the parent Dir path
 func (t *TreeNode) ParentPath() string {
-	p := strings.Trim(t.Path, "/")
+	p := strings.Trim(t.GetPath(), "/")
 	return path.Dir(p)
 }
 
 // Label returns the basename of the path
 func (t *TreeNode) Label() string {
-	p := strings.Trim(t.Path, "/")
+	p := strings.Trim(t.GetPath(), "/")
 	return path.Base(p)
 }
 
@@ -258,16 +255,16 @@ func (t *TreeNode) Label() string {
 // for Folders if it is not already computed, it will compute an etag from
 // the children recursively, using their name and Etag.
 func (t *TreeNode) GetHash() string {
-	if t.Type == NodeType_METADATA {
-		return t.Etag
+	if t.GetType() == NodeType_METADATA {
+		return t.GetEtag()
 	} else if t.IsLeaf() {
 		// append t.Etag and metadata
 		sorted := t.SortedChildren()
 		if len(sorted) == 0 {
-			return t.Etag
+			return t.GetEtag()
 		} else {
 			h := md5.New()
-			h.Write([]byte(t.Etag))
+			h.Write([]byte(t.GetEtag()))
 			for _, c := range t.SortedChildren() {
 				h.Write([]byte(c.Label() + c.GetHash()))
 			}
@@ -275,15 +272,15 @@ func (t *TreeNode) GetHash() string {
 		}
 	} else {
 		// Now Collections
-		if t.Etag != "-1" && t.Etag != "" {
-			return t.Etag
+		if t.GetEtag() != "-1" && t.GetEtag() != "" {
+			return t.GetEtag()
 		}
 		h := md5.New()
 		for _, c := range t.SortedChildren() {
 			h.Write([]byte(c.Label() + c.GetHash()))
 		}
-		t.Etag = fmt.Sprintf("%x", h.Sum(nil))
-		return t.Etag
+		t.UpdateEtag(fmt.Sprintf("%x", h.Sum(nil)))
+		return t.GetEtag()
 	}
 }
 
@@ -303,7 +300,7 @@ func (t *TreeNode) createNodeDeep(p string) *TreeNode {
 		if c, o := crtParent.children[childPath]; o {
 			crtParent = c
 		} else {
-			n := NewTreeNode(&tree.Node{Path: childPath})
+			n := NewTreeNode(model.NewNode(tree.NodeType_UNKNOWN, "", childPath, "", 0, 0, 0))
 			crtParent.AddChild(n)
 			crtParent = n
 		}
@@ -325,11 +322,11 @@ func (t *TreeNode) ChildByPath(p string) *TreeNode {
 	if p == "" {
 		p = "/"
 	}
-	if p == t.Path {
+	if p == t.GetPath() {
 		return t
 	}
 	for _, c := range t.SortedChildren() {
-		if strings.HasPrefix(p, c.Path) {
+		if strings.HasPrefix(p, c.GetPath()) {
 			return c.ChildByPath(p)
 		}
 	}
@@ -355,7 +352,7 @@ func (c *ChildrenCursor) Next() *TreeNode {
 // MarshalJSON serializes specific fields for output to JSON
 func (t *TreeNode) MarshalJSON() ([]byte, error) {
 	data := map[string]interface{}{
-		"Base": path.Base(t.Path),
+		"Base": path.Base(t.GetPath()),
 		//"Node": t.Node,
 	}
 	if len(t.children) > 0 {

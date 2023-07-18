@@ -333,7 +333,7 @@ func (p *BidirectionalPatch) enqueueRight(left, right *TreeNode) {
 // enqueueConflict sets a Conflict flag on the given path in side the patch. The Conflict has references to left and right operations
 func (p *BidirectionalPatch) enqueueConflict(left, right *TreeNode, t ConflictType) {
 	log.Logger(p.ctx).Error("-- Unsolvable conflict!", zap.Any("left", left.PathOperation), zap.Any("right", right.PathOperation))
-	p.unexpected = append(p.unexpected, fmt.Errorf("registered conflict at path %s", left.Path))
+	p.unexpected = append(p.unexpected, fmt.Errorf("registered conflict at path %s", left.GetPath()))
 	var leftOp, rightOp Operation
 	if left.PathOperation != nil {
 		leftOp = left.PathOperation
@@ -345,7 +345,7 @@ func (p *BidirectionalPatch) enqueueConflict(left, right *TreeNode, t ConflictTy
 	} else if right.DataOperation != nil {
 		rightOp = right.DataOperation
 	}
-	op := NewConflictOperation(&left.Node, t, leftOp, rightOp)
+	op := NewConflictOperation(left.Node, t, leftOp, rightOp)
 	p.QueueOperation(op)
 }
 
@@ -358,8 +358,8 @@ func (p *BidirectionalPatch) reSyncTarget(left, right *TreeNode) {
 		requeueNode = left
 	}
 	source := requeueNode.PathOperation.Source()
-	log.Logger(p.ctx).Info("Delete + Move: should recreate target (file or folder) for " + requeueNode.OpMoveTarget.Path)
-	targetPath := requeueNode.OpMoveTarget.Path
+	log.Logger(p.ctx).Info("Delete + Move: should recreate target (file or folder) for " + requeueNode.OpMoveTarget.GetPath())
+	targetPath := requeueNode.OpMoveTarget.GetPath()
 	n, e := source.LoadNode(p.ctx, targetPath)
 	if e != nil {
 		// Cannot find move target, ignore
@@ -411,21 +411,21 @@ func (p *BidirectionalPatch) compareMoveSources(left, right *TreeNode) {
 // compareMoveTargets finds conflicts on Move operations where a source node would have been moved to two different targets.
 // Auto-solving is performed by detecting the most recent operation.
 func (p *BidirectionalPatch) compareMoveTargets(left, right *TreeNode) {
-	if left.OpMoveTarget.Path == right.OpMoveTarget.Path {
+	if left.OpMoveTarget.GetPath() == right.OpMoveTarget.GetPath() {
 		log.Logger(p.ctx).Debug("-- Moved toward the same path, ignore!")
 	} else {
-		l, err1 := left.PathOperation.Source().LoadNode(p.ctx, left.OpMoveTarget.Path)
-		r, err2 := right.PathOperation.Target().LoadNode(p.ctx, right.OpMoveTarget.Path)
+		l, err1 := left.PathOperation.Source().LoadNode(p.ctx, left.OpMoveTarget.GetPath())
+		r, err2 := right.PathOperation.Target().LoadNode(p.ctx, right.OpMoveTarget.GetPath())
 		if err1 != nil {
 			p.unexpected = append(p.unexpected, err1)
 		} else if err2 != nil {
 			p.unexpected = append(p.unexpected, err2)
 		} else if l.GetMTime() > r.GetMTime() {
 			log.Logger(p.ctx).Info("-- Moved toward different paths, left is more recent that right => left wins")
-			// Ignore Left - Change Right from Orig => OpMoveTarget.Path to RIGHT.OpMoveTarget.Path => LEFT.OpMoveTargetPath
+			// Ignore Left - Change Right from Orig => OpMoveTarget.GetPath() to RIGHT.OpMoveTarget.GetPath() => LEFT.OpMoveTargetPath
 			newOp := right.PathOperation.Clone()
-			newOp.UpdateMoveOriginPath(right.OpMoveTarget.Path)
-			newOp.UpdateRefPath(left.OpMoveTarget.Path)
+			newOp.UpdateMoveOriginPath(right.OpMoveTarget.GetPath())
+			newOp.UpdateRefPath(left.OpMoveTarget.GetPath())
 
 			right.PathOperation = nil
 			right.OpMoveTarget = nil
@@ -438,8 +438,8 @@ func (p *BidirectionalPatch) compareMoveTargets(left, right *TreeNode) {
 			log.Logger(p.ctx).Info("-- Moved toward different paths, right is more recent than left => right wins")
 			// Ignore Right - Change Left
 			newOp := left.PathOperation.Clone()
-			newOp.UpdateMoveOriginPath(left.OpMoveTarget.Path)
-			newOp.UpdateRefPath(right.OpMoveTarget.Path)
+			newOp.UpdateMoveOriginPath(left.OpMoveTarget.GetPath())
+			newOp.UpdateRefPath(right.OpMoveTarget.GetPath())
 
 			right.PathOperation = nil
 			right.OpMoveTarget = nil

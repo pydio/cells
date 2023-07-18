@@ -398,9 +398,9 @@ func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats 
 			}
 			return nil
 		}, path, true)
-		node.MustSetMeta(model.MetaRecursiveChildrenSize, size)
-		node.MustSetMeta(model.MetaRecursiveChildrenFiles, files)
-		node.MustSetMeta(model.MetaRecursiveChildrenFolders, folders)
+		node.SetChildrenSize(uint64(size))
+		node.SetChildrenFiles(uint64(files))
+		node.SetChildrenFolders(uint64(folders))
 	}
 	return
 }

@@ -31,7 +31,7 @@ import (
 // OriginalPath rebuilds node Path climbing to the root
 func (t *TreeNode) OriginalPath() string {
 	if t.parent == nil {
-		return t.Path
+		return t.GetPath()
 	}
 	return path.Join(t.parent.OriginalPath(), t.Label())
 }
@@ -39,7 +39,7 @@ func (t *TreeNode) OriginalPath() string {
 // ProcessedPath builds node Path to the root taking all moves into account
 func (t *TreeNode) ProcessedPath(asProcessed bool, isNext ...bool) string {
 	if t.parent == nil {
-		return t.Path
+		return t.GetPath()
 	}
 	label := t.Label()
 	if len(isNext) > 0 && t.PathOperation != nil && t.PathOperation.IsTypeMove() && (asProcessed || t.PathOperation.IsProcessed()) {

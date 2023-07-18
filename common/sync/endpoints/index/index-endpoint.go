@@ -88,7 +88,7 @@ func (i *Client) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root str
 		if !response.Node.IsLeaf() {
 			response.Node.Etag = "-1"
 		}
-		if er := walknFc(response.Node.Path, response.Node, nil); er != nil {
+		if er := walknFc(response.Node.Path, model.NodeFromProto(response.Node), nil); er != nil {
 			return er
 		}
 	}
@@ -113,7 +113,7 @@ func (i *Client) LoadNode(ctx context.Context, path string, extendedStats ...boo
 	if e != nil {
 		return nil, e
 	}
-	return resp.Node, nil
+	return model.NodeFromProto(resp.Node), nil
 
 }
 
@@ -132,7 +132,7 @@ func (i *Client) LoadNodeByUuid(ctx context.Context, uuid string) (node model.No
 		return nil, e
 	} else {
 		resp.Node.Path = strings.TrimLeft(resp.Node.Path, "/")
-		return resp.Node, nil
+		return model.NodeFromProto(resp.Node), nil
 	}
 
 }

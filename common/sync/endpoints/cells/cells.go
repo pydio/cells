@@ -132,7 +132,7 @@ func (c *Abstract) LoadNode(ctx context.Context, path string, extendedStats ...b
 	out.Path = c.unrooted(resp.Node.Path)
 	if !resp.Node.IsLeaf() && resp.Node.Size > 0 {
 		// We know that index answers with total size of folder
-		resp.Node.MustSetMeta(model.MetaRecursiveChildrenSize, resp.Node.Size)
+		resp.Node.MustSetMeta(common.MetaRecursiveChildrenSize, resp.Node.Size)
 	}
 	return out, nil
 }

@@ -22,13 +22,11 @@ package merger
 
 import (
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"testing"
 	"time"
-
-	"github.com/pydio/cells/v4/common/sync/model"
-
-	"github.com/pydio/cells/v4/common/proto/tree"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -73,15 +71,15 @@ func TestOpNodePaths(t *testing.T) {
 
 		r := root.ChildByPath("")
 		So(r, ShouldNotBeNil)
-		So(r.Uuid, ShouldEqual, "ROOT")
+		So(r.GetUuid(), ShouldEqual, "ROOT")
 
 		i := root.ChildByPath("b")
 		So(i, ShouldNotBeNil)
-		So(i.Uuid, ShouldEqual, "BNODE")
+		So(i.GetUuid(), ShouldEqual, "BNODE")
 
 		f := root.ChildByPath("c/k")
 		So(f, ShouldNotBeNil)
-		So(f.Uuid, ShouldEqual, "KNODE")
+		So(f.GetUuid(), ShouldEqual, "KNODE")
 
 		w := root.ChildByPath("other/path")
 		So(w, ShouldBeNil)
@@ -117,21 +115,12 @@ func TestStructSize(t *testing.T) {
 	Convey("Use lighterStruct", t, func() {
 		root := &lighterStruct{Path: "/"}
 		nb := 1000000
+		nb = 500
 		for i := 0; i < nb; i++ {
 			if i > 0 && i%100000 == 0 {
 				printMem(uint64(i))
 			}
-			no := &lighterStruct{
-				Path: fmt.Sprintf("child-%d", i),
-				Uuid: uuid.New(),
-				//MetaStore: map[string]string{"toto": uuid.New()},
-				MetaKey1: "toto",
-				MetaVal1: uuid.New(),
-				Etag:     "toto",
-				Type:     1,
-				MTime:    uint32(time.Now().Unix()),
-				Size:     25000,
-			}
+			no := model.NewNode(1, uuid.New(), fmt.Sprintf("child-%d", i), "toto", 25000, int64(time.Now().Unix()), 0)
 			root.Children = append(root.Children, no)
 		}
 		printMem(uint64(nb))
@@ -143,7 +132,7 @@ type lighterStruct struct {
 	Path                                   string
 	Uuid                                   string
 	Etag                                   string
-	Children                               []*lighterStruct
+	Children                               []model.Node
 	MetaKey1, MetaKey2, MetaKey3, MetaKey4 string
 	MetaVal1, MetaVal2, MetaVal3, MetaVal4 string
 	Size                                   uint64

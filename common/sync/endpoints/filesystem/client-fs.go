@@ -595,7 +595,7 @@ func (c *FSClient) getFileHash(path string) (hash string, e error) {
 }
 
 // loadNode takes an optional os.FileInfo if we are already walking folders (no need for a second stat call)
-func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) (node *tree.Node, err error) {
+func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) (node model.Node, err error) {
 
 	dnPath := c.denormalize(path)
 	if stat == nil {
@@ -607,16 +607,16 @@ func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) 
 		}
 	}
 
+	var nType tree.NodeType
+	var nETag, nUuid string
+
 	if stat.IsDir() {
-		if id, err := c.readOrCreateFolderId(dnPath); err != nil {
+		id, err := c.readOrCreateFolderId(dnPath)
+		if err != nil {
 			return nil, err
-		} else {
-			node = &tree.Node{
-				Path: path,
-				Type: tree.NodeType_COLLECTION,
-				Uuid: id,
-			}
 		}
+		nUuid = id
+		nType = tree.NodeType_COLLECTION
 	} else {
 		var hash string
 		if c.refHashStore != nil {
@@ -630,24 +630,20 @@ func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) 
 				return nil, err
 			}
 		}
-		node = &tree.Node{
-			Path: path,
-			Type: tree.NodeType_LEAF,
-			Etag: hash,
-		}
+		nType = tree.NodeType_LEAF
+		nETag = hash
+
 	}
-	node.MTime = stat.ModTime().Unix()
-	node.Size = stat.Size()
-	node.Mode = int32(stat.Mode())
-	return node, nil
+	n := model.NewNode(nType, nUuid, path, nETag, stat.Size(), stat.ModTime().Unix(), int32(stat.Mode()))
+	return n, nil
 }
 
-func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node *tree.Node) error {
+func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node model.Node) error {
 	if node.IsLeaf() {
 		return nil
 	}
 	var folders, files, totalSize int64
-	realPath := filepath.Join(c.RootPath, c.normalize(node.Path))
+	realPath := filepath.Join(c.RootPath, c.normalize(node.GetPath()))
 	im := model.IgnoreMatcher()
 	e := godirwalk.Walk(realPath, &godirwalk.Options{
 		Unsorted: true,
@@ -675,11 +671,11 @@ func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node *tree.Node) e
 		return e
 	}
 	if totalSize > 0 {
-		node.Size = totalSize
-		node.MustSetMeta(model.MetaRecursiveChildrenSize, totalSize)
+		node.UpdateSize(totalSize)
+		node.SetChildrenSize(uint64(totalSize)) // MustSetMeta(model.MetaRecursiveChildrenSize, totalSize)
 	}
-	node.MustSetMeta(model.MetaRecursiveChildrenFiles, files)
-	node.MustSetMeta(model.MetaRecursiveChildrenFolders, folders)
+	node.SetChildrenFiles(uint64(files))
+	node.SetChildrenFolders(uint64(folders))
 	return nil
 }
 

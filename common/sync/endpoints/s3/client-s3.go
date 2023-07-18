@@ -289,7 +289,7 @@ func (c *Client) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root st
 		if collect && node.IsLeaf() {
 			eTags = append(eTags, node.Etag)
 		}
-		return walkFunc(path, node, nil)
+		return walkFunc(path, model.NodeFromProto(node), nil)
 	}
 
 	batcher := &statBatcher{
@@ -546,7 +546,11 @@ func (c *Client) s3forceComputeEtag(ctx context.Context, node model.Node) (model
 }
 
 func (c *Client) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node model.Node, err error) {
-	return c.loadNode(ctx, path)
+	if n, er := c.loadNode(ctx, path); er != nil {
+		return nil, er
+	} else {
+		return model.NodeFromProto(n), nil
+	}
 }
 
 func (c *Client) loadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {

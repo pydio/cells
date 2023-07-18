@@ -29,7 +29,6 @@ import (
 	"github.com/gobwas/glob"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/model"
 )
 
@@ -287,12 +286,12 @@ func ClonePatch(source model.PathSyncSource, target model.PathSyncTarget, origin
 }
 
 // MostRecentNode compares two nodes Modification Time and returns the most recent one
-func MostRecentNode(n1, n2 *tree.Node) *tree.Node {
-	if n1.Etag == common.NodeFlagEtagTemporary {
+func MostRecentNode(n1, n2 model.Node) model.Node {
+	if n1.GetEtag() == common.NodeFlagEtagTemporary {
 		return n2
-	} else if n2.Etag == common.NodeFlagEtagTemporary {
+	} else if n2.GetEtag() == common.NodeFlagEtagTemporary {
 		return n1
-	} else if n1.MTime > n2.MTime {
+	} else if n1.GetMTime() > n2.GetMTime() {
 		return n1
 	} else {
 		return n2

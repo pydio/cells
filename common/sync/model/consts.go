@@ -39,8 +39,4 @@ const (
 	Interrupt SyncCmd = iota
 	Pause
 	Resume
-
-	MetaRecursiveChildrenSize    = "RecursiveChildrenSize"
-	MetaRecursiveChildrenFiles   = "RecursiveChildrenFiles"
-	MetaRecursiveChildrenFolders = "RecursiveChildrenFolders"
 )

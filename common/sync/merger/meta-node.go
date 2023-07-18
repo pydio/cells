@@ -44,13 +44,13 @@ type MetaConfig struct {
 // newMetaNode create a new MetaNode from an existing metadata
 func newMetaNode(parentNode *TreeNode, name, value string) *TreeNode {
 	tN := NewTreeNode(&tree.Node{
-		Path: path.Join(parentNode.Path, name),
-		Uuid: parentNode.Uuid + "-" + name,
+		Path: path.Join(parentNode.GetPath(), name),
+		Uuid: parentNode.GetUuid() + "-" + name,
 		Type: NodeType_METADATA,
 		Etag: value,
 		MetaStore: map[string]string{
-			MetaNodeParentUUIDMeta: `"` + parentNode.Uuid + `"`, // Json-encode parent Uuid
-			MetaNodeParentPathMeta: `"` + parentNode.Path + `"`, // Json-encode parent Path
+			MetaNodeParentUUIDMeta: `"` + parentNode.GetUuid() + `"`, // Json-encode parent Uuid
+			MetaNodeParentPathMeta: `"` + parentNode.GetPath() + `"`, // Json-encode parent Path
 		},
 	})
 	return tN
@@ -58,10 +58,11 @@ func newMetaNode(parentNode *TreeNode, name, value string) *TreeNode {
 
 // addMetadataAsChildNodes extracts MetaNodes from normal node, based on a config
 func addMetadataAsChildNodes(n *TreeNode, metaGlobs []glob.Glob) {
-	if len(metaGlobs) == 0 || n.MetaStore == nil {
+	rm := n.ListRawMetadata()
+	if len(metaGlobs) == 0 || rm == nil {
 		return
 	}
-	for k, v := range n.MetaStore {
+	for k, v := range rm {
 		for _, g := range metaGlobs {
 			if g.Match(k) {
 				n.AddChild(newMetaNode(n, k, v))

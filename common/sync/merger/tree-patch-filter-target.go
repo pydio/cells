@@ -60,7 +60,7 @@ func (t *TreePatch) FilterToTarget(ctx context.Context) {
 		}
 		// Check nodes have same ETag
 		check := n[0]
-		return node.GetEtag() == check.Etag
+		return node.GetEtag() == check.GetEtag()
 	}
 
 	stats := t.Stats()

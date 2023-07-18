@@ -22,7 +22,6 @@ package model
 
 import (
 	"context"
-	"go.uber.org/zap/zapcore"
 	"io"
 	"path"
 	"time"
@@ -30,7 +29,6 @@ import (
 	"github.com/gobwas/glob"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 // AsPathSyncSource tries to cast an Endpoint to a PathSyncSource
@@ -281,32 +279,4 @@ type SnapshotFactory interface {
 type HashStoreReader interface {
 	// SetRefHashStore passes a reference to a loaded snapshot
 	SetRefHashStore(source PathSyncSource)
-}
-
-// Node is the extracted interface from *tree.Node
-type Node interface {
-	GetUuid() string
-	GetPath() string
-	GetType() tree.NodeType
-	GetSize() int64
-	GetMTime() int64
-	GetMode() int32
-	GetEtag() string
-	IsLeaf() bool
-	GetModTime() time.Time
-
-	UpdatePath(p string)
-	UpdateUuid(u string)
-	UpdateEtag(e string)
-	SetRawMetadata(map[string]string)
-	MustSetMeta(string, interface{})
-	GetMeta(string, interface{}) error
-	HasMetaKey(string) bool
-	RenewUuidIfEmpty(force bool)
-
-	Zap(key ...string) zapcore.Field
-	ZapPath() zapcore.Field
-	ZapUuid() zapcore.Field
-
-	AsProto() *tree.Node
 }
