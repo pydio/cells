@@ -29,7 +29,6 @@ import (
 	"github.com/gobwas/glob"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 // AsPathSyncSource tries to cast an Endpoint to a PathSyncSource

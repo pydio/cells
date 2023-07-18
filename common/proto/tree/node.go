@@ -144,7 +144,51 @@ func (node *Node) UpdateUuid(u string) {
 
 // UpdateEtag changes internal Etag value
 func (node *Node) UpdateEtag(et string) {
-	node.Uuid = et
+	node.Etag = et
+}
+
+// UpdateSize changes internal Size value
+func (node *Node) UpdateSize(s int64) {
+	node.Size = s
+}
+
+func (node *Node) SetChildrenSize(s uint64) {
+	node.MustSetMeta(common.MetaRecursiveChildrenSize, int64(s))
+}
+func (node *Node) SetChildrenFiles(s uint64) {
+	node.MustSetMeta(common.MetaRecursiveChildrenFiles, int64(s))
+}
+func (node *Node) SetChildrenFolders(s uint64) {
+	node.MustSetMeta(common.MetaRecursiveChildrenFolders, int64(s))
+}
+func (node *Node) GetChildrenSize() (s uint64, o bool) {
+	if !node.HasMetaKey(common.MetaRecursiveChildrenSize) {
+		return
+	}
+	if e := node.GetMeta(common.MetaRecursiveChildrenSize, &s); e == nil {
+		o = true
+	}
+	return
+}
+func (node *Node) GetChildrenFiles() (s uint64, o bool) {
+	if !node.HasMetaKey(common.MetaRecursiveChildrenFiles) {
+		return
+	}
+	if e := node.GetMeta(common.MetaRecursiveChildrenFiles, &s); e == nil {
+		o = true
+	}
+	return
+
+}
+func (node *Node) GetChildrenFolders() (s uint64, o bool) {
+	if !node.HasMetaKey(common.MetaRecursiveChildrenFolders) {
+		return
+	}
+	if e := node.GetMeta(common.MetaRecursiveChildrenFolders, &s); e == nil {
+		o = true
+	}
+	return
+
 }
 
 // AsProto just implements the sync/model/Node interface
@@ -226,6 +270,10 @@ func (node *Node) SetRawMetadata(mm map[string]string) {
 	for k, v := range mm {
 		node.MetaStore[k] = v
 	}
+}
+
+func (node *Node) ListRawMetadata() map[string]string {
+	return node.MetaStore
 }
 
 // GetStringMeta easily returns the string value of the MetaData for this key
@@ -346,7 +394,6 @@ func (node *Node) LegacyMeta(meta map[string]interface{}) {
 	}
 }
 
-/* LOGGING SUPPORT */
 // MarshalLogObject implements custom marshalling for logs
 func (node *Node) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	if node == nil {
