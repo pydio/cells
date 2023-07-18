@@ -427,7 +427,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			publishError(targetDs, targetNode.Path)
 			panic(e)
 		}
-		// Remove Source Node
+		// Remove Source N
 		if move {
 			ctx = metadata.WithAdditionalMetadata(ctx, deleteMeta)
 			_, moveErr := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode})

@@ -913,7 +913,7 @@ var file_cellsapi_rest_proto_goTypes = []interface{}{
 	(*RestoreNodesResponse)(nil),                // 132: rest.RestoreNodesResponse
 	(*CreateSelectionResponse)(nil),             // 133: rest.CreateSelectionResponse
 	(*ListTemplatesResponse)(nil),               // 134: rest.ListTemplatesResponse
-	(*tree.Node)(nil),                           // 135: tree.Node
+	(*tree.Node)(nil),                           // 135: tree.N
 	(*idm.UpdateUserMetaResponse)(nil),          // 136: idm.UpdateUserMetaResponse
 	(*UserMetaCollection)(nil),                  // 137: rest.UserMetaCollection
 	(*idm.UpdateUserMetaNamespaceResponse)(nil), // 138: idm.UpdateUserMetaNamespaceResponse
@@ -1122,9 +1122,9 @@ var file_cellsapi_rest_proto_depIdxs = []int32{
 	132, // 167: rest.TreeService.RestoreNodes:output_type -> rest.RestoreNodesResponse
 	133, // 168: rest.TreeService.CreateSelection:output_type -> rest.CreateSelectionResponse
 	134, // 169: rest.TemplatesService.ListTemplates:output_type -> rest.ListTemplatesResponse
-	135, // 170: rest.MetaService.GetMeta:output_type -> tree.Node
-	135, // 171: rest.MetaService.SetMeta:output_type -> tree.Node
-	135, // 172: rest.MetaService.DeleteMeta:output_type -> tree.Node
+	135, // 170: rest.MetaService.GetMeta:output_type -> tree.N
+	135, // 171: rest.MetaService.SetMeta:output_type -> tree.N
+	135, // 172: rest.MetaService.DeleteMeta:output_type -> tree.N
 	129, // 173: rest.MetaService.GetBulkMeta:output_type -> rest.BulkMetaResponse
 	136, // 174: rest.UserMetaService.UpdateUserMeta:output_type -> idm.UpdateUserMetaResponse
 	137, // 175: rest.UserMetaService.SearchUserMeta:output_type -> rest.UserMetaCollection

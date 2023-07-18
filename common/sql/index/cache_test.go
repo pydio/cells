@@ -244,7 +244,7 @@ func TestMysqlWithCache(t *testing.T) {
 
 		getDAO(ctxWithCache).Flush(true)
 
-		So(node.Node, ShouldResemble, mockLongNodeChild2.Node)
+		So(node.N, ShouldResemble, mockLongNodeChild2.N)
 	})
 
 	Convey("Test Getting a node by uuid - Success", t, func() {
@@ -382,13 +382,13 @@ func TestMysqlWithCache(t *testing.T) {
 		newSession()
 
 		node1 := mtree.NewTreeNode()
-		node1.Node = &tree.Node{Uuid: "test-same-mpath", Type: tree.NodeType_LEAF}
+		node1.N = &tree.Node{Uuid: "test-same-mpath", Type: tree.NodeType_LEAF}
 		node1.SetMPath(1, 21, 12, 7)
 		err := getDAO(ctxWithCache).AddNode(node1)
 		So(err, ShouldBeNil)
 
 		node2 := mtree.NewTreeNode()
-		node2.Node = &tree.Node{Uuid: "test-same-mpath2", Type: tree.NodeType_LEAF}
+		node2.N = &tree.Node{Uuid: "test-same-mpath2", Type: tree.NodeType_LEAF}
 		node2.SetMPath(1, 21, 12, 7)
 		err = getDAO(ctxWithCache).AddNode(node2)
 		So(err, ShouldBeNil)
@@ -402,19 +402,19 @@ func TestMysqlWithCache(t *testing.T) {
 		newSession()
 
 		node1 := mtree.NewTreeNode()
-		node1.Node = &tree.Node{Uuid: "parent1", Type: tree.NodeType_COLLECTION}
+		node1.N = &tree.Node{Uuid: "parent1", Type: tree.NodeType_COLLECTION}
 		node1.SetMPath(1, 1)
 
 		node2 := mtree.NewTreeNode()
-		node2.Node = &tree.Node{Uuid: "parent2", Type: tree.NodeType_COLLECTION}
+		node2.N = &tree.Node{Uuid: "parent2", Type: tree.NodeType_COLLECTION}
 		node2.SetMPath(1, 15)
 
 		node11 := mtree.NewTreeNode()
-		node11.Node = &tree.Node{Uuid: "child1.1", Type: tree.NodeType_COLLECTION}
+		node11.N = &tree.Node{Uuid: "child1.1", Type: tree.NodeType_COLLECTION}
 		node11.SetMPath(1, 1, 1)
 
 		node21 := mtree.NewTreeNode()
-		node21.Node = &tree.Node{Uuid: "child2.1", Type: tree.NodeType_COLLECTION}
+		node21.N = &tree.Node{Uuid: "child2.1", Type: tree.NodeType_COLLECTION}
 		node21.SetMPath(1, 15, 1)
 
 		e := getDAO(ctxWithCache).AddNode(node1)
@@ -479,36 +479,36 @@ func TestMysqlWithCache(t *testing.T) {
 		const etag4 = "qqqq"
 
 		node := mtree.NewTreeNode()
-		node.Node = &tree.Node{Uuid: "etag-parent-folder", Type: tree.NodeType_COLLECTION}
+		node.N = &tree.Node{Uuid: "etag-parent-folder", Type: tree.NodeType_COLLECTION}
 		node.SetMPath(1, 16)
 		node.UpdateEtag("-1")
 
 		node11 := mtree.NewTreeNode()
-		node11.Node = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF}
+		node11.N = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF}
 		node11.SetMPath(1, 16, 1)
 		node11.UpdateEtag(etag1)
 		node11.SetName("bbb")
 
 		node12 := mtree.NewTreeNode()
-		node12.Node = &tree.Node{Uuid: "etag-child-2", Type: tree.NodeType_LEAF}
+		node12.N = &tree.Node{Uuid: "etag-child-2", Type: tree.NodeType_LEAF}
 		node12.SetMPath(1, 16, 2)
 		node12.UpdateEtag(etag2)
 		node12.SetName("aaa")
 
 		node13 := mtree.NewTreeNode()
-		node13.Node = &tree.Node{Uuid: "etag-child-3", Type: tree.NodeType_COLLECTION}
+		node13.N = &tree.Node{Uuid: "etag-child-3", Type: tree.NodeType_COLLECTION}
 		node13.SetMPath(1, 16, 3)
 		node13.UpdateEtag("-1")
 		node13.SetName("ccc")
 
 		node14 := mtree.NewTreeNode()
-		node14.Node = &tree.Node{Uuid: "etag-child-child-1", Type: tree.NodeType_LEAF}
+		node14.N = &tree.Node{Uuid: "etag-child-child-1", Type: tree.NodeType_LEAF}
 		node14.SetMPath(1, 16, 3, 1)
 		node14.UpdateEtag(etag3)
 		node14.SetName("a-aaa")
 
 		node15 := mtree.NewTreeNode()
-		node15.Node = &tree.Node{Uuid: "etag-child-child-2", Type: tree.NodeType_LEAF}
+		node15.N = &tree.Node{Uuid: "etag-child-child-2", Type: tree.NodeType_LEAF}
 		node15.SetMPath(1, 16, 3, 2)
 		node15.UpdateEtag(etag4)
 		node15.SetName("a-bbb")
@@ -555,19 +555,19 @@ func TestDaocache_GetNodeFirstAvailableChildIndex(t *testing.T) {
 		newSession()
 
 		node1 := mtree.NewTreeNode()
-		node1.Node = &tree.Node{Uuid: "parent-slots-1", Type: tree.NodeType_COLLECTION}
+		node1.N = &tree.Node{Uuid: "parent-slots-1", Type: tree.NodeType_COLLECTION}
 		node1.SetMPath(1, 40)
 
 		node11 := mtree.NewTreeNode()
-		node11.Node = &tree.Node{Uuid: "child-slots-1.1", Type: tree.NodeType_COLLECTION}
+		node11.N = &tree.Node{Uuid: "child-slots-1.1", Type: tree.NodeType_COLLECTION}
 		node11.SetMPath(1, 40, 1)
 
 		node13 := mtree.NewTreeNode()
-		node13.Node = &tree.Node{Uuid: "child-slots-1.3", Type: tree.NodeType_COLLECTION}
+		node13.N = &tree.Node{Uuid: "child-slots-1.3", Type: tree.NodeType_COLLECTION}
 		node13.SetMPath(1, 40, 3)
 
 		node14 := mtree.NewTreeNode()
-		node14.Node = &tree.Node{Uuid: "child-slots-1.4", Type: tree.NodeType_COLLECTION}
+		node14.N = &tree.Node{Uuid: "child-slots-1.4", Type: tree.NodeType_COLLECTION}
 		node14.SetMPath(1, 40, 4)
 
 		e := getDAO(ctxWithCache).AddNode(node1)
@@ -597,7 +597,7 @@ func TestDaocache_GetNodeFirstAvailableChildIndex(t *testing.T) {
 		So(slot, ShouldEqual, 2)
 
 		node12 := mtree.NewTreeNode()
-		node12.Node = &tree.Node{Uuid: "child-slots-1.2", Type: tree.NodeType_COLLECTION}
+		node12.N = &tree.Node{Uuid: "child-slots-1.2", Type: tree.NodeType_COLLECTION}
 		node12.SetMPath(1, 40, 2)
 		e = getDAO(ctxWithCache).AddNode(node12)
 		So(e, ShouldBeNil)
@@ -632,7 +632,7 @@ func TestStreamsWithCache(t *testing.T) {
 
 		for i := 1; i <= 1152; i++ {
 			node := mtree.NewTreeNode()
-			node.Node = &tree.Node{Uuid: "testing-stream" + strconv.Itoa(i), Type: tree.NodeType_LEAF}
+			node.N = &tree.Node{Uuid: "testing-stream" + strconv.Itoa(i), Type: tree.NodeType_LEAF}
 			node.SetMPath(1, 17, uint64(i))
 
 			c <- node
@@ -880,7 +880,7 @@ func TestGettingNodeByPathBeforeCreationWithCache(t *testing.T) {
 		d := getDAO(ctxWithCache).(*daocache)
 
 		for _, path := range arborescence {
-			// Node should NEVER be found here!
+			// N should NEVER be found here!
 			test, e := d.GetNodeByPath(strings.Split(path, "/"))
 			So(test, ShouldBeNil)
 			So(e, ShouldNotBeNil)

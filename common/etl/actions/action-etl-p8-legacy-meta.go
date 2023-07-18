@@ -284,7 +284,7 @@ func (c *MigratePydioMetaAction) BrowseNodesForMeta(ctx context.Context, slug st
 					}
 				}
 				// We do not delete original metadata file if we are looking directly at the P8 storage
-				// router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: metaNode})
+				// router.DeleteNode(ctx, &tree.DeleteNodeRequest{N: metaNode})
 			}
 		}
 	}

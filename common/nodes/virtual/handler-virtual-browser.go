@@ -60,7 +60,7 @@ func NewVirtualNodesBrowser() *BrowserHandler {
 func (v *BrowserHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...grpc.CallOption) (*tree.ReadNodeResponse, error) {
 
 	if virtual, exists := abstract.GetVirtualNodesManager(v.RuntimeCtx).ByPath(in.Node.Path); exists {
-		log.Logger(ctx).Debug("Virtual Node Browser, Found", zap.Any("found", virtual))
+		log.Logger(ctx).Debug("Virtual N Browser, Found", zap.Any("found", virtual))
 		return &tree.ReadNodeResponse{Node: virtual}, nil
 	}
 	return v.Next.ReadNode(ctx, in, opts...)
@@ -72,7 +72,7 @@ func (v *BrowserHandler) ListNodes(ctx context.Context, in *tree.ListNodesReques
 
 	vManager := abstract.GetVirtualNodesManager(v.RuntimeCtx)
 	if virtual, exists := vManager.ByPath(in.Node.Path); exists {
-		log.Logger(ctx).Debug("Virtual Node Browser, Found, send no children", zap.Any("found", virtual))
+		log.Logger(ctx).Debug("Virtual N Browser, Found, send no children", zap.Any("found", virtual))
 		s := nodes.NewWrappingStreamer(ctx)
 		defer s.CloseSend()
 		return s, nil

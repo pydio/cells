@@ -23,12 +23,13 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/proto/object"
 	"io"
 	"os"
 	"path"
 
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/sync/endpoints/snapshot"
 	"github.com/pydio/cells/v4/common/sync/model"
@@ -96,7 +97,7 @@ func (f *FlatSnapshot) Close(delete ...bool) error {
 func (f *FlatSnapshot) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	// Wrap Walker to make sure s3 object does exist
 	stater := f.client.(model.PathSyncSource)
-	wrapper := func(path string, node model.Node, err error) error {
+	wrapper := func(path string, node tree.N, err error) error {
 		if !node.IsLeaf() {
 			return walknFc(path, node, err)
 		}

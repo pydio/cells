@@ -81,7 +81,7 @@ func TestHandler(t *testing.T) {
 	handler = TreeHandler{FS: fs}
 	initTree()
 
-	Convey("Create Node", t, func() {
+	Convey("Create N", t, func() {
 		_, err := handler.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
 			Type: tree.NodeType_COLLECTION,
 			Path: "folder1/subfolder",
@@ -90,7 +90,7 @@ func TestHandler(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 
-	Convey("Read Node", t, func() {
+	Convey("Read N", t, func() {
 		resp, err := handler.ReadNode(ctx, &tree.ReadNodeRequest{
 			Node: &tree.Node{
 				Path: "folder/subfolder/file1",
@@ -100,7 +100,7 @@ func TestHandler(t *testing.T) {
 		So(resp.Node.Size, ShouldEqual, 1024)
 	})
 
-	Convey("Update Node", t, func() {
+	Convey("Update N", t, func() {
 		_, err := handler.UpdateNode(ctx, &tree.UpdateNodeRequest{
 			From: &tree.Node{
 				Path: "folder/subfolder/file1",
@@ -112,7 +112,7 @@ func TestHandler(t *testing.T) {
 		So(err, ShouldNotBeNil)
 	})
 
-	Convey("Delete Node", t, func() {
+	Convey("Delete N", t, func() {
 		_, err := handler.DeleteNode(ctx, &tree.DeleteNodeRequest{
 			Node: &tree.Node{
 				Path: "folder",
@@ -136,7 +136,7 @@ func TestHandlerWithPrefix(t *testing.T) {
 	rootedFs := afero.NewBasePathFs(fs, "folder1")
 	handler = TreeHandler{FS: rootedFs}
 
-	Convey("Create Node", t, func() {
+	Convey("Create N", t, func() {
 		_, err := handler.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
 			Type: tree.NodeType_COLLECTION,
 			Path: "subfolder/subsubfolder1",
@@ -145,7 +145,7 @@ func TestHandlerWithPrefix(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 
-	Convey("Read Node", t, func() {
+	Convey("Read N", t, func() {
 		resp, err := handler.ReadNode(ctx, &tree.ReadNodeRequest{
 			Node: &tree.Node{
 				Path: "subfolder/file",
@@ -155,7 +155,7 @@ func TestHandlerWithPrefix(t *testing.T) {
 		So(resp.Node.Size, ShouldEqual, 1024)
 	})
 
-	Convey("Update Node", t, func() {
+	Convey("Update N", t, func() {
 		_, err := handler.UpdateNode(ctx, &tree.UpdateNodeRequest{
 			From: &tree.Node{
 				Path: "subfolder/file",
@@ -167,7 +167,7 @@ func TestHandlerWithPrefix(t *testing.T) {
 		So(err, ShouldNotBeNil)
 	})
 
-	Convey("Delete Node", t, func() {
+	Convey("Delete N", t, func() {
 		resp, err := handler.DeleteNode(ctx, &tree.DeleteNodeRequest{
 			Node: &tree.Node{
 				Path: "subfolder",

@@ -2,7 +2,6 @@ package tree
 
 import (
 	"fmt"
-	"google.golang.org/protobuf/reflect/protoreflect"
 	"strconv"
 	"time"
 
@@ -15,10 +14,22 @@ import (
 
 // N is the extracted interface from Node
 type N interface {
-	INode
-
+	GetUuid() string
+	GetPath() string
+	GetType() NodeType
+	GetSize() int64
+	GetMTime() int64
+	GetMode() int32
+	GetEtag() string
 	IsLeaf() bool
 
+	UpdatePath(p string)
+	UpdateUuid(u string)
+	UpdateEtag(e string)
+	UpdateSize(s int64)
+	UpdateMTime(s int64)
+	UpdateMode(s int32)
+	SetType(NodeType)
 	RenewUuidIfEmpty(force bool)
 
 	SetChildrenSize(uint64)
@@ -29,12 +40,12 @@ type N interface {
 	GetChildrenFolders() (uint64, bool)
 	SetRawMetadata(map[string]string)
 	ListRawMetadata() map[string]string
-	GetStringMeta(namespace string) string
 
-	MarshalLogObject(encoder zapcore.ObjectEncoder) error
 	Zap(key ...string) zapcore.Field
 	ZapPath() zapcore.Field
 	ZapUuid() zapcore.Field
+
+	AsProto() *Node
 }
 
 // lightNode is a memory optimized-struct implementing the N interface.
@@ -79,17 +90,6 @@ type lightNode struct {
 	childrenFoldersSet bool
 }
 
-func (l *lightNode) GetStringMeta(namespace string) string {
-	// TODO - do a meta helper
-	//var value string
-	//if e := l.GetMeta(namespace, &value); e != nil {
-	//	return ""
-	//}
-	//return value
-
-	return ""
-}
-
 // LightNode create a lightNode
 func LightNode(nodeType NodeType, uuid, path, eTag string, size, mTime int64, mode int32) N {
 	return &lightNode{
@@ -103,19 +103,19 @@ func LightNode(nodeType NodeType, uuid, path, eTag string, size, mTime int64, mo
 	}
 }
 
-func LightNodeFromProto(n N) N {
+func LightNodeFromProto(n *Node) N {
 	ln := &lightNode{
-		uuid:     n.GetUuid(),
-		path:     n.GetPath(),
-		size:     uint64(n.GetSize()),
-		mtime:    uint64(n.GetMTime()),
-		mode:     uint32(n.GetMode()),
-		etag:     n.GetEtag(),
-		nodeType: n.GetType(),
+		uuid:     n.Uuid,
+		path:     n.Path,
+		size:     uint64(n.Size),
+		mtime:    uint64(n.MTime),
+		mode:     uint32(n.Mode),
+		etag:     n.Etag,
+		nodeType: n.Type,
 	}
-	if metaStore := n.GetMetaStore(); metaStore != nil {
+	if n.MetaStore != nil {
 		var e error
-		for k, v := range metaStore {
+		for k, v := range n.MetaStore {
 			if k == common.MetaNamespaceNodeName || k == common.MetaNamespaceDatasourceName {
 				continue
 			}
@@ -139,11 +139,9 @@ func LightNodeFromProto(n N) N {
 			}
 		}
 	}
-	/*
-		if len(ln.rawMeta) > 0 {
-			fmt.Println("Raw meta not empty", ln.rawMeta)
-		}
-	*/
+	if len(ln.rawMeta) > 0 {
+		fmt.Println("Raw meta not empty", ln.rawMeta)
+	}
 	return ln
 }
 
@@ -269,7 +267,7 @@ func (l *lightNode) ZapUuid() zapcore.Field {
 	return zap.String("uuid", l.uuid)
 }
 
-func (l *lightNode) ProtoReflect() protoreflect.Message {
+func (l *lightNode) AsProto() *Node {
 	tn := &Node{
 		Uuid:      l.uuid,
 		Path:      l.path,
@@ -294,7 +292,7 @@ func (l *lightNode) ProtoReflect() protoreflect.Message {
 			tn.MetaStore[common.MetaRecursiveChildrenFolders] = fmt.Sprintf("%d", l.childrenFolders)
 		}
 	}
-	return tn.ProtoReflect()
+	return tn
 }
 
 // MarshalLogObject implements custom marshalling for logs
@@ -321,85 +319,4 @@ func (l *lightNode) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 		_ = encoder.AddReflected("MetaStore", l.rawMeta)
 	}
 	return nil
-}
-
-func (l *lightNode) GetCommits() []*ChangeLog {
-	// deprecated
-	return nil
-}
-
-func (l *lightNode) GetMetaStore() map[string]string {
-	var metaStore = make(map[string]string)
-	if l.childrenFilesSet || l.childrenFoldersSet || l.childrenSizeSet {
-		if l.childrenSizeSet {
-			metaStore[common.MetaRecursiveChildrenSize] = fmt.Sprintf("%d", l.childrenSize)
-		}
-		if l.childrenFilesSet {
-			metaStore[common.MetaRecursiveChildrenFiles] = fmt.Sprintf("%d", l.childrenFiles)
-		}
-		if l.childrenFoldersSet {
-			metaStore[common.MetaRecursiveChildrenFolders] = fmt.Sprintf("%d", l.childrenFolders)
-		}
-	}
-
-	return metaStore
-}
-
-func (l *lightNode) GetAppearsIn() []*WorkspaceRelativePath {
-	return []*WorkspaceRelativePath{}
-}
-
-func (l *lightNode) SetUuid(s string) {
-	l.uuid = s
-}
-
-func (l *lightNode) SetPath(s string) {
-	l.path = s
-}
-
-func (l *lightNode) SetSize(i int64) {
-	l.size = uint64(i)
-}
-
-func (l *lightNode) SetMTime(i int64) {
-	l.mtime = uint64(i)
-}
-
-func (l *lightNode) SetMode(i int32) {
-	l.mode = uint32(i)
-}
-
-func (l *lightNode) SetEtag(s string) {
-	l.etag = s
-}
-
-func (l *lightNode) SetCommits(logs []*ChangeLog) {
-	// deprecated
-}
-
-func (l *lightNode) SetMetaStore(m map[string]string) {
-	if childrenSizeStr, ok := m[common.MetaRecursiveChildrenSize]; ok {
-		childrenSize, err := strconv.ParseUint(childrenSizeStr, 10, 64)
-		if err != nil {
-			l.childrenSize = childrenSize
-		}
-	}
-
-	if childrenFilesStr, ok := m[common.MetaRecursiveChildrenFiles]; ok {
-		childrenFiles, err := strconv.ParseUint(childrenFilesStr, 10, 64)
-		if err != nil {
-			l.childrenFiles = childrenFiles
-		}
-	}
-
-	if childrenFoldersStr, ok := m[common.MetaRecursiveChildrenFolders]; ok {
-		childrenFolders, err := strconv.ParseUint(childrenFoldersStr, 10, 64)
-		if err != nil {
-			l.childrenFolders = childrenFolders
-			l.childrenFoldersSet = true
-		}
-	}
-}
-
-func (l *lightNode) SetAppearsIn(paths []*WorkspaceRelativePath) {
 }

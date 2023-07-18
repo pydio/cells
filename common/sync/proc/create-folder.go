@@ -44,7 +44,7 @@ func (pr *Processor) processCreateFolder(cancelCtx context.Context, operation me
 	receiver, ok2 := operation.Source().(model.UuidReceiver)
 	if ok1 && ok2 {
 		if sameIdNode, e := provider.LoadNodeByUuid(ctx, operation.GetNode().GetUuid()); e == nil && sameIdNode != nil {
-			pr.Logger().Info("Node found with same UUID", zap.String("local", localPath), sameIdNode.ZapPath())
+			pr.Logger().Info("N found with same UUID", zap.String("local", localPath), sameIdNode.ZapPath())
 			if sameIdNode.GetPath() == localPath {
 				// This is the same node, it already exists! Ignore operation
 				pr.Logger().Info("CreateFolder: already exists with same UUID, ignoring!", zap.String("refPath", operation.GetRefPath()))

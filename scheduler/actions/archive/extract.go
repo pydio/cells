@@ -174,7 +174,7 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 	}
 	if err != nil {
 		// Remove failed extraction folder ?
-		// ex.Router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: targetNode})
+		// ex.Router.DeleteNode(ctx, &tree.DeleteNodeRequest{N: targetNode})
 		return input.WithError(err), err
 	}
 

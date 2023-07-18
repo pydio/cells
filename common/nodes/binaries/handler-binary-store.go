@@ -85,7 +85,7 @@ func (a *Handler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts
 	return a.Next.ListNodes(ctx, in, opts...)
 }
 
-// ReadNode Node Info & Node Content : send by UUID,
+// ReadNode N Info & N Content : send by UUID,
 func (a *Handler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...grpc.CallOption) (*tree.ReadNodeResponse, error) {
 	if a.isStorePath(in.Node.Path) {
 		source, er := a.ClientsPool.GetDataSourceInfo(a.StoreName)
@@ -219,7 +219,7 @@ func (a *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 			clone.MustSetMeta(common.MetaNamespaceDatasourcePath, path.Base(node.Path))
 			return a.Next.PutObject(ctx, clone, reader, requestData)
 		} else {
-			log.Logger(ctx).Debug("Putting Node Inside Binary Store Cannot find DS Info?", zap.Error(er))
+			log.Logger(ctx).Debug("Putting N Inside Binary Store Cannot find DS Info?", zap.Error(er))
 			return models.ObjectInfo{}, er
 		}
 	}

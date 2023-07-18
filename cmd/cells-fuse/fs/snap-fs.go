@@ -118,7 +118,7 @@ func (r *SnapFS) recursiveCreate(ctx context.Context, parent *fs.Inode, snapFold
 	return r.snapshot.Walk(ctx, func(pa string, node *tree.Node, err error) error {
 		base := path.Base(pa)
 		if node.IsLeaf() {
-			// Add File Node
+			// Add File N
 			//log.Println("Adding File", parent.Path(r.EmbeddedInode()), base)
 			inode := parent.NewPersistentInode(ctx, r.fileProvider(inoCount, node), fs.StableAttr{Ino: inoCount})
 			inoCount++
@@ -132,7 +132,7 @@ func (r *SnapFS) recursiveCreate(ctx context.Context, parent *fs.Inode, snapFold
 			if r.bar != nil {
 				_ = r.bar.Set64(int64(inoCount))
 			}
-			// Add Folder Node
+			// Add Folder N
 			//log.Println("Adding Folder", base)
 			parent.AddChild(base, ch, true)
 			if recursive {

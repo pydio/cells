@@ -353,7 +353,7 @@ func (b *Codec) GetModel(cfg configx.Values) (interface{}, bool) {
 	}
 	nodeMapping.AddFieldMappingsAt("Basename", bnameFieldMapping)
 
-	// Node type to keyword
+	// N type to keyword
 	nodeType := bleve.NewTextFieldMapping()
 	nodeType.Analyzer = keyword.Name
 	nodeMapping.AddFieldMappingsAt("NodeType", nodeType)

@@ -135,7 +135,7 @@ func (f *StructStorageHandler) CreateNode(ctx context.Context, in *tree.CreateNo
 				return &tree.CreateNodeResponse{Node: node}, nil
 			}
 		}
-		// Create new Node
+		// Create new N
 		nodeUuid := uuid.New()
 		log.Logger(ctx).Debug("[Exec] Create Folder has no Uuid")
 		if node.Uuid != "" {

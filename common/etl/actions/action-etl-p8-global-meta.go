@@ -170,7 +170,7 @@ func (c *MigrateGlobalMetaAction) loadMeta(ctx context.Context, conf *config.Sdk
 				}
 			}
 			for nodePath, nodeMetas := range nodes {
-				// Find Node
+				// Find N
 				reqNode := &tree.Node{Path: path.Join(slug, nodePath)}
 				r, e := c.GetRouter().ReadNode(userCtx, &tree.ReadNodeRequest{Node: reqNode})
 				if e != nil {

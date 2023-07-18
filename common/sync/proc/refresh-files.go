@@ -22,6 +22,7 @@ package proc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"path"
 	"time"
 

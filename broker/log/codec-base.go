@@ -74,7 +74,7 @@ func (b *baseCodec) marshalLogMsg(line *log.Log) (*IndexableLog, error) {
 			msg.MsgId = val
 		case "logger": // name of the service that is currently logging.
 			msg.Logger = val
-		// Node specific info
+		// N specific info
 		case common.KeyNodeUuid:
 			msg.NodeUuid = val
 		case common.KeyNodePath:

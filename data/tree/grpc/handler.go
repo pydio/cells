@@ -212,7 +212,7 @@ func (s *TreeServer) updateDataSourceNode(node *tree.Node, dataSourceName string
 
 // CreateNode implementation for the TreeServer
 func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest) (*tree.CreateNodeResponse, error) {
-	log.Logger(ctx).Debug("Create Node", zap.String("UUID", req.Node.Uuid), zap.String("Path", req.Node.Path))
+	log.Logger(ctx).Debug("Create N", zap.String("UUID", req.Node.Uuid), zap.String("Path", req.Node.Path))
 	node := req.GetNode()
 	resp := &tree.CreateNodeResponse{}
 
@@ -825,7 +825,7 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ..
 	if foundNode != nil {
 		return foundNode, nil
 	} else {
-		return nil, errors.NotFound(common.ServiceTree, fmt.Sprintf("Node %s Not found in tree!", uuid))
+		return nil, errors.NotFound(common.ServiceTree, fmt.Sprintf("N %s Not found in tree!", uuid))
 	}
 
 }

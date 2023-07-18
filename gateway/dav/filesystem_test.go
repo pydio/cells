@@ -49,14 +49,14 @@ func TestBasics(t *testing.T) {
 
 // 	Convey("Test rename via webdav", t, func() {
 
-// 		originalNode := &tree.Node{
+// 		originalNode := &tree.N{
 // 			Path:      "/path/to/original.txt",
 // 			Type:      tree.NodeType_LEAF,
 // 			MetaStore: map[string]string{"name": `"original.txt"`},
 // 		}
 
 // 		mock := &views.HandlerMock{
-// 			Nodes: map[string]*tree.Node{"/path/to/original": originalNode},
+// 			Nodes: map[string]*tree.N{"/path/to/original": originalNode},
 // 		}
 
 // 		handlers := []views.Handler{mock}

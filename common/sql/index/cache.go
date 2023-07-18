@@ -26,7 +26,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/pydio/cells/v4/common/sync/model"
 	"regexp"
 	"sort"
 	"strings"
@@ -248,7 +247,7 @@ func (d *daocache) Unlock() {
 }
 
 // Path resolves a node mpath, eventually creating it (and its parents)
-func (d *daocache) Path(strpath string, create bool, reqNode ...model.Node) (mtree.MPath, []*mtree.TreeNode, error) {
+func (d *daocache) Path(strpath string, create bool, reqNode ...tree.N) (mtree.MPath, []*mtree.TreeNode, error) {
 	return d.path(strpath, create, false, reqNode...)
 }
 
@@ -266,7 +265,7 @@ func (d *daocache) PathCreateNoAdd(ctx context.Context, strpath string) (mtree.M
 }
 
 // Path resolution for a node
-func (d *daocache) path(strpath string, create bool, noAdd bool, reqNode ...model.Node) (mtree.MPath, []*mtree.TreeNode, error) {
+func (d *daocache) path(strpath string, create bool, noAdd bool, reqNode ...tree.N) (mtree.MPath, []*mtree.TreeNode, error) {
 
 	if len(strpath) == 0 || strpath == "/" {
 		return []uint64{1}, nil, nil
@@ -297,7 +296,7 @@ func (d *daocache) path(strpath string, create bool, noAdd bool, reqNode ...mode
 	if index, err := d.GetNodeFirstAvailableChildIndex(ppath); err != nil {
 		return nil, nil, err
 	} else {
-		var source model.Node
+		var source tree.N
 
 		if len(reqNode) > 0 {
 			source = reqNode[0]
@@ -638,13 +637,13 @@ func (d *daocache) GetNodeFirstAvailableChildIndex(path mtree.MPath) (uint64, er
 		}
 		if freeSlot > 0 {
 			// Found a free slot indeed, return it
-			//fmt.Println("Get Node Last Child: returning free slot! ", path.String(), freeSlot)
+			//fmt.Println("Get N Last Child: returning free slot! ", path.String(), freeSlot)
 			return freeSlot, nil
 		}
 	}
 
 	// Return currentLast + 1
-	//fmt.Println("Get Node Last Child: returning last+1", path.String(), currentLast+1)
+	//fmt.Println("Get N Last Child: returning last+1", path.String(), currentLast+1)
 	return uint64(currentLast + 1), nil
 
 }

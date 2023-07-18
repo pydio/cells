@@ -29,7 +29,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/pydio/cells/v4/common/sync/model"
 	"sort"
 	"strconv"
 	"strings"
@@ -685,12 +684,12 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 	dao.Unlock()
 
 	for _, node := range nodesToUpdate {
-		log.Logger(context.Background()).Info("Resyncing Etag For Node", node.Zap("node"))
+		log.Logger(context.Background()).Info("Resyncing Etag For N", node.Zap("node"))
 		newEtag, eE := dao.etagFromChildren(node)
 		if eE != nil {
 			return eE
 		}
-		log.Logger(context.Background()).Info("Computed Etag For Node", zap.String("etag", newEtag))
+		log.Logger(context.Background()).Info("Computed Etag For N", zap.String("etag", newEtag))
 		stmt, er := dao.GetStmt("updateEtag")
 		if er != nil {
 			return er
@@ -1341,13 +1340,13 @@ func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*mtree.TreeNode, erro
 		mpath = append(mpath, i)
 	}
 	node.SetMPath(mpath...)
-	node.Node = model.NewNode(nodeType, uuid, "", etag, size, mtime, mode)
+	node.N = tree.LightNode(nodeType, uuid, "", etag, size, mtime, mode)
 	node.SetName(name)
 
 	return node, nil
 }
 
-func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...model.Node) (mtree.MPath, []*mtree.TreeNode, error) {
+func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...tree.N) (mtree.MPath, []*mtree.TreeNode, error) {
 
 	var path mtree.MPath
 	var err error
@@ -1372,7 +1371,7 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...model.Node) (m
 		if dao.rootNodeId != "" {
 			rootNodeId = dao.rootNodeId
 		}
-		node = NewNode(model.NewNode(tree.NodeType_COLLECTION, rootNodeId, "", "", 0, 0, 0), []uint64{1}, []string{""})
+		node = NewNode(tree.LightNode(tree.NodeType_COLLECTION, rootNodeId, "", "", 0, 0, 0), []uint64{1}, []string{""})
 
 		if err = dao.AddNode(node); err != nil {
 			// Has it been created elsewhere ?
@@ -1427,7 +1426,7 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...model.Node) (m
 				if level == len(names)-1 && len(reqNode) > 0 {
 					node = NewNode(reqNode[0], path[0:level+1], names[0:level+1])
 				} else {
-					mn := model.NewNode(tree.NodeType_COLLECTION, "", "", "", 0, time.Now().Unix(), 0777)
+					mn := tree.LightNode(tree.NodeType_COLLECTION, "", "", "", 0, time.Now().Unix(), 0777)
 					node = NewNode(mn, path[0:level+1], names[0:level+1])
 				}
 

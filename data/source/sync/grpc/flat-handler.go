@@ -23,12 +23,12 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/proto/object"
 
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/endpoints/index"
 	"github.com/pydio/cells/v4/common/sync/model"
@@ -48,8 +48,8 @@ func (s *Handler) FlatScanEmpty(ctx context.Context, syncStatus chan model.Statu
 	s.indexClientSession.OpenSession(ctx, &tree.OpenSessionRequest{Session: session})
 	defer s.indexClientSession.CloseSession(ctx, &tree.CloseSessionRequest{Session: session})
 	var nodesCreated int
-	e := source.Walk(ctx, func(path string, node model.Node, err error) error {
-		// If set, Node.Uuid is read from s3 metadata. Set the Path as Uuid instead.
+	e := source.Walk(ctx, func(path string, node tree.N, err error) error {
+		// If set, N.Uuid is read from s3 metadata. Set the Path as Uuid instead.
 		clone := node.AsProto().Clone()
 		clone.Uuid = node.GetPath()
 		_, e := s.indexClientWrite.CreateNode(ctx, &tree.CreateNodeRequest{
