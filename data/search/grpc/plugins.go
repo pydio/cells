@@ -58,7 +58,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Search Engine"),
-			//service.Fork(true),
+			service.Fork(true),
 			service.WithIndexer(dao.NewDAO,
 				service.WithStoragePrefix("searchengine"),
 				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
@@ -87,10 +87,13 @@ func init() {
 				sync.RegisterSyncEndpointEnhancedServer(server, searcher)
 
 				subscriber := searcher.Subscriber()
-				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
+				if er := subscriber.Start(c); er != nil {
+					return er
+				}
+				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(message broker.Message) error {
 					msg := &tree.NodeChangeEvent{}
-					if e := message.Unmarshal(msg); e == nil {
-						return subscriber.Handle(ctx, msg)
+					if ct, e := message.Unmarshal(msg); e == nil {
+						return subscriber.Push(ct, msg)
 					}
 					return nil
 				}, broker.Queue("search")); e != nil {

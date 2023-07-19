@@ -68,6 +68,7 @@ func (s *SearchServer) Subscriber() *EventsSubscriber {
 	subscriber := &EventsSubscriber{
 		outputChannel: s.eventsChannel,
 	}
+
 	return subscriber
 }
 
