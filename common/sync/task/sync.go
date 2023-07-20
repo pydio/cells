@@ -24,7 +24,6 @@ package task
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"path/filepath"
 	"runtime/debug"
 	"sync"

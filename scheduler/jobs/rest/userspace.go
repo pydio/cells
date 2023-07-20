@@ -82,7 +82,7 @@ func compress(ctx context.Context, selectedPaths []string, targetNodePath string
 			/*
 				if !resp.GetNode().IsLeaf() {
 					// Check children for permissions as well
-					childrenStream, e := theRouter.GetClientsPool().GetTreeClient().ListNodes(ctx, &tree.ListNodesRequest{N: node, Recursive: true})
+					childrenStream, e := theRouter.GetClientsPool().GetTreeClient().ListNodes(ctx, &tree.ListNodesRequest{Node: node, Recursive: true})
 					if e != nil {
 						return e
 					}
@@ -108,7 +108,7 @@ func compress(ctx context.Context, selectedPaths []string, targetNodePath string
 			node := &tree.Node{Path: targetNodePath}
 			targetCtx, node, nodeErr := inputFilter(ctx, node, "in")
 			if nodeErr != nil {
-				log.Logger(ctx).Error("Filtering Input N", zap.Any("node", node), zap.Error(nodeErr))
+				log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 				return nodeErr
 			}
 			// Assume archive size will be as big as all files (we cannot not know in advance)
@@ -172,7 +172,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 		node := &tree.Node{Path: selectedNode}
 		srcCtx, node, nodeErr := inputFilter(ctx, node, "in")
 		if nodeErr != nil {
-			log.Logger(ctx).Error("Filtering Input N", zap.Any("node", node), zap.Error(nodeErr))
+			log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			return nodeErr
 		}
 		if err := getRouter().WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: node}); err != nil {
@@ -191,7 +191,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 		}
 		targetCtx, realNode, nodeErr := inputFilter(ctx, targetNode, "in")
 		if nodeErr != nil {
-			log.Logger(ctx).Error("Filtering Input N", zap.Any("node", targetNode), zap.Error(nodeErr))
+			log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", targetNode), zap.Error(nodeErr))
 			return nodeErr
 		}
 		if targetPath != "" {
@@ -276,7 +276,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 		targetNode := &tree.Node{Path: dir}
 		targetCtx, targetNode, nodeErr := inputFilter(ctx, targetNode, targetId)
 		if nodeErr != nil {
-			log.Logger(ctx).Error("Filtering Input N Parent", zap.Any("node", targetNode), zap.Error(nodeErr))
+			log.Logger(ctx).Error("Filtering Input Node Parent", zap.Any("node", targetNode), zap.Error(nodeErr))
 			return nodeErr
 		}
 
@@ -455,7 +455,7 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 	if innerOp, e := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: parentNode}); e == nil {
 		fullPathParentNode = innerOp.GetTarget()
 	} else {
-		return []string{}, errors.Forbidden(common.ServiceJobs, "Parent N is not writeable")
+		return []string{}, errors.Forbidden(common.ServiceJobs, "Parent Node is not writeable")
 	}
 
 	var whiteList, blackList []string

@@ -219,7 +219,7 @@ func (l *pydioObjects) ListPydioObjects(ctx context.Context, bucket string, pref
 		if clientResponse == nil {
 			continue
 		}
-		// log.Println(clientResponse.N.Path)
+		// log.Println(clientResponse.Node.Path)
 		objectInfo := fromPydioNodeObjectInfo(bucket, clientResponse.Node)
 		if clientResponse.Node.IsLeaf() {
 			objects = append(objects, objectInfo)

@@ -419,14 +419,14 @@ var file_cellsapi_graph_proto_goTypes = []interface{}{
 	nil,                       // 6: rest.UserStateResponse.WorkspacesAccessesEntry
 	(*idm.Workspace)(nil),     // 7: idm.Workspace
 	(*idm.Role)(nil),          // 8: idm.Role
-	(*tree.Node)(nil),         // 9: tree.N
+	(*tree.Node)(nil),         // 9: tree.Node
 }
 var file_cellsapi_graph_proto_depIdxs = []int32{
 	7, // 0: rest.UserStateResponse.Workspaces:type_name -> idm.Workspace
 	6, // 1: rest.UserStateResponse.WorkspacesAccesses:type_name -> rest.UserStateResponse.WorkspacesAccessesEntry
 	7, // 2: rest.RelationResponse.SharedCells:type_name -> idm.Workspace
 	8, // 3: rest.RelationResponse.BelongsToTeams:type_name -> idm.Role
-	9, // 4: rest.RecommendResponse.Nodes:type_name -> tree.N
+	9, // 4: rest.RecommendResponse.Nodes:type_name -> tree.Node
 	5, // [5:5] is the sub-list for method output_type
 	5, // [5:5] is the sub-list for method input_type
 	5, // [5:5] is the sub-list for extension type_name

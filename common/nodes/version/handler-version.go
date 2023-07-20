@@ -114,7 +114,7 @@ func (v *Handler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, opts 
 
 	if vId := req.Node.GetStringMeta(common.MetaNamespaceVersionId); vId != "" {
 		// Load Info from Version Service?
-		log.Logger(ctx).Debug("Reading N with Version ID", zap.String("versionId", vId))
+		log.Logger(ctx).Debug("Reading Node with Version ID", zap.String("versionId", vId))
 		node := req.Node
 		if len(node.Uuid) == 0 {
 			resp, e := v.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
@@ -123,12 +123,12 @@ func (v *Handler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, opts 
 			}
 			node = resp.Node
 		}
-		log.Logger(ctx).Debug("Reading N with Version ID - Found node")
+		log.Logger(ctx).Debug("Reading Node with Version ID - Found node")
 		vResp, err := v.getVersionClient().HeadVersion(ctx, &tree.HeadVersionRequest{Node: node, VersionId: vId})
 		if err != nil {
 			return nil, err
 		}
-		log.Logger(ctx).Debug("Reading N with Version ID - Found version", zap.Any("version", vResp.Version))
+		log.Logger(ctx).Debug("Reading Node with Version ID - Found version", zap.Any("version", vResp.Version))
 		node.Etag = string(vResp.Version.Data)
 		node.MTime = vResp.Version.MTime
 		node.Size = vResp.Version.Size

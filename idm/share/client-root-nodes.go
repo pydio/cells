@@ -109,7 +109,7 @@ func (sc *Client) LoadDetectedRootNodes(ctx context.Context, detectedRoots []str
 				node.AppearsIn = multipleMeta
 				loaded = append(loaded, node.WithoutReservedMetas())
 			} else {
-				log.Logger(ctx).Debug("Share Load - Ignoring Root N, probably not synced yet", zap.String("nodeId", rid), zap.Error(err))
+				log.Logger(ctx).Debug("Share Load - Ignoring Root Node, probably not synced yet", zap.String("nodeId", rid), zap.Error(err))
 			}
 		}(rootId)
 	}
@@ -391,7 +391,7 @@ func (sc *Client) LoadAdminRootNodes(ctx context.Context, detectedRoots []string
 			}
 			rootNodes[node.GetUuid()] = node.WithoutReservedMetas()
 		} else {
-			log.Logger(ctx).Error("Share Load - Ignoring Root N, probably deleted", zap.String("nodeId", rootId), zap.Error(err))
+			log.Logger(ctx).Error("Share Load - Ignoring Root Node, probably deleted", zap.String("nodeId", rootId), zap.Error(err))
 		}
 	}
 	return

@@ -169,7 +169,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 		So(outputBranch.ObjectsBucket, ShouldEqual, "bucket")
 	})
 
-	Convey("Test update Output N", t, func() {
+	Convey("Test update Output Node", t, func() {
 
 		b, _ := newTestHandlerBranchTranslator(pool)
 		ctx := makeFakeTestContext("in", &tree.Node{Path: "datasource/root"})
@@ -179,7 +179,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 
 	})
 
-	Convey("Test update Output N - Admin", t, func() {
+	Convey("Test update Output Node - Admin", t, func() {
 
 		b, _ := newTestHandlerBranchTranslator(pool)
 		adminCtx := nodes.WithBranchInfo(context.Background(), "in", nodes.BranchInfo{

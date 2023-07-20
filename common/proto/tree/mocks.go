@@ -155,7 +155,7 @@ func (m *NodeProviderMock) ReadNode(ctx context.Context, in *ReadNodeRequest, op
 			}
 		}
 	}
-	return nil, errors.NotFound(common.ServiceDataIndex_, "N not found")
+	return nil, errors.NotFound(common.ServiceDataIndex_, "Node not found")
 }
 
 func (m *NodeProviderMock) ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (NodeProvider_ListNodesClient, error) {

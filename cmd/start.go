@@ -589,7 +589,7 @@ func init() {
 	StartCmd.Flags().String(runtime.KeyHttpServer, "caddy", "HTTP Server Type")
 	StartCmd.Flags().String(runtime.KeyHttpPort, runtime.DefaultHttpPort, "HTTP Server Port")
 	StartCmd.Flags().Bool(runtime.KeyFork, false, "Used internally by application when forking processes")
-	StartCmd.Flags().StringArray(runtime.KeyNodeCapacity, []string{}, "N capacity declares externally supported features for this node")
+	StartCmd.Flags().StringArray(runtime.KeyNodeCapacity, []string{}, "Node capacity declares externally supported features for this node")
 
 	if os.Getenv(EnvDisplayHiddenFlags) == "" {
 		_ = StartCmd.Flags().MarkHidden(runtime.KeyHttpServer)

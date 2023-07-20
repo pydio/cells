@@ -180,7 +180,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 				if e != nil {
 					continue
 				}
-				log.Logger(ctx).Debug("Filtered N & Context", zap.String("path", n.Path))
+				log.Logger(ctx).Debug("Filtered Node & Context", zap.String("path", n.Path))
 				query.Paths = append(query.Paths, n.Path)
 			}
 		}
@@ -213,7 +213,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 			if e != nil {
 				continue
 			}
-			log.Logger(ctx).Debug("Filtered N & Context", zap.String("path", rootNode.Path))
+			log.Logger(ctx).Debug("Filtered Node & Context", zap.String("path", rootNode.Path))
 			nodesPrefixes[rootNode.Path] = p
 			query.PathPrefix = append(query.PathPrefix, rootNode.Path)
 		}

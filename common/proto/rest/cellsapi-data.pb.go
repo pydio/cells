@@ -527,7 +527,7 @@ type HeadNodeRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The node to state
-	Node string `protobuf:"bytes,1,opt,name=N,proto3" json:"N,omitempty"`
+	Node string `protobuf:"bytes,1,opt,name=Node,proto3" json:"Node,omitempty"`
 }
 
 func (x *HeadNodeRequest) Reset() {
@@ -574,7 +574,7 @@ type HeadNodeResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Node *tree.Node `protobuf:"bytes,1,opt,name=N,proto3" json:"N,omitempty"`
+	Node *tree.Node `protobuf:"bytes,1,opt,name=Node,proto3" json:"Node,omitempty"`
 }
 
 func (x *HeadNodeResponse) Reset() {
@@ -1438,27 +1438,27 @@ var file_cellsapi_data_proto_goTypes = []interface{}{
 	(*ListDocstoreRequest)(nil),     // 18: rest.ListDocstoreRequest
 	(*DocstoreCollection)(nil),      // 19: rest.DocstoreCollection
 	nil,                             // 20: rest.GetBulkMetaRequest.FiltersEntry
-	(*tree.Node)(nil),               // 21: tree.N
+	(*tree.Node)(nil),               // 21: tree.Node
 	(*tree.SearchFacet)(nil),        // 22: tree.SearchFacet
 	(*docstore.DocumentQuery)(nil),  // 23: docstore.DocumentQuery
 	(*docstore.Document)(nil),       // 24: docstore.Document
 }
 var file_cellsapi_data_proto_depIdxs = []int32{
-	21, // 0: rest.SearchResults.Results:type_name -> tree.N
+	21, // 0: rest.SearchResults.Results:type_name -> tree.Node
 	22, // 1: rest.SearchResults.Facets:type_name -> tree.SearchFacet
 	2,  // 2: rest.MetaCollection.Metadatas:type_name -> rest.Metadata
 	20, // 3: rest.GetBulkMetaRequest.Filters:type_name -> rest.GetBulkMetaRequest.FiltersEntry
-	21, // 4: rest.BulkMetaResponse.Nodes:type_name -> tree.N
+	21, // 4: rest.BulkMetaResponse.Nodes:type_name -> tree.Node
 	1,  // 5: rest.BulkMetaResponse.Pagination:type_name -> rest.Pagination
-	21, // 6: rest.HeadNodeResponse.N:type_name -> tree.N
-	21, // 7: rest.CreateNodesRequest.Nodes:type_name -> tree.N
-	21, // 8: rest.CreateSelectionRequest.Nodes:type_name -> tree.N
-	21, // 9: rest.CreateSelectionResponse.Nodes:type_name -> tree.N
-	21, // 10: rest.NodesCollection.Parent:type_name -> tree.N
-	21, // 11: rest.NodesCollection.Children:type_name -> tree.N
-	21, // 12: rest.DeleteNodesRequest.Nodes:type_name -> tree.N
+	21, // 6: rest.HeadNodeResponse.Node:type_name -> tree.Node
+	21, // 7: rest.CreateNodesRequest.Nodes:type_name -> tree.Node
+	21, // 8: rest.CreateSelectionRequest.Nodes:type_name -> tree.Node
+	21, // 9: rest.CreateSelectionResponse.Nodes:type_name -> tree.Node
+	21, // 10: rest.NodesCollection.Parent:type_name -> tree.Node
+	21, // 11: rest.NodesCollection.Children:type_name -> tree.Node
+	21, // 12: rest.DeleteNodesRequest.Nodes:type_name -> tree.Node
 	14, // 13: rest.DeleteNodesResponse.DeleteJobs:type_name -> rest.BackgroundJobResult
-	21, // 14: rest.RestoreNodesRequest.Nodes:type_name -> tree.N
+	21, // 14: rest.RestoreNodesRequest.Nodes:type_name -> tree.Node
 	14, // 15: rest.RestoreNodesResponse.RestoreJobs:type_name -> rest.BackgroundJobResult
 	23, // 16: rest.ListDocstoreRequest.Query:type_name -> docstore.DocumentQuery
 	24, // 17: rest.DocstoreCollection.Docs:type_name -> docstore.Document

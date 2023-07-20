@@ -548,7 +548,7 @@ type PublishPackageRequest struct {
 	Channel string   `protobuf:"bytes,1,opt,name=Channel,proto3" json:"Channel,omitempty"`
 	Package *Package `protobuf:"bytes,2,opt,name=Package,proto3" json:"Package,omitempty"`
 	// Used internally to map to an existing file
-	Node *tree.Node `protobuf:"bytes,3,opt,name=N,proto3" json:"N,omitempty"`
+	Node *tree.Node `protobuf:"bytes,3,opt,name=Node,proto3" json:"Node,omitempty"`
 }
 
 func (x *PublishPackageRequest) Reset() {
@@ -1074,14 +1074,14 @@ var file_cells_update_proto_goTypes = []interface{}{
 	(*DeletePackageRequest)(nil),   // 10: update.DeletePackageRequest
 	(*DeletePackageResponse)(nil),  // 11: update.DeletePackageResponse
 	nil,                            // 12: update.UpdateRequest.LicenseInfoEntry
-	(*tree.Node)(nil),              // 13: tree.N
+	(*tree.Node)(nil),              // 13: tree.Node
 }
 var file_cells_update_proto_depIdxs = []int32{
 	0,  // 0: update.Package.Status:type_name -> update.Package.PackageStatus
 	12, // 1: update.UpdateRequest.LicenseInfo:type_name -> update.UpdateRequest.LicenseInfoEntry
 	1,  // 2: update.UpdateResponse.AvailableBinaries:type_name -> update.Package
 	1,  // 3: update.PublishPackageRequest.Package:type_name -> update.Package
-	13, // 4: update.PublishPackageRequest.N:type_name -> tree.N
+	13, // 4: update.PublishPackageRequest.Node:type_name -> tree.Node
 	1,  // 5: update.PublishPackageResponse.Package:type_name -> update.Package
 	1,  // 6: update.ListPackagesResponse.Packages:type_name -> update.Package
 	4,  // 7: update.UpdateService.UpdateRequired:input_type -> update.UpdateRequest

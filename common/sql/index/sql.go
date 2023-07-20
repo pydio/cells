@@ -684,12 +684,12 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 	dao.Unlock()
 
 	for _, node := range nodesToUpdate {
-		log.Logger(context.Background()).Info("Resyncing Etag For N", node.Zap("node"))
+		log.Logger(context.Background()).Info("Resyncing Etag For Node", node.Zap("node"))
 		newEtag, eE := dao.etagFromChildren(node)
 		if eE != nil {
 			return eE
 		}
-		log.Logger(context.Background()).Info("Computed Etag For N", zap.String("etag", newEtag))
+		log.Logger(context.Background()).Info("Computed Etag For Node", zap.String("etag", newEtag))
 		stmt, er := dao.GetStmt("updateEtag")
 		if er != nil {
 			return er
