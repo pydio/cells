@@ -1235,7 +1235,7 @@ type Action struct {
 	NodesSelector *NodesSelector `protobuf:"bytes,2,opt,name=NodesSelector,proto3" json:"NodesSelector,omitempty"`
 	// Users Selector (deprecated in favor of IdmSelector)
 	UsersSelector *UsersSelector `protobuf:"bytes,3,opt,name=UsersSelector,proto3" json:"UsersSelector,omitempty"`
-	// N Filter
+	// Node Filter
 	NodesFilter *NodesSelector `protobuf:"bytes,4,opt,name=NodesFilter,proto3" json:"NodesFilter,omitempty"`
 	// User Filter (deprecated in favor of IdmSelector)
 	UsersFilter *UsersSelector `protobuf:"bytes,5,opt,name=UsersFilter,proto3" json:"UsersFilter,omitempty"`
@@ -3617,7 +3617,7 @@ type ActionMessage struct {
 
 	// Initial event that triggered the Job
 	Event *anypb.Any `protobuf:"bytes,1,opt,name=Event,proto3" json:"Event,omitempty"`
-	// One or more N
+	// One or more Node
 	Nodes []*tree.Node `protobuf:"bytes,2,rep,name=Nodes,proto3" json:"Nodes,omitempty"`
 	// One or more User
 	Users []*idm.User `protobuf:"bytes,3,rep,name=Users,proto3" json:"Users,omitempty"`
@@ -4442,7 +4442,7 @@ var file_cells_jobs_proto_goTypes = []interface{}{
 	(*idm.PolicyCondition)(nil),      // 54: idm.PolicyCondition
 	(*anypb.Any)(nil),                // 55: google.protobuf.Any
 	(*service.ResourcePolicy)(nil),   // 56: service.ResourcePolicy
-	(*tree.Node)(nil),                // 57: tree.N
+	(*tree.Node)(nil),                // 57: tree.Node
 	(*idm.Role)(nil),                 // 58: idm.Role
 	(*idm.Workspace)(nil),            // 59: idm.Workspace
 	(*idm.ACL)(nil),                  // 60: idm.ACL
@@ -4519,7 +4519,7 @@ var file_cells_jobs_proto_depIdxs = []int32{
 	44, // 66: jobs.JobTriggerEvent.TriggerMessage:type_name -> jobs.ActionMessage
 	51, // 67: jobs.ActionOutput.Vars:type_name -> jobs.ActionOutput.VarsEntry
 	55, // 68: jobs.ActionMessage.Event:type_name -> google.protobuf.Any
-	57, // 69: jobs.ActionMessage.Nodes:type_name -> tree.N
+	57, // 69: jobs.ActionMessage.Nodes:type_name -> tree.Node
 	53, // 70: jobs.ActionMessage.Users:type_name -> idm.User
 	58, // 71: jobs.ActionMessage.Roles:type_name -> idm.Role
 	59, // 72: jobs.ActionMessage.Workspaces:type_name -> idm.Workspace

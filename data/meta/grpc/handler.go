@@ -184,18 +184,18 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 // ReadNode information off the meta server
 func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (resp *tree.ReadNodeResponse, err error) {
 	if req.Node == nil || req.Node.Uuid == "" {
-		return resp, errors.BadRequest(common.ServiceMeta, "Please provide a N with a Uuid")
+		return resp, errors.BadRequest(common.ServiceMeta, "Please provide a Node with a Uuid")
 	}
 	resp = &tree.ReadNodeResponse{}
 
 	if s.cache != nil {
-		//s.cacheMutex.Lock(req.N.Uuid)
-		//defer s.cacheMutex.Unlock(req.N.Uuid)
+		//s.cacheMutex.Lock(req.Node.Uuid)
+		//defer s.cacheMutex.Unlock(req.Node.Uuid)
 		data, ok := s.cache.GetBytes(req.Node.Uuid)
 		if ok {
 			var metaD map[string]string
 			if er := json.Unmarshal(data, &metaD); er == nil {
-				//log.Logger(ctx).Info("META / Reading from cache for " + req.N.Uuid)
+				//log.Logger(ctx).Info("META / Reading from cache for " + req.Node.Uuid)
 				resp.Success = true
 				respNode := req.Node
 				for k, v := range metaD {
@@ -214,13 +214,13 @@ func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 
 	metadata, err := s.dao.GetMetadata(req.Node.Uuid)
 	if metadata == nil || err != nil {
-		return resp, errors.NotFound(common.ServiceMeta, "N with Uuid "+req.Node.Uuid+" not found")
+		return resp, errors.NotFound(common.ServiceMeta, "Node with Uuid "+req.Node.Uuid+" not found")
 	}
 
 	if s.cache != nil {
 		value, e := json.Marshal(metadata)
 		if e == nil {
-			//log.Logger(ctx).Info("META / Setting cache for " + req.N.Uuid)
+			//log.Logger(ctx).Info("META / Setting cache for " + req.Node.Uuid)
 			s.cache.Set(req.Node.Uuid, value)
 		}
 	}
@@ -289,9 +289,9 @@ func (s *MetaServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	}
 
 	if s.cache != nil {
-		//s.cacheMutex.Lock(req.N.Uuid)
-		//defer s.cacheMutex.Unlock(req.N.Uuid)
-		//log.Logger(ctx).Info("META / Clearing cache for "+req.N.Uuid, req.N.Zap())
+		//s.cacheMutex.Lock(req.Node.Uuid)
+		//defer s.cacheMutex.Unlock(req.Node.Uuid)
+		//log.Logger(ctx).Info("META / Clearing cache for "+req.Node.Uuid, req.Node.Zap())
 		s.cache.Delete(req.Node.Uuid)
 	}
 
@@ -356,9 +356,9 @@ func (s *MetaServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 func (s *MetaServer) DeleteNode(ctx context.Context, request *tree.DeleteNodeRequest) (result *tree.DeleteNodeResponse, err error) {
 
 	if s.cache != nil {
-		//log.Logger(ctx).Info("META / Clearing cache for " + request.N.Uuid)
-		//s.cacheMutex.Lock(request.N.Uuid)
-		//defer s.cacheMutex.Unlock(request.N.Uuid)
+		//log.Logger(ctx).Info("META / Clearing cache for " + request.Node.Uuid)
+		//s.cacheMutex.Lock(request.Node.Uuid)
+		//defer s.cacheMutex.Unlock(request.Node.Uuid)
 		s.cache.Delete(request.Node.Uuid)
 	}
 

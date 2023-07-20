@@ -24,19 +24,18 @@ package task
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"path/filepath"
 	"runtime/debug"
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
-	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
-
 	"github.com/gobwas/glob"
-	"github.com/pydio/cells/v4/common/log"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v4/common/sync/filters"
 	"github.com/pydio/cells/v4/common/sync/merger"
 	"github.com/pydio/cells/v4/common/sync/model"

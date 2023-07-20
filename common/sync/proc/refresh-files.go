@@ -22,10 +22,10 @@ package proc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"path"
 	"time"
 
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/merger"
 	"github.com/pydio/cells/v4/common/sync/model"
 	"github.com/pydio/cells/v4/common/utils/mtree"

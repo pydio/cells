@@ -124,7 +124,7 @@ func (this *Node) Validate() error {
 func (this *NodeInfo) Validate() error {
 	if this.Node != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Node); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("N", err)
+			return github_com_mwitkow_go_proto_validators.FieldError("Node", err)
 		}
 	}
 	if this.NodeKey != nil {

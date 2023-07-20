@@ -97,7 +97,7 @@ func (a *FilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, 
 	}
 	updatedParents := append([]*tree.Node{response.GetNode()}, parents[1:]...)
 	if checkDl && accessList.HasExplicitDeny(ctx, permissions.FlagDownload, updatedParents...) {
-		return nil, errors.Forbidden("download.forbidden", "N cannot be downloaded")
+		return nil, errors.Forbidden("download.forbidden", "Node cannot be downloaded")
 	}
 	if checkSync && accessList.HasExplicitDeny(ctx, permissions.FlagSync, updatedParents...) {
 		n := response.Node.Clone()
@@ -120,7 +120,7 @@ func (a *FilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest
 	}
 
 	if !accessList.CanRead(ctx, parents...) {
-		return nil, errors.Forbidden("node.not.readable", "N is not readable")
+		return nil, errors.Forbidden("node.not.readable", "Node is not readable")
 	}
 
 	stream, err := a.Next.ListNodes(ctx, in, opts...)
@@ -209,7 +209,7 @@ func (a *FilterHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeReque
 		return nil, pathNotWriteable
 	}
 	if accessList.HasExplicitDeny(ctx, permissions.FlagDelete, delParents...) {
-		return nil, errors.Forbidden("delete.forbidden", "N cannot be deleted")
+		return nil, errors.Forbidden("delete.forbidden", "Node cannot be deleted")
 	}
 	return a.Next.DeleteNode(ctx, in, opts...)
 }
@@ -228,7 +228,7 @@ func (a *FilterHandler) GetObject(ctx context.Context, node *tree.Node, requestD
 		return nil, pathNotReadable
 	}
 	if accessList.HasExplicitDeny(ctx, permissions.FlagDownload, parents...) {
-		return nil, errors.Forbidden("download.forbidden", "N is not downloadable")
+		return nil, errors.Forbidden("download.forbidden", "Node is not downloadable")
 	}
 	return a.Next.GetObject(ctx, node, requestData)
 }

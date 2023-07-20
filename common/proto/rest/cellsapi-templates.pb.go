@@ -29,7 +29,7 @@ type TemplateNode struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Whether it's a file or a folder
-	Node *tree.Node `protobuf:"bytes,1,opt,name=N,proto3" json:"N,omitempty"`
+	Node *tree.Node `protobuf:"bytes,1,opt,name=Node,proto3" json:"Node,omitempty"`
 	// One or more children
 	Children map[string]*tree.Node `protobuf:"bytes,2,rep,name=Children,proto3" json:"Children,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
@@ -91,7 +91,7 @@ type Template struct {
 	// Human friendly label
 	Label string `protobuf:"bytes,2,opt,name=Label,proto3" json:"Label,omitempty"`
 	// Template node, can be a file or a tree of folders
-	Node *TemplateNode `protobuf:"bytes,3,opt,name=N,proto3" json:"N,omitempty"`
+	Node *TemplateNode `protobuf:"bytes,3,opt,name=Node,proto3" json:"Node,omitempty"`
 	// Whether this template can be edited or not
 	Editable bool `protobuf:"varint,5,opt,name=Editable,proto3" json:"Editable,omitempty"`
 	// Associated policies
@@ -322,16 +322,16 @@ var file_cellsapi_templates_proto_goTypes = []interface{}{
 	(*ListTemplatesRequest)(nil),   // 2: rest.ListTemplatesRequest
 	(*ListTemplatesResponse)(nil),  // 3: rest.ListTemplatesResponse
 	nil,                            // 4: rest.TemplateNode.ChildrenEntry
-	(*tree.Node)(nil),              // 5: tree.N
+	(*tree.Node)(nil),              // 5: tree.Node
 	(*service.ResourcePolicy)(nil), // 6: service.ResourcePolicy
 }
 var file_cellsapi_templates_proto_depIdxs = []int32{
-	5, // 0: rest.TemplateNode.N:type_name -> tree.N
+	5, // 0: rest.TemplateNode.Node:type_name -> tree.Node
 	4, // 1: rest.TemplateNode.Children:type_name -> rest.TemplateNode.ChildrenEntry
-	0, // 2: rest.Template.N:type_name -> rest.TemplateNode
+	0, // 2: rest.Template.Node:type_name -> rest.TemplateNode
 	6, // 3: rest.Template.Policies:type_name -> service.ResourcePolicy
 	1, // 4: rest.ListTemplatesResponse.Templates:type_name -> rest.Template
-	5, // 5: rest.TemplateNode.ChildrenEntry.value:type_name -> tree.N
+	5, // 5: rest.TemplateNode.ChildrenEntry.value:type_name -> tree.Node
 	6, // [6:6] is the sub-list for method output_type
 	6, // [6:6] is the sub-list for method input_type
 	6, // [6:6] is the sub-list for extension type_name

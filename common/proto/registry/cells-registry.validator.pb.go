@@ -41,7 +41,7 @@ func (this *Item) Validate() error {
 	if oneOfNester, ok := this.GetItem().(*Item_Node); ok {
 		if oneOfNester.Node != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Node); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("N", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("Node", err)
 			}
 		}
 	}

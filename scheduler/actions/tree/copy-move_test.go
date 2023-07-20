@@ -235,7 +235,7 @@ func TestCopyMoveAction_RunMove(t *testing.T) {
 		//So(mock.Nodes, ShouldHaveLength, 3)
 		So(mock.Nodes["from"].Path, ShouldEqual, "path/to/original")
 		So(mock.Nodes["to"].Path, ShouldEqual, "target/path/moved")
-		// Deleted N - no : DS is FLAT so there is no explicit call to Delete
+		// Deleted Node - no : DS is FLAT so there is no explicit call to Delete
 		// Previous test was in fact checking the last ReadNode call...
 		// So(mock.Nodes["in"].Path, ShouldEqual, "path/to/original")
 

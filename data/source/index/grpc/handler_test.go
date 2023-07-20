@@ -553,7 +553,7 @@ func TestIndex(t *testing.T) {
 		send(s, "CreateNode", &tree.CreateNodeRequest{Node: n2})
 	})
 
-	Convey("Update a N if uuid already exists and flag given", t, func() {
+	Convey("Update a Node if uuid already exists and flag given", t, func() {
 		n1 := &tree.Node{Path: "/test-update-uuid-already-exists", Uuid: "test-update-if-exists", Etag: "test1"}
 		n2 := &tree.Node{Path: "/test-update-uuid-already-exists", Uuid: "test-update-if-exists", Etag: "test2"}
 		n3 := &tree.Node{Path: "/test-update-uuid-already-exists", Uuid: "test-update-if-exists", Etag: "test3"}
@@ -567,7 +567,7 @@ func TestIndex(t *testing.T) {
 		send(s, "CreateNode", &tree.CreateNodeRequest{Node: n3})
 	})
 
-	Convey("Update a N if path already exists and flag given", t, func() {
+	Convey("Update a Node if path already exists and flag given", t, func() {
 		n1 := &tree.Node{Path: "/test-update-path-already-exists", Uuid: "test-path-if-exists1", Etag: "test1"}
 		n2 := &tree.Node{Path: "/test-update-path-already-exists", Uuid: "test-path-if-exists2", Etag: "test2"}
 		n3 := &tree.Node{Path: "/test-update-path-already-exists", Uuid: "test-path-if-exists3", Etag: "test3"}

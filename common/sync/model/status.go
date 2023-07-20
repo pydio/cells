@@ -165,7 +165,7 @@ func (p *ProcessingStatus) MarshalJSON() ([]byte, error) {
 	}
 	if p.node != nil {
 		bb, _ := json.Marshal(p.node.AsProto())
-		m["N"] = string(bb)
+		m["Node"] = string(bb)
 	}
 	return json.Marshal(m)
 }
@@ -185,7 +185,7 @@ func (p *ProcessingStatus) UnmarshalJSON(data []byte) error {
 		if u, ok := m["EndpointURI"]; ok {
 			p.uri = u.(string)
 		}
-		if nb, ok := m["N"]; ok {
+		if nb, ok := m["Node"]; ok {
 			if bb, o := nb.(string); o {
 				var tn *tree.Node
 				if er := json.Unmarshal([]byte(bb), &tn); er == nil {

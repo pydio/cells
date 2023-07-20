@@ -506,7 +506,7 @@ func TestMysql(t *testing.T) {
 func TestMoveNode(t *testing.T) {
 
 	// Getting children count
-	Convey("Test Moving N with long mpath", t, func() {
+	Convey("Test Moving Node with long mpath", t, func() {
 
 		currentDAO := NewFolderSizeCacheDAO(getDAO(ctxNoCache))
 

@@ -166,7 +166,7 @@ func TestNewBleveEngine(t *testing.T) {
 
 func TestMakeIndexableNode(t *testing.T) {
 
-	Convey("Create Indexable N", t, func() {
+	Convey("Create Indexable Node", t, func() {
 
 		mtime := time.Now().Unix()
 		mtimeNoNano := time.Unix(mtime, 0)
@@ -194,7 +194,7 @@ func TestMakeIndexableNode(t *testing.T) {
 
 func TestIndexNode(t *testing.T) {
 
-	Convey("Index N", t, func() {
+	Convey("Index Node", t, func() {
 
 		server, closer := getTmpIndex(false)
 		defer closer()
@@ -214,7 +214,7 @@ func TestIndexNode(t *testing.T) {
 		So(e, ShouldBeNil)
 	})
 
-	Convey("Index N Without Uuid", t, func() {
+	Convey("Index Node Without Uuid", t, func() {
 
 		server, closer := getTmpIndex(false)
 		defer closer()
@@ -241,7 +241,7 @@ func TestSearchNode(t *testing.T) {
 	defer closer()
 	ctx := context.Background()
 
-	Convey("Search N by name", t, func() {
+	Convey("Search Node by name", t, func() {
 
 		queryObject := &tree.Query{
 			FileName: "node",
@@ -261,7 +261,7 @@ func TestSearchNode(t *testing.T) {
 
 	})
 
-	Convey("Search N by extension", t, func() {
+	Convey("Search Node by extension", t, func() {
 
 		queryObject := &tree.Query{
 			Extension: "txt",
@@ -294,7 +294,7 @@ func TestSearchNode(t *testing.T) {
 		<-time.After(7 * time.Second)
 	})
 
-	Convey("Search N by size", t, func() {
+	Convey("Search Node by size", t, func() {
 
 		// Min & Max
 		queryObject := &tree.Query{
@@ -326,7 +326,7 @@ func TestSearchNode(t *testing.T) {
 
 	})
 
-	Convey("Search N by MTime", t, func() {
+	Convey("Search Node by MTime", t, func() {
 
 		mtime := time.Now().Unix()
 		// Min & Max
@@ -350,7 +350,7 @@ func TestSearchNode(t *testing.T) {
 
 	})
 
-	Convey("Search N with FreeString", t, func() {
+	Convey("Search Node with FreeString", t, func() {
 
 		queryObject := &tree.Query{
 			FreeString: "+Meta.FreeMeta:FreeMetaValue",
@@ -361,7 +361,7 @@ func TestSearchNode(t *testing.T) {
 		So(results, ShouldHaveLength, 1)
 	})
 
-	Convey("Search N with FreeString (integer)", t, func() {
+	Convey("Search Node with FreeString (integer)", t, func() {
 
 		queryObject := &tree.Query{
 			FreeString: "+Meta.StarsMeta:5",
@@ -372,7 +372,7 @@ func TestSearchNode(t *testing.T) {
 		So(results, ShouldHaveLength, 1)
 	})
 
-	Convey("Search N with Basename and FreeString (integer)", t, func() {
+	Convey("Search Node with Basename and FreeString (integer)", t, func() {
 
 		queryObject := &tree.Query{
 			FreeString: "+Basename:node.txt +Meta.StarsMeta:5",
@@ -383,7 +383,7 @@ func TestSearchNode(t *testing.T) {
 		So(results, ShouldHaveLength, 1)
 	})
 
-	Convey("Search N by Type", t, func() {
+	Convey("Search Node by Type", t, func() {
 
 		queryObject := &tree.Query{
 			Type: 1,
@@ -405,7 +405,7 @@ func TestSearchNode(t *testing.T) {
 
 	})
 
-	Convey("Search N by name with Exact Path", t, func() {
+	Convey("Search Node by name with Exact Path", t, func() {
 
 		queryObject := &tree.Query{
 			Paths: []string{"/path/to"},
@@ -431,7 +431,7 @@ func TestSearchNode(t *testing.T) {
 
 	})
 
-	Convey("Search N by name with Path Prefix", t, func() {
+	Convey("Search Node by name with Path Prefix", t, func() {
 
 		queryObject := &tree.Query{
 			FileName:   "node",
@@ -461,7 +461,7 @@ func TestSearchByGeolocation(t *testing.T) {
 	defer closer()
 	ctx := context.Background()
 
-	Convey("Search N by GeoLocation", t, func() {
+	Convey("Search Node by GeoLocation", t, func() {
 
 		queryObject := &tree.Query{
 			GeoQuery: &tree.GeoQuery{
@@ -500,7 +500,7 @@ func TestSearchByGeolocation(t *testing.T) {
 
 func TestDeleteNode(t *testing.T) {
 
-	Convey("Delete N", t, func() {
+	Convey("Delete Node", t, func() {
 
 		server, closer := getTmpIndex(true)
 		defer closer()

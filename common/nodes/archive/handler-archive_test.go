@@ -74,7 +74,7 @@ func TestHandler_WrappingStreamer(t *testing.T) {
 		}
 	}()
 
-	Convey("Test Read Normal N", t, func() {
+	Convey("Test Read Normal Node", t, func() {
 		err := s.Send(&tree.ListNodesResponse{Node: &tree.Node{Path: "path/folder/file", Type: tree.NodeType_LEAF, Size: 10}})
 		So(err, ShouldBeNil)
 	})
@@ -99,13 +99,13 @@ func TestHandler_ReadNode(t *testing.T) {
 	}
 	zipHandler.SetNextHandler(mock)
 
-	Convey("Test Read Normal N", t, func() {
+	Convey("Test Read Normal Node", t, func() {
 		resp, e := zipHandler.ReadNode(context.Background(), &tree.ReadNodeRequest{Node: &tree.Node{Path: "path/folder"}})
 		So(e, ShouldBeNil)
 		So(resp.Node, ShouldResemble, &tree.Node{Path: "path/folder", Type: tree.NodeType_COLLECTION})
 	})
 
-	Convey("Test Read Zip N", t, func() {
+	Convey("Test Read Zip Node", t, func() {
 		resp, e := zipHandler.ReadNode(context.Background(), &tree.ReadNodeRequest{Node: &tree.Node{Path: "path/folder.zip"}})
 		So(e, ShouldBeNil)
 		So(resp.Node.Size, ShouldEqual, -1)
@@ -137,7 +137,7 @@ func TestHandler_GetObject(t *testing.T) {
 	}
 	zipHandler.SetNextHandler(mock)
 
-	Convey("Test Get Zip N", t, func() {
+	Convey("Test Get Zip Node", t, func() {
 		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
 			Path: "path/folder.zip",
 		}, &models.GetRequestData{
@@ -165,7 +165,7 @@ func TestHandler_GetObject(t *testing.T) {
 		So(n, ShouldBeGreaterThan, 20)
 	})
 
-	Convey("Test Get Tar N", t, func() {
+	Convey("Test Get Tar Node", t, func() {
 		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
 			Path: "path/folder.tar",
 		}, &models.GetRequestData{
@@ -193,7 +193,7 @@ func TestHandler_GetObject(t *testing.T) {
 		So(n, ShouldBeGreaterThan, 20)
 	})
 
-	Convey("Test Get Tar.gz N", t, func() {
+	Convey("Test Get Tar.gz Node", t, func() {
 		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
 			Path: "path/folder.tar.gz",
 		}, &models.GetRequestData{

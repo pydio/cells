@@ -2855,7 +2855,7 @@ type ACL struct {
 	RoleID string `protobuf:"bytes,3,opt,name=RoleID,proto3" json:"RoleID,omitempty"`
 	// Associated Workspace
 	WorkspaceID string `protobuf:"bytes,4,opt,name=WorkspaceID,proto3" json:"WorkspaceID,omitempty"`
-	// Associated N
+	// Associated Node
 	NodeID string `protobuf:"bytes,5,opt,name=NodeID,proto3" json:"NodeID,omitempty"`
 }
 
@@ -3028,7 +3028,7 @@ type UserMeta struct {
 	Policies []*service.ResourcePolicy `protobuf:"bytes,5,rep,name=Policies,proto3" json:"Policies,omitempty"`
 	// Context-resolved to quickly check if this meta is editable or not
 	PoliciesContextEditable bool `protobuf:"varint,6,opt,name=PoliciesContextEditable,proto3" json:"PoliciesContextEditable,omitempty"`
-	// Pass along resolved N for advanced filtering
+	// Pass along resolved Node for advanced filtering
 	ResolvedNode *tree.Node `protobuf:"bytes,7,opt,name=ResolvedNode,proto3" json:"ResolvedNode,omitempty"`
 }
 
@@ -5209,7 +5209,7 @@ var file_cells_idm_proto_goTypes = []interface{}{
 	nil,                                              // 74: idm.Policy.ConditionsEntry
 	(*service.Query)(nil),                            // 75: service.Query
 	(*service.ResourcePolicy)(nil),                   // 76: service.ResourcePolicy
-	(*tree.Node)(nil),                                // 77: tree.N
+	(*tree.Node)(nil),                                // 77: tree.Node
 	(*service.ResourcePolicyQuery)(nil),              // 78: service.ResourcePolicyQuery
 }
 var file_cells_idm_proto_depIdxs = []int32{
@@ -5248,7 +5248,7 @@ var file_cells_idm_proto_depIdxs = []int32{
 	45, // 32: idm.ACL.Action:type_name -> idm.ACLAction
 	45, // 33: idm.ACLSingleQuery.Actions:type_name -> idm.ACLAction
 	76, // 34: idm.UserMeta.Policies:type_name -> service.ResourcePolicy
-	77, // 35: idm.UserMeta.ResolvedNode:type_name -> tree.N
+	77, // 35: idm.UserMeta.ResolvedNode:type_name -> tree.Node
 	76, // 36: idm.UserMetaNamespace.Policies:type_name -> service.ResourcePolicy
 	5,  // 37: idm.UpdateUserMetaRequest.Operation:type_name -> idm.UpdateUserMetaRequest.UserMetaOp
 	48, // 38: idm.UpdateUserMetaRequest.MetaDatas:type_name -> idm.UserMeta
@@ -5275,7 +5275,7 @@ var file_cells_idm_proto_depIdxs = []int32{
 	63, // 59: idm.StorePolicyGroupResponse.PolicyGroup:type_name -> idm.PolicyGroup
 	63, // 60: idm.DeletePolicyGroupRequest.PolicyGroup:type_name -> idm.PolicyGroup
 	63, // 61: idm.ListPolicyGroupsResponse.PolicyGroups:type_name -> idm.PolicyGroup
-	77, // 62: idm.Workspace.RootNodesEntry.value:type_name -> tree.N
+	77, // 62: idm.Workspace.RootNodesEntry.value:type_name -> tree.Node
 	61, // 63: idm.Policy.ConditionsEntry.value:type_name -> idm.PolicyCondition
 	7,  // 64: idm.RoleService.CreateRole:input_type -> idm.CreateRoleRequest
 	9,  // 65: idm.RoleService.DeleteRole:input_type -> idm.DeleteRoleRequest

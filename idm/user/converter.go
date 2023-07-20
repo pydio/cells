@@ -196,7 +196,7 @@ func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression
 		}
 	}
 
-	// Filter by N Type
+	// Filter by Node Type
 	if q.NodeType == idm.NodeType_USER {
 		expressions = append(expressions, gt.Col("leaf").Eq(1))
 	} else if q.NodeType == idm.NodeType_GROUP {

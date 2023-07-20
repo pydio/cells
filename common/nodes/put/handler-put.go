@@ -108,7 +108,7 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 		tmpNode.MustSetMeta(common.MetaNamespaceMime, requestData.MetaContentType())
 	}
 
-	log.Logger(ctx).Debug("[PUT HANDLER] > Create N", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
+	log.Logger(ctx).Debug("[PUT HANDLER] > Create Node", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
 	createResp, er := retryOnDuplicate(func() (*tree.CreateNodeResponse, error) {
 		return treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode})
 	})
@@ -163,7 +163,7 @@ func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, s
 				Etag:  "-1",
 			}
 			treeWriter := m.ClientsPool.GetTreeClientWrite()
-			log.Logger(ctx).Debug("[PUT HANDLER] > Create Parent N In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
+			log.Logger(ctx).Debug("[PUT HANDLER] > Create Parent Node In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
 			_, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode, IndexationSession: session})
 			if er != nil {
 				parsedErr := errors.FromError(er)
@@ -227,7 +227,7 @@ func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 	} else {
 		// PreCreate a node in the tree.
 		newNode, onErrorFunc, nodeErr := m.getOrCreatePutNode(ctx, node.Path, requestData)
-		log.Logger(ctx).Debug("PreLoad or PreCreate N in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
+		log.Logger(ctx).Debug("PreLoad or PreCreate Node in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
 		if nodeErr != nil {
 			return models.ObjectInfo{}, nodeErr
 		}
@@ -273,7 +273,7 @@ func (m *Handler) MultipartCreate(ctx context.Context, node *tree.Node, requestD
 			size, _ = strconv.ParseInt(metaSize, 10, 64)
 		}
 		newNode, onErrorFunc, nodeErr := m.getOrCreatePutNode(ctx, node.Path, &models.PutRequestData{Size: size})
-		log.Logger(ctx).Debug("PreLoad or PreCreate N in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
+		log.Logger(ctx).Debug("PreLoad or PreCreate Node in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
 		if nodeErr != nil {
 			if onErrorFunc != nil {
 				log.Logger(ctx).Debug("cannot get or create node ", zap.String("path", node.Path), zap.Error(nodeErr))

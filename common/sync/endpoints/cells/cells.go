@@ -406,7 +406,7 @@ func (c *Abstract) CreateNode(ctx context.Context, node tree.N, updateIfExists b
 	if e == nil {
 		var indexed bool
 		if er := resp.GetNode().GetMeta(common.MetaFlagIndexed, &indexed); er != nil || !indexed {
-			log.Logger(ctx).Debug("Create N Response :", zap.Any("node", resp.GetNode()))
+			log.Logger(ctx).Debug("Create Node Response :", zap.Any("node", resp.GetNode()))
 			c.Lock()
 			c.RecentMkDirs = append(c.RecentMkDirs, n)
 			c.Unlock()

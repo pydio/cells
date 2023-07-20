@@ -156,14 +156,14 @@ func TestRootNodeOperations(t *testing.T) {
 
 	ctx := context.Background()
 
-	Convey("Create N on Root", t, func() {
+	Convey("Create Node on Root", t, func() {
 
 		_, err := ts.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{Path: "/rootfolder"}})
 		So(err, ShouldNotBeNil)
 
 	})
 
-	Convey("Update N on Root", t, func() {
+	Convey("Update Node on Root", t, func() {
 
 		_, err := ts.UpdateNode(ctx, &tree.UpdateNodeRequest{
 			From: &tree.Node{Path: "/ds1/toto"},
@@ -173,7 +173,7 @@ func TestRootNodeOperations(t *testing.T) {
 
 	})
 
-	Convey("Delete N on Root", t, func() {
+	Convey("Delete Node on Root", t, func() {
 
 		_, err := ts.DeleteNode(ctx, &tree.DeleteNodeRequest{
 			Node: &tree.Node{Path: "/ds1"},
@@ -182,7 +182,7 @@ func TestRootNodeOperations(t *testing.T) {
 
 	})
 
-	Convey("Move N Across DataSource (Not Impl)", t, func() {
+	Convey("Move Node Across DataSource (Not Impl)", t, func() {
 
 		_, err := ts.UpdateNode(ctx, &tree.UpdateNodeRequest{
 			From: &tree.Node{Path: "/ds1/toto"},

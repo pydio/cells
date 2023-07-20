@@ -110,7 +110,7 @@ func TestWalkS3(t *testing.T) {
 
 func TestDeleteNodeS3(t *testing.T) {
 
-	Convey("Test Delete N", t, func() {
+	Convey("Test Delete Node", t, func() {
 
 		c := NewS3Mock()
 		err := c.DeleteNode(context.Background(), "file")
@@ -122,7 +122,7 @@ func TestDeleteNodeS3(t *testing.T) {
 
 func TestMoveNodeS3(t *testing.T) {
 
-	Convey("Test Move N", t, func() {
+	Convey("Test Move Node", t, func() {
 
 		c := NewS3Mock()
 		err := c.MoveNode(context.Background(), "/file", "/file1")

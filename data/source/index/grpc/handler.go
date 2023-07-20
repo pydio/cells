@@ -133,7 +133,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("panic recovered in CreateNode: %s. N path was %s", r, req.Node.Path)
+			err = fmt.Errorf("panic recovered in CreateNode: %s. Node path was %s", r, req.Node.Path)
 			fmt.Printf("%s\n", debug.Stack())
 		}
 	}()
@@ -212,7 +212,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				}
 			}
 		} else {
-			return nil, errors.New(name, "N path already in use", http.StatusConflict)
+			return nil, errors.New(name, "Node path already in use", http.StatusConflict)
 		}
 	} else if len(created) > 1 && !updateIfExists && !inSession {
 		// Special case : when not in indexation mode, if node creation
@@ -607,7 +607,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	defer track(log.Logger(ctx), "DeleteNode", time.Now(), req, resp)
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("panic recovered in DeleteNode: %s. N path was %s", r, req.Node.Path)
+			err = fmt.Errorf("panic recovered in DeleteNode: %s. Node path was %s", r, req.Node.Path)
 		}
 	}()
 

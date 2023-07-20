@@ -238,7 +238,7 @@ func TestBasicMocks(t *testing.T) {
 			}
 			nn = append(nn, r.GetNode())
 		}
-		So(len(nn), ShouldBeGreaterThanOrEqualTo, 6) // All DSS Roots + New N
+		So(len(nn), ShouldBeGreaterThanOrEqualTo, 6) // All DSS Roots + New Node
 		So(cloneRes, ShouldNotBeEmpty)
 		So(cloneRes.HasMetaKey("namespace"), ShouldBeTrue)
 	})

@@ -88,7 +88,7 @@ func (s *TreeServer) Search(request *tree.SearchRequest, stream tree.Searcher_Se
 	if len(q.PathPrefix) == 0 {
 		q.PathPrefix = []string{"/"}
 	}
-	// Filter N Type
+	// Filter Node Type
 	listReq.FilterType = q.Type
 	// Filter Date
 	if e := q.ParseDurationDate(); e != nil {
