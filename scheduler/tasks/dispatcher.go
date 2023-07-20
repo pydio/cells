@@ -23,9 +23,10 @@ package tasks
 import (
 	"context"
 	"fmt"
-	"math"
-
+	"github.com/pydio/cells/v4/common/service/metrics"
 	"go.uber.org/zap"
+	"math"
+	"time"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -34,7 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service/metrics"
 	"github.com/pydio/cells/v4/common/utils/queue"
 )
 
@@ -132,6 +132,18 @@ func (d *Dispatcher) Run() {
 	}
 
 	g := metrics.GetMetrics().Tagged(d.tags).Gauge("activeWorkers")
+	t := time.NewTicker(500 * time.Millisecond)
+	go func() {
+		for {
+			select {
+			case <-t.C:
+				g.Update(math.Abs(float64(d.active)))
+			case <-d.quit:
+				t.Stop()
+				return
+			}
+		}
+	}()
 
 	if d.fifoQueue != nil {
 		go func() {
@@ -156,7 +168,7 @@ func (d *Dispatcher) Run() {
 			select {
 			case a := <-d.activeChan:
 				d.active += a
-				g.Update(math.Abs(float64(d.active)))
+				//g.Update(math.Abs(float64(d.active)))
 			case jobImpl := <-d.jobQueue:
 				// A sub-task request has been received
 				go func(job RunnerFunc) {
