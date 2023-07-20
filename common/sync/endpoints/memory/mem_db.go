@@ -163,7 +163,7 @@ func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (
 	todos := map[string]tree.N{}
 	for p, node := range db.pathIndex {
 		if strings.HasPrefix(p, nfcOld+"/") || p == nfcOld {
-			node.SetPath(newPath + strings.TrimPrefix(node.GetPath(), oldPath))
+			node.UpdatePath(newPath + strings.TrimPrefix(node.GetPath(), oldPath))
 			todos[p] = node
 		}
 	}
@@ -310,13 +310,19 @@ func (db *MemDB) Stats() string {
 	return fmt.Sprintf("Snapshot contains %v files and %v folders", leafs, colls)
 }
 
-// ToJSON outputs contents to JSON file
 func (db *MemDB) ToJSON(name string) error {
-	data, _ := db.ToJSONBytes()
+	// Backward compat, keep as slice
+	var nn []tree.N
+	db.indexLock.RLock()
+	for _, n := range db.pathIndex {
+		nn = append(nn, n)
+	}
+	db.indexLock.RUnlock()
+
+	data, _ := json.Marshal(nn)
 	return os.WriteFile(name, data, 0666)
 }
 
-// FromJSON read a JSON file in memory
 func (db *MemDB) FromJSON(name string) error {
 	data, err := os.ReadFile(name)
 	if err != nil {
@@ -333,18 +339,6 @@ func (db *MemDB) FromJSON(name string) error {
 	}
 	db.indexLock.Unlock()
 	return nil
-}
-
-// ToJSONBytes marshal contents to JSON
-func (db *MemDB) ToJSONBytes() ([]byte, error) {
-	// Backward compat, keep as slice
-	var nn []tree.N
-	db.indexLock.RLock()
-	for _, n := range db.pathIndex {
-		nn = append(nn, n)
-	}
-	db.indexLock.RUnlock()
-	return json.Marshal(nn)
 }
 
 // MemDBWithCacheTest provides a structure for testing CachedBranchProvider related functions
