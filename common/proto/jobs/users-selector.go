@@ -40,6 +40,13 @@ func (m *UsersSelector) SelectorID() string {
 	return "UsersSelector"
 }
 
+func (m *UsersSelector) SelectorLabel() string {
+	if m.Label != "" {
+		return m.Label
+	}
+	return m.SelectorID()
+}
+
 func (m *UsersSelector) ApplyClearInput(msg *ActionMessage) *ActionMessage {
 	return msg.WithUser(nil)
 }

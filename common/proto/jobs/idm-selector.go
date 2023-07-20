@@ -44,6 +44,13 @@ func (m *IdmSelector) SelectorID() string {
 	return "IdmSelector"
 }
 
+func (m *IdmSelector) SelectorLabel() string {
+	if m.Label != "" {
+		return m.Label
+	}
+	return m.SelectorID()
+}
+
 func (m *IdmSelector) FilterID() string {
 	return "IdmFilter"
 }

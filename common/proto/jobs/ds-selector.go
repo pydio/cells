@@ -85,6 +85,13 @@ func (m *DataSourceSelector) SelectorID() string {
 	return "DataSourceSelector"
 }
 
+func (m *DataSourceSelector) SelectorLabel() string {
+	if m.Label != "" {
+		return m.Label
+	}
+	return m.SelectorID()
+}
+
 func (m *DataSourceSelector) loadDSS() (sources []*object.DataSource) {
 	for _, ds := range config.ListSourcesFromConfig() {
 		sources = append(sources, ds)

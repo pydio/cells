@@ -62,6 +62,12 @@ func (a *Action) ToMessages(startMessage *ActionMessage, ctx context.Context, ou
 		failedFilter <- excluded
 	}
 	if a.HasSelectors() {
+		var ll []string
+		for _, sel := range a.getSelectors() {
+			ll = append(ll, "\""+sel.SelectorLabel()+"\"")
+		}
+		_, ct := a.BuildTaskActionPath(ctx, "")
+		log.TasksLogger(ct).Info("Launching " + strings.Join(ll, ", "))
 		a.FanToNext(ctx, 0, startMessage, output, errors, done)
 	} else {
 		output <- startMessage
