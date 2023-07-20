@@ -73,6 +73,13 @@ func (n *NodesSelector) FilterID() string {
 	return "NodesFilter"
 }
 
+func (n *NodesSelector) SelectorLabel() string {
+	if n.Label != "" {
+		return n.Label
+	}
+	return n.SelectorID()
+}
+
 func (n *NodesSelector) ApplyClearInput(msg *ActionMessage) *ActionMessage {
 	return msg.WithNode(nil)
 }
@@ -136,6 +143,17 @@ func (n *NodesSelector) Select(ctx context.Context, input *ActionMessage, object
 	}
 	filter := func(n *tree.Node) bool {
 		return true
+	}
+	if q.FreeString != "" && strings.HasPrefix(strings.TrimSpace(q.FreeString), "(local)") {
+		filterString := strings.TrimPrefix(strings.TrimSpace(q.FreeString), "(local)")
+		q.FreeString = ""
+		if freeStringEvaluator != nil {
+			filter = func(n *tree.Node) bool {
+				return freeStringEvaluator(ctx, filterString, n)
+			}
+		} else {
+			log.Logger(ctx).Error("Warning, no FreeStringEvaluator was registered for nodes selector, local free string will be ignored")
+		}
 	}
 	var total int
 	if q.FreeString != "" || q.Content != "" || q.FileNameOrContent != "" {
