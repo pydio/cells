@@ -73,7 +73,7 @@ func TestSnapshot(t *testing.T) {
 
 	source := memory.NewMemDB()
 	ctx := context.Background()
-	source.Nodes = []tree.N{
+	nn := []tree.N{
 		&tree.Node{Path: "a", Type: tree.NodeType_COLLECTION},
 		&tree.Node{Path: "a/a1", Type: tree.NodeType_COLLECTION},
 		&tree.Node{Path: "a/a1/a11", Type: tree.NodeType_LEAF},
@@ -96,13 +96,17 @@ func TestSnapshot(t *testing.T) {
 		&tree.Node{Path: "c", Type: tree.NodeType_COLLECTION},
 		&tree.Node{Path: "d", Type: tree.NodeType_COLLECTION},
 	}
+	for _, n := range nn {
+		_ = source.CreateNode(ctx, n, false)
+	}
 	var sorted []string
 	for i := 0; i < 1000; i++ {
 		sorted = append(sorted, fmt.Sprintf("d/sub-%d", i))
 	}
 	sort.Strings(sorted)
 	for _, p := range sorted {
-		source.Nodes = append(source.Nodes, &tree.Node{Path: p, Type: tree.NodeType_LEAF})
+		_ = source.CreateNode(ctx, &tree.Node{Path: p, Type: tree.NodeType_LEAF}, false)
+		//source.Nodes = append(source.Nodes, &tree.Node{Path: p, Type: tree.NodeType_LEAF})
 	}
 
 	Convey("CaptureSnapshotFlat", t, func() {

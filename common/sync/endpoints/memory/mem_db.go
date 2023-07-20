@@ -26,7 +26,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"golang.org/x/text/unicode/norm"
@@ -43,16 +45,21 @@ type DBEvent struct {
 }
 
 type MemDB struct {
-	Nodes         []tree.N
 	eventChannels []chan DBEvent
 	// Used for testing
 	ignores     []string
 	testPathURI string
+
+	indexLock *sync.RWMutex
+	pathIndex map[string]tree.N
 }
 
 func NewMemDB() *MemDB {
-	db := &MemDB{}
-	db.CreateNode(context.Background(), &tree.Node{
+	db := &MemDB{
+		indexLock: &sync.RWMutex{},
+		pathIndex: make(map[string]tree.N),
+	}
+	_ = db.CreateNode(context.Background(), &tree.Node{
 		Path: "/",
 		Type: tree.NodeType_COLLECTION,
 		Uuid: "root",
@@ -98,21 +105,26 @@ func (db *MemDB) sendEvent(event DBEvent) {
 /* Path Sync Target 	 */
 /*************************/
 
+func normalize(s string) string {
+	return strings.TrimLeft(norm.NFC.String(s), "/")
+}
+
 func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node tree.N, err error) {
 
-	for _, node := range db.Nodes {
-		// fmt.Printf("Path:%s Nodes %s\n", norm.NFC.String(path), norm.NFC.String(node.Path))
-		if norm.NFC.String(node.GetPath()) == norm.NFC.String(path) {
-			return node, nil
-		}
+	db.indexLock.RLock()
+	defer db.indexLock.RUnlock()
+	if n, ok := db.pathIndex[normalize(path)]; ok {
+		return n, nil
+	} else {
+		return nil, errors.New("not found")
 	}
 
-	return nil, errors.New("N not found")
 }
 
 func (db *MemDB) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
-	db.Nodes = append(db.Nodes, node)
-
+	db.indexLock.Lock()
+	defer db.indexLock.Unlock()
+	db.pathIndex[normalize(node.GetPath())] = node
 	db.sendEvent(DBEvent{
 		Type:   "Create",
 		Target: node.GetPath(),
@@ -121,25 +133,45 @@ func (db *MemDB) CreateNode(ctx context.Context, node tree.N, updateIfExists boo
 }
 
 func (db *MemDB) DeleteNode(ctx context.Context, path string) (err error) {
-	removed := db.removeNodeNoEvent(path)
-	if removed != nil {
+	db.indexLock.Lock()
+	defer db.indexLock.Unlock()
+	nfc := normalize(path)
+	var dd []string
+	for p := range db.pathIndex {
+		if p == nfc || strings.HasPrefix(p, nfc+"/") {
+			dd = append(dd, p)
+		}
+	}
+	for _, rd := range dd {
+		n := db.pathIndex[rd]
+		delete(db.pathIndex, rd)
 		db.sendEvent(DBEvent{
 			Type:   "Delete",
-			Source: removed.GetPath(),
+			Source: n.GetPath(),
 		})
 	}
+
 	return nil
 }
 
 func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
-	moved := false
-	for _, node := range db.Nodes {
-		if strings.HasPrefix(node.GetPath(), oldPath+"/") || node.GetPath() == oldPath {
+
+	db.indexLock.Lock()
+	defer db.indexLock.Unlock()
+	nfcOld := normalize(oldPath)
+
+	todos := map[string]tree.N{}
+	for p, node := range db.pathIndex {
+		if strings.HasPrefix(p, nfcOld+"/") || p == nfcOld {
 			node.UpdatePath(newPath + strings.TrimPrefix(node.GetPath(), oldPath))
-			moved = true
+			todos[p] = node
 		}
 	}
-	if moved {
+	if len(todos) > 0 {
+		for p, node := range todos {
+			delete(db.pathIndex, p)
+			db.pathIndex[normalize(node.GetPath())] = node
+		}
 		db.sendEvent(DBEvent{
 			Type:   "Moved",
 			Source: oldPath,
@@ -154,7 +186,15 @@ func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (
 /*************************/
 
 func (db *MemDB) Walk(ctx context.Context, walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
-	for _, node := range db.Nodes {
+	var nn []string
+	db.indexLock.RLock()
+	defer db.indexLock.RUnlock()
+	for p := range db.pathIndex {
+		nn = append(nn, p)
+	}
+	sort.Strings(nn)
+	for _, p := range nn {
+		node := db.pathIndex[p]
 		if root != "/" && !strings.HasPrefix(node.GetPath(), root) {
 			continue
 		}
@@ -236,54 +276,31 @@ func (db *MemDB) Watch(recursivePath string) (*model.WatchObject, error) {
 /* Other Methods 		 */
 /*************************/
 
-func (db *MemDB) removeNodeNoEvent(path string) (removed tree.N) {
-	var newNodes []tree.N
-	for _, node := range db.Nodes {
-		if !strings.HasPrefix(node.GetPath(), path+"/") && node.GetPath() != path {
-			newNodes = append(newNodes, node)
-		} else {
-			removed = node
-		}
-	}
-	db.Nodes = newNodes
-	return removed
-}
-
-func (db *MemDB) FindByHash(hash string) (node tree.N) {
-
-	for _, node := range db.Nodes {
-		if node.GetEtag() == hash {
-			return node
-		}
-	}
-	return
-}
-
-func (db *MemDB) FindByUuid(id string) (node tree.N) {
-
-	for _, node := range db.Nodes {
-		if node.GetUuid() == id {
-			return node.AsProto()
-		}
-	}
-	return
-}
-
 func (db *MemDB) String() string {
 	output := ""
-	for _, node := range db.Nodes {
+	db.indexLock.RLock()
+	defer db.indexLock.RUnlock()
+	i := 0
+	for _, node := range db.pathIndex {
 		leaf := "Leaf"
 		if !node.IsLeaf() {
 			leaf = "Folder"
 		}
 		output += leaf + "\t'" + node.GetPath() + "' (" + node.GetUuid() + node.GetEtag() + ")" + "\n"
+		i++
+		if i > 20 {
+			output += "\n, stopping at 20"
+			break
+		}
 	}
 	return output
 }
 
 func (db *MemDB) Stats() string {
 	var leafs, colls int
-	for _, node := range db.Nodes {
+	db.indexLock.RLock()
+	defer db.indexLock.RUnlock()
+	for _, node := range db.pathIndex {
 		if node.IsLeaf() {
 			leafs++
 		} else {
@@ -294,7 +311,15 @@ func (db *MemDB) Stats() string {
 }
 
 func (db *MemDB) ToJSON(name string) error {
-	data, _ := json.Marshal(db.Nodes)
+	// Backward compat, keep as slice
+	var nn []tree.N
+	db.indexLock.RLock()
+	for _, n := range db.pathIndex {
+		nn = append(nn, n)
+	}
+	db.indexLock.RUnlock()
+
+	data, _ := json.Marshal(nn)
 	return os.WriteFile(name, data, 0666)
 }
 
@@ -308,9 +333,11 @@ func (db *MemDB) FromJSON(name string) error {
 	if er != nil {
 		return er
 	}
+	db.indexLock.Lock()
 	for _, n := range nn {
-		db.Nodes = append(db.Nodes, n)
+		db.pathIndex[normalize(n.GetPath())] = n
 	}
+	db.indexLock.Unlock()
 	return nil
 }
 

@@ -102,9 +102,7 @@ func (g *gq) OpenURL(ctx context.Context, u *url.URL) (queue.Queue, error) {
 	go func() {
 		<-ctx.Done()
 		sq.rc--
-		fmt.Println("RELEASE ", srv)
 		if sq.rc == 0 {
-			fmt.Println("CLOSE QUUEU FOR ", srv)
 			_ = q.Close()
 		}
 	}()

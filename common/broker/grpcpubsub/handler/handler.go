@@ -197,7 +197,7 @@ func (s *subscriber) sendWithWarning(streamer streamWithReqId, message *pb.Subsc
 		case <-done:
 			return
 		case <-time.After(30 * time.Second):
-			fmt.Println("GRPC broker stream.Send stuck after 30s", "subscriber was "+s.subPID)
+			fmt.Println("GRPC broker stream.Send stuck after 30s", "subscriber was "+s.subPID+":"+s.topic)
 			return
 		}
 	}()
