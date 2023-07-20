@@ -148,47 +148,52 @@ func (t *TreePatch) filterCreateFolders(ctx context.Context) {
 func (t *TreePatch) detectFileMoves(ctx context.Context, cachedTarget model.PathSyncSource) {
 
 	movesByEtag := make(map[string][]*Move)
+	createsByUuid := make(map[string]Operation)
+	createsByETag := make(map[string][]Operation)
+	for _, cf := range t.createFiles {
+		if cf.GetNode() == nil {
+			continue
+		}
+		if cf.GetNode().GetUuid() != "" {
+			createsByUuid[cf.GetNode().GetUuid()] = cf
+		}
+		if cf.GetNode().GetEtag() != "" {
+			createsByETag[cf.GetNode().GetEtag()] = append(createsByETag[cf.GetNode().GetEtag()], cf)
+		}
+	}
 	for _, deleteOp := range t.deletes {
 		if dbNode, found := deleteOp.NodeInTarget(ctx, cachedTarget); found {
 			deleteOp.SetNode(dbNode)
 			if dbNode.IsLeaf() {
-				var found bool
 				// Look by UUID first
-				for _, opCreate := range t.createFiles {
-					if opCreate.GetNode() != nil && opCreate.GetNode().GetUuid() != "" && opCreate.GetNode().GetUuid() == dbNode.GetUuid() {
-						// Now remove from delete/create
-						delete(t.deletes, deleteOp.GetRefPath())
-						delete(t.createFiles, opCreate.GetRefPath())
-						// Enqueue Update if Etag differ
-						if opCreate.GetNode().GetEtag() != "" && opCreate.GetNode().GetEtag() != dbNode.GetEtag() {
-							updateOp := deleteOp.Clone(OpUpdateFile)
-							updateOp.AttachToPatch(t)
-							t.QueueOperation(updateOp)
-						}
-						// Enqueue in moves if path differ
-						if opCreate.GetNode().GetPath() != dbNode.GetPath() {
-							log.Logger(ctx).Debug("Existing leaf node with uuid and different path: safe move to ", opCreate.GetNode().ZapPath())
-							opCreate.SetNode(dbNode)
-							opCreate.UpdateType(OpMoveFile)
-							opCreate.AttachToPatch(t)
-							t.QueueOperation(opCreate)
-						}
-						found = true
-						break
+				if opCreate, ok := createsByUuid[dbNode.GetUuid()]; ok {
+					// Now remove from delete/create
+					delete(t.deletes, deleteOp.GetRefPath())
+					delete(t.createFiles, opCreate.GetRefPath())
+					// Enqueue Update if Etag differ
+					if opCreate.GetNode().GetEtag() != "" && opCreate.GetNode().GetEtag() != dbNode.GetEtag() {
+						updateOp := deleteOp.Clone(OpUpdateFile)
+						updateOp.AttachToPatch(t)
+						t.QueueOperation(updateOp)
 					}
-				}
-				// Look by Etag
-				if !found {
-					for _, createOp := range t.createFiles {
-						if createOp.GetNode() != nil && createOp.GetNode().GetEtag() == dbNode.GetEtag() {
-							log.Logger(ctx).Debug("Existing leaf node with same ETag: enqueuing possible move", createOp.GetNode().ZapPath())
-							move := &Move{
-								deleteOp: deleteOp,
-								createOp: createOp,
-								dbNode:   dbNode,
-							}
-							movesByEtag[dbNode.GetEtag()] = append(movesByEtag[dbNode.GetEtag()], move)
+					// Enqueue in moves if path differ
+					if opCreate.GetNode().GetPath() != dbNode.GetPath() {
+						log.Logger(ctx).Debug("Existing leaf node with uuid and different path: safe move to ", opCreate.GetNode().ZapPath())
+						opCreate.SetNode(dbNode)
+						opCreate.UpdateType(OpMoveFile)
+						opCreate.AttachToPatch(t)
+						t.QueueOperation(opCreate)
+					}
+				} else if createOps, ok := createsByETag[dbNode.GetEtag()]; ok {
+					// Look by Etag
+					for _, createOp := range createOps {
+						log.Logger(ctx).Debug("Existing leaf node with same ETag: enqueuing possible move", createOp.GetNode().ZapPath())
+						move := &Move{
+							deleteOp: deleteOp,
+							createOp: createOp,
+							dbNode:   dbNode,
 						}
+						movesByEtag[dbNode.GetEtag()] = append(movesByEtag[dbNode.GetEtag()], move)
 					}
 				}
 			}
