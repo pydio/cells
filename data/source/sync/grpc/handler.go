@@ -567,9 +567,9 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 					ta := proto.Clone(theTask).(*jobs.Task)
 					ta.HasProgress = true
 					ta.Progress = 1
-					ta.StatusMessage = "Complete"
+					ta.StatusMessage = "Resync Completed"
 					ta.EndTime = int32(time.Now().Unix())
-					ta.Status = jobs.TaskStatus_Finished
+					//ta.Status = jobs.TaskStatus_Finished
 					if patch, ok := data.(merger.Patch); ok {
 						if errs, has := patch.HasErrors(); has {
 							ta.StatusMessage = "Error: " + errs[0].Error()
