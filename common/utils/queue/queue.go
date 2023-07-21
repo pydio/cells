@@ -31,8 +31,9 @@ import (
 type Consumer func(...broker.Message)
 
 type Queue interface {
+	Consume(callback func(...broker.Message)) error
+	PushRaw(ctx context.Context, message broker.Message) error
 	Push(ctx context.Context, msg proto.Message) error
-	Consume(callback Consumer) error
 }
 
 // TypeWithContext composes a generic type and a context

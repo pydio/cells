@@ -139,9 +139,11 @@ func LightNodeFromProto(n *Node) N {
 			}
 		}
 	}
-	if len(ln.rawMeta) > 0 {
-		fmt.Println("Raw meta not empty", ln.rawMeta)
-	}
+	/*
+		if len(ln.rawMeta) > 0 {
+			fmt.Println("Raw meta not empty", ln.rawMeta)
+		}
+	*/
 	return ln
 }
 

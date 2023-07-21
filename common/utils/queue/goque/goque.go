@@ -12,6 +12,7 @@ import (
 	"github.com/beeker1121/goque"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
 	config2 "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/queue"
@@ -44,7 +45,12 @@ func (g *gq) Push(ctx context.Context, msg proto.Message) error {
 	return er
 }
 
-func (g *gq) Consume(callback queue.Consumer) error {
+func (g *gq) PushRaw(_ context.Context, message broker.Message) error {
+	_, er := g.qu.Enqueue([]byte(g.streamName), queue.EncodeBrokerMessage(message))
+	return er
+}
+
+func (g *gq) Consume(callback func(...broker.Message)) error {
 	go func() {
 		for {
 			select {

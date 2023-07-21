@@ -30,8 +30,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/broker/activity"
@@ -42,7 +42,7 @@ import (
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/meta"
-	proto "github.com/pydio/cells/v4/common/proto/activity"
+	acproto "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	serviceproto "github.com/pydio/cells/v4/common/proto/service"
@@ -50,6 +50,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/queue"
 )
 
@@ -87,30 +88,22 @@ func init() {
 				// Register Subscribers
 				subscriber := NewEventsSubscriber(c, d)
 				// Start fifo - it is stopped by c.Done()
-				fifo, er := queue.OpenQueue(c, runtime.QueueURL("debounce", "3s", "idle", "20s", "max", "2000"))
+				fifo, er := queue.OpenQueue(c, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceActivity, "name", "changes"))
 				if er != nil {
 					return er
 				}
-				_ = fifo.Consume(func(msg ...broker.Message) {
-					processOneWithTimeout := func(ct context.Context, event *tree.NodeChangeEvent) {
-						var ca context.CancelFunc
-						ctx, ca = context.WithTimeout(runtime.ForkContext(ct, c), 10*time.Second)
-						defer ca()
-						if e := subscriber.HandleNodeChange(ctx, event); e != nil {
-							log.Logger(c).Error("Error while handling an event", zap.Error(e), zap.Any("event", msg))
-						}
-					}
-					for _, m := range msg {
-						t := &tree.NodeChangeEvent{}
-						if ct, er := m.Unmarshal(t); er == nil {
-							processOneWithTimeout(ct, t)
-						}
-					}
-				})
+
+				processOneWithTimeout := func(ct context.Context, event *tree.NodeChangeEvent) error {
+					var ca context.CancelFunc
+					ctx, ca = context.WithTimeout(runtime.ForkContext(ct, c), 10*time.Second)
+					defer ca()
+					return subscriber.HandleNodeChange(ctx, event)
+				}
 
 				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(message broker.Message) error {
+					md, bb := message.RawData()
 					msg := &tree.NodeChangeEvent{}
-					if ctx, e := message.Unmarshal(msg); e == nil {
+					if e := proto.Unmarshal(bb, msg); e == nil {
 						if msg.Target != nil && (msg.Target.Etag == common.NodeFlagEtagTemporary || msg.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
 							return nil
 						}
@@ -120,10 +113,10 @@ func init() {
 						if msg.Optimistic {
 							return nil
 						}
-						return fifo.Push(ctx, msg)
+						return processOneWithTimeout(metadata.NewContext(c, md), msg)
 					}
 					return nil
-				}); e != nil {
+				}, broker.WithLocalQueue(fifo)); e != nil {
 					return e
 				}
 
@@ -133,7 +126,7 @@ func init() {
 						if msg.Optimistic || msg.Type != tree.NodeChangeEvent_UPDATE_USER_META {
 							return nil
 						}
-						return fifo.Push(ctx, msg)
+						return processOneWithTimeout(ctx, msg)
 					}
 					return nil
 				}); e != nil {
@@ -150,7 +143,7 @@ func init() {
 					return e
 				}
 
-				proto.RegisterActivityServiceEnhancedServer(srv, &Handler{RuntimeCtx: ctx, dao: d})
+				acproto.RegisterActivityServiceEnhancedServer(srv, &Handler{RuntimeCtx: ctx, dao: d})
 				tree.RegisterNodeProviderStreamerEnhancedServer(srv, &MetaProvider{RuntimeCtx: ctx, dao: d})
 
 				return nil

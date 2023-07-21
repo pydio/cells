@@ -123,7 +123,8 @@ func MustPublish(ctx context.Context, topic string, message proto.Message, opts 
 }
 
 func SubscribeCancellable(ctx context.Context, topic string, handler SubscriberHandler, opts ...SubscribeOption) error {
-	unsub, e := std.Subscribe(ctx, topic, handler, opts...)
+	// Go through Subscribe to parse MessageQueue option
+	unsub, e := Subscribe(ctx, topic, handler, opts...)
 	if e != nil {
 		if errors.IsContextCanceled(e) {
 			return nil
@@ -139,6 +140,29 @@ func SubscribeCancellable(ctx context.Context, topic string, handler SubscriberH
 }
 
 func Subscribe(ctx context.Context, topic string, handler SubscriberHandler, opts ...SubscribeOption) (UnSubscriber, error) {
+	so := parseSubscribeOptions(opts...)
+	if so.MessageQueue != nil {
+		qH := func(m Message) error {
+			return so.MessageQueue.PushRaw(ctx, m)
+		}
+		er := so.MessageQueue.Consume(func(mm ...Message) {
+			for _, m := range mm {
+				if err := handler(m); err != nil {
+					if so.ErrorHandler != nil {
+						so.ErrorHandler(err)
+					} else {
+						fmt.Println("cannot apply message handler", err)
+					}
+				}
+			}
+		})
+		if er != nil {
+			return nil, er
+		}
+		// Replace original handler
+		return std.Subscribe(ctx, topic, qH, opts...)
+	}
+
 	return std.Subscribe(ctx, topic, handler, opts...)
 }
 
@@ -224,12 +248,7 @@ func (b *broker) Publish(ctx context.Context, topic string, message proto.Messag
 }
 
 func (b *broker) Subscribe(ctx context.Context, topic string, handler SubscriberHandler, opts ...SubscribeOption) (UnSubscriber, error) {
-	so := &SubscribeOptions{
-		Context: b.Options.Context,
-	}
-	for _, o := range opts {
-		o(so)
-	}
+	so := parseSubscribeOptions(opts...)
 
 	// Making sure topic is opened
 	_, err := b.openTopic(topic)

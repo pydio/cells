@@ -31,6 +31,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/utils/queue"
@@ -67,8 +68,15 @@ func (q *Queue) Push(ctx context.Context, event proto.Message) error {
 	return er
 }
 
+// PushRaw forwards a broker.Message to the queue
+func (q *Queue) PushRaw(ctx context.Context, message broker.Message) error {
+	data := queue.EncodeBrokerMessage(message)
+	_, er := q.js.Publish(ctx, q.streamName+".msg", data)
+	return er
+}
+
 // Consume creates a jetstream Consumer with the current streamName
-func (q *Queue) Consume(process queue.Consumer) error {
+func (q *Queue) Consume(process func(...broker.Message)) error {
 	// Create a stream
 	s, er := q.js.CreateStream(q.rootCtx, jetstream.StreamConfig{
 		Name:     q.streamName,

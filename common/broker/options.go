@@ -79,11 +79,15 @@ type SubscribeOptions struct {
 	// Other options for implementations of the interface
 	// can be stored in a context
 	Context context.Context
+
+	// Optional MessageQueue than can debounce/persist
+	// received messages and re-process them later on
+	MessageQueue MessageQueue
 }
 
 type SubscribeOption func(*SubscribeOptions)
 
-func NewSubscribeOptions(opts ...SubscribeOption) SubscribeOptions {
+func parseSubscribeOptions(opts ...SubscribeOption) SubscribeOptions {
 	opt := SubscribeOptions{}
 
 	for _, o := range opts {
@@ -105,6 +109,12 @@ func HandleError(h func(error)) SubscribeOption {
 func Queue(name string) SubscribeOption {
 	return func(o *SubscribeOptions) {
 		o.Queue = name
+	}
+}
+
+func WithLocalQueue(q MessageQueue) SubscribeOption {
+	return func(o *SubscribeOptions) {
+		o.MessageQueue = q
 	}
 }
 

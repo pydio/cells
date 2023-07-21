@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2023. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package queue
 
 import (
@@ -23,6 +43,16 @@ func EncodeProtoWithContext(ctx context.Context, msg proto.Message) []byte {
 	}
 	a, _ := anypb.New(msg)
 	bb, _ := proto.Marshal(a)
+	return joinWithLengthPrefix(hh, bb)
+}
+
+// EncodeBrokerMessage just joins on the md+bytes raw data from a broker message
+func EncodeBrokerMessage(message broker.Message) []byte {
+	md, bb := message.RawData()
+	var hh []byte
+	if md != nil {
+		hh, _ = json.Marshal(md)
+	}
 	return joinWithLengthPrefix(hh, bb)
 }
 
