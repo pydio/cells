@@ -23,7 +23,9 @@ package sql
 import (
 	"context"
 	"embed"
+	"github.com/pydio/cells/v4/common/utils/std"
 	migrate "github.com/rubenv/sql-migrate"
+	"time"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/sql"
@@ -71,7 +73,14 @@ func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 		TablePrefix: s.DAO.Prefix(),
 	}
 
-	_, err := sql.ExecMigration(s.DAO.DB(), s.DAO.Driver(), migrations, migrate.Up, s.DAO.Prefix())
+	err := std.Retry(ctx, func() error {
+		_, err := sql.ExecMigration(s.DAO.DB(), s.DAO.Driver(), migrations, migrate.Up, s.DAO.Prefix())
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}, 1*time.Second, 30*time.Second)
 	if err != nil {
 		return err
 	}

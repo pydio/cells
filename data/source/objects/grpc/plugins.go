@@ -80,8 +80,8 @@ func init() {
 							handlerName: common.ServiceGrpcNamespace_ + common.ServiceDataObjects_ + datasource,
 							Config:      mc,
 						}
-						object.RegisterObjectsEndpointEnhancedServer(server, engine)
-						object.RegisterResourceCleanerEndpointEnhancedServer(server, engine)
+						object.RegisterObjectsEndpointServer(server, engine)
+						object.RegisterResourceCleanerEndpointServer(server, engine)
 						var startErr error
 						go func() {
 							startErr = engine.StartMinioServer(c, datasource)

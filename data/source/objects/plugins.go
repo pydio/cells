@@ -50,8 +50,8 @@ func init() {
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				conf := config.Get("services", BrowserName)
 				treeServer := NewTreeHandler(conf)
-				tree.RegisterNodeProviderEnhancedServer(server, treeServer)
-				tree.RegisterNodeReceiverEnhancedServer(server, treeServer)
+				tree.RegisterNodeProviderServer(server, treeServer)
+				tree.RegisterNodeReceiverServer(server, treeServer)
 				return nil
 			}),
 		)

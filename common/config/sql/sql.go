@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/pydio/cells/v4/common/utils/openurl"
 	"net/url"
 	"os"
@@ -89,7 +90,10 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		driver, dsn, prefix = openurl.URLToDSN(u)
 	}
 
-	store, _ := New(ctx, driver, dsn, prefix)
+	store, err := New(ctx, driver, dsn, prefix)
+	if err != nil {
+		fmt.Println("And the error is ? ", err)
+	}
 
 	envPrefix := u.Query().Get("env")
 	if envPrefix != "" {

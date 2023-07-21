@@ -114,12 +114,12 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 				}
 			}(syncHandler))
 
-			tree.RegisterNodeProviderEnhancedServer(srv, syncHandler)
-			tree.RegisterNodeReceiverEnhancedServer(srv, syncHandler)
-			tree.RegisterNodeChangesReceiverStreamerEnhancedServer(srv, syncHandler)
-			protosync.RegisterSyncEndpointEnhancedServer(srv, syncHandler)
-			object.RegisterDataSourceEndpointEnhancedServer(srv, syncHandler)
-			object.RegisterResourceCleanerEndpointEnhancedServer(srv, syncHandler)
+			tree.RegisterNodeProviderServer(srv, syncHandler)
+			tree.RegisterNodeReceiverServer(srv, syncHandler)
+			tree.RegisterNodeChangesReceiverStreamerServer(srv, syncHandler)
+			protosync.RegisterSyncEndpointServer(srv, syncHandler)
+			object.RegisterDataSourceEndpointServer(srv, syncHandler)
+			object.RegisterResourceCleanerEndpointServer(srv, syncHandler)
 
 			go func(syncHandler *Handler) error {
 

@@ -23,7 +23,7 @@ type jwkDriver struct {
 
 func (c *jwkDriver) AutoMigrate() {
 	c.db.AutoMigrate(&jwk.SQLData{})
-	c.db.Config.NamingStrategy = &namer{c.db.Config.NamingStrategy, &jwk.SQLData{}}
+	// c.db.Config.NamingStrategy = &namer{c.db.Config.NamingStrategy, &jwk.SQLData{}}
 }
 
 func (j *jwkDriver) GenerateAndPersistKeySet(ctx context.Context, set, kid, alg, use string) (*jose.JSONWebKeySet, error) {

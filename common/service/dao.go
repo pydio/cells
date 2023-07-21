@@ -8,7 +8,6 @@ import (
 	"github.com/pydio/cells/v4/common/dao"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/openurl"
-	"reflect"
 )
 
 type ServiceDAOProvider[T dao.DAO] func(ctx context.Context) T
@@ -52,8 +51,6 @@ func (s *serviceDAO[T]) DAO(ctx context.Context) T {
 
 					t = dw.(T)
 
-					fmt.Println("Initing here ", reflect.TypeOf(t))
-					// debug.PrintStack()
 					dw.Init(ctx, c.Val())
 
 					versionStore, err := config.OpenStore(ctx, openurl.DSNToURL(driver, dsn, "dao_versions").String())
@@ -63,6 +60,7 @@ func (s *serviceDAO[T]) DAO(ctx context.Context) T {
 					if versionStore == nil {
 						fmt.Println("It is empty but I don't know why ", driver, dsn)
 					}
+
 					UpdateServiceVersion(servicecontext.WithDAO(ctx, dw), versionStore, s.Options())
 
 					s.daos = append(s.daos, t)

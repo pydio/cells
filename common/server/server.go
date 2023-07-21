@@ -23,6 +23,7 @@ package server
 import (
 	"context"
 	"fmt"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/std"
 
 	"github.com/pkg/errors"
@@ -54,6 +55,8 @@ type Server interface {
 	Is(status registry.Status) bool
 	NeedsRestart() bool
 	Metadata() map[string]string
+
+	RegisterContextInterceptor(interceptor servicecontext.IncomingContextModifier)
 }
 
 type Type int8
@@ -225,4 +228,8 @@ func (s *server) Clone() interface{} {
 	}
 
 	return clone
+}
+
+func (s *server) RegisterContextInterceptor(interceptor servicecontext.IncomingContextModifier) {
+	*s.Opts.interceptors = append(*s.Opts.interceptors, interceptor)
 }

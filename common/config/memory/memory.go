@@ -135,29 +135,31 @@ func (m *memory) flush() {
 		case <-m.timer.C:
 			clone := std.DeepClone(m.v.Interface())
 
-			patch, err := diff.Diff(snap.Interface(), clone, diff.DisableStructValues(), diff.AllowTypeMismatch(true), diff.CustomValueDiffers(config.CustomValueDiffers...))
-			if err != nil {
-				continue
-			}
-
-			if err := snap.Set(clone); err != nil {
-				continue
-			}
-
-			for _, op := range patch {
-				var updated []*receiver
-
-				m.receiversLocker.RLock()
-				for _, r := range m.receivers {
-					if err := r.call(op); err == nil {
-						updated = append(updated, r)
-					}
+			if iSnap := snap.Interface(); iSnap != nil || clone != nil {
+				patch, err := diff.Diff(iSnap, clone, diff.DisableStructValues(), diff.AllowTypeMismatch(true), diff.CustomValueDiffers(config.CustomValueDiffers...))
+				if err != nil {
+					continue
 				}
-				m.receiversLocker.RUnlock()
 
-				m.receiversLocker.Lock()
-				m.receivers = updated
-				m.receiversLocker.Unlock()
+				if err := snap.Set(clone); err != nil {
+					continue
+				}
+
+				for _, op := range patch {
+					var updated []*receiver
+
+					m.receiversLocker.RLock()
+					for _, r := range m.receivers {
+						if err := r.call(op); err == nil {
+							updated = append(updated, r)
+						}
+					}
+					m.receiversLocker.RUnlock()
+
+					m.receiversLocker.Lock()
+					m.receivers = updated
+					m.receiversLocker.Unlock()
+				}
 			}
 		}
 	}

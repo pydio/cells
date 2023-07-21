@@ -5,6 +5,7 @@ import (
 	"github.com/ory/hydra/v2/client"
 	"github.com/ory/hydra/v2/consent"
 	"github.com/ory/hydra/v2/flow"
+	"github.com/ory/x/sqlxx"
 	"gorm.io/gorm"
 	"time"
 )
@@ -12,15 +13,17 @@ import (
 type consentDriver struct {
 	db *gorm.DB
 
-	r client.Registry
+	r Registry
 }
 
+type Flow flow.Flow
+
 func (c *consentDriver) AutoMigrate() {
-	c.db.AutoMigrate(&flow.Flow{})
+	c.db.AutoMigrate(&Flow{})
 }
 
 func (c *consentDriver) CreateConsentRequest(ctx context.Context, req *consent.OAuth2ConsentRequest) error {
-	var f *flow.Flow
+	var f *Flow
 
 	if tx := c.db.First(&f, "id=?", req.LoginChallenge); tx.Error != nil {
 		return tx.Error
@@ -46,7 +49,7 @@ func (c *consentDriver) CreateConsentRequest(ctx context.Context, req *consent.O
 }
 
 func (c *consentDriver) GetConsentRequest(ctx context.Context, challenge string) (req *consent.OAuth2ConsentRequest, err error) {
-	var f *flow.Flow
+	var f *Flow
 
 	if tx := c.db.First(&f, "consent_challenge_id=?", challenge); tx.Error != nil {
 		return nil, tx.Error
@@ -58,11 +61,11 @@ func (c *consentDriver) GetConsentRequest(ctx context.Context, challenge string)
 		f.Client = cli
 	}
 
-	return f.GetConsentRequest(), nil
+	return ((*flow.Flow)(f)).GetConsentRequest(), nil
 }
 
 func (c *consentDriver) HandleConsentRequest(ctx context.Context, r *consent.AcceptOAuth2ConsentRequest) (*consent.OAuth2ConsentRequest, error) {
-	var f *flow.Flow
+	var f *Flow
 
 	if tx := c.db.First(&f, "consent_challenge_id=?", r.ID); tx.Error != nil {
 		return nil, tx.Error
@@ -74,7 +77,7 @@ func (c *consentDriver) HandleConsentRequest(ctx context.Context, r *consent.Acc
 		f.Client = cli
 	}
 
-	if err := f.HandleConsentRequest(r); err != nil {
+	if err := ((*flow.Flow)(f)).HandleConsentRequest(r); err != nil {
 		return nil, err
 	}
 
@@ -82,7 +85,7 @@ func (c *consentDriver) HandleConsentRequest(ctx context.Context, r *consent.Acc
 		return nil, tx.Error
 	}
 
-	return f.GetConsentRequest(), nil
+	return ((*flow.Flow)(f)).GetConsentRequest(), nil
 }
 
 func (c *consentDriver) RevokeSubjectConsentSession(ctx context.Context, user string) error {
@@ -94,7 +97,7 @@ func (c *consentDriver) RevokeSubjectClientConsentSession(ctx context.Context, u
 }
 
 func (c *consentDriver) VerifyAndInvalidateConsentRequest(ctx context.Context, verifier string) (*consent.AcceptOAuth2ConsentRequest, error) {
-	var f *flow.Flow
+	var f *Flow
 
 	tx := c.db.First(&f, "consent_verifier=?", verifier)
 	if tx.Error != nil {
@@ -107,7 +110,7 @@ func (c *consentDriver) VerifyAndInvalidateConsentRequest(ctx context.Context, v
 		f.Client = cli
 	}
 
-	if err := f.InvalidateConsentRequest(); err != nil {
+	if err := ((*flow.Flow)(f)).InvalidateConsentRequest(); err != nil {
 		return nil, err
 	}
 
@@ -115,7 +118,7 @@ func (c *consentDriver) VerifyAndInvalidateConsentRequest(ctx context.Context, v
 		return nil, tx.Error
 	}
 
-	return f.GetHandledConsentRequest(), nil
+	return ((*flow.Flow)(f)).GetHandledConsentRequest(), nil
 }
 
 func (c *consentDriver) FindGrantedAndRememberedConsentRequests(ctx context.Context, client, user string) ([]consent.AcceptOAuth2ConsentRequest, error) {
@@ -139,6 +142,12 @@ func (c *consentDriver) GetRememberedLoginSession(ctx context.Context, id string
 	return &consent.LoginSession{}, nil
 }
 func (c *consentDriver) CreateLoginSession(ctx context.Context, session *consent.LoginSession) error {
+	//nid := c.r.NetworkID(ctx)
+	//if nid == uuid.Nil {
+	//	return errorsx.WithStack(x.ErrNotFound)
+	//}
+	//session.NID = nid
+
 	return nil
 }
 func (c *consentDriver) DeleteLoginSession(ctx context.Context, id string) error {
@@ -154,13 +163,13 @@ func (c *consentDriver) ConfirmLoginSession(ctx context.Context, id string, auth
 func (c *consentDriver) CreateLoginRequest(ctx context.Context, req *consent.LoginRequest) error {
 	f := flow.NewFlow(req)
 
-	tx := c.db.Omit("Client").Create(f)
+	tx := c.db.Omit("Client").Create((*Flow)(f))
 
 	return tx.Error
 }
 
 func (c *consentDriver) GetLoginRequest(ctx context.Context, challenge string) (*consent.LoginRequest, error) {
-	var f *flow.Flow
+	var f *Flow
 
 	tx := c.db.First(&f, "id=?", challenge)
 	if tx.Error != nil {
@@ -173,11 +182,11 @@ func (c *consentDriver) GetLoginRequest(ctx context.Context, challenge string) (
 		f.Client = cli
 	}
 
-	return f.GetLoginRequest(), nil
+	return ((*flow.Flow)(f)).GetLoginRequest(), nil
 }
 
 func (c *consentDriver) HandleLoginRequest(ctx context.Context, challenge string, r *consent.HandledLoginRequest) (*consent.LoginRequest, error) {
-	var f *flow.Flow
+	var f *Flow
 
 	if tx := c.db.First(&f, "id=?", challenge); tx.Error != nil {
 		return nil, tx.Error
@@ -189,7 +198,7 @@ func (c *consentDriver) HandleLoginRequest(ctx context.Context, challenge string
 		f.Client = cli
 	}
 
-	if err := f.HandleLoginRequest(r); err != nil {
+	if err := ((*flow.Flow)(f)).HandleLoginRequest(r); err != nil {
 		return nil, err
 	}
 
@@ -197,11 +206,11 @@ func (c *consentDriver) HandleLoginRequest(ctx context.Context, challenge string
 		return nil, tx.Error
 	}
 
-	return f.GetLoginRequest(), nil
+	return ((*flow.Flow)(f)).GetLoginRequest(), nil
 }
 
 func (c *consentDriver) VerifyAndInvalidateLoginRequest(ctx context.Context, verifier string) (*consent.HandledLoginRequest, error) {
-	var f *flow.Flow
+	var f *Flow
 
 	tx := c.db.First(&f, "login_verifier=?", verifier)
 	if tx.Error != nil {
@@ -214,7 +223,7 @@ func (c *consentDriver) VerifyAndInvalidateLoginRequest(ctx context.Context, ver
 		f.Client = cli
 	}
 
-	if err := f.InvalidateLoginRequest(); err != nil {
+	if err := ((*flow.Flow)(f)).InvalidateLoginRequest(); err != nil {
 		return nil, err
 	}
 
@@ -223,7 +232,7 @@ func (c *consentDriver) VerifyAndInvalidateLoginRequest(ctx context.Context, ver
 	}
 
 	var d consent.HandledLoginRequest
-	d = f.GetHandledLoginRequest()
+	d = ((*flow.Flow)(f)).GetHandledLoginRequest()
 
 	return &d, nil
 }
@@ -245,6 +254,12 @@ func (c *consentDriver) ListUserAuthenticatedClientsWithBackChannelLogout(ctx co
 }
 
 func (c *consentDriver) CreateLogoutRequest(ctx context.Context, request *consent.LogoutRequest) error {
+	//f := flow.NewFlow(request)
+	//
+	//tx := c.db.Omit("Client").Create(f)
+	//if tx.Error != nil {
+	//	return tx.Error
+	//}
 	return nil
 }
 
@@ -262,4 +277,42 @@ func (c *consentDriver) RejectLogoutRequest(ctx context.Context, challenge strin
 
 func (c *consentDriver) VerifyAndInvalidateLogoutRequest(ctx context.Context, verifier string) (*consent.LogoutRequest, error) {
 	return &consent.LogoutRequest{}, nil
+}
+
+func (c *consentDriver) FlushInactiveLoginConsentRequests(ctx context.Context, notAfter time.Time, limit int, batchSize int) error {
+	requestMaxExpire := time.Now().Add(-c.r.Config().ConsentRequestMaxAge(ctx))
+	if requestMaxExpire.Before(notAfter) {
+		notAfter = requestMaxExpire
+	}
+
+	tx := c.db.Model(&Flow{}).Where("requested_at < ?", notAfter).Limit(limit).Delete(&Flow{})
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
+}
+
+func (_ Flow) TableName() string {
+	return "hydra_oauth2_flow"
+}
+
+func (f *Flow) BeforeSave(_ *gorm.DB) error {
+	if f.Client != nil {
+		f.ClientID = f.Client.GetID()
+	}
+	if f.State == flow.FlowStateLoginUnused && string(f.Context) == "" {
+		f.Context = sqlxx.JSONRawMessage("{}")
+	}
+	return nil
+}
+
+func (f *Flow) AfterSave(c *gorm.DB) error {
+	if f.SessionAccessToken == nil {
+		f.SessionAccessToken = make(map[string]interface{})
+	}
+	if f.SessionIDToken == nil {
+		f.SessionIDToken = make(map[string]interface{})
+	}
+	return nil
 }

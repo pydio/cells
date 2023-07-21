@@ -94,6 +94,7 @@ env: &env
 #--------------------------------------------
 processes:
   discovery:
+    debug: true
     connections:
       <<: *connections
       config:
@@ -157,6 +158,7 @@ processes:
   {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
   {{ if not ($.Val "services" (print "pydio.grpc.data.index." .) "Disabled").Bool }}
   index-{{ . }}:
+    #{{ if eq . "pydiods1" }}debug: true{{ end }}
     connections: *connections
     servers: *servers
     env: *env
@@ -164,6 +166,23 @@ processes:
     services:
       datasource:
         - pydio.grpc.data.index.{{ . }}
+  {{ end }}
+  {{ end }}
+  {{ end }}
+
+  {{ $syncVal := .Config.Val "services/pydio.grpc.data.sync/sources" }}
+  {{ $ := .Config }}
+  {{ range $syncVal.StringArray }}
+  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+  {{ if not ($.Val "services" (print "pydio.grpc.data.sync." .) "Disabled").Bool }}
+  sync-{{ . }}:
+    #{{ if eq . "pydiods1" }}debug: true{{ end }}
+    connections: *connections
+    servers: *servers
+    env: *env
+
+    services:
+      datasource:
         - pydio.grpc.data.sync.{{ . }}
   {{ end }}
   {{ end }}

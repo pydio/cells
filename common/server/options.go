@@ -22,6 +22,7 @@ package server
 
 import (
 	"context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"net"
 
 	"github.com/pydio/cells/v4/common/registry"
@@ -82,6 +83,8 @@ type Options struct {
 	Context  context.Context
 	Listener *net.Listener
 	Metadata map[string]string
+
+	interceptors *[]servicecontext.IncomingContextModifier
 }
 
 // Option is a function to set Options

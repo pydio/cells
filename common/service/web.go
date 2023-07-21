@@ -172,7 +172,6 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 				log.Logger(ctx).Error("Recovered from panic")
 				writer.Write([]byte("Internal Server Error"))
 			})
-
 			// var e error
 			wrapped := http.Handler(wc)
 
@@ -212,6 +211,8 @@ func WithWeb(handler func(ctx context.Context) WebHandler) ServiceOption {
 					log.Logger(ctx).Warn("Could not initialize RateLimiter "+err.Error(), zap.Error(err))
 				}
 			}
+
+			wrapped = UpdateServiceVersionWrapper(wrapped, o)
 
 			mux.Handle(ws.RootPath(), wrapped)
 			mux.Handle(ws.RootPath()+"/", wrapped)

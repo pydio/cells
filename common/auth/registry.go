@@ -24,7 +24,6 @@ import (
 	"bufio"
 	"context"
 	"crypto/sha256"
-	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/hashicorp/go-retryablehttp"
@@ -40,7 +39,7 @@ import (
 	"github.com/ory/x/otelx"
 	"github.com/ory/x/popx"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"net/url"
 	"os"
@@ -124,14 +123,8 @@ type sqlPersister struct {
 	*trustDriver
 }
 
-func (c *sqlPersister) RevokeRefreshTokenMaybeGracePeriod(ctx context.Context, requestID string, signature string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (c *sqlPersister) MigrationStatus(ctx context.Context) (popx.MigrationStatuses, error) {
-	//TODO implement me
-	panic("implement me")
+	return popx.MigrationStatuses{}, nil
 }
 
 func (c *sqlPersister) MigrateDown(ctx context.Context, i int) error {
@@ -159,21 +152,105 @@ func (c *sqlPersister) PrepareMigration(ctx context.Context) error {
 }
 
 func (c *sqlPersister) Connection(ctx context.Context) *pop.Connection {
-	//TODO implement me
-	panic("implement me")
+	// Not used
+	return &pop.Connection{}
 }
 
 func (c *sqlPersister) Ping() error {
-	//TODO implement me
-	panic("implement me")
+	// Not used
+	return nil
 }
 
 type cellsdriver struct {
 	persister persistence.Persister
+	db        *gorm.DB
+	cfg       *hconfig.DefaultProvider
+}
 
-	dialector gorm.Dialector
+func NewRegistrySQL() *cellsdriver {
+	return &cellsdriver{}
+}
 
-	cfg *hconfig.DefaultProvider
+func (m *cellsdriver) Init(
+	ctx context.Context, skipNetworkInit bool, migrate bool, ctxer contextx.Contextualizer,
+) error {
+	contextx.RootContext = context.WithValue(ctx, contextx.ValidContextKey, true)
+
+	// Starting off with default config
+	dsn := m.Config().DSN()
+
+	dialector := mysql.Open(dsn)
+
+	// Should use tenants and dbresolver to include tenants switching
+	db, err := gorm.Open(dialector, &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+		FullSaveAssociations:                     true,
+	})
+	if err != nil {
+		return err
+	}
+
+	m.db = db
+
+	m.Persister().MigrateUp(ctx)
+
+	return nil
+}
+
+func (m *cellsdriver) alwaysCanHandle(dsn string) bool {
+	scheme := strings.Split(dsn, "://")[0]
+	s := dbal.Canonicalize(scheme)
+	return s == dbal.DriverMySQL || s == dbal.DriverPostgreSQL || s == dbal.DriverCockroachDB
+}
+
+func (m *cellsdriver) Persister() persistence.Persister {
+
+	if m.persister != nil {
+		return m.persister
+	}
+
+	m.persister = &sqlPersister{
+		consentDriver: &consentDriver{m.db, m},
+		clientDriver:  &clientDriver{config.Get("services/pydio.web.oauth/staticClients")},
+		oauth2Driver:  &oauth2Driver{m.db, m},
+		jwkDriver:     &jwkDriver{m.db, m},
+		trustDriver:   &trustDriver{},
+	}
+
+	return m.persister
+}
+
+func (m *cellsdriver) Ping() error {
+	// TODO
+	return nil
+}
+
+func (m *cellsdriver) ClientManager() client.Manager {
+	return m.Persister()
+}
+
+func (m *cellsdriver) ConsentManager() consent.Manager {
+	return m.Persister()
+}
+
+func (m *cellsdriver) OAuth2Storage() x.FositeStorer {
+	return m.Persister()
+}
+
+func (m *cellsdriver) KeyManager() jwk.Manager {
+	if m.Config().HSMEnabled() {
+		return hsm.NewKeyManager(hsm.NewContext(m.Config(), m.Logger()), m.Config())
+	}
+
+	return m.Persister()
+}
+
+func (m *cellsdriver) SoftwareKeyManager() jwk.Manager {
+	return m.Persister()
+}
+
+func (m *cellsdriver) GrantManager() trust.GrantManager {
+	return m.Persister()
 }
 
 func (m *cellsdriver) Tracer(ctx context.Context) *otelx.Tracer {
@@ -181,8 +258,7 @@ func (m *cellsdriver) Tracer(ctx context.Context) *otelx.Tracer {
 }
 
 func (m *cellsdriver) GetJWKSFetcherStrategy() fosite.JWKSFetcherStrategy {
-	//TODO implement me
-	panic("implement me")
+	return fosite.NewDefaultJWKSFetcherStrategy()
 }
 
 func (m *cellsdriver) Config() *hconfig.DefaultProvider {
@@ -190,7 +266,7 @@ func (m *cellsdriver) Config() *hconfig.DefaultProvider {
 		return m.cfg
 	}
 
-	p, err := configx.New(context.TODO(), spec.ConfigValidationSchema, configx.WithUserProviders())
+	p, err := configx.New(context.TODO(), spec.ConfigValidationSchema)
 	if err != nil {
 		return nil
 	}
@@ -205,8 +281,7 @@ func (m *cellsdriver) Config() *hconfig.DefaultProvider {
 }
 
 func (m *cellsdriver) ClientValidator() *client.Validator {
-	//TODO implement me
-	panic("implement me")
+	return client.NewValidator(m)
 }
 
 func (m *cellsdriver) ClientHasher() fosite.Hasher {
@@ -230,13 +305,21 @@ func (m *cellsdriver) ConsentStrategy() consent.Strategy {
 }
 
 func (m *cellsdriver) SubjectIdentifierAlgorithm(ctx context.Context) map[string]consent.SubjectIdentifierAlgorithm {
-	//TODO implement me
-	panic("implement me")
+	sia := map[string]consent.SubjectIdentifierAlgorithm{}
+	for _, t := range m.Config().SubjectTypesSupported(ctx) {
+		switch t {
+		case "public":
+			sia["public"] = consent.NewSubjectIdentifierAlgorithmPublic()
+		case "pairwise":
+			sia["pairwise"] = consent.NewSubjectIdentifierAlgorithmPairwise([]byte(m.Config().SubjectIdentifierAlgorithmSalt(ctx)))
+		}
+	}
+
+	return sia
 }
 
 func (m *cellsdriver) Writer() herodot.Writer {
-	//TODO implement me
-	panic("implement me")
+	return herodot.NewJSONWriter(m.Logger())
 }
 
 func (m *cellsdriver) CookieStore(ctx context.Context) (sessions.Store, error) {
@@ -282,13 +365,14 @@ func (m *cellsdriver) AuditLogger() *logrusx.Logger {
 }
 
 func (m *cellsdriver) HTTPClient(ctx context.Context, opts ...httpx.ResilientOptions) *retryablehttp.Client {
-	//TODO implement me
-	panic("implement me")
+	return retryablehttp.NewClient()
 }
 
 func (m *cellsdriver) OpenIDConnectRequestValidator() *openid.OpenIDConnectRequestValidator {
-	//TODO implement me
-	panic("implement me")
+	return openid.NewOpenIDConnectRequestValidator(&openid.DefaultStrategy{
+		Config: m.OAuth2ProviderConfig(),
+		Signer: m.OpenIDJWTStrategy(),
+	}, m.OAuth2ProviderConfig())
 }
 
 func (m *cellsdriver) OAuth2Provider() fosite.OAuth2Provider {
@@ -296,8 +380,7 @@ func (m *cellsdriver) OAuth2Provider() fosite.OAuth2Provider {
 }
 
 func (m *cellsdriver) AudienceStrategy() fosite.AudienceMatchingStrategy {
-	//TODO implement me
-	panic("implement me")
+	return fosite.DefaultAudienceMatchingStrategy
 }
 
 func (m *cellsdriver) AccessTokenJWTStrategy() jwk.JWTSigner {
@@ -305,8 +388,10 @@ func (m *cellsdriver) AccessTokenJWTStrategy() jwk.JWTSigner {
 }
 
 func (m *cellsdriver) AccessRequestHooks() []oauth2.AccessRequestHook {
-	//TODO implement me
-	panic("implement me")
+	return []oauth2.AccessRequestHook{
+		oauth2.RefreshTokenHook(m),
+		oauth2.TokenHook(m),
+	}
 }
 
 func (m *cellsdriver) OAuth2ProviderConfig() fosite.Configurator {
@@ -341,8 +426,7 @@ func (m *cellsdriver) KeyCipher() *jwk.AEAD {
 }
 
 func (m *cellsdriver) GrantValidator() *trust.GrantValidator {
-	//TODO implement me
-	panic("implement me")
+	return trust.NewGrantValidator()
 }
 
 func (*cellsdriver) CanHandle(dsn string) bool {
@@ -350,7 +434,6 @@ func (*cellsdriver) CanHandle(dsn string) bool {
 }
 
 func (*cellsdriver) Contextualizer() contextx.Contextualizer {
-	fmt.Println("Contextualizer ?")
 	return &cellsdriverContextualizer{}
 }
 
@@ -361,50 +444,49 @@ func (*cellsdriverContextualizer) Network(ctx context.Context, network uuid.UUID
 }
 
 func (*cellsdriverContextualizer) Config(ctx context.Context, cfg *configx.Provider) *configx.Provider {
-	now := time.Now()
-	defer func() {
-		fmt.Println("Time elapsed config 5", time.Since(now))
-	}()
 
-	fmt.Println("Contextualizing config", now)
 	host, _ := servicecontext.HttpMetaFromGrpcContext(ctx, servicecontext.HttpMetaHost)
 	rootURL := "https://" + host
 	values := servercontext.GetConfig(ctx).Val("services", "pydio.web.oauth")
 
 	m := values.Map()
+
 	c, _ := config.OpenStore(ctx, "mem://")
 	c.Set(m)
 
-	fmt.Println("Time elapsed config 1", time.Since(now))
+	c2, _ := config.OpenStore(ctx, "mem://")
 
 	if secret := c.Val("secret").String(); secret != "" {
-		_ = cfg.Set(hconfig.KeyGetSystemSecret, []string{c.Val("secret").String()})
+		_ = c2.Val(hconfig.KeyGetSystemSecret).Set([]string{c.Val("secret").String()})
 	}
-	fmt.Println("Time elapsed config 2", time.Since(now))
-	_ = cfg.Set(hconfig.KeyPublicURL, rootURL+"/oidc")
-	_ = cfg.Set(hconfig.KeyIssuerURL, rootURL+"/oidc")
-	_ = cfg.Set(hconfig.KeyLoginURL, rootURL+"/oauth2/login")
-	_ = cfg.Set(hconfig.KeyLogoutURL, rootURL+"/oauth2/logout")
-	_ = cfg.Set(hconfig.KeyConsentURL, rootURL+"/oauth2/consent")
-	_ = cfg.Set(hconfig.KeyErrorURL, rootURL+"/oauth2/fallbacks/error")
-	_ = cfg.Set(hconfig.KeyLogoutRedirectURL, rootURL+"/oauth2/logout/callback")
-	fmt.Println("Time elapsed config 3", time.Since(now))
+	_, dbDSN := config.GetDatabase("pydio.web.oauth")
+	_ = c2.Val(hconfig.KeyDSN).Set(dbDSN)
+	_ = c2.Val(hconfig.KeyPublicURL).Set(rootURL + "/oidc")
+	_ = c2.Val(hconfig.KeyIssuerURL).Set(rootURL + "/oidc")
+	_ = c2.Val(hconfig.KeyLoginURL).Set(rootURL + "/oauth2/login")
+	_ = c2.Val(hconfig.KeyLogoutURL).Set(rootURL + "/oauth2/logout")
+	_ = c2.Val(hconfig.KeyConsentURL).Set(rootURL + "/oauth2/consent")
+	_ = c2.Val(hconfig.KeyErrorURL).Set(rootURL + "/oauth2/fallbacks/error")
+	_ = c2.Val(hconfig.KeyLogoutRedirectURL).Set(rootURL + "/oauth2/logout/callback")
 
-	_ = cfg.Set(hconfig.KeyAccessTokenStrategy, c.Val("accessTokenStrategy").Default("opaque").String())
-	_ = cfg.Set(hconfig.KeyConsentRequestMaxAge, c.Val("consentRequestMaxAge").Default("30m").String())
-	_ = cfg.Set(hconfig.KeyAccessTokenLifespan, c.Val("accessTokenLifespan").Default("10m").String())
-	_ = cfg.Set(hconfig.KeyRefreshTokenLifespan, c.Val("refreshTokenLifespan").Default("1440h").String())
-	_ = cfg.Set(hconfig.KeyIDTokenLifespan, c.Val("idTokenLifespan").Default("1h").String())
-	_ = cfg.Set(hconfig.KeyAuthCodeLifespan, c.Val("authCodeLifespan").Default("10m").String())
+	_ = c2.Val(hconfig.KeyAccessTokenStrategy).Set(c.Val("accessTokenStrategy").Default("opaque").String())
+	_ = c2.Val(hconfig.KeyConsentRequestMaxAge).Set(c.Val("consentRequestMaxAge").Default("30m").String())
+	_ = c2.Val(hconfig.KeyAccessTokenLifespan).Set(c.Val("accessTokenLifespan").Default("10m").String())
+	_ = c2.Val(hconfig.KeyRefreshTokenLifespan).Set(c.Val("refreshTokenLifespan").Default("1440h").String())
+	_ = c2.Val(hconfig.KeyIDTokenLifespan).Set(c.Val("idTokenLifespan").Default("1h").String())
+	_ = c2.Val(hconfig.KeyAuthCodeLifespan).Set(c.Val("authCodeLifespan").Default("10m").String())
 
-	_ = cfg.Set(hconfig.HSMEnabled, "false")
+	_ = c2.Val(hconfig.HSMEnabled).Set("false")
 
-	_ = cfg.Set(hconfig.KeyLogLevel, "trace")
-	_ = cfg.Set("log.leak_sensitive_values", true)
+	_ = c2.Val(hconfig.KeyLogLevel).Set("trace")
+	_ = c2.Val("log.leak_sensitive_values").Set(true)
 
-	_ = cfg.Set(hconfig.KeyCookieSameSiteMode, "Strict")
+	_ = c2.Val(hconfig.KeyCookieSameSiteMode).Set("Strict")
 
-	fmt.Println("Time elapsed config 4", time.Since(now))
+	p, err := configx.New(context.TODO(), spec.ConfigValidationSchema, configx.WithValues(c2.Val().Map()))
+	if err != nil {
+		return nil
+	}
 
 	//rr := values.Val("insecureRedirects").StringArray()
 	//sites, _ := config.LoadSites()
@@ -416,84 +498,7 @@ func (*cellsdriverContextualizer) Config(ctx context.Context, cfg *configx.Provi
 	//	_ = val.Val("dangerous-allow-insecure-redirect-urls").Set(out)
 	//}
 
-	return cfg
-}
-
-func NewRegistrySQL() *cellsdriver {
-	db := sqlite.Open("test.db")
-	r := &cellsdriver{dialector: db}
-	return r
-}
-
-func (m *cellsdriver) Init(
-	ctx context.Context, skipNetworkInit bool, migrate bool, ctxer contextx.Contextualizer,
-) error {
-	contextx.RootContext = context.WithValue(ctx, contextx.ValidContextKey, true)
-
-	m.Persister().MigrateUp(ctx)
-
-	return nil
-}
-
-func (m *cellsdriver) alwaysCanHandle(dsn string) bool {
-	scheme := strings.Split(dsn, "://")[0]
-	s := dbal.Canonicalize(scheme)
-	return s == dbal.DriverMySQL || s == dbal.DriverPostgreSQL || s == dbal.DriverCockroachDB
-}
-
-func (m *cellsdriver) Persister() persistence.Persister {
-
-	if m.persister != nil {
-		return m.persister
-	}
-
-	db, err := gorm.Open(m.dialector, &gorm.Config{FullSaveAssociations: true})
-	if err != nil {
-		panic("failed to connect database")
-	}
-
-	m.persister = &sqlPersister{
-		consentDriver: &consentDriver{db, m},
-		clientDriver:  &clientDriver{config.Get("services/pydio.web.oauth/staticClients")},
-		oauth2Driver:  &oauth2Driver{db, m},
-		jwkDriver:     &jwkDriver{db, m},
-		trustDriver:   &trustDriver{},
-	}
-
-	return m.persister
-}
-
-func (m *cellsdriver) Ping() error {
-	// TODO
-	return nil
-}
-
-func (m *cellsdriver) ClientManager() client.Manager {
-	return m.Persister()
-}
-
-func (m *cellsdriver) ConsentManager() consent.Manager {
-	return m.Persister()
-}
-
-func (m *cellsdriver) OAuth2Storage() x.FositeStorer {
-	return m.Persister()
-}
-
-func (m *cellsdriver) KeyManager() jwk.Manager {
-	if m.Config().HSMEnabled() {
-		return hsm.NewKeyManager(hsm.NewContext(m.Config(), m.Logger()), m.Config())
-	}
-
-	return m.Persister()
-}
-
-func (m *cellsdriver) SoftwareKeyManager() jwk.Manager {
-	return m.Persister()
-}
-
-func (m *cellsdriver) GrantManager() trust.GrantManager {
-	return m.Persister()
+	return p
 }
 
 type HydraJwkMigration struct {
@@ -547,7 +552,7 @@ func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 	//clients := defaultConf.Clients()
 
 	once.Do(func() {
-		// var dbName string
+		//var dbName string
 		reg, _, e = createSqlRegistryForConf(dbServiceName, defaultConf)
 		if e != nil {
 			logger.Error("Cannot init registryFromDSN", zap.Error(e))
@@ -693,13 +698,6 @@ func createSqlRegistryForConf(serviceName string, conf ConfigurationProvider) (R
 	}
 
 	return driver.(Registry), dbName, nil
-	//ctx := context.TODO()
-	//_ = cfg.Set(ctx, "dsn", fmt.Sprintf("%s://%s", dbDriver, dbDSN))
-	//reg, e := driver.NewRegistryFromDSN(ctx, cfg, lx, false, false, &contextx.Default{})
-	//if e != nil {
-	//	return nil, "", e
-	//}
-	//return reg.WithConfig(cfg), dbName, nil
 }
 
 func GetRegistry() Registry {

@@ -3,41 +3,31 @@ package auth
 import (
 	"context"
 	"database/sql"
-	"github.com/google/uuid"
 	"github.com/ory/fosite"
+	foauth2 "github.com/ory/fosite/handler/oauth2"
+	"github.com/ory/fosite/handler/openid"
+	"github.com/ory/fosite/handler/pkce"
 	"github.com/ory/hydra/v2/oauth2"
+	hsql "github.com/ory/hydra/v2/persistence/sql"
+	"github.com/ory/hydra/v2/x"
 	"github.com/ory/x/errorsx"
 	"github.com/ory/x/stringsx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"gopkg.in/square/go-jose.v2"
+	"github.com/tidwall/gjson"
 	"gorm.io/gorm"
 	"net/url"
 	"strings"
 	"time"
 )
 
-//var _ x.FositeStorer = new(oauth2Driver)
+var _ foauth2.CoreStorage = new(oauth2Driver)
+var _ openid.OpenIDConnectRequestStorage = new(oauth2Driver)
+var _ pkce.PKCERequestStorage = new(oauth2Driver)
+var _ x.FositeStorer
 
 type (
-	tableName        string
-	OAuth2RequestSQL struct {
-		ID                string
-		NID               uuid.UUID
-		Request           string
-		ConsentChallenge  sql.NullString
-		RequestedAt       time.Time
-		Client            string
-		Scopes            string
-		GrantedScope      string
-		RequestedAudience string
-		GrantedAudience   string
-		Form              string
-		Subject           string
-		Active            bool
-		Session           []byte
-		Table             tableName `gorm:"-"`
-	}
-
+	tableName               string
+	OAuth2RequestSQL        hsql.OAuth2RequestSQL
 	OAuth2RequestSQLOIDC    OAuth2RequestSQL
 	OAuth2RequestSQLAccess  OAuth2RequestSQL
 	OAuth2RequestSQLRefresh OAuth2RequestSQL
@@ -104,7 +94,6 @@ func (o *oauth2Driver) createSession(ctx context.Context, signature string, requ
 		Session:           sessionBytes,
 		Subject:           session.GetSubject(),
 		Active:            true,
-		Table:             table,
 	}
 
 	var tx *gorm.DB
@@ -151,13 +140,13 @@ func (o *oauth2Driver) getSession(ctx context.Context, req interface{}, session 
 	}
 
 	sess := r.Session
-	//if !gjson.ValidBytes(sess) {
-	//	var err error
-	//	sess, err = o.Manager.KeyCipher().Decrypt(ctx, string(sess))
-	//	if err != nil {
-	//		return nil, errorsx.WithStack(err)
-	//	}
-	//}
+	if !gjson.ValidBytes(sess) {
+		var err error
+		sess, err = o.r.KeyCipher().Decrypt(ctx, string(sess))
+		if err != nil {
+			return nil, errorsx.WithStack(err)
+		}
+	}
 
 	if session != nil {
 		if err := json.Unmarshal(sess, session); err != nil {
@@ -191,13 +180,32 @@ func (o *oauth2Driver) getSession(ctx context.Context, req interface{}, session 
 }
 
 func (o *oauth2Driver) ClientAssertionJWTValid(ctx context.Context, jti string) error {
-	//TODO implement me
-	panic("implement me")
+	j := oauth2.NewBlacklistedJTI(jti, time.Time{})
+
+	tx := o.db.First(&j)
+	if tx.Error != nil {
+		if tx.Error == sql.ErrNoRows {
+			return nil
+		}
+		return tx.Error
+	}
+
+	if j.Expiry.After(time.Now()) {
+		return fosite.ErrJTIKnown
+	}
+
+	return nil
 }
 
 func (o *oauth2Driver) SetClientAssertionJWT(ctx context.Context, jti string, exp time.Time) error {
-	//TODO implement me
-	panic("implement me")
+	j := oauth2.NewBlacklistedJTI(jti, exp)
+
+	tx := o.db.Create(&j)
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
 }
 
 func (o *oauth2Driver) CreateAuthorizeCodeSession(ctx context.Context, code string, request fosite.Requester) (err error) {
@@ -226,8 +234,13 @@ func (o *oauth2Driver) GetAccessTokenSession(ctx context.Context, signature stri
 }
 
 func (o *oauth2Driver) DeleteAccessTokenSession(ctx context.Context, signature string) (err error) {
-	//TODO implement me
-	panic("implement me")
+	r := &OAuth2RequestSQLAccess{ID: signature}
+	tx := o.db.Where(r).Delete(&r)
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
 }
 
 func (o *oauth2Driver) CreateRefreshTokenSession(ctx context.Context, signature string, request fosite.Requester) (err error) {
@@ -239,8 +252,13 @@ func (o *oauth2Driver) GetRefreshTokenSession(ctx context.Context, signature str
 }
 
 func (o *oauth2Driver) DeleteRefreshTokenSession(ctx context.Context, signature string) (err error) {
-	//TODO implement me
-	panic("implement me")
+	r := &OAuth2RequestSQLRefresh{ID: signature}
+	tx := o.db.Where(r).Delete(&r)
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
 }
 
 func (o *oauth2Driver) CreateOpenIDConnectSession(ctx context.Context, authorizeCode string, requester fosite.Requester) error {
@@ -261,7 +279,7 @@ func (o *oauth2Driver) CreatePKCERequestSession(ctx context.Context, signature s
 
 func (o *oauth2Driver) DeletePKCERequestSession(ctx context.Context, signature string) error {
 	r := &OAuth2RequestSQLPKCE{ID: signature}
-	tx := o.db.Where(r).First(&r)
+	tx := o.db.Where(r).Delete(&r)
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -269,62 +287,78 @@ func (o *oauth2Driver) DeletePKCERequestSession(ctx context.Context, signature s
 	return nil
 }
 
-func (o *oauth2Driver) GetPublicKey(ctx context.Context, issuer string, subject string, keyId string) (*jose.JSONWebKey, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (o *oauth2Driver) GetPublicKeys(ctx context.Context, issuer string, subject string) (*jose.JSONWebKeySet, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (o *oauth2Driver) GetPublicKeyScopes(ctx context.Context, issuer string, subject string, keyId string) ([]string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (o *oauth2Driver) IsJWTUsed(ctx context.Context, jti string) (bool, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (o *oauth2Driver) MarkJWTUsedForTime(ctx context.Context, jti string, exp time.Time) error {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (o *oauth2Driver) RevokeRefreshToken(ctx context.Context, requestID string) error {
-	//TODO implement me
-	panic("implement me")
+	r := &OAuth2RequestSQLRefresh{Request: requestID, Active: false}
+	tx := o.db.Updates(&r)
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
+}
+
+func (o *oauth2Driver) RevokeRefreshTokenMaybeGracePeriod(ctx context.Context, requestID string, signature string) error {
+	r := &OAuth2RequestSQLRefresh{Request: requestID, Active: false}
+	tx := o.db.Updates(&r)
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
 }
 
 func (o *oauth2Driver) RevokeAccessToken(ctx context.Context, requestID string) error {
-	//TODO implement me
-	panic("implement me")
+	tx := o.db.Where(OAuth2RequestSQLAccess{Request: requestID}).Updates(OAuth2RequestSQLAccess{Active: false})
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
 }
 
 func (o *oauth2Driver) FlushInactiveAccessTokens(ctx context.Context, notAfter time.Time, limit int, batchSize int) error {
-	//TODO implement me
-	panic("implement me")
-}
+	requestMaxExpire := time.Now().Add(-o.r.Config().GetAccessTokenLifespan(ctx))
+	if requestMaxExpire.Before(notAfter) {
+		notAfter = requestMaxExpire
+	}
 
-func (o *oauth2Driver) FlushInactiveLoginConsentRequests(ctx context.Context, notAfter time.Time, limit int, batchSize int) error {
-	//TODO implement me
-	panic("implement me")
+	tx := o.db.Where("requested_at < ?", notAfter).Limit(limit).Delete(&OAuth2RequestSQLAccess{})
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
 }
 
 func (o *oauth2Driver) DeleteAccessTokens(ctx context.Context, clientID string) error {
-	//TODO implement me
-	panic("implement me")
+	tx := o.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&OAuth2RequestSQLAccess{})
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
 }
 
 func (o *oauth2Driver) FlushInactiveRefreshTokens(ctx context.Context, notAfter time.Time, limit int, batchSize int) error {
-	//TODO implement me
-	panic("implement me")
+	requestMaxExpire := time.Now().Add(-o.r.Config().GetRefreshTokenLifespan(ctx))
+	if requestMaxExpire.Before(notAfter) {
+		notAfter = requestMaxExpire
+	}
+
+	tx := o.db.Where("requested_at < ?", notAfter).Limit(limit).Delete(&OAuth2RequestSQLRefresh{})
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
 }
 
 func (o *oauth2Driver) DeleteOpenIDConnectSession(ctx context.Context, authorizeCode string) error {
-	//TODO implement me
-	panic("implement me")
+	r := &OAuth2RequestSQLOIDC{ID: authorizeCode}
+	tx := o.db.Where(r).Delete(&r)
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
 }

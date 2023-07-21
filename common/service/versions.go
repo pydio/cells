@@ -24,6 +24,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/pydio/cells/v4/common/runtime"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/server/middleware"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -58,6 +61,19 @@ func FirstRun() *version.Version {
 // Latest retrieves current common Cells version.
 func Latest() *version.Version {
 	return common.Version()
+}
+
+func UpdateServiceVersionWrapper(h http.Handler, o *ServiceOptions) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		ctx := req.Context()
+		ctx, _, _ = middleware.TenantIncomingContext(nil)(ctx)
+		err := UpdateServiceVersion(ctx, servercontext.GetConfig(ctx), o)
+		if err != nil {
+			fmt.Println("Failed to run service version update")
+		}
+
+		h.ServeHTTP(rw, req)
+	})
 }
 
 // UpdateServiceVersion applies migration(s) if necessary and stores new current version for future use.
