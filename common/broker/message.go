@@ -44,3 +44,8 @@ func (m *message) Unmarshal(target proto.Message) error {
 func (m *message) RawData() (map[string]string, []byte) {
 	return m.header, m.body
 }
+
+type MessageQueue interface {
+	Consume(callback func(...Message)) error
+	PushRaw(ctx context.Context, message Message) error
+}

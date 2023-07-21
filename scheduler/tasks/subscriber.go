@@ -87,8 +87,6 @@ type Subscriber struct {
 	sync.RWMutex
 	definitions map[string]*jobs.Job
 
-	fifo queue.Queue
-
 	dispatcherLock sync.Mutex
 	dispatchers    map[string]*Dispatcher
 }
@@ -106,26 +104,15 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 	PubSub = pubsub.New(0)
 
 	s.rootCtx = context.WithValue(parentContext, common.PydioContextUserKey, common.PydioSystemUsername)
-
-	queueProcessor := func(events ...broker.Message) {
-		for _, event := range events {
-			target := &tree.NodeChangeEvent{}
-			if ct, e := event.Unmarshal(target); e == nil {
-				s.processNodeEvent(ct, target)
-			} else {
-				fmt.Println("error while unmarshalling raw data", e)
-			}
-		}
+	treeQu, er := queue.OpenQueue(s.rootCtx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", common.TopicTreeChanges))
+	if er != nil {
+		log.Logger(s.rootCtx).Error("Cannot start treeQueue, using an in-memory instead", zap.Error(er))
+		treeQu, _ = queue.OpenQueue(s.rootCtx, runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000"))
 	}
-
-	if qu, err := queue.OpenQueue(s.rootCtx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", "events")); err == nil {
-		s.fifo = qu
-	} else {
-		log.Logger(s.rootCtx).Error("Cannot start queue, using an in-memory instead", zap.Error(err))
-		s.fifo, _ = queue.OpenQueue(s.rootCtx, runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000"))
-	}
-	if er := s.fifo.Consume(queueProcessor); er != nil {
-		log.Logger(s.rootCtx).Error("Cannot init consumer")
+	metaQu, er := queue.OpenQueue(s.rootCtx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", common.TopicMetaChanges))
+	if er != nil {
+		log.Logger(s.rootCtx).Error("Cannot start metaQueue, using an in-memory instead", zap.Error(er))
+		metaQu, _ = queue.OpenQueue(s.rootCtx, runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000"))
 	}
 
 	opt := broker.Queue("tasks")
@@ -139,20 +126,34 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 	}, opt)
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicTreeChanges, func(message broker.Message) error {
-		target := &tree.NodeChangeEvent{}
-		if ctx, e := message.Unmarshal(target); e == nil {
-			return s.nodeEvent(ctx, target)
+		md, bb := message.RawData()
+		event := &tree.NodeChangeEvent{}
+		if e := proto.Unmarshal(bb, event); e == nil {
+			// Ignore events on Temporary nodes and internal nodes and optimistic
+			if event.Optimistic {
+				return nil
+			}
+			if event.Target != nil && (event.Target.Etag == common.NodeFlagEtagTemporary || event.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
+				return nil
+			}
+			if event.Type == tree.NodeChangeEvent_DELETE && event.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
+				return nil
+			}
+			s.processNodeEvent(metadata.NewContext(s.rootCtx, md), event)
+			return nil
+		} else {
+			return e
 		}
-		return nil
-	}, opt)
+	}, opt, broker.WithLocalQueue(treeQu))
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicMetaChanges, func(message broker.Message) error {
 		target := &tree.NodeChangeEvent{}
-		if ctx, e := message.Unmarshal(target); e == nil && (target.Type == tree.NodeChangeEvent_UPDATE_META || target.Type == tree.NodeChangeEvent_UPDATE_USER_META) {
-			return s.nodeEvent(ctx, target)
+		md, bb := message.RawData()
+		if e := proto.Unmarshal(bb, target); e == nil && (target.Type == tree.NodeChangeEvent_UPDATE_META || target.Type == tree.NodeChangeEvent_UPDATE_USER_META) {
+			s.processNodeEvent(metadata.NewContext(s.rootCtx, md), target)
 		}
 		return nil
-	}, opt)
+	}, opt, broker.WithLocalQueue(metaQu))
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicTimerEvent, func(message broker.Message) error {
 		target := &jobs.JobTriggerEvent{}
@@ -210,7 +211,6 @@ func (s *Subscriber) Init(ctx context.Context) error {
 
 // Stop closes internal EventsBatcher
 func (s *Subscriber) Stop() {
-	//s.fifo.Done <- true // No !
 	s.dispatcherLock.Lock()
 	for _, d := range s.dispatchers {
 		d.Stop()
@@ -385,10 +385,6 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 	}
 	if event.Type == tree.NodeChangeEvent_DELETE && event.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
 		return nil
-	}
-
-	if er := s.fifo.Push(ctx, event); er != nil {
-		fmt.Println("error while pushing event to queue", er.Error())
 	}
 
 	return nil

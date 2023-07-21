@@ -68,8 +68,8 @@ func init() {
 // debounce debounces events on a given timeframe and calls process on them afterward
 // Use globalCtx.Done() to stop listening to events
 type debounce struct {
-	Events chan *protoWithContext
-	batch  []*protoWithContext
+	Events chan broker.Message
+	batch  []broker.Message
 
 	Done            chan bool
 	globalCtx       context.Context
@@ -110,7 +110,7 @@ func (b *debounce) OpenURL(ctx context.Context, u *url.URL) (queue.Queue, error)
 	}
 
 	return &debounce{
-		Events:    make(chan *protoWithContext, 1000),
+		Events:    make(chan broker.Message, 1000),
 		globalCtx: ctx,
 		debounce:  deb,
 		idle:      idl,
@@ -119,7 +119,7 @@ func (b *debounce) OpenURL(ctx context.Context, u *url.URL) (queue.Queue, error)
 }
 
 // Consume registers the processor as callback and starts listening to queue
-func (b *debounce) Consume(process queue.Consumer) error {
+func (b *debounce) Consume(process func(...broker.Message)) error {
 	b.processCallback = process
 	go b.Start()
 	return nil
@@ -159,15 +159,23 @@ func (b *debounce) Push(ctx context.Context, msg proto.Message) error {
 	return nil
 }
 
+func (b *debounce) PushRaw(_ context.Context, message broker.Message) error {
+	if b.closed {
+		return fmt.Errorf("channel is already closed")
+	}
+	b.Events <- message
+	return nil
+}
+
 func (b *debounce) process() {
 	if len(b.batch) == 0 {
 		return
 	}
 	go b.processBatch(b.batch)
-	b.batch = []*protoWithContext{}
+	b.batch = []broker.Message{}
 }
 
-func (b *debounce) processBatch(bb []*protoWithContext) {
+func (b *debounce) processBatch(bb []broker.Message) {
 	log.Logger(b.globalCtx).Debug("Processing batched events", zap.Int("size", len(bb)))
 	var cleanEvents []broker.Message
 	for _, e := range bb {
