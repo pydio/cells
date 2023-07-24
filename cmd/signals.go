@@ -71,6 +71,8 @@ func handleSignals(args []string) {
 					startTags := "main-process"
 					if len(args) > 0 {
 						startTags = strings.Join(args, "-")
+						startTags = strings.ReplaceAll(startTags, "^", "")
+						startTags = strings.ReplaceAll(startTags, "$", "")
 					}
 
 					targetDir := filepath.Join(runtime.ApplicationWorkingDir(runtime.ApplicationDirLogs), "profiles", startTags)
