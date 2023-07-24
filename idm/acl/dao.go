@@ -23,6 +23,7 @@ package acl
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/pydio/cells/v4/common/dao"
@@ -66,7 +67,7 @@ type DAO interface {
 func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case sql.DAO:
-		return &sqlimpl{DAO: v}, nil
+		return &sqlimpl{DAO: v, delLock: &sync.RWMutex{}}, nil
 	}
 	return nil, dao.UnsupportedDriver(o)
 }

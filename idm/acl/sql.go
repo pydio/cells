@@ -26,6 +26,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/doug-martin/goqu/v9/exp"
+	"sync"
 	"time"
 
 	goqu "github.com/doug-martin/goqu/v9"
@@ -63,6 +64,7 @@ var (
 
 type sqlimpl struct {
 	sql.DAO
+	delLock *sync.RWMutex
 }
 
 // Init handler for the SQL DAO
@@ -91,12 +93,13 @@ func (dao *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 			}
 		}
 	}
-
 	return nil
 }
 
 // Add inserts an ACL to the underlying SQL DB
 func (dao *sqlimpl) Add(in interface{}) error {
+	dao.delLock.RLock()
+	defer dao.delLock.RUnlock()
 	return dao.addWithDupCheck(in, true)
 }
 
@@ -150,39 +153,20 @@ func (dao *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 
 	res, err := stmt.Exec(val.Action.Name, val.Action.Value, roleID, workspaceID, nodeID)
 	if err != nil {
-		if mErr, o := err.(*mysql.MySQLError); o {
-			if mErr.Number == 1062 && check {
-				// fmt.Println("GOT DUPLICATE ERROR", mErr.Error(), mErr.Message)
-				// There is a duplicate : if it is expired, we can safely ignore it and replace it
-				deleteStmt, dE := dao.GetStmt("CleanDuplicateIfExpired")
-				if dE != nil {
-					return dE
-				}
-				delRes, drE := deleteStmt.Exec(val.Action.Name, roleID, workspaceID, nodeID, time.Now())
-				if drE != nil {
-					return drE
-				}
-				if affected, e := delRes.RowsAffected(); e == nil && affected == 1 {
-					// fmt.Println("[AddACL] Replacing one duplicate row that was in fact expired")
-					return dao.addWithDupCheck(in, false)
-				}
+		if mErr, o := err.(*mysql.MySQLError); o && mErr.Number == 1062 && check {
+			// fmt.Println("GOT DUPLICATE ERROR", mErr.Error(), mErr.Message)
+			// There is a duplicate : if it is expired, we can safely ignore it and replace it
+			deleteStmt, dE := dao.GetStmt("CleanDuplicateIfExpired")
+			if dE != nil {
+				return dE
 			}
-			if mErr.Number == 1452 {
-				log.Logger(context.Background()).Error("[ErrCheck] AddACL Error FK Constraint",
-					zap.String("r", roleID), zap.String("w", workspaceID), zap.String("n", nodeID), zap.Any("value", val))
-				if roleID != "" {
-					var id string
-					stmt, er = dao.GetStmt("GetACLRole")
-					if er == nil {
-						row := stmt.QueryRow(roleID)
-						if row != nil {
-							if er = row.Scan(&id); er != nil {
-								log.Logger(context.Background()).Error("[ErrCheck] Role With ID " + roleID + "is found in acl_role table")
-							}
-						}
-					}
-				}
-
+			delRes, drE := deleteStmt.Exec(val.Action.Name, roleID, workspaceID, nodeID, time.Now())
+			if drE != nil {
+				return drE
+			}
+			if affected, e := delRes.RowsAffected(); e == nil && affected == 1 {
+				// fmt.Println("[AddACL] Replacing one duplicate row that was in fact expired")
+				return dao.addWithDupCheck(in, false)
 			}
 		}
 		return err
@@ -200,6 +184,8 @@ func (dao *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 
 // Search in the underlying SQL DB.
 func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}, period *ExpirationPeriod) error {
+	dao.delLock.RLock()
+	defer dao.delLock.RUnlock()
 
 	db := goqu.New(dao.Driver(), dao.DB())
 
@@ -323,6 +309,8 @@ func (dao *sqlimpl) SetExpiry(query sql.Enquirer, t time.Time, period *Expiratio
 
 // Del from the sql DB.
 func (dao *sqlimpl) Del(query sql.Enquirer, period *ExpirationPeriod) (int64, error) {
+	dao.delLock.Lock()
+	defer dao.delLock.Unlock()
 
 	whereExpression := goqu.And()
 	if query != nil {
