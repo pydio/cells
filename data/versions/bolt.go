@@ -119,7 +119,7 @@ func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, error) {
 			}
 			nodeBucket := bucket.Bucket([]byte(nodeUuid))
 			if nodeBucket == nil {
-				return errors.NotFound(common.ServiceVersions, "No bucket found for this node")
+				return errors.NotFound(common.ServiceVersions, "[boltdb] no versions bucket found for node "+nodeUuid)
 			}
 			c := nodeBucket.Cursor()
 
