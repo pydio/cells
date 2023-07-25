@@ -22,11 +22,9 @@ package cmd
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	grpc2 "google.golang.org/grpc"
 	"strings"
-	"time"
-
-	"github.com/pydio/cells/v4/common/client/grpc"
 
 	"github.com/pydio/cells/v4/common/service/errors"
 	"go.uber.org/zap"
@@ -132,7 +130,7 @@ func (c *ResyncAction) Init(job *jobs.Job, action *jobs.Action) error {
 // Run perform actual action code
 func (c *ResyncAction) Run(ctx context.Context, channels *actions.RunnableChannels, input *jobs.ActionMessage) (*jobs.ActionMessage, error) {
 
-	ctx, _ = context.WithTimeout(ctx, 1*time.Hour)
+	//ctx, _ = context.WithTimeout(ctx, 1*time.Hour)
 	srvName := jobs.EvaluateFieldStr(ctx, input, c.ServiceName)
 	// V4: strip grpc prefix
 	srvName = strings.TrimPrefix(srvName, common.ServiceGrpcNamespace_)
