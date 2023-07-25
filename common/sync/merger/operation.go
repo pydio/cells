@@ -96,6 +96,11 @@ func (o *patchOperation) Clone(replaceType ...OperationType) Operation {
 	return op
 }
 
+// NewOpForUnmarshall creates an empty struct - do not remove, used by cells-sync
+func NewOpForUnmarshall() Operation {
+	return &patchOperation{}
+}
+
 func (o *patchOperation) IsTypeMove() bool {
 	return o.OpType == OpMoveFolder || o.OpType == OpMoveFile
 }
