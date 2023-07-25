@@ -353,7 +353,7 @@ func (c *ChildrenCursor) Next() *TreeNode {
 func (t *TreeNode) MarshalJSON() ([]byte, error) {
 	data := map[string]interface{}{
 		"Base": path.Base(t.GetPath()),
-		//"N": t.N,
+		"Node": t.N.AsProto(),
 	}
 	if len(t.children) > 0 {
 		data["Children"] = t.SortedChildren()
