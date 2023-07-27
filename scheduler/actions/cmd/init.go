@@ -39,4 +39,8 @@ func init() {
 		return &ResyncAction{}
 	})
 
+	manager.Register(captureActionName, func() actions.ConcreteAction {
+		return &CaptureAction{}
+	})
+
 }
