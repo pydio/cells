@@ -312,10 +312,10 @@ func (db *MemDB) Stats() string {
 
 func (db *MemDB) ToJSON(name string) error {
 	// Backward compat, keep as slice
-	var nn []tree.N
+	var nn []*tree.Node
 	db.indexLock.RLock()
 	for _, n := range db.pathIndex {
-		nn = append(nn, n)
+		nn = append(nn, n.AsProto())
 	}
 	db.indexLock.RUnlock()
 
