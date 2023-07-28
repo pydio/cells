@@ -85,7 +85,7 @@ func (a *QuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 		u  int64
 	}
 	a.once.Do(func() {
-		a.readCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "1m", "cleanWindow", "5m"))
+		a.readCache, _ = cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "30s", "cleanWindow", "3m"))
 	})
 	var cacheKey string
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
@@ -108,10 +108,10 @@ func (a *QuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, op
 		n.MustSetMeta("ws_quota_usage", u)
 		resp.Node = n
 		if cacheKey != "" {
-			a.readCache.Set(cacheKey, &qCache{q: q, u: u})
+			_ = a.readCache.Set(cacheKey, &qCache{q: q, u: u})
 		}
 	} else if cacheKey != "" {
-		a.readCache.Set(cacheKey, &qCache{no: true})
+		_ = a.readCache.Set(cacheKey, &qCache{no: true})
 	}
 	return resp, err
 }
@@ -318,7 +318,6 @@ func (a *QuotaFilter) QuotaForWorkspace(ctx context.Context, workspace *idm.Work
 	roleValues := make(map[string]string)
 	detectedRoots := make(map[string]bool)
 
-	defer stream.CloseSend()
 	for {
 		resp, e := stream.Recv()
 		if e != nil {
