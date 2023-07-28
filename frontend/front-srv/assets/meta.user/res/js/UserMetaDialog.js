@@ -65,6 +65,7 @@ export default createReactClass({
                 ref="panel"
                 node={this.props.selection.isUnique() ? this.props.selection.getUniqueNode() : new Node()}
                 editMode={true}
+                style={{fontSize: 14}}
             />
         );
     },

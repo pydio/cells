@@ -770,6 +770,12 @@
   "metadata.order": {
     "other": "Order"
   },
+  "metadata.group": {
+    "other": "Group"
+  },
+  "metadata.default-group": {
+    "other": "No Group"
+  },
   "metadata.toggle.index": {
     "other": "Index in search engine"
   },
