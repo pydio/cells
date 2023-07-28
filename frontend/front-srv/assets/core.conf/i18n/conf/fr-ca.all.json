@@ -213,18 +213,18 @@
     "other": "Role commençant par"
   },
   "System Default": {
-    "other": "System Default"
+    "other": "Par défaut"
   },
   "Material 3 (detect)": {
-    "other": "Material 3 (detect)"
+    "other": "Material 3 (détecter)"
   },
   "Material 3 (light)": {
-    "other": "Material 3 (light)"
+    "other": "Material 3 (clair)"
   },
   "Material 3 (dark)": {
-    "other": "Material 3 (dark)"
+    "other": "Material 3 (sombre)"
   },
   "Material Legacy": {
-    "other": "Material Legacy"
+    "other": "Material 1 (legacy)"
   }
 }

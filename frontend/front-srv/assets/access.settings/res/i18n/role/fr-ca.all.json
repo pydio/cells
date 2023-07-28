@@ -189,7 +189,7 @@
     "other": "Ce rôle est toujours appliqué aux utilisateurs ayant ce(s) profil(s)."
   },
   "role.override.label": {
-    "other": "Always Override"
+    "other": "Toujours écraser"
   },
   "role.override.description": {
     "other": "Le rôle est toujours appliqué en dernier, après les autres rôles, à l'exception du rôle utilisateur qui prévaut."

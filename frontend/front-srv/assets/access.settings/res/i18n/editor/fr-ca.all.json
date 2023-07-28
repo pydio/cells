@@ -102,7 +102,7 @@
     "other": "Effacer la valeur"
   },
   "40": {
-    "other": "Per-workspace parameters"
+    "other": "Paramètres par workspace"
   },
   "41": {
     "other": "Paramètres supplémentaires"
@@ -189,10 +189,10 @@
     "other": "Page de bienvenue affichée après le login"
   },
   "workspace.statics.directory.title": {
-    "other": "Directory"
+    "other": "Annuaire"
   },
   "workspace.statics.directory.description": {
-    "other": "Show address book full page (used by Mui3 Theme)"
+    "other": "Affichage du carnet d'adresses comme Page (utilisé par le thème Mui3)"
   },
   "workspace.statics.settings.title": {
     "other": "Console d'administration"

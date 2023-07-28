@@ -770,6 +770,12 @@
   "metadata.order": {
     "other": "Position"
   },
+  "metadata.group": {
+    "other": "Groupe"
+  },
+  "metadata.default-group": {
+    "other": "Pas de groupe"
+  },
   "metadata.toggle.index": {
     "other": "Indexer dans le moteur de recherche"
   },
@@ -1443,7 +1449,7 @@
     "other": "Veuillez bien noter qu'il ne s'agit ici que d'un masque. Si vous modifiez les dossiers directement dans le stockage, il faudra\n    manuellement mettre le masque à jour en conséquence. De plus, vérifiez la valeur du paramètre 'droits par défaut' dans l'onglet Général, elle peut limiter\n    l'accès global au workspace."
   },
   "ws.45": {
-    "other": "Comme ce workspace utilise dans ses paramètres des valeurs comme PYDIO_USER ou PYDIO_GROUP_*, le contenu affiché varie en fonction de l'utilisateur\n    qui est loggé. Vous ne pouvez donc pas gérer les permissions directement. En revanche, vous pouvez définir des règles d'affichage génériques qui seront utilisées\n    comme un mask de permission."
+    "other": "Comme ce workspace utilise dans ses paramètres des valeurs comme PYDIO_USER ou PYDIO_GROUP_*, le contenu affiché varie en fonction de l'utilisateur\n    qui est loggé. Vous ne pouvez donc pas gérer les permissions directement. En revanche, vous pouvez définir des règles d'affichage génériques qui seront utilisées\n    comme un masque de permission."
   },
   "ws.46": {
     "other": "Ajouter une fonctionnalité"
@@ -1659,7 +1665,7 @@
     "other": "Si des personnes synchronisent ce workspace, leur application n'y aura plus accès! Etes-vous sûr de vouloir changer ça?"
   },
   "ws.editor.other.quota": {
-    "other": "Quota d'utilisation du disque (laisser 0 pour pas de limite). Ce quota est calculé sur tous les fichiers de ce workspace. Pour les workspaces type \"Mes Fichiers\", vous pouvez adapter cette valeur en fonction des utilisateurs, groupes ou rôles."
+    "other": "Quota d'utilisation du disque (laisser 0 pour aucune limite). Ce quota est calculé sur tous les fichiers du workspace (sur les fichiers spécifiques à l'utilisateur dans le cas des workspaces type Mes Documents)."
   },
   "ws.editor.other.quota.noquota": {
     "other": "Pas de quota"

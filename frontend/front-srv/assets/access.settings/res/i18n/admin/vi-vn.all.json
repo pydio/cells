@@ -770,6 +770,12 @@
   "metadata.order": {
     "other": "Thứ tự"
   },
+  "metadata.group": {
+    "other": "Group"
+  },
+  "metadata.default-group": {
+    "other": "No Group"
+  },
   "metadata.toggle.index": {
     "other": "Chỉ mục trong search engine"
   },
@@ -1659,7 +1665,7 @@
     "other": "Nếu mọi người được kết nối với workspace này, tác vụ đồng bộ hóa của họ sẽ không còn hoạt động nữa! Bạn có chắc chắn muốn thay đổi điều đó?"
   },
   "ws.editor.other.quota": {
-    "other": "Disk Usage Quota (bằng 0 để không giới hạn). Quota được tính toán trên tất các tập của không gian làm việc này. Đối với không gian làm việc dành riêng cho người dùng(như là tệp cá nhân), bạn có thể thay đổi các giá trị trên cơ sở mỗi người user/group/role."
+    "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace (or user-specific contents for workspaces like Personal Files)."
   },
   "ws.editor.other.quota.noquota": {
     "other": "No Quota set"
