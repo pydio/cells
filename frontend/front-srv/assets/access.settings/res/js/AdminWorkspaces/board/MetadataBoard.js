@@ -4,7 +4,7 @@ import {FlatButton, Paper, IconButton} from 'material-ui'
 const {muiThemeable} = require('material-ui/styles');
 import Pydio from 'pydio'
 const {MaterialTable} = Pydio.requireLib('components');
-import MetaNamespace from '../editor/MetaNamespace'
+import MetaNamespace, {getGroupValue} from '../editor/MetaNamespace'
 import {IdmUserMetaNamespace, ServiceResourcePolicy} from 'cells-sdk'
 
 
@@ -15,7 +15,7 @@ class MetadataBoard extends React.Component{
         this.state = {
             loading: false,
             namespaces: [],
-            m : (id) => props.pydio.MessageHash['ajxp_admin.metadata.' + id]
+            m : (id) => props.pydio.MessageHash['ajxp_admin.metadata.' + id] || id
         };
     }
 
@@ -84,13 +84,22 @@ class MetadataBoard extends React.Component{
         if(!selectedNamespace){
             selectedNamespace = this.emptyNs();
         }
+
+        const knownGroups = [... new Set(namespaces.map(n => getGroupValue(n)).filter(g => g))];
+
         namespaces.sort((a,b) => {
-            const a0 = a.Order || 0;
+            const a0 = a.Order || 0;
             const b0 = b.Order || 0;
-            if (a0 === b0) return 0;
-            return a0 > b0 ? 1 : -1;
+            const orderSort = (oA, oB) => {
+                if (oA === oB) {
+                    return 0;
+                }
+                return oA > oB ? 1 : -1;
+            }
+            return orderSort(a0, b0)
         });
-        const columns = [
+
+        let columns = [
             {name:'Order', label:m('order'), style:{width: 30}, headerStyle:{width:30}, hideSmall:true, renderCell:row => {
                 return row.Order || '0';
             }, sorter:{type:'number'}},
@@ -108,6 +117,20 @@ class MetadataBoard extends React.Component{
                 return Metadata.MetaTypes[data.type] || data.type;
             }), sorter:{type:'string'}}
         ];
+
+        const groupedNS = {}
+        if(knownGroups.length) {
+            namespaces.map(ns => {
+                const g = getGroupValue(ns)
+                if(!groupedNS[g]) {
+                    groupedNS[g] = []
+                }
+                groupedNS[g].push(ns)
+            })
+        } else {
+            groupedNS[''] = namespaces
+        }
+
         const title = currentNode.getLabel();
         const icon = currentNode.getMetadata().get('icon_class');
         let buttons = [];
@@ -147,19 +170,27 @@ class MetadataBoard extends React.Component{
                     />
                     <div className="layout-fill">
                         <AdminComponents.SubHeader title={m('namespaces')} legend={m('namespaces.legend')}/>
-                        <Paper {...adminStyle.body.block.props}>
-                            <MaterialTable
-                                data={namespaces}
-                                columns={columns}
-                                actions={actions}
-                                onSelectRows={this.open.bind(this)}
-                                deselectOnClickAway={true}
-                                showCheckboxes={false}
-                                emptyStateString={m('empty')}
-                                masterStyles={adminStyle.body.tableMaster}
-                                storageKey={'console.metadata.list'}
-                            />
-                        </Paper>
+                            {Object.keys(groupedNS).sort().map(k => {
+                                return (
+                                    <React.Fragment>
+                                    {k && <div style={{padding: 20, fontWeight: 500, paddingBottom: 0}}>{'['+m('group')+'] ' + k}</div>}
+                                    {!k && knownGroups.length > 0 && <div style={{padding: 20, fontWeight: 500, paddingBottom: 0}}>{m('default-group')}</div>}
+                                    <Paper {...adminStyle.body.block.props}>
+                                        <MaterialTable
+                                            data={groupedNS[k]}
+                                            columns={columns}
+                                            actions={actions}
+                                            onSelectRows={this.open.bind(this)}
+                                            deselectOnClickAway={true}
+                                            showCheckboxes={false}
+                                            emptyStateString={m('empty')}
+                                            masterStyles={adminStyle.body.tableMaster}
+                                            storageKey={'console.metadata.list'}
+                                        />
+                                    </Paper>
+                                    </React.Fragment>
+                                )
+                            })}
                     </div>
 
                 </div>
