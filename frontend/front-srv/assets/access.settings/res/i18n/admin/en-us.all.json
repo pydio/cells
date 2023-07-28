@@ -1665,7 +1665,7 @@
     "other" : "If people are connected to this workspace, their sync task will not be working any more! Are you sure you want to change that?"
   },
   "ws.editor.other.quota":{
-    "other" : "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace. For user-specific workspaces (like Personal Files), you can refine this value on a per user/group/role base in the People section."
+    "other" : "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace (or user-specific contents for workspaces like Personal Files)."
   },
   "ws.editor.other.quota.noquota":{
     "other" : "No Quota set"
