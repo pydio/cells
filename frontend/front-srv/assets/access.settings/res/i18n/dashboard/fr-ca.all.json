@@ -93,39 +93,39 @@
     "other": "Administrez et surveillez l'activité de la plateforme"
   },
   "welc.title": {
-    "other": "Welcome to Pydio Cells v4"
+    "other": "Bienvenue sur Pydio Cells v4"
   },
   "card.quick-access": {
-    "other": "Quick Access"
+    "other": "Accès rapide"
   },
   "card.quick-access.add": {
-    "other": "Add a shortcut ..."
+    "other": "Ajouter un raccourci..."
   },
   "card.update.current": {
-    "other": "Software Version"
+    "other": "Version du logiciel"
   },
   "card.update.no-updates": {
-    "other": "Software is up-to-date"
+    "other": "Le logiciel est à jour"
   },
   "card.update.new-version": {
-    "other": "A new version is available"
+    "other": "Une nouvelle version est disponible"
   },
   "recentLogs.title": {
-    "other": "Last Events"
+    "other": "Derniers événements"
   },
   "recentLogs.errors": {
-    "other": "Errors"
+    "other": "Erreurs"
   },
   "recentLogs.emptyState": {
-    "other": "No activity found"
+    "other": "Aucune activité"
   },
   "recentLogs.more": {
-    "other": "All Activities"
+    "other": "Toutes les activités"
   },
   "graph.files": {
-    "other": "Files Activity"
+    "other": "Activité des fichiers"
   },
   "graph.connections": {
-    "other": "Web Connections"
+    "other": "Connexions Web"
   }
 }

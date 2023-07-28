@@ -18,7 +18,7 @@
     "other": "API setting - Url de redirection de l'application OAuth"
   },
   "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead.": {
-    "other": "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead."
+    "other": "Chemin absolu vers le dossier public où des liens de téléchargement temporaire seront créés. Ceci est utilisé dans les anciennes versions, les liens nouvellement créés ne l'utilisent plus, mais utilisez plutôt l'URI racine."
   },
   "Admin Login": {
     "other": "Connexion administrateur"
@@ -159,7 +159,7 @@
     "other": "Direction par défaut (croissant / décroissant) pour le tri distant."
   },
   "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
-    "other": "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration"
+    "other": "Délégue des opérations de téléchargement à un agent alternatif, que ce soit sur le serveur web ou sur un agent pydio. Attention, cela nécessite l'installation de modules externes. Lorsque vous utilisez XSendFile/XaccelRedirect, vous devez ajouter manuellement les dossiers où les fichiers seront téléchargés dans la configuration du module"
   },
   "Descending": {
     "other": "Descendant"
@@ -186,16 +186,16 @@
     "other": "Download Delegation [exp]"
   },
   "Download Folder (Legacy)": {
-    "other": "Download Folder (Legacy)"
+    "other": "Télécharger le dossier (legacy)"
   },
   "Download URL": {
     "other": "URL de téléchargement"
   },
   "Driver": {
-    "other": "Driver"
+    "other": "Pilote"
   },
   "Driver type (do not touch)": {
-    "other": "Driver type (do not touch)"
+    "other": "Type de pilote (ne pas toucher)"
   },
   "Enable WebDAV": {
     "other": "Activer WebDAV"
@@ -276,7 +276,7 @@
     "other": "Si activée, une limité par défaut devra être définie, en dessus de laquelle les fichiers ne seront plus compressés."
   },
   "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
-    "other": "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here."
+    "other": "Si ce n'est pas déduit directement de l'URL actuelle de pydio et de l'URI de base publique, remplacez l'URL d'accès public ici."
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {
     "other": "Si défini, l'action de connexion n'affichera pas l'écran de connexion mais redirigera vers cette URL."

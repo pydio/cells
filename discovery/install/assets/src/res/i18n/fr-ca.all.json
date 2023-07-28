@@ -219,7 +219,7 @@
     "other": "Utiliser un chemin absolu sur le serveur"
   },
   "form.dsType.Label": {
-    "other": "Storage Type"
+    "other": "Type de Stockage"
   },
   "form.dsType.FS": {
     "other": "Fichiers locaux (stocker les données sur ce serveur)"

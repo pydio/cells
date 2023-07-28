@@ -770,6 +770,12 @@
   "metadata.order": {
     "other": "Orden"
   },
+  "metadata.group": {
+    "other": "Group"
+  },
+  "metadata.default-group": {
+    "other": "No Group"
+  },
   "metadata.toggle.index": {
     "other": "Índice en el motor de búsqueda"
   },
@@ -1659,7 +1665,7 @@
     "other": "¡Si los usuarios están conectados a este workspace, la sincronización no funcionará! ¿Está seguro de que desea cambiar esto?"
   },
   "ws.editor.other.quota": {
-    "other": "Cuota de uso del disco (deje 0 sin límite). Esta cuota es calculada en todos los archivos de este espacio de trabajo. Para áreas de trabajo específicas del usuario (como Archivos Personales), puede refinar este valor en cada usuario/grupo/rol en la sección Personas."
+    "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace (or user-specific contents for workspaces like Personal Files)."
   },
   "ws.editor.other.quota.noquota": {
     "other": "Sin cuota establecida"
