@@ -770,6 +770,12 @@
   "metadata.order": {
     "other": "順序"
   },
+  "metadata.group": {
+    "other": "Group"
+  },
+  "metadata.default-group": {
+    "other": "No Group"
+  },
   "metadata.toggle.index": {
     "other": "検索エンジンのインデックス"
   },
@@ -1659,7 +1665,7 @@
     "other": "ユーザーがこのワークスペースに接続している場合、同期タスクは機能しなくなります。 それを変更してもよろしいですか？"
   },
   "ws.editor.other.quota": {
-    "other": "ディスク使用量クォータ（制限なしの場合は0のままにします）。 このクォータは、このワークスペースのすべてのファイルで計算されます。 ユーザー固有のワークスペース（個人用ファイルなど）の場合、[ユーザー] セクションのユーザー/グループ/ロールごとにこの値を調整できます。"
+    "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace (or user-specific contents for workspaces like Personal Files)."
   },
   "ws.editor.other.quota.noquota": {
     "other": "クォータが設定されていません"

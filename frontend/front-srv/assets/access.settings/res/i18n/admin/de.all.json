@@ -770,6 +770,12 @@
   "metadata.order": {
     "other": "Reihenfolge"
   },
+  "metadata.group": {
+    "other": "Group"
+  },
+  "metadata.default-group": {
+    "other": "No Group"
+  },
   "metadata.toggle.index": {
     "other": "In der Suchmaschine indizieren"
   },
@@ -1659,7 +1665,7 @@
     "other": "Wenn Personen mit diesem Workspace verbunden sind, funktioniert ihre Synchronisierungsaufgabe nicht mehr! Möchten Sie das wirklich ändern?"
   },
   "ws.editor.other.quota": {
-    "other": "Datenträgernutzungskontingent (belassen Sie 0 für unbegrenzt). Dieses Kontingent wird für alle Dateien dieses Arbeitsbereichs berechnet. Für benutzerspezifische Arbeitsbereiche (wie z. B. persönliche Dateien) können Sie diesen Wert pro Benutzer / Gruppe / Rolle im Abschnitt \"Personen\" verfeinern."
+    "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace (or user-specific contents for workspaces like Personal Files)."
   },
   "ws.editor.other.quota.noquota": {
     "other": "Kein Quote festgelegt"
