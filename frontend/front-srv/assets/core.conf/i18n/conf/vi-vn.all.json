@@ -206,8 +206,8 @@
   "Whether users can create their own repositories, based on predefined templates.": {
     "other": "Người dùng có thể tạo kho lưu trữ của riêng mình hay không, dựa trên các mẫu được xác định trước."
   },
-  "Worskpace creation delegation": {
-    "other": "Cho phép tạo không gian làm việc"
+  "Workspace creation delegation": {
+    "other": "Workspace creation delegation"
   },
   "role prefix": {
     "other": "Role prefix"

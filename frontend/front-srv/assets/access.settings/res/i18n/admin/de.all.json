@@ -771,10 +771,10 @@
     "other": "Reihenfolge"
   },
   "metadata.group": {
-    "other": "Group"
+    "other": "Gruppe"
   },
   "metadata.default-group": {
-    "other": "No Group"
+    "other": "Keine Gruppe"
   },
   "metadata.toggle.index": {
     "other": "In der Suchmaschine indizieren"
@@ -1665,7 +1665,7 @@
     "other": "Wenn Personen mit diesem Workspace verbunden sind, funktioniert ihre Synchronisierungsaufgabe nicht mehr! Möchten Sie das wirklich ändern?"
   },
   "ws.editor.other.quota": {
-    "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace (or user-specific contents for workspaces like Personal Files)."
+    "other": "Festplattennutzungsquote (lassen Sie 0 für kein Limit). Diese Quote wird auf alle Dateien dieses Workspaces berechnet (oder benutzerspezifische Inhalte für Workspaces wie Persönliche Dateien)."
   },
   "ws.editor.other.quota.noquota": {
     "other": "Kein Quote festgelegt"
