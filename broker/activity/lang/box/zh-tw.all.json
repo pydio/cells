@@ -1,24 +1,24 @@
 {
   "AccessedBy": {
-    "other": "{{.Actor}} 访问权限"
+    "other": "{{.Actor}} 訪問權限"
   },
   "AccessedObject": {
-    "other": "{{.Object}}访问"
+    "other": "{{.Object}}訪問"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} に {{.Actor}} 被访问"
+    "other": "{{.Object}} に {{.Actor}} 被訪問"
   },
   "Cell": {
-    "other": "细胞"
+    "other": "單元"
   },
   "CreatedBy": {
-    "other": "{{.Actor}} 创建"
+    "other": "{{.Actor}} 建立"
   },
   "CreatedObject": {
-    "other": "{{.Object}} 创建"
+    "other": "{{.Object}} 創建"
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} 由 {{.Actor}} 创建"
+    "other": "{{.Object}} 由 {{.Actor}} 建立"
   },
   "DeletedBy": {
     "other": "{{.Actor}} 删除"
@@ -33,7 +33,7 @@
     "other": "{{.Object}}共享"
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}}由{{.Object}}与你共享"
+    "other": "{{.Actor}}由{{.Object}}與你共享"
   },
   "DigestTitle": {
     "other": "这是你的Pydio日志"

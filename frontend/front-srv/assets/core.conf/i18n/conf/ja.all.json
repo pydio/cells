@@ -206,8 +206,8 @@
   "Whether users can create their own repositories, based on predefined templates.": {
     "other": "ユーザーがあらかじめ定義されたテンプレートに基づいて独自のリポジトリを作成できるかどうか。"
   },
-  "Worskpace creation delegation": {
-    "other": "ワークプレースの作成委任"
+  "Workspace creation delegation": {
+    "other": "Workspace creation delegation"
   },
   "role prefix": {
     "other": "ロールプレフィクス"

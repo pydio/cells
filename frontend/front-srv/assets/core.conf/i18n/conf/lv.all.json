@@ -206,8 +206,8 @@
   "Whether users can create their own repositories, based on predefined templates.": {
     "other": "Vai lietotāji var veidot savus repozitorijus balstoties uz definētiem šabloniem."
   },
-  "Worskpace creation delegation": {
-    "other": "Darbvirsmu veidošanas deleģēšana"
+  "Workspace creation delegation": {
+    "other": "Workspace creation delegation"
   },
   "role prefix": {
     "other": "Lomas prefikss"
