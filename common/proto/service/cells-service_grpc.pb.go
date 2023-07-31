@@ -136,86 +136,86 @@ var ServiceManager_ServiceDesc = grpc.ServiceDesc{
 	Metadata: "cells-service.proto",
 }
 
-// ArchiverClient is the client API for Archiver service.
+// LoginModifierClient is the client API for LoginModifier service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ArchiverClient interface {
-	Archive(ctx context.Context, in *Query, opts ...grpc.CallOption) (*ArchiveResponse, error)
+type LoginModifierClient interface {
+	ModifyLogin(ctx context.Context, in *ModifyLoginRequest, opts ...grpc.CallOption) (*ModifyLoginResponse, error)
 }
 
-type archiverClient struct {
+type loginModifierClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewArchiverClient(cc grpc.ClientConnInterface) ArchiverClient {
-	return &archiverClient{cc}
+func NewLoginModifierClient(cc grpc.ClientConnInterface) LoginModifierClient {
+	return &loginModifierClient{cc}
 }
 
-func (c *archiverClient) Archive(ctx context.Context, in *Query, opts ...grpc.CallOption) (*ArchiveResponse, error) {
-	out := new(ArchiveResponse)
-	err := c.cc.Invoke(ctx, "/service.Archiver/Archive", in, out, opts...)
+func (c *loginModifierClient) ModifyLogin(ctx context.Context, in *ModifyLoginRequest, opts ...grpc.CallOption) (*ModifyLoginResponse, error) {
+	out := new(ModifyLoginResponse)
+	err := c.cc.Invoke(ctx, "/service.LoginModifier/ModifyLogin", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ArchiverServer is the server API for Archiver service.
-// All implementations must embed UnimplementedArchiverServer
+// LoginModifierServer is the server API for LoginModifier service.
+// All implementations must embed UnimplementedLoginModifierServer
 // for forward compatibility
-type ArchiverServer interface {
-	Archive(context.Context, *Query) (*ArchiveResponse, error)
-	mustEmbedUnimplementedArchiverServer()
+type LoginModifierServer interface {
+	ModifyLogin(context.Context, *ModifyLoginRequest) (*ModifyLoginResponse, error)
+	mustEmbedUnimplementedLoginModifierServer()
 }
 
-// UnimplementedArchiverServer must be embedded to have forward compatible implementations.
-type UnimplementedArchiverServer struct {
+// UnimplementedLoginModifierServer must be embedded to have forward compatible implementations.
+type UnimplementedLoginModifierServer struct {
 }
 
-func (UnimplementedArchiverServer) Archive(context.Context, *Query) (*ArchiveResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Archive not implemented")
+func (UnimplementedLoginModifierServer) ModifyLogin(context.Context, *ModifyLoginRequest) (*ModifyLoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyLogin not implemented")
 }
-func (UnimplementedArchiverServer) mustEmbedUnimplementedArchiverServer() {}
+func (UnimplementedLoginModifierServer) mustEmbedUnimplementedLoginModifierServer() {}
 
-// UnsafeArchiverServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ArchiverServer will
+// UnsafeLoginModifierServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to LoginModifierServer will
 // result in compilation errors.
-type UnsafeArchiverServer interface {
-	mustEmbedUnimplementedArchiverServer()
+type UnsafeLoginModifierServer interface {
+	mustEmbedUnimplementedLoginModifierServer()
 }
 
-func RegisterArchiverServer(s grpc.ServiceRegistrar, srv ArchiverServer) {
-	s.RegisterService(&Archiver_ServiceDesc, srv)
+func RegisterLoginModifierServer(s grpc.ServiceRegistrar, srv LoginModifierServer) {
+	s.RegisterService(&LoginModifier_ServiceDesc, srv)
 }
 
-func _Archiver_Archive_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Query)
+func _LoginModifier_ModifyLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModifyLoginRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ArchiverServer).Archive(ctx, in)
+		return srv.(LoginModifierServer).ModifyLogin(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/service.Archiver/Archive",
+		FullMethod: "/service.LoginModifier/ModifyLogin",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArchiverServer).Archive(ctx, req.(*Query))
+		return srv.(LoginModifierServer).ModifyLogin(ctx, req.(*ModifyLoginRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Archiver_ServiceDesc is the grpc.ServiceDesc for Archiver service.
+// LoginModifier_ServiceDesc is the grpc.ServiceDesc for LoginModifier service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Archiver_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "service.Archiver",
-	HandlerType: (*ArchiverServer)(nil),
+var LoginModifier_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "service.LoginModifier",
+	HandlerType: (*LoginModifierServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Archive",
-			Handler:    _Archiver_Archive_Handler,
+			MethodName: "ModifyLogin",
+			Handler:    _LoginModifier_ModifyLogin_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

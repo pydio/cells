@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/idm/meta"
@@ -46,6 +47,7 @@ import (
 type Handler struct {
 	idm.UnimplementedUserMetaServiceServer
 	tree.UnimplementedNodeProviderStreamerServer
+	service.UnimplementedLoginModifierServer
 
 	dao meta.DAO
 
@@ -327,6 +329,10 @@ func (h *Handler) ListUserMetaNamespace(request *idm.ListUserMetaNamespaceReques
 		}
 	}
 	return nil
+}
+
+func (h *Handler) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {
+	return resources.ModifyLogin(ctx, h.dao, req)
 }
 
 func (h *Handler) resultsToCache(nodeId string, searchSubjects []string, results []*idm.UserMeta) {

@@ -58,15 +58,16 @@ var (
 	migrationsFS embed.FS
 
 	queries = map[string]string{
-		"AddAttribute":     `replace into idm_user_attributes (uuid, name, value) values (?, ?, ?)`,
-		"GetAttributes":    `select name, value from idm_user_attributes where uuid = ?`,
-		"DeleteAttribute":  `delete from idm_user_attributes where uuid = ? and name = ?`,
-		"DeleteAttributes": `delete from idm_user_attributes where uuid = ?`,
-		"AddRole":          `replace into idm_user_roles (uuid, role, weight) values (?, ?, ?)`,
-		"GetRoles":         `select role from idm_user_roles where uuid = ? order by weight ASC`,
-		"DeleteUserRoles":  `delete from idm_user_roles where uuid = ?`,
-		"DeleteRoleById":   `delete from idm_user_roles where role = ?`,
-		"TouchUser":        `update idm_user_idx_tree set mtime = ? where uuid = ?`,
+		"AddAttribute":            `replace into idm_user_attributes (uuid, name, value) values (?, ?, ?)`,
+		"GetAttributes":           `select name, value from idm_user_attributes where uuid = ?`,
+		"DeleteAttribute":         `delete from idm_user_attributes where uuid = ? and name = ?`,
+		"DeleteAttributes":        `delete from idm_user_attributes where uuid = ?`,
+		"AddRole":                 `replace into idm_user_roles (uuid, role, weight) values (?, ?, ?)`,
+		"GetRoles":                `select role from idm_user_roles where uuid = ? order by weight ASC`,
+		"DeleteUserRoles":         `delete from idm_user_roles where uuid = ?`,
+		"DeleteRoleById":          `delete from idm_user_roles where role = ?`,
+		"TouchUser":               `update idm_user_idx_tree set mtime = ? where uuid = ?`,
+		"UpdateLoginInAttributes": `update idm_user_attributes set value=? where name='pydio:labelLike' and value=?`,
 		//"DeleteAttsClean":      `delete from idm_user_attributes where uuid not in (select uuid from idm_user_idx_tree)`,
 		//"DeleteUserRolesClean": `delete from idm_user_roles where uuid not in (select uuid from idm_user_idx_tree)`,
 	}
@@ -643,6 +644,20 @@ func (s *sqlimpl) CleanRole(ctx context.Context, roleId string) error {
 	}
 
 	return nil
+
+}
+
+func (s *sqlimpl) LoginModifiedAttr(oldName, newName string) (int64, error) {
+
+	st, er := s.GetStmt("UpdateLoginInAttributes")
+	if er != nil {
+		return 0, er
+	}
+	if res, err := st.Exec(strings.ToLower(newName), strings.ToLower(oldName)); err == nil {
+		return res.RowsAffected()
+	} else {
+		return 0, err
+	}
 
 }
 
