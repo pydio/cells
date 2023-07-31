@@ -45,6 +45,7 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -71,6 +72,7 @@ func (a ByOverride) Less(i, j int) bool { return !a[i].ForceOverride && a[j].For
 type Handler struct {
 	ctx context.Context
 	idm.UnimplementedUserServiceServer
+	service.UnimplementedLoginModifierServer
 	dao user.DAO
 }
 
@@ -507,4 +509,49 @@ func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[str
 	autoAppliesCache.Set("autoApplies", autoApplies)
 
 	return
+}
+
+func (h *Handler) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (resp *service.ModifyLoginResponse, err error) {
+	var mm []string
+
+	if req.GetDryRun() {
+
+		// Check user in Tree
+		usersGroups := new([]interface{})
+		uQ, _ := anypb.New(&idm.UserSingleQuery{Login: req.OldLogin})
+		er := h.dao.Search(&service.Query{SubQueries: []*anypb.Any{uQ}}, usersGroups)
+		if er != nil {
+			return nil, er
+		}
+		for _, us := range *usersGroups {
+			if usr, ok := us.(*idm.User); ok {
+				mm = append(mm, "Found user "+usr.GetLogin()+" ("+usr.GetUuid()+") in group "+usr.GetGroupPath())
+			}
+		}
+
+	} else {
+		// Apply change in Tree
+		if uCount, er := h.dao.UpdateNameInPlace(req.OldLogin, req.NewLogin, "", -1); er != nil {
+			return nil, er
+		} else {
+			mm = append(mm, fmt.Sprintf("Replace %d user(s) in index table", uCount))
+		}
+
+		// Apply change in Attributes
+		if aCount, er := h.dao.LoginModifiedAttr(req.OldLogin, req.NewLogin); er != nil {
+			return nil, er
+		} else {
+			mm = append(mm, fmt.Sprintf("Replace %d user(s) in attributes table", aCount))
+		}
+
+	}
+
+	// Apply Policies
+	if ppr, er := resources.ModifyLogin(ctx, h.dao, req); er != nil {
+		return nil, er
+	} else {
+		mm = append(mm, ppr.Messages...)
+	}
+
+	return &service.ModifyLoginResponse{Messages: mm, Success: true}, nil
 }

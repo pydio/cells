@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -52,6 +53,7 @@ func init() {
 
 				h := NewHandler(ctx, servicecontext.GetDAO(ctx).(workspace.DAO))
 				idm.RegisterWorkspaceServiceEnhancedServer(server, h)
+				service2.RegisterLoginModifierEnhancedServer(server, h.(service2.NamedLoginModifierServer))
 
 				// Register a cleaner for removing a workspace when there are no more ACLs on it.
 				wsCleaner := NewWsCleaner(ctx, h)

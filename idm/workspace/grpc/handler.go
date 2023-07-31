@@ -23,14 +23,15 @@ package grpc
 import (
 	"context"
 	"fmt"
-
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/slug"
 	"github.com/pydio/cells/v4/idm/workspace"
 )
@@ -38,6 +39,7 @@ import (
 // Handler definition
 type Handler struct {
 	idm.UnimplementedWorkspaceServiceServer
+	service.UnimplementedLoginModifierServer
 	dao workspace.DAO
 }
 
@@ -201,4 +203,9 @@ func (h *Handler) StreamWorkspace(streamer idm.WorkspaceService_StreamWorkspaceS
 	}
 
 	return nil
+}
+
+// ModifyLogin implements login modification
+func (h *Handler) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {
+	return resources.ModifyLogin(ctx, h.dao, req)
 }

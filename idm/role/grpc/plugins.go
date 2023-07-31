@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -73,6 +74,7 @@ func init() {
 				}
 				handler := NewHandler(ctx, rDao)
 				idm.RegisterRoleServiceEnhancedServer(server, handler)
+				service2.RegisterLoginModifierEnhancedServer(server, handler.(service2.NamedLoginModifierServer))
 
 				// Clean role on user deletion
 				cleaner := NewCleaner(ctx, handler)

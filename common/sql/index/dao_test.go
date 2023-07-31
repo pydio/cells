@@ -28,6 +28,7 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"strconv"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -848,6 +849,54 @@ func TestFindMissingNumbers(t *testing.T) {
 		So(missings, ShouldContain, 1)
 		So(missings, ShouldContain, 3)
 		So(missings, ShouldContain, 6)
+
+	})
+}
+
+func TestUpdateInPlace(t *testing.T) {
+	arborescence := []string{
+		"test",
+		"test/.pydio",
+		"test/admin",
+		"test/admin/.pydio",
+		"test/admin/stuff",
+		"test/admin/stuff/.pydio",
+		"test/admin/file.xls",
+		"test/admin2",
+		"test/admin2/.pydio",
+		"test/user",
+		"test/user/.pydio",
+	}
+	Convey("Test UpdateInPlace", t, func() {
+		d := getDAO(ctxNoCache)
+		var nU string
+		for _, path := range arborescence {
+			_, nn, er := d.Path(path, true)
+			if path == "test/admin" {
+				nU = nn[0].GetUuid()
+			} else if strings.HasSuffix(path, ".pydio") {
+				pNode := nn[0]
+				pNode.SetType(tree.NodeType_LEAF)
+				So(d.SetNodeMeta(pNode), ShouldBeNil)
+			}
+			So(er, ShouldBeNil)
+		}
+		So(nU, ShouldNotBeEmpty)
+		er := d.Flush(true)
+		So(er, ShouldBeNil)
+
+		i, e := d.UpdateNameInPlace("admin", "newAdmin", nU, -1)
+		So(e, ShouldBeNil)
+		So(i, ShouldEqual, 1)
+		tN, _ := d.GetNodeByUUID(nU)
+		So(tN.Name(), ShouldEqual, "newAdmin")
+
+		// Test Flatten method by the way
+		msg, er := d.Flatten()
+		So(er, ShouldBeNil)
+		So(msg, ShouldNotBeEmpty)
+		So(strings.Contains(msg, "5"), ShouldBeTrue) // 5 .pydio removed
+		t.Logf("Flatten received message %s", msg)
 
 	})
 }

@@ -86,48 +86,48 @@ func DeregisterServiceManagerEnhancedServer(s grpc.ServiceRegistrar, name string
 }
 
 var (
-	enhancedArchiverServers     = make(map[string]ArchiverEnhancedServer)
-	enhancedArchiverServersLock = sync.RWMutex{}
+	enhancedLoginModifierServers     = make(map[string]LoginModifierEnhancedServer)
+	enhancedLoginModifierServersLock = sync.RWMutex{}
 )
 
-type NamedArchiverServer interface {
-	ArchiverServer
+type NamedLoginModifierServer interface {
+	LoginModifierServer
 	Name() string
 }
-type ArchiverEnhancedServer map[string]NamedArchiverServer
+type LoginModifierEnhancedServer map[string]NamedLoginModifierServer
 
-func (m ArchiverEnhancedServer) Archive(ctx context.Context, r *Query) (*ArchiveResponse, error) {
+func (m LoginModifierEnhancedServer) ModifyLogin(ctx context.Context, r *ModifyLoginRequest) (*ModifyLoginResponse, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok || len(md.Get("targetname")) == 0 {
-		return nil, status.Errorf(codes.FailedPrecondition, "method Archive should have a context")
+		return nil, status.Errorf(codes.FailedPrecondition, "method ModifyLogin should have a context")
 	}
-	enhancedArchiverServersLock.RLock()
-	defer enhancedArchiverServersLock.RUnlock()
+	enhancedLoginModifierServersLock.RLock()
+	defer enhancedLoginModifierServersLock.RUnlock()
 	for _, mm := range m {
 		if mm.Name() == md.Get("targetname")[0] {
-			return mm.Archive(ctx, r)
+			return mm.ModifyLogin(ctx, r)
 		}
 	}
-	return nil, status.Errorf(codes.Unimplemented, "method Archive not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyLogin not implemented")
 }
-func (m ArchiverEnhancedServer) mustEmbedUnimplementedArchiverServer() {}
-func RegisterArchiverEnhancedServer(s grpc.ServiceRegistrar, srv NamedArchiverServer) {
-	enhancedArchiverServersLock.Lock()
-	defer enhancedArchiverServersLock.Unlock()
+func (m LoginModifierEnhancedServer) mustEmbedUnimplementedLoginModifierServer() {}
+func RegisterLoginModifierEnhancedServer(s grpc.ServiceRegistrar, srv NamedLoginModifierServer) {
+	enhancedLoginModifierServersLock.Lock()
+	defer enhancedLoginModifierServersLock.Unlock()
 	addr := fmt.Sprintf("%p", s)
-	m, ok := enhancedArchiverServers[addr]
+	m, ok := enhancedLoginModifierServers[addr]
 	if !ok {
-		m = ArchiverEnhancedServer{}
-		enhancedArchiverServers[addr] = m
-		RegisterArchiverServer(s, m)
+		m = LoginModifierEnhancedServer{}
+		enhancedLoginModifierServers[addr] = m
+		RegisterLoginModifierServer(s, m)
 	}
 	m[srv.Name()] = srv
 }
-func DeregisterArchiverEnhancedServer(s grpc.ServiceRegistrar, name string) {
-	enhancedArchiverServersLock.Lock()
-	defer enhancedArchiverServersLock.Unlock()
+func DeregisterLoginModifierEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedLoginModifierServersLock.Lock()
+	defer enhancedLoginModifierServersLock.Unlock()
 	addr := fmt.Sprintf("%p", s)
-	m, ok := enhancedArchiverServers[addr]
+	m, ok := enhancedLoginModifierServers[addr]
 	if !ok {
 		return
 	}

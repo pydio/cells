@@ -24,7 +24,7 @@ package resources
 import (
 	goqu "github.com/doug-martin/goqu/v9"
 	"github.com/pydio/cells/v4/common/dao"
-	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/sql"
 )
 
@@ -33,9 +33,11 @@ type DAO interface {
 	AddPolicy(resourceId string, policy *service.ResourcePolicy) error
 	AddPolicies(update bool, resourceId string, rules []*service.ResourcePolicy) error
 	GetPoliciesForResource(resourceId string) ([]*service.ResourcePolicy, error)
+	GetPoliciesForSubject(subject string) ([]*service.ResourcePolicy, error)
 	DeletePoliciesForResource(resourceId string) error
 	DeletePoliciesForResourceAndAction(resourceId string, action service.ResourcePolicyAction) error
 	DeletePoliciesBySubject(subject string) error
+	ReplacePoliciesSubject(oldSubject, newSubject string) (int, error)
 
 	BuildPolicyConditionForAction(q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (expr goqu.Expression, e error)
 }

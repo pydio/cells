@@ -68,6 +68,7 @@ func init() {
 				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(meta.DAO))
 				idm.RegisterUserMetaServiceEnhancedServer(server, handler)
 				tree.RegisterNodeProviderStreamerEnhancedServer(server, handler)
+				service2.RegisterLoginModifierEnhancedServer(server, handler)
 
 				// Clean role on user deletion
 				cleaner := NewCleaner(servicecontext.GetDAO(ctx))

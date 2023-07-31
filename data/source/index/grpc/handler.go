@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -62,6 +63,7 @@ type TreeServer struct {
 	tree.UnimplementedSessionIndexerServer
 	object.UnimplementedResourceCleanerEndpointServer
 	sync.UnimplementedSyncEndpointServer
+	service.UnimplementedLoginModifierServer
 }
 
 /* =============================================================================

@@ -69,6 +69,7 @@ type DAO interface {
 	FixLostAndFound(lost LostAndFound) error
 	FixRandHash2(excludes ...LostAndFound) (int64, error)
 	Flatten() (string, error)
+	UpdateNameInPlace(oldName, newName string, knownUuid string, knownLevel int) (int64, error)
 
 	GetSQLDAO() sql.DAO
 }

@@ -732,18 +732,3 @@ func (d *daocache) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 
 	return err
 }
-func (d *daocache) CleanResourcesOnDeletion() (string, error) {
-	return d.DAO.CleanResourcesOnDeletion()
-}
-
-func (d *daocache) LostAndFounds(ctx context.Context) ([]LostAndFound, error) {
-	return d.DAO.LostAndFounds(ctx)
-}
-
-func (d *daocache) FixLostAndFound(lost LostAndFound) error {
-	return d.DAO.FixLostAndFound(lost)
-}
-
-func (d *daocache) Flatten() (string, error) {
-	return d.DAO.Flatten()
-}

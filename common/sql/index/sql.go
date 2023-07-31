@@ -214,6 +214,18 @@ func init() {
 	queries["updateEtag"] = func(dao sql.DAO, mpathes ...string) string {
 		return `UPDATE %%PREFIX%%_idx_tree set etag = ? WHERE uuid = ?`
 	}
+	queries["updateNameInPlace"] = func(dao sql.DAO, args ...string) (string, []interface{}) {
+		q := "update %%PREFIX%%_idx_tree set name= ?"
+		// As name changes, we have to recompute HashParent
+		if hash2 := dao.HashParent("name", "mpath1", "mpath2", "mpath3", "mpath4"); hash2 != "" {
+			q += ", hash2=" + hash2
+		}
+		q += " WHERE name = ?"
+		if len(args) > 0 { // Append an additional where condition, can be for example uuid or level
+			q += " AND " + args[0] + "=?"
+		}
+		return q, []interface{}{}
+	}
 
 	queries["selectNodeUuid"] = func(dao sql.DAO, mpathes ...string) string {
 		return `
@@ -602,6 +614,28 @@ func (dao *IndexSQL) SetNodeMeta(node *mtree.TreeNode) error {
 	)
 
 	return err
+}
+
+// UpdateNameInPlace in replacement of previous node
+func (dao *IndexSQL) UpdateNameInPlace(oldName, newName string, knownUuid string, knownLevel int) (int64, error) {
+
+	dao.Lock()
+	defer dao.Unlock()
+
+	updateName, _, er := dao.GetStmtWithArgs("updateNameInPlace")
+	if er != nil {
+		return 0, er
+	}
+
+	res, err := updateName.Exec(
+		newName,
+		oldName,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return res.RowsAffected()
+
 }
 
 // etagFromChildren recompute ETag from children ETags

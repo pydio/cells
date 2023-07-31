@@ -50,10 +50,11 @@ func (this *StopRequest) Validate() error {
 func (this *StopResponse) Validate() error {
 	return nil
 }
-func (this *ArchiveResponse) Validate() error {
+func (this *ModifyLoginRequest) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *ChangesArchiveQuery) Validate() error {
+func (this *ModifyLoginResponse) Validate() error {
 	return nil
 }
 func (this *Error) Validate() error {

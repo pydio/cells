@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/idm/role"
 )
 
@@ -46,6 +47,8 @@ var (
 // Handler definition
 type Handler struct {
 	idm.UnimplementedRoleServiceServer
+	service.UnimplementedLoginModifierServer
+
 	dao role.DAO
 }
 
@@ -220,4 +223,8 @@ func (h *Handler) StreamRole(streamer idm.RoleService_StreamRoleServer) error {
 	}
 
 	return nil
+}
+
+func (h *Handler) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {
+	return resources.ModifyLogin(ctx, h.dao, req)
 }

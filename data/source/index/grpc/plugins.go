@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/object"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
@@ -81,6 +82,7 @@ func init() {
 
 					object.RegisterResourceCleanerEndpointEnhancedServer(srv, engine)
 					sync.RegisterSyncEndpointEnhancedServer(srv, engine)
+					service2.RegisterLoginModifierEnhancedServer(srv, engine)
 
 					return nil
 				}),

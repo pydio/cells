@@ -33,14 +33,21 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/abstract"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/nodes/mocks"
+	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 // changesListener is an autoclosing pipe used for fanning out events
@@ -97,6 +104,7 @@ type TreeServer struct {
 	tree.UnimplementedNodeProviderServer
 	tree.UnimplementedNodeProviderStreamerServer
 	tree.UnimplementedNodeChangesStreamerServer
+	service.UnimplementedLoginModifierServer
 
 	name      string
 	listeners []*changesListener
@@ -771,6 +779,50 @@ loop:
 	}
 
 	return nil
+}
+
+// ModifyLogin should detect TemplatePaths using the User.Name variable, resolve them and forward the request to the corresponding index
+func (s *TreeServer) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {
+	reg := servicecontext.GetRegistry(ctx)
+	ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
+	m := abstract.GetVirtualNodesManager(ctx)
+	resp := &service.ModifyLoginResponse{}
+	originalUser, er := permissions.SearchUniqueUser(ctx, req.OldLogin, "")
+	if er != nil {
+		return nil, fmt.Errorf("cannot find original user %s. Make sure to run this command first while modifying a login", req.OldLogin)
+	}
+	for _, vn := range m.ListNodes() {
+		if resolution, ok := vn.MetaStore["resolution"]; ok && strings.Contains(resolution, "User.Name") {
+			// Impersonate context
+			userCtx := auth.WithImpersonate(ctx, originalUser)
+			// Resolve now
+			if no, er := m.ResolveInContext(userCtx, vn, false); er == nil && no != nil {
+				resolvedPath := no.GetPath()
+				resp.Messages = append(resp.Messages, fmt.Sprintf("Found a node for virtual %s, resolved as %s", vn.GetUuid(), resolvedPath))
+				parts := strings.Split(strings.Trim(resolvedPath, "/"), "/")
+				dsName := parts[0]
+				if len(parts) > 1 {
+					// We have a dsname and a path
+					indexService := common.ServiceDataIndex_ + dsName
+					idx := service.NewLoginModifierClient(grpc2.GetClientConnFromCtx(ctx, indexService))
+					if mr, e := idx.ModifyLogin(ctx, &service.ModifyLoginRequest{
+						OldLogin: req.OldLogin,
+						NewLogin: req.NewLogin,
+						DryRun:   req.DryRun,
+						Options: map[string]string{
+							"uuid": no.GetUuid(),
+							"path": strings.Join(parts[1:], "/"),
+						},
+					}); e != nil {
+						return mr, e
+					} else {
+						resp.Messages = append(resp.Messages, mr.Messages...)
+					}
+				}
+			}
+		}
+	}
+	return resp, nil
 }
 
 func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ...uint32) (*tree.Node, error) {

@@ -29,6 +29,8 @@ import (
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 func TestQueryResourceForAction(t *testing.T) {
@@ -42,7 +44,12 @@ func TestQueryResourceForAction(t *testing.T) {
 	if e != nil {
 		panic(e)
 	}
+
 	resDAO := d.(*ResourcesSQL)
+	cfg := configx.New()
+	cfg.Val("prepare").Set(true)
+	resDAO.Init(ctx, cfg)
+	resDAO.cache, _ = cache.OpenCache(ctx, "discard://")
 
 	Convey("Test Query Builder", t, func() {
 
@@ -67,4 +74,64 @@ func TestQueryResourceForAction(t *testing.T) {
 
 	})
 
+	Convey("Test Add Policy", t, func() {
+		resourceId := "testId"
+		policy := &service.ResourcePolicy{Action: service.ResourcePolicyAction_READ, Subject: "test", Effect: service.ResourcePolicy_allow, JsonConditions: "{}"}
+		er := resDAO.AddPolicy(resourceId, policy)
+		So(er, ShouldBeNil)
+	})
+
+	Convey("Test Add Policies", t, func() {
+		resourceId := "testId"
+		policies := []*service.ResourcePolicy{
+			{Action: service.ResourcePolicyAction_READ, Subject: "test", Effect: service.ResourcePolicy_allow, JsonConditions: "{}"},
+			{Action: service.ResourcePolicyAction_WRITE, Subject: "test2", Effect: service.ResourcePolicy_deny, JsonConditions: "{}"},
+		}
+		err := resDAO.AddPolicies(true, resourceId, policies)
+		So(err, ShouldBeNil)
+	})
+
+	Convey("Test Get Policies For Resource", t, func() {
+		resourceId := "testId"
+		policies, err := resDAO.GetPoliciesForResource(resourceId)
+		So(err, ShouldBeNil)
+		So(len(policies), ShouldBeGreaterThan, 0)
+	})
+
+	Convey("Test Get Policies For Subject", t, func() {
+		subject := "test"
+		policies, err := resDAO.GetPoliciesForSubject(subject)
+		So(err, ShouldBeNil)
+		So(len(policies), ShouldBeGreaterThan, 0)
+	})
+
+	Convey("Test Replace Policies Subject", t, func() {
+		oldSubject := "test"
+		newSubject := "renamed"
+		count, err := resDAO.ReplacePoliciesSubject(oldSubject, newSubject)
+		So(err, ShouldBeNil)
+		So(count, ShouldBeGreaterThan, 0)
+		policies, err := resDAO.GetPoliciesForSubject("renamed")
+		So(err, ShouldBeNil)
+		So(len(policies), ShouldBeGreaterThan, 0)
+	})
+
+	Convey("Test Delete Policies For Resource", t, func() {
+		resourceId := "testId"
+		err := resDAO.DeletePoliciesForResource(resourceId)
+		So(err, ShouldBeNil)
+	})
+
+	Convey("Test Delete Policies By Subject", t, func() {
+		subject := "test"
+		err := resDAO.DeletePoliciesBySubject(subject)
+		So(err, ShouldBeNil)
+	})
+
+	Convey("Test Delete Policies For Resource And Action", t, func() {
+		resourceId := "testId"
+		action := service.ResourcePolicyAction_READ
+		err := resDAO.DeletePoliciesForResourceAndAction(resourceId, action)
+		So(err, ShouldBeNil)
+	})
 }

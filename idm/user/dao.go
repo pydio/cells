@@ -50,6 +50,7 @@ type DAO interface {
 	Bind(userName string, password string) (*idm.User, error)
 	CleanRole(roleId string) error
 	TouchUser(userUuid string) error
+	LoginModifiedAttr(oldName, newName string) (int64, error)
 }
 
 // NewDAO wraps passed DAO with specific Pydio implementation of User DAO and returns it.

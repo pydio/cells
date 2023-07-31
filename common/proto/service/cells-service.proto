@@ -69,17 +69,23 @@ message StopResponse {
     bool OK = 1;
 }
 
-service Archiver {
-    rpc Archive(Query) returns (ArchiveResponse);
+// ModifyLoginRequest is used to send a ModifyLogin call
+message ModifyLoginRequest {
+    string OldLogin = 1;
+    string NewLogin = 2;
+    bool DryRun = 3;
+    map<string,string> Options = 4;
 }
 
-message ArchiveResponse {
-    bool OK = 1;
+// ModifyLoginResponse indicates if operation succeeded and adds optional message
+message ModifyLoginResponse {
+    bool Success = 1;
+    repeated string Messages = 2;
 }
 
-// TODO - move from there
-message ChangesArchiveQuery {
-    uint64 RemainingRows = 1;
+// LoginModifier can be implemented by any service, thus indicating that it can handle a Login Modification request
+service LoginModifier {
+    rpc ModifyLogin(ModifyLoginRequest) returns (ModifyLoginResponse);
 }
 
 message Error {

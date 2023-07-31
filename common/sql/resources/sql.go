@@ -47,6 +47,8 @@ var (
 		"DeleteRulesForResource":          "delete from %%PREFIX%%_policies where resource=?",
 		"DeleteRulesForResourceAndAction": "delete from %%PREFIX%%_policies where resource=? and action=?",
 		"DeleteRulesForSubject":           "delete from %%PREFIX%%_policies where subject=?",
+		"SelectRulesForSubject":           "select * from %%PREFIX%%_policies where subject=?",
+		"ReplaceSubjectInRules":           "update %%PREFIX%%_policies set subject=? where subject=?",
 	}
 )
 
@@ -191,6 +193,54 @@ func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.Res
 	s.cache.Set(resourceId, res)
 
 	return res, nil
+}
+
+// GetPoliciesForSubject finds all policies with a given subject
+func (s *ResourcesSQL) GetPoliciesForSubject(subject string) ([]*service.ResourcePolicy, error) {
+	var res []*service.ResourcePolicy
+
+	prepared, er := s.GetStmt("SelectRulesForSubject")
+	if er != nil {
+		return nil, er
+	}
+
+	timeout, cancel := context.WithTimeout(context.Background(), 50*time.Second)
+	defer cancel()
+
+	rows, err := prepared.QueryContext(timeout, subject)
+	if err != nil {
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		rule := new(service.ResourcePolicy)
+		var actionString string
+		var effectString string
+		if e := rows.Scan(&rule.Id, &rule.Resource, &actionString, &rule.Subject, &effectString, &rule.JsonConditions); e != nil {
+			return res, e
+		}
+		rule.Action = service.ResourcePolicyAction(service.ResourcePolicyAction_value[actionString])
+		rule.Effect = service.ResourcePolicy_PolicyEffect(service.ResourcePolicy_PolicyEffect_value[effectString])
+		res = append(res, rule)
+	}
+	return res, nil
+}
+
+// ReplacePoliciesSubject set a new subject to all policies with the old subject
+func (s *ResourcesSQL) ReplacePoliciesSubject(oldSubject, newSubject string) (int, error) {
+
+	prepared, er := s.GetStmt("ReplaceSubjectInRules")
+	if er != nil {
+		return 0, er
+	}
+	res, err := prepared.Exec(newSubject, oldSubject)
+	if err != nil {
+		return 0, err
+	}
+	count, _ := res.RowsAffected()
+	return int(count), nil
+
 }
 
 // DeletePoliciesForResource removes all policies for a given resource

@@ -27,6 +27,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
@@ -56,6 +57,7 @@ func init() {
 				tree.RegisterSearcherEnhancedServer(server, treeServer)
 				tree.RegisterNodeChangesStreamerEnhancedServer(server, treeServer)
 				tree.RegisterNodeProviderStreamerEnhancedServer(server, treeServer)
+				service2.RegisterLoginModifierEnhancedServer(server, treeServer)
 
 				go watchRegistry(ctx, treeServer)
 
