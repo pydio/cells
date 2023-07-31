@@ -108,7 +108,7 @@
     "other": "Choose a light or dark theme to best suit your vision."
   },
   "tour.left-resize.title": {
-    "other": "Workspaces and Cells"
+    "other": "Workspaces & Cells"
   },
   "tour.left-resize.legend": {
     "other": "Left column can be resized or closed to fit your screen."
@@ -255,7 +255,7 @@
     "other": "Unmask"
   },
   "wslist-options.merge-workspaces": {
-    "other": "Merge workspaces and cells"
+    "other": "Combinar Workspaces y Cells"
   },
   "wslist-options.own-cells-first": {
     "other": "Cells created by me first"
