@@ -206,8 +206,8 @@
   "Whether users can create their own repositories, based on predefined templates.": {
     "other": "Nel caso in cui gli utenti possono creare i propri repository, basati su modelli predefiniti."
   },
-  "Worskpace creation delegation": {
-    "other": "Delega della creazione di workspace"
+  "Workspace creation delegation": {
+    "other": "Workspace creation delegation"
   },
   "role prefix": {
     "other": "Prefisso del ruolo"

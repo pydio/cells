@@ -1665,7 +1665,7 @@
     "other": "Si des personnes synchronisent ce workspace, leur application n'y aura plus accès! Etes-vous sûr de vouloir changer ça?"
   },
   "ws.editor.other.quota": {
-    "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace (or user-specific contents for workspaces like Personal Files)."
+    "other": "Quota d'utilisation du disque (laisser 0 pour aucune limite). Ce quota est calculé sur tous les fichiers du workspace (sur les fichiers spécifiques à l'utilisateur dans le cas des workspaces type Mes Documents)."
   },
   "ws.editor.other.quota.noquota": {
     "other": "Pas de quota"

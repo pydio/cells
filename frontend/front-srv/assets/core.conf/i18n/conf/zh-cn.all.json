@@ -206,8 +206,8 @@
   "Whether users can create their own repositories, based on predefined templates.": {
     "other": "用户是否可以根据预定义的模板创建自己的资源库。"
   },
-  "Worskpace creation delegation": {
-    "other": "Worskace 创建授权"
+  "Workspace creation delegation": {
+    "other": "Workspace creation delegation"
   },
   "role prefix": {
     "other": "角色前缀"
