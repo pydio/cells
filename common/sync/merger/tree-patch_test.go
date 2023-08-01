@@ -483,6 +483,22 @@ func TestFailingMove1(t *testing.T) {
 
 }
 
+func SkipTestRandomCaptures(t *testing.T) {
+
+	Convey("SNAP - Some Captures", t, func() {
+
+		diff, e := diffFromSnaps("captures")
+		So(e, ShouldBeNil)
+		patch := newTreePatch(diff.left, diff.right.(model.PathSyncTarget), PatchOptions{MoveDetection: true})
+		e = diff.ToUnidirectionalPatch(ctx, model.DirectionRight, patch)
+		So(e, ShouldBeNil)
+		patch.Filter(context.Background())
+		fmt.Println(patch.String())
+
+	})
+
+}
+
 func BenchmarkMassiveMem(t *testing.B) {
 
 	t.Run("mem size", func(b *testing.B) {
