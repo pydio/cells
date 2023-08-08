@@ -23,7 +23,6 @@ package tasks
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/service/metrics"
 	"go.uber.org/zap"
 	"math"
 	"time"
@@ -35,6 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/service/metrics"
 	"github.com/pydio/cells/v4/common/utils/queue"
 )
 
@@ -68,7 +68,7 @@ func NewDispatcher(rootCtx context.Context, maxWorkers int, job *jobs.Job, tags 
 	jobQueue := make(chan RunnerFunc)
 	var fifoQueue chan RunnerFunc
 	ctx, can := context.WithCancel(rootCtx)
-	fifo, er := queue.OpenQueue(ctx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", job.ID))
+	fifo, er := queue.OpenQueue(ctx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", "jobs", "prefix", job.ID))
 	if er != nil {
 		can()
 		log.Logger(rootCtx).Warn("Cannot open fifo for dispatcher - job "+job.ID+", this will run without queue", zap.Error(er))
