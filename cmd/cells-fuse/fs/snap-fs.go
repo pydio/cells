@@ -34,6 +34,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/endpoints/snapshot"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -82,11 +83,12 @@ func (c *snapNode) Getattr(_ context.Context, _ fs.FileHandle, out *fuse.AttrOut
 	return 0
 }
 
-func NewSnapFS(snap *snapshot.BoltSnapshot, fileProvider FileNodeProvider, total int) *SnapFS {
+func NewSnapFS(snap *snapshot.BoltSnapshot, fileProvider FileNodeProvider, total int, generate bool) *SnapFS {
 	return &SnapFS{
 		snapshot:     snap,
 		fileProvider: fileProvider,
 		total:        total,
+		generate:     generate,
 	}
 }
 
@@ -96,6 +98,7 @@ type SnapFS struct {
 	fileProvider FileNodeProvider
 	total        int
 	bar          *progressbar.ProgressBar
+	generate     bool
 }
 
 func (r *SnapFS) ClearCache() {
@@ -120,7 +123,23 @@ func (r *SnapFS) recursiveCreate(ctx context.Context, parent *fs.Inode, snapFold
 		if node.IsLeaf() {
 			// Add File N
 			//log.Println("Adding File", parent.Path(r.EmbeddedInode()), base)
-			inode := parent.NewPersistentInode(ctx, r.fileProvider(inoCount, node), fs.StableAttr{Ino: inoCount})
+			var emb fs.InodeEmbedder
+			if r.generate {
+				content := ""
+				if node.HasMetaKey("captured_content") {
+					content = node.GetStringMeta("captured_content")
+				} else {
+					content = uuid.New() + uuid.New()
+				}
+				emb = &fs.MemRegularFile{
+					Data: []byte(content),
+					Attr: fuse.Attr{Mode: 0666},
+				}
+			} else {
+				emb = r.fileProvider(inoCount, node)
+			}
+
+			inode := parent.NewPersistentInode(ctx, emb, fs.StableAttr{Ino: inoCount})
 			inoCount++
 			if r.bar != nil {
 				_ = r.bar.Set64(int64(inoCount))
