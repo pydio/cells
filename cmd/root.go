@@ -322,7 +322,7 @@ func initLogLevelListener(ctx context.Context) {
 			return e
 		}
 		return nil
-	})
+	}, broker.WithCounterName("root_logger"))
 	if er != nil {
 		fmt.Println("Cannot subscribe to broker for TopicLogLevelEvent", er.Error())
 	}
