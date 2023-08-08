@@ -106,7 +106,7 @@ func init() {
 					frontend.HotReload()
 					httpFs = http.FS(frontend.GetPluginsFS())
 					return nil
-				})
+				}, broker.WithCounterName("frontend"))
 
 				return nil
 			}),

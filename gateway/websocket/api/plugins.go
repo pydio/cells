@@ -80,6 +80,9 @@ func init() {
 				mux.HandleFunc("/ws/chat", func(w http.ResponseWriter, r *http.Request) {
 					chat.Websocket.HandleRequest(w, r)
 				})
+				//q1, _ := queue.OpenQueue(ctx, runtime.QueueURL("debounce", "1s", "idle", "10s", "max", "10000"))
+				//q2, _ := queue.OpenQueue(ctx, runtime.QueueURL("debounce", "1s", "idle", "10s", "max", "10000"))
+				counterName := broker.WithCounterName("websocket")
 
 				_ = broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(_ context.Context, message broker.Message) error {
 					event := &tree.NodeChangeEvent{}
@@ -91,8 +94,13 @@ func init() {
 					} else {
 						return e
 					}
+<<<<<<< HEAD
 				})
 				_ = broker.SubscribeCancellable(ctx, common.TopicMetaChanges, func(ctx context.Context, message broker.Message) error {
+=======
+				}, /*broker.WithLocalQueue(q1),*/ counterName)
+				_ = broker.SubscribeCancellable(ctx, common.TopicMetaChanges, func(message broker.Message) error {
+>>>>>>> Add metrics on broker pub/sub
 					event := &tree.NodeChangeEvent{}
 					if e := message.Unmarshal(event); e == nil {
 						if er := ws.HandleNodeChangeEvent(ctx, event); er != nil {
@@ -102,8 +110,13 @@ func init() {
 					} else {
 						return e
 					}
+<<<<<<< HEAD
 				})
 				_ = broker.SubscribeCancellable(ctx, common.TopicJobTaskEvent, func(ctx context.Context, message broker.Message) error {
+=======
+				}, /*broker.WithLocalQueue(q2),*/ counterName)
+				_ = broker.SubscribeCancellable(ctx, common.TopicJobTaskEvent, func(message broker.Message) error {
+>>>>>>> Add metrics on broker pub/sub
 					event := &jobs.TaskChangeEvent{}
 					if e := message.Unmarshal(event); e == nil {
 						if er := ws.BroadcastTaskChangeEvent(ctx, event); er != nil {
@@ -124,8 +137,13 @@ func init() {
 					} else {
 						return e
 					}
+<<<<<<< HEAD
 				})
 				_ = broker.SubscribeCancellable(ctx, common.TopicActivityEvent, func(ctx context.Context, message broker.Message) error {
+=======
+				}, counterName)
+				_ = broker.SubscribeCancellable(ctx, common.TopicActivityEvent, func(message broker.Message) error {
+>>>>>>> Add metrics on broker pub/sub
 					event := &activity.PostActivityEvent{}
 					if e := message.Unmarshal(event); e == nil {
 						if er := ws.BroadcastActivityEvent(ctx, event); er != nil {
@@ -135,8 +153,13 @@ func init() {
 					} else {
 						return e
 					}
+<<<<<<< HEAD
 				})
 				_ = broker.SubscribeCancellable(ctx, common.TopicChatEvent, func(ctx context.Context, message broker.Message) error {
+=======
+				}, counterName)
+				_ = broker.SubscribeCancellable(ctx, common.TopicChatEvent, func(message broker.Message) error {
+>>>>>>> Add metrics on broker pub/sub
 					event := &chat2.ChatEvent{}
 					if e := message.Unmarshal(event); e == nil {
 						if er := chat.BroadcastChatMessage(ctx, event); er != nil {
@@ -146,7 +169,7 @@ func init() {
 					} else {
 						return e
 					}
-				})
+				}, counterName)
 
 				return nil
 			}),

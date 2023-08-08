@@ -189,5 +189,5 @@ func (p *NsProvider) Watch(ctx context.Context) {
 			p.Clear()
 		}
 		return nil
-	})
+	}, broker.WithCounterName("ns_provider"))
 }

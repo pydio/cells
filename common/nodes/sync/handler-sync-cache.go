@@ -93,7 +93,7 @@ func newCacheHandler() *CacheHandler {
 				}
 			}
 			return nil
-		})
+		}, broker.WithCounterName("nodes-cache"))
 	}
 	return s
 }

@@ -68,7 +68,7 @@ func getCheckersCache() cache.Cache {
 			_ = polCache.Delete("acl")
 			_ = polCache.Delete("oidc")
 			return nil
-		})
+		}, broker.WithCounterName("policies-cache"))
 	})
 	return polCache
 }

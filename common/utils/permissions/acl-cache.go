@@ -50,7 +50,7 @@ func getAclCache() cache.Cache {
 				return aclCache.Reset()
 			}
 			return nil
-		})
+		}, broker.WithCounterName("acl-cache"))
 	})
 	return aclCache
 }
