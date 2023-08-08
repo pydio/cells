@@ -99,7 +99,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 				}
 				return nil
 
-			})
+			}, broker.WithCounterName("sync"))
 
 			var e error
 			syncHandler, e = NewHandler(ctx, srvName, datasource)

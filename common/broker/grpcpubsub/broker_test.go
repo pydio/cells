@@ -41,7 +41,7 @@ func TestServiceBroker(t *testing.T) {
 		}
 		sub := &sharedSubscriber{
 			Broker_SubscribeClient: cli,
-			host:                   "h",
+			sharedKey:              "h",
 			cancel:                 nil,
 			out:                    make(map[string]chan []*pb.Message),
 		}
@@ -116,7 +116,7 @@ func TestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 	}
 	sub := &sharedSubscriber{
 		Broker_SubscribeClient: cli,
-		host:                   "h",
+		sharedKey:              "h",
 		cancel:                 cancel,
 		out:                    make(map[string]chan []*pb.Message),
 	}

@@ -96,7 +96,7 @@ func TestMain(m *testing.M) {
 			fmt.Println(" - Received an idm.ChangeEvent!", msg)
 		}
 		return nil
-	})
+	}, broker.WithCounterName("share"))
 
 	m.Run()
 }

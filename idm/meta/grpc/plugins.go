@@ -78,7 +78,7 @@ func init() {
 						return cleaner.Handle(ct, ev)
 					}
 					return nil
-				}); e != nil {
+				}, broker.WithCounterName("idm_meta")); e != nil {
 					return e
 				}
 

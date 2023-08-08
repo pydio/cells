@@ -115,15 +115,8 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 		metaQu, _ = queue.OpenQueue(s.rootCtx, runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000"))
 	}
 
-	opt := broker.Queue("tasks")
-
-	_ = broker.SubscribeCancellable(parentContext, common.TopicJobConfigEvent, func(message broker.Message) error {
-		js := &jobs.JobChangeEvent{}
-		if ctx, e := message.Unmarshal(js); e == nil {
-			return s.jobsChangeEvent(ctx, js)
-		}
-		return nil
-	}, opt)
+	queueOpt := broker.Queue("tasks")
+	counterOpt := broker.WithCounterName("tasks")
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicTreeChanges, func(message broker.Message) error {
 		md, bb := message.RawData()
@@ -144,7 +137,23 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 		} else {
 			return e
 		}
-	}, opt, broker.WithLocalQueue(treeQu))
+	}, queueOpt, broker.WithLocalQueue(treeQu), counterOpt)
+
+	_ = broker.SubscribeCancellable(parentContext, common.TopicTimerEvent, func(message broker.Message) error {
+		target := &jobs.JobTriggerEvent{}
+		if ctx, e := message.Unmarshal(target); e == nil {
+			return s.timerEvent(ctx, target)
+		}
+		return nil
+	}, queueOpt, counterOpt)
+
+	_ = broker.SubscribeCancellable(parentContext, common.TopicJobConfigEvent, func(message broker.Message) error {
+		js := &jobs.JobChangeEvent{}
+		if ctx, e := message.Unmarshal(js); e == nil {
+			return s.jobsChangeEvent(ctx, js)
+		}
+		return nil
+	}, queueOpt, counterOpt)
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicMetaChanges, func(message broker.Message) error {
 		target := &tree.NodeChangeEvent{}
@@ -153,15 +162,7 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 			s.processNodeEvent(metadata.NewContext(s.rootCtx, md), target)
 		}
 		return nil
-	}, opt, broker.WithLocalQueue(metaQu))
-
-	_ = broker.SubscribeCancellable(parentContext, common.TopicTimerEvent, func(message broker.Message) error {
-		target := &jobs.JobTriggerEvent{}
-		if ctx, e := message.Unmarshal(target); e == nil {
-			return s.timerEvent(ctx, target)
-		}
-		return nil
-	}, opt)
+	}, queueOpt, broker.WithLocalQueue(metaQu), counterOpt)
 
 	_ = broker.SubscribeCancellable(parentContext, common.TopicIdmEvent, func(message broker.Message) error {
 		target := &idm.ChangeEvent{}
@@ -169,7 +170,7 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 			return s.idmEvent(ctx, target)
 		}
 		return nil
-	}, opt)
+	}, queueOpt, counterOpt)
 
 	//s.listenToQueue()
 	s.taskChannelSubscription()

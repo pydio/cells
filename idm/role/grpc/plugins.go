@@ -84,7 +84,7 @@ func init() {
 						return cleaner.Handle(ct, ic)
 					}
 					return nil
-				}); e != nil {
+				}, broker.WithCounterName("role")); e != nil {
 					return e
 				}
 

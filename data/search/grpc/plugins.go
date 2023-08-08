@@ -96,7 +96,7 @@ func init() {
 						return subscriber.Push(ct, msg)
 					}
 					return nil
-				}, broker.Queue("search")); e != nil {
+				}, broker.Queue("search"), broker.WithCounterName("search")); e != nil {
 					//_ = bleveEngine.Close()
 					return e
 				}

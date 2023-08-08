@@ -72,7 +72,7 @@ func init() {
 						return cleaner.Handle(ct, ev)
 					}
 					return nil
-				}); e != nil {
+				}, broker.WithCounterName("workspace")); e != nil {
 					return e
 				}
 				return nil

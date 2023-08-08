@@ -92,6 +92,7 @@ func init() {
 				if er != nil {
 					return er
 				}
+				counterName := broker.WithCounterName("activity")
 
 				processOneWithTimeout := func(ct context.Context, event *tree.NodeChangeEvent) error {
 					var ca context.CancelFunc
@@ -116,7 +117,7 @@ func init() {
 						return processOneWithTimeout(metadata.NewContext(c, md), msg)
 					}
 					return nil
-				}, broker.WithLocalQueue(fifo)); e != nil {
+				}, broker.WithLocalQueue(fifo), counterName); e != nil {
 					return e
 				}
 
@@ -129,7 +130,7 @@ func init() {
 						return processOneWithTimeout(ctx, msg)
 					}
 					return nil
-				}); e != nil {
+				}, counterName); e != nil {
 					return e
 				}
 
@@ -139,7 +140,7 @@ func init() {
 						return subscriber.HandleIdmChange(ctx, msg)
 					}
 					return nil
-				}); e != nil {
+				}, counterName); e != nil {
 					return e
 				}
 

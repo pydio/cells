@@ -55,7 +55,7 @@ func init() {
 						return h.HandleTreeChanges(ctx, msg)
 					}
 					return nil
-				}); e != nil {
+				}, broker.WithCounterName("data_keys")); e != nil {
 					return e
 				}
 				return nil

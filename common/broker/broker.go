@@ -35,10 +35,12 @@ import (
 
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/metrics"
 )
 
 var (
-	std = NewBroker("mem://")
+	std           = NewBroker("mem://")
+	topicReplacer = strings.NewReplacer("-", "_", ".", "_")
 )
 
 func Register(b Broker) {
@@ -111,12 +113,13 @@ func PublishRaw(ctx context.Context, topic string, body []byte, header map[strin
 
 // Publish sends a message to standard broker. For the moment, forward message to client.Publish
 func Publish(ctx context.Context, topic string, message proto.Message, opts ...PublishOption) error {
+	metrics.GetMetrics().Counter("pub_" + topicReplacer.Replace(topic)).Inc(1)
 	return std.Publish(ctx, topic, message, opts...)
 }
 
 // MustPublish publishes a message ignoring the error
 func MustPublish(ctx context.Context, topic string, message proto.Message, opts ...PublishOption) {
-	err := Publish(ctx, topic, message)
+	err := Publish(ctx, topic, message, opts...)
 	if err != nil {
 		fmt.Printf("[Message Publication Error] Topic: %s, Error: %v\n", topic, err)
 	}
@@ -141,13 +144,21 @@ func SubscribeCancellable(ctx context.Context, topic string, handler SubscriberH
 
 func Subscribe(ctx context.Context, topic string, handler SubscriberHandler, opts ...SubscribeOption) (UnSubscriber, error) {
 	so := parseSubscribeOptions(opts...)
+	id := "sub_" + topicReplacer.Replace(topic)
+	c := metrics.GetMetrics().Tagged(map[string]string{"subscriber": so.CounterName}).Counter(id)
+
+	wh := func(m Message) error {
+		c.Inc(1)
+		return handler(m)
+	}
+
 	if so.MessageQueue != nil {
 		qH := func(m Message) error {
 			return so.MessageQueue.PushRaw(ctx, m)
 		}
 		er := so.MessageQueue.Consume(func(mm ...Message) {
 			for _, m := range mm {
-				if err := handler(m); err != nil {
+				if err := wh(m); err != nil {
 					if so.ErrorHandler != nil {
 						so.ErrorHandler(err)
 					} else {
@@ -163,7 +174,7 @@ func Subscribe(ctx context.Context, topic string, handler SubscriberHandler, opt
 		return std.Subscribe(ctx, topic, qH, opts...)
 	}
 
-	return std.Subscribe(ctx, topic, handler, opts...)
+	return std.Subscribe(ctx, topic, wh, opts...)
 }
 
 type broker struct {

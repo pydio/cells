@@ -80,6 +80,9 @@ func init() {
 				mux.HandleFunc("/ws/chat", func(w http.ResponseWriter, r *http.Request) {
 					chat.Websocket.HandleRequest(w, r)
 				})
+				//q1, _ := queue.OpenQueue(ctx, runtime.QueueURL("debounce", "1s", "idle", "10s", "max", "10000"))
+				//q2, _ := queue.OpenQueue(ctx, runtime.QueueURL("debounce", "1s", "idle", "10s", "max", "10000"))
+				counterName := broker.WithCounterName("websocket")
 
 				_ = broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(message broker.Message) error {
 					event := &tree.NodeChangeEvent{}
@@ -91,7 +94,7 @@ func init() {
 					} else {
 						return e
 					}
-				})
+				}, /*broker.WithLocalQueue(q1),*/ counterName)
 				_ = broker.SubscribeCancellable(ctx, common.TopicMetaChanges, func(message broker.Message) error {
 					event := &tree.NodeChangeEvent{}
 					if c, e := message.Unmarshal(event); e == nil {
@@ -102,7 +105,7 @@ func init() {
 					} else {
 						return e
 					}
-				})
+				}, /*broker.WithLocalQueue(q2),*/ counterName)
 				_ = broker.SubscribeCancellable(ctx, common.TopicJobTaskEvent, func(message broker.Message) error {
 					event := &jobs.TaskChangeEvent{}
 					if c, e := message.Unmarshal(event); e == nil {
@@ -124,7 +127,7 @@ func init() {
 					} else {
 						return e
 					}
-				})
+				}, counterName)
 				_ = broker.SubscribeCancellable(ctx, common.TopicActivityEvent, func(message broker.Message) error {
 					event := &activity.PostActivityEvent{}
 					if c, e := message.Unmarshal(event); e == nil {
@@ -135,7 +138,7 @@ func init() {
 					} else {
 						return e
 					}
-				})
+				}, counterName)
 				_ = broker.SubscribeCancellable(ctx, common.TopicChatEvent, func(message broker.Message) error {
 					event := &chat2.ChatEvent{}
 					if c, e := message.Unmarshal(event); e == nil {
@@ -146,7 +149,7 @@ func init() {
 					} else {
 						return e
 					}
-				})
+				}, counterName)
 
 				return nil
 			}),

@@ -43,9 +43,9 @@ var (
 
 type sharedSubscriber struct {
 	pb.Broker_SubscribeClient
-	cancel context.CancelFunc
-	host   string
-	out    map[string]chan []*pb.Message
+	cancel    context.CancelFunc
+	sharedKey string
+	out       map[string]chan []*pb.Message
 	sync.RWMutex
 }
 
@@ -75,7 +75,7 @@ func (s *sharedSubscriber) Unsubscribe(subId string) {
 	delete(s.out, subId)
 	if len(s.out) == 0 && s.cancel != nil {
 		s.cancel()
-		delete(subscribers, s.host)
+		delete(subscribers, s.sharedKey)
 	}
 }
 
@@ -130,10 +130,12 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 	topicName := strings.TrimPrefix(u.Path, "/")
 	queue := u.Query().Get("queue")
 
-	//return NewSubscription(topicName, WithContext(ctx))
+	// Use u.Host to share one connection for all subscriptions
+	// Use u.Host+u.Path to create one connection per subscription
+	sharedKey := u.Host + u.Path
 
 	subLock.Lock()
-	sub, ok := subscribers[u.Host]
+	sub, ok := subscribers[sharedKey]
 	if !ok {
 		conn := clientcontext.GetClientConn(ctx)
 		if conn == nil {
@@ -150,11 +152,11 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 		}
 		sub = &sharedSubscriber{
 			Broker_SubscribeClient: cli,
-			host:                   u.Host,
+			sharedKey:              sharedKey,
 			cancel:                 ca,
 			out:                    make(map[string]chan []*pb.Message),
 		}
-		subscribers[u.Host] = sub
+		subscribers[sharedKey] = sub
 		go sub.Dispatch()
 	}
 	subLock.Unlock()

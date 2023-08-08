@@ -65,7 +65,7 @@ func init() {
 						return sub.Handle(ctx, msg)
 					}
 					return nil
-				}); e != nil {
+				}, broker.WithCounterName("data_meta")); e != nil {
 					engine.Stop()
 					return e
 				}

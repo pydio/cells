@@ -55,7 +55,7 @@ func init() {
 						return subscriber.Handle(ctx, msg)
 					}
 					return nil
-				}); er != nil {
+				}, broker.WithCounterName("timer")); er != nil {
 					return fmt.Errorf("cannot subscribe on JobConfigEvent topic %v", er)
 				}
 
