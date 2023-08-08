@@ -23,8 +23,10 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -40,10 +42,11 @@ import (
 )
 
 var (
-	captureDsName string
-	captureTarget string
-	captureFormat string
-	captureSides  string
+	captureDsName        string
+	captureTarget        string
+	captureFormat        string
+	captureSides         string
+	capturePydioContents bool
 )
 
 var dsCaptureCmd = &cobra.Command{
@@ -108,16 +111,25 @@ EXAMPLES
 
 			if captureSides == "both" || captureSides == "s3" {
 				cmd.Println("[s3] Capturing s3 to JSON")
-				if e := walkSourceToJSON(ctx, sourceAsSource, filepath.Join(captureTarget, captureDsName+"-source.json")); e != nil {
+				dss, _ := model2.AsDataSyncSource(source)
+				db := memory.NewMemDB()
+				if e := walkSourceToDB(ctx, sourceAsSource, db, dss); e != nil {
 					return e
+				}
+				if er := db.ToJSON(filepath.Join(captureTarget, captureDsName+"-source.json")); er != nil {
+					return er
 				}
 				cmd.Printf("[s3] Captured %d items to JSON\n\n", (sourceAsSource.(*sourceProgressWrapper)).i)
 			}
 
 			if captureSides == "both" || captureSides == "index" {
 				cmd.Println("[index] Capturing index to JSON")
-				if e := walkSourceToJSON(ctx, targetAsSource, filepath.Join(captureTarget, captureDsName+"-target.json")); e != nil {
+				db := memory.NewMemDB()
+				if e := walkSourceToDB(ctx, targetAsSource, db, nil); e != nil {
 					return e
+				}
+				if er := db.ToJSON(filepath.Join(captureTarget, captureDsName+"-target.json")); er != nil {
+					return er
 				}
 				cmd.Printf("[index] Captured %d items to JSON\n\n", (targetAsSource.(*sourceProgressWrapper)).i)
 			}
@@ -130,11 +142,21 @@ EXAMPLES
 				if e != nil {
 					return e
 				}
-				if e := sb.Capture(ctx, sourceAsSource); e != nil {
-					sb.Close()
+				defer sb.Close()
+				sb.SetManualCollector()
+				if capturePydioContents {
+					// Cannot use standard Capture
+					dss, _ := model2.AsDataSyncSource(source)
+					sessid, _ := sb.StartSession(ctx, nil, false)
+					if e := walkSourceToDB(ctx, sourceAsSource, sb, dss); e != nil {
+						return e
+					}
+					if e := sb.FinishSession(ctx, sessid); e != nil {
+						return e
+					}
+				} else if e := sb.Capture(ctx, sourceAsSource); e != nil {
 					return e
 				}
-				sb.Close()
 				cmd.Printf("[s3] Captured %d items to BoltDB\n\n", (sourceAsSource.(*sourceProgressWrapper)).i)
 			}
 
@@ -175,16 +197,28 @@ func (s *sourceProgressWrapper) Walk(ctx context.Context, walknFc model2.WalkNod
 	return s.PathSyncSource.Walk(ctx, wrapper, root, recursive)
 }
 
-func walkSourceToJSON(ctx context.Context, source model2.PathSyncSource, jsonFile string) error {
+func walkSourceToDB(ctx context.Context, source model2.Endpoint, db model2.PathSyncTarget, dataSyncSource model2.DataSyncSource) error {
 
-	db := memory.NewMemDB()
-	if er := source.Walk(ctx, func(path string, node tree.N, err error) error {
+	//db := memory.NewMemDB()
+	ds := dataSyncSource != nil
+	if er := source.(model2.PathSyncSource).Walk(ctx, func(path string, node tree.N, err error) error {
+		if ds && capturePydioContents && node.IsLeaf() && strings.HasSuffix(path, "/"+common.PydioSyncHiddenFile) {
+			if r, e := dataSyncSource.GetReaderOn(ctx, path); e == nil {
+				if bb, er := io.ReadAll(r); er == nil {
+					node.SetRawMetadata(map[string]string{"captured_content": "\"" + string(bb) + "\""})
+				}
+				_ = r.Close()
+			} else {
+				fmt.Println("[WARN]  Cannot read content of "+path, e)
+			}
+		}
 		return db.CreateNode(ctx, node, false)
 	}, "/", true); er != nil {
 		return er
 	}
 
-	return db.ToJSON(jsonFile)
+	return nil
+	//return db.ToJSON(jsonFile)
 
 }
 
@@ -193,5 +227,6 @@ func init() {
 	dsCaptureCmd.PersistentFlags().StringVarP(&captureTarget, "target", "t", "", "Target folder where to store the snapshots")
 	dsCaptureCmd.PersistentFlags().StringVarP(&captureFormat, "format", "f", "bolt", "One of bolt|json storage, bolt by default")
 	dsCaptureCmd.PersistentFlags().StringVarP(&captureSides, "sides", "s", "both", "Capture both sides, can be restricted by specifying s3 or index.")
+	dsCaptureCmd.PersistentFlags().BoolVarP(&capturePydioContents, "load-pydio-uuids", "", false, "If side is providing content, load content as metadata when reading a '.pydio' node")
 	DataSourceCmd.AddCommand(dsCaptureCmd)
 }
