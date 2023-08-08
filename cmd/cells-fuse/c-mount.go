@@ -10,6 +10,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	generateData bool
+)
+
 var MountCmd = &cobra.Command{
 	Use:   "mount",
 	Short: "Mount whole datasource as a local filesystem using FUSE",
@@ -40,7 +44,7 @@ EXAMPLES
 		}
 		opts := &fs.Options{}
 		opts.Debug = debug
-		mountFs := fs2.NewSnapFS(snap.BoltSnapshot, fileProvider, total)
+		mountFs := fs2.NewSnapFS(snap.BoltSnapshot, fileProvider, total, generateData)
 
 		server, err := fs.Mount(mountPoint, mountFs, opts)
 		if err != nil {
@@ -64,5 +68,6 @@ func init() {
 	MountCmd.Flags().BoolVar(&debug, "debug", false, "Set FS mount in debug mode")
 	MountCmd.Flags().StringVarP(&storageURL, "snapshot", "s", "", "Snapshot URL, starting with file:// or s3://")
 	MountCmd.Flags().StringVarP(&mountPoint, "target", "t", "", "Absolute path to mount directory. Must be created and empty.")
+	MountCmd.Flags().BoolVarP(&generateData, "generate", "", false, "Special flag to generate random data on the fly if original fs is not available.")
 	FuseCmd.AddCommand(MountCmd)
 }
