@@ -54,17 +54,17 @@ func init() {
 		idm.RegisterUserMetaServiceServer(srv, handler)
 		tree.RegisterNodeProviderStreamerServer(srv, handler)
 
-		// Clean role on user deletion
-		cleaner := NewCleaner()
-		if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
-			ev := &idm.ChangeEvent{}
-			if e := message.Unmarshal(ev); e == nil {
-				return cleaner.Handle(ctx, ev)
-			}
-			return nil
-		}); e != nil {
-			panic(e)
-		}
+				// Clean role on user deletion
+				cleaner := NewCleaner(servicecontext.GetDAO(ctx))
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+					ev := &idm.ChangeEvent{}
+					if ct, e := message.Unmarshal(ev); e == nil {
+						return cleaner.Handle(ct, ev)
+					}
+					return nil
+				}, broker.WithCounterName("idm_meta")); e != nil {
+					return e
+				}
 
 		//	var s service.Service
 		//

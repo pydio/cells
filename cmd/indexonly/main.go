@@ -10,11 +10,13 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/pydio/cells/v4/common/crypto"
 	cellssqlite "github.com/pydio/cells/v4/common/dao/sqlite"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime/manager"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	bolt "go.etcd.io/bbolt"
 	"go.mongodb.org/mongo-driver/mongo"
 	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
-	"google.golang.org/grpc"
 	"net"
 	"os"
 
@@ -27,7 +29,7 @@ import (
 	//	_ "github.com/pydio/cells/v4/data/source/index"
 	// _ "github.com/pydio/cells/v4/data/source/index/grpc"
 
-	_ "github.com/pydio/cells/v4/data/versions/grpc"
+	_ "github.com/pydio/cells/v4/idm/meta/grpc"
 
 	// Config drivers
 	_ "github.com/pydio/cells/v4/common/config/file"
@@ -55,8 +57,11 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	sqliteConn, _ := sql.Open(cellssqlite.Driver, "test.db")
-	storage.Register(sqliteConn, "", "")
+	sqliteConn1, _ := sql.Open(cellssqlite.Driver, "test1.db")
+	storage.Register(sqliteConn1, "", "")
+
+	sqliteConn2, _ := sql.Open(cellssqlite.Driver, "test2.db")
+	storage.Register(sqliteConn2, "whatever", "pydio.grpc.meta")
 
 	boltConn, _ := bolt.Open("versions.db", os.ModePerm, &bolt.Options{})
 	storage.Register(boltConn, "boltdb", "pydio.grpc.versions")
@@ -92,10 +97,7 @@ func main() {
 
 	ctx = servicecontext.WithKeyring(ctx, keyring)
 
-	var srv *grpc.Server
-	cgrpc.New(ctx).As(&srv)
-
-	lis, err := net.Listen("tcp", "0.0.0.0:4233")
+	reg, err := registry.OpenRegistry(ctx, "mem:///?cache=plugins&byname=true")
 	if err != nil {
 		panic(err)
 	}
@@ -103,9 +105,24 @@ func main() {
 	mainConfig, err := config.OpenStore(ctx, runtime.DefaultKeyConfig)
 	config.Register(mainConfig)
 
-	runtime.Init(ctx, "main")
+	runtime.Register("main", func(ctx context.Context) {
+		lis, err := net.Listen("tcp", "0.0.0.0:4233")
+		if err != nil {
+			panic(err)
+		}
 
-	srv.Serve(lis)
+		cgrpc.New(ctx, cgrpc.WithListener(lis))
+	})
+
+	managerLogger := log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager"))
+	m := manager.NewManager(ctx, reg, "mem:///?cache=plugins", "main", managerLogger)
+	if err := m.Init(ctx); err != nil {
+		panic(err)
+	}
+
+	m.ServeAll()
+
+	<-ctx.Done()
 
 	cancel()
 }

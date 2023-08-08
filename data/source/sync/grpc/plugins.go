@@ -91,7 +91,6 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 		//service.Unique(!dsObject.FlatStorage),
 		//service.AutoStart(false),
 		service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-			syncHandler, e := NewHandler(ctx, srvName, datasource)
 			if e != nil {
 				return e
 			}
@@ -112,7 +111,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 					}
 					return nil
 				}
-			}(syncHandler))
+			}(syncHandler), broker.WithCounterName("sync"))
 
 			tree.RegisterNodeProviderServer(srv, syncHandler)
 			tree.RegisterNodeReceiverServer(srv, syncHandler)

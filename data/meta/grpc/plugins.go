@@ -23,13 +23,17 @@ package grpc
 
 import (
 	"context"
+
+	"google.golang.org/grpc"
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
-	"google.golang.org/grpc"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/data/meta"
 )
 
 var (
@@ -72,7 +76,7 @@ func init() {
 				return sub.Handle(ctx, msg)
 			}
 			return nil
-		}); e != nil {
+		}, broker.WithCounterName("data_meta")); e != nil {
 			engine.Stop()
 			panic(e)
 		}

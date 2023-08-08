@@ -77,10 +77,17 @@ func init() {
 			panic("no grpc server available")
 		}
 
-		dao, err := role.NewDAO(ctx, storage.Main)
-		if err != nil {
-			panic(err)
-		}
+				// Clean role on user deletion
+				cleaner := NewCleaner(ctx, handler)
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+					ic := &idm.ChangeEvent{}
+					if ct, e := message.Unmarshal(ic); e == nil {
+						return cleaner.Handle(ct, ic)
+					}
+					return nil
+				}, broker.WithCounterName("role")); e != nil {
+					return e
+				}
 
 		opts := configx.New()
 		dao.Init(ctx, opts)

@@ -63,27 +63,33 @@ func init() {
 			panic("no grpc server available")
 		}
 
+
 		h := NewHandler(ctx, s)
 		idm.RegisterWorkspaceServiceServer(srv, h)
+		service2.RegisterLoginModifierEnhancedServer(server, h.(service2.NamedLoginModifierServer))
 
-		// Register a cleaner for removing a workspace when there are no more ACLs on it.
-		wsCleaner := NewWsCleaner(ctx, h)
-		cleaner := &resources.PoliciesCleaner{
-			Options: resources.PoliciesCleanerOptions{
-				SubscribeRoles: true,
-				SubscribeUsers: true,
-			},
-			LogCtx: ctx,
-		}
-		if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
-			ev := &idm.ChangeEvent{}
-			if e := message.Unmarshal(ev); e == nil {
-				_ = wsCleaner.Handle(ctx, ev)
-				return cleaner.Handle(ctx, ev)
-			}
-			return nil
-		}); e != nil {
-			panic(e)
-		}
+				// Register a cleaner for removing a workspace when there are no more ACLs on it.
+				wsCleaner := NewWsCleaner(ctx, h)
+				cleaner := &resources.PoliciesCleaner{
+					Dao: servicecontext.GetDAO(ctx),
+					Options: resources.PoliciesCleanerOptions{
+						SubscribeRoles: true,
+						SubscribeUsers: true,
+					},
+					LogCtx: ctx,
+				}
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+					ev := &idm.ChangeEvent{}
+					if ct, e := message.Unmarshal(ev); e == nil {
+						_ = wsCleaner.Handle(ct, ev)
+						return cleaner.Handle(ct, ev)
+					}
+					return nil
+				}); e != nil {
+					return e
+				}
+				return nil
+			}),
+		)
 	})
 }

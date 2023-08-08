@@ -64,12 +64,30 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Users persistence layer"),
-			service.TODOMigrations(func() []*service.Migration {
-				return []*service.Migration{
-					{
-						TargetVersion: service.FirstRun(),
-						Up:            InitDefaults,
-					},
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            InitDefaults,
+				},
+			}),
+			service.WithStorage(user.NewDAO, service.WithStoragePrefix("idm_user")),
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
+
+				dao := servicecontext.GetDAO(ctx).(user.DAO)
+				handler := NewHandler(ctx, dao)
+				idm.RegisterUserServiceEnhancedServer(server, handler)
+				service2.RegisterLoginModifierEnhancedServer(server, handler.(*Handler))
+
+				// Register a cleaner for removing a workspace when there are no more ACLs on it.
+				cleaner := &RolesCleaner{Dao: dao}
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+					ev := &idm.ChangeEvent{}
+					if ct, e := message.Unmarshal(ev); e == nil {
+						return cleaner.Handle(ct, ev)
+					}
+					return nil
+				}, broker.WithCounterName("user")); e != nil {
+					return e
 				}
 			}),
 			// service.WithStorage(user.NewDAO, service.WithStoragePrefix("idm_user")),
