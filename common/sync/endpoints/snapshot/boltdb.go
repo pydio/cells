@@ -61,6 +61,8 @@ type BoltSnapshot struct {
 
 	autoBatchChan  chan tree.N
 	autoBatchClose chan struct{}
+
+	manualCollector bool
 }
 
 func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
@@ -84,6 +86,16 @@ func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
 	go s.startAutoBatching()
 
 	return s, nil
+}
+
+func (s *BoltSnapshot) SetManualCollector() {
+	s.manualCollector = true
+	s.db.Update(func(tx *bbolt.Tx) error {
+		if b := tx.Bucket(bucketName); b == nil {
+			tx.CreateBucket(bucketName)
+		}
+		return nil
+	})
 }
 
 func (s *BoltSnapshot) sortByKey(data map[string]tree.N) (output []tree.N) {
@@ -445,7 +457,9 @@ func (s *BoltSnapshot) Watch(recursivePath string) (*model.WatchObject, error) {
 
 func (s *BoltSnapshot) marshal(node tree.N) []byte {
 	store := node.AsProto()
-	store.MetaStore = nil
+	if !s.manualCollector {
+		store.MetaStore = nil
+	}
 	data, _ := proto.Marshal(store)
 	return data
 }
