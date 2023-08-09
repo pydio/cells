@@ -71,7 +71,7 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/microcosm-cc/bluemonday v1.0.23
 	github.com/minio/cli v1.22.0
-	github.com/minio/minio v0.0.0-20220720015624-ce8397f7d944
+	github.com/minio/minio v0.0.0-20230809141052-8bd460a77d09
 	github.com/minio/minio-go/v7 v7.0.21
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/mssola/user_agent v0.5.3
@@ -519,4 +519,4 @@ retract v4.0.0
 //replace github.com/minio/minio => /Users/charles/Sources/go/src/github.com/pydio/minio
 //replace github.com/pydio/caddyvault => /Users/charles/Sources/go/src/github.com/pydio/caddyvault
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20230301104210-859d91c9822e
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20230809141052-8bd460a77d09
