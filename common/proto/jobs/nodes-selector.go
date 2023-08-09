@@ -107,12 +107,18 @@ func (n *NodesSelector) Select(ctx context.Context, input *ActionMessage, object
 		return nil
 	}
 
-	// Now handle query
-	q := &tree.Query{}
-	if !selector.All && (selector.Query == nil || selector.Query.SubQueries == nil || len(selector.Query.SubQueries) == 0) {
+	if selector.Query == nil || selector.Query.SubQueries == nil || len(selector.Query.SubQueries) == 0 {
+		if selector.All {
+			log.Logger(ctx).Warn("warning, NodesSelector.All is deprecated and will return empty results as no query is passed")
+			log.TasksLogger(ctx).Warn("warning, NodesSelector.All is deprecated and will return empty results as no query is passed")
+		} else {
+			log.TasksLogger(ctx).Debug("Exiting selector as no query is passed")
+		}
 		return nil
 	}
 
+	// Now handle query
+	q := &tree.Query{}
 	if e := anypb.UnmarshalTo(selector.Query.SubQueries[0], q, proto.UnmarshalOptions{}); e != nil {
 		log.Logger(ctx).Error("Could not parse input query", zap.Error(e))
 		return e

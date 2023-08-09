@@ -145,13 +145,20 @@ func (a *Action) FanToNext(ctx context.Context, index int, input *ActionMessage,
 		nextOut := make(chan *ActionMessage)
 		nextDone := make(chan bool, 1)
 		go func() {
+			empty := true
 			for {
 				select {
 				case message := <-nextOut:
+					empty = false
 					go a.FanToNext(ctx, index+1, message.Clone(), output, errors, done)
 				case <-nextDone:
 					close(nextOut)
 					close(nextDone)
+					if empty {
+						// Trigger done on the upper level
+						log.TasksLogger(ctx).Info("Empty intermediary selector, forward done")
+						done <- true
+					}
 					return
 				}
 			}
