@@ -83,15 +83,21 @@ class TasksList extends React.Component {
     }
 
     deleteSelection(){
+        console.log('Delete Now?')
+        const {pydio, job} = this.props;
         const {selectedRows} = this.state;
-        const {job} = this.props;
-        const store = JobsStore.getInstance();
-        this.setLoading(true);
-        store.deleteTasks(job.ID, selectedRows).then(()=>{
-            this.setState({selectedRows:[], mode:'log'});
-            this.setLoading(false);
-        }).catch(() => {
-            this.setLoading(false);
+        pydio.UI.openConfirmDialog({
+            message: pydio.MessageHash['ajxp_admin.scheduler.tasks.delete.confirm'] + ' (' + selectedRows.length + ')',
+            validCallback: () => {
+                const store = JobsStore.getInstance();
+                this.setLoading(true);
+                store.deleteTasks(job.ID, selectedRows).then(()=>{
+                    this.setState({selectedRows:[], mode:'log'});
+                    this.setLoading(false);
+                }).catch(() => {
+                    this.setLoading(false);
+                })
+            }
         })
     }
 
@@ -251,8 +257,8 @@ class TasksList extends React.Component {
                         showCheckboxes={mode === 'selection'}
                         onSelectRows={this.onSelectTaskRows.bind(this)}
                         emptyStateString={m('tasks.history.empty')}
-                        selectedRows={selectedRows}
-                        deselectOnClickAway={true}
+                        rowSelected={(model) => selectedRows.filter(r=>r.ID === model.ID).length}
+                        deselectOnClickAway={mode !== 'selection'}
                         masterStyles={adminStyles.body.tableMaster}
                         paginate={[10, 25, 50, 100]}
                         defaultPageSize={10}
