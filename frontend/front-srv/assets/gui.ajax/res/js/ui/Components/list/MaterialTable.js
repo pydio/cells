@@ -271,7 +271,7 @@ class MaterialTable extends React.Component{
 
     render(){
 
-        const {columns, deselectOnClickAway, emptyStateString, masterStyles={}, emptyStateStyle, onSelectRows, computeRowStyle} = this.props;
+        const {columns, deselectOnClickAway, emptyStateString, masterStyles={}, emptyStateStyle, onSelectRows, computeRowStyle, rowSelected} = this.props;
         const {actions, hideHeaders} = this.props;
         let {data, showCheckboxes} = this.props;
 
@@ -329,7 +329,7 @@ class MaterialTable extends React.Component{
                 mainRowStyle = {...mainRowStyle, ...masterStyles.expanderRow};
             }
             rows.push(
-                <TableRow selectable={onSelectRows !== undefined} style={mainRowStyle}>
+                <TableRow selectable={onSelectRows !== undefined} style={mainRowStyle} selected={rowSelected && rowSelected(model)}>
                     {columns.map((column) => {
                         let value = model[column.name];
                         let tip = value;
