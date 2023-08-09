@@ -133,7 +133,7 @@ func (r *SnapFS) recursiveCreate(ctx context.Context, parent *fs.Inode, snapFold
 				}
 				emb = &fs.MemRegularFile{
 					Data: []byte(content),
-					Attr: fuse.Attr{Mode: 0666},
+					Attr: fuse.Attr{Mode: 0666, Mtime: uint64(node.GetMTime())},
 				}
 			} else {
 				emb = r.fileProvider(inoCount, node)
@@ -167,6 +167,18 @@ func (r *SnapFS) recursiveCreate(ctx context.Context, parent *fs.Inode, snapFold
 func (r *SnapFS) OnAdd(ctx context.Context) {
 
 	root, _ := r.snapshot.LoadNode(ctx, "/", false)
+	if r.generate {
+		// Check that root .pydio is here, otherwise fake it
+		if n, er := r.snapshot.LoadNode(ctx, "/.pydio"); er != nil || n == nil {
+			log.Println("Faking root .pydio node")
+			inoCount++
+			pChild := r.EmbeddedInode().NewPersistentInode(ctx, &fs.MemRegularFile{
+				Data: []byte("root"),
+				Attr: fuse.Attr{Mode: 0666},
+			}, fs.StableAttr{Ino: inoCount})
+			r.EmbeddedInode().AddChild(".pydio", pChild, false)
+		}
+	}
 	if r.total > 20000 {
 		log.Printf("Snapshot contains %d nodes, using dynamic loading for each folder\n", r.total)
 		_ = r.recursiveCreate(ctx, r.EmbeddedInode(), root, false)
