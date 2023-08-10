@@ -31,6 +31,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
@@ -46,6 +47,7 @@ import (
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/resources"
 	"github.com/pydio/cells/v4/common/utils/cache"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/user/grpc"
@@ -262,7 +264,6 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, err)
 		return
 	}
-	defer stream.CloseSend()
 	for {
 		response, e := stream.Recv()
 		if e != nil {
@@ -272,8 +273,11 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 			continue
 		}
 		if !s.MatchPolicies(ctx, response.User.Uuid, response.User.Policies, service2.ResourcePolicyAction_WRITE) {
+			jj, _ := json.Marshal(response.User.Policies)
+			subj, _ := auth.SubjectsForResourcePolicyQuery(ctx, nil)
+			ss, _ := json.Marshal(subj)
 			log.Auditer(ctx).Error(
-				fmt.Sprintf("Forbidden action: could not delete user [%s]", response.User.Login),
+				fmt.Sprintf("Forbidden action: could not delete user [%s], policies were %s, subjects %s", response.User.Login, string(jj), string(ss)),
 				log.GetAuditId(common.AuditUserDelete),
 				response.User.ZapUuid(),
 			)
