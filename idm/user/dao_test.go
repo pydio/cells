@@ -634,7 +634,7 @@ func TestDestructiveCreateUser(t *testing.T) {
 	var options = configx.New()
 	ctx := context.Background()
 	var mock DAO
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, "file::memory:", "idm_user", NewDAO, options); e != nil {
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", NewDAO, options); e != nil {
 		panic(e)
 	} else {
 		mock = d.(DAO)
