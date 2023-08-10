@@ -144,7 +144,7 @@
     "other": "发送电子邮件时使用默认地址。您应该使用适当的支持电子邮件而不是非回复电子邮件。"
   },
   "Mail.Config.FixOutlookDisplay": {
-    "other": "Outlook Clients Fix (disable CSS inlining)"
+    "other": "Outlook客户端修复(禁用CSS内联)"
   },
   "Mail.Config.Queue.Label": {
     "other": "队列类型"

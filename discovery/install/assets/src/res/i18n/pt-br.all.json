@@ -219,7 +219,7 @@
     "other": "Use um caminho absoluto no servidor"
   },
   "form.dsType.Label": {
-    "other": "Storage Type"
+    "other": "Tipo de armazenamento"
   },
   "form.dsType.FS": {
     "other": "FS local (armazenar todos os dados neste servidor)"

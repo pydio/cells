@@ -1,26 +1,26 @@
 {
   "Audio/Video Capture": {
-    "other": "Audio/Video Capture"
+    "other": "音频/视频捕获"
   },
   "Use device webcam, microphone or screencast to capture audio and video": {
-    "other": "Use device webcam, microphone or screencast to capture audio and video"
+    "other": "使用设备摄像头、麦克风或屏幕截图捕获音频和视频"
   },
   "Enable Webcam": {
-    "other": "Enable Webcam"
+    "other": "启用摄像头"
   },
   "Enable capturing from webcam": {
-    "other": "Enable capturing from webcam"
+    "other": "启用从摄像头捕获"
   },
   "Enable Screencast": {
-    "other": "Enable Screencast"
+    "other": "启用屏幕录像"
   },
   "Enable capturing from shared screen": {
-    "other": "Enable capturing from shared screen"
+    "other": "启用从共享屏幕捕获"
   },
   "Enable Audio": {
-    "other": "Enable Audio"
+    "other": "开启音频"
   },
   "Enable capturing simple audio from microphone": {
-    "other": "Enable capturing simple audio from microphone"
+    "other": "启用从麦克风抓取音频"
   }
 }

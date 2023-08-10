@@ -246,7 +246,7 @@
     "other": "Path Prefix"
   },
   "treeQuery.Paths": {
-    "other": "Absolute Paths"
+    "other": "Absolute Pfade"
   },
   "treeQuery.Type": {
     "other": "Typ"
@@ -279,10 +279,10 @@
     "other": "Verbunden seit"
   },
   "userSingleQuery.FullPath": {
-    "other": "Full Path"
+    "other": "Vollständiger Pfad"
   },
   "userSingleQuery.GroupPath": {
-    "other": "Group Path"
+    "other": "Gruppenpfad"
   },
   "userSingleQuery.HasProfile": {
     "other": "Hat Profil"

@@ -384,7 +384,7 @@
     "other": "Identifiants de session"
   },
   "Set this repository group owner : only users of this group will see it": {
-    "other": "Définissez le groupe propriétaire de ce worskpace: seuls les utilisateurs du groupe pourront le voir."
+    "other": "Définissez le groupe propriétaire de ce workspace : seuls les utilisateurs du groupe pourront le voir"
   },
   "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac).": {
     "other": "Utilisez un encodage spécifique (essayez IBM850 ou CP437) pour les noms de fichiers afin de résoudre les problèmes avec les caractères durant la création de Zip. Peut créer des archives incompatibles avec certains systèmes d'exploitation (Win / Mac). En cas de problèmes, vous pouvez aussi ajouter //TRANSLIT après l'encodage, pour forcer la translitération des caractères inconnus dans l'encodage de destination (par exemple CP437//TRANSLIT)."

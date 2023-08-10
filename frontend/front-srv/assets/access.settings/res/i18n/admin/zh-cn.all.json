@@ -285,7 +285,7 @@
     "other": "Amazon S3"
   },
   "ds.editor.storage.s3.endpoint.custom": {
-    "other": "Other S3-Compatible Storage"
+    "other": "S3 兼容存储"
   },
   "ds.editor.storage.s3.endpoint.minio": {
     "other": "Minio 服务器"
@@ -351,7 +351,7 @@
     "other": "Custom Storage Class (leave empty to use STANDARD). Amazon S3 supports the following values: REDUCED_REDUNDANCY, STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, GLACIER, DEEP_ARCHIVE, OUTPOSTS, GLACIER_IR. Beware that using GLACIER or equivalent will make the datasource write-only, as objects have to be manually restored before being available for download."
   },
   "ds.editor.storage.s3.storageClass": {
-    "other": "Storage Class"
+    "other": "存储类型"
   },
   "ds.editor.title": {
     "other": "数据源 %s"
@@ -1665,10 +1665,10 @@
     "other": "If people are connected to this workspace, their sync task will not be working any more! Are you sure you want to change that?"
   },
   "ws.editor.other.quota": {
-    "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace (or user-specific contents for workspaces like Personal Files)."
+    "other": "磁盘使用配额(0则无限制)。 此配额由此工作区的所有文件计算(或个人文件等工作区的用户特定内容)。"
   },
   "ws.editor.other.quota.noquota": {
-    "other": "No Quota set"
+    "other": "未设置配额"
   },
   "ws.editor.path.folder": {
     "other": "文件夹路径"
