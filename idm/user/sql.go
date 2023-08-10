@@ -321,7 +321,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []tree.N, error) {
 	db := s.DB()
 
 	// Start a transaction
-	err := sql.RetryTx(context.Background(), db, &sql.RetryTxOpts{MaxRetries: 3}, func(ctx context.Context, tx *databasesql.Tx) error {
+	err := sql.RetryTxOnDeadlock(context.Background(), db, &sql.RetryTxOpts{MaxRetries: 3}, func(ctx context.Context, tx *databasesql.Tx) error {
 
 		// Insure we can retrieve all necessary prepared statements
 		delAttributes, er := s.GetStmt("DeleteAttributes")
