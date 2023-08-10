@@ -27,10 +27,10 @@
     "other": "删除时清理或传输用户数据"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "24小时后清理孤立文件"
   },
   "Jobs.Default.CleanExpiredACLs": {
-    "other": "Clean expired ACLs after 10 days"
+    "other": "10天后清理过期的 ACL"
   },
   "Jobs.User.Compress": {
     "other": "压缩选项..."
@@ -63,7 +63,7 @@
     "other": "在后台移动到回收站..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Sync datasource {{.DsName}} then rehash new files"
+    "other": "同步数据源 {{.DsName}} 然后对新文件重新分配哈希值"
   },
   "Jobs.User.Wget": {
     "other": "正在后台下载文件..."

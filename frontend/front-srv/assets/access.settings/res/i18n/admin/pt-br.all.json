@@ -771,10 +771,10 @@
     "other": "Ordenar"
   },
   "metadata.group": {
-    "other": "Group"
+    "other": "Grupo"
   },
   "metadata.default-group": {
-    "other": "No Group"
+    "other": "Sem Grupo"
   },
   "metadata.toggle.index": {
     "other": "Indexar ao motor de busca"

@@ -66,28 +66,28 @@
     "other": "配置 MongoDB 连接"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "这对可扩展性更好，同时是集群部署的必要条件。如果您还没有Mongo DB准备就绪，可以稍后配置。"
   },
   "advanced.mongo.host": {
     "other": "服务器主机"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "服务器端口"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "数据库名"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "用户名"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "密码"
   },
   "advanced.mongo.authSource": {
     "other": "Auth DB"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "测试连接"
   },
   "license.stepLabel": {
     "other": "企业版许可证"
@@ -117,7 +117,7 @@
     "other": "开始安装"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "请耐心等待Pydio Cells安装完毕..."
   },
   "apply.success": {
     "other": "安装已成功，服务正在启动，安装程序将在启动服务后重新加载页面。"
@@ -219,7 +219,7 @@
     "other": "使用服务器上的绝对路径"
   },
   "form.dsType.Label": {
-    "other": "Storage Type"
+    "other": "存储类型"
   },
   "form.dsType.FS": {
     "other": "本地文件系统 (所有数据存储的此服务器上)"
