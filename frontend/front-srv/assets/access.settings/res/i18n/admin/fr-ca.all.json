@@ -771,10 +771,10 @@
     "other": "Position"
   },
   "metadata.group": {
-    "other": "Group"
+    "other": "Groupe"
   },
   "metadata.default-group": {
-    "other": "No Group"
+    "other": "Pas de groupe"
   },
   "metadata.toggle.index": {
     "other": "Indexer dans le moteur de recherche"

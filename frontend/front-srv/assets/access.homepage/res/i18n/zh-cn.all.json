@@ -240,10 +240,10 @@
     "other": "文件名"
   },
   "reco.bookmark": {
-    "other": "Bookmark"
+    "other": "书签"
   },
   "reco.workspace": {
-    "other": "Workspace"
+    "other": "工作区"
   },
   "reco.cell": {
     "other": "Cell"

@@ -102,28 +102,28 @@
     "other": "添加快捷键..."
   },
   "card.update.current": {
-    "other": "Software Version"
+    "other": "软件版本"
   },
   "card.update.no-updates": {
-    "other": "Software is up-to-date"
+    "other": "软件已更新到最新"
   },
   "card.update.new-version": {
-    "other": "A new version is available"
+    "other": "有新版本可升级"
   },
   "recentLogs.title": {
-    "other": "Last Events"
+    "other": "最近活动"
   },
   "recentLogs.errors": {
-    "other": "Errors"
+    "other": "错误"
   },
   "recentLogs.emptyState": {
-    "other": "No activity found"
+    "other": "未找到活动"
   },
   "recentLogs.more": {
-    "other": "All Activities"
+    "other": "所有活动"
   },
   "graph.files": {
-    "other": "Files Activity"
+    "other": "文件活动"
   },
   "graph.connections": {
     "other": "Web Connections"
