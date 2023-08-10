@@ -35,8 +35,8 @@ type RetryTxOpts struct {
 	MaxRetries int
 }
 
-// RetryTx creates a transaction and automatically retries it if error is '1213: Deadlock found'
-func RetryTx(ctx context.Context, db *sql.DB, opts *RetryTxOpts, f func(context.Context, *sql.Tx) error) error {
+// RetryTxOnDeadlock creates a transaction and automatically retries it *if error is '1213: Deadlock found'*
+func RetryTxOnDeadlock(ctx context.Context, db *sql.DB, opts *RetryTxOpts, f func(context.Context, *sql.Tx) error) error {
 
 	var erTx error
 	attempt := 0
@@ -58,7 +58,8 @@ func RetryTx(ctx context.Context, db *sql.DB, opts *RetryTxOpts, f func(context.
 			attempt++
 			continue
 		} else {
-			return tx.Rollback()
+			_ = tx.Rollback()
+			return erTx
 		}
 	}
 
