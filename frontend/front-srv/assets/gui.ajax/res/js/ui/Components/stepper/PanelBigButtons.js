@@ -19,6 +19,8 @@
  */
 
 import React from 'react'
+import Pydio from 'pydio'
+const {FileDropZone} = Pydio.requireLib('form')
 import {Paper, FontIcon, IconButton} from 'material-ui'
 
 const styles = {
@@ -160,8 +162,8 @@ class PanelBigButtons extends React.Component {
                                 if(d && d.length > 70) {
                                     d = <span title={d}>{d.substr(0, 70) + "..."}</span>
                                 }
-                                return (
-                                    <Paper zDepth={0} {...this.stProps('action', 'container')} onClick={()=>{onPick(a.value)}}>
+                                const children = (
+                                    <React.Fragment>
                                         {a.tag && <div className={"stepper-tag"}>{a.tag}</div>}
                                         {a.onDelete &&
                                             <div {...this.stProps('action', 'deleteButton')}>
@@ -176,8 +178,18 @@ class PanelBigButtons extends React.Component {
                                         <div  {...this.stProps('action', 'icon')}><FontIcon color={a.tint||'#03A9F4'} className={a.icon}/></div>
                                         <div  {...this.stProps('action', 'title')}>{a.title}</div>
                                         <div  {...this.stProps('action', 'description')}>{d}</div>
-                                    </Paper>
-                                );
+                                    </React.Fragment>
+                                )
+                                if(a.dropProps) {
+                                    return (
+                                        <FileDropZone {...this.stProps('action', 'container')} {...a.dropProps}>{children}</FileDropZone>
+                                    )
+                                } else {
+                                    return (
+                                        <Paper zDepth={0} {...this.stProps('action', 'container')} onClick={()=>{onPick(a.value)}}>{children}</Paper>
+                                    );
+
+                                }
                             })}</div>
                         </div>
                     )
