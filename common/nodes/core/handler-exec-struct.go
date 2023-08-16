@@ -42,19 +42,20 @@ import (
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
+var (
+	pncLocks   *sync.Mutex
+	pncClients map[string]tree.NodeChangesReceiverStreamer_PostNodeChangesClient
+)
+
 func WithStructInterceptor() nodes.Option {
 	return func(options *nodes.RouterOptions) {
-		options.Wrappers = append(options.Wrappers, &StructStorageHandler{
-			clients: make(map[string]tree.NodeChangesReceiverStreamer_PostNodeChangesClient),
-		})
+		options.Wrappers = append(options.Wrappers, &StructStorageHandler{})
 	}
 }
 
 // StructStorageHandler intercepts request to a flat-storage
 type StructStorageHandler struct {
 	abstract.Handler
-	clientsLock sync.Mutex
-	clients     map[string]tree.NodeChangesReceiverStreamer_PostNodeChangesClient
 }
 
 func (f *StructStorageHandler) publish(ctx context.Context, identifier string, eventType tree.NodeChangeEvent_EventType, node *tree.Node) {
@@ -86,15 +87,12 @@ func (f *StructStorageHandler) publish(ctx context.Context, identifier string, e
 		node.Path = strings.TrimPrefix(node.Path, bi.Name+"/")
 		event.Target = node
 	}
-	if cl, e := f.getClient(ctx, bi.Name); e != nil {
+	if cl, e := getPostNodeChangeClient(ctx, bi.Name, false); e != nil {
 		log.Logger(ctx).Error("[struct] cannot get stream client", zap.Error(e))
 	} else if er := cl.Send(event); er != nil && er != io.EOF {
 		log.Logger(ctx).Error("[struct] cannot publish event on stream", zap.Error(er))
 	} else if er == io.EOF {
-		f.clientsLock.Lock()
-		delete(f.clients, bi.Name)
-		f.clientsLock.Unlock()
-		cl, e = f.getClient(ctx, bi.Name)
+		cl, e = getPostNodeChangeClient(ctx, bi.Name, true)
 		if e != nil {
 			log.Logger(ctx).Error("[struct] cannot get new stream client after retry", zap.Error(e))
 		} else if e2 := cl.Send(event); e2 != nil {
@@ -193,10 +191,19 @@ func (f *StructStorageHandler) MultipartComplete(ctx context.Context, target *tr
 	return info, e
 }
 
-func (f *StructStorageHandler) getClient(ctx context.Context, serviceName string) (tree.NodeChangesReceiverStreamer_PostNodeChangesClient, error) {
-	f.clientsLock.Lock()
-	defer f.clientsLock.Unlock()
-	if c, o := f.clients[serviceName]; o {
+// getPostNodeChangeClient finds or creates a new streamer to public PostNodeChanges events.
+// If refresh is set, it will delete any previous instance and create a new one.
+func getPostNodeChangeClient(ctx context.Context, serviceName string, refresh bool) (tree.NodeChangesReceiverStreamer_PostNodeChangesClient, error) {
+	if pncClients == nil {
+		pncClients = make(map[string]tree.NodeChangesReceiverStreamer_PostNodeChangesClient)
+		pncLocks = &sync.Mutex{}
+	}
+	pncLocks.Lock()
+	defer pncLocks.Unlock()
+	if refresh {
+		delete(pncClients, serviceName)
+	}
+	if c, o := pncClients[serviceName]; o {
 		return c, nil
 	}
 	cl := tree.NewNodeChangesReceiverStreamerClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceGrpcNamespace_+common.ServiceDataSync_+serviceName))
@@ -205,6 +212,6 @@ func (f *StructStorageHandler) getClient(ctx context.Context, serviceName string
 	if e != nil {
 		return nil, e
 	}
-	f.clients[serviceName] = c
+	pncClients[serviceName] = c
 	return c, nil
 }
