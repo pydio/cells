@@ -1,7 +1,14 @@
-# Changes between v4.2.5 and v4.2.6-beta1
+# Changes between v4.2.5 and v4.2.6-rc1
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.5...v4.2.6-beta1)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.5...v4.2.6-rc1)
 
+- [#b6c4dd4](https://github.com/pydio/cells/commit/b6c4dd49820586245faaec2c7fde48d4797bc585): i18n strings
+- [#4d5c5cd](https://github.com/pydio/cells/commit/4d5c5cd3d22a8ee55ca6f0298dcd6c92662fd8d9): Unused userClient in mail-digest action
+- [#8f6ff03](https://github.com/pydio/cells/commit/8f6ff03bd783a300e14eb9d95625dceb6585e308): Revert "Try to tackle a stream leak"
+- [#c868362](https://github.com/pydio/cells/commit/c868362eabee21846be4a88f013e95a9bd929993): Try to tackle a stream leak
+- [#04c09bd](https://github.com/pydio/cells/commit/04c09bd55c72bb1ce5ccc8c5e11e78faace72d38): Allow FileDropZone inside PanelBigButtons
+- [#faca15a](https://github.com/pydio/cells/commit/faca15a92574dad85bb35990c14d70b428ca93a2): Fix leaky stream
+- [#5b40c47](https://github.com/pydio/cells/commit/5b40c4784735d7bbadd0a585ef86058cb28595ba): Release v4.2.6-beta1
 - [#e6b7ff3](https://github.com/pydio/cells/commit/e6b7ff32473aee132d2e9da82470ded44cfb5318): Add missing translations, fix typos
 - [#c3c9fc0](https://github.com/pydio/cells/commit/c3c9fc0994337e23d0cbe2288bcb2acd1a3f1f27): Add missing translations, fix typos
 - [#ddc79ad](https://github.com/pydio/cells/commit/ddc79ad45eab53a9a4b1647313e7ba6038a5b1f2): Fix unit test
