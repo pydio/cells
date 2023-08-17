@@ -111,6 +111,7 @@ class WsEditor extends Component {
         const ModernStyles = ThemedModernStyles(muiTheme)
         const m = id => pydio.MessageHash['ajxp_admin.' + id] || id;
         const mS = id => pydio.MessageHash['settings.' + id] || id;
+        const policiesMS = id => pydio.MessageHash['advanced_settings.' + id] || id;
         const readonly = !workspace.PoliciesContextEditable;
 
         let buttons = [];
@@ -306,10 +307,10 @@ class WsEditor extends Component {
                 </Paper>
                 {PoliciesBuilder &&
                     <Paper zDepth={0} style={styles.section}>
-                        <div style={styles.title}>Workspace Visibility</div>
+                        <div style={styles.title}>{policiesMS('editor.visibility.workspace')}</div>
                         <div style={{...styles.legend}}>
-                            WARNING: this is a dangerous zone, modify only if you know what you are doing!
-                            {!policiesEdit && <span style={{fontWeight:500, cursor:'pointer'}} onClick={()=>this.setState({policiesEdit:true})}> - Edit Now</span>}
+                            {policiesMS('editor.visibility.warning')}
+                            {!policiesEdit && <span style={{fontWeight:500, cursor:'pointer'}} onClick={()=>this.setState({policiesEdit:true})}> - {policiesMS('editor.visibility.edit')}</span>}
                         </div>
                         <PoliciesBuilder
                             pydio={pydio}
@@ -320,7 +321,10 @@ class WsEditor extends Component {
                             forceCustom={true}
                             advancedLegend={<span/>}
                             advancedContainerStyle={policiesEdit?{paddingBottom: 300}:{}}
-                            allowedActions={{'READ':'Read', 'WRITE':'Write'}}
+                            allowedActions={{
+                                'READ':policiesMS('policies.builder.action.read'),
+                                'WRITE':policiesMS('policies.builder.action.write')
+                        }}
                         />
                     </Paper>
                 }
