@@ -108,12 +108,10 @@ func (m *IdmSelector) Select(ctx context.Context, input *ActionMessage, objects 
 	if query == nil {
 		return nil
 	}
-	ct, ca := context.WithCancel(ctx)
-	defer ca()
 	switch m.Type {
 	case IdmSelectorType_User:
 		userClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
-		s, e := userClient.SearchUser(ct, &idm.SearchUserRequest{Query: query})
+		s, e := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: query})
 		if e != nil {
 			return e
 		}
@@ -129,7 +127,7 @@ func (m *IdmSelector) Select(ctx context.Context, input *ActionMessage, objects 
 		}
 	case IdmSelectorType_Role:
 		roleClient := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceRole))
-		if s, e := roleClient.SearchRole(ct, &idm.SearchRoleRequest{Query: query}); e != nil {
+		if s, e := roleClient.SearchRole(ctx, &idm.SearchRoleRequest{Query: query}); e != nil {
 			return e
 		} else {
 			for {
@@ -145,7 +143,7 @@ func (m *IdmSelector) Select(ctx context.Context, input *ActionMessage, objects 
 		}
 	case IdmSelectorType_Workspace:
 		wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
-		if s, e := wsClient.SearchWorkspace(ct, &idm.SearchWorkspaceRequest{Query: query}); e != nil {
+		if s, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query}); e != nil {
 			return e
 		} else {
 			for {
@@ -161,7 +159,7 @@ func (m *IdmSelector) Select(ctx context.Context, input *ActionMessage, objects 
 		}
 	case IdmSelectorType_Acl:
 		aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
-		if s, e := aclClient.SearchACL(ct, &idm.SearchACLRequest{Query: query}); e != nil {
+		if s, e := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: query}); e != nil {
 			return e
 		} else {
 			for {
