@@ -79,10 +79,8 @@ func (m *UsersSelector) Select(ctx context.Context, input *ActionMessage, object
 	if query == nil {
 		return nil
 	}
-	ct, ca := context.WithCancel(ctx)
-	defer ca()
 	userClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
-	s, e := userClient.SearchUser(ct, &idm.SearchUserRequest{Query: query})
+	s, e := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: query})
 	if e != nil {
 		return e
 	}
