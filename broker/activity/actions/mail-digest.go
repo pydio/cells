@@ -52,7 +52,6 @@ type MailDigestAction struct {
 	common.RuntimeHolder
 	mailerClient   mailer.MailerServiceClient
 	activityClient activity.ActivityServiceClient
-	userClient     idm.UserServiceClient
 	dryRun         bool
 	dryMail        string
 }
@@ -92,7 +91,6 @@ func (m *MailDigestAction) Init(job *jobs.Job, action *jobs.Action) error {
 	}
 	m.mailerClient = mailer.NewMailerServiceClient(grpc.GetClientConnFromCtx(m.GetRuntimeContext(), common.ServiceMailer))
 	m.activityClient = activity.NewActivityServiceClient(grpc.GetClientConnFromCtx(m.GetRuntimeContext(), common.ServiceActivity))
-	m.userClient = idm.NewUserServiceClient(grpc.GetClientConnFromCtx(m.GetRuntimeContext(), common.ServiceUser))
 	return nil
 }
 
