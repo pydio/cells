@@ -8,6 +8,8 @@ plugins:
     out: .
   - name: govalidators
     out: .
+  - name: go-tags
+    out: .
   - plugin: buf.build/grpc/python
     out: github.com/pydio/cells/python
   - plugin: buf.build/protocolbuffers/python

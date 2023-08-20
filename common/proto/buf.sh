@@ -29,6 +29,7 @@ then
   go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
   go install github.com/pydio/cells/cmd/protoc-gen-go-enhanced-grpc@main
   go install github.com/pydio/cells/cmd/protoc-gen-go-client-stub@main
+  go install github.com/pydio/cells/cmd/protoc-gen-go-tags
   go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
   go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
   go install github.com/mwitkow/go-proto-validators/protoc-gen-govalidators

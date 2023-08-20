@@ -18,3 +18,4 @@ directories:
   - tree
   - update
   - registry
+  - options

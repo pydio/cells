@@ -8,8 +8,10 @@ package idm
 
 import (
 	context "context"
+	fmt "fmt"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
+	metadata "google.golang.org/grpc/metadata"
 	status "google.golang.org/grpc/status"
 	sync "sync"
 )
@@ -24,93 +26,108 @@ var (
 	enhancedRoleServiceServersLock = sync.RWMutex{}
 )
 
-type idRoleServiceServer interface {
-	ID() string
-}
-type RoleServiceEnhancedServer interface {
+type NamedRoleServiceServer interface {
 	RoleServiceServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(RoleServiceServer)
-	filter(context.Context) []RoleServiceServer
+	Name() string
 }
-type RoleServiceEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []RoleServiceServer
-}
+type RoleServiceEnhancedServer map[string]NamedRoleServiceServer
 
-func (m *RoleServiceEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *RoleServiceEnhancedServerImpl) addHandler(srv RoleServiceServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *RoleServiceEnhancedServerImpl) filter(ctx context.Context) []RoleServiceServer {
-	var ret []RoleServiceServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m RoleServiceEnhancedServer) CreateRole(ctx context.Context, r *CreateRoleRequest) (*CreateRoleResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method CreateRole should have a context")
 	}
-	return ret
-}
-
-func (m *RoleServiceEnhancedServerImpl) CreateRole(ctx context.Context, r *CreateRoleRequest) (*CreateRoleResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.CreateRole(ctx, r)
+	enhancedRoleServiceServersLock.RLock()
+	defer enhancedRoleServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.CreateRole(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRole not implemented")
 }
 
-func (m *RoleServiceEnhancedServerImpl) DeleteRole(ctx context.Context, r *DeleteRoleRequest) (*DeleteRoleResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.DeleteRole(ctx, r)
+func (m RoleServiceEnhancedServer) DeleteRole(ctx context.Context, r *DeleteRoleRequest) (*DeleteRoleResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method DeleteRole should have a context")
+	}
+	enhancedRoleServiceServersLock.RLock()
+	defer enhancedRoleServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.DeleteRole(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRole not implemented")
 }
 
-func (m *RoleServiceEnhancedServerImpl) SearchRole(r *SearchRoleRequest, s RoleService_SearchRoleServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.SearchRole(r, s)
+func (m RoleServiceEnhancedServer) SearchRole(r *SearchRoleRequest, s RoleService_SearchRoleServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method SearchRole should have a context")
+	}
+	enhancedRoleServiceServersLock.RLock()
+	defer enhancedRoleServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.SearchRole(r, s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method SearchRole not implemented")
 }
 
-func (m *RoleServiceEnhancedServerImpl) StreamRole(s RoleService_StreamRoleServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.StreamRole(s)
+func (m RoleServiceEnhancedServer) StreamRole(s RoleService_StreamRoleServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method StreamRole should have a context")
+	}
+	enhancedRoleServiceServersLock.RLock()
+	defer enhancedRoleServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.StreamRole(s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method StreamRole not implemented")
 }
 
-func (m *RoleServiceEnhancedServerImpl) CountRole(ctx context.Context, r *SearchRoleRequest) (*CountRoleResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.CountRole(ctx, r)
+func (m RoleServiceEnhancedServer) CountRole(ctx context.Context, r *SearchRoleRequest) (*CountRoleResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method CountRole should have a context")
+	}
+	enhancedRoleServiceServersLock.RLock()
+	defer enhancedRoleServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.CountRole(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method CountRole not implemented")
 }
-func (m *RoleServiceEnhancedServerImpl) mustEmbedUnimplementedRoleServiceServer() {}
-func RegisterRoleServiceEnhancedServer(s grpc.ServiceRegistrar, srv RoleServiceServer) {
-	idServer, ok := s.(idRoleServiceServer)
-	if ok {
-		enhancedRoleServiceServersLock.Lock()
-		defer enhancedRoleServiceServersLock.Unlock()
-		instance, ok := enhancedRoleServiceServers[idServer.ID()]
-		if !ok {
-			instance = &RoleServiceEnhancedServerImpl{}
-			enhancedRoleServiceServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterRoleServiceServer(s, instance)
-	} else {
-		RegisterRoleServiceServer(s, srv)
+func (m RoleServiceEnhancedServer) mustEmbedUnimplementedRoleServiceServer() {}
+func RegisterRoleServiceEnhancedServer(s grpc.ServiceRegistrar, srv NamedRoleServiceServer) {
+	enhancedRoleServiceServersLock.Lock()
+	defer enhancedRoleServiceServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedRoleServiceServers[addr]
+	if !ok {
+		m = RoleServiceEnhancedServer{}
+		enhancedRoleServiceServers[addr] = m
+		RegisterRoleServiceServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterRoleServiceEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedRoleServiceServersLock.Lock()
+	defer enhancedRoleServiceServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedRoleServiceServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -118,100 +135,123 @@ var (
 	enhancedUserServiceServersLock = sync.RWMutex{}
 )
 
-type idUserServiceServer interface {
-	ID() string
-}
-type UserServiceEnhancedServer interface {
+type NamedUserServiceServer interface {
 	UserServiceServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(UserServiceServer)
-	filter(context.Context) []UserServiceServer
+	Name() string
 }
-type UserServiceEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []UserServiceServer
-}
+type UserServiceEnhancedServer map[string]NamedUserServiceServer
 
-func (m *UserServiceEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *UserServiceEnhancedServerImpl) addHandler(srv UserServiceServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *UserServiceEnhancedServerImpl) filter(ctx context.Context) []UserServiceServer {
-	var ret []UserServiceServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m UserServiceEnhancedServer) CreateUser(ctx context.Context, r *CreateUserRequest) (*CreateUserResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method CreateUser should have a context")
 	}
-	return ret
-}
-
-func (m *UserServiceEnhancedServerImpl) CreateUser(ctx context.Context, r *CreateUserRequest) (*CreateUserResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.CreateUser(ctx, r)
+	enhancedUserServiceServersLock.RLock()
+	defer enhancedUserServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.CreateUser(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
 
-func (m *UserServiceEnhancedServerImpl) DeleteUser(ctx context.Context, r *DeleteUserRequest) (*DeleteUserResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.DeleteUser(ctx, r)
+func (m UserServiceEnhancedServer) DeleteUser(ctx context.Context, r *DeleteUserRequest) (*DeleteUserResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method DeleteUser should have a context")
+	}
+	enhancedUserServiceServersLock.RLock()
+	defer enhancedUserServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.DeleteUser(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
 
-func (m *UserServiceEnhancedServerImpl) BindUser(ctx context.Context, r *BindUserRequest) (*BindUserResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.BindUser(ctx, r)
+func (m UserServiceEnhancedServer) BindUser(ctx context.Context, r *BindUserRequest) (*BindUserResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method BindUser should have a context")
+	}
+	enhancedUserServiceServersLock.RLock()
+	defer enhancedUserServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.BindUser(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method BindUser not implemented")
 }
 
-func (m *UserServiceEnhancedServerImpl) CountUser(ctx context.Context, r *SearchUserRequest) (*CountUserResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.CountUser(ctx, r)
+func (m UserServiceEnhancedServer) CountUser(ctx context.Context, r *SearchUserRequest) (*CountUserResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method CountUser should have a context")
+	}
+	enhancedUserServiceServersLock.RLock()
+	defer enhancedUserServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.CountUser(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method CountUser not implemented")
 }
 
-func (m *UserServiceEnhancedServerImpl) SearchUser(r *SearchUserRequest, s UserService_SearchUserServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.SearchUser(r, s)
+func (m UserServiceEnhancedServer) SearchUser(r *SearchUserRequest, s UserService_SearchUserServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method SearchUser should have a context")
+	}
+	enhancedUserServiceServersLock.RLock()
+	defer enhancedUserServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.SearchUser(r, s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method SearchUser not implemented")
 }
 
-func (m *UserServiceEnhancedServerImpl) StreamUser(s UserService_StreamUserServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.StreamUser(s)
+func (m UserServiceEnhancedServer) StreamUser(s UserService_StreamUserServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method StreamUser should have a context")
+	}
+	enhancedUserServiceServersLock.RLock()
+	defer enhancedUserServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.StreamUser(s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method StreamUser not implemented")
 }
-func (m *UserServiceEnhancedServerImpl) mustEmbedUnimplementedUserServiceServer() {}
-func RegisterUserServiceEnhancedServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
-	idServer, ok := s.(idUserServiceServer)
-	if ok {
-		enhancedUserServiceServersLock.Lock()
-		defer enhancedUserServiceServersLock.Unlock()
-		instance, ok := enhancedUserServiceServers[idServer.ID()]
-		if !ok {
-			instance = &UserServiceEnhancedServerImpl{}
-			enhancedUserServiceServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterUserServiceServer(s, instance)
-	} else {
-		RegisterUserServiceServer(s, srv)
+func (m UserServiceEnhancedServer) mustEmbedUnimplementedUserServiceServer() {}
+func RegisterUserServiceEnhancedServer(s grpc.ServiceRegistrar, srv NamedUserServiceServer) {
+	enhancedUserServiceServersLock.Lock()
+	defer enhancedUserServiceServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedUserServiceServers[addr]
+	if !ok {
+		m = UserServiceEnhancedServer{}
+		enhancedUserServiceServers[addr] = m
+		RegisterUserServiceServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterUserServiceEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedUserServiceServersLock.Lock()
+	defer enhancedUserServiceServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedUserServiceServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -219,86 +259,93 @@ var (
 	enhancedWorkspaceServiceServersLock = sync.RWMutex{}
 )
 
-type idWorkspaceServiceServer interface {
-	ID() string
-}
-type WorkspaceServiceEnhancedServer interface {
+type NamedWorkspaceServiceServer interface {
 	WorkspaceServiceServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(WorkspaceServiceServer)
-	filter(context.Context) []WorkspaceServiceServer
+	Name() string
 }
-type WorkspaceServiceEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []WorkspaceServiceServer
-}
+type WorkspaceServiceEnhancedServer map[string]NamedWorkspaceServiceServer
 
-func (m *WorkspaceServiceEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *WorkspaceServiceEnhancedServerImpl) addHandler(srv WorkspaceServiceServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *WorkspaceServiceEnhancedServerImpl) filter(ctx context.Context) []WorkspaceServiceServer {
-	var ret []WorkspaceServiceServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m WorkspaceServiceEnhancedServer) CreateWorkspace(ctx context.Context, r *CreateWorkspaceRequest) (*CreateWorkspaceResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method CreateWorkspace should have a context")
 	}
-	return ret
-}
-
-func (m *WorkspaceServiceEnhancedServerImpl) CreateWorkspace(ctx context.Context, r *CreateWorkspaceRequest) (*CreateWorkspaceResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.CreateWorkspace(ctx, r)
+	enhancedWorkspaceServiceServersLock.RLock()
+	defer enhancedWorkspaceServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.CreateWorkspace(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method CreateWorkspace not implemented")
 }
 
-func (m *WorkspaceServiceEnhancedServerImpl) DeleteWorkspace(ctx context.Context, r *DeleteWorkspaceRequest) (*DeleteWorkspaceResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.DeleteWorkspace(ctx, r)
+func (m WorkspaceServiceEnhancedServer) DeleteWorkspace(ctx context.Context, r *DeleteWorkspaceRequest) (*DeleteWorkspaceResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method DeleteWorkspace should have a context")
+	}
+	enhancedWorkspaceServiceServersLock.RLock()
+	defer enhancedWorkspaceServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.DeleteWorkspace(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteWorkspace not implemented")
 }
 
-func (m *WorkspaceServiceEnhancedServerImpl) SearchWorkspace(r *SearchWorkspaceRequest, s WorkspaceService_SearchWorkspaceServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.SearchWorkspace(r, s)
+func (m WorkspaceServiceEnhancedServer) SearchWorkspace(r *SearchWorkspaceRequest, s WorkspaceService_SearchWorkspaceServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method SearchWorkspace should have a context")
+	}
+	enhancedWorkspaceServiceServersLock.RLock()
+	defer enhancedWorkspaceServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.SearchWorkspace(r, s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method SearchWorkspace not implemented")
 }
 
-func (m *WorkspaceServiceEnhancedServerImpl) StreamWorkspace(s WorkspaceService_StreamWorkspaceServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.StreamWorkspace(s)
+func (m WorkspaceServiceEnhancedServer) StreamWorkspace(s WorkspaceService_StreamWorkspaceServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method StreamWorkspace should have a context")
+	}
+	enhancedWorkspaceServiceServersLock.RLock()
+	defer enhancedWorkspaceServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.StreamWorkspace(s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method StreamWorkspace not implemented")
 }
-func (m *WorkspaceServiceEnhancedServerImpl) mustEmbedUnimplementedWorkspaceServiceServer() {}
-func RegisterWorkspaceServiceEnhancedServer(s grpc.ServiceRegistrar, srv WorkspaceServiceServer) {
-	idServer, ok := s.(idWorkspaceServiceServer)
-	if ok {
-		enhancedWorkspaceServiceServersLock.Lock()
-		defer enhancedWorkspaceServiceServersLock.Unlock()
-		instance, ok := enhancedWorkspaceServiceServers[idServer.ID()]
-		if !ok {
-			instance = &WorkspaceServiceEnhancedServerImpl{}
-			enhancedWorkspaceServiceServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterWorkspaceServiceServer(s, instance)
-	} else {
-		RegisterWorkspaceServiceServer(s, srv)
+func (m WorkspaceServiceEnhancedServer) mustEmbedUnimplementedWorkspaceServiceServer() {}
+func RegisterWorkspaceServiceEnhancedServer(s grpc.ServiceRegistrar, srv NamedWorkspaceServiceServer) {
+	enhancedWorkspaceServiceServersLock.Lock()
+	defer enhancedWorkspaceServiceServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedWorkspaceServiceServers[addr]
+	if !ok {
+		m = WorkspaceServiceEnhancedServer{}
+		enhancedWorkspaceServiceServers[addr] = m
+		RegisterWorkspaceServiceServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterWorkspaceServiceEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedWorkspaceServiceServersLock.Lock()
+	defer enhancedWorkspaceServiceServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedWorkspaceServiceServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -306,112 +353,135 @@ var (
 	enhancedACLServiceServersLock = sync.RWMutex{}
 )
 
-type idACLServiceServer interface {
-	ID() string
-}
-type ACLServiceEnhancedServer interface {
+type NamedACLServiceServer interface {
 	ACLServiceServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(ACLServiceServer)
-	filter(context.Context) []ACLServiceServer
+	Name() string
 }
-type ACLServiceEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []ACLServiceServer
-}
-
-func (m *ACLServiceEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *ACLServiceEnhancedServerImpl) addHandler(srv ACLServiceServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *ACLServiceEnhancedServerImpl) filter(ctx context.Context) []ACLServiceServer {
-	var ret []ACLServiceServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
-	}
-	return ret
-}
+type ACLServiceEnhancedServer map[string]NamedACLServiceServer
 
 // Insert a new ACL
 
-func (m *ACLServiceEnhancedServerImpl) CreateACL(ctx context.Context, r *CreateACLRequest) (*CreateACLResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.CreateACL(ctx, r)
+func (m ACLServiceEnhancedServer) CreateACL(ctx context.Context, r *CreateACLRequest) (*CreateACLResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method CreateACL should have a context")
+	}
+	enhancedACLServiceServersLock.RLock()
+	defer enhancedACLServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.CreateACL(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method CreateACL not implemented")
 }
 
 // Set an expiration date that invalidates an ACL without deleting it
 
-func (m *ACLServiceEnhancedServerImpl) ExpireACL(ctx context.Context, r *ExpireACLRequest) (*ExpireACLResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.ExpireACL(ctx, r)
+func (m ACLServiceEnhancedServer) ExpireACL(ctx context.Context, r *ExpireACLRequest) (*ExpireACLResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method ExpireACL should have a context")
+	}
+	enhancedACLServiceServersLock.RLock()
+	defer enhancedACLServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.ExpireACL(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method ExpireACL not implemented")
 }
 
 // Definitely delete an ACL
 
-func (m *ACLServiceEnhancedServerImpl) DeleteACL(ctx context.Context, r *DeleteACLRequest) (*DeleteACLResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.DeleteACL(ctx, r)
+func (m ACLServiceEnhancedServer) DeleteACL(ctx context.Context, r *DeleteACLRequest) (*DeleteACLResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method DeleteACL should have a context")
+	}
+	enhancedACLServiceServersLock.RLock()
+	defer enhancedACLServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.DeleteACL(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteACL not implemented")
 }
 
 // Search ACLs by Query or Expiration period
 
-func (m *ACLServiceEnhancedServerImpl) SearchACL(r *SearchACLRequest, s ACLService_SearchACLServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.SearchACL(r, s)
+func (m ACLServiceEnhancedServer) SearchACL(r *SearchACLRequest, s ACLService_SearchACLServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method SearchACL should have a context")
+	}
+	enhancedACLServiceServersLock.RLock()
+	defer enhancedACLServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.SearchACL(r, s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method SearchACL not implemented")
 }
 
 // Stream version of Search ACL
 
-func (m *ACLServiceEnhancedServerImpl) StreamACL(s ACLService_StreamACLServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.StreamACL(s)
+func (m ACLServiceEnhancedServer) StreamACL(s ACLService_StreamACLServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method StreamACL should have a context")
+	}
+	enhancedACLServiceServersLock.RLock()
+	defer enhancedACLServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.StreamACL(s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method StreamACL not implemented")
 }
 
 // Restore ACLs based on Query and Expiration period
 
-func (m *ACLServiceEnhancedServerImpl) RestoreACL(ctx context.Context, r *RestoreACLRequest) (*RestoreACLResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.RestoreACL(ctx, r)
+func (m ACLServiceEnhancedServer) RestoreACL(ctx context.Context, r *RestoreACLRequest) (*RestoreACLResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method RestoreACL should have a context")
+	}
+	enhancedACLServiceServersLock.RLock()
+	defer enhancedACLServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.RestoreACL(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method RestoreACL not implemented")
 }
-func (m *ACLServiceEnhancedServerImpl) mustEmbedUnimplementedACLServiceServer() {}
-func RegisterACLServiceEnhancedServer(s grpc.ServiceRegistrar, srv ACLServiceServer) {
-	idServer, ok := s.(idACLServiceServer)
-	if ok {
-		enhancedACLServiceServersLock.Lock()
-		defer enhancedACLServiceServersLock.Unlock()
-		instance, ok := enhancedACLServiceServers[idServer.ID()]
-		if !ok {
-			instance = &ACLServiceEnhancedServerImpl{}
-			enhancedACLServiceServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterACLServiceServer(s, instance)
-	} else {
-		RegisterACLServiceServer(s, srv)
+func (m ACLServiceEnhancedServer) mustEmbedUnimplementedACLServiceServer() {}
+func RegisterACLServiceEnhancedServer(s grpc.ServiceRegistrar, srv NamedACLServiceServer) {
+	enhancedACLServiceServersLock.Lock()
+	defer enhancedACLServiceServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedACLServiceServers[addr]
+	if !ok {
+		m = ACLServiceEnhancedServer{}
+		enhancedACLServiceServers[addr] = m
+		RegisterACLServiceServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterACLServiceEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedACLServiceServersLock.Lock()
+	defer enhancedACLServiceServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedACLServiceServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -419,86 +489,93 @@ var (
 	enhancedUserMetaServiceServersLock = sync.RWMutex{}
 )
 
-type idUserMetaServiceServer interface {
-	ID() string
-}
-type UserMetaServiceEnhancedServer interface {
+type NamedUserMetaServiceServer interface {
 	UserMetaServiceServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(UserMetaServiceServer)
-	filter(context.Context) []UserMetaServiceServer
+	Name() string
 }
-type UserMetaServiceEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []UserMetaServiceServer
-}
+type UserMetaServiceEnhancedServer map[string]NamedUserMetaServiceServer
 
-func (m *UserMetaServiceEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *UserMetaServiceEnhancedServerImpl) addHandler(srv UserMetaServiceServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *UserMetaServiceEnhancedServerImpl) filter(ctx context.Context) []UserMetaServiceServer {
-	var ret []UserMetaServiceServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m UserMetaServiceEnhancedServer) UpdateUserMeta(ctx context.Context, r *UpdateUserMetaRequest) (*UpdateUserMetaResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method UpdateUserMeta should have a context")
 	}
-	return ret
-}
-
-func (m *UserMetaServiceEnhancedServerImpl) UpdateUserMeta(ctx context.Context, r *UpdateUserMetaRequest) (*UpdateUserMetaResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.UpdateUserMeta(ctx, r)
+	enhancedUserMetaServiceServersLock.RLock()
+	defer enhancedUserMetaServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.UpdateUserMeta(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserMeta not implemented")
 }
 
-func (m *UserMetaServiceEnhancedServerImpl) SearchUserMeta(r *SearchUserMetaRequest, s UserMetaService_SearchUserMetaServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.SearchUserMeta(r, s)
+func (m UserMetaServiceEnhancedServer) SearchUserMeta(r *SearchUserMetaRequest, s UserMetaService_SearchUserMetaServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method SearchUserMeta should have a context")
+	}
+	enhancedUserMetaServiceServersLock.RLock()
+	defer enhancedUserMetaServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.SearchUserMeta(r, s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method SearchUserMeta not implemented")
 }
 
-func (m *UserMetaServiceEnhancedServerImpl) UpdateUserMetaNamespace(ctx context.Context, r *UpdateUserMetaNamespaceRequest) (*UpdateUserMetaNamespaceResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.UpdateUserMetaNamespace(ctx, r)
+func (m UserMetaServiceEnhancedServer) UpdateUserMetaNamespace(ctx context.Context, r *UpdateUserMetaNamespaceRequest) (*UpdateUserMetaNamespaceResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method UpdateUserMetaNamespace should have a context")
+	}
+	enhancedUserMetaServiceServersLock.RLock()
+	defer enhancedUserMetaServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.UpdateUserMetaNamespace(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserMetaNamespace not implemented")
 }
 
-func (m *UserMetaServiceEnhancedServerImpl) ListUserMetaNamespace(r *ListUserMetaNamespaceRequest, s UserMetaService_ListUserMetaNamespaceServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.ListUserMetaNamespace(r, s)
+func (m UserMetaServiceEnhancedServer) ListUserMetaNamespace(r *ListUserMetaNamespaceRequest, s UserMetaService_ListUserMetaNamespaceServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method ListUserMetaNamespace should have a context")
+	}
+	enhancedUserMetaServiceServersLock.RLock()
+	defer enhancedUserMetaServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.ListUserMetaNamespace(r, s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method ListUserMetaNamespace not implemented")
 }
-func (m *UserMetaServiceEnhancedServerImpl) mustEmbedUnimplementedUserMetaServiceServer() {}
-func RegisterUserMetaServiceEnhancedServer(s grpc.ServiceRegistrar, srv UserMetaServiceServer) {
-	idServer, ok := s.(idUserMetaServiceServer)
-	if ok {
-		enhancedUserMetaServiceServersLock.Lock()
-		defer enhancedUserMetaServiceServersLock.Unlock()
-		instance, ok := enhancedUserMetaServiceServers[idServer.ID()]
-		if !ok {
-			instance = &UserMetaServiceEnhancedServerImpl{}
-			enhancedUserMetaServiceServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterUserMetaServiceServer(s, instance)
-	} else {
-		RegisterUserMetaServiceServer(s, srv)
+func (m UserMetaServiceEnhancedServer) mustEmbedUnimplementedUserMetaServiceServer() {}
+func RegisterUserMetaServiceEnhancedServer(s grpc.ServiceRegistrar, srv NamedUserMetaServiceServer) {
+	enhancedUserMetaServiceServersLock.Lock()
+	defer enhancedUserMetaServiceServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedUserMetaServiceServers[addr]
+	if !ok {
+		m = UserMetaServiceEnhancedServer{}
+		enhancedUserMetaServiceServers[addr] = m
+		RegisterUserMetaServiceServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterUserMetaServiceEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedUserMetaServiceServersLock.Lock()
+	defer enhancedUserMetaServiceServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedUserMetaServiceServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -506,91 +583,106 @@ var (
 	enhancedPolicyEngineServiceServersLock = sync.RWMutex{}
 )
 
-type idPolicyEngineServiceServer interface {
-	ID() string
-}
-type PolicyEngineServiceEnhancedServer interface {
+type NamedPolicyEngineServiceServer interface {
 	PolicyEngineServiceServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(PolicyEngineServiceServer)
-	filter(context.Context) []PolicyEngineServiceServer
+	Name() string
 }
-type PolicyEngineServiceEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []PolicyEngineServiceServer
-}
+type PolicyEngineServiceEnhancedServer map[string]NamedPolicyEngineServiceServer
 
-func (m *PolicyEngineServiceEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *PolicyEngineServiceEnhancedServerImpl) addHandler(srv PolicyEngineServiceServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *PolicyEngineServiceEnhancedServerImpl) filter(ctx context.Context) []PolicyEngineServiceServer {
-	var ret []PolicyEngineServiceServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m PolicyEngineServiceEnhancedServer) IsAllowed(ctx context.Context, r *PolicyEngineRequest) (*PolicyEngineResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method IsAllowed should have a context")
 	}
-	return ret
-}
-
-func (m *PolicyEngineServiceEnhancedServerImpl) IsAllowed(ctx context.Context, r *PolicyEngineRequest) (*PolicyEngineResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.IsAllowed(ctx, r)
+	enhancedPolicyEngineServiceServersLock.RLock()
+	defer enhancedPolicyEngineServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.IsAllowed(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method IsAllowed not implemented")
 }
 
-func (m *PolicyEngineServiceEnhancedServerImpl) StorePolicyGroup(ctx context.Context, r *StorePolicyGroupRequest) (*StorePolicyGroupResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.StorePolicyGroup(ctx, r)
+func (m PolicyEngineServiceEnhancedServer) StorePolicyGroup(ctx context.Context, r *StorePolicyGroupRequest) (*StorePolicyGroupResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method StorePolicyGroup should have a context")
+	}
+	enhancedPolicyEngineServiceServersLock.RLock()
+	defer enhancedPolicyEngineServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.StorePolicyGroup(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method StorePolicyGroup not implemented")
 }
 
-func (m *PolicyEngineServiceEnhancedServerImpl) ListPolicyGroups(ctx context.Context, r *ListPolicyGroupsRequest) (*ListPolicyGroupsResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.ListPolicyGroups(ctx, r)
+func (m PolicyEngineServiceEnhancedServer) ListPolicyGroups(ctx context.Context, r *ListPolicyGroupsRequest) (*ListPolicyGroupsResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method ListPolicyGroups should have a context")
+	}
+	enhancedPolicyEngineServiceServersLock.RLock()
+	defer enhancedPolicyEngineServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.ListPolicyGroups(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method ListPolicyGroups not implemented")
 }
 
-func (m *PolicyEngineServiceEnhancedServerImpl) StreamPolicyGroups(r *ListPolicyGroupsRequest, s PolicyEngineService_StreamPolicyGroupsServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.StreamPolicyGroups(r, s)
+func (m PolicyEngineServiceEnhancedServer) StreamPolicyGroups(r *ListPolicyGroupsRequest, s PolicyEngineService_StreamPolicyGroupsServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method StreamPolicyGroups should have a context")
+	}
+	enhancedPolicyEngineServiceServersLock.RLock()
+	defer enhancedPolicyEngineServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.StreamPolicyGroups(r, s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method StreamPolicyGroups not implemented")
 }
 
-func (m *PolicyEngineServiceEnhancedServerImpl) DeletePolicyGroup(ctx context.Context, r *DeletePolicyGroupRequest) (*DeletePolicyGroupResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.DeletePolicyGroup(ctx, r)
+func (m PolicyEngineServiceEnhancedServer) DeletePolicyGroup(ctx context.Context, r *DeletePolicyGroupRequest) (*DeletePolicyGroupResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method DeletePolicyGroup should have a context")
+	}
+	enhancedPolicyEngineServiceServersLock.RLock()
+	defer enhancedPolicyEngineServiceServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.DeletePolicyGroup(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method DeletePolicyGroup not implemented")
 }
-func (m *PolicyEngineServiceEnhancedServerImpl) mustEmbedUnimplementedPolicyEngineServiceServer() {}
-func RegisterPolicyEngineServiceEnhancedServer(s grpc.ServiceRegistrar, srv PolicyEngineServiceServer) {
-	idServer, ok := s.(idPolicyEngineServiceServer)
-	if ok {
-		enhancedPolicyEngineServiceServersLock.Lock()
-		defer enhancedPolicyEngineServiceServersLock.Unlock()
-		instance, ok := enhancedPolicyEngineServiceServers[idServer.ID()]
-		if !ok {
-			instance = &PolicyEngineServiceEnhancedServerImpl{}
-			enhancedPolicyEngineServiceServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterPolicyEngineServiceServer(s, instance)
-	} else {
-		RegisterPolicyEngineServiceServer(s, srv)
+func (m PolicyEngineServiceEnhancedServer) mustEmbedUnimplementedPolicyEngineServiceServer() {}
+func RegisterPolicyEngineServiceEnhancedServer(s grpc.ServiceRegistrar, srv NamedPolicyEngineServiceServer) {
+	enhancedPolicyEngineServiceServersLock.Lock()
+	defer enhancedPolicyEngineServiceServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedPolicyEngineServiceServers[addr]
+	if !ok {
+		m = PolicyEngineServiceEnhancedServer{}
+		enhancedPolicyEngineServiceServers[addr] = m
+		RegisterPolicyEngineServiceServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterPolicyEngineServiceEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedPolicyEngineServiceServersLock.Lock()
+	defer enhancedPolicyEngineServiceServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedPolicyEngineServiceServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }

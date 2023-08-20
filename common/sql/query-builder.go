@@ -23,6 +23,7 @@ package sql
 import (
 	"fmt"
 	"github.com/doug-martin/goqu/v9/exp"
+	"gorm.io/gorm"
 	"strings"
 
 	goqu "github.com/doug-martin/goqu/v9"
@@ -35,6 +36,7 @@ import (
 
 // Expressioner ...
 type Expressioner interface {
+	Gorm(db *gorm.DB) *gorm.DB
 	Expression(driver string) goqu.Expression
 }
 
@@ -43,10 +45,15 @@ type ExpressionConverter interface {
 	Convert(sub *anypb.Any, driver string) (goqu.Expression, bool)
 }
 
+type GormConverters interface {
+	Convert(sub *anypb.Any, db *gorm.DB) *gorm.DB
+}
+
 type queryBuilder struct {
-	enquirer   Enquirer
-	converters []ExpressionConverter
-	wheres     []goqu.Expression
+	enquirer       Enquirer
+	converters     []ExpressionConverter
+	gormConverters []GormConverters
+	wheres         []goqu.Expression
 }
 
 // NewQueryBuilder generates SQL request from object
@@ -55,6 +62,38 @@ func NewQueryBuilder(e Enquirer, c ...ExpressionConverter) Expressioner {
 		enquirer:   e,
 		converters: c,
 	}
+}
+
+// NewQueryBuilder generates SQL request from object
+func NewGormQueryBuilder(e Enquirer, c ...GormConverters) Expressioner {
+	return &queryBuilder{
+		enquirer:       e,
+		gormConverters: c,
+	}
+}
+
+func (qb *queryBuilder) Gorm(db *gorm.DB) *gorm.DB {
+	for _, subQ := range qb.enquirer.GetSubQueries() {
+
+		sub := new(service.Query)
+
+		if e := anypb.UnmarshalTo(subQ, sub, proto.UnmarshalOptions{}); e == nil {
+			expression := NewQueryBuilder(sub, qb.converters...).Gorm(db)
+			if expression != nil {
+				if qb.enquirer.GetOperation() == service.OperationType_OR {
+					db.Or(expression)
+				} else {
+					db.Where(expression)
+				}
+			}
+		} else {
+			for _, converter := range qb.gormConverters {
+				converter.Convert(subQ, db)
+			}
+		}
+	}
+
+	return db
 }
 
 // Expression recursively builds a goku.Expression using dedicated converters
@@ -89,7 +128,6 @@ func (qb *queryBuilder) Expression(driver string) (ex goqu.Expression) {
 	} else {
 		return goqu.Or(qb.wheres...)
 	}
-
 }
 
 // QueryStringFromExpression finally builds a full SELECT from a Goqu Expression

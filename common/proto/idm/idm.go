@@ -21,6 +21,8 @@
 package idm
 
 import (
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"gorm.io/gorm"
 	"time"
 
 	"go.uber.org/zap"
@@ -199,4 +201,12 @@ func (workspace *Workspace) Zap() zapcore.Field { return zap.Object(common.KeyWo
 // ZapUuid simply calls zap.String() with WorkspaceUuid standard key and this Workspace uuid
 func (workspace *Workspace) ZapUuid() zapcore.Field {
 	return zap.String(common.KeyWorkspaceUuid, workspace.GetUUID())
+}
+
+func (r *RoleORM) BeforeCreate(tx *gorm.DB) error {
+	if r.Uuid == "" {
+		r.Uuid = uuid.New()
+	}
+
+	return nil
 }

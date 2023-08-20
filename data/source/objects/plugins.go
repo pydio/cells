@@ -55,14 +55,6 @@ func init() {
 				return nil
 			}),
 		)
-		//service.NewService(
-		//	append([]service.ServiceOption{
-		//		service.Name(Name),
-		//		service.Context(ctx),
-		//		service.Tag(common.ServiceTagDatasource),
-		//		service.Description("Starter for different sources objects"),
-		//	}, service.WithChildrenRunner(Name, ChildPrefix, true, onDeleteObjectsConfig)...)...,
-		//)
 	})
 }
 

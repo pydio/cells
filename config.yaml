@@ -94,7 +94,6 @@ env: &env
 #--------------------------------------------
 processes:
   discovery:
-    debug: true
     connections:
       <<: *connections
       config:

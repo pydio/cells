@@ -3,6 +3,8 @@ syntax = "proto3";
 import "cells-service.proto";
 import "cells-tree.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/protobuf/descriptor.proto";
+import "orm.proto";
 
 package idm;
 
@@ -52,26 +54,28 @@ message CountRoleResponse {
 
 // Role represents a generic set of permissions that can be applied to any users or groups.
 message Role {
+    option (options.ormPolicy).enabled = true;
+
     // Unique identifier of this role
-    string Uuid = 1;
+    string Uuid = 1                 [(options.orm).gorm = {column: "uuid";}];
     // Label of this role
-    string Label = 2;
+    string Label = 2                [(options.orm).gorm = {column: "label";}];
     // Whether this role represents a user team or not
-    bool IsTeam = 3;
+    bool IsTeam = 3                 [(options.orm).gorm = {column: "team_role";}];
     // Whether this role is attached to a Group object
-    bool GroupRole = 4;
+    bool GroupRole = 4              [(options.orm).gorm = {column: "group_role";}];
     // Whether this role is attached to a User object
-    bool UserRole = 5;
+    bool UserRole = 5               [(options.orm).gorm = {column: "user_role";}];
     // Last modification date of the role
-    int32 LastUpdated = 6;
+    int32 LastUpdated = 6           [(options.orm).gorm = {column: "last_updated";}];
     // List of profiles (standard, shared, admin) on which the role will be automatically applied
-    repeated string AutoApplies = 7;
+    repeated string AutoApplies = 7 [(options.orm).gorm = {column: "auto_applies"; serializer: "json"}];
     // List of policies for securing this role access
     repeated service.ResourcePolicy Policies = 8;
     // Whether the policies resolve into an editable state
     bool PoliciesContextEditable = 9;
     // Is used in a stack of roles, this one will always be applied last.
-    bool ForceOverride = 10;
+    bool ForceOverride = 10         [(options.orm).gorm = {column: "override";}];
 }
 
 // RoleSingleQuery is the basic unit for building queries to Roles.

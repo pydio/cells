@@ -26,6 +26,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/doug-martin/goqu/v9/exp"
+	"gorm.io/gorm"
 	"time"
 
 	goqu "github.com/doug-martin/goqu/v9"
@@ -63,6 +64,8 @@ var (
 
 type sqlimpl struct {
 	sql.DAO
+
+	db *gorm.DB
 }
 
 // Init handler for the SQL DAO

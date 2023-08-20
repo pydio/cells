@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package options;
+
+option go_package="github.com/pydio/cells/common/proto/options;orm";
+
+import "google/protobuf/descriptor.proto";
+
+// TODO: The option number 52119 lies within the internally reserved extension
+// range. I believe a publicly unique number should be requested.
+
+// Validation rules applied at the message level
+extend google.protobuf.MessageOptions {
+    // ormable will cause orm code to be generated for this message/object
+    ORMMessagePolicy ormPolicy  = 52119;
+}
+
+message ORMMessagePolicy {
+  bool enabled = 1;
+}
+
+// Field level specifications
+extend google.protobuf.FieldOptions {
+    ORMFieldOptions orm = 52119;
+}
+
+message ORMFieldOptions {
+    oneof tag {
+        GormTag gorm = 1;
+    }
+}
+
+message GormTag {
+    string column = 1;
+    string type = 2;
+    string serializer = 3;
+    int32 size = 4;
+    bool primaryKey = 5;
+    bool unique = 6;
+    string default = 7;
+    int32 precision = 8;
+    int32 scale = 9;
+    bool notNull = 10;
+    bool autoIncrement = 11;
+    int32 autoIncrementIncrement = 12;
+    bool embedded = 13;
+    string embeddedPrefix = 14;
+    int64 autoCreateTime = 15;
+    int64 autoUpdateTime = 16;
+    string index = 17;
+    string uniqueIndex = 18;
+    string check = 19;
+    string writePermission = 20;
+    string readPermission = 21;
+    string ignore = 22;
+    string comment = 23;
+
+    // Association tags
+    string foreignKey = 24;
+    string references = 25;
+    string polymorphic = 26;
+    string polymorphicValue = 27;
+    string many2many = 28;
+    string joinForeignKey = 29;
+    string joinReferences = 30;
+    string constraint = 31;
+}

@@ -8,8 +8,10 @@ package service
 
 import (
 	context "context"
+	fmt "fmt"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
+	metadata "google.golang.org/grpc/metadata"
 	status "google.golang.org/grpc/status"
 	sync "sync"
 )
@@ -24,72 +26,63 @@ var (
 	enhancedServiceManagerServersLock = sync.RWMutex{}
 )
 
-type idServiceManagerServer interface {
-	ID() string
-}
-type ServiceManagerEnhancedServer interface {
+type NamedServiceManagerServer interface {
 	ServiceManagerServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(ServiceManagerServer)
-	filter(context.Context) []ServiceManagerServer
+	Name() string
 }
-type ServiceManagerEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []ServiceManagerServer
-}
+type ServiceManagerEnhancedServer map[string]NamedServiceManagerServer
 
-func (m *ServiceManagerEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *ServiceManagerEnhancedServerImpl) addHandler(srv ServiceManagerServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *ServiceManagerEnhancedServerImpl) filter(ctx context.Context) []ServiceManagerServer {
-	var ret []ServiceManagerServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m ServiceManagerEnhancedServer) Start(ctx context.Context, r *StartRequest) (*StartResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method Start should have a context")
 	}
-	return ret
-}
-
-func (m *ServiceManagerEnhancedServerImpl) Start(ctx context.Context, r *StartRequest) (*StartResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.Start(ctx, r)
+	enhancedServiceManagerServersLock.RLock()
+	defer enhancedServiceManagerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.Start(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method Start not implemented")
 }
 
-func (m *ServiceManagerEnhancedServerImpl) Stop(ctx context.Context, r *StopRequest) (*StopResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.Stop(ctx, r)
+func (m ServiceManagerEnhancedServer) Stop(ctx context.Context, r *StopRequest) (*StopResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method Stop should have a context")
+	}
+	enhancedServiceManagerServersLock.RLock()
+	defer enhancedServiceManagerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.Stop(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method Stop not implemented")
 }
-func (m *ServiceManagerEnhancedServerImpl) mustEmbedUnimplementedServiceManagerServer() {}
-func RegisterServiceManagerEnhancedServer(s grpc.ServiceRegistrar, srv ServiceManagerServer) {
-	idServer, ok := s.(idServiceManagerServer)
-	if ok {
-		enhancedServiceManagerServersLock.Lock()
-		defer enhancedServiceManagerServersLock.Unlock()
-		instance, ok := enhancedServiceManagerServers[idServer.ID()]
-		if !ok {
-			instance = &ServiceManagerEnhancedServerImpl{}
-			enhancedServiceManagerServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterServiceManagerServer(s, instance)
-	} else {
-		RegisterServiceManagerServer(s, srv)
+func (m ServiceManagerEnhancedServer) mustEmbedUnimplementedServiceManagerServer() {}
+func RegisterServiceManagerEnhancedServer(s grpc.ServiceRegistrar, srv NamedServiceManagerServer) {
+	enhancedServiceManagerServersLock.Lock()
+	defer enhancedServiceManagerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedServiceManagerServers[addr]
+	if !ok {
+		m = ServiceManagerEnhancedServer{}
+		enhancedServiceManagerServers[addr] = m
+		RegisterServiceManagerServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterServiceManagerEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedServiceManagerServersLock.Lock()
+	defer enhancedServiceManagerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedServiceManagerServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -97,63 +90,46 @@ var (
 	enhancedArchiverServersLock = sync.RWMutex{}
 )
 
-type idArchiverServer interface {
-	ID() string
-}
-type ArchiverEnhancedServer interface {
+type NamedArchiverServer interface {
 	ArchiverServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(ArchiverServer)
-	filter(context.Context) []ArchiverServer
+	Name() string
 }
-type ArchiverEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []ArchiverServer
-}
+type ArchiverEnhancedServer map[string]NamedArchiverServer
 
-func (m *ArchiverEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *ArchiverEnhancedServerImpl) addHandler(srv ArchiverServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *ArchiverEnhancedServerImpl) filter(ctx context.Context) []ArchiverServer {
-	var ret []ArchiverServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m ArchiverEnhancedServer) Archive(ctx context.Context, r *Query) (*ArchiveResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method Archive should have a context")
 	}
-	return ret
-}
-
-func (m *ArchiverEnhancedServerImpl) Archive(ctx context.Context, r *Query) (*ArchiveResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.Archive(ctx, r)
+	enhancedArchiverServersLock.RLock()
+	defer enhancedArchiverServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.Archive(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method Archive not implemented")
 }
-func (m *ArchiverEnhancedServerImpl) mustEmbedUnimplementedArchiverServer() {}
-func RegisterArchiverEnhancedServer(s grpc.ServiceRegistrar, srv ArchiverServer) {
-	idServer, ok := s.(idArchiverServer)
-	if ok {
-		enhancedArchiverServersLock.Lock()
-		defer enhancedArchiverServersLock.Unlock()
-		instance, ok := enhancedArchiverServers[idServer.ID()]
-		if !ok {
-			instance = &ArchiverEnhancedServerImpl{}
-			enhancedArchiverServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterArchiverServer(s, instance)
-	} else {
-		RegisterArchiverServer(s, srv)
+func (m ArchiverEnhancedServer) mustEmbedUnimplementedArchiverServer() {}
+func RegisterArchiverEnhancedServer(s grpc.ServiceRegistrar, srv NamedArchiverServer) {
+	enhancedArchiverServersLock.Lock()
+	defer enhancedArchiverServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedArchiverServers[addr]
+	if !ok {
+		m = ArchiverEnhancedServer{}
+		enhancedArchiverServers[addr] = m
+		RegisterArchiverServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterArchiverEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedArchiverServersLock.Lock()
+	defer enhancedArchiverServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedArchiverServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }

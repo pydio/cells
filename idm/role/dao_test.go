@@ -25,8 +25,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/viper"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/spf13/viper"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	// Run tests against SQLite
@@ -34,12 +34,12 @@ import (
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
-	"github.com/pydio/cells/v4/common/runtime"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 )
 
 var (
@@ -56,7 +56,13 @@ func TestMain(m *testing.M) {
 
 	var options = configx.New()
 
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, options); e != nil {
+	//if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, options); e != nil {
+	//	panic(e)
+	//} else {
+	//	mockDAO = d.(DAO)
+	//}
+
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, "test.db", "role", NewDAO, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(DAO)
@@ -78,8 +84,15 @@ func TestCrud(t *testing.T) {
 		}
 		{
 			r, _, err := mockDAO.Add(&idm.Role{
-				Label:       "NewRole",
+				Label:       "Create Role",
 				LastUpdated: int32(time.Now().Unix()),
+				Policies: []*service.ResourcePolicy{
+					{
+						Action:  service.ResourcePolicyAction_ANY,
+						Subject: "policytest",
+						Effect:  service.ResourcePolicy_allow,
+					},
+				},
 			})
 
 			So(err, ShouldBeNil)
@@ -270,7 +283,7 @@ func TestCrud(t *testing.T) {
 
 		{
 			singleQA, _ := anypb.New(&idm.RoleSingleQuery{
-				Label: "New*",
+				Label: "Create*",
 			})
 			query := &service.Query{
 				SubQueries: []*anypb.Any{singleQA},
@@ -320,7 +333,7 @@ func TestQueryBuilder(t *testing.T) {
 			Limit:      10,
 		}
 
-		s := sql.NewQueryBuilder(simpleQuery, new(queryBuilder)).Expression("sqlite")
+		s := sql.NewGormQueryBuilder(simpleQuery, new(queryBuilder)).Gorm(nil)
 		So(s, ShouldNotBeNil)
 		//So(s, ShouldEqual, "(uuid='role1') OR (uuid='role2')")
 
@@ -368,7 +381,7 @@ func TestQueryBuilder(t *testing.T) {
 			Operation: service.OperationType_AND,
 		}
 
-		s := sql.NewQueryBuilder(composedQuery, new(queryBuilder)).Expression("sqlite")
+		s := sql.NewGormQueryBuilder(composedQuery, new(queryBuilder)).Gorm(nil)
 		So(s, ShouldNotBeNil)
 		//So(s, ShouldEqual, "((uuid='role1') OR (uuid='role2')) AND ((uuid in ('role3_1','role3_2','role3_3')))")
 
@@ -420,5 +433,4 @@ func TestResourceRules(t *testing.T) {
 		So(err, ShouldBeNil)
 
 	})
-
 }

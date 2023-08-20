@@ -72,7 +72,7 @@ func init() {
 			),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 				handler := NewHandler(ctx, s)
-				idm.RegisterRoleServiceEnhancedServer(server, handler)
+				idm.RegisterRoleServiceServer(server, handler)
 
 				// Clean role on user deletion
 				cleaner := NewCleaner(ctx, handler, service.DAOProvider[resources.DAO](s))
