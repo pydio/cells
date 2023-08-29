@@ -12,7 +12,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-var role *Role
+/*var role *Role
 var roleORM *RoleORM
 
 role.As(&roleORM)
@@ -20,7 +20,7 @@ role.As(&roleORM)
 func (src iRole) As(dst iRole) {
 
 
-}
+}*/
 
 // Role represents a generic set of permissions that can be applied to any users or groups.
 type RoleORM struct {

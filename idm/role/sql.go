@@ -129,7 +129,7 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 
 func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
 
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder)).Gorm(s.instance())
+	db := sql.NewGormQueryBuilder(query, new(queryBuilder)).Build(s.instance()).(*gorm.DB)
 
 	var count int64
 	sql := db.ToSQL(func(tx *gorm.DB) *gorm.DB {
@@ -147,7 +147,7 @@ func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
 
 // Search in the SQL DB.
 func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder)).Gorm(s.instance())
+	db := sql.NewGormQueryBuilder(query, new(queryBuilder)).Build(s.instance()).(*gorm.DB)
 
 	var roleORMs []*idm.RoleORM
 
@@ -166,7 +166,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 // Delete from the SQL DB
 func (s *sqlimpl) Delete(query sql.Enquirer) (int64, error) {
 
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder)).Gorm(s.instance())
+	db := sql.NewGormQueryBuilder(query, new(queryBuilder)).Build(s.instance()).(*gorm.DB)
 
 	tx := db.Delete(&idm.RoleORM{})
 	if tx.Error != nil {
@@ -202,11 +202,16 @@ func (s *sqlimpl) buildSearchQuery(query sql.Enquirer, countOnly bool, delete bo
 
 type queryBuilder idm.RoleSingleQuery
 
-func (c *queryBuilder) Convert(val *anypb.Any, db *gorm.DB) *gorm.DB {
+func (c *queryBuilder) Convert(val *anypb.Any, in any) (out any, ok bool) {
+
+	db, ok := in.(*gorm.DB)
+	if !ok {
+		return
+	}
 
 	q := new(idm.RoleSingleQuery)
 	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
-		return nil
+		return
 	}
 
 	if len(q.Uuid) > 0 {
@@ -258,5 +263,8 @@ func (c *queryBuilder) Convert(val *anypb.Any, db *gorm.DB) *gorm.DB {
 		}
 	}
 
-	return db
+	out = db
+	ok = true
+
+	return
 }

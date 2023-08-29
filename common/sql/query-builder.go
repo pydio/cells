@@ -34,10 +34,18 @@ import (
 	"github.com/pydio/cells/v4/common/proto/service"
 )
 
+type Builder interface {
+	Build(any, service.OperationType) (any, bool)
+	Convert(any, *anypb.Any) (any, bool)
+}
 // Expressioner ...
 type Expressioner interface {
-	Gorm(db *gorm.DB) *gorm.DB
+	Build(in any) (out any)
 	Expression(driver string) goqu.Expression
+}
+
+type Converter interface {
+	Convert(sub *anypb.Any, in any) (out any, ok bool)
 }
 
 // ExpressionConverter ...
@@ -52,9 +60,10 @@ type GormConverters interface {
 type queryBuilder struct {
 	enquirer       Enquirer
 	converters     []ExpressionConverter
-	gormConverters []GormConverters
+	gormConverters []Converter
 	wheres         []goqu.Expression
 }
+
 
 // NewQueryBuilder generates SQL request from object
 func NewQueryBuilder(e Enquirer, c ...ExpressionConverter) Expressioner {
@@ -65,35 +74,53 @@ func NewQueryBuilder(e Enquirer, c ...ExpressionConverter) Expressioner {
 }
 
 // NewQueryBuilder generates SQL request from object
-func NewGormQueryBuilder(e Enquirer, c ...GormConverters) Expressioner {
+func NewGormQueryBuilder(e Enquirer, c ...Converter) Expressioner {
 	return &queryBuilder{
 		enquirer:       e,
-		gormConverters: c,
+		gormConverters: append(c, &gormConverter{
+			enquirer: e,
+			converters: c,
+		}),
 	}
 }
 
-func (qb *queryBuilder) Gorm(db *gorm.DB) *gorm.DB {
-	for _, subQ := range qb.enquirer.GetSubQueries() {
+type gormConverter struct {
+	enquirer Enquirer
+	converters []Converter
+}
 
-		sub := new(service.Query)
+func (gc *gormConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
+	db, ok := in.(*gorm.DB)
+	if !ok {
+		return
+	}
 
-		if e := anypb.UnmarshalTo(subQ, sub, proto.UnmarshalOptions{}); e == nil {
-			expression := NewQueryBuilder(sub, qb.converters...).Gorm(db)
-			if expression != nil {
-				if qb.enquirer.GetOperation() == service.OperationType_OR {
-					db.Or(expression)
-				} else {
-					db.Where(expression)
-				}
-			}
-		} else {
-			for _, converter := range qb.gormConverters {
-				converter.Convert(subQ, db)
+	sub := new(service.Query)
+
+	if e := anypb.UnmarshalTo(val, sub, proto.UnmarshalOptions{}); e == nil {
+		expression := NewGormQueryBuilder(sub, gc.converters...).Build(db)
+		if expression != nil {
+			if gc.enquirer.GetOperation() == service.OperationType_OR {
+				db.Or(expression)
+			} else {
+				db.Where(expression)
 			}
 		}
 	}
 
-	return db
+	return
+}
+
+func (qb *queryBuilder) Build(in any) (out any) {
+	out = in
+
+	for _, subQ := range qb.enquirer.GetSubQueries() {
+		for _, converter := range qb.gormConverters {
+			converter.Convert(subQ, in)
+		}
+	}
+
+	return
 }
 
 // Expression recursively builds a goku.Expression using dedicated converters

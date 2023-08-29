@@ -25,9 +25,11 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
 	"google.golang.org/protobuf/types/known/anypb"
+	"gorm.io/gorm"
+	gsqlite "gorm.io/driver/sqlite"
+	. "github.com/smartystreets/goconvey/convey"
 
 	// Run tests against SQLite
 	"github.com/pydio/cells/v4/common/dao"
@@ -44,6 +46,7 @@ import (
 
 var (
 	mockDAO DAO
+	mockDB *gorm.DB
 	wg      sync.WaitGroup
 	ctx     = context.Background()
 )
@@ -55,6 +58,13 @@ func TestMain(m *testing.M) {
 	runtime.SetRuntime(v)
 
 	var options = configx.New()
+
+	dialector := gsqlite.Open(sqlite.SharedMemDSN)
+	mockDB, _ = gorm.Open(dialector, &gorm.Config{
+		//DisableForeignKeyConstraintWhenMigrating: true,
+		FullSaveAssociations: true,
+	})
+	
 
 	//if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, options); e != nil {
 	//	panic(e)
@@ -333,7 +343,8 @@ func TestQueryBuilder(t *testing.T) {
 			Limit:      10,
 		}
 
-		s := sql.NewGormQueryBuilder(simpleQuery, new(queryBuilder)).Gorm(nil)
+
+		s := sql.NewGormQueryBuilder(simpleQuery, new(queryBuilder)).Build(mockDB)
 		So(s, ShouldNotBeNil)
 		//So(s, ShouldEqual, "(uuid='role1') OR (uuid='role2')")
 
@@ -381,7 +392,7 @@ func TestQueryBuilder(t *testing.T) {
 			Operation: service.OperationType_AND,
 		}
 
-		s := sql.NewGormQueryBuilder(composedQuery, new(queryBuilder)).Gorm(nil)
+		s := sql.NewGormQueryBuilder(composedQuery, new(queryBuilder)).Build(mockDB)
 		So(s, ShouldNotBeNil)
 		//So(s, ShouldEqual, "((uuid='role1') OR (uuid='role2')) AND ((uuid in ('role3_1','role3_2','role3_3')))")
 
