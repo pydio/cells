@@ -205,7 +205,7 @@ func (sc *Client) DeleteHashDocument(ctx context.Context, shareId string) error 
 		return err
 	}
 	if !resp.Success || resp.DeletionCount == 0 {
-		return errors.NotFound(common.ServiceShare, "Could not delete hash associated to this workspace "+shareId)
+		return errors.NotFound("Cannot find hash associated with workspace %s for deletion", shareId)
 	}
 	return nil
 
