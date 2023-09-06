@@ -265,11 +265,7 @@ func (sc *Client) DeleteLink(ctx context.Context, id string) error {
 		return fmt.Errorf("you are not allowed to edit this link")
 	}
 
-	// Will try to load the workspace first, and throw an error if something goes wrong
-	if err := sc.DeleteLinkWorkspace(ctx, id); err != nil {
-		return err
-	}
-
+	// First remove hash data
 	storedLink := &rest.ShareLink{Uuid: id}
 	if err := sc.LoadHashDocumentData(ctx, storedLink, []*idm.ACL{}); err != nil {
 		return err
@@ -284,7 +280,9 @@ func (sc *Client) DeleteLink(ctx context.Context, id string) error {
 		return err
 	}
 
-	return nil
+	// Finally remove workspace
+	return sc.DeleteLinkWorkspace(ctx, id)
+
 }
 
 // SharesForNode finds all active workspaces (Links or Cells) for a given node+owner combination
