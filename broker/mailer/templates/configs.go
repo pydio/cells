@@ -115,6 +115,7 @@ type pydioTheme struct {
 
 func (p pydioTheme) HTMLTemplate() string {
 	s := p.Flat.HTMLTemplate()
+	s = strings.Replace(s, "height:45px;", "height:auto;", -1)
 	s = strings.Replace(s, "mso-hide: all;", "", -1)
 	return s
 }
