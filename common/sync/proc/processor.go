@@ -242,7 +242,8 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 			parallel <- o
 		})
 	} else {
-		patch.WalkOperations([]merger.OperationType{merger.OpCreateFile, merger.OpUpdateFile}, serialWalker)
+		patch.WalkOperations([]merger.OperationType{merger.OpCreateFile}, serialWalker)
+		patch.WalkOperations([]merger.OperationType{merger.OpUpdateFile}, serialWalker)
 	}
 	patch.WalkOperations([]merger.OperationType{merger.OpDelete}, func(o merger.Operation) {
 		if o.GetNode() != nil {
@@ -356,6 +357,10 @@ func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb P
 			progress = "Transferring file"
 			complete = "Transferred file"
 			error = "Error while transferring file"
+		} else if op.Type() == merger.OpUpdateFile {
+			progress = "Updating file in index"
+			complete = "Updated file"
+			error = "Error while updating file in index"
 		} else {
 			progress = "Indexing file"
 			complete = "Indexed file"
