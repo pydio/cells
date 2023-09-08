@@ -1,7 +1,14 @@
-# Changes between v4.2.5 and v4.2.6-rc1
+# Changes between v4.2.5 and v4.2.6
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.5...v4.2.6-rc1)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.5...v4.2.6)
 
+- [#66e2c24](https://github.com/pydio/cells/commit/66e2c2429cd70be2bffb6136522f58c9673f2290): New message + DE/FR translations
+- [#a142ad9](https://github.com/pydio/cells/commit/a142ad90778fbdf9ffb20abd86a08712e733f0ea): New message + DE/FR translations
+- [#3df0300](https://github.com/pydio/cells/commit/3df0300bdc48364c9e8eead3ea435125bd2429df): Fix string, fix dashboard software update display
+- [#7c663a9](https://github.com/pydio/cells/commit/7c663a9b2b9599d8e843a5fcce3121449d8622ff): Sync processor: sequentially perform creates then updates, differentiate log
+- [#50243cb](https://github.com/pydio/cells/commit/50243cbfad9e2f21dfeb0a3d2b5aa7296795e7c2): Email: fix button display for win10+Outlook
+- [#c444386](https://github.com/pydio/cells/commit/c4443867d1a80b6dede7c7669ea14fe5e52d8a13): Fix possible "race" condition when deleting link
+- [#963edfc](https://github.com/pydio/cells/commit/963edfcce7eb8560e28fddd09a7fa49068cbba3a): Release v4.2.6-rc1
 - [#b6c4dd4](https://github.com/pydio/cells/commit/b6c4dd49820586245faaec2c7fde48d4797bc585): i18n strings
 - [#4d5c5cd](https://github.com/pydio/cells/commit/4d5c5cd3d22a8ee55ca6f0298dcd6c92662fd8d9): Unused userClient in mail-digest action
 - [#8f6ff03](https://github.com/pydio/cells/commit/8f6ff03bd783a300e14eb9d95625dceb6585e308): Revert "Try to tackle a stream leak"
