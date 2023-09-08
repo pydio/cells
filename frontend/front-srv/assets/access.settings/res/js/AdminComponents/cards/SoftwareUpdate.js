@@ -101,7 +101,7 @@ class SoftwareUpdate extends Component {
                 <span style={{flex: 1, fontSize: 15, paddingLeft: 10, paddingRight: 10, overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}}>
                     {packages.length > 0 &&
                         <span style={{fontSize: 15,cursor:'pointer', color:muiTheme.palette.accent1Color}} onClick={() => pydio.goTo('/admin/update')}>
-                        <span className={'mdi mdi-alert'}/> {message('card.update.new-version')}: {packages[0].Version}
+                        <span className={'mdi mdi-alert'}/> {message('card.update.new-version')}: {packages[packages.length-1].Version}
                         </span>
                     }
                     {no_upgrade &&

@@ -369,7 +369,7 @@ class MetaNamespace extends React.Component{
                 <ModernAutoComplete
                     floatingLabelFixed={true}
                     fullWidth={true}
-                    floatingLabelText={m('groupName')}
+                    floatingLabelText={m('group-field')}
                     filter={(searchText, key) => (!searchText.indexOf || key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
                     openOnFocus={true}
                     dataSource={knownGroups}
