@@ -774,7 +774,7 @@
     "other": "Groupe"
   },
   "metadata.group-field": {
-    "other": "Group Name (creates an expandable section). Use '/' for sub-groups."
+    "other": "Groupe (crée une sous-section). Utilisez '/' pour créer des sous-groupes."
   },
   "metadata.default-group": {
     "other": "Pas de groupe"
