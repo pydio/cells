@@ -773,6 +773,9 @@
   "metadata.group": {
     "other": "Groupe"
   },
+  "metadata.group-field": {
+    "other": "Groupe (crée une sous-section). Utilisez '/' pour créer des sous-groupes."
+  },
   "metadata.default-group": {
     "other": "Pas de groupe"
   },
