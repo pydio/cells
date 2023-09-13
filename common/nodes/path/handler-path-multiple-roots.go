@@ -22,6 +22,7 @@ package path
 
 import (
 	"context"
+	"path"
 	"strings"
 
 	"go.uber.org/zap"
@@ -130,7 +131,7 @@ func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tre
 			out.MustSetMeta(common.MetaFlagHashingVersion, h)
 		}
 	}
-	if !set || branch.Workspace == nil || branch.UUID == "ROOT" || len(branch.RootUUIDs) < 2 {
+	if !set || branch.Workspace == nil || branch.UUID == "ROOT" {
 		return ctx, m.setWorkspaceRootFlag(branch.Workspace, out), nil
 	}
 	if len(branch.RootUUIDs) == 1 {
@@ -144,7 +145,7 @@ func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tre
 	}
 	// Prepend root node Uuid
 	out = m.setWorkspaceRootFlag(branch.Workspace, out)
-	out.Path = m.MakeRootKey(branch.Root) + "/" + strings.TrimLeft(node.Path, "/")
+	out.Path = path.Join(m.MakeRootKey(branch.Root), strings.TrimLeft(node.Path, "/"))
 	return ctx, out, nil
 }
 
