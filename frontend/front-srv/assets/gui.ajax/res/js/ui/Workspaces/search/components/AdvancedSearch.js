@@ -92,7 +92,7 @@ class AdvancedSearch extends Component {
 
     renderField(val) {
         const {searchTools:{SearchConstants}} = this.props;
-        const {name:key, renderer, label} = val
+        const {name:key, renderer, label, userDefined} = val
 
         const isCore = (key === SearchConstants.KeyBasename || key === SearchConstants.KeyContent || key === SearchConstants.KeyBasenameOrContent)
         const fieldname = isCore ? key : SearchConstants.KeyMetaPrefix + key;
@@ -100,14 +100,25 @@ class AdvancedSearch extends Component {
         const value = values[fieldname];
 
         if (renderer) {
+            // Custom renderer
             return renderer({
                 ...this.props,
                 label,
                 value,
-                fieldname:key,
+                fieldname: key,
                 onChange: this.onChange.bind(this)
             });
+        } else if (userDefined) {
+            // No Custom renderer but user-defined metadata
+            // Output a simple textfied **wrapped with** KeyMetaPrefix
+            return Renderer.formRenderer(
+                this.props,
+                {...val, name: fieldname},
+                {[fieldname]: value},
+                this.onChange.bind(this)
+            )
         } else {
+            // Will switch on known field names (mime, scope, search, etc)
             return Renderer.formRenderer(
                 this.props,
                 val,
@@ -187,7 +198,7 @@ class AdvancedSearch extends Component {
             {name:kk.KeyMetaShared, type:'share', label: getMessage('searchengine.share.title')},
             {subheader:getMessage(489)},
             {name:kk.KeyMime, type: 'mime', label: getMessage('searchengine.format.title')},
-            ...indexedMeta.map(m => {return {...m, name: m.namespace}}), // copy namespace prop to name
+            ...indexedMeta.map(m => {return {...m, name: m.namespace, userDefined: true}}), // copy namespace prop to name
             {subheader:getMessage(498)},
             {name:kk.KeyModifDate, type: 'modiftime', label: getMessage(4)},
             {name:kk.KeyBytesize, type:'bytesize', label: getMessage(2)},
