@@ -1,66 +1,10 @@
-# Changes between v4.2.5 and v4.2.6
+# Changes between v4.2.6 and v4.2.7
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.5...v4.2.6)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.6...v4.2.7)
 
-- [#66e2c24](https://github.com/pydio/cells/commit/66e2c2429cd70be2bffb6136522f58c9673f2290): New message + DE/FR translations
-- [#a142ad9](https://github.com/pydio/cells/commit/a142ad90778fbdf9ffb20abd86a08712e733f0ea): New message + DE/FR translations
-- [#3df0300](https://github.com/pydio/cells/commit/3df0300bdc48364c9e8eead3ea435125bd2429df): Fix string, fix dashboard software update display
-- [#7c663a9](https://github.com/pydio/cells/commit/7c663a9b2b9599d8e843a5fcce3121449d8622ff): Sync processor: sequentially perform creates then updates, differentiate log
-- [#50243cb](https://github.com/pydio/cells/commit/50243cbfad9e2f21dfeb0a3d2b5aa7296795e7c2): Email: fix button display for win10+Outlook
-- [#c444386](https://github.com/pydio/cells/commit/c4443867d1a80b6dede7c7669ea14fe5e52d8a13): Fix possible "race" condition when deleting link
-- [#963edfc](https://github.com/pydio/cells/commit/963edfcce7eb8560e28fddd09a7fa49068cbba3a): Release v4.2.6-rc1
-- [#b6c4dd4](https://github.com/pydio/cells/commit/b6c4dd49820586245faaec2c7fde48d4797bc585): i18n strings
-- [#4d5c5cd](https://github.com/pydio/cells/commit/4d5c5cd3d22a8ee55ca6f0298dcd6c92662fd8d9): Unused userClient in mail-digest action
-- [#8f6ff03](https://github.com/pydio/cells/commit/8f6ff03bd783a300e14eb9d95625dceb6585e308): Revert "Try to tackle a stream leak"
-- [#c868362](https://github.com/pydio/cells/commit/c868362eabee21846be4a88f013e95a9bd929993): Try to tackle a stream leak
-- [#04c09bd](https://github.com/pydio/cells/commit/04c09bd55c72bb1ce5ccc8c5e11e78faace72d38): Allow FileDropZone inside PanelBigButtons
-- [#faca15a](https://github.com/pydio/cells/commit/faca15a92574dad85bb35990c14d70b428ca93a2): Fix leaky stream
-- [#5b40c47](https://github.com/pydio/cells/commit/5b40c4784735d7bbadd0a585ef86058cb28595ba): Release v4.2.6-beta1
-- [#e6b7ff3](https://github.com/pydio/cells/commit/e6b7ff32473aee132d2e9da82470ded44cfb5318): Add missing translations, fix typos
-- [#c3c9fc0](https://github.com/pydio/cells/commit/c3c9fc0994337e23d0cbe2288bcb2acd1a3f1f27): Add missing translations, fix typos
-- [#ddc79ad](https://github.com/pydio/cells/commit/ddc79ad45eab53a9a4b1647313e7ba6038a5b1f2): Fix unit test
-- [#38c4d0d](https://github.com/pydio/cells/commit/38c4d0d75195f930f57b1676a702e9ec8430b737): Fix RetryTx function as it only handles deadlock errors
-- [#41d64a5](https://github.com/pydio/cells/commit/41d64a5be9a2334d23aebffee57099b4702216b7): Debug logs to understand some IT tests cases
-- [#7e028ca](https://github.com/pydio/cells/commit/7e028caa76a70d32985e72cefe6b4a09721c0784): Cells-Fuse - Generate mode: fix Mtime and serve an artificial .pydio at root.
-- [#1dd7df0](https://github.com/pydio/cells/commit/1dd7df09de50e3b5051926c24aaa9d586284ada9): Bump storage
-- [#a19c7cd](https://github.com/pydio/cells/commit/a19c7cd916214d2a859ede5880dac739bfae8a2f): Fix MaterialTable multiple selection
-- [#6ad7f86](https://github.com/pydio/cells/commit/6ad7f8692078e6152cca791649ce598f0537a646): Scheduler: fix multiple selectors return no values, deprecate NodesSelector.All case.
-- [#90c64ea](https://github.com/pydio/cells/commit/90c64ea3e11868b8d294e10494a7675275a5df99): Additional flag on capture command to load the .pydio contents (and restore them afterward)
-- [#4b93bfd](https://github.com/pydio/cells/commit/4b93bfda8f670497da55d320b7554e412b20f4c6): New 'generate' flag on cells-fuse mount to create random data on the fly.
-- [#4446548](https://github.com/pydio/cells/commit/44465488966e175db7b58210dbb3812df7639151): Pass counter name in root level subscriber
-- [#fe9a8ff](https://github.com/pydio/cells/commit/fe9a8ffddbfd296a2addc1d95757a3b26449357e): Goque: prefer unique Queue to PrefixQueue for performances
-- [#f6625c6](https://github.com/pydio/cells/commit/f6625c63cc824dc1fd66d00765d7ea4633e5ab84): Add metrics on broker pub/sub Back to one stream per subscription to avoid streamer.Send timeouts
-- [#ee154ea](https://github.com/pydio/cells/commit/ee154eafce6e1aa479383c0b59c76bb3a81101ad): Skipped test for random captures
-- [#4896b50](https://github.com/pydio/cells/commit/4896b507b92512af9d74d3d36b5dc6a5c7945d64): Merge remote-tracking branch 'origin/main'
-- [#7d32325](https://github.com/pydio/cells/commit/7d32325f73b8e9ce53b93d4b0f812cc4ea37717e): New service LoginModifier that can be implemented by any grpc service that requires changes if a login must be modified. IndexSQL and ResourcesSQL have new methods for that, and new unit tests as well.
-- [#600cfd4](https://github.com/pydio/cells/commit/600cfd4f3ca3538496d24464961beda2a1ed0f55): Adapt after fixing typo in EN
-- [#9d83d8c](https://github.com/pydio/cells/commit/9d83d8c3386812bf0bcb56b95731abddd157085f): Adapt after fixing typo in EN
-- [#5c4a30f](https://github.com/pydio/cells/commit/5c4a30fb50dded1857073198129bccd2a21ad068): Merge remote-tracking branch 'origin/main'
-- [#ed6abe0](https://github.com/pydio/cells/commit/ed6abe0b8c96b802937637538b7a868c92549d52): Fix typo
-- [#fa62a8c](https://github.com/pydio/cells/commit/fa62a8c2f429a08f84597cc7a9ccef42334c2b4f): New Crowdin updates
-- [#17bcebe](https://github.com/pydio/cells/commit/17bcebe1d5a0fcb171e0ab9401310f04efccb31a): New Crowdin updates
-- [#9b6b890](https://github.com/pydio/cells/commit/9b6b8902d7a676845d2833f461f951ce1f51988e): Change legacy string description
-- [#418147c](https://github.com/pydio/cells/commit/418147c2fa8fb25b877cdb24b0346a018f584902): shorten read node cache
-- [#384e645](https://github.com/pydio/cells/commit/384e64507127b7fe76b3fedb902b7822c36cffe4): New Grouping features for metadata namespaces
-- [#dab97b1](https://github.com/pydio/cells/commit/dab97b13e4f2677917a32faac60bcf6e3bac78a4): Add MemDB.ToJSONBytes, create a scheduler action for DS capture
-- [#db404c3](https://github.com/pydio/cells/commit/db404c3a33ad9293dbb95b94c9df54d510c49d4f): Fix MemDB.toJSON, new command `admin datasource capture` to capture index and s3 for debugging purpose
-- [#0464314](https://github.com/pydio/cells/commit/046431428f6d64a65485cfe828800ff1d680fe6a): Re-adapt JSON marshalling for treeNode
-- [#2e85bf8](https://github.com/pydio/cells/commit/2e85bf8c38c9423a9cd7bc0ec9adbd5b31ae0830): Accidentally removed a method that was used by external libs (cells-sync)
-- [#533e4b8](https://github.com/pydio/cells/commit/533e4b8959560eaa58147a5fb7eb58b41106cb7e): Remove hardcoded timeout in Resync action
-- [#1f219d9](https://github.com/pydio/cells/commit/1f219d94b55e0d19eae9d9bca10bf563bfc16333): Add lock to exclude acl delete routines during insertions
-- [#9d93bb4](https://github.com/pydio/cells/commit/9d93bb4dae8bc721ce4d31cb7a472b0ff80d96ca): debug logs for investigating tests
-- [#164f657](https://github.com/pydio/cells/commit/164f657526268610a050524c9b808415ff62a8d7): Clean SIGUSR1 profiles folders names
-- [#8bc16c7](https://github.com/pydio/cells/commit/8bc16c751d44d29bcf136e70561cea3ad8e9079b): Resync : do not set the job as complete as it is followed by new hashes detection step
-- [#3b3409f](https://github.com/pydio/cells/commit/3b3409f1d9f1e58a87950a25c3e5528b1f6efb8f): Factorize using fifo queue as a broker subscribeOption, use it in activities service
-- [#af7318a](https://github.com/pydio/cells/commit/af7318a1b52b295612a32b528af98ce3768115e1): Merge remote-tracking branch 'origin/main'
-- [#c3b10d5](https://github.com/pydio/cells/commit/c3b10d5702469fcf8fff59af77be8b37593e9d42): Revert refactorings that were applied in strings and comments...
-- [#dfe6d30](https://github.com/pydio/cells/commit/dfe6d308ee27100e33752766c3b1f6a7ea0deaa4): Rework memDB for perfs
-- [#f54fe2d](https://github.com/pydio/cells/commit/f54fe2db48edc322089885c32240a0ea31807ee2): Merger - create temporary indexes instead of double loops
-- [#c9e9fbb](https://github.com/pydio/cells/commit/c9e9fbbb9b5c3d0982993ab83b7d45d25f82a262): Selector: compute a task log with SelectorLabel() to show it started
-- [#157920e](https://github.com/pydio/cells/commit/157920ef1878b5a7204bf30bb7b4ab36354bbe74): Scheduler: use a ticker to update activeChan gauge
-- [#2acdf7a](https://github.com/pydio/cells/commit/2acdf7a8494a0f2383798608f8858e3fc53584ac): add fifo on search
-- [#8a99b33](https://github.com/pydio/cells/commit/8a99b335f855b1bf17094207a933eb5be809c950): Move new interface / node impl back in proto/tree package
-- [#51c2d37](https://github.com/pydio/cells/commit/51c2d37108245fa41424ea967eb58d080eb46c89): Use light version of node in sql/index library
-- [#97c0a32](https://github.com/pydio/cells/commit/97c0a32187e6eb221fdd04502b0a1e4b829c915c): Sync lib : use a lighter version of Node to reduce memory footprint
-- [#66fa15f](https://github.com/pydio/cells/commit/66fa15f232bb0222e8615149d9e0049062a26c86): Sync lib : switch usage of *tree.Node to an interface
-- [#eb0c102](https://github.com/pydio/cells/commit/eb0c102b2e5f5dfdc75f6f59a9f39c67cd9a1430): Next development cycle
+- [#b76cba2](https://github.com/pydio/cells/commit/b76cba25ddeb37de37fea5fa39309c4d9bfeb552): Metadata: fix text/long-text types search broken (in JS)
+- [#3046ddf](https://github.com/pydio/cells/commit/3046ddf53de7d3f8d870b2c2eb0e573a7b6398b4): Merge remote-tracking branch 'origin/main'
+- [#3c2d465](https://github.com/pydio/cells/commit/3c2d465e31d19ba2fdffd18bd1634ffc23b834ef): Fix direct DL in leaf root case
+- [#65eb70e](https://github.com/pydio/cells/commit/65eb70e063d69705bdeaa4c335f8a4fc1609e4e4): Missing FR-CA string
+- [#f150703](https://github.com/pydio/cells/commit/f1507034d798346d00fb672d831369a3de2f6cf0): More translations
+- [#f741d05](https://github.com/pydio/cells/commit/f741d05b0be41de3753cda9cde76be403e56d070): Next development cycle
