@@ -144,7 +144,7 @@
     "other": "Dirección de email para usar por defecto. Debería utilizar una dirección de soporte técnico válida en vez de una dirección \"no-reply\"."
   },
   "Mail.Config.FixOutlookDisplay": {
-    "other": "Outlook Clients Fix (disable CSS inlining)"
+    "other": "Solución para Clientes de Outlook (desactivar la inserción de CSS)"
   },
   "Mail.Config.Queue.Label": {
     "other": "Tipo de Cola"
@@ -204,10 +204,10 @@
     "other": "Contraseña requerida para conectar al servidor SMTP"
   },
   "Mail.Config.Smtp.Security.Label": {
-    "other": "Connection Security"
+    "other": "Seguridad de la conexión"
   },
   "Mail.Config.Smtp.Security.Description": {
-    "other": "Protocol used for securing connection. Clear is not supported, if required use a custom Sendmail instead."
+    "other": "Protocolo utilizado para asegurar la conexión. No se admite 'Clear', si es necesario, utilice en su lugar un Sendmail personalizado."
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
     "other": "Certificado autofirmado"
