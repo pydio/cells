@@ -503,8 +503,8 @@ func (j *JobsHandler) CleanStuckTasks(ctx context.Context, serverStart bool, log
 
 	} else if len(tt) > 0 {
 		// Create sample
-		max := int(math.Min(float64(len(tt)), 5))
-		logger.Debug(fmt.Sprintf("There are %d orphan tasks to clean!", len(tt)), zap.Any("sample", tt[:max]))
+		maxSize := int(math.Min(float64(len(tt)), 5))
+		logger.Debug(fmt.Sprintf("There are %d orphan tasks to clean!", len(tt)), log.DangerouslyZapSmallSlice("sample", tt[:maxSize]))
 		logsCount := 0
 		for _, t := range tt {
 			if er := j.store.DeleteTasks(t.JobID, []string{t.ID}); er != nil {
