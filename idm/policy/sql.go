@@ -254,7 +254,7 @@ func (s *sqlimpl) ListPolicyGroups(ctx context.Context, filter string) (groups [
 		stmtName = "listJoinedUuid"
 		args = append(args, id)
 	} else if strings.HasPrefix(filter, "like:") {
-		like := "%" + strings.TrimPrefix(filter, "uuid:") + "%"
+		like := "%" + strings.TrimPrefix(filter, "like:") + "%"
 		stmtName = "listJoinedLike"
 		args = append(args, like, like)
 	}
