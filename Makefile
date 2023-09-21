@@ -4,6 +4,7 @@ TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
 GITREV?=$(shell git rev-parse HEAD)
 CELLS_VERSION?=${DEV_VERSION}.${TIMESTAMP}
+GOBIN?=go
 
 XGO_TARGETS?="darwin/amd64,windows/amd64"
 XGO_IMAGE?=techknowlogick/xgo:go-1.19.x
@@ -16,7 +17,7 @@ all: clean build
 build: main
 
 main:
-	go build -a -trimpath\
+	${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
@@ -33,7 +34,7 @@ xgo:
 	 .
 
 arm:
-	env GOOS=linux GOARM=7 GOARCH=arm go build -a -trimpath\
+	env GOOS=linux GOARM=7 GOARCH=arm ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
@@ -41,7 +42,7 @@ arm:
 	 .
 
 arm64:
-	env GOOS=linux GOARCH=arm64 go build -a -trimpath\
+	env GOOS=linux GOARCH=arm64 ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
@@ -49,7 +50,7 @@ arm64:
 	 .
 
 win:
-	env GOOS=windows GOARCH=amd64 go build -a -trimpath\
+	env GOOS=windows GOARCH=amd64 ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
@@ -57,7 +58,7 @@ win:
 	 .
 
 dev:
-	go build\
+	${GOBIN} build\
 	 -tags dev\
 	 -gcflags "all=-N -l"\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${DEV_VERSION}\
@@ -69,7 +70,7 @@ dev:
 	 .
 
 docker:
-	GOARCH=amd64 GOOS=linux go build -trimpath\
+	GOARCH=amd64 GOOS=linux ${GOBIN} build -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
@@ -80,7 +81,7 @@ dockercp:
 	docker stop ${CONTAINER}; docker cp ./cells-linux ${CONTAINER}:/bin/cells; docker start ${CONTAINER}
 
 thirtytwo:
-	GOARCH=386 GOOS=linux go build -trimpath\
+	GOARCH=386 GOOS=linux ${GOBIN} build -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
