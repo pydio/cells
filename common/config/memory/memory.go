@@ -134,6 +134,9 @@ func (m *memory) flush() {
 			m.timer = time.NewTimer(timeout)
 		case <-m.timer.C:
 			clone := std.DeepClone(m.v.Interface())
+			if clone == nil {
+				continue
+			}
 
 			if iSnap := snap.Interface(); iSnap != nil || clone != nil {
 				patch, err := diff.Diff(iSnap, clone, diff.DisableStructValues(), diff.AllowTypeMismatch(true), diff.CustomValueDiffers(config.CustomValueDiffers...))
