@@ -17,7 +17,7 @@ all: clean build
 build: main
 
 main:
-	${GOBIN} build -a -trimpath\
+	env CGO_ENABLED=0 ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
@@ -34,40 +34,46 @@ xgo:
 	 .
 
 arm:
-	env GOOS=linux GOARM=7 GOARCH=arm ${GOBIN} build -a -trimpath\
+	env CGO_ENABLED=0 GOOS=linux GOARM=7 GOARCH=arm\
+	 ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
-	 -o cells\
-	 .
+	 -o cells .
 
 arm64:
-	env GOOS=linux GOARCH=arm64 ${GOBIN} build -a -trimpath\
+	env CGO_ENABLED=0 GOOS=linux GOARCH=arm64\
+	 ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
-	 -o cells\
-	 .
+	 -o cells .
 
 win:
-	env GOOS=windows GOARCH=amd64 ${GOBIN} build -a -trimpath\
+	env CGO_ENABLED=0 GOOS=windows GOARCH=amd64\
+	 ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
-	 -o cells.exe\
-	 .
+	 -o cells.exe .
+
+darwin:
+	env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64\
+	 ${GOBIN} build -a -trimpath\
+	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
+	 -o cells .
 
 dev:
-	${GOBIN} build\
-	 -tags dev\
+	env CGO_ENABLED=0 ${GOBIN} build -tags dev\
 	 -gcflags "all=-N -l"\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${DEV_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=2022-01-01T00:00:00\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=dev\
 	 -X github.com/pydio/cells/v4/common.LogFileDefaultValue=false\
 	 -X google.golang.org/protobuf/reflect/protoregistry.conflictPolicy=warn"\
-	 -o cells\
-	 .
+	 -o cells .
 
 docker:
 	GOARCH=amd64 GOOS=linux ${GOBIN} build -trimpath\
