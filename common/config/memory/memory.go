@@ -99,6 +99,9 @@ func (m *memory) flush() {
 			m.timer = time.NewTimer(timeout)
 		case <-m.timer.C:
 			clone := std.DeepClone(m.v.Interface())
+			if clone == nil {
+				continue
+			}
 
 			patch, err := diff.Diff(snap.Interface(), clone, diff.DisableStructValues(), diff.AllowTypeMismatch(true), diff.CustomValueDiffers(config.CustomValueDiffers...))
 			if err != nil {

@@ -38,15 +38,19 @@ import (
 func testWatch(t *testing.T, store config.Store) {
 	Convey("Given a default config initialised in a temp directory", t, func() {
 		Convey("Simple GetSet Works", func() {
+
 			wg := &sync.WaitGroup{}
-			//wg.Add(1)
+			
+			w, _ := store.Watch()
+			// We first receive the initial list
+			w.Next()
+
 			go func() {
-				w, _ := store.Watch()
+				defer w.Stop()
 
 				for {
 					res, err := w.Next()
 					if err != nil {
-						wg.Done()
 						return
 					}
 
@@ -55,10 +59,11 @@ func testWatch(t *testing.T, store config.Store) {
 				}
 			}()
 
-			//wg.Wait()
-
+			wg.Add(1)
 			store.Val("first/second").Set("whatever")
 			wg.Wait()
+
+			wg.Add(1)
 			store.Val("first/third").Set("whatever2")
 			wg.Wait()
 
