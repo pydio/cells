@@ -117,9 +117,10 @@ func (r *SnapFS) newFolder(inode uint64, treeNode *tree.Node, sfs *SnapFS, loade
 	}
 }
 
-func (r *SnapFS) recursiveCreate(ctx context.Context, parent *fs.Inode, snapFolder *tree.Node, recursive bool) error {
-	return r.snapshot.Walk(ctx, func(pa string, node *tree.Node, err error) error {
+func (r *SnapFS) recursiveCreate(ctx context.Context, parent *fs.Inode, snapFolder tree.N, recursive bool) error {
+	return r.snapshot.Walk(ctx, func(pa string, n tree.N, err error) error {
 		base := path.Base(pa)
+		node := n.(*tree.Node)
 		if node.IsLeaf() {
 			// Add File N
 			//log.Println("Adding File", parent.Path(r.EmbeddedInode()), base)

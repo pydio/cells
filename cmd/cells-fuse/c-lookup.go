@@ -61,7 +61,7 @@ EXAMPLES
 
 		gw, er := glob.Compile(lookupGlob)
 		header := false
-		_ = snap.Walk(cmd.Context(), func(pa string, node *tree.Node, err error) error {
+		_ = snap.Walk(cmd.Context(), func(pa string, node tree.N, err error) error {
 			base := path.Base(node.GetPath())
 			if lookupI {
 				base = strings.ToLower(base)
