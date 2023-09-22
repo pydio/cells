@@ -21,7 +21,7 @@ main:
 	 .
 
 arm:
-	env CGO_ENABLED=0 GOOS=linux GOARM=7 GOARCH=arm go build -a -trimpath\
+	env CGO_ENABLED=0 GOOS=linux GOARM=7 GOARCH=arm ${GOBIN} build -a -trimpath\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
