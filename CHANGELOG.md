@@ -1,10 +1,13 @@
-# Changes between v4.2.6 and v4.2.7
+# Changes between v4.2.7 and v4.3.0-alpha1
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.6...v4.2.7)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.7...v4.3.0-alpha1)
 
-- [#b76cba2](https://github.com/pydio/cells/commit/b76cba25ddeb37de37fea5fa39309c4d9bfeb552): Metadata: fix text/long-text types search broken (in JS)
-- [#3046ddf](https://github.com/pydio/cells/commit/3046ddf53de7d3f8d870b2c2eb0e573a7b6398b4): Merge remote-tracking branch 'origin/main'
-- [#3c2d465](https://github.com/pydio/cells/commit/3c2d465e31d19ba2fdffd18bd1634ffc23b834ef): Fix direct DL in leaf root case
-- [#65eb70e](https://github.com/pydio/cells/commit/65eb70e063d69705bdeaa4c335f8a4fc1609e4e4): Missing FR-CA string
-- [#f150703](https://github.com/pydio/cells/commit/f1507034d798346d00fb672d831369a3de2f6cf0): More translations
-- [#f741d05](https://github.com/pydio/cells/commit/f741d05b0be41de3753cda9cde76be403e56d070): Next development cycle
+- [#98c698c](https://github.com/pydio/cells/commit/98c698ce54efeed57fab9b617b29ec210a4dced4): Also make go binary variable for cells fuse builds
+- [#29fac05](https://github.com/pydio/cells/commit/29fac05a2305eaea47e745d19dc6a6829b8f4112): Missing GOBIN usage in arm target
+- [#2e276c2](https://github.com/pydio/cells/commit/2e276c28da1bd495a140c75473404b1610c38d04): Fixing unit tests
+- [#319ea91](https://github.com/pydio/cells/commit/319ea911477337531758f64cbf9bbd7d105fbca1): fix trimming a wrong value
+- [#4cfd138](https://github.com/pydio/cells/commit/4cfd138480a4760433ae19d5917edcfb4e3968b1): Fix zap slice call for linter
+- [#c2197eb](https://github.com/pydio/cells/commit/c2197ebe73c9ced67d5adc2b2230fba2e9f1f5da): Update Readme.MD for GO compile version
+- [#f34d979](https://github.com/pydio/cells/commit/f34d97905004bf9516fc15af1c8eb447dc43da8a): More Spanish
+- [#8cd2d83](https://github.com/pydio/cells/commit/8cd2d834f4505154dc0574563909e124034b5266): More Spanish
+- [#49d74cc](https://github.com/pydio/cells/commit/49d74cc48f87e4421ef0f26eff71651dc47bf1c3): Switch modules to go20/21 and to cross-compilation
