@@ -179,6 +179,12 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 	}
 
 	log.TasksLogger(ctx).Info(fmt.Sprintf("Archive %s was extracted in %s", path.Base(archiveNode.Path), targetNode.GetPath()))
+	log.Auditer(ctx).Info(
+		fmt.Sprintf("Archive [%s] extracted to [%s]", archiveNode.GetPath(), targetNode.GetPath()),
+		log.GetAuditId(common.AuditNodeCreate),
+		archiveNode.Zap("archive"),
+		targetNode.Zap("target"),
+	)
 
 	output := input.WithNode(targetNode)
 

@@ -29,6 +29,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/forms"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/archive"
@@ -222,6 +223,16 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 	})
 
 	log.TasksLogger(ctx).Info(fmt.Sprintf("Archive %s was created in %s", path.Base(targetFile), path.Dir(targetFile)))
+	var pp []string
+	for _, n := range nn {
+		pp = append(pp, n.GetPath())
+	}
+	log.Auditer(ctx).Info(
+		fmt.Sprintf("Archive [%s] created from [%s]", targetFile, strings.Join(pp, ",")),
+		log.GetAuditId(common.AuditNodeCreate),
+		zap.String("archive", targetFile),
+		zap.Strings("sources", pp),
+	)
 
 	// Reload node
 	output := input

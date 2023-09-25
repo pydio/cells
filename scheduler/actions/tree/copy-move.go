@@ -203,10 +203,30 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 		return output, e
 	}
 
-	if c.move {
+	if c.move && path.Dir(sourceNode.GetPath()) == path.Dir(targetNode.GetPath()) {
+		log.TasksLogger(ctx).Info(fmt.Sprintf("Successfully renamed %s to %s", sourceNode.GetPath(), targetNode.GetPath()))
+		log.Auditer(ctx).Info(
+			fmt.Sprintf("Renamed [%s] to [%s]", sourceNode.GetPath(), targetNode.GetPath()),
+			log.GetAuditId(common.AuditNodeUpdatePath),
+			sourceNode.Zap("source"),
+			targetNode.Zap("target"),
+		)
+	} else if c.move {
 		log.TasksLogger(ctx).Info(fmt.Sprintf("Successfully moved %s to %s", sourceNode.GetPath(), targetNode.GetPath()))
+		log.Auditer(ctx).Info(
+			fmt.Sprintf("Moved [%s] to [%s]", sourceNode.GetPath(), targetNode.GetPath()),
+			log.GetAuditId(common.AuditNodeUpdatePath),
+			sourceNode.Zap("source"),
+			targetNode.Zap("target"),
+		)
 	} else {
 		log.TasksLogger(ctx).Info(fmt.Sprintf("Successfully copied %s to %s", sourceNode.GetPath(), targetNode.GetPath()))
+		log.Auditer(ctx).Info(
+			fmt.Sprintf("Copied [%s] to [%s]", sourceNode.GetPath(), targetNode.GetPath()),
+			log.GetAuditId(common.AuditNodeCreate),
+			sourceNode.Zap("source"),
+			targetNode.Zap("target"),
+		)
 	}
 	output = output.WithNode(targetNode)
 	output.AppendOutput(&jobs.ActionOutput{
