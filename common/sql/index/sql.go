@@ -622,15 +622,25 @@ func (dao *IndexSQL) UpdateNameInPlace(oldName, newName string, knownUuid string
 	dao.Lock()
 	defer dao.Unlock()
 
-	updateName, _, er := dao.GetStmtWithArgs("updateNameInPlace")
+	var execParams = []interface{}{
+		newName, oldName,
+	}
+
+	var args []interface{}
+	if knownLevel > -1 {
+		args = append(args, "level")
+		execParams = append(execParams, knownLevel)
+	} else if knownUuid != "" {
+		args = append(args, "uuid")
+		execParams = append(execParams, knownUuid)
+	}
+
+	updateName, _, er := dao.GetStmtWithArgs("updateNameInPlace", args...)
 	if er != nil {
 		return 0, er
 	}
 
-	res, err := updateName.Exec(
-		newName,
-		oldName,
-	)
+	res, err := updateName.Exec(execParams...)
 	if err != nil {
 		return 0, err
 	}
