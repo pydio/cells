@@ -44,11 +44,14 @@ const (
 	AuditNodeRead       = "12"
 	AuditNodeList       = "13"
 	AuditNodeUpdate     = "14"
-	AuditNodeDelete     = "15"
-	AuditWsCreate       = "16"
-	AuditWsUpdate       = "17"
-	AuditWsDelete       = "18"
+	AuditNodeUpdatePath = "20"
 	AuditNodeMovedToBin = "19"
+	AuditNodeDelete     = "15"
+
+	// Ws Event
+	AuditWsCreate = "16"
+	AuditWsUpdate = "17"
+	AuditWsDelete = "18"
 
 	// S3 Objects
 	AuditObjectGet = "21"

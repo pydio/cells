@@ -337,7 +337,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				}
 
 				log.Auditer(ctx).Info(
-					fmt.Sprintf("Moved [%s] to recycle bin", node.GetPath()),
+					fmt.Sprintf("Moving [%s] to recycle bin", node.GetPath()),
 					log.GetAuditId(common.AuditNodeMovedToBin),
 					node.ZapUuid(),
 					node.ZapPath(),
