@@ -59,6 +59,9 @@ const (
   auto_https disable_redirects
   admin off
 {{if .Storage}}  storage {{.Storage}}{{end}}
+{{if .EnableMetrics}}  servers {
+    metrics
+  }{{end}}
 }
 
 
@@ -222,11 +225,15 @@ func (s *Server) ComputeConfs() ([]string, error) {
 	}
 
 	type TplData struct {
-		Sites   []SiteConf
-		WebRoot string
-		Storage string
+		Sites         []SiteConf
+		WebRoot       string
+		Storage       string
+		EnableMetrics bool
 	}
-	tplData := TplData{Sites: caddySites}
+	tplData := TplData{
+		Sites:         caddySites,
+		EnableMetrics: runtime.MetricsEnabled(),
+	}
 	if s.serveDir != "" {
 		tplData.WebRoot = s.serveDir
 	}
