@@ -23,6 +23,7 @@ package dav
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/nodes"
@@ -37,7 +38,18 @@ var (
 	davRouter nodes.Client
 )
 
+// GetHandlers is public to let external package spinning a DAV http handler
+func GetHandlers(ctx context.Context) (http.Handler, nodes.Client) {
+	if davRouter == nil {
+		davRouter = compose.PathClient(ctx, nodes.WithAuditEventsLogging(), nodes.WithSynchronousCaching(), nodes.WithSynchronousTasks())
+	}
+	handler := newHandler(ctx, davRouter)
+	handler = servicecontext.HttpWrapperMeta(ctx, handler)
+	return handler, davRouter
+}
+
 func init() {
+
 	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceGatewayDav),
@@ -45,7 +57,9 @@ func init() {
 			service.Tag(common.ServiceTagGateway),
 			service.Description("DAV Gateway to tree service"),
 			service.WithHTTP(func(runtimeCtx context.Context, mux server.HttpMux) error {
-				davRouter = compose.PathClient(runtimeCtx, nodes.WithAuditEventsLogging(), nodes.WithSynchronousCaching(), nodes.WithSynchronousTasks())
+				if davRouter == nil {
+					davRouter = compose.PathClient(runtimeCtx, nodes.WithAuditEventsLogging(), nodes.WithSynchronousCaching(), nodes.WithSynchronousTasks())
+				}
 				handler := newHandler(runtimeCtx, davRouter)
 				handler = servicecontext.HttpWrapperMeta(runtimeCtx, handler)
 				mux.Handle("/dav/", handler)

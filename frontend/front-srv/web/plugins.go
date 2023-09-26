@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/frontend/front-srv/web/index"
 )
@@ -80,10 +81,10 @@ func init() {
 				httpFs := http.FS(frontend.GetPluginsFS())
 
 				fs := gzipped.FileServer(httpFs)
-				wrap := func(handler http.Handler) http.Handler {
+				timeoutWrap := func(handler http.Handler) http.Handler {
 					return http.TimeoutHandler(handler, 15*time.Second, "There was a timeout while serving the frontend resources...")
 				}
-				fs = wrap(fs)
+				fs = timeoutWrap(fs)
 
 				mux.Handle("/index.json", fs)
 				mux.Handle("/plug/", http.StripPrefix("/plug/", fs))
@@ -97,7 +98,11 @@ func init() {
 				mux.Handle(ResetPasswordPath, indexHandler)
 
 				// /public endpoint : special handler for index, redirect to /plug/ for the rest
-				mux.Handle(config.GetPublicBaseUri()+"/", wrap(index.NewPublicHandler()))
+				ph := index.NewPublicHandler(ctx)
+				handler := servicecontext.HttpWrapperMeta(ctx, ph)
+				handler = http.StripPrefix(config.GetPublicBaseUri()+"/", handler)
+				handler = timeoutWrap(handler)
+				mux.Handle(config.GetPublicBaseUri()+"/", handler)
 				mux.Handle(config.GetPublicBaseUri()+"/plug/", http.StripPrefix(config.GetPublicBaseUri()+"/plug/", fs))
 
 				// Adding subscriber
@@ -118,6 +123,7 @@ func init() {
 					m.DeregisterPattern("/")
 					m.DeregisterPattern("/user/reset-password/")
 					m.DeregisterPattern(config.GetPublicBaseUri() + "/")
+					m.DeregisterPattern(config.GetPublicBaseUri() + "-dav/")
 					m.DeregisterPattern(config.GetPublicBaseUri() + "/plug/")
 				}
 				return nil
