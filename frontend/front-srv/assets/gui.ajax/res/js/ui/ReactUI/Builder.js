@@ -228,6 +228,10 @@ export default class Builder{
         this._messageBar = null;
     }
 
+    messageReady() {
+        return !!this._messageBar
+    }
+
     displayMessage(type, message, actionLabel = null, actionCallback = null){
         if(!this._messageBar){
             Logger.error('Cannot find any messageBar for displaying message ' + message);
