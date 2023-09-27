@@ -355,8 +355,10 @@ func (m *IdmSelector) evaluate(ctx context.Context, input *ActionMessage, single
 		uQ.AttributeValue = EvaluateFieldStr(ctx, input, uQ.AttributeValue)
 		uQ.AttributeName = EvaluateFieldStr(ctx, input, uQ.AttributeName)
 		uQ.HasRole = EvaluateFieldStr(ctx, input, uQ.HasRole)
+		uQ.HasProfile = EvaluateFieldStr(ctx, input, uQ.HasProfile)
 		uQ.FullPath = EvaluateFieldStr(ctx, input, uQ.FullPath)
 		uQ.GroupPath = EvaluateFieldStr(ctx, input, uQ.GroupPath)
+		uQ.ConnectedSince = EvaluateFieldStr(ctx, input, uQ.ConnectedSince)
 		return uQ
 	} else if rQ, o := singleQuery.(*idm.RoleSingleQuery); o {
 		rQ.Uuid = EvaluateFieldStrSlice(ctx, input, rQ.Uuid)
