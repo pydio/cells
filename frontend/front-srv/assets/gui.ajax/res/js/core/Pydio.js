@@ -51,9 +51,9 @@ class Pydio extends Observable{
         super();
         Pydio.instance = this;
         this.Parameters = parameters;
-        this._initLoadRep = parameters.get('initLoadRep') || null;
-        this.usersEnabled = parameters.get('usersEnabled') || null;
-        this.currentLanguage = parameters.get('currentLanguage') || null;
+        this._initLoadRep = parameters.get('initLoadRep') || null;
+        this.usersEnabled = parameters.get('usersEnabled') || null;
+        this.currentLanguage = parameters.get('currentLanguage') || null;
         this.appTitle = "Pydio";
         if(this.Parameters.has("customWording")){
             this.appTitle = this.Parameters.get("customWording").title || "Pydio";
@@ -114,6 +114,7 @@ class Pydio extends Observable{
         this.user = userObject;
         if(!skipEvent){
             this.notify('user_logged', userObject);
+            this.applyFlashMessage()
         }
     }
 
@@ -200,14 +201,13 @@ class Pydio extends Observable{
                     return this.loadXmlRegistry(this.Parameters.get("START_REPOSITORY")).then(() => starterFunc())
                 }).
                 catch((e) => {
-                    if (!this.Parameters.has("PRELOADED_REGISTRY")) {
-                        return this.loadXmlRegistry(this.Parameters.get("START_REPOSITORY")).then(() => starterFunc())
-                        //this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"))
-                    } else {
+                    if (this.Parameters.has("PRELOADED_REGISTRY")) {
                         // Not logged, used prefeteched registry to speed up login screen
                         this.Registry.loadFromString(this.Parameters.get("PRELOADED_REGISTRY"));
                         this.Parameters.delete("PRELOADED_REGISTRY");
                         return starterFunc();
+                    } else {
+                        return this.loadXmlRegistry(this.Parameters.get("START_REPOSITORY")).then(() => starterFunc())
                     }
                 })
         }
@@ -284,7 +284,6 @@ class Pydio extends Observable{
 
         this.loadRepository(repositoryObject);
         this.fire("repository_list_refreshed", {list:repList,active:repId});
-
     }
 
     /**
@@ -490,14 +489,31 @@ class Pydio extends Observable{
         if(urls.length && this.user && this.user.repositories){
             urls.forEach(function(match){
                 const repo = this.user.repositories.get(match.host);
-                if(!repo) return;
+                if(!repo) {
+                    return;
+                }
                 message = message.replace(match.url, repo.label+":" + match.path + match.file);
             }.bind(this));
         }
-        if(messageType === 'ERROR') Logger.error(message);
-        else Logger.log(message);
+        if(messageType === 'ERROR') {
+            Logger.error(message);
+        } else {
+            Logger.log(message);
+        }
         if(this.UI) {
             this.UI.displayMessage(messageType, message);
+        }
+    }
+
+
+    applyFlashMessage (){
+        if(this.user &&  this.Parameters.has('other') && this.Parameters.get('other').flash && this.UI && this.UI.messageReady()) {
+            const userId = this.user.id
+            const {id, level, message} = pydio.Parameters.get('other').flash
+            if(!localStorage.getItem('flash-message-' + userId + '-' + id)){
+                this.UI.displayMessage(level === 'error' ? 'ERROR': 'SUCCESS', message)
+                localStorage.setItem('flash-message-' + userId + '-' + id, 'displayed-once')
+            }
         }
     }
 
@@ -562,7 +578,9 @@ class Pydio extends Observable{
      * Accessor for datamodel.requireContextChange()
      */
     fireContextUp (){
-        if(this.getContextNode().isRoot()) return;
+        if(this.getContextNode().isRoot()) {
+            return;
+        }
         this.updateContextData(this.getContextNode().getParent());
     }
 
