@@ -24,13 +24,13 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
 	"time"
 
 	goqu "github.com/doug-martin/goqu/v9"
 	migrate "github.com/rubenv/sql-migrate"
 
 	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -158,7 +158,7 @@ func (s *ResourcesSQL) AddPolicies(update bool, resourceId string, policies []*s
 func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.ResourcePolicy, error) {
 
 	var rules []*service.ResourcePolicy
-	if s.cache.Get(resourceId, &rules) {
+	if ok := s.cache.Get(resourceId, &rules); ok && len(rules) > 0 {
 		return rules, nil
 	}
 
@@ -189,8 +189,9 @@ func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.Res
 		rule.Effect = service.ResourcePolicy_PolicyEffect(service.ResourcePolicy_PolicyEffect_value[effectString])
 		res = append(res, rule)
 	}
-
-	s.cache.Set(resourceId, res)
+	if len(res) > 0 {
+		s.cache.Set(resourceId, res)
+	}
 
 	return res, nil
 }
