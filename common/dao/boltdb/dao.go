@@ -24,7 +24,10 @@ package boltdb
 import (
 	"context"
 	"fmt"
+	"math/rand"
+	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -32,6 +35,9 @@ import (
 	bolt "go.etcd.io/bbolt"
 
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/service/metrics"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -53,7 +59,9 @@ type DAO interface {
 // Handler for the main functions of the DAO
 type Handler struct {
 	dao.DAO
-	runtimeCtx context.Context
+	runtimeCtx  context.Context
+	statusInput chan map[string]interface{}
+	metricsName string
 }
 
 // NewDAO creates a new handler for the boltdb dao
@@ -62,9 +70,15 @@ func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.
 	if err != nil {
 		return nil, err
 	}
+	metricsName := ""
+	if u, e := url.Parse(dsn); e == nil {
+		metricsName = path.Base(path.Dir(u.Path))
+	}
+
 	return &Handler{
-		DAO:        dao.AbstractDAO(conn, driver, dsn, prefix),
-		runtimeCtx: ctx,
+		DAO:         dao.AbstractDAO(conn, driver, dsn, prefix),
+		runtimeCtx:  ctx,
+		metricsName: metricsName,
 	}, nil
 }
 
@@ -88,6 +102,40 @@ func (h *Handler) DB() *bolt.DB {
 		return conn.(*bolt.DB)
 	}
 	return nil
+}
+
+// As implements the registry.StatusReporter conversion
+func (h *Handler) As(i interface{}) bool {
+	if sw, ok := i.(*registry.StatusReporter); ok {
+		*sw = h
+		return true
+	}
+	return h.DAO.As(i)
+}
+
+// WatchStatus implements the StatusReport methods
+func (h *Handler) WatchStatus() (registry.StatusWatcher, error) {
+	if h.statusInput == nil {
+		h.statusInput = make(chan map[string]interface{})
+	}
+	w := util.NewChanStatusWatcher(h, h.statusInput)
+	c := time.NewTicker(time.Duration(10+rand.Intn(11)) * time.Second)
+	go func() {
+		h.sendStatus()
+		for range c.C {
+			h.sendStatus()
+		}
+	}()
+	return w, nil
+}
+
+func (h *Handler) sendStatus() {
+	if db := h.DB(); db != nil {
+		if st, e := os.Stat(db.Path()); e == nil {
+			metrics.GetMetrics().Tagged(map[string]string{"dsn": h.Name(), "service": h.metricsName}).Gauge("bolt_usage").Update(float64(st.Size()))
+			h.statusInput <- map[string]interface{}{"Usage": st.Size()}
+		}
+	}
 }
 
 // Compact makes a copy of the current DB and replace it as a connection
