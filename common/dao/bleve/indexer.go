@@ -23,6 +23,7 @@ package bleve
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"sort"
@@ -42,6 +43,7 @@ import (
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/service/metrics"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -81,6 +83,7 @@ type Indexer struct {
 
 	statusInput chan map[string]interface{}
 	debouncer   func(func())
+	metricsName string
 }
 
 // NewIndexer creates and configures a default Bleve instance to store technical logs
@@ -132,6 +135,13 @@ func (s *Indexer) WatchStatus() (registry.StatusWatcher, error) {
 		s.statusInput = make(chan map[string]interface{})
 	}
 	w := util.NewChanStatusWatcher(s, s.statusInput)
+	tick := time.NewTicker(time.Duration(10+rand.Intn(11)) * time.Second)
+	go func() {
+		s.sendStatus()
+		for range tick.C {
+			s.updateStatus()
+		}
+	}()
 	return w, nil
 }
 
@@ -140,6 +150,7 @@ func (s *Indexer) sendStatus() {
 		"Indexes": s.listIndexes(),
 	}
 	if u, e := indexDiskUsage(filepath.Dir(s.MustBleveConfig(context.Background()).BlevePath)); e == nil {
+		metrics.GetMetrics().Tagged(map[string]string{"dsn": s.Name()}).Gauge("bleve_usage").Update(float64(u))
 		m["Usage"] = u
 	}
 	s.statusInput <- m
