@@ -486,6 +486,7 @@ importers:
       less-plugin-autoprefix: ^2.0.0
       lodash.debounce: 4.0.8
       react-codemirror: ^1.0.0
+      react-syntax-highlighter: ^15.5.0
       style-loader: ^3.3.1
       systemjs: '*'
       webpack: ^5.75.0
@@ -495,6 +496,7 @@ importers:
       codemirror: 5.59.4
       lodash.debounce: 4.0.8
       react-codemirror: 1.0.0
+      react-syntax-highlighter: 15.5.0
       systemjs: 0.20.19
     devDependencies:
       '@babel/core': 7.14.6
@@ -5980,7 +5982,7 @@ packages:
     dev: false
 
   /format/0.2.2:
-    resolution: {integrity: sha1-1hcBB+nv3E7TDJ3DkBbflCtctYs=}
+    resolution: {integrity: sha512-wzsgA6WOq+09wrU1tsJ09udeR/YZRaeArL9e1wPbFg3GG2yDnC2ldKpxs4xunpFF9DgqCqOIra3bc1HWrJ37Ww==}
     engines: {node: '>=0.4.x'}
     dev: false
 
@@ -8599,6 +8601,16 @@ packages:
       clipboard: 2.0.6
     dev: false
 
+  /prismjs/1.27.0:
+    resolution: {integrity: sha512-t13BGPUlFDR7wRB5kQDG4jjl7XeuH6jbJGt11JHPL96qwsEHNX2+68tFXqc1/k+/jALsbSWJKUOT/hcYAZ5LkA==}
+    engines: {node: '>=6'}
+    dev: false
+
+  /prismjs/1.29.0:
+    resolution: {integrity: sha512-Kx/1w86q/epKcmte75LNrEoT+lX8pBpavuAbvJWRXar7Hz8jrtF+e3vY751p0R8H9HdArwaCTNDDzHg/ScJK1Q==}
+    engines: {node: '>=6'}
+    dev: false
+
   /private/0.1.8:
     resolution: {integrity: sha512-VvivMrbvd2nKkiG38qjULzlc+4Vx4wm/whI9pQD35YrARNnhxeiRktSOhSukRLFNlzg6Br/cJPet5J/u19r/mg==}
     engines: {node: '>= 0.6'}
@@ -9324,6 +9336,18 @@ packages:
       refractor: 3.3.1
     dev: false
 
+  /react-syntax-highlighter/15.5.0:
+    resolution: {integrity: sha512-+zq2myprEnQmH5yw6Gqc8lD55QHnpKaU8TOcFeC/Lg/MQSs8UknEA0JC4nTZGFAXC2J2Hyj/ijJ7NlabyPi2gg==}
+    peerDependencies:
+      react: '>= 0.14.0'
+    dependencies:
+      '@babel/runtime': 7.21.0
+      highlight.js: 10.6.0
+      lowlight: 1.19.0
+      prismjs: 1.29.0
+      refractor: 3.6.0
+    dev: false
+
   /react-test-renderer/16.14.0_react@17.0.1:
     resolution: {integrity: sha512-L8yPjqPE5CZO6rKsKXRO/rVPiaCOy0tQQJbC+UjPNlobl5mad59lvPjwFsQHTvL03caVDIVr9x9/OSgDe6I5Eg==}
     peerDependencies:
@@ -9642,6 +9666,14 @@ packages:
       hastscript: 6.0.0
       parse-entities: 2.0.0
       prismjs: 1.23.0
+    dev: false
+
+  /refractor/3.6.0:
+    resolution: {integrity: sha512-MY9W41IOWxxk31o+YvFCNyNzdkc9M20NoZK5vq6jkv4I/uh2zkWcfudj0Q1fovjUQJrNewS9NMzeTtqPf+n5EA==}
+    dependencies:
+      hastscript: 6.0.0
+      parse-entities: 2.0.0
+      prismjs: 1.27.0
     dev: false
 
   /regenerate-unicode-properties/8.2.0:

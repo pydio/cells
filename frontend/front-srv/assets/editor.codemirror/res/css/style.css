@@ -11,6 +11,11 @@
     overflow-y: auto;
 }
 
+.react-mui-context .mdviewer.mdbadge {
+    padding:10px 20px;
+    border-left: 0;
+}
+
 .react-mui-context .mdviewer h1{
     font-size: 24px;
     padding-top: 10px;
@@ -53,4 +58,10 @@
 
 .react-mui-context .mdviewer strong {
     font-weight: 500;
+}
+
+.react-mui-context .mdviewer hr {
+    height: 0px;
+    border: 0;
+    border-top: 2px solid var(--md-sys-color-surface-variant);
 }

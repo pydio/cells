@@ -23,3 +23,4 @@ import ReactCodeMirror from "./ReactCodeMirror";
 
 export {default as Editor} from './editor'
 export {Actions, ReactCodeMirror}
+export {default as Panel} from './badge'
