@@ -1,10 +1,28 @@
-# Changes between v4.2.6 and v4.2.7
+# Changes between v4.2.7 and v4.3.0-rc1
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.6...v4.2.7)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.7...v4.3.0-rc1)
 
-- [#b76cba2](https://github.com/pydio/cells/commit/b76cba25ddeb37de37fea5fa39309c4d9bfeb552): Metadata: fix text/long-text types search broken (in JS)
-- [#3046ddf](https://github.com/pydio/cells/commit/3046ddf53de7d3f8d870b2c2eb0e573a7b6398b4): Merge remote-tracking branch 'origin/main'
-- [#3c2d465](https://github.com/pydio/cells/commit/3c2d465e31d19ba2fdffd18bd1634ffc23b834ef): Fix direct DL in leaf root case
-- [#65eb70e](https://github.com/pydio/cells/commit/65eb70e063d69705bdeaa4c335f8a4fc1609e4e4): Missing FR-CA string
-- [#f150703](https://github.com/pydio/cells/commit/f1507034d798346d00fb672d831369a3de2f6cf0): More translations
-- [#f741d05](https://github.com/pydio/cells/commit/f741d05b0be41de3753cda9cde76be403e56d070): Next development cycle
+- [#0746002](https://github.com/pydio/cells/commit/0746002613b6c4ad9721736df692881b4bb0e916): Merge remote-tracking branch 'origin/main'
+- [#8349f01](https://github.com/pydio/cells/commit/8349f01b6809f74c4f832c0784eb91febb07de80): userMeta: Make TypeEditor and UserMetaPanel components more flexible.
+- [#6c38082](https://github.com/pydio/cells/commit/6c380828a1e029ed32489c66f02b944790eafe61): More Es
+- [#56f9688](https://github.com/pydio/cells/commit/56f968827a020a8632f25cff60f2be5d70190172): More Es
+- [#fb35092](https://github.com/pydio/cells/commit/fb35092c9d17f4278932f9c3540840cfe231fa1c): Improve editor.codemirror with a file preview
+- [#463de52](https://github.com/pydio/cells/commit/463de52fb45e5f97562567af741472c58ecc1785): Publish usage stats on boltdb DAO
+- [#ce62ced](https://github.com/pydio/cells/commit/ce62ceddeb6328d3086a347cd9dec349fd76a326): tweak the policies cache
+- [#990f46d](https://github.com/pydio/cells/commit/990f46d773b01c82094c84638901f10890654e92): Missing field in selector
+- [#6651b0f](https://github.com/pydio/cells/commit/6651b0f605463681f99c1b86ec7b55046900bc59): Display optional flash message
+- [#dbf9efe](https://github.com/pydio/cells/commit/dbf9efee1d228ff9a3266b2a4ca23b3a65ee27ca): Caddy upgrade made metrics optional
+- [#a9523df](https://github.com/pydio/cells/commit/a9523dfa2e11fc44ae359aa2cebd3370fae23051): Implement a /dav/ endpoint on public links for direct files downloads
+- [#99062fa](https://github.com/pydio/cells/commit/99062faa1fc99a741c048305e30690b38d72048a): UpdateNameInPlace optional uuid/level restrictions
+- [#99f7e08](https://github.com/pydio/cells/commit/99f7e0856a8487e735183276aaa575e39cfe97a3): Additional calls to Audit Log
+- [#820df51](https://github.com/pydio/cells/commit/820df515a443563db9ca86b1e359d52299435edc): Merge remote-tracking branch 'origin/main'
+- [#120073e](https://github.com/pydio/cells/commit/120073e3473016a7d90a39d8f3e7af5675107449): update cells-fuse go mod for go20+
+- [#98c698c](https://github.com/pydio/cells/commit/98c698ce54efeed57fab9b617b29ec210a4dced4): Also make go binary variable for cells fuse builds
+- [#29fac05](https://github.com/pydio/cells/commit/29fac05a2305eaea47e745d19dc6a6829b8f4112): Missing GOBIN usage in arm target
+- [#2e276c2](https://github.com/pydio/cells/commit/2e276c28da1bd495a140c75473404b1610c38d04): Fixing unit tests
+- [#319ea91](https://github.com/pydio/cells/commit/319ea911477337531758f64cbf9bbd7d105fbca1): fix trimming a wrong value
+- [#4cfd138](https://github.com/pydio/cells/commit/4cfd138480a4760433ae19d5917edcfb4e3968b1): Fix zap slice call for linter
+- [#c2197eb](https://github.com/pydio/cells/commit/c2197ebe73c9ced67d5adc2b2230fba2e9f1f5da): Update Readme.MD for GO compile version
+- [#f34d979](https://github.com/pydio/cells/commit/f34d97905004bf9516fc15af1c8eb447dc43da8a): More Spanish
+- [#8cd2d83](https://github.com/pydio/cells/commit/8cd2d834f4505154dc0574563909e124034b5266): More Spanish
+- [#49d74cc](https://github.com/pydio/cells/commit/49d74cc48f87e4421ef0f26eff71651dc47bf1c3): Switch modules to go20/21 and to cross-compilation
