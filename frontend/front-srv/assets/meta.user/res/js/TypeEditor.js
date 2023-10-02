@@ -41,10 +41,15 @@ const MetaTypes = {
 
 class TypeEditor extends React.Component {
 
+    slugifier(s){
+        const {slugifier=LangUtils.computeStringSlug} = this.props;
+        return slugifier(s)
+    }
+
     updateType(value){
         const {namespace, onChange} = this.props;
         const newType = {type:value};
-        if(newType === 'date') {
+        if(value === 'date') {
             newType.data = {format: 'date', display:'normal'};
         }
         namespace.JsonDefinition = JSON.stringify(newType);
@@ -52,8 +57,8 @@ class TypeEditor extends React.Component {
     }
 
     updateLabel(value) {
-        const {create, namespace, onChange, forcePrefix = ''} = this.props;
-        if(create && (!namespace.Namespace || namespace.Namespace === (forcePrefix + LangUtils.computeStringSlug(namespace.Label)))){
+        const {create, namespace, onChange, forcePrefix = '', labelToName=true} = this.props;
+        if(create && labelToName && (!namespace.Namespace || namespace.Namespace === (forcePrefix + this.slugifier(namespace.Label)))){
             this.updateName(value);
         }
         namespace.Label = value;
@@ -62,7 +67,7 @@ class TypeEditor extends React.Component {
 
     updateName(value){
         const {namespace, onChange, forcePrefix} = this.props;
-        let slug = LangUtils.computeStringSlug(value);
+        let slug = this.slugifier(value);
         if(forcePrefix && slug.indexOf(forcePrefix) !== 0){
             slug = forcePrefix + slug;
         }
@@ -99,7 +104,7 @@ class TypeEditor extends React.Component {
 
     render() {
 
-        const {pydio, create, namespace, readonly, labelError, nameError, styles, metaTypes = MetaTypes, showMandatory=false, muiTheme} = this.props;
+        const {pydio, create, namespace, readonly, labelError, nameError, styles, metaTypes = MetaTypes, showMandatory=false, showDefaultValue=false, format=['label', 'namespace', 'section', 'type', 'value', 'mandatory'], muiTheme} = this.props;
         const ModernStyles = ThemedModernStyles(muiTheme)
         let {m} = this.props;
         if(!m){
@@ -109,28 +114,34 @@ class TypeEditor extends React.Component {
         if(namespace.JsonDefinition){
             type = JSON.parse(namespace.JsonDefinition).type;
         }
-
-        return (
-            <div>
-                <ModernTextField
-                    floatingLabelText={m('label')}
-                    value={namespace.Label}
-                    onChange={(e,v) => {this.updateLabel(v)}}
-                    fullWidth={true}
-                    errorText={labelError}
-                    disabled={readonly}
-                    variant={"v2"}
-                />
-                <ModernTextField
-                    floatingLabelText={m('namespace')}
-                    disabled={!create}
-                    value={namespace.Namespace}
-                    onChange={(e,v) => {this.updateName(v)}}
-                    fullWidth={true}
-                    errorText={nameError}
-                    variant={"v2"}
-                />
-                <div style={styles.section}>{m('type')}</div>
+        const comps = {}
+        comps.label = (
+            <ModernTextField
+                floatingLabelText={m('label')}
+                value={namespace.Label}
+                onChange={(e,v) => {this.updateLabel(v)}}
+                fullWidth={true}
+                errorText={labelError}
+                disabled={readonly}
+                variant={"v2"}
+            />
+        )
+        comps.namespace = (
+            <ModernTextField
+                floatingLabelText={m('namespace')}
+                disabled={!create}
+                value={namespace.Namespace}
+                onChange={(e,v) => {this.updateName(v)}}
+                fullWidth={true}
+                errorText={nameError}
+                variant={"v2"}
+            />
+        )
+        comps.section = (
+            <div style={styles.section}>{m('type')}</div>
+        )
+        comps.type = (
+            <Fragment>
                 <ModernSelectField
                     hintText={m('type')}
                     value={type}
@@ -194,20 +205,39 @@ class TypeEditor extends React.Component {
                         </ModernSelectField>
                     </Fragment>
                 }
-                {showMandatory &&
-                    <Fragment>
-                        <Toggle
-                            {...ModernStyles.toggleFieldV2}
-                            toggled={this.getAdditionalData({mandatory:false}).mandatory}
-                            onToggle={(e,v) => {
-                                this.setAdditionalDataKey('mandatory', v)
-                            }}
-                            label={m('field.mandatory')}
-                            labelPosition={"right"}
-                        />
-                    </Fragment>
-                }
-            </div>
+            </Fragment>
+        )
+
+        comps.value = (
+            <ModernTextField
+                floatingLabelText={showDefaultValue}
+                value={this.getAdditionalData({defaultValue:''}).defaultValue}
+                onChange={(e,v) => {this.setAdditionalDataKey('defaultValue', v)}}
+                fullWidth={true}
+                variant={"v2"}
+            />
+        )
+
+        comps.mandatory = (
+            <Toggle
+                {...ModernStyles.toggleFieldV2}
+                toggled={this.getAdditionalData({mandatory:false}).mandatory}
+                onToggle={(e,v) => {
+                    this.setAdditionalDataKey('mandatory', v)
+                }}
+                label={m('field.mandatory')}
+                labelPosition={"right"}
+            />
+        )
+
+
+        return (
+            <div>{
+                format
+                    .filter(k => (showDefaultValue || k !== 'value'))
+                    .filter(k => (showMandatory || k !== 'mandatory'))
+                    .map(k => comps[k])
+            }</div>
         );
     }
 

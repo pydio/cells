@@ -185,7 +185,7 @@ export default class UserMetaPanel extends React.Component{
 
     renderGroup(current, tree, offset = -1){
         const {updateMeta, groupsExpanded} = this.state;
-        const {pydio, node, editMode, onRequestEditMode, supportTemplates, multiple, muiTheme} = this.props;
+        const {pydio, node, editMode, onRequestEditMode, supportTemplates, multiple, additionalProps} = this.props;
         let data = [];
         const metadata = node.getMetadata();
         let nonEmptyDataCount = 0;
@@ -214,6 +214,9 @@ export default class UserMetaPanel extends React.Component{
                     configs,
                     onValueChange: (name, value, submit) => this.updateValue(name, value, submit)
                 };
+                if(additionalProps && additionalProps[type]){
+                    baseProps = {...baseProps, ...additionalProps[type]}
+                }
                 switch (type){
                     case 'stars_rate':
                         field = <StarsForm {...baseProps}/>;
