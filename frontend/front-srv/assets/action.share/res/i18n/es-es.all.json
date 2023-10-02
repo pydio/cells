@@ -927,10 +927,10 @@
     "other": "Crear una celda nueva"
   },
   "cell.participant.single": {
-    "other": "One participant"
+    "other": "Un participante"
   },
   "cell.participant.multiple": {
-    "other": "%d participants"
+    "other": "%d participantes"
   },
   "cell.participant.other.single": {
     "other": "One other participant"
