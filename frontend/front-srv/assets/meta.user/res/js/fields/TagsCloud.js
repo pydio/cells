@@ -72,9 +72,14 @@ class TagsCloud extends React.Component {
     }
 
     suggestionLoader(callback) {
+        const {skipAutoSuggest, fieldname, column,  autoSuggestTagName} = this.props;
+        if(skipAutoSuggest){
+            callback([])
+            return;
+        }
         this.setState({loading:this.state.loading + 1});
 
-        MetaClient.getInstance().listTags(this.props.fieldname || this.props.column.name).then(tags => {
+        MetaClient.getInstance().listTags(autoSuggestTagName || fieldname || column.name).then(tags => {
             this.setState({loading:this.state.loading - 1});
             callback(tags);
         });
