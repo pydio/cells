@@ -35,7 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/compose"
-	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	serviceproto "github.com/pydio/cells/v4/common/proto/service"
@@ -45,10 +44,9 @@ import (
 	"github.com/pydio/cells/v4/common/service/resources"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/idm/meta"
 	"github.com/pydio/cells/v4/idm/meta/namespace"
 )
-
-const MetaTagsDocStoreId = "user_meta_tags"
 
 func NewUserMetaHandler(ctx context.Context) *UserMetaHandler {
 	handler := new(UserMetaHandler)
@@ -56,11 +54,13 @@ func NewUserMetaHandler(ctx context.Context) *UserMetaHandler {
 	handler.ServiceName = common.ServiceUserMeta
 	handler.ResourceName = "userMeta"
 	handler.PoliciesLoader = handler.PoliciesForMeta
+	handler.tvc = &meta.TagsValuesClient{}
 	return handler
 }
 
 type UserMetaHandler struct {
 	ctx context.Context
+	tvc *meta.TagsValuesClient
 	resources.ResourceProviderHandler
 }
 
@@ -184,8 +184,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 				var currentValue string
 				json.Unmarshal([]byte(meta.JsonValue), &currentValue)
 				log.Logger(ctx).Debug("jsonDef for namespace "+ns.Namespace, zap.Any("d", nsDef), zap.Any("v", currentValue))
-				e := s.putTagsIfNecessary(ctx, ns.Namespace, strings.Split(currentValue, ","))
-				if e != nil {
+				if e := s.tvc.StoreNewTags(ctx, ns.Namespace, strings.Split(currentValue, ",")); e != nil {
 					log.Logger(ctx).Error("Could not store meta tags for namespace "+ns.Namespace, zap.Error(e))
 				}
 			} else if jE != nil {
@@ -347,7 +346,7 @@ func (s *UserMetaHandler) ListUserMetaTags(req *restful.Request, rsp *restful.Re
 		service.RestError404(req, rsp, fmt.Errorf("unknown namespace"))
 		return
 	}
-	tags, _ := s.listTagsForNamespace(ctx, ns)
+	tags, _ := s.tvc.ListTags(ctx, ns)
 	rsp.WriteEntity(&rest.ListUserMetaTagsResponse{
 		Tags: tags,
 	})
@@ -377,71 +376,12 @@ func (s *UserMetaHandler) PutUserMetaTag(req *restful.Request, rsp *restful.Resp
 		return
 	}
 
-	e := s.putTagsIfNecessary(ctx, r.Namespace, []string{r.Tag})
+	e := s.tvc.StoreNewTags(ctx, r.Namespace, []string{r.Tag})
 	if e != nil {
 		service.RestError500(req, rsp, e)
 	} else {
 		rsp.WriteEntity(&rest.PutUserMetaTagResponse{Success: true})
 	}
-}
-
-func (s *UserMetaHandler) listTagsForNamespace(ctx context.Context, namespace string) ([]string, *docstore.Document) {
-	docClient := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
-	var tags []string
-	var doc *docstore.Document
-	r, e := docClient.GetDocument(ctx, &docstore.GetDocumentRequest{
-		StoreID:    MetaTagsDocStoreId,
-		DocumentID: namespace,
-	})
-	if e == nil && r != nil && r.Document != nil {
-		doc = r.Document
-		var docTags []string
-		if e := json.Unmarshal([]byte(r.Document.Data), &docTags); e == nil {
-			tags = docTags
-		}
-	}
-	return tags, doc
-}
-
-func (s *UserMetaHandler) putTagsIfNecessary(ctx context.Context, namespace string, tags []string) error {
-	// Store new tags
-	currentTags, storeDocument := s.listTagsForNamespace(ctx, namespace)
-	changes := false
-	for _, newT := range tags {
-		found := false
-		for _, crt := range currentTags {
-			if crt == newT {
-				found = true
-				break
-			}
-		}
-		if !found {
-			currentTags = append(currentTags, newT)
-			changes = true
-		}
-	}
-	if changes {
-		// Now store back
-		jsonData, _ := json.Marshal(currentTags)
-		docClient := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
-		if storeDocument != nil {
-			storeDocument.Data = string(jsonData)
-		} else {
-			storeDocument = &docstore.Document{
-				ID:   namespace,
-				Data: string(jsonData),
-			}
-		}
-		_, e := docClient.PutDocument(ctx, &docstore.PutDocumentRequest{
-			StoreID:    MetaTagsDocStoreId,
-			Document:   storeDocument,
-			DocumentID: namespace,
-		})
-		if e != nil {
-			return e
-		}
-	}
-	return nil
 }
 
 func (s *UserMetaHandler) DeleteUserMetaTags(req *restful.Request, rsp *restful.Response) {
@@ -450,11 +390,7 @@ func (s *UserMetaHandler) DeleteUserMetaTags(req *restful.Request, rsp *restful.
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("Delete tags for namespace "+ns, zap.String("tag", tag))
 	if tag == "*" {
-		docClient := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
-		if _, e := docClient.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{
-			StoreID:    MetaTagsDocStoreId,
-			DocumentID: ns,
-		}); e != nil {
+		if e := s.tvc.DeleteAllTags(ctx, ns); e != nil {
 			service.RestError500(req, rsp, e)
 			return
 		}
@@ -462,7 +398,7 @@ func (s *UserMetaHandler) DeleteUserMetaTags(req *restful.Request, rsp *restful.
 		service.RestError500(req, rsp, fmt.Errorf("not implemented - please use * to clear all tags"))
 		return
 	}
-	rsp.WriteEntity(&rest.DeleteUserMetaTagsResponse{Success: true})
+	_ = rsp.WriteEntity(&rest.DeleteUserMetaTagsResponse{Success: true})
 }
 
 func (s *UserMetaHandler) PerformSearchMetaRequest(ctx context.Context, request *idm.SearchUserMetaRequest) (*rest.UserMetaCollection, error) {
