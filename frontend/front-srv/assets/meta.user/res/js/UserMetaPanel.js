@@ -43,6 +43,8 @@ const StyledDiv = muiThemeable()(({style, children, muiTheme, ...other}) => {
     return <div style={cs} {...other}>{children}</div>
 })
 
+const localKey = 'pydio.layout.meta-groups-expanded'
+
 export default class UserMetaPanel extends React.Component{
 
     constructor(props){
@@ -55,6 +57,13 @@ export default class UserMetaPanel extends React.Component{
             fields: {},
             configs: new Map(),
             groupsExpanded: {},
+        }
+        if(localStorage.getItem(localKey)){
+            try{
+                this.state.groupsExpanded = JSON.parse(localStorage.getItem('pydio.layout.meta-groups-expanded')) || {}
+            } catch(e) {
+                localStorage.removeItem(localKey)
+            }
         }
     }
 
@@ -356,10 +365,15 @@ export default class UserMetaPanel extends React.Component{
             if(index === 0) {
                 sHead = {...styles.header, borderTop: 0}
             }
+            const toggleFunc = () => {
+                this.setState({groupsExpanded:{...groupsExpanded,[gPath]:!open}}, () => {
+                    localStorage.setItem(localKey, JSON.stringify(this.state.groupsExpanded))
+                })
+            }
             return (
                 <React.Fragment>
                     {gName &&
-                        <StyledDiv style={sHead} className={'nsgroup-header'} key={gName} onClick={() => this.setState({groupsExpanded:{...groupsExpanded,[gPath]:!open}})}>
+                        <StyledDiv style={sHead} className={'nsgroup-header'} key={gName} onClick={toggleFunc}>
                             <span
                                 className={"mdi mdi-chevron-" + (open?"down":"right")}
                                 style={{fontSize: 18, color:'#ccc'}}
