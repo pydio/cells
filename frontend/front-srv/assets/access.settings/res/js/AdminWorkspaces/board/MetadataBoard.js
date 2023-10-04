@@ -6,6 +6,7 @@ import Pydio from 'pydio'
 const {MaterialTable} = Pydio.requireLib('components');
 import MetaNamespace, {getGroupValue} from '../editor/MetaNamespace'
 import {IdmUserMetaNamespace, ServiceResourcePolicy} from 'cells-sdk'
+const {AsyncComponent} = Pydio.requireLib('boot')
 
 
 class MetadataBoard extends React.Component{
@@ -78,9 +79,9 @@ class MetadataBoard extends React.Component{
     }
 
     render(){
-        const {muiTheme, currentNode, pydio, accessByName, policiesBuilder} = this.props;
+        const {muiTheme, currentNode, pydio, accessByName, policiesBuilder, customButtons = []} = this.props;
         const adminStyle = AdminComponents.AdminStyles(muiTheme.palette);
-        let {namespaces, loading, dialogOpen, selectedNamespace, create, m} = this.state;
+        let {namespaces, loading, dialogOpen, selectedNamespace, create, m, async} = this.state;
         if(!selectedNamespace){
             selectedNamespace = this.emptyNs();
         }
@@ -135,6 +136,25 @@ class MetadataBoard extends React.Component{
         const icon = currentNode.getMetadata().get('icon_class');
         let buttons = [];
         const actions = [];
+        if(customButtons) {
+            customButtons.forEach(b => {
+                if(b.access && !accessByName(b.access)){
+                    return
+                }
+                const label = pydio.MessageHash[b.label]||b.label;
+                const click = () => {
+                    if(b.insert){
+                        const [namespace, component] = b.insert.split('.')
+                        this.setState({async:{namespace, component}})
+                    }
+                }
+                if (b.icon) {
+                    buttons.push(<IconButton iconClassName={"mdi mdi-" + b.icon} tooltip={label} onClick={click} {...adminStyle.props.header.iconButton}/>)
+                } else {
+                    buttons.push(<FlatButton label={label} onClick={click} {...adminStyle.props.header.flatButton}/>)
+                }
+            })
+        }
         if(accessByName('Create')){
             buttons.push(<FlatButton primary={true} label={m('namespace.add')} onClick={()=>{this.create()}} {...adminStyle.props.header.flatButton}/>);
             actions.push({
@@ -168,6 +188,7 @@ class MetadataBoard extends React.Component{
                         reloadAction={this.load.bind(this)}
                         loading={loading}
                     />
+                    {async && <AsyncComponent namespace={async.namespace} componentName={async.component} onDismiss={()=>this.setState({async: null}, () => {this.load()})}/>}
                     <div className="layout-fill">
                         <AdminComponents.SubHeader title={m('namespaces')} legend={m('namespaces.legend')}/>
                             {Object.keys(groupedNS).sort().map(k => {
