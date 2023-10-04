@@ -69,6 +69,8 @@ const FieldRow = ({constants, name, label, values, children, style, muiTheme, ge
     );
 }
 
+const localKey = 'pydio.layout.meta-groups-expanded.search'
+
 class AdvancedSearch extends Component {
 
     static get styles() {
@@ -81,8 +83,16 @@ class AdvancedSearch extends Component {
         super(props);
         this.state = {
             searchOptions:{},
-            basenameOrContent: props.values['basenameOrContent'] || ''
+            basenameOrContent: props.values['basenameOrContent'] || '',
+            expands: {}
         };
+        if(localStorage.getItem(localKey)){
+            try{
+                this.state.expands = JSON.parse(localStorage.getItem(localKey))
+            }catch(e){
+                localStorage.removeItem(localKey)
+            }
+        }
         props.getSearchOptions().then(so => this.setState({searchOptions: so}))
     }
 
@@ -144,6 +154,90 @@ class AdvancedSearch extends Component {
         onChange(clearVals);
     }
 
+    toggleGroup(group) {
+        const {expands} = this.state;
+        const newExpands = {...expands, [group]: !expands[group]}
+        console.log(expands, newExpands)
+        this.setState({expands: newExpands})
+        localStorage.setItem(localKey, JSON.stringify(newExpands));
+    }
+
+    metaGroupsToTree(indexedMeta) {
+        const groupedNS = {}
+        indexedMeta.forEach((meta) => {
+            const {groupName = ''} = meta
+            if(!groupedNS[groupName]) {
+                groupedNS[groupName] = new Map()
+            }
+            groupedNS[groupName].set(meta.namespace, meta)
+        })
+        const addNode = (tree, path, meta) => {
+            let current = tree;
+            for (let segment of path) {
+                if (!current[segment]) {
+                    current[segment] = {};
+                }
+                current = current[segment];
+            }
+            current.__NS__ = meta
+        }
+        const tree = {};
+        Object.keys(groupedNS).map(path => {
+            const meta = groupedNS[path]
+            path = path.replace(/(^\/|\/$)/g, '').replace(/\\/g, '/');
+            if (path === '') {
+                tree.__NS__ = meta
+                return
+            }
+            const segments = path.split('/');
+            addNode(tree, segments, meta);
+        })
+        return tree;
+    }
+
+    treeToFields(tree, parent = '') {
+        const {expands} = this.state
+        const output = []
+        const configs = tree.__NS__ || new Map()
+        // Push Fields
+        configs.forEach((m) => output.push({...m, name: m.namespace, userDefined: true}))
+        // Push subgroups if there are
+        const groupKeys = Object.keys(tree).filter(k => k !== '__NS__')
+        groupKeys.sort()
+        groupKeys.map(group => {
+            const expandKey = parent+group;
+            let label = parent+group
+            const actives = this.treeToActives(tree[group])
+            output.push({subheader: label, expandKey, expanded: expands[expandKey], actives})
+            if(expands[expandKey]){
+                output.push(...this.treeToFields(tree[group], group + '/'))
+            }
+        })
+        return output
+    }
+
+    treeToActives(tree) {
+        const {values, searchTools} = this.props;
+        const {SearchConstants} = searchTools;
+        let actives = 0
+        const isActive= (name) => !!values[SearchConstants.KeyMetaPrefix+name]
+        Object.keys(tree).forEach(key => {
+            if(key === '__NS__') {
+                tree[key].forEach(meta => {
+                    if(isActive(meta.namespace)){
+                        actives++
+                    }
+                })
+            } else {
+                // Count sub-branches
+                actives += this.treeToActives(tree[key])
+            }
+        })
+        console.log(tree, actives)
+        return actives
+    }
+
+
     render() {
 
         const {searchTools, getMessage, values, rootStyle, saveSearch, clearSavedSearch, muiTheme} = this.props;
@@ -167,6 +261,19 @@ class AdvancedSearch extends Component {
             cursor: 'pointer',
             display:'inline-block',
             marginLeft: 10
+        }
+        const activesBadge = {
+            padding: '0 5px',
+            marginLeft: 5,
+            borderRadius: 4,
+            backgroundColor: muiTheme.palette.mui3['tertiary-container'],
+            color:muiTheme.palette.mui3['on-tertiary-container'],
+            fontWeight: 600
+        }
+        const activesBadgeExpanded = {
+            ...activesBadge,
+            backgroundColor: 'transparent',
+            border: '1px solid ' + muiTheme.palette.mui3['tertiary-container']
         }
 
         const {getDefaultScope, isDefaultScope, advancedValues} = searchTools
@@ -192,13 +299,16 @@ class AdvancedSearch extends Component {
 
         const {indexedContent = false, indexedMeta = []} = searchOptions;
         const fNameLabel = getMessage(indexedContent?'searchengine.field.basenameOrContent' : 1);
+        const tree = this.metaGroupsToTree(indexedMeta)
+        const userFields = this.treeToFields(tree)
+
         const fields = [
             {name:'basenameOrContent', label: fNameLabel},
             {name:kk.KeyScope, type: 'scope', label: getMessage('searchengine.scope.title')},
             {name:kk.KeyMetaShared, type:'share', label: getMessage('searchengine.share.title')},
             {subheader:getMessage(489)},
             {name:kk.KeyMime, type: 'mime', label: getMessage('searchengine.format.title')},
-            ...indexedMeta.map(m => {return {...m, name: m.namespace, userDefined: true}}), // copy namespace prop to name
+            ... userFields,
             {subheader:getMessage(498)},
             {name:kk.KeyModifDate, type: 'modiftime', label: getMessage(4)},
             {name:kk.KeyBytesize, type:'bytesize', label: getMessage(2)},
@@ -275,7 +385,15 @@ class AdvancedSearch extends Component {
 
                 {fields.map(f => {
                     if(f.subheader) {
-                        return <Subheader style={{...headerStyle, marginTop: 0}}>{f.subheader}</Subheader>
+                        const cursor = f.expandKey ? {cursor: 'pointer'} : {}
+                        const click = f.expandKey ? () => this.toggleGroup(f.expandKey) : null
+                        return (
+                            <Subheader style={{...headerStyle, ...cursor, marginTop: 0}} onClick={click}>
+                                {f.expandKey && <span className={"mdi mdi-chevron-"+(f.expanded?'down':'right')}/>}
+                                {f.subheader}
+                                {f.actives > 0 && <span style={f.expanded?activesBadgeExpanded:activesBadge}>{f.actives}</span>}
+                            </Subheader>
+                        )
                     } else {
                         return <FieldRow {...rowProps} constants={kk} name={f.name} label={f.label}>{this.renderField(f)}</FieldRow>
                     }
