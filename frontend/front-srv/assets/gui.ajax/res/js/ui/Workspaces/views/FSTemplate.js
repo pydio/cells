@@ -320,6 +320,7 @@ class FSTemplate extends React.Component {
                     <Resizable
                         enable={{ top:false, right:false, bottom:false, left:!rightColumnClosed, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
                         style={{transition: 'width 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'}}
+                        handleStyles={{left:{width: 6, left: 0}}}
                         size={{width:rightColumnClosed?0:rightColumnWidth, height: '100%'}}
                         onResizeStop={(e, direction, ref, d)=>{
                             const newWidth = rightColumnWidth+d.width
