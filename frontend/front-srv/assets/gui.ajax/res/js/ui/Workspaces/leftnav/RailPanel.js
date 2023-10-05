@@ -429,7 +429,7 @@ let RailPanel = ({
             size={{width: activeBar ? resizerWidth : railWidth, height: '100%'}}
             onResizeStop={(e, direction, ref, d)=> updateResizerWidth(resizerWidth+d.width) }
             minWidth={activeBar?railWidth + 50:railWidth}
-            handleStyles={{right: {zIndex: 900}}}
+            handleStyles={{right: {zIndex: 900, width: 5, right: -5}}}
             style={{transition: 'width 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms', zIndex: 905}}
         >
             <div className="left-panel vertical_fit" style={{
