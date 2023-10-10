@@ -121,7 +121,7 @@
     "mini-css-extract-plugin": "^2.7.3",
     "react-docgen": "^2.14.1",
     "style-loader": "^3.3.1",
-    "webpack": "^5.75.0",
+    "webpack": ">=5.76.0",
     "webpack-cli": "^5.0.1"
   },
   "scripts": {
