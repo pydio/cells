@@ -30,7 +30,6 @@
     "codemirror": "^5.59.4",
     "dagre": "^0.8.5",
     "graphlib": "^2.1.8",
-    "grunt-contrib-uglify": "^5.0.0",
     "jointjs": "^3.1.1",
     "lodash": "^4.17.21",
     "lodash.shuffle": "^4.2.0",
@@ -39,7 +38,6 @@
     "redux": "^4.0.4",
     "redux-devtools-extension": "^2.13.8",
     "redux-thunk": "^2.3.0",
-    "swagger-ui-react": "3.44.0",
     "uuid": "^7.0.2"
   },
   "scripts": {
