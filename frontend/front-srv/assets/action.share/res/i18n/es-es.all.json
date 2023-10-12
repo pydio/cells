@@ -663,10 +663,10 @@
     "other": "Monitorizar"
   },
   "34": {
-    "other": "Select or Create Users"
+    "other": "Seleccionar o Crear Usuarios"
   },
   "34b": {
-    "other": "Select Users"
+    "other": "Seleccionar Usuarios"
   },
   "35": {
     "other": "Nombre"
@@ -933,16 +933,16 @@
     "other": "%d participantes"
   },
   "cell.participant.other.single": {
-    "other": "One other participant"
+    "other": "Un otro participante"
   },
   "cell.participant.other.multiple": {
-    "other": "%d other participants"
+    "other": "%d otros participantes"
   },
   "cell.folder-root.single": {
-    "other": "One folder"
+    "other": "Una carpeta"
   },
   "cell.folder-root.multiple": {
-    "other": "%d folders"
+    "other": "%d carpetas"
   },
   "link.visibility.title": {
     "other": "[Advanced] Visibilidad"
