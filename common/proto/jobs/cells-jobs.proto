@@ -176,6 +176,28 @@ message ContextMetaSingleQuery {
     idm.PolicyCondition Condition = 2;
 }
 
+message DataSelector {
+    // Selector custom label
+    string Label = 1;
+    // Selector additional description
+    string Description = 2;
+    // Query used to compute output object or list of objects
+    service.Query Query = 3;
+    // Collect results
+    bool Collect = 4;
+    // Ignore query and just fan out input.LastOutput.JsonBody
+    bool FanOutInput = 5;
+    // Optional Timeout for this selector
+    string Timeout = 6;
+    // Clear previous selection
+    bool ClearInput = 7;
+}
+
+message DataSelectorSingleQuery {
+    // Perform a JsonPath query on the LastOutput.JsonBody
+    string JsonPath = 1;
+}
+
 message Schedule {
     // ISO 8601 Description of the scheduling for instance "R2/2015-06-04T19:25:16.828696-07:00/PT4S"
     // where first part is the number of repetitions (if 0, infinite repetition), 
@@ -203,10 +225,11 @@ message Action {
 
     // Nodes Selector
     NodesSelector NodesSelector = 2;
-    // Users Selector (deprecated in favor of IdmSelector)
-    UsersSelector UsersSelector = 3;
     // Node Filter
     NodesSelector NodesFilter = 4;
+
+    // Users Selector (deprecated in favor of IdmSelector)
+    UsersSelector UsersSelector = 3;
     // User Filter (deprecated in favor of IdmSelector)
     UsersSelector UsersFilter = 5;
 
@@ -226,6 +249,10 @@ message Action {
     ContextMetaFilter ContextMetaFilter = 11;
     // Filter on specific triggers
     TriggerFilter TriggerFilter = 19;
+    // Collect/select values from JsonBody
+    DataSelector DataSelector = 22;
+    // Filter values from JsonBody
+    DataSelector DataFilter = 23;
 
     // Defined parameters for this action
     map<string, string> Parameters = 7;
@@ -250,6 +277,8 @@ message Job {
     string Label = 2;
     // Who created this Job
     string Owner = 3;
+    // Additional user-defined metadata, can be used for icon, documentation, pre-requisites, etc.
+    map<string,string> Metadata = 30;
 
     // Timestamp for creation time
     int32 CreatedAt = 25;

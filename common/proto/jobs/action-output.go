@@ -52,6 +52,24 @@ func (m *ActionOutput) JsonAsValue() configx.Value {
 	return v.Get()
 }
 
+func (m *ActionOutput) JsonSliceOfObjects() ([]map[string]interface{}, error) {
+	var entries []map[string]interface{}
+	er := json.Unmarshal(m.JsonBody, &entries)
+	return entries, er
+}
+
+func (m *ActionOutput) JsonSliceOfInterfaces() ([]interface{}, error) {
+	var entries []interface{}
+	er := json.Unmarshal(m.JsonBody, &entries)
+	return entries, er
+}
+
+func (m *ActionOutput) JsonObject() (map[string]interface{}, error) {
+	var entry map[string]interface{}
+	er := json.Unmarshal(m.JsonBody, &entry)
+	return entry, er
+}
+
 // MarshalLogObject implements zapcore Marshaler interface
 func (m *ActionOutput) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	maxLength := 1024

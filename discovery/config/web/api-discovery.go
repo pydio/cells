@@ -335,6 +335,8 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 			}
 		case "object.DataSourceSingleQuery":
 			form = protos.GenerateProtoToForm("dataSourceSingleQuery", &object.DataSourceSingleQuery{}, asSwitch)
+		case "jobs.DataSelectorSingleQuery":
+			form = protos.GenerateProtoToForm("dataSelectorSingleQuery", &jobs.DataSelectorSingleQuery{}, asSwitch)
 		case "jobs.ContextMetaSingleQuery", "policy.Conditions":
 			// Add SwitchField for PolicyCondition
 			condField := &forms.SwitchField{

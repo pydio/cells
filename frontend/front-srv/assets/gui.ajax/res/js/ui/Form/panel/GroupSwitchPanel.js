@@ -46,8 +46,10 @@ export default class extends React.Component {
 
         this.props.parameters.map(function(p){
             "use strict";
-            if(!p['group_switch_name']) return;
-            if(p['group_switch_name'] != switchName){
+            if(!p['group_switch_name']) {
+                return;
+            }
+            if(p['group_switch_name'] !== switchName){
                 potentialSubSwitches.push(p);
                 return;
             }
@@ -118,7 +120,7 @@ export default class extends React.Component {
     };
 
     render() {
-        const {variant, variantShowLegend} = this.props;
+        const {variant, variantShowLegend, onValidStatusChange, onParameterChange, applyButtonAction} = this.props;
 
         const attributes = this.props.paramAttributes;
         const values = this.props.values;
@@ -165,8 +167,9 @@ export default class extends React.Component {
             const {onAltTextSwitch, altTextSwitchIcon, altTextSwitchTip} = this.props;
             subForm = (
                 <FormPanel
-                    onParameterChange={this.props.onParameterChange}
-                    applyButtonAction={this.props.applyButtonAction}
+                    onParameterChange={onParameterChange}
+                    onValidStatusChange={onValidStatusChange}
+                    applyButtonAction={applyButtonAction}
                     disabled={this.props.disabled}
                     ref={paramName + '-SUB'}
                     key={paramName + '-SUB'}

@@ -39,8 +39,7 @@ type FormField struct {
 	ChoiceJsonList   string
 }
 
-func (b *FormField) Serialize(T i18n.TranslateFunc) (params []*SerialFormParam) {
-
+func (b *FormField) StringDefault() string {
 	defaultValue := ""
 	if b.Default != nil {
 		switch b.Type {
@@ -59,7 +58,7 @@ func (b *FormField) Serialize(T i18n.TranslateFunc) (params []*SerialFormParam) 
 			} else {
 				fmt.Println("[WARNING] Wrong Default Format, expected bool, got", b.Default, " for field ", b.Name, b.Label)
 			}
-		case ParamInteger:
+		case ParamInteger, ParamIntegerBytes:
 			if in, ok := b.Default.(int); ok {
 				defaultValue = fmt.Sprintf("%v", in)
 			} else {
@@ -67,13 +66,17 @@ func (b *FormField) Serialize(T i18n.TranslateFunc) (params []*SerialFormParam) 
 			}
 		}
 	}
+	return defaultValue
+}
+
+func (b *FormField) Serialize(T i18n.TranslateFunc) (params []*SerialFormParam) {
 
 	s := &SerialFormParam{
 		Name:        b.Name,
 		Label:       T(b.Label),
 		Description: T(b.Description),
 		Type:        string(b.Type),
-		Default:     defaultValue,
+		Default:     b.StringDefault(),
 		Mandatory:   b.Mandatory,
 		Editable:    b.Editable,
 	}

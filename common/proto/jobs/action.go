@@ -23,6 +23,7 @@ package jobs
 import (
 	"context"
 	"fmt"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"path"
 	"strings"
 	"sync"
@@ -92,6 +93,9 @@ func (a *Action) getSelectors() []InputSelector {
 	}
 	if a.DataSourceSelector != nil {
 		selectors = append(selectors, a.DataSourceSelector)
+	}
+	if a.DataSelector != nil {
+		selectors = append(selectors, a.DataSelector)
 	}
 	return selectors
 }
@@ -210,6 +214,8 @@ func (a *Action) FanOutSelector(ctx context.Context, selector InputSelector, inp
 					input = input.WithAcl(proto.Clone(aclP).(*idm.ACL))
 				} else if dsP, oD := obj.(*object.DataSource); oD {
 					input = input.WithDataSource(proto.Clone(dsP).(*object.DataSource))
+				} else if jc, oJ := obj.(JsonChunk); oJ {
+					input = input.WithOutput(&ActionOutput{JsonBody: jc})
 				} else {
 					break
 				}
@@ -254,6 +260,7 @@ func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, in
 	var workspaces []*idm.Workspace
 	var acls []*idm.ACL
 	var dss []*object.DataSource
+	var jsonChunks []JsonChunk
 
 	logger := log.TasksLogger(a.debugLogContext(ctx, false, selector))
 	logger.Debug("ZAPS", zap.Object("Input", input))
@@ -286,6 +293,8 @@ func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, in
 					acls = append(acls, acl)
 				} else if ds, oD := obj.(*object.DataSource); oD {
 					dss = append(dss, ds)
+				} else if jc, oJ := obj.(JsonChunk); oJ {
+					jsonChunks = append(jsonChunks, jc)
 				}
 			case <-selectDone:
 				close(wire)
@@ -309,17 +318,29 @@ func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, in
 	}()
 	wg.Wait()
 
+	if len(nodes) == 0 && len(roles) == 0 && len(workspaces) == 0 && len(acls) == 0 && len(users) == 0 && len(dss) == 0 && len(jsonChunks) == 0 {
+		done <- true
+		return
+	}
+
 	input = input.WithNodes(nodes...)
 	input = input.WithRoles(roles...)
 	input = input.WithWorkspaces(workspaces...)
 	input = input.WithAcls(acls...)
 	input = input.WithUsers(users...)
 	input = input.WithDataSources(dss...)
-	if len(nodes) == 0 && len(roles) == 0 && len(workspaces) == 0 && len(acls) == 0 && len(users) == 0 && len(dss) == 0 {
-		done <- true
-		return
+	if len(jsonChunks) > 0 {
+		var full []interface{}
+		for _, j := range jsonChunks {
+			var chunk interface{}
+			if e := json.Unmarshal(j, &chunk); e == nil {
+				full = append(full, &chunk)
+			}
+		}
+		fullBody, _ := json.Marshal(full)
+		input = input.WithOutput(&ActionOutput{JsonBody: fullBody})
 	}
-	count := len(nodes) + len(roles) + len(workspaces) + len(acls) + len(users) + len(dss)
+	count := len(nodes) + len(roles) + len(workspaces) + len(acls) + len(users) + len(dss) + len(jsonChunks)
 	if count > 0 {
 		logger.Debug(fmt.Sprintf("Sent %d objects as a collection", count))
 	} else {

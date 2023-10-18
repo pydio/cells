@@ -7,12 +7,12 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "google.golang.org/protobuf/proto"
+	_ "github.com/pydio/cells/v4/common/proto/tree"
+	_ "github.com/pydio/cells/v4/common/proto/idm"
 	_ "github.com/pydio/cells/v4/common/proto/activity"
 	_ "github.com/pydio/cells/v4/common/proto/object"
 	_ "google.golang.org/protobuf/types/known/anypb"
 	_ "github.com/pydio/cells/v4/common/proto/service"
-	_ "github.com/pydio/cells/v4/common/proto/tree"
-	_ "github.com/pydio/cells/v4/common/proto/idm"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
@@ -95,6 +95,17 @@ func (this *ContextMetaSingleQuery) Validate() error {
 	}
 	return nil
 }
+func (this *DataSelector) Validate() error {
+	if this.Query != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Query); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Query", err)
+		}
+	}
+	return nil
+}
+func (this *DataSelectorSingleQuery) Validate() error {
+	return nil
+}
 func (this *Schedule) Validate() error {
 	return nil
 }
@@ -104,14 +115,14 @@ func (this *Action) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("NodesSelector", err)
 		}
 	}
-	if this.UsersSelector != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.UsersSelector); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("UsersSelector", err)
-		}
-	}
 	if this.NodesFilter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.NodesFilter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("NodesFilter", err)
+		}
+	}
+	if this.UsersSelector != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.UsersSelector); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("UsersSelector", err)
 		}
 	}
 	if this.UsersFilter != nil {
@@ -154,6 +165,16 @@ func (this *Action) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("TriggerFilter", err)
 		}
 	}
+	if this.DataSelector != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DataSelector); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("DataSelector", err)
+		}
+	}
+	if this.DataFilter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DataFilter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("DataFilter", err)
+		}
+	}
 	// Validation of proto3 map<> fields is unsupported.
 	for _, item := range this.ChainedActions {
 		if item != nil {
@@ -177,6 +198,7 @@ func (this *Action) Validate() error {
 	return nil
 }
 func (this *Job) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	if this.Schedule != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Schedule); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Schedule", err)

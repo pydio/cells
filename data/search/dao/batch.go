@@ -166,8 +166,12 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 		}
 	}
 	ref := indexNode.GetStringMeta("ContentRef")
+	if pr := indexNode.GetStringMeta("pydio:ContentRef"); pr != "" {
+		ref = pr
+	}
 	if b.options.IndexContent && indexNode.IsLeaf() && ref != "" {
 		delete(indexNode.Meta, "ContentRef")
+		delete(indexNode.Meta, "pydio:ContentRef")
 		if reader, e := b.getStdRouter().GetObject(b.ctx, &tree.Node{Path: ref}, &models.GetRequestData{Length: -1}); e == nil {
 			if strings.HasSuffix(ref, ".gz") {
 				// Content is gzip-compressed
