@@ -82,6 +82,17 @@ func ParseReplicableTuples(params map[string]string, keys ...Tuple) []map[string
 			}
 		}
 		if complete {
+			// Double check values (if no tuple is mandatory, this may create infinite loop otherwise)
+			nonEmpty := false
+			for _, v := range tuple {
+				if v != "" {
+					nonEmpty = true
+					break
+				}
+			}
+			if !nonEmpty {
+				break
+			}
 			out = append(out, tuple)
 			i++
 		} else {

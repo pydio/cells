@@ -248,6 +248,11 @@ func (a *ActionMessage) WithError(e error) *ActionMessage {
 
 }
 
+// AsRunError combines an input.WithError and the error itself
+func (a *ActionMessage) AsRunError(e error) (*ActionMessage, error) {
+	return a.WithError(e), e
+}
+
 func (a *ActionMessage) WithIgnore() *ActionMessage {
 
 	b := a.Clone()

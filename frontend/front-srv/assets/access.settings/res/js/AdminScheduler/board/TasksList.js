@@ -24,6 +24,7 @@ import {IconButton, FontIcon, FlatButton, RaisedButton, Paper} from 'material-ui
 const {JobsStore, SingleJobProgress, moment} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
 import TaskActivity from './TaskActivity'
+import TaskArtifacts from "./TaskArtifacts";
 
 class TasksList extends React.Component {
 
@@ -83,7 +84,6 @@ class TasksList extends React.Component {
     }
 
     deleteSelection(){
-        console.log('Delete Now?')
         const {pydio, job} = this.props;
         const {selectedRows} = this.state;
         pydio.UI.openConfirmDialog({
@@ -151,7 +151,7 @@ class TasksList extends React.Component {
 
     render(){
 
-        const {pydio, adminStyles, job} = this.props;
+        const {pydio, adminStyles, job, artifacts} = this.props;
         const {selectedRows, working, mode} = this.state;
 
         if(!job){
@@ -182,12 +182,16 @@ class TasksList extends React.Component {
                     return dateString;
                 }},
             {name:'StatusMessage', label:m('task.message'), hideSmall: true, renderCell:(row)=>{
+                    let statusMessage = row.StatusMessage
+                    if(artifacts && artifacts[row.ID] && Object.keys(artifacts[row.ID]).length > 0){
+                        statusMessage = <TaskArtifacts statusMessage={statusMessage} artifacts={artifacts[row.ID]}/>
+                    }
                     if(row.Status === 'Error') {
-                        return <span style={{fontWeight: 500, color: '#E53935'}}>{row.StatusMessage}</span>;
+                        return <span style={{fontWeight: 500, color: '#E53935'}}>{statusMessage}</span>;
                     } else if (row.Status === 'Running') {
                         return <SingleJobProgress pydio={pydio} jobID={row.JobID} taskID={row.ID}/>
                     } else {
-                        return row.StatusMessage;
+                        return statusMessage;
                     }
                 }},
             {name:'EndTime', style:{width: 100}, headerStyle:{width: 100}, label:m('task.duration'), hideSmall: true, renderCell: (row) => {

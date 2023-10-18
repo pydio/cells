@@ -157,6 +157,10 @@ class Activity extends React.Component{
                 className = "file-send";
                 title = "Moved";
                 break;
+            case "Event":
+                className = "bell-outline";
+                title = "Event";
+                break;
             case "Share":
                 className = "share-variant";
                 if (activity.object.type === "Cell"){
@@ -242,7 +246,7 @@ class Activity extends React.Component{
             </div>
         );
         let onClick;
-        if(activity.type !== 'Delete' && activity.object && activity.object.type === 'Folder' || activity.object.type === 'Document') {
+        if(activity.type !== 'Delete' && activity.object && (activity.object.type === 'Folder' || activity.object.type === 'Document')) {
             const nn = nodesFromObject(activity.object, pydio)
             if(nn.length) {
                 onClick = () => {

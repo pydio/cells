@@ -27,6 +27,8 @@ import PropTypes from 'prop-types';
 import Pydio from 'pydio';
 import LangUtils from "pydio/util/lang";
 import {Paper, Tab, Tabs} from "material-ui";
+import Tooltip from './Tooltip'
+import deepEqual from 'deep-equal'
 
 /**
  * Form Panel is a ready to use form builder inherited for Pydio's legacy parameters formats ('standard form').
@@ -156,7 +158,7 @@ export default createReactClass({
             this._hiddenValues = {};
             this._parametersMetadata = {};
         }
-        if(newProps.values && newProps.values !== this.props.values){
+        if(newProps.values && !deepEqual(newProps.values, this.props.values)){
             this.checkValidStatus(newProps.values);
         }
     },
@@ -229,7 +231,11 @@ export default createReactClass({
 
     checkValidStatus(values){
         const failedMandatories = [];
-        this.props.parameters.map(function(p){
+        const {parameters, replicationGroup, forceValidStatusCheck, onValidStatusChange} = this.props;
+        parameters.map(function(p){
+            if (p.replicationGroup && p.replicationGroup !== replicationGroup /*&& p.replicationMandatory !== 'true'*/) {
+                return
+            }
             if (['string', 'textarea', 'password', 'integer', 'integer-bytes'].indexOf(p.type) > -1 && (p.mandatory === "true" || p.mandatory === true)) {
                 if(!values || !values.hasOwnProperty(p.name) || values[p.name] === undefined || values[p.name] === ""){
                     failedMandatories.push(p);
@@ -244,8 +250,8 @@ export default createReactClass({
         let previousValue, newValue;
         previousValue = this._internalValid;
         newValue = !failedMandatories.length;
-        if((newValue !== this._internalValid || this.props.forceValidStatusCheck) && this.props.onValidStatusChange) {
-            this.props.onValidStatusChange(newValue, failedMandatories);
+        if((newValue !== this._internalValid || forceValidStatusCheck || replicationGroup) && onValidStatusChange) {
+            onValidStatusChange(newValue, failedMandatories);
         }
         this._internalValid = newValue;
     },
@@ -279,7 +285,7 @@ export default createReactClass({
         allGroups['__DEFAULT__'] = {FIELDS:[]};
         const replicationGroups = {};
         const {parameters, values, skipFieldsTypes, disabled, binary_context, variant, variantShowLegend, panelStyle} = this.props;
-        const {altTextSwitchIcon, altTextSwitchTip, onAltTextSwitch} = this.props;
+        const {altTextSwitchIcon, altTextSwitchTip, onAltTextSwitch, altTextSwitchTipOff = 'Disable Mode Template'} = this.props;
 
         parameters.map(function(attributes){
 
@@ -321,14 +327,14 @@ export default createReactClass({
                     field = (
                         <GroupSwitchPanel
                             {...this.props}
-                            onChange={this.onSubformChange}
+                            onChange={this.onSubformChange.bind(this)}
                             paramAttributes={attributes}
                             parameters={parameters}
                             values={values}
                             key={paramName}
                             onScrollCallback={null}
                             limitToGroups={null}
-                            onValidStatusChange={this.onSubformValidStatusChange}
+                            onValidStatusChange={this.onSubformValidStatusChange.bind(this)}
                         />
                     );
 
@@ -363,10 +369,7 @@ export default createReactClass({
 
                     const {description, readonly, multiple} = attributes;
                     const legendLabel = warningText?warningText:description;
-                    let {label} = attributes;
-                    if(variantShowLegend && attributes.type !== 'boolean'){
-                        label = <Fragment>{label} <span>- {legendLabel}</span></Fragment>;
-                    }
+                    const {label} = attributes;
 
                     const props = {
                         ref:"form-element-" + paramName,
@@ -381,8 +384,8 @@ export default createReactClass({
                         binary_context:binary_context,
                         displayContext:'form',
                         applyButtonAction:this.applyButtonAction,
-                        variant:variant,
-                        variantShowLegend:variantShowLegend,
+                        variant,
+                        variantShowLegend,
                         errorText:mandatoryMissing? Pydio.getInstance().MessageHash['621']:( errorText?errorText:null ),
                         onAltTextSwitch, altTextSwitchIcon, altTextSwitchTip
                     };
@@ -400,6 +403,21 @@ export default createReactClass({
                             {FormManager.createFormElement(props)}
                         </div>
                     );
+
+                    if(variantShowLegend && legendLabel && attributes.type !== 'legend') {
+                        field = (
+                            <Tooltip
+                                attributes={attributes}
+                                label={label}
+                                legendLabel={legendLabel}
+                                onAltTextSwitch={onAltTextSwitch}
+                                altTextSwitchTip={altTextSwitchTip}
+                                altTextSwitchTipOff={altTextSwitchTipOff}
+                                {...this.props}
+                            >{field}</Tooltip>
+                        )
+                    }
+
                 }else{
 
                     this._hiddenValues[paramName] = (values[paramName] === undefined ? attributes['default'] : values[paramName]);
@@ -421,6 +439,7 @@ export default createReactClass({
                 <ReplicationPanel
                     {...this.props}
                     key={"replication-group-" + rGroupData.PARAMS[0].name}
+                    replicationGroup={rGroup}
                     onChange={this.onSubformChange}
                     onParameterChange={null}
                     values={this.getValues()}
@@ -428,6 +447,7 @@ export default createReactClass({
                     parameters={rGroupData.PARAMS}
                     applyButtonAction={this.applyButtonAction}
                     onScrollCallback={null}
+                    onValidStatusChange={this.onSubformValidStatusChange.bind(this)}
                 />
             );
         });

@@ -23,7 +23,7 @@ import {IconButton, Paper} from 'material-ui'
 
 const UP_ARROW = 'mdi mdi-chevron-up';
 const DOWN_ARROW = 'mdi mdi-chevron-down';
-const REMOVE = 'mdi mdi-close';
+const REMOVE = 'mdi mdi-delete-circle';
 const ADD_VALUE = 'mdi mdi-plus';
 
 import FormPanel from './FormPanel'
@@ -40,7 +40,7 @@ class ReplicatedGroup extends Component{
 
     render(){
 
-        const {depth, onSwapUp, onSwapDown, onRemove, parameters, subValues, disabled, onAddValue} = this.props;
+        const {first, hideSwaps, onSwapUp, onSwapDown, onRemove, parameters, subValues, disabled, onAddValue} = this.props;
         const {toggled} = this.state;
         const unique = parameters.length === 1;
         const firstParam = parameters[0];
@@ -72,27 +72,29 @@ class ReplicatedGroup extends Component{
                         </div>
                         }
                         <div>
-                            <div className={REMOVE} style={{padding:'8px 4px', cursor:'pointer', ...remStyle}} onClick={onRemove}/>
+                            <div className={REMOVE} style={{padding:'8px 4px', cursor:'pointer', color:'#9e9e9e', ...remStyle}} onClick={onRemove}/>
                         </div>
-                        <div style={{display:'flex', flexDirection: 'column', padding:'0 4px'}}>
-                            <div className={UP_ARROW} style={{height:16,cursor:'pointer', ...upStyle}} onClick={onSwapUp}/>
-                            <div className={DOWN_ARROW} style={{height:16,cursor:'pointer', ...downStyle}} onClick={onSwapDown}/>
-                        </div>
+                        {!hideSwaps &&
+                            <div style={{display:'flex', flexDirection: 'column', padding:'0 4px'}}>
+                                <div className={UP_ARROW} style={{height:16,cursor:'pointer', ...upStyle}} onClick={onSwapUp}/>
+                                <div className={DOWN_ARROW} style={{height:16,cursor:'pointer', ...downStyle}} onClick={onSwapDown}/>
+                            </div>
+                        }
                     </div>
                 </div>
             );
         }
 
         return (
-            <Paper zDepth={0} style={{border:'2px solid whitesmoke', marginBottom: 8}}>
-                <div style={{display:'flex', alignItems: 'center'}}>
+            <Paper zDepth={0} style={{border:'2px solid whitesmoke', marginTop: (first ? 0 : -2)}}>
+                <div style={{display:'flex', alignItems: 'center', paddingRight: 2}}>
                     <div>{<IconButton iconClassName={'mdi mdi-menu-' + (this.state.toggled ? 'down' : 'right')} iconStyle={{color:'rgba(0,0,0,.15)'}} onClick={()=>{this.setState({toggled:!this.state.toggled})}}/>}</div>
-                    <div style={{flex: 1, fontSize:16}}>{instanceValue}</div>
+                    <div style={{flex: 1, fontSize:16, cursor:hideSwaps?'move':null}}>{instanceValue}</div>
                     <div>
                         {onAddValue && <IconButton style={ibStyles} iconClassName={ADD_VALUE} onClick={onAddValue}/>}
-                        <IconButton style={ibStyles} iconClassName={REMOVE} onClick={onRemove} disabled={!!!onRemove || disabled}/>
-                        <IconButton style={ibStyles} iconClassName={UP_ARROW} onClick={onSwapUp} disabled={!!!onSwapUp || disabled}/>
-                        <IconButton style={ibStyles} iconClassName={DOWN_ARROW} onClick={onSwapDown} disabled={!!!onSwapDown || disabled}/>
+                        <IconButton style={ibStyles} iconStyle={{color:'#9e9e9e'}} iconClassName={REMOVE} onClick={onRemove} disabled={!!!onRemove || disabled}/>
+                        {!hideSwaps && <IconButton style={ibStyles} iconClassName={UP_ARROW} onClick={onSwapUp} disabled={!!!onSwapUp || disabled}/>}
+                        {!hideSwaps && <IconButton style={ibStyles} iconClassName={DOWN_ARROW} onClick={onSwapDown} disabled={!!!onSwapDown || disabled}/>}
                     </div>
                 </div>
                 {toggled &&

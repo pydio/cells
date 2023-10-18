@@ -1758,6 +1758,14 @@
           "$ref": "#/definitions/jobsContextMetaFilter",
           "title": "Metadata policy-based filter"
         },
+        "DataFilter": {
+          "$ref": "#/definitions/jobsDataSelector",
+          "title": "Filter values from JsonBody"
+        },
+        "DataSelector": {
+          "$ref": "#/definitions/jobsDataSelector",
+          "title": "Collect/select values from JsonBody"
+        },
         "DataSourceFilter": {
           "$ref": "#/definitions/jobsDataSourceSelector",
           "title": "DataSource objects filter"
@@ -2055,6 +2063,39 @@
       "title": "Response to the CtrlCommand",
       "type": "object"
     },
+    "jobsDataSelector": {
+      "properties": {
+        "ClearInput": {
+          "title": "Clear previous selection",
+          "type": "boolean"
+        },
+        "Collect": {
+          "title": "Collect results",
+          "type": "boolean"
+        },
+        "Description": {
+          "title": "Selector additional description",
+          "type": "string"
+        },
+        "FanOutInput": {
+          "title": "Ignore query and just fan out input.LastOutput.JsonBody",
+          "type": "boolean"
+        },
+        "Label": {
+          "title": "Selector custom label",
+          "type": "string"
+        },
+        "Query": {
+          "$ref": "#/definitions/serviceQuery",
+          "title": "Query used to compute output object or list of objects"
+        },
+        "Timeout": {
+          "title": "Optional Timeout for this selector",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "jobsDataSourceSelector": {
       "properties": {
         "All": {
@@ -2280,6 +2321,13 @@
         "MergeAction": {
           "$ref": "#/definitions/jobsAction",
           "title": "Collect chain of actions into a merged output"
+        },
+        "Metadata": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Additional user-defined metadata, can be used for icon, documentation, pre-requisites, etc.",
+          "type": "object"
         },
         "ModifiedAt": {
           "format": "int32",

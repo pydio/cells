@@ -23,6 +23,8 @@ const {IconButton} = require('material-ui')
 import ReplicatedGroup from './ReplicatedGroup'
 const PropTypes = require('prop-types');
 const LangUtils = require('pydio/util/lang')
+import Tooltip from './Tooltip'
+import ResourcesManager from 'pydio/http/resources-manager'
 
 /**
  * Sub form replicating itself (+/-)
@@ -37,13 +39,23 @@ export default class extends React.Component {
         depth:PropTypes.number
     };
 
-    buildSubValue = (values, index=0) => {
+    constructor(props) {
+        super(props);
+        this.state = {}
+        ResourcesManager.loadClass('PydioComponents').then((lib) => {
+            this.setState({SortableList: lib.SortableList});
+        })
+    }
+
+    buildSubValue = (parameters, values, index=0) => {
         let subVal;
-        const suffix = index==0?'':'_'+index;
-        this.props.parameters.map(function(p){
+        const suffix = index===0?'':'_'+index;
+        parameters.map(function(p){
             const pName = p['name'];
             if(values[pName+suffix] !== undefined){
-                if(!subVal) subVal = {};
+                if(!subVal) {
+                    subVal = {};
+                }
                 subVal[pName] = values[pName+suffix];
             }
         });
@@ -100,16 +112,17 @@ export default class extends React.Component {
     };
 
     instances = () => {
+        const {values, parameters} = this.props;
         // Analyze current value to grab number of rows.
         let rows = [], subVal, index = 0;
-        while(subVal = this.buildSubValue(this.props.values, index)){
+        while(subVal = this.buildSubValue(parameters, values, index)){
             index ++;
             rows.push(subVal);
         }
-        const firstParam = this.props.parameters[0];
+        const firstParam = parameters[0];
         if(!rows.length && firstParam['replicationMandatory'] === 'true'){
             let emptyValue={};
-            this.props.parameters.map(function(p) {
+            parameters.map(function(p) {
                 emptyValue[p['name']] = p['default'] || '';
             });
             rows.push(emptyValue);
@@ -155,10 +168,12 @@ export default class extends React.Component {
     };
 
     render() {
-        const {parameters, disabled, variant} = this.props;
+        const {parameters, disabled, variant, variantShowLegend, replicationGroup} = this.props;
         let firstParam = parameters[0];
         const replicationTitle = firstParam['replicationTitle'] || firstParam['label'];
+        const replicationDescription = firstParam['replicationDescription']
         const replicationMandatory = firstParam['replicationMandatory'] === 'true';
+        const {SortableList} = this.state;
 
         const instances = this.instances();
         const multipleRows = instances.length > 1;
@@ -178,14 +193,20 @@ export default class extends React.Component {
             }
             const props = {onSwapUp, onSwapDown, onRemove, onParameterChange};
             if(replicationMandatory && index === 0){
-                props.onAddValue = ()=> this.addRow() ;
+                //props.onAddValue = ()=> this.addRow() ;
             }
-            return ( <ReplicatedGroup key={index} {...this.props} {...props} subValues={subValues} /> );
+            return (
+                <ReplicatedGroup
+                    replicationGroup={replicationGroup}
+                    hideSwaps={!!SortableList}
+                    key={index}
+                    {...this.props}
+                    {...props}
+                    subValues={subValues}
+                    first={index === 0}
+                    last={index === instances.length -1}
+                /> );
         });
-
-        if(replicationMandatory){
-            return <div className="replicable-field" style={{marginBottom: 14}}>{rows}</div>
-        }
 
         let tStyle = rows.length?{}:{backgroundColor:'whitesmoke', borderRadius:4};
         let contStyle = {marginBottom: 14}
@@ -196,13 +217,37 @@ export default class extends React.Component {
                 contStyle = {height: 58};
             }
         }
+        let titleBlock = (
+            <div style={{display:'flex', alignItems:'center', ...tStyle}}>
+                <div className="title" style={{fontSize: 16, flex: 1, paddingLeft: 10}}>{replicationTitle}</div>
+                <IconButton key="add" iconClassName="mdi mdi-plus-circle" tooltipPosition={"bottom-left"} style={{padding: 14}} iconStyle={{color:'#05a9f4'}} tooltip="Add value" onClick={()=>this.addRow()} disabled={disabled}/>
+            </div>
+        )
+        if(replicationDescription && variantShowLegend) {
+            titleBlock = (
+                <Tooltip
+                    attributes={{type:'replication'}}
+                    label={replicationTitle}
+                    legendLabel={replicationDescription}
+                >{titleBlock}</Tooltip>
+            )
+        }
+
         return (
             <div className="replicable-field" style={contStyle}>
-                <div style={{display:'flex', alignItems:'center', ...tStyle}}>
-                    <div className="title" style={{fontSize: 16, flex: 1, paddingLeft: 8}}>{replicationTitle}</div>
-                    <IconButton key="add" iconClassName="mdi mdi-plus-box" tooltipPosition={"bottom-left"} style={{padding: 14}} iconStyle={{fontSize:20, color:'#9e9e9e'}} tooltip="Add value" onClick={()=>this.addRow()} disabled={disabled}/>
-                </div>
-                {rows}
+                {titleBlock}
+                {SortableList &&
+                    <SortableList
+                        values={rows.map((row, idx) => {
+                            return {idx, row, payload: idx, fieldsLength: rows.length}
+                        })}
+                        renderItem={(item) => item.row}
+                        onOrderUpdated={(oldIdx, newIdx, all) => {
+                            this.swapRows(oldIdx, newIdx)
+                        }}
+                    />
+                }
+                {!SortableList && rows}
             </div>
 
         );

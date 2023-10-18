@@ -21,6 +21,7 @@ import Pydio from 'pydio'
 import Observable from 'pydio/lang/observable'
 const {JobsStore} = Pydio.requireLib("boot");
 import debounce from 'lodash.debounce'
+import {JobsServiceApi, LogListLogRequest, ListLogRequestLogFormat} from 'cells-sdk';
 
 class Loader extends Observable {
 
@@ -86,6 +87,7 @@ class Loader extends Observable {
                     return
                 }
                 const job = result.Jobs[0];
+                this.loadArtifacts(job);
                 this.notify('loaded', {job});
             }).catch(reason => {
                 this.notify('loaded', {error: reason.message});
@@ -97,6 +99,43 @@ class Loader extends Observable {
             }).catch(reason => {
                 this.notify('loaded', {error: reason.message});
             });
+        }
+    }
+
+    loadArtifacts(job) {
+        const api = new JobsServiceApi(PydioApi.getRestClient());
+        let request = new LogListLogRequest();
+
+        if(job.Tasks && job.Tasks.length) {
+            const ops = {}
+            job.Tasks.forEach(task => {
+                const operationId = task.JobID + '-' + task.ID.substr(0, 8);
+                ops[operationId] = {taskID: task.ID, artifacts: {}}
+            })
+            const opQuery = Object.keys(ops).map(k => `"${k}"`).join('|')
+            request.Query = `+OperationUuid:(${opQuery}) +Level:info +JsonZaps:artifact\\:*`;
+            request.Size = 200;
+            request.Format = ListLogRequestLogFormat.constructFromObject('JSON');
+            api.listTasksLogs(request).then(response => {
+                const logs = response.Logs || []
+                logs.forEach(log => {
+                    try {
+                        const opId = log.OperationUuid;
+                        const lz = JSON.parse(log.JsonZaps)
+                        Object.keys(lz).filter(k => k.indexOf('artifact:') === 0).forEach(k => {
+                            ops[opId].artifacts[k.substring('artifact:'.length)] = lz[k];
+                        })
+                    } catch(e){}
+                })
+                // Remap taskID => artifacts
+                const artifacts = {}
+                Object.keys(ops).forEach(k => {
+                    if(ops[k].artifacts && Object.keys(ops[k].artifacts).length){
+                        artifacts[ops[k].taskID] = ops[k].artifacts;
+                    }
+                })
+                this.notify('loaded', {artifacts})
+            })
         }
     }
 }

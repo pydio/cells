@@ -50,7 +50,8 @@ class InputBoolean extends React.Component {
 
     render(){
         let boolVal = this.props.value;
-        const {variant, variantShowLegend, disabled, onChange, attributes, isDisplayForm, muiTheme} = this.props;
+        const {variant /*variantShowLegend*/, disabled, onChange, attributes, isDisplayForm, muiTheme} = this.props;
+        const variantShowLegend=false
         if(typeof boolVal  === 'string'){
             boolVal = (boolVal === "true");
         }
