@@ -24,8 +24,10 @@ import Pydio from 'pydio'
 import React from 'react';
 import DOMUtils from 'pydio/util/dom'
 import { connect } from 'react-redux';
-import Markdown from "react-markdown";
+import Markdown from "react-markdown-latest";
+import RemarkGFM from "remark-gfm";
 import ReactCodeMirror from "./ReactCodeMirror";
+import {Resizable} from 're-resizable'
 
 const {EditorActions} = Pydio.requireLib('hoc');
 
@@ -49,6 +51,7 @@ export default class Editor extends React.Component {
 
         const {node, tab = {}, tabCreate} = this.props;
         const {id} = tab;
+        this.state = {}
 
         if (!id) {
             tabCreate({id: node.getLabel(), node})
@@ -58,6 +61,14 @@ export default class Editor extends React.Component {
     componentDidMount() {
         const {pydio, node, tab, tabModify} = this.props;
         const {id} = tab;
+
+        let defaultWidth = localStorage.getItem('pydio.layout.markdown-editor.rightColumnWidth')
+        if (defaultWidth) {
+            defaultWidth = DOMUtils.getViewportWidth() *  parseInt(defaultWidth) / 100
+        } else {
+            defaultWidth = DOMUtils.getViewportWidth() / 2
+        }
+        this.setState({rightColumnWidth:defaultWidth})
 
         pydio.ApiClient.getPlainContent(node, (content) => {
             tabModify({
@@ -88,25 +99,41 @@ export default class Editor extends React.Component {
         }
 
         const {id, content, lineWrapping, lineNumbers} = tab;
+        const {rightColumnClosed = false, rightColumnWidth} = this.state;
 
         if(node.getAjxpMime() === 'md'){
             const show = DOMUtils.getViewportWidth() > 480;
             return (
                 <div style={{display:'flex', flex:1, width: '100%', backgroundColor:'white'}}>
-                    <div style={{flex:1, maxWidth:show?'50%':'100%', display:'flex'}}>
-                        <ReactCodeMirror
+                    <Resizable
+                        enable={{top:false, right:true, bottom:false, left:false, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false}}
+                        minWidth={'4%'}
+                        maxWidth={'96%'}
+                        style={{transition: 'width 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms', display:'flex'}}
+                        //handleStyles={{left:{width: 6, left: 0}}}
+                        size={{width:rightColumnClosed?0:rightColumnWidth, height: '100%'}}
+                        onResizeStop={(e, direction, ref, d)=>{
+                            const newWidth = rightColumnWidth+d.width
+                            this.setState({rightColumnWidth:newWidth})
+                            localStorage.setItem('pydio.layout.markdown-editor.rightColumnWidth', parseInt(100*newWidth/DOMUtils.getViewportWidth())+'')
+                        }}
+                    >
+                    <ReactCodeMirror
                             {...this.props}
                             url={node.getPath()}
                             content={content}
                             options={{lineNumbers: lineNumbers, lineWrapping: lineWrapping}}
                             error={error}
-
                             onLoad={(codemirror) => tabModify({id, codemirror})}
                             onChange={content => tabModify({id, content})}
                             onCursorChange={cursor => tabModify({id, cursor})}
                         />
-                    </div>
-                    {show && <Markdown style={{flex: 1}} source={content} className={"mdviewer"}/>}
+                    </Resizable>
+                    <Markdown
+                        style={{flex: 1}}
+                        className={"mdviewer"}
+                        remarkPlugins={[RemarkGFM]}
+                    >{content}</Markdown>
                 </div>
             )
         } else{

@@ -83,6 +83,8 @@ const LibRequires = [ // modules we want to require and export
     'cells-sdk',
     'qrcode.react',
     'react-markdown',
+    'react-markdown-latest',
+    'remark-gfm',
     /*
     'react-select',
     'react-tap-event-plugin',
