@@ -65,3 +65,73 @@
     border: 0;
     border-top: 2px solid var(--md-sys-color-surface-variant);
 }
+
+.react-mui-context .mdviewer table {
+    border-spacing: 1;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 100%;
+    margin: 0 auto;
+    position: relative
+}
+
+.react-mui-context .mdviewer table * {
+    position: relative
+}
+
+.react-mui-context .mdviewer  table td,
+.react-mui-context .mdviewer table th {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.react-mui-context .mdviewer table thead tr {
+    height: 40px;
+    background: var(--md-sys-color-primary-container);
+}
+
+.react-mui-context .mdviewer table tbody tr {
+    height: 30px;
+}
+
+.react-mui-context .mdviewer table tbody tr:last-child {
+    border: 0
+}
+
+.react-mui-context .mdviewer table td,table th {
+    text-align: left
+}
+
+.react-mui-context .mdviewer table td.l,table th.l {
+    text-align: right
+}
+
+.react-mui-context .mdviewer table td.c,table th.c {
+    text-align: center
+}
+
+.react-mui-context .mdviewer table td.r,table th.r {
+    text-align: center
+}
+
+.react-mui-context .mdviewer table th {
+    color: var(--md-sys-color-primary);
+    line-height: 1.2;
+    font-weight: 500;
+}
+
+.react-mui-context .mdviewer tbody tr:nth-child(even) {
+    background-color: var(--md-sys-color-surface-variant);
+}
+
+.react-mui-context .mdviewer tbody tr {
+    line-height: 1.2;
+    font-weight: unset
+}
+
+.react-mui-context .mdviewer tbody tr:hover {
+    background-color: var(--md-sys-color-hover-background);
+    cursor: pointer
+}
+

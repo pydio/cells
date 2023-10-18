@@ -26,6 +26,7 @@
     "classnames": "2.2.5",
     "codemirror": "^5.40.2",
     "lodash.debounce": "4.0.8",
+    "re-resizable": "^6.9.9",
     "react-codemirror": "^1.0.0",
     "react-syntax-highlighter": "^15.5.0",
     "systemjs": "*"

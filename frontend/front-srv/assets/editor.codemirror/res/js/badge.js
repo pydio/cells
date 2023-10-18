@@ -20,7 +20,9 @@
 
 import React, {Component} from 'react'
 import PathUtils from 'pydio/util/path'
-import Markdown from "react-markdown";
+import Markdown from "react-markdown-latest";
+import RemarkGFM from "remark-gfm";
+
 import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { a11yDark, a11yLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import {muiThemeable} from 'material-ui/styles'
@@ -85,7 +87,7 @@ class MdBadge extends Component{
                 )
             } else if (ext === 'md') {
                 component = (
-                    <Markdown className={"mdviewer mdbadge"} style={{padding: '10px 20px'}} source={content}/>
+                    <Markdown className={"mdviewer mdbadge"} style={{padding: '10px 20px'}} remarkPlugins={[RemarkGFM]}>{content}</Markdown>
                 )
             } else {
                 component = <pre className={"mdviewer mdbadge"} style={{padding: '10px 20px'}}>{content}</pre>
