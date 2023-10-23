@@ -18,11 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import Pydio from 'pydio'
 import {MenuItem} from 'material-ui'
 import StarsField from "./fields/StarsField";
 import SelectorField from "./fields/SelectorField";
 import CssLabelsField, {getCssLabels} from "./fields/CssLabelsField";
-import colorsFromString from "./hoc/colorsFromString";
+const {colorsFromString} = Pydio.requireLib('hoc')
 import StarsForm from "./fields/StarsForm";
 import SelectorForm from "./fields/SelectorForm";
 import MetaClient from "./MetaClient";
