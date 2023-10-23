@@ -80,6 +80,9 @@
   "actionOutputSingleQuery.FreeCondition": {
     "other": "Condición Libre"
   },
+  "dataSelectorSingleQuery.JsonPath": {
+    "other": "JSON Path"
+  },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
   },
@@ -156,10 +159,10 @@
     "other": "Solicitar Hostname"
   },
   "contextMetaField.RequestHost": {
-    "other": "Request Host"
+    "other": "Host de solicitud"
   },
   "contextMetaField.RequestPort": {
-    "other": "Request Port"
+    "other": "Puerto de solicitud"
   },
   "contextMetaField.RequestMethod": {
     "other": "Solicitar Método"
@@ -450,16 +453,16 @@
     "other": "Desecadenador Programado"
   },
   "triggerFilterQuery.IsApiHook": {
-    "other": "Triggered by Webhook"
+    "other": "Activado por Webhook"
   },
   "triggerFilterQuery.ApiHookSlug": {
     "other": "Webhook Api Slug"
   },
   "triggerFilterQuery.RunParameterName": {
-    "other": "Run Parameter Name"
+    "other": "Nombre del parámetro de ejecución"
   },
   "triggerFilterQuery.RunParameterValue": {
-    "other": "Run Parameter Value"
+    "other": "Valor del parámetro de ejecución"
   },
   "triggerFilterQuery.IsManual": {
     "other": "Desencadenador Manual"

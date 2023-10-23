@@ -207,7 +207,7 @@
     "other": "ユーザーがあらかじめ定義されたテンプレートに基づいて独自のリポジトリを作成できるかどうか。"
   },
   "Workspace creation delegation": {
-    "other": "Workspace creation delegation"
+    "other": "ワークスペース作成の委任"
   },
   "role prefix": {
     "other": "ロールプレフィクス"

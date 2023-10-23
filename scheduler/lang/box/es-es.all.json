@@ -30,7 +30,7 @@
     "other": "Limpiar archivos huérfanos después de 24h"
   },
   "Jobs.Default.CleanExpiredACLs": {
-    "other": "Clean expired ACLs after 10 days"
+    "other": "Limpiar ACLs expirados después de 10 días"
   },
   "Jobs.User.Compress": {
     "other": "Comprimiendo selección..."

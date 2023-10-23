@@ -771,13 +771,13 @@
     "other": "順序"
   },
   "metadata.group": {
-    "other": "Group"
+    "other": "グループ"
   },
   "metadata.group-field": {
-    "other": "Group Name (creates an expandable section). Use '/' for sub-groups."
+    "other": "グループ名 (拡張可能なセクションを作成します) サブグループには '/' を使用します。"
   },
   "metadata.default-group": {
-    "other": "No Group"
+    "other": "グループなし"
   },
   "metadata.toggle.index": {
     "other": "検索エンジンのインデックス"
@@ -1269,10 +1269,10 @@
     "other": "すべて削除"
   },
   "versions.period.remove-all-after": {
-    "other": "%s　の後をすべて削除"
+    "other": "%s 日後すべて削除"
   },
   "versions.period.retentions-n": {
-    "other": "%s 保持期間"
+    "other": "保持期間 %s"
   },
   "virtual.create": {
     "other": "+ テンプレートパス"
@@ -1326,10 +1326,10 @@
     "other": "ユーザーの削除時、データの名前を {deleted-NAME-UUID} に変更します。"
   },
   "virtual.card.cleanOnDelete-legend-off": {
-    "other": "This option should not be used if the template path is not creating a folder for each user (using User.Name)."
+    "other": "テンプレートパスが(User.Name を使用して) 各ユーザのフォルダを作成していない場合は、このオプションを使用しないでください。"
   },
   "virtual.card.cleanOnDelete-legend-on": {
-    "other": "This option may be recommended as the template path seems to create a folder for each user (using User.Name)."
+    "other": "テンプレートパスはユーザーごとにフォルダーを作成するように見えるため (User.Name を使用)、このオプションをお勧めします。"
   },
   "ws.1": {
     "other": "データソースの管理"
@@ -1668,7 +1668,7 @@
     "other": "ユーザーがこのワークスペースに接続している場合、同期タスクは機能しなくなります。 それを変更してもよろしいですか？"
   },
   "ws.editor.other.quota": {
-    "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace (or user-specific contents for workspaces like Personal Files)."
+    "other": "ディスク使用量クォータ (制限しない場合は 0 のままにします)。このクォータは、このワークスペースのすべてのファイル (または個人ファイルなどのワークスペースのユーザー固有のコンテンツ) に対して計算されます。"
   },
   "ws.editor.other.quota.noquota": {
     "other": "クォータが設定されていません"
@@ -2064,13 +2064,13 @@
     "other": "外部 URL"
   },
   "sites.details": {
-    "other": "<div>\nサイトは、Cellsがネットワークインターフェイスにどのようにバインドし、どのように外部に公開されるかを定義します。\nコマンドラインからサイトを管理するには、'<i>./cellsconfiguresites</i>'を使用します。\n<br/> <br/>\n各サイトには次のパラメータがあります。\n\n<ol>\n<li>1. <u>バインド</u>：内部ウェブサーバーをフックする1つ以上の [ip/hostname:port]</li>\n<li>2. <u> TLS設定</u>：HTTPSサポート用のTLS構成</li>\n<li>3. <u>外部URL</u>：エンドユーザーに伝えるURL。 通常、アプリがリバースプロキシの背後にある場合、またはポートマッピングのあるコンテナ内にある場合は、バインドアドレスとは異なる可能性があります。</li>\n<li> 4. <u>メンテナンスモード</u> [オン|オフ]：セルは実行中ですが、このエンドポイントにメンテナンスページを表示します。</li>\n</ol> </div>"
+    "other": "<div>\nサイトは、Cells がネットワーク インターフェイスにどのようにバインドされ、どのように外部に公開されるかを定義します。\nコマンドラインからサイトを管理するには、'<i>./cells configure sites</i>'を使用します。\n<br/> <br/>\n各サイトには次のパラメータがあります。\n\n<ol>\n<li>1. <u>バインド</u>：内部ウェブサーバーをフックする1つ以上の [ip/hostname:port]</li>\n<li>2. <u> TLS設定</u>：HTTPSサポート用のTLS構成</li>\n<li>3. <u>公開URL</u>：エンドユーザーに伝えるURL。 通常、アプリがリバースプロキシの背後にある場合、またはポートマッピングのあるコンテナ内にある場合は、バインドアドレスとは異なる可能性があります。</li>\n<li> 4. <u>メンテナンスモード</u> [オン|オフ]：セルは実行中ですが、このエンドポイントにメンテナンスページを表示します。</li>\n</ol> </div>"
   },
   "sites.details.note": {
     "other": "<div> <i>追記</i>\n<ol>\n<li>1. サイトが定義されていない場合、Cellsはデフォルト構成（自己署名付きのhttps://0.0.0.0:8080）を使用します。</li>\n<li>2. '--bind'フラグまたは'CELLS_BIND'環境変数を使用して、実行時にサイトをオーバーライドできます。\n</li>\n</ol> </div>"
   },
   "sites.externals.details": {
-    "other": "<div>\nCellsは、検出されたパブリックURLを一部の機能で使用します。 構成に基づいて最も適切な値を使用しようとします。 <br/> <br/>例：\n<ul>\n<li>&bull; 一意のサイトが定義されていて、外部URLがある場合、それはおそらく正しいです。</li>\n<li>&bull; 複数のサイトが定義されている場合、すべての外部通信に使用される一意のURLを強制することができます。</li>\n<li>&bull; 外部URLが検出されない場合は、内部バインドアドレスにフォールバックします。 その場合、おそらくプライベートIP（または0.0.0.0:port…）を外部に送信したくないでしょう。</li>\n</ul>\n\n<br/>\n以下のフィールドは、検出された値を示しています。 選択して編集するか、カスタム値を入力し、Enterキーを押して保存します。\n</div>"
+    "other": "<div>\nCellsは、検出されたパブリックURLを一部の機能で使用します。 構成に基づいて最も適切な値を使用しようとします。 <br/> <br/>例：\n<ul>\n<li>&bull; 一意のサイトが定義されていて、外部URLがある場合、それはおそらく正しいです。</li>\n<li>&bull; 複数のサイトが定義されている場合、すべての外部通信に使用される一意のURLを強制することができます。</li>\n<li>&bull; 公開URLが検出されない場合は、内部バインドアドレスにフォールバックします。 プライベートIP（または0.0.0.0:port…）を外部に送信したくない場合です。</li>\n</ul>\n\n<br/>\n以下のフィールドは、検出された値を示しています。 選択して編集するか、カスタム値を入力し、Enterキーを押して保存します。\n</div>"
   },
   "sites.mailer.url": {
     "other": "メールにリンクを作成するために使用されるURL"

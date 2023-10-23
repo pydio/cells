@@ -219,7 +219,7 @@
     "other": "絶対パスを使用する"
   },
   "form.dsType.Label": {
-    "other": "Storage Type"
+    "other": "ストレージタイプ"
   },
   "form.dsType.FS": {
     "other": "ローカル FS (このサーバーにすべてのデータを保存する)"
