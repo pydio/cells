@@ -178,7 +178,7 @@ func TestMakeIndexableNode(t *testing.T) {
 		}
 		node.MustSetMeta(common.MetaNamespaceNodeName, "node.txt")
 
-		b := NewBatch(context.Background(), meta.NewNsProvider(context.Background()), BatchOptions{})
+		b := NewBatch(context.Background(), meta.NewNsProvider(context.Background()), BatchOptions{config: configx.New()})
 		indexNode := &tree.IndexableNode{Node: *node}
 		e := b.LoadIndexableNode(indexNode, nil)
 		So(e, ShouldBeNil)
