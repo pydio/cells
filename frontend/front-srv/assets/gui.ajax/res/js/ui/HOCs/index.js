@@ -41,6 +41,7 @@ import ReactPlaceHolder, {TextBlock as PhTextBlock, MediaBlock as PhMediaBlock, 
 import withSearch, {SearchConstants} from './search/withSearch'
 import * as hooks from './hooks'
 import * as AdditionalIcons from './material/AdditionalIcons'
+import {listFontIcons, colorsFromString} from './graphics/tools'
 
 
 const PydioHOCs = {
@@ -88,6 +89,8 @@ const PydioHOCs = {
     PhRectShape,
     PhRoundShape,
     Utils,
+    listFontIcons,
+    colorsFromString,
     ...hooks,
 };
 

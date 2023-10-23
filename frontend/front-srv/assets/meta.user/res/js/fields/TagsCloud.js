@@ -20,12 +20,11 @@
 import React from 'react'
 import Pydio from 'pydio'
 import LangUtils from 'pydio/util/lang'
-import colorsFromString from "../hoc/colorsFromString";
 import asMetaForm from "../hoc/asMetaForm";
 import MetaClient from "../MetaClient";
 import {muiThemeable} from 'material-ui/styles'
 import {MenuItem, Chip, AutoComplete} from 'material-ui'
-const {ThemedModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
+const {ThemedModernStyles, ModernAutoComplete, colorsFromString} = Pydio.requireLib('hoc');
 
 
 class TagsCloud extends React.Component {

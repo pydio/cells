@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2023 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -17,10 +17,42 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
 import Color from 'color'
+
+let FontIconsCache;
+
+export function listFontIcons(pydio) {
+    if(FontIconsCache) {
+        return FontIconsCache
+    }
+
+    let sheet;
+    Object.keys(document.styleSheets).forEach((k)=>{
+        let element = document.styleSheets[k];
+        if(element.href && element.href.indexOf('pydio.'+pydio.Parameters.get('theme')+'.min.css') !== -1){
+            sheet = element;
+        }
+    });
+    FontIconsCache = {};
+    if(sheet){
+        Object.keys(sheet.cssRules).forEach(function(k){
+            let rule = sheet.cssRules[k];
+            if(rule.selectorText && rule.selectorText.indexOf('.mdi-') === 0 && rule.selectorText.endsWith('::before')){
+                let iconId = rule.selectorText.replace('.mdi-', 'mdi mdi-').replace('::before','');
+                if (iconId === 'mdi mdi-set, .mdi') {
+                    return
+                }
+                FontIconsCache[iconId] = rule.selectorText.replace('.mdi-', '[Material] ').replace('::before','');
+            }
+        });
+    }
+    return FontIconsCache;
+}
+
 const colorsCache = {};
 
-export default function colorsFromString(s){
+export function colorsFromString(s){
     if (s.length === 0) {
         return {};
     }

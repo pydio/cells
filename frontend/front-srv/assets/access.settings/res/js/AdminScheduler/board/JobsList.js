@@ -24,10 +24,11 @@ import Color from 'color'
 import ScheduleForm from "./ScheduleForm";
 import Events from "./Events";
 
-import {Dialog, Paper, FlatButton} from 'material-ui'
+import {Dialog, Paper, FlatButton, Chip} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 const {moment} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
+const {colorsFromString} = Pydio.requireLib('hoc');
 import Loader from './Loader'
 
 const tagStyle = {
@@ -147,6 +148,14 @@ class JobsList extends React.Component {
         return {system, other, inactives};
     }
 
+    renderTag(tag) {
+        const {color, backgroundColor} = colorsFromString(tag);
+        const chipStyle = {margin:'0 5px', borderRadius:'4px 16px 16px 4px'};
+        const labelStyle = {color, fontWeight: 500, paddingLeft: 10, paddingRight: 16, lineHeight: '24px'};
+        return (<Chip key={tag} backgroundColor={backgroundColor} labelStyle={labelStyle} style={chipStyle}>{tag}</Chip> );
+    }
+
+
     render(){
 
         const {pydio, selectRows, muiTheme, jobs = [], loading, jobsEditable} = this.props;
@@ -173,7 +182,17 @@ class JobsList extends React.Component {
                 label:m('job.label'),
                 style:{width:'45%', fontSize: 15},
                 headerStyle:{width:'45%'},
-                sorter:{type:'string'}
+                sorter:{
+                    type: 'string',
+                    value:data=>data.Label
+                },
+                renderCell:(row) => {
+                    if(row.Metadata && row.Metadata.Tags) {
+                        const tags = row.Metadata.Tags.split(',').map(t => LangUtils.trim(t)).filter(t => t).map(t => this.renderTag(t))
+                        return <span style={{display: 'flex', alignItems: 'center'}}>{row.Label} <span style={{marginLeft: 6, display:'flex', zoom:0.8}}>{tags}</span></span>
+                    }
+                    return row.Label;
+                }
             },
             {
                 name:'TaskEndTime',
@@ -200,11 +219,9 @@ class JobsList extends React.Component {
             hideSmall: true
         };
         userKeys[1] = {
-            name:'Label',
-            label:m('job.label'),
+            ...userKeys[1],
             style:{width:'40%', fontSize: 15},
             headerStyle:{width:'40%'},
-            sorter:{type:'string'}
         }
 
         const inactiveKeys = [
@@ -228,37 +245,68 @@ class JobsList extends React.Component {
                     type: 'string',
                     value:data=>data.Label
                 },
-                renderCell:(data => {
-                    return <span style={{color: 'rgba(0,0,0,0.43)'}}>[{m('job.disabled')}] {data.Label}</span>;
-                })
+                renderCell:(row) => {
+                    let tags = [m('job.disabled')]
+                    if(row.Metadata && row.Metadata.Tags) {
+                        const tt = row.Metadata.Tags.split(',').map(t => LangUtils.trim(t)).filter(t => t)
+                        tags.push(...tt)
+                    }
+                    return <span style={{opacity: 0.53, display: 'flex', alignItems: 'center'}}>{row.Label} <span style={{marginLeft: 6, display:'flex', zoom:0.8}}>{tags.map(t => this.renderTag(t))}</span></span>
+                }
             }
         ]
 
 
         let {system, other, inactives} = this.extractRowsInfo(jobs, m);
+
+        const groupedJobs = {}
+        const knownGroups = [... new Set(system.map(j => j.Metadata && j.Metadata.GroupPath).filter(g => g))];
+        if(knownGroups.length) {
+            system.map(j => {
+                const g = j.Metadata && j.Metadata.GroupPath || ''
+                if(!groupedJobs[g]) {
+                    groupedJobs[g] = []
+                }
+                groupedJobs[g].push(j)
+            })
+        } else {
+            groupedJobs[''] = system
+        }
+
         const actions = [{
             iconClassName:'mdi mdi-chevron-right',
             onClick:(row)=>selectRows([row])
         }];
 
+        const groupKeys = Object.keys(groupedJobs).filter(k => k).sort()
+        if(groupedJobs['']) {
+            groupKeys.push('')
+        }
+
         return (
             <div style={{flex:1, overflowY: 'auto'}}>
-                <AdminComponents.SubHeader
-                    title={m('system.title')}
-                    legend={m('system.legend')}
-                />
-                <Paper {...adminStyles.body.block.props}>
-                    <MaterialTable
-                        data={system}
-                        columns={keys}
-                        actions={actions}
-                        onSelectRows={(rows)=>{selectRows(rows)}}
-                        showCheckboxes={false}
-                        emptyStateString={loading ? Pydio.getInstance().MessageHash[466] : m('system.empty')}
-                        masterStyles={adminStyles.body.tableMaster}
-                        storageKey={'console.scheduler.jobs.list'}
-                    />
-                </Paper>
+                {groupKeys.map(key => {
+                    return (
+                        <React.Fragment>
+                            <AdminComponents.SubHeader
+                                title={key ? key : m('system.title')}
+                                legend={key ? null : m('system.legend')}
+                            />
+                            <Paper {...adminStyles.body.block.props}>
+                                <MaterialTable
+                                    data={groupedJobs[key]}
+                                    columns={keys}
+                                    actions={actions}
+                                    onSelectRows={(rows)=>{selectRows(rows)}}
+                                    showCheckboxes={false}
+                                    emptyStateString={loading ? Pydio.getInstance().MessageHash[466] : m('system.empty')}
+                                    masterStyles={adminStyles.body.tableMaster}
+                                    storageKey={'console.scheduler.jobs.list'}
+                                />
+                            </Paper>
+                        </React.Fragment>
+                    )
+                })}
                 {jobsEditable &&
                 <div
                     style={{...adminStyles.body.block.container, backgroundColor: 'white', fontSize: 15, display:'flex', alignItems: 'center', cursor:'pointer'}}
