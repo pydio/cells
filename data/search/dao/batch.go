@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -43,6 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 // Batch avoids overflowing bleve index by batching indexation events (index/delete)
@@ -58,7 +60,8 @@ type Batch struct {
 }
 
 type BatchOptions struct {
-	IndexContent bool
+	config configx.Values
+	//IndexContent bool
 }
 
 func NewBatch(ctx context.Context, nsProvider *meta.NsProvider, options BatchOptions) *Batch {
@@ -165,27 +168,44 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 			indexNode.GeoJson = &tree.GeoJson{Type: "Point", Coordinates: []float64{lon, lat}}
 		}
 	}
-	ref := indexNode.GetStringMeta("ContentRef")
-	if pr := indexNode.GetStringMeta("pydio:ContentRef"); pr != "" {
-		ref = pr
-	}
-	if b.options.IndexContent && indexNode.IsLeaf() && ref != "" {
-		delete(indexNode.Meta, "ContentRef")
-		delete(indexNode.Meta, "pydio:ContentRef")
-		if reader, e := b.getStdRouter().GetObject(b.ctx, &tree.Node{Path: ref}, &models.GetRequestData{Length: -1}); e == nil {
-			if strings.HasSuffix(ref, ".gz") {
-				// Content is gzip-compressed
-				if gR, e := gzip.NewReader(reader); e == nil {
-					if contents, e := io.ReadAll(gR); e == nil {
-						indexNode.TextContent = string(contents)
-					}
-					gR.Close()
-				}
-			} else if contents, e := io.ReadAll(reader); e == nil {
-				indexNode.TextContent = string(contents)
-			}
-			reader.Close()
+
+	// Index Contents?
+	if b.options.config.Val("indexContent").Bool() && indexNode.IsLeaf() {
+		cRef := b.options.config.Val("contentRef").Default("pydio:ContentRef").String()
+		exts := strings.Split(strings.TrimSpace(b.options.config.Val("plainTextExtensions").String()), ",")
+		legacyContentRef := "ContentRef"
+		ref := indexNode.GetStringMeta(legacyContentRef)
+		if pr := indexNode.GetStringMeta(cRef); pr != "" {
+			ref = pr
 		}
+		if ref != "" {
+			delete(indexNode.Meta, legacyContentRef)
+			delete(indexNode.Meta, cRef)
+			if reader, e := b.getStdRouter().GetObject(b.ctx, &tree.Node{Path: ref}, &models.GetRequestData{Length: -1}); e == nil {
+				if strings.HasSuffix(ref, ".gz") {
+					// Content is gzip-compressed
+					if gR, e := gzip.NewReader(reader); e == nil {
+						if contents, e := io.ReadAll(gR); e == nil {
+							indexNode.TextContent = string(contents)
+						}
+						_ = gR.Close()
+					}
+				} else if contents, e := io.ReadAll(reader); e == nil {
+					indexNode.TextContent = string(contents)
+				}
+				_ = reader.Close()
+			}
+		} else if slices.ContainsFunc(exts, func(s string) bool {
+			return strings.ToLower(strings.TrimSpace(s)) == indexNode.Extension
+		}) {
+			if reader, e := b.getStdRouter().GetObject(b.ctx, &tree.Node{Path: indexNode.GetPath()}, &models.GetRequestData{Length: -1}); e == nil {
+				if contents, er := io.ReadAll(reader); er == nil {
+					indexNode.TextContent = string(contents)
+				}
+				_ = reader.Close()
+			}
+		}
+
 	}
 	indexNode.MetaStore = nil
 	return nil

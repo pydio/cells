@@ -89,6 +89,22 @@ var ExposedConfigs = &forms.Form{
 				Mandatory:        true,
 				ChoicePresetList: bleveAnalyzers,
 			},
+			&forms.FormField{
+				Name:        "contentRef",
+				Type:        forms.ParamString,
+				Label:       "Search.Config.ContentRef.Label",
+				Description: "Search.Config.ContentRef.Description",
+				Default:     "pydio:ContentRef",
+				Mandatory:   false,
+			},
+			&forms.FormField{
+				Name:        "plainTextExtensions",
+				Type:        forms.ParamString,
+				Label:       "Search.Config.PlainTextExtensions.Label",
+				Description: "Search.Config.PlainTextExtensions.Description",
+				Default:     "txt",
+				Mandatory:   false,
+			},
 		},
 	}},
 }
