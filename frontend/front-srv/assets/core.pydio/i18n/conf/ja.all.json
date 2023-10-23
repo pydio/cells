@@ -138,7 +138,7 @@
     "other": "デフォルトラベル"
   },
   "Default Language": {
-    "other": "デフォルト言語"
+    "other": "既定の言語"
   },
   "Default Metasources": {
     "other": "デフォルトのメタソース"
@@ -150,7 +150,7 @@
     "other": "並び替えるデフォルトのフィールド"
   },
   "Default language when a user does not have set his/her own.": {
-    "other": "ユーザーが自身で設定していない場合のデフォルト言語です。"
+    "other": "ユーザーが独自に設定していない場合の既定の言語です。"
   },
   "Default realm for authentication. Please READ THE DOC to safely use this feature.": {
     "other": "認証のデフォルトレルム。この機能を安全に使用するにはドキュメントを読んでください。"

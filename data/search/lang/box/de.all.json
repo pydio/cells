@@ -5,6 +5,18 @@
   "Search.Config.IndexContent.Description": {
     "other": "Wenn auf \"true\" gesetzt, sucht der Indexer nach den ContentRef-Metadaten, liest den Inhalt dieser Referenz und indiziert ihn für die Suche."
   },
+  "Search.Config.ContentRef.Label": {
+    "other": "Metadaten für Inhaltsreferenz"
+  },
+  "Search.Config.ContentRef.Description": {
+    "other": "Ein Metadaten, das auf eine bestimmte Datei verweist: Extraktoren können eine textuelle Darstellung von Dateien erstellen und diese im Klartext oder gzip-kodiert speichern. Die Suchmaschine wird dann versuchen, diesen Inhalt bei der Indexierung zu laden. Verwenden Sie das Präfix pydio:, um sicherzustellen, dass es nicht nach außen dringt."
+  },
+  "Search.Config.PlainTextExtensions.Label": {
+    "other": "Dateierweiterungen für Klartext"
+  },
+  "Search.Config.PlainTextExtensions.Description": {
+    "other": "Liste der Dateierweiterungen für Dateien mit direkt indexierbaren reinen Textinhalten (durch Kommas getrennte Liste)."
+  },
   "Search.Config.BasenameAnalyze.Label": {
     "other": "Dateinamenanalysator"
   },
