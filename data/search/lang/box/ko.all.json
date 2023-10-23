@@ -5,6 +5,18 @@
   "Search.Config.IndexContent.Description": {
     "other": "True로 설정되있는 경우, 인덱서는 ContentRef 메타데이터를 찾고 이 참조에서 내용을 읽은 후, 검색을 위해 인덱싱할 것 입니다."
   },
+  "Search.Config.ContentRef.Label": {
+    "other": "Content Reference Metadata"
+  },
+  "Search.Config.ContentRef.Description": {
+    "other": "A metadata storing a reference to a specific file: extractors can create textual representation of files will store them in plain text or gzip-encoded. Search engine will then try to load this content at indexation. Use pydio: prefix to make sure it does not leak out."
+  },
+  "Search.Config.PlainTextExtensions.Label": {
+    "other": "Plain Text Extensions"
+  },
+  "Search.Config.PlainTextExtensions.Description": {
+    "other": "List of extensions for files containing directly indexable plain-text contents (comma-separated-list)."
+  },
   "Search.Config.BasenameAnalyze.Label": {
     "other": "파일 이름 분석"
   },

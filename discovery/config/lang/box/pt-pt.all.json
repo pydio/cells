@@ -80,6 +80,9 @@
   "actionOutputSingleQuery.FreeCondition": {
     "other": "Condição livre"
   },
+  "dataSelectorSingleQuery.JsonPath": {
+    "other": "JSON Path"
+  },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
   },
