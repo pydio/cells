@@ -74,7 +74,7 @@ func NewEngine(ctx context.Context, indexer dao.IndexDAO, nsProvider *meta.NsPro
 }
 
 func (s *Server) watchOperations() {
-	batch := NewBatch(s.Ctx, s.nsProvider, BatchOptions{IndexContent: s.configs.Val("indexContent").Bool()})
+	batch := NewBatch(s.Ctx, s.nsProvider, BatchOptions{config: s.configs})
 	debounce := 1 * time.Second
 	timer := time.NewTimer(debounce)
 	defer func() {
@@ -100,8 +100,8 @@ func (s *Server) watchOperations() {
 			batch.Flush(s.Engine)
 		case cf := <-s.confChan:
 			s.configs = cf
-			batch.options.IndexContent = cf.Val("indexContent").Bool()
-			log.Logger(s.Ctx).Info("Changing search engine content indexation status", zap.Bool("i", batch.options.IndexContent))
+			batch.options.config = cf
+			log.Logger(s.Ctx).Info("Changing search engine content indexation status", zap.Bool("i", cf.Val("indexContent").Bool()))
 		case <-s.Ctx.Done():
 			batch.Flush(s.Engine)
 			s.Engine.Close(s.Ctx)
