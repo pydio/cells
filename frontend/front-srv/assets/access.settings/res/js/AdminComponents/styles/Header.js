@@ -46,7 +46,7 @@ class Header extends Component{
             container: {
                 display:'flex',
                 width: '100%',
-                paddingLeft: 12,
+                padding: '0 12px',
                 height: 64,
                 alignItems: 'center'
             },
@@ -66,8 +66,8 @@ class Header extends Component{
             refresh: {
                 display: 'inline-block',
                 position: 'relative',
-                marginRight: 9,
-                marginLeft: 9
+                //marginRight: 9,
+                marginLeft: 7
             },
             tabs : {
                 tab : {
@@ -170,8 +170,8 @@ class Header extends Component{
                     {icon}
                     {headTitle}
                     <div style={{flex:1, marginRight:centerContent?8:0}}>{centerContent}</div>
-                    <div style={{display:'flex', alignItems:'center', marginTop: -2}}>
-                        {actionButtons.map(a => <div style={{margin:'0 4px'}}>{a}</div>)}
+                    <div style={{display:'flex', alignItems:'center'}}>
+                        {actionButtons.map(a => <div style={{margin:0}}>{a}</div>)}
                         {!loading && reloadButton}
                         {loading &&
                             <RefreshIndicator

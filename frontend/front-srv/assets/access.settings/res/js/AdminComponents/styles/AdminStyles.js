@@ -97,28 +97,41 @@ export default function(palette = {}) {
                     backgroundColor:palette.primary1Color,
                     hoverColor:palette.accent2Color,
                     labelStyle:{
-                        color:'white'
+                        color:'white',
+                        textTransform: 'none'
                     },
                     style:{
-                        height: 34,
-                        lineHeight: '34px',
-                        borderRadius: 4
+                        height: 32,
+                        lineHeight: '30px',
+                        borderRadius: 20,
+                        marginLeft: 5
                     }
                 },
                 flatButtonDisabled:{
                     backgroundColor:'#e0e0e0',
                     labelStyle:{
-                        color:'white'
+                        color:'white',
+                        textTransform: 'none'
                     },
                     style:{
-                        height: 34,
-                        lineHeight: '34px',
-                        borderRadius: 4
+                        height: 32,
+                        lineHeight: '30px',
+                        borderRadius: 20,
+                        marginLeft: 5
                     }
                 },
                 iconButton:{
+                    style:{
+                        height: 32,
+                        width: 32,
+                        borderRadius: '50%',
+                        backgroundColor: palette.primary1Color,
+                        padding: 7,
+                        marginLeft: 5
+                    },
                     iconStyle:{
-                        color:palette.primary1Color
+                        fontSize: 20,
+                        color:'white'
                     }
                 }
             }

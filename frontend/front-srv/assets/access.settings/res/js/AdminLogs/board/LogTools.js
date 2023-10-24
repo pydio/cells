@@ -188,7 +188,7 @@ class LogTools extends React.Component{
         const levelExact = MessageHash['ajxp_admin.logs.level.exact']
         const levelGT = MessageHash['ajxp_admin.logs.level.greaterthan']
         return (
-            <div style={{display: 'flex', alignItems: 'center', width: '100%', marginTop: 3}}>
+            <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
 
                 {focus &&
                     <div style={focusBadge}>Focus on +/- 5 minutes at {moment(new Date((focus+timeOffset)*1000)).format('HH:mm:ss')}</div>
@@ -308,7 +308,7 @@ class LogTools extends React.Component{
                         {MessageHash['ajxp_admin.logs.export.clicklink']}: <a style={{textDecoration:'underline'}} href={exportUrl} download={exportFilename} onClick={exportOnClick}>{exportFilename}</a>
                     </span>
                 </Dialog>
-                <IconButton iconClassName={"mdi mdi-brightness-6"} tooltip={MessageHash['ajxp_admin.logs.toggleTheme']} onClick={() => this.toggleDarkTheme()} iconStyle={{...adminStyles.props.header.iconButton.iconStyle, transform:this.state.darkTheme?'rotate(180deg)':''}} />
+                <IconButton iconClassName={"mdi mdi-brightness-6"} tooltip={MessageHash['ajxp_admin.logs.toggleTheme']} onClick={() => this.toggleDarkTheme()} style={adminStyles.props.header.iconButton.style} iconStyle={{...adminStyles.props.header.iconButton.iconStyle, transform:this.state.darkTheme?'rotate(180deg)':''}} />
             </div>
         )
     }
