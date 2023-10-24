@@ -143,7 +143,7 @@ class ServiceExposedConfigs extends React.Component{
     render() {
 
         const {parameters, values} = this.state;
-        const {accessByName, variant = 'v2', variantShowLegend = true} = this.props;
+        const {accessByName} = this.props;
         if(!parameters) {
             return null;
         }
@@ -156,8 +156,8 @@ class ServiceExposedConfigs extends React.Component{
                 values={values}
                 disabled={!accessByName('Create')}
                 onChange={this.onChange.bind(this)}
-                variant={variant}
-                variantShowLegend={variantShowLegend}
+                variant={"v2"}
+                variantShowLegend={true}
             />
         );
 
