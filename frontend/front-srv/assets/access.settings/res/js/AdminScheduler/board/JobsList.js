@@ -280,18 +280,21 @@ class JobsList extends React.Component {
 
         const groupKeys = Object.keys(groupedJobs).filter(k => k).sort()
         if(groupedJobs['']) {
-            groupKeys.push('')
+            groupKeys.unshift('')
         }
+        const gLabelMess = (id) => Pydio.getMessages()['ajxp_admin.metadata.' + id]
 
         return (
             <div style={{flex:1, overflowY: 'auto'}}>
+                <AdminComponents.SubHeader
+                    title={m('system.title')}
+                    legend={m('system.legend')}
+                />
                 {groupKeys.map(key => {
                     return (
                         <React.Fragment>
-                            <AdminComponents.SubHeader
-                                title={key ? key : m('system.title')}
-                                legend={key ? null : m('system.legend')}
-                            />
+                            {key && <div style={{padding: 20, fontWeight: 500, paddingBottom: 0}}>{'['+gLabelMess('group')+'] ' + key}</div>}
+                            {!key && knownGroups.length > 0 && <div style={{padding: 20, fontWeight: 500, paddingBottom: 0}}>{gLabelMess('default-group')}</div>}
                             <Paper {...adminStyles.body.block.props}>
                                 <MaterialTable
                                     data={groupedJobs[key]}
