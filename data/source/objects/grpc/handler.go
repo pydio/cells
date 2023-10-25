@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	minio "github.com/minio/minio/cmd"
 	_ "github.com/minio/minio/cmd/gateway"
@@ -140,6 +141,7 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 	if folderName != "" {
 		params = append(params, folderName)
 		log.Logger(ctx).Info("Starting local objects service " + minioServiceName + " on " + folderName)
+		go o.MinioStaleDataCleaner(ctx, folderName)
 	} else if customEndpoint != "" {
 		params = append(params, customEndpoint)
 		log.Logger(ctx).Info("Starting gateway objects service " + minioServiceName + " to " + customEndpoint)
@@ -223,4 +225,58 @@ func (o *ObjectHandler) CleanResourcesBeforeDelete(ctx context.Context, request 
 		}
 	}
 	return
+}
+
+// MinioStaleDataCleaner looks up for stala data inside .minio.sys/tmp and .minio.sys/multipart on a regular basis.
+// Defaults are 48h for expiry and 12h for interval. Expiry can be overriden with the CELLS_MINIO_STALE_DATA_EXPIRY env
+// variable, in which case interval = expiry / 2
+func (o *ObjectHandler) MinioStaleDataCleaner(ctx context.Context, rootFolder string) {
+	folders := []string{"tmp", "multipart"}
+	interval := time.Hour * 12
+	expiry := time.Hour * 48
+	if env := os.Getenv("CELLS_MINIO_STALE_DATA_EXPIRY"); env != "" {
+		if d, e := time.ParseDuration(env); e == nil {
+			expiry = d
+			interval = expiry / 2
+			log.Logger(ctx).Info("Loaded stale data expiry time from ENV: " + d.String() + ", will run every " + interval.String())
+		}
+	}
+
+	timer := time.NewTimer(interval)
+	defer timer.Stop()
+
+	clean := func() {
+		now := time.Now()
+		for _, f := range folders {
+			tmpFolder := filepath.Join(rootFolder, ".minio.sys", f)
+			entries, err := os.ReadDir(tmpFolder)
+			if err != nil {
+				log.Logger(ctx).Error("Cannot read folder " + tmpFolder + " for cleaning stale data")
+				continue
+			}
+			for _, e := range entries {
+				if info, err := e.Info(); err == nil {
+					if now.Sub(info.ModTime()) > expiry {
+						stale := filepath.Join(tmpFolder, e.Name())
+						if er := os.RemoveAll(stale); er == nil {
+							log.Logger(ctx).Info("Removed stale entry from minio tmp folders " + stale)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	log.Logger(ctx).Info("Performing a first clean of minio stale data")
+	clean()
+
+	for {
+		select {
+		case <-ctx.Done():
+			log.Logger(ctx).Info("Stopping minio stale data cleaner routine")
+			return
+		case <-timer.C:
+			clean()
+		}
+	}
 }
