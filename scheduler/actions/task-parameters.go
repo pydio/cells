@@ -23,8 +23,11 @@ type TaskParameter struct {
 	isSwitch    bool
 	switchValue string
 	subValues   map[string]*TaskParameter
+
+	containerRef *TaskParameters
 }
 
+// Raw returns the raw value as string
 func (f *TaskParameter) Raw() string {
 	return f.raw
 }
@@ -37,22 +40,24 @@ func (f *TaskParameter) IsSwitch() bool {
 	return f.isSwitch
 }
 
-func (f *TaskParameter) Occurrences(parent *TaskParameters) (oo []*TaskParameters) {
+// Occurrences returns a slice of TaskParameters, each one containing the map of TaskParameter
+func (f *TaskParameter) Occurrences() (oo []*TaskParameters) {
 	for _, m := range f.occurrences {
 		oo = append(oo, &TaskParameters{
 			pp:    m,
-			ctx:   parent.ctx,
-			input: parent.input,
+			ctx:   f.containerRef.ctx,
+			input: f.containerRef.input,
 		})
 	}
 	return
 }
 
-func (f *TaskParameter) SwitchValues(parent *TaskParameters) (string, *TaskParameters) {
+// SwitchValues returns both the selected value and the sub form data as a TaskParameters container
+func (f *TaskParameter) SwitchValues() (string, *TaskParameters) {
 	tp := &TaskParameters{
 		pp:    f.subValues,
-		ctx:   parent.ctx,
-		input: parent.input,
+		ctx:   f.containerRef.ctx,
+		input: f.containerRef.input,
 	}
 	return f.switchValue, tp
 }
@@ -116,7 +121,9 @@ func (p *TaskParameters) Get(s string) *TaskParameter {
 	if tp, ok := p.pp[s]; ok {
 		return tp
 	} else {
-		return &TaskParameter{}
+		return &TaskParameter{
+			containerRef: p,
+		}
 	}
 }
 
@@ -183,12 +190,13 @@ func (p *TaskParameters) flattenGroup(fields []forms.Field, parameters map[strin
 			if av, ok := parameters[ff.Name]; ok {
 				v = av
 			}
-			out[ff.Name] = &TaskParameter{FormField: ff, raw: v}
+			out[ff.Name] = &TaskParameter{FormField: ff, raw: v, containerRef: p}
 		} else if sw, ok3 := field.(*forms.SwitchField); ok3 {
 			name := sw.Name
 			sf := &TaskParameter{
-				isSwitch:  true,
-				subValues: map[string]*TaskParameter{},
+				isSwitch:     true,
+				subValues:    map[string]*TaskParameter{},
+				containerRef: p,
 			}
 			jsonEncoded := parameters[name]
 			if jsonEncoded == "" {
@@ -214,7 +222,7 @@ func (p *TaskParameters) flattenGroup(fields []forms.Field, parameters map[strin
 			}
 			out[name] = sf
 		} else if rf, ok2 := field.(*forms.ReplicableFields); ok2 {
-			mf := &TaskParameter{multiple: true}
+			mf := &TaskParameter{multiple: true, containerRef: p}
 			var tuples []forms.Tuple
 			kvs := map[string]*TaskParameter{}
 			p.flattenGroup(rf.Fields, parameters, kvs)
@@ -224,7 +232,7 @@ func (p *TaskParameters) flattenGroup(fields []forms.Field, parameters map[strin
 			for _, line := range forms.ParseReplicableTuples(parameters, tuples...) {
 				value := map[string]*TaskParameter{}
 				for k, v := range kvs {
-					value[k] = &TaskParameter{FormField: v.FormField, raw: line[k]}
+					value[k] = &TaskParameter{FormField: v.FormField, raw: line[k], containerRef: p}
 				}
 				mf.occurrences = append(mf.occurrences, value)
 			}
