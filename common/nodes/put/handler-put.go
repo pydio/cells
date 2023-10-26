@@ -131,6 +131,10 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 
 // checkTypeChange verify if a node is about to be overriden with a different type
 func (m *Handler) checkTypeChange(ctx context.Context, node *tree.Node) error {
+	if node.GetType() == tree.NodeType_UNKNOWN {
+		log.Logger(ctx).Warn("Ignoring type change check as input node type is unknown", node.ZapPath())
+		return nil
+	}
 	resp, er := m.ReadNode(ctx, &tree.ReadNodeRequest{Node: node.Clone()})
 	if er != nil || resp == nil || resp.GetNode() == nil {
 		return nil // Node does not already exist, ignore
