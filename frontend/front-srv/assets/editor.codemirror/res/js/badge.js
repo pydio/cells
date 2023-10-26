@@ -66,6 +66,15 @@ class MdBadge extends Component{
 
     load(){
         const {node, pydio} = this.props;
+        console.log(node);
+        if(node.getMetadata().has('bytesize')) {
+            const bs = parseInt(node.getMetadata().get('bytesize'))
+            const conf = pydio.getPluginConfigs('editor.codemirror').get('TEXTUAL_PREVIEW_SIZE_LIMIT')
+            if(bs && conf && bs > conf) {
+                this.setState({content: null, eTag: node.getMetadata().get('etag')})
+                return
+            }
+        }
         pydio.ApiClient.getPlainContent(node, (content) => {
             this.setState({content, eTag: node.getMetadata().get('etag')})
         })
