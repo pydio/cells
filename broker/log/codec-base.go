@@ -57,7 +57,7 @@ func (b *baseCodec) marshalLogMsg(line *log.Log) (*IndexableLog, error) {
 
 	for k, v := range data {
 		val, ok := v.(string)
-		if !ok {
+		if !ok && k != common.KeyTransferSize {
 			zaps[k] = v
 			continue
 		}
@@ -79,6 +79,12 @@ func (b *baseCodec) marshalLogMsg(line *log.Log) (*IndexableLog, error) {
 			msg.NodeUuid = val
 		case common.KeyNodePath:
 			msg.NodePath = val
+		case common.KeyTransferSize:
+			if f, o := v.(float64); o {
+				msg.TransferSize = int64(f)
+			} else if i, o2 := v.(int64); o2 {
+				msg.TransferSize = i
+			}
 		case common.KeyWorkspaceUuid:
 			msg.WsUuid = val
 		case common.KeyWorkspaceScope:

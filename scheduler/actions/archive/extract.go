@@ -184,6 +184,7 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 		log.GetAuditId(common.AuditNodeCreate),
 		archiveNode.Zap("archive"),
 		targetNode.Zap("target"),
+		archiveNode.ZapSize(),
 	)
 
 	output := input.WithNode(targetNode)

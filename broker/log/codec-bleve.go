@@ -119,6 +119,14 @@ func (b *BleveCodec) unmarshallLogMsgFromFields(m map[string]interface{}, msg *l
 		msg.Level = val.(string)
 	}
 
+	if val, ok := m["TransferSize"]; ok {
+		if f, o := val.(float64); o {
+			msg.TransferSize = int64(f)
+		} else if i, o2 := val.(int64); o2 {
+			msg.TransferSize = i
+		}
+	}
+
 	if val, ok := m["Logger"]; ok {
 		msg.Logger = val.(string)
 	}

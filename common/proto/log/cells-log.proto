@@ -59,6 +59,7 @@ message LogMessage {
     // Tree Info
     string NodeUuid = 13;
     string NodePath = 14;
+    int64 TransferSize = 27;
     string WsUuid = 15;
     string WsScope = 17;
 

@@ -66,14 +66,24 @@ func (h *HandlerAudit) GetObject(ctx context.Context, node *tree.Node, requestDa
 		return reader, e // do not audit thumbnail events
 	}
 	if e == nil && requestData.StartOffset == 0 {
-		auditer.Info(
-			fmt.Sprintf("Retrieved object at %s", node.Path),
-			log.GetAuditId(common.AuditObjectGet),
-			node.ZapUuid(),
-			node.ZapPath(),
-			wsInfo,
-			wsScope,
-		)
+		cl := node.Clone()
+		go func() {
+			l := requestData.Length
+			if l == -1 {
+				if rsp, er := h.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: cl}); er == nil {
+					l = rsp.GetNode().GetSize()
+				}
+			}
+			auditer.Info(
+				fmt.Sprintf("Retrieved object at %s", node.Path),
+				log.GetAuditId(common.AuditObjectGet),
+				node.ZapUuid(),
+				node.ZapPath(),
+				zap.Int64(common.KeyTransferSize, l),
+				wsInfo,
+				wsScope,
+			)
+		}()
 	}
 
 	return reader, e
@@ -93,10 +103,11 @@ func (h *HandlerAudit) PutObject(ctx context.Context, node *tree.Node, reader io
 	}
 
 	auditer.Info(
-		fmt.Sprintf("Modified %s, put %d bytes", node.Path, written.Size),
+		fmt.Sprintf("Uploaded %s, put %d bytes", node.Path, written.Size),
 		log.GetAuditId(common.AuditObjectPut),
 		node.ZapUuid(),
 		node.ZapPath(),
+		zap.Int64(common.KeyTransferSize, written.Size),
 		wsInfo,
 		wsScope,
 		zap.Error(e), // empty if e == nil
@@ -217,6 +228,7 @@ func (h *HandlerAudit) CopyObject(ctx context.Context, from *tree.Node, to *tree
 		log.GetAuditId(common.AuditNodeCreate),
 		from.ZapUuid(),
 		from.ZapPath(),
+		from.ZapSize(),
 		wsInfo,
 		wsScope,
 	)
@@ -244,6 +256,7 @@ func (h *HandlerAudit) MultipartComplete(ctx context.Context, target *tree.Node,
 		log.GetAuditId(common.AuditNodeCreate),
 		target.ZapUuid(),
 		target.ZapPath(),
+		zap.Int64(common.KeyTransferSize, oi.Size),
 		wsInfo,
 		wsScope,
 	)
