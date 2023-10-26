@@ -22,6 +22,7 @@ package core
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/service/errors"
 	"io"
 	"strings"
 	"sync"
@@ -114,6 +115,13 @@ func (f *StructStorageHandler) Adapt(h nodes.Handler, options nodes.RouterOption
 func (f *StructStorageHandler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...grpc.CallOption) (*tree.CreateNodeResponse, error) {
 	node := in.Node
 	if !node.IsLeaf() {
+		if rr, re := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node.Clone()}); re == nil && rr != nil {
+			if rr.GetNode().IsLeaf() {
+				return nil, errors.Conflict("node.type.conflict", "A file already exists with the same name")
+			} else {
+				return nil, errors.Conflict("node.type.conflict", "A folder already exists with the same name")
+			}
+		}
 		dsPath := node.GetStringMeta(common.MetaNamespaceDatasourcePath)
 		newNode := &tree.Node{
 			Path: strings.TrimRight(node.Path, "/") + "/" + common.PydioSyncHiddenFile,
