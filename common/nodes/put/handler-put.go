@@ -131,16 +131,14 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 
 // checkTypeChange verify if a node is about to be overriden with a different type
 func (m *Handler) checkTypeChange(ctx context.Context, node *tree.Node) error {
-	if node.GetType() == tree.NodeType_UNKNOWN {
-		log.Logger(ctx).Warn("Ignoring type change check as input node type is unknown", node.ZapPath())
-		return nil
-	}
 	resp, er := m.ReadNode(ctx, &tree.ReadNodeRequest{Node: node.Clone()})
 	if er != nil || resp == nil || resp.GetNode() == nil {
 		return nil // Node does not already exist, ignore
 	}
-	if node.GetType() != resp.GetNode().GetType() {
-		if resp.GetNode().IsLeaf() {
+	srcLeaf := node.GetType() == tree.NodeType_LEAF || node.GetType() == tree.NodeType_UNKNOWN
+	tgtLeaf := resp.GetNode().GetType() == tree.NodeType_LEAF
+	if srcLeaf != tgtLeaf {
+		if tgtLeaf {
 			return errors.Conflict("node.type.conflict", "A file already exists with the same name")
 		} else {
 			return errors.Conflict("node.type.conflict", "A folder already exists with the same name")
