@@ -1,4 +1,4 @@
-DEV_VERSION=4.3.0-dev
+DEV_VERSION=4.3.1-dev
 TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
 GITREV?=$(shell git rev-parse HEAD)
