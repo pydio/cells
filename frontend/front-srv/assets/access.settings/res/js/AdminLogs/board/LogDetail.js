@@ -224,6 +224,7 @@ class LogDetail extends React.Component{
                 <Fragment>
                     <Divider style={styles.divider}/>
                     <GenericLine iconClassName={"mdi mdi-file-tree"} legend={"File/Folder"} data={log.NodePath} />
+                    {log.TransferSize && <GenericLine iconClassName={"mdi mdi-file"} legend={"Transfer Size"} data={log.TransferSize} />}
                     <GenericLine iconClassName={"mdi mdi-folder-open"} legend={"In Workspace"} data={log.WsUuid} />
                 </Fragment>
                 }
