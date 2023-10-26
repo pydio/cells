@@ -231,22 +231,34 @@ export default createReactClass({
 
     checkValidStatus(values){
         const failedMandatories = [];
-        const {parameters, replicationGroup, forceValidStatusCheck, onValidStatusChange} = this.props;
-        parameters.map(function(p){
+        const {parameters, replicationGroup, groupSwitchName, forceValidStatusCheck, onValidStatusChange} = this.props;
+        if(groupSwitchName) {
+            return ;
+        }
+        // Remove groupSwitchParameters not concerned
+        parameters.filter(p => {
+            if (p.group_switch_value) {
+                const groupName = p.group_switch_name;
+                return parameters.filter(p2 => p2.type === 'group_switch:' + groupName && values[p2.name] === p.group_switch_value).length === 1
+            } else {
+                return true
+            }
+        }).map((p) => {
             if (p.replicationGroup && p.replicationGroup !== replicationGroup /*&& p.replicationMandatory !== 'true'*/) {
                 return
             }
+            const checkName = p.group_switch_name ? p.group_switch_name+'/'+p.name : p.name
             if (['string', 'textarea', 'password', 'integer', 'integer-bytes'].indexOf(p.type) > -1 && (p.mandatory === "true" || p.mandatory === true)) {
-                if(!values || !values.hasOwnProperty(p.name) || values[p.name] === undefined || values[p.name] === ""){
+                if (!values || !values.hasOwnProperty(checkName) || values[checkName] === undefined || values[checkName] === "") {
                     failedMandatories.push(p);
                 }
             }
-            if( ( p.type === 'valid-password' || p.type === 'valid-login' ) && this.refs['form-element-' + p.name]){
-                if(!this.refs['form-element-' + p.name].isValid()){
+            if ((p.type === 'valid-password' || p.type === 'valid-login') && this.refs['form-element-' + p.name]) {
+                if (!this.refs['form-element-' + p.name].isValid()) {
                     failedMandatories.push(p);
                 }
             }
-        }.bind(this));
+        });
         let previousValue, newValue;
         previousValue = this._internalValid;
         newValue = !failedMandatories.length;
@@ -334,7 +346,7 @@ export default createReactClass({
                             key={paramName}
                             onScrollCallback={null}
                             limitToGroups={null}
-                            onValidStatusChange={this.onSubformValidStatusChange.bind(this)}
+                            //onValidStatusChange={this.onSubformValidStatusChange.bind(this)}
                         />
                     );
 

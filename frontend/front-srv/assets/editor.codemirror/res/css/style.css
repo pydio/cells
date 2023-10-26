@@ -45,6 +45,13 @@
 .react-mui-context .mdviewer ul, .react-mui-context .mdviewer ol{
     margin-left: 15px;
 }
+
+.react-mui-context .mdviewer ul li {
+    list-style: disc;
+    padding: inherit;
+    margin: inherit;
+}
+
 .react-mui-context .mdviewer code {
     margin: 10px 0;
     border-radius: 2px;
