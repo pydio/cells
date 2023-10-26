@@ -120,10 +120,10 @@ export default class extends React.Component {
     };
 
     render() {
-        const {variant, variantShowLegend, onValidStatusChange, onParameterChange, applyButtonAction} = this.props;
+        const {variant, variantShowLegend, onValidStatusChange, onParameterChange, applyButtonAction, values, paramAttributes: attributes} = this.props;
 
-        const attributes = this.props.paramAttributes;
-        const values = this.props.values;
+//        const attributes = this.props.paramAttributes;
+//        const values = this.props.values;
 
         const paramName = attributes['name'];
         const switchValues = this.computeSubPanelParameters(attributes);
@@ -174,6 +174,8 @@ export default class extends React.Component {
                     ref={paramName + '-SUB'}
                     key={paramName + '-SUB'}
                     className="sub-form"
+                    groupSwitchName={paramName}
+                    groupSwitchValue={values[paramName]}
                     parameters={switchValues[values[paramName]].fields}
                     values={values}
                     depth={this.props.depth+1}
