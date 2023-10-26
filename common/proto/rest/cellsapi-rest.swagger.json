@@ -2771,6 +2771,10 @@
           "title": "Span Info",
           "type": "string"
         },
+        "TransferSize": {
+          "format": "int64",
+          "type": "string"
+        },
         "Ts": {
           "format": "int32",
           "title": "Generic zap fields",

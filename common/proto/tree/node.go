@@ -402,6 +402,11 @@ func (node *Node) ZapUuid() zapcore.Field {
 	return zap.String(common.KeyNodeUuid, node.GetUuid())
 }
 
+// ZapSize calls zap.Int64 with node sizes
+func (node *Node) ZapSize() zapcore.Field {
+	return zap.Int64(common.KeyTransferSize, node.GetSize())
+}
+
 // MarshalLogObject implements custom marshalling for logs
 func (log *ChangeLog) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	if log == nil {

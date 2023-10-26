@@ -232,6 +232,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 		log.GetAuditId(common.AuditNodeCreate),
 		zap.String("archive", targetFile),
 		zap.Strings("sources", pp),
+		zap.Int64(common.KeyTransferSize, written),
 	)
 
 	// Reload node

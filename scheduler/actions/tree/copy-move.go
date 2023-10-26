@@ -226,6 +226,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 			log.GetAuditId(common.AuditNodeCreate),
 			sourceNode.Zap("source"),
 			targetNode.Zap("target"),
+			sourceNode.ZapSize(),
 		)
 	}
 	output = output.WithNode(targetNode)

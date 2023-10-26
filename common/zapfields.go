@@ -101,9 +101,10 @@ const (
 	KeyOperationUuid  = "OperationUuid"
 	KeyOperationLabel = "OperationLabel"
 
-	KeyNode     = "Node"
-	KeyNodeUuid = "NodeUuid"
-	KeyNodePath = "NodePath"
+	KeyNode         = "Node"
+	KeyNodeUuid     = "NodeUuid"
+	KeyNodePath     = "NodePath"
+	KeyTransferSize = "TransferSize"
 
 	KeyWorkspace      = "Workspace"
 	KeyWorkspaceUuid  = "WorkspaceUuid"
