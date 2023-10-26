@@ -123,7 +123,7 @@ require (
 	golang.org/x/text v0.13.0
 	golang.org/x/time v0.1.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230706204954-ccb25ca9f130
-	google.golang.org/grpc v1.56.2
+	google.golang.org/grpc v1.56.3
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0
 	google.golang.org/grpc/examples v0.0.0-20211015201449-4757d0249e2d
 	google.golang.org/protobuf v1.31.0
