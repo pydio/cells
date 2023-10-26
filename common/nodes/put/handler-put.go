@@ -129,6 +129,22 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 
 }
 
+// checkTypeChange verify if a node is about to be overriden with a different type
+func (m *Handler) checkTypeChange(ctx context.Context, node *tree.Node) error {
+	resp, er := m.ReadNode(ctx, &tree.ReadNodeRequest{Node: node.Clone()})
+	if er != nil || resp == nil || resp.GetNode() == nil {
+		return nil // Node does not already exist, ignore
+	}
+	if node.GetType() != resp.GetNode().GetType() {
+		if resp.GetNode().IsLeaf() {
+			return errors.Conflict("node.type.conflict", "A file already exists with the same name")
+		} else {
+			return errors.Conflict("node.type.conflict", "A folder already exists with the same name")
+		}
+	}
+	return nil
+}
+
 // createParentIfNotExist Recursively create parents
 func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, session string) error {
 	parentNode := &tree.Node{
@@ -205,6 +221,10 @@ func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 			return models.ObjectInfo{}, fmt.Errorf("do not override folder uuid")
 		}
 		return m.Next.PutObject(ctx, node, reader, requestData)
+	}
+
+	if e := m.checkTypeChange(ctx, node); e != nil {
+		return models.ObjectInfo{}, e
 	}
 
 	if e := m.createParentIfNotExist(ctx, node, ""); e != nil {
