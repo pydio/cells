@@ -1,39 +1,31 @@
-# Changes between v4.2.7 and v4.3.0
+# Changes between v4.3.0 and v4.3.1-alpha1
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.2.7...v4.3.0)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.3.0...v4.3.1-alpha1)
 
-- [#a611fde](https://github.com/pydio/cells/commit/a611fde71991a9fba771d3d4d76af842aab25288): Remove refs to grunt
-- [#cff667f](https://github.com/pydio/cells/commit/cff667f095cb8ddff2b7a56d9bb9f007c6994152): Unused dependency in editor.video
-- [#a531898](https://github.com/pydio/cells/commit/a53189826282651dac92751f38375afadf059c5f): Update webpack version
-- [#f65368d](https://github.com/pydio/cells/commit/f65368d87b84945bd54d1c887a98a231d58a3527): js libs updates
-- [#9157b78](https://github.com/pydio/cells/commit/9157b784f7da3871f5fe5bbf806cd4df8c908b9c): Merge remote-tracking branch 'origin/main'
-- [#75d900f](https://github.com/pydio/cells/commit/75d900f89b06c6077fb67a8b020dc8aeaf63e4af): Fix Resizable handle positioning (preventing access to scrollbar)
-- [#2dfc8fc](https://github.com/pydio/cells/commit/2dfc8fcabb8d59c3dc1595fdf26d9877174ea4f0): Release v4.3.0-rc2
-- [#c19e292](https://github.com/pydio/cells/commit/c19e29236ab51315e28e7867da5bb855a40286cb): Custom buttons in Metadata Board
-- [#8158b6c](https://github.com/pydio/cells/commit/8158b6c03808cbf0fe2edee0202f64f79b7cfb8e): Metadata grouping : remember state locally, implement grouping in search advanced filters.
-- [#d501404](https://github.com/pydio/cells/commit/d50140445634592a7d2c289d976ddca006626ae2): Usermeta Tags : extract code for listing/upserting/deleting tags values
-- [#82d2950](https://github.com/pydio/cells/commit/82d2950cc722886ab34a03b2e0105e39277263db): Release v4.3.0-rc1
-- [#0746002](https://github.com/pydio/cells/commit/0746002613b6c4ad9721736df692881b4bb0e916): Merge remote-tracking branch 'origin/main'
-- [#8349f01](https://github.com/pydio/cells/commit/8349f01b6809f74c4f832c0784eb91febb07de80): userMeta: Make TypeEditor and UserMetaPanel components more flexible.
-- [#6c38082](https://github.com/pydio/cells/commit/6c380828a1e029ed32489c66f02b944790eafe61): More Es
-- [#56f9688](https://github.com/pydio/cells/commit/56f968827a020a8632f25cff60f2be5d70190172): More Es
-- [#fb35092](https://github.com/pydio/cells/commit/fb35092c9d17f4278932f9c3540840cfe231fa1c): Improve editor.codemirror with a file preview
-- [#463de52](https://github.com/pydio/cells/commit/463de52fb45e5f97562567af741472c58ecc1785): Publish usage stats on boltdb DAO
-- [#ce62ced](https://github.com/pydio/cells/commit/ce62ceddeb6328d3086a347cd9dec349fd76a326): tweak the policies cache
-- [#990f46d](https://github.com/pydio/cells/commit/990f46d773b01c82094c84638901f10890654e92): Missing field in selector
-- [#6651b0f](https://github.com/pydio/cells/commit/6651b0f605463681f99c1b86ec7b55046900bc59): Display optional flash message
-- [#dbf9efe](https://github.com/pydio/cells/commit/dbf9efee1d228ff9a3266b2a4ca23b3a65ee27ca): Caddy upgrade made metrics optional
-- [#a9523df](https://github.com/pydio/cells/commit/a9523dfa2e11fc44ae359aa2cebd3370fae23051): Implement a /dav/ endpoint on public links for direct files downloads
-- [#99062fa](https://github.com/pydio/cells/commit/99062faa1fc99a741c048305e30690b38d72048a): UpdateNameInPlace optional uuid/level restrictions
-- [#99f7e08](https://github.com/pydio/cells/commit/99f7e0856a8487e735183276aaa575e39cfe97a3): Additional calls to Audit Log
-- [#820df51](https://github.com/pydio/cells/commit/820df515a443563db9ca86b1e359d52299435edc): Merge remote-tracking branch 'origin/main'
-- [#120073e](https://github.com/pydio/cells/commit/120073e3473016a7d90a39d8f3e7af5675107449): update cells-fuse go mod for go20+
-- [#98c698c](https://github.com/pydio/cells/commit/98c698ce54efeed57fab9b617b29ec210a4dced4): Also make go binary variable for cells fuse builds
-- [#29fac05](https://github.com/pydio/cells/commit/29fac05a2305eaea47e745d19dc6a6829b8f4112): Missing GOBIN usage in arm target
-- [#2e276c2](https://github.com/pydio/cells/commit/2e276c28da1bd495a140c75473404b1610c38d04): Fixing unit tests
-- [#319ea91](https://github.com/pydio/cells/commit/319ea911477337531758f64cbf9bbd7d105fbca1): fix trimming a wrong value
-- [#4cfd138](https://github.com/pydio/cells/commit/4cfd138480a4760433ae19d5917edcfb4e3968b1): Fix zap slice call for linter
-- [#c2197eb](https://github.com/pydio/cells/commit/c2197ebe73c9ced67d5adc2b2230fba2e9f1f5da): Update Readme.MD for GO compile version
-- [#f34d979](https://github.com/pydio/cells/commit/f34d97905004bf9516fc15af1c8eb447dc43da8a): More Spanish
-- [#8cd2d83](https://github.com/pydio/cells/commit/8cd2d834f4505154dc0574563909e124034b5266): More Spanish
-- [#49d74cc](https://github.com/pydio/cells/commit/49d74cc48f87e4421ef0f26eff71651dc47bf1c3): Switch modules to go20/21 and to cross-compilation
+- [#54649ea](https://github.com/pydio/cells/commit/54649eaa06106e75860477d63ab46e8dbb303ff3): Re-fix conflict check
+- [#2e35315](https://github.com/pydio/cells/commit/2e353151c5a9538dbd2752002c53b5b0b47eb23c): Refix form validation...
+- [#150dd95](https://github.com/pydio/cells/commit/150dd957dfe76bdc72ed6a9ddabf5f520b84f8e8): Update grpc lib
+- [#a650759](https://github.com/pydio/cells/commit/a6507594b6861dafdd59ac80278b826e973b2039): Additional checks for type changing : handle unknown case
+- [#4029620](https://github.com/pydio/cells/commit/4029620ab619ff1e7034feada0f573dd046a003e): Additional checks for type changing : handle unknown case
+- [#f341a35](https://github.com/pydio/cells/commit/f341a355318be892c02f740820c3047c995f5578): Additional checks for type changing during put/create
+- [#4576d76](https://github.com/pydio/cells/commit/4576d760b2c052cc35f1b915a5ba162fba29e2c6): Bump sdk Codemirror: add parameter for preview size
+- [#645d59c](https://github.com/pydio/cells/commit/645d59cdbb0b47c237eb1a9f9a71868ab7cb1f06): Add TransferSize to log model
+- [#957e0e7](https://github.com/pydio/cells/commit/957e0e76df30a7efaee549526875e0b48eba2d33): Final clean of TaskParameters tooling
+- [#77e6088](https://github.com/pydio/cells/commit/77e60885b86291602b0e1aaabdd0dac83be89ba1): Set up a stale data cleaner for tmp data. Expiry is 48h by default, can be changed with env variable.
+- [#75cd61a](https://github.com/pydio/cells/commit/75cd61a9d0fa94bfea322732679a17c4cc0a3ee6): make buttons round again! Fix legends in ServiceExposedConfigs
+- [#c7d5ead](https://github.com/pydio/cells/commit/c7d5eadf3e2aac268b32b679d857e3539ee67bef): Change job grouping display (harmonize with metadata)
+- [#1b4cb6c](https://github.com/pydio/cells/commit/1b4cb6ca92bfb1599421122611b0bb6e7e9da2c5): Add missing Japanese messages, new Strings + DE/FR translation
+- [#8d9bd82](https://github.com/pydio/cells/commit/8d9bd82b15608f52d9b62e3bff467ab60652f5c9): Add missing Japanese messages, new Strings + DE/FR translation
+- [#22e6ca8](https://github.com/pydio/cells/commit/22e6ca87a4586475c3d275edb9a0e90b9ed78b68): Fix typo in i18n message
+- [#9c83222](https://github.com/pydio/cells/commit/9c8322218bf51336fd5febf83fc708d876f7caec): Refactor graphic utils (colorsFromString, listFontIcons)
+- [#49607ef](https://github.com/pydio/cells/commit/49607efd30d698362e7385e5c3a2fb7c6d4aa57f): Fix unit test
+- [#0c69637](https://github.com/pydio/cells/commit/0c69637d26dd961b58d8b613246b4ecc9ec8b685): Misc search engine options
+- [#123056d](https://github.com/pydio/cells/commit/123056de9877af1385d5869c15b13d98d13f3f78): Import more recent markdown viewer and use it in CodeMirror Editor - React updated to 18.
+- [#db1bb5f](https://github.com/pydio/cells/commit/db1bb5fb01f05f99cfe385ccdd4fb761e985ad84): New string for dataSelectorSingleQuery
+- [#94e9d0f](https://github.com/pydio/cells/commit/94e9d0f38f89c898cb6f45d4cc48cbf5bf918295): Missing resources
+- [#acdcf97](https://github.com/pydio/cells/commit/acdcf97fd3d1417533aa7fc455687879364e8100): Fixes in Forms library, utilitary tools to parse forms parameters, couple of new models for scheduler
+- [#8b454d0](https://github.com/pydio/cells/commit/8b454d0c1ae4a7f4fed74633a04b1b4eb3058f2f): A few more ES messages
+- [#044e790](https://github.com/pydio/cells/commit/044e7902609491eafacdf0cf26c0b2f6acd9ea9b): A few more ES messages
+- [#d1daf8c](https://github.com/pydio/cells/commit/d1daf8c82174a25b82366c4a3f77498acb374447): missing go.sum
+- [#1520de2](https://github.com/pydio/cells/commit/1520de2e2d841d09d92556eecae7168ee8189695): Update dependency
+- [#d9c4d7b](https://github.com/pydio/cells/commit/d9c4d7b89eeacff16b71cbb8ebbd733bce08d891): Next development cycle
