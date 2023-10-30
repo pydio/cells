@@ -52,11 +52,14 @@
     margin: inherit;
 }
 
+
 .react-mui-context .mdviewer code {
     margin: 10px 0;
     border-radius: 2px;
-    padding: 5px 10px;
+    padding: 1px 5px;
     background-color: var(--md-sys-color-surface-variant);
+    font-family: 'Courier New';
+    font-size: 1.1em;
 }
 
 .react-mui-context .mdviewer pre code {

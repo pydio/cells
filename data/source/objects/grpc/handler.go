@@ -251,7 +251,9 @@ func (o *ObjectHandler) MinioStaleDataCleaner(ctx context.Context, rootFolder st
 			tmpFolder := filepath.Join(rootFolder, ".minio.sys", f)
 			entries, err := os.ReadDir(tmpFolder)
 			if err != nil {
-				log.Logger(ctx).Error("Cannot read folder " + tmpFolder + " for cleaning stale data")
+				if !os.IsNotExist(err) {
+					log.Logger(ctx).Error("Cannot read folder " + tmpFolder + " for cleaning stale data: " + err.Error())
+				}
 				continue
 			}
 			for _, e := range entries {
