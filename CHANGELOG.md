@@ -1,7 +1,9 @@
-# Changes between v4.3.0 and v4.3.1-alpha1
+# Changes between v4.3.0 and v4.3.1-rc1
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.3.0...v4.3.1-alpha1)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.3.0...v4.3.1-rc1)
 
+- [#27f05f6](https://github.com/pydio/cells/commit/27f05f65191e872a74ed264b325253f509d22a28): Minor MD styling - hide unnecessary error
+- [#1772858](https://github.com/pydio/cells/commit/17728589a30c3fa5b8594510a111bc359a1b51ec): Release v4.3.1-alpha1
 - [#54649ea](https://github.com/pydio/cells/commit/54649eaa06106e75860477d63ab46e8dbb303ff3): Re-fix conflict check
 - [#2e35315](https://github.com/pydio/cells/commit/2e353151c5a9538dbd2752002c53b5b0b47eb23c): Refix form validation...
 - [#150dd95](https://github.com/pydio/cells/commit/150dd957dfe76bdc72ed6a9ddabf5f520b84f8e8): Update grpc lib
