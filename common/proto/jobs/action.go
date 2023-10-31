@@ -193,6 +193,7 @@ func (a *Action) FanOutSelector(ctx context.Context, selector InputSelector, inp
 	if selector.GetClearInput() {
 		input = selector.ApplyClearInput(input)
 	}
+	originalChain := input.Clone().OutputChain
 	go func() {
 		var count = 0
 		for {
@@ -215,7 +216,16 @@ func (a *Action) FanOutSelector(ctx context.Context, selector InputSelector, inp
 				} else if dsP, oD := obj.(*object.DataSource); oD {
 					input = input.WithDataSource(proto.Clone(dsP).(*object.DataSource))
 				} else if jc, oJ := obj.(JsonChunk); oJ {
-					input = input.WithOutput(&ActionOutput{JsonBody: jc})
+					ao := &ActionOutput{}
+					if jc.v != "" {
+						ao.SetVar(jc.v, jc.d)
+					} else {
+						ao.JsonBody, _ = json.Marshal(jc.d)
+					}
+					// Make Sure to Reset OutputChain, otherwise it stacks up
+					input = input.Clone()
+					input.OutputChain = originalChain
+					input = input.WithOutput(ao)
 				} else {
 					break
 				}
@@ -331,14 +341,18 @@ func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, in
 	input = input.WithDataSources(dss...)
 	if len(jsonChunks) > 0 {
 		var full []interface{}
+		var targetVar string
 		for _, j := range jsonChunks {
-			var chunk interface{}
-			if e := json.Unmarshal(j, &chunk); e == nil {
-				full = append(full, &chunk)
-			}
+			targetVar = j.v
+			full = append(full, j.d)
 		}
-		fullBody, _ := json.Marshal(full)
-		input = input.WithOutput(&ActionOutput{JsonBody: fullBody})
+		ao := &ActionOutput{}
+		if targetVar == "" {
+			ao.JsonBody, _ = json.Marshal(full)
+		} else {
+			ao.SetVar(targetVar, full)
+		}
+		input = input.WithOutput(ao)
 	}
 	count := len(nodes) + len(roles) + len(workspaces) + len(acls) + len(users) + len(dss) + len(jsonChunks)
 	if count > 0 {

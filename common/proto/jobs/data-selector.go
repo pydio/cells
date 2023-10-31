@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"context"
+	"strings"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -10,26 +11,16 @@ import (
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
-type JsonChunk []byte
+type JsonChunk struct {
+	d interface{}
+	v string
+}
 
 type JSONPathSelectorFunc func(ctx context.Context, data interface{}, jsonPath string) ([]interface{}, error)
 
 var (
 	JSONPathSelector JSONPathSelectorFunc
 )
-
-/*
-func (x *DataSelector) Filter(ctx context.Context, input *ActionMessage) (*ActionMessage, *ActionMessage, bool) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (x *DataSelector) FilterID() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-*/
 
 func (x *DataSelector) Select(ctx context.Context, input *ActionMessage, objects chan interface{}, done chan bool) error {
 	defer func() {
@@ -38,20 +29,25 @@ func (x *DataSelector) Select(ctx context.Context, input *ActionMessage, objects
 
 	for _, q := range x.toDataSelectorQueries(ctx, input, x.GetQuery()) {
 
-		if q.GetJsonPath() != "" && JSONPathSelector != nil && input.GetLastOutput() != nil {
+		jsonPath := q.GetJsonPath()
+		if jsonPath != "" && JSONPathSelector != nil && input.GetLastOutput() != nil {
 			root := map[string]interface{}{}
 			var data interface{}
 			if er := json.Unmarshal(input.GetLastOutput().JsonBody, &data); er == nil {
 				root["JsonBody"] = data
 			}
 			root["Vars"] = input.StackedVars()
-			output, err := JSONPathSelector(ctx, root, q.GetJsonPath())
+			var targetVariable string
+			if parts := strings.Split(jsonPath, "=>"); len(parts) > 1 {
+				jsonPath = strings.TrimSpace(parts[0])
+				targetVariable = strings.TrimSpace(parts[1])
+			}
+			output, err := JSONPathSelector(ctx, root, jsonPath)
 			if err != nil {
 				return err
 			} else {
 				for _, o := range output {
-					jc, _ := json.Marshal(o)
-					objects <- JsonChunk(jc)
+					objects <- JsonChunk{v: targetVariable, d: o}
 				}
 			}
 		}
