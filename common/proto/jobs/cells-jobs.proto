@@ -194,7 +194,7 @@ message DataSelector {
 }
 
 message DataSelectorSingleQuery {
-    // Perform a JsonPath query on the LastOutput.JsonBody
+    // Perform a JsonPath query. Input data exposes JsonBody and Vars.
     string JsonPath = 1;
 }
 
