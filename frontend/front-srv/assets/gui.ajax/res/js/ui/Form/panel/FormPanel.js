@@ -40,6 +40,7 @@ import deepEqual from 'deep-equal'
  */
 export default createReactClass({
     displayName: 'FormPanel',
+    _internalParameters:null,
     _hiddenValues:{},
     _internalValid:null,
     _parametersMetadata:null,
@@ -153,10 +154,12 @@ export default createReactClass({
     },
 
     componentWillReceiveProps(newProps){
-        if(JSON.stringify(newProps.parameters) !== JSON.stringify(this.props.parameters)){
+
+        if(!this._internalParameters || JSON.stringify(newProps.parameters) !== this._internalParameters){
             this._internalValid = null;
             this._hiddenValues = {};
             this._parametersMetadata = {};
+            this._internalParameters = JSON.stringify(newProps.parameters);
         }
         if(newProps.values && !deepEqual(newProps.values, this.props.values)){
             this.checkValidStatus(newProps.values);

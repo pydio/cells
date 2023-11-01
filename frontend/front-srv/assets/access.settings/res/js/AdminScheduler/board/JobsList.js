@@ -21,6 +21,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import Color from 'color'
+import LangUtils from 'pydio/util/lang'
 import ScheduleForm from "./ScheduleForm";
 import Events from "./Events";
 
@@ -188,7 +189,7 @@ class JobsList extends React.Component {
                 },
                 renderCell:(row) => {
                     if(row.Metadata && row.Metadata.Tags) {
-                        const tags = row.Metadata.Tags.split(',').map(t => LangUtils.trim(t)).filter(t => t).map(t => this.renderTag(t))
+                        const tags = row.Metadata.Tags.split(',').map(t => LangUtils.trim(t, ' ')).filter(t => t).map(t => this.renderTag(t))
                         return <span style={{display: 'flex', alignItems: 'center'}}>{row.Label} <span style={{marginLeft: 6, display:'flex', zoom:0.8}}>{tags}</span></span>
                     }
                     return row.Label;
@@ -248,7 +249,7 @@ class JobsList extends React.Component {
                 renderCell:(row) => {
                     let tags = [m('job.disabled')]
                     if(row.Metadata && row.Metadata.Tags) {
-                        const tt = row.Metadata.Tags.split(',').map(t => LangUtils.trim(t)).filter(t => t)
+                        const tt = row.Metadata.Tags.split(',').map(t => LangUtils.trim(t, ' ')).filter(t => t)
                         tags.push(...tt)
                     }
                     return <span style={{opacity: 0.53, display: 'flex', alignItems: 'center'}}>{row.Label} <span style={{marginLeft: 6, display:'flex', zoom:0.8}}>{tags.map(t => this.renderTag(t))}</span></span>
