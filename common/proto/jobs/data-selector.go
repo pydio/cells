@@ -30,13 +30,20 @@ func (x *DataSelector) Select(ctx context.Context, input *ActionMessage, objects
 	for _, q := range x.toDataSelectorQueries(ctx, input, x.GetQuery()) {
 
 		jsonPath := q.GetJsonPath()
-		if jsonPath != "" && JSONPathSelector != nil && input.GetLastOutput() != nil {
+		if jsonPath != "" && JSONPathSelector != nil {
 			root := map[string]interface{}{}
-			var data interface{}
-			if er := json.Unmarshal(input.GetLastOutput().JsonBody, &data); er == nil {
-				root["JsonBody"] = data
+			if input.GetLastOutput() != nil && len(input.GetLastOutput().JsonBody) > 0 {
+				var data interface{}
+				if er := json.Unmarshal(input.GetLastOutput().JsonBody, &data); er == nil {
+					root["JsonBody"] = data
+				}
 			}
 			root["Vars"] = input.StackedVars()
+			jj, _ := json.Marshal(input)
+			var jjD map[string]interface{}
+			if er := json.Unmarshal(jj, &jjD); er == nil {
+				root["Input"] = jjD
+			}
 			var targetVariable string
 			if parts := strings.Split(jsonPath, "=>"); len(parts) > 1 {
 				jsonPath = strings.TrimSpace(parts[0])
