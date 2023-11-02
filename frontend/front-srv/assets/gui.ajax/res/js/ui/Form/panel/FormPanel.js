@@ -208,7 +208,7 @@ export default createReactClass({
     validStatusChange(missing){
         const {onValidStatusChange, forceValidStatusCheck} = this.props;
         const newValid = this.reduceValid();
-        console.log(this._reducedValid, newValid, this._internalValid);
+        //console.log(this._reducedValid, newValid, this._internalValid);
         if( (newValid !== this._reducedValid || forceValidStatusCheck)  && onValidStatusChange) {
             onValidStatusChange(newValid, missing)
         }
@@ -233,17 +233,6 @@ export default createReactClass({
     onSubformValidStatusChange(newValidValue, failedMandatories, subFormId){
         this._internalValid[subFormId] = newValidValue;
         this.validStatusChange(failedMandatories);
-        /*
-        const previous = this.reduceValid(this._internalValid)
-        if(this._internalValid[subFormId] !== newValidValue) {
-
-            this._internalValid[subFormId] = newValidValue;
-            const newValid = this.reduceValid(this._internalValid)
-            if((newValid !== previous || this.props.forceValidStatusCheck) && this.props.onValidStatusChange) {
-                this.props.onValidStatusChange(newValid, failedMandatories);
-            }
-        }
-         */
     },
 
     applyButtonAction(parameters, callback){
@@ -258,7 +247,7 @@ export default createReactClass({
 
     checkValidStatus(values){
         const failedMandatories = [];
-        const {parameters, replicationGroup, groupSwitchName, forceValidStatusCheck, onValidStatusChange} = this.props;
+        const {parameters, replicationGroup, groupSwitchName} = this.props;
         if(groupSwitchName) {
             return ;
         }
@@ -286,22 +275,8 @@ export default createReactClass({
                 }
             }
         });
-        //let previousValue, newValue;
-
-
         this._internalValid.root = !failedMandatories.length;
         this.validStatusChange(failedMandatories);
-
-        /*
-        previousValue = this.reduceValid(this._internalValid)
-        console.log('BEFORE - ', replicationGroup, this._internalValid, previousValue)
-        this._internalValid.root = !failedMandatories.length;
-        newValue = this.reduceValid(this._internalValid)
-        console.log('New internal - ', replicationGroup, this._internalValid, newValue, failedMandatories)
-        if((newValue !== previousValue || forceValidStatusCheck) && onValidStatusChange) {
-            onValidStatusChange(newValue, failedMandatories);
-        }
-         */
     },
 
     componentDidMount(){

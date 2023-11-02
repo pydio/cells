@@ -97,16 +97,20 @@ export default class extends React.Component {
     };
 
     indexValues = (rowsArray, removeLastRow) => {
+        const {parameters, onChange, onValidStatusChange, replicationGroup} = this.props;
         const indexed = this.indexedValues(rowsArray);
-        if(this.props.onChange){
+        if(onChange){
             if(removeLastRow){
                 let lastRow = {}, nextIndex = rowsArray.length-1;
-                this.props.parameters.map(function(p){
+                parameters.map(function(p){
                     lastRow[p['name'] + (nextIndex > 0 ? '_' + nextIndex : '')] = '';
                 });
-                this.props.onChange(indexed, true, lastRow);
+                onChange(indexed, true, lastRow);
+                if(onValidStatusChange) {
+                    onValidStatusChange(true, {}, replicationGroup) // Avoid keeping an invalid status
+                }
             }else{
-                this.props.onChange(indexed, true);
+                onChange(indexed, true);
             }
         }
     };
