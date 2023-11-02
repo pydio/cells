@@ -38,6 +38,13 @@ class ReplicatedGroup extends Component{
         this.state = {toggled: !instanceValue};
     }
 
+    onValidStatusChange(valid, missings) {
+        const {replicationGroup, onValidStatusChange} = this.props;
+        if(onValidStatusChange){
+            onValidStatusChange(valid, missings, replicationGroup)
+        }
+    }
+
     render(){
 
         const {first, hideSwaps, onSwapUp, onSwapDown, onRemove, parameters, subValues, disabled, onAddValue} = this.props;
@@ -57,6 +64,7 @@ class ReplicatedGroup extends Component{
                     <div style={{flex: 1}}>
                         <FormPanel
                             {...this.props}
+                            onValidStatusChange={this.onValidStatusChange.bind(this)}
                             tabs={null}
                             values={subValues}
                             onChange={null}
@@ -100,6 +108,7 @@ class ReplicatedGroup extends Component{
                 {toggled &&
                     <FormPanel
                         {...this.props}
+                        onValidStatusChange={this.onValidStatusChange.bind(this)}
                         tabs={null}
                         values={subValues}
                         onChange={null}
