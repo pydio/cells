@@ -42,7 +42,8 @@ export default createReactClass({
     displayName: 'FormPanel',
     _internalParameters:null,
     _hiddenValues:{},
-    _internalValid:null,
+    _internalValid: {},
+    _reducedValid: null,
     _parametersMetadata:null,
 
     propTypes:{
@@ -156,7 +157,8 @@ export default createReactClass({
     componentWillReceiveProps(newProps){
 
         if(!this._internalParameters || JSON.stringify(newProps.parameters) !== this._internalParameters){
-            this._internalValid = null;
+            this._internalValid = {};
+            this._reducedValid = null;
             this._hiddenValues = {};
             this._parametersMetadata = {};
             this._internalParameters = JSON.stringify(newProps.parameters);
@@ -172,7 +174,7 @@ export default createReactClass({
 
     onParameterChange(paramName, newValue, oldValue, additionalFormData=null){
         // Update writeValues
-        var newValues = LangUtils.deepCopy(this.getValues());
+        const newValues = LangUtils.deepCopy(this.getValues());
         if(this.props.onParameterChange) {
             this.props.onParameterChange(paramName, newValue, oldValue, additionalFormData);
         }
@@ -183,14 +185,13 @@ export default createReactClass({
             this._parametersMetadata[paramName] = additionalFormData;
         }
         newValues[paramName] = newValue;
-        var dirty = true;
-        this.onChange(newValues, dirty);
+        this.onChange(newValues, true);
     },
 
     onChange(newValues, dirty, removeValues){
         if(this.props.onChange) {
             //newValues = LangUtils.mergeObjectsRecursive(this._hiddenValues, newValues);
-            for(var key in this._hiddenValues){
+            for(let key in this._hiddenValues){
                 if(this._hiddenValues.hasOwnProperty(key) && newValues[key] === undefined && (!removeValues || removeValues[key] === undefined)){
                     newValues[key] = this._hiddenValues[key];
                 }
@@ -200,10 +201,24 @@ export default createReactClass({
         this.checkValidStatus(newValues);
     },
 
+    reduceValid(){
+        return Object.keys(this._internalValid).reduce((prev, curr) => prev&&this._internalValid[curr], true)
+    },
+
+    validStatusChange(missing){
+        const {onValidStatusChange, forceValidStatusCheck} = this.props;
+        const newValid = this.reduceValid();
+        console.log(this._reducedValid, newValid, this._internalValid);
+        if( (newValid !== this._reducedValid || forceValidStatusCheck)  && onValidStatusChange) {
+            onValidStatusChange(newValid, missing)
+        }
+        this._reducedValid = newValid;
+    },
+
     onSubformChange(newValues, dirty, removeValues){
-        var values = LangUtils.mergeObjectsRecursive(this.getValues(), newValues);
+        const values = LangUtils.mergeObjectsRecursive(this.getValues(), newValues);
         if(removeValues){
-            for(var k in removeValues){
+            for(let k in removeValues){
                 if(removeValues.hasOwnProperty(k) && values[k] !== undefined){
                     delete values[k];
                     if(this._hiddenValues[k] !== undefined){
@@ -215,11 +230,20 @@ export default createReactClass({
         this.onChange(values, dirty, removeValues);
     },
 
-    onSubformValidStatusChange(newValidValue, failedMandatories){
-        if((newValidValue !== this._internalValid || this.props.forceValidStatusCheck) && this.props.onValidStatusChange) {
-            this.props.onValidStatusChange(newValidValue, failedMandatories);
+    onSubformValidStatusChange(newValidValue, failedMandatories, subFormId){
+        this._internalValid[subFormId] = newValidValue;
+        this.validStatusChange(failedMandatories);
+        /*
+        const previous = this.reduceValid(this._internalValid)
+        if(this._internalValid[subFormId] !== newValidValue) {
+
+            this._internalValid[subFormId] = newValidValue;
+            const newValid = this.reduceValid(this._internalValid)
+            if((newValid !== previous || this.props.forceValidStatusCheck) && this.props.onValidStatusChange) {
+                this.props.onValidStatusChange(newValid, failedMandatories);
+            }
         }
-        this._internalValid = newValidValue;
+         */
     },
 
     applyButtonAction(parameters, callback){
@@ -262,13 +286,22 @@ export default createReactClass({
                 }
             }
         });
-        let previousValue, newValue;
-        previousValue = this._internalValid;
-        newValue = !failedMandatories.length;
-        if((newValue !== this._internalValid || forceValidStatusCheck || replicationGroup) && onValidStatusChange) {
+        //let previousValue, newValue;
+
+
+        this._internalValid.root = !failedMandatories.length;
+        this.validStatusChange(failedMandatories);
+
+        /*
+        previousValue = this.reduceValid(this._internalValid)
+        console.log('BEFORE - ', replicationGroup, this._internalValid, previousValue)
+        this._internalValid.root = !failedMandatories.length;
+        newValue = this.reduceValid(this._internalValid)
+        console.log('New internal - ', replicationGroup, this._internalValid, newValue, failedMandatories)
+        if((newValue !== previousValue || forceValidStatusCheck) && onValidStatusChange) {
             onValidStatusChange(newValue, failedMandatories);
         }
-        this._internalValid = newValue;
+         */
     },
 
     componentDidMount(){
