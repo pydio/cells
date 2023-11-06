@@ -9,7 +9,7 @@
         </resources>
     </client_settings>
     <server_settings>
-        <global_param name="TEXTUAL_PREVIEW_SIZE_LIMIT" type="integer" label="CONF_MESSAGE[Preview Display Limit]" description="CONF_MESSAGE[Maximum size for displaying preview inline, in bytes, 512kB by default]" default="512000" expose="true"/>
+        <global_param name="TEXTUAL_PREVIEW_SIZE_LIMIT" type="integer" label="CONF_MESSAGE[Preview Display Limit]" description="CONF_MESSAGE[Maximum size for displaying preview inline, in bytes, 50kB by default]" default="51200" expose="true"/>
     </server_settings>
 	<dependencies>
 		<activePlugin pluginName="access.gateway|access.homepage|access.settings"/>
