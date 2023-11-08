@@ -57,8 +57,9 @@ export default function(pydio) {
         let index = 0, sepAdded = false;
         if (editors.length) {
             editors.forEach(function (el) {
-                if (!el.openable) return;
-                if (el.write && nodeHasReadonly) return;
+                if (!el.openable || (el.write && nodeHasReadonly)) {
+                    return;
+                }
                 if (el.mimes.indexOf('*') > -1) {
                     if (!sepAdded && index > 0) {
                         builderMenuItems.push({separator: true});
@@ -76,14 +77,19 @@ export default function(pydio) {
                 });
                 index++;
             }.bind(this));
-            builderMenuItems.push({
-                name: MessageHash['openother.1'],
-                alt: MessageHash['openother.2'],
-                isDefault: (index === 0),
-                icon_class: 'mdi mdi-view-list',
-                callback: openOtherEditorPickerCallback
-            });
         }
+        if(builderMenuItems.length && !sepAdded) {
+            builderMenuItems.push({separator: true})
+        }
+        builderMenuItems.push({
+            name: MessageHash['openother.1'],
+            alt: MessageHash['openother.2'],
+            isDefault: (index === 0),
+            icon_class: 'mdi mdi-view-list',
+            callback: openOtherEditorPickerCallback
+        });
+        /*
+        // Old "No Editor Available", not used anymore as there is always the Choose Other... option
         if (!index) {
             builderMenuItems.push({
                 name: MessageHash[324],
@@ -92,6 +98,7 @@ export default function(pydio) {
                 }
             });
         }
+         */
         return builderMenuItems;
 
     }
