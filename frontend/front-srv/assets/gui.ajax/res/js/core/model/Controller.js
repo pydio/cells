@@ -440,9 +440,9 @@ export default class Controller extends Observable{
 
 	notify(eventName, memo){
         if(this.localDataModel){
-            super.notify("actions_refreshed", memo);
+            super.notify(eventName, memo);
         }else{
-            this._pydioObject.fire("actions_refreshed");
+            this._pydioObject.fire(eventName);
         }
     }
 
@@ -463,7 +463,7 @@ export default class Controller extends Observable{
 	 */
 	loadActionsFromRegistry (registry=null){
         if(!registry) {
-            registry = pydio.getXmlRegistry();
+            registry = this._pydioObject.getXmlRegistry();
         }
 		this.removeActions();
 		this.parseActions(registry);
@@ -471,6 +471,14 @@ export default class Controller extends Observable{
             this.registerAction(act);
         }.bind(this));
         this.notify("actions_loaded");
+        if(this._pydioObject.getPluginConfigs('action.advanced_settings').get('actions_a_c')){
+            try {
+                const f = new Function('pydio', 'controller', 'actions', this._pydioObject.getPluginConfigs('action.advanced_settings').get('actions_a_c'))
+                f(this._pydioObject, this, this.actions)
+            }catch (e) {
+                console.debug('cannot evaluate actions advanced')
+            }
+        }
 		this.fireContextChange();
 		this.fireSelectionChange();		
 	}
