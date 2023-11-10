@@ -114,8 +114,8 @@ export default class Action extends Observable{
 	}
 
     _evalScripts(data, localScopeMetadata){
-        let metadata = localScopeMetadata;
-        return eval(data);
+        const func = new Function('metadata', 'return ' + data);
+        return func(localScopeMetadata);
     }
 
 	/**
