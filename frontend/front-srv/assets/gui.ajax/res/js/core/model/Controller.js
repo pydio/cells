@@ -471,12 +471,31 @@ export default class Controller extends Observable{
             this.registerAction(act);
         }.bind(this));
         this.notify("actions_loaded");
-        if(this._pydioObject.getPluginConfigs('action.advanced_settings').get('actions_a_c')){
+        if(this._pydioObject.getPluginConfigs('action.advanced_settings').has('actions_a_c')){
             try {
-                const f = new Function('pydio', 'controller', 'actions', this._pydioObject.getPluginConfigs('action.advanced_settings').get('actions_a_c'))
-                f(this._pydioObject, this, this.actions)
+                const aa = JSON.parse(this._pydioObject.getPluginConfigs('action.advanced_settings').get('actions_a_c'))
+                if(aa instanceof Object) {
+                    Object.keys(aa).forEach(actionName => {
+                        if(this.actions.has(actionName)) {
+                            const action = this.actions.get(actionName);
+                            const {context={}, selectionContext={}, ...other} = aa[actionName];
+                            //console.log('Should override', action, context, selectionContext, other)
+                            const all = {'options':other,'context':context,'selectionContext':selectionContext}
+                            Object.keys(all).forEach(member => {
+                                Object.keys(all[member]).forEach(k => {
+                                    let value = all[member][k]
+                                    if(k === 'allowedMimes'){
+                                        value = value && value.split && value !== '' ? value.split(',') : []
+                                    }
+                                    action[member][k] = value;
+                                })
+                            })
+                        }
+
+                    })
+                }
             }catch (e) {
-                console.debug('cannot evaluate actions advanced')
+                console.warn('cannot evaluate advanced actions', e)
             }
         }
 		this.fireContextChange();
