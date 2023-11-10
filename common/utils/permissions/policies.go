@@ -21,14 +21,17 @@
 package permissions
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"path"
 	"strings"
 	"sync"
+	"text/template"
 
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
@@ -144,6 +147,22 @@ func PolicyContextFromNode(policyContext map[string]string, node *tree.Node) {
 	}
 }
 
+func PolicyContextFromClaims(policyContext map[string]string, ctx context.Context) {
+	// Find profile in claims, if any
+	if cValue := ctx.Value(claim.ContextKey); cValue != nil {
+		if claims, ok := cValue.(claim.Claims); ok {
+			policyContext["ClaimsName"] = claims.Name
+			policyContext["ClaimsRoles"] = claims.Roles
+			policyContext["ClaimsSubject"] = claims.Subject
+			policyContext["ClaimsProfile"] = claims.Profile
+			policyContext["ClaimsGroupPath"] = claims.GroupPath
+			policyContext["ClaimsIssuer"] = claims.Issuer
+			policyContext["ClaimsClientApp"] = claims.GetClientApp()
+		}
+	}
+
+}
+
 var checkersCache cache.Cache
 
 func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Policy, error) {
@@ -182,7 +201,7 @@ func ClearCachedPolicies(ctx context.Context, resType string) {
 	getCheckersCache().Delete(resType)
 }
 
-func CachedPoliciesChecker(ctx context.Context, resType string) (ladon.Warden, error) {
+func CachedPoliciesChecker(ctx context.Context, resType string, requestContext map[string]string) (ladon.Warden, error) {
 	w := &ladon.Ladon{
 		Manager: memory.NewMemoryManager(),
 	}
@@ -199,6 +218,24 @@ func CachedPoliciesChecker(ctx context.Context, resType string) (ladon.Warden, e
 	}
 
 	for _, pol := range policies {
+		replaces := map[string]*idm.PolicyCondition{}
+		for key, cond := range pol.Conditions {
+			if strings.Contains(cond.GetJsonOptions(), "{{") && requestContext != nil {
+				if tpl, er := template.New("temp").Parse(cond.GetJsonOptions()); er == nil {
+					bb := &bytes.Buffer{}
+					if e := tpl.Execute(bb, requestContext); e == nil {
+						replaces[key] = &idm.PolicyCondition{
+							Type:        cond.GetType(),
+							JsonOptions: bb.String(),
+						}
+					}
+				}
+			}
+		}
+		if len(replaces) > 0 {
+			pol = proto.Clone(pol).(*idm.Policy)
+			pol.Conditions = replaces
+		}
 		_ = w.Manager.Create(converter.ProtoToLadonPolicy(pol))
 	}
 
@@ -206,7 +243,7 @@ func CachedPoliciesChecker(ctx context.Context, resType string) (ladon.Warden, e
 }
 
 func LocalACLPoliciesResolver(ctx context.Context, request *idm.PolicyEngineRequest, explicitOnly bool) (*idm.PolicyEngineResponse, error) {
-	checker, e := CachedPoliciesChecker(ctx, "acl")
+	checker, e := CachedPoliciesChecker(ctx, "acl", request.Context)
 	if e != nil {
 		return nil, e
 	}
