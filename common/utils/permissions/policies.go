@@ -163,8 +163,6 @@ func PolicyContextFromClaims(policyContext map[string]string, ctx context.Contex
 
 }
 
-var checkersCache cache.Cache
-
 func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Policy, error) {
 
 	cli := idm.NewPolicyEngineServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServicePolicy))
@@ -198,7 +196,7 @@ func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Po
 
 // ClearCachedPolicies empties local cache
 func ClearCachedPolicies(ctx context.Context, resType string) {
-	getCheckersCache().Delete(resType)
+	_ = getCheckersCache().Delete(resType)
 }
 
 func CachedPoliciesChecker(ctx context.Context, resType string, requestContext map[string]string) (ladon.Warden, error) {
