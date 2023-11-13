@@ -1,11 +1,11 @@
-# Changes between v4.3.1-rc1 and v4.3.1-rc2
+# Changes between v4.3.1-rc2 and v4.3.1-rc3
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.3.1-rc1...v4.3.1-rc2)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.3.1-rc2...v4.3.1-rc3)
 
-- [#0751c45](https://github.com/pydio/cells/commit/0751c45ebf02048f44ed2de644bbf91d9085e865): Fix command reload-assets
-- [#b1946c7](https://github.com/pydio/cells/commit/b1946c7bccf740917df7e63335947c1e7b49dd66): Lower threshold for text preview
-- [#90ccfc3](https://github.com/pydio/cells/commit/90ccfc32f01f4bcd144f9d8ebe8299656b51b404): Replication panel field
-- [#4557e46](https://github.com/pydio/cells/commit/4557e46b3fc16eba03cdc39d772f4e1a62e75a0f): Fix forms, again ...
-- [#6a1f0b2](https://github.com/pydio/cells/commit/6a1f0b2a8b6626c6a64c58ecaf22fcf79a01b06a): Data Selector w/ input
-- [#1df47ff](https://github.com/pydio/cells/commit/1df47ffd3e800cad32830cd7c073c75cef0b67f5): Forms properly reset on props change, fix wrong usage of LangUtils.trim()
-- [#093cd26](https://github.com/pydio/cells/commit/093cd26b71661773347c4aa59c4d06b71b90eb45): Improve data selector : ability to declare a target variable (instead of jsonbody) by using "JSONPath => VariableName"
+- [#d638977](https://github.com/pydio/cells/commit/d6389777e599b227836395a128cdb59bf85c0e0a): Unused variable
+- [#b7eacef](https://github.com/pydio/cells/commit/b7eacefeb5ee36eb3f6bd449be48578ce915160d): Ability to self-reference context with go templates inside ACL policies.
+- [#cc4340a](https://github.com/pydio/cells/commit/cc4340a5e430428b1aef282b9cc830538c8bb756): Replace eval with new Function call
+- [#e65c850](https://github.com/pydio/cells/commit/e65c850d3bc27cea36ab040626fc28f45fd07864): Fix old bug in actions Controller, event name actions_loaded not properly passed!
+- [#0ace40e](https://github.com/pydio/cells/commit/0ace40ea55892795bd416760d7efd62b1ae9be6d): Recompile js
+- [#a7084a5](https://github.com/pydio/cells/commit/a7084a5c2beaea94c49e8f8bef9652aca2fda427): Merge remote-tracking branch 'origin/main'
+- [#470ea9c](https://github.com/pydio/cells/commit/470ea9c4cf9f45de37b140fc00d65ba9aed9ad36): Fix regression: "Choose Other..." editor option did not appear for unknown extensions
