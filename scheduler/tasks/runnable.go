@@ -241,8 +241,9 @@ func (r *Runnable) RunAction(queue chan RunnerFunc) {
 		if re := recover(); re != nil {
 			r.Task.SetStatus(jobs.TaskStatus_Error, "Panic inside task")
 			if e, ok := re.(error); ok {
-				log.TasksLogger(r.Context).Error("Recovered scheduler task", zap.Any("task", r.Task), zap.Error(e))
-				log.Logger(r.Context).Error("Recovered scheduler task", zap.Any("task", r.Task), zap.Error(e))
+				r.Task.SetStatus(jobs.TaskStatus_Error, "Panic inside task: "+e.Error())
+				log.TasksLogger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Any("input", r.Message), zap.Error(e))
+				log.Logger(r.Context).Error("Recovered scheduler task "+r.Action.ID, zap.Error(e))
 				r.Task.SetError(e, true)
 			}
 			r.Task.Save()
