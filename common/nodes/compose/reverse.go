@@ -60,6 +60,7 @@ func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {
 			return exe
 		}),
 		acl.WithAccessList(),
+		path.WithPermanentPrefix(),
 		path.WithWorkspace(),
 		path.WithMultipleRoots(),
 		virtual.WithResolver(),

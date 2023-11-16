@@ -17,6 +17,11 @@ func ErrBranchInfoRootMissing(identifier string) error {
 	return errors.InternalServerError("branch.info.incomplete", "Cannot find Root in branch %s - did you forget to insert a middleware?", identifier)
 }
 
+// ErrPermanentPrefixMismatch returns a 500 error
+func ErrPermanentPrefixMismatch(pa, pr string) error {
+	return errors.InternalServerError("prefix.mismatch", "Cannot find prefix %s in output node path %s, this not normal", pr, pa)
+}
+
 // ErrCannotReadStore returns a 403 error
 func ErrCannotReadStore(store string) error {
 	return errors.Forbidden("forbidden.store", "You are not allowed to access store %s", store)

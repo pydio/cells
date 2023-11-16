@@ -41,16 +41,17 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
+	"github.com/pydio/cells/v4/common/nodes/acl"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 	"github.com/pydio/cells/v4/gateway/dav"
-	"github.com/pydio/cells/v4/idm/share"
 )
 
 // PublicHandler implements http.Handler to server public links
@@ -59,8 +60,7 @@ type PublicHandler struct {
 	error          *template.Template
 	runtimeContext context.Context
 
-	davHandler http.Handler
-	davRouter  nodes.Client
+	davWssCache cache.Cache
 }
 
 func NewPublicHandler(c context.Context) *PublicHandler {
@@ -69,7 +69,7 @@ func NewPublicHandler(c context.Context) *PublicHandler {
 	}
 	h.tpl, _ = template.New("public").Parse(Public)
 	h.error, _ = template.New("error").Parse(errorTpl)
-	h.davHandler, h.davRouter = dav.GetHandlers(c)
+	h.davWssCache, _ = cache.OpenCache(c, "pm:///?evictionTime=30s&cleanWindow=5m")
 	return h
 }
 
@@ -214,48 +214,78 @@ func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // ServeDAV forwards requests to a DAV handler (see gateway/dav package)
 func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId string, linkData *docstore.ShareDocument, inputPath string) error {
 
+	t := time.Now()
 	ctx := r.Context()
+
 	// Authenticate using Basic Auth
 	// For public no-protected, build user/password manually
 	// For password-protected, read password from Basic Auth (any username will do)
 	log.Logger(ctx).Debug("Authenticate DAV on public link: " + linkId + ", Path: " + inputPath)
-	if req, e := h.davAuthenticate(r, linkData); e != nil {
-		return fmt.Errorf("[auth] " + e.Error())
-	} else {
-		// Replace request
+	if req, e, requestAuth := h.davAuthenticate(r, linkData); e == nil {
 		r = req
+	} else if requestAuth {
+		w.Header().Set("WWW-Authenticate", `Basic realm="Link `+linkId+`"`)
+		w.WriteHeader(401)
+		_, _ = w.Write([]byte("Unauthorized.\n"))
+		return nil
+	} else {
+		return fmt.Errorf("[auth] " + e.Error())
 	}
 
+	log.Logger(ctx).Debug("After Auth", zap.Duration("time", time.Since(t)))
+	t = time.Now()
+
 	// Load workspace and its root nodes
-	ws, er := permissions.SearchUniqueWorkspace(ctx, linkData.RepositoryId, "")
-	if er != nil {
-		return er
-	}
-	resolver := func(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
-		return abstract.GetVirtualNodesManager(h.runtimeContext).ByUuid(node.Uuid)
-	}
-	wss := map[string]*idm.Workspace{ws.GetUUID(): ws}
-	er = permissions.LoadRootNodesForWorkspaces(ctx, []string{ws.GetUUID()}, wss, resolver)
-	if er != nil {
-		return er
+	var ws *idm.Workspace
+	if !h.davWssCache.Get(linkData.RepositoryId, &ws) {
+		workspace, er := permissions.SearchUniqueWorkspace(ctx, linkData.RepositoryId, "")
+		if er != nil {
+			return er
+		}
+		resolver := func(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
+			return abstract.GetVirtualNodesManager(h.runtimeContext).ByUuid(node.Uuid)
+		}
+		wss := map[string]*idm.Workspace{workspace.GetUUID(): workspace}
+		er = permissions.LoadRootNodesForWorkspaces(ctx, []string{workspace.GetUUID()}, wss, resolver)
+		if er != nil {
+			return er
+		}
+		ws = workspace
+		_ = h.davWssCache.Set(ws.GetUUID(), workspace)
+		log.Logger(ctx).Debug("WS Roots Not In Cache", zap.Duration("time", time.Since(t)))
+		t = time.Now()
+	} else {
+		log.Logger(ctx).Debug("WS Roots In Cache", zap.Duration("time", time.Since(t)))
+		t = time.Now()
 	}
 
 	// Translate input into read DAV path (something like /dav/workspace-slug/virtual-root)
-	if davPath, er := h.davFindPath(ctx, h.davRouter, ws, inputPath); er != nil {
+	davPath, innerPrefix, er := h.davFindPath(r, dav.RouterWithOptionalPrefix(h.runtimeContext), ws, inputPath)
+	if er != nil {
 		return fmt.Errorf("[404] cannot find dav path")
-	} else {
-		log.Logger(ctx).Debug("Translated Path: '" + inputPath + "' => '" + davPath + "'")
-		r.RequestURI = "/dav/" + davPath
-		r.URL.Path = "/dav/" + davPath
-		h.davHandler.ServeHTTP(w, r)
 	}
+
+	davPrefix := path.Join(config.GetPublicBaseUri(), linkId, "dav")
+	log.Logger(ctx).Debug("processing dav request on public link", zap.String("inputPath", inputPath), zap.String("davPrefix", davPrefix), zap.String("routerPrefix", innerPrefix), zap.String("davPath", davPath))
+	davHandler := dav.GetHandler(h.runtimeContext, davPrefix, innerPrefix)
+	if davPath != inputPath {
+		r.RequestURI = path.Join(davPrefix, davPath)
+		r.URL.Path = r.RequestURI
+	}
+
+	log.Logger(ctx).Debug("After Resolving Path", zap.Duration("time", time.Since(t)))
+	t = time.Now()
+
+	davHandler.ServeHTTP(w, r)
+
+	log.Logger(ctx).Debug("After Serving HTTP", zap.Duration("time", time.Since(t)))
 
 	return nil
 }
 
 func (h *PublicHandler) parseLinkId(r *http.Request) (linkId, davPath string) {
-	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-	linkId = r.URL.Path
+	linkId = strings.Trim(strings.TrimPrefix(r.URL.Path, config.GetPublicBaseUri()), "/")
+	parts := strings.Split(linkId, "/")
 	if len(parts) > 1 && parts[1] == "dav" {
 		linkId = parts[0]
 		if len(parts) > 2 {
@@ -268,43 +298,42 @@ func (h *PublicHandler) parseLinkId(r *http.Request) (linkId, davPath string) {
 	return
 }
 
-func (h *PublicHandler) davAuthenticate(r *http.Request, linkData *docstore.ShareDocument) (*http.Request, error) {
+func (h *PublicHandler) davAuthenticate(r *http.Request, linkData *docstore.ShareDocument) (*http.Request, error, bool) {
 	ctx := r.Context()
 	if linkData.PreLogUser != "" {
 		// Impersonate Public User
 		userName := linkData.PreLogUser
-		r.SetBasicAuth(userName, userName+share.PasswordComplexitySuffix)
-		_, user, er := permissions.AccessListFromUser(ctx, userName, false)
+		aa, user, er := permissions.AccessListFromUser(ctx, userName, false)
 		if er != nil {
-			return nil, er
+			return nil, er, false
 		}
 		ctx = auth.WithImpersonate(ctx, user)
+		ctx = acl.WithPresetACL(ctx, aa)
 		r = r.WithContext(ctx)
 	} else if linkData.PresetLogin != "" {
 		userName := linkData.PresetLogin
 		_, p, o := r.BasicAuth()
 		if !o {
-			return nil, fmt.Errorf("missing password information")
+			return nil, fmt.Errorf("missing password information"), true
 		}
 		djv := auth.DefaultJWTVerifier()
 		if _, err := djv.PasswordCredentialsToken(ctx, userName, p); err != nil {
-			return nil, fmt.Errorf("invalid password")
+			return nil, fmt.Errorf("invalid password"), true
 		}
-
-		r.SetBasicAuth(userName, p)
-		_, user, er := permissions.AccessListFromUser(ctx, userName, false)
+		aa, user, er := permissions.AccessListFromUser(ctx, userName, false)
 		if er != nil {
-			return nil, er
+			return nil, er, false
 		}
 		ctx = auth.WithImpersonate(ctx, user)
+		ctx = acl.WithPresetACL(ctx, aa)
 		r = r.WithContext(ctx)
 	} else {
-		return nil, fmt.Errorf("unsupported auth method, should be one of prelog or preset")
+		return nil, fmt.Errorf("unsupported auth method, should be one of prelog or preset"), false
 	}
-	return r, nil
+	return r, nil, false
 }
 
-func (h *PublicHandler) davFindPath(ctx context.Context, router nodes.Client, ws *idm.Workspace, davPath string) (string, error) {
+func (h *PublicHandler) davFindPath(req *http.Request, router nodes.Handler, ws *idm.Workspace, davPath string) (string, string, error) {
 
 	roots := ws.GetRootNodes()
 	var first *tree.Node
@@ -324,13 +353,29 @@ func (h *PublicHandler) davFindPath(ctx context.Context, router nodes.Client, ws
 		if replace, ok := pathsToRoots[davParts[0]]; ok {
 			davParts[0] = replace
 			davPath = strings.Join(davParts, "/")
-			log.Logger(ctx).Debug("PathToRoots replaced in path => davPath is "+davPath, zap.Any("ptr", pathsToRoots))
+			log.Logger(req.Context()).Debug("PathToRoots replaced in path => davPath is "+davPath, zap.Any("ptr", pathsToRoots))
 		}
 	}
 
-	// Prepend workspace slug
-	davPath = path.Join(ws.GetSlug(), davPath)
-	return davPath, nil
+	slug := ws.GetSlug()
+
+	ctx := req.Context()
+	if req.Method == http.MethodGet {
+		if resp, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Join(slug, davPath)}}); er == nil {
+			if !resp.GetNode().IsLeaf() {
+				idxPath := path.Join(davPath, "index.html")
+				if _, ie := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Join(slug, idxPath)}}); ie == nil {
+					log.Logger(ctx).Info(" - DirectoryIndex for " + resp.GetNode().GetType().String() + ": " + idxPath)
+					return idxPath, slug, nil
+				}
+			}
+			log.Logger(ctx).Debug(" - Serving Dav " + resp.GetNode().GetType().String() + ": " + resp.GetNode().GetPath())
+		} else {
+			log.Logger(ctx).Debug(" - davPath " + davPath + ": " + er.Error())
+		}
+	}
+
+	return davPath, slug, nil
 }
 
 // Load link from Docstore

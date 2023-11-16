@@ -49,7 +49,7 @@ import (
 type FileSystem struct {
 	mu     *sync.Mutex
 	Debug  bool
-	Router nodes.Client
+	Router nodes.Handler
 }
 
 type FileInfo struct {
