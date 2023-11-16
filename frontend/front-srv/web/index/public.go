@@ -383,7 +383,7 @@ func (h *PublicHandler) davDirectoryIndex(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	indexConf := config.Get("frontend", "plugin", "action.share", "LINK_PUBLIC_DIRECTORY_INDEXES").String()
+	indexConf := config.Get("frontend", "plugin", "action.share", "LINK_PUBLIC_DIRECTORY_INDEXES").Default("_cells_index.html,_cells_listing.phtml,_cells_listing.json").String()
 	if indexConf == "" {
 		return
 	}
