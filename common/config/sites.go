@@ -113,7 +113,13 @@ func SaveSites(sites []*install.ProxyConfig, user, msg string) error {
 
 // GetPublicBaseUri returns the default public uri
 func GetPublicBaseUri() string {
-	return "/public"
+	segment := Get(configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_BASE")).Default("public").String()
+	return "/" + segment
+}
+
+// GetPublicBaseDavSegment returns the segment used to exposed minisites through DAV
+func GetPublicBaseDavSegment() string {
+	return Get(configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_DAV_SEGMENT")).Default("dav").String()
 }
 
 func EnvOverrideDefaultBind() bool {

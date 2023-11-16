@@ -55,9 +55,10 @@ func RouterWithOptionalPrefix(runtime context.Context, s ...string) nodes.Handle
 }
 
 // GetHandler is public to let external package spinning a DAV http handler
-func GetHandler(ctx context.Context, davPrefix, routerPrefix string) http.Handler {
-	handler := newHandler(ctx, davPrefix, RouterWithOptionalPrefix(ctx, routerPrefix))
-	return handler
+func GetHandler(ctx context.Context, davPrefix, routerPrefix string) (http.Handler, nodes.Handler) {
+	ro := RouterWithOptionalPrefix(ctx, routerPrefix)
+	handler := newHandler(ctx, davPrefix, ro)
+	return handler, ro
 }
 
 func init() {
