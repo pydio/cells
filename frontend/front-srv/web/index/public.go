@@ -21,17 +21,23 @@
 package index
 
 import (
+	"bytes"
 	"compress/gzip"
 	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
 	"path"
+	"slices"
+	"strconv"
 	"strings"
+	tplText "text/template"
 	"time"
 
+	"github.com/Masterminds/sprig/v3"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
@@ -42,6 +48,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
 	"github.com/pydio/cells/v4/common/nodes/acl"
+	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -223,6 +230,8 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 	log.Logger(ctx).Debug("Authenticate DAV on public link: " + linkId + ", Path: " + inputPath)
 	if req, e, requestAuth := h.davAuthenticate(r, linkData); e == nil {
 		r = req
+		// Reload context
+		ctx = r.Context()
 	} else if requestAuth {
 		w.Header().Set("WWW-Authenticate", `Basic realm="Link `+linkId+`"`)
 		w.WriteHeader(401)
@@ -260,25 +269,30 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 	}
 
 	// Translate input into read DAV path (something like /dav/workspace-slug/virtual-root)
-	davPath, innerPrefix, er := h.davFindPath(r, dav.RouterWithOptionalPrefix(h.runtimeContext), ws, inputPath)
+	topRouter := dav.RouterWithOptionalPrefix(h.runtimeContext)
+	davPath, innerPrefix, er := h.davFindPath(r, topRouter, ws, inputPath)
 	if er != nil {
 		return fmt.Errorf("[404] cannot find dav path")
 	}
 
-	davPrefix := path.Join(config.GetPublicBaseUri(), linkId, "dav")
+	davPrefix := path.Join(config.GetPublicBaseUri(), linkId, config.GetPublicBaseDavSegment())
 	log.Logger(ctx).Debug("processing dav request on public link", zap.String("inputPath", inputPath), zap.String("davPrefix", davPrefix), zap.String("routerPrefix", innerPrefix), zap.String("davPath", davPath))
-	davHandler := dav.GetHandler(h.runtimeContext, davPrefix, innerPrefix)
+	davHandler, prefixRouter := dav.GetHandler(h.runtimeContext, davPrefix, innerPrefix)
+
+	if intercepted, serveError := h.davDirectoryIndex(w, r, prefixRouter, davPath); intercepted {
+		// Index file served, stop now !
+		if serveError != nil {
+			log.Logger(ctx).Warn("Error while trying to serve directory index: " + serveError.Error())
+		}
+		return nil
+	}
+
+	// Finally serve DAV resources
 	if davPath != inputPath {
 		r.RequestURI = path.Join(davPrefix, davPath)
 		r.URL.Path = r.RequestURI
 	}
-
-	log.Logger(ctx).Debug("After Resolving Path", zap.Duration("time", time.Since(t)))
-	t = time.Now()
-
 	davHandler.ServeHTTP(w, r)
-
-	log.Logger(ctx).Debug("After Serving HTTP", zap.Duration("time", time.Since(t)))
 
 	return nil
 }
@@ -286,7 +300,8 @@ func (h *PublicHandler) ServeDAV(w http.ResponseWriter, r *http.Request, linkId 
 func (h *PublicHandler) parseLinkId(r *http.Request) (linkId, davPath string) {
 	linkId = strings.Trim(strings.TrimPrefix(r.URL.Path, config.GetPublicBaseUri()), "/")
 	parts := strings.Split(linkId, "/")
-	if len(parts) > 1 && parts[1] == "dav" {
+	davSegment := config.GetPublicBaseDavSegment()
+	if len(parts) > 1 && parts[1] == davSegment {
 		linkId = parts[0]
 		if len(parts) > 2 {
 			davPath = strings.Join(parts[2:], "/")
@@ -358,24 +373,139 @@ func (h *PublicHandler) davFindPath(req *http.Request, router nodes.Handler, ws 
 	}
 
 	slug := ws.GetSlug()
+	return davPath, slug, nil
 
-	ctx := req.Context()
-	if req.Method == http.MethodGet {
-		if resp, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Join(slug, davPath)}}); er == nil {
-			if !resp.GetNode().IsLeaf() {
-				idxPath := path.Join(davPath, "index.html")
-				if _, ie := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Join(slug, idxPath)}}); ie == nil {
-					log.Logger(ctx).Info(" - DirectoryIndex for " + resp.GetNode().GetType().String() + ": " + idxPath)
-					return idxPath, slug, nil
-				}
-			}
-			log.Logger(ctx).Debug(" - Serving Dav " + resp.GetNode().GetType().String() + ": " + resp.GetNode().GetPath())
-		} else {
-			log.Logger(ctx).Debug(" - davPath " + davPath + ": " + er.Error())
-		}
+}
+
+func (h *PublicHandler) davDirectoryIndex(w http.ResponseWriter, r *http.Request, router nodes.Handler, innerPath string) (served bool, serveError error) {
+
+	if r.Method != http.MethodGet {
+		return
 	}
 
-	return davPath, slug, nil
+	indexConf := config.Get("frontend", "plugin", "action.share", "LINK_PUBLIC_DIRECTORY_INDEXES").String()
+	if indexConf == "" {
+		return
+	}
+	ctx := r.Context()
+	resp, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: innerPath}})
+	if er != nil || resp.GetNode().IsLeaf() {
+		return
+	}
+
+	var testPaths []string
+	var hasTemplate, hasJson bool
+	for _, name := range strings.Split(indexConf, ",") {
+		testPaths = append(testPaths, path.Join(innerPath, name))
+	}
+	for _, name := range strings.Split(indexConf, ",") {
+		if strings.HasSuffix(name, ".phtml") {
+			hasTemplate = true
+			testPaths = append(testPaths, path.Join(name)) // Lookup at the site root as well
+		} else if strings.HasSuffix(name, ".json") {
+			hasJson = true
+			testPaths = append(testPaths, path.Join(name)) // Lookup at the site root as well
+		}
+	}
+	var content []byte
+	var cType string
+	var evalT bool
+	for _, indexName := range testPaths {
+		indexReader, lErr := router.GetObject(ctx, &tree.Node{Path: indexName}, &models.GetRequestData{Length: -1})
+		if lErr != nil {
+			continue
+		}
+		content, _ = io.ReadAll(indexReader)
+		_ = indexReader.Close()
+		if strings.HasSuffix(indexName, ".json") {
+			cType = "application/json"
+			evalT = true
+		} else if strings.HasSuffix(indexName, ".phtml") {
+			cType = "text/html"
+			evalT = true
+		} else {
+			cType = "text/html"
+		}
+		break
+	}
+	if cType == "" && (hasTemplate || hasJson) { // No content found, maybe default ?
+		if defPhtml := config.Get("frontend", "plugin", "action.share", "LINK_PUBLIC_DIRECTORY_LISTING_PHTML").String(); defPhtml != "" {
+			content = []byte(defPhtml)
+			cType = "text/html"
+			evalT = true
+		} else if defJson := config.Get("frontend", "plugin", "action.share", "LINK_PUBLIC_DIRECTORY_LISTING_PHTML").String(); defJson != "" {
+			content = []byte(defJson)
+			cType = "application/json"
+			evalT = true
+		}
+	}
+	if cType == "" {
+		return
+	}
+
+	if evalT {
+		children := []*tree.Node{} // for non-empty array
+		lr, e := router.ListNodes(ctx, &tree.ListNodesRequest{Node: resp.GetNode()})
+		if e != nil {
+			serveError = e
+			return
+		}
+		for {
+			sr, err := lr.Recv()
+			if err != nil {
+				break
+			}
+			if slices.Contains(testPaths, sr.GetNode().GetPath()) { // ignore special paths!
+				continue
+			}
+			children = append(children, sr.GetNode().WithoutReservedMetas())
+		}
+		data := map[string]interface{}{
+			"Current":  resp.GetNode().WithoutReservedMetas(),
+			"Children": children,
+		}
+		if innerPath != "/" {
+			// Try to load parent
+			if pR, pE := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Dir(innerPath)}}); pE == nil {
+				data["Parent"] = pR.GetNode().WithoutReservedMetas()
+			}
+		}
+		all := &bytes.Buffer{}
+		// Parse Template and evaluate it, replace content
+		if cType == "application/json" {
+			tpl := tplText.New("json_listing")
+			tpl.Funcs(sprig.TxtFuncMap())
+			tpl, er := tpl.Parse(string(content))
+			if er != nil {
+				serveError = er
+				return
+			}
+			if er := tpl.Execute(all, data); er != nil {
+				serveError = er
+				return
+			}
+		} else {
+			tpl := template.New("html_listing")
+			tpl.Funcs(sprig.HtmlFuncMap())
+			tpl, er := tpl.Parse(string(content))
+			if er != nil {
+				serveError = er
+				return
+			}
+			if er := tpl.Execute(all, data); er != nil {
+				serveError = er
+				return
+			}
+		}
+		content = all.Bytes()
+	}
+
+	w.Header().Set("Content-Type", cType)
+	w.Header().Set("Content-Length", strconv.Itoa(len(content)))
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(content)
+	return true, nil
+
 }
 
 // Load link from Docstore
