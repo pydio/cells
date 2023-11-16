@@ -455,7 +455,7 @@ func (h *PublicHandler) davDirectoryIndex(w http.ResponseWriter, r *http.Request
 			if err != nil {
 				break
 			}
-			if slices.Contains(testPaths, sr.GetNode().GetPath()) { // ignore special paths!
+			if slices.Contains(testPaths, strings.Trim(sr.GetNode().GetPath(), "/")) { // ignore special paths!
 				continue
 			}
 			children = append(children, sr.GetNode().WithoutReservedMetas())
