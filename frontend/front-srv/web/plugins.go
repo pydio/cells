@@ -100,7 +100,7 @@ func init() {
 				// /public endpoint : special handler for index, redirect to /plug/ for the rest
 				ph := index.NewPublicHandler(ctx)
 				handler := servicecontext.HttpWrapperMeta(ctx, ph)
-				handler = http.StripPrefix(config.GetPublicBaseUri()+"/", handler)
+				//handler = http.StripPrefix(config.GetPublicBaseUri()+"/", handler)
 				handler = timeoutWrap(handler)
 				mux.Handle(config.GetPublicBaseUri()+"/", handler)
 				mux.Handle(config.GetPublicBaseUri()+"/plug/", http.StripPrefix(config.GetPublicBaseUri()+"/plug/", fs))
@@ -123,7 +123,6 @@ func init() {
 					m.DeregisterPattern("/")
 					m.DeregisterPattern("/user/reset-password/")
 					m.DeregisterPattern(config.GetPublicBaseUri() + "/")
-					m.DeregisterPattern(config.GetPublicBaseUri() + "-dav/")
 					m.DeregisterPattern(config.GetPublicBaseUri() + "/plug/")
 				}
 				return nil

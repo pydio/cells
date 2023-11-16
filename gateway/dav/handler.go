@@ -55,9 +55,7 @@ func logRequest(handler http.Handler) http.Handler {
 	})
 }
 
-func newHandler(ctx context.Context, router nodes.Client) http.Handler {
-
-	basicAuthenticator := auth.NewBasicAuthenticator("Cells DAV", time.Duration(10*time.Minute))
+func newHandler(ctx context.Context, prefix string, router nodes.Handler, withBasicRealm ...string) http.Handler {
 
 	fs := &FileSystem{
 		Router: router,
@@ -69,7 +67,7 @@ func newHandler(ctx context.Context, router nodes.Client) http.Handler {
 
 	dav := &webdav.Handler{
 		FileSystem: fs,
-		Prefix:     "/dav",
+		Prefix:     prefix,
 		LockSystem: memLs,
 		Logger: func(r *http.Request, err error) {
 			if strings.HasPrefix(path.Base(r.URL.Path), ".") {
@@ -114,5 +112,10 @@ func newHandler(ctx context.Context, router nodes.Client) http.Handler {
 		},
 	}
 
-	return basicAuthenticator.Wrap(logRequest(dav))
+	h := logRequest(dav)
+	if len(withBasicRealm) > 0 {
+		basicAuthenticator := auth.NewBasicAuthenticator(withBasicRealm[0], 10*time.Minute)
+		h = basicAuthenticator.Wrap(h)
+	}
+	return servicecontext.HttpWrapperMeta(ctx, h)
 }

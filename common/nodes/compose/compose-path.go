@@ -59,6 +59,7 @@ func pathComposer(oo ...nodes.Option) []nodes.Option {
 		acl.WithAccessList(),
 		binaries.WithStore(common.PydioThumbstoreNamespace, true, false, false),
 		binaries.WithStore(common.PydioDocstoreBinariesNamespace, false, true, true),
+		path.WithPermanentPrefix(),
 		archive.WithArchives(),
 		path.WithWorkspace(),
 		path.WithMultipleRoots(),

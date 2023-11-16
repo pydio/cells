@@ -48,6 +48,7 @@ type RouterOptions struct {
 	SynchronousCache bool
 	SynchronousTasks bool
 	HashesAsETags    bool
+	PermanentPrefix  string
 
 	Wrappers []Adapter
 	Pool     SourcesPool
@@ -103,6 +104,12 @@ func WithSynchronousTasks() Option {
 func WithHashesAsETags() Option {
 	return func(o *RouterOptions) {
 		o.HashesAsETags = true
+	}
+}
+
+func WithPermanentPrefix(p string) Option {
+	return func(options *RouterOptions) {
+		options.PermanentPrefix = p
 	}
 }
 

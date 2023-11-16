@@ -28,24 +28,36 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/nodes/path"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 var (
-	davRouter nodes.Client
+	davRouter nodes.Handler
 )
 
-// GetHandlers is public to let external package spinning a DAV http handler
-func GetHandlers(ctx context.Context) (http.Handler, nodes.Client) {
+func RouterWithOptionalPrefix(runtime context.Context, s ...string) nodes.Handler {
 	if davRouter == nil {
-		davRouter = compose.PathClient(ctx, nodes.WithAuditEventsLogging(), nodes.WithSynchronousCaching(), nodes.WithSynchronousTasks())
+		davRouter = compose.PathClient(
+			runtime,
+			nodes.WithAuditEventsLogging(),
+			nodes.WithSynchronousCaching(),
+			nodes.WithSynchronousTasks(),
+		)
 	}
-	handler := newHandler(ctx, davRouter)
-	handler = servicecontext.HttpWrapperMeta(ctx, handler)
-	return handler, davRouter
+	if len(s) == 0 {
+		return davRouter
+	}
+	pf := path.NewPermanentPrefix(s[0])
+	return pf.Adapt(davRouter, nodes.RouterOptions{Context: runtime})
+}
+
+// GetHandler is public to let external package spinning a DAV http handler
+func GetHandler(ctx context.Context, davPrefix, routerPrefix string) http.Handler {
+	handler := newHandler(ctx, davPrefix, RouterWithOptionalPrefix(ctx, routerPrefix))
+	return handler
 }
 
 func init() {
@@ -57,11 +69,7 @@ func init() {
 			service.Tag(common.ServiceTagGateway),
 			service.Description("DAV Gateway to tree service"),
 			service.WithHTTP(func(runtimeCtx context.Context, mux server.HttpMux) error {
-				if davRouter == nil {
-					davRouter = compose.PathClient(runtimeCtx, nodes.WithAuditEventsLogging(), nodes.WithSynchronousCaching(), nodes.WithSynchronousTasks())
-				}
-				handler := newHandler(runtimeCtx, davRouter)
-				handler = servicecontext.HttpWrapperMeta(runtimeCtx, handler)
+				handler := newHandler(runtimeCtx, "/dav", RouterWithOptionalPrefix(ctx), "Cells DAV")
 				mux.Handle("/dav/", handler)
 				return nil
 			}),
