@@ -2024,6 +2024,9 @@
   "scheduler.schedule.type.timely": {
     "other": "Každý…"
   },
+  "scheduler.schedule.type.once": {
+    "other": "Run Once"
+  },
   "scheduler.schedule.detail.monthday": {
     "other": "Den v měsíci"
   },
@@ -2032,6 +2035,9 @@
   },
   "scheduler.schedule.detail.daytime": {
     "other": "Denní dobu"
+  },
+  "scheduler.schedule.detail.daydate": {
+    "other": "Unique Date"
   },
   "scheduler.schedule.detail.minutes": {
     "other": "Period in minutes"

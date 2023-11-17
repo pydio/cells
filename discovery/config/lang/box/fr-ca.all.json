@@ -81,7 +81,7 @@
     "other": "Condition libre"
   },
   "dataSelectorSingleQuery.JsonPath": {
-    "other": "JSON Path"
+    "other": "Chemin JSON"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
