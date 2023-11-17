@@ -690,7 +690,7 @@
     "other": "テーマ、ロゴ、外観のオプション"
   },
   "menu.5": {
-    "other": "機能を共有"
+    "other": "共有機能"
   },
   "menu.6": {
     "other": "共有するすべてのファイルとフォルダのオプション"
@@ -2024,6 +2024,9 @@
   "scheduler.schedule.type.timely": {
     "other": "常に..."
   },
+  "scheduler.schedule.type.once": {
+    "other": "Run Once"
+  },
   "scheduler.schedule.detail.monthday": {
     "other": "Day of the month"
   },
@@ -2032,6 +2035,9 @@
   },
   "scheduler.schedule.detail.daytime": {
     "other": "Time of the day"
+  },
+  "scheduler.schedule.detail.daydate": {
+    "other": "Unique Date"
   },
   "scheduler.schedule.detail.minutes": {
     "other": "期間 (分)"

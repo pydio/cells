@@ -6,16 +6,16 @@
     "other": "true が設定されている場合、インデクサーはContentRef メタデータを探し、この参照からコンテンツを読み込んで検索用にインデックスを作成します。"
   },
   "Search.Config.ContentRef.Label": {
-    "other": "Content Reference Metadata"
+    "other": "コンテンツ参照メタデータ"
   },
   "Search.Config.ContentRef.Description": {
-    "other": "A metadata storing a reference to a specific file: extractors can create textual representation of files will store them in plain text or gzip-encoded. Search engine will then try to load this content at indexation. Use pydio: prefix to make sure it does not leak out."
+    "other": "特定のファイルへの参照を保存するメタデータ: エクストラクターはファイルのテキスト表現を作成し、ファイルをプレーン テキストまたは gzip エンコードで保存します。検索エンジンはインデックス作成時にこのコンテンツをロードしようとします。 pydio: プレフィックスを使用して、漏洩しないようにしてください。"
   },
   "Search.Config.PlainTextExtensions.Label": {
-    "other": "Plain Text Extensions"
+    "other": "プレーンテキストの拡張子"
   },
   "Search.Config.PlainTextExtensions.Description": {
-    "other": "List of extensions for files containing directly indexable plain-text contents (comma-separated-list)."
+    "other": "直接インデックス可能なプレーンテキストコンテンツを含むファイルの拡張子の一覧 (カンマ区切りリスト)。"
   },
   "Search.Config.BasenameAnalyze.Label": {
     "other": "ファイル名アナライザー"
