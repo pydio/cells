@@ -153,7 +153,7 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 		var toDelete []string
 		var deleted int32
 		for job := range res {
-			if job.AutoStart && job.AutoClean {
+			if job.AutoClean {
 				toDelete = append(toDelete, job.ID)
 			}
 		}
@@ -164,7 +164,7 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 			return nil, err
 		}
 		for job := range res {
-			if job.AutoStart && job.AutoClean {
+			if job.AutoClean {
 				toDelete = append(toDelete, job.ID)
 			}
 		}
