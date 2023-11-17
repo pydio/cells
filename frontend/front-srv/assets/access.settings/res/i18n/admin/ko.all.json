@@ -2024,6 +2024,9 @@
   "scheduler.schedule.type.timely": {
     "other": "Every..."
   },
+  "scheduler.schedule.type.once": {
+    "other": "Run Once"
+  },
   "scheduler.schedule.detail.monthday": {
     "other": "현재 달의 날"
   },
@@ -2032,6 +2035,9 @@
   },
   "scheduler.schedule.detail.daytime": {
     "other": "Time of the day"
+  },
+  "scheduler.schedule.detail.daydate": {
+    "other": "Unique Date"
   },
   "scheduler.schedule.detail.minutes": {
     "other": "Period in minutes"

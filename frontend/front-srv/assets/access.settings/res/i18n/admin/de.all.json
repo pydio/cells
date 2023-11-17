@@ -2024,6 +2024,9 @@
   "scheduler.schedule.type.timely": {
     "other": "Jeder..."
   },
+  "scheduler.schedule.type.once": {
+    "other": "Einmal ausführen"
+  },
   "scheduler.schedule.detail.monthday": {
     "other": "Tag des Monats"
   },
@@ -2032,6 +2035,9 @@
   },
   "scheduler.schedule.detail.daytime": {
     "other": "Uhrzeit"
+  },
+  "scheduler.schedule.detail.daydate": {
+    "other": "Eindeutiges Datum"
   },
   "scheduler.schedule.detail.minutes": {
     "other": "Zeitraum in Minuten"
