@@ -20,7 +20,7 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {MenuItem,TimePicker} from 'material-ui'
+import {MenuItem,DatePicker,TimePicker} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 
 const {moment} = Pydio.requireLib('boot');
@@ -29,12 +29,25 @@ const {ModernSelectField, ModernTextField, ThemedModernStyles} = Pydio.requireLi
 const Blue = '#2196f3';
 const LightGrey = '#e0e0e0';
 
+const ThemedDatePicker = muiThemeable()(({muiTheme, ...props})=> {
+    const ModernStyles = ThemedModernStyles(muiTheme)
+    return (
+        <DatePicker
+            {...props}
+            {...ModernStyles.textFieldV2}
+            textFieldStyle={{...ModernStyles.textFieldV2.style, marginTop: 0}}
+        />
+
+    )
+})
+
 const ThemedTimePicker = muiThemeable()(({muiTheme, ...props})=> {
     const ModernStyles = ThemedModernStyles(muiTheme)
     return (
         <TimePicker
             {...props}
-            {...ModernStyles.textField}
+            {...ModernStyles.textFieldV2}
+            textFieldStyle={{...ModernStyles.textFieldV2.style, marginTop: 0}}
         />
 
     )
@@ -77,18 +90,27 @@ class ScheduleForm extends React.Component {
         }
         const [R, d, i] = value.split('/');
         const startDate = new Date(d);
+        let repeatMax;
+        if(R !== 'R' && R.indexOf && R.indexOf('R') === 0 && R.length > 1) {
+            const rMax = parseInt(R.substr(1))
+            if(!isNaN(rMax) && rMax > 0) {
+                repeatMax = rMax
+            }
+        }
         if(i === 'P1M'){
-            return {frequency:'monthly', monthday: startDate.getDate(), daytime: startDate};
+            return {frequency:'monthly', monthday: startDate.getDate(), daytime: startDate, repeatMax};
         } else if(i === 'P7D') {
             const m = moment(startDate);
-            return {frequency: 'weekly', weekday: m.day(), daytime: startDate};
+            return {frequency: 'weekly', weekday: m.day(), daytime: startDate, repeatMax};
         } else if(i === 'PT24H' || i === 'P1D') {
-            return {frequency: 'daily', daytime: startDate}
+            return {frequency: 'daily', daytime: startDate, repeatMax}
+        } else if(i === '' || i === 'P0D') {
+            return {frequency: 'once', daytime: startDate}
         } else {
             const d = moment.duration(i);
             if(d.isValid()){
                 const minutes = d.minutes() + d.hours() * 60;
-                return {frequency: 'timely', everyminutes: minutes};
+                return {frequency: 'timely', everyminutes: minutes, repeatMax};
             } else {
                 return {error: 'Cannot parse value ' + value};
             }
@@ -127,6 +149,9 @@ class ScheduleForm extends React.Component {
             case "timely":
                 duration = moment.duration(everyminutes, 'minutes');
                 break;
+            case "once":
+                // Do not add a duration piece, use daytime as startDate
+                return 'R/' + moment(daytime).toISOString() + '/'
             default:
                 break
         }
@@ -188,6 +213,8 @@ class ScheduleForm extends React.Component {
             case "timely":
                 const duration = moment.duration(everyminutes, 'minutes');
                 return T("schedule.timely").replace('%1', (duration.hours()?duration.hours()+'h':'') + (duration.minutes()?duration.minutes()+'mn':''));
+            case "once":
+                return moment(daytime).calendar()
             default:
                 return "Error"
         }
@@ -216,6 +243,7 @@ class ScheduleForm extends React.Component {
                     value={frequency}
                     onChange={(e,i,val) => {this.changeFrequency(val)}}
                     fullWidth={true}
+                    variant={"v2"}
                 >
                     {includeManual &&
                         <MenuItem value={'manual'} primaryText={this.T('schedule.type.manual')} />
@@ -224,6 +252,7 @@ class ScheduleForm extends React.Component {
                     <MenuItem value={'weekly'} primaryText={this.T('schedule.type.weekly')} />
                     <MenuItem value={'daily'} primaryText={this.T('schedule.type.daily')} />
                     <MenuItem value={'timely'} primaryText={this.T('schedule.type.timely')} />
+                    <MenuItem value={'once'} primaryText={this.T('schedule.type.once')} />
                 </ModernSelectField>
                 {frequency === 'monthly' &&
                 <div>
@@ -232,6 +261,7 @@ class ScheduleForm extends React.Component {
                         value={monthday}
                         onChange={(e,i,val)=>{this.setState({monthday:val})}}
                         fullWidth={true}
+                        variant={"v2"}
                     >
                         {monthdays.map(d => <MenuItem value={d} primaryText={d}/>)}
                     </ModernSelectField>
@@ -244,6 +274,7 @@ class ScheduleForm extends React.Component {
                         value={weekday}
                         onChange={(e,i,val)=>{this.setState({weekday:val})}}
                         fullWidth={true}
+                        variant={"v2"}
                     >
                         {weekdays.map((d,i) => <MenuItem value={i} primaryText={d}/>)}
                     </ModernSelectField>
@@ -254,10 +285,11 @@ class ScheduleForm extends React.Component {
                     <ThemedTimePicker
                         format="ampm"
                         minutesStep={5}
-                        hintText={this.T('schedule.detail.daytime')}
+                        floatingLabelText={this.T('schedule.detail.daytime')}
                         value={daytime}
                         onChange={(e,v) => {this.setState({daytime: v})}}
                         fullWidth={true}
+                        variant={"v2"}
                     />
                 </div>
                 }
@@ -269,8 +301,44 @@ class ScheduleForm extends React.Component {
                         type={"number"}
                         onChange={(e,val)=>{this.setState({everyminutes:parseInt(val)})}}
                         fullWidth={true}
+                        variant={"v2"}
                     />
                 </div>
+                }
+                {frequency === 'once' &&
+                    <div style={{display:'flex'}}>
+                        <div style={{flex: 1}}>
+                            <ThemedDatePicker
+                                floatingLabelText={this.T('schedule.detail.daydate')}
+                                floatingLabelFixed={true}
+                                value={daytime}
+                                onChange={(e,v) => {
+                                    v.setHours(daytime.getHours())
+                                    v.setMinutes(daytime.getMinutes())
+                                    v.setSeconds(daytime.getSeconds())
+                                    this.setState({daytime: v})
+                                }}
+                                fullWidth={true}
+                            />
+                        </div>
+                        <div style={{width: 8}}/>
+                        <div style={{flex: 1}}>
+                            <ThemedTimePicker
+                                format="ampm"
+                                minutesStep={5}
+                                floatingLabelText={this.T('schedule.detail.daytime')}
+                                floatingLabelFixed={true}
+                                value={daytime}
+                                onChange={(e,v) => {
+                                    v.setFullYear(daytime.getFullYear())
+                                    v.setMonth(daytime.getMonth())
+                                    v.setDate(daytime.getDate())
+                                    this.setState({daytime: v})
+                                }}
+                                fullWidth={true}
+                            />
+                        </div>
+                    </div>
                 }
             </div>
         );
