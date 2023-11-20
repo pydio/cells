@@ -35,7 +35,7 @@ import ListStylesMedium from "./ListStylesMedium";
 const getCss = (palette) => {
     return `
 .folder-avatar::before {
-    content: '\\F24B';
+    content: "\\F024B";
     font-family: 'Material Design Icons';
     position: absolute;
     color: rgb(54, 113, 143);
@@ -232,4 +232,5 @@ class DirectoryLayout extends React.Component {
 
 DirectoryLayout = PydioContextConsumer(DirectoryLayout);
 DirectoryLayout = muiThemeable()(DirectoryLayout);
+export {getCss}
 export {DirectoryLayout as default}

@@ -12,6 +12,7 @@
     "@livekit/components-react": "^0.8.2",
     "@livekit/components-styles": "^0.3.2",
     "@material/material-color-utilities": "^0.2.4",
+    "@mdi/font": "^7.3.67",
     "@mui/icons-material": "^5.11.11",
     "@mui/lab": "5.0.0-alpha.124",
     "@mui/material": "^5.11.10",
@@ -94,6 +95,7 @@
     "browserify-shim": "^3.8.14",
     "compression-webpack-plugin": "^10.0.0",
     "css-loader": "^6.7.3",
+    "css-minimizer-webpack-plugin": "^5.0.1",
     "envify": "3.4.0",
     "esprima-fb": "3001.0001.0000-dev-harmony-fb",
     "exports-loader": "^4.0.0",
@@ -111,6 +113,11 @@
     "build-libs": "webpack --config webpack.libs.js",
     "build-core": "webpack --config webpack.core.js",
     "build-boot": "webpack --config webpack.boot.js",
+    "build-css": "webpack --config webpack.css.js",
+    "build-libs-prod": "NODE_ENV=production webpack --config webpack.libs.js",
+    "build-core-prod": "NODE_ENV=production webpack --config webpack.core.js",
+    "build-boot-prod": "NODE_ENV=production webpack --config webpack.boot.js",
+    "build-css-prod": "NODE_ENV=production webpack --config webpack.css.js",
     "all": "pnpm run build-boot && pnpm run build-core && pnpm run build-libs"
   }
 }
