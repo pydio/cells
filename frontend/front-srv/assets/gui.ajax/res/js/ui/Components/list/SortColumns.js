@@ -63,7 +63,11 @@ class SortColumns extends React.Component {
             if(data['sortType']){
                 className += ' sortable';
                 if(sortingInfo && ( sortingInfo.attribute === key || (sortingInfo.remote && data.remoteSortAttribute && sortingInfo.attribute === data.remoteSortAttribute))){
-                    icon = sortingInfo.direction === 'asc' ? 'mdi mdi-sort-ascending' : 'mdi mdi-sort-descending';
+                    if(data['sortType'] === 'number') {
+                        icon = sortingInfo.direction === 'asc' ? 'mdi mdi-sort-numeric-ascending' : 'mdi mdi-sort-numeric-descending';
+                    } else {
+                        icon = sortingInfo.direction === 'asc' ? 'mdi mdi-sort-alphabetical-ascending' : 'mdi mdi-sort-alphabetical-descending';
+                    }
                     className += ' active-sort-' + sortingInfo.direction;
                     isActive = true
                 }
@@ -83,7 +87,7 @@ class SortColumns extends React.Component {
                             {isActive && <span className={'mdi mdi-checkbox-marked-circle-outline'}/>}
                         </span>),
                     callback        : () => { this.onHeaderClick(key, callback) },
-                    icon_class      : icon || (data['sortType'] === 'number' ? 'mdi mdi-sort-numeric':'mdi mdi-sort-alphabetical')// '__INSET__'
+                    icon_class      : icon || 'mdi mdi-sort'// (data['sortType'] === 'number' ? 'mdi mdi-sort-numeric':'mdi mdi-sort-alphabetical')// '__INSET__'
                 }
             }else{
                 return (<span

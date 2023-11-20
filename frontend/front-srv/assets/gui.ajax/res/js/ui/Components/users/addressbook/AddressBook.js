@@ -30,36 +30,7 @@ import Model from './Model'
 import CollectionsPanel from "./CollectionsPanel";
 import CreatesDialog from './CreatesDialog'
 import Toolbar from "./Toolbar";
-
-const getCss = (palette) => {
-    return `
-.folder-avatar::before {
-    content: '\\F24B';
-    font-family: 'Material Design Icons';
-    position: absolute;
-    color: rgb(54, 113, 143);
-    font-size: 40px;
-    top: 11px;
-    left: -2px;
-}
-.compact .folder-avatar::before {
-    font-size: 30px;
-    top: 5px;
-}
-.folder-avatar span.mdi {
-    font-size: 20px !important;
-    color: #fff !important;
-    height: 12.8px !important;
-    margin: 7.3px !important;
-}
-.compact .folder-avatar span.mdi {
-    font-size: 13px !important;
-}
-.folder-avatar {
-    background-color: transparent !important;
-}
-`
-}
+import {getCss} from './DirectoryLayout'
 
 /**
  * High level component to browse users, groups and teams, either in a large format (mode='book') or a more compact

@@ -1,4 +1,4 @@
-@import "../../common/css/fonts/mdi.css";
+@import "../../common/css/fonts/materialdesignicons.css";
 @import "../../common/css/fonts/icomoon.css";
 @import "../../../../node_modules/@livekit/components-styles/dist/general/index.css";
 @import "../../../../node_modules/react-aspect-ratio/aspect-ratio.css";
@@ -17,11 +17,20 @@
   font-weight: 500;
   src: url('../themes/common/fonts/roboto-font/roboto-medium.woff2') format('woff2'), url('../themes/common/fonts/roboto-font/roboto-medium.woff') format('woff');
 }
+/* MaterialDesignIcons.com
+@font-face {
+    font-family: "Material Design Icons";
+    src: url("@{fontsPath}mdi/materialdesignicons-webfont.eot?v=1.4.57");
+    src: url("@{fontsPath}mdi/materialdesignicons-webfont.eot?#iefix&v=1.4.57") format("embedded-opentype"), url("@{fontsPath}mdi/materialdesignicons-webfont.woff2?v=1.4.57") format("woff2"), url("@{fontsPath}mdi/materialdesignicons-webfont.woff?v=1.4.57") format("woff"), url("@{fontsPath}mdi/materialdesignicons-webfont.ttf?v=1.4.57") format("truetype"), url("@{fontsPath}mdi/materialdesignicons-webfont.svg?v=1.4.57#materialdesigniconsregular") format("svg");
+    font-weight: normal;
+    font-style: normal;
+}
+ */
 /* MaterialDesignIcons.com */
 @font-face {
   font-family: "Material Design Icons";
-  src: url("../themes/common/fonts/mdi/materialdesignicons-webfont.eot?v=1.4.57");
-  src: url("../themes/common/fonts/mdi/materialdesignicons-webfont.eot?#iefix&v=1.4.57") format("embedded-opentype"), url("../themes/common/fonts/mdi/materialdesignicons-webfont.woff2?v=1.4.57") format("woff2"), url("../themes/common/fonts/mdi/materialdesignicons-webfont.woff?v=1.4.57") format("woff"), url("../themes/common/fonts/mdi/materialdesignicons-webfont.ttf?v=1.4.57") format("truetype"), url("../themes/common/fonts/mdi/materialdesignicons-webfont.svg?v=1.4.57#materialdesigniconsregular") format("svg");
+  src: url("../themes/common/fonts/mdi7/materialdesignicons-webfont.eot?v=7.3.67");
+  src: url("../themes/common/fonts/mdi7/materialdesignicons-webfont.eot?#iefix&v=7.3.67") format("embedded-opentype"), url("../themes/common/fonts/mdi7/materialdesignicons-webfont.woff2?v=7.3.67") format("woff2"), url("../themes/common/fonts/mdi7/materialdesignicons-webfont.woff?v=7.3.67") format("woff"), url("../themes/common/fonts/mdi7/materialdesignicons-webfont.ttf?v=7.3.67") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
@@ -292,8 +301,8 @@
   margin: 1em 40px;
 }
 .react-mui-context hr {
-  -webkit-box-sizing: content-box;
-          box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
   height: 0;
 }
 .react-mui-context pre {
@@ -348,8 +357,7 @@
 }
 .react-mui-context input[type="checkbox"],
 .react-mui-context input[type="radio"] {
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
   /* 1 */
   padding: 0;
   /* 2 */
@@ -361,6 +369,7 @@
 .react-mui-context input[type="search"] {
   -webkit-appearance: textfield;
   /* 1 */
+  -moz-box-sizing: content-box;
   -webkit-box-sizing: content-box;
   /* 2 */
   box-sizing: content-box;
@@ -493,16 +502,16 @@ html {
 }
 * {
   -moz-user-select: -moz-none;
+  -khtml-user-select: none;
   -webkit-user-select: none;
-  -ms-user-select: none;
-      user-select: none;
+  user-select: none;
 }
 input,
 textarea,
 .selectable {
+  -khtml-user-select: auto;
   -webkit-user-select: auto;
-  -ms-user-select: auto;
-      user-select: auto;
+  user-select: auto;
   -moz-user-select: text;
 }
 input {
@@ -510,9 +519,6 @@ input {
 }
 *::-moz-focus-inner {
   border: none;
-}
-.no_select_bg::-moz-selection {
-  background: transparent;
 }
 .no_select_bg::selection {
   background: transparent;
@@ -528,8 +534,7 @@ input {
   background-color: transparent;
 }
 .css_boxshadow {
-  -webkit-box-shadow: 1px 1px 4px rgba(100, 100, 100, 0.7);
-          box-shadow: 1px 1px 4px rgba(100, 100, 100, 0.7);
+  box-shadow: 1px 1px 4px rgba(100, 100, 100, 0.7);
 }
 span.letter_badge {
   display: inline-block;
@@ -549,6 +554,7 @@ span.letter_badge {
   font-size: 11px;
   font-family: Arial, sans-serif;
   background-color: #f7f7f7;
+  -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px #fff inset;
   -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px #fff inset;
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px #fff inset;
   border-radius: 3px;
@@ -564,6 +570,7 @@ kbd {
   font-size: 11px;
   font-family: Arial, sans-serif;
   background-color: #f7f7f7;
+  -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px #fff inset;
   -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px #fff inset;
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px #fff inset;
   border-radius: 3px;
@@ -587,19 +594,7 @@ kbd {
 .show-loading-animation .rect-shape,
 .show-loading-animation .round-shape,
 .show-loading-animation .text-row {
-  -webkit-animation: react-placeholder-pulse 1.5s infinite;
-          animation: react-placeholder-pulse 1.5s infinite;
-}
-@-webkit-keyframes react-placeholder-pulse {
-  0% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0.4;
-  }
+  animation: react-placeholder-pulse 1.5s infinite;
 }
 @keyframes react-placeholder-pulse {
   0% {
@@ -620,35 +615,24 @@ body {
   right: 0;
 }
 .vertical_layout {
-  display: -webkit-box;
-  display: -ms-flexbox;
+  display: -webkit-flex;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  flex-direction: column;
+  -webkit-flex-direction: column;
 }
 .vertical_layout > * {
-  -ms-flex-negative: 0;
-      flex-shrink: 0;
+  flex-shrink: 0;
 }
 .horizontal_layout {
-  display: -webkit-box;
-  display: -ms-flexbox;
+  display: -webkit-flex;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: row;
-          flex-direction: row;
-  -webkit-box-align: stretch;
-      -ms-flex-align: stretch;
-          align-items: stretch;
+  flex-direction: row;
+  -webkit-flex-direction: row;
+  align-items: stretch;
   -webkit-align-items: stretch;
 }
 .vertical_fit {
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
   -webkit-flex: 1;
   overflow-y: hidden;
 }
@@ -665,34 +649,19 @@ body {
   display: table-cell;
 }
 .flexbox {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-flow: column;
-          flex-flow: column;
+  flex-flow: column;
 }
 .flexbox .row {
-  -webkit-box-flex: 0;
-      -ms-flex: 0 1 30px;
-          flex: 0 1 30px;
+  flex: 0 1 30px;
 }
 .flexbox .row.header {
-  -webkit-box-flex: 0;
-      -ms-flex: 0 1 auto;
-          flex: 0 1 auto;
+  flex: 0 1 auto;
 }
 .flexbox .row.content {
-  -webkit-box-flex: 1;
-      -ms-flex: 1 1 auto;
-          flex: 1 1 auto;
-  display: -webkit-box;
-  display: -ms-flexbox;
+  flex: 1 1 auto;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
 }
 .text-right {
   text-align: right;
@@ -768,7 +737,6 @@ body {
 div.dialogBox div#element_overlay {
   background-color: #252525;
   opacity: 0;
-  -webkit-transition: opacity 0.4s ease;
   transition: opacity 0.4s ease;
 }
 #element_overlay img {
@@ -798,7 +766,6 @@ div.dialogBox div#element_overlay {
 }
 .folders-tree div.tree-item {
   line-height: 14px;
-  -webkit-transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 .folders-tree div.tree-item div.tree-item-label {
@@ -839,8 +806,6 @@ div.dialogBox div#element_overlay {
 .comments_feed div.date {
   color: rgba(0, 0, 0, 0.23);
   text-align: center;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
   margin: 5px 0;
 }
@@ -848,20 +813,14 @@ div.dialogBox div#element_overlay {
 .comments_feed div.date:after {
   content: ' -------- ';
   display: block;
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
 }
 .comments_feed div.comment-line {
   padding: 8px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
 }
 .comments_feed div.comment-line div.content {
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
   margin-left: 8px;
   position: relative;
   padding: 6px 8px;
@@ -915,19 +874,13 @@ div.dialogBox div#element_overlay {
   width: 40px;
   line-height: 40px;
   overflow: hidden;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
 }
 .react-mui-context .material-list.files-list .material-list-entry .material-list-icon > div.mimefont-container div.mimefont {
   font-size: 24px;
   text-align: center;
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
 }
 .react-mui-context .material-list.files-list .material-list-entry .material-list-icon > div.mimefont-container div.mimefont.mimefont-overlay {
   display: block;
@@ -940,12 +893,8 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 {
   line-height: 22px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.metadata_chunk_standard {
   opacity: 0;
@@ -1021,8 +970,7 @@ div.dialogBox div#element_overlay {
   opacity: 1;
 }
 .react-mui-context .material-list.files-list .material-list-entry:not(.selected) > div > div.mimefont-container.with-editor-badge {
-  -webkit-box-shadow: 0px 0px 0px 1px #edf0f2;
-          box-shadow: 0px 0px 0px 1px #edf0f2;
+  box-shadow: 0px 0px 0px 1px #edf0f2;
 }
 .react-mui-context .material-list.files-list .material-list-entry.list-parent-node .material-list-icon .mui-font-icon {
   margin: 15px;
@@ -1031,12 +979,8 @@ div.dialogBox div#element_overlay {
   padding: 10px;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
   height: 48px;
   padding-top: 1px;
 }
@@ -1081,13 +1025,9 @@ div.dialogBox div#element_overlay {
   padding-left: 52px;
 }
 .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label > span {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
   margin-left: 16px;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
 }
 .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label > span div.mimefont-container {
   font-size: 20px;
@@ -1121,12 +1061,10 @@ div.dialogBox div#element_overlay {
   position: relative;
   display: block;
   margin: 8px;
-  -webkit-transition: width 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, height 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: width 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, height 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   border-radius: 4px;
   overflow: hidden;
-  -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 10px;
-          box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 10px;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 10px;
   border-bottom: inherit;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon {
@@ -1146,22 +1084,15 @@ div.dialogBox div#element_overlay {
   width: 100%;
   line-height: 100%;
   overflow: hidden;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-shadow: none !important;
-          box-shadow: none !important;
+  align-items: center;
+  box-shadow: none !important;
   border-radius: 0;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon div.mimefont-container div.mimefont {
   font-size: 40px;
   text-align: center;
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon div.mimefont-container div.mimefont.mimefont-overlay {
   display: block;
@@ -1193,8 +1124,6 @@ div.dialogBox div#element_overlay {
   top: 0px;
   left: 4px;
   right: 4px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-actions span.overlay-class-span {
@@ -1214,15 +1143,9 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry.list-group-header .material-list-text {
   border-top-width: 0;
   top: 0;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+  align-items: center;
+  justify-content: center;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry.list-group-header .material-list-text .material-list-line-1 {
   font-size: 15px;
@@ -1356,8 +1279,7 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.card-list .material-list-entry {
   background-color: #fff;
   margin: 6px;
-  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
   border-bottom: 0;
 }
 .react-mui-context .mui-dialog-window {
@@ -1367,7 +1289,6 @@ div.dialogBox div#element_overlay {
   max-width: 420px !important;
 }
 .react-mui-context .mui-dialog-window .bezier-transitions {
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 .react-mui-context .mui-dialog-window .mui-dialog-window-contents.dialog-no-padding .mui-dialog-content {
@@ -1389,8 +1310,7 @@ div.dialogBox div#element_overlay {
   left: 0;
   background-size: cover;
   background-position: center center;
-  -webkit-filter: blur(7px);
-          filter: blur(7px);
+  filter: blur(7px);
 }
 .react-mui-context .dialogRootBlur > div > div.dialogRootBlur div.blurDialogTextField label {
   color: rgba(255, 255, 255, 0.73) !important;
@@ -1436,8 +1356,7 @@ div.dialogBox div#element_overlay {
   font-size: 13px;
 }
 #activity_monitor_warning {
-  -webkit-box-shadow: none;
-          box-shadow: none;
+  box-shadow: none;
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
@@ -1450,8 +1369,7 @@ div.dialogBox div#element_overlay {
 #activity_monitor_warning div.dialogContent {
   border-radius: 2px;
   padding: 30px;
-  -webkit-box-shadow: 1px 1px 46px rgba(0, 0, 0, 0.67);
-          box-shadow: 1px 1px 46px rgba(0, 0, 0, 0.67);
+  box-shadow: 1px 1px 46px rgba(0, 0, 0, 0.67);
 }
 #activity_monitor_warning span.click_anywhere {
   color: #676965;
@@ -1477,12 +1395,8 @@ div.dialogBox div#element_overlay {
 .user-widget .user-display {
   padding: 0 2px 0 10px;
   font-size: 22px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
   height: 62px;
 }
 .user-widget .user-display .userLabel {
@@ -1521,29 +1435,7 @@ div.dialogBox div#element_overlay {
   width: 200px;
   height: 2px;
   background-color: #03A9F4;
-  -webkit-animation: connexionLoading 1.5s linear infinite;
-          animation: connexionLoading 1.5s linear infinite;
-}
-@-webkit-keyframes connexionLoading {
-  from {
-    left: -200px;
-    width: 30%;
-  }
-  50% {
-    width: 30%;
-  }
-  70% {
-    width: 70%;
-  }
-  80% {
-    left: 50%;
-  }
-  95% {
-    left: 120%;
-  }
-  to {
-    left: 100%;
-  }
+  animation: connexionLoading 1.5s linear infinite;
 }
 @keyframes connexionLoading {
   from {
@@ -1596,8 +1488,7 @@ div.menu.desktop {
   padding-top: 8px;
   padding-bottom: 8px;
   border-radius: 2px;
-  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.24);
-          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.24);
 }
 div.menu.desktop a {
   color: rgba(0, 0, 0, 0.93);
@@ -1640,7 +1531,6 @@ div.menu.desktop a span.ajxp_icon_span {
   right: 0;
   background-color: rgba(0, 0, 0, 0.53);
   opacity: 1;
-  -webkit-transition: opacity 300ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: opacity 300ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 .react-editor .editor-overlay.fade-in-enter,
@@ -1648,12 +1538,10 @@ div.menu.desktop a span.ajxp_icon_span {
   opacity: 0.01;
 }
 .react-editor .editor-window {
-  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
-          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
   background-color: white;
   position: absolute;
   z-index: 100000;
-  -webkit-transition: border-radius 250ms cubic-bezier(0.06, 0.73, 0.6, 0.95) 0ms, height 250ms cubic-bezier(0.23, 1, 0.32, 1) 250ms, width 250ms cubic-bezier(0.23, 1, 0.32, 1) 250ms, bottom 250ms cubic-bezier(0.23, 1, 0.32, 1) 250ms;
   transition: border-radius 250ms cubic-bezier(0.06, 0.73, 0.6, 0.95) 0ms, height 250ms cubic-bezier(0.23, 1, 0.32, 1) 250ms, width 250ms cubic-bezier(0.23, 1, 0.32, 1) 250ms, bottom 250ms cubic-bezier(0.23, 1, 0.32, 1) 250ms;
   bottom: 20px;
   right: 20px;
@@ -1689,8 +1577,7 @@ div.menu.desktop a span.ajxp_icon_span {
 .react-editor .editor-window .mfb-component--br .mfb-component__button--main {
   width: 50px;
   height: 50px;
-  -webkit-box-shadow: none;
-          box-shadow: none;
+  box-shadow: none;
 }
 .react-editor .editor-window .mfb-component--br .mfb-component__button--main i {
   line-height: 50px;
@@ -1714,18 +1601,12 @@ div.menu.desktop a span.ajxp_icon_span {
 }
 .react-editor .editor-window.open .mui-tabs-container .mui-tab-item span.closeable-tab,
 .react-editor .editor-window.open .editor_container .mui-tab-item span.closeable-tab {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
 }
 .react-editor .editor-window.open .mui-tabs-container .mui-tab-item span.closeable-tab .label,
 .react-editor .editor-window.open .editor_container .mui-tab-item span.closeable-tab .label {
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -1750,7 +1631,6 @@ div.menu.desktop a span.ajxp_icon_span {
   top: 0px;
 }
 .react-editor .editor-window.opened {
-  -webkit-transition: border-radius 500ms cubic-bezier(0.06, 0.73, 0.6, 0.95) 300ms, height 400ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, width 400ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, bottom 400ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: border-radius 500ms cubic-bezier(0.06, 0.73, 0.6, 0.95) 300ms, height 400ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, width 400ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, bottom 400ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 .react-editor .editor-window.opened .editor-title > div {
@@ -1761,20 +1641,16 @@ div.menu.desktop a span.ajxp_icon_span {
 }
 .left-panel .nav-list-entry {
   padding: 6px 1px 6px 16px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
   line-height: 24px;
   cursor: pointer;
-  -webkit-transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 .left-panel .nav-list-entry:hover {
   background-color: var(--md-sys-color-hover-background);
 }
 .left-panel .nav-list-entry-icon {
-  -ms-flex-negative: 0;
-      flex-shrink: 0;
+  flex-shrink: 0;
   display: inline-block;
   width: 24px;
   height: 24px;
@@ -1792,7 +1668,6 @@ div.menu.desktop a span.ajxp_icon_span {
   font-weight: 500;
   text-transform: uppercase;
   margin-top: 24px;
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   white-space: nowrap;
   overflow: hidden;
@@ -1807,12 +1682,9 @@ div.menu.desktop a span.ajxp_icon_span {
 }
 .left-panel .workspaces .workspace-entry {
   padding: 6px 1px 6px 16px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
   line-height: 24px;
   cursor: pointer;
-  -webkit-transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: background-color 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   padding: 6px;
   padding-left: 20px;
@@ -1850,7 +1722,6 @@ div.menu.desktop a span.ajxp_icon_span {
   margin-top: -3px;
   margin-bottom: -3px;
   border-radius: 50%;
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   height: 30px;
   width: 30px;
@@ -1891,17 +1762,11 @@ div.menu.desktop a span.ajxp_icon_span {
   height: 40px;
   line-height: 40px;
   font-size: 1em;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
   background-color: #ECEFF1;
   border-radius: 50%;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+  align-items: center;
+  justify-content: center;
   margin-right: 10px;
   position: relative;
 }
@@ -1917,9 +1782,7 @@ div.menu.desktop a span.ajxp_icon_span {
 }
 .left-panel.expanded .workspaces .workspace-entry .workspace-label-container {
   display: block;
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
   border-bottom: 1px solid rgba(0, 0, 0, 0.03);
   padding-bottom: 10px;
   padding-left: 5px;
@@ -1984,7 +1847,6 @@ div.menu.desktop a span.ajxp_icon_span {
   position: absolute;
   z-index: 0;
   bottom: 0;
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   overflow-y: auto;
   font-weight: 400;
@@ -2007,8 +1869,6 @@ div.menu.desktop a span.ajxp_icon_span {
   overflow: hidden;
 }
 .panelCard .panelContent div.mimefont-container {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
   text-align: center;
   font-size: 60px;
@@ -2037,12 +1897,8 @@ div.menu.desktop a span.ajxp_icon_span {
 .panelCard .primaryToolbar {
   background-color: white;
   padding: 2px !important;
-  -webkit-box-align: start;
-      -ms-flex-align: start;
-          align-items: flex-start;
-  -webkit-box-pack: end;
-      -ms-flex-pack: end;
-          justify-content: flex-end;
+  align-items: flex-start;
+  justify-content: flex-end;
   border-radius: 0 0 2px 2px;
 }
 .panelCard .primaryToolbar.empty-toolbar {
@@ -2069,7 +1925,6 @@ div.pydio-tasks-panel {
   background-color: white;
   /*box-shadow: @reactBoxShadowDepth1;*/
   z-index: 20001;
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 div.pydio-tasks-panel.invisible {
@@ -2078,18 +1933,11 @@ div.pydio-tasks-panel.invisible {
 div.pydio-tasks-panel div.task {
   padding: 10px;
   border-bottom: 1px solid #f2f2f2;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: row;
-          flex-direction: row;
+  flex-direction: row;
 }
 div.pydio-tasks-panel div.task .task_texts {
-  -webkit-box-flex: 5;
-      -ms-flex: 5;
-          flex: 5;
+  flex: 5;
   max-width: 296px;
 }
 div.pydio-tasks-panel div.task .task_texts div {
@@ -2154,6 +2002,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   position: absolute;
   top: 50%;
   -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
   width: 50%;
 }
@@ -2163,8 +2012,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   background-color: rgba(255, 0, 68, 0.2);
   border: 2px solid #f04;
   border-radius: 50%;
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
   display: block;
   height: 100%;
   left: 0;
@@ -2172,8 +2020,10 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   position: absolute;
   top: 0;
   -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
   transform: translateY(-50%);
   -webkit-transform-origin: center;
+  -ms-transform-origin: center;
   transform-origin: center;
   width: 100%;
 }
@@ -2187,15 +2037,12 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 }
 .react-mui-context .joyride-hole {
   border-radius: 2px;
-  -webkit-box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 0, 0, 0.4);
-          box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 0, 0, 0.4);
   position: absolute;
-  -webkit-transition: all 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 .react-mui-context .joyride-hole.safari {
-  -webkit-box-shadow: 0 0 999px 9999px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 0, 0, 0.5);
-          box-shadow: 0 0 999px 9999px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 999px 9999px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 0, 0, 0.5);
 }
 .react-mui-context .joyride-tooltip {
   background-color: var(--md-sys-color-surface-variant);
@@ -2235,6 +2082,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   left: 50%;
   top: -10px;
   -webkit-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
   transform: translateX(-50%);
   width: 24px;
 }
@@ -2251,6 +2099,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   height: 12px;
   left: 50%;
   -webkit-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
   transform: translateX(-50%);
   width: 24px;
 }
@@ -2258,6 +2107,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 .react-mui-context .joyride-tooltip.top-left .joyride-tooltip__triangle {
   left: 3%;
   -webkit-transform: translateX(0);
+  -ms-transform: translateX(0);
   transform: translateX(0);
 }
 @media screen and (min-width: 480px) {
@@ -2271,6 +2121,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   left: auto;
   right: 3%;
   -webkit-transform: translateX(0);
+  -ms-transform: translateX(0);
   transform: translateX(0);
 }
 @media screen and (min-width: 480px) {
@@ -2379,7 +2230,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   border-radius: 2px;
   color: var(--md-sys-color-primary);
   padding: 6px 12px;
-  -webkit-transition: background-color 0.2s ease-in-out;
   transition: background-color 0.2s ease-in-out;
   font-weight: 500;
   font-size: 14px;
@@ -2507,13 +2357,8 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 }
 .timeline .tl-timeline {
   font-size: 13px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  flex-direction: column;
   margin: 0 20px;
 }
 .timeline .tl-timeline .daymonth {
@@ -2526,12 +2371,8 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   font-weight: 600;
 }
 .timeline .tl-timeline .tl-block {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: start;
-      -ms-flex-align: start;
-          align-items: flex-start;
+  align-items: flex-start;
 }
 .timeline .tl-timeline .tl-block .tl-date {
   margin-top: 20px;
@@ -2540,20 +2381,17 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   text-align: center;
 }
 .timeline .tl-timeline .tl-block .tl-dot {
-  -ms-flex-negative: 0;
-      flex-shrink: 0;
+  flex-shrink: 0;
   width: 10px;
   height: 10px;
   margin: 30px 15px 0;
   background-color: #D1D6E6;
   border-radius: 50%;
   position: relative;
-  -webkit-box-shadow: #D1D6E6 0px 0px 4px;
-          box-shadow: #D1D6E6 0px 0px 4px;
+  box-shadow: #D1D6E6 0px 0px 4px;
 }
 .timeline .tl-timeline .tl-block .tl-dot:before {
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
   content: '';
   display: block;
   position: absolute;
@@ -2566,23 +2404,17 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   opacity: 0.4;
 }
 .timeline .tl-timeline .tl-block .tl-card {
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
   margin: 10px;
   padding: 16px 20px;
   border-radius: 5px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
 }
 .timeline .tl-timeline .tl-block .tl-card.tl-selectable {
   cursor: pointer;
 }
 .timeline .tl-timeline .tl-block .tl-card .tl-desc {
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
 }
 .timeline .tl-timeline .tl-block .tl-card .tl-desc .desc-date {
   font-size: 11px;
@@ -2598,16 +2430,9 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   margin-right: 2px;
 }
 .timeline .tl-timeline .tl-block .tl-card .tl-actions {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-align: end;
-      -ms-flex-align: end;
-          align-items: flex-end;
+  flex-direction: column;
+  align-items: flex-end;
 }
 .timeline .tl-timeline .tl-block.newday {
   margin-top: 20px;
@@ -2644,8 +2469,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   margin: 0 0;
 }
 .timeline.small .tl-timeline .sep-date {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
   margin-left: 40px;
 }
@@ -2666,8 +2489,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 }
 .timeline.small .tl-timeline .tl-block .tl-card {
   padding: 12px;
-  -webkit-box-shadow: none;
-          box-shadow: none;
+  box-shadow: none;
 }
 .timeline.small .tl-timeline .tl-block .tl-card .tl-actions {
   display: none;
@@ -2763,8 +2585,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   /*************/
 }
 .react-mui-context * {
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
 }
 .react-mui-context [class^="mdi-"],
 .react-mui-context [class*=" mdi-"] {
@@ -2800,16 +2621,9 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 .react-mui-context .horizontal-layout,
 .react-mui-context .vertical-layout,
 .react-mui-context .mui-paper.vertical-layout > .mui-paper-container {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: row;
-          flex-direction: row;
-  -webkit-box-align: stretch;
-      -ms-flex-align: stretch;
-          align-items: stretch;
+  flex-direction: row;
+  align-items: stretch;
 }
 .react-mui-context .viewport-height {
   height: 100vh;
@@ -2832,23 +2646,16 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 }
 .react-mui-context .mui-paper.vertical-layout > .mui-paper-container,
 .react-mui-context .vertical-layout {
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  flex-direction: column;
 }
 .react-mui-context .layout-fill,
 .react-mui-context .mui-paper.layout-fill > .mui-paper-container,
 .react-mui-context .role-panel > .mui-paper-container {
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
   overflow-y: auto;
 }
 .react-mui-context .layout-fill-scroll-y {
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
   overflow-y: auto;
 }
 .react-mui-context .droppable-active,
@@ -2859,10 +2666,8 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   height: 100%;
 }
 .react-mui-context .main-layout-nav-to-stack .left-nav {
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  -ms-flex-negative: 0;
-      flex-shrink: 0;
+  flex-shrink: 0;
 }
 .react-mui-context .main-layout-nav-to-stack .left-nav h1 {
   float: left;
@@ -2872,25 +2677,17 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   margin-top: 5px;
 }
 .react-mui-context .main-layout-nav-to-stack .container {
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
 }
 .react-mui-context .main-layout-nav-to-stack.vertical {
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  flex-direction: column;
 }
 .react-mui-context .main-layout-nav-to-stack.vertical .left-nav {
   width: auto;
 }
 @media only screen and (max-width: 720px) {
   .react-mui-context .main-layout-nav-to-stack {
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
+    flex-direction: column;
   }
   .react-mui-context .main-layout-nav-to-stack h1 {
     font-size: 30px;
@@ -2985,21 +2782,11 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 .react-mui-context .pydio-form-panel.row-flex {
   width: 100%;
   height: 100%;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: row;
-          flex-direction: row;
-  -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
-  -webkit-box-pack: start;
-      -ms-flex-pack: start;
-          justify-content: flex-start;
-  -webkit-box-flex: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  flex-grow: 1;
 }
 .react-mui-context .pydio-form-panel.row-flex > .pydio-form-group {
   padding: 0;
@@ -3056,16 +2843,9 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   background-color: whitesmoke;
   border-radius: 5px;
   padding: 10px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  flex-direction: column;
+  align-items: center;
   margin-top: 6px;
   margin-bottom: 16px;
 }
@@ -3154,8 +2934,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   font-size: 13px;
   margin: 2px;
   font-weight: 500;
-  -webkit-box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.25);
-          box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.25);
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.25);
 }
 .react-mui-context .pydio-form-panel .Select-control .Select-item span {
   padding: 5px 10px;
@@ -3219,7 +2998,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   border-radius: 3px;
   background-color: white;
   overflow: auto;
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   height: 0;
 }
@@ -3240,8 +3018,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   color: rgba(255, 255, 255, 0.8);
 }
 .react-mui-context .pydio-form-helper.helper-visible {
-  -webkit-box-shadow: 0 0 6px rgba(0, 0, 0, 0.38);
-          box-shadow: 0 0 6px rgba(0, 0, 0, 0.38);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.38);
   right: 20px;
   bottom: 0;
   height: 80%;
@@ -3260,8 +3037,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 .react-mui-context .pydio-form-helper .helper-action-status {
   border-top: 1px solid #EEE;
   margin: 16px;
-  -webkit-box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.39);
-          box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.39);
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.39);
   border-radius: 3px;
   height: 300px;
   overflow-y: auto;
@@ -3301,55 +3077,34 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   height: 100px;
   background-color: #ababab;
   position: relative;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
 }
 .react-mui-context .tab-vertical-layout {
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
 }
 .react-mui-context .tab-vertical-layout > div.mui-tabs-container {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-align: stretch;
-      -ms-flex-align: stretch;
-          align-items: stretch;
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1;
   overflow: hidden;
 }
 .react-mui-context .tab-vertical-layout > div.mui-tabs-container > div.mui-tab-item-container,
 .react-mui-context .tab-vertical-layout > div.mui-tabs-container > div.mui-ink-bar {
-  -ms-flex-negative: 0;
-      flex-shrink: 0;
+  flex-shrink: 0;
 }
 .react-mui-context .tab-vertical-layout > div.mui-tabs-container > div.mui-tab-template {
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
   overflow: auto;
   background-color: #f4f4f4;
 }
 .react-mui-context .material-list .material-list-selector {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
   text-align: center;
 }
 .react-mui-context .material-list .material-list-selector > .mui-checkbox,
 .react-mui-context .material-list .mui-toolbar .mui-checkbox {
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   width: 0;
   overflow: hidden;
@@ -3358,7 +3113,6 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   padding: 15px 0;
 }
 .react-mui-context .material-list .infinite-parent-smooth-height > div {
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 .react-mui-context .material-list .mui-toolbar {
@@ -3420,16 +3174,9 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   color: rgba(0, 0, 0, 0.93);
 }
 .react-mui-context .material-list .material-list-entry {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: row;
-          flex-direction: row;
-  -webkit-box-align: stretch;
-      -ms-flex-align: stretch;
-          align-items: stretch;
+  flex-direction: row;
+  align-items: stretch;
   border-bottom: 1px solid rgba(0, 0, 0, 0.03);
   /* ICONS */
   /* TEXTS */
@@ -3468,13 +3215,10 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 }
 .react-mui-context .material-list .material-list-entry .material-list-icon-none {
   width: 16px;
-  -ms-flex-negative: 0;
-      flex-shrink: 0;
+  flex-shrink: 0;
 }
 .react-mui-context .material-list .material-list-entry .material-list-text {
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
   padding: 14px 0;
   overflow: hidden;
 }
@@ -3496,8 +3240,7 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
 }
 .react-mui-context .material-list .material-list-entry .material-list-actions {
   padding: 8px 4px 0 16px;
-  -ms-flex-negative: 0;
-      flex-shrink: 0;
+  flex-shrink: 0;
 }
 .react-mui-context .material-list .material-list-entry.material-list-entry-2-lines .material-list-actions {
   padding-top: 17px;
@@ -3666,42 +3409,28 @@ div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
   text-transform: uppercase;
 }
 .react-mui-context .mui-focus-ripple .mui-focus-ripple-inner {
-  -webkit-animation: none !important;
-          animation: none !important;
+  animation: none !important;
 }
 body,
 #ajxp_desktop,
 #background-imager {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex-direction: column;
+  flex: 1;
   max-height: 100%;
 }
 #orbit_content {
   -webkit-font-smoothing: antialiased;
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
   -webkit-flex: 1;
   overflow-y: hidden;
-  display: -webkit-box;
-  display: -ms-flexbox;
+  display: -webkit-flex;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  flex-direction: column;
+  -webkit-flex-direction: column;
 }
 #orbit_content > * {
-  -ms-flex-negative: 0;
-      flex-shrink: 0;
+  flex-shrink: 0;
 }
 .react-mui-context .user-dashboard-template .desktop-container {
   margin-left: 0;
@@ -3710,7 +3439,6 @@ body,
   display: inherit !important;
 }
 .react-mui-context .desktop-container {
-  -webkit-transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   overflow-x: hidden;
 }
@@ -3720,9 +3448,7 @@ body,
   }
 }
 .react-mui-context .desktop-container #workspace_toolbar .react_breadcrumb {
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
 }
 .react-mui-context .desktop-container #workspace_toolbar .drawer-button {
   display: none;
@@ -3735,8 +3461,6 @@ body,
 }
 .react-mui-context .desktop-container #main_toolbar {
   padding: 3px 12px 4px 8px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
   height: 42px;
   color: inherit;
@@ -3763,15 +3487,11 @@ body,
   height: 0;
 }
 .react-mui-context .desktop-container #main_toolbar #main-toolbar {
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
 }
 .react-mui-context .desktop-container #main_toolbar #display-toolbar,
 .react-mui-context .desktop-container #main_toolbar #paginator-toolbar {
   margin-top: 0px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
 }
 .react-mui-context .desktop-container #main_toolbar #display-toolbar button,
@@ -3786,7 +3506,6 @@ body,
   color: rgba(255, 255, 255, 0.97) !important;
 }
 .react-mui-context .material-list {
-  -webkit-transition: margin-right 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   transition: margin-right 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 @media only screen and (max-width: 420px) {
@@ -3795,12 +3514,8 @@ body,
   }
 }
 .toolbar {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
 }
 .icon_buttons_toolbar {
   background-color: transparent;
@@ -3914,16 +3629,14 @@ body,
   padding-right: 0;
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry {
-  -webkit-box-shadow: none;
-          box-shadow: none;
+  box-shadow: none;
   border-radius: var(--md-sys-color-card-border-radius);
   border: 1px solid var(--md-sys-color-outline-variant);
   background: var(--md-sys-color-surface);
   margin: 4px;
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry.selected {
-  -webkit-box-shadow: none !important;
-          box-shadow: none !important;
+  box-shadow: none !important;
   background: var(--md-sys-color-secondary) !important;
 }
 .react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry .material-list-text {
@@ -3979,7 +3692,6 @@ body,
 }
 .react-mui-context.mui3-token .left-panel .section-title {
   margin-right: 0;
-  -webkit-transition: margin-right 150ms cubic-bezier(0.23, 1, 0.32, 1) 0ms !important;
   transition: margin-right 150ms cubic-bezier(0.23, 1, 0.32, 1) 0ms !important;
 }
 .react-mui-context.mui3-token .left-panel .with-rail-close-toggle .first-section .section-title.filter-active,
@@ -4001,12 +3713,10 @@ body,
   border-radius: 8px;
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card.selected {
-  -webkit-box-shadow: var(--md-sys-color-secondary) 0px 0px 0px 1px;
-          box-shadow: var(--md-sys-color-secondary) 0px 0px 0px 1px;
+  box-shadow: var(--md-sys-color-secondary) 0px 0px 0px 1px;
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card.has-src.hover .masonry-label-overlay,
 .react-mui-context.mui3-token .masonry-grid .masonry-card.has-src.selected .masonry-label-overlay {
-  background: -webkit-gradient(linear, left bottom, left top, from(rgba(0, 0, 0, 0.4)), to(transparent));
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.4), transparent);
   border-radius: 0 0 8px 8px;
 }
@@ -4018,16 +3728,10 @@ body,
   border-radius: 8px;
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card .mimefont-container {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
   height: 100%;
-  -webkit-box-align: center !important;
-      -ms-flex-align: center !important;
-          align-items: center !important;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+  align-items: center !important;
+  justify-content: center;
   border-radius: 8px;
 }
 .react-mui-context.mui3-token .masonry-grid .masonry-card .mimefont-container .mimefont {
@@ -4058,14 +3762,12 @@ body,
 }
 .react-mui-context:not(.mui3-token) .masonry-grid .masonry-card {
   background-color: #f9fafb;
-  -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 10px;
-          box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 10px;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 10px;
   position: relative;
   border-radius: 4px;
 }
 .react-mui-context:not(.mui3-token) .masonry-grid .masonry-card.selected {
-  -webkit-box-shadow: #018dcc 0px 0px 0px 2px, rgba(0, 0, 0, 0.15) 0px 0px 10px;
-          box-shadow: #018dcc 0px 0px 0px 2px, rgba(0, 0, 0, 0.15) 0px 0px 10px;
+  box-shadow: #018dcc 0px 0px 0px 2px, rgba(0, 0, 0, 0.15) 0px 0px 10px;
 }
 .react-mui-context:not(.mui3-token) .masonry-grid .masonry-card .masonry-label {
   borderTop: 1px solid rgba(224, 224, 224, 0.4);
@@ -4076,16 +3778,10 @@ body,
   backgroundColor: rgba(255, 255, 255, 0.73);
 }
 .react-mui-context:not(.mui3-token) .masonry-grid .masonry-card .mimefont-container {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
   height: 100%;
-  -webkit-box-align: center !important;
-      -ms-flex-align: center !important;
-          align-items: center !important;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+  align-items: center !important;
+  justify-content: center;
   border-radius: 4px;
 }
 .react-mui-context:not(.mui3-token) .masonry-grid .masonry-card .mimefont-container .mimefont {
