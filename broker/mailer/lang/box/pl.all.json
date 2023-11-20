@@ -198,13 +198,13 @@
     "other": "Username required to connect to the SMTP server"
   },
   "Mail.Config.Smtp.Password.Label": {
-    "other": "Connection Password"
+    "other": "Hasło połączenia"
   },
   "Mail.Config.Smtp.Password.Description": {
     "other": "Password required to connect to the SMTP server"
   },
   "Mail.Config.Smtp.Security.Label": {
-    "other": "Connection Security"
+    "other": "Bezpieczeństwo połączenia"
   },
   "Mail.Config.Smtp.Security.Description": {
     "other": "Protocol used for securing connection. Clear is not supported, if required use a custom Sendmail instead."
@@ -258,10 +258,10 @@
     "other": "Define which sender address/name to use. If no user email address is configured the default FROM address and name will be used in all cases."
   },
   "Mail.Config.FromCtlUser.Label": {
-    "other": "Send mail FROM the user"
+    "other": "Wyślij e-mail OD użytkownika"
   },
   "Mail.Config.FromCtlSender.Label": {
-    "other": "Send mail ON BEHALF OF the user"
+    "other": "Wyślij e-mail W IMIENIU użytkownika"
   },
   "Mail.Config.FromCtlDefault.Label": {
     "other": "Always send from the Default FROM address/name"
