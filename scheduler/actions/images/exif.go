@@ -62,7 +62,7 @@ func (e *ExifProcessor) GetDescription(lang ...string) actions.ActionDescription
 	return actions.ActionDescription{
 		ID:                exifTaskName,
 		Label:             "Extract EXIF",
-		Icon:              "image",
+		Icon:              "image-search",
 		Description:       "Extract EXIF data from jpeg images and store them as indexed metadata",
 		SummaryTemplate:   "",
 		HasForm:           false,

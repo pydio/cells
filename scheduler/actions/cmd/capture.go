@@ -67,7 +67,7 @@ func (c *CaptureAction) GetDescription(lang ...string) actions.ActionDescription
 		ID:              captureActionName,
 		Label:           "Capture Datasource",
 		Category:        actions.ActionCategoryCmd,
-		Icon:            "reload",
+		Icon:            "archive-lock",
 		Description:     "Capture datasource index/s3 into JSON or BoltDB for debugging purpose. Warning, this action expects a unique item to be passed in Input.DataSources (use a selector).",
 		SummaryTemplate: "",
 		HasForm:         true,

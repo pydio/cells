@@ -65,7 +65,7 @@ func (w *WGetAction) GetDescription(lang ...string) actions.ActionDescription {
 		ID:              wgetActionName,
 		Category:        actions.ActionCategoryPutGet,
 		Label:           "Http Get",
-		Icon:            "download",
+		Icon:            "cloud-download",
 		Description:     "Download a remote file or binary, equivalent to wget command",
 		SummaryTemplate: "",
 		HasForm:         true,

@@ -48,7 +48,7 @@ func (f *FakeAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              fakeActionName,
 		Label:           "Sleep",
-		Icon:            "clock-end",
+		Icon:            "timer-pause-outline",
 		Category:        actions.ActionCategoryScheduler,
 		Description:     "Use as a waiter, or simulate a long-running process with progress",
 		SummaryTemplate: "",

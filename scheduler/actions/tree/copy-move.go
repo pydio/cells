@@ -65,7 +65,7 @@ func (c *CopyMoveAction) GetDescription(_ ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:                copyMoveActionName,
 		Label:             "Copy/Move",
-		Icon:              "folder-move",
+		Icon:              "file-move",
 		Category:          actions.ActionCategoryTree,
 		Description:       "Recursively copy or move files or folders passed in input",
 		InputDescription:  "Single-selection of a file or a folder to process",

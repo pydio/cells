@@ -59,7 +59,7 @@ func (c *DeleteAction) GetDescription(_ ...string) actions.ActionDescription {
 		ID:               deleteActionName,
 		Label:            "Delete files",
 		Category:         actions.ActionCategoryTree,
-		Icon:             "delete-forever",
+		Icon:             "file-remove",
 		Description:      "Recursively delete files or folders passed in input",
 		InputDescription: "Single-selection of file or folder to delete. Folders are deleted recursively",
 		SummaryTemplate:  "",

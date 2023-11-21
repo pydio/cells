@@ -53,7 +53,7 @@ func (ex *ExtractAction) GetDescription(_ ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:                extractActionName,
 		Label:             "Extract Archive",
-		Icon:              "package-up",
+		Icon:              "archive-search",
 		Category:          actions.ActionCategoryArchives,
 		Description:       "Extract files and folders from a Zip, Tar or Tar.gz archive",
 		SummaryTemplate:   "",
