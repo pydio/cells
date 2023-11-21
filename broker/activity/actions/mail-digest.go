@@ -61,7 +61,7 @@ func (m *MailDigestAction) GetDescription(lang ...string) actions.ActionDescript
 	return actions.ActionDescription{
 		ID:                digestActionName,
 		Label:             "Email Digest",
-		Icon:              "email",
+		Icon:              "email-newsletter",
 		Category:          actions.ActionCategoryNotify,
 		InputDescription:  "Single-selection of one user",
 		OutputDescription: "Returns unchanged input",

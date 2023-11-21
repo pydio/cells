@@ -49,8 +49,8 @@ type MetaAction struct {
 func (c *MetaAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:                metaActionName,
-		Label:             "Store Internal Meta",
-		Icon:              "tag-multiple",
+		Label:             "Internal Metadata",
+		Icon:              "file-cog",
 		Category:          actions.ActionCategoryTree,
 		Description:       "Update internal metadata on files or folders passed in input",
 		InputDescription:  "Multiple selection of files or folders",

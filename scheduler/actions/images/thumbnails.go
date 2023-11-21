@@ -86,7 +86,7 @@ func (t *ThumbnailExtractor) GetDescription(_ ...string) actions.ActionDescripti
 	return actions.ActionDescription{
 		ID:                thumbnailsActionName,
 		Label:             "Create Thumbs",
-		Icon:              "image-filter",
+		Icon:              "image-size-select-large",
 		Description:       "Create thumbnails on image creation/modification",
 		SummaryTemplate:   "",
 		HasForm:           true,
