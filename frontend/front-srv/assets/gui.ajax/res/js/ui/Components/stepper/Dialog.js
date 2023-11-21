@@ -25,6 +25,20 @@ const {ModernTextField} = Pydio.requireLib('hoc');
 
 class StepperDialog extends React.Component {
 
+    componentDidMount() {
+        const {onDismiss} = this.props;
+        this._listener = e => {
+            if(e.key === 'Escape') {
+                onDismiss();
+            }
+        }
+        document.addEventListener("keyup", this._listener);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener("keyup", this._listener)
+    }
+
     componentDidUpdate(prevProps){
         if (prevProps.random !== this.props.random && this.refs['dialog']) {
             setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 0);
@@ -32,20 +46,20 @@ class StepperDialog extends React.Component {
     }
 
     render(){
-        const {title, actions, open, onDismiss, onFilter, customFilter, children, dialogProps} = this.props;
+        const {title, actions, open, onDismiss, onFilter, filterHint, customFilter, children, dialogProps} = this.props;
 
         let tt = title;
         if(onDismiss || onFilter || customFilter){
             tt = (
                 <div style={{position:'relative', display:'flex', alignItems:'center'}}>
-                        <div style={{flex: 1}}>{title}</div>
-                    {customFilter &&
-                        <div style={{marginRight: 16}}>{customFilter}</div>
-                    }
+                        <div style={{flex: 1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{title}</div>
                     {onFilter &&
-                        <div style={{width: 210, height: 34, marginTop: -10, marginRight: onDismiss?50:0}}>
-                            <ModernTextField hintText={"Filter list"} onChange={(e,v)=>{onFilter(v)}} fullWidth={true}/>
+                        <div style={{flex: 1, height: 34, marginTop: -10, marginRight: onDismiss && !customFilter?50:10, marginLeft: 10}}>
+                            <ModernTextField hintText={filterHint || 'Find in list'} onChange={(e,v)=>{onFilter(v)}} fullWidth={true} focusOnMount={true}/>
                         </div>
+                    }
+                    {customFilter &&
+                        <div style={{marginRight: 50}}>{customFilter}</div>
                     }
                     {onDismiss &&
                         <div style={{position:'absolute', top: 11, right: 20}}><IconButton iconClassName={"mdi mdi-close"} onClick={onDismiss}/></div>
