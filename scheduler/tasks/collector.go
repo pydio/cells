@@ -2,6 +2,8 @@ package tasks
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/log"
+	"strings"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -57,6 +59,7 @@ func (c *collector) WaitMsg() *jobs.ActionMessage {
 	<-c.final
 	// MERGE NOW
 	out := &jobs.ActionMessage{}
+	mergeVars := make(map[string]interface{})
 	for _, m := range c.coll {
 		if m.Event != nil {
 			out.Event = m.Event
@@ -70,6 +73,38 @@ func (c *collector) WaitMsg() *jobs.ActionMessage {
 		out.Workspaces = append(out.Workspaces, m.Workspaces...)
 
 		out.OutputChain = append(out.OutputChain, m.OutputChain...)
+		// Handle ArrayMerge Variables
+		mVars := m.StackedVars()
+		for k, v := range mVars {
+			if strings.HasPrefix(k, "Merge:") {
+				k = strings.TrimPrefix(k, "Merge:")
+				var sl []interface{}
+				if mv, o := mergeVars[k]; o {
+					if ms, ok := mv.([]interface{}); ok {
+						sl = ms
+					} else {
+						log.TasksLogger(c.ctx).Warn("Merging variable 'Merge:" + k + "', current value is not a slice, skipping")
+						continue
+					}
+				}
+				sl = append(sl, v)
+				mergeVars[k] = sl
+			}
+		}
+		// Append merged vars to LastOutput or new one
+		if len(mergeVars) > 0 {
+			if lo := out.GetLastOutput(); lo != nil {
+				for k, v := range mergeVars {
+					lo.SetVar(k, v)
+				}
+			} else {
+				o := &jobs.ActionOutput{}
+				for k, v := range mergeVars {
+					o.SetVar(k, v)
+				}
+				out.OutputChain = append(out.OutputChain, o)
+			}
+		}
 	}
 	return out
 }
