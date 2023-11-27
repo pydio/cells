@@ -21,11 +21,18 @@
 
 import PydioApi from "pydio/http/api";
 import LangUtils from 'pydio/util/lang';
+const {PromptValidators} = Pydio.requireLib('boot')
 import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk';
 
 export default function(pydio){
 
     return function(){
+
+        const validators = [
+            PromptValidators.Empty,
+            PromptValidators.NoSlash,
+            PromptValidators.MustDifferSiblings(),
+        ]
 
         let submit = value => {
 
@@ -52,7 +59,11 @@ export default function(pydio){
             legendId:155,
             fieldLabelId:173,
             dialogSize:'sm',
-            submitValue:submit
+            submitValue:submit,
+            warnSpace: true,
+            validate:(value) => {
+                validators.forEach(v => v(value))
+            }
         });
     }
 

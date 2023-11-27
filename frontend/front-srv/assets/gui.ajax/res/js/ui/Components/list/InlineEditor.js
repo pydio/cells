@@ -20,7 +20,7 @@
 
 import Pydio from "pydio";
 import React from "react";
-const {PydioContextConsumer} = Pydio.requireLib('boot')
+const {PydioContextConsumer, PromptValidators} = Pydio.requireLib('boot')
 const {Paper, FlatButton} = require('material-ui')
 const {ModernTextField} = Pydio.requireLib("hoc");
 import Popper from '@mui/material/Popper';
@@ -30,26 +30,45 @@ class InlineEditor extends React.Component {
 
     constructor(props) {
         super(props);
+        const {node} = this.props;
+        this.errorChecks = [
+            PromptValidators.Empty,
+            PromptValidators.NoSlash,
+            PromptValidators.MustDifferFrom(node.getLabel()),
+            PromptValidators.MustDifferSiblings(),
+        ]
+        this.warningChecks = [
+            PromptValidators.WarnSpace
+        ]
+        this.state = {value: node.getLabel()}
+
+    }
+
+    setValue(value = '', callback=null) {
+        this.setState({value:value, errorString: null, warningString: null})
+        const messages = Pydio.getMessages();
+        const {error, warning} = PromptValidators.ApplyChecks(this.errorChecks, this.warningChecks, value)
+        if(error) {
+            this.setState({errorString: messages[error]}, callback);
+            return;
+        }
+        if(warning) {
+            this.setState({warningString: messages[warning]}, callback);
+            return;
+        }
+        if(callback) {
+            callback();
+        }
+        return;
     }
 
     submit(){
-        let value;
-        if(this.state && this.state.value){
-            value = this.state.value;
+        const {value, errorString} =  this.state;
+        if(errorString) {
+            return;
         }
-        const messages = Pydio.getMessages();
-        if(!value || value === this.props.node.getLabel()) {
-            this.setState({
-                errorString: messages['rename.newvalue.error.similar']
-            });
-        } else if(value && value.indexOf('/') > -1){
-            this.setState({
-                errorString: messages['filename.forbidden.slash']
-            });
-        }else{
-            this.props.callback(value);
-            this.props.onClose();
-        }
+        this.props.callback(value);
+        this.props.onClose();
     }
 
     catchClicks(e){
@@ -60,29 +79,37 @@ class InlineEditor extends React.Component {
         e.stopPropagation();
         if(e.key === 'Enter') {
             this.submit();
-        } else {
-            this.setState({errorString: ''});
+        } else if(e.key === 'Escape') {
+            this.props.onClose()
         }
     }
 
     render() {
         const messages = Pydio.getMessages();
         const {node, onClose, anchor, muiTheme, editorStyle = {}} = this.props;
+        const {value, errorString, warningString} = this.state;
         return (
             <Popper id={'rename-popper:'+node.getPath()} open={true} anchorEl={anchor} placement={"bottom-start"}>
-                <Paper style={{padding: 8, fontWeight:'initial', background:muiTheme.palette.mui3?muiTheme.palette.mui3['surface-2']:'white', ...editorStyle}} zDepth={2}>
+                <Paper style={{width:320, padding: 8, fontWeight:'initial', background:muiTheme.palette.mui3?muiTheme.palette.mui3['surface-2']:'white', ...editorStyle}} zDepth={2}>
                     <ModernTextField
-                        ref={this.text}
-                        defaultValue={node.getLabel()}
-                        onChange={(e, value)=>{this.setState({value:value})}}
-                        onClick={this.catch} onDoubleClick={(e) => this.catchClicks(e)}
-                        tabIndex="0" onKeyDown={(e) => this.onKeyDown(e)}
-                        errorText={this.state ? this.state.errorString : null}
+                        value={value}
+                        onChange={(e, value)=>this.setValue(value)}
+                        onClick={(e) => this.catchClicks(e)}
+                        onDoubleClick={(e) => this.catchClicks(e)}
+                        tabIndex="0"
+                        onKeyDown={(e) => this.onKeyDown(e)}
                         selectBaseOnMount={true}
+                        hintText={messages['6']}
+                        variant={"v2"}
+                        fullWidth={true}
                     />
+                    {errorString && <div style={{color: 'var(--md-sys-color-error)', fontSize: 13, padding: '0 6px'}}>{errorString}</div>}
+                    {warningString && <div style={{fontSize: 13, padding: '0 6px', opacity:0.73}}>{warningString}</div>}
                     <div style={{textAlign:'right', paddingTop: 8}}>
-                        <FlatButton label={messages['54']} onClick={onClose}/>
-                        <FlatButton label={messages['48']} onClick={() => this.submit()}/>
+                        <FlatButton style={{height: 32, lineHeight:'32px'}} label={messages['54']} onClick={onClose}/>
+                        <FlatButton style={{height: 32, lineHeight:'32px'}} label={messages['48']} onClick={
+                            () => {this.setValue(value, () => this.submit())}
+                        }/>
                     </div>
                 </Paper>
             </Popper>

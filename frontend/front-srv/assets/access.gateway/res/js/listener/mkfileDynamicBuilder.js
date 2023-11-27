@@ -20,6 +20,7 @@
 
 import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
+const {PromptValidators} = Pydio.requireLib('boot')
 import {TreeServiceApi, TemplatesServiceApi, RestTemplate, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk'
 import Listeners from './index'
 
@@ -99,13 +100,15 @@ class Builder {
 
                         const pathDir = PathUtils.getDirname(path);
                         const pathLabel = newLabel(contextNode, PathUtils.getBasename(path));
+                        const knownChildren = []
+                        contextNode.getChildren().forEach(c => knownChildren.push(PathUtils.getBasename(c.getPath()).toLowerCase()))
+                        const validators = [
+                            PromptValidators.Empty,
+                            PromptValidators.NoSlash,
+                            PromptValidators.MustDifferSiblings(knownChildren),
+                        ]
 
                         let submit = value => {
-                            if(value.indexOf('/') !== -1) {
-                                const message = pydio.MessageHash['filename.forbidden.slash'];
-                                pydio.UI.displayMessage('ERROR', message);
-                                throw new Error(message);
-                            }
                             const api = new TreeServiceApi(PydioApi.getRestClient());
                             const request = new RestCreateNodesRequest();
                             const node = new TreeNode();
@@ -124,7 +127,11 @@ class Builder {
                             dialogSize:'sm',
                             defaultValue: pathLabel,
                             defaultInputSelection: true,
-                            submitValue:submit
+                            submitValue:submit,
+                            warnSpace: true,
+                            validate: (value) => {
+                                validators.forEach(v => v(value))
+                            }
                         });
 
                     }.bind(this)

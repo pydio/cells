@@ -27,6 +27,7 @@ import CancelButtonProviderMixin from './CancelButtonProviderMixin'
 import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'
 
 import Pydio from 'pydio'
+import PromptValidators from "./PromptValidators";
 const {ModernTextField} = Pydio.requireLib("hoc");
 
 
@@ -58,6 +59,10 @@ export default createReactClass({
          * Callback used at submit time
          */
         submitValue:PropTypes.func.isRequired,
+        /**
+         * Optional validation function
+         */
+        validate:PropTypes.func,
         /**
          * Preset value displayed in the text field
          */
@@ -94,7 +99,11 @@ export default createReactClass({
      * Trigger props callback and dismiss modal
      */
     submit(){
-        this.props.submitValue(this.state.internalValue);
+        const {internalValue, validationError} = this.state;
+        if(validationError) {
+            return;
+        }
+        this.props.submitValue(internalValue);
         this.dismiss();
     },
 
@@ -113,8 +122,29 @@ export default createReactClass({
         }, 150);
     },
 
+    updateInternal(v){
+        const {validate, warnSpace} = this.props;
+        const messages = Pydio.getMessages();
+        this.setState({internalValue: v, validationError: null, warnMessage: null})
+        if(validate) {
+            try {
+                validate(v)
+            } catch (e) {
+                this.setState({validationError: messages[e.message]})
+                return
+            }
+        }
+        if(warnSpace){
+            try {
+                PromptValidators.WarnSpace(v)
+            } catch(e) {
+                this.setState({warnMessage: messages[e.message]})
+            }
+        }
+    },
+
     render(){
-        const {internalValue} = this.state;
+        const {internalValue, validationError, warnMessage} = this.state;
         return (
             <div style={{width:'100%'}}>
                 <div className="dialogLegend">{MessageHash[this.props.legendId] || this.props.legendId}</div>
@@ -123,11 +153,14 @@ export default createReactClass({
                     ref="input"
                     onKeyDown={this.submitOnEnterKey}
                     value={internalValue}
-                    onChange={(e,v) => this.setState({internalValue: v})}
+                    onChange={(e,v) => this.updateInternal(v)}
                     type={this.props.fieldType}
                     variant={"v2"}
                     fullWidth={true}
+                    errorText={validationError?' ': ''}
                 />
+                {validationError && <div style={{color: 'var(--md-sys-color-error)', fontSize: 13, padding: '0 8px'}}>{validationError}</div>}
+                {warnMessage && <div style={{fontSize: 13, padding: '0 8px'}}>{warnMessage}</div>}
             </div>
         );
     },
