@@ -34,6 +34,7 @@ import ConfirmDialog from './modal/ConfirmDialog'
 import PromptDialog from './modal/PromptDialog'
 import ActivityWarningDialog from './modal/ActivityWarningDialog'
 import ServerPromptDialog from './modal/ServerPromptDialog'
+import PromptValidators from './modal/PromptValidators'
 
 import MessageBar from './modal/MessageBar'
 import AbstractDialogModifier from './modal/AbstractDialogModifier'
@@ -72,6 +73,7 @@ export {
     PromptDialog,
     ServerPromptDialog,
     ActivityWarningDialog,
+    PromptValidators,
 
     Loader,
     Router,
