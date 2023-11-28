@@ -2249,6 +2249,12 @@
   "filename.forbidden.slash": {
     "other": "Não use / em nomes de arquivo!"
   },
+  "filename.forbidden.empty": {
+    "other": "You must provide a name!"
+  },
+  "filename.trailing-leading.spaces": {
+    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+  },
   "rename.newvalue.error.similar": {
     "other": "Por favor, use um valor diferente para renomear!"
   },

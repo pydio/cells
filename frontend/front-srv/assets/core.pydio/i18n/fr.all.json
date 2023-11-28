@@ -2249,6 +2249,12 @@
   "filename.forbidden.slash": {
     "other": "N'utilisez pas le caractère \"/\" dans les noms de fichiers !"
   },
+  "filename.forbidden.empty": {
+    "other": "Veuillez indiquer un nouveau nom !"
+  },
+  "filename.trailing-leading.spaces": {
+    "other": "Attention, il semble que le nom commence ou se termine par un espace (peut-être une faute de frappe ?)"
+  },
   "rename.newvalue.error.similar": {
     "other": "Veuillez utiliser un nom différent pour renommer!"
   },
