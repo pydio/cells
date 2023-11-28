@@ -2249,6 +2249,12 @@
   "filename.forbidden.slash": {
     "other": "슬래시 문자(/)를 이름에 사용하지 마세요!"
   },
+  "filename.forbidden.empty": {
+    "other": "You must provide a name!"
+  },
+  "filename.trailing-leading.spaces": {
+    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+  },
   "rename.newvalue.error.similar": {
     "other": "이름변경을 위한 다른 값을 사용해주세요!"
   },
