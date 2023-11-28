@@ -174,7 +174,7 @@ func (fs *FileSystem) OpenFile(ctx context.Context, name string, flag int, perm 
 		} else {
 			// new file
 			base := path.Base(name)
-			if strings.HasPrefix(base, ".") && base != ".DS_Store" && !strings.HasPrefix(base, "._") { // do not authorize hidden files
+			if strings.HasPrefix(base, ".") && base != ".DS_Store" { // do not authorize hidden files
 				return nil, os.ErrPermission
 			}
 			createNodeResponse, createErr := fs.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
@@ -433,7 +433,7 @@ func (fs *FileSystem) Stat(ctx context.Context, name string) (os.FileInfo, error
 	defer fs.mu.Unlock()
 
 	if strings.HasPrefix(path.Base(name), "._") {
-		return nil, errors.Forbidden("DAV", "Cannot create hidden folders")
+		return nil, errors.Forbidden("DAV", "Cannot stat hidden resources starting with ._")
 	}
 
 	fi, err := fs.stat(ctx, name)
@@ -532,6 +532,10 @@ func (f *File) Readdir(count int) ([]os.FileInfo, error) {
 			resp, err := nodesClient.Recv()
 			if resp == nil || err != nil {
 				break
+			}
+			if strings.HasPrefix(path.Base(resp.GetNode().GetPath()), "._") {
+				log.Logger(f.ctx).Warn("Ignoring file " + path.Base(resp.GetNode().GetPath()))
+				continue
 			}
 			f.children = append(f.children, &FileInfo{node: resp.Node})
 		}
