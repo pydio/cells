@@ -2249,6 +2249,12 @@
   "filename.forbidden.slash": {
     "other": "Không được sử dụng / trong tên tệp!"
   },
+  "filename.forbidden.empty": {
+    "other": "You must provide a name!"
+  },
+  "filename.trailing-leading.spaces": {
+    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+  },
   "rename.newvalue.error.similar": {
     "other": "Vui lòng sử dụng một giá trị khác để đổi tên!"
   },

@@ -2249,6 +2249,12 @@
   "filename.forbidden.slash": {
     "other": "¡No utilizar / en nombres de archivo!"
   },
+  "filename.forbidden.empty": {
+    "other": "You must provide a name!"
+  },
+  "filename.trailing-leading.spaces": {
+    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+  },
   "rename.newvalue.error.similar": {
     "other": "¡Por favor, utilice un valor diferente para renombrar!"
   },
@@ -2361,10 +2367,10 @@
     "other": "Public Link or Cell"
   },
   "searchengine.format.title": {
-    "other": "Format"
+    "other": "Formato"
   },
   "searchengine.format.file-only": {
-    "other": "Files Only"
+    "other": "Sólo archivos"
   },
   "searchengine.advanced-filter.tooltip": {
     "other": "Filtros Avanzados"
@@ -2379,7 +2385,7 @@
     "other": "Guardar"
   },
   "searchengine.query.action.save-new": {
-    "other": "Save Query"
+    "other": "Guardar consulta"
   },
   "searchengine.query.action.clear": {
     "other": "Limpiar"
@@ -2391,7 +2397,7 @@
     "other": "Suprimir"
   },
   "searchengine.query.action.delete-confirm": {
-    "other": "Delete this saved query?"
+    "other": "¿Eliminar esta consulta guardada?"
   },
   "searchengine.query.save-label": {
     "other": "Introducir una etiqueta"
@@ -2400,16 +2406,16 @@
     "other": "Nombre/Contenido"
   },
   "searchengine.complete.group.saved": {
-    "other": "Saved Searches"
+    "other": "Búsquedas Guardadas"
   },
   "searchengine.complete.group.history": {
-    "other": "Last Searches"
+    "other": "Últimas búsquedas"
   },
   "searchengine.complete.group.suggestion": {
-    "other": "Advanced Suggestion"
+    "other": "Sugerencia Avanzada"
   },
   "searchengine.complete.suggestion.intro": {
-    "other": "Do you mean"
+    "other": "Quieres decir"
   },
   "searchengine.complete.suggestion.remain": {
     "other": "containing '%s'"

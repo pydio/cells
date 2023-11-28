@@ -2249,6 +2249,12 @@
   "filename.forbidden.slash": {
     "other": "Verwenden Sie kein \"/\" Zeichen in Dateinamen!"
   },
+  "filename.forbidden.empty": {
+    "other": "Sie müssen einen Namen angeben!"
+  },
+  "filename.trailing-leading.spaces": {
+    "other": "Warnung, es scheint, dass der Name mit einem Leerzeichen beginnt oder endet (möglicherweise ein Tippfehler?)"
+  },
   "rename.newvalue.error.similar": {
     "other": "Bitte verwenden Sie einen anderen Wert für die Umbenennung!"
   },
