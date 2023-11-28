@@ -22,7 +22,6 @@ package core
 
 import (
 	"context"
-	"crypto/md5"
 	"fmt"
 	"io"
 	"strconv"
@@ -256,7 +255,7 @@ func (f *FlatStorageHandler) resolveUUID(ctx context.Context, node *tree.Node) e
 	return nil
 }
 
-// postCreate updates index after upload by re-read newly added S3 object to get ETag
+// postCreate updates index after upload - detect MetaNamespaceHash
 func (f *FlatStorageHandler) postCreate(ctx context.Context, node *tree.Node, requestMeta map[string]string, object *models.ObjectInfo) error {
 	var updateNode *tree.Node
 	if updateResp, err := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); err == nil {
@@ -295,61 +294,6 @@ func (f *FlatStorageHandler) postCreate(ctx context.Context, node *tree.Node, re
 	}
 	_, er := f.ClientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: updateNode, UpdateIfExists: true})
 	return er
-}
-
-func (f *FlatStorageHandler) recomputeETag(ctx context.Context, identifier string, node *tree.Node) (string, error) {
-
-	src, _ := nodes.GetBranchInfo(ctx, identifier)
-
-	// Init contextual metadata structures
-	copyMeta := map[string]string{
-		common.XAmzMetaDirective: "REPLACE",
-	}
-	if meta, ok := metadata.MinioMetaFromContext(ctx); ok {
-		for k, v := range meta {
-			copyMeta[k] = v
-		}
-	}
-
-	// Load current metadata
-	objectInfo, e := src.Client.StatObject(ctx, src.ObjectsBucket, node.GetUuid(), nil)
-	if e != nil {
-		return "", e
-	}
-	for k, v := range objectInfo.Metadata {
-		copyMeta[k] = strings.Join(v, "")
-	}
-
-	if src.Client.CopyObjectMultipartThreshold() > 0 && objectInfo.Size > src.Client.CopyObjectMultipartThreshold() && !src.ServerIsMinio() {
-
-		// Cannot CopyObject on itself for files bigger than 5GB - compute Md5 and store it as metadata instead
-		// Not necessary for real minio on fs (but required for Minio as S3 gateway or real S3)
-		mm2, _ := metadata.MinioMetaFromContext(ctx)
-		readCloser, _, e := src.Client.GetObject(ctx, src.ObjectsBucket, node.GetUuid(), mm2)
-		if e != nil {
-			return "", e
-		}
-		defer readCloser.Close()
-		h := md5.New()
-		if _, err := io.Copy(h, readCloser); err != nil {
-			return "", err
-		}
-		checksum := fmt.Sprintf("%x", h.Sum(nil))
-		copyMeta[common.XAmzMetaContentMd5] = checksum
-		err := src.Client.CopyObjectMultipart(ctx, objectInfo, src.ObjectsBucket, objectInfo.Key, src.ObjectsBucket, objectInfo.Key, copyMeta, nil)
-		return checksum, err
-
-	} else {
-
-		// Perform in-place copy to trigger ETag recomputation inside storage
-		newInfo, copyErr := src.Client.CopyObject(ctx, src.ObjectsBucket, objectInfo.Key, src.ObjectsBucket, objectInfo.Key, copyMeta, nil, nil)
-		if copyErr != nil {
-			return "", copyErr
-		}
-		return newInfo.ETag, nil
-
-	}
-
 }
 
 func (f *FlatStorageHandler) encPlainSizeRecompute(ctx context.Context, nodeUUID, dsName string) (int64, error) {

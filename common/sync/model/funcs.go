@@ -67,6 +67,10 @@ func IsIgnoredFile(path string, ignores ...glob.Glob) (ignored bool) {
 	return false
 }
 
+// NodeRequiresChecksum checks whether the current checksum is usable as index ETag or not.
+// This part is linked to the **structured datasource**, and we still have return True if checksum is {md5}-numberOfParts
+// otherwise at the next object Move ( = Copy in s3 ), the resulting ETag (now a real md5) will differ from the original one
+// The downside is that uploading huge files will trigger a full re-reading of the file afterward to compute the stable md5.
 func NodeRequiresChecksum(node tree.N) bool {
 	return node.IsLeaf() && (node.GetEtag() == "" || node.GetEtag() == DefaultEtag || strings.Contains(node.GetEtag(), "-"))
 }
