@@ -29,12 +29,15 @@ func RegisterEnvVariable(key, def, description string, isBool ...bool) {
 	})
 }
 
-func DocRegisteredEnvVariables() string {
+func DocRegisteredEnvVariables(excludes ...string) string {
 	slices.SortStableFunc(ee, func(a, b envVar) int {
 		return cmp.Compare(a.key, b.key)
 	})
 	s := ""
 	for _, v := range ee {
+		if slices.Contains(excludes, v.key) {
+			continue
+		}
 		var def string
 		if v.def != "" {
 			def = " (" + v.def + ")"
