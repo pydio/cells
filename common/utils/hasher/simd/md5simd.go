@@ -7,6 +7,8 @@ import (
 	"sync"
 
 	md5simd "github.com/minio/md5-simd"
+
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 var (
@@ -14,8 +16,12 @@ var (
 	mServerOnce sync.Once
 )
 
+func init() {
+	runtime.RegisterEnvVariable("CELLS_ENABLE_SIMDMD5", "", "Empty is false by default, if set this will switch the md5 hasher to simd implementation", true)
+}
+
 func MD5() hash.Hash {
-	if os.Getenv("CELLS_ENABLE_SIMDMD5") != ""{
+	if os.Getenv("CELLS_ENABLE_SIMDMD5") != "" {
 		mServerOnce.Do(func() {
 			mServer = md5simd.NewServer()
 		})

@@ -46,9 +46,12 @@ type ValidUser struct {
 	Claims    claim.Claims
 }
 
+type contextHeaderKey struct{}
+
 func logRequest(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c := servicecontext.WithServiceName(r.Context(), common.ServiceGatewayDav)
+		c = context.WithValue(c, contextHeaderKey{}, r.Header)
 		r = r.WithContext(c)
 		log.Logger(c).Debug("-- DAV ENTER", zap.String("Method", r.Method), zap.String("path", r.URL.Path))
 		handler.ServeHTTP(w, r)

@@ -29,6 +29,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 var (
@@ -36,6 +37,10 @@ var (
 	dynamicDebug    []string
 	ddRegexp        []*regexp.Regexp
 )
+
+func init() {
+	runtime.RegisterEnvVariable("CELLS_TRACE_FATAL", "", "Better display root cause of process crashes")
+}
 
 // SetDynamicDebugLevels overrides Info level for a specific subset of services
 func SetDynamicDebugLevels(reset, level bool, services ...string) {

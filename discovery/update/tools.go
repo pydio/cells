@@ -58,6 +58,10 @@ import (
 	"github.com/pydio/cells/v4/common/utils/net"
 )
 
+func init() {
+	runtime2.RegisterEnvVariable("CELLS_UPDATE_HTTP_PROXY", "", "Outgoing Proxy URL to perform update checks")
+}
+
 // LoadUpdates will post a Json query to the update server to detect if there are any
 // updates available
 func LoadUpdates(ctx context.Context, conf configx.Values, request *update.UpdateRequest) ([]*update.Package, error) {

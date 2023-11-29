@@ -11,7 +11,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
-	config2 "github.com/pydio/cells/v4/common/runtime"
+	rt "github.com/pydio/cells/v4/common/runtime"
 )
 
 var (
@@ -20,6 +20,7 @@ var (
 )
 
 func init() {
+	rt.RegisterEnvVariable("CELLS_JOBS_LOG_LEVEL", "info", "Log level used for scheduler jobs - to be used carefully as it may produce a large volume of logs.")
 	log.SetTasksLoggerInit(initTasksLogger, func(ctx context.Context) {
 		logSyncer = log.NewLogSyncer(ctx, common.ServiceJobs)
 	})
@@ -35,7 +36,7 @@ func initTasksLogger() *zap.Logger {
 		syncers = append(syncers, serverSync)
 	}
 
-	logDir := config2.ApplicationWorkingDir(config2.ApplicationDirLogs)
+	logDir := rt.ApplicationWorkingDir(rt.ApplicationDirLogs)
 
 	// Additional Logger: stores messages in local file
 	rotaterSync := zapcore.AddSync(&lumberjack.Logger{

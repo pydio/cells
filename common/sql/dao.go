@@ -32,10 +32,11 @@ import (
 	"time"
 
 	"github.com/fatih/structs"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/registry/util"
 
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -46,6 +47,9 @@ var (
 )
 
 func init() {
+	runtime.RegisterEnvVariable("CELLS_SQL_DEFAULT_CONN", "30s", "Default SQL connection timeout")
+	runtime.RegisterEnvVariable("CELLS_SQL_LONG_CONN", "10m", "Default SQL long connections timeout (for reading big tables)")
+
 	if dc := os.Getenv("CELLS_SQL_DEFAULT_CONN"); dc != "" {
 		if ddc, e := time.ParseDuration(dc); e == nil {
 			DefaultConnectionTimeout = ddc

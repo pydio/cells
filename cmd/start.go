@@ -127,13 +127,9 @@ ENVIRONMENT
   - CELLS_UPDATE_HTTP_PROXY: if your server uses a client proxy to access outside world, this can be set to query update server.
   - HTTP_PROXY, HTTPS_PROXY, NO_PROXY: golang-specific environment variables to configure a client proxy for all external http calls.
 
-  4. Development variables
+  4. Other environment variables (development or advanced fine-tuning)
 
-  - CELLS_ENABLE_WIP_LANGUAGES: show partially translated languages in the UX language picker. 
-  - CELLS_ENABLE_LIVEKIT: enable experimental support for video calls in the chat window, using a livekit-server.
-  - CELLS_ENABLE_FORMS_DEVEL: display a basic UX form with all possible fields types in the UX (for React developers)
-  - CELLS_DEFAULT_DS_STRUCT: if true, create default datasources using structured format instead of flat
-  - CELLS_TRACE_FATAL: if true, tries to better display root cause of process crashes
+` + runtime.DocRegisteredEnvVariables() + `
 
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {

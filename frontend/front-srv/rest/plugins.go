@@ -86,6 +86,9 @@ var BasePluginsBox = frontend.PluginBox{
 
 func init() {
 
+	runtime.RegisterEnvVariable("CELLS_ENABLE_FORMS_DEVEL", "", "Display a basic UX form with all possible fields types in the UX (for React developers)", true)
+	runtime.RegisterEnvVariable("CELLS_ENABLE_LIVEKIT", "", "Enable experimental support for video calls in the chat window, using a livekit-server.", true)
+
 	if os.Getenv("CELLS_ENABLE_LIVEKIT") != "" {
 		BasePluginsBox.Exposes = append(BasePluginsBox.Exposes, "action.livekit")
 	}
