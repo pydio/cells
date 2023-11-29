@@ -36,9 +36,14 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/runtime"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/source/objects"
 )
+
+func init() {
+	runtime.RegisterEnvVariable("CELLS_MINIO_STALE_DATA_EXPIRY", "48h", "Expiration of stale data produced by objects upload parts")
+}
 
 // ObjectHandler definition
 type ObjectHandler struct {

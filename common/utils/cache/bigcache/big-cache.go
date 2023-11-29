@@ -23,8 +23,6 @@ package bigcache
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/service/metrics"
-	"github.com/uber-go/tally/v4"
 	"net/url"
 	"os"
 	"strconv"
@@ -33,7 +31,10 @@ import (
 	"time"
 
 	"github.com/allegro/bigcache/v3"
+	"github.com/uber-go/tally/v4"
 
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/service/metrics"
 	"github.com/pydio/cells/v4/common/utils/cache"
 )
 
@@ -58,6 +59,7 @@ type URLOpener struct{}
 func init() {
 	o := &URLOpener{}
 	cache.DefaultURLMux().Register(scheme, o)
+	runtime.RegisterEnvVariable("CELLS_CACHES_HARD_LIMIT", "8", "In MB, default maximum size used by various in-memory caches")
 }
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (cache.Cache, error) {

@@ -7,16 +7,36 @@ import (
 	"io"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/nodes/posix"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	cerrors "github.com/pydio/cells/v4/common/service/errors"
 )
+
+var (
+	MultipartSize int64 = 20 * 1024 * 1024
+)
+
+func init() {
+	runtime.RegisterEnvVariable("CELLS_DAV_MULTIPART_SIZE", "20", "Default part size used to automatically chunk DAV uploads, in MB")
+	if v := os.Getenv("CELLS_DAV_MULTIPART_SIZE"); v != "" {
+		if s, e := strconv.Atoi(v); e == nil {
+			if s%10 != 0 {
+				fmt.Println("[WARNING] CELLS_DAV_MULTIPART_SIZE : multipart size must be always a multiple of 10MB")
+			} else {
+				MultipartSize = int64(s) * 1024 * 1024
+			}
+		}
+	}
+}
 
 // File implements the webdav.File interface and translates various file accesses into object client
 // PutObject / GetObject calls.
@@ -39,163 +59,65 @@ type File struct {
 // rather than using the default Write method that is called by webdav via io.Copy.
 // It enables among others the definition of a part size that is more appropriate than the default 32K used by io.COPY
 func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
-	//f.fs.mu.Lock()
-	//defer f.fs.mu.Unlock()
 
-	// Initialize the multipart upload
-	// TO BE REMOVED: was used to reset the path to initial value (end user / external world point of view )
-	// inPath := f.node.Path
-	// multipartID, err := f.fs.Router.MultipartCreate(f.ctx, f.node, &views.MultipartRequestData{})
-	// if err != nil {
-	// 	return 0, err
-	// }
-	// f.node.Path = inPath
-
-	partsInfo := make(map[int]models.MultipartObjectPart)
 	var multipartID string
-
-	//	partSize := 100 * 1024 * 1024
-
-	// Write by part
-	var written int64
-	// Minimum size is 5 MB, trying to upload parts that are smaller will fail with EntityTooSmall error
-	minSize := 10 * 1024 * 1024
-	// TODO put this in a go routine
-	for i := 1; ; i++ {
-		nr := 0
-		longBuf := make([]byte, 0, 8*1024*1024)
-
-		// Manually insure that the blocks are longer than 5MB:
-		// when the input buffer is empty, Read might returns before EOF; even if the array is not yet full.
-		for ii := 0; nr < minSize; ii++ {
-			shortBuf := make([]byte, 2*1024*1024)
-			sr, er := r.Read(shortBuf)
-			longBuf = append(longBuf[:nr], shortBuf[:sr]...)
-			nr += sr
-			log.Logger(f.ctx).Debug(fmt.Sprintf("#%d - Sizes:  sr: %d, shortbuf: %d, longBuf: %d", ii, nr, len(shortBuf), len(longBuf)))
-
-			if er != nil {
-				if er != io.EOF {
-					log.Logger(f.ctx).Error("Read buffer exception ", zap.Error(er))
-				}
-				err = er
-				break
+	applyError := func(e error, msg string) (int64, error) {
+		if multipartID != "" {
+			_ = f.fs.Router.MultipartAbort(f.ctx, f.node, multipartID, &models.MultipartRequestData{})
+		}
+		if f.createErrorCallback != nil {
+			if e := f.createErrorCallback(); e != nil {
+				log.Logger(f.ctx).Error("Error while deleting temporary node")
 			}
 		}
+		return 0, errors.Wrap(e, msg)
+	}
 
-		if nr > 0 {
+	partNumber := 0
+	var completeParts []models.MultipartObjectPart
 
-			if multipartID == "" {
-				var err error
-				multipartID, err = f.fs.Router.MultipartCreate(f.ctx, f.node, &models.MultipartRequestData{})
-				if err != nil {
-					log.Logger(f.ctx).Error("Error while creating multipart")
-					if f.createErrorCallback != nil {
-						if e := f.createErrorCallback(); e != nil {
-							log.Logger(f.ctx).Error("Error while deleting temporary node")
-						}
-					}
-					return 0, err
-				}
-				log.Logger(f.ctx).Debug("READ FROM - starting effective dav parts upload for " + f.name + " with id " + multipartID)
+	multipartID, err = f.fs.Router.MultipartCreate(f.ctx, f.node, &models.MultipartRequestData{})
+	if err != nil {
+		return applyError(err, "multipart creation error")
+	}
+	log.Logger(f.ctx).Debug("READ FROM - starting effective dav parts upload for " + f.name + " with id " + multipartID)
+	for {
+		buf := make([]byte, MultipartSize)
+		buffer := bytes.NewBuffer(buf)
+		nn, e := io.ReadFull(r, buf)
+		if e == io.EOF {
+			// No bytes were read, either stop or break
+			if partNumber == 0 {
+				_ = f.fs.Router.MultipartAbort(f.ctx, f.node, multipartID, &models.MultipartRequestData{})
+				return 0, nil
 			}
-
-			reqData := models.PutRequestData{
-				Size:              int64(nr), // int64(len(buf)),
-				MultipartUploadID: multipartID,
-				MultipartPartID:   i, // must be >= 1
-				//Md5Sum:            sumMD5(longBuf),
-				Sha256Sum: sum256(longBuf),
-				// TODO:     Metadata map[string]string, EncryptionMaterial encrypt.Materials
-			}
-
-			objPart, ew := f.fs.Router.MultipartPutObjectPart(f.ctx, f.node, multipartID, i, bytes.NewBuffer(longBuf), &reqData)
-			if ew != nil {
-				log.Logger(f.ctx).Error("MultipartPutObjectPart exception ", zap.Error(ew))
-				err = ew
-				break
-			}
-
-			written += objPart.Size
-			if int64(nr) > objPart.Size { // objInfo.Size may be bigger if data was encrypted
-				err = io.ErrShortWrite
-				break
-			}
-			// Save successfully uploaded part metadata.
-			partsInfo[i] = objPart
+			break
 		}
-		if err != nil {
-			if err == io.EOF {
-				err = nil
-			}
+		partNumber++
+		log.Logger(f.ctx).Debug(fmt.Sprintf("Should now create new part %d of size %d", partNumber, nn))
+		// Make sure to LimitReader as nn may be smaller than buffer size
+		objPart, ew := f.fs.Router.MultipartPutObjectPart(f.ctx, f.node, multipartID, partNumber, io.LimitReader(buffer, int64(nn)), &models.PutRequestData{
+			Size:              int64(nn),
+			MultipartUploadID: multipartID,
+			MultipartPartID:   partNumber,
+		})
+		if ew != nil {
+			return applyError(ew, "multipart put object")
+		}
+		completeParts = append(completeParts, objPart)
+		if int64(nn) < MultipartSize || e == io.ErrUnexpectedEOF {
 			break
 		}
 	}
 
-	if err != nil {
-		log.Logger(f.ctx).Error("fail to write multiple part ", zap.Error(err))
-		if f.createErrorCallback != nil {
-			if e := f.createErrorCallback(); e != nil {
-				log.Logger(f.ctx).Error("Error while deleting temporary node")
-			}
-		}
-		return written, err
-	}
-
-	// Complete multipart write
-	completeParts := make([]models.MultipartObjectPart, len(partsInfo))
-	// Loop over total uploaded parts to save them in completeParts array before completing the multipart request.
-	for j := 1; j <= len(partsInfo); j++ {
-		part, ok := partsInfo[j]
-		if !ok {
-			if f.createErrorCallback != nil {
-				if e := f.createErrorCallback(); e != nil {
-					log.Logger(f.ctx).Error("Error while deleting temporary node")
-				}
-			}
-			return written, fmt.Errorf("multipart - missing part number %d", j)
-		}
-		completeParts[j-1] = models.MultipartObjectPart{
-			ETag:       part.ETag,
-			PartNumber: part.PartNumber,
-		}
-	}
-
-	log.Logger(f.ctx).Info(fmt.Sprintf("Uploaded %d parts", len(partsInfo)), zap.Int("CompleteParts count", len(completeParts)))
-
-	// Will be useful when we use goroutines and channels
-	// // Sort all completed parts.
-	// sort.Sort(completedParts(complMultipartUpload.Parts))
-	// if _, err = c.completeMultipartUpload(ctx, bucketName, objectName, uploadID, complMultipartUpload); err != nil {
-	// 	return totalUploadedSize, err
-	// }
-
-	if len(completeParts) == 0 || written == 0 {
-		return 0, nil
-	}
-
 	objInfo, err := f.fs.Router.MultipartComplete(f.ctx, f.node, multipartID, completeParts)
 	if err != nil {
-		if f.createErrorCallback != nil {
-			if e := f.createErrorCallback(); e != nil {
-				log.Logger(f.ctx).Error("Error while deleting temporary node")
-			}
-		}
-		return written, err
+		return applyError(err, "multipart complete")
 	}
 
-	if written > objInfo.Size { // objInfo.Size may be bigger if data was encrypted
-		err = io.ErrShortWrite
-		if f.createErrorCallback != nil {
-			if e := f.createErrorCallback(); e != nil {
-				log.Logger(f.ctx).Error("Error while deleting temporary node")
-			}
-		}
-		return written, err
-	}
+	log.Logger(f.ctx).Info(fmt.Sprintf("Multipart upload of %s (%d parts for a total of %d bytes)", f.name, len(completeParts), objInfo.Size))
+	return objInfo.Size, nil
 
-	log.Logger(f.ctx).Info(fmt.Sprintf("Multipart upload of %s (%d parts for a total of %d bytes)", f.name, len(partsInfo), written))
-	return written, err
 }
 
 // Write is unused but left to respect Writer interface. This method is bypassed by io.Copy to use ReadFrom (see above)

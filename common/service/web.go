@@ -43,6 +43,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/middleware"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -67,6 +68,7 @@ func RegisterSwaggerJSON(json string) {
 
 func init() {
 	// Instanciate restful framework
+	runtime.RegisterEnvVariable("CELLS_WEB_RATE_LIMIT", "0", "Http API rate-limiter, as a number of token allowed per seconds. 0 means no limit.")
 	restful.RegisterEntityAccessor("application/json", new(ProtoEntityReaderWriter))
 }
 

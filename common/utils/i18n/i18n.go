@@ -30,6 +30,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/auth/claim"
 	"github.com/pydio/cells/v4/common/proto/idm"
+	runtime2 "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -125,6 +126,7 @@ var (
 )
 
 func init() {
+	runtime2.RegisterEnvVariable("CELLS_ENABLE_WIP_LANGUAGES", "def", "Display partially translated languages in the UX language picker.", true)
 	if os.Getenv("CELLS_ENABLE_WIP_LANGUAGES") == "true" {
 		for k, v := range WipLanguages {
 			AvailableLanguages[k] = v

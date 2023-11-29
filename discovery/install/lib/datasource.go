@@ -32,9 +32,14 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/proto/object"
+	runtime2 "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/std"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
+
+func init() {
+	runtime2.RegisterEnvVariable("CELLS_DEFAULT_DS_STRUCT", "", "Create default datasources using structured format instead of flat", true)
+}
 
 // actionDatasourceAdd created default datasources at install
 func actionDatasourceAdd(c *install.InstallConfig) error {

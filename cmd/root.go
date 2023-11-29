@@ -116,6 +116,8 @@ LOGS LEVEL
 }
 
 func init() {
+	runtime.RegisterEnvVariable("CELLS_FLAGS_FILE", "", "Pass all command flags via a viper configuration file")
+
 	initEnvPrefixes()
 	initViperRuntime()
 
