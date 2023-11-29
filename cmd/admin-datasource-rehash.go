@@ -159,6 +159,6 @@ func init() {
 	dsRehashCmd.PersistentFlags().StringVarP(&rehashPath, "path", "p", "", "Restrict operation to a specific folder")
 	dsRehashCmd.PersistentFlags().StringVarP(&rehashTimeout, "timeout", "t", "30m", "Maximum job duration")
 	dsRehashCmd.PersistentFlags().IntVarP(&rehashMaxConcurrency, "concurrency", "c", 10, "Maximum concurrency for computing files hashes")
-	dsRehashCmd.PersistentFlags().BoolVarP(&rehashForceRecompute, "force", "f", false, "Force recomputing hash if it does not already exists")
+	dsRehashCmd.PersistentFlags().BoolVarP(&rehashForceRecompute, "force", "f", false, "Force recomputing hash if it already exists")
 	DataSourceCmd.AddCommand(dsRehashCmd)
 }
