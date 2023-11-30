@@ -93,7 +93,7 @@ export default class OLMap extends React.Component {
         layersDefinitions.map(({type, name, style, tile, wms_url, google_type}) => {
             let layer;
 
-            if (type == 'WMS') {
+            if (type === 'WMS') {
                 layer = new OpenLayers.Layer.WMS(
                     tile ? "Tiled" : "Single Tile",
                     wms_url, {
@@ -104,9 +104,9 @@ export default class OLMap extends React.Component {
                     },
                     null
                 );
-            }else if(type == 'OSM') {
+            }else if(type === 'OSM') {
                 layer = new OpenLayers.Layer.OSM();
-            }else if (type == 'Google') {
+            }else if (type === 'Google') {
                 switch(google_type) {
                     case 'physical':
                         layer = new OpenLayers.Layer.Google(
@@ -157,7 +157,9 @@ export default class OLMap extends React.Component {
         try{
             map.setCenter(projectedCenter, 10);
         }catch(e){
-            if(console) console.error(e);
+            if(console) {
+                console.error(e);
+            }
         }
 
         this.setState({

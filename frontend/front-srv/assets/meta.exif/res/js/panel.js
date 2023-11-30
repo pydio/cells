@@ -47,7 +47,7 @@ class Panel extends Component {
             }));
 
         if(nodeMeta.has('GeoLocation') && nodeMeta.get('GeoLocation')['lat'] && nodeMeta.get('GeoLocation')['lon']){
-            ResourcesManager.loadClassesAndApply(['OpenLayers', 'PydioMaps'], () => this.setState({gpsData: true}));
+            ResourcesManager.loadClassesAndApply(['PydioMaps'], () => this.setState({gpsData: true}));
         }
 
         this.setState({items});
