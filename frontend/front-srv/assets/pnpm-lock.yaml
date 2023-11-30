@@ -744,6 +744,7 @@ importers:
       create-react-class: ^15.7.0
       css-loader: ^6.7.3
       css-minimizer-webpack-plugin: ^5.0.1
+      dayjs: ^1.11.10
       deep-equal: ^2.0.5
       doc-ready: ^1.0.4
       envify: 3.4.0
@@ -763,7 +764,6 @@ importers:
       md5: ^2.3.0
       mini-css-extract-plugin: ^2.7.3
       mini-virtual-list: ^0.3.1
-      moment: ^2.29.1
       oidc-client: ^1.11.5
       prop-types: ^15.7.2
       qrcode.react: ^1.0.1
@@ -831,6 +831,7 @@ importers:
       compromise: 14.8.2
       compromise-dates: 3.4.1_compromise@14.8.2
       create-react-class: 15.7.0
+      dayjs: 1.11.10
       deep-equal: 2.0.5
       doc-ready: 1.0.4
       he: 1.1.0
@@ -842,7 +843,6 @@ importers:
       material-ui: 0.20.2_biqbaboplfbrettd7655fr4n2y
       md5: 2.3.0
       mini-virtual-list: 0.3.1_biqbaboplfbrettd7655fr4n2y
-      moment: 2.29.1
       oidc-client: 1.11.5
       prop-types: 15.7.2
       qrcode.react: 1.0.1_react@18.2.0
@@ -4919,6 +4919,10 @@ packages:
     resolution: {integrity: sha512-jyCETtSl3VMZMWeRo7iY1FL19ges1t55hMo5yaam4Jrsm5EPL89UQkoQRyiI+Yf4k8r2ZpdngkV8hr1lIdjb3Q==}
     dev: true
 
+  /dayjs/1.11.10:
+    resolution: {integrity: sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==}
+    dev: false
+
   /debug/2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
     peerDependencies:
@@ -7814,10 +7818,6 @@ packages:
       through2: 2.0.5
       xtend: 4.0.2
     dev: true
-
-  /moment/2.29.1:
-    resolution: {integrity: sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==}
-    dev: false
 
   /mothership/0.2.0:
     resolution: {integrity: sha1-k9SKL7w+UOKl/I7VhvW8RMZfmpk=}
