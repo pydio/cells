@@ -19,14 +19,12 @@
  */
 import Pydio from 'pydio'
 import React, {Component} from 'react'
-import {compose} from 'redux'
 import {connect} from 'react-redux'
-import {ToolbarTitle} from 'material-ui'
-import Map from './map'
+import OpenLayerMap from "./OpenLayerMap";
 const {EditorActions} = Pydio.requireLib('hoc')
 
 @connect(null, EditorActions)
-export default class Editor extends React.Component {
+export default class Editor extends Component {
 
     constructor(props) {
         super(props)
@@ -52,12 +50,15 @@ export default class Editor extends React.Component {
         if(error){
             this.setState({error: error});
         }else{
+            /*
             map.addControl(new OpenLayers.Control.PanZoomBar({
                 position: new OpenLayers.Pixel(5, 5)
             }));
             map.addControl(new OpenLayers.Control.Navigation());
             map.addControl(new OpenLayers.Control.ScaleLine());
             map.addControl(new OpenLayers.Control.MousePosition({element: this.input, numDigits:4, prefix: `${MessageHash['openlayer.3']}: `}));
+
+             */
         }
     }
 
@@ -79,6 +80,8 @@ export default class Editor extends React.Component {
                 </div>
             );
         } else {
+            return <OpenLayerMap style={style} features={[]} centerNode={node}/>
+            /*
             return (
                 <Map
                     ref="mapObject"
@@ -87,6 +90,8 @@ export default class Editor extends React.Component {
                     onMapLoaded={(map, error) => this.onMapLoaded(map, error)}
                 />
             );
+
+             */
         }
     }
 }

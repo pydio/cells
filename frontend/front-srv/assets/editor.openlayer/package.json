@@ -24,5 +24,8 @@
   },
   "scripts": {
     "build": "webpack --config webpack.config.js"
+  },
+  "dependencies": {
+    "ol": "^8.2.0"
   }
 }

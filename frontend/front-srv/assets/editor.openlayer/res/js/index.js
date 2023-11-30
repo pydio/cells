@@ -18,5 +18,5 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-export {default as OLMap} from './map';
+export {default as OLMap} from './OpenLayerMap';
 export {default as Editor} from './editor';

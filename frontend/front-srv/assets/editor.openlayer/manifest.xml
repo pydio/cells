@@ -4,9 +4,7 @@
         description="CONF_MESSAGE[Geolocation feature to either display a WMS layer or simply place an exif-localized photo. Requires OpenLayers]">
     <client_settings>
         <resources>
-            <js file="plug/editor.openlayer/openlayer/OpenLayers.js" className="OpenLayers"/>
-            <js file="plug/editor.openlayer/res/dist/PydioMaps.min.js" className="PydioMaps" depends="OpenLayers"/>
-            <css file="plug/editor.openlayer/openlayer/theme/default/style.css"/>
+            <js file="plug/editor.openlayer/res/dist/PydioMaps.min.js" className="PydioMaps"/>
             <i18n namespace="openlayer" remote="plug/editor.openlayer/res/i18n"/>
         </resources>
     </client_settings>
