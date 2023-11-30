@@ -163,11 +163,16 @@ let PluginEditor = createReactClass({
     },
 
     customChecks(formValues) {
-        const {pluginId} = this.props;
+        const {pluginId, pydio} = this.props;
         if(pluginId === "core.uploader") {
             const partSize = parseInt(formValues['MULTIPART_UPLOAD_PART_SIZE']) || 0
-            if(partSize < 5242880) {
-                formValues['MULTIPART_UPLOAD_PART_SIZE'] = 5242880
+            const multiple = 10 * 1024 * 1024 // 10MB
+            if(partSize < multiple) {
+                formValues['MULTIPART_UPLOAD_PART_SIZE'] = multiple
+                pydio.UI.displayMessage('ERROR', pydio.MessageHash['settings.uploaders-chunk-size-warn-too-small'])
+            } else if (partSize % multiple !== 0) {
+                formValues['MULTIPART_UPLOAD_PART_SIZE'] = partSize + multiple - (partSize % multiple)
+                pydio.UI.displayMessage('ERROR', pydio.MessageHash['settings.uploaders-chunk-size-warn-multiple'])
             }
             const queueSize = parseInt(formValues['MULTIPART_UPLOAD_QUEUE_SIZE']) || 0
             if(queueSize > 6) {
