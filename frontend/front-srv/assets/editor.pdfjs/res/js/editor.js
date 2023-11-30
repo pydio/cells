@@ -82,7 +82,7 @@ class Viewer extends Component {
     }
 
     loadNode(props) {
-        const {node} = props;
+        const {node, pydio} = props;
 
         let bucketParams = null;
         if (node.getMetadata().get('PDFPreview')) {
@@ -91,12 +91,14 @@ class Viewer extends Component {
                 Key:'pydio-thumbstore/' + node.getMetadata().get('PDFPreview')
             }
         }
+        const distViewerPath = 'plug/editor.pdfjs/pdfjs-2.12.313-dist/web'
+        const viewerPage = pydio.getPluginConfigs("editor.pdfjs").get('PDF_JS_DISABLE_SCRIPTING') ? "viewer_noscript.html":"viewer.html"
         PydioApi.getClient().buildPresignedGetUrl(node, null, "", bucketParams).then(pdfUrl => {
             this.setState({
                 pdfUrl: pdfUrl,
                 crtPage: 1,
                 lastKnownHeight:150,
-                url: 'plug/editor.pdfjs/pdfjs-2.12.313-dist/web/viewer.html?file=' + encodeURIComponent(pdfUrl)
+                url: `${distViewerPath}/${viewerPage}?file=${encodeURIComponent(pdfUrl)}`
             })
         })
 
