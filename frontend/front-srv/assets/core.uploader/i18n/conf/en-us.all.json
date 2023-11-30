@@ -17,8 +17,8 @@
   "Limitations": {
     "other": "Limitations"
   },
-  "Maximum size per file allowed to upload.": {
-    "other": "Maximum size per file allowed to upload."
+  "Maximum size per file allowed to upload. Warning, this limit can vary depending on your underlying storage and the Multipart Chunk Size. For example, Amazon S3 restricts uploads to maximum 10000 distinct parts.": {
+    "other": "Maximum size per file allowed to upload. Warning, this limit can vary depending on your underlying storage and the Multipart Chunk Size. For example, Amazon S3 restricts uploads to maximum 10000 distinct parts."
   },
   "Options shared by all uploaders plugins": {
     "other": "Options shared by all uploaders plugins"

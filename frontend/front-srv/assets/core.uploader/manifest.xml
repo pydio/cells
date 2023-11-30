@@ -6,7 +6,7 @@
         </resources>
     </client_settings>
 	<server_settings>
-		<global_param expose="true" group="CONF_MESSAGE[Limitations]" name="UPLOAD_MAX_SIZE" type="integer-bytes" label="CONF_MESSAGE[File Size]" description="CONF_MESSAGE[Maximum size per file allowed to upload.]" mandatory="false" default="0"/>
+		<global_param expose="true" group="CONF_MESSAGE[Limitations]" name="UPLOAD_MAX_SIZE" type="integer-bytes" label="CONF_MESSAGE[File Size]" description="CONF_MESSAGE[Maximum size per file allowed to upload. Warning, this limit can vary depending on your underlying storage and the Multipart Chunk Size. For example, Amazon S3 restricts uploads to maximum 10000 distinct parts.]" mandatory="false" default="515396075520"/>
 		<global_param expose="true" group="CONF_MESSAGE[Limitations]" name="ALLOWED_EXTENSIONS" type="string" label="CONF_MESSAGE[Extensions List]" description="CONF_MESSAGE[Filter the files that are allowed to be uploaded, by extensions. Use a comma-separated list.]" mandatory="false" default=""/>
 		<global_param expose="true" group="CONF_MESSAGE[Limitations]" name="ALLOWED_EXTENSIONS_READABLE" type="string" label="CONF_MESSAGE[Ext. Label]" description="CONF_MESSAGE[User readable label for the list of allowed extensions (images, all files, etc).]" mandatory="false" default=""/>
 		<global_param expose="true" group="CONF_MESSAGE[Multipart Uploads]" name="MULTIPART_UPLOAD_THRESHOLD" type="integer-bytes" label="CONF_MESSAGE[Multipart Threshold]" description="CONF_MESSAGE[Switch to Multipart Upload for files bigger than this value (in bytes)]" mandatory="false" default="104857600"/>
