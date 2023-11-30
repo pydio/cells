@@ -18,10 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import Pydio from '../Pydio'
 import IdmApi from './IdmApi'
 import PydioStorage from './PydioStorage'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import qs from 'query-string'
 import {ApiClient, JobsServiceApi, RestUserJobRequest, RestFrontSessionRequest, RestFrontSessionResponse} from 'cells-sdk';
 import genUuid from 'uuid4'
@@ -29,7 +28,7 @@ import lscache from 'lscache'
 
 // Override parseDate method to support ISO8601 cross-browser
 ApiClient.parseDate = function (str) {
-    return moment(str).toDate();
+    return dayjs(str).toDate();
 };
 
 // Override callApi Method
