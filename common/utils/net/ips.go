@@ -114,7 +114,8 @@ func PeerAddressIsLocal(address string) bool {
 // PeerAddressesAreSameNode compares two addresses composed of multiple segments (separated by |) and check if any segments are similar
 func PeerAddressesAreSameNode(a1, a2 string) bool {
 
-	if a1 == "" && a2 == "" {
+	// If any of them is empty, it will start on every node => return true!
+	if a1 == "" || a2 == "" {
 		return true
 	}
 	parts1 := strings.Split(a1, "|")

@@ -45,6 +45,7 @@ import (
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/filesystem"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -137,6 +138,16 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	if e != nil {
 		service.RestError500(req, resp, e)
 		return
+	}
+	if !update && ds.PeerAddress == "" && ds.StorageType == object.StorageType_LOCAL {
+		// Make sure it is not a full duplicate
+		newDsFolder := ds.StorageConfiguration[object.StorageKeyFolder]
+		for _, src := range currentSources {
+			if src.StorageType == ds.StorageType && src.StorageConfiguration[object.StorageKeyFolder] == newDsFolder {
+				service.RestError500(req, resp, errors.Conflict("datasource.folder.conflict", "Cannot create a datasource at the same location than %s", src.Name))
+				return
+			}
+		}
 	}
 	currentSources[ds.Name] = &ds
 	currentMinios[minioConfig.Name] = minioConfig
