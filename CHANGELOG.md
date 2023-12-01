@@ -1,7 +1,17 @@
-# Changes between v4.3.1 and v4.3.2-alpha2
+# Changes between v4.3.1 and v4.3.2-rc1
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.3.1...v4.3.2-alpha2)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.3.1...v4.3.2-rc1)
 
+- [#f9c644a](https://github.com/pydio/cells/commit/f9c644a72b6648fd3fa6552e4d6fc1b9d1a15956): dependencies updates
+- [#ecef13a](https://github.com/pydio/cells/commit/ecef13a4fced19c146fdd1d463adca6fc0165d4d): dependencies updates
+- [#088812c](https://github.com/pydio/cells/commit/088812ce36b3f190e1cb0bf8105a5a16177374fe): New messages + DE/FR translations
+- [#9f2d2c9](https://github.com/pydio/cells/commit/9f2d2c96877f206b128176fc244ccbea071d45c8): New messages + DE/FR translations
+- [#c00e529](https://github.com/pydio/cells/commit/c00e5294327a01c47d2f2d9688426bddff9af43e): Reasonable defaults for upload maximum size - finally set a round value...
+- [#0f44d3e](https://github.com/pydio/cells/commit/0f44d3e926a5ecdb32ab5cf4b83bc96ddbefbb72): Additional checks on DS creation to avoid object services duplicates
+- [#227aa1b](https://github.com/pydio/cells/commit/227aa1b342e228d7ee7b86043f35b8feaba2ab97): Merge remote-tracking branch 'origin/main'
+- [#bea63f4](https://github.com/pydio/cells/commit/bea63f4846ec895a097cbf5dd4ed9fed8d7cf79c): Reasonable defaults for upload maximum size
+- [#b9748d2](https://github.com/pydio/cells/commit/b9748d2608d19f8234616188f728773b533b4ee4): Update custom checks for uploaders options
+- [#0d85988](https://github.com/pydio/cells/commit/0d85988b65f69f7b5ad3d7245cbd987f0f415fbc): Release v4.3.2-alpha2
 - [#23209a5](https://github.com/pydio/cells/commit/23209a5e4ca41656b09ce330cb7d7c4656f4aaed): Update OpenLayers to v8
 - [#d3c0384](https://github.com/pydio/cells/commit/d3c03841beee918c75a992d2e2321a9d04a326b0): Drop-in replacement of moment.js with day.js library.
 - [#494e129](https://github.com/pydio/cells/commit/494e12959b86af96642b9bda23dc82a292a7d135): Although it uses a sandbox, provide ability to disable js in PDF viewer.
