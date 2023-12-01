@@ -17,8 +17,8 @@
   "Limitations": {
     "other": "Limitierungen"
   },
-  "Maximum size per file allowed to upload.": {
-    "other": "Maximale Größe pro Datei, die hochgeladen werden darf."
+  "Maximum size per file allowed to upload. Warning, this limit can vary depending on your underlying storage and the Multipart Chunk Size. For example, Amazon S3 restricts uploads to maximum 10000 distinct parts.": {
+    "other": "Maximale Dateigröße, die zum Hochladen erlaubt ist. Beachten Sie, dass diese Grenze je nach Ihrer zugrunde liegenden Speicherlösung und der Größe der Multipart-Chunks variieren kann. Zum Beispiel beschränkt Amazon S3 Uploads auf maximal 10.000 verschiedene Teile."
   },
   "Options shared by all uploaders plugins": {
     "other": "Einstellungen die für alle Uploader-Erweiterungen gelten"
@@ -41,8 +41,8 @@
   "Switch to Multipart Upload for files bigger than this value (in bytes)": {
     "other": "Wechseln Sie zum Multipart Upload für Dateien, die größer sind als dieser Wert (in Bytes)"
   },
-  "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)": {
-    "other": "Die für mehrteilige Uploads verwendete Blockgröße muss größer als 5 MB (5242800B) sein."
+  "Chunk Size used for multipart uploads, it must be a multiple of 10MB for hashing consistency. If you plan to upload very large files (bigger 500GB), raise this value to lower the total number of parts sent.": {
+    "other": "Die Chunk-Größe, die für Mehrteil-Uploads verwendet wird, muss ein Vielfaches von 10 MB sein, um die Konsistenz der Hash-Werte sicherzustellen. Wenn Sie vorhaben, sehr große Dateien (über 500 GB) hochzuladen, erhöhen Sie diesen Wert, um die Gesamtanzahl der gesendeten Teile zu reduzieren."
   },
   "Queue Size": {
     "other": "Warteschlangengröße"

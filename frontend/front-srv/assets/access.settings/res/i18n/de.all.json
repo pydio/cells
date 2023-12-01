@@ -553,5 +553,11 @@
   },
   "role_access": {
     "other": "o"
+  },
+  "uploaders-chunk-size-warn-multiple": {
+    "other": "Die Größe der Teile muss ein Vielfaches von 10 MB sein!"
+  },
+  "uploaders-chunk-size-warn-too-small": {
+    "other": "Die Teilgröße muss mindestens 10 MB betragen!"
   }
 }
