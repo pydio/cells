@@ -17,8 +17,8 @@
   "Limitations": {
     "other": "Limitazioni"
   },
-  "Maximum size per file allowed to upload.": {
-    "other": "Dimensione massima consentita per l'upload di un file."
+  "Maximum size per file allowed to upload. Warning, this limit can vary depending on your underlying storage and the Multipart Chunk Size. For example, Amazon S3 restricts uploads to maximum 10000 distinct parts.": {
+    "other": "Maximum size per file allowed to upload. Warning, this limit can vary depending on your underlying storage and the Multipart Chunk Size. For example, Amazon S3 restricts uploads to maximum 10000 distinct parts."
   },
   "Options shared by all uploaders plugins": {
     "other": "Opzioni condivise da tutti i plugin per l'upload"
@@ -41,8 +41,8 @@
   "Switch to Multipart Upload for files bigger than this value (in bytes)": {
     "other": "Passa all'Upload Multipart per i file più grandi di questo valore (in byte)"
   },
-  "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)": {
-    "other": "La dimensione del segmento usata per gli upload multipart deve essere maggiore di 5MB (5242800B)"
+  "Chunk Size used for multipart uploads, it must be a multiple of 10MB for hashing consistency. If you plan to upload very large files (bigger 500GB), raise this value to lower the total number of parts sent.": {
+    "other": "Chunk Size used for multipart uploads, it must be a multiple of 10MB for hashing consistency. If you plan to upload very large files (bigger 500GB), raise this value to lower the total number of parts sent."
   },
   "Queue Size": {
     "other": "Dimensione Coda"

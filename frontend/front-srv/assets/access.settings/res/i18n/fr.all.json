@@ -553,5 +553,11 @@
   },
   "role_access": {
     "other": "ô"
+  },
+  "uploaders-chunk-size-warn-multiple": {
+    "other": "La taille de chaque partie doit être un multiple de 10Mo !"
+  },
+  "uploaders-chunk-size-warn-too-small": {
+    "other": "La taille de chaque partie doit être d'au moins 10 Mo !"
   }
 }
