@@ -34,6 +34,9 @@
 .mdi-settings-box::before{
     content: "\F1577";
 }
+.mdi-image-filter::before {
+  content: "\F02EF";
+}
 /* END CUSTOM PYDIO */
 
 .mdi-ab-testing::before {
