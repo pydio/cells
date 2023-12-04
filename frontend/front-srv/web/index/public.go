@@ -389,7 +389,10 @@ func (h *PublicHandler) davDirectoryIndex(w http.ResponseWriter, r *http.Request
 	}
 	ctx := r.Context()
 	resp, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: innerPath}})
-	if er != nil || resp.GetNode().IsLeaf() {
+	if er != nil {
+		return
+	} else if resp.GetNode().IsLeaf() {
+		w.Header().Set("Content-Security-Policy", "script-src 'none'")
 		return
 	}
 
@@ -500,6 +503,7 @@ func (h *PublicHandler) davDirectoryIndex(w http.ResponseWriter, r *http.Request
 		content = all.Bytes()
 	}
 
+	w.Header().Set("Content-Security-Policy", "script-src 'none'")
 	w.Header().Set("Content-Type", cType)
 	w.Header().Set("Content-Length", strconv.Itoa(len(content)))
 	w.WriteHeader(http.StatusOK)
