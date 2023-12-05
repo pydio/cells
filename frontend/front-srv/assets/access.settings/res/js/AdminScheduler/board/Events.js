@@ -150,8 +150,8 @@ const eventMessages = {
         },
         ACL : {
             title:'ACL events : access control lists link workspaces, nodes and roles together to provide accesses to data.',
-            '0': {
-                title:'Create Acl',
+            '2': {
+                title:'Create/Update Acl',
                 icon:'view-list',
                 tint:'#795548',
                 description:'An access control has been opened'
