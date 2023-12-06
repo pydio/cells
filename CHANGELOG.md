@@ -1,45 +1,8 @@
-# Changes between v4.3.1 and v4.3.2-rc1
+# Changes between v4.3.2-rc1 and v4.3.2-rc2
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.3.1...v4.3.2-rc1)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.3.2-rc1...v4.3.2-rc2)
 
-- [#f9c644a](https://github.com/pydio/cells/commit/f9c644a72b6648fd3fa6552e4d6fc1b9d1a15956): dependencies updates
-- [#ecef13a](https://github.com/pydio/cells/commit/ecef13a4fced19c146fdd1d463adca6fc0165d4d): dependencies updates
-- [#088812c](https://github.com/pydio/cells/commit/088812ce36b3f190e1cb0bf8105a5a16177374fe): New messages + DE/FR translations
-- [#9f2d2c9](https://github.com/pydio/cells/commit/9f2d2c96877f206b128176fc244ccbea071d45c8): New messages + DE/FR translations
-- [#c00e529](https://github.com/pydio/cells/commit/c00e5294327a01c47d2f2d9688426bddff9af43e): Reasonable defaults for upload maximum size - finally set a round value...
-- [#0f44d3e](https://github.com/pydio/cells/commit/0f44d3e926a5ecdb32ab5cf4b83bc96ddbefbb72): Additional checks on DS creation to avoid object services duplicates
-- [#227aa1b](https://github.com/pydio/cells/commit/227aa1b342e228d7ee7b86043f35b8feaba2ab97): Merge remote-tracking branch 'origin/main'
-- [#bea63f4](https://github.com/pydio/cells/commit/bea63f4846ec895a097cbf5dd4ed9fed8d7cf79c): Reasonable defaults for upload maximum size
-- [#b9748d2](https://github.com/pydio/cells/commit/b9748d2608d19f8234616188f728773b533b4ee4): Update custom checks for uploaders options
-- [#0d85988](https://github.com/pydio/cells/commit/0d85988b65f69f7b5ad3d7245cbd987f0f415fbc): Release v4.3.2-alpha2
-- [#23209a5](https://github.com/pydio/cells/commit/23209a5e4ca41656b09ce330cb7d7c4656f4aaed): Update OpenLayers to v8
-- [#d3c0384](https://github.com/pydio/cells/commit/d3c03841beee918c75a992d2e2321a9d04a326b0): Drop-in replacement of moment.js with day.js library.
-- [#494e129](https://github.com/pydio/cells/commit/494e12959b86af96642b9bda23dc82a292a7d135): Although it uses a sandbox, provide ability to disable js in PDF viewer.
-- [#fb7ca60](https://github.com/pydio/cells/commit/fb7ca607cd8cb19c4ac01ecc896384ce0ca17a2a): ENV variables docs : exclude ones already documented.
-- [#a83c337](https://github.com/pydio/cells/commit/a83c3373910cb1f8d838374b9346a8b9f25366ff): Rework webdav auto-multipart. Declare all ENV variable and display them in start command documentation.
-- [#524496a](https://github.com/pydio/cells/commit/524496a79d64a664f45e0208043d7e7edb4d7001): Fix flag documentation for recompute-hash --force
-- [#1860cdf](https://github.com/pydio/cells/commit/1860cdf005c933cdfb2ff65e49d5499bdeaa6e05): Start refactoring dav fs
-- [#8b1d91d](https://github.com/pydio/cells/commit/8b1d91d7fe4daa139a824d014e2b1ba276af03cf): More comments on NodeRequiresChecksum: this is still required for structured DS - Remove unused func in handler-exec-flat.
-- [#a4390ae](https://github.com/pydio/cells/commit/a4390ae8f5f1553344845a209cdd28c55e791844): fix issue with MacOS DAV client + hidden "._" files
-- [#00388c2](https://github.com/pydio/cells/commit/00388c245cd2a7845b2ec3b102597da735ab9964): New messages + DE/FR translations
-- [#0fb1f50](https://github.com/pydio/cells/commit/0fb1f502cfe9879010b6e23891f179fb51d01e04): New messages + DE/FR translations
-- [#ddadfc2](https://github.com/pydio/cells/commit/ddadfc2c47aac80f6a158765ee403e7ea39f8872): Merge remote-tracking branch 'origin/main'
-- [#959b32c](https://github.com/pydio/cells/commit/959b32c3b127bdc7297558a987ab94abf05c971c): Rework values validation in rename/mkfile/mkdir actions
-- [#6370827](https://github.com/pydio/cells/commit/6370827851c0a9a2191e8f46033698f8ef9919e5): add CELLS_ENABLE_SIMDMD5 env variable
-- [#69df211](https://github.com/pydio/cells/commit/69df21168f43a827a4e6375cf69bcdf892870e30): Declare 'Merge:' variables in sync collectors and try to merge them in a slice of interface{}
-- [#c624a81](https://github.com/pydio/cells/commit/c624a811735546ef5f5ca4a4ef37064042d2a19e): Fix icon
-- [#9c27ac7](https://github.com/pydio/cells/commit/9c27ac7ce00d4f15c0fe24227ac01d271f899793): Improve big buttons dialog
-- [#4ca9fff](https://github.com/pydio/cells/commit/4ca9fffc3b6dd08c6ebaada2255368421cf4975e): Update a couple of actions icons
-- [#95ee2d3](https://github.com/pydio/cells/commit/95ee2d3c07b03819543a05c57dfda613fe39f079): Merge remote-tracking branch 'origin/main'
-- [#f27ce91](https://github.com/pydio/cells/commit/f27ce913e18982de860346d830459ac60d11803b): Wire css compilation in Webpack - Update mdi icons library
-- [#03c3d9a](https://github.com/pydio/cells/commit/03c3d9a2992fe67a09ce29231195576c78705da8): More translation
-- [#eff090c](https://github.com/pydio/cells/commit/eff090c10c5cfbc58eb8c40cdf2e3eccfb085016): More translation
-- [#87ac7bb](https://github.com/pydio/cells/commit/87ac7bb2a0546ec0b2c4be02460663bec901b2dc): New messages + DE/FR translations
-- [#0ad5bde](https://github.com/pydio/cells/commit/0ad5bdee2ead06253430c35dcb0073435076880f): New messages + DE/FR translations
-- [#4b0a638](https://github.com/pydio/cells/commit/4b0a6382df343a02e161c2cbecbb2119dc32abb7): Remove AutoClean jobs: do not restrict only to the ones which are also AutoStart!
-- [#4883676](https://github.com/pydio/cells/commit/48836766bf31a2251a6f0f1446b5d4c6a41ea357): UX for "run once" scheduling (new i18n strings)
-- [#650119a](https://github.com/pydio/cells/commit/650119ac3c10875c86cb59beb8de8467c0c22b30): More work on public link dav/http endpoint: fix default to be similar to plugin form
-- [#161bfa8](https://github.com/pydio/cells/commit/161bfa8741bda287992146fc8bbae2bfbe622dde): More work on public link dav/http endpoint: fix skipping defined indexes in listing
-- [#5edcffe](https://github.com/pydio/cells/commit/5edcffec495a0f7f20a0ca2c3c408d7be4f0c05b): More work on public link dav/http endpoint: define DirectoryIndexes for folders.
-- [#8c699b6](https://github.com/pydio/cells/commit/8c699b61926cd02a598482c982b30956564f8341): Rework public link dav endpoint, response was sending incorrect values when browsing folders.
-- [#99ade12](https://github.com/pydio/cells/commit/99ade1209eb946b7d21fbadc47d1dd0a88552aea): Next development cycle
+- [#6f535e2](https://github.com/pydio/cells/commit/6f535e27b93c51ce8b0c09655e61cc2baa4ef35a): Fix create ACL event
+- [#1b60e4d](https://github.com/pydio/cells/commit/1b60e4d12ff0233235d44495cd6e9fa83ffeea2b): Alias icon name for backward compat
+- [#574bb34](https://github.com/pydio/cells/commit/574bb34d8344bb79d4376ee3144fce4dfec38477): Merge remote-tracking branch 'origin/main'
+- [#7671757](https://github.com/pydio/cells/commit/76717574a814f15372a894a4975da852f8fcfc58): Secure new dav-based html server
