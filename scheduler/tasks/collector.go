@@ -76,19 +76,67 @@ func (c *collector) WaitMsg() *jobs.ActionMessage {
 		// Handle ArrayMerge Variables
 		mVars := m.StackedVars()
 		for k, v := range mVars {
-			if strings.HasPrefix(k, "Merge:") {
-				k = strings.TrimPrefix(k, "Merge:")
-				var sl []interface{}
-				if mv, o := mergeVars[k]; o {
-					if ms, ok := mv.([]interface{}); ok {
-						sl = ms
-					} else {
-						log.TasksLogger(c.ctx).Warn("Merging variable 'Merge:" + k + "', current value is not a slice, skipping")
-						continue
+			if !strings.HasPrefix(k, "Merge:") {
+				continue
+			}
+			mergeKey := k
+			k = strings.TrimPrefix(k, "Merge:")
+			var jsonPath string
+			if strings.Contains(k, ":") {
+				parts := strings.Split(k, ":")
+				k = parts[0]
+				jsonPath = parts[1]
+				if jsonPath != "" && jobs.JSONPathSelector == nil {
+					log.TasksLogger(c.ctx).Warn("No JSONPathSelector found, variable 'Merge:" + k + "' will be merged as is")
+					jsonPath = ""
+				}
+			}
+			var sl []interface{}
+			if mv, o := mergeVars[k]; o {
+				if ms, ok := mv.([]interface{}); ok {
+					sl = ms
+				} else {
+					log.TasksLogger(c.ctx).Warn("Merging variable 'Merge:" + k + "', current value is not a slice, skipping")
+					continue
+				}
+			} else {
+				if jsonPath != "" {
+					log.TasksLogger(c.ctx).Debug("Merging contents into a slice " + k + " using JSONPath selector")
+				} else {
+					log.TasksLogger(c.ctx).Debug("Merging contents into a slice " + k)
+				}
+			}
+			if jsonPath != "" { // JSONPathSelector != nil checked above
+				if list, er := jobs.JSONPathSelector(c.ctx, map[string]interface{}{"Data": v}, jsonPath); er == nil {
+					for _, l := range list {
+						sl = append(sl, l)
+					}
+				} else {
+					log.TasksLogger(c.ctx).Warn("Merging variable 'Merge:" + k + "' with JSONPath " + jsonPath + " failed, input data is passed as $.Data")
+				}
+			} else {
+				sl = append(sl, v)
+			}
+			mergeVars[k] = sl
+
+			// Remove initial key from OutputChain - clone map to avoid direct write access to .Vars
+			var i int
+			for i = len(out.OutputChain) - 1; i >= 0; i-- {
+				o := out.OutputChain[i]
+				if o.Vars == nil {
+					continue
+				}
+				if _, here := o.Vars[mergeKey]; !here {
+					continue
+				}
+				vv := make(map[string]string, len(o.Vars)-1)
+				for name, value := range o.Vars {
+					if name != mergeKey {
+						vv[name] = value
 					}
 				}
-				sl = append(sl, v)
-				mergeVars[k] = sl
+				o.Vars = vv
+				break
 			}
 		}
 		// Append merged vars to LastOutput or new one
