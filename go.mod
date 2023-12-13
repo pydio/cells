@@ -65,7 +65,7 @@ require (
 	github.com/minio/cli v1.22.0
 	github.com/minio/md5-simd v1.1.2
 	github.com/minio/minio v0.0.0-20230809141052-8bd460a77d09
-	github.com/minio/minio-go/v7 v7.0.21
+	github.com/minio/minio-go/v7 v7.0.65
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/mssola/user_agent v0.5.3
 	github.com/mwitkow/go-proto-validators v0.3.2
@@ -314,7 +314,7 @@ require (
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/julienschmidt/httprouter v1.3.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/klauspost/compress v1.17.3 // indirect
+	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
 	github.com/klauspost/pgzip v1.2.5 // indirect
 	github.com/klauspost/readahead v1.4.0 // indirect
@@ -342,7 +342,7 @@ require (
 	github.com/miekg/pkcs11 v1.1.1 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/minio/selfupdate v0.4.0 // indirect
-	github.com/minio/sha256-simd v1.0.0 // indirect
+	github.com/minio/sha256-simd v1.0.1 // indirect
 	github.com/minio/simdjson-go v0.2.1 // indirect
 	github.com/minio/sio v0.3.0 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
@@ -511,7 +511,7 @@ retract v4.0.0
 //replace github.com/minio/minio => /Users/charles/Sources/go/src/github.com/pydio/minio
 //replace github.com/pydio/caddyvault => /Users/charles/Sources/go/src/github.com/pydio/caddyvault
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20230809141052-8bd460a77d09
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20231213164850-cfad91beb6e8
 
 //replace github.com/ory/x => /Users/charles/Sources/go/src/github.com/cdujeu/x
 replace github.com/ory/x => github.com/cdujeu/x v0.0.369-0.20230914084708-c9425748c911
