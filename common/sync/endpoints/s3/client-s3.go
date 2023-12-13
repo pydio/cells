@@ -854,7 +854,7 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 								Metadata:  record.RequestParameters,
 							}
 						}
-					} else if record.EventName == notification.ObjectAccessedGet {
+					} else if record.EventName == string(notification.ObjectAccessedGet) {
 						eventChan <- model.EventInfo{
 							Time:      record.EventTime,
 							Size:      record.S3.Object.Size,
@@ -867,7 +867,7 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 							UserAgent: record.Source.UserAgent,
 							Metadata:  record.RequestParameters,
 						}
-					} else if record.EventName == notification.ObjectAccessedHead {
+					} else if record.EventName == string(notification.ObjectAccessedHead) {
 						eventChan <- model.EventInfo{
 							Time:      record.EventTime,
 							Size:      record.S3.Object.Size,

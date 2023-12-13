@@ -322,11 +322,16 @@ func (c *Client) CompleteMultipartUpload(ctx context.Context, bucket, object, up
 			ETag:       p.ETag,
 		}
 	}
-	return c.mc.CompleteMultipartUpload(ctx, bucket, object, uploadID, cparts, minio.PutObjectOptions{})
+	ui, er := c.mc.CompleteMultipartUpload(ctx, bucket, object, uploadID, cparts, minio.PutObjectOptions{})
+	if er != nil {
+		return "", er
+	} else {
+		return ui.ETag, nil
+	}
 }
 
 func (c *Client) PutObjectPart(ctx context.Context, bucket, object, uploadID string, partID int, data io.Reader, size int64, md5Base64, sha256Hex string) (models.MultipartObjectPart, error) {
-	pp, e := c.mc.PutObjectPart(ctx, bucket, object, uploadID, partID, data, size, md5Base64, sha256Hex, nil)
+	pp, e := c.mc.PutObjectPart(ctx, bucket, object, uploadID, partID, data, size, minio.PutObjectPartOptions{Md5Base64: md5Base64, Sha256Hex: sha256Hex})
 	if e != nil {
 		return models.MultipartObjectPart{}, e
 	}
