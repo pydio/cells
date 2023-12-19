@@ -65,8 +65,13 @@ export default class Editor extends React.Component {
         const api = new TokenServiceApi(PydioApi.getRestClient())
         const req = new RestDocumentAccessTokenRequest();
         req.Path = PydioApi.getClient().getSlugForNode(node) + node.getPath();
+        let langParam = '';
+        if(pydio.user.getPreference('lang') !== '') {
+            const lang = pydio.user.getPreference('lang').split('-')[0]
+            langParam = `&lang=${lang}`
+        }
         api.generateDocumentAccessToken(req).then(response => {
-            this.setState({url: `${iframeUrl}?host=${webSocketUrl}&WOPISrc=${fileSrcUrl}&access_token=${response.AccessToken}&permission=${permission}`});
+            this.setState({url: `${iframeUrl}?host=${webSocketUrl}&WOPISrc=${fileSrcUrl}&access_token=${response.AccessToken}&permission=${permission}${langParam}`});
         })
     }
 
