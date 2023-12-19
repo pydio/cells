@@ -24,4 +24,16 @@ import 'dayjs/locale/sv'
 import 'dayjs/locale/tr'
 import 'dayjs/locale/zh-cn'
 import 'dayjs/locale/zh-tw'
+
+import calendar from 'dayjs/plugin/calendar'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import utc from 'dayjs/plugin/utc'
+import localeData from 'dayjs/plugin/localeData'
+import duration from 'dayjs/plugin/duration'
+
+dayjs.extend(calendar);
+dayjs.extend(relativeTime)
+dayjs.extend(utc)
+dayjs.extend(duration)
+dayjs.extend(localeData)
 export {dayjs as default};

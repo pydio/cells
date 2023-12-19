@@ -125,13 +125,47 @@ class Chat extends React.Component{
                 return m.Uuid !== msg.Uuid;
             })})
         } else {
-            const messages = [...this.state.messages.filter(m => m.Uuid !== msg.Uuid), msg].filter(m => !!m.Message);
-            messages.sort((mA,mB) => {
-                if (mA.Timestamp === mB.Timestamp) {
-                    return 0
+            if(msg.Message.indexOf('TOKENS:') === 0) {
+                const [TokString, tokenId, position, ...rest] = msg.Message.split(':')
+                const prev = this.state.messages.find((m) => m.TokenId === tokenId)
+                let newMessages;
+                if(position === 'FINAL') {
+                    newMessages = [...this.state.messages]
+                    if(prev) {
+                        newMessages = newMessages.filter(m => m !== prev)
+                    }
+                    newMessages.push({...msg,  Message:rest.join(':')})
+                    newMessages.sort((mA, mB) => mA.Timestamp - mB.Timestamp)
+                    this.setState({messages: newMessages})
+                    return;
                 }
-                return parseFloat(mA.Timestamp) > parseFloat(mB.Timestamp) ? 1 : -1;
-            });
+                const token = {position: parseInt(position), token: rest.join(':')}
+                if(prev) {
+                    prev.Tokens.push(token) ;
+                    prev.Tokens.sort((ta,tb)=> ta.position-tb.position)
+                    if(prev.Tokens[0].position ===0){
+                        prev.Message = prev.Tokens.map(t => t.token).join('');
+                    }
+                    newMessages = this.state.messages.filter(m => m !== prev);
+                    newMessages.push({...prev});
+                } else {
+                    // override initial message
+                    msg = {
+                        ...msg,
+                        Message: '',
+                        Tokens: [token],
+                        TokenId: tokenId,
+                    }
+                    if(token.position === 0){
+                        msg.Message = token.token
+                    }
+                    newMessages = [...this.state.messages, msg]
+                }
+                this.setState({messages: newMessages});
+                return;
+            }
+            const messages = [...this.state.messages.filter(m => m.Uuid !== msg.Uuid), msg].filter(m => !!m.Message);
+            messages.sort((mA,mB) => mA.Timestamp - mB.Timestamp)
             this.setState({messages});
         }
 

@@ -108,7 +108,7 @@ class ScheduleForm extends React.Component {
             return {frequency: 'once', daytime: startDate}
         } else {
             const d = moment.duration(i);
-            if(d.isValid()){
+            if(d.format){
                 const minutes = d.minutes() + d.hours() * 60;
                 return {frequency: 'timely', everyminutes: minutes, repeatMax};
             } else {
@@ -173,8 +173,8 @@ class ScheduleForm extends React.Component {
         if(daytime === undefined){
             daytime = moment();
             daytime.year(2012);
-            daytime.hours(9);
-            daytime.minutes(0);
+            daytime.hour(9);
+            daytime.minute(0);
             daytime = daytime.toDate();
         }
         if(everyminutes === undefined){
