@@ -22,17 +22,18 @@ package jobs
 
 import (
 	"fmt"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"google.golang.org/protobuf/encoding/protojson"
+	"slices"
 	"time"
 
 	"go.uber.org/zap/zapcore"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 func (a *ActionMessage) Clone() *ActionMessage {
@@ -78,12 +79,26 @@ func (a *ActionMessage) GetOutputs() []*ActionOutput {
 
 }
 
-func (a *ActionMessage) StackedVars() map[string]interface{} {
+func (a *ActionMessage) StackedVars(expected ...string) map[string]interface{} {
 	vv := make(map[string]interface{})
 	for _, o := range a.OutputChain {
-		o.FillVars(vv)
+		o.FillVars(vv, expected...)
 	}
 	return vv
+}
+
+func (a *ActionMessage) StackedVarsKeys() (keys []string) {
+	for _, o := range a.OutputChain {
+		if o.Vars == nil {
+			continue
+		}
+		for k := range o.Vars {
+			if !slices.Contains(keys, k) {
+				keys = append(keys, k)
+			}
+		}
+	}
+	return
 }
 
 func (a *ActionMessage) ScanVar(name string, output interface{}) error {
@@ -285,10 +300,24 @@ func (a *ActionMessage) EventFromAny() (interface{}, error) {
 }
 
 func (a *ActionMessage) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	maxVarSize := 50 * 1024
 	if ev, _ := a.EventFromAny(); ev != nil {
+		if te, ok := ev.(*JobTriggerEvent); ok && te.RunParameters != nil {
+			// Reduce Run Parameters
+			for k, v := range te.RunParameters {
+				if len(v) >= maxVarSize {
+					te.RunParameters[k] = v[:maxVarSize] + "..."
+				}
+			}
+			ev = te
+		}
 		_ = encoder.AddReflected("Event", ev)
 	}
-	if vv := a.StackedVars(); len(vv) > 0 {
+	vv := make(map[string]interface{})
+	for _, o := range a.OutputChain {
+		o.LogVarsWithLimit(vv, maxVarSize)
+	}
+	if len(vv) > 0 {
 		_ = encoder.AddReflected("Vars", vv)
 	}
 	limitedSlice(encoder, "Nodes", a.Nodes, 5)
@@ -299,7 +328,12 @@ func (a *ActionMessage) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	limitedSlice(encoder, "Activities", a.Activities, 5)
 	limitedSlice(encoder, "DataSources", a.DataSources, 5)
 	if len(a.OutputChain) > 0 {
-		return encoder.AddArray("OutputChain", actionOutputLogArray(a.OutputChain))
+		if len(a.OutputChain) > 20 {
+			encoder.AddInt("OutputChainTotal", len(a.OutputChain))
+			return encoder.AddArray("OutputChain", actionOutputLogArray(a.OutputChain[:20]))
+		} else {
+			return encoder.AddArray("OutputChain", actionOutputLogArray(a.OutputChain))
+		}
 	}
 	return nil
 }
