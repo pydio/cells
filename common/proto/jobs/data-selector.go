@@ -31,23 +31,29 @@ func (x *DataSelector) Select(ctx context.Context, input *ActionMessage, objects
 
 		jsonPath := q.GetJsonPath()
 		if jsonPath != "" && JSONPathSelector != nil {
+			var targetVariable string
+			if parts := strings.Split(jsonPath, "=>"); len(parts) > 1 {
+				jsonPath = strings.TrimSpace(parts[0])
+				targetVariable = strings.TrimSpace(parts[1])
+			}
 			root := map[string]interface{}{}
-			if input.GetLastOutput() != nil && len(input.GetLastOutput().JsonBody) > 0 {
+			needInput, needJson, needVars, expectedVars := x.PreParseJsonPath(jsonPath)
+			// Feed with necessary data
+			if needJson && input.GetLastOutput() != nil && len(input.GetLastOutput().JsonBody) > 0 {
 				var data interface{}
 				if er := json.Unmarshal(input.GetLastOutput().JsonBody, &data); er == nil {
 					root["JsonBody"] = data
 				}
 			}
-			root["Vars"] = input.StackedVars()
-			jj, _ := json.Marshal(input)
-			var jjD map[string]interface{}
-			if er := json.Unmarshal(jj, &jjD); er == nil {
-				root["Input"] = jjD
+			if needVars {
+				root["Vars"] = input.StackedVars(expectedVars...)
 			}
-			var targetVariable string
-			if parts := strings.Split(jsonPath, "=>"); len(parts) > 1 {
-				jsonPath = strings.TrimSpace(parts[0])
-				targetVariable = strings.TrimSpace(parts[1])
+			if needInput {
+				jj, _ := json.Marshal(input)
+				var jjD map[string]interface{}
+				if er := json.Unmarshal(jj, &jjD); er == nil {
+					root["Input"] = jjD
+				}
 			}
 			output, err := JSONPathSelector(ctx, root, jsonPath)
 			if err != nil {
@@ -61,6 +67,33 @@ func (x *DataSelector) Select(ctx context.Context, input *ActionMessage, objects
 	}
 
 	return nil
+}
+
+func (x *DataSelector) PreParseJsonPath(jp string) (input, jsonBody, vars bool, expectedVars []string) {
+	jp = strings.TrimPrefix(jp, "$.")
+	switch {
+
+	case strings.HasPrefix(jp, "Input"):
+		input = true
+
+	case strings.HasPrefix(jp, "JsonBody"):
+		jsonBody = true
+
+	case strings.HasPrefix(jp, "Vars"):
+		vars = true
+		jp = strings.TrimPrefix(jp, "Vars")
+		if strings.HasPrefix(jp, ".") {
+			tokens := strings.SplitN(jp, ".", 3)
+			if len(tokens) >= 2 && tokens[1] != "*" {
+				expectedVars = append(expectedVars, tokens[1])
+			}
+		}
+
+	default:
+		// We are not sure, return now
+		input, jsonBody, vars = true, true, true
+	}
+	return
 }
 
 func (x *DataSelector) MultipleSelection() bool {

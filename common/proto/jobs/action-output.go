@@ -21,6 +21,8 @@
 package jobs
 
 import (
+	"slices"
+
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -123,14 +125,35 @@ func (m *ActionOutput) SetVar(key string, value interface{}) {
 }
 
 // FillVars append existing, json-decoded values to the input map
-func (m *ActionOutput) FillVars(vv map[string]interface{}) {
+func (m *ActionOutput) FillVars(vv map[string]interface{}, expected ...string) {
 	if m.Vars == nil {
 		return
 	}
 	for k, v := range m.Vars {
+		if len(expected) > 0 && !slices.Contains(expected, k) {
+			continue
+		}
 		var val interface{}
 		if e := json.Unmarshal([]byte(v), &val); e == nil {
 			vv[k] = val
+		}
+	}
+	return
+}
+
+// LogVarsWithLimit does the same as FillVars but does not json-decode values and truncate huge vars
+func (m *ActionOutput) LogVarsWithLimit(vv map[string]interface{}, jsonSizeLimit int) {
+	if m.Vars == nil {
+		return
+	}
+	for k, v := range m.Vars {
+		if len(v) >= jsonSizeLimit {
+			vv[k] = v[:jsonSizeLimit] + "..."
+		} else {
+			var val interface{}
+			if e := json.Unmarshal([]byte(v), &val); e == nil {
+				vv[k] = val
+			}
 		}
 	}
 	return
