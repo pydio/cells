@@ -116,7 +116,7 @@ require (
 	go.uber.org/zap v1.26.0
 	gocloud.dev v0.20.0
 	gocloud.dev/pubsub/rabbitpubsub v0.20.0
-	golang.org/x/crypto v0.16.0
+	golang.org/x/crypto v0.17.0
 	golang.org/x/exp v0.0.0-20231127185646-65229373498e
 	golang.org/x/image v0.14.0
 	golang.org/x/net v0.19.0
