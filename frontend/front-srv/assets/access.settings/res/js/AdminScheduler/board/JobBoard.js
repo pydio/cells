@@ -108,7 +108,7 @@ class JobBoard extends React.Component {
         cmd.Cmd = JobsCommand.constructFromObject('RunOnce');
         cmd.JobId = job.ID;
         cmd.RunParameters = {};
-        parameters.forEach(p => {
+        parameters.filter(p => p.Value !== undefined).forEach(p => {
             cmd.RunParameters[p.Name] = p.Value + '';
         });
         return api.userControlJob(cmd).then(()=>{

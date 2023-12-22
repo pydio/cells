@@ -73,18 +73,7 @@ func NewTaskFromEvent(runtime, ctx context.Context, job *jobs.Job, event interfa
 
 	// Inject evaluated job parameters if it's not already here
 	if len(job.Parameters) > 0 && c.Value(ContextJobParametersKey{}) == nil {
-		params := make(map[string]string, len(job.Parameters))
-		for _, p := range job.Parameters {
-			params[p.Name] = jobs.EvaluateFieldStr(ctx, &jobs.ActionMessage{}, p.Value)
-		}
-		// Replace job parameters with values passed through TriggerEvent
-		if jte, ok := event.(*jobs.JobTriggerEvent); ok && len(jte.RunParameters) > 0 {
-			for k, v := range jte.RunParameters {
-				if _, o := params[k]; o {
-					params[k] = jobs.EvaluateFieldStr(ctx, &jobs.ActionMessage{}, v)
-				}
-			}
-		}
+		params := jobs.RunParametersComputer(c, &jobs.ActionMessage{}, job, event)
 		c = context.WithValue(c, ContextJobParametersKey{}, params)
 	}
 

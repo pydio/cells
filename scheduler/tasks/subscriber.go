@@ -264,7 +264,7 @@ func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEve
 }
 
 // prepareTaskContext creates adequate context for launching a task
-func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addSystemUser bool, eventParameters ...map[string]string) context.Context {
+func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addSystemUser bool, event interface{}) context.Context {
 
 	// Add System User if necessary
 	if addSystemUser {
@@ -282,18 +282,7 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 
 	// Inject evaluated job parameters
 	if len(job.Parameters) > 0 {
-		params := make(map[string]string, len(job.Parameters))
-		for _, p := range job.Parameters {
-			params[p.Name] = jobs.EvaluateFieldStr(ctx, &jobs.ActionMessage{}, p.Value)
-		}
-		if len(eventParameters) > 0 {
-			// Replace job parameters with values passed through TriggerEvent
-			for k, v := range eventParameters[0] {
-				if _, o := params[k]; o {
-					params[k] = jobs.EvaluateFieldStr(ctx, &jobs.ActionMessage{}, v)
-				}
-			}
-		}
+		params := jobs.RunParametersComputer(ctx, &jobs.ActionMessage{}, job, event)
 		ctx = context.WithValue(ctx, ContextJobParametersKey{}, params)
 	}
 
@@ -326,9 +315,9 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 		return nil
 	}
 	if event.GetRunNow() && event.GetRunParameters() != nil {
-		ctx = s.prepareTaskContext(ctx, j, true, event.GetRunParameters())
+		ctx = s.prepareTaskContext(ctx, j, true, event)
 	} else {
-		ctx = s.prepareTaskContext(ctx, j, true)
+		ctx = s.prepareTaskContext(ctx, j, true, nil)
 	}
 	if event.GetRunNow() {
 		log.Logger(ctx).Info("Run Job " + jobId + " on demand")
@@ -350,7 +339,7 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 			return
 		}
 		sameJobUuid := s.contextJobSameUuid(ctx, jobId)
-		tCtx := s.prepareTaskContext(ctx, jobData, false)
+		tCtx := s.prepareTaskContext(ctx, jobData, false, nil)
 		var eventMatch string
 		for _, eName := range jobData.EventNames {
 			if eType, ok := jobs.ParseNodeChangeEventName(eName); ok {
@@ -402,7 +391,7 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 			return
 		}
 		sameJob := s.contextJobSameUuid(ctx, jobId)
-		tCtx := s.prepareTaskContext(ctx, jobData, true)
+		tCtx := s.prepareTaskContext(ctx, jobData, true, nil)
 		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(tCtx, jobData.ContextMetaFilter) {
 			return
 		}

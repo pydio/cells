@@ -159,7 +159,7 @@ class JobsList extends React.Component {
 
     render(){
 
-        const {pydio, selectRows, muiTheme, jobs = [], loading, jobsEditable} = this.props;
+        const {pydio, selectRows, muiTheme, jobs = [], loading, jobsEditable, renderGroupHeader} = this.props;
         const {flowsOpen} = this.state ||{};
 
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
@@ -292,10 +292,17 @@ class JobsList extends React.Component {
                     legend={m('system.legend')}
                 />
                 {groupKeys.map(key => {
+                    let groupHeader;
+                    if(renderGroupHeader) {
+                        groupHeader = renderGroupHeader(key, knownGroups)
+                    } else if(key) {
+                        groupHeader = <div style={{padding: 20, fontWeight: 500, paddingBottom: 0}}>{'['+gLabelMess('group')+'] ' + key}</div>
+                    } else if(knownGroups.length) {
+                        groupHeader = <div style={{padding: 20, fontWeight: 500, paddingBottom: 0}}>{gLabelMess('default-group')}</div>
+                    }
                     return (
                         <React.Fragment>
-                            {key && <div style={{padding: 20, fontWeight: 500, paddingBottom: 0}}>{'['+gLabelMess('group')+'] ' + key}</div>}
-                            {!key && knownGroups.length > 0 && <div style={{padding: 20, fontWeight: 500, paddingBottom: 0}}>{gLabelMess('default-group')}</div>}
+                            {groupHeader}
                             <Paper {...adminStyles.body.block.props}>
                                 <MaterialTable
                                     data={groupedJobs[key]}

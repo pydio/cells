@@ -26,8 +26,15 @@ import (
 )
 
 var (
-	fieldEvaluators []FieldEvaluator
+	fieldEvaluators       []FieldEvaluator
+	RunParametersComputer RunParametersComputerFunc
 )
+
+func init() {
+	RunParametersComputer = DefaultRunParametersComputer
+}
+
+type RunParametersComputerFunc func(ctx context.Context, input *ActionMessage, job *Job, event interface{}) map[string]string
 
 type FieldEvaluator interface {
 	EvaluateField(ctx context.Context, input *ActionMessage, value string) string
@@ -95,4 +102,22 @@ func EvaluateFieldInt(ctx context.Context, input *ActionMessage, value string) (
 func EvaluateFieldInt64(ctx context.Context, input *ActionMessage, value string) (int64, error) {
 	strVal := EvaluateFieldStr(ctx, input, value)
 	return strconv.ParseInt(strVal, 10, 64)
+}
+
+func DefaultRunParametersComputer(ctx context.Context, input *ActionMessage, job *Job, event interface{}) map[string]string {
+	params := make(map[string]string, len(job.Parameters))
+	for _, p := range job.Parameters {
+		params[p.Name] = EvaluateFieldStr(ctx, input, p.Value)
+	}
+	// Replace job parameters with values passed through TriggerEvent
+	if event != nil {
+		if jte, ok := event.(*JobTriggerEvent); ok && len(jte.RunParameters) > 0 {
+			for k, v := range jte.RunParameters {
+				if _, o := params[k]; o {
+					params[k] = EvaluateFieldStr(ctx, input, v)
+				}
+			}
+		}
+	}
+	return params
 }
