@@ -22,7 +22,7 @@ package runtime
 
 import (
 	"context"
-	"reflect"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 type ContextInjector func(ctx, parent context.Context) context.Context
@@ -44,12 +44,30 @@ func ForkContext(ctx, parent context.Context) context.Context {
 	return ctx
 }
 
-// With returns a context which knows its service
-func With[T any](ctx context.Context, t *T) context.Context {
-	return context.WithValue(ctx, reflect.TypeOf((*T)(nil)), t)
+type contextType int
+
+const (
+	configKey contextType = iota
+)
+
+func WithConfig(ctx context.Context, c configx.Values) context.Context {
+	return context.WithValue(ctx, configKey, c)
 }
 
-func Get[T any](ctx context.Context) *T {
-	v, _ := ctx.Value(reflect.TypeOf((*T)(nil))).(*T)
-	return v
+func GetConfig(ctx context.Context) configx.Values {
+	if ctx == nil {
+		return nil
+	}
+
+	i := ctx.Value(configKey)
+	if i == nil {
+		return nil
+	}
+
+	c, ok := i.(configx.Values)
+	if !ok {
+		return nil
+	}
+
+	return c
 }

@@ -41,7 +41,7 @@ type statBatcher struct {
 	c        *Client
 	pending  []*input
 	size     int
-	walker   func(path string, info *fileInfo, node *tree.Node) error
+	walker   func(path string, info *fileInfo, node tree.N) error
 }
 
 func (b *statBatcher) push(n *input) error {

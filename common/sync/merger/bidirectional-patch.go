@@ -23,6 +23,7 @@ package merger
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"net/url"
 	"path"
 	"strings"
@@ -32,7 +33,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sync/model"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -118,29 +118,29 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 }
 
 // StartSession overrides AbstractPatch method to handle source and/or target as session provider
-func (p *BidirectionalPatch) StartSession(rootNode *tree.Node) (*tree.IndexationSession, error) {
+func (p *BidirectionalPatch) StartSession(rootNode tree.N) (string, error) {
 	if p.sessionProviderContext == nil {
-		return &tree.IndexationSession{Uuid: "", Description: "no-op"}, nil
+		return "", nil
 	}
-	ids := make(map[string]*tree.IndexationSession)
+	ids := make(map[string]string)
 	if sessionProvider, ok := p.Source().(model.SessionProvider); ok {
 		if sourceSession, er := sessionProvider.StartSession(p.sessionProviderContext, rootNode, p.sessionSilent); er != nil {
-			return nil, er
+			return "", er
 		} else {
 			ids["source"] = sourceSession
 		}
 	}
 	if sessionProvider, ok := p.Target().(model.SessionProvider); ok {
 		if targetSession, er := sessionProvider.StartSession(p.sessionProviderContext, rootNode, p.sessionSilent); er != nil {
-			return nil, er
+			return "", er
 		} else {
 			ids["target"] = targetSession
 		}
 	}
-	session := &tree.IndexationSession{}
+	var session string
 	if len(ids) > 0 {
 		data, _ := json.Marshal(ids)
-		session.Uuid = string(data)
+		session = string(data)
 	}
 	return session, nil
 }
@@ -150,18 +150,18 @@ func (p *BidirectionalPatch) FlushSession(sessionUuid string) error {
 	if len(sessionUuid) == 0 {
 		return nil
 	}
-	var ids map[string]*tree.IndexationSession
+	var ids map[string]string
 	if e := json.Unmarshal([]byte(sessionUuid), &ids); e != nil {
 		return nil
 	}
 	targetSession, o1 := ids["target"]
 	var e1, e2 error
 	if sessionProvider, ok := p.Target().(model.SessionProvider); ok && o1 {
-		e1 = sessionProvider.FlushSession(p.sessionProviderContext, targetSession.Uuid)
+		e1 = sessionProvider.FlushSession(p.sessionProviderContext, targetSession)
 	}
 	sourceSession, o2 := ids["source"]
 	if sessionProvider, ok := p.Source().(model.SessionProvider); ok && o2 {
-		e2 = sessionProvider.FlushSession(p.sessionProviderContext, sourceSession.Uuid)
+		e2 = sessionProvider.FlushSession(p.sessionProviderContext, sourceSession)
 	}
 	if e1 != nil {
 		return e1
@@ -177,18 +177,18 @@ func (p *BidirectionalPatch) FinishSession(sessionUuid string) error {
 	if len(sessionUuid) == 0 {
 		return nil
 	}
-	var ids map[string]*tree.IndexationSession
+	var ids map[string]string
 	if e := json.Unmarshal([]byte(sessionUuid), &ids); e != nil {
 		return nil
 	}
 	targetSession, o1 := ids["target"]
 	var e1, e2 error
 	if sessionProvider, ok := p.Target().(model.SessionProvider); ok && o1 {
-		e1 = sessionProvider.FinishSession(p.sessionProviderContext, targetSession.Uuid)
+		e1 = sessionProvider.FinishSession(p.sessionProviderContext, targetSession)
 	}
 	sourceSession, o2 := ids["source"]
 	if sessionProvider, ok := p.Source().(model.SessionProvider); ok && o2 {
-		e2 = sessionProvider.FinishSession(p.sessionProviderContext, sourceSession.Uuid)
+		e2 = sessionProvider.FinishSession(p.sessionProviderContext, sourceSession)
 	}
 	if e1 != nil {
 		return e1
@@ -331,10 +331,10 @@ func (p *BidirectionalPatch) enqueueRight(left, right *TreeNode) {
 	p.enqueueOperations(right, OperationDirLeft)
 }
 
-// enqueueConflict sets a Conflict flag on the the given path in side the patch. The Conflict has references to left and right operations
+// enqueueConflict sets a Conflict flag on the given path in side the patch. The Conflict has references to left and right operations
 func (p *BidirectionalPatch) enqueueConflict(left, right *TreeNode, t ConflictType) {
 	log.Logger(p.ctx).Error("-- Unsolvable conflict!", zap.Any("left", left.PathOperation), zap.Any("right", right.PathOperation))
-	p.unexpected = append(p.unexpected, fmt.Errorf("registered conflict at path %s", left.Path))
+	p.unexpected = append(p.unexpected, fmt.Errorf("registered conflict at path %s", left.GetPath()))
 	var leftOp, rightOp Operation
 	if left.PathOperation != nil {
 		leftOp = left.PathOperation
@@ -346,7 +346,7 @@ func (p *BidirectionalPatch) enqueueConflict(left, right *TreeNode, t ConflictTy
 	} else if right.DataOperation != nil {
 		rightOp = right.DataOperation
 	}
-	op := NewConflictOperation(&left.Node, t, leftOp, rightOp)
+	op := NewConflictOperation(left.N, t, leftOp, rightOp)
 	p.QueueOperation(op)
 }
 
@@ -359,8 +359,8 @@ func (p *BidirectionalPatch) reSyncTarget(left, right *TreeNode) {
 		requeueNode = left
 	}
 	source := requeueNode.PathOperation.Source()
-	log.Logger(p.ctx).Info("Delete + Move: should recreate target (file or folder) for " + requeueNode.OpMoveTarget.Path)
-	targetPath := requeueNode.OpMoveTarget.Path
+	log.Logger(p.ctx).Info("Delete + Move: should recreate target (file or folder) for " + requeueNode.OpMoveTarget.GetPath())
+	targetPath := requeueNode.OpMoveTarget.GetPath()
 	n, e := source.LoadNode(p.ctx, targetPath)
 	if e != nil {
 		// Cannot find move target, ignore
@@ -383,7 +383,7 @@ func (p *BidirectionalPatch) reSyncTarget(left, right *TreeNode) {
 	requeueNode.getRoot().QueueOperation(newOp)
 	if !n.IsLeaf() {
 		// Enqueue folder children as creates
-		_ = source.Walk(p.ctx, func(path string, node *tree.Node, err error) error {
+		_ = source.Walk(p.ctx, func(path string, node tree.N, err error) error {
 			oType := OpCreateFolder
 			if node.IsLeaf() {
 				oType = OpCreateFile
@@ -412,21 +412,21 @@ func (p *BidirectionalPatch) compareMoveSources(left, right *TreeNode) {
 // compareMoveTargets finds conflicts on Move operations where a source node would have been moved to two different targets.
 // Auto-solving is performed by detecting the most recent operation.
 func (p *BidirectionalPatch) compareMoveTargets(left, right *TreeNode) {
-	if left.OpMoveTarget.Path == right.OpMoveTarget.Path {
+	if left.OpMoveTarget.GetPath() == right.OpMoveTarget.GetPath() {
 		log.Logger(p.ctx).Debug("-- Moved toward the same path, ignore!")
 	} else {
-		l, err1 := left.PathOperation.Source().LoadNode(p.ctx, left.OpMoveTarget.Path)
-		r, err2 := right.PathOperation.Target().LoadNode(p.ctx, right.OpMoveTarget.Path)
+		l, err1 := left.PathOperation.Source().LoadNode(p.ctx, left.OpMoveTarget.GetPath())
+		r, err2 := right.PathOperation.Target().LoadNode(p.ctx, right.OpMoveTarget.GetPath())
 		if err1 != nil {
 			p.unexpected = append(p.unexpected, err1)
 		} else if err2 != nil {
 			p.unexpected = append(p.unexpected, err2)
-		} else if l.MTime > r.MTime {
+		} else if l.GetMTime() > r.GetMTime() {
 			log.Logger(p.ctx).Info("-- Moved toward different paths, left is more recent that right => left wins")
-			// Ignore Left - Change Right from Orig => OpMoveTarget.Path to RIGHT.OpMoveTarget.Path => LEFT.OpMoveTargetPath
+			// Ignore Left - Change Right from Orig => OpMoveTarget.GetPath() to RIGHT.OpMoveTarget.GetPath() => LEFT.OpMoveTargetPath
 			newOp := right.PathOperation.Clone()
-			newOp.UpdateMoveOriginPath(right.OpMoveTarget.Path)
-			newOp.UpdateRefPath(left.OpMoveTarget.Path)
+			newOp.UpdateMoveOriginPath(right.OpMoveTarget.GetPath())
+			newOp.UpdateRefPath(left.OpMoveTarget.GetPath())
 
 			right.PathOperation = nil
 			right.OpMoveTarget = nil
@@ -439,8 +439,8 @@ func (p *BidirectionalPatch) compareMoveTargets(left, right *TreeNode) {
 			log.Logger(p.ctx).Info("-- Moved toward different paths, right is more recent than left => right wins")
 			// Ignore Right - Change Left
 			newOp := left.PathOperation.Clone()
-			newOp.UpdateMoveOriginPath(left.OpMoveTarget.Path)
-			newOp.UpdateRefPath(right.OpMoveTarget.Path)
+			newOp.UpdateMoveOriginPath(left.OpMoveTarget.GetPath())
+			newOp.UpdateRefPath(right.OpMoveTarget.GetPath())
 
 			right.PathOperation = nil
 			right.OpMoveTarget = nil

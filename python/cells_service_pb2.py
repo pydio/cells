@@ -16,7 +16,7 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 import orm_pb2 as orm__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13\x63\x65lls-service.proto\x12\x07service\x1a\x19google/protobuf/any.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\torm.proto\"\x8b\x02\n\x05Query\x12\x34\n\nSubQueries\x18\x01 \x03(\x0b\x32\x14.google.protobuf.AnyR\nSubQueries\x12\x34\n\tOperation\x18\x02 \x01(\x0e\x32\x16.service.OperationTypeR\tOperation\x12N\n\x13ResourcePolicyQuery\x18\x03 \x01(\x0b\x32\x1c.service.ResourcePolicyQueryR\x13ResourcePolicyQuery\x12\x16\n\x06Offset\x18\x04 \x01(\x03R\x06Offset\x12\x14\n\x05Limit\x18\x05 \x01(\x03R\x05Limit\x12\x18\n\x07groupBy\x18\x06 \x01(\x05R\x07groupBy\"Y\n\x13ResourcePolicyQuery\x12\x1a\n\x08Subjects\x18\x01 \x03(\tR\x08Subjects\x12\x14\n\x05\x45mpty\x18\x02 \x01(\x08R\x05\x45mpty\x12\x10\n\x03\x41ny\x18\x03 \x01(\x08R\x03\x41ny\"\x83\x03\n\x0eResourcePolicy\x12\x1a\n\x02id\x18\x01 \x01(\x03\x42\n\xba\xb9\x19\x06\n\x04\n\x02idR\x02id\x12,\n\x08Resource\x18\x02 \x01(\tB\x10\xba\xb9\x19\x0c\n\n\n\x08resourceR\x08Resource\x12\x45\n\x06\x41\x63tion\x18\x03 \x01(\x0e\x32\x1d.service.ResourcePolicyActionB\x0e\xba\xb9\x19\n\n\x08\n\x06\x61\x63tionR\x06\x41\x63tion\x12)\n\x07Subject\x18\x04 \x01(\tB\x0f\xba\xb9\x19\x0b\n\t\n\x07subjectR\x07Subject\x12L\n\x06\x45\x66\x66\x65\x63t\x18\x05 \x01(\x0e\x32$.service.ResourcePolicy.PolicyEffectB\x0e\xba\xb9\x19\n\n\x08\n\x06\x65\x66\x66\x65\x63tR\x06\x45\x66\x66\x65\x63t\x12:\n\x0eJsonConditions\x18\x06 \x01(\tB\x12\xba\xb9\x19\x0e\n\x0c\n\nconditionsR\x0eJsonConditions\"#\n\x0cPolicyEffect\x12\x08\n\x04\x64\x65ny\x10\x00\x12\t\n\x05\x61llow\x10\x01:\x06\xba\xb9\x19\x02\x08\x01\"\"\n\x0cStartRequest\x12\x12\n\x04name\x18\x01 \x01(\tR\x04name\"\x1f\n\rStartResponse\x12\x0e\n\x02OK\x18\x01 \x01(\x08R\x02OK\"!\n\x0bStopRequest\x12\x12\n\x04name\x18\x01 \x01(\tR\x04name\"\x1e\n\x0cStopResponse\x12\x0e\n\x02OK\x18\x01 \x01(\x08R\x02OK\"!\n\x0f\x41rchiveResponse\x12\x0e\n\x02OK\x18\x01 \x01(\x08R\x02OK\";\n\x13\x43hangesArchiveQuery\x12$\n\rRemainingRows\x18\x01 \x01(\x04R\rRemainingRows\"]\n\x05\x45rror\x12\x0e\n\x02ID\x18\x01 \x01(\tR\x02ID\x12\x12\n\x04\x43ode\x18\x02 \x01(\rR\x04\x43ode\x12\x16\n\x06Status\x18\x03 \x01(\tR\x06Status\x12\x18\n\x07\x44\x65tails\x18\x04 \x01(\tR\x07\x44\x65tails* \n\rOperationType\x12\x06\n\x02OR\x10\x00\x12\x07\n\x03\x41ND\x10\x01*O\n\x14ResourcePolicyAction\x12\x07\n\x03\x41NY\x10\x00\x12\t\n\x05OWNER\x10\x01\x12\x08\n\x04READ\x10\x02\x12\t\n\x05WRITE\x10\x03\x12\x0e\n\nEDIT_RULES\x10\x04\x32}\n\x0eServiceManager\x12\x36\n\x05Start\x12\x15.service.StartRequest\x1a\x16.service.StartResponse\x12\x33\n\x04Stop\x12\x14.service.StopRequest\x1a\x15.service.StopResponse2?\n\x08\x41rchiver\x12\x33\n\x07\x41rchive\x12\x0e.service.Query\x1a\x18.service.ArchiveResponseB-Z+github.com/pydio/cells/common/proto/serviceb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13\x63\x65lls-service.proto\x12\x07service\x1a\x19google/protobuf/any.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\torm.proto\"\x8b\x02\n\x05Query\x12\x34\n\nSubQueries\x18\x01 \x03(\x0b\x32\x14.google.protobuf.AnyR\nSubQueries\x12\x34\n\tOperation\x18\x02 \x01(\x0e\x32\x16.service.OperationTypeR\tOperation\x12N\n\x13ResourcePolicyQuery\x18\x03 \x01(\x0b\x32\x1c.service.ResourcePolicyQueryR\x13ResourcePolicyQuery\x12\x16\n\x06Offset\x18\x04 \x01(\x03R\x06Offset\x12\x14\n\x05Limit\x18\x05 \x01(\x03R\x05Limit\x12\x18\n\x07groupBy\x18\x06 \x01(\x05R\x07groupBy\"Y\n\x13ResourcePolicyQuery\x12\x1a\n\x08Subjects\x18\x01 \x03(\tR\x08Subjects\x12\x14\n\x05\x45mpty\x18\x02 \x01(\x08R\x05\x45mpty\x12\x10\n\x03\x41ny\x18\x03 \x01(\x08R\x03\x41ny\"\x85\x03\n\x0eResourcePolicy\x12\x1c\n\x02id\x18\x01 \x01(\x03\x42\x0c\xba\xb9\x19\x08\n\x06\n\x02idX\x01R\x02id\x12,\n\x08Resource\x18\x02 \x01(\tB\x10\xba\xb9\x19\x0c\n\n\n\x08resourceR\x08Resource\x12\x45\n\x06\x41\x63tion\x18\x03 \x01(\x0e\x32\x1d.service.ResourcePolicyActionB\x0e\xba\xb9\x19\n\n\x08\n\x06\x61\x63tionR\x06\x41\x63tion\x12)\n\x07Subject\x18\x04 \x01(\tB\x0f\xba\xb9\x19\x0b\n\t\n\x07subjectR\x07Subject\x12L\n\x06\x45\x66\x66\x65\x63t\x18\x05 \x01(\x0e\x32$.service.ResourcePolicy.PolicyEffectB\x0e\xba\xb9\x19\n\n\x08\n\x06\x65\x66\x66\x65\x63tR\x06\x45\x66\x66\x65\x63t\x12:\n\x0eJsonConditions\x18\x06 \x01(\tB\x12\xba\xb9\x19\x0e\n\x0c\n\nconditionsR\x0eJsonConditions\"#\n\x0cPolicyEffect\x12\x08\n\x04\x64\x65ny\x10\x00\x12\t\n\x05\x61llow\x10\x01:\x06\xba\xb9\x19\x02\x08\x01\"\"\n\x0cStartRequest\x12\x12\n\x04name\x18\x01 \x01(\tR\x04name\"\x1f\n\rStartResponse\x12\x0e\n\x02OK\x18\x01 \x01(\x08R\x02OK\"!\n\x0bStopRequest\x12\x12\n\x04name\x18\x01 \x01(\tR\x04name\"\x1e\n\x0cStopResponse\x12\x0e\n\x02OK\x18\x01 \x01(\x08R\x02OK\"!\n\x0f\x41rchiveResponse\x12\x0e\n\x02OK\x18\x01 \x01(\x08R\x02OK\";\n\x13\x43hangesArchiveQuery\x12$\n\rRemainingRows\x18\x01 \x01(\x04R\rRemainingRows\"]\n\x05\x45rror\x12\x0e\n\x02ID\x18\x01 \x01(\tR\x02ID\x12\x12\n\x04\x43ode\x18\x02 \x01(\rR\x04\x43ode\x12\x16\n\x06Status\x18\x03 \x01(\tR\x06Status\x12\x18\n\x07\x44\x65tails\x18\x04 \x01(\tR\x07\x44\x65tails* \n\rOperationType\x12\x06\n\x02OR\x10\x00\x12\x07\n\x03\x41ND\x10\x01*O\n\x14ResourcePolicyAction\x12\x07\n\x03\x41NY\x10\x00\x12\t\n\x05OWNER\x10\x01\x12\x08\n\x04READ\x10\x02\x12\t\n\x05WRITE\x10\x03\x12\x0e\n\nEDIT_RULES\x10\x04\x32}\n\x0eServiceManager\x12\x36\n\x05Start\x12\x15.service.StartRequest\x1a\x16.service.StartResponse\x12\x33\n\x04Stop\x12\x14.service.StopRequest\x1a\x15.service.StopResponse2?\n\x08\x41rchiver\x12\x33\n\x07\x41rchive\x12\x0e.service.Query\x1a\x18.service.ArchiveResponseB-Z+github.com/pydio/cells/common/proto/serviceb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -25,7 +25,7 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z+github.com/pydio/cells/common/proto/service'
   _RESOURCEPOLICY.fields_by_name['id']._options = None
-  _RESOURCEPOLICY.fields_by_name['id']._serialized_options = b'\272\271\031\006\n\004\n\002id'
+  _RESOURCEPOLICY.fields_by_name['id']._serialized_options = b'\272\271\031\010\n\006\n\002idX\001'
   _RESOURCEPOLICY.fields_by_name['Resource']._options = None
   _RESOURCEPOLICY.fields_by_name['Resource']._serialized_options = b'\272\271\031\014\n\n\n\010resource'
   _RESOURCEPOLICY.fields_by_name['Action']._options = None
@@ -38,34 +38,34 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _RESOURCEPOLICY.fields_by_name['JsonConditions']._serialized_options = b'\272\271\031\016\n\014\n\nconditions'
   _RESOURCEPOLICY._options = None
   _RESOURCEPOLICY._serialized_options = b'\272\271\031\002\010\001'
-  _globals['_OPERATIONTYPE']._serialized_start=1177
-  _globals['_OPERATIONTYPE']._serialized_end=1209
-  _globals['_RESOURCEPOLICYACTION']._serialized_start=1211
-  _globals['_RESOURCEPOLICYACTION']._serialized_end=1290
+  _globals['_OPERATIONTYPE']._serialized_start=1179
+  _globals['_OPERATIONTYPE']._serialized_end=1211
+  _globals['_RESOURCEPOLICYACTION']._serialized_start=1213
+  _globals['_RESOURCEPOLICYACTION']._serialized_end=1292
   _globals['_QUERY']._serialized_start=100
   _globals['_QUERY']._serialized_end=367
   _globals['_RESOURCEPOLICYQUERY']._serialized_start=369
   _globals['_RESOURCEPOLICYQUERY']._serialized_end=458
   _globals['_RESOURCEPOLICY']._serialized_start=461
-  _globals['_RESOURCEPOLICY']._serialized_end=848
-  _globals['_RESOURCEPOLICY_POLICYEFFECT']._serialized_start=805
-  _globals['_RESOURCEPOLICY_POLICYEFFECT']._serialized_end=840
-  _globals['_STARTREQUEST']._serialized_start=850
-  _globals['_STARTREQUEST']._serialized_end=884
-  _globals['_STARTRESPONSE']._serialized_start=886
-  _globals['_STARTRESPONSE']._serialized_end=917
-  _globals['_STOPREQUEST']._serialized_start=919
-  _globals['_STOPREQUEST']._serialized_end=952
-  _globals['_STOPRESPONSE']._serialized_start=954
-  _globals['_STOPRESPONSE']._serialized_end=984
-  _globals['_ARCHIVERESPONSE']._serialized_start=986
-  _globals['_ARCHIVERESPONSE']._serialized_end=1019
-  _globals['_CHANGESARCHIVEQUERY']._serialized_start=1021
-  _globals['_CHANGESARCHIVEQUERY']._serialized_end=1080
-  _globals['_ERROR']._serialized_start=1082
-  _globals['_ERROR']._serialized_end=1175
-  _globals['_SERVICEMANAGER']._serialized_start=1292
-  _globals['_SERVICEMANAGER']._serialized_end=1417
-  _globals['_ARCHIVER']._serialized_start=1419
-  _globals['_ARCHIVER']._serialized_end=1482
+  _globals['_RESOURCEPOLICY']._serialized_end=850
+  _globals['_RESOURCEPOLICY_POLICYEFFECT']._serialized_start=807
+  _globals['_RESOURCEPOLICY_POLICYEFFECT']._serialized_end=842
+  _globals['_STARTREQUEST']._serialized_start=852
+  _globals['_STARTREQUEST']._serialized_end=886
+  _globals['_STARTRESPONSE']._serialized_start=888
+  _globals['_STARTRESPONSE']._serialized_end=919
+  _globals['_STOPREQUEST']._serialized_start=921
+  _globals['_STOPREQUEST']._serialized_end=954
+  _globals['_STOPRESPONSE']._serialized_start=956
+  _globals['_STOPRESPONSE']._serialized_end=986
+  _globals['_ARCHIVERESPONSE']._serialized_start=988
+  _globals['_ARCHIVERESPONSE']._serialized_end=1021
+  _globals['_CHANGESARCHIVEQUERY']._serialized_start=1023
+  _globals['_CHANGESARCHIVEQUERY']._serialized_end=1082
+  _globals['_ERROR']._serialized_start=1084
+  _globals['_ERROR']._serialized_end=1177
+  _globals['_SERVICEMANAGER']._serialized_start=1294
+  _globals['_SERVICEMANAGER']._serialized_end=1419
+  _globals['_ARCHIVER']._serialized_start=1421
+  _globals['_ARCHIVER']._serialized_end=1484
 # @@protoc_insertion_point(module_scope)

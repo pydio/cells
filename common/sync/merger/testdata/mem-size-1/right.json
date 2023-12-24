@@ -1,0 +1,3101 @@
+[
+  {
+    "Uuid": "root",
+    "Path": "/",
+    "Type": 2,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": ".DS_Store",
+    "Type": 1,
+    "Size": 8196,
+    "MTime": 1568022652,
+    "Mode": 420,
+    "Etag": "28b2c4b93797daefe6b468d4d9a558d7",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": ".pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1559285908,
+    "Mode": 420,
+    "Etag": "a6cd9886b4c1eff4f2bf2658a989f451",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "420798c4-d48a-4abc-9289-f3377c16d663",
+    "Path": "pydio-moved",
+    "Type": 2,
+    "Size": 192,
+    "MTime": 1568022647,
+    "Mode": -2147483137,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/.DS_Store",
+    "Type": 1,
+    "Size": 8196,
+    "MTime": 1568022652,
+    "Mode": 420,
+    "Etag": "2b5861af0a788ff0de5a9ef513e1ac09",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/.htaccess",
+    "Type": 1,
+    "Size": 952,
+    "MTime": 1552392162,
+    "Mode": 438,
+    "Etag": "94a25f4bd35e8d5d2c925d2b70212af4",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568019211,
+    "Mode": 420,
+    "Etag": "1abf67ab5b98812904828a0e8d5d0312",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "7ab1cc63-5075-4270-8fbc-e2b225566c0a",
+    "Path": "pydio-moved/plugins",
+    "Type": 2,
+    "Size": 160,
+    "MTime": 1568022607,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/.DS_Store",
+    "Type": 1,
+    "Size": 6148,
+    "MTime": 1568022607,
+    "Mode": 420,
+    "Etag": "194577a7e20bdcc7afbb718f502c134c",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "f755ab45006715d23113236d18705de2",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "cef5b041-b173-4343-993f-e88e833e2b05",
+    "Path": "pydio-moved/plugins/gui.ajax",
+    "Type": 2,
+    "Size": 160,
+    "MTime": 1568022607,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/.DS_Store",
+    "Type": 1,
+    "Size": 6148,
+    "MTime": 1568022607,
+    "Mode": 420,
+    "Etag": "194577a7e20bdcc7afbb718f502c134c",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "f182997b37dc2a6acf4344ecf37bd439",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "7476c7b1-dd7d-4a3a-9560-8f446df9c392",
+    "Path": "pydio-moved/plugins/gui.ajax/res",
+    "Type": 2,
+    "Size": 160,
+    "MTime": 1568022607,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/.DS_Store",
+    "Type": 1,
+    "Size": 6148,
+    "MTime": 1568022607,
+    "Mode": 420,
+    "Etag": "194577a7e20bdcc7afbb718f502c134c",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "bbc775da1fc1f97f73bc0ae87c547489",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "9ee15977-609b-4c89-ac66-4e43a2b9e37a",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes",
+    "Type": 2,
+    "Size": 160,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "3822b628d9a9f2ab328cb83394535e87",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "7fe212ef-4cb8-4e79-aae7-21958dff55df",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common",
+    "Type": 2,
+    "Size": 192,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "6695eba66c814a1019da4e481735b3f5",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "a4777fcb-af64-4ef1-a5de-5b4e7a8192d5",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css",
+    "Type": 2,
+    "Size": 256,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "2874542e612da9d4455122395f21ee03",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "37fb79ed-6a22-4801-8037-51ed59cbb8d2",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/base",
+    "Type": 2,
+    "Size": 192,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/base/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "7cdeb011953781310dcf288267a4cf83",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/base/body.less",
+    "Type": 1,
+    "Size": 1873,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "2fcd5d48d8acb9e6ae0a3a96014bafed",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/base/layout.less",
+    "Type": 1,
+    "Size": 1041,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "e2fbce21ff4ac1422353548a7934c346",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/base/overlay.less",
+    "Type": 1,
+    "Size": 1524,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "2ec4b0efc9536499ba8d791987acb569",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "c9fa4aba-65c6-4bed-8728-3f184e02a858",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components",
+    "Type": 2,
+    "Size": 608,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "4a70957636944a50ec19b5be703a5a1b",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/activity.less",
+    "Type": 1,
+    "Size": 616,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "4864112136695edb3143ee8226c04133",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/breadcrumb.less",
+    "Type": 1,
+    "Size": 231,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f4dbe27f51e1a78e7833c17db5b4d00b",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/dialog.less",
+    "Type": 1,
+    "Size": 1616,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "a798f557efc7b089b12394fdc30d547d",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/editor.less",
+    "Type": 1,
+    "Size": 3000,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "d7068cacc083e45c613ac4bef26f824d",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/infopanel.less",
+    "Type": 1,
+    "Size": 2532,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "c9f0e3622fe86cd05bf70abc9fefc8b1",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/leftpanel.less",
+    "Type": 1,
+    "Size": 4996,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "bf9a5a0a1dc6bdd047e51196ac07c137",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/lists.less",
+    "Type": 1,
+    "Size": 9916,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "a2c19cdc7f98c09262d2b77ecb9efffe",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/loader.less",
+    "Type": 1,
+    "Size": 592,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "7febd650f8a33a6785a95c2989896604",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/menus.less",
+    "Type": 1,
+    "Size": 1032,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "14d8fa40fed71ffe17774ba45fae7545",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/scrollarea.less",
+    "Type": 1,
+    "Size": 196,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "04e7ff25c8e4377f6394eac5719fd7dc",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/searchengine.less",
+    "Type": 1,
+    "Size": 4864,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f89e48cb36fe96459b56fd945040bb6c",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/tasks.less",
+    "Type": 1,
+    "Size": 1334,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "e524a56e307a3b2adbf03be73093b398",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/tourguide.less",
+    "Type": 1,
+    "Size": 9804,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "cd22c64a93b403824ce909f23f789f6a",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/tree.less",
+    "Type": 1,
+    "Size": 706,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "ad973cd71f91b543f27e7ffc113a799b",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/uploaders.less",
+    "Type": 1,
+    "Size": 7754,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "ce98647d853c205c32394d5d9ae6d566",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/components/userwidget.less",
+    "Type": 1,
+    "Size": 647,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "46a11b73be15c8ebcb507cf86db09dfd",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "11cdbde1-d8bb-4f28-b45b-eca9df0d9354",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/fonts",
+    "Type": 2,
+    "Size": 192,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/fonts/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "a3fbb57bf0bbdb2f40e1604f07838bee",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/fonts/font-awesome.css",
+    "Type": 1,
+    "Size": 26785,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "6d3a507f694806bb44f5bef8de5d2ab3",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/fonts/fontfaces.less",
+    "Type": 1,
+    "Size": 1795,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "6a1e344b75b388561716a375c5512f0a",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/fonts/mdi.css",
+    "Type": 1,
+    "Size": 103141,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "8423ed43eda67d60997ee10de56077cb",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "058a14c5-0a76-4261-89cf-a7d94d593497",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/mui",
+    "Type": 2,
+    "Size": 224,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/mui/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "5d9dac54394d99af818d86ce2fe6bd42",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/mui/custom.less",
+    "Type": 1,
+    "Size": 21729,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "729494c46e143211fb7600fee05217c1",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/mui/pydio-mui.css",
+    "Type": 1,
+    "Size": 108787,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "6ba93f2d0d27ea17114ede0fc5ae4f93",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/mui/pydio-mui.less",
+    "Type": 1,
+    "Size": 396,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "8b5d3e83ca712d0ac19cf5b04bce7eed",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/mui/pydio-variables.less",
+    "Type": 1,
+    "Size": 517,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "316564632e6997431325d6d1ee9fd419",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "967ff741-2756-496b-bcd9-a4b759f4b765",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/theme",
+    "Type": 2,
+    "Size": 128,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/theme/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "014c100d7eb1fd1d117bead8d878c9c4",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/css/theme/variables.less",
+    "Type": 1,
+    "Size": 7682,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "4c607b3cf09e02cb3ba8038ffb57451d",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "871e7338-a727-459f-8099-1f9a8ed56280",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts",
+    "Type": 2,
+    "Size": 192,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "4eba5c1fe937c0d51c966953809619d1",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "359fec66-69c0-4a61-94f4-3bb71e256e4e",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/awesome",
+    "Type": 2,
+    "Size": 256,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/awesome/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "d3fbcc021ec7a4718360532bc9fa47bf",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/awesome/FontAwesome.otf",
+    "Type": 1,
+    "Size": 61896,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "8daab3c4f8252e0c3a3069ac0913b4a4",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/awesome/fontawesome-webfont.eot",
+    "Type": 1,
+    "Size": 37405,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "5ae23ad29b67289a1375d2043e289c52",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/awesome/fontawesome-webfont.svg",
+    "Type": 1,
+    "Size": 197829,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f99a231ed57ee113b50b1c3e9f9fcdc3",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/awesome/fontawesome-webfont.ttf",
+    "Type": 1,
+    "Size": 79076,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "8cca2f02b0af2da365ff4d1755f29146",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/awesome/fontawesome-webfont.woff",
+    "Type": 1,
+    "Size": 43572,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "b683029bafe0305ac2234038a03e1541",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "34dfe545-e11f-4422-bf62-6ff0dbf54bce",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/mdi",
+    "Type": 2,
+    "Size": 288,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/mdi/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "af3b143eeef8b55076595aae5cadc621",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/mdi/license.txt",
+    "Type": 1,
+    "Size": 4566,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "9b6ea91ad41f5a1399e35e3d40efbf48",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/mdi/materialdesignicons-webfont.eot",
+    "Type": 1,
+    "Size": 274684,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f540b423205e383e431bd1df377f09a7",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/mdi/materialdesignicons-webfont.svg",
+    "Type": 1,
+    "Size": 2079231,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "3571df7115248c320c57dda22184b296",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/mdi/materialdesignicons-webfont.ttf",
+    "Type": 1,
+    "Size": 274464,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "292b2f8e751f877c0892c4376c7c7eef",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/mdi/materialdesignicons-webfont.woff",
+    "Type": 1,
+    "Size": 135276,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "c28dbbac641f64eaabb9b756f6770619",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/mdi/materialdesignicons-webfont.woff2",
+    "Type": 1,
+    "Size": 103708,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "7f88c63c8ca619cd1ae4243f6f64f54f",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "fce780c5-a468-4957-8922-f401a1da1811",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/roboto-font",
+    "Type": 2,
+    "Size": 320,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/roboto-font/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "bad39e1441158444d51169c5f689fc73",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/roboto-font/Apache.txt",
+    "Type": 1,
+    "Size": 11323,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "0cc1a9e33dd7a6eb0b79927742cf005c",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/roboto-font/roboto-light.woff",
+    "Type": 1,
+    "Size": 18520,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "ecce92d0b0ff17197f29e7db6397bf0a",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/roboto-font/roboto-light.woff2",
+    "Type": 1,
+    "Size": 10324,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "16a9467557c38b4e1b19e981bd17fe3f",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/roboto-font/roboto-medium.woff",
+    "Type": 1,
+    "Size": 18576,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "57af64fc644194101c1593abea164433",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/roboto-font/roboto-medium.woff2",
+    "Type": 1,
+    "Size": 10248,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "1afbee5a09a022fe0287f16e9a48da1f",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/roboto-font/roboto.woff",
+    "Type": 1,
+    "Size": 18520,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "16e1d930cf13fb7a956372044b6d02d0",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/fonts/roboto-font/roboto.woff2",
+    "Type": 1,
+    "Size": 10292,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f84cb1bf9be983133497000554605b4d",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "e7c5f774-fe58-4151-8595-df1d480744a4",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images",
+    "Type": 2,
+    "Size": 416,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "f9f20194dcba9e99ace07cf32a1bd982",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/LoginBoxLogo.png",
+    "Type": 1,
+    "Size": 6742,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "7f0b8efbed025cd4797e203611823cbe",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/PydioLogo250.png",
+    "Type": 1,
+    "Size": 6742,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "7f0b8efbed025cd4797e203611823cbe",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/blank.png",
+    "Type": 1,
+    "Size": 104,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "c414e276cc607db79fc3790e29e2ded9",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "b8473226-b0ca-4b8f-b9aa-faa59d01d6fc",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/hires-photos",
+    "Type": 2,
+    "Size": 320,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/hires-photos/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "3da8a186f36d0d1722b9b03e2de02cac",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/hires-photos/01.jpg",
+    "Type": 1,
+    "Size": 2360789,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "5a7c5ce1a2bf708a13dde2f1ea76ac35",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/hires-photos/02.jpg",
+    "Type": 1,
+    "Size": 1919145,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "843849abff8fb92ebd27c4686d7fcfa8",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/hires-photos/03-mobile.jpg",
+    "Type": 1,
+    "Size": 1035011,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "d534e902c2008abe3ce00d27131d3ae9",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/hires-photos/03.jpg",
+    "Type": 1,
+    "Size": 1885530,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "ce89f215dc1a5b8c0643030e6c1731a8",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/hires-photos/04.jpg",
+    "Type": 1,
+    "Size": 1798944,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f95ceb822730d512b730fb629a9b328b",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/hires-photos/05.jpg",
+    "Type": 1,
+    "Size": 1932254,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "a66d666e7d5167cf8e3556eb7bdc54b0",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/hires-photos/06.jpg",
+    "Type": 1,
+    "Size": 2254046,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "934332e7e27876e35253984668ed8640",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/html-folder.png",
+    "Type": 1,
+    "Size": 1418,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "9d87c25addf6c2fab29d5488b984b378",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "d3d68522-c8e2-4314-ae8b-fce20b3c3068",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/loader",
+    "Type": 2,
+    "Size": 160,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/loader/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "18a9e4da5b2c954ba64bb58b560c4c7d",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/loader/hourglass.gif",
+    "Type": 1,
+    "Size": 34809,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "a0e5017cd196aa6010742823cca8a003",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/loader/hourglass.svg",
+    "Type": 1,
+    "Size": 1799,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "663ea5623b48e6169bc04785de0da2c6",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "9bc945ec-4329-43f9-ab27-20caf40ce020",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes",
+    "Type": 2,
+    "Size": 160,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "972fdb56e239cee6fa167ce88a9df62f",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "6e8b026a-8f55-4626-9962-7cb7625c6850",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16",
+    "Type": 2,
+    "Size": 1760,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "c1ac3fe1ebfb7e47bbd22e6de380ef11",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/admin.png",
+    "Type": 1,
+    "Size": 729,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "974e538652e5030f41ec559326bac095",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/applications_engineering.png",
+    "Type": 1,
+    "Size": 638,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "5fea5bacc68e56ed5de7dae6428b9613",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/archive.png",
+    "Type": 1,
+    "Size": 3935,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f1a0db99563ca87352a6d6999f80580b",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/book.png",
+    "Type": 1,
+    "Size": 707,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "e972bbdd543d00d51144d4d3b0a26441",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/css.png",
+    "Type": 1,
+    "Size": 4056,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "c3dc351dc919ec1535286d08d3ff21d0",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/desktop.png",
+    "Type": 1,
+    "Size": 533,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "52dcdacc5e61a6a933c0cf3316f91132",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/document.png",
+    "Type": 1,
+    "Size": 592,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "ed3aeb611f284deb33ecbf4c3522acea",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/document_open_remote.png",
+    "Type": 1,
+    "Size": 611,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "ae53fe3d6590a0f6d5c3d4baaf201c85",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/dwg.png",
+    "Type": 1,
+    "Size": 4039,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "e6e0de82d60aad4e30cd11df646892b8",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/exe.png",
+    "Type": 1,
+    "Size": 11233,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "17f23ff38cb9848836018930e1d98c37",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/flash.png",
+    "Type": 1,
+    "Size": 4822,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "9b7cf6bf77cd372368e03012b5955d6e",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/folder.png",
+    "Type": 1,
+    "Size": 3724,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "0ad5ca536fe063ec30199df1950a6bf2",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/folder_development.png",
+    "Type": 1,
+    "Size": 531,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "2f68baeced7017fbc64ffec067c8e646",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/folder_grey.png",
+    "Type": 1,
+    "Size": 256,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "80b946808454fa4d412a42541bd85755",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/folder_open.png",
+    "Type": 1,
+    "Size": 2928,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "deee4d472775f5ecfdf10aff6066bbb7",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/folder_red.png",
+    "Type": 1,
+    "Size": 303,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "e0edb28cd02f09e933336d650bec1e97",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/hdd_external_mount.png",
+    "Type": 1,
+    "Size": 657,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "eb74f18e700f442644d42b6aa3e87c68",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/hdd_external_unmount.png",
+    "Type": 1,
+    "Size": 278,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "a1af4cdefb6b50005a4ce9e8dfaffcdb",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/html.png",
+    "Type": 1,
+    "Size": 4004,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "a8a6f605d2500eb0f274b39c0479b8c1",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/image.png",
+    "Type": 1,
+    "Size": 3522,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "1b2760bc27012185a08b9f1ca666203e",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/java_src.png",
+    "Type": 1,
+    "Size": 615,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f3c54a4c01832b218d3b31448c60538f",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/javascript.png",
+    "Type": 1,
+    "Size": 3959,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "8db556f63264f7478d8fcafe8b029296",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/midi.png",
+    "Type": 1,
+    "Size": 4611,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "b2d831258505f107d7cdd94484ce5dac",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/mime_empty.png",
+    "Type": 1,
+    "Size": 3732,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "07faf6c62fcfc27c0e17952f53c47298",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/pdf.png",
+    "Type": 1,
+    "Size": 4754,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f89baa8f1e590306d399403a1406f75b",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/php.png",
+    "Type": 1,
+    "Size": 4073,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "dfcf511f8e2265fa212eb7c719373d4e",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/preferences_desktop.png",
+    "Type": 1,
+    "Size": 1017,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "a3b1342828e1fa68ae9f58eded1fadd9",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/preferences_plugin.png",
+    "Type": 1,
+    "Size": 740,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "55fc4d2375400f38ad8e86532f05a775",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/presentation.png",
+    "Type": 1,
+    "Size": 3955,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "8dd5412496d4f6d88c7a3934672f56aa",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/repo_child.png",
+    "Type": 1,
+    "Size": 105,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "6526a981eccbf0fd09476707b605cb65",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/search.png",
+    "Type": 1,
+    "Size": 676,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "e58ac5aaaba17826e3d4edc710b5f8b3",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/sound.png",
+    "Type": 1,
+    "Size": 4603,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "27e13ef8fbb8130fef88d9c330f259da",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/source_pl.png",
+    "Type": 1,
+    "Size": 3915,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "0633c55a8290b7df5267cc9d5e08dba0",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/spreadsheet.png",
+    "Type": 1,
+    "Size": 4079,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "559334c76139dc049443f014af478efb",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/susehelpcenter.png",
+    "Type": 1,
+    "Size": 795,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "400e895dcbf8bf4f1410786524c85afe",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/toggle_log.png",
+    "Type": 1,
+    "Size": 502,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "de5084df8cb441c8bdbcb465acd0d4ff",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/trashcan.png",
+    "Type": 1,
+    "Size": 3478,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "a7daf6334443639b4c7fb2f3286539d4",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/trashcan_full.png",
+    "Type": 1,
+    "Size": 5413,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f2d0dfc1044f5e54ce0fe2a44c3d59dc",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/txt2.png",
+    "Type": 1,
+    "Size": 4025,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "8fd79fc9b34f1ec7fb3426305f6a6992",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/user-acl.png",
+    "Type": 1,
+    "Size": 691,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "9ff83c1ff0b44c360a0e8d5cdd6fa573",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/user.png",
+    "Type": 1,
+    "Size": 539,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "cc8606b0b60e7028dbf39a38873c2330",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/user_admin.png",
+    "Type": 1,
+    "Size": 630,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "ca5b80b4337d6bee444d7029d77a0ebc",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/user_child.png",
+    "Type": 1,
+    "Size": 105,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "6526a981eccbf0fd09476707b605cb65",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/user_group_new.png",
+    "Type": 1,
+    "Size": 628,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "da4a5881f78fa7e2f9e72fa328f319c7",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/user_guest.png",
+    "Type": 1,
+    "Size": 321,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "916ffbefc8b02c6a388cab2bb262e8aa",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/user_shared.png",
+    "Type": 1,
+    "Size": 739,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "01aca4c78e753475d9a251140dda68a5",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/users-folder.png",
+    "Type": 1,
+    "Size": 627,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "18adde93364450602eef426d2d7abd48",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/video.png",
+    "Type": 1,
+    "Size": 4822,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "9b7cf6bf77cd372368e03012b5955d6e",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/word.png",
+    "Type": 1,
+    "Size": 4111,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "9c8e590d3d9a953f0d8a39b393114ded",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/x-office-calendar.png",
+    "Type": 1,
+    "Size": 514,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "9a2d46386ccbccb1a385e8b76ab7c41f",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/yast_kuser.png",
+    "Type": 1,
+    "Size": 882,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "1adcb645164a426b04877c62c284ffe1",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/zip.png",
+    "Type": 1,
+    "Size": 3920,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "525e89e16d5b37b8efbd59343c1e7cee",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "58d066fd-955c-49c7-bee1-5359619e1478",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64",
+    "Type": 2,
+    "Size": 1664,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "e8a5181ff0ae3cfebe14d64c702b16ae",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/admin.png",
+    "Type": 1,
+    "Size": 6905,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "42e2bd9f4a0635314b6cfee9e4fb0a34",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/applications_engineering.png",
+    "Type": 1,
+    "Size": 4528,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "41dd5d67e0f554a5dd2303d179c2b8c0",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/archive.png",
+    "Type": 1,
+    "Size": 3935,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f1a0db99563ca87352a6d6999f80580b",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/book.png",
+    "Type": 1,
+    "Size": 4299,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "89c6f4a3a1f6c62d49904752b1be3929",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/css.png",
+    "Type": 1,
+    "Size": 4056,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "c3dc351dc919ec1535286d08d3ff21d0",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/desktop.png",
+    "Type": 1,
+    "Size": 3252,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "be2fc6bbc21c483ec47c0453e778c9ab",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/document_open_remote.png",
+    "Type": 1,
+    "Size": 4094,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f364008681d3b8f305e182b3f32bcc0e",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/dwg.png",
+    "Type": 1,
+    "Size": 4039,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "e6e0de82d60aad4e30cd11df646892b8",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/exe.png",
+    "Type": 1,
+    "Size": 11233,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "17f23ff38cb9848836018930e1d98c37",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/flash.png",
+    "Type": 1,
+    "Size": 4822,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "9b7cf6bf77cd372368e03012b5955d6e",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/folder.orig.png",
+    "Type": 1,
+    "Size": 1143,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "19724190000d5e5202f8848645298b48",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/folder.png",
+    "Type": 1,
+    "Size": 3724,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "0ad5ca536fe063ec30199df1950a6bf2",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/folder_development.png",
+    "Type": 1,
+    "Size": 3200,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "1a36129d2453beba8fa207d15f52af1a",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/folder_red.png",
+    "Type": 1,
+    "Size": 1148,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "9a630c9782a1f965e0ba85b4dedf4032",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/hdd_external_mount.png",
+    "Type": 1,
+    "Size": 3266,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "e9af6c260d02ddcc6d0ba28c9620da9d",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/hdd_external_unmount.png",
+    "Type": 1,
+    "Size": 2012,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "e9516536d4f594943a55be25ebf0af4b",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/html.png",
+    "Type": 1,
+    "Size": 4004,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "a8a6f605d2500eb0f274b39c0479b8c1",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/image.png",
+    "Type": 1,
+    "Size": 3522,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "1b2760bc27012185a08b9f1ca666203e",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/javascript.png",
+    "Type": 1,
+    "Size": 3959,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "8db556f63264f7478d8fcafe8b029296",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/midi.png",
+    "Type": 1,
+    "Size": 4611,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "b2d831258505f107d7cdd94484ce5dac",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/mime_empty.png",
+    "Type": 1,
+    "Size": 3732,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "07faf6c62fcfc27c0e17952f53c47298",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/pdf.png",
+    "Type": 1,
+    "Size": 4754,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f89baa8f1e590306d399403a1406f75b",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/php.png",
+    "Type": 1,
+    "Size": 4073,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "dfcf511f8e2265fa212eb7c719373d4e",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/preferences_desktop.png",
+    "Type": 1,
+    "Size": 6241,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "d2d26b2d2d54ef53e1a4b7a88770adc5",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/preferences_plugin.png",
+    "Type": 1,
+    "Size": 4280,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "11dce130915e8bcb1aa686e12ed026eb",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/presentation.png",
+    "Type": 1,
+    "Size": 3955,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "8dd5412496d4f6d88c7a3934672f56aa",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/repo_child.png",
+    "Type": 1,
+    "Size": 1148,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "9a630c9782a1f965e0ba85b4dedf4032",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/sound.png",
+    "Type": 1,
+    "Size": 4603,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "27e13ef8fbb8130fef88d9c330f259da",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/source_java.png",
+    "Type": 1,
+    "Size": 4557,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "10ef869233e05d6482bf402cb69afcc0",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/source_pl.png",
+    "Type": 1,
+    "Size": 3915,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "0633c55a8290b7df5267cc9d5e08dba0",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/spreadsheet.png",
+    "Type": 1,
+    "Size": 4079,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "559334c76139dc049443f014af478efb",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/susehelpcenter.png",
+    "Type": 1,
+    "Size": 6782,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f17ff409eb849cd1699ffa52691a4d3a",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/toggle_log.png",
+    "Type": 1,
+    "Size": 2182,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "d587d456ee8e064fa3cdd379b534139f",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/trashcan.png",
+    "Type": 1,
+    "Size": 3478,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "a7daf6334443639b4c7fb2f3286539d4",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/trashcan_full.png",
+    "Type": 1,
+    "Size": 5413,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f2d0dfc1044f5e54ce0fe2a44c3d59dc",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/txt2.png",
+    "Type": 1,
+    "Size": 4025,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "8fd79fc9b34f1ec7fb3426305f6a6992",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/user-acl.png",
+    "Type": 1,
+    "Size": 4562,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "42f76a0be1e28de88ebcfe576f52ace4",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/user.png",
+    "Type": 1,
+    "Size": 3506,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "10245b95dcfaf45e7a0ee97a0818eff4",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/user_admin.png",
+    "Type": 1,
+    "Size": 4416,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "d2230b3c8d447f0f88618c7e6e503ead",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/user_child.png",
+    "Type": 1,
+    "Size": 3506,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "10245b95dcfaf45e7a0ee97a0818eff4",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/user_group_new.png",
+    "Type": 1,
+    "Size": 3835,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "9917d75f91c64ee397b260bf43025b59",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/user_guest.png",
+    "Type": 1,
+    "Size": 1866,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "1ea5752b56d6b0cd5340553d262b3a7a",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/user_shared.png",
+    "Type": 1,
+    "Size": 4998,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "8a6766997efa0bab50b4462134a4e063",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/users-folder.png",
+    "Type": 1,
+    "Size": 4818,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "b467107f72edd528c2ab51334d69054c",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/video.png",
+    "Type": 1,
+    "Size": 6160,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "eedb1011ba02903a182839887bd52a6a",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/word.png",
+    "Type": 1,
+    "Size": 4111,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "9c8e590d3d9a953f0d8a39b393114ded",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/x-office-calendar.png",
+    "Type": 1,
+    "Size": 2148,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "8311af2ca16e3b6e3b561a232e9ca4cf",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/yast_kuser.png",
+    "Type": 1,
+    "Size": 4593,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "899746977f123f2e5b43fd26bbb3fd55",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/zip.png",
+    "Type": 1,
+    "Size": 3920,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "525e89e16d5b37b8efbd59343c1e7cee",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/resize_handle.png",
+    "Type": 1,
+    "Size": 110,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "d750e8c71948af3bcddaf78849689a78",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/white_by.png",
+    "Type": 1,
+    "Size": 1660,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "56ce45530e2de18f6ee4733ad187dd0b",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/common/images/white_logo.png",
+    "Type": 1,
+    "Size": 1394,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "ae76d68b7a90ae3553e3ab4289ba6c65",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "9a261fcb-4ab4-479b-bfd6-36e8e6e35f6c",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/material",
+    "Type": 2,
+    "Size": 128,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/material/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "faff5f596535572daf2016faeb2bcdf2",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Uuid": "17908144-cfde-4598-a326-71397d5c7448",
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/material/css",
+    "Type": 2,
+    "Size": 224,
+    "MTime": 1568021946,
+    "Mode": -2147483155,
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/material/css/.pydio",
+    "Type": 1,
+    "Size": 36,
+    "MTime": 1568021946,
+    "Mode": 493,
+    "Etag": "f6ef06bff46195ff620feaaa7b989264",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/material/css/pydio.css",
+    "Type": 1,
+    "Size": 73378,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "f7fd1bc4918c7951ba943fb136da3e21",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/material/css/pydio.less",
+    "Type": 1,
+    "Size": 1481,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "71e9c279232d68ffd932cf7cdae60552",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/material/css/variables.less",
+    "Type": 1,
+    "Size": 2529,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "904b154edd8763726dd38ad589e0d948",
+    "MetaStore": {
+      "meta1": "value1",
+      "meta2": "value2",
+      "meta3": "value3",
+      "meta4": "value4"
+    }
+  },
+  {
+    "Path": "pydio-moved/plugins/gui.ajax/res/themes/material/css/widgets.less",
+    "Type": 1,
+    "Size": 3491,
+    "MTime": 1568021946,
+    "Mode": 420,
+    "Etag": "1d231690ecfa7dfe800b2a8c29eeb341"
+  }
+]

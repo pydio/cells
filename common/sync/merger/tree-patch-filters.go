@@ -106,7 +106,7 @@ func (t *TreePatch) filterCreateFiles(ctx context.Context) {
 			delete(t.deletes, createEvent.GetRefPath())
 			continue
 		}
-		if node.Uuid == "" && !model.IsFolderHiddenFile(node.Path) {
+		if node.GetUuid() == "" && !model.IsFolderHiddenFile(node.GetPath()) {
 			t.refreshUUIDs[createEvent.GetRefPath()] = createEvent
 		}
 		if model.NodeRequiresChecksum(node) && isCsProvider {
@@ -118,7 +118,7 @@ func (t *TreePatch) filterCreateFiles(ctx context.Context) {
 
 func (t *TreePatch) filterCreateFolders(ctx context.Context) {
 
-	var existingFolders map[string][]*tree.Node
+	var existingFolders map[string][]tree.N
 	var refresher model.UuidFoldersRefresher
 	var ok bool
 	if refresher, ok = t.Source().(model.UuidFoldersRefresher); ok && len(t.createFolders) > 0 {
@@ -133,10 +133,10 @@ func (t *TreePatch) filterCreateFolders(ctx context.Context) {
 			continue
 		}
 		if refresher != nil && existingFolders != nil {
-			if _, ok := existingFolders[createOp.GetNode().Uuid]; ok {
+			if _, ok := existingFolders[createOp.GetNode().GetUuid()]; ok {
 				// There is a duplicate - update Uuid
-				refreshNode := createOp.GetNode().Clone()
-				refreshNode.Uuid = uuid.New()
+				refreshNode := createOp.GetNode()
+				refreshNode.SetUuid(uuid.New())
 				if newNode, err := refresher.UpdateFolderUuid(ctx, refreshNode); err == nil {
 					createOp.SetNode(newNode)
 				}
@@ -148,47 +148,52 @@ func (t *TreePatch) filterCreateFolders(ctx context.Context) {
 func (t *TreePatch) detectFileMoves(ctx context.Context, cachedTarget model.PathSyncSource) {
 
 	movesByEtag := make(map[string][]*Move)
+	createsByUuid := make(map[string]Operation)
+	createsByETag := make(map[string][]Operation)
+	for _, cf := range t.createFiles {
+		if cf.GetNode() == nil {
+			continue
+		}
+		if cf.GetNode().GetUuid() != "" {
+			createsByUuid[cf.GetNode().GetUuid()] = cf
+		}
+		if cf.GetNode().GetEtag() != "" {
+			createsByETag[cf.GetNode().GetEtag()] = append(createsByETag[cf.GetNode().GetEtag()], cf)
+		}
+	}
 	for _, deleteOp := range t.deletes {
 		if dbNode, found := deleteOp.NodeInTarget(ctx, cachedTarget); found {
 			deleteOp.SetNode(dbNode)
 			if dbNode.IsLeaf() {
-				var found bool
 				// Look by UUID first
-				for _, opCreate := range t.createFiles {
-					if opCreate.GetNode() != nil && opCreate.GetNode().Uuid != "" && opCreate.GetNode().Uuid == dbNode.Uuid {
-						// Now remove from delete/create
-						delete(t.deletes, deleteOp.GetRefPath())
-						delete(t.createFiles, opCreate.GetRefPath())
-						// Enqueue Update if Etag differ
-						if opCreate.GetNode().Etag != "" && opCreate.GetNode().Etag != dbNode.Etag {
-							updateOp := deleteOp.Clone(OpUpdateFile)
-							updateOp.AttachToPatch(t)
-							t.QueueOperation(updateOp)
-						}
-						// Enqueue in moves if path differ
-						if opCreate.GetNode().Path != dbNode.Path {
-							log.Logger(ctx).Debug("Existing leaf node with uuid and different path: safe move to ", opCreate.GetNode().ZapPath())
-							opCreate.SetNode(dbNode)
-							opCreate.UpdateType(OpMoveFile)
-							opCreate.AttachToPatch(t)
-							t.QueueOperation(opCreate)
-						}
-						found = true
-						break
+				if opCreate, ok := createsByUuid[dbNode.GetUuid()]; ok {
+					// Now remove from delete/create
+					delete(t.deletes, deleteOp.GetRefPath())
+					delete(t.createFiles, opCreate.GetRefPath())
+					// Enqueue Update if Etag differ
+					if opCreate.GetNode().GetEtag() != "" && opCreate.GetNode().GetEtag() != dbNode.GetEtag() {
+						updateOp := deleteOp.Clone(OpUpdateFile)
+						updateOp.AttachToPatch(t)
+						t.QueueOperation(updateOp)
 					}
-				}
-				// Look by Etag
-				if !found {
-					for _, createOp := range t.createFiles {
-						if createOp.GetNode() != nil && createOp.GetNode().Etag == dbNode.Etag {
-							log.Logger(ctx).Debug("Existing leaf node with same ETag: enqueuing possible move", createOp.GetNode().ZapPath())
-							move := &Move{
-								deleteOp: deleteOp,
-								createOp: createOp,
-								dbNode:   dbNode,
-							}
-							movesByEtag[dbNode.Etag] = append(movesByEtag[dbNode.Etag], move)
+					// Enqueue in moves if path differ
+					if opCreate.GetNode().GetPath() != dbNode.GetPath() {
+						log.Logger(ctx).Debug("Existing leaf node with uuid and different path: safe move to ", opCreate.GetNode().ZapPath())
+						opCreate.SetNode(dbNode)
+						opCreate.UpdateType(OpMoveFile)
+						opCreate.AttachToPatch(t)
+						t.QueueOperation(opCreate)
+					}
+				} else if createOps, ok := createsByETag[dbNode.GetEtag()]; ok {
+					// Look by Etag
+					for _, createOp := range createOps {
+						log.Logger(ctx).Debug("Existing leaf node with same ETag: enqueuing possible move", createOp.GetNode().ZapPath())
+						move := &Move{
+							deleteOp: deleteOp,
+							createOp: createOp,
+							dbNode:   dbNode,
 						}
+						movesByEtag[dbNode.GetEtag()] = append(movesByEtag[dbNode.GetEtag()], move)
 					}
 				}
 			}
@@ -229,7 +234,7 @@ func (t *TreePatch) detectFileMoves(ctx context.Context, cachedTarget model.Path
 		delete(t.deletes, move.deleteOp.GetRefPath())
 		delete(t.createFiles, move.createOp.GetRefPath())
 		// Enqueue in move if Paths differ
-		if move.createOp.GetNode().Path != move.dbNode.Path {
+		if move.createOp.GetNode().GetPath() != move.dbNode.GetPath() {
 			move.createOp.SetNode(move.dbNode)
 			move.createOp.UpdateType(OpMoveFile)
 			t.QueueOperation(move.createOp)
@@ -266,8 +271,8 @@ func (t *TreePatch) detectFolderMoves(ctx context.Context, cachedTarget model.Pa
 
 		for _, opCreate := range t.createFolders {
 			log.Logger(ctx).Debug("Checking if DeleteFolder is inside CreateFolder by comparing Uuids: ", opCreate.GetNode().Zap(), dbNode.Zap())
-			if opCreate.GetNode().Uuid == dbNode.Uuid {
-				log.Logger(ctx).Debug("Existing folder with hash: this is a move", zap.String("etag", dbNode.Uuid), zap.String("path", dbNode.Path))
+			if opCreate.GetNode().GetUuid() == dbNode.GetUuid() {
+				log.Logger(ctx).Debug("Existing folder with hash: this is a move", zap.String("etag", dbNode.GetUuid()), zap.String("path", dbNode.GetPath()))
 				opCreate.SetNode(dbNode)
 				opCreate.UpdateType(OpMoveFolder)
 				t.QueueOperation(opCreate)
@@ -279,7 +284,7 @@ func (t *TreePatch) detectFolderMoves(ctx context.Context, cachedTarget model.Pa
 	}
 }
 
-func (t *TreePatch) enqueueRemaining(ctx context.Context) {
+func (t *TreePatch) enqueueRemaining(_ context.Context) {
 	for _, c := range t.createFolders {
 		t.QueueOperation(c)
 	}
@@ -297,18 +302,19 @@ func (t *TreePatch) rescanFoldersIfRequired(ctx context.Context, ignores ...glob
 	}
 	var newFolders bool
 	var newFiles bool
+	im := model.IgnoreMatcher(ignores...)
 	t.WalkToFirstOperations(OpCreateFolder, func(op Operation) {
 		if op.IsScanEvent() {
 			return
 		}
 		log.Logger(ctx).Info("Rescanning folder to be sure...", zap.String("patch", t.Target().GetEndpointInfo().URI), zap.String("path", op.GetRefPath()))
 		// Rescan folder content, events below may not have been detected
-		var visit = func(path string, node *tree.Node, err error) error {
+		var visit = func(path string, node tree.N, err error) error {
 			if err != nil {
 				log.Logger(ctx).Error("Error while rescanning folder ", zap.Error(err))
 				return err
 			}
-			if !model.IsIgnoredFile(path, ignores...) {
+			if !im(path) {
 				scanEvent := model.NodeToEventInfo(ctx, path, node, model.EventCreate)
 				opType := OpCreateFolder
 				if node.IsLeaf() {

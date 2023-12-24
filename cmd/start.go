@@ -40,11 +40,8 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
-	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/nodes"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/runtime/manager"
@@ -456,19 +453,19 @@ ENVIRONMENT
 			var discovery manager.Manager
 			// TODO - should be done in some other way
 			//if !runtime.IsGrpcScheme(runtime.RegistryURL()) || runtime.LogLevel() == "debug" {
-			if discovery, err = startDiscoveryServer(ctx, reg, managerLogger); err != nil {
-				return err
-			}
+			//if discovery, err = startDiscoveryServer(ctx, reg, managerLogger); err != nil {
+			//	return err
+			//}
 			//}
 
-			// Create a main client connection
+			/* Create a main client connection
 			clientgrpc.WarnMissingConnInContext = true
 			conn, err := grpc.Dial("xds://"+runtime.Cluster()+".cells.com/cells", clientgrpc.DialOptionsForRegistry(reg)...)
 			if err != nil {
 				return err
 			}
 			ctx = clientcontext.WithClientConn(ctx, conn)
-			ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
+			ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))*/
 
 			m := manager.NewManager(ctx, reg, "mem:///?cache=plugins&byname=true", "main", managerLogger)
 			if err := m.Init(ctx); err != nil {

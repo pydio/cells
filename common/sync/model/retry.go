@@ -26,7 +26,7 @@ import (
 	"time"
 )
 
-// Retry tries to apply an operation as many time as required
+// Retry tries to apply an operation as many times as required
 func Retry(f func() error, seconds ...time.Duration) error {
 
 	if e := f(); e == nil {
@@ -60,7 +60,7 @@ func Retry(f func() error, seconds ...time.Duration) error {
 	}
 }
 
-// RetryWithCtx does like Retry with an additionnal cancellable context
+// RetryWithCtx does like Retry with an additional cancellable context
 func RetryWithCtx(ctx context.Context, f func(retry int) error, seconds ...time.Duration) error {
 
 	i := 0

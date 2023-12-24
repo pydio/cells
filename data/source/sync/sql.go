@@ -22,16 +22,14 @@ package sync
 
 import (
 	"context"
-	sql2 "database/sql"
 	"embed"
+	"gorm.io/gorm"
 
-	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 var (
@@ -46,51 +44,31 @@ var (
 	}
 )
 
+type Checksum struct {
+	Etag     string `gorm:"primaryKey; column:etag;"`
+	Checksum string `gorm:"column:csum"`
+}
+
 // Impl of the SQL interface
 type sqlImpl struct {
 	sql.DAO
+
+	db       *gorm.DB
+	instance func(ctx context.Context) *gorm.DB
 }
 
 // Init handler for the SQL DAO
-func (h *sqlImpl) Init(ctx context.Context, options configx.Values) error {
+func (s *sqlImpl) Init(ctx context.Context, options configx.Values) error {
+	s.instance = func(ctx context.Context) *gorm.DB { return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}) }
 
-	// super
-	h.DAO.Init(ctx, options)
-
-	// Doing the database migrations
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         h.Driver(),
-		TablePrefix: h.Prefix(),
-	}
-
-	_, err := sql.ExecMigration(h.DB(), h.Driver(), migrations, migrate.Up, h.Prefix())
-	if err != nil {
-		return err
-	}
-
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := h.Prepare(key, query); err != nil {
-				return err
-			}
-		}
-	}
+	s.instance(ctx).AutoMigrate(&Checksum{})
 
 	return nil
 }
 
-func (h *sqlImpl) CleanResourcesOnDeletion() (string, error) {
+func (s *sqlImpl) CleanResourcesOnDeletion() (string, error) {
 
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         h.Driver(),
-		TablePrefix: h.Prefix(),
-	}
-
-	_, err := sql.ExecMigration(h.DB(), h.Driver(), migrations, migrate.Down, h.Prefix())
-	if err != nil {
+	if err := s.instance(context.TODO()).Migrator().DropTable(&Checksum{}); err != nil {
 		return "", err
 	}
 
@@ -98,80 +76,37 @@ func (h *sqlImpl) CleanResourcesOnDeletion() (string, error) {
 
 }
 
-func (h *sqlImpl) Get(eTag string) (string, bool) {
-	stmt, er := h.GetStmt("selectOne")
-	if er != nil {
-		h.logError(er)
+func (s *sqlImpl) Get(eTag string) (string, bool) {
+
+	var row *Checksum
+
+	tx := s.instance(context.TODO()).Where(&Checksum{Etag: eTag}).First(&row)
+	if tx.Error != nil {
 		return "", false
 	}
-	row := stmt.QueryRow(eTag)
-	var checksum string
-	if er := row.Scan(&checksum); er == nil {
-		return checksum, true
-	} else if er == sql2.ErrNoRows {
+
+	if tx.RowsAffected == 0 {
 		return "", false
-	} else {
-		h.logError(er)
-		return "", false
+	}
+
+	return row.Checksum, true
+}
+
+func (s *sqlImpl) Set(eTag, checksum string) {
+	tx := s.instance(context.TODO()).Create(&Checksum{Etag: eTag, Checksum: checksum})
+	if tx.Error != nil {
+		s.logError(tx.Error)
 	}
 }
 
-func (h *sqlImpl) Set(eTag, checksum string) {
-	stmt, er := h.GetStmt("insertOne")
-	if er != nil {
-		h.logError(er)
-		return
+func (s *sqlImpl) Purge(knownETags []string) int {
+	var delete []Checksum
+	for _, knownETag := range knownETags {
+		delete = append(delete, Checksum{Etag: knownETag})
 	}
-	_, er = stmt.Exec(eTag, checksum)
-	if er != nil {
-		h.logError(er)
-	}
-}
 
-func (h *sqlImpl) Purge(knownETags []string) int {
-	stmt, er := h.GetStmt("selectAll")
-	if er != nil {
-		h.logError(er)
-		return 0
-	}
-	var dbTags []string
-	res, ca, e := stmt.LongQuery()
-	defer ca()
-	if e != nil {
-		h.logError(e)
-		return 0
-	}
-	defer res.Close()
-	for res.Next() {
-		var cs string
-		if e := res.Scan(&cs); e == nil {
-			dbTags = append(dbTags, cs)
-		}
-	}
-	count := 0
-	delStmt, e := h.GetStmt("deleteOne")
-	if e != nil {
-		h.logError(e)
-		return 0
-	}
-	for _, t := range dbTags {
-		var found bool
-		for _, k := range knownETags {
-			if k == t {
-				found = true
-				break
-			}
-		}
-		if found {
-			continue
-		}
-		if _, e := delStmt.Exec(t); e == nil {
-			count++
-		} else {
-			h.logError(e)
-		}
-	}
-	return count
+	tx := s.instance(context.TODO()).Not(&delete).Delete(&Checksum{})
+	return int(tx.RowsAffected)
 }
 
 func (h *sqlImpl) logError(e error) {

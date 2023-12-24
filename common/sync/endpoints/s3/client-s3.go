@@ -172,12 +172,12 @@ func (c *Client) Stat(ctx context.Context, pa string) (i os.FileInfo, err error)
 	return newFileInfo(objectInfo), nil
 }
 
-func (c *Client) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
+func (c *Client) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
 	if node.IsLeaf() {
 		return errors.New("this is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
 	}
-	hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.Path), servicescommon.PydioSyncHiddenFile)
-	_, err = c.Oc.PutObject(ctx, c.Bucket, hiddenPath, strings.NewReader(node.Uuid), int64(len(node.Uuid)), models.PutMeta{ContentType: "text/plain"})
+	hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.GetPath()), servicescommon.PydioSyncHiddenFile)
+	_, err = c.Oc.PutObject(ctx, c.Bucket, hiddenPath, strings.NewReader(node.GetUuid()), int64(len(node.GetUuid())), models.PutMeta{ContentType: "text/plain"})
 	return err
 }
 
@@ -251,7 +251,7 @@ func (c *Client) GetReaderOn(ctx context.Context, path string) (out io.ReadClose
 
 }
 
-func (c *Client) ComputeChecksum(ctx context.Context, node *tree.Node) error {
+func (c *Client) ComputeChecksum(ctx context.Context, node tree.N) error {
 	if c.skipRecomputeEtagByCopy {
 		log.Logger(c.globalContext).Debug("skipping recompute ETag by copy, storage does not support it, keep original value", node.Zap())
 		return nil
@@ -261,7 +261,7 @@ func (c *Client) ComputeChecksum(ctx context.Context, node *tree.Node) error {
 		return nil
 	}
 	if newInfo, err := c.s3forceComputeEtag(ctx, node); err == nil {
-		node.Etag = strings.Trim(newInfo.ETag, "\"")
+		node.SetEtag(strings.Trim(newInfo.ETag, "\""))
 	} else {
 		return err
 	}
@@ -277,19 +277,19 @@ func (c *Client) Walk(ctx context.Context, walkFunc model.WalkNodesFunc, root st
 	var eTags []string
 	collect := (root == "" || root == "/") && recursive && c.checksumMapper != nil && c.purgeMapperAfterWalk
 
-	wrapper := func(path string, info *fileInfo, node *tree.Node) error {
-		node.MTime = info.ModTime().Unix()
-		node.Size = info.Size()
-		node.Mode = int32(info.Mode())
+	wrapper := func(path string, info *fileInfo, node tree.N) error {
+		node.SetMTime(info.ModTime().Unix())
+		node.SetSize(info.Size())
+		node.SetMode(int32(info.Mode()))
 		if !info.IsDir() {
-			node.Etag = strings.Trim(info.Object.ETag, "\"")
+			node.SetEtag(strings.Trim(info.Object.ETag, "\""))
 		} else {
-			node.Uuid = strings.Trim(info.Object.ETag, "\"")
+			node.SetUuid(strings.Trim(info.Object.ETag, "\""))
 		}
 		if collect && node.IsLeaf() {
-			eTags = append(eTags, node.Etag)
+			eTags = append(eTags, node.GetEtag())
 		}
-		return walkFunc(path, node, nil)
+		return walkFunc(path, tree.LightNodeFromProto(node), nil)
 	}
 
 	batcher := &statBatcher{
@@ -468,7 +468,7 @@ func (c *Client) createFolderIdsWhileWalking(ctx context.Context, createdDirs ma
 
 }
 
-func (c *Client) s3forceComputeEtag(ctx context.Context, node *tree.Node) (models.ObjectInfo, error) {
+func (c *Client) s3forceComputeEtag(ctx context.Context, node tree.N) (models.ObjectInfo, error) {
 
 	objectInfo := models.ObjectInfo{
 		Key:  c.getFullPath(node.GetPath()),
@@ -545,8 +545,12 @@ func (c *Client) s3forceComputeEtag(ctx context.Context, node *tree.Node) (model
 
 }
 
-func (c *Client) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
-	return c.loadNode(ctx, path)
+func (c *Client) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node tree.N, err error) {
+	if n, er := c.loadNode(ctx, path); er != nil {
+		return nil, er
+	} else {
+		return tree.LightNodeFromProto(n), nil
+	}
 }
 
 func (c *Client) loadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
@@ -596,32 +600,32 @@ func (c *Client) loadNode(ctx context.Context, path string, leaf ...bool) (node 
 }
 
 // UpdateNodeUuid makes this endpoint an UuidReceiver
-func (c *Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Node, error) {
+func (c *Client) UpdateNodeUuid(ctx context.Context, node tree.N) (tree.N, error) {
 
 	var uid string
-	if node.Uuid != "" {
-		uid = node.Uuid
+	if node.GetUuid() != "" {
+		uid = node.GetUuid()
 	} else {
 		uid = uuid.New()
-		node.Uuid = uid
+		node.SetUuid(uid)
 	}
 
 	if node.IsLeaf() {
 		_, err := c.Oc.CopyObject(
 			context.Background(),
 			c.Bucket,
-			c.getFullPath(node.Path),
+			c.getFullPath(node.GetPath()),
 			c.Bucket,
-			c.getFullPath(node.Path),
+			c.getFullPath(node.GetPath()),
 			map[string]string{},
 			map[string]string{
-				servicescommon.XAmzMetaNodeUuid:  node.Uuid,
+				servicescommon.XAmzMetaNodeUuid:  node.GetUuid(),
 				servicescommon.XAmzMetaDirective: "REPLACE",
 			},
 			nil)
 		return node, err
 	} else {
-		hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.Path), servicescommon.PydioSyncHiddenFile)
+		hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.GetPath()), servicescommon.PydioSyncHiddenFile)
 		_, err := c.Oc.PutObject(context.Background(), c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), models.PutMeta{ContentType: "text/plain"})
 		return node, err
 	}

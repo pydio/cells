@@ -24,16 +24,16 @@ import (
 	"strings"
 )
 
-type sqlite struct{}
+type sqliteHelper struct{}
 
-func (*sqlite) Concat(s ...string) string {
+func (*sqliteHelper) Concat(s ...string) string {
 	return strings.Join(s, " || ")
 }
 
-func (*sqlite) Hash(s ...string) string {
+func (*sqliteHelper) Hash(s ...string) string {
 	return ""
 }
 
-func (*sqlite) HashParent(name string, s ...string) string {
+func (*sqliteHelper) HashParent(name string, s ...string) string {
 	return ""
 }

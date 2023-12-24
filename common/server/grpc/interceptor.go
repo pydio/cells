@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"google.golang.org/grpc"
 )
@@ -29,16 +30,16 @@ func HandlerUnaryInterceptor(interceptors *[]grpc.UnaryServerInterceptor) grpc.U
 		if len(*interceptors) == 0 {
 			return handler(ctx, req)
 		}
-		return (*interceptors)[0](ctx, req, info, getChainUnaryHandler(*interceptors, 0, info, handler))
+		return (*interceptors)[len(*interceptors)-1](ctx, req, info, getChainUnaryHandler(*interceptors, len(*interceptors)-1, info, handler))
 	}
 }
 
 func getChainUnaryHandler(interceptors []grpc.UnaryServerInterceptor, curr int, info *grpc.UnaryServerInfo, finalHandler grpc.UnaryHandler) grpc.UnaryHandler {
-	if curr == len(interceptors)-1 {
+	if curr == 0 {
 		return finalHandler
 	}
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		return interceptors[curr+1](ctx, req, info, getChainUnaryHandler(interceptors, curr+1, info, finalHandler))
+		return interceptors[curr-1](ctx, req, info, getChainUnaryHandler(interceptors, curr-1, info, finalHandler))
 	}
 }
 
@@ -47,15 +48,16 @@ func HandlerStreamInterceptor(interceptors *[]grpc.StreamServerInterceptor) grpc
 		if len(*interceptors) == 0 {
 			return handler(req, ss)
 		}
-		return (*interceptors)[0](req, ss, info, getChainStreamHandler(*interceptors, 0, info, handler))
+		return (*interceptors)[len(*interceptors)-1](req, ss, info, getChainStreamHandler(*interceptors, len(*interceptors)-1, info, handler))
 	}
 }
 
 func getChainStreamHandler(interceptors []grpc.StreamServerInterceptor, curr int, info *grpc.StreamServerInfo, finalHandler grpc.StreamHandler) grpc.StreamHandler {
-	if curr == len(interceptors)-1 {
+	if curr == 0 {
 		return finalHandler
 	}
+	fmt.Println("Current is ? ", curr)
 	return func(srv interface{}, stream grpc.ServerStream) error {
-		return interceptors[curr+1](srv, stream, info, getChainStreamHandler(interceptors, curr+1, info, finalHandler))
+		return interceptors[curr-1](srv, stream, info, getChainStreamHandler(interceptors, curr-1, info, finalHandler))
 	}
 }

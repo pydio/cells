@@ -34,4 +34,8 @@ func init() {
 	dao.RegisterSharedDAODriver(Driver, commonsql.NewDAO, func(c context.Context, driver, dsn string) dao.ConnDriver {
 		return &conn{}
 	})
+
+	dao.RegisterSharedDAODriver(Driver, commonsql.NewDAO, func(c context.Context, driver, dsn string) dao.ConnDriver {
+		return &conn{}
+	})
 }

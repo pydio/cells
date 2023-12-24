@@ -38,6 +38,7 @@ type Builder interface {
 	Build(any, service.OperationType) (any, bool)
 	Convert(any, *anypb.Any) (any, bool)
 }
+
 // Expressioner ...
 type Expressioner interface {
 	Build(in any) (out any)
@@ -54,7 +55,7 @@ type ExpressionConverter interface {
 }
 
 type GormConverters interface {
-	Convert(sub *anypb.Any, db *gorm.DB) *gorm.DB
+	Convert(sub *anypb.Any, db *gorm.DB) (*gorm.DB, bool)
 }
 
 type queryBuilder struct {
@@ -63,7 +64,6 @@ type queryBuilder struct {
 	gormConverters []Converter
 	wheres         []goqu.Expression
 }
-
 
 // NewQueryBuilder generates SQL request from object
 func NewQueryBuilder(e Enquirer, c ...ExpressionConverter) Expressioner {
@@ -76,20 +76,22 @@ func NewQueryBuilder(e Enquirer, c ...ExpressionConverter) Expressioner {
 // NewQueryBuilder generates SQL request from object
 func NewGormQueryBuilder(e Enquirer, c ...Converter) Expressioner {
 	return &queryBuilder{
-		enquirer:       e,
+		enquirer: e,
 		gormConverters: append(c, &gormConverter{
-			enquirer: e,
+			enquirer:   e,
 			converters: c,
 		}),
 	}
 }
 
 type gormConverter struct {
-	enquirer Enquirer
+	enquirer   Enquirer
 	converters []Converter
 }
 
 func (gc *gormConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
+	out = in
+
 	db, ok := in.(*gorm.DB)
 	if !ok {
 		return
@@ -101,26 +103,40 @@ func (gc *gormConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
 		expression := NewGormQueryBuilder(sub, gc.converters...).Build(db)
 		if expression != nil {
 			if gc.enquirer.GetOperation() == service.OperationType_OR {
-				db.Or(expression)
+				db = db.Or(expression)
 			} else {
-				db.Where(expression)
+				db = db.Where(expression)
 			}
 		}
 	}
+
+	out = db
 
 	return
 }
 
 func (qb *queryBuilder) Build(in any) (out any) {
-	out = in
+	db, _ := in.(*gorm.DB)
 
+	var subDBs []*gorm.DB
 	for _, subQ := range qb.enquirer.GetSubQueries() {
 		for _, converter := range qb.gormConverters {
-			converter.Convert(subQ, in)
+			out, ok := converter.Convert(subQ, db)
+			if ok {
+				subDBs = append(subDBs, out.(*gorm.DB))
+			}
 		}
 	}
 
-	return
+	for i, subDB := range subDBs {
+		if i > 0 || qb.enquirer.GetOperation() == service.OperationType_OR {
+			db = db.Or(subDB)
+		} else {
+			db = db.Where(subDB)
+		}
+	}
+
+	return db
 }
 
 // Expression recursively builds a goku.Expression using dedicated converters

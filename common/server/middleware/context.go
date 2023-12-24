@@ -25,6 +25,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/runtime"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/ckeys"
@@ -110,9 +111,15 @@ func setContextForTenant(ctx context.Context) context.Context {
 
 	cfg, ok := configStore[tenant]
 	if !ok {
-		cfg, _ = config.OpenStore(ctx, "xds://"+tenant+".cells.com/cells")
-		configStore[tenant] = cfg
+		if c, err := config.OpenStore(ctx, "xds://"+tenant+".cells.com/cells"); err == nil {
+			cfg = c
+		} else {
+			cfg = config.Main()
+		}
 	}
+
+	configStore[tenant] = cfg
+
 	ctx = servercontext.WithConfig(ctx, cfg)
 
 	return ctx
@@ -121,6 +128,30 @@ func setContextForTenant(ctx context.Context) context.Context {
 func TenantIncomingContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
 	return func(ctx context.Context) (context.Context, bool, error) {
 		ctx = setContextForTenant(ctx)
+
+		return ctx, true, nil
+	}
+}
+
+func setContextForService(ctx context.Context) context.Context {
+	service := "default"
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		if t := md.Get("service"); len(t) > 0 {
+			service = strings.Join(t, "")
+		}
+	}
+
+	c := servercontext.GetConfig(ctx)
+
+	ctx = runtime.WithConfig(ctx, c.Val("services", service))
+	ctx = servicecontext.WithServiceName(ctx, service)
+
+	return ctx
+}
+
+func ServiceIncomingContext(serverRuntimeContext context.Context) func(ctx context.Context) (context.Context, bool, error) {
+	return func(ctx context.Context) (context.Context, bool, error) {
+		ctx = setContextForService(ctx)
 
 		return ctx, true, nil
 	}

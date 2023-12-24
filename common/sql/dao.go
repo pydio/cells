@@ -119,7 +119,7 @@ func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.
 	if err != nil {
 		return nil, err
 	}
-	// Special case for sqlite, we use a mutex to simulate locking as sqlite's locking is not quite up to the task
+	// Special case for sqliteHelper, we use a mutex to simulate locking as sqliteHelper's locking is not quite up to the task
 	var mu atomic.Value
 	if driver == "sqlite3" {
 		mu.Store(&sync.Mutex{})
@@ -240,7 +240,7 @@ func (h *Handler) readStmt(query string) Stmt {
 }
 
 func (h *Handler) getStmt(query string) (Stmt, error) {
-	// fmt.Println(query)
+	fmt.Println(query)
 	if stmt := h.readStmt(query); stmt != nil {
 		return stmt, nil
 	}

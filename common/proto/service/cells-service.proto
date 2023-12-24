@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/any.proto";
 import "google/protobuf/empty.proto";
-import "orm.proto";
+import "orm/orm.proto";
 
 package service;
 
@@ -37,18 +37,18 @@ message ResourcePolicyQuery {
 }
 
 message ResourcePolicy {
-    option (options.ormPolicy).enabled = true;
+    option (orm.ormPolicy).enabled = true;
 
-    int64 id = 1                    [(options.orm).gorm = {column: "id";}];
-    string Resource = 2             [(options.orm).gorm = {column: "resource";}];
-    ResourcePolicyAction Action = 3 [(options.orm).gorm = {column: "action";}];
-    string Subject = 4              [(options.orm).gorm = {column: "subject";}];
+    int64 id = 1                    [(orm.orm).gorm = {column: "id"; autoIncrement: true;}];
+    string Resource = 2             [(orm.orm).gorm = {column: "resource";}];
+    ResourcePolicyAction Action = 3 [(orm.orm).gorm = {column: "action";}];
+    string Subject = 4              [(orm.orm).gorm = {column: "subject";}];
     enum PolicyEffect {
         deny = 0;
         allow = 1;
     }
-    PolicyEffect Effect = 5         [(options.orm).gorm = {column: "effect";}];
-    string JsonConditions = 6       [(options.orm).gorm = {column: "conditions";}];
+    PolicyEffect Effect = 5         [(orm.orm).gorm = {column: "effect";}];
+    string JsonConditions = 6       [(orm.orm).gorm = {column: "conditions";}];
 }
 
 service ServiceManager {

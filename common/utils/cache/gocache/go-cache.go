@@ -125,6 +125,12 @@ func (q *pmCache) Reset() error {
 	return nil
 }
 
+func (q *pmCache) Exists(key string) (ok bool) {
+	_, ok = q.Cache.Get(key)
+
+	return
+}
+
 func (q *pmCache) KeysByPrefix(prefix string) (res []string, e error) {
 	for k := range q.Cache.Items() {
 		if strings.HasPrefix(k, prefix) {

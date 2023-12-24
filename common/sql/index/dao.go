@@ -33,7 +33,7 @@ import (
 
 // DAO interface
 type DAO interface {
-	sql.DAO
+	// sql.DAO
 
 	Path(strpath string, create bool, reqNode ...*tree.Node) (mtree.MPath, []*mtree.TreeNode, error)
 
@@ -54,6 +54,8 @@ type DAO interface {
 	GetNodes(...mtree.MPath) chan *mtree.TreeNode
 	SetNodes(string, int64) sql.BatchSender
 
+	GetSQLDAO() sql.DAO
+
 	// Getters
 	GetNodeChildren(context.Context, mtree.MPath, ...*tree.MetaFilter) chan interface{}
 	GetNodeTree(context.Context, mtree.MPath, ...*tree.MetaFilter) chan interface{}
@@ -71,14 +73,12 @@ type DAO interface {
 	FixLostAndFound(lost LostAndFound) error
 	FixRandHash2(excludes ...LostAndFound) (int64, error)
 	Flatten() (string, error)
-
-	GetSQLDAO() sql.DAO
 }
 
 type CacheDAO interface {
 	// PathCreateNoAdd does the same as Path(create=true) but does not really
 	// create the node in the cache, just find a firstAvailableIndex
-	PathCreateNoAdd(strpath string) (mtree.MPath, *mtree.TreeNode, error)
+	PathCreateNoAdd(ctx context.Context, strpath string) (mtree.MPath, *mtree.TreeNode, error)
 }
 
 // NewDAO for the common sql index

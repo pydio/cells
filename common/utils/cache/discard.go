@@ -48,6 +48,10 @@ func (d *discard) Reset() error {
 	return nil
 }
 
+func (d *discard) Exists(key string) (ok bool) {
+	return false
+}
+
 func (d *discard) KeysByPrefix(prefix string) ([]string, error) {
 	return []string{}, nil
 }

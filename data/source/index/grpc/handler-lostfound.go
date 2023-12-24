@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/sync"
-	"github.com/pydio/cells/v4/common/sql/index"
+	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 )
 
 var (
@@ -47,7 +47,7 @@ func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequ
 
 	resp := &sync.ResyncResponse{}
 	if request.GetPath() == "flatten" {
-		msg, err := dao.Flatten()
+		msg, err := dao.Flatten(ctx)
 		if err != nil {
 			resp.JsonDiff = err.Error()
 		} else {
@@ -71,7 +71,7 @@ func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequ
 			return resp, err
 		}
 		for _, d := range marked {
-			e := dao.FixLostAndFound(d)
+			e := dao.FixLostAndFound(ctx, d)
 			if e != nil {
 				log.Logger(ctx).Error("[Index] "+d.String()+"- "+e.Error(), zap.Error(e))
 				log.TasksLogger(ctx).Error("[Index] "+d.String()+"- "+e.Error(), zap.Error(e))
@@ -88,7 +88,7 @@ func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequ
 	}
 
 	// Now recomputing hash2 marked as random
-	a, e := dao.FixRandHash2(excludeFromRehash...)
+	a, e := dao.FixRandHash2(ctx, excludeFromRehash...)
 	if e == nil && a > 0 {
 		msg := fmt.Sprintf("[Index] Recomputed parent hash for %d row(s)", a)
 		log.Logger(ctx).Info(msg)

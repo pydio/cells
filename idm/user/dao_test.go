@@ -22,7 +22,10 @@ package user
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/mtree"
+	"gorm.io/gorm"
 	"log"
 	"sync"
 	"testing"
@@ -31,7 +34,6 @@ import (
 	"github.com/spf13/viper"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
@@ -56,13 +58,13 @@ func TestMain(m *testing.M) {
 	v.SetDefault(runtime.KeyShortCache, "pm://")
 	runtime.SetRuntime(v)
 
-	var options = configx.New()
-	ctx := context.Background()
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_user", NewDAO, options); e != nil {
-		panic(e)
+	if d, err := NewDAO(context.TODO(), storage.New("test", sqlite.Driver, "test.db")); err != nil {
+		panic(err)
 	} else {
 		mockDAO = d.(DAO)
 	}
+
+	mockDAO.Init(context.TODO(), configx.New())
 
 	m.Run()
 	wg.Wait()
@@ -72,7 +74,7 @@ func TestQueryBuilder(t *testing.T) {
 
 	sqliteDao := mockDAO.(*sqlimpl)
 	converter := &queryConverter{
-		treeDao: sqliteDao.IndexSQL,
+		treeDao: sqliteDao.indexDAO,
 	}
 
 	Convey("Query Builder", t, func() {
@@ -102,14 +104,18 @@ func TestQueryBuilder(t *testing.T) {
 			Limit:      10,
 		}
 
-		s := sql.NewQueryBuilder(simpleQuery, converter).Expression("sqlite3")
+		var tx *gorm.DB
+		storage.Get(&tx)
+		tx = tx.Session(&gorm.Session{})
+
+		s := sql.NewGormQueryBuilder(simpleQuery, converter).Build(tx)
 		So(s, ShouldNotBeNil)
 
 	})
 
 	Convey("Query Builder with join fields", t, func() {
 
-		_, _, e := mockDAO.Add(&idm.User{
+		_, _, e := mockDAO.Add(context.TODO(), &idm.User{
 			Login:     "username",
 			Password:  "xxxxxxx",
 			GroupPath: "/path/to/group",
@@ -141,17 +147,21 @@ func TestQueryBuilder(t *testing.T) {
 			Limit:      10,
 		}
 
-		s := sql.NewQueryBuilder(simpleQuery, converter).Expression("sqlite")
+		var tx *gorm.DB
+		storage.Get(&tx)
+		tx = tx.Session(&gorm.Session{})
+
+		s := sql.NewGormQueryBuilder(simpleQuery, converter).Build(tx)
 		So(s, ShouldNotBeNil)
 
 	})
 
 	Convey("Test DAO", t, func() {
 
-		_, _, fail := mockDAO.Add(map[string]string{})
+		_, _, fail := mockDAO.Add(context.TODO(), map[string]string{})
 		So(fail, ShouldNotBeNil)
 
-		_, _, err := mockDAO.Add(&idm.User{
+		_, _, err := mockDAO.Add(context.TODO(), &idm.User{
 			Login:     "username",
 			Password:  "xxxxxxx",
 			GroupPath: "/path/to/group",
@@ -170,46 +180,46 @@ func TestQueryBuilder(t *testing.T) {
 
 		{
 			users := new([]interface{})
-			e := mockDAO.Search(&service.Query{Limit: -1}, users)
+			e := mockDAO.Search(context.TODO(), &service.Query{Limit: -1}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 5)
 		}
 
 		{
-			res, e := mockDAO.Count(&service.Query{Limit: -1})
+			res, e := mockDAO.Count(context.TODO(), &service.Query{Limit: -1})
 			So(e, ShouldBeNil)
 			So(res, ShouldEqual, 5)
 		}
 
 		{
 			users := new([]interface{})
-			e := mockDAO.Search(&service.Query{Offset: 1, Limit: 2}, users)
+			e := mockDAO.Search(context.TODO(), &service.Query{Offset: 1, Limit: 2}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 2)
 		}
 
 		{
 			users := new([]interface{})
-			e := mockDAO.Search(&service.Query{Offset: 4, Limit: 10}, users)
+			e := mockDAO.Search(context.TODO(), &service.Query{Offset: 4, Limit: 10}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 1)
 		}
 
 		{
-			u, e := mockDAO.Bind("username", "xxxxxxx")
+			u, e := mockDAO.Bind(context.TODO(), "username", "xxxxxxx")
 			So(e, ShouldBeNil)
 			So(u, ShouldNotBeNil)
 		}
 
 		{
-			u, e := mockDAO.Bind("usernameXX", "xxxxxxx")
+			u, e := mockDAO.Bind(context.TODO(), "usernameXX", "xxxxxxx")
 			So(u, ShouldBeNil)
 			So(e, ShouldNotBeNil)
 			So(errors.FromError(e).Code, ShouldEqual, 404)
 		}
 
 		{
-			u, e := mockDAO.Bind("username", "xxxxxxxYY")
+			u, e := mockDAO.Bind(context.TODO(), "username", "xxxxxxxYY")
 			So(u, ShouldBeNil)
 			So(e, ShouldNotBeNil)
 			So(errors.FromError(e).Code, ShouldEqual, 403)
@@ -222,7 +232,7 @@ func TestQueryBuilder(t *testing.T) {
 			}
 			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 0)
 		}
@@ -234,7 +244,7 @@ func TestQueryBuilder(t *testing.T) {
 			}
 			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 1)
 		}
@@ -247,7 +257,7 @@ func TestQueryBuilder(t *testing.T) {
 			}
 			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 1)
 		}
@@ -260,7 +270,7 @@ func TestQueryBuilder(t *testing.T) {
 			}
 			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 0)
 		}
@@ -272,12 +282,12 @@ func TestQueryBuilder(t *testing.T) {
 			}
 			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 1)
 		}
 
-		_, _, err2 := mockDAO.Add(&idm.User{
+		_, _, err2 := mockDAO.Add(context.TODO(), &idm.User{
 			IsGroup:   true,
 			GroupPath: "/path/to/anotherGroup",
 			Attributes: map[string]string{
@@ -294,7 +304,7 @@ func TestQueryBuilder(t *testing.T) {
 			}
 			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 1)
 			object := (*users)[0]
@@ -313,7 +323,7 @@ func TestQueryBuilder(t *testing.T) {
 			}
 			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 1)
 			object := (*users)[0]
@@ -344,7 +354,7 @@ func TestQueryBuilder(t *testing.T) {
 			}
 			userQueryAny3, _ := anypb.New(userQuery3)
 
-			total, e1 := mockDAO.Count(&service.Query{
+			total, e1 := mockDAO.Count(context.TODO(), &service.Query{
 				SubQueries: []*anypb.Any{
 					userQueryAny,
 					userQueryAny2,
@@ -355,7 +365,7 @@ func TestQueryBuilder(t *testing.T) {
 			So(e1, ShouldBeNil)
 			So(total, ShouldEqual, 1)
 
-			e := mockDAO.Search(&service.Query{
+			e := mockDAO.Search(context.TODO(), &service.Query{
 				SubQueries: []*anypb.Any{
 					userQueryAny,
 					userQueryAny2,
@@ -367,7 +377,7 @@ func TestQueryBuilder(t *testing.T) {
 			So(users, ShouldHaveLength, 1)
 		}
 
-		_, _, err3 := mockDAO.Add(&idm.User{
+		_, _, err3 := mockDAO.Add(context.TODO(), &idm.User{
 			Login:     "admin",
 			Password:  "xxxxxxx",
 			GroupPath: "/path/to/group",
@@ -391,11 +401,11 @@ func TestQueryBuilder(t *testing.T) {
 			}
 			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 2)
 
-			total, e2 := mockDAO.Count(&service.Query{SubQueries: []*anypb.Any{userQueryAny}})
+			total, e2 := mockDAO.Count(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}})
 			So(e2, ShouldBeNil)
 			So(total, ShouldEqual, 2)
 
@@ -414,7 +424,7 @@ func TestQueryBuilder(t *testing.T) {
 			}
 			userQueryAny2, _ := anypb.New(userQuery2)
 
-			e := mockDAO.Search(&service.Query{
+			e := mockDAO.Search(context.TODO(), &service.Query{
 				SubQueries: []*anypb.Any{
 					userQueryAny,
 					userQueryAny2,
@@ -436,7 +446,7 @@ func TestQueryBuilder(t *testing.T) {
 				GroupPath: "/",
 				Recursive: true,
 			})
-			e := mockDAO.Search(&service.Query{
+			e := mockDAO.Search(context.TODO(), &service.Query{
 				SubQueries: []*anypb.Any{userQueryAny},
 			}, users)
 			So(e, ShouldBeNil)
@@ -462,14 +472,14 @@ func TestQueryBuilder(t *testing.T) {
 				Login: "username",
 			}
 			userQueryAny, _ := anypb.New(userQuery)
-			mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+			mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			u := (*users)[0].(*idm.User)
 			So(u, ShouldNotBeNil)
 			// Change groupPath
 			So(u.GroupPath, ShouldEqual, "/path/to/group/")
 			// Move User
 			u.GroupPath = "/path/to/anotherGroup"
-			addedUser, _, e := mockDAO.Add(u)
+			addedUser, _, e := mockDAO.Add(context.TODO(), u)
 			So(e, ShouldBeNil)
 			So(addedUser.(*idm.User).GroupPath, ShouldEqual, "/path/to/anotherGroup")
 			So(addedUser.(*idm.User).Login, ShouldEqual, "username")
@@ -478,7 +488,7 @@ func TestQueryBuilder(t *testing.T) {
 			userQueryAny2, _ := anypb.New(&idm.UserSingleQuery{
 				GroupPath: "/path/to/anotherGroup",
 			})
-			e2 := mockDAO.Search(&service.Query{
+			e2 := mockDAO.Search(context.TODO(), &service.Query{
 				SubQueries: []*anypb.Any{userQueryAny2},
 			}, users2)
 			So(e2, ShouldBeNil)
@@ -488,7 +498,7 @@ func TestQueryBuilder(t *testing.T) {
 			userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
 				GroupPath: "/path/to/group",
 			})
-			e3 := mockDAO.Search(&service.Query{
+			e3 := mockDAO.Search(context.TODO(), &service.Query{
 				SubQueries: []*anypb.Any{userQueryAny3},
 			}, users3)
 			So(e3, ShouldBeNil)
@@ -502,14 +512,14 @@ func TestQueryBuilder(t *testing.T) {
 				FullPath: "/path/to/anotherGroup",
 			}
 			userQueryAny, _ := anypb.New(userQuery)
-			mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+			mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			u := (*users)[0].(*idm.User)
 			So(u, ShouldNotBeNil)
 			// Change groupPath
 			So(u.IsGroup, ShouldBeTrue)
 			// Move Group
 			u.GroupPath = "/anotherGroup"
-			addedGroup, _, e := mockDAO.Add(u)
+			addedGroup, _, e := mockDAO.Add(context.TODO(), u)
 			So(e, ShouldBeNil)
 			So(addedGroup.(*idm.User).GroupPath, ShouldEqual, "/anotherGroup")
 
@@ -517,7 +527,7 @@ func TestQueryBuilder(t *testing.T) {
 			userQueryAny2, _ := anypb.New(&idm.UserSingleQuery{
 				GroupPath: "/path/to/anotherGroup",
 			})
-			e2 := mockDAO.Search(&service.Query{
+			e2 := mockDAO.Search(context.TODO(), &service.Query{
 				SubQueries: []*anypb.Any{userQueryAny2},
 			}, users2)
 			So(e2, ShouldBeNil)
@@ -527,7 +537,7 @@ func TestQueryBuilder(t *testing.T) {
 			userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
 				GroupPath: "/anotherGroup",
 			})
-			e3 := mockDAO.Search(&service.Query{
+			e3 := mockDAO.Search(context.TODO(), &service.Query{
 				SubQueries: []*anypb.Any{userQueryAny3},
 			}, users3)
 			So(e3, ShouldBeNil)
@@ -543,7 +553,7 @@ func TestQueryBuilder(t *testing.T) {
 			}
 			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
+			e := mockDAO.Search(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			for _, u := range *users {
 				log.Print(u)
@@ -556,14 +566,14 @@ func TestQueryBuilder(t *testing.T) {
 			userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
 				GroupPath: "/anotherGroup",
 			})
-			num, e3 := mockDAO.Del(&service.Query{SubQueries: []*anypb.Any{userQueryAny3}}, make(chan *idm.User, 100))
+			num, e3 := mockDAO.Del(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny3}}, make(chan *idm.User, 100))
 			So(e3, ShouldBeNil)
 			So(num, ShouldEqual, 2)
 		}
 
 		{
 			// Delete all should be prevented
-			_, e3 := mockDAO.Del(&service.Query{}, make(chan *idm.User, 100))
+			_, e3 := mockDAO.Del(context.TODO(), &service.Query{}, make(chan *idm.User, 100))
 			So(e3, ShouldNotBeNil)
 		}
 
@@ -573,7 +583,7 @@ func TestQueryBuilder(t *testing.T) {
 				GroupPath: "/path/to/group/",
 				Login:     "admin",
 			})
-			num, e3 := mockDAO.Del(&service.Query{SubQueries: []*anypb.Any{userQueryAny3}}, make(chan *idm.User, 100))
+			num, e3 := mockDAO.Del(context.TODO(), &service.Query{SubQueries: []*anypb.Any{userQueryAny3}}, make(chan *idm.User, 100))
 			So(e3, ShouldBeNil)
 			So(num, ShouldEqual, 1)
 		}
@@ -624,25 +634,21 @@ func TestQueryBuilder(t *testing.T) {
 			Operation: service.OperationType_AND,
 		}
 
-		s := sql.NewQueryBuilder(composedQuery, converter).Expression("sqlite")
+		var tx *gorm.DB
+		storage.Get(&tx)
+		tx = tx.Session(&gorm.Session{})
+
+		s := sql.NewGormQueryBuilder(composedQuery, converter).Build(tx)
 		So(s, ShouldNotBeNil)
 		//So(s, ShouldEqual, "((t.uuid = n.uuid and (n.name='user1' and n.leaf = 1)) OR (t.uuid = n.uuid and (n.name='user2' and n.leaf = 1))) AND (t.uuid = n.uuid and (n.name='user3' and n.leaf = 1))")
 	})
 }
 
 func TestDestructiveCreateUser(t *testing.T) {
-	var options = configx.New()
-	ctx := context.Background()
-	var mock DAO
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, "file::memory:", "idm_user", NewDAO, options); e != nil {
-		panic(e)
-	} else {
-		mock = d.(DAO)
-	}
 
 	Convey("Test bug with create user", t, func() {
 
-		_, _, err := mock.Add(&idm.User{
+		_, _, err := mockDAO.Add(context.TODO(), &idm.User{
 			Login:     "username",
 			Password:  "xxxxxxx",
 			GroupPath: "/path/to/group",
@@ -659,7 +665,7 @@ func TestDestructiveCreateUser(t *testing.T) {
 
 		So(err, ShouldBeNil)
 
-		_, _, err = mock.Add(&idm.User{
+		_, _, err = mockDAO.Add(context.TODO(), &idm.User{
 			Uuid:     "fixed-uuid",
 			Login:    "",
 			Password: "hashed",
@@ -668,7 +674,7 @@ func TestDestructiveCreateUser(t *testing.T) {
 		So(err, ShouldNotBeNil)
 
 		var target []interface{}
-		ch := mock.GetNodeTree(context.Background(), mtree.NewMPath(1))
+		ch := mockDAO.GetNodeTree(context.Background(), tree.NewMPath(1))
 		for n := range ch {
 			tn := n.(*mtree.TreeNode)
 			t.Logf("Got node %s (%s)", tn.MPath.String(), tn.Name())
@@ -676,7 +682,7 @@ func TestDestructiveCreateUser(t *testing.T) {
 		}
 		So(target, ShouldNotBeEmpty)
 
-		_, _, err = mock.Add(&idm.User{
+		_, _, err = mockDAO.Add(context.TODO(), &idm.User{
 			Uuid:     "fixed-uuid",
 			Login:    "",
 			Password: "hashed",
@@ -685,7 +691,7 @@ func TestDestructiveCreateUser(t *testing.T) {
 		//So(err, ShouldNotBeNil)
 
 		var target2 []interface{}
-		ch2 := mock.GetNodeTree(context.Background(), mtree.NewMPath(1))
+		ch2 := mockDAO.GetNodeTree(context.Background(), tree.NewMPath(1))
 		for n := range ch2 {
 			tn := n.(*mtree.TreeNode)
 			t.Logf("Got node %s (%s)", tn.MPath.String(), tn.Name())
@@ -694,5 +700,4 @@ func TestDestructiveCreateUser(t *testing.T) {
 		So(target2, ShouldNotBeEmpty)
 
 	})
-
 }

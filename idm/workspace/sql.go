@@ -23,22 +23,19 @@ package workspace
 import (
 	"context"
 	"embed"
-	"fmt"
+	"gorm.io/gorm"
 	"time"
 
 	goqu "github.com/doug-martin/goqu/v9"
-	migrate "github.com/rubenv/sql-migrate"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 var (
@@ -55,42 +52,29 @@ var (
 
 // Impl of the SQL interface
 type sqlimpl struct {
-	*sql.Handler
+	db *gorm.DB
 
-	*resources.ResourcesSQL
+	instance func() *gorm.DB
+
+	*resources.ResourcesGORM
 }
 
 // Init handler for the SQL DAO
 func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
 	// super
-	if er := s.DAO.Init(ctx, options); er != nil {
-		return er
-	}
+	//if er := s.DAO.Init(ctx, options); er != nil {
+	//	return er
+	//}
 
-	// Preparing the resources
-	s.ResourcesSQL = resources.NewDAO(s.Handler, "idm_workspaces.uuid").(*resources.ResourcesSQL)
-	if err := s.ResourcesSQL.Init(ctx, options); err != nil {
-		return err
-	}
-	// Doing the database migrations
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         s.Driver(),
-		TablePrefix: s.Prefix(),
-	}
-	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_workspace_")
-	if err != nil {
-		return err
-	}
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := s.Prepare(key, query); err != nil {
-				return err
-			}
-		}
-	}
+	db := s.db
+
+	s.instance = func() *gorm.DB { return db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_roles") }
+
+	s.instance().AutoMigrate(&idm.WorkspaceORM{})
+
+	s.ResourcesGORM = &resources.ResourcesGORM{DB: s.db}
+	s.ResourcesGORM.Init(ctx, options)
 
 	return nil
 }
@@ -102,40 +86,13 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 	if !ok {
 		return false, errors.BadRequest(common.ServiceWorkspace, "Wrong type")
 	}
-	update := false
-	stmt, er := s.GetStmt("ExistsWorkspace")
-	if er != nil {
-		return false, er
+
+	tx := s.instance().FirstOrCreate((*idm.WorkspaceORM)(workspace))
+	if err := tx.Error; err != nil {
+		return false, err
 	}
 
-	exists := stmt.QueryRow(workspace.UUID)
-	var exUuid, exSlug string
-	if err := exists.Scan(&exUuid, &exSlug); err != sql.ErrNoRows && exUuid != "" {
-		update = true
-	}
-	if (!update || exSlug != workspace.Slug) && s.slugExists(workspace.Slug) {
-		index := 1
-		baseSlug := workspace.Slug
-		testSlug := fmt.Sprintf("%s-%v", baseSlug, index)
-		for {
-			if !s.slugExists(testSlug) {
-				break
-			}
-			index++
-			testSlug = fmt.Sprintf("%s-%v", baseSlug, index)
-		}
-		workspace.Slug = testSlug
-	}
-	stmt, er = s.GetStmt("AddWorkspace")
-	if er != nil {
-		return false, er
-	}
-
-	_, err := stmt.Exec(workspace.UUID, workspace.Label, workspace.Description, workspace.Attributes, workspace.Slug, workspace.Scope, time.Now().Unix())
-	if err != nil {
-		return update, err
-	}
-	return update, nil
+	return tx.RowsAffected > 0, nil
 }
 
 // slugExists check in the DB if the slug already exists.
@@ -147,46 +104,25 @@ func (s *sqlimpl) slugExists(slug string) bool {
 		return true
 	}
 
-	stmt, er := s.GetStmt("ExistsWorkspaceWithSlug")
-	if er != nil {
-		return false
-	}
+	tx := s.instance().First(&idm.WorkspaceORM{Slug: slug})
 
-	exists := stmt.QueryRow(slug)
-	count := new(int)
-	if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
-		return true
-	}
-	return false
+	return tx.RowsAffected > 0
 }
 
 // Search searches
 func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 
-	whereExpression := sql.NewQueryBuilder(query, new(queryBuilder)).Expression(s.Driver())
-	resourceExpr, e := s.ResourcesSQL.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
-	if e != nil {
-		return e
-	}
-	queryString, args, err := sql.QueryStringFromExpression("idm_workspaces", s.Driver(), query, whereExpression, resourceExpr, -1)
-	if err != nil {
-		return err
+	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.ResourcesGORM).Build(s.instance()).(*gorm.DB)
+
+	var workspaceORMs []*idm.WorkspaceORM
+
+	tx := db.Find(&workspaceORMs)
+	if tx.Error != nil {
+		return tx.Error
 	}
 
-	res, err := s.DB().Query(queryString, args...)
-	if err != nil {
-		return err
-	}
-
-	defer res.Close()
-	for res.Next() {
-		workspace := new(idm.Workspace)
-		var lastUpdate int
-		var scope int
-		res.Scan(&workspace.UUID, &workspace.Label, &workspace.Description, &workspace.Attributes, &workspace.Slug, &scope, &lastUpdate)
-		workspace.LastUpdated = int32(lastUpdate)
-		workspace.Scope = idm.WorkspaceScope(scope)
-		*workspaces = append(*workspaces, workspace)
+	for _, workspaceORM := range workspaceORMs {
+		*workspaces = append(*workspaces, (*idm.Workspace)(workspaceORM))
 	}
 
 	return nil
@@ -195,29 +131,20 @@ func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 // Del from the SQL DB
 func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
-	//whereString := sql.NewDAOQuery(query, new(queryConverter)).String()
-	whereExpression := sql.NewQueryBuilder(query, new(queryBuilder)).Expression(s.Driver())
-	queryString, args, err := sql.DeleteStringFromExpression("idm_workspaces", s.Driver(), whereExpression)
-	if err != nil {
-		return 0, err
-	}
+	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.ResourcesGORM).Build(s.instance()).(*gorm.DB)
 
-	res, err := s.DB().Exec(queryString, args...)
-	if err != nil {
-		return 0, err
-	}
+	tx := db.Delete(&idm.WorkspaceORM{})
 
-	rows, err := res.RowsAffected()
-	if err != nil {
-		return 0, err
-	}
-
-	return rows, nil
+	return tx.RowsAffected, tx.Error
 }
 
 type queryBuilder idm.WorkspaceSingleQuery
 
-func (c *queryBuilder) Convert(val *anypb.Any, driver string) (goqu.Expression, bool) {
+func (c *queryBuilder) Convert(val *anypb.Any, in any) (out any, ok bool) {
+	db, ok := in.(*gorm.DB)
+	if !ok {
+		return
+	}
 
 	q := new(idm.WorkspaceSingleQuery)
 	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
@@ -226,16 +153,28 @@ func (c *queryBuilder) Convert(val *anypb.Any, driver string) (goqu.Expression, 
 
 	var expressions []goqu.Expression
 
-	if q.Uuid != "" {
-		expressions = append(expressions, sql.GetExpressionForString(q.Not, "uuid", q.Uuid))
+	if len(q.Uuid) > 0 {
+		if q.Not {
+			db.Not(map[string]interface{}{"uuid": q.Uuid})
+		} else {
+			db.Where(map[string]interface{}{"uuid": q.Uuid})
+		}
 	}
 
-	if q.Slug != "" {
-		expressions = append(expressions, sql.GetExpressionForString(q.Not, "slug", q.Slug))
+	if len(q.Slug) > 0 {
+		if q.Not {
+			db.Not(map[string]interface{}{"slug": q.Slug})
+		} else {
+			db.Where(map[string]interface{}{"slug": q.Slug})
+		}
 	}
 
-	if q.Label != "" {
-		expressions = append(expressions, sql.GetExpressionForString(q.Not, "label", q.Label))
+	if len(q.Label) > 0 {
+		if q.Not {
+			db.Not(map[string]interface{}{"label": q.Label})
+		} else {
+			db.Where(map[string]interface{}{"label": q.Label})
+		}
 	}
 
 	if q.Scope != idm.WorkspaceScope_ANY {
@@ -246,20 +185,26 @@ func (c *queryBuilder) Convert(val *anypb.Any, driver string) (goqu.Expression, 
 		if lt, d, e := q.ParseLastUpdated(); e == nil {
 			ref := int32(time.Now().Add(-d).Unix())
 			if lt || q.Not {
-				expressions = append(expressions, goqu.C("last_updated").Lt(ref))
+				db.Where("last_updated < ?", ref)
 			} else {
-				expressions = append(expressions, goqu.C("last_updated").Gt(ref))
+				db.Where("last_updated > ?", ref)
 			}
 		}
 	}
 
 	if q.HasAttribute != "" {
-		// search in JSON
-		expressions = append(expressions, sql.GetExpressionForString(q.Not, "attributes", `*"`+q.HasAttribute+`":*`))
+		if q.Not {
+			db.Not("attributes LIKE ?", "%"+q.HasAttribute+":%")
+		} else {
+			db.Where("attributes LIKE ?", "%"+q.HasAttribute+":%")
+		}
 	}
 	if q.AttributeName != "" && q.AttributeValue != "" {
-		// search in JSON
-		expressions = append(expressions, sql.GetExpressionForString(q.Not, "attributes", `*"`+q.AttributeName+`":"`+q.AttributeValue+`"*`))
+		if q.Not {
+			db.Not("attributes LIKE ?", "%"+q.AttributeName+":"+q.AttributeValue+":%")
+		} else {
+			db.Where("attributes LIKE ?", "%"+q.AttributeName+":"+q.AttributeValue+":%")
+		}
 	}
 
 	if len(expressions) == 0 {

@@ -21,11 +21,12 @@
 package merger
 
 import (
-	"testing"
-
-	"github.com/pydio/cells/v4/common/sync/model"
-
+	"fmt"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"testing"
+	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -70,17 +71,71 @@ func TestOpNodePaths(t *testing.T) {
 
 		r := root.ChildByPath("")
 		So(r, ShouldNotBeNil)
-		So(r.Uuid, ShouldEqual, "ROOT")
+		So(r.GetUuid(), ShouldEqual, "ROOT")
 
 		i := root.ChildByPath("b")
 		So(i, ShouldNotBeNil)
-		So(i.Uuid, ShouldEqual, "BNODE")
+		So(i.GetUuid(), ShouldEqual, "BNODE")
 
 		f := root.ChildByPath("c/k")
 		So(f, ShouldNotBeNil)
-		So(f.Uuid, ShouldEqual, "KNODE")
+		So(f.GetUuid(), ShouldEqual, "KNODE")
 
 		w := root.ChildByPath("other/path")
 		So(w, ShouldBeNil)
 	})
+}
+
+func TestStructSize(t *testing.T) {
+
+	/*
+		Convey("Use TreeNode", t, func() {
+			root := NewTreeNode(&tree.N{Path: "/", Uuid: "ROOT"})
+			nb := 1000000
+			for i := 0; i < nb; i++ {
+				if i > 0 && i%100000 == 0 {
+					printMem(uint64(i))
+				}
+				no := &tree.N{
+					Path: fmt.Sprintf("child-%d", i),
+					Uuid: uuid.New(),
+					//MetaStore: map[string]string{"toto": uuid.New()},
+					Etag:  "toto",
+					Type:  tree.NodeType_LEAF,
+					MTime: time.Now().Unix(),
+					Size:  25000,
+				}
+				c := NewTreeNode(no)
+				root.AddChild(c)
+			}
+			_ = root.SortedChildren()
+			printMem(uint64(nb))
+		})*/
+
+	Convey("Use lighterStruct", t, func() {
+		root := &lighterStruct{Path: "/"}
+		nb := 1000000
+		nb = 500
+		for i := 0; i < nb; i++ {
+			if i > 0 && i%100000 == 0 {
+				printMem(uint64(i))
+			}
+			no := tree.LightNode(1, uuid.New(), fmt.Sprintf("child-%d", i), "toto", 25000, int64(time.Now().Unix()), 0)
+			root.Children = append(root.Children, no)
+		}
+		printMem(uint64(nb))
+	})
+
+}
+
+type lighterStruct struct {
+	Path                                   string
+	Uuid                                   string
+	Etag                                   string
+	Children                               []tree.N
+	MetaKey1, MetaKey2, MetaKey3, MetaKey4 string
+	MetaVal1, MetaVal2, MetaVal3, MetaVal4 string
+	Size                                   uint64
+	MTime                                  uint32
+	Type                                   int8
 }

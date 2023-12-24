@@ -44,9 +44,9 @@ func (pr *Processor) processMetadata(canceler context.Context, operation merger.
 		parentPath := operation.GetNode().GetStringMeta(merger.MetaNodeParentPathMeta)
 		switch operation.Type() {
 		case merger.OpCreateMeta:
-			return mr.CreateMetadata(canceler, &tree.Node{Uuid: parentUuid, Path: parentPath}, path.Base(opNode.GetPath()), opNode.Etag)
+			return mr.CreateMetadata(canceler, &tree.Node{Uuid: parentUuid, Path: parentPath}, path.Base(opNode.GetPath()), opNode.GetEtag())
 		case merger.OpUpdateMeta:
-			return mr.UpdateMetadata(canceler, &tree.Node{Uuid: parentUuid, Path: parentPath}, path.Base(opNode.GetPath()), opNode.Etag)
+			return mr.UpdateMetadata(canceler, &tree.Node{Uuid: parentUuid, Path: parentPath}, path.Base(opNode.GetPath()), opNode.GetEtag())
 		case merger.OpDeleteMeta:
 			return mr.DeleteMetadata(canceler, &tree.Node{Uuid: parentUuid, Path: parentPath}, path.Base(opNode.GetPath()))
 		}

@@ -204,7 +204,6 @@ func CacheURL(prefix string, queryPairs ...string) string {
 
 func ShortCacheURL(queryPairs ...string) string {
 	str := r.GetString(KeyShortCache)
-	str = "discard://"
 	u, _ := url.Parse(str)
 	if !strings.HasSuffix(str, DefaultShortCacheSuffix) {
 		u.Path += DefaultShortCacheSuffix

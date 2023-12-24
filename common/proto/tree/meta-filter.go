@@ -270,7 +270,7 @@ func (m *MetaFilter) OrderBy() string {
 	if m.sortDesc {
 		dir = "DESC"
 	}
-	return "ORDER BY " + m.sortField + " " + dir
+	return m.sortField + " " + dir
 }
 
 func (m *MetaFilter) grepToLikes(field, g string, neg bool) (string, []interface{}) {

@@ -55,7 +55,7 @@ func TestMain(m *testing.M) {
 
 func TestMeta(t *testing.T) {
 
-	s := &MetaServer{dao: mockDAO}
+	s := &MetaServer{dao: func(ctx context.Context) meta.DAO { return mockDAO }}
 	var e error
 	ctx := context.Background()
 
@@ -143,7 +143,7 @@ func TestMeta(t *testing.T) {
 
 func TestSubscriber(t *testing.T) {
 
-	server := &MetaServer{dao: mockDAO}
+	server := &MetaServer{dao: func(ctx context.Context) meta.DAO { return mockDAO }}
 	ctx := context.Background()
 
 	Convey("Test CreateSubscriber", t, func() {

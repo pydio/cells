@@ -32,8 +32,12 @@ func newHelper(d string) (Helper, error) {
 	switch d {
 	case "mysql":
 		return new(mysql), nil
+	case "postgres":
+		return new(postgres), nil
 	case "sqlite3":
-		return new(sqlite), nil
+		return new(sqliteHelper), nil
+	case "sqlite3_extended":
+		return new(sqliteHelper), nil
 	default:
 		return nil, fmt.Errorf("wrong driver")
 	}

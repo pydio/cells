@@ -67,6 +67,12 @@ var (
 	}
 )
 
+type PolicyGroup struct {
+}
+
+type PolicyRel struct {
+}
+
 // Init of the SQL DAO
 func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 

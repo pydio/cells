@@ -23,6 +23,9 @@ package key
 
 import (
 	"context"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/encryption"
@@ -41,7 +44,16 @@ type DAO interface {
 func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case sql.DAO:
-		return &sqlimpl{DAO: v}, nil
+		dialector := sqlite.Open(v.Dsn())
+		db, err := gorm.Open(dialector, &gorm.Config{
+			//DisableForeignKeyConstraintWhenMigrating: true,
+			FullSaveAssociations: true,
+			Logger:               logger.Default.LogMode(logger.Info),
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &sqlimpl{db: db}, nil
 	}
 	return nil, dao.UnsupportedDriver(o)
 }

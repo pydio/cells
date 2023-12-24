@@ -51,12 +51,10 @@ func init() {
 }
 
 // NewFolderSizeCacheDAO provides a middleware implementation of the index sql dao that removes duplicate entries of the .pydio file that have the same etag at the same level
-func NewFolderSizeCacheDAO(dao func(ctx context.Context) DAO) func(ctx context.Context) DAO {
+func NewFolderSizeCacheDAO(dao DAO) DAO {
 	//return dao
-	return func(ctx context.Context) DAO {
-		return &FolderSizeCacheSQL{
-			dao(ctx),
-		}
+	return &FolderSizeCacheSQL{
+		dao,
 	}
 }
 

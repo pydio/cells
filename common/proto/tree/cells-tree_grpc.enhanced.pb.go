@@ -8,8 +8,10 @@ package tree
 
 import (
 	context "context"
+	fmt "fmt"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
+	metadata "google.golang.org/grpc/metadata"
 	status "google.golang.org/grpc/status"
 	sync "sync"
 )
@@ -24,72 +26,63 @@ var (
 	enhancedNodeProviderServersLock = sync.RWMutex{}
 )
 
-type idNodeProviderServer interface {
-	ID() string
-}
-type NodeProviderEnhancedServer interface {
+type NamedNodeProviderServer interface {
 	NodeProviderServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(NodeProviderServer)
-	filter(context.Context) []NodeProviderServer
+	Name() string
 }
-type NodeProviderEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []NodeProviderServer
-}
+type NodeProviderEnhancedServer map[string]NamedNodeProviderServer
 
-func (m *NodeProviderEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *NodeProviderEnhancedServerImpl) addHandler(srv NodeProviderServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *NodeProviderEnhancedServerImpl) filter(ctx context.Context) []NodeProviderServer {
-	var ret []NodeProviderServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m NodeProviderEnhancedServer) ReadNode(ctx context.Context, r *ReadNodeRequest) (*ReadNodeResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method ReadNode should have a context")
 	}
-	return ret
-}
-
-func (m *NodeProviderEnhancedServerImpl) ReadNode(ctx context.Context, r *ReadNodeRequest) (*ReadNodeResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.ReadNode(ctx, r)
+	enhancedNodeProviderServersLock.RLock()
+	defer enhancedNodeProviderServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.ReadNode(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method ReadNode not implemented")
 }
 
-func (m *NodeProviderEnhancedServerImpl) ListNodes(r *ListNodesRequest, s NodeProvider_ListNodesServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.ListNodes(r, s)
+func (m NodeProviderEnhancedServer) ListNodes(r *ListNodesRequest, s NodeProvider_ListNodesServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method ListNodes should have a context")
+	}
+	enhancedNodeProviderServersLock.RLock()
+	defer enhancedNodeProviderServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.ListNodes(r, s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method ListNodes not implemented")
 }
-func (m *NodeProviderEnhancedServerImpl) mustEmbedUnimplementedNodeProviderServer() {}
-func RegisterNodeProviderEnhancedServer(s grpc.ServiceRegistrar, srv NodeProviderServer) {
-	idServer, ok := s.(idNodeProviderServer)
-	if ok {
-		enhancedNodeProviderServersLock.Lock()
-		defer enhancedNodeProviderServersLock.Unlock()
-		instance, ok := enhancedNodeProviderServers[idServer.ID()]
-		if !ok {
-			instance = &NodeProviderEnhancedServerImpl{}
-			enhancedNodeProviderServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterNodeProviderServer(s, instance)
-	} else {
-		RegisterNodeProviderServer(s, srv)
+func (m NodeProviderEnhancedServer) mustEmbedUnimplementedNodeProviderServer() {}
+func RegisterNodeProviderEnhancedServer(s grpc.ServiceRegistrar, srv NamedNodeProviderServer) {
+	enhancedNodeProviderServersLock.Lock()
+	defer enhancedNodeProviderServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeProviderServers[addr]
+	if !ok {
+		m = NodeProviderEnhancedServer{}
+		enhancedNodeProviderServers[addr] = m
+		RegisterNodeProviderServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterNodeProviderEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedNodeProviderServersLock.Lock()
+	defer enhancedNodeProviderServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeProviderServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -97,65 +90,48 @@ var (
 	enhancedNodeProviderStreamerServersLock = sync.RWMutex{}
 )
 
-type idNodeProviderStreamerServer interface {
-	ID() string
-}
-type NodeProviderStreamerEnhancedServer interface {
+type NamedNodeProviderStreamerServer interface {
 	NodeProviderStreamerServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(NodeProviderStreamerServer)
-	filter(context.Context) []NodeProviderStreamerServer
+	Name() string
 }
-type NodeProviderStreamerEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []NodeProviderStreamerServer
-}
+type NodeProviderStreamerEnhancedServer map[string]NamedNodeProviderStreamerServer
 
-func (m *NodeProviderStreamerEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *NodeProviderStreamerEnhancedServerImpl) addHandler(srv NodeProviderStreamerServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *NodeProviderStreamerEnhancedServerImpl) filter(ctx context.Context) []NodeProviderStreamerServer {
-	var ret []NodeProviderStreamerServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m NodeProviderStreamerEnhancedServer) ReadNodeStream(s NodeProviderStreamer_ReadNodeStreamServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method ReadNodeStream should have a context")
 	}
-	return ret
-}
-
-func (m *NodeProviderStreamerEnhancedServerImpl) ReadNodeStream(s NodeProviderStreamer_ReadNodeStreamServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.ReadNodeStream(s)
+	enhancedNodeProviderStreamerServersLock.RLock()
+	defer enhancedNodeProviderStreamerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.ReadNodeStream(s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method ReadNodeStream not implemented")
 }
-func (m *NodeProviderStreamerEnhancedServerImpl) mustEmbedUnimplementedNodeProviderStreamerServer() {}
-func RegisterNodeProviderStreamerEnhancedServer(s grpc.ServiceRegistrar, srv NodeProviderStreamerServer) {
-	idServer, ok := s.(idNodeProviderStreamerServer)
-	if ok {
-		enhancedNodeProviderStreamerServersLock.Lock()
-		defer enhancedNodeProviderStreamerServersLock.Unlock()
-		instance, ok := enhancedNodeProviderStreamerServers[idServer.ID()]
-		if !ok {
-			instance = &NodeProviderStreamerEnhancedServerImpl{}
-			enhancedNodeProviderStreamerServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterNodeProviderStreamerServer(s, instance)
-	} else {
-		RegisterNodeProviderStreamerServer(s, srv)
+func (m NodeProviderStreamerEnhancedServer) mustEmbedUnimplementedNodeProviderStreamerServer() {}
+func RegisterNodeProviderStreamerEnhancedServer(s grpc.ServiceRegistrar, srv NamedNodeProviderStreamerServer) {
+	enhancedNodeProviderStreamerServersLock.Lock()
+	defer enhancedNodeProviderStreamerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeProviderStreamerServers[addr]
+	if !ok {
+		m = NodeProviderStreamerEnhancedServer{}
+		enhancedNodeProviderStreamerServers[addr] = m
+		RegisterNodeProviderStreamerServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterNodeProviderStreamerEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedNodeProviderStreamerServersLock.Lock()
+	defer enhancedNodeProviderStreamerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeProviderStreamerServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -163,65 +139,48 @@ var (
 	enhancedNodeChangesStreamerServersLock = sync.RWMutex{}
 )
 
-type idNodeChangesStreamerServer interface {
-	ID() string
-}
-type NodeChangesStreamerEnhancedServer interface {
+type NamedNodeChangesStreamerServer interface {
 	NodeChangesStreamerServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(NodeChangesStreamerServer)
-	filter(context.Context) []NodeChangesStreamerServer
+	Name() string
 }
-type NodeChangesStreamerEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []NodeChangesStreamerServer
-}
+type NodeChangesStreamerEnhancedServer map[string]NamedNodeChangesStreamerServer
 
-func (m *NodeChangesStreamerEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *NodeChangesStreamerEnhancedServerImpl) addHandler(srv NodeChangesStreamerServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *NodeChangesStreamerEnhancedServerImpl) filter(ctx context.Context) []NodeChangesStreamerServer {
-	var ret []NodeChangesStreamerServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m NodeChangesStreamerEnhancedServer) StreamChanges(r *StreamChangesRequest, s NodeChangesStreamer_StreamChangesServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method StreamChanges should have a context")
 	}
-	return ret
-}
-
-func (m *NodeChangesStreamerEnhancedServerImpl) StreamChanges(r *StreamChangesRequest, s NodeChangesStreamer_StreamChangesServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.StreamChanges(r, s)
+	enhancedNodeChangesStreamerServersLock.RLock()
+	defer enhancedNodeChangesStreamerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.StreamChanges(r, s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method StreamChanges not implemented")
 }
-func (m *NodeChangesStreamerEnhancedServerImpl) mustEmbedUnimplementedNodeChangesStreamerServer() {}
-func RegisterNodeChangesStreamerEnhancedServer(s grpc.ServiceRegistrar, srv NodeChangesStreamerServer) {
-	idServer, ok := s.(idNodeChangesStreamerServer)
-	if ok {
-		enhancedNodeChangesStreamerServersLock.Lock()
-		defer enhancedNodeChangesStreamerServersLock.Unlock()
-		instance, ok := enhancedNodeChangesStreamerServers[idServer.ID()]
-		if !ok {
-			instance = &NodeChangesStreamerEnhancedServerImpl{}
-			enhancedNodeChangesStreamerServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterNodeChangesStreamerServer(s, instance)
-	} else {
-		RegisterNodeChangesStreamerServer(s, srv)
+func (m NodeChangesStreamerEnhancedServer) mustEmbedUnimplementedNodeChangesStreamerServer() {}
+func RegisterNodeChangesStreamerEnhancedServer(s grpc.ServiceRegistrar, srv NamedNodeChangesStreamerServer) {
+	enhancedNodeChangesStreamerServersLock.Lock()
+	defer enhancedNodeChangesStreamerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeChangesStreamerServers[addr]
+	if !ok {
+		m = NodeChangesStreamerEnhancedServer{}
+		enhancedNodeChangesStreamerServers[addr] = m
+		RegisterNodeChangesStreamerServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterNodeChangesStreamerEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedNodeChangesStreamerServersLock.Lock()
+	defer enhancedNodeChangesStreamerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeChangesStreamerServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -229,66 +188,49 @@ var (
 	enhancedNodeChangesReceiverStreamerServersLock = sync.RWMutex{}
 )
 
-type idNodeChangesReceiverStreamerServer interface {
-	ID() string
-}
-type NodeChangesReceiverStreamerEnhancedServer interface {
+type NamedNodeChangesReceiverStreamerServer interface {
 	NodeChangesReceiverStreamerServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(NodeChangesReceiverStreamerServer)
-	filter(context.Context) []NodeChangesReceiverStreamerServer
+	Name() string
 }
-type NodeChangesReceiverStreamerEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []NodeChangesReceiverStreamerServer
-}
+type NodeChangesReceiverStreamerEnhancedServer map[string]NamedNodeChangesReceiverStreamerServer
 
-func (m *NodeChangesReceiverStreamerEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *NodeChangesReceiverStreamerEnhancedServerImpl) addHandler(srv NodeChangesReceiverStreamerServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *NodeChangesReceiverStreamerEnhancedServerImpl) filter(ctx context.Context) []NodeChangesReceiverStreamerServer {
-	var ret []NodeChangesReceiverStreamerServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m NodeChangesReceiverStreamerEnhancedServer) PostNodeChanges(s NodeChangesReceiverStreamer_PostNodeChangesServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method PostNodeChanges should have a context")
 	}
-	return ret
-}
-
-func (m *NodeChangesReceiverStreamerEnhancedServerImpl) PostNodeChanges(s NodeChangesReceiverStreamer_PostNodeChangesServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.PostNodeChanges(s)
+	enhancedNodeChangesReceiverStreamerServersLock.RLock()
+	defer enhancedNodeChangesReceiverStreamerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.PostNodeChanges(s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method PostNodeChanges not implemented")
 }
-func (m *NodeChangesReceiverStreamerEnhancedServerImpl) mustEmbedUnimplementedNodeChangesReceiverStreamerServer() {
+func (m NodeChangesReceiverStreamerEnhancedServer) mustEmbedUnimplementedNodeChangesReceiverStreamerServer() {
 }
-func RegisterNodeChangesReceiverStreamerEnhancedServer(s grpc.ServiceRegistrar, srv NodeChangesReceiverStreamerServer) {
-	idServer, ok := s.(idNodeChangesReceiverStreamerServer)
-	if ok {
-		enhancedNodeChangesReceiverStreamerServersLock.Lock()
-		defer enhancedNodeChangesReceiverStreamerServersLock.Unlock()
-		instance, ok := enhancedNodeChangesReceiverStreamerServers[idServer.ID()]
-		if !ok {
-			instance = &NodeChangesReceiverStreamerEnhancedServerImpl{}
-			enhancedNodeChangesReceiverStreamerServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterNodeChangesReceiverStreamerServer(s, instance)
-	} else {
-		RegisterNodeChangesReceiverStreamerServer(s, srv)
+func RegisterNodeChangesReceiverStreamerEnhancedServer(s grpc.ServiceRegistrar, srv NamedNodeChangesReceiverStreamerServer) {
+	enhancedNodeChangesReceiverStreamerServersLock.Lock()
+	defer enhancedNodeChangesReceiverStreamerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeChangesReceiverStreamerServers[addr]
+	if !ok {
+		m = NodeChangesReceiverStreamerEnhancedServer{}
+		enhancedNodeChangesReceiverStreamerServers[addr] = m
+		RegisterNodeChangesReceiverStreamerServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterNodeChangesReceiverStreamerEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedNodeChangesReceiverStreamerServersLock.Lock()
+	defer enhancedNodeChangesReceiverStreamerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeChangesReceiverStreamerServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -296,79 +238,78 @@ var (
 	enhancedNodeReceiverServersLock = sync.RWMutex{}
 )
 
-type idNodeReceiverServer interface {
-	ID() string
-}
-type NodeReceiverEnhancedServer interface {
+type NamedNodeReceiverServer interface {
 	NodeReceiverServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(NodeReceiverServer)
-	filter(context.Context) []NodeReceiverServer
+	Name() string
 }
-type NodeReceiverEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []NodeReceiverServer
-}
+type NodeReceiverEnhancedServer map[string]NamedNodeReceiverServer
 
-func (m *NodeReceiverEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *NodeReceiverEnhancedServerImpl) addHandler(srv NodeReceiverServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *NodeReceiverEnhancedServerImpl) filter(ctx context.Context) []NodeReceiverServer {
-	var ret []NodeReceiverServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m NodeReceiverEnhancedServer) CreateNode(ctx context.Context, r *CreateNodeRequest) (*CreateNodeResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method CreateNode should have a context")
 	}
-	return ret
-}
-
-func (m *NodeReceiverEnhancedServerImpl) CreateNode(ctx context.Context, r *CreateNodeRequest) (*CreateNodeResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.CreateNode(ctx, r)
+	enhancedNodeReceiverServersLock.RLock()
+	defer enhancedNodeReceiverServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.CreateNode(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method CreateNode not implemented")
 }
 
-func (m *NodeReceiverEnhancedServerImpl) UpdateNode(ctx context.Context, r *UpdateNodeRequest) (*UpdateNodeResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.UpdateNode(ctx, r)
+func (m NodeReceiverEnhancedServer) UpdateNode(ctx context.Context, r *UpdateNodeRequest) (*UpdateNodeResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method UpdateNode should have a context")
+	}
+	enhancedNodeReceiverServersLock.RLock()
+	defer enhancedNodeReceiverServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.UpdateNode(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateNode not implemented")
 }
 
-func (m *NodeReceiverEnhancedServerImpl) DeleteNode(ctx context.Context, r *DeleteNodeRequest) (*DeleteNodeResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.DeleteNode(ctx, r)
+func (m NodeReceiverEnhancedServer) DeleteNode(ctx context.Context, r *DeleteNodeRequest) (*DeleteNodeResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method DeleteNode should have a context")
+	}
+	enhancedNodeReceiverServersLock.RLock()
+	defer enhancedNodeReceiverServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.DeleteNode(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteNode not implemented")
 }
-func (m *NodeReceiverEnhancedServerImpl) mustEmbedUnimplementedNodeReceiverServer() {}
-func RegisterNodeReceiverEnhancedServer(s grpc.ServiceRegistrar, srv NodeReceiverServer) {
-	idServer, ok := s.(idNodeReceiverServer)
-	if ok {
-		enhancedNodeReceiverServersLock.Lock()
-		defer enhancedNodeReceiverServersLock.Unlock()
-		instance, ok := enhancedNodeReceiverServers[idServer.ID()]
-		if !ok {
-			instance = &NodeReceiverEnhancedServerImpl{}
-			enhancedNodeReceiverServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterNodeReceiverServer(s, instance)
-	} else {
-		RegisterNodeReceiverServer(s, srv)
+func (m NodeReceiverEnhancedServer) mustEmbedUnimplementedNodeReceiverServer() {}
+func RegisterNodeReceiverEnhancedServer(s grpc.ServiceRegistrar, srv NamedNodeReceiverServer) {
+	enhancedNodeReceiverServersLock.Lock()
+	defer enhancedNodeReceiverServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeReceiverServers[addr]
+	if !ok {
+		m = NodeReceiverEnhancedServer{}
+		enhancedNodeReceiverServers[addr] = m
+		RegisterNodeReceiverServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterNodeReceiverEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedNodeReceiverServersLock.Lock()
+	defer enhancedNodeReceiverServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeReceiverServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -376,79 +317,78 @@ var (
 	enhancedNodeReceiverStreamServersLock = sync.RWMutex{}
 )
 
-type idNodeReceiverStreamServer interface {
-	ID() string
-}
-type NodeReceiverStreamEnhancedServer interface {
+type NamedNodeReceiverStreamServer interface {
 	NodeReceiverStreamServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(NodeReceiverStreamServer)
-	filter(context.Context) []NodeReceiverStreamServer
+	Name() string
 }
-type NodeReceiverStreamEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []NodeReceiverStreamServer
-}
+type NodeReceiverStreamEnhancedServer map[string]NamedNodeReceiverStreamServer
 
-func (m *NodeReceiverStreamEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *NodeReceiverStreamEnhancedServerImpl) addHandler(srv NodeReceiverStreamServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *NodeReceiverStreamEnhancedServerImpl) filter(ctx context.Context) []NodeReceiverStreamServer {
-	var ret []NodeReceiverStreamServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m NodeReceiverStreamEnhancedServer) CreateNodeStream(s NodeReceiverStream_CreateNodeStreamServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method CreateNodeStream should have a context")
 	}
-	return ret
-}
-
-func (m *NodeReceiverStreamEnhancedServerImpl) CreateNodeStream(s NodeReceiverStream_CreateNodeStreamServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.CreateNodeStream(s)
+	enhancedNodeReceiverStreamServersLock.RLock()
+	defer enhancedNodeReceiverStreamServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.CreateNodeStream(s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method CreateNodeStream not implemented")
 }
 
-func (m *NodeReceiverStreamEnhancedServerImpl) UpdateNodeStream(s NodeReceiverStream_UpdateNodeStreamServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.UpdateNodeStream(s)
+func (m NodeReceiverStreamEnhancedServer) UpdateNodeStream(s NodeReceiverStream_UpdateNodeStreamServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method UpdateNodeStream should have a context")
+	}
+	enhancedNodeReceiverStreamServersLock.RLock()
+	defer enhancedNodeReceiverStreamServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.UpdateNodeStream(s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method UpdateNodeStream not implemented")
 }
 
-func (m *NodeReceiverStreamEnhancedServerImpl) DeleteNodeStream(s NodeReceiverStream_DeleteNodeStreamServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.DeleteNodeStream(s)
+func (m NodeReceiverStreamEnhancedServer) DeleteNodeStream(s NodeReceiverStream_DeleteNodeStreamServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method DeleteNodeStream should have a context")
+	}
+	enhancedNodeReceiverStreamServersLock.RLock()
+	defer enhancedNodeReceiverStreamServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.DeleteNodeStream(s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method DeleteNodeStream not implemented")
 }
-func (m *NodeReceiverStreamEnhancedServerImpl) mustEmbedUnimplementedNodeReceiverStreamServer() {}
-func RegisterNodeReceiverStreamEnhancedServer(s grpc.ServiceRegistrar, srv NodeReceiverStreamServer) {
-	idServer, ok := s.(idNodeReceiverStreamServer)
-	if ok {
-		enhancedNodeReceiverStreamServersLock.Lock()
-		defer enhancedNodeReceiverStreamServersLock.Unlock()
-		instance, ok := enhancedNodeReceiverStreamServers[idServer.ID()]
-		if !ok {
-			instance = &NodeReceiverStreamEnhancedServerImpl{}
-			enhancedNodeReceiverStreamServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterNodeReceiverStreamServer(s, instance)
-	} else {
-		RegisterNodeReceiverStreamServer(s, srv)
+func (m NodeReceiverStreamEnhancedServer) mustEmbedUnimplementedNodeReceiverStreamServer() {}
+func RegisterNodeReceiverStreamEnhancedServer(s grpc.ServiceRegistrar, srv NamedNodeReceiverStreamServer) {
+	enhancedNodeReceiverStreamServersLock.Lock()
+	defer enhancedNodeReceiverStreamServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeReceiverStreamServers[addr]
+	if !ok {
+		m = NodeReceiverStreamEnhancedServer{}
+		enhancedNodeReceiverStreamServers[addr] = m
+		RegisterNodeReceiverStreamServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterNodeReceiverStreamEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedNodeReceiverStreamServersLock.Lock()
+	defer enhancedNodeReceiverStreamServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeReceiverStreamServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -456,79 +396,78 @@ var (
 	enhancedSessionIndexerServersLock = sync.RWMutex{}
 )
 
-type idSessionIndexerServer interface {
-	ID() string
-}
-type SessionIndexerEnhancedServer interface {
+type NamedSessionIndexerServer interface {
 	SessionIndexerServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(SessionIndexerServer)
-	filter(context.Context) []SessionIndexerServer
+	Name() string
 }
-type SessionIndexerEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []SessionIndexerServer
-}
+type SessionIndexerEnhancedServer map[string]NamedSessionIndexerServer
 
-func (m *SessionIndexerEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *SessionIndexerEnhancedServerImpl) addHandler(srv SessionIndexerServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *SessionIndexerEnhancedServerImpl) filter(ctx context.Context) []SessionIndexerServer {
-	var ret []SessionIndexerServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m SessionIndexerEnhancedServer) OpenSession(ctx context.Context, r *OpenSessionRequest) (*OpenSessionResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method OpenSession should have a context")
 	}
-	return ret
-}
-
-func (m *SessionIndexerEnhancedServerImpl) OpenSession(ctx context.Context, r *OpenSessionRequest) (*OpenSessionResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.OpenSession(ctx, r)
+	enhancedSessionIndexerServersLock.RLock()
+	defer enhancedSessionIndexerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.OpenSession(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method OpenSession not implemented")
 }
 
-func (m *SessionIndexerEnhancedServerImpl) FlushSession(ctx context.Context, r *FlushSessionRequest) (*FlushSessionResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.FlushSession(ctx, r)
+func (m SessionIndexerEnhancedServer) FlushSession(ctx context.Context, r *FlushSessionRequest) (*FlushSessionResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method FlushSession should have a context")
+	}
+	enhancedSessionIndexerServersLock.RLock()
+	defer enhancedSessionIndexerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.FlushSession(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method FlushSession not implemented")
 }
 
-func (m *SessionIndexerEnhancedServerImpl) CloseSession(ctx context.Context, r *CloseSessionRequest) (*CloseSessionResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.CloseSession(ctx, r)
+func (m SessionIndexerEnhancedServer) CloseSession(ctx context.Context, r *CloseSessionRequest) (*CloseSessionResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method CloseSession should have a context")
+	}
+	enhancedSessionIndexerServersLock.RLock()
+	defer enhancedSessionIndexerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.CloseSession(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method CloseSession not implemented")
 }
-func (m *SessionIndexerEnhancedServerImpl) mustEmbedUnimplementedSessionIndexerServer() {}
-func RegisterSessionIndexerEnhancedServer(s grpc.ServiceRegistrar, srv SessionIndexerServer) {
-	idServer, ok := s.(idSessionIndexerServer)
-	if ok {
-		enhancedSessionIndexerServersLock.Lock()
-		defer enhancedSessionIndexerServersLock.Unlock()
-		instance, ok := enhancedSessionIndexerServers[idServer.ID()]
-		if !ok {
-			instance = &SessionIndexerEnhancedServerImpl{}
-			enhancedSessionIndexerServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterSessionIndexerServer(s, instance)
-	} else {
-		RegisterSessionIndexerServer(s, srv)
+func (m SessionIndexerEnhancedServer) mustEmbedUnimplementedSessionIndexerServer() {}
+func RegisterSessionIndexerEnhancedServer(s grpc.ServiceRegistrar, srv NamedSessionIndexerServer) {
+	enhancedSessionIndexerServersLock.Lock()
+	defer enhancedSessionIndexerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedSessionIndexerServers[addr]
+	if !ok {
+		m = SessionIndexerEnhancedServer{}
+		enhancedSessionIndexerServers[addr] = m
+		RegisterSessionIndexerServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterSessionIndexerEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedSessionIndexerServersLock.Lock()
+	defer enhancedSessionIndexerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedSessionIndexerServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -536,65 +475,48 @@ var (
 	enhancedNodeEventsProviderServersLock = sync.RWMutex{}
 )
 
-type idNodeEventsProviderServer interface {
-	ID() string
-}
-type NodeEventsProviderEnhancedServer interface {
+type NamedNodeEventsProviderServer interface {
 	NodeEventsProviderServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(NodeEventsProviderServer)
-	filter(context.Context) []NodeEventsProviderServer
+	Name() string
 }
-type NodeEventsProviderEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []NodeEventsProviderServer
-}
+type NodeEventsProviderEnhancedServer map[string]NamedNodeEventsProviderServer
 
-func (m *NodeEventsProviderEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *NodeEventsProviderEnhancedServerImpl) addHandler(srv NodeEventsProviderServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *NodeEventsProviderEnhancedServerImpl) filter(ctx context.Context) []NodeEventsProviderServer {
-	var ret []NodeEventsProviderServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m NodeEventsProviderEnhancedServer) WatchNode(r *WatchNodeRequest, s NodeEventsProvider_WatchNodeServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method WatchNode should have a context")
 	}
-	return ret
-}
-
-func (m *NodeEventsProviderEnhancedServerImpl) WatchNode(r *WatchNodeRequest, s NodeEventsProvider_WatchNodeServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.WatchNode(r, s)
+	enhancedNodeEventsProviderServersLock.RLock()
+	defer enhancedNodeEventsProviderServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.WatchNode(r, s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method WatchNode not implemented")
 }
-func (m *NodeEventsProviderEnhancedServerImpl) mustEmbedUnimplementedNodeEventsProviderServer() {}
-func RegisterNodeEventsProviderEnhancedServer(s grpc.ServiceRegistrar, srv NodeEventsProviderServer) {
-	idServer, ok := s.(idNodeEventsProviderServer)
-	if ok {
-		enhancedNodeEventsProviderServersLock.Lock()
-		defer enhancedNodeEventsProviderServersLock.Unlock()
-		instance, ok := enhancedNodeEventsProviderServers[idServer.ID()]
-		if !ok {
-			instance = &NodeEventsProviderEnhancedServerImpl{}
-			enhancedNodeEventsProviderServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterNodeEventsProviderServer(s, instance)
-	} else {
-		RegisterNodeEventsProviderServer(s, srv)
+func (m NodeEventsProviderEnhancedServer) mustEmbedUnimplementedNodeEventsProviderServer() {}
+func RegisterNodeEventsProviderEnhancedServer(s grpc.ServiceRegistrar, srv NamedNodeEventsProviderServer) {
+	enhancedNodeEventsProviderServersLock.Lock()
+	defer enhancedNodeEventsProviderServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeEventsProviderServers[addr]
+	if !ok {
+		m = NodeEventsProviderEnhancedServer{}
+		enhancedNodeEventsProviderServers[addr] = m
+		RegisterNodeEventsProviderServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterNodeEventsProviderEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedNodeEventsProviderServersLock.Lock()
+	defer enhancedNodeEventsProviderServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeEventsProviderServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -602,65 +524,48 @@ var (
 	enhancedSearcherServersLock = sync.RWMutex{}
 )
 
-type idSearcherServer interface {
-	ID() string
-}
-type SearcherEnhancedServer interface {
+type NamedSearcherServer interface {
 	SearcherServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(SearcherServer)
-	filter(context.Context) []SearcherServer
+	Name() string
 }
-type SearcherEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []SearcherServer
-}
+type SearcherEnhancedServer map[string]NamedSearcherServer
 
-func (m *SearcherEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *SearcherEnhancedServerImpl) addHandler(srv SearcherServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *SearcherEnhancedServerImpl) filter(ctx context.Context) []SearcherServer {
-	var ret []SearcherServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m SearcherEnhancedServer) Search(r *SearchRequest, s Searcher_SearchServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method Search should have a context")
 	}
-	return ret
-}
-
-func (m *SearcherEnhancedServerImpl) Search(r *SearchRequest, s Searcher_SearchServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.Search(r, s)
+	enhancedSearcherServersLock.RLock()
+	defer enhancedSearcherServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.Search(r, s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method Search not implemented")
 }
-func (m *SearcherEnhancedServerImpl) mustEmbedUnimplementedSearcherServer() {}
-func RegisterSearcherEnhancedServer(s grpc.ServiceRegistrar, srv SearcherServer) {
-	idServer, ok := s.(idSearcherServer)
-	if ok {
-		enhancedSearcherServersLock.Lock()
-		defer enhancedSearcherServersLock.Unlock()
-		instance, ok := enhancedSearcherServers[idServer.ID()]
-		if !ok {
-			instance = &SearcherEnhancedServerImpl{}
-			enhancedSearcherServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterSearcherServer(s, instance)
-	} else {
-		RegisterSearcherServer(s, srv)
+func (m SearcherEnhancedServer) mustEmbedUnimplementedSearcherServer() {}
+func RegisterSearcherEnhancedServer(s grpc.ServiceRegistrar, srv NamedSearcherServer) {
+	enhancedSearcherServersLock.Lock()
+	defer enhancedSearcherServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedSearcherServers[addr]
+	if !ok {
+		m = SearcherEnhancedServer{}
+		enhancedSearcherServers[addr] = m
+		RegisterSearcherServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterSearcherEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedSearcherServersLock.Lock()
+	defer enhancedSearcherServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedSearcherServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -668,58 +573,34 @@ var (
 	enhancedNodeContentReaderServersLock = sync.RWMutex{}
 )
 
-type idNodeContentReaderServer interface {
-	ID() string
-}
-type NodeContentReaderEnhancedServer interface {
+type NamedNodeContentReaderServer interface {
 	NodeContentReaderServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(NodeContentReaderServer)
-	filter(context.Context) []NodeContentReaderServer
+	Name() string
 }
-type NodeContentReaderEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []NodeContentReaderServer
-}
+type NodeContentReaderEnhancedServer map[string]NamedNodeContentReaderServer
 
-func (m *NodeContentReaderEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *NodeContentReaderEnhancedServerImpl) addHandler(srv NodeContentReaderServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *NodeContentReaderEnhancedServerImpl) filter(ctx context.Context) []NodeContentReaderServer {
-	var ret []NodeContentReaderServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m NodeContentReaderEnhancedServer) mustEmbedUnimplementedNodeContentReaderServer() {}
+func RegisterNodeContentReaderEnhancedServer(s grpc.ServiceRegistrar, srv NamedNodeContentReaderServer) {
+	enhancedNodeContentReaderServersLock.Lock()
+	defer enhancedNodeContentReaderServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeContentReaderServers[addr]
+	if !ok {
+		m = NodeContentReaderEnhancedServer{}
+		enhancedNodeContentReaderServers[addr] = m
+		RegisterNodeContentReaderServer(s, m)
 	}
-	return ret
+	m[srv.Name()] = srv
 }
-func (m *NodeContentReaderEnhancedServerImpl) mustEmbedUnimplementedNodeContentReaderServer() {}
-func RegisterNodeContentReaderEnhancedServer(s grpc.ServiceRegistrar, srv NodeContentReaderServer) {
-	idServer, ok := s.(idNodeContentReaderServer)
-	if ok {
-		enhancedNodeContentReaderServersLock.Lock()
-		defer enhancedNodeContentReaderServersLock.Unlock()
-		instance, ok := enhancedNodeContentReaderServers[idServer.ID()]
-		if !ok {
-			instance = &NodeContentReaderEnhancedServerImpl{}
-			enhancedNodeContentReaderServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterNodeContentReaderServer(s, instance)
-	} else {
-		RegisterNodeContentReaderServer(s, srv)
+func DeregisterNodeContentReaderEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedNodeContentReaderServersLock.Lock()
+	defer enhancedNodeContentReaderServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeContentReaderServers[addr]
+	if !ok {
+		return
 	}
+	delete(m, name)
 }
 
 var (
@@ -727,58 +608,34 @@ var (
 	enhancedNodeContentWriterServersLock = sync.RWMutex{}
 )
 
-type idNodeContentWriterServer interface {
-	ID() string
-}
-type NodeContentWriterEnhancedServer interface {
+type NamedNodeContentWriterServer interface {
 	NodeContentWriterServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(NodeContentWriterServer)
-	filter(context.Context) []NodeContentWriterServer
+	Name() string
 }
-type NodeContentWriterEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []NodeContentWriterServer
-}
+type NodeContentWriterEnhancedServer map[string]NamedNodeContentWriterServer
 
-func (m *NodeContentWriterEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *NodeContentWriterEnhancedServerImpl) addHandler(srv NodeContentWriterServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *NodeContentWriterEnhancedServerImpl) filter(ctx context.Context) []NodeContentWriterServer {
-	var ret []NodeContentWriterServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m NodeContentWriterEnhancedServer) mustEmbedUnimplementedNodeContentWriterServer() {}
+func RegisterNodeContentWriterEnhancedServer(s grpc.ServiceRegistrar, srv NamedNodeContentWriterServer) {
+	enhancedNodeContentWriterServersLock.Lock()
+	defer enhancedNodeContentWriterServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeContentWriterServers[addr]
+	if !ok {
+		m = NodeContentWriterEnhancedServer{}
+		enhancedNodeContentWriterServers[addr] = m
+		RegisterNodeContentWriterServer(s, m)
 	}
-	return ret
+	m[srv.Name()] = srv
 }
-func (m *NodeContentWriterEnhancedServerImpl) mustEmbedUnimplementedNodeContentWriterServer() {}
-func RegisterNodeContentWriterEnhancedServer(s grpc.ServiceRegistrar, srv NodeContentWriterServer) {
-	idServer, ok := s.(idNodeContentWriterServer)
-	if ok {
-		enhancedNodeContentWriterServersLock.Lock()
-		defer enhancedNodeContentWriterServersLock.Unlock()
-		instance, ok := enhancedNodeContentWriterServers[idServer.ID()]
-		if !ok {
-			instance = &NodeContentWriterEnhancedServerImpl{}
-			enhancedNodeContentWriterServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterNodeContentWriterServer(s, instance)
-	} else {
-		RegisterNodeContentWriterServer(s, srv)
+func DeregisterNodeContentWriterEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedNodeContentWriterServersLock.Lock()
+	defer enhancedNodeContentWriterServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeContentWriterServers[addr]
+	if !ok {
+		return
 	}
+	delete(m, name)
 }
 
 var (
@@ -786,93 +643,108 @@ var (
 	enhancedNodeVersionerServersLock = sync.RWMutex{}
 )
 
-type idNodeVersionerServer interface {
-	ID() string
-}
-type NodeVersionerEnhancedServer interface {
+type NamedNodeVersionerServer interface {
 	NodeVersionerServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(NodeVersionerServer)
-	filter(context.Context) []NodeVersionerServer
+	Name() string
 }
-type NodeVersionerEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []NodeVersionerServer
-}
+type NodeVersionerEnhancedServer map[string]NamedNodeVersionerServer
 
-func (m *NodeVersionerEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *NodeVersionerEnhancedServerImpl) addHandler(srv NodeVersionerServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *NodeVersionerEnhancedServerImpl) filter(ctx context.Context) []NodeVersionerServer {
-	var ret []NodeVersionerServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m NodeVersionerEnhancedServer) CreateVersion(ctx context.Context, r *CreateVersionRequest) (*CreateVersionResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method CreateVersion should have a context")
 	}
-	return ret
-}
-
-func (m *NodeVersionerEnhancedServerImpl) CreateVersion(ctx context.Context, r *CreateVersionRequest) (*CreateVersionResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.CreateVersion(ctx, r)
+	enhancedNodeVersionerServersLock.RLock()
+	defer enhancedNodeVersionerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.CreateVersion(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method CreateVersion not implemented")
 }
 
-func (m *NodeVersionerEnhancedServerImpl) StoreVersion(ctx context.Context, r *StoreVersionRequest) (*StoreVersionResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.StoreVersion(ctx, r)
+func (m NodeVersionerEnhancedServer) StoreVersion(ctx context.Context, r *StoreVersionRequest) (*StoreVersionResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method StoreVersion should have a context")
+	}
+	enhancedNodeVersionerServersLock.RLock()
+	defer enhancedNodeVersionerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.StoreVersion(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method StoreVersion not implemented")
 }
 
-func (m *NodeVersionerEnhancedServerImpl) ListVersions(r *ListVersionsRequest, s NodeVersioner_ListVersionsServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.ListVersions(r, s)
+func (m NodeVersionerEnhancedServer) ListVersions(r *ListVersionsRequest, s NodeVersioner_ListVersionsServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method ListVersions should have a context")
+	}
+	enhancedNodeVersionerServersLock.RLock()
+	defer enhancedNodeVersionerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.ListVersions(r, s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method ListVersions not implemented")
 }
 
-func (m *NodeVersionerEnhancedServerImpl) HeadVersion(ctx context.Context, r *HeadVersionRequest) (*HeadVersionResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.HeadVersion(ctx, r)
+func (m NodeVersionerEnhancedServer) HeadVersion(ctx context.Context, r *HeadVersionRequest) (*HeadVersionResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method HeadVersion should have a context")
+	}
+	enhancedNodeVersionerServersLock.RLock()
+	defer enhancedNodeVersionerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.HeadVersion(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method HeadVersion not implemented")
 }
 
-func (m *NodeVersionerEnhancedServerImpl) PruneVersions(ctx context.Context, r *PruneVersionsRequest) (*PruneVersionsResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.PruneVersions(ctx, r)
+func (m NodeVersionerEnhancedServer) PruneVersions(ctx context.Context, r *PruneVersionsRequest) (*PruneVersionsResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method PruneVersions should have a context")
+	}
+	enhancedNodeVersionerServersLock.RLock()
+	defer enhancedNodeVersionerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.PruneVersions(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method PruneVersions not implemented")
 }
-func (m *NodeVersionerEnhancedServerImpl) mustEmbedUnimplementedNodeVersionerServer() {}
-func RegisterNodeVersionerEnhancedServer(s grpc.ServiceRegistrar, srv NodeVersionerServer) {
-	idServer, ok := s.(idNodeVersionerServer)
-	if ok {
-		enhancedNodeVersionerServersLock.Lock()
-		defer enhancedNodeVersionerServersLock.Unlock()
-		instance, ok := enhancedNodeVersionerServers[idServer.ID()]
-		if !ok {
-			instance = &NodeVersionerEnhancedServerImpl{}
-			enhancedNodeVersionerServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterNodeVersionerServer(s, instance)
-	} else {
-		RegisterNodeVersionerServer(s, srv)
+func (m NodeVersionerEnhancedServer) mustEmbedUnimplementedNodeVersionerServer() {}
+func RegisterNodeVersionerEnhancedServer(s grpc.ServiceRegistrar, srv NamedNodeVersionerServer) {
+	enhancedNodeVersionerServersLock.Lock()
+	defer enhancedNodeVersionerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeVersionerServers[addr]
+	if !ok {
+		m = NodeVersionerEnhancedServer{}
+		enhancedNodeVersionerServers[addr] = m
+		RegisterNodeVersionerServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterNodeVersionerEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedNodeVersionerServersLock.Lock()
+	defer enhancedNodeVersionerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeVersionerServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -880,65 +752,48 @@ var (
 	enhancedFileKeyManagerServersLock = sync.RWMutex{}
 )
 
-type idFileKeyManagerServer interface {
-	ID() string
-}
-type FileKeyManagerEnhancedServer interface {
+type NamedFileKeyManagerServer interface {
 	FileKeyManagerServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(FileKeyManagerServer)
-	filter(context.Context) []FileKeyManagerServer
+	Name() string
 }
-type FileKeyManagerEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []FileKeyManagerServer
-}
+type FileKeyManagerEnhancedServer map[string]NamedFileKeyManagerServer
 
-func (m *FileKeyManagerEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *FileKeyManagerEnhancedServerImpl) addHandler(srv FileKeyManagerServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *FileKeyManagerEnhancedServerImpl) filter(ctx context.Context) []FileKeyManagerServer {
-	var ret []FileKeyManagerServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m FileKeyManagerEnhancedServer) GetEncryptionKey(ctx context.Context, r *GetEncryptionKeyRequest) (*GetEncryptionKeyResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method GetEncryptionKey should have a context")
 	}
-	return ret
-}
-
-func (m *FileKeyManagerEnhancedServerImpl) GetEncryptionKey(ctx context.Context, r *GetEncryptionKeyRequest) (*GetEncryptionKeyResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.GetEncryptionKey(ctx, r)
+	enhancedFileKeyManagerServersLock.RLock()
+	defer enhancedFileKeyManagerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.GetEncryptionKey(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method GetEncryptionKey not implemented")
 }
-func (m *FileKeyManagerEnhancedServerImpl) mustEmbedUnimplementedFileKeyManagerServer() {}
-func RegisterFileKeyManagerEnhancedServer(s grpc.ServiceRegistrar, srv FileKeyManagerServer) {
-	idServer, ok := s.(idFileKeyManagerServer)
-	if ok {
-		enhancedFileKeyManagerServersLock.Lock()
-		defer enhancedFileKeyManagerServersLock.Unlock()
-		instance, ok := enhancedFileKeyManagerServers[idServer.ID()]
-		if !ok {
-			instance = &FileKeyManagerEnhancedServerImpl{}
-			enhancedFileKeyManagerServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterFileKeyManagerServer(s, instance)
-	} else {
-		RegisterFileKeyManagerServer(s, srv)
+func (m FileKeyManagerEnhancedServer) mustEmbedUnimplementedFileKeyManagerServer() {}
+func RegisterFileKeyManagerEnhancedServer(s grpc.ServiceRegistrar, srv NamedFileKeyManagerServer) {
+	enhancedFileKeyManagerServersLock.Lock()
+	defer enhancedFileKeyManagerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedFileKeyManagerServers[addr]
+	if !ok {
+		m = FileKeyManagerEnhancedServer{}
+		enhancedFileKeyManagerServers[addr] = m
+		RegisterFileKeyManagerServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterFileKeyManagerEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedFileKeyManagerServersLock.Lock()
+	defer enhancedFileKeyManagerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedFileKeyManagerServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -946,70 +801,61 @@ var (
 	enhancedSyncChangesServersLock = sync.RWMutex{}
 )
 
-type idSyncChangesServer interface {
-	ID() string
-}
-type SyncChangesEnhancedServer interface {
+type NamedSyncChangesServer interface {
 	SyncChangesServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(SyncChangesServer)
-	filter(context.Context) []SyncChangesServer
+	Name() string
 }
-type SyncChangesEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []SyncChangesServer
-}
+type SyncChangesEnhancedServer map[string]NamedSyncChangesServer
 
-func (m *SyncChangesEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *SyncChangesEnhancedServerImpl) addHandler(srv SyncChangesServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *SyncChangesEnhancedServerImpl) filter(ctx context.Context) []SyncChangesServer {
-	var ret []SyncChangesServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m SyncChangesEnhancedServer) Put(s SyncChanges_PutServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method Put should have a context")
 	}
-	return ret
-}
-
-func (m *SyncChangesEnhancedServerImpl) Put(s SyncChanges_PutServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.Put(s)
+	enhancedSyncChangesServersLock.RLock()
+	defer enhancedSyncChangesServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.Put(s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method Put not implemented")
 }
 
-func (m *SyncChangesEnhancedServerImpl) Search(r *SearchSyncChangeRequest, s SyncChanges_SearchServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.Search(r, s)
+func (m SyncChangesEnhancedServer) Search(r *SearchSyncChangeRequest, s SyncChanges_SearchServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method Search should have a context")
+	}
+	enhancedSyncChangesServersLock.RLock()
+	defer enhancedSyncChangesServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.Search(r, s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method Search not implemented")
 }
-func (m *SyncChangesEnhancedServerImpl) mustEmbedUnimplementedSyncChangesServer() {}
-func RegisterSyncChangesEnhancedServer(s grpc.ServiceRegistrar, srv SyncChangesServer) {
-	idServer, ok := s.(idSyncChangesServer)
-	if ok {
-		enhancedSyncChangesServersLock.Lock()
-		defer enhancedSyncChangesServersLock.Unlock()
-		instance, ok := enhancedSyncChangesServers[idServer.ID()]
-		if !ok {
-			instance = &SyncChangesEnhancedServerImpl{}
-			enhancedSyncChangesServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterSyncChangesServer(s, instance)
-	} else {
-		RegisterSyncChangesServer(s, srv)
+func (m SyncChangesEnhancedServer) mustEmbedUnimplementedSyncChangesServer() {}
+func RegisterSyncChangesEnhancedServer(s grpc.ServiceRegistrar, srv NamedSyncChangesServer) {
+	enhancedSyncChangesServersLock.Lock()
+	defer enhancedSyncChangesServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedSyncChangesServers[addr]
+	if !ok {
+		m = SyncChangesEnhancedServer{}
+		enhancedSyncChangesServers[addr] = m
+		RegisterSyncChangesServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterSyncChangesEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedSyncChangesServersLock.Lock()
+	defer enhancedSyncChangesServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedSyncChangesServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }

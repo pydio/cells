@@ -31,6 +31,7 @@ type Cache interface {
 	SetWithExpiry(key string, value interface{}, duration time.Duration) error
 	Delete(k string) error
 	Reset() error
+	Exists(key string) (ok bool)
 	KeysByPrefix(prefix string) ([]string, error)
 	Iterate(it func(key string, val interface{})) error
 	Close() error

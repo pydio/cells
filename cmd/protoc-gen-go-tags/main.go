@@ -1,38 +1,15 @@
 package main
 
 import (
-	"flag"
-	"fmt"
+	pgs "github.com/lyft/protoc-gen-star/v2"
+	pgsgo "github.com/lyft/protoc-gen-star/v2/lang/go"
 
-	"google.golang.org/protobuf/compiler/protogen"
-	"google.golang.org/protobuf/types/pluginpb"
+	"github.com/pydio/cells/v4/cmd/protoc-gen-go-tags/module"
 )
 
-const version = "1.1.0"
-
-var requireUnimplemented *bool
-
 func main() {
-	showVersion := flag.Bool("version", false, "print the version and exit")
-	flag.Parse()
-	if *showVersion {
-		fmt.Printf("protoc-gen-go-client-stub %v\n", version)
-		return
-	}
-
-	var flags flag.FlagSet
-	requireUnimplemented = flags.Bool("require_unimplemented_servers", true, "set to false to match legacy behavior")
-
-	protogen.Options{
-		ParamFunc: flags.Set,
-	}.Run(func(gen *protogen.Plugin) error {
-		gen.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
-		for _, f := range gen.Files {
-			if !f.Generate {
-				continue
-			}
-			GenerateFile(gen, f)
-		}
-		return nil
-	})
+	pgs.Init(pgs.DebugEnv("GOTAG_DEBUG")).
+		RegisterModule(module.New()).
+		RegisterPostProcessor(pgsgo.GoFmt()).
+		Render()
 }

@@ -29,14 +29,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
-
 	"github.com/gobwas/glob"
-	"github.com/pydio/cells/v4/common/log"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
 	"github.com/pydio/cells/v4/common/sync/filters"
 	"github.com/pydio/cells/v4/common/sync/merger"
 	"github.com/pydio/cells/v4/common/sync/model"
@@ -337,7 +336,7 @@ func (s *Sync) RootStats(ctx context.Context, useSnapshots bool) (map[string]*mo
 func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, jsonFile string) error {
 
 	db := memory.NewMemDB()
-	if er := source.Walk(ctx, func(path string, node *tree.Node, err error) error {
+	if er := source.Walk(ctx, func(path string, node tree.N, err error) error {
 
 		return db.CreateNode(ctx, node, false)
 
@@ -361,22 +360,16 @@ func (s *Sync) statRoots(ctx context.Context, source model.Endpoint) (stat *mode
 		if err != nil {
 			return stat, errors.WithMessage(err, "Cannot Stat Root")
 		}
-		if node.HasMetaKey(model.MetaRecursiveChildrenSize) {
+		if cs, ok := node.GetChildrenSize(); ok {
 			stat.HasSizeInfo = true
-			var s int64
-			if e := node.GetMeta(model.MetaRecursiveChildrenSize, &s); e == nil {
-				stat.Size += s
-			}
+			stat.Size += int64(cs)
 		}
-		if node.HasMetaKey(model.MetaRecursiveChildrenFolders) && node.HasMetaKey(model.MetaRecursiveChildrenFiles) {
+		files, o1 := node.GetChildrenFiles()
+		folders, o2 := node.GetChildrenFolders()
+		if o1 && o2 {
 			stat.HasChildrenInfo = true
-			var folders, files int64
-			if e := node.GetMeta(model.MetaRecursiveChildrenFolders, &folders); e == nil {
-				stat.Folders += folders
-			}
-			if e := node.GetMeta(model.MetaRecursiveChildrenFiles, &files); e == nil {
-				stat.Files += files
-			}
+			stat.Files += int64(files)
+			stat.Folders += int64(folders)
 		}
 	}
 	return

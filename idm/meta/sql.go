@@ -23,10 +23,13 @@ package meta
 import (
 	"context"
 	"embed"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
+	"gorm.io/gorm"
 	"time"
 
-	goqu "github.com/doug-martin/goqu/v9"
-	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/log"
@@ -35,8 +38,6 @@ import (
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/statics"
-	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/idm/meta/namespace"
 )
 
@@ -53,13 +54,118 @@ var (
 	}
 )
 
+type resourcesDAO resources.DAO
+
 // Impl of the SQL interface
 type sqlimpl struct {
-	*sql.Handler
+	db *gorm.DB
 
-	*resources.ResourcesSQL
+	instance func() *gorm.DB
+
+	resourcesDAO
 
 	nsDAO namespace.DAO
+}
+
+func (dao *sqlimpl) Name() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (dao *sqlimpl) ID() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (dao *sqlimpl) Metadata() map[string]string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (dao *sqlimpl) As(i interface{}) bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (dao *sqlimpl) Driver() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (dao *sqlimpl) Dsn() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (dao *sqlimpl) GetConn(ctx context.Context) (dao.Conn, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (dao *sqlimpl) SetConn(ctx context.Context, conn dao.Conn) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (dao *sqlimpl) CloseConn(ctx context.Context) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (dao *sqlimpl) Prefix() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (dao *sqlimpl) LocalAccess() bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (dao *sqlimpl) Stats() map[string]interface{} {
+	//TODO implement me
+	panic("implement me")
+}
+
+type Meta struct {
+	UUID      string `gorm:"primaryKey; column:uuid"`
+	NodeUUID  string `gorm:"column:node_uuid; uniqueIndex:idm_user_meta_u1;"`
+	Namespace string `gorm:"column:namespace; uniqueIndex:idm_user_meta_u1;"`
+	Owner     string `gorm:"column:owner; uniqueIndex:idm_user_meta_u1;"`
+	Timestamp int32  `gorm:"column:timestamp"`
+	Format    string `gorm:"column:format"`
+	Data      []byte `gorm:"column:data"`
+}
+
+func (u *Meta) As(res *idm.UserMeta) *idm.UserMeta {
+	res.Uuid = u.UUID
+	res.NodeUuid = u.NodeUUID
+	res.Namespace = u.Namespace
+	res.Policies = []*service.ResourcePolicy{{
+		Action:  service.ResourcePolicyAction_OWNER,
+		Subject: u.Owner,
+	}}
+	res.JsonValue = string(u.Data)
+
+	return res
+}
+
+func (u *Meta) From(res *idm.UserMeta) *Meta {
+	u.UUID = res.Uuid
+	u.NodeUUID = res.NodeUuid
+	u.Namespace = res.Namespace
+	u.Owner = extractOwner(res.Policies)
+	u.Data = []byte(res.JsonValue)
+	u.Format = "json"
+	u.Timestamp = int32(time.Now().Unix())
+
+	return u
+}
+
+func (u *Meta) BeforeCreate(tx *gorm.DB) (err error) {
+	u.UUID = uuid.New()
+
+	return
 }
 
 func (dao *sqlimpl) GetNamespaceDao() namespace.DAO {
@@ -67,240 +173,154 @@ func (dao *sqlimpl) GetNamespaceDao() namespace.DAO {
 }
 
 // Init handler for the SQL DAO
-func (dao *sqlimpl) Init(ctx context.Context, options configx.Values) error {
+func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
 	// super
-	if er := dao.DAO.Init(ctx, options); er != nil {
-		return er
-	}
+	db := s.db
 
-	// Preparing the resources
+	s.instance = func() *gorm.DB { return db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_meta") }
 
-	dao.ResourcesSQL = resources.NewDAO(dao.Handler, "idm_usr_meta.uuid").(*resources.ResourcesSQL)
-	if err := dao.ResourcesSQL.Init(ctx, options); err != nil {
+	s.instance().AutoMigrate(&Meta{})
+
+	if err := s.resourcesDAO.Init(ctx, options); err != nil {
 		return err
 	}
 
-	// Doing the database migrations
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         dao.Driver(),
-		TablePrefix: dao.Prefix(),
-	}
-
-	_, err := sql.ExecMigration(dao.DB(), dao.Driver(), migrations, migrate.Up, "idm_usr_meta_")
-	if err != nil {
+	if err := s.nsDAO.Init(ctx, options); err != nil {
 		return err
 	}
-
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := dao.Prepare(key, query); err != nil {
-				return err
-			}
-		}
-	}
-
-	// Initing namespace
-	nsDAO, err := namespace.NewDAO(ctx, dao.Handler)
-	if err != nil {
-		return err
-	}
-	if err := nsDAO.Init(ctx, options); err != nil {
-		return err
-	}
-
-	dao.nsDAO = nsDAO.(namespace.DAO)
 
 	return nil
 }
 
 // Set adds or updates a UserMeta to the DB
-func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, string, error) {
-	var (
-		previousValue string
-		metaId        string
-		update        bool
-	)
+func (s *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, string, error) {
+	target := (&Meta{}).From(meta)
+	old := (&Meta{}).From(meta)
+	prev := ""
+	update := false
 
-	owner := dao.extractOwner(meta.Policies)
-
-	stmt, er := dao.GetStmt("Exists")
-	if er != nil {
-		return nil, previousValue, er
+	// Attempting to create
+	tx := s.instance().Where(old).FirstOrCreate(old)
+	if tx.Error != nil {
+		return nil, "", tx.Error
 	}
 
-	exists := stmt.QueryRow(meta.NodeUuid, meta.Namespace, owner)
-	if err := exists.Scan(&metaId, &previousValue); err == nil && metaId != "" {
+	if tx.RowsAffected == 0 {
+		target.UUID = old.UUID
+
+		prev = string(target.Data)
+
 		update = true
-		// Replace empty string by empty json meta
-		if previousValue == "\"\"" {
-			previousValue = ""
+		tx := s.instance().Where(&Meta{UUID: old.UUID}).Updates(target)
+		if tx.Error != nil {
+			return nil, "", tx.Error
 		}
 	} else {
-		metaId = uuid.New()
+		target = old
 	}
 
-	if update {
-		stmt, er := dao.GetStmt("UpdateMeta")
-		if er != nil {
-			return nil, previousValue, er
-		}
-
-		if _, err := stmt.Exec(
-			meta.NodeUuid,
-			meta.Namespace,
-			owner,
-			int32(time.Now().Unix()),
-			"json",
-			meta.JsonValue,
-			&metaId,
-		); err != nil {
-			return meta, previousValue, err
-		}
-	} else {
-		stmt, er := dao.GetStmt("AddMeta")
-		if er != nil {
-			return nil, previousValue, er
-		}
-
-		if _, err := stmt.Exec(
-			metaId,
-			meta.NodeUuid,
-			meta.Namespace,
-			owner,
-			time.Now().Unix(),
-			"json",
-			meta.JsonValue,
-		); err != nil {
-			return meta, previousValue, err
-		}
-
-	}
-	meta.Uuid = metaId
+	meta = target.As(meta)
 
 	var err error
 	if len(meta.Policies) > 0 {
 		for _, p := range meta.Policies {
 			p.Resource = meta.Uuid
 		}
-		err = dao.AddPolicies(update, meta.Uuid, meta.Policies)
+		err = s.resourcesDAO.AddPolicies(update, meta.Uuid, meta.Policies)
 	}
 
-	return meta, previousValue, err
+	return meta, prev, err
 }
 
 // Del deletes meta by their Id.
-func (dao *sqlimpl) Del(meta *idm.UserMeta) (previousValue string, e error) {
+func (s *sqlimpl) Del(meta *idm.UserMeta) (previousValue string, e error) {
+	target := (&Meta{}).From(meta)
+	old := &Meta{}
 
-	stmt, er := dao.GetStmt("ExistsByUuid")
-	if er != nil {
-		return previousValue, er
-	}
-	exists := stmt.QueryRow(meta.Uuid)
-	exists.Scan(&previousValue)
-	// Replace empty string by empty json meta
-	if previousValue == "\"\"" {
-		previousValue = ""
+	if tx := s.instance().Where(&Meta{Owner: target.Owner, Namespace: target.Namespace, NodeUUID: target.NodeUUID}).Find(&old); tx.Error != nil {
+		return "", tx.Error
 	}
 
-	stmt, er = dao.GetStmt("DeleteMeta")
-	if er != nil {
-		return "", er
+	previousValue = string(old.Data)
+
+	if tx := s.instance().Where(target).Delete(&Meta{}); tx.Error != nil {
+		return "", tx.Error
 	}
 
-	if _, e := stmt.Exec(meta.Uuid); e != nil {
-		return "", e
-	} else if e := dao.DeletePoliciesForResource(meta.Uuid); e != nil {
+	if e := s.resourcesDAO.DeletePoliciesForResource(meta.Uuid); e != nil {
 		return "", e
 	}
+
 	return previousValue, nil
 }
 
 // Search meta on their conditions
-func (dao *sqlimpl) Search(metaIds []string, nodeUuids []string, namespace string, ownerSubject string, resourceQuery *service.ResourcePolicyQuery) ([]*idm.UserMeta, error) {
+// func (s *sqlimpl) Search(metaIds []string, nodeUuids []string, namespace string, ownerSubject string, resourceQuery *service.ResourcePolicyQuery) ([]*idm.UserMeta, error) {
+func (s *sqlimpl) Search(query sql.Enquirer) ([]*idm.UserMeta, error) {
 
-	db := goqu.New(dao.Driver(), dao.DB())
+	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.resourcesDAO.(sql.Converter)).Build(s.instance()).(*gorm.DB)
 
-	var wheres []goqu.Expression
+	var metas []*Meta
 
-	policyQ, err := dao.BuildPolicyConditionForAction(resourceQuery, service.ResourcePolicyAction_READ)
-	if err != nil {
-		return nil, err
-	}
-	if policyQ != nil {
-		wheres = append(wheres, policyQ)
+	tx := db.Find(&metas)
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
 
-	if len(metaIds) > 0 {
-		var ors []goqu.Expression
-		for _, metaId := range metaIds {
-			ors = append(ors, goqu.C("uuid").Eq(metaId))
-		}
-		wheres = append(wheres, goqu.Or(ors...))
-	}
-	if len(nodeUuids) > 0 {
-		var ors []goqu.Expression
-		for _, nodeId := range nodeUuids {
-			ors = append(ors, goqu.C("node_uuid").Eq(nodeId))
-		}
-		wheres = append(wheres, goqu.Or(ors...))
-	}
-	if namespace != "" {
-		wheres = append(wheres, goqu.C("namespace").Eq(namespace))
-	}
-	if ownerSubject != "" {
-		wheres = append(wheres, goqu.C("owner").Eq(ownerSubject))
-	}
-	if len(wheres) == 0 {
-		return nil, err
-	}
-
-	dataset := db.
-		From("idm_usr_meta").
-		Prepared(true).
-		Where(goqu.And(wheres...))
-
-	var items []struct {
-		UUID      string `db:"uuid"`
-		NodeUUID  string `db:"node_uuid"`
-		Namespace string `db:"namespace"`
-		JSONValue string `db:"data"`
-	}
-
-	if err := dataset.ScanStructs(&items); err != nil {
-		return nil, err
-	}
-
-	var results []*idm.UserMeta
-
-	for _, item := range items {
-		userMeta := new(idm.UserMeta)
-
-		userMeta.Uuid = item.UUID
-		userMeta.NodeUuid = item.NodeUUID
-		userMeta.Namespace = item.Namespace
-		userMeta.JsonValue = item.JSONValue
-
-		if policies, e := dao.GetPoliciesForResource(userMeta.Uuid); e == nil {
-			userMeta.Policies = policies
+	var res []*idm.UserMeta
+	for _, meta := range metas {
+		m := meta.As(&idm.UserMeta{})
+		if policies, e := s.resourcesDAO.GetPoliciesForResource(m.Uuid); e == nil {
+			m.Policies = policies
 		} else {
-			log.Logger(context.Background()).Error("cannot load resource policies for uuid: "+userMeta.Uuid, zap.Error(e))
+			log.Logger(context.Background()).Error("cannot load resource policies for uuid: "+m.Uuid, zap.Error(e))
 		}
-		results = append(results, userMeta)
+
+		res = append(res, m)
 	}
 
-	return results, nil
+	return res, nil
 }
 
-func (*sqlimpl) extractOwner(policies []*service.ResourcePolicy) (owner string) {
-
+func extractOwner(policies []*service.ResourcePolicy) (owner string) {
 	for _, policy := range policies {
 		if policy.Action == service.ResourcePolicyAction_OWNER {
 			return policy.Subject
 		}
 	}
 	return ""
+}
 
+type queryBuilder idm.RoleSingleQuery
+
+func (c *queryBuilder) Convert(val *anypb.Any, in any) (out any, ok bool) {
+
+	db, ok := in.(*gorm.DB)
+	if !ok {
+		return in, false
+	}
+
+	q := new(idm.SearchUserMetaRequest)
+	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
+		return in, false
+	}
+
+	if len(q.MetaUuids) > 0 {
+		db = db.Where("uuid in ?", q.MetaUuids)
+	}
+	if len(q.NodeUuids) > 0 {
+		db = db.Where("node_uuid in ?", q.NodeUuids)
+	}
+	if q.Namespace != "" {
+		db = db.Where("namespace = ?", q.Namespace)
+	}
+	if q.ResourceSubjectOwner != "" {
+		db = db.Where("owner = ?", q.ResourceSubjectOwner)
+	}
+
+	out = db
+	ok = true
+
+	return
 }

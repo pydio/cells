@@ -26,10 +26,10 @@ type SyncCmd int
 type DirectionType int
 
 const (
-	// Use unique path separator everywhere
+	// InternalPathSeparator defines the unique internal path separator everywhere
 	InternalPathSeparator = "/"
 	GlobSeparator         = '/'
-	// Minio default Etag when a new file is detected
+	// DefaultEtag is the minio default value when a new file is detected
 	DefaultEtag = "00000000000000000000000000000000-1"
 
 	DirectionLeft  DirectionType = 1
@@ -39,8 +39,4 @@ const (
 	Interrupt SyncCmd = iota
 	Pause
 	Resume
-
-	MetaRecursiveChildrenSize    = "RecursiveChildrenSize"
-	MetaRecursiveChildrenFiles   = "RecursiveChildrenFiles"
-	MetaRecursiveChildrenFolders = "RecursiveChildrenFolders"
 )

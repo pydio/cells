@@ -22,8 +22,8 @@ package mtree
 
 import (
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"hash/fnv"
-	"math/big"
 	"strings"
 )
 
@@ -33,8 +33,8 @@ type MPathProvider interface{}
 type MPath []uint64
 
 // NewMPath from mpath
-func NewMPath(mpath ...uint64) MPath {
-	return MPath(mpath)
+func NewMPath(mpath ...uint64) *tree.MPath {
+	return nil
 }
 
 // NewMPathFromMPath returns a copy of a slice
@@ -53,7 +53,7 @@ func (m MPath) String() string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "%d", m[0])
 	for i := 1; i < len(m); i++ {
-		fmt.Fprintf(&b,".%d", m[i])
+		fmt.Fprintf(&b, ".%d", m[i])
 	}
 
 	return b.String()
@@ -78,6 +78,9 @@ func (m MPath) Sibling() MPath {
 
 // Parent of a specific path
 func (m MPath) Parent() MPath {
+	if len(m) == 0 {
+		return m
+	}
 	return m[0 : len(m)-1]
 }
 
@@ -100,19 +103,4 @@ func (m MPath) CommonRoot(m2 MPath) MPath {
 	}
 
 	return root
-}
-
-// Rat representation of a materialized path
-func (m MPath) Rat() *Rat {
-	id := new(big.Float)
-	//id.SetPrec(512)
-	id.SetRat(NewFractionFromMaterializedPath(m...).Decimal())
-
-	b, _ := id.GobEncode()
-
-	// Getting Matrix ID and SID Mantissa
-	rat := new(Rat)
-	rat.GobDecode(b)
-
-	return rat
 }

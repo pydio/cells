@@ -21,15 +21,16 @@ package role
 
 import (
 	"context"
+	"gorm.io/gorm/logger"
 	"sync"
 	"testing"
 	"time"
 
+	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
 	"google.golang.org/protobuf/types/known/anypb"
-	"gorm.io/gorm"
 	gsqlite "gorm.io/driver/sqlite"
-	. "github.com/smartystreets/goconvey/convey"
+	"gorm.io/gorm"
 
 	// Run tests against SQLite
 	"github.com/pydio/cells/v4/common/dao"
@@ -46,7 +47,7 @@ import (
 
 var (
 	mockDAO DAO
-	mockDB *gorm.DB
+	mockDB  *gorm.DB
 	wg      sync.WaitGroup
 	ctx     = context.Background()
 )
@@ -63,8 +64,8 @@ func TestMain(m *testing.M) {
 	mockDB, _ = gorm.Open(dialector, &gorm.Config{
 		//DisableForeignKeyConstraintWhenMigrating: true,
 		FullSaveAssociations: true,
+		Logger:               logger.Default.LogMode(logger.Info),
 	})
-	
 
 	//if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, options); e != nil {
 	//	panic(e)
@@ -72,11 +73,13 @@ func TestMain(m *testing.M) {
 	//	mockDAO = d.(DAO)
 	//}
 
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, "test.db", "role", NewDAO, options); e != nil {
+	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, options); e != nil {
 		panic(e)
 	} else {
 		mockDAO = d.(DAO)
 	}
+
+	mockDB.AutoMigrate(&idm.RoleORM{})
 
 	m.Run()
 	wg.Wait()
@@ -96,13 +99,6 @@ func TestCrud(t *testing.T) {
 			r, _, err := mockDAO.Add(&idm.Role{
 				Label:       "Create Role",
 				LastUpdated: int32(time.Now().Unix()),
-				Policies: []*service.ResourcePolicy{
-					{
-						Action:  service.ResourcePolicyAction_ANY,
-						Subject: "policytest",
-						Effect:  service.ResourcePolicy_allow,
-					},
-				},
 			})
 
 			So(err, ShouldBeNil)
@@ -121,6 +117,7 @@ func TestCrud(t *testing.T) {
 			LastUpdated: roleTime,
 			GroupRole:   false,
 		})
+
 		So(err, ShouldBeNil)
 		_, _, err2 := mockDAO.Add(&idm.Role{
 			Uuid:        gRoleUuid,
@@ -144,15 +141,29 @@ func TestCrud(t *testing.T) {
 			ForceOverride: true,
 		})
 		So(err4, ShouldBeNil)
+		err5 := mockDAO.AddPolicy(roleUuid, &service.ResourcePolicy{
+			Action:  service.ResourcePolicyAction_ANY,
+			Subject: "policytest",
+			Effect:  service.ResourcePolicy_allow,
+		})
+		So(err5, ShouldBeNil)
 
 		singleQ := &idm.RoleSingleQuery{
 			Uuid: []string{roleUuid},
 		}
+		resourceQ := &service.ResourcePolicyQuery{
+			Subjects: []string{"policytest", "policytest2"},
+		}
 		singleQA, _ := anypb.New(singleQ)
+		resourceQA, _ := anypb.New(resourceQ)
 		query := &service.Query{
-			SubQueries: []*anypb.Any{singleQA},
+			SubQueries: []*anypb.Any{
+				singleQA,
+				resourceQA,
+			},
 		}
 		var roles []*idm.Role
+
 		e := mockDAO.Search(query, &roles)
 		So(e, ShouldBeNil)
 		So(roles, ShouldHaveLength, 1)
@@ -343,9 +354,10 @@ func TestQueryBuilder(t *testing.T) {
 			Limit:      10,
 		}
 
-
-		s := sql.NewGormQueryBuilder(simpleQuery, new(queryBuilder)).Build(mockDB)
+		tx := mockDB.Session(&gorm.Session{})
+		s := sql.NewGormQueryBuilder(simpleQuery, new(queryBuilder)).Build(tx)
 		So(s, ShouldNotBeNil)
+		s.(*gorm.DB).Find(&idm.RoleORM{})
 		//So(s, ShouldEqual, "(uuid='role1') OR (uuid='role2')")
 
 	})

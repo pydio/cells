@@ -22,6 +22,7 @@ package meta
 
 import (
 	"context"
+	"google.golang.org/protobuf/types/known/anypb"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -31,9 +32,9 @@ import (
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
 	"github.com/pydio/cells/v4/common/runtime"
+	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
@@ -96,12 +97,25 @@ func TestCrud(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		// List meta for the node
-		result, er := mockDAO.Search([]string{}, []string{"node-uuid"}, "", "", nil)
+		subQA, _ := anypb.New(&idm.SearchUserMetaRequest{
+			NodeUuids: []string{"node-uuid"},
+		})
+		queryA := &service.Query{
+			SubQueries: []*anypb.Any{subQA},
+		}
+		result, er := mockDAO.Search(queryA)
 		So(er, ShouldBeNil)
 		So(result, ShouldHaveLength, 2)
 
 		// List meta for the node, restricting by owner
-		result, er = mockDAO.Search([]string{}, []string{"node-uuid"}, "", "user:owner", nil)
+		subQB, _ := anypb.New(&idm.SearchUserMetaRequest{
+			NodeUuids:            []string{"node-uuid"},
+			ResourceSubjectOwner: "user:owner",
+		})
+		queryB := &service.Query{
+			SubQueries: []*anypb.Any{subQB},
+		}
+		result, er = mockDAO.Search(queryB)
 		So(er, ShouldBeNil)
 		So(result, ShouldHaveLength, 1)
 
@@ -109,7 +123,7 @@ func TestCrud(t *testing.T) {
 		So(e, ShouldBeNil)
 
 		// List meta for the node
-		result, er = mockDAO.Search([]string{}, []string{"node-uuid"}, "", "", nil)
+		result, er = mockDAO.Search(queryA)
 		So(er, ShouldBeNil)
 		So(result, ShouldHaveLength, 1)
 	})
@@ -144,9 +158,18 @@ func TestCrud(t *testing.T) {
 		So(otherMeta.Uuid, ShouldNotEqual, metaWithId.Uuid)
 
 		// List meta for the node, restricting by owner
-		result, er := mockDAO.Search([]string{}, []string{}, "namespace", "", &service.ResourcePolicyQuery{
+		// List meta for the node
+		subQA, _ := anypb.New(&idm.SearchUserMetaRequest{
+			Namespace: "namespace",
+		})
+		subQB, _ := anypb.New(&service.ResourcePolicyQuery{
 			Subjects: []string{"user:owner"},
 		})
+		queryA := &service.Query{
+			SubQueries: []*anypb.Any{subQA, subQB},
+		}
+
+		result, er := mockDAO.Search(queryA)
 		//result, er = mockDAO.Search([]string{}, []string{"node-policy"}, "namespace", "", nil)
 		So(er, ShouldBeNil)
 		So(result[0].GetPolicies(), ShouldHaveLength, 2)

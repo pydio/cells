@@ -16,7 +16,7 @@ type ResourcePolicyORM struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id             int64                       `gorm:"column:id;"`
+	Id             int64                       `gorm:"column:id;autoIncrement;"`
 	Resource       string                      `gorm:"column:resource;"`
 	Action         ResourcePolicyAction        `gorm:"column:action;"`
 	Subject        string                      `gorm:"column:subject;"`

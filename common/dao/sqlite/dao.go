@@ -22,13 +22,15 @@ package sqlite
 
 import (
 	"context"
-
+	"database/sql"
+	"github.com/mattn/go-sqlite3"
 	"github.com/pydio/cells/v4/common/dao"
 	commonsql "github.com/pydio/cells/v4/common/sql"
+	"regexp"
 )
 
 const (
-	Driver       = "sqlite3"
+	Driver       = "sqlite3_extended"
 	SharedMemDSN = "file::memory:?mode=memory&cache=shared"
 )
 
@@ -36,4 +38,30 @@ func init() {
 	dao.RegisterDAODriver(Driver, commonsql.NewDAO, func(ctx context.Context, driver, dsn string) dao.ConnDriver {
 		return &conn{}
 	})
+
+	regex := func(s, re string) (bool, error) {
+		return regexp.MatchString(re, s)
+	}
+	sql.Register(Driver,
+		&sqlite3.SQLiteDriver{
+			ConnectHook: func(conn *sqlite3.SQLiteConn) error {
+				return conn.RegisterFunc("regexp_like", regex, true)
+			},
+		})
+
+	//sql.Register(Driver,
+	//	&sqlite3.SQLiteDriver{
+	//		ConnectHook: func(conn *sqlite3.SQLiteConn) error {
+	//			// Define the `concat` function, since we use this elsewhere.
+	//			err := conn.RegisterFunc(
+	//				"CONCAT",
+	//				func(args ...string) (string, error) {
+	//					return strings.Join(args, ""), nil
+	//				},
+	//				false,
+	//			)
+	//			return err
+	//		},
+	//	})
+
 }

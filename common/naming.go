@@ -165,7 +165,11 @@ const (
 	MetaNamespaceVersionDesc         = "versionDescription"
 	MetaNamespaceGeoLocation         = "GeoLocation"
 	MetaNamespaceContents            = "Contents"
-	RecycleBinName                   = "recycle_bin"
+	MetaRecursiveChildrenSize        = "RecursiveChildrenSize"
+	MetaRecursiveChildrenFiles       = "RecursiveChildrenFiles"
+	MetaRecursiveChildrenFolders     = "RecursiveChildrenFolders"
+
+	RecycleBinName = "recycle_bin"
 
 	PydioThumbstoreNamespace       = "pydio-thumbstore"
 	PydioDocstoreBinariesNamespace = "pydio-binaries"

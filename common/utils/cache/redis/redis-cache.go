@@ -180,6 +180,10 @@ func (q *redisCache) Reset() error {
 	return nil
 }
 
+func (q *redisCache) Exists(key string) (ok bool) {
+	return q.Cache.Exists(context.TODO(), key)
+}
+
 func (q *redisCache) KeysByPrefix(prefix string) ([]string, error) {
 	var res []string
 	cmd := q.UniversalClient.Keys(context.TODO(), q.namespace+prefix+"*")

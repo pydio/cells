@@ -141,7 +141,7 @@ func (d *daocache) resync() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	for obj := range d.DAO.GetNodeTree(ctx, mtree.NewMPath(1)) {
+	for obj := range d.DAO.GetNodeTree(ctx, tree.NewMPath(1)) {
 		node, ok := obj.(*mtree.TreeNode)
 		if !ok {
 			continue
@@ -254,7 +254,7 @@ func (d *daocache) Path(strpath string, create bool, reqNode ...*tree.Node) (mtr
 
 // PathCreateNoAdd does the same as Path(create=true) but does not really
 // create the node in the cache, just find a firstAvailableIndex
-func (d *daocache) PathCreateNoAdd(strpath string) (mtree.MPath, *mtree.TreeNode, error) {
+func (d *daocache) PathCreateNoAdd(ctx context.Context, strpath string) (mtree.MPath, *mtree.TreeNode, error) {
 	mpath, nodes, err := d.path(strpath, true, true)
 	if err != nil {
 		return nil, nil, err

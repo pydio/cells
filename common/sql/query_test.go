@@ -21,6 +21,12 @@
 package sql
 
 import (
+	"fmt"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"reflect"
+	"strings"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -175,4 +181,139 @@ func TestGetQueryValueFor(t *testing.T) {
 
 	})
 
+}
+
+func mapToStruct(m map[string]interface{}) reflect.Value {
+	var structFields []reflect.StructField
+
+	for k, v := range m {
+		sf := reflect.StructField{
+			Name: strings.ToTitle(k),
+			Type: reflect.TypeOf(v),
+			Tag:  reflect.StructTag(fmt.Sprintf("gorm:\"column:%s\";", k)),
+		}
+		structFields = append(structFields, sf)
+	}
+
+	// Creates the struct type
+	structType := reflect.StructOf(structFields)
+
+	el := reflect.New(structType)
+
+	// Setting value
+	for k, v := range m {
+		el.Elem().FieldByName(strings.ToTitle(k)).Set(reflect.ValueOf(v))
+
+	}
+
+	// Creates a new struct
+	return el
+}
+
+func verifyStructFields(sr reflect.Value) {
+	fmt.Println("\n---Fields found in struct..")
+
+	val := reflect.ValueOf(sr.Interface()).Elem()
+	for i := 0; i < val.NumField(); i++ {
+		fmt.Println(val.Type().Field(i).Name, val.Type().Field(i).Type, val.Type().Field(i).Tag)
+	}
+}
+
+func TestSQLITEReflect(t *testing.T) {
+	dialector := sqlite.Dialector{
+		DriverName: "sqlite3",
+		DSN:        "test.db",
+	}
+
+	db, err := gorm.Open(dialector, &gorm.Config{
+		Logger:         logger.Default.LogMode(logger.Info),
+		TranslateError: true,
+	})
+	if err != nil {
+		fmt.Println("ERROR ", err)
+		return
+	}
+
+	v := mapToStruct(map[string]interface{}{
+		"account":   "",
+		"checkTime": 0,
+		"remote_ip": "1.1.1.1",
+		"version":   "2.0.1",
+	})
+
+	vv := v.Interface()
+
+	verifyStructFields(v)
+
+	tx := db.Table("test").Model(vv)
+
+	if err := tx.AutoMigrate(vv); err != nil {
+		fmt.Println(err)
+	}
+
+	tx.Create(vv)
+
+	db.Table("test").Create(map[string]interface{}{
+		"account":   "",
+		"checkTime": 1,
+		"remote_ip": "1.1.1.1",
+		"version":   "2.0.1",
+	})
+
+	db.Table("test").Create(map[string]interface{}{
+		"account":   "",
+		"checkTime": 0,
+		"remote_ip": "1.1.1.2",
+		"version":   "2.0.3",
+	})
+
+	var count int64
+
+	tx.Session(&gorm.Session{}).Where("key = ?", "value").Count(&count)
+	fmt.Println("Nombre de key = value", count)
+
+	tx.Session(&gorm.Session{}).Where("myint > ?", 11).Count(&count)
+	fmt.Println("Nombre de valeurs au dessus de 11", count)
+
+	tx.Session(&gorm.Session{}).Where("myint < ?", 11).Count(&count)
+	fmt.Println("Nombre de valeurs en dessous de 11", count)
+
+	res := map[string]interface{}{}
+	tx.Session(&gorm.Session{}).Where("myint > ?", 11).Find(&res)
+
+	fmt.Println("res ", res)
+}
+
+func TestSQLITEReflect2(t *testing.T) {
+	dialector := sqlite.Dialector{
+		DriverName: "sqlite3",
+		DSN:        "test.db",
+	}
+
+	db, err := gorm.Open(dialector, &gorm.Config{
+		Logger:         logger.Default.LogMode(logger.Info),
+		TranslateError: true,
+	})
+	if err != nil {
+		fmt.Println("ERROR ", err)
+		return
+	}
+
+	v := mapToStruct(map[string]interface{}{
+		"key":         "value",
+		"myint":       0,
+		"mybool":      true,
+		"myothertruc": "whatever",
+	})
+
+	vv := v.Interface()
+
+	verifyStructFields(v)
+
+	tx := db.Table("test").Model(vv)
+
+	res := map[string]interface{}{}
+	tx.Session(&gorm.Session{}).Where("myint > ?", 11).Find(&res)
+
+	fmt.Println("res ", res)
 }

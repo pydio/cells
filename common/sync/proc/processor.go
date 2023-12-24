@@ -94,7 +94,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 
 	for _, f := range patch.PostFilter() {
 		if e := f(); e != nil {
-			patch.SetPatchError(e)
+			_ = patch.SetPatchError(e)
 			return
 		}
 	}
@@ -133,18 +133,18 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	// some Pending operations.
 	flusher := func(tt ...merger.OperationType) {}
 	finalFlusher := func() {}
-	if session, err := patch.StartSession(&tree.Node{Path: "/"}); err == nil {
+	if sessionId, err := patch.StartSession(&tree.Node{Path: "/"}); err == nil {
 		finalFlusher = func() {
 			log.Logger(pr.GlobalContext).Info("Finishing patch session")
-			if e := patch.FinishSession(session.Uuid); e != nil {
-				patch.SetPatchError(e)
+			if e := patch.FinishSession(sessionId); e != nil {
+				_ = patch.SetPatchError(e)
 			}
 		}
 		flusher = func(tt ...merger.OperationType) {
 			for _, t := range tt {
 				if val, ok := pending[t.String()]; ok && val > 0 {
-					if e := patch.FlushSession(session.Uuid); e != nil {
-						patch.SetPatchError(e)
+					if e := patch.FlushSession(sessionId); e != nil {
+						_ = patch.SetPatchError(e)
 					}
 					return
 				}
@@ -242,7 +242,8 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 			parallel <- o
 		})
 	} else {
-		patch.WalkOperations([]merger.OperationType{merger.OpCreateFile, merger.OpUpdateFile}, serialWalker)
+		patch.WalkOperations([]merger.OperationType{merger.OpCreateFile}, serialWalker)
+		patch.WalkOperations([]merger.OperationType{merger.OpUpdateFile}, serialWalker)
 	}
 	patch.WalkOperations([]merger.OperationType{merger.OpDelete}, func(o merger.Operation) {
 		if o.GetNode() != nil {
@@ -356,6 +357,10 @@ func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb P
 			progress = "Transferring file"
 			complete = "Transferred file"
 			error = "Error while transferring file"
+		} else if op.Type() == merger.OpUpdateFile {
+			progress = "Updating file in index"
+			complete = "Updated file"
+			error = "Error while updating file in index"
 		} else {
 			progress = "Indexing file"
 			complete = "Indexed file"

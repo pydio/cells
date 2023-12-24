@@ -135,6 +135,15 @@ func (b *bigCache) Delete(key string) error {
 	return b.BigCache.Delete(key)
 }
 
+func (b *bigCache) Exists(key string) bool {
+	_, err := b.BigCache.Get(key)
+	if err == bigcache.ErrEntryNotFound {
+		return false
+	}
+
+	return true
+}
+
 func (b *bigCache) KeysByPrefix(prefix string) ([]string, error) {
 	var res []string
 

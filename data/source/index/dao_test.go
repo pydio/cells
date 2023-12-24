@@ -25,8 +25,11 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/pydio/cells/v4/common/dao/mysql"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/spf13/viper"
+	"gorm.io/gorm"
 	"log"
 	"regexp"
 	"testing"
@@ -34,13 +37,12 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
+	cellssqlite "github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/mtree"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 // FIXME: FAILING TEST
@@ -49,47 +51,67 @@ import (
 var (
 	ctx       context.Context
 	options   = configx.New()
-	mockNode  *mtree.TreeNode
-	mockNode2 *mtree.TreeNode
+	mockNode  *tree.TreeNode
+	mockNode2 *tree.TreeNode
 
-	mockLongNodeMPath       mtree.MPath
-	mockLongNodeChild1MPath mtree.MPath
-	mockLongNodeChild2MPath mtree.MPath
+	mockLongNodeMPath       *tree.MPath
+	mockLongNodeChild1MPath *tree.MPath
+	mockLongNodeChild2MPath *tree.MPath
 
-	mockLongNode       *mtree.TreeNode
-	mockLongNodeChild1 *mtree.TreeNode
-	mockLongNodeChild2 *mtree.TreeNode
+	mockLongNode       *tree.TreeNode
+	mockLongNodeChild1 *tree.TreeNode
+	mockLongNodeChild2 *tree.TreeNode
 )
 
 func init() {
-	mockLongNodeMPath = []uint64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40}
-	mockLongNodeChild1MPath = append(mockLongNodeMPath, 41)
-	mockLongNodeChild2MPath = append(mockLongNodeMPath, 42)
+	mockLongNodeMPath = tree.NewMPath(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40)
+	mockLongNodeChild1MPath = mockLongNodeMPath.Append(41)
+	mockLongNodeChild2MPath = mockLongNodeMPath.Append(42)
 
-	mockNode = NewNode(&tree.Node{
-		Uuid: "ROOT",
-		Type: tree.NodeType_LEAF,
-	}, []uint64{1}, []string{""})
+	mockNode = &tree.TreeNode{
+		Node: &tree.Node{
+			Uuid: "ROOT",
+			Type: tree.NodeType_COLLECTION,
+		},
+		MPath: &tree.MPath{MPath1: "1"},
+		Name:  "ROOT",
+	}
 
-	mockNode2 = NewNode(&tree.Node{
-		Uuid: "ROOT2",
-		Type: tree.NodeType_LEAF,
-	}, []uint64{5}, []string{""})
+	mockNode2 = &tree.TreeNode{
+		Node: &tree.Node{
+			Uuid: "ROOT2",
+			Type: tree.NodeType_COLLECTION,
+		},
+		MPath: &tree.MPath{MPath1: "2"},
+		Name:  "ROOT2",
+	}
 
-	mockLongNode = NewNode(&tree.Node{
-		Uuid: "mockLongNode",
-		Type: tree.NodeType_LEAF,
-	}, mockLongNodeMPath, []string{"mockLongNode"})
+	mockLongNode = &tree.TreeNode{
+		Node: &tree.Node{
+			Uuid: "mockLongNode",
+			Type: tree.NodeType_LEAF,
+		},
+		MPath: mockLongNodeMPath,
+		Name:  "mockLongNode",
+	}
 
-	mockLongNodeChild1 = NewNode(&tree.Node{
-		Uuid: "mockLongNodeChild1",
-		Type: tree.NodeType_LEAF,
-	}, mockLongNodeChild1MPath, []string{"mockLongNodeChild1"})
+	mockLongNodeChild1 = &tree.TreeNode{
+		Node: &tree.Node{
+			Uuid: "mockLongNodeChild1",
+			Type: tree.NodeType_LEAF,
+		},
+		MPath: mockLongNodeChild1MPath,
+		Name:  "mockLongNodeChild1",
+	}
 
-	mockLongNodeChild2 = NewNode(&tree.Node{
-		Uuid: "mockLongNodeChild2",
-		Type: tree.NodeType_LEAF,
-	}, mockLongNodeChild2MPath, []string{"mockLongNodeChild2"})
+	mockLongNodeChild2 = &tree.TreeNode{
+		Node: &tree.Node{
+			Uuid: "mockLongNodeChild2",
+			Type: tree.NodeType_LEAF,
+		},
+		MPath: mockLongNodeChild2MPath,
+		Name:  "mockLongNodeChild2",
+	}
 }
 
 func getSQLDAO(ctx context.Context) sql.DAO {
@@ -106,14 +128,126 @@ func TestMain(m *testing.M) {
 	v.SetDefault(runtime.KeyShortCache, "pm://")
 	runtime.SetRuntime(v)
 
-	c := context.Background()
-	if d, e := dao.InitDAO(c, sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
-		panic(e)
-	} else {
-		ctx = servicecontext.WithDAO(c, d)
+	m.Run()
+}
+
+func testAll(t *testing.T, f func(dao DAO) func(*testing.T)) {
+	ctx := context.Background()
+
+	dbs := []struct {
+		name    string
+		driver  string
+		dsn     string
+		prefix  string
+		wrapper func(store storage.Storage) dao.DAO
+	}{
+		{
+			"SQLite",
+			cellssqlite.Driver,
+			//cellssqlite.SharedMemDSN,
+			"test.db",
+			"test_nocache",
+			func(store storage.Storage) dao.DAO {
+				dao, err := NewDAO(ctx, store)
+				if err != nil {
+					return nil
+				}
+
+				return dao
+			},
+		},
+		//{
+		//	"SQLite W/ Standard Cache",
+		//	cellssqlite.Driver,
+		//	"test.db",
+		//	//"file::memcache:?mode=memory&cache=shared",
+		//	"test_cache",
+		//	func(store storage.Storage) dao.DAO {
+		//		dao, err := NewDAO(ctx, store)
+		//		if err != nil {
+		//			return nil
+		//		}
+		//
+		//		dao = NewDAOCache[*tree.TreeNode](fmt.Sprintf("%s-%d", "test", rand.Intn(1000)), 300, dao.(DAO[*tree.TreeNode]))
+		//
+		//		return dao
+		//	},
+		//},
+		{
+			"MySQL",
+			mysql.Driver,
+			"root:P@ssw0rd@tcp(localhost:3306)/cellstest?parseTime=true",
+			"test_mysql_nocache",
+			func(store storage.Storage) dao.DAO {
+				dao, err := NewDAO(ctx, store)
+				if err != nil {
+					return nil
+				}
+
+				return dao
+			},
+		},
+		//{
+		//	"MySQL W/ Standard Cache",
+		//	mysql.Driver,
+		//	"root:P@ssw0rd@tcp(localhost:3306)/cellstest?parseTime=true",
+		//	"test_mysql_cache",
+		//	func(store storage.Storage) dao.DAO {
+		//		dao, err := NewDAO(ctx, store)
+		//		if err != nil {
+		//			return nil
+		//		}
+		//
+		//		return NewDAOCache(fmt.Sprintf("%s-%d", "test", rand.Intn(1000)), 300, dao.(DAO[*tree.TreeNode]))
+		//	},
+		//},
+		//{
+		//	"PostGreSQL",
+		//	pgsql.Driver,
+		//	"host=localhost port=5432 dbname=testdb user=root password=mysecretpassword sslmode=disable",
+		//	"test_postgres_nocache",
+		//	func(store storage.Storage) dao.DAO {
+		//		dao, err := NewDAO(ctx, store)
+		//		if err != nil {
+		//			return nil
+		//		}
+		//
+		//		return dao
+		//	},
+		//},
+		//{
+		//	"PostGreSQL W/ Standard Cache",
+		//	pgsql.Driver,
+		//	"host=localhost port=5432 dbname=testdb user=root password=mysecretpassword sslmode=disable",
+		//	"test_postgres_cache",
+		//	func(db *gorm.DB) dao.DaoWrapperFunc {
+		//		return func(ctx context.Context, o dao.DAO) (dao.DAO, error) {
+		//			dao, err := NewDAO(ctx, o)
+		//			if err != nil {
+		//				return nil, err
+		//			}
+		//			return NewDAOCache(fmt.Sprintf("%s-%d", "test", rand.Intn(1000)), 300, dao.(DAO)), nil
+		//		}
+		//	},
+		//},
 	}
 
-	m.Run()
+	for _, db := range dbs {
+		store := storage.New("test", db.driver, db.dsn)
+
+		var gormDB *gorm.DB
+		store.Get(&gormDB)
+
+		dao := db.wrapper(store).(DAO)
+		dao.Init(context.TODO(), configx.New())
+
+		// First make sure that we delete everything
+		dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "1"}})
+		dao.DelNode(ctx, &tree.TreeNode{MPath: &tree.MPath{MPath1: "2"}})
+
+		// Run the test
+		t.Run(db.name, f(dao))
+	}
 }
 
 func trimSchema(schema []string) []string {
@@ -164,340 +298,347 @@ func printNodes() {
 }
 
 func TestMysql(t *testing.T) {
+	testAll(t, func(dao DAO) func(t *testing.T) {
+		return func(t *testing.T) {
+			ctx := context.TODO()
+			// Adding a file
+			Convey("Test adding a file - Success", t, func() {
+				err := dao.AddNode(ctx, mockNode2)
+				So(err, ShouldBeNil)
 
-	// Adding a file
-	Convey("Test adding a file - Success", t, func() {
-		err := getDAO(ctx).AddNode(mockNode2)
-		So(err, ShouldBeNil)
+				// printTree()
+				// printNodes()
+			})
 
-		// printTree()
-		// printNodes()
-	})
+			// Setting a file
+			Convey("Test setting a file - Success", t, func() {
+				newNode := tree.NewTreeNode("")
+				newNode.SetNode(&tree.Node{
+					Uuid: "ROOT",
+					Type: tree.NodeType_LEAF,
+				})
+				newNode.SetMPath(tree.NewMPath(2))
+				newNode.SetName("")
 
-	// Setting a file
-	Convey("Test setting a file - Success", t, func() {
-		newNode := NewNode(&tree.Node{
-			Uuid: "ROOT",
-			Type: tree.NodeType_LEAF,
-		}, []uint64{2}, []string{""})
+				err := dao.SetNode(ctx, newNode)
+				So(err, ShouldBeNil)
 
-		err := getDAO(ctx).SetNode(newNode)
-		So(err, ShouldBeNil)
+				// printTree()
+				// printNodes()
 
-		// printTree()
-		// printNodes()
+				err = dao.SetNode(ctx, mockNode)
+				So(err, ShouldBeNil)
+			})
 
-		err = getDAO(ctx).SetNode(mockNode)
-		So(err, ShouldBeNil)
-	})
+			// Delete a file
+			// TODO - needs to be deleted by UUID
+			Convey("Test deleting a file - Success", t, func() {
+				err := dao.DelNode(ctx, mockNode)
+				So(err, ShouldBeNil)
 
-	// Delete a file
-	// TODO - needs to be deleted by UUID
-	Convey("Test deleting a file - Success", t, func() {
-		err := getDAO(ctx).DelNode(mockNode)
-		So(err, ShouldBeNil)
+				// printTree()
+				// printNodes()
+			})
 
-		// printTree()
-		// printNodes()
-	})
+			Convey("Re-adding a file - Success", t, func() {
+				err := dao.AddNode(ctx, mockNode)
+				So(err, ShouldBeNil)
 
-	Convey("Re-adding a file - Success", t, func() {
-		err := getDAO(ctx).AddNode(mockNode)
-		So(err, ShouldBeNil)
+				//printTree()
+				//printNodes()
+			})
 
-		//printTree()
-		//printNodes()
-	})
+			Convey("Re-adding the same file - Failure", t, func() {
+				err := dao.AddNode(ctx, mockNode)
+				So(err, ShouldNotBeNil)
 
-	Convey("Re-adding the same file - Failure", t, func() {
-		err := getDAO(ctx).AddNode(mockNode)
-		So(err, ShouldNotBeNil)
+				// printTree()
+				// printNodes()
+			})
 
-		// printTree()
-		// printNodes()
-	})
+			Convey("Test Getting a file - Success", t, func() {
 
-	Convey("Test Getting a file - Success", t, func() {
+				node, err := dao.GetNode(ctx, tree.NewMPath(1))
+				So(err, ShouldBeNil)
 
-		node, err := getDAO(ctx).GetNode([]uint64{1})
-		So(err, ShouldBeNil)
+				// Setting MTime to 0 so we can compare
+				node.GetNode().SetMTime(0)
 
-		// Setting MTime to 0 so we can compare
-		node.MTime = 0
+				So(node.Node, ShouldResemble, mockNode.Node)
+			})
 
-		So(node.Node, ShouldResemble, mockNode.Node)
-	})
+			// Setting a file
+			Convey("Test setting a file with a massive path - Success", t, func() {
 
-	// Setting a file
-	Convey("Test setting a file with a massive path - Success", t, func() {
+				err := dao.AddNode(ctx, mockLongNode)
+				So(err, ShouldBeNil)
 
-		err := getDAO(ctx).AddNode(mockLongNode)
-		So(err, ShouldBeNil)
+				err = dao.AddNode(ctx, mockLongNodeChild1)
+				So(err, ShouldBeNil)
 
-		err = getDAO(ctx).AddNode(mockLongNodeChild1)
-		So(err, ShouldBeNil)
+				err = dao.AddNode(ctx, mockLongNodeChild2)
+				So(err, ShouldBeNil)
 
-		err = getDAO(ctx).AddNode(mockLongNodeChild2)
-		So(err, ShouldBeNil)
+				//printTree()
+				//printNodes()
 
-		//printTree()
-		//printNodes()
+				node, err := dao.GetNode(ctx, mockLongNodeChild2MPath)
+				So(err, ShouldBeNil)
 
-		node, err := getDAO(ctx).GetNode(mockLongNodeChild2MPath)
-		So(err, ShouldBeNil)
+				// TODO - find a way
+				node.GetNode().SetMTime(0)
+				node.GetNode().SetPath(mockLongNodeChild2.GetNode().GetPath())
 
-		// TODO - find a way
-		node.MTime = 0
-		node.Path = mockLongNodeChild2.Path
+				So(node.Node, ShouldResemble, mockLongNodeChild2.Node)
+			})
 
-		So(node.Node, ShouldResemble, mockLongNodeChild2.Node)
-	})
+			Convey("Test Getting a node by uuid - Success", t, func() {
+				node, err := dao.GetNodeByUUID(ctx, "mockLongNode")
+				So(err, ShouldBeNil)
 
-	Convey("Test Getting a node by uuid - Success", t, func() {
-		node, err := getDAO(ctx).GetNodeByUUID("mockLongNode")
-		So(err, ShouldBeNil)
+				// Setting MTime to 0 so we can compare
+				// node.GetNode().SetMTime(0)
+				// node.GetNode().SetPath("mockLongNode")
 
-		// Setting MTime to 0 so we can compare
-		node.MTime = 0
-		node.Path = "mockLongNode"
+				So(node.Node, ShouldResemble, mockLongNode.Node)
+			})
 
-		So(node.Node, ShouldResemble, mockLongNode.Node)
-	})
+			// Getting a file
+			Convey("Test Getting a child node", t, func() {
 
-	// Getting a file
-	Convey("Test Getting a child node", t, func() {
+				node, err := dao.GetNodeChild(ctx, mockLongNodeMPath, "mockLongNodeChild1")
 
-		node, err := getDAO(ctx).GetNodeChild(mockLongNodeMPath, "mockLongNodeChild1")
+				So(err, ShouldBeNil)
 
-		So(err, ShouldBeNil)
+				// TODO - find a way
+				node.GetNode().SetMTime(0)
+				node.GetNode().SetPath(mockLongNodeChild1.GetNode().GetPath())
 
-		// TODO - find a way
-		node.MTime = 0
-		node.Path = mockLongNodeChild1.Path
+				So(node.Node, ShouldNotResemble, mockLongNodeChild2.Node)
+				So(node.Node, ShouldResemble, mockLongNodeChild1.Node)
+			})
 
-		So(node.Node, ShouldNotResemble, mockLongNodeChild2.Node)
-		So(node.Node, ShouldResemble, mockLongNodeChild1.Node)
-	})
+			// Setting a file
+			Convey("Test Getting the last child of a node", t, func() {
 
-	// Setting a file
-	Convey("Test Getting the last child of a node", t, func() {
+				node, err := dao.GetNodeLastChild(ctx, mockLongNodeMPath)
 
-		node, err := getDAO(ctx).GetNodeLastChild(mockLongNodeMPath)
+				So(err, ShouldBeNil)
 
-		So(err, ShouldBeNil)
+				// TODO - find a way
+				node.GetNode().SetMTime(0)
+				node.GetNode().SetPath(mockLongNodeChild2.GetNode().GetPath())
 
-		// TODO - find a way
-		node.MTime = 0
-		node.Path = mockLongNodeChild2.Path
+				So(node.Node, ShouldNotResemble, mockLongNodeChild1.Node)
+				So(node.Node, ShouldResemble, mockLongNodeChild2.Node)
+			})
 
-		So(node.Node, ShouldNotResemble, mockLongNodeChild1.Node)
-		So(node.Node, ShouldResemble, mockLongNodeChild2.Node)
-	})
+			// Setting a file
+			Convey("Test Getting the Children of a node", t, func() {
 
-	// Setting a file
-	Convey("Test Getting the Children of a node", t, func() {
+				var i int
+				for _ = range dao.GetNodeChildren(context.Background(), mockLongNodeMPath) {
+					i++
+				}
 
-		var i int
-		for _ = range getDAO(ctx).GetNodeChildren(context.Background(), mockLongNodeMPath) {
-			i++
+				So(i, ShouldEqual, 2)
+			})
+
+			// Setting a file
+			Convey("Test Getting the Children of a node", t, func() {
+
+				var i int
+				for _ = range dao.GetNodeTree(context.Background(), tree.NewMPath(1)) {
+					i++
+				}
+
+				So(i, ShouldEqual, 3)
+			})
+
+			// Setting a file
+			Convey("Test Getting Nodes by MPath", t, func() {
+
+				var i int
+				for _ = range dao.GetNodes(ctx, mockLongNodeChild1MPath, mockLongNodeChild2MPath) {
+					i++
+				}
+
+				So(i, ShouldEqual, 2)
+			})
+
+			// Setting a file
+			Convey("Setting multiple nodes at once", t, func() {
+				b := dao.SetNodes(ctx, "test", 10)
+
+				mpath := mockLongNodeMPath
+
+				for mpath.Length() > 1 {
+					node := tree.NewTreeNode("")
+					node.SetMPath(mpath)
+					b.Send(node)
+					mpath = mpath.Parent()
+				}
+
+				err := b.Close()
+
+				So(err, ShouldBeNil)
+			})
+
+			// Setting a mpath multiple times
+			Convey("Setting a same mpath multiple times", t, func() {
+
+				node1 := tree.NewTreeNode("")
+				node1.SetNode(&tree.Node{Uuid: "test-same-mpath", Type: tree.NodeType_LEAF})
+				node1.SetName("test-same-mpath")
+				node1.SetMPath(tree.NewMPath(1, 21, 12, 7))
+				err := dao.AddNode(ctx, node1)
+				So(err, ShouldBeNil)
+
+				node2 := tree.NewTreeNode("")
+				node2.SetNode(&tree.Node{Uuid: "test-same-mpath2", Type: tree.NodeType_LEAF})
+				node2.SetName("test-same-mpath2")
+				node2.SetMPath(tree.NewMPath(1, 21, 12, 7))
+				err = dao.AddNode(ctx, node2)
+				So(err, ShouldNotBeNil)
+			})
+
+			Convey("Test wrong children due to same MPath start", t, func() {
+
+				node1 := tree.NewTreeNode("")
+				node1.SetNode(&tree.Node{Uuid: "parent1", Type: tree.NodeType_COLLECTION})
+				node1.SetName("parent1")
+				node1.SetMPath(tree.NewMPath(1, 1))
+
+				node2 := tree.NewTreeNode("")
+				node2.SetNode(&tree.Node{Uuid: "parent2", Type: tree.NodeType_COLLECTION})
+				node2.SetName("parent2")
+				node2.SetMPath(tree.NewMPath(1, 15))
+
+				node11 := tree.NewTreeNode("")
+				node11.SetNode(&tree.Node{Uuid: "child1.1", Type: tree.NodeType_COLLECTION})
+				node11.SetName("child1.1")
+				node11.SetMPath(tree.NewMPath(1, 1, 1))
+
+				node21 := tree.NewTreeNode("")
+				node21.SetNode(&tree.Node{Uuid: "child2.1", Type: tree.NodeType_COLLECTION})
+				node21.SetName("child2.1")
+				node21.SetMPath(tree.NewMPath(1, 15, 1))
+
+				e := dao.AddNode(ctx, node1)
+				So(e, ShouldBeNil)
+				e = dao.AddNode(ctx, node2)
+				So(e, ShouldBeNil)
+				e = dao.AddNode(ctx, node11)
+				So(e, ShouldBeNil)
+				e = dao.AddNode(ctx, node21)
+				So(e, ShouldBeNil)
+
+				// List Root
+				nodes := dao.GetNodeChildren(context.Background(), tree.NewMPath(1))
+				count := 0
+				for range nodes {
+					count++
+				}
+				So(count, ShouldEqual, 2)
+
+				// List Parent1 Children
+				nodes = dao.GetNodeTree(context.Background(), tree.NewMPath(1))
+				count = 0
+				for c := range nodes {
+					log.Println(c)
+					count++
+				}
+				So(count, ShouldEqual, 8) // Because of previous tests there are other nodes
+
+				// List Parent1 Children
+				nodes = dao.GetNodeChildren(context.Background(), tree.NewMPath(1, 1))
+				count = 0
+				for range nodes {
+					count++
+				}
+				So(count, ShouldEqual, 1)
+
+			})
+
+			Convey("Test Etag Compute", t, func() {
+
+				// Test the following tree
+				//
+				// Parent  					: -1
+				//    -> Child bbb  		: xxx
+				//    -> Child aaa  		: yyy
+				//    -> Child ccc  		: -1
+				// 		   -> Child a-aaa	: zzz
+				// 		   -> Child a-bbb	: qqq
+				//
+				// At the end, "Child ccc" and "Parent" should have a correct etag
+
+				const etag1 = "xxxx"
+				const etag2 = "yyyy"
+
+				const etag3 = "zzzz"
+				const etag4 = "qqqq"
+
+				node := tree.NewTreeNode("")
+				node.Node = &tree.Node{Uuid: "etag-parent-folder", Type: tree.NodeType_COLLECTION, Etag: "-1"}
+				node.SetMPath(tree.NewMPath(1, 16))
+				node.SetName("etag-parent-folder")
+
+				node11 := tree.NewTreeNode("")
+				node11.Node = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF, Etag: etag1}
+				node11.SetMPath(tree.NewMPath(1, 16, 1))
+				node11.SetName("bbb")
+
+				node12 := tree.NewTreeNode("")
+				node12.Node = &tree.Node{Uuid: "etag-child-2", Type: tree.NodeType_LEAF, Etag: etag2}
+				node12.SetMPath(tree.NewMPath(1, 16, 2))
+				node12.SetName("aaa")
+
+				node13 := tree.NewTreeNode("")
+				node13.Node = &tree.Node{Uuid: "etag-child-3", Type: tree.NodeType_COLLECTION, Etag: "-1"}
+				node13.SetMPath(tree.NewMPath(1, 16, 3))
+				node13.SetName("ccc")
+
+				node14 := tree.NewTreeNode("")
+				node14.Node = &tree.Node{Uuid: "etag-child-child-1", Type: tree.NodeType_LEAF, Etag: etag3}
+				node14.SetMPath(tree.NewMPath(1, 16, 3, 1))
+				node14.SetName("a-aaa")
+
+				node15 := tree.NewTreeNode("")
+				node15.Node = &tree.Node{Uuid: "etag-child-child-2", Type: tree.NodeType_LEAF, Etag: etag4}
+				node15.SetMPath(tree.NewMPath(1, 16, 3, 2))
+				node15.SetName("a-bbb")
+
+				e := dao.AddNode(ctx, node)
+				So(e, ShouldBeNil)
+				e = dao.AddNode(ctx, node11)
+				So(e, ShouldBeNil)
+				e = dao.AddNode(ctx, node12)
+				So(e, ShouldBeNil)
+				e = dao.AddNode(ctx, node13)
+				So(e, ShouldBeNil)
+				e = dao.AddNode(ctx, node14)
+				So(e, ShouldBeNil)
+				e = dao.AddNode(ctx, node15)
+				So(e, ShouldBeNil)
+
+				e = dao.ResyncDirtyEtags(ctx, node)
+				So(e, ShouldBeNil)
+				intermediaryNode, e := dao.GetNode(ctx, node13.MPath)
+				So(e, ShouldBeNil)
+				hash := md5.New()
+				hash.Write([]byte(etag3 + "." + etag4))
+				newEtag := hex.EncodeToString(hash.Sum(nil))
+				So(intermediaryNode.GetNode().GetEtag(), ShouldEqual, newEtag)
+
+				parentNode, e := dao.GetNode(ctx, node.GetMPath())
+				So(e, ShouldBeNil)
+				hash2 := md5.New()
+				hash2.Write([]byte(etag2 + "." + etag1 + "." + intermediaryNode.GetNode().GetEtag()))
+				newEtag2 := hex.EncodeToString(hash2.Sum(nil))
+				So(parentNode.GetNode().GetEtag(), ShouldEqual, newEtag2)
+
+			})
 		}
-
-		So(i, ShouldEqual, 2)
 	})
-
-	// Setting a file
-	Convey("Test Getting the Children of a node", t, func() {
-
-		var i int
-		for _ = range getDAO(ctx).GetNodeTree(context.Background(), []uint64{1}) {
-			i++
-		}
-
-		So(i, ShouldEqual, 3)
-	})
-
-	// Setting a file
-	Convey("Test Getting Nodes by MPath", t, func() {
-
-		var i int
-		for _ = range getDAO(ctx).GetNodes(mockLongNodeChild1MPath, mockLongNodeChild2MPath) {
-			i++
-		}
-
-		So(i, ShouldEqual, 2)
-	})
-
-	// Setting a file
-	Convey("Setting multiple nodes at once", t, func() {
-		b := getDAO(ctx).SetNodes("test", 10)
-
-		mpath := mockLongNodeMPath
-
-		for len(mpath) > 0 {
-			node := mtree.NewTreeNode()
-			node.SetMPath(mpath...)
-			b.Send(node)
-			mpath = mpath.Parent()
-		}
-
-		err := b.Close()
-
-		So(err, ShouldBeNil)
-	})
-
-	// Setting a mpath multiple times
-	Convey("Setting a same mpath multiple times", t, func() {
-
-		node1 := mtree.NewTreeNode()
-		node1.Node = &tree.Node{Uuid: "test-same-mpath", Type: tree.NodeType_LEAF}
-		node1.SetMPath(1, 21, 12, 7)
-		err := getDAO(ctx).AddNode(node1)
-		So(err, ShouldBeNil)
-
-		node2 := mtree.NewTreeNode()
-		node2.Node = &tree.Node{Uuid: "test-same-mpath2", Type: tree.NodeType_LEAF}
-		node2.SetMPath(1, 21, 12, 7)
-		err = getDAO(ctx).AddNode(node2)
-		So(err, ShouldNotBeNil)
-	})
-
-	Convey("Test wrong children due to same MPath start", t, func() {
-
-		node1 := mtree.NewTreeNode()
-		node1.Node = &tree.Node{Uuid: "parent1", Type: tree.NodeType_COLLECTION}
-		node1.SetMPath(1, 1)
-
-		node2 := mtree.NewTreeNode()
-		node2.Node = &tree.Node{Uuid: "parent2", Type: tree.NodeType_COLLECTION}
-		node2.SetMPath(1, 15)
-
-		node11 := mtree.NewTreeNode()
-		node11.Node = &tree.Node{Uuid: "child1.1", Type: tree.NodeType_COLLECTION}
-		node11.SetMPath(1, 1, 1)
-
-		node21 := mtree.NewTreeNode()
-		node21.Node = &tree.Node{Uuid: "child2.1", Type: tree.NodeType_COLLECTION}
-		node21.SetMPath(1, 15, 1)
-
-		e := getDAO(ctx).AddNode(node1)
-		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node2)
-		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node11)
-		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node21)
-		So(e, ShouldBeNil)
-
-		// List Root
-		nodes := getDAO(ctx).GetNodeChildren(context.Background(), mtree.MPath{1})
-		count := 0
-		for range nodes {
-			count++
-		}
-		So(count, ShouldEqual, 2)
-
-		// List Parent1 Children
-		nodes = getDAO(ctx).GetNodeTree(context.Background(), mtree.MPath{1})
-		count = 0
-		for c := range nodes {
-			log.Println(c)
-			count++
-		}
-		So(count, ShouldEqual, 8) // Because of previous tests there are other nodes
-
-		// List Parent1 Children
-		nodes = getDAO(ctx).GetNodeChildren(context.Background(), mtree.MPath{1, 1})
-		count = 0
-		for range nodes {
-			count++
-		}
-		So(count, ShouldEqual, 1)
-
-	})
-
-	Convey("Test Etag Compute", t, func() {
-
-		// Test the following tree
-		//
-		// Parent  					: -1
-		//    -> Child bbb  		: xxx
-		//    -> Child aaa  		: yyy
-		//    -> Child ccc  		: -1
-		// 		   -> Child a-aaa	: zzz
-		// 		   -> Child a-bbb	: qqq
-		//
-		// At the end, "Child ccc" and "Parent" should have a correct etag
-
-		const etag1 = "xxxx"
-		const etag2 = "yyyy"
-
-		const etag3 = "zzzz"
-		const etag4 = "qqqq"
-
-		node := mtree.NewTreeNode()
-		node.Node = &tree.Node{Uuid: "etag-parent-folder", Type: tree.NodeType_COLLECTION}
-		node.SetMPath(1, 16)
-		node.Etag = "-1"
-
-		node11 := mtree.NewTreeNode()
-		node11.Node = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF}
-		node11.SetMPath(1, 16, 1)
-		node11.Etag = etag1
-		node11.SetMeta("name", "\"bbb\"")
-
-		node12 := mtree.NewTreeNode()
-		node12.Node = &tree.Node{Uuid: "etag-child-2", Type: tree.NodeType_LEAF}
-		node12.SetMPath(1, 16, 2)
-		node12.Etag = etag2
-		node12.SetMeta("name", "\"aaa\"")
-
-		node13 := mtree.NewTreeNode()
-		node13.Node = &tree.Node{Uuid: "etag-child-3", Type: tree.NodeType_COLLECTION}
-		node13.SetMPath(1, 16, 3)
-		node13.Etag = "-1"
-		node13.SetMeta("name", "\"ccc\"")
-
-		node14 := mtree.NewTreeNode()
-		node14.Node = &tree.Node{Uuid: "etag-child-child-1", Type: tree.NodeType_LEAF}
-		node14.SetMPath(1, 16, 3, 1)
-		node14.Etag = etag3
-		node14.SetMeta("name", "\"a-aaa\"")
-
-		node15 := mtree.NewTreeNode()
-		node15.Node = &tree.Node{Uuid: "etag-child-child-2", Type: tree.NodeType_LEAF}
-		node15.SetMPath(1, 16, 3, 2)
-		node15.Etag = etag4
-		node15.SetMeta("name", "\"a-bbb\"")
-
-		e := getDAO(ctx).AddNode(node)
-		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node11)
-		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node12)
-		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node13)
-		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node14)
-		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node15)
-		So(e, ShouldBeNil)
-
-		e = getDAO(ctx).ResyncDirtyEtags(node)
-		So(e, ShouldBeNil)
-		intermediaryNode, e := getDAO(ctx).GetNode(node13.MPath)
-		So(e, ShouldBeNil)
-		hash := md5.New()
-		hash.Write([]byte(etag3 + "." + etag4))
-		newEtag := hex.EncodeToString(hash.Sum(nil))
-		So(intermediaryNode.Etag, ShouldEqual, newEtag)
-
-		parentNode, e := getDAO(ctx).GetNode(node.MPath)
-		So(e, ShouldBeNil)
-		hash2 := md5.New()
-		hash2.Write([]byte(etag2 + "." + etag1 + "." + intermediaryNode.Etag))
-		newEtag2 := hex.EncodeToString(hash2.Sum(nil))
-		So(parentNode.Etag, ShouldEqual, newEtag2)
-
-	})
-
 }

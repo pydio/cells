@@ -24,23 +24,16 @@ import (
 	"context"
 	"embed"
 	"errors"
-	"fmt"
-	"github.com/doug-martin/goqu/v9/exp"
+	"github.com/pydio/cells/v4/common/dao"
 	"gorm.io/gorm"
 	"time"
 
-	goqu "github.com/doug-martin/goqu/v9"
-	"github.com/go-sql-driver/mysql"
-	migrate "github.com/rubenv/sql-migrate"
-	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 var (
@@ -62,50 +55,118 @@ var (
 	}
 )
 
-type sqlimpl struct {
-	sql.DAO
+type ACL struct {
+	ID          string    `gorm:"primaryKey; column:action_name"`
+	ActionName  string    `gorm:"column:action_name"`
+	ActionValue string    `gorm:"column:action_value"`
+	Role        Role      `gorm:"column:role_id; defaultValue: -1"`
+	Workspace   Workspace `gorm:"column:workspace_id; defaultValue: -1"`
+	Node        Node      `gorm:"column:node_id; defaultValue: -1"`
+	Expiry      time.Time `gorm:"expiry_date"`
+}
 
-	db *gorm.DB
+type Role struct {
+	ID   int    `gorm:"primaryKey; column:id"`
+	UUID string `gorm:"column:uuid"`
+}
+
+type Workspace struct {
+	ID   int    `gorm:"primaryKey; column:id"`
+	UUID string `gorm:"column:uuid"`
+}
+
+type Node struct {
+	ID   int    `gorm:"primaryKey; column:id"`
+	UUID string `gorm:"column:uuid"`
+}
+
+type sqlimpl struct {
+	// sql.DAO
+
+	db       *gorm.DB
+	instance func(ctx context.Context) *gorm.DB
+}
+
+func (s *sqlimpl) Name() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) ID() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Metadata() map[string]string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) As(i interface{}) bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Driver() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Dsn() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) GetConn(ctx context.Context) (dao.Conn, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) SetConn(ctx context.Context, conn dao.Conn) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) CloseConn(ctx context.Context) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Prefix() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) LocalAccess() bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Stats() map[string]interface{} {
+	//TODO implement me
+	panic("implement me")
 }
 
 // Init handler for the SQL DAO
-func (dao *sqlimpl) Init(ctx context.Context, options configx.Values) error {
+func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
-	// super
-	dao.DAO.Init(ctx, options)
+	db := s.db
 
-	// Doing the database migrations
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         dao.Driver(),
-		TablePrefix: dao.Prefix(),
-	}
+	s.instance = func(ctx context.Context) *gorm.DB { return db.Session(&gorm.Session{SkipDefaultTransaction: true}) }
 
-	_, err := sql.ExecMigration(dao.DB(), dao.Driver(), migrations, migrate.Up, "idm_acl_")
-	if err != nil {
-		return err
-	}
-
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := dao.Prepare(key, query); err != nil {
-				return err
-			}
-		}
-	}
+	s.instance(ctx).AutoMigrate(&ACL{}, &Role{}, &Workspace{}, &Node{})
 
 	return nil
 }
 
 // Add inserts an ACL to the underlying SQL DB
-func (dao *sqlimpl) Add(in interface{}) error {
-	return dao.addWithDupCheck(in, true)
+func (s *sqlimpl) Add(in interface{}) error {
+	return s.addWithDupCheck(in, true)
 }
 
 // addWithDupCheck insert and override existing value if it's a
 // duplicate key and the ACL is expired
-func (dao *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
+func (s *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 
 	val, ok := in.(*idm.ACL)
 	if !ok {
@@ -116,9 +177,9 @@ func (dao *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 		return errors.New("Missing action value")
 	}
 
-	workspaceID := "-1"
+	/*workspaceID := "-1"
 	if val.WorkspaceID != "" {
-		id, err := dao.addWorkspace(val.WorkspaceID)
+		id, err := s.addWorkspace(val.WorkspaceID)
 		if err != nil {
 			return err
 		}
@@ -127,7 +188,7 @@ func (dao *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 
 	nodeID := "-1"
 	if val.NodeID != "" {
-		id, err := dao.addNode(val.NodeID)
+		id, err := s.addNode(val.NodeID)
 		if err != nil {
 			return err
 		}
@@ -136,7 +197,7 @@ func (dao *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 
 	roleID := "-1"
 	if val.RoleID != "" {
-		id, err := dao.addRole(val.RoleID)
+		id, err := s.addRole(val.RoleID)
 		if err != nil {
 			return err
 		}
@@ -144,196 +205,114 @@ func (dao *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 	}
 
 	log.Logger(context.Background()).Debug("AddACL",
-		zap.String("r", roleID), zap.String("w", workspaceID), zap.String("n", nodeID), zap.Any("value", val))
+		zap.String("r", roleID), zap.String("w", workspaceID), zap.String("n", nodeID), zap.Any("value", val))*/
 
-	stmt, er := dao.GetStmt("AddACL")
-	if er != nil {
-		return er
+	acl := ACL{
+		ActionName:  val.Action.Name,
+		ActionValue: val.Action.Value,
+		Role: Role{
+			UUID: val.RoleID,
+		},
+		Workspace: Workspace{
+			UUID: val.WorkspaceID,
+		},
+		Node: Node{
+			UUID: val.NodeID,
+		},
 	}
 
-	res, err := stmt.Exec(val.Action.Name, val.Action.Value, roleID, workspaceID, nodeID)
-	if err != nil {
-		if mErr, ok := err.(*mysql.MySQLError); ok && mErr.Number == 1062 && check {
-			// fmt.Println("GOT DUPLICATE ERROR", mErr.Error(), mErr.Message)
-			// There is a duplicate : if it is expired, we can safely ignore it and replace it
-			deleteStmt, dE := dao.GetStmt("CleanDuplicateIfExpired")
-			if dE != nil {
-				return dE
-			}
-			delRes, drE := deleteStmt.Exec(val.Action.Name, roleID, workspaceID, nodeID, time.Now())
-			if drE != nil {
-				return drE
-			}
-			if affected, e := delRes.RowsAffected(); e == nil && affected == 1 {
-				// fmt.Println("[AddACL] Replacing one duplicate row that was in fact expired")
-				return dao.addWithDupCheck(in, false)
-			}
-		}
-		return err
+	tx := s.instance(context.TODO()).Create(&acl)
+	if tx.Error != nil {
+		return tx.Error
 	}
 
-	id, err := res.LastInsertId()
-	if err != nil {
-		return err
-	}
+	val.ID = acl.ID
 
-	val.ID = fmt.Sprintf("%d", id)
+	// TODO - duplicate
 
 	return nil
 }
 
 // Search in the underlying SQL DB.
-func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}, period *ExpirationPeriod) error {
+func (s *sqlimpl) Search(query sql.Enquirer, out *[]interface{}, period *ExpirationPeriod) error {
+	db := sql.NewGormQueryBuilder(query, new(queryConverter)).Build(s.instance(context.TODO())).(*gorm.DB)
 
-	db := goqu.New(dao.Driver(), dao.DB())
-
-	n := goqu.T("n")
-	w := goqu.T("w")
-	r := goqu.T("r")
-	a := goqu.T("a")
-
-	expressions := []goqu.Expression{
-		n.Col("id").Eq(a.Col("node_id")),
-		w.Col("id").Eq(a.Col("workspace_id")),
-		r.Col("id").Eq(a.Col("role_id")),
-	}
-	if period != nil {
-		expressions = append(expressions, dao.expirationToGoqu(period, a).Expressions()...)
-	} else {
-		// By default, exclude all expired ACLs
-		expressions = append(expressions,
-			goqu.Or(
-				a.Col("expires_at").IsNull(),
-				a.Col("expires_at").Gt(dao.valueForTime(time.Now())),
-			),
-		)
-	}
-
-	if query != nil {
-		if qE := sql.NewQueryBuilder(query, new(queryConverter)).Expression(dao.Driver()); qE != nil {
-			expressions = append(expressions, qE)
-		}
-	}
-
-	offset, limit := int64(0), int64(-1)
 	if query.GetOffset() > 0 {
-		offset = query.GetOffset()
+		db.Offset(int(query.GetOffset()))
 	}
 	if query.GetLimit() > 0 {
-		limit = query.GetLimit()
+		db.Limit(int(query.GetLimit()))
 	}
 
-	dataset := db.From(
-		goqu.T("idm_acls").As("a"),
-		goqu.T("idm_acl_nodes").As("n"),
-		goqu.T("idm_acl_workspaces").As("w"),
-		goqu.T("idm_acl_roles").As("r"),
-	).Prepared(true).Select(
-		a.Col("id").As("acl_id"),
-		n.Col("uuid").As("node_uuid"),
-		a.Col("action_name").As("acl_action_name"),
-		a.Col("action_value").As("acl_action_value"),
-		r.Col("uuid").As("role_uuid"),
-		w.Col("name").As("workspace_name"),
-	)
+	var acls []ACL
 
-	if limit > -1 {
-		dataset = dataset.Offset(uint(offset)).Limit(uint(limit))
+	tx := db.Find(&acls)
+	if tx.Error != nil {
+		return tx.Error
 	}
 
-	dataset = dataset.Where(expressions...)
-
-	var items []struct {
-		AclID          string `db:"acl_id"`
-		NodeUUID       string `db:"node_uuid"`
-		ACLActionName  string `db:"acl_action_name"`
-		ACLActionValue string `db:"acl_action_value"`
-		RoleUUID       string `db:"role_uuid"`
-		WorkspaceName  string `db:"workspace_name"`
-	}
-	if err := dataset.ScanStructs(&items); err != nil {
-		return err
-	}
-
-	for _, item := range items {
+	for _, acl := range acls {
 		val := new(idm.ACL)
 		action := new(idm.ACLAction)
 
-		val.ID = item.AclID
-		val.NodeID = item.NodeUUID
-		val.RoleID = item.RoleUUID
-		val.WorkspaceID = item.WorkspaceName
+		val.ID = acl.ID
+		val.NodeID = acl.Node.UUID
+		val.RoleID = acl.Role.UUID
+		val.WorkspaceID = acl.Workspace.UUID
 
-		action.Name = item.ACLActionName
-		action.Value = item.ACLActionValue
+		action.Name = acl.ActionName
+		action.Value = acl.ActionValue
 
 		val.Action = action
-		*acls = append(*acls, val)
+		*out = append(*out, val)
 	}
 
 	return nil
 }
 
 // SetExpiry sets an expiry timestamp on the acl
-func (dao *sqlimpl) SetExpiry(query sql.Enquirer, t time.Time, period *ExpirationPeriod) (int64, error) {
+func (s *sqlimpl) SetExpiry(query sql.Enquirer, t time.Time, period *ExpirationPeriod) (int64, error) {
 
-	db := goqu.New(dao.Driver(), dao.DB())
+	db := sql.NewGormQueryBuilder(query, new(queryConverter)).Build(s.instance(context.TODO())).(*gorm.DB)
 
-	whereExpression := goqu.And()
-	if query != nil {
-		if qExp := sql.NewQueryBuilder(query, new(queryConverter)).Expression(dao.Driver()); qExp != nil {
-			whereExpression = whereExpression.Append(qExp)
+	if period != nil {
+		if !period.End.IsZero() {
+			db.Where("expiry_date < ?", period.End)
+		}
+		if !period.Start.IsZero() {
+			db.Where("expiry_date > ?", period.Start)
 		}
 	}
-	if period != nil { // append pExp
-		pExp := dao.expirationToGoqu(period, nil)
-		whereExpression = whereExpression.Append(pExp.Expressions()...)
+
+	tx := db.Updates(&ACL{Expiry: t})
+	if tx.Error != nil {
+		return 0, tx.Error
 	}
 
-	dataset := db.From("idm_acls").Where(whereExpression).Update().Set(goqu.Record{"expires_at": dao.valueForTime(t)})
-
-	res, err := dataset.Executor().Exec()
-	if err != nil {
-		return 0, err
-	}
-
-	rows, err := res.RowsAffected()
-	if err != nil {
-		return 0, err
-	}
-
-	return rows, nil
+	return tx.RowsAffected, nil
 }
 
 // Del from the sql DB.
-func (dao *sqlimpl) Del(query sql.Enquirer, period *ExpirationPeriod) (int64, error) {
+func (s *sqlimpl) Del(query sql.Enquirer, period *ExpirationPeriod) (int64, error) {
 
-	whereExpression := goqu.And()
-	if query != nil {
-		if qExp := sql.NewQueryBuilder(query, new(queryConverter)).Expression(dao.Driver()); qExp != nil {
-			whereExpression = whereExpression.Append(qExp)
+	db := sql.NewGormQueryBuilder(query, new(queryConverter)).Build(s.instance(context.TODO())).(*gorm.DB)
+
+	if period != nil {
+		if !period.End.IsZero() {
+			db.Where("expiry_date < ?", period.End)
+		}
+		if !period.Start.IsZero() {
+			db.Where("expiry_date > ?", period.Start)
 		}
 	}
-	if period != nil {
-		andExpression := dao.expirationToGoqu(period, nil)
-		whereExpression = whereExpression.Append(andExpression.Expressions()...)
-	}
-	queryString, args, err := sql.DeleteStringFromExpression("idm_acls", dao.Driver(), whereExpression)
-	if err != nil {
-		return 0, err
+
+	tx := db.Delete(&ACL{})
+	if tx.Error != nil {
+		return 0, tx.Error
 	}
 
-	res, err := dao.DB().Exec(queryString, args...)
-	if err != nil {
-		return 0, err
-	}
+	/*if tx.RowsAffected > 0 {
 
-	rows, err := res.RowsAffected()
-	if err != nil {
-		return 0, err
-	}
-
-	if rows > 0 {
 		// Perform clean up
 		if stmt, er := dao.GetStmt("CleanWorkspaces"); er == nil {
 			stmt.Exec()
@@ -352,166 +331,14 @@ func (dao *sqlimpl) Del(query sql.Enquirer, period *ExpirationPeriod) (int64, er
 		} else {
 			return 0, er
 		}
-	}
+	}*/
 
-	return rows, nil
-}
-
-func (dao *sqlimpl) addWorkspace(uuid string) (string, error) {
-
-	stmt, er := dao.GetStmt("AddACLWorkspace")
-	if er != nil {
-		return "", er
-	}
-	res, err := stmt.Exec(uuid)
-	if err == nil {
-		rows, err := res.RowsAffected()
-		if err != nil {
-			return "", err
-		}
-
-		if rows > 0 {
-			id, err := res.LastInsertId()
-			if err != nil {
-				return "", err
-			}
-
-			return fmt.Sprintf("%d", id), nil
-		}
-	}
-
-	var id string
-	stmt, er = dao.GetStmt("GetACLWorkspace")
-	if er != nil {
-		return "", er
-	}
-
-	row := stmt.QueryRow(uuid)
-	if row == nil {
-		return "", fmt.Errorf("cannot not find acl for workspace %s", uuid)
-	}
-	er = row.Scan(&id)
-
-	return id, er
-}
-
-func (dao *sqlimpl) addNode(uuid string) (string, error) {
-
-	stmt, er := dao.GetStmt("AddACLNode")
-	if er != nil {
-		return "", er
-	}
-	res, err := stmt.Exec(uuid)
-	if err == nil {
-		rows, err := res.RowsAffected()
-		if err != nil {
-			return "", err
-		}
-
-		if rows > 0 {
-			id, err := res.LastInsertId()
-			if err != nil {
-				return "", err
-			}
-
-			return fmt.Sprintf("%d", id), nil
-		}
-	}
-
-	// Checking we didn't have a duplicate
-	var id string
-
-	stmt, er = dao.GetStmt("GetACLNode")
-	if er != nil {
-		return "", er
-	}
-	row := stmt.QueryRow(uuid)
-	if row == nil {
-		return "", fmt.Errorf("can not find acl node %s", uuid)
-	}
-	er = row.Scan(&id)
-
-	return id, er
-}
-
-func (dao *sqlimpl) addRole(uuid string) (string, error) {
-
-	stmt, er := dao.GetStmt("AddACLRole")
-	if er != nil {
-		return "", er
-	}
-
-	res, err := stmt.Exec(uuid)
-	if err == nil {
-		rows, err := res.RowsAffected()
-		if err != nil {
-			return "", err
-		}
-
-		if rows > 0 {
-			id, err := res.LastInsertId()
-			if err != nil {
-				return "", err
-			}
-
-			return fmt.Sprintf("%d", id), nil
-		}
-	}
-
-	// Checking we didn't have a duplicate
-	var id string
-	stmt, er = dao.GetStmt("GetACLRole")
-	if er != nil {
-		return "", er
-	}
-	row := stmt.QueryRow(uuid)
-	if row == nil {
-		return "", fmt.Errorf("cannot find acl role %s", uuid)
-	}
-	er = row.Scan(&id)
-
-	return id, er
-}
-
-func (dao *sqlimpl) expirationToGoqu(p *ExpirationPeriod, table exp.IdentifierExpression) exp.ExpressionList {
-	if table != nil {
-		a := goqu.And(
-			table.Col("expires_at").IsNotNull(),
-		)
-		if !p.End.IsZero() {
-			a = a.Append(table.Col("expires_at").Lte(dao.valueForTime(p.End)))
-		}
-		if !p.Start.IsZero() {
-			a = a.Append(table.Col("expires_at").Gte(dao.valueForTime(p.Start)))
-		}
-		return a
-	} else {
-		a := goqu.And(
-			goqu.C("expires_at").IsNotNull(),
-		)
-		if !p.End.IsZero() {
-			a = a.Append(goqu.C("expires_at").Lte(dao.valueForTime(p.End)))
-		}
-		if !p.Start.IsZero() {
-			a = a.Append(goqu.C("expires_at").Gte(dao.valueForTime(p.Start)))
-		}
-		return a
-	}
-}
-
-func (dao *sqlimpl) valueForTime(t time.Time) interface{} {
-	if t.IsZero() {
-		return nil
-	}
-	if dao.Driver() == "sqlite3" {
-		return t.Unix()
-	}
-	return t
+	return tx.RowsAffected, nil
 }
 
 type queryConverter idm.ACLSingleQuery
 
-func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression, bool) {
+func (c *queryConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
 
 	q := new(idm.ACLSingleQuery)
 
@@ -519,69 +346,30 @@ func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression
 		return nil, false
 	}
 
-	db := goqu.New(driver, nil)
-	var expressions []goqu.Expression
+	db := in.(*gorm.DB)
 
 	if len(q.RoleIDs) > 0 {
-		dataset := db.From("idm_acl_roles").Select("id")
-		dataset = dataset.Where(sql.GetExpressionForString(false, "uuid", q.RoleIDs...))
-		str, _, err := dataset.ToSQL()
-		if err != nil {
-			return nil, true
-		}
-		expressions = append(expressions, goqu.C("role_id").In(goqu.L(str)))
+		db = db.Where("role_id in (?)", db.Model(&Role{}).Where("uuid IN ?", q.GetRoleIDs()))
 	}
 
 	if len(q.WorkspaceIDs) > 0 {
-		dataset := db.From("idm_acl_workspaces").Select("id")
-		dataset = dataset.Where(sql.GetExpressionForString(false, "name", q.WorkspaceIDs...))
-		str, _, err := dataset.ToSQL()
-		if err != nil {
-			return nil, true
-		}
-		expressions = append(expressions, goqu.C("workspace_id").In(goqu.L(str)))
+		db = db.Where("workspace_id IN ?", db.Model(&Workspace{}).Where("uuid IN ?", q.GetWorkspaceIDs()))
 	}
 
 	if len(q.NodeIDs) > 0 {
-
-		dataset := db.From("idm_acl_nodes").Select("id")
-		dataset = dataset.Where(sql.GetExpressionForString(false, "uuid", q.NodeIDs...))
-		str, _, err := dataset.ToSQL()
-		if err != nil {
-			return nil, true
-		}
-		expressions = append(expressions, goqu.C("node_id").In(goqu.L(str)))
+		db = db.Where("node_id IN ?", db.Model(&Node{}).Where("uuid IN ?", q.GetNodeIDs()))
 	}
 
 	// Special case for Actions
 	if len(q.Actions) > 0 {
-		actionsByName := make(map[string][]string) // actionName => actionValues
+		var args [][]interface{}
+
 		for _, act := range q.Actions {
-			values, exists := actionsByName[act.Name]
-			if !exists {
-				values = []string{}
-			}
-			if act.Value != "" {
-				values = append(values, act.Value)
-			}
-			actionsByName[act.Name] = values
+			args = append(args, []interface{}{act.GetName(), act.GetValue()})
 		}
 
-		var orExpression []goqu.Expression
-		//var orWheres []string
-		for actName, actValues := range actionsByName {
-			var actionAndExpression []goqu.Expression
-
-			actionAndExpression = append(actionAndExpression, sql.GetExpressionForString(false, "action_name", actName))
-			if len(actValues) > 0 {
-				actionAndExpression = append(actionAndExpression, sql.GetExpressionForString(false, "action_value", actValues...))
-				orExpression = append(orExpression, goqu.And(actionAndExpression...))
-			} else {
-				orExpression = append(orExpression, actionAndExpression...)
-			}
-		}
-		expressions = append(expressions, goqu.Or(orExpression...))
+		db = db.Where("(action_name, action_value) IN ?", args)
 	}
 
-	return goqu.And(expressions...), true
+	return db, true
 }

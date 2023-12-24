@@ -23,7 +23,6 @@ package role
 import (
 	"context"
 	"embed"
-	"fmt"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strings"
@@ -34,7 +33,6 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
@@ -56,25 +54,25 @@ var (
 
 // Impl of the SQL interface
 type sqlimpl struct {
-	*sql.Handler
+	// *sql.Handler
 
 	db *gorm.DB
 
-	instance  func() *gorm.DB
-	resources func() *gorm.DB
+	instance func() *gorm.DB
 
-	*resources.ResourcesSQL
+	*resources.ResourcesGORM
 }
 
 // Init handler for the SQL DAO
 func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
 	db := s.db
-	s.instance = func() *gorm.DB { return db.Table("idm_roles") }
-	s.resources = func() *gorm.DB { return db.Table("idm_role_policies") }
+	s.instance = func() *gorm.DB { return db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_roles") }
 
 	s.instance().AutoMigrate(&idm.RoleORM{})
-	s.resources().AutoMigrate(&service.ResourcePolicy{})
+
+	s.ResourcesGORM = &resources.ResourcesGORM{DB: s.db}
+	s.ResourcesGORM.Init(ctx, options)
 
 	/* super
 	if er := s.DAO.Init(ctx, options); er != nil {
@@ -122,6 +120,10 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 	}
 
 	tx := s.instance().FirstOrCreate((*idm.RoleORM)(role), (*idm.RoleORM)(role))
+	if tx.Error != nil {
+		return nil, false, tx.Error
+	}
+
 	update := tx.RowsAffected > 0
 
 	return role, update, nil
@@ -129,13 +131,9 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 
 func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
 
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder)).Build(s.instance()).(*gorm.DB)
+	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.ResourcesGORM).Build(s.instance()).(*gorm.DB)
 
 	var count int64
-	sql := db.ToSQL(func(tx *gorm.DB) *gorm.DB {
-		return tx.Count(&count)
-	})
-	fmt.Println(sql)
 
 	tx := db.Count(&count)
 	if tx.Error != nil {
@@ -147,7 +145,7 @@ func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
 
 // Search in the SQL DB.
 func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder)).Build(s.instance()).(*gorm.DB)
+	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.ResourcesGORM).Build(s.instance()).(*gorm.DB)
 
 	var roleORMs []*idm.RoleORM
 
@@ -165,7 +163,6 @@ func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 
 // Delete from the SQL DB
 func (s *sqlimpl) Delete(query sql.Enquirer) (int64, error) {
-
 	db := sql.NewGormQueryBuilder(query, new(queryBuilder)).Build(s.instance()).(*gorm.DB)
 
 	tx := db.Delete(&idm.RoleORM{})
@@ -176,49 +173,25 @@ func (s *sqlimpl) Delete(query sql.Enquirer) (int64, error) {
 	return tx.RowsAffected, nil
 }
 
-func (s *sqlimpl) buildSearchQuery(query sql.Enquirer, countOnly bool, delete bool) (string, []interface{}, error) {
-
-	ex := sql.NewQueryBuilder(query, nil).Expression(s.Driver())
-
-	if delete {
-		//tx := s.db.Where(ex).Delete(&idm.RoleORM{}).ToSQL
-		//if tx.Error != nil {
-		//	return
-		//}
-		return sql.DeleteStringFromExpression("idm_roles", s.Driver(), ex)
-	} else {
-
-		resourceExpr, e := s.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
-		if e != nil {
-			return "", nil, e
-		}
-		if countOnly {
-			return sql.CountStringFromExpression("idm_roles", "uuid", s.Driver(), query, ex, resourceExpr)
-		} else {
-			return sql.QueryStringFromExpression("idm_roles", s.Driver(), query, ex, resourceExpr, -1)
-		}
-	}
-}
-
 type queryBuilder idm.RoleSingleQuery
 
 func (c *queryBuilder) Convert(val *anypb.Any, in any) (out any, ok bool) {
 
 	db, ok := in.(*gorm.DB)
 	if !ok {
-		return
+		return in, false
 	}
 
 	q := new(idm.RoleSingleQuery)
 	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
-		return
+		return in, false
 	}
 
 	if len(q.Uuid) > 0 {
 		if q.Not {
-			db.Not(map[string]interface{}{"uuid": q.Uuid})
+			db = db.Not(map[string]interface{}{"uuid": q.Uuid})
 		} else {
-			db.Where(map[string]interface{}{"uuid": q.Uuid})
+			db = db.Where(map[string]interface{}{"uuid": q.Uuid})
 		}
 	}
 	if len(q.Label) > 0 {
@@ -229,37 +202,37 @@ func (c *queryBuilder) Convert(val *anypb.Any, in any) (out any, ok bool) {
 			c = clause.Eq{Column: "label", Value: q.Label}
 		}
 		if q.Not {
-			db.Not(c)
+			db = db.Not(c)
 		} else {
-			db.Where(c)
+			db = db.Where(c)
 		}
 	}
 	if q.IsGroupRole {
 		if q.Not {
-			db.Not(map[string]interface{}{"group_role": 1})
+			db = db.Not(map[string]interface{}{"group_role": 1})
 		} else {
-			db.Where(map[string]interface{}{"group_role": 1})
+			db = db.Where(map[string]interface{}{"group_role": 1})
 		}
 	}
 	if q.IsUserRole {
 		if q.Not {
-			db.Not(map[string]interface{}{"user_role": 1})
+			db = db.Not(map[string]interface{}{"user_role": 1})
 		} else {
-			db.Where(map[string]interface{}{"user_role": 1})
+			db = db.Where(map[string]interface{}{"user_role": 1})
 		}
 	}
 	if q.IsTeam {
 		if q.Not {
-			db.Not(map[string]interface{}{"team_role": 1})
+			db = db.Not(map[string]interface{}{"team_role": 1})
 		} else {
-			db.Where(map[string]interface{}{"team_role": 1})
+			db = db.Where(map[string]interface{}{"team_role": 1})
 		}
 	}
 	if q.HasAutoApply {
 		if q.Not {
-			db.Where(map[string]interface{}{"auto_applies": ""})
+			db = db.Where(map[string]interface{}{"auto_applies": ""})
 		} else {
-			db.Not(map[string]interface{}{"auto_applies": ""})
+			db = db.Not(map[string]interface{}{"auto_applies": ""})
 		}
 	}
 

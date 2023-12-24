@@ -4,6 +4,11 @@ package tree;
 
 option go_package="github.com/pydio/cells/common/proto/tree";
 
+import "setter/setter.proto";
+import "orm/orm.proto";
+import "buf/validate/validate.proto";
+
+
 // ==========================================================
 // * Node Provider
 // ==========================================================
@@ -27,7 +32,7 @@ service NodeChangesReceiverStreamer {
 // Request / Responses Messages
 message ReadNodeRequest {
     // Input node
-    Node Node = 1;
+    Node Node = 1 [(buf.validate.field).required = true];
     // Used internally for the router ReadNode request, stat the datasource instead of index
     bool ObjectStats = 4;
     // Generic Details Flags
@@ -37,6 +42,8 @@ message ReadNodeRequest {
     bool WithExtendedStats = 3;
     // Gather commit information - This is Deprecated
     bool WithCommits = 2;
+
+
 }
 
 message ReadNodeResponse {
@@ -46,7 +53,7 @@ message ReadNodeResponse {
 
 message ListNodesRequest {
     // Main node used as a parent
-    Node Node = 1;
+    Node Node = 1 [(buf.validate.field).required = true];
     // Send back all children of the node
     bool Recursive = 2;
     // Send back a list of parent nodes, until the root, including the original node
@@ -100,7 +107,7 @@ service NodeReceiverStream {
 
 // Request / Responses Messages
 message CreateNodeRequest {
-    Node Node = 1;
+    Node Node = 1 [(buf.validate.field).required = true];;
     bool UpdateIfExists = 2;
     string IndexationSession = 3;
     bool Silent = 4;
@@ -112,8 +119,8 @@ message CreateNodeResponse {
 }
 
 message UpdateNodeRequest {
-    Node From = 1;
-    Node To = 2;
+    Node From = 1 [(buf.validate.field).required = true];;
+    Node To = 2 [(buf.validate.field).required = true];;
     string IndexationSession = 3;
     bool Silent = 4;
 }
@@ -124,7 +131,7 @@ message UpdateNodeResponse {
 }
 
 message DeleteNodeRequest {
-    Node Node = 1;
+    Node Node = 1 [(buf.validate.field).required = true];;
     string IndexationSession = 2;
     bool Silent = 3;
 }
@@ -344,26 +351,51 @@ enum NodeType {
     COLLECTION = 2;
 }
 
+message TreeNode {
+    option (setter.all_fields) = true;
+    option (orm.ormPolicy).enabled = true;
+    option (orm.ormPolicy).options = {type: "mysql", value: "CHARSET=ASCII COLLATE=ascii_general_ci"};
+
+    Node Node    = 1 [(orm.orm).gorm = {embedded: true}];
+    string Name  = 2 [(orm.orm).gorm = {column:"name"; index: ""; }];
+    int64 Level  = 3 [(orm.orm).gorm = {column:"level"; index: ""; type: "SMALLINT;"}];
+    MPath MPath  = 4 [(orm.orm).gorm = {embedded: true}];
+    string Hash  = 5 [(orm.orm).gorm = {column:"hash"; unique: true; type: "VARCHAR(255)"}];
+    string Hash2 = 6 [(orm.orm).gorm = {column:"hash2"; unique: true; type: "VARCHAR(255)"}];
+}
+
+message MPath {
+    option (setter.all_fields) = true;
+    option (orm.ormPolicy).enabled = true;
+
+    string MPath1 = 1 [(orm.orm).gorm = {column:"mpath1"; index: "";}];
+    string MPath2 = 2 [(orm.orm).gorm = {column:"mpath2"; index: "";}];
+    string MPath3 = 3 [(orm.orm).gorm = {column:"mpath3"; index: "";}];
+    string MPath4 = 4 [(orm.orm).gorm = {column:"mpath4"; index: "";}];
+}
+
 message Node{
+    option (setter.all_fields) = true;
+    option (orm.ormPolicy).enabled = true;
 
     // ------------------------------------
     // Core identification of the node
     // ------------------------------------
-    string Uuid = 1;
+    string Uuid = 1     [(orm.orm).gorm = {column: "uuid"; primaryKey: true; type: "VARCHAR(128)"}];
     string Path = 2;
-    NodeType Type = 3;
+    NodeType Type = 3   [(orm.orm).gorm = {column: "leaf"; type: "TINYINT(1)"}];
 
     // Size of the file, or cumulated size of folder
-    int64 Size = 4;
+    int64 Size = 4      [(orm.orm).gorm = {column: "size";}];
 
     // Last modification Timestamp
-    int64 MTime = 5;
+    int64 MTime = 5     [(orm.orm).gorm = {column: "mtime";}];
     // Permission mode, like 0777
-    int32 Mode = 6;
+    int32 Mode = 6      [(orm.orm).gorm = {column: "mode"; type: "INT"}];
     // Hash of the content if node is a LEAF, Uuid or
-    string Etag = 7;
+    string Etag = 7     [(orm.orm).gorm = {column: "etag"; type: "VARCHAR(255)"}];
     // List of successive commits
-    repeated ChangeLog Commits = 9;
+    repeated ChangeLog Commits = 9 [deprecated=true];
 
     // ------------------------------------
     // Then a free K => V representation of any kind of metadata

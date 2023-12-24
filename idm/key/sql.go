@@ -23,15 +23,13 @@ package key
 import (
 	"context"
 	"embed"
-
-	migrate "github.com/rubenv/sql-migrate"
-	"google.golang.org/protobuf/proto"
-
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/statics"
+	"google.golang.org/protobuf/proto"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 var (
@@ -47,152 +45,118 @@ var (
 	}
 )
 
+type UserKey struct {
+	Owner        string `gorm:"primaryKey; column:owner"`
+	ID           string `gorm:"primaryKey; column:key_id"`
+	Label        string `gorm:"column:key_label"`
+	Content      string `gorm:"column:key_data"`
+	Info         []byte `gorm:"column:key_info"`
+	Version      int    `gorm:"column:version"`
+	CreationDate int32  `gorm:"column:creation_date"`
+}
+
+func (u *UserKey) As(res *encryption.Key) *encryption.Key {
+	res.Owner = u.Owner
+	res.ID = u.ID
+	res.Label = u.Label
+	res.Content = u.Content
+	res.CreationDate = u.CreationDate
+	res.Info = &encryption.KeyInfo{}
+
+	if len(u.Info) > 0 {
+		proto.Unmarshal(u.Info, res.Info)
+	}
+
+	return res
+}
+
+func (u *UserKey) From(res *encryption.Key) *UserKey {
+	u.Owner = res.Owner
+	u.ID = res.ID
+	u.Label = res.Label
+	u.Content = res.Content
+	u.CreationDate = res.CreationDate
+	u.Info, _ = proto.Marshal(res.Info)
+
+	return u
+}
+
 type sqlimpl struct {
 	sql.DAO
+
+	db       *gorm.DB
+	instance func() *gorm.DB
 }
 
 // Init handler for the SQL DAO
-func (dao *sqlimpl) Init(ctx context.Context, options configx.Values) error {
+func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
-	// super
-	if er := dao.DAO.Init(ctx, options); er != nil {
-		return er
+	s.instance = func() *gorm.DB {
+		return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_user_keys")
 	}
 
-	// Doing the database migrations
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         dao.Driver(),
-		TablePrefix: dao.Prefix(),
-	}
+	s.instance().AutoMigrate(&UserKey{})
 
-	_, err := sql.ExecMigration(dao.DB(), dao.Driver(), migrations, migrate.Up, "idm_key_")
-	if err != nil {
-		return err
-	}
-
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := dao.Prepare(key, query); err != nil {
-				return err
-			}
-		}
-	}
 	return nil
 }
 
 // SaveKey saves the key to persistence layer
-func (dao *sqlimpl) SaveKey(key *encryption.Key, version ...int) error {
+func (s *sqlimpl) SaveKey(key *encryption.Key, version ...int) error {
 	ver := 4
 	if len(version) > 0 {
 		ver = version[0]
 	}
 
-	insertStmt, er := dao.GetStmt("insert")
-	if er != nil {
-		return er
+	res := (&UserKey{}).From(key)
+	res.Version = ver
+
+	tx := s.instance().Clauses(clause.OnConflict{UpdateAll: true}).Create(res)
+
+	if tx.Error != nil {
+		return tx.Error
 	}
 
-	var bytes = []byte{}
-	var err error
-
-	if key.Info != nil {
-		bytes, err = proto.Marshal(key.Info)
-		if err != nil {
-			return err
-		}
-	}
-
-	_, err = insertStmt.Exec(key.Owner, key.ID, key.Label, key.Content, key.CreationDate, bytes, ver)
-	if err != nil {
-		updateStmt, er := dao.GetStmt("update")
-		if er != nil {
-			return er
-		}
-
-		_, err = updateStmt.Exec(key.Content, bytes, ver, key.Owner, key.ID)
-	}
-	return err
+	return nil
 }
 
 // GetKey loads key from persistence layer
-func (dao *sqlimpl) GetKey(owner string, KeyID string) (*encryption.Key, int, error) {
-	getStmt, er := dao.GetStmt("get")
-	if er != nil {
-		return nil, 0, er
+func (s *sqlimpl) GetKey(owner string, keyID string) (res *encryption.Key, version int, err error) {
+	var key *UserKey
+
+	tx := s.instance().Where(&UserKey{Owner: owner, ID: keyID}).First(&key)
+	if tx.Error != nil {
+		return nil, 0, tx.Error
 	}
 
-	rows, err := getStmt.Query(owner, KeyID)
-	if err != nil {
-		return nil, 0, err
+	if tx.RowsAffected == 0 {
+		return nil, 0, errors.NotFound("encryption.key.notfound", "cannot find key with id "+keyID)
 	}
-	defer rows.Close()
 
-	if rows.Next() {
-		k := encryption.Key{
-			Info: &encryption.KeyInfo{},
-		}
-		var version int
-		var bytes []byte
-		err := rows.Scan(&(k.Owner), &(k.ID), &(k.Label), &(k.Content), &(k.CreationDate), &bytes, &version)
-		if err != nil {
-			return nil, 0, err
-		}
-
-		if len(bytes) > 0 {
-			proto.Unmarshal(bytes, k.Info)
-		}
-		return &k, version, rows.Err()
-	} else {
-		return nil, 0, errors.NotFound("encryption.key.notfound", "cannot find key with id "+KeyID)
-	}
+	return key.As(&encryption.Key{}), key.Version, nil
 }
 
 // ListKeys list all keys by owner
-func (dao *sqlimpl) ListKeys(owner string) ([]*encryption.Key, error) {
-	getStmt, er := dao.GetStmt("list")
-	if er != nil {
-		return nil, er
+func (s *sqlimpl) ListKeys(owner string) (res []*encryption.Key, err error) {
+	var keys []*UserKey
+
+	tx := s.instance().Where(&UserKey{Owner: owner}).Find(&keys)
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
 
-	rows, err := getStmt.Query(owner)
-	if err != nil {
-		return nil, err
+	for _, key := range keys {
+		res = append(res, key.As(&encryption.Key{}))
 	}
-	defer rows.Close()
 
-	var list []*encryption.Key
-
-	for rows.Next() {
-		var bytes []byte
-		var version int
-		var k encryption.Key
-		k.Info = &encryption.KeyInfo{}
-
-		err := rows.Scan(&(k.Owner), &(k.ID), &(k.Label), &(k.Content), &(k.CreationDate), &bytes, &version)
-		if err != nil {
-			return nil, err
-		}
-
-		if len(bytes) > 0 {
-			err = proto.Unmarshal(bytes, k.Info)
-			if err != nil {
-				return nil, err
-			}
-		}
-		list = append(list, &k)
-	}
-	return list, rows.Err()
+	return
 }
 
 // DeleteKey removes a key from the persistence layer
-func (dao *sqlimpl) DeleteKey(owner string, keyID string) error {
-	delStmt, er := dao.GetStmt("delete")
-	if er != nil {
-		return er
+func (s *sqlimpl) DeleteKey(owner string, keyID string) error {
+	tx := s.instance().Where(&UserKey{Owner: owner, ID: keyID}).Delete(&UserKey{})
+	if tx.Error != nil {
+		return tx.Error
 	}
 
-	_, err := delStmt.Exec(owner, keyID)
-	return err
+	return nil
 }

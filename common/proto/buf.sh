@@ -30,6 +30,7 @@ then
   go install github.com/pydio/cells/cmd/protoc-gen-go-enhanced-grpc@main
   go install github.com/pydio/cells/cmd/protoc-gen-go-client-stub@main
   go install github.com/pydio/cells/cmd/protoc-gen-go-tags
+  go install github.com/pydio/cells/cmd/protoc-gen-go-setter
   go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
   go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
   go install github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
@@ -42,7 +43,10 @@ cd $1
 
 echo "Generate protobufs for $1"
 buf generate --output $GOPATH/src
-go run ../patch-imports.go
+if [ -f  "buf.gen.tag.yaml" ]; then
+  buf generate --template=buf.gen.tag.yaml --output $GOPATH/src
+fi
+#go run ../patch-imports.go
 
 if [ $1 == "rest" ]
 then

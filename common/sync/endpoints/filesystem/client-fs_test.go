@@ -117,8 +117,8 @@ func TestLoadNode(t *testing.T) {
 		}
 		testMd5 := fmt.Sprintf("%x", h.Sum(nil))
 
-		So(s.Etag, ShouldEqual, testMd5)
-		So(s.Uuid, ShouldBeEmpty)
+		So(s.GetEtag(), ShouldEqual, testMd5)
+		So(s.GetUuid(), ShouldBeEmpty)
 
 	})
 
@@ -189,7 +189,7 @@ func TestCreateNode(t *testing.T) {
 		So(ce, ShouldBeNil)
 
 		s, e := c.LoadNode(fsTestCtx, "/test")
-		So(s.Uuid, ShouldEqual, "uid")
+		So(s.GetUuid(), ShouldEqual, "uid")
 
 		So(s, ShouldNotBeNil)
 		So(e, ShouldBeNil)
@@ -333,8 +333,8 @@ func TestWalkFS(t *testing.T) {
 	Convey("Test walking the tree", t, func() {
 
 		c := FilledMockedClient()
-		objects := make(map[string]*tree.Node)
-		walk := func(path string, node *tree.Node, err error) error {
+		objects := make(map[string]tree.N)
+		walk := func(path string, node tree.N, err error) error {
 			if err != nil {
 				return err
 			}
@@ -353,13 +353,13 @@ func TestWalkFS(t *testing.T) {
 
 		// Will include the root and the PydioSyncHiddenFile files
 		So(objects, ShouldHaveLength, 13)
-		So(objects["folder"].Uuid, ShouldNotBeEmpty)
-		So(objects["folder"].Etag, ShouldBeEmpty)
-		So(objects["folder"].Type, ShouldEqual, tree.NodeType_COLLECTION)
+		So(objects["folder"].GetUuid(), ShouldNotBeEmpty)
+		So(objects["folder"].GetEtag(), ShouldBeEmpty)
+		So(objects["folder"].GetType(), ShouldEqual, tree.NodeType_COLLECTION)
 
-		So(objects["file"].Uuid, ShouldBeEmpty)
-		So(objects["file"].Etag, ShouldNotBeEmpty)
-		So(objects["file"].Type, ShouldEqual, tree.NodeType_LEAF)
+		So(objects["file"].GetUuid(), ShouldBeEmpty)
+		So(objects["file"].GetEtag(), ShouldNotBeEmpty)
+		So(objects["file"].GetType(), ShouldEqual, tree.NodeType_LEAF)
 	})
 }
 
@@ -368,8 +368,8 @@ func TestWalkWithRoot(t *testing.T) {
 	Convey("Test walking the tree", t, func() {
 
 		c := FilledMockedClient()
-		objects := make(map[string]*tree.Node)
-		walk := func(path string, node *tree.Node, err error) error {
+		objects := make(map[string]tree.N)
+		walk := func(path string, node tree.N, err error) error {
 			if err != nil {
 				return err
 			}

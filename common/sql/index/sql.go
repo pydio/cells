@@ -182,6 +182,7 @@ func init() {
 			}
 
 			modParts := getModuloParts(curIndexFrom, tarIndexFrom, indexLen)
+
 			for _, modPart := range modParts {
 				concat = append(concat, fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, modPart.quo+1, modPart.from+1, modPart.to-modPart.from))
 			}
@@ -1051,6 +1052,7 @@ func (dao *IndexSQL) GetNodeChildren(ctx context.Context, path mtree.MPath, filt
 
 	// Use a buffered chan to give some air to mysql buffer
 	c := make(chan interface{}, 10000)
+
 	var mfWhere, mfOrder string
 	var mfArgs []interface{}
 	if len(filter) > 0 {

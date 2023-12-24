@@ -26,10 +26,10 @@ import (
 	"io"
 	"strings"
 
+	"github.com/gobwas/glob"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/gobwas/glob"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
@@ -43,20 +43,36 @@ var (
 	}
 )
 
+func IgnoreMatcher(ignores ...glob.Glob) func(string) bool {
+	mm := append(defaultIgnores, ignores...)
+	return func(s string) bool {
+		s = InternalPathSeparator + strings.TrimLeft(s, InternalPathSeparator)
+		for _, i := range mm {
+			if i.Match(s) {
+				return true
+			}
+		}
+		return false
+	}
+}
+
 func IsIgnoredFile(path string, ignores ...glob.Glob) (ignored bool) {
+	// For comparing, we make sure it has a left slash
+	path = InternalPathSeparator + strings.TrimLeft(path, InternalPathSeparator)
 	for _, i := range append(defaultIgnores, ignores...) {
-		// For comparing, we make sure it has a left slash
-		path = InternalPathSeparator + strings.TrimLeft(path, InternalPathSeparator)
 		if i.Match(path) {
 			return true
 		}
 	}
 	return false
-	//return strings.HasSuffix(path, ".DS_Store") || strings.Contains(path, ".minio.sys") || strings.HasSuffix(path, "$buckets.json") || strings.HasSuffix(path, "$multiparts-session.json") || strings.HasSuffix(path, "--COMPUTE_HASH")
 }
 
-func NodeRequiresChecksum(node *tree.Node) bool {
-	return node.IsLeaf() && (node.Etag == "" || node.Etag == DefaultEtag || strings.Contains(node.Etag, "-"))
+// NodeRequiresChecksum checks whether the current checksum is usable as index ETag or not.
+// This part is linked to the **structured datasource**, and we still have return True if checksum is {md5}-numberOfParts
+// otherwise at the next object Move ( = Copy in s3 ), the resulting ETag (now a real md5) will differ from the original one
+// The downside is that uploading huge files will trigger a full re-reading of the file afterward to compute the stable md5.
+func NodeRequiresChecksum(node tree.N) bool {
+	return node.IsLeaf() && (node.GetEtag() == "" || node.GetEtag() == DefaultEtag || strings.Contains(node.GetEtag(), "-"))
 }
 
 func StringContentToETag(uuid string) string {

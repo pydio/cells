@@ -26,72 +26,104 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
-	commonsql "github.com/pydio/cells/v4/common/sql"
-	"strings"
-
-	"google.golang.org/grpc"
-
-	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/source/index"
+	"google.golang.org/grpc"
+	"gorm.io/gorm"
 )
 
 func init() {
 
 	runtime.Register("main", func(ctx context.Context) {
 
-		sources := config.SourceNamesForDataServices(common.ServiceDataIndex)
-
-		for _, source := range sources {
-
-			name := common.ServiceGrpcNamespace_ + common.ServiceDataIndex_ + source
-			sourceOpt := source
-
-			var s service.Service
-
-			s = service.NewService(
-				service.Name(name),
-				service.Context(ctx),
-				//service.WithLogger(log.Logger(ctx)),
-				service.Tag(common.ServiceTagDatasource),
-				service.Description("Datasource indexation service"),
-				service.Source(source),
-				// service.Fork(true),
-				//service.AutoStart(false),
-				//service.Unique(true),
-				service.WithTODOStorage(index.NewDAO, commonsql.NewDAO,
-					service.WithStoragePrefix(func(o *service.ServiceOptions) string {
-						// Returning a prefix for the dao
-						return strings.Replace(strings.TrimPrefix(o.Name, common.ServiceGrpcNamespace_), ".", "_", -1)
-					}),
-					service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-				),
-				service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-
-					dsObject, e := config.GetSourceInfoByName(sourceOpt)
-					if e != nil {
-						return fmt.Errorf("cannot find datasource configuration for " + sourceOpt)
-					}
-					engine := NewTreeServer(dsObject, name, service.DAOProvider[index.DAO](s))
-					tree.RegisterNodeReceiverServer(srv, engine)
-					tree.RegisterNodeProviderServer(srv, engine)
-					tree.RegisterNodeReceiverStreamServer(srv, engine)
-					tree.RegisterNodeProviderStreamerServer(srv, engine)
-					tree.RegisterSessionIndexerServer(srv, engine)
-
-					object.RegisterResourceCleanerEndpointServer(srv, engine)
-					sync.RegisterSyncEndpointServer(srv, engine)
-
-					return nil
-				}),
-			)
+		// Retrieve db from the runtime
+		var db *gorm.DB
+		if !storage.Get(&db) {
+			panic("no gorm storage available")
 		}
+
+		var srv grpc.ServiceRegistrar
+		if !server.Get(&srv) {
+			panic("no grpc server available")
+		}
+
+		// Retrieve server from the runtime - TODO
+
+		//sources := config.SourceNamesForDataServices(common.ServiceDataIndex)
+
+		//for _, source := range sources {
+
+		// name := common.ServiceGrpcNamespace_ + common.ServiceDataIndex_ + source
+
+		dao, err := index.NewDAO(db.WithContext(ctx))
+		if err != nil {
+			panic(err)
+		}
+
+		opts := configx.New()
+		//opts.Val("prefix").Set("data_index_" + source + "_idx")
+		dao.Init(ctx, opts)
+
+		dsObject, _ := config.GetSourceInfoByName("personal")
+
+		engine := NewTreeServer(dsObject, "test", dao.(index.DAO))
+
+		fmt.Println(engine)
+
+		//var s service.Service
+
+		//s = service.NewService(
+		//	service.Name(name),
+		//	service.Context(ctx),
+		//	//service.WithLogger(log.Logger(ctx)),
+		//	service.Tag(common.ServiceTagDatasource),
+		//	service.Description("Datasource indexation service"),
+		//	service.Source(source),
+		//	// service.Fork(true),
+		//	//service.AutoStart(false),
+		//	//service.Unique(true),
+		//	//service.WithTODOStorage(index.NewDAO, commonsql.NewDAO,
+		//	//	service.WithStoragePrefix(func(o *service.ServiceOptions) string {
+		//	//		// Returning a prefix for the dao
+		//	//		return strings.Replace(strings.TrimPrefix(o.Name, common.ServiceGrpcNamespace_), ".", "_", -1)
+		//	//	}),
+		//	//	service.WithStorageSupport(mysql.Driver, sqlite.Driver),
+		//	//),
+		//	//service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
+		//	//
+		//	//	dsObject, e := config.GetSourceInfoByName(sourceOpt)
+		//	//	if e != nil {
+		//	//		return fmt.Errorf("cannot find datasource configuration for " + sourceOpt)
+		//	//	}
+		//	//	engine := NewTreeServer(dsObject, name, service.DAOProvider[index.DAO](s))
+		//	//	tree.RegisterNodeReceiverServer(srv, engine)
+		//	//	tree.RegisterNodeProviderServer(srv, engine)
+		//	//	tree.RegisterNodeReceiverStreamServer(srv, engine)
+		//	//	tree.RegisterNodeProviderStreamerServer(srv, engine)
+		//	//	tree.RegisterSessionIndexerServer(srv, engine)
+		//	//
+		//	//	object.RegisterResourceCleanerEndpointServer(srv, engine)
+		//	//	sync.RegisterSyncEndpointServer(srv, engine)
+		//	//
+		//	//	return nil
+		//	//}),
+		//)
+
+		tree.RegisterNodeReceiverServer(srv, engine)
+		tree.RegisterNodeProviderServer(srv, engine)
+		tree.RegisterNodeReceiverStreamServer(srv, engine)
+		tree.RegisterNodeProviderStreamerServer(srv, engine)
+		tree.RegisterSessionIndexerServer(srv, engine)
+
+		object.RegisterResourceCleanerEndpointServer(srv, engine)
+		sync.RegisterSyncEndpointServer(srv, engine)
+		//}
 	})
 }

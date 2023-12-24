@@ -8,8 +8,10 @@ package encryption
 
 import (
 	context "context"
+	fmt "fmt"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
+	metadata "google.golang.org/grpc/metadata"
 	status "google.golang.org/grpc/status"
 	sync "sync"
 )
@@ -24,107 +26,138 @@ var (
 	enhancedUserKeyStoreServersLock = sync.RWMutex{}
 )
 
-type idUserKeyStoreServer interface {
-	ID() string
-}
-type UserKeyStoreEnhancedServer interface {
+type NamedUserKeyStoreServer interface {
 	UserKeyStoreServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(UserKeyStoreServer)
-	filter(context.Context) []UserKeyStoreServer
+	Name() string
 }
-type UserKeyStoreEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []UserKeyStoreServer
-}
+type UserKeyStoreEnhancedServer map[string]NamedUserKeyStoreServer
 
-func (m *UserKeyStoreEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *UserKeyStoreEnhancedServerImpl) addHandler(srv UserKeyStoreServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *UserKeyStoreEnhancedServerImpl) filter(ctx context.Context) []UserKeyStoreServer {
-	var ret []UserKeyStoreServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m UserKeyStoreEnhancedServer) AddKey(ctx context.Context, r *AddKeyRequest) (*AddKeyResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method AddKey should have a context")
 	}
-	return ret
-}
-
-func (m *UserKeyStoreEnhancedServerImpl) AddKey(ctx context.Context, r *AddKeyRequest) (*AddKeyResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.AddKey(ctx, r)
+	enhancedUserKeyStoreServersLock.RLock()
+	defer enhancedUserKeyStoreServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.AddKey(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method AddKey not implemented")
 }
 
-func (m *UserKeyStoreEnhancedServerImpl) GetKey(ctx context.Context, r *GetKeyRequest) (*GetKeyResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.GetKey(ctx, r)
+func (m UserKeyStoreEnhancedServer) GetKey(ctx context.Context, r *GetKeyRequest) (*GetKeyResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method GetKey should have a context")
+	}
+	enhancedUserKeyStoreServersLock.RLock()
+	defer enhancedUserKeyStoreServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.GetKey(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method GetKey not implemented")
 }
 
-func (m *UserKeyStoreEnhancedServerImpl) AdminListKeys(ctx context.Context, r *AdminListKeysRequest) (*AdminListKeysResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.AdminListKeys(ctx, r)
+func (m UserKeyStoreEnhancedServer) AdminListKeys(ctx context.Context, r *AdminListKeysRequest) (*AdminListKeysResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method AdminListKeys should have a context")
+	}
+	enhancedUserKeyStoreServersLock.RLock()
+	defer enhancedUserKeyStoreServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.AdminListKeys(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method AdminListKeys not implemented")
 }
 
-func (m *UserKeyStoreEnhancedServerImpl) AdminCreateKey(ctx context.Context, r *AdminCreateKeyRequest) (*AdminCreateKeyResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.AdminCreateKey(ctx, r)
+func (m UserKeyStoreEnhancedServer) AdminCreateKey(ctx context.Context, r *AdminCreateKeyRequest) (*AdminCreateKeyResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method AdminCreateKey should have a context")
+	}
+	enhancedUserKeyStoreServersLock.RLock()
+	defer enhancedUserKeyStoreServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.AdminCreateKey(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method AdminCreateKey not implemented")
 }
 
-func (m *UserKeyStoreEnhancedServerImpl) AdminDeleteKey(ctx context.Context, r *AdminDeleteKeyRequest) (*AdminDeleteKeyResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.AdminDeleteKey(ctx, r)
+func (m UserKeyStoreEnhancedServer) AdminDeleteKey(ctx context.Context, r *AdminDeleteKeyRequest) (*AdminDeleteKeyResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method AdminDeleteKey should have a context")
+	}
+	enhancedUserKeyStoreServersLock.RLock()
+	defer enhancedUserKeyStoreServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.AdminDeleteKey(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method AdminDeleteKey not implemented")
 }
 
-func (m *UserKeyStoreEnhancedServerImpl) AdminExportKey(ctx context.Context, r *AdminExportKeyRequest) (*AdminExportKeyResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.AdminExportKey(ctx, r)
+func (m UserKeyStoreEnhancedServer) AdminExportKey(ctx context.Context, r *AdminExportKeyRequest) (*AdminExportKeyResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method AdminExportKey should have a context")
+	}
+	enhancedUserKeyStoreServersLock.RLock()
+	defer enhancedUserKeyStoreServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.AdminExportKey(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method AdminExportKey not implemented")
 }
 
-func (m *UserKeyStoreEnhancedServerImpl) AdminImportKey(ctx context.Context, r *AdminImportKeyRequest) (*AdminImportKeyResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.AdminImportKey(ctx, r)
+func (m UserKeyStoreEnhancedServer) AdminImportKey(ctx context.Context, r *AdminImportKeyRequest) (*AdminImportKeyResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method AdminImportKey should have a context")
+	}
+	enhancedUserKeyStoreServersLock.RLock()
+	defer enhancedUserKeyStoreServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.AdminImportKey(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method AdminImportKey not implemented")
 }
-func (m *UserKeyStoreEnhancedServerImpl) mustEmbedUnimplementedUserKeyStoreServer() {}
-func RegisterUserKeyStoreEnhancedServer(s grpc.ServiceRegistrar, srv UserKeyStoreServer) {
-	idServer, ok := s.(idUserKeyStoreServer)
-	if ok {
-		enhancedUserKeyStoreServersLock.Lock()
-		defer enhancedUserKeyStoreServersLock.Unlock()
-		instance, ok := enhancedUserKeyStoreServers[idServer.ID()]
-		if !ok {
-			instance = &UserKeyStoreEnhancedServerImpl{}
-			enhancedUserKeyStoreServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterUserKeyStoreServer(s, instance)
-	} else {
-		RegisterUserKeyStoreServer(s, srv)
+func (m UserKeyStoreEnhancedServer) mustEmbedUnimplementedUserKeyStoreServer() {}
+func RegisterUserKeyStoreEnhancedServer(s grpc.ServiceRegistrar, srv NamedUserKeyStoreServer) {
+	enhancedUserKeyStoreServersLock.Lock()
+	defer enhancedUserKeyStoreServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedUserKeyStoreServers[addr]
+	if !ok {
+		m = UserKeyStoreEnhancedServer{}
+		enhancedUserKeyStoreServers[addr] = m
+		RegisterUserKeyStoreServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterUserKeyStoreEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedUserKeyStoreServersLock.Lock()
+	defer enhancedUserKeyStoreServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedUserKeyStoreServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }
 
 var (
@@ -132,105 +165,136 @@ var (
 	enhancedNodeKeyManagerServersLock = sync.RWMutex{}
 )
 
-type idNodeKeyManagerServer interface {
-	ID() string
-}
-type NodeKeyManagerEnhancedServer interface {
+type NamedNodeKeyManagerServer interface {
 	NodeKeyManagerServer
-	AddFilter(func(context.Context, interface{}) bool)
-	addHandler(NodeKeyManagerServer)
-	filter(context.Context) []NodeKeyManagerServer
+	Name() string
 }
-type NodeKeyManagerEnhancedServerImpl struct {
-	filters  []func(context.Context, interface{}) bool
-	handlers []NodeKeyManagerServer
-}
+type NodeKeyManagerEnhancedServer map[string]NamedNodeKeyManagerServer
 
-func (m *NodeKeyManagerEnhancedServerImpl) AddFilter(f func(context.Context, interface{}) bool) {
-	m.filters = append(m.filters, f)
-}
-func (m *NodeKeyManagerEnhancedServerImpl) addHandler(srv NodeKeyManagerServer) {
-	m.handlers = append(m.handlers, srv)
-}
-func (m *NodeKeyManagerEnhancedServerImpl) filter(ctx context.Context) []NodeKeyManagerServer {
-	var ret []NodeKeyManagerServer
-	for _, i := range m.handlers {
-		valid := true
-		for _, filter := range m.filters {
-			if !filter(ctx, i) {
-				valid = false
-				break
-			}
-			if valid {
-				ret = append(ret, i)
-			}
-		}
+func (m NodeKeyManagerEnhancedServer) GetNodeInfo(ctx context.Context, r *GetNodeInfoRequest) (*GetNodeInfoResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method GetNodeInfo should have a context")
 	}
-	return ret
-}
-
-func (m *NodeKeyManagerEnhancedServerImpl) GetNodeInfo(ctx context.Context, r *GetNodeInfoRequest) (*GetNodeInfoResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.GetNodeInfo(ctx, r)
+	enhancedNodeKeyManagerServersLock.RLock()
+	defer enhancedNodeKeyManagerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.GetNodeInfo(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method GetNodeInfo not implemented")
 }
 
-func (m *NodeKeyManagerEnhancedServerImpl) GetNodePlainSize(ctx context.Context, r *GetNodePlainSizeRequest) (*GetNodePlainSizeResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.GetNodePlainSize(ctx, r)
+func (m NodeKeyManagerEnhancedServer) GetNodePlainSize(ctx context.Context, r *GetNodePlainSizeRequest) (*GetNodePlainSizeResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method GetNodePlainSize should have a context")
+	}
+	enhancedNodeKeyManagerServersLock.RLock()
+	defer enhancedNodeKeyManagerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.GetNodePlainSize(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method GetNodePlainSize not implemented")
 }
 
-func (m *NodeKeyManagerEnhancedServerImpl) SetNodeInfo(s NodeKeyManager_SetNodeInfoServer) error {
-	for _, handler := range m.filter(s.Context()) {
-		return handler.SetNodeInfo(s)
+func (m NodeKeyManagerEnhancedServer) SetNodeInfo(s NodeKeyManager_SetNodeInfoServer) error {
+	md, ok := metadata.FromIncomingContext(s.Context())
+	if !ok || len(md.Get("targetname")) == 0 {
+		return status.Errorf(codes.FailedPrecondition, "method SetNodeInfo should have a context")
+	}
+	enhancedNodeKeyManagerServersLock.RLock()
+	defer enhancedNodeKeyManagerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.SetNodeInfo(s)
+		}
 	}
 	return status.Errorf(codes.Unimplemented, "method SetNodeInfo not implemented")
 }
 
-func (m *NodeKeyManagerEnhancedServerImpl) CopyNodeInfo(ctx context.Context, r *CopyNodeInfoRequest) (*CopyNodeInfoResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.CopyNodeInfo(ctx, r)
+func (m NodeKeyManagerEnhancedServer) CopyNodeInfo(ctx context.Context, r *CopyNodeInfoRequest) (*CopyNodeInfoResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method CopyNodeInfo should have a context")
+	}
+	enhancedNodeKeyManagerServersLock.RLock()
+	defer enhancedNodeKeyManagerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.CopyNodeInfo(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method CopyNodeInfo not implemented")
 }
 
-func (m *NodeKeyManagerEnhancedServerImpl) DeleteNode(ctx context.Context, r *DeleteNodeRequest) (*DeleteNodeResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.DeleteNode(ctx, r)
+func (m NodeKeyManagerEnhancedServer) DeleteNode(ctx context.Context, r *DeleteNodeRequest) (*DeleteNodeResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method DeleteNode should have a context")
+	}
+	enhancedNodeKeyManagerServersLock.RLock()
+	defer enhancedNodeKeyManagerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.DeleteNode(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteNode not implemented")
 }
 
-func (m *NodeKeyManagerEnhancedServerImpl) DeleteNodeKey(ctx context.Context, r *DeleteNodeKeyRequest) (*DeleteNodeKeyResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.DeleteNodeKey(ctx, r)
+func (m NodeKeyManagerEnhancedServer) DeleteNodeKey(ctx context.Context, r *DeleteNodeKeyRequest) (*DeleteNodeKeyResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method DeleteNodeKey should have a context")
+	}
+	enhancedNodeKeyManagerServersLock.RLock()
+	defer enhancedNodeKeyManagerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.DeleteNodeKey(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteNodeKey not implemented")
 }
 
-func (m *NodeKeyManagerEnhancedServerImpl) DeleteNodeSharedKey(ctx context.Context, r *DeleteNodeSharedKeyRequest) (*DeleteNodeSharedKeyResponse, error) {
-	for _, handler := range m.filter(ctx) {
-		return handler.DeleteNodeSharedKey(ctx, r)
+func (m NodeKeyManagerEnhancedServer) DeleteNodeSharedKey(ctx context.Context, r *DeleteNodeSharedKeyRequest) (*DeleteNodeSharedKeyResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("targetname")) == 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "method DeleteNodeSharedKey should have a context")
+	}
+	enhancedNodeKeyManagerServersLock.RLock()
+	defer enhancedNodeKeyManagerServersLock.RUnlock()
+	for _, mm := range m {
+		if mm.Name() == md.Get("targetname")[0] {
+			return mm.DeleteNodeSharedKey(ctx, r)
+		}
 	}
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteNodeSharedKey not implemented")
 }
-func (m *NodeKeyManagerEnhancedServerImpl) mustEmbedUnimplementedNodeKeyManagerServer() {}
-func RegisterNodeKeyManagerEnhancedServer(s grpc.ServiceRegistrar, srv NodeKeyManagerServer) {
-	idServer, ok := s.(idNodeKeyManagerServer)
-	if ok {
-		enhancedNodeKeyManagerServersLock.Lock()
-		defer enhancedNodeKeyManagerServersLock.Unlock()
-		instance, ok := enhancedNodeKeyManagerServers[idServer.ID()]
-		if !ok {
-			instance = &NodeKeyManagerEnhancedServerImpl{}
-			enhancedNodeKeyManagerServers[idServer.ID()] = instance
-		}
-		instance.addHandler(srv)
-		RegisterNodeKeyManagerServer(s, instance)
-	} else {
-		RegisterNodeKeyManagerServer(s, srv)
+func (m NodeKeyManagerEnhancedServer) mustEmbedUnimplementedNodeKeyManagerServer() {}
+func RegisterNodeKeyManagerEnhancedServer(s grpc.ServiceRegistrar, srv NamedNodeKeyManagerServer) {
+	enhancedNodeKeyManagerServersLock.Lock()
+	defer enhancedNodeKeyManagerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeKeyManagerServers[addr]
+	if !ok {
+		m = NodeKeyManagerEnhancedServer{}
+		enhancedNodeKeyManagerServers[addr] = m
+		RegisterNodeKeyManagerServer(s, m)
 	}
+	m[srv.Name()] = srv
+}
+func DeregisterNodeKeyManagerEnhancedServer(s grpc.ServiceRegistrar, name string) {
+	enhancedNodeKeyManagerServersLock.Lock()
+	defer enhancedNodeKeyManagerServersLock.Unlock()
+	addr := fmt.Sprintf("%p", s)
+	m, ok := enhancedNodeKeyManagerServers[addr]
+	if !ok {
+		return
+	}
+	delete(m, name)
 }

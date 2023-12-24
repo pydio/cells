@@ -22,15 +22,15 @@ package user
 
 import (
 	"context"
-	databasesql "database/sql"
 	"embed"
 	"fmt"
-	"strconv"
+	"github.com/pydio/cells/v4/common/dao"
+	user_model "github.com/pydio/cells/v4/idm/user/model"
+	"gorm.io/gorm"
 	"strings"
 	"time"
 	"unicode"
 
-	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
@@ -44,11 +44,9 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/sql/index"
+	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/mtree"
-	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 const (
@@ -109,58 +107,102 @@ var (
 	}
 )
 
+type resourcesDAO resources.DAO
+type indexDAO index.DAO
+
 // Impl of the SQL interface
 type sqlimpl struct {
-	*sql.Handler
+	db       *gorm.DB
+	instance func() *gorm.DB
 
-	*resources.ResourcesSQL
-	*index.IndexSQL
+	resourcesDAO
+	indexDAO
 
 	// Handle logins in Case-Insensitive fashion
 	loginCI bool
 }
 
+var _ dao.DAO = (*sqlimpl)(nil)
+var _ DAO = (*sqlimpl)(nil)
+
+func (s *sqlimpl) ID() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Name() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Metadata() map[string]string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) As(i interface{}) bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Driver() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Dsn() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) GetConn(ctx context.Context) (dao.Conn, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) SetConn(ctx context.Context, conn dao.Conn) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) CloseConn(ctx context.Context) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Prefix() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) LocalAccess() bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Stats() map[string]interface{} {
+	//TODO implement me
+	panic("implement me")
+}
+
 // Init handler for the SQL DAO
 func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
-	// super
-	if er := s.DAO.Init(ctx, options); er != nil {
-		return er
-	}
+	s.instance = func() *gorm.DB { return s.db }
+
+	s.instance().AutoMigrate(&user_model.User{}, &user_model.UserRole{}, &user_model.UserAttribute{})
 
 	// Preparing the resources
-	s.ResourcesSQL = resources.NewDAO(s.Handler, "t.uuid").(*resources.ResourcesSQL)
-	if err := s.ResourcesSQL.Init(ctx, options); err != nil {
+	if err := s.resourcesDAO.Init(ctx, options); err != nil {
 		return fmt.Errorf("cannot initialise resources DAO: %v", err)
 	}
 
 	// Preparing the index
-	s.IndexSQL = index.NewDAO(s.Handler, "ROOT_GROUP").(*index.IndexSQL)
-	if err := s.IndexSQL.Init(ctx, options); err != nil {
+	if err := s.indexDAO.Init(ctx, options); err != nil {
 		return fmt.Errorf("cannot initialise index DAO: %v", err)
 	}
 
-	s.IndexSQL.FixRandHash2()
-
-	// Doing the database migrations
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         s.Driver(),
-		TablePrefix: s.Prefix(),
-	}
-	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_user_")
-	if err != nil {
-		return fmt.Errorf("cannot perform migration: %v", err)
-	}
-
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := s.Prepare(key, query); err != nil {
-				return fmt.Errorf("unable to prepare query[%s]: %s - error: %v", key, query, err)
-			}
-		}
-	}
+	s.indexDAO.FixRandHash2(ctx)
 
 	if options.Val("loginCI").Default(false).Bool() {
 		s.loginCI = true
@@ -174,11 +216,9 @@ func safeGroupPath(gPath string) string {
 }
 
 // Add to the underlying SQL DB.
-func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
+func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*user_model.User, error) {
 
-	// s.Lock()
-	// defer s.Unlock()
-	var createdNodes []*tree.Node
+	var createdNodes []*user_model.User
 
 	var user *idm.User
 	var ok bool
@@ -199,45 +239,49 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 
 	// First get by Uuid, it must be unique
 	if len(objectUuid) > 0 {
-		if node, err := s.IndexSQL.GetNodeByUUID(objectUuid); err == nil && node != nil {
+		if node, err := s.indexDAO.GetNodeByUUID(ctx, objectUuid); err == nil && node != nil {
 
-			s.rebuildGroupPath(node)
-			if node.Path != objectPath {
+			s.rebuildGroupPath(ctx, node)
+
+			if node.GetNode().GetPath() != objectPath {
 				// This is a move
-				reqFromPath := "/" + strings.Trim(node.Path, "/")
+				reqFromPath := "/" + strings.Trim(node.GetNode().GetPath(), "/")
 				reqToPath := objectPath
 				movedOriginalPath = reqFromPath
 
-				var pathFrom, pathTo mtree.MPath
-				var nodeFrom, nodeTo *mtree.TreeNode
+				var pathFrom, pathTo *tree.MPath
+				var nodeFrom, nodeTo tree.ITreeNode
 
-				if pathFrom, _, err = s.IndexSQL.Path(reqFromPath, false); err != nil || pathFrom == nil {
+				nodeFrom.GetNode().SetPath(reqToPath)
+				nodeTo.GetNode().SetPath(reqToPath)
+
+				if pathFrom, _, err = s.indexDAO.Path(ctx, node, false); err != nil || pathFrom == nil {
 					return nil, createdNodes, err
 				}
 
-				if nodeFrom, err = s.IndexSQL.GetNode(pathFrom); err != nil {
+				if nodeFrom, err = s.indexDAO.GetNode(ctx, pathFrom); err != nil {
 					return nil, createdNodes, err
 				}
-				if nodeFrom.IsLeaf() {
-					if err = s.IndexSQL.DelNode(nodeFrom); err != nil {
+				if nodeFrom.GetNode().IsLeaf() {
+					if err = s.indexDAO.DelNode(ctx, nodeFrom); err != nil {
 						return nil, createdNodes, err
 					}
-					if pathTo, _, err = s.IndexSQL.Path(reqToPath, true, nodeFrom.Node); err != nil {
+					if pathTo, _, err = s.indexDAO.Path(ctx, nodeTo, true); err != nil {
 						return nil, createdNodes, err
 					}
 				} else {
-					if pathTo, _, err = s.IndexSQL.Path(reqToPath, true); err != nil {
+					if pathTo, _, err = s.indexDAO.Path(ctx, nodeTo, true); err != nil {
 						return nil, createdNodes, err
 					}
 				}
 
-				if nodeTo, err = s.IndexSQL.GetNode(pathTo); err != nil {
+				if nodeTo, err = s.indexDAO.GetNode(ctx, pathTo); err != nil {
 					return nil, createdNodes, err
 				}
 
 				log.Logger(context.Background()).Debug("MOVE TREE", zap.Any("from", nodeFrom), zap.Any("to", nodeTo))
-				if !nodeFrom.IsLeaf() {
-					if err := s.IndexSQL.MoveNodeTree(nodeFrom, nodeTo); err != nil {
+				if !nodeFrom.GetNode().IsLeaf() {
+					if err := s.indexDAO.MoveNodeTree(ctx, nodeFrom, nodeTo); err != nil {
 						return nil, createdNodes, err
 					}
 				}
@@ -246,7 +290,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	}
 
 	// Now carry on to potential updates
-	var node *tree.Node
+	var node *user_model.User
 	if !user.IsGroup {
 		if len(user.Login) == 0 {
 			return nil, createdNodes, fmt.Errorf("warning, cannot create a user with an empty login")
@@ -255,13 +299,13 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	} else {
 		node = groupToNode(user)
 	}
-	mPath, created, er := s.IndexSQL.Path(node.Path, true, node)
+	mPath, created, er := s.indexDAO.Path(ctx, node, true)
 	if er != nil {
 		return nil, createdNodes, er
 	}
 
 	var needsUpdate bool
-	if !user.IsGroup && len(created) == 0 && node.Etag != "" {
+	if !user.IsGroup && len(created) == 0 && node.GetNode().GetEtag() != "" {
 		// This is an explicit password update
 		log.Logger(context.Background()).Debug("User update w/ password")
 		needsUpdate = true
@@ -269,31 +313,31 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		// User has been created with an empty password! Generate a random strong one now
 		log.Logger(context.Background()).Warn("Generating random password for new user")
 		needsUpdate = true
-		node.Etag = hasher.CreateHash(string(auth.RandStringBytes(20)))
+		node.GetNode().SetEtag(hasher.CreateHash(string(auth.RandStringBytes(20))))
 	}
 
 	if needsUpdate {
-		updateNode := mtree.NewTreeNode()
-		updateNode.SetMPath(mPath...)
-		if len(mPath) <= 1 {
+		updateNode := &user_model.User{}
+		updateNode.SetMPath(mPath)
+		if mPath.Length() <= 1 {
 			// This should never happen, it will delete the root!
 			return nil, createdNodes, fmt.Errorf("interrupting, about to delNode a unique MPath (%s)", mPath.String())
 		}
-		if err := s.IndexSQL.DelNode(updateNode); err != nil {
+		if err := s.indexDAO.DelNode(ctx, updateNode); err != nil {
 			return nil, createdNodes, err
 		}
-		newMPath, _, err := s.IndexSQL.Path(node.Path, true, node)
+		newMPath, _, err := s.indexDAO.Path(ctx, node, true)
 		if err != nil {
 			return nil, createdNodes, err
 		}
 		mPath = newMPath
 	}
 	if user.Uuid == "" {
-		foundOrCreatedNode, err := s.IndexSQL.GetNode(mPath)
+		foundOrCreatedNode, err := s.indexDAO.GetNode(ctx, mPath)
 		if err != nil {
 			return nil, createdNodes, err
 		}
-		user.Uuid = foundOrCreatedNode.Uuid
+		user.Uuid = foundOrCreatedNode.GetNode().GetUuid()
 	}
 
 	// Remove existing attributes and roles, replace with new ones using a transaction
@@ -315,93 +359,58 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		}
 	}
 
-	// Use a transaction to perform update on the user
-	db := s.DB()
-
-	// Start a transaction
-	err := sql.RetryTx(context.Background(), db, &sql.RetryTxOpts{MaxRetries: 3}, func(ctx context.Context, tx *databasesql.Tx) error {
-
-		// Insure we can retrieve all necessary prepared statements
-		delAttributes, er := s.GetStmt("DeleteAttributes")
-		if er != nil {
-			return er
-		}
-		addAttribute, er := s.GetStmt("AddAttribute")
-		if er != nil {
-			return er
-		}
-		delUserRoles, er := s.GetStmt("DeleteUserRoles")
-		if er != nil {
-			return er
-		}
-		addUserRole, er := s.GetStmt("AddRole")
-		if er != nil {
-			return er
+	err := s.instance().Transaction(func(tx *gorm.DB) error {
+		delAttributes := tx.Where(&user_model.UserAttribute{UUID: user.Uuid}).Delete(&user_model.UserAttribute{})
+		if delAttributes.Error != nil {
+			return delAttributes.Error
 		}
 
-		// Execute retrieved statements within the transaction
-		if stmt := tx.Stmt(delAttributes.GetSQLStmt()); stmt != nil {
-			defer stmt.Close()
-			if _, errTx := stmt.Exec(user.Uuid); errTx != nil {
-				return errTx
+		for name, val := range user.Attributes {
+			addAttribute := tx.Create(&user_model.UserAttribute{
+				UUID:  user.Uuid,
+				Name:  name,
+				Value: val,
+			})
+			if addAttribute.Error != nil {
+				return addAttribute.Error
 			}
-		} else {
-			return fmt.Errorf("empty statement")
 		}
 
-		if stmt := tx.Stmt(addAttribute.GetSQLStmt()); stmt != nil {
-			defer stmt.Close()
-			for attr, val := range user.Attributes {
-				if _, errTx := stmt.Exec(
-					user.Uuid,
-					attr,
-					val,
-				); errTx != nil {
-					return errTx
-				}
-			}
-		} else {
-			return fmt.Errorf("empty statement")
+		delUserRoles := tx.Where(&user_model.UserRole{UUID: user.Uuid}).Delete(&user_model.UserRole{})
+		if delUserRoles.Error != nil {
+			return delUserRoles.Error
 		}
 
-		if stmt := tx.Stmt(delUserRoles.GetSQLStmt()); stmt != nil {
-			defer stmt.Close()
-			if _, errTx := stmt.Exec(user.Uuid); errTx != nil {
-				return errTx
+		uProf := ""
+		if p, o := user.Attributes[idm.UserAttrProfile]; o {
+			uProf = p
+		}
+		var weight int
+		for _, role := range user.Roles {
+			if role.UserRole || role.GroupRole || s.skipRoleAsAutoApplies(uProf, role) {
+				continue
 			}
-		} else {
-			return fmt.Errorf("empty statement")
+			addUserRole := tx.Create(&user_model.UserRole{
+				UUID:   user.Uuid,
+				Role:   role.Uuid,
+				Weight: weight,
+			})
+			weight++
+			if addUserRole.Error != nil {
+				return addUserRole.Error
+			}
 		}
 
-		if stmt := tx.Stmt(addUserRole.GetSQLStmt()); stmt != nil {
-			uProf := ""
-			if p, o := user.Attributes[idm.UserAttrProfile]; o {
-				uProf = p
-			}
-			defer stmt.Close()
-			var weight int
-			for _, role := range user.Roles {
-				if role.UserRole || role.GroupRole || s.skipRoleAsAutoApplies(uProf, role) {
-					continue
-				}
-				if _, errTx := stmt.Exec(
-					user.Uuid,
-					role.Uuid,
-					weight,
-				); errTx != nil {
-					return errTx
-				}
-				weight++
-			}
-		} else {
-			return fmt.Errorf("empty statement")
-		}
-
-		for _, n := range created {
-			createdNodes = append(createdNodes, n.Node)
-		}
 		return nil
 	})
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	for _, n := range created {
+		createdNodes = append(createdNodes, n.(*user_model.User))
+	}
 
 	if movedOriginalPath != "" {
 		user.Attributes["original_group"] = movedOriginalPath
@@ -425,20 +434,23 @@ func (s *sqlimpl) skipRoleAsAutoApplies(profile string, role *idm.Role) bool {
 
 // Bind finds a user in the DB, and verify that password is correct.
 // Password is passed in clear form, hashing method is kept internal to the user service
-func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e error) {
+func (s *sqlimpl) Bind(ctx context.Context, userName string, password string) (user *idm.User, e error) {
 
 	q := &idm.UserSingleQuery{
 		Login: userName,
 	}
 	qA, _ := anypb.New(q)
+
 	var results []interface{}
-	s.Search(&service.Query{SubQueries: []*anypb.Any{qA}}, &results)
+	s.Search(ctx, &service.Query{SubQueries: []*anypb.Any{qA}}, &results)
+
 	if len(results) == 0 {
 		// The error code is actually very important
 		return nil, errors.NotFound(common.ServiceUser, "cannot find user %s", userName)
 	}
 	object := results[0]
 	user = object.(*idm.User)
+
 	if s.loginCI {
 		if !strings.EqualFold(user.Login, userName) {
 			return nil, errors.NotFound(common.ServiceUser, "cannot find user %s", userName)
@@ -448,12 +460,15 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 			return nil, errors.NotFound(common.ServiceUser, "cannot find user %s", userName)
 		}
 	}
+
 	hashedPass := user.Password
+
 	// Check password
 	valid, _ := hasher.CheckDBKDF2PydioPwd(password, hashedPass)
 	if valid {
 		return user, nil
 	}
+
 	// Check with legacy format (coming from PHP, Salt []byte is built differently)
 	valid, _ = hasher.CheckDBKDF2PydioPwd(password, hashedPass, true)
 	if valid {
@@ -464,44 +479,41 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 
 }
 
-func (s *sqlimpl) TouchUser(userUuid string) error {
+func (s *sqlimpl) TouchUser(ctx context.Context, userUuid string) error {
+	node := &user_model.User{}
+	node.SetNode(&tree.Node{
+		Uuid:  userUuid,
+		MTime: time.Now().Unix(),
+	})
 
-	st, er := s.GetStmt("TouchUser")
-	if er != nil {
-		return er
-	}
-	_, err := st.Exec(time.Now().Unix(), userUuid)
-	return err
+	return s.indexDAO.SetNode(ctx, node)
 
 }
 
 // Count counts the number of users matching the passed query in the SQL DB.
-func (s *sqlimpl) Count(query sql.Enquirer, includeParents ...bool) (int, error) {
-
-	s.Lock()
-	defer s.Unlock()
-
-	parents := false
-	if len(includeParents) > 0 {
-		parents = includeParents[0]
+func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents ...bool) (int, error) {
+	var includeParent bool
+	if len(includeParents) > 0 && includeParents[0] {
+		includeParent = includeParents[0]
+	}
+	converter := &queryConverter{
+		treeDao:       s.indexDAO,
+		includeParent: includeParent,
+		loginCI:       s.loginCI,
 	}
 
-	queryString, args, err := s.makeSearchQuery(query, true, parents, false)
-	if err != nil {
-		return 0, err
+	var total int64
+	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(s.instance()).(*gorm.DB)
+	tx := db.Model(&user_model.User{}).Count(&total)
+	if tx.Error != nil {
+		return 0, tx.Error
 	}
 
-	row := s.DB().QueryRow(queryString, args...)
-	total := new(int)
-	err = row.Scan(
-		&total,
-	)
-	return *total, err
-
+	return int(total), nil
 }
 
 // Search in the SQL DB
-func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents ...bool) error {
+func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]interface{}, withParents ...bool) error {
 
 	// s.Lock()
 	// defer s.Unlock()
@@ -511,102 +523,64 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 		includeParents = withParents[0]
 	}
 
-	queryString, args, err := s.makeSearchQuery(query, false, includeParents, false)
-	if err != nil {
-		return err
+	converter := &queryConverter{
+		treeDao:       s.indexDAO,
+		includeParent: includeParents,
+		loginCI:       s.loginCI,
 	}
-
-	log.Logger(context.Background()).Debug("Users Search Query ", zap.String("q", queryString), log.DangerouslyZapSmallSlice("q2", query.GetSubQueries()))
+	// log.Logger(context.Background()).Debug("Users Search Query ", zap.String("q", queryString), log.DangerouslyZapSmallSlice("q2", query.GetSubQueries()))
 	ctx, cancel := context.WithTimeout(context.Background(), sql.LongConnectionTimeout)
 	defer cancel()
-	res, err := s.DB().QueryContext(ctx, queryString, args...)
-	if err != nil {
-		return err
+
+	var rows []*user_model.User
+	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(s.instance()).(*gorm.DB)
+	if offset := query.GetOffset(); offset > 0 {
+		db = db.Offset(int(offset))
+	}
+	if limit := query.GetLimit(); limit > 0 {
+		db = db.Limit(int(limit))
 	}
 
-	defer res.Close()
-	for res.Next() {
+	tx := db.WithContext(ctx).Find(&rows)
 
-		var uuid string
-		var level uint32
-		var mpath1 string
-		var mpath2 string
-		var mpath3 string
-		var mpath4 string
-		var name string
-		var leaf int32
-		var etag string
-		var mtime int32
-		res.Scan(
-			&uuid,
-			&level,
-			&mpath1,
-			&mpath2,
-			&mpath3,
-			&mpath4,
-			&name,
-			&leaf,
-			&etag,
-			&mtime,
-		)
-		node := mtree.NewTreeNode()
-		var mpath []uint64
-		for _, m := range strings.Split(mpath1+mpath2+mpath3+mpath4, ".") {
-			i, _ := strconv.ParseUint(m, 10, 64)
-			mpath = append(mpath, i)
-		}
-		node.SetMPath(mpath...)
-		// node.SetBytes(rat)
-		node.Uuid = uuid
-		node.Etag = etag
-		node.MTime = int64(mtime)
-		s.rebuildGroupPath(node)
-		node.SetMeta("name", name)
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	for _, row := range rows {
 
 		var userOrGroup *idm.User
-		if leaf == 0 {
-			node.Node.Type = tree.NodeType_COLLECTION
-			userOrGroup = nodeToGroup(node)
+		if row.GetNode().GetType() == tree.NodeType_COLLECTION {
+			userOrGroup = nodeToGroup(row)
 		} else {
-			node.Node.Type = tree.NodeType_LEAF
-			userOrGroup = nodeToUser(node)
+			userOrGroup = nodeToUser(row)
 
-			st, err := s.GetStmt("GetRoles")
-			if err != nil {
-				return err
-			}
-			if resRoles, err := st.Query(userOrGroup.Uuid); err != nil {
-				return err
-			} else {
-				for resRoles.Next() {
-					var name string
-					resRoles.Scan(&name)
-					userOrGroup.Roles = append(userOrGroup.Roles, &idm.Role{Uuid: name, Label: name})
-				}
-				resRoles.Close()
+			var roles []*user_model.UserRole
+
+			q := user_model.Use(s.instance())
+
+			s.instance().Where(q.UserRole.UUID.Eq(userOrGroup.Uuid)).Find(&roles)
+
+			for _, role := range roles {
+				userOrGroup.Roles = append(userOrGroup.Roles, &idm.Role{Uuid: role.Role, Label: role.Role})
 			}
 			// User Role
 			userOrGroup.Roles = append(userOrGroup.Roles, &idm.Role{Uuid: userOrGroup.Uuid, Label: userOrGroup.Login, UserRole: true})
 		}
 
+		// User Role
 		userOrGroup.Attributes = make(map[string]string)
-		st, err := s.GetStmt("GetAttributes")
-		if err != nil {
-			return err
+
+		var attributes []*user_model.UserAttribute
+
+		q := user_model.Use(s.instance())
+
+		s.instance().Where(q.UserAttribute.UUID.Eq(userOrGroup.Uuid)).Find(&attributes)
+
+		for _, attribute := range attributes {
+			userOrGroup.Attributes[attribute.Name] = attribute.Value
 		}
-		if resAttributes, err := st.Query(userOrGroup.Uuid); err != nil {
-			return err
-		} else {
-			for resAttributes.Next() {
-				var name, value string
-				resAttributes.Scan(
-					&name,
-					&value,
-				)
-				userOrGroup.Attributes[name] = value
-			}
-			resAttributes.Close()
-		}
+
 		*users = append(*users, userOrGroup)
 
 	}
@@ -617,152 +591,103 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 }
 
 // Del from the SQL DB
-func (s *sqlimpl) Del(query sql.Enquirer, users chan *idm.User) (int64, error) {
+func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.User) (int64, error) {
 
-	queryString, args, err := s.makeSearchQuery(query, false, true, true)
-	if err != nil {
-		return 0, err
+	var rows []*user_model.User
+	converter := &queryConverter{
+		treeDao:       s.indexDAO,
+		includeParent: true,
+		loginCI:       s.loginCI,
+	}
+	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(s.instance()).(*gorm.DB)
+	tx := db.WithContext(ctx).Find(&rows)
+	if tx.Error != nil {
+		return 0, tx.Error
 	}
 
 	type delStruct struct {
-		node   *mtree.TreeNode
+		node   *user_model.User
 		object *idm.User
 	}
-	log.Logger(context.Background()).Debug("Delete", zap.String("q", queryString))
-
-	res, err := s.DB().Query(queryString, args...)
-	if err != nil {
-		return 0, err
-	}
-
-	rows := int64(0)
+	log.Logger(context.Background()).Debug("Delete")
 
 	var data []*delStruct
-	for res.Next() {
-		var uuid string
-		var level uint32
-		var mpath1 string
-		var mpath2 string
-		var mpath3 string
-		var mpath4 string
-		var name string
-		var leaf int32
-		var etag string
-		var mtime int32
-		res.Scan(
-			&uuid,
-			&level,
-			&mpath1,
-			&mpath2,
-			&mpath3,
-			&mpath4,
-			&name,
-			&leaf,
-			&etag,
-			&mtime,
-		)
-		node := mtree.NewTreeNode()
-		var mpath []uint64
-		for _, m := range strings.Split(mpath1+mpath2+mpath3+mpath4, ".") {
-			i, _ := strconv.ParseUint(m, 10, 64)
-			mpath = append(mpath, i)
-		}
-		node.SetMPath(mpath...)
-		// node.SetBytes(rat)
-		node.Uuid = uuid
-		node.Level = int(level)
-		node.Etag = etag
-		node.MTime = int64(mtime)
-		s.rebuildGroupPath(node)
-		node.SetMeta("name", name)
+
+	for _, row := range rows {
+		s.rebuildGroupPath(ctx, row)
 
 		var userOrGroup *idm.User
-		if leaf == 0 {
-			node.Node.Type = tree.NodeType_COLLECTION
-			userOrGroup = nodeToGroup(node)
+		if row.Node.Type == tree.NodeType_COLLECTION {
+			userOrGroup = nodeToGroup(row)
 		} else {
-			node.Node.Type = tree.NodeType_LEAF
-			userOrGroup = nodeToUser(node)
+			userOrGroup = nodeToUser(row)
 		}
-		data = append(data, &delStruct{node: node, object: userOrGroup})
-	}
-	res.Close()
 
+		data = append(data, &delStruct{node: row, object: userOrGroup})
+	}
+
+	var count = int64(0)
 	for _, toDel := range data {
 
-		if err := s.IndexSQL.DelNode(toDel.node); err != nil {
-			return rows, err
+		if err := s.indexDAO.DelNode(ctx, toDel.node); err != nil {
+			return count, err
 		}
 
-		if err := s.deleteNodeData(toDel.node.Uuid); err != nil {
-			return rows, err
+		if err := s.deleteNodeData(toDel.node.GetNode().GetUuid()); err != nil {
+			return count, err
 		}
 
 		users <- toDel.object
-		rows++
+		count++
 	}
 
-	/*
-		// If some children have been deleted, remove them now
-		if st, er := s.GetStmt("DeleteUserRolesClean"); er != nil {
-			return rows, er
-		} else if _, err := st.Exec(); err != nil {
-			return rows, err
-		}
-
-		if st, er := s.GetStmt("DeleteAttsClean"); er != nil {
-			return rows, er
-		} else if _, err := st.Exec(); err != nil {
-			return rows, err
-		}
-	*/
-
-	return rows, nil
+	return count, nil
 }
 
-func (s *sqlimpl) CleanRole(roleId string) error {
+func (s *sqlimpl) CleanRole(ctx context.Context, roleId string) error {
 
-	st, er := s.GetStmt("DeleteRoleById")
-	if er != nil {
-		return er
+	db := s.instance()
+
+	q := user_model.Use(db)
+
+	tx := db.Where(q.UserRole.Role.Eq(roleId)).Delete(&user_model.UserRole{})
+	if tx.Error != nil {
+		return tx.Error
 	}
-	_, err := st.Exec(roleId)
-	return err
+
+	return nil
 
 }
 
 func (s *sqlimpl) deleteNodeData(uuid string) error {
 
-	stAtt, er := s.GetStmt("DeleteAttributes")
-	if er != nil {
-		return er
+	db := s.instance()
+
+	q := user_model.Use(db)
+
+	if tx := db.Where(q.UserAttribute.UUID.Eq(uuid)).Delete(&user_model.UserAttribute{}); tx.Error != nil {
+		return tx.Error
 	}
-	stRoles, er := s.GetStmt("DeleteUserRoles")
-	if er != nil {
-		return er
-	}
-	if _, err := stAtt.Exec(uuid); err != nil {
-		return err
-	}
-	if _, err := stRoles.Exec(uuid); err != nil {
-		return err
+
+	if tx := db.Where(q.UserRole.UUID.Eq(uuid)).Delete(&user_model.UserRole{}); tx.Error != nil {
+		return tx.Error
 	}
 
 	return nil
 }
 
-func (s *sqlimpl) rebuildGroupPath(node *mtree.TreeNode) {
-	if len(node.Path) == 0 {
+func (s *sqlimpl) rebuildGroupPath(ctx context.Context, node tree.ITreeNode) {
+	if len(node.GetNode().GetPath()) == 0 {
 		var path []string
 		roles := []string{}
-		for pNode := range s.IndexSQL.GetNodes(node.MPath.Parents()...) {
-			path = append(path, pNode.Name())
-			roles = append(roles, pNode.Uuid)
+		for pNode := range s.indexDAO.GetNodes(ctx, node.GetMPath().Parents()...) {
+			path = append(path, pNode.GetName())
+			roles = append(roles, pNode.GetNode().GetUuid())
 		}
-		path = append(path, node.Name())
+		path = append(path, node.GetName())
 		p := strings.Join(path, "/")
-		node.Path = fmt.Sprintf("/%s", strings.TrimLeft(p, "/"))
-		node.SetMeta("GroupRoles", roles)
+		node.GetNode().SetPath(fmt.Sprintf("/%s", strings.TrimLeft(p, "/")))
+		node.GetNode().MustSetMeta("GroupRoles", roles)
 	}
 
 }

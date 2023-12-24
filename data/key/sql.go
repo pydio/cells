@@ -22,19 +22,16 @@ package key
 
 import (
 	"context"
-	sqldb "database/sql"
 	"embed"
+	"github.com/pydio/cells/v4/common/dao"
+	"gorm.io/gorm"
 
-	"github.com/go-sql-driver/mysql"
-	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/service/errors"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 var (
@@ -65,105 +62,144 @@ var (
 )
 
 type sqlimpl struct {
-	sql.DAO
+	// sql.DAO
+
+	db       *gorm.DB
+	instance func() *gorm.DB
 }
 
+func (s *sqlimpl) Name() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) ID() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Metadata() map[string]string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) As(i interface{}) bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Driver() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Dsn() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) GetConn(ctx context.Context) (dao.Conn, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) SetConn(ctx context.Context, conn dao.Conn) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) CloseConn(ctx context.Context) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Prefix() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) LocalAccess() bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Stats() map[string]interface{} {
+	//TODO implement me
+	panic("implement me")
+}
+
+type Node encryption.NodeORM
+type NodeKey encryption.NodeKeyORM
+type RangedBlock encryption.RangedBlockORM
+type RangedBlockLegacy encryption.RangedBlockORM
+
+func (*Node) TableName() string              { return "enc_nodes" }
+func (*NodeKey) TableName() string           { return "enc_node_keys" }
+func (*RangedBlock) TableName() string       { return "enc_node_blocks" }
+func (*RangedBlockLegacy) TableName() string { return "enc_legacy_nodes" }
+
 // Init handler for the SQL DAO
-func (h *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-	// super
-	if err := h.DAO.Init(ctx, options); err != nil {
-		return err
+func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
+	db := s.db
+	s.instance = func() *gorm.DB { return db.Session(&gorm.Session{SkipDefaultTransaction: true}) }
+
+	return s.instance().AutoMigrate(&Node{}, &NodeKey{}, &RangedBlock{}, &RangedBlockLegacy{})
+}
+
+func (s *sqlimpl) ListEncryptedBlockInfo(nodeUuid string) ([]*encryption.RangedBlock, error) {
+	var rows []*RangedBlock
+	var res []*encryption.RangedBlock
+
+	tx := s.instance().Find(res)
+	if err := tx.Error; err != nil {
+		return nil, err
 	}
 
-	// Doing the database migrations
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         h.Driver(),
-		TablePrefix: h.Prefix(),
+	for _, row := range rows {
+		res = append(res, (*encryption.RangedBlock)(row))
 	}
 
-	_, err := sql.ExecMigration(h.DB(), h.Driver(), migrations, migrate.Up, h.Prefix()+"_data-key.")
-	if err != nil {
-		return err
+	return res, nil
+}
+
+func (s *sqlimpl) SaveEncryptedBlockInfo(nodeUuid string, b *encryption.RangedBlock) error {
+	tx := s.instance().Create(b)
+
+	return tx.Error
+}
+
+func (s *sqlimpl) GetEncryptedLegacyBlockInfo(nodeUuid string) (*encryption.RangedBlock, error) {
+	var row *RangedBlockLegacy
+	tx := s.instance().Where(&RangedBlockLegacy{NodeId: nodeUuid}).First(&row)
+	if err := tx.Error; err != nil {
+		return nil, err
+	}
+	if tx.RowsAffected == 0 {
+		return nil, errors.NotFound("node.key.dao", "no info found for node %s", nodeUuid)
 	}
 
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := h.Prepare(key, query); err != nil {
-				log.Logger(context.Background()).Error("failed to prepare statement", zap.String("name", key), zap.Error(err))
-				return err
-			}
-		}
+	return (*encryption.RangedBlock)(row), nil
+}
+
+func (s *sqlimpl) ClearNodeEncryptedBlockInfo(nodeUuid string) error {
+	tx := s.instance().Delete(&RangedBlock{NodeId: nodeUuid})
+	if tx.Error != nil {
+		return tx.Error
 	}
 	return nil
 }
 
-func (h *sqlimpl) ListEncryptedBlockInfo(nodeUuid string) (QueryResultCursor, error) {
-	stmt, er := h.GetStmt("node_block_select")
-	if er != nil {
-		return nil, er
+func (s *sqlimpl) ClearNodeEncryptedPartBlockInfo(nodeUuid string, partID int) error {
+	tx := s.instance().Delete(&RangedBlock{NodeId: nodeUuid, PartId: uint32(partID)})
+	if tx.Error != nil {
+		return tx.Error
 	}
-
-	rows, err := stmt.Query(nodeUuid)
-	if err != nil {
-		log.Error("failed to list node blocks", zap.Error(err))
-		return nil, err
-	}
-	return NewDBCursor(rows, scanBlock), nil
+	return nil
 }
 
-func (h *sqlimpl) SaveEncryptedBlockInfo(nodeUuid string, b *RangedBlocks) error {
-	stmt, er := h.GetStmt("node_block_insert")
-	if er != nil {
-		return er
-	}
-	_, err := stmt.Exec(nodeUuid, b.PartId, b.SeqStart, b.SeqEnd, b.BlockSize, b.HeaderSize, b.OwnerId)
-	return err
-}
-
-func (h *sqlimpl) GetEncryptedLegacyBlockInfo(nodeUuid string) (*RangedBlocks, error) {
-	stmt, er := h.GetStmt("node_legacy_block_select")
-	if er != nil {
-		return nil, er
-	}
-
-	rows, err := stmt.Query(nodeUuid)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		block := new(RangedBlocks)
-		var nodeId string
-		err = rows.Scan(&nodeId, &block.Nonce, &block.BlockSize)
-		return block, err
-	}
-	return nil, errors.NotFound("node.key.dao", "no info found for node %s", nodeUuid)
-}
-
-func (h *sqlimpl) ClearNodeEncryptedBlockInfo(nodeUuid string) error {
-	stmt, er := h.GetStmt("node_block_delete")
-	if er != nil {
-		return er
-	}
-	_, err := stmt.Exec(nodeUuid)
-	return err
-}
-
-func (h *sqlimpl) ClearNodeEncryptedPartBlockInfo(nodeUuid string, partID int) error {
-	stmt, er := h.GetStmt("node_part_block_delete")
-	if er != nil {
-		return er
-	}
-	_, err := stmt.Exec(nodeUuid, partID)
-	return err
-}
-
-func (h *sqlimpl) CopyNode(srcUuid string, targetUuid string) error {
+func (s *sqlimpl) CopyNode(srcUuid string, targetUuid string) error {
 	ctx := context.Background()
-	err := h.SaveNode(&encryption.Node{
+	err := s.SaveNode(&encryption.Node{
 		NodeId: targetUuid,
 		Legacy: false,
 	})
@@ -172,227 +208,126 @@ func (h *sqlimpl) CopyNode(srcUuid string, targetUuid string) error {
 		return err
 	}
 
-	keysCursor, err := h.GetAllNodeKey(srcUuid)
+	keys, err := s.GetAllNodeKey(srcUuid)
 	if err != nil {
 		log.Logger(ctx).Error("failed to list source key list", zap.Error(err))
 		return err
 	}
-	defer keysCursor.Close()
 
-	for keysCursor.HasNext() {
-		ki, err := keysCursor.Next()
+	for _, key := range keys {
+		var newKey *encryption.NodeKey
+		*newKey = *key
+		newKey.NodeId = targetUuid
+
+		err = s.SaveNodeKey(newKey)
 		if err != nil {
-			_ = keysCursor.Close()
-			return err
-		}
-
-		nodeKey := ki.(*encryption.NodeKey)
-		nodeKey.NodeId = targetUuid
-
-		err = h.SaveNodeKey(nodeKey)
-		if err != nil {
-			log.Logger(ctx).Error("failed to save key", zap.Any("key", nodeKey), zap.Error(err))
-			_ = keysCursor.Close()
+			log.Logger(ctx).Error("failed to save key", zap.Any("key", newKey), zap.Error(err))
 			return err
 		}
 	}
 
-	cursor, err := h.ListEncryptedBlockInfo(srcUuid)
+	blocks, err := s.ListEncryptedBlockInfo(srcUuid)
 	if err != nil {
 		log.Logger(ctx).Error("failed to list source block list", zap.Error(err))
 		return err
 	}
-	defer cursor.Close()
 
-	stmt, er := h.GetStmt("node_block_insert")
-	if er != nil {
-		return er
-	}
-	for cursor.HasNext() {
-		bi, err := cursor.Next()
-		if err != nil {
-			log.Error("failed to get next block in cursor", zap.Error(err))
-			_ = cursor.Close()
-			return err
-		}
+	for _, block := range blocks {
+		var newBlock *encryption.RangedBlock
+		*newBlock = *block
 
-		b := bi.(*RangedBlocks)
-		_, err = stmt.Exec(targetUuid, b.PartId, b.SeqStart, b.SeqEnd, b.BlockSize, b.HeaderSize, b.OwnerId)
-		if err != nil {
-			log.Logger(ctx).Error("failed to save block", zap.Any("block", b), zap.Error(err))
-			_ = cursor.Close()
-			return err
-		}
+		newBlock.NodeId = targetUuid
+
+		s.instance().Create((*RangedBlock)(newBlock))
 	}
 
 	return nil
 }
 
-func (h *sqlimpl) SaveNode(node *encryption.Node) error {
-	stmt, er := h.GetStmt("node_insert")
-	if er != nil {
-		return er
+func (s *sqlimpl) SaveNode(node *encryption.Node) error {
+	tx := s.instance().Create((*Node)(node))
+	if tx.Error != nil {
+		return tx.Error
 	}
-	var intLegacy int
-	if node.Legacy {
-		intLegacy = 1
-	}
-	_, err := stmt.Exec(node.NodeId, intLegacy)
-	// Ignore duplicate key error
-	if me, o := err.(*mysql.MySQLError); o {
-		if me.Number == 1062 {
-			// fmt.Println("Ignoring 1062 - duplicate error")
-			return nil
-		}
-	}
-	return err
+
+	return nil
 }
 
-func (h *sqlimpl) UpgradeNodeVersion(nodeUuid string) error {
-	stmt, er := h.GetStmt("node_update")
-	if er != nil {
-		return er
+func (s *sqlimpl) UpgradeNodeVersion(nodeUuid string) error {
+	tx := s.instance().Updates(&Node{NodeId: nodeUuid, Legacy: false})
+	if tx.Error != nil {
+		return tx.Error
 	}
-	_, err := stmt.Exec(0, nodeUuid)
-	return err
+	return nil
 }
 
-func (h *sqlimpl) GetNode(nodeUuid string) (*encryption.Node, error) {
-	stmt, er := h.GetStmt("node_select")
-	if er != nil {
-		return nil, er
+func (s *sqlimpl) GetNode(nodeUuid string) (*encryption.Node, error) {
+	var row *Node
+
+	tx := s.instance().Where(&Node{NodeId: nodeUuid}).First(&row)
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
 
-	rows, err := stmt.Query(nodeUuid)
-	if err != nil {
+	if tx.RowsAffected == 0 {
+		return nil, errors.NotFound("node.key.dao", "no entry for %s key", nodeUuid)
+	}
+
+	return (*encryption.Node)(row), nil
+}
+
+func (s *sqlimpl) DeleteNode(nodeUuid string) error {
+	tx := s.instance().Where(&Node{NodeId: nodeUuid}).Delete(&Node{})
+	if tx.Error != nil {
+		return tx.Error
+	}
+	return nil
+}
+
+func (s *sqlimpl) SaveNodeKey(key *encryption.NodeKey) error {
+	tx := s.instance().Create((*NodeKey)(key))
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
+}
+
+func (s *sqlimpl) GetNodeKey(nodeUuid string, user string) (*encryption.NodeKey, error) {
+	var row *NodeKey
+
+	tx := s.instance().Where(&NodeKey{NodeId: nodeUuid, UserId: user}).First(&row)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	if tx.RowsAffected == 0 {
+		return nil, errors.NotFound("node.key.dao", "no key found for node id %s", nodeUuid)
+	}
+
+	return (*encryption.NodeKey)(row), nil
+}
+
+func (s *sqlimpl) DeleteNodeKey(key *encryption.NodeKey) error {
+	tx := s.instance().Where((*NodeKey)(key)).Delete(&NodeKey{})
+	if tx.Error != nil {
+		return tx.Error
+	}
+	return nil
+}
+
+func (s *sqlimpl) GetAllNodeKey(nodeUuid string) ([]*encryption.NodeKey, error) {
+	var rows []*NodeKey
+	var res []*encryption.NodeKey
+
+	tx := s.instance().Find(res)
+	if err := tx.Error; err != nil {
 		return nil, err
 	}
 
-	defer rows.Close()
-
-	if rows.Next() {
-		node := new(encryption.Node)
-		var intLegacy int
-		err = rows.Scan(&node.NodeId, &intLegacy)
-		node.Legacy = intLegacy == 1
-		return node, err
-	}
-	return nil, errors.NotFound("node.key.dao", "no entry for %s key", nodeUuid)
-}
-
-func (h *sqlimpl) DeleteNode(nodeUuid string) error {
-	stmt, er := h.GetStmt("node_delete")
-	if er != nil {
-		return er
-	}
-	_, err := stmt.Exec(nodeUuid)
-	return err
-}
-
-func (h *sqlimpl) SaveNodeKey(key *encryption.NodeKey) error {
-	stmt, er := h.GetStmt("node_key_insert")
-	if er != nil {
-		return er
+	for _, row := range rows {
+		res = append(res, (*encryption.NodeKey)(row))
 	}
 
-	_, err := stmt.Exec(key.NodeId, key.OwnerId, key.UserId, key.KeyData)
-	return err
-}
-
-func (h *sqlimpl) GetNodeKey(nodeUuid string, user string) (*encryption.NodeKey, error) {
-	stmt, er := h.GetStmt("node_key_select")
-	if er != nil {
-		return nil, er
-	}
-
-	rows, err := stmt.Query(nodeUuid, user)
-	if err != nil {
-		return nil, err
-	}
-
-	c := NewDBCursor(rows, scanNodeKey)
-	defer c.Close()
-
-	if !c.HasNext() {
-		return nil, errors.NotFound("node.key.dao", "no key found for node %s", nodeUuid)
-	}
-
-	k, err := c.Next()
-	if err != nil {
-		log.Logger(context.Background()).Error("failed to parse node key", zap.Error(err))
-		return nil, err
-	}
-
-	return k.(*encryption.NodeKey), c.Close()
-}
-
-func (h *sqlimpl) DeleteNodeKey(key *encryption.NodeKey) error {
-	stmt, er := h.GetStmt("node_key_delete")
-	if er != nil {
-		return er
-	}
-	_, err := stmt.Exec(key.NodeId, key.UserId)
-	return err
-}
-
-func (h *sqlimpl) GetAllNodeKey(nodeUuid string) (QueryResultCursor, error) {
-	stmt, er := h.GetStmt("node_key_select_all")
-	if er != nil {
-		return nil, er
-	}
-
-	rows, err := stmt.Query(nodeUuid)
-	if err != nil {
-		return nil, err
-	}
-	return NewDBCursor(rows, scanNodeKey), nil
-}
-
-// dbRowScanner
-type dbRowScanner func(rows *sqldb.Rows) (interface{}, error)
-
-// DBCursor wraps sql scanner
-type DBCursor struct {
-	scan dbRowScanner
-	rows *sqldb.Rows
-}
-
-func NewDBCursor(rows *sqldb.Rows, scanner dbRowScanner) QueryResultCursor {
-	return &DBCursor{
-		scan: scanner,
-		rows: rows,
-	}
-}
-
-func (c *DBCursor) Close() error {
-	return c.rows.Close()
-}
-
-func (c *DBCursor) HasNext() bool {
-	return c.rows.Next()
-}
-
-func (c *DBCursor) Next() (interface{}, error) {
-	return c.scan(c.rows)
-}
-
-// scanBlock
-func scanBlock(rows *sqldb.Rows) (interface{}, error) {
-	b := new(RangedBlocks)
-	var nodeId string
-	err := rows.Scan(&nodeId, &b.PartId, &b.SeqStart, &b.SeqEnd, &b.BlockSize, &b.HeaderSize, &b.OwnerId)
-	if err != nil {
-		log.Logger(context.Background()).Error("failed to read node block entry in sql result")
-	}
-	return b, err
-}
-
-// scanNodeKey
-func scanNodeKey(rows *sqldb.Rows) (interface{}, error) {
-	k := new(encryption.NodeKey)
-	err := rows.Scan(&k.NodeId, &k.OwnerId, &k.UserId, &k.KeyData)
-	if err != nil {
-		log.Logger(context.Background()).Error("failed to read node key entry in sql result")
-	}
-	return k, err
+	return res, nil
 }

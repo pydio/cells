@@ -91,7 +91,7 @@ func (w *WrapperWriter) Close() error {
 			if e == nil && w.client.updateSnapshot != nil {
 				ctx := context.Background()
 				n, _ := w.client.LoadNode(ctx, w.snapshotPath)
-				log.Logger(ctx).Debug("[FS] Update Snapshot", n.Zap())
+				log.Logger(ctx).Debug("[FS] Update Snapshot", n.ZapPath())
 				w.client.updateSnapshot.CreateNode(ctx, n, true)
 			}
 			return e
@@ -136,13 +136,13 @@ type FSClient struct {
 }
 
 // StartSession forwards session management to underlying snapshot
-func (c *FSClient) StartSession(ctx context.Context, rootNode *tree.Node, silent bool) (*tree.IndexationSession, error) {
+func (c *FSClient) StartSession(ctx context.Context, rootNode tree.N, silent bool) (string, error) {
 	if c.updateSnapshot != nil {
 		if sessionProvider, ok := c.updateSnapshot.(model.SessionProvider); ok {
 			return sessionProvider.StartSession(ctx, rootNode, silent)
 		}
 	}
-	return &tree.IndexationSession{Uuid: uuid.New()}, nil
+	return uuid.New(), nil
 }
 
 // FlushSession forwards session management to underlying snapshot
@@ -214,18 +214,18 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 
 	// For Create Folders, updateSnapshot with associated .pydio's
 	// Use a session to batch inserts if possible
-	indexationSession, _ := newPatch.StartSession(&tree.Node{})
+	indexationSessionId, _ := newPatch.StartSession(&tree.Node{})
 	newPatch.WalkOperations([]merger.OperationType{merger.OpCreateFolder}, func(operation merger.Operation) {
-		folderUuid := operation.GetNode().Uuid
+		folderUuid := operation.GetNode().GetUuid()
 		c.updateSnapshot.CreateNode(ctx, &tree.Node{
 			Uuid:  uuid.New(),
-			Path:  path.Join(operation.GetNode().Path, common.PydioSyncHiddenFile),
+			Path:  path.Join(operation.GetNode().GetPath(), common.PydioSyncHiddenFile),
 			Etag:  model.StringContentToETag(folderUuid),
 			Size:  int64(len(folderUuid)),
-			MTime: operation.GetNode().MTime,
+			MTime: operation.GetNode().GetMTime(),
 		}, true)
 	})
-	newPatch.FinishSession(indexationSession.Uuid)
+	newPatch.FinishSession(indexationSessionId)
 }
 
 func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
@@ -246,7 +246,7 @@ func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 // LoadNode is the Read in CRUD.
 // leaf bools are used to avoid doing an FS.stat if we already know a node to be
 // a leaf.  NOTE : is it useful?  Examine later.
-func (c *FSClient) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
+func (c *FSClient) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node tree.N, err error) {
 	n, e := c.loadNode(ctx, path, nil)
 	if len(extendedStats) > 0 && extendedStats[0] && e == nil {
 		if er := c.loadNodeExtendedStats(ctx, n); er != nil {
@@ -377,16 +377,16 @@ func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
 	}, nil
 }
 
-func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
+func (c *FSClient) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
 	if node.IsLeaf() {
 		return errors.New("this is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
 	}
-	fPath := c.denormalize(node.Path)
+	fPath := c.denormalize(node.GetPath())
 	_, e := c.FS.Stat(fPath)
 	if os.IsNotExist(e) {
 		err = c.FS.MkdirAll(fPath, 0777)
-		if node.Uuid != "" && !c.options.BrowseOnly && err == nil {
-			err = afero.WriteFile(c.FS, filepath.Join(fPath, common.PydioSyncHiddenFile), []byte(node.Uuid), 0777)
+		if node.GetUuid() != "" && !c.options.BrowseOnly && err == nil {
+			err = afero.WriteFile(c.FS, filepath.Join(fPath, common.PydioSyncHiddenFile), []byte(node.GetUuid()), 0777)
 			if err == nil {
 				_ = c.SetHidden(filepath.Join(fPath, common.PydioSyncHiddenFile), true)
 			}
@@ -397,10 +397,10 @@ func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 				// Create associated .pydio in snapshot as well
 				c.updateSnapshot.CreateNode(ctx, &tree.Node{
 					Uuid:  uuid.New(),
-					Path:  path.Join(node.Path, common.PydioSyncHiddenFile),
-					Etag:  model.StringContentToETag(node.Uuid),
-					Size:  int64(len(node.Uuid)),
-					MTime: node.MTime,
+					Path:  path.Join(node.GetPath(), common.PydioSyncHiddenFile),
+					Etag:  model.StringContentToETag(node.GetUuid()),
+					Size:  int64(len(node.GetUuid())),
+					MTime: node.GetMTime(),
 				}, true)
 			}
 		}
@@ -448,35 +448,36 @@ func (c *FSClient) MoveNode(ctx context.Context, oldPath string, newPath string)
 
 }
 
-func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]*tree.Node, error) {
-	data := make(map[string][]*tree.Node)
-	final := make(map[string][]*tree.Node)
-	err := c.Walk(nil, func(path string, node *tree.Node, err error) error {
+func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]tree.N, error) {
+	data := make(map[string][]tree.N)
+	final := make(map[string][]tree.N)
+	err := c.Walk(nil, func(path string, node tree.N, err error) error {
 		if err != nil || node == nil {
 			return err
 		}
 		if node.IsLeaf() {
 			return nil
 		}
-		if s, ok := data[node.Uuid]; ok {
+		nUuid := node.GetUuid()
+		if s, ok := data[nUuid]; ok {
 			s = append(s, node)
-			final[node.Uuid] = s
+			final[nUuid] = s
 		} else {
-			data[node.Uuid] = make([]*tree.Node, 1)
-			data[node.Uuid] = append(data[node.Uuid], node)
+			data[nUuid] = make([]tree.N, 1)
+			data[nUuid] = append(data[nUuid], node)
 		}
 		return nil
 	}, "/", true)
 	return final, err
 }
 
-func (c *FSClient) UpdateFolderUuid(ctx context.Context, node *tree.Node) (*tree.Node, error) {
-	p := c.denormalize(node.Path)
+func (c *FSClient) UpdateFolderUuid(ctx context.Context, node tree.N) (tree.N, error) {
+	p := c.denormalize(node.GetPath())
 	var err error
 	pFile := filepath.Join(p, common.PydioSyncHiddenFile)
 	if err = c.FS.Remove(pFile); err == nil {
 		log.Logger(ctx).Info("Refreshing folder Uuid for", node.ZapPath())
-		err = afero.WriteFile(c.FS, pFile, []byte(node.Uuid), 0666)
+		err = afero.WriteFile(c.FS, pFile, []byte(node.GetUuid()), 0666)
 		if err == nil {
 			c.SetHidden(pFile, true)
 		}
@@ -594,7 +595,7 @@ func (c *FSClient) getFileHash(path string) (hash string, e error) {
 }
 
 // loadNode takes an optional os.FileInfo if we are already walking folders (no need for a second stat call)
-func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) (node *tree.Node, err error) {
+func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) (node tree.N, err error) {
 
 	dnPath := c.denormalize(path)
 	if stat == nil {
@@ -606,22 +607,22 @@ func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) 
 		}
 	}
 
+	var nType tree.NodeType
+	var nETag, nUuid string
+
 	if stat.IsDir() {
-		if id, err := c.readOrCreateFolderId(dnPath); err != nil {
+		id, err := c.readOrCreateFolderId(dnPath)
+		if err != nil {
 			return nil, err
-		} else {
-			node = &tree.Node{
-				Path: path,
-				Type: tree.NodeType_COLLECTION,
-				Uuid: id,
-			}
 		}
+		nUuid = id
+		nType = tree.NodeType_COLLECTION
 	} else {
 		var hash string
 		if c.refHashStore != nil {
 			refNode, e := c.refHashStore.LoadNode(ctx, path)
-			if e == nil && refNode.Size == stat.Size() && refNode.MTime == stat.ModTime().Unix() && refNode.Etag != "" {
-				hash = refNode.Etag
+			if e == nil && refNode.GetSize() == stat.Size() && refNode.GetMTime() == stat.ModTime().Unix() && refNode.GetEtag() != "" {
+				hash = refNode.GetEtag()
 			}
 		}
 		if len(hash) == 0 {
@@ -629,29 +630,26 @@ func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) 
 				return nil, err
 			}
 		}
-		node = &tree.Node{
-			Path: path,
-			Type: tree.NodeType_LEAF,
-			Etag: hash,
-		}
+		nType = tree.NodeType_LEAF
+		nETag = hash
+
 	}
-	node.MTime = stat.ModTime().Unix()
-	node.Size = stat.Size()
-	node.Mode = int32(stat.Mode())
-	return node, nil
+	n := tree.LightNode(nType, nUuid, path, nETag, stat.Size(), stat.ModTime().Unix(), int32(stat.Mode()))
+	return n, nil
 }
 
-func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node *tree.Node) error {
+func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node tree.N) error {
 	if node.IsLeaf() {
 		return nil
 	}
 	var folders, files, totalSize int64
-	realPath := filepath.Join(c.RootPath, c.normalize(node.Path))
+	realPath := filepath.Join(c.RootPath, c.normalize(node.GetPath()))
+	im := model.IgnoreMatcher()
 	e := godirwalk.Walk(realPath, &godirwalk.Options{
 		Unsorted: true,
 		Callback: func(osPathname string, directoryEntry *godirwalk.Dirent) error {
 			// Check if file is ignored (must use forward slash)
-			if model.IsIgnoredFile(strings.Join(strings.Split(osPathname, string(filepath.Separator)), "/")) {
+			if im(strings.Join(strings.Split(osPathname, string(filepath.Separator)), "/")) {
 				return nil
 			}
 			if !directoryEntry.IsRegular() {
@@ -673,11 +671,11 @@ func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node *tree.Node) e
 		return e
 	}
 	if totalSize > 0 {
-		node.Size = totalSize
-		node.MustSetMeta(model.MetaRecursiveChildrenSize, totalSize)
+		node.SetSize(totalSize)
+		node.SetChildrenSize(uint64(totalSize)) // MustSetMeta(model.MetaRecursiveChildrenSize, totalSize)
 	}
-	node.MustSetMeta(model.MetaRecursiveChildrenFiles, files)
-	node.MustSetMeta(model.MetaRecursiveChildrenFolders, folders)
+	node.SetChildrenFiles(uint64(files))
+	node.SetChildrenFolders(uint64(folders))
 	return nil
 }
 

@@ -22,17 +22,11 @@ package oauth
 
 import (
 	"context"
-	sql2 "database/sql"
 	"embed"
 	"fmt"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"time"
-
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/log"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/utils/statics"
-	"github.com/pydio/cells/v4/common/utils/std"
-	migrate "github.com/rubenv/sql-migrate"
 
 	"github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/sql"
@@ -60,49 +54,70 @@ var (
 	}
 )
 
+type PersonalToken struct {
+	UUID              string       `gorm:"column:uuid; primaryKey;"`
+	AccessToken       string       `gorm:"column:access_token;"`
+	Type              auth.PatType `gorm:"column:pat_type;"`
+	Label             string       `gorm:"column:label;"`
+	UserUUID          string       `gorm:"column:user_uuid;"`
+	UserLogin         string       `gorm:"column:user_login;"`
+	AutoRefreshWindow int32        `gorm:"column:auto_refresh;"`
+	ExpiresAt         time.Time    `gorm:"column:expire_at;"`
+	CreatedAt         time.Time    `gorm:"column:created_at;"`
+	CreatedBy         string       `gorm:"column:created_by;"`
+	UpdatedAt         time.Time    `gorm:"column:updated_at;"`
+	Scopes            string       `gorm:"column:scopes;"`
+}
+
+func (u *PersonalToken) As(res *auth.PersonalAccessToken) *auth.PersonalAccessToken {
+	res.Uuid = u.UUID
+	res.Type = u.Type
+	res.Label = u.Label
+	res.UserUuid = u.UserUUID
+	res.UserLogin = u.UserLogin
+	res.AutoRefreshWindow = u.AutoRefreshWindow
+	res.ExpiresAt = u.ExpiresAt.Unix()
+	res.CreatedAt = u.CreatedAt.Unix()
+	res.CreatedBy = u.CreatedBy
+	res.UpdatedAt = u.UpdatedAt.Unix()
+
+	if e := json.Unmarshal([]byte(u.Scopes), &res.Scopes); e != nil {
+		return nil
+	}
+
+	return res
+}
+
+func (u *PersonalToken) From(res *auth.PersonalAccessToken) *PersonalToken {
+	u.UUID = res.Uuid
+	u.Type = res.Type
+	u.Label = res.Label
+	u.UserUUID = res.UserUuid
+	u.UserLogin = res.UserLogin
+	u.AutoRefreshWindow = res.AutoRefreshWindow
+	u.ExpiresAt = time.Unix(res.ExpiresAt, 0)
+	u.CreatedAt = time.Unix(res.CreatedAt, 0)
+	u.CreatedBy = res.CreatedBy
+	u.UpdatedAt = time.Unix(res.UpdatedAt, 0)
+
+	return u
+}
+
 type sqlImpl struct {
+	db *gorm.DB
+
+	instance func() *gorm.DB
+
 	*sql.Handler
 }
 
 // Init handler for the SQL DAO
 func (s *sqlImpl) Init(ctx context.Context, options configx.Values) error {
-
-	// super
-	if er := s.DAO.Init(ctx, options); er != nil {
-		return er
+	s.instance = func() *gorm.DB {
+		return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_personal_tokens")
 	}
 
-	// Doing the database migrations
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         s.Driver(),
-		TablePrefix: s.Prefix(),
-	}
-
-	var isRetry bool
-	sC := servicecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceOAuth)
-	err := std.Retry(sC, func() error {
-		_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_oauth_")
-		if err != nil {
-			log.Logger(sC).Warn("Could not apply idm_oauth_ migration, maybe because of concurrent access, retrying...")
-			isRetry = true
-		} else if isRetry {
-			log.Logger(sC).Info("Migration now applied successfully")
-		}
-		return err
-	}, 1*time.Second, 10*time.Second)
-	if err != nil {
-		return err
-	}
-
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := s.Prepare(key, query); err != nil {
-				return fmt.Errorf("unable to prepare query[%s]: %s - error: %v", key, query, err)
-			}
-		}
-	}
+	s.instance().AutoMigrate(&PersonalToken{})
 
 	return nil
 }
@@ -111,24 +126,20 @@ func (s *sqlImpl) Load(accessToken string) (*auth.PersonalAccessToken, error) {
 	s.Lock()
 	defer s.Unlock()
 
-	key := "validToken"
-	if s.Driver() == "sqlite3" {
-		key = "validToken-sqlite"
+	token := &PersonalToken{}
+	tx := s.instance().
+		Where(&PersonalToken{AccessToken: accessToken}).
+		Where(clause.Gt{Column: "expire_at", Value: time.Now()}).
+		First(token)
+
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	if tx.RowsAffected == 0 {
+		return nil, fmt.Errorf("not.found")
 	}
 
-	stmt, er := s.GetStmt(key)
-	if er != nil {
-		return nil, er
-	}
-	rows, er := stmt.Query(accessToken, int32(time.Now().Unix()))
-	if er != nil {
-		return nil, er
-	}
-	defer rows.Close()
-	if rows.Next() {
-		return s.scan(rows)
-	}
-	return nil, fmt.Errorf("not.found")
+	return token.As(&auth.PersonalAccessToken{}), nil
 }
 
 func (s *sqlImpl) Store(accessToken string, token *auth.PersonalAccessToken, update bool) error {
@@ -136,126 +147,63 @@ func (s *sqlImpl) Store(accessToken string, token *auth.PersonalAccessToken, upd
 	defer s.Unlock()
 
 	if update {
-		updateStmt, er := s.GetStmt("updateExpire")
-		if er != nil {
-			return er
+		tx := s.instance().Where(&PersonalToken{UUID: token.Uuid}).Update("expire_at", token.ExpiresAt)
+		if tx.Error != nil {
+			return tx.Error
 		}
-		_, e := updateStmt.Exec(int32(token.ExpiresAt), token.Uuid)
-		return e
+		return nil
 	} else {
-		insertKey := "insert"
-		if s.Driver() == "sqlite3" {
-			insertKey = "insert-sqlite"
+		res := (&PersonalToken{}).From(token)
+		res.AccessToken = accessToken
+
+		tx := s.instance().Create(&res)
+		if tx.Error != nil {
+			return tx.Error
 		}
-		insertStmt, er := s.GetStmt(insertKey)
-		if er != nil {
-			return er
-		}
-		scopes, _ := json.Marshal(token.Scopes)
-		_, err := insertStmt.Exec(
-			token.Uuid,
-			accessToken,
-			token.Type,
-			token.Label,
-			token.UserUuid,
-			token.UserLogin,
-			token.AutoRefreshWindow,
-			int32(token.ExpiresAt),
-			int32(token.CreatedAt),
-			token.CreatedBy,
-			int32(token.UpdatedAt),
-			string(scopes),
-		)
-		return err
+		return nil
 	}
 }
 
 func (s *sqlImpl) Delete(patUuid string) error {
 	s.Lock()
 	defer s.Unlock()
-	stmt, err := s.GetStmt("delete")
-	if err != nil {
-		return err
+
+	tx := s.instance().Where(&PersonalToken{UUID: patUuid}).Delete(&PersonalToken{})
+	if tx.Error != nil {
+		return tx.Error
 	}
-	_, e := stmt.Exec(patUuid)
-	return e
+	return nil
 }
 
-func (s *sqlImpl) List(byType auth.PatType, byUser string) (tt []*auth.PersonalAccessToken, e error) {
+func (s *sqlImpl) List(byType auth.PatType, byUser string) ([]*auth.PersonalAccessToken, error) {
 	s.Lock()
 	defer s.Unlock()
-	var stmt sql.Stmt
-	var err error
-	var args []interface{}
-	if byUser != "" && byType != auth.PatType_ANY {
-		stmt, err = s.GetStmt("listByBoth")
-		args = append(args, byType, byUser)
-	} else if byUser != "" {
-		stmt, err = s.GetStmt("listByUser")
-		args = append(args, byUser)
-	} else if byType != auth.PatType_ANY {
-		stmt, err = s.GetStmt("listByType")
-		args = append(args, byType)
-	} else {
-		stmt, err = s.GetStmt("listAll")
-	}
-	if err != nil {
-		return tt, err
-	}
-	rows, err := stmt.Query(args...)
-	if err != nil {
-		return tt, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		if t, e := s.scan(rows); e != nil {
-			return tt, e
-		} else {
-			tt = append(tt, t)
-		}
-	}
-	return
-}
 
-func (s *sqlImpl) scan(rows *sql2.Rows) (*auth.PersonalAccessToken, error) {
-	token := auth.PersonalAccessToken{}
-	var exp, cAt, uAt int32
-	var scopes, parsedToken string
-	e := rows.Scan(
-		&token.Uuid,
-		&parsedToken,
-		&token.Type,
-		&token.Label,
-		&token.UserUuid,
-		&token.UserLogin,
-		&token.AutoRefreshWindow,
-		&exp,
-		&cAt,
-		&token.CreatedBy,
-		&uAt,
-		&scopes,
-	)
-	if e != nil {
-		return nil, e
+	var pts []*PersonalToken
+	var res []*auth.PersonalAccessToken
+
+	tx := s.instance()
+	if byUser != "" {
+		tx = tx.Where(&PersonalToken{UserLogin: byUser})
 	}
-	token.ExpiresAt = int64(exp)
-	token.CreatedAt = int64(cAt)
-	token.UpdatedAt = int64(uAt)
-	if e := json.Unmarshal([]byte(scopes), &token.Scopes); e != nil {
-		return nil, e
+	if byType != auth.PatType_ANY {
+		tx = tx.Where(&PersonalToken{Type: byType})
 	}
-	return &token, nil
+	tx = tx.Order("created_at").Find(&res)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	for _, pt := range pts {
+		res = append(res, pt.As(&auth.PersonalAccessToken{}))
+	}
+
+	return res, nil
 }
 
 func (s *sqlImpl) PruneExpired() (int, error) {
-	stmt, e := s.GetStmt("pruneExpired")
-	if e != nil {
-		return 0, e
+	tx := s.instance().Where(clause.Lt{Column: "expire_at", Value: time.Now()}).Delete(&PersonalToken{})
+	if tx.Error != nil {
+		return 0, tx.Error
 	}
-	if res, er := stmt.Exec(time.Now().Unix()); er != nil {
-		return 0, er
-	} else {
-		count, _ := res.RowsAffected()
-		return int(count), nil
-	}
+	return int(tx.RowsAffected), nil
 }

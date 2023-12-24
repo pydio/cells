@@ -23,15 +23,12 @@ package namespace
 import (
 	"context"
 	"embed"
-
-	migrate "github.com/rubenv/sql-migrate"
-
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/statics"
+	"gorm.io/gorm"
 )
 
 var (
@@ -45,49 +42,122 @@ var (
 	}
 )
 
+type MetaNamespace struct {
+	Namespace  string `gorm:"primaryKey; column: namespace;"`
+	Label      string `gorm:"column: label;"`
+	Order      int32  `gorm:"column: ns_order;"`
+	Indexable  bool   `gorm:"column: indexable;"`
+	Definition []byte `gorm:"column: definition;"`
+}
+
+func (u *MetaNamespace) As(res *idm.UserMetaNamespace) *idm.UserMetaNamespace {
+	res.Namespace = u.Namespace
+	res.Label = u.Label
+	res.Order = u.Order
+	res.Indexable = u.Indexable
+	res.JsonDefinition = string(u.Definition)
+	return res
+}
+
+func (u *MetaNamespace) From(res *idm.UserMetaNamespace) *MetaNamespace {
+	u.Namespace = res.Namespace
+	u.Label = res.Label
+	u.Order = res.Order
+	u.Indexable = res.Indexable
+	u.Definition = []byte(res.JsonDefinition)
+
+	return u
+}
+
+type resourcesDAO resources.DAO
+
 // Impl of the SQL interface
 type sqlimpl struct {
-	*sql.Handler
+	// *sql.Handler
 
-	*resources.ResourcesSQL
+	db       *gorm.DB
+	instance func() *gorm.DB
+
+	resourcesDAO
+}
+
+func (s *sqlimpl) Name() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) ID() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Metadata() map[string]string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) As(i interface{}) bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Driver() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Dsn() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) GetConn(ctx context.Context) (dao.Conn, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) SetConn(ctx context.Context, conn dao.Conn) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) CloseConn(ctx context.Context) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Prefix() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) LocalAccess() bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sqlimpl) Stats() map[string]interface{} {
+	//TODO implement me
+	panic("implement me")
 }
 
 // Init handler for the SQL DAO
-func (dao *sqlimpl) Init(ctx context.Context, options configx.Values) error {
+func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 
-	// super
-	if er := dao.DAO.Init(ctx, options); er != nil {
-		return er
+	db := s.db
+	s.instance = func() *gorm.DB {
+		return db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_usr_meta_ns")
 	}
+
+	s.instance().AutoMigrate(&MetaNamespace{})
 
 	// Preparing the resources
-	dao.ResourcesSQL = resources.NewDAO(dao.Handler, "idm_usr_meta_ns.namespace").(*resources.ResourcesSQL)
-	if err := dao.ResourcesSQL.Init(ctx, options); err != nil {
-		return err
-	}
+	s.resourcesDAO.Init(ctx, options)
 
-	// Doing the database migrations
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         dao.Driver(),
-		TablePrefix: dao.Prefix() + "_ns",
-	}
+	// TODO
+	// s.ResourcesGORM.LeftIdentifier = "idm_usr_meta_ns.namespace"
 
-	_, err := sql.ExecMigration(dao.DB(), dao.Driver(), migrations, migrate.Up, "idm_usr_meta_ns_")
-	if err != nil {
-		return err
-	}
-
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := dao.Prepare(key, query); err != nil {
-				return err
-			}
-		}
-	}
-
-	dao.Add(&idm.UserMetaNamespace{
+	s.Add(&idm.UserMetaNamespace{
 		Namespace: ReservedNamespaceBookmark,
 		Label:     "Bookmarks",
 		Policies: []*service.ResourcePolicy{
@@ -100,84 +170,57 @@ func (dao *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 }
 
 // Add inserts a namespace
-func (dao *sqlimpl) Add(ns *idm.UserMetaNamespace) error {
-	indexableValue := 0
-	if ns.Indexable {
-		indexableValue = 1
+func (s *sqlimpl) Add(ns *idm.UserMetaNamespace) error {
+	tx := s.instance().Create((&MetaNamespace{}).From(ns))
+	if tx.Error != nil {
+		return tx.Error
 	}
 
-	stmt, er := dao.GetStmt("Add")
-	if er != nil {
-		return er
-	}
-
-	_, err := stmt.Exec(
-		ns.Namespace,
-		ns.Label,
-		ns.Order,
-		indexableValue,
-		ns.JsonDefinition,
-	)
-	if err != nil {
-		return err
-	}
 	if len(ns.Policies) > 0 {
-		if err := dao.AddPolicies(false, ns.Namespace, ns.Policies); err != nil {
+		if err := s.AddPolicies(false, ns.Namespace, ns.Policies); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
 // Del removes a namespace
-func (dao *sqlimpl) Del(ns *idm.UserMetaNamespace) (e error) {
-
-	stmt, er := dao.GetStmt("Delete")
-	if er != nil {
-		return er
+func (s *sqlimpl) Del(ns *idm.UserMetaNamespace) (e error) {
+	tx := s.instance().Where((&MetaNamespace{}).From(ns)).Delete(&MetaNamespace{})
+	if tx.Error != nil {
+		return tx.Error
 	}
 
-	if _, err := stmt.Exec(ns.Namespace); err != nil {
-		return err
-	}
-
-	if err := dao.DeletePoliciesForResource(ns.Namespace); err != nil {
+	if err := s.DeletePoliciesForResource(ns.Namespace); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// List list all namespaces
-func (dao *sqlimpl) List() (result map[string]*idm.UserMetaNamespace, err error) {
-
-	stmt, er := dao.GetStmt("List")
-	if er != nil {
-		return nil, er
+// List lists all namespaces
+func (s *sqlimpl) List() (map[string]*idm.UserMetaNamespace, error) {
+	var mm []*MetaNamespace
+	tx := s.instance().Find(&mm)
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
 
-	res, err := stmt.Query()
-	if err != nil {
-		return nil, err
-	}
-	defer res.Close()
-	result = make(map[string]*idm.UserMetaNamespace)
-	for res.Next() {
-		ns := new(idm.UserMetaNamespace)
-		var indexableValue int
-		if err := res.Scan(&ns.Namespace, &ns.Label, &ns.Order, &indexableValue, &ns.JsonDefinition); err != nil {
-			return nil, err
-		}
-		if indexableValue == 1 {
-			ns.Indexable = true
-		}
+	var res = make(map[string]*idm.UserMetaNamespace)
+	for _, m := range mm {
+		ns := m.As(&idm.UserMetaNamespace{})
+
 		// Add policies
-		pol, err := dao.GetPoliciesForResource(ns.Namespace)
+		pol, err := s.GetPoliciesForResource(ns.Namespace)
 		if err != nil {
 			return nil, err
 		}
+
 		ns.Policies = pol
-		result[ns.Namespace] = ns
+
+		res[ns.Namespace] = ns
 	}
-	return
+
+	return res, nil
 }

@@ -104,10 +104,21 @@ func WithRegistry(ctx context.Context, reg registry.Registry) context.Context {
 
 // GetServiceName returns the service name associated to this context
 func GetServiceName(ctx context.Context) string {
-	if name, ok := ctx.Value(serviceNameKey).(string); ok {
-		return name
+	if ctx == nil {
+		return ""
 	}
-	return ""
+
+	v := ctx.Value(serviceNameKey)
+	if v == nil {
+		return ""
+	}
+
+	name, ok := ctx.Value(serviceNameKey).(string)
+	if !ok {
+		return ""
+	}
+
+	return name
 }
 
 // GetOperationID returns the session id associated to this context

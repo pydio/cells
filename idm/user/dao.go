@@ -25,13 +25,14 @@ package user
 
 import (
 	"context"
-
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/sql/index"
+	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/storage"
+	user_model "github.com/pydio/cells/v4/idm/user/model"
+	"gorm.io/gorm"
 )
 
 // DAO interface
@@ -43,21 +44,37 @@ type DAO interface {
 	// Add creates or updates a user in the underlying repository.
 	// It returns the resulting user, a true flag in case of an update
 	// of an existing user and/or an error if something went wrong.
-	Add(interface{}) (interface{}, []*tree.Node, error)
+	Add(context.Context, interface{}) (interface{}, []*user_model.User, error)
 
-	Del(sql.Enquirer, chan *idm.User) (numRows int64, e error)
-	Search(sql.Enquirer, *[]interface{}, ...bool) error
-	Count(sql.Enquirer, ...bool) (int, error)
-	Bind(userName string, password string) (*idm.User, error)
-	CleanRole(roleId string) error
-	TouchUser(userUuid string) error
+	Del(context.Context, sql.Enquirer, chan *idm.User) (numRows int64, e error)
+	Search(context.Context, sql.Enquirer, *[]interface{}, ...bool) error
+	Count(context.Context, sql.Enquirer, ...bool) (int, error)
+	Bind(ctx context.Context, userName string, password string) (*idm.User, error)
+	CleanRole(ctx context.Context, roleId string) error
+	TouchUser(ctx context.Context, userUuid string) error
 }
 
 // NewDAO wraps passed DAO with specific Pydio implementation of User DAO and returns it.
-func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
-	case sql.DAO:
-		return &sqlimpl{Handler: v.(*sql.Handler)}, nil
+func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+	var db *gorm.DB
+
+	if store.Get(&db) {
+		resourcesDAO, err := resources.NewDAO(ctx, store)
+		if err != nil {
+			return nil, err
+		}
+
+		indexDAO, err := index.NewDAO[*user_model.User](ctx, store)
+		if err != nil {
+			return nil, err
+		}
+
+		return &sqlimpl{
+			db:           db,
+			resourcesDAO: resourcesDAO.(resources.DAO),
+			indexDAO:     indexDAO.(index.DAO),
+		}, nil
 	}
-	return nil, dao.UnsupportedDriver(o)
+
+	return nil, storage.UnsupportedDriver(store)
 }

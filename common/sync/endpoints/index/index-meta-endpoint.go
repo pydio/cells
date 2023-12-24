@@ -60,16 +60,11 @@ func (m *ClientWithMeta) Walk(ctx context.Context, walknFc model.WalkNodesFunc, 
 	if e != nil {
 		return e
 	}
-	walkWrapped := func(path string, node *tree.Node, err error) error {
+	walkWrapped := func(path string, node tree.N, err error) error {
 		if err == nil {
-			metaStreamer.Send(&tree.ReadNodeRequest{Node: node})
+			metaStreamer.Send(&tree.ReadNodeRequest{Node: node.AsProto()})
 			if resp, e := metaStreamer.Recv(); e == nil && resp.Node != nil && resp.Node.MetaStore != nil {
-				if node.MetaStore == nil {
-					node.MetaStore = make(map[string]string, len(resp.Node.MetaStore))
-				}
-				for k, v := range resp.Node.MetaStore {
-					node.MetaStore[k] = v
-				}
+				node.SetRawMetadata(resp.Node.MetaStore)
 			}
 		}
 		return walknFc(path, node, err)
@@ -79,35 +74,38 @@ func (m *ClientWithMeta) Walk(ctx context.Context, walknFc model.WalkNodesFunc, 
 }
 
 // CreateMetadata calls metaClient.CreateNode
-func (m *ClientWithMeta) CreateMetadata(ctx context.Context, node *tree.Node, namespace string, jsonValue string) error {
+func (m *ClientWithMeta) CreateMetadata(ctx context.Context, node tree.N, namespace string, jsonValue string) error {
 	log.Logger(ctx).Info("Create Meta : ", node.ZapUuid(), zap.String("namespace", namespace), zap.String("value", jsonValue))
-	if node.MetaStore == nil {
-		node.MetaStore = make(map[string]string, 1)
+	np := node.AsProto()
+	if np.MetaStore == nil {
+		np.MetaStore = make(map[string]string, 1)
 	}
-	node.MetaStore[namespace] = jsonValue
-	_, e := m.metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: node})
+	np.MetaStore[namespace] = jsonValue
+	_, e := m.metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: np})
 	return e
 }
 
 // UpdateMetadata calls metaClient.UpdateNode
-func (m *ClientWithMeta) UpdateMetadata(ctx context.Context, node *tree.Node, namespace string, jsonValue string) error {
+func (m *ClientWithMeta) UpdateMetadata(ctx context.Context, node tree.N, namespace string, jsonValue string) error {
 	log.Logger(ctx).Info("Update Meta : ", node.ZapUuid(), zap.String("namespace", namespace), zap.String("value", jsonValue))
-	if node.MetaStore == nil {
-		node.MetaStore = make(map[string]string, 1)
+	np := node.AsProto()
+	if np.MetaStore == nil {
+		np.MetaStore = make(map[string]string, 1)
 	}
-	node.MetaStore[namespace] = jsonValue
-	_, e := m.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{To: node})
+	np.MetaStore[namespace] = jsonValue
+	_, e := m.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{To: np})
 	return e
 }
 
 // DeleteMetadata calls metaClient.UpdateNode with the given namespace and an empty value
 // (not DeleteNode, as it would remove all meta at once)
-func (m *ClientWithMeta) DeleteMetadata(ctx context.Context, node *tree.Node, namespace string) error {
+func (m *ClientWithMeta) DeleteMetadata(ctx context.Context, node tree.N, namespace string) error {
 	log.Logger(ctx).Info("Delete Meta : ", node.ZapUuid(), zap.String("namespace", namespace))
-	if node.MetaStore == nil {
-		node.MetaStore = make(map[string]string, 1)
+	np := node.AsProto()
+	if np.MetaStore == nil {
+		np.MetaStore = make(map[string]string, 1)
 	}
-	node.MetaStore[namespace] = ""
-	_, e := m.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{To: node})
+	np.MetaStore[namespace] = ""
+	_, e := m.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{To: np})
 	return e
 }

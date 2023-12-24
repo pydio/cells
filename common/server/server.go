@@ -75,6 +75,8 @@ type server struct {
 	links []registry.Item
 }
 
+var servers []Server
+
 func NewServer(ctx context.Context, s RawServer) Server {
 	srv := &server{
 		S: s,
@@ -86,12 +88,25 @@ func NewServer(ctx context.Context, s RawServer) Server {
 		},
 	}
 
+	servers = append(servers, srv)
+
 	if reg := servercontext.GetRegistry(ctx); reg != nil {
 		if err := reg.Register(srv); err != nil {
 			fmt.Println("[ERROR] Cannot register Server " + err.Error())
 		}
 	}
+
 	return srv
+}
+
+func Get(out interface{}) bool {
+	for _, srv := range servers {
+		if srv.As(out) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (s *server) Server() {}

@@ -25,8 +25,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/spf13/viper"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/anypb"
 
@@ -34,10 +34,10 @@ import (
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/idm/role"
 	"github.com/pydio/cells/v4/common/runtime"
 	_ "github.com/pydio/cells/v4/common/utils/cache/gocache"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/idm/role"
 )
 
 var (
@@ -71,7 +71,7 @@ func TestMain(m *testing.M) {
 func TestRole(t *testing.T) {
 
 	s := new(Handler)
-	s.dao = roleDAO
+	s.dao = func(ctx context.Context) role.DAO { return roleDAO }
 
 	Convey("Create Roles", t, func() {
 		resp, err := s.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{Uuid: "role1", Label: "Role 1"}})
@@ -139,7 +139,9 @@ func TestRole(t *testing.T) {
 
 func TestRoleWithRules(t *testing.T) {
 
-	s := &Handler{dao: roleDAO}
+	s := new(Handler)
+	s.dao = func(ctx context.Context) role.DAO { return roleDAO }
+
 	Convey("Create Roles with Resource Rule", t, func() {
 
 		resp, err := s.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{Uuid: "role-res", Label: "Role 1"}})
@@ -158,10 +160,13 @@ func TestRoleWithRules(t *testing.T) {
 	Convey("Find Roles with Resource", t, func() {
 
 		singleQ, _ := anypb.New(&idm.RoleSingleQuery{Uuid: []string{"role-res"}})
+		resourceQ, _ := anypb.New(&service.ResourcePolicyQuery{
+			Subjects: []string{"profile:anon"},
+		})
 
 		// Search with wrong context
 		simpleQuery := &service.Query{
-			SubQueries: []*anypb.Any{singleQ},
+			SubQueries: []*anypb.Any{singleQ, resourceQ},
 			Offset:     0,
 			Limit:      10,
 			ResourcePolicyQuery: &service.ResourcePolicyQuery{
@@ -178,7 +183,10 @@ func TestRoleWithRules(t *testing.T) {
 		So(len(mock.InternalBuffer), ShouldEqual, 0)
 
 		// Search with "ANY"
-		simpleQuery.ResourcePolicyQuery.Subjects = []string{}
+		resourceQ2, _ := anypb.New(&service.ResourcePolicyQuery{
+			Subjects: []string{},
+		})
+		simpleQuery.SubQueries = []*anypb.Any{singleQ, resourceQ2}
 		mock = &roleStreamMock{ctx: ctx}
 		err = s.SearchRole(&idm.SearchRoleRequest{
 			Query: simpleQuery,
@@ -189,13 +197,15 @@ func TestRoleWithRules(t *testing.T) {
 
 		// Search with correct context
 		// Build context with fake claims
-		simpleQuery.ResourcePolicyQuery.Subjects = []string{
-			"user:subject-name",
-			"profile:standard",
-			"role:role1",
-			"role:role2",
-		}
-
+		resourceQ3, _ := anypb.New(&service.ResourcePolicyQuery{
+			Subjects: []string{
+				"user:subject-name",
+				"profile:standard",
+				"role:role1",
+				"role:role2",
+			},
+		})
+		simpleQuery.SubQueries = []*anypb.Any{singleQ, resourceQ3}
 		mock = &roleStreamMock{ctx: ctx}
 		err = s.SearchRole(&idm.SearchRoleRequest{
 			Query: simpleQuery,

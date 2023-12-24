@@ -25,6 +25,8 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+	gsqlite "gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
@@ -34,7 +36,15 @@ import (
 func TestQueryResourceForAction(t *testing.T) {
 
 	wrapper := func(ctx context.Context, d dao.DAO) (dao.DAO, error) {
-		return NewDAO(d, "left.uuid"), nil
+		dialector := gsqlite.Open(d.Dsn())
+		db, err := gorm.Open(dialector, &gorm.Config{
+			//DisableForeignKeyConstraintWhenMigrating: true,
+			FullSaveAssociations: true,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &ResourcesGORM{DB: db}, nil
 	}
 	ctx := context.Background()
 
@@ -42,7 +52,7 @@ func TestQueryResourceForAction(t *testing.T) {
 	if e != nil {
 		panic(e)
 	}
-	resDAO := d.(*ResourcesSQL)
+	resDAO := d.(*ResourcesGORM)
 
 	Convey("Test Query Builder", t, func() {
 

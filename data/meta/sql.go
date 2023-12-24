@@ -23,14 +23,13 @@ package meta
 import (
 	"context"
 	"embed"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"time"
-
-	migrate "github.com/rubenv/sql-migrate"
 
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 var (
@@ -47,97 +46,61 @@ var (
 	}
 )
 
+type Meta struct {
+	NodeId    string `gorm:"primaryKey; column:node_id"`
+	Namespace string `gorm:"primaryKey; column:namespace"`
+	Data      string `gorm:"primaryKey; column:data"`
+	Author    string `gorm:"primaryKey; column:author"`
+	Timestamp int64  `gorm:"primaryKey; column:timestamp"`
+	Format    string `gorm:"primaryKey; column:format"`
+}
+
+func (*Meta) TableName() string { return "data_meta" }
+
 // Impl of the SQL interface
 type sqlImpl struct {
 	sql.DAO
+
+	db       *gorm.DB
+	instance func() *gorm.DB
 }
 
 // Init handler for the SQL DAO
-func (h *sqlImpl) Init(ctx context.Context, options configx.Values) error {
+func (s *sqlImpl) Init(ctx context.Context, options configx.Values) error {
 
-	// super
-	h.DAO.Init(ctx, options)
-
-	// Doing the database migrations
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         h.Driver(),
-		TablePrefix: h.Prefix(),
-	}
-
-	_, err := sql.ExecMigration(h.DB(), h.Driver(), migrations, migrate.Up, "data_meta_")
-	if err != nil {
-		return err
-	}
-
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := h.Prepare(key, query); err != nil {
-				return err
-			}
-		}
-	}
+	s.instance = func() *gorm.DB { return s.db.Session(&gorm.Session{SkipDefaultTransaction: true}) }
 
 	return nil
 }
 
 // SetMetadata creates or updates metadata for a node
-func (h *sqlImpl) SetMetadata(nodeId string, author string, metadata map[string]string) (err error) {
+func (s *sqlImpl) SetMetadata(nodeId string, author string, metadata map[string]string) (err error) {
 
 	if len(metadata) == 0 {
-		// Delete all metadata for node
-		stmt, er := h.GetStmt("deleteUuid")
-		if er != nil {
-			return er
-		}
+		tx := s.instance().Where(&Meta{NodeId: nodeId}).Delete(&Meta{})
 
-		stmt.Exec(
-			nodeId,
-		)
-	} else {
+		return tx.Error
+	}
 
-		for namespace, data := range metadata {
-			/*if strings.HasPrefix(namespace, "pydio:") {
-				continue
-			}*/
-			json := data
-			ns := namespace
-			if data == "" {
-				// Delete namespace
-				stmt, er := h.GetStmt("deleteNS")
-				if er != nil {
-					return er
-				}
+	for namespace, data := range metadata {
+		if data == "" {
+			tx := s.instance().Where(&Meta{Namespace: namespace}).Delete(&Meta{})
+			if tx.Error != nil {
+				return tx.Error
+			}
+		} else {
+			// Insert or update namespace
+			tx := s.instance().Clauses(clause.OnConflict{UpdateAll: true}).Create(&Meta{
+				NodeId:    nodeId,
+				Namespace: namespace,
+				Data:      data,
+				Author:    author,
+				Timestamp: time.Now().Unix(),
+				Format:    "json",
+			})
 
-				stmt.Exec(ns)
-			} else {
-				// Insert or update namespace
-				tStamp := time.Now().Unix()
-
-				var stmt sql.Stmt
-				var er error
-				if h.Driver() == "sqlite3" {
-					stmt, er = h.GetStmt("upsert-sqlite")
-				} else {
-					stmt, er = h.GetStmt("upsert")
-				}
-				if er != nil {
-					return er
-				}
-
-				stmt.Exec(
-					nodeId,
-					ns,
-					json,
-					author,
-					tStamp,
-					"json",
-					json,
-					author,
-					tStamp,
-					"json",
-				)
+			if tx.Error != nil {
+				return tx.Error
 			}
 		}
 	}
@@ -146,92 +109,42 @@ func (h *sqlImpl) SetMetadata(nodeId string, author string, metadata map[string]
 }
 
 // GetMetadata loads metadata for a node
-func (h *sqlImpl) GetMetadata(nodeId string) (metadata map[string]string, err error) {
-
-	stmt, er := h.GetStmt("select")
-	if er != nil {
-		return nil, er
+func (s *sqlImpl) GetMetadata(nodeId string) (metadata map[string]string, err error) {
+	var rows []*Meta
+	tx := s.instance().Where(&Meta{NodeId: nodeId}).Find(&rows)
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
 
-	r, err := stmt.Query(nodeId)
-	if err != nil {
-		return nil, err
+	if tx.RowsAffected == 0 {
+		return nil, errors.NotFound("metadata-not-found", "Cannot find metadata for node "+nodeId)
 	}
-	metadata = make(map[string]string)
-	defer r.Close()
-	for r.Next() {
-		row := struct {
-			id        string
-			namespace string
-			author    string
-			timestamp int64
-			data      string
-			format    string
-		}{}
-		r.Scan(
-			&row.id,
-			&row.namespace,
-			&row.author,
-			&row.timestamp,
-			&row.data,
-			&row.format,
-		)
-		metadata[row.namespace] = row.data
-	}
-	if r.Err() != nil {
-		return nil, r.Err()
-	}
-	if len(metadata) == 0 {
-		err = errors.NotFound("metadata-not-found", "Cannot find metadata for node "+nodeId)
-		return nil, err
-	}
-	return metadata, nil
 
+	for _, row := range rows {
+		metadata[row.Namespace] = row.Data
+	}
+
+	return
 }
 
 // ListMetadata lists all metadata by query
-func (h *sqlImpl) ListMetadata(query string) (metaByUuid map[string]map[string]string, err error) {
+func (s *sqlImpl) ListMetadata(query string) (metaByUuid map[string]map[string]string, err error) {
 
-	stmt, er := h.GetStmt("selectAll")
-	if er != nil {
-		return nil, er
+	var rows []*Meta
+	tx := s.instance().Find(&rows).Limit(500)
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
 
-	r, err := stmt.Query()
-	if err != nil {
-		return nil, err
-	}
-	metaByUuid = make(map[string]map[string]string)
-
-	defer r.Close()
-	for r.Next() {
-		row := struct {
-			id        string
-			namespace string
-			author    string
-			timestamp int64
-			data      string
-			format    string
-		}{}
-		r.Scan(
-			&row.id,
-			&row.namespace,
-			&row.author,
-			&row.timestamp,
-			&row.data,
-			&row.format,
-		)
-		metadata, ok := metaByUuid[row.id]
+	for _, row := range rows {
+		metadata, ok := metaByUuid[row.NodeId]
 		if !ok {
 			metadata = make(map[string]string)
-			metaByUuid[row.id] = metadata
+			metaByUuid[row.NodeId] = metadata
 		}
-		metadata[row.namespace] = row.data
-		metadata[row.namespace] = row.data
-	}
-	if r.Err() != nil {
-		return nil, r.Err()
-	}
-	return metaByUuid, nil
 
+		metadata[row.Namespace] = row.Data
+	}
+
+	return
 }

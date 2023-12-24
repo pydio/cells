@@ -44,7 +44,7 @@ type DAO interface {
 }
 
 func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
+	switch o.(type) {
 	case sql.DAO:
 		dialector := sqlite.Open(o.Dsn())
 		db, err := gorm.Open(dialector, &gorm.Config{
@@ -54,7 +54,7 @@ func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &sqlimpl{Handler: v.(*sql.Handler), db: db}, nil
+		return &sqlimpl{db: db}, nil
 	}
 	return nil, dao.UnsupportedDriver(o)
 }

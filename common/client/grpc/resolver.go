@@ -65,7 +65,8 @@ func NewBuilder(reg registry.Registry, oo ...client.BalancerOption) resolver.Bui
 
 func (b *cellsBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
 	// host, port, name, err := parseTarget(fmt.Sprintf("%s/%s", target.Authority, target.Endpoint))
-	_, _, name, err := parseTarget(fmt.Sprintf("%s/%s", target.Authority, target.Endpoint))
+
+	_, _, name, err := parseTarget(fmt.Sprintf("%s", target.Endpoint()))
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +97,6 @@ func (b *cellsBuilder) Build(target resolver.Target, cc resolver.ClientConn, opt
 		Addresses: []resolver.Address{
 			{
 				Addr: target.URL.Host,
-				Type: resolver.GRPCLB,
 			},
 		},
 		ServiceConfig: cr.serviceConfig,

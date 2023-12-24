@@ -22,10 +22,11 @@
 package resources
 
 import (
-	goqu "github.com/doug-martin/goqu/v9"
+	"context"
 	"github.com/pydio/cells/v4/common/dao"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/storage"
+	"gorm.io/gorm"
 )
 
 // DAO interface
@@ -38,13 +39,15 @@ type DAO interface {
 	DeletePoliciesForResourceAndAction(resourceId string, action service.ResourcePolicyAction) error
 	DeletePoliciesBySubject(subject string) error
 
-	BuildPolicyConditionForAction(q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (expr goqu.Expression, e error)
+	BuildPolicyConditionForAction(q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (expr any, e error)
 }
 
-func NewDAO(o dao.DAO, leftIdentifier string) dao.DAO {
-	switch v := o.(type) {
-	case sql.DAO:
-		return &ResourcesSQL{Handler: v.(*sql.Handler), LeftIdentifier: leftIdentifier}
+func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+	var db *gorm.DB
+
+	if store.Get(&db) {
+		return &ResourcesGORM{DB: db}, nil
 	}
-	return nil
+
+	return nil, storage.UnsupportedDriver(store)
 }

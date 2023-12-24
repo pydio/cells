@@ -23,6 +23,8 @@ package key
 
 import (
 	"context"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/encryption"
@@ -32,9 +34,9 @@ import (
 type DAO interface {
 	dao.DAO
 
-	ListEncryptedBlockInfo(nodeUuid string) (QueryResultCursor, error)
-	SaveEncryptedBlockInfo(nodeUuid string, b *RangedBlocks) error
-	GetEncryptedLegacyBlockInfo(nodeUuid string) (*RangedBlocks, error)
+	ListEncryptedBlockInfo(nodeUuid string) ([]*encryption.RangedBlock, error)
+	SaveEncryptedBlockInfo(nodeUuid string, b *encryption.RangedBlock) error
+	GetEncryptedLegacyBlockInfo(nodeUuid string) (*encryption.RangedBlock, error)
 	ClearNodeEncryptedPartBlockInfo(nodeUuid string, partId int) error
 	ClearNodeEncryptedBlockInfo(nodeUuid string) error
 
@@ -50,16 +52,18 @@ type DAO interface {
 	DeleteNodeKey(nodeKey *encryption.NodeKey) error
 }
 
-type QueryResultCursor interface {
-	Close() error
-	HasNext() bool
-	Next() (interface{}, error)
-}
-
 func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 	switch v := o.(type) {
 	case sql.DAO:
-		return &sqlimpl{DAO: v}, nil
+		dialector := sqlite.Open(v.Dsn())
+		db, err := gorm.Open(dialector, &gorm.Config{
+			//DisableForeignKeyConstraintWhenMigrating: true,
+			FullSaveAssociations: true,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &sqlimpl{db: db}, nil
 	}
 	return nil, dao.UnsupportedDriver(o)
 }

@@ -23,10 +23,12 @@ package index
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/storage"
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/sql/index"
+	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 )
 
 // DAO interface
@@ -34,18 +36,28 @@ type DAO interface {
 	index.DAO
 }
 
-func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
-	case sql.DAO:
-		return &sqlimpl{Handler: v.(*sql.Handler)}, nil
+// NewDAO for the common sql index
+func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+	var db *gorm.DB
+
+	indexDAO, err := index.NewDAO[*tree.TreeNode](ctx, store)
+	if err != nil {
+		return nil, err
 	}
-	return nil, dao.UnsupportedDriver(o)
+
+	if store.Get(&db) {
+		return &sqlimpl{db: db, IndexSQL: indexDAO.(IndexSQL)}, nil
+	}
+
+	return nil, storage.UnsupportedDriver(store)
 }
 
-func NewDAOCache(session string, o index.DAO) index.DAO {
-	return index.NewDAOCache(session, o)
+func NewDAOCache(session string, o DAO) DAO {
+	return nil
+	//return index.NewDAOCache(session, 300, o)
 }
 
-func GetDAOCache(session string) index.DAO {
-	return index.GetDAOCache(session)
+func GetDAOCache(session string) DAO {
+	return nil
+	// return index.GetDAOCache(session)
 }

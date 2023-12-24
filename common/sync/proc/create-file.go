@@ -76,7 +76,7 @@ func (pr *Processor) processCreateFile(ctx context.Context, operation merger.Ope
 		}
 		defer reader.Close()
 		wCtx, cancel := context.WithCancel(ctx)
-		writer, writeDone, writeErr, wErr := dataTarget.GetWriterOn(wCtx, localPath, operation.GetNode().Size)
+		writer, writeDone, writeErr, wErr := dataTarget.GetWriterOn(wCtx, localPath, operation.GetNode().GetSize())
 		if wErr != nil {
 			pr.Logger().Error("Cannot get writer on target", zap.String("job", "create"), zap.String("path", localPath), zap.Error(wErr))
 			return wErr
@@ -113,11 +113,11 @@ func (pr *Processor) processCreateFile(ctx context.Context, operation merger.Ope
 
 		pg <- 1
 		update := false
-		if operation.Type() == merger.OpUpdateFile || operation.GetNode().Uuid != "" {
+		if operation.Type() == merger.OpUpdateFile || operation.GetNode().GetUuid() != "" {
 			update = true
 		}
-		if operation.Type() == merger.OpCreateFile && strings.HasSuffix(operation.GetNode().Path, common.PydioSyncHiddenFile) {
-			if n, e := operation.Source().LoadNode(ctx, operation.GetNode().Path); e == nil {
+		if operation.Type() == merger.OpCreateFile && strings.HasSuffix(operation.GetNode().GetPath(), common.PydioSyncHiddenFile) {
+			if n, e := operation.Source().LoadNode(ctx, operation.GetNode().GetPath()); e == nil {
 				log.Logger(ctx).Debug("Reload .pydio Node data to make sure eTag is up-to-date", operation.GetNode().Zap("opNode"), n.Zap("sourceNode"))
 				operation.SetNode(n)
 			}

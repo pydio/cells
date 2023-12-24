@@ -5,14 +5,14 @@ package idm
 
 import (
 	fmt "fmt"
-	math "math"
-	proto "google.golang.org/protobuf/proto"
+	proto "github.com/golang/protobuf/proto"
 	_ "github.com/mwitkow/go-proto-validators"
-	_ "google.golang.org/protobuf/types/descriptorpb"
-	_ "github.com/pydio/cells/v4/common/proto/options"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	_ "github.com/pydio/cells/v4/common/proto/options/orm"
 	_ "github.com/pydio/cells/v4/common/proto/service"
 	_ "github.com/pydio/cells/v4/common/proto/tree"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	_ "google.golang.org/protobuf/types/descriptorpb"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -134,6 +134,19 @@ func (this *SearchUserResponse) Validate() error {
 	return nil
 }
 func (this *CountUserResponse) Validate() error {
+	return nil
+}
+func (this *TreeUser) Validate() error {
+	if this.Node != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Node); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Node", err)
+		}
+	}
+	if this.User != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.User); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("User", err)
+		}
+	}
 	return nil
 }
 func (this *User) Validate() error {

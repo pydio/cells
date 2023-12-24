@@ -77,21 +77,21 @@ func (s *SelectiveRootsFilter) start() {
 					s.out <- ev
 				}
 			case model.EventSureMove:
-				srcOut := s.isOutside(ev.MoveSource.Path)
-				targetOut := s.isOutside(ev.MoveTarget.Path)
+				srcOut := s.isOutside(ev.MoveSource.GetPath())
+				targetOut := s.isOutside(ev.MoveTarget.GetPath())
 				if srcOut && targetOut {
 					break
 				}
 				if srcOut {
 					// Transform to create
 					ev.Type = model.EventCreate
-					ev.Path = ev.MoveTarget.Path
-					ev.Etag = ev.MoveTarget.Etag
+					ev.Path = ev.MoveTarget.GetPath()
+					ev.Etag = ev.MoveTarget.GetEtag()
 				} else if targetOut {
 					// Transform to delete
 					ev.Type = model.EventRemove
-					ev.Path = ev.MoveSource.Path
-					ev.Etag = ev.MoveSource.Etag
+					ev.Path = ev.MoveSource.GetPath()
+					ev.Etag = ev.MoveSource.GetEtag()
 				}
 				s.out <- ev
 			default:

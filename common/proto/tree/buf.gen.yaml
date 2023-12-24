@@ -1,16 +1,17 @@
 version: v1
 plugins:
-  - name: go
-    out: .
+  #- name: go
+  #  out: .
   - name: go-grpc
     out: .
   - name: go-enhanced-grpc
     out: .
   - name: go-client-stub
     out: .
-  - name: govalidators
-    out: .
   - plugin: buf.build/grpc/python
     out: github.com/pydio/cells/python
+  - plugin: buf.build/protocolbuffers/go
+    out: .
   - plugin: buf.build/protocolbuffers/python
     out: github.com/pydio/cells/python
+

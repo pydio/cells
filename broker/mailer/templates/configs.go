@@ -30,7 +30,49 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 )
 
-var templateFilters []FilterFunc
+var (
+	templateFilters []FilterFunc
+	replacer        = strings.NewReplacer(
+		"mso-hide: all;", "",
+		"12px", "9pt",
+		"13px", "10pt",
+		"14px", "11pt",
+		"15px", "11pt",
+		"16px", "12pt",
+		"17px", "13pt",
+		"18px", "14pt",
+		"19px", "14pt",
+		"20px", "15pt",
+		"21px", "16pt",
+		"22px", "17pt",
+		"23px", "17pt",
+		"24px", "18pt",
+		"25px", "19pt",
+		"26px", "20pt",
+		"27px", "20pt",
+		"28px", "21pt",
+		"29px", "22pt",
+		"30px", "23pt",
+		"31px", "23pt",
+		"32px", "24pt",
+		"33px", "25pt",
+		"34px", "26pt",
+		"35px", "26pt",
+		"36px", "27pt",
+		"37px", "28pt",
+		"38px", "29pt",
+		"39px", "29pt",
+		"40px", "30pt",
+		"41px", "31pt",
+		"42px", "32pt",
+		"43px", "32pt",
+		"44px", "33pt",
+		"45px", "34pt",
+		"46px", "35pt",
+		"47px", "35pt",
+		"48px", "36pt",
+	)
+)
 
 type FilterFunc func(configs ApplicationConfigs) ApplicationConfigs
 
@@ -109,6 +151,7 @@ type pydioTheme struct {
 
 func (p pydioTheme) HTMLTemplate() string {
 	s := p.Flat.HTMLTemplate()
-	s = strings.Replace(s, "mso-hide: all;", "", -1)
+	s = replacer.Replace(s)
+
 	return s
 }

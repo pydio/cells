@@ -148,6 +148,7 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 		close(ev.activeDone)
 	}()
 	var batch []model.EventInfo
+	im := model.IgnoreMatcher(ev.ignores...)
 
 	for {
 		select {
@@ -155,7 +156,7 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 			if !ok {
 				return
 			}
-			if model.IsIgnoredFile(event.Path, ev.ignores...) {
+			if im(event.Path) {
 				log.Logger(ev.globalContext).Debug("Ignoring event for path " + event.Path)
 				break
 			}
@@ -230,7 +231,7 @@ func (ev *EventsBatcher) processEvents(events []model.EventInfo, batchSession st
 				t = merger.OpCreateFile
 			}
 		case model.EventSureMove:
-			event.Path = event.MoveTarget.Path
+			event.Path = event.MoveTarget.GetPath()
 			if event.MoveSource.IsLeaf() {
 				t = merger.OpMoveFile
 			} else {

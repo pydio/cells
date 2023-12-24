@@ -69,9 +69,9 @@ func (c *Remote) BulkLoadNodes(ctx context.Context, nodes map[string]string) (ma
 
 // CreateNode creates folder, eventually resetting their UUID if the options RenewFolderUuids is set.
 // If an indexation session is started, it stacks all Creates in memory and perform them only at Flush.
-func (c *Remote) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
+func (c *Remote) CreateNode(ctx context.Context, node tree.N, updateIfExists bool) (err error) {
 	if c.session != nil {
-		n := node.Clone()
+		n := node.AsProto().Clone()
 		n.Path = c.rooted(n.Path)
 		if c.Options.RenewFolderUuids {
 			n.Uuid = ""
@@ -87,9 +87,8 @@ func (c *Remote) CreateNode(ctx context.Context, node *tree.Node, updateIfExists
 }
 
 // StartSession starts an indexation session.
-func (c *Remote) StartSession(ctx context.Context, rootNode *tree.Node, silent bool) (*tree.IndexationSession, error) {
-	c.session = &tree.IndexationSession{Uuid: uuid.New()}
-	return c.session, nil
+func (c *Remote) StartSession(ctx context.Context, rootNode tree.N, silent bool) (string, error) {
+	return uuid.New(), nil
 }
 
 // FlushSession sends all creates as a stream to the target server

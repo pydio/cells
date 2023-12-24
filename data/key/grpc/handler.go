@@ -97,12 +97,11 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 			Nonce:     block.Nonce,
 		}
 	} else if req.WithRange {
-		cursor, err := km.dao(ctx).ListEncryptedBlockInfo(req.NodeId)
+		blocks, err := km.dao(ctx).ListEncryptedBlockInfo(req.NodeId)
 		if err != nil {
 			log.Logger(ctx).Error("failed to list node blocks", zap.String("id", rsp.NodeInfo.Node.NodeId))
 			return nil, err
 		}
-		defer cursor.Close()
 
 		encryptedOffsetCursor := int64(0)
 		encryptedLimitCursor := int64(0)
@@ -113,10 +112,7 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 		foundEncryptedOffset := plainOffsetCursor == req.PlainOffset
 		foundEncryptedLimit := req.PlainLength <= 0
 
-		done := false
-		for cursor.HasNext() && !done {
-			next, _ := cursor.Next()
-			b := next.(*key.RangedBlocks)
+		for _, b := range blocks {
 
 			plainBlockSize := int64(b.BlockSize) - aesGCMTagSize
 			encryptedBlockSize := int64(b.BlockSize + b.HeaderSize)
@@ -146,7 +142,6 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 					if nextPlainOffset >= plainLimitCursor {
 						foundEncryptedLimit = true
 						rsp.EncryptedCount = encryptedLimitCursor - rsp.EncryptedOffset
-						done = true
 						break
 					}
 					plainOffsetCursor = nextPlainOffset
@@ -168,17 +163,14 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 
 func (km *NodeKeyManagerHandler) GetNodePlainSize(ctx context.Context, req *encryption.GetNodePlainSizeRequest) (*encryption.GetNodePlainSizeResponse, error) {
 
-	cursor, err := km.dao(ctx).ListEncryptedBlockInfo(req.NodeId)
+	blocks, err := km.dao(ctx).ListEncryptedBlockInfo(req.NodeId)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close()
 
 	rsp := &encryption.GetNodePlainSizeResponse{}
 
-	for cursor.HasNext() {
-		next, _ := cursor.Next()
-		b := next.(*key.RangedBlocks)
+	for _, b := range blocks {
 		plainBlockSize := int64(b.BlockSize) - aesGCMTagSize
 		count := int(b.SeqEnd-b.SeqStart) + 1
 
@@ -194,7 +186,7 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 	var err error
 	sessionOpened := true
 
-	var rangedBlocks *key.RangedBlocks
+	var rangedBlocks *encryption.RangedBlock
 	var nodeUuid string
 
 	for sessionOpened {
@@ -236,7 +228,7 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 				nodeUuid = req.SetBlock.NodeUuid
 			}
 
-			tmpRangeBlock := &key.RangedBlocks{
+			tmpRangeBlock := &encryption.RangedBlock{
 				BlockSize:  req.SetBlock.Block.BlockSize,
 				OwnerId:    req.SetBlock.Block.OwnerId,
 				HeaderSize: req.SetBlock.Block.HeaderSize,
