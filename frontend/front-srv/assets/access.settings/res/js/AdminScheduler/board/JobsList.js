@@ -159,7 +159,7 @@ class JobsList extends React.Component {
 
     render(){
 
-        const {pydio, selectRows, muiTheme, jobs = [], loading, jobsEditable, renderGroupHeader} = this.props;
+        const {pydio, selectRows, muiTheme, jobs = [], loading, jobsEditable, renderGroupHeader, hideOthersIfEmpty=false} = this.props;
         const {flowsOpen} = this.state ||{};
 
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
@@ -352,21 +352,25 @@ class JobsList extends React.Component {
                     </div>
                 </div>
                 }
-                <AdminComponents.SubHeader
-                    title={m('users.title')}
-                    legend={m('users.legend')}
-                />
-                <Paper {...adminStyles.body.block.props}>
-                    <MaterialTable
-                        data={other}
-                        columns={userKeys}
-                        onSelectRows={(rows)=>{selectRows(rows)}}
-                        showCheckboxes={false}
-                        emptyStateString={m('users.empty')}
-                        masterStyles={adminStyles.body.tableMaster}
-                        paginate={[25, 50, 100]}
-                    />
-                </Paper>
+                {((other && other.length > 0) || !hideOthersIfEmpty) &&
+                    <React.Fragment>
+                        <AdminComponents.SubHeader
+                            title={m('users.title')}
+                            legend={m('users.legend')}
+                        />
+                        <Paper {...adminStyles.body.block.props}>
+                            <MaterialTable
+                                data={other}
+                                columns={userKeys}
+                                onSelectRows={(rows)=>{selectRows(rows)}}
+                                showCheckboxes={false}
+                                emptyStateString={m('users.empty')}
+                                masterStyles={adminStyles.body.tableMaster}
+                                paginate={[25, 50, 100]}
+                            />
+                        </Paper>
+                    </React.Fragment>
+                }
                 {inactives && inactives.length > 0 &&
                 <React.Fragment>
                     <AdminComponents.SubHeader
