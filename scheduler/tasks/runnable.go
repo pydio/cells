@@ -103,7 +103,7 @@ func NewRunnable(ctx context.Context, parent *Runnable, queue chan RunnerFunc, a
 	}
 
 	r.collector = parent.collector
-	if action.MergeAction != nil {
+	if action.MergeAction != nil && !action.BreakAfter {
 		r.SetupCollector(parentCtx, action.MergeAction, queue)
 	}
 	return r
