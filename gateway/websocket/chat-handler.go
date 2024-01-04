@@ -201,7 +201,11 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 				log.Logger(ctx).Debug("CANNOT JOIN", zap.Any("msg", chatMsg), zap.Any("r", foundRoom), zap.Error(e1))
 				break
 			}
+
 			sessRoom.uuid = foundRoom.Uuid
+			sessRoom.typeString = foundRoom.Type.String()
+			sessRoom.typeObject = foundRoom.RoomTypeObject
+
 			c.heartbeat(ctx, userName, foundRoom)
 			c.storeSessionRoom(session, sessRoom)
 			// Update Room Users
@@ -262,16 +266,24 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 		case chat.WsMessageType_POST:
 
 			log.Logger(ctx).Debug("POST", zap.Any("msg", chatMsg))
-			if session, found := c.roomInSession(session, chatMsg.Message.RoomUuid); !found || session.readonly {
+			var knownRoom *chat.ChatRoom
+			if room, found := c.roomInSession(session, chatMsg.Message.RoomUuid); !found || room.readonly {
 				log.Logger(ctx).Error("Not authorized to post in this room")
 				break
+			} else {
+				knownRoom = &chat.ChatRoom{
+					Uuid:           room.uuid,
+					Type:           chat.RoomType(chat.RoomType_value[room.typeString]),
+					RoomTypeObject: room.typeObject,
+				}
 			}
 			message := chatMsg.Message
 			message.Author = userName
 			message.Message = bluemonday.UGCPolicy().Sanitize(message.Message)
 			message.Timestamp = time.Now().Unix()
 			_, e := chatClient.PostMessage(ctx, &chat.PostMessageRequest{
-				Messages: []*chat.ChatMessage{message},
+				Messages:   []*chat.ChatMessage{message},
+				KnownRooms: map[string]*chat.ChatRoom{message.RoomUuid: knownRoom},
 			})
 			if e != nil {
 				log.Logger(ctx).Error("Error while posting message", zap.Any("msg", message), zap.Error(e))
@@ -280,14 +292,22 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 		case chat.WsMessageType_DELETE_MSG:
 
 			log.Logger(ctx).Debug("Delete", zap.Any("msg", chatMsg))
-			if session, found := c.roomInSession(session, chatMsg.Message.RoomUuid); !found || session.readonly {
+			var knownRoom *chat.ChatRoom
+			if room, found := c.roomInSession(session, chatMsg.Message.RoomUuid); !found || room.readonly {
 				log.Logger(ctx).Error("Not authorized to post in this room")
 				break
+			} else {
+				knownRoom = &chat.ChatRoom{
+					Uuid:           room.uuid,
+					Type:           chat.RoomType(chat.RoomType_value[room.typeString]),
+					RoomTypeObject: room.typeObject,
+				}
 			}
 			message := chatMsg.Message
 			if message.Author == userName {
 				_, e := chatClient.DeleteMessage(ctx, &chat.DeleteMessageRequest{
-					Messages: []*chat.ChatMessage{message},
+					Messages:   []*chat.ChatMessage{message},
+					KnownRooms: map[string]*chat.ChatRoom{message.RoomUuid: knownRoom},
 				})
 				if e != nil {
 					log.Logger(ctx).Error("Error while deleting message", zap.Any("msg", message), zap.Error(e))
@@ -301,8 +321,10 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 }
 
 type sessionRoom struct {
-	uuid     string
-	readonly bool
+	uuid       string
+	typeString string
+	typeObject string
+	readonly   bool
 }
 
 func (c *ChatHandler) roomInSession(session *melody.Session, roomUuid string) (*sessionRoom, bool) {

@@ -7,6 +7,7 @@ import "cells-tree.proto";
 import "cells-idm.proto";
 import "cells-activitystream.proto";
 import "cells-object.proto";
+import "cells-chat.proto";
 
 package jobs;
 
@@ -198,6 +199,32 @@ message DataSelectorSingleQuery {
     string JsonPath = 1;
 }
 
+message ChatEventFilter {
+    // Selector custom label
+    string Label = 1;
+    // Selector additional description
+    string Description = 2;
+    // Query used to compute output object or list of objects
+    service.Query Query = 3;
+}
+
+message ChatEventFilterQuery {
+    // EventType, inferred from ChatEvent Details field and presence of Message or Room in event
+    string EventType = 1;
+    // Room UUID
+    string RoomUuid = 2;
+    // Room Type
+    chat.RoomType RoomType = 3;
+    // Room Associated Object
+    string RoomTypeObject = 4;
+    // Room Label
+    string RoomLabelRegexp = 5;
+    // Message Regexp
+    string MessageRegexp = 6;
+    // Message Author
+    string MessageAuthor = 7;
+}
+
 message Schedule {
     // ISO 8601 Description of the scheduling for instance "R2/2015-06-04T19:25:16.828696-07:00/PT4S"
     // where first part is the number of repetitions (if 0, infinite repetition), 
@@ -253,6 +280,9 @@ message Action {
     DataSelector DataSelector = 22;
     // Filter values from JsonBody
     DataSelector DataFilter = 23;
+
+    // Filter values from ChatEvent
+    ChatEventFilter ChatEventFilter = 24;
 
     // Defined parameters for this action
     map<string, string> Parameters = 7;
@@ -330,6 +360,8 @@ message Job {
     ContextMetaFilter ContextMetaFilter = 18;
     // DataSource objects filter
     DataSourceSelector DataSourceFilter = 21;
+    // Filter values from ChatEvent
+    ChatEventFilter ChatEventFilter = 31;
 
     // Job-level parameters that can be passed to underlying actions
     repeated JobParameter Parameters = 19;

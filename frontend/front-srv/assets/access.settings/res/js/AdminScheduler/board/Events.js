@@ -163,6 +163,39 @@ const eventMessages = {
                 description:'An access control has been closed'
             },
         },
+    },
+    CHAT_EVENT:{
+        title:'Chat Events: react to new chat message or chat room modification',
+        MESSAGE: {
+            title: 'Chat Messages Events',
+            'PUT':{
+                title: 'New Chat Message',
+                icon: 'chat-plus-outline',
+                tint: '#f6d076',
+                description: 'A new message has been posted in a ChatRoom.'
+            },
+            'DELETE':{
+                title: 'Chat Message Deleted',
+                icon: 'chat-remove-outline',
+                tint: '#f6d076',
+                description: 'A message has been deleted'
+            }
+        },
+        ROOM: {
+            title: 'Chat Rooms Events',
+            'PUT':{
+                title: 'New Chat Room',
+                icon: 'forum-plus-outline',
+                tint: '#f6d076',
+                description: 'A new room has been created'
+            },
+            'DELETE':{
+                title: 'Chat Room Deleted',
+                icon: 'forum-minus-outline',
+                tint: '#f6d076',
+                description: 'A room has been deleted'
+            }
+        }
     }
 };
 
@@ -225,11 +258,11 @@ class Events extends React.Component{
             if(k === 'title'){
                 return;
             }
-            if(isNaN(k) && k !== 'IDM_CHANGE'){
+            if(isNaN(k) && k !== 'PUT' && k !== 'DELETE' && k !== 'IDM_CHANGE' && k !== 'CHAT_EVENT'){
                 data.push({header: s[k].title});
             }
             const v = s[k];
-            if (isNaN(k)) {
+            if (isNaN(k)  && k !== 'PUT' && k !== 'DELETE') {
                 data.push(...Events.flatStruct(v, [...pref, k]))
             } else {
                 data.push([...pref, k].join(':'))

@@ -23,6 +23,8 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/proto/chat"
+	"html"
 	"strings"
 	"sync"
 	"time"
@@ -168,6 +170,14 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 		target := &idm.ChangeEvent{}
 		if ctx, e := message.Unmarshal(target); e == nil {
 			return s.idmEvent(ctx, target)
+		}
+		return nil
+	}, queueOpt, counterOpt)
+
+	_ = broker.SubscribeCancellable(parentContext, common.TopicChatEvent, func(message broker.Message) error {
+		target := &chat.ChatEvent{}
+		if ctx, e := message.Unmarshal(target); e == nil {
+			return s.chatEvent(ctx, target)
 		}
 		return nil
 	}, queueOpt, counterOpt)
@@ -430,7 +440,7 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 
 }
 
-// idmEvent Reacts to a trigger linked to a nodeChange event.
+// idmEvent Reacts to a trigger linked to an idmChangeEvent.
 func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error {
 
 	s.Lock()
@@ -438,6 +448,9 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 
 	for jobId, jobData := range s.definitions {
 		if jobData.Inactive {
+			continue
+		}
+		if len(jobData.EventNames) == 0 {
 			continue
 		}
 		sameJob := s.contextJobSameUuid(ctx, jobId)
@@ -450,6 +463,50 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 		}
 		for _, eName := range jobData.EventNames {
 			if jobs.MatchesIdmChangeEvent(eName, event) {
+				if sameJob {
+					log.Logger(tCtx).Debug("Prevent loop for job " + jobData.Label + " on event " + eName)
+					continue
+				}
+				if err := s.requiresUnsupportedCapacity(ctx, jobData); err != nil {
+					continue
+				}
+				log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eName)
+				s.enqueue(tCtx, jobData, event)
+			}
+		}
+	}
+	return nil
+}
+
+// chatEvent Reacts to a trigger linked to a chat.ChatEvent
+func (s *Subscriber) chatEvent(ctx context.Context, event *chat.ChatEvent) error {
+
+	s.Lock()
+	defer s.Unlock()
+
+	for jobId, jobData := range s.definitions {
+		if jobData.Inactive {
+			continue
+		}
+		if len(jobData.EventNames) == 0 {
+			continue
+		}
+		sameJob := s.contextJobSameUuid(ctx, jobId)
+		tCtx := s.prepareTaskContext(ctx, jobData, true, nil)
+		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(tCtx, jobData.ContextMetaFilter) {
+			continue
+		}
+		if event.Message != nil && event.Message.Message != "" {
+			// ChatMessages are sanitized, and produce HTML Entities, we must re-decode them with Unescape
+			event.Message.Message = html.UnescapeString(event.Message.Message)
+		}
+		if jobData.ChatEventFilter != nil {
+			if _, _, ok := jobData.ChatEventFilter.Filter(tCtx, createMessageFromEvent(event)); !ok {
+				continue
+			}
+		}
+		for _, eName := range jobData.EventNames {
+			if jobs.MatchesChatEvent(eName, event) {
 				if sameJob {
 					log.Logger(tCtx).Debug("Prevent loop for job " + jobData.Label + " on event " + eName)
 					continue
@@ -579,6 +636,11 @@ func createMessageFromEvent(event interface{}) *jobs.ActionMessage {
 		if idmEvent.Acl != nil {
 			initialInput = initialInput.WithAcl(idmEvent.Acl)
 		}
+
+	} else if chatEvent, ok := event.(*chat.ChatEvent); ok {
+
+		ap, _ := anypb.New(chatEvent)
+		initialInput.Event = ap
 
 	}
 

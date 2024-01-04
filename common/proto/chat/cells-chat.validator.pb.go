@@ -51,6 +51,7 @@ func (this *PostMessageRequest) Validate() error {
 			}
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *PostMessageResponse) Validate() error {
@@ -71,6 +72,7 @@ func (this *DeleteMessageRequest) Validate() error {
 			}
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *DeleteMessageResponse) Validate() error {

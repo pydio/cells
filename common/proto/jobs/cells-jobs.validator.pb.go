@@ -7,12 +7,13 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "google.golang.org/protobuf/proto"
+	_ "google.golang.org/protobuf/types/known/anypb"
+	_ "github.com/pydio/cells/v4/common/proto/service"
 	_ "github.com/pydio/cells/v4/common/proto/tree"
 	_ "github.com/pydio/cells/v4/common/proto/idm"
 	_ "github.com/pydio/cells/v4/common/proto/activity"
 	_ "github.com/pydio/cells/v4/common/proto/object"
-	_ "google.golang.org/protobuf/types/known/anypb"
-	_ "github.com/pydio/cells/v4/common/proto/service"
+	_ "github.com/pydio/cells/v4/common/proto/chat"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
@@ -106,6 +107,17 @@ func (this *DataSelector) Validate() error {
 func (this *DataSelectorSingleQuery) Validate() error {
 	return nil
 }
+func (this *ChatEventFilter) Validate() error {
+	if this.Query != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Query); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Query", err)
+		}
+	}
+	return nil
+}
+func (this *ChatEventFilterQuery) Validate() error {
+	return nil
+}
 func (this *Schedule) Validate() error {
 	return nil
 }
@@ -173,6 +185,11 @@ func (this *Action) Validate() error {
 	if this.DataFilter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DataFilter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("DataFilter", err)
+		}
+	}
+	if this.ChatEventFilter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ChatEventFilter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ChatEventFilter", err)
 		}
 	}
 	// Validation of proto3 map<> fields is unsupported.
@@ -246,6 +263,11 @@ func (this *Job) Validate() error {
 	if this.DataSourceFilter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DataSourceFilter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("DataSourceFilter", err)
+		}
+	}
+	if this.ChatEventFilter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ChatEventFilter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ChatEventFilter", err)
 		}
 	}
 	for _, item := range this.Parameters {

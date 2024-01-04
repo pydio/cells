@@ -285,6 +285,24 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 			form = protos.GenerateProtoToForm("treeQuery", &tree.Query{}, asSwitch)
 		case "jobs.ActionOutputSingleQuery":
 			form = protos.GenerateProtoToForm("actionOutputSingleQuery", &jobs.ActionOutputSingleQuery{}, asSwitch)
+		case "jobs.ChatEventFilterQuery":
+			form = protos.GenerateProtoToForm("chatEventFilterQuery", &jobs.ChatEventFilterQuery{}, asSwitch)
+			// Manually enrich form - this is a filter, always loaded as switch
+			if asSwitch {
+				sw := form.Groups[0].Fields[0].(*forms.SwitchField)
+				for _, f := range sw.Values {
+					if f.Name == "EventType" {
+						f.Fields[0].(*forms.FormField).Type = forms.ParamSelect
+						f.Fields[0].(*forms.FormField).ChoicePresetList = []map[string]string{
+							{"CHAT_EVENT:MESSAGE:PUT": "New Message"},
+							{"CHAT_EVENT:MESSAGE:DELETE": "Message Deleted"},
+							{"CHAT_EVENT:ROOM:PUT": "New Chat Room"},
+							{"CHAT_EVENT:ROOM:DELETE": "Chat Room Deleted"},
+						}
+					}
+				}
+			}
+
 		case "jobs.TriggerFilterQuery":
 			form = protos.GenerateProtoToForm("triggerFilterQuery", &jobs.TriggerFilterQuery{}, asSwitch)
 			eventsField := &forms.FormField{
