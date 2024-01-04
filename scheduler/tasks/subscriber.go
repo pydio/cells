@@ -325,10 +325,8 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 	}
 
 	// Inject evaluated job parameters
-	if len(job.Parameters) > 0 {
-		params := jobs.RunParametersComputer(ctx, &jobs.ActionMessage{}, job, event)
-		ctx = context.WithValue(ctx, ContextJobParametersKey{}, params)
-	}
+	params := jobs.RunParametersComputer(ctx, &jobs.ActionMessage{}, job, event)
+	ctx = context.WithValue(ctx, ContextJobParametersKey{}, params)
 
 	return ctx
 }

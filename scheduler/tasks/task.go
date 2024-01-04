@@ -70,7 +70,7 @@ func NewTaskFromEvent(runtime, ctx context.Context, job *jobs.Job, event interfa
 	c := servicecontext.WithOperationID(ctx, operationID)
 
 	// Inject evaluated job parameters if it's not already here
-	if len(job.Parameters) > 0 && c.Value(ContextJobParametersKey{}) == nil {
+	if c.Value(ContextJobParametersKey{}) == nil {
 		params := jobs.RunParametersComputer(c, &jobs.ActionMessage{}, job, event)
 		c = context.WithValue(c, ContextJobParametersKey{}, params)
 	}
