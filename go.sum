@@ -2270,8 +2270,8 @@ github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef h1:5FyN7pndX4GyCAb0gdZgN7
 github.com/pydio/go v0.0.0-20191211170306-d00ac19450ef/go.mod h1:H+DrbjBEehySj5ykZVFHF12kpfWtmKpsoyDZ16kUyqk=
 github.com/pydio/melody v0.0.0-20190928133520-4271c6513fb6 h1:R2xi5pGxvwcVUTRh8CrDzdkYLIQT8nXvQHyXuYg1rRE=
 github.com/pydio/melody v0.0.0-20190928133520-4271c6513fb6/go.mod h1:E3dNe7CwsJgzZjN2xiAVfAd8Spkxbviek8AZ9wjaZHk=
-github.com/pydio/minio v0.0.0-20231213164850-cfad91beb6e8 h1:4l1zdEIgn17oV/nUwz6ybKrVzSCRUzZxokOiH/FCjNU=
-github.com/pydio/minio v0.0.0-20231213164850-cfad91beb6e8/go.mod h1:mTLkS4cGpq3SrdiEYbXp385rDD6OH/wDwu38d9tOsJc=
+github.com/pydio/minio v0.0.0-20240104162433-5db24afc7c04 h1:28WV0JYDKMMHPUze5SaEFLCf1hUEshL/Eu8mvyfIFnk=
+github.com/pydio/minio v0.0.0-20240104162433-5db24afc7c04/go.mod h1:mTLkS4cGpq3SrdiEYbXp385rDD6OH/wDwu38d9tOsJc=
 github.com/pydio/pydio-sdk-go v0.0.0-20190116153840-23ce5c39e65c h1:aC9RjBWAeYiyaXH60aHiEaSvYgpS9NyGbFvOl8xuIBg=
 github.com/pydio/pydio-sdk-go v0.0.0-20190116153840-23ce5c39e65c/go.mod h1:GqSiZ8UE5erTBYBBt9+mA4p9OdgVy24vgRLCEY85N7g=
 github.com/quic-go/qpack v0.4.0 h1:Cr9BXA1sQS2SmDUWjSofMPNKmvF6IiIfDRmgU0w1ZCo=
@@ -2428,6 +2428,7 @@ github.com/soheilhy/cmux v0.1.4/go.mod h1:IM3LyeVVIOuxMH7sFAkER9+bJ4dT7Ms6E4xg4k
 github.com/sony/gobreaker v0.4.1/go.mod h1:ZKptC7FHNvhBz7dN2LGjPVBz2sZJmc0/PkyDJOjmxWY=
 github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d h1:yKm7XZV6j9Ev6lojP2XaIshpT4ymkqhMeSghO5Ps00E=
 github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d/go.mod h1:UdhH50NIW0fCiwBSr0co2m7BnFLdv4fQTgdqdJTHFeE=
+github.com/sourcegraph/appdash-data v0.0.0-20151005221446-73f23eafcf67/go.mod h1:tNZjgbYncKL5HxvDULAr/mWDmFz4B7H8yrXEDlnoIiw=
 github.com/sourcegraph/syntaxhighlight v0.0.0-20170531221838-bd320f5d308e h1:qpG93cPwA5f7s/ZPBJnGOYQNK/vKsaDaseuKT5Asee8=
 github.com/sourcegraph/syntaxhighlight v0.0.0-20170531221838-bd320f5d308e/go.mod h1:HuIsMU8RRBOtsCgI77wP899iHVBQpCmg4ErYMZB+2IA=
 github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
@@ -3883,4 +3884,3 @@ sigs.k8s.io/structured-merge-diff/v4 v4.1.2/go.mod h1:j/nl6xW8vLS49O8YvXW1ocPhZa
 sigs.k8s.io/yaml v1.1.0/go.mod h1:UJmg0vDUVViEyp3mgSv9WPwZCDxu4rQW1olrI1uml+o=
 sigs.k8s.io/yaml v1.2.0/go.mod h1:yfXDCHCao9+ENCvLSE62v9VSji2MKu5jeNfTrofGhJc=
 sourcegraph.com/sourcegraph/appdash v0.0.0-20190731080439-ebfcffb1b5c0/go.mod h1:hI742Nqp5OhwiqlzhgfbWU4mW4yO10fP+LoT9WOswdU=
-sourcegraph.com/sourcegraph/appdash-data v0.0.0-20151005221446-73f23eafcf67/go.mod h1:L5q+DGLGOQFpo1snNEkLOJT2d1YTW66rWNzatr3He1k=
