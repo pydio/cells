@@ -130,7 +130,7 @@ func search(ctx context.Context, index *Server, queryObject *tree.Query) ([]*tre
 		}
 	}()
 
-	e := index.SearchNodes(ctx, queryObject, 0, 10, resultsChan, facetsChan, doneChan)
+	e := index.SearchNodes(ctx, queryObject, 0, 10, "", false, resultsChan, facetsChan, doneChan)
 	wg.Wait()
 	return results, e
 

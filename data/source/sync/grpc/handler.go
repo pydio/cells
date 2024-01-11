@@ -510,10 +510,6 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 	var doneChan chan interface{}
 	blocker := make(chan interface{})
 
-	fullLog := &jobs.ActionLog{
-		OutputMessage: &jobs.ActionMessage{},
-	}
-
 	if req.Task != nil {
 		statusChan = make(chan model.Status)
 		doneChan = make(chan interface{})
@@ -531,7 +527,6 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 		theTask.Progress = 0
 		theTask.Status = jobs.TaskStatus_Running
 		theTask.StartTime = int32(time.Now().Unix())
-		theTask.ActionsLogs = append(theTask.ActionsLogs, fullLog)
 
 		log.TasksLogger(c).Info("Starting Resync")
 		taskChan <- theTask
@@ -638,7 +633,6 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 			theTask.EndTime = int32(time.Now().Unix())
 			theTask.Status = jobs.TaskStatus_Error
 			log.TasksLogger(c).Error("Error during sync task", zap.Error(e))
-			theTask.ActionsLogs = append(theTask.ActionsLogs, fullLog)
 			taskClient.PutTask(c, &jobs.PutTaskRequest{Task: theTask})
 		}
 		return nil, e

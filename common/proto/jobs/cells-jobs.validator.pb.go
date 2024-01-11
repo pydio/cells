@@ -7,13 +7,13 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "google.golang.org/protobuf/proto"
-	_ "google.golang.org/protobuf/types/known/anypb"
-	_ "github.com/pydio/cells/v4/common/proto/service"
-	_ "github.com/pydio/cells/v4/common/proto/tree"
 	_ "github.com/pydio/cells/v4/common/proto/idm"
 	_ "github.com/pydio/cells/v4/common/proto/activity"
 	_ "github.com/pydio/cells/v4/common/proto/object"
 	_ "github.com/pydio/cells/v4/common/proto/chat"
+	_ "google.golang.org/protobuf/types/known/anypb"
+	_ "github.com/pydio/cells/v4/common/proto/service"
+	_ "github.com/pydio/cells/v4/common/proto/tree"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
@@ -22,10 +22,18 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+func (this *SelectorRange) Validate() error {
+	return nil
+}
 func (this *NodesSelector) Validate() error {
 	if this.Query != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Query); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Query", err)
+		}
+	}
+	if this.Range != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Range); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Range", err)
 		}
 	}
 	return nil
@@ -34,6 +42,11 @@ func (this *IdmSelector) Validate() error {
 	if this.Query != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Query); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Query", err)
+		}
+	}
+	if this.Range != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Range); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Range", err)
 		}
 	}
 	return nil
@@ -328,6 +341,7 @@ func (this *TaskChangeEvent) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Job", err)
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *PutJobRequest) Validate() error {
@@ -391,6 +405,7 @@ func (this *PutTaskRequest) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Task", err)
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *PutTaskResponse) Validate() error {

@@ -78,9 +78,11 @@ func (s *TreeServer) Search(request *tree.SearchRequest, stream tree.Searcher_Se
 	}
 
 	listReq := &tree.ListNodesRequest{
-		Node:      &tree.Node{},
-		Offset:    int64(request.From),
-		Recursive: true,
+		Node:        &tree.Node{},
+		Offset:      int64(request.From),
+		SortField:   request.GetSortField(),
+		SortDirDesc: request.GetSortDirDesc(),
+		Recursive:   true,
 	}
 	if request.Size > 0 {
 		listReq.Limit = int64(request.Size)

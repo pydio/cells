@@ -169,11 +169,11 @@ func (s *Server) ClearIndex(ctx context.Context) error {
 	})
 }
 
-func (s *Server) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
+func (s *Server) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, sortField string, sortDesc bool, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
 
 	accu := NewQueryCodec(s.Engine, s.configs, s.nsProvider)
 
-	searchResult, err := s.Engine.FindMany(c, queryObject, from, size, accu)
+	searchResult, err := s.Engine.FindMany(c, queryObject, from, size, sortField, sortDesc, accu)
 	if err != nil {
 		doneChan <- true
 		return err

@@ -215,6 +215,10 @@ message SearchRequest{
     bool Details = 4;
     // Generic Details Flags
     repeated uint32 StatFlags = 5;
+    // Sort result using a specific field
+    string SortField = 6;
+    // Sort direction (asc by default)
+    bool SortDirDesc = 7;
 }
 
 message SearchFacet {

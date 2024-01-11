@@ -45,7 +45,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
@@ -56,6 +55,7 @@ type WebsocketHandler struct {
 	Websocket      *melody.Melody
 	EventRouter    *compose.Reverse
 	completedTasks cache.Cache
+	statusTasks    cache.Cache
 
 	batcherLock   *sync.Mutex
 	batchers      map[string]*NodeEventsBatcher
@@ -65,15 +65,13 @@ type WebsocketHandler struct {
 }
 
 func NewWebSocketHandler(serviceCtx context.Context) *WebsocketHandler {
-	c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "60s", "cleanWindow", "5m"))
 	w := &WebsocketHandler{
-		runtimeCtx:     serviceCtx,
-		batchers:       make(map[string]*NodeEventsBatcher),
-		dispatcher:     make(chan *NodeChangeEventWithInfo, 5000),
-		done:           make(chan string),
-		batcherLock:    &sync.Mutex{},
-		silentDropper:  rate.NewLimiter(20, 10),
-		completedTasks: c,
+		runtimeCtx:    serviceCtx,
+		batchers:      make(map[string]*NodeEventsBatcher),
+		dispatcher:    make(chan *NodeChangeEventWithInfo, 5000),
+		done:          make(chan string),
+		batcherLock:   &sync.Mutex{},
+		silentDropper: rate.NewLimiter(20, 10),
 	}
 	w.InitHandlers(serviceCtx)
 	go func() {
@@ -335,16 +333,6 @@ func (w *WebsocketHandler) BroadcastTaskChangeEvent(ctx context.Context, event *
 		value, ok := session.Get(SessionUsernameKey)
 		if !ok || value == nil {
 			return false
-		}
-		status := event.TaskUpdated.GetStatus()
-		if status == jobs.TaskStatus_Error || status == jobs.TaskStatus_Finished {
-			w.completedTasks.Set(event.TaskUpdated.ID, true)
-		} else {
-			var b bool
-			if w.completedTasks.Get(event.TaskUpdated.ID, &b); b {
-				// Skipping event arriving AFTER task has finished status
-				return false
-			}
 		}
 		isOwner := value.(string) == taskOwner || (taskOwner == common.PydioSystemUsername && isAdmin)
 		if isOwner {

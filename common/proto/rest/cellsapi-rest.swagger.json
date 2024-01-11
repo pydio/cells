@@ -2236,6 +2236,10 @@
           "$ref": "#/definitions/serviceQuery",
           "title": "Serialized search query"
         },
+        "Range": {
+          "$ref": "#/definitions/jobsSelectorRange",
+          "title": "Handle ranges"
+        },
         "Timeout": {
           "title": "Optional Timeout for this selector",
           "type": "string"
@@ -2553,6 +2557,10 @@
           "$ref": "#/definitions/serviceQuery",
           "title": "Query to apply to select users (or filter a given node passed by event)"
         },
+        "Range": {
+          "$ref": "#/definitions/jobsSelectorRange",
+          "title": "Handle ranges"
+        },
         "Timeout": {
           "title": "Optional Timeout for this selector",
           "type": "string"
@@ -2569,6 +2577,27 @@
         },
         "Iso8601Schedule": {
           "description": "ISO 8601 Description of the scheduling for instance \"R2/2015-06-04T19:25:16.828696-07:00/PT4S\"\nwhere first part is the number of repetitions (if 0, infinite repetition), \nsecond part the starting date and last part, the duration between 2 occurrences.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "jobsSelectorRange": {
+      "properties": {
+        "Limit": {
+          "title": "Limit number of results - use string to allow templating",
+          "type": "string"
+        },
+        "Offset": {
+          "title": "Start offset - use string to allow templating",
+          "type": "string"
+        },
+        "OrderBy": {
+          "title": "OrderBy a given field of the object",
+          "type": "string"
+        },
+        "OrderDir": {
+          "title": "Order direction (asc/desc)",
           "type": "string"
         }
       },
@@ -5105,6 +5134,12 @@
         "ResourcePolicyQuery": {
           "$ref": "#/definitions/serviceResourcePolicyQuery"
         },
+        "SortDesc": {
+          "type": "boolean"
+        },
+        "SortField": {
+          "type": "string"
+        },
         "SubQueries": {
           "items": {
             "$ref": "#/definitions/protobufAny"
@@ -5602,6 +5637,14 @@
           "format": "int32",
           "title": "Limit the number of results",
           "type": "integer"
+        },
+        "SortDirDesc": {
+          "title": "Sort direction (asc by default)",
+          "type": "boolean"
+        },
+        "SortField": {
+          "title": "Sort result using a specific field",
+          "type": "string"
         },
         "StatFlags": {
           "items": {
