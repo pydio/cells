@@ -127,7 +127,8 @@ class ContextMenu extends Component{
                 ref={this.menu}
                 menuItems={this._items || []}
                 onMenuClosed={this.props.onMenuClosed}
-                menuProps={mobile ? {width:600, autoWidth:false, desktop: false} : {}}
+                menuProps={mobile ? {width:600, autoWidth:false} : {}}
+                paperStyle={mobile ? {borderBottomLeftRadius:0, borderBottomRightRadius:0} : null}
                 zDepth={mobile ? 2 : 1}
             />
         );

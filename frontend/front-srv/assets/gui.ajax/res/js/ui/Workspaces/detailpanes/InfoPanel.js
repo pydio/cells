@@ -29,154 +29,48 @@ const {withVerticalScroll} = Pydio.requireLib('hoc')
 const {EmptyStateView} = Pydio.requireLib('components')
 const {AsyncComponent} = Pydio.requireLib('boot')
 
-let Template = ({id, style, children}) => {
-    return <Paper zDepth={0} rounded={false} id={id} style={{backgroundColor:'transparent', ...style}}>{children}</Paper>
-}
 
-/*
-const {Animations} = Pydio.requireLib('hoc')
-const originStyles = {translateX: 600}
-const targetStyles = {translateX: 0}
-
-Template = compose(
-    Animations.makeAsync,
-    Animations.makeTransition(originStyles, targetStyles),
-)(Template)
-*/
-
+// We keep this as a legacy component to retrieve the scrollArea context
 class InfoPanel extends React.Component {
-
-    constructor(props) {
-        super(props)
-
-        let initTemplates = ConfigsParser.parseConfigs();
-        this._updateExpected = true;
-
-        this.state = {
-            templates:initTemplates,
-            displayData: this.selectionToTemplates(initTemplates)
-        };
-    }
-
-    componentWillReceiveProps(nextProps, nextContext) {
-        const {muiTheme:currentTheme} = this.props;
-        const {muiTheme} = nextProps;
-        if(muiTheme.darkMode !== currentTheme.darkMode) {
-            this._updateExpected = true
-        }
-    }
-
-    shouldComponentUpdate(){
-        return this._updateExpected;
-    }
-
-    componentDidMount() {
-        const scrollerRefresh = () => {
-            try{this.context.scrollArea.refresh()}catch(e){}
-        };
-        this._updateHandler = () => {
-            this._updateExpected = true;
-            this.setState({displayData: this.selectionToTemplates()}, ()=> {
-                this._updateExpected = false;
-                if(this.context.scrollArea) {
-                    setTimeout(scrollerRefresh, 750);
-                }
-            });
-        };
-        this._componentConfigHandler = () => {
-            this._updateExpected = true;
-            this.setState({templates:ConfigsParser.parseConfigs()}, () => {
-                this._updateExpected = false;
-                if(this.context.scrollArea) {
-                    setTimeout(scrollerRefresh, 750);
-                }
-            })
-        };
-
-        this.props.pydio.observe("actions_refreshed", this._updateHandler );
-        this.props.pydio.observe("selection_reloaded", this._updateHandler );
-        this.props.pydio.observe("registry_loaded", this._componentConfigHandler );
-
-        // Trigger contentChange
-        if(this.state.displayData && this.state.displayData.TEMPLATES && this.props.onContentChange){
-            this.props.onContentChange(this.state.displayData.TEMPLATES.length);
-        }
-    }
-
-    componentWillUnmount() {
-        this.props.pydio.stopObserving("actions_refreshed", this._updateHandler );
-        this.props.pydio.observe("selection_reloaded", this._updateHandler );
-        this.props.pydio.stopObserving("registry_loaded", this._componentConfigHandler );
-    }
-
-    selectionToTemplates(initTemplates = null){
-
-        let refTemplates = initTemplates || this.state.templates;
-        const {dataModel} = this.props;
-        let selection = dataModel.getSelectedNodes();
-        if((!selection || !selection.length) && dataModel.getContextNode() === dataModel.getRootNode()){
-            selection = [dataModel.getContextNode()];
-        }
-        let primaryMime, templates = [], uniqueNode;
-        let data = {};
-        if(!selection || selection.length < 1){
-            primaryMime = 'no_selection';
-        }else if(selection.length > 1){
-            primaryMime = 'generic_multiple';
-            data.nodes = selection;
-        }else {
-            uniqueNode = selection[0];
-            if(uniqueNode.isLeaf()){
-                primaryMime = 'generic_file';
-            }else{
-                primaryMime = 'generic_dir';
-                if(this.props.dataModel.getRootNode() === uniqueNode){
-                    primaryMime = 'ajxp_root_node';
-                }
-            }
-            data.node = uniqueNode;
-        }
-        if(refTemplates.has(primaryMime)){
-            templates = templates.concat(refTemplates.get(primaryMime));
-        }
-        if(uniqueNode){
-            refTemplates.forEach(function(list, mimeName){
-                if(mimeName === primaryMime) {
-                    return;
-                }
-                if(mimeName.indexOf('meta:') === 0 && uniqueNode.getMetadata().has(mimeName.substr(5))){
-                    templates = templates.concat(list);
-                }else if(uniqueNode.getAjxpMime() === mimeName){
-                    templates = templates.concat(list);
-                }
-            });
-        }
-
-        if(this.props.onContentChange && !initTemplates){
-            this.props.onContentChange(templates.length);
-        }
-        templates.sort(function(a, b){
-            return (a.WEIGHT === b.WEIGHT ? 0 : ( a.WEIGHT > b.WEIGHT ? 1 : -1));
-        });
-        return {TEMPLATES:templates, DATA:data};
-    }
 
     render() {
 
-        const {mainEmptyStateProps} = this.props;
-        const {displayData} = this.state;
+        const {displayData, mainEmptyStateProps, onContentChange, style, switches, muiTheme, ...subProps} = this.props;
+        const styles = muiTheme.buildFSTemplate({}).infoPanel;
 
-        let templates = displayData.TEMPLATES.map((tpl, i) => {
+        let dataTemplates = [...displayData.TEMPLATES];
+
+        if(switches) {
+            // Apply registered switches
+            switches.forEach(({source, target}) => {
+                const srcIndex = dataTemplates.findIndex(t => t.COMPONENT === source)
+                const targetIndex = dataTemplates.findIndex(t => t.COMPONENT === target)
+                if(srcIndex > -1 && targetIndex > -1) {
+                    const temp = dataTemplates[targetIndex]
+                    dataTemplates[targetIndex] = dataTemplates[srcIndex]
+                    dataTemplates[srcIndex] = temp;
+                }
+            });
+        }
+
+        let scrollAreaProps = {}
+        if(this.context && this.context.scrollArea)(
+            scrollAreaProps = this.context.scrollArea
+        )
+
+        let templates = dataTemplates.map((tpl, i) => {
             const component = tpl.COMPONENT;
             const [namespace, name] = component.split('.', 2);
 
             return (
                 <AsyncComponent
                     {...displayData.DATA}
-                    {...this.props}
+                    {...subProps}
+                    {...tpl.PROPS}
                     key={"ip_" + component}
                     namespace={namespace}
                     componentName={name}
+                    scrollAreaProps={scrollAreaProps}
                 />
             );
         });
@@ -184,7 +78,7 @@ class InfoPanel extends React.Component {
             templates.push(<EmptyStateView {...mainEmptyStateProps}/>)
         }
         return (
-            <Template style={this.props.style}>{templates}</Template>
+            <Paper zDepth={0} rounded={false} style={{backgroundColor:'transparent', ...styles.contentContainer, ...style}}>{templates}</Paper>
         );
     }
 }
@@ -199,36 +93,9 @@ InfoPanel.contextTypes = {
     scrollArea: PropTypes.object
 };
 
+const InfoPanelNoScroll = muiThemeable()(InfoPanel);
 InfoPanel = withVerticalScroll(InfoPanel, {id: "info_panel"})
 InfoPanel = muiThemeable()(InfoPanel)
 
-class ConfigsParser {
-
-    static parseConfigs(){
-
-        let panelsNodes = XMLUtils.XPathSelectNodes(pydio.getXmlRegistry(), 'client_configs/component_config[@component="InfoPanel"]/infoPanel');
-        let panels = new Map();
-        panelsNodes.forEach(function(node){
-            if(!node.getAttribute('reactComponent')) {
-                return;
-            }
-            let mimes = node.getAttribute('mime').split(',');
-            let component = node.getAttribute('reactComponent');
-            mimes.map(function(mime){
-                if(!panels.has(mime)) {
-                    panels.set(mime, []);
-                }
-                panels.get(mime).push({
-                    COMPONENT:component,
-                    THEME:node.getAttribute('theme'),
-                    ATTRIBUTES:node.getAttribute('attributes'),
-                    WEIGHT:node.getAttribute('weight') ? parseInt(node.getAttribute('weight')) : 0
-                });
-            });
-        });
-        return panels;
-
-    }
-}
-
 export {InfoPanel as default};
+export {InfoPanelNoScroll};

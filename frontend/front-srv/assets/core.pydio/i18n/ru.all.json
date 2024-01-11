@@ -585,7 +585,7 @@
     "other": "Удалить"
   },
   "272": {
-    "other": "Drop open table"
+    "other": "Удалить открытую таблицу"
   },
   "273": {
     "other": "Вставить"
@@ -693,151 +693,151 @@
     "other": "Копировать выделенное как текст, разделенный табуляцией."
   },
   "304": {
-    "other": "Back"
+    "other": "Назад"
   },
   "305": {
-    "other": "Go back to main page"
+    "other": "Вернуться на главную страницу"
   },
   "306": {
-    "other": "Too many items"
+    "other": "Слишком много элементов"
   },
   "307": {
-    "other": "Fill optional fields"
+    "other": "Заполнить необязательные поля"
   },
   "308": {
-    "other": "Generate Link"
+    "other": "Создать ссылку"
   },
   "309": {
-    "other": "Generate"
+    "other": "Создать"
   },
   "31": {
-    "other": "You must select a file"
+    "other": "Необходимо выбрать файл"
   },
   "310": {
-    "other": "Options"
+    "other": "Варианты"
   },
   "311": {
-    "other": "Upload automatically when a file is added"
+    "other": "Загружать автоматически при добавлении файла"
   },
   "312": {
-    "other": "Uploader Options"
+    "other": "Параметры загрузчика"
   },
   "313": {
-    "other": "Compress..."
+    "other": "Сжатие..."
   },
   "314": {
-    "other": "Compress selection to zip..."
+    "other": "Сжать выделенное zip..."
   },
   "315": {
-    "other": "Compress selection to"
+    "other": "Сжать выделенное в"
   },
   "316": {
-    "other": "View/Edit"
+    "other": "Просмотр/Редактирование"
   },
   "317": {
-    "other": "Source Editor"
+    "other": "Редактор исходного кода"
   },
   "318": {
-    "other": "CodePress source code viewer"
+    "other": "Просмотрщик исходного кода CodePress"
   },
   "319": {
-    "other": "HTML Editor"
+    "other": "HTML-редактор"
   },
   "32": {
-    "other": "Explore"
+    "other": "Найти"
   },
   "320": {
-    "other": "WYSIWYG editor for HTML"
+    "other": "WYSIWYG редактор для HTML"
   },
   "321": {
-    "other": "Select"
+    "other": "Выбрать"
   },
   "322": {
-    "other": "Select the current file"
+    "other": "Выбрать текущий файл"
   },
   "323": {
-    "other": "E-mail this URL"
+    "other": "Отправить на этот адрес"
   },
   "324": {
-    "other": "No editor available"
+    "other": "Редактор недоступен"
   },
   "325": {
-    "other": "Fit Best"
+    "other": "По лучшему"
   },
   "326": {
-    "other": "No Fit"
+    "other": "Нет подходящего варианта"
   },
   "327": {
     "other": "100%"
   },
   "328": {
-    "other": "Document Reader"
+    "other": "Читатель документа"
   },
   "329": {
-    "other": "View pdf,svg, tif and more online"
+    "other": "Просмотр pdf, svg, tif и других форматов онлайн"
   },
   "33": {
-    "other": "Error uploading file !"
+    "other": "Ошибка загрузки файла!"
   },
   "330": {
-    "other": "Please wait while the pages are being rendered..."
+    "other": "Пожалуйста, подождите, пока страницы отображаются..."
   },
   "331": {
-    "other": "Page"
+    "other": "Страница"
   },
   "332": {
-    "other": "of"
+    "other": "из"
   },
   "333": {
-    "other": "Pixlr image editor"
+    "other": "Редактор изображений Pixlr"
   },
   "334": {
-    "other": "more"
+    "other": "ещё"
   },
   "335": {
-    "other": "Please enter a page number between 1 and "
+    "other": "Пожалуйста, введите номер страницы между 1 и "
   },
   "336": {
-    "other": "Sorry you cannot drop folders, drop only files!"
+    "other": "Извините, вы не можете удалить папки, удалять только файлы!"
   },
   "337": {
-    "other": "Start uploading automatically"
+    "other": "Запустить загрузку автоматически"
   },
   "338": {
-    "other": "Close panel after upload is finished"
+    "other": "Закрыть панель после завершения загрузки"
   },
   "339": {
-    "other": "Existing Files"
+    "other": "Существующие файлы"
   },
   "34": {
-    "other": "The file"
+    "other": "Файл"
   },
   "340": {
-    "other": "Alert"
+    "other": "Предупреждение"
   },
   "341": {
-    "other": "File Info"
+    "other": "Сведения о файле"
   },
   "342": {
-    "other": "Folder Info"
+    "other": "Сведения о папке"
   },
   "343": {
-    "other": "Image Info"
+    "other": "Сведения об изображении"
   },
   "344": {
-    "other": "Search on"
+    "other": "Поиск по"
   },
   "345": {
-    "other": "No version information could be retrieved"
+    "other": "Не удалось получить информацию о версии"
   },
   "346": {
-    "other": "Your version is up to date"
+    "other": "Ваша версия обновлена"
   },
   "347": {
-    "other": "A new version (%s) is available! Visit %s"
+    "other": "Доступна новая версия (%s)! Посетите %s"
   },
   "348": {
-    "other": "A new workspace has been shared."
+    "other": "Новое рабочее пространство в общем доступе."
   },
   "349": {
     "other": "Предупреждение, пропущены аргументы"
@@ -1251,7 +1251,7 @@
     "other": "Забыли пароль?"
   },
   "48": {
-    "other": "Ok"
+    "other": "Ок"
   },
   "480": {
     "other": "Просмотреть все папки в текущей рабочей области."
@@ -1266,73 +1266,73 @@
     "other": "Вы не можете создать больше пользователей!"
   },
   "484": {
-    "other": "Create user"
+    "other": "Создать пользователя"
   },
   "485": {
-    "other": "Create a shared user"
+    "other": "Создать общего пользователя"
   },
   "486": {
-    "other": "Advanced"
+    "other": "Дополнительные параметры"
   },
   "487": {
-    "other": "Basic"
+    "other": "Основные"
   },
   "488": {
-    "other": "Advanced Filter"
+    "other": "Дополнительный фильтр"
   },
   "489": {
-    "other": "Metadata"
+    "other": "Метаданные"
   },
   "49": {
-    "other": "Cancel"
+    "other": "Отмена"
   },
   "490": {
-    "other": "Date range"
+    "other": "Диапазон дат"
   },
   "491": {
-    "other": "After"
+    "other": "После"
   },
   "492": {
-    "other": "until"
+    "other": "до"
   },
   "493": {
-    "other": "Today"
+    "other": "Cегодня"
   },
   "494": {
-    "other": "Yesterday"
+    "other": "Вчера"
   },
   "494t": {
-    "other": "Tomorrow"
+    "other": "Завтра"
   },
   "495": {
-    "other": "Last week"
+    "other": "Прошлая неделя"
   },
   "496": {
-    "other": "Last month"
+    "other": "Прошлый месяц"
   },
   "497": {
-    "other": "Last year"
+    "other": "Прошлый год"
   },
   "498": {
-    "other": "Document Property"
+    "other": "Свойство документа"
   },
   "499": {
     "other": "Файл"
   },
   "5": {
-    "other": "Actions"
+    "other": "Действия"
   },
   "50": {
-    "other": "Exe file"
+    "other": "Exe файл"
   },
   "500": {
-    "other": "Extension"
+    "other": "Расширение"
   },
   "501": {
-    "other": "or"
+    "other": "или"
   },
   "502": {
-    "other": "Folders only"
+    "other": "Только папки"
   },
   "503": {
     "other": "Размер"
@@ -1344,79 +1344,79 @@
     "other": "в"
   },
   "506": {
-    "other": "Application parameters (users, workspaces, configurations)"
+    "other": "Параметры приложения (пользователи, рабочие пространства, конфигурации)"
   },
   "507": {
-    "other": "Welcome on %s"
+    "other": "Добро пожаловать в %s"
   },
   "508": {
-    "other": "I just created an account for you on %s. To connect, please click on the following link %link and use these credentials:  <br><br> Login: %user <br><br> Password: %pass"
+    "other": "Я только что создал учетную запись для вас на сайте %s. Для подключения, пожалуйста, нажмите на следующую ссылку %link и используйте эти учетные данные:  <br><br> Логин: %user <br><br> Пароль: %pass"
   },
   "509": {
-    "other": "Save as a team"
+    "other": "Сохранить как команду"
   },
   "51": {
-    "other": "Text Editor"
+    "other": "Текстовый редактор"
   },
   "510": {
-    "other": "Please enter a team label"
+    "other": "Пожалуйста, введите метку команды"
   },
   "511": {
-    "other": "My %s"
+    "other": "Мой %s"
   },
   "512": {
-    "other": "Desktop Full Screen"
+    "other": "Полный экран"
   },
   "513": {
-    "other": "show"
+    "other": "показать"
   },
   "514": {
-    "other": "hide"
+    "other": "скрыть"
   },
   "515": {
-    "other": "No bookmarks - Drop files or folders here for quick access."
+    "other": "Нет закладок - Перетащите файлы или папки здесь для быстрого доступа."
   },
   "516": {
-    "other": "expand"
+    "other": "развернуть"
   },
   "517": {
-    "other": "collapse"
+    "other": "свернуть"
   },
   "518": {
-    "other": "Alternatively, you can <a class='create_file_alt_link'>create a new empty file</a>."
+    "other": "Кроме того, вы можете <a>создать новую закладку по адресу</a>."
   },
   "519": {
-    "other": "Update user"
+    "other": "Обновить пользователя"
   },
   "52": {
-    "other": "Editing file"
+    "other": "Редактирование файла"
   },
   "520": {
-    "other": "Update user data and password"
+    "other": "Обновить данные пользователя и пароль"
   },
   "521": {
-    "other": "User was update successfully"
+    "other": "Пользователь успешно обновлен"
   },
   "522": {
-    "other": "User ID"
+    "other": "ID пользователя"
   },
   "523": {
     "other": "Пароль"
   },
   "524": {
-    "other": "Update Password"
+    "other": "Обновить пароль"
   },
   "525": {
-    "other": "Show original picture"
+    "other": "Показать исходное изображение"
   },
   "526": {
-    "other": "Low-resolution version"
+    "other": "Версия с низким разрешением"
   },
   "527": {
     "other": "Общие с..."
   },
   "528": {
-    "other": "Internal users"
+    "other": "Внутренние пользователи"
   },
   "53": {
     "other": "Сохранить"
@@ -1659,7 +1659,7 @@
     "other": "Добавить пользователя"
   },
   "599-a": {
-    "other": "All Results"
+    "other": "Все результаты"
   },
   "6": {
     "other": "Переименовать"
@@ -1701,7 +1701,7 @@
     "other": "GZ Файл"
   },
   "610": {
-    "other": "All workspaces"
+    "other": "Все рабочие области"
   },
   "611": {
     "other": "Начните вводить слово для поиска"
@@ -1863,7 +1863,7 @@
     "other": "Отправить"
   },
   "78": {
-    "other": "Pass"
+    "other": "Пароль"
   },
   "79": {
     "other": "PDF файл"
@@ -1872,67 +1872,67 @@
     "other": "Папка"
   },
   "80": {
-    "other": "MOV File"
+    "other": "MOV файл"
   },
   "81": {
-    "other": "AVI File"
+    "other": "AVI файл"
   },
   "82": {
-    "other": "MPG File"
+    "other": "MPG файл"
   },
   "83": {
-    "other": "MPEG File"
+    "other": "MPEG файл"
   },
   "84": {
-    "other": "Help"
+    "other": "Справка"
   },
   "85": {
-    "other": "Refresh"
+    "other": "Обновить"
   },
   "86": {
-    "other": "Close"
+    "other": "Закрыть"
   },
   "87": {
-    "other": "Search"
+    "other": "Поиск"
   },
   "88": {
     "other": "Скачивание"
   },
   "89": {
-    "other": "Unable to open file"
+    "other": "Не удается открыть файл"
   },
   "9": {
-    "other": "Midi File"
+    "other": "Файл Midi"
   },
   "90": {
-    "other": "Print"
+    "other": "Печать"
   },
   "91": {
-    "other": "FLASH File"
+    "other": "Файл FLASH"
   },
   "92": {
     "other": "Язык"
   },
   "93": {
-    "other": "To choose your language, your browser must accept cookies."
+    "other": "Чтобы выбрать язык, ваш браузер должен принимать cookies."
   },
   "94": {
     "other": "Логин"
   },
   "95": {
-    "other": "Select your language :"
+    "other": "Выберите язык:"
   },
   "96": {
-    "other": "Please select the destination folder in the tree : "
+    "other": "Пожалуйста, выберите папку назначения в дереве : "
   },
   "97": {
-    "other": "Upload File"
+    "other": "Загрузить файл"
   },
   "98": {
-    "other": "Click anywhere on this box to close it."
+    "other": "Кликните в любом месте этого окна, чтобы закрыть его."
   },
   "99": {
-    "other": "is not writeable. There might be a permission problem, please check with your administrator."
+    "other": "не доступен для записи. Это может быть проблема доступа, пожалуйста, проверьте с вашим администратором."
   },
   "about_access_key": {
     "other": "A"
@@ -1947,76 +1947,82 @@
     "other": "C"
   },
   "create_repo_accesskey": {
-    "other": "R"
+    "other": "Р"
   },
   "create_user_accesskey": {
-    "other": "U"
+    "other": "У"
   },
   "date_format": {
     "other": "Y/m/d H:i"
   },
   "date_intl_locale": {
-    "other": "en_US"
+    "other": "Английский (США)"
   },
   "date_relative_date": {
-    "other": "on DATE"
+    "other": "в дату"
   },
   "date_relative_date_format": {
     "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s days ago"
+    "other": "%s дней назад"
   },
   "date_relative_days_ahead": {
-    "other": "in %s days"
+    "other": "через %s дней"
   },
   "date_relative_time": {
-    "other": "TIME"
+    "other": "ВРЕМЯ"
   },
   "date_relative_time_format": {
     "other": "H:i"
   },
   "date_relative_today": {
-    "other": "today at TIME"
+    "other": "[Today at] LT"
   },
   "date_relative_tomorrow": {
-    "other": "tomorrow at TIME"
+    "other": "[Tomorrow at] LT"
   },
   "date_relative_yesterday": {
-    "other": "yesterday at TIME"
+    "other": "[Yesterday at] LT"
+  },
+  "date_relative_lastweek": {
+    "other": "[Last] dddd [at] LT"
+  },
+  "date_relative_nextweek": {
+    "other": "dddd [at] LT"
   },
   "delete_access_key": {
-    "other": "D"
+    "other": "Д"
   },
   "detail_access_key": {
-    "other": "L"
+    "other": "Л"
   },
   "download_access_key": {
     "other": "w"
   },
   "edit_access_key": {
-    "other": "E"
+    "other": "Е"
   },
   "empty_recycle_access_key": {
     "other": "y"
   },
   "file_access_key": {
-    "other": "F"
+    "other": "Ф"
   },
   "folder_access_key": {
-    "other": "N"
+    "other": "Н"
   },
   "languageLabel": {
-    "other": "English"
+    "other": "Английский"
   },
   "leftpane_accesskey": {
-    "other": "L"
+    "other": "Л"
   },
   "list_access_key": {
-    "other": "i"
+    "other": "и"
   },
   "move_access_key": {
-    "other": "M"
+    "other": "М"
   },
   "open_with_access": {
     "other": "е"
@@ -2070,7 +2076,7 @@
     "other": "Инструменты для отправки писем"
   },
   "plugtype.desc.search-engine": {
-    "other": "Search Engine options"
+    "other": "Параметры поисковой системы"
   },
   "plugtype.desc.meta": {
     "other": "Дополнительные возможности для добавления в рабочие области"
@@ -2136,7 +2142,7 @@
     "other": "Почтовые службы"
   },
   "plugtype.title.search-engine": {
-    "other": "Search Engine"
+    "other": "Поисковая система"
   },
   "plugtype.title.meta": {
     "other": "Мета-аспекты рабочей области"
@@ -2250,10 +2256,10 @@
     "other": "Не используйте \"/\" в имени файла!"
   },
   "filename.forbidden.empty": {
-    "other": "You must provide a name!"
+    "other": "Необходимо указать название!"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+    "other": "Предупреждение, кажется, имя начинается или заканчивается пустым символом (возможно, опечаткой?)"
   },
   "rename.newvalue.error.similar": {
     "other": "Пожалуйста, используйте другое значение для переименования!"
@@ -2310,7 +2316,7 @@
     "other": "Выберите группу"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "Выбрать несколько"
   },
   "confirm.dialog.title": {
     "other": "Подтвердить"
@@ -2339,41 +2345,44 @@
   "form.input-image.avatarMax": {
     "other": "Пожалуйста, используйте изображения меньше, чем 5MB"
   },
+  "searchengine.start": {
+    "other": "Начните вводить для поиска файлов и папок"
+  },
   "searchengine.searching": {
-    "other": "Searching..."
+    "other": "Поиск..."
   },
   "searchengine.main.placeholder": {
-    "other": "Search..."
+    "other": "Поиск..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "Поиск: "
   },
   "searchengine.scope.title": {
-    "other": "Search In..."
+    "other": "Поиск по..."
   },
   "searchengine.share.title": {
-    "other": "Shared"
+    "other": "Общий доступ"
   },
   "searchengine.share.hint": {
-    "other": "No status"
+    "other": "Нет статуса"
   },
   "searchengine.share.option.link": {
-    "other": "Public Link"
+    "other": "Публичная ссылка"
   },
   "searchengine.share.option.cell": {
-    "other": "Shared in Cell"
+    "other": "Общий доступ в ячейки"
   },
   "searchengine.share.option.any": {
-    "other": "Public Link or Cell"
+    "other": "Публичная ссылка или ячейка"
   },
   "searchengine.format.title": {
-    "other": "Format"
+    "other": "Формат"
   },
   "searchengine.format.file-only": {
-    "other": "Files Only"
+    "other": "Только файлы"
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Advanced Filters"
+    "other": "Расширенные фильтры"
   },
   "searchengine.results.foundN": {
     "other": "%1 results found"
@@ -2385,66 +2394,111 @@
     "other": "Сохранить"
   },
   "searchengine.query.action.save-new": {
-    "other": "Save Query"
+    "other": "Сохранить запрос"
   },
   "searchengine.query.action.clear": {
     "other": "Очистить"
   },
   "searchengine.query.action.clear-all": {
-    "other": "Clear All"
+    "other": "Очистить все"
   },
   "searchengine.query.action.delete": {
     "other": "Удалить"
   },
   "searchengine.query.action.delete-confirm": {
-    "other": "Delete this saved query?"
+    "other": "Удалить этот сохранённый фильтр?"
   },
   "searchengine.query.save-label": {
-    "other": "Enter a label"
+    "other": "Введите метку"
   },
   "searchengine.field.basenameOrContent": {
-    "other": "Name/Content"
+    "other": "Имя/Контент"
   },
   "searchengine.complete.group.saved": {
-    "other": "Saved Searches"
+    "other": "Сохраненные поиски"
   },
   "searchengine.complete.group.history": {
-    "other": "Last Searches"
+    "other": "Последние поиски"
   },
   "searchengine.complete.group.suggestion": {
-    "other": "Advanced Suggestion"
+    "other": "Расширенное предложение"
   },
   "searchengine.complete.suggestion.intro": {
-    "other": "Do you mean"
+    "other": "Вы имели в виду"
   },
   "searchengine.complete.suggestion.remain": {
-    "other": "containing '%s'"
+    "other": "содержащие '%s'"
   },
   "searchengine.complete.activefilters": {
-    "other": "Filters:"
+    "other": "Фильтры:"
   },
   "searchengine.complete.activefilters-edit": {
-    "other": "Click to modify"
+    "other": "Нажмите, чтобы изменить"
+  },
+  "chat.dropzone.remove": {
+    "other": "Удалить"
+  },
+  "chat.dropzone.preview": {
+    "other": "Включить предпросмотр?"
+  },
+  "chat.dropzone.inline": {
+    "other": "Вставить встроенно"
   },
   "chat.load-older": {
-    "other": "Older entries"
+    "other": "Старые записи"
+  },
+  "chat.msg.edit": {
+    "other": "Изменить сообщение"
+  },
+  "chat.msg.save": {
+    "other": "Сохранить изменения"
+  },
+  "chat.msg.revert": {
+    "other": "Отменить изменения"
+  },
+  "chat.msg.delete": {
+    "other": "Удалить сообщение"
+  },
+  "chat.msg.delete.confirm.title": {
+    "other": "Удалить сообщение?"
+  },
+  "chat.msg.delete.confirm": {
+    "other": "Это действие нельзя будет отменить"
+  },
+  "chat.link.doc.loading": {
+    "other": "Загрузка документа..."
+  },
+  "chat.link.doc.opening": {
+    "other": "Открытие документа..."
+  },
+  "chat.link.doc.goto": {
+    "other": "Перейти к документу"
+  },
+  "chat.link.doc.not-found": {
+    "other": "Документ не найден, возможно он был удален."
+  },
+  "chat.link.doc.click-indicator": {
+    "other": "Нажмите, чтобы открыть %s"
+  },
+  "chat.link.doc.open-in": {
+    "other": "Открыть документы в..."
   },
   "workspace.quota-usage": {
-    "other": "Quota Usage"
+    "other": "Использование квоты"
   },
   "action.delete.permanently": {
-    "other": "Delete permanently"
+    "other": "Удалить навсегда"
   },
   "action.delete.permanently.warning": {
-    "other": "warning, you cannot undo this operation!"
+    "other": "Внимание! Это необратимая операция."
   },
   "action.goto.label": {
-    "other": "Go To Folder"
+    "other": "Перейти в папку"
   },
   "action.copymove.recent": {
-    "other": "Recent Locations"
+    "other": "Недавние локации"
   },
   "action.copymove.root": {
-    "other": "Top Folder"
+    "other": "Верхняя папка"
   }
 }

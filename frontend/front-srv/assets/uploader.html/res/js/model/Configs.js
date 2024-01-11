@@ -52,7 +52,7 @@ class Configs extends Observable{
     getOption(name, userPref = '', defaultValue = undefined){
         this._loadOptions();
         if(userPref){
-            let test = Configs.getUserPreference('originalUploadForm_XHRUploader', userPref);
+            let test = Configs.getUserPreference(userPref);
             if(test !== undefined && test !== null) {
                 return test;
             }
@@ -78,7 +78,7 @@ class Configs extends Observable{
         if(isBool){
             value = value? "true" : "false";
         }
-        Configs.setUserPreference('originalUploadForm_XHRUploader', name, value);
+        Configs.setUserPreference(name, value);
         this.notify("change");
     }
 
@@ -97,50 +97,20 @@ class Configs extends Observable{
         }
     }
 
-    static getUserPreference(guiElementId, prefName){
+    static getUserPreference(prefName){
         let pydio = Pydio.getInstance();
         if(!pydio.user) {
             return null;
         }
-        var gui_pref = pydio.user.getPreference("gui_preferences", true);
-        if(!gui_pref || !gui_pref[guiElementId]) {
-            return null;
-        }
-        if(pydio.user.activeRepository && gui_pref[guiElementId]['repo-'+pydio.user.activeRepository]){
-            return gui_pref[guiElementId]['repo-'+pydio.user.activeRepository][prefName];
-        }
-        return gui_pref[guiElementId][prefName];
+        return pydio.user.getLayoutPreference('Uploaders.Html.'  + prefName)
     }
 
-    static setUserPreference(guiElementId, prefName, prefValue){
+    static setUserPreference(prefName, prefValue){
         let pydio = Pydio.getInstance();
         if(!pydio || !pydio.user) {
             return;
         }
-        var guiPref = pydio.user.getPreference("gui_preferences", true);
-        if(!guiPref) {
-            guiPref = {};
-        }
-        if(!guiPref[guiElementId]) {
-            guiPref[guiElementId] = {};
-        }
-        if(pydio.user.activeRepository ){
-            var repokey = 'repo-'+pydio.user.activeRepository;
-            if(!guiPref[guiElementId][repokey]) {
-                guiPref[guiElementId][repokey] = {};
-            }
-            if(guiPref[guiElementId][repokey][prefName] && guiPref[guiElementId][repokey][prefName] === prefValue){
-                return;
-            }
-            guiPref[guiElementId][repokey][prefName] = prefValue;
-        }else{
-            if(guiPref[guiElementId][prefName] && guiPref[guiElementId][prefName] === prefValue){
-                return;
-            }
-            guiPref[guiElementId][prefName] = prefValue;
-        }
-        pydio.user.setPreference("gui_preferences", guiPref, true);
-        pydio.user.savePreference("gui_preferences");
+        pydio.user.setLayoutPreference('Uploaders.Html.' + prefName, prefValue)
     }
 }
 

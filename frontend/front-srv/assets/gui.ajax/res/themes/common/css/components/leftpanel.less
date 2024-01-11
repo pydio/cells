@@ -53,8 +53,7 @@
     font-weight: 500;
     .workspace-entry{
       .nav-list-entry();
-      padding: 6px;
-      padding-left: 20px;
+      padding: 6px 6px 6px 20px;
       position: relative;
 
       .workspace-badge{
@@ -107,6 +106,9 @@
         .workspace-additional-action {
           opacity: .8;
         }
+      }
+      &.create-cell-small{
+        display: none;
       }
     }
 
@@ -204,6 +206,64 @@
       }
     }
   }
+
+  .left-rail-active-resizable-small {
+    #left-rail-active-column {
+      border-radius: 0 !important;
+      border-right: 1px solid var(--md-sys-color-outline-variant);
+    }
+    .user-workspaces-list {
+      padding: 0 8px;
+      .section-title{
+        display:none;
+      }
+      .create-cell-empty-state{
+        display: none;
+      }
+      .workspaces {
+        .workspace-entry{
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin: 8px 0 !important;
+          padding: 6px 3px !important;
+          &:not(.droppable-active) {
+            background: var(--md-sys-color-surface-1);
+          }
+          &.create-cell-small {
+            display: flex;
+          }
+          border-radius: 8px !important;
+          .mdi, .icomoon-cells, .icomoon-cells-full-plus {
+            margin-right: 0 !important;
+            padding: 0px 16px;
+            border-radius: 16px;
+            &.icomoon-cells, .icomoon-cells-full-plus {
+              padding-bottom: 1px;
+            }
+          }
+          &.workspace-current:not(.droppable-active), &:hover:not(.droppable-active) {
+            background: var(--md-sys-color-mimefont-background);
+          }
+          .workspace-label{
+            width: 100%;
+            font-size: 11.7px;
+            line-height: 1.2em;
+            white-space: break-spaces;
+            text-align: center;
+            padding: 0;
+          }
+          .workspace-additional-action, .mdi.mdi-account, .ws-loader-progress{
+            display:none !important;
+          }
+        }
+        .folders-tree{
+          display: none;
+        }
+      }
+    }
+  }
+
   .folders-tree{
     margin: 0 4px;
     /*margin-left: -15px;*/

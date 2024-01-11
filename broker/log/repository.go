@@ -26,7 +26,7 @@ func (s *IndexService) PutLog(ctx context.Context, line *log.Log) error {
 // It returns results as a stream of log.ListLogResponse for each corresponding hit.
 // Results are ordered by descending timestamp rather than by score.
 func (s *IndexService) ListLogs(ctx context.Context, str string, page int32, size int32) (chan log.ListLogResponse, error) {
-	ch, er := s.dao.FindMany(ctx, str, page*size, size, nil)
+	ch, er := s.dao.FindMany(ctx, str, page*size, size, "", false, nil)
 	if er != nil {
 		return nil, er
 	}

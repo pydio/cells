@@ -32,11 +32,11 @@ const { EditorActions, withSelection } = Pydio.requireLib('hoc');
 class InlineViewer extends React.Component {
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return nextProps.pdfUrl !== this.props.pdfUrl || nextProps.pageNumber !== this.props.pageNumber;
+        return nextProps.pdfUrl !== this.props.pdfUrl || nextProps.pageNumber !== this.props.pageNumber || nextProps.width !== this.props.width;
     }
 
     render() {
-        const {pdfUrl, pageNumber, onNumPages, onKnownHeight} = this.props;
+        const {pdfUrl, pageNumber, onNumPages, width=250, onKnownHeight} = this.props;
 
         const infoBlock = (msg) => {
             return <div className={'inline-pdf-info-block'} style={{
@@ -60,7 +60,7 @@ class InlineViewer extends React.Component {
             >
                 <Page
                     pageNumber={pageNumber}
-                    width={250}
+                    width={width}
                     loading={infoBlock('Loading page...')}
                     onLoadSuccess={(page)=>onKnownHeight(Math.floor(page.height))}
                 />
@@ -104,13 +104,19 @@ class Viewer extends Component {
 
     }
 
-    makeCss(lastKnownHeight){
+    makeCss(lastKnownHeight, currentPin){
+        if(currentPin) {
+            return `
+            .mimefont-container.with-editor-badge.editor_mime_pdf{
+                overflow-y:auto;
+            }`;
+        }
         return `
         #info_panel .mimefont-container.with-editor-badge{
             position:relative;
             min-height: ${lastKnownHeight}px; 
             height:auto !important;
-            max-height:320px
+            max-height:320px;
         }
         #info_panel .inline-pdf-info-block{
             min-height:${lastKnownHeight}px;
@@ -118,8 +124,14 @@ class Viewer extends Component {
     }
 
     render() {
-        const {loadThumbnail} = this.props;
+        const {loadThumbnail, containerWidth, currentPin} = this.props;
         const {url, pdfUrl, crtPage = 1, numPages, showPaginator, lastKnownHeight} = this.state || {}
+        let mw = 250;
+        if(containerWidth > 300) {
+            // Assume a pseudo letter format
+            mw = Math.round(containerWidth * 21 / 29.7);
+        }
+        const margin = `0 calc(50% - ${Math.round(mw/2)}px)`
 
         if (!url) {
             return null
@@ -129,25 +141,26 @@ class Viewer extends Component {
             if(numPages > 1 && showPaginator) {
                 paginator = (
                     <div style={{position:'absolute', bottom: 10, right: 10, backgroundColor:'white',display:'flex', cursor:'pointer', fontSize: 24, boxShadow: 'rgba(0, 0, 0, .2) 0px 0px 12px',borderRadius: 40}}>
-                        <div className={"mdi mdi-chevron-left"} style={{opacity:crtPage === 1 ? .5:1}} onClick={()=>{this.setState({crtPage: Math.max(crtPage-1, 1)})}}/>
-                        <div className={"mdi mdi-chevron-right"} style={{opacity:crtPage === numPages ? .5:1}} onClick={()=>{this.setState({crtPage: Math.min(crtPage+1, numPages)})}}/>
+                        <div className={"mdi mdi-chevron-left"} style={{opacity:crtPage === 1 ? 0.5:1}} onClick={()=>{this.setState({crtPage: Math.max(crtPage-1, 1)})}}/>
+                        <div className={"mdi mdi-chevron-right"} style={{opacity:crtPage === numPages ? 0.5:1}} onClick={()=>{this.setState({crtPage: Math.min(crtPage+1, numPages)})}}/>
                     </div>
                 );
             }
             return (
                 <div
-                    style={{flex: 1, width:'100%', maxWidth: 250, height: "100%", border: 0, margin:'0 calc(50% - 125px)'}}
+                    style={{flex: 1, width:'100%', maxWidth: mw, height: "100%", border: 0, margin, position: 'relative'}}
                     onMouseEnter={()=>{this.setState({showPaginator:true})}}
                     onMouseLeave={()=>{this.setState({showPaginator:false})}}
                 >
                     <InlineViewer
+                        width={mw}
                         pdfUrl={pdfUrl}
                         pageNumber={crtPage}
                         onNumPages={(n) => this.setState({numPages: n})}
                         onKnownHeight={(h) => this.setState({lastKnownHeight:h})}
                     />
                     {paginator}
-                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:this.makeCss(lastKnownHeight)}}/>
+                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:this.makeCss(lastKnownHeight, currentPin)}}/>
                 </div>
             );
         }

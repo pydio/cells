@@ -33,13 +33,21 @@ class JobsStore extends Observable {
         this.pydio = pydio;
         this.loaded = false;
         this.tasksList = new Map();
+        this.tasksUpdates = new Map();
         this.localJobs = new Map();
         this.reloadPending = debounce(this.scanPending, 5000);
         this.pydio.observe("task_message", jsonObject => {
 
-            const {Job, TaskUpdated} = jsonObject;
+            const {Job, TaskUpdated, NanoStamp} = jsonObject;
             const job = JobsJob.constructFromObject(Job);
             const task = JobsTask.constructFromObject(TaskUpdated);
+            if(NanoStamp > 0 && this.tasksUpdates.has(job.ID)){
+                if(NanoStamp < this.tasksUpdates.get(job.ID)) {
+                    // Ignore, this is not the last one
+                    return;
+                }
+            }
+            this.tasksUpdates.set(job.ID, NanoStamp);
             if (job.Tasks === undefined) {
                 job.Tasks = [task];
             }
@@ -60,7 +68,7 @@ class JobsStore extends Observable {
 
         this.pydio.observe("registry_loaded", ()=>{
             setTimeout(()=>{
-                this.getJobs(true).then(() =>{
+                this.getJobs(true, 'Any').then(() =>{
                     this.notify("tasks_updated");
                 });
             }, 500);
@@ -83,7 +91,7 @@ class JobsStore extends Observable {
             }
         });
         if (hasPending) {
-            this.getJobs(true).then(() =>{
+            this.getJobs(true, 'Any').then(() =>{
                 this.notify("tasks_updated");
             });
         }
@@ -91,9 +99,10 @@ class JobsStore extends Observable {
 
     /**
      * @param forceRefresh bool
+     * @param statusString string
      * @return Promise
      */
-    getJobs(forceRefresh = false){
+    getJobs(forceRefresh = false, statusString = 'Running'){
 
         if(!this.pydio.user){
             this.tasksList = new Map();
@@ -109,7 +118,7 @@ class JobsStore extends Observable {
             });
             const api = new JobsServiceApi(PydioApi.getRestClient());
             const request = new JobsListJobsRequest();
-            request.LoadTasks = JobsTaskStatus.constructFromObject('Running');
+            request.LoadTasks = JobsTaskStatus.constructFromObject(statusString);
             return api.userListJobs(request).then(result => {
                 this.loaded = true;
                 const jj = result.Jobs || []

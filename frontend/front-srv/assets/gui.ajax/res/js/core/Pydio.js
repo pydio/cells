@@ -275,7 +275,7 @@ class Pydio extends Observable{
 
             this._initLoadRep = this.user.getPreference("pending_folder");
             this.user.setPreference("pending_folder", "-1");
-            this.user.savePreference("pending_folder");
+            //this.user.savePreference("pending_folder");
 
         } else if(this.user && this.Parameters.has('START_FOLDER')) {
             this._initLoadRep = this.Parameters.get('START_FOLDER');

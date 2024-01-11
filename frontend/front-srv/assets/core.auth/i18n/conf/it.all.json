@@ -44,6 +44,9 @@
   "Forgot Password Action": {
     "other": "Azione per 'Password Dimenticata'"
   },
+  "Forgot Password Link": {
+    "other": "Forgot Password Link"
+  },
   "Generic Auth Features": {
     "other": "Funzionalità Generiche"
   },
@@ -136,6 +139,9 @@
   },
   "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system.": {
     "other": "Azione da lanciare quando si fa clic su Password Dimenticata. Può essere modificata per lanciare un'azione personalizzata se si fa affidamento su un sistema di autenticazione esterno."
+  },
+  "When relying on an external authentication system, replace the Forgot Action with an external link that will be opened in a new window.": {
+    "other": "When relying on an external authentication system, replace the Forgot Action with an external link that will be opened in a new window."
   },
   "Let user create new cells": {
     "other": "Consenti all'utente di creare nuove celle"

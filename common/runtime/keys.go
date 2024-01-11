@@ -46,7 +46,7 @@ const (
 	KeyGrpcPort          = "grpc_port"
 	KeyHttpPort          = "http_port"
 	KeyGrpcExternal      = "grpc_external"
-	KeyHealthCheckPort   = "healthcheck"
+	//KeyHealthCheckPort   = "healthcheck"
 
 	KeySiteBind               = "site_bind"
 	KeySiteExternal           = "site_external"

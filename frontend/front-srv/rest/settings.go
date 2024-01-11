@@ -108,15 +108,6 @@ var settingsNode = &rest.SettingsMenuResponse{
 			Description: "settings.141",
 			Children: []*rest.SettingsEntry{
 				{
-					Key:         "services",
-					Label:       "settings.172",
-					Description: "settings.173",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-access-point-network",
-						Component: "AdminServices.Dashboard",
-					},
-				},
-				{
 					Key:         "logs",
 					Label:       "settings.4",
 					Description: "settings.142",
@@ -124,6 +115,15 @@ var settingsNode = &rest.SettingsMenuResponse{
 						IconClass: "mdi mdi-pulse",
 						Component: "AdminLogs.Dashboard",
 						Props:     `{"disableExport":true}`,
+					},
+				},
+				{
+					Key:         "services",
+					Label:       "settings.172",
+					Description: "settings.173",
+					Metadata: &rest.SettingsEntryMeta{
+						IconClass: "mdi mdi-access-point-network",
+						Component: "AdminServices.Dashboard",
 					},
 				},
 				{

@@ -6,10 +6,10 @@
     "other": "Import tool from Pydio 8"
   },
   "next": {
-    "other": "Next"
+    "other": "Nästa"
   },
   "back": {
-    "other": "Back"
+    "other": "Tillbaka"
   },
   "step.categories.choose": {
     "other": "Choose features to import"
@@ -45,7 +45,7 @@
     "other": "Successful connection to the API"
   },
   "step.connection.field.url": {
-    "other": "Server URL"
+    "other": "Server-URL"
   },
   "step.connection.field.skipssl": {
     "other": "Skip SSL verification (self-signed)"
@@ -237,13 +237,13 @@
     "other": "Cells Nodes"
   },
   "step.mapper.notplpath.primary": {
-    "other": "None"
+    "other": "Ingen"
   },
   "step.mapper.notplpath.secondary": {
     "other": "No template path required"
   },
   "step.mapper.next10": {
-    "other": "Next "
+    "other": "Nästa "
   },
   "step.mapper.prev10": {
     "other": "Previous "
@@ -258,7 +258,7 @@
     "other": "There is no specific configuration for this step. AD/LDAP configurations will be imported to a Pydio Cells external directory."
   },
   "dash.feature.users": {
-    "other": "Users, Groups and Roles"
+    "other": "Användare, grupper och roller"
   },
   "dash.feature.users.legend": {
     "other": "There is no specific configuration for this step. Users will be synchronized with remote server. Whenever possible, their hashed password will be imported too (no password is store or transmitted clear), so that users can log with the same identifier on the new server."

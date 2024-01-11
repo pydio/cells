@@ -1071,7 +1071,7 @@
     "other": "Etes-vous sûr de vouloir supprimer ce workspace? Cette opération est irréversible!"
   },
   "425": {
-    "other": "Le workspace est créé, il est accessible via la liste des dépôts (en haut à gauche). Si vous désirez le supprimer, mettez vous sur un autre dépôt et cliquez sur la croix rouge."
+    "other": "Le workspace est maintenant créé, si vous voulez le supprimer, assurez-vous de passer à un autre workspace."
   },
   "426": {
     "other": "Erreur lors de la création du workspace"
@@ -1977,13 +1977,19 @@
     "other": "H:i"
   },
   "date_relative_today": {
-    "other": "aujourd'hui à TIME"
+    "other": "[Aujourd'hui à] LT"
   },
   "date_relative_tomorrow": {
-    "other": "demain à TIME"
+    "other": "[Demain à] LT"
   },
   "date_relative_yesterday": {
-    "other": "hier à TIME"
+    "other": "[Hier à] LT"
+  },
+  "date_relative_lastweek": {
+    "other": "dddd [dernier à] LT"
+  },
+  "date_relative_nextweek": {
+    "other": "dddd [à] LT"
   },
   "delete_access_key": {
     "other": "S"
@@ -2339,6 +2345,9 @@
   "form.input-image.avatarMax": {
     "other": "Veuillez utiliser une image plus petite que 5Mo"
   },
+  "searchengine.start": {
+    "other": "Commencez à taper pour rechercher des fichiers et des dossiers"
+  },
   "searchengine.searching": {
     "other": "Recherche en cours..."
   },
@@ -2426,8 +2435,53 @@
   "searchengine.complete.activefilters-edit": {
     "other": "Cliquer pour modifier"
   },
+  "chat.dropzone.remove": {
+    "other": "Supprimer"
+  },
+  "chat.dropzone.preview": {
+    "other": "Prévisualiser ?"
+  },
+  "chat.dropzone.inline": {
+    "other": "Dans le texte"
+  },
   "chat.load-older": {
     "other": "Messages précédents"
+  },
+  "chat.msg.edit": {
+    "other": "Éditer le message"
+  },
+  "chat.msg.save": {
+    "other": "Sauvegarder les modifications"
+  },
+  "chat.msg.revert": {
+    "other": "Annuler les modifications"
+  },
+  "chat.msg.delete": {
+    "other": "Supprimer le message"
+  },
+  "chat.msg.delete.confirm.title": {
+    "other": "Supprimer le message ?"
+  },
+  "chat.msg.delete.confirm": {
+    "other": "Cette action est irréversible."
+  },
+  "chat.link.doc.loading": {
+    "other": "Chargement du document..."
+  },
+  "chat.link.doc.opening": {
+    "other": "Ouverture du document..."
+  },
+  "chat.link.doc.goto": {
+    "other": "Accéder au document"
+  },
+  "chat.link.doc.not-found": {
+    "other": "Document introuvable, il a peut-être été supprimé."
+  },
+  "chat.link.doc.click-indicator": {
+    "other": "Cliquez pour accéder à %s"
+  },
+  "chat.link.doc.open-in": {
+    "other": "Ouvrir le document dans..."
   },
   "workspace.quota-usage": {
     "other": "Utilisation du quota"

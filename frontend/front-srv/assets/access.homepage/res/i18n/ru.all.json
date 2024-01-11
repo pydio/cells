@@ -171,10 +171,10 @@
     "other": "Видеоинструкция"
   },
   "desc": {
-    "other": "Стартовая страница"
+    "other": "Страница приветствия"
   },
   "title": {
-    "other": "Начало"
+    "other": "Главная"
   },
   "search.result.location": {
     "other": "Папка"
@@ -199,6 +199,21 @@
   },
   "search.facet.metadata": {
     "other": "Метаданные"
+  },
+  "search.sorter.relevant.desc": {
+    "other": "Наиболее актуальные сначала"
+  },
+  "search.sorter.modified.desc": {
+    "other": "Сначала недавно добавленные"
+  },
+  "search.sorter.modified.asc": {
+    "other": "Сначала старые"
+  },
+  "search.sorter.size.desc": {
+    "other": "Сначала большие"
+  },
+  "search.sorter.size.asc": {
+    "other": "Сначала маленькие"
   },
   "facet.label.file": {
     "other": "Файл"

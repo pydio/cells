@@ -6,16 +6,16 @@
     "other": "Se for configurado como «verdadeiro», o sistema de indexação irá procurar o metadado ContentRef, ler o conteúdo desta referência e indexá-lo para a pesquisa."
   },
   "Search.Config.ContentRef.Label": {
-    "other": "Content Reference Metadata"
+    "other": "Metadados de referência do conteúdo"
   },
   "Search.Config.ContentRef.Description": {
-    "other": "A metadata storing a reference to a specific file: extractors can create textual representation of files will store them in plain text or gzip-encoded. Search engine will then try to load this content at indexation. Use pydio: prefix to make sure it does not leak out."
+    "other": "Name of the metadata pointing to the internal file that contains textual representation of the original document. Such internal contents may be plain-text or gzip-encoded, depending on the text extraction tool used (e.g. Tika). The search engine typically indexes this content to enable full-text search. Make sure to prefix the metadata name with 'pydio:' to prevent data leakage."
   },
   "Search.Config.PlainTextExtensions.Label": {
-    "other": "Plain Text Extensions"
+    "other": "Extensões de texto simples"
   },
   "Search.Config.PlainTextExtensions.Description": {
-    "other": "List of extensions for files containing directly indexable plain-text contents (comma-separated-list)."
+    "other": "Lista de extensões para ficheiros cujo conteúdo, estando em texto simples, é directamente indexável (lista separada por vírgula)."
   },
   "Search.Config.BasenameAnalyze.Label": {
     "other": "Analisador de nomes de ficheiros"

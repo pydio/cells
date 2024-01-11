@@ -52,7 +52,8 @@ import (
 )
 
 func patchListBucketRequest(route string, request *http.Request) {
-	if request.RequestURI == route || request.RequestURI == route+"/" {
+	testURI := strings.Replace(request.RequestURI, "?x-id=ListBuckets", "", 1)
+	if testURI == route || testURI == route+"/" {
 		request.RequestURI = "/"
 		request.URL.Path = "/"
 	} else if strings.HasPrefix(request.RequestURI, route+"/probe-bucket-sign*") {

@@ -1,0 +1,239 @@
+{
+  "1": {
+    "other": "Pas de paramètres"
+  },
+  "10": {
+    "other": "Ecriture seule"
+  },
+  "11": {
+    "other": "Refusé"
+  },
+  "12": {
+    "other": "Pas d'accès"
+  },
+  "13": {
+    "other": "Chercher dans les paramètres et actions"
+  },
+  "14": {
+    "other": "Sélectionner un paramètre ou une action"
+  },
+  "15": {
+    "other": "Sélectionner un paramètre ou une action pour l'ajouter au rôle. Vous pouvez chercher dans les paramètres en utilisant le champ ci-dessous."
+  },
+  "16": {
+    "other": "Montrer/cacher les valeurs héritées"
+  },
+  "17": {
+    "other": "Ajouter un paramètre ou une action"
+  },
+  "18": {
+    "other": "Paramètre des plugins"
+  },
+  "19": {
+    "other": "Toujours écraser"
+  },
+  "2": {
+    "other": "Activé"
+  },
+  "21": {
+    "other": "rechargement..."
+  },
+  "22": {
+    "other": "Chargement du cache des actions, veuillez patienter, cela ne sera fait qu'une fois..."
+  },
+  "23": {
+    "other": "Chargement du cache des paramètres, veuillez patienter, cela ne sera fait qu'une fois..."
+  },
+  "24": {
+    "other": "Compte"
+  },
+  "25": {
+    "other": "Restrictions d'accès"
+  },
+  "26": {
+    "other": "Information du groupe"
+  },
+  "27": {
+    "other": "Info du groupe"
+  },
+  "28": {
+    "other": "Information du rôle"
+  },
+  "29": {
+    "other": "Info du rôle"
+  },
+  "3": {
+    "other": "Désactivé"
+  },
+  "30": {
+    "other": "Profil & Rôles"
+  },
+  "31": {
+    "other": "Identifiant unique de l'utilisateur. Vous ne pouvez pas le modifier."
+  },
+  "32": {
+    "other": "Profil spécifique. Peut impliquer l'ajout automatique de rôles."
+  },
+  "33": {
+    "other": "Fermer"
+  },
+  "34": {
+    "other": "Contrôle d'accès"
+  },
+  "35": {
+    "other": "Workspaces"
+  },
+  "36": {
+    "other": "Pages"
+  },
+  "37": {
+    "other": "Personnalisation"
+  },
+  "38": {
+    "other": "Paramètres de l'application"
+  },
+  "39": {
+    "other": "Paramètres des workspaces"
+  },
+  "4": {
+    "other": "Effacer la valeur"
+  },
+  "40": {
+    "other": "Paramètres par workspace"
+  },
+  "41": {
+    "other": "Paramètres supplémentaires"
+  },
+  "42": {
+    "other": "Vous pouvez ici personnaliser la valeur d'un paramètre ou désactiver une action. Ceux-ci concernent les aspects génériques de l'application (configuration, authentification, interface, etc). Pour changer des paramètres liés aux workspaces, voir les autres onglets."
+  },
+  "43": {
+    "other": "Gestion des accès aux workspaces"
+  },
+  "permissions.legend.user": {
+    "other": "Assigner les accès aux Workspaces pour l'utilisateur, en écrasant les permissions héritées de ses rôles ou groupes. Utilisez 'Gérer les rôles' pour ajouter/supprimer des rôles, et identifier la provenance des permissions héritées."
+  },
+  "permissions.legend.group": {
+    "other": "Assigner des accès aux Workspaces pour ce groupe. Ces permissions seront héritées par tous les utilisateurs de ce groupe."
+  },
+  "permissions.legend.role": {
+    "other": "Assigner des accès aux Workspaces pour ce rôle. Ces autorisations seront appliquées à tous les utilisateurs auxquels le rôle a été attribué."
+  },
+  "44": {
+    "other": "Pages principles de l'application"
+  },
+  "45": {
+    "other": "Accès aux pages spécifiques (type Page d'accueil, Console d'Admin, etc.)"
+  },
+  "application-params.title": {
+    "other": "Paramètres et Actions"
+  },
+  "application-params.legend": {
+    "other": "Modifier les paramètres de l'interface et afficher/masquer certaines actions pour un rôle spécifique, globalement ou par Workspace."
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "En règle générale, il vaut mieux gérer ces paramètres au niveau des rôles, pas au niveau d'un utilisateur !"
+  },
+  "49": {
+    "other": "Cellules et Liens Publics"
+  },
+  "5": {
+    "other": "Ecraser cette valeur"
+  },
+  "50": {
+    "other": "Fichiers et Dossiers partagés"
+  },
+  "51": {
+    "other": "Avec cet utilisateur"
+  },
+  "52": {
+    "other": "Partagés par cet utilisateur"
+  },
+  "53": {
+    "other": "Partagé par %1 depuis le workspace %2"
+  },
+  "54": {
+    "other": "Informations utilisateur et actions de sécurité. Passez votre souris sur les champs du formulaire ci-dessous pour afficher des explications."
+  },
+  "55": {
+    "other": "Le profil et les rôles permettent d'assigner des permissions automatiquement à cet utilisateur."
+  },
+  "6": {
+    "other": "Sauver cette valeur"
+  },
+  "7": {
+    "other": "Action %s"
+  },
+  "8": {
+    "other": "Lecture & Ecriture"
+  },
+  "9": {
+    "other": "Lecture seule"
+  },
+  "roles.picker.title": {
+    "other": "Gérer les rôles"
+  },
+  "roles.picker.add": {
+    "other": "Ajouter un rôle"
+  },
+  "roles.picker.hint": {
+    "other": "Saisir du texte pour rechercher des rôles..."
+  },
+  "roles.picker.effective": {
+    "other": "Rôle effectif de %s"
+  },
+  "parameters.scope.selector.title": {
+    "other": "Ajouter pour..."
+  },
+  "parameters.scope.all": {
+    "other": "Tous les workspaces"
+  },
+  "parameters.scope.shared": {
+    "other": "Cellules partagées"
+  },
+  "parameters.scope.workspace": {
+    "other": "Workspace %s"
+  },
+  "parameters.custom.add": {
+    "other": "Ajouter un paramètre ou une action"
+  },
+  "parameters.empty": {
+    "other": "Aucun paramètres ou actions"
+  },
+  "workspace.statics.home.title": {
+    "other": "Page d'accueil"
+  },
+  "workspace.statics.home.description": {
+    "other": "Page de bienvenue affichée après le login"
+  },
+  "workspace.statics.directory.title": {
+    "other": "Annuaire"
+  },
+  "workspace.statics.directory.description": {
+    "other": "Affichage du carnet d'adresses comme Page (utilisé par le thème Mui3)"
+  },
+  "workspace.statics.settings.title": {
+    "other": "Console d'administration"
+  },
+  "workspace.statics.settings.description": {
+    "other": "Tableau de bord d'administration de Pydio Cells"
+  },
+  "acls.rights.policy.manual": {
+    "other": "Droits définis manuellement"
+  },
+  "acls.rights.advanced.root": {
+    "other": "Tout le workspace"
+  },
+  "section.user-info": {
+    "other": "Infos Utilisateur"
+  },
+  "section.permissions": {
+    "other": "Permissions"
+  },
+  "section.security": {
+    "other": "Sécurité"
+  },
+  "section.advanced": {
+    "other": "Avancé"
+  }
+}

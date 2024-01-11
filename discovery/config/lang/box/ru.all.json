@@ -81,7 +81,7 @@
     "other": "Бесплатные условия"
   },
   "dataSelectorSingleQuery.JsonPath": {
-    "other": "JSON Path"
+    "other": "JSON- путь"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -96,16 +96,16 @@
     "other": "равно"
   },
   "conditionStringMatchCondition.Matches": {
-    "other": "Совпадения"
+    "other": "Совпадает"
   },
   "conditionStringMatchCondition.matches": {
-    "other": "совпадения"
+    "other": "совпадает"
   },
   "conditionPathGlobCondition.glob": {
-    "other": "шаблон"
+    "other": "паттерн"
   },
   "conditionBooleanCondition.value": {
-    "other": "True"
+    "other": "Истина"
   },
   "contextMetaCondition.CIDRCondition": {
     "other": "CIDRCondition"
@@ -138,7 +138,7 @@
     "other": "Дата после"
   },
   "contextMetaCondition.PathGlobCondition": {
-    "other": "Glob Matcher"
+    "other": "Глобальный сопоставитель "
   },
   "contextMetaCondition.BooleanCondition": {
     "other": "Логическое Значение"
@@ -456,7 +456,7 @@
     "other": "Запускается вебхуком"
   },
   "triggerFilterQuery.ApiHookSlug": {
-    "other": "Webhook Api Slug"
+    "other": "Идентификатор вебхука  API"
   },
   "triggerFilterQuery.RunParameterName": {
     "other": "Имя параметра запуска"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2024 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -20,187 +20,16 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {Paper,CircularProgress} from 'material-ui'
-import Node from 'pydio/model/node'
 import PathUtils from 'pydio/util/path'
+import {Paper} from 'material-ui'
 import MetaNodeProvider from 'pydio/model/meta-node-provider'
-const { PydioContextConsumer, moment } = Pydio.requireLib('boot');
+const { PydioContextConsumer, moment, M3Tooltip} = Pydio.requireLib('boot');
 const {FilePreview} = Pydio.requireLib('workspaces');
-const {ASClient} = Pydio.requireLib('PydioActivityStreams');
 import PydioApi from 'pydio/http/api'
-import {UserMetaServiceApi, RestUserBookmarksRequest, GraphServiceApi, RestRecommendRequest} from 'cells-sdk'
+import {GraphServiceApi, RestRecommendRequest} from 'cells-sdk'
 const {PlaceHolder, PhTextRow, PhRoundShape} = Pydio.requireLib('hoc');
 
-class Loader {
-    constructor(pydio, stater) {
-        this.pydio = pydio;
-        this.stater = stater;
-        this.metaProvider = new MetaNodeProvider();
-    }
-
-    load(){
-        const allLoaders = [
-            this.loadActivities(),
-            this.loadBookmarks(),
-            this.workspacesAsNodes()
-        ];
-        return Promise.all(allLoaders).then(results => {
-            let allResolvers = [];
-            let allNodes = [];
-            let allKeys = {};
-            results.map(resolvers => {
-                allResolvers = [...allResolvers, ...resolvers];
-            });
-            return this.resolveNext(allResolvers, allNodes, allKeys, 8);
-        });
-    }
-
-    resolveNext(allResolvers, allNodes, allKeys, max = 8) {
-        if(allNodes.length > max || !allResolvers.length) {
-            return Promise.resolve(allNodes);
-        }
-        let next = allResolvers.shift();
-        return new Promise(next).then(node => {
-            if(node && !allKeys[node.getMetadata().get("uuid")]) {
-                allNodes.push(node);
-                allKeys[node.getMetadata().get("uuid")] = node.getMetadata().get("uuid");
-                this.stater.setState({nodes: [...allNodes], loading: false});
-            }
-            return this.resolveNext(allResolvers, allNodes, allKeys, max);
-        })
-    }
-
-    loadBookmarks(){
-        const api = new UserMetaServiceApi(PydioApi.getRestClient());
-        return new Promise(resolve => {
-            api.userBookmarks(new RestUserBookmarksRequest()).then(collection => {
-                const nodes = [];
-                if(!collection.Nodes){
-                    resolve([]);
-                    return;
-                }
-                collection.Nodes.slice(0, 4).forEach(n => {
-                    if(!n.AppearsIn){
-                        return;
-                    }
-                    let path = n.AppearsIn[0].Path;
-                    if(!path) {
-                        path = '/';
-                    }
-                    const fakeNode = new Node(path, n.Type === 'LEAF');
-                    fakeNode.getMetadata().set('repository_id', n.AppearsIn[0].WsUuid);
-                    nodes.push(resolve1 => {
-                        this.metaProvider.refreshNodeAndReplace(fakeNode, (freshNode)=>{
-                            freshNode.getMetadata().set('card_legend', 'Bookmarked');
-                            freshNode.getMetadata().set('repository_id', n.AppearsIn[0].WsUuid);
-                            resolve1(freshNode);
-                        }, ()=>{
-                            resolve1(null)
-                        })
-                    });
-                });
-                resolve(nodes);
-            });
-        });
-    }
-
-    loadActivities(){
-        return new Promise(resolve => {
-            ASClient.loadActivityStreams('USER_ID', this.pydio.user.id, 'outbox', 'ACTOR', 0, 20).then((json) => {
-                if(!json.items){
-                    resolve([]);
-                    return
-                }
-                let nodes = [];
-                json.items.filter(a => !!a.object).forEach(activity => {
-                    const mom = moment(activity.updated);
-                    const n = this.nodeFromActivityObject(activity.object);
-                    if(n){
-                        nodes.push(resolve1 => {
-                            const wsId = n.getMetadata().get('repository_id');
-                            const wsLabel = n.getMetadata().get('repository_label');
-                            this.metaProvider.refreshNodeAndReplace(n, (freshNode)=>{
-                                freshNode.getMetadata().set('repository_id', wsId);
-                                if(freshNode.getPath() === '' || freshNode.getPath() === '/'){
-                                    freshNode.setLabel(wsLabel);
-                                }
-                                freshNode.getMetadata().set('card_legend', mom.fromNow());
-                                resolve1(freshNode);
-                            }, ()=>{
-                                resolve1(null)
-                            })
-                        })
-                    }
-                });
-                resolve(nodes);
-            }).catch(msg => {
-                resolve([]);
-            })
-        })
-    }
-
-    workspacesAsNodes() {
-        const ws = [];
-        const repos = [];
-        this.pydio.user.getRepositoriesList().forEach(repo => {repos.push(repo)});
-        repos.slice(0, 10).forEach(repoObject => {
-            if(repoObject.getId() === 'homepage' || repoObject.getId() === 'settings'){
-                return;
-            }
-            const node = new Node('/', false, repoObject.getLabel());
-            let fontIcon = 'folder';
-            let legend = 'Workspace';
-            if (repoObject.getRepositoryType() === "workspace-personal"){
-                fontIcon = 'folder-account';
-            } else if(repoObject.getRepositoryType() === "cell") {
-                fontIcon = 'icomoon-cells';
-                legend = 'Cell';
-            }
-            ws.push(resolve => {
-                node.getMetadata().set("repository_id", repoObject.getId());
-                this.metaProvider.refreshNodeAndReplace(node, (freshNode)=>{
-                    freshNode.setLabel(repoObject.getLabel());
-                    freshNode.getMetadata().set("repository_id", repoObject.getId());
-                    freshNode.getMetadata().set("card_legend", legend);
-                    freshNode.getMetadata().set("fonticon", fontIcon);
-                    resolve(freshNode);
-                }, ()=>{
-                    resolve(null)
-                })
-            });
-        });
-        return Promise.resolve(ws);
-    }
-
-    nodeFromActivityObject(object){
-        if (!object.partOf || !object.partOf.items || !object.partOf.items.length){
-            return null;
-        }
-        for(let i = 0; i < object.partOf.items.length; i++ ){
-            let ws = object.partOf.items[i];
-            // Remove slug part
-            let paths = ws.rel.split('/');
-            paths.shift();
-            let relPath = paths.join('/');
-            let root = false;
-            let label = PathUtils.getBasename(relPath);
-            if(!relPath) {
-                root = true;
-                relPath = "/";
-                label = ws.name;
-            }
-            const node = new Node(relPath, (object.type === 'Document'), label);
-            if (root) {
-                node.setRoot(true);
-            }
-            node.getMetadata().set('repository_id', ws.id);
-            node.getMetadata().set('repository_label', ws.name);
-            return node;
-        }
-        return null;
-    }
-
-}
+const Limit = 8
 
 class RecoLoader {
     constructor(pydio, stater) {
@@ -215,7 +44,7 @@ class RecoLoader {
     load() {
         const api = new GraphServiceApi(PydioApi.getRestClient())
         const req = new RestRecommendRequest()
-        req.Limit = 8
+        req.Limit = Limit
         return api.recommend(req).then(response => {
             const nn = response.Nodes || []
             return nn.map(n => {
@@ -261,7 +90,8 @@ class RecentCard extends React.Component{
 
     render(){
         const {opacity, hover} = this.state;
-        const {muiTheme} =  this.props;
+        let {legend} = this.props;
+        const {title, node, pydio, muiTheme, last, display='list'} = this.props;
 
         let styles={
             paper:{
@@ -273,7 +103,7 @@ class RecentCard extends React.Component{
                 display:'flex', flexDirection:'column', cursor:'pointer',
                 alignItems:'center', textAlign:'center',
                 opacity: opacity,
-                transition:'all 1000ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'
+                transition:'all 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'
             },
             preview:{
                 boxShadow: '0 0 0 1px #edf0f2',
@@ -284,10 +114,14 @@ class RecentCard extends React.Component{
                 justifyContent: 'center',
                 display: 'flex'
             },
+            mimeFontStyle: {fontSize: 40},
             fontOverlay:{position:'absolute', bottom:0, right: 5},
             label:{fontSize:14, overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis', width: '100%'},
             title:{fontSize:14, marginTop: 10},
             legend:{fontSize: 11, fontWeight: 500, color: '#9E9E9E'},
+            interDiv: {
+                width:'100%', overflow:'hidden'
+            }
         };
         if(muiTheme.userTheme === 'mui3') {
             const {palette:{mui3}} = muiTheme
@@ -300,9 +134,8 @@ class RecentCard extends React.Component{
                 margin: 4,
                 padding: 0,
                 paddingBottom: 6,
-                background:mui3['surface-1'],
-                color:mui3['on-surface'],
-                border: '1px solid ' + mui3['outline-variant-50']
+                background:mui3['surface'],
+                color:mui3['on-surface']
             }
             styles.preview = {
                 ...styles.preview,
@@ -317,26 +150,97 @@ class RecentCard extends React.Component{
             styles.title.fontWeight = 500
             styles.legend.color = mui3['on-surface-variant']
             styles.legend.fontWeight = 400
+
+            // Override with line display
+            if(display === 'list') {
+
+                styles.paper = {
+                    ...styles.paper,
+                    background: hover ? 'var(--md-sys-color-hover-background)' : 'none',
+                    border: 0,
+                    margin: 0,
+                    borderBottom: last ? 'none'  : '1px solid rgba(0,0,0,.05)'/* + mui3['outline-variant-50']*/,
+                    borderRadius: 0,
+                    width: '100%',
+                    height: 74,
+                    flexDirection: 'row',
+                    padding:'0 16px',
+                    paddingBottom: 0
+                }
+                styles.preview = {
+                    borderRadius: 6,
+                    width: 40,
+                    height: 40,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }
+                styles.interDiv = {
+                    flex: 1,
+                    overflow: 'hidden',
+                    paddingLeft: 8
+                }
+                styles.mimeFontStyle = {fontSize: 20}
+                styles.title.marginTop = 0
+                styles.title.fontSize = 15
+                styles.legend.fontSize = 12
+
+                if(node.getMetadata().has('reco-annotation') && (node.getMetadata().get('reco-annotation').indexOf('activity:') === 0 || node.getMetadata().get('reco-annotation') === 'bookmark')) {
+                    const repoId= node.getMetadata().get('repository_id')
+                    const repoLabel = pydio.user.getRepositoriesList().get(repoId).getLabel()
+                    let dir = PathUtils.getDirname(node.getPath())
+                    if(dir === '/' || !dir){
+                        dir = ''
+                    } else {
+                        dir += ' - '
+                    }
+                    legend = '[' + repoLabel + '] ' + dir + legend
+                }
+
+            }
+
         }
 
-        const {title, legend, node, pydio} = this.props;
         return (
-            <Paper zDepth={0} style={styles.paper} onClick={() => {pydio.goTo(node);}} onMouseOver={()=>this.setState({hover:true})} onMouseOut={()=>this.setState({hover:false})} title={node && node.getLabel()}>
-                {node && <FilePreview node={node} style={styles.preview} mimeFontStyle={{fontSize:40}} loadThumbnail={true} mimeFontOverlay={true} mimeFontOverlayStyle={styles.fontOverlay}/>}
-                <div style={{...styles.label, ...styles.title}}>{title}</div>
-                <div style={{...styles.label, ...styles.legend}}>{legend}</div>
+            <Paper
+                zDepth={0}
+                style={styles.paper}
+                onClick={() => {pydio.goTo(node);}}
+                onMouseOver={()=>this.setState({hover:true})}
+                onMouseOut={()=>this.setState({hover:false})}
+                title={node && node.getLabel()}
+            >
+                {node &&
+                    <FilePreview
+                        node={node}
+                        style={styles.preview}
+                        mimeFontStyle={styles.mimeFontStyle}
+                        loadThumbnail={true}
+                        mimeFontOverlay={true}
+                        mimeFontOverlayStyle={styles.fontOverlay}
+                    />}
+                <div  style={{...styles.interDiv}}>
+                    <div style={{...styles.label, ...styles.title}}>{title}</div>
+                    <div style={{...styles.label, ...styles.legend}}>{legend}</div>
+                </div>
             </Paper>
         );
     }
 }
 
+const LayoutKey = "Recents.List.Display"
+
 class SmartRecents extends React.Component{
 
     constructor(props){
         super(props);
-        //this.loader = new Loader(props.pydio, this);
-        this.loader = new RecoLoader(props.pydio, this);
-        this.state = {nodes:[], loading:false};
+        const {pydio, muiTheme} = props;
+        this.loader = new RecoLoader(pydio, this);
+        let list = false;
+        if(muiTheme.userTheme === 'mui3') {
+            list = pydio.user && pydio.user.getWorkspacePreference(LayoutKey, false)
+        }
+        this.state = {nodes:[], loading:false, list};
     }
 
     componentDidMount(){
@@ -349,12 +253,29 @@ class SmartRecents extends React.Component{
         });
     }
 
+    toggleList() {
+        const {pydio} = this.props
+        const {list} = this.state;
+        const nl = !list
+        this.setState({list: nl}, () => {
+            pydio.user.setWorkspacePreference(LayoutKey, nl)
+        })
+    }
+
     render(){
 
 
-        const {pydio, style, muiTheme} = this.props;
-        const {nodes, loading} = this.state;
+        const {pydio, muiTheme} = this.props;
+        const {nodes, loading, list} = this.state;
 
+        const style = {
+            display:(loading&&list)?'block':'flex',
+            padding:list?'4px 0':4,
+            flexWrap: 'wrap',
+            justifyContent:'flex-start',
+            maxWidth: 680,
+            width:'100%'
+        }
         let phStyle = {margin:10,width:140, height: 160, padding: 6, display:'flex', flexDirection:'column', alignItems:'center', borderRadius: 6}
         if(muiTheme.userTheme === 'mui3') {
             phStyle.width = 160;
@@ -362,17 +283,35 @@ class SmartRecents extends React.Component{
             phStyle.margin=4;
             phStyle.borderRadius=12;
         }
+        if(list) {
+            phStyle.width = '100%'
+            phStyle.display = 'flex'
+            phStyle.flexDirection = 'row'
+            phStyle.height = 'auto'
+        }
 
         const cardsPH = (
             <div style={{display:'flex', flexWrap:'wrap'}}>
-                {[0,1,2,3,4,5,6,7].map(() => {
-                    return (
-                        <div style={phStyle}>
-                            <PhRoundShape style={{width:'100%', height:100, borderRadius: phStyle.borderRadius}}/>
-                            <PhTextRow/>
-                            <PhTextRow/>
-                        </div>
-                    );
+                {[...Array(Limit).keys()].map(() => {
+                    if(list) {
+                        return (
+                            <div style={phStyle}>
+                                <PhRoundShape style={{width:'100%', height:40, width: 40, borderRadius: phStyle.borderRadius}}/>
+                                <div style={{flex: 1, marginTop: -8, marginLeft: 10}}>
+                                    <PhTextRow/>
+                                    <PhTextRow/>
+                                </div>
+                            </div>
+                        );
+                    } else {
+                        return (
+                            <div style={phStyle}>
+                                <PhRoundShape style={{width:'100%', height:100, borderRadius: phStyle.borderRadius}}/>
+                                <PhTextRow/>
+                                <PhTextRow/>
+                            </div>
+                        );
+                    }
                 })}
             </div>
         );
@@ -382,28 +321,40 @@ class SmartRecents extends React.Component{
         }
         const keys = {};
         const cards = [];
+        let count = 0
         nodes.forEach((node) => {
             const k = node.getMetadata().get("uuid");
-            if(keys[k] || cards.length >= 8){
+            if(keys[k] || cards.length >= Limit){
                 return;
             }
+            count++
             keys[k] = k;
             cards.push(
                 <RecentCard
                     key={k}
+                    last={count === Limit}
                     pydio={pydio}
                     muiTheme={muiTheme}
                     node={node}
                     title={node.getLabel()}
                     legend={node.getMetadata().get('card_legend')}
+                    display={list?'list':'thumb'}
             />)
         });
 
         return (
-            <div style={{display:'flex', flexWrap: 'wrap', justifyContent:'center', ...style}}>
-                <PlaceHolder ready={!loading} showLoadingAnimation customPlaceholder={cardsPH}>
-                    {cards}
-                </PlaceHolder>
+            <div style={{maxHeight: 'calc(100%  - 40px)', overflow:'hidden', display:'flex', flexDirection:'column', borderRadius: 'var(--md-sys-color-paper-border-radius)', background:'var(--md-sys-color-surface-1)', marginTop: 20}}>
+                <div style={{display:'flex', padding:'16px 16px 6px', color: 'var(--md-sys-color-secondary)', fontWeight: 500}}>
+                    <div style={{flex: 1}} >{pydio.MessageHash['user_home.87']}</div>
+                    {muiTheme.userTheme==='mui3' && <M3Tooltip title={<span style={{padding: '0 8px'}}>{pydio.MessageHash[list?'193':'192']}</span>}><span className={'mdi mdi-view-' + (list ? 'grid':'list')} onClick={()=>this.toggleList()} style={{cursor: 'pointer', fontSize: 16}}/></M3Tooltip>}
+                </div>
+                <div style={{overflowY: 'auto', flex: 1}}>
+                    <div style={style}>
+                        <PlaceHolder ready={!loading} showLoadingAnimation customPlaceholder={cardsPH}>
+                            {cards}
+                        </PlaceHolder>
+                    </div>
+                </div>
             </div>
         );
 

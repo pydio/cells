@@ -1,7 +1,7 @@
 import React from "react"
 import Pydio from 'pydio'
 import LangUtils from 'pydio/util/lang'
-import {Paper, Divider, SelectField, MenuItem, LinearProgress, Stepper} from 'material-ui'
+import {Paper, Divider, MenuItem, LinearProgress, Stepper} from 'material-ui'
 import {JobsJob, JobsTask} from 'cells-sdk'
 const {JobsStore, moment} = Pydio.requireLib("boot");
 const {ModernSelectField} = Pydio.requireLib('hoc');
@@ -103,7 +103,7 @@ export default class Dashboard extends React.Component {
         const adminStyles = AdminComponents.AdminStyles();
 
         const previousJobsSelector = (
-            <ModernSelectField fullWidth={true} value={showLogs} onChange={(e,i,v) => {this.setState({showLogs:v})}}>
+            <ModernSelectField fullWidth={true} value={showLogs} onChange={(e,i,v) => {this.setState({showLogs:v})}} variant={"compact"}>
                 <MenuItem value={null} primaryText={this.T('job.new')}/>
                 {previousTasks.length > 0 && <Divider/> }
                 {previousTasks.map((t) => {

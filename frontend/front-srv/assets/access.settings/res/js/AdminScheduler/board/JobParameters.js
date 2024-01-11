@@ -35,8 +35,12 @@ class Parameter extends React.Component{
         let {parameter, onChange, m, checkMandatory} = this.props;
         const blockStyle={margin:'0 5px'};
         let choices = {};
+        let type = parameter.Type;
         try{
             choices = JSON.parse(parameter.JsonChoices);
+            if(choices.type) {
+                type = choices.type
+            }
         }catch(e){}
         const errorText = (checkMandatory && parameter.Mandatory && (parameter.Value === undefined || parameter.Value === '')) ? (parameter.Description || '!!') : undefined
         return (
@@ -45,20 +49,20 @@ class Parameter extends React.Component{
                     {parameter.Name} {parameter.Mandatory && checkMandatory && "*"}
                 </div>
                 <div style={{...blockStyle, width: 200, minWidth: 200}}>
-                    {parameter.Type === 'select' &&
+                    {type === 'select' &&
                     <ModernSelectField fullWidth={true} errorText={errorText} value={parameter.Value} onChange={(e,i,v) => {onChange({...parameter, Value: v})}}>
                         {Object.keys(choices).map(k => {
                             return <MenuItem value={k} primaryText={choices[k]}/>
                         })}
                     </ModernSelectField>
                     }
-                    {parameter.Type === 'text' &&
+                    {type === 'text' &&
                     <ModernTextField fullWidth={true} errorText={errorText} value={parameter.Value} onChange={(e,v) => {onChange({...parameter, Value: v})}}/>
                     }
-                    {parameter.Type === 'integer' &&
+                    {type === 'integer' &&
                     <ModernTextField fullWidth={true} errorText={errorText} value={parseInt(parameter.Value)} type={"number"} onChange={(e,v) => {onChange({...parameter, Value: parseInt(v)})}}/>
                     }
-                    {parameter.Type === 'boolean' &&
+                    {type === 'boolean' &&
                     <ModernSelectField fullWidth={true} errorText={errorText} value={parameter.Value} onChange={(e,i,v) => {onChange({...parameter, Value: v})}}>
                         <MenuItem value={"true"} primaryText={Pydio.getMessages()[440]}/>
                         <MenuItem value={"false"} primaryText={Pydio.getMessages()[441]}/>

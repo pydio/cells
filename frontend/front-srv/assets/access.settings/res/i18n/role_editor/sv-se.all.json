@@ -1,0 +1,251 @@
+{
+  "1": {
+    "other": "Role Editor"
+  },
+  "10": {
+    "other": "Use the selectors below to select the actions you want to disabled for the users of this role. You can choose to disable the action for all repositories, or for a given workspace only."
+  },
+  "11": {
+    "other": "Plugin Identifier"
+  },
+  "12": {
+    "other": "Select a plugin..."
+  },
+  "12a": {
+    "other": "Select an action..."
+  },
+  "12b": {
+    "other": "Select a parameter..."
+  },
+  "12c": {
+    "other": "Pick one or all workspaces..."
+  },
+  "12d": {
+    "other": "All Workspaces"
+  },
+  "12e": {
+    "other": "Shared Workspaces"
+  },
+  "13": {
+    "other": "Action name"
+  },
+  "14": {
+    "other": "Repository Scope"
+  },
+  "15": {
+    "other": "Add Action"
+  },
+  "16": {
+    "other": "Use the selectors below to select the parameters you want to refine for the users of this role. Can be applied to all or one given workspace only, although this may depend on the plugin context."
+  },
+  "17": {
+    "other": "Parameter name"
+  },
+  "18": {
+    "other": "Add parameter"
+  },
+  "19": {
+    "other": "There are unsaved changes, are you sure you want to close?"
+  },
+  "2": {
+    "other": "Role editor"
+  },
+  "20": {
+    "other": "Role updated successfully"
+  },
+  "21": {
+    "other": "User ID"
+  },
+  "22": {
+    "other": "Profil"
+  },
+  "23": {
+    "other": "Default Workspace"
+  },
+  "24": {
+    "other": "Användarroller"
+  },
+  "25": {
+    "other": "Ändra lösenord"
+  },
+  "26": {
+    "other": "Lock out user"
+  },
+  "27": {
+    "other": "Reactivate user"
+  },
+  "28": {
+    "other": "Force password change"
+  },
+  "28b": {
+    "other": "Cancel password change"
+  },
+  "29": {
+    "other": "Enter new password for this user"
+  },
+  "3": {
+    "other": "Account Info"
+  },
+  "30": {
+    "other": "Bekräfta"
+  },
+  "31": {
+    "other": "Role ID"
+  },
+  "31.hint": {
+    "other": "Role ID (empty for auto-generate)"
+  },
+  "31.exists": {
+    "other": "Identifier already exists"
+  },
+  "32": {
+    "other": "Role Label"
+  },
+  "33": {
+    "other": "Apply automatically to users with profile..."
+  },
+  "34": {
+    "other": "Group ID"
+  },
+  "35": {
+    "other": "Group Label"
+  },
+  "36": {
+    "other": "locked"
+  },
+  "37": {
+    "other": "Deny"
+  },
+  "38": {
+    "other": "inherited"
+  },
+  "workspace.roots.invalid": {
+    "other": "invalid roots"
+  },
+  "39": {
+    "other": "Inaktivera"
+  },
+  "4": {
+    "other": "ACL"
+  },
+  "40": {
+    "other": "Aktivera"
+  },
+  "41": {
+    "other": "Remove"
+  },
+  "42": {
+    "other": "Role custom data"
+  },
+  "43": {
+    "other": "Select one or more"
+  },
+  "44": {
+    "other": "Plugins Parameters Fine-tuning"
+  },
+  "45": {
+    "other": "Access Control List"
+  },
+  "46": {
+    "other": "Disabled Actions"
+  },
+  "47": {
+    "other": "Search Roles"
+  },
+  "5": {
+    "other": "Actions"
+  },
+  "6": {
+    "other": "Parameters"
+  },
+  "7": {
+    "other": "Internal Data"
+  },
+  "8": {
+    "other": "Personal information"
+  },
+  "9": {
+    "other": "Select the workspaces to which the use with this role will have access. Use the 'Deny' value to either override a value set by a previous role, or definitely deny the access to this workspace even to inherited roles."
+  },
+  "dashboard.description": {
+    "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."
+  },
+  "dashboard.technical.hide": {
+    "other": "Hide technical roles"
+  },
+  "dashboard.technical.show": {
+    "other": "Show technical roles"
+  },
+  "dashboard.filterByType": {
+    "other": "Filter by Type..."
+  },
+  "dashboard.filterSelectOne": {
+    "other": "Please select at least one role type in the list"
+  },
+  "roleType": {
+    "other": "Rolltyp"
+  },
+  "roleType.description": {
+    "other": "Standard roles are assigned by administrators, whereas teams are managed by users in their address book. Technical roles are attached automatically to each users and groups and in that case their type cannot be modified."
+  },
+  "roleType.admin": {
+    "other": "Standard"
+  },
+  "roleType.admin.description": {
+    "other": "Standard Role"
+  },
+  "roleType.IsTeam": {
+    "other": "Team"
+  },
+  "roleType.IsTeam.description": {
+    "other": "Team (visible as a Team in address book)"
+  },
+  "roleType.IsUserRole": {
+    "other": "[Tech] User"
+  },
+  "roleType.IsUserRole.description": {
+    "other": "[Technical] Created automatically for the corresponding User"
+  },
+  "roleType.IsGroupRole": {
+    "other": "[Tech] Group"
+  },
+  "roleType.IsGroupRole.description": {
+    "other": "[Technical] Created automatically for the corresponding Group"
+  },
+  "dashboard.typeFilter.admin": {
+    "other": "Standard Roles"
+  },
+  "dashboard.typeFilter.IsTeam": {
+    "other": "User-defined Teams"
+  },
+  "dashboard.typeFilter.IsUserRole": {
+    "other": "[Technical] Attached to each users"
+  },
+  "dashboard.typeFilter.IsGroupRole": {
+    "other": "[Technical] Attached to each groups"
+  },
+  "last_update": {
+    "other": "Last updated"
+  },
+  "role.id.description": {
+    "other": "Unique ID of this role (cannot be changed)."
+  },
+  "role.label.description": {
+    "other": "Human-readable label."
+  },
+  "role.autoapply.description": {
+    "other": "Role is always applied to users with this profile(s)."
+  },
+  "role.override.label": {
+    "other": "Always Override"
+  },
+  "role.override.description": {
+    "other": "Role is always applied last after other roles, except for user role that will still prevail."
+  },
+  "user.info.main": {
+    "other": "Hover fields to show explanation"
+  },
+  "button.info.menu.security": {
+    "other": "Security Actions"
+  }
+}

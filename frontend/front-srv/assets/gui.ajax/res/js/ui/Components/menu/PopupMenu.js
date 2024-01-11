@@ -99,16 +99,17 @@ export default class extends React.Component {
     };
 
     render() {
-        const { menuProps, zDepth = 1} = this.props;
+        const { menuProps, paperStyle, zDepth = 1} = this.props;
         const {style = {}, menuItems} = this.state;
         
-        const paperStyle = {
+        const papStyle = {
+            ...paperStyle,
             ...style, 
             zIndex: 1000
         };
         const menu = Utils.itemsToMenu(menuItems, this.menuClicked.bind(this), false, {ref:this.menuRef, desktop:true, display:'right', width: 250, ...menuProps});
         if(this.state.showMenu) {
-            return <Paper zDepth={zDepth || 1} ref="menuContainer" className="menu-positioner" style={paperStyle}>{menu}</Paper>
+            return <Paper zDepth={zDepth || 1} ref="menuContainer" className="menu-positioner" style={papStyle}>{menu}</Paper>
         }else{
             return null;
         }

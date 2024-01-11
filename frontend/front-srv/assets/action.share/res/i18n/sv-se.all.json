@@ -42,7 +42,7 @@
     "other": "Share this"
   },
   "110b": {
-    "other": "Share"
+    "other": "Dela"
   },
   "111": {
     "other": "Share this page with other people"
@@ -72,7 +72,7 @@
     "other": "Download link"
   },
   "12": {
-    "other": "Password"
+    "other": "Lösenord"
   },
   "120": {
     "other": "Simple download page"
@@ -102,16 +102,16 @@
     "other": "Migrate legacy shares"
   },
   "129": {
-    "other": "Copy URL"
+    "other": "Kopiera URL"
   },
   "13": {
-    "other": "Yes"
+    "other": "Ja"
   },
   "130": {
     "other": "Copy URL to your clipboard"
   },
   "131": {
-    "other": "No shared files or folders yet."
+    "other": "Inga delade filer eller mappar än."
   },
   "132": {
     "other": "Workspace"
@@ -144,7 +144,7 @@
     "other": "You have shared this folder as a workspace with application users, but it is currently inactive (expired)."
   },
   "14": {
-    "other": "No"
+    "other": "Nej"
   },
   "140": {
     "other": "You have shared this file via a public link"
@@ -165,7 +165,7 @@
     "other": "Use <kbd>&#8984;</kbd>+<kbd>C</kbd> to copy the link"
   },
   "145": {
-    "other": "Description"
+    "other": "Beskrivning"
   },
   "146": {
     "other": "Will be displayed to the shared users"
@@ -261,7 +261,7 @@
     "other": "If you want a durable and pretty link (like https://.../my-share-link), you can use this field. Link handle will be generated if left empty."
   },
   "174": {
-    "other": "Reset"
+    "other": "Återställ"
   },
   "175": {
     "other": "Please set a password and make sure it's long enough!"
@@ -318,7 +318,7 @@
     "other": "This file is not currently publicly accessible. Enabling a public link will create a unique access that you can send to anyone. If you want to share with existing Pydio users, use the \"Users\" tab."
   },
   "191": {
-    "other": "Copy link to clipboard"
+    "other": "Kopiera länk till urklipp"
   },
   "192": {
     "other": "Link has been copied to clipboard"
@@ -456,7 +456,7 @@
     "other": "No more downloads"
   },
   "23": {
-    "other": "Password"
+    "other": "Lösenord"
   },
   "230": {
     "other": "Please save before sending an invitation"
@@ -597,10 +597,10 @@
     "other": "Share file"
   },
   "270": {
-    "other": "users"
+    "other": "användare"
   },
   "271": {
-    "other": "groups"
+    "other": "grupper"
   },
   "272": {
     "other": "teams"
@@ -609,7 +609,7 @@
     "other": "nobody"
   },
   "274": {
-    "other": " and "
+    "other": " och "
   },
   "275": {
     "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
@@ -651,7 +651,7 @@
     "other": "Wrong password"
   },
   "30": {
-    "other": "Share with..."
+    "other": "Dela med..."
   },
   "31": {
     "other": "Read"
@@ -669,13 +669,13 @@
     "other": "Select Users"
   },
   "35": {
-    "other": "Label"
+    "other": "Etikett"
   },
   "36": {
     "other": "Set a label and a short description"
   },
   "37": {
-    "other": "Confirm"
+    "other": "Bekräfta"
   },
   "38": {
     "other": "Watch this folder content"
@@ -723,7 +723,7 @@
     "other": "create user"
   },
   "5": {
-    "other": "password"
+    "other": "lösenord"
   },
   "50": {
     "other": "Shared"
@@ -813,7 +813,7 @@
     "other": "Upload files"
   },
   "74b": {
-    "other": "Edit"
+    "other": "Redigera"
   },
   "75": {
     "other": "Please use a positive number for both Expiration and Download limit fields."
@@ -852,7 +852,7 @@
     "other": "Toggle watch status to receive or not notifications when workspace is consulted"
   },
   "84": {
-    "other": "password"
+    "other": "lösenord"
   },
   "85": {
     "other": "A protection password is set on this link"
@@ -879,16 +879,16 @@
     "other": "Tags (Enter to save)"
   },
   "92": {
-    "other": "Create link"
+    "other": "Skapa länk"
   },
   "93": {
     "other": "Existing links"
   },
   "94": {
-    "other": "QR Code"
+    "other": "QR-kod"
   },
   "95": {
-    "other": "QR code"
+    "other": "QR-kod"
   },
   "96": {
     "other": "stop sharing"
@@ -906,7 +906,7 @@
     "other": "Add users/data"
   },
   "cells.create.buttons.separator": {
-    "other": "or"
+    "other": "eller"
   },
   "cells.create.title.fill.folders": {
     "other": "Share existing folder(s)"
@@ -927,10 +927,10 @@
     "other": "Create a new Cell"
   },
   "cell.participant.single": {
-    "other": "One participant"
+    "other": "En deltagare"
   },
   "cell.participant.multiple": {
-    "other": "%d participants"
+    "other": "%d deltagare"
   },
   "cell.participant.other.single": {
     "other": "One other participant"
@@ -939,10 +939,10 @@
     "other": "%d other participants"
   },
   "cell.folder-root.single": {
-    "other": "One folder"
+    "other": "En mapp"
   },
   "cell.folder-root.multiple": {
-    "other": "%d folders"
+    "other": "%d mappar"
   },
   "link.visibility.title": {
     "other": "[Advanced] Visibility"

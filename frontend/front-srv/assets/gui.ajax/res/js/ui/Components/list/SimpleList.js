@@ -181,7 +181,6 @@ let SimpleList = createReactClass({
             let sortingInfo;
             const {sortingInfo: {attribute, direction}} = this.state;
             if(attribute === att && direction){
-                console.log(direction, autoReset, forceClear, column)
                 if(forceClear || (direction==='desc'&&autoReset)){
                     // Reset sorting
                     sortingInfo = defaultSortingInfo || {};
@@ -198,10 +197,7 @@ let SimpleList = createReactClass({
                     stateSetCallback();
                 }
                 if(sortingPreferenceKey) {
-                    const crtSlug = user.getActiveRepositoryObject().getSlug()
-                    const allInfos = user.getGUIPreference(sortingPreferenceKey) || {}
-                    allInfos[crtSlug] = sortingInfo
-                    user.setGUIPreference(sortingPreferenceKey, allInfos, true)
+                    user.setLayoutPreference(sortingPreferenceKey, sortingInfo)
                 }
                 this.sortingInfoChange(sortingInfo)
             });
@@ -328,12 +324,8 @@ let SimpleList = createReactClass({
             this.dm.setContextNode(dataModel.getContextNode());
         }
         let sortingInfo = defaultSortingInfo || null;
-        if(sortingPreferenceKey && pydio.user.getGUIPreference(sortingPreferenceKey)) {
-            const crtSlug = pydio.user.getActiveRepositoryObject().getSlug()
-            const allInfos = pydio.user.getGUIPreference(sortingPreferenceKey) || {}
-            if(allInfos[crtSlug] && !allInfos[crtSlug].remote){
-                sortingInfo = allInfos[crtSlug]
-            }
+        if(sortingPreferenceKey) {
+            sortingInfo = pydio.user.getLayoutPreference(sortingPreferenceKey, sortingInfo)
         }
         let state = {
             loaded              : node.isLoaded(),
@@ -356,12 +348,8 @@ let SimpleList = createReactClass({
             sortingInfo = {}
         } else if(remote instanceof Object) {
             sortingInfo = remote;
-        } else if(node !== this.props.node && sortingPreferenceKey && pydio.user.getGUIPreference(sortingPreferenceKey)) {
-            const crtSlug = pydio.user.getActiveRepositoryObject().getSlug()
-            const allInfos = pydio.user.getGUIPreference(sortingPreferenceKey) || {}
-            if(allInfos[crtSlug]){
-                sortingInfo = allInfos[crtSlug]
-            }
+        } else if(node !== this.props.node && sortingPreferenceKey) {
+            sortingInfo = pydio.user.getLayoutPreference(sortingPreferenceKey, sortingInfo)
         }
         this.sortingInfoChange(sortingInfo)
         this.setState({
@@ -402,7 +390,6 @@ let SimpleList = createReactClass({
             toggle:(clear = false)=>{
                 const {sortKeys} = this.props;
                 const col = si.remote ? {remoteSortAttribute:si.attribute} : sortKeys[si.attribute]
-                console.log('TOGGLE', col, clear)
                 this.onColumnSort(col, null, false, clear)
             }
         })
@@ -541,6 +528,9 @@ let SimpleList = createReactClass({
             if(this.props.filterNodes && !this.props.filterNodes(child)){
                 return;
             }
+            if(this.props.entryEnableSelector && !this.props.entryEnableSelector(child)){
+                return;
+            }
             if(child.isLeaf()){
                 selection.set(child, true);
             }
@@ -617,27 +607,38 @@ let SimpleList = createReactClass({
     },
 
     componentDidMount: function(){
-        if(this.props.delayInitialLoad){
-            setTimeout(() => {this._loadNodeIfNotLoaded()}, this.props.delayInitialLoad);
+        const {pydio, sortingPreferenceKey, delayInitialLoad, elementsPerLine, autoRefresh, observeNodeReload, dataModel} = this.props;
+        if(sortingPreferenceKey) {
+            this._prefObserver = () => {
+                const sortingInfo = pydio.user.getLayoutPreference(sortingPreferenceKey)
+                if(sortingInfo !== undefined) {
+                    this.setState({sortingInfo})
+                }
+            }
+            pydio.observe('reload_layout_preferences', this._prefObserver)
+        }
+
+        if(delayInitialLoad){
+            setTimeout(() => {this._loadNodeIfNotLoaded()}, delayInitialLoad);
         }else{
             this._loadNodeIfNotLoaded();
         }
-        this.patchInfiniteGrid(this.props.elementsPerLine);
-        if(this.props.autoRefresh){
-            this.refreshInterval = window.setInterval(this.reload, this.props.autoRefresh);
+        this.patchInfiniteGrid(elementsPerLine);
+        if(autoRefresh){
+            this.refreshInterval = window.setInterval(this.reload, autoRefresh);
         }
-        if(this.props.observeNodeReload){
+        if(observeNodeReload){
             this.wireReloadListeners();
         }
-        this.props.dataModel.observe('root_node_changed', (rootNode) => {
+        dataModel.observe('root_node_changed', (rootNode) => {
             this.rootNodeChangedFlag = true;
         });
-        this.props.dataModel.observe('selection_changed', function(){
+        dataModel.observe('selection_changed', function(){
             if(!this.isMounted()) {
                 return;
             }
             let selection = new Map();
-            const selectedNodes = this.props.dataModel.getSelectedNodes();
+            const selectedNodes = dataModel.getSelectedNodes();
             selectedNodes.map(function(n){
                 selection.set(n, true);
             });
@@ -650,7 +651,7 @@ let SimpleList = createReactClass({
         }.bind(this));
         // Selection on Mount
         const selection = new Map();
-        const selectedNodes = this.props.dataModel.getSelectedNodes();
+        const selectedNodes = dataModel.getSelectedNodes();
         if(selectedNodes.length) {
             selectedNodes.map(function(n){
                 selection.set(n, true);
@@ -662,14 +663,18 @@ let SimpleList = createReactClass({
     },
 
     componentWillUnmount: function(){
+        const {pydio, node, observeNodeReload} = this.props;
         if(this.refreshInterval){
             window.clearInterval(this.refreshInterval);
         }
-        if(this.props.observeNodeReload){
+        if(observeNodeReload){
             this.stopReloadListeners();
         }
-        if(this.props.node) {
-            this.observeNodeChildren(this.props.node, true);
+        if(node) {
+            this.observeNodeChildren(node, true);
+        }
+        if(this._prefObserver) {
+            pydio.stopObserving('reload_layout_preferences', this._prefObserver)
         }
     },
 
@@ -1022,6 +1027,9 @@ let SimpleList = createReactClass({
         }
         //const {node} = this.props;
         const meta = node.getMetadata()
+        if (meta.get('search_root') === true) {
+            return -1;
+        }
         const pagination = meta.get('paginationData') || new Map()
         const ordering = meta.get('remoteOrder') || new Map()
         if(pagination.get('total') > 1){
@@ -1089,10 +1097,15 @@ let SimpleList = createReactClass({
 
             leftToolbar =(
                 <ToolbarGroup key={0} float="left">
-                    <div style={{fontSize: 12, fontWeight: 500, color: '#9e9e9e'}}>{this.getMessage('searchengine.topbar.title') + ' ' + this.props.searchResultData.term}</div>
+                    <div style={{fontSize: 14, fontWeight: 500, color: '#9e9e9e'}}>{this.getMessage('searchengine.topbar.title') + ' ' + this.props.searchResultData.term}</div>
                 </ToolbarGroup>
             );
-            rightButtons = <RaisedButton key={1} label={this.getMessage('86')} primary={true} onClick={this.props.searchResultData.toggleState} style={{marginRight: -10}} />;
+            rightButtons = <RaisedButton key={1} label={this.getMessage('86')} primary={true}
+                                         onClick={this.props.searchResultData.toggleState}
+                                         buttonStyle={{borderRadius: 20, height: 30, lineHeight: '30px'}}
+                                         labelStyle={{textTransform:'capitalize'}}
+                                         style={{boxShadow:'none', marginRight: -10}}
+            />;
 
         }else if(this.actionsCache.multiple.size || this.props.multipleActions){
             let bulkLabel = this.getMessage('react.2');
@@ -1112,7 +1125,10 @@ let SimpleList = createReactClass({
             leftToolbar = (
                 <ToolbarGroup key={0} float="left" className="hide-on-vertical-layout">
                     <Checkbox checked={bulkSelectorChecked} onCheck={(e,v) => this.selectAll(v)} style={cbStyle}/>
-                    <FlatButton label={bulkLabel} onClick={() => this.toggleSelector()} style={buttonStyle} />
+                    <FlatButton label={bulkLabel} onClick={() => this.toggleSelector()}
+                                style={{...buttonStyle, borderRadius: 20}}
+                                buttonStyle={{height: 30, lineHeight: '30px'}}
+                                labelStyle={{textTransform:'capitalize', opacity:0.5}} />
                 </ToolbarGroup>
             );
 
@@ -1128,7 +1144,9 @@ let SimpleList = createReactClass({
                         onClick={this.applyMultipleAction}
                         primary={true}
                         disabled={!selection || !selection.size}
-                        style={{marginLeft: 5}}
+                        buttonStyle={{borderRadius: 20}}
+                        labelStyle={{textTransform:'capitalize', height: 30, lineHeight: '30px'}}
+                        style={{marginLeft: 5, boxShadow:'none'}}
                         />
                     );
                 }.bind(this));

@@ -23,12 +23,12 @@ import PluginsList from './core/PluginsList'
 import PluginEditor from './core/PluginEditor'
 import ServiceEditor from './core/ServiceEditor'
 import CoreAndPluginsDashboard from './core/CoreAndPluginsDashboard'
+import SitesParameters from "./core/SitesParameters";
 
 import AuthenticationPluginsDashboard from './auth/AuthenticationPluginsDashboard'
 import EditorsDashboard from './editors/EditorsDashboard'
 import UpdaterDashboard from './updater/UpdaterDashboard'
 import JSDocsDashboard from './docs/JSDocsDashboard'
-//import OpenApiDashboard from './docs/OpenApiDashboard'
 
 export {
 
@@ -40,7 +40,7 @@ export {
     EditorsDashboard,
     UpdaterDashboard,
     JSDocsDashboard,
-    /*OpenApiDashboard,*/
     ServiceEditor,
+    SitesParameters
 
 };

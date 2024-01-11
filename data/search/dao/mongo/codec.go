@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common/dao/mongodb"
@@ -48,6 +49,15 @@ var staticBuckets = map[string][]map[interface{}]*tree.SearchFacet{
 		}},
 	},
 }
+
+var (
+	validSortFields = map[string]string{
+		tree.MetaSortName: "basename",
+		tree.MetaSortTime: "modif_time",
+		tree.MetaSortSize: "size",
+		tree.MetaSortType: "node_type",
+	}
+)
 
 type mongoBucket struct {
 	BucketID interface{} `bson:"_id"`
@@ -133,8 +143,43 @@ func (m *Codex) FlushCustomFacets() []interface{} {
 	return nil
 }
 
-// BuildQuery builds a mongo filter plus an Aggregation Pipeline to be performed for computing facets
-func (m *Codex) BuildQuery(query interface{}, offset, limit int32) (interface{}, interface{}, error) {
+// BuildQueryOptions overrides basic range options with sortFields data
+func (m *Codex) BuildQueryOptions(_ interface{}, offset, limit int32, sortFields string, sortDesc bool) (interface{}, error) {
+	opts := &options.FindOptions{}
+	if limit > 0 {
+		l64 := int64(limit)
+		opts.Limit = &l64
+	}
+	if offset > 0 {
+		o64 := int64(offset)
+		opts.Skip = &o64
+	}
+	if sortFields != "" {
+		// Example: opts{Sort: bson.D{{"ts", -1}, {"nano", -1}}}
+		var sorts []string
+		for _, sf := range strings.Split(sortFields, ",") {
+			if sortField, ok := validSortFields[strings.TrimSpace(sf)]; ok {
+				sorts = append(sorts, sortField)
+			}
+		}
+		if len(sorts) > 0 {
+			sorting := bson.D{}
+			value := 1
+			if sortDesc {
+				value = -1
+			}
+			for _, key := range sorts {
+				sorting = append(sorting, bson.E{Key: key, Value: value})
+			}
+			opts.Sort = sorting
+		}
+	}
+	return opts, nil
+}
+
+// BuildQuery builds a mongo filter plus an Aggregation Pipeline to be performed for computing facets.
+// Range and sorting parameters are not handled here, but by BuildQueryOptions method.
+func (m *Codex) BuildQuery(query interface{}, _, _ int32, _ string, _ bool) (interface{}, interface{}, error) {
 	var filters []bson.E
 
 	queryObject := query.(*tree.Query)
@@ -198,14 +243,27 @@ func (m *Codex) BuildQuery(query interface{}, offset, limit int32) (interface{},
 		}
 		filters = append(filters, bson.E{"node_type", nodeType})
 	}
+
 	if queryObject.Extension != "" {
 		filters = append(filters, bson.E{"extension", strings.ToLower(queryObject.Extension)})
+	}
+
+	if len(queryObject.UUIDs) == 1 {
+		filters = append(filters, bson.E{Key: "uuid", Value: queryObject.UUIDs[0]})
+	} else if len(queryObject.UUIDs) > 1 {
+		ors := bson.A{}
+		for _, nodeId := range queryObject.UUIDs {
+			ors = append(ors, bson.M{"uuid": nodeId})
+		}
+		filters = append(filters, bson.E{Key: "$or", Value: ors})
 	}
 
 	if queryObject.FreeString != "" {
 		if freeFilters, er := mongodb.BleveQueryToMongoFilters(queryObject.FreeString, true, func(s string) string {
 			if s == "Basename" {
 				return "basename"
+			} else if s == "Uuid" {
+				return "uuid"
 			}
 			return strings.Replace(s, "Meta.", "meta.", 1)
 		}); er == nil {

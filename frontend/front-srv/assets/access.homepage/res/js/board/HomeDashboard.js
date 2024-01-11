@@ -45,9 +45,9 @@ class AltDashboard extends React.Component {
 
     showTutorial(){
         const {pydio} = this.props;
-        const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
+        const tourDone = pydio.user && pydio.user.getLayoutPreference('WelcomeComponent.Pydio8.TourGuide.Welcome', false);
         const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
-        return wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome'];
+        return wTourEnabled && !tourDone;
     }
 
     openDrawer(event) {
@@ -180,7 +180,7 @@ class AltDashboard extends React.Component {
                     </div>
                 </Paper>
                 <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle} fullScreen={fullScreen} fullScreenTransition={fullScreenTransition} onFocusChange={onFocusChange}>
-                    <SmartRecents {...this.props} style={{maxWidth: 680, width:'100%', padding:'8px 0'}} emptyStateProps={{style:{backgroundColor:'transparent'}}}/>
+                    <SmartRecents {...this.props} emptyStateProps={{style:{backgroundColor:'transparent'}}}/>
                 </HomeSearchForm>
             </MasterLayout>
 

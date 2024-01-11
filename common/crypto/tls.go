@@ -19,6 +19,8 @@ const (
 )
 
 func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
+	var done bool
+
 	conf := &tls.Config{}
 
 	q := u.Query()
@@ -30,53 +32,56 @@ func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
 		return nil, err
 	}
 
-	if !q.Has(KeyCertUUID) {
-		return nil, nil
+	if certUUID := q.Get(KeyCertUUID); certUUID != "" {
+		var certs []tls.Certificate
+		clientCertBlock, err := store.Load(ctx, certUUID)
+		if err != nil {
+			return nil, err
+		}
+
+		var clientCertKeyBlock []byte
+		if certKeyUUID := q.Get(KeyCertKeyUUID); certKeyUUID != "" {
+			block, err := store.Load(ctx, certKeyUUID)
+			if err != nil {
+				return nil, err
+			}
+
+			clientCertKeyBlock = block
+		} else {
+			block, err := store.Load(ctx, certUUID+"-key")
+			if err != nil {
+				return nil, err
+			}
+
+			clientCertKeyBlock = block
+		}
+
+		cert, err := tls.X509KeyPair(clientCertBlock, clientCertKeyBlock)
+		if err != nil {
+			return nil, err
+		}
+
+		certs = append(certs, cert)
+
+		if len(certs) > 0 {
+			conf.Certificates = certs
+		}
+
+		done = true
 	}
 
-	if q.Has(KeyCertStoreName) {
-		conf.ServerName = q.Get(KeyCertStoreName)
+	if certStoreName := q.Get(KeyCertStoreName); certStoreName != "" {
+		conf.ServerName = certStoreName
+
+		done = true
 	}
+
 	if q.Has(KeyCertInsecureHost) {
 		conf.InsecureSkipVerify = true
 	}
 
-	var certs []tls.Certificate
-	clientCertBlock, err := store.Load(ctx, q.Get(KeyCertUUID))
-	if err != nil {
-		return nil, err
-	}
-
-	var clientCertKeyBlock []byte
-	if q.Has(KeyCertKeyUUID) {
-		block, err := store.Load(ctx, q.Get(KeyCertKeyUUID))
-		if err != nil {
-			return nil, err
-		}
-
-		clientCertKeyBlock = block
-	} else {
-		block, err := store.Load(ctx, q.Get(KeyCertUUID)+"-key")
-		if err != nil {
-			return nil, err
-		}
-
-		clientCertKeyBlock = block
-	}
-
-	cert, err := tls.X509KeyPair(clientCertBlock, clientCertKeyBlock)
-	if err != nil {
-		return nil, err
-	}
-
-	certs = append(certs, cert)
-
-	if len(certs) > 0 {
-		conf.Certificates = certs
-	}
-
-	if q.Has(KeyCertCAUUID) {
-		caBlock, err := store.Load(ctx, q.Get(KeyCertCAUUID))
+	if certCAUUID := q.Get(KeyCertCAUUID); certCAUUID != "" {
+		caBlock, err := store.Load(ctx, certCAUUID)
 		if err != nil {
 			return nil, err
 		}
@@ -88,6 +93,12 @@ func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
 		}
 
 		conf.RootCAs = caCertPool
+
+		done = true
+	}
+
+	if !done {
+		return nil, nil
 	}
 
 	return conf, nil

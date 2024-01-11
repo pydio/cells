@@ -160,7 +160,7 @@ class CompositeCard extends React.Component {
 
     render(){
 
-        const {node, mode, pydio, editorOneColumn, popoverPanel, popoverRequestClose} = this.props;
+        const {node, mode, pydio, editorOneColumn, popoverPanel, popoverRequestClose, genericFlex} = this.props;
         const {model, mailerData, linkTooltip, copyMessage} = this.state;
         const m = (id) => pydio.MessageHash['share_center.' + id];
 
@@ -168,7 +168,7 @@ class CompositeCard extends React.Component {
 
             // Header
             const header = (
-                <div style={{fontSize: 20, padding: 10}}>
+                <div style={{fontSize: 20, padding: 10, wordBreak: 'break-word', lineHeight: '1.3em'}}>
                     <Mailer {...mailerData} pydio={pydio} onDismiss={this.dismissMailer.bind(this)}/>
                     {node && m(256).replace('%s', node.getLabel()) + (model.isDirty() ? ' *' : '')}
                 </div>
@@ -316,6 +316,8 @@ class CompositeCard extends React.Component {
                     headerSmall={mode === 'infoPanel'}
                     popoverPanel={popoverPanel}
                     popoverRequestClose={popoverRequestClose}
+                    smallActionsBottom={mode === 'infoPanel' && !popoverPanel}
+                    genericFlex={genericFlex}
                 >
                     {lines}
                     {!lines.length && <GenericLine placeHolder/>}

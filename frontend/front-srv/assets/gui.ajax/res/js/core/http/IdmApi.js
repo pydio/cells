@@ -1,4 +1,5 @@
 import Pydio from '../Pydio';
+import PydioApi from './PydioApi'
 import LangUtils from "../util/LangUtils"
 import {UserServiceApi, RestSearchUserRequest, IdmUserSingleQuery, ServiceOperationType, IdmNodeType, IdmUser, RoleServiceApi, IdmRole, RestSearchRoleRequest, IdmRoleSingleQuery, ServiceResourcePolicy, GraphServiceApi} from 'cells-sdk';
 
@@ -91,10 +92,11 @@ class IdmApi {
      * @param recursive boolean
      * @param offset integer
      * @param limit integer
-     * @param profile string filter by profile
+     * @param profileOrAtts string|array profile filter (string) or array of {name, value, not} attributes
+     * @param disableAutoWildcard bool force ignoring autoWildcard on filter
      * @return Promise<IdmUser[]>
      */
-    listUsers(baseGroup='/', filterString='', recursive = false, offset = 0, limit = -1, profile = ''){
+    listUsers(baseGroup='/', filterString='', recursive = false, offset = 0, limit = -1, profileOrAtts = '', disableAutoWildcard=false){
 
         return this.loadRootPath(baseGroup).then(bg => {
             const api = new UserServiceApi(this.client);
@@ -109,28 +111,45 @@ class IdmApi {
 
             if(filterString){
                 const queryString = new IdmUserSingleQuery();
-                if (this.autoWildCard){
+                if (this.autoWildCard && !disableAutoWildcard){
                     filterString = '*' + filterString;
                 }
                 queryString.Login = filterString + '*';
                 request.Queries.push(queryString);
             }
-            if(profile){
-                const exclude = profile[0] === '!';
-                const profileQ = new IdmUserSingleQuery();
-                profileQ.AttributeName = 'profile';
-                profileQ.AttributeValue = exclude ? profile.substring(1) : profile;
-                if(exclude){
-                    profileQ.not = true;
+            let skipHidden = true;
+
+            if(profileOrAtts){
+                if(typeof profileOrAtts === 'string') {
+                    const exclude = profileOrAtts[0] === '!';
+                    const profileQ = new IdmUserSingleQuery();
+                    profileQ.AttributeName = 'profile';
+                    profileQ.AttributeValue = exclude ? profileOrAtts.substring(1) : profileOrAtts;
+                    if(exclude){
+                        profileQ.not = true;
+                    }
+                    request.Queries.push(profileQ);
+                } else if (typeof profileOrAtts === 'object' && profileOrAtts.length) {
+                    // Manually set a list of attributes queries - May allow showing hidden users
+                    skipHidden = false;
+                    request.Queries.push(...profileOrAtts.map(def => {
+                        const q = new IdmUserSingleQuery()
+                        q.AttributeName = def.name
+                        q.AttributeValue = def.value
+                        q.not = def.not
+                        return q
+                    }))
                 }
-                request.Queries.push(profileQ);
             }
 
-            const query2 = new IdmUserSingleQuery();
-            query2.AttributeName = 'hidden';
-            query2.AttributeValue = 'true';
-            query2.not = true;
-            request.Queries.push(query2);
+            if(skipHidden) {
+                const query2 = new IdmUserSingleQuery();
+                query2.AttributeName = 'hidden';
+                query2.AttributeValue = 'true';
+                query2.not = true;
+                request.Queries.push(query2);
+            }
+
             if(offset > 0){
                 request.Offset = offset + '';
             }
@@ -211,9 +230,10 @@ class IdmApi {
      * @param offset integer
      * @param limit integer
      * @param filterString
+     * @param disableAutoWildcard bool force ignoring autoWildcard on filter
      * @return Promise<RestUsersCollection>
      */
-    listUsersWithRole(roleId, offset = 0, limit = -1, filterString = ''){
+    listUsersWithRole(roleId, offset = 0, limit = -1, filterString = '', disableAutoWildcard=false){
 
         const api = new UserServiceApi(this.client);
         const request = new RestSearchUserRequest();
@@ -229,7 +249,7 @@ class IdmApi {
         request.Queries.push(query2);
         if(filterString){
             const queryString = new IdmUserSingleQuery();
-            if (this.autoWildCard){
+            if (this.autoWildCard && !disableAutoWildcard){
                 filterString = '*' + filterString;
             }
             queryString.Login = filterString + '*';
@@ -356,6 +376,80 @@ class IdmApi {
             return roles;
         });
 
+
+    }
+
+    /**
+     *
+     * @param offset int Offset for the query
+     * @param limit int Limit number of results
+     * @param types [] List of PydioApi.RoleTypeXXX constants
+     * @param labelFilter string Optional filter on Label, can use wildcards
+     * @return {Promise<any>}
+     */
+    listRolesV2(offset = 0, limit = -1, types = [PydioApi.RoleTypeAdmin], labelFilter = ''){
+
+        if (types.length === 0) {
+            throw Error('please provide at least one of PydioApi.RoleTypeAdmin, PydioApi.RoleTypeUser, PydioApi.RoleTypeGroup or PydioApi.RoleTypeTeam')
+        }
+        const api = new RoleServiceApi(this.client);
+        const request = new RestSearchRoleRequest();
+        if(offset > 0){
+            request.Offset = offset + '';
+        }
+        if(limit > -1){
+            request.Limit = limit + '';
+        }
+        const includeAdmin = types.indexOf(PydioApi.RoleTypeAdmin) > -1
+        let queries = [];
+        if(includeAdmin){
+            // We have to build request by exclusion
+            queries = [PydioApi.RoleTypeUser, PydioApi.RoleTypeTeam, PydioApi.RoleTypeGroup].filter(t => types.indexOf(t)===-1).map(t => {
+                const q = new IdmRoleSingleQuery()
+                q[t] = true;
+                q.not = true;
+                return q;
+            })
+        } else {
+            // build by inclusion
+            queries = types.filter(t => t !== PydioApi.RoleTypeAdmin).map(t => {
+                const q = new IdmRoleSingleQuery()
+                q[t] = true;
+                return q
+            })
+        }
+
+        if(labelFilter) {
+            const q = new IdmRoleSingleQuery()
+            q.Label = labelFilter
+            queries.push(q)
+        }
+
+        if (queries.length === 0) {
+            return api.searchRoles(request).then(coll => {
+                return coll.Roles || [];
+            });
+
+        } else {
+            request.Queries = queries;
+            request.Operation = ServiceOperationType.constructFromObject(includeAdmin ? 'AND' : 'OR');
+            const p1 = api.searchRoles(request).then(coll => {
+                return coll.Roles || [];
+            });
+            // Make sure to append ROOT_GROUP if admin type is request (and not groups)
+            if(includeAdmin && types.indexOf(PydioApi.RoleTypeGroup) === -1){
+                const p2 = this.loadRole('ROOT_GROUP');
+                return Promise.all([p1, p2]).then(result => {
+                    let roles = result[0];
+                    if (result[1] !== null) {
+                        roles = [result[1], ...roles];
+                    }
+                    return roles;
+                });
+            } else {
+                return p1;
+            }
+        }
 
     }
 

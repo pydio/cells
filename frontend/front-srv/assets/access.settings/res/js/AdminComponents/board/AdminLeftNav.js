@@ -111,6 +111,11 @@ class AdminLeftNav extends React.Component {
                     <UserWidget
                         pydio={pydio}
                         style={menu.header.userWidget}
+                        avatarStyle={{zoom: 0.8}}
+                        popoverDirection={"left"}
+                        popoverTargetPosition={"top"}
+                        popoverStyle={{marginTop: 4, borderRadius: 20}}
+                        popoverHeaderAvatar={true}
                         hideActionBar={true}
                         displayLabel={false}
                         toolbars={["aUser", "user", "zlogin"]}

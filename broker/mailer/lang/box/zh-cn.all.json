@@ -1,6 +1,6 @@
 {
   "Mail.Main.Copyright": {
-    "other": "自豪的采用 Pydio 的文件共享平台"
+    "other": "由 Pydio 提供支持的文件共享平台"
   },
   "Mail.Main.Troubleshoot": {
     "other": "如果您无法使用 {ACTION} -按钮，只需复制并粘贴下面的 URL 到您的浏览器。"
@@ -12,7 +12,7 @@
     "other": "诚挚的"
   },
   "Mail.ResetPassword.Subject": {
-    "other": "来自 {{.Configs.Title}} 的重置密码请求"
+    "other": "请求重置 {{.Configs.Title}} 的密码"
   },
   "Mail.ResetPassword.Intros": {
     "other": "已收到您在 {{.Configs.Title}} 上的帐户的重置密码请求。"
@@ -81,10 +81,10 @@
     "other": "{{.TplData.Inviter}} 将您添加到 {{.TplData.Cell}}"
   },
   "Mail.Cell.Intros": {
-    "other": "{{.TplData.Inviter}} 已将您加入了{{.Configs.Title}}上的 {{.TplData.Cell}} ！您可以开始一起分享文件和文件夹并高效地进行合作。"
+    "other": "{{.TplData.Inviter}} 已将您纳入 {{.Configs.Title}} 的单元格 {{.TplData.Cell}} 中！ 您可以开始一起共享文件和文件夹并高效协作。"
   },
   "Mail.Cell.LinkInstructions": {
-    "other": "点击打开资料库"
+    "other": "单击打开单元格"
   },
   "Mail.Cell.LinkLabel": {
     "other": "打开 {{.TplData.Cell}}"
@@ -114,7 +114,7 @@
     "other": "打开 {{.TplData.FolderName}}"
   },
   "Mail.PublicFolder.LinkInstructions": {
-    "other": "点击以在浏览器中预览您的文档"
+    "other": "点击以在您的浏览器中预览文档"
   },
   "Mail.PublicFolder.Outros": {
     "other": "{{.Configs.Title}} 文件共享平台被 {{.TplData.Inviter}} 团队用于高效率地协作文档。"
@@ -126,7 +126,7 @@
     "other": "{{.TplData.Message}}"
   },
   "Mail.AdminTestMail.LinkLabel": {
-    "other": "打开资料库"
+    "other": "打开单元格"
   },
   "Mail.AdminTestMail.LinkInstructions": {
     "other": "点击打开前端"
@@ -135,13 +135,13 @@
     "other": "团队使用 {{.Configs.Title}} 文件共享平台来高效地协作文档。"
   },
   "Mail.Config.Title": {
-    "other": "邮件服务器"
+    "other": "邮寄者"
   },
   "Mail.Config.From.Label": {
-    "other": "默认邮件地址"
+    "other": "默认发件人电子邮件地址"
   },
   "Mail.Config.From.Description": {
-    "other": "发送电子邮件时使用默认地址。您应该使用适当的支持电子邮件而不是非回复电子邮件。"
+    "other": "发送电子邮件时默认使用的地址。您应该使用适当的支持电子邮件，而不是不回复电子邮件。"
   },
   "Mail.Config.FixOutlookDisplay": {
     "other": "Outlook客户端修复(禁用CSS内联)"
@@ -168,10 +168,10 @@
     "other": "已禁用 (不启用电子邮件)"
   },
   "Mail.Config.NoOp.Label": {
-    "other": "否(启用电子邮件，但不发送任何东西)"
+    "other": "No-Op(启用电子邮件但不发送任何内容)"
   },
   "Mail.Config.NoOp.Dump": {
-    "other": "写入邮件到文件来进行调试"
+    "other": "将电子邮件写入文件以进行调试"
   },
   "Mail.Config.NoOp.DumpTarget": {
     "other": "用来写入邮件的目标文件夹"
@@ -189,7 +189,7 @@
     "other": "服务器端口"
   },
   "Mail.Config.Smtp.Port.Description": {
-    "other": "SMTP服务器端口，例如 587（不安全）或 465（TLS）"
+    "other": "SMTP服务器端口，例如 587(不安全)或 465(TLS)"
   },
   "Mail.Config.Smtp.User.Label": {
     "other": "连接的用户"
@@ -207,7 +207,7 @@
     "other": "连接安全"
   },
   "Mail.Config.Smtp.Security.Description": {
-    "other": "Protocol used for securing connection. Clear is not supported, if required use a custom Sendmail instead."
+    "other": "用于安全连接的协议。不支持清除，必要的话使用自定义Sendmail来替代。"
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
     "other": "自签名证书"
@@ -228,7 +228,7 @@
     "other": "Api 密钥"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
-    "other": "连接 SendGrid 的 Api 密钥"
+    "other": "SendGrid 提供的 Api Key 用于连接服务"
   },
   "Mail.Config.Sendmail.Label": {
     "other": "邮件程序"
@@ -255,15 +255,15 @@
     "other": "要使用的发件人地址和名称"
   },
   "Mail.Config.FromCtl.Description": {
-    "other": "定义要使用哪个发件人地址/名称。如果没有配置用户电子邮件地址，所有情况下都会使用默认的 FROM 地址和名称。"
+    "other": "定义要使用哪个发件人地址/名称。如果未配置用户电子邮件地址，则在所有情况下都将使用默认的发件人地址和名称。"
   },
   "Mail.Config.FromCtlUser.Label": {
-    "other": "发送来自用户的邮件"
+    "other": "从用户发送邮件"
   },
   "Mail.Config.FromCtlSender.Label": {
-    "other": "发送邮件给用户"
+    "other": "代表用户发送邮件"
   },
   "Mail.Config.FromCtlDefault.Label": {
-    "other": "总是从默认的 FROM 地址/名称发送"
+    "other": "始终从默认发件人地址/名称发送"
   }
 }

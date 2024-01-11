@@ -1,0 +1,129 @@
+.react-mui-context .bbpanel{
+
+  .stepper-section-actions {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .stepper-section-container {
+    margin-bottom: 30px;
+    .stepper-section-title {
+      font-size: 18px;
+      font-weight: 400;
+      color: #455a64;
+      padding-bottom: 20px;
+      padding-left: 16px;
+    }
+  }
+
+
+  .stepper-action-container {
+    width: 190px;
+    height: 180px;
+    &.drop-force{
+      width: 190px !important;
+      height: 180px !important;
+      color: initial;
+      border: 3px dashed rgba(40,60,75,.2);
+      background-color: white;
+    }
+    display: flex;
+    flex-direction: column;
+    font-size: 15px;
+    padding: 20px;
+    margin: 6px;
+    border-radius: 20px !important;
+    border: 1px solid rgba(40,60,75,.2);
+    /*box-shadow: 1px 6px 10px 0 rgba(40,60,75,.15);*/
+    box-shadow: none;
+    cursor: pointer;
+    position:relative;
+    &:hover:not(.drop-force) {
+      border: 1px solid rgba(40,60,75,.5);
+      box-shadow: 1px 10px 20px 0 rgba(40,60,75,.3)
+    }
+    &.drop-force:hover {
+      box-shadow: 1px 10px 20px 0 rgba(40,60,75,.3)
+    }
+    .stepper-action-icon {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding-bottom: 10px;
+      > span {
+        font-size: 40px !important;
+      }
+
+    }
+
+    .stepper-tag {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      border: 1px solid #B0BEC5;
+      color: #B0BEC5;
+      background-color: transparent;
+      padding: 1px 5px;
+      font-size: 12px;
+      height: 19px;
+      line-height: 14px;
+      border-radius: 5px;
+      font-weight: 500;
+      display:none;
+    }
+
+
+    .stepper-action-title {
+      padding-bottom: 10px;
+      font-weight: 500;
+      text-align: left;
+      font-size: 15px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .stepper-action-description {
+      text-align: left;
+      font-weight: 400;
+      font-size: 13px;
+      line-height: 1.5em;
+      height: 3em;
+      padding-bottom: 10px;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      text-overflow: ellipsis;
+    }
+
+  }
+
+
+  &.compact2 {
+    .stepper-section-container{
+      margin-bottom: 0;
+      .stepper-section-title {
+        display: none;
+      }
+    }
+    .stepper-action-container {
+      width: 130px;
+      height: 110px;
+      .stepper-action-icon{
+        > span {
+          font-size: 25px;
+        }
+      }
+      .stepper-action-title{
+        padding-bottom: 0;
+        white-space: wrap;
+      }
+      .stepper-action-description{
+        display: none;
+      }
+    }
+  }
+
+}

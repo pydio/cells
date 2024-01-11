@@ -243,7 +243,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 				continue
 			}
 			for r, p := range nodesPrefixes {
-				if strings.HasPrefix(respNode.Path, r+"/") {
+				if strings.HasPrefix(respNode.Path, r+"/") || respNode.Path == r {
 					log.Logger(ctx).Debug("Response", zap.String("node", respNode.Path))
 					if nodeStreamer != nil {
 						nodeStreamer.Send(&tree.ReadNodeRequest{Node: respNode.Clone()})

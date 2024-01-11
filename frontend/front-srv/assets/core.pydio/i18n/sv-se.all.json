@@ -81,7 +81,7 @@
     "other": "Image File "
   },
   "122": {
-    "other": "Recycle Bin"
+    "other": "Papperskorg"
   },
   "123": {
     "other": "has been moved to the "
@@ -96,7 +96,7 @@
     "other": "Thumbnails"
   },
   "127": {
-    "other": "Size"
+    "other": "Storlek"
   },
   "128": {
     "other": "files selected."
@@ -108,16 +108,16 @@
     "other": "JPG picture"
   },
   "130": {
-    "other": "Folders"
+    "other": "Mappar"
   },
   "131": {
     "other": "Details"
   },
   "132": {
-    "other": "No file or folder"
+    "other": "Ingen fil eller mapp"
   },
   "133": {
-    "other": "Name"
+    "other": "Namn"
   },
   "134": {
     "other": "Type"
@@ -153,13 +153,13 @@
     "other": "Not logged in."
   },
   "145": {
-    "other": "My Bookmarks"
+    "other": "Mina bokmärken"
   },
   "146": {
-    "other": "Delete Bookmark"
+    "other": "Radera bokmärke"
   },
   "147": {
-    "other": "Bookmarks"
+    "other": "Bokmärken"
   },
   "148": {
     "other": "Parent"
@@ -195,7 +195,7 @@
     "other": "Remove item from MyBookmarks"
   },
   "154": {
-    "other": "New Folder"
+    "other": "Ny mapp"
   },
   "155": {
     "other": "Create new folder"
@@ -225,19 +225,19 @@
     "other": "Edit text files online."
   },
   "163": {
-    "other": "Log in"
+    "other": "Logga in"
   },
   "164": {
-    "other": "Log out"
+    "other": "Logga ut"
   },
   "165": {
-    "other": "Settings"
+    "other": "Inställningar"
   },
   "166": {
-    "other": "About"
+    "other": "Om"
   },
   "167": {
-    "other": "About Pydio"
+    "other": "Om Pydio"
   },
   "168": {
     "other": "Connect to APPLICATION_TITLE"
@@ -276,7 +276,7 @@
     "other": "Previous"
   },
   "179": {
-    "other": "Next"
+    "other": "Nästa"
   },
   "18": {
     "other": "PERL script"
@@ -288,7 +288,7 @@
     "other": "Login"
   },
   "182": {
-    "other": "Password"
+    "other": "Lösenord"
   },
   "183": {
     "other": "Please select a destination folder different from the origin!"
@@ -312,7 +312,7 @@
     "other": "ZIP file"
   },
   "190": {
-    "other": "Language"
+    "other": "Språk"
   },
   "191": {
     "other": "Default Display"
@@ -324,7 +324,7 @@
     "other": "Thumbnails"
   },
   "194": {
-    "other": "Change Password"
+    "other": "Ändra lösenord"
   },
   "195": {
     "other": "User Preferences"
@@ -339,10 +339,10 @@
     "other": "New"
   },
   "199": {
-    "other": "Confirm"
+    "other": "Bekräfta"
   },
   "2": {
-    "other": "Size"
+    "other": "Storlek"
   },
   "20": {
     "other": "WAV file"
@@ -399,7 +399,7 @@
     "other": "Start Upload"
   },
   "216": {
-    "other": "Clear"
+    "other": "Rensa"
   },
   "217": {
     "other": "Clear Completed"
@@ -495,10 +495,10 @@
     "other": "Author"
   },
   "245": {
-    "other": "Date"
+    "other": "Datum"
   },
   "246": {
-    "other": "Message"
+    "other": "Meddelande"
   },
   "247": {
     "other": "Extract"
@@ -507,7 +507,7 @@
     "other": "Extract selection from zip to..."
   },
   "249": {
-    "other": "Users"
+    "other": "Användare"
   },
   "25": {
     "other": "Upload one or more files (max. %s in the directory : "
@@ -516,7 +516,7 @@
     "other": "Workspaces"
   },
   "251": {
-    "other": "Logs"
+    "other": "Loggar"
   },
   "252": {
     "other": "The total file size limit has been reached."
@@ -549,7 +549,7 @@
     "other": "bytes"
   },
   "261": {
-    "other": "Remember Me"
+    "other": "Kom ihåg mig"
   },
   "262": {
     "other": "One or more files appear to exist \\nalready in the destination folder.\\nWhat do you want to do?"
@@ -561,13 +561,13 @@
     "other": "Skip"
   },
   "265": {
-    "other": "Files"
+    "other": "Filer"
   },
   "266": {
     "other": "B"
   },
   "267": {
-    "other": "Create"
+    "other": "Skapa"
   },
   "268": {
     "other": "Create a new table"
@@ -636,16 +636,16 @@
     "other": "File Permissions"
   },
   "288": {
-    "other": "User"
+    "other": "Användare"
   },
   "289": {
-    "other": "Group"
+    "other": "Grupp"
   },
   "29": {
-    "other": "Create"
+    "other": "Skapa"
   },
   "290": {
-    "other": "All"
+    "other": "Alla"
   },
   "291": {
     "other": "Apply recursively?"
@@ -666,7 +666,7 @@
     "other": "Copy the URL below:"
   },
   "297": {
-    "other": "New User"
+    "other": "Ny användare"
   },
   "298": {
     "other": "Create a new user"
@@ -693,7 +693,7 @@
     "other": "Copy selection as tab-separated text."
   },
   "304": {
-    "other": "Back"
+    "other": "Tillbaka"
   },
   "305": {
     "other": "Go back to main page"
@@ -783,10 +783,10 @@
     "other": "Please wait while the pages are being rendered..."
   },
   "331": {
-    "other": "Page"
+    "other": "Sida"
   },
   "332": {
-    "other": "of"
+    "other": "av"
   },
   "333": {
     "other": "Pixlr image editor"
@@ -873,7 +873,7 @@
     "other": "Choose a name for the shared workspace."
   },
   "359": {
-    "other": "Label"
+    "other": "Etikett"
   },
   "36": {
     "other": "It's size is"
@@ -906,7 +906,7 @@
     "other": "Selection successfully extracted from archive %s to folder %s"
   },
   "369": {
-    "other": "Shortcut"
+    "other": "Genväg"
   },
   "37": {
     "other": "You must write a valid name"
@@ -978,7 +978,7 @@
     "other": "has been created in"
   },
   "390": {
-    "other": "Code"
+    "other": "Kod"
   },
   "391": {
     "other": "No Repository"
@@ -1053,7 +1053,7 @@
     "other": "Loading templates..."
   },
   "42": {
-    "other": "to"
+    "other": "till"
   },
   "420": {
     "other": "Please pick a template from the list"
@@ -1095,7 +1095,7 @@
     "other": "Sample Template"
   },
   "432": {
-    "other": "My Files"
+    "other": "Mina filer"
   },
   "433": {
     "other": "ready"
@@ -1122,13 +1122,13 @@
     "other": "has been deleted"
   },
   "440": {
-    "other": "Yes"
+    "other": "Ja"
   },
   "441": {
-    "other": "No"
+    "other": "Nej"
   },
   "442": {
-    "other": "My Account"
+    "other": "Mitt konto"
   },
   "443": {
     "other": "Update your personal information"
@@ -1143,7 +1143,7 @@
     "other": "Presentation"
   },
   "447": {
-    "other": "My group"
+    "other": "Min grupp"
   },
   "448": {
     "other": "create user"
@@ -1155,7 +1155,7 @@
     "other": "directory"
   },
   "450": {
-    "other": "Sort by ..."
+    "other": "Sortera efter ..."
   },
   "451": {
     "other": "Sort thumbnails by ..."
@@ -1245,10 +1245,10 @@
     "other": "Select a file or folder to see its details here"
   },
   "478": {
-    "other": "No results found"
+    "other": "Inga resultat hittades"
   },
   "479": {
-    "other": "Forgot your password?"
+    "other": "Glömt ditt lösenord?"
   },
   "48": {
     "other": "Ok"
@@ -1257,7 +1257,7 @@
     "other": "Browse all folders of the current workspace."
   },
   "481": {
-    "other": "All your shared files and folders"
+    "other": "Alla dina delade filer och mappar"
   },
   "482": {
     "other": "Quick access to your bookmarked items"
@@ -1266,7 +1266,7 @@
     "other": "You are not authorized to create more users!"
   },
   "484": {
-    "other": "Create user"
+    "other": "Skapa användare"
   },
   "485": {
     "other": "Create a shared user"
@@ -1284,7 +1284,7 @@
     "other": "Metadata"
   },
   "49": {
-    "other": "Cancel"
+    "other": "Avbryt"
   },
   "490": {
     "other": "Date range"
@@ -1329,19 +1329,19 @@
     "other": "Extension"
   },
   "501": {
-    "other": "or"
+    "other": "eller"
   },
   "502": {
     "other": "Folders only"
   },
   "503": {
-    "other": "Size"
+    "other": "Storlek"
   },
   "504": {
     "other": "1k,1M,1G"
   },
   "505": {
-    "other": "to"
+    "other": "till"
   },
   "506": {
     "other": "Application parameters (users, workspaces, configurations)"
@@ -1401,10 +1401,10 @@
     "other": "User ID"
   },
   "523": {
-    "other": "Password"
+    "other": "Lösenord"
   },
   "524": {
-    "other": "Update Password"
+    "other": "Uppdatera lösenord"
   },
   "525": {
     "other": "Show original picture"
@@ -1419,16 +1419,16 @@
     "other": "Internal users"
   },
   "53": {
-    "other": "Save"
+    "other": "Spara"
   },
   "530": {
     "other": "External users"
   },
   "531": {
-    "other": "Users"
+    "other": "Användare"
   },
   "532": {
-    "other": "Groups"
+    "other": "Grupper"
   },
   "533": {
     "other": "Identifier used to login, please use alphanumeric or email lowercase characters."
@@ -1452,7 +1452,7 @@
     "other": "Upload error: file is partial"
   },
   "54": {
-    "other": "Cancel"
+    "other": "Avbryt"
   },
   "540": {
     "other": "Upload error: cannot find the temporary directory"
@@ -1467,7 +1467,7 @@
     "other": "Results limited to %s."
   },
   "544": {
-    "other": "Show more"
+    "other": "Visa mer"
   },
   "545": {
     "other": "Remote Share"
@@ -1494,7 +1494,7 @@
     "other": "Reject"
   },
   "552": {
-    "other": "Please provide password."
+    "other": "Ange lösenord."
   },
   "553": {
     "other": "Invalid password, please try again. \\n Make sure your Caps Lock is not engaged!"
@@ -1581,10 +1581,10 @@
     "other": "Team Members"
   },
   "576": {
-    "other": "%s members"
+    "other": "%s medlemmar"
   },
   "577": {
-    "other": "No members"
+    "other": "Inga medlemmar"
   },
   "578": {
     "other": "Team Label"
@@ -1593,7 +1593,7 @@
     "other": "Create Team"
   },
   "58": {
-    "other": "CSS File"
+    "other": "CSS-fil"
   },
   "580": {
     "other": "Edit team label"
@@ -1602,7 +1602,7 @@
     "other": "User belongs to %s team(s)"
   },
   "582": {
-    "other": "Delete User"
+    "other": "Radera användare"
   },
   "583": {
     "other": "Search Directory"
@@ -1617,7 +1617,7 @@
     "other": "Create your own users and share files or folders from your workspaces with them."
   },
   "587": {
-    "other": "No results"
+    "other": "Inga resultat"
   },
   "588": {
     "other": "Start typing in the search form to find users in the directory"
@@ -1626,7 +1626,7 @@
     "other": "External user"
   },
   "59": {
-    "other": "MP3 File"
+    "other": "MP3-fil"
   },
   "590": {
     "other": "Internal user"
@@ -1635,7 +1635,7 @@
     "other": "Choose a name for the team, and you will be able to add users to it after creation."
   },
   "592": {
-    "other": "Address Book"
+    "other": "Adressbok"
   },
   "593": {
     "other": "Shared Users"
@@ -1659,7 +1659,7 @@
     "other": "Add a user"
   },
   "599-a": {
-    "other": "All Results"
+    "other": "Alla resultat"
   },
   "6": {
     "other": "Rename"
@@ -1668,7 +1668,7 @@
     "other": "RAR File"
   },
   "600": {
-    "other": "Edit user"
+    "other": "Redigera användare"
   },
   "601": {
     "other": "One shared cell"
@@ -1764,7 +1764,7 @@
     "other": "No records yet"
   },
   "63": {
-    "other": "Log out"
+    "other": "Logga ut"
   },
   "630": {
     "other": "Folders shared with me"
@@ -1779,13 +1779,13 @@
     "other": "Cells are spaces shared with others to collaborate on documents"
   },
   "634": {
-    "other": "You"
+    "other": "Du"
   },
   "634b": {
-    "other": "Your group"
+    "other": "Din grupp"
   },
   "634c": {
-    "other": "All users"
+    "other": "Alla användare"
   },
   "635": {
     "other": "Chat Room"
@@ -1830,13 +1830,13 @@
     "other": "Selected file"
   },
   "68": {
-    "other": "Paste in"
+    "other": "Klistra in"
   },
   "69": {
     "other": "Or select another directory"
   },
   "7": {
-    "other": "Delete"
+    "other": "Radera"
   },
   "70": {
     "other": "Move"
@@ -1866,7 +1866,7 @@
     "other": "Pass"
   },
   "79": {
-    "other": "PDF File"
+    "other": "PDF-fil"
   },
   "8": {
     "other": "Directory"
@@ -1884,19 +1884,19 @@
     "other": "MPEG File"
   },
   "84": {
-    "other": "Help"
+    "other": "Hjälp"
   },
   "85": {
     "other": "Refresh"
   },
   "86": {
-    "other": "Close"
+    "other": "Stäng"
   },
   "87": {
-    "other": "Search"
+    "other": "Sök"
   },
   "88": {
-    "other": "Download"
+    "other": "Ladda ner"
   },
   "89": {
     "other": "Unable to open file"
@@ -1911,7 +1911,7 @@
     "other": "FLASH File"
   },
   "92": {
-    "other": "Language"
+    "other": "Språk"
   },
   "93": {
     "other": "To choose your language, your browser must accept cookies."
@@ -1920,7 +1920,7 @@
     "other": "Login"
   },
   "95": {
-    "other": "Select your language :"
+    "other": "Välj ditt språk:"
   },
   "96": {
     "other": "Please select the destination folder in the tree : "
@@ -1965,7 +1965,7 @@
     "other": "F, jS Y"
   },
   "date_relative_days_ago": {
-    "other": "%s days ago"
+    "other": "%s dagar sedan"
   },
   "date_relative_days_ahead": {
     "other": "in %s days"
@@ -1977,13 +1977,19 @@
     "other": "H:i"
   },
   "date_relative_today": {
-    "other": "today at TIME"
+    "other": "[Today at] LT"
   },
   "date_relative_tomorrow": {
-    "other": "tomorrow at TIME"
+    "other": "[Tomorrow at] LT"
   },
   "date_relative_yesterday": {
-    "other": "yesterday at TIME"
+    "other": "[Yesterday at] LT"
+  },
+  "date_relative_lastweek": {
+    "other": "[Last] dddd [at] LT"
+  },
+  "date_relative_nextweek": {
+    "other": "dddd [at] LT"
   },
   "delete_access_key": {
     "other": "D"
@@ -2274,10 +2280,10 @@
     "other": "View"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "Redigera"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "Användare"
   },
   "visibility.panel.list.teams": {
     "other": "Your Teams"
@@ -2286,7 +2292,7 @@
     "other": "Change visibility"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "Spara ändringar"
   },
   "visibility.panel.revert": {
     "other": "Revert changes"
@@ -2313,7 +2319,7 @@
     "other": "Multiple Selection"
   },
   "confirm.dialog.title": {
-    "other": "Confirm"
+    "other": "Bekräfta"
   },
   "confirm.dialog.destructive": {
     "other": "You are about to delete"
@@ -2322,16 +2328,16 @@
     "other": "Do not warn me next time"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "Rader per sida"
   },
   "material.paginator.of": {
-    "other": "of"
+    "other": "av"
   },
   "form.input-image.fileTypes": {
     "other": "Please use only images (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
-    "other": "Reset"
+    "other": "Återställ"
   },
   "form.input-image.clearConfirm": {
     "other": "Do you want to remove current image?"
@@ -2339,17 +2345,20 @@
   "form.input-image.avatarMax": {
     "other": "Please use images smaller than 5MB"
   },
+  "searchengine.start": {
+    "other": "Start typing to search for files and folders"
+  },
   "searchengine.searching": {
     "other": "Searching..."
   },
   "searchengine.main.placeholder": {
-    "other": "Search..."
+    "other": "Sök..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "Sök: "
   },
   "searchengine.scope.title": {
-    "other": "Search In..."
+    "other": "Sök i..."
   },
   "searchengine.share.title": {
     "other": "Shared"
@@ -2376,25 +2385,25 @@
     "other": "Advanced Filters"
   },
   "searchengine.results.foundN": {
-    "other": "%1 results found"
+    "other": "%1 resultat hittades"
   },
   "searchengine.results.withMore": {
     "other": "Showing %1, load more..."
   },
   "searchengine.query.action.save": {
-    "other": "Save"
+    "other": "Spara"
   },
   "searchengine.query.action.save-new": {
     "other": "Save Query"
   },
   "searchengine.query.action.clear": {
-    "other": "Clear"
+    "other": "Rensa"
   },
   "searchengine.query.action.clear-all": {
-    "other": "Clear All"
+    "other": "Rensa alla"
   },
   "searchengine.query.action.delete": {
-    "other": "Delete"
+    "other": "Radera"
   },
   "searchengine.query.action.delete-confirm": {
     "other": "Delete this saved query?"
@@ -2426,8 +2435,53 @@
   "searchengine.complete.activefilters-edit": {
     "other": "Click to modify"
   },
+  "chat.dropzone.remove": {
+    "other": "Remove"
+  },
+  "chat.dropzone.preview": {
+    "other": "Include preview?"
+  },
+  "chat.dropzone.inline": {
+    "other": "Insert inline"
+  },
   "chat.load-older": {
     "other": "Older entries"
+  },
+  "chat.msg.edit": {
+    "other": "Redigera meddelande"
+  },
+  "chat.msg.save": {
+    "other": "Spara ändringar"
+  },
+  "chat.msg.revert": {
+    "other": "Revert Changes"
+  },
+  "chat.msg.delete": {
+    "other": "Radera meddelande"
+  },
+  "chat.msg.delete.confirm.title": {
+    "other": "Delete Message?"
+  },
+  "chat.msg.delete.confirm": {
+    "other": "This action cannot be undone"
+  },
+  "chat.link.doc.loading": {
+    "other": "Loading document..."
+  },
+  "chat.link.doc.opening": {
+    "other": "Opening document..."
+  },
+  "chat.link.doc.goto": {
+    "other": "Gå till dokument"
+  },
+  "chat.link.doc.not-found": {
+    "other": "Document not found, it may have been deleted."
+  },
+  "chat.link.doc.click-indicator": {
+    "other": "Click to open %s"
+  },
+  "chat.link.doc.open-in": {
+    "other": "Öppna dokument i..."
   },
   "workspace.quota-usage": {
     "other": "Quota Usage"

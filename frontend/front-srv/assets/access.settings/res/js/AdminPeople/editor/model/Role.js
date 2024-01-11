@@ -16,6 +16,7 @@ class Role extends Observable{
         this.dirty = false;
         this.parentRoles = parentRoles;
         this.parentAcls = {};
+        this.showUniqueRole = undefined;
 
         if(idmRole){
             this.idmRole = idmRole;
@@ -54,6 +55,15 @@ class Role extends Observable{
         this.loadAcls(true).then(() => {
             this.notify("update");
         });
+    }
+
+    setUniqueRoleDisplay(roleID) {
+        this.showUniqueRole = roleID;
+        this.notify('update')
+    }
+
+    getUniqueRoleDisplay() {
+        return this.showUniqueRole
     }
 
     /**
@@ -308,15 +318,22 @@ class Role extends Observable{
 
         let rights;
         let parentRights;
-        this.parentRoles.forEach(role => {
-            const parentRight = this._aclStringForAcls(this.parentAcls[role.Uuid], wsId, nodeId);
-            if(parentRight !== undefined){
-                parentRights = parentRight;
-            }
-        });
-        let roleRigts = this._aclStringForAcls(this.acls, wsId, nodeId);
-        if(roleRigts !== undefined){
-            rights = roleRigts;
+        let roleRights;
+
+        if (this.showUniqueRole) {
+            roleRights = this._aclStringForAcls(this.parentAcls[this.showUniqueRole], wsId, nodeId);
+        } else {
+            this.parentRoles.forEach(role => {
+                const parentRight = this._aclStringForAcls(this.parentAcls[role.Uuid], wsId, nodeId);
+                if (parentRight !== undefined) {
+                    parentRights = parentRight;
+                }
+            });
+            roleRights = this._aclStringForAcls(this.acls, wsId, nodeId);
+        }
+
+        if(roleRights !== undefined){
+            rights = roleRights;
         } else if(parentRights !== undefined){
             rights = parentRights;
             inherited = true;

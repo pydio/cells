@@ -1,0 +1,239 @@
+{
+  "1": {
+    "other": "No Parameters"
+  },
+  "10": {
+    "other": "Write Only"
+  },
+  "11": {
+    "other": "Denied"
+  },
+  "12": {
+    "other": "No Access"
+  },
+  "13": {
+    "other": "Search Parameters or Actions"
+  },
+  "14": {
+    "other": "Pick parameter or action"
+  },
+  "15": {
+    "other": "Pick one parameter or action, then click Add. You can quickly search through the parameters using the text field below."
+  },
+  "16": {
+    "other": "Show/Hide Inherited"
+  },
+  "17": {
+    "other": "Add Parameter or Action"
+  },
+  "18": {
+    "other": "Plugins Settings"
+  },
+  "19": {
+    "other": "always overrides"
+  },
+  "2": {
+    "other": "Enabled"
+  },
+  "21": {
+    "other": "reloading..."
+  },
+  "22": {
+    "other": "Loading actions cache, please wait, this will be done only once..."
+  },
+  "23": {
+    "other": "Loading parameters cache, please wait, this will be done only once..."
+  },
+  "24": {
+    "other": "Account"
+  },
+  "25": {
+    "other": "Access Restrictions"
+  },
+  "26": {
+    "other": "Group Information"
+  },
+  "27": {
+    "other": "Group Info"
+  },
+  "28": {
+    "other": "Role Information"
+  },
+  "29": {
+    "other": "Role Info"
+  },
+  "3": {
+    "other": "Disabled"
+  },
+  "30": {
+    "other": "Profile \u0026 Roles"
+  },
+  "31": {
+    "other": "User unique Identifier. You cannot modify this value."
+  },
+  "32": {
+    "other": "Specific profile. May imply some roles automatically applied."
+  },
+  "33": {
+    "other": "Close"
+  },
+  "34": {
+    "other": "Access Controls"
+  },
+  "35": {
+    "other": "Workspaces"
+  },
+  "36": {
+    "other": "Pages"
+  },
+  "37": {
+    "other": "Customize Parameters"
+  },
+  "38": {
+    "other": "Application Parameters"
+  },
+  "39": {
+    "other": "All workspaces parameters"
+  },
+  "4": {
+    "other": "Clear value"
+  },
+  "40": {
+    "other": "Per-workspace parameters"
+  },
+  "41": {
+    "other": "Additional Parameters"
+  },
+  "42": {
+    "other": "Refine application parameters values and selectively disable plugin actions for this current role. Parameters here are global to the application (authentication, configuration, etc). See the Workspaces tabs for workspace-specific parameters/actions."
+  },
+  "43": {
+    "other": "Grant access to workspaces for the current role/user/group"
+  },
+  "permissions.legend.user": {
+    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+  },
+  "permissions.legend.group": {
+    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+  },
+  "permissions.legend.role": {
+    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
+  },
+  "44": {
+    "other": "Main Application Pages"
+  },
+  "45": {
+    "other": "Access to main application pages (like My Account, welcome page, etc.)"
+  },
+  "application-params.title": {
+    "other": "Parameters and actions"
+  },
+  "application-params.legend": {
+    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "As a general rule, this should be managed at role level, not user level!"
+  },
+  "49": {
+    "other": "Shares"
+  },
+  "5": {
+    "other": "Override value"
+  },
+  "50": {
+    "other": "Shared Files \u0026 Folders"
+  },
+  "51": {
+    "other": "With this user"
+  },
+  "52": {
+    "other": "Cells and public links created by this user"
+  },
+  "53": {
+    "other": "Shared by %1 from within workspace %2"
+  },
+  "54": {
+    "other": "User informations and security actions. Hover fields in the form below to display explanations."
+  },
+  "55": {
+    "other": "Toggle profile and roles to automatically grant permissions to this user."
+  },
+  "6": {
+    "other": "Save value"
+  },
+  "7": {
+    "other": "Action %s"
+  },
+  "8": {
+    "other": "Read \u0026 Write"
+  },
+  "9": {
+    "other": "Read Only"
+  },
+  "roles.picker.title":{
+    "other": "Manage user roles"
+  },
+  "roles.picker.add": {
+    "other": "Add role"
+  },
+  "roles.picker.hint": {
+    "other": "Start typing to search roles..."
+  },
+  "roles.picker.effective": {
+    "other": "Effective role for %s"
+  },
+  "parameters.scope.selector.title":{
+    "other": "Add for ..."
+  },
+  "parameters.scope.all":{
+    "other": "All Workspaces"
+  },
+  "parameters.scope.shared":{
+    "other": "Shared Cells only"
+  },
+  "parameters.scope.workspace":{
+    "other": "Workspace %s"
+  },
+  "parameters.custom.add":{
+    "other": "Add custom parameter or action"
+  },
+  "parameters.empty":{
+    "other": "No parameters or actions"
+  },
+  "workspace.statics.home.title":{
+    "other": "Home Page"
+  },
+  "workspace.statics.home.description":{
+    "other": "Welcome page displayed after login"
+  },
+  "workspace.statics.directory.title":{
+    "other": "Directory"
+  },
+  "workspace.statics.directory.description":{
+    "other": "Show address book full page (used by Mui3 Theme)"
+  },
+  "workspace.statics.settings.title":{
+    "other": "Admin Console"
+  },
+  "workspace.statics.settings.description":{
+    "other": "Pydio Cells administration dashboard"
+  },
+  "acls.rights.policy.manual":{
+    "other": "Rights set manually"
+  },
+  "acls.rights.advanced.root":{
+    "other": "Whole workspace"
+  },
+  "section.user-info": {
+    "other": "User Info"
+  },
+  "section.permissions": {
+    "other": "Permissions"
+  },
+  "section.security": {
+    "other": "Security"
+  },
+  "section.advanced": {
+    "other": "Advanced"
+  }
+}

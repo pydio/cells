@@ -8,6 +8,9 @@
   "11": {
     "other": "Datei-Aktivitäten"
   },
+  "11b": {
+    "other": "Aktivität"
+  },
   "12": {
     "other": "Abhängig von Ihrem Browser werden Sie eine Abfrage erhalten um Benachrichtigungen zu erlauben. Diese Funktion kann über die Einstellungen des Browsers wieder deaktiviert werden."
   },
@@ -58,5 +61,8 @@
   },
   "9": {
     "other": "Aktivitäten"
+  },
+  "tasks.subheader": {
+    "other": "Laufende Aufgaben"
   }
 }

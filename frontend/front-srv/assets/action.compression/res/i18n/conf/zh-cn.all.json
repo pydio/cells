@@ -1,8 +1,8 @@
 {
   "Create and extract tar, tar.gz and tar.bz2 archives.": {
-    "other": "创建和提取tar、tar.gz和tar.bz2压缩包。"
+    "other": "创建并提取 tar、tar.gz 和 tar.bz2 档案。"
   },
   "Tar Archives Support": {
-    "other": "Tar 归档文件支持"
+    "other": "Tar 档案支持"
   }
 }

@@ -232,6 +232,8 @@ func (j *JobsHandler) PutTask(ctx context.Context, request *proto.PutTaskRequest
 		broker.MustPublish(j.RuntimeCtx, common.TopicJobTaskEvent, &proto.TaskChangeEvent{
 			TaskUpdated: request.Task,
 			Job:         job,
+			NanoStamp:   time.Now().UnixNano(),
+			StatusMeta:  request.StatusMeta,
 		})
 	}
 
@@ -321,6 +323,8 @@ func (j *JobsHandler) PutTaskStream(streamer proto.JobService_PutTaskStreamServe
 			broker.MustPublish(j.RuntimeCtx, common.TopicJobTaskEvent, &proto.TaskChangeEvent{
 				TaskUpdated: request.Task,
 				Job:         tJob,
+				NanoStamp:   time.Now().UnixNano(),
+				StatusMeta:  request.StatusMeta,
 			})
 		}
 		if sendErr != nil {

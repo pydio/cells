@@ -445,7 +445,7 @@ export default class AjxpNode extends Observable{
      * @param fakeNodes AjxpNode[]
      * @returns AjxpNode|undefined
      */
-    findInArbo(rootNode, fakeNodes){
+    findInArbo(rootNode, fakeNodes=undefined){
         if(!this.getPath()) {
             return;
         }

@@ -3,7 +3,7 @@
     "other": "点击忘记密码时触发动作"
   },
   "Activate the users management system to protect your Pydio installation.": {
-    "other": "激活用户管理系统以保护您的 Pydio。"
+    "other": "激活用户管理系统以保护您的 Pydio 安装。"
   },
   "Add a Forgot Password link at the bottom of the login form": {
     "other": "在登录表单底部添加忘记密码链接"
@@ -24,13 +24,13 @@
     "other": "选择配置插件"
   },
   "Create a local copy (at login time) of master users inside slave base": {
-    "other": "Create a local copy (at login time) of master users inside slave base"
+    "other": "在从属基地内创建主用户的本地副本(在登录时)"
   },
   "Disable Brute Force Check (Captcha)": {
     "other": "禁用布鲁特强制检查 (验证码)"
   },
   "Disable the check of failed login attempts, will disable the Captcha display": {
-    "other": "Disable the check of failed login attempts, will disable the Captcha display"
+    "other": "禁用对失败登录尝试的检查，将禁用验证码显示"
   },
   "Enable Forgot Password": {
     "other": "启用忘记密码功能"
@@ -39,19 +39,22 @@
     "other": "已启用的用户"
   },
   "Enable the 'guest' user, who does not need to log in.": {
-    "other": "Enable the 'guest' user, who does not need to log in."
+    "other": "启用不需要登录的“来宾”用户。"
   },
   "Forgot Password Action": {
     "other": "忘记密码的操作"
   },
+  "Forgot Password Link": {
+    "other": "忘记密码链接"
+  },
   "Generic Auth Features": {
-    "other": "Generic Features"
+    "other": "通用功能"
   },
   "Guest Browsing": {
     "other": "访客浏览"
   },
   "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)": {
-    "other": "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)"
+    "other": "在 Master_Slave 模式下，使用此选项将管理中列出的用户仅限于一个驱动程序(如果您想查看所有用户，请留空)"
   },
   "Instance Type": {
     "other": "实例类型"
@@ -66,25 +69,25 @@
     "other": "主身份验证标签"
   },
   "Master Only": {
-    "other": "仅限主节点"
+    "other": "仅限大师"
   },
   "Master/Slave": {
     "other": "主/从"
   },
   "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup.": {
-    "other": "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup."
+    "other": "主/从机将假定主机是只读的，而从机是允许共享功能的本地替代方案。 用户选择将允许用户在启动时手动选择其身份验证方法。"
   },
   "Minimum number of characters required for passwords in the application": {
     "other": "应用程序中密码所需的最小字符数"
   },
   "Mode": {
-    "other": "Mode"
+    "other": "模式"
   },
   "Multiple Instances Mode": {
-    "other": "Multiple Instances Mode"
+    "other": "多实例模式"
   },
   "Options applied to all auth drivers": {
-    "other": "Options applied to all auth drivers"
+    "other": "适用于所有身份验证驱动程序的选项"
   },
   "Password length": {
     "other": "密码长度"
@@ -93,31 +96,31 @@
     "other": "禁用自动完成和记住我的功能，从而提高登录表单的安全性"
   },
   "Secondary Instance (optional)": {
-    "other": "Secondary Instance (optional)"
+    "other": "次要实例(可选)"
   },
   "Secondary Instance Driver": {
-    "other": "Secondary Instance Driver"
+    "other": "辅助实例驱动程序"
   },
   "Secure Login Form": {
-    "other": "Secure Login Form"
+    "other": "安全登录表格"
   },
   "Separator": {
-    "other": "Separator"
+    "other": "分隔器"
   },
   "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins.": {
-    "other": "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins."
+    "other": "成功登录后在会话中设置用户凭据，这在桥接特定身份验证和访问插件时可能是必要的。"
   },
   "Slave Authentifiaction Label": {
-    "other": "Slave Authentication Label"
+    "other": "从属认证标签"
   },
   "Slave Only": {
-    "other": "Slave Only"
+    "other": "仅从属"
   },
   "Store Credentials in Session": {
-    "other": "Store Credentials in Session"
+    "other": "在会话中保存凭据"
   },
   "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!": {
-    "other": "This is necessary to discriminate users data loaded from various sources. Warning, use folder name compliant characters. For example :: does not work!"
+    "other": "这对于区分从不同来源加载的用户数据是必要的。 警告，请使用文件夹名称兼容的字符。 例如:: 不起作用！"
   },
   "User Choice": {
     "other": "用户选择"
@@ -126,10 +129,10 @@
     "other": "用户列表"
   },
   "Whether the users identifiers should be case sensitive or not": {
-    "other": "Whether the users identifiers should be case sensitive or not. WARNING, sql-based drivers will disable this by default, even if you check this."
+    "other": "用户标识符是否应区分大小写。 警告，即使您选中此项，基于 SQL 的驱动程序也会默认禁用此功能。"
   },
   "Will be shown to the user at login": {
-    "other": "Will be shown to the user at login"
+    "other": "将在登录时向用户显示"
   },
   "Security": {
     "other": "安全性"
@@ -137,11 +140,14 @@
   "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system.": {
     "other": "点击忘记密码时触发的动作。如果您依赖外部身份验证系统，可以修改它来触发自定义动作。"
   },
+  "When relying on an external authentication system, replace the Forgot Action with an external link that will be opened in a new window.": {
+    "other": "当依赖外部身份验证系统时，请将忘记操作替换为将在新窗口中打开的外部链接。"
+  },
   "Let user create new cells": {
-    "other": "允许用户创建新资料库"
+    "other": "让用户创建新单元格"
   },
   "Whether users can create their own cells or not": {
-    "other": "用户是否可以创建自己的资料库"
+    "other": "用户是否可以创建自己的单元格"
   },
   "Delegation": {
     "other": "委托"
@@ -150,6 +156,6 @@
     "other": "目录搜索时，是寻找以该字符串”起始“的标签。开启此选项将会在关键字前面增加通配符，以寻找”包含“该字符串的标签。"
   },
   "Auto-wildcard search": {
-    "other": "Auto-wildcard search"
+    "other": "自动通配符搜索"
   }
 }

@@ -95,32 +95,40 @@
     color: rgba(0,0,0,0.23);
   }
 
+  .paper-right-block {
+    margin: 16px;
+    background-color: rgb(255, 255, 255);
+    overflow: hidden;
+    border-radius: 6px;
+    border: 1px solid rgba(30, 58, 74, 0.14);
+  }
+
+  .read-write-header {
+    font-size: 12px;
+    text-transform: uppercase;
+    span {
+      display: inline-block;
+      padding-right: 4px;
+      padding-left: 4px;
+      padding-top: 10px;
+      border-bottom: 2px solid #B3B3B3;
+      margin-left: 5px;
+    }
+  }
+
+
   h3.paper-right-title{
     font-size: 20px;
     line-height: 30px;
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 20px;
+    padding-right: 20px;
     margin-top: 16px;
 
     .section-legend{
-      font-size: 14px;
-      font-weight: 300;
+      margin-top: 4px;
+      font-size: 13px;
       line-height: 20px;
       color: rgba(0, 0, 0, 0.7);
-    }
-
-    .read-write-header {
-      font-size: 12px;
-      float: right;
-      text-transform: uppercase;
-      span {
-        display: inline-block;
-        padding-right: 4px;
-        padding-left: 4px;
-        padding-top: 10px;
-        border-bottom: 2px solid #B3B3B3;
-        margin-left: 5px;
-      }
     }
 
     .mui-drop-down-icon{
@@ -344,39 +352,55 @@
   }
 
   .user-roles-picker{
-    padding: 0 20px;
-    .mui-paper {
-      margin: 8px 0;
-    }
-    .role-item {
-      padding: 10px;
-      font-size: 14px;
-      background-color: #ffffff;
-      border-radius: 2px;
-      &.role-item-sortable{
-        cursor: ns-resize;
-        span.button {
-          margin-top: -13px;
-          float: right;
+
+    .roles-list{
+      .role-item {
+
+
+        padding: 10px;
+        margin: 8px 0;
+        font-size: 14px;
+        font-weight: 500;
+        background-color: rgb(246, 246, 248);
+        border-radius: 4px;
+        cursor: pointer;
+        border: 1px solid rgb(246, 246, 248);
+        .left-icon, .right-icon, .toggle-select{
           cursor: pointer;
-          padding: 13px;
-          color: #bbb;
+          font-size: 20px;
+          opacity: 0.7;
+        }
+        .toggle-select{
+          opacity: 0;
+          font-size: 12px;
+          margin-left: 6px;
+        }
+        .left-icon {
+          margin-right: 8px;
+        }
+        &.role-item-sortable:hover{
+          border: 1px solid #e0e0e0;
+        }
+        &.effective, &.role-item-noclick{
+          cursor:default;
+        }
+        &:hover .toggle-select, &.role-item-selected .toggle-select {
+          opacity: 1;
         }
       }
-    }
-    .roles-picker-menu{
-      float: right;
-      margin-top: 0;
-      .mui-drop-down-menu{
-        width: 200px !important;
+      &.has-sortable {
+        .role-item-sortable:hover{
+          cursor: ns-resize;
+        }
       }
-      .mui-menu-label {
-        text-transform: uppercase;
-        font-weight: 500;
-        color: #FF6F42;
-      }
-      .mui-menu-control-underline{
-        display: none;
+      &.has-selection {
+        .role-item {
+          opacity: 0.5;
+          &.role-item-selected{
+            opacity: 1;
+            box-shadow: 0px 0px 8px rgba(0,0,0,.2);
+          }
+        }
       }
     }
 

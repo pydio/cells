@@ -24,16 +24,16 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"math"
 	"path"
 	"strings"
-
-	"github.com/pydio/cells/v4/common/client/grpc"
 
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -161,7 +161,25 @@ func (n *NodesSelector) Select(ctx context.Context, input *ActionMessage, object
 			log.Logger(ctx).Error("Warning, no FreeStringEvaluator was registered for nodes selector, local free string will be ignored")
 		}
 	}
-	var total int
+	var offset, limit int32
+	var sortField string
+	var sortDesc bool
+	if n.Range != nil {
+		if of, er := EvaluateFieldInt(ctx, input, n.Range.Offset); er == nil {
+			offset = int32(of)
+		}
+		if li, er := EvaluateFieldInt(ctx, input, n.Range.Limit); er == nil {
+			limit = int32(li)
+		}
+		if n.Range.GetOrderBy() != "" {
+			if sf := EvaluateFieldStr(ctx, input, n.Range.GetOrderBy()); tree.ValidSortField(sf) {
+				sortField = sf
+				sortDesc = EvaluateFieldStr(ctx, input, n.Range.GetOrderDir()) == "desc"
+			}
+		}
+	}
+
+	var total int32
 	if q.FreeString != "" || q.Content != "" || q.FileNameOrContent != "" {
 		// Use the Search Service, relaunch search as long as there are results (request size cannot be empty)
 
@@ -180,51 +198,59 @@ func (n *NodesSelector) Select(ctx context.Context, input *ActionMessage, object
 			}
 		}
 
-		var cursor int32
-		size := int32(50)
+		cursor := offset  // start at required cursor
+		size := int32(50) // Use a default paging of 50
 		for {
+			pageSize := size
+			if limit > 0 && int32(total) < limit {
+				pageSize = int32(math.Min(float64(size), float64(limit-total)))
+			}
 			req := &tree.SearchRequest{
-				Query:   q,
-				Details: true,
-				From:    cursor,
-				Size:    size,
+				Query:       q,
+				Details:     true,
+				From:        cursor,
+				Size:        pageSize,
+				SortField:   sortField,
+				SortDirDesc: sortDesc,
 			}
 			res, loadMore, err := n.performListing(ctx, common.ServiceSearch, req, filter, objects)
 			if err != nil {
 				return err
 			}
 			total += res
-			if loadMore {
-				cursor += size
-			} else {
+			if !loadMore || (limit > 0 && total >= limit) {
 				break
 			}
+			cursor += pageSize
 		}
 	} else {
 		// For simple requests, directly use the Tree service
 		var e error
 		req := &tree.SearchRequest{
-			Query:   q,
-			Details: true,
+			Query:       q,
+			Details:     true,
+			From:        offset,
+			Size:        limit,
+			SortField:   sortField,
+			SortDirDesc: sortDesc,
 		}
 		total, _, e = n.performListing(ctx, common.ServiceTree, req, filter, objects)
 		if e != nil {
 			return e
 		}
 	}
-	log.Logger(ctx).Info("Selector finished request with query", zap.Any("q", *q), zap.Int("count", total))
+	log.Logger(ctx).Info("Selector finished request with query", zap.Any("q", *q), zap.Int32("count", total))
 
 	return nil
 }
 
-func (n *NodesSelector) performListing(ctx context.Context, serviceName string, req *tree.SearchRequest, filter func(n *tree.Node) bool, objects chan interface{}) (int, bool, error) {
+func (n *NodesSelector) performListing(ctx context.Context, serviceName string, req *tree.SearchRequest, filter func(n *tree.Node) bool, objects chan interface{}) (int32, bool, error) {
 	treeClient := tree.NewSearcherClient(grpc.GetClientConnFromCtx(ctx, serviceName))
 	sStream, eR := treeClient.Search(ctx, req)
 	if eR != nil {
 		return 0, false, eR
 	}
-	var received int32
-	var count int
+	var received, count int32
 	var stErr error
 	defer sStream.CloseSend()
 	for {

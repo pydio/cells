@@ -345,6 +345,18 @@ func (m *IdmSelector) cloneEvaluated(ctx context.Context, input *ActionMessage, 
 			q.SubQueries[i], _ = anypb.New(m.evaluate(ctx, input, a).(*idm.ACLSingleQuery))
 		}
 	}
+	if m.Range != nil {
+		if o, e := EvaluateFieldInt64(ctx, input, m.Range.Offset); e == nil {
+			q.Offset = o
+		}
+		if l, e := EvaluateFieldInt64(ctx, input, m.Range.Limit); e == nil {
+			q.Limit = l
+		}
+		if f := EvaluateFieldStr(ctx, input, m.Range.OrderBy); f != "" {
+			q.SortField = f
+			q.SortDesc = EvaluateFieldStr(ctx, input, m.Range.OrderDir) == "desc"
+		}
+	}
 	return q
 }
 

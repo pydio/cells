@@ -29,6 +29,7 @@ import {FontIcon, IconButton, IconMenu, MenuItem, FlatButton, Subheader} from 'm
 const {muiThemeable} = require('material-ui/styles');
 import Color from 'color'
 import Facets from "../search/components/Facets";
+import SearchSorter from "../search/components/SearchSorter";
 const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc');
 
 class Entries extends React.Component{
@@ -180,7 +181,7 @@ class Entries extends React.Component{
                         />
                     ))}
                     {!entries.length && emptyState}
-                    {(entries.length > 0 || !emptyState) && createActionEntry}
+                    {createActionEntry}
                     {pagination.use && this.renderPagination(pagination)}
                 </div>
             </div>
@@ -203,23 +204,21 @@ class WorkspacesList extends React.Component{
     shouldComponentUpdate(nextProps, nextState){
         return nextState.random !== this.state.random
             || nextState.popoverOpen !== this.state.popoverOpen
-            || nextProps.searchView !== this.props.searchView
-            || nextProps.values !== this.props.values
-            || nextProps.facets !== this.props.facets
-            || nextProps.activeFacets !== this.props.activeFacets;
+            || nextProps.searchTools !== this.props.searchTools
+//            || nextProps.values !== this.props.values
+ //           || nextProps.facets !== this.props.facets
+ //           || nextProps.activeFacets !== this.props.activeFacets;
     }
 
     stateFromPydio(pydio){
         const workspaces = pydio.user ? pydio.user.getRepositoriesList() : new Map();
         let hiddenWorkspaces, hiddenWsStatus, cellsSortingMixed = false, prefs = {}, merge = false;
         if(pydio.user) {
-            prefs = pydio.user.getGUIPreferences();
-            if(prefs['MaskedWorkspaces'] && prefs['MaskedWorkspaces'].length) {
-                hiddenWorkspaces = prefs['MaskedWorkspaces']
-                hiddenWsStatus = prefs['LeftPanel.MaskedWorkspaces.Show'] || false
-            }
-            cellsSortingMixed = prefs['LeftPanel.OwnedCellsFirst'];
-            merge = prefs['LeftPanel.MergeWorkspaces'] || pydio.getPluginConfigs('core.pydio').get('MERGE_WORKSPACES_AND_CELLS')
+            const glp = (k,v) => pydio.user.getLayoutPreference(k, v)
+            hiddenWorkspaces = glp('MaskedWorkspaces', [])
+            hiddenWsStatus = glp('FSTemplate.LeftPanel.MaskedWorkspaces.Show', false)
+            cellsSortingMixed = glp('FSTemplate.LeftPanel.OwnedCellsFirst', false);
+            merge = glp('FSTemplate.LeftPanel.MergeWorkspaces', false) || pydio.getPluginConfigs('core.pydio').get('MERGE_WORKSPACES_AND_CELLS')
         }
         return {
             random: Math.random(),
@@ -228,7 +227,6 @@ class WorkspacesList extends React.Component{
             hiddenWorkspaces,
             hiddenWsStatus,
             cellsSortingMixed,
-            userPrefs: prefs,
             activeWorkspace: pydio.user ? pydio.user.activeRepository : false,
             activeRepoIsHome: pydio.user && pydio.user.activeRepository === 'homepage'
         };
@@ -236,22 +234,23 @@ class WorkspacesList extends React.Component{
 
     togglePref(name) {
         const {pydio} = this.props;
-        const {userPrefs} = this.state;
         switch (name){
             case "mask":
                 const {hiddenWsStatus} = this.state;
-                userPrefs['LeftPanel.MaskedWorkspaces.Show'] = !hiddenWsStatus;
+                pydio.user.setLayoutPreference('FSTemplate.LeftPanel.MaskedWorkspaces.Show', !hiddenWsStatus || undefined);
             break;
             case "owned":
                 const {cellsSortingMixed} = this.state;
-                userPrefs['LeftPanel.OwnedCellsFirst'] = !cellsSortingMixed;
+                pydio.user.setLayoutPreference('FSTemplate.LeftPanel.OwnedCellsFirst', !cellsSortingMixed || undefined);
             break;
             case "merge":
                 const {merge} = this.state;
-                userPrefs['LeftPanel.MergeWorkspaces'] = !merge;
-
+                pydio.user.setLayoutPreference('FSTemplate.LeftPanel.MergeWorkspaces', !merge || undefined)
+            break;
+            default:
+                return
         }
-        pydio.user.setGUIPreferences(userPrefs, true)
+        this.setState(this.stateFromPydio(pydio))
     }
 
     componentDidMount(){
@@ -271,7 +270,7 @@ class WorkspacesList extends React.Component{
         const {workspaces, hiddenWorkspaces, hiddenWsStatus ,activeWorkspace,
             popoverOpen, popoverAnchor, popoverContent, merge, cellsSortingMixed} = this.state;
         const {pydio, className, muiTheme, sectionTitleStyle, workspaceEntryStyler,
-            searchView, values, setValues, searchLoading, facets, activeFacets, toggleFacet} = this.props;
+            searchView, searchTools} = this.props;
 
         // Split Workspaces from Cells
         let wsList = [];
@@ -280,7 +279,7 @@ class WorkspacesList extends React.Component{
             wsList = wsList.filter(ws =>
                 hiddenWorkspaces.indexOf(ws.getId())=== -1
                 || activeWorkspace === ws.getId()
-                || (searchView && values.scope && values.scope.indexOf(ws.getSlug() + '/') === 0)
+                || (searchTools && searchTools.values.scope && searchTools.values.scope.indexOf(ws.getSlug() + '/') === 0)
             )
         }
         wsList = wsList.filter(ws => !Repository.isInternal(ws.getId()));
@@ -338,28 +337,36 @@ class WorkspacesList extends React.Component{
             }
         };
 
-        if(this.createRepositoryEnabled() && (sharedEntries.length||(merge && (sharedEntries.length || entries.length)))){
-            if(merge) {
-                createActionEntry = (
-                    <div onClick={createClick} className={"workspace-entry"} style={{...workspaceEntryStyler.rootItemStyle.default, color:'var(--md-sys-color-primary)'}}>
-                        <span className={"icomoon-cells-full-plus"} style={{fontSize: 24, marginRight: 13, marginLeft:-4, opacity: 0.53}}/>
-                        <div>{messages[417]}</div>
-                    </div>
-                )
+        if(this.createRepositoryEnabled()) {
 
-            } else {
-                createActionIcon = <IconButton
-                    key={"create-cell"}
-                    style={buttonStyles.button}
-                    iconStyle={buttonStyles.icon}
-                    iconClassName={"mdi mdi-plus"}
-                    tooltip={messages[417]}
-                    tooltipPosition={merge?"bottom-left":"top-left"}
-                    onClick={createClick}
-                />
+            let caeClass = 'create-cell-small' // will be shown only if column is small
+            if((sharedEntries.length||(merge && (sharedEntries.length || entries.length)))){
+                if(merge) {
+                    caeClass = ''; // always show
+                } else {
+                    createActionIcon = <IconButton
+                        key={"create-cell"}
+                        style={buttonStyles.button}
+                        iconStyle={buttonStyles.icon}
+                        iconClassName={"mdi mdi-plus"}
+                        tooltip={messages[417]}
+                        tooltipPosition={merge?"bottom-left":"top-left"}
+                        onClick={createClick}
+                    />
+                }
             }
-        }
+            createActionEntry = (
+                <div
+                    onClick={createClick}
+                    className={"workspace-entry " + caeClass}
+                    style={{...workspaceEntryStyler.rootItemStyle.default, color:'var(--md-sys-color-primary)'}}
+                >
+                    <span className={"icomoon-cells-full-plus"} style={{fontSize: 24, marginRight: 13, marginLeft:-4, opacity: 0.53}}/>
+                    <div className={"workspace-label"}>{messages[417]}</div>
+                </div>
+            )
 
+        }
 
         let classNames = ['user-workspaces-list'];
         if(className) {
@@ -375,6 +382,7 @@ class WorkspacesList extends React.Component{
         }
 
         if(searchView) {
+            const {values, setValues, searchLoading, facets, activeFacets, toggleFacet} = searchTools
             const additionalEntries = []
 
             const fakeScopeEntry = new Repository('previous_context')
@@ -388,6 +396,7 @@ class WorkspacesList extends React.Component{
             additionalEntries.push(fakeAllEntry)
             return (
                 <div className={classNames.join(' ')}>
+                    <SearchSorter searchTools={searchTools} style={{padding:10, marginBottom: -20}} selectStyle={{borderRadius:6, marginTop: 0}}/>
                     <Entries
                         {...entriesProps}
                         title={messages['searchengine.scope.title']}
@@ -447,7 +456,7 @@ class WorkspacesList extends React.Component{
             >
                 <Subheader style={{marginTop:-10}}>{messages['ajax_gui.wslist-options.title']}</Subheader>
                 <MenuItem
-                    leftIcon={<FontIcon className={"mdi mdi-playlist-plus"} style={listItemFontIcon}/>}
+                    leftIcon={<FontIcon className={"mdi mdi-eye-plus-outline"} style={listItemFontIcon}/>}
                     primaryText={messages['ajax_gui.wslist-options.show-masked']}
                     onClick={() => this.togglePref("mask")}
                     rightIcon={<FontIcon className={'mdi mdi-toggle-switch'+(hiddenWsStatus?'':'-off')} style={listItemFontIconRight}/>}
@@ -474,10 +483,10 @@ class WorkspacesList extends React.Component{
                     anchorEl={popoverAnchor}
                     useLayerForClickAway={true}
                     onRequestClose={() => {this.setState({popoverOpen: false})}}
-                    anchorOrigin={sharedEntries.length ? {horizontal:"left",vertical:"top"} : {horizontal:"left",vertical:"bottom"}}
-                    targetOrigin={sharedEntries.length ? {horizontal:"left",vertical:"top"} : {horizontal:"left",vertical:"bottom"}}
+                    anchorOrigin={{horizontal:"right",vertical:"center"}}
+                    targetOrigin={{horizontal:"left",vertical:"center"}}
                     zDepth={3}
-                    style={{overflow: 'hidden', marginLeft:sharedEntries.length?-10:0, marginTop:sharedEntries.length?-10:0}}
+                    style={{overflow: 'hidden'}}
                 >{popoverContent}</Popover>
                 {showWorkspacesSection &&
                     <Entries
@@ -503,7 +512,7 @@ class WorkspacesList extends React.Component{
                     createActionEntry={createActionEntry}
                     className={showWorkspacesSection ? "" : "first-section"}
                     emptyState={
-                        <div style={emptyStateStyle}>
+                        <div style={emptyStateStyle} className={"create-cell-empty-state"}>
                             <div className="icomoon-cells" style={{fontSize:60}}></div>
                             {this.createRepositoryEnabled() && <FlatButton style={{color: muiTheme.palette.mui3.primary, marginTop:5}} primary={true} label={messages[418]} onClick={createClick}/>}
                             <div style={{fontSize: 13, padding: '5px 20px'}}>{messages[633]}</div>

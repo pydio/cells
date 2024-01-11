@@ -302,7 +302,7 @@ class WorkspaceEntry extends React.Component {
             currentClass +=" workspace-current";
         }
 
-        const maskedWorkspaces = pydio.user.getGUIPreference('MaskedWorkspaces') || []
+        const maskedWorkspaces = pydio.user.getLayoutPreference('MaskedWorkspaces', [])
         let isMasked;
         if(maskedWorkspaces.indexOf && maskedWorkspaces.indexOf(workspace.getId()) > -1) {
             isMasked = true;
@@ -384,7 +384,7 @@ class WorkspaceEntry extends React.Component {
         const {popoverOpen, popoverAnchor, popoverTop, popoverHeight, loading} = this.state;
 
         if(loading) {
-            additionalAction = <CircularProgress size={20} thickness={2} style={{marginTop: 2, marginRight: 6, opacity: .5}}/>
+            additionalAction = <CircularProgress className={"ws-loader-progress"} size={20} thickness={2} style={{marginTop: 2, marginRight: 6, opacity: .5}}/>
         } else if (!searchView) {
             const addStyle = popoverOpen ? {opacity:1} : {};
             if(popoverOpen){
@@ -393,10 +393,10 @@ class WorkspaceEntry extends React.Component {
             let addIcName = 'mdi-dots-vertical', addIcTitle = ''
             let addIcClick = (e) => this.workspacePopover(e, popoverNode)
             if(isMasked) {
-                addIcName = 'mdi-playlist-check'
+                addIcName = 'mdi-eye-outline'
                 addIcTitle = 'Unmask ' + workspace.getLabel()
                 addIcClick = (e) => {
-                    pydio.user.setGUIPreference('MaskedWorkspaces', maskedWorkspaces.filter(i=>i!==workspace.getId()), true)
+                    pydio.user.setLayoutPreference('MaskedWorkspaces', maskedWorkspaces.filter(i=>i!==workspace.getId()))
                 }
             }
             additionalAction = (

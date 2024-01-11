@@ -24,6 +24,8 @@ import {muiThemeable} from 'material-ui/styles'
 import Workspace from '../model/Ws'
 import WsAutoComplete from './WsAutoComplete'
 import {loadEditorClass} from "./MetaNamespace";
+import stepper from "./stepper";
+import PathUtils from 'pydio/util/path'
 const {ModernTextField, ModernSelectField, ThemedModernStyles} = Pydio.requireLib('hoc');
 const {InputIntegerBytes} = Pydio.requireLib('form');
 const {PaperEditorLayout, AdminStyles} = AdminComponents;
@@ -32,7 +34,8 @@ class WsEditor extends Component {
 
     constructor(props){
         super(props);
-        const workspace = new Workspace(props.workspace);
+        const workspace = props.presetModel || new Workspace(props.workspace);
+
         workspace.observe('update', () => {
             this.forceUpdate();
         });
@@ -135,17 +138,19 @@ class WsEditor extends Component {
         const roots = workspace.RootNodes;
         let completers = Object.keys(roots).map(
             (k)=> {
-                let label = m('ws.editor.path.folder');
-                if(Workspace.rootIsTemplatePath(roots[k])){
-                    label = m('ws.editor.path.template');
-                }
+                const isTemplatePath = Workspace.rootIsTemplatePath(roots[k])
+                const label = isTemplatePath ?  m('ws.editor.path.template') : m('ws.complete.folders');
                 return (
                     <WsAutoComplete
                         key={roots[k].Uuid}
                         pydio={pydio}
                         label={label}
                         value={roots[k].Path}
-                        onDelete={() => {delete(roots[k]); this.forceUpdate()}}
+                        isTemplatePath={isTemplatePath?roots[k]:null}
+                        onDelete={() => {
+                            delete(roots[k]);
+                            this.forceUpdate()
+                        }}
                         onChange={(key,node) => {
                             delete(roots[k]);
                             if(key !== '') {
@@ -158,15 +163,227 @@ class WsEditor extends Component {
             }
         );
         if(!container.hasTemplatePath()){
-            completers.push(
-                <WsAutoComplete
-                    key={newFolderKey}
-                    pydio={pydio}
-                    value={""}
-                    onChange={(k,node) => {if(node){ roots[node.Uuid] = node; this.setState({newFolderKey: Math.random()})}}}
-                    skipTemplates={container.hasFolderRoots()}
-                />);
+            const {newRoot = false} = this.state;
+            const first = !Object.keys(roots).length
+            if(first || newRoot) {
+                completers.push(
+                    <WsAutoComplete
+                        key={newFolderKey}
+                        pydio={pydio}
+                        value={""}
+                        onChange={(k,node) => {
+                            if(node){
+                                roots[node.Uuid] = node;
+                                this.setState({newFolderKey: Math.random(), newRoot: false})
+                            }
+                        }}
+                        skipTemplates={container.hasFolderRoots()}
+                    />);
+            } else {
+                completers.push(
+                    <FlatButton label={"+ "+m('ws.complete.additional')} onClick={() => this.setState({newRoot: true})} primary={true}/>
+                )
+            }
         }
+
+        let Stepper, StepperButtons, makeStyle = (s, p) => s;
+        if(container.create) {
+            const {currentPane = 'data'} = this.state;
+            const steps = {
+                data:m('ws.editor.data.title'),
+                main:m('ws.30'),
+                other:m('ws.editor.other')
+            }
+            makeStyle = (s, p) => (p === currentPane ? {...s, marginTop: 80} : {display:'none'})
+            let disableNext;
+            if(currentPane === 'data' && Object.keys(roots).length === 0){
+                disableNext = true
+            }
+            const stepperData = stepper(
+                steps,
+                currentPane,
+                (p)=>{
+                    if(currentPane === 'data' && p === 'main' && Object.keys(roots).length === 1 && !workspace.Label){
+                        workspace.Label = PathUtils.getBasename(roots[Object.keys(roots)[0]].Path);
+                    }
+                    this.setState({currentPane:p})
+                },
+                disableNext,
+                () => this.save(),
+                ()=>container.isValid(),
+                {
+                    back:m('ds.editor.tab.button-back'),
+                    next:m('ds.editor.tab.button-next'),
+                    save:m('ds.editor.tab.button-create')
+                }
+            )
+            Stepper = stepperData.Steps
+            StepperButtons = stepperData.Buttons
+        }
+
+        const EncDialog = (
+            <Dialog
+                open={showDialog}
+                title={m('ws.editor.sync.warning')}
+                onRequestClose={()=>{this.confirmSync(!dialogTargetValue)}}
+                actions={[
+                    <FlatButton label={pydio.MessageHash['54']} onClick={()=>{this.confirmSync(!dialogTargetValue)}}/>,
+                    <FlatButton label={m('ws.editor.sync.warning.validate')} onClick={()=>{this.confirmSync(dialogTargetValue)}}/>
+                ]}
+            >
+                {showDialog === 'enableSync' &&
+                    <div>
+                        {m('ws.editor.sync.warning.enable')}
+                    </div>
+                }
+                {showDialog === 'disableSync' &&
+                    <div>
+                        {m('ws.editor.sync.warning.disable')}
+                    </div>
+                }
+            </Dialog>
+        );
+        const PaneLabel = (
+            <Paper zDepth={0} style={makeStyle(styles.section, 'main')}>
+                <div style={styles.title}>{m('ws.30')}</div>
+                <div style={styles.legend}>{m('ws.editor.options.legend')}</div>
+
+                <ModernTextField
+                    fullWidth={true}
+                    errorText={workspace.Label ? "" : m('ws.editor.label.legend')}
+                    floatingLabelText={mS('8')}
+                    value={workspace.Label}
+                    onChange={(e,v)=>{workspace.Label = v}}
+                    variant={'v2'}
+                />
+                <ModernTextField
+                    fullWidth={true}
+                    errorText={(workspace.Label && !workspace.Slug) ? m('ws.editor.slug.legend') : ""}
+                    floatingLabelText={m('ws.5')}
+                    value={workspace.Slug}
+                    onChange={(e,v)=>{workspace.Slug = v}}
+                    variant={'v2'}
+                />
+                <ModernTextField
+                    fullWidth={true}
+                    floatingLabelText={m("ws.editor.description")}
+                    value={workspace.Description}
+                    onChange={(e,v)=>{workspace.Description = v}}
+                    variant={'v2'}
+                />
+            </Paper>
+        );
+        const PanePaths = (
+            <Paper zDepth={0} style={makeStyle(styles.section, 'data')}>
+                <div style={styles.title}>{m('ws.editor.data.title')}</div>
+                <div style={styles.legend}>{m('ws.editor.data.legend')}</div>
+                {completers}
+                <div style={styles.legend}>{m('ws.editor.default_rights')}</div>
+                <ModernSelectField
+                    fullWidth={true}
+                    value={workspace.Attributes['DEFAULT_RIGHTS'] || ''}
+                    onChange={(e,i,v) => {workspace.Attributes['DEFAULT_RIGHTS'] = v}}
+                    floatingLabelText={m('ws.editor.default_rights.hint')}
+                    variant={'v2'}
+                >
+                    <MenuItem primaryText={m('ws.editor.default_rights.none')} value={""}/>
+                    <MenuItem primaryText={m('ws.editor.default_rights.read')} value={"r"}/>
+                    <MenuItem primaryText={m('ws.editor.default_rights.readwrite')} value={"rw"}/>
+                    <MenuItem primaryText={m('ws.editor.default_rights.write')} value={"w"}/>
+                </ModernSelectField>
+            </Paper>
+        );
+        const PaneOptions = (
+            <Paper zDepth={0} style={makeStyle(styles.section, 'other')}>
+                <div style={styles.title}>{m('ws.editor.other')}</div>
+
+                <div style={{...styles.legend}}>{m('ws.editor.other.skiprecycle.legend')}</div>
+                <div style={styles.toggleDiv}>
+                    <Checkbox
+                        label={m('ws.editor.other.skiprecycle')}
+                        labelPosition={"right"}
+                        checked={workspace.Attributes['SKIP_RECYCLE']}
+                        onCheck={(e,v) =>{
+                            workspace.Attributes['SKIP_RECYCLE'] = v;
+                        }}
+                        {...ModernStyles.toggleFieldV2}
+                    />
+                </div>
+
+                {advanced &&
+                    <Fragment>
+                        <hr style={styles.divider}/>
+                        <div style={{...styles.legend}}>{m('ws.editor.other.sync.legend')}</div>
+                        <div style={styles.toggleDiv}>
+                            <Checkbox
+                                label={m('ws.editor.other.sync')}
+                                labelPosition={"right"}
+                                checked={workspace.Attributes['ALLOW_SYNC']}
+                                onCheck={(e,v) =>{
+                                    if(!container.hasTemplatePath() && v) {
+                                        this.enableSync(v)
+                                    } else if (!v) {
+                                        this.enableSync(v)
+                                    } else {
+                                        workspace.Attributes['ALLOW_SYNC'] = v;
+                                    }
+                                }}
+                                {...ModernStyles.toggleFieldV2}
+                            />
+                        </div>
+
+                        <hr style={styles.divider}/>
+                        <div style={{...styles.legend}}>{m('ws.editor.other.quota')}</div>
+                        <InputIntegerBytes
+                            variant={'v2'}
+                            attributes={{label:'Quota'}}
+                            value={workspace.Attributes['QUOTA'] || 0}
+                            onChange={(v) => {
+                                if(v > 0){
+                                    workspace.Attributes['QUOTA'] = v + '';
+                                } else {
+                                    workspace.Attributes['QUOTA'] = '0';
+                                    delete(workspace.Attributes['QUOTA']);
+                                }
+                            }}
+                        />
+                        <hr style={styles.divider}/>
+                        <div style={{...styles.legend}}>{m('ws.editor.other.layout')}</div>
+                        <ModernSelectField fullWidth={true} floatingLabelText={m('ws.editor.other.layout')} variant={"v2"} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
+                            <MenuItem primaryText={m('ws.editor.other.layout.default')} value={""}/>
+                            <MenuItem primaryText={m('ws.editor.other.layout.easy')} value={"meta.layout_sendfile"}/>
+                        </ModernSelectField>
+                    </Fragment>
+                }
+            </Paper>
+        )
+        let PanePolicies;
+        if(PoliciesBuilder) {
+            PanePolicies = (
+                <Paper zDepth={0} style={makeStyle(styles.section, 'policies')}>
+                <div style={styles.title}>{policiesMS('editor.visibility.workspace')}</div>
+                <div style={{...styles.legend}}>
+                    {policiesMS('editor.visibility.warning')}
+                    {!policiesEdit && <span style={{fontWeight:500, cursor:'pointer'}} onClick={()=>this.setState({policiesEdit:true})}> - {policiesMS('editor.visibility.edit')}</span>}
+                </div>
+                <PoliciesBuilder
+                    pydio={pydio}
+                    policies={workspace.Policies}
+                    onChangePolicies={(pols => workspace.Policies = pols )}
+                    readonly={!policiesEdit}
+                    showHeader={false}
+                    forceCustom={true}
+                    advancedLegend={<span/>}
+                    advancedContainerStyle={policiesEdit?{paddingBottom: 300}:{}}
+                    allowedActions={{
+                        'READ':policiesMS('policies.builder.action.read'),
+                        'WRITE':policiesMS('policies.builder.action.write')
+                    }}
+                />
+            </Paper>
+            );
+        }
+
 
         return (
             <PaperEditorLayout
@@ -177,157 +394,13 @@ class WsEditor extends Component {
                 className="workspace-editor"
                 contentFill={false}
             >
-                <Dialog
-                    open={showDialog}
-                    title={m('ws.editor.sync.warning')}
-                    onRequestClose={()=>{this.confirmSync(!dialogTargetValue)}}
-                    actions={[
-                        <FlatButton label={pydio.MessageHash['54']} onClick={()=>{this.confirmSync(!dialogTargetValue)}}/>,
-                        <FlatButton label={m('ws.editor.sync.warning.validate')} onClick={()=>{this.confirmSync(dialogTargetValue)}}/>
-                    ]}
-                >
-                    {showDialog === 'enableSync' &&
-                    <div>
-                        {m('ws.editor.sync.warning.enable')}
-                    </div>
-                    }
-                    {showDialog === 'disableSync' &&
-                    <div>
-                        {m('ws.editor.sync.warning.disable')}
-                    </div>
-                    }
-                </Dialog>
-
-                <Paper zDepth={0} style={styles.section}>
-                    <div style={styles.title}>{m('ws.30')}</div>
-                    <div style={styles.legend}>{m('ws.editor.options.legend')}</div>
-
-                    <ModernTextField
-                        fullWidth={true}
-                        errorText={workspace.Label ? "" : m('ws.editor.label.legend')}
-                        floatingLabelText={mS('8')}
-                        value={workspace.Label}
-                        onChange={(e,v)=>{workspace.Label = v}}
-                        variant={'v2'}
-                    />
-                    <ModernTextField
-                        fullWidth={true}
-                        floatingLabelText={m("ws.editor.description")}
-                        value={workspace.Description}
-                        onChange={(e,v)=>{workspace.Description = v}}
-                        variant={'v2'}
-                    />
-                    <ModernTextField
-                        fullWidth={true}
-                        errorText={(workspace.Label && !workspace.Slug) ? m('ws.editor.slug.legend') : ""}
-                        floatingLabelText={m('ws.5')}
-                        value={workspace.Slug}
-                        onChange={(e,v)=>{workspace.Slug = v}}
-                        variant={'v2'}
-                    />
-                </Paper>
-                <Paper zDepth={0} style={styles.section}>
-                    <div style={styles.title}>{m('ws.editor.data.title')}</div>
-                    <div style={styles.legend}>{m('ws.editor.data.legend')} {m('ws.editor.default_rights')}</div>
-                    {completers}
-                    <ModernSelectField
-                        fullWidth={true}
-                        value={workspace.Attributes['DEFAULT_RIGHTS'] || ''}
-                        onChange={(e,i,v) => {workspace.Attributes['DEFAULT_RIGHTS'] = v}}
-                        hintText={'Default Rights'}
-                        variant={'v2'}
-                    >
-                        <MenuItem primaryText={m('ws.editor.default_rights.none')} value={""}/>
-                        <MenuItem primaryText={m('ws.editor.default_rights.read')} value={"r"}/>
-                        <MenuItem primaryText={m('ws.editor.default_rights.readwrite')} value={"rw"}/>
-                        <MenuItem primaryText={m('ws.editor.default_rights.write')} value={"w"}/>
-                    </ModernSelectField>
-                </Paper>
-                <Paper zDepth={0} style={styles.section}>
-                    <div style={styles.title}>{m('ws.editor.other')}</div>
-
-                    <div style={{...styles.legend}}>{m('ws.editor.other.skiprecycle.legend')}</div>
-                    <div style={styles.toggleDiv}>
-                        <Checkbox
-                            label={m('ws.editor.other.skiprecycle')}
-                            labelPosition={"right"}
-                            checked={workspace.Attributes['SKIP_RECYCLE']}
-                            onCheck={(e,v) =>{
-                                workspace.Attributes['SKIP_RECYCLE'] = v;
-                            }}
-                            {...ModernStyles.toggleFieldV2}
-                        />
-                    </div>
-
-                    {advanced &&
-                        <Fragment>
-                            <hr style={styles.divider}/>
-                            <div style={{...styles.legend}}>{m('ws.editor.other.sync.legend')}</div>
-                            <div style={styles.toggleDiv}>
-                                <Checkbox
-                                    label={m('ws.editor.other.sync')}
-                                    labelPosition={"right"}
-                                    checked={workspace.Attributes['ALLOW_SYNC']}
-                                    onCheck={(e,v) =>{
-                                        if(!container.hasTemplatePath() && v) {
-                                            this.enableSync(v)
-                                        } else if (!v) {
-                                            this.enableSync(v)
-                                        } else {
-                                            workspace.Attributes['ALLOW_SYNC'] = v;
-                                        }
-                                    }}
-                                    {...ModernStyles.toggleFieldV2}
-                                />
-                            </div>
-
-                            <hr style={styles.divider}/>
-                            <div style={{...styles.legend}}>{m('ws.editor.other.quota')}</div>
-                            <InputIntegerBytes
-                                variant={'v2'}
-                                attributes={{label:'Quota'}}
-                                value={workspace.Attributes['QUOTA'] || 0}
-                                onChange={(v) => {
-                                    if(v > 0){
-                                        workspace.Attributes['QUOTA'] = v + '';
-                                    } else {
-                                        workspace.Attributes['QUOTA'] = '0';
-                                        delete(workspace.Attributes['QUOTA']);
-                                    }
-                                }}
-                            />
-                            <hr style={styles.divider}/>
-                            <div style={{...styles.legend}}>{m('ws.editor.other.layout')}</div>
-                            <ModernSelectField fullWidth={true} floatingLabelText={m('ws.editor.other.layout')} variant={"v2"} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
-                                <MenuItem primaryText={m('ws.editor.other.layout.default')} value={""}/>
-                                <MenuItem primaryText={m('ws.editor.other.layout.easy')} value={"meta.layout_sendfile"}/>
-                            </ModernSelectField>
-                        </Fragment>
-                    }
-                </Paper>
-                {PoliciesBuilder &&
-                    <Paper zDepth={0} style={styles.section}>
-                        <div style={styles.title}>{policiesMS('editor.visibility.workspace')}</div>
-                        <div style={{...styles.legend}}>
-                            {policiesMS('editor.visibility.warning')}
-                            {!policiesEdit && <span style={{fontWeight:500, cursor:'pointer'}} onClick={()=>this.setState({policiesEdit:true})}> - {policiesMS('editor.visibility.edit')}</span>}
-                        </div>
-                        <PoliciesBuilder
-                            pydio={pydio}
-                            policies={workspace.Policies}
-                            onChangePolicies={(pols => workspace.Policies = pols )}
-                            readonly={!policiesEdit}
-                            showHeader={false}
-                            forceCustom={true}
-                            advancedLegend={<span/>}
-                            advancedContainerStyle={policiesEdit?{paddingBottom: 300}:{}}
-                            allowedActions={{
-                                'READ':policiesMS('policies.builder.action.read'),
-                                'WRITE':policiesMS('policies.builder.action.write')
-                        }}
-                        />
-                    </Paper>
-                }
+                {Stepper}
+                {EncDialog}
+                {PaneLabel}
+                {PanePaths}
+                {PaneOptions}
+                {PanePolicies}
+                {StepperButtons}
             </PaperEditorLayout>
         );
 

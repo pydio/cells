@@ -23,6 +23,7 @@ package snapshot
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/utils/std"
 	"os"
 	"path"
 	"sort"
@@ -143,8 +144,9 @@ func TestSnapshot(t *testing.T) {
 
 		So(source.CreateNode(ctx, &tree.Node{Path: "c/new", Type: tree.NodeType_LEAF}, true), ShouldBeNil)
 		So(snapshot.CreateNode(ctx, &tree.Node{Path: "c/new", Type: tree.NodeType_LEAF}, true), ShouldBeNil)
-		<-time.After(1 * time.Second)
-		e = basicDiff(source, snapshot)
+		e = std.Retry(context.Background(), func() error {
+			return basicDiff(source, snapshot)
+		}, 200*time.Millisecond, 5*time.Second)
 		So(e, ShouldBeNil)
 
 		So(source.DeleteNode(ctx, "a/a1"), ShouldBeNil)
@@ -178,8 +180,10 @@ func TestSnapshot(t *testing.T) {
 		So(er, ShouldBeNil)
 
 		So(snapshot.CreateNode(ctx, &tree.Node{Path: "noparent/file"}, true), ShouldBeNil)
-		<-time.After(1 * time.Second)
-		_, er = snapshot.LoadNode(ctx, "noparent")
+		er = std.Retry(context.Background(), func() error {
+			_, er1 := snapshot.LoadNode(ctx, "noparent")
+			return er1
+		}, 200*time.Millisecond, 5*time.Second)
 		So(er, ShouldBeNil)
 	})
 

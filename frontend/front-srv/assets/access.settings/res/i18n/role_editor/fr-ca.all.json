@@ -1,0 +1,251 @@
+{
+  "1": {
+    "other": "Editeur de rôle"
+  },
+  "10": {
+    "other": "Utilisez les sélecteurs ci-dessous pour choisir les actions que vous souhaitez désactiver pour ce rôle. Ceci peut s'appliquer worskpace par workspace ou pour tous les workspaces."
+  },
+  "11": {
+    "other": "Identifiant du plugin"
+  },
+  "12": {
+    "other": "Sélectionner un plugin..."
+  },
+  "12a": {
+    "other": "Sélectionner une action..."
+  },
+  "12b": {
+    "other": "Sélectionner un paramètre..."
+  },
+  "12c": {
+    "other": "Choisir un ou tous les workspaces..."
+  },
+  "12d": {
+    "other": "Tous les workspaces"
+  },
+  "12e": {
+    "other": "Workspace partagés"
+  },
+  "13": {
+    "other": "Nom de l'action"
+  },
+  "14": {
+    "other": "Portée des workspaces"
+  },
+  "15": {
+    "other": "Ajouter cette action"
+  },
+  "16": {
+    "other": "Utilisez les sélecteurs ci-dessous pour choisir les paramètres que vous voulez personnaliser pour le rôle. La valeur pour s'appliquer dépôt par dépôt ou pour tous les dépôts, mais ceci peut aussi dépendre des paramètres choisis."
+  },
+  "17": {
+    "other": "Nom du paramètre"
+  },
+  "18": {
+    "other": "Ajouter le paramètre"
+  },
+  "19": {
+    "other": "Il y a des changements non pris en compte, êtes-vous sûr de vouloir fermer ?"
+  },
+  "2": {
+    "other": "Editeur de rôle"
+  },
+  "20": {
+    "other": "Le rôle a été mis à jour"
+  },
+  "21": {
+    "other": "ID utilisateur"
+  },
+  "22": {
+    "other": "Profil"
+  },
+  "23": {
+    "other": "Workspace par défaut"
+  },
+  "24": {
+    "other": "Rôles (utiliser les touches Ctrl/Cmd pour en sélectionner plusieurs)"
+  },
+  "25": {
+    "other": "Changer de mot de passe"
+  },
+  "26": {
+    "other": "Exclure l'utilisateur"
+  },
+  "27": {
+    "other": "Réactiver l'utilisateur"
+  },
+  "28": {
+    "other": "Forcer une mise à jour du mot de passe"
+  },
+  "28b": {
+    "other": "Annuler la mise à jour forcée du mot de passe"
+  },
+  "29": {
+    "other": "Entrez le nouveau mot de passe pour cet utilisateur"
+  },
+  "3": {
+    "other": "Info du compte"
+  },
+  "30": {
+    "other": "Confirmez"
+  },
+  "31": {
+    "other": "ID rôle"
+  },
+  "31.hint": {
+    "other": "Identifiant (vide pour génération automatique)"
+  },
+  "31.exists": {
+    "other": "Cet identifiant existe déjà"
+  },
+  "32": {
+    "other": "Libellé"
+  },
+  "33": {
+    "other": "Appliquer automatiquement aux utilisateurs de type..."
+  },
+  "34": {
+    "other": "ID groupe"
+  },
+  "35": {
+    "other": "Libellé"
+  },
+  "36": {
+    "other": "désactivé"
+  },
+  "37": {
+    "other": "Exclure"
+  },
+  "38": {
+    "other": "hérité"
+  },
+  "workspace.roots.invalid": {
+    "other": "noeuds racines non-valides"
+  },
+  "39": {
+    "other": "Désactiver"
+  },
+  "4": {
+    "other": "Accès"
+  },
+  "40": {
+    "other": "Activer"
+  },
+  "41": {
+    "other": "Supprimer"
+  },
+  "42": {
+    "other": "Données du rôle"
+  },
+  "43": {
+    "other": "Sélectionner un ou plusieurs"
+  },
+  "44": {
+    "other": "Paramètres avancés de plugins"
+  },
+  "45": {
+    "other": "Contrôle d'accès"
+  },
+  "46": {
+    "other": "Actions désactivées"
+  },
+  "47": {
+    "other": "Rechercher dans les rôles"
+  },
+  "5": {
+    "other": "Actions"
+  },
+  "6": {
+    "other": "Paramètres"
+  },
+  "7": {
+    "other": "Données internes"
+  },
+  "8": {
+    "other": "Informations personnelles"
+  },
+  "9": {
+    "other": "Sélectionnez les workspaces auxquels les utilisateurs ayant ce rôle auront accès. Utilisez la valeur 'Exclure' pour soit écraser un droit donné par un autre rôle, ou définitivement interdire l'accès à ce workspace pour les rôles hérités."
+  },
+  "dashboard.description": {
+    "other": "Les Roles sont des conteneurs permettant de définir des contrôles d'accès ou des paramètres spécifiques, qui peuvent ensuite être appliqués à n'importe quel utilisateur."
+  },
+  "dashboard.technical.hide": {
+    "other": "Masquer les rôles techniques"
+  },
+  "dashboard.technical.show": {
+    "other": "Montrer les rôles techniques"
+  },
+  "dashboard.filterByType": {
+    "other": "Filtrer par type..."
+  },
+  "dashboard.filterSelectOne": {
+    "other": "Veuillez sélectionner au moins un élément dans la liste"
+  },
+  "roleType": {
+    "other": "Type de rôle"
+  },
+  "roleType.description": {
+    "other": "Les rôles standards sont attribués par les administrateurs, tandis que les équipes sont gérées par les utilisateurs via leur carnet d'adresses. Les rôles techniques sont attachés automatiquement à chaque utilisateur et groupe et leur type ne peut pas être modifié."
+  },
+  "roleType.admin": {
+    "other": "Standard"
+  },
+  "roleType.admin.description": {
+    "other": "Rôle standard"
+  },
+  "roleType.IsTeam": {
+    "other": "Equipe"
+  },
+  "roleType.IsTeam.description": {
+    "other": "Équipe (visible dans le carnet d'adresses des utilisateurs)"
+  },
+  "roleType.IsUserRole": {
+    "other": "[Tech] Utilisateur"
+  },
+  "roleType.IsUserRole.description": {
+    "other": "[Technique] Créé automatiquement pour chaque utilisateur"
+  },
+  "roleType.IsGroupRole": {
+    "other": "[Tech] Groupe"
+  },
+  "roleType.IsGroupRole.description": {
+    "other": "[Technique] Créé automatiquement pour chaque groupe"
+  },
+  "dashboard.typeFilter.admin": {
+    "other": "Rôles standards"
+  },
+  "dashboard.typeFilter.IsTeam": {
+    "other": "Équipes définies par les utilisateurs"
+  },
+  "dashboard.typeFilter.IsUserRole": {
+    "other": "[Tech] Attachés à chaque utilisateur"
+  },
+  "dashboard.typeFilter.IsGroupRole": {
+    "other": "[Tech] Attachés à chaque groupe"
+  },
+  "last_update": {
+    "other": "Dernière modification"
+  },
+  "role.id.description": {
+    "other": "Identifiant unique de ce rôle (ne peut pas être modifié)."
+  },
+  "role.label.description": {
+    "other": "Libellé du rôle."
+  },
+  "role.autoapply.description": {
+    "other": "Ce rôle est toujours appliqué aux utilisateurs ayant ce(s) profil(s)."
+  },
+  "role.override.label": {
+    "other": "Toujours écraser"
+  },
+  "role.override.description": {
+    "other": "Le rôle est toujours appliqué en dernier, après les autres rôles, à l'exception du rôle utilisateur qui prévaut."
+  },
+  "user.info.main": {
+    "other": "Survoler les champs pour afficher l'explication"
+  },
+  "button.info.menu.security": {
+    "other": "Options de sécurité"
+  }
+}

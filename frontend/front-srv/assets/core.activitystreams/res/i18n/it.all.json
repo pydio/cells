@@ -8,6 +8,9 @@
   "11": {
     "other": "Attività File"
   },
+  "11b": {
+    "other": "Activity"
+  },
   "12": {
     "other": "A seconda del browser utilizzato, potrebbe essere richiesto un permesso speciale. Per disabilitare, accedere alle preferenze del browser. Se questa funzionalità è già stata attivata, probabilmente non accadrà nulla."
   },
@@ -58,5 +61,8 @@
   },
   "9": {
     "other": "Attività sul Workspace"
+  },
+  "tasks.subheader": {
+    "other": "Running Tasks"
   }
 }

@@ -1,0 +1,239 @@
+{
+  "1": {
+    "other": "パラメータがありません"
+  },
+  "10": {
+    "other": "書き込み専用"
+  },
+  "11": {
+    "other": "拒否"
+  },
+  "12": {
+    "other": "アクセスできません"
+  },
+  "13": {
+    "other": "パラメータまたはアクションを検索"
+  },
+  "14": {
+    "other": "パラメータまたはアクションを選択"
+  },
+  "15": {
+    "other": "パラメータまたはアクションを1つ選択し、追加をクリックします。 下のテキストフィールドを使用して、パラメータをすばやく検索できます。"
+  },
+  "16": {
+    "other": "継承された項目を表示/非表示"
+  },
+  "17": {
+    "other": "パラメータまたはアクションを追加"
+  },
+  "18": {
+    "other": "プラグインの設定"
+  },
+  "19": {
+    "other": "常に上書き"
+  },
+  "2": {
+    "other": "有効化"
+  },
+  "21": {
+    "other": "リロード中..."
+  },
+  "22": {
+    "other": "アクションキャッシュを読み込んでいます、しばらくお待ちください、これは一度だけ行われます..."
+  },
+  "23": {
+    "other": "パラメータキャッシュを読み込んでいます、しばらくお待ちください、これは一度だけ行われます..."
+  },
+  "24": {
+    "other": "Account"
+  },
+  "25": {
+    "other": "アクセス制限"
+  },
+  "26": {
+    "other": "グループ情報"
+  },
+  "27": {
+    "other": "グループ情報"
+  },
+  "28": {
+    "other": "ロール情報"
+  },
+  "29": {
+    "other": "ロール情報"
+  },
+  "3": {
+    "other": "無効"
+  },
+  "30": {
+    "other": "プロファイルとロール"
+  },
+  "31": {
+    "other": "ユーザー固有の識別子。この値は変更できません。"
+  },
+  "32": {
+    "other": "特定のプロファイル。いくつかのロールが自動的に適用されたことを意味します。"
+  },
+  "33": {
+    "other": "閉じる"
+  },
+  "34": {
+    "other": "アクセスコントロール"
+  },
+  "35": {
+    "other": "Workspaces"
+  },
+  "36": {
+    "other": "Pages"
+  },
+  "37": {
+    "other": "パラメータのカスタマイズ"
+  },
+  "38": {
+    "other": "アプリケーションのパラメータ"
+  },
+  "39": {
+    "other": "すべてのワークスペースパラメータ"
+  },
+  "4": {
+    "other": "値をクリア"
+  },
+  "40": {
+    "other": "ワークスペースごとのパラメータ"
+  },
+  "41": {
+    "other": "追加パラメータ"
+  },
+  "42": {
+    "other": "アプリケーションパラメータの値を調整し、現在のロールのプラグインアクションを選択的に無効にします。 ここでのパラメータは、アプリケーションのグローバルなパラメータ(認証、構成など) です。ワークスペース固有のパラメータ/アクションについては、ワークスペースタブを参照してください。"
+  },
+  "43": {
+    "other": "現在のロール/ユーザー/グループのワークスペースへのアクセスを許可"
+  },
+  "permissions.legend.user": {
+    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+  },
+  "permissions.legend.group": {
+    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+  },
+  "permissions.legend.role": {
+    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
+  },
+  "44": {
+    "other": "アプリケーションのメインページ"
+  },
+  "45": {
+    "other": "メインアプリケーションページ(マイアカウント、ウェルカムページなど) へのアクセス"
+  },
+  "application-params.title": {
+    "other": "Parameters and actions"
+  },
+  "application-params.legend": {
+    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "As a general rule, this should be managed at role level, not user level!"
+  },
+  "49": {
+    "other": "共有"
+  },
+  "5": {
+    "other": "値を上書き"
+  },
+  "50": {
+    "other": "共有ファイルとフォルダ"
+  },
+  "51": {
+    "other": "このユーザーと"
+  },
+  "52": {
+    "other": "このユーザーが作成した Cells と公開リンク"
+  },
+  "53": {
+    "other": "%1 がワークスペース %2 内から共有しました"
+  },
+  "54": {
+    "other": "User informations and security actions. Hover fields in the form below to display explanations."
+  },
+  "55": {
+    "other": "プロファイルとロールを切り替えて、このユーザーに権限を自動的に付与します。"
+  },
+  "6": {
+    "other": "値を保存"
+  },
+  "7": {
+    "other": "アクション %s"
+  },
+  "8": {
+    "other": "読み込みと書き込み"
+  },
+  "9": {
+    "other": "読み込み専用"
+  },
+  "roles.picker.title": {
+    "other": "ユーザーロールの管理"
+  },
+  "roles.picker.add": {
+    "other": "Add role"
+  },
+  "roles.picker.hint": {
+    "other": "Start typing to search roles..."
+  },
+  "roles.picker.effective": {
+    "other": "Effective role for %s"
+  },
+  "parameters.scope.selector.title": {
+    "other": "追加..."
+  },
+  "parameters.scope.all": {
+    "other": "すべてのワークスペース"
+  },
+  "parameters.scope.shared": {
+    "other": "共有された Cells のみ"
+  },
+  "parameters.scope.workspace": {
+    "other": "ワークスペース %s"
+  },
+  "parameters.custom.add": {
+    "other": "カスタムパラメータまたはアクションを追加"
+  },
+  "parameters.empty": {
+    "other": "パラメータやアクションがありません"
+  },
+  "workspace.statics.home.title": {
+    "other": "ホームページ"
+  },
+  "workspace.statics.home.description": {
+    "other": "ログイン後に表示されるウェルカムページ"
+  },
+  "workspace.statics.directory.title": {
+    "other": "ディレクトリ"
+  },
+  "workspace.statics.directory.description": {
+    "other": "アドレス帳全ページを表示 (Mui3 Themeで使用)"
+  },
+  "workspace.statics.settings.title": {
+    "other": "管理コンソール"
+  },
+  "workspace.statics.settings.description": {
+    "other": "Pydio Cells管理ダッシュボード"
+  },
+  "acls.rights.policy.manual": {
+    "other": "権限は手動で設定"
+  },
+  "acls.rights.advanced.root": {
+    "other": "ワークスペース全体"
+  },
+  "section.user-info": {
+    "other": "User Info"
+  },
+  "section.permissions": {
+    "other": "Permissions"
+  },
+  "section.security": {
+    "other": "Security"
+  },
+  "section.advanced": {
+    "other": "Advanced"
+  }
+}

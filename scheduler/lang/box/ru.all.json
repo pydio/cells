@@ -24,10 +24,13 @@
     "other": "Автоматическое архивирование службы изменений"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "Очистить или передать данные пользователя при удалении"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "Очистите осиротевшие файлы через 24 часа"
+  },
+  "Jobs.Default.CleanExpiredACLs": {
+    "other": "Очистить просроченные ACL после 10 дней"
   },
   "Jobs.User.Compress": {
     "other": "Сжатие выделенного..."
@@ -60,7 +63,7 @@
     "other": "Перемещение в корзину в фоновом режиме..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Sync datasource {{.DsName}} then rehash new files"
+    "other": "Синхронизировать источник данных {{.DsName}} и перехешировать новые файлы"
   },
   "Jobs.User.Wget": {
     "other": "Загрузка файла в фоновом режиме..."

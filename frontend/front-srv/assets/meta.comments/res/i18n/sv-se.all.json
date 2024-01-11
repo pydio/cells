@@ -1,6 +1,6 @@
 {
   "1": {
-    "other": "Comments"
+    "other": "Kommentarer"
   },
   "2": {
     "other": "Enter your comment here"
@@ -9,9 +9,9 @@
     "other": "Post"
   },
   "4": {
-    "other": "Go to %s"
+    "other": "Gå till %s"
   },
   "empty-state": {
-    "other": "No comments"
+    "other": "Inga kommentarer"
   }
 }

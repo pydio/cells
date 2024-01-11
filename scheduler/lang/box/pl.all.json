@@ -18,16 +18,19 @@
     "other": "Tworzenie losowych użytkowników (do testowania)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "Sample RPC job (for testing purpose)"
+    "other": "Przykładowe zadanie RPC (do celów testowych)"
   },
   "Jobs.Default.ArchiveJobs": {
     "other": "Usługa automatycznego archiwizowania zmian"
   },
   "Jobs.Default.CleanUserData": {
-    "other": "Clean or transfer user data on deletion"
+    "other": "Wyczyść lub prześlij dane użytkownika podczas usuwania"
   },
   "Jobs.Default.CleanOrphanFiles": {
-    "other": "Clean orphan files after 24h"
+    "other": "Wyczyść osierocone pliki po 24 godzinach"
+  },
+  "Jobs.Default.CleanExpiredACLs": {
+    "other": "Wyczyść wygasłe listy ACL po 10 dniach"
   },
   "Jobs.User.Compress": {
     "other": "Kompresowanie zaznaczenia..."
@@ -60,7 +63,7 @@
     "other": "Przenoszenie do kosza w tle..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Sync datasource {{.DsName}} then rehash new files"
+    "other": "Synchronizuj plik datasource {{.DsName}} i zahashuj nowe pliki"
   },
   "Jobs.User.Wget": {
     "other": "Pobieranie pliku w tle..."

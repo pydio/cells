@@ -25,6 +25,7 @@ import 'dayjs/locale/tr'
 import 'dayjs/locale/zh-cn'
 import 'dayjs/locale/zh-tw'
 
+import updateLocale from 'dayjs/plugin/updateLocale'
 import calendar from 'dayjs/plugin/calendar'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import utc from 'dayjs/plugin/utc'
@@ -32,6 +33,7 @@ import localeData from 'dayjs/plugin/localeData'
 import duration from 'dayjs/plugin/duration'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 
+dayjs.extend(updateLocale)
 dayjs.extend(calendar);
 dayjs.extend(relativeTime)
 dayjs.extend(utc)

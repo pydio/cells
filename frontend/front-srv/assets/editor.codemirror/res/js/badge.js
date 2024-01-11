@@ -20,7 +20,7 @@
 
 import React, {Component} from 'react'
 import PathUtils from 'pydio/util/path'
-import Markdown from "react-markdown-latest";
+import Markdown from "react-markdown";
 import RemarkGFM from "remark-gfm";
 
 import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -82,7 +82,7 @@ class MdBadge extends Component{
 
     render(){
 
-        const {pydio, node, mimeFontStyle, muiTheme} = this.props;
+        const {pydio, node, mimeFontStyle, containerWidth, muiTheme} = this.props;
         const {content} = this.state;
         const ext = PathUtils.getFileExtension(node.getPath())
         if(content) {
@@ -105,7 +105,7 @@ class MdBadge extends Component{
             return (
                 <div style={{width:'100%', backgroundColor:'var(--md-sys-color-surface)', fontSize: 'initial', lineHeight:'initial', textAlign:'initial', overflowY: 'auto', zoom: 0.8}}>
                     {component}
-                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:biggerCss(ext)}}/>
+                    {!containerWidth && <style type={"text/css"} dangerouslySetInnerHTML={{__html:biggerCss(ext)}}/>}
                 </div>
             )
         } else {

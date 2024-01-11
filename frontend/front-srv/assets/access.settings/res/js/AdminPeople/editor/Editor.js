@@ -20,10 +20,8 @@
 
 
 import PropTypes from 'prop-types';
-
-
 import Pydio from 'pydio';
-const {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader, PluginsLoader, AdminStyles} = AdminComponents;
+const {PaperEditorLayout, PluginsLoader, AdminStyles} = AdminComponents;
 
 import Role from './model/Role'
 import User from './model/User'
@@ -40,6 +38,7 @@ import UserInfo from './info/UserInfo'
 import GroupInfo from './info/GroupInfo'
 
 import ParametersPanel from './params/ParametersPanel'
+import UserRolesPicker from "./user/UserRolesPicker";
 
 class Editor extends React.Component{
 
@@ -51,7 +50,7 @@ class Editor extends React.Component{
             this.state = {
                 idmRole : props.idmRole,
                 roleType: "role",
-                currentPane:'info'
+                currentPane:'workspaces'
             };
             this.loadRoleData(true);
         }
@@ -70,7 +69,7 @@ class Editor extends React.Component{
                 this.setState({
                     idmRole : newProps.idmRole,
                     roleType: "role",
-                    currentPane:'info'
+                    currentPane:'workspaces'
                 }, () => {
                     this.loadRoleData(true);
                 });
@@ -112,7 +111,6 @@ class Editor extends React.Component{
         this._websocketObserver = (event) => {
             if(event.User && event.Type === 'UPDATE' && event.User.Uuid === idmUser.Uuid) {
                 if(event.Attributes && event.Attributes['ctx_username'] === pydio.user.id) {
-                    console.log('ignore change coming from same user')
                     return
                 }
                 const {observableUser} = this.state;
@@ -135,7 +133,7 @@ class Editor extends React.Component{
             roleLabel:PathUtils.getBasename(node.getPath()),
             roleType:scope,
             dirty:false,
-            currentPane:'info',
+            currentPane:scope === 'user' ? 'info' : 'workspaces',
             localModalContent:{},
         };
     }
@@ -198,41 +196,120 @@ class Editor extends React.Component{
         this.setState({snackOpen:false});
     }
 
+    buildGroupPath(roleId = undefined) {
+        let {node, dataModel} = this.props;
+        if(!node.getParent()) {
+            // Node may have been detached, lookup in datamodel
+            node = node.findInArbo(dataModel.getRootNode())
+            if(!node) {
+                return '' // cannot find parent node
+            }
+        }
+        let parts = []
+        while(node.getParent()) {
+            const parent = node.getParent()
+            if(roleId && parent.getMetadata().has('IdmUser') && parent.getMetadata().get('IdmUser').Uuid === roleId) {
+                parts = []
+            }
+            if(parent.getPath() === '/idm/users') {
+                break
+            }
+            parts.push(parent.getLabel())
+            node = parent
+        }
+        parts.push('')
+        return parts.reverse().join("/")
+    }
+
+
 
     render(){
-        const {advancedAcl, pydio, muiTheme} = this.props;
-
-        const {observableRole, observableUser, pluginsRegistry, currentPane, modal} = this.state;
+        const {advancedAcl, pydio, node, dataModel, muiTheme} = this.props;
+        const {observableRole, observableUser, pluginsRegistry, currentPane, modal, roleType} = this.state;
 
         let title = '', infoTitle = '';
-        let infoMenuTitle = this.getMessage('24'); // user information
+        let leftNavItems;
         let otherForm;
         let pagesShowSettings = false;
+        let hiddenUser;
+        let headerIcon = 'account-circle'
 
-        if(this.state.roleType === 'user') {
+        if(roleType === 'user') {
 
             const idmUser = observableUser.getIdmUser();
             title = (idmUser.Attributes && idmUser.Attributes['displayName']) ? idmUser.Attributes['displayName'] : idmUser.Login;
+            hiddenUser = idmUser.Attributes && idmUser.Attributes['hidden'] === 'true'
+
+            if(idmUser.GroupPath !== '' && idmUser.GroupPath !== '/') {
+                title = (
+                    <div>
+                        <div>{title}</div>
+                        <div style={{fontSize: 13, lineHeight: '18px', opacity: 0.7}}>{this.buildGroupPath()}</div>
+                    </div>
+                )
+            }
             pagesShowSettings = idmUser.Attributes['profile'] === 'admin';
-            otherForm = <UserInfo user={observableUser} pydio={pydio} pluginsRegistry={pluginsRegistry}/>
+            otherForm = <UserInfo user={observableUser} pydio={pydio} pluginsRegistry={pluginsRegistry} adminStyles={AdminStyles(muiTheme.palette)}/>
+            leftNavItems=[
+                {subHeader: this.getMessage('section.user-info')},
+                {value: "info", label:this.getMessage('24'), icon:'mdi mdi-account-circle'},
+                {value: "workspaces", label:this.getMessage('section.permissions'), icon: 'mdi mdi-folder-lock-open-outline'},
+                {subHeader: this.getMessage('section.advanced')},
+                {value: "pages", label:this.getMessage('36'), icon:'mdi mdi-folder-home-outline'},
+                {value: "params", label:this.getMessage('38'), icon: 'mdi mdi-book-settings-outline'},
+            ]
+            if(hiddenUser) {
+                leftNavItems=[
+                    {subHeader: "User Info"},
+                    {value: "info", label:this.getMessage('24'), icon:'mdi mdi-account-circle'},
+                ]
+            }
 
-        }else if(this.state.roleType === 'group'){
 
+        }else if(roleType === 'group'){
+
+            headerIcon = 'folder-account'
             infoTitle = this.getMessage('26'); // group information
-            infoMenuTitle = this.getMessage('27');
             title = observableUser.getIdmUser().GroupLabel;
             if(observableUser.getIdmUser().Attributes && observableUser.getIdmUser().Attributes['displayName']){
                 title = observableUser.getIdmUser().Attributes['displayName'];
             }
-            otherForm = <GroupInfo group={observableUser} pydio={pydio} pluginsRegistry={pluginsRegistry}/>
+            otherForm = <GroupInfo group={observableUser} pydio={pydio} pluginsRegistry={pluginsRegistry} adminStyles={AdminStyles(muiTheme.palette)}/>
+            leftNavItems=[
+                {subHeader: this.getMessage('section.permissions')},
+                {value: "workspaces", label:this.getMessage('35'), icon: 'mdi mdi-folder-lock-open-outline'},
+                {value: "pages", label:this.getMessage('36'), icon:'mdi mdi-folder-home-outline'},
+                {value: "params", label:this.getMessage('38'), icon: 'mdi mdi-book-settings-outline'},
+                {subHeader: this.getMessage('section.advanced')},
+                {value: "info", label:this.getMessage('27'), icon:'mdi mdi-account-circle'},
+            ]
 
-        }else if(this.state.roleType === 'role'){
 
-            title = observableRole ? observableRole.getIdmRole().Label : '...';
+        }else if(roleType === 'role'){
+
+            const idmRole = observableRole && observableRole.getIdmRole()
+            title = idmRole ? idmRole.Label : '...';
+            headerIcon = 'card-account-details-outline'
+            if(idmRole) {
+                if(idmRole.IsTeam) {
+                    headerIcon = 'account-group-outline'
+                } else if(idmRole.UserRole) {
+                    headerIcon = 'clipboard-account'
+                } else if (idmRole.GroupRole) {
+                    headerIcon = 'folder-account'
+                }
+            }
             infoTitle = this.getMessage('28'); // role information
-            infoMenuTitle = this.getMessage('29');
             pagesShowSettings = true;
-            otherForm = <RoleInfo role={observableRole} pydio={pydio} pluginsRegistry={pluginsRegistry}/>
+            otherForm = <RoleInfo role={observableRole} pydio={pydio} pluginsRegistry={pluginsRegistry} adminStyles={AdminStyles(muiTheme.palette)}/>
+            leftNavItems=[
+                {subHeader: this.getMessage('section.permissions')},
+                {value: "workspaces", label:this.getMessage('35'), icon: 'mdi mdi-folder-lock-open-outline'},
+                {value: "pages", label:this.getMessage('36'), icon:'mdi mdi-folder-home-outline'},
+                {value: "params", label:this.getMessage('38'), icon: 'mdi mdi-book-settings-outline'},
+                {subHeader: this.getMessage('section.advanced')},
+                {value: "info", label:this.getMessage('29'), icon:'mdi mdi-account-circle'},
+            ]
 
         }
 
@@ -253,13 +330,6 @@ class Editor extends React.Component{
             PaperEditorLayout.actionButton(this.getRootMessage('53'), "mdi mdi-content-save", save, saveDisabled)
         ];
 
-        const leftNavItems=[
-            {value: "info", label:infoMenuTitle},
-            {value: "workspaces", label:this.getMessage('35')},
-            {value: "pages", label:this.getMessage('36')},
-            {value: "params", label:this.getMessage('38')},
-        ]
-
         let panes = [];
         const classFor = key => currentPane === key ? 'layout-fill' : '';
         const styleFor = key => currentPane === key ? {overflowY: 'auto', overflowX: 'hidden'} : {height: 0, overflow: 'hidden'};
@@ -271,55 +341,62 @@ class Editor extends React.Component{
         );
 
         if(currentPane === 'workspaces') {
+
             panes.push(
                 <div key="workspaces" className={classFor('workspaces')} style={styleFor('workspaces')}>
                     <h3 className="paper-right-title">
                         {this.getRootMessage('250')}
-                        <div className="section-legend">{this.getMessage('43')}</div>
-                        <div className="read-write-header">
+                        <div className="section-legend">{this.getMessage('permissions.legend.' + roleType)}</div>
+                    </h3>
+                    {roleType === 'user' && observableUser && observableUser.getIdmUser() &&
+                        <UserRolesPicker node={node} dataModel={dataModel} user={observableUser} buildGroupPath={this.buildGroupPath.bind(this)}/>
+                    }
+                    <div className={"paper-right-block"}>
+                        <div className="read-write-header" style={{textAlign: 'right', paddingRight: 16}}>
                             <span className="header-read">{this.getMessage('react.5a','ajxp_admin')}</span>
                             <span className="header-write">{this.getMessage('react.5b','ajxp_admin')}</span>
                             <span className="header-deny">{this.getMessage('react.5','ajxp_admin')}</span>
                         </div>
-                        <br/>
-                    </h3>
-                    <WorkspacesAcls
-                        key="workspaces-list"
-                        role={observableUser ? observableUser.getRole() : observableRole}
-                        roleType={this.state.roleType}
-                        advancedAcl={advancedAcl}
-                        showModal={this.showModal.bind(this)}
-                        hideModal={this.hideModal.bind(this)}
-                    />
+                        <WorkspacesAcls
+                            key="workspaces-list"
+                            role={observableUser ? observableUser.getRole() : observableRole}
+                            roleType={this.state.roleType}
+                            advancedAcl={advancedAcl}
+                            showModal={this.showModal.bind(this)}
+                            hideModal={this.hideModal.bind(this)}
+                        />
+                    </div>
                 </div>
             );
         } else if (currentPane === 'pages') {
+
             panes.push(
                 <div key="pages" className={classFor('pages')} style={styleFor('pages')}>
                     <h3 className="paper-right-title">
                         {this.getMessage('44')}
                         <div className="section-legend">{this.getMessage('45')}</div>
-                        <div className="read-write-header">
-                            <span className="header-read">{this.getMessage('react.5a','ajxp_admin')}</span>
-                            <span className="header-write">{this.getMessage('react.5b','ajxp_admin')}</span>
+                    </h3>
+                    <div className={"paper-right-block"}>
+                        <div className="read-write-header" style={{textAlign: 'right', paddingRight: 16}}>
+                            <span className="header-read">{this.getMessage('react.5c','ajxp_admin')}</span>
                             <span className="header-deny">{this.getMessage('react.5','ajxp_admin')}</span>
                         </div>
-                        <br/>
-                    </h3>
-                    <PagesAcls
-                        key="pages-list"
-                        role={observableUser ? observableUser.getRole() : observableRole}
-                        roleType={this.state.roleType}
-                        advancedAcl={advancedAcl}
-                        showModal={this.showModal.bind(this)}
-                        hideModal={this.hideModal.bind(this)}
-                        showSettings={pagesShowSettings}
-                        pydio={pydio}
-                    />
+                        <PagesAcls
+                            key="pages-list"
+                            role={observableUser ? observableUser.getRole() : observableRole}
+                            roleType={this.state.roleType}
+                            advancedAcl={advancedAcl}
+                            showModal={this.showModal.bind(this)}
+                            hideModal={this.hideModal.bind(this)}
+                            showSettings={pagesShowSettings}
+                            pydio={pydio}
+                        />
+                    </div>
                 </div>
             );
 
         } else if(currentPane === 'params') {
+
             panes.push(
                 <div key="params" className={classFor('params')} style={styleFor('params')}>
                     <ParametersPanel
@@ -342,7 +419,7 @@ class Editor extends React.Component{
         return (
             <PaperEditorLayout
                 title={title}
-                titleLeftIcon={"mdi mdi-account"}
+                titleLeftIcon={"mdi mdi-" + headerIcon}
                 titleActionBar={rightButtons}
                 closeAction={() => {this.props.onRequestTabClose();}}
                 contentFill={true}

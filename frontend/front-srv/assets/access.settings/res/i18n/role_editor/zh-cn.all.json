@@ -1,0 +1,251 @@
+{
+  "1": {
+    "other": "角色编辑器"
+  },
+  "10": {
+    "other": "使用下面的选择器来选择您想要禁用此角色的用户的动作。 您可以选择禁用所有资料库的操作，或者只禁用特定的工作区。"
+  },
+  "11": {
+    "other": "插件标识符"
+  },
+  "12": {
+    "other": "选择插件..."
+  },
+  "12a": {
+    "other": "选择动作..."
+  },
+  "12b": {
+    "other": "选择参数..."
+  },
+  "12c": {
+    "other": "选择一个或所有工作区..."
+  },
+  "12d": {
+    "other": "所有工作区"
+  },
+  "12e": {
+    "other": "共享工作区"
+  },
+  "13": {
+    "other": "动作名称"
+  },
+  "14": {
+    "other": "资料库范围"
+  },
+  "15": {
+    "other": "添加操作"
+  },
+  "16": {
+    "other": "使用下面的选择器来选择您想要为此角色的用户设置的参数。 可以应用于所有或仅一个给定工作区，尽管这可能取决于插件上下文。"
+  },
+  "17": {
+    "other": "参数名称"
+  },
+  "18": {
+    "other": "添加参数"
+  },
+  "19": {
+    "other": "有未保存的更改，您确定要关闭吗？"
+  },
+  "2": {
+    "other": "角色编辑器"
+  },
+  "20": {
+    "other": "角色更新成功"
+  },
+  "21": {
+    "other": "用户 ID"
+  },
+  "22": {
+    "other": "资料"
+  },
+  "23": {
+    "other": "默认工作区"
+  },
+  "24": {
+    "other": "用户角色"
+  },
+  "25": {
+    "other": "更改密码"
+  },
+  "26": {
+    "other": "锁定用户"
+  },
+  "27": {
+    "other": "重新激活用户"
+  },
+  "28": {
+    "other": "强制更改密码"
+  },
+  "28b": {
+    "other": "取消密码更改"
+  },
+  "29": {
+    "other": "为此用户输入新密码"
+  },
+  "3": {
+    "other": "帐户信息"
+  },
+  "30": {
+    "other": "确认"
+  },
+  "31": {
+    "other": "角色 ID"
+  },
+  "31.hint": {
+    "other": "角色 ID (空为自动生成)"
+  },
+  "31.exists": {
+    "other": "标识符已存在"
+  },
+  "32": {
+    "other": "角色标签"
+  },
+  "33": {
+    "other": "自动应用于具有配置文件的用户..."
+  },
+  "34": {
+    "other": "组 ID"
+  },
+  "35": {
+    "other": "组标签"
+  },
+  "36": {
+    "other": "已锁定"
+  },
+  "37": {
+    "other": "拒绝"
+  },
+  "38": {
+    "other": "继承的"
+  },
+  "workspace.roots.invalid": {
+    "other": "无效的根"
+  },
+  "39": {
+    "other": "禁用"
+  },
+  "4": {
+    "other": "ACL"
+  },
+  "40": {
+    "other": "启用"
+  },
+  "41": {
+    "other": "删除"
+  },
+  "42": {
+    "other": "角色自定义数据"
+  },
+  "43": {
+    "other": "选择一个或更多"
+  },
+  "44": {
+    "other": "插件参数微调"
+  },
+  "45": {
+    "other": "访问控制列表"
+  },
+  "46": {
+    "other": "禁用的操作"
+  },
+  "47": {
+    "other": "搜索角色"
+  },
+  "5": {
+    "other": "动作"
+  },
+  "6": {
+    "other": "参数"
+  },
+  "7": {
+    "other": "内部数据"
+  },
+  "8": {
+    "other": "个人信息"
+  },
+  "9": {
+    "other": "选择具有此角色的用户将有权访问的工作区。 使用“拒绝”值可以覆盖先前角色设置的值，或者明确拒绝访问此工作区，甚至拒绝继承的角色。"
+  },
+  "dashboard.description": {
+    "other": "角色是访问列表的容器，用于授予对任何工作区的访问权限或自定义参数和操作。 它们可以手动分配给任何用户。"
+  },
+  "dashboard.technical.hide": {
+    "other": "隐藏技术角色"
+  },
+  "dashboard.technical.show": {
+    "other": "显示技术角色"
+  },
+  "dashboard.filterByType": {
+    "other": "按类型筛选..."
+  },
+  "dashboard.filterSelectOne": {
+    "other": "请在列表中至少选择一种角色类型"
+  },
+  "roleType": {
+    "other": "角色类型"
+  },
+  "roleType.description": {
+    "other": "标准角色由管理员分配，而团队由地址簿中的用户管理。 技术角色会自动附加到每个用户和组，在这种情况下，无法修改其类型。"
+  },
+  "roleType.admin": {
+    "other": "标准"
+  },
+  "roleType.admin.description": {
+    "other": "标准角色"
+  },
+  "roleType.IsTeam": {
+    "other": "团队"
+  },
+  "roleType.IsTeam.description": {
+    "other": "团队(在地址簿中显示为团队)"
+  },
+  "roleType.IsUserRole": {
+    "other": "[技术] 用户"
+  },
+  "roleType.IsUserRole.description": {
+    "other": "[技术] 自动为相应的用户创建"
+  },
+  "roleType.IsGroupRole": {
+    "other": "[技术] 组"
+  },
+  "roleType.IsGroupRole.description": {
+    "other": "[技术] 自动为相应组创建"
+  },
+  "dashboard.typeFilter.admin": {
+    "other": "标准角色"
+  },
+  "dashboard.typeFilter.IsTeam": {
+    "other": "用户定义的团队"
+  },
+  "dashboard.typeFilter.IsUserRole": {
+    "other": "[技术] 附各用户"
+  },
+  "dashboard.typeFilter.IsGroupRole": {
+    "other": "[技术] 附各组"
+  },
+  "last_update": {
+    "other": "上次更新"
+  },
+  "role.id.description": {
+    "other": "该角色的独特 ID(无法更改)。"
+  },
+  "role.label.description": {
+    "other": "人类可读的标签。"
+  },
+  "role.autoapply.description": {
+    "other": "角色始终应用于具有此配置文件的用户。"
+  },
+  "role.override.label": {
+    "other": "总是覆盖"
+  },
+  "role.override.description": {
+    "other": "角色总是在其他角色之后最后应用，除了仍然占主导地位的用户角色。"
+  },
+  "user.info.main": {
+    "other": "将鼠标悬停在字段上可显示说明"
+  },
+  "button.info.menu.security": {
+    "other": "安全行动"
+  }
+}

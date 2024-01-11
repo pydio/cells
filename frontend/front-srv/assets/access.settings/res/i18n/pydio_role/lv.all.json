@@ -1,0 +1,239 @@
+{
+  "1": {
+    "other": "Nav parametru"
+  },
+  "10": {
+    "other": "Tikai rakstīt"
+  },
+  "11": {
+    "other": "Aizliegts"
+  },
+  "12": {
+    "other": "Nav piekļuves"
+  },
+  "13": {
+    "other": "Meklēšanas parametri vai darbības"
+  },
+  "14": {
+    "other": "Paņemt parametru vai darbību"
+  },
+  "15": {
+    "other": "Paņemt vienu parametru vai darbību un nospiest Pievienot. Jūs varat ātri pārmeklēt parametrus izmantojot teksta meklēšanas lauku."
+  },
+  "16": {
+    "other": "Rādīt/slēpt mantotos"
+  },
+  "17": {
+    "other": "Pievienot parametru vai darbību"
+  },
+  "18": {
+    "other": "Spraudņu iestatījumi"
+  },
+  "19": {
+    "other": "vienmēr ignorē"
+  },
+  "2": {
+    "other": "Ieslēgts"
+  },
+  "21": {
+    "other": "pārlādē..."
+  },
+  "22": {
+    "other": "Ielādē darbību kešu, uzgaidiet, tas tiks veikts tikai vienu reizi..."
+  },
+  "23": {
+    "other": "Ielādē perametru kešu, uzgaidiet, tas tiks darīts tikai vienu reizi..."
+  },
+  "24": {
+    "other": "Account"
+  },
+  "25": {
+    "other": "Piekļuves liegumi"
+  },
+  "26": {
+    "other": "Grupas informācija"
+  },
+  "27": {
+    "other": "Grupas info"
+  },
+  "28": {
+    "other": "Lomas informācija"
+  },
+  "29": {
+    "other": "Lomas Info"
+  },
+  "3": {
+    "other": "Izslēgts"
+  },
+  "30": {
+    "other": "Profils un Lomas"
+  },
+  "31": {
+    "other": "Lietotāja unikāls identifikators. Šo vērtību nevar mainīt."
+  },
+  "32": {
+    "other": "Specifisks profils. Var iekļaut atsevišķas automātiskas lomas."
+  },
+  "33": {
+    "other": "Aizvērt"
+  },
+  "34": {
+    "other": "Piekļuves Kontrole"
+  },
+  "35": {
+    "other": "Workspaces"
+  },
+  "36": {
+    "other": "Pages"
+  },
+  "37": {
+    "other": "Pielāgot parametrus"
+  },
+  "38": {
+    "other": "Aplikāciju parametri"
+  },
+  "39": {
+    "other": "Visu darbvirsmu parametri"
+  },
+  "4": {
+    "other": "Notīrīt vērtību"
+  },
+  "40": {
+    "other": "Per-workspace parameters"
+  },
+  "41": {
+    "other": "Papildu parametri"
+  },
+  "42": {
+    "other": "Sašauriniet aplikāciju parametru vērtības un selektīvi izslēdziet spraudņu darbības attiecīgajai lomai. Parametri aplikācijai ir globāli (autentifikācija, konfigurācija, u. t. t.). Skatīt Darbvirsmu tabu priekšdarbvirsmai specifiskiem parametriem/darbībām."
+  },
+  "43": {
+    "other": "Ļaut piekļuvi darbvirsmām šai lomai/lietotājam/grupai"
+  },
+  "permissions.legend.user": {
+    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+  },
+  "permissions.legend.group": {
+    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+  },
+  "permissions.legend.role": {
+    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
+  },
+  "44": {
+    "other": "Galvenās aplikāciju lapas"
+  },
+  "45": {
+    "other": "Piekļuve galvenajām aplikāciju lapām (tādām kā Mans Konts, sākuma lapa, u.t.t.)"
+  },
+  "application-params.title": {
+    "other": "Parameters and actions"
+  },
+  "application-params.legend": {
+    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "As a general rule, this should be managed at role level, not user level!"
+  },
+  "49": {
+    "other": "Koplietotie dati"
+  },
+  "5": {
+    "other": "Ignorēt vērtību"
+  },
+  "50": {
+    "other": "Koplietotie faili un Direktorijas"
+  },
+  "51": {
+    "other": "Ar šo lietotāju"
+  },
+  "52": {
+    "other": "Šī lietotāja izveidotās šūnas un publiskās saites"
+  },
+  "53": {
+    "other": "Koplietojis %1 no darbvirsmas %2"
+  },
+  "54": {
+    "other": "User informations and security actions. Hover fields in the form below to display explanations."
+  },
+  "55": {
+    "other": "Pārslēgt profilu un lomas automātiski piešķirot atļaujas šim lietotājam."
+  },
+  "6": {
+    "other": "Saglabāt vērtību"
+  },
+  "7": {
+    "other": "Darbības %s"
+  },
+  "8": {
+    "other": "Lasīt un Rakstīt"
+  },
+  "9": {
+    "other": "Tikai lasīt"
+  },
+  "roles.picker.title": {
+    "other": "Pārvaldīt lietotāju lomas"
+  },
+  "roles.picker.add": {
+    "other": "Add role"
+  },
+  "roles.picker.hint": {
+    "other": "Start typing to search roles..."
+  },
+  "roles.picker.effective": {
+    "other": "Effective role for %s"
+  },
+  "parameters.scope.selector.title": {
+    "other": "Pievienot priekš ..."
+  },
+  "parameters.scope.all": {
+    "other": "Visas darbvirsmas"
+  },
+  "parameters.scope.shared": {
+    "other": "Tikai koplietotās šūnas"
+  },
+  "parameters.scope.workspace": {
+    "other": "Darbvirsma %s"
+  },
+  "parameters.custom.add": {
+    "other": "Pievienot pielāgotu parametru vai darbību"
+  },
+  "parameters.empty": {
+    "other": "Nav parametru vai darbību"
+  },
+  "workspace.statics.home.title": {
+    "other": "Sākumlapa"
+  },
+  "workspace.statics.home.description": {
+    "other": "Sākuma lapa kuru parāda pēc pieslēgšanās"
+  },
+  "workspace.statics.directory.title": {
+    "other": "Directory"
+  },
+  "workspace.statics.directory.description": {
+    "other": "Show address book full page (used by Mui3 Theme)"
+  },
+  "workspace.statics.settings.title": {
+    "other": "Administratora konsole"
+  },
+  "workspace.statics.settings.description": {
+    "other": "Pydio Cells administratora panelis"
+  },
+  "acls.rights.policy.manual": {
+    "other": "Tiesības piešķirtas manuāli"
+  },
+  "acls.rights.advanced.root": {
+    "other": "Visa darbvirsma"
+  },
+  "section.user-info": {
+    "other": "User Info"
+  },
+  "section.permissions": {
+    "other": "Permissions"
+  },
+  "section.security": {
+    "other": "Security"
+  },
+  "section.advanced": {
+    "other": "Advanced"
+  }
+}

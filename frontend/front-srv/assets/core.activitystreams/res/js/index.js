@@ -18,13 +18,26 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-export {default as InfoPanel} from "./InfoPanel";
-export {default as UserPanel} from "./UserPanel";
-export {default as ASClient} from "./Client";
-export {default as Activity} from "./Activity";
-export {default as ActivityList} from "./ActivityList";
-export {default as Listener} from './Listener'
-export {default as Callbacks} from './Callbacks'
-export {default as WatchSelector} from './WatchSelector'
-export {default as WatchSelectorMui3} from './WatchSelectorMui3'
-export {default as OverlayPanel} from './OverlayPanel'
+import InfoPanel from "./InfoPanel";
+import AS2Client from "./Client";
+import Activity from "./Activity";
+import ActivityList from "./ActivityList";
+import Listener from './Listener'
+import Callbacks from './Callbacks'
+import WatchSelector from './WatchSelector'
+import WatchSelectorMui3 from './WatchSelectorMui3'
+import OverlayPanel from './OverlayPanel'
+import UserPanel from './UserPanel'
+
+export {
+    InfoPanel,
+    AS2Client as ASClient,
+    Activity,
+    ActivityList,
+    Listener,
+    Callbacks,
+    WatchSelector,
+    WatchSelectorMui3,
+    OverlayPanel,
+    UserPanel
+}

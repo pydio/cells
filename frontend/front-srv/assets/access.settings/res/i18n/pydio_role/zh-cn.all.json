@@ -1,0 +1,239 @@
+{
+  "1": {
+    "other": "无参数"
+  },
+  "10": {
+    "other": "只写"
+  },
+  "11": {
+    "other": "拒绝"
+  },
+  "12": {
+    "other": "无访问"
+  },
+  "13": {
+    "other": "搜索参数或动作"
+  },
+  "14": {
+    "other": "选择参数或动作"
+  },
+  "15": {
+    "other": "选择一个参数或动作，然后点击“添加”。您可以使用下面的文本字段快速搜索参数。"
+  },
+  "16": {
+    "other": "显示/隐藏 继承的"
+  },
+  "17": {
+    "other": "添加参数或动作"
+  },
+  "18": {
+    "other": "插件设置"
+  },
+  "19": {
+    "other": "总是覆盖"
+  },
+  "2": {
+    "other": "已启用"
+  },
+  "21": {
+    "other": "重新加载..."
+  },
+  "22": {
+    "other": "正在加载操作缓存，请稍候，这将只完成一次..."
+  },
+  "23": {
+    "other": "正在加载参数缓存，请稍候，这将只完成一次..."
+  },
+  "24": {
+    "other": "帐户"
+  },
+  "25": {
+    "other": "访问限制"
+  },
+  "26": {
+    "other": "组信息"
+  },
+  "27": {
+    "other": "组信息"
+  },
+  "28": {
+    "other": "角色信息"
+  },
+  "29": {
+    "other": "角色信息"
+  },
+  "3": {
+    "other": "已禁用"
+  },
+  "30": {
+    "other": "个人资料和角色"
+  },
+  "31": {
+    "other": "用户独特标识符。 您不能修改此值。"
+  },
+  "32": {
+    "other": "具体简介。 可能意味着某些角色自动应用。"
+  },
+  "33": {
+    "other": "关闭"
+  },
+  "34": {
+    "other": "访问控制"
+  },
+  "35": {
+    "other": "工作区"
+  },
+  "36": {
+    "other": "页"
+  },
+  "37": {
+    "other": "自定义参数"
+  },
+  "38": {
+    "other": "应用程序参数"
+  },
+  "39": {
+    "other": "所有工作区参数"
+  },
+  "4": {
+    "other": "清除值"
+  },
+  "40": {
+    "other": "每个工作区参数"
+  },
+  "41": {
+    "other": "额外参数"
+  },
+  "42": {
+    "other": "优化应用程序参数值并有选择地禁用当前角色的插件操作。 这里的参数是全局的应用程序(认证、配置等)。请参阅工作区选项卡了解工作区特定的参数/操作。"
+  },
+  "43": {
+    "other": "允许当前角色/用户/组访问工作区"
+  },
+  "permissions.legend.user": {
+    "other": "为当前用户提供对工作区的访问权限，覆盖从用户角色继承的权限。 使用“管理角色”添加/删除角色并确定继承权限的来源。"
+  },
+  "permissions.legend.group": {
+    "other": "为当前组提供对工作区的访问权限。 这些权限将由属于该组的所有用户继承。"
+  },
+  "permissions.legend.role": {
+    "other": "提供对当前角色的工作区的访问权限。 这些权限将应用于已分配该角色的所有用户。"
+  },
+  "44": {
+    "other": "主应用程序页面"
+  },
+  "45": {
+    "other": "访问主应用程序页面 (例如我的帐户，欢迎页等)"
+  },
+  "application-params.title": {
+    "other": "参数和操作"
+  },
+  "application-params.legend": {
+    "other": "全局或按工作区修改 UX 参数并显示/隐藏特定角色的某些操作。"
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "作为一般规则，这应该在角色级别而不是用户级别进行管理！"
+  },
+  "49": {
+    "other": "共享"
+  },
+  "5": {
+    "other": "覆盖值"
+  },
+  "50": {
+    "other": "共享文件和文件夹"
+  },
+  "51": {
+    "other": "对于此用户"
+  },
+  "52": {
+    "other": "该用户创建的单元格和公共链接"
+  },
+  "53": {
+    "other": "%1 从工作区内分享的 %2"
+  },
+  "54": {
+    "other": "用户信息和安全操作。 将鼠标悬停在下面表单中的字段可显示说明。"
+  },
+  "55": {
+    "other": "切换配置文件和角色以自动授予此用户权限。"
+  },
+  "6": {
+    "other": "保存值"
+  },
+  "7": {
+    "other": "操作 %s"
+  },
+  "8": {
+    "other": "读写"
+  },
+  "9": {
+    "other": "只读"
+  },
+  "roles.picker.title": {
+    "other": "管理用户角色"
+  },
+  "roles.picker.add": {
+    "other": "添加角色"
+  },
+  "roles.picker.hint": {
+    "other": "开始输入搜索角色..."
+  },
+  "roles.picker.effective": {
+    "other": "%s 的有效角色"
+  },
+  "parameters.scope.selector.title": {
+    "other": "添加用于..."
+  },
+  "parameters.scope.all": {
+    "other": "所有工作区"
+  },
+  "parameters.scope.shared": {
+    "other": "仅限共享单元"
+  },
+  "parameters.scope.workspace": {
+    "other": "工作区 %s"
+  },
+  "parameters.custom.add": {
+    "other": "添加自定义参数或动作"
+  },
+  "parameters.empty": {
+    "other": "没有参数或操作"
+  },
+  "workspace.statics.home.title": {
+    "other": "首页"
+  },
+  "workspace.statics.home.description": {
+    "other": "登录后显示欢迎页面"
+  },
+  "workspace.statics.directory.title": {
+    "other": "目录"
+  },
+  "workspace.statics.directory.description": {
+    "other": "显示地址簿完整页面(由 Mui3 主题使用)"
+  },
+  "workspace.statics.settings.title": {
+    "other": "管理控制台"
+  },
+  "workspace.statics.settings.description": {
+    "other": "Pydio Cells 管理员面板"
+  },
+  "acls.rights.policy.manual": {
+    "other": "手动设置权限"
+  },
+  "acls.rights.advanced.root": {
+    "other": "整个工作区"
+  },
+  "section.user-info": {
+    "other": "用户信息"
+  },
+  "section.permissions": {
+    "other": "权限"
+  },
+  "section.security": {
+    "other": "安全"
+  },
+  "section.advanced": {
+    "other": "先进的"
+  }
+}

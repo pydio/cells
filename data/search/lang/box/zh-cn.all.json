@@ -6,16 +6,16 @@
     "other": "如果设置为true，索引器将查找 ContentRef 元数据，从该引用中读取内容并为其编制索引以进行搜索"
   },
   "Search.Config.ContentRef.Label": {
-    "other": "Content Reference Metadata"
+    "other": "内容参考元数据"
   },
   "Search.Config.ContentRef.Description": {
-    "other": "A metadata storing a reference to a specific file: extractors can create textual representation of files will store them in plain text or gzip-encoded. Search engine will then try to load this content at indexation. Use pydio: prefix to make sure it does not leak out."
+    "other": "指向包含原始文档文本表示形式的内部文件的元数据名称。 此类内部内容可能是纯文本或 gzip 编码，具体取决于所使用的文本提取工具(例如 Tika)。 搜索引擎通常会索引该内容以启用全文搜索。 确保在元数据名称前添加“pydio:”前缀，以防止数据泄漏。"
   },
   "Search.Config.PlainTextExtensions.Label": {
-    "other": "Plain Text Extensions"
+    "other": "纯文本扩展"
   },
   "Search.Config.PlainTextExtensions.Description": {
-    "other": "List of extensions for files containing directly indexable plain-text contents (comma-separated-list)."
+    "other": "包含可直接索引的纯文本内容的文件的扩展名列表(逗号分隔列表)。"
   },
   "Search.Config.BasenameAnalyze.Label": {
     "other": "文件名分析器"

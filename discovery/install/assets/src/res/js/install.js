@@ -744,7 +744,12 @@ class InstallForm extends React.Component {
                 } else {
                     sp.delete("authSource")
                 }
-                url.set('query', '?'+sp.toString())
+                url.set('query', '?' + sp.toString())
+            } else if (key === 'query') {
+                if(value[value.length-1]=== "&") {
+                    value += 'newParam'
+                }
+                url.set('query', value)
             } else {
                 url.set(key, value);
             }
@@ -810,6 +815,10 @@ class InstallForm extends React.Component {
                                     <TextField value={DSNSearchParams.get('authSource')||""}
                                                onChange={(e,v)=>changeDSN(DSNURL, 'authSource', v)}
                                                floatingLabelText={this.t('advanced.mongo.authSource')} fullWidth={true} floatingLabelFixed={true} {...fieldStyles.textFieldV2}/>
+                                    <div style={{minWidth:48}}/>
+                                </div>
+                                <div style={{display:'flex'}}>
+                                    <TextField value={DSNURL.query} onChange={(e,v)=>{changeDSN(DSNURL, 'query', v)}} floatingLabelText={'Full query string (avoid edit manually, prefer copy/pasting)'} fullWidth={true} floatingLabelFixed={true} {...fieldStyles.textFieldV2}/>
                                     <div style={{minWidth:48}}/>
                                 </div>
                             </div>

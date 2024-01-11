@@ -21,7 +21,7 @@
 import Pydio from 'pydio'
 import React, {Fragment} from 'react';
 import PropTypes from 'prop-types'
-import ReactMarkdown from 'react-markdown'
+import Markdown from 'react-markdown'
 import {FontIcon} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PathUtils from 'pydio/util/path'
@@ -39,55 +39,67 @@ class Paragraph extends React.Component{
     }
 }
 
-function LinkWrapper(pydio, activity, style = undefined) {
+const LinkWrapper = ({pydio, activity, href, children, style = undefined}) => {
 
-    return class Wrapped extends React.Component{
-
-        render(){
-
-            const {href, children} = this.props;
-            const linkStyle = {
-                cursor: 'pointer',
-                color:'rgb(66, 140, 179)',
-                fontWeight: 500,
-                ...style
-            };
-            let title = "";
-            let onClick = null;
-            if(href.startsWith('doc://')){
-                if ( activity.type === 'Delete') {
-                    return <a style={{textDecoration:'line-through'}}>{children}</a>
-                }  else {
-                    return <DocLink pydio={pydio} activity={activity} linkStyle={linkStyle}>{children}</DocLink>;
-                }
-            } else if (href.startsWith('user://')) {
-                const userId = href.replace('user://', '');
-                return (<UserAvatar userId={userId} displayAvatar={false} richOnClick={true} style={{...linkStyle, display:'inline-block'}} pydio={pydio}/>)
-            } else if (href.startsWith('workspaces://')) {
-                const wsId = href.replace('workspaces://', '');
-                if(pydio.user && pydio.user.getRepositoriesList().get(wsId)){
-                    onClick = () => {pydio.triggerRepositoryChange(wsId)}
-                }
+        const linkStyle = {
+            cursor: 'pointer',
+            color:'rgb(66, 140, 179)',
+            fontWeight: 500,
+            ...style
+        };
+        let title = "";
+        let onClick = null;
+        if(href.startsWith('doc://')){
+            if ( activity.type === 'Delete') {
+                return <a style={{textDecoration:'line-through'}}>{children}</a>
+            }  else {
+                return <DocLink pydio={pydio} activity={activity} linkStyle={linkStyle}>{children}</DocLink>;
             }
-            return <a title={title} style={linkStyle} onClick={onClick}>{children}</a>
-
+        } else if (href.startsWith('user://')) {
+            const userId = href.replace('user://', '');
+            return (<UserAvatar userId={userId} displayAvatar={false} richOnClick={true} style={{...linkStyle, display:'inline-block'}} pydio={pydio}/>)
+        } else if (href.startsWith('workspaces://')) {
+            const wsId = href.replace('workspaces://', '');
+            if(pydio.user && pydio.user.getRepositoriesList().get(wsId)){
+                onClick = () => {pydio.triggerRepositoryChange(wsId)}
+            }
         }
-    }
+        return <a title={title} style={linkStyle} onClick={onClick}>{children}</a>
 
 }
 
 export class ActivityMD extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.memoizeCustomComponents(props)
+
+    }
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        this.memoizeCustomComponents(nextProps)
+    }
+
+    memoizeCustomComponents(props) {
+        const {activity, listContext} = props;
+        const pydio = Pydio.getInstance();
+        if (listContext === 'NODE-LEAF') {
+            this.customComponents = {
+                p: ({node, ...props}) => <Paragraph {...props}/>,
+                a: ({node, ...props}) => null
+            }
+        } else {
+            this.customComponents = {
+                p: ({node, ...props}) => <Paragraph {...props}/>,
+                a: ({node, ...props}) => <LinkWrapper pydio={pydio} activity={activity} style={{color:'inherit'}} {...props}/>
+            }
+        }
+    }
+
     render() {
-        const {activity, listContext, inlineActor} = this.props;
+        const {activity, inlineActor} = this.props;
         if(!activity.summary) {
             return <span>{activity.type} {activity.actor ? ' - ' + activity.actor.name : ''}</span>
-        }
-        const renderers = {
-            paragraph:Paragraph,
-            link: LinkWrapper(pydio, activity, {color:'inherit'})
-        }
-        if(listContext === 'NODE-LEAF') {
-            renderers.link = () => null
         }
         let av;
         if(inlineActor && activity.actor){
@@ -108,7 +120,13 @@ export class ActivityMD extends React.Component {
         return (
             <Fragment>
                 {av}{av ? ' - ': null}
-                <ReactMarkdown source={activity.summary} renderers={renderers} style={{display:'inline'}} containerTagName={inlineActor?'span':'div'}/>
+                <Markdown
+                    components={this.customComponents}
+                    style={{display:'inline'}}
+                    urlTransform={(url) => url}
+                    containerTagName={inlineActor?'span':'div'}>
+                    {activity.summary}
+                </Markdown>
             </Fragment>
         );
     }
@@ -123,6 +141,7 @@ class Activity extends React.Component{
     computeIcon(activity){
         let className = '';
         let title;
+        let actionIcon;
         switch (activity.type) {
             case "Create":
                 if (activity.object.type === 'Document'){
@@ -169,6 +188,7 @@ class Activity extends React.Component{
                     className = "folder"
                 }
                 title = "Shared";
+                actionIcon = 'mdi mdi-share-variant';
                 break;
             default:
                 break;
@@ -176,18 +196,16 @@ class Activity extends React.Component{
         if(className.indexOf('icomoon-') === -1){
             className = 'mdi mdi-' + className;
         }
-        return {title, className};
+        return {title, className, actionIcon};
     }
 
     render() {
 
-        let {pydio, activity, listContext, oneLiner, muiTheme, onRequestClose=()=>{}} = this.props;
+        let {pydio, activity, listContext, muiTheme, styles, onRequestClose=()=>{}} = this.props;
         let {hover} = this.state;
 
         let summary;
-        const {className} = this.computeIcon(activity);
-        const accentColor = muiTheme.palette.mui3['outline']
-
+        const {className, actionIcon} = this.computeIcon(activity);
 
         let blockStyle = {
             margin:0,
@@ -203,29 +221,18 @@ class Activity extends React.Component{
         const nodes = nodesFromObject(activity.object, pydio);
         let icon, primaryText;
         if(nodes.length){
-            const previewStyles = {
-                style: {
-                    height: 40,
-                    width: 40,
-                    borderRadius: 4
-                },
-                mimeFontStyle: {
-                    fontSize: 20,
-                    lineHeight: '36px',
-                    textAlign:'center'
-                }
-            };
             icon = (
                 <div style={{padding:'12px 20px 12px 20px', position:'relative'}}>
-                    <FilePreview pydio={pydio} node={nodes[0]} loadThumbnail={true} {...previewStyles}/>
-                    <span className={className} style={{position:'absolute', bottom: 8, right: 12, fontSize:18, color: accentColor}}/>
+                    <FilePreview pydio={pydio} node={nodes[0]} loadThumbnail={true} style={styles.mFontContainer} mimeFontStyle={styles.mFont}/>
+                    <span className={className} style={{...styles.actionIcon, bottom: 10, right: 18}}/>
                 </div>
             );
             primaryText = nodes[0].getLabel() || PathUtils.getBasename(nodes[0].getPath())
         } else {
             icon = (
-                <div style={{margin:'8px 20px', backgroundColor: 'var(--md-sys-color-primary-container)', alignItems: 'initial', height: 36, width: 36, borderRadius: '50%', textAlign:'center'}}>
-                    <FontIcon className={className} style={{lineHeight:'36px'}}/>
+                <div className={"mimefont-container"} style={{margin:'8px 20px', position:'relative', ...styles.mFontContainer}}>
+                    <FontIcon className={className} style={styles.mFont}/>
+                    {actionIcon && <span className={actionIcon} style={styles.actionIcon}/>}
                 </div>
             );
             if(activity.object) {
@@ -259,26 +266,6 @@ class Activity extends React.Component{
 
         return (
             <div style={blockStyle} onMouseEnter={()=>this.setState({hover:true})} onMouseLeave={()=>this.setState({hover:false})} onClick={onClick}>
-                {!oneLiner &&
-                    <div style={{display:'flex', alignItems:'center'}}>
-                        {activity.actor &&
-                            <UserAvatar
-                                useDefaultAvatar={true}
-                                userId={activity.actor.id}
-                                userLabel={activity.actor.name}
-                                displayLocalLabel={true}
-                                userType={'user'}
-                                pydio={pydio}
-                                style={{display:'flex', alignItems:'center', maxWidth: '60%'}}
-                                labelStyle={{fontSize: 14, fontWeight: 500, paddingLeft: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace:'nowrap'}}
-                                avatarStyle={{flexShrink: 0}}
-                                avatarSize={28}
-                                richOnHover={true}
-                            />
-                        }
-                        <span style={{fontSize:13, display:'inline-block', flex:1, height:18, color: 'rgba(0,0,0,0.23)', fontWeight:500, paddingLeft:8, whiteSpace:'nowrap'}}>{moment(activity.updated).fromNow()}</span>
-                    </div>
-                }
                 {summary}
             </div>
         );

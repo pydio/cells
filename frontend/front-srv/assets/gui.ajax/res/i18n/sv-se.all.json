@@ -33,25 +33,25 @@
     "other": "Mapp"
   },
   "tour.infopanel.search": {
-    "other": "Search"
+    "other": "Sök"
   },
   "tour.infopanel.title": {
     "other": "Info Panel"
   },
   "tour.locale.back": {
-    "other": "Back"
+    "other": "Tillbaka"
   },
   "tour.locale.close": {
-    "other": "Close"
+    "other": "Stäng"
   },
   "tour.locale.last": {
     "other": "Finish"
   },
   "tour.locale.next": {
-    "other": "Next"
+    "other": "Nästa"
   },
   "tour.locale.skip": {
-    "other": "Skip"
+    "other": "Hoppa över"
   },
   "tour.openworkspace": {
     "other": "At the first connection, your history is probably empty. Enter a workspace or a cell to start adding files."
@@ -75,7 +75,7 @@
     "other": "User Cartouche"
   },
   "tour.welcomemodal.skip": {
-    "other": "Skip"
+    "other": "Hoppa över"
   },
   "tour.welcomemodal.start": {
     "other": "Start the tour"
@@ -152,6 +152,42 @@
   "oauth.authentication.code-copy-failed": {
     "other": "Could not copy to clipboard."
   },
+  "layouts.preferences": {
+    "other": "Manage Layouts"
+  },
+  "layouts.preferences.legend": {
+    "other": "Save and Recall Layouts as Presets"
+  },
+  "layouts.action.rename": {
+    "other": "Rename Layout"
+  },
+  "layouts.action.remove": {
+    "other": "Remove Layout"
+  },
+  "layouts.action.remove.confirm": {
+    "other": "Do you want to remove this layout?"
+  },
+  "layouts.action.reset": {
+    "other": "Reset Layout"
+  },
+  "layouts.action.reset.confirm": {
+    "other": "Do you want to reset the current layout?"
+  },
+  "layouts.action.create": {
+    "other": "Save Layout..."
+  },
+  "layouts.action.fork": {
+    "other": "New From Current..."
+  },
+  "layouts.action.create.default": {
+    "other": "My Layout"
+  },
+  "layouts.prompt.save": {
+    "other": "Save Layout As..."
+  },
+  "layouts.prompt.save.field": {
+    "other": "Choose a name to save/recall the current layout"
+  },
   "list.display-mode.list": {
     "other": "List"
   },
@@ -182,11 +218,44 @@
   "list.pin.bookmarks": {
     "other": "Pin bookmarks to top"
   },
+  "list.writeonly.emptystate.title": {
+    "other": "Drop Files Here"
+  },
+  "list.writeonly.emptystate.legend": {
+    "other": "This folder is write-only: you cannot see its contents and are only authorized to upload files or folders. Your own content will not be visible after upload!"
+  },
   "infopanel.empty.select.file": {
     "other": "Select a file to display informations"
   },
+  "infopanel.card.pin": {
+    "other": "Attach card (full height)"
+  },
+  "infopanel.card.unpin": {
+    "other": "Detach card"
+  },
+  "infopanel.card.detach": {
+    "other": "Detach in a separate panel"
+  },
+  "infopanel.detached.minimize": {
+    "other": "Minimize Panel"
+  },
+  "infopanel.detached.maximize": {
+    "other": "Open Panel"
+  },
+  "infopanel.detached.dock": {
+    "other": "Dock in the right-hand column"
+  },
+  "infopanel.detailcard.preview": {
+    "other": "Preview"
+  },
+  "infopanel.detailcard.cell-info": {
+    "other": "Cell Info"
+  },
+  "infopanel.detailcard.cell-chat": {
+    "other": "Cell Chat"
+  },
   "pinned-bookmarks.other": {
-    "other": "All files"
+    "other": "Alla filer"
   },
   "file.temporary-etag.flag": {
     "other": "Incomplete"
@@ -267,12 +336,33 @@
     "other": "Directory"
   },
   "leftrail.buttons.all-files": {
-    "other": "All Files"
+    "other": "Alla filer"
   },
   "leftrail.buttons.theme.light": {
-    "other": "Light Mode"
+    "other": "Ljust läge"
   },
   "leftrail.buttons.theme.dark": {
-    "other": "Dark Mode"
+    "other": "Mörkt läge"
+  },
+  "task.status.Starting": {
+    "other": "Started {startTime}"
+  },
+  "task.status.Pending": {
+    "other": "Will start soon..."
+  },
+  "task.status.Complete": {
+    "other": "Task completed in {duration}"
+  },
+  "task.status.Finished": {
+    "other": "Task completed in {duration}"
+  },
+  "task.status.Error": {
+    "other": "An error happened!"
+  },
+  "bigppanel.filter.default-hint": {
+    "other": "Quick Find..."
+  },
+  "sorter.metas.more": {
+    "other": "More..."
   }
 }

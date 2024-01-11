@@ -21,39 +21,51 @@
 package i18n
 
 import (
+	"fmt"
 	"io"
 	"strings"
 
-	"github.com/nicksnyder/go-i18n/i18n"
-	"github.com/nicksnyder/go-i18n/i18n/bundle"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"golang.org/x/text/language"
 
 	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 type I18nBundle struct {
-	bundle.Bundle
+	*i18n.Bundle
 }
 
+type TranslateFunc func(translationID string, args ...interface{}) string
+
+func IdentityFunc(translationID string, args ...interface{}) string {
+	return translationID
+}
+
+// NewI18nBundle creates a usable I18nBundle
 func NewI18nBundle(box statics.FS) *I18nBundle {
-	b := bundle.New()
 	B := &I18nBundle{}
-	B.Bundle = *b
-	B.LoadPackrTranslationFiles(box)
+	B.Bundle = i18n.NewBundle(language.MustParse("en-US"))
+	B.LoadBoxTranslationFiles(box)
 	return B
 }
 
-// LoadPackrTranslationFiles loads goi18n translation
-// files from packr boxes
-func (b *I18nBundle) LoadPackrTranslationFiles(box statics.FS) {
+// LoadBoxTranslationFiles loads goi18n translation files from boxes
+func (b *I18nBundle) LoadBoxTranslationFiles(box statics.FS) {
 
 	files := box.List()
 	for _, f := range files {
-		if strings.HasSuffix(f, ".json") {
-			if file, e := box.Open(f); e == nil {
-				data, _ := io.ReadAll(file)
-				file.Close()
-				b.ParseTranslationFileBytes(f, data)
-			}
+		if !strings.HasSuffix(f, ".json") {
+			continue
+		}
+		file, e := box.Open(f)
+		if e != nil {
+			continue
+		}
+		data, _ := io.ReadAll(file)
+		_ = file.Close()
+
+		if _, er := b.ParseMessageFileBytes(data, strings.ReplaceAll(f, ".all.json", ".json")); er != nil {
+			fmt.Println("cannot load box file: ", er.Error())
 		}
 	}
 
@@ -62,19 +74,22 @@ func (b *I18nBundle) LoadPackrTranslationFiles(box statics.FS) {
 // GetTranslationFunc provides the correct translation func for language or the IdentityFunc
 // if language is not supported. Languages can be a list of weighted languages as provided
 // in the http header Accept-Language
-func (b *I18nBundle) GetTranslationFunc(languages ...string) i18n.TranslateFunc {
+func (b *I18nBundle) GetTranslationFunc(languages ...string) TranslateFunc {
 
-	var t bundle.TranslateFunc
-	var e error
-	if len(languages) > 0 {
-		t, e = b.Tfunc(languages[0], "en-US")
-	} else {
-		t, e = b.Tfunc("en-US")
-	}
-	if e != nil {
-		return i18n.IdentityTfunc()
-	} else {
-		return i18n.TranslateFunc(t)
+	l := i18n.NewLocalizer(b.Bundle, languages...)
+	return func(id string, args ...interface{}) string {
+		var tData interface{}
+		if len(args) > 0 {
+			tData = args[0]
+		}
+		msg, err := l.Localize(&i18n.LocalizeConfig{
+			MessageID:    id,
+			TemplateData: tData,
+		})
+		if err != nil {
+			return id
+		}
+		return msg
 	}
 
 }

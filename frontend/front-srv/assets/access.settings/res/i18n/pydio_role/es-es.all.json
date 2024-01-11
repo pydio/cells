@@ -1,0 +1,239 @@
+{
+  "1": {
+    "other": "Sin Parámetros"
+  },
+  "10": {
+    "other": "Sólo escritura"
+  },
+  "11": {
+    "other": "Denegado"
+  },
+  "12": {
+    "other": "Sin Acceso"
+  },
+  "13": {
+    "other": "Buscar Parámetros o Acciones"
+  },
+  "14": {
+    "other": "Seleccionar parámetro o acción"
+  },
+  "15": {
+    "other": "Seleccione un parámetro o acción y pulse Añadir. Puede buscar en los parámetros usando al campo de abajo."
+  },
+  "16": {
+    "other": "Mostrar/Ocultar valores heredados"
+  },
+  "17": {
+    "other": "Añadir Parámetro o Acción"
+  },
+  "18": {
+    "other": "Configuración de Plugins"
+  },
+  "19": {
+    "other": "siempre sobreescribir"
+  },
+  "2": {
+    "other": "Habilitado"
+  },
+  "21": {
+    "other": "recargando..."
+  },
+  "22": {
+    "other": "Cargando caché de acciones, por favor espere, sólo es necesario una vez..."
+  },
+  "23": {
+    "other": "Cargando caché de parámetros, por favor espere, sólo es necesario una vez..."
+  },
+  "24": {
+    "other": "Account"
+  },
+  "25": {
+    "other": "Restricciones de Acceso"
+  },
+  "26": {
+    "other": "Información de Grupos"
+  },
+  "27": {
+    "other": "Info de Grupos"
+  },
+  "28": {
+    "other": "Información de Roles"
+  },
+  "29": {
+    "other": "Info de Roles"
+  },
+  "3": {
+    "other": "Deshabilitado"
+  },
+  "30": {
+    "other": "Perfil y Roles"
+  },
+  "31": {
+    "other": "Identificador único de usuario. No se puede modificar."
+  },
+  "32": {
+    "other": "Especificar perfil. Pueden aplicarse automáticamente algunos roles."
+  },
+  "33": {
+    "other": "Cerrar"
+  },
+  "34": {
+    "other": "Control de Acceso"
+  },
+  "35": {
+    "other": "Workspaces"
+  },
+  "36": {
+    "other": "Pages"
+  },
+  "37": {
+    "other": "Personalizar Parámetros"
+  },
+  "38": {
+    "other": "Parámetros de la Aplicación"
+  },
+  "39": {
+    "other": "Parámetros de todos los workspaces"
+  },
+  "4": {
+    "other": "Limpiar valor"
+  },
+  "40": {
+    "other": "Per-workspace parameters"
+  },
+  "41": {
+    "other": "Parámetros adicionales"
+  },
+  "42": {
+    "other": "Ajuste los parámetros de la aplicación y desactive plugins de acción para este rol. Los parámetros aquí son globales (autenticación, configuración, etc.). Ajuste los parámetros específicos de los workspaces desde la pestaña Workspaces."
+  },
+  "43": {
+    "other": "Conceda acceso a los workspaces para el rol/usuario/grupo actual"
+  },
+  "permissions.legend.user": {
+    "other": "Provide access to workspaces for the current user, overriding permissions inherited from user's roles. Use 'Manage Roles' to add/remove roles and identify the sources of inherited permissions."
+  },
+  "permissions.legend.group": {
+    "other": "Provide access to workspaces for the current group. These permissions will be inherited by all users belonging this group."
+  },
+  "permissions.legend.role": {
+    "other": "Provide access to workspaces for the current role. These permissions will be applied to all users to whom the role has been assigned."
+  },
+  "44": {
+    "other": "Páginas Principales de la Aplicación"
+  },
+  "45": {
+    "other": "Acceso a las páginas principales de la aplicación (Mi Cuenta, Página de Bienvenida, etc.)"
+  },
+  "application-params.title": {
+    "other": "Parameters and actions"
+  },
+  "application-params.legend": {
+    "other": "Modify UX parameters and show/hide certain actions for a specific role, globally or by workspace."
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "As a general rule, this should be managed at role level, not user level!"
+  },
+  "49": {
+    "other": "Elementos compartidos"
+  },
+  "5": {
+    "other": "Sobreescribir valor"
+  },
+  "50": {
+    "other": "Carpetas y Archivos Compartidos"
+  },
+  "51": {
+    "other": "Con este usuario"
+  },
+  "52": {
+    "other": "Celdas y enlaces públicos creados por este usuario"
+  },
+  "53": {
+    "other": "Compartido por %1 desde el workspace %2"
+  },
+  "54": {
+    "other": "User informations and security actions. Hover fields in the form below to display explanations."
+  },
+  "55": {
+    "other": "Alternar el perfil y los roles para conceder permisos a este usuario automáticamente."
+  },
+  "6": {
+    "other": "Guardar valor"
+  },
+  "7": {
+    "other": "Acción %s"
+  },
+  "8": {
+    "other": "Lectura y Escritura"
+  },
+  "9": {
+    "other": "Sólo lectura"
+  },
+  "roles.picker.title": {
+    "other": "Administrar roles de usuario"
+  },
+  "roles.picker.add": {
+    "other": "Add role"
+  },
+  "roles.picker.hint": {
+    "other": "Start typing to search roles..."
+  },
+  "roles.picker.effective": {
+    "other": "Effective role for %s"
+  },
+  "parameters.scope.selector.title": {
+    "other": "Añadir para..."
+  },
+  "parameters.scope.all": {
+    "other": "Todos los Workspaces"
+  },
+  "parameters.scope.shared": {
+    "other": "Solo celdas compartidas"
+  },
+  "parameters.scope.workspace": {
+    "other": "Workspace %s"
+  },
+  "parameters.custom.add": {
+    "other": "Añadir Parámetro o Acción personalizados"
+  },
+  "parameters.empty": {
+    "other": "No hay parámetros o acciones"
+  },
+  "workspace.statics.home.title": {
+    "other": "Página de inicio"
+  },
+  "workspace.statics.home.description": {
+    "other": "Página de bienvenida mostrada después de iniciar sesión"
+  },
+  "workspace.statics.directory.title": {
+    "other": "Directory"
+  },
+  "workspace.statics.directory.description": {
+    "other": "Show address book full page (used by Mui3 Theme)"
+  },
+  "workspace.statics.settings.title": {
+    "other": "Consola de Administración"
+  },
+  "workspace.statics.settings.description": {
+    "other": "Consola de Administración de Pydio Cells"
+  },
+  "acls.rights.policy.manual": {
+    "other": "Derechos establecidos manualmente"
+  },
+  "acls.rights.advanced.root": {
+    "other": "Workspace completo"
+  },
+  "section.user-info": {
+    "other": "User Info"
+  },
+  "section.permissions": {
+    "other": "Permissions"
+  },
+  "section.security": {
+    "other": "Security"
+  },
+  "section.advanced": {
+    "other": "Advanced"
+  }
+}

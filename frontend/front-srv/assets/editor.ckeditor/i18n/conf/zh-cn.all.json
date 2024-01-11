@@ -2,7 +2,7 @@
   "CKEditor": {
     "other": "CKEditor"
   },
-  "Wysiwyg HTML Editor, requires separate library to be downloaded.": {
-    "other": "所见即所得 HTML 编辑器需要单独下载库。"
+  "WYSIWYG HTML Editor based on CKEditor Library": {
+    "other": "基于CKEditor库的所见即所得HTML编辑器"
   }
 }

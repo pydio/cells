@@ -1,0 +1,239 @@
+{
+  "1": {
+    "other": "Keine Parameter"
+  },
+  "10": {
+    "other": "Nur schreiben"
+  },
+  "11": {
+    "other": "Verweigert"
+  },
+  "12": {
+    "other": "Kein Zugriff"
+  },
+  "13": {
+    "other": "Parameter oder Aktionen suchen"
+  },
+  "14": {
+    "other": "Parameter oder Aktion auswählen"
+  },
+  "15": {
+    "other": "Parameter oder Aktion auswählen und hinzufügen klicken. Verwenden Sie die Textbox unterhalb um nach Parametern oder Aktionen zu suchen."
+  },
+  "16": {
+    "other": "Vererbte anzeigen/ausblenden"
+  },
+  "17": {
+    "other": "Parameter oder Aktion hinzufügen"
+  },
+  "18": {
+    "other": "Erweiterungs-Einstellungen"
+  },
+  "19": {
+    "other": "immer überschreiben"
+  },
+  "2": {
+    "other": "Aktiviert"
+  },
+  "21": {
+    "other": "lade neu..."
+  },
+  "22": {
+    "other": "Aktionen werden in den Zwischenspeicher geladen, bitte warten. Diese Aktion wird nur einmal durchgeführt..."
+  },
+  "23": {
+    "other": "Parameter werden in den Zwischenspeicher geladen, bitte warten. Diese Aktion wird nur einmal durchgeführt..."
+  },
+  "24": {
+    "other": "Konto"
+  },
+  "25": {
+    "other": "Zugriffsrechte"
+  },
+  "26": {
+    "other": "Gruppen-Informationen"
+  },
+  "27": {
+    "other": "Gruppen-Info"
+  },
+  "28": {
+    "other": "Rollen-Informationen"
+  },
+  "29": {
+    "other": "Rollen-Info"
+  },
+  "3": {
+    "other": "Deaktiviert"
+  },
+  "30": {
+    "other": "Profile & Rollen"
+  },
+  "31": {
+    "other": "Eindeutiger Identifier des Benutzers. Dieser Wert kann nicht geändert werden."
+  },
+  "32": {
+    "other": "Spezifisches Profil. Dies kann bedeuten, dass einige Rollen automatisch angewendet werden."
+  },
+  "33": {
+    "other": "Schließen"
+  },
+  "34": {
+    "other": "Zugriffskontrolle"
+  },
+  "35": {
+    "other": "Workspaces"
+  },
+  "36": {
+    "other": "Seiten"
+  },
+  "37": {
+    "other": "Parameter anpassen"
+  },
+  "38": {
+    "other": "Anwendungs-Parameter"
+  },
+  "39": {
+    "other": "Alle Workspace-Parameter"
+  },
+  "4": {
+    "other": "Wert Leeren"
+  },
+  "40": {
+    "other": "Workspace-spezifische Parameter"
+  },
+  "41": {
+    "other": "Anwendungs-Parameter"
+  },
+  "42": {
+    "other": "Verfeinern Sie die Werte der Anwendungsparameter und deaktivieren Sie gezielt Plugin-Aktionen für diese aktuelle Rolle. Die Parameter hier sind global für die Anwendung (Authentifizierung, Konfiguration usw.). Sehen Sie die Workspaces-Reiter für workspace-spezifische Parameter/Aktionen."
+  },
+  "43": {
+    "other": "Gewähren Sie der aktuellen Rolle/Benutzer/Gruppe Zugriff auf Workspaces"
+  },
+  "permissions.legend.user": {
+    "other": "Gewähren Sie dem aktuellen Benutzer Zugriff auf Workspaces, indem Sie Berechtigungen überschreiben, die von den Rollen des Benutzers geerbt wurden. Verwenden Sie 'Rollen verwalten', um Rollen hinzuzufügen/zu entfernen und die Quellen der geerbten Berechtigungen zu identifizieren."
+  },
+  "permissions.legend.group": {
+    "other": "Gewähren Sie dem aktuellen Benutzer Zugriff auf Workspaces. Diese Berechtigungen werden von allen Benutzern, die zu dieser Gruppe gehören, geerbt."
+  },
+  "permissions.legend.role": {
+    "other": "Gewähren Sie Zugriff auf Workspaces für die aktuelle Rolle. Diese Berechtigungen werden auf alle Benutzer angewendet, denen die Rolle zugewiesen wurde."
+  },
+  "44": {
+    "other": "Hauptseiten"
+  },
+  "45": {
+    "other": "Zugriff auf die Hauptseiten"
+  },
+  "application-params.title": {
+    "other": "Parameter und Aktionen"
+  },
+  "application-params.legend": {
+    "other": "Ändern Sie UX-Parameter und zeigen/verbergen Sie bestimmte Aktionen für eine spezifische Rolle, global oder nach Workspace."
+  },
+  "application-params.legend.user-disclaimer": {
+    "other": "Als allgemeine Regel sollte dies auf Rollenebene und nicht auf Benutzerebene verwaltet werden!"
+  },
+  "49": {
+    "other": "Freigaben"
+  },
+  "5": {
+    "other": "Wert überschreiben"
+  },
+  "50": {
+    "other": "Geteilte Dateien & Ordner"
+  },
+  "51": {
+    "other": "Für diesen Benutzer"
+  },
+  "52": {
+    "other": "Von diesem Benutzer"
+  },
+  "53": {
+    "other": "Von %1 aus dem Workspace %2 geteilt"
+  },
+  "54": {
+    "other": "Benutzerinformationen und Sicherheitsaktionen. Fahren Sie mit der Maus über die Felder im untenstehenden Formular, um Erklärungen anzuzeigen."
+  },
+  "55": {
+    "other": "Verändern Sie Profil und Rollen, um diesem Benutzer automatisch Berechtigungen zu erteilen."
+  },
+  "6": {
+    "other": "Wert speichern"
+  },
+  "7": {
+    "other": "Aktion %s"
+  },
+  "8": {
+    "other": "Lesen & Schreiben"
+  },
+  "9": {
+    "other": "Nur lesen"
+  },
+  "roles.picker.title": {
+    "other": "Benutzerrollen verwalten"
+  },
+  "roles.picker.add": {
+    "other": "Rolle hinzufügen"
+  },
+  "roles.picker.hint": {
+    "other": "Beginnen Sie mit der Eingabe, um Rollen zu suchen..."
+  },
+  "roles.picker.effective": {
+    "other": "Effektive Rolle für %s"
+  },
+  "parameters.scope.selector.title": {
+    "other": "Addieren für..."
+  },
+  "parameters.scope.all": {
+    "other": "Alle Workspaces"
+  },
+  "parameters.scope.shared": {
+    "other": "Nur geteilte Cells"
+  },
+  "parameters.scope.workspace": {
+    "other": "Workspace %s"
+  },
+  "parameters.custom.add": {
+    "other": "Benutzerdefinierte Parameter oder Aktionen hinzufügen"
+  },
+  "parameters.empty": {
+    "other": "Keine Parameter oder Aktionen"
+  },
+  "workspace.statics.home.title": {
+    "other": "Startseite"
+  },
+  "workspace.statics.home.description": {
+    "other": "Startseite nach dem Login angezeigt"
+  },
+  "workspace.statics.directory.title": {
+    "other": "Verzeichnis"
+  },
+  "workspace.statics.directory.description": {
+    "other": "Adressbuch im Vollbild anzeigen (verwendet vom Mui3-Theme)"
+  },
+  "workspace.statics.settings.title": {
+    "other": "Administrationsoberfläche"
+  },
+  "workspace.statics.settings.description": {
+    "other": "Pydio Cells Administrationsoberfläche"
+  },
+  "acls.rights.policy.manual": {
+    "other": "Rechte manuell gesetzt"
+  },
+  "acls.rights.advanced.root": {
+    "other": "Gesamter Workspace"
+  },
+  "section.user-info": {
+    "other": "Benutzer-Info"
+  },
+  "section.permissions": {
+    "other": "Berechtigungen"
+  },
+  "section.security": {
+    "other": "Sicherheit"
+  },
+  "section.advanced": {
+    "other": "Erweitert"
+  }
+}

@@ -183,13 +183,14 @@ func (s *Server) ClearIndex(ctx context.Context) error {
 	})
 }
 
-func (s *Server) SearchNodes(ctx context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
+func (s *Server) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, sortField string, sortDesc bool, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
+
 	nsProvider := meta.NewNsProvider(ctx)
 	conf := servercontext.GetConfig(ctx)
 
 	accu := NewQueryCodec(s.Engine, conf.Val(), nsProvider)
 
-	searchResult, err := s.DAO.FindMany(ctx, queryObject, from, size, accu)
+	searchResult, err := s.Engine.FindMany(c, queryObject, from, size, sortField, sortDesc, accu)
 	if err != nil {
 		doneChan <- true
 		return err

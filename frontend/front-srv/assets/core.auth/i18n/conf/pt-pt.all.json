@@ -1,12 +1,12 @@
 {
   "Action to trigger when clicking on Forgot Password": {
-    "other": "Action to trigger when clicking on Forgot Password"
+    "other": "Acção a ser despoletada ao clicar em Esqueci a Senha"
   },
   "Activate the users management system to protect your Pydio installation.": {
-    "other": "Activate the users management system to protect your Pydio installation."
+    "other": "Active o sistema de gestão de utilizadores para proteger a sua instalação do Pydio."
   },
   "Add a Forgot Password link at the bottom of the login form": {
-    "other": "Add a Forgot Password link at the bottom of the login form"
+    "other": "Adicionar uma ligação para recuperar a senha no final do formulário de login"
   },
   "Authentication": {
     "other": "Autenticação"
@@ -15,79 +15,82 @@
     "other": "Ambos"
   },
   "Cache master users": {
-    "other": "Cache master users"
+    "other": "Utilizadores mestres em cache"
   },
   "Case Sensitive": {
-    "other": "Case Sensitive"
+    "other": "Sensível a maiúsculas e minúsculas"
   },
   "Choose the configuration plugin": {
-    "other": "Choose the configuration plugin"
+    "other": "Escolha o plugin de configuração"
   },
   "Create a local copy (at login time) of master users inside slave base": {
-    "other": "Create a local copy (at login time) of master users inside slave base"
+    "other": "Criar uma cópia local (no momento em que se fizer login) dos utilizadores do mestre dentro da base dos escravos"
   },
   "Disable Brute Force Check (Captcha)": {
-    "other": "Disable Brute Force Check (Captcha)"
+    "other": "Desactivar a verificação de ataques por força bruta (Captcha)"
   },
   "Disable the check of failed login attempts, will disable the Captcha display": {
-    "other": "Disable the check of failed login attempts, will disable the Captcha display"
+    "other": "Desactivar a verificação de tentativas de login falhadas; esta opção irá desactivar a exibição do Captcha"
   },
   "Enable Forgot Password": {
-    "other": "Enable Forgot Password"
+    "other": "Ativar Esqueci a Senha"
   },
   "Enable Users": {
-    "other": "Enable Users"
+    "other": "Activar utilizadores"
   },
   "Enable the 'guest' user, who does not need to log in.": {
-    "other": "Enable the 'guest' user, who does not need to log in."
+    "other": "Activar o utilizador 'convidado', que não precisa de fazer login."
   },
   "Forgot Password Action": {
-    "other": "Forgot Password Action"
+    "other": "Acção Esqueci a Senha"
+  },
+  "Forgot Password Link": {
+    "other": "Forgot Password Link"
   },
   "Generic Auth Features": {
-    "other": "Generic Features"
+    "other": "Recursos genéricos"
   },
   "Guest Browsing": {
-    "other": "Guest Browsing"
+    "other": "Navegação para visitantes"
   },
   "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)": {
-    "other": "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)"
+    "other": "No modo Mestre/escravo, use esta opção para limitar a listagem de utilizadores na administração a apenas um driver (deixe vazio se quiser ver todos os utilizadores)"
   },
   "Instance Type": {
-    "other": "Instance Type"
+    "other": "Tipo de instância"
   },
   "Login Form": {
-    "other": "Login Form"
+    "other": "Formulário de acesso"
   },
   "Main Instance": {
-    "other": "Main Instance"
+    "other": "Instância principal"
   },
   "Master Authentifiaction Label": {
-    "other": "Master Authentication Label"
+    "other": "Etiqueta de autenticação do mestre"
   },
   "Master Only": {
-    "other": "Master Only"
+    "other": "Apenas mestre"
   },
   "Master/Slave": {
-    "other": "Master/Slave"
+    "other": "Mestre/Escravo"
   },
   "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup.": {
-    "other": "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup."
+    "other": "No modo Mestre/escravo, assume-se que o mestre é apenas de leitura, sendo o escravo uma alternativa local para permitir compartilhamento de recursos. A opção de escolha do utilizador permitirá que este escolha manualmente o seu método de autenticação na inicialização."
   },
   "Minimum number of characters required for passwords in the application": {
-    "other": "Minimum number of characters required for passwords in the application"
+    "other": "Número mínimo de caracteres necessários para as senhas nesta aplicação"
   },
   "Mode": {
-    "other": "Mode"
+    "other": "Modo"
   },
   "Multiple Instances Mode": {
-    "other": "Multiple Instances Mode"
+    "other": "Modo de múltiplas instâncias"
   },
   "Options applied to all auth drivers": {
-    "other": "Options applied to all auth drivers"
+    "other": "Opções aplicadas a todos os drivers de autenticação"
   },
   "Password length": {
-    "other": "Password length"
+    "other": "Tamanho da senha"
   },
   "Raise the security of the login form by disabling autocompletion and remember me feature": {
     "other": "Raise the security of the login form by disabling autocompletion and remember me feature"
@@ -102,7 +105,7 @@
     "other": "Secure Login Form"
   },
   "Separator": {
-    "other": "Separator"
+    "other": "Separador"
   },
   "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins.": {
     "other": "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins."
@@ -111,7 +114,7 @@
     "other": "Slave Authentication Label"
   },
   "Slave Only": {
-    "other": "Slave Only"
+    "other": "Apenas escravo"
   },
   "Store Credentials in Session": {
     "other": "Store Credentials in Session"
@@ -120,10 +123,10 @@
     "other": "This is necessary to discriminate users data loaded from various sources. Warning, use folder name compliant characters. For example :: does not work!"
   },
   "User Choice": {
-    "other": "User Choice"
+    "other": "Escolha do utilizador"
   },
   "Users Listing": {
-    "other": "Users Listing"
+    "other": "Listagem de utilizadores"
   },
   "Whether the users identifiers should be case sensitive or not": {
     "other": "Whether the users identifiers should be case sensitive or not. WARNING, sql-based drivers will disable this by default, even if you check this."
@@ -137,6 +140,9 @@
   "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system.": {
     "other": "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system."
   },
+  "When relying on an external authentication system, replace the Forgot Action with an external link that will be opened in a new window.": {
+    "other": "When relying on an external authentication system, replace the Forgot Action with an external link that will be opened in a new window."
+  },
   "Let user create new cells": {
     "other": "Let user create new cells"
   },
@@ -144,7 +150,7 @@
     "other": "Whether users can create their own cells or not"
   },
   "Delegation": {
-    "other": "Delegation"
+    "other": "Delegação"
   },
   "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string.": {
     "other": "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string."

@@ -34,16 +34,22 @@ class GenericLine extends React.Component{
         const {iconClassName, legend, data, selectable} = this.props;
         const style = {
             icon: {
-                margin:'16px 20px 0',
+                fontSize: 20,
+                margin:'0px 16px 0',
+                lineHeight: '16px'
             },
             legend: {
-                fontSize: 12,
-                color: '#aaaaaa',
+                //fontSize: 12,
+                textAlign: 'right',
+                color: '#666',
                 fontWeight: 500,
-                textTransform: 'lowercase'
+                width: 130,
+                userSelect: 'text'
+                //textTransform: 'lowercase'
             },
             data: {
-                fontSize: 15,
+                //fontSize: 15,
+                flex: 1,
                 paddingRight: 6,
                 overflow:'hidden',
                 textOverflow:'ellipsis',
@@ -51,14 +57,10 @@ class GenericLine extends React.Component{
             }
         };
         return (
-            <div style={{display:'flex', marginBottom: 8, overflow:'hidden'}}>
-                <div style={{width: 64}}>
-                    <FontIcon color={'#aaaaaa'} className={iconClassName} style={style.icon}/>
-                </div>
-                <div style={{flex: 1}}>
-                    <div style={style.legend}>{legend}</div>
-                    <div style={style.data}>{data}</div>
-                </div>
+            <div style={{display:'flex', alignItems: 'center', marginBottom: 8, overflow:'hidden', fontWeight: 'initial'}}>
+                <div style={style.legend}>{legend}</div>
+                <div style={{width: 64}}><FontIcon color={'#ccc'} className={iconClassName} style={style.icon}/></div>
+                <div style={style.data}>{data}</div>
             </div>
         );
     }
@@ -179,15 +181,17 @@ class LogDetail extends React.Component{
             });
         }
 
+        const m = (id) => pydio.MessageHash['ajxp_admin.logs.details.' + id] || id
+
         return (
             <div style={{fontSize: 13, color:'rgba(0,0,0,.87)', paddingBottom: 10, ...style}}>
                 <Paper zDepth={1} style={{backgroundColor: '#f5f5f5', marginBottom: 10, position:'relative'}}>
                     <div style={styles.buttons}>
-                        <IconButton style={styles.button} iconStyle={styles.buttonIcon} iconClassName={copySuccess?'mdi mdi-check':'mdi mdi-content-copy'} tooltip={'Copy log to clipboard'} tooltipPosition={"bottom-left"} ref={"copy-button"} />
+                        <IconButton style={styles.button} iconStyle={styles.buttonIcon} iconClassName={copySuccess?'mdi mdi-check':'mdi mdi-content-copy'} tooltip={m('copy')} tooltipPosition={"bottom-left"} ref={"copy-button"} />
                         {onSelectPeriod &&
-                            <IconButton style={styles.button} iconStyle={{...styles.buttonIcon,color:focus?'#ff5722':styles.buttonIcon.color}} iconClassName={"mdi mdi-clock"} onClick={focus ? this.unfocusPeriod.bind(this) : this.focusPeriod.bind(this)} tooltip={"Show +/- 5 minutes"} tooltipPosition={"bottom-left"}/>
+                            <IconButton style={styles.button} iconStyle={{...styles.buttonIcon,color:focus?'#ff5722':styles.buttonIcon.color}} iconClassName={"mdi mdi-clock"} onClick={focus ? this.unfocusPeriod.bind(this) : this.focusPeriod.bind(this)} tooltip={m('show-focus')} tooltipPosition={"bottom-left"}/>
                         }
-                        <IconButton style={styles.button} iconStyle={styles.buttonIcon} iconClassName={"mdi mdi-close"} onClick={() => {this.unfocusPeriod(); onRequestClose()}} tooltip={"Close log detail"} tooltipPosition={"bottom-left"}/>
+                        <IconButton style={styles.button} iconStyle={styles.buttonIcon} iconClassName={"mdi mdi-close"} onClick={() => {this.unfocusPeriod(); onRequestClose()}} tooltip={m('close')} tooltipPosition={"bottom-left"}/>
                     </div>
                     {userDisplay === 'avatar' && log.UserName &&
                         <UserAvatar
@@ -203,29 +207,29 @@ class LogDetail extends React.Component{
                 </Paper>
                 {log.UserName && userDisplay === 'inline' &&
                 <Fragment>
-                    <GenericLine iconClassName={"mdi mdi-account"} legend={"User"} data={log.UserName} />
+                    <GenericLine iconClassName={"mdi mdi-account"} legend={m('user')} data={log.UserName} />
                     {userLegend &&
-                        <GenericLine iconClassName={"mdi mdi-account-multiple"} legend={"User Attributes"} data={userLegend}/>
+                        <GenericLine iconClassName={"mdi mdi-account-multiple"} legend={m('user-attributes')} data={userLegend}/>
                     }
                     <Divider style={styles.divider}/>
                 </Fragment>
                 }
-                <GenericLine iconClassName={"mdi mdi-calendar"} legend={"Event Date"} data={new Date((log.Ts+timeOffset) * 1000).toLocaleString()}/>
-                <GenericLine iconClassName={"mdi mdi-comment-text"} legend={"Event Message"} data={msg} />
-                <GenericLine iconClassName={"mdi mdi-server-network"} legend={"Service"} data={log.Logger} />
+                <GenericLine iconClassName={"mdi mdi-calendar"} legend={m('date')} data={new Date((log.Ts+timeOffset) * 1000).toLocaleString()}/>
+                <GenericLine iconClassName={"mdi mdi-comment-text"} legend={m('msg')} data={msg} />
+                <GenericLine iconClassName={"mdi mdi-server-network"} legend={m('service')} data={log.Logger} />
 
                 {(log.RemoteAddress  || log.UserAgent || log.HttpProtocol) &&
                     <Divider style={styles.divider}/>
                 }
-                {log.RemoteAddress && <GenericLine iconClassName={"mdi mdi-cast-connected"} legend={"Connection IP"} data={log.RemoteAddress} />}
-                {log.UserAgent && <GenericLine iconClassName={"mdi mdi-cellphone-link"} legend={"User Agent"} data={log.UserAgent} />}
-                {log.HttpProtocol && <GenericLine iconClassName={"mdi mdi-open-in-app"} legend={"Protocol"} data={log.HttpProtocol} />}
+                {log.RemoteAddress && <GenericLine iconClassName={"mdi mdi-cast-connected"} legend={m('connection')} data={log.RemoteAddress} />}
+                {log.UserAgent && <GenericLine iconClassName={"mdi mdi-cellphone-link"} legend={m('agent')} data={log.UserAgent} />}
+                {log.HttpProtocol && <GenericLine iconClassName={"mdi mdi-open-in-app"} legend={m('protocol')} data={log.HttpProtocol} />}
                 {log.NodePath &&
                 <Fragment>
                     <Divider style={styles.divider}/>
-                    <GenericLine iconClassName={"mdi mdi-file-tree"} legend={"File/Folder"} data={log.NodePath} />
-                    {log.TransferSize && <GenericLine iconClassName={"mdi mdi-file"} legend={"Transfer Size"} data={log.TransferSize} />}
-                    <GenericLine iconClassName={"mdi mdi-folder-open"} legend={"In Workspace"} data={log.WsUuid} />
+                    <GenericLine iconClassName={"mdi mdi-file-tree"} legend={m('node')} data={log.NodePath} />
+                    {log.TransferSize && <GenericLine iconClassName={"mdi mdi-file"} legend={m('transfer-size')} data={log.TransferSize} />}
+                    <GenericLine iconClassName={"mdi mdi-folder-open"} legend={m('workspace')} data={log.WsUuid} />
                 </Fragment>
                 }
                 {Object.keys(zaps).length > 0 &&

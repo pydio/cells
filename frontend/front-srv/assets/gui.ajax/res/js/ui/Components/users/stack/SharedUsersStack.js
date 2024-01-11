@@ -27,11 +27,12 @@ const SharedUsersStack = ({acls, max=6, size=32, onlines=undefined}) => {
     }
     let participants = Object.keys(acls).map((k,i) => {
         let style = {...participantStyle};
-        let type, object, online;
+        let type, object, online, key;
         const acl = acls[k];
         if(acl.User) {
             type = 'user';
             object = acl.User
+            key = 'user-'+acl.User.Login
             if(onlines !== undefined) {
                 online = onlines && onlines.indexOf && onlines.indexOf(acl.User.Login) > -1;
                 if(online) {
@@ -41,13 +42,15 @@ const SharedUsersStack = ({acls, max=6, size=32, onlines=undefined}) => {
         }else if (acl.Group) {
             type = 'group'
             object = acl.Group;
+            key = 'group-'+acl.Group.Uuid
         } else if(acl.Role) {
             type = 'team'
             object = acl.Role
+            key = 'group-'+acl.Role.Uuid
         } else {
             return null
         }
-        return {type, object, style, online}
+        return {type, object, style, online, key}
     }).filter(a => a !== null)
 
     if(onlines !== undefined) { // Sort with online first
@@ -78,7 +81,7 @@ const SharedUsersStack = ({acls, max=6, size=32, onlines=undefined}) => {
 
     return (
         <div style={{display:'flex', height:size}}>
-            {participants.map(({type, object, style})=> <SharedAvatar size={size} type={type} idmObject={object} style={style} tooltip={true}/>)}
+            {participants.map(({type, object, style, key})=> <SharedAvatar key={key} size={size} type={type} idmObject={object} style={style} tooltip={true}/>)}
         </div>
     )
 

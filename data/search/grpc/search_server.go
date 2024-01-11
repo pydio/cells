@@ -214,7 +214,8 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 		}
 	}()
 
-	if err := engine.SearchNodes(ctx, req.GetQuery(), req.GetFrom(), req.GetSize(), resultsChan, facetsChan, doneChan); err != nil {
+	err := s.Engine.SearchNodes(ctx, req.GetQuery(), req.GetFrom(), req.GetSize(), req.GetSortField(), req.GetSortDirDesc(), resultsChan, facetsChan, doneChan)
+	if err != nil {
 		return err
 	}
 

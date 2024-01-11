@@ -3,12 +3,12 @@
     "other": "Capture audio or video from:"
   },
   "title.camera": {
-    "other": "Camera"
+    "other": "Kamera"
   },
   "title.screencast": {
     "other": "Screencast"
   },
   "title.audio": {
-    "other": "Microphone"
+    "other": "Mikrofon"
   }
 }

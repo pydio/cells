@@ -1977,13 +1977,19 @@
     "other": "H:m"
   },
   "date_relative_today": {
-    "other": "hoy a las TIME"
+    "other": "[Hoy a las] LT"
   },
   "date_relative_tomorrow": {
-    "other": "mañana a las TIME"
+    "other": "[Mañana a las] LT"
   },
   "date_relative_yesterday": {
-    "other": "ayer a las TIME"
+    "other": "[Ayer a las] LT"
+  },
+  "date_relative_lastweek": {
+    "other": "[El pasado] dddd [a las] LT"
+  },
+  "date_relative_nextweek": {
+    "other": "dddd [a las] LT"
   },
   "delete_access_key": {
     "other": "D"
@@ -2250,10 +2256,10 @@
     "other": "¡No utilizar / en nombres de archivo!"
   },
   "filename.forbidden.empty": {
-    "other": "You must provide a name!"
+    "other": "¡Debes proporcionar un nombre!"
   },
   "filename.trailing-leading.spaces": {
-    "other": "Warning, it seems that the name begins or ends with a blank character (perhaps a typo?)"
+    "other": "Advertencia, parece que el nombre comienza o termina con un carácter en blanco (¿tal vez un tipo?)"
   },
   "rename.newvalue.error.similar": {
     "other": "¡Por favor, utilice un valor diferente para renombrar!"
@@ -2310,7 +2316,7 @@
     "other": "Seleccionar grupo"
   },
   "addressbook.pick.multiple": {
-    "other": "Multiple Selection"
+    "other": "Selección Múltiple"
   },
   "confirm.dialog.title": {
     "other": "Confirmar"
@@ -2339,6 +2345,9 @@
   "form.input-image.avatarMax": {
     "other": "Por favor, utilice imágenes de menos de 5MB"
   },
+  "searchengine.start": {
+    "other": "Empezar a escribir para buscar archivos y carpetas"
+  },
   "searchengine.searching": {
     "other": "Buscando..."
   },
@@ -2352,13 +2361,13 @@
     "other": "Buscar en..."
   },
   "searchengine.share.title": {
-    "other": "Shared"
+    "other": "Compartido"
   },
   "searchengine.share.hint": {
-    "other": "No status"
+    "other": "Sin estatus"
   },
   "searchengine.share.option.link": {
-    "other": "Public Link"
+    "other": "Enlace Público"
   },
   "searchengine.share.option.cell": {
     "other": "Shared in Cell"
@@ -2426,8 +2435,53 @@
   "searchengine.complete.activefilters-edit": {
     "other": "Click to modify"
   },
+  "chat.dropzone.remove": {
+    "other": "Remove"
+  },
+  "chat.dropzone.preview": {
+    "other": "Include preview?"
+  },
+  "chat.dropzone.inline": {
+    "other": "Insert inline"
+  },
   "chat.load-older": {
     "other": "Entradas más antiguas"
+  },
+  "chat.msg.edit": {
+    "other": "Edit Message"
+  },
+  "chat.msg.save": {
+    "other": "Save Changes"
+  },
+  "chat.msg.revert": {
+    "other": "Revert Changes"
+  },
+  "chat.msg.delete": {
+    "other": "Delete Message"
+  },
+  "chat.msg.delete.confirm.title": {
+    "other": "Delete Message?"
+  },
+  "chat.msg.delete.confirm": {
+    "other": "This action cannot be undone"
+  },
+  "chat.link.doc.loading": {
+    "other": "Loading document..."
+  },
+  "chat.link.doc.opening": {
+    "other": "Opening document..."
+  },
+  "chat.link.doc.goto": {
+    "other": "Go to document"
+  },
+  "chat.link.doc.not-found": {
+    "other": "Document not found, it may have been deleted."
+  },
+  "chat.link.doc.click-indicator": {
+    "other": "Click to open %s"
+  },
+  "chat.link.doc.open-in": {
+    "other": "Open document in..."
   },
   "workspace.quota-usage": {
     "other": "Uso de Cuota"

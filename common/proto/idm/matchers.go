@@ -223,7 +223,7 @@ func (m *UserSingleQuery) matches(user *User) bool {
 			if m.AttributeAnyValue {
 				bb = append(bb, true)
 			} else {
-				bb = append(bb, uA == m.AttributeValue)
+				bb = append(bb, compareStrings(uA, m.AttributeValue))
 			}
 		} else {
 			bb = append(bb, false)

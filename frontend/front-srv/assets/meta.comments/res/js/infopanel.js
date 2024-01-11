@@ -19,39 +19,45 @@
  */
 
 import Pydio from 'pydio'
-const React = require('react');
+import React, {useContext} from 'react';
 const {PydioContextConsumer} = Pydio.requireLib('boot');
-const {InfoPanelCard} = Pydio.requireLib('workspaces');
+const {InfoPanelCard, MultiColumnContext} = Pydio.requireLib('workspaces');
 const {Chat} = Pydio.requireLib('components');
 
-class InfoPanel extends React.Component {
+let InfoPanel = (props) => {
 
-    render(){
-
-        const {node, pydio, popoverPanel} = this.props;
-        return (
-            <InfoPanelCard identifier={"meta-comments"} style={this.props.style} title={pydio.MessageHash['meta.comments.1']} popoverPanel={popoverPanel}>
-                <Chat
-                    roomType="NODE"
-                    roomObjectId={node.getMetadata().get("uuid")}
-                    fieldHint={pydio.MessageHash['meta.comments.2']}
-                    emptyStateProps={{
-                        iconClassName:'mdi mdi-comment-outline',
-                        primaryTextId:pydio.MessageHash['meta.comments.empty-state'],
-                        style:{padding:'10px 20px 20px', backgroundColor: 'transparent'},
-                        iconStyle:{fontSize: 40},
-                        legendStyle:{fontSize: 13}
-                    }}
-                    textFieldProps={{
-                        style:{height: 40, lineHeight:'16px'},
-                        hintStyle:{fontSize: 13, whiteSpace:'no-wrap'}
-                    }}
-                    popoverPanel={popoverPanel}
-                    readonly={node.getMetadata().get('node_readonly') === 'true'}
-                />
-            </InfoPanelCard>
-        );
+    const {currentPin} = useContext(MultiColumnContext) || {};
+    const {node, pydio, popoverPanel, ...infoProps} = props;
+    let style, msgContainerStyle;
+    if(currentPin) {
+        style = {height:'100%', display:'flex', flexDirection:'column'}
+        msgContainerStyle = {flex: 1, maxHeight: 'inherit'}
     }
+    return (
+        <InfoPanelCard {...infoProps} identifier={"meta-comments"} icon={"mdi mdi-message-text-outline"} title={pydio.MessageHash['meta.comments.1']} popoverPanel={popoverPanel}>
+            <Chat
+                pydio={pydio}
+                roomType="NODE"
+                roomObjectId={node.getMetadata().get("uuid")}
+                fieldHint={pydio.MessageHash['meta.comments.2']}
+                style={style}
+                msgContainerStyle={msgContainerStyle}
+                emptyStateProps={{
+                    iconClassName:'mdi mdi-comment-outline',
+                    primaryTextId:pydio.MessageHash['meta.comments.empty-state'],
+                    style:{padding:'10px 20px 20px', backgroundColor: 'transparent'},
+                    iconStyle:{fontSize: 40},
+                    legendStyle:{fontSize: 13}
+                }}
+                textFieldProps={{
+                    style:{height: 40, lineHeight:'16px'},
+                    hintStyle:{fontSize: 13, whiteSpace:'no-wrap'}
+                }}
+                popoverPanel={popoverPanel}
+                readonly={node.getMetadata().get('node_readonly') === 'true'}
+            />
+        </InfoPanelCard>
+    );
 
 }
 

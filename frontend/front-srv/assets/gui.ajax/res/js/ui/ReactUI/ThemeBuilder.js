@@ -344,6 +344,7 @@ export default class ThemeBuilder {
                 styleTarget.style.setProperty('--md-sys-color-on-surface-variant', palette.primary1Color)
                 styleTarget.style.setProperty('--md-sys-color-hover-background', 'rgba(0,0,0,.1)')
                 styleTarget.style.setProperty('--md-sys-color-field-underline-idle', '#e0e0e0')
+                styleTarget.style.setProperty('--md-sys-color-surface-2', '#ffffff')
             }
 
         }
@@ -527,24 +528,7 @@ export default class ThemeBuilder {
         const headerBase = 72
         const buttonsHeight = 24
         const buttonsFont = 13
-
-        let listMarginRight = 0, listMarginTop = 0, isGrid;
-        isGrid = !(displayMode==='list'||displayMode==='detail');
-
-        if(isMUI3) {
-            if(displayMode.indexOf('grid-')!==0 && displayMode !== 'masonry'){
-                listMarginTop = masterMargin
-            }
-            if(rightColumnClosed) {
-                if(!isGrid){
-                    listMarginRight = masterMargin
-                }
-            } else {
-                if(isGrid){
-                    listMarginRight = -masterMargin
-                }
-            }
-        }
+        const isGrid = !(displayMode==='list'||displayMode==='detail');
 
         let styles = {
             masterMargin,
@@ -562,12 +546,21 @@ export default class ThemeBuilder {
                 display:'flex',
                 ...appBarRounded
             },
+            masterListContainer:{
+                flex: 1,
+                display:'flex',
+                overflow:'hidden',
+                columnGap:masterMargin,
+                padding:masterMargin,
+                paddingBottom: 0,
+                maxWidth: '100%'
+            },
             listStyle: {
                 flex: 1,
-                marginRight:listMarginRight,
-                marginTop:listMarginTop,
+                margin: 0,
                 backgroundColor:isGrid?'transparent':mui3.surface,
-                borderRadius:isGrid?0:`${themeCusto.borderRadius}px ${themeCusto.borderRadius}px 0 0`
+                borderRadius:isGrid?0:`${themeCusto.borderRadius}px ${themeCusto.borderRadius}px 0 0`,
+                minWidth: 280,
             },
             buttonsStyle : {
                 width: 40,
@@ -623,13 +616,21 @@ export default class ThemeBuilder {
                     top: 0,
                     width: '100%'
                 },
+                contentContainer: {
+                    display:'grid',
+                    rowGap: masterMargin,
+                    paddingBottom: masterMargin
+                },
+                shrinked:{
+                    background: isMUI3?mui3['surface-1']:"white"
+                },
                 card: {
                     zDepth: 0,
                     panel:{
                         background: isMUI3?mui3['surface-1']:"white",
                         boxShadow: isMUI3?'none':'rgb(0,0, 0, .15) 0px 0px 12px',
                         borderRadius: mui3['card-border-radius'] || 10,
-                        margin: masterMargin,
+                        //margin: masterMargin,
                         overflow:'hidden',
                         //border:'1px solid transparent'
                     },
@@ -639,36 +640,75 @@ export default class ThemeBuilder {
                     header:{
                         backgroundColor:'transparent',
                         position:'relative',
-                        color:mui3['on-surface-variant'],
-                        fontSize: 14,
-                        fontWeight: 500,
-                        padding: '12px 16px',
-                        cursor:'pointer'
+                        display:'flex',
+                        alignItems:'center'
                     },
                     content:{
                         backgroundColor:'transparent',
                         paddingBottom: 0,
                         color:mui3['on-surface-variant']
                     },
+                    headerTitle:{
+                        flex: 1,
+                        color:mui3['on-surface-variant'],
+                        fontSize: 14,
+                        fontWeight: 500,
+                        padding: '12px 16px',
+                        whiteSpace:'nowrap',
+                        overflow:'hidden',
+                        textOverflow:'ellipsis',
+                        cursor:'move'
+                    },
                     headerIcon:{
-                        position:'absolute',
-                        top: -1,
-                        right: 0,
-                        color:'#ccc'
+                        color:mui3['outline-variant'],
+                        paddingRight: 2
                     },
                     actions:{
                         padding: 2,
                         textAlign: 'right',
                         borderTop: '1px solid ' + mui3['outline-variant-50']
+                    },
+                    shrinked: {
+                        panel:{
+                            background:'transparent'
+                        },
+                        header:{
+                            display:'flex',
+                            flexDirection:'column',
+                            alignItems:'center',
+                            justifyContent:'center',
+                            padding: '8px 4px'
+                        },
+                        headerTitle:{
+                            fontSize: 12,
+                            width: '100%',
+                            whiteSpace:'wrap',
+                            textAlign:'center',
+                            lineHeight: '1.2em',
+                            padding: 0,
+                            paddingTop: 4
+                        },
+                        icon: {
+                            fontSize: 22,
+                            cursor: 'pointer',
+                            padding: '4px 12px',
+                            borderRadius: 12
+                        },
+                        iconHover:{
+                            background: 'var(--md-sys-color-surface-5)'
+                        }
                     }
                 },
                 toolbar:{
                     container: {
+                        display:'flex',
                         backgroundColor:'transparent',
                         justifyContent: 'flex-end',
                         alignItems: 'center',
                         position:'relative',
-                        borderTop: mui3['outline-variant-50']
+                        borderTop: mui3['outline-variant-50'],
+                        padding: 4,
+                        minHeight: 40
                     },
                     button: {
                         paddingRight: 8,
@@ -726,8 +766,8 @@ export default class ThemeBuilder {
                 workspacesList:{
                     // must be named style for WorkspacesList widget, will be applied to vertical scroller
                     style:searchView ? {
-                        margin: 8,
-                        marginRight:0,
+                        margin: 0,
+                        marginBottom: masterMargin,
                         width:220,
                         borderRadius: mui3['card-border-radius'],
                         border: '1px solid ' + mui3['outline-variant-50'],
@@ -788,6 +828,11 @@ export default class ThemeBuilder {
             const border = styles.leftPanel.masterStyle.borderRight
             delete(styles.leftPanel.masterStyle.borderRight)
             styles.leftPanel.workspacesList.style = {borderRight:border};
+            delete(styles.infoPanel.contentContainer.paddingBottom)
+            styles.infoPanel.contentContainer.padding = masterMargin
+            if(!isGrid) {
+                styles.masterListContainer.padding = 0
+            }
         }
 
         return styles;

@@ -28,6 +28,13 @@ import {loadEditorClass} from "../editor/util/ClassLoader";
 const {MaterialTable} = Pydio.requireLib('components');
 const {ModernTextField} = Pydio.requireLib('hoc');
 
+const typeIcons = {
+    'admin':'card-account-details-outline',
+    'IsUserRole':'clipboard-account',
+    'IsGroupRole':'folder-account',
+    'IsTeam':'account-group-outline'
+}
+
 let RolesDashboard = createReactClass({
     displayName: 'RolesDashboard',
     mixins: [AdminComponents.MessagesConsumerMixin],
@@ -37,14 +44,16 @@ let RolesDashboard = createReactClass({
             roles: [],
             loading: false,
             showTechnical: false,
+            types: [PydioApi.RoleTypeAdmin]
         };
     },
 
     load(){
-        const {showTechnical} = this.state;
+        const {types} = this.state;
         this.setState({loading: true});
+        const api = PydioApi.getRestClient().getIdmApi();
         Pydio.startLoading();
-        PydioApi.getRestClient().getIdmApi().listRoles(showTechnical, 0, -1).then(roles => {
+        api.listRolesV2(0, -1, types).then(roles => {
             Pydio.endLoading();
             this.setState({roles: roles, loading: false});
         }).catch(e => {
@@ -130,12 +139,26 @@ let RolesDashboard = createReactClass({
             if (searchRoleString && label.toLowerCase().indexOf(searchRoleString.toLowerCase()) === -1) {
                 return;
             }
+            let roleType = PydioApi.RoleTypeAdmin
+            if(role.UserRole){
+                roleType = PydioApi.RoleTypeUser
+            } else if(role.GroupRole){
+                roleType = PydioApi.RoleTypeGroup
+            } else if(role.IsTeam){
+                roleType = PydioApi.RoleTypeTeam
+            }
             data.push({
-                role: role,
+                role,
                 roleId: role.Uuid,
-                roleLabel: label,
+                roleLabel: (
+                    <span style={{display:'flex', alignItems:'flex-end'}}>
+                        <span style={{fontSize: 22, marginRight: 12, marginLeft: -8, opacity:0.7}} title={this.context.getMessage('roleType.' + roleType, 'role_editor')} className={'mdi mdi-' + typeIcons[roleType]}/>
+                        {label}
+                    </span>),
+                sorterValue: role.Uuid === 'ROOT_GROUP' ? '0000000' : label,
                 isDefault: role.AutoApplies.join(', ') || '-',
-                lastUpdated: role.LastUpdated
+                lastUpdated: role.LastUpdated,
+                roleType: this.context.getMessage('roleType.' + roleType, 'role_editor')
             });
         });
         return data;
@@ -143,10 +166,11 @@ let RolesDashboard = createReactClass({
 
     render(){
 
-        const {muiTheme, accessByName} = this.props;
+        const {pydio, muiTheme, accessByName} = this.props;
         const styles = AdminComponents.AdminStyles(muiTheme.palette);
-        const {searchRoleString, showTechnical} = this.state;
+        const {searchRoleString, showTechnical, types} = this.state;
         const hasEditRight = accessByName('Create');
+        const allTypes = [PydioApi.RoleTypeAdmin, PydioApi.RoleTypeTeam, PydioApi.RoleTypeGroup, PydioApi.RoleTypeUser]
 
         // Header Buttons & edit functions
         let selectRows = null;
@@ -155,34 +179,61 @@ let RolesDashboard = createReactClass({
             buttons.push(<FlatButton {...styles.props.header.flatButton} primary={true} label={this.context.getMessage("user.6")} onClick={this.createRoleAction.bind(this)}/>);
             selectRows = this.openTableRows.bind(this);
         }
-        buttons.push(
+        const filterButton = (
             <IconMenu
-                iconButtonElement={<IconButton iconClassName={"mdi mdi-filter-variant"} {...styles.props.header.iconButton}/>}
-                anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+                iconButtonElement={<IconButton tooltip={this.context.getMessage('dashboard.filterByType', 'role_editor')}  iconClassName={"mdi mdi-filter-variant"} {...styles.props.header.iconButton}/>}
+                anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
                 targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                onChange={()=> {this.setState({showTechnical:!showTechnical}, ()=>{this.load();})}}
+                onChange={(e, v)=> {
+                    let newTypes
+                    if(types.indexOf(v) > -1) {
+                        newTypes = types.filter(t => t !== v)
+                    } else {
+                        newTypes = [...types, v]
+                    }
+                    if(newTypes.length === 0) {
+                        pydio.UI.displayMessage('ERROR', this.context.getMessage('dashboard.filterSelectOne', 'role_editor'))
+                        return
+                    }
+                    this.setState({types: newTypes}, ()=>{this.load();})
+                }}
+                desktop={true}
+                clickCloseDelay={0}
             >
-                <MenuItem primaryText={this.context.getMessage('dashboard.technical.show', 'role_editor')} value={"show"} rightIcon={showTechnical ? <FontIcon className={"mdi mdi-check"}/> : null}/>
-                <MenuItem primaryText={this.context.getMessage('dashboard.technical.hide', 'role_editor')} value={"hide"} rightIcon={!showTechnical ? <FontIcon className={"mdi mdi-check"}/>: null}/>
+                {allTypes.map(t => {
+                    const icon = types.indexOf(t) > -1 ? 'checkbox-marked-outline' : 'checkbox-blank-outline'
+                    return (
+                        <MenuItem
+                            primaryText={this.context.getMessage('dashboard.typeFilter.' + t, 'role_editor')}
+                            value={t}
+                            leftIcon={<FontIcon className={"mdi mdi-" +typeIcons[t]} style={{zoom: 0.9, top: 0}}/>}
+                            rightIcon={<FontIcon className={"mdi mdi-" +icon} style={{zoom: 0.9, top: 0}}/>}
+                        />
+                    );
+                })}
             </IconMenu>
         );
 
         const searchBox = (
-            <div style={{display:'flex'}}>
-                <div style={{flex: 1}}/>
-                <div style={{width:190}}>
-                    <ModernTextField fullWidth={true} hintText={this.context.getMessage('47', 'role_editor') + '...'} value={searchRoleString || ''} onChange={(e,v) => this.setState({searchRoleString:v}) } />
+            <div style={{display:'flex', alignItems:'center', justifyContent:'center'}}>
+                <div style={{flex: 1, maxWidth:380}}>
+                    <ModernTextField
+                        fullWidth={true}
+                        hintText={this.context.getMessage('47', 'role_editor') + '...'}
+                        value={searchRoleString || ''}
+                        onChange={(e,v) => this.setState({searchRoleString:v}) }
+                        variant={"compact"}
+                    />
                 </div>
+                {filterButton}
             </div>
         );
-        const iconStyle = {
-            color: 'rgba(0,0,0,0.3)',
-            fontSize: 20
-        };
+
         const columns = [
-            {name:'roleLabel', label: this.context.getMessage('32', 'role_editor'), style:{width:'35%', fontSize:15}, headerStyle:{width:'35%'}, sorter:{type:'string', default: true}},
+            {name:'roleLabel', label: this.context.getMessage('32', 'role_editor'), style:{width:'40%', fontSize:15}, headerStyle:{width:'40%'}, sorter:{type:'string', default: true, value:(row)=>row.sorterValue}},
+            {name:'roleType', label: this.context.getMessage('roleType', 'role_editor'), style:{width:140}, headerStyle:{width:140}, hideSmall:true, sorter:{type:'string'}},
             {name:'lastUpdated', useMoment: true, label: this.context.getMessage('last_update', 'role_editor'), hideSmall:true, sorter:{type:'number'}},
-            {name:'isDefault', label: this.context.getMessage('114', 'settings'), style:{width:'20%'}, headerStyle:{width:'20%'}, hideSmall:true, sorter:{type:'string'}},
+            {name:'isDefault', label: this.context.getMessage('114', 'settings'), style:{width:'15%'}, headerStyle:{width:'15%'}, hideSmall:true, sorter:{type:'string'}},
         ];
 
         const tableActions = [];
@@ -228,7 +279,7 @@ let RolesDashboard = createReactClass({
                             deselectOnClickAway={true}
                             showCheckboxes={false}
                             masterStyles={tableMaster}
-                            paginate={[10,25, 50, 100]}
+                            paginate={[25, 50, 100]}
                             storageKey={'console.roles.list'}
                         />
                     </Paper>

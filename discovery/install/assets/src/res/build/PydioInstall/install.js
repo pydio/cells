@@ -1086,6 +1086,11 @@ var InstallForm = function (_React$Component) {
                         sp.delete("authSource");
                     }
                     url.set('query', '?' + sp.toString());
+                } else if (key === 'query') {
+                    if (value[value.length - 1] === "&") {
+                        value += 'newParam';
+                    }
+                    url.set('query', value);
                 } else {
                     url.set(key, value);
                 }
@@ -1197,6 +1202,14 @@ var InstallForm = function (_React$Component) {
                                         return changeDSN(DSNURL, 'authSource', v);
                                     },
                                     floatingLabelText: this.t('advanced.mongo.authSource'), fullWidth: true, floatingLabelFixed: true }, fieldStyles.textFieldV2)),
+                                _react2.default.createElement('div', { style: { minWidth: 48 } })
+                            ),
+                            _react2.default.createElement(
+                                'div',
+                                { style: { display: 'flex' } },
+                                _react2.default.createElement(_materialUi.TextField, _extends({ value: DSNURL.query, onChange: function onChange(e, v) {
+                                        changeDSN(DSNURL, 'query', v);
+                                    }, floatingLabelText: 'Full query string (avoid edit manually, prefer copy/pasting)', fullWidth: true, floatingLabelFixed: true }, fieldStyles.textFieldV2)),
                                 _react2.default.createElement('div', { style: { minWidth: 48 } })
                             )
                         ),

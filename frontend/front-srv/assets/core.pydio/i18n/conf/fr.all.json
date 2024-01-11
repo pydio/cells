@@ -423,7 +423,7 @@
     "other": "Requis uniquement si vous avez des erreurs concernant l'accès au répertoire temporaire ou la possibilité d'y écrire : certainement lié à l'utilisation du SAFE MODE PHP (disparaîtra dans php6), ou diverses restrictions d'OPEN_BASEDIR. Dans ce cas, créez, et autorisez l'écriture, d'un répertoire temporaire quelque part à la racine de votre hébergement (mais en dessous de '/web', 'www/', 'http/' si possible) et saisissez le chemin absolu vers ce répertoire"
   },
   "This right pattern (empty, r, or rw) will be applied at user creation for this repository.": {
-    "other": "Ce droit d'accès (vide, r, ou rw) sera appliqué à la création d'utilisateur pour ce dépôt."
+    "other": "Ce droit d'accès (vide, r, ou rw) sera appliqué à la création d'utilisateur pour ce workspace."
   },
   "Token URL": {
     "other": "URL du 'Refresh Token'"

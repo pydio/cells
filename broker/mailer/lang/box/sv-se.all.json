@@ -21,7 +21,7 @@
     "other": "If you did not trigger this request, you can safely ignore that. If you keep receiving emails like this, please alert your administrator as it may be a security issue."
   },
   "Mail.ResetPassword.LinkLabel": {
-    "other": "Reset My Password"
+    "other": "Återställ mitt lösenord"
   },
   "Mail.ResetPassword.LinkInstructions": {
     "other": "Click to reset your password"
@@ -96,7 +96,7 @@
     "other": "{{.TplData.Inviter}} is sharing a file with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFile.LinkLabel": {
-    "other": "Open {{.TplData.FileName}}"
+    "other": "Öppna {{.TplData.FileName}}"
   },
   "Mail.PublicFile.LinkInstructions": {
     "other": "Click to preview the file in your browser"
@@ -177,7 +177,7 @@
     "other": "Target folder for writing emails"
   },
   "Mail.Config.Smtp.Label": {
-    "other": "SMTP Server"
+    "other": "SMTP-server"
   },
   "Mail.Config.Smtp.Host.Label": {
     "other": "Server Hostname"

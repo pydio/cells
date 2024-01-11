@@ -105,7 +105,18 @@ func (m *ActionOutput) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 		}
 	}
 	if len(m.Vars) > 0 {
-		_ = encoder.AddReflected("Vars", m.Vars)
+		limited := make(map[string]interface{}, len(m.Vars))
+		for k, v := range m.Vars {
+			if len(v) > maxLength {
+				limited[k] = v[:maxLength] + "..."
+			} else {
+				var val interface{}
+				if e := json.Unmarshal([]byte(v), &val); e == nil {
+					limited[k] = val
+				}
+			}
+		}
+		_ = encoder.AddReflected("Vars", limited)
 	}
 	return nil
 }

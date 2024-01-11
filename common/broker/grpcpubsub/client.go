@@ -75,7 +75,9 @@ func (s *sharedSubscriber) Unsubscribe(subId string) {
 	delete(s.out, subId)
 	if len(s.out) == 0 && s.cancel != nil {
 		s.cancel()
+		subLock.Lock()
 		delete(subscribers, s.sharedKey)
+		subLock.Unlock()
 	}
 }
 

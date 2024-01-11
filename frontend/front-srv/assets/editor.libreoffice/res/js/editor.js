@@ -66,8 +66,11 @@ export default class Editor extends React.Component {
         const req = new RestDocumentAccessTokenRequest();
         req.Path = PydioApi.getClient().getSlugForNode(node) + node.getPath();
         let langParam = '';
-        if(pydio.user.getPreference('lang') !== '') {
-            const lang = pydio.user.getPreference('lang').split('-')[0]
+        if(pydio.user.getPreference('lang')) {
+            let lang = pydio.user.getPreference('lang')
+            if(lang.split) {
+                lang = lang.split('-')[0]
+            }
             langParam = `&lang=${lang}`
         }
         api.generateDocumentAccessToken(req).then(response => {

@@ -71,8 +71,16 @@ class User extends Observable{
         this.idmUser = this.snapshot;
         this.makeSnapshot();
         this.dirty = false;
-        this.notify('update');
         this.role.revert();
+        // Reload parent roles
+        if(this.idmUser.Roles){
+            this.idmRole = this.idmUser.Roles.filter(r=>r.Uuid === this.idmUser.Uuid)[0];
+            if(!this.idmUser.IsGroup){
+                const parentRoles = this.idmUser.Roles.filter(r=>r.Uuid !== this.idmUser.Uuid);
+                this.role.updateParentRoles(parentRoles)
+            }
+        }
+        this.notify('update');
     }
 
     makeSnapshot(){
@@ -91,6 +99,7 @@ class User extends Observable{
         parentRoles = [...parentRoles.filter(r => r.Uuid !== role.Uuid), role];
         this.idmUser.Roles = [...parentRoles, this.idmRole];
         this.dirty = true;
+        this.role.setUniqueRoleDisplay(null)
         this.role.updateParentRoles(parentRoles);
     }
 
@@ -98,6 +107,7 @@ class User extends Observable{
         const parentRoles = this.idmUser.Roles.filter(r => (r.Uuid !== this.idmUser.Uuid && r.Uuid !== role.Uuid));
         this.idmUser.Roles = [...parentRoles, this.idmRole];
         this.dirty = true;
+        this.role.setUniqueRoleDisplay(null)
         this.role.updateParentRoles(parentRoles);
     }
 
@@ -116,6 +126,7 @@ class User extends Observable{
         parentRoles[pos2] = b;
         this.idmUser.Roles = [...parentRoles, this.idmRole];
         this.dirty = true;
+        this.role.setUniqueRoleDisplay(null)
         this.role.updateParentRoles(parentRoles);
     }
 

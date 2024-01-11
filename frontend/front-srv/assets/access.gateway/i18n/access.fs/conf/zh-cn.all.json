@@ -6,7 +6,7 @@
     "other": "默认下载格式"
   },
   "When downloading a folder or a multiple selection, automatically create an archive using this format": {
-    "other": "下载文件夹或多个选择时，使用此格式自动创建压缩包"
+    "other": "下载文件夹或多项选择时，自动使用此格式创建存档"
   },
   "Path to the folder on the server": {
     "other": "服务器上的文件夹路径"
@@ -18,7 +18,7 @@
     "other": "Pydio S3 网关"
   },
   "Absolute path to one or more root nodes": {
-    "other": "一或多个根节点的绝对路径"
+    "other": "到一个或多个根节点的绝对路径"
   },
   "#Items per page": {
     "other": "#每页条目数"

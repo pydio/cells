@@ -23,7 +23,7 @@ package forms
 import (
 	"encoding/xml"
 
-	"github.com/nicksnyder/go-i18n/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n"
 
 	i18n2 "github.com/pydio/cells/v4/common/utils/i18n"
 )
@@ -129,7 +129,7 @@ func (f *Form) Serialize(languages ...string) interface{} {
 	if f.I18NBundle != nil {
 		T = f.I18NBundle.GetTranslationFunc(languages...)
 	} else {
-		T = i18n.IdentityTfunc()
+		T = i18n.IdentityFunc
 	}
 	for _, group := range f.Groups {
 		for _, field := range group.Fields {

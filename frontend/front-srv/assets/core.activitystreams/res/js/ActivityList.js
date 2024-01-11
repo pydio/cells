@@ -19,10 +19,8 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types'
-import {List, FlatButton} from 'material-ui';
 import Pydio from 'pydio'
 import AS2Client from './Client'
-import Activity from './Activity'
 
 const { PydioContextConsumer, moment } = Pydio.requireLib('boot');
 const {EmptyStateView, Timeline} = Pydio.requireLib('components');
@@ -109,7 +107,7 @@ class ActivityList extends React.Component {
     render(){
 
         let content = [];
-        const {listContext, groupByDate, displayContext, pydio,onRequestClose} = this.props;
+        const {listContext, pydio} = this.props;
         let {data, loadMore, loading, error} = this.state;
         let previousFrom;
         let emptyStateIcon = "mdi mdi-pulse";
@@ -128,79 +126,32 @@ class ActivityList extends React.Component {
 
         // Empty Case
         if(!data || !data.items || data.items.length === 0) {
-            let style = {backgroundColor: 'transparent'};
-            let iconStyle, legendStyle;
-            if(displayContext === 'popover'){
-                style = {...style, minHeight: 250}
-            } else if(displayContext === 'infoPanel'){
-                style = {...style, paddingBottom: 20, paddingTop: 10};
-                iconStyle = {fontSize: 40};
-                legendStyle = {fontSize: 13};
-            }
             return (
                 <EmptyStateView
                     pydio={this.props.pydio}
                     iconClassName={emptyStateIcon}
                     primaryTextId={emptyStateString}
-                    style={style}
-                    iconStyle={iconStyle}
-                    legendStyle={legendStyle}
+                    style={{backgroundColor: 'transparent', paddingBottom: 20, paddingTop: 10}}
+                    iconStyle={{fontSize: 40}}
+                    legendStyle={{fontSize: 13}}
                 />);
         }
 
-        if(displayContext === 'infoPanel') {
-            // Switch to Timeline mode
-            return <Timeline
-                items={data.items}
-                className={'small'}
-                useSelection={false}
-                itemUuid={(item) => item.id}
-                itemMoment={(item) => moment(item.updated)}
-                itemDesc={(item) => <ActivityMD activity={item} listContext={listContext} inlineActor={true}/> }
-                itemActions={()=>[]}
-                itemAnnotations={()=>null}
-                color={"#2196f3"}
-                loadMoreAction={data.items.length && loadMore ? loadAction : null}
-                loadMoreLabel={loadMoreLabel}
-                loadMoreDisabled={loading}
-            />
+        return <Timeline
+            items={data.items}
+            className={'small'}
+            useSelection={false}
+            itemUuid={(item) => item.id}
+            itemMoment={(item) => moment(item.updated)}
+            itemDesc={(item) => <ActivityMD activity={item} listContext={listContext} inlineActor={true}/> }
+            itemActions={()=>[]}
+            itemAnnotations={()=>null}
+            color={"#2196f3"}
+            loadMoreAction={data.items.length && loadMore ? loadAction : null}
+            loadMoreLabel={loadMoreLabel}
+            loadMoreDisabled={loading}
+        />
 
-        } else {
-
-            const dateSepStyle = {
-                fontSize: 13,
-                color: 'var(--md-sys-color-outline)',
-                fontWeight: 500
-            }
-
-            data.items.forEach(function(ac, i){
-
-                let fromNow = moment(ac.updated).fromNow();
-                if (groupByDate && fromNow !== previousFrom) {
-                    if(content.length){
-                        //content.pop(); // remove last divider
-                        content.push(<div style={{padding: '20px 16px 8px', ...dateSepStyle}}>{fromNow}</div>);
-                    } else {
-                        content.push(<div style={{padding: '0 16px 8px', ...dateSepStyle}}>{fromNow}</div>);
-                    }
-                }
-                content.push(<Activity key={ac.id} activity={ac} listContext={listContext} oneLiner={groupByDate} displayContext={displayContext} onRequestClose={onRequestClose} />);
-                if (groupByDate) {
-                    previousFrom = fromNow;
-                    //content.push(<div style={{borderTop:'1px solid var(--md-sys-color-outline-variant-50)', width:'100%'}}/>)
-                }
-
-            });
-            if(groupByDate){
-                //content.pop(); // remove last divider
-            }
-            if(content.length && loadMore){
-                content.push(<div style={{paddingLeft:16}}><FlatButton primary={true} label={loadMoreLabel} disabled={loading} onClick={loadAction}/></div>)
-            }
-            return <List style={this.props.style}>{content}</List>;
-
-
-        }
 
     }
 
@@ -210,8 +161,7 @@ ActivityList.PropTypes = {
     context: PropTypes.string,
     contextData: PropTypes.string,
     boxName : PropTypes.string,
-    pointOfView: PropTypes.oneOf(['GENERIC', 'ACTOR', 'SUBJECT']),
-    displayContext: PropTypes.oneOf(['mainList', 'infoPanel', 'popover'])
+    pointOfView: PropTypes.oneOf(['GENERIC', 'ACTOR', 'SUBJECT'])
 };
 
 ActivityList = PydioContextConsumer(ActivityList);

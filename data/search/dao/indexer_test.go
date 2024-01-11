@@ -130,7 +130,7 @@ func search(ctx context.Context, index *Server, queryObject *tree.Query) ([]*tre
 		}
 	}()
 
-	e := index.SearchNodes(ctx, queryObject, 0, 10, resultsChan, facetsChan, doneChan)
+	e := index.SearchNodes(ctx, queryObject, 0, 10, "", false, resultsChan, facetsChan, doneChan)
 	wg.Wait()
 	return results, e
 
@@ -538,6 +538,79 @@ func TestClearIndex(t *testing.T) {
 		results, e := search(ctx, server, queryObject)
 		So(e, ShouldBeNil)
 		So(results, ShouldHaveLength, 0)
+	})
+
+}
+
+func TestSearchByUuidsMatch(t *testing.T) {
+
+	Convey("Search Node by UUID(s)", t, func() {
+
+		server, closer := getTmpIndex(true)
+		defer closer()
+		ctx := context.Background()
+
+		node3 := &tree.Node{
+			Uuid:  "uuidpart1-uuidpart2",
+			Path:  "/a/folder",
+			MTime: time.Now().Unix(),
+			Type:  2,
+			Size:  36,
+		}
+		node3.MustSetMeta("name", "folder")
+
+		e := server.IndexNode(ctx, node3, false, nil)
+		So(e, ShouldBeNil)
+
+		node4 := &tree.Node{
+			Uuid:  "uuidpart1-uuidpart3",
+			Path:  "/a/folder2",
+			MTime: time.Now().Unix(),
+			Type:  2,
+			Size:  36,
+		}
+		node4.MustSetMeta("name", "folder2")
+
+		e = server.IndexNode(ctx, node4, false, nil)
+		So(e, ShouldBeNil)
+		_ = server.Engine.Flush(ctx)
+		<-time.After(7 * time.Second)
+
+		queryObject := &tree.Query{
+			UUIDs: []string{"randomUUID"},
+		}
+		results, e := search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 0)
+
+		queryObject = &tree.Query{
+			UUIDs: []string{"docID1"},
+		}
+		results, e = search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 1)
+
+		queryObject = &tree.Query{
+			UUIDs: []string{"uuidpart1-uuidpart3"},
+		}
+		results, e = search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 1)
+
+		queryObject = &tree.Query{
+			UUIDs: []string{"docID1", "docID2"},
+		}
+		results, e = search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 2)
+
+		queryObject = &tree.Query{
+			FreeString: "+Uuid:\"docID1\"",
+		}
+		results, e = search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 1)
+
 	})
 
 }

@@ -102,6 +102,17 @@ export default class SettingsNodeProvider{
         }
     }
 
+    findUsersRoot(node) {
+        let parent = node;
+        while(parent.getPath() !== USERS_ROOT) {
+            parent = parent.getParent()
+            if(!parent) {
+                return null
+            }
+        }
+        return parent;
+    }
+
     /**
      * Load a node
      * @param node AjxpNode
@@ -115,6 +126,7 @@ export default class SettingsNodeProvider{
 
         if(node.getPath().indexOf(USERS_ROOT) === 0) {
             const basePath = node.getPath().substring(USERS_ROOT.length);
+            const isRootPath = basePath === '' || basePath === '/'
             let offset = 0, limit = 50;
             const pData = node.getMetadata().get('paginationData');
             let newPage = 1;
@@ -124,38 +136,32 @@ export default class SettingsNodeProvider{
                 offset = (newPage - 1) * limit;
             }
             // Check if there is profile filter
-            let profile = '';
-            if(node.getMetadata().has('userProfileFilter')){
-                profile = node.getMetadata().get('userProfileFilter');
+            let profile;
+            const usersRoot = this.findUsersRoot(node)
+            if(usersRoot && usersRoot.getMetadata().has('userProfileFilter')){
+                profile = usersRoot.getMetadata().get('userProfileFilter');
             }
-            Pydio.startLoading();
-            PydioApi.getRestClient().getIdmApi().listUsersGroups(basePath, recursive, offset, limit, profile).then(collection => {
+            const idmAPI = PydioApi.getRestClient().getIdmApi()
+
+            const usersCollectionParser = (collection, rootRole) => {
                 Pydio.endLoading();
                 let childrenNodes = [];
                 let count = 0;
+                if(rootRole && rootRole.PoliciesContextEditable) {
+                    const rootGroup = new AjxpNode('ROLE:'+rootRole.Uuid, true, rootRole.Label)
+                    rootGroup.getMetadata().set('ajxp_mime', 'role')
+                    rootGroup.getMetadata().set('IdmRole', rootRole)
+                    childrenNodes.push(rootGroup);
+                }
                 if(collection.Groups){
                     collection.Groups.map(group => {
-                        const gNode = this.parseIdmUser(group)
-                        /*
-                        const label = (group.Attributes && group.Attributes['displayName']) ? group.Attributes['displayName'] : group.GroupLabel;
-                        const gNode = new AjxpNode(USERS_ROOT + LangUtils.trimRight(group.GroupPath, '/') + '/' + group.GroupLabel, false, label);
-                        gNode.getMetadata().set('IdmUser', group);
-                        gNode.getMetadata().set('ajxp_mime', 'group');
-                         */
-                        childrenNodes.push(gNode)
+                        childrenNodes.push(this.parseIdmUser(group))
                     })
                 }
                 if(collection.Users){
                     count = collection.Users.length;
                     collection.Users.map(user => {
-                        const uNode = this.parseIdmUser(user)
-                        /*
-                        const label = (user.Attributes && user.Attributes['displayName']) ? user.Attributes['displayName'] : user.Login;
-                        const uNode = new AjxpNode(USERS_ROOT + LangUtils.trimRight(user.GroupPath, '/') + '/' + user.Login, true, label);
-                        uNode.getMetadata().set('IdmUser', user);
-                        uNode.getMetadata().set('ajxp_mime', 'user_editable');
-                         */
-                        childrenNodes.push(uNode)
+                        childrenNodes.push(this.parseIdmUser(user))
                     })
                 }
                 if(collection.Total > count) {
@@ -169,9 +175,21 @@ export default class SettingsNodeProvider{
                     node.replaceBy(node);
                     nodeCallback(node);
                 }
-            }).catch(()=>{
-                Pydio.endLoading();
-            });
+            }
+
+
+            Pydio.startLoading();
+            if(isRootPath) {
+                idmAPI.loadRole('ROOT_GROUP').then(idmRole => {
+                    return idmAPI.listUsersGroups(basePath, recursive, offset, limit, profile).then(collection => usersCollectionParser(collection, idmRole))
+                }).catch(e => {
+                    return idmAPI.listUsersGroups(basePath, recursive, offset, limit, profile).then(collection => usersCollectionParser(collection, null))
+                }).catch(e => {
+                    Pydio.endLoading()
+                })
+            } else {
+                idmAPI.listUsersGroups(basePath, recursive, offset, limit, profile).then(collection => usersCollectionParser(collection, null)).catch(e => Pydio.endLoading())
+            }
             return;
         }
 

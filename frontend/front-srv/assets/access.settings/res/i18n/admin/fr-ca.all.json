@@ -11,6 +11,9 @@
   "ds.board.ds.legend": {
     "other": "Les datasources représentent concrètement les points d'accès à vos stockages, et sont agrégées dans un namespace global par Pydio. Elles peuvent être distribuées sur différents nœuds."
   },
+  "ds.board.ds.internal.legend": {
+    "other": "Ces Datasources sont utilisées pour stocker des binaires internes (par exemple les versions de fichiers)"
+  },
   "ds.board.ds.title": {
     "other": "Datasources"
   },
@@ -51,13 +54,13 @@
     "other": "Stockage à plat"
   },
   "ds.format-picker.flat.legend": {
-    "other": "Pour de meilleures performances, les fichiers sont stockés en tant que binaires à l'intérieur du stockage. La structure des fichiers et des dossiers est conservée dans l'index interne seulement."
+    "other": "Les fichiers sont stockés comme des objets binaires, et l'arborescence des répertoires est envoyée régulièrement dans le stockage en cas de besoin de récupération. Option recommandée pour les performances et la scalabilité."
   },
   "ds.format-picker.structured.title": {
     "other": "Importer des données existantes"
   },
   "ds.format-picker.structured.legend": {
-    "other": "Les fichiers et les dossiers sont stockés tels quels, la synchronisation en temps réel reflète la structure de stockage à l'intérieur des index internes."
+    "other": "L'arborescence des répertoires et des fichiers est visible dans le stockage et synchronisée en temps réel. Ce format est historique et n'est pas recommandé, il peut être utiliser ponctuellement pour importer des données existantes. Ne pas utiliser pour des gros volumes ou des déploiements en cluster."
   },
   "ds.format-picker.internal.title": {
     "other": "Format Interne"
@@ -629,6 +632,48 @@
   "logs.noresults": {
     "other": "Pas de résultats"
   },
+  "logs.details.copy": {
+    "other": "Copier la ligne dans le presse-papier"
+  },
+  "logs.details.show-focus": {
+    "other": "Afficher +/- 5 minutes"
+  },
+  "logs.details.close": {
+    "other": "Fermer le détail"
+  },
+  "logs.details.user": {
+    "other": "Utilisateur"
+  },
+  "logs.details.user-attributes": {
+    "other": "Attributs de l'utilisateur"
+  },
+  "logs.details.date": {
+    "other": "Date de l’événement"
+  },
+  "logs.details.msg": {
+    "other": "Message"
+  },
+  "logs.details.service": {
+    "other": "Service émetteur"
+  },
+  "logs.details.connection": {
+    "other": "IP de la connexion"
+  },
+  "logs.details.agent": {
+    "other": "Agent"
+  },
+  "logs.details.protocol": {
+    "other": "Protocole"
+  },
+  "logs.details.node": {
+    "other": "Fichier / Dossier"
+  },
+  "logs.details.transfer-size": {
+    "other": "Taille du transfert"
+  },
+  "logs.details.workspace": {
+    "other": "Workspace"
+  },
   "menu.0": {
     "other": "Tableau de bord"
   },
@@ -921,7 +966,7 @@
     "other": "Detection de charge élevée (serveurs linux seulement)"
   },
   "perfs.load.error": {
-    "other": "Il serait sans doute opportun d'ajouter du CPU et/ou de la RAM, ou de déployer Pydio en configuration multi-noeud."
+    "other": "Il peut être opportun d'ajouter du CPU et/ou de la RAM."
   },
   "perfs.load.help": {
     "other": "Une charge élevée du serveur peut indiquer que votre matériel est sous-dimensionné par rapport à votre nombre d'utilisateurs et votre usage."
@@ -936,7 +981,7 @@
     "other": "Le mailer n'est pas configuré pour utiliser la queue. Voir la page de configuration, penser à ajouter la tâche d'envoi dans le planificateur."
   },
   "perfs.mailer.help": {
-    "other": "Utiliser la queue évite d'envoyer directement des mails pendant les requêtes, mais stocke les mails dans une base séparée et les envoie de manière asynchrone."
+    "other": "L'utilisation d'une file d'attente empêche l'envoi instantané d'emails à chaque action ou requête. Ils sont stockés dans une file d'attente qui est traitée de manière indépendante."
   },
   "perfs.mailer.title": {
     "other": "Queue des mails"
@@ -1046,6 +1091,9 @@
   "policies.rule.delete": {
     "other": "Supprimer la règle"
   },
+  "policies.acl.empty-string": {
+    "other": "Aucune stratégie définie, créez-en une pour assigner dynamiquement des droits d'accès aux Workspaces."
+  },
   "policies.rule.delete.confirm": {
     "other": "Êtes-vous sûr de vouloir supprimer cette règle de sécurité ? Cela pourrait casser le modèle de sécurité de l'application !"
   },
@@ -1102,6 +1150,9 @@
   },
   "react.5b": {
     "other": "Ecrire"
+  },
+  "react.5c": {
+    "other": "accès"
   },
   "react.6": {
     "other": "enfants"
@@ -1222,6 +1273,24 @@
   },
   "user.filter.tooltip": {
     "other": "Filtrer la liste..."
+  },
+  "user.filter.locks": {
+    "other": "Utilisateurs verrouillés"
+  },
+  "user.filter.hidden": {
+    "other": "Liens publics (cachés)"
+  },
+  "user.filter.status": {
+    "other": "Statut"
+  },
+  "user.type.hidden": {
+    "other": "Utilisateur public"
+  },
+  "user.type.hidden.legend": {
+    "other": "Les utilisateurs publics sont créés pour les liens publics (un par lien) et sont masqués par défaut. Il peut être utile de les lister pour détecter les liens publics verrouillés."
+  },
+  "user.rootgroup.legend": {
+    "other": "Autorisations appliquées à toute la hiérarchie des utilisateurs"
   },
   "user.filter.internal": {
     "other": "Utilisateurs internes"
@@ -1575,10 +1644,16 @@
     "other": "Synchro"
   },
   "ws.complete.datasources": {
-    "other": "Datasources et répertoires"
+    "other": "Datasources"
+  },
+  "ws.complete.folders": {
+    "other": "Dossiers Internes"
   },
   "ws.complete.label": {
-    "other": "Sélectionnez un répertoire ou un modèle prédéfini"
+    "other": "Sélectionnez une Datasource ou un modèle prédéfini"
+  },
+  "ws.complete.additional": {
+    "other": "Ajouter un dossier racine"
   },
   "ws.complete.resolves": {
     "other": "Résolu en"
@@ -1597,6 +1672,9 @@
   },
   "ws.editor.default_rights": {
     "other": "Choisissez les permissions par défaut pour ce workspace (elles seront appliquées à tous les utilisateurs internes). Vous pouvez écraser ces permissions en fonction des utilisateurs/roles/groupes dans la section Utilisateurs."
+  },
+  "ws.editor.default_rights.hint": {
+    "other": "Droits par défaut"
   },
   "ws.editor.default_rights.none": {
     "other": "Pas d'accès"
@@ -1853,44 +1931,182 @@
   "scheduler.tasks.delete.confirm": {
     "other": "Êtes-vous sûr de vouloir effacer toutes les tâches pour ce Flow ?"
   },
+  "scheduler.trigger.picker.title": {
+    "other": "Déclencher lors de..."
+  },
+  "scheduler.trigger.type.nodes": {
+    "other": "Événements de fichiers et dossiers (nœuds) : détecter les ajouts, suppressions et modifications de fichiers et de leurs métadonnées."
+  },
+  "scheduler.trigger.type.workspaces": {
+    "other": "Événements des Workspaces : déclenchés lors de la création / suppression de workspaces. Utilisez l'attribut \"Scope\" pour distinguer les Workspaces et les Cells"
+  },
+  "scheduler.trigger.type.acls": {
+    "other": "Événements des ACL : les contrôles d'accès associent les Workspaces, les fichiers/dossiers et les rôles pour ouvrir des accès aux données."
+  },
+  "scheduler.trigger.type.users": {
+    "other": "Événements des utilisateurs : déclenchés lors de l'ajout/suppression d'utilisateurs et lorsqu'ils se connectent ou se déconnectent. Peuvent être utilisés pour déclencher des flux de validation ou ouvrir des accès."
+  },
+  "scheduler.trigger.type.roles": {
+    "other": "Événements des rôles : les utiliser pour automatiser les accès en fonction des noms de rôles. Utilisez les attributs IsTeam, IsGroup, IsUser pour les filtrer."
+  },
+  "scheduler.trigger.type.chat": {
+    "other": "Évènements des Chats : réagir à un nouveau message ou à la modification d'une Discussion"
+  },
+  "scheduler.trigger.type.chat-messages": {
+    "other": "Événements des messages de Chat"
+  },
+  "scheduler.trigger.type.chat-rooms": {
+    "other": "Événements des Discussions"
+  },
   "scheduler.trigger.create.node": {
     "other": "Création"
+  },
+  "scheduler.trigger.create.node.description": {
+    "other": "Un nouveau fichier a été téléchargé ou un nouveau dossier a été créé."
   },
   "scheduler.trigger.read.node": {
     "other": "Lecture"
   },
+  "scheduler.trigger.read.node.description": {
+    "other": "Un fichier a été téléchargé ou le contenu d'un dossier a été listé."
+  },
   "scheduler.trigger.update.path": {
     "other": "Déplacement"
+  },
+  "scheduler.trigger.update.path.description": {
+    "other": "Un fichier ou un dossier a été déplacé ou renommé."
   },
   "scheduler.trigger.update.content": {
     "other": "Contenu"
   },
+  "scheduler.trigger.update.content.description": {
+    "other": "Le contenu d'un fichier a été mis à jour (par édition en ligne ou téléchargement)."
+  },
   "scheduler.trigger.update.metadata": {
     "other": "Métadonnées"
+  },
+  "scheduler.trigger.update.metadata.description": {
+    "other": "Les métadonnées internes ont été modifiées sur un fichier ou un dossier."
   },
   "scheduler.trigger.update.user-metadata": {
     "other": "Mettre à jour les métadonnées"
   },
+  "scheduler.trigger.update.user-metadata.description": {
+    "other": "Les métadonnées éditées par les utilisateurs ont été modifiées (l'événement contient les métadonnées à jour)."
+  },
   "scheduler.trigger.delete.node": {
     "other": "Suppression"
+  },
+  "scheduler.trigger.delete.node.description": {
+    "other": "Un fichier ou un dossier a été définitivement supprimé."
   },
   "scheduler.trigger.create.user": {
     "other": "Utilisateur créé"
   },
+  "scheduler.trigger.create.user.description": {
+    "other": "Un utilisateur ou un groupe a été créé."
+  },
   "scheduler.trigger.read.user": {
     "other": "Utilisateur accédé"
+  },
+  "scheduler.trigger.read.user.description": {
+    "other": "Un utilisateur ou un groupe a été accédé ou listé."
   },
   "scheduler.trigger.update.user": {
     "other": "Utilisateur mis à jour"
   },
+  "scheduler.trigger.update.user.description": {
+    "other": "Un utilisateur ou un groupe a été mis à jour. Cela se produit généralement si l'utilisateur change une préférence ou si l'administrateur assigne un rôle."
+  },
   "scheduler.trigger.delete.user": {
     "other": "Utilisateur supprimé"
+  },
+  "scheduler.trigger.delete.user.description": {
+    "other": "Un utilisateur ou un groupe a été supprimé."
   },
   "scheduler.trigger.bind.user": {
     "other": "Utilisateur authentifié"
   },
+  "scheduler.trigger.bind.user.description": {
+    "other": "Un utilisateur s'est connecté."
+  },
   "scheduler.trigger.logout.user": {
     "other": "Utilisateur déconnecté"
+  },
+  "scheduler.trigger.logout.user.description": {
+    "other": "Un utilisateur s'est déconnecté."
+  },
+  "scheduler.trigger.role.create": {
+    "other": "Création de Rôle"
+  },
+  "scheduler.trigger.role.create.description": {
+    "other": "Un nouveau rôle a été créé, par l'administrateur ou par les utilisateurs."
+  },
+  "scheduler.trigger.role.update": {
+    "other": "Mise à jour d'un rôle"
+  },
+  "scheduler.trigger.role.update.description": {
+    "other": "Un rôle a été édité."
+  },
+  "scheduler.trigger.role.delete": {
+    "other": "Suppression de Rôle"
+  },
+  "scheduler.trigger.role.delete.description": {
+    "other": "Un rôle a été supprimé."
+  },
+  "scheduler.trigger.workspace.create": {
+    "other": "Création d'un Workspace"
+  },
+  "scheduler.trigger.workspace.create.description": {
+    "other": "Un nouveau Workspace ou une nouvelle Cell a été créé(e)."
+  },
+  "scheduler.trigger.workspace.update": {
+    "other": "Mise à jour d'un Workspace"
+  },
+  "scheduler.trigger.workspace.update.description": {
+    "other": "Un Workspace ou une Cell a été mis(e) à jour."
+  },
+  "scheduler.trigger.workspace.delete": {
+    "other": "Suppression de Workspace"
+  },
+  "scheduler.trigger.workspace.delete.description": {
+    "other": "Un Workspace ou une Cell a été supprimé(e)."
+  },
+  "scheduler.trigger.acl.create": {
+    "other": "Création/Mise à jour d'ACL"
+  },
+  "scheduler.trigger.acl.create.description": {
+    "other": "Un contrôle d'accès a été ouvert ou modifié."
+  },
+  "scheduler.trigger.acl.delete": {
+    "other": "Suppression d'ACL"
+  },
+  "scheduler.trigger.acl.delete.description": {
+    "other": "Un contrôle d'accès a été fermé."
+  },
+  "scheduler.trigger.chat-message.put": {
+    "other": "Nouveau message de Chat"
+  },
+  "scheduler.trigger.chat-message.put.description": {
+    "other": "Un message a été posté dans une discussion."
+  },
+  "scheduler.trigger.chat-message.delete": {
+    "other": "Suppression de message"
+  },
+  "scheduler.trigger.chat-message.delete.description": {
+    "other": "Un message a été supprimé d'une discussion."
+  },
+  "scheduler.trigger.chat-room.put": {
+    "other": "Création d'une Discussion"
+  },
+  "scheduler.trigger.chat-room.put.description": {
+    "other": "Une nouvelle discussion a été créée."
+  },
+  "scheduler.trigger.chat-room.delete": {
+    "other": "Suppression de Discussion"
+  },
+  "scheduler.trigger.chat-room.delete.description": {
+    "other": "Un fil de discussion a été supprimé."
   },
   "scheduler.trigger.events": {
     "other": "Evénements"

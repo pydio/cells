@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <editor id="editor.diaporama" order="-1" openable="true"
         iconClass="mdi mdi-image" previewProvider="true" text="186"
-        title="136" actions="PydioDiaporama.Actions" className="PydioDiaporama" mimes="png,jpg,jpeg,gif"
+        title="136" actions="PydioDiaporama.Actions" className="PydioDiaporama" mimes="png,jpg,jpeg,gif,webp"
         label="CONF_MESSAGE[Image viewer]"
         description="CONF_MESSAGE[Image viewer, used for previewing images and browsing them in a diaporam. Generates a thumbnail version of the images.]">
 	<server_settings>

@@ -18,9 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import EditorCache from './EditorCache'
-import {RoleMessagesConsumerMixin, withRoleMessages} from './MessagesMixin'
+import {withRoleMessages} from './MessagesMixin'
 import {loadEditorClass} from "./ClassLoader";
 
-const Util = {EditorCache, RoleMessagesConsumerMixin, withRoleMessages, loadEditorClass};
+const Util = {EditorCache, withRoleMessages, loadEditorClass};
 
 export {Util as default}

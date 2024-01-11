@@ -43,7 +43,6 @@ var BasePluginsBox = frontend.PluginBox{
 		"access.gateway",
 		"access.homepage",
 		"access.settings",
-		"action.avatar",
 		"action.compression",
 		"action.migration",
 		"action.share",

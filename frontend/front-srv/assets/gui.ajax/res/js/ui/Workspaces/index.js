@@ -28,6 +28,7 @@ import UnifiedSearchForm from "./search/components/UnifiedSearchForm";
 import Renderer from "./search/components/Renderer";
 import AdvancedChips from "./search/components/AdvancedChips"
 import Facets from './search/components/Facets'
+import SearchSorter from './search/components/SearchSorter'
 
 import WorkspacesList from './wslist/WorkspacesList'
 import WorkspacesListMaterial from './wslist/WorkspacesListMaterial'
@@ -39,10 +40,11 @@ import MasterLayout from './views/MasterLayout'
 
 import InfoPanel from './detailpanes/InfoPanel'
 import InfoPanelCard from './detailpanes/InfoPanelCard'
-import InfoRootNode from './detailpanes/RootNode'
+import {MultiColumnContext} from './detailpanes/MultiColumnPanel'
 
 import GenericInfoCard from './detailpanes/GenericInfoCard'
 import FileInfoCard from './detailpanes/FileInfoCard'
+import {CellChatInfoCard} from './views/CellChat'
 
 import {Editor} from './editor/components/editor'
 
@@ -67,12 +69,14 @@ const classes = {
     MasterLayout,
     MetaRenderer:Renderer,
     Facets,
+    SearchSorter,
 
     InfoPanel,
     InfoPanelCard,
-    InfoRootNode,
     FileInfoCard,
     GenericInfoCard,
+    CellChatInfoCard,
+    MultiColumnContext,
 
     MUITour,
     WelcomeMUITour,

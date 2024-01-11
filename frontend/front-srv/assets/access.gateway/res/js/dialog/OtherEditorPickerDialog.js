@@ -81,25 +81,21 @@ let OtherEditorPickerDialog = createReactClass({
     },
 
     clearAssociations: function(){
-        const mime = this.props.selection.getUniqueNode().getAjxpMime();
-        let guiPrefs, assoc;
-        try{
-            guiPrefs = this.props.pydio.user.getPreference("gui_preferences", true);
-            assoc = guiPrefs["other_editor_extensions"];
-        }catch(e){}
-        if(assoc && assoc[mime]){
+        const {pydio, selection} = this.props;
+
+        const mime = selection.getUniqueNode().getAjxpMime();
+        const assoc = pydio.user && pydio.user.getLayoutPreference("Editor.Associations", {}) || {}
+        if(assoc[mime]){
             const editorClassName = assoc[mime];
             let editor;
-            this.props.pydio.Registry.getActiveExtensionByType("editor").forEach(function(ed){
+            pydio.Registry.getActiveExtensionByType("editor").forEach(function(ed){
                 if(ed.editorClass === editorClassName) editor = ed;
             });
             if(editor && editor.mimes.indexOf(mime) !== -1){
                 editor.mimes = LangUtils.arrayWithout(editor.mimes, editor.mimes.indexOf(mime));
             }
             delete assoc[mime];
-            guiPrefs["other_editor_extensions"] = assoc;
-            this.props.pydio.user.setPreference("gui_preferences", guiPrefs, true);
-            this.props.pydio.user.savePreference("gui_preferences");
+            pydio.user && pydio.user.setLayoutPreference("Editor.Associations", assoc)
         }
         this.props.onDismiss();
 
@@ -110,14 +106,12 @@ let OtherEditorPickerDialog = createReactClass({
         const mime = selection.getUniqueNode().getAjxpMime();
         editor.mimes.push(mime);
         let user = pydio.user;
-        if(!user) return;
-
-        let guiPrefs = user.getPreference("gui_preferences", true) || {};
-        let exts = guiPrefs["other_editor_extensions"] || {};
+        if(!user) {
+            return;
+        }
+        const exts = user.getLayoutPreference("Editor.Associations", {})
         exts[mime] = editor.editorClass;
-        guiPrefs["other_editor_extensions"] = exts;
-        user.setPreference("gui_preferences", guiPrefs, true);
-        user.savePreference("gui_preferences");
+        user.setLayoutPreference("Editor.Associations", exts)
         openInEditor(pydio)(null, [editor]);
         this.dismiss();
     },

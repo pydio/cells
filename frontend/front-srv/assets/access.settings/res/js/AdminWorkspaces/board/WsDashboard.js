@@ -134,10 +134,9 @@ let WsDashboard = createReactClass({
         }
 
         const searchBox = (
-            <div style={{display:'flex'}}>
-                <div style={{flex: 1}}/>
-                <div style={{width:190}}>
-                    <ModernTextField fullWidth={true} hintText={this.context.getMessage('ws.filter.workspaces')} value={searchString} onChange={(e,v) => this.setState({searchString:v}) } />
+            <div style={{display:'flex', alignItems:'center', justifyContent:'center'}}>
+                <div style={{maxWidth:420, flex: 1, paddingLeft: 8}}>
+                    <ModernTextField fullWidth={true} hintText={this.context.getMessage('ws.filter.workspaces')} value={searchString} onChange={(e,v) => this.setState({searchString:v}) } variant={"compact"} />
                 </div>
             </div>
         );

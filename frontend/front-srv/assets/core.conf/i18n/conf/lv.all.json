@@ -44,6 +44,9 @@
   "Country": {
     "other": "Valsts"
   },
+  "User Country": {
+    "other": "User Country"
+  },
   "Create external users": {
     "other": "Izveidot ārējos lietotājus"
   },

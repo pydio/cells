@@ -70,13 +70,14 @@ class GroupInfo extends React.Component {
         ];
 
         return (
-            <div>
+            <div className={"paper-right-block"}>
                 <FormPanel
                     parameters={params}
                     onParameterChange={this.onParameterChange.bind(this)}
                     values={values}
                     variant={"v2"}
                     depth={-2}
+                    variantShowLegend={true}
                 />
             </div>
         );

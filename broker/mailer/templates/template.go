@@ -50,6 +50,21 @@ func GetHermes(languages ...string) hermes.Hermes {
 
 }
 
+// PrepareSimpleBody builds a simple hermes.Body with pre-translated Name, Greeting and Signature
+func PrepareSimpleBody(user *mailer.User, languages ...string) hermes.Body {
+	configs := GetApplicationConfig(languages...)
+	body := hermes.Body{
+		Name:      user.Name,
+		Greeting:  configs.Greeting,
+		Signature: configs.Signature,
+	}
+	if user.Name == "" {
+		body.Name = user.Address
+	}
+	return body
+}
+
+// BuildTemplateWithId prepares a hermes.Body from a templateId
 func BuildTemplateWithId(user *mailer.User, templateId string, templateData map[string]string, languages ...string) (subject string, body hermes.Body) {
 
 	T := lang.Bundle().GetTranslationFunc(languages...)

@@ -47,6 +47,7 @@ var mongoModel = mongodb.Model{
 			Name: "messages",
 			Indexes: []map[string]int{
 				{"roomuuid": 1},
+				{"uuid": 1},
 				{"author": 1},
 				{"timestamp": -1},
 			},
@@ -175,6 +176,31 @@ func (m *mongoImpl) PostMessage(ctx context.Context, request *chat.ChatMessage) 
 		//fmt.Println("Inserted message", res.InsertedID)
 		return request, nil
 	}
+}
+
+func (m *mongoImpl) UpdateMessage(ctx context.Context, request *chat.ChatMessage, callback MessageMatcher) (*chat.ChatMessage, error) {
+	search := bson.D{
+		{Key: "roomuuid", Value: request.RoomUuid},
+		{Key: "uuid", Value: request.Uuid},
+		{Key: "author", Value: request.Author},
+	}
+	single := m.Collection("messages").FindOne(ctx, search)
+	if se := single.Err(); se != nil {
+		return nil, se
+	}
+	res := &chat.ChatMessage{}
+	if er := single.Decode(res); er != nil {
+		return nil, er
+	}
+	matches, newMsg, err := callback(res)
+	if err != nil {
+		return nil, err
+	}
+	if !matches {
+		return nil, nil
+	}
+	_, e := m.Collection("messages").ReplaceOne(ctx, search, newMsg)
+	return newMsg, e
 }
 
 func (m *mongoImpl) DeleteMessage(ctx context.Context, message *chat.ChatMessage) error {

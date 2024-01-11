@@ -20,7 +20,7 @@
 import Pydio from 'pydio'
 import React from 'react'
 import PropTypes from 'prop-types'
-import {IconButton,IconMenu, Menu, Subheader, MenuItem} from 'material-ui'
+import {FontIcon, IconButton,IconMenu, Menu, Subheader, MenuItem} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import AdminStyles from './AdminStyles'
 
@@ -77,7 +77,7 @@ class PaperEditorLayout extends React.Component{
             },
             leftPanelStyle: {
                 backgroundColor: adminStyles.menu.leftNav.backgroundColor,
-                width: 200
+                width: 240
             },
             rightPanelStyle: {
                 backgroundColor: adminStyles.body.mainPanel.backgroundColor,
@@ -117,20 +117,23 @@ class PaperEditorLayout extends React.Component{
                                 listStyle={adminStyles.menu.listStyle}
                                 autoWidth={false}
                                 disableAutoFocus={true}
-                                width={200}
+                                width={styles.leftPanelStyle.width}
+                                desktop={true}
                             >
                                 {leftNavItems.map(i => {
                                     if(i.subHeader){
                                         return <Subheader style={adminStyles.menu.subHeader}>{i.subHeader}</Subheader>
                                     } else {
                                         let primaryText = i.label;
+                                        let leftIcon;
                                         if(i.icon) {
-                                            primaryText = <span style={{display:'flex', alignItems:'center'}}><span style={{fontSize: 20, marginRight: 16}} className={i.icon}/> {i.label}</span>
+                                            leftIcon = <FontIcon className={i.icon} style={adminStyles.menu.iconStyle}/>
                                         }
                                         return <MenuItem
                                             style={adminStyles.menu.menuItem}
                                             value={i.value}
                                             primaryText={primaryText}
+                                            leftIcon={leftIcon}
                                         />
                                     }
                                 })}

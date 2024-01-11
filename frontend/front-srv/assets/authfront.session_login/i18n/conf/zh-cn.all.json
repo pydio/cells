@@ -3,7 +3,7 @@
     "other": "显示标准的用户/密码登录屏幕"
   },
   "Enable/disable automatically based on the protocol used": {
-    "other": "基于协议自动启用/禁用"
+    "other": "根据使用的协议自动启用/禁用"
   },
   "Order": {
     "other": "顺序"

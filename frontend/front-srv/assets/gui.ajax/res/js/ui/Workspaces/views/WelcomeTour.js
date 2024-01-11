@@ -278,33 +278,38 @@ class WelcomeTour extends Component{
 
     constructor(props, context){
         super(props, context);
-        this.state = {started: !(props.pydio.user && !props.pydio.user.getPreference('gui_preferences', true)['UserAccount.WelcomeModal.Shown'])};
+        this.state = {started: false}
+        const {pydio} = this.props;
+        if(pydio.user) {
+            this.state.started = pydio.user.getLayoutPreference('UserAccount.WelcomeModal.Shown', false)
+        }
     }
 
     discard(finished = false){
         const {user} = this.props.pydio;
-        let guiPrefs = user.getPreference('gui_preferences', true);
-        guiPrefs['UserAccount.WelcomeModal.Shown'] = true;
+        user.setLayoutPreference('UserAccount.WelcomeModal.Shown', true)
         if(finished) {
-            guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate'] = true;
-            guiPrefs['WelcomeComponent.MUITour'] = true;
+            user.setLayoutPreference('WelcomeComponent.Pydio8.TourGuide.FSTemplate', true)
+            user.setLayoutPreference('WelcomeComponent.MUITour', true)
         }
-        user.setPreference('gui_preferences', guiPrefs, true);
-        user.savePreference('gui_preferences');
     }
 
     componentDidMount(){
-        if(!this.state.started){
-            pydio.UI.openComponentInModal('UserAccount', 'WelcomeModal', {
-                onRequestStart:(skip) => {
-                    if(skip) {
-                        this.discard(true);
-                    } else {
-                        this.discard();
-                        this.setState({started: true, skip: skip});
+        const {pydio} = this.props;
+        const {started} =  this.state;
+        if(!started){
+            setTimeout(() => {
+                pydio.UI.openComponentInModal('UserAccount', 'WelcomeModal', {
+                    onRequestStart:(skip) => {
+                        if(skip) {
+                            this.discard(true);
+                        } else {
+                            this.discard();
+                            this.setState({started: true, skip: skip});
+                        }
                     }
-                }
-            });
+                });
+            }, 500)
         }
     }
 
@@ -315,14 +320,14 @@ class WelcomeTour extends Component{
         }
         const {getMessage, pydio, muiTheme} = this.props;
         const message = (id) => getMessage('ajax_gui.tour.' + id);
-        const prefs = pydio.user && pydio.user.getPreference('gui_preferences', true) || {}
+        const muiTour = pydio.user && pydio.user.getLayoutPreference('WelcomeComponent.MUITour', false)
 
         let tourguideSteps = [];
         const {Controller, user} = pydio;
         const mkdir = Controller.getActionByName("mkdir") || {};
         const upload = Controller.getActionByName("upload") || {};
 
-        if(muiTheme.userTheme === 'mui3' && !prefs['WelcomeComponent.MUITour']) {
+        if(muiTheme.userTheme === 'mui3' && !muiTour) {
             tourguideSteps.push({
                 title       : message('theme.title'),
                 text        : <ThemeTogglerCard message={message}/>,

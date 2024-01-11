@@ -15,10 +15,10 @@
     "other": "Avoid labels duplication"
   },
   "Background Color": {
-    "other": "Background Color"
+    "other": "Bakgrundsfärg"
   },
   "Create QRCode": {
-    "other": "Create QRCode"
+    "other": "Skapa QR-kod"
   },
   "Create and display QRCode for shared link": {
     "other": "Create and display QRCode for shared link"
@@ -150,7 +150,7 @@
     "other": "Sharing Features"
   },
   "Text Color": {
-    "other": "Text Color"
+    "other": "Textfärg"
   },
   "Text Shadow": {
     "other": "Text Shadow"

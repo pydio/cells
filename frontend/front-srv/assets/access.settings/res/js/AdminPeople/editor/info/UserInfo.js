@@ -2,9 +2,9 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import User from '../model/User'
-import {IconMenu, IconButton, MenuItem} from 'material-ui';
+import {IconMenu, IconButton, MenuItem, FlatButton} from 'material-ui';
 const {FormPanel} = Pydio.requireLib('form');
-import UserRolesPicker from '../user/UserRolesPicker'
+import {profileToLabel} from "../../board/Dashboard";
 
 class UserInfo extends React.Component {
 
@@ -73,20 +73,22 @@ class UserInfo extends React.Component {
 
     render(){
 
-        const {user, pydio} = this.props;
-        const {parameters, showLegends} = this.state;
+        const {user, pydio, adminStyles} = this.props;
+        const {parameters} = this.state;
         if(!parameters){
             return <div>Loading...</div>;
         }
 
         let values = {profiles:[]};
         let locks = [];
-        let rolesPicker;
+        let hidden;
 
         if(user){
             // Compute values
             const idmUser = user.getIdmUser();
             const role = user.getRole();
+            hidden = idmUser.Attributes['hidden'] === 'true'
+
             if(idmUser.Attributes['locks']){
                 locks = JSON.parse(idmUser.Attributes['locks']) || [];
                 if (typeof locks === 'object' && locks.length === undefined){ // Backward compat issue
@@ -99,15 +101,6 @@ class UserInfo extends React.Component {
                     locks = arrL;
                 }
             }
-            rolesPicker = (
-                <UserRolesPicker
-                    profile={idmUser.Attributes?idmUser.Attributes['profile']:''}
-                    roles={idmUser.Roles}
-                    addRole={(r) => user.addRole(r)}
-                    removeRole={(r) => user.removeRole(r)}
-                    switchRoles={(r1,r2) => user.switchRoles(r1,r2)}
-                />
-            );
 
             const attributes = idmUser.Attributes || {};
             values = {
@@ -123,47 +116,58 @@ class UserInfo extends React.Component {
                     values[p.name] = role.getParameterValue(p.aclKey);
                 }
             });
-
         }
-        const params = [
+        const profileChoices = ['admin', 'standard', 'shared'].map(p => p+'|'+profileToLabel(p, (i)=>pydio.MessageHash['settings.' + i]||i )).join(',')
+        let params = [
             {name:"login", label:this.getPydioRoleMessage('21'),description:pydio.MessageHash['pydio_role.31'],"type":"string", readonly:true},
-            {name:"profile", label:this.getPydioRoleMessage('22'), description:pydio.MessageHash['pydio_role.32'],"type":"select", choices:'admin|Administrator,standard|Standard,shared|Shared'},
+            {name:"profile", label:this.getPydioRoleMessage('22'), description:pydio.MessageHash['pydio_role.32'],"type":"select", choices:profileChoices},
             ...parameters
         ];
+        if(hidden) {
+            const allowed = ['login', 'avatar']
+            params = params.filter(p => allowed.indexOf(p.name) > -1)
+        }
 
         const secuActionsDisabled = (user.getIdmUser().Login === pydio.user.id)
+        const buttons = [
+            {label:'25', callback:'update_user_pwd'},
+            {label:locks.indexOf('logout') > -1?'27':'26', callback:'user_set_lock-lock', active: locks.indexOf('logout') > -1},
+            {label:locks.indexOf('pass_change') > -1?'28b':'28', callback:'user_set_lock-pass_change', active: locks.indexOf('pass_change') > -1}
+        ]
 
         return (
             <div>
-                <h3 className={"paper-right-title"} style={{display:'flex', alignItems: 'center', paddingLeft:26, paddingRight:26}}>
-                    <div style={{flex:1}}>
-                        {pydio.MessageHash['pydio_role.24']}
-                        <div className={"section-legend"}>{pydio.MessageHash['pydio_role.54']}</div>
-                    </div>
-                    <div style={{lineHeight:'24px'}}>
-                    <IconButton iconClassName={"mdi mdi-help-circle-outline"} tooltip={'Show/hide form legends'} tooltipPosition={'bottom-left'} onClick={()=>{this.setState({showLegends:!showLegends})}}/>
-                    <IconMenu
-                        iconButtonElement={<IconButton primary={true} tooltip={'Security Actions'} tooltipPosition={'bottom-left'} iconClassName={"mdi mdi-lock"+(locks.indexOf('logout')>-1?'-open':'')} iconStyle={{color:locks.indexOf('logout')>-1?'#e53935':''}}/>}
-                        anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-                        targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                        tooltip={"Actions"}
-                    >
-                        <MenuItem disabled={secuActionsDisabled} primaryText={this.getPydioRoleMessage('25')} onClick={() => this.buttonCallback('update_user_pwd')}/>
-                        <MenuItem disabled={secuActionsDisabled} primaryText={this.getPydioRoleMessage((locks.indexOf('logout') > -1?'27':'26'))} onClick={() => this.buttonCallback('user_set_lock-lock')}/>
-                        <MenuItem disabled={secuActionsDisabled} primaryText={this.getPydioRoleMessage((locks.indexOf('pass_change') > -1?'28b':'28'))} onClick={() => this.buttonCallback('user_set_lock-pass_change')}/>
-                    </IconMenu>
-                    </div>
+                <h3 className={"paper-right-title"}>
+                    {pydio.MessageHash['pydio_role.24']}
+                    <div className={"section-legend"}>{pydio.MessageHash['pydio_role.54']}</div>
                 </h3>
-                <FormPanel
-                    parameters={params}
-                    onParameterChange={this.onParameterChange.bind(this)}
-                    values={values}
-                    depth={-2}
-                    variant={'v2'}
-                    variantShowLegend={showLegends}
-                    binary_context={this.getBinaryContext()}
-                />
-                {rolesPicker}
+                {!secuActionsDisabled &&
+                    <div style={{padding: '10px 16px 0'}}>
+                        {buttons.map(b => {
+                            let ss = b.active? {backgroundColor: '#e53935'}: {}
+                            return (
+                                <FlatButton
+                                    disabled={secuActionsDisabled}
+                                    label={this.getPydioRoleMessage(b.label)}
+                                    onClick={() => this.buttonCallback(b.callback)}
+                                    {...adminStyles.props.header.flatButton}
+                                    {...ss}
+                                />
+                            );
+                        })}
+                    </div>
+                }
+                <div className={"paper-right-block"} style={{padding: '6px 6px 2px'}}>
+                    <FormPanel
+                        parameters={params}
+                        onParameterChange={this.onParameterChange.bind(this)}
+                        values={values}
+                        depth={-2}
+                        variant={'v2'}
+                        variantShowLegend={true}
+                        binary_context={this.getBinaryContext()}
+                    />
+                </div>
             </div>
         );
 

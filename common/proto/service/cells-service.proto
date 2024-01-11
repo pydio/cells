@@ -28,6 +28,8 @@ message Query {
     int64 Offset = 4;
     int64 Limit = 5;
     int32 groupBy = 6;
+    string SortField = 7;
+    bool SortDesc = 8;
 }
 
 message ResourcePolicyQuery {

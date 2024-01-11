@@ -85,17 +85,18 @@ class RightsSelector extends React.Component{
     }
 
     render(){
-        const {hideDeny, hideLabels, disabled, getMessage} = this.props;
+        const {hideDeny, hideWrite, hideLabels, disabled, getMessage} = this.props;
         const acl = this.state.acl || '';
+        const width = hideWrite ? 92 : 132
 
         if(acl.startsWith('policy:')) {
-            return <div style={{display:'flex', alignItems:'center', width: 132, height: 33}}>Custom policy</div>
+            return <div style={{display:'flex', alignItems:'center', width, height: 33}}>Custom policy</div>
         }
 
         const checkboxStyle = {width:44};
 
         return (
-            <div style={{display:'flex', alignItems:'center', width: 132, height: 33}}>
+            <div style={{display:'flex', alignItems:'center', width, height: 33}}>
                 <Checkbox ref="read"
                           label={hideLabels ? "" : getMessage('react.5a', 'ajxp_admin')}
                           value="read"
@@ -104,6 +105,7 @@ class RightsSelector extends React.Component{
                           checked={acl.indexOf('deny') === -1 && acl.indexOf('read') !== -1}
                           style={checkboxStyle}
                 />
+                {!hideWrite &&
                 <Checkbox
                     ref="write"
                     label={hideLabels?"": getMessage('react.5b', 'ajxp_admin')}
@@ -112,6 +114,7 @@ class RightsSelector extends React.Component{
                     disabled={disabled || acl.indexOf('deny') > -1}
                     checked={acl.indexOf('deny') === -1 && acl.indexOf('write') !== -1}
                     style={checkboxStyle}/>
+                }
                 {!hideDeny &&
                     <Checkbox
                         ref="deny"

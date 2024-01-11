@@ -2,7 +2,7 @@
   "CKEditor": {
     "other": "CKEditor"
   },
-  "Wysiwyg HTML Editor, requires separate library to be downloaded.": {
-    "other": "Wysiwyg HTML Redaktors, nepieciešams ielādēt atsevišķu bibliotēku."
+  "WYSIWYG HTML Editor based on CKEditor Library": {
+    "other": "WYSIWYG HTML Editor based on CKEditor Library"
   }
 }

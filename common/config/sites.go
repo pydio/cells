@@ -28,6 +28,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/slug"
 )
 
 var (
@@ -113,13 +114,12 @@ func SaveSites(sites []*install.ProxyConfig, user, msg string) error {
 
 // GetPublicBaseUri returns the default public uri
 func GetPublicBaseUri() string {
-	segment := Get(configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_BASE")).Default("public").String()
-	return "/" + segment
+	return "/" + slug.Make(Get(configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_BASE")).Default("public").String())
 }
 
 // GetPublicBaseDavSegment returns the segment used to exposed minisites through DAV
 func GetPublicBaseDavSegment() string {
-	return Get(configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_DAV_SEGMENT")).Default("dav").String()
+	return slug.Make(Get(configx.FormatPath("frontend", "plugin", "action.share", "LINK_PUBLIC_URI_DAV_SEGMENT")).Default("dav").String())
 }
 
 func EnvOverrideDefaultBind() bool {

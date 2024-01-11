@@ -60,10 +60,18 @@ export default createReactClass({
     },
 
     reload(){
+        const pending = localStorage.getItem('admin.workspace.autoload')
+        localStorage.removeItem('admin.workspace.autoload');
         this.startLoad();
         Workspace.listWorkspaces().then(response => {
             this.endLoad();
             this.setState({workspaces: response.Workspaces || []});
+            if(pending) {
+                const ww = response.Workspaces.filter(ws => ws.UUID === pending)
+                if(ww.length === 1) {
+                    this.props.openSelection(ww[0]);
+                }
+            }
         }).catch(e => {
             this.endLoad();
         });

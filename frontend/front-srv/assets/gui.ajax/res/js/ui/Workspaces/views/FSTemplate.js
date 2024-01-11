@@ -18,60 +18,57 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react';
+import React, {createRef} from 'react';
 import Pydio from 'pydio';
 import {debounce} from 'lodash'
 const {withSearch} = Pydio.requireLib('hoc')
+const {PromptValidators} = Pydio.requireLib('boot')
+import Action from 'pydio/model/action'
 import {muiThemeable} from 'material-ui/styles'
-import {Resizable} from "re-resizable";
 import MainFilesList from './MainFilesList'
 import EditionPanel from './EditionPanel'
-import InfoPanel from '../detailpanes/InfoPanel'
 import WelcomeTour from './WelcomeTour'
-import CellChat from './CellChat'
-import AddressBookPanel from './AddressBookPanel'
+import {CellChatDetached} from './CellChat'
 import MasterLayout from './MasterLayout'
 import AppBar from './AppBar'
 import WorkspacesList from "../wslist/WorkspacesList";
 import {MUITour} from "./WelcomeMuiTour";
+import {MultiColumnPanel} from "../detailpanes/MultiColumnPanel";
+import genUuid from 'uuid4'
+
+const CurrentTemplateKey = 'FSTemplate'
+const TemplatesKey = 'FSTemplatePresets'
 
 class FSTemplate extends React.Component {
 
     constructor(props){
         super(props);
-
-        let rState = 'info-panel';
-        if(localStorage.getItem('pydio.layout.rightColumnState') !== undefined && localStorage.getItem('pydio.layout.rightColumnState')){
-            rState = localStorage.getItem('pydio.layout.rightColumnState');
-        }
-        const closedToggle = localStorage.getItem('pydio.layout.infoPanelToggle') === 'closed';
-        const closedInfo = localStorage.getItem('pydio.layout.infoPanelOpen') === 'closed';
-
-        let defaultResizerWidth = 250;
-        if(localStorage.getItem('pydio.layout.rightColumnWidth')){
-            const p = parseInt(localStorage.getItem('pydio.layout.rightColumnWidth'))
-            if(p > 0) {
-                defaultResizerWidth = p
-            }
-        }
-
-
         this.state = {
-            infoPanelOpen: !closedInfo,
-            infoPanelToggle: !closedToggle,
+            ...this.stateFromPrefs(),
             drawerOpen: false,
-            rightColumnState: rState,
-            rightColumnWidth: defaultResizerWidth,
             searchFormState: {},
             searchView: false
         };
+        this.parentRef = createRef()
+    }
+
+    stateFromPrefs() {
+        const {pydio} = this.props
+        const uPref = (k, v) => {
+            return pydio.user ? pydio.user.getLayoutPreference(k, v) : v
+        }
+        return {
+            infoPanelOpen: uPref('FSTemplate.infoPanelOpen', true), // open by default
+            chatOpen: uPref('FSTemplate.chatOpen', false), // closed by default
+            chatDetached: uPref('FSTemplate.chatDetached', true), // detached by default
+        }
     }
 
     setSearchView() {
         const {pydio} = this.props
         const {searchView} = this.state;
         if(!searchView) {
-            this.setState({searchViewTransition: true, workspaceRootView: false})
+            this.setState({searchViewTransition: true})
         }
         const dm = pydio.getContextHolder();
         dm.setSelectedNodes([]);
@@ -91,7 +88,7 @@ class FSTemplate extends React.Component {
         dm.setSelectedNodes([]);
         const ctxNode = previousContext || dm.getRootNode()
         dm.setContextNode(ctxNode, true);
-        this.setState({previousContext: null, workspaceRootView: ctxNode.isRoot()});
+        this.setState({previousContext: null});
     }
 
     componentDidMount(){
@@ -105,61 +102,222 @@ class FSTemplate extends React.Component {
             if(searchView !== this.state.searchView) {
                 this.setState({searchView, searchViewTransition: true}, resizeTrigger)
             }
-            const workspaceRootView = pydio.getContextHolder().getContextNode().isRoot();
-            if(workspaceRootView !== this.state.workspaceRootView) {
-                this.setState({workspaceRootView})
-            }
         }
+        this._prefObserver = ({path, value}) => {
+            if(!path || path.indexOf(CurrentTemplateKey +'.') !== 0) {
+                return
+            }
+            // If a template is currently in use, update it
+            const presets = pydio.user.getLayoutPreference(TemplatesKey, [])
+            const currents = presets.filter(p => p.current)
+            if(!currents.length) {
+                return
+            }
+            const current = currents[0]
+            const newPayload = pydio.user.getLayoutPreference(CurrentTemplateKey)
+            presets.forEach(p => {
+                if(p.id === current.id) {
+                    p.payload = newPayload
+                }
+            })
+            pydio.user.setLayoutPreference(TemplatesKey, presets)
+        };
+        this._reloadPrefObserver = () => {
+            this.setState(this.stateFromPrefs())
+        }
+        pydio.getController().updateGuiActions(this.getPydioActions());
         pydio.observe('context_changed', this._ctxObserver)
+        pydio.observe('set_layout_preference', this._prefObserver)
+        pydio.observe('reload_layout_preferences', this._reloadPrefObserver)
     }
 
     componentWillUnmount(){
         const {pydio} = this.props;
         pydio.stopObserving('context_changed', this._ctxObserver)
+        pydio.stopObserving('set_layout_preference', this._prefObserver)
+        pydio.stopObserving('reload_layout_preferences', this._reloadPrefObserver)
+        this.getPydioActions(true).map(function(key){
+            pydio.getController().deleteFromGuiActions(key);
+        }.bind(this));
     }
 
-    openRightPanel(name){
-        const {rightColumnState} = this.state;
-        if(name === rightColumnState){
-            this.closeRightPanel();
-            return;
-        }
-        this.setState({rightColumnState: name}, () => {
-            let {infoPanelOpen} = this.state;
-            if(name !== 'info-panel'){
-                infoPanelOpen = true;
-            }
-            localStorage.setItem('pydio.layout.rightColumnState', name);
-            localStorage.setItem('pydio.layout.infoPanelToggle', 'open');
-            localStorage.setItem('pydio.layout.infoPanelOpen', infoPanelOpen?'open':'closed');
-            this.setState({infoPanelToggle:true, infoPanelOpen}, () => this.resizeAfterTransition())
-        });
+    toggleAndStore(keyName) {
+        const value = this.state[keyName]
+        const newValue = !value;
+        const {pydio} = this.props;
+        this.setState({[keyName]: newValue}, ()=> {
+            this.resizeAfterTransition()
+            pydio.user.setLayoutPreference('FSTemplate.' + keyName, !!newValue)
+        })
     }
 
-    closeRightPanel() {
-        this.setState({infoPanelToggle: false}, () => {
-            this.resizeAfterTransition();
-        });
-        localStorage.setItem('pydio.layout.rightColumnState', '');
-        localStorage.setItem('pydio.layout.infoPanelToggle', 'closed');
+    toggleRightPanel(name){
+        this.toggleAndStore(name === 'chat' ? 'chatOpen' : 'infoPanelOpen')
     }
 
 
     resizeAfterTransition(){
-        if(!this.state.infoPanelToggle){
-            this.setState({rightColumnState: null});
+        if(this.parentRef.current) {
+            this.setState({parentWidth: this.parentRef.current.offsetWidth})
         }
         setTimeout(() => { window.dispatchEvent(new Event('resize')) }, 250);
         setTimeout(() => { window.dispatchEvent(new Event('resize')) }, 500);
     }
 
     infoPanelContentChange(numberOfCards){
-        this.setState({infoPanelOpen: (numberOfCards > 0)}, () => this.resizeAfterTransition())
+        //this.setState({infoPanelOpen: (numberOfCards > 0)}, () => this.resizeAfterTransition())
     }
 
     openDrawer(event){
         event.stopPropagation();
         this.setState({drawerOpen: true});
+    }
+
+
+
+    buildLayoutActions() {
+        //{name, icon_class, callback (), highlight ()}
+        const {pydio} = this.props;
+        if(!pydio.user) {
+            return []
+        }
+
+        const save = (k, v) => pydio.user.setLayoutPreference(k, v)
+        const labelPrompt = (defaultValue, submitValue) => {
+            pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
+                dialogTitleId:'ajax_gui.layouts.prompt.save',
+                fieldLabelId:'ajax_gui.layouts.prompt.save.field',
+                validate:PromptValidators.Empty,
+                defaultValue,
+                submitValue
+            });
+        }
+        const confirmPrompt = (message, validCallback) => {
+            pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+                message,
+                validCallback
+            })
+        }
+
+        const presets = [...pydio.user.getLayoutPreference(TemplatesKey, [])]
+        const actions = presets.map(({id, label, current, payload}) => {
+            const use =()=>{
+                const newPresets = [...presets]
+                newPresets.forEach(p => p.current = p.id === id)
+                save(CurrentTemplateKey, payload)
+                save(TemplatesKey, newPresets)
+                pydio.notify('reload_layout_preferences')
+            }
+
+            if(current) {
+                return {
+                    name: label,
+                    icon_class:'mdi mdi-check',
+                    subMenu:[
+                        {
+                            text:pydio.MessageHash['ajax_gui.layouts.action.rename'],
+                            iconClassName:'mdi mdi-view-dashboard-edit-outline',
+                            payload:()=>{
+                                labelPrompt(label, (value) => {
+                                    // update label in-place
+                                    presets.forEach(p => {
+                                        if(p.id === id) {
+                                            p.label = value
+                                        }
+                                    })
+                                    save(TemplatesKey, presets)
+                                })
+                            }
+                        },
+                        {
+                            text:pydio.MessageHash['ajax_gui.layouts.action.reset'],
+                            iconClassName:'mdi mdi-eraser',
+                            payload:()=>{
+                                confirmPrompt(pydio.MessageHash['ajax_gui.layouts.action.reset.confirm'], () => {
+                                    presets.forEach(p => {
+                                        if(p.id === id) {
+                                            p.payload = {}
+                                        }
+                                    })
+                                    save(CurrentTemplateKey, {})
+                                    save(TemplatesKey, presets)
+                                    pydio.notify('reload_layout_preferences')
+                                })
+                            }
+                        },
+                        {
+                            text:pydio.MessageHash['ajax_gui.layouts.action.remove'],
+                            iconClassName:'mdi mdi-delete-outline',
+                            payload:()=>{
+                                confirmPrompt(pydio.MessageHash['ajax_gui.layouts.action.remove.confirm'], ()=>{
+                                    save(TemplatesKey, [...presets.filter(p => p.id !== id)])
+                                })
+                            }
+                        },
+                    ]
+                }
+            } else {
+                return {
+                    name: label,
+                    icon_class: 'mdi mdi-view-dashboard-outline',
+                    callback: use
+                }
+            }
+        })
+        if(!presets.length) {
+            actions.push({
+                name:pydio.MessageHash['ajax_gui.layouts.action.reset'],
+                icon_class:'mdi mdi-eraser',
+                callback:() => {
+                    confirmPrompt(pydio.MessageHash['ajax_gui.layouts.action.reset.confirm'], (value) => {
+                        save(CurrentTemplateKey, {})
+                        pydio.notify('reload_layout_preferences')
+                    });
+                }
+            })
+        }
+        actions.push({
+            name:pydio.MessageHash['ajax_gui.layouts.action.' + (presets.length ? 'fork': 'create')],
+            icon_class:'mdi mdi-content-save',
+            callback:() => {
+                labelPrompt(pydio.MessageHash['ajax_gui.layouts.action.create.default'], (value) => {
+                    const current = JSON.parse(JSON.stringify(pydio.user.getLayoutPreference(CurrentTemplateKey, {})))
+                    const preset = {id:genUuid(), label:value, current: true, payload: current}
+                    save(TemplatesKey, [...presets.map(p => {return {...p, current: false}}), preset])
+                });
+            }
+        })
+        return actions
+    }
+
+    getPydioActions(keysOnly = false) {
+        if(keysOnly) {
+            return ['manage_layouts_preferences']
+        }
+        const actions = new Map()
+        const manageAction = new Action({
+            name:'manage_layouts_preferences',
+            icon_class:'mdi mdi-view-list',
+            text_id:'ajax_gui.layouts.preferences',
+            title_id:'ajax_gui.layouts.preferences.legend',
+            text:Pydio.getMessages()['ajax_gui.layouts.preferences'],
+            title:Pydio.getMessages()['ajax_gui.layouts.preferences.legend'],
+            hasAccessKey:false,
+            subMenu:true,
+            subMenuUpdateImage:true,
+            weight:500
+        }, {
+            selection:false,
+            dir:true,
+            actionBar:true,
+            actionBarGroup:'display_toolbar',
+            contextMenu:false,
+            infoPanel:false
+        }, {}, {}, {
+            dynamicBuilder: this.buildLayoutActions.bind(this),
+        })
+        actions.set('manage_layouts_preferences', manageAction)
+        return actions
     }
 
     render () {
@@ -169,23 +327,14 @@ class FSTemplate extends React.Component {
         const {breakpoint = 'md', userTheme} = muiTheme;
         const smallScreen = (breakpoint==='s'|| breakpoint==='xs'), xtraSmallScreen = (breakpoint === 'xs')
 
-        const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
         const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
         const dm = pydio.getContextHolder();
         const searchView = dm.getContextNode() === dm.getSearchNode();
-        const {searchViewTransition, workspaceRootView = dm.getContextNode().isRoot()} = this.state;
+        const {searchViewTransition} = this.state;
 
-        // Header Size FX
-        const {headerLarge = true} = this.state;
-        const headerBase = 72;
-        let headerHeight = headerBase;
-        if(workspaceRootView && !searchView && headerLarge) {
-            //Toggle Header Height
-            //headerHeight = 152
-        }
+        let headerHeight = 72;
 
         let showChatTab = (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS")) && !xtraSmallScreen;
-        let showAddressBook = (!pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK")) && !smallScreen;
         let showInfoPanel = !xtraSmallScreen;
 
         if(showChatTab){
@@ -194,35 +343,28 @@ class FSTemplate extends React.Component {
                 showChatTab = false;
             }
         }
-        let {drawerOpen, rightColumnState, rightColumnWidth, displayMode, sortingInfo} = this.state;
-        let rightColumnClosed = false;
-
-        if(!showChatTab && rightColumnState === 'chat') {
-            rightColumnState = 'info-panel';
-        }
-        if(!showInfoPanel && rightColumnState === 'info-panel'){
-            rightColumnState = '';
+        let {drawerOpen, infoPanelOpen, chatOpen, chatDetached=true, displayMode, sortingInfo, parentWidth} = this.state;
+        if(xtraSmallScreen){
+            infoPanelOpen = false
         }
 
         let classes = ['vertical_fit', 'react-fs-template'];
-        if(!rightColumnState || xtraSmallScreen) {
-            rightColumnClosed = true
-
-        }
-        const styles = muiTheme.buildFSTemplate({headerHeight, searchView, rightColumnClosed, displayMode})
+        const styles = muiTheme.buildFSTemplate({headerHeight, searchView, rightColumnClosed: !infoPanelOpen, displayMode})
 
         // Making sure we only pass the style to the parent element
         const {style, ...props} = this.props;
 
         let tutorialComponent;
-        if (wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate']){
+        const wTour = pydio.user.getLayoutPreference('WelcomeComponent.Pydio8.TourGuide.FSTemplate', false)
+        const wtMUI = pydio.user.getLayoutPreference('WelcomeComponent.MUITour', false)
+        if (wTourEnabled && !wTour){
             tutorialComponent = <WelcomeTour pydio={pydio}/>;
-        } else if (userTheme === 'mui3' && guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate'] && !guiPrefs['WelcomeComponent.MUITour']) {
+        } else if (userTheme === 'mui3' && wTour && !wtMUI) {
             tutorialComponent = <MUITour pydio={pydio}/>
         }
 
         let leftPanelProps = {
-            headerHeight:headerBase,
+            headerHeight,
             style:styles.leftPanel.masterStyle,
             railPanelStyle:styles.leftPanel.railPanelStyle,
             closed: searchView || smallScreen,
@@ -241,18 +383,26 @@ class FSTemplate extends React.Component {
             }
         };
 
-        const {searchTools, searchTools:{values, setValues, facets, activeFacets, toggleFacet, searchLoading}} = this.props;
+        const {searchTools, searchTools:{values, empty, searchLoading}} = this.props;
 
         if(searchView) {
             leftPanelProps.workspacesListProps = {
                 ...leftPanelProps.workspacesListProps,
-                searchView: true,
-                values, setValues, searchLoading, facets, activeFacets, toggleFacet,
+                searchTools,
+                searchView: true
             };
         }
 
         if(muiTheme.userTheme!=='mui3'){
             styles.searchForm.textField = {color:'white'}
+        }
+        let rightAdditionalTemplates;
+        if(showChatTab && chatOpen && !chatDetached) {
+            rightAdditionalTemplates = [{
+                COMPONENT: "PydioWorkspaces.CellChatInfoCard",
+                WEIGHT: -600,
+                PROPS: {onRequestDetachPanel: () => this.toggleAndStore('chatDetached')}
+            }];
         }
 
         return (
@@ -279,16 +429,13 @@ class FSTemplate extends React.Component {
                     onUpdateSearchView={(u) => u?this.setSearchView():this.unsetSearchView()}
 
                     showChatTab={showChatTab}
+                    chatOpen={chatOpen}
                     showInfoPanel={showInfoPanel}
-                    showAddressBook={showAddressBook}
-                    rightColumnState={rightColumnState}
-                    onOpenRightPanel={(p) => this.openRightPanel(p)}
-
+                    infoPanelOpen={infoPanelOpen}
+                    onToggleRightPanel={(p) => this.toggleRightPanel(p)}
                     onOpenDrawer={(e)=>this.openDrawer(e)}
-
                 />
-
-                <div style={{display:'flex', flex: 1, overflow:'hidden'}}>
+                <div style={styles.masterListContainer} ref={this.parentRef}>
                     {searchView &&
                         <WorkspacesList
                             className={"left-panel"}
@@ -305,6 +452,7 @@ class FSTemplate extends React.Component {
                         searchResults={searchView}
                         searchScope={values ? values.scope : null}
                         searchLoading={searchLoading}
+                        searchEmpty={empty}
                         onDisplayModeChange={(dMode) => {
                             this.setState({displayMode: dMode});
                         }}
@@ -314,44 +462,33 @@ class FSTemplate extends React.Component {
                                 this.setState({sortingInfo: si})
                             }
                         }}
-                        onScroll={({scrollTop}) => this.setState({headerLarge: scrollTop < 10})}
                         style={styles.listStyle}
                     />
-                    <Resizable
-                        enable={{ top:false, right:false, bottom:false, left:!rightColumnClosed, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
-                        style={{transition: 'width 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'}}
-                        handleStyles={{left:{width: 6, left: 0}}}
-                        size={{width:rightColumnClosed?0:rightColumnWidth, height: '100%'}}
-                        onResizeStop={(e, direction, ref, d)=>{
-                            const newWidth = rightColumnWidth+d.width
-                            this.setState({rightColumnWidth:newWidth})
-                            localStorage.setItem('pydio.layout.rightColumnWidth', newWidth+'')
-                            this.resizeAfterTransition()
+                    <MultiColumnPanel
+                        {...props}
+                        closed={!infoPanelOpen}
+                        afterResize={()=>this.resizeAfterTransition()}
+                        storageKey={searchView?'FSTemplate.MultiColumn.SearchView':'FSTemplate.MultiColumn.InfoPanel'}
+                        dataModel={pydio.getContextHolder()}
+                        onRequestClose={()=>{this.toggleRightPanel('info-panel')}}
+                        onContentChange={this.infoPanelContentChange.bind(this)}
+                        style={styles.infoPanel.masterStyle}
+                        mainEmptyStateProps={{
+                            iconClassName:'',
+                            primaryTextId:'ajax_gui.infopanel.empty.select.file',
+                            style:{minHeight: 180, backgroundColor: 'transparent', padding:'0 20px'}
                         }}
-                    >
-                        {rightColumnState === 'info-panel' &&
-                            <InfoPanel
-                                {...props}
-                                dataModel={pydio.getContextHolder()}
-                                onRequestClose={()=>{this.closeRightPanel()}}
-                                onContentChange={this.infoPanelContentChange.bind(this)}
-                                style={styles.infoPanel.masterStyle}
-                                mainEmptyStateProps={{
-                                    iconClassName:'',
-                                    primaryTextId:'ajax_gui.infopanel.empty.select.file',
-                                    style:{minHeight: 180, backgroundColor: 'transparent', padding:'0 20px'}
-                                }}
-                            />
-                        }
-                        {rightColumnState === 'chat' &&
-                            <CellChat pydio={pydio} style={styles.otherPanelsStyle} zDepth={0} onRequestClose={()=>{this.closeRightPanel()}}/>
-                        }
-                        {rightColumnState === 'address-book' &&
-                            <AddressBookPanel pydio={pydio} style={styles.otherPanelsStyle} zDepth={0} onRequestClose={()=>{this.closeRightPanel()}}/>
-                        }
-                    </Resizable>
+                        additionalTemplates={rightAdditionalTemplates}
+                        parentWidth={parentWidth}
+                    />
                 </div>
-
+                {showChatTab && chatOpen && chatDetached &&
+                    <CellChatDetached
+                        pydio={pydio}
+                        onRequestClose={()=> this.toggleRightPanel('chat')}
+                        onRequestToInfoPanel={() => this.toggleAndStore('chatDetached')}
+                    />
+                }
                 <EditionPanel {...props}/>
 
             </MasterLayout>

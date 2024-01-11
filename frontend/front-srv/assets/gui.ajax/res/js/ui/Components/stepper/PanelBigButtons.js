@@ -22,6 +22,8 @@ import React from 'react'
 import Pydio from 'pydio'
 const {FileDropZone} = Pydio.requireLib('form')
 import {Paper, FontIcon, IconButton} from 'material-ui'
+import Tooltip from '@mui/material/Tooltip'
+import './big-buttons.less'
 
 const styles = {
     root:{
@@ -55,81 +57,6 @@ const styles = {
     }
 };
 
-const css = `
-.react-mui-context .bbpanel .stepper-section-actions {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.react-mui-context .bbpanel .stepper-section-container {
-    margin-bottom: 30px;
-}
-
-.react-mui-context .bbpanel .stepper-section-title {
-    font-size: 13px;
-    font-weight: 500;
-    color: #455a64;
-    padding-bottom: 20px;    
-}
-
-.react-mui-context .bbpanel .stepper-action-container {
-    margin: 10px;
-    width: 230px;
-    height: 210px;
-    display: flex;
-    flex-direction: column;
-    font-size: 15px;
-    padding: 10px 20px;
-    border-radius: 6px !important;
-    box-shadow: 1px 10px 20px 0 rgba(40,60,75,.15);
-    cursor: pointer;
-    position:relative;
-}
-
-.react-mui-context .bbpanel .stepper-action-container:hover {
-    box-shadow: 1px 10px 20px 0 rgba(40,60,75,.3)
-}
-
-.react-mui-context .bbpanel .stepper-action-icon {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.react-mui-context .bbpanel .stepper-tag {
-    position: absolute;
-    top: 15px;
-    left: 16px;
-    background-color: #B0BEC5;
-    color: white;
-    padding: 1px 5px;
-    font-size: 12px;
-    height: 19px;
-    line-height: 16px;
-    border-radius: 4px;
-    font-weight: 500;
-}
-
-.react-mui-context .bbpanel .stepper-action-icon > span {
-    font-size: 50px !important;
-}
-
-.react-mui-context .bbpanel .stepper-action-title {
-    padding-bottom: 20px;
-    font-weight: 500;
-    text-align: center;
-    font-size: 16px;
-}
-
-.react-mui-context .bbpanel .stepper-action-description {
-    text-align: center;
-    font-weight: 300;
-    font-size: 13px;
-    padding-bottom: 10px;   
-}
-`;
-
 class PanelBigButtons extends React.Component {
 
     constructor(props){
@@ -139,10 +66,10 @@ class PanelBigButtons extends React.Component {
         super(props);
     }
 
-    stProps(a, b) {
+    stProps(a, b, additionalClass='') {
         return {
             style:styles[a][b],
-            className:'stepper-'+a+'-'+b
+            className:'stepper-'+a+'-'+b + (additionalClass?' '+additionalClass:'')
         }
     }
 
@@ -158,10 +85,12 @@ class PanelBigButtons extends React.Component {
                             <div {...this.stProps('section', 'title')}>{ss.title}</div>
                             <div {...this.stProps('section', 'description')}>{ss.description}</div>
                             <div {...this.stProps('section', 'actions')}>{ss.Actions.map(a => {
-                                let d = a.description;
-                                if(d && d.length > 70) {
-                                    d = <span title={d}>{d.substr(0, 70) + "..."}</span>
-                                }
+                                const tipContent = (
+                                    <div style={{fontSize: 12, fontWeight: 400, padding:10, maxWidth: 200, lineHeight: '16px'}}>
+                                        <div style={{fontWeight: 500, paddingBottom: 5}}>{a.title}</div>
+                                        <div>{a.description}</div>
+                                    </div>
+                                )
                                 const children = (
                                     <React.Fragment>
                                         {a.tag && <div className={"stepper-tag"}>{a.tag}</div>}
@@ -175,18 +104,18 @@ class PanelBigButtons extends React.Component {
                                                 />
                                             </div>
                                         }
-                                        <div  {...this.stProps('action', 'icon')}><FontIcon color={a.tint||'#03A9F4'} className={a.icon}/></div>
-                                        <div  {...this.stProps('action', 'title')}>{a.title}</div>
-                                        <div  {...this.stProps('action', 'description')}>{d}</div>
+                                            <div  {...this.stProps('action', 'icon')}><FontIcon color={a.tint||'#03A9F4'} className={a.icon}/></div>
+                                            <div  {...this.stProps('action', 'title')} title={a.title}>{a.title}</div>
+                                        <Tooltip placement={"bottom"} arrow title={tipContent}><div {...this.stProps('action', 'description')}>{a.description}</div></Tooltip>
                                     </React.Fragment>
                                 )
                                 if(a.dropProps) {
                                     return (
-                                        <FileDropZone {...this.stProps('action', 'container')} {...a.dropProps}>{children}</FileDropZone>
+                                        <FileDropZone {...this.stProps('action', 'container', 'drop-force')} {...a.dropProps}>{children}</FileDropZone>
                                     )
                                 } else {
                                     return (
-                                        <Paper zDepth={0} {...this.stProps('action', 'container')} onClick={()=>{onPick(a.value)}}>{children}</Paper>
+                                        <Paper zDepth={0} {...this.stProps('action', 'container', a.tag)} onClick={()=>{onPick(a.value)}}>{children}</Paper>
                                     );
 
                                 }
@@ -194,7 +123,6 @@ class PanelBigButtons extends React.Component {
                         </div>
                     )
                 })}
-                <style type={"text/css"} dangerouslySetInnerHTML={{__html:css}}/>
             </div>
         );
 

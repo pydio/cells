@@ -137,7 +137,7 @@ func (u *User) LoadActiveWorkspace(parameter string) {
 	}
 	// Load default repository from preferences, or start on home page
 	var defaultStart = common.IdmWsInternalHomepageID
-	if v := u.FlattenedRolesConfigByName("core.conf", "DEFAULT_START_REPOSITORY"); v != "" {
+	if v := u.FlattenedRolesConfigByName("core.conf", "DEFAULT_START_REPOSITORY"); v != "" && v != "-1" {
 		defaultStart = v
 	}
 

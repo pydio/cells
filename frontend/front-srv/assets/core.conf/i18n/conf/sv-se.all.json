@@ -3,7 +3,7 @@
     "other": "Address used for notifications"
   },
   "All roles": {
-    "other": "All roles"
+    "other": "Alla roller"
   },
   "Allow Group Listing": {
     "other": "Allow Group Listing"
@@ -42,7 +42,10 @@
     "other": "Core SQL Connection"
   },
   "Country": {
-    "other": "Country"
+    "other": "Land"
+  },
+  "User Country": {
+    "other": "User Country"
   },
   "Create external users": {
     "other": "Create external users"
@@ -105,7 +108,7 @@
     "other": "Internal / External Users"
   },
   "Language": {
-    "other": "Language"
+    "other": "Språk"
   },
   "Let user create repositories": {
     "other": "Let user create workspaces"
@@ -135,7 +138,7 @@
     "other": "Minimum number of characters to trigger the auto completion feature"
   },
   "Name": {
-    "other": "Name"
+    "other": "Namn"
   },
   "Preferences Saving": {
     "other": "Preferences Saving"
@@ -144,7 +147,7 @@
     "other": "Remember guest preferences"
   },
   "Role Label": {
-    "other": "Role Label"
+    "other": "Rolletikett"
   },
   "Role/Group Listing": {
     "other": "Role/Group Listing"

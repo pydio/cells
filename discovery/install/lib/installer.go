@@ -30,6 +30,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.uber.org/zap"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/pydio/cells/v4/common/log"
@@ -133,7 +134,12 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) (*
 	case "MONGO":
 
 		// Create a new client and connect to the server
-		opts := options.Client().ApplyURI(c.DocumentsDSN)
+		testDSN := c.DocumentsDSN
+		if strings.Contains(testDSN, "srvScheme=true") {
+			testDSN = strings.Replace(testDSN, "srvScheme=true", "", 1)
+			testDSN = strings.Replace(testDSN, "mongodb://", "mongodb+srv://", 1)
+		}
+		opts := options.Client().ApplyURI(testDSN)
 		client, err := mongo.Connect(context.Background(), opts)
 		if err != nil {
 			wrapError(err)

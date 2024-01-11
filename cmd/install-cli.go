@@ -269,7 +269,7 @@ func promptAdditionalMongoDSN(c *install.InstallConfig, loop bool) error {
 		AllowEdit: true,
 	}
 	dsnPort := p.Prompt{
-		Label:     "Server port",
+		Label:     "Server port (leave empty and set srvScheme=true to switch to mongo+srv)",
 		Default:   port,
 		AllowEdit: true,
 	}
@@ -288,10 +288,14 @@ func promptAdditionalMongoDSN(c *install.InstallConfig, loop bool) error {
 	if dbName, e = dsnDB.Run(); e != nil {
 		return e
 	}
-	targetUrl.Host = net.JoinHostPort(host, port)
+	if port != "" {
+		targetUrl.Host = net.JoinHostPort(host, port)
+	} else {
+		targetUrl.Host = host
+	}
 	targetUrl.Path = "/" + dbName
 	dsnAuth := p.Prompt{
-		Label:     "Do you wish to setup authentication?",
+		Label:     "Do you wish to setup authentication",
 		IsConfirm: true,
 		Default:   "y",
 	}
@@ -321,7 +325,42 @@ func promptAdditionalMongoDSN(c *install.InstallConfig, loop bool) error {
 		}
 		targetUrl.User = url.UserPassword(user, pass)
 		if authDB != "" {
-			targetUrl.Query().Set("authSource", authDB)
+			qu := targetUrl.Query()
+			qu.Set("authSource", authDB)
+			targetUrl.RawQuery = qu.Encode()
+		}
+	}
+
+	for {
+		fmt.Println("Current Query String is: " + targetUrl.RawQuery)
+		dsnQuery := p.Prompt{
+			Label:     "Do you wish to append other query parameters",
+			IsConfirm: true,
+			Default:   "N",
+		}
+		if _, er := dsnQuery.Run(); er != nil {
+			break
+		}
+		dsnQueryKey := p.Prompt{
+			Label:   "Parameter Name (use srvScheme to switch mongo+srv://)",
+			Default: "",
+		}
+		dsnQueryValue := p.Prompt{
+			Label:   "Parameter Value",
+			Default: "",
+		}
+		q, e := dsnQueryKey.Run()
+		if e != nil {
+			break
+		}
+		v, e := dsnQueryValue.Run()
+		if e != nil {
+			break
+		}
+		if q != "" && v != "" {
+			initialQuery := targetUrl.Query()
+			initialQuery.Set(q, v)
+			targetUrl.RawQuery = initialQuery.Encode()
 		}
 	}
 

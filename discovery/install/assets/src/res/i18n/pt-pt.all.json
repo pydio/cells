@@ -63,31 +63,31 @@
     "other": "No processo de inicialização, vai ser criada uma fonte de dados por omissão para armazenar os dados pessoais e as células dos utilizadores. Pode depois criar outras fontes de dados mais tarde."
   },
   "advanced.mongo.title": {
-    "other": "Configure a MongoDB Connection"
+    "other": "Configurar uma ligação a MongoDB"
   },
   "advanced.mongo.legend": {
-    "other": "This is better for scalability, and required for clustering deployment. If you do not have a Mongo DB ready, this can be done later."
+    "other": "Isto é melhor para escalabilidade e necessário para a implementação de clusters. Se não tiver uma base de dados MongoDB disponível, esta operação pode ser feita mais tarde."
   },
   "advanced.mongo.host": {
-    "other": "Server host"
+    "other": "Servidor"
   },
   "advanced.mongo.port": {
-    "other": "Server port"
+    "other": "Porta do servidor"
   },
   "advanced.mongo.db": {
-    "other": "Database Name"
+    "other": "Nome da base de dados"
   },
   "advanced.mongo.username": {
-    "other": "Username"
+    "other": "Nome de utilizador"
   },
   "advanced.mongo.password": {
-    "other": "Password"
+    "other": "Senha"
   },
   "advanced.mongo.authSource": {
-    "other": "Auth DB"
+    "other": "Base de dados de autenticação"
   },
   "advanced.mongo.validate": {
-    "other": "Test connection"
+    "other": "Testar ligação"
   },
   "license.stepLabel": {
     "other": "Licença empresarial"
@@ -117,7 +117,7 @@
     "other": "Aplicar instalação"
   },
   "apply.title": {
-    "other": "Please be patient while Pydio Cells is being installed..."
+    "other": "Por favor, seja paciente enquanto o Pydio Cells é instalado..."
   },
   "apply.success": {
     "other": "A instalação foi bem sucedida e os serviços estão a arrancar, este instalador irá recarregar a página quando os serviços forem iniciados."
@@ -219,7 +219,7 @@
     "other": "Use um caminho absoluto no servidor"
   },
   "form.dsType.Label": {
-    "other": "Storage Type"
+    "other": "Tipo de armazenamento"
   },
   "form.dsType.FS": {
     "other": "Sistema de ficheiros local (armazenar todos os dados neste servidor)"
@@ -228,7 +228,7 @@
     "other": "Amazon S3 / S3-compatível (armazenamento dentro de buckets S3)"
   },
   "form.dsS3Custom.label": {
-    "other": "URL, append ?minio=true if Minio."
+    "other": "URL, acrescentar ?minio=true se usar Minio."
   },
   "form.dsS3Custom.legend": {
     "other": "Deixe em branco para Amazon S3"

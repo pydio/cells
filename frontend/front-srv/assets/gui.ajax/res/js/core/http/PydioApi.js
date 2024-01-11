@@ -54,6 +54,10 @@ class PydioApi{
         return new RestClient(this.getClient()._pydioObject, options);
     }
 
+    static RoleTypeAdmin = 'admin';
+    static RoleTypeUser = 'IsUserRole';
+    static RoleTypeGroup = 'IsGroupRole';
+    static RoleTypeTeam = 'IsTeam';
 
     /**
      * Create a throttler plugin for superagent

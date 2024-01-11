@@ -1,0 +1,71 @@
+{
+  "PolicyGroup.Create": {
+    "other": "Créer une Stratégie de Sécurité"
+  },
+  "PolicyGroup.Filter": {
+    "other": "Filtrer les modèles..."
+  },
+  "PolicyGroup.Create.Manual": {
+    "other": "Création Manuelle"
+  },
+  "PolicyGroup.Create.Templates": {
+    "other": "Modèles"
+  },
+  "PolicyGroup.ACLSample1.Title": {
+    "other": "ACL Complexes"
+  },
+  "PolicyGroup.ACLSample1.Description": {
+    "other": "Exemple de règle permettant de décider dynamiquement d'un accès à un workspace"
+  },
+  "PolicyGroup.ACLSample1.Rule1": {
+    "other": "Par défaut, autoriser lecture/écriture"
+  },
+  "PolicyGroup.ACLSample1.Rule2": {
+    "other": "Interdire certaines modifications en fonction de l'IP ou des métadonnées du fichier"
+  },
+  "PolicyGroup.ACLSample1.Rule3": {
+    "other": "Laisser de côté tous les fichiers ayant une extension .png si la requête client ne vient pas de localhost"
+  },
+  "PolicyGroup.ACLSamplePeriod.Title": {
+    "other": "Durée limitée"
+  },
+  "PolicyGroup.ACLSamplePeriod.Description": {
+    "other": "Exemple d'accès à un workspace pendant une période limitée"
+  },
+  "PolicyGroup.ACLSamplePeriod.Rule1": {
+    "other": "Accès autorisé seulement entre le 1er février et le 31 mars 2018"
+  },
+  "PolicyGroup.ACLSampleDateDisable.Title": {
+    "other": "Expiration programmée"
+  },
+  "PolicyGroup.ACLSampleDateDisable.Description": {
+    "other": "Désactivation de l'accès après une date donnée"
+  },
+  "PolicyGroup.ACLSampleDateDisable.Rule1": {
+    "other": "Autorisation par défaut (lecture/écriture)"
+  },
+  "PolicyGroup.ACLSampleDateDisable.Rule2": {
+    "other": "Restriction si la date est après le 2 février 2018"
+  },
+  "PolicyGroup.ACLSampleBusinessHours.Title": {
+    "other": "Horaires de bureau"
+  },
+  "PolicyGroup.ACLSampleBusinessHours.Description": {
+    "other": "Autorisation d'accès seulement entre certaines heures"
+  },
+  "PolicyGroup.ACLSampleBusinessHours.Rule1": {
+    "other": "Autoriser l'accès entre 9:00 et 18:30 du lundi au vendredi"
+  },
+  "PolicyGroup.ACLSampleExternalIP.Title": {
+    "other": "Filtrage par IP"
+  },
+  "PolicyGroup.ACLSampleExternalIP.Description": {
+    "other": "Désactiver l'accès pour les IP hors du réseau local"
+  },
+  "PolicyGroup.ACLSampleExternalIP.Rule1": {
+    "other": "Autorisations par défault (lecture/écriture)"
+  },
+  "PolicyGroup.ACLSampleExternalIP.Rule2": {
+    "other": "Désactiver l'accès si l'IP n'est pas localhost, 127.0.0.1 ou ::1"
+  }
+}

@@ -3,13 +3,16 @@
     "other": "Dashboard"
   },
   "dashboard.tab.activity": {
-    "other": "Activity"
+    "other": "Aktivitet"
   },
   "loading": {
     "other": "Loading..."
   },
   "ds.board.ds.legend": {
     "other": "Datasources are concrete storage locations that are aggregated by Pydio into a global tree. They can be distributed accross many storage nodes as needed."
+  },
+  "ds.board.ds.internal.legend": {
+    "other": "Internal DataSources are used to store binaries like files versions"
   },
   "ds.board.ds.title": {
     "other": "DataSources"
@@ -33,7 +36,7 @@
     "other": "Create a new workspace at the root of datasource %s"
   },
   "ds.board.wsfromds.field": {
-    "other": "Label"
+    "other": "Etikett"
   },
   "ds.board.wsfromds.defaultPrefix": {
     "other": "DataSource %s"
@@ -51,13 +54,13 @@
     "other": "Flat Storage"
   },
   "ds.format-picker.flat.legend": {
-    "other": "Best for performances, files are stored as binaries inside the storage. Files and folders structure is kept in internal index only."
+    "other": "The files are stored as binaries along regular snapshots of the tree structure to ensure an efficient disaster recovery. This is the recommended option for best performances and scalability."
   },
   "ds.format-picker.structured.title": {
     "other": "Import Existing Data"
   },
   "ds.format-picker.structured.legend": {
-    "other": "Files and folders are stored as-is, real-time synchronisation reflects storage structure inside internal indexes."
+    "other": "The tree structure is reflected in the storage and maintained in real-time synchronization. This legacy option is NOT recommended and should only be used for importing existing data. It is event-based and must not be used in high load or clustered installation."
   },
   "ds.format-picker.internal.title": {
     "other": "Cells Internals"
@@ -90,10 +93,10 @@
     "other": "Set an identifier for the new key"
   },
   "ds.editor.enc.key": {
-    "other": "Encryption Key"
+    "other": "Krypteringsnyckel"
   },
   "ds.editor.enc.key.clear": {
-    "other": "No Encryption"
+    "other": "Ingen kryptering"
   },
   "ds.editor.enc.key.create": {
     "other": "Set up encryption with a new key..."
@@ -102,7 +105,7 @@
     "other": "I Understand"
   },
   "ds.editor.enc.warning": {
-    "other": "Warning!"
+    "other": "Varning!"
   },
   "ds.editor.legend.delete.1": {
     "other": "Deleting datasource is a destructive operation : although it will NOT remove the data inside the underlying storage, it will destroy existing index and unlink all ACLs linked to the indexed nodes."
@@ -243,7 +246,7 @@
     "other": "invalid"
   },
   "ds.editor.selector.mkdir": {
-    "other": "Create Folder"
+    "other": "Skapa mapp"
   },
   "ds.editor.selector.mkdir.legend": {
     "other": "Create a new folder under %s"
@@ -294,7 +297,7 @@
     "other": "Custom Endpoint URL"
   },
   "ds.editor.storage.s3.endpoint.hint": {
-    "other": "include http(s)://"
+    "other": "inkludera http(s)://"
   },
   "ds.editor.storage.s3.region": {
     "other": "S3 Api Region"
@@ -363,13 +366,13 @@
     "other": "Do not enable versioning"
   },
   "ds.editor.tab.button-back": {
-    "other": "Back"
+    "other": "Tillbaka"
   },
   "ds.editor.tab.button-next": {
-    "other": "Next"
+    "other": "Nästa"
   },
   "ds.editor.tab.button-create": {
-    "other": "Create"
+    "other": "Skapa"
   },
   "ds.editor.tab.identifier": {
     "other": "Identifier"
@@ -384,7 +387,7 @@
     "other": "Data Lifecycle"
   },
   "ds.editor.tab.advanced": {
-    "other": "Advanced Options"
+    "other": "Avancerade alternativ"
   },
   "ds.editor.initFlatFromSnapshot": {
     "other": "If this storage was previously used as a flat datasource, initialize it from an existing snapshot file (must be found inside the storage)"
@@ -399,22 +402,22 @@
     "other": "No master key created"
   },
   "ds.encryption.key.create": {
-    "other": "Create Key"
+    "other": "Skapa nyckel"
   },
   "ds.encryption.key.created": {
     "other": "Created on"
   },
   "ds.encryption.key.delete": {
-    "other": "Delete Key"
+    "other": "Radera nyckel"
   },
   "ds.encryption.key.delete.warning": {
     "other": "If the key is currently used for encrypted data, this is a very destructive operation! Are you sure you want to do that?"
   },
   "ds.encryption.key.export": {
-    "other": "Export Key"
+    "other": "Exportera nyckel"
   },
   "ds.encryption.key.export.confirm": {
-    "other": "Confirm password"
+    "other": "Bekräfta lösenord"
   },
   "ds.encryption.key.export.fail": {
     "other": "Something went wrong during export"
@@ -429,7 +432,7 @@
     "other": "Identifier"
   },
   "ds.encryption.key.import": {
-    "other": "Import Key"
+    "other": "Importera nyckel"
   },
   "ds.encryption.key.import.content": {
     "other": "Paste key here from your backup file"
@@ -456,7 +459,7 @@
     "other": "Owner"
   },
   "ds.name": {
-    "other": "Name"
+    "other": "Namn"
   },
   "ds.status": {
     "other": "Status"
@@ -516,10 +519,10 @@
     "other": "No datasources created yet"
   },
   "ds.versioning.description": {
-    "other": "Description"
+    "other": "Beskrivning"
   },
   "ds.versioning.name": {
-    "other": "Name"
+    "other": "Namn"
   },
   "ds.versioning.periods": {
     "other": "Retention Strategy"
@@ -534,13 +537,13 @@
     "other": "Export and download"
   },
   "logs.11": {
-    "other": "Export as..."
+    "other": "Exportera som..."
   },
   "logs.2": {
     "other": "Pick a day"
   },
   "logs.filter.legend": {
-    "other": "Filter by..."
+    "other": "Filtrera efter..."
   },
   "logs.export.disabled": {
     "other": "Pick a date or filter result"
@@ -549,13 +552,13 @@
     "other": "Click on the link to download"
   },
   "logs.filter.period": {
-    "other": "Time Period"
+    "other": "Tidsperiod"
   },
   "logs.filter.period.from": {
-    "other": "From"
+    "other": "Från"
   },
   "logs.filter.period.to": {
-    "other": "To"
+    "other": "Till"
   },
   "logs.filter.period.time": {
     "other": "At..."
@@ -627,7 +630,49 @@
     "other": "No entries"
   },
   "logs.noresults": {
-    "other": "No results"
+    "other": "Inga resultat"
+  },
+  "logs.details.copy": {
+    "other": "Kopiera logg till urklipp"
+  },
+  "logs.details.show-focus": {
+    "other": "Visa +/- 5 minuter"
+  },
+  "logs.details.close": {
+    "other": "Close log detail"
+  },
+  "logs.details.user": {
+    "other": "Användare"
+  },
+  "logs.details.user-attributes": {
+    "other": "User Attributes"
+  },
+  "logs.details.date": {
+    "other": "Event Date"
+  },
+  "logs.details.msg": {
+    "other": "Event Message"
+  },
+  "logs.details.service": {
+    "other": "Emitting Service"
+  },
+  "logs.details.connection": {
+    "other": "Connection IP"
+  },
+  "logs.details.agent": {
+    "other": "User-Agent"
+  },
+  "logs.details.protocol": {
+    "other": "Protokoll"
+  },
+  "logs.details.node": {
+    "other": "File/Folder"
+  },
+  "logs.details.transfer-size": {
+    "other": "Transfer Size"
+  },
+  "logs.details.workspace": {
+    "other": "In Workspace"
   },
   "menu.0": {
     "other": "Dashboard"
@@ -756,7 +801,7 @@
     "other": "Label"
   },
   "metadata.namespace": {
-    "other": "Name"
+    "other": "Namn"
   },
   "metadata.namespace.add": {
     "other": "+ Namespace"
@@ -771,13 +816,13 @@
     "other": "Order"
   },
   "metadata.group": {
-    "other": "Group"
+    "other": "Grupp"
   },
   "metadata.group-field": {
     "other": "Group Name (creates an expandable section). Use '/' for sub-groups."
   },
   "metadata.default-group": {
-    "other": "No Group"
+    "other": "Ingen grupp"
   },
   "metadata.toggle.index": {
     "other": "Index in search engine"
@@ -921,7 +966,7 @@
     "other": "Detect high server load (Linux servers only)"
   },
   "perfs.load.error": {
-    "other": "Maybe adding some CPU or RAM to your server could be neccessary."
+    "other": "Maybe adding some CPU or RAM to your server could be necessary."
   },
   "perfs.load.help": {
     "other": "A high server load may indicate that your server is missing CPU or RAM given your usage of Pydio."
@@ -936,7 +981,7 @@
     "other": "Mailer is not configured to defer emails sending."
   },
   "perfs.mailer.help": {
-    "other": "Using the mail queue avoids sending every emails directly during every actions and requests, but store them in a separate database and process the queue separately."
+    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
   },
   "perfs.mailer.title": {
     "other": "Mailer Queue"
@@ -981,7 +1026,7 @@
     "other": "Editor plugins are the previewers/editors associated to any file types in the application.\n                    These plugins are handle specifically in the GUI (extensions) and can declare the mimetypes they support.\n                    The order parameter also allows to define a priority for the 'open with...' action."
   },
   "plugins.5": {
-    "other": "Save Changes"
+    "other": "Spara ändringar"
   },
   "plugins.6": {
     "other": "Revert"
@@ -996,16 +1041,16 @@
     "other": "Id"
   },
   "plugins.list.column.description": {
-    "other": "Description"
+    "other": "Beskrivning"
   },
   "plugins.list.action.edit": {
     "other": "Edit plugin parameters"
   },
   "plugins.documentation": {
-    "other": "Documentation"
+    "other": "Dokumentation"
   },
   "policies.policy.create": {
-    "other": "Create"
+    "other": "Skapa"
   },
   "policies.policy.description": {
     "other": "Policy Description"
@@ -1023,10 +1068,10 @@
     "other": "Edit policy rules"
   },
   "policies.policy.editLabels": {
-    "other": "Edit Labels"
+    "other": "Redigera etiketter"
   },
   "policies.policy.saveLabels": {
-    "other": "Save Changes"
+    "other": "Spara ändringar"
   },
   "policies.policy.delete": {
     "other": "Delete policy"
@@ -1041,10 +1086,13 @@
     "other": "Policy Type"
   },
   "policies.rule.create": {
-    "other": "Add new rule"
+    "other": "Lägg till ny regel"
   },
   "policies.rule.delete": {
-    "other": "Delete Rule"
+    "other": "Radera regel"
+  },
+  "policies.acl.empty-string": {
+    "other": "No policies defined, create one use to it as a dynamic workspace permission."
   },
   "policies.rule.delete.confirm": {
     "other": "Are you sure you want to remove this security rule? This could break the security model of the application!"
@@ -1103,6 +1151,9 @@
   "react.5b": {
     "other": "write"
   },
+  "react.5c": {
+    "other": "access"
+  },
   "react.6": {
     "other": "children"
   },
@@ -1131,7 +1182,7 @@
     "other": "Access to %i workspaces"
   },
   "user.11": {
-    "other": "%i roles"
+    "other": "%i roller"
   },
   "user.12": {
     "other": "Group path"
@@ -1140,7 +1191,7 @@
     "other": "shared"
   },
   "user.14": {
-    "other": "Create a new role"
+    "other": "Skapa ny roll"
   },
   "user.15": {
     "other": "Create a new group"
@@ -1182,7 +1233,7 @@
     "other": "User password"
   },
   "user.23": {
-    "other": "Confirm password"
+    "other": "Bekräfta lösenord"
   },
   "user.24": {
     "other": "Root Group"
@@ -1197,13 +1248,13 @@
     "other": "User Personal Role"
   },
   "user.3": {
-    "other": "Groups"
+    "other": "Grupper"
   },
   "user.4": {
-    "other": "Roles"
+    "other": "Roller"
   },
   "user.5": {
-    "other": "Groups & Users"
+    "other": "Grupper & Användare"
   },
   "user.6": {
     "other": "+ Role"
@@ -1223,6 +1274,24 @@
   "user.filter.tooltip": {
     "other": "Filter users list..."
   },
+  "user.filter.locks": {
+    "other": "Locked Users"
+  },
+  "user.filter.hidden": {
+    "other": "Public Links (hidden)"
+  },
+  "user.filter.status": {
+    "other": "Status"
+  },
+  "user.type.hidden": {
+    "other": "Public User"
+  },
+  "user.type.hidden.legend": {
+    "other": "Public users are created for public links (one per link) and are hidden by default. It can be useful to list them to detect locked public links."
+  },
+  "user.rootgroup.legend": {
+    "other": "Permissions applied to the entire user hierarchy"
+  },
   "user.filter.internal": {
     "other": "Internal users"
   },
@@ -1233,7 +1302,7 @@
     "other": "Admins only"
   },
   "user.filter.all": {
-    "other": "All users"
+    "other": "Alla användare"
   },
   "user.filter.anon": {
     "other": "Show anonymous"
@@ -1278,7 +1347,7 @@
     "other": "+ Template Path"
   },
   "virtual.create.button": {
-    "other": "Create"
+    "other": "Skapa"
   },
   "virtual.label": {
     "other": "Label"
@@ -1302,10 +1371,10 @@
     "other": "Template Paths"
   },
   "virtual.save": {
-    "other": "Save template"
+    "other": "Spara mall"
   },
   "virtual.delete": {
-    "other": "Delete template"
+    "other": "Radera mall"
   },
   "virtual.delete.confirm": {
     "other": "Are you sure you wish to delete this template path? Operation is not reversible!"
@@ -1317,7 +1386,7 @@
     "other": "Display code"
   },
   "virtual.code.edit": {
-    "other": "Edit code"
+    "other": "Redigera kod"
   },
   "virtual.card.title": {
     "other": "Dynamically computed path"
@@ -1368,7 +1437,7 @@
     "other": "Close DataSources"
   },
   "ws.20": {
-    "other": "Create"
+    "other": "Skapa"
   },
   "ws.21": {
     "other": "Template General Options"
@@ -1575,10 +1644,16 @@
     "other": "Sync"
   },
   "ws.complete.datasources": {
-    "other": "DataSources and Folders"
+    "other": "DataSources"
+  },
+  "ws.complete.folders": {
+    "other": "Internal Folders"
   },
   "ws.complete.label": {
-    "other": "Select a folder or a predefined template path"
+    "other": "Select a DataSource or a Template Path"
+  },
+  "ws.complete.additional": {
+    "other": "Additional Root"
   },
   "ws.complete.resolves": {
     "other": "Resolves to"
@@ -1597,6 +1672,9 @@
   },
   "ws.editor.default_rights": {
     "other": "Set up default permissions to this workspace (applied to all internal users of the application). You can override these permissions on a per-user / per-role / per-group basis in the People section."
+  },
+  "ws.editor.default_rights.hint": {
+    "other": "Default Rights"
   },
   "ws.editor.default_rights.none": {
     "other": "None"
@@ -1635,7 +1713,7 @@
     "other": "Workspace Layout"
   },
   "ws.editor.other.layout.default": {
-    "other": "Default"
+    "other": "Standard"
   },
   "ws.editor.other.layout.easy": {
     "other": "Easy Transfer Layout (enterprise only)"
@@ -1656,7 +1734,7 @@
     "other": "(personal workspaces only)"
   },
   "ws.editor.sync.warning": {
-    "other": "Warning!"
+    "other": "Varning!"
   },
   "ws.editor.sync.warning.validate": {
     "other": "I understand"
@@ -1710,7 +1788,7 @@
     "other": "Service Name"
   },
   "services.column.description": {
-    "other": "Description"
+    "other": "Beskrivning"
   },
   "services.column.version": {
     "other": "Version"
@@ -1845,7 +1923,7 @@
     "other": "Trigger"
   },
   "scheduler.job.delete": {
-    "other": "Delete"
+    "other": "Radera"
   },
   "scheduler.job.delete.confirm": {
     "other": "Are you sure you want to delete this Flow? This operation cannot be reverted!"
@@ -1853,44 +1931,182 @@
   "scheduler.tasks.delete.confirm": {
     "other": "Are you sure you want to clear all tasks for this Flow?"
   },
+  "scheduler.trigger.picker.title": {
+    "other": "Trigger job on..."
+  },
+  "scheduler.trigger.type.nodes": {
+    "other": "Files and folders (nodes) events : detect files modifications to move them or update their metadata automatically."
+  },
+  "scheduler.trigger.type.workspaces": {
+    "other": "Workspace events : triggered on workspace creation / deletion. Use the Scope flag to filter Workspaces from Cells"
+  },
+  "scheduler.trigger.type.acls": {
+    "other": "ACL events : access control lists link workspaces, nodes and roles together to provide accesses to data."
+  },
+  "scheduler.trigger.type.users": {
+    "other": "User events : triggered when adding/removing user and when users log in and log out. Can be used for triggering validation flows or assigning accesses."
+  },
+  "scheduler.trigger.type.roles": {
+    "other": "Role events : can be used to automate accesses based on role names. Use IsTeam, IsGroup, IsUser flags to filter roles."
+  },
+  "scheduler.trigger.type.chat": {
+    "other": "Chat Events: react to new chat message or chat room modification"
+  },
+  "scheduler.trigger.type.chat-messages": {
+    "other": "Chat Messages Events"
+  },
+  "scheduler.trigger.type.chat-rooms": {
+    "other": "Chat Rooms Events"
+  },
   "scheduler.trigger.create.node": {
     "other": "Create Node"
+  },
+  "scheduler.trigger.create.node.description": {
+    "other": "A new file was uploaded or a new folder was created."
   },
   "scheduler.trigger.read.node": {
     "other": "Read Node"
   },
+  "scheduler.trigger.read.node.description": {
+    "other": "A file was downloaded or a folder content was listed."
+  },
   "scheduler.trigger.update.path": {
     "other": "Update Path"
+  },
+  "scheduler.trigger.update.path.description": {
+    "other": "A file or folder was moved or renamed."
   },
   "scheduler.trigger.update.content": {
     "other": "Update Content"
   },
+  "scheduler.trigger.update.content.description": {
+    "other": "A file content was updated by edition or upload overwriting."
+  },
   "scheduler.trigger.update.metadata": {
     "other": "Update Metadata"
+  },
+  "scheduler.trigger.update.metadata.description": {
+    "other": "Internal metadata were modified on file or folder."
   },
   "scheduler.trigger.update.user-metadata": {
     "other": "Update User Metadata"
   },
+  "scheduler.trigger.update.user-metadata.description": {
+    "other": "User-defined metadata were modified (event contains updated metadata)."
+  },
   "scheduler.trigger.delete.node": {
     "other": "Delete Node"
   },
+  "scheduler.trigger.delete.node.description": {
+    "other": "A file or a folder was definitively deleted."
+  },
   "scheduler.trigger.create.user": {
-    "other": "Create User"
+    "other": "Skapa användare"
+  },
+  "scheduler.trigger.create.user.description": {
+    "other": "A user or a group was created."
   },
   "scheduler.trigger.read.user": {
     "other": "Read User"
   },
+  "scheduler.trigger.read.user.description": {
+    "other": "A user or a group was accessed or listed."
+  },
   "scheduler.trigger.update.user": {
     "other": "Update User"
   },
+  "scheduler.trigger.update.user.description": {
+    "other": "A user or a group data was updated. Typically happens if user changes a preference or admin assigns a role."
+  },
   "scheduler.trigger.delete.user": {
-    "other": "Delete User"
+    "other": "Radera användare"
+  },
+  "scheduler.trigger.delete.user.description": {
+    "other": "A user or a group was deleted."
   },
   "scheduler.trigger.bind.user": {
     "other": "User Bind"
   },
+  "scheduler.trigger.bind.user.description": {
+    "other": "En användare har loggat in."
+  },
   "scheduler.trigger.logout.user": {
     "other": "User Logout"
+  },
+  "scheduler.trigger.logout.user.description": {
+    "other": "En användare har loggat ut."
+  },
+  "scheduler.trigger.role.create": {
+    "other": "Skapa roll"
+  },
+  "scheduler.trigger.role.create.description": {
+    "other": "A new role was created, by admin or by users."
+  },
+  "scheduler.trigger.role.update": {
+    "other": "Uppdatera roll"
+  },
+  "scheduler.trigger.role.update.description": {
+    "other": "En roll har uppdaterats."
+  },
+  "scheduler.trigger.role.delete": {
+    "other": "Radera roll"
+  },
+  "scheduler.trigger.role.delete.description": {
+    "other": "En roll har raderats."
+  },
+  "scheduler.trigger.workspace.create": {
+    "other": "Create Workspace"
+  },
+  "scheduler.trigger.workspace.create.description": {
+    "other": "A new Workspace or Cell was created."
+  },
+  "scheduler.trigger.workspace.update": {
+    "other": "Update Workspace"
+  },
+  "scheduler.trigger.workspace.update.description": {
+    "other": "A Workspace or a Cell has been updated."
+  },
+  "scheduler.trigger.workspace.delete": {
+    "other": "Delete Workspace"
+  },
+  "scheduler.trigger.workspace.delete.description": {
+    "other": "A Workspace or a Cell has been deleted."
+  },
+  "scheduler.trigger.acl.create": {
+    "other": "Create/Update ACL"
+  },
+  "scheduler.trigger.acl.create.description": {
+    "other": "An Access Control was opened."
+  },
+  "scheduler.trigger.acl.delete": {
+    "other": "Delete ACL"
+  },
+  "scheduler.trigger.acl.delete.description": {
+    "other": "An Access Control was removed."
+  },
+  "scheduler.trigger.chat-message.put": {
+    "other": "New Chat Message"
+  },
+  "scheduler.trigger.chat-message.put.description": {
+    "other": "A Message was posted in a ChatRoom."
+  },
+  "scheduler.trigger.chat-message.delete": {
+    "other": "Chat Message Deleted"
+  },
+  "scheduler.trigger.chat-message.delete.description": {
+    "other": "A Message was deleted from a ChatRoom."
+  },
+  "scheduler.trigger.chat-room.put": {
+    "other": "New Chat Room"
+  },
+  "scheduler.trigger.chat-room.put.description": {
+    "other": "A new ChatRoom was created."
+  },
+  "scheduler.trigger.chat-room.delete": {
+    "other": "Delete Chat Room"
+  },
+  "scheduler.trigger.chat-room.delete.description": {
+    "other": "A Chatroom has been deleted."
   },
   "scheduler.trigger.events": {
     "other": "Events"
@@ -1917,7 +2133,7 @@
     "other": "Stop Now"
   },
   "scheduler.task.action.delete": {
-    "other": "Delete"
+    "other": "Radera"
   },
   "scheduler.task.action.enable": {
     "other": "Enable Flow"
@@ -1971,7 +2187,7 @@
     "other": "Disable Multiple"
   },
   "scheduler.tasks.bulk.clear": {
-    "other": "Clear All"
+    "other": "Rensa alla"
   },
   "scheduler.tasks.activity.title": {
     "other": "Task Activity"
@@ -1980,7 +2196,7 @@
     "other": "Loading activity..."
   },
   "scheduler.tasks.activity.empty": {
-    "other": "No logs found"
+    "other": "Inga loggar hittades"
   },
   "scheduler.schedule.monthly": {
     "other": "Every %1 of each month at %2"

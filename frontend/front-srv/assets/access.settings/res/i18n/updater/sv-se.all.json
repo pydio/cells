@@ -39,7 +39,7 @@
     "other": "Version"
   },
   "package.label": {
-    "other": "Label"
+    "other": "Etikett"
   },
   "package.details": {
     "other": "Details"
@@ -57,19 +57,19 @@
     "other": "Upgrade to Cells Enterprise"
   },
   "upgrade.ed.button.next": {
-    "other": "Next"
+    "other": "Nästa"
   },
   "upgrade.ed.button.start": {
     "other": "Start"
   },
   "upgrade.ed.button.cancel": {
-    "other": "Cancel"
+    "other": "Avbryt"
   },
   "upgrade.ed.button.install": {
-    "other": "Install now"
+    "other": "Installera nu"
   },
   "upgrade.ed.button.close": {
-    "other": "Close"
+    "other": "Stäng"
   },
   "upgrade.ed.eula.title": {
     "other": "Please Accept End-User License Agreement"
@@ -105,7 +105,7 @@
     "other": "Architecture"
   },
   "upgrade.ed.version.description": {
-    "other": "Description"
+    "other": "Beskrivning"
   },
   "upgrade.ed.version.legend": {
     "other": "Hitting Next will now download this new version and replace your current Cells binary. A backup of the original executable will be made inside your cells config folder (under %s), if you need to recover it."

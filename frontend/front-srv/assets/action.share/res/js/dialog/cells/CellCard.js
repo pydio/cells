@@ -94,7 +94,7 @@ class CellCard extends React.Component{
     }
 
     render(){
-        const {mode, pydio, editorOneColumn, muiTheme} = this.props;
+        const {mode, pydio, editorOneColumn, genericFlex, muiTheme} = this.props;
         const {edit, model, asLib, coreActionsLib, rootNodes, loading} = this.state;
         const m = (id) => pydio.MessageHash['share_center.' + id];
 
@@ -204,6 +204,7 @@ class CellCard extends React.Component{
                     onEditAction={editAction}
                     editTooltip={pydio.MessageHash['share_center.247']}
                     headerSmall={mode === 'infoPanel'}
+                    genericFlex={genericFlex}
                     mui3={true}
                     topLeftAvatar={mode !== 'infoPanel' && <SharedUsersStack size={40} acls={model.getAcls()}/>}
                 >

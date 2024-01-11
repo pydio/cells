@@ -27,12 +27,12 @@ const {InfoPanelCard} = Pydio.requireLib('workspaces');
 
 class InfoPanel extends Component {
     render() {
-        const {node} = this.props;
+        const {node, ...infoProps} = this.props;
         if(!node || !node.getMetadata().has('datasource_versioning')) {
             return null
         }
         return (
-            <InfoPanelCard identifier={"meta-versions"} style={this.props.style} title={Pydio.getMessages()['meta.versions.1']}>
+            <InfoPanelCard {...infoProps} identifier={"meta-versions"} icon={"mdi mdi-history"} style={this.props.style} title={Pydio.getMessages()['meta.versions.1']}>
                 <Revisions node={node} className={"small"} onClick={(versionId) => Pydio.getInstance().Controller.fireAction('versions_history', versionId)}/>
             </InfoPanelCard>
         )

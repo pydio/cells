@@ -17,120 +17,215 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import createReactClass from 'create-react-class';
-import {DropDownMenu, MenuItem} from 'material-ui'
-import {RoleMessagesConsumerMixin} from '../util/MessagesMixin'
+import React, {Fragment, Component} from 'react';
+import {MenuItem, FontIcon} from 'material-ui'
+import {withRoleMessages} from '../util/MessagesMixin'
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api';
 const {SortableList} = Pydio.requireLib('components')
+const {ModernAutoComplete} = Pydio.requireLib('hoc');
 
-export default createReactClass({
-    displayName: 'UserRolesPicker',
-    mixins:[RoleMessagesConsumerMixin],
+class RolesComplete extends Component {
 
-    propTypes: {
-        profile:PropTypes.string,
-        roles:PropTypes.array,
-        addRole:PropTypes.func,
-        removeRole:PropTypes.func,
-        switchRoles:PropTypes.func,
-    },
+    constructor(props) {
+        super(props);
+        this.state = {value: '', roles: []}
+        this.load()
+    }
 
-    getInitialState(){
-        return {
-            availableRoles: []
-        }
-    },
-
-    componentDidMount(){
-        PydioApi.getRestClient().getIdmApi().listRoles().then(roles => {
-            this.setState({availableRoles: roles});
+    load() {
+        const {value} = this.state;
+        const {userRoles} = this.props
+        const filter = value ? '*' + value + '*' : ''
+        PydioApi.getRestClient().getIdmApi().listRolesV2(0, 50, [PydioApi.RoleTypeAdmin, PydioApi.RoleTypeTeam], filter).then(roles => {
+            this.setState({roles: roles.filter(r => userRoles.filter(r1 => r.Uuid === r1.Uuid).length === 0)});
         })
-    },
+    }
+
+    handleNewRequest(item) {
+        const {onAddRole} = this.props;
+        if(item && item.payload) {
+            onAddRole(item.payload)
+            this.setState({value: ''}, () => this.load())
+        }
+    }
+
+    render() {
+        const {getMessage} = this.props;
+        const {value, roles, focus} = this.state;
+        const datasource = roles.map(r => {
+            return {
+                value: (
+                    <MenuItem
+                        primaryText={r.Label}
+                        onKeyDown={(e) =>{if(e.key==='Enter'){this.handleNewRequest({payload: r})} }}
+                        leftIcon={<FontIcon style={{zoom: 0.9, top: 0}} className={'mdi mdi-' + (r.IsTeam?'account-group-outline':'card-account-details-outline')}/>}
+                    />
+                ),
+                key:r.Uuid,
+                text: r.Label,
+                payload: r
+            }
+        })
+        let inputStyle;
+        if(!focus){
+            inputStyle = {backgroundColor: 'transparent', cursor: 'pointer'}
+        }
+        return  (
+            <ModernAutoComplete
+                fullWidth={true}
+                hintText={focus ?getMessage('roles.picker.hint'):getMessage('roles.picker.add')}
+                variant={"compact"}
+                onFocus={()=>this.setState({focus:true})}
+                onBlur={()=>this.setState({focus:false})}
+                inputStyle={{paddingLeft: 2, borderRadius:2, ...inputStyle}}
+                hintStyle={{paddingLeft: 2, textTransform:'capitalize', color:focus?'#bbb':'rgb(5, 169, 244)', cursor: 'pointer'}}
+                filter={(searchText, key) => (!searchText.indexOf || key.toLowerCase().indexOf(searchText.toLowerCase()) >= 0)}
+                openOnFocus={true}
+                dataSource={datasource}
+                searchText={value}
+                onNewRequest={(s,i) => {this.handleNewRequest(s)}}
+                onUpdateInput={(v) => {this.setState({value:v}, ()=>this.load())}}
+                desktop={true}
+                menuProps={{maxHeight:300,overflowY: 'auto', desktop: true}}
+            />
+        )
+    }
+}
+
+class UsersRolesPicker extends Component{
+
+    constructor(props){
+        super(props)
+        this.state = {open: false}
+    }
 
     onChange(e, selectedIndex, value){
         if(value === -1) {
             return;
         }
-        this.props.addRole(value);
-    },
+        const {user} = this.props
+        user.addRole(value);
+    }
 
     remove(value){
-        const {availableRoles} = this.state;
-        const role = availableRoles.filter(r => r.Uuid === value)[0];
-        this.props.removeRole(role);
-    },
+        const {user} = this.props;
+        const roles = user.getIdmUser().Roles;
+        const role = roles.filter(r => r.Uuid === value)[0];
+        user.removeRole(role);
+    }
 
     orderUpdated(oldId, newId, currentValues){
-        this.props.switchRoles(oldId, newId);
-    },
+        const {user} = this.props
+        user.switchRoles(oldId, newId);
+    }
+
+    displayUniqueRole(roleId) {
+        const {user} = this.props;
+        const uniqueRoleDisplay = user.getRole().getUniqueRoleDisplay()
+        user.getRole().setUniqueRoleDisplay(uniqueRoleDisplay === roleId ? null : roleId)
+    }
 
     render(){
 
-        let groups=[], manual=[], users=[];
-        const ctx = this.context;
-        const {roles, loadingMessage, profile} = this.props;
-        const {availableRoles} = this.state;
+        let groups=[], manual=[];
+        const {user, loadingMessage, getMessage, buildGroupPath} = this.props;
+        const {open} = this.state;
 
-        roles.map(function(r){
+        const idmUser = user.getIdmUser()
+        const userLabel = idmUser.Attributes && idmUser.Attributes["displayName"] || idmUser.Login
+        const profile = idmUser.Attributes && idmUser.Attributes['profile'] || ''
+        const roles = idmUser.Roles;
+        const uniqueRoleDisplay = user.getRole().getUniqueRoleDisplay()
+
+        const renderItem = ({payload, icon, text, removable = false, noClick, className = ''}) => {
+            const selected = payload === uniqueRoleDisplay
+            const click = noClick?null:()=> this.displayUniqueRole(payload)
+            let classes = ['role-item']
+            if(className){
+                classes.push(className)
+            }
+            if(removable){
+                classes.push('role-item-sortable')
+            }
+            if(selected){
+                classes.push('role-item-selected')
+            }
+            if(noClick){
+                classes.push('role-item-noclick')
+            }
+            return (
+                <div className={classes.join(' ')} style={{display:'flex', alignItems:'center'}} key={payload}>
+                    {icon && <span onClick={click} className={"left-icon mdi mdi-" + icon}/>}
+                    <div style={{flex: 1}} onClick={click}>
+                        {text}
+                        {!noClick && <span className={"toggle-select mdi mdi-pin-"+(selected?'off-':'')+'outline'} onClick={click}/>}
+                    </div>
+                    {removable && <span className={"right-icon mdi mdi-close"} onClick={() => this.remove(payload)}/>}
+                </div>
+            )
+        }
+
+        roles.forEach((r) =>{
+            if(r.UserRole){
+                return;
+            }
             if(r.GroupRole){
+                const icon = 'folder-account-outline'
                 if(r.Uuid === 'ROOT_GROUP') {
-                    groups.push('/ ' + ctx.getMessage('user.25', 'ajxp_admin'));
+                    groups.push({payload: r.Uuid, text: '/', icon});
                 }else {
-                    groups.push(ctx.getMessage('user.26', 'ajxp_admin').replace('%s', r.Label || r.Uuid));
+                    const path = buildGroupPath(r.Uuid)
+                    groups.push({
+                        payload: r.Uuid,
+                        text:path || getMessage('user.26', 'ajxp_admin').replace('%s', r.Label || r.Uuid),
+                        icon,
+                    });
                 }
-            }else if(r.UserRole){
-                users.push(ctx.getMessage('user.27', 'ajxp_admin'));
-            }else{
+            } else {
+                const icon = r.IsTeam ? 'account-group-outline' : 'card-account-details-outline'
                 if(r.AutoApplies && r.AutoApplies.indexOf(profile) !== -1){
-                    groups.push(r.Label + ' [auto]');
+                    groups.push({payload: r.Uuid, text:r.Label + ' [auto]', icon});
                 } else {
-                    manual.push({payload:r.Uuid, text:r.Label});
+                    manual.push({payload:r.Uuid, text:r.Label, removable: true, icon});
                 }
             }
-        }.bind(this));
+        });
 
-        const addableRoles = [
-            <MenuItem value={-1} primaryText={ctx.getMessage('20')}/>,
-            ...availableRoles.filter(r => roles.indexOf(r) === -1).map(r => <MenuItem value={r} primaryText={r.Label || r.Uuid} />)
-        ];
-
-        const fixedRoleStyle = {
-            padding: 10,
-            fontSize: 14,
-            backgroundColor: 'rgb(246 246 248)',
-            borderRadius: 2,
-            margin: '8px 0'
-        };
-
+        const toggleOpen = ()=>this.setState({open:!open})
         return (
-            <div className="user-roles-picker" style={{padding:0, paddingBottom:12, margin: '-30px 20px 40px', backgroundColor:'white', borderRadius: 6, border: '1px solid #dfe3e5'}}>
-                <div style={{paddingLeft: 16, display: 'flex', alignItems: 'center'}}>
-                    <div style={{flex: 1, fontSize: 16}}>{ctx.getMessage('roles.picker.title')} {loadingMessage ? ' ('+ctx.getMessage('21')+')':''}</div>
-                    <div className="roles-picker-menu" style={{marginBottom: -12}}>
-                        <DropDownMenu underlineStyle={{display:'none'}} onChange={this.onChange} value={-1}>{addableRoles}</DropDownMenu>
-                    </div>
+            <div className="user-roles-picker paper-right-block" style={{padding:'8px 0'}}>
+                <div style={{paddingLeft: 16, display: 'flex', alignItems: 'center', height: 40}}>
+                    <div style={{fontSize: 20, cursor:'pointer'}} onClick={toggleOpen} className={"mdi mdi-chevron-"+(open?'down':'right')}/>
+                    <div style={{flex: 1, fontSize: 16, cursor:'pointer'}} onClick={toggleOpen}>{getMessage('roles.picker.title')} {loadingMessage ? ' ('+getMessage('21')+')':''}</div>
                 </div>
-                <div className="roles-list" style={{margin: '0 16px', paddingBottom:1}}>
-                    {groups.map(function(g){
-                        return <div key={"group-"+g} style={fixedRoleStyle}>{g}</div>;
-                    })}
-                    <SortableList
-                        key="sortable"
-                        values={manual}
-                        removable={true}
-                        onRemove={this.remove}
-                        onOrderUpdated={this.orderUpdated}
-                        itemClassName="role-item role-item-sortable"
-                    />
-                    {users.map(function(u){
-                        return <div key={"user-"+u} style={fixedRoleStyle}>{u}</div>;
-                    })}
-                </div>
+                {open &&
+                    <Fragment>
+                        <div className={"roles-list" + (uniqueRoleDisplay?' has-selection':'') + (manual.length > 1?' has-sortable':'')} style={{margin: '0 12px', paddingBottom:1}}>
+                            {groups.map((g) => renderItem(g))}
+                            <SortableList
+                                key="sortable"
+                                values={manual}
+                                removable={true}
+                                onRemove={this.remove.bind(this)}
+                                onOrderUpdated={this.orderUpdated.bind(this)}
+                                renderItem={renderItem}
+                            />
+                            <div className={"role-item role-item-add no-click"} style={{height: 44, padding: '0 8px', display:'flex', alignItems:'center'}}>
+                                <span className={"left-icon mdi mdi-account-multiple-plus-outline"} style={{ color:'rgb(5, 169, 244)', cursor: 'pointer'}}/>
+                                <RolesComplete userRoles={roles} getMessage={getMessage} onAddRole={(roleID) => user.addRole(roleID)}/>
+                            </div>
+                        </div>
+                        <div className={"roles-list" + (uniqueRoleDisplay?' has-selection':'')} style={{margin: '-2px 10px -8px', padding: '0px 2px 0', borderTop: '2px solid #b3b3b3'}}>
+                            {renderItem({icon:'account-edit-outline', text:getMessage('roles.picker.effective').replace('%s', userLabel), removable: false, noClick: true, className:' effective'})}
+                        </div>
+                    </Fragment>
+                }
             </div>
         );
 
-    },
-});
+    }
+}
+
+UsersRolesPicker = withRoleMessages(UsersRolesPicker)
+export default UsersRolesPicker

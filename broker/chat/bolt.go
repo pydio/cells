@@ -64,12 +64,15 @@ func (h *boltdbimpl) Init(ctx context.Context, config configx.Values) error {
 // Load a given sub-bucket
 // Bucket are structured like this:
 // rooms
-//   -> Room Types
-//      -> Type Objects
-//      	-> UUID => Rooms
+//
+//	-> Room Types
+//	  -> Type Objects
+//	   	-> UUID => Rooms
+//
 // messages
-//   -> ROOM IDS
-//      -> UUID => messages
+//
+//	-> ROOM IDS
+//	   -> UUID => messages
 func (h *boltdbimpl) getMessagesBucket(tx *bolt.Tx, createIfNotExist bool, roomUuid string) (*bolt.Bucket, error) {
 
 	mainBucket := tx.Bucket([]byte(messages))
@@ -222,6 +225,21 @@ func (h *boltdbimpl) ListRooms(ctx context.Context, request *chat.ListRoomsReque
 }
 
 func (h *boltdbimpl) RoomByUuid(ctx context.Context, byType chat.RoomType, roomUUID string) (*chat.ChatRoom, error) {
+	if byType == chat.RoomType_ANY {
+		log.Logger(ctx).Debug("--- Lookup room with UUID only")
+		types := []chat.RoomType{chat.RoomType_WORKSPACE, chat.RoomType_NODE, chat.RoomType_USER, chat.RoomType_GLOBAL}
+		for _, t := range types {
+			if cr, er := h.roomByTypeUuid(ctx, t, roomUUID); er == nil && cr != nil {
+				return cr, nil
+			}
+		}
+		return nil, fmt.Errorf("room %s not found", roomUUID)
+	}
+	return h.roomByTypeUuid(ctx, byType, roomUUID)
+}
+
+// roomByTypeUuid expects a specific type, not chat.RoomType_ANY
+func (h *boltdbimpl) roomByTypeUuid(ctx context.Context, byType chat.RoomType, roomUUID string) (*chat.ChatRoom, error) {
 
 	var foundRoom chat.ChatRoom
 	var found bool
@@ -341,6 +359,34 @@ func (h *boltdbimpl) PostMessage(ctx context.Context, request *chat.ChatMessage)
 	})
 
 	return request, err
+}
+
+func (h *boltdbimpl) UpdateMessage(ctx context.Context, request *chat.ChatMessage, callback MessageMatcher) (out *chat.ChatMessage, err error) {
+
+	err = h.DB().Update(func(tx *bolt.Tx) error {
+		bucket, err := h.getMessagesBucket(tx, false, request.RoomUuid)
+		if err != nil {
+			return nil
+		}
+		c := bucket.Cursor()
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+			var msg chat.ChatMessage
+			if er := json.Unmarshal(v, &msg); er != nil {
+				continue
+			}
+			matches, newMsg, er := callback(&msg)
+			if er != nil {
+				return er
+			}
+			if matches {
+				out = newMsg
+				newData, _ := json.Marshal(newMsg)
+				return bucket.Put(k, newData)
+			}
+		}
+		return nil
+	})
+	return
 }
 
 func (h *boltdbimpl) DeleteMessage(ctx context.Context, message *chat.ChatMessage) error {

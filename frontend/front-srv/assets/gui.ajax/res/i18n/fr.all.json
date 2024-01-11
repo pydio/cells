@@ -152,6 +152,42 @@
   "oauth.authentication.code-copy-failed": {
     "other": "Impossible de copier dans le presse-papiers."
   },
+  "layouts.preferences": {
+    "other": "Gérer les mises en page"
+  },
+  "layouts.preferences.legend": {
+    "other": "Enregistrer et rappeler les mises en page comme préréglages"
+  },
+  "layouts.action.rename": {
+    "other": "Renommer la mise en page"
+  },
+  "layouts.action.remove": {
+    "other": "Supprimer la mise en page"
+  },
+  "layouts.action.remove.confirm": {
+    "other": "Voulez-vous supprimer cette mise en page ?"
+  },
+  "layouts.action.reset": {
+    "other": "Réinitialiser"
+  },
+  "layouts.action.reset.confirm": {
+    "other": "Voulez-vous réinitialiser la mise en page actuelle ?"
+  },
+  "layouts.action.create": {
+    "other": "Sauver la mise en page..."
+  },
+  "layouts.action.fork": {
+    "other": "Nouvelle mise en page..."
+  },
+  "layouts.action.create.default": {
+    "other": "Ma mise en page"
+  },
+  "layouts.prompt.save": {
+    "other": "Enregistrer la mise en page sous..."
+  },
+  "layouts.prompt.save.field": {
+    "other": "Choisissez un nom pour enregistrer/rappeler la mise en page actuelle"
+  },
   "list.display-mode.list": {
     "other": "Liste"
   },
@@ -182,8 +218,41 @@
   "list.pin.bookmarks": {
     "other": "Épingler les favoris en haut"
   },
+  "list.writeonly.emptystate.title": {
+    "other": "Déposez des fichiers ici"
+  },
+  "list.writeonly.emptystate.legend": {
+    "other": "Ce dossier n'est accessible qu'en écriture : vous ne pouvez pas voir son contenu et vous êtes uniquement autorisé à y déposer des fichiers ou des dossiers. Vos propres contenus ne seront pas visibles une fois le téléchargement terminé !"
+  },
   "infopanel.empty.select.file": {
     "other": "Sélectionnez un fichier pour afficher ses informations"
+  },
+  "infopanel.card.pin": {
+    "other": "Attacher la carte (toute la hauteur)"
+  },
+  "infopanel.card.unpin": {
+    "other": "Détacher la carte"
+  },
+  "infopanel.card.detach": {
+    "other": "Détacher dans un panneau séparé"
+  },
+  "infopanel.detached.minimize": {
+    "other": "Réduire"
+  },
+  "infopanel.detached.maximize": {
+    "other": "Agrandir"
+  },
+  "infopanel.detached.dock": {
+    "other": "Intégrer à la colonne de droite"
+  },
+  "infopanel.detailcard.preview": {
+    "other": "Aperçu"
+  },
+  "infopanel.detailcard.cell-info": {
+    "other": "Informations de la Cell"
+  },
+  "infopanel.detailcard.cell-chat": {
+    "other": "Chat de la Cell"
   },
   "pinned-bookmarks.other": {
     "other": "Tous les fichiers"
@@ -274,5 +343,26 @@
   },
   "leftrail.buttons.theme.dark": {
     "other": "Mode Sombre"
+  },
+  "task.status.Starting": {
+    "other": "Démarré {startTime}"
+  },
+  "task.status.Pending": {
+    "other": "En attente de démarrage..."
+  },
+  "task.status.Complete": {
+    "other": "Tâche terminée en {duration}"
+  },
+  "task.status.Finished": {
+    "other": "Tâche terminée en {duration}"
+  },
+  "task.status.Error": {
+    "other": "Une erreur est survenue !"
+  },
+  "bigppanel.filter.default-hint": {
+    "other": "Recherche rapide..."
+  },
+  "sorter.metas.more": {
+    "other": "Plus..."
   }
 }

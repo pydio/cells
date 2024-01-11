@@ -11,6 +11,9 @@
   "ds.board.ds.legend": {
     "other": "Datasources là các đường dẫn tới dữ liệu và được Pydio tập hợp vào một cây thư mục duy nhất. Nó có thể nằm ở nhiều nơi khác nhau trong hệ thống lưu trữ của bạn."
   },
+  "ds.board.ds.internal.legend": {
+    "other": "Internal DataSources are used to store binaries like files versions"
+  },
   "ds.board.ds.title": {
     "other": "DataSources"
   },
@@ -51,13 +54,13 @@
     "other": "Bộ lưu trữ theo định dạng phẳng"
   },
   "ds.format-picker.flat.legend": {
-    "other": "Tệp được lưu trữ trực tiếp trong một thư mục đem lại hiệu năng cao nhất. Cấu trúc thư mục được lưu trữ trong cơ sở dữ liệu riêng."
+    "other": "The files are stored as binaries along regular snapshots of the tree structure to ensure an efficient disaster recovery. This is the recommended option for best performances and scalability."
   },
   "ds.format-picker.structured.title": {
     "other": "Trích xuất từ dữ liệu đã có"
   },
   "ds.format-picker.structured.legend": {
-    "other": "Cấu trúc thư mục được giữ nguyên như trên thiết bị lưu trữ, cells sẽ cần phải thực hiện việc đánh chỉ mục để chép cấu trúc thư mục vào cơ sở dữ liệu."
+    "other": "The tree structure is reflected in the storage and maintained in real-time synchronization. This legacy option is NOT recommended and should only be used for importing existing data. It is event-based and must not be used in high load or clustered installation."
   },
   "ds.format-picker.internal.title": {
     "other": "Cells nội bộ"
@@ -629,6 +632,48 @@
   "logs.noresults": {
     "other": "Không có kết quả"
   },
+  "logs.details.copy": {
+    "other": "Copy log to clipboard"
+  },
+  "logs.details.show-focus": {
+    "other": "Show +/- 5 minutes"
+  },
+  "logs.details.close": {
+    "other": "Close log detail"
+  },
+  "logs.details.user": {
+    "other": "User"
+  },
+  "logs.details.user-attributes": {
+    "other": "User Attributes"
+  },
+  "logs.details.date": {
+    "other": "Event Date"
+  },
+  "logs.details.msg": {
+    "other": "Event Message"
+  },
+  "logs.details.service": {
+    "other": "Emitting Service"
+  },
+  "logs.details.connection": {
+    "other": "Connection IP"
+  },
+  "logs.details.agent": {
+    "other": "User-Agent"
+  },
+  "logs.details.protocol": {
+    "other": "Protocol"
+  },
+  "logs.details.node": {
+    "other": "File/Folder"
+  },
+  "logs.details.transfer-size": {
+    "other": "Transfer Size"
+  },
+  "logs.details.workspace": {
+    "other": "In Workspace"
+  },
   "menu.0": {
     "other": "Bảng điều khiển"
   },
@@ -921,7 +966,7 @@
     "other": "Phát hiện máy chủ vận hành công suất cao (chỉ máy chủ Linux)"
   },
   "perfs.load.error": {
-    "other": "Có lẽ việc thêm một số CPU hoặc RAM vào máy chủ của bạn có thể là cần thiết."
+    "other": "Maybe adding some CPU or RAM to your server could be necessary."
   },
   "perfs.load.help": {
     "other": "Máy chủ vận hành công suất cao có thể cho thấy rằng máy chủ của bạn thiếu CPU hoặc RAM do việc sử dụng Pydio của bạn."
@@ -936,7 +981,7 @@
     "other": "Mailer không được cấu hình để trì hoãn gửi email."
   },
   "perfs.mailer.help": {
-    "other": "Sử dụng hàng đợi mail sẽ tránh gửi trực tiếp mọi email trong mỗi hành động và yêu cầu, nhưng lưu trữ chúng trong một cơ sở dữ liệu riêng biệt và xử lý hàng đợi riêng biệt."
+    "other": "Using a mail queue prevents the direct sending of emails for each action and request. Instead, it stores them in a separate database and processes the queue independently."
   },
   "perfs.mailer.title": {
     "other": "Hàng đợi Mailer"
@@ -1046,6 +1091,9 @@
   "policies.rule.delete": {
     "other": "Xoá rule"
   },
+  "policies.acl.empty-string": {
+    "other": "No policies defined, create one use to it as a dynamic workspace permission."
+  },
   "policies.rule.delete.confirm": {
     "other": "Bạn có chắc chắn muốn xóa quy tắc bảo mật này? Nó có thể phá vỡ mô hình bảo mật của ứng dụng!"
   },
@@ -1102,6 +1150,9 @@
   },
   "react.5b": {
     "other": "ghi"
+  },
+  "react.5c": {
+    "other": "access"
   },
   "react.6": {
     "other": "các thư mục con"
@@ -1222,6 +1273,24 @@
   },
   "user.filter.tooltip": {
     "other": "Lọc danh sách người dùng..."
+  },
+  "user.filter.locks": {
+    "other": "Locked Users"
+  },
+  "user.filter.hidden": {
+    "other": "Public Links (hidden)"
+  },
+  "user.filter.status": {
+    "other": "Status"
+  },
+  "user.type.hidden": {
+    "other": "Public User"
+  },
+  "user.type.hidden.legend": {
+    "other": "Public users are created for public links (one per link) and are hidden by default. It can be useful to list them to detect locked public links."
+  },
+  "user.rootgroup.legend": {
+    "other": "Permissions applied to the entire user hierarchy"
   },
   "user.filter.internal": {
     "other": "Người dùng nội bộ"
@@ -1575,10 +1644,16 @@
     "other": "Đồng bộ"
   },
   "ws.complete.datasources": {
-    "other": "DataSources and Folders"
+    "other": "DataSources"
+  },
+  "ws.complete.folders": {
+    "other": "Internal Folders"
   },
   "ws.complete.label": {
-    "other": "Chọn một thư mục hoặc một đường dẫn Template được xác định trước"
+    "other": "Select a DataSource or a Template Path"
+  },
+  "ws.complete.additional": {
+    "other": "Additional Root"
   },
   "ws.complete.resolves": {
     "other": "Giải quyết"
@@ -1597,6 +1672,9 @@
   },
   "ws.editor.default_rights": {
     "other": "Thiết lập quyền mặc định cho workspace này (áp dụng cho tất cả người dùng nội bộ của ứng dụng). Bạn có thể ghi đè các quyền này trên cơ sở per-user / per-role / per-group basis trong phần People."
+  },
+  "ws.editor.default_rights.hint": {
+    "other": "Default Rights"
   },
   "ws.editor.default_rights.none": {
     "other": "Trống"
@@ -1853,44 +1931,182 @@
   "scheduler.tasks.delete.confirm": {
     "other": "Bạn có chắc muốn xóa hết dữ liệu của Flow này?"
   },
+  "scheduler.trigger.picker.title": {
+    "other": "Trigger job on..."
+  },
+  "scheduler.trigger.type.nodes": {
+    "other": "Files and folders (nodes) events : detect files modifications to move them or update their metadata automatically."
+  },
+  "scheduler.trigger.type.workspaces": {
+    "other": "Workspace events : triggered on workspace creation / deletion. Use the Scope flag to filter Workspaces from Cells"
+  },
+  "scheduler.trigger.type.acls": {
+    "other": "ACL events : access control lists link workspaces, nodes and roles together to provide accesses to data."
+  },
+  "scheduler.trigger.type.users": {
+    "other": "User events : triggered when adding/removing user and when users log in and log out. Can be used for triggering validation flows or assigning accesses."
+  },
+  "scheduler.trigger.type.roles": {
+    "other": "Role events : can be used to automate accesses based on role names. Use IsTeam, IsGroup, IsUser flags to filter roles."
+  },
+  "scheduler.trigger.type.chat": {
+    "other": "Chat Events: react to new chat message or chat room modification"
+  },
+  "scheduler.trigger.type.chat-messages": {
+    "other": "Chat Messages Events"
+  },
+  "scheduler.trigger.type.chat-rooms": {
+    "other": "Chat Rooms Events"
+  },
   "scheduler.trigger.create.node": {
     "other": "Tạo node"
+  },
+  "scheduler.trigger.create.node.description": {
+    "other": "A new file was uploaded or a new folder was created."
   },
   "scheduler.trigger.read.node": {
     "other": "Đọc node"
   },
+  "scheduler.trigger.read.node.description": {
+    "other": "A file was downloaded or a folder content was listed."
+  },
   "scheduler.trigger.update.path": {
     "other": "Cập nhật đường dẫn"
+  },
+  "scheduler.trigger.update.path.description": {
+    "other": "A file or folder was moved or renamed."
   },
   "scheduler.trigger.update.content": {
     "other": "Cập nhật nội dung"
   },
+  "scheduler.trigger.update.content.description": {
+    "other": "A file content was updated by edition or upload overwriting."
+  },
   "scheduler.trigger.update.metadata": {
     "other": "Cập nhật Metadata"
+  },
+  "scheduler.trigger.update.metadata.description": {
+    "other": "Internal metadata were modified on file or folder."
   },
   "scheduler.trigger.update.user-metadata": {
     "other": "Cập nhật Metadata người dùng"
   },
+  "scheduler.trigger.update.user-metadata.description": {
+    "other": "User-defined metadata were modified (event contains updated metadata)."
+  },
   "scheduler.trigger.delete.node": {
     "other": "Xóa node"
+  },
+  "scheduler.trigger.delete.node.description": {
+    "other": "A file or a folder was definitively deleted."
   },
   "scheduler.trigger.create.user": {
     "other": "Tạo người dùng"
   },
+  "scheduler.trigger.create.user.description": {
+    "other": "A user or a group was created."
+  },
   "scheduler.trigger.read.user": {
     "other": "Đọc User"
+  },
+  "scheduler.trigger.read.user.description": {
+    "other": "A user or a group was accessed or listed."
   },
   "scheduler.trigger.update.user": {
     "other": "Cập nhật người dùng"
   },
+  "scheduler.trigger.update.user.description": {
+    "other": "A user or a group data was updated. Typically happens if user changes a preference or admin assigns a role."
+  },
   "scheduler.trigger.delete.user": {
     "other": "Xóa Người dùng"
+  },
+  "scheduler.trigger.delete.user.description": {
+    "other": "A user or a group was deleted."
   },
   "scheduler.trigger.bind.user": {
     "other": "Ràng buộc người dùng"
   },
+  "scheduler.trigger.bind.user.description": {
+    "other": "A user has logged in."
+  },
   "scheduler.trigger.logout.user": {
     "other": "Đăng xuất người dùng"
+  },
+  "scheduler.trigger.logout.user.description": {
+    "other": "A user has logged out."
+  },
+  "scheduler.trigger.role.create": {
+    "other": "Create Role"
+  },
+  "scheduler.trigger.role.create.description": {
+    "other": "A new role was created, by admin or by users."
+  },
+  "scheduler.trigger.role.update": {
+    "other": "Update Role"
+  },
+  "scheduler.trigger.role.update.description": {
+    "other": "A role has been updated."
+  },
+  "scheduler.trigger.role.delete": {
+    "other": "Delete Role"
+  },
+  "scheduler.trigger.role.delete.description": {
+    "other": "A role has been deleted."
+  },
+  "scheduler.trigger.workspace.create": {
+    "other": "Create Workspace"
+  },
+  "scheduler.trigger.workspace.create.description": {
+    "other": "A new Workspace or Cell was created."
+  },
+  "scheduler.trigger.workspace.update": {
+    "other": "Update Workspace"
+  },
+  "scheduler.trigger.workspace.update.description": {
+    "other": "A Workspace or a Cell has been updated."
+  },
+  "scheduler.trigger.workspace.delete": {
+    "other": "Delete Workspace"
+  },
+  "scheduler.trigger.workspace.delete.description": {
+    "other": "A Workspace or a Cell has been deleted."
+  },
+  "scheduler.trigger.acl.create": {
+    "other": "Create/Update ACL"
+  },
+  "scheduler.trigger.acl.create.description": {
+    "other": "An Access Control was opened."
+  },
+  "scheduler.trigger.acl.delete": {
+    "other": "Delete ACL"
+  },
+  "scheduler.trigger.acl.delete.description": {
+    "other": "An Access Control was removed."
+  },
+  "scheduler.trigger.chat-message.put": {
+    "other": "New Chat Message"
+  },
+  "scheduler.trigger.chat-message.put.description": {
+    "other": "A Message was posted in a ChatRoom."
+  },
+  "scheduler.trigger.chat-message.delete": {
+    "other": "Chat Message Deleted"
+  },
+  "scheduler.trigger.chat-message.delete.description": {
+    "other": "A Message was deleted from a ChatRoom."
+  },
+  "scheduler.trigger.chat-room.put": {
+    "other": "New Chat Room"
+  },
+  "scheduler.trigger.chat-room.put.description": {
+    "other": "A new ChatRoom was created."
+  },
+  "scheduler.trigger.chat-room.delete": {
+    "other": "Delete Chat Room"
+  },
+  "scheduler.trigger.chat-room.delete.description": {
+    "other": "A Chatroom has been deleted."
   },
   "scheduler.trigger.events": {
     "other": "Events"

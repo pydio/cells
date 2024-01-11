@@ -867,7 +867,7 @@
     "other": "Benutzerpasswort"
   },
   "357": {
-    "other": "Ziel-Arbeitsumgebung"
+    "other": "Ziel-Workspace"
   },
   "358": {
     "other": "Wählen Sie einen Namen für das geteilte Element und legen Sie die Zugriffsrechte für die Benutzer fest."
@@ -1977,13 +1977,19 @@
     "other": "H:i"
   },
   "date_relative_today": {
-    "other": "Heute um TIME"
+    "other": "[Heute um] LT"
   },
   "date_relative_tomorrow": {
-    "other": "Morgen um TIME"
+    "other": "[Morgen um] LT"
   },
   "date_relative_yesterday": {
-    "other": "Gestern um TIME"
+    "other": "[Gestern um] LT"
+  },
+  "date_relative_lastweek": {
+    "other": "[Letzten] dddd [um] LT"
+  },
+  "date_relative_nextweek": {
+    "other": "dddd [um] LT"
   },
   "delete_access_key": {
     "other": "L"
@@ -2220,7 +2226,7 @@
     "other": "Geteilte Ordner, klicken Sie zum Bearbeiten"
   },
   "overlay.bookmark.file": {
-    "other": "Die Datei ist mit Lesezeichen"
+    "other": "Lieblingsdatei"
   },
   "overlay.bookmark.folder": {
     "other": "Der Ordner ist mit Lesezeichen"
@@ -2339,6 +2345,9 @@
   "form.input-image.avatarMax": {
     "other": "Bitte verwenden Sie Bilder, die kleiner als 5 MB sind"
   },
+  "searchengine.start": {
+    "other": "Tippen, um nach Dateien und Ordnern zu suchen"
+  },
   "searchengine.searching": {
     "other": "Suche läuft..."
   },
@@ -2426,8 +2435,53 @@
   "searchengine.complete.activefilters-edit": {
     "other": "Zum Ändern anklicken"
   },
+  "chat.dropzone.remove": {
+    "other": "Entfernen"
+  },
+  "chat.dropzone.preview": {
+    "other": "Vorschau einbeziehen?"
+  },
+  "chat.dropzone.inline": {
+    "other": "Insert inline"
+  },
   "chat.load-older": {
     "other": "Ältere Einträge"
+  },
+  "chat.msg.edit": {
+    "other": "Nachricht bearbeiten"
+  },
+  "chat.msg.save": {
+    "other": "Änderungen speichern"
+  },
+  "chat.msg.revert": {
+    "other": "Änderungen verwerfen"
+  },
+  "chat.msg.delete": {
+    "other": "Nachricht löschen"
+  },
+  "chat.msg.delete.confirm.title": {
+    "other": "Nachricht löschen?"
+  },
+  "chat.msg.delete.confirm": {
+    "other": "Diese Aktion kann nicht rückgängig gemacht werden"
+  },
+  "chat.link.doc.loading": {
+    "other": "Dokument wird geladen…"
+  },
+  "chat.link.doc.opening": {
+    "other": "Öffne Dokument..."
+  },
+  "chat.link.doc.goto": {
+    "other": "Zum Dokument gehen"
+  },
+  "chat.link.doc.not-found": {
+    "other": "Dokument nicht gefunden, es wurde möglicherweise gelöscht."
+  },
+  "chat.link.doc.click-indicator": {
+    "other": "Klicke um %s zu öffnen"
+  },
+  "chat.link.doc.open-in": {
+    "other": "Dokument öffnen in..."
   },
   "workspace.quota-usage": {
     "other": "Kontingentnutzung"

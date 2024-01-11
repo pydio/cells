@@ -32,11 +32,11 @@ export default class MaskWsButton extends React.Component {
             style: {width:40,height:40,padding:8},
             iconStyle: {color:'var(--md-sys-color-primary)'}
         }
-        const wss = pydio.user.getGUIPreference('MaskedWorkspaces') || []
+        const wss = pydio.user.getLayoutPreference('MaskedWorkspaces', [])
         const isMasked = wss.indexOf && wss.indexOf(workspaceId) > -1
         return (
             <IconButton
-                iconClassName={'mdi mdi-playlist-'+(isMasked?'check':'remove')}
+                iconClassName={'mdi mdi-eye-'+(isMasked?'':'off-')+'outline'}
                 style={{...baseStyles.style, ...style}}
                 iconStyle={{...baseStyles.iconStyle, ...iconStyle}}
                 tooltip={pydio.MessageHash['ajax_gui.wslist.action.' + (isMasked?'unmask':'mask')]}
@@ -47,7 +47,7 @@ export default class MaskWsButton extends React.Component {
                     } else {
                         mw.push(workspaceId)
                     }
-                    pydio.user.setGUIPreference('MaskedWorkspaces', mw, true)
+                    pydio.user.setLayoutPreference('MaskedWorkspaces', mw)
                 }}
             />
         )

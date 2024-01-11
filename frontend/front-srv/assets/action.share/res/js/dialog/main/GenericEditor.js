@@ -113,9 +113,11 @@ class GenericEditor extends React.Component {
 
             return (
                 <div style={{display:'flex', flexDirection:'column', height: '100%', ...style}}>
-                    <div style={{display:'flex', alignItems:'center'}}>
+                    <div style={{display:'flex', alignItems:'flex-start'}}>
                         <div style={{flex: 1, padding: 10}}>{header}</div>
-                        <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onClick={onCloseAction} style={{marginRight: 10}}/>
+                        <div style={{paddingTop: 8, paddingRight: 10}}>
+                            <IconButton iconClassName={"mdi mdi-close"} primary={true} tooltip={pydio.MessageHash['86']} onClick={onCloseAction}/>
+                        </div>
                     </div>
                     <div style={{display:'flex'}}>
                         <EditorTab tabs={merged} active={left} style={{flex: 1, padding:'0 16px'}} onChange={(value)=>{this.setState({left:value})}}/>

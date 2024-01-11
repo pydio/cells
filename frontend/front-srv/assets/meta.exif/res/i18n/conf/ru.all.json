@@ -1,20 +1,20 @@
 {
   "Associated list of labels, be sure to define as many as fields!": {
-    "other": "Associated list of labels, be sure to define as many as fields!"
+    "other": "Список меток, не забудьте определить столько полей!"
   },
   "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'.": {
-    "other": "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'."
+    "other": "Разделенный запятыми список полей, используйте синтаксис 'EXIF_SECTION.ExifName'."
   },
   "Exif Metadata": {
-    "other": "Exif Metadata"
+    "other": "Метаданные Exif"
   },
   "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif": {
-    "other": "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif"
+    "other": "Извлекает метаданные EXIF образа JPG. Используется совместно с editor.exif"
   },
   "Info Panel Fields": {
-    "other": "Info Panel Fields"
+    "other": "Поля информационной панели"
   },
   "Info Panel Labels": {
-    "other": "Info Panel Labels"
+    "other": "Поля информационной панели"
   }
 }

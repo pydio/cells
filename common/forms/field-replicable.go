@@ -22,7 +22,7 @@ package forms
 
 import (
 	"fmt"
-	"github.com/nicksnyder/go-i18n/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n"
 )
 
 type ReplicableFields struct {

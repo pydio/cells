@@ -8,12 +8,12 @@ import (
 
 // IndexCodex is the coder/decoder used by an Indexer.
 type IndexCodex interface {
-	// Marshal prepares an document for storing in index
+	// Marshal prepares a document for storing in index
 	Marshal(input interface{}) (interface{}, error)
 	// Unmarshal decodes a document found in index
 	Unmarshal(indexed interface{}) (interface{}, error)
-	// BuildQuery prepares a query to be executed. It returns a request object and optionnaly an aggregationRequest object
-	BuildQuery(query interface{}, offset, limit int32) (interface{}, interface{}, error)
+	// BuildQuery prepares a query to be executed. It returns a request object and optionally an aggregationRequest object
+	BuildQuery(query interface{}, offset, limit int32, sortFields string, sortDesc bool) (interface{}, interface{}, error)
 	// GetModel reads initialization schema to be loaded
 	GetModel(sc configx.Values) (interface{}, bool)
 }
@@ -26,7 +26,7 @@ type FacetParser interface {
 
 // QueryOptionsProvider adds additional capacities to IndexCodex for building search Query
 type QueryOptionsProvider interface {
-	BuildQueryOptions(query interface{}, offset, limit int32) (interface{}, error)
+	BuildQueryOptions(query interface{}, offset, limit int32, sortFields string, sortDesc bool) (interface{}, error)
 }
 
 // IndexIDProvider can be implemented by marshaled data to be indexed for providing an index ID.
@@ -48,7 +48,7 @@ type IndexDAO interface {
 	// DeleteMany deletes documents by a search query.
 	DeleteMany(ctx context.Context, query interface{}) (int32, error)
 	// FindMany sends a search query to indexer. A custom IndexCodex can be used to accumulate some information during results parsing.
-	FindMany(ctx context.Context, query interface{}, offset, limit int32, customCodec IndexCodex) (chan interface{}, error)
+	FindMany(ctx context.Context, query interface{}, offset, limit int32, sortFields string, sortDesc bool, customCodec IndexCodex) (chan interface{}, error)
 	// Resync should clear the index and rewrite it from scratch. Used by bolt implementations for defragmentation.
 	Resync(ctx context.Context, logger func(string)) error
 	// Truncate should free some disk space. Used by bleve implementation in conjunction with rotationSize parameter.

@@ -29,7 +29,7 @@ const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 const {ThemedContainers:{IconButton}} = Pydio.requireLib('hoc');
 
 
-const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools, searchViewTransition, showInfoPanel, showAddressBook, rightColumnState, showChatTab, onOpenDrawer, onUpdateSearchView, onOpenRightPanel, sortingInfo={}}) => {
+const AppBar = ({pydio, muiTheme, styles, searchView, searchTools, searchViewTransition, showInfoPanel, infoPanelOpen, showChatTab, chatOpen, onOpenDrawer, onUpdateSearchView, onToggleRightPanel, sortingInfo={}}) => {
 
 
     const mobile = pydio.UI.MOBILE_EXTENSIONS;
@@ -47,7 +47,7 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
         "other"
     ];
 
-    const {values, humanizeValues, limit, setLimit, searchLoading} = searchTools;
+    const {values, humanizeValues, limit, setLimit, searchLoading, empty, resultsCount} = searchTools;
 
     const newButtonProps = {
         buttonStyle:{...styles.flatButtonStyle, ...styles.raisedButtonStyle},
@@ -56,35 +56,47 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
 
     let searchToolbar
     if(searchView) {
-        const count = pydio.getContextHolder().getSearchNode().getChildren().size;
         let stLabel, stDisable = true;
         let labelStyle = {...styles.flatButtonLabelStyle}
         if(searchLoading) {
             stLabel = pydio.MessageHash['searchengine.searching'];
-        } else if(count === 0) {
+        } else if(empty) {
+            stLabel = pydio.MessageHash['searchengine.start'];
+        } else if(resultsCount === 0) {
             stLabel = pydio.MessageHash['478'] // No results found
-        } else if(count < limit) {
-            stLabel = pydio.MessageHash['searchengine.results.foundN'].replace('%1', count)
-        } else if(count === limit) {
+        } else if(resultsCount < limit) {
+            stLabel = pydio.MessageHash['searchengine.results.foundN'].replace('%1', resultsCount)
+        } else if(resultsCount === limit) {
             stDisable = false
             stLabel = pydio.MessageHash['searchengine.results.withMore'].replace('%1', limit)
         }
         if(stDisable){
-            labelStyle = {...labelStyle, /*color: themeLight?'#616161':'white'*/}
+            searchToolbar = (
+                <div style={{
+                    fontSize: 13,
+                    fontWeight: 500,
+                    height:24,
+                    lineHeight:'25px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color:muiTheme.userTheme === 'mui3' ? 'var(--md-sys-color-secondary)': 'white'
+                }}>{stLabel}</div>
+            )
+        } else {
+            searchToolbar = (
+                <FlatButton
+                    style={styles.flatButtonStyle}
+                    labelStyle={labelStyle}
+                    label={stLabel}
+                    onClick={()=>{setLimit(limit+20)}}
+                />
+            )
+
         }
-        searchToolbar = (
-            <FlatButton
-                style={styles.flatButtonStyle}
-                labelStyle={labelStyle}
-                label={stLabel}
-                disabled={stDisable}
-                onClick={()=>{setLimit(limit+20)}}
-            />
-        )
     }
 
     let sortingTag
-    if(sortingInfo && sortingInfo.label) {
+    if(!searchView && sortingInfo && sortingInfo.label) {
         sortingTag = (
             <div style={{
                 height: 24,
@@ -210,30 +222,20 @@ const AppBar = ({pydio, muiTheme, styles, headerHeight, searchView, searchTools,
                     {showInfoPanel &&
                         <IconButton
                             iconClassName={"mdi mdi-information"}
-                            style={rightColumnState === 'info-panel' ? styles.activeButtonStyle : styles.buttonsStyle}
-                            iconStyle={rightColumnState === 'info-panel' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                            onClick={()=>{onOpenRightPanel('info-panel')}}
-                            tooltip={pydio.MessageHash[rightColumnState === 'info-panel' ? '86':'341']}
+                            style={infoPanelOpen ? styles.activeButtonStyle : styles.buttonsStyle}
+                            iconStyle={infoPanelOpen ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
+                            onClick={()=>{onToggleRightPanel('info-panel')}}
+                            tooltip={pydio.MessageHash[infoPanelOpen ? '86':'341']}
                         />
                     }
                     {!searchView && showChatTab &&
                         <IconButton
-                            iconClassName={"mdi mdi-message-text"}
-                            style={rightColumnState === 'chat' ? styles.activeButtonStyle : styles.buttonsStyle}
-                            iconStyle={rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                            onClick={()=>{onOpenRightPanel('chat')}}
-                            tooltip={pydio.MessageHash[rightColumnState === 'chat' ? '86':'635']}
+                            iconClassName={chatOpen ? "mdi mdi-message-bulleted-off" : "mdi mdi-message-text"}
+                            style={styles.buttonsStyle}
+                            iconStyle={styles.buttonsIconStyle}
+                            onClick={()=>{onToggleRightPanel('chat')}}
+                            tooltip={pydio.MessageHash[chatOpen ? '86':'635']}
                             tooltipPosition={"bottom-left"}
-                        />
-                    }
-                    {!searchView && showAddressBook &&
-                        <IconButton
-                            iconClassName={"mdi mdi-account-card-details"}
-                            style={rightColumnState === 'address-book' ? styles.activeButtonStyle : styles.buttonsStyle}
-                            iconStyle={rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                            onClick={()=>{onOpenRightPanel('address-book')}}
-                            tooltip={pydio.MessageHash[rightColumnState === 'address-book' ? '86':'592']}
-                            tooltipPosition={showChatTab?"bottom-center":"bottom-left"}
                         />
                     }
                 </div>

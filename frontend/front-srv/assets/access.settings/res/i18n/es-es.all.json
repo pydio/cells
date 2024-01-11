@@ -555,9 +555,9 @@
     "other": "o"
   },
   "uploaders-chunk-size-warn-multiple": {
-    "other": "Part size must be a multiple of 10MB!"
+    "other": "¡El tamaño de la pieza debe ser un múltiplo de 10MB!"
   },
   "uploaders-chunk-size-warn-too-small": {
-    "other": "Part size must be at least 10MB!"
+    "other": "¡El tamaño de la pieza debe ser de al menos 10MB!"
   }
 }

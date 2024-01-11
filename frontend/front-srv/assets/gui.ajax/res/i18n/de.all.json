@@ -152,6 +152,42 @@
   "oauth.authentication.code-copy-failed": {
     "other": "Konnte nicht in die Zwischenablage kopieren."
   },
+  "layouts.preferences": {
+    "other": "Layouts verwalten"
+  },
+  "layouts.preferences.legend": {
+    "other": "Layouts speichern und als Vorlagen zurückrufen"
+  },
+  "layouts.action.rename": {
+    "other": "Layout umbenennen"
+  },
+  "layouts.action.remove": {
+    "other": "Layout entfernen"
+  },
+  "layouts.action.remove.confirm": {
+    "other": "Wollen Sie dieses Layout wirklich löschen?"
+  },
+  "layouts.action.reset": {
+    "other": "Layout zurücksetzen"
+  },
+  "layouts.action.reset.confirm": {
+    "other": "Möchten Sie das aktuelle Layout zurücksetzen?"
+  },
+  "layouts.action.create": {
+    "other": "Layout speichern..."
+  },
+  "layouts.action.fork": {
+    "other": "Neu von Aktuell..."
+  },
+  "layouts.action.create.default": {
+    "other": "Meine Layouts"
+  },
+  "layouts.prompt.save": {
+    "other": "Layout speichern als..."
+  },
+  "layouts.prompt.save.field": {
+    "other": "Wählen Sie einen Namen zum Speichern/Zurückrufen des aktuellen Layouts"
+  },
   "list.display-mode.list": {
     "other": "Liste"
   },
@@ -182,8 +218,41 @@
   "list.pin.bookmarks": {
     "other": "Lesezeichen oben anheften"
   },
+  "list.writeonly.emptystate.title": {
+    "other": "Dateien hier ablegen"
+  },
+  "list.writeonly.emptystate.legend": {
+    "other": "Dieser Ordner ist schreibgeschützt: Sie können seinen Inhalt nicht sehen und sind nur berechtigt, Dateien oder Ordner hochzuladen. Ihr eigener Inhalt wird nach dem Hochladen nicht sichtbar sein!"
+  },
   "infopanel.empty.select.file": {
     "other": "Wählen Sie eine Datei aus, um Informationen anzuzeigen"
+  },
+  "infopanel.card.pin": {
+    "other": "Karte anhängen (volle Höhe)"
+  },
+  "infopanel.card.unpin": {
+    "other": "Karte trennen"
+  },
+  "infopanel.card.detach": {
+    "other": "In einem separaten Panel trennen"
+  },
+  "infopanel.detached.minimize": {
+    "other": "Panel minimieren"
+  },
+  "infopanel.detached.maximize": {
+    "other": "Panel öffnen"
+  },
+  "infopanel.detached.dock": {
+    "other": "In der rechten Spalte anheften"
+  },
+  "infopanel.detailcard.preview": {
+    "other": "Vorschau"
+  },
+  "infopanel.detailcard.cell-info": {
+    "other": "Zelleninfo"
+  },
+  "infopanel.detailcard.cell-chat": {
+    "other": "Zellenchat"
   },
   "pinned-bookmarks.other": {
     "other": "Alle Dateien"
@@ -274,5 +343,26 @@
   },
   "leftrail.buttons.theme.dark": {
     "other": "Dunkelmodus"
+  },
+  "task.status.Starting": {
+    "other": "{startTime} gestartet"
+  },
+  "task.status.Pending": {
+    "other": "Startet bald..."
+  },
+  "task.status.Complete": {
+    "other": "Aufgabe erledigt in {duration}"
+  },
+  "task.status.Finished": {
+    "other": "Aufgabe erledigt in {duration}"
+  },
+  "task.status.Error": {
+    "other": "Ein Fehler ist aufgetreten!"
+  },
+  "bigppanel.filter.default-hint": {
+    "other": "Schnellsuche..."
+  },
+  "sorter.metas.more": {
+    "other": "Mehr..."
   }
 }
