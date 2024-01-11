@@ -17,10 +17,12 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
 package log
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"go.uber.org/zap/buffer"
@@ -48,6 +50,7 @@ var (
 		common.KeySpanParentUuid,
 		common.KeySchedulerJobId,
 		common.KeySchedulerActionPath,
+		common.KeySchedulerActionTags,
 		common.KeySchedulerTaskId,
 		// Claims Keys
 		common.KeyUsername,
@@ -78,15 +81,6 @@ type colorConsoleEncoder struct {
 	zapcore.Encoder
 }
 
-func (c *colorConsoleEncoder) AddString(key string, value string) {
-	for _, k := range ConsoleSkipKeys {
-		if k == key {
-			return
-		}
-	}
-	c.Encoder.AddString(key, value)
-}
-
 func (c *colorConsoleEncoder) Clone() zapcore.Encoder {
 	return &colorConsoleEncoder{Encoder: c.Encoder.Clone()}
 }
@@ -103,6 +97,13 @@ func (c *colorConsoleEncoder) EncodeEntry(e zapcore.Entry, ff []zapcore.Field) (
 			color = col
 		}
 	}
+	var filtered []zapcore.Field
+	for _, f := range ff {
+		if slices.Contains(ConsoleSkipKeys, f.Key) {
+			continue
+		}
+		filtered = append(filtered, f)
+	}
 	e.LoggerName = fmt.Sprintf("\x1b[%dm%s\x1b[0m", color, e.LoggerName)
-	return c.Encoder.EncodeEntry(e, ff)
+	return c.Encoder.EncodeEntry(e, filtered)
 }
