@@ -111,7 +111,7 @@ class TaskActivity extends Component{
             request.Query += ' -Level:debug'
         }
         request.Page = page;
-        request.Size = debug ? 10000 : 200;
+        request.Size = debug ? 500 : 200;
         request.Format = ListLogRequestLogFormat.constructFromObject('JSON');
         this.setState({loading: true});
         api.listTasksLogs(request).then(response => {
@@ -119,7 +119,11 @@ class TaskActivity extends Component{
             this.setState({activity:ll, loading: false, page: page})
             if(logTransmitter) {
                 if(debug){
-                    logTransmitter.set([...ll])
+                    if(page > 0) {
+                        logTransmitter.append([...ll], page)
+                    } else {
+                        logTransmitter.set([...ll])
+                    }
                 } else {
                     logTransmitter.clear()
                 }
@@ -225,10 +229,10 @@ class TaskActivity extends Component{
         } else if(dols.length > 2 && dols[2] === 'MERGE' && action.MergeAction) {
             parts.shift(); // Remove current segment
             if(parts.length > 1 && action.MergeAction.ChainedActions) {
-                console.log('Merge Chain', path, parts, actionId, actions, dols, action)
+                //console.log('Merge Chain', path, parts, actionId, actions, dols, action)
                 return this.findAction(parts.join('/'), action.MergeAction.ChainedActions)
             } else {
-                console.log('Merge Action', path, parts, actionId, actions, dols, action)
+                //console.log('Merge Action', path, parts, actionId, actions, dols, action)
                 return {action: action.MergeAction}
             }
         } else if (actionId.indexOf('$FAIL') === -1) {

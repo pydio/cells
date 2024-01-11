@@ -29,7 +29,7 @@ class SearchApi {
         this.pydio = pydio;
     }
 
-    search(values, scope, limit, minimalStats = false){
+    search(values, scope, limit, minimalStats = false, sortField = '', sortDesc = false){
 
 
         let query = new TreeQuery();
@@ -103,6 +103,8 @@ class SearchApi {
         if(minimalStats) {
             request.StatFlags = [4];
         }
+        request.SortField = sortField
+        request.SortDirDesc = sortDesc;
 
         const defaultSlug = this.pydio.user.getActiveRepositoryObject().getSlug();
         return new Promise((resolve, reject) => {

@@ -181,7 +181,6 @@ let SimpleList = createReactClass({
             let sortingInfo;
             const {sortingInfo: {attribute, direction}} = this.state;
             if(attribute === att && direction){
-                console.log(direction, autoReset, forceClear, column)
                 if(forceClear || (direction==='desc'&&autoReset)){
                     // Reset sorting
                     sortingInfo = defaultSortingInfo || {};
@@ -402,7 +401,6 @@ let SimpleList = createReactClass({
             toggle:(clear = false)=>{
                 const {sortKeys} = this.props;
                 const col = si.remote ? {remoteSortAttribute:si.attribute} : sortKeys[si.attribute]
-                console.log('TOGGLE', col, clear)
                 this.onColumnSort(col, null, false, clear)
             }
         })
@@ -1022,6 +1020,9 @@ let SimpleList = createReactClass({
         }
         //const {node} = this.props;
         const meta = node.getMetadata()
+        if (meta.get('search_root') === true) {
+            return -1;
+        }
         const pagination = meta.get('paginationData') || new Map()
         const ordering = meta.get('remoteOrder') || new Map()
         if(pagination.get('total') > 1){

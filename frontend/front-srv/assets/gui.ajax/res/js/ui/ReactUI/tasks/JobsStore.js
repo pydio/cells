@@ -33,13 +33,21 @@ class JobsStore extends Observable {
         this.pydio = pydio;
         this.loaded = false;
         this.tasksList = new Map();
+        this.tasksUpdates = new Map();
         this.localJobs = new Map();
         this.reloadPending = debounce(this.scanPending, 5000);
         this.pydio.observe("task_message", jsonObject => {
 
-            const {Job, TaskUpdated} = jsonObject;
+            const {Job, TaskUpdated, NanoStamp} = jsonObject;
             const job = JobsJob.constructFromObject(Job);
             const task = JobsTask.constructFromObject(TaskUpdated);
+            if(NanoStamp > 0 && this.tasksUpdates.has(job.ID)){
+                if(NanoStamp < this.tasksUpdates.get(job.ID)) {
+                    // Ignore, this is not the last one
+                    return;
+                }
+            }
+            this.tasksUpdates.set(job.ID, NanoStamp);
             if (job.Tasks === undefined) {
                 job.Tasks = [task];
             }

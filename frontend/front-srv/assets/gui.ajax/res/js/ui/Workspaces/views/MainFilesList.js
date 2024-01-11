@@ -900,7 +900,7 @@ class MainFilesList extends React.Component {
             className += ' ' + contextNode.getMetadata().get('local:custom-list-classes').join(' ');
         }
 
-        const {searchResults, searchScope, searchLoading} = this.props;
+        const {searchResults, searchScope, searchLoading, searchEmpty} = this.props;
         let groupProps = {};
         if(searchResults) {
             groupProps = {
@@ -914,7 +914,7 @@ class MainFilesList extends React.Component {
                 }
             }
             emptyStateProps = {
-                primaryTextId:searchLoading?'searchengine.searching':478,
+                primaryTextId:searchEmpty?'searchengine.start':(searchLoading?'searchengine.searching':478),
                     style:{
                     backgroundColor:'transparent'
                 }

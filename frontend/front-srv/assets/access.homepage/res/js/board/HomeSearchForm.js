@@ -27,7 +27,7 @@ import DOMUtils from "pydio/util/dom";
 
 const {SimpleList, NodeListCustomProvider} = Pydio.requireLib('components');
 const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
-const {UnifiedSearchForm, Facets, FilePreview, AdvancedChips} = Pydio.requireLib('workspaces');
+const {UnifiedSearchForm, Facets, SearchSorter, FilePreview, AdvancedChips} = Pydio.requireLib('workspaces');
 const {withSearch} = Pydio.requireLib('hoc')
 
 class HomeSearchForm extends Component{
@@ -58,7 +58,7 @@ class HomeSearchForm extends Component{
     render(){
 
         // From HOC
-        const {searchTools, searchTools:{facets, activeFacets, toggleFacet, loading, dataModel, empty}} = this.props;
+        const {searchTools, searchTools:{facets, activeFacets, toggleFacet, loading, dataModel, empty, resultsCount}} = this.props;
         const {style, zDepth, pydio, fullScreen, fullScreenTransition, onFocusChange, muiTheme} = this.props;
 
         const isMui3 = muiTheme.userTheme === 'mui3'
@@ -180,6 +180,15 @@ class HomeSearchForm extends Component{
             );
         };
 
+        let esProps = {
+            iconClassName:"",
+            primaryTextId:loading?'searchengine.searching':478,
+            style:{backgroundColor: 'transparent'}
+        }
+        if(empty) {
+            esProps.primaryTextId = 'searchengine.start'
+        }
+
         return (
             <Paper style={style} zDepth={zDepth} className="vertical-layout home-center-paper" rounded={false}>
 
@@ -208,9 +217,10 @@ class HomeSearchForm extends Component{
                                 facets={facets}
                                 activeFacets={activeFacets}
                                 onToggleFacet={toggleFacet}
-                                emptyStateView={<div style={{fontWeight: 500,padding: '10px 0px',fontSize: 15}}>{pydio.MessageHash['user_home.search.facets.title']}</div>}
+                                emptyStateView={<div style={{fontWeight: 500,padding: '10px 0px',fontSize: 15}}/>}
                                 styles={styles.facets}
                                 zDepth={isMui3?0:undefined}
+                                topPane={!empty && resultsCount>0 && <SearchSorter searchTools={searchTools}/>}
                             />
                             }
                             <NodeListCustomProvider
@@ -227,11 +237,7 @@ class HomeSearchForm extends Component{
                                 nodeClicked={(node) => {pydio.goTo(node)}}
                                 defaultGroupBy="repository_id"
                                 groupByLabel="repository_display"
-                                emptyStateProps={{
-                                    iconClassName:"",
-                                    primaryTextId:loading?'searchengine.searching':478,
-                                    style:{backgroundColor: 'transparent'}
-                                }}
+                                emptyStateProps={esProps}
                             />
                         </div>
                     }

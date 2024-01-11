@@ -99,11 +99,10 @@ const styles = (muiTheme) => {
         },
         textareaFieldV2: {
             rows: 4,
-            rowsMax: 4,
-            style: {height: 128},
+            rowsMax: 10,
             inputStyle: {
                 backgroundColor: v2Block.backgroundColor,
-                height: 120,
+                height: "calc(100% - 8px)",
                 borderRadius: v2Block.borderRadius,
                 marginTop: 8,
                 paddingLeft: 8

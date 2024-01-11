@@ -241,13 +241,13 @@ class FSTemplate extends React.Component {
             }
         };
 
-        const {searchTools, searchTools:{values, setValues, facets, activeFacets, toggleFacet, searchLoading}} = this.props;
+        const {searchTools, searchTools:{values, empty, searchLoading}} = this.props;
 
         if(searchView) {
             leftPanelProps.workspacesListProps = {
                 ...leftPanelProps.workspacesListProps,
-                searchView: true,
-                values, setValues, searchLoading, facets, activeFacets, toggleFacet,
+                searchTools,
+                searchView: true
             };
         }
 
@@ -305,6 +305,7 @@ class FSTemplate extends React.Component {
                         searchResults={searchView}
                         searchScope={values ? values.scope : null}
                         searchLoading={searchLoading}
+                        searchEmpty={empty}
                         onDisplayModeChange={(dMode) => {
                             this.setState({displayMode: dMode});
                         }}
