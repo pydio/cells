@@ -169,6 +169,8 @@ func createJwtCtxModifier(runtimeCtx context.Context) servicecontext.IncomingCon
 		}
 
 		if ct, _, err := jwtVerifier.Verify(ctx, bearer); err != nil {
+			// append metadata to context before sending audit log
+			ctx, _, _ = grpcMetaCtxModifier(ctx)
 			log.Auditer(ctx).Error("Blocked invalid JWT", log.GetAuditId(common.AuditInvalidJwt))
 			return ctx, false, err
 		} else {
