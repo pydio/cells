@@ -135,9 +135,10 @@ func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tre
 		return ctx, m.setWorkspaceRootFlag(branch.Workspace, out), nil
 	}
 	if len(branch.RootUUIDs) == 1 {
-		root, _ := m.LookupRoot(branch.RootUUIDs[0])
-		if !root.IsLeaf() {
+		if root, er := m.LookupRoot(branch.RootUUIDs[0]); er == nil && !root.IsLeaf() {
 			return ctx, m.setWorkspaceRootFlag(branch.Workspace, out), nil
+		} else if er != nil {
+			return ctx, node, nodes.ErrBranchInfoRootMissing(identifier)
 		}
 	}
 	if branch.Root == nil {
