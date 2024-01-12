@@ -26,9 +26,10 @@ export default function asMetaForm(Component){
 
         constructor(props) {
             super(props);
+            const {value, configs} = this.props;
             this.state = {
-                value: this.props.value || '',
-                configs: this.props.configs || new Map(),
+                value: value === undefined ? '' : value,
+                configs: configs || new Map(),
                 getRealValue: () => {
                     const {node, column} = this.props;
                     return node.getMetadata().get(column.name)
@@ -37,20 +38,21 @@ export default function asMetaForm(Component){
         }
 
         updateValue(value, submit = true) {
-            this.setState({value:value});
+            this.setState({value});
             const {fieldname, onChange, onValueChange} = this.props;
             if(onChange){
                 let object = {};
                 object['ajxp_meta_' + fieldname] = value;
                 onChange(object, submit);
-            }else if(this.props.onValueChange){
+            }else if(onValueChange){
                 onValueChange(fieldname, value, submit);
             }
 
         }
 
         componentDidMount() {
-            if(!this.props.configs) {
+            const {configs} = this.props
+            if(!configs) {
                 MetaClient.getInstance().loadConfigs().then(configs =>{
                     this.setState({configs})
                 })
@@ -58,7 +60,7 @@ export default function asMetaForm(Component){
         }
 
         componentWillReceiveProps(nextProps, nextContext) {
-            this.setState({value: nextProps.value || ''})
+            this.setState({value: nextProps.value === undefined ? '' : nextProps.value})
         }
 
         render() {
