@@ -85,7 +85,7 @@ func Digest(ctx context.Context, items []*activity.Object) (*activity.Object, er
 
 	accessList, _ := permissions.AccessListFromContextClaims(ctx)
 	if len(accessList.GetWorkspaces()) == 0 {
-		log.Logger(ctx).Error("no workspaces found while building activity digest")
+		log.Logger(ctx).Debug("no workspaces found while building activity digest, ignoring")
 		return c, nil
 	}
 
