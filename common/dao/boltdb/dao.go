@@ -24,6 +24,8 @@ package boltdb
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
+	"github.com/pydio/cells/v4/common/log"
 	"math/rand"
 	"net/url"
 	"os"
@@ -148,15 +150,25 @@ func (h *Handler) Compact(ctx context.Context, opts map[string]interface{}) (old
 	dir, base := filepath.Split(p)
 	ext := filepath.Ext(base)
 	base = strings.TrimSuffix(base, ext)
+	keepBackup := true
+	if opts != nil {
+		if cb, ok := opts["ClearBackup"]; ok {
+			if c, o := cb.(bool); o && c {
+				keepBackup = false
+			}
+		}
+	}
 
 	copyPath := filepath.Join(dir, base+"-compact-copy"+ext)
+	log.TasksLogger(ctx).Info("Defragment DB in " + copyPath)
 	copyDB, e := bolt.Open(copyPath, 0600, &bolt.Options{Timeout: 5 * time.Second})
 	if e != nil {
-		return 0, 0, e
+		return 0, 0, errors.Wrap(e, "opening copy")
 	}
 	if e := copyDB.Update(func(txW *bolt.Tx) error {
 		return db.View(func(txR *bolt.Tx) error {
 			return txR.ForEach(func(name []byte, b *bolt.Bucket) error {
+				fmt.Println("MAIN", string(name))
 				bW, e := txW.CreateBucketIfNotExists(name)
 				if e != nil {
 					return e
@@ -165,50 +177,74 @@ func (h *Handler) Compact(ctx context.Context, opts map[string]interface{}) (old
 			})
 		})
 	}); e != nil {
-		copyDB.Close()
-		os.Remove(copyPath)
+		_ = copyDB.Close()
+		_ = os.Remove(copyPath)
 		return 0, 0, e
 	}
-	copyDB.Close()
+	er := copyDB.Close()
+	if er != nil {
+		_ = os.Remove(copyPath)
+		return 0, 0, errors.Wrap(er, "closing copy")
+	}
 
-	if e := h.CloseConn(ctx); e != nil {
-		return 0, 0, e
+	// Close current DB
+	if e = h.CloseConn(ctx); e != nil {
+		return 0, 0, errors.Wrap(e, "closing current")
 	}
-	bakPath := filepath.Join(dir, fmt.Sprintf("%s-%d%s", base, time.Now().Unix(), ext))
-	if er := os.Rename(p, bakPath); er != nil {
-		return 0, 0, er
-	}
-	if er := os.Rename(copyPath, p); er != nil {
-		return 0, 0, er
-	}
-	if copyDB, e = bolt.Open(p, 0600, &bolt.Options{Timeout: 5 * time.Second}); e != nil {
-		return 0, 0, e
-	}
-	h.SetConn(ctx, copyDB)
-	if opts != nil {
-		if clear, ok := opts["ClearBackup"]; ok {
-			if c, o := clear.(bool); o && c {
-				if er := os.Remove(bakPath); er != nil {
-					err = er
-				}
-			}
+
+	if keepBackup {
+		// Copy current to .bak
+		bakPath := filepath.Join(dir, fmt.Sprintf("%s-%d%s", base, time.Now().Unix(), ext))
+		log.TasksLogger(ctx).Info("Moving current to backup at " + bakPath)
+		if er := os.Rename(p, bakPath); er != nil {
+			return 0, 0, errors.Wrap(er, "moving to backup")
+		}
+	} else {
+		// Remove current
+		log.TasksLogger(ctx).Info("Removing current DB")
+		if er = os.Remove(p); er != nil {
+			return 0, 0, errors.Wrap(er, "removing current")
 		}
 	}
-	if st, e := os.Stat(p); e == nil {
-		new = st.Size()
+
+	// Now move copy to official path
+	log.TasksLogger(ctx).Info("Replace current with defragmented one")
+	if er := os.Rename(copyPath, p); er != nil {
+		return 0, 0, errors.Wrap(er, "replacing")
 	}
-	return
+
+	// And reassign Conn to this DB
+	if newDB, er2 := bolt.Open(p, 0600, &bolt.Options{Timeout: 5 * time.Second}); er2 != nil {
+		return 0, 0, errors.Wrap(er2, "re-opening connection on updated DB")
+	} else {
+		log.TasksLogger(ctx).Info("Reopened connection on new DB")
+		h.SetConn(ctx, newDB)
+		if st, e := os.Stat(p); e == nil {
+			new = st.Size()
+		}
+		return
+	}
 }
 
 func copyValuesOrBucket(bW, bR *bolt.Bucket) error {
 	return bR.ForEach(func(k, v []byte) error {
 		if v == nil {
+			newBR := bR.Bucket(k)
+			entries := 0
+			// Make a first pass to count entries and ignore if empty
+			_ = newBR.ForEach(func(_, _ []byte) error {
+				entries++
+				return nil
+			})
+			if entries == 0 {
+				// Do not create this bucket for nothing!
+				return nil
+			}
 			newBW, e := bW.CreateBucketIfNotExists(k)
 			if e != nil {
 				return e
 			}
-			newBR := bR.Bucket(k)
-			newBW.SetSequence(newBR.Sequence())
+			_ = newBW.SetSequence(newBR.Sequence())
 			return copyValuesOrBucket(newBW, newBR)
 		} else {
 			return bW.Put(k, v)
