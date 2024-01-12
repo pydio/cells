@@ -75,7 +75,7 @@ func HttpWrapperJWT(ctx context.Context, h http.Handler) http.Handler {
 					// This is a wrong JWT, go out with error
 					w.WriteHeader(401)
 					w.Write([]byte("Unauthorized.\n"))
-					log.Auditer(ctx).Error(
+					log.Auditer(c).Error(
 						"Blocked invalid JWT",
 						log.GetAuditId(common.AuditInvalidJwt),
 					)
