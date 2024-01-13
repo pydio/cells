@@ -42,7 +42,6 @@ import (
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
 	cindex "github.com/pydio/cells/v4/common/sql/indexgorm"
-	"github.com/pydio/cells/v4/common/utils/mtree"
 	index "github.com/pydio/cells/v4/data/source/index"
 	"github.com/pydio/cells/v4/data/source/index/sessions"
 )
@@ -105,7 +104,7 @@ func (s *TreeServer) Name() string {
 }
 
 // setDataSourceMeta adds the datasource name as metadata, and eventually the internal flag
-func (s *TreeServer) setDataSourceMeta(node *tree.TreeNode) {
+func (s *TreeServer) setDataSourceMeta(node tree.ITreeNode) {
 	node.GetNode().MustSetMeta(common.MetaNamespaceDatasourceName, s.dsName)
 	if s.dsInternal {
 		node.GetNode().MustSetMeta(common.MetaNamespaceDatasourceInternal, true)
@@ -113,7 +112,7 @@ func (s *TreeServer) setDataSourceMeta(node *tree.TreeNode) {
 }
 
 // updateMeta simplifies the dao.SetNodeMeta call
-func (s *TreeServer) updateMeta(ctx context.Context, dao index.DAO, node *tree.TreeNode, reqNode *tree.Node) (previousEtag string, contentChange bool, err error) {
+func (s *TreeServer) updateMeta(ctx context.Context, dao index.DAO, node tree.ITreeNode, reqNode *tree.Node) (previousEtag string, contentChange bool, err error) {
 	if node.GetNode().IsLeaf() {
 		previousEtag = node.GetNode().GetEtag()
 		if previousEtag != common.NodeFlagEtagTemporary {
@@ -156,7 +155,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	dao := s.getDAO(ctx, req.GetIndexationSession())
 	name := servicecontext.GetServiceName(ctx)
 
-	var node *tree.TreeNode
+	var node tree.ITreeNode
 	var previousEtag string
 	eventType := tree.NodeChangeEvent_CREATE
 
@@ -188,7 +187,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 					return nil, errors.InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
 				}
 				resp.Success = true
-				resp.Node = node.Node
+				resp.Node = node.GetNode()
 				return resp, nil
 			}
 		} else if node != nil {
@@ -197,18 +196,19 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	}
 
 	reqPath := safePath(req.GetNode().GetPath())
+	node = tree.NewTreeNode(safePath(req.GetNode().GetPath()))
 	var path *tree.MPath
-	var created []*tree.TreeNode
+	var created []tree.ITreeNode
 	var exists bool
 	if updateIfExists {
 		// First search node by path to avoid false created value
-		if existing, _, err := dao.Path(ctx, reqPath, false, req.GetNode()); err == nil && existing != nil {
+		if existing, _, err := dao.Path(ctx, node, tree.NewTreeNode(""), false); err == nil && existing != nil {
 			path = existing
 			exists = true
 		}
 	}
 	if !exists {
-		path, created, err = dao.Path(ctx, reqPath, true, req.GetNode())
+		path, created, err = dao.Path(ctx, node, tree.NewTreeNode(""), true)
 		if err != nil {
 			return nil, errors.InternalServerError(name, "Error while inserting node: %s", err.Error())
 		}
@@ -236,7 +236,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 			s.setDataSourceMeta(parent)
 			broker.MustPublish(ctx, common.TopicIndexChanges, &tree.NodeChangeEvent{
 				Type:   tree.NodeChangeEvent_CREATE,
-				Target: parent.Node,
+				Target: parent.GetNode(),
 			})
 		}
 	}
@@ -248,16 +248,15 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		}
 	}
 
-	node.Path = reqPath
 	s.setDataSourceMeta(node)
 
 	// Propagate mime meta
 	if mime := req.GetNode().GetStringMeta(common.MetaNamespaceMime); mime != "" {
-		node.SetMeta(common.MetaNamespaceMime, mime)
+		node.GetNode().MustSetMeta(common.MetaNamespaceMime, mime)
 	}
 	// Propagate hash meta
 	if hash := req.GetNode().GetStringMeta(common.MetaNamespaceHash); hash != "" {
-		node.SetMeta(common.MetaNamespaceHash, hash)
+		node.GetNode().MustSetMeta(common.MetaNamespaceHash, hash)
 	}
 
 	if err := s.UpdateParentsAndNotify(ctx, dao, req.GetNode().GetSize(), eventType, nil, node, req.IndexationSession); err != nil {
@@ -265,7 +264,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	}
 
 	resp.Success = true
-	resp.Node = node.Node
+	resp.Node = node.GetNode()
 
 	return resp, nil
 }
@@ -293,7 +292,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 
 	name := servicecontext.GetServiceName(ctx)
 
-	var node *mtree.TreeNode
+	var node tree.ITreeNode
 
 	if req.GetNode().GetPath() == "" && req.GetNode().GetUuid() != "" {
 
@@ -304,59 +303,61 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 
 		// In the case we've retrieve the node by uuid, we need to retrieve the path
 		var path []string
-		for pnode := range dao.GetNodes(ctx, node.MPath.Parents()...) {
-			path = append(path, pnode.Name())
+		for pnode := range dao.GetNodes(ctx, node.GetMPath().Parents()...) {
+			path = append(path, pnode.GetName())
 		}
-		path = append(path, node.Name())
-		node.Path = safePath(strings.Join(path, "/"))
+		path = append(path, node.GetName())
+		node.GetNode().SetPath(safePath(strings.Join(path, "/")))
 
 	} else {
-		reqPath := safePath(req.GetNode().GetPath())
+		node = tree.NewTreeNode(safePath(req.GetNode().GetPath()))
 
-		path, _, err := dao.Path(ctx, reqPath, false)
+		path, _, err := dao.Path(ctx, node, tree.NewTreeNode(""), false)
 		if err != nil {
-			return nil, errors.InternalServerError(name, "Error while retrieving path [%s], cause: %s", reqPath, err.Error())
+			return nil, errors.InternalServerError(name, "Error while retrieving path [%s], cause: %s", node.GetNode().GetPath(), err.Error())
 		}
+
 		if path == nil {
 			//return errors.New("Could not retrieve file path")
 			// Do not return error, or send a file not exists?
-			return nil, errors.NotFound(name, "Could not retrieve node %s", reqPath)
-		}
-		node, err = dao.GetNode(ctx, path)
-		if err != nil {
-			if len(path) == 1 && path[0] == 1 {
-				// This is the root node, let's create it
-				node = index.NewNode(&tree.Node{
-					Uuid: "ROOT",
-					Type: tree.NodeType_COLLECTION,
-				}, path, []string{""})
-				if err = dao.AddNode(ctx, node); err != nil {
-					return nil, err
-				}
-			} else {
-				return nil, errors.NotFound(name, "Could not retrieve node %s", reqPath)
-			}
+			return nil, errors.NotFound(name, "Could not retrieve node %s", node.GetNode().GetPath())
 		}
 
-		node.Path = reqPath
+		//node, err = dao.GetNode(ctx, path)
+		//if err != nil {
+		//	if len(path) == 1 && path[0] == 1 {
+		//		// This is the root node, let's create it
+		//		node = index.NewNode(&tree.Node{
+		//			Uuid: "ROOT",
+		//			Type: tree.NodeType_COLLECTION,
+		//		}, path, []string{""})
+		//		if err = dao.AddNode(ctx, node); err != nil {
+		//			return nil, err
+		//		}
+		//	} else {
+		//		return nil, errors.NotFound(name, "Could not retrieve node %s", reqPath)
+		//	}
+		//}
+		//
+		//node.Path = reqPath
 	}
 
 	resp.Success = true
 
 	s.setDataSourceMeta(node)
 
-	if (req.WithExtendedStats || tree.StatFlags(req.StatFlags).FolderCounts()) && !node.IsLeaf() {
-		folderCount, fileCount := dao.GetNodeChildrenCounts(ctx, node.MPath, false)
-		node.SetMeta(common.MetaFlagChildrenCount, folderCount+fileCount)
-		node.SetMeta(common.MetaFlagChildrenFolders, folderCount)
-		node.SetMeta(common.MetaFlagChildrenFiles, fileCount)
+	if (req.WithExtendedStats || tree.StatFlags(req.StatFlags).FolderCounts()) && !node.GetNode().IsLeaf() {
+		folderCount, fileCount := dao.GetNodeChildrenCounts(ctx, node.GetMPath(), false)
+		node.GetNode().MustSetMeta(common.MetaFlagChildrenCount, folderCount+fileCount)
+		node.GetNode().MustSetMeta(common.MetaFlagChildrenFolders, folderCount)
+		node.GetNode().MustSetMeta(common.MetaFlagChildrenFiles, fileCount)
 	}
-	if tree.StatFlags(req.StatFlags).RecursiveCount() && !node.IsLeaf() {
-		total, _ := dao.GetNodeChildrenCounts(ctx, node.MPath, true)
-		node.SetMeta(common.MetaFlagRecursiveCount, total)
+	if tree.StatFlags(req.StatFlags).RecursiveCount() && !node.GetNode().IsLeaf() {
+		total, _ := dao.GetNodeChildrenCounts(ctx, node.GetMPath(), true)
+		node.GetNode().MustSetMeta(common.MetaFlagRecursiveCount, total)
 	}
 
-	resp.Node = node.Node
+	resp.Node = node.GetNode()
 
 	return resp, nil
 }
@@ -390,7 +391,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 	// There is no need to compute additional stats here (folderSize)
 	if req.Ancestors {
 
-		var node *mtree.TreeNode
+		var node tree.ITreeNode
 		var err error
 		if req.GetNode().GetPath() == "" && req.GetNode().GetUuid() != "" {
 
@@ -401,26 +402,27 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 
 		} else {
 
-			reqPath := safePath(req.GetNode().GetPath())
-			path, _, err := dao.Path(ctx, reqPath, false)
+			node = tree.NewTreeNode(safePath(req.GetNode().GetPath()))
+			path, _, err := dao.Path(ctx, node, tree.NewTreeNode(""), false)
 			if err != nil {
-				return errors.InternalServerError(name, "cannot retrieve path for %s, cause: %s", reqPath, err.Error())
+				return errors.InternalServerError(name, "cannot retrieve path for %s, cause: %s", node.GetNode().GetPath(), err.Error())
 			}
 			if path == nil {
-				return errors.NotFound(name, "Could not retrieve node %s", reqPath)
+				return errors.NotFound(name, "Could not retrieve node %s", node.GetNode().GetPath())
 			}
-			node, err = dao.GetNode(ctx, path)
-			if err != nil {
-				return errors.InternalServerError(name, "cannot get node at %s, cause: %s", reqPath, err.Error())
-			}
+
+			//node, err = dao.GetNode(ctx, path)
+			//if err != nil {
+			//	return errors.InternalServerError(name, "cannot get node at %s, cause: %s", node.GetNode().GetPath(), err.Error())
+			//}
 		}
 
 		// Get Ancestors tree and rebuild pathes for each
 		var path []string
-		nodes := []*mtree.TreeNode{}
-		for pnode := range dao.GetNodes(ctx, node.MPath.Parents()...) {
-			path = append(path, pnode.Name())
-			pnode.Path = safePath(strings.Join(path, "/"))
+		nodes := []tree.ITreeNode{}
+		for pnode := range dao.GetNodes(ctx, node.GetMPath().Parents()...) {
+			path = append(path, pnode.GetName())
+			pnode.GetNode().SetPath(safePath(strings.Join(path, "/")))
 			nodes = append(nodes, pnode)
 		}
 		// Now Reverse Slice
@@ -429,7 +431,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 			nodes[i], nodes[last-i] = nodes[last-i], nodes[i]
 		}
 		for _, n := range nodes {
-			if err := resp.Send(&tree.ListNodesResponse{Node: n.Node}); err != nil {
+			if err := resp.Send(&tree.ListNodesResponse{Node: n.GetNode()}); err != nil {
 				return err
 			}
 		}
@@ -443,7 +445,9 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		reqPath := safePath(reqNode.GetPath())
 		recursiveCounts := tree.StatFlags(req.StatFlags).RecursiveCount()
 
-		path, _, err := dao.Path(ctx, reqPath, false)
+		node := tree.NewTreeNode(reqPath)
+
+		path, _, err := dao.Path(ctx, node, tree.NewTreeNode(""), false)
 		if err != nil {
 			return errors.InternalServerError(name, "cannot resolve path %s, cause: %s", reqPath, err.Error())
 		}
@@ -455,7 +459,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		if req.WithCommits {
 			rootNode, _ := dao.GetNode(ctx, path)
 			if err := dao.ResyncDirtyEtags(ctx, rootNode); err != nil {
-				log.Logger(ctx).Error("could not re-sync dirty etags", rootNode.Zap(), zap.Error(err))
+				log.Logger(ctx).Error("could not re-sync dirty etags", rootNode.GetNode().Zap(), zap.Error(err))
 			}
 		}
 
@@ -484,7 +488,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 		parentsCache := map[string]string{}
 		var receivedErr error
 		for obj := range c {
-			node, isNode := obj.(*mtree.TreeNode)
+			node, isNode := obj.(tree.ITreeNode)
 			if !isNode {
 				var ok bool
 				receivedErr, ok = obj.(error)
@@ -494,59 +498,59 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 				break
 			}
 
-			if req.Recursive && node.Path == reqPath {
+			if req.Recursive && node.GetNode().GetPath() == reqPath {
 				continue
 			}
 
 			if sqlFilters {
 				// If there are filters, listing is not regular - we have to check parents for each
-				parents := node.MPath.Parents()
-				var lookups []mtree.MPath
+				parents := node.GetMPath().Parents()
+				var lookups []*tree.MPath
 				// Fill in the wholes
 				for _, p := range parents {
-					if _, o := parentsCache[p.String()]; !o {
+					if _, o := parentsCache[p.ToString()]; !o {
 						lookups = append(lookups, p)
 					}
 				}
 				// Load missing ones
 				for pnode := range dao.GetNodes(ctx, lookups...) {
-					parentsCache[pnode.MPath.String()] = pnode.Name()
+					parentsCache[pnode.GetMPath().ToString()] = pnode.GetName()
 				}
 				var fullName []string
 				// Build name
 				for _, p := range parents {
 					fullName = append(fullName, parentsCache[p.String()])
 				}
-				fullName = append(fullName, node.Name())
-				node.Path = safePath(strings.Join(fullName, "/"))
+				fullName = append(fullName, node.GetName())
+				node.GetNode().SetPath(safePath(strings.Join(fullName, "/")))
 
 			} else {
 				// This assumes that all nodes are received in correct order from parents to leafs
-				if node.Level > cap(names) {
-					newNames := make([]string, len(names), node.Level)
+				if int(node.GetLevel()) > cap(names) {
+					newNames := make([]string, len(names), node.GetLevel())
 					copy(newNames, names)
 					names = newNames
 				}
 
-				names = names[0:node.Level]
-				names[node.Level-1] = node.Name()
+				names = names[0:node.GetLevel()]
+				names[node.GetLevel()-1] = node.GetName()
 
-				node.Path = safePath(strings.Join(names, "/"))
+				node.GetNode().SetPath(safePath(strings.Join(names, "/")))
 			}
 
 			s.setDataSourceMeta(node)
 
-			if !metaFilter.MatchForceGrep(node.Name()) {
+			if !metaFilter.MatchForceGrep(node.GetName()) {
 				continue
 			}
-			if limitDepth > 0 && node.Level != limitDepth {
+			if limitDepth > 0 && int(node.GetLevel()) != limitDepth {
 				continue
 			}
-			if recursiveCounts && !node.IsLeaf() {
-				total, _ := dao.GetNodeChildrenCounts(ctx, node.MPath, true)
-				node.SetMeta(common.MetaFlagRecursiveCount, total)
+			if recursiveCounts && !node.GetNode().IsLeaf() {
+				total, _ := dao.GetNodeChildrenCounts(ctx, node.GetMPath(), true)
+				node.GetNode().MustSetMeta(common.MetaFlagRecursiveCount, total)
 			}
-			if err := resp.Send(&tree.ListNodesResponse{Node: node.Node}); err != nil {
+			if err := resp.Send(&tree.ListNodesResponse{Node: node.GetNode()}); err != nil {
 				return err
 			}
 		}
@@ -578,10 +582,13 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	reqFromPath := safePath(req.GetFrom().GetPath())
 	reqToPath := safePath(req.GetTo().GetPath())
 
-	var pathFrom, pathTo mtree.MPath
-	var nodeFrom, nodeTo *mtree.TreeNode
+	var pathFrom, pathTo *tree.MPath
+	var nodeFrom, nodeTo tree.ITreeNode
 
-	if pathFrom, _, err = dao.Path(ctx, reqFromPath, false); err != nil {
+	nodeFrom = tree.NewTreeNode(reqFromPath)
+	nodeTo = tree.NewTreeNode(reqToPath)
+
+	if pathFrom, _, err = dao.Path(ctx, nodeFrom, tree.NewTreeNode(""), false); err != nil {
 		return nil, errors.InternalServerError(name, "cannot resolve pathFrom %s, cause: %s", reqFromPath, err.Error())
 	}
 	if pathFrom == nil {
@@ -593,10 +600,10 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 
 	if cache, o := dao.(cindex.CacheDAO); o {
 
-		pathTo, nodeTo, err = cache.PathCreateNoAdd(nil, reqToPath)
+		pathTo, nodeTo, err = cache.PathCreateNoAdd(ctx, reqToPath)
 
 	} else {
-		if pathTo, _, err = dao.Path(ctx, reqToPath, true); err != nil {
+		if pathTo, _, err = dao.Path(ctx, nodeTo, tree.NewTreeNode(""), true); err != nil {
 			return nil, errors.InternalServerError(name, "cannot resolve pathTo %s, cause: %s", reqToPath, err.Error())
 		}
 		if nodeTo, err = dao.GetNode(ctx, pathTo); err != nil {
@@ -616,9 +623,6 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		dao.Flush(ctx, false)
 	}
 
-	nodeFrom.Path = reqFromPath
-	nodeTo.Path = reqToPath
-
 	s.setDataSourceMeta(nodeFrom)
 	s.setDataSourceMeta(nodeTo)
 
@@ -628,9 +632,9 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 
 	newNode, err := dao.GetNode(ctx, pathTo)
 	if err == nil && newNode != nil {
-		newNode.Path = reqToPath
+		newNode.GetNode().SetPath(reqToPath)
 		s.setDataSourceMeta(newNode)
-		if err := s.UpdateParentsAndNotify(ctx, dao, nodeFrom.GetSize(), tree.NodeChangeEvent_UPDATE_PATH, nodeFrom, newNode, req.IndexationSession); err != nil {
+		if err := s.UpdateParentsAndNotify(ctx, dao, nodeFrom.GetNode().GetSize(), tree.NodeChangeEvent_UPDATE_PATH, nodeFrom, newNode, req.IndexationSession); err != nil {
 			return nil, errors.InternalServerError(common.ServiceDataIndex_, "error while updating parents:  %s", err.Error())
 		}
 	}
@@ -658,24 +662,26 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 
 	reqPath := safePath(req.GetNode().GetPath())
 
-	path, _, pE := dao.Path(ctx, reqPath, false)
+	var node tree.ITreeNode = tree.NewTreeNode(reqPath)
+
+	path, _, pE := dao.Path(ctx, node, tree.NewTreeNode(""), false)
 	if pE != nil {
 		return nil, errors.NotFound(name, "Could not compute path %s (%s)", reqPath, pE.Error())
 	}
 
-	node, err := dao.GetNode(ctx, path)
+	node, err = dao.GetNode(ctx, path)
 	if err != nil {
 		return nil, errors.NotFound(name, "Could not retrieve node %s", reqPath)
 	}
-	node.Path = reqPath
+
 	s.setDataSourceMeta(node)
 	var childrenEvents []*tree.NodeChangeEvent
-	if node.Type == tree.NodeType_COLLECTION {
+	if node.GetNode().GetType() == tree.NodeType_COLLECTION {
 		c := dao.GetNodeTree(ctx, path)
 		names := strings.Split(reqPath, "/")
 		var treeErr error
 		for obj := range c {
-			child, ok := obj.(*mtree.TreeNode)
+			child, ok := obj.(tree.ITreeNode)
 			if !ok {
 				treeErr, ok = obj.(error)
 				if !ok {
@@ -683,21 +689,21 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 				}
 				break
 			}
-			if child.Name() == common.PydioSyncHiddenFile {
+			if child.GetName() == common.PydioSyncHiddenFile {
 				continue
 			}
-			if child.Level > cap(names) {
-				newNames := make([]string, len(names), child.Level)
+			if int(child.GetLevel()) > cap(names) {
+				newNames := make([]string, len(names), child.GetLevel())
 				copy(newNames, names)
 				names = newNames
 			}
-			names = names[0:child.Level]
-			names[child.Level-1] = child.Name()
-			child.Path = safePath(strings.Join(names, "/"))
+			names = names[0:child.GetLevel()]
+			names[child.GetLevel()-1] = child.GetName()
+			child.GetNode().SetPath(safePath(strings.Join(names, "/")))
 			s.setDataSourceMeta(child)
 			childrenEvents = append(childrenEvents, &tree.NodeChangeEvent{
 				Type:   tree.NodeChangeEvent_DELETE,
-				Source: child.Node,
+				Source: child.GetNode(),
 				Silent: true,
 			})
 		}
@@ -710,7 +716,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 		return nil, errors.InternalServerError(name, "Could not delete node at %s, cause: %s", reqPath, err.Error())
 	}
 
-	if err := s.UpdateParentsAndNotify(ctx, dao, node.Size, tree.NodeChangeEvent_DELETE, node, nil, req.IndexationSession); err != nil {
+	if err := s.UpdateParentsAndNotify(ctx, dao, node.GetNode().GetSize(), tree.NodeChangeEvent_DELETE, node, nil, req.IndexationSession); err != nil {
 		return nil, errors.InternalServerError(common.ServiceDataIndex_, "Error while updating parents: %s", err.Error())
 	}
 
@@ -805,7 +811,7 @@ func (s *TreeServer) CleanResourcesBeforeDelete(ctx context.Context, request *ob
 }
 
 // UpdateParentsAndNotify update the parents nodes and notify the tree of the event that occurred.
-func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, deltaSize int64, eventType tree.NodeChangeEvent_EventType, sourceNode *mtree.TreeNode, targetNode *mtree.TreeNode, sessionUuid string) error {
+func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, deltaSize int64, eventType tree.NodeChangeEvent_EventType, sourceNode tree.ITreeNode, targetNode tree.ITreeNode, sessionUuid string) error {
 
 	var batcher sessions.SessionBatcher
 	var session *tree.IndexationSession
@@ -819,35 +825,35 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 
 	// Init Event from source/target parameters
 	var event *tree.NodeChangeEvent
-	mpathes := make(map[*mtree.MPath]int64)
+	mpathes := make(map[*tree.MPath]int64)
 	if sourceNode == nil {
 		// CREATE
-		mpathes[&targetNode.MPath] = deltaSize
+		mpathes[targetNode.GetMPath()] = deltaSize
 		event = &tree.NodeChangeEvent{
 			Type:   eventType,
-			Target: targetNode.Node,
+			Target: targetNode.GetNode(),
 		}
 	} else if targetNode == nil {
 		// DELETE
-		mpathes[&sourceNode.MPath] = -deltaSize
+		mpathes[sourceNode.GetMPath()] = -deltaSize
 		event = &tree.NodeChangeEvent{
 			Type:   eventType,
-			Source: sourceNode.Node,
+			Source: sourceNode.GetNode(),
 		}
 	} else {
 		// UPDATE
-		mpathFrom := sourceNode.MPath
-		mpathTo := targetNode.MPath
+		mpathFrom := sourceNode.GetMPath()
+		mpathTo := targetNode.GetMPath()
 		if mpathFrom.Parent().String() == mpathTo.Parent().String() {
-			mpathes[&mpathFrom] = 0
+			mpathes[mpathFrom] = 0
 		} else {
-			mpathes[&mpathFrom] = -sourceNode.Size
-			mpathes[&mpathTo] = sourceNode.Size
+			mpathes[mpathFrom] = -sourceNode.GetNode().GetSize()
+			mpathes[mpathTo] = sourceNode.GetNode().GetSize()
 		}
 		event = &tree.NodeChangeEvent{
 			Type:   eventType,
-			Source: sourceNode.Node,
-			Target: targetNode.Node,
+			Source: sourceNode.GetNode(),
+			Target: targetNode.GetNode(),
 		}
 	}
 

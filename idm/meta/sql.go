@@ -28,6 +28,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"time"
 
 	"go.uber.org/zap"
@@ -128,23 +129,21 @@ func (dao *sqlimpl) Stats() map[string]interface{} {
 }
 
 type Meta struct {
-	UUID      string `gorm:"primaryKey; column:uuid"`
-	NodeUUID  string `gorm:"column:node_uuid; uniqueIndex:idm_user_meta_u1;"`
-	Namespace string `gorm:"column:namespace; uniqueIndex:idm_user_meta_u1;"`
-	Owner     string `gorm:"column:owner; uniqueIndex:idm_user_meta_u1;"`
-	Timestamp int32  `gorm:"column:timestamp"`
-	Format    string `gorm:"column:format"`
-	Data      []byte `gorm:"column:data"`
+	UUID      string                    `gorm:"primaryKey; column:uuid"`
+	NodeUUID  string                    `gorm:"column:node_uuid; uniqueIndex:idm_user_meta_u1;"`
+	Namespace string                    `gorm:"column:namespace; uniqueIndex:idm_user_meta_u1;"`
+	Owner     string                    `gorm:"column:owner; uniqueIndex:idm_user_meta_u1;"`
+	Timestamp int32                     `gorm:"column:timestamp"`
+	Format    string                    `gorm:"column:format"`
+	Data      []byte                    `gorm:"column:data"`
+	Policies  []*service.ResourcePolicy `gorm:"-"`
 }
 
 func (u *Meta) As(res *idm.UserMeta) *idm.UserMeta {
 	res.Uuid = u.UUID
 	res.NodeUuid = u.NodeUUID
 	res.Namespace = u.Namespace
-	res.Policies = []*service.ResourcePolicy{{
-		Action:  service.ResourcePolicyAction_OWNER,
-		Subject: u.Owner,
-	}}
+	res.Policies = u.Policies
 	res.JsonValue = string(u.Data)
 
 	return res
@@ -155,6 +154,7 @@ func (u *Meta) From(res *idm.UserMeta) *Meta {
 	u.NodeUUID = res.NodeUuid
 	u.Namespace = res.Namespace
 	u.Owner = extractOwner(res.Policies)
+	u.Policies = res.Policies
 	u.Data = []byte(res.JsonValue)
 	u.Format = "json"
 	u.Timestamp = int32(time.Now().Unix())
@@ -201,7 +201,7 @@ func (s *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, string, error) {
 	update := false
 
 	// Attempting to create
-	tx := s.instance().Where(old).FirstOrCreate(old)
+	tx := s.instance().Clauses(clause.OnConflict{DoNothing: true}).Create(old)
 	if tx.Error != nil {
 		return nil, "", tx.Error
 	}
@@ -238,17 +238,17 @@ func (s *sqlimpl) Del(meta *idm.UserMeta) (previousValue string, e error) {
 	target := (&Meta{}).From(meta)
 	old := &Meta{}
 
-	if tx := s.instance().Where(&Meta{Owner: target.Owner, Namespace: target.Namespace, NodeUUID: target.NodeUUID}).Find(&old); tx.Error != nil {
+	if tx := s.instance().Where(&Meta{UUID: target.UUID, Owner: target.Owner, Namespace: target.Namespace, NodeUUID: target.NodeUUID}).Find(&old); tx.Error != nil {
 		return "", tx.Error
 	}
 
 	previousValue = string(old.Data)
 
-	if tx := s.instance().Where(target).Delete(&Meta{}); tx.Error != nil {
+	if tx := s.instance().Delete(&old); tx.Error != nil {
 		return "", tx.Error
 	}
 
-	if e := s.resourcesDAO.DeletePoliciesForResource(meta.Uuid); e != nil {
+	if e := s.resourcesDAO.DeletePoliciesForResource(old.UUID); e != nil {
 		return "", e
 	}
 
@@ -292,7 +292,7 @@ func extractOwner(policies []*service.ResourcePolicy) (owner string) {
 	return ""
 }
 
-type queryBuilder idm.RoleSingleQuery
+type queryBuilder idm.SearchUserMetaRequest
 
 func (c *queryBuilder) Convert(val *anypb.Any, in any) (out any, ok bool) {
 
@@ -300,6 +300,8 @@ func (c *queryBuilder) Convert(val *anypb.Any, in any) (out any, ok bool) {
 	if !ok {
 		return in, false
 	}
+
+	db = db.Session(&gorm.Session{})
 
 	q := new(idm.SearchUserMetaRequest)
 	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {

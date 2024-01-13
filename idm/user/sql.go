@@ -221,73 +221,13 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*user
 	var createdNodes []*user_model.User
 
 	var user *idm.User
+
 	var ok bool
 	if user, ok = in.(*idm.User); !ok {
 		return nil, createdNodes, fmt.Errorf("invalid format, expecting idm.User")
 	}
 
 	user.GroupPath = safeGroupPath(user.GroupPath)
-	objectUuid := user.Uuid
-	var objectPath string
-
-	if !user.IsGroup {
-		objectPath = strings.TrimRight(user.GroupPath, "/") + "/" + user.Login
-	} else {
-		objectPath = user.GroupPath
-	}
-	var movedOriginalPath string
-
-	// First get by Uuid, it must be unique
-	if len(objectUuid) > 0 {
-		if node, err := s.indexDAO.GetNodeByUUID(ctx, objectUuid); err == nil && node != nil {
-
-			s.rebuildGroupPath(ctx, node)
-
-			if node.GetNode().GetPath() != objectPath {
-				// This is a move
-				reqFromPath := "/" + strings.Trim(node.GetNode().GetPath(), "/")
-				reqToPath := objectPath
-				movedOriginalPath = reqFromPath
-
-				var pathFrom, pathTo *tree.MPath
-				var nodeFrom, nodeTo tree.ITreeNode
-
-				nodeFrom.GetNode().SetPath(reqToPath)
-				nodeTo.GetNode().SetPath(reqToPath)
-
-				if pathFrom, _, err = s.indexDAO.Path(ctx, node, false); err != nil || pathFrom == nil {
-					return nil, createdNodes, err
-				}
-
-				if nodeFrom, err = s.indexDAO.GetNode(ctx, pathFrom); err != nil {
-					return nil, createdNodes, err
-				}
-				if nodeFrom.GetNode().IsLeaf() {
-					if err = s.indexDAO.DelNode(ctx, nodeFrom); err != nil {
-						return nil, createdNodes, err
-					}
-					if pathTo, _, err = s.indexDAO.Path(ctx, nodeTo, true); err != nil {
-						return nil, createdNodes, err
-					}
-				} else {
-					if pathTo, _, err = s.indexDAO.Path(ctx, nodeTo, true); err != nil {
-						return nil, createdNodes, err
-					}
-				}
-
-				if nodeTo, err = s.indexDAO.GetNode(ctx, pathTo); err != nil {
-					return nil, createdNodes, err
-				}
-
-				log.Logger(context.Background()).Debug("MOVE TREE", zap.Any("from", nodeFrom), zap.Any("to", nodeTo))
-				if !nodeFrom.GetNode().IsLeaf() {
-					if err := s.indexDAO.MoveNodeTree(ctx, nodeFrom, nodeTo); err != nil {
-						return nil, createdNodes, err
-					}
-				}
-			}
-		}
-	}
 
 	// Now carry on to potential updates
 	var node *user_model.User
@@ -299,46 +239,89 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*user
 	} else {
 		node = groupToNode(user)
 	}
-	mPath, created, er := s.indexDAO.Path(ctx, node, true)
-	if er != nil {
-		return nil, createdNodes, er
+
+	mpath, created, err := s.indexDAO.Path(ctx, node, &user_model.User{}, true)
+	if err != nil && err != gorm.ErrDuplicatedKey {
+		return nil, createdNodes, err
 	}
 
-	var needsUpdate bool
-	if !user.IsGroup && len(created) == 0 && node.GetNode().GetEtag() != "" {
-		// This is an explicit password update
-		log.Logger(context.Background()).Debug("User update w/ password")
-		needsUpdate = true
-	} else if !user.IsGroup && len(created) > 0 && user.Password == "" {
-		// User has been created with an empty password! Generate a random strong one now
-		log.Logger(context.Background()).Warn("Generating random password for new user")
-		needsUpdate = true
-		node.GetNode().SetEtag(hasher.CreateHash(string(auth.RandStringBytes(20))))
-	}
-
-	if needsUpdate {
-		updateNode := &user_model.User{}
-		updateNode.SetMPath(mPath)
-		if mPath.Length() <= 1 {
-			// This should never happen, it will delete the root!
-			return nil, createdNodes, fmt.Errorf("interrupting, about to delNode a unique MPath (%s)", mPath.String())
-		}
-		if err := s.indexDAO.DelNode(ctx, updateNode); err != nil {
-			return nil, createdNodes, err
-		}
-		newMPath, _, err := s.indexDAO.Path(ctx, node, true)
+	if err == gorm.ErrDuplicatedKey {
+		// Node uuid already exists somewhere else, we just need to move it to its new location
+		nodeFrom, err := s.indexDAO.GetNodeByUUID(ctx, node.GetNode().GetUuid())
 		if err != nil {
 			return nil, createdNodes, err
 		}
-		mPath = newMPath
-	}
-	if user.Uuid == "" {
-		foundOrCreatedNode, err := s.indexDAO.GetNode(ctx, mPath)
+		s.rebuildGroupPath(ctx, nodeFrom)
+
+		if nodeFrom.GetNode().GetPath() != node.GetNode().GetPath() {
+			log.Logger(context.Background()).Debug("MOVE TREE", zap.Any("from", nodeFrom), zap.Any("to", node))
+			if err := s.indexDAO.MoveNodeTree(ctx, nodeFrom, node); err != nil {
+				return nil, createdNodes, err
+			}
+		} else {
+			// TODO - this is a simple update
+		}
+	} else if len(created) == 0 {
+		// A node already exists at the target path, we just need to update it
+		nodeFrom, err := s.indexDAO.GetNode(ctx, mpath)
 		if err != nil {
 			return nil, createdNodes, err
 		}
-		user.Uuid = foundOrCreatedNode.GetNode().GetUuid()
+
+		node.GetNode().SetUuid(nodeFrom.GetNode().GetUuid())
+		node.SetMPath(nodeFrom.GetMPath())
+		node.SetName(nodeFrom.GetName())
+
+		if err := s.indexDAO.SetNode(ctx, node); err != nil {
+			return nil, createdNodes, err
+		}
+
+		nodeToUser(node, user)
+	} else {
+		node = created[0].(*user_model.User)
+		user.Uuid = node.GetNode().GetUuid()
+		if node.GetNode().IsLeaf() {
+			nodeToUser(node, user)
+		} else {
+			nodeToGroup(node, user)
+		}
 	}
+
+	//var needsUpdate bool
+	//if !user.IsGroup && len(created) == 0 && node.GetNode().GetEtag() != "" {
+	//	// This is an explicit password update
+	//	log.Logger(context.Background()).Debug("User update w/ password")
+	//	needsUpdate = true
+	//} else if !user.IsGroup && len(created) > 0 && user.Password == "" {
+	//	// User has been created with an empty password! Generate a random strong one now
+	//	log.Logger(context.Background()).Warn("Generating random password for new user")
+	//	needsUpdate = true
+	//	node.GetNode().SetEtag(hasher.CreateHash(string(auth.RandStringBytes(20))))
+	//}
+	//
+	//if needsUpdate {
+	//	updateNode := &user_model.User{}
+	//	updateNode.SetMPath(mPath)
+	//	if mPath.Length() <= 1 {
+	//		// This should never happen, it will delete the root!
+	//		return nil, createdNodes, fmt.Errorf("interrupting, about to delNode a unique MPath (%s)", mPath.String())
+	//	}
+	//	if err := s.indexDAO.DelNode(ctx, updateNode); err != nil {
+	//		return nil, createdNodes, err
+	//	}
+	//	newMPath, _, err := s.indexDAO.Path(ctx, node, &user_model.User{}, true)
+	//	if err != nil {
+	//		return nil, createdNodes, err
+	//	}
+	//	mPath = newMPath
+	//}
+	//if user.Uuid == "" {
+	//	foundOrCreatedNode, err := s.indexDAO.GetNode(ctx, mPath)
+	//	if err != nil {
+	//		return nil, createdNodes, err
+	//	}
+	//	user.Uuid = foundOrCreatedNode.GetNode().GetUuid()
+	//}
 
 	// Remove existing attributes and roles, replace with new ones using a transaction
 	if user.GroupLabel != "" {
@@ -359,7 +342,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*user
 		}
 	}
 
-	err := s.instance().Transaction(func(tx *gorm.DB) error {
+	if err := s.instance().Transaction(func(tx *gorm.DB) error {
 		delAttributes := tx.Where(&user_model.UserAttribute{UUID: user.Uuid}).Delete(&user_model.UserAttribute{})
 		if delAttributes.Error != nil {
 			return delAttributes.Error
@@ -402,9 +385,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*user
 		}
 
 		return nil
-	})
-
-	if err != nil {
+	}); err != nil {
 		return nil, nil, err
 	}
 
@@ -412,11 +393,11 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*user
 		createdNodes = append(createdNodes, n.(*user_model.User))
 	}
 
-	if movedOriginalPath != "" {
-		user.Attributes["original_group"] = movedOriginalPath
-	}
+	//if movedOriginalPath != "" {
+	//	user.Attributes["original_group"] = movedOriginalPath
+	//}
 
-	return user, createdNodes, err
+	return user, createdNodes, nil
 }
 
 // skipRoleAsAutoApplies Check if role is here because of autoApply - if so, do not save
@@ -503,8 +484,8 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents 
 	}
 
 	var total int64
-	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(s.instance()).(*gorm.DB)
-	tx := db.Model(&user_model.User{}).Count(&total)
+	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(s.instance().Model(&user_model.User{})).(*gorm.DB)
+	tx := db.Count(&total)
 	if tx.Error != nil {
 		return 0, tx.Error
 	}
@@ -549,11 +530,14 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]inter
 
 	for _, row := range rows {
 
-		var userOrGroup *idm.User
+		s.rebuildGroupPath(ctx, row)
+
+		userOrGroup := &idm.User{}
+
 		if row.GetNode().GetType() == tree.NodeType_COLLECTION {
-			userOrGroup = nodeToGroup(row)
+			nodeToGroup(row, userOrGroup)
 		} else {
-			userOrGroup = nodeToUser(row)
+			nodeToUser(row, userOrGroup)
 
 			var roles []*user_model.UserRole
 
@@ -600,6 +584,9 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 		loginCI:       s.loginCI,
 	}
 	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(s.instance()).(*gorm.DB)
+	if len(db.Statement.Clauses) == 0 {
+		return 0, fmt.Errorf("condition cannot be empty")
+	}
 	tx := db.WithContext(ctx).Find(&rows)
 	if tx.Error != nil {
 		return 0, tx.Error
@@ -616,11 +603,11 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 	for _, row := range rows {
 		s.rebuildGroupPath(ctx, row)
 
-		var userOrGroup *idm.User
+		userOrGroup := &idm.User{}
 		if row.Node.Type == tree.NodeType_COLLECTION {
-			userOrGroup = nodeToGroup(row)
+			nodeToGroup(row, userOrGroup)
 		} else {
-			userOrGroup = nodeToUser(row)
+			nodeToUser(row, userOrGroup)
 		}
 
 		data = append(data, &delStruct{node: row, object: userOrGroup})

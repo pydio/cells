@@ -129,7 +129,7 @@ func (qb *queryBuilder) Build(in any) (out any) {
 	}
 
 	for i, subDB := range subDBs {
-		if i > 0 || qb.enquirer.GetOperation() == service.OperationType_OR {
+		if i > 0 && qb.enquirer.GetOperation() == service.OperationType_OR {
 			db = db.Or(subDB)
 		} else {
 			db = db.Where(subDB)

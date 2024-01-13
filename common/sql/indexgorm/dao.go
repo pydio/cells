@@ -29,7 +29,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/mtree"
 	"gorm.io/gorm"
 )
 
@@ -44,7 +43,7 @@ var (
 type DAO interface {
 	dao.DAO
 
-	Path(ctx context.Context, node tree.ITreeNode, create bool) (*tree.MPath, []tree.ITreeNode, error)
+	Path(ctx context.Context, node tree.ITreeNode, rootNode tree.ITreeNode, create bool) (*tree.MPath, []tree.ITreeNode, error)
 
 	// Add a node in the tree
 	AddNode(context.Context, tree.ITreeNode) error
@@ -86,14 +85,14 @@ type DAO interface {
 type CacheDAO interface {
 	// PathCreateNoAdd does the same as Path(create=true) but does not really
 	// create the node in the cache, just find a firstAvailableIndex
-	PathCreateNoAdd(ctx context.Context, strpath string) (mtree.MPath, tree.ITreeNode, error)
+	PathCreateNoAdd(ctx context.Context, strpath string) (*tree.MPath, tree.ITreeNode, error)
 }
 
 // NewDAO for the common sql index
 func NewDAO[T tree.ITreeNode](ctx context.Context, store storage.Storage) (dao.DAO, error) {
 	var db *gorm.DB
 
-	if store.Get(&db) {
+	if store.Get(ctx, &db) {
 		return &IndexSQL[T]{DB: db, factory: &treeNodeFactory[T]{}}, nil
 	}
 

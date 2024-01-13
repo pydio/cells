@@ -23,9 +23,10 @@ package meta
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/storage"
+	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/sql"
 )
 
 type DAO interface {
@@ -36,10 +37,14 @@ type DAO interface {
 	ListMetadata(query string) (metadataByUuid map[string]map[string]string, err error)
 }
 
-func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
-	case sql.DAO:
-		return &sqlImpl{DAO: v}, nil
+func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+	var db *gorm.DB
+
+	if store.Get(ctx, &db) {
+		return &sqlImpl{
+			db: db,
+		}, nil
 	}
-	return nil, dao.UnsupportedDriver(o)
+
+	return nil, storage.UnsupportedDriver(store)
 }

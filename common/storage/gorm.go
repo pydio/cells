@@ -1,6 +1,8 @@
 package storage
 
 import (
+	"context"
+	"database/sql"
 	"gorm.io/gorm/logger"
 	"sync"
 
@@ -18,24 +20,11 @@ import (
 var (
 	gormTypes = []string{cellsmysql.Driver, cellspostgres.Driver, cellssqlite.Driver}
 
-	_ Provider = (*gormStorageProvider)(nil)
-	_ Storage  = (*gormStorage)(nil)
+	_ Storage = (*gormStorage)(nil)
 )
 
 func init() {
-	providers = append(providers, &gormStorageProvider{})
-}
-
-type gormStorageProvider struct{}
-
-func (*gormStorageProvider) Provide(driver string) ProviderFunc {
-	for _, t := range gormTypes {
-		if t == driver {
-			return newGormStorage
-		}
-	}
-
-	return nil
+	storages = append(storages, &gormStorage{once: &sync.Once{}})
 }
 
 type gormStorage struct {
@@ -45,56 +34,37 @@ type gormStorage struct {
 	once *sync.Once
 }
 
-func newGormStorage(driver string, dsn string) Storage {
-	var dialect gorm.Dialector
-	switch driver {
-	case cellssqlite.Driver:
-		dialect = &sqlite.Dialector{
-			DriverName: driver,
-			DSN:        dsn,
-		}
-	case cellsmysql.Driver:
-		dialect = mysql.Open(dsn)
-	case cellspostgres.Driver:
-		dialect = postgres.Open(dsn)
+func (gs *gormStorage) Provides(conn any) bool {
+	switch conn.(type) {
+	case *sql.DB:
+	default:
+		return false
 	}
 
-	helper, _ := newHelper(driver)
-	dialect = &Dialector{
-		Dialector: dialect,
-		Helper:    helper,
-	}
-
-	db, _ := gorm.Open(dialect, &gorm.Config{
-		//DisableForeignKeyConstraintWhenMigrating: true,
-		FullSaveAssociations: true,
-		TranslateError:       true,
-		Logger:               logger.Default.LogMode(logger.Info),
-	})
-
-	dr := dbresolver.New()
-
-	db.Use(dr)
-
-	return &gormStorage{
-		db: db,
-		dr: dr,
-	}
+	return true
 }
 
-func (gs *gormStorage) Register(driver string, dsn string, tenant string, service string) {
+func (gs *gormStorage) Register(conn any, tenant string, service string) {
+
+	db := conn.(*sql.DB)
 
 	var dialect gorm.Dialector
-	switch driver {
-	case cellssqlite.Driver:
+	var driver string
+	if cellsmysql.IsMysqlConn(db.Driver()) {
+		dialect = mysql.New(mysql.Config{
+			Conn: db,
+		})
+		driver = cellsmysql.Driver
+	} else if cellspostgres.IsPostGreConn(db.Driver()) {
+		dialect = postgres.New(postgres.Config{
+			Conn: db,
+		})
+		driver = cellspostgres.Driver
+	} else if cellssqlite.IsSQLiteConn(db.Driver()) {
 		dialect = &sqlite.Dialector{
-			DriverName: driver,
-			DSN:        dsn,
+			Conn: db,
 		}
-	case cellsmysql.Driver:
-		dialect = mysql.Open(dsn)
-	case cellspostgres.Driver:
-		dialect = postgres.Open(dsn)
+		driver = cellssqlite.Driver
 	}
 
 	helper, _ := newHelper(driver)
@@ -103,6 +73,27 @@ func (gs *gormStorage) Register(driver string, dsn string, tenant string, servic
 		Dialector: dialect,
 		Helper:    helper,
 	}
+
+	dialect = &Dialector{
+		Dialector: dialect,
+		Helper:    helper,
+	}
+
+	gs.once.Do(func() {
+		db, _ := gorm.Open(dialect, &gorm.Config{
+			//DisableForeignKeyConstraintWhenMigrating: true,
+			FullSaveAssociations: true,
+			TranslateError:       true,
+			Logger:               logger.Default.LogMode(logger.Info),
+		})
+
+		dr := dbresolver.New()
+
+		db.Use(dr)
+
+		gs.db = db
+		gs.dr = dr
+	})
 
 	gs.dr.Register(dbresolver.Config{
 		Sources: []gorm.Dialector{dialect},
@@ -111,7 +102,7 @@ func (gs *gormStorage) Register(driver string, dsn string, tenant string, servic
 	})
 }
 
-func (gs *gormStorage) Get(out interface{}) bool {
+func (gs *gormStorage) Get(ctx context.Context, out interface{}) bool {
 	if v, ok := out.(**gorm.DB); ok {
 		*v = gs.db
 		return true

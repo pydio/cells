@@ -45,7 +45,7 @@ type DAO interface {
 func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
 	var db *gorm.DB
 
-	if store.Get(&db) {
+	if store.Get(ctx, &db) {
 		return &ResourcesGORM{DB: db}, nil
 	}
 

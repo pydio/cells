@@ -22,13 +22,13 @@ package meta
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/storage"
 	"google.golang.org/protobuf/types/known/anypb"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
@@ -48,13 +48,13 @@ func TestMain(m *testing.M) {
 	v.SetDefault(runtime.KeyShortCache, "pm://")
 	runtime.SetRuntime(v)
 
-	var options = configx.New()
+	storage.Main.Register(sqlite.Driver, sqlite.SharedMemDSN, "", "")
 
-	if d, e := dao.InitDAO(ctx, sqlite.Driver, sqlite.SharedMemDSN, "idm_meta", NewDAO, options); e != nil {
-		panic(e)
-	} else {
-		mockDAO = d.(DAO)
-	}
+	dao, _ := NewDAO(ctx, storage.Main)
+
+	dao.Init(context.TODO(), configx.New())
+
+	mockDAO = dao.(DAO)
 
 	m.Run()
 }
@@ -167,6 +167,7 @@ func TestCrud(t *testing.T) {
 		})
 		queryA := &service.Query{
 			SubQueries: []*anypb.Any{subQA, subQB},
+			Operation:  service.OperationType_AND,
 		}
 
 		result, er := mockDAO.Search(queryA)
@@ -220,5 +221,4 @@ func TestResourceRules(t *testing.T) {
 		So(err, ShouldBeNil)
 
 	})
-
 }

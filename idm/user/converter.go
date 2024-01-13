@@ -25,12 +25,12 @@ import (
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"path"
 	"strings"
 	"time"
 
 	"google.golang.org/protobuf/proto"
 
-	goqu "github.com/doug-martin/goqu/v9"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/anypb"
 
@@ -68,11 +68,14 @@ func (c *queryConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
 		return nil, false
 	}
 
+	var wheres []*gorm.DB
+	//var ors []*gorm.DB
+
 	if q.Uuid != "" {
 		if q.Not {
-			db = db.Not(u.Uuid.Eq(q.Uuid))
+			wheres = append(wheres, db.Not(u.Uuid.Eq(q.Uuid)))
 		} else {
-			db = db.Where(u.Uuid.Eq(q.Uuid))
+			wheres = append(wheres, db.Where(u.Uuid.Eq(q.Uuid)))
 		}
 	}
 
@@ -86,15 +89,15 @@ func (c *queryConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
 		} else if c.loginCI {
 			// Use Equal but make sure it's case insensitive
 			if q.Not {
-				db = db.Not(LowerEq{Column: u.Name, Value: q.Login})
+				wheres = append(wheres, db.Not(LowerEq{Column: u.Name, Value: q.Login}))
 			} else {
-				db = db.Where(LowerEq{Column: u.Name, Value: q.Login})
+				wheres = append(wheres, db.Where(LowerEq{Column: u.Name, Value: q.Login}))
 			}
 		} else {
 			if q.Not {
-				db = db.Not(u.Name.Eq(q.Login))
+				wheres = append(wheres, db.Not(u.Name.Eq(q.Login)))
 			} else {
-				db = db.Where(u.Name.Eq(q.Login))
+				wheres = append(wheres, db.Where(u.Name.Eq(q.Login)))
 			}
 		}
 	}
@@ -117,22 +120,25 @@ func (c *queryConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
 		user.SetNode(&tree.Node{
 			Path: groupPath,
 		})
-		mpath, _, err := c.treeDao.Path(context.TODO(), user, false)
+		mpath, _, err := c.treeDao.Path(context.TODO(), user, tree.NewTreeNode(""), false)
 		if err != nil {
 			log.Logger(context.Background()).Error("Error while getting parent mpath", zap.Any("g", groupPath), zap.Error(err))
-			return goqu.L("0"), true
+			db = db.Where(false)
+			return db, true
 		}
 		if mpath == nil {
 			log.Logger(context.Background()).Debug("Nil mpath for groupPath", zap.Any("g", groupPath))
-			return goqu.L("0"), true
+			db = db.Where(false)
+			return db, true
 		}
 		parentNode, err := c.treeDao.GetNode(context.TODO(), mpath)
 		if err != nil {
 			log.Logger(context.Background()).Error("Error while getting parent node", zap.Any("g", groupPath), zap.Error(err))
-			return goqu.L("0"), true
+			db = db.Where(false)
+			return db, true
 		}
 		if fullPath {
-			db = db.Where(getMPathLike([]byte(parentNode.GetMPath().ToString())))
+			wheres = append(wheres, db.Where(getMPathEquals([]byte(parentNode.GetMPath().ToString()))))
 		} else {
 			var gPathQuery *gorm.DB
 			if q.Recursive {
@@ -143,18 +149,18 @@ func (c *queryConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
 			}
 			if c.includeParent {
 				incParentQuery := db.Where(getMPathEquals([]byte(parentNode.GetMPath().ToString())))
-				db = db.Where(incParentQuery).Or(gPathQuery)
+				wheres = append(wheres, db.Where(db.Where(incParentQuery).Or(gPathQuery)))
 			} else {
-				db = db.Where(gPathQuery)
+				wheres = append(wheres, db.Where(gPathQuery))
 			}
 		}
 	}
 
 	// Filter by Node Type
 	if q.NodeType == idm.NodeType_USER {
-		db = db.Where(u.Type.Eq(int32(tree.NodeType_LEAF)))
+		wheres = append(wheres, db.Where(u.Type.Eq(int32(tree.NodeType_LEAF))))
 	} else if q.NodeType == idm.NodeType_GROUP {
-		db = db.Where(u.Type.Neq(int32(tree.NodeType_LEAF)))
+		wheres = append(wheres, db.Where(u.Type.Neq(int32(tree.NodeType_LEAF))))
 	}
 
 	if q.HasProfile != "" {
@@ -163,26 +169,27 @@ func (c *queryConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
 	}
 
 	if len(q.AttributeName) > 0 {
-		txAttributes := db.
-			Select(a.UUID).
-			Where(a.Name.Eq(q.AttributeName))
+		txAttributes := a.WithContext(context.TODO()).
+			Select(a.Name).
+			Where(a.Name.Eq(q.AttributeName)).
+			Where(a.UUID.EqCol(u.Uuid))
 
 		if !q.AttributeAnyValue {
-			txAttributes = txAttributes.Where(a.Value.Eq(q.AttributeValue))
+			txAttributes = txAttributes.Where(a.Value.Like(strings.Replace(q.AttributeValue, "*", "%", -1)))
 		}
 
 		if q.Not {
-			db.Not(field.CompareSubQuery(
+			wheres = append(wheres, db.Not(field.CompareSubQuery(
 				field.ExistsOp,
 				u.Uuid,
-				txAttributes,
-			))
+				txAttributes.UnderlyingDB(),
+			)))
 		} else {
-			db.Where(field.CompareSubQuery(
+			wheres = append(wheres, db.Where(field.CompareSubQuery(
 				field.ExistsOp,
 				u.Uuid,
-				txAttributes,
-			))
+				txAttributes.UnderlyingDB(),
+			)))
 		}
 
 		if attributeOrLogin {
@@ -191,22 +198,23 @@ func (c *queryConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
 	}
 
 	if len(q.HasRole) > 0 {
-		txRoles := db.
+		txRoles := r.WithContext(context.TODO()).
 			Select(r.UUID).
-			Where(r.Role.Eq(q.HasRole))
+			Where(r.Role.Eq(q.HasRole)).
+			Where(r.UUID.EqCol(u.Uuid))
 
 		if q.Not {
-			db.Not(field.CompareSubQuery(
+			wheres = append(wheres, db.Not(field.CompareSubQuery(
 				field.ExistsOp,
 				u.Uuid,
-				txRoles,
-			))
+				txRoles.UnderlyingDB(),
+			)))
 		} else {
-			db.Where(field.CompareSubQuery(
+			wheres = append(wheres, db.Where(field.CompareSubQuery(
 				field.ExistsOp,
 				u.Uuid,
-				txRoles,
-			))
+				txRoles.UnderlyingDB(),
+			)))
 		}
 	}
 
@@ -214,11 +222,15 @@ func (c *queryConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
 		if lt, d, e := q.ParseLastConnected(); e == nil {
 			ref := time.Now().Add(-d).Unix()
 			if lt || q.Not {
-				db = db.Where(u.MTime.Lt(ref))
+				wheres = append(wheres, db.Where(u.MTime.Lt(ref)))
 			} else {
-				db = db.Where(u.MTime.Gt(ref))
+				wheres = append(wheres, db.Where(u.MTime.Gt(ref)))
 			}
 		}
+	}
+
+	for _, where := range wheres {
+		db = db.Where(where)
 	}
 
 	out = db
@@ -276,34 +288,29 @@ func groupToNode(g *idm.User) *user_model.User {
 	}
 }
 
-func nodeToUser(t *user_model.User) *idm.User {
-	u := &idm.User{
-		Uuid:          t.GetNode().GetUuid(),
-		Login:         t.GetName(),
-		Password:      t.GetNode().GetEtag(),
-		GroupPath:     t.GetNode().GetPath(),
-		LastConnected: int32(t.GetNode().GetMTime()),
-	}
+func nodeToUser(t *user_model.User, u *idm.User) {
+	u.Uuid = t.GetNode().GetUuid()
+	u.Login = t.GetName()
+	u.Password = t.GetNode().GetEtag()
+	u.GroupPath = path.Dir(t.GetNode().GetPath())
+	u.LastConnected = int32(t.GetNode().GetMTime())
+
 	var gRoles []string
 	t.GetNode().GetMeta("GroupRoles", &gRoles)
 	// Do not apply inheritance to anonymous user
 	if t.GetName() == common.PydioS3AnonUsername {
 		u.Roles = []*idm.Role{}
-		return u
 	}
 	for _, rId := range gRoles {
 		u.Roles = append(u.Roles, &idm.Role{Uuid: rId, GroupRole: true})
 	}
-	return u
 }
 
-func nodeToGroup(t *user_model.User) *idm.User {
-	return &idm.User{
-		Uuid:       t.GetNode().GetUuid(),
-		IsGroup:    true,
-		GroupLabel: t.GetName(),
-		GroupPath:  t.GetNode().GetPath(),
-	}
+func nodeToGroup(t *user_model.User, u *idm.User) {
+	u.Uuid = t.GetNode().GetUuid()
+	u.IsGroup = true
+	u.GroupLabel = t.GetName()
+	u.GroupPath = path.Dir(t.GetNode().GetPath())
 }
 
 type LowerEq struct {

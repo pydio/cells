@@ -755,10 +755,6 @@ func NewTreeNode(path string) *TreeNode {
 func (tn *TreeNode) BeforeCreate(*gorm.DB) error {
 	tn.SetLevel(int64(tn.GetMPath().Length()))
 
-	/*if tn.GetName() == "" && tn.GetLevel() != 1 {
-		return errors.New("name must be set")
-	}*/
-
 	return nil
 }
 

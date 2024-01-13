@@ -35,7 +35,6 @@ import (
 type Handler struct {
 	proto.UnimplementedDocStoreServer
 	sync.UnimplementedSyncEndpointServer
-	DAO docstore.DAO
 }
 
 func (h *Handler) Name() string {
@@ -43,7 +42,12 @@ func (h *Handler) Name() string {
 }
 
 func (h *Handler) PutDocument(ctx context.Context, request *proto.PutDocumentRequest) (*proto.PutDocumentResponse, error) {
-	e := h.DAO.PutDocument(request.StoreID, request.Document)
+	dao, err := docstore.NewDAO(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	e := dao.PutDocument(request.StoreID, request.Document)
 	log.Logger(ctx).Debug("PutDocument", zap.String("store", request.StoreID), zap.String("docId", request.Document.ID))
 	if e != nil {
 		log.Logger(ctx).Error("PutDocument", zap.Error(e))
@@ -53,8 +57,13 @@ func (h *Handler) PutDocument(ctx context.Context, request *proto.PutDocumentReq
 }
 
 func (h *Handler) GetDocument(ctx context.Context, request *proto.GetDocumentRequest) (*proto.GetDocumentResponse, error) {
+	dao, err := docstore.NewDAO(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	log.Logger(ctx).Debug("GetDocument", zap.String("store", request.StoreID), zap.String("docId", request.DocumentID))
-	doc, e := h.DAO.GetDocument(request.StoreID, request.DocumentID)
+	doc, e := dao.GetDocument(request.StoreID, request.DocumentID)
 	if e != nil {
 		return nil, fmt.Errorf("document not found")
 	}
@@ -63,11 +72,16 @@ func (h *Handler) GetDocument(ctx context.Context, request *proto.GetDocumentReq
 
 func (h *Handler) DeleteDocuments(ctx context.Context, request *proto.DeleteDocumentsRequest) (*proto.DeleteDocumentsResponse, error) {
 
+	dao, err := docstore.NewDAO(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	response := &proto.DeleteDocumentsResponse{}
 
 	if request.Query != nil && request.Query.MetaQuery != "" {
 
-		count, er := h.DAO.DeleteDocuments(request.StoreID, request.Query)
+		count, er := dao.DeleteDocuments(request.StoreID, request.Query)
 		if er != nil {
 			return nil, er
 		}
@@ -75,7 +89,7 @@ func (h *Handler) DeleteDocuments(ctx context.Context, request *proto.DeleteDocu
 
 	} else {
 
-		err := h.DAO.DeleteDocument(request.StoreID, request.DocumentID)
+		err := dao.DeleteDocument(request.StoreID, request.DocumentID)
 		if err != nil {
 			return nil, err
 		}
@@ -90,10 +104,15 @@ func (h *Handler) CountDocuments(ctx context.Context, request *proto.ListDocumen
 
 	log.Logger(ctx).Debug("CountDocuments", zap.Any("req", request))
 
+	dao, err := docstore.NewDAO(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	if request.Query == nil || request.Query.MetaQuery == "" {
 		return nil, fmt.Errorf("Please provide at least a meta query")
 	}
-	total, err := h.DAO.CountDocuments(request.StoreID, request.Query)
+	total, err := dao.CountDocuments(request.StoreID, request.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +126,12 @@ func (h *Handler) ListDocuments(request *proto.ListDocumentsRequest, stream prot
 	ctx := stream.Context()
 	log.Logger(ctx).Debug("ListDocuments", zap.Any("req", request))
 
-	results, err := h.DAO.QueryDocuments(request.StoreID, request.Query)
+	dao, err := docstore.NewDAO(ctx)
+	if err != nil {
+		return err
+	}
+
+	results, err := dao.QueryDocuments(request.StoreID, request.Query)
 	if err != nil {
 		return err
 	}

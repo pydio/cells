@@ -23,23 +23,13 @@ package grpc
 
 import (
 	"context"
-	"path/filepath"
-
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
-	"google.golang.org/protobuf/encoding/protojson"
-
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
-	"github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/sync"
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/data/docstore"
+	"google.golang.org/grpc"
 )
 
 var (
@@ -53,58 +43,59 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Generic document store"),
-			service.WithStorage(docstore.NewDAO,
-				service.WithStoragePrefix("docstore"),
-				service.WithStorageMigrator(docstore.Migrate),
-				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
-				service.WithStorageDefaultDriver(func() (string, string) {
-					return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "docstore.db")
-				}),
-			),
-			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
-
-				dao := servicecontext.GetDAO(c).(docstore.DAO)
-				handler := &Handler{DAO: dao}
-
-				for id, json := range defaults() {
-					if doc, e := dao.GetDocument(common.DocStoreIdVirtualNodes, id); e == nil && doc != nil {
-						var reStore bool
-						if id == "my-files" {
-							// Check if my-files is up-to-date
-							var vNode tree.Node
-							if e := protojson.Unmarshal([]byte(doc.Data), &vNode); e == nil {
-								if _, ok := vNode.MetaStore["onDelete"]; !ok {
-									log.Logger(c).Info("Upgrading my-files template path for onDelete policy")
-									vNode.MetaStore["onDelete"] = "rename-uuid"
-									bb, _ := protojson.Marshal(&vNode)
-									json = string(bb)
-									reStore = true
-								}
-							} else {
-								log.Logger(c).Warn("Cannot unmarshall", zap.Error(e))
-							}
-						}
-						if !reStore {
-							continue
-						}
-					}
-					_, e := handler.PutDocument(context.Background(),
-						&proto.PutDocumentRequest{StoreID: common.DocStoreIdVirtualNodes, DocumentID: id, Document: &proto.Document{
-							ID:    id,
-							Owner: common.PydioSystemUsername,
-							Data:  json,
-						}})
-					if e != nil {
-						log.Logger(c).Warn("Cannot insert initial docs", zap.Error(e))
-					}
-				}
-
-				proto.RegisterDocStoreEnhancedServer(server, handler)
-				sync.RegisterSyncEndpointEnhancedServer(server, handler)
-
-				return nil
-			}),
+			//service.WithStorage(docstore.NewDAO,
+			//	service.WithStoragePrefix("docstore"),
+			//	service.WithStorageMigrator(docstore.Migrate),
+			//	service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
+			//	service.WithStorageDefaultDriver(func() (string, string) {
+			//		return boltdb.Driver, filepath.Join(runtime.MustServiceDataDir(Name), "docstore.db")
+			//	}),
+			//),
 		)
+
+		var srv grpc.ServiceRegistrar
+		if !server.Get(&srv) {
+			panic("no grpc server available")
+		}
+
+		handler := &Handler{}
+
+		// TODO
+		//for id, json := range defaults() {
+		//	if doc, e := dao.GetDocument(common.DocStoreIdVirtualNodes, id); e == nil && doc != nil {
+		//		var reStore bool
+		//		if id == "my-files" {
+		//			// Check if my-files is up-to-date
+		//			var vNode tree.Node
+		//			if e := protojson.Unmarshal([]byte(doc.Data), &vNode); e == nil {
+		//				if _, ok := vNode.MetaStore["onDelete"]; !ok {
+		//					log.Logger(ctx).Info("Upgrading my-files template path for onDelete policy")
+		//					vNode.MetaStore["onDelete"] = "rename-uuid"
+		//					bb, _ := protojson.Marshal(&vNode)
+		//					json = string(bb)
+		//					reStore = true
+		//				}
+		//			} else {
+		//				log.Logger(ctx).Warn("Cannot unmarshall", zap.Error(e))
+		//			}
+		//		}
+		//		if !reStore {
+		//			continue
+		//		}
+		//	}
+		//	_, e := handler.PutDocument(context.Background(),
+		//		&proto.PutDocumentRequest{StoreID: common.DocStoreIdVirtualNodes, DocumentID: id, Document: &proto.Document{
+		//			ID:    id,
+		//			Owner: common.PydioSystemUsername,
+		//			Data:  json,
+		//		}})
+		//	if e != nil {
+		//		log.Logger(ctx).Warn("Cannot insert initial docs", zap.Error(e))
+		//	}
+		//}
+
+		proto.RegisterDocStoreEnhancedServer(srv, handler)
+		sync.RegisterSyncEndpointEnhancedServer(srv, handler)
 	})
 }
 

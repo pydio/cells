@@ -23,9 +23,6 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
-	commonsql "github.com/pydio/cells/v4/common/sql"
 
 	"google.golang.org/grpc"
 
@@ -33,9 +30,12 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/resources"
 	sqlresources "github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/workspace"
 )
 
@@ -45,44 +45,58 @@ const (
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
+
 		var s service.Service
 		s = service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Workspaces Service"),
-			service.WithTODOStorage(workspace.NewDAO, commonsql.NewDAO,
-				service.WithStoragePrefix("idm_workspace"),
-				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-			),
-			// service.WithStorage(workspace.NewDAO, service.WithStoragePrefix("idm_workspace")),
-			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-
-				h := NewHandler(ctx, s)
-				idm.RegisterWorkspaceServiceServer(server, h)
-
-				// Register a cleaner for removing a workspace when there are no more ACLs on it.
-				wsCleaner := NewWsCleaner(ctx, h)
-				cleaner := &resources.PoliciesCleaner{
-					DAO: service.DAOProvider[sqlresources.DAO](s),
-					Options: resources.PoliciesCleanerOptions{
-						SubscribeRoles: true,
-						SubscribeUsers: true,
-					},
-					LogCtx: ctx,
-				}
-				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
-					ev := &idm.ChangeEvent{}
-					if e := message.Unmarshal(ev); e == nil {
-						_ = wsCleaner.Handle(ctx, ev)
-						return cleaner.Handle(ctx, ev)
-					}
-					return nil
-				}); e != nil {
-					return e
-				}
-				return nil
-			}),
+			//service.WithTODOStorage(workspace.NewDAO, commonsql.NewDAO,
+			//	service.WithStoragePrefix("idm_workspace"),
+			//	service.WithStorageSupport(mysql.Driver, sqlite.Driver),
+			//),
+			//// service.WithStorage(workspace.NewDAO, service.WithStoragePrefix("idm_workspace")),
+			//service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
+			//
+			//}),
 		)
+
+		var srv grpc.ServiceRegistrar
+		if !server.Get(&srv) {
+			panic("no grpc server available")
+		}
+
+		dao, err := workspace.NewDAO(ctx, storage.Main)
+		if err != nil {
+			panic(err)
+		}
+
+		opts := configx.New()
+		dao.Init(ctx, opts)
+
+		h := NewHandler(ctx, s, dao.(workspace.DAO))
+		idm.RegisterWorkspaceServiceServer(srv, h)
+
+		// Register a cleaner for removing a workspace when there are no more ACLs on it.
+		wsCleaner := NewWsCleaner(ctx, h)
+		cleaner := &resources.PoliciesCleaner{
+			DAO: dao.(sqlresources.DAO),
+			Options: resources.PoliciesCleanerOptions{
+				SubscribeRoles: true,
+				SubscribeUsers: true,
+			},
+			LogCtx: ctx,
+		}
+		if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
+			ev := &idm.ChangeEvent{}
+			if e := message.Unmarshal(ev); e == nil {
+				_ = wsCleaner.Handle(ctx, ev)
+				return cleaner.Handle(ctx, ev)
+			}
+			return nil
+		}); e != nil {
+			panic(e)
+		}
 	})
 }

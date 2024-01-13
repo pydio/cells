@@ -37,7 +37,7 @@ type PoliciesCleanerOptions struct {
 }
 
 type PoliciesCleaner struct {
-	DAO func(context.Context) resources.DAO
+	DAO resources.DAO
 
 	Options PoliciesCleanerOptions
 	LogCtx  context.Context
@@ -64,8 +64,7 @@ func (c *PoliciesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) erro
 
 	if len(subject) > 0 {
 		log.Logger(c.LogCtx).Debug("DELETING POLICIES ON EVENT", zap.Any("event", msg), zap.String("subject", subject))
-		dao := c.DAO(ctx)
-		return dao.DeletePoliciesBySubject(subject)
+		return c.DAO.DeletePoliciesBySubject(subject)
 	}
 	return nil
 

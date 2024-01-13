@@ -1,6 +1,11 @@
 package storage
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
+
+var NotFound = errors.New("not found")
 
 func UnsupportedDriver(storage Storage) error {
 	return &UnsupportedDriverTypeErr{Driver: fmt.Sprintf("%v", storage)}

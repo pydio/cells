@@ -24,7 +24,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/pydio/cells/v4/common/service/metrics"
 	"sync"
 
 	tools "github.com/go-sql-driver/mysql"
@@ -34,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/metrics"
 	commonsql "github.com/pydio/cells/v4/common/sql"
 )
 
@@ -172,4 +172,9 @@ func FilterDAOErrors(err error) (error, bool) {
 		}
 	}
 	return err, filtered
+}
+
+func IsMysqlConn(conn any) bool {
+	_, ok := conn.(*tools.MySQLDriver)
+	return ok
 }

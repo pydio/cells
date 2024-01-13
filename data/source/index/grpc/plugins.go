@@ -36,33 +36,22 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/source/index"
 	"google.golang.org/grpc"
-	"gorm.io/gorm"
 )
 
 func init() {
 
 	runtime.Register("main", func(ctx context.Context) {
-
-		// Retrieve db from the runtime
-		var db *gorm.DB
-		if !storage.Get(&db) {
-			panic("no gorm storage available")
-		}
-
 		var srv grpc.ServiceRegistrar
 		if !server.Get(&srv) {
 			panic("no grpc server available")
 		}
 
 		// Retrieve server from the runtime - TODO
-
 		//sources := config.SourceNamesForDataServices(common.ServiceDataIndex)
-
 		//for _, source := range sources {
-
 		// name := common.ServiceGrpcNamespace_ + common.ServiceDataIndex_ + source
 
-		dao, err := index.NewDAO(db.WithContext(ctx))
+		dao, err := index.NewDAO(ctx, storage.Main)
 		if err != nil {
 			panic(err)
 		}

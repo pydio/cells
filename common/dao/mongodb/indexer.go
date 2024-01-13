@@ -106,9 +106,9 @@ func (i *Indexer) Init(ctx context.Context, cfg configx.Values) error {
 	if i.codec != nil {
 		if mo, ok := i.codec.GetModel(cfg); ok {
 			model := mo.(Model)
-			if er := model.Init(context.Background(), i.DAO); er != nil {
-				return er
-			}
+			//if er := model.Init(context.Background(), i.DAO); er != nil {
+			//	return er
+			//}
 			for _, coll := range model.Collections {
 				if coll.Name == i.collection {
 					i.collectionModel = coll

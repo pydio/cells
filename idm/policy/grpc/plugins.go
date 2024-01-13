@@ -25,7 +25,10 @@ import (
 	"context"
 	"github.com/pydio/cells/v4/common/dao/mysql"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
+	"github.com/pydio/cells/v4/common/server"
 	commonsql "github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -102,11 +105,23 @@ func init() {
 					},
 				}
 			}),
-			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-				handler := NewHandler(ctx, s)
-				idm.RegisterPolicyEngineServiceServer(server, handler)
-				return nil
-			}),
 		)
+
+		var srv grpc.ServiceRegistrar
+		if !server.Get(&srv) {
+			panic("no grpc server available")
+		}
+
+		dao, err := policy.NewDAO(ctx, storage.Main)
+		if err != nil {
+			panic(err)
+		}
+
+		opts := configx.New()
+		dao.Init(ctx, opts)
+
+		handler := NewHandler(ctx, s, dao.(policy.DAO))
+
+		idm.RegisterPolicyEngineServiceServer(srv, handler)
 	})
 }

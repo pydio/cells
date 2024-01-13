@@ -23,86 +23,32 @@ package docstore
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
+	"go.etcd.io/bbolt"
 	"strings"
 
 	bleve "github.com/blevesearch/bleve/v2"
-	"github.com/blevesearch/bleve/v2/index/scorch"
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/boltdb"
 	"go.uber.org/zap"
 
-	boltdb2 "github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type BleveServer struct {
-	boltdb2.DAO
 	// Internal Bolt
 	*BoltStore
 	// Internal Bleve database
 	Engine bleve.Index
-	// For Testing purpose : delete file after closing
-	DeleteOnClose bool
-	// Path to the DB file
-	IndexPath string
 }
 
-func NewBleveEngine(dao boltdb2.DAO, deleteOnClose ...bool) (*BleveServer, error) {
+func NewBleveEngine(db *bbolt.DB, index bleve.Index) (*BleveServer, error) {
 
-	bStore := &BoltStore{db: dao.DB()}
-	boltFile := dao.DB().Path()
-	var bleveIndexPath string
-	if strings.HasSuffix(boltFile, ".db") {
-		bleveIndexPath = strings.TrimSuffix(boltFile, ".db") + ".bleve"
-	} else {
-		bleveIndexPath = filepath.Join(filepath.Dir(boltFile), "docstore.bleve")
-	}
+	bStore := &BoltStore{db: db}
 
-	_, e := os.Stat(bleveIndexPath)
-	var index bleve.Index
-	var err error
-	if e == nil {
-		index, err = bleve.Open(bleveIndexPath)
-	} else {
-		index, err = bleve.NewUsing(bleveIndexPath, bleve.NewIndexMapping(), scorch.Name, boltdb.Name, nil)
-	}
-	if err != nil {
-		return nil, err
-	}
-	del := false
-	if len(deleteOnClose) > 0 && deleteOnClose[0] {
-		del = true
-	}
 	return &BleveServer{
-		DAO:           dao,
-		BoltStore:     bStore,
-		Engine:        index,
-		IndexPath:     bleveIndexPath,
-		DeleteOnClose: del,
+		BoltStore: bStore,
+		Engine:    index,
 	}, nil
-
-}
-
-// CloseConn overrides internal DAO.CloseConn method to close Bleve index at the same time
-func (s *BleveServer) CloseConn(ctx context.Context) error {
-
-	err := s.Engine.Close()
-	if err != nil {
-		return err
-	}
-	if s.DeleteOnClose {
-		if err = os.RemoveAll(s.IndexPath); err != nil {
-			return err
-		}
-	}
-	if s.DAO != nil {
-		return s.DAO.CloseConn(ctx) // nil //s.BoltStore.Close() - DAO is in charge of closing
-	} else {
-		return nil
-	}
 }
 
 func (s *BleveServer) PutDocument(storeID string, doc *docstore.Document) error {
@@ -160,15 +106,16 @@ func (s *BleveServer) DeleteDocuments(storeID string, query *docstore.DocumentQu
 
 func (s *BleveServer) Reset() error {
 
-	// List all nodes and remove them
-	s.Engine.Close()
-	if e := os.RemoveAll(s.IndexPath); e != nil {
-		return e
-	}
-	var err error
-	s.Engine, err = bleve.NewUsing(s.IndexPath, bleve.NewIndexMapping(), scorch.Name, boltdb.Name, nil)
-	return err
+	//// List all nodes and remove them
+	//s.Engine.Close()
+	//if e := os.RemoveAll(s.IndexPath); e != nil {
+	//	return e
+	//}
+	//var err error
+	//s.Engine, err = bleve.NewUsing(s.IndexPath, bleve.NewIndexMapping(), scorch.Name, boltdb.Name, nil)
+	//return err
 
+	return nil
 }
 
 func (s *BleveServer) CountDocuments(storeId string, query *docstore.DocumentQuery) (int, error) {

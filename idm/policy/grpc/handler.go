@@ -45,13 +45,13 @@ type Handler struct {
 	idm.UnimplementedPolicyEngineServiceServer
 
 	service.Service
-	dao func(ctx context.Context) policy.DAO
+	dao policy.DAO
 }
 
-func NewHandler(ctx context.Context, svc service.Service) idm.PolicyEngineServiceServer {
+func NewHandler(ctx context.Context, svc service.Service, dao policy.DAO) idm.PolicyEngineServiceServer {
 	return &Handler{
 		Service: svc,
-		dao:     service.DAOProvider[policy.DAO](svc),
+		dao:     dao,
 	}
 }
 
@@ -74,7 +74,7 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 			Context:  reqContext,
 		}
 
-		if err := h.dao(ctx).IsAllowed(ladonRequest); err == nil {
+		if err := h.dao.IsAllowed(ladonRequest); err == nil {
 			// Explicit allow
 			allowed = true
 		} else if strings.Contains(err.Error(), "Request was denied by default") {
@@ -113,7 +113,7 @@ func (h *Handler) StreamPolicyGroups(request *idm.ListPolicyGroupsRequest, strea
 		gg = groupsCache
 	}
 
-	if groups, err := h.dao(ctx).ListPolicyGroups(stream.Context(), request.Filter); err != nil {
+	if groups, err := h.dao.ListPolicyGroups(ctx, request.Filter); err != nil {
 		return err
 	} else {
 		gg = groups
@@ -141,7 +141,7 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 		return response, nil
 	}
 
-	groups, err := h.dao(ctx).ListPolicyGroups(ctx, request.Filter)
+	groups, err := h.dao.ListPolicyGroups(ctx, request.Filter)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +161,7 @@ func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicy
 	groupsCacheValid = false
 	response := &idm.StorePolicyGroupResponse{}
 
-	stored, err := h.dao(ctx).StorePolicyGroup(ctx, request.PolicyGroup)
+	stored, err := h.dao.StorePolicyGroup(ctx, request.PolicyGroup)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +182,7 @@ func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePoli
 	groupsCacheValid = false
 	response := &idm.DeletePolicyGroupResponse{}
 
-	err := h.dao(ctx).DeletePolicyGroup(ctx, request.PolicyGroup)
+	err := h.dao.DeletePolicyGroup(ctx, request.PolicyGroup)
 	if err != nil {
 		return nil, err
 	}

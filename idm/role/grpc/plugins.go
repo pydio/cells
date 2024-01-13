@@ -23,17 +23,17 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/configx"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	commonsql "github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/idm/role"
 )
@@ -66,28 +66,38 @@ func init() {
 					},
 				}
 			}),
-			service.WithTODOStorage(role.NewDAO, commonsql.NewDAO,
-				service.WithStoragePrefix("idm_role"),
-				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-			),
-			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-				handler := NewHandler(ctx, s)
-				idm.RegisterRoleServiceServer(server, handler)
-
-				// Clean role on user deletion
-				cleaner := NewCleaner(ctx, handler, service.DAOProvider[resources.DAO](s))
-				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
-					ic := &idm.ChangeEvent{}
-					if e := message.Unmarshal(ic); e == nil {
-						return cleaner.Handle(ctx, ic)
-					}
-					return nil
-				}); e != nil {
-					return e
-				}
-
-				return nil
-			}),
+			//service.WithTODOStorage(role.NewDAO, commonsql.NewDAO,
+			//	service.WithStoragePrefix("idm_role"),
+			//	service.WithStorageSupport(mysql.Driver, sqlite.Driver),
+			//),
 		)
+
+		var srv grpc.ServiceRegistrar
+		if !server.Get(&srv) {
+			panic("no grpc server available")
+		}
+
+		dao, err := role.NewDAO(ctx, storage.Main)
+		if err != nil {
+			panic(err)
+		}
+
+		opts := configx.New()
+		dao.Init(ctx, opts)
+
+		handler := NewHandler(ctx, s, dao.(role.DAO))
+		idm.RegisterRoleServiceServer(srv, handler)
+
+		// Clean role on user deletion
+		cleaner := NewCleaner(ctx, handler, service.DAOProvider[resources.DAO](s))
+		if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
+			ic := &idm.ChangeEvent{}
+			if e := message.Unmarshal(ic); e == nil {
+				return cleaner.Handle(ctx, ic)
+			}
+			return nil
+		}); e != nil {
+			panic(e)
+		}
 	})
 }

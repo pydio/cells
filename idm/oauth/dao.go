@@ -23,12 +23,11 @@ package oauth
 
 import (
 	"context"
-	"gorm.io/driver/sqlite"
+	"github.com/pydio/cells/v4/common/storage"
 	"gorm.io/gorm"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/auth"
-	"github.com/pydio/cells/v4/common/sql"
 )
 
 // DAO interface
@@ -47,18 +46,12 @@ type DAO interface {
 }
 
 // NewDAO creates a new DAO interface implementation. Only SQL is supported.
-func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
-	case sql.DAO:
-		dialector := sqlite.Open(v.Dsn())
-		db, err := gorm.Open(dialector, &gorm.Config{
-			//DisableForeignKeyConstraintWhenMigrating: true,
-			FullSaveAssociations: true,
-		})
-		if err != nil {
-			return nil, err
-		}
+func NewDAO(ctx context.Context) (dao.DAO, error) {
+	var db *gorm.DB
+
+	if storage.Get(ctx, &db) {
 		return &sqlImpl{db: db}, nil
 	}
-	return nil, dao.UnsupportedDriver(o)
+
+	return nil, storage.NotFound
 }

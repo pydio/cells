@@ -225,7 +225,7 @@ func (d *daocache) Flush(context.Context, bool) error {
 	return nil
 }
 
-func (dao *daocache) Path(ctx context.Context, node tree.ITreeNode, create bool) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
+func (dao *daocache) Path(ctx context.Context, node tree.ITreeNode, rootNode tree.ITreeNode, create bool) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
 	initial := proto.Clone(node).(tree.ITreeNode)
 	initial.SetMPath(nil)
 	initial.GetNode().SetPath("")

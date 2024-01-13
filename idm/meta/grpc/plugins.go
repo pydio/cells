@@ -24,20 +24,19 @@ package grpc
 import (
 	"context"
 	"github.com/go-sql-driver/mysql"
+	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	commonmysql "github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/log"
-	meta2 "github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	commonsql "github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/idm/meta"
 )
 
@@ -47,50 +46,61 @@ var (
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		var s service.Service
+		var srv grpc.ServiceRegistrar
+		if !server.Get(&srv) {
+			panic("no grpc server available")
+		}
 
-		s = service.NewService(
-			service.Name(Name),
-			service.Context(ctx),
-			service.Tag(common.ServiceTagIdm),
-			service.Metadata(meta2.ServiceMetaProvider, "stream"),
-			service.Metadata(meta2.ServiceMetaNsProvider, "list"),
-			service.Metadata(meta2.ServiceMetaProviderRequired, "true"),
-			service.Description("User-defined Metadata"),
-			service.WithTODOStorage(meta.NewDAO, commonsql.NewDAO,
-				service.WithStoragePrefix("idm_usr_meta"),
-				service.WithStorageSupport(commonmysql.Driver, sqlite.Driver),
-			),
-			service.Unique(true),
-			service.TODOMigrations(func() []*service.Migration {
-				return []*service.Migration{
-					{
-						TargetVersion: service.FirstRun(),
-						Up:            defaultMetas,
-					},
-				}
-			}),
-			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
+		dao, err := meta.NewDAO(ctx, storage.Main)
+		if err != nil {
+			panic(err)
+		}
 
-				handler := NewHandler(ctx, s)
-				idm.RegisterUserMetaServiceEnhancedServer(server, handler)
-				tree.RegisterNodeProviderStreamerEnhancedServer(server, handler)
+		opts := configx.New()
+		dao.Init(ctx, opts)
 
-				// Clean role on user deletion
-				cleaner := NewCleaner(service.DAOProvider[meta.DAO](s))
-				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
-					ev := &idm.ChangeEvent{}
-					if e := message.Unmarshal(ev); e == nil {
-						return cleaner.Handle(ctx, ev)
-					}
-					return nil
-				}); e != nil {
-					return e
-				}
+		handler := NewHandler(ctx, dao.(meta.DAO))
 
-				return nil
-			}),
-		)
+		idm.RegisterUserMetaServiceServer(srv, handler)
+		tree.RegisterNodeProviderStreamerServer(srv, handler)
+
+		// Clean role on user deletion
+		cleaner := NewCleaner(dao.(meta.DAO))
+		if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
+			ev := &idm.ChangeEvent{}
+			if e := message.Unmarshal(ev); e == nil {
+				return cleaner.Handle(ctx, ev)
+			}
+			return nil
+		}); e != nil {
+			panic(e)
+		}
+
+		//	var s service.Service
+		//
+		//	s = service.NewService(
+		//		service.Name(Name),
+		//		service.Context(ctx),
+		//		service.Tag(common.ServiceTagIdm),
+		//		service.Metadata(meta2.ServiceMetaProvider, "stream"),
+		//		service.Metadata(meta2.ServiceMetaNsProvider, "list"),
+		//		service.Metadata(meta2.ServiceMetaProviderRequired, "true"),
+		//		service.Description("User-defined Metadata"),
+		//		service.WithTODOStorage(meta.NewDAO, commonsql.NewDAO,
+		//			service.WithStoragePrefix("idm_usr_meta"),
+		//			service.WithStorageSupport(commonmysql.Driver, sqlite.Driver),
+		//		),
+		//		service.Unique(true),
+		//
+		//		service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
+		//
+		//			handler := NewHandler(ctx, s)
+		//			idm.RegisterUserMetaServiceEnhancedServer(server, handler)
+		//			tree.RegisterNodeProviderStreamerEnhancedServer(server, handler)
+		//
+		//			return nil
+		//		}),
+		//	)
 	})
 }
 

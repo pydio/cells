@@ -23,7 +23,7 @@ package acl
 
 import (
 	"context"
-	"gorm.io/driver/sqlite"
+	"github.com/pydio/cells/v4/common/storage"
 	"gorm.io/gorm"
 	"time"
 
@@ -65,18 +65,12 @@ type DAO interface {
 	Search(sql.Enquirer, *[]interface{}, *ExpirationPeriod) error
 }
 
-func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
-	case sql.DAO:
-		dialector := sqlite.Open(v.Dsn())
-		db, err := gorm.Open(dialector, &gorm.Config{
-			//DisableForeignKeyConstraintWhenMigrating: true,
-			FullSaveAssociations: true,
-		})
-		if err != nil {
-			return nil, err
-		}
+func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+	var db *gorm.DB
+
+	if store.Get(ctx, &db) {
 		return &sqlimpl{db: db}, nil
 	}
-	return nil, dao.UnsupportedDriver(o)
+
+	return nil, storage.UnsupportedDriver(store)
 }

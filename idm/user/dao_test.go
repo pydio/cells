@@ -24,7 +24,7 @@ import (
 	"context"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/mtree"
+	user_model "github.com/pydio/cells/v4/idm/user/model"
 	"gorm.io/gorm"
 	"log"
 	"sync"
@@ -311,7 +311,7 @@ func TestQueryBuilder(t *testing.T) {
 			group, ok := object.(*idm.User)
 			So(ok, ShouldBeTrue)
 			So(group.GroupLabel, ShouldEqual, "group")
-			So(group.GroupPath, ShouldEqual, "/path/to/")
+			So(group.GroupPath, ShouldEqual, "/path/to")
 			So(group.IsGroup, ShouldBeTrue)
 
 		}
@@ -330,9 +330,9 @@ func TestQueryBuilder(t *testing.T) {
 			group, ok := object.(*idm.User)
 			So(ok, ShouldBeTrue)
 			So(group.GroupLabel, ShouldEqual, "anotherGroup")
-			So(group.GroupPath, ShouldEqual, "/path/to/")
+			So(group.GroupPath, ShouldEqual, "/path/to")
 			So(group.IsGroup, ShouldBeTrue)
-			So(group.Attributes, ShouldResemble, map[string]string{"displayName": "Group Display Name"})
+			So(group.Attributes, ShouldResemble, map[string]string{"displayName": "Group Display Name", "pydio:labelLike": "group display name"})
 
 		}
 
@@ -476,7 +476,7 @@ func TestQueryBuilder(t *testing.T) {
 			u := (*users)[0].(*idm.User)
 			So(u, ShouldNotBeNil)
 			// Change groupPath
-			So(u.GroupPath, ShouldEqual, "/path/to/group/")
+			So(u.GroupPath, ShouldEqual, "/path/to/group")
 			// Move User
 			u.GroupPath = "/path/to/anotherGroup"
 			addedUser, _, e := mockDAO.Add(context.TODO(), u)
@@ -503,7 +503,6 @@ func TestQueryBuilder(t *testing.T) {
 			}, users3)
 			So(e3, ShouldBeNil)
 			So(users3, ShouldHaveLength, 1)
-
 		}
 
 		{
@@ -676,8 +675,8 @@ func TestDestructiveCreateUser(t *testing.T) {
 		var target []interface{}
 		ch := mockDAO.GetNodeTree(context.Background(), tree.NewMPath(1))
 		for n := range ch {
-			tn := n.(*mtree.TreeNode)
-			t.Logf("Got node %s (%s)", tn.MPath.String(), tn.Name())
+			tn := n.(*user_model.User)
+			t.Logf("Got node %s (%s)", tn.MPath.ToString(), tn.GetName())
 			target = append(target, n)
 		}
 		So(target, ShouldNotBeEmpty)
@@ -693,8 +692,8 @@ func TestDestructiveCreateUser(t *testing.T) {
 		var target2 []interface{}
 		ch2 := mockDAO.GetNodeTree(context.Background(), tree.NewMPath(1))
 		for n := range ch2 {
-			tn := n.(*mtree.TreeNode)
-			t.Logf("Got node %s (%s)", tn.MPath.String(), tn.Name())
+			tn := n.(*user_model.User)
+			t.Logf("Got node %s (%s)", tn.MPath.ToString(), tn.GetName())
 			target2 = append(target2, n)
 		}
 		So(target2, ShouldNotBeEmpty)

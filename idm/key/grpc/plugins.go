@@ -23,15 +23,14 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
-	commonsql "github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/idm/key"
 )
 
@@ -39,25 +38,27 @@ const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceUserKey
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		var s service.Service
-		s = service.NewService(
-			service.Name(ServiceName),
-			service.Context(ctx),
-			service.Tag(common.ServiceTagIdm),
-			service.Description("Encryption Keys server"),
-			service.WithTODOStorage(key.NewDAO, commonsql.NewDAO,
-				service.WithStoragePrefix("idm_key"),
-				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-			),
-			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-				h, e := NewUserKeyStore(ctx, s)
-				if e != nil {
-					return e
-				}
-				encryption.RegisterUserKeyStoreEnhancedServer(server, h)
+		var srv grpc.ServiceRegistrar
+		if !server.Get(&srv) {
+			panic("no grpc server available")
+		}
 
-				return nil
-			}),
-		)
+		dao, err := key.NewDAO(ctx, storage.Main)
+		if err != nil {
+			panic(err)
+		}
+
+		opts := configx.New()
+
+		if err := dao.Init(ctx, opts); err != nil {
+			panic(err)
+		}
+
+		h, e := NewUserKeyStore(ctx, dao.(key.DAO))
+		if e != nil {
+			panic(e)
+		}
+
+		encryption.RegisterUserKeyStoreServer(srv, h)
 	})
 }

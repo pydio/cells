@@ -39,7 +39,7 @@ var (
 	_       DAO = (*sqlimpl)(nil)
 )
 
-type IndexSQL cindex.DAO[*tree.TreeNode]
+type IndexSQL cindex.DAO
 
 type sqlimpl struct {
 	db *gorm.DB
@@ -154,6 +154,7 @@ func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
 	if _, err := s.GetNode(ctx, mtree.NewMPath(1)); err != nil {
 		log.Logger(context.Background()).Info("Creating root node in index ")
 		treeNode := &tree.TreeNode{}
+		treeNode.SetMPath(tree.NewMPath(1))
 		treeNode.SetNode(&tree.Node{
 			Type:  tree.NodeType_COLLECTION,
 			Uuid:  "ROOT",

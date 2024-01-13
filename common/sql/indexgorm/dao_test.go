@@ -842,7 +842,7 @@ func TestGetNodeFirstAvailableChildIndex(t *testing.T) {
 				// Creating the fs
 				var nodes []tree.ITreeNode
 				for _, path := range fs {
-					_, createdNodes, err := dao.Path(ctx, tree.NewTreeNode(path), true)
+					_, createdNodes, err := dao.Path(ctx, tree.NewTreeNode(path), tree.NewTreeNode(""), true)
 					So(err, ShouldBeNil)
 
 					nodes = append(nodes, createdNodes...)
@@ -911,7 +911,7 @@ func TestArborescence(t *testing.T) {
 				fileScanner.Split(bufio.ScanLines)
 
 				for fileScanner.Scan() {
-					dao.Path(ctx, tree.NewTreeNode(fileScanner.Text()), true)
+					dao.Path(ctx, tree.NewTreeNode(fileScanner.Text()), tree.NewTreeNode(""), true)
 				}
 
 				fmt.Println("Finished scanning")
@@ -948,7 +948,7 @@ func TestSmallArborescence(t *testing.T) {
 				// Creating the arborescence
 				nodes := make(map[string]*tree.MPath)
 				for _, path := range arborescence {
-					mpath, _, err := dao.Path(ctx, tree.NewTreeNode(path), true)
+					mpath, _, err := dao.Path(ctx, tree.NewTreeNode(path), tree.NewTreeNode(""), true)
 					So(err, ShouldBeNil)
 					nodes[path] = mpath
 				}
@@ -956,9 +956,9 @@ func TestSmallArborescence(t *testing.T) {
 				dao.Flush(ctx, false)
 
 				// Then we move a node
-				pathFrom, _, err := dao.Path(ctx, tree.NewTreeNode("/test copie/1/2/3/4"), false)
+				pathFrom, _, err := dao.Path(ctx, tree.NewTreeNode("/test copie/1/2/3/4"), tree.NewTreeNode(""), false)
 				So(err, ShouldBeNil)
-				pathTo, _, err := dao.Path(ctx, tree.NewTreeNode("/document sans titre/target"), false)
+				pathTo, _, err := dao.Path(ctx, tree.NewTreeNode("/document sans titre/target"), tree.NewTreeNode(""), false)
 				So(err, ShouldBeNil)
 
 				dao.Flush(ctx, false)
@@ -978,10 +978,10 @@ func TestSmallArborescence(t *testing.T) {
 				err = dao.MoveNodeTree(ctx, nodeFrom, nodeTo)
 				So(err, ShouldBeNil)
 
-				_, _, err = dao.Path(ctx, tree.NewTreeNode("/document sans titre/target/whatever"), false)
+				_, _, err = dao.Path(ctx, tree.NewTreeNode("/document sans titre/target/whatever"), tree.NewTreeNode(""), false)
 				So(err, ShouldBeNil)
 
-				_, _, err = dao.Path(ctx, tree.NewTreeNode("/document sans titre/target/whatever2"), true)
+				_, _, err = dao.Path(ctx, tree.NewTreeNode("/document sans titre/target/whatever2"), tree.NewTreeNode(""), true)
 				So(err, ShouldBeNil)
 
 				// printTree(ctxWithCache)
@@ -1006,7 +1006,7 @@ func TestOtherArborescence(t *testing.T) {
 				}
 
 				for _, path := range arborescence {
-					_, _, err := dao.Path(ctx, tree.NewTreeNode(path), true)
+					_, _, err := dao.Path(ctx, tree.NewTreeNode(path), tree.NewTreeNode(""), true)
 					So(err, ShouldBeNil)
 				}
 
@@ -1026,7 +1026,7 @@ func TestFlatFolderWithMassiveChildren(t *testing.T) {
 				s := time.Now()
 				var nodes []tree.ITreeNode
 				for i = 0; i < 50; i++ {
-					_, node, _ := dao.Path(ctx, tree.NewTreeNode(fmt.Sprintf("/child-%d", i)), true)
+					_, node, _ := dao.Path(ctx, tree.NewTreeNode(fmt.Sprintf("/child-%d", i)), tree.NewTreeNode(""), true)
 					nodes = append(nodes, node[0])
 					if i > 0 && i%1000 == 0 {
 						t.Logf("Inserted %d - avg %v\n", i, time.Now().Sub(s)/1000)
@@ -1099,16 +1099,16 @@ func TestUnderscoreIssue(t *testing.T) {
 				}
 
 				for _, path := range arborescence {
-					_, _, err := dao.Path(ctx, tree.NewTreeNode(path), true)
+					_, _, err := dao.Path(ctx, tree.NewTreeNode(path), tree.NewTreeNode(""), true)
 					So(err, ShouldBeNil)
 				}
 				dao.Flush(ctx, true)
 
-				mp, _, err := dao.Path(ctx, tree.NewTreeNode("/Test_Folder"), false)
+				mp, _, err := dao.Path(ctx, tree.NewTreeNode("/Test_Folder"), tree.NewTreeNode(""), false)
 				So(err.Error(), ShouldEqual, "not found")
 				So(mp, ShouldBeNil)
 
-				mp, _, err = dao.Path(ctx, tree.NewTreeNode("/Test%Folder"), false)
+				mp, _, err = dao.Path(ctx, tree.NewTreeNode("/Test%Folder"), tree.NewTreeNode(""), false)
 				So(err.Error(), ShouldEqual, "not found")
 				So(mp, ShouldBeNil)
 			})

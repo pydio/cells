@@ -23,6 +23,7 @@ package docstore
 import (
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/pydio/cells/v4/common/dao/mongodb"
@@ -59,14 +60,14 @@ type mDoc struct {
 }
 
 type mongoImpl struct {
-	mongodb.DAO
+	*mongo.Database
 }
 
 func (m *mongoImpl) Init(ctx context.Context, conf configx.Values) error {
-	if e := model.Init(context.Background(), m.DAO); e != nil {
+	if e := model.Init(context.Background(), m.Database); e != nil {
 		return e
 	}
-	return m.DAO.Init(ctx, conf)
+	return nil
 }
 
 func (m *mongoImpl) PutDocument(storeID string, doc *docstore.Document) error {
@@ -172,10 +173,6 @@ func (m *mongoImpl) CountDocuments(storeID string, query *docstore.DocumentQuery
 
 func (m *mongoImpl) Reset() error {
 	return nil
-}
-
-func (m *mongoImpl) CloseDAO(c context.Context) error {
-	return m.CloseConn(c)
 }
 
 func (m *mongoImpl) toMdoc(storeId string, document *docstore.Document) *mDoc {

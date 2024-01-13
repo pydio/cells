@@ -121,6 +121,7 @@ func setContextForTenant(ctx context.Context) context.Context {
 	configStore[tenant] = cfg
 
 	ctx = servercontext.WithConfig(ctx, cfg)
+	ctx = servercontext.WithTenant(ctx, tenant)
 
 	return ctx
 }

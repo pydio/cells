@@ -141,6 +141,7 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 	defer close(resultsChan)
 	defer close(facetsChan)
 	defer close(doneChan)
+
 	var treeStreamer tree.NodeProviderStreamer_ReadNodeStreamClient
 	defer func() {
 		if treeStreamer != nil {
@@ -210,6 +211,7 @@ func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_Se
 	if err != nil {
 		return err
 	}
+
 	wg.Wait()
 	return nil
 }
@@ -283,7 +285,6 @@ func (s *SearchServer) TriggerResync(c context.Context, req *protosync.ResyncReq
 	}
 
 	return &protosync.ResyncResponse{Success: true}, nil
-
 }
 
 func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, excludes map[string]struct{}) {

@@ -26,15 +26,13 @@ package meta
 
 import (
 	"context"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
-
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/idm/meta/namespace"
+	"gorm.io/gorm"
 )
 
 // DAO interface
@@ -49,25 +47,16 @@ type DAO interface {
 	Search(query sql.Enquirer) ([]*idm.UserMeta, error)
 }
 
-func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
-	case sql.DAO:
-		dialector := sqlite.Open(v.Dsn())
-		db, err := gorm.Open(dialector, &gorm.Config{
-			//DisableForeignKeyConstraintWhenMigrating: true,
-			FullSaveAssociations: true,
-			Logger:               logger.Default.LogMode(logger.Info),
-		})
+func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+	var db *gorm.DB
+
+	if store.Get(ctx, &db) {
+		resourcesDAO, err := resources.NewDAO(ctx, store)
 		if err != nil {
 			return nil, err
 		}
 
-		resourcesDAO, err := resources.NewDAO(ctx, o)
-		if err != nil {
-			return nil, err
-		}
-
-		nsDAO, err := namespace.NewDAO(ctx, o)
+		nsDAO, err := namespace.NewDAO(ctx, store)
 		if err != nil {
 			return nil, err
 		}
@@ -78,5 +67,6 @@ func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
 			nsDAO:        nsDAO.(namespace.DAO),
 		}, nil
 	}
-	return nil, dao.UnsupportedDriver(o)
+
+	return nil, storage.UnsupportedDriver(store)
 }

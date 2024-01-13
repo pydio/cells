@@ -24,10 +24,10 @@ package grpc
 import (
 	"context"
 	"encoding/base64"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
+	"github.com/pydio/cells/v4/common/server"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
-	commonsql "github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"os"
 	"strings"
 
@@ -75,30 +75,44 @@ func init() {
 				}
 			}),
 			// service.WithStorage(user.NewDAO, service.WithStoragePrefix("idm_user")),
-			service.WithTODOStorage(
-				user.NewDAO, commonsql.NewDAO,
-				service.WithStoragePrefix("idm_user"),
-				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-			),
-			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-
-				idm.RegisterUserServiceServer(server, NewHandler(ctx, s))
-
-				// Register a cleaner for removing a workspace when there are no more ACLs on it.
-				cleaner := &RolesCleaner{Dao: service.WithDAO[user.DAO](s).DAO}
-				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
-					ev := &idm.ChangeEvent{}
-					if e := message.Unmarshal(ev); e == nil {
-						return cleaner.Handle(ctx, ev)
-					}
-					return nil
-				}); e != nil {
-					return e
-				}
-
-				return nil
-			}),
+			//service.WithTODOStorage(
+			//	user.NewDAO, commonsql.NewDAO,
+			//	service.WithStoragePrefix("idm_user"),
+			//	service.WithStorageSupport(mysql.Driver, sqlite.Driver),
+			//),
+			//service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
+			//
+			//	return nil
+			//}),
 		)
+
+		var srv grpc.ServiceRegistrar
+		if !server.Get(&srv) {
+			panic("no grpc server available")
+		}
+
+		dao, err := user.NewDAO(ctx, storage.Main)
+		if err != nil {
+			panic(err)
+		}
+
+		opts := configx.New()
+		dao.Init(ctx, opts)
+
+		idm.RegisterUserServiceServer(srv, NewHandler(ctx, s, dao.(user.DAO)))
+
+		// Register a cleaner for removing a workspace when there are no more ACLs on it.
+		cleaner := &RolesCleaner{Dao: dao.(user.DAO)}
+		if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
+			ev := &idm.ChangeEvent{}
+			if e := message.Unmarshal(ev); e == nil {
+				return cleaner.Handle(ctx, ev)
+			}
+			return nil
+		}); e != nil {
+			panic(e)
+		}
+
 	})
 }
 
@@ -192,14 +206,14 @@ func InitDefaults(ctx context.Context) error {
 
 // CreateIfNotExists creates a user if DAO.Bind() call returns a 404 error.
 func CreateIfNotExists(ctx context.Context, dao user.DAO, user *idm.User) (*idm.User, error) {
-	if _, err := dao.Bind(user.Login, user.Password); err != nil && errors.FromError(err).Code != 404 {
+	if _, err := dao.Bind(ctx, user.Login, user.Password); err != nil && errors.FromError(err).Code != 404 {
 		return nil, err
 	} else if err == nil {
 		log.Logger(ctx).Info("Skipping user " + user.Login + ", already exists")
 		return nil, nil
 	}
 	// User is not created yet, add it now
-	out, _, err := dao.Add(user)
+	out, _, err := dao.Add(ctx, user)
 	if err != nil {
 		return nil, err
 	}

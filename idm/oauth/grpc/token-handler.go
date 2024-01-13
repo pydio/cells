@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"github.com/ory/fosite"
-	"github.com/pydio/cells/v4/common/service"
 	"io"
 	"sync"
 	"time"
@@ -36,22 +35,20 @@ type PATHandler struct {
 	auth.UnimplementedAuthTokenVerifierServer
 	auth.UnimplementedPersonalAccessTokenServiceServer
 
-	service.Service
-	dao    func(ctx context.Context) oauth.DAO
+	dao    oauth.DAO
 	config fosite.Configurator
 	name   string
 }
 
-func NewPATHandler(svc service.Service, config fosite.Configurator) *PATHandler {
+func NewPATHandler(dao oauth.DAO, config fosite.Configurator) *PATHandler {
 	return &PATHandler{
-		Service: svc,
-		dao:     service.DAOProvider[oauth.DAO](svc),
-		config:  config,
+		dao:    dao,
+		config: config,
 	}
 }
 
 func (p *PATHandler) getDao(ctx context.Context) oauth.DAO {
-	return p.dao(ctx)
+	return p.dao
 }
 
 func (p *PATHandler) getStrategy() *hmac.HMACStrategy {

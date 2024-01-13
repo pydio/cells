@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/options/orm"
 	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
@@ -429,11 +430,13 @@ func (dao *IndexSQL[T]) GetNodes(ctx context.Context, mpathes ...*tree.MPath) ch
 	go func() {
 		defer close(c)
 
-		nodes := []tree.ITreeNode{}
+		nodes := []T{}
 
 		tx := dao.instance(ctx)
 
-		tx = tx.Where(tree.MPathsEquals{Values: mpathes})
+		if len(mpathes) > 0 {
+			tx = tx.Where(tree.MPathsEquals{Values: mpathes})
+		}
 
 		tx = tx.
 			Order("mpath1, mpath2, mpath3, mpath4").
@@ -794,6 +797,7 @@ func (dao *IndexSQL[T]) MoveNodeTree(ctx context.Context, nodeFrom tree.ITreeNod
 
 	if tx := dao.instance(ctx).
 		Model(model).
+		Omit("uuid").
 		Where(nodeFrom).
 		Updates(nodeTo); tx.Error != nil {
 		return tx.Error
@@ -948,7 +952,7 @@ func Path(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tr
 		}
 
 		if currentNode.GetNode().GetUuid() == "" {
-			currentNode.GetNode().SetUuid(fmt.Sprintf("%d", time.Now().UnixNano()))
+			currentNode.GetNode().SetUuid(uuid.New())
 		}
 
 		if currentNode.GetNode().GetEtag() == "" {
@@ -991,14 +995,14 @@ func Path(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tr
 	return mpath, append(createdNodes, currentNode), err
 }
 
-func (dao *IndexSQL[T]) Path(ctx context.Context, node tree.ITreeNode, create bool) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
+func (dao *IndexSQL[T]) Path(ctx context.Context, node tree.ITreeNode, rootNode tree.ITreeNode, create bool) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
 	//dao.instance(ctx).Transaction(func(tx *gorm.DB) error {
 	clone := *dao
 	clone.instance = func(ctx context.Context) *gorm.DB {
 		return dao.instance(ctx)
 	}
 
-	mpath, nodeTree, err = Path(ctx, &clone, node, dao.factory.Struct(), create)
+	mpath, nodeTree, err = Path(ctx, &clone, node, rootNode, create)
 
 	//return nil
 	//})

@@ -244,16 +244,18 @@ func (s *ResourcesGORM) Convert(val *anypb.Any, in any) (out any, ok bool) {
 		return in, false
 	}
 
-	if q.Empty {
-		subQuery := db.Model(&service.ResourcePolicyORM{}).Select("resource").Where(&service.ResourcePolicyORM{Action: service.ResourcePolicyAction_ANY})
+	db = db.Session(&gorm.Session{})
 
-		return db.Not("uuid IN(?)", subQuery), true
+	if q.Empty {
+		subQuery := s.instance().Select("resource").Where(&service.ResourcePolicyORM{Action: service.ResourcePolicyAction_ANY})
+
+		db = db.Not("uuid IN(?)", subQuery)
 	} else {
 		subjects := q.GetSubjects()
 
-		subQuery := db.Model(&service.ResourcePolicyORM{}).Select("resource")
+		subQuery := s.instance().Select("resource")
 		if len(subjects) > 0 {
-			subjectQuery := db.Session(&gorm.Session{})
+			subjectQuery := s.instance()
 			for i, subject := range subjects {
 				if i == 0 {
 					subjectQuery = subjectQuery.Where(&service.ResourcePolicyORM{Subject: subject})
@@ -262,9 +264,14 @@ func (s *ResourcesGORM) Convert(val *anypb.Any, in any) (out any, ok bool) {
 				}
 			}
 
-			subQuery.Where(&service.ResourcePolicyORM{Action: service.ResourcePolicyAction_ANY}).Where(subjectQuery)
+			subQuery = subQuery.Where(&service.ResourcePolicyORM{Action: service.ResourcePolicyAction_ANY}).Where(subjectQuery)
 		}
 
-		return db.Where("uuid IN (?)", subQuery), true
+		db = db.Where("uuid IN (?)", subQuery)
 	}
+
+	out = db
+	ok = true
+
+	return
 }

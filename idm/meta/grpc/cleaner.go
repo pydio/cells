@@ -23,6 +23,8 @@ package grpc
 import (
 	"context"
 	"fmt"
+	pbservice "github.com/pydio/cells/v4/common/proto/service"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -33,10 +35,10 @@ import (
 
 // Cleaner cleans bookmarks on user deletion
 type Cleaner struct {
-	dao func(ctx context.Context) meta.DAO
+	dao meta.DAO
 }
 
-func NewCleaner(dao func(ctx context.Context) meta.DAO) *Cleaner {
+func NewCleaner(dao meta.DAO) *Cleaner {
 	c := &Cleaner{}
 	c.dao = dao
 	return c
@@ -48,15 +50,28 @@ func (c *Cleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 		return nil
 	}
 	go func() {
+		searchUserMetaAny, err := anypb.New(&idm.SearchUserMetaRequest{
+			Namespace: namespace.ReservedNamespaceBookmark,
+		})
+		if err != nil {
+			return
+		}
+
+		query := &pbservice.Query{
+			SubQueries: []*anypb.Any{
+				searchUserMetaAny,
+			},
+		}
+
 		// Remove user bookmarks
-		metas, e := c.dao(ctx).Search(nil, nil, namespace.ReservedNamespaceBookmark, msg.User.Uuid, nil)
+		metas, e := c.dao.Search(query)
 		if e != nil || len(metas) == 0 {
 			return
 		}
 		ctx = servicecontext.WithServiceName(ctx, Name)
 		log.Logger(ctx).Info(fmt.Sprintf("Cleaning %d bookmarks for user %s", len(metas), msg.User.Login))
 		for _, m := range metas {
-			c.dao(ctx).Del(m)
+			c.dao.Del(m)
 		}
 	}()
 

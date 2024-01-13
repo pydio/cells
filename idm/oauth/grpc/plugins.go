@@ -24,10 +24,7 @@ package grpc
 import (
 	"context"
 	"github.com/ory/fosite"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
-	commonsql "github.com/pydio/cells/v4/common/sql"
-	"go.uber.org/zap"
+	"github.com/pydio/cells/v4/common/server"
 	"log"
 
 	log2 "github.com/pydio/cells/v4/common/log"
@@ -51,73 +48,83 @@ var (
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
 
+		var srv grpc.ServiceRegistrar
+		if !server.Get(&srv) {
+			panic("no grpc server available")
+		}
+
+		h := &Handler{name: Name}
+		auth2.RegisterAuthTokenVerifierServer(srv, h)
+		auth2.RegisterLoginProviderServer(srv, h)
+		auth2.RegisterConsentProviderServer(srv, h)
+		auth2.RegisterLogoutProviderServer(srv, h)
+		auth2.RegisterAuthCodeProviderServer(srv, h)
+		auth2.RegisterAuthCodeExchangerServer(srv, h)
+		auth2.RegisterAuthTokenRefresherServer(srv, h)
+		auth2.RegisterAuthTokenRevokerServer(srv, h)
+		auth2.RegisterAuthTokenPrunerServer(srv, h)
+		auth2.RegisterPasswordCredentialsTokenServer(srv, h)
+
+		watcher, _ := config.Watch(configx.WithPath("services", common.ServiceWebNamespace_+common.ServiceOAuth))
+		go func() {
+			for {
+				values, er := watcher.Next()
+				if er != nil {
+					break
+				}
+				log2.Logger(ctx).Info("Reloading configurations for OAuth services")
+				auth.InitConfiguration(values.(configx.Values))
+			}
+		}()
+
+		// Registry initialization
+		// Blocking on purpose, as it should block login
+		//er := auth.InitRegistry(ctx, Name)
+		//if er == nil {
+		//	log2.Logger(ctx).Info("Finished auth.InitRegistry")
+		//} else {
+		//	log2.Logger(ctx).Info("Error while applying auth.InitRegistry", zap.Error(er))
+		//}
+
+		dao, err := oauth.NewDAO(ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		opts := configx.New()
+		dao.Init(ctx, opts)
+
+		pat := NewPATHandler(dao.(oauth.DAO), &fosite.Config{})
+		auth2.RegisterPersonalAccessTokenServiceServer(srv, pat)
+		auth2.RegisterAuthTokenVerifierServer(srv, pat)
+		auth2.RegisterAuthTokenPrunerServer(srv, pat)
+
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagAuth),
 			service.Description("OAuth Provider"),
-			service.Migrations([]*service.Migration{
-				{
-					TargetVersion: service.FirstRun(),
-					Up:            oauth.InsertPruningJob,
-				},
-			}),
-			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-				h := &Handler{name: Name}
-
-				auth2.RegisterAuthTokenVerifierEnhancedServer(server, h)
-				auth2.RegisterLoginProviderEnhancedServer(server, h)
-				auth2.RegisterConsentProviderEnhancedServer(server, h)
-				auth2.RegisterLogoutProviderEnhancedServer(server, h)
-				auth2.RegisterAuthCodeProviderEnhancedServer(server, h)
-				auth2.RegisterAuthCodeExchangerEnhancedServer(server, h)
-				auth2.RegisterAuthTokenRefresherEnhancedServer(server, h)
-				auth2.RegisterAuthTokenRevokerEnhancedServer(server, h)
-				auth2.RegisterAuthTokenPrunerEnhancedServer(server, h)
-				auth2.RegisterPasswordCredentialsTokenEnhancedServer(server, h)
-
-				watcher, _ := config.Watch(configx.WithPath("services", common.ServiceWebNamespace_+common.ServiceOAuth))
-				go func() {
-					for {
-						values, er := watcher.Next()
-						if er != nil {
-							break
-						}
-						log2.Logger(ctx).Info("Reloading configurations for OAuth services")
-						auth.InitConfiguration(values.(configx.Values))
-					}
-				}()
-
-				// Registry initialization
-				// Blocking on purpose, as it should block login
-				er := auth.InitRegistry(ctx, Name)
-				if er == nil {
-					log2.Logger(ctx).Info("Finished auth.InitRegistry")
-				} else {
-					log2.Logger(ctx).Info("Error while applying auth.InitRegistry", zap.Error(er))
-				}
-				return er
-			}),
+			//service.Migrations([]*service.Migration{
+			//	{
+			//		TargetVersion: service.FirstRun(),
+			//		Up:            oauth.InsertPruningJob,
+			//	},
+			//}),
 		)
 
-		var s service.Service
-
-		s = service.NewService(
+		service.NewService(
 			service.Name(common.ServiceGrpcNamespace_+common.ServiceToken),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Personal Access Token Provider"),
-			service.WithTODOStorage(oauth.NewDAO, commonsql.NewDAO,
-				service.WithStoragePrefix("idm_oauth_"),
-				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-			),
-			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-				pat := NewPATHandler(s, &fosite.Config{})
-				auth2.RegisterPersonalAccessTokenServiceEnhancedServer(server, pat)
-				auth2.RegisterAuthTokenVerifierEnhancedServer(server, pat)
-				auth2.RegisterAuthTokenPrunerEnhancedServer(server, pat)
-				return nil
-			}),
+			//service.WithTODOStorage(oauth.NewDAO, commonsql.NewDAO,
+			//	service.WithStoragePrefix("idm_oauth_"),
+			//	service.WithStorageSupport(mysql.Driver, sqlite.Driver),
+			//),
+			//service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
+			//
+			//	return nil
+			//}),
 		)
 
 		auth.OnConfigurationInit(func(scanner configx.Scanner) {

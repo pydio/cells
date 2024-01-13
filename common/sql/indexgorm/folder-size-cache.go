@@ -127,8 +127,8 @@ func (dao *FolderSizeCacheSQL) GetNodeTree(ctx context.Context, path *tree.MPath
 	return c
 }
 
-func (dao *FolderSizeCacheSQL) Path(ctx context.Context, node tree.ITreeNode, create bool) (*tree.MPath, []tree.ITreeNode, error) {
-	mpath, nodes, err := dao.DAO.Path(ctx, node, create)
+func (dao *FolderSizeCacheSQL) Path(ctx context.Context, node tree.ITreeNode, rootNode tree.ITreeNode, create bool) (*tree.MPath, []tree.ITreeNode, error) {
+	mpath, nodes, err := dao.DAO.Path(ctx, node, tree.NewTreeNode(""), create)
 
 	if create {
 		go dao.invalidateMPathHierarchy(mpath, -1)

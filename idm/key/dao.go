@@ -23,13 +23,10 @@ package key
 
 import (
 	"context"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
-
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/storage"
+	"gorm.io/gorm"
 )
 
 // DAO is a protocol for user key storing
@@ -41,19 +38,12 @@ type DAO interface {
 	DeleteKey(owner string, keyID string) error
 }
 
-func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
-	case sql.DAO:
-		dialector := sqlite.Open(v.Dsn())
-		db, err := gorm.Open(dialector, &gorm.Config{
-			//DisableForeignKeyConstraintWhenMigrating: true,
-			FullSaveAssociations: true,
-			Logger:               logger.Default.LogMode(logger.Info),
-		})
-		if err != nil {
-			return nil, err
-		}
+func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+	var db *gorm.DB
+
+	if store.Get(ctx, &db) {
 		return &sqlimpl{db: db}, nil
 	}
-	return nil, dao.UnsupportedDriver(o)
+
+	return nil, storage.UnsupportedDriver(store)
 }

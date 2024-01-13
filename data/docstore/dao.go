@@ -26,14 +26,15 @@ package docstore
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"github.com/blevesearch/bleve/v2"
 	"github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/storage"
+	"go.etcd.io/bbolt"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type DAO interface {
-	dao.DAO
+	// dao.DAO
 	PutDocument(storeID string, doc *docstore.Document) error
 	GetDocument(storeID string, docId string) (*docstore.Document, error)
 	DeleteDocument(storeID string, docID string) error
@@ -44,54 +45,62 @@ type DAO interface {
 	Reset() error
 }
 
-func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
-	case boltdb.DAO:
-		return NewBleveEngine(v, false)
-	case mongodb.DAO:
+var _ DAO = (*BleveServer)(nil)
+
+func NewDAO(ctx context.Context) (DAO, error) {
+	var boltdb *bbolt.DB
+	var bleveIndex bleve.Index
+	if storage.Get(ctx, &boltdb) && storage.Get(ctx, &bleveIndex) {
+		return NewBleveEngine(boltdb, bleveIndex)
+	}
+
+	var cli *mongo.Client
+	if storage.Get(ctx, &cli) {
 		return &mongoImpl{
-			DAO: v,
+			Database: cli.Database("test"),
 		}, nil
 	}
-	return nil, dao.UnsupportedDriver(o)
+
+	return nil, storage.NotFound
+
 }
 
-func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
-	ctx := context.Background()
-	out := map[string]int{
-		"Stores":    0,
-		"Documents": 0,
-	}
-	var from, to DAO
-	if df, e := NewDAO(ctx, f); e == nil {
-		from = df.(DAO)
-	} else {
-		return out, e
-	}
-	if dt, e := NewDAO(ctx, t); e == nil {
-		to = dt.(DAO)
-	} else {
-		return out, e
-	}
-	ss, e := from.ListStores()
-	if e != nil {
-		return nil, e
-	}
-	for _, store := range ss {
-		docs, e := from.QueryDocuments(store, nil)
-		if e != nil {
-			return nil, e
-		}
-		for doc := range docs {
-			if dryRun {
-				out["Documents"]++
-			} else if er := to.PutDocument(store, doc); er == nil {
-				out["Documents"]++
-			} else {
-				continue
-			}
-		}
-		out["Stores"]++
-	}
-	return out, nil
-}
+//func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
+//	ctx := context.Background()
+//	out := map[string]int{
+//		"Stores":    0,
+//		"Documents": 0,
+//	}
+//	var from, to DAO
+//	if df, e := NewDAO(ctx, f); e == nil {
+//		from = df.(DAO)
+//	} else {
+//		return out, e
+//	}
+//	if dt, e := NewDAO(ctx, t); e == nil {
+//		to = dt.(DAO)
+//	} else {
+//		return out, e
+//	}
+//	ss, e := from.ListStores()
+//	if e != nil {
+//		return nil, e
+//	}
+//	for _, store := range ss {
+//		docs, e := from.QueryDocuments(store, nil)
+//		if e != nil {
+//			return nil, e
+//		}
+//		for doc := range docs {
+//			if dryRun {
+//				out["Documents"]++
+//			} else if er := to.PutDocument(store, doc); er == nil {
+//				out["Documents"]++
+//			} else {
+//				continue
+//			}
+//		}
+//		out["Stores"]++
+//	}
+//	return out, nil
+//}

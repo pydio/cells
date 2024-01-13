@@ -123,8 +123,8 @@ func (s *sqlImpl) Init(ctx context.Context, options configx.Values) error {
 }
 
 func (s *sqlImpl) Load(accessToken string) (*auth.PersonalAccessToken, error) {
-	s.Lock()
-	defer s.Unlock()
+	//s.Lock()
+	//defer s.Unlock()
 
 	token := &PersonalToken{}
 	tx := s.instance().
@@ -143,8 +143,8 @@ func (s *sqlImpl) Load(accessToken string) (*auth.PersonalAccessToken, error) {
 }
 
 func (s *sqlImpl) Store(accessToken string, token *auth.PersonalAccessToken, update bool) error {
-	s.Lock()
-	defer s.Unlock()
+	//s.Lock()
+	//defer s.Unlock()
 
 	if update {
 		tx := s.instance().Where(&PersonalToken{UUID: token.Uuid}).Update("expire_at", token.ExpiresAt)
@@ -165,8 +165,8 @@ func (s *sqlImpl) Store(accessToken string, token *auth.PersonalAccessToken, upd
 }
 
 func (s *sqlImpl) Delete(patUuid string) error {
-	s.Lock()
-	defer s.Unlock()
+	//s.Lock()
+	//defer s.Unlock()
 
 	tx := s.instance().Where(&PersonalToken{UUID: patUuid}).Delete(&PersonalToken{})
 	if tx.Error != nil {
@@ -176,8 +176,8 @@ func (s *sqlImpl) Delete(patUuid string) error {
 }
 
 func (s *sqlImpl) List(byType auth.PatType, byUser string) ([]*auth.PersonalAccessToken, error) {
-	s.Lock()
-	defer s.Unlock()
+	//s.Lock()
+	//defer s.Unlock()
 
 	var pts []*PersonalToken
 	var res []*auth.PersonalAccessToken

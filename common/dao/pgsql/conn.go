@@ -23,6 +23,7 @@ package pgsql
 import (
 	"context"
 	"database/sql"
+	"github.com/lib/pq"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/dao"
@@ -88,4 +89,9 @@ func (m *conn) SetMaxConnectionsForWeight(num int) {
 
 	m.conn.SetMaxOpenConns(maxConns)
 	m.conn.SetMaxIdleConns(maxIdleConns)
+}
+
+func IsPostGreConn(conn any) bool {
+	_, ok := conn.(*pq.Driver)
+	return ok
 }

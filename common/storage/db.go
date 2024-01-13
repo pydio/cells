@@ -1,35 +1,42 @@
 package storage
 
-type ProviderFunc func(driver string, dsn string) Storage
+import "context"
+
+type ProviderFunc func() Storage
 
 type Provider interface {
-	Provide(driver string) ProviderFunc
+	Provide(conn any) ProviderFunc
 }
 
 type Storage interface {
-	Register(driver string, dsn string, tenant string, service string)
-	Get(interface{}) bool
-}
-
-var providers []Provider
-
-func New(name string, driver string, dsn string) Storage {
-	for _, provider := range providers {
-		if p := provider.Provide(driver); p != nil {
-			store := p(driver, dsn)
-			storages = append(storages, store)
-			return store
-		}
-	}
-
-	return nil
+	Provides(conn any) bool
+	Register(conn any, tenant string, service string)
+	Get(ctx context.Context, out interface{}) bool
 }
 
 var storages []Storage
 
-func Get(out interface{}) bool {
+func Provides(conn any) bool {
+	for _, storage := range storages {
+		if storage.Provides(conn) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func Register(conn any, tenant string, service string) {
+	for _, storage := range storages {
+		if storage.Provides(conn) {
+			storage.Register(conn, tenant, service)
+		}
+	}
+}
+
+func Get(ctx context.Context, out interface{}) bool {
 	for _, store := range storages {
-		if store.Get(out) {
+		if store.Get(ctx, out) {
 			return true
 		}
 	}

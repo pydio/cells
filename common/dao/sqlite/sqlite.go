@@ -25,7 +25,7 @@ import (
 	"database/sql"
 
 	_ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
-	_ "github.com/mattn/go-sqlite3"
+	sqlite3 "github.com/mattn/go-sqlite3"
 
 	"github.com/pydio/cells/v4/common/dao"
 	commonsql "github.com/pydio/cells/v4/common/sql"
@@ -51,4 +51,10 @@ func (s *conn) GetConn(ctx context.Context) (dao.Conn, error) {
 
 func (s *conn) SetMaxConnectionsForWeight(num int) {
 	// Not implemented
+}
+
+func IsSQLiteConn(conn any) bool {
+	_, ok := conn.(*sqlite3.SQLiteDriver)
+
+	return ok
 }

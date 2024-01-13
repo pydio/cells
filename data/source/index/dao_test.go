@@ -233,12 +233,12 @@ func testAll(t *testing.T, f func(dao DAO) func(*testing.T)) {
 	}
 
 	for _, db := range dbs {
-		store := storage.New("test", db.driver, db.dsn)
+		storage.Main.Register(db.driver, db.dsn, "", "")
 
 		var gormDB *gorm.DB
-		store.Get(&gormDB)
+		storage.Main.Get(&gormDB)
 
-		dao := db.wrapper(store).(DAO)
+		dao := db.wrapper(storage.Main).(DAO)
 		dao.Init(context.TODO(), configx.New())
 
 		// First make sure that we delete everything
@@ -364,7 +364,7 @@ func TestMysql(t *testing.T) {
 				// Setting MTime to 0 so we can compare
 				node.GetNode().SetMTime(0)
 
-				So(node.Node, ShouldResemble, mockNode.Node)
+				So(node.GetNode(), ShouldResemble, mockNode.Node)
 			})
 
 			// Setting a file
@@ -389,7 +389,7 @@ func TestMysql(t *testing.T) {
 				node.GetNode().SetMTime(0)
 				node.GetNode().SetPath(mockLongNodeChild2.GetNode().GetPath())
 
-				So(node.Node, ShouldResemble, mockLongNodeChild2.Node)
+				So(node.GetNode(), ShouldResemble, mockLongNodeChild2.Node)
 			})
 
 			Convey("Test Getting a node by uuid - Success", t, func() {

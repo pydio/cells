@@ -25,7 +25,10 @@ import (
 	"embed"
 	"errors"
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/log"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"strconv"
 	"time"
 
 	"google.golang.org/protobuf/proto"
@@ -56,28 +59,31 @@ var (
 )
 
 type ACL struct {
-	ID          string    `gorm:"primaryKey; column:action_name"`
+	ID          int       `gorm:"primaryKey; column:id; autoIncrement;"`
 	ActionName  string    `gorm:"column:action_name"`
 	ActionValue string    `gorm:"column:action_value"`
-	Role        Role      `gorm:"column:role_id; defaultValue: -1"`
-	Workspace   Workspace `gorm:"column:workspace_id; defaultValue: -1"`
-	Node        Node      `gorm:"column:node_id; defaultValue: -1"`
+	RoleID      int       `gorm:"column:role_id; default: -1"`
+	WorkspaceID int       `gorm:"column:workspace_id; default: -1"`
+	NodeID      int       `gorm:"column:node_id; default: -1"`
+	Role        Role      `gorm:"foreignKey:RoleID"`
+	Workspace   Workspace `gorm:"foreignKey:WorkspaceID"`
+	Node        Node      `gorm:"foreignKey:NodeID"`
 	Expiry      time.Time `gorm:"expiry_date"`
 }
 
 type Role struct {
-	ID   int    `gorm:"primaryKey; column:id"`
-	UUID string `gorm:"column:uuid"`
+	ID   int    `gorm:"primaryKey; column:id; autoIncrement;"`
+	UUID string `gorm:"column:uuid; unique"`
 }
 
 type Workspace struct {
-	ID   int    `gorm:"primaryKey; column:id"`
-	UUID string `gorm:"column:uuid"`
+	ID   int    `gorm:"primaryKey; column:id; autoIncrement;"`
+	UUID string `gorm:"column:uuid; unique"`
 }
 
 type Node struct {
-	ID   int    `gorm:"primaryKey; column:id"`
-	UUID string `gorm:"column:uuid"`
+	ID   int    `gorm:"primaryKey; column:id; autoIncrement;"`
+	UUID string `gorm:"column:uuid; unique"`
 }
 
 type sqlimpl struct {
@@ -177,48 +183,40 @@ func (s *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 		return errors.New("Missing action value")
 	}
 
-	/*workspaceID := "-1"
-	if val.WorkspaceID != "" {
-		id, err := s.addWorkspace(val.WorkspaceID)
-		if err != nil {
-			return err
+	workspace := Workspace{UUID: val.GetWorkspaceID()}
+	if workspace.UUID != "" {
+		workspace.UUID = val.GetWorkspaceID()
+
+		tx := s.instance(context.TODO()).FirstOrCreate(&workspace)
+		if tx.Error != nil {
+			return tx.Error
 		}
-		workspaceID = id
 	}
 
-	nodeID := "-1"
-	if val.NodeID != "" {
-		id, err := s.addNode(val.NodeID)
-		if err != nil {
-			return err
+	node := Node{UUID: val.GetNodeID()}
+	if node.UUID != "" {
+		tx := s.instance(context.TODO()).FirstOrCreate(&node)
+		if tx.Error != nil {
+			return tx.Error
 		}
-		nodeID = id
 	}
 
-	roleID := "-1"
-	if val.RoleID != "" {
-		id, err := s.addRole(val.RoleID)
-		if err != nil {
-			return err
+	role := Role{UUID: val.GetRoleID()}
+	if role.UUID != "" {
+		tx := s.instance(context.TODO()).FirstOrCreate(&role)
+		if tx.Error != nil {
+			return tx.Error
 		}
-		roleID = id
 	}
 
-	log.Logger(context.Background()).Debug("AddACL",
-		zap.String("r", roleID), zap.String("w", workspaceID), zap.String("n", nodeID), zap.Any("value", val))*/
+	log.Logger(context.Background()).Debug("AddACL", zap.String("r", role.UUID), zap.String("w", workspace.UUID), zap.String("n", node.UUID), zap.Any("value", val))
 
 	acl := ACL{
 		ActionName:  val.Action.Name,
 		ActionValue: val.Action.Value,
-		Role: Role{
-			UUID: val.RoleID,
-		},
-		Workspace: Workspace{
-			UUID: val.WorkspaceID,
-		},
-		Node: Node{
-			UUID: val.NodeID,
-		},
+		Role:        role,
+		Workspace:   workspace,
+		Node:        node,
 	}
 
 	tx := s.instance(context.TODO()).Create(&acl)
@@ -226,7 +224,7 @@ func (s *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 		return tx.Error
 	}
 
-	val.ID = acl.ID
+	val.ID = strconv.Itoa(acl.ID)
 
 	// TODO - duplicate
 
@@ -255,7 +253,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, out *[]interface{}, period *Expirat
 		val := new(idm.ACL)
 		action := new(idm.ACLAction)
 
-		val.ID = acl.ID
+		val.ID = strconv.Itoa(acl.ID)
 		val.NodeID = acl.Node.UUID
 		val.RoleID = acl.Role.UUID
 		val.WorkspaceID = acl.Workspace.UUID
