@@ -23,6 +23,7 @@ package activity
 import (
 	"context"
 	"fmt"
+	"go.mongodb.org/mongo-driver/mongo"
 	"time"
 
 	"github.com/pkg/errors"
@@ -35,7 +36,6 @@ import (
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/activity"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -74,7 +74,7 @@ var (
 )
 
 type mongoimpl struct {
-	mongodb.DAO
+	*mongo.Database
 }
 
 type docMarker struct {
@@ -97,12 +97,12 @@ type docActivityProjection struct {
 	AcId string `bson:"ac_id"`
 }
 
-func (m *mongoimpl) Init(ctx context.Context, values configx.Values) error {
-	if er := model.Init(ctx, m.DAO); er != nil {
-		return er
-	}
-	return m.DAO.Init(ctx, values)
-}
+//func (m *mongoimpl) Init(ctx context.Context, values configx.Values) error {
+//	if er := model.Init(ctx, m.DAO); er != nil {
+//		return er
+//	}
+//	return m.DAO.Init(ctx, values)
+//}
 
 func (m *mongoimpl) UpdateSubscription(ctx context.Context, subscription *activity.Subscription) error {
 	selector := bson.D{

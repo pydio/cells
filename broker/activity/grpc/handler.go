@@ -43,7 +43,6 @@ import (
 type Handler struct {
 	proto.UnimplementedActivityServiceServer
 	RuntimeCtx context.Context
-	dao        activity.DAO
 }
 
 func (h *Handler) Name() string {
@@ -52,6 +51,8 @@ func (h *Handler) Name() string {
 
 func (h *Handler) PostActivity(stream proto.ActivityService_PostActivityServer) error {
 	ctx := stream.Context()
+
+	dao := activity.NewDAO(ctx)
 	for {
 		request, e := stream.Recv()
 		if e == io.EOF {

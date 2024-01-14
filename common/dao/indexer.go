@@ -37,7 +37,6 @@ type IndexIDProvider interface {
 // IndexDAO is a rich DAO with ready-to-use inserts + search capacities.
 // It must be initialised with a proper DAO and a proper IndexCodex.
 type IndexDAO interface {
-	DAO
 	// SetCodex sets the IndexCodex to be used for marshalling/unmarshalling data. Can be locally overriden during FindMany requests.
 	SetCodex(c IndexCodex)
 	// InsertOne stores one document. Write operations may be batched underneath.

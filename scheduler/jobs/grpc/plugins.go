@@ -61,8 +61,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
 			service.Description("Store for scheduler jobs description"),
-			// service.Unique(true),
-			// service.Fork(true),
 			service.WithStorage(jobs.NewDAO,
 				service.WithStoragePrefix("jobs"),
 				service.WithStorageMigrator(jobs.Migrate),
@@ -107,14 +105,13 @@ func init() {
 			}),
 			service.WithGRPC(func(c context.Context, server grpc.ServiceRegistrar) error {
 
-				store := servicecontext.GetDAO(c).(jobs.DAO)
 				index := servicecontext.GetIndexer(c).(dao.IndexDAO)
 
-				logStore, err := log.NewIndexService(index)
+				logStore, err := log.NewIndexService()
 				if err != nil {
 					return err
 				}
-				handler := NewJobsHandler(c, store, logStore)
+				handler := NewJobsHandler(c, logStore)
 				proto.RegisterJobServiceEnhancedServer(server, handler)
 				log2.RegisterLogRecorderEnhancedServer(server, handler)
 				sync.RegisterSyncEndpointEnhancedServer(server, handler)

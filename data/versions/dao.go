@@ -23,15 +23,15 @@ package versions
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/storage"
+	"go.etcd.io/bbolt"
+	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 type DAO interface {
-	dao.DAO
+	// dao.DAO
 	GetLastVersion(nodeUuid string) (*tree.ChangeLog, error)
 	GetVersions(nodeUuid string) (chan *tree.ChangeLog, error)
 	GetVersion(nodeUuid string, versionId string) (*tree.ChangeLog, error)
@@ -41,55 +41,58 @@ type DAO interface {
 	ListAllVersionedNodesUuids() (chan string, chan bool, chan error)
 }
 
-func NewDAO(c context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
-	case boltdb.DAO:
-		return NewBoltStore(v, v.DB().Path(), false)
-	case mongodb.DAO:
-		mStore := &mongoStore{DAO: v}
-		return mStore, nil
+func NewDAO(ctx context.Context) (DAO, error) {
+	var boltdb *bbolt.DB
+	if storage.Get(ctx, &boltdb) {
+		return NewBoltStore(boltdb)
 	}
-	return nil, dao.UnsupportedDriver(o)
+
+	var cli *mongo.Client
+	if storage.Get(ctx, &cli) {
+		return &mongoStore{Database: cli.Database("test")}, nil
+	}
+
+	return nil, storage.NotFound
 }
 
-func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
-	ctx := context.Background()
-	out := map[string]int{
-		"Versions": 0,
-	}
-	var from, to DAO
-	if df, e := NewDAO(ctx, f); e == nil {
-		from = df.(DAO)
-	} else {
-		return out, e
-	}
-	if dt, e := NewDAO(ctx, t); e == nil {
-		to = dt.(DAO)
-	} else {
-		return out, e
-	}
-	uuids, done, errs := from.ListAllVersionedNodesUuids()
-	var e error
-loop1:
-	for {
-		select {
-		case id := <-uuids:
-			versions, _ := from.GetVersions(id)
-			for version := range versions {
-				if dryRun {
-					out["Versions"]++
-				} else if er := to.StoreVersion(id, version); er == nil {
-					out["Versions"]++
-				} else {
-					continue
-				}
-			}
-			break loop1
-		case e = <-errs:
-			break loop1
-		case <-done:
-			break loop1
-		}
-	}
-	return out, e
-}
+//func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
+//	ctx := context.Background()
+//	out := map[string]int{
+//		"Versions": 0,
+//	}
+//	var from, to DAO
+//	if df, e := NewDAO(ctx, f); e == nil {
+//		from = df.(DAO)
+//	} else {
+//		return out, e
+//	}
+//	if dt, e := NewDAO(ctx, t); e == nil {
+//		to = dt.(DAO)
+//	} else {
+//		return out, e
+//	}
+//	uuids, done, errs := from.ListAllVersionedNodesUuids()
+//	var e error
+//loop1:
+//	for {
+//		select {
+//		case id := <-uuids:
+//			versions, _ := from.GetVersions(id)
+//			for version := range versions {
+//				if dryRun {
+//					out["Versions"]++
+//				} else if er := to.StoreVersion(id, version); er == nil {
+//					out["Versions"]++
+//				} else {
+//					continue
+//				}
+//			}
+//			break loop1
+//		case e = <-errs:
+//			break loop1
+//		case <-done:
+//			break loop1
+//		}
+//	}
+//	return out, e
+//}

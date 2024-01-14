@@ -9,23 +9,24 @@ import (
 )
 
 type IndexService struct {
-	dao dao.IndexDAO
+	dao.IndexDAO
 }
 
-func NewIndexService(dao dao.IndexDAO) (MessageRepository, error) {
-	is := &IndexService{dao: dao}
+func NewIndexService() (MessageRepository, error) {
+	is := &IndexService{}
 	return is, nil
 }
 
 // PutLog  adds a new LogMessage in the syslog index.
-func (s *IndexService) PutLog(line *log.Log) error {
+func (s *IndexService) PutLog(ctx context.Context, line *log.Log) error {
+	dao := dao.IndexDAO{DAO(ctx)
 	return s.dao.InsertOne(nil, line)
 }
 
 // ListLogs performs a query in the bleve index, based on the passed query string.
 // It returns results as a stream of log.ListLogResponse for each corresponding hit.
 // Results are ordered by descending timestamp rather than by score.
-func (s *IndexService) ListLogs(str string, page, size int32) (chan log.ListLogResponse, error) {
+func (s *IndexService) ListLogs(ctx context.Context, str string, page, size int32) (chan log.ListLogResponse, error) {
 	ch, er := s.dao.FindMany(context.Background(), str, page*size, size, nil)
 	if er != nil {
 		return nil, er

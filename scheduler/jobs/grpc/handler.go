@@ -62,9 +62,8 @@ type JobsHandler struct {
 }
 
 // NewJobsHandler creates a new JobsHandler
-func NewJobsHandler(runtime context.Context, store jobs.DAO, messageRepository log3.MessageRepository) *JobsHandler {
+func NewJobsHandler(runtime context.Context, messageRepository log3.MessageRepository) *JobsHandler {
 	j := &JobsHandler{
-		store:        store,
 		putTaskChan:  make(chan *proto.Task),
 		jobsBuff:     make(map[string]*proto.Job),
 		jobsBuffLock: &sync.Mutex{},
@@ -90,12 +89,14 @@ func (j *JobsHandler) Name() string {
 /////////////////
 
 func (j *JobsHandler) PutJob(ctx context.Context, request *proto.PutJobRequest) (*proto.PutJobResponse, error) {
+	store, _ := jobs.NewDAO(ctx)
+
 	job := request.GetJob()
 	job.ModifiedAt = int32(time.Now().Unix())
 	if job.CreatedAt == 0 {
 		job.CreatedAt = job.ModifiedAt
 	}
-	err := j.store.PutJob(job)
+	err := store.PutJob(job)
 	log.Logger(ctx).Debug("Scheduler PutJob", zap.Any("job", request.Job))
 	if err != nil {
 		return nil, err

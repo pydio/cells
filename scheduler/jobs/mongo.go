@@ -33,7 +33,6 @@ import (
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/service/errors"
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 const (
@@ -80,15 +79,15 @@ type mongoTask struct {
 }
 
 type mongoImpl struct {
-	mongodb.DAO
+	*mongo.Database
 }
 
-func (m *mongoImpl) Init(ctx context.Context, values configx.Values) error {
-	if er := model.Init(ctx, m.DAO); er != nil {
-		return er
-	}
-	return m.DAO.Init(ctx, values)
-}
+//func (m *mongoImpl) Init(ctx context.Context, values configx.Values) error {
+//	if er := model.Init(ctx, m.DAO); er != nil {
+//		return er
+//	}
+//	return m.DAO.Init(ctx, values)
+//}
 
 func (m *mongoImpl) PutJob(job *jobs.Job) error {
 	c := context.Background()

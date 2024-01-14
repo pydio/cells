@@ -45,13 +45,12 @@ import (
 
 type Handler struct {
 	tree.UnimplementedNodeVersionerServer
-	db      versions.DAO
 	srvName string
 }
 
-func (h *Handler) Name() string {
-	return h.srvName
-}
+//func (h *Handler) Name() string {
+//	return h.srvName
+//}
 
 func (h *Handler) buildVersionDescription(ctx context.Context, version *tree.ChangeLog) string {
 	var description string
@@ -82,8 +81,11 @@ func NewChangeLogFromNode(ctx context.Context, node *tree.Node, event *tree.Node
 func (h *Handler) ListVersions(request *tree.ListVersionsRequest, versionsStream tree.NodeVersioner_ListVersionsServer) error {
 
 	ctx := versionsStream.Context()
+
+	dao, _ := versions.NewDAO(ctx)
+
 	log.Logger(ctx).Debug("[VERSION] ListVersions for node ", request.Node.Zap())
-	logs, _ := h.db.GetVersions(request.Node.Uuid)
+	logs, _ := dao.GetVersions(request.Node.Uuid)
 
 	for l := range logs {
 		if l.GetLocation() == nil {
@@ -99,7 +101,9 @@ func (h *Handler) ListVersions(request *tree.ListVersionsRequest, versionsStream
 
 func (h *Handler) HeadVersion(ctx context.Context, request *tree.HeadVersionRequest) (*tree.HeadVersionResponse, error) {
 
-	v, e := h.db.GetVersion(request.Node.Uuid, request.VersionId)
+	dao, _ := versions.NewDAO(ctx)
+
+	v, e := dao.GetVersion(request.Node.Uuid, request.VersionId)
 	if e != nil {
 		return nil, e
 	}
@@ -115,7 +119,9 @@ func (h *Handler) HeadVersion(ctx context.Context, request *tree.HeadVersionRequ
 func (h *Handler) CreateVersion(ctx context.Context, request *tree.CreateVersionRequest) (*tree.CreateVersionResponse, error) {
 
 	log.Logger(ctx).Debug("[VERSION] GetLastVersion for node " + request.Node.Uuid)
-	last, err := h.db.GetLastVersion(request.Node.Uuid)
+	dao, _ := versions.NewDAO(ctx)
+
+	last, err := dao.GetLastVersion(request.Node.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +142,10 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 		return resp, nil
 	}
 	log.Logger(ctx).Info("Storing Version for node ", request.Node.ZapUuid())
-	err := h.db.StoreVersion(request.Node.Uuid, request.Version)
+
+	dao, _ := versions.NewDAO(ctx)
+
+	err := dao.StoreVersion(request.Node.Uuid, request.Version)
 	if err == nil {
 		resp.Success = true
 	}
@@ -145,7 +154,7 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 	if err != nil {
 		log.Logger(ctx).Error("cannot prepare periods for versions policy", p.Zap(), zap.Error(err))
 	}
-	logs, _ := h.db.GetVersions(request.Node.Uuid)
+	logs, _ := dao.GetVersions(request.Node.Uuid)
 	pruningPeriods, err = versions.DispatchChangeLogsByPeriod(pruningPeriods, logs)
 	log.Logger(ctx).Debug("[VERSION] Pruning Periods", log.DangerouslyZapSmallSlice("p", pruningPeriods))
 	var toRemove []*tree.ChangeLog
@@ -159,7 +168,7 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 	}
 	if len(toRemove) > 0 {
 		log.Logger(ctx).Debug("[VERSION] Pruning should remove", zap.Int("number", len(toRemove)))
-		if err := h.db.DeleteVersionsForNode(request.Node.Uuid, toRemove...); err != nil {
+		if err := dao.DeleteVersionsForNode(request.Node.Uuid, toRemove...); err != nil {
 			return nil, err
 		}
 		resp.PruneVersions = toRemove
@@ -176,6 +185,8 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersionsRequest) (*tree.PruneVersionsResponse, error) {
 
 	cl := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
+
+	dao, _ := versions.NewDAO(ctx)
 
 	var idsToDelete []string
 
@@ -200,7 +211,7 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 		wg.Add(1)
 		runner := func() error {
 			defer wg.Done()
-			uuids, done, errs := h.db.ListAllVersionedNodesUuids()
+			uuids, done, errs := dao.ListAllVersionedNodesUuids()
 			for {
 				select {
 				case id := <-uuids:
@@ -232,7 +243,7 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 
 	resp := &tree.PruneVersionsResponse{}
 	for _, i := range idsToDelete {
-		allLogs, _ := h.db.GetVersions(i)
+		allLogs, _ := dao.GetVersions(i)
 		wg := &sync.WaitGroup{}
 		wg.Add(1)
 		go func() {
@@ -249,7 +260,7 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 		wg.Wait()
 	}
 
-	if e := h.db.DeleteVersionsForNodes(idsToDelete); e != nil {
+	if e := dao.DeleteVersionsForNodes(idsToDelete); e != nil {
 		return nil, e
 	}
 

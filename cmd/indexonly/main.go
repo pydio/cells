@@ -27,7 +27,7 @@ import (
 	//	_ "github.com/pydio/cells/v4/data/source/index"
 	// _ "github.com/pydio/cells/v4/data/source/index/grpc"
 
-	_ "github.com/pydio/cells/v4/data/docstore/grpc"
+	_ "github.com/pydio/cells/v4/data/versions/grpc"
 
 	// Config drivers
 	_ "github.com/pydio/cells/v4/common/config/file"
@@ -58,19 +58,22 @@ func main() {
 	sqliteConn, _ := sql.Open(cellssqlite.Driver, "test.db")
 	storage.Register(sqliteConn, "", "")
 
-	boltConn, _ := bolt.Open("docstore.db", os.ModePerm, &bolt.Options{})
-	storage.Register(boltConn, "boltdb", "pydio.grpc.docstore")
+	boltConn, _ := bolt.Open("versions.db", os.ModePerm, &bolt.Options{})
+	storage.Register(boltConn, "boltdb", "pydio.grpc.versions")
 
 	var bleveConn bleve.Index
-	if _, err := os.Stat("docstore.bleve"); os.IsNotExist(err) {
+	if _, err := os.Stat("docstore.bleve"); !os.IsNotExist(err) {
 		bleveConn, _ = bleve.Open("docstore.bleve")
 	} else {
-		bleveConn, _ = bleve.NewUsing("docstore.bleve", bleve.NewIndexMapping(), scorch.Name, boltdb.Name, nil)
+		bleveConn, err = bleve.NewUsing("docstore.bleve", bleve.NewIndexMapping(), scorch.Name, boltdb.Name, nil)
+		if err != nil {
+			panic(err)
+		}
 	}
 	storage.Register(bleveConn, "boltdb", "pydio.grpc.docstore")
 
 	mongoConn, _ := mongo.Connect(ctx, mongooptions.Client().ApplyURI("mongodb://localhost:27017"))
-	storage.Register(mongoConn, "mongodb", "pydio.grpc.docstore")
+	storage.Register(mongoConn, "mongodb", "pydio.grpc.versions")
 
 	// Keyring store
 	keyringStore, err := config.OpenStore(ctx, runtime.DefaultKeyKeyring)

@@ -62,7 +62,6 @@ func NewDAO(ctx context.Context) (DAO, error) {
 	}
 
 	return nil, storage.NotFound
-
 }
 
 //func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {

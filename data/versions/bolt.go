@@ -23,14 +23,11 @@ package versions
 import (
 	"context"
 	"encoding/binary"
-	"os"
-
 	bolt "go.etcd.io/bbolt"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -42,23 +39,16 @@ var (
 )
 
 type BoltStore struct {
-	boltdb.DAO
-	// For Testing purpose : delete file after closing
-	DeleteOnClose bool
-	// Path to the DB file
-	DbPath string
+	*bolt.DB
 }
 
-func NewBoltStore(dao boltdb.DAO, fileName string, deleteOnClose ...bool) (*BoltStore, error) {
+func NewBoltStore(db *bolt.DB) (*BoltStore, error) {
 
 	bs := &BoltStore{
-		DAO:    dao,
-		DbPath: fileName,
+		DB: db,
 	}
-	if len(deleteOnClose) > 0 && deleteOnClose[0] {
-		bs.DeleteOnClose = true
-	}
-	e2 := bs.DB().Update(func(tx *bolt.Tx) error {
+
+	e2 := bs.Update(func(tx *bolt.Tx) error {
 		_, e := tx.CreateBucketIfNotExists(bucketName)
 		return e
 	})
@@ -67,17 +57,14 @@ func NewBoltStore(dao boltdb.DAO, fileName string, deleteOnClose ...bool) (*Bolt
 }
 
 func (b *BoltStore) Close() error {
-	err := b.DB().Close()
-	if b.DeleteOnClose {
-		os.Remove(b.DbPath)
-	}
+	err := b.Close()
 	return err
 }
 
 // GetLastVersion retrieves the last version registered for this node.
 func (b *BoltStore) GetLastVersion(nodeUuid string) (log *tree.ChangeLog, err error) {
 
-	err = b.DB().View(func(tx *bolt.Tx) error {
+	err = b.View(func(tx *bolt.Tx) error {
 
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
@@ -111,7 +98,7 @@ func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, error) {
 		defer func() {
 			close(logChan)
 		}()
-		e := b.DB().View(func(tx *bolt.Tx) error {
+		e := b.View(func(tx *bolt.Tx) error {
 
 			bucket := tx.Bucket(bucketName)
 			if bucket == nil {
@@ -147,7 +134,7 @@ func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, error) {
 // StoreVersion stores a version in the node bucket.
 func (b *BoltStore) StoreVersion(nodeUuid string, log *tree.ChangeLog) error {
 
-	return b.DB().Update(func(tx *bolt.Tx) error {
+	return b.Update(func(tx *bolt.Tx) error {
 
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
@@ -175,7 +162,7 @@ func (b *BoltStore) GetVersion(nodeUuid string, versionId string) (*tree.ChangeL
 
 	version := &tree.ChangeLog{}
 
-	b.DB().View(func(tx *bolt.Tx) error {
+	b.View(func(tx *bolt.Tx) error {
 
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
@@ -203,7 +190,7 @@ func (b *BoltStore) GetVersion(nodeUuid string, versionId string) (*tree.ChangeL
 // DeleteVersionsForNode deletes whole node bucket at once.
 func (b *BoltStore) DeleteVersionsForNode(nodeUuid string, versions ...*tree.ChangeLog) error {
 
-	return b.DB().Update(func(tx *bolt.Tx) error {
+	return b.Update(func(tx *bolt.Tx) error {
 
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
@@ -238,7 +225,7 @@ func (b *BoltStore) DeleteVersionsForNode(nodeUuid string, versions ...*tree.Cha
 
 // DeleteVersionsForNodes delete versions in a batch
 func (b *BoltStore) DeleteVersionsForNodes(nodeUuid []string) error {
-	er := b.DB().Batch(func(tx *bolt.Tx) error {
+	er := b.Batch(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(bucketName)
 		for _, uuid := range nodeUuid {
 			bucket.DeleteBucket([]byte(uuid))
@@ -256,7 +243,7 @@ func (b *BoltStore) ListAllVersionedNodesUuids() (chan string, chan bool, chan e
 
 	go func() {
 
-		e := b.DB().View(func(tx *bolt.Tx) error {
+		e := b.View(func(tx *bolt.Tx) error {
 
 			defer func() {
 				done <- true

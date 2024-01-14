@@ -70,7 +70,7 @@ func (h *Handler) PutLog(stream proto.LogRecorder_PutLogServer) error {
 		}
 		logCount++
 
-		h.Repo.PutLog(line)
+		h.Repo.PutLog(stream.Context(), line)
 	}
 }
 
@@ -81,7 +81,7 @@ func (h *Handler) ListLogs(req *proto.ListLogRequest, stream proto.LogRecorder_L
 	p := req.GetPage()
 	s := req.GetSize()
 
-	r, err := h.Repo.ListLogs(q, p, s)
+	r, err := h.Repo.ListLogs(stream.Context(), q, p, s)
 
 	if err != nil {
 		return err
@@ -99,7 +99,7 @@ func (h *Handler) ListLogs(req *proto.ListLogRequest, stream proto.LogRecorder_L
 // DeleteLogs removes logs based on a ListLogRequest
 func (h *Handler) DeleteLogs(ctx context.Context, req *proto.ListLogRequest) (*proto.DeleteLogsResponse, error) {
 
-	d, e := h.Repo.DeleteLogs(req.Query)
+	d, e := h.Repo.DeleteLogs(ctx, req.Query)
 	if e != nil {
 		return nil, e
 	}

@@ -61,7 +61,8 @@ func (c *Cache) Init(ctx context.Context, values configx.Values) error {
 		c.inner = make([]*batchActivity, 0, 500)
 		go c.startBatching()
 	}
-	return c.DAO.Init(ctx, values)
+	// return c.DAO.Init(ctx, values)
+	return nil
 }
 
 func (c *Cache) startBatching() {
@@ -97,7 +98,8 @@ func (c *Cache) CloseConn(ctx context.Context) error {
 	if c.useBatch {
 		c.stopBatching()
 	}
-	return c.DAO.CloseConn(ctx)
+	//return c.DAO.CloseConn(ctx)
+	return nil
 }
 
 func (c *Cache) PostActivity(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publish bool) error {

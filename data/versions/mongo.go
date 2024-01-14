@@ -23,6 +23,7 @@ package versions
 import (
 	"context"
 	"fmt"
+	"go.mongodb.org/mongo-driver/mongo"
 	"strings"
 	"time"
 
@@ -31,7 +32,6 @@ import (
 
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 const (
@@ -59,15 +59,15 @@ type mVersion struct {
 }
 
 type mongoStore struct {
-	mongodb.DAO
+	*mongo.Database
 }
 
-func (m *mongoStore) Init(ctx context.Context, values configx.Values) error {
-	if er := model.Init(context.Background(), m.DAO); er != nil {
-		return er
-	}
-	return m.DAO.Init(ctx, values)
-}
+//func (m *mongoStore) Init(ctx context.Context, values configx.Values) error {
+//	if er := model.Init(context.Background(), m.DAO); er != nil {
+//		return er
+//	}
+//	return m.DAO.Init(ctx, values)
+//}
 
 func (m *mongoStore) GetLastVersion(nodeUuid string) (*tree.ChangeLog, error) {
 	c := context.Background()

@@ -26,11 +26,11 @@ package activity
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/storage"
+	"go.etcd.io/bbolt"
+	"go.mongodb.org/mongo-driver/mongo"
 	"time"
 
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/proto/activity"
 )
 
@@ -47,7 +47,7 @@ const (
 )
 
 type DAO interface {
-	dao.DAO
+	// dao.DAO
 
 	// PostActivity posts an activity to target inbox.
 	PostActivity(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publish bool) error
@@ -94,67 +94,65 @@ type batchDAO interface {
 	BatchPost([]*batchActivity) error
 }
 
-func NewDAO(ctx context.Context, o dao.DAO) (dao.DAO, error) {
-	switch v := o.(type) {
-	case boltdb.DAO:
-		bi := &boltdbimpl{DAO: v, InboxMaxSize: 1000}
-		if testEnv {
-			return bi, nil
-		} else {
-			return WithCache(bi), nil
-		}
-	case mongodb.DAO:
-		mi := &mongoimpl{DAO: v}
-		return mi, nil
+func NewDAO(ctx context.Context) (DAO, error) {
+	var boltdb *bbolt.DB
+	if storage.Get(ctx, &boltdb) {
+		return WithCache(&boltdbimpl{DB: boltdb, InboxMaxSize: 1000}), nil
 	}
-	return nil, dao.UnsupportedDriverType("")
+
+	var cli *mongo.Client
+	if storage.Get(ctx, &cli) {
+		return &mongoimpl{Database: cli.Database("test")}, nil
+	}
+
+	return nil, storage.NotFound
 }
 
-func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
-	ctx := context.Background()
-	out := map[string]int{
-		"Activities":    0,
-		"Subscriptions": 0,
-	}
-	testEnv = true // Disable cache
-	var from, to DAO
-	if df, e := NewDAO(ctx, f); e == nil {
-		from = df.(DAO)
-	} else {
-		return out, e
-	}
-	if dt, e := NewDAO(ctx, t); e == nil {
-		to = dt.(DAO)
-	} else {
-		return out, e
-	}
-	aa, total, er := from.allActivities(ctx)
-	if er != nil {
-		return nil, er
-	}
-	for a := range aa {
-		if dryRun {
-			out["Activities"]++
-		} else if er := to.PostActivity(ctx, activity.OwnerType(a.OwnerType), a.OwnerId, BoxName(a.BoxName), a.Object, false); er == nil {
-			out["Activities"]++
-		}
-		if total > 0 {
-			status <- dao.MigratorStatus{Total: int64(total), Count: int64(out["Activities"])}
-		}
-	}
-	ss, sTotal, er := from.allSubscriptions(ctx)
-	if er != nil {
-		return out, er
-	}
-	for s := range ss {
-		if dryRun {
-			out["Subscriptions"]++
-		} else if er := to.UpdateSubscription(ctx, s); er == nil {
-			out["Subscriptions"]++
-		}
-		if sTotal > 0 {
-			status <- dao.MigratorStatus{Total: int64(sTotal), Count: int64(out["Subscriptions"])}
-		}
-	}
-	return out, nil
-}
+//func Migrate(f dao.DAO, t dao.DAO, dryRun bool, status chan dao.MigratorStatus) (map[string]int, error) {
+//	ctx := context.Background()
+//	out := map[string]int{
+//		"Activities":    0,
+//		"Subscriptions": 0,
+//	}
+//	testEnv = true // Disable cache
+//	var from, to DAO
+//	if df, e := NewDAO(ctx, f); e == nil {
+//		from = df.(DAO)
+//	} else {
+//		return out, e
+//	}
+//	if dt, e := NewDAO(ctx, t); e == nil {
+//		to = dt.(DAO)
+//	} else {
+//		return out, e
+//	}
+//	aa, total, er := from.allActivities(ctx)
+//	if er != nil {
+//		return nil, er
+//	}
+//	for a := range aa {
+//		if dryRun {
+//			out["Activities"]++
+//		} else if er := to.PostActivity(ctx, activity.OwnerType(a.OwnerType), a.OwnerId, BoxName(a.BoxName), a.Object, false); er == nil {
+//			out["Activities"]++
+//		}
+//		if total > 0 {
+//			status <- dao.MigratorStatus{Total: int64(total), Count: int64(out["Activities"])}
+//		}
+//	}
+//	ss, sTotal, er := from.allSubscriptions(ctx)
+//	if er != nil {
+//		return out, er
+//	}
+//	for s := range ss {
+//		if dryRun {
+//			out["Subscriptions"]++
+//		} else if er := to.UpdateSubscription(ctx, s); er == nil {
+//			out["Subscriptions"]++
+//		}
+//		if sTotal > 0 {
+//			status <- dao.MigratorStatus{Total: int64(sTotal), Count: int64(out["Subscriptions"])}
+//		}
+//	}
+//	return out, nil
+//}

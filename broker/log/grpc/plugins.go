@@ -82,7 +82,7 @@ func init() {
 					"GoVersion":    cv.GoVersion,
 				}
 				data, _ := json.Marshal(m)
-				_ = repo.PutLog(&proto.Log{
+				_ = repo.PutLog(c, &proto.Log{
 					Nano:    int32(time.Now().UnixNano()),
 					Message: data,
 				})

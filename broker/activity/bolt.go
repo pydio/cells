@@ -29,19 +29,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dustin/go-humanize"
 	bolt "go.etcd.io/bbolt"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type boltdbimpl struct {
-	boltdb.DAO
+	*bolt.DB
 	InboxMaxSize int64
 }
 
@@ -51,7 +49,7 @@ func (dao *boltdbimpl) Init(ctx context.Context, options configx.Values) error {
 	// Update defaut inbox max size if set in the config
 	dao.InboxMaxSize = options.Val("InboxMaxSize").Default(dao.InboxMaxSize).Int64()
 
-	dao.DB().Update(func(tx *bolt.Tx) error {
+	dao.DB.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(activity.OwnerType_USER.String()))
 		if err != nil {
 			return err
@@ -110,7 +108,7 @@ func (dao *boltdbimpl) getBucket(tx *bolt.Tx, createIfNotExist bool, ownerType a
 }
 
 func (dao *boltdbimpl) BatchPost(aa []*batchActivity) error {
-	return dao.DB().Batch(func(tx *bolt.Tx) error {
+	return dao.DB.Batch(func(tx *bolt.Tx) error {
 		for _, a := range aa {
 			bucket, err := dao.getBucket(tx, true, a.ownerType, a.ownerId, a.boxName)
 			if err != nil {
@@ -142,7 +140,7 @@ func (dao *boltdbimpl) BatchPost(aa []*batchActivity) error {
 
 func (dao *boltdbimpl) PostActivity(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publish bool) error {
 
-	err := dao.DB().Update(func(tx *bolt.Tx) error {
+	err := dao.DB.Update(func(tx *bolt.Tx) error {
 
 		bucket, err := dao.getBucket(tx, true, ownerType, ownerId, boxName)
 		if err != nil {
@@ -172,7 +170,7 @@ func (dao *boltdbimpl) PostActivity(ctx context.Context, ownerType activity.Owne
 
 func (dao *boltdbimpl) UpdateSubscription(ctx context.Context, subscription *activity.Subscription) error {
 
-	err := dao.DB().Update(func(tx *bolt.Tx) error {
+	err := dao.DB.Update(func(tx *bolt.Tx) error {
 
 		bucket, err := dao.getBucket(tx, true, subscription.ObjectType, subscription.ObjectId, BoxSubscriptions)
 		if err != nil {
@@ -196,7 +194,7 @@ func (dao *boltdbimpl) ListSubscriptions(ctx context.Context, objectType activit
 		return
 	}
 	userIds := make(map[string]bool)
-	e := dao.DB().View(func(tx *bolt.Tx) error {
+	e := dao.DB.View(func(tx *bolt.Tx) error {
 
 		for _, objectId := range objectIds {
 			bucket, _ := dao.getBucket(tx, false, objectType, objectId, BoxSubscriptions)
@@ -251,7 +249,7 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.Own
 		uintOffset = dao.ReadLastUserInbox(ownerId, refBoxOffset)
 	}
 
-	dao.DB().View(func(tx *bolt.Tx) error {
+	dao.DB.View(func(tx *bolt.Tx) error {
 		// Assume bucket exists and has keys
 		bucket, _ := dao.getBucket(tx, false, ownerType, ownerId, boxName)
 		if bucket == nil {
@@ -308,7 +306,7 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.Own
 func (dao *boltdbimpl) ReadLastUserInbox(userId string, boxName BoxName) uint64 {
 
 	var last []byte
-	dao.DB().View(func(tx *bolt.Tx) error {
+	dao.DB.View(func(tx *bolt.Tx) error {
 		bucket, _ := dao.getBucket(tx, false, activity.OwnerType_USER, userId, boxName)
 		if bucket == nil {
 			return nil
@@ -333,7 +331,7 @@ func (dao *boltdbimpl) StoreLastUserInbox(ctx context.Context, userId string, bo
 
 // StoreLastUserInbox stores last key read to a "Last" inbox (read, sent)
 func (dao *boltdbimpl) storeLastUserInbox(userId string, boxName BoxName, last []byte) error {
-	return dao.DB().Update(func(tx *bolt.Tx) error {
+	return dao.DB.Update(func(tx *bolt.Tx) error {
 		bucket, err := dao.getBucket(tx, true, activity.OwnerType_USER, userId, boxName)
 		if err != nil {
 			return err
@@ -347,7 +345,7 @@ func (dao *boltdbimpl) CountUnreadForUser(ctx context.Context, userId string) in
 	var unread int
 	lastRead := dao.ReadLastUserInbox(userId, BoxLastRead)
 
-	dao.DB().View(func(tx *bolt.Tx) error {
+	dao.DB.View(func(tx *bolt.Tx) error {
 
 		bucket, _ := dao.getBucket(tx, false, activity.OwnerType_USER, userId, BoxInbox)
 		if bucket != nil {
@@ -370,7 +368,7 @@ func (dao *boltdbimpl) CountUnreadForUser(ctx context.Context, userId string) in
 // to remove (or archive?) deprecated queues
 func (dao *boltdbimpl) Delete(ctx context.Context, ownerType activity.OwnerType, ownerId string) error {
 
-	err := dao.DB().Update(func(tx *bolt.Tx) error {
+	err := dao.DB.Update(func(tx *bolt.Tx) error {
 
 		b := tx.Bucket([]byte(ownerType.String()))
 		if b == nil {
@@ -389,7 +387,7 @@ func (dao *boltdbimpl) Delete(ctx context.Context, ownerType activity.OwnerType,
 	}
 
 	// When clearing for a given user, clear from nodes data
-	err = dao.DB().Update(func(tx *bolt.Tx) error {
+	err = dao.DB.Update(func(tx *bolt.Tx) error {
 		nodesBucket := tx.Bucket([]byte(activity.OwnerType_NODE.String()))
 		if nodesBucket == nil {
 			return nil
@@ -456,8 +454,7 @@ func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string, int), owne
 		}
 	}
 
-	db := dao.DB()
-	e := db.Update(func(tx *bolt.Tx) error {
+	e := dao.DB.Update(func(tx *bolt.Tx) error {
 		if ownerId == "*" {
 			mainBucket := tx.Bucket([]byte(ownerType.String()))
 			mainBucket.ForEach(func(k, v []byte) error {
@@ -476,20 +473,21 @@ func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string, int), owne
 		return e
 	}
 
-	if compactDB {
-		old, newSize, er := dao.Compact(ctx, map[string]interface{}{"ClearBackup": clearBackup})
-		if er == nil {
-			logger(fmt.Sprintf("Successfully compacted DB, from %s to %s", humanize.Bytes(uint64(old)), humanize.Bytes(uint64(newSize))), 0)
-		}
-		return er
-	}
+	//if compactDB {
+	//	old, newSize, er := dao.Compact(ctx, map[string]interface{}{"ClearBackup": clearBackup})
+	//	if er == nil {
+	//		logger(fmt.Sprintf("Successfully compacted DB, from %s to %s", humanize.Bytes(uint64(old)), humanize.Bytes(uint64(newSize))), 0)
+	//	}
+	//	return er
+	//}
+
 	return nil
 }
 
 // AllActivities is used for internal migrations only
 func (dao *boltdbimpl) allActivities(ctx context.Context) (chan *docActivity, int, error) {
 
-	db := dao.DB()
+	db := dao.DB
 	out := make(chan *docActivity, 1000)
 	listBucket := func(bb *bolt.Bucket, ownerType int32, ownerId string, boxName BoxName) {
 		cursor := bb.Cursor()
@@ -550,8 +548,7 @@ func (dao *boltdbimpl) allActivities(ctx context.Context) (chan *docActivity, in
 func (dao *boltdbimpl) allSubscriptions(ctx context.Context) (chan *activity.Subscription, int, error) {
 	out := make(chan *activity.Subscription)
 	var total int
-	db := dao.DB()
-	_ = db.View(func(tx *bolt.Tx) error {
+	_ = dao.DB.View(func(tx *bolt.Tx) error {
 		for _, t := range activity.OwnerType_name {
 			mainBucket := tx.Bucket([]byte(t))
 			// Browse all user
@@ -566,7 +563,7 @@ func (dao *boltdbimpl) allSubscriptions(ctx context.Context) (chan *activity.Sub
 	})
 	go func() {
 		defer close(out)
-		_ = db.View(func(tx *bolt.Tx) error {
+		_ = dao.DB.View(func(tx *bolt.Tx) error {
 			for typeInt, t := range activity.OwnerType_name {
 				mainBucket := tx.Bucket([]byte(t))
 				// Browse all user

@@ -31,7 +31,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -46,22 +45,23 @@ var (
 )
 
 type boltStore struct {
-	boltdb.DAO
+	*bolt.DB
 }
 
-func newBoltStore(dao boltdb.DAO) (*boltStore, error) {
+func newBoltStore(db *bolt.DB) (*boltStore, error) {
 
 	bs := &boltStore{
-		DAO: dao,
+		DB: db,
 	}
 
-	er := dao.DB().Update(func(tx *bolt.Tx) error {
+	er := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists(jobsBucketKey)
 		if err != nil {
 			return err
 		}
 		return nil
 	})
+
 	if er != nil {
 		return nil, er
 	}
@@ -71,7 +71,7 @@ func newBoltStore(dao boltdb.DAO) (*boltStore, error) {
 
 func (s *boltStore) PutJob(job *jobs.Job) error {
 
-	err := s.DB().Update(func(tx *bolt.Tx) error {
+	err := s.DB.Update(func(tx *bolt.Tx) error {
 
 		bucket := tx.Bucket(jobsBucketKey)
 		if job.Tasks != nil {
@@ -92,7 +92,7 @@ func (s *boltStore) PutJob(job *jobs.Job) error {
 func (s *boltStore) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, error) {
 
 	j := &jobs.Job{}
-	e := s.DB().View(func(tx *bolt.Tx) error {
+	e := s.DB.View(func(tx *bolt.Tx) error {
 		// Assume bucket exists and has keys
 		bucket := tx.Bucket(jobsBucketKey)
 		data := bucket.Get([]byte(jobId))
@@ -121,7 +121,7 @@ func (s *boltStore) GetJob(jobId string, withTasks jobs.TaskStatus) (*jobs.Job, 
 
 func (s *boltStore) DeleteJob(jobID string) error {
 
-	return s.DB().Update(func(tx *bolt.Tx) error {
+	return s.DB.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(jobsBucketKey)
 		err := bucket.Delete([]byte(jobID))
 		if err == nil {
@@ -145,7 +145,7 @@ func (s *boltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 	go func() {
 		defer close(res)
 
-		s.DB().View(func(tx *bolt.Tx) error {
+		s.DB.View(func(tx *bolt.Tx) error {
 			bucket := tx.Bucket(jobsBucketKey)
 			c := bucket.Cursor()
 			for k, v := c.First(); k != nil; k, v = c.Next() {
@@ -199,7 +199,7 @@ func (s *boltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 // PutTasks batch updates DB with tasks organized by JobID and TaskID
 func (s *boltStore) PutTasks(tasks map[string]map[string]*jobs.Task) error {
 
-	return s.DB().Update(func(tx *bolt.Tx) error {
+	return s.DB.Update(func(tx *bolt.Tx) error {
 
 		// First check buckets
 		for jId, ts := range tasks {
@@ -229,7 +229,7 @@ func (s *boltStore) PutTask(task *jobs.Task) error {
 	jobId := task.JobID
 	stripTaskData(task)
 
-	return s.DB().Update(func(tx *bolt.Tx) error {
+	return s.DB.Update(func(tx *bolt.Tx) error {
 
 		tasksBucket, err := tx.CreateBucketIfNotExists([]byte(tasksBucketString + jobId))
 		if err != nil {
@@ -247,7 +247,7 @@ func (s *boltStore) PutTask(task *jobs.Task) error {
 
 func (s *boltStore) DeleteTasks(jobId string, taskId []string) error {
 
-	return s.DB().Update(func(tx *bolt.Tx) error {
+	return s.DB.Update(func(tx *bolt.Tx) error {
 
 		tasksBucket := tx.Bucket([]byte(tasksBucketString + jobId))
 		if tasksBucket == nil {
@@ -276,7 +276,7 @@ func (s *boltStore) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 
 	go func() {
 
-		s.DB().View(func(tx *bolt.Tx) error {
+		s.DB.View(func(tx *bolt.Tx) error {
 
 			if len(jobId) > 0 {
 				jobTasksBucket := tx.Bucket([]byte(tasksBucketString + jobId))
