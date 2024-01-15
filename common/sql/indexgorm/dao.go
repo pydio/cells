@@ -89,14 +89,14 @@ type CacheDAO interface {
 }
 
 // NewDAO for the common sql index
-func NewDAO[T tree.ITreeNode](ctx context.Context, store storage.Storage) (dao.DAO, error) {
+func NewDAO[T tree.ITreeNode](ctx context.Context) (dao.DAO, error) {
 	var db *gorm.DB
 
-	if store.Get(ctx, &db) {
+	if storage.Get(ctx, &db) {
 		return &IndexSQL[T]{DB: db, factory: &treeNodeFactory[T]{}}, nil
 	}
 
-	return nil, storage.UnsupportedDriver(store)
+	return nil, storage.NotFound
 }
 
 type LostAndFound interface {

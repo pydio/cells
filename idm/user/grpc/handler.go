@@ -74,21 +74,24 @@ type Handler struct {
 	idm.UnimplementedUserServiceServer
 
 	service.Service
-	dao user.DAO
 }
 
-func NewHandler(ctx context.Context, svc service.Service, dao user.DAO) idm.UserServiceServer {
+func NewHandler(ctx context.Context, svc service.Service) idm.UserServiceServer {
 	return &Handler{
 		ctx:     ctx,
 		Service: svc,
-		dao:     dao,
 	}
 }
 
 // BindUser binds a user with login/password
 func (h *Handler) BindUser(ctx context.Context, req *idm.BindUserRequest) (*idm.BindUserResponse, error) {
 
-	u, err := h.dao.Bind(ctx, req.UserName, req.Password)
+	dao, err := user.NewDAO(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	u, err := dao.Bind(ctx, req.UserName, req.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -102,10 +105,14 @@ func (h *Handler) BindUser(ctx context.Context, req *idm.BindUserRequest) (*idm.
 
 // CreateUser adds or creates a user or a group in the underlying database.
 func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*idm.CreateUserResponse, error) {
+	dao, err := user.NewDAO(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	passChange := req.User.Password
 	// Create or update user
-	newUser, createdNodes, err := h.dao.Add(ctx, req.User)
+	newUser, createdNodes, err := dao.Add(ctx, req.User)
 	if err != nil {
 		log.Logger(ctx).Error("cannot put user "+req.User.Login, req.User.ZapUuid(), zap.Error(err))
 		return nil, err
@@ -135,7 +142,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 			}
 			marsh, _ := json.Marshal(newLocks)
 			out.Attributes["locks"] = string(marsh)
-			if _, _, e := h.dao.Add(ctx, out); e == nil {
+			if _, _, e := dao.Add(ctx, out); e == nil {
 				log.Logger(ctx).Info("user "+req.User.Login+" successfully updated his password", req.User.ZapUuid())
 			}
 		}
@@ -156,14 +163,14 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*
 		req.User.Policies = userPolicies
 	}
 	log.Logger(ctx).Debug("ADDING POLICIES NOW", zap.Int("p length", len(req.User.Policies)), zap.Int("createdNodes length", len(createdNodes)))
-	if err := h.dao.AddPolicies(len(createdNodes) == 0, out.Uuid, req.User.Policies); err != nil {
+	if err := dao.AddPolicies(len(createdNodes) == 0, out.Uuid, req.User.Policies); err != nil {
 		return nil, err
 	}
 	for _, g := range createdNodes {
 		if g.GetNode().GetUuid() != out.Uuid && g.GetNode().GetType() == tree.NodeType_COLLECTION {
 			// Groups where created in the process, add default policies on them
 			log.Logger(ctx).Info("Setting Default Policies on groups that were created automatically", zap.String("groupPath", g.GetNode().GetPath()))
-			if err := h.dao.AddPolicies(false, g.GetNode().GetUuid(), defaultPolicies); err != nil {
+			if err := dao.AddPolicies(false, g.GetNode().GetUuid(), defaultPolicies); err != nil {
 				return nil, err
 			}
 		}
@@ -249,7 +256,12 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest) (*
 		defer autoClient.Stop()
 	}
 
-	i, err := h.dao.Count(ctx, req.Query, true)
+	dao, err := user.NewDAO(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	i, err := dao.Count(ctx, req.Query, true)
 	if err != nil {
 		return nil, err
 	}
@@ -267,17 +279,17 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest) (*
 					continue
 				}
 
-				if pp, er := h.dao.GetPoliciesForResource(deleted.Uuid); er == nil {
+				if pp, er := dao.GetPoliciesForResource(deleted.Uuid); er == nil {
 					deleted.Policies = pp
 				} else {
 					log.Logger(ctx).Warn("cannot load policies on user deletion", zap.Error(er))
 				}
 
-				_ = h.dao.DeletePoliciesForResource(deleted.Uuid)
+				_ = dao.DeletePoliciesForResource(deleted.Uuid)
 				if deleted.IsGroup {
-					_ = h.dao.DeletePoliciesBySubject(fmt.Sprintf("role:%s", deleted.Uuid))
+					_ = dao.DeletePoliciesBySubject(fmt.Sprintf("role:%s", deleted.Uuid))
 				} else {
-					_ = h.dao.DeletePoliciesBySubject(fmt.Sprintf("user:%s", deleted.Uuid))
+					_ = dao.DeletePoliciesBySubject(fmt.Sprintf("user:%s", deleted.Uuid))
 				}
 
 				// Propagate deletion event
@@ -316,7 +328,7 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest) (*
 		}
 	}()
 
-	numRows, err := h.dao.Del(ctx, req.Query, usersChan)
+	numRows, err := dao.Del(ctx, req.Query, usersChan)
 	close(done)
 	close(usersChan)
 	if err != nil {
@@ -346,8 +358,13 @@ func (h *Handler) SearchUser(request *idm.SearchUserRequest, response idm.UserSe
 		return er
 	}
 
+	dao, err := user.NewDAO(ctx)
+	if err != nil {
+		return err
+	}
+
 	usersGroups := new([]interface{})
-	if err := h.dao.Search(ctx, request.Query, usersGroups); err != nil {
+	if err := dao.Search(ctx, request.Query, usersGroups); err != nil {
 		return err
 	}
 
@@ -355,7 +372,7 @@ func (h *Handler) SearchUser(request *idm.SearchUserRequest, response idm.UserSe
 	for _, in := range *usersGroups {
 		if usr, ok := in.(*idm.User); ok {
 			usr.Password = ""
-			if usr.Policies, e = h.dao.GetPoliciesForResource(usr.Uuid); e != nil {
+			if usr.Policies, e = dao.GetPoliciesForResource(usr.Uuid); e != nil {
 				log.Logger(ctx).Error("cannot load policies for user "+usr.Uuid, zap.Error(e))
 				continue
 			}
@@ -371,8 +388,12 @@ func (h *Handler) SearchUser(request *idm.SearchUserRequest, response idm.UserSe
 
 // CountUser in database
 func (h *Handler) CountUser(ctx context.Context, request *idm.SearchUserRequest) (*idm.CountUserResponse, error) {
+	dao, err := user.NewDAO(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	total, err := h.dao.Count(ctx, request.Query)
+	total, err := dao.Count(ctx, request.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -384,6 +405,11 @@ func (h *Handler) CountUser(ctx context.Context, request *idm.SearchUserRequest)
 func (h *Handler) StreamUser(streamer idm.UserService_StreamUserServer) error {
 
 	ctx := streamer.Context()
+
+	dao, err := user.NewDAO(ctx)
+	if err != nil {
+		return err
+	}
 
 	autoApplies, e := h.loadAutoAppliesRoles(ctx)
 	if e != nil {
@@ -397,7 +423,7 @@ func (h *Handler) StreamUser(streamer idm.UserService_StreamUserServer) error {
 		}
 
 		users := new([]interface{})
-		if err := h.dao.Search(ctx, incoming.Query, users); err != nil {
+		if err := dao.Search(ctx, incoming.Query, users); err != nil {
 			return err
 		}
 

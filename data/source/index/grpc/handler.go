@@ -72,7 +72,7 @@ type TreeServer struct {
 func init() {}
 
 // NewTreeServer factory.
-func NewTreeServer(ds *object.DataSource, handlerName string, dao index.DAO) *TreeServer {
+func NewTreeServer(ds *object.DataSource, handlerName string) *TreeServer {
 
 	// TODO
 	// dao = cindex.NewFolderSizeCacheDAO(cindex.NewHiddenFileDuplicateRemoverDAO(dao))
@@ -81,7 +81,6 @@ func NewTreeServer(ds *object.DataSource, handlerName string, dao index.DAO) *Tr
 		dsName:       ds.Name,
 		dsInternal:   ds.IsInternal(),
 		handlerName:  handlerName,
-		dao:          dao,
 		sessionStore: sessions.NewSessionMemoryStore(),
 	}
 }
@@ -96,7 +95,8 @@ func (s *TreeServer) getDAO(ctx context.Context, session string) index.DAO {
 		return index.NewDAOCache(session, s.dao).(index.DAO)
 	}
 
-	return s.dao
+	dao, _ := index.NewDAO(ctx)
+	return dao
 }
 
 func (s *TreeServer) Name() string {

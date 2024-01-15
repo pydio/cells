@@ -55,16 +55,16 @@ type DAO interface {
 }
 
 // NewDAO wraps passed DAO with specific Pydio implementation of User DAO and returns it.
-func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+func NewDAO(ctx context.Context) (DAO, error) {
 	var db *gorm.DB
 
-	if store.Get(ctx, &db) {
-		resourcesDAO, err := resources.NewDAO(ctx, store)
+	if storage.Get(ctx, &db) {
+		resourcesDAO, err := resources.NewDAO(ctx)
 		if err != nil {
 			return nil, err
 		}
 
-		indexDAO, err := index.NewDAO[*user_model.User](ctx, store)
+		indexDAO, err := index.NewDAO[*user_model.User](ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -76,5 +76,5 @@ func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
 		}, nil
 	}
 
-	return nil, storage.UnsupportedDriver(store)
+	return nil, storage.NotFound
 }

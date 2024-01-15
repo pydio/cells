@@ -33,10 +33,6 @@ import (
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/resources"
-	sqlresources "github.com/pydio/cells/v4/common/sql/resources"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/idm/workspace"
 )
 
 const (
@@ -67,21 +63,12 @@ func init() {
 			panic("no grpc server available")
 		}
 
-		dao, err := workspace.NewDAO(ctx, storage.Main)
-		if err != nil {
-			panic(err)
-		}
-
-		opts := configx.New()
-		dao.Init(ctx, opts)
-
-		h := NewHandler(ctx, s, dao.(workspace.DAO))
+		h := NewHandler(ctx, s)
 		idm.RegisterWorkspaceServiceServer(srv, h)
 
 		// Register a cleaner for removing a workspace when there are no more ACLs on it.
 		wsCleaner := NewWsCleaner(ctx, h)
 		cleaner := &resources.PoliciesCleaner{
-			DAO: dao.(sqlresources.DAO),
 			Options: resources.PoliciesCleanerOptions{
 				SubscribeRoles: true,
 				SubscribeUsers: true,

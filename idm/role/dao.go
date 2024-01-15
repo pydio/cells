@@ -26,7 +26,6 @@ import (
 	"github.com/pydio/cells/v4/common/storage"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
@@ -34,7 +33,6 @@ import (
 
 // DAO interface
 type DAO interface {
-	dao.DAO
 	resources.DAO
 
 	Add(role *idm.Role) (*idm.Role, bool, error)
@@ -43,14 +41,14 @@ type DAO interface {
 	Count(query sql.Enquirer) (int32, error)
 }
 
-func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+func NewDAO(ctx context.Context) (DAO, error) {
 	var db *gorm.DB
 
-	if store.Get(ctx, &db) {
+	if storage.Get(ctx, &db) {
 		return &sqlimpl{
 			db: db,
 		}, nil
 	}
 
-	return nil, storage.UnsupportedDriver(store)
+	return nil, storage.NotFound
 }

@@ -49,25 +49,29 @@ type Handler struct {
 	idm.UnimplementedRoleServiceServer
 
 	service.Service
-	dao role.DAO
 }
 
 func NewHandler(ctx context.Context, svc service.Service, dao role.DAO) idm.RoleServiceServer {
 	return &Handler{
 		Service: svc,
-		dao:     dao,
 	}
 }
 
 // CreateRole adds a role and its policies in database
 func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest) (*idm.CreateRoleResponse, error) {
+
+	dao, err := role.NewDAO(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	resp := &idm.CreateRoleResponse{}
 
 	if req.Role.Uuid != "" && strings.Contains(req.Role.Uuid, ",") {
 		return nil, errors.BadRequest("forbidden.characters", "commas are not allowed in role uuid")
 	}
 
-	r, update, err := h.dao.Add(req.Role)
+	r, update, err := dao.Add(req.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +84,7 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest) (*
 		}
 	}
 
-	err = h.dao.AddPolicies(update, r.Uuid, r.Policies)
+	err = dao.AddPolicies(update, r.Uuid, r.Policies)
 	if err != nil {
 		return nil, err
 	}
@@ -124,16 +128,21 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest) (*
 // DeleteRole from database
 func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest) (*idm.DeleteRoleResponse, error) {
 
+	dao, err := role.NewDAO(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	if req.Query == nil {
 		return nil, errors.BadRequest(common.ServiceRole, "cannot send a DeleteRole request with an empty query")
 	}
 
 	var roles []*idm.Role
-	if err := h.dao.Search(req.Query, &roles); err != nil {
+	if err := dao.Search(req.Query, &roles); err != nil {
 		return nil, err
 	}
 
-	numRows, err := h.dao.Delete(req.Query)
+	numRows, err := dao.Delete(req.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -143,12 +152,12 @@ func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest) (*
 
 	for _, r := range roles {
 		// Errors a ignored until now. Should we stop and return an error or better handle the error?
-		err2 := h.dao.DeletePoliciesForResource(r.Uuid)
+		err2 := dao.DeletePoliciesForResource(r.Uuid)
 		if err2 != nil {
 			log.Logger(ctx).Error("could not delete policies for removed role "+r.Label, zap.Error(err2))
 			continue
 		}
-		err2 = h.dao.DeletePoliciesBySubject(fmt.Sprintf("role:%s", r.Uuid))
+		err2 = dao.DeletePoliciesBySubject(fmt.Sprintf("role:%s", r.Uuid))
 		if err2 != nil {
 			log.Logger(ctx).Error("could not delete policies by subject for removed role "+r.Label, zap.Error(err2))
 			continue
@@ -173,7 +182,14 @@ func (h *Handler) SearchRole(request *idm.SearchRoleRequest, response idm.RoleSe
 
 	var roles []*idm.Role
 
-	if err := h.dao.Search(request.Query, &roles); err != nil {
+	ctx := response.Context()
+	
+	dao, err := role.NewDAO(ctx)
+	if err != nil {
+		return err
+	}
+
+	if err := dao.Search(request.Query, &roles); err != nil {
 		return err
 	}
 
@@ -188,8 +204,12 @@ func (h *Handler) SearchRole(request *idm.SearchRoleRequest, response idm.RoleSe
 
 // CountRole in database
 func (h *Handler) CountRole(ctx context.Context, request *idm.SearchRoleRequest) (*idm.CountRoleResponse, error) {
+	dao, err := role.NewDAO(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	count, err := h.dao.Count(request.Query)
+	count, err := dao.Count(request.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -199,6 +219,11 @@ func (h *Handler) CountRole(ctx context.Context, request *idm.SearchRoleRequest)
 
 // StreamRole from database
 func (h *Handler) StreamRole(streamer idm.RoleService_StreamRoleServer) error {
+	dao, err := role.NewDAO(streamer.Context())
+	if err != nil {
+		return err
+	}
+
 	for {
 		incoming, err := streamer.Recv()
 		if incoming == nil || err != nil {
@@ -206,7 +231,7 @@ func (h *Handler) StreamRole(streamer idm.RoleService_StreamRoleServer) error {
 		}
 
 		var roles []*idm.Role
-		if err := h.dao.Search(incoming.Query, &roles); err != nil {
+		if err := dao.Search(incoming.Query, &roles); err != nil {
 			return err
 		}
 

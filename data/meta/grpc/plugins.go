@@ -29,9 +29,6 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/pydio/cells/v4/data/meta"
 	"google.golang.org/grpc"
 )
 
@@ -60,15 +57,7 @@ func init() {
 			panic("no grpc server available")
 		}
 
-		dao, err := meta.NewDAO(ctx, storage.Main)
-		if err != nil {
-			panic(err)
-		}
-
-		opts := configx.New()
-		dao.Init(ctx, opts)
-
-		engine := NewMetaServer(ctx, s, dao.(meta.DAO))
+		engine := NewMetaServer(ctx, s)
 
 		tree.RegisterNodeProviderServer(srv, engine)
 		tree.RegisterNodeProviderStreamerServer(srv, engine)

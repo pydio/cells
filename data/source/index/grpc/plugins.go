@@ -32,7 +32,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/source/index"
 	"google.golang.org/grpc"
@@ -51,7 +50,7 @@ func init() {
 		//for _, source := range sources {
 		// name := common.ServiceGrpcNamespace_ + common.ServiceDataIndex_ + source
 
-		dao, err := index.NewDAO(ctx, storage.Main)
+		dao, err := index.NewDAO(ctx)
 		if err != nil {
 			panic(err)
 		}
@@ -62,7 +61,7 @@ func init() {
 
 		dsObject, _ := config.GetSourceInfoByName("personal")
 
-		engine := NewTreeServer(dsObject, "test", dao.(index.DAO))
+		engine := NewTreeServer(dsObject, "test")
 
 		fmt.Println(engine)
 

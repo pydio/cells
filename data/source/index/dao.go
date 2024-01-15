@@ -27,7 +27,6 @@ import (
 	"github.com/pydio/cells/v4/common/storage"
 	"gorm.io/gorm"
 
-	"github.com/pydio/cells/v4/common/dao"
 	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 )
 
@@ -37,19 +36,19 @@ type DAO interface {
 }
 
 // NewDAO for the common sql index
-func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+func NewDAO(ctx context.Context) (DAO, error) {
 	var db *gorm.DB
 
-	indexDAO, err := index.NewDAO[*tree.TreeNode](ctx, store)
+	indexDAO, err := index.NewDAO[*tree.TreeNode](ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if store.Get(&db) {
+	if storage.Get(ctx, &db) {
 		return &sqlimpl{db: db, IndexSQL: indexDAO.(IndexSQL)}, nil
 	}
 
-	return nil, storage.UnsupportedDriver(store)
+	return nil, storage.NotFound
 }
 
 func NewDAOCache(session string, o DAO) DAO {

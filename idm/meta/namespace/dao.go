@@ -23,7 +23,6 @@ package namespace
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/common/storage"
@@ -43,11 +42,11 @@ type DAO interface {
 	List() (map[string]*idm.UserMetaNamespace, error)
 }
 
-func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+func NewDAO(ctx context.Context) (DAO, error) {
 	var db *gorm.DB
 
-	if store.Get(ctx, &db) {
-		resourcesDAO, err := resources.NewDAO(ctx, store)
+	if storage.Get(ctx, &db) {
+		resourcesDAO, err := resources.NewDAO(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -55,5 +54,5 @@ func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
 		return &sqlimpl{db: db, resourcesDAO: resourcesDAO.(resources.DAO)}, nil
 	}
 
-	return nil, storage.UnsupportedDriver(store)
+	return nil, storage.NotFound
 }

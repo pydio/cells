@@ -23,7 +23,6 @@ package resources
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/storage"
 	"gorm.io/gorm"
@@ -31,7 +30,6 @@ import (
 
 // DAO interface
 type DAO interface {
-	dao.DAO
 	AddPolicy(resourceId string, policy *service.ResourcePolicy) error
 	AddPolicies(update bool, resourceId string, rules []*service.ResourcePolicy) error
 	GetPoliciesForResource(resourceId string) ([]*service.ResourcePolicy, error)
@@ -42,12 +40,12 @@ type DAO interface {
 	BuildPolicyConditionForAction(q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (expr any, e error)
 }
 
-func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+func NewDAO(ctx context.Context) (DAO, error) {
 	var db *gorm.DB
 
-	if store.Get(ctx, &db) {
+	if storage.Get(ctx, &db) {
 		return &ResourcesGORM{DB: db}, nil
 	}
 
-	return nil, storage.UnsupportedDriver(store)
+	return nil, storage.NotFound
 }

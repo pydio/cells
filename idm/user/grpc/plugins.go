@@ -26,8 +26,6 @@ import (
 	"encoding/base64"
 	"github.com/pydio/cells/v4/common/server"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"os"
 	"strings"
 
@@ -91,18 +89,10 @@ func init() {
 			panic("no grpc server available")
 		}
 
-		dao, err := user.NewDAO(ctx, storage.Main)
-		if err != nil {
-			panic(err)
-		}
-
-		opts := configx.New()
-		dao.Init(ctx, opts)
-
-		idm.RegisterUserServiceServer(srv, NewHandler(ctx, s, dao.(user.DAO)))
+		idm.RegisterUserServiceServer(srv, NewHandler(ctx, s))
 
 		// Register a cleaner for removing a workspace when there are no more ACLs on it.
-		cleaner := &RolesCleaner{Dao: dao.(user.DAO)}
+		cleaner := &RolesCleaner{}
 		if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 			ev := &idm.ChangeEvent{}
 			if e := message.Unmarshal(ev); e == nil {

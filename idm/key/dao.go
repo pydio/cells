@@ -23,7 +23,6 @@ package key
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/storage"
 	"gorm.io/gorm"
@@ -31,19 +30,18 @@ import (
 
 // DAO is a protocol for user key storing
 type DAO interface {
-	dao.DAO
 	SaveKey(key *encryption.Key, version ...int) error
 	GetKey(owner string, KeyID string) (*encryption.Key, int, error)
 	ListKeys(owner string) ([]*encryption.Key, error)
 	DeleteKey(owner string, keyID string) error
 }
 
-func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+func NewDAO(ctx context.Context) (DAO, error) {
 	var db *gorm.DB
 
-	if store.Get(ctx, &db) {
+	if storage.Get(ctx, &db) {
 		return &sqlimpl{db: db}, nil
 	}
 
-	return nil, storage.UnsupportedDriver(store)
+	return nil, storage.NotFound
 }

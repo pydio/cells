@@ -37,14 +37,14 @@ type DAO interface {
 	ListMetadata(query string) (metadataByUuid map[string]map[string]string, err error)
 }
 
-func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+func NewDAO(ctx context.Context) (DAO, error) {
 	var db *gorm.DB
 
-	if store.Get(ctx, &db) {
+	if storage.Get(ctx, &db) {
 		return &sqlImpl{
 			db: db,
 		}, nil
 	}
 
-	return nil, storage.UnsupportedDriver(store)
+	return nil, storage.NotFound
 }

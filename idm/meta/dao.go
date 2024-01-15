@@ -26,7 +26,6 @@ package meta
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
@@ -37,7 +36,6 @@ import (
 
 // DAO interface
 type DAO interface {
-	dao.DAO
 	resources.DAO
 
 	GetNamespaceDao() namespace.DAO
@@ -47,16 +45,16 @@ type DAO interface {
 	Search(query sql.Enquirer) ([]*idm.UserMeta, error)
 }
 
-func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+func NewDAO(ctx context.Context) (DAO, error) {
 	var db *gorm.DB
 
-	if store.Get(ctx, &db) {
-		resourcesDAO, err := resources.NewDAO(ctx, store)
+	if storage.Get(ctx, &db) {
+		resourcesDAO, err := resources.NewDAO(ctx)
 		if err != nil {
 			return nil, err
 		}
 
-		nsDAO, err := namespace.NewDAO(ctx, store)
+		nsDAO, err := namespace.NewDAO(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -68,5 +66,5 @@ func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
 		}, nil
 	}
 
-	return nil, storage.UnsupportedDriver(store)
+	return nil, storage.NotFound
 }

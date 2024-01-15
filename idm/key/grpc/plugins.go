@@ -24,14 +24,11 @@ package grpc
 import (
 	"context"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/idm/key"
 )
 
 const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceUserKey
@@ -43,18 +40,7 @@ func init() {
 			panic("no grpc server available")
 		}
 
-		dao, err := key.NewDAO(ctx, storage.Main)
-		if err != nil {
-			panic(err)
-		}
-
-		opts := configx.New()
-
-		if err := dao.Init(ctx, opts); err != nil {
-			panic(err)
-		}
-
-		h, e := NewUserKeyStore(ctx, dao.(key.DAO))
+		h, e := NewUserKeyStore(ctx)
 		if e != nil {
 			panic(e)
 		}

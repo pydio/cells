@@ -43,10 +43,10 @@ type DAO interface {
 	DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup) error
 }
 
-func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+func NewDAO(ctx context.Context) (dao.DAO, error) {
 	var db *gorm.DB
 
-	if store.Get(ctx, &db) {
+	if storage.Get(ctx, &db) {
 		return &sqlimpl{db: db}, nil
 	}
 

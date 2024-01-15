@@ -34,17 +34,19 @@ import (
 )
 
 // Cleaner cleans bookmarks on user deletion
-type Cleaner struct {
-	dao meta.DAO
-}
+type Cleaner struct{}
 
-func NewCleaner(dao meta.DAO) *Cleaner {
+func NewCleaner() *Cleaner {
 	c := &Cleaner{}
-	c.dao = dao
 	return c
 }
 
 func (c *Cleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
+
+	dao, err := meta.NewDAO(ctx)
+	if err != nil {
+		return err
+	}
 
 	if msg.Type != idm.ChangeEventType_DELETE || msg.User == nil || msg.User.IsGroup {
 		return nil
@@ -64,14 +66,14 @@ func (c *Cleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 		}
 
 		// Remove user bookmarks
-		metas, e := c.dao.Search(query)
+		metas, e := dao.Search(query)
 		if e != nil || len(metas) == 0 {
 			return
 		}
 		ctx = servicecontext.WithServiceName(ctx, Name)
 		log.Logger(ctx).Info(fmt.Sprintf("Cleaning %d bookmarks for user %s", len(metas), msg.User.Login))
 		for _, m := range metas {
-			c.dao.Del(m)
+			dao.Del(m)
 		}
 	}()
 

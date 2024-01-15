@@ -25,8 +25,6 @@ import (
 	"context"
 	"github.com/go-sql-driver/mysql"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
@@ -51,21 +49,13 @@ func init() {
 			panic("no grpc server available")
 		}
 
-		dao, err := meta.NewDAO(ctx, storage.Main)
-		if err != nil {
-			panic(err)
-		}
-
-		opts := configx.New()
-		dao.Init(ctx, opts)
-
-		handler := NewHandler(ctx, dao.(meta.DAO))
+		handler := NewHandler(ctx)
 
 		idm.RegisterUserMetaServiceServer(srv, handler)
 		tree.RegisterNodeProviderStreamerServer(srv, handler)
 
 		// Clean role on user deletion
-		cleaner := NewCleaner(dao.(meta.DAO))
+		cleaner := NewCleaner()
 		if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
 			ev := &idm.ChangeEvent{}
 			if e := message.Unmarshal(ev); e == nil {

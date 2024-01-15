@@ -27,7 +27,6 @@ import (
 	"gorm.io/gorm"
 	"time"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/sql"
 )
 
@@ -57,20 +56,18 @@ func ReadExpirationPeriod(p ExpirationProvider) *ExpirationPeriod {
 
 // DAO interface
 type DAO interface {
-	dao.DAO
-
 	Add(interface{}) error
 	SetExpiry(sql.Enquirer, time.Time, *ExpirationPeriod) (int64, error)
 	Del(sql.Enquirer, *ExpirationPeriod) (numRows int64, e error)
 	Search(sql.Enquirer, *[]interface{}, *ExpirationPeriod) error
 }
 
-func NewDAO(ctx context.Context, store storage.Storage) (dao.DAO, error) {
+func NewDAO(ctx context.Context) (DAO, error) {
 	var db *gorm.DB
 
-	if store.Get(ctx, &db) {
+	if storage.Get(ctx, &db) {
 		return &sqlimpl{db: db}, nil
 	}
 
-	return nil, storage.UnsupportedDriver(store)
+	return nil, storage.NotFound
 }
