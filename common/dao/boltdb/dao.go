@@ -64,6 +64,9 @@ type Handler struct {
 	runtimeCtx  context.Context
 	statusInput chan map[string]interface{}
 	metricsName string
+	driver      string
+	dsn         string
+	prefix      string
 }
 
 // NewDAO creates a new handler for the boltdb dao
@@ -81,6 +84,9 @@ func NewDAO(ctx context.Context, driver string, dsn string, prefix string) (dao.
 		DAO:         dao.AbstractDAO(conn, driver, dsn, prefix),
 		runtimeCtx:  ctx,
 		metricsName: metricsName,
+		driver:      driver,
+		dsn:         dsn,
+		prefix:      prefix,
 	}, nil
 }
 
@@ -168,7 +174,6 @@ func (h *Handler) Compact(ctx context.Context, opts map[string]interface{}) (old
 	if e := copyDB.Update(func(txW *bolt.Tx) error {
 		return db.View(func(txR *bolt.Tx) error {
 			return txR.ForEach(func(name []byte, b *bolt.Bucket) error {
-				fmt.Println("MAIN", string(name))
 				bW, e := txW.CreateBucketIfNotExists(name)
 				if e != nil {
 					return e
@@ -213,17 +218,17 @@ func (h *Handler) Compact(ctx context.Context, opts map[string]interface{}) (old
 		return 0, 0, errors.Wrap(er, "replacing")
 	}
 
-	// And reassign Conn to this DB
-	if newDB, er2 := bolt.Open(p, 0600, &bolt.Options{Timeout: 5 * time.Second}); er2 != nil {
-		return 0, 0, errors.Wrap(er2, "re-opening connection on updated DB")
-	} else {
-		log.TasksLogger(ctx).Info("Reopened connection on new DB")
-		h.SetConn(ctx, newDB)
-		if st, e := os.Stat(p); e == nil {
-			new = st.Size()
-		}
-		return
+	// And re-open a new conn to this DB
+	log.TasksLogger(ctx).Info("Reopening connection on new DB")
+	conn, err := dao.NewConn(ctx, h.driver, h.dsn)
+	if err != nil {
+		return 0, 0, errors.Wrap(err, "re-opening DB")
 	}
+	h.DAO = dao.AbstractDAO(conn, h.driver, h.dsn, h.prefix)
+	if st, e := os.Stat(p); e == nil {
+		new = st.Size()
+	}
+	return
 }
 
 func copyValuesOrBucket(bW, bR *bolt.Bucket) error {
