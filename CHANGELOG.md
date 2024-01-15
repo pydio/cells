@@ -1,15 +1,14 @@
-# Changes between v4.3.2 and v4.3.3
+# Changes between v4.3.3 and v4.3.4
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v4.3.2...v4.3.3)
+[See Full Changelog](https://github.com/pydio/cells/compare/v4.3.3...v4.3.4)
 
-- [#2285f69](https://github.com/pydio/cells/commit/2285f697c1e1252f0c6141985d130d99882082c4): Missing dayjs dependency
-- [#480a61d](https://github.com/pydio/cells/commit/480a61d872a783afc620206c7af019aa206e2b79): Re-update minio
-- [#0135836](https://github.com/pydio/cells/commit/01358360765a74f66eba8784fd97169db97d69f7): update docker dependency (unused)
-- [#ebde943](https://github.com/pydio/cells/commit/ebde943e53fcd97ef7071c9c423c6b93442f21f8): Mod tidy
-- [#d8091d8](https://github.com/pydio/cells/commit/d8091d83e4910e0817f7a91a09c102f30810fe12): update minio source
-- [#d5ccac8](https://github.com/pydio/cells/commit/d5ccac895603378936372ecdf44d59ea41388db9): bump golang/x/crypto library
-- [#8baccd8](https://github.com/pydio/cells/commit/8baccd8c458d343aeb505f30dbc0ee7fee29b7c5): Scheduler limit debug logs memory
-- [#9e23b01](https://github.com/pydio/cells/commit/9e23b01ecccc7890567d6b59992092a4eb5291a1): Recompile/fix moment to dayjs migration
-- [#a9aa26d](https://github.com/pydio/cells/commit/a9aa26d9deb9f3aecda3f557b816add83f00f259): Append lang parameter to cool editor url
-- [#320a1f7](https://github.com/pydio/cells/commit/320a1f76e0f3bc9df73e8242bd3240290cac4208): Update minio-go client
-- [#d664aed](https://github.com/pydio/cells/commit/d664aed8dcb49c952f7d8cf4acda4c25fce4b7bc): Next development cycle
+- [#62ac826](https://github.com/pydio/cells/commit/62ac8261f8da98b2703de8c00153d82aea87b6d7): go.sum
+- [#7190a04](https://github.com/pydio/cells/commit/7190a048d6d2e874ac018f51311c734ab2d7116b): update quic-go
+- [#59d5336](https://github.com/pydio/cells/commit/59d53368e1f6c0af30f167ee8c201f7890338229): Fix JobParameters panel
+- [#bcc4d54](https://github.com/pydio/cells/commit/bcc4d546e739385052d26fd4062bd02c7a8192d9): Fix DB compaction again (wrong re-opening)
+- [#5473de1](https://github.com/pydio/cells/commit/5473de1a13c839323a0e6049ba44e741d0f774e7): Prevent a nil in handler-path-multiple-roots.go
+- [#b6d951e](https://github.com/pydio/cells/commit/b6d951e49476650f86f68e75a55e0769e74c47f4): Fix 0 value in MetaForm
+- [#5f428cc](https://github.com/pydio/cells/commit/5f428ccccba39b05e1e232d0a807dc265e3cc0b7): Compact DB: fix possible opened resource preventing disk space liberation before restart. Do not re-create buckets if they are empty.
+- [#a814e4a](https://github.com/pydio/cells/commit/a814e4a5892f14c9d799faa45c1f44ea8efa5ec4): Lower level when ignoring digest for users without workspaces
+- [#c93dbbc](https://github.com/pydio/cells/commit/c93dbbc39a9bce13ca5aff145abed2e08b2c6f11): Fix missing context metadata when sending some logs
+- [#0ca906c](https://github.com/pydio/cells/commit/0ca906ccffca5a485109cb17bf28fa056edd0fbc): Next development cycle
