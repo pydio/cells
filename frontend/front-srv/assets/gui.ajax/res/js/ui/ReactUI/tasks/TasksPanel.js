@@ -18,27 +18,30 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {useState, useRef, useEffect, useLayoutEffect} from 'react'
-import Pydio from 'pydio'
+import React, {useState, useRef, useLayoutEffect} from 'react'
 import JobsStore from './JobsStore'
 import {Paper, IconButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import JobEntry from './JobEntry'
 import debounce from 'lodash.debounce'
 
+import useRunningTasksMonitor from './useRunningTasksMonitor'
+
 /**
  * TasksPanel provides a view on the tasks registered
  * in the JobStore
  */
-let TasksPanel = ({pydio, muiTheme, mode, panelStyle, headerStyle}) => {
+let TasksPanel = ({pydio, muiTheme, mode, panelStyle, headerStyle, maxHeight=300}) => {
 
-    const [wsDisconnected, setWsDisconnected] = useState(false)
-    const [wsStartDisconnected, _] = useState(pydio.WebSocketClient.getStatus())
-    const [jobs, setJobs] = useState([])
-    const [folded, setFolded] = useState(true)
-    const [error, setError] = useState(null)
+
+    const [folded, setFolded] = useState(false)
+    const {wsDisconnected, running} = useRunningTasksMonitor({
+        pydio:pydio,
+        forceUnfold: () => setFolded(true)
+    });
     const [innerScroll, setInnerScroll] = useState(0)
     const innerPane = useRef(null)
+    const setInnerScrollDebounced = debounce(setInnerScroll, 1000)
 
     useLayoutEffect(()=> {
         if(folded) {
@@ -52,78 +55,25 @@ let TasksPanel = ({pydio, muiTheme, mode, panelStyle, headerStyle}) => {
             }
         }
         if(newScroll && innerScroll !== newScroll){
-            setInnerScroll(newScroll)
-        }
-    }, [folded, jobs])
-
-
-    const reload = () => {
-        JobsStore.getInstance().getJobs().then(jobs => {
-            const jArr = []
-            jobs.forEach(j => jArr.push(j))
-            setJobs(jArr)
-        }).catch(reason => {
-            setError(reason.message)
-        });
-    }
-
-    useEffect(()=> {
-        setTimeout(()=>{
-            // Recheck status after starting
-            if(wsStartDisconnected){
-                const status = pydio.WebSocketClient.getStatus();
-                if(!status){
-                    setWsDisconnected(true)
-                }
+            if (newScroll < innerScroll){
+                setInnerScrollDebounced(newScroll)
+            } else {
+                setInnerScroll(newScroll)
             }
-        }, 10000);
-    }, [])
-
-    useEffect(()=>{
-        reload()
-        const obs1 = (event) => {
-            setWsDisconnected(!event.status)
-            setFolded(true)
         }
-        pydio.observe("ws_status", obs1)
-        const obs2 = () => {
-            reload()
-        }
-        JobsStore.getInstance().observe("tasks_updated", obs2);
-        return () => {
-            pydio.stopObserving('ws_status', obs1)
-            JobsStore.getInstance().stopObserving('tasks_updated', obs2)
-        }
-    }, [])
-
+    }, [folded, running])
 
     const palette = muiTheme.palette;
     const Color = require('color');
     let headerColor = Color(palette.primary1Color).darken(0.1).alpha(0.50).toString();
 
-    const filtered = jobs.filter(j => j.Tasks).filter(j => {
-        let hasRunning = false;
-        j.Tasks.map(t => {
-            if (t.Status === 'Running' || t.Status === 'Paused'){
-                j.Time = t.StartTime;
-                hasRunning = true;
-            }
-        });
-        return hasRunning
-    })
+    let elements = running.map(j => <JobEntry muiTheme={muiTheme} key={j.ID} job={j} onTaskAction={JobsStore.getInstance().controlTask}/>);
 
-    filtered.sort((a,b)=>{
-        if (a.Time === b.Time){
-            return 0;
-        }
-        return a.Time > b.Time ? -1 : 1;
-    });
-
-    let elements = filtered.map(j => <JobEntry muiTheme={muiTheme} key={j.ID} job={j} onTaskAction={JobsStore.getInstance().controlTask}/>);
-    let height = Math.min(elements.length * 72, 300) + 38;
-    if(innerScroll){
-        height = Math.min(innerScroll, 300) + 38;
+    let height = innerScroll// || elements.length*72
+    if(maxHeight) {
+        height = Math.min(height, maxHeight);
     }
+    height += 38
 
     const {mui3={}} = palette;
     let mui3style;
@@ -239,8 +189,11 @@ let TasksPanel = ({pydio, muiTheme, mode, panelStyle, headerStyle}) => {
                 <div style={{padding: '12px 8px 12px 16px'}}>{title}</div>
                 {badge}
                 <span style={{flex: 1}}/>
-                {!folded && <IconButton iconClassName={"mdi mdi-chevron-down"} {...styles.iconButtonStyles} onClick={() => setFolded(true)} />}
-                {folded && <IconButton iconClassName={"mdi mdi-chevron-right"} {...styles.iconButtonStyles} onClick={() => setFolded(false)} />}
+                <IconButton
+                    iconClassName={"mdi mdi-chevron-" + (folded ? 'right' : 'down')}
+                    {...styles.iconButtonStyles}
+                    onClick={() => setFolded(!folded)}
+                />
             </Paper>
             }
             <div style={styles.innerPane} ref={innerPane}>

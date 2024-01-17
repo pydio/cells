@@ -123,6 +123,7 @@ class Activity extends React.Component{
     computeIcon(activity){
         let className = '';
         let title;
+        let actionIcon;
         switch (activity.type) {
             case "Create":
                 if (activity.object.type === 'Document'){
@@ -169,6 +170,7 @@ class Activity extends React.Component{
                     className = "folder"
                 }
                 title = "Shared";
+                actionIcon = 'mdi mdi-share-variant';
                 break;
             default:
                 break;
@@ -176,18 +178,16 @@ class Activity extends React.Component{
         if(className.indexOf('icomoon-') === -1){
             className = 'mdi mdi-' + className;
         }
-        return {title, className};
+        return {title, className, actionIcon};
     }
 
     render() {
 
-        let {pydio, activity, listContext, oneLiner, muiTheme, onRequestClose=()=>{}} = this.props;
+        let {pydio, activity, listContext, muiTheme, styles, onRequestClose=()=>{}} = this.props;
         let {hover} = this.state;
 
         let summary;
-        const {className} = this.computeIcon(activity);
-        const accentColor = muiTheme.palette.mui3['outline']
-
+        const {className, actionIcon} = this.computeIcon(activity);
 
         let blockStyle = {
             margin:0,
@@ -203,29 +203,18 @@ class Activity extends React.Component{
         const nodes = nodesFromObject(activity.object, pydio);
         let icon, primaryText;
         if(nodes.length){
-            const previewStyles = {
-                style: {
-                    height: 40,
-                    width: 40,
-                    borderRadius: 4
-                },
-                mimeFontStyle: {
-                    fontSize: 20,
-                    lineHeight: '36px',
-                    textAlign:'center'
-                }
-            };
             icon = (
                 <div style={{padding:'12px 20px 12px 20px', position:'relative'}}>
-                    <FilePreview pydio={pydio} node={nodes[0]} loadThumbnail={true} {...previewStyles}/>
-                    <span className={className} style={{position:'absolute', bottom: 8, right: 12, fontSize:18, color: accentColor}}/>
+                    <FilePreview pydio={pydio} node={nodes[0]} loadThumbnail={true} style={styles.mFontContainer} mimeFontStyle={styles.mFont}/>
+                    <span className={className} style={{...styles.actionIcon, bottom: 10, right: 18}}/>
                 </div>
             );
             primaryText = nodes[0].getLabel() || PathUtils.getBasename(nodes[0].getPath())
         } else {
             icon = (
-                <div style={{margin:'8px 20px', backgroundColor: 'var(--md-sys-color-primary-container)', alignItems: 'initial', height: 36, width: 36, borderRadius: '50%', textAlign:'center'}}>
-                    <FontIcon className={className} style={{lineHeight:'36px'}}/>
+                <div className={"mimefont-container"} style={{margin:'8px 20px', position:'relative', ...styles.mFontContainer}}>
+                    <FontIcon className={className} style={styles.mFont}/>
+                    {actionIcon && <span className={actionIcon} style={styles.actionIcon}/>}
                 </div>
             );
             if(activity.object) {
@@ -259,26 +248,6 @@ class Activity extends React.Component{
 
         return (
             <div style={blockStyle} onMouseEnter={()=>this.setState({hover:true})} onMouseLeave={()=>this.setState({hover:false})} onClick={onClick}>
-                {!oneLiner &&
-                    <div style={{display:'flex', alignItems:'center'}}>
-                        {activity.actor &&
-                            <UserAvatar
-                                useDefaultAvatar={true}
-                                userId={activity.actor.id}
-                                userLabel={activity.actor.name}
-                                displayLocalLabel={true}
-                                userType={'user'}
-                                pydio={pydio}
-                                style={{display:'flex', alignItems:'center', maxWidth: '60%'}}
-                                labelStyle={{fontSize: 14, fontWeight: 500, paddingLeft: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace:'nowrap'}}
-                                avatarStyle={{flexShrink: 0}}
-                                avatarSize={28}
-                                richOnHover={true}
-                            />
-                        }
-                        <span style={{fontSize:13, display:'inline-block', flex:1, height:18, color: 'rgba(0,0,0,0.23)', fontWeight:500, paddingLeft:8, whiteSpace:'nowrap'}}>{moment(activity.updated).fromNow()}</span>
-                    </div>
-                }
                 {summary}
             </div>
         );

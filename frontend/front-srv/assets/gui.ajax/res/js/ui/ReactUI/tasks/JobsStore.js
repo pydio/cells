@@ -68,7 +68,7 @@ class JobsStore extends Observable {
 
         this.pydio.observe("registry_loaded", ()=>{
             setTimeout(()=>{
-                this.getJobs(true).then(() =>{
+                this.getJobs(true, 'Any').then(() =>{
                     this.notify("tasks_updated");
                 });
             }, 500);
@@ -91,7 +91,7 @@ class JobsStore extends Observable {
             }
         });
         if (hasPending) {
-            this.getJobs(true).then(() =>{
+            this.getJobs(true, 'Any').then(() =>{
                 this.notify("tasks_updated");
             });
         }
@@ -99,9 +99,10 @@ class JobsStore extends Observable {
 
     /**
      * @param forceRefresh bool
+     * @param statusString string
      * @return Promise
      */
-    getJobs(forceRefresh = false){
+    getJobs(forceRefresh = false, statusString = 'Running'){
 
         if(!this.pydio.user){
             this.tasksList = new Map();
@@ -117,7 +118,7 @@ class JobsStore extends Observable {
             });
             const api = new JobsServiceApi(PydioApi.getRestClient());
             const request = new JobsListJobsRequest();
-            request.LoadTasks = JobsTaskStatus.constructFromObject('Running');
+            request.LoadTasks = JobsTaskStatus.constructFromObject(statusString);
             return api.userListJobs(request).then(result => {
                 this.loaded = true;
                 const jj = result.Jobs || []

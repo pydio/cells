@@ -26,7 +26,7 @@ import DOMUtils from 'pydio/util/dom'
 import UserWidget from './UserWidget'
 import WorkspacesList from '../wslist/WorkspacesList'
 
-const {TasksPanel} = Pydio.requireLib("boot");
+const {useRunningTasksMonitor} = Pydio.requireLib("boot");
 import {muiThemeable} from 'material-ui/styles'
 import {Resizable} from 're-resizable'
 import PydioApi from 'pydio/http/api';
@@ -34,8 +34,10 @@ import ResourcesManager from 'pydio/http/resources-manager';
 import {UserServiceApi} from 'cells-sdk';
 import BookmarksList from "./BookmarksList";
 import Tooltip from '@mui/material/Tooltip'
+import CircularProgress from '@mui/material/CircularProgress'
+import NotificationsList from "./NotificationsList";
 
-const RailIcon = muiThemeable()(({muiTheme,icon,iconOnly = false,text,active,alert,last = false,onClick = () => {},hover,setHover}) => {
+const RailIcon = muiThemeable()(({muiTheme,icon,iconOnly = false,text,active,alert,progress,indeterminate,last = false,onClick = () => {},hover,setHover}) => {
     const [iHover, setIHover] = useState(false)
 
     let iconBg = 'transparent'
@@ -84,6 +86,11 @@ const RailIcon = muiThemeable()(({muiTheme,icon,iconOnly = false,text,active,ale
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis'
+        },
+        circular: {
+            position: 'absolute',
+            top: 0,
+            left: 12
         }
     }
     if (iconOnly) {
@@ -106,6 +113,7 @@ const RailIcon = muiThemeable()(({muiTheme,icon,iconOnly = false,text,active,ale
             {iconOnly && <Tooltip title={<div style={{padding:'2px 10px'}}>{text}</div>} placement={"right"}><span className={"mdi mdi-" + icon} style={styles.icon}/></Tooltip>}
             {!iconOnly && <div style={styles.text}>{text}</div>}
             {alert && <div style={styles.alert}/>}
+            {(progress || indeterminate) && <CircularProgress variant={indeterminate?'indeterminate':'determinate'} value={progress*100} style={styles.circular} sx={{color:()=>muiTheme.palette.accent1Color}} thickness={2}/>}
         </div>
     )
 })
@@ -135,6 +143,7 @@ let RailPanel = ({
     const [ASData, setASData] = useState([])
     const [ASLib, setASLib] = useState()
     const [unreadCount, setUnreadCount] = useState(0)
+    const {wsDisconnected, running, jobs, progress} = useRunningTasksMonitor({pydio, statusString:'Any'})
 
     const [activeClosed, setActiveClosed] = useState(user.getGUIPreference('Layout.RailPanel.ActiveClosed')||false)
     const updateActiveClosed = (c) => {
@@ -156,6 +165,25 @@ let RailPanel = ({
         user.setGUIPreference('Layout.RailPanel.ActiveWidth', w/DOMUtils.getViewportWidth(), true)
     }
 
+    const activitiesLoader = () => {
+        if (!ASLib) {
+            return
+        }
+        const {ASClient} = ASLib
+        if (hover && hoverBarDef && hoverBarDef.id === 'notifications') {
+            ASClient.loadActivityStreams('USER_ID', pydio.user.id, 'inbox', '', 0, 10).then((json) => {
+                setASData(json.items)
+            }).catch(e => {
+            });
+        } else {
+            ASClient.UnreadInbox(pydio.user.id).then((count) => {
+                setUnreadCount(count);
+            }).catch(msg => {
+            });
+        }
+    }
+
+
     useEffect(()=>{
         ResourcesManager.loadClass('PydioActivityStreams').then(ns => {
             setASLib(ns)
@@ -163,43 +191,12 @@ let RailPanel = ({
     }, [])
 
     useEffect(() => {
-        if(ASLib) {
-            const {ASClient} = ASLib
-            setASLib(ASLib)
-            if (hoverBarDef && hoverBarDef.id === 'notifications') {
-                ASClient.loadActivityStreams('USER_ID', pydio.user.id, 'inbox').then((json) => {
-                    setASData(json.items)
-                }).catch(msg => {
-                    console.error(msg)
-                });
-            }
-            ASClient.UnreadInbox(pydio.user.id).then((count) => {
-                setUnreadCount(count);
-            }).catch(msg => {
-            });
-        }
+        activitiesLoader()
     },[hoverBarDef, ASLib])
 
     useEffect(() => {
-        const observer = (event) => {
-            if (!ASLib) {
-                return
-            }
-            const {ASClient} = ASLib
-            if (hover && hoverBarDef && hoverBarDef.id === 'notifications') {
-                ASClient.loadActivityStreams('USER_ID', pydio.user.id, 'inbox').then((json) => {
-                    setASData(json.items)
-                }).catch(e => {
-                });
-            } else {
-                ASClient.UnreadInbox(pydio.user.id).then((count) => {
-                    setUnreadCount(count);
-                }).catch(msg => {
-                });
-            }
-        }
-        pydio.observe('websocket_event:activity', observer)
-        return () => pydio.stopObserving('websocket_event:activity', observer)
+        pydio.observe('websocket_event:activity', activitiesLoader)
+        return () => pydio.stopObserving('websocket_event:activity', activitiesLoader)
     }, [hover, hoverBarDef, ASLib])
 
     const wsBar = (className = '') => (
@@ -210,7 +207,7 @@ let RailPanel = ({
                 showTreeForWorkspace={pydio.user ? pydio.user.activeRepository : false}
                 {...workspacesListProps}
             />
-            <TasksPanel pydio={pydio} mode={"flex"}/>
+
         </Fragment>
     )
 
@@ -291,19 +288,19 @@ let RailPanel = ({
                     icon: 'bell-outline',
                     hoverWidth: 320,
                     alert: unreadCount > 0,
-                    hoverBar: (lib, data) => {
-                        if (!lib) {
-                            return null;
-                        }
-                        const {ActivityList} = lib;
+                    progress: progress,
+                    indeterminate:running.length > 0 && !progress,
+                    hoverBar: (lib, data=[], jobs=[]) => {
                         return (
                             <div style={{height:'100%', display:'flex', flexDirection:'column', width:'100%', overflow:'hidden'}} className={"rail-hover-bar"}>
                                 <div style={{fontSize: 20, padding:16}}>{MessageHash['notification_center.1']}</div>
-                                <ActivityList
-                                    items={data || []}
+                                <NotificationsList
+                                    ASLib={lib}
+                                    muiTheme={muiTheme}
+                                    pydio={pydio}
+                                    activities={data}
+                                    jobs={jobs}
                                     style={{overflowY: 'scroll', flex: 1}}
-                                    groupByDate={true}
-                                    displayContext={"popover"}
                                     onRequestClose={()=>{setHover(false)}}
                                 />
                             </div>
@@ -474,7 +471,7 @@ let RailPanel = ({
                     <div className={"vertical_layout" + (showStickToggle?' with-rail-stick-toggle':'')}
                          style={{flex: 1, height: '100%', position: 'absolute', width: innerWidth, right: 0, ...style}}
                          onMouseEnter={() => setHover(true)}
-                         onMouseLeave={() => setHover(false)}>{hoverBarDef && hoverBarDef.hoverBar(ASLib, ASData)}</div>
+                         onMouseLeave={() => setHover(false)}>{hoverBarDef && hoverBarDef.hoverBar(ASLib, ASData, jobs)}</div>
                     {showStickToggle &&
                         <div
                             style={{...closerStyle}}

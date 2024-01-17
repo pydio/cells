@@ -51,6 +51,8 @@ import moment from './Moment'
 import TasksPanel from './tasks/TasksPanel'
 import JobsStore from './tasks/JobsStore'
 import SingleJobProgress from './tasks/SingleJobProgress'
+import JobEntry from './tasks/JobEntry'
+import useRunningTasksMonitor from './tasks/useRunningTasksMonitor'
 
 import Tooltip from 'material-ui/internal/Tooltip'
 import M3Tooltip from '@mui/material/Tooltip'
@@ -92,4 +94,6 @@ export {
     TasksPanel,
     JobsStore,
     SingleJobProgress,
+    JobEntry,
+    useRunningTasksMonitor
 }

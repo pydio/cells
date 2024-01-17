@@ -26,11 +26,14 @@ class JobEntry extends React.Component {
 
     render(){
 
-        const {job, muiTheme} = this.props;
+        const {job, muiTheme, panelStyle, titleStyle, statusStyle} = this.props;
         let click, clickStyle;
         if(job.openDetailPane){
             click = job.openDetailPane;
             clickStyle = {cursor:'pointer'};
+        }
+        if(!job.Tasks) {
+            return null;
         }
         let task;
         job.Tasks.forEach(t => {
@@ -38,10 +41,13 @@ class JobEntry extends React.Component {
                 task = t;
             }
         });
+        if(!task) {
+            task = job.Tasks[0]
+        }
 
         let progress;
         if(task && task.HasProgress && task.Status !== 'Error' && task.Progress < 1){
-            progress = (<LinearProgress mode="determinate" min={0} max={100} value={task.Progress * 100} style={{width:'100%', height: 2}}/>);
+            progress = (<LinearProgress mode="determinate" min={0} max={100} value={task.Progress * 100} style={{width:'100%', height: 3}}/>);
         }
         const {mui3 = {}} = muiTheme.palette
 
@@ -51,17 +57,20 @@ class JobEntry extends React.Component {
                 padding: '0 8px 8px',
                 backgroundColor: 'transparent',
                 color: 'inherit',
+                ...panelStyle,
                 ...clickStyle
             },
             title: {
                 fontSize: 14,
                 fontWeight: 500,
-                flex: 1
+                flex: 1,
+                ...titleStyle
             },
             status: {
                 fontSize: 13,
                 color: mui3['outline-variant'],
-                padding: '4px 0 8px'
+                padding: '4px 0 8px',
+                ...statusStyle
             }
         };
 
