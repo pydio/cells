@@ -25,6 +25,7 @@ import (
 	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/utils/std"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -43,11 +44,15 @@ type mongodb struct {
 func (m *mongodb) Open(c context.Context, dsn string) (dao.Conn, error) {
 
 	log.Logger(c).Info("[MongoDB] attempt connection")
+	if strings.Contains(dsn, "srvScheme=true") {
+		dsn = strings.Replace(dsn, "srvScheme=true", "", 1)
+		dsn = strings.Replace(dsn, "mongodb://", "mongodb+srv://", 1)
+	}
 	oo := options.Client().ApplyURI(dsn)
 	if u, e := url.Parse(dsn); e == nil && (u.Query().Get("ssl") == "true" || u.Query().Get("tls") == "true") {
-		if tlsConfig, er := crypto.TLSConfigFromURL(u); er == nil {
+		if tlsConfig, er := crypto.TLSConfigFromURL(u); er == nil && tlsConfig != nil {
 			oo.TLSConfig = tlsConfig
-		} else {
+		} else if er != nil {
 			log.Logger(c).Warn("Could not parse tlsOptions from URL: " + er.Error())
 		}
 	}
