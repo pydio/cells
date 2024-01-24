@@ -431,6 +431,38 @@ func TestSearchNode(t *testing.T) {
 
 	})
 
+	Convey("Search Node by UUID(s)", t, func() {
+
+		queryObject := &tree.Query{
+			UUIDs: []string{"randomUUID"},
+		}
+		results, e := search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 0)
+
+		queryObject = &tree.Query{
+			UUIDs: []string{"docID1"},
+		}
+		results, e = search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 1)
+
+		queryObject = &tree.Query{
+			UUIDs: []string{"docID1", "docID2"},
+		}
+		results, e = search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 2)
+
+		queryObject = &tree.Query{
+			FreeString: "+Uuid:\"docID1\"",
+		}
+		results, e = search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 1)
+
+	})
+
 	Convey("Search Node by name with Path Prefix", t, func() {
 
 		queryObject := &tree.Query{
