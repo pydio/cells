@@ -269,24 +269,23 @@ func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.Own
 			if len(lastRead) == 0 {
 				lastRead = k
 			}
-			if reverseOffset > 0 && i < reverseOffset {
-				i++
-				continue
-			}
 			acObject := &activity.Object{}
 			err := json.Unmarshal(v, acObject)
 			if prevObj != nil && dao.activitiesAreSimilar(prevObj, acObject) {
 				prevObj = acObject // Ignore similar events - TODO : add occurrence number?
 				continue
 			}
-			if err == nil {
-				i++
-				total++
-				result <- acObject
-				prevObj = acObject
-			} else {
+			if err != nil {
 				return err
 			}
+			prevObj = acObject
+			if reverseOffset > 0 && i < reverseOffset {
+				i++
+				continue
+			}
+			i++
+			total++
+			result <- acObject
 			if limit > 0 && total >= limit {
 				break
 			}

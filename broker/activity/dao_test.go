@@ -412,6 +412,111 @@ func TestCursor(t *testing.T) {
 	})
 }
 
+func TestSimilarSkipping(t *testing.T) {
+
+	if os.Getenv("CELLS_TEST_MONGODB_DSN") != "" {
+		t.Skip("Skipping Similary Grouping for Mongo")
+	}
+
+	dao, def := initDao()
+	defer def()
+
+	Convey("Insert Activities and browse", t, func() {
+
+		numberSimilar := 4
+		startSimilar := 14
+
+		for i := 0; i < 20; i++ {
+			actorId := uuid.New()
+			actorName := fmt.Sprintf("Random User %d", i+1)
+			if i > startSimilar && i <= startSimilar+numberSimilar {
+				actorId = "same-actor-id"
+				actorName = "SameActorName"
+			}
+			ac := &activity.Object{
+				Type: activity.ObjectType_Update,
+				Actor: &activity.Object{
+					Type: activity.ObjectType_Person,
+					Name: actorName,
+					Id:   actorId,
+				},
+				Object: &activity.Object{
+					Id: "same-object-id",
+				},
+			}
+			err := dao.PostActivity(ctx, activity.OwnerType_USER, "charles", BoxInbox, ac, false)
+			So(err, ShouldBeNil)
+		}
+
+		var results []*activity.Object
+		resChan := make(chan *activity.Object)
+		doneChan := make(chan bool)
+
+		readResults := func(waiter *sync.WaitGroup) {
+			defer waiter.Done()
+			for {
+				select {
+				case act := <-resChan:
+					if act != nil {
+						results = append(results, act)
+					}
+				case <-doneChan:
+					return
+				}
+			}
+		}
+
+		wg := &sync.WaitGroup{}
+		wg.Add(1)
+		go func() {
+			readResults(wg)
+		}()
+		err := dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 20, resChan, doneChan)
+		wg.Wait()
+		So(err, ShouldBeNil)
+		So(results, ShouldHaveLength, 20-(numberSimilar-1))
+
+		results = []*activity.Object{}
+		wg = &sync.WaitGroup{}
+		wg.Add(1)
+		go func() {
+			readResults(wg)
+		}()
+		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 0, 4, resChan, doneChan)
+		wg.Wait()
+		So(err, ShouldBeNil)
+		var res1 []string
+		for _, r := range results {
+			t.Log("0 - 4 : Received", r.Id)
+			res1 = append(res1, r.Id)
+		}
+
+		results = []*activity.Object{}
+		wg = &sync.WaitGroup{}
+		wg.Add(1)
+		go func() {
+			readResults(wg)
+		}()
+		err = dao.ActivitiesFor(ctx, activity.OwnerType_USER, "charles", BoxInbox, "", 4, 4, resChan, doneChan)
+		wg.Wait()
+		So(err, ShouldBeNil)
+		var res2 []string
+		for _, r := range results {
+			t.Log("5 - 8 : Received", r.Id)
+			res2 = append(res2, r.Id)
+		}
+		// Check that there are no duplicates: all keys should be uniques
+		union := map[string]struct{}{}
+		for _, k1 := range res1 {
+			union[k1] = struct{}{}
+		}
+		for _, k2 := range res2 {
+			union[k2] = struct{}{}
+		}
+		So(union, ShouldHaveLength, len(res1)+len(res2))
+	})
+}
+
 func TestDelete(t *testing.T) {
 
 	dao, def := initDao()
