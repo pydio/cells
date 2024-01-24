@@ -46,9 +46,13 @@ const PluginsManager = createReactClass({
                     title={this.props.currentNode.getLabel()}
                     icon={this.props.currentNode.getMetadata().get('icon_class')}
                     reloadAction={this.reload}
-                    actions={[
-                        <ModernTextField style={{width:196}} hintText={this.props.pydio.MessageHash['87']} value={filter} onChange={(e,v)=>{this.setState({filter: v})}}/>
-                    ]}
+                    centerContent={
+                    <div style={{display:'flex', alignItems:'center', justifyContent:'center', paddingLeft: 12}}>
+                        <div style={{flex: 1, maxWidth: 420}}>
+                            <ModernTextField fullWidth={true} hintText={this.props.pydio.MessageHash['87']} value={filter} onChange={(e,v)=>{this.setState({filter: v})}} variant={"compact"}/>
+                        </div>
+                    </div>
+                    }
                 />
                 <Paper {...adminStyles.body.block.props} className="vertical-layout layout-fill">
                     <PluginsList {...this.props} hideToolbar={true} ref="list" filterString={filter}/>

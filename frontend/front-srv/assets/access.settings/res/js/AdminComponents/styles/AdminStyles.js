@@ -127,7 +127,9 @@ export default function(palette = {}) {
                         borderRadius: '50%',
                         backgroundColor: palette.primary1Color,
                         padding: 7,
-                        marginLeft: 5
+                        marginLeft: 5,
+                        display:'flex',
+                        justifyContent:'center'
                     },
                     iconStyle:{
                         fontSize: 20,
