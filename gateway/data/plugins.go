@@ -52,10 +52,10 @@ import (
 )
 
 func patchListBucketRequest(route string, request *http.Request) {
-	if request.URL.Path == route || request.URL.Path == route+"/" {
+	if request.RequestURI == route || request.RequestURI == route+"/" {
 		request.RequestURI = "/"
 		request.URL.Path = "/"
-	} else if strings.HasPrefix(request.URL.Path, route+"/probe-bucket-sign*") {
+	} else if strings.HasPrefix(request.RequestURI, route+"/probe-bucket-sign*") {
 		request.RequestURI = strings.TrimPrefix(request.RequestURI, route)
 		request.URL.Path = request.RequestURI
 	}
