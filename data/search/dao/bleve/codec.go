@@ -268,6 +268,20 @@ func (b *Codec) BuildQuery(qu interface{}, offset, limit int32) (interface{}, in
 		boolean.AddMust(qStringQuery)
 	}
 
+	if len(queryObject.UUIDs) > 1 {
+		bQ := bleve.NewBooleanQuery()
+		for _, u := range queryObject.UUIDs {
+			tq := bleve.NewMatchQuery(u)
+			tq.SetField("Uuid")
+			bQ.AddShould(tq)
+		}
+		boolean.AddMust(bQ)
+	} else if len(queryObject.UUIDs) == 1 {
+		tq := bleve.NewMatchQuery(queryObject.UUIDs[0])
+		tq.SetField("Uuid")
+		boolean.AddMust(tq)
+	}
+
 	if queryObject.GeoQuery != nil {
 		if queryObject.GeoQuery.Center != nil && len(queryObject.GeoQuery.Distance) > 0 {
 			distanceQuery := bleve.NewGeoDistanceQuery(queryObject.GeoQuery.Center.Lon, queryObject.GeoQuery.Center.Lat, queryObject.GeoQuery.Distance)

@@ -199,14 +199,27 @@ func (m *Codex) BuildQuery(query interface{}, offset, limit int32) (interface{},
 		}
 		filters = append(filters, bson.E{"node_type", nodeType})
 	}
+
 	if queryObject.Extension != "" {
 		filters = append(filters, bson.E{"extension", strings.ToLower(queryObject.Extension)})
+	}
+
+	if len(queryObject.UUIDs) == 1 {
+		filters = append(filters, bson.E{Key: "uuid", Value: queryObject.UUIDs[0]})
+	} else if len(queryObject.UUIDs) > 1 {
+		ors := bson.A{}
+		for _, nodeId := range queryObject.UUIDs {
+			ors = append(ors, bson.M{"uuid": nodeId})
+		}
+		filters = append(filters, bson.E{Key: "$or", Value: ors})
 	}
 
 	if queryObject.FreeString != "" {
 		if freeFilters, er := mongodb.BleveQueryToMongoFilters(queryObject.FreeString, true, func(s string) string {
 			if s == "Basename" {
 				return "basename"
+			} else if s == "Uuid" {
+				return "uuid"
 			}
 			return strings.Replace(s, "Meta.", "meta.", 1)
 		}); er == nil {
