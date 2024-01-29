@@ -1,0 +1,97 @@
+.react-mui-context {
+
+  .chat-droppable-active {
+    border: 2px dashed var(--md-sys-color-tertiary) !important;
+  }
+
+  .dropping-panel {
+    font-size: 14px;
+    margin: 8px -8px;
+    border-radius: 5px;
+    padding: 8px;
+    background-color: var(--md-sys-color-tertiary-container);
+    color: var(--md-sys-color-on-tertiary-container);
+    position: relative;
+    .mdi.mdi-close, .include-action {
+      cursor: pointer;
+      opacity: 0.7;
+    }
+  }
+
+  .chat-message-md *, .comments_feed .user-label, .comments_feed .date-from{
+    user-select: text;
+  }
+
+  .chat-message-md {
+    font-size: 14px;
+    line-height: 1.5em;
+
+    p{
+      padding-top: 0;
+      margin-bottom: 0;
+    }
+    strong {
+      font-weight: 500;
+    }
+    a {
+      text-decoration: underline;
+      color:var(--md-sys-color-primary);
+      cursor: pointer;
+    }
+    a.special-link{
+      background-color:var(--md-sys-color-tertiary-container);
+      color:var(--md-sys-color-on-tertiary-container);
+      border-radius: 5px;
+      padding: 3px 8px;
+      text-decoration:none;
+    }
+    ul {
+      padding-left: 20px;
+      li {
+        position: relative;
+        list-style: none;
+        .special-link {
+          line-height: 2em;
+        }
+        &:before {
+          content: '\2192';
+          position: absolute;
+          left: -20px;
+        }
+      }
+    }
+
+    .preview-container {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid var(--md-sys-color-tertiary-container);
+      position: relative;
+      .preview-title{
+        position: absolute;
+        background-color: var(--md-sys-color-tertiary-container);
+        color: var(--md-sys-color-on-tertiary-container);
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
+        padding: 3px 8px;
+        opacity: 0.8;
+      }
+      .mimefont-container {
+        height: 200px;
+        min-height: 200px;
+        display: flex;
+        align-items: center !important;
+        justify-content: center;
+      }
+      .mdviewer {
+        white-space: break-spaces;
+      }
+      &:hover {
+        border: 2px solid var(--md-sys-color-tertiary);
+      }
+    }
+
+  }
+
+}

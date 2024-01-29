@@ -220,6 +220,8 @@ class ChatClient extends PydioWebSocket {
                         v.messageHandler(wsMessage, deleteMsg);
                     }catch(e){}
                 })
+            } else {
+                console.log('Cannot find room ' + wsMessage.RoomUuid, this.rooms)
             }
         }
     }

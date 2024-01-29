@@ -106,22 +106,7 @@ class SearchApi {
         request.SortField = sortField
         request.SortDirDesc = sortDesc;
 
-        const defaultSlug = this.pydio.user.getActiveRepositoryObject().getSlug();
-        return new Promise((resolve, reject) => {
-            this.api.nodes(request).then(response => {
-                if(!response.Results){
-                    resolve({Results: [], Total: 0});
-                }
-                response.Results = response.Results.map(n => {
-                    return MetaNodeProvider.parseTreeNode(n, '', defaultSlug);
-                });
-                resolve(response);
-
-            }).catch((e) => {
-                reject(e);
-            })
-        });
-
+        return this.searchRequest(request);
     }
 
     autoQuote(text){
@@ -129,6 +114,31 @@ class SearchApi {
             return "\"" + text + "\"";
         }
         return text;
+    }
+
+    // Search a node by its UUID
+    searchByUUID(nodeUUID, minimalStats=true) {
+        let query = new TreeQuery();
+        query.UUIDs = [nodeUUID];
+        let request = new TreeSearchRequest();
+        request.Query = query;
+        if(minimalStats) {
+            request.StatFlags = [4];
+        }
+        return this.searchRequest(request)
+    }
+
+    searchRequest(request) {
+        const defaultSlug = this.pydio.user.getActiveRepositoryObject().getSlug();
+        return this.api.nodes(request).then(response => {
+            if(!response.Results){
+                return {Results: [], Total: 0}
+            }
+            response.Results = response.Results.map(n => {
+                return MetaNodeProvider.parseTreeNode(n, '', defaultSlug);
+            });
+            return response;
+        })
     }
 
 }
