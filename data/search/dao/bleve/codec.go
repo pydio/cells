@@ -281,12 +281,16 @@ func (b *Codec) BuildQuery(qu interface{}, offset, limit int32, sortFields strin
 		bQ := bleve.NewBooleanQuery()
 		for _, u := range queryObject.UUIDs {
 			tq := bleve.NewMatchQuery(u)
+			// This is important to avoid retrieving uuids with similar parts.
+			tq.SetOperator(query.MatchQueryOperatorAnd)
 			tq.SetField("Uuid")
 			bQ.AddShould(tq)
 		}
 		boolean.AddMust(bQ)
 	} else if len(queryObject.UUIDs) == 1 {
 		tq := bleve.NewMatchQuery(queryObject.UUIDs[0])
+		// This is important to avoid retrieving uuids with similar parts.
+		tq.SetOperator(query.MatchQueryOperatorAnd)
 		tq.SetField("Uuid")
 		boolean.AddMust(tq)
 	}

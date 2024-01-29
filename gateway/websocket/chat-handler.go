@@ -248,18 +248,50 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 					}
 				}
 			}
+			// First make sure to send a RoomUpdate
+			wsMessage := &chat.WebSocketMessage{
+				Type: chat.WsMessageType_ROOM_UPDATE,
+				Room: foundRoom,
+			}
+			buff, _ := protojson.Marshal(wsMessage)
+			session.Write(buff)
+
 			// List existing Messages
 			ct, ca := context.WithCancel(ctx)
 			defer ca()
 			stream, e2 := chatClient.ListMessages(ct, request)
 			if e2 == nil {
+				count := 0
+				var first *chat.ChatMessage
 				for {
 					resp, e3 := stream.Recv()
 					if e3 != nil {
 						break
 					}
-					b, _ := protojson.Marshal(resp.Message)
-					session.Write(b)
+					if count == 0 {
+						first = resp.GetMessage()
+					}
+					b, _ := protojson.Marshal(resp.GetMessage())
+					_ = session.Write(b)
+					count++
+				}
+				if request.Limit > 0 && count == int(request.Limit) && first != nil {
+					// indicate that there may be more pending messages
+					type HasMoreData struct {
+						Type      string `json:"@type"`
+						RoomUuid  string `json:"RoomUuid"`
+						Timestamp int64  `json:"Timestamp"`
+						Offset    int    `json:"Offset"`
+						Limit     int    `json:"Limit"`
+					}
+					b, _ := json.Marshal(HasMoreData{
+						Type:      "MAY_HAVE_MORE",
+						RoomUuid:  foundRoom.Uuid,
+						Timestamp: first.GetTimestamp(),
+						Offset:    int(request.Offset + request.Limit),
+						Limit:     int(request.Limit),
+					})
+					_ = session.Write(b)
 				}
 			}
 

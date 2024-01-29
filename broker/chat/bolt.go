@@ -24,17 +24,15 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"github.com/pydio/cells/v4/common/log"
-
-	bolt "go.etcd.io/bbolt"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+	bolt "go.etcd.io/bbolt"
 )
 
 type boltdbimpl struct {
@@ -360,6 +358,34 @@ func (h *boltdbimpl) PostMessage(ctx context.Context, request *chat.ChatMessage)
 	})
 
 	return request, err
+}
+
+func (h *boltdbimpl) UpdateMessage(ctx context.Context, request *chat.ChatMessage, callback MessageMatcher) (out *chat.ChatMessage, err error) {
+
+	err = h.DB().Update(func(tx *bolt.Tx) error {
+		bucket, err := h.getMessagesBucket(tx, false, request.RoomUuid)
+		if err != nil {
+			return nil
+		}
+		c := bucket.Cursor()
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+			var msg chat.ChatMessage
+			if er := json.Unmarshal(v, &msg); er != nil {
+				continue
+			}
+			matches, newMsg, er := callback(&msg)
+			if er != nil {
+				return er
+			}
+			if matches {
+				out = newMsg
+				newData, _ := json.Marshal(newMsg)
+				return bucket.Put(k, newData)
+			}
+		}
+		return nil
+	})
+	return
 }
 
 func (h *boltdbimpl) DeleteMessage(ctx context.Context, message *chat.ChatMessage) error {

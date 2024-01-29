@@ -30,15 +30,27 @@ import (
 	"github.com/pydio/cells/v4/common/proto/chat"
 )
 
+type MessageMatcher func(msg *chat.ChatMessage) (matches bool, filtered *chat.ChatMessage, err error)
+
 type DAO interface {
 	dao.DAO
+	// PutRoom creates a new ChatRoom
 	PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.ChatRoom, error)
+	// DeleteRoom deletes a whole ChatRoom
 	DeleteRoom(ctx context.Context, room *chat.ChatRoom) (bool, error)
+	// ListRooms lists all chat rooms with request criteria
 	ListRooms(ctx context.Context, request *chat.ListRoomsRequest) ([]*chat.ChatRoom, error)
+	// RoomByUuid loads a room by UUID
 	RoomByUuid(ctx context.Context, byType chat.RoomType, roomUUID string) (*chat.ChatRoom, error)
+	// ListMessages loads all message for a given room, with cursor information
 	ListMessages(ctx context.Context, request *chat.ListMessagesRequest) ([]*chat.ChatMessage, error)
+	// PostMessage appends a message to the list, generating a UUID if required.
 	PostMessage(ctx context.Context, request *chat.ChatMessage) (*chat.ChatMessage, error)
+	// UpdateMessage updates the content of a message. It must check that new message's author matches existing author.
+	UpdateMessage(ctx context.Context, request *chat.ChatMessage, callback MessageMatcher) (*chat.ChatMessage, error)
+	// DeleteMessage deletes a message by UUID
 	DeleteMessage(ctx context.Context, message *chat.ChatMessage) error
+	// CountMessages counts all messages in a ChatRoom
 	CountMessages(ctx context.Context, room *chat.ChatRoom) (count int, e error)
 }
 
