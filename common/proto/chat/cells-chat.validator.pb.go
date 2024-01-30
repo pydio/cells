@@ -25,6 +25,7 @@ func (this *ChatMessage) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Activity", err)
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *PutRoomRequest) Validate() error {

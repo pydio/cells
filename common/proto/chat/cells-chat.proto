@@ -32,7 +32,9 @@ message ChatMessage {
     string Author = 4;
     int64 Timestamp = 5;
 
+    // Additional information or metadata
     activity.Object Activity = 6;
+    map<string,string> Info = 7;
 }
 
 service ChatService {
