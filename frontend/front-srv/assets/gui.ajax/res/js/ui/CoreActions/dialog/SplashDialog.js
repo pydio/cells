@@ -23,7 +23,7 @@ import createReactClass from 'create-react-class';
 import Pydio from "pydio";
 import {Card, CardTitle, CardText, Divider, FlatButton, FontIcon, IconButton, CardActions} from 'material-ui'
 const {ActionDialogMixin, SubmitButtonProviderMixin, Loader} = Pydio.requireLib('boot');
-import Markdown from "react-markdown";
+import Markdown from 'react-markdown';
 
 const mdStyle = `
 .credits-md h4 {
@@ -102,7 +102,7 @@ const SplashDialog = createReactClass({
     render(){
         let credit;
         if (this.state.aboutContent) {
-            credit = <Markdown source={this.state.aboutContent}/>;
+            credit = <Markdown>{this.state.aboutContent}</Markdown>;
         } else {
             credit = <Loader style={{minHeight: 200}}/>;
         }

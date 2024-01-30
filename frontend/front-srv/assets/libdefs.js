@@ -83,13 +83,7 @@ const LibRequires = [ // modules we want to require and export
     'cells-sdk',
     'qrcode.react',
     'react-markdown',
-    'react-markdown-latest',
-    'remark-gfm',
-    /*
-    'react-select',
-    'react-tap-event-plugin',
-    'cronstrue'
-     */
+    'remark-gfm'
 ];
 
 const Externals = Object.keys(PydioCoreRequires).map(function(key){

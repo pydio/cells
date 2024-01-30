@@ -176,7 +176,7 @@ class UpgraderWizard extends React.Component{
                 content = (
                     <div style={Styles.body}>
                         <h5>1. {m('eula.title')}</h5>
-                        <Markdown source={EnterpriseDistEULA}/>
+                        <Markdown>{EnterpriseDistEULA}</Markdown>
                         <Checkbox label={m('eula.check')} checked={acceptEula} onCheck={(e,v)=>{this.setState({acceptEula: v})}}/>
                     </div>
                 );

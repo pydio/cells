@@ -21,7 +21,7 @@
 import Pydio from 'pydio'
 import React, {Fragment} from 'react';
 import PropTypes from 'prop-types'
-import ReactMarkdown from 'react-markdown'
+import Markdown from 'react-markdown'
 import {FontIcon} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PathUtils from 'pydio/util/path'
@@ -39,55 +39,67 @@ class Paragraph extends React.Component{
     }
 }
 
-function LinkWrapper(pydio, activity, style = undefined) {
+const LinkWrapper = ({pydio, activity, href, children, style = undefined}) => {
 
-    return class Wrapped extends React.Component{
-
-        render(){
-
-            const {href, children} = this.props;
-            const linkStyle = {
-                cursor: 'pointer',
-                color:'rgb(66, 140, 179)',
-                fontWeight: 500,
-                ...style
-            };
-            let title = "";
-            let onClick = null;
-            if(href.startsWith('doc://')){
-                if ( activity.type === 'Delete') {
-                    return <a style={{textDecoration:'line-through'}}>{children}</a>
-                }  else {
-                    return <DocLink pydio={pydio} activity={activity} linkStyle={linkStyle}>{children}</DocLink>;
-                }
-            } else if (href.startsWith('user://')) {
-                const userId = href.replace('user://', '');
-                return (<UserAvatar userId={userId} displayAvatar={false} richOnClick={true} style={{...linkStyle, display:'inline-block'}} pydio={pydio}/>)
-            } else if (href.startsWith('workspaces://')) {
-                const wsId = href.replace('workspaces://', '');
-                if(pydio.user && pydio.user.getRepositoriesList().get(wsId)){
-                    onClick = () => {pydio.triggerRepositoryChange(wsId)}
-                }
+        const linkStyle = {
+            cursor: 'pointer',
+            color:'rgb(66, 140, 179)',
+            fontWeight: 500,
+            ...style
+        };
+        let title = "";
+        let onClick = null;
+        if(href.startsWith('doc://')){
+            if ( activity.type === 'Delete') {
+                return <a style={{textDecoration:'line-through'}}>{children}</a>
+            }  else {
+                return <DocLink pydio={pydio} activity={activity} linkStyle={linkStyle}>{children}</DocLink>;
             }
-            return <a title={title} style={linkStyle} onClick={onClick}>{children}</a>
-
+        } else if (href.startsWith('user://')) {
+            const userId = href.replace('user://', '');
+            return (<UserAvatar userId={userId} displayAvatar={false} richOnClick={true} style={{...linkStyle, display:'inline-block'}} pydio={pydio}/>)
+        } else if (href.startsWith('workspaces://')) {
+            const wsId = href.replace('workspaces://', '');
+            if(pydio.user && pydio.user.getRepositoriesList().get(wsId)){
+                onClick = () => {pydio.triggerRepositoryChange(wsId)}
+            }
         }
-    }
+        return <a title={title} style={linkStyle} onClick={onClick}>{children}</a>
 
 }
 
 export class ActivityMD extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.memoizeCustomComponents(props)
+
+    }
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        this.memoizeCustomComponents(nextProps)
+    }
+
+    memoizeCustomComponents(props) {
+        const {activity, listContext} = props;
+        const pydio = Pydio.getInstance();
+        if (listContext === 'NODE-LEAF') {
+            this.customComponents = {
+                p: ({node, ...props}) => <Paragraph {...props}/>,
+                a: ({node, ...props}) => null
+            }
+        } else {
+            this.customComponents = {
+                p: ({node, ...props}) => <Paragraph {...props}/>,
+                a: ({node, ...props}) => <LinkWrapper pydio={pydio} activity={activity} style={{color:'inherit'}} {...props}/>
+            }
+        }
+    }
+
     render() {
-        const {activity, listContext, inlineActor} = this.props;
+        const {activity, inlineActor} = this.props;
         if(!activity.summary) {
             return <span>{activity.type} {activity.actor ? ' - ' + activity.actor.name : ''}</span>
-        }
-        const renderers = {
-            paragraph:Paragraph,
-            link: LinkWrapper(pydio, activity, {color:'inherit'})
-        }
-        if(listContext === 'NODE-LEAF') {
-            renderers.link = () => null
         }
         let av;
         if(inlineActor && activity.actor){
@@ -108,7 +120,13 @@ export class ActivityMD extends React.Component {
         return (
             <Fragment>
                 {av}{av ? ' - ': null}
-                <ReactMarkdown source={activity.summary} renderers={renderers} style={{display:'inline'}} containerTagName={inlineActor?'span':'div'}/>
+                <Markdown
+                    components={this.customComponents}
+                    style={{display:'inline'}}
+                    urlTransform={(url) => url}
+                    containerTagName={inlineActor?'span':'div'}>
+                    {activity.summary}
+                </Markdown>
             </Fragment>
         );
     }

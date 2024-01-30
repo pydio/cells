@@ -20,7 +20,7 @@
 
 import React, {Component} from 'react'
 import PathUtils from 'pydio/util/path'
-import Markdown from "react-markdown-latest";
+import Markdown from "react-markdown";
 import RemarkGFM from "remark-gfm";
 
 import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter';

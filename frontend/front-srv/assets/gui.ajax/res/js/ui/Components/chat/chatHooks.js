@@ -6,21 +6,40 @@ const TypeMayHaveMore = 'MAY_HAVE_MORE';
 const TypePost = 'POST'
 const TypeDelete = 'DELETE_MSG'
 
+const MsgInfoTokenSequence = 'TOKEN_SEQ'
+const MsgInfoTokenPosition = 'TOKEN_POS'
+const MsgInfoTokenPositionFinal = 'FINAL'
+const MsgInfoLiveStatus = 'LIVE_STATUS'
+const GlobalStatusAuthor = '--SYSTEM_STATUS--'
+
 function filterIncomingMessage(messages, msg) {
-    if(msg.Message && msg.Message.indexOf('TOKENS:') === 0) {
-        const [TokString, tokenId, position, ...rest] = msg.Message.split(':')
+
+    // For normal incoming message, check if there is a status
+    // in the queue for this Author, and remove it
+    if(!msg.Info || !msg.Info[MsgInfoLiveStatus]){
+        const author = msg.Author || GlobalStatusAuthor;
+        messages = messages.filter(m => {
+            return !(m.Info && m.Info[MsgInfoLiveStatus] && m.Author === author)
+        })
+    }
+
+    if(msg.Info && msg.Info[MsgInfoTokenSequence]) {
+
+        const tokenId = msg.Info[MsgInfoTokenSequence]
+        const position = msg.Info[MsgInfoTokenPosition]
+
         const prev = messages.find((m) => m.TokenId === tokenId)
         let newMessages;
-        if(position === 'FINAL') {
+        if(position === MsgInfoTokenPositionFinal) {
             newMessages = [...messages]
             if(prev) {
                 newMessages = newMessages.filter(m => m !== prev)
             }
-            newMessages.push({...msg,  Message:rest.join(':')})
+            newMessages.push({...msg})
             newMessages.sort((mA, mB) => mA.Timestamp - mB.Timestamp)
             return newMessages;
         }
-        const token = {position: parseInt(position), token: rest.join(':')}
+        const token = {position: parseInt(position), token: msg.Message}
         if(prev) {
             prev.Tokens.push(token) ;
             prev.Tokens.sort((ta,tb)=> ta.position-tb.position)
@@ -76,7 +95,6 @@ export const useChatMessages = ({pydio, roomType, roomObjectId, loadSize, setMes
             setVideoData(msg)
         } else if(msg['@type'] === TypeMayHaveMore) {
             setHasMoreBefore(prev => {
-                console.log(prev, msg)
                 if(!prev.Timestamp || msg.Timestamp < prev.Timestamp) {
                     return msg;
                 } else{
@@ -125,15 +143,6 @@ export const useChatMessages = ({pydio, roomType, roomObjectId, loadSize, setMes
         if(!value) {
             return false;
         }
-        // Strip reserved token
-        ['TOKENS:', 'STATUS:'].forEach(token => {
-            if(value.indexOf(token) ===0) {
-                value = value.substr(token.length)
-            }
-        })
-        if(!value) {
-            return false;
-        }
         if (!room || !room.Uuid){
             console.error("Cannot find cell info");
             return false;
@@ -157,12 +166,6 @@ export const useChatMessages = ({pydio, roomType, roomObjectId, loadSize, setMes
         if(!roomObjectId) {
             return () => {}
         }
-        //console.log('should connect', roomObjectId)
-        // TO CHECK was previously ...
-        // this.setState({firstUpdateReceived: false}, () => {
-        //      client.joinRoom ...
-        // }
-        //setFirstUpdateReceived(false)
         const room = client.joinRoom(roomType, roomObjectId, onNewMessage, onRoomMessage);
         if(room !== null){
             setRoom(room)

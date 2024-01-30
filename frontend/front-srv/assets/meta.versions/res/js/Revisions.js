@@ -23,7 +23,7 @@ import Pydio from 'pydio'
 const PydioApi = require('pydio/http/api');
 import MetaNodeProvider from 'pydio/model/meta-node-provider'
 const Node = require('pydio/model/node');
-import ReactMarkdown from 'react-markdown';
+import Markdown from 'react-markdown';
 const {Timeline, UserAvatar} = Pydio.requireLib('components');
 const {moment} = Pydio.requireLib('boot')
 import PathUtils from 'pydio/util/path'
@@ -45,6 +45,11 @@ const UserLinkWrapper = ({href, children}) => {
 };
 
 const Paragraph = ({children}) => <span>{children}</span>;
+
+const CustomComponents = {
+    a:({node, ...props}) => UserLinkWrapper(props),
+    p:({node, ...props}) => Paragraph(props),
+}
 
 class Revisions extends Component {
 
@@ -156,10 +161,7 @@ class Revisions extends Component {
                 onItemSelect={onClick}
                 itemUuid={(item) => item.getMetadata().get("versionId")}
                 itemMoment={(item) => moment(item.getMetadata().get('ajxp_modiftime')*1000)}
-                itemDesc={(item) => <ReactMarkdown
-                        source={item.getMetadata().get('versionDescription')}
-                        renderers={{'link': UserLinkWrapper, 'paragraph':Paragraph}}
-                    />}
+                itemDesc={(item) => <Markdown urlTransform={(u)=>u} components={CustomComponents}>{item.getMetadata().get('versionDescription')}</Markdown>}
                 itemActions={this.itemActions.bind(this)}
                 itemAnnotations={this.itemAnnotations.bind(this)}
                 color={"#2196f3"}

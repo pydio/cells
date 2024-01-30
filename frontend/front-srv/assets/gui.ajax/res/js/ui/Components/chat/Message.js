@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React, {Fragment, useState, useRef, useEffect, useCallback} from 'react';
+import React, {Fragment, useState, useRef, useEffect, useCallback, useMemo} from 'react';
 import Pydio from 'pydio'
 import UserAvatar from '../users/avatar/UserAvatar'
 import {FlatButton, Dialog} from 'material-ui'
@@ -25,6 +25,8 @@ import {muiThemeable} from 'material-ui/styles'
 const {moment} = Pydio.requireLib('boot');
 import DOMUtils from 'pydio/util/dom'
 import Markdown from 'react-markdown'
+import Emoji from 'remark-emoji'
+import GFM from 'remark-gfm'
 import LinkRenderer from './LinkRenderer'
 import {metaEnterToCursor} from "./chatHooks";
 const {ModernTextField} = Pydio.requireLib('hoc')
@@ -53,6 +55,11 @@ function useHookWithRefCallback(observer) {
     return [setRef]
 }
  */
+
+// Define OUTSIDE the rendering method
+const CustomLinks = {
+    a:({node, href, children, ...props}) => <LinkRenderer href={href}>{children}</LinkRenderer>
+}
 
 let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, setEdit, onEditMessage, moreLoader, muiTheme}) => {
 
@@ -92,7 +99,7 @@ let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, set
             padding: '6px 16px',
             display: 'flex',
             alignItems: 'flex-start',
-            backgroundColor:hover?'rgba(0,0,0,.01)':'transparent'
+            backgroundColor:hover?'rgba(0,0,0,.04)':'transparent'
         },
         commentContent: {
             flex: '1',
@@ -136,6 +143,11 @@ let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, set
         authorIsLogged = true;
     }
 
+    let statusIndicator;
+    if(message.Info && message.Info['LIVE_STATUS']) {
+        statusIndicator = <div className={'dot-flashing'}/>
+    }
+
     const avatar = (
         <div style={sameAuthor ? {visibility:'hidden'} : {paddingTop:2}}>
             <UserAvatar
@@ -152,18 +164,21 @@ let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, set
     let textStyle = {...styles.commentContent};
     let deleteAction = {title:pydio.MessageHash['7'], icon:'delete-outline', click: () => setConfirmDelete(true)}
 
-    if(authorIsLogged && !edit){
+    if(authorIsLogged && !edit && !statusIndicator){
         if(onEditMessage) {
             actions.push({title:'Edit', icon:'pencil-outline', click: () => setEdit(true)})
         }
         actions.push(deleteAction)
     }
-    let body = (<Markdown
-        className={"chat-message-md"}
-        source={message.Message}
-        renderers={{link: LinkRenderer}}
-        skipHtml={true}
-    />)
+    let body = (
+        <Markdown
+            className={"chat-message-md" + (statusIndicator?' has-status-indicator':'')}
+            skipHtml={true}
+            urlTransform={(url) => url}
+            components={CustomLinks}
+            remarkPlugins={[GFM, [Emoji, {emoticon: true}]]}
+        >{message.Message}</Markdown>
+    )
 
     if (edit) {
         const save = () => {
@@ -214,14 +229,14 @@ let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, set
         actionBar = <div style={styles.actionBar}>{actions.map(a => <span className={'mdi mdi-' + a.icon} onClick={a.click} title={a.title}/> )}</div>
     }
 
-    let text;
-    let containerStyle = {};
+    body = <Fragment>{actionBar}{body}{statusIndicator}</Fragment>
 
+    let containerStyle = {};
     if (sameAuthor) {
-        text = <div style={textStyle}>{actionBar}{body}</div>
+        body = <div style={textStyle}>{body}</div>
         containerStyle = {...containerStyle, marginTop: -16}
     } else {
-        text = (
+        body = (
             <div style={textStyle}>
                 <div>
                     <UserAvatar
@@ -232,7 +247,7 @@ let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, set
                         userId={message.Author}
                     />
                 </div>
-                <div>{actionBar}{body}</div>
+                <div>{body}</div>
             </div>
         )
     }
@@ -277,7 +292,7 @@ let Message = ({message, pydio, hideDate, sameAuthor, onDeleteMessage, edit, set
                     <span style={styles.dateLine}/>
                 </div>
             }
-            <div style={styles.comment}>{avatar} {text}</div>
+            <div style={styles.comment}>{avatar} {body}</div>
         </div>
     );
 }

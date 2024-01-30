@@ -36,6 +36,8 @@ export default ({href, children}) => {
         ResourcesManager.loadClass('PydioWorkspaces').then(lib => setWsLib(lib))
     }, [])
 
+    console.log(href);
+
     const loadNode = (nodeUUID) => {
         setLoading(true)
         const api = new SearchAPI(pydio);

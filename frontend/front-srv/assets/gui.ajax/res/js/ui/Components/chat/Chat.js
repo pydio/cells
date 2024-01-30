@@ -74,8 +74,8 @@ let Chat = ({roomType, roomObjectId, style, msgContainerStyle, chatUsersStyle, f
     const ts = messages.length ? parseFloat(messages[messages.length-1].Timestamp) : 0
     const prevTS = usePrevious(ts)
     useEffect(()=>{
-        if (intoView.current && ts > prevTS) {
-            intoView.current.scrollIntoView({behavior:'smooth', block:'end'})
+        if (intoView.current && ts >= prevTS) {
+            intoView.current.scrollIntoView({behavior:'smooth', block:'end', inline:'end'})
         }
     }, [messages])
 
