@@ -253,7 +253,7 @@ func (h *HandlerAudit) MultipartComplete(ctx context.Context, target *tree.Node,
 	_, wsInfo, wsScope := checkBranchInfoForAudit(ctx, "in")
 	log.Auditer(ctx).Info(
 		fmt.Sprintf("Uploaded node %s", target.Path),
-		log.GetAuditId(common.AuditNodeCreate),
+		log.GetAuditId(common.AuditObjectPut),
 		target.ZapUuid(),
 		target.ZapPath(),
 		zap.Int64(common.KeyTransferSize, oi.Size),
