@@ -8,7 +8,20 @@ const {configLoader} = require('../webpack-commons')
 
 const dirs = (p) => fs.readdirSync(p).filter(f => fs.statSync(p+"/"+f).isDirectory());
 
+const parseArgs = (args) => {
+    const parsedArgs = {};
+    args.forEach((arg) => {
+        const parts = arg.split("=");
+        parsedArgs[parts[0]] = parts[1];
+    });
+    return parsedArgs;
+};
+const args = parseArgs(process.argv.slice(2))
+
 const entries = dirs('res/js/ui').reduce((obj, folder) => {
+    if(process.env.NODE_ENV !== 'production' && args['--name'] && folder !== args['--name']){
+        return obj;
+    }
     obj['Pydio'+folder] = './res/js/ui/'+folder+'/index.js'
     return obj
 }, {})
