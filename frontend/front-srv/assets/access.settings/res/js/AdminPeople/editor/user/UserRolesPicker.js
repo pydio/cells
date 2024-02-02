@@ -106,7 +106,7 @@ export default createReactClass({
         };
 
         return (
-            <div className="user-roles-picker" style={{padding:0, paddingBottom:12, margin: '-30px 20px 40px', backgroundColor:'white', borderRadius: 6, border: '1px solid #dfe3e5'}}>
+            <div className="user-roles-picker paper-right-block" style={{padding:0, paddingBottom:12}}>
                 <div style={{paddingLeft: 16, display: 'flex', alignItems: 'center'}}>
                     <div style={{flex: 1, fontSize: 16}}>{ctx.getMessage('roles.picker.title')} {loadingMessage ? ' ('+ctx.getMessage('21')+')':''}</div>
                     <div className="roles-picker-menu" style={{marginBottom: -12}}>

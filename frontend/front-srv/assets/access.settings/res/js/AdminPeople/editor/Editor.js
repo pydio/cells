@@ -276,21 +276,22 @@ class Editor extends React.Component{
                     <h3 className="paper-right-title">
                         {this.getRootMessage('250')}
                         <div className="section-legend">{this.getMessage('43')}</div>
-                        <div className="read-write-header">
+                    </h3>
+                    <div className={"paper-right-block"}>
+                        <div className="read-write-header" style={{textAlign: 'right', paddingRight: 16}}>
                             <span className="header-read">{this.getMessage('react.5a','ajxp_admin')}</span>
                             <span className="header-write">{this.getMessage('react.5b','ajxp_admin')}</span>
                             <span className="header-deny">{this.getMessage('react.5','ajxp_admin')}</span>
                         </div>
-                        <br/>
-                    </h3>
-                    <WorkspacesAcls
-                        key="workspaces-list"
-                        role={observableUser ? observableUser.getRole() : observableRole}
-                        roleType={this.state.roleType}
-                        advancedAcl={advancedAcl}
-                        showModal={this.showModal.bind(this)}
-                        hideModal={this.hideModal.bind(this)}
-                    />
+                        <WorkspacesAcls
+                            key="workspaces-list"
+                            role={observableUser ? observableUser.getRole() : observableRole}
+                            roleType={this.state.roleType}
+                            advancedAcl={advancedAcl}
+                            showModal={this.showModal.bind(this)}
+                            hideModal={this.hideModal.bind(this)}
+                        />
+                    </div>
                 </div>
             );
         } else if (currentPane === 'pages') {
@@ -299,23 +300,24 @@ class Editor extends React.Component{
                     <h3 className="paper-right-title">
                         {this.getMessage('44')}
                         <div className="section-legend">{this.getMessage('45')}</div>
-                        <div className="read-write-header">
+                    </h3>
+                    <div className={"paper-right-block"}>
+                        <div className="read-write-header" style={{textAlign: 'right', paddingRight: 16}}>
                             <span className="header-read">{this.getMessage('react.5a','ajxp_admin')}</span>
                             <span className="header-write">{this.getMessage('react.5b','ajxp_admin')}</span>
                             <span className="header-deny">{this.getMessage('react.5','ajxp_admin')}</span>
                         </div>
-                        <br/>
-                    </h3>
-                    <PagesAcls
-                        key="pages-list"
-                        role={observableUser ? observableUser.getRole() : observableRole}
-                        roleType={this.state.roleType}
-                        advancedAcl={advancedAcl}
-                        showModal={this.showModal.bind(this)}
-                        hideModal={this.hideModal.bind(this)}
-                        showSettings={pagesShowSettings}
-                        pydio={pydio}
-                    />
+                        <PagesAcls
+                            key="pages-list"
+                            role={observableUser ? observableUser.getRole() : observableRole}
+                            roleType={this.state.roleType}
+                            advancedAcl={advancedAcl}
+                            showModal={this.showModal.bind(this)}
+                            hideModal={this.hideModal.bind(this)}
+                            showSettings={pagesShowSettings}
+                            pydio={pydio}
+                        />
+                    </div>
                 </div>
             );
 

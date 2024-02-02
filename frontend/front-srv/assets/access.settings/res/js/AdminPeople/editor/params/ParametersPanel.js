@@ -1,7 +1,9 @@
+import Pydio from 'pydio'
 import React from 'react'
 import ParameterEntry from './ParameterEntry'
-import {IconButton, SelectField, MenuItem, Divider} from 'material-ui'
+import {IconButton, MenuItem, Divider} from 'material-ui'
 import {WorkspaceServiceApi,RestSearchWorkspaceRequest,IdmWorkspaceSingleQuery} from 'cells-sdk';
+const {ModernSelectField} = Pydio.requireLib('hoc')
 
 export default class ParametersPanel extends React.Component {
 
@@ -100,10 +102,10 @@ export default class ParametersPanel extends React.Component {
                         {m('46')}
                         <div className={"section-legend"}>{m('47')}</div>
                     </span>
-                    <div style={{width: 160}}><SelectField fullWidth={true} value={1}>{wsItems}</SelectField></div>
+                    <div style={{width: 160}}><ModernSelectField variant={"compact"} fullWidth={true} value={1}>{wsItems}</ModernSelectField></div>
                 </h3>
-                <div style={{padding: '0 20px', backgroundColor:'white'}}>
-                    {Object.keys(scopes).map(s => {
+                <div className={"paper-right-block"}>
+                    {Object.keys(scopes).map((s, i) => {
                         let scopeLabel;
                         let odd = false;
                         if(s === 'PYDIO_REPO_SCOPE_ALL') {
@@ -123,14 +125,14 @@ export default class ParametersPanel extends React.Component {
                                 return <ParameterEntry pydio={pydio} acl={scopes[s][param]} role={role} {...this.state} style={style}/>
                             });
                         } else {
-                            entries = <tr><td colSpan={3} style={{padding: '14px 0'}}>{m('parameters.empty')}</td></tr>;
+                            entries = <tr><td colSpan={3} style={{padding: '14px 12px'}}>{m('parameters.empty')}</td></tr>;
                         }
                         return (
-                            <table style={{width:'100%', marginBottom: 20}}>
+                            <table style={{width:"100%", marginBottom: i < Object.keys(scopes).length - 1 ? 40 : 0 }}>
                                 <tr style={{borderBottom: '1px solid #e0e0e0'}}>
-                                    <td colSpan={2} style={{fontSize: 15, paddingTop: 10}}>{scopeLabel}</td>
+                                    <td colSpan={2} style={{padding:'10px 12px 8px', fontWeight: 500}}>{scopeLabel}</td>
                                     <td style={{width: 50}}>
-                                        <IconButton iconClassName={"mdi mdi-plus"} onClick={()=>{this.addParameter(s)}} tooltip={m('parameters.custom.add')}/>
+                                        <IconButton iconClassName={"mdi mdi-plus"} onClick={()=>{this.addParameter(s)}} tooltip={m('parameters.custom.add')} style={{zoom: 0.8}}/>
                                     </td>
                                 </tr>
                                 {entries}

@@ -84,13 +84,16 @@ class RoleInfo extends React.Component {
         //console.log(values);
 
         return (
-            <FormPanel
-                parameters={params}
-                onParameterChange={this.onParameterChange.bind(this)}
-                values={values}
-                depth={-2}
-                variant={'v2'}
-            />
+            <div className={"paper-right-block"}>
+                <FormPanel
+                    parameters={params}
+                    onParameterChange={this.onParameterChange.bind(this)}
+                    values={values}
+                    depth={-2}
+                    variant={'v2'}
+                    variantShowLegend={true}
+                />
+            </div>
         );
 
     }

@@ -138,7 +138,7 @@ class ParameterEntry extends React.Component{
         }
 
         let actionButtons;
-        const buttonStyle = {style:{opacity: 0.2}, hoveredStyle:{opacity:1}};
+        const buttonStyle = {style:{opacity: 0.2, zoom: 0.8}, hoveredStyle:{opacity:1}};
         if(type === 'parameter'){
             if (this.state.editMode) {
                 actionButtons = <IconButton
@@ -175,7 +175,7 @@ class ParameterEntry extends React.Component{
         }
         return (
             <tr className={(inherited?'inherited':'') + (this.state.editMode?' edit-mode':'')} style={{...this.props.style}}>
-                <td style={{width: '40%', fontWeight: 500}}>
+                <td style={{width: '40%', paddingLeft: 12}}>
                     {inherited?'['+getPydioRoleMessage('38')+']':''} {label}
                 </td>
                 <td style={{wordBreak:'break-all'}}>{element}</td>
