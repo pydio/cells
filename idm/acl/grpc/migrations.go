@@ -32,7 +32,7 @@ func UpgradeTo120(ctx context.Context) error {
 	q1, _ := anypb.New(&idm.ACLSingleQuery{
 		WorkspaceIDs: []string{"pydiogateway"},
 	})
-	if num, e := dao.Del(&service.Query{SubQueries: []*anypb.Any{q1}}, nil); e != nil {
+	if num, e := dao.Del(ctx, &service.Query{SubQueries: []*anypb.Any{q1}}, nil); e != nil {
 		log.Logger(ctx).Error("Could not delete pydiogateway acls, please manually remove them from ACLs!", zap.Error(e))
 	} else {
 		log.Logger(ctx).Info("Removed pydiogateway acls", zap.Int64("numRows", num))
@@ -47,7 +47,7 @@ func UpgradeTo120(ctx context.Context) error {
 		},
 	})
 	acls := new([]interface{})
-	dao.Search(&service.Query{
+	dao.Search(ctx, &service.Query{
 		SubQueries: []*anypb.Any{q},
 	}, acls, nil)
 	for _, in := range *acls {
@@ -78,7 +78,7 @@ func UpgradeTo120(ctx context.Context) error {
 				Action:      permissions.AclRecycleRoot,
 			}
 			log.Logger(ctx).Info("Inserting new ACL")
-			if e := dao.Add(newAcl); e != nil {
+			if e := dao.Add(ctx, newAcl); e != nil {
 				log.Logger(ctx).Error("-- Could not create recycle_root ACL", zap.Error(e))
 			}
 		}
@@ -105,7 +105,7 @@ func UpgradeTo120(ctx context.Context) error {
 				Action: permissions.AclRecycleRoot,
 			}
 			log.Logger(ctx).Info("Should insert new ACL for personal folder", resp.Node.ZapPath())
-			if e := dao.Add(newAcl); e != nil {
+			if e := dao.Add(ctx, newAcl); e != nil {
 				log.Logger(ctx).Error("-- Could not create recycle_root ACL", zap.Error(e))
 			}
 		}

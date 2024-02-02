@@ -23,12 +23,10 @@ package namespace
 import (
 	"context"
 	"embed"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/sql/resources"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"gorm.io/gorm"
+	"sync"
 )
 
 var (
@@ -75,109 +73,60 @@ type resourcesDAO resources.DAO
 type sqlimpl struct {
 	// *sql.Handler
 
-	db       *gorm.DB
-	instance func() *gorm.DB
+	db   *gorm.DB
+	once *sync.Once
 
 	resourcesDAO
 }
 
-func (s *sqlimpl) Name() string {
-	//TODO implement me
-	panic("implement me")
-}
+//// Init handler for the SQL DAO
+//func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
+//
+//	db := s.db
+//
+//	s.instance().AutoMigrate(&MetaNamespace{})
+//
+//	// Preparing the resources
+//	//s.resourcesDAO.Init(ctx, options)
+//
+//	// TODO
+//	// s.ResourcesGORM.LeftIdentifier = "idm_usr_meta_ns.namespace"
+//
+//	//s.Add(&idm.UserMetaNamespace{
+//	//	Namespace: ReservedNamespaceBookmark,
+//	//	Label:     "Bookmarks",
+//	//	Policies: []*service.ResourcePolicy{
+//	//		{Action: service.ResourcePolicyAction_READ, Subject: "*", Effect: service.ResourcePolicy_allow},
+//	//		{Action: service.ResourcePolicyAction_WRITE, Subject: "*", Effect: service.ResourcePolicy_allow},
+//	//	},
+//	//})
+//
+//	return nil
+//}
 
-func (s *sqlimpl) ID() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Metadata() map[string]string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) As(i interface{}) bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Driver() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Dsn() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) GetConn(ctx context.Context) (dao.Conn, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) SetConn(ctx context.Context, conn dao.Conn) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) CloseConn(ctx context.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Prefix() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) LocalAccess() bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Stats() map[string]interface{} {
-	//TODO implement me
-	panic("implement me")
-}
-
-// Init handler for the SQL DAO
-func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-
-	db := s.db
-	s.instance = func() *gorm.DB {
-		return db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_usr_meta_ns")
+func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
+	if s.once == nil {
+		s.once = &sync.Once{}
 	}
 
-	s.instance().AutoMigrate(&MetaNamespace{})
+	db := s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
 
-	// Preparing the resources
-	s.resourcesDAO.Init(ctx, options)
-
-	// TODO
-	// s.ResourcesGORM.LeftIdentifier = "idm_usr_meta_ns.namespace"
-
-	s.Add(&idm.UserMetaNamespace{
-		Namespace: ReservedNamespaceBookmark,
-		Label:     "Bookmarks",
-		Policies: []*service.ResourcePolicy{
-			{Action: service.ResourcePolicyAction_READ, Subject: "*", Effect: service.ResourcePolicy_allow},
-			{Action: service.ResourcePolicyAction_WRITE, Subject: "*", Effect: service.ResourcePolicy_allow},
-		},
+	s.once.Do(func() {
+		db.AutoMigrate(&MetaNamespace{})
 	})
 
-	return nil
+	return db
 }
 
 // Add inserts a namespace
-func (s *sqlimpl) Add(ns *idm.UserMetaNamespace) error {
-	tx := s.instance().Create((&MetaNamespace{}).From(ns))
+func (s *sqlimpl) Add(ctx context.Context, ns *idm.UserMetaNamespace) error {
+	tx := s.instance(ctx).Create((&MetaNamespace{}).From(ns))
 	if tx.Error != nil {
 		return tx.Error
 	}
 
 	if len(ns.Policies) > 0 {
-		if err := s.AddPolicies(false, ns.Namespace, ns.Policies); err != nil {
+		if err := s.AddPolicies(ctx, false, ns.Namespace, ns.Policies); err != nil {
 			return err
 		}
 	}
@@ -186,13 +135,13 @@ func (s *sqlimpl) Add(ns *idm.UserMetaNamespace) error {
 }
 
 // Del removes a namespace
-func (s *sqlimpl) Del(ns *idm.UserMetaNamespace) (e error) {
-	tx := s.instance().Where((&MetaNamespace{}).From(ns)).Delete(&MetaNamespace{})
+func (s *sqlimpl) Del(ctx context.Context, ns *idm.UserMetaNamespace) (e error) {
+	tx := s.instance(ctx).Where((&MetaNamespace{}).From(ns)).Delete(&MetaNamespace{})
 	if tx.Error != nil {
 		return tx.Error
 	}
 
-	if err := s.DeletePoliciesForResource(ns.Namespace); err != nil {
+	if err := s.DeletePoliciesForResource(ctx, ns.Namespace); err != nil {
 		return err
 	}
 
@@ -200,9 +149,9 @@ func (s *sqlimpl) Del(ns *idm.UserMetaNamespace) (e error) {
 }
 
 // List lists all namespaces
-func (s *sqlimpl) List() (map[string]*idm.UserMetaNamespace, error) {
+func (s *sqlimpl) List(ctx context.Context) (map[string]*idm.UserMetaNamespace, error) {
 	var mm []*MetaNamespace
-	tx := s.instance().Find(&mm)
+	tx := s.instance(ctx).Find(&mm)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -212,7 +161,7 @@ func (s *sqlimpl) List() (map[string]*idm.UserMetaNamespace, error) {
 		ns := m.As(&idm.UserMetaNamespace{})
 
 		// Add policies
-		pol, err := s.GetPoliciesForResource(ns.Namespace)
+		pol, err := s.GetPoliciesForResource(ctx, ns.Namespace)
 		if err != nil {
 			return nil, err
 		}

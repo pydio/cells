@@ -205,7 +205,7 @@ func (s *Server) RawServe(*server.ServeOptions) (ii []registry.Item, er error) {
 	}
 
 	for _, e := range s.ListableMux.Patterns() {
-		ii = append(ii, util.CreateEndpoint(e, nil))
+		ii = append(ii, util.CreateEndpoint(e, nil, nil))
 	}
 
 	return

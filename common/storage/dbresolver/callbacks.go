@@ -1,6 +1,8 @@
 package dbresolver
 
 import (
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"strings"
 
 	"gorm.io/gorm"
@@ -23,11 +25,11 @@ func (dr *DBResolver) registerCallbacks(db *gorm.DB) {
 }
 
 func (dr *DBResolver) checkContext(db *gorm.DB) {
-	if tenant, ok := db.Statement.Context.Value("tenant").(string); ok && tenant != "" {
+	if tenant := servercontext.GetTenant(db.Statement.Context); tenant != "" {
 		db.Clauses(UseTenant(tenant))
 	}
 
-	if service, ok := db.Statement.Context.Value("service").(string); ok && service == "" {
+	if service := servicecontext.GetServiceName(db.Statement.Context); service != "" {
 		db.Clauses(UseService(service))
 	}
 }

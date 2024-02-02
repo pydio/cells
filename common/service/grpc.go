@@ -22,20 +22,18 @@ package service
 
 import (
 	"context"
-	"fmt"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 	"github.com/pydio/cells/v4/common/server"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"google.golang.org/grpc"
-	"time"
 )
 
 // WithGRPC adds a GRPC service handler to the current service
 func WithGRPC(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.serverType = server.TypeGrpc
-		o.serverStart = func() error {
+		o.serverStart = func(ctx context.Context) error {
 			if o.Server == nil {
 				return errNoServerAttached
 			}
@@ -43,11 +41,11 @@ func WithGRPC(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOptio
 			var registrar grpc.ServiceRegistrar
 			o.Server.As(&registrar)
 
-			return f(o.Context, &serviceRegistrar{
+			return f(ctx, &serviceRegistrar{
 				ServiceRegistrar: registrar,
 				id:               o.ID,
 				name:             o.Name,
-				reg:              servicecontext.GetRegistry(o.Context),
+				reg:              servercontext.GetRegistry(o.rootContext),
 			})
 		}
 	}
@@ -80,35 +78,27 @@ func (s *serviceRegistrar) RegisterService(desc *grpc.ServiceDesc, impl interfac
 	s.ServiceRegistrar.RegisterService(desc, impl)
 
 	// Listing endpoints linked to the server
-	item, ok := s.ServiceRegistrar.(registry.Item)
+	srv, ok := s.ServiceRegistrar.(registry.Item)
 	if !ok {
 		return
 	}
 
-	<-time.After(100 * time.Millisecond)
-
 	for _, method := range desc.Methods {
-		endpoints := s.reg.ListAdjacentItems(item, registry.WithName(desc.ServiceName+"/"+method.MethodName), registry.WithType(pb.ItemType_ENDPOINT))
+		endpoint := util.CreateEndpoint("/"+desc.ServiceName+"/"+method.MethodName, impl, map[string]string{})
 
-		if len(endpoints) == 0 {
-			fmt.Println("Haven't found method ", desc.ServiceName+"/"+method.MethodName)
-		}
-
-		for _, endpoint := range endpoints {
-			s.reg.Register(endpoint, registry.WithEdgeTo(s.id, "context", nil))
-		}
+		s.reg.Register(endpoint,
+			registry.WithEdgeTo(s.id, "handler", nil),
+			registry.WithEdgeTo(srv.ID(), "server", nil),
+		)
 	}
 
 	for _, method := range desc.Streams {
-		endpoints := s.reg.ListAdjacentItems(item, registry.WithName(desc.ServiceName+"/"+method.StreamName), registry.WithType(pb.ItemType_ENDPOINT))
+		endpoint := util.CreateEndpoint("/"+desc.ServiceName+"/"+method.StreamName, impl, map[string]string{})
 
-		if len(endpoints) == 0 {
-			fmt.Println("Haven't found stream ", desc.ServiceName+"/"+method.StreamName)
-		}
-
-		for _, endpoint := range endpoints {
-			s.reg.Register(endpoint, registry.WithEdgeTo(s.id, "context", nil))
-		}
+		s.reg.Register(endpoint,
+			registry.WithEdgeTo(s.id, "handler", nil),
+			registry.WithEdgeTo(srv.ID(), "server", nil),
+		)
 	}
 }
 
@@ -133,10 +123,10 @@ func (s *serviceRegistrar) As(v interface{}) bool {
 // WithGRPCStop hooks to the grpc server stop
 func WithGRPCStop(f func(context.Context, grpc.ServiceRegistrar) error) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.serverStop = func() error {
+		o.serverStop = func(ctx context.Context) error {
 			var registrar grpc.ServiceRegistrar
 			o.Server.As(&registrar)
-			return f(o.Context, registrar)
+			return f(ctx, registrar)
 		}
 	}
 }

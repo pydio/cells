@@ -15,6 +15,11 @@ type clientDriver struct {
 	store configx.Values
 }
 
+func (c clientDriver) AuthenticateClient(ctx context.Context, id string, secret []byte) (*client.Client, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (c clientDriver) GetClient(ctx context.Context, id string) (fosite.Client, error) {
 	return c.GetConcreteClient(ctx, id)
 }
@@ -53,7 +58,7 @@ func (c clientDriver) GetConcreteClient(ctx context.Context, id string) (*client
 	}
 
 	for _, cli := range clis {
-		if cli.LegacyClientID == id {
+		if cli.GetID() == id {
 
 			// Get original request from context
 			r, ok := ctx.Value(fosite.RequestContextKey).(*http.Request)

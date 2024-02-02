@@ -24,28 +24,23 @@ package resources
 import (
 	"context"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/storage"
 	"gorm.io/gorm"
 )
 
 // DAO interface
 type DAO interface {
-	AddPolicy(resourceId string, policy *service.ResourcePolicy) error
-	AddPolicies(update bool, resourceId string, rules []*service.ResourcePolicy) error
-	GetPoliciesForResource(resourceId string) ([]*service.ResourcePolicy, error)
-	DeletePoliciesForResource(resourceId string) error
-	DeletePoliciesForResourceAndAction(resourceId string, action service.ResourcePolicyAction) error
-	DeletePoliciesBySubject(subject string) error
+	AddPolicy(ctx context.Context, resourceId string, policy *service.ResourcePolicy) error
+	AddPolicies(ctx context.Context, update bool, resourceId string, rules []*service.ResourcePolicy) error
+	GetPoliciesForResource(ctx context.Context, resourceId string) ([]*service.ResourcePolicy, error)
+	GetPoliciesForSubject(ctx context.Context, subject string) ([]*service.ResourcePolicy, error)
+	ReplacePoliciesSubject(ctx context.Context, oldSubject, newSubject string) (int, error)
+	DeletePoliciesForResource(ctx context.Context, resourceId string) error
+	DeletePoliciesForResourceAndAction(ctx context.Context, resourceId string, action service.ResourcePolicyAction) error
+	DeletePoliciesBySubject(ctx context.Context, subject string) error
 
-	BuildPolicyConditionForAction(q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (expr any, e error)
+	BuildPolicyConditionForAction(ctx context.Context, q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (expr any, e error)
 }
 
-func NewDAO(ctx context.Context) (DAO, error) {
-	var db *gorm.DB
-
-	if storage.Get(ctx, &db) {
-		return &ResourcesGORM{DB: db}, nil
-	}
-
-	return nil, storage.NotFound
+func NewDAO(db *gorm.DB) DAO {
+	return &ResourcesGORM{DB: db}
 }

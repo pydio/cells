@@ -114,7 +114,7 @@ func (s *Server) RawServe(opts *server.ServeOptions) (ii []registry.Item, e erro
 
 	ii = append(ii, util.CreateAddress(s.Listener.Addr().String(), nil))
 	for _, endpoint := range s.ListableMux.Patterns() {
-		ii = append(ii, util.CreateEndpoint(endpoint, nil))
+		ii = append(ii, util.CreateEndpoint(endpoint, nil, nil))
 	}
 	return
 }

@@ -68,9 +68,10 @@ type ServiceOptions struct {
 	Unique        bool `json:"-"`
 
 	// Before and After funcs
-	BeforeStart []func(context.Context) (context.Context, error) `json:"-"`
-	BeforeStop  []func(context.Context) error                    `json:"-"`
-	AfterServe  []func(context.Context) error                    `json:"-"`
+	BeforeStart   []func(context.Context) (context.Context, error) `json:"-"`
+	BeforeStop    []func(context.Context) error                    `json:"-"`
+	BeforeRequest []func(context.Context) (context.Context, error) `json:"-"`
+	AfterServe    []func(context.Context) error                    `json:"-"`
 
 	UseWebSession      bool     `json:"-"`
 	WebSessionExcludes []string `json:"-"`

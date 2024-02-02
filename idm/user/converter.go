@@ -48,7 +48,7 @@ type queryConverter struct {
 	loginCI       bool
 }
 
-func (c *queryConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
+func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, in any) (out any, ok bool) {
 	db, ok := in.(*gorm.DB)
 	if !ok {
 		return in, false

@@ -142,7 +142,7 @@ func (o *oauth2Driver) getSession(ctx context.Context, req interface{}, session 
 	sess := r.Session
 	if !gjson.ValidBytes(sess) {
 		var err error
-		sess, err = o.r.KeyCipher().Decrypt(ctx, string(sess))
+		sess, err = o.r.KeyCipher().Decrypt(ctx, string(sess), nil)
 		if err != nil {
 			return nil, errorsx.WithStack(err)
 		}

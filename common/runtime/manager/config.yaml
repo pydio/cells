@@ -9,6 +9,21 @@ advertise: &advertise 0.0.0.0
 #--------------------------------------------
 # Default connection to runtime functions
 #--------------------------------------------
+tenants:
+  default:
+    connections:
+      config:
+        uri: file:///Users/ghecquet/Library/Application Support/Pydio/cells/pydio.json
+      registry:
+        uri: mem://?cache=shared
+      broker:
+        uri: mem://
+      logs:
+        uri: file://stdout
+      sql:
+        uri: sqlite3://:memory
+      nosql:
+
 connections: &connections
   config:
     uri: xds://default.cells.com/cells
@@ -18,6 +33,8 @@ connections: &connections
     uri: xds://default.cells.com/cells
   logs:
     uri: file://stdout
+  sql:
+    uri: sqlite3://:memory
 
 #--------------------------------------------
 # Default servers configuration
@@ -94,6 +111,7 @@ env: &env
 #--------------------------------------------
 processes:
   discovery:
+    runtime: discovery
     connections:
       <<: *connections
       config:
@@ -103,10 +121,9 @@ processes:
       broker:
         uri: mem://
 
-
     servers:
       <<: *servers
-      grpc_discovery:
+      grpc:
         port: 8030
       http:
         type: caddy
@@ -115,75 +132,91 @@ processes:
     env: *env
 
     services:
+      idm:
       discovery:
       gateway:
-      idm:
       frontend:
       data:
       scheduler:
       auth:
       broker:
 
-  datasource-peer:
-    connections: *connections
-    servers: *servers
-    env: *env
+#  data:
+#    connections: *connections
+#    servers: *servers
+#    env: *env
+#
+#    services:
+#      data:
 
-    services:
-      datasource:
-        - pydio.grpc.data.objects.peer
+#  idm:
+#    connections: *connections
+#    servers: *servers
+#    env: *env
+#
+#    services:
+#      idm:
 
-  {{ if .Config }}
-  {{ $objectsVal := .Config.Val "services/pydio.grpc.data.objects/sources" }}
-  {{ $ := .Config }}
-  {{ range $objectsVal.StringArray }}
-  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
-  {{ if not ($.Val "services" (print "pydio.grpc.data.objects." .) "Disabled").Bool }}
-  objects-{{ . }}:
-    connections: *connections
-    servers: *servers
-    env: *env
-
-    services:
-      datasource:
-        - pydio.grpc.data.objects.{{ . }}
-  {{ end }}
-  {{ end }}
-  {{ end }}
-
-  {{ $indexesVal := .Config.Val "services/pydio.grpc.data.index/sources" }}
-  {{ $ := .Config }}
-  {{ range $indexesVal.StringArray }}
-  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
-  {{ if not ($.Val "services" (print "pydio.grpc.data.index." .) "Disabled").Bool }}
-  index-{{ . }}:
-    #{{ if eq . "pydiods1" }}debug: true{{ end }}
-    connections: *connections
-    servers: *servers
-    env: *env
-
-    services:
-      datasource:
-        - pydio.grpc.data.index.{{ . }}
-  {{ end }}
-  {{ end }}
-  {{ end }}
-
-  {{ $syncVal := .Config.Val "services/pydio.grpc.data.sync/sources" }}
-  {{ $ := .Config }}
-  {{ range $syncVal.StringArray }}
-  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
-  {{ if not ($.Val "services" (print "pydio.grpc.data.sync." .) "Disabled").Bool }}
-  sync-{{ . }}:
-    #{{ if eq . "pydiods1" }}debug: true{{ end }}
-    connections: *connections
-    servers: *servers
-    env: *env
-
-    services:
-      datasource:
-        - pydio.grpc.data.sync.{{ . }}
-  {{ end }}
-  {{ end }}
-  {{ end }}
-  {{ end }}
+#  datasource-peer:
+#    connections: *connections
+#    servers: *servers
+#    env: *env
+#
+#    services:
+#      datasource:
+#        - pydio.grpc.data.objects.peer
+#
+#  {{ if .Config }}
+#  {{ $objectsVal := .Config.Val "services/pydio.grpc.data.objects/sources" }}
+#  {{ $ := .Config }}
+#  {{ range $objectsVal.StringArray }}
+#  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+#  {{ if not ($.Val "services" (print "pydio.grpc.data.objects." .) "Disabled").Bool }}
+#  objects-{{ . }}:
+#    connections: *connections
+#    servers: *servers
+#    env: *env
+#
+#    services:
+#      datasource:
+#        - pydio.grpc.data.objects.{{ . }}
+#  {{ end }}
+#  {{ end }}
+#  {{ end }}
+#
+#  {{ $indexesVal := .Config.Val "services/pydio.grpc.data.index/sources" }}
+#  {{ $ := .Config }}
+#  {{ range $indexesVal.StringArray }}
+#  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+#  {{ if not ($.Val "services" (print "pydio.grpc.data.index." .) "Disabled").Bool }}
+#  index-{{ . }}:
+#    #{{ if eq . "pydiods1" }}debug: true{{ end }}
+#    connections: *connections
+#    servers: *servers
+#    env: *env
+#
+#    services:
+#      datasource:
+#        - pydio.grpc.data.index.{{ . }}
+#  {{ end }}
+#  {{ end }}
+#  {{ end }}
+#
+#  {{ $syncVal := .Config.Val "services/pydio.grpc.data.sync/sources" }}
+#  {{ $ := .Config }}
+#  {{ range $syncVal.StringArray }}
+#  {{ if or (lt (len .) 8) (ne (slice . 0 8) ("updated:")) }}
+#  {{ if not ($.Val "services" (print "pydio.grpc.data.sync." .) "Disabled").Bool }}
+#  sync-{{ . }}:
+#    #{{ if eq . "pydiods1" }}debug: true{{ end }}
+#    connections: *connections
+#    servers: *servers
+#    env: *env
+#
+#    services:
+#      datasource:
+#        - pydio.grpc.data.sync.{{ . }}
+#  {{ end }}
+#  {{ end }}
+#  {{ end }}
+#  {{ end }}

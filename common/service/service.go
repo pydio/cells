@@ -24,6 +24,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/config"
 	"sync"
 
 	errors2 "github.com/pkg/errors"
@@ -132,13 +133,13 @@ func (s *service) Metadata() map[string]string {
 	if s.Opts.Unique {
 		clone[registry.MetaUniqueKey] = "unique"
 	}
-	if len(s.Opts.Storages) > 0 {
-		for _, so := range s.Opts.Storages {
-			if len(so.SupportedDrivers) > 0 {
-				clone[so.StorageKey] = so.ToMeta()
-			}
-		}
-	}
+	//if len(s.Opts.Storages) > 0 {
+	//	for _, so := range s.Opts.Storages {
+	//		if len(so.SupportedDrivers) > 0 {
+	//			clone[so.StorageKey] = so.ToMeta()
+	//		}
+	//	}
+	//}
 	return clone
 }
 
@@ -295,6 +296,10 @@ func (s *service) Stop(oo ...registry.RegisterOption) error {
 func (s *service) OnServe(oo ...registry.RegisterOption) error {
 	w := &sync.WaitGroup{}
 	w.Add(len(s.Opts.AfterServe) + 1)
+	refCtx := s.Opts.runtimeCtx
+	if refCtx == nil {
+		refCtx = s.Opts.rootContext
+	}
 	go func() {
 		if locker := s.Opts.GetRegistry().NewLocker("update-service-version-" + s.Opts.Name); locker != nil {
 			locker.Lock()
@@ -302,14 +307,11 @@ func (s *service) OnServe(oo ...registry.RegisterOption) error {
 		}
 
 		defer w.Done()
-		if e := UpdateServiceVersion(s.Opts); e != nil {
+		if e := UpdateServiceVersion(refCtx, config.Main(), s.Opts); e != nil {
 			s.Opts.Logger().Error("UpdateServiceVersion failed", zap.Error(e))
 		}
 	}()
-	refCtx := s.Opts.runtimeCtx
-	if refCtx == nil {
-		refCtx = s.Opts.rootContext
-	}
+
 	for _, after := range s.Opts.AfterServe {
 		go func(f func(context.Context) error) {
 			defer w.Done()

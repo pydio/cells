@@ -18,4 +18,5 @@ directories:
   - tree
   - update
   - registry
-  - options
+  - options/orm
+  - options/setter

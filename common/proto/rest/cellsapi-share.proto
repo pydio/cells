@@ -7,7 +7,7 @@ option go_package ="github.com/pydio/cells/common/proto/rest";
 import "cells-service.proto";
 import "cells-idm.proto";
 import "cells-tree.proto";
-import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "buf/validate/validate.proto";
 
 // Group collected acls by subjects
 message CellAcl {
@@ -30,9 +30,9 @@ message Cell {
     // Unique Id of the Cell
     string Uuid = 1;
     // Label of the Cell (max 500 chars)
-    string Label = 2 [(validator.field) = {length_lt: 500}];
+    string Label = 2 [(buf.validate.field).string.max_len = 500];
     // Long description of the Cell (max 1000 chars)
-    string Description = 3 [(validator.field) = {length_lt: 1000}];
+    string Description = 3 [(buf.validate.field).string.max_len = 500];;
     // Nodes attached as roots to this Cell
     repeated tree.Node RootNodes = 4;
     // Access control for this Cell
@@ -67,9 +67,9 @@ message ShareLink {
     // Full URL for accessing the link
     string LinkUrl = 3;
     // Label of the Link (max 500 chars)
-    string Label = 4 [(validator.field) = {length_lt: 500}];
+    string Label = 4 [(buf.validate.field).string.max_len = 500];
     // Description of the Link (max 1000 chars)
-    string Description = 5 [(validator.field) = {length_lt: 1000}];
+    string Description = 5 [(buf.validate.field).string.max_len = 1000];
     // Temporary user Uuid used to login automatically when accessing this link
     string UserUuid = 6;
     // Temporary user Login used to login automatically when accessing this link

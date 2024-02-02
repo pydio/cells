@@ -2,10 +2,10 @@ syntax = "proto3";
 
 package tree;
 
-option go_package="github.com/pydio/cells/common/proto/tree";
+option go_package="github.com/pydio/cells/v4/common/proto/tree";
 
-import "setter/setter.proto";
-import "orm/orm.proto";
+import "setter.proto";
+import "orm.proto";
 import "buf/validate/validate.proto";
 
 

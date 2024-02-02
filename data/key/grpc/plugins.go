@@ -25,14 +25,10 @@ import (
 	"context"
 	"github.com/pydio/cells/v4/common/dao/mysql"
 	"github.com/pydio/cells/v4/common/dao/sqlite"
-	commonsql "github.com/pydio/cells/v4/common/sql"
-
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/data/key"
@@ -42,27 +38,29 @@ var ServiceName = common.ServiceGrpcNamespace_ + common.ServiceEncKey
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		var s service.Service
-		s = service.NewService(
+		service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Encryption Keys server"),
-			service.WithTODOStorage(key.NewDAO, commonsql.NewDAO,
+			service.WithStorage(
+				"DAO",
+				key.NewDAO,
 				service.WithStoragePrefix("data_key"),
 				service.WithStorageSupport(mysql.Driver, sqlite.Driver)),
 			service.WithGRPC(func(c context.Context, srv grpc.ServiceRegistrar) error {
-				h := NewNodeKeyManagerHandler(s)
-				encryption.RegisterNodeKeyManagerEnhancedServer(srv, h)
-				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
-					msg := &tree.NodeChangeEvent{}
-					if e := message.Unmarshal(msg); e == nil {
-						return h.HandleTreeChanges(ctx, msg)
-					}
-					return nil
-				}, broker.WithCounterName("data_keys")); e != nil {
-					return e
-				}
+				h := NewNodeKeyManagerHandler()
+				encryption.RegisterNodeKeyManagerServer(srv, h)
+
+				//if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
+				//	msg := &tree.NodeChangeEvent{}
+				//	if e := message.Unmarshal(msg); e == nil {
+				//		return h.HandleTreeChanges(ctx, msg)
+				//	}
+				//	return nil
+				//}, broker.WithCounterName("data_keys")); e != nil {
+				//	return e
+				//}
 				return nil
 			}),
 		)

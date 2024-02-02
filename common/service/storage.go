@@ -21,23 +21,14 @@
 package service
 
 import (
-	"context"
-	"fmt"
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
-	"strings"
-
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/registry"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type StorageOptions struct {
-	StorageKey       string
+	Key              string
 	SupportedDrivers []string
+	Handler          any
 	DefaultDriver    dao.DriverProviderFunc
 	Migrator         dao.MigratorFunc
 	prefix           interface{}
@@ -104,147 +95,149 @@ func WithStorageMigrator(d dao.MigratorFunc) StorageOption {
 	}
 }
 
-func daoFromOptions(ctx context.Context, o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts *StorageOptions) (dao.DAO, error) {
-	prefix := opts.Prefix(o)
-
-	cfgKey := "storage"
-	if indexer {
-		cfgKey = "indexer"
-	}
-	driver, dsn, defined := config.GetStorageDriver(cfgKey, o.Name)
-	if !defined && opts.DefaultDriver != nil {
-		driver, dsn = opts.DefaultDriver()
-	}
-
-	var c dao.DAO
-	var e error
-	cfg := config.Get("services", o.Name)
-
-	// Setting a lock on the registry in case of multiple services starting up at the same time
-	reg := servicecontext.GetRegistry(ctx)
-	if lock := reg.NewLocker("dao-init-" + o.Name); lock != nil {
-		lock.Lock()
-		defer lock.Unlock()
-	}
-
-	if indexer {
-		c, e = dao.InitIndexer(ctx, driver, dsn, prefix, fd, cfg)
-	} else {
-		c, e = dao.InitDAO(ctx, driver, dsn, prefix, fd, cfg)
-	}
-
-	if e != nil {
-		return nil, errors.Wrap(e, "dao.Initialization "+driver)
-	}
-
-	return c, nil
-}
-
-func isLocalDao(o *ServiceOptions, indexer bool, opts *StorageOptions) bool {
-
-	cfgKey := "storage"
-	if indexer {
-		cfgKey = "indexer"
-	}
-	driver, _, defined := config.GetStorageDriver(cfgKey, o.Name)
-	if !defined && opts.DefaultDriver != nil {
-		driver, _ = opts.DefaultDriver()
-	}
-	s, e := dao.IsShared(driver)
-	if e != nil {
-		if driver != "" {
-			fmt.Println("cannot check if driver " + driver + " is shared:" + e.Error())
-		}
-		return false
-	}
-	return !s
-}
+//func daoFromOptions(ctx context.Context, o *ServiceOptions, fd dao.DaoWrapperFunc, indexer bool, opts *StorageOptions) (dao.DAO, error) {
+//	prefix := opts.Prefix(o)
+//
+//	cfgKey := "storage"
+//	if indexer {
+//		cfgKey = "indexer"
+//	}
+//	driver, dsn, defined := config.GetStorageDriver(cfgKey, o.Name)
+//	if !defined && opts.DefaultDriver != nil {
+//		driver, dsn = opts.DefaultDriver()
+//	}
+//
+//	var c dao.DAO
+//	var e error
+//	cfg := config.Get("services", o.Name)
+//
+//	// Setting a lock on the registry in case of multiple services starting up at the same time
+//	reg := servicecontext.GetRegistry(ctx)
+//	if lock := reg.NewLocker("dao-init-" + o.Name); lock != nil {
+//		lock.Lock()
+//		defer lock.Unlock()
+//	}
+//
+//	if indexer {
+//		c, e = dao.InitIndexer(ctx, driver, dsn, prefix, fd, cfg)
+//	} else {
+//		c, e = dao.InitDAO(ctx, driver, dsn, prefix, fd, cfg)
+//	}
+//
+//	if e != nil {
+//		return nil, errors.Wrap(e, "dao.Initialization "+driver)
+//	}
+//
+//	return c, nil
+//}
+//
+//func isLocalDao(o *ServiceOptions, indexer bool, opts *StorageOptions) bool {
+//
+//	cfgKey := "storage"
+//	if indexer {
+//		cfgKey = "indexer"
+//	}
+//	driver, _, defined := config.GetStorageDriver(cfgKey, o.Name)
+//	if !defined && opts.DefaultDriver != nil {
+//		driver, _ = opts.DefaultDriver()
+//	}
+//	s, e := dao.IsShared(driver)
+//	if e != nil {
+//		if driver != "" {
+//			fmt.Println("cannot check if driver " + driver + " is shared:" + e.Error())
+//		}
+//		return false
+//	}
+//	return !s
+//}
 
 // WithStorage adds a storage handler to the current service
-func WithStorage(fd dao.DaoWrapperFunc, opts ...StorageOption) ServiceOption {
-	return makeStorageServiceOption(false, fd, opts...)
+func WithStorage(name string, fd any, opts ...StorageOption) ServiceOption {
+	return makeStorageServiceOption(name, fd, opts...)
 }
 
 // WithIndexer adds an indexer handler to the current service
-func WithIndexer(fd dao.DaoWrapperFunc, opts ...StorageOption) ServiceOption {
-	return makeStorageServiceOption(true, fd, opts...)
-}
+//func WithIndexer(name string, fd dao.DaoWrapperFunc, opts ...StorageOption) ServiceOption {
+//	return makeStorageServiceOption(fd, opts...)
+//}
 
-func makeStorageServiceOption(indexer bool, fd dao.DaoWrapperFunc, opts ...StorageOption) ServiceOption {
+func makeStorageServiceOption(name string, fd any, opts ...StorageOption) ServiceOption {
 	return func(o *ServiceOptions) {
-		storageKey := "storage"
-		if indexer {
-			storageKey = "indexer"
-		}
 		sOpts := &StorageOptions{
-			StorageKey: storageKey,
+			Key:     name,
+			Handler: fd,
 		}
 		for _, op := range opts {
 			op(sOpts)
 		}
 		o.Storages = append(o.Storages, sOpts)
+
 		// Pre-check DAO config and add flag Unique if necessary
-		if isLocalDao(o, indexer, sOpts) {
-			o.Unique = true
-			o.BeforeStop = append(o.BeforeStop, func(ctx context.Context) error {
-				var stopDao dao.DAO
-				if indexer {
-					stopDao = servicecontext.GetIndexer(ctx)
-				} else {
-					stopDao = servicecontext.GetDAO(ctx)
-				}
-				if stopDao == nil {
-					return nil
-				}
-				log.Logger(ctx).Info("Closing DAO connection now")
-				return stopDao.CloseConn(ctx)
-			})
-		}
-		o.BeforeStart = append(o.BeforeStart, func(ctx context.Context) (context.Context, error) {
-			d, err := daoFromOptions(ctx, o, fd, indexer, sOpts)
-			if err != nil {
-				return ctx, err
-			}
-			if indexer {
-				ctx = servicecontext.WithIndexer(ctx, d)
-			} else {
-				ctx = servicecontext.WithDAO(ctx, d)
-			}
+		//if isLocalDao(o, indexer, sOpts) {
+		//	o.Unique = true
+		//	o.BeforeStop = append(o.BeforeStop, func(ctx context.Context) error {
+		//		var stopDao dao.DAO
+		//		if indexer {
+		//			stopDao = servicecontext.GetIndexer(ctx)
+		//		} else {
+		//			stopDao = servicecontext.GetDAO(ctx)
+		//		}
+		//		if stopDao == nil {
+		//			return nil
+		//		}
+		//		log.Logger(ctx).Info("Closing DAO connection now")
+		//		return stopDao.CloseConn(ctx)
+		//	})
+		//}
 
-			// Now register DAO
-			reg := servicecontext.GetRegistry(ctx)
-			if reg == nil {
-				return ctx, nil
-			}
-			var regItem registry.Dao
-			if !d.As(&regItem) {
-				return ctx, nil
-			}
-
-			// Build Edge Metadata
-			mm := map[string]string{
-				"SupportedDrivers": strings.Join(sOpts.SupportedDrivers, ","),
-			}
-			prefix := sOpts.Prefix(o)
-			if prefix != "" {
-				mm["Prefix"] = prefix
-			}
-			if sOpts.Migrator != nil {
-				mm["SupportedMigration"] = "true"
-			}
-			options := []registry.RegisterOption{
-				registry.WithEdgeTo(o.ID, "DAO", mm),
-			}
-			var regStatus registry.StatusReporter
-			if d.As(&regStatus) {
-				options = append(options, registry.WithWatch(regStatus))
-			}
-			if er := reg.Register(regItem, options...); er != nil {
-				log.Logger(ctx).Error(" -- Cannot register DAO: "+er.Error(), zap.Error(er))
-			}
-
-			return ctx, nil
-		})
-
+		//o.BeforeRequest = append(o.BeforeRequest, func(ctx context.Context) (context.Context, error) {
+		//
+		//	for _, storage := range o.Storages {
+		//		store := storage.S
+		//	}
+		//	d, err := daoFromOptions(ctx, o, fd, indexer, sOpts)
+		//	if err != nil {
+		//		return ctx, err
+		//	}
+		//	if indexer {
+		//		ctx = servicecontext.WithIndexer(ctx, d)
+		//	} else {
+		//		ctx = servicecontext.WithDAO(ctx, d)
+		//	}
+		//
+		//	// Now register DAO
+		//	reg := servicecontext.GetRegistry(ctx)
+		//	if reg == nil {
+		//		return ctx, nil
+		//	}
+		//	var regItem registry.Dao
+		//	if !d.As(&regItem) {
+		//		return ctx, nil
+		//	}
+		//
+		//	// Build Edge Metadata
+		//	mm := map[string]string{
+		//		"SupportedDrivers": strings.Join(sOpts.SupportedDrivers, ","),
+		//	}
+		//	prefix := sOpts.Prefix(o)
+		//	if prefix != "" {
+		//		mm["Prefix"] = prefix
+		//	}
+		//	if sOpts.Migrator != nil {
+		//		mm["SupportedMigration"] = "true"
+		//	}
+		//	options := []registry.RegisterOption{
+		//		registry.WithEdgeTo(o.ID, "DAO", mm),
+		//	}
+		//	var regStatus registry.StatusReporter
+		//	if d.As(&regStatus) {
+		//		options = append(options, registry.WithWatch(regStatus))
+		//	}
+		//	if er := reg.Register(regItem, options...); er != nil {
+		//		log.Logger(ctx).Error(" -- Cannot register DAO: "+er.Error(), zap.Error(er))
+		//	}
+		//
+		//	return ctx, nil
+		//})
 	}
 }

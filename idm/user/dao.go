@@ -25,19 +25,17 @@ package user
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql"
 	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/sql/resources"
-	"github.com/pydio/cells/v4/common/storage"
 	user_model "github.com/pydio/cells/v4/idm/user/model"
 	"gorm.io/gorm"
 )
 
 // DAO interface
 type DAO interface {
-	dao.DAO
+	// dao.DAO
 	resources.DAO
 	index.DAO
 
@@ -55,26 +53,13 @@ type DAO interface {
 }
 
 // NewDAO wraps passed DAO with specific Pydio implementation of User DAO and returns it.
-func NewDAO(ctx context.Context) (DAO, error) {
-	var db *gorm.DB
+func NewDAO(db *gorm.DB) DAO {
+	resourcesDAO := resources.NewDAO(db)
+	indexDAO := index.NewDAO[*user_model.User](db)
 
-	if storage.Get(ctx, &db) {
-		resourcesDAO, err := resources.NewDAO(ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		indexDAO, err := index.NewDAO[*user_model.User](ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		return &sqlimpl{
-			db:           db,
-			resourcesDAO: resourcesDAO.(resources.DAO),
-			indexDAO:     indexDAO.(index.DAO),
-		}, nil
+	return &sqlimpl{
+		db:           db,
+		resourcesDAO: resourcesDAO,
+		indexDAO:     indexDAO,
 	}
-
-	return nil, storage.NotFound
 }

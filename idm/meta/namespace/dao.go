@@ -25,7 +25,6 @@ import (
 	"context"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql/resources"
-	"github.com/pydio/cells/v4/common/storage"
 	"gorm.io/gorm"
 )
 
@@ -37,22 +36,12 @@ const (
 type DAO interface {
 	resources.DAO
 
-	Add(ns *idm.UserMetaNamespace) error
-	Del(ns *idm.UserMetaNamespace) (e error)
-	List() (map[string]*idm.UserMetaNamespace, error)
+	Add(ctx context.Context, ns *idm.UserMetaNamespace) error
+	Del(ctx context.Context, ns *idm.UserMetaNamespace) (e error)
+	List(ctx context.Context) (map[string]*idm.UserMetaNamespace, error)
 }
 
-func NewDAO(ctx context.Context) (DAO, error) {
-	var db *gorm.DB
-
-	if storage.Get(ctx, &db) {
-		resourcesDAO, err := resources.NewDAO(ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		return &sqlimpl{db: db, resourcesDAO: resourcesDAO.(resources.DAO)}, nil
-	}
-
-	return nil, storage.NotFound
+func NewDAO(db *gorm.DB) DAO {
+	resourcesDAO := resources.NewDAO(db)
+	return &sqlimpl{db: db, resourcesDAO: resourcesDAO}
 }

@@ -23,17 +23,17 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao/mysql"
-	"github.com/pydio/cells/v4/common/nodes/meta"
-	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/idm/acl"
+
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceAcl
@@ -41,11 +41,13 @@ const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceAcl
 func init() {
 
 	runtime.Register("main", func(ctx context.Context) {
-		service.Name(ServiceName),
+		service.NewService(
+			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Access Control List service"),
-			service.WithStorage(acl.NewDAO,
+			service.WithStorage("DAO",
+				acl.NewDAO,
 				service.WithStoragePrefix("idm_acl"),
 				service.WithStorageSupport(mysql.Driver),
 			),
@@ -57,37 +59,37 @@ func init() {
 			}),
 			service.Metadata(meta.ServiceMetaProvider, "stream"),
 			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
-
 				handler := NewHandler(ctx)
 				idm.RegisterACLServiceServer(srv, handler)
 				tree.RegisterNodeProviderStreamerServer(srv, handler)
-				cn := broker.WithCounterName("idm_acl")
+
+				//cn := broker.WithCounterName("idm_acl")
 
 				// Clean acls on Ws or Roles deletion
-				rCleaner := &WsRolesCleaner{Handler: handler}
-				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
-					ev := &idm.ChangeEvent{}
-					if ct, e := message.Unmarshal(ev); e == nil {
-						return rCleaner.Handle(ct, ev)
-					}
-					return nil
-				}, cn); e != nil {
-					return e
-				}
-
-				nCleaner, er := newNodesCleaner(ctx, handler)
-				if er != nil {
-					return er
-				}
-				if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(message broker.Message) error {
-					ev := &tree.NodeChangeEvent{}
-					if ct, e := message.Unmarshal(ev); e == nil {
-						return nCleaner.Handle(ct, ev)
-					}
-					return nil
-				}, cn); e != nil {
-					return e
-				}
+				//rCleaner := &WsRolesCleaner{Handler: handler}
+				//if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
+				//	ev := &idm.ChangeEvent{}
+				//	if e := message.Unmarshal(ev); e == nil {
+				//		return rCleaner.Handle(ctx, ev)
+				//	}
+				//	return nil
+				//}, cn); e != nil {
+				//	return e
+				//}
+				//
+				//nCleaner, er := newNodesCleaner(ctx, handler)
+				//if er != nil {
+				//	return er
+				//}
+				//if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
+				//	ev := &tree.NodeChangeEvent{}
+				//	if e := message.Unmarshal(ev); e == nil {
+				//		return nCleaner.Handle(ctx, ev)
+				//	}
+				//	return nil
+				//}, cn); e != nil {
+				//	return e
+				//}
 
 				// For when it will be used: clean locks at startup
 				//	dao := servicecontext.GetDAO(m.Options().Context).(acl.DAO)
@@ -97,6 +99,9 @@ func init() {
 				//			log.Logger(m.Options().Context).Info(fmt.Sprintf("Cleaned %d locks in ACLs", num))
 				//		}
 				//	}
-			})
+
+				return nil
+			}),
+		)
 	})
 }

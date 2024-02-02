@@ -146,7 +146,9 @@ func copyStruct(x any) any {
 			continue
 		}
 		item := copyAny(v.Field(i).Interface())
-		dc.Elem().Field(i).Set(reflect.ValueOf(item))
+		if iv := reflect.ValueOf(item); iv.IsValid() {
+			dc.Elem().Field(i).Set(reflect.ValueOf(item))
+		}
 	}
 	return dc.Elem().Interface()
 }

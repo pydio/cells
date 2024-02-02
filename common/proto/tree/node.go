@@ -127,6 +127,15 @@ func (f Flags) AsMeta() map[string]string {
 
 /* VARIOUS HELPERS TO MANAGE NODES */
 
+func (node *Node) As(out any) bool {
+	if v, ok := out.(*Node); ok {
+		out = v
+		return true
+	}
+
+	return false
+}
+
 // Clone node to avoid modifying it directly
 func (node *Node) Clone() *Node {
 	return proto.Clone(node).(*Node)
@@ -160,10 +169,6 @@ func (node *Node) UpdateMTime(s int64) {
 // UpdateMode updates mode fields
 func (node *Node) UpdateMode(s int32) {
 	node.Mode = s
-}
-
-func (node *Node) SetType(t NodeType) {
-	node.Type = t
 }
 
 func (node *Node) SetChildrenSize(s uint64) {
@@ -307,58 +312,6 @@ func (node *Node) HasMetaKey(keyName string) bool {
 	}
 	_, ok := node.MetaStore[keyName]
 	return ok
-}
-
-func (node *Node) SetChildrenSize(s uint64) {
-	node.MustSetMeta(common.MetaRecursiveChildrenSize, int64(s))
-}
-func (node *Node) SetChildrenFiles(s uint64) {
-	node.MustSetMeta(common.MetaRecursiveChildrenFiles, int64(s))
-}
-func (node *Node) SetChildrenFolders(s uint64) {
-	node.MustSetMeta(common.MetaRecursiveChildrenFolders, int64(s))
-}
-func (node *Node) GetChildrenSize() (s uint64, o bool) {
-	if !node.HasMetaKey(common.MetaRecursiveChildrenSize) {
-		return
-	}
-	if e := node.GetMeta(common.MetaRecursiveChildrenSize, &s); e == nil {
-		o = true
-	}
-	return
-}
-func (node *Node) GetChildrenFiles() (s uint64, o bool) {
-	if !node.HasMetaKey(common.MetaRecursiveChildrenFiles) {
-		return
-	}
-	if e := node.GetMeta(common.MetaRecursiveChildrenFiles, &s); e == nil {
-		o = true
-	}
-	return
-
-}
-func (node *Node) GetChildrenFolders() (s uint64, o bool) {
-	if !node.HasMetaKey(common.MetaRecursiveChildrenFolders) {
-		return
-	}
-	if e := node.GetMeta(common.MetaRecursiveChildrenFolders, &s); e == nil {
-		o = true
-	}
-	return
-}
-
-// SetRawMetadata append key/value directly to metastore (no json encoding)
-func (node *Node) SetRawMetadata(mm map[string]string) {
-	if node.MetaStore == nil {
-		node.MetaStore = make(map[string]string, len(mm))
-	}
-	for k, v := range mm {
-		node.MetaStore[k] = v
-	}
-}
-
-func (node *Node) ListRawMetadata() map[string]string {
-	return node.MetaStore
 }
 
 // AllMetaDeserialized unmarshall all defined metadata to JSON objects,

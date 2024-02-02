@@ -22,9 +22,7 @@ func (c *consentDriver) AutoMigrate() {
 	c.db.AutoMigrate(&Flow{})
 }
 
-func (c *consentDriver) CreateConsentRequest(ctx context.Context, req *consent.OAuth2ConsentRequest) error {
-	var f *Flow
-
+func (c *consentDriver) CreateConsentRequest(ctx context.Context, f *flow.Flow, req *flow.OAuth2ConsentRequest) error {
 	if tx := c.db.First(&f, "id=?", req.LoginChallenge); tx.Error != nil {
 		return tx.Error
 	}
@@ -48,8 +46,9 @@ func (c *consentDriver) CreateConsentRequest(ctx context.Context, req *consent.O
 	return nil
 }
 
-func (c *consentDriver) GetConsentRequest(ctx context.Context, challenge string) (req *consent.OAuth2ConsentRequest, err error) {
-	var f *Flow
+func (c *consentDriver) GetConsentRequest(ctx context.Context, challenge string) (req *flow.OAuth2ConsentRequest, err error) {
+
+	var f *flow.Flow
 
 	if tx := c.db.First(&f, "consent_challenge_id=?", challenge); tx.Error != nil {
 		return nil, tx.Error
@@ -64,8 +63,7 @@ func (c *consentDriver) GetConsentRequest(ctx context.Context, challenge string)
 	return ((*flow.Flow)(f)).GetConsentRequest(), nil
 }
 
-func (c *consentDriver) HandleConsentRequest(ctx context.Context, r *consent.AcceptOAuth2ConsentRequest) (*consent.OAuth2ConsentRequest, error) {
-	var f *Flow
+func (c *consentDriver) HandleConsentRequest(ctx context.Context, f *flow.Flow, r *flow.AcceptOAuth2ConsentRequest) (*flow.OAuth2ConsentRequest, error) {
 
 	if tx := c.db.First(&f, "consent_challenge_id=?", r.ID); tx.Error != nil {
 		return nil, tx.Error
@@ -96,7 +94,7 @@ func (c *consentDriver) RevokeSubjectClientConsentSession(ctx context.Context, u
 	return nil
 }
 
-func (c *consentDriver) VerifyAndInvalidateConsentRequest(ctx context.Context, verifier string) (*consent.AcceptOAuth2ConsentRequest, error) {
+func (c *consentDriver) VerifyAndInvalidateConsentRequest(ctx context.Context, verifier string) (*flow.AcceptOAuth2ConsentRequest, error) {
 	var f *Flow
 
 	tx := c.db.First(&f, "consent_verifier=?", verifier)
@@ -121,16 +119,16 @@ func (c *consentDriver) VerifyAndInvalidateConsentRequest(ctx context.Context, v
 	return ((*flow.Flow)(f)).GetHandledConsentRequest(), nil
 }
 
-func (c *consentDriver) FindGrantedAndRememberedConsentRequests(ctx context.Context, client, user string) ([]consent.AcceptOAuth2ConsentRequest, error) {
-	return []consent.AcceptOAuth2ConsentRequest{}, nil
+func (c *consentDriver) FindGrantedAndRememberedConsentRequests(ctx context.Context, client, user string) ([]flow.AcceptOAuth2ConsentRequest, error) {
+	return []flow.AcceptOAuth2ConsentRequest{}, nil
 }
 
-func (c *consentDriver) FindSubjectsGrantedConsentRequests(ctx context.Context, user string, limit, offset int) ([]consent.AcceptOAuth2ConsentRequest, error) {
-	return []consent.AcceptOAuth2ConsentRequest{}, nil
+func (c *consentDriver) FindSubjectsGrantedConsentRequests(ctx context.Context, user string, limit, offset int) ([]flow.AcceptOAuth2ConsentRequest, error) {
+	return []flow.AcceptOAuth2ConsentRequest{}, nil
 }
 
-func (c *consentDriver) FindSubjectsSessionGrantedConsentRequests(ctx context.Context, user, sid string, limit, offset int) ([]consent.AcceptOAuth2ConsentRequest, error) {
-	return []consent.AcceptOAuth2ConsentRequest{}, nil
+func (c *consentDriver) FindSubjectsSessionGrantedConsentRequests(ctx context.Context, user, sid string, limit, offset int) ([]flow.AcceptOAuth2ConsentRequest, error) {
+	return []flow.AcceptOAuth2ConsentRequest{}, nil
 }
 
 func (c *consentDriver) CountSubjectsGrantedConsentRequests(ctx context.Context, user string) (int, error) {
@@ -138,10 +136,11 @@ func (c *consentDriver) CountSubjectsGrantedConsentRequests(ctx context.Context,
 }
 
 // Cookie management
-func (c *consentDriver) GetRememberedLoginSession(ctx context.Context, id string) (*consent.LoginSession, error) {
-	return &consent.LoginSession{}, nil
+func (c *consentDriver) GetRememberedLoginSession(ctx context.Context, loginSessionFromCookie *flow.LoginSession, id string) (*flow.LoginSession, error) {
+	return loginSessionFromCookie, nil
 }
-func (c *consentDriver) CreateLoginSession(ctx context.Context, session *consent.LoginSession) error {
+
+func (c *consentDriver) CreateLoginSession(ctx context.Context, session *flow.LoginSession) error {
 	//nid := c.r.NetworkID(ctx)
 	//if nid == uuid.Nil {
 	//	return errorsx.WithStack(x.ErrNotFound)
@@ -150,25 +149,25 @@ func (c *consentDriver) CreateLoginSession(ctx context.Context, session *consent
 
 	return nil
 }
-func (c *consentDriver) DeleteLoginSession(ctx context.Context, id string) error {
-	return nil
+func (c *consentDriver) DeleteLoginSession(ctx context.Context, id string) (deletedSession *flow.LoginSession, err error) {
+	return
 }
 func (c *consentDriver) RevokeSubjectLoginSession(ctx context.Context, user string) error {
 	return nil
 }
-func (c *consentDriver) ConfirmLoginSession(ctx context.Context, id string, authTime time.Time, subject string, remember bool) error {
+func (c *consentDriver) ConfirmLoginSession(ctx context.Context, loginSession *flow.LoginSession) error {
 	return nil
 }
 
-func (c *consentDriver) CreateLoginRequest(ctx context.Context, req *consent.LoginRequest) error {
+func (c *consentDriver) CreateLoginRequest(ctx context.Context, req *flow.LoginRequest) (*flow.Flow, error) {
 	f := flow.NewFlow(req)
 
 	tx := c.db.Omit("Client").Create((*Flow)(f))
 
-	return tx.Error
+	return f, tx.Error
 }
 
-func (c *consentDriver) GetLoginRequest(ctx context.Context, challenge string) (*consent.LoginRequest, error) {
+func (c *consentDriver) GetLoginRequest(ctx context.Context, challenge string) (*flow.LoginRequest, error) {
 	var f *Flow
 
 	tx := c.db.First(&f, "id=?", challenge)
@@ -185,8 +184,7 @@ func (c *consentDriver) GetLoginRequest(ctx context.Context, challenge string) (
 	return ((*flow.Flow)(f)).GetLoginRequest(), nil
 }
 
-func (c *consentDriver) HandleLoginRequest(ctx context.Context, challenge string, r *consent.HandledLoginRequest) (*consent.LoginRequest, error) {
-	var f *Flow
+func (c *consentDriver) HandleLoginRequest(ctx context.Context, f *flow.Flow, challenge string, r *flow.HandledLoginRequest) (*flow.LoginRequest, error) {
 
 	if tx := c.db.First(&f, "id=?", challenge); tx.Error != nil {
 		return nil, tx.Error
@@ -209,7 +207,7 @@ func (c *consentDriver) HandleLoginRequest(ctx context.Context, challenge string
 	return ((*flow.Flow)(f)).GetLoginRequest(), nil
 }
 
-func (c *consentDriver) VerifyAndInvalidateLoginRequest(ctx context.Context, verifier string) (*consent.HandledLoginRequest, error) {
+func (c *consentDriver) VerifyAndInvalidateLoginRequest(ctx context.Context, verifier string) (*flow.HandledLoginRequest, error) {
 	var f *Flow
 
 	tx := c.db.First(&f, "login_verifier=?", verifier)
@@ -231,7 +229,7 @@ func (c *consentDriver) VerifyAndInvalidateLoginRequest(ctx context.Context, ver
 		return nil, tx.Error
 	}
 
-	var d consent.HandledLoginRequest
+	var d flow.HandledLoginRequest
 	d = ((*flow.Flow)(f)).GetHandledLoginRequest()
 
 	return &d, nil
@@ -253,7 +251,7 @@ func (c *consentDriver) ListUserAuthenticatedClientsWithBackChannelLogout(ctx co
 	return []client.Client{}, nil
 }
 
-func (c *consentDriver) CreateLogoutRequest(ctx context.Context, request *consent.LogoutRequest) error {
+func (c *consentDriver) CreateLogoutRequest(ctx context.Context, request *flow.LogoutRequest) error {
 	//f := flow.NewFlow(request)
 	//
 	//tx := c.db.Omit("Client").Create(f)
@@ -263,20 +261,20 @@ func (c *consentDriver) CreateLogoutRequest(ctx context.Context, request *consen
 	return nil
 }
 
-func (c *consentDriver) GetLogoutRequest(ctx context.Context, challenge string) (*consent.LogoutRequest, error) {
-	return &consent.LogoutRequest{}, nil
+func (c *consentDriver) GetLogoutRequest(ctx context.Context, challenge string) (*flow.LogoutRequest, error) {
+	return &flow.LogoutRequest{}, nil
 }
 
-func (c *consentDriver) AcceptLogoutRequest(ctx context.Context, challenge string) (*consent.LogoutRequest, error) {
-	return &consent.LogoutRequest{}, nil
+func (c *consentDriver) AcceptLogoutRequest(ctx context.Context, challenge string) (*flow.LogoutRequest, error) {
+	return &flow.LogoutRequest{}, nil
 }
 
 func (c *consentDriver) RejectLogoutRequest(ctx context.Context, challenge string) error {
 	return nil
 }
 
-func (c *consentDriver) VerifyAndInvalidateLogoutRequest(ctx context.Context, verifier string) (*consent.LogoutRequest, error) {
-	return &consent.LogoutRequest{}, nil
+func (c *consentDriver) VerifyAndInvalidateLogoutRequest(ctx context.Context, verifier string) (*flow.LogoutRequest, error) {
+	return &flow.LogoutRequest{}, nil
 }
 
 func (c *consentDriver) FlushInactiveLoginConsentRequests(ctx context.Context, notAfter time.Time, limit int, batchSize int) error {

@@ -1,14 +1,15 @@
 syntax = "proto3";
 
+import "google/protobuf/descriptor.proto";
+
 import "cells-service.proto";
 import "cells-tree.proto";
-import "github.com/mwitkow/go-proto-validators/validator.proto";
-import "google/protobuf/descriptor.proto";
-import "orm/orm.proto";
+import "orm.proto";
+import "buf/validate/validate.proto";
 
 package idm;
 
-option go_package="github.com/pydio/cells/common/proto/idm";
+option go_package="github.com/pydio/cells/v4/common/proto/idm";
 
 // *****************************************************************************
 //  Services
@@ -281,11 +282,11 @@ message Workspace {
     // Unique identifier of the workspace
     string UUID = 1                               [(orm.orm).gorm = {column: "uuid";}];
     // Label of the workspace (max length 500)
-    string Label = 2                              [(orm.orm).gorm = {column: "label";}, (validator.field) = {length_lt: 500}];
+    string Label = 2                              [(orm.orm).gorm = {column: "label";}, (buf.validate.field).string.max_len = 500];
     // Description of the workspace (max length 1000)
-    string Description = 3                        [(orm.orm).gorm = {column: "description";}, (validator.field) = {length_lt: 1000}];
+    string Description = 3                        [(orm.orm).gorm = {column: "description";}, (buf.validate.field).string.max_len = 1000];
     // Slug is an url-compatible form of the workspace label, or can be freely modified (max length 500)
-    string Slug = 4                               [(orm.orm).gorm = {column: "slug";}, (validator.field) = {length_lt: 500}];
+    string Slug = 4                               [(orm.orm).gorm = {column: "slug";}, (buf.validate.field).string.max_len = 500];
     // Scope can be ADMIN, ROOM (=CELL) or LINK
     WorkspaceScope Scope = 5                      [(orm.orm).gorm = {column: "scope";}];
     // Last modification time

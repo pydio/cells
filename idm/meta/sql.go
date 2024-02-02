@@ -23,12 +23,12 @@ package meta
 import (
 	"context"
 	"embed"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -38,7 +38,6 @@ import (
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/meta/namespace"
 )
 
@@ -61,71 +60,11 @@ type resourcesDAO resources.DAO
 type sqlimpl struct {
 	db *gorm.DB
 
-	instance func() *gorm.DB
+	once *sync.Once
 
 	resourcesDAO
 
 	nsDAO namespace.DAO
-}
-
-func (dao *sqlimpl) Name() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (dao *sqlimpl) ID() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (dao *sqlimpl) Metadata() map[string]string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (dao *sqlimpl) As(i interface{}) bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (dao *sqlimpl) Driver() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (dao *sqlimpl) Dsn() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (dao *sqlimpl) GetConn(ctx context.Context) (dao.Conn, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (dao *sqlimpl) SetConn(ctx context.Context, conn dao.Conn) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (dao *sqlimpl) CloseConn(ctx context.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (dao *sqlimpl) Prefix() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (dao *sqlimpl) LocalAccess() bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (dao *sqlimpl) Stats() map[string]interface{} {
-	//TODO implement me
-	panic("implement me")
 }
 
 type Meta struct {
@@ -172,36 +111,29 @@ func (dao *sqlimpl) GetNamespaceDao() namespace.DAO {
 	return dao.nsDAO
 }
 
-// Init handler for the SQL DAO
-func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-
-	// super
-	db := s.db
-
-	s.instance = func() *gorm.DB { return db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_meta") }
-
-	s.instance().AutoMigrate(&Meta{})
-
-	if err := s.resourcesDAO.Init(ctx, options); err != nil {
-		return err
+func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
+	if s.once == nil {
+		s.once = &sync.Once{}
 	}
 
-	if err := s.nsDAO.Init(ctx, options); err != nil {
-		return err
-	}
+	db := s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
 
-	return nil
+	s.once.Do(func() {
+		db.AutoMigrate(&Meta{})
+	})
+
+	return db
 }
 
 // Set adds or updates a UserMeta to the DB
-func (s *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, string, error) {
+func (s *sqlimpl) Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, string, error) {
 	target := (&Meta{}).From(meta)
 	old := (&Meta{}).From(meta)
 	prev := ""
 	update := false
 
 	// Attempting to create
-	tx := s.instance().Clauses(clause.OnConflict{DoNothing: true}).Create(old)
+	tx := s.instance(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(old)
 	if tx.Error != nil {
 		return nil, "", tx.Error
 	}
@@ -212,7 +144,7 @@ func (s *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, string, error) {
 		prev = string(target.Data)
 
 		update = true
-		tx := s.instance().Where(&Meta{UUID: old.UUID}).Updates(target)
+		tx := s.instance(ctx).Where(&Meta{UUID: old.UUID}).Updates(target)
 		if tx.Error != nil {
 			return nil, "", tx.Error
 		}
@@ -227,28 +159,28 @@ func (s *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, string, error) {
 		for _, p := range meta.Policies {
 			p.Resource = meta.Uuid
 		}
-		err = s.resourcesDAO.AddPolicies(update, meta.Uuid, meta.Policies)
+		err = s.resourcesDAO.AddPolicies(ctx, update, meta.Uuid, meta.Policies)
 	}
 
 	return meta, prev, err
 }
 
 // Del deletes meta by their Id.
-func (s *sqlimpl) Del(meta *idm.UserMeta) (previousValue string, e error) {
+func (s *sqlimpl) Del(ctx context.Context, meta *idm.UserMeta) (previousValue string, e error) {
 	target := (&Meta{}).From(meta)
 	old := &Meta{}
 
-	if tx := s.instance().Where(&Meta{UUID: target.UUID, Owner: target.Owner, Namespace: target.Namespace, NodeUUID: target.NodeUUID}).Find(&old); tx.Error != nil {
+	if tx := s.instance(ctx).Where(&Meta{UUID: target.UUID, Owner: target.Owner, Namespace: target.Namespace, NodeUUID: target.NodeUUID}).Find(&old); tx.Error != nil {
 		return "", tx.Error
 	}
 
 	previousValue = string(old.Data)
 
-	if tx := s.instance().Delete(&old); tx.Error != nil {
+	if tx := s.instance(ctx).Delete(&old); tx.Error != nil {
 		return "", tx.Error
 	}
 
-	if e := s.resourcesDAO.DeletePoliciesForResource(old.UUID); e != nil {
+	if e := s.resourcesDAO.DeletePoliciesForResource(ctx, old.UUID); e != nil {
 		return "", e
 	}
 
@@ -257,9 +189,9 @@ func (s *sqlimpl) Del(meta *idm.UserMeta) (previousValue string, e error) {
 
 // Search meta on their conditions
 // func (s *sqlimpl) Search(metaIds []string, nodeUuids []string, namespace string, ownerSubject string, resourceQuery *service.ResourcePolicyQuery) ([]*idm.UserMeta, error) {
-func (s *sqlimpl) Search(query sql.Enquirer) ([]*idm.UserMeta, error) {
+func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer) ([]*idm.UserMeta, error) {
 
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.resourcesDAO.(sql.Converter)).Build(s.instance()).(*gorm.DB)
+	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
 
 	var metas []*Meta
 
@@ -271,7 +203,7 @@ func (s *sqlimpl) Search(query sql.Enquirer) ([]*idm.UserMeta, error) {
 	var res []*idm.UserMeta
 	for _, meta := range metas {
 		m := meta.As(&idm.UserMeta{})
-		if policies, e := s.resourcesDAO.GetPoliciesForResource(m.Uuid); e == nil {
+		if policies, e := s.resourcesDAO.GetPoliciesForResource(ctx, m.Uuid); e == nil {
 			m.Policies = policies
 		} else {
 			log.Logger(context.Background()).Error("cannot load resource policies for uuid: "+m.Uuid, zap.Error(e))
@@ -294,7 +226,7 @@ func extractOwner(policies []*service.ResourcePolicy) (owner string) {
 
 type queryBuilder idm.SearchUserMetaRequest
 
-func (c *queryBuilder) Convert(val *anypb.Any, in any) (out any, ok bool) {
+func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out any, ok bool) {
 
 	db, ok := in.(*gorm.DB)
 	if !ok {

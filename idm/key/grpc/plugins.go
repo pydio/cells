@@ -23,28 +23,40 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/server"
+
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/encryption"
 	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/idm/key"
 )
 
 const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceUserKey
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		var srv grpc.ServiceRegistrar
-		if !server.Get(&srv) {
-			panic("no grpc server available")
-		}
+		service.NewService(
+			service.Name(ServiceName),
+			service.Context(ctx),
+			service.Tag(common.ServiceTagIdm),
+			service.Description("Encryption Keys server"),
+			service.WithStorage(
+				"DAO",
+				key.NewDAO,
+				service.WithStoragePrefix("idm_key"),
+			),
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
+				h, e := NewUserKeyStore(ctx)
+				if e != nil {
+					panic(e)
+				}
 
-		h, e := NewUserKeyStore(ctx)
-		if e != nil {
-			panic(e)
-		}
+				encryption.RegisterUserKeyStoreServer(server, h)
 
-		encryption.RegisterUserKeyStoreServer(srv, h)
+				return nil
+			}),
+		)
 	})
 }

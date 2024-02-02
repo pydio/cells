@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/service"
 	"io"
 
 	"go.uber.org/zap"
@@ -45,15 +44,11 @@ type NodeInfoMessage struct {
 type NodeKeyManagerHandler struct {
 	encryption.UnimplementedNodeKeyManagerServer
 
-	service.Service
-	dao func(ctx context.Context) key.DAO
+	DAO key.DAO
 }
 
-func NewNodeKeyManagerHandler(svc service.Service) *NodeKeyManagerHandler {
-	return &NodeKeyManagerHandler{
-		Service: svc,
-		dao:     service.DAOProvider[key.DAO](svc),
-	}
+func NewNodeKeyManagerHandler() *NodeKeyManagerHandler {
+	return &NodeKeyManagerHandler{}
 }
 
 func (km *NodeKeyManagerHandler) HandleTreeChanges(ctx context.Context, msg *tree.NodeChangeEvent) error {
@@ -73,12 +68,12 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 	rsp.NodeInfo = new(encryption.NodeInfo)
 
 	var err error
-	rsp.NodeInfo.Node, err = km.dao(ctx).GetNode(req.NodeId)
+	rsp.NodeInfo.Node, err = km.DAO.GetNode(ctx, req.NodeId)
 	if err != nil {
 		return nil, err
 	}
 
-	rsp.NodeInfo.NodeKey, err = km.dao(ctx).GetNodeKey(req.NodeId, req.UserId)
+	rsp.NodeInfo.NodeKey, err = km.DAO.GetNodeKey(ctx, req.NodeId, req.UserId)
 	if err != nil {
 		log.Logger(ctx).Debug("data.key.handler: failed to get node key for "+req.NodeId+" - "+req.UserId, zap.Error(err))
 		return nil, err
@@ -86,7 +81,7 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 
 	if rsp.NodeInfo.Node.Legacy {
 
-		block, err := km.dao(ctx).GetEncryptedLegacyBlockInfo(req.NodeId)
+		block, err := km.DAO.GetEncryptedLegacyBlockInfo(ctx, req.NodeId)
 		if err != nil {
 			log.Logger(ctx).Error("data.key.handler: failed to load legacy block info", zap.Error(err))
 			return nil, err
@@ -97,7 +92,7 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 			Nonce:     block.Nonce,
 		}
 	} else if req.WithRange {
-		blocks, err := km.dao(ctx).ListEncryptedBlockInfo(req.NodeId)
+		blocks, err := km.DAO.ListEncryptedBlockInfo(ctx, req.NodeId)
 		if err != nil {
 			log.Logger(ctx).Error("failed to list node blocks", zap.String("id", rsp.NodeInfo.Node.NodeId))
 			return nil, err
@@ -163,7 +158,7 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 
 func (km *NodeKeyManagerHandler) GetNodePlainSize(ctx context.Context, req *encryption.GetNodePlainSizeRequest) (*encryption.GetNodePlainSizeResponse, error) {
 
-	blocks, err := km.dao(ctx).ListEncryptedBlockInfo(req.NodeId)
+	blocks, err := km.DAO.ListEncryptedBlockInfo(ctx, req.NodeId)
 	if err != nil {
 		return nil, err
 	}
@@ -211,13 +206,13 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 			}
 
 		case "clearBlocks":
-			err := km.dao(ctx).ClearNodeEncryptedBlockInfo(req.SetBlock.NodeUuid)
+			err := km.DAO.ClearNodeEncryptedBlockInfo(ctx, req.SetBlock.NodeUuid)
 			if err != nil {
 				log.Logger(ctx).Error("failed to clear old blocks", zap.Error(err))
 				return err
 			}
 
-			err = km.dao(ctx).UpgradeNodeVersion(req.SetBlock.NodeUuid)
+			err = km.DAO.UpgradeNodeVersion(ctx, req.SetBlock.NodeUuid)
 			if err != nil {
 				log.Logger(ctx).Error("failed to upgrade node version", zap.Error(err))
 				return err
@@ -239,7 +234,7 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 				rangedBlocks = tmpRangeBlock
 
 			} else if req.SetBlock.Block.BlockSize != rangedBlocks.BlockSize || req.SetBlock.Block.HeaderSize != rangedBlocks.HeaderSize {
-				err = km.dao(ctx).SaveEncryptedBlockInfo(nodeUuid, rangedBlocks)
+				err = km.DAO.SaveEncryptedBlockInfo(ctx, nodeUuid, rangedBlocks)
 				if err != nil {
 					rsp.ErrorText = err.Error()
 					log.Logger(ctx).Error("data.key.handler.SetNodeInfo: failed to save block", zap.Error(err))
@@ -257,7 +252,7 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 		case "close":
 			sessionOpened = false
 			if rangedBlocks != nil {
-				km.dao(ctx).SaveEncryptedBlockInfo(nodeUuid, rangedBlocks)
+				km.DAO.SaveEncryptedBlockInfo(ctx, nodeUuid, rangedBlocks)
 				rangedBlocks = nil
 			}
 		}
@@ -275,17 +270,17 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(stream encryption.NodeKeyManager_Se
 func (km *NodeKeyManagerHandler) CopyNodeInfo(ctx context.Context, req *encryption.CopyNodeInfoRequest) (*encryption.CopyNodeInfoResponse, error) {
 
 	rsp := &encryption.CopyNodeInfoResponse{}
-	return rsp, km.dao(ctx).CopyNode(req.NodeUuid, req.NodeCopyUuid)
+	return rsp, km.DAO.CopyNode(ctx, req.NodeUuid, req.NodeCopyUuid)
 }
 
 func (km *NodeKeyManagerHandler) DeleteNode(ctx context.Context, req *encryption.DeleteNodeRequest) (*encryption.DeleteNodeResponse, error) {
 	rsp := &encryption.DeleteNodeResponse{}
-	return rsp, km.dao(ctx).DeleteNode(req.NodeId)
+	return rsp, km.DAO.DeleteNode(ctx, req.NodeId)
 }
 
 func (km *NodeKeyManagerHandler) DeleteNodeKey(ctx context.Context, req *encryption.DeleteNodeKeyRequest) (*encryption.DeleteNodeKeyResponse, error) {
 	rsp := &encryption.DeleteNodeKeyResponse{}
-	return rsp, km.dao(ctx).DeleteNodeKey(&encryption.NodeKey{
+	return rsp, km.DAO.DeleteNodeKey(ctx, &encryption.NodeKey{
 		UserId: req.UserId,
 		NodeId: req.NodeId,
 	})
@@ -293,14 +288,14 @@ func (km *NodeKeyManagerHandler) DeleteNodeKey(ctx context.Context, req *encrypt
 
 func (km *NodeKeyManagerHandler) DeleteNodeSharedKey(ctx context.Context, req *encryption.DeleteNodeSharedKeyRequest) (*encryption.DeleteNodeSharedKeyResponse, error) {
 	rsp := &encryption.DeleteNodeSharedKeyResponse{}
-	return rsp, km.dao(ctx).DeleteNodeKey(&encryption.NodeKey{
+	return rsp, km.DAO.DeleteNodeKey(ctx, &encryption.NodeKey{
 		UserId: req.UserId,
 		NodeId: req.NodeId,
 	})
 }
 
 func (km *NodeKeyManagerHandler) saveNodeKey(ctx context.Context, nodeKey *encryption.NodeKey) error {
-	err := km.dao(ctx).SaveNode(&encryption.Node{
+	err := km.DAO.SaveNode(ctx, &encryption.Node{
 		NodeId: nodeKey.NodeId,
 		Legacy: false,
 	})
@@ -309,7 +304,7 @@ func (km *NodeKeyManagerHandler) saveNodeKey(ctx context.Context, nodeKey *encry
 		return err
 	}
 
-	err = km.dao(ctx).SaveNodeKey(nodeKey)
+	err = km.DAO.SaveNodeKey(ctx, nodeKey)
 	if err != nil {
 		log.Logger(ctx).Error("failed to save node key", zap.Error(err))
 		return err

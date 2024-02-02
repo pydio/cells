@@ -24,10 +24,10 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"github.com/pydio/cells/v4/common/dao"
 	user_model "github.com/pydio/cells/v4/idm/user/model"
 	"gorm.io/gorm"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 
@@ -46,7 +46,6 @@ import (
 	"github.com/pydio/cells/v4/common/sql"
 	index "github.com/pydio/cells/v4/common/sql/indexgorm"
 	"github.com/pydio/cells/v4/common/sql/resources"
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 const (
@@ -113,8 +112,9 @@ type indexDAO index.DAO
 
 // Impl of the SQL interface
 type sqlimpl struct {
-	db       *gorm.DB
-	instance func() *gorm.DB
+	db *gorm.DB
+
+	once *sync.Once
 
 	resourcesDAO
 	indexDAO
@@ -123,97 +123,49 @@ type sqlimpl struct {
 	loginCI bool
 }
 
-var _ dao.DAO = (*sqlimpl)(nil)
+// var _ dao.DAO = (*sqlimpl)(nil)
 var _ DAO = (*sqlimpl)(nil)
 
-func (s *sqlimpl) ID() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Name() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Metadata() map[string]string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) As(i interface{}) bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Driver() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Dsn() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) GetConn(ctx context.Context) (dao.Conn, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) SetConn(ctx context.Context, conn dao.Conn) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) CloseConn(ctx context.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Prefix() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) LocalAccess() bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Stats() map[string]interface{} {
-	//TODO implement me
-	panic("implement me")
-}
-
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-
-	s.instance = func() *gorm.DB { return s.db }
-
-	s.instance().AutoMigrate(&user_model.User{}, &user_model.UserRole{}, &user_model.UserAttribute{})
-
-	// Preparing the resources
-	if err := s.resourcesDAO.Init(ctx, options); err != nil {
-		return fmt.Errorf("cannot initialise resources DAO: %v", err)
-	}
-
-	// Preparing the index
-	if err := s.indexDAO.Init(ctx, options); err != nil {
-		return fmt.Errorf("cannot initialise index DAO: %v", err)
-	}
-
-	s.indexDAO.FixRandHash2(ctx)
-
-	if options.Val("loginCI").Default(false).Bool() {
-		s.loginCI = true
-	}
-
-	return nil
-}
+//func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
+//
+//	s.instance().AutoMigrate(&user_model.User{}, &user_model.UserRole{}, &user_model.UserAttribute{})
+//
+//	// Preparing the resources
+//	if err := s.resourcesDAO.Init(ctx, options); err != nil {
+//		return fmt.Errorf("cannot initialise resources DAO: %v", err)
+//	}
+//
+//	// Preparing the index
+//	if err := s.indexDAO.Init(ctx, options); err != nil {
+//		return fmt.Errorf("cannot initialise index DAO: %v", err)
+//	}
+//
+//	s.indexDAO.FixRandHash2(ctx)
+//
+//	if options.Val("loginCI").Default(false).Bool() {
+//		s.loginCI = true
+//	}
+//
+//	return nil
+//}
 
 func safeGroupPath(gPath string) string {
 	return fmt.Sprintf("/%s", strings.Trim(gPath, "/"))
+}
+
+func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
+	if s.once == nil {
+		s.once = &sync.Once{}
+	}
+
+	db := s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+
+	s.once.Do(func() {
+		db.AutoMigrate(&user_model.User{}, &user_model.UserRole{}, &user_model.UserAttribute{})
+	})
+
+	return db
 }
 
 // Add to the underlying SQL DB.
@@ -343,7 +295,7 @@ func (s *sqlimpl) Add(ctx context.Context, in interface{}) (interface{}, []*user
 		}
 	}
 
-	if err := s.instance().Transaction(func(tx *gorm.DB) error {
+	if err := s.instance(ctx).Transaction(func(tx *gorm.DB) error {
 		delAttributes := tx.Where(&user_model.UserAttribute{UUID: user.Uuid}).Delete(&user_model.UserAttribute{})
 		if delAttributes.Error != nil {
 			return delAttributes.Error
@@ -485,7 +437,7 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents 
 	}
 
 	var total int64
-	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(s.instance().Model(&user_model.User{})).(*gorm.DB)
+	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx).Model(&user_model.User{})).(*gorm.DB)
 	tx := db.Count(&total)
 	if tx.Error != nil {
 		return 0, tx.Error
@@ -496,9 +448,6 @@ func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer, includeParents 
 
 // Search in the SQL DB
 func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]interface{}, withParents ...bool) error {
-
-	// s.Lock()
-	// defer s.Unlock()
 
 	var includeParents bool
 	if len(withParents) > 0 {
@@ -515,7 +464,7 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]inter
 	defer cancel()
 
 	var rows []*user_model.User
-	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(s.instance()).(*gorm.DB)
+	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
 	if offset := query.GetOffset(); offset > 0 {
 		db = db.Offset(int(offset))
 	}
@@ -542,9 +491,9 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]inter
 
 			var roles []*user_model.UserRole
 
-			q := user_model.Use(s.instance())
+			q := user_model.Use(s.instance(ctx))
 
-			s.instance().Where(q.UserRole.UUID.Eq(userOrGroup.Uuid)).Find(&roles)
+			s.instance(ctx).Where(q.UserRole.UUID.Eq(userOrGroup.Uuid)).Find(&roles)
 
 			for _, role := range roles {
 				userOrGroup.Roles = append(userOrGroup.Roles, &idm.Role{Uuid: role.Role, Label: role.Role})
@@ -558,9 +507,9 @@ func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, users *[]inter
 
 		var attributes []*user_model.UserAttribute
 
-		q := user_model.Use(s.instance())
+		q := user_model.Use(s.instance(ctx))
 
-		s.instance().Where(q.UserAttribute.UUID.Eq(userOrGroup.Uuid)).Find(&attributes)
+		s.instance(ctx).Where(q.UserAttribute.UUID.Eq(userOrGroup.Uuid)).Find(&attributes)
 
 		for _, attribute := range attributes {
 			userOrGroup.Attributes[attribute.Name] = attribute.Value
@@ -584,7 +533,7 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 		includeParent: true,
 		loginCI:       s.loginCI,
 	}
-	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(s.instance()).(*gorm.DB)
+	db := sql.NewGormQueryBuilder(query, converter, s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
 	if len(db.Statement.Clauses) == 0 {
 		return 0, fmt.Errorf("condition cannot be empty")
 	}
@@ -621,7 +570,7 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 			return count, err
 		}
 
-		if err := s.deleteNodeData(toDel.node.GetNode().GetUuid()); err != nil {
+		if err := s.deleteNodeData(ctx, toDel.node.GetNode().GetUuid()); err != nil {
 			return count, err
 		}
 
@@ -634,7 +583,7 @@ func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, users chan *idm.U
 
 func (s *sqlimpl) CleanRole(ctx context.Context, roleId string) error {
 
-	db := s.instance()
+	db := s.instance(ctx)
 
 	q := user_model.Use(db)
 
@@ -647,23 +596,23 @@ func (s *sqlimpl) CleanRole(ctx context.Context, roleId string) error {
 
 }
 
-func (s *sqlimpl) LoginModifiedAttr(oldName, newName string) (int64, error) {
+//func (s *sqlimpl) LoginModifiedAttr(oldName, newName string) (int64, error) {
+//
+//	st, er := s.GetStmt("UpdateLoginInAttributes")
+//	if er != nil {
+//		return 0, er
+//	}
+//	if res, err := st.Exec(strings.ToLower(newName), strings.ToLower(oldName)); err == nil {
+//		return res.RowsAffected()
+//	} else {
+//		return 0, err
+//	}
+//
+//}
 
-	st, er := s.GetStmt("UpdateLoginInAttributes")
-	if er != nil {
-		return 0, er
-	}
-	if res, err := st.Exec(strings.ToLower(newName), strings.ToLower(oldName)); err == nil {
-		return res.RowsAffected()
-	} else {
-		return 0, err
-	}
+func (s *sqlimpl) deleteNodeData(ctx context.Context, uuid string) error {
 
-}
-
-func (s *sqlimpl) deleteNodeData(uuid string) error {
-
-	db := s.instance()
+	db := s.instance(ctx)
 
 	q := user_model.Use(db)
 

@@ -8,5 +8,3 @@ plugins:
     out: .
   - name: govalidators
     out: .
-  - name: go-tags
-    out: .

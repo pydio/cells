@@ -22,12 +22,19 @@ package manager
 
 import (
 	"context"
+	"database/sql"
+	_ "embed"
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/pydio/cells/v4/common/registry/util"
+	"github.com/pydio/cells/v4/common/storage"
+	"github.com/pydio/cells/v4/common/utils/fork"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"io"
 	"os"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/bep/debounce"
@@ -55,12 +62,14 @@ const (
 )
 
 var (
+	//go:embed config.yaml
+	defaultTemplate string
+
 	node = util.CreateNode()
 )
 
 type Manager interface {
-	Init(ctx context.Context) error
-	ServeAll(...server.ServeOption)
+	ServeAll(...server.ServeOption) error
 	StopAll()
 	SetServeOptions(...server.ServeOption)
 	WatchServicesConfigs()
@@ -68,10 +77,13 @@ type Manager interface {
 }
 
 type manager struct {
-	ctx        context.Context
-	ns         string
-	srcUrl     string
-	reg        registry.Registry
+	ctx    context.Context
+	ns     string
+	srcUrl string
+
+	localRegistry   registry.Registry
+	clusterRegistry registry.Registry
+
 	root       registry.Item
 	rootIsFork bool
 
@@ -83,15 +95,25 @@ type manager struct {
 	logger log.ZapLogger
 }
 
-func NewManager(ctx context.Context, reg registry.Registry, srcUrl string, namespace string, logger log.ZapLogger) Manager {
+func NewManager(ctx context.Context, clusterRegistry registry.Registry, srcUrl string, namespace string, logger log.ZapLogger) (Manager, error) {
+
+	reg, err := registry.OpenRegistry(ctx, "mem:///?cache="+namespace)
+	if err != nil {
+		return nil, err
+	}
+
 	m := &manager{
-		ctx:      ctx,
-		ns:       namespace,
-		srcUrl:   srcUrl,
-		servers:  make(map[string]server.Server),
-		services: make(map[string]service.Service),
-		logger:   logger,
-		root:     node,
+		ctx: ctx,
+		ns:  namespace,
+
+		localRegistry:   reg,
+		clusterRegistry: clusterRegistry,
+
+		//processes: make(map[string]registry),
+		//servers:  make(map[string]server.Server),
+		//services: make(map[string]service.Service),
+		logger: logger,
+		root:   node,
 	}
 
 	reg = registry.NewTransientWrapper(reg, registry.WithType(pb.ItemType_SERVICE))
@@ -104,19 +126,26 @@ func NewManager(ctx context.Context, reg registry.Registry, srcUrl string, names
 
 	reg.Register(m.root)
 
-	reg = registry.NewFuncWrapper(reg, func(item *registry.Item, opts *[]registry.RegisterOption) {
-		var node registry.Node
-		var server server.Server
-		var service service.Service
-		if (*item).As(&node) && node.ID() != m.root.ID() {
-			*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
-		} else if (*item).As(&server) {
-			*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
-		} else if (*item).As(&service) {
-			*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
-		}
-	})
-	m.reg = reg
+	reg = registry.NewFuncWrapper(reg,
+		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
+			var node registry.Node
+			var server server.Server
+			var service service.Service
+			if (*item).As(&node) && node.ID() != m.root.ID() {
+				*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
+			} else if (*item).As(&server) {
+				*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
+			} else if (*item).As(&service) {
+				*opts = append(*opts, registry.WithEdgeTo(m.root.ID(), "Node", nil))
+			}
+		}),
+
+		// Adding to cluster registry
+		registry.OnRegister(func(item *registry.Item, opts *[]registry.RegisterOption) {
+			fmt.Println((*item).Name(), (*item).Metadata())
+			m.clusterRegistry.Register(*item, *opts...)
+		}),
+	)
 
 	// Detect a parent root
 	var current registry.Item
@@ -132,146 +161,384 @@ func NewManager(ctx context.Context, reg registry.Registry, srcUrl string, names
 		m.root = current
 	}
 
-	go m.WatchTransientStatus()
-	return m
-}
+	ctx = servercontext.WithRegistry(ctx, reg)
+	ctx = servicecontext.WithRegistry(ctx, reg)
 
-func (m *manager) Init(ctx context.Context) error {
-
-	srcReg, err := registry.OpenRegistry(ctx, m.srcUrl)
-	if err != nil {
-		return err
-	}
-
-	ctx = servercontext.WithRegistry(ctx, m.reg)
-	ctx = servicecontext.WithRegistry(ctx, srcReg)
+	runtime.Init(ctx, "discovery")
 	runtime.Init(ctx, m.ns)
 
-	services, err := srcReg.List(registry.WithType(pb.ItemType_SERVICE))
+	m.ctx = ctx
+
+	go m.WatchTransientStatus()
+
+	return m, nil
+}
+
+func (m *manager) ServeAll(oo ...server.ServeOption) error {
+
+	store, err := config.OpenStore(m.ctx, "mem://?encode=yaml")
 	if err != nil {
 		return err
 	}
 
-	byScheme := map[string]server.Server{}
+	reset := func(conf config.Store) error {
+		tmpl := defaultTemplate
 
-	for _, ss := range services {
-		var s service.Service
-		if !ss.As(&s) {
-			continue
-		}
-		opts := s.Options()
-		mustFork := opts.Fork && !runtime.IsFork()
-
-		// Replace service context with target registry
-		opts.SetRegistry(m.reg)
-
-		if !runtime.IsRequired(s.Name(), opts.Tags...) && !opts.ForceRegister {
-			continue
-		}
-
-		if mustFork && !opts.AutoStart {
-			continue
+		// Then generate the new template based on the config
+		if file := runtime.GetString("file"); file != "" {
+			f, err := os.Open(file)
+			if err != nil {
+				return err
+			}
+			b, err := io.ReadAll(f)
+			if err != nil {
+				return err
+			}
+			tmpl = string(b)
 		}
 
-		scheme := s.ServerScheme()
-		if sr, o := byScheme[scheme]; o {
-			opts.Server = sr
-		} else if srv, er := server.OpenServer(opts.RootContext(), scheme); er == nil {
-			byScheme[scheme] = srv
-			opts.Server = srv
-		} else {
-			return er
+		t, err := template.New("context").Parse(tmpl)
+		if err != nil {
+			return err
 		}
 
-		if mustFork {
-			continue // Do not register here
+		var b strings.Builder
+
+		r := runtime.GetRuntime()
+		if err := t.Execute(&b, struct {
+			ConfigURL     string
+			RegistryURL   string
+			BrokerURL     string
+			CacheURL      string
+			BindHost      string
+			AdvertiseHost string
+			DiscoveryPort string
+			FrontendPort  string
+			Config        config.Store
+		}{
+			runtime.ConfigURL(),
+			runtime.RegistryURL(),
+			runtime.BrokerURL(),
+			runtime.CacheURL(""),
+			r.GetString(runtime.KeyBindHost),
+			r.GetString(runtime.KeyBindHost),
+			r.GetString(runtime.KeyGrpcDiscoveryPort),
+			r.GetString(runtime.KeyHttpPort),
+			conf,
+		}); err != nil {
+			return err
 		}
 
-		m.services[s.ID()] = s
+		store.Set([]byte(b.String()))
+
+		return nil
 	}
 
-	for _, sr := range byScheme {
-		m.servers[sr.ID()] = sr // Keep a ref to the actual object
-	}
+	if len(runtime.GetStringSlice(runtime.KeyArgTags)) == 0 {
+		cmds := make(map[string]*fork.Process)
 
-	return nil
+		if err := reset(nil); err != nil {
+			return err
+		}
 
-}
-
-func (m *manager) SetServeOptions(oo ...server.ServeOption) {
-	m.serveOptions = oo
-}
-
-func (m *manager) ServeAll(oo ...server.ServeOption) {
-	registry.NewMetaWrapper(m.reg, func(meta map[string]string) {
-		meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
-		meta[registry.MetaStatusKey] = string(registry.StatusTransient)
-	}).Register(m.root)
-
-	if locker := m.reg.NewLocker("start-node-" + m.ns); locker != nil {
-		locker.Lock()
-
-		w, err := m.reg.Watch(registry.WithID(m.root.ID()), registry.WithType(pb.ItemType_NODE), registry.WithFilter(func(item registry.Item) bool {
-			status, ok := item.Metadata()[registry.MetaStatusKey]
-			if ok && (status == string(registry.StatusReady) || status == string(registry.StatusError)) {
-				return true
+		go func() {
+			w, err := store.Watch(configx.WithPath("processes", "*"), configx.WithChangesOnly())
+			if err != nil {
+				return
 			}
 
-			return false
-		}))
-		if err != nil {
-			locker.Unlock()
-			return
-		}
-		go func() {
-			defer w.Stop()
-			defer locker.Unlock()
-
 			for {
-				res, err := w.Next()
+				diff, err := w.Next()
 				if err != nil {
 					return
 				}
 
-				if len(res.Items()) == 0 {
-					continue
+				create := diff.(configx.Values).Val("create", "processes")
+				update := diff.(configx.Values).Val("update", "processes")
+				delete := diff.(configx.Values).Val("delete", "processes")
+
+				var processesToStart, processesToStop []string
+
+				for name := range create.Map() {
+					processesToStart = append(processesToStart, name)
+				}
+				for name := range update.Map() {
+					processesToStop = append(processesToStop, name)
+					processesToStart = append(processesToStart, name)
+				}
+				for name := range delete.Map() {
+					processesToStop = append(processesToStop, name)
 				}
 
-				break
+				for _, name := range processesToStop {
+					if cmd, ok := cmds[name]; ok {
+						cmd.Stop()
+					}
+				}
+
+				processes := store.Val("processes")
+
+				for _, v := range processesToStart {
+					for name := range processes.Map() {
+						process := store.Val("processes", name)
+
+						if name == v {
+							connections := process.Val("connections")
+							env := process.Val("env")
+							servers := process.Val("servers")
+							services := process.Val("services")
+
+							childBinary := os.Args[0]
+							childArgs := []string{}
+							childEnv := []string{}
+
+							if process.Val("debug").Bool() {
+								childBinary = "dlv"
+								childArgs = append(childArgs, "--listen=:2345", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "--", os.Args[0])
+							}
+
+							childArgs = append(childArgs, "start", "--name", name)
+
+							// Adding connections to the environment
+							for k := range connections.Map() {
+								childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), connections.Val(k, "uri")))
+							}
+
+							for k, v := range env.Map() {
+								switch vv := v.(type) {
+								case string:
+									childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, vv))
+								default:
+									vvv, _ := json.Marshal(vv)
+									childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, string(vvv)))
+								}
+							}
+
+							// Adding servers to the environment
+							for k := range servers.Map() {
+								server := servers.Val(k)
+
+								// TODO - should be one bind address per server
+								if bindAddr := server.Val("bind").String(); bindAddr != "" {
+									childEnv = append(childEnv, fmt.Sprintf("CELLS_BIND_ADDRESS=%s", bindAddr))
+								}
+
+								// TODO - should be one advertise address per server
+								if advertiseAddr := server.Val("advertise").String(); advertiseAddr != "" {
+									childEnv = append(childEnv, fmt.Sprintf("CELLS_ADVERTISE_ADDRESS=%s", advertiseAddr))
+								}
+
+								// Adding servers port
+								if port := server.Val("port").String(); port != "" {
+									childEnv = append(childEnv, fmt.Sprintf("CELLS_%s_PORT=%s", strings.ToUpper(k), port))
+								}
+
+								// Adding server type
+								if typ := server.Val("type").String(); typ != "" {
+									childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), typ))
+								}
+							}
+
+							// Adding services to the environment
+							tags := []string{}
+							for k, v := range services.Map() {
+								tags = append(tags, k)
+
+								if vv, ok := v.([]interface{}); ok {
+									for _, vvv := range vv {
+										childArgs = append(childArgs, "^"+vvv.(string)+"$")
+									}
+								}
+							}
+
+							childEnv = append(childEnv, fmt.Sprintf("CELLS_TAGS=%s", strings.Join(tags, " ")))
+
+							cmds[name] = fork.NewProcess(m.ctx, []string{}, fork.WithBinary(childBinary), fork.WithName(name), fork.WithArgs(childArgs), fork.WithEnv(childEnv))
+							go cmds[name].StartAndWait(5)
+						}
+					}
+				}
 			}
 		}()
-	}
 
-	m.serveOptions = oo
-	opt := &server.ServeOptions{}
-	for _, o := range oo {
-		o(opt)
-	}
-	eg := &errgroup.Group{}
-	ss := m.serversWithStatus(registry.StatusStopped)
-	for _, srv := range ss {
-		func(srv server.Server) {
-			eg.Go(func() error {
-				if err := m.startServer(srv, oo...); err != nil {
-					return errors.Wrap(err, " from "+srv.ID()+srv.Name())
+		go func() {
+			r := runtime.GetRuntime()
+			conf, err := config.OpenStore(m.ctx, "grpc://"+r.GetString(runtime.KeyBindHost)+":"+r.GetString(runtime.KeyGrpcDiscoveryPort))
+			if err != nil {
+				fmt.Println("Error is ", err)
+			}
+
+			reset(conf)
+
+			res, err := conf.Watch()
+			if err != nil {
+				fmt.Println("Error is there ", err)
+				return
+			}
+
+			fmt.Println("And watching")
+
+			for {
+				_, err := res.Next()
+				if err != nil {
+					return
 				}
 
-				return nil
-			})
-		}(srv)
-	}
+				fmt.Println("Received update here !! ")
 
-	waitAndServe := func() {
-		if err := eg.Wait(); err != nil && opt.ErrorCallback != nil {
-			opt.ErrorCallback(err)
+				reset(conf)
+			}
+		}()
+	} else {
+
+		// TODO - connections
+
+		// SQL
+		dsn := strings.Split(os.Getenv("CELLS_SQL"), "://")
+		db, err := sql.Open(dsn[0], dsn[1])
+		if err != nil {
+			panic(err)
+		}
+		storage.Register(db, "", "")
+
+		m.servers = map[string]server.Server{}
+		m.services = map[string]service.Service{}
+		byScheme := map[string]server.Server{}
+
+		servers, err := m.localRegistry.List(registry.WithType(pb.ItemType_SERVER))
+		if err != nil {
+			return err
+		}
+
+		for _, ss := range servers {
+			var s server.Server
+			if !ss.As(&s) {
+				continue
+			}
+			m.servers[s.ID()] = s
+		}
+
+		services, err := m.localRegistry.List(registry.WithType(pb.ItemType_SERVICE))
+		if err != nil {
+			return err
+		}
+
+		for _, ss := range services {
+			var s service.Service
+			if !ss.As(&s) {
+				continue
+			}
+			opts := s.Options()
+			mustFork := opts.Fork && !runtime.IsFork()
+
+			// Replace service context with target registry
+			opts.SetRegistry(m.localRegistry)
+
+			if !runtime.IsRequired(s.Name(), opts.Tags...) && !opts.ForceRegister {
+				continue
+			}
+
+			if mustFork && !opts.AutoStart {
+				continue
+			}
+
+			scheme := s.ServerScheme()
+			if sr, o := byScheme[scheme]; o {
+				opts.Server = sr
+			} else if srv, er := server.OpenServer(m.ctx, scheme); er == nil {
+				byScheme[scheme] = srv
+				opts.Server = srv
+			} else {
+				return er
+			}
+
+			if mustFork {
+				continue // Do not register here
+			}
+
+			m.services[s.ID()] = s
+		}
+
+		for _, sr := range byScheme {
+			m.servers[sr.ID()] = sr // Keep a ref to the actual object
+		}
+
+		registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
+			meta[registry.MetaTimestampKey] = fmt.Sprintf("%d", time.Now().UnixNano())
+			meta[registry.MetaStatusKey] = string(registry.StatusTransient)
+		}).Register(m.root)
+
+		if locker := m.localRegistry.NewLocker("start-node-" + m.ns); locker != nil {
+			locker.Lock()
+
+			w, err := m.localRegistry.Watch(registry.WithID(m.root.ID()), registry.WithType(pb.ItemType_NODE), registry.WithFilter(func(item registry.Item) bool {
+				status, ok := item.Metadata()[registry.MetaStatusKey]
+				if ok && (status == string(registry.StatusReady) || status == string(registry.StatusError)) {
+					return true
+				}
+
+				return false
+			}))
+			if err != nil {
+				locker.Unlock()
+				return err
+			}
+			go func() {
+				defer w.Stop()
+				defer locker.Unlock()
+
+				for {
+					res, err := w.Next()
+					if err != nil {
+						return
+					}
+
+					if len(res.Items()) == 0 {
+						continue
+					}
+
+					break
+				}
+			}()
+		}
+
+		m.serveOptions = oo
+		opt := &server.ServeOptions{}
+		for _, o := range oo {
+			o(opt)
+		}
+		eg := &errgroup.Group{}
+		ss := m.serversWithStatus(registry.StatusStopped)
+		for _, srv := range ss {
+			func(srv server.Server) {
+				eg.Go(func() error {
+					if err := m.startServer(srv, oo...); err != nil {
+						return errors.Wrap(err, " from "+srv.ID()+srv.Name())
+					}
+
+					return nil
+				})
+			}(srv)
+		}
+
+		waitAndServe := func() {
+			if err := eg.Wait(); err != nil && opt.ErrorCallback != nil {
+				opt.ErrorCallback(err)
+			}
+		}
+		if opt.BlockUntilServe {
+			waitAndServe()
+			return nil
+		} else {
+			go waitAndServe()
 		}
 	}
-	if opt.BlockUntilServe {
-		waitAndServe()
-		return
-	} else {
-		go waitAndServe()
-	}
+
+	return nil
+}
+
+func (m *manager) SetServeOptions(oo ...server.ServeOption) {
+	m.serveOptions = oo
 }
 
 func (m *manager) StopAll() {
@@ -293,7 +560,7 @@ func (m *manager) StopAll() {
 			m.logger.Error("error while stopping servers: "+er.Error(), zap.Error(er))
 		}
 	}
-	_ = m.reg.Deregister(m.root, registry.WithRegisterFailFast())
+	_ = m.localRegistry.Deregister(m.root, registry.WithRegisterFailFast())
 }
 
 func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error {
@@ -309,7 +576,7 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 					detectedCount = count
 					// There is already a running service here. Do not start now, watch registry and postpone start
 					m.logger.Warn("There is already a running instance of " + svc.Name() + ". Do not start now, watch registry and postpone start")
-					registry.NewMetaWrapper(m.reg, func(meta map[string]string) {
+					registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
 						meta[registry.MetaStatusKey] = string(registry.StatusWaiting)
 					}).Register(svc)
 
@@ -323,7 +590,7 @@ func (m *manager) startServer(srv server.Server, oo ...server.ServeOption) error
 		go m.WatchServerUniques(srv, uniques, detectedCount)
 	}
 
-	registry.NewMetaWrapper(m.reg, func(meta map[string]string) {
+	registry.NewMetaWrapper(m.localRegistry, func(meta map[string]string) {
 		meta[registry.MetaStatusKey] = string(registry.StatusTransient)
 	}).Register(srv)
 
@@ -423,7 +690,7 @@ func (m *manager) WatchServicesConfigs() {
 		mm := v.(configx.Values).Val("update", "services").Map()
 
 		for k, _ := range mm {
-			ss, err := m.reg.List(registry.WithName(k), registry.WithType(pb.ItemType_SERVICE))
+			ss, err := m.localRegistry.List(registry.WithName(k), registry.WithType(pb.ItemType_SERVICE))
 			if err != nil || len(ss) == 0 {
 				continue
 			}
@@ -446,7 +713,7 @@ func (m *manager) WatchBroker(ctx context.Context, br broker.Broker) error {
 		hh, _ := message.RawData()
 		cmd := hh["command"]
 		itemName := hh["itemName"]
-		s, err := m.reg.Get(itemName, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE))
+		s, err := m.localRegistry.Get(itemName, registry.WithType(pb.ItemType_SERVER), registry.WithType(pb.ItemType_SERVICE))
 		if err != nil {
 			if err == os.ErrNotExist || strings.Contains(err.Error(), "file does not exist") {
 				return nil
@@ -512,7 +779,7 @@ func (m *manager) WatchBroker(ctx context.Context, br broker.Broker) error {
 }
 
 func (m *manager) regRunningService(name string) (bool, int) {
-	ll, _ := m.reg.List(registry.WithType(pb.ItemType_SERVICE), registry.WithName(name))
+	ll, _ := m.localRegistry.List(registry.WithType(pb.ItemType_SERVICE), registry.WithName(name))
 	for _, l := range ll {
 		if l.Metadata()[registry.MetaStatusKey] != string(registry.StatusStopped) && l.Metadata()[registry.MetaStatusKey] != string(registry.StatusWaiting) {
 			return true, len(ll)
@@ -552,7 +819,7 @@ func (m *manager) WatchTransientStatus() {
 		}),
 	}
 
-	w, err := m.reg.Watch(options...)
+	w, err := m.localRegistry.Watch(options...)
 	if err != nil {
 		return
 	}
@@ -566,7 +833,7 @@ func (m *manager) WatchTransientStatus() {
 
 		for _, i := range res.Items() {
 			statusToSet := string(registry.StatusReady)
-			items := m.reg.ListAdjacentItems(i, registry.WithType(pb.ItemType_SERVICE))
+			items := m.localRegistry.ListAdjacentItems(i, registry.WithType(pb.ItemType_SERVICE))
 			for _, item := range items {
 				itemStatus := item.Metadata()[registry.MetaStatusKey]
 				if itemStatus != string(registry.StatusReady) && itemStatus != string(registry.StatusWaiting) && itemStatus != string(registry.StatusError) {
@@ -584,7 +851,7 @@ func (m *manager) WatchTransientStatus() {
 				meta[registry.MetaStatusKey] = statusToSet
 				ms.SetMetadata(meta)
 
-				go m.reg.Register(ms.(registry.Item))
+				go m.localRegistry.Register(ms.(registry.Item))
 			}
 		}
 	}
@@ -612,7 +879,7 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 		}
 		return true
 	}))
-	w, _ := m.reg.Watch(options...)
+	w, _ := m.localRegistry.Watch(options...)
 	defer w.Stop()
 
 	for {
@@ -620,6 +887,7 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 		if er != nil {
 			break
 		}
+
 		if res.Action() == pb.ActionType_UPDATE {
 			var hasStopped bool
 			for _, i := range res.Items() {
@@ -631,10 +899,12 @@ func (m *manager) WatchServerUniques(srv server.Server, ss []service.Service, co
 				continue
 			}
 		}
+
 		var iNames []string
 		for _, i := range res.Items() {
 			iNames = append(iNames, i.Name())
 		}
+
 		m.logger.Info("Delete event received for " + strings.Join(iNames, "|") + ", debounce server Restart" + strconv.Itoa(count))
 		db(func() {
 			if srv.NeedsRestart() {

@@ -23,7 +23,7 @@ package sqlite
 import (
 	"context"
 	"database/sql"
-	"github.com/mattn/go-sqlite3"
+	sqlite3 "github.com/mattn/go-sqlite3"
 	"github.com/pydio/cells/v4/common/dao"
 	commonsql "github.com/pydio/cells/v4/common/sql"
 	"regexp"

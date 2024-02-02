@@ -85,7 +85,7 @@ func newNodesCleaner(ctx context.Context, h *Handler) (*nodesCleaner, error) {
 			var uu []string
 			for _, e := range events {
 				t := &tree.NodeChangeEvent{}
-				if _, er := e.Unmarshal(t); er == nil {
+				if er := e.Unmarshal(t); er == nil {
 					uu = append(uu, t.Source.Uuid)
 				}
 			}

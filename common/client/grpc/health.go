@@ -51,6 +51,11 @@ func (h *healthChecker) Monitor(serviceName string) {
 	cli := grpc_health_v1.NewHealthClient(GetClientConnFromCtx(h.c, serviceName))
 	ct, can := context.WithCancel(context.Background())
 	h.cancel = can
+
+	if cli == nil {
+		return
+	}
+	
 	resp, er := cli.Check(ct, &grpc_health_v1.HealthCheckRequest{}, grpc.WaitForReady(true))
 	if er != nil {
 		fmt.Println("[ERROR] Could not monitor service " + serviceName + ": " + er.Error())

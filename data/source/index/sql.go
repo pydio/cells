@@ -25,7 +25,6 @@ import (
 	"gorm.io/gorm"
 	"time"
 
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sql"
@@ -67,76 +66,8 @@ func (s *sqlimpl) FixRandHash2(ctx context.Context, excludes ...cindex.LostAndFo
 	panic("implement me")
 }
 
-func (s *sqlimpl) Name() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) ID() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Metadata() map[string]string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) As(i interface{}) bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Driver() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Dsn() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) GetConn(ctx context.Context) (dao.Conn, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) SetConn(ctx context.Context, conn dao.Conn) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) CloseConn(ctx context.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Prefix() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) LocalAccess() bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Stats() map[string]interface{} {
-	//TODO implement me
-	panic("implement me")
-}
-
 // Init handler for the SQL DAO
 func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-
-	// super
-	// s.DAO.Init(ctx, options)
-
-	// Preparing the index
-	if err := s.IndexSQL.Init(ctx, options); err != nil {
-		return err
-	}
 
 	log.Logger(context.Background()).Debug("Finished IndexSQL Init")
 

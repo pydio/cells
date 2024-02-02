@@ -35,10 +35,10 @@ import (
 type DAO interface {
 	resources.DAO
 
-	Add(role *idm.Role) (*idm.Role, bool, error)
-	Delete(query sql.Enquirer) (numRows int64, e error)
-	Search(query sql.Enquirer, output *[]*idm.Role) error
-	Count(query sql.Enquirer) (int32, error)
+	Add(ctx context.Context, role *idm.Role) (*idm.Role, bool, error)
+	Delete(ctx context.Context, query sql.Enquirer) (numRows int64, e error)
+	Search(ctx context.Context, query sql.Enquirer, output *[]*idm.Role) error
+	Count(ctx context.Context, query sql.Enquirer) (int32, error)
 }
 
 func NewDAO(ctx context.Context) (DAO, error) {

@@ -26,6 +26,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strings"
+	"sync"
 	"time"
 
 	"google.golang.org/protobuf/proto"
@@ -36,7 +37,6 @@ import (
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
@@ -52,65 +52,79 @@ var (
 	}
 )
 
+type resourcesDAO resources.DAO
+
 // Impl of the SQL interface
 type sqlimpl struct {
-	// *sql.Handler
-
 	db *gorm.DB
 
-	instance func() *gorm.DB
+	once *sync.Once
 
-	*resources.ResourcesGORM
+	resourcesDAO
+}
+
+func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
+	if s.once == nil {
+		s.once = &sync.Once{}
+	}
+
+	db := s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+
+	s.once.Do(func() {
+		db.AutoMigrate(&idm.Role{})
+	})
+
+	return db
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-
-	db := s.db
-	s.instance = func() *gorm.DB { return db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_roles") }
-
-	s.instance().AutoMigrate(&idm.RoleORM{})
-
-	s.ResourcesGORM = &resources.ResourcesGORM{DB: s.db}
-	s.ResourcesGORM.Init(ctx, options)
-
-	/* super
-	if er := s.DAO.Init(ctx, options); er != nil {
-		return er
-	}
-
-	// Preparing the resources
-	s.ResourcesSQL = resources.NewDAO(s.Handler, "idm_roles.uuid").(*resources.ResourcesSQL)
-	if err := s.ResourcesSQL.Init(ctx, options); err != nil {
-		return err
-	}
-
-	// Doing the database migrations
-	migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         s.Driver(),
-		TablePrefix: s.Prefix(),
-	}
-
-	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_role_")
-	if err != nil {
-		return err
-	}
-
-	// Preparing the db statements
-	if options.Val("prepare").Default(true).Bool() {
-		for key, query := range queries {
-			if err := s.Prepare(key, query); err != nil {
-				return err
-			}
-		}
-	}*/
-
-	return nil
-}
+//func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
+//
+//	db := s.db
+//	s.instance = func() *gorm.DB { return db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_roles") }
+//
+//	s.instance().AutoMigrate(&idm.RoleORM{})
+//
+//	s.ResourcesGORM = &resources.ResourcesGORM{DB: s.db}
+//	s.ResourcesGORM.Init(ctx, options)
+//
+//	/* super
+//	if er := s.DAO.Init(ctx, options); er != nil {
+//		return er
+//	}
+//
+//	// Preparing the resources
+//	s.ResourcesSQL = resources.NewDAO(s.Handler, "idm_roles.uuid").(*resources.ResourcesSQL)
+//	if err := s.ResourcesSQL.Init(ctx, options); err != nil {
+//		return err
+//	}
+//
+//	// Doing the database migrations
+//	migrations := &sql.FSMigrationSource{
+//		Box:         statics.AsFS(migrationsFS, "migrations"),
+//		Dir:         s.Driver(),
+//		TablePrefix: s.Prefix(),
+//	}
+//
+//	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_role_")
+//	if err != nil {
+//		return err
+//	}
+//
+//	// Preparing the db statements
+//	if options.Val("prepare").Default(true).Bool() {
+//		for key, query := range queries {
+//			if err := s.Prepare(key, query); err != nil {
+//				return err
+//			}
+//		}
+//	}*/
+//
+//	return nil
+//}
 
 // Add to the underlying SQL DB.
-func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
+func (s *sqlimpl) Add(ctx context.Context, role *idm.Role) (*idm.Role, bool, error) {
 	if role.Label == "" {
 		return nil, false, errors.BadRequest(common.ServiceRole, "Role cannot have an empty label")
 	}
@@ -119,7 +133,7 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 		role.LastUpdated = int32(time.Now().Unix())
 	}
 
-	tx := s.instance().FirstOrCreate((*idm.RoleORM)(role), (*idm.RoleORM)(role))
+	tx := s.instance(ctx).FirstOrCreate((*idm.Role)(role), (*idm.Role)(role))
 	if tx.Error != nil {
 		return nil, false, tx.Error
 	}
@@ -129,9 +143,9 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 	return role, update, nil
 }
 
-func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
+func (s *sqlimpl) Count(ctx context.Context, query sql.Enquirer) (int32, error) {
 
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.ResourcesGORM).Build(s.instance()).(*gorm.DB)
+	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
 
 	var count int64
 
@@ -144,10 +158,10 @@ func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
 }
 
 // Search in the SQL DB.
-func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.ResourcesGORM).Build(s.instance()).(*gorm.DB)
+func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, roles *[]*idm.Role) error {
+	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
 
-	var roleORMs []*idm.RoleORM
+	var roleORMs []*idm.Role
 
 	tx := db.Find(&roleORMs)
 	if tx.Error != nil {
@@ -162,10 +176,10 @@ func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 }
 
 // Delete from the SQL DB
-func (s *sqlimpl) Delete(query sql.Enquirer) (int64, error) {
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder)).Build(s.instance()).(*gorm.DB)
+func (s *sqlimpl) Delete(ctx context.Context, query sql.Enquirer) (int64, error) {
+	db := sql.NewGormQueryBuilder(query, new(queryBuilder)).Build(ctx, s.instance(ctx)).(*gorm.DB)
 
-	tx := db.Delete(&idm.RoleORM{})
+	tx := db.Delete(&idm.Role{})
 	if tx.Error != nil {
 		return 0, tx.Error
 	}
@@ -175,7 +189,7 @@ func (s *sqlimpl) Delete(query sql.Enquirer) (int64, error) {
 
 type queryBuilder idm.RoleSingleQuery
 
-func (c *queryBuilder) Convert(val *anypb.Any, in any) (out any, ok bool) {
+func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out any, ok bool) {
 
 	db, ok := in.(*gorm.DB)
 	if !ok {

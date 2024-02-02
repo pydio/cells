@@ -30,7 +30,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-gorm/caches"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/options/orm"
 	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -49,7 +48,6 @@ import (
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
@@ -79,16 +77,17 @@ func RegisterIndexLen(len int) {
 	indexLen = len
 }
 
-var _ DAO = (*IndexSQL[*tree.TreeNode])(nil)
+// var _ DAO = (*IndexSQL[*tree.TreeNode])(nil)
 
 // IndexSQL implementation
 type IndexSQL[T tree.ITreeNode] struct {
 	DB *gorm.DB
 
+	once *sync.Once
+
 	sql.Helper
 
-	factory  Factory[T]
-	instance func(ctx context.Context) *gorm.DB
+	factory Factory[T]
 }
 
 type Factory[T tree.ITreeNode] interface {
@@ -113,69 +112,7 @@ func (*treeNodeFactory[T]) Slice() []T {
 	return []T{}
 }
 
-func (s *IndexSQL[T]) Name() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *IndexSQL[T]) ID() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *IndexSQL[T]) Metadata() map[string]string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *IndexSQL[T]) As(i interface{}) bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *IndexSQL[T]) Driver() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *IndexSQL[T]) Dsn() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *IndexSQL[T]) GetConn(ctx context.Context) (dao.Conn, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *IndexSQL[T]) SetConn(ctx context.Context, conn dao.Conn) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *IndexSQL[T]) CloseConn(ctx context.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *IndexSQL[T]) Prefix() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *IndexSQL[T]) LocalAccess() bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *IndexSQL[T]) Stats() map[string]interface{} {
-	//TODO implement me
-	panic("implement me")
-}
-
-// Init handles the db version migration and prepare the statements
-func (s *IndexSQL[T]) Init(ctx context.Context, options configx.Values) error {
-
+func (s *IndexSQL[T]) instance(ctx context.Context) *gorm.DB {
 	cachesPlugin := &caches.Caches{Conf: &caches.Config{
 		Easer: true,
 		// Cacher: NewCacher(c),
@@ -183,29 +120,59 @@ func (s *IndexSQL[T]) Init(ctx context.Context, options configx.Values) error {
 
 	s.DB.Use(cachesPlugin)
 
-	db := s.DB
-
-	if s.DB.Dialector == nil {
-		return errors.New("wrong dialector")
-	}
-
 	t := s.factory.Struct()
 	msg := proto.GetExtension(t.ProtoReflect().Descriptor().Options(), orm.E_OrmPolicy).(*orm.ORMMessagePolicy)
 
 	for _, options := range msg.GetOptions() {
 		if options.GetType() == s.DB.Dialector.Name() {
-			db = s.DB.Set("gorm:table_options", options.GetValue())
+			s.DB.Set("gorm:table_options", options.GetValue())
 		}
 	}
 
-	db.AutoMigrate(t)
-
-	s.instance = func(ctx context.Context) *gorm.DB {
-		return db.WithContext(ctx).Model(s.factory.Struct())
+	if s.once == nil {
+		s.once = &sync.Once{}
 	}
 
-	return nil
+	s.once.Do(func() {
+		s.DB.AutoMigrate(t)
+	})
+
+	return s.DB
 }
+
+// Init handles the db version migration and prepare the statements
+//func (s *IndexSQL[T]) Init(ctx context.Context, options configx.Values) error {
+//
+//	cachesPlugin := &caches.Caches{Conf: &caches.Config{
+//		Easer: true,
+//		// Cacher: NewCacher(c),
+//	}}
+//
+//	s.DB.Use(cachesPlugin)
+//
+//	db := s.DB
+//
+//	if s.DB.Dialector == nil {
+//		return errors.New("wrong dialector")
+//	}
+//
+//	t := s.factory.Struct()
+//	msg := proto.GetExtension(t.ProtoReflect().Descriptor().Options(), orm.E_OrmPolicy).(*orm.ORMMessagePolicy)
+//
+//	for _, options := range msg.GetOptions() {
+//		if options.GetType() == s.DB.Dialector.Name() {
+//			db = s.DB.Set("gorm:table_options", options.GetValue())
+//		}
+//	}
+//
+//	db.AutoMigrate(t)
+//
+//	s.instance = func(ctx context.Context) *gorm.DB {
+//		return db.WithContext(ctx).Model(s.factory.Struct())
+//	}
+//
+//	return nil
+//}
 
 // CleanResourcesOnDeletion revert the creation of the table for a datasource
 func (dao *IndexSQL[T]) CleanResourcesOnDeletion(context.Context) (string, error) {
@@ -998,9 +965,6 @@ func Path(ctx context.Context, dao DAO, targetNode tree.ITreeNode, parentNode tr
 func (dao *IndexSQL[T]) Path(ctx context.Context, node tree.ITreeNode, rootNode tree.ITreeNode, create bool) (mpath *tree.MPath, nodeTree []tree.ITreeNode, err error) {
 	//dao.instance(ctx).Transaction(func(tx *gorm.DB) error {
 	clone := *dao
-	clone.instance = func(ctx context.Context) *gorm.DB {
-		return dao.instance(ctx)
-	}
 
 	mpath, nodeTree, err = Path(ctx, &clone, node, rootNode, create)
 

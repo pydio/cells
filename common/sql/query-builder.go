@@ -21,6 +21,7 @@
 package sql
 
 import (
+	"context"
 	"fmt"
 	"github.com/doug-martin/goqu/v9/exp"
 	"gorm.io/gorm"
@@ -41,12 +42,12 @@ type Builder interface {
 
 // Expressioner ...
 type Expressioner interface {
-	Build(in any) (out any)
+	Build(ctx context.Context, in any) (out any)
 	Expression(driver string) goqu.Expression
 }
 
 type Converter interface {
-	Convert(sub *anypb.Any, in any) (out any, ok bool)
+	Convert(ctx context.Context, sub *anypb.Any, in any) (out any, ok bool)
 }
 
 // ExpressionConverter ...
@@ -89,7 +90,7 @@ type gormConverter struct {
 	converters []Converter
 }
 
-func (gc *gormConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
+func (gc *gormConverter) Convert(ctx context.Context, val *anypb.Any, in any) (out any, ok bool) {
 	out = in
 
 	db, ok := in.(*gorm.DB)
@@ -100,7 +101,7 @@ func (gc *gormConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
 	sub := new(service.Query)
 
 	if e := anypb.UnmarshalTo(val, sub, proto.UnmarshalOptions{}); e == nil {
-		expression := NewGormQueryBuilder(sub, gc.converters...).Build(db)
+		expression := NewGormQueryBuilder(sub, gc.converters...).Build(ctx, db)
 		if expression != nil {
 			if gc.enquirer.GetOperation() == service.OperationType_OR {
 				db = db.Or(expression)
@@ -115,13 +116,13 @@ func (gc *gormConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
 	return
 }
 
-func (qb *queryBuilder) Build(in any) (out any) {
+func (qb *queryBuilder) Build(ctx context.Context, in any) (out any) {
 	db, _ := in.(*gorm.DB)
 
 	var subDBs []*gorm.DB
 	for _, subQ := range qb.enquirer.GetSubQueries() {
 		for _, converter := range qb.gormConverters {
-			out, ok := converter.Convert(subQ, db)
+			out, ok := converter.Convert(ctx, subQ, db)
 			if ok {
 				subDBs = append(subDBs, out.(*gorm.DB))
 			}

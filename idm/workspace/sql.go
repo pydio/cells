@@ -24,6 +24,7 @@ import (
 	"context"
 	"embed"
 	"gorm.io/gorm"
+	"sync"
 	"time"
 
 	goqu "github.com/doug-martin/goqu/v9"
@@ -35,7 +36,6 @@ import (
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
@@ -50,44 +50,60 @@ var (
 	}
 )
 
+type resourcesDAO resources.DAO
+
 // Impl of the SQL interface
 type sqlimpl struct {
 	db *gorm.DB
 
-	instance func() *gorm.DB
+	once *sync.Once
 
-	*resources.ResourcesGORM
+	resourcesDAO
+}
+
+func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
+	if s.once == nil {
+		s.once = &sync.Once{}
+	}
+
+	db := s.db.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+
+	s.once.Do(func() {
+		db.AutoMigrate(&idm.Workspace{})
+	})
+
+	return db
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-
-	// super
-	//if er := s.DAO.Init(ctx, options); er != nil {
-	//	return er
-	//}
-
-	db := s.db
-
-	s.instance = func() *gorm.DB { return db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_roles") }
-
-	s.instance().AutoMigrate(&idm.WorkspaceORM{})
-
-	s.ResourcesGORM = &resources.ResourcesGORM{DB: s.db}
-	s.ResourcesGORM.Init(ctx, options)
-
-	return nil
-}
+//func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
+//
+//	// super
+//	//if er := s.DAO.Init(ctx, options); er != nil {
+//	//	return er
+//	//}
+//
+//	db := s.db
+//
+//	s.instance = func() *gorm.DB { return db.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_roles") }
+//
+//	s.instance().AutoMigrate(&idm.WorkspaceORM{})
+//
+//	s.ResourcesGORM = &resources.ResourcesGORM{DB: s.db}
+//	s.ResourcesGORM.Init(ctx, options)
+//
+//	return nil
+//}
 
 // Add to the SQL DB.
-func (s *sqlimpl) Add(in interface{}) (bool, error) {
+func (s *sqlimpl) Add(ctx context.Context, in interface{}) (bool, error) {
 
 	workspace, ok := in.(*idm.Workspace)
 	if !ok {
 		return false, errors.BadRequest(common.ServiceWorkspace, "Wrong type")
 	}
 
-	tx := s.instance().FirstOrCreate((*idm.WorkspaceORM)(workspace))
+	tx := s.instance(ctx).FirstOrCreate(workspace)
 	if err := tx.Error; err != nil {
 		return false, err
 	}
@@ -96,7 +112,7 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 }
 
 // slugExists check in the DB if the slug already exists.
-func (s *sqlimpl) slugExists(slug string) bool {
+func (s *sqlimpl) slugExists(ctx context.Context, slug string) bool {
 	if slug == common.PydioDocstoreBinariesNamespace || slug == common.PydioThumbstoreNamespace || slug == common.PydioVersionsNamespace {
 		return true
 	}
@@ -104,17 +120,17 @@ func (s *sqlimpl) slugExists(slug string) bool {
 		return true
 	}
 
-	tx := s.instance().First(&idm.WorkspaceORM{Slug: slug})
+	tx := s.instance(ctx).First(&idm.Workspace{Slug: slug})
 
 	return tx.RowsAffected > 0
 }
 
 // Search searches
-func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
+func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, workspaces *[]interface{}) error {
 
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.ResourcesGORM).Build(s.instance()).(*gorm.DB)
+	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
 
-	var workspaceORMs []*idm.WorkspaceORM
+	var workspaceORMs []*idm.Workspace
 
 	tx := db.Find(&workspaceORMs)
 	if tx.Error != nil {
@@ -129,18 +145,18 @@ func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 }
 
 // Del from the SQL DB
-func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
+func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer) (int64, error) {
 
-	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.ResourcesGORM).Build(s.instance()).(*gorm.DB)
+	db := sql.NewGormQueryBuilder(query, new(queryBuilder), s.resourcesDAO.(sql.Converter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
 
-	tx := db.Delete(&idm.WorkspaceORM{})
+	tx := db.Delete(&idm.Workspace{})
 
 	return tx.RowsAffected, tx.Error
 }
 
 type queryBuilder idm.WorkspaceSingleQuery
 
-func (c *queryBuilder) Convert(val *anypb.Any, in any) (out any, ok bool) {
+func (c *queryBuilder) Convert(ctx context.Context, val *anypb.Any, in any) (out any, ok bool) {
 	db, ok := in.(*gorm.DB)
 	if !ok {
 		return

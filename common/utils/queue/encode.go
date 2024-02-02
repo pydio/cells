@@ -87,9 +87,9 @@ type pulledMessage struct {
 	a    *anypb.Any
 }
 
-func (p *pulledMessage) Unmarshal(target proto.Message) (context.Context, error) {
+func (p *pulledMessage) Unmarshal(target proto.Message) error {
 	if e := p.a.UnmarshalTo(target); e != nil {
-		return nil, e
+		return e
 	}
 	ctx := context.Background()
 	if p.hh != nil {
@@ -99,7 +99,7 @@ func (p *pulledMessage) Unmarshal(target proto.Message) (context.Context, error)
 			ctx = context.WithValue(ctx, common.PydioContextUserKey, u)
 		}
 	}
-	return ctx, nil
+	return nil
 }
 
 func (p *pulledMessage) RawData() (map[string]string, []byte) {

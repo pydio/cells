@@ -163,7 +163,7 @@ func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (
 	todos := map[string]tree.N{}
 	for p, node := range db.pathIndex {
 		if strings.HasPrefix(p, nfcOld+"/") || p == nfcOld {
-			node.UpdatePath(newPath + strings.TrimPrefix(node.GetPath(), oldPath))
+			node.SetPath(newPath + strings.TrimPrefix(node.GetPath(), oldPath))
 			todos[p] = node
 		}
 	}
@@ -338,10 +338,10 @@ func (db *MemDB) FromJSON(name string) error {
 // ToJSONBytes marshal contents to JSON
 func (db *MemDB) ToJSONBytes() ([]byte, error) {
 	// Backward compat, keep as slice
-	var nn []*tree.Node
+	var nn []tree.INode
 	db.indexLock.RLock()
 	for _, n := range db.pathIndex {
-		nn = append(nn, n.AsProto())
+		nn = append(nn, n)
 	}
 	db.indexLock.RUnlock()
 	return json.Marshal(nn)

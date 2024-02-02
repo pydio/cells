@@ -23,16 +23,15 @@ package grpc
 
 import (
 	"context"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/idm/workspace"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/service/resources"
 )
 
 const (
@@ -41,53 +40,41 @@ const (
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-
-		var s service.Service
-		s = service.NewService(
+		service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Workspaces Service"),
-			//service.WithTODOStorage(workspace.NewDAO, commonsql.NewDAO,
-			//	service.WithStoragePrefix("idm_workspace"),
-			//	service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-			//),
-			//// service.WithStorage(workspace.NewDAO, service.WithStoragePrefix("idm_workspace")),
-			//service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-			//
-			//}),
-		)
-
-		var srv grpc.ServiceRegistrar
-		if !server.Get(&srv) {
-			panic("no grpc server available")
-		}
-
-
-		h := NewHandler(ctx, s)
-		idm.RegisterWorkspaceServiceServer(srv, h)
-		service2.RegisterLoginModifierEnhancedServer(server, h.(service2.NamedLoginModifierServer))
+			service.WithStorage(
+				"DAO",
+				workspace.NewDAO,
+				service.WithStoragePrefix("idm_workspace"),
+			),
+			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
+				h := NewHandler()
+				idm.RegisterWorkspaceServiceServer(srv, h)
+				service2.RegisterLoginModifierServer(srv, h)
 
 				// Register a cleaner for removing a workspace when there are no more ACLs on it.
-				wsCleaner := NewWsCleaner(ctx, h)
-				cleaner := &resources.PoliciesCleaner{
-					Dao: servicecontext.GetDAO(ctx),
-					Options: resources.PoliciesCleanerOptions{
-						SubscribeRoles: true,
-						SubscribeUsers: true,
-					},
-					LogCtx: ctx,
-				}
-				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
-					ev := &idm.ChangeEvent{}
-					if ct, e := message.Unmarshal(ev); e == nil {
-						_ = wsCleaner.Handle(ct, ev)
-						return cleaner.Handle(ct, ev)
-					}
-					return nil
-				}); e != nil {
-					return e
-				}
+				//wsCleaner := NewWsCleaner(ctx, h)
+				//cleaner := &resources.PoliciesCleaner{
+				//	Dao: servicecontext.GetDAO(ctx),
+				//	Options: resources.PoliciesCleanerOptions{
+				//		SubscribeRoles: true,
+				//		SubscribeUsers: true,
+				//	},
+				//	LogCtx: ctx,
+				//}
+				//if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+				//	ev := &idm.ChangeEvent{}
+				//	if ct, e := message.Unmarshal(ev); e == nil {
+				//		_ = wsCleaner.Handle(ct, ev)
+				//		return cleaner.Handle(ct, ev)
+				//	}
+				//	return nil
+				//}); e != nil {
+				//	return e
+				//}
 				return nil
 			}),
 		)

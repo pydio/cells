@@ -22,9 +22,7 @@
 package index
 
 import (
-	"context"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/storage"
 	"gorm.io/gorm"
 
 	index "github.com/pydio/cells/v4/common/sql/indexgorm"
@@ -36,19 +34,11 @@ type DAO interface {
 }
 
 // NewDAO for the common sql index
-func NewDAO(ctx context.Context) (DAO, error) {
-	var db *gorm.DB
+func NewDAO(db *gorm.DB) DAO {
 
-	indexDAO, err := index.NewDAO[*tree.TreeNode](ctx)
-	if err != nil {
-		return nil, err
-	}
+	indexDAO := index.NewDAO[*tree.TreeNode](db)
 
-	if storage.Get(ctx, &db) {
-		return &sqlimpl{db: db, IndexSQL: indexDAO.(IndexSQL)}, nil
-	}
-
-	return nil, storage.NotFound
+	return &sqlimpl{db: db, IndexSQL: indexDAO.(IndexSQL)}
 }
 
 func NewDAOCache(session string, o DAO) DAO {

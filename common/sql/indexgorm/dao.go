@@ -25,10 +25,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/storage"
 	"gorm.io/gorm"
 )
 
@@ -41,8 +39,6 @@ var (
 
 // DAO interface
 type DAO interface {
-	dao.DAO
-
 	Path(ctx context.Context, node tree.ITreeNode, rootNode tree.ITreeNode, create bool) (*tree.MPath, []tree.ITreeNode, error)
 
 	// Add a node in the tree
@@ -89,14 +85,8 @@ type CacheDAO interface {
 }
 
 // NewDAO for the common sql index
-func NewDAO[T tree.ITreeNode](ctx context.Context) (dao.DAO, error) {
-	var db *gorm.DB
-
-	if storage.Get(ctx, &db) {
-		return &IndexSQL[T]{DB: db, factory: &treeNodeFactory[T]{}}, nil
-	}
-
-	return nil, storage.NotFound
+func NewDAO[T tree.ITreeNode](db *gorm.DB) DAO {
+	return &IndexSQL[T]{DB: db, factory: &treeNodeFactory[T]{}}
 }
 
 type LostAndFound interface {

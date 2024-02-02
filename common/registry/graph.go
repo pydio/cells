@@ -24,6 +24,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 	"sort"
 	"strings"
 	"sync"
@@ -32,7 +33,8 @@ import (
 )
 
 type graphRegistry struct {
-	r RawRegistry
+	id string
+	r  RawRegistry
 
 	ww map[string]StatusWatcher
 	wl sync.Mutex
@@ -40,6 +42,7 @@ type graphRegistry struct {
 
 func GraphRegistry(r RawRegistry) Registry {
 	return &graphRegistry{
+		id: uuid.New(),
 		r:  r,
 		ww: make(map[string]StatusWatcher),
 	}
@@ -137,6 +140,7 @@ func (r *graphRegistry) RegisterEdge(item1, item2, edgeLabel string, metadata ma
 	h := md5.New()
 	h.Write([]byte(strings.Join(pair, "-")))
 	id := hex.EncodeToString(h.Sum(nil))
+
 	e := &edge{
 		id:       id,
 		name:     edgeLabel,
@@ -152,6 +156,7 @@ func (r *graphRegistry) RegisterEdge(item1, item2, edgeLabel string, metadata ma
 func (r *graphRegistry) ListAdjacentItems(sourceItem Item, targetOptions ...Option) (items []Item) {
 	ee, _ := r.List(WithType(pb.ItemType_EDGE))
 	var ids []string
+
 	for _, e := range ee {
 		edg, ok := e.(Edge)
 		if !ok {

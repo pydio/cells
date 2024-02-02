@@ -29,7 +29,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
-	"github.com/pydio/cells/v4/common/storage"
 	"github.com/pydio/cells/v4/idm/meta/namespace"
 	"gorm.io/gorm"
 )
@@ -40,31 +39,18 @@ type DAO interface {
 
 	GetNamespaceDao() namespace.DAO
 
-	Set(meta *idm.UserMeta) (*idm.UserMeta, string, error)
-	Del(meta *idm.UserMeta) (prevValue string, e error)
-	Search(query sql.Enquirer) ([]*idm.UserMeta, error)
+	Set(ctx context.Context, meta *idm.UserMeta) (*idm.UserMeta, string, error)
+	Del(ctx context.Context, meta *idm.UserMeta) (prevValue string, e error)
+	Search(ctx context.Context, query sql.Enquirer) ([]*idm.UserMeta, error)
 }
 
-func NewDAO(ctx context.Context) (DAO, error) {
-	var db *gorm.DB
+func NewDAO(db *gorm.DB) DAO {
+	resourcesDAO := resources.NewDAO(db)
+	nsDAO := namespace.NewDAO(db)
 
-	if storage.Get(ctx, &db) {
-		resourcesDAO, err := resources.NewDAO(ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		nsDAO, err := namespace.NewDAO(ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		return &sqlimpl{
-			db:           db,
-			resourcesDAO: resourcesDAO.(resources.DAO),
-			nsDAO:        nsDAO.(namespace.DAO),
-		}, nil
+	return &sqlimpl{
+		db:           db,
+		resourcesDAO: resourcesDAO,
+		nsDAO:        nsDAO,
 	}
-
-	return nil, storage.NotFound
 }

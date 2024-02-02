@@ -23,7 +23,8 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/sql/resources"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
@@ -38,31 +39,25 @@ import (
 // Handler definition
 type Handler struct {
 	idm.UnimplementedWorkspaceServiceServer
+	service.UnimplementedLoginModifierServer
 
-	service.Service
+	DAO workspace.DAO
 }
 
-func NewHandler(ctx context.Context, svc service.Service) idm.WorkspaceServiceServer {
-	return &Handler{
-		Service: svc,
-	}
+func NewHandler() *Handler {
+	return &Handler{}
 }
 
 // CreateWorkspace in database
 func (h *Handler) CreateWorkspace(ctx context.Context, req *idm.CreateWorkspaceRequest) (*idm.CreateWorkspaceResponse, error) {
 
-	dao, err := workspace.NewDAO(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	if req.Workspace.Slug == "" {
 		req.Workspace.Slug = slug.Make(req.Workspace.Label)
 	}
-	update, err := dao.Add(req.Workspace)
+	update, err := h.DAO.Add(ctx, req.Workspace)
 	// ADD POLICIES
 	if len(req.Workspace.Policies) > 0 {
-		if e := dao.AddPolicies(update, req.Workspace.UUID, req.Workspace.Policies); e != nil {
+		if e := h.DAO.AddPolicies(ctx, update, req.Workspace.UUID, req.Workspace.Policies); e != nil {
 			return nil, e
 		}
 	}
@@ -103,17 +98,12 @@ func (h *Handler) CreateWorkspace(ctx context.Context, req *idm.CreateWorkspaceR
 // DeleteWorkspace from database
 func (h *Handler) DeleteWorkspace(ctx context.Context, req *idm.DeleteWorkspaceRequest) (*idm.DeleteWorkspaceResponse, error) {
 
-	dao, err := workspace.NewDAO(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	workspaces := new([]interface{})
-	if err := dao.Search(req.Query, workspaces); err != nil {
+	if err := h.DAO.Search(ctx, req.Query, workspaces); err != nil {
 		return nil, err
 	}
 
-	numRows, err := dao.Del(req.Query)
+	numRows, err := h.DAO.Del(ctx, req.Query)
 	response := &idm.DeleteWorkspaceResponse{
 		RowsDeleted: numRows,
 	}
@@ -124,7 +114,7 @@ func (h *Handler) DeleteWorkspace(ctx context.Context, req *idm.DeleteWorkspaceR
 	// Update relevant policies and propagate event
 	for _, w := range *workspaces {
 		currW := w.(*idm.Workspace)
-		err2 := dao.DeletePoliciesForResource(currW.UUID)
+		err2 := h.DAO.DeletePoliciesForResource(ctx, currW.UUID)
 		if err2 != nil {
 			log.Logger(ctx).Error("could not delete policies for removed ws "+currW.Slug, zap.Error(err2))
 			continue
@@ -149,19 +139,14 @@ func (h *Handler) SearchWorkspace(request *idm.SearchWorkspaceRequest, response 
 
 	ctx := response.Context()
 
-	dao, err := workspace.NewDAO(ctx)
-	if err != nil {
-		return err
-	}
-
 	workspaces := new([]interface{})
-	if err := dao.Search(request.Query, workspaces); err != nil {
+	if err := h.DAO.Search(ctx, request.Query, workspaces); err != nil {
 		return err
 	}
 	var e error
 	for _, in := range *workspaces {
 		ws, ok := in.(*idm.Workspace)
-		if ws.Policies, e = dao.GetPoliciesForResource(ws.UUID); e != nil {
+		if ws.Policies, e = h.DAO.GetPoliciesForResource(ctx, ws.UUID); e != nil {
 			log.Logger(ctx).Error("cannot load policies for workspace "+ws.UUID, zap.Error(e))
 			continue
 		}
@@ -184,11 +169,6 @@ func (h *Handler) StreamWorkspace(streamer idm.WorkspaceService_StreamWorkspaceS
 
 	ctx := streamer.Context()
 
-	dao, err := workspace.NewDAO(ctx)
-	if err != nil {
-		return err
-	}
-
 	for {
 		incoming, err := streamer.Recv()
 		if incoming == nil {
@@ -199,14 +179,14 @@ func (h *Handler) StreamWorkspace(streamer idm.WorkspaceService_StreamWorkspaceS
 		}
 
 		workspaces := new([]interface{})
-		if err := dao.Search(incoming.Query, workspaces); err != nil {
+		if err := h.DAO.Search(ctx, incoming.Query, workspaces); err != nil {
 			continue
 		}
 
 		var e error
 		for _, in := range *workspaces {
 			if ws, ok := in.(*idm.Workspace); ok {
-				if ws.Policies, e = dao.GetPoliciesForResource(ws.UUID); e != nil {
+				if ws.Policies, e = h.DAO.GetPoliciesForResource(ctx, ws.UUID); e != nil {
 					log.Logger(ctx).Error("cannot load policies for workspace "+ws.UUID, zap.Error(e))
 					continue
 				}
@@ -220,4 +200,8 @@ func (h *Handler) StreamWorkspace(streamer idm.WorkspaceService_StreamWorkspaceS
 	}
 
 	return nil
+}
+
+func (h *Handler) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {
+	return resources.ModifyLogin(ctx, h.DAO, req)
 }

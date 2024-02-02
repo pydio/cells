@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/go-gorm/caches"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/cache"
@@ -49,8 +48,8 @@ type daocache struct {
 }
 
 var (
-	_ DAO     = (*daocache)(nil)
-	_ dao.DAO = (*daocache)(nil)
+	_ DAO = (*daocache)(nil)
+	//	_ dao.DAO = (*daocache)(nil)
 )
 
 // NewDAOCache wraps a cache around the dao

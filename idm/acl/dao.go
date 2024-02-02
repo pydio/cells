@@ -23,7 +23,6 @@ package acl
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/storage"
 	"gorm.io/gorm"
 	"time"
 
@@ -56,18 +55,12 @@ func ReadExpirationPeriod(p ExpirationProvider) *ExpirationPeriod {
 
 // DAO interface
 type DAO interface {
-	Add(interface{}) error
-	SetExpiry(sql.Enquirer, time.Time, *ExpirationPeriod) (int64, error)
-	Del(sql.Enquirer, *ExpirationPeriod) (numRows int64, e error)
-	Search(sql.Enquirer, *[]interface{}, *ExpirationPeriod) error
+	Add(context.Context, interface{}) error
+	SetExpiry(context.Context, sql.Enquirer, time.Time, *ExpirationPeriod) (int64, error)
+	Del(context.Context, sql.Enquirer, *ExpirationPeriod) (numRows int64, e error)
+	Search(context.Context, sql.Enquirer, *[]interface{}, *ExpirationPeriod) error
 }
 
-func NewDAO(ctx context.Context) (DAO, error) {
-	var db *gorm.DB
-
-	if storage.Get(ctx, &db) {
-		return &sqlimpl{db: db}, nil
-	}
-
-	return nil, storage.NotFound
+func NewDAO(db *gorm.DB) DAO {
+	return &sqlimpl{DB: db}
 }

@@ -22,6 +22,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"github.com/pydio/cells/v4/common"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
@@ -87,7 +88,8 @@ func setContextForTenant(ctx context.Context) context.Context {
 
 	cc, ok := clientConns[tenant]
 	if !ok {
-		cc, _ = grpc.Dial("xds://"+tenant+".cells.com/cells",
+		var err error
+		cc, err = grpc.Dial("xds://"+tenant+".cells.com/cells",
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 			// grpc.WithConnectParams(grpc.ConnectParams{MinConnectTimeout: 1 * time.Minute, Backoff: backoffConfig}),
 			grpc.WithChainUnaryInterceptor(
@@ -105,6 +107,9 @@ func setContextForTenant(ctx context.Context) context.Context {
 				otelgrpc.StreamClientInterceptor(),
 			),
 		)
+		if err != nil {
+			fmt.Println("And the error is ? ", err)
+		}
 		clientConns[tenant] = cc
 	}
 	ctx = clientcontext.WithClientConn(ctx, cc)
@@ -116,9 +121,9 @@ func setContextForTenant(ctx context.Context) context.Context {
 		} else {
 			cfg = config.Main()
 		}
-	}
 
-	configStore[tenant] = cfg
+		configStore[tenant] = cfg
+	}
 
 	ctx = servercontext.WithConfig(ctx, cfg)
 	ctx = servercontext.WithTenant(ctx, tenant)

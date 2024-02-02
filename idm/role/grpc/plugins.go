@@ -23,18 +23,14 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/storage"
-	"github.com/pydio/cells/v4/common/utils/configx"
-
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/sql/resources"
 	"github.com/pydio/cells/v4/idm/role"
 )
 
@@ -42,69 +38,63 @@ const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceRole
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		var s service.Service
-
-		s = service.NewService(
+		service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Roles Service"),
-			service.TODOMigrations(func() []*service.Migration {
-				return []*service.Migration{
-					{
-						TargetVersion: service.FirstRun(),
-						Up:            InitRoles,
-					}, {
-						TargetVersion: service.ValidVersion("1.2.0"),
-						Up:            UpgradeTo12,
-					}, {
-						TargetVersion: service.ValidVersion("4.1.99"),
-						Up:            UpgradeTo4199,
-					}, {
-						TargetVersion: service.ValidVersion("4.2.1"),
-						Up:            UpgradeTo421,
-					},
-				}
-			}),
-			//service.WithTODOStorage(role.NewDAO, commonsql.NewDAO,
-			//	service.WithStoragePrefix("idm_role"),
-			//	service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-			//),
-		)
-
-		var srv grpc.ServiceRegistrar
-		if !server.Get(&srv) {
-			panic("no grpc server available")
-		}
+			//service.TODOMigrations(func() []*service.Migration {
+			//	return []*service.Migration{
+			//		{
+			//			TargetVersion: service.FirstRun(),
+			//			Up:            InitRoles,
+			//		}, {
+			//			TargetVersion: service.ValidVersion("1.2.0"),
+			//			Up:            UpgradeTo12,
+			//		}, {
+			//			TargetVersion: service.ValidVersion("4.1.99"),
+			//			Up:            UpgradeTo4199,
+			//		}, {
+			//			TargetVersion: service.ValidVersion("4.2.1"),
+			//			Up:            UpgradeTo421,
+			//		},
+			//	}
+			//}),
+			service.WithStorage("DAO",
+				role.NewDAO,
+				service.WithStoragePrefix("idm_role"),
+				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
+			),
+			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
+				handler := NewHandler(ctx)
 
 				// Clean role on user deletion
-				cleaner := NewCleaner(ctx, handler)
-				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
-					ic := &idm.ChangeEvent{}
-					if ct, e := message.Unmarshal(ic); e == nil {
-						return cleaner.Handle(ct, ic)
-					}
-					return nil
-				}, broker.WithCounterName("role")); e != nil {
-					return e
-				}
+				//cleaner := NewCleaner(ctx, handler)
+				//if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+				//	ic := &idm.ChangeEvent{}
+				//	if ct, e := message.Unmarshal(ic); e == nil {
+				//		return cleaner.Handle(ctx, ic)
+				//	}
+				//	return nil
+				//}, broker.WithCounterName("role")); e != nil {
+				//	return e
+				//}
 
-		opts := configx.New()
-		dao.Init(ctx, opts)
+				idm.RegisterRoleServiceServer(server, handler)
 
-		handler := NewHandler(ctx, s, dao.(role.DAO))
-		idm.RegisterRoleServiceServer(srv, handler)
-
-		// Clean role on user deletion
-		cleaner := NewCleaner(ctx, handler, service.DAOProvider[resources.DAO](s))
-		if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
-			ic := &idm.ChangeEvent{}
-			if e := message.Unmarshal(ic); e == nil {
-				return cleaner.Handle(ctx, ic)
-			}
-			return nil
-		}); e != nil {
-			panic(e)
-		}
+				// Clean role on user deletion
+				//cleaner := NewCleaner(ctx, handler, service.DAOProvider[resources.DAO](s))
+				//if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
+				//	ic := &idm.ChangeEvent{}
+				//	if e := message.Unmarshal(ic); e == nil {
+				//		return cleaner.Handle(ctx, ic)
+				//	}
+				//	return nil
+				//}); e != nil {
+				//	panic(e)
+				//}
+				return nil
+			}),
+		)
 	})
 }

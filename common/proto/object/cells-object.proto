@@ -1,5 +1,6 @@
 syntax="proto3";
-import "github.com/mwitkow/go-proto-validators/validator.proto";
+
+import "buf/validate/validate.proto";
 
 package object;
 
@@ -48,7 +49,7 @@ enum EncryptionMode {
 // DataSource Object description
 message DataSource {
     // Name of the data source (max length 34)
-    string Name = 1 [(validator.field) = {length_lt: 34}];
+    string Name = 1 [(buf.validate.field).string.max_len = 34];
     // Whether this data source is disabled or running
     bool Disabled = 2;
 

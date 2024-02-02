@@ -73,8 +73,16 @@ func WithOperationID(ctx context.Context, operationID string, operationLabel ...
 }
 
 // WithDAO links a dao to the context
-func WithDAO(ctx context.Context, dao dao.DAO) context.Context {
+func WithDAO[T any](ctx context.Context, dao T) context.Context {
 	return context.WithValue(ctx, daoKey, dao)
+}
+
+func WithDAOs(ctx context.Context, dao any) context.Context {
+	return context.WithValue(ctx, daoKey, dao)
+}
+
+func GetDAOs(ctx context.Context) any {
+	return ctx.Value(daoKey)
 }
 
 // WithIndexer links a dao for indexation to the context

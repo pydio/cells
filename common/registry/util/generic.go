@@ -34,10 +34,6 @@ func CreateAddress(addr string, meta map[string]string) registry.Generic {
 	return ToGeneric(&pb.Item{Id: uuid.New(), Name: addr, Metadata: meta}, &pb.Generic{Type: pb.ItemType_ADDRESS})
 }
 
-func CreateEndpoint(name string, meta map[string]string) registry.Generic {
-	return ToGeneric(&pb.Item{Id: uuid.New(), Name: name, Metadata: meta}, &pb.Generic{Type: pb.ItemType_ENDPOINT})
-}
-
 func ToProtoGeneric(e registry.Generic) *pb.Generic {
 	if dd, ok := e.(*generic); ok {
 		return dd.E

@@ -23,6 +23,8 @@ package broker
 import (
 	"context"
 
+	"gocloud.dev/pubsub"
+
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -160,7 +162,6 @@ func SubscribeContext(ctx context.Context) SubscribeOption {
 
 type Publisher func(ctx context.Context, msg *pubsub.Message) error
 type PublisherInterceptor func(ctx context.Context, msg *pubsub.Message, publisher Publisher) error
-
 type SubscriberInterceptor func(ctx context.Context, msg Message, handler SubscriberHandler) error
 
 // chainPublisherInterceptors chains all publisher interceptors into one.

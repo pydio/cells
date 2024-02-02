@@ -156,18 +156,18 @@ func Subscribe(ctx context.Context, topic string, handler SubscriberHandler, opt
 	id := "sub_" + topicReplacer.Replace(topic)
 	c := metrics.GetMetrics().Tagged(map[string]string{"subscriber": so.CounterName}).Counter(id)
 
-	wh := func(m Message) error {
+	wh := func(ctx context.Context, m Message) error {
 		c.Inc(1)
-		return handler(m)
+		return handler(ctx, m)
 	}
 
 	if so.MessageQueue != nil {
-		qH := func(m Message) error {
+		qH := func(ctx context.Context, m Message) error {
 			return so.MessageQueue.PushRaw(ctx, m)
 		}
 		er := so.MessageQueue.Consume(func(mm ...Message) {
 			for _, m := range mm {
-				if err := wh(m); err != nil {
+				if err := wh(ctx, m); err != nil {
 					if so.ErrorHandler != nil {
 						so.ErrorHandler(err)
 					} else {

@@ -42,7 +42,8 @@ type DAOTodoProviderFunc[T any] func(ctx context.Context) T
 type ConnProviderFunc func(ctx context.Context, driver, dsn string) ConnDriver
 type DaoProviderFunc func(ctx context.Context, driver, dsn, prefix string) (DAO, error)
 type IndexerWrapperFunc func(context.Context, DAO) (IndexDAO, error)
-type DaoWrapperFunc func(context.Context, DAO) (DAO, error)
+type Storer interface{}
+type DaoWrapperFunc[T Storer] func(context.Context) (T, error)
 
 type TODODaoWrapperFunc[T any] func(context.Context, T) (T, error)
 
@@ -96,55 +97,55 @@ func RegisterIndexerDriver(name string, daoF IndexerWrapperFunc) {
 }
 
 // InitDAO finalize DAO creation based on registered drivers
-func InitDAO(ctx context.Context, driver, dsn, prefix string, wrapper DaoWrapperFunc, cfg ...configx.Values) (DAO, error) {
-	f, ok := daoDrivers[driver]
-	if !ok {
-		return nil, UnknownDriverType(driver)
-	}
-	d, e := f(ctx, driver, dsn, prefix)
-	if e != nil {
-		return nil, e
-	}
-	if wrapper != nil {
-		d, e = wrapper(ctx, d)
-		if e != nil {
-			return nil, e
-		}
-	}
-	if len(cfg) > 0 {
-		if er := d.Init(ctx, cfg[0]); er != nil {
-			return nil, er
-		}
-	}
-	return d, nil
-}
-
-// InitIndexer looks up in the register to initialize a DAO and wrap it as an IndexDAO
-func InitIndexer(ctx context.Context, driver, dsn, prefix string, wrapper DaoWrapperFunc, cfg ...configx.Values) (DAO, error) {
-	d, e := InitDAO(ctx, driver, dsn, prefix, nil)
-	if e != nil {
-		return nil, e
-	}
-	i, ok := indexersDrivers[driver]
-	if !ok {
-		return nil, fmt.Errorf("cannot find indexer %s, maybe it was not properly registered", driver)
-	}
-	// Wrap DAO as Indexer
-	if d, e = i(ctx, d); e != nil {
-		return nil, e
-	}
-	// Wrap with input wrapper
-	d, e = wrapper(ctx, d)
-	if e != nil {
-		return nil, e
-	}
-	if len(cfg) > 0 {
-		if er := d.Init(ctx, cfg[0]); er != nil {
-			return nil, er
-		}
-	}
-	return d.(IndexDAO), nil
-}
+//func InitDAO(ctx context.Context, driver, dsn, prefix string, wrapper DaoWrapperFunc, cfg ...configx.Values) (DAO, error) {
+//	f, ok := daoDrivers[driver]
+//	if !ok {
+//		return nil, UnknownDriverType(driver)
+//	}
+//	d, e := f(ctx, driver, dsn, prefix)
+//	if e != nil {
+//		return nil, e
+//	}
+//	if wrapper != nil {
+//		d, e = wrapper(ctx, d)
+//		if e != nil {
+//			return nil, e
+//		}
+//	}
+//	if len(cfg) > 0 {
+//		if er := d.Init(ctx, cfg[0]); er != nil {
+//			return nil, er
+//		}
+//	}
+//	return d, nil
+//}
+//
+//// InitIndexer looks up in the register to initialize a DAO and wrap it as an IndexDAO
+//func InitIndexer(ctx context.Context, driver, dsn, prefix string, wrapper DaoWrapperFunc, cfg ...configx.Values) (DAO, error) {
+//	d, e := InitDAO(ctx, driver, dsn, prefix, nil)
+//	if e != nil {
+//		return nil, e
+//	}
+//	i, ok := indexersDrivers[driver]
+//	if !ok {
+//		return nil, fmt.Errorf("cannot find indexer %s, maybe it was not properly registered", driver)
+//	}
+//	// Wrap DAO as Indexer
+//	if d, e = i(ctx, d); e != nil {
+//		return nil, e
+//	}
+//	// Wrap with input wrapper
+//	d, e = wrapper(ctx, d)
+//	if e != nil {
+//		return nil, e
+//	}
+//	if len(cfg) > 0 {
+//		if er := d.Init(ctx, cfg[0]); er != nil {
+//			return nil, er
+//		}
+//	}
+//	return d.(IndexDAO), nil
+//}
 
 // IsShared indicates if a DAO is shared across services or a locked to a local file
 func IsShared(driverName string) (bool, error) {

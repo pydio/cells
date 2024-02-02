@@ -23,20 +23,11 @@ package grpc
 
 import (
 	"context"
-	"encoding/base64"
-	"github.com/pydio/cells/v4/common/server"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"os"
-	"strings"
-
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
-	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
-	service2 "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -57,160 +48,133 @@ func init() {
 	})
 
 	runtime.Register("main", func(ctx context.Context) {
-		var s service.Service
-
-		s = service.NewService(
+		service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Users persistence layer"),
-			service.Migrations([]*service.Migration{
-				{
-					TargetVersion: service.FirstRun(),
-					Up:            InitDefaults,
-				},
-			}),
-			service.WithStorage(user.NewDAO, service.WithStoragePrefix("idm_user")),
+			//service.Migrations([]*service.Migration{
+			//	{
+			//		TargetVersion: service.FirstRun(),
+			//		Up:            InitDefaults,
+			//	},
+			//}),
+			service.WithStorage(
+				"DAO",
+				user.NewDAO,
+				service.WithStoragePrefix("idm_user"),
+			),
 			service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
 
-				dao := servicecontext.GetDAO(ctx).(user.DAO)
-				handler := NewHandler(ctx, dao)
-				idm.RegisterUserServiceEnhancedServer(server, handler)
-				service2.RegisterLoginModifierEnhancedServer(server, handler.(*Handler))
+				handler := NewHandler(ctx)
+				idm.RegisterUserServiceServer(server, handler)
+				// service2.RegisterLoginModifierServer(server, handler.(*Handler))
 
 				// Register a cleaner for removing a workspace when there are no more ACLs on it.
-				cleaner := &RolesCleaner{Dao: dao}
-				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
-					ev := &idm.ChangeEvent{}
-					if ct, e := message.Unmarshal(ev); e == nil {
-						return cleaner.Handle(ct, ev)
-					}
-					return nil
-				}, broker.WithCounterName("user")); e != nil {
-					return e
-				}
+				//cleaner := &RolesCleaner{Dao: dao}
+				//if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+				//	ev := &idm.ChangeEvent{}
+				//	if ct, e := message.Unmarshal(ev); e == nil {
+				//		return cleaner.Handle(ct, ev)
+				//	}
+				//	return nil
+				//}, broker.WithCounterName("user")); e != nil {
+				//	return e
+				//}
+
+				return nil
 			}),
-			// service.WithStorage(user.NewDAO, service.WithStoragePrefix("idm_user")),
-			//service.WithTODOStorage(
-			//	user.NewDAO, commonsql.NewDAO,
-			//	service.WithStoragePrefix("idm_user"),
-			//	service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-			//),
-			//service.WithGRPC(func(ctx context.Context, server grpc.ServiceRegistrar) error {
-			//
-			//	return nil
-			//}),
 		)
-
-		var srv grpc.ServiceRegistrar
-		if !server.Get(&srv) {
-			panic("no grpc server available")
-		}
-
-		idm.RegisterUserServiceServer(srv, NewHandler(ctx, s))
-
-		// Register a cleaner for removing a workspace when there are no more ACLs on it.
-		cleaner := &RolesCleaner{}
-		if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(ctx context.Context, message broker.Message) error {
-			ev := &idm.ChangeEvent{}
-			if e := message.Unmarshal(ev); e == nil {
-				return cleaner.Handle(ctx, ev)
-			}
-			return nil
-		}); e != nil {
-			panic(e)
-		}
-
 	})
 }
 
-func InitDefaults(ctx context.Context) error {
-	var login, pwd string
-
-	dao := service.DAOFromContext[user.DAO](ctx)
-	cfg := servercontext.GetConfig(ctx)
-
-	if os.Getenv(EnvPydioAdminUserLogin) != "" && os.Getenv(EnvPydioAdminUserPassword) != "" {
-		login = os.Getenv(EnvPydioAdminUserLogin)
-		pwd = os.Getenv(EnvPydioAdminUserPassword)
-	}
-
-	if rootConfig := cfg.Val("defaults", "root").String(); rootConfig != "" {
-		sDec, _ := base64.StdEncoding.DecodeString(rootConfig)
-		parts := strings.Split(string(sDec), "||||")
-		login = parts[0]
-		pwd = parts[1]
-		// Now remove from configs
-		cfg.Val("defaults", "root").Del()
-		if err := cfg.Save("cli", "First Run / Creating default root user"); err != nil {
-			return err
-		}
-	}
-
-	if login != "" && pwd != "" {
-		log.Logger(ctx).Info("Initialization: creating admin user: " + login)
-		// Check if user exists
-		newUser, err := CreateIfNotExists(ctx, dao, &idm.User{
-			Login:      login,
-			Password:   pwd,
-			Attributes: map[string]string{"profile": common.PydioProfileAdmin},
-		})
-		if err != nil {
-			return err
-		} else if newUser != nil {
-			builder := service2.NewResourcePoliciesBuilder()
-			builder = builder.WithProfileRead(common.PydioProfileStandard)
-			builder = builder.WithUserWrite(login)
-			builder = builder.WithProfileWrite(common.PydioProfileAdmin)
-			if err := dao.AddPolicies(false, newUser.Uuid, builder.Policies()); err != nil {
-				return err
-			}
-			// Create user role
-			roleClient := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
-			if _, err := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
-				Uuid:     newUser.Uuid,
-				Label:    newUser.Login + " role",
-				UserRole: true,
-				Policies: builder.Policies(),
-			}}); err != nil {
-				return err
-			}
-		}
-	}
-
-	log.Logger(ctx).Info("Initialization: creating s3 anonymous user")
-
-	newAnon, err := CreateIfNotExists(ctx, dao, &idm.User{
-		Login:      common.PydioS3AnonUsername,
-		Password:   common.PydioS3AnonUsername,
-		Attributes: map[string]string{"profile": common.PydioProfileAnon},
-	})
-	if err != nil {
-		return err
-	}
-
-	if newAnon != nil {
-		builder := service2.NewResourcePoliciesBuilder()
-		builder = builder.WithUserRead(common.PydioS3AnonUsername)
-		builder = builder.WithProfileRead(common.PydioProfileAdmin)
-		builder = builder.WithProfileWrite(common.PydioProfileAdmin)
-		if err := dao.AddPolicies(false, newAnon.Uuid, builder.Policies()); err != nil {
-			return err
-		}
-		// Create user role
-		roleClient := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
-		if _, err := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
-			Uuid:     newAnon.Uuid,
-			Label:    newAnon.Login + " role",
-			UserRole: true,
-			Policies: builder.Policies(),
-		}}); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
+//func InitDefaults(ctx context.Context) error {
+//	var login, pwd string
+//
+//	dao := service.DAOFromContext[user.DAO](ctx)
+//	cfg := servercontext.GetConfig(ctx)
+//
+//	if os.Getenv(EnvPydioAdminUserLogin) != "" && os.Getenv(EnvPydioAdminUserPassword) != "" {
+//		login = os.Getenv(EnvPydioAdminUserLogin)
+//		pwd = os.Getenv(EnvPydioAdminUserPassword)
+//	}
+//
+//	if rootConfig := cfg.Val("defaults", "root").String(); rootConfig != "" {
+//		sDec, _ := base64.StdEncoding.DecodeString(rootConfig)
+//		parts := strings.Split(string(sDec), "||||")
+//		login = parts[0]
+//		pwd = parts[1]
+//		// Now remove from configs
+//		cfg.Val("defaults", "root").Del()
+//		if err := cfg.Save("cli", "First Run / Creating default root user"); err != nil {
+//			return err
+//		}
+//	}
+//
+//	if login != "" && pwd != "" {
+//		log.Logger(ctx).Info("Initialization: creating admin user: " + login)
+//		// Check if user exists
+//		newUser, err := CreateIfNotExists(ctx, dao, &idm.User{
+//			Login:      login,
+//			Password:   pwd,
+//			Attributes: map[string]string{"profile": common.PydioProfileAdmin},
+//		})
+//		if err != nil {
+//			return err
+//		} else if newUser != nil {
+//			builder := service2.NewResourcePoliciesBuilder()
+//			builder = builder.WithProfileRead(common.PydioProfileStandard)
+//			builder = builder.WithUserWrite(login)
+//			builder = builder.WithProfileWrite(common.PydioProfileAdmin)
+//			if err := dao.AddPolicies(false, newUser.Uuid, builder.Policies()); err != nil {
+//				return err
+//			}
+//			// Create user role
+//			roleClient := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
+//			if _, err := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
+//				Uuid:     newUser.Uuid,
+//				Label:    newUser.Login + " role",
+//				UserRole: true,
+//				Policies: builder.Policies(),
+//			}}); err != nil {
+//				return err
+//			}
+//		}
+//	}
+//
+//	log.Logger(ctx).Info("Initialization: creating s3 anonymous user")
+//
+//	newAnon, err := CreateIfNotExists(ctx, dao, &idm.User{
+//		Login:      common.PydioS3AnonUsername,
+//		Password:   common.PydioS3AnonUsername,
+//		Attributes: map[string]string{"profile": common.PydioProfileAnon},
+//	})
+//	if err != nil {
+//		return err
+//	}
+//
+//	if newAnon != nil {
+//		builder := service2.NewResourcePoliciesBuilder()
+//		builder = builder.WithUserRead(common.PydioS3AnonUsername)
+//		builder = builder.WithProfileRead(common.PydioProfileAdmin)
+//		builder = builder.WithProfileWrite(common.PydioProfileAdmin)
+//		if err := dao.AddPolicies(false, newAnon.Uuid, builder.Policies()); err != nil {
+//			return err
+//		}
+//		// Create user role
+//		roleClient := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
+//		if _, err := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
+//			Uuid:     newAnon.Uuid,
+//			Label:    newAnon.Login + " role",
+//			UserRole: true,
+//			Policies: builder.Policies(),
+//		}}); err != nil {
+//			return err
+//		}
+//	}
+//
+//	return nil
+//}
 
 // CreateIfNotExists creates a user if DAO.Bind() call returns a 404 error.
 func CreateIfNotExists(ctx context.Context, dao user.DAO, user *idm.User) (*idm.User, error) {

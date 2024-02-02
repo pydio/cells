@@ -26,8 +26,6 @@ import (
 
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/search/query"
-	"go.mongodb.org/mongo-driver/x/bsonx"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -125,7 +123,7 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, i
 		if wc == "T*" { // Special case for boolean query
 			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: true})
 		} else if insensitive {
-			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": bsonx.Regex(regexp, "i")}})
+			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": primitive.Regex{Pattern: regexp, Options: "i"}}})
 		} else {
 			filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": regexp}})
 		}
@@ -162,7 +160,7 @@ func uniqueQueryToFilters(m query.Query, fieldTransformer func(string) string, i
 				regexp += "$"
 			}
 			if insensitive {
-				filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": bsonx.Regex(regexp, "i")}})
+				filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": primitive.Regex{Pattern: regexp, Options: "i"}}})
 			} else {
 				filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": regexp}})
 			}

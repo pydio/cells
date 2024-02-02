@@ -43,6 +43,8 @@ import (
 type userKeyStore struct {
 	enc.UnimplementedUserKeyStoreServer
 
+	DAO key.DAO
+
 	master []byte
 	legacy []byte
 }
@@ -69,32 +71,23 @@ func NewUserKeyStore(ctx context.Context) (enc.UserKeyStoreServer, error) {
 
 func (ukm *userKeyStore) AddKey(ctx context.Context, req *enc.AddKeyRequest) (*enc.AddKeyResponse, error) {
 
-	dao, err := key.NewDAO(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	if err := seal(req.Key, []byte(req.StrPassword)); err != nil {
 		return nil, err
 	}
 
-	return &enc.AddKeyResponse{}, dao.SaveKey(req.Key)
+	return &enc.AddKeyResponse{}, ukm.DAO.SaveKey(ctx, req.Key)
 }
 
 func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest) (*enc.GetKeyResponse, error) {
 
 	rsp := &enc.GetKeyResponse{}
 
-	dao, err := key.NewDAO(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	// TODO: Extract user / password info from Context
 	user := common.PydioSystemUsername
 
 	var version int
-	rsp.Key, version, err = dao.GetKey(user, req.KeyID)
+	var err error
+	rsp.Key, version, err = ukm.DAO.GetKey(ctx, user, req.KeyID)
 	if err != nil {
 		return nil, err
 	}
@@ -116,28 +109,19 @@ func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest) (*e
 }
 
 func (ukm *userKeyStore) AdminListKeys(ctx context.Context, req *enc.AdminListKeysRequest) (*enc.AdminListKeysResponse, error) {
+	var err error
 
 	rsp := &enc.AdminListKeysResponse{}
-	dao, err := key.NewDAO(ctx)
-	if err != nil {
-		return nil, err
-	}
 
-	rsp.Keys, err = dao.ListKeys(common.PydioSystemUsername)
+	rsp.Keys, err = ukm.DAO.ListKeys(ctx, common.PydioSystemUsername)
 	return rsp, err
 }
 
 func (ukm *userKeyStore) AdminCreateKey(ctx context.Context, req *enc.AdminCreateKeyRequest) (*enc.AdminCreateKeyResponse, error) {
-
-	dao, err := key.NewDAO(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	rsp := &enc.AdminCreateKeyResponse{Success: true}
 
-	if _, _, err := dao.GetKey(common.PydioSystemUsername, req.KeyID); err != nil && errors.FromError(err).Code == 404 {
-		if er := ukm.createSystemKey(dao, req.KeyID, req.Label); er != nil {
+	if _, _, err := ukm.DAO.GetKey(ctx, common.PydioSystemUsername, req.KeyID); err != nil && errors.FromError(err).Code == 404 {
+		if er := ukm.createSystemKey(ctx, req.KeyID, req.Label); er != nil {
 			return nil, er
 		} else {
 			return rsp, nil
@@ -151,25 +135,16 @@ func (ukm *userKeyStore) AdminCreateKey(ctx context.Context, req *enc.AdminCreat
 
 func (ukm *userKeyStore) AdminDeleteKey(ctx context.Context, req *enc.AdminDeleteKeyRequest) (*enc.AdminDeleteKeyResponse, error) {
 
-	dao, err := key.NewDAO(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return &enc.AdminDeleteKeyResponse{}, dao.DeleteKey(common.PydioSystemUsername, req.KeyID)
+	return &enc.AdminDeleteKeyResponse{}, ukm.DAO.DeleteKey(ctx, common.PydioSystemUsername, req.KeyID)
 }
 
 func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImportKeyRequest) (*enc.AdminImportKeyResponse, error) {
 
-	dao, err := key.NewDAO(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	log.Logger(ctx).Debug("Received request", zap.Any("Data", req))
 
 	var k *enc.Key
-	k, _, err = dao.GetKey(common.PydioSystemUsername, req.Key.ID)
+	var err error
+	k, _, err = ukm.DAO.GetKey(ctx, common.PydioSystemUsername, req.Key.ID)
 	if err != nil {
 		if errors.FromError(err).Code != 404 {
 			return nil, err
@@ -224,7 +199,7 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	})
 
 	log.Logger(ctx).Debug("Saving new key")
-	err = dao.SaveKey(req.Key)
+	err = ukm.DAO.SaveKey(ctx, req.Key)
 	if err != nil {
 		rsp.Success = false
 		return rsp, errors.InternalServerError(common.ServiceEncKey, "failed to save imported key, cause: %s", err.Error())
@@ -237,15 +212,11 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 
 func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExportKeyRequest) (*enc.AdminExportKeyResponse, error) {
 
-	//Get key from dao
-	dao, err := key.NewDAO(ctx)
-	if err != nil {
-		return nil, err
-	}
+	var err error
 
 	rsp := &enc.AdminExportKeyResponse{}
 	var version int
-	rsp.Key, version, err = dao.GetKey(common.PydioSystemUsername, req.KeyID)
+	rsp.Key, version, err = ukm.DAO.GetKey(ctx, common.PydioSystemUsername, req.KeyID)
 	if err != nil {
 		return rsp, err
 	}
@@ -261,7 +232,7 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 	})
 
 	// We update the key
-	err = dao.SaveKey(rsp.Key, version)
+	err = ukm.DAO.SaveKey(ctx, rsp.Key, version)
 	if err != nil {
 		return rsp, errors.InternalServerError(common.ServiceEncKey, "failed to update key info, cause: %s", err.Error())
 	}
@@ -287,7 +258,7 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 }
 
 // Create a default key or create a system key with a given ID
-func (ukm *userKeyStore) createSystemKey(dao key.DAO, keyID string, keyLabel string) error {
+func (ukm *userKeyStore) createSystemKey(ctx context.Context, keyID string, keyLabel string) error {
 	systemKey := &enc.Key{
 		ID:           keyID,
 		Owner:        common.PydioSystemUsername,
@@ -308,7 +279,7 @@ func (ukm *userKeyStore) createSystemKey(dao key.DAO, keyID string, keyLabel str
 	}
 	systemKey.Content = base64.StdEncoding.EncodeToString(encryptedKeyContentBytes)
 	log.Logger(context.Background()).Debug(fmt.Sprintf("Saving default key %s", systemKey.Content))
-	return dao.SaveKey(systemKey)
+	return ukm.DAO.SaveKey(ctx, systemKey)
 }
 
 func (ukm *userKeyStore) getLegacyFormat() ([]byte, error) {

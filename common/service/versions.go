@@ -24,6 +24,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/pydio/cells/v4/common/runtime"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/server/middleware"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -60,23 +63,39 @@ func Latest() *version.Version {
 	return common.Version()
 }
 
+func UpdateServiceVersionWrapper(h http.Handler, o *ServiceOptions) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		ctx := req.Context()
+		ctx, _, _ = middleware.TenantIncomingContext(nil)(ctx)
+		err := UpdateServiceVersion(ctx, servercontext.GetConfig(ctx), o)
+		if err != nil {
+			fmt.Println("Failed to run service version update")
+		}
+
+		h.ServeHTTP(rw, req)
+	})
+}
+
 // UpdateServiceVersion applies migration(s) if necessary and stores new current version for future use.
-func UpdateServiceVersion(opts *ServiceOptions) error {
+func UpdateServiceVersion(ctx context.Context, store config.Store, opts *ServiceOptions) error {
 	newVersion, _ := version.NewVersion(opts.Version)
-	lastVersion, e := lastKnownVersion(opts.Name)
+	lastVersion, e := lastKnownVersion(store, opts.Name)
 	if e != nil {
 		return fmt.Errorf("cannot update service version for %s (%v)", opts.Name, e)
 	}
 
-	writeVersion, err := applyMigrations(opts.runtimeCtx, lastVersion, newVersion, opts.Migrations)
-	if writeVersion != nil {
-		if e := updateVersion(opts.Name, writeVersion); e != nil {
-			opts.Logger().Error("could not write version file", zap.Error(e))
+	if len(opts.Migrations) > 0 {
+		writeVersion, err := applyMigrations(ctx, lastVersion, newVersion, opts.Migrations)
+		if writeVersion != nil {
+			if e := updateVersion(store, opts.Name, writeVersion); e != nil {
+				log.Logger(ctx).Error("could not write version file", zap.Error(e))
+			}
+		}
+		if err != nil {
+			return fmt.Errorf("cannot update service version for %s (%v)", opts.Name, err)
 		}
 	}
-	if err != nil {
-		return fmt.Errorf("cannot update service version for %s (%v)", opts.Name, err)
-	}
+
 	return nil
 }
 
@@ -86,25 +105,25 @@ func legacyVersionFile(serviceName string) string {
 }
 
 // lastKnownVersion looks on this server if there was a previous version of this service
-func lastKnownVersion(serviceName string) (v *version.Version, e error) {
+func lastKnownVersion(store config.Store, serviceName string) (v *version.Version, e error) {
 
-	def := strings.TrimSpace(config.Get("versions", serviceName).Default("0.0.0").String())
+	def := strings.TrimSpace(store.Val("versions", serviceName).Default("0.0.0").String())
 	if def == "0.0.0" {
 		if data, err := os.ReadFile(legacyVersionFile(serviceName)); err == nil && len(data) > 0 {
 			fileVersion := strings.TrimSpace(string(data))
 			return version.NewVersion(fileVersion)
 		}
 	}
-	return version.NewVersion(strings.TrimSpace(config.Get("versions", serviceName).Default("0.0.0").String()))
+	return version.NewVersion(strings.TrimSpace(store.Val("versions", serviceName).Default("0.0.0").String()))
 }
 
 // updateVersion writes the version string to config, and eventually removes legacy version file
-func updateVersion(serviceName string, v *version.Version) error {
-	if err := config.Get("versions", serviceName).Set(v.String()); err != nil {
+func updateVersion(store config.Store, serviceName string, v *version.Version) error {
+	if err := store.Val("versions", serviceName).Set(v.String()); err != nil {
 		return err
 	}
 
-	if err := config.Save("system", "updating system version "+serviceName); err != nil {
+	if err := store.Save("system", "updating system version "+serviceName); err != nil {
 		return err
 	}
 

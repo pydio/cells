@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/data/meta"
 	"strings"
 	"sync"
@@ -52,15 +51,15 @@ type MetaServer struct {
 	eventsChannel chan *queue.TypeWithContext[*tree.NodeChangeEvent]
 	cache         cache.Cache
 
-	service.Service
+	DAO meta.DAO
 
 	stopped     bool
 	stoppedLock *sync.Mutex
 }
 
-func NewMetaServer(ctx context.Context, svc service.Service) *MetaServer {
+func NewMetaServer(ctx context.Context) *MetaServer {
 	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL(ServiceName, "evictionTime", "1m"))
-	m := &MetaServer{Service: svc}
+	m := &MetaServer{}
 	m.cache = c
 	m.stoppedLock = &sync.Mutex{}
 	go func() {

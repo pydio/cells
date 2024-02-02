@@ -23,23 +23,9 @@ package cmd
 import (
 	"context"
 	_ "embed"
-	"errors"
-	"fmt"
-	"github.com/manifoldco/promptui"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	"github.com/spf13/cobra"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"io"
-	"net/url"
-	"os"
-	"path/filepath"
-	"strings"
-	"text/template"
-
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/registry"
@@ -49,8 +35,10 @@ import (
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/filex"
-	"github.com/pydio/cells/v4/common/utils/fork"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
+	"os"
+	"path/filepath"
 )
 
 var (
@@ -148,425 +136,485 @@ ENVIRONMENT
 		ctx, cancel := context.WithCancel(cmd.Context())
 		defer cancel()
 
-		if len(runtime.GetStringSlice(runtime.KeyArgTags)) == 0 {
-			cmds := make(map[string]*fork.Process)
+		configFile := filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName)
+		if runtime.ConfigIsLocalFile() && !filex.Exists(configFile) {
+			return nil
+			//return triggerInstall(
+			//	"We cannot find a configuration file ... "+configFile,
+			//	"Do you want to create one now",
+			//	cmd, args)
+		}
 
-			store, err := config.OpenStore(ctx, "mem://?encode=yaml")
-			if err != nil {
-				return err
-			}
+		// Init config
+		isNew, keyring, er := initConfig(ctx, true)
+		if er != nil {
+			return er
+		}
+		if isNew && runtime.ConfigIsLocalFile() {
+			return nil
+			//return triggerInstall(
+			//	"Oops, the configuration is not right ... "+configFile,
+			//	"Do you want to reset the initial configuration", cmd, args)
+		}
 
-			go func() {
-				w, err := store.Watch(configx.WithPath("processes", "*"), configx.WithChangesOnly())
-				if err != nil {
-					return
-				}
-
-				for {
-					diff, err := w.Next()
-					if err != nil {
-						return
-					}
-
-					create := diff.(configx.Values).Val("create", "processes")
-					update := diff.(configx.Values).Val("update", "processes")
-					delete := diff.(configx.Values).Val("delete", "processes")
-
-					var processesToStart, processesToStop []string
-
-					for name := range create.Map() {
-						processesToStart = append(processesToStart, name)
-					}
-					for name := range update.Map() {
-						processesToStop = append(processesToStop, name)
-						processesToStart = append(processesToStart, name)
-					}
-					for name := range delete.Map() {
-						processesToStop = append(processesToStop, name)
-					}
-
-					for _, name := range processesToStop {
-						if cmd, ok := cmds[name]; ok {
-							cmd.Stop()
-						}
-					}
-
-					processes := store.Val("processes")
-
-					for _, v := range processesToStart {
-						for name := range processes.Map() {
-							process := store.Val("processes", name)
-
-							if name == v {
-								connections := process.Val("connections")
-								env := process.Val("env")
-								servers := process.Val("servers")
-								services := process.Val("services")
-
-								childBinary := os.Args[0]
-								childArgs := []string{}
-								childEnv := []string{}
-
-								if process.Val("debug").Bool() {
-									childBinary = "dlv"
-									childArgs = append(childArgs, "--listen=:2345", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "--", os.Args[0])
-								}
-
-								childArgs = append(childArgs, "start", "--name", name)
-
-								// Adding connections to the environment
-								for k := range connections.Map() {
-									childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), connections.Val(k, "uri")))
-								}
-
-								for k, v := range env.Map() {
-									switch vv := v.(type) {
-									case string:
-										childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, vv))
-									default:
-										vvv, _ := json.Marshal(vv)
-										childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, string(vvv)))
-									}
-								}
-
-								// Adding servers to the environment
-								for k := range servers.Map() {
-									server := servers.Val(k)
-
-									// TODO - should be one bind address per server
-									if bindAddr := server.Val("bind").String(); bindAddr != "" {
-										childEnv = append(childEnv, fmt.Sprintf("CELLS_BIND_ADDRESS=%s", bindAddr))
-									}
-
-									// TODO - should be one advertise address per server
-									if advertiseAddr := server.Val("advertise").String(); advertiseAddr != "" {
-										childEnv = append(childEnv, fmt.Sprintf("CELLS_ADVERTISE_ADDRESS=%s", advertiseAddr))
-									}
-
-									// Adding servers port
-									if port := server.Val("port").String(); port != "" {
-										childEnv = append(childEnv, fmt.Sprintf("CELLS_%s_PORT=%s", strings.ToUpper(k), port))
-									}
-
-									// Adding server type
-									if typ := server.Val("type").String(); typ != "" {
-										childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), typ))
-									}
-								}
-
-								// Adding services to the environment
-								tags := []string{}
-								for k, v := range services.Map() {
-									tags = append(tags, k)
-
-									if vv, ok := v.([]interface{}); ok {
-										for _, vvv := range vv {
-											childArgs = append(childArgs, "^"+vvv.(string)+"$")
-										}
-									}
-								}
-
-								childEnv = append(childEnv, fmt.Sprintf("CELLS_TAGS=%s", strings.Join(tags, " ")))
-
-								cmds[name] = fork.NewProcess(ctx, []string{}, fork.WithBinary(childBinary), fork.WithName(name), fork.WithArgs(childArgs), fork.WithEnv(childEnv))
-								go cmds[name].StartAndWait(5)
-							}
-						}
-					}
-				}
-			}()
-
-			reset := func(conf config.Store) error {
-
-				tmpl := defaultTemplate
-
-				// Then generate the new template based on the config
-				if file := runtime.GetString("file"); file != "" {
-					f, err := os.Open(file)
-					if err != nil {
-						return err
-					}
-					b, err := io.ReadAll(f)
-					if err != nil {
-						return err
-					}
-					tmpl = string(b)
-				}
-
-				t, err := template.New("context").Parse(tmpl)
-				if err != nil {
-					return err
-				}
-
-				var b strings.Builder
-
-				r := runtime.GetRuntime()
-				if err := t.Execute(&b, struct {
-					ConfigURL     string
-					RegistryURL   string
-					BrokerURL     string
-					CacheURL      string
-					BindHost      string
-					AdvertiseHost string
-					DiscoveryPort string
-					FrontendPort  string
-					Config        config.Store
-				}{
-					runtime.ConfigURL(),
-					runtime.RegistryURL(),
-					runtime.BrokerURL(),
-					runtime.CacheURL(""),
-					r.GetString(runtime.KeyBindHost),
-					r.GetString(runtime.KeyBindHost),
-					r.GetString(runtime.KeyGrpcDiscoveryPort),
-					r.GetString(runtime.KeyHttpPort),
-					conf,
-				}); err != nil {
-					return err
-				}
-
-				store.Set([]byte(b.String()))
-
-				return nil
-			}
-
-			if err := reset(nil); err != nil {
-				return err
-			}
-
-			go func() {
-				r := runtime.GetRuntime()
-				conf, err := config.OpenStore(ctx, "grpc://"+r.GetString(runtime.KeyBindHost)+":"+r.GetString(runtime.KeyGrpcDiscoveryPort))
-				if err != nil {
-					fmt.Println("Error is ", err)
-				}
-
-				reset(conf)
-
-				res, err := conf.Watch()
-				if err != nil {
-					fmt.Println("Error is there ", err)
-					return
-				}
-
-				fmt.Println("And watching")
-
-				for {
-					_, err := res.Next()
-					if err != nil {
-						return
-					}
-
-					fmt.Println("Received update here !! ")
-
-					reset(conf)
-				}
-			}()
-
-			select {
-			case <-cmd.Context().Done():
-			}
-		} else {
-
-			managerLogger := log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager"))
-
-			if needs, gU := runtime.NeedsGrpcDiscoveryConn(); needs {
-				u, err := url.Parse(gU)
-				if err != nil {
-					return err
-				}
-				addr := u.String()
-				switch u.Scheme {
-				case "grpc":
-					addr = u.Host
-				}
-				discoveryConn, err := grpc.Dial(addr,
-					grpc.WithTransportCredentials(insecure.NewCredentials()),
-					grpc.WithUnaryInterceptor(func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
-						// method = "pydio.grpc.registry" + method
-						return invoker(ctx, method, req, reply, cc, opts...)
-					}),
-				)
-				if err != nil {
-					return err
-				}
-				ctx = clientcontext.WithClientConn(ctx, discoveryConn)
-			}
-
-			configFile := filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName)
-			if runtime.ConfigIsLocalFile() && !filex.Exists(configFile) {
-				return triggerInstall(
-					"We cannot find a configuration file ... "+configFile,
-					"Do you want to create one now",
-					cmd, args)
-			}
-
-			// Init config
-			isNew, keyring, er := initConfig(ctx, true)
-			if er != nil {
-				return er
-			}
-			if isNew && runtime.ConfigIsLocalFile() {
-				return triggerInstall(
-					"Oops, the configuration is not right ... "+configFile,
-					"Do you want to reset the initial configuration", cmd, args)
-			}
-
-			ctx = servicecontext.WithKeyring(ctx, keyring)
-			for _, cc := range configChecks {
-				if e := cc(ctx); e != nil {
-					return e
-				}
-			}
-
-			// Init registry
-			fmt.Println(runtime.RegistryURL())
-			reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
-			if err != nil {
-				return err
-			}
-			ctx = servercontext.WithRegistry(ctx, reg)
-			ctx = servercontext.WithConfig(ctx, config.Main())
-
-			// Init broker
-
-			broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
-
-			if !runtime.IsFork() {
-				data := []runtime.InfoGroup{binaryInfo()}
-				data = append(data, runtime.Describe()...)
-				data = append(data, buildInfo())
-				for _, group := range data {
-					cmd.Println(group.Name + ":")
-					for _, pair := range group.Pairs {
-						cmd.Println("  " + pair.Key + ":\t" + pair.Value)
-					}
-					cmd.Println("")
-				}
-			}
-
-			// Starting discovery server containing registry, broker, config and log
-			var discovery manager.Manager
-			// TODO - should be done in some other way
-			//if !runtime.IsGrpcScheme(runtime.RegistryURL()) || runtime.LogLevel() == "debug" {
-			//if discovery, err = startDiscoveryServer(ctx, reg, managerLogger); err != nil {
-			//	return err
-			//}
-			//}
-
-			/* Create a main client connection
-			clientgrpc.WarnMissingConnInContext = true
-			conn, err := grpc.Dial("xds://"+runtime.Cluster()+".cells.com/cells", clientgrpc.DialOptionsForRegistry(reg)...)
-			if err != nil {
-				return err
-			}
-			ctx = clientcontext.WithClientConn(ctx, conn)
-			ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))*/
-
-			m := manager.NewManager(ctx, reg, "mem:///?cache=plugins&byname=true", "main", managerLogger)
-			if err := m.Init(ctx); err != nil {
-				return err
-			}
-
-			// Logging Stuff
-			runtime.InitGlobalConnConsumers(ctx, "main")
-			go initLogLevelListener(ctx)
-
-			go m.WatchServicesConfigs()
-			go m.WatchBroker(ctx, broker.Default())
-
-			//tracer, err := tracing.OpenTracing(ctx, "jaeger:///")
-			//if err != nil {
-			//	return err
-			//}
-			//
-			//otel.SetTracerProvider(tracer)
-
-			if replaced := config.EnvOverrideDefaultBind(); replaced {
-				// Bind sites are replaced by flags/env values - warn that it will take precedence
-				if ss, e := config.LoadSites(true); e == nil && len(ss) > 0 && !runtime.IsFork() {
-					fmt.Println("*****************************************************************")
-					fmt.Println("*  Dynamic bind flag detected, overriding any configured sites  *")
-					fmt.Println("*****************************************************************")
-				}
-			}
-
-			if os.Args[1] == "daemon" {
-				msg := "| Starting daemon, use '" + os.Args[0] + " ctl' to control services |"
-				line := strings.Repeat("-", len(msg))
-				cmd.Println(line)
-				cmd.Println(msg)
-				cmd.Println(line)
-				m.SetServeOptions(
-					server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
-					server.WithHttpBindAddress(runtime.HttpBindAddress()),
-				)
-			} else {
-				select {
-				case <-ctx.Done():
-					return nil
-				default:
-				}
-				m.ServeAll(
-					server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
-					server.WithHttpBindAddress(runtime.HttpBindAddress()),
-					server.WithErrorCallback(func(err error) {
-						managerLogger.Error(promptui.IconBad + "There was an error while starting:" + err.Error())
-					}),
-				)
-			}
-
-			select {
-			case <-ctx.Done():
-			case <-reg.Done():
-			}
-
-			reg.Close()
-			m.StopAll()
-			if discovery != nil {
-				managerLogger.Info("Stopping discovery services now")
-				discovery.StopAll()
+		ctx = servicecontext.WithKeyring(ctx, keyring)
+		for _, cc := range configChecks {
+			if e := cc(ctx); e != nil {
+				return e
 			}
 		}
+
+		// Init registry
+		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
+		if err != nil {
+			return err
+		}
+		ctx = servercontext.WithRegistry(ctx, reg)
+		ctx = servercontext.WithConfig(ctx, config.Main())
+
+		clientgrpc.WarnMissingConnInContext = true
+		conn, err := grpc.Dial("xds://"+runtime.Cluster()+".cells.com/cells", clientgrpc.DialOptionsForRegistry(reg)...)
+		if err != nil {
+			return err
+		}
+
+		ctx = clientcontext.WithClientConn(ctx, conn)
+		// ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
+
+		m, err := manager.NewManager(ctx, reg, "", "main", log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager")))
+		if err != nil {
+			return err
+		}
+
+		m.SetServeOptions(
+			server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
+			server.WithHttpBindAddress(runtime.HttpBindAddress()),
+		)
+		m.ServeAll(
+			server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
+			server.WithHttpBindAddress(runtime.HttpBindAddress()),
+		)
+
+		<-ctx.Done()
+
+		//if len(runtime.GetStringSlice(runtime.KeyArgTags)) == 0 {
+		//	cmds := make(map[string]*fork.Process)
+		//
+		//	store, err := config.OpenStore(ctx, "mem://?encode=yaml")
+		//	if err != nil {
+		//		return err
+		//	}
+		//
+		//	go func() {
+		//		w, err := store.Watch(configx.WithPath("processes", "*"), configx.WithChangesOnly())
+		//		if err != nil {
+		//			return
+		//		}
+		//
+		//		for {
+		//			diff, err := w.Next()
+		//			if err != nil {
+		//				return
+		//			}
+		//
+		//			create := diff.(configx.Values).Val("create", "processes")
+		//			update := diff.(configx.Values).Val("update", "processes")
+		//			delete := diff.(configx.Values).Val("delete", "processes")
+		//
+		//			var processesToStart, processesToStop []string
+		//
+		//			for name := range create.Map() {
+		//				processesToStart = append(processesToStart, name)
+		//			}
+		//			for name := range update.Map() {
+		//				processesToStop = append(processesToStop, name)
+		//				processesToStart = append(processesToStart, name)
+		//			}
+		//			for name := range delete.Map() {
+		//				processesToStop = append(processesToStop, name)
+		//			}
+		//
+		//			for _, name := range processesToStop {
+		//				if cmd, ok := cmds[name]; ok {
+		//					cmd.Stop()
+		//				}
+		//			}
+		//
+		//			processes := store.Val("processes")
+		//
+		//			for _, v := range processesToStart {
+		//				for name := range processes.Map() {
+		//					process := store.Val("processes", name)
+		//
+		//					if name == v {
+		//						connections := process.Val("connections")
+		//						env := process.Val("env")
+		//						servers := process.Val("servers")
+		//						services := process.Val("services")
+		//
+		//						childBinary := os.Args[0]
+		//						childArgs := []string{}
+		//						childEnv := []string{}
+		//
+		//						if process.Val("debug").Bool() {
+		//							childBinary = "dlv"
+		//							childArgs = append(childArgs, "--listen=:2345", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "--", os.Args[0])
+		//						}
+		//
+		//						childArgs = append(childArgs, "start", "--name", name)
+		//
+		//						// Adding connections to the environment
+		//						for k := range connections.Map() {
+		//							childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), connections.Val(k, "uri")))
+		//						}
+		//
+		//						for k, v := range env.Map() {
+		//							switch vv := v.(type) {
+		//							case string:
+		//								childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, vv))
+		//							default:
+		//								vvv, _ := json.Marshal(vv)
+		//								childEnv = append(childEnv, fmt.Sprintf("%s=%s", k, string(vvv)))
+		//							}
+		//						}
+		//
+		//						// Adding servers to the environment
+		//						for k := range servers.Map() {
+		//							server := servers.Val(k)
+		//
+		//							// TODO - should be one bind address per server
+		//							if bindAddr := server.Val("bind").String(); bindAddr != "" {
+		//								childEnv = append(childEnv, fmt.Sprintf("CELLS_BIND_ADDRESS=%s", bindAddr))
+		//							}
+		//
+		//							// TODO - should be one advertise address per server
+		//							if advertiseAddr := server.Val("advertise").String(); advertiseAddr != "" {
+		//								childEnv = append(childEnv, fmt.Sprintf("CELLS_ADVERTISE_ADDRESS=%s", advertiseAddr))
+		//							}
+		//
+		//							// Adding servers port
+		//							if port := server.Val("port").String(); port != "" {
+		//								childEnv = append(childEnv, fmt.Sprintf("CELLS_%s_PORT=%s", strings.ToUpper(k), port))
+		//							}
+		//
+		//							// Adding server type
+		//							if typ := server.Val("type").String(); typ != "" {
+		//								childEnv = append(childEnv, fmt.Sprintf("CELLS_%s=%s", strings.ToUpper(k), typ))
+		//							}
+		//						}
+		//
+		//						// Adding services to the environment
+		//						tags := []string{}
+		//						for k, v := range services.Map() {
+		//							tags = append(tags, k)
+		//
+		//							if vv, ok := v.([]interface{}); ok {
+		//								for _, vvv := range vv {
+		//									childArgs = append(childArgs, "^"+vvv.(string)+"$")
+		//								}
+		//							}
+		//						}
+		//
+		//						childEnv = append(childEnv, fmt.Sprintf("CELLS_TAGS=%s", strings.Join(tags, " ")))
+		//
+		//						cmds[name] = fork.NewProcess(ctx, []string{}, fork.WithBinary(childBinary), fork.WithName(name), fork.WithArgs(childArgs), fork.WithEnv(childEnv))
+		//						go cmds[name].StartAndWait(5)
+		//					}
+		//				}
+		//			}
+		//		}
+		//	}()
+		//
+		//	reset := func(conf config.Store) error {
+		//
+		//		tmpl := defaultTemplate
+		//
+		//		// Then generate the new template based on the config
+		//		if file := runtime.GetString("file"); file != "" {
+		//			f, err := os.Open(file)
+		//			if err != nil {
+		//				return err
+		//			}
+		//			b, err := io.ReadAll(f)
+		//			if err != nil {
+		//				return err
+		//			}
+		//			tmpl = string(b)
+		//		}
+		//
+		//		t, err := template.New("context").Parse(tmpl)
+		//		if err != nil {
+		//			return err
+		//		}
+		//
+		//		var b strings.Builder
+		//
+		//		r := runtime.GetRuntime()
+		//		if err := t.Execute(&b, struct {
+		//			ConfigURL     string
+		//			RegistryURL   string
+		//			BrokerURL     string
+		//			CacheURL      string
+		//			BindHost      string
+		//			AdvertiseHost string
+		//			DiscoveryPort string
+		//			FrontendPort  string
+		//			Config        config.Store
+		//		}{
+		//			runtime.ConfigURL(),
+		//			runtime.RegistryURL(),
+		//			runtime.BrokerURL(),
+		//			runtime.CacheURL(""),
+		//			r.GetString(runtime.KeyBindHost),
+		//			r.GetString(runtime.KeyBindHost),
+		//			r.GetString(runtime.KeyGrpcDiscoveryPort),
+		//			r.GetString(runtime.KeyHttpPort),
+		//			conf,
+		//		}); err != nil {
+		//			return err
+		//		}
+		//
+		//		store.Set([]byte(b.String()))
+		//
+		//		return nil
+		//	}
+		//
+		//	if err := reset(nil); err != nil {
+		//		return err
+		//	}
+		//
+		//	go func() {
+		//		r := runtime.GetRuntime()
+		//		conf, err := config.OpenStore(ctx, "grpc://"+r.GetString(runtime.KeyBindHost)+":"+r.GetString(runtime.KeyGrpcDiscoveryPort))
+		//		if err != nil {
+		//			fmt.Println("Error is ", err)
+		//		}
+		//
+		//		reset(conf)
+		//
+		//		res, err := conf.Watch()
+		//		if err != nil {
+		//			fmt.Println("Error is there ", err)
+		//			return
+		//		}
+		//
+		//		fmt.Println("And watching")
+		//
+		//		for {
+		//			_, err := res.Next()
+		//			if err != nil {
+		//				return
+		//			}
+		//
+		//			fmt.Println("Received update here !! ")
+		//
+		//			reset(conf)
+		//		}
+		//	}()
+		//
+		//	select {
+		//	case <-cmd.Context().Done():
+		//	}
+		//} else {
+		//
+		//	managerLogger := log.Logger(servicecontext.WithServiceName(ctx, "pydio.server.manager"))
+		//
+		//	if needs, gU := runtime.NeedsGrpcDiscoveryConn(); needs {
+		//		u, err := url.Parse(gU)
+		//		if err != nil {
+		//			return err
+		//		}
+		//		addr := u.String()
+		//		switch u.Scheme {
+		//		case "grpc":
+		//			addr = u.Host
+		//		}
+		//		discoveryConn, err := grpc.Dial(addr,
+		//			grpc.WithTransportCredentials(insecure.NewCredentials()),
+		//			grpc.WithUnaryInterceptor(func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+		//				// method = "pydio.grpc.registry" + method
+		//				return invoker(ctx, method, req, reply, cc, opts...)
+		//			}),
+		//		)
+		//		if err != nil {
+		//			return err
+		//		}
+		//		ctx = clientcontext.WithClientConn(ctx, discoveryConn)
+		//	}
+		//
+		//	configFile := filepath.Join(runtime.ApplicationWorkingDir(), runtime.DefaultConfigFileName)
+		//	if runtime.ConfigIsLocalFile() && !filex.Exists(configFile) {
+		//		return triggerInstall(
+		//			"We cannot find a configuration file ... "+configFile,
+		//			"Do you want to create one now",
+		//			cmd, args)
+		//	}
+		//
+		//	// Init config
+		//	isNew, keyring, er := initConfig(ctx, true)
+		//	if er != nil {
+		//		return er
+		//	}
+		//	if isNew && runtime.ConfigIsLocalFile() {
+		//		return triggerInstall(
+		//			"Oops, the configuration is not right ... "+configFile,
+		//			"Do you want to reset the initial configuration", cmd, args)
+		//	}
+		//
+		//	ctx = servicecontext.WithKeyring(ctx, keyring)
+		//	for _, cc := range configChecks {
+		//		if e := cc(ctx); e != nil {
+		//			return e
+		//		}
+		//	}
+		//
+		//	// Init registry
+		//	reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
+		//	if err != nil {
+		//		return err
+		//	}
+		//	ctx = servercontext.WithRegistry(ctx, reg)
+		//	ctx = servercontext.WithConfig(ctx, config.Main())
+		//
+		//	// Init broker
+		//
+		//	broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
+		//
+		//	if !runtime.IsFork() {
+		//		data := []runtime.InfoGroup{binaryInfo()}
+		//		data = append(data, runtime.Describe()...)
+		//		data = append(data, buildInfo())
+		//		for _, group := range data {
+		//			cmd.Println(group.Name + ":")
+		//			for _, pair := range group.Pairs {
+		//				cmd.Println("  " + pair.Key + ":\t" + pair.Value)
+		//			}
+		//			cmd.Println("")
+		//		}
+		//	}
+		//
+		//	// Starting discovery server containing registry, broker, config and log
+		//	var discovery manager.Manager
+		//	// TODO - should be done in some other way
+		//	//if !runtime.IsGrpcScheme(runtime.RegistryURL()) || runtime.LogLevel() == "debug" {
+		//	//if discovery, err = startDiscoveryServer(ctx, reg, managerLogger); err != nil {
+		//	//	return err
+		//	//}
+		//	//}
+		//
+		//	/* Create a main client connection
+		//	clientgrpc.WarnMissingConnInContext = true
+		//	conn, err := grpc.Dial("xds://"+runtime.Cluster()+".cells.com/cells", clientgrpc.DialOptionsForRegistry(reg)...)
+		//	if err != nil {
+		//		return err
+		//	}
+		//	ctx = clientcontext.WithClientConn(ctx, conn)
+		//	ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))*/
+		//
+		//	m := manager.NewManager(ctx, reg, "mem:///?cache=plugins&byname=true", "main", managerLogger)
+		//	if err := m.Init(ctx); err != nil {
+		//		return err
+		//	}
+		//
+		//	// Logging Stuff
+		//	runtime.InitGlobalConnConsumers(ctx, "main")
+		//	go initLogLevelListener(ctx)
+		//
+		//	go m.WatchServicesConfigs()
+		//	go m.WatchBroker(ctx, broker.Default())
+		//
+		//	//tracer, err := tracing.OpenTracing(ctx, "jaeger:///")
+		//	//if err != nil {
+		//	//	return err
+		//	//}
+		//	//
+		//	//otel.SetTracerProvider(tracer)
+		//
+		//	if replaced := config.EnvOverrideDefaultBind(); replaced {
+		//		// Bind sites are replaced by flags/env values - warn that it will take precedence
+		//		if ss, e := config.LoadSites(true); e == nil && len(ss) > 0 && !runtime.IsFork() {
+		//			fmt.Println("*****************************************************************")
+		//			fmt.Println("*  Dynamic bind flag detected, overriding any configured sites  *")
+		//			fmt.Println("*****************************************************************")
+		//		}
+		//	}
+		//
+		//	if os.Args[1] == "daemon" {
+		//		msg := "| Starting daemon, use '" + os.Args[0] + " ctl' to control services |"
+		//		line := strings.Repeat("-", len(msg))
+		//		cmd.Println(line)
+		//		cmd.Println(msg)
+		//		cmd.Println(line)
+		//		m.SetServeOptions(
+		//			server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
+		//			server.WithHttpBindAddress(runtime.HttpBindAddress()),
+		//		)
+		//	} else {
+		//		select {
+		//		case <-ctx.Done():
+		//			return nil
+		//		default:
+		//		}
+		//		m.ServeAll(
+		//			server.WithGrpcBindAddress(runtime.GrpcBindAddress()),
+		//			server.WithHttpBindAddress(runtime.HttpBindAddress()),
+		//			server.WithErrorCallback(func(err error) {
+		//				managerLogger.Error(promptui.IconBad + "There was an error while starting:" + err.Error())
+		//			}),
+		//		)
+		//	}
+		//
+		//	select {
+		//	case <-ctx.Done():
+		//	case <-reg.Done():
+		//	}
+		//
+		//	reg.Close()
+		//	m.StopAll()
+		//	if discovery != nil {
+		//		managerLogger.Info("Stopping discovery services now")
+		//		discovery.StopAll()
+		//	}
+		//}
 
 		return nil
 	},
 }
 
-func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log.ZapLogger) (manager.Manager, error) {
-
-	m := manager.NewManager(ctx, reg, "mem:///", "discovery", logger)
-	if err := m.Init(ctx); err != nil {
-		return nil, err
-	}
-
-	var errReceived bool
-	errorCallback := func(err error) {
-		errReceived = true
-		if !strings.Contains(err.Error(), "context canceled") {
-			fmt.Println("************************************************************")
-			fmt.Println(promptui.IconBad + " Error while starting discovery server:")
-			fmt.Println(promptui.IconBad + " " + err.Error())
-			fmt.Println(promptui.IconBad + " FATAL : shutting down now!")
-			fmt.Println("************************************************************")
-			cancel()
-		}
-	}
-
-	m.ServeAll(
-		server.WithErrorCallback(errorCallback),
-		server.WithGrpcBindAddress(runtime.GrpcDiscoveryBindAddress()),
-		server.WithBlockUntilServe(),
-	)
-
-	if errReceived {
-		return nil, errors.New("no discovery server")
-	}
-
-	logger.Info("Discovery services started, carry on to other services")
-
-	return m, nil
-}
+//func startDiscoveryServer(ctx context.Context, reg registry.Registry, logger log.ZapLogger) (manager.Manager, error) {
+//
+//	m := manager.NewManager(ctx, reg, "mem:///", "discovery", logger)
+//	if err := m.Init(ctx); err != nil {
+//		return nil, err
+//	}
+//
+//	var errReceived bool
+//	errorCallback := func(err error) {
+//		errReceived = true
+//		if !strings.Contains(err.Error(), "context canceled") {
+//			fmt.Println("************************************************************")
+//			fmt.Println(promptui.IconBad + " Error while starting discovery server:")
+//			fmt.Println(promptui.IconBad + " " + err.Error())
+//			fmt.Println(promptui.IconBad + " FATAL : shutting down now!")
+//			fmt.Println("************************************************************")
+//			cancel()
+//		}
+//	}
+//
+//	m.ServeAll(
+//		server.WithErrorCallback(errorCallback),
+//		server.WithGrpcBindAddress(runtime.GrpcDiscoveryBindAddress()),
+//		server.WithBlockUntilServe(),
+//	)
+//
+//	if errReceived {
+//		return nil, errors.New("no discovery server")
+//	}
+//
+//	logger.Info("Discovery services started, carry on to other services")
+//
+//	return m, nil
+//}
 
 func init() {
 	// Flags for selecting / filtering services

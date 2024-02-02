@@ -230,7 +230,7 @@ func init() {
 											Name: endpointItem.ID(),
 											Match: &route.RouteMatch{
 												PathSpecifier: &route.RouteMatch_Path{
-													Path: "/" + endpointItem.Name(),
+													Path: endpointItem.Name(),
 												},
 											},
 											Action: &route.Route_Route{
@@ -247,7 +247,7 @@ func init() {
 												Name: endpointItem.ID(),
 												Match: &route.RouteMatch{
 													PathSpecifier: &route.RouteMatch_Path{
-														Path: "/" + endpointItem.Name(),
+														Path: endpointItem.Name(),
 													},
 													Headers: []*route.HeaderMatcher{{
 														Name:                 ckeys.TargetServiceName,

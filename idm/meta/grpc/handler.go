@@ -47,13 +47,14 @@ import (
 type Handler struct {
 	idm.UnimplementedUserMetaServiceServer
 	tree.UnimplementedNodeProviderStreamerServer
-	service.UnimplementedLoginModifierServer
+	pbservice.UnimplementedLoginModifierServer
 
+	DAO         meta.DAO
 	searchCache cache.Cache
 }
 
 func NewHandler(ctx context.Context) *Handler {
-	c, _ := cache.OpenCache(context.TODO(), runtime.CacheURL(common.ServiceGrpcNamespace_+common.ServiceUserMeta))
+	c, _ := cache.OpenCache(ctx, runtime.CacheURL(common.ServiceGrpcNamespace_+common.ServiceUserMeta))
 	h := &Handler{}
 	h.searchCache = c
 	go func() {
@@ -70,13 +71,8 @@ func (h *Handler) Stop() {
 // UpdateUserMeta adds, updates or deletes user meta.
 func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMetaRequest) (*idm.UpdateUserMetaResponse, error) {
 
-	dao, err := meta.NewDAO(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	response := &idm.UpdateUserMetaResponse{}
-	namespaces, _ := dao.GetNamespaceDao().List()
+	namespaces, _ := h.DAO.GetNamespaceDao().List(ctx)
 	nodes := make(map[string]*tree.Node)
 	sources := make(map[string]*tree.Node)
 	for _, metaData := range request.MetaDatas {
@@ -89,7 +85,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 				return nil, fmt.Errorf("make sure to use JSON format for metadata: %s", er.Error())
 			}
 			// ADD / UPDATE
-			if newMeta, prev, err := dao.Set(metaData); err == nil {
+			if newMeta, prev, err := h.DAO.Set(ctx, metaData); err == nil {
 				response.MetaDatas = append(response.MetaDatas, newMeta)
 				prevValue = prev
 			} else {
@@ -97,7 +93,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 			}
 		} else {
 			// DELETE
-			if prev, err := dao.Del(metaData); err == nil {
+			if prev, err := h.DAO.Del(ctx, metaData); err == nil {
 				prevValue = prev
 			} else {
 				return nil, err
@@ -162,7 +158,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 				},
 				Operation: pbservice.OperationType_AND,
 			}
-			metas, e := dao.Search(query)
+			metas, e := h.DAO.Search(ctx, query)
 			if e != nil {
 				continue
 			}
@@ -188,11 +184,6 @@ func (h *Handler) SearchUserMeta(request *idm.SearchUserMetaRequest, stream idm.
 
 	ctx := stream.Context()
 
-	dao, err := meta.NewDAO(ctx)
-	if err != nil {
-		return err
-	}
-
 	searchUserMetaAny, err := anypb.New(request)
 	if err != nil {
 		return err
@@ -212,7 +203,7 @@ func (h *Handler) SearchUserMeta(request *idm.SearchUserMetaRequest, stream idm.
 		Operation: pbservice.OperationType_AND,
 	}
 
-	results, err := dao.Search(query)
+	results, err := h.DAO.Search(ctx, query)
 	if err != nil {
 		return err
 	}
@@ -229,11 +220,6 @@ func (h *Handler) SearchUserMeta(request *idm.SearchUserMetaRequest, stream idm.
 func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStreamServer) error {
 
 	ctx := stream.Context()
-
-	dao, err := meta.NewDAO(ctx)
-	if err != nil {
-		return err
-	}
 
 	bgCtx := metadata.NewBackgroundWithMetaCopy(ctx)
 	//bgCtx = clientcontext.WithClientConn(bgCtx, clientcontext.GetClientConn(ctx))
@@ -279,7 +265,7 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 				Operation: pbservice.OperationType_AND,
 			}
 
-			results, err = dao.Search(query)
+			results, err = h.DAO.Search(ctx, query)
 			log.Logger(ctx).Debug(fmt.Sprintf("Got %d results for node", len(results)), node.ZapUuid())
 			if err == nil {
 				h.resultsToCache(node.Uuid, subjects, results)
@@ -299,15 +285,10 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 // UpdateUserMetaNamespace Update/Delete a namespace.
 func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.UpdateUserMetaNamespaceRequest) (*idm.UpdateUserMetaNamespaceResponse, error) {
 
-	dao, err := meta.NewDAO(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	response := &idm.UpdateUserMetaNamespaceResponse{}
-	namespaceDAO := dao.GetNamespaceDao()
+	namespaceDAO := h.DAO.GetNamespaceDao()
 	for _, metaNameSpace := range request.Namespaces {
-		if err := namespaceDAO.Del(metaNameSpace); err != nil {
+		if err := namespaceDAO.Del(ctx, metaNameSpace); err != nil {
 			return nil, err
 		} else {
 			broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
@@ -318,7 +299,7 @@ func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.Upda
 	}
 	if request.Operation == idm.UpdateUserMetaNamespaceRequest_PUT {
 		for _, metaNameSpace := range request.Namespaces {
-			if err := namespaceDAO.Add(metaNameSpace); err != nil {
+			if err := namespaceDAO.Add(ctx, metaNameSpace); err != nil {
 				return nil, err
 			} else {
 				broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
@@ -337,13 +318,9 @@ func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.Upda
 func (h *Handler) ListUserMetaNamespace(request *idm.ListUserMetaNamespaceRequest, stream idm.UserMetaService_ListUserMetaNamespaceServer) error {
 
 	ctx := stream.Context()
-	dao, err := meta.NewDAO(ctx)
-	if err != nil {
-		return err
-	}
 
-	namespaceDAO := dao.GetNamespaceDao()
-	if results, err := namespaceDAO.List(); err == nil {
+	namespaceDAO := h.DAO.GetNamespaceDao()
+	if results, err := namespaceDAO.List(ctx); err == nil {
 		for _, result := range results {
 			stream.Send(&idm.ListUserMetaNamespaceResponse{UserMetaNamespace: result})
 		}
@@ -351,13 +328,8 @@ func (h *Handler) ListUserMetaNamespace(request *idm.ListUserMetaNamespaceReques
 	return nil
 }
 
-func (h *Handler) ModifyLogin(ctx context.Context, req *service.ModifyLoginRequest) (*service.ModifyLoginResponse, error) {
-	dao, err := meta.NewDAO(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return resources.ModifyLogin(ctx, dao, req)
+func (h *Handler) ModifyLogin(ctx context.Context, req *pbservice.ModifyLoginRequest) (*pbservice.ModifyLoginResponse, error) {
+	return resources.ModifyLogin(ctx, h.DAO, req)
 }
 
 func (h *Handler) resultsToCache(nodeId string, searchSubjects []string, results []*idm.UserMeta) {

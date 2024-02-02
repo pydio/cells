@@ -64,7 +64,7 @@ func (m *resolver) Init(ctx context.Context, serverID string, s server.HttpMux) 
 	m.s = s
 	m.b = bal
 
-	if runtime.LastInitType() != "install" {
+	/*if runtime.LastInitType() != "install" {
 		monitorOAuth := grpc2.NewHealthChecker(ctx)
 		go monitorOAuth.Monitor(common.ServiceOAuth)
 		m.monitorOAuth = monitorOAuth
@@ -72,7 +72,7 @@ func (m *resolver) Init(ctx context.Context, serverID string, s server.HttpMux) 
 		monitorUser := grpc2.NewHealthChecker(ctx)
 		go monitorUser.Monitor(common.ServiceUser)
 		m.monitorUser = monitorUser
-	}
+	}*/
 
 }
 

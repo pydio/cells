@@ -80,6 +80,12 @@ type Edge interface {
 	Vertices() []string
 }
 
+type Endpoint interface {
+	Item
+
+	Handler() any
+}
+
 // Generic is the simplest Item implementation
 type Generic interface {
 	Item

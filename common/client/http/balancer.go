@@ -44,7 +44,7 @@ type Balancer interface {
 	PickEndpoint(path string) (*httputil.ReverseProxy, error)
 }
 
-func NewBalancer() Balancer {
+func NewBalancer(excludeId string) Balancer {
 	var clusterConfig *client.ClusterConfig
 	config.Get("cluster").Default(&client.ClusterConfig{}).Scan(&clusterConfig)
 	clientConfig := clusterConfig.GetClientConfig("http")
@@ -56,12 +56,14 @@ func NewBalancer() Balancer {
 	return &balancer{
 		readyProxies: map[string]*reverseProxy{},
 		options:      opts,
+		excludeID:    excludeId,
 	}
 }
 
 type balancer struct {
 	readyProxies map[string]*reverseProxy
 	options      *client.BalancerOptions
+	excludeID    string
 }
 
 type reverseProxy struct {
@@ -93,6 +95,10 @@ func (b *balancer) Build(reg registry.Registry) error {
 		return err
 	}
 	for _, srv := range srvs {
+		if b.excludeID != "" && srv.ID() == b.excludeID {
+			continue
+		}
+
 		addrs := reg.ListAdjacentItems(srv, registry.WithType(pb.ItemType_ADDRESS))
 		for _, addr := range addrs {
 			addr := addr.Name()

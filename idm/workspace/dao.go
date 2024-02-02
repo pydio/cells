@@ -25,9 +25,6 @@ package workspace
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/storage"
-	"gorm.io/gorm"
-
 	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/sql/resources"
 )
@@ -38,19 +35,11 @@ type DAO interface {
 
 	// Add creates or updates a workspace in the database.
 	// It returns true in case of an update.
-	Add(interface{}) (bool, error)
-	Del(sql.Enquirer) (numRows int64, e error)
-	Search(sql.Enquirer, *[]interface{}) error
+	Add(context.Context, interface{}) (bool, error)
+	Del(context.Context, sql.Enquirer) (numRows int64, e error)
+	Search(context.Context, sql.Enquirer, *[]interface{}) error
 }
 
-func NewDAO(ctx context.Context) (DAO, error) {
-	var db *gorm.DB
-
-	if storage.Get(ctx, &db) {
-		return &sqlimpl{
-			db: db,
-		}, nil
-	}
-
-	return nil, storage.NotFound
+func NewDAO(ctx context.Context) DAO {
+	return &sqlimpl{}
 }

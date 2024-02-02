@@ -22,111 +22,69 @@ package resources
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"gorm.io/gorm"
+	"sync"
 	"time"
 
 	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 // ResourcesGORM implements the SQL interface.
 type ResourcesGORM struct {
 	*gorm.DB
 
-	instance func() *gorm.DB
+	once *sync.Once
 
 	LeftIdentifier string
 }
 
-func (s *ResourcesGORM) ID() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *ResourcesGORM) Metadata() map[string]string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *ResourcesGORM) As(i interface{}) bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *ResourcesGORM) Driver() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *ResourcesGORM) Dsn() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *ResourcesGORM) GetConn(ctx context.Context) (dao.Conn, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *ResourcesGORM) SetConn(ctx context.Context, conn dao.Conn) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *ResourcesGORM) CloseConn(ctx context.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *ResourcesGORM) Prefix() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *ResourcesGORM) LocalAccess() bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *ResourcesGORM) Stats() map[string]interface{} {
-	//TODO implement me
-	panic("implement me")
-}
-
 // Init performs necessary up migration.
-func (s *ResourcesGORM) Init(ctx context.Context, options configx.Values) error {
+//func (s *ResourcesGORM) Init(ctx context.Context, options configx.Values) error {
+//
+//	s.instance = func() *gorm.DB {
+//		return s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_role_policies")
+//	}
+//
+//	s.instance().AutoMigrate(&service.ResourcePolicyORM{})
+//
+//	//c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "30s", "cleanWindow", "2m"))
+//	//s.cache = c
+//
+//	return nil
+//}
 
-	s.instance = func() *gorm.DB {
-		return s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).Table("idm_role_policies")
+func (s *ResourcesGORM) instance(ctx context.Context) *gorm.DB {
+	if s.once == nil {
+		s.once = &sync.Once{}
 	}
 
-	s.instance().AutoMigrate(&service.ResourcePolicyORM{})
+	db := s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
 
-	//c, _ := cache.OpenCache(context.TODO(), runtime.ShortCacheURL("evictionTime", "30s", "cleanWindow", "2m"))
-	//s.cache = c
+	s.once.Do(func() {
+		db.AutoMigrate(&service.ResourcePolicyORM{})
+	})
 
-	return nil
+	return db
 }
 
 // AddPolicy persists a policy in the underlying storage
-func (s *ResourcesGORM) AddPolicy(resourceId string, policy *service.ResourcePolicy) error {
+func (s *ResourcesGORM) AddPolicy(ctx context.Context, resourceId string, policy *service.ResourcePolicy) error {
 
 	// s.cache.Delete(resourceId)
 
 	policy.Resource = resourceId
 
-	return s.instance().Create((*service.ResourcePolicyORM)(policy)).Error
+	return s.instance(ctx).Create((*service.ResourcePolicyORM)(policy)).Error
 }
 
 // AddPolicies persists a set of policies. If update is true, it replace them by deleting existing ones
-func (s *ResourcesGORM) AddPolicies(update bool, resourceId string, policies []*service.ResourcePolicy) error {
+func (s *ResourcesGORM) AddPolicies(ctx context.Context, update bool, resourceId string, policies []*service.ResourcePolicy) error {
 
 	// s.cache.Delete(resourceId)
 
-	return s.instance().Transaction(func(tx *gorm.DB) error {
+	return s.instance(ctx).Transaction(func(tx *gorm.DB) error {
 		if update {
 			if err := tx.Where(&service.ResourcePolicyORM{Resource: resourceId}).Delete(&service.ResourcePolicyORM{}).Error; err != nil {
 				return err
@@ -145,7 +103,7 @@ func (s *ResourcesGORM) AddPolicies(update bool, resourceId string, policies []*
 }
 
 // GetPoliciesForResource finds all policies for a given resource
-func (s *ResourcesGORM) GetPoliciesForResource(resourceId string) ([]*service.ResourcePolicy, error) {
+func (s *ResourcesGORM) GetPoliciesForResource(ctx context.Context, resourceId string) ([]*service.ResourcePolicy, error) {
 
 	//var rules []*service.ResourcePolicy
 	//if s.cache.Get(resourceId, &rules) {
@@ -157,7 +115,7 @@ func (s *ResourcesGORM) GetPoliciesForResource(resourceId string) ([]*service.Re
 	timeout, cancel := context.WithTimeout(context.Background(), 50*time.Second)
 	defer cancel()
 
-	if err := s.instance().WithContext(timeout).Find(&res, &service.ResourcePolicyORM{Resource: resourceId}).Error; err != nil {
+	if err := s.instance(ctx).WithContext(timeout).Find(&res, &service.ResourcePolicyORM{Resource: resourceId}).Error; err != nil {
 		return nil, err
 	}
 
@@ -167,15 +125,44 @@ func (s *ResourcesGORM) GetPoliciesForResource(resourceId string) ([]*service.Re
 }
 
 // DeletePoliciesForResource removes all policies for a given resource
-func (s *ResourcesGORM) DeletePoliciesForResource(resourceId string) error {
+func (s *ResourcesGORM) DeletePoliciesForResource(ctx context.Context, resourceId string) error {
 
 	//s.cache.Delete(resourceId)
 
-	return s.instance().Delete(&service.ResourcePolicyORM{}, &service.ResourcePolicyORM{Resource: resourceId}).Error
+	return s.instance(ctx).Delete(&service.ResourcePolicyORM{}, &service.ResourcePolicyORM{Resource: resourceId}).Error
+}
+
+// GetPoliciesForSubject finds all policies with a given subject
+func (s *ResourcesGORM) GetPoliciesForSubject(ctx context.Context, subject string) ([]*service.ResourcePolicy, error) {
+	var res []*service.ResourcePolicy
+
+	timeout, cancel := context.WithTimeout(context.Background(), 50*time.Second)
+	defer cancel()
+
+	if err := s.instance(ctx).WithContext(timeout).Find(&res, &service.ResourcePolicyORM{Subject: subject}).Error; err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+// ReplacePoliciesSubject set a new subject to all policies with the old subject
+func (s *ResourcesGORM) ReplacePoliciesSubject(ctx context.Context, oldSubject, newSubject string) (int, error) {
+
+	timeout, cancel := context.WithTimeout(context.Background(), 50*time.Second)
+	defer cancel()
+
+	tx := s.instance(ctx).WithContext(timeout).Where(&service.ResourcePolicyORM{Subject: oldSubject}).Updates(&service.ResourcePolicyORM{Subject: newSubject})
+	if err := tx.Error; err != nil {
+		return 0, err
+	}
+
+	return int(tx.RowsAffected), nil
+
 }
 
 // DeletePoliciesBySubject removes all policies for a given resource
-func (s *ResourcesGORM) DeletePoliciesBySubject(subject string) error {
+func (s *ResourcesGORM) DeletePoliciesBySubject(ctx context.Context, subject string) error {
 
 	// Delete cache items that would contain this subject
 	//s.cache.Iterate(func(key string, val interface{}) {
@@ -189,20 +176,20 @@ func (s *ResourcesGORM) DeletePoliciesBySubject(subject string) error {
 	//	}
 	//})
 
-	return s.instance().Delete(&service.ResourcePolicyORM{}, &service.ResourcePolicyORM{Subject: subject}).Error
+	return s.instance(ctx).Delete(&service.ResourcePolicyORM{}, &service.ResourcePolicyORM{Subject: subject}).Error
 }
 
 // DeletePoliciesForResourceAndAction removes policies for a given resource only if they have the corresponding action
-func (s *ResourcesGORM) DeletePoliciesForResourceAndAction(resourceId string, action service.ResourcePolicyAction) error {
+func (s *ResourcesGORM) DeletePoliciesForResourceAndAction(ctx context.Context, resourceId string, action service.ResourcePolicyAction) error {
 
 	//s.cache.Delete(resourceId)
 
-	return s.instance().Delete(&service.ResourcePolicyORM{}, &service.ResourcePolicyORM{Resource: resourceId, Action: action}).Error
+	return s.instance(ctx).Delete(&service.ResourcePolicyORM{}, &service.ResourcePolicyORM{Resource: resourceId, Action: action}).Error
 
 }
 
 // BuildPolicyConditionForAction builds an ResourcesSQL condition from claims toward the associated resource table
-func (s *ResourcesGORM) BuildPolicyConditionForAction(q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (out any, e error) {
+func (s *ResourcesGORM) BuildPolicyConditionForAction(ctx context.Context, q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (out any, e error) {
 	if q == nil || q.Any {
 		return nil, nil
 	}
@@ -211,9 +198,9 @@ func (s *ResourcesGORM) BuildPolicyConditionForAction(q *service.ResourcePolicyQ
 	subjects := q.GetSubjects()
 
 	if q.Empty {
-		subQuery := s.DB.Model(&service.ResourcePolicyORM{}).Select("1").Where(&service.ResourcePolicyORM{Resource: leftIdentifier, Action: action})
+		subQuery := s.instance(ctx).Model(&service.ResourcePolicyORM{}).Select("1").Where(&service.ResourcePolicyORM{Resource: leftIdentifier, Action: action})
 
-		return s.DB.Not("EXISTS(?)", subQuery), nil
+		return s.instance(ctx).Not("EXISTS(?)", subQuery), nil
 
 	} else {
 		subQuery := s.DB.Model(&service.ResourcePolicyORM{}).Select("1").Where(&service.ResourcePolicyORM{Resource: leftIdentifier, Action: action})
@@ -226,14 +213,14 @@ func (s *ResourcesGORM) BuildPolicyConditionForAction(q *service.ResourcePolicyQ
 			subQuery.Where(subjectQuery)
 		}
 
-		return s.DB.Where("EXISTS(?)", subQuery), nil
+		return s.instance(ctx).Where("EXISTS(?)", subQuery), nil
 	}
 
 	return
 }
 
 // Convert a policy query to conditions from claims toward the associated resource table
-func (s *ResourcesGORM) Convert(val *anypb.Any, in any) (out any, ok bool) {
+func (s *ResourcesGORM) Convert(ctx context.Context, val *anypb.Any, in any) (out any, ok bool) {
 	db, ok := in.(*gorm.DB)
 	if !ok {
 		return in, false
@@ -247,15 +234,15 @@ func (s *ResourcesGORM) Convert(val *anypb.Any, in any) (out any, ok bool) {
 	db = db.Session(&gorm.Session{})
 
 	if q.Empty {
-		subQuery := s.instance().Select("resource").Where(&service.ResourcePolicyORM{Action: service.ResourcePolicyAction_ANY})
+		subQuery := s.instance(ctx).Model(&service.ResourcePolicyORM{}).Select("resource").Where(&service.ResourcePolicyORM{Action: service.ResourcePolicyAction_ANY})
 
 		db = db.Not("uuid IN(?)", subQuery)
 	} else {
 		subjects := q.GetSubjects()
 
-		subQuery := s.instance().Select("resource")
+		subQuery := s.instance(ctx).Model(&service.ResourcePolicyORM{}).Select("resource")
 		if len(subjects) > 0 {
-			subjectQuery := s.instance()
+			subjectQuery := s.instance(ctx)
 			for i, subject := range subjects {
 				if i == 0 {
 					subjectQuery = subjectQuery.Where(&service.ResourcePolicyORM{Subject: subject})

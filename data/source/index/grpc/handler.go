@@ -49,7 +49,7 @@ import (
 // TreeServer definition.
 type TreeServer struct {
 	// dao
-	dao          index.DAO
+	DAO          index.DAO
 	sessionStore sessions.DAO
 
 	handlerName string
@@ -95,7 +95,7 @@ func (s *TreeServer) getDAO(ctx context.Context, session string) index.DAO {
 		return index.NewDAOCache(session, s.dao).(index.DAO)
 	}
 
-	dao, _ := index.NewDAO(ctx)
+	dao := index.NewDAO(ctx)
 	return dao
 }
 

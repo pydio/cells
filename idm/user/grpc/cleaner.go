@@ -28,19 +28,15 @@ import (
 
 // RolesCleaner listen for roles deletion and clear the users accordingly
 type RolesCleaner struct {
+	DAO user.DAO
 }
 
 func (c *RolesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 
-	dao, err := user.NewDAO(ctx)
-	if err != nil {
-		return err
-	}
-
 	if msg.Type == idm.ChangeEventType_DELETE && msg.Role != nil {
-		return dao.CleanRole(ctx, msg.Role.Uuid)
+		return c.DAO.CleanRole(ctx, msg.Role.Uuid)
 	} else if msg.Type == idm.ChangeEventType_LOGIN && msg.User != nil {
-		return dao.TouchUser(ctx, msg.User.Uuid)
+		return c.DAO.TouchUser(ctx, msg.User.Uuid)
 	}
 
 	return nil

@@ -33,7 +33,6 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
@@ -46,7 +45,6 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/permissions"
-	"github.com/pydio/cells/v4/common/utils/queue"
 	"github.com/pydio/cells/v4/common/utils/std"
 )
 
@@ -104,73 +102,74 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 	PubSub = pubsub.New(0)
 
 	s.rootCtx = context.WithValue(parentContext, common.PydioContextUserKey, common.PydioSystemUsername)
-	treeQu, er := queue.OpenQueue(s.rootCtx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", common.TopicTreeChanges))
-	if er != nil {
-		log.Logger(s.rootCtx).Error("Cannot start treeQueue, using an in-memory instead", zap.Error(er))
-		treeQu, _ = queue.OpenQueue(s.rootCtx, runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000"))
-	}
-	metaQu, er := queue.OpenQueue(s.rootCtx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", common.TopicMetaChanges))
-	if er != nil {
-		log.Logger(s.rootCtx).Error("Cannot start metaQueue, using an in-memory instead", zap.Error(er))
-		metaQu, _ = queue.OpenQueue(s.rootCtx, runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000"))
-	}
+	//treeQu, er := queue.OpenQueue(s.rootCtx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", common.TopicTreeChanges))
+	//if er != nil {
+	//	log.Logger(s.rootCtx).Error("Cannot start treeQueue, using an in-memory instead", zap.Error(er))
+	//	treeQu, _ = queue.OpenQueue(s.rootCtx, runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000"))
+	//}
+	// TODO
+	//metaQu, er := queue.OpenQueue(s.rootCtx, runtime.PersistingQueueURL("serviceName", common.ServiceGrpcNamespace_+common.ServiceTasks, "name", common.TopicMetaChanges))
+	//if er != nil {
+	//	log.Logger(s.rootCtx).Error("Cannot start metaQueue, using an in-memory instead", zap.Error(er))
+	//	metaQu, _ = queue.OpenQueue(s.rootCtx, runtime.QueueURL("debounce", "2s", "idle", "20s", "max", "2000"))
+	//}
 
-	queueOpt := broker.Queue("tasks")
-	counterOpt := broker.WithCounterName("tasks")
+	//queueOpt := broker.Queue("tasks")
+	//counterOpt := broker.WithCounterName("tasks")
 
-	_ = broker.SubscribeCancellable(parentContext, common.TopicTreeChanges, func(message broker.Message) error {
-		md, bb := message.RawData()
-		event := &tree.NodeChangeEvent{}
-		if e := proto.Unmarshal(bb, event); e == nil {
-			// Ignore events on Temporary nodes and internal nodes and optimistic
-			if event.Optimistic {
-				return nil
-			}
-			if event.Target != nil && (event.Target.Etag == common.NodeFlagEtagTemporary || event.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
-				return nil
-			}
-			if event.Type == tree.NodeChangeEvent_DELETE && event.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
-				return nil
-			}
-			s.processNodeEvent(metadata.NewContext(s.rootCtx, md), event)
-			return nil
-		} else {
-			return e
-		}
-	}, queueOpt, broker.WithLocalQueue(treeQu), counterOpt)
+	//_ = broker.SubscribeCancellable(parentContext, common.TopicTreeChanges, func(message broker.Message) error {
+	//	md, bb := message.RawData()
+	//	event := &tree.NodeChangeEvent{}
+	//	if e := proto.Unmarshal(bb, event); e == nil {
+	//		// Ignore events on Temporary nodes and internal nodes and optimistic
+	//		if event.Optimistic {
+	//			return nil
+	//		}
+	//		if event.Target != nil && (event.Target.Etag == common.NodeFlagEtagTemporary || event.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
+	//			return nil
+	//		}
+	//		if event.Type == tree.NodeChangeEvent_DELETE && event.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
+	//			return nil
+	//		}
+	//		s.processNodeEvent(metadata.NewContext(s.rootCtx, md), event)
+	//		return nil
+	//	} else {
+	//		return e
+	//	}
+	//}, queueOpt, broker.WithLocalQueue(treeQu), counterOpt)
 
-	_ = broker.SubscribeCancellable(parentContext, common.TopicTimerEvent, func(message broker.Message) error {
-		target := &jobs.JobTriggerEvent{}
-		if ctx, e := message.Unmarshal(target); e == nil {
-			return s.timerEvent(ctx, target)
-		}
-		return nil
-	}, queueOpt, counterOpt)
-
-	_ = broker.SubscribeCancellable(parentContext, common.TopicJobConfigEvent, func(message broker.Message) error {
-		js := &jobs.JobChangeEvent{}
-		if ctx, e := message.Unmarshal(js); e == nil {
-			return s.jobsChangeEvent(ctx, js)
-		}
-		return nil
-	}, queueOpt, counterOpt)
-
-	_ = broker.SubscribeCancellable(parentContext, common.TopicMetaChanges, func(message broker.Message) error {
-		target := &tree.NodeChangeEvent{}
-		md, bb := message.RawData()
-		if e := proto.Unmarshal(bb, target); e == nil && (target.Type == tree.NodeChangeEvent_UPDATE_META || target.Type == tree.NodeChangeEvent_UPDATE_USER_META) {
-			s.processNodeEvent(metadata.NewContext(s.rootCtx, md), target)
-		}
-		return nil
-	}, queueOpt, broker.WithLocalQueue(metaQu), counterOpt)
-
-	_ = broker.SubscribeCancellable(parentContext, common.TopicIdmEvent, func(message broker.Message) error {
-		target := &idm.ChangeEvent{}
-		if ctx, e := message.Unmarshal(target); e == nil {
-			return s.idmEvent(ctx, target)
-		}
-		return nil
-	}, queueOpt, counterOpt)
+	//_ = broker.SubscribeCancellable(parentContext, common.TopicTimerEvent, func(message broker.Message) error {
+	//	target := &jobs.JobTriggerEvent{}
+	//	if ctx, e := message.Unmarshal(target); e == nil {
+	//		return s.timerEvent(ctx, target)
+	//	}
+	//	return nil
+	//}, queueOpt, counterOpt)
+	//
+	//_ = broker.SubscribeCancellable(parentContext, common.TopicJobConfigEvent, func(message broker.Message) error {
+	//	js := &jobs.JobChangeEvent{}
+	//	if ctx, e := message.Unmarshal(js); e == nil {
+	//		return s.jobsChangeEvent(ctx, js)
+	//	}
+	//	return nil
+	//}, queueOpt, counterOpt)
+	//
+	//_ = broker.SubscribeCancellable(parentContext, common.TopicMetaChanges, func(message broker.Message) error {
+	//	target := &tree.NodeChangeEvent{}
+	//	md, bb := message.RawData()
+	//	if e := proto.Unmarshal(bb, target); e == nil && (target.Type == tree.NodeChangeEvent_UPDATE_META || target.Type == tree.NodeChangeEvent_UPDATE_USER_META) {
+	//		s.processNodeEvent(metadata.NewContext(s.rootCtx, md), target)
+	//	}
+	//	return nil
+	//}, queueOpt, broker.WithLocalQueue(metaQu), counterOpt)
+	//
+	//_ = broker.SubscribeCancellable(parentContext, common.TopicIdmEvent, func(message broker.Message) error {
+	//	target := &idm.ChangeEvent{}
+	//	if ctx, e := message.Unmarshal(target); e == nil {
+	//		return s.idmEvent(ctx, target)
+	//	}
+	//	return nil
+	//}, queueOpt, counterOpt)
 
 	//s.listenToQueue()
 	s.taskChannelSubscription()

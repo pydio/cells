@@ -3,13 +3,14 @@ package auth
 import (
 	"context"
 	"errors"
+	"strings"
+	"time"
+
+	"github.com/go-jose/go-jose/v3"
 	"github.com/ory/hydra/v2/oauth2/trust"
 	"github.com/ory/x/sqlcon"
 	"github.com/ory/x/stringsx"
-	"gopkg.in/square/go-jose.v2"
 	"gorm.io/gorm"
-	"strings"
-	"time"
 )
 
 var _ trust.GrantManager = new(trustDriver)

@@ -23,16 +23,15 @@ package grpc
 
 import (
 	"context"
-
+	"github.com/pydio/cells/v4/common/dao/mysql"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/data/meta"
 )
 
@@ -42,43 +41,41 @@ var (
 
 func init() {
 	runtime.Register("main", func(ctx context.Context) {
-		var s service.Service
-
-		s = service.NewService(
+		service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Metadata server for tree nodes"),
 			service.Unique(true),
-			//service.WithTODOStorage(meta.NewDAO, commonsql.NewDAO,
-			//	service.WithStoragePrefix("data_meta"),
-			//	service.WithStorageSupport(mysql.Driver, sqlite.Driver),
-			//),
+			service.WithStorage(
+				"DAO",
+				meta.NewDAO,
+				service.WithStoragePrefix("data_meta"),
+				service.WithStorageSupport(mysql.Driver, sqlite.Driver),
+			),
+			service.WithGRPC(func(ctx context.Context, srv grpc.ServiceRegistrar) error {
+				engine := NewMetaServer(ctx)
+
+				tree.RegisterNodeProviderServer(srv, engine)
+				tree.RegisterNodeProviderStreamerServer(srv, engine)
+				tree.RegisterNodeReceiverServer(srv, engine)
+				tree.RegisterSearcherServer(srv, engine)
+
+				// Register Subscribers
+				sub := engine.Subscriber(ctx)
+				if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
+					msg := &tree.NodeChangeEvent{}
+					if e := message.Unmarshal(msg); e == nil {
+						return sub.Handle(ctx, msg)
+					}
+					return nil
+				}, broker.WithCounterName("data_meta")); e != nil {
+					engine.Stop()
+					panic(e)
+				}
+
+				return nil
+			}),
 		)
-
-		var srv grpc.ServiceRegistrar
-		if !server.Get(&srv) {
-			panic("no grpc server available")
-		}
-
-		engine := NewMetaServer(ctx, s)
-
-		tree.RegisterNodeProviderServer(srv, engine)
-		tree.RegisterNodeProviderStreamerServer(srv, engine)
-		tree.RegisterNodeReceiverServer(srv, engine)
-		tree.RegisterSearcherServer(srv, engine)
-
-		// Register Subscribers
-		sub := engine.Subscriber(ctx)
-		if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(ctx context.Context, message broker.Message) error {
-			msg := &tree.NodeChangeEvent{}
-			if e := message.Unmarshal(msg); e == nil {
-				return sub.Handle(ctx, msg)
-			}
-			return nil
-		}, broker.WithCounterName("data_meta")); e != nil {
-			engine.Stop()
-			panic(e)
-		}
 	})
 }

@@ -24,11 +24,11 @@ import (
 	"context"
 	"embed"
 	"errors"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strconv"
+	"sync"
 	"time"
 
 	"google.golang.org/protobuf/proto"
@@ -87,92 +87,41 @@ type Node struct {
 }
 
 type sqlimpl struct {
-	// sql.DAO
+	DB *gorm.DB
 
-	db       *gorm.DB
-	instance func(ctx context.Context) *gorm.DB
-}
-
-func (s *sqlimpl) Name() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) ID() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Metadata() map[string]string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) As(i interface{}) bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Driver() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Dsn() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) GetConn(ctx context.Context) (dao.Conn, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) SetConn(ctx context.Context, conn dao.Conn) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) CloseConn(ctx context.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Prefix() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) LocalAccess() bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sqlimpl) Stats() map[string]interface{} {
-	//TODO implement me
-	panic("implement me")
+	once *sync.Once
 }
 
 // Init handler for the SQL DAO
 func (s *sqlimpl) Init(ctx context.Context, options configx.Values) error {
-
-	db := s.db
-
-	s.instance = func(ctx context.Context) *gorm.DB { return db.Session(&gorm.Session{SkipDefaultTransaction: true}) }
 
 	s.instance(ctx).AutoMigrate(&ACL{}, &Role{}, &Workspace{}, &Node{})
 
 	return nil
 }
 
+func (s *sqlimpl) instance(ctx context.Context) *gorm.DB {
+	if s.once == nil {
+		s.once = &sync.Once{}
+	}
+
+	db := s.DB.Session(&gorm.Session{SkipDefaultTransaction: true}).WithContext(ctx)
+
+	s.once.Do(func() {
+		db.AutoMigrate(&ACL{}, &Role{}, &Workspace{}, &Node{})
+	})
+
+	return db
+}
+
 // Add inserts an ACL to the underlying SQL DB
-func (s *sqlimpl) Add(in interface{}) error {
-	return s.addWithDupCheck(in, true)
+func (s *sqlimpl) Add(ctx context.Context, in interface{}) error {
+	return s.addWithDupCheck(ctx, in, true)
 }
 
 // addWithDupCheck insert and override existing value if it's a
 // duplicate key and the ACL is expired
-func (s *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
+func (s *sqlimpl) addWithDupCheck(ctx context.Context, in interface{}, check bool) error {
 
 	val, ok := in.(*idm.ACL)
 	if !ok {
@@ -187,7 +136,7 @@ func (s *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 	if workspace.UUID != "" {
 		workspace.UUID = val.GetWorkspaceID()
 
-		tx := s.instance(context.TODO()).FirstOrCreate(&workspace)
+		tx := s.instance(ctx).FirstOrCreate(&workspace)
 		if tx.Error != nil {
 			return tx.Error
 		}
@@ -195,7 +144,7 @@ func (s *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 
 	node := Node{UUID: val.GetNodeID()}
 	if node.UUID != "" {
-		tx := s.instance(context.TODO()).FirstOrCreate(&node)
+		tx := s.instance(ctx).FirstOrCreate(&node)
 		if tx.Error != nil {
 			return tx.Error
 		}
@@ -203,13 +152,13 @@ func (s *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 
 	role := Role{UUID: val.GetRoleID()}
 	if role.UUID != "" {
-		tx := s.instance(context.TODO()).FirstOrCreate(&role)
+		tx := s.instance(ctx).FirstOrCreate(&role)
 		if tx.Error != nil {
 			return tx.Error
 		}
 	}
 
-	log.Logger(context.Background()).Debug("AddACL", zap.String("r", role.UUID), zap.String("w", workspace.UUID), zap.String("n", node.UUID), zap.Any("value", val))
+	log.Logger(ctx).Debug("AddACL", zap.String("r", role.UUID), zap.String("w", workspace.UUID), zap.String("n", node.UUID), zap.Any("value", val))
 
 	acl := ACL{
 		ActionName:  val.Action.Name,
@@ -219,7 +168,7 @@ func (s *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 		Node:        node,
 	}
 
-	tx := s.instance(context.TODO()).Create(&acl)
+	tx := s.instance(ctx).Create(&acl)
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -232,8 +181,8 @@ func (s *sqlimpl) addWithDupCheck(in interface{}, check bool) error {
 }
 
 // Search in the underlying SQL DB.
-func (s *sqlimpl) Search(query sql.Enquirer, out *[]interface{}, period *ExpirationPeriod) error {
-	db := sql.NewGormQueryBuilder(query, new(queryConverter)).Build(s.instance(context.TODO())).(*gorm.DB)
+func (s *sqlimpl) Search(ctx context.Context, query sql.Enquirer, out *[]interface{}, period *ExpirationPeriod) error {
+	db := sql.NewGormQueryBuilder(query, new(queryConverter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
 
 	if query.GetOffset() > 0 {
 		db.Offset(int(query.GetOffset()))
@@ -269,9 +218,9 @@ func (s *sqlimpl) Search(query sql.Enquirer, out *[]interface{}, period *Expirat
 }
 
 // SetExpiry sets an expiry timestamp on the acl
-func (s *sqlimpl) SetExpiry(query sql.Enquirer, t time.Time, period *ExpirationPeriod) (int64, error) {
+func (s *sqlimpl) SetExpiry(ctx context.Context, query sql.Enquirer, t time.Time, period *ExpirationPeriod) (int64, error) {
 
-	db := sql.NewGormQueryBuilder(query, new(queryConverter)).Build(s.instance(context.TODO())).(*gorm.DB)
+	db := sql.NewGormQueryBuilder(query, new(queryConverter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
 
 	if period != nil {
 		if !period.End.IsZero() {
@@ -291,9 +240,9 @@ func (s *sqlimpl) SetExpiry(query sql.Enquirer, t time.Time, period *ExpirationP
 }
 
 // Del from the sql DB.
-func (s *sqlimpl) Del(query sql.Enquirer, period *ExpirationPeriod) (int64, error) {
+func (s *sqlimpl) Del(ctx context.Context, query sql.Enquirer, period *ExpirationPeriod) (int64, error) {
 
-	db := sql.NewGormQueryBuilder(query, new(queryConverter)).Build(s.instance(context.TODO())).(*gorm.DB)
+	db := sql.NewGormQueryBuilder(query, new(queryConverter)).Build(ctx, s.instance(ctx)).(*gorm.DB)
 
 	if period != nil {
 		if !period.End.IsZero() {
@@ -336,7 +285,7 @@ func (s *sqlimpl) Del(query sql.Enquirer, period *ExpirationPeriod) (int64, erro
 
 type queryConverter idm.ACLSingleQuery
 
-func (c *queryConverter) Convert(val *anypb.Any, in any) (out any, ok bool) {
+func (c *queryConverter) Convert(ctx context.Context, val *anypb.Any, in any) (out any, ok bool) {
 
 	q := new(idm.ACLSingleQuery)
 

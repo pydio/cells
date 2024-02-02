@@ -23,6 +23,7 @@ package service
 import (
 	"io"
 
+	"github.com/bufbuild/protovalidate-go"
 	restful "github.com/emicklei/go-restful/v3"
 	validator "github.com/mwitkow/go-proto-validators"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -31,19 +32,25 @@ import (
 
 // ProtoEntityReaderWriter can read and write values using an encoding such as JSON,XML.
 type ProtoEntityReaderWriter struct {
+	validator protovalidate.Validator
 }
 
 // Read a serialized version of the value from the request.
 // The Request may have a decompressing reader. Depends on Content-Encoding.
 func (e *ProtoEntityReaderWriter) Read(req *restful.Request, v interface{}) error {
 	pb := v.(proto.Message)
-	bb, ee := io.ReadAll(req.Request.Body)
-	if ee != nil {
-		return ee
+	bb, err := io.ReadAll(req.Request.Body)
+	if err != nil {
+		return err
 	}
-	if e := protojson.Unmarshal(bb, pb); e != nil {
-		return e
+	if err := protojson.Unmarshal(bb, pb); err != nil {
+		return err
 	}
+
+	if err := e.validator.Validate(pb); err != nil {
+		return err
+	}
+
 	if valid, ok := pb.(validator.Validator); ok {
 		return valid.Validate()
 	}

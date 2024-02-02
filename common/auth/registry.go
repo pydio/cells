@@ -30,14 +30,18 @@ import (
 	"github.com/ory/fosite/compose"
 	"github.com/ory/fosite/handler/openid"
 	"github.com/ory/herodot"
+	"github.com/ory/hydra/v2/aead"
 	"github.com/ory/hydra/v2/fositex"
 	"github.com/ory/hydra/v2/hsm"
 	"github.com/ory/hydra/v2/persistence"
+	"github.com/ory/hydra/v2/persistence/sql"
 	"github.com/ory/hydra/v2/spec"
 	"github.com/ory/x/httpx"
 	"github.com/ory/x/logrusx"
+	"github.com/ory/x/networkx"
 	"github.com/ory/x/otelx"
 	"github.com/ory/x/popx"
+
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -123,6 +127,31 @@ type sqlPersister struct {
 	*trustDriver
 }
 
+func (c *sqlPersister) NewNonce(ctx context.Context, accessToken string, expiresAt time.Time) (string, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *sqlPersister) IsNonceValid(ctx context.Context, accessToken string, nonce string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *sqlPersister) Authenticate(ctx context.Context, name string, secret string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *sqlPersister) NetworkID(ctx context.Context) uuid.UUID {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *sqlPersister) DetermineNetwork(ctx context.Context) (*networkx.Network, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (c *sqlPersister) MigrationStatus(ctx context.Context) (popx.MigrationStatuses, error) {
 	return popx.MigrationStatuses{}, nil
 }
@@ -163,8 +192,9 @@ func (c *sqlPersister) Ping() error {
 
 type cellsdriver struct {
 	persister persistence.Persister
-	db        *gorm.DB
-	cfg       *hconfig.DefaultProvider
+	sql.Dependencies
+	db  *gorm.DB
+	cfg *hconfig.DefaultProvider
 }
 
 func NewRegistrySQL() *cellsdriver {
@@ -288,6 +318,10 @@ func (m *cellsdriver) ClientHasher() fosite.Hasher {
 	return x.NewHasher(m.Config())
 }
 
+func (m *cellsdriver) ExtraFositeFactories() []fositex.Factory {
+	return []fositex.Factory{}
+}
+
 func (m *cellsdriver) OpenIDJWTStrategy() jwk.JWTSigner {
 	return jwk.NewDefaultJWTSigner(m.Config(), m, x.OpenIDConnectKeyName)
 }
@@ -405,7 +439,7 @@ func (m *cellsdriver) OAuth2ProviderConfig() fosite.Configurator {
 		Config:          conf,
 	}
 
-	conf.LoadDefaultHanlders(&compose.CommonStrategy{
+	conf.LoadDefaultHandlers(&compose.CommonStrategy{
 		CoreStrategy: fositex.NewTokenStrategy(m.Config(), hmacAtStrategy, &foauth2.DefaultJWTStrategy{
 			Signer:          jwtAtStrategy,
 			HMACSHAStrategy: hmacAtStrategy,
@@ -421,8 +455,8 @@ func (m *cellsdriver) OAuth2ProviderConfig() fosite.Configurator {
 	return conf
 }
 
-func (m *cellsdriver) KeyCipher() *jwk.AEAD {
-	return jwk.NewAEAD(m.Config())
+func (m *cellsdriver) KeyCipher() *aead.AESGCM {
+	return aead.NewAESGCM(m.Config())
 }
 
 func (m *cellsdriver) GrantValidator() *trust.GrantValidator {
@@ -435,6 +469,15 @@ func (*cellsdriver) CanHandle(dsn string) bool {
 
 func (*cellsdriver) Contextualizer() contextx.Contextualizer {
 	return &cellsdriverContextualizer{}
+}
+
+//func (m *cellsdriver) Kratos() kratos.Client {
+//	//TODO implement me
+//	panic("implement me")
+//}
+
+func (m *cellsdriver) FlowCipher() *aead.XChaCha20Poly1305 {
+	return aead.NewXChaCha20Poly1305(m.Config())
 }
 
 type cellsdriverContextualizer struct{}

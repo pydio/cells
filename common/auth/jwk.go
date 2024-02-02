@@ -2,15 +2,17 @@ package auth
 
 import (
 	"context"
+	"reflect"
+
+	"github.com/go-jose/go-jose/v3"
 	"github.com/ory/hydra/v2/jwk"
 	"github.com/ory/hydra/v2/x"
 	"github.com/ory/x/errorsx"
 	"github.com/pkg/errors"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"gopkg.in/square/go-jose.v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
-	"reflect"
+
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 var _ jwk.Manager = new(jwkDriver)
@@ -46,7 +48,7 @@ func (j *jwkDriver) addKey(db *gorm.DB, ctx context.Context, set string, key *jo
 		return err
 	}
 
-	encrypted, err := j.r.KeyCipher().Encrypt(ctx, out)
+	encrypted, err := j.r.KeyCipher().Encrypt(ctx, out, nil)
 	if err != nil {
 		return err
 	}
@@ -113,7 +115,7 @@ func (j *jwkDriver) GetKey(ctx context.Context, set, kid string) (*jose.JSONWebK
 		return nil, tx.Error
 	}
 
-	key, err := j.r.KeyCipher().Decrypt(ctx, data.Key)
+	key, err := j.r.KeyCipher().Decrypt(ctx, data.Key, nil)
 	if err != nil {
 		return nil, errorsx.WithStack(err)
 	}
@@ -140,7 +142,7 @@ func (j *jwkDriver) GetKeySet(ctx context.Context, set string) (*jose.JSONWebKey
 
 	keys := &jose.JSONWebKeySet{Keys: []jose.JSONWebKey{}}
 	for _, d := range data {
-		key, err := j.r.KeyCipher().Decrypt(ctx, d.Key)
+		key, err := j.r.KeyCipher().Decrypt(ctx, d.Key, nil)
 		if err != nil {
 			return nil, errorsx.WithStack(err)
 		}
