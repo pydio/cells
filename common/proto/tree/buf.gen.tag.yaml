@@ -1,7 +1,8 @@
 version: v1
 plugins:
   - name: go-tags
-    out: .
     opt: paths=source_relative
+    out: tree
   - name: go-setter
-    out: .
+    opt: paths=source_relative
+    out: tree
